@@ -30,10 +30,10 @@ class ProcMultiply : public TrainProcessor {
 
 	ProcMultiply(const char *name, const AtomicId *id,
 	             MVATrainer *trainer);
-	virtual ~ProcMultiply();
+	~ProcMultiply() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	typedef std::vector<unsigned int>	Config;

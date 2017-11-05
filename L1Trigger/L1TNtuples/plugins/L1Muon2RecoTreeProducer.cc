@@ -87,14 +87,14 @@ using namespace std;
 class L1Muon2RecoTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1Muon2RecoTreeProducer(const edm::ParameterSet&);
-  ~L1Muon2RecoTreeProducer();
+  ~L1Muon2RecoTreeProducer() override;
 
 
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
-  virtual void endJob();
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endJob() override;
 
 public:
   L1Analysis::L1AnalysisRecoMuon2*        muon;

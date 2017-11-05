@@ -117,7 +117,7 @@ public:
     typedef FFTJetCorrectorParametersRcd<CT> ParentRecord;
 
     FFTJetLookupTableESProducer(const edm::ParameterSet&);
-    virtual ~FFTJetLookupTableESProducer() {}
+    ~FFTJetLookupTableESProducer() override {}
 
     ReturnType produce(const MyRecord&);
 

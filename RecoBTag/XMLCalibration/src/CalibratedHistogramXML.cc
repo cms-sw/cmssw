@@ -13,7 +13,7 @@ void  CalibratedHistogramXML::read (XERCES_CPP_NAMESPACE::DOMElement * dom)
     int bin;
     for(bin=0; bin < size; bin ++)
     {
-        while( ( n1->getNodeType() != DOMNode::ELEMENT_NODE ) && ( n1 != 0 ) )   n1 = n1->getNextSibling();
+        while( ( n1->getNodeType() != DOMNode::ELEMENT_NODE ) && ( n1 != nullptr ) )   n1 = n1->getNextSibling();
           if (n1)
 	  {
 	      DOMElement * binElement = (DOMElement *) n1;

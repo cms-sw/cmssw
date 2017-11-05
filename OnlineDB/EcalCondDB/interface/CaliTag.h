@@ -16,7 +16,7 @@ class CaliTag : public ITag {
   friend class EcalCondDBInterface;
 
   CaliTag();
-  ~CaliTag();
+  ~CaliTag() override;
 
   // Methods for user data
   std::string getGeneralTag() const;
@@ -36,8 +36,8 @@ class CaliTag : public ITag {
 
 
   // Methods using ID
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   // Operators
   inline bool operator==(const CaliTag &t) const 

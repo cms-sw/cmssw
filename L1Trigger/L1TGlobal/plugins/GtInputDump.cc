@@ -56,8 +56,8 @@ namespace l1t {
   class GtInputDump : public edm::EDAnalyzer {
   public:
     explicit GtInputDump(const edm::ParameterSet&);
-    virtual ~GtInputDump(){};
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);  
+    ~GtInputDump() override{};
+    void analyze(const edm::Event&, const edm::EventSetup&) override;  
     
     EDGetToken egToken;
     EDGetToken muToken;

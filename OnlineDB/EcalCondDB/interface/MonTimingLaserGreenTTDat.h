@@ -6,7 +6,7 @@
 class MonTimingLaserGreenTTDat : public ITimingDat {
  public:
   // User data methods
-  inline std::string getTable() { return "MON_TIMING_TT_LG_DAT";}
+  inline std::string getTable() override { return "MON_TIMING_TT_LG_DAT";}
    
 };
 

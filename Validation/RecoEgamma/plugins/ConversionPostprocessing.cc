@@ -23,7 +23,7 @@ using namespace std;
 ConversionPostprocessing::ConversionPostprocessing(const edm::ParameterSet& pset)
 {
 
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
   parameters_ = pset;
@@ -176,7 +176,7 @@ void  ConversionPostprocessing::dividePlots(MonitorElement* dividend, MonitorEle
   double value,err;
   
   //quick fix to avoid seg. faults due to null pointers.
-  if (dividend==0 || numerator==0 || denominator==0)return;
+  if (dividend==nullptr || numerator==nullptr || denominator==nullptr)return;
 
   for (int j=1; j<=numerator->getNbinsX(); j++){
 
@@ -205,7 +205,7 @@ void  ConversionPostprocessing::dividePlots(MonitorElement* dividend, MonitorEle
   double value,err;
 
   //quick fix to avoid seg. faults due to null pointers.
-  if (dividend==0 || numerator==0 )return;
+  if (dividend==nullptr || numerator==nullptr )return;
 
   for (int j=1; j<=numerator->getNbinsX(); j++){
     if (denominator!=0){

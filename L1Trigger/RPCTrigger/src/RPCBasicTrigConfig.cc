@@ -8,7 +8,7 @@ RPCBasicTrigConfig::RPCBasicTrigConfig(RPCPacManager<RPCPacData>* pacManager) {
 
 /// Ctor
 RPCBasicTrigConfig::RPCBasicTrigConfig() {
-  m_PacManager  = 0;
+  m_PacManager  = nullptr;
 }
 
 /** Converts TC GB-Sorter output m_tower address <0...31> ("m_tower number continous")

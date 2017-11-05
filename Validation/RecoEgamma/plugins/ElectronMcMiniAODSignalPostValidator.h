@@ -8,8 +8,8 @@ class ElectronMcSignalPostValidatorMiniAOD : public ElectronDqmHarvesterBase
  {
   public:
     explicit ElectronMcSignalPostValidatorMiniAOD( const edm::ParameterSet & conf ) ;
-    virtual ~ElectronMcSignalPostValidatorMiniAOD() ;
-    virtual void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) ; 
+    ~ElectronMcSignalPostValidatorMiniAOD() override ;
+    void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) override ; 
 
   private:
     std::string inputFile_ ;

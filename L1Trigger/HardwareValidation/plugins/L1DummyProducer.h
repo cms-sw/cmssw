@@ -40,14 +40,14 @@ class L1DummyProducer : public edm::EDProducer {
  public:
 
   explicit L1DummyProducer(const edm::ParameterSet&);
-  ~L1DummyProducer();
+  ~L1DummyProducer() override;
   
  private:
 
-  virtual void beginJob(void) {};
+  void beginJob(void) override {};
   //virtual void beginRun(edm::Run&, const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {};
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {};
 
  public:
 
@@ -108,7 +108,7 @@ L1DummyProducer::SimpleDigi(CLHEP::HepRandomEngine* engine, std::unique_ptr<Hcal
   const HcalTrigTowerDetId h_id(side*ieta, iphi);
   HcalTriggerPrimitiveDigi h_digi(h_id);
   int energy = (int) (EBase_ + ESigm_*CLHEP::RandGaussQ::shoot(engine));
-  HcalTriggerPrimitiveSample h_sample(energy, 0, 0, 0);
+  HcalTriggerPrimitiveSample h_sample(energy, false, 0, 0);
   h_digi.setSize(1); //set sampleOfInterest to 0
   h_digi.setSample(0,h_sample);
   data->push_back(h_digi);
@@ -145,10 +145,10 @@ L1DummyProducer::SimpleDigi(CLHEP::HepRandomEngine* engine, std::unique_ptr<L1Ca
     std::cout << "L1DummyProducer::SimpleDigi<L1CaloRegionCollection>....\n" << std::flush;
   int     energy= (int) (EBase_ + ESigm_*CLHEP::RandGaussQ::shoot(engine));
   unsigned et	= energy & 0x3ff;
-  bool overFlow	= 0; //(engine->flat()>0.4);
-  bool tauVeto	= 0; //(engine->flat()>0.3);
-  bool mip	= 0; //(engine->flat()>0.1);
-  bool quiet	= 0; //(engine->flat()>0.6);
+  bool overFlow	= false; //(engine->flat()>0.4);
+  bool tauVeto	= false; //(engine->flat()>0.3);
+  bool mip	= false; //(engine->flat()>0.1);
+  bool quiet	= false; //(engine->flat()>0.6);
   unsigned crate= (unsigned)(18*engine->flat());
   unsigned card	= (unsigned)(7*engine->flat());
   unsigned rgn	= crate%2; //(engine->flat()>0.5?0:1);

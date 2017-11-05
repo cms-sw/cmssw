@@ -62,7 +62,7 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
     //    --> have a status 2 tau lepton in the list of descendents
     GenParticleRefVector status2TauDaughters;
     findDescendents( *iTau, status2TauDaughters, 2, 15 );
-    if ( status2TauDaughters.size() > 0 ) continue;
+    if ( !status2TauDaughters.empty() ) continue;
 
     // loop on descendents, and take all except neutrinos
     math::XYZTLorentzVector sumVisMom;

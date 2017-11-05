@@ -52,8 +52,8 @@ DTConfigTSPhi::DTConfigTSPhi(bool debugTS, unsigned short int tss_buffer[7][31],
   bool tsscce2, tsshte2, tssnoe2, tssccec, tsshtec, tssnoec;
   unsigned short  tssgs1, tssgs2, tssmsk1, tssmsk2;
 
-  tsscgs2 = tsscgs1 = tsscce1 = tsshte1 = tssnoe1 = carrytss = 0;
-  tsscce2 = tsshte2 = tssnoe2 = tssccec = tsshtec = tssnoec  = 0;
+  tsscgs2 = tsscgs1 = tsscce1 = tsshte1 = tssnoe1 = carrytss = false;
+  tsscce2 = tsshte2 = tssnoe2 = tssccec = tsshtec = tssnoec  = false;
   tssgs1 = tssgs2 = tssmsk1 = tssmsk2 = 0;
 
   memset(tstren,true,24*sizeof(bool));

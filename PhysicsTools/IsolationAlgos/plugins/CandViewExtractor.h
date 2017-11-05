@@ -23,10 +23,10 @@ public:
   CandViewExtractor(){};
   CandViewExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
-  virtual ~CandViewExtractor(){}
+  ~CandViewExtractor() override{}
 
-  virtual void fillVetos (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::TrackCollection & cand) { }
+  void fillVetos (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::TrackCollection & cand) override { }
 
 /*  virtual reco::IsoDeposit::Vetos vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Candidate & cand) const;
@@ -35,15 +35,15 @@ public:
       const edm::EventSetup & evSetup, const reco::Track & cand) const;
 */
 
-  virtual void initEvent(const edm::Event & ev, const edm::EventSetup & evSetup);
+  void initEvent(const edm::Event & ev, const edm::EventSetup & evSetup) override;
   
-  virtual reco::IsoDeposit deposit (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::Track & muon) const {
+  reco::IsoDeposit deposit (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::Track & muon) const override {
         return depositFromObject(ev, evSetup, muon);
   }
 
-  virtual reco::IsoDeposit deposit (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::Candidate & muon) const {
+  reco::IsoDeposit deposit (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::Candidate & muon) const override {
         return depositFromObject(ev, evSetup, muon);
   }
 

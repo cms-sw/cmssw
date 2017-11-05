@@ -123,7 +123,7 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& i
 tnp::BaseTreeFiller::BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC, const std::string &branchNamePrefix) :
   addRunLumiInfo_(false),
   addEventVariablesInfo_(false),
-  tree_(0)
+  tree_(nullptr)
 {
     addRunLumiInfo_ = main.addRunLumiInfo_;
     storePUweight_  = main.storePUweight_;
@@ -242,7 +242,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
         ////////////// CaloMET //////
         edm::Handle<reco::CaloMETCollection> met;
         iEvent.getByToken(metToken_,met);
-        if (met->size() == 0) {
+        if (met->empty()) {
           mMET_   = -1;
           mSumET_ = -1;
           mMETSign_ = -1;
@@ -256,7 +256,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
         /////// TcMET information /////
         edm::Handle<reco::METCollection> tcmet;
         iEvent.getByToken(tcmetToken_, tcmet);
-        if (tcmet->size() == 0) {
+        if (tcmet->empty()) {
           mtcMET_   = -1;
           mtcSumET_ = -1;
           mtcMETSign_ = -1;
@@ -272,7 +272,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
         edm::Handle<reco::PFMETCollection> pfmet;
         iEvent.getByToken(pfmetToken_, pfmet);
 	if(  pfmet.isValid() ) {	  
-	  if (pfmet->size() == 0) {
+	  if (pfmet->empty()) {
 	    mpfMET_   = -1;
 	    mpfSumET_ = -1;
 	    mpfMETSign_ = -1;

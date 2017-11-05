@@ -25,14 +25,14 @@ public:
   CalibratedHistogramXML(const CalibratedHistogram &h):CalibratedHistogram(h) {} 
   CalibratedHistogramXML( const std::vector < float > & ulimits ) :
    CalibratedHistogram ( ulimits) {}
-  virtual ~CalibratedHistogramXML() {} 
+  ~CalibratedHistogramXML() override {} 
 
    
-  void read (DOMElement * dom);
+  void read (DOMElement * dom) override;
   
-  void write (DOMElement * dom) const;
+  void write (DOMElement * dom) const override;
 
-  std::string name () const
+  std::string name () const override
   {
     return "CalibratedHistogramXML";
   }

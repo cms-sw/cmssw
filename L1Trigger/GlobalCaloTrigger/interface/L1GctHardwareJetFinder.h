@@ -25,7 +25,7 @@ class L1GctHardwareJetFinder : public L1GctJetFinderBase
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
   L1GctHardwareJetFinder(int id);
                  
-  ~L1GctHardwareJetFinder();
+  ~L1GctHardwareJetFinder() override;
    
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctHardwareJetFinder& algo);
@@ -34,18 +34,18 @@ class L1GctHardwareJetFinder : public L1GctJetFinderBase
   virtual void reset();
 
   /// get input data from sources
-  virtual void fetchInput();
+  void fetchInput() override;
 
   /// process the data, fill output buffers
-  virtual void process();
+  void process() override;
 
  protected:
 
   // Each jetFinder must define the constants as private and copy the
   // function definitions below.
-  virtual unsigned maxRegionsIn() const { return MAX_REGIONS_IN; }
-  virtual unsigned centralCol0() const { return CENTRAL_COL0; }
-  virtual unsigned nCols() const { return N_COLS; }
+  unsigned maxRegionsIn() const override { return MAX_REGIONS_IN; }
+  unsigned centralCol0() const override { return CENTRAL_COL0; }
+  unsigned nCols() const override { return N_COLS; }
 
 private:
 

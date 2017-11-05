@@ -22,9 +22,9 @@ namespace l1t {
   class Stage2Layer2JetSumAlgorithmFirmwareImp1 : public Stage2Layer2JetSumAlgorithm {
   public:
     Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParamsHelper* params);
-    virtual ~Stage2Layer2JetSumAlgorithmFirmwareImp1();
-    virtual void processEvent(const std::vector<l1t::Jet> & alljets,
-			      std::vector<l1t::EtSum> & htsums);
+    ~Stage2Layer2JetSumAlgorithmFirmwareImp1() override;
+    void processEvent(const std::vector<l1t::Jet> & alljets,
+			      std::vector<l1t::EtSum> & htsums) override;
   private:
     CaloParamsHelper* params_;
     int32_t mhtJetThresholdHw_;

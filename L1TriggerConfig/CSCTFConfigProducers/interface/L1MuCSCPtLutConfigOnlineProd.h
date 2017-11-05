@@ -6,9 +6,9 @@ class L1MuCSCPtLutConfigOnlineProd : public L1ConfigOnlineProdBase< L1MuCSCPtLut
    public:
       L1MuCSCPtLutConfigOnlineProd(const edm::ParameterSet& iConfig)
          : L1ConfigOnlineProdBase< L1MuCSCPtLutRcd, L1MuCSCPtLut >( iConfig ) {}
-      ~L1MuCSCPtLutConfigOnlineProd() {}
+      ~L1MuCSCPtLutConfigOnlineProd() override {}
 
-      virtual std::shared_ptr< L1MuCSCPtLut > newObject( const std::string& objectKey ) ;
+      std::shared_ptr< L1MuCSCPtLut > newObject( const std::string& objectKey ) override ;
    private:
 };
 

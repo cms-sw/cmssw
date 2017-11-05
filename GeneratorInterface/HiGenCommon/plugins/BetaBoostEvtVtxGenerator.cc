@@ -52,12 +52,12 @@ namespace CLHEP {
 class BetaBoostEvtVtxGenerator : public edm::EDProducer{
 public:
   BetaBoostEvtVtxGenerator(const edm::ParameterSet & p);
-  virtual ~BetaBoostEvtVtxGenerator();
+  ~BetaBoostEvtVtxGenerator() override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
   virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
   virtual TMatrixD* GetInvLorentzBoost();
 
 
@@ -87,9 +87,9 @@ public:
 
 private:
   /** Copy constructor */
-  BetaBoostEvtVtxGenerator(const BetaBoostEvtVtxGenerator &p);
+  BetaBoostEvtVtxGenerator(const BetaBoostEvtVtxGenerator &p) = delete;
   /** Copy assignment operator */
-  BetaBoostEvtVtxGenerator&  operator = (const BetaBoostEvtVtxGenerator & rhs );
+  BetaBoostEvtVtxGenerator&  operator = (const BetaBoostEvtVtxGenerator & rhs ) = delete;
 
   double alpha_, phi_;
   //TMatrixD boost_;
@@ -111,7 +111,7 @@ private:
 
 
 BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p):
-  fVertex(0), boost_(0), fTimeOffset(0),
+  fVertex(nullptr), boost_(nullptr), fTimeOffset(0),
   sourceLabel(consumes<HepMCProduct>(p.getParameter<edm::InputTag>("src"))),
   verbosity_(p.getUntrackedParameter<bool>("verbosity",false))
 {
@@ -138,7 +138,7 @@ BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p):
 BetaBoostEvtVtxGenerator::~BetaBoostEvtVtxGenerator() 
 {
   delete fVertex ;
-  if (boost_ != 0 ) delete boost_;
+  if (boost_ != nullptr ) delete boost_;
 }
 
 //Hep3Vector* BetaBoostEvtVtxGenerator::newVertex() {
@@ -163,7 +163,7 @@ HepMC::FourVector* BetaBoostEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* e
   double tmp_sigt = CLHEP::RandGaussQ::shoot(engine, 0.0, fSigmaZ);
   double T = tmp_sigt + fTimeOffset; 
 
-  if ( fVertex == 0 ) fVertex = new HepMC::FourVector();
+  if ( fVertex == nullptr ) fVertex = new HepMC::FourVector();
   fVertex->set(X,Y,Z,T);
 		
   return fVertex;
