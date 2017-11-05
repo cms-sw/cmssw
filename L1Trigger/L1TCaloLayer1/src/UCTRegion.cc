@@ -1,6 +1,6 @@
 #include <iostream>
-#include <stdlib.h>
-#include <stdint.h>
+#include <cstdlib>
+#include <cstdint>
 
 #include <bitset>
 using std::bitset;
@@ -89,7 +89,7 @@ UCTRegion::UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn, int fwv)
 
 UCTRegion::~UCTRegion() {
   for(uint32_t i = 0; i < towers.size(); i++) {
-    if(towers[i] != 0) delete towers[i];
+    if(towers[i] != nullptr) delete towers[i];
   }
 }
 

@@ -57,7 +57,7 @@ public:
    */  
   RefCountedKinematicTree fit(const std::vector<RefCountedKinematicParticle> &part,
 			      MultiTrackKinematicConstraintT< nTrk, nConstraint> * cs) {
-    return fit(part, cs, 0);
+    return fit(part, cs, nullptr);
   };
   
   /**
@@ -160,7 +160,7 @@ KinematicConstrainedVertexFitterT< nTrk, nConstraint>::fit(const std::vector<Ref
 							   MultiTrackKinematicConstraintT< nTrk, nConstraint> * cs,
 							   GlobalPoint * pt)
 {
-   assert( nConstraint==0 || cs!=0);
+   assert( nConstraint==0 || cs!=nullptr);
    if(part.size()!=nTrk) throw VertexException("KinematicConstrainedVertexFitterT::input states are not nTrk");
   
   //sorting out the input particles
@@ -170,7 +170,7 @@ KinematicConstrainedVertexFitterT< nTrk, nConstraint>::fit(const std::vector<Ref
   const std::vector<FreeTrajectoryState> & fStates = input.second;
   
   // linearization point:
-  GlobalPoint linPoint  = (pt!=0) ? *pt :  finder->getLinearizationPoint(fStates);
+  GlobalPoint linPoint  = (pt!=nullptr) ? *pt :  finder->getLinearizationPoint(fStates);
   
   //initial parameters:
   ROOT::Math::SVector<double,3+7*nTrk> inPar; //3+ 7*ntracks
@@ -227,7 +227,7 @@ KinematicConstrainedVertexFitterT< nTrk, nConstraint>::fit(const std::vector<Ref
     std::vector<KinematicState> oldStates = lStates;
     GlobalVector mf = field->inInverseGeV(lPoint);
     rVtx = updator->update(inPar,refCCov,lStates,lPoint,mf,cs);
-    if (particles.size() != lStates.size() || rVtx == 0) {
+    if (particles.size() != lStates.size() || rVtx == nullptr) {
       LogDebug("KinematicConstrainedVertexFitter")
 	<< "updator failure\n";
       return ReferenceCountingPointer<KinematicTree>(new KinematicTree());

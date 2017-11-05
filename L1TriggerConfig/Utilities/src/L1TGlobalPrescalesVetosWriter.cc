@@ -19,12 +19,12 @@ class L1TGlobalPrescalesVetosWriter : public edm::EDAnalyzer {
 private:
     bool isO2Opayload;
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1TGlobalPrescalesVetosWriter(const edm::ParameterSet &pset) : edm::EDAnalyzer(){
        isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
     }
-    virtual ~L1TGlobalPrescalesVetosWriter(void){}
+    ~L1TGlobalPrescalesVetosWriter(void) override{}
 };
 
 void L1TGlobalPrescalesVetosWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

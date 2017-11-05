@@ -43,10 +43,10 @@ template<typename VTX>
 class BVertexFilterT : public edm::stream::EDFilter<> {
    public:
       explicit BVertexFilterT(const edm::ParameterSet&);
-      ~BVertexFilterT();
+      ~BVertexFilterT() override;
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
       edm::EDGetTokenT<edm::View<VTX> >        token_secondaryVertex;
       reco::VertexFilter                      svFilter;
@@ -84,7 +84,7 @@ BVertexFilterT<VTX>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
  auto recoVertices = std::make_unique<std::vector<VTX>>();
 
- if(pvHandle->size()!=0) {
+ if(!pvHandle->empty()) {
    const reco::Vertex & primary = (*pvHandle.product())[0];
    const edm::View<VTX> & vertices = *svHandle.product();
 

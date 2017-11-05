@@ -67,16 +67,16 @@ namespace edm
     // Hadronizer object.
     explicit HadronizerFilter(ParameterSet const& ps);
 
-    virtual ~HadronizerFilter();
+    ~HadronizerFilter() override;
 
-    virtual bool filter(Event& e, EventSetup const& es) override;
-    virtual void beginRun(Run const&, EventSetup const&) override;
-    virtual void endRun(Run const&, EventSetup const&) override;
-    virtual void endRunProduce(Run &, EventSetup const&) override;
-    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void beginLuminosityBlockProduce(LuminosityBlock&, EventSetup const&) override;
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
+    bool filter(Event& e, EventSetup const& es) override;
+    void beginRun(Run const&, EventSetup const&) override;
+    void endRun(Run const&, EventSetup const&) override;
+    void endRunProduce(Run &, EventSetup const&) override;
+    void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    void beginLuminosityBlockProduce(LuminosityBlock&, EventSetup const&) override;
+    void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
 
   private:
     Hadronizer hadronizer_;
@@ -98,8 +98,8 @@ namespace edm
   HadronizerFilter<HAD,DEC>::HadronizerFilter(ParameterSet const& ps) :
     EDFilter(),
     hadronizer_(ps),
-    decayer_(0),
-    filter_(0),
+    decayer_(nullptr),
+    filter_(nullptr),
     runInfoProductTag_(),
     runInfoProductToken_(),
     eventProductToken_(),

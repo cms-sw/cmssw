@@ -39,12 +39,12 @@ namespace gen {
      public:
     // ctor & dtor
     EvtGenInterface( const edm::ParameterSet& );
-    ~EvtGenInterface();
+    ~EvtGenInterface() override;
     
-    virtual void init();
-    virtual const std::vector<int>& operatesOnParticles() { return m_PDGs; }      
-    virtual HepMC::GenEvent* decay( HepMC::GenEvent* );
-    virtual void setRandomEngine(CLHEP::HepRandomEngine* v);
+    void init() override;
+    const std::vector<int>& operatesOnParticles() override { return m_PDGs; }      
+    HepMC::GenEvent* decay( HepMC::GenEvent* ) override;
+    void setRandomEngine(CLHEP::HepRandomEngine* v) override;
     static double flat();
     
   private:

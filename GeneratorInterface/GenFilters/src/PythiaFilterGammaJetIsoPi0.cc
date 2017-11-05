@@ -126,10 +126,10 @@ bool PythiaFilterGammaJetIsoPi0::filter(edm::Event& iEvent, const edm::EventSetu
 // ----------------------------------------------------------    
     if(dr_pi0_photon > isodr) { 
       
-      bool inEB(0);
+      bool inEB(false);
       double tgx(0);
       double tgy(0);
-      if( std::abs(eta_pi0) < ebEtaMax) inEB=1;
+      if( std::abs(eta_pi0) < ebEtaMax) inEB=true;
       else{
         tgx=myGenEvent->barcode_to_particle(pi0_id)->momentum().px()/myGenEvent->barcode_to_particle(pi0_id)->momentum().pz();
         tgy=myGenEvent->barcode_to_particle(pi0_id)->momentum().py()/myGenEvent->barcode_to_particle(pi0_id)->momentum().pz();

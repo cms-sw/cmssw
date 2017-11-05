@@ -53,7 +53,7 @@ class DTConfigBti : DTConfig {
   DTConfigBti(int debug, unsigned short int * buffer); 
    
   //! Destructor 
-  ~DTConfigBti();
+  ~DTConfigBti() override;
 
   //! Set default parameters
   void setDefaults(const edm::ParameterSet& ps);  

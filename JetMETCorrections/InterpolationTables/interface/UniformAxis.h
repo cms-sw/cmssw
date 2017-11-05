@@ -29,7 +29,7 @@ namespace npstat {
     public:
         // The number of coordinates must be at least 2
         UniformAxis(unsigned nCoords, double min, double max,
-                    const char* label=0);
+                    const char* label=nullptr);
 
         // Basic accessors
         inline unsigned nCoords() const {return npt_;}

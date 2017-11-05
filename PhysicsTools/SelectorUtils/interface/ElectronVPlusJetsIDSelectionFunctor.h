@@ -85,7 +85,7 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
   }
 
   // Allow for multiple definitions of the cuts.
-  bool operator()( const pat::Electron & electron, pat::strbitset & ret )
+  bool operator()( const pat::Electron & electron, pat::strbitset & ret ) override
   {
     if ( version_ == FIRSTDATA ) return firstDataCuts( electron, ret );
     else {

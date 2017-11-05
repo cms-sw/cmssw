@@ -19,7 +19,7 @@ class ParticleLevelProducer : public edm::one::EDProducer<edm::one::SharedResour
 {
 public:
   ParticleLevelProducer(const edm::ParameterSet& pset);
-  virtual ~ParticleLevelProducer() {}
+  ~ParticleLevelProducer() override {}
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:

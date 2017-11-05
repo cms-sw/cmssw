@@ -32,7 +32,7 @@ void Signal::create()
 	rb = ")";
 #endif
 
-	outhost = host = outreg = ca1 = ca2 = NULL;
+	outhost = host = outreg = ca1 = ca2 = nullptr;
 	inited = printable = r = rc = l = pedge = nedge = change = alwaysn = mode = 0;
 	h = 8*Sizeofrval - 1;
 	mask = (rval)(- 1);
@@ -560,12 +560,12 @@ Signal Signal::asgn(Signal other)
 		host->set((hr & (~portionmask)) | portionr);
 	}
 
-	if (ca1 != NULL && ca2 != NULL) // is this a concatenation of the two registers?
+	if (ca1 != nullptr && ca2 != nullptr) // is this a concatenation of the two registers?
 	{
 		ca2->set(other);
 		ca1->set(other >> (ca2->h - ca2->l + 1));
 	}
-	if (outhost != NULL && outhost != this && (mode == moutput || mode == minout)) 
+	if (outhost != nullptr && outhost != this && (mode == moutput || mode == minout)) 
 	{
 		outhost->set(other);
 	}
@@ -668,7 +668,7 @@ void Signal::input(int high, int low, const char* rname)
 	else change = pedge = nedge = 0;
 	outreg->setr(r);
 	outreg->setrc(r);
-	outhost = host = NULL;
+	outhost = host = nullptr;
 #endif
 
 }
@@ -710,7 +710,7 @@ void Signal::clock(const char* rname)
 	else change = pedge = nedge = 0;
 	outreg->setr(r);
 	outreg->setrc(r);
-	outhost = host = NULL;
+	outhost = host = nullptr;
 #endif
 
 }
@@ -927,7 +927,7 @@ void memory::reg (int high, int low, int nup, int ndown, const char* rname)
 		up = ndown;
 		down = nup;
 	}
-	if (r == NULL)
+	if (r == nullptr)
 	{
 		r = new Signal [up - down + 1];
 		for (i = 0; i <= up - down; ++i)
@@ -952,8 +952,8 @@ void memory::reg (int high, int low, int nup, int ndown, const char* rname)
 
 memory::~memory()
 {
-	if (r != NULL) delete [] r;
-	r = NULL;
+	if (r != nullptr) delete [] r;
+	r = nullptr;
 }
 
 #ifdef VGEN
@@ -986,9 +986,9 @@ Signal& memory::operator[] (Signal i)
 
 void module::create()
 {
-	for (unsigned int i = 0; i < sizeof(outreg)/sizeof(Signal*); ++i) outreg[i] = NULL;
+	for (unsigned int i = 0; i < sizeof(outreg)/sizeof(Signal*); ++i) outreg[i] = nullptr;
 	outregn = 0;
-	runperiod = NULL;
+	runperiod = nullptr;
 }
 
 module::module()
@@ -1000,7 +1000,7 @@ module::~module()
 {
 	for (unsigned int i = 0; i < sizeof(outreg)/sizeof(Signal*); ++i)
 	{
-		if (outreg[i] != NULL)
+		if (outreg[i] != nullptr)
 			delete outreg[i];
 	}
 
@@ -1102,7 +1102,7 @@ Signal module::posedge (Signal arg)
 	ln = "posedge " + arg.getname();
 	t.init(NULL, 0, 0, ln.c_str());
 #else
-	t.init(NULL, 0, 0, "");
+	t.init(nullptr, 0, 0, "");
 #endif
 	if (arg.getposedge()) glc.setce(0);
 	t.setchange(arg.getposedge());
@@ -1117,7 +1117,7 @@ Signal module::negedge (Signal arg)
 	ln = "negedge " + arg.getname();
 	t.init(NULL, 0, 0, ln.c_str());
 #else
-	t.init(NULL, 0, 0, "");
+	t.init(nullptr, 0, 0, "");
 #endif
 	if (arg.getnegedge()) glc.setce(0);
 	t.setchange(arg.getnegedge());
@@ -1127,7 +1127,7 @@ Signal module::negedge (Signal arg)
 
 Signal* module::AddOutReg(Signal arg)
 {
-	if (outreg[outregn] == NULL) 
+	if (outreg[outregn] == nullptr) 
 	{
 		outreg[outregn] = new Signal;
 		outreg[outregn]->setr(0);

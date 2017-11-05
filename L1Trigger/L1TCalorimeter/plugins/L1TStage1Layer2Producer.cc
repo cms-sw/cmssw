@@ -70,16 +70,16 @@ using namespace l1t;
   class L1TStage1Layer2Producer : public EDProducer {
   public:
     explicit L1TStage1Layer2Producer(const ParameterSet&);
-    ~L1TStage1Layer2Producer();
+    ~L1TStage1Layer2Producer() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void produce(Event&, EventSetup const&);
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void beginRun(Run const&iR, EventSetup const&iE);
-    virtual void endRun(Run const& iR, EventSetup const& iE);
+    void produce(Event&, EventSetup const&) override;
+    void beginJob() override;
+    void endJob() override;
+    void beginRun(Run const&iR, EventSetup const&iE) override;
+    void endRun(Run const& iR, EventSetup const& iE) override;
 
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.

@@ -27,8 +27,8 @@ using namespace Pythia8;
 
 
 JetMatchingHook::JetMatchingHook( const edm::ParameterSet& ps, Info* info )
-   : UserHooks(), fRunBlock(0), fEventBlock(0), fEventNumber(0), fInfoPtr(info), 
-     fJetMatching(0), fJetInputFill(0),
+   : UserHooks(), fRunBlock(nullptr), fEventBlock(nullptr), fEventNumber(0), fInfoPtr(info), 
+     fJetMatching(nullptr), fJetInputFill(nullptr),
      fIsInitialized(false)
 {
 

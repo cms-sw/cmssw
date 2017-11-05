@@ -6,10 +6,10 @@ class L1TCaloParamsObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
 private:
 
 public:
-    virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
     L1TCaloParamsObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TCaloParamsObjectKeysOnlineProd(void){}
+    ~L1TCaloParamsObjectKeysOnlineProd(void) override{}
 };
 
 L1TCaloParamsObjectKeysOnlineProd::L1TCaloParamsObjectKeysOnlineProd(const edm::ParameterSet& iConfig)

@@ -20,8 +20,8 @@ struct AbsFFTJetObjectFactory
 template<class Base, class Derived>
 struct ConcreteFFTJetObjectFactory : public AbsFFTJetObjectFactory<Base>
 {
-    virtual ~ConcreteFFTJetObjectFactory() {}
-    inline Derived* create(const edm::ParameterSet& ps) const
+    ~ConcreteFFTJetObjectFactory() override {}
+    inline Derived* create(const edm::ParameterSet& ps) const override
         {return new Derived(ps);}
 };
 
@@ -54,8 +54,8 @@ struct DefaultFFTJetObjectFactory :
     }
 
 private:
-    DefaultFFTJetObjectFactory(const DefaultFFTJetObjectFactory&);
-    DefaultFFTJetObjectFactory& operator=(const DefaultFFTJetObjectFactory&);
+    DefaultFFTJetObjectFactory(const DefaultFFTJetObjectFactory&) = delete;
+    DefaultFFTJetObjectFactory& operator=(const DefaultFFTJetObjectFactory&) = delete;
 };
 
 //
@@ -82,7 +82,7 @@ public:
     }
 
 private:
-    StaticFFTJetObjectFactory();
+    StaticFFTJetObjectFactory() = delete;
 };
 
 #endif // JetMETCorrections_FFTJetObjects_FFTJetObjectFactory_h

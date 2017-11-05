@@ -13,12 +13,12 @@ class HGCalTriggerNtupleHGCClusters : public HGCalTriggerNtupleBase
 
   public:
     HGCalTriggerNtupleHGCClusters(const edm::ParameterSet& conf);
-    ~HGCalTriggerNtupleHGCClusters(){};
-    virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
-    virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
+    ~HGCalTriggerNtupleHGCClusters() override{};
+    void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+    void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
   private:
-    virtual void clear() override final;
+    void clear() final;
 
 
     edm::EDGetToken clusters_token_;

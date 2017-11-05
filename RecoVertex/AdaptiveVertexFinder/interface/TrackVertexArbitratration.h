@@ -117,7 +117,7 @@ float trackWeight(const reco::Vertex & sv, const reco::TransientTrack &track)
 float trackWeight(const reco::VertexCompositePtrCandidate & sv, const reco::TransientTrack &tt) 
 {
 	const reco::CandidatePtrTransientTrack* cptt = dynamic_cast<const reco::CandidatePtrTransientTrack*>(tt.basicTransientTrack());
-	if ( cptt==0 )
+	if ( cptt==nullptr )
 		edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
 	else
 	{
