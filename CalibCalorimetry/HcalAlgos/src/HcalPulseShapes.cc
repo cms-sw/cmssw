@@ -827,7 +827,21 @@ double HcalPulseShapes::analyticPulseShapeSiPMHE(double t) {
     onePulse(t,A2,sigma2_shape,theta2_loc,m2_scale);
 }
 
-double HcalPulseShapes::generatePhotonTime(CLHEP::HepRandomEngine* engine) {
+double HcalPulseShapes::generatePhotonTime(CLHEP::HepRandomEngine* engine, unsigned int signalShape) {
+  if(signalShape==206) return generatePhotonTime206(engine);
+  else return generatePhotonTime203(engine);
+}
+
+double HcalPulseShapes::generatePhotonTime203(CLHEP::HepRandomEngine* engine) {
+  double result(0.);
+  while (true) {
+    result = CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11RANGE_);
+    if (CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11MAX203_) < HcalPulseShapes::Y11203(result))
+      return result;
+  }
+}
+
+double HcalPulseShapes::generatePhotonTime206(CLHEP::HepRandomEngine* engine) {
   double result(0.);
   while (true) {
     result = CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11RANGE_);
@@ -835,7 +849,6 @@ double HcalPulseShapes::generatePhotonTime(CLHEP::HepRandomEngine* engine) {
       return result;
   }
 }
-
 
 //Original scintillator+Y11 fit from Vasken's 2001 measurement
 double HcalPulseShapes::Y11203(double t) {
