@@ -1575,7 +1575,7 @@ steps['RECOHI2017']=merge([hiDefaults2017,{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VAL
 steps['RECOHI2015']=merge([hiDefaults2015,{'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'},step3Up2015Defaults])
 steps['RECOHI2011']=merge([hiDefaults2011,{'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'},step3Defaults])
 
-steps['RECOPPREF2017']=merge([ppRefDefaults2017,{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM'},step3Up2015Defaults])
+steps['RECOPPREF2017']=merge([ppRefDefaults2017,step3Up2015Defaults])
 
 steps['RECOHID11St3']=merge([{
                               '--process':'ZStoRECO'},
