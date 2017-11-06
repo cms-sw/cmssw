@@ -354,7 +354,9 @@ class TrackAnalyzer
 	MonitorElement* DistanceOfClosestApproachToBS;
 	MonitorElement* AbsDistanceOfClosestApproachToBS;
 	MonitorElement* DistanceOfClosestApproachToPV;
+        MonitorElement* DistanceOfClosestApproachToPVZoom;
 	MonitorElement* DeltaZToPV;
+        MonitorElement* DeltaZToPVZoom;
 	MonitorElement* DistanceOfClosestApproachVsTheta;
 	MonitorElement* DistanceOfClosestApproachVsPhi;
 	MonitorElement* DistanceOfClosestApproachToBSVsPhi;
