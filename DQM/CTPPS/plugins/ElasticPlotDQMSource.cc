@@ -144,6 +144,8 @@ ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, i
   {
     string rpName;
     TotemRPDetId(rpIds[i]).rpName(rpName, TotemRPDetId::nFull);
+    rpName = rpName.substr(15); // removes obvious prefix for better readability
+
     xa->SetBinLabel(i+1, rpName.c_str());
     ya->SetBinLabel(i+1, rpName.c_str());
   }
@@ -152,6 +154,7 @@ ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, i
   {
     string rpName;
     TotemRPDetId(rpIds[i]).rpName(rpName, TotemRPDetId::nFull);
+    rpName = rpName.substr(15);
 
     v_h2_y_vs_x_dgn_4rp.emplace_back(ibooker.book2D("xy hist - " + rpName + " - 4 RPs cond", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.));
     v_h2_y_vs_x_dgn_2rp.emplace_back(ibooker.book2D("xy hist - " + rpName + " - 2 RPs cond", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.));
@@ -161,6 +164,7 @@ ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, i
     {
       string rpCoincName;
       TotemRPDetId(rpIds[j]).rpName(rpCoincName, TotemRPDetId::nFull);
+      rpCoincName = rpCoincName.substr(15);
 
       v.emplace_back(ibooker.book1D("y hist - " + rpName + " - coinc " + rpCoincName, title+";y   (mm)", 180, -18., +18.));
     }
