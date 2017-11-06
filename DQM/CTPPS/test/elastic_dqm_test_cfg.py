@@ -21,9 +21,13 @@ process.dqmSaver.tag = "CTPPS"
 # raw data source
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
+    # CTPPS alignment run, 2017, July
     '/store/data/Run2017B/ZeroBias3/AOD/PromptReco-v2/000/298/593/00000/36743C31-A865-E711-8BF2-02163E019D8E.root',
-    '/store/data/Run2017B/ZeroBias6/AOD/PromptReco-v2/000/298/593/00000/6A05E756-A965-E711-9F08-02163E01A760.root',
-    '/store/data/Run2017B/ZeroBias9/AOD/PromptReco-v2/000/298/593/00000/445D9A13-A865-E711-BCFC-02163E01A351.root'
+    #'/store/data/Run2017B/ZeroBias6/AOD/PromptReco-v2/000/298/593/00000/6A05E756-A965-E711-9F08-02163E01A760.root',
+    #'/store/data/Run2017B/ZeroBias9/AOD/PromptReco-v2/000/298/593/00000/445D9A13-A865-E711-BCFC-02163E01A351.root'
+
+    # CTPPS alignment run, 2017, September
+    #'/store/data/Run2017E/ZeroBias1/AOD/PromptReco-v1/000/303/649/00000/1270894D-0DA1-E711-BC08-02163E019CBB.root'
   )
 )
 
@@ -38,7 +42,7 @@ process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 process.load("DQM.CTPPS.ctppsDQM_cff")
 
 process.path = cms.Path(
-  process.ctppsDQM
+  process.ctppsDQMElastic
 )
 
 process.end_path = cms.EndPath(
