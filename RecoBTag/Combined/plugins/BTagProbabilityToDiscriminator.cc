@@ -118,7 +118,7 @@ void BTagProbabilityToDiscriminator::produce(edm::Event &iEvent,
       tags; // caches jet tags to avoid repetitions
   size_t size = 0;
   bool first = true;
-  for (auto entry : jet_tags_) {
+  for (const auto& entry : jet_tags_) {
     edm::Handle<JetTagCollection> tmp;
     iEvent.getByToken(entry.second, tmp);
     tags[entry.first] = tmp;
@@ -150,19 +150,17 @@ void BTagProbabilityToDiscriminator::produce(edm::Event &iEvent,
 
   // loop over jets
   for (size_t idx = 0; idx < output_tags[0]->size(); idx++) {
-    auto key = output_tags[0]->key(idx); // index access should be OK as well,
-                                         // but a bit less safe, probably WAY
-                                         // faster
-
+    auto key = output_tags[0]->key(idx); // use key only for writing
     // loop over new discriminators to produce
     for (size_t disc_idx = 0; disc_idx < output_tags.size(); disc_idx++) {
       float numerator = 0;
       for (auto &num : discrims_[disc_idx].numerator)
-        numerator += (*tags[num])[key];
+        numerator += (*tags[num])[idx].second;
       float denominator = !discrims_[disc_idx].denominator.empty() ? 0 : 1;
       for (auto &den : discrims_[disc_idx].denominator)
-        denominator += (*tags[den])[key];
-      float new_value = (denominator != 0 && numerator > 0) ? numerator / denominator : -10.;
+        denominator += (*tags[den])[idx].second;
+			//protect against 0 denominator and undefined jet values (numerator probability < 0)
+      float new_value = (denominator != 0 && numerator >= 0) ? numerator / denominator : -10.;
       (*output_tags[disc_idx])[key] = new_value;
     }
   }
