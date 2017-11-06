@@ -266,13 +266,13 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
     numberOfTrajCandsPerSeedVsEta->setAxisTitle("Seed #eta", 1);
     numberOfTrajCandsPerSeedVsEta->setAxisTitle("Number of Trajectory Candidates for each Seed", 2);
 
-    histname = "SeedStoppingSourceVsNumberOfTrajCandsPerSeed_"+seedProducer.label() + "_";
-    seedStoppingSourceVsNumberOfTrajCandsPerSeed = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, candsBin, candsMin, candsMax, stopReasonSize, 0, stopReasonSize);
+    histname = "StoppingSourceVsNumberOfTrajCandsPerSeed_"+seedProducer.label() + "_";
+    seedStoppingSourceVsNumberOfTrajCandsPerSeed = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, candsBin, candsMin, candsMax, 2, 0., 2.);
     seedStoppingSourceVsNumberOfTrajCandsPerSeed->setAxisTitle("Number of Trajectory Candidates for each Seed", 1);
+    seedStoppingSourceVsNumberOfTrajCandsPerSeed->setAxisTitle("fraction stopped",2);
 
     for(unsigned int i=0; i<stopReasonSize; ++i) {
       seedStoppingSource->setBinLabel(i+1, SeedStopReasonName::SeedStopReasonName[i], 1);
-      seedStoppingSourceVsNumberOfTrajCandsPerSeed->setBinLabel(i+1, SeedStopReasonName::SeedStopReasonName[i], 2);
     }
   }
 
@@ -496,7 +496,7 @@ void TrackBuildingAnalyzer::analyze
     numberOfTrajCandsPerSeedVsPhi->Fill(phi, ncands);
     numberOfTrajCandsPerSeedVsEta->Fill(eta, ncands);
 
-    seedStoppingSourceVsNumberOfTrajCandsPerSeed->Fill(ncands, stopInfo.stopReasonUC());
+    seedStoppingSourceVsNumberOfTrajCandsPerSeed->Fill(ncands, stopped);
   }
 }
 

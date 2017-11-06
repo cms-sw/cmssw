@@ -826,7 +826,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       DistanceOfClosestApproachToPV->setAxisTitle("Number of Tracks",2);
       
       histname = "DistanceOfClosestApproachToPVZoom_";
-      DistanceOfClosestApproachToPVZoom = ibooker.book1D(histname+CategoryName,histname+CategoryName,100,-0.8,0.8);
+      DistanceOfClosestApproachToPVZoom = ibooker.book1D(histname+CategoryName,histname+CategoryName,100,-0.08,0.08);
       DistanceOfClosestApproachToPVZoom->setAxisTitle("Track d_{xy} w.r.t. PV (cm)",1);
       DistanceOfClosestApproachToPVZoom->setAxisTitle("Number of Tracks",2);
 
@@ -837,7 +837,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       DeltaZToPV->setAxisTitle("Number of Tracks",2);
 
       histname = "DeltaZToPVZoom_";
-      DeltaZToPVZoom = ibooker.book1D(histname+CategoryName,histname+CategoryName,100,-0.16,0.16);
+      DeltaZToPVZoom = ibooker.book1D(histname+CategoryName,histname+CategoryName,100,-0.15,0.15);
       DeltaZToPVZoom->setAxisTitle("Track d_{z} w.r.t. PV (cm)",1);
       DeltaZToPVZoom->setAxisTitle("Number of Tracks",2);
 
