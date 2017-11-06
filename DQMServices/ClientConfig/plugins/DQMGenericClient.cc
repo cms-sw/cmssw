@@ -512,6 +512,7 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
       efficME = ibooker.book3D(newEfficMEName, (TH3F*)efficHist);    
     } 
   
+    delete efficHist;
 
     if ( !efficME ) {
       LogInfo("DQMGenericClient") << "computeEfficiency() : "
