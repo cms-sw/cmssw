@@ -482,7 +482,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       NumberOfMORecHitsPerTrackVsPt->setAxisTitle("Track p_{T} [GeV]", 1);
       NumberOfMORecHitsPerTrackVsPt->setAxisTitle("Average Number of Lost RecHits per Track", 2);
 
-      std::string layerTypeName[4] = {"","Off","3D","Missing"};
+      std::string layerTypeName[5] = {"","Off","3D","Missing","Pixel"};
       for (int i=0; i<4; ++i) {
         histname = "NumberOf"+ layerTypeName[i] + "LayersPerTrack_";
         NumberOfLayersPerTrack[i] = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKLayBin, TKLayMin, TKLayMax);
@@ -490,7 +490,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
         NumberOfLayersPerTrack[i]->setAxisTitle("Number of Tracks", 2);
       }
       if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ )
-	for (int i=0; i<4; ++i) {
+	for (int i=0; i<5; ++i) {
           histname = "NumberOf"+ layerTypeName[i] + "LayersVsPhiVsEtaPerTrack_";
 	  NumberOfLayersVsPhiVsEtaPerTrack[i] = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
 								    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 40., "");
@@ -1095,10 +1095,11 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     NumberOfMIRecHitsPerTrackVsPt->Fill(pt,nLostIn);
     NumberOfMORecHitsPerTrackVsPt->Fill(pt,nLostOut);
 
-    int nLayers[4]   = { track.hitPattern().trackerLayersWithMeasurement(),
+    int nLayers[5]   = { track.hitPattern().trackerLayersWithMeasurement(),
                          track.hitPattern().trackerLayersTotallyOffOrBad(),
                          track.hitPattern().numberOfValidStripLayersWithMonoAndStereo() +  track.hitPattern().pixelLayersWithMeasurement(),
-                         track.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS)
+                         track.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS),
+                         track.hitPattern().pixelLayersWithMeasurement()
                        };
 
     // layers
@@ -1106,7 +1107,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     // 2D plots    
     if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ )
-      for (int i=0;i<4;++i) NumberOfLayersVsPhiVsEtaPerTrack[i]->Fill(etaIn,phiIn,nLayers[i]);
+      for (int i=0;i<5;++i) NumberOfLayersVsPhiVsEtaPerTrack[i]->Fill(etaIn,phiIn,nLayers[i]);
 
   }
 
