@@ -333,7 +333,7 @@ class TrackAnalyzer
 	MonitorElement* NumberOfLayersPerTrackVsTheta;
 	MonitorElement* NumberOfLayersPerTrackVsEta;
 
-	MonitorElement* NumberOfLayersVsPhiVsEtaPerTrack[4]= {nullptr,nullptr,nullptr,nullptr};
+	MonitorElement* NumberOfLayersVsPhiVsEtaPerTrack[5]= {nullptr,nullptr,nullptr,nullptr,nullptr};
 
 
 	MonitorElement* Chi2;
