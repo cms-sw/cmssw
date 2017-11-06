@@ -127,7 +127,9 @@ void TrackAnalyzer::initHistos()
   DistanceOfClosestApproachToBS = nullptr;
   AbsDistanceOfClosestApproachToBS = nullptr;
   DistanceOfClosestApproachToPV = nullptr;
+  DistanceOfClosestApproachToPVZoom = nullptr;
   DeltaZToPV = nullptr;
+  DeltaZToPVZoom = nullptr;
   DistanceOfClosestApproachVsTheta = nullptr;
   DistanceOfClosestApproachVsPhi = nullptr;  
   DistanceOfClosestApproachToBSVsPhi = nullptr;
@@ -823,10 +825,22 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       DistanceOfClosestApproachToPV->setAxisTitle("Track d_{xy} w.r.t. PV (cm)",1);
       DistanceOfClosestApproachToPV->setAxisTitle("Number of Tracks",2);
       
+      histname = "DistanceOfClosestApproachToPVZoom_";
+      DistanceOfClosestApproachToPVZoom = ibooker.book1D(histname+CategoryName,histname+CategoryName,100,-0.8,0.8);
+      DistanceOfClosestApproachToPVZoom->setAxisTitle("Track d_{xy} w.r.t. PV (cm)",1);
+      DistanceOfClosestApproachToPVZoom->setAxisTitle("Number of Tracks",2);
+
+
       histname = "DeltaZToPV_";
       DeltaZToPV = ibooker.book1D(histname+CategoryName,histname+CategoryName,Z0Bin,Z0Min,Z0Max);
       DeltaZToPV->setAxisTitle("Track d_{z} w.r.t. PV (cm)",1);
       DeltaZToPV->setAxisTitle("Number of Tracks",2);
+
+      histname = "DeltaZToPVZoom_";
+      DeltaZToPVZoom = ibooker.book1D(histname+CategoryName,histname+CategoryName,100,-0.16,0.16);
+      DeltaZToPVZoom->setAxisTitle("Track d_{z} w.r.t. PV (cm)",1);
+      DeltaZToPVZoom->setAxisTitle("Number of Tracks",2);
+
       
       histname = "DistanceOfClosestApproachToPVVsPhi_";
       DistanceOfClosestApproachToPVVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
@@ -1209,6 +1223,8 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       zPointOfClosestApproachToPV->Fill(track.dz(pv.position()));
       DistanceOfClosestApproachToPV      -> Fill(track.dxy(pv.position()));
       DeltaZToPV                         -> Fill(track.dz (pv.position()));
+      DistanceOfClosestApproachToPVZoom  -> Fill(track.dxy(pv.position()));
+      DeltaZToPVZoom                     -> Fill(track.dz (pv.position()));
       DistanceOfClosestApproachToPVVsPhi -> Fill(track.phi(), track.dxy(pv.position()));
       xPointOfClosestApproachVsZ0wrtPV   -> Fill(track.dz(pv.position()),(track.vx()-pv.position().x()));
       yPointOfClosestApproachVsZ0wrtPV   -> Fill(track.dz(pv.position()),(track.vy()-pv.position().y()));
