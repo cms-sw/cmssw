@@ -78,6 +78,8 @@ namespace edm {
 
          void eventSetupForInstance(IOVSyncValue const& syncValue);
 
+         bool isWithinValidityInterval(IOVSyncValue const& syncValue) const;
+        
          void forceCacheClear() const;
 
          std::shared_ptr<DataProxyProvider> getESProducerAndRegisterProcess(ParameterSet const& pset, unsigned subProcessIndex);
