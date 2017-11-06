@@ -61,7 +61,6 @@ ppRef_2017.toModify(l1tMuonDQMOffline,
     gmtPtCuts = cms.untracked.vint32(muonEfficiencyThresholds_HI),
     tagPtCut = cms.untracked.double(14.),
     triggerNames = cms.untracked.vstring(
-        "HLT_HIL3Mu7_v*",
         "HLT_HIL3Mu12_v*",
     )
 )
