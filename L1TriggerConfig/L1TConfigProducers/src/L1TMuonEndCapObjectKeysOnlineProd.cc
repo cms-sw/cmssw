@@ -5,22 +5,24 @@
 #include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
 #include "OnlineDBqueryHelper.h"
 
-class L1TMuonEndcapObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
+class L1TMuonEndCapObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
 private:
-
+    bool transactionSafe;
 public:
     void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
-    L1TMuonEndcapObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonEndcapObjectKeysOnlineProd(void) override{}
+    L1TMuonEndCapObjectKeysOnlineProd(const edm::ParameterSet&);
+    ~L1TMuonEndCapObjectKeysOnlineProd(void) override{}
 };
 
-L1TMuonEndcapObjectKeysOnlineProd::L1TMuonEndcapObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
-  : L1ObjectKeysOnlineProdBaseExt( iConfig ){
+L1TMuonEndCapObjectKeysOnlineProd::L1TMuonEndCapObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
+  : L1ObjectKeysOnlineProdBaseExt( iConfig )
+{
+    transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
 
-void L1TMuonEndcapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey ){
+void L1TMuonEndCapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey ){
 
     std::string EMTFKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kEMTF ) ;
 
@@ -30,7 +32,6 @@ void L1TMuonEndcapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
                         EMTFKey) ;
 
     std::string tscKey = EMTFKey.substr(0, EMTFKey.find(":") );
-    std::string  rsKey = EMTFKey.substr(   EMTFKey.find(":")+1, std::string::npos );
 
 ////////////////////////
 // the block below reproduces L1TMuonEndCapParamsOnlineProd identically
@@ -61,20 +62,41 @@ void L1TMuonEndcapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
                                                       ) ["CONF"];
 
     } catch ( std::runtime_error &e ) {
-        edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << e.what();
-        throw std::runtime_error("Broken key");
+        edm::LogError( "L1-O2O: L1TMuonEndCapObjectKeysOnlineProd" ) << e.what();
+        if( transactionSafe )
+            throw std::runtime_error("SummaryForFunctionManager: EMTF  | Faulty  | Broken key");
+        else {
+            edm::LogError( "L1-O2O: L1TMuonEndCapObjectKeysOnlineProd" ) << "forcing L1TMuonEndCapForest key to be = '7' (known to exist)";
+            pL1TriggerKey->add( "L1TMuonEndCapForestO2ORcd",
+                                "L1TMuonEndCapForest",
+                                "7") ;
+            return;
+        }
     }
 
     l1t::XmlConfigParser xmlRdr;
     l1t::TriggerSystem trgSys;
 
-    xmlRdr.readDOMFromString( hw_payload );
-    xmlRdr.readRootElement  ( trgSys     );
+    try {
+        xmlRdr.readDOMFromString( hw_payload );
+        xmlRdr.readRootElement  ( trgSys     );
 
-    xmlRdr.readDOMFromString( algo_payload );
-    xmlRdr.readRootElement  ( trgSys       );
+        xmlRdr.readDOMFromString( algo_payload );
+        xmlRdr.readRootElement  ( trgSys       );
 
-    trgSys.setConfigured();
+        trgSys.setConfigured();
+    } catch ( std::runtime_error &e ) {
+        edm::LogError( "L1-O2O: L1TMuonEndCapObjectKeysOnlineProd" ) << e.what();
+        if( transactionSafe )
+            throw std::runtime_error("SummaryForFunctionManager: EMTF  | Faulty  | Cannot parse XMLs");
+        else {
+            edm::LogError( "L1-O2O: L1TMuonEndCapObjectKeysOnlineProd" ) << "forcing L1TMuonEndCapForest key to be = '7' (known to exist)";
+            pL1TriggerKey->add( "L1TMuonEndCapForestO2ORcd",
+                                "L1TMuonEndCapForest",
+                                "7") ;
+            return;
+        }
+    }
 
     std::map<std::string, l1t::Parameter> conf = trgSys.getParameters("EMTF-1"); // any processor will do
 
@@ -88,4 +110,4 @@ void L1TMuonEndcapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
 
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndcapObjectKeysOnlineProd);
+DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndCapObjectKeysOnlineProd);

@@ -49,17 +49,22 @@ options.register('outputDBAuth',
                  '.', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Authentication path for outputDB")
+                 "Authentication path for output DB")
+options.register('protoDBConnect',
+                 'oracle://cms_orcon_prod/CMS_CONDITIONS', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Authentication path for proto DB")
+options.register('protoDBAuth',
+                 '.', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Authentication path for proto DB")
 options.register('overwriteKey',
                  0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Overwrite existing key")
-options.register('startup',
-                 0, #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Use L1StartupConfig_cff instead of L1DummyConfig_cff")
 
 options.parseArguments()
 
@@ -100,20 +105,16 @@ process.outputDB.DBParameters.authenticationPath = cms.untracked.string(options.
 
 if options.genFromOMDS == 0:
     # Generate dummy configuration data
-    process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnlineProxy_cfi')
-    process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapParamsOnlineProxy_cfi')
-    process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapForestOnlineProxy_cfi')
-#    if options.startup == 0:
-#        process.load("L1Trigger.Configuration.L1DummyConfig_cff")
-#        process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1031.L1Menu_MC2009_v2_L1T_Scales_20090624_Imp0_Unprescaled_cff")
-#    else:
-#        process.load("L1Trigger.Configuration.L1StartupConfig_cff")
-#        process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_Commissioning2009_v3_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff")
-
+    if options.objectType == 'L1TMuonEndCapForest' :
+        process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapForestOnlineProxy_cfi')
+        process.l1emtfForestProtodb.DBParameters.connect            = cms.untracked.string(options.protoDBConnect)
+        process.l1emtfForestProtodb.DBParameters.authenticationPath = cms.untracked.string(options.protoDBAuth)
+    else :
+        process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnlineProxy_cfi')
 else:
     # Generate configuration data from OMDS
     process.load("CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff")
-    process.load("CondTools.L1TriggerExt.L1ConfigRSPayloadsExt_cff")
+    #process.load("CondTools.L1TriggerExt.L1ConfigRSPayloadsExt_cff")
 
 # writer modules
 from CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cff import initPayloadWriterExt
