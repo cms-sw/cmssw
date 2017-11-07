@@ -713,15 +713,17 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
 bool HcalTopology::incrementDepth(HcalDetId & detId) const {
 
   HcalSubdetector subdet = detId.subdet();
-  int ieta = detId.ieta();
+  int ieta    = detId.ieta();
   int etaRing = detId.ietaAbs();
-  int depth = detId.depth();
+  int depth   = detId.depth();
+  int iphi    = detId.iphi();
+  int zside   = detId.zside();
   int nDepthBins, startingBin;
-  depthBinInformation(subdet, etaRing, detId.iphi(), detId.zside(), nDepthBins, startingBin);
+  depthBinInformation(subdet, etaRing, iphi, zside, nDepthBins, startingBin);
 
   // see if the new depth bin exists
   ++depth;
-  if (depth > nDepthBins) {
+  if (depth >= (startingBin+nDepthBins)) {
     // handle on a case-by-case basis
     if (subdet == HcalBarrel && etaRing < lastHORing())  {
       // HO
@@ -730,6 +732,8 @@ bool HcalTopology::incrementDepth(HcalDetId & detId) const {
     } else if (subdet == HcalBarrel && etaRing == lastHBRing()) {
       // overlap
       subdet = HcalEndcap;
+      if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) 
+	depth = hcons_->getDepthEta16(2,iphi,zside);
     } else if (subdet == HcalEndcap && etaRing ==  lastHERing()-1 &&
                mode_ != HcalTopologyMode::SLHC) {
       // guard ring HF29 is behind HE 28
@@ -746,7 +750,7 @@ bool HcalTopology::incrementDepth(HcalDetId & detId) const {
       return false;
     }
   }
-  detId = HcalDetId(subdet, ieta, detId.iphi(), depth);
+  detId = HcalDetId(subdet, ieta, iphi, depth);
   return validRaw(detId);
 }
 
@@ -755,8 +759,10 @@ bool HcalTopology::decrementDepth(HcalDetId & detId) const {
   int ieta    = detId.ieta();
   int etaRing = detId.ietaAbs();
   int depth   = detId.depth();
+  int iphi    = detId.iphi();
+  int zside   = detId.zside();
   int nDepthBins, startingBin;
-  depthBinInformation(subdet, etaRing, detId.iphi(), detId.zside(), nDepthBins, startingBin);
+  depthBinInformation(subdet, etaRing, iphi, zside, nDepthBins, startingBin);
 
   // see if the new depth bin exists
   --depth;
@@ -769,7 +775,8 @@ bool HcalTopology::decrementDepth(HcalDetId & detId) const {
         break;
       }
     }
-  } else if (subdet == HcalEndcap && etaRing ==  lastHERing() && depth == 2 &&
+  } else if (subdet == HcalEndcap && etaRing ==  lastHERing() && 
+	     depth == hcons_->getDepthEta29(iphi,zside,0) &&
              mode_ != HcalTopologyMode::SLHC) {
     (ieta > 0) ? --ieta : ++ieta;
   } else if (depth <= 0) {

@@ -8,7 +8,7 @@
 class RazorBox : public CachingVariable {
  public:
   RazorBox(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) ;
-  ~RazorBox(){}
+  ~RazorBox() override{}
   
   void compute(const edm::Event & iEvent) const;
  private:
@@ -18,9 +18,9 @@ class RazorBox : public CachingVariable {
 class RazorComputer : public VariableComputer {
  public:
   RazorComputer(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) ;
-  ~RazorComputer(){};
+  ~RazorComputer() override{};
 
-  void compute(const edm::Event & iEvent) const;
+  void compute(const edm::Event & iEvent) const override;
  private:
   edm::InputTag jet_;
   edm::InputTag met_;

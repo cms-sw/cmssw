@@ -10,10 +10,10 @@ class SiStripGainBuilderFromDb : public SiStripGainESSource {
   
   SiStripGainBuilderFromDb( const edm::ParameterSet& );
 
-  virtual ~SiStripGainBuilderFromDb();
+  ~SiStripGainBuilderFromDb() override;
   
   /** Builds pedestals using info from configuration database. */
-  virtual SiStripApvGain* makeGain();
+  SiStripApvGain* makeGain() override;
   
  protected:
   

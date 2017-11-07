@@ -64,11 +64,11 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
     if(!is_in){
 //calibrate digi and store the new ones
       electrons = calibrate(detId,adc,row,column,pcalibrations);
+      if(electrons < SeedADCThreshold_*ElectronADCGain_) electrons = SeedADCThreshold_*ElectronADCGain_;
       RPixCalibDigi calibDigi(row,column,adc,electrons);
       unsigned int index = column*maxRow + row;
       calib_rpix_digi_map_.insert(std::pair<unsigned int, RPixCalibDigi> (index, calibDigi));
-      if(calibDigi.electrons() > SeedADCThreshold_*ElectronADCGain_)
-	SeedVector_.push_back(calibDigi);
+      SeedVector_.push_back(calibDigi);
     }
   }
   if(verbosity_) edm::LogInfo("RPixDetClusterizer")<<" RPix set size = "<<calib_rpix_digi_map_.size();

@@ -7,8 +7,8 @@
 namespace heppy {
 
 EGammaMvaEleEstimatorFWLite::EGammaMvaEleEstimatorFWLite() :
-    estimator_(0),
-    estimatorCSA14_(0)
+    estimator_(nullptr),
+    estimatorCSA14_(nullptr)
 {
 }
 
@@ -23,8 +23,8 @@ void EGammaMvaEleEstimatorFWLite::initialize( std::string methodName,
         bool useBinnedVersion,
         std::vector<std::string> weightsfiles ) 
 {
-    delete estimator_; estimator_ = 0;
-    delete estimatorCSA14_; estimatorCSA14_ = 0;
+    delete estimator_; estimator_ = nullptr;
+    delete estimatorCSA14_; estimatorCSA14_ = nullptr;
     std::vector<std::string> weightspaths;
     for (const std::string &s : weightsfiles) {
         weightspaths.push_back( edm::FileInPath(s).fullPath() );

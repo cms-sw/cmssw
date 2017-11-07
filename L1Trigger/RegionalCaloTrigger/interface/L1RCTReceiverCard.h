@@ -91,6 +91,6 @@ class L1RCTReceiverCard {
 
   //No default constructor, no copy constructor,
   //and no assignment operator
-  L1RCTReceiverCard();
+  L1RCTReceiverCard() = delete;
 };
 #endif

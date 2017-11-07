@@ -45,8 +45,8 @@ using std::endl;
 class L1RCTParametersTester : public edm::EDAnalyzer {
 public:
   explicit L1RCTParametersTester(const edm::ParameterSet&) {}
-  virtual  ~L1RCTParametersTester() {}
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;  
+   ~L1RCTParametersTester() override {}
+      void analyze(const edm::Event&, const edm::EventSetup&) override;  
 
 };
 

@@ -42,7 +42,7 @@ class VariableFormulaEventSelector : public EventSelector {
       threshold_= pset.getParameter<double>("threshold");
     }
 
-  bool select(const edm::Event& e) const{
+  bool select(const edm::Event& e) const override{
     unsigned int v_i;
     std::set<std::string>::iterator v_it;
 
@@ -88,7 +88,7 @@ class VariableEventSelector : public EventSelector {
 	ss<<"with maximum boundary: "<<max_;
 	description_.push_back(ss.str());       ss.str("");}
     }
-    bool select(const edm::Event& e) const{
+    bool select(const edm::Event& e) const override{
       const CachingVariable * var=edm::Service<VariableHelperService>()->get().variable(var_);
       if (!var->compute(e)) return false;
 

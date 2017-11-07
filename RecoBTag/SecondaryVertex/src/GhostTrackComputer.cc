@@ -300,7 +300,7 @@ GhostTrackComputer::operator () (const TrackIPTagInfo &ipInfo,
 
 		// add track variables
 
-		math::XYZVector trackMom = track.momentum();
+		const math::XYZVector& trackMom = track.momentum();
 		double trackMag = std::sqrt(trackMom.Mag2());
 
 		vars.insert(btau::trackSip3dVal, data.ip3d.value(), true);
@@ -338,8 +338,8 @@ GhostTrackComputer::operator () (const TrackIPTagInfo &ipInfo,
 	            true);
 
 	if (vtxType != btag::Vertices::NoVertex) {
-		math::XYZTLorentzVector allSum = allKinematics.vectorSum();
-		math::XYZTLorentzVector vertexSum = vertexKinematics.vectorSum();
+		const math::XYZTLorentzVector& allSum = allKinematics.vectorSum();
+		const math::XYZTLorentzVector& vertexSum = vertexKinematics.vectorSum();
 
 		vars.insert(btau::vertexMass, vertexSum.M(), true);
 		if (allKinematics.numberOfTracks())
@@ -502,7 +502,7 @@ GhostTrackComputer::operator () (const CandIPTagInfo &ipInfo,
 
 		// add track variables
 
-		math::XYZVector trackMom = track.momentum();
+		const math::XYZVector& trackMom = track.momentum();
 		double trackMag = std::sqrt(trackMom.Mag2());
 
 		vars.insert(btau::trackSip3dVal, data.ip3d.value(), true);
@@ -532,8 +532,8 @@ GhostTrackComputer::operator () (const CandIPTagInfo &ipInfo,
 	vars.insert(btau::trackSip2dSigAboveCharm, threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.significance(), true);
 
 	if (vtxType != btag::Vertices::NoVertex) {
-		math::XYZTLorentzVector allSum = allKinematics.vectorSum();
-		math::XYZTLorentzVector vertexSum = vertexKinematics.vectorSum();
+		const math::XYZTLorentzVector& allSum = allKinematics.vectorSum();
+		const math::XYZTLorentzVector& vertexSum = vertexKinematics.vectorSum();
 
 		vars.insert(btau::vertexMass, vertexSum.M(), true);
 		if (allKinematics.numberOfTracks())

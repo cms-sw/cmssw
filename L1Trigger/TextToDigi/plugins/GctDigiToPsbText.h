@@ -25,11 +25,11 @@ class GctDigiToPsbText : public edm::EDAnalyzer {
 
  public:
   explicit GctDigiToPsbText(const edm::ParameterSet&);
-  ~GctDigiToPsbText();
+  ~GctDigiToPsbText() override;
   
   
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   /// label for input digis
   edm::InputTag m_gctInputLabel;

@@ -40,15 +40,15 @@
 class RPCPhiEff:public edm::EDAnalyzer {
  public:
   explicit RPCPhiEff(const edm::ParameterSet &);
-  ~RPCPhiEff();
+  ~RPCPhiEff() override;
 
 
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
   std::string fromCones(const edm::Event & iEvent);
   std::string fromRaw(const edm::Event & iEvent);
-  virtual void endJob();
+  void endJob() override;
   std::ofstream m_outfileC;
   std::ofstream m_outfileR;
 

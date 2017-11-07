@@ -11,9 +11,9 @@ using namespace oracle::occi;
 
 RunCrystalErrorsDat::RunCrystalErrorsDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
   m_errorBits = 0;
 }
 
@@ -59,7 +59,7 @@ void RunCrystalErrorsDat::writeDB(const EcalLogicID* ecid, const RunCrystalError
   try {
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
-    m_writeStmt->setString(3, ( std::to_string(item->getErrorBits()) ).c_str());
+    m_writeStmt->setString(3, std::to_string(item->getErrorBits()));
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
     throw(std::runtime_error("RunCrystalErrorsDat::writeDB():  "+e.getMessage()));

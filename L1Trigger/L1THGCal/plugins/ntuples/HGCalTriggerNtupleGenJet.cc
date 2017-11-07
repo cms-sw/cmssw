@@ -12,11 +12,11 @@ class HGCalTriggerNtupleGenJet : public HGCalTriggerNtupleBase
     public:
         HGCalTriggerNtupleGenJet(const edm::ParameterSet& );
 
-        virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
-        virtual void fill(const edm::Event&, const edm::EventSetup& ) override final;
+        void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+        void fill(const edm::Event&, const edm::EventSetup& ) final;
 
     private:
-        virtual void clear() override final;
+        void clear() final;
 
         edm::EDGetToken genjet_token_;
 

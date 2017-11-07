@@ -12,7 +12,7 @@
 
 Type0PFMETcorrInputProducer::Type0PFMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-    correction_(0)
+    correction_(nullptr)
 {
   pfCandidateToVertexAssociationsToken_ = consumes<PFCandToVertexAssMap>(cfg.getParameter<edm::InputTag>("srcPFCandidateToVertexAssociations"));
   hardScatterVertexToken_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcHardScatterVertex"));

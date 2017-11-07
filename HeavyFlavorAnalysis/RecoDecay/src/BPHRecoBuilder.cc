@@ -57,7 +57,7 @@ BPHRecoBuilder::~BPHRecoBuilder() {
   int m = srCompList.size();
   while ( m-- )
     delete srCompList[m];
-  while ( compCollectList.size() ) {
+  while ( !compCollectList.empty() ) {
     const vector<BPHRecoConstCandPtr>* cCollection = *compCollectList.begin();
     delete cCollection;
     compCollectList.erase( cCollection );
@@ -192,10 +192,10 @@ bool BPHRecoBuilder::sameTrack( const reco::Candidate* lCand,
   const reco::Track* rrcTrack = BPHTrackReference::getFromRC( *rCand );
   const reco::Track* lpfTrack = BPHTrackReference::getFromPF( *lCand );
   const reco::Track* rpfTrack = BPHTrackReference::getFromPF( *rCand );
-  if (   ( lrcTrack != 0        ) &&
+  if (   ( lrcTrack != nullptr        ) &&
        ( ( lrcTrack == rrcTrack ) ||
          ( lrcTrack == rpfTrack ) ) ) return true;
-  if (   ( lpfTrack != 0        ) &&
+  if (   ( lpfTrack != nullptr        ) &&
        ( ( lpfTrack == rrcTrack ) ||
          ( lpfTrack == rpfTrack ) ) ) return true;
   reco::Candidate::Vector pDiff = ( lCand->momentum() -

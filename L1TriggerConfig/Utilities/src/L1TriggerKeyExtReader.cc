@@ -12,11 +12,11 @@ class L1TriggerKeyExtReader : public edm::EDAnalyzer {
 private:
     std::string label;
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1TriggerKeyExtReader(const edm::ParameterSet &pset) : edm::EDAnalyzer(),
         label( pset.getParameter< std::string >( "label" ) ) {}
-    virtual ~L1TriggerKeyExtReader(void){}
+    ~L1TriggerKeyExtReader(void) override{}
 };
 
 #include <iostream>

@@ -49,14 +49,14 @@ helper::Parser::elementType(const edm::TypeWithDict &wrapperType) {
 
 bool
 helper::Parser::test(const reco::parser::SelectorPtr &sel, const edm::TypeWithDict type, const void * ptr) {
-    if (sel.get() == 0) return false;
+    if (sel.get() == nullptr) return false;
     edm::ObjectWithDict obj(type, const_cast<void *>(ptr));
     return (*sel)(obj);
 }
 
 double
 helper::Parser::eval(const reco::parser::ExpressionPtr &expr, const edm::TypeWithDict type, const void * ptr) {
-    if (expr.get() == 0) return 0;
+    if (expr.get() == nullptr) return 0;
     edm::ObjectWithDict obj(type, const_cast<void *>(ptr));
     return expr->value(obj);
 }
@@ -65,7 +65,7 @@ bool
 helper::ScannerBase::addExpression(const char *expr) {
     bool ok = true;
     exprs_.push_back(helper::Parser::makeExpression(expr,objType_));
-    if (exprs_.back().get() == 0) {
+    if (exprs_.back().get() == nullptr) {
         std::cerr << "Failed to parse expression " << expr << std::endl;
         exprs_.pop_back();
         ok = false;
@@ -111,7 +111,7 @@ helper::ScannerBase::addExtraCut(const char *cut) {
 bool
 helper::ScannerBase::test(const void *ptr, size_t icut) const {
     if (icut >= cuts_.size()) return false;
-    if (cuts_[icut].get() == 0) return true;
+    if (cuts_[icut].get() == nullptr) return true;
     try {
         edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
         return (*cuts_[icut])(obj);
@@ -135,9 +135,9 @@ helper::ScannerBase::eval(const void *ptr, size_t iexpr) const {
 void
 helper::ScannerBase::print(const void *ptr) const {
     edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
-    if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
+    if ((cuts_[0].get() == nullptr) || (*cuts_[0])(obj)) {
         for (std::vector<reco::parser::ExpressionPtr>::const_iterator it = exprs_.begin(), ed = exprs_.end(); it != ed; ++it) {
-            if (ptr == 0 || it->get() == 0) {
+            if (ptr == nullptr || it->get() == nullptr) {
                 printf(" : %8s", "#ERR");
             } else {  
                 try {
@@ -162,7 +162,7 @@ helper::ScannerBase::print(const void *ptr) const {
             }
         }
         for (std::vector<reco::parser::SelectorPtr>::const_iterator it = cuts_.begin()+1, ed = cuts_.end(); it != ed; ++it) {
-            if (ptr == 0 || it->get() == 0) {
+            if (ptr == nullptr || it->get() == nullptr) {
                 printf(" : %8s", "#ERR");
             } else {  
                 try {
@@ -182,7 +182,7 @@ helper::ScannerBase::print(const void *ptr) const {
 void
 helper::ScannerBase::fill1D(const void *ptr, TH1 *hist) const {
     edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
-    if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
+    if ((cuts_[0].get() == nullptr) || (*cuts_[0])(obj)) {
         try {
             if (!exprs_.empty()) hist->Fill(exprs_[0]->value(obj));
         } catch (std::exception &ex) {
@@ -194,7 +194,7 @@ helper::ScannerBase::fill1D(const void *ptr, TH1 *hist) const {
 void
 helper::ScannerBase::fill2D(const void *ptr, TH2 *hist) const {
     edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
-    if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
+    if ((cuts_[0].get() == nullptr) || (*cuts_[0])(obj)) {
         try {
             if (exprs_.size() >= 2) hist->Fill(exprs_[0]->value(obj), exprs_[1]->value(obj));
         } catch (std::exception &ex) {
@@ -206,7 +206,7 @@ helper::ScannerBase::fill2D(const void *ptr, TH2 *hist) const {
 void
 helper::ScannerBase::fillGraph(const void *ptr, TGraph *graph) const {
     edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
-    if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
+    if ((cuts_[0].get() == nullptr) || (*cuts_[0])(obj)) {
         try {
             if (exprs_.size() >= 2) graph->SetPoint(graph->GetN(), exprs_[0]->value(obj), exprs_[1]->value(obj));
         } catch (std::exception &ex) {
@@ -219,7 +219,7 @@ helper::ScannerBase::fillGraph(const void *ptr, TGraph *graph) const {
 void
 helper::ScannerBase::fillProf(const void *ptr, TProfile *hist) const {
     edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
-    if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
+    if ((cuts_[0].get() == nullptr) || (*cuts_[0])(obj)) {
         try {
             if (exprs_.size() >= 2) hist->Fill(exprs_[0]->value(obj), exprs_[1]->value(obj));
         } catch (std::exception &ex) {

@@ -33,10 +33,10 @@ class SoftPFElectronTagInfoProducer : public edm::stream::EDProducer<>
   public:
 
     SoftPFElectronTagInfoProducer (const edm::ParameterSet& conf);
-    ~SoftPFElectronTagInfoProducer();
+    ~SoftPFElectronTagInfoProducer() override;
   private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
     bool isElecClean(edm::Event&,const reco::GsfElectron*);
     float boostedPPar(const math::XYZVector&, const math::XYZVector&);   
  

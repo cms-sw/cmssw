@@ -18,7 +18,7 @@ pair<bool,double> HistogramProbabilityEstimator::probability(bool quality, int i
      double absSignificance= fabs(significance);
   
        
-      const CalibratedHistogram * probabilityHistogram  = 0;
+      const CalibratedHistogram * probabilityHistogram  = nullptr;
       vector<TrackProbabilityCalibration::Entry>::const_iterator found;
       vector<TrackProbabilityCalibration::Entry>::const_iterator it;
       vector<TrackProbabilityCalibration::Entry>::const_iterator it_end;

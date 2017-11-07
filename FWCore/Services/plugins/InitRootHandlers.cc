@@ -340,13 +340,20 @@ namespace {
           int ms_remaining = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-std::chrono::steady_clock::now()).count();
           if (ms_remaining > 0)
           {
-            if (poll(&poll_info, 1, ms_remaining) == 0)
+            int rc = poll(&poll_info, 1, ms_remaining);
+            if (rc <= 0)
             {
+              if (rc < 0) {
+                if (errno == EINTR || errno == EAGAIN) { continue; }
+                rc = -errno;
+              } else {
+                rc = -ETIMEDOUT;
+              }
               if ((flags & O_NONBLOCK) != O_NONBLOCK)
               {
                 fcntl(fd, F_SETFL, flags);
               }
-              return -ETIMEDOUT;
+              return rc;
             }
           }
           else if (ms_remaining < 0)
