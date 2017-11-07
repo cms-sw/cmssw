@@ -142,7 +142,7 @@ offlineHLTSource4LowLumi = cms.Sequence(
 # these have to be migrated in the main offlineHLTSourceOnAOD sequence
 offlineHLTSourceOnAODextra = cms.Sequence(
     egHLTOffDQMSource ## NEEDED in VALIDATION, not really in MONITORING [PdmV should take offlineHLTSourceOnAODextra for the relval prod !!!]
-    egHLTOffDQMSource_HEP17 *
+    * egHLTOffDQMSource_HEP17
 ### POG
     * btvHLTDQMSourceExtra
     * egmHLTDQMSourceExtra
