@@ -51,7 +51,7 @@
 #include <iostream>
 //#include <sstream>
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 #include <cstdio>
 
 //----------------------
@@ -80,14 +80,14 @@ class L1MuGMTLUT {
     /// Init and Destruct
 
     /// default constructor w/o init
-    L1MuGMTLUT() : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {};
+    L1MuGMTLUT() : m_initialized(false), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {};
 
     /// constructor with init
     L1MuGMTLUT(const char* name, 
 	       const std::vector<std::string>&  instances, 
 	       const std::vector<port>& in_widths, 
 	       const std::vector<port>& out_widths, 
-	       unsigned vme_addr_width=0, bool distrRAM=false) : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {
+	       unsigned vme_addr_width=0, bool distrRAM=false) : m_initialized(false), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {
       Init (name, instances, in_widths, out_widths, vme_addr_width, distrRAM); 
       };
 
@@ -95,7 +95,7 @@ class L1MuGMTLUT {
 	       const std::string& instances, 
 	       const std::string& inputs, 
 	       const std::string& outputs, 
-	       unsigned vme_addr_width=0, bool distrRAM=false) : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {
+	       unsigned vme_addr_width=0, bool distrRAM=false) : m_initialized(false), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {
       Init (name, L1MuGMTLUTHelpers::Tokenizer(" ",instances), PortDecoder(inputs), PortDecoder(outputs), 
 	    vme_addr_width, distrRAM); 
       };

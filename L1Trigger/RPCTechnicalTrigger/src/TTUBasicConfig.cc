@@ -88,7 +88,7 @@ bool TTUBasicConfig::initialise( int line , int ttuid )
   
   if ( !status ) { 
     if( m_debug ) std::cout << "TTUConfiguration> Problem initialising the logic unit\n"; 
-    return 0; };
+    return false; };
   
   return status;
   

@@ -74,6 +74,9 @@ public:
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
 
+  void case11_selection(const float & dimuonCL, const float & jpsi_cos, const GlobalPoint & displacementFromBeamspotJpsi, const GlobalError & jerr, const edm::Handle<reco::TrackCollection> & trHandle, const std::string & hltpath, const edm::Handle<trigger::TriggerEvent> & handleTriggerEvent, const reco::Muon& m, const reco::Muon& m1, const edm::ESHandle<MagneticField> & bFieldHandle, const reco::BeamSpot & vertexBeamSpot, MonitorElement* phi1, MonitorElement* eta1, MonitorElement* pT1, MonitorElement* phi2, MonitorElement* eta2, MonitorElement* pT2);
+
+
 protected:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -177,6 +180,8 @@ private:
   double minmassJpsi;
   double maxmassUpsilon;
   double minmassUpsilon;
+  double maxmassTkTk;
+  double minmassTkTk;
   double maxmassJpsiTk;
   double minmassJpsiTk;
   double kaon_mass;

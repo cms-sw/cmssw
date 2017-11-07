@@ -134,6 +134,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
         pusParams[i] = ceil(2*ptr1->regionPUSParams()[i]);
         if( printPUSParams ) cout<<"   "<<ceil(2*pusParams[i])<<endl;
     }
+
     if( !ptr1->regionPUSParams().empty() )
         cout << hash(pusParams, sizeof(float)*ptr1->regionPUSParams().size()) << endl;
     else cout<<endl;
@@ -375,6 +376,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     cout<<"  jetCalibrationParams=   ["<<ptr1->jetCalibrationParams().size()<<"] "<<flush;
     float jetCalibrationParams[ptr1->jetCalibrationParams().size()]; // deliberately drop double precision
     for(unsigned int i=0; i<ptr1->jetCalibrationParams().size(); i++) jetCalibrationParams[i] = ptr1->jetCalibrationParams()[i];
+
     if( !ptr1->jetCalibrationParams().empty() ){
         cout << hash( jetCalibrationParams, sizeof(float)*ptr1->jetCalibrationParams().size() ) << endl;
         if( printJetCalibPar )

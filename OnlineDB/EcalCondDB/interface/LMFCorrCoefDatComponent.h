@@ -26,7 +26,7 @@ class LMFCorrCoefDatComponent: public LMFDat {
   LMFCorrCoefDatComponent(EcalDBConnection *c);
   LMFCorrCoefDatComponent(oracle::occi::Environment* env,
 		 oracle::occi::Connection* conn);
-  ~LMFCorrCoefDatComponent() {};
+  ~LMFCorrCoefDatComponent() override {};
 
   LMFCorrCoefDatComponent& setLMFLmrSubIOV(const LMFLmrSubIOV &iov);
   LMFCorrCoefDatComponent& setP123(const EcalLogicID &id, float p1, float p2, float p3);
@@ -49,10 +49,10 @@ class LMFCorrCoefDatComponent: public LMFDat {
   int                 getSeqID(int id);
   LMFSeqDat           getSequence(const EcalLogicID &id);
   
-  std::string foreignKeyName() const;
-  std::string getTableName() const;
-  std::string getIovIdFieldName() const;
-  int writeDB() noexcept(false);
+  std::string foreignKeyName() const override;
+  std::string getTableName() const override;
+  std::string getIovIdFieldName() const override;
+  int writeDB() noexcept(false) override;
 
  private:
   void init();

@@ -42,10 +42,10 @@ namespace edm {
 class MCProcessRangeFilter : public edm::EDFilter {
    public:
       explicit MCProcessRangeFilter(const edm::ParameterSet&);
-      ~MCProcessRangeFilter();
+      ~MCProcessRangeFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       

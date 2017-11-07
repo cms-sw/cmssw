@@ -25,21 +25,21 @@ public:
     push_back("Muon Pt", muonPtMin );
     push_back("MET"    , metMin    );
     set("Muon Pt"); set("MET");
-    wMuon_ = 0; met_ = 0;
+    wMuon_ = nullptr; met_ = nullptr;
     if ( params.exists("cutsToIgnore") ){
       setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
     }
     retInternal_ = getBitTemplate();
   }
   /// destructor
-  virtual ~WSelector() {}
+  ~WSelector() override {}
   /// return muon candidate of W boson
   pat::Muon const& wMuon() const { return *wMuon_;}
   /// return MET of W boson
   pat::MET  const& met()   const { return *met_;  }
 
   /// here is where the selection occurs
-  virtual bool operator()( edm::EventBase const & event, pat::strbitset & ret){
+  bool operator()( edm::EventBase const & event, pat::strbitset & ret) override{
     ret.set(false);
     // Handle to the muon collection
     edm::Handle<std::vector<pat::Muon> > muons;    
@@ -57,7 +57,7 @@ public:
     // get the highest pt muon, require to have pt > minimum
     if( gotMuons ){
       if( !ignoreCut("Muon Pt") ){
-	if( muons->size() > 0 ){
+	if( !muons->empty() ){
 	  wMuon_ = &muons->at(0);
 	  if( wMuon_->pt() > cut("Muon Pt", double()) || ignoreCut("Muon Pt") ) 
 	    passCut(ret, "Muon Pt");

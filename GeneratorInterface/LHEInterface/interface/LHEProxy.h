@@ -50,8 +50,8 @@ class LHEProxy {
 	LHEProxy(ProxyID id);
 
 	// not allowed and not implemented
-	LHEProxy(const LHEProxy &orig);
-	LHEProxy &operator = (const LHEProxy &orig);
+	LHEProxy(const LHEProxy &orig) = delete;
+	LHEProxy &operator = (const LHEProxy &orig) = delete;
 
 	const ProxyID			id;
 

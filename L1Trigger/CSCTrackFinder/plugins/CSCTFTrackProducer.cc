@@ -34,7 +34,7 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
   my_dtrc = new CSCTFDTReceiver();
   m_scalesCacheID = 0ULL ;
   m_ptScaleCacheID = 0ULL ;
-  my_builder = 0 ;
+  my_builder = nullptr ;
   produces<L1CSCTrackCollection>();
   produces<CSCTriggerContainer<csctf::TrackStub> >();
 }
@@ -42,10 +42,10 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
 CSCTFTrackProducer::~CSCTFTrackProducer()
 {
   delete my_dtrc;
-  my_dtrc = NULL;
+  my_dtrc = nullptr;
 
   delete my_builder;
-  my_builder = 0;
+  my_builder = nullptr;
 }
 
 void CSCTFTrackProducer::beginJob(){
@@ -102,7 +102,7 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
 	emulStub.push_many(*stubPointer);
   } 
 
-  my_builder->buildTracks(LCTs.product(), (useDT?&emulStub:0), track_product.get(), dt_stubs.get());
+  my_builder->buildTracks(LCTs.product(), (useDT?&emulStub:nullptr), track_product.get(), dt_stubs.get());
 
   e.put(std::move(track_product));
   e.put(std::move(dt_stubs));

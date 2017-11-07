@@ -45,12 +45,12 @@
 class ConfigurableAnalysis : public edm::EDFilter {
    public:
       explicit ConfigurableAnalysis(const edm::ParameterSet&);
-      ~ConfigurableAnalysis();
+      ~ConfigurableAnalysis() override;
 
    private:
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
   FilterSelections * selections_;
   Plotter * plotter_;
@@ -72,7 +72,7 @@ class ConfigurableAnalysis : public edm::EDFilter {
 // constructors and destructor
 //
 ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
-  selections_(0), plotter_(0), ntupler_(0)
+  selections_(nullptr), plotter_(nullptr), ntupler_(nullptr)
 {
 
   std::string moduleLabel = iConfig.getParameter<std::string>("@module_label");
@@ -94,7 +94,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
     plotter_ = PlotterFactory::get()->create(plotterName, plotPset);
   }
   else
-    plotter_ = 0;
+    plotter_ = nullptr;
 
   //ntupling device
   edm::ParameterSet ntPset = iConfig.getParameter<edm::ParameterSet>("Ntupler");
@@ -102,7 +102,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
     std::string ntuplerName=ntPset.getParameter<std::string>("ComponentName");
     ntupler_ = NTuplerFactory::get()->create(ntuplerName, ntPset);
   }
-  else ntupler_=0;
+  else ntupler_=nullptr;
 
   flows_ = iConfig.getParameter<std::vector<std::string> >("flows");
   workAsASelector_ = iConfig.getParameter<bool>("workAsASelector");

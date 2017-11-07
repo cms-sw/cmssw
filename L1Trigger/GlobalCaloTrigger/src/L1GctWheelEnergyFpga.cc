@@ -48,7 +48,7 @@ L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id, const std::vector<L1GctJetLea
   
   for(unsigned int i = 0; i < m_inputLeafCards.size(); ++i)
     {
-      if(m_inputLeafCards.at(i) == 0)
+      if(m_inputLeafCards.at(i) == nullptr)
 	{
 	  m_setupOk = false;
 	  if (m_verbose) {

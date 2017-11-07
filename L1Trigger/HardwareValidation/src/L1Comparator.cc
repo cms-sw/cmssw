@@ -96,7 +96,7 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
       
       for (int i = 0; i < 2 ; ++i) { 
         edm::InputTag const& tag = tags[i];
-        std::string const label = tag.label();
+        std::string const& label = tag.label();
         tokenGctEmCand_isoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "isoEm"));
         tokenGctEmCand_nonIsoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "nonIsoEm"));
         tokenGctJetCand_cenJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "cenJets"));
@@ -114,7 +114,7 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
     if(m_stage1_layer2_ == true) {
       for (int i = 0; i < 2 ; ++i) { 
         edm::InputTag const& tag = tags[i];
-        std::string const label = tag.label();
+        std::string const& label = tag.label();
         tokenGctEmCand_isoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "isoEm"));
         tokenGctEmCand_nonIsoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "nonIsoEm"));
         tokenGctJetCand_cenJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "cenJets"));
@@ -388,10 +388,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByToken(tokenMuDTChambTh_[0],dtp_th_data_);
     iEvent.getByToken(tokenMuDTChambTh_[1],dtp_th_emul_);
   }
-  L1MuDTChambPhDigiCollection const* dtp_ph_data = 0; 
-  L1MuDTChambPhDigiCollection const* dtp_ph_emul = 0; 
-  L1MuDTChambThDigiCollection const* dtp_th_data = 0; 
-  L1MuDTChambThDigiCollection const* dtp_th_emul = 0; 
+  L1MuDTChambPhDigiCollection const* dtp_ph_data = nullptr; 
+  L1MuDTChambPhDigiCollection const* dtp_ph_emul = nullptr; 
+  L1MuDTChambThDigiCollection const* dtp_th_data = nullptr; 
+  L1MuDTChambThDigiCollection const* dtp_th_emul = nullptr; 
 
   if(dtp_ph_data_.isValid()) dtp_ph_data = dtp_ph_data_->getContainer();
   if(dtp_ph_emul_.isValid()) dtp_ph_emul = dtp_ph_emul_->getContainer();
@@ -401,8 +401,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // -- DTF [drift tube track finder]
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_data_;
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_emul_;
-  L1MuRegionalCandCollection const* dtf_trk_data = 0;
-  L1MuRegionalCandCollection const* dtf_trk_emul = 0;
+  L1MuRegionalCandCollection const* dtf_trk_data = nullptr;
+  L1MuRegionalCandCollection const* dtf_trk_emul = nullptr;
   if(m_doSys[DTF]) {
     iEvent.getByToken(tokenMuDTTrack_[0],dtf_trk_data_);
     iEvent.getByToken(tokenMuDTTrack_[1],dtf_trk_emul_);
@@ -700,7 +700,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   m_dumpFile << std::flush;
 
   //if collection is empty, add empty digi
-  if(m_dedigis.size()==0) {
+  if(m_dedigis.empty()) {
     if(verbose())
       std::cout << "\n [L1Comparator] adding empty collection to DErecord\n";
     m_dedigis.push_back(L1DataEmulDigi());

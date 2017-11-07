@@ -20,6 +20,39 @@ SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
          .groupBy("PXForward", "EXTEND_Y")
          .save(),
 
+    Specification().groupBy("PXForward/PXRing").save(),
+
+    Specification(PerModule).groupBy("PXForward/PXRing/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXRing","EXTEND_X")
+                   .save(),
+
+    Specification(IsOffline).groupBy("PXForward/PXRing/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXRing","EXTEND_X")
+                   .save(),
+
+
+    Specification(PerModule).groupBy("PXBarrel/PXLayer/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .save(),
+
+    Specification(PerModule).groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk", "EXTEND_X")
+                   .save(),
+
+    Specification(IsOffline).groupBy("PXBarrel/PXLayer/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .save(),
+
+    Specification(IsOffline).groupBy("PXForward/PXDisk/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk", "EXTEND_X")
+                   .save(),
+
     Specification(OverlayCurvesForTiming).groupBy("PXForward/PXDisk/OnlineBlock") # per-layer with history for online
                    .groupBy("PXForward/PXDisk", "EXTEND_Y")
                    .save(),
@@ -37,7 +70,39 @@ SiPixelPhase1TrackClustersOnTrackSize = DefaultHistoTrack.clone(
 
   specs = VPSet(
         StandardSpecifications1D,    
-        StandardSpecification2DProfile
+        StandardSpecification2DProfile,
+
+        Specification().groupBy("PXForward/PXRing").save(),
+
+        Specification(PerModule).groupBy("PXForward/PXRing/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXRing","EXTEND_X")
+                   .save(),
+
+        Specification(IsOffline).groupBy("PXForward/PXRing/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXRing","EXTEND_X")
+                   .save(),
+
+        Specification(PerModule).groupBy("PXBarrel/PXLayer/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .save(),
+
+        Specification(PerModule).groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk", "EXTEND_X")
+                   .save(),
+
+        Specification(IsOffline).groupBy("PXBarrel/PXLayer/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .save(),
+
+        Specification(IsOffline).groupBy("PXForward/PXDisk/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk", "EXTEND_X")
+                   .save()
   )
 )
 
@@ -53,12 +118,22 @@ SiPixelPhase1TrackClustersOnTrackShape = DefaultHistoTrack.clone(
     Specification().groupBy("PXForward/PXDisk").saveAll(),
     StandardSpecification2DProfile,
 
-    Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+    Specification(PerModule).groupBy("PXBarrel/PXLayer/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_X")
                    .save(),
 
-    Specification().groupBy("PXForward/PXDisk/Lumisection")
+    Specification(PerModule).groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk", "EXTEND_X")
+                   .save(),
+
+    Specification(IsOffline).groupBy("PXBarrel/PXLayer/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .save(),
+
+    Specification(IsOffline).groupBy("PXForward/PXDisk/LumiBlock")
                    .reduce("MEAN")
                    .groupBy("PXForward/PXDisk", "EXTEND_X")
                    .save(),
@@ -78,15 +153,7 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
   dimensions = 0,
 
   specs = VPSet(
- #   Specification().groupBy("PXBarrel/PXLayer" + "/DetId/Event") 
- #                  .reduce("COUNT") 
- #                  .groupBy("PXBarrel/PXLayer")
- #                  .saveAll(),
- #   Specification().groupBy("PXForward/PXDisk" + "/DetId/Event") 
- #                  .reduce("COUNT") 
- #                  .groupBy("PXForward/PXDisk")
- #                  .saveAll(),
- #   #StandardSpecificationInclusive_Num,
+
     StandardSpecificationTrend_Num,
     StandardSpecification2DProfile_Num,
 
@@ -118,16 +185,30 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
     Specification().groupBy("BX")
                    .groupBy("", "EXTEND_X").save(),
 
-    Specification().groupBy("PXBarrel/PXLayer/Event")
+    Specification(PerModule).groupBy("PXBarrel/PXLayer/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel/PXLayer","EXTEND_X")
                    .save(),
 
-    Specification().groupBy("PXForward/PXDisk/Event")
+    Specification(PerModule).groupBy("PXForward/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .save(),
+
+    Specification(IsOffline).groupBy("PXBarrel/PXLayer/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/PXLayer/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer","EXTEND_X")
+                   .save(),
+
+    Specification(IsOffline).groupBy("PXForward/PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/PXDisk/LumiBlock")
                    .reduce("MEAN")
                    .groupBy("PXForward/PXDisk","EXTEND_X")
                    .save(),

@@ -136,15 +136,15 @@ class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBas
   }
   
   /// Destructor
-  virtual ~MuonTrackValidator(){ }
+  ~MuonTrackValidator() override{ }
 
   /// Method called before the event loop
   //  void beginRun(edm::Run const&, edm::EventSetup const&);
   /// Method called once per event
-  void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
   /// Method called at the end of the event loop
-  void endRun(edm::Run const&, edm::EventSetup const&);
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&);
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
   /// retrieval of reconstructed momentum components from reco::Track (== mean values for GSF)

@@ -87,9 +87,9 @@ void GlobalDigisHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
       "TIDW2", "TIDW3", "TOBL1", "TOBL2", "TOBL3", "TOBL4"};
 
   for (int i = 0; i < 19; ++i) {
-    mehSiStripn[i] = 0;
-    mehSiStripADC[i] = 0;
-    mehSiStripStrip[i] = 0;
+    mehSiStripn[i] = nullptr;
+    mehSiStripADC[i] = nullptr;
+    mehSiStripStrip[i] = nullptr;
   }
 
   ibooker.setCurrentFolder("GlobalDigisV/SiStrips");
@@ -121,11 +121,11 @@ void GlobalDigisHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
   double ProfileUpper[4] = {1., 1., 1., 20.};
 
   for (int i =0; i<4; ++i) {
-    mehHcaln[i] = 0;
-    mehHcalAEE[i] = 0;
-    mehHcalSHE[i] = 0;
-    mehHcalAEESHE[i] = 0;
-    mehHcalSHEvAEE[i] = 0;
+    mehHcaln[i] = nullptr;
+    mehHcalAEE[i] = nullptr;
+    mehHcalSHE[i] = nullptr;
+    mehHcalAEESHE[i] = nullptr;
+    mehHcalSHEvAEE[i] = nullptr;
   }
 
   ibooker.setCurrentFolder("GlobalDigisV/HCals");
@@ -165,12 +165,12 @@ void GlobalDigisHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
   std::string ECalString[2] = {"EB","EE"}; 
 
   for (int i = 0; i < 2; ++i) {
-    mehEcaln[i] = 0;
-    mehEcalAEE[i] = 0;
-    mehEcalSHE[i] = 0;
-    mehEcalMaxPos[i] = 0;
-    mehEcalMultvAEE[i] = 0;
-    mehEcalSHEvAEESHE[i] = 0;
+    mehEcaln[i] = nullptr;
+    mehEcalAEE[i] = nullptr;
+    mehEcalSHE[i] = nullptr;
+    mehEcalMaxPos[i] = nullptr;
+    mehEcalMultvAEE[i] = nullptr;
+    mehEcalSHEvAEESHE[i] = nullptr;
   }
 
   ibooker.setCurrentFolder("GlobalDigisV/ECals");
@@ -210,13 +210,13 @@ void GlobalDigisHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
     mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis", 2);
   }
 
-  mehEcaln[2] = 0;
+  mehEcaln[2] = nullptr;
   mehEcaln[2] = ibooker.book1D("hEcaln_ES", "ESCAL  digis", 100, 0., 500.);
   mehEcaln[2]->setAxisTitle("Number of Digis", 1);
   mehEcaln[2]->setAxisTitle("Count", 2);
   std::string ADCNumber[3] = {"0", "1", "2"};
   for (int i = 0; i < 3; ++i) {
-    mehEScalADC[i] = 0;
+    mehEScalADC[i] = nullptr;
     mehEScalADC[i] = ibooker.book1D(
         "hEcalADC" + ADCNumber[i] + "_ES","ESCAL  ADC" + ADCNumber[i], 150, 950., 1500.);
 
@@ -229,10 +229,10 @@ void GlobalDigisHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
       "FWD2p"};
 
   for (int j = 0; j < 7; ++j) {
-    mehSiPixeln[j] = 0;
-    mehSiPixelADC[j] = 0;
-    mehSiPixelRow[j] = 0;
-    mehSiPixelCol[j] = 0;
+    mehSiPixeln[j] = nullptr;
+    mehSiPixelADC[j] = nullptr;
+    mehSiPixelRow[j] = nullptr;
+    mehSiPixelCol[j] = nullptr;
   }
 
   ibooker.setCurrentFolder("GlobalDigisV/SiPixels");
@@ -270,10 +270,10 @@ void GlobalDigisHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
   std::string MuonString[4] = {"MB1", "MB2", "MB3", "MB4"};
 
   for (int i = 0; i < 4; ++i) {
-    mehDtMuonn[i] = 0;
-    mehDtMuonLayer[i] = 0;
-    mehDtMuonTime[i] = 0;
-    mehDtMuonTimevLayer[i] = 0;
+    mehDtMuonn[i] = nullptr;
+    mehDtMuonLayer[i] = nullptr;
+    mehDtMuonTime[i] = nullptr;
+    mehDtMuonTimevLayer[i] = nullptr;
   }
 
   for (int j = 0; j < 4; ++j) {
@@ -302,22 +302,22 @@ void GlobalDigisHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
 
   //  ****  Have to do CSC and RPC now *****
   //CSC 
-  mehCSCStripn = 0;
+  mehCSCStripn = nullptr;
   mehCSCStripn = ibooker.book1D("hCSCStripn", "CSC Strip digis", 25, 0., 50.);
   mehCSCStripn->setAxisTitle("Number of Digis", 1);
   mehCSCStripn->setAxisTitle("Count", 2);
 
-  mehCSCStripADC = 0;
+  mehCSCStripADC = nullptr;
   mehCSCStripADC = ibooker.book1D("hCSCStripADC", "CSC Strip ADC", 110, 0., 1100.);
   mehCSCStripADC->setAxisTitle("ADC", 1);
   mehCSCStripADC->setAxisTitle("Count", 2);
 
-  mehCSCWiren = 0;
+  mehCSCWiren = nullptr;
   mehCSCWiren = ibooker.book1D("hCSCWiren", "CSC Wire digis", 25, 0., 50.);
   mehCSCWiren->setAxisTitle("Number of Digis", 1);
   mehCSCWiren->setAxisTitle("Count", 2);
 
-  mehCSCWireTime = 0;
+  mehCSCWireTime = nullptr;
   mehCSCWiren = ibooker.book1D("hCSCWireTime", "CSC Wire Time", 10, 0., 10.);
   mehCSCWiren->setAxisTitle("Time", 1);
   mehCSCWiren->setAxisTitle("Count", 2);

@@ -18,7 +18,7 @@
 class CandOneToOneDeltaRMatcher : public edm::EDProducer {
  public:
   CandOneToOneDeltaRMatcher( const edm::ParameterSet & );
-  ~CandOneToOneDeltaRMatcher();
+  ~CandOneToOneDeltaRMatcher() override;
  private:
   void produce( edm::Event&, const edm::EventSetup& ) override;
   double lenght( const std::vector<int>& );

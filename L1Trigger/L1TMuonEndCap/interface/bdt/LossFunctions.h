@@ -41,7 +41,7 @@ class LeastSquares : public LossFunction
 {
     public:
         LeastSquares(){}
-        virtual ~LeastSquares(){}
+        ~LeastSquares() override{}
 
         double target(Event* e) override
         {
@@ -75,7 +75,7 @@ class AbsoluteDeviation : public LossFunction
 {
     public:
         AbsoluteDeviation(){}
-        virtual ~AbsoluteDeviation(){}
+        ~AbsoluteDeviation() override{}
 
         double target(Event* e) override
         {
@@ -131,7 +131,7 @@ class Huber : public LossFunction
 {
     public:
         Huber(){}
-        virtual ~Huber(){}
+        ~Huber() override{}
  
         double quantile;
         double residual_median;
@@ -195,7 +195,7 @@ class PercentErrorSquared : public LossFunction
 {
     public:
         PercentErrorSquared(){}
-        virtual ~PercentErrorSquared(){}
+        ~PercentErrorSquared() override{}
 
         double target(Event* e) override
         {   

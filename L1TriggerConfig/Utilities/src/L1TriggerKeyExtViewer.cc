@@ -16,6 +16,7 @@ public:
 
     explicit L1TriggerKeyExtViewer(const edm::ParameterSet &pset) : edm::EDAnalyzer(),
         label( pset.getParameter< std::string >( "label" ) ) {}
+
     ~L1TriggerKeyExtViewer(void) override {}
 };
 

@@ -15,10 +15,10 @@ DTCollector::DTCollector( const edm::ParameterSet& ps ):
   bx_min(ps.getParameter<int>("BX_min")),
   bx_max(ps.getParameter<int>("BX_max")) {
   if( ps.getParameter<bool>("runBunchCrossingCleaner") ) {
-    edm::ParameterSet bxccfg = ps.getParameterSet("bxCleanerCfg");
+    const edm::ParameterSet& bxccfg = ps.getParameterSet("bxCleanerCfg");
     _bxc.reset(new DTBunchCrossingCleaner(bxccfg));
   } else {
-    _bxc.reset(NULL);
+    _bxc.reset(nullptr);
   }
 }
 

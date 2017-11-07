@@ -512,8 +512,8 @@ void L1GlobalTriggerGTL::run(
                     const int cond0Ind = corrTemplate->cond0Index();
                     const int cond1Ind = corrTemplate->cond1Index();
 
-                    const L1GtCondition* cond0Condition = 0;
-                    const L1GtCondition* cond1Condition = 0;
+                    const L1GtCondition* cond0Condition = nullptr;
+                    const L1GtCondition* cond1Condition = nullptr;
 
                     // maximum number of objects received for evaluation of Type1s condition
                     int cond0NrL1Objects = 0;
@@ -724,7 +724,7 @@ void L1GlobalTriggerGTL::run(
                 itCond != itCondOnChip->end(); itCond++) {
 
             delete itCond->second;
-            itCond->second = 0;
+            itCond->second = nullptr;
         }
     }
 

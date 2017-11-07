@@ -28,10 +28,10 @@ class TotalKinematicsFilter : public edm::EDFilter
 {
   public:
   explicit TotalKinematicsFilter(const edm::ParameterSet&);
-  ~TotalKinematicsFilter();
+  ~TotalKinematicsFilter() override;
 
   private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 
