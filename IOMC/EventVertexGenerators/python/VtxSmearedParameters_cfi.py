@@ -639,18 +639,22 @@ NominalHICollision2015VtxSmearingParameters = cms.PSet(
 )
 
 # updated numbers based on beamspot fits to 2015 PbPb data
-RealisticHICollision2015VtxSmearingParameters = cms.PSet(
-    Phi = cms.double(0.0),
-    BetaStar = cms.double(60.0),
-    Emittance = cms.double(1.70e-07),
-    Alpha = cms.double(0.0),
-    SigmaZ = cms.double(5.2278),
-    TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.1025),
-    Y0 = cms.double(0.1654),
-    Z0 = cms.double(3.2528)
-)
+# Later found to be incorrect, see following entry
+# RealisticHICollision2015VtxSmearingParameters = cms.PSet(
+#    Phi = cms.double(0.0),
+#    BetaStar = cms.double(60.0),
+#    Emittance = cms.double(1.70e-07),
+#    Alpha = cms.double(0.0),
+#    SigmaZ = cms.double(5.2278),
+#    TimeOffset = cms.double(0.0),
+#    X0 = cms.double(0.1025),
+#    Y0 = cms.double(0.1654),
+#    Z0 = cms.double(3.2528)
+#)
 # updated numbers for 2015 PbPb data with Z centroid from fixed beamspot fits
+# See discussion here https://hypernews.cern.ch/HyperNews/CMS/get/hi-general/3968.html
+# See plot of difference here: https://www.dropbox.com/s/tsnkgvvpkdqjtyq/vzDataMCOverlay_c_20170420.pdf?dl=0
+#
 RealisticHICollisionFixZ2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(60.0),
@@ -663,6 +667,7 @@ RealisticHICollisionFixZ2015VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.771)
 )
 # Numbers based on beamspot fits to 2017 XeXe data
+# Documentation here: https://docs.google.com/spreadsheets/d/1mla_04k-NgSpmzg5KpUd_BlQYsOHKemxA4j45PIPeq4/edit#gid=717868856
 RealisticXeXeCollision2017VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(30.0),
