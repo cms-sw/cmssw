@@ -8,6 +8,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsLooper.h"
 
@@ -151,46 +152,12 @@ namespace {
 
   // Functions for finding ranges that detGroups cover
   bool phiMoreClockwise(float phiA, float phiB) {
-    // TODO: simplify (no need for trigonometry!) and reduce copy-paste
-
     // return true if a is more clockwise than b
-    // assuming both angels are in same half
-    float xa,ya,xb,yb;
-    xa = cos(phiA);
-    ya = sin(phiA);
-    xb = cos(phiB);
-    yb = sin(phiB);
-    if(xa >= 0 && xb >= 0){
-      return ya <= yb;
-    }else if (ya >= 0 && yb >= 0 ){
-      return xa >= xb;
-    }else if (xa <= 0 && xb <= 0){
-      return ya >= yb;
-    }else if (ya <= 0 && yb <= 0){
-      return xa <= xb;
-    }else {
-      return false;
-    }
+    return reco::deltaPhi(phiA, phiB) <= 0.f;
   }
   bool phiMoreCounterclockwise(float phiA, float phiB) {
     // return true if a is more counterclockwise than b
-    // assuming both ngels are in same half
-    float xa,ya,xb,yb;
-    xa = cos(phiA);
-    ya = sin(phiA);
-    xb = cos(phiB);
-    yb = sin(phiB);
-    if(xa >= 0 && xb >= 0){
-      return ya >= yb;
-    }else if (ya >= 0 && yb >= 0 ){
-    return xa <= xb;
-    }else if (xa <= 0 && xb <= 0){
-      return ya <= yb;
-    }else if (ya <= 0 && yb <= 0){
-      return xa >= xb;
-    }else {
-      return false;
-    }
+    return reco::deltaPhi(phiA, phiB) >= 0.f;
   }
 
   // Functions for findind overlapping functions
