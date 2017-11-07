@@ -56,7 +56,8 @@ namespace pat {
     /// make friends with PATTauProducer so that it can set the initial
     /// jet energy scale unequal to raw calling the private initializeJEC
     /// function, which should be non accessible to any other user
-    friend class PATTauProducer;
+    template<class TauType>
+    friend class PATTauGenericProducer;
 
     public:
 
@@ -155,6 +156,8 @@ namespace pat {
       // ---- PFTau accessors (getters only) ----
       /// Returns true if this pat::Tau was made from a reco::PFTau
       bool isPFTau() const { return !pfSpecific_.empty(); }
+      /// Returns true if this pat::Tau was made from a reco::PFTau
+      bool isAnyPFTau() const { return !pfEssential_.empty(); }
       /// return PFTau info or throw exception 'not PFTau'
       const pat::tau::TauPFSpecific & pfSpecific() const ;
       const pat::tau::TauPFEssential & pfEssential() const;

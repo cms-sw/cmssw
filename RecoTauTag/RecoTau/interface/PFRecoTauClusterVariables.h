@@ -10,8 +10,10 @@
 
 
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 class TauIdMVAAuxiliaries {
   public:
@@ -31,6 +33,17 @@ class TauIdMVAAuxiliaries {
       }
       return LeadingTracknormalizedChi2;
     }
+
+    float tau_leadTrackChi2(const reco::PFBaseTau& tau) const {
+      float LeadingTracknormalizedChi2 = 0;
+      const auto& leadingPFCharged = edm::Ptr<pat::PackedCandidate>(tau.leadPFChargedHadrCand());
+      if (leadingPFCharged.isNonnull() && leadingPFCharged->hasTrackDetails()) {
+        const auto& tref = leadingPFCharged->pseudoTrack();
+        LeadingTracknormalizedChi2 = (float)(tref.normalizedChi2());
+      }
+      return LeadingTracknormalizedChi2;
+    }
+
     /// return ratio of energy in ECAL over sum of energy in ECAL and HCAL
     float tau_Eratio(const reco::PFTau& tau) const {
       std::vector<reco::PFCandidatePtr> constsignal = tau.signalPFCands();

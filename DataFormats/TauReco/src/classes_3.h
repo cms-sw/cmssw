@@ -6,6 +6,7 @@
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
@@ -14,6 +15,7 @@
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorAgainstElectron.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFBaseTauDiscriminator.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Ptr.h"
@@ -31,8 +33,11 @@
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryFwd.h"
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryAssociation.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include <vector>
 #include <map>
@@ -69,8 +74,18 @@ namespace DataFormats_TauReco {
     reco::PFTauDiscriminatorRefVector                pftdiscr_rv;
     edm::Wrapper<reco::PFTauDiscriminator>           pftdiscr_w;
 
+    reco::PFBaseTauDiscriminatorBase                     pfbtdiscr_b;
+    reco::PFBaseTauDiscriminator                         pfbtdiscr_o;
+    reco::PFBaseTauDiscriminatorRef                      pfbtdiscr_r;
+    reco::PFBaseTauDiscriminatorRefProd                  pfbtdiscr_rp;
+    reco::PFBaseTauDiscriminatorRefVector                pfbtdiscr_rv;
+    edm::Wrapper<reco::PFBaseTauDiscriminator>           pfbtdiscr_w;
+
     std::pair<reco::PFTauRef, float>                              pftdiscr_p;
     std::vector<std::pair<reco::PFTauRef, float> >                pftdiscr_v;
+
+    std::pair<reco::PFBaseTauRef, float>                              pfbtdiscr_p;
+    std::vector<std::pair<reco::PFBaseTauRef, float> >                pfbtdiscr_v;
 
     reco::JetPiZeroAssociationBase                     jetPiZeroAssoc_b;
     reco::JetPiZeroAssociation                         jetPiZeroAssoc_o;
@@ -81,6 +96,9 @@ namespace DataFormats_TauReco {
 
     std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >                              jetPiZeroAssoc_p;
     std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >                jetPiZeroAssoc_v;
+
+    std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> >                              jetBasePiZeroAssoc_p;
+    std::vector<std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> > >                jetBasePiZeroAssoc_v;
 
     std::vector<std::vector<reco::RecoTauPiZero> >                jetPiZeroAssoc_v_v;
     
@@ -93,6 +111,9 @@ namespace DataFormats_TauReco {
 
     std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> >                              jetChHAssoc_p;
     std::vector<std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> > >                jetChHAssoc_v;
+
+    std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> >                              jetBaseChHAssoc_p;
+    std::vector<std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> > >                jetBaseChHAssoc_v;
 
     std::vector<std::vector<reco::PFRecoTauChargedHadron> >                jetChHAssoc_v_v;
 
@@ -168,6 +189,15 @@ namespace DataFormats_TauReco {
     std::pair<reco::PFTauRef, reco::PFTauTransverseImpactParameterRef >                pftaupairtip_o;
     std::vector<std::pair<reco::PFTauRef, reco::PFTauTransverseImpactParameterRef > >  pftaupairtip_v;
 
+    reco::PFBaseTauTIPAssociation                         pfbtautipass_o;
+    reco::PFBaseTauTIPAssociationRef                      pfbtautipass_r;
+    reco::PFBaseTauTIPAssociationRefProd                  pfbtautipass_rp;
+    reco::PFBaseTauTIPAssociationRefVector                pfbtautipass_rv;
+    edm::Wrapper<reco::PFBaseTauTIPAssociation>           pfbtautipass_w;
+
+    std::pair<reco::PFBaseTauRef, reco::PFTauTransverseImpactParameterRef >                pfbtaupairtip_o;
+    std::vector<std::pair<reco::PFBaseTauRef, reco::PFTauTransverseImpactParameterRef > >  pfbtaupairtip_v;
+
     reco::PFTauVertexAssociation                      pftauvertexass_o;
     reco::PFTauVertexAssociationRef                   pftauvertexass_r;
     reco::PFTauVertexAssociationRefProd               pftauvertexass_rp;
@@ -235,8 +265,14 @@ namespace DataFormats_TauReco {
 /*     edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFJet> >,edm::RefProd<std::vector<reco::PFCandidate> > > jetPFCandidateAssociation_kv; */
 /*     edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > jetPFCandidateAssociation_kv2; */
 /*     std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > jetPFCandidateAssociation_mkv; */
-   
-
-
+  
+    // PAT Jet associations, needed for miniAOD-based reconstruction
+    // JAN - FIXME - this should possibly go into PatCandidates
+    edm::Association<std::vector<pat::Jet> > patjet_assoc_vr;
+    edm::Wrapper<edm::Association<std::vector<pat::Jet> > > patjet_assoc_vr_wrapper;
+    edm::RefProd<vector<pat::Jet> > patjet_rp;
+    edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> >patjet_v_patpc_v_otm_am;
+    edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> > > patjet_v_patpc_v_otm_am_w;
+    edm::helpers::KeyVal<edm::RefProd<vector<pat::Jet> >,edm::RefProd<vector<pat::PackedCandidate> > > patjet_v_patpc_v_kv;
   };
 }

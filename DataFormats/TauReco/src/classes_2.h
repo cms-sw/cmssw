@@ -6,6 +6,7 @@
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
@@ -57,6 +58,25 @@ namespace DataFormats_TauReco {
     edm::RefToBaseVector<reco::PFTau> jrtbv;
     edm::Wrapper<edm::RefToBaseVector<reco::PFTau> > jrtbv_w;
     edm::reftobase::BaseVectorHolder<reco::PFTau> * bvhj_p;    // pointer since it's pure virtual
+
+    std::vector<reco::PFBaseTau>                                    pfbt_v;
+    edm::Wrapper<std::vector<reco::PFBaseTau> >                     pfbt_w;
+    edm::Ref<std::vector<reco::PFBaseTau> >                         pfbt_r;
+    edm::RefProd<std::vector<reco::PFBaseTau> >                     pfbt_rp;
+    edm::RefVector<std::vector<reco::PFBaseTau> >                   pfbt_rv;
+    edm::Wrapper<edm::RefVector<std::vector<reco::PFBaseTau> > >         pfbt_rvw;
+    edm::reftobase::Holder<reco::BaseTau,reco::PFBaseTauRef>        pfbt_rb;
+
+    edm::View<reco::PFBaseTau>  pfbt_vi;
+    edm::RefToBaseProd<reco::PFBaseTau> pfbt_tbp;
+
+    edm::RefToBase<reco::PFBaseTau>  pftb_rtb;
+    edm::reftobase::IndirectHolder<reco::PFBaseTau> pfbt_ih;
+    edm::reftobase::Holder<reco::PFBaseTau, reco::PFBaseTauRef> pfbt_h;
+    edm::reftobase::RefHolder<reco::PFBaseTauRef> pfbt_rht;
+    edm::RefToBaseVector<reco::PFBaseTau> pfbt_rftbv;
+    edm::Wrapper<edm::RefToBaseVector<reco::PFBaseTau> > pfbt_rtbv_w;
+    edm::reftobase::BaseVectorHolder<reco::PFBaseTau> * pfbt_bvh_p;    // pointer since it's pure virtual
 
     std::vector<reco::PFTauDecayMode>                                           pftdm_v;
     edm::Wrapper<std::vector<reco::PFTauDecayMode> >                            pftdm_w;

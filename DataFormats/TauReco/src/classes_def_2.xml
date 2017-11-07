@@ -250,6 +250,72 @@ isolationTauChargedHadronCandidates_.reset();
 <!-- </ioread> -->
 
 
+  <class name="reco::PFBaseTau">
+     <field name="signalPiZeroCandidates_" transient="true"/>
+     <field name="isolationPiZeroCandidates_" transient="true"/>
+     <field name="signalTauChargedHadronCandidates_" transient="true"/>
+     <field name="isolationTauChargedHadronCandidates_" transient="true"/>
+  </class>
+
+  <class name="std::vector<reco::PFBaseTau>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFBaseTau> >"/>
+  <class name="edm::Ref<std::vector<reco::PFBaseTau>,reco::PFBaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFBaseTau>,reco::PFBaseTau> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFBaseTau> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFBaseTau>,reco::PFBaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFBaseTau>,reco::PFBaseTau> >"/>
+          <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PFBaseTau>,reco::PFBaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFBaseTau>,reco::PFBaseTau> > >"/>
+  <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::PFBaseTau>,reco::PFBaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFBaseTau>,reco::PFBaseTau> > >" />
+
+  <class name="edm::RefToBaseProd<reco::PFBaseTau>" >
+     <!-- <field name="view_" transient="true" /> -->
+  </class>
+  <class name="edm::RefToBase<reco::PFBaseTau>" />
+  <class name="edm::reftobase::BaseHolder<reco::PFBaseTau>" />
+  <class name="edm::reftobase::IndirectHolder<reco::PFBaseTau>" />
+    <!---<class name="edm::reftobase::Holder<reco::PFBaseTau,edm::RefToBase<reco::PFBaseTau> > "/>-->
+  <class name="edm::RefToBaseVector<reco::PFBaseTau>"/>
+  <class name="edm::Wrapper<edm::RefToBaseVector<reco::PFBaseTau> >"/>
+  <class name="edm::reftobase::BaseVectorHolder<reco::PFBaseTau>"/>
+  <class name="edm::reftobase::Holder<reco::PFBaseTau, reco::PFBaseTauRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PFBaseTauRef>" />
+
+
+<ioread sourceClass = "reco::PFBaseTau" 
+ targetClass="reco::PFBaseTau" 
+source = "" 
+target="signalPiZeroCandidates_">
+<![CDATA[
+signalPiZeroCandidates_.reset();
+]]>
+</ioread>
+              
+<ioread sourceClass = "reco::PFBaseTau"
+ targetClass="reco::PFBaseTau" 
+source = "" 
+target="isolationPiZeroCandidates_">
+<![CDATA[
+isolationPiZeroCandidates_.reset();
+]]>
+</ioread>
+
+
+<ioread sourceClass = "reco::PFBaseTau"
+ targetClass="reco::PFBaseTau" 
+source = "" 
+target="signalTauChargedHadronCandidates_">
+<![CDATA[signalTauChargedHadronCandidates_.reset();
+]]>                                    
+</ioread>
+                                      
+<ioread sourceClass = "reco::PFBaseTau"
+ targetClass="reco::PFBaseTau" 
+source = "" 
+target="isolationTauChargedHadronCandidates_">                                          
+<![CDATA[
+isolationTauChargedHadronCandidates_.reset();                                              
+]]>                                                
+</ioread>
+
+
   <class name="reco::PFTauDecayMode" ClassVersion="13">
    <version ClassVersion="13" checksum="3507751092"/>
    <version ClassVersion="12" checksum="2043565930"/>
@@ -283,7 +349,8 @@ isolationTauChargedHadronCandidates_.reset();
   <class name="edm::RefVector<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> > >" />
 
-  <class name="reco::PFRecoTauChargedHadron" ClassVersion="14">
+  <class name="reco::PFRecoTauChargedHadron" ClassVersion="15">
+   <version ClassVersion="15" checksum="2213708860"/>
    <version ClassVersion="14" checksum="3665832588"/>
    <version ClassVersion="13" checksum="591384956"/>
    <version ClassVersion="12" checksum="2480143236" />

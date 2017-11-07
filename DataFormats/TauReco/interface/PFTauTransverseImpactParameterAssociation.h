@@ -8,6 +8,8 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
+#include "DataFormats/TauReco/interface/PFBaseTauFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -31,6 +33,12 @@ namespace reco {
   typedef edm::RefProd<PFTauVertexVAssociation> PFTauVertexVAssociationRefProd;
   typedef edm::RefVector<PFTauVertexVAssociation> PFTauVertexVAssociationRefVector;
 
+  typedef edm::AssociationVector<PFBaseTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > PFBaseTauTIPAssociation;
+  typedef PFBaseTauTIPAssociation::value_type PFBaseTauTIPAssociationVT;  
+  typedef edm::Ref<PFBaseTauTIPAssociation> PFBaseTauTIPAssociationRef;  
+  typedef edm::RefProd<PFBaseTauTIPAssociation> PFBaseTauTIPAssociationRefProd;  
+  typedef edm::RefVector<PFBaseTauTIPAssociation> PFBaseTauTIPAssociationRefVector; 
+  
 }
 
 #endif

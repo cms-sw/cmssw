@@ -25,11 +25,15 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
+#include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <map>
 
@@ -40,8 +44,9 @@ namespace edm {
 }
 
 namespace reco {
+  class Jet;
   class PFTau;
-  class PFJet;
+  class PFBaseTau;
 }
 
 namespace reco { namespace tau {
@@ -59,16 +64,20 @@ class RecoTauVertexAssociator {
     virtual ~RecoTauVertexAssociator(); 
     /// Get the primary vertex associated to a given jet. 
     /// Returns a null Ref if no vertex is found.
-    reco::VertexRef associatedVertex(const PFJet& jet) const;
+    reco::VertexRef associatedVertex(const Jet& jet) const;
     /// Convenience function to get the PV associated to the jet that
     /// seeded this tau (useJet=true, old behaviour) 
     /// or leaging charged hadron if set (useJet=false).
-    reco::VertexRef associatedVertex(const PFTau& tau, bool useJet=false) const;
+    reco::VertexRef associatedVertex(const reco::PFTau& tau, bool useJet=false) const;
+    reco::VertexRef associatedVertex(const reco::PFBaseTau& tau, bool useJet=false) const;
+    reco::VertexRef associatedVertex(const Track* track) const;
     reco::VertexRef associatedVertex(const TrackBaseRef& track) const;
 
     /// Load the vertices from the event.
     void setEvent(const edm::Event& evt);
-    reco::TrackBaseRef getLeadTrack(const PFJet& jet) const;
+    const reco::TrackBaseRef getLeadTrackRef(const Jet& jet) const;
+    const reco::Track* getLeadTrack(const Jet& jet) const;
+    const reco::CandidatePtr getLeadCand(const Jet& jet) const;
 
   private:
     edm::InputTag vertexTag_;
@@ -84,7 +93,7 @@ class RecoTauVertexAssociator {
     int leadingTrkOrPFCandOption_;
     edm::EDGetTokenT<reco::VertexCollection> vxToken_;
     // containers for holding vertices associated to jets
-    std::map<const reco::PFJet*, reco::VertexRef>* jetToVertexAssociation_;
+    std::map<const reco::Jet*, reco::VertexRef>* jetToVertexAssociation_;
     edm::EventNumber_t lastEvent_;    
     int verbosity_;
 };

@@ -20,34 +20,40 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
+#include "DataFormats/TauReco/interface/PFBaseTauFwd.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
 
-class RecoTauPiZeroUnembedder : public edm::stream::EDProducer<> {
+template<class TauType>
+class RecoTauGenericPiZeroUnembedder : public edm::stream::EDProducer<> {
   public:
-    RecoTauPiZeroUnembedder(const edm::ParameterSet& pset);
-    ~RecoTauPiZeroUnembedder() override{}
+    RecoTauGenericPiZeroUnembedder(const edm::ParameterSet& pset);
+    ~RecoTauGenericPiZeroUnembedder() override{}
     void produce(edm::Event& evt, const edm::EventSetup& es) override;
   private:
     edm::InputTag src_;
     edm::EDGetTokenT<reco::CandidateView> token; 
 };
 
-RecoTauPiZeroUnembedder::RecoTauPiZeroUnembedder(const edm::ParameterSet& pset) {
+template<class TauType>
+RecoTauGenericPiZeroUnembedder<TauType>::RecoTauGenericPiZeroUnembedder(const edm::ParameterSet& pset) {
   src_ = pset.getParameter<edm::InputTag>("src");
   token = consumes<reco::CandidateView>(src_);
   produces<reco::RecoTauPiZeroCollection>("pizeros");
-  produces<reco::PFTauCollection>();
+  produces<std::vector<TauType> >();
 }
-void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es) {
+
+template<class TauType>
+void RecoTauGenericPiZeroUnembedder<TauType>::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto piZerosOut = std::make_unique<reco::RecoTauPiZeroCollection>();
-  auto tausOut = std::make_unique<reco::PFTauCollection>();
+  auto tausOut = std::make_unique<std::vector<TauType> >();
 
   edm::Handle<reco::CandidateView> tauView;
   evt.getByToken(token, tauView);
 
-  reco::PFTauRefVector taus =
-      reco::tau::castView<reco::PFTauRefVector>(tauView);
+  edm::RefVector<std::vector<TauType> > taus =
+      reco::tau::castView<edm::RefVector<std::vector<TauType> >>(tauView);
 
   // Get the reference to the product of where the final pizeros will end up
   reco::RecoTauPiZeroRefProd piZeroProd =
@@ -55,7 +61,7 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
 
   for (size_t iTau = 0; iTau < taus.size(); ++iTau) {
     // Make a copy
-    reco::PFTau myTau = *taus[iTau];
+    TauType myTau = *taus[iTau];
     // The ref vectors that will be filled
     reco::RecoTauPiZeroRefVector signalPiZeroRefs;
     reco::RecoTauPiZeroRefVector isolationPiZeroRefs;
@@ -91,5 +97,11 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
   evt.put(std::move(tausOut));
 }
 
+template class RecoTauGenericPiZeroUnembedder<reco::PFTau>;
+typedef RecoTauGenericPiZeroUnembedder<reco::PFTau> RecoTauPiZeroUnembedder;
+template class RecoTauGenericPiZeroUnembedder<reco::PFBaseTau>;
+typedef RecoTauGenericPiZeroUnembedder<reco::PFBaseTau> RecoBaseTauPiZeroUnembedder;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RecoTauPiZeroUnembedder);
+DEFINE_FWK_MODULE(RecoBaseTauPiZeroUnembedder);
