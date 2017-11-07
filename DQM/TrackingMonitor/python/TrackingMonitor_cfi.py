@@ -421,6 +421,7 @@ TrackMon.PVMax = cms.double( 79.5) ## it might need to be adjust if CMS asks to 
 TrackMon.RegionProducer = cms.InputTag("")
 TrackMon.RegionCandidates = cms.InputTag("")
 TrackMon.doRegionPlots = cms.bool(False)
+TrackMon.doRegionCandidatePlots = cms.bool(False)
 TrackMon.RegionSizeBin = cms.int32(20)
 TrackMon.RegionSizeMax = cms.double(19.5)
 TrackMon.RegionSizeMin = cms.double(-0.5)

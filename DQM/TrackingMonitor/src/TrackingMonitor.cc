@@ -137,9 +137,12 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   }
 
   doRegionPlots = iConfig.getParameter<bool>("doRegionPlots");
+  doRegionCandidatePlots = iConfig.getParameter<bool>("doRegionCandidatePlots");
   if(doRegionPlots) {
     regionToken_ = consumes<edm::OwnVector<TrackingRegion> >(iConfig.getParameter<edm::InputTag>("RegionProducer"));
-    regionCandidateToken_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("RegionCandidates"));
+    if(doRegionCandidatePlots) {
+      regionCandidateToken_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("RegionCandidates"));
+    }
   }
 
   edm::InputTag stripClusterInputTag_ = iConfig.getParameter<edm::InputTag>("stripCluster");
@@ -967,9 +970,13 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         iEvent.getByToken(regionToken_, hregions);
         NumberOfTrackingRegions->Fill(hregions->size());
 
-        edm::Handle<reco::CandidateView> hcandidates;
-        iEvent.getByToken(regionCandidateToken_, hcandidates);
-        theTrackBuildingAnalyzer->analyze(*hcandidates);
+        theTrackBuildingAnalyzer->analyze(*hregions);
+
+        if (doRegionCandidatePlots) {
+          edm::Handle<reco::CandidateView> hcandidates;
+          iEvent.getByToken(regionCandidateToken_, hcandidates);
+          theTrackBuildingAnalyzer->analyze(*hcandidates);
+        }
       }
       
       if (doTrackerSpecific_ || doAllPlots) {

@@ -247,7 +247,9 @@ for step in seedInputTag.iterkeys():
     if step in regionLabel:
         locals()[label].doRegionPlots = True
         locals()[label].RegionProducer = regionLabel[step]
-        locals()[label].RegionCandidates = regionCandidateLabel[step]
+        if step in regionCandidateLabel:
+            locals()[label].doRegionCandidatePlots = True
+            locals()[label].RegionCandidates = regionCandidateLabel[step]
     if step in trajCandPerSeedBin:
         locals()[label].SeedCandBin = trajCandPerSeedBin[step]
         locals()[label].SeedCandMax = trajCandPerSeedMax[step]

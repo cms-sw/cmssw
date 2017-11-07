@@ -204,6 +204,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	bool doTkCandPlots;
 	bool doMVAPlots;
 	bool doRegionPlots;
+	bool doRegionCandidatePlots;
 	bool doSeedNumberPlot;
 	bool doSeedLumiAnalysis_;
 	bool doSeedVsClusterPlot;
