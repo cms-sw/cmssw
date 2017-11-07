@@ -4,7 +4,7 @@
 //  CalibMonitor c1(fname, dirname, dupFileName, outFileName, prefix, 
 //                  corrFileName, rcorFileName, flag, numb, dataMC,
 //                  useGen, scale,  etalo, etahi, runlo, runhi, phimin,
-//                  phimax, zside, rbx, exclude);
+//                  phimax, zside, rbx, exclude, etamax);
 //  c1.Loop();
 //  c1.SavePlot(histFileName,append,all);
 //
@@ -60,6 +60,10 @@
 //   rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
 //   exclude         (bool)    = RBX specified by *rbx* to be exluded or only
 //                               considered (true)
+//   etamax          (bool)    = if set and if the corr-factor not found in the
+//                               corrFactor table, the corr-factor for the
+//                               corresponding zside, depth=1 and maximum ieta
+//                               in the table is taken (false)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the hitogram file to be opened
@@ -199,7 +203,7 @@ public :
 	       int flag=0, int numb=50, bool datMC=true, bool useGen=false, 
 	       double scale=1.0, int etalo=0, int etahi=30, int runlo=-1, 
 	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1,
-	       int rbx=0, bool exclude=true);
+	       int rbx=0, bool exclude=true, bool etamax=false);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -223,13 +227,13 @@ private:
   CalibSelectRBX*           cSelect_;
   const std::string         fname_, dirnm_, prefix_, outFileName_;
   const int                 flag_, numb_;
-  const bool                dataMC_, useGen_;
+  const bool                dataMC_, useGen_, etaMax_;
   const int                 etalo_, etahi_, runlo_, runhi_;
   const int                 phimin_,phimax_,zside_, rbx_;
   const double              scale_;
   bool                      exclude_, corrPU_, corrE_, selRBX_, coarseBin_;
-  int                       plotType_, flexibleSelect_;
-  double                    log2by18_;
+  int                       etamp_, etamn_, plotType_, flexibleSelect_;
+  double                    log2by18_, cfacmp_, cfacmn_;
   std::ofstream             fileout_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
@@ -251,18 +255,19 @@ CalibMonitor::CalibMonitor(const std::string& fname,
 			   const char*        rcorFileName, int flag, 
 			   int numb, bool dataMC, bool useGen, double scale, 
 			   int etalo, int etahi, int runlo, int runhi, 
-			   int phimin, int phimax, int zside, int rbx,
-			   bool exclude) : cFactor_(nullptr), cSelect_(nullptr),
-					   fname_(fname), dirnm_(dirnm), 
-					   prefix_(prefix), 
-					   outFileName_(std::string(outFName)),
-					   flag_(flag), numb_(numb),
-					   dataMC_(dataMC), useGen_(useGen), 
-					   etalo_(etalo), etahi_(etahi), 
-					   runlo_(runlo), runhi_(runhi),
-					   phimin_(phimin), phimax_(phimax),
-					   zside_(zside), rbx_(rbx), 
-					   scale_(scale), exclude_(exclude) {
+			   int phimin, int phimax, int zside, int rbx, bool exc,
+			   bool etam) : cFactor_(nullptr), cSelect_(nullptr),
+					fname_(fname), dirnm_(dirnm), 
+					prefix_(prefix), 
+					outFileName_(std::string(outFName)),
+					flag_(flag), numb_(numb),
+					dataMC_(dataMC), useGen_(useGen), 
+					etaMax_(etam), etalo_(etalo), 
+					etahi_(etahi), runlo_(runlo), 
+					runhi_(runhi), phimin_(phimin), 
+					phimax_(phimax), zside_(zside), 
+					rbx_(rbx), scale_(scale), 
+					exclude_(exc) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree
 
@@ -273,13 +278,16 @@ CalibMonitor::CalibMonitor(const std::string& fname,
   selRBX_          = (((flag_/10000) %10) > 0);
   coarseBin_       = (((flag_/100000) %10) > 0);
   log2by18_        = std::log(2.5)/18.0;
+  etamp_           = etamn_  = 0;
+  cfacmp_          = cfacmn_ = 1.0;
   TFile      *file = new TFile(fname.c_str());
   TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
   std::cout << fname << " file " << file << " " << dirnm << " " << dir 
 	    << " flags " << flexibleSelect_ << "|" << plotType_ << "|"
 	    << corrPU_ << " cons " << log2by18_ << " eta range " << etalo_ 
 	    << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ 
-	    << " Selection of RBX " << selRBX_ << std::endl;
+	    << " Selection of RBX " << selRBX_ << " EtaMax " << etaMax_
+	    << std::endl;
   TTree      *tree = (TTree*)dir->Get("CalibTree");
   std::cout << "CalibMonitor:Tree " << tree << std::endl;
   Init(tree,dupFileName,outFName);
@@ -794,7 +802,13 @@ void CalibMonitor::Loop() {
 	int ieta   = ((*t_DetIds)[k] >> 10) & (0x1FF);
 	std::map<std::pair<int,int>,double>::const_iterator 
 	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
-	double cfac = (itr == cfactors_.end()) ? 1.0 : itr->second;
+	double cfac(1.0);
+	if (itr != cfactors_.end()) {
+	  cfac = itr->second;
+	} else if (etaMax_) {
+	  if (zside > 0 && ieta >  etamp_) cfac = cfacmp_;
+	  if (zside < 0 && ieta > -etamn_) cfac = cfacmn_;
+	}
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
 	eHcal += (cfac*((*t_HitEnergies)[k]));
 	if (debug) std::cout << zside << ":" << ieta << ":" << depth 
@@ -1047,11 +1061,19 @@ bool CalibMonitor::ReadCorrFactor(const char* fname) {
 	  int   depth = std::atoi (items[2].c_str());
 	  float corrf = std::atof (items[3].c_str());
 	  cfactors_[std::pair<int,int>(ieta,depth)] = scale_*corrf;
+	  if (ieta > etamp_ && depth == 1) {
+	    etamp_ = ieta; cfacmp_ = scale_*corrf;
+	  }
+	  if (ieta < etamn_ && depth == 1) {
+	    etamn_ = ieta; cfacmn_ = scale_*corrf;
+	  }
 	}
       }
       fInput.close();
       std::cout << "Reads total of " << all << " and " << good 
-		<< " good records" << std::endl;
+		<< " good records" << " Max eta (z>0) " << etamp_ << ":"
+		<< cfacmp_ << " eta (z<0) " << etamn_ << ":" << cfacmn_
+		<< std::endl;
       if (good > 0) ok = true;
     }
   }
