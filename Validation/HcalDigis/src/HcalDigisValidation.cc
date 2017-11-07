@@ -142,39 +142,19 @@ void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &
     
 
     book1D(ib,"HcalDigiTask_tp_et", tp_hl_et);
-    book1D(ib,"HcalDigiTask_tp_et_v0", tp_hl_et);
-    book1D(ib,"HcalDigiTask_tp_et_v1", tp_hl_et);
     book1D(ib,"HcalDigiTask_tp_et_HB", tp_hl_et);
     book1D(ib,"HcalDigiTask_tp_et_HE", tp_hl_et);
     book1D(ib,"HcalDigiTask_tp_et_HF", tp_hl_et);
-    book1D(ib,"HcalDigiTask_tp_et_HF_v0", tp_hl_et);
-    book1D(ib,"HcalDigiTask_tp_et_HF_v1", tp_hl_et);
     book1D(ib,"HcalDigiTask_tp_ntp", tp_hl_ntp);
-    book1D(ib,"HcalDigiTask_tp_ntp_v0", tp_hl_ntp);
-    book1D(ib,"HcalDigiTask_tp_ntp_v1", tp_hl_ntp);
     book1D(ib,"HcalDigiTask_tp_ntp_HB", tp_hl_ntp_sub);
     book1D(ib,"HcalDigiTask_tp_ntp_HE", tp_hl_ntp_sub);
     book1D(ib,"HcalDigiTask_tp_ntp_HF", tp_hl_ntp_sub);
-    book1D(ib,"HcalDigiTask_tp_ntp_HF_v0", tp_hl_ntp_sub);
-    book1D(ib,"HcalDigiTask_tp_ntp_HF_v1", tp_hl_ntp_sub);
     book1D(ib,"HcalDigiTask_tp_ntp_ieta", tp_hl_ieta);
-    book1D(ib,"HcalDigiTask_tp_ntp_ieta_v0", tp_hl_ieta);
-    book1D(ib,"HcalDigiTask_tp_ntp_ieta_v1", tp_hl_ieta);
     book1D(ib,"HcalDigiTask_tp_ntp_iphi", tp_hl_iphi);
-    book1D(ib,"HcalDigiTask_tp_ntp_iphi_v0", tp_hl_iphi);
-    book1D(ib,"HcalDigiTask_tp_ntp_iphi_v1", tp_hl_iphi);
     book1D(ib,"HcalDigiTask_tp_ntp_10_ieta", tp_hl_ieta);
-    book1D(ib,"HcalDigiTask_tp_ntp_10_ieta_v0", tp_hl_ieta);
-    book1D(ib,"HcalDigiTask_tp_ntp_10_ieta_v1", tp_hl_ieta);
     book2D(ib,"HcalDigiTask_tp_et_ieta", tp_hl_ieta, tp_hl_et);
-    book2D(ib,"HcalDigiTask_tp_et_ieta_v0", tp_hl_ieta, tp_hl_et);
-    book2D(ib,"HcalDigiTask_tp_et_ieta_v1", tp_hl_ieta, tp_hl_et);
     book2D(ib,"HcalDigiTask_tp_ieta_iphi", tp_hl_ieta, tp_hl_iphi);
-    book2D(ib,"HcalDigiTask_tp_ieta_iphi_v0", tp_hl_ieta, tp_hl_iphi);
-    book2D(ib,"HcalDigiTask_tp_ieta_iphi_v1", tp_hl_ieta, tp_hl_iphi);
     bookPf(ib,"HcalDigiTask_tp_ave_et_ieta", tp_hl_ieta, tp_hl_et, " "); 
-    bookPf(ib,"HcalDigiTask_tp_ave_et_ieta_v0", tp_hl_ieta, tp_hl_et, " "); 
-    bookPf(ib,"HcalDigiTask_tp_ave_et_ieta_v1", tp_hl_ieta, tp_hl_et, " "); 
 
 }
 
@@ -473,7 +453,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
    //TP Code
    //Counters
-   int c = 0, cv0 = 0, cv1 = 0, chb = 0, che = 0, chf = 0, chfv0 = 0, chfv1 = 0;
+   int c = 0, chb = 0, che = 0, chf = 0;
 
    if(skipDataTPs) return;
 
@@ -491,9 +471,6 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
      else if ( abs(ieta) <= 42 )
         subdet = HcalSubdetector::HcalForward;
      
-     //Right now, the only case where version matters is in HF
-     //If the subdetector is not HF, set version to -1
-     int tpVersion = (subdet == HcalSubdetector::HcalForward ? itr->id().version() : -1);
      
      float en = decoder->hcaletValue(itr->id(), itr->t0());
      
@@ -512,69 +489,28 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
      fill1D("HcalDigiTask_tp_ntp_iphi",iphi);
      if ( en > 10. ) fill1D("HcalDigiTask_tp_ntp_10_ieta",ieta);
 
-     //3x2 Trig Primitives (tpVersion == 0)
-     if( subdet != HcalSubdetector::HcalForward || tpVersion==0){
-        fill1D("HcalDigiTask_tp_et_v0",en);
-        fill2D("HcalDigiTask_tp_et_ieta_v0",ieta,en);
-        fill2D("HcalDigiTask_tp_ieta_iphi_v0",ieta,iphi);
-        fillPf("HcalDigiTask_tp_ave_et_ieta_v0",ieta,en);
-        fill1D("HcalDigiTask_tp_ntp_ieta_v0",ieta);
-        fill1D("HcalDigiTask_tp_ntp_iphi_v0",iphi);
-        if ( en > 10. ) fill1D("HcalDigiTask_tp_ntp_10_ieta_v0",ieta);
-     }
-
-     //1x1 Trig Primitives (tpVersion == 1)
-     if( subdet != HcalSubdetector::HcalForward || tpVersion==1){
-        fill1D("HcalDigiTask_tp_et_v1",en);
-        fill2D("HcalDigiTask_tp_et_ieta_v1",ieta,en);
-        fill2D("HcalDigiTask_tp_ieta_iphi_v1",ieta,iphi);
-        fillPf("HcalDigiTask_tp_ave_et_ieta_v1",ieta,en);
-        fill1D("HcalDigiTask_tp_ntp_ieta_v1",ieta);
-        fill1D("HcalDigiTask_tp_ntp_iphi_v1",iphi);
-        if ( en > 10. ) fill1D("HcalDigiTask_tp_ntp_10_ieta_v1",ieta);
-     }
 
      ++c;
      if ( subdet == HcalSubdetector::HcalBarrel ) {
         fill1D("HcalDigiTask_tp_et_HB",en);
        ++chb;
-       ++cv0;
-       ++cv1;
      }
      if ( subdet == HcalSubdetector::HcalEndcap ) {
        fill1D("HcalDigiTask_tp_et_HE",en);
        ++che;
-       ++cv0;
-       ++cv1;
      }
      if ( subdet == HcalSubdetector::HcalForward ) {
        fill1D("HcalDigiTask_tp_et_HF",en);
        ++chf;
      
-       if(tpVersion == 0){
-          fill1D("HcalDigiTask_tp_et_HF_v0",en);
-          ++chfv0;
-          ++cv0;
-       }
-
-       if(tpVersion == 1){
-          fill1D("HcalDigiTask_tp_et_HF_v1",en);
-          ++chfv1;
-          ++cv1;
-       }
-
      }
 
    }//end data TP collection 
    
    fill1D("HcalDigiTask_tp_ntp",c);
-   fill1D("HcalDigiTask_tp_ntp_v0",cv0);
-   fill1D("HcalDigiTask_tp_ntp_v1",cv1);
    fill1D("HcalDigiTask_tp_ntp_HB",chb);
    fill1D("HcalDigiTask_tp_ntp_HE",che);
    fill1D("HcalDigiTask_tp_ntp_HF",chf);
-   fill1D("HcalDigiTask_tp_ntp_HF_v0",chfv0);
-   fill1D("HcalDigiTask_tp_ntp_HF_v1",chfv1);
 
     //~TP Code
 }
