@@ -92,7 +92,7 @@ private:
   edm::Service<TFileService> fs_;
   int                        verbosity_;
   spr::trackSelectionParameters selectionParameters_;
-  std::vector<std::string>   trigNames_, HLTNames_;
+  std::vector<std::string>   trigNames_, newNames_, HLTNames_;
   std::string                theTrackQuality_;
   std::vector<double>        puWeights_;
   double                     minTrackP_, maxTrackEta_;
@@ -140,6 +140,7 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) : nRun(0) {
 
   verbosity_                          = iConfig.getUntrackedParameter<int>("Verbosity",0);
   trigNames_                          = iConfig.getUntrackedParameter<std::vector<std::string> >("Triggers");
+  newNames_                           = iConfig.getUntrackedParameter<std::vector<std::string> >("NewNames");
   theTrackQuality_                    = iConfig.getUntrackedParameter<std::string>("TrackQuality","highPurity");
   reco::TrackBase::TrackQuality trackQuality=reco::TrackBase::qualityByName(theTrackQuality_);
   selectionParameters_.minPt          = iConfig.getUntrackedParameter<double>("MinTrackPt", 10.0);
@@ -219,9 +220,36 @@ StudyHLT::~StudyHLT() {}
 void StudyHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
+  std::vector<std::string> trig;
+  std::vector<double>      weights;
+  std::vector<std::string> newNames = {"HLT", "PixelTracks_Multiplicity",
+				       "HLT_Physics_","HLT_JetE",
+				       "HLT_ZeroBias"};
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("ParticleSource",edm::InputTag("genParticles"));
+  desc.addUntracked<int>("Verbosity",         0);
+  desc.addUntracked<std::vector<std::string> >("Triggers",trig);
+  desc.addUntracked<std::vector<std::string> >("NewNames",newNames);
+  desc.addUntracked<std::string>("TrackQuality","highPurity");
+  desc.addUntracked<double>("MinTrackPt",     1.0);
+  desc.addUntracked<double>("MaxDxyPV",       0.02);
+  desc.addUntracked<double>("MaxDzPV",        0.02);
+  desc.addUntracked<double>("MaxChi2",        5.0);
+  desc.addUntracked<double>("MaxDpOverP",     0.1);
+  desc.addUntracked<int>("MinOuterHit",       4);
+  desc.addUntracked<int>("MinLayerCrossed",   8);
+  desc.addUntracked<int>("MaxInMiss",         0);
+  desc.addUntracked<int>("MaxOutMiss",        0);
+  desc.addUntracked<double>("minTrackP",      1.0);
+  desc.addUntracked<double>("maxTrackEta",    2.6);
+  desc.addUntracked<double>("TimeMinCutECAL",-500.0);
+  desc.addUntracked<double>("TimeMaxCutECAL", 500.0);
+  desc.addUntracked<double>("TimeMinCutHCAL",-500.0);
+  desc.addUntracked<double>("TimeMaxCutHCAL", 500.0);
+  desc.addUntracked<bool>("IsItAOD",          false);
+  desc.addUntracked<bool>("DoTree",           false);
+  desc.addUntracked<std::vector<double> >("PUWeights", weights);
+  descriptions.add("StudyHLT",desc);
 }
 
 void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -233,9 +261,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
   int Lumi  = iEvent.luminosityBlock();
   int Bunch = iEvent.bunchCrossing();
   
-  std::string newNames[5]={"HLT","PixelTracks_Multiplicity","HLT_Physics_","HLT_JetE","HLT_ZeroBias"};
-  int         newAccept[5];
-  for (int i=0; i<5; ++i) newAccept[i] = 0;
+  std::vector<int>  newAccept(newNames_.size()+1,0);
   float mybxlumi=-1;
   /*
   edm::Handle<LumiDetails> Lumid;
@@ -309,10 +335,10 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	      }
 	    }
 	  }
-	  for (int i=0; i<5; ++i) {
-	    if (newtriggerName.find(newNames[i]) != std::string::npos) {
+	  for (unsigned int i=0; i<newNames_.size(); ++i) {
+	    if (newtriggerName.find(newNames_[i]) != std::string::npos) {
 	      if (verbosity_%10 > 0)
-		edm::LogInfo("IsoTrack") << "[" << i << "] " << newNames[i] 
+		edm::LogInfo("IsoTrack") << "[" << i << "] " << newNames_[i] 
 					 << " : " << newtriggerName;
 	      if (hlt > 0) newAccept[i] = 1;
 	    }
@@ -320,7 +346,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	}
       }
       int iflg(0), indx(1);
-      for (int i=0; i<5; ++i) {
+      for (unsigned int i=0; i<newNames_.size(); ++i) {
 	iflg += (indx*newAccept[i]); indx *= 2;
       }
       h_HLTCorr->Fill(iflg);

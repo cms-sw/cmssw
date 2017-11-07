@@ -44,7 +44,7 @@
 //                               produces 3 standard (0,1,2) or extended (3) 
 //                               set of histograms; o = 0/1/2 for tight/loose/
 //                               flexible selection). Default = 0
-//   numb   (int)              = number of eta bins (42 for -21:21)
+//   numb   (int)              = number of eta bins (50 for -25:25)
 //   dataMC (bool)             = true/false for data/MC (default true)
 //   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum (def false)
@@ -59,7 +59,7 @@
 //                               differ from 1-72 (1)
 //   rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
 //   exclude         (bool)    = RBX specified by *rbx* to be exluded or only
-//                               considered (false)
+//                               considered (true)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the hitogram file to be opened
@@ -196,7 +196,7 @@ public :
 	       const std::string& prefix="", 
 	       const char *       corrFileName="",
 	       const char *       rcorFileName="", 
-	       int flag=0, int numb=42, bool datMC=true, bool useGen=false, 
+	       int flag=0, int numb=50, bool datMC=true, bool useGen=false, 
 	       double scale=1.0, int etalo=0, int etahi=30, int runlo=-1, 
 	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1,
 	       int rbx=0, bool exclude=true);
