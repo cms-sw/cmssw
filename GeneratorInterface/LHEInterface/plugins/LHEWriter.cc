@@ -21,12 +21,12 @@ using namespace lhef;
 class LHEWriter : public edm::EDAnalyzer {
     public:
 	explicit LHEWriter(const edm::ParameterSet &params);
-	virtual ~LHEWriter();
+	~LHEWriter() override;
 
     protected:
-	virtual void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
-	virtual void endRun(const edm::Run &run, const edm::EventSetup &es) override;
-	virtual void analyze(const edm::Event &event, const edm::EventSetup &es) override;
+	void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
+	void endRun(const edm::Run &run, const edm::EventSetup &es) override;
+	void analyze(const edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	std::ofstream	file;

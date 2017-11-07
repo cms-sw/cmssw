@@ -47,7 +47,7 @@ void HiggsValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm
     //decay type
     
     std::string channel = particle_name+"_DecayChannels";
-    HiggsDecayChannels = dqm.book1dHisto(channel.c_str(),(particle_name+" decay channels").c_str(),monitoredDecays->size(),0,monitoredDecays->size(),"Decay Channels","Number of Events");
+    HiggsDecayChannels = dqm.book1dHisto(channel,particle_name+" decay channels",monitoredDecays->size(),0,monitoredDecays->size(),"Decay Channels","Number of Events");
     
     for(size_t j = 0; j < monitoredDecays->size(); ++j){
       HiggsDecayChannels->setBinLabel(1+j,monitoredDecays->channel(j));

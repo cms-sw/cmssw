@@ -8,7 +8,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 namespace HepMC {
   class GenEvent;
@@ -22,7 +22,7 @@ namespace gen
   class ReggeGribovPartonMCHadronizer : public BaseHadronizer {
   public:
     ReggeGribovPartonMCHadronizer(const edm::ParameterSet &);
-    virtual ~ReggeGribovPartonMCHadronizer();  };
+    ~ReggeGribovPartonMCHadronizer() override;  };
 
 } /*end namespace*/
 

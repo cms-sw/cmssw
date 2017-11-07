@@ -14,9 +14,9 @@ class CSCSegmentValidation : public CSCBaseValidation
 public:
   CSCSegmentValidation(const edm::InputTag & inputTag,
                        edm::ConsumesCollector && iC);
-  virtual ~CSCSegmentValidation();
+  ~CSCSegmentValidation() override;
   void bookHistograms(DQMStore::IBooker &);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   void plotResolution(const PSimHit & simHit, const CSCSegment & recHit,

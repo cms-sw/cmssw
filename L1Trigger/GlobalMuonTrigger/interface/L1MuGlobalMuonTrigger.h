@@ -52,10 +52,10 @@ class L1MuGlobalMuonTrigger : public edm::one::EDProducer<edm::one::SharedResour
  public:
 
     explicit L1MuGlobalMuonTrigger(const edm::ParameterSet&);
-    ~L1MuGlobalMuonTrigger();
-    virtual void beginJob();
+    ~L1MuGlobalMuonTrigger() override;
+    void beginJob() override;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     void reset();
 

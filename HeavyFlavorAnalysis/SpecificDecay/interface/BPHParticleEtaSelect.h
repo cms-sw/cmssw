@@ -38,12 +38,12 @@ class BPHParticleEtaSelect: public BPHRecoSelect {
 
   /** Destructor
    */
-  virtual ~BPHParticleEtaSelect() {}
+  ~BPHParticleEtaSelect() override {}
 
   /** Operations
    */
   /// select particle
-  virtual bool accept( const reco::Candidate& cand ) const {
+  bool accept( const reco::Candidate& cand ) const override {
     return ( fabs( cand.p4().eta() ) < etaMax );
   }
 
@@ -56,8 +56,8 @@ class BPHParticleEtaSelect: public BPHRecoSelect {
  private:
 
   // private copy and assigment constructors
-  BPHParticleEtaSelect           ( const BPHParticleEtaSelect& x );
-  BPHParticleEtaSelect& operator=( const BPHParticleEtaSelect& x );
+  BPHParticleEtaSelect           ( const BPHParticleEtaSelect& x ) = delete;
+  BPHParticleEtaSelect& operator=( const BPHParticleEtaSelect& x ) = delete;
 
   double etaMax;
 

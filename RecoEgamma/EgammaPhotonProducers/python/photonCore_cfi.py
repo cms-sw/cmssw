@@ -21,7 +21,7 @@ photonCoreFromMultiCl = photonCore.clone(
     pixelSeedProducer = 'electronMergedSeedsFromMultiCl'
 )
 
-photonCoreIsland = photonCore.clone(
+islandPhotonCore = photonCore.clone(
     scHybridBarrelProducer = "correctedIslandBarrelSuperClusters",
     scIslandEndcapProducer = "correctedIslandEndcapSuperClusters",
     minSCEt = 8.0

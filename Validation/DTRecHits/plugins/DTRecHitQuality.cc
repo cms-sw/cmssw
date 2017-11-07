@@ -68,7 +68,7 @@ void DTRecHitQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setu
 
   // ----------------------                 
   // get hold of back-end interface 
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = Service<DQMStore>().operator->();
   /*if ( dbe_ ) {
     if (debug) {
@@ -390,7 +390,7 @@ DTRecHitQuality::findBestRecHit(const DTLayer* layer,
                                 const vector<type>& recHits,
                                 const float simHitDist) {
   float res = 99999;
-  const type* theBestRecHit = 0;
+  const type* theBestRecHit = nullptr;
   // Loop over RecHits within the cell
   for(typename vector<type>::const_iterator recHit = recHits.begin();
       recHit != recHits.end();
@@ -443,7 +443,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
 
     // Look for a mu hit in the cell
     const PSimHit* muSimHit = DTHitQualityUtils::findMuSimHit(simHitsInCell);
-    if (muSimHit==0) {
+    if (muSimHit==nullptr) {
       if (debug) 
         cout << "   No mu SimHit in channel: " << wireId << ", skipping! " << endl;
       continue; // Skip this cell
@@ -475,7 +475,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
     } else {
       recHitReconstructed = true;
       // vector<type> recHits = (*wireAndRecHits).second;
-      vector<type> recHits = recHitsPerWire.at(wireId);
+      const vector<type>& recHits = recHitsPerWire.at(wireId);
       if(debug)
         cout << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId << endl;
 
@@ -490,8 +490,8 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
 	     << "    SimHit angle in layer RF:  " << simHitTheta << endl
 	     << "    RecHit distance from wire: " << recHitWireDist << endl;
       float recHitErr = recHitPositionError(*theBestRecHit);
-      HRes1DHit *hRes = 0;
-      HRes1DHit *hResTot = 0;
+      HRes1DHit *hRes = nullptr;
+      HRes1DHit *hResTot = nullptr;
 
       // Mirror angle in phi so that + and - wheels can be plotted together
       if (mirrorMinusWheels && wheel<0 && sl!=2){
@@ -568,15 +568,15 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       // Fill
       hRes->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
                  simHitGlobalPos.phi(),recHitErr,wireId.station());
-      if(hResTot != 0)
+      if(hResTot != nullptr)
         hResTot->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
                       simHitGlobalPos.phi(),recHitErr,wireId.station());
     }
 
     // Fill Efficiencies
     if(doall){
-      HEff1DHit *hEff = 0;
-      HEff1DHit *hEffTot = 0;
+      HEff1DHit *hEff = nullptr;
+      HEff1DHit *hEffTot = nullptr;
       if(step == 1) {
 	// Step 1
 	if(sl != 2) {
@@ -626,7 +626,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       }
       // Fill
       hEff->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
-      if(hEffTot != 0)
+      if(hEffTot != nullptr)
 	hEffTot->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
     }
   }

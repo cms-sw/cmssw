@@ -14,7 +14,7 @@ class RunTypeDef : public IDef {
   friend class EcalCondDBInterface;
   
   RunTypeDef();
-  virtual ~RunTypeDef();
+  ~RunTypeDef() override;
 
   // Methods for user data
   std::string getRunType() const;
@@ -23,8 +23,8 @@ class RunTypeDef : public IDef {
   std::string getDescription() const;
 
   // Methods from IUniqueDBObject
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   // Operators.  m_desc is not considered, it cannot be written to DB anyhow
   inline bool operator==(const RunTypeDef &t) const { return m_runType == t.m_runType; }

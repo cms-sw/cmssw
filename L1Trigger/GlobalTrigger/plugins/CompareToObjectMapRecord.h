@@ -28,9 +28,9 @@ class CompareToObjectMapRecord : public edm::EDAnalyzer {
 
 public:
     explicit CompareToObjectMapRecord(const edm::ParameterSet& pset);
-    ~CompareToObjectMapRecord();
+    ~CompareToObjectMapRecord() override;
 
-    virtual void analyze(edm::Event const& event, edm::EventSetup const& es);
+    void analyze(edm::Event const& event, edm::EventSetup const& es) override;
 
 private:
     edm::InputTag m_l1GtObjectMapTag;

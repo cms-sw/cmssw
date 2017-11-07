@@ -92,14 +92,14 @@ SiPixelPhase1RecHitsProb = DefaultHistoTrack.clone(
         Specification().groupBy("PXForward/PXDisk").saveAll(),
         StandardSpecification2DProfile,
     
-        Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+        Specification().groupBy("PXBarrel/LumiBlock")
                        .reduce("MEAN")
-                       .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                       .groupBy("PXBarrel", "EXTEND_X")
                        .save(),
 
-        Specification().groupBy("PXForward/PXDisk/Lumisection")
+        Specification().groupBy("PXForward/LumiBlock")
                        .reduce("MEAN")
-                       .groupBy("PXForward/PXDisk", "EXTEND_X")
+                       .groupBy("PXForward", "EXTEND_X")
                        .save(),
 
         Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 from GeneratorInterface.EvtGenInterface.EvtGenSetting_cff import *
+from Configuration.Generator.Pythia8BottomoniumSettings_cfi import *
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaPylistVerbosity = cms.untracked.int32(0),
@@ -21,26 +22,14 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
+	pythia8BottomoniumSettingsBlock,
         processParameters = cms.vstring(
             'Bottomonium:states(3S1) = 300553', 
-            'Bottomonium:O(3S1)[3S1(1)] = 9.28',
-            'Bottomonium:O(3S1)[3S1(8)] = 0.15',
-            'Bottomonium:O(3S1)[1S0(8)] = 0.02',
-            'Bottomonium:O(3S1)[3P0(8)] = 0.02',
-            'Bottomonium:gg2bbbar(3S1)[3S1(1)]g = on',
-            'Bottomonium:gg2bbbar(3S1)[3S1(8)]g = on',
-            'Bottomonium:qg2bbbar(3S1)[3S1(8)]q = on',
-            'Bottomonium:qqbar2bbbar(3S1)[3S1(8)]g = on',
-            'Bottomonium:gg2bbbar(3S1)[1S0(8)]g = on',
-            'Bottomonium:qg2bbbar(3S1)[1S0(8)]q = on',
-            'Bottomonium:qqbar2bbbar(3S1)[1S0(8)]g = on',
-            'Bottomonium:gg2bbbar(3S1)[3PJ(8)]g = on',
-            'Bottomonium:qg2bbbar(3S1)[3PJ(8)]q = on',
-            'Bottomonium:qqbar2bbbar(3S1)[3PJ(8)]g = on',
             'PhaseSpace:pTHatMin = 20.',
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',
+				    'pythia8BottomoniumSettings',
                                     'processParameters',
                                     )
         )

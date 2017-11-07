@@ -41,10 +41,10 @@ public:
    void setNorm(float n) {norm=n;};
  
   /// Provide the chi-squared function for the given data
-  virtual double operator() (const std::vector<double>&) const;
+  double operator() (const std::vector<double>&) const override;
 
   ///@@ What?
-  virtual double Up() const {return 1.;}
+  double Up() const override {return 1.;}
 
 };
 

@@ -32,10 +32,10 @@ using namespace l1t;
 class L1TGlobalSummary : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit L1TGlobalSummary(const edm::ParameterSet&);
-  virtual ~L1TGlobalSummary(){};
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(Run const&, EventSetup const&) override;
-  virtual void endRun(Run const&, EventSetup const&) override;
+  ~L1TGlobalSummary() override{};
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(Run const&, EventSetup const&) override;
+  void endRun(Run const&, EventSetup const&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:

@@ -20,10 +20,10 @@ namespace pat {
   class PATTauSlimmer : public edm::stream::EDProducer<> {
   public:
     explicit PATTauSlimmer(const edm::ParameterSet & iConfig);
-    virtual ~PATTauSlimmer() { }
+    ~PATTauSlimmer() override { }
     
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) final;
     
   private:
     const edm::EDGetTokenT<edm::View<pat::Tau> > src_;
