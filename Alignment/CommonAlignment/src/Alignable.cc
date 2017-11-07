@@ -21,9 +21,9 @@ Alignable::Alignable(align::ID id, const AlignableSurface& surf):
   theId(id),    // (finally get rid of one of the IDs!)
   theSurface(surf),
   theCachedSurface(surf),
-  theAlignmentParameters(0),
-  theMother(0),
-  theSurvey(0)
+  theAlignmentParameters(nullptr),
+  theMother(nullptr),
+  theSurvey(nullptr)
 {
 }
 
@@ -33,9 +33,9 @@ Alignable::Alignable(align::ID id, const RotationType& rot):
   theId(id),
   theSurface(PositionType(), rot),
   theCachedSurface(PositionType(), rot),
-  theAlignmentParameters(0),
-  theMother(0),
-  theSurvey(0)
+  theAlignmentParameters(nullptr),
+  theMother(nullptr),
+  theSurvey(nullptr)
 {
 }
 

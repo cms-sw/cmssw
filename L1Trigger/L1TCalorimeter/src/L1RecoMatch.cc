@@ -19,11 +19,11 @@ const reco::Candidate* L1RecoMatch::l1g() const {
 }
 
 bool L1RecoMatch::l1Match() const {
-  return l1extra_ != NULL;
+  return l1extra_ != nullptr;
 }
 
 bool L1RecoMatch::l1gMatch() const {
-  return l1g_ != NULL;
+  return l1g_ != nullptr;
 }
 
 const edm::EventID& L1RecoMatch::id() const {

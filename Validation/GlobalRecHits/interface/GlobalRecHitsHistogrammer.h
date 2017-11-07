@@ -39,12 +39,12 @@
 //#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -61,8 +61,8 @@ class GlobalRecHitsHistogrammer : public DQMEDAnalyzer
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
   explicit GlobalRecHitsHistogrammer(const edm::ParameterSet&);
-  virtual ~GlobalRecHitsHistogrammer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  ~GlobalRecHitsHistogrammer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
 

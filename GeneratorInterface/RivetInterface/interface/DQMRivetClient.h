@@ -16,14 +16,14 @@ class DQMRivetClient : public edm::EDAnalyzer
 {
  public:
   DQMRivetClient(const edm::ParameterSet& pset);
-  ~DQMRivetClient() {};
+  ~DQMRivetClient() override {};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
 
-  void endJob();
+  void endJob() override;
 
   /// EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
   
   struct LumiOption
   {

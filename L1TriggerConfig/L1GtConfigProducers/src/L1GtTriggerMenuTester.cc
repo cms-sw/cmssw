@@ -436,7 +436,7 @@ void L1GtTriggerMenuTester::printTriggerGroup(const std::string& trigGroupName,
             const std::vector<std::string> & hltPaths =
                     m_hltPathsForL1AlgorithmTrigger.at(bitNumber);
 
-            if (hltPaths.size() < 1) {
+            if (hltPaths.empty()) {
                 algoTriggerNotSeed.push_back(aAlias);
                 seedsHlt
                         = "<font color = \"red\">Not used as seed by any !HLT path</font>";
@@ -492,7 +492,7 @@ void L1GtTriggerMenuTester::printTriggerGroup(const std::string& trigGroupName,
                 << "\n Algorithm triggers from " << trigGroupName
                 << " not used as seeds by !HLT:" << std::endl;
 
-        if (algoTriggerNotSeed.size() != 0) {
+        if (!algoTriggerNotSeed.empty()) {
             for (std::vector<std::string>::const_iterator strIter =
                     algoTriggerNotSeed.begin(); strIter
                     != algoTriggerNotSeed.end(); ++strIter) {

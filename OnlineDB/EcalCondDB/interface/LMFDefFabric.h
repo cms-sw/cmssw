@@ -28,7 +28,7 @@ class LMFDefFabric: public IDBObject {
   LMFDefFabric(oracle::occi::Environment* env,
 	       oracle::occi::Connection* conn);
   LMFDefFabric(EcalDBConnection *c);
-  ~LMFDefFabric();
+  ~LMFDefFabric() override;
   
   LMFColor getColor(std::string name) const;
   LMFColor getColor(int color_index) const;

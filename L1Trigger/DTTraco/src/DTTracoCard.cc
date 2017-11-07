@@ -40,7 +40,7 @@
 #include <cmath>
 #include <utility>  
 #include <iomanip>
-#include <math.h>
+#include <cmath>
 
 //----------------
 // Constructors --
@@ -242,7 +242,7 @@ DTTracoCard::runTRACO() {
   }
 
   // run TRACO algorithm on all non-empty TRACO
-  if(_tracomap.size()>0){
+  if(!_tracomap.empty()){
 
     if(debug()){
       std::cout << "====================================================" << std::endl;
@@ -292,7 +292,7 @@ DTTracoCard::activeGetTRACO(int n) {
   DTChamberId sid = geom()->statId();
   DTTracoId _id = DTTracoId(sid,n);
  
-  DTTracoChip* traco = 0;
+  DTTracoChip* traco = nullptr;
   TRACO_iter ptraco = _tracomap.find(n);
   if( ptraco!=_tracomap.end() ) {
     traco=(*ptraco).second;
@@ -306,7 +306,7 @@ DTTracoCard::activeGetTRACO(int n) {
 DTTracoChip*
 DTTracoCard::getTRACO(int n) const {
   TRACO_const_iter ptraco = _tracomap.find(n);
-  if( ptraco==_tracomap.end() ) return 0;
+  if( ptraco==_tracomap.end() ) return nullptr;
   return (*ptraco).second;
 }
 
@@ -329,7 +329,7 @@ DTTracoCard::storeTrigger(DTTracoTrigData td) {
   DTTracoId tracoid = td.parentId();
   if(!(tracoid.wheel()==wheel() &&
        tracoid.sector()==sector() &&
-       tracoid.station()==station()) ) return 0;
+       tracoid.station()==station()) ) return nullptr;
   std::cout << "DTTracoChip::trigger: trigger not belonging to this card! ";
   std::cout << "card=(" << wheel() << "," << station() << "," << sector() << ") ";
   std::cout << "trig=(" << tracoid.wheel() << "," << tracoid.station() << "," 
@@ -471,7 +471,7 @@ DTTracoCard::config_traco(const DTTracoId& tracoid) const
 	      << "," << tracoid.station()
 	      << "," << tracoid.traco()
 	      << ") not found, return 0" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   return const_cast<DTConfigTraco*>(&(*titer).second);

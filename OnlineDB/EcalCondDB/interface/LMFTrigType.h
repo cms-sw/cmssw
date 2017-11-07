@@ -15,7 +15,7 @@ class LMFTrigType : public LMFUnique {
   LMFTrigType(EcalDBConnection *c);
   LMFTrigType(oracle::occi::Environment* env,
 	      oracle::occi::Connection* conn);
-  ~LMFTrigType();
+  ~LMFTrigType() override;
 
   std::string getShortName() { return getString("short_name"); }
   std::string getLongName()  { return getString("long_name"); }
@@ -40,11 +40,11 @@ class LMFTrigType : public LMFUnique {
 
  private:
   // Methods from LMFUnique                                                
-  std::string fetchIdSql(Statement *stmt);
-  std::string fetchAllSql(Statement *stmt) const;
-  std::string setByIDSql(Statement *stmt, int id);
-  void getParameters(ResultSet *rset);
-  LMFTrigType * createObject() const;
+  std::string fetchIdSql(Statement *stmt) override;
+  std::string fetchAllSql(Statement *stmt) const override;
+  std::string setByIDSql(Statement *stmt, int id) override;
+  void getParameters(ResultSet *rset) override;
+  LMFTrigType * createObject() const override;
 };
 
 #endif

@@ -17,10 +17,10 @@
 
 class L1TMuonOverlapWriter : public edm::EDAnalyzer {
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1TMuonOverlapWriter(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    virtual ~L1TMuonOverlapWriter(void){}
+    ~L1TMuonOverlapWriter(void) override{}
 };
 
 void L1TMuonOverlapWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

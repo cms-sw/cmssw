@@ -9,16 +9,16 @@ using namespace oracle::occi;
 
 MonLed2Dat::MonLed2Dat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_vptMean = 0;
   m_vptRMS = 0;
   m_vptOverPNMean = 0;
   m_vptOverPNRMS = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
   
 }
 

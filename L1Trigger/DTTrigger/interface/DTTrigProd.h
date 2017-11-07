@@ -31,7 +31,7 @@ public:
   DTTrigProd(const edm::ParameterSet& pset);
 
   //! Destructor
-  ~DTTrigProd();
+  ~DTTrigProd() override;
 
   //! Create Trigger Units before starting event processing
   //void beginJob(const edm::EventSetup & iEventSetup);

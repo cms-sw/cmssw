@@ -5,7 +5,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

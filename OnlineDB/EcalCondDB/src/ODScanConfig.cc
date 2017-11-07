@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 ODScanConfig::ODScanConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_ID=0;
   clear();
@@ -67,7 +67,7 @@ void ODScanConfig::setParameters(const std::map<string,string>& my_keys_map){
     
     if(ci->first==  "SCAN_ID") setConfigTag(ci->second);
     if(ci->first==  "TYPE_ID") setTypeId(atoi(ci->second.c_str()) );
-    if(ci->first==  "TYPE" || ci->first== "SCAN_TYPE") setScanType(ci->second.c_str() );
+    if(ci->first==  "TYPE" || ci->first== "SCAN_TYPE") setScanType(ci->second );
     if(ci->first==  "FROM" ||ci->first==  "FROM_VAL" ) setFromVal(atoi(ci->second.c_str() ));
     if(ci->first==  "TO" ||ci->first==  "TO_VAL" ) setToVal(atoi(ci->second.c_str() ));
     if(ci->first==  "STEP") setStep(atoi(ci->second.c_str() ));

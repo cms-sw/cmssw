@@ -35,6 +35,11 @@ GaussVtxSigmaZ4cmSmearingParameters = cms.PSet(
 )
 
 # Flat Smearing
+# Important note: flat independent distributions in Z and T are not correct for physics production
+# In reality, if two flat beams interact the real distribution will not be flat with independent Z and T
+# but Z and T will be correlated, as example in GaussEvtVtxGenerator.
+# Can restore correlation via MinT += (MinZ - MaxZ)/2 and MaxT += (MaxZ - MinZ)/2
+# in [ns] units (recall c_light = 29.98cm/ns)
 FlatVtxSmearingParameters = cms.PSet(
     MaxZ = cms.double(5.3),
     MaxX = cms.double(0.0015),
@@ -42,7 +47,8 @@ FlatVtxSmearingParameters = cms.PSet(
     MinX = cms.double(-0.0015),
     MinY = cms.double(-0.0015),
     MinZ = cms.double(-5.3),
-    TimeOffset = cms.double(0.0)
+    MaxT = cms.double(0.177),
+    MinT = cms.double(-0.177)
 )
 #############################################
 # Beta functions smearing (pp 7+7 TeV)

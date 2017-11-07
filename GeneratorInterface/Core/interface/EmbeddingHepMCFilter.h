@@ -85,9 +85,9 @@ class EmbeddingHepMCFilter : public BaseHepMCFilter{
     public:
         
         explicit EmbeddingHepMCFilter(const edm::ParameterSet &);
-        ~EmbeddingHepMCFilter();
+        ~EmbeddingHepMCFilter() override;
         
-        virtual bool filter(const HepMC::GenEvent* evt);
+        bool filter(const HepMC::GenEvent* evt) override;
         
 };
 

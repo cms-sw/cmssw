@@ -61,9 +61,9 @@ def ageHF(process,turnon):
 
 def agedHGCal(process):
     from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCal_setEndOfLifeNoise
-    HGCal_setEndOfLifeNoise(getHGCalDigitizer(process,'EE'))
-    HGCal_setEndOfLifeNoise(getHGCalDigitizer(process,'FH'))
-    HGCal_setEndOfLifeNoise(getHGCalDigitizer(process,'BH'))
+    for subdet in ['EE','FH','BH']:
+        hgcaldigi = getHGCalDigitizer(process,subdet)
+        if hgcaldigi is not None: HGCal_setEndOfLifeNoise(hgcaldigi)
     return process
 
 # needs lumi to set proper ZS thresholds (tbd)

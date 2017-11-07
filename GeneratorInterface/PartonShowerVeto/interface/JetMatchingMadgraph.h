@@ -9,23 +9,23 @@ namespace gen
 class JetMatchingMadgraph : public JetMatching {
     public:
 	JetMatchingMadgraph(const edm::ParameterSet &params);
-	~JetMatchingMadgraph();
+	~JetMatchingMadgraph() override;
 
     protected:
-	virtual void init(const lhef::LHERunInfo* runInfo);
-	virtual void beforeHadronisation(const lhef::LHEEvent* event);
-	virtual void beforeHadronisationExec();
+	void init(const lhef::LHERunInfo* runInfo) override;
+	void beforeHadronisation(const lhef::LHEEvent* event) override;
+	void beforeHadronisationExec() override;
 
-        virtual int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput );
+        int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput ) override;
 	
-	virtual double                  getJetEtaMax() const;
+	double                  getJetEtaMax() const override;
 	
 /*
 	int match(const HepMC::GenEvent *partonLevel,
 	          const HepMC::GenEvent *finalState,
 	          bool showeredFinalState);
 */
-	std::set<std::string> capabilities() const;
+	std::set<std::string> capabilities() const override;
 
 	template<typename T>
 	static T parseParameter(const std::string &value);

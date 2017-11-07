@@ -80,7 +80,7 @@ void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) 
 	for( size_t j = 0; j < p->numberOfMothers(); ++ j ) {
 	  const Candidate * mom = p->mother( j );
 	  const Candidate * grandMom;
-	  while ( ( grandMom = mom->mother() ) != 0 )
+	  while ( ( grandMom = mom->mother() ) != nullptr )
 	    mom = grandMom;
 	  if ( select( * mom ) ) {
 	    moms.push_back( mom );
@@ -90,7 +90,7 @@ void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) 
     }
   }
   cout << "-- decay: --" << endl;
-  if( moms.size() > 0 ) {
+  if( !moms.empty() ) {
     if ( moms.size() > 1 )
       for( size_t m = 0; m < moms.size(); ++ m ) {
 	string dec = decay( * moms[ m ], skip );
@@ -100,7 +100,7 @@ void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) 
     else
       cout << decay( * moms[ 0 ], skip );
   }
-  if ( nodes.size() > 0 ) {
+  if ( !nodes.empty() ) {
     cout << "-> ";
     if ( nodes.size() > 1 ) {
       for( size_t n = 0; n < nodes.size(); ++ n ) {
@@ -139,7 +139,7 @@ string ParticleDecayDrawer::decay( const Candidate & c,
 
   int id = c.pdgId();
   const ParticleData * pd = pdt_->particle( id );
-  assert( pd != 0 );
+  assert( pd != nullptr );
   out += ( pd->name() + printP4( c ) );
 
   size_t validDau = 0, ndau = c.numberOfDaughters();

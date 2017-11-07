@@ -257,7 +257,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   //
   // Accessor from PAT jets
   //
-  bool operator()( const pat::Jet & jet, pat::strbitset & ret )
+  bool operator()( const pat::Jet & jet, pat::strbitset & ret ) override
   {
     if ( version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16) {
       if ( jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable() )
@@ -314,7 +314,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     pat::Jet const * patJet = dynamic_cast<pat::Jet const *>(&jet);
     reco::BasicJet const * basicJet = dynamic_cast<reco::BasicJet const *>(&jet);
 
-    if ( patJet != 0 ) {
+    if ( patJet != nullptr ) {
       if ( patJet->isPFJet() ) {
 	chf = patJet->chargedHadronEnergyFraction();
 	nhf = patJet->neutralHadronEnergyFraction();
@@ -358,7 +358,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	}
       }
     } // end if pat jet
-    else if ( pfJet != 0 ) {
+    else if ( pfJet != nullptr ) {
       // CV: need to compute energy fractions in a way that works for corrected as well as for uncorrected PFJets
       double jetEnergyUncorrected =
 	pfJet->chargedHadronEnergy()
@@ -379,7 +379,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     } // end if PF jet
     // Handle the special case where this is a composed jet for
     // subjet analyses
-    else if ( basicJet != 0 ) {
+    else if ( basicJet != nullptr ) {
       double e_chf = 0.0;
       double e_nhf = 0.0;
       double e_cef = 0.0;

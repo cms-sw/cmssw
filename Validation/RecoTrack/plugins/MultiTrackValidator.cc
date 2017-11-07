@@ -273,7 +273,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       dirName+=assoc;
       std::replace(dirName.begin(), dirName.end(), ':', '_');
 
-      ibook.setCurrentFolder(dirName.c_str());
+      ibook.setCurrentFolder(dirName);
 
       const bool doResolutionPlots = doResolutionPlots_[www];
 
@@ -810,7 +810,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         unsigned int selectsHP = mvaCollections.size();
 	if(simRecColl.find(tpr) != simRecColl.end()){
 	  auto const & rt = simRecColl[tpr];
-	  if (rt.size()!=0) {
+	  if (!rt.empty()) {
 	    ats++; //This counter counts the number of simTracks that have a recoTrack associated
 	    // isRecoMatched = true; // UNUSED
 	    matchedTrackPointer = rt.begin()->first.get();

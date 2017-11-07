@@ -19,13 +19,13 @@ class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
 
     public:
         HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& conf);
-        ~HGCalTriggerNtupleHGCDigis(){};
-        virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
-        virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
+        ~HGCalTriggerNtupleHGCDigis() override{};
+        void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+        void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
     private:
         void simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh, std::unordered_map<uint32_t, double>& simhits_bh);
-        virtual void clear() override final;
+        void clear() final;
 
         edm::EDGetToken ee_token_, fh_token_, bh_token_;
         bool is_Simhit_comp_;

@@ -54,7 +54,7 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
   MuonTrackAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~MuonTrackAnalyzer();
+  ~MuonTrackAnalyzer() override;
 
   // Operations
 
