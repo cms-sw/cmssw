@@ -1,28 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
 #setup names for multiple plots that use the same paths+modules
-pfJet_pathName = "HLT_HIAK4PFJet40"
+pfJet_pathName = "HLT_AK4PFJet40"
 pfJet_moduleName = "hltSingleAK4PFJet40"
 
-caloJet_pathName = "HLT_HIAK4CaloJet40"
+caloJet_pathName = "HLT_AK4CaloJet40"
 caloJet_moduleName = "hltSingleAK4CaloJet40"
 
-pfJetFWD_pathName = "HLT_HIAK4PFJet40FWD"
+pfJetFWD_pathName = "HLT_AK4PFJet40FWD"
 pfJetFWD_moduleName = "hltSingleAK4PFJet40FWD"
 
-caloJetFWD_pathName = "HLT_HIAK4CaloJet40FWD"
+caloJetFWD_pathName = "HLT_AK4CaloJet40FWD"
 caloJetFWD_moduleName = "hltSingleAK4CaloJet40FWD"
 
-pfBJet_pathName = "HLT_HIAK4PFJet40_bTag"
+pfBJet_pathName = "HLT_AK4PFJet40_bTag"
 pfBJet_moduleName = "hltBTagPFCSV0p80SingleJet40Eta2p4"
 
 photon_pathName = "HLT_HISinglePhoton10_Eta3p1ForPPRef"
 photon_moduleName = "hltHIPhoton10Eta3p1"
 
-photonHELoose_pathName = "HLT_HIPhoton20_HoverELoose"
+photonHELoose_pathName = "HLT_Photon20_HoverELoose"
 photonHELoose_moduleName = "hltEG20HEFilterLooseHoverE"
 
-electron_pathName = "HLT_HIEle15_WPLoose_Gsf"
+electron_pathName = "HLT_Ele15_WPLoose_Gsf"
 electron_moduleName = "hltEle15WPLoose1GsfTrackIsoFilter"
 
 l3muon3_pathName = "HLT_HIL3Mu3"
