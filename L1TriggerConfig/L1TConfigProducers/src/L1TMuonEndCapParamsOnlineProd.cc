@@ -8,13 +8,13 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsO2ORcd.h"
-#include "L1Trigger/L1TMuonEndCap/interface/EndCapParamsHelper.h"
 #include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
 #include "OnlineDBqueryHelper.h"
 
 class L1TMuonEndCapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd,L1TMuonEndCapParams> {
 private:
+    bool transactionSafe;
 public:
     std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) override ;
 
@@ -22,7 +22,9 @@ public:
     ~L1TMuonEndCapParamsOnlineProd(void) override{}
 };
 
-L1TMuonEndCapParamsOnlineProd::L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd,L1TMuonEndCapParams>(iConfig){}
+L1TMuonEndCapParamsOnlineProd::L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd,L1TMuonEndCapParams>(iConfig){
+    transactionSafe = iConfig.getParameter<bool>("transactionSafe");
+}
 
 std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) {
     using namespace edm::es;
@@ -33,8 +35,13 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
 
 
     if (objectKey.empty()) {
-        edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonEndCapParams";
-        throw std::runtime_error("Empty objectKey");
+        edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "Key is empty";
+        if( transactionSafe )
+            throw std::runtime_error("SummaryForFunctionManager: BMTF  | Faulty  | Empty objectKey");
+        else {
+            edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonEndCapParams";
+            return std::make_shared< L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
+        }
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
@@ -69,7 +76,12 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
 
     } catch ( std::runtime_error &e ) {
         edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << e.what();
-        throw std::runtime_error("Broken key");
+        if( transactionSafe )
+            throw std::runtime_error("SummaryForFunctionManager: EMTF  | Faulty  | Broken key");
+        else {
+            edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonEndCapParams";
+            return std::make_shared< L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
+        }
     }
 
     // for debugging purposes dump the configs to local files
@@ -87,13 +99,23 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
     l1t::XmlConfigParser xmlRdr;
     l1t::TriggerSystem trgSys;
 
-    xmlRdr.readDOMFromString( hw_payload );
-    xmlRdr.readRootElement  ( trgSys     );
+    try {
+        xmlRdr.readDOMFromString( hw_payload );
+        xmlRdr.readRootElement  ( trgSys     );
 
-    xmlRdr.readDOMFromString( algo_payload );
-    xmlRdr.readRootElement  ( trgSys       );
+        xmlRdr.readDOMFromString( algo_payload );
+        xmlRdr.readRootElement  ( trgSys       );
 
-    trgSys.setConfigured();
+        trgSys.setConfigured();
+    } catch ( std::runtime_error &e ) {
+        edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << e.what();
+        if( transactionSafe )
+            throw std::runtime_error("SummaryForFunctionManager: EMTF  | Faulty  | Cannot parse XMLs");
+        else {
+            edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonEndCapParams";
+            return std::make_shared< L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
+        }
+    }
 
     std::map<std::string, l1t::Parameter> conf = trgSys.getParameters("EMTF-1"); // any processor will do
 
@@ -102,18 +124,17 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
     strptime(core_fwv.c_str(), "%Y-%m-%d %T", &brokenTime);
     time_t fw_sinceEpoch = timegm(&brokenTime);
 
-    std::string pclut_v = conf["pc_lut_version"].getValueAsStr();
-    strptime(pclut_v.c_str(), "%Y-%m-%d", &brokenTime);
-    time_t pclut_sinceEpoch = timegm(&brokenTime);
+//    std::string pclut_v = conf["pc_lut_version"].getValueAsStr();
+//    strptime(pclut_v.c_str(), "%Y-%m-%d", &brokenTime);
+//    time_t pclut_sinceEpoch = timegm(&brokenTime);
 
-    l1t::EndCapParamsHelper data( new L1TMuonEndCapParams() );
+    std::shared_ptr< L1TMuonEndCapParams > retval( new L1TMuonEndCapParams() ); 
+    
+    retval->firmwareVersion_ = fw_sinceEpoch;
+    retval->PtAssignVersion_ = conf["pt_lut_version"].getValue<unsigned int>();
+    retval->PhiMatchWindowSt1_ = 1; //pclut_sinceEpoch;
 
-    data.SetFirmwareVersion( fw_sinceEpoch );
-    data.SetPtAssignVersion( conf["pt_lut_version"].getValue<unsigned int>() );
-    data.SetPrimConvVersion( pclut_sinceEpoch );
-
-    std::shared_ptr< L1TMuonEndCapParams > retval( data.getWriteInstance() ); 
-
+    edm::LogInfo( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "SummaryForFunctionManager: EMTF  | OK      | All looks good";
     return retval;
 }
 

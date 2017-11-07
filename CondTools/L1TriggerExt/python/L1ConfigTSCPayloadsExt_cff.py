@@ -35,3 +35,24 @@ def setTSCPayloadsDB(process, DBConnect, DBAuth, protoDBConnect, protoDBAuth):
     process.l1bmtfparProtodb.DBParameters.authenticationPath = cms.untracked.string( protoDBAuth )
     process.l1emtfparProtodb.DBParameters.authenticationPath = cms.untracked.string( protoDBAuth )
     process.l1gmtparProtodb.DBParameters.authenticationPath  = cms.untracked.string( protoDBAuth )
+
+def liftPayloadSafetyFor(process, systems):
+    if 'CALO' in systems:
+        process.L1TCaloParamsOnlineProd.transactionSafe           = cms.bool(False)
+
+    if 'uGTrs' in systems:
+        process.L1TGlobalPrescalesVetosOnlineProd.transactionSafe = cms.bool(False)
+
+    if 'BMTF' in systems:
+        process.L1TMuonBarrelParamsOnlineProd.transactionSafe     = cms.bool(False)
+
+    if 'EMTF' in systems:
+        process.L1TMuonEndCapParamsOnlineProd.transactionSafe     = cms.bool(False)
+        process.L1TMuonEndCapForestOnlineProd.transactionSafe     = cms.bool(False)
+
+    if 'uGMT' in systems:
+        process.L1TMuonGlobalParamsOnlineProd.transactionSafe     = cms.bool(False)
+
+    if 'OMTF' in systems:
+        process.L1TMuonOverlapParamsOnlineProd.transactionSafe    = cms.bool(False)
+
