@@ -1,6 +1,5 @@
 <use   name="DataFormats/TrackerCommon"/>
-<use   name="FWCore/Concurrency"/>
-<use   name="xerces-c"/>
+<use   name="tinyxml"/>
 <export>
   <lib   name="1"/>
 </export>
