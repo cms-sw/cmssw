@@ -273,7 +273,7 @@ from DQMOffline.L1Trigger.L1TEGammaOffline_cfi import *
 l1tEGammaOfflineDQMEmu.stage2CaloLayer2EGammaSource=cms.InputTag("valCaloStage2Layer2Digis")
 
 from DQMOffline.L1Trigger.L1TTauOffline_cfi import *
-l1tTauOfflineDQMEmu.stage2CaloLayer2TaySource=cms.InputTag("valCaloStage2Layer2Digis")
+l1tTauOfflineDQMEmu.stage2CaloLayer2TauSource=cms.InputTag("valCaloStage2Layer2Digis")
 from DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi import *
 
 from DQM.L1TMonitor.L1TStage2_cff import *
