@@ -15,6 +15,7 @@ class GEMEMap {
 
   const std::string & version() const;
   GEMROmap* convert() const;
+  GEMROmap* convertDummy() const;
 
   struct GEMEMapItem {
     int ChamberID;

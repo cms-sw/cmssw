@@ -24,7 +24,8 @@ GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet & pset)
 {
   event_type_ = pset.getParameter<int>("eventType");
   digi_token = consumes<GEMDigiCollection>( pset.getParameter<edm::InputTag>("gemDigi") );
-  produces<FEDRawDataCollection>("GEMRawData");
+  useDBEMap_ = pset.getParameter<bool>("useDBEMap");
+  produces<FEDRawDataCollection>();
 }
 
 void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
@@ -34,10 +35,17 @@ void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descr
 
 void GEMDigiToRawModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<GEMEMap> gemEMap;
-  iSetup.get<GEMEMapRcd>().get(gemEMap); 
-  m_gemEMap = gemEMap.product();
-  m_gemROMap = m_gemEMap->convert();
+  if (useDBEMap_){
+    edm::ESHandle<GEMEMap> gemEMap;
+    iSetup.get<GEMEMapRcd>().get(gemEMap);
+    m_gemEMap = gemEMap.product();
+    m_gemROMap = m_gemEMap->convert();
+  }
+  else {
+    // no eMap, using dummy
+    m_gemEMap = new GEMEMap();
+    m_gemROMap = m_gemEMap->convertDummy();
+  }
 }
 
 void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
@@ -48,115 +56,272 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
   edm::Handle<GEMDigiCollection> gemDigis;
   e.getByToken( digi_token, gemDigis );
 
+  int ndigis = 0;
+  
+  // currently only one FEDRaw
   std::vector<AMC13Event*> amc13Events;
-    
-  for (GEMDigiCollection::DigiRangeIterator gemdgIt = gemDigis->begin(); gemdgIt != gemDigis->end(); ++gemdgIt) {
-      
-    const GEMDetId& gemId = (*gemdgIt).first;
-    
-    std::map<int, std::vector<int> > vFatToStripMap;
-    
-    const GEMDigiCollection::Range& range = (*gemdgIt).second;
-    for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
-      const GEMDigi & digi = (*digiIt);
-      //int bx    = digi.bx(); // setting all bx to 0 for now
-      // use strip to get vFat ID
-      // pair<int, int > vFatChan = vFatChannel(gemId, strip);
-      // int vFatID = vFatChan.first
-      // int chan   = vFatChan.second
-      GEMROmap::dCoord dc;
-      dc.gemDetId = gemId;
-      dc.stripId = digi.strip();
+  AMC13Event * amc13Event = new AMC13Event();
 
-      GEMROmap::eCoord ec = m_gemROMap->hitPosition(dc);
-      
-      int vFatID = ec.vfatId - 0xf000;      
-      vFatToStripMap[vFatID].push_back(ec.channelId);	
-    }
-    
-    AMC13Event * amc13Event = new AMC13Event();
+  // CDFHeader
+  uint8_t cb5 = 0x5;// control bit, should be 0x5 bits 60-63
+  uint8_t Evt_ty = event_type_;
+  uint32_t LV1_id = e.id().event();
+  uint16_t BX_id = e.bunchCrossing();
+  uint16_t Source_id = FEDNumbering::MINGEMFEDID;
+  amc13Event->setCDFHeader(cb5, Evt_ty, LV1_id, BX_id, Source_id);
 
-    uint8_t cb5 = 0;
-    uint8_t Evt_ty = 0;
-    uint32_t LV1_id = 0;
-    uint16_t BX_id = 0;
-    uint16_t Source_id = 0;
-    amc13Event->setCDFHeader(cb5, Evt_ty, LV1_id, BX_id, Source_id);
-    
+  // AMC13header
+  uint8_t CalTyp = 1;
+  uint8_t nAMC = 1; // currently only one AMC13Event
+  uint32_t OrN = 2;
+  uint8_t cb0  = 0b0000;// control bit, should be 0b0000
+  amc13Event->setAMC13header(CalTyp, nAMC, OrN, cb0);
+
+  for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
+    uint32_t AMC_size = 0;
+    uint8_t Blk_No = 0;
+    uint8_t AMC_No = 0;
+    uint16_t BoardID = 0;
+    amc13Event->addAMCheader(AMC_size, Blk_No, AMC_No, BoardID);
+  }
+
+  // Now make AMC payloads
+  for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
+    uint8_t GDcount = 0; // count GEBs
     AMCdata * amcData = new AMCdata();
 
-    GEBdata * gebData = new GEBdata();
+    
+    for (int re = -1; re <= 1; re = re+2) {
+      for (int st = GEMDetId::minStationId; st<=GEMDetId::maxStationId; ++st) {
+	for (int ch = GEMDetId::minChamberId; ch<=GEMDetId::maxChamberId; ++ch) {
 
-    std::map<int, std::vector<int> >::const_iterator vFatStrIt = vFatToStripMap.begin();    
-    for (; vFatStrIt != vFatToStripMap.end(); ++vFatStrIt) {
+	  // 1 GEB per superChamber
+	  GEMDetId gebDetId(re, 1, st, 0, ch, 0);
+	  
+	  std::map<int, std::vector<int> > vFatToStripMap;
+	  bool hasDigi = false;
+	  for (int ly = 1; ly<=GEMDetId::maxLayerId; ++ly) {
+	    for (int roll = 1; roll<=GEMDetId::maxRollId; ++roll) {
+	      GEMDetId gemId(re, 1, st, ly, ch, roll);
+	      
+	      GEMDigiCollection::Range range = gemDigis->get(gemId);
+	      for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
+		const GEMDigi & digi = (*digiIt);
+		
+		GEMROmap::dCoord dc;
+		dc.gemDetId = gemId;
+		dc.stripId = digi.strip();
 
-      if (vFatStrIt->second.size() == 0) continue;
+		GEMROmap::eCoord ec = m_gemROMap->hitPosition(dc);
+		int vFatID = ec.vfatId;
+		int channelId = ec.channelId;
+		
+		vFatToStripMap[vFatID].push_back(channelId);	
+		hasDigi = true;
+
+		std::cout <<"GEMDigiToRawModule ChipID "<<ec.vfatId
+			  <<" gemDetId "<< gemId
+			  <<" chan "<< ec.channelId
+			  <<" strip "<< dc.stripId
+			  <<std::endl;
+		ndigis++;
+
+	      }
+	    }
+	  }
+	  if (!hasDigi) continue;
+	  
+	  // count no. of superChambers with hits
+	  ++GDcount;
+	  uint16_t Vwh = 0;
+	  // const uint32_t &ZeroSup = 0;
+	  // const uint8_t &InputID = 0;
+	  // const uint16_t &ErrorC = 0;
+	  // const uint16_t &OHCRC = 0;
+	  // const uint16_t &Vwt = 0;
+	  // const uint8_t &InFu = 0;
+	  // const uint8_t &Stuckd = 0;
+	  // GEBdata * gebData = new GEBdata(ZeroSup, InputID, Vwt, ErrorC,
+	  // 				  OHCRC, Vwt, InFu, Stuckd);
+	  GEBdata * gebData = new GEBdata();
+	  int gebID = m_gemROMap->gebPosition(gebDetId.superChamberId());
+	  gebData->setInputID(gebID);
+
+	  // fill in vFat
+	  std::map<int, std::vector<int> >::const_iterator vFatStrIt = vFatToStripMap.begin();    
+	  for (; vFatStrIt != vFatToStripMap.end(); ++vFatStrIt) {
+
+	    if (vFatStrIt->second.size() == 0) continue;
       
-      uint8_t  b1010      =0xA;           ///<1010:4 Control bits, shoud be 1010
-      uint16_t BC         =0;             ///<Bunch Crossing number, 12 bits
-      uint8_t  b1100      =0xC;           ///<1100:4, Control bits, shoud be 1100
-      uint8_t  EC         =0;             ///<Event Counter, 8 bits
-      uint8_t  Flag       =0;             ///<Control Flags: 4 bits, Hamming Error/AFULL/SEUlogic/SUEI2C
-      uint8_t  b1110      =0xE;           ///<1110:4 Control bits, shoud be 1110
-      uint16_t crc        =0;             ///<Check Sum value, 16 bits
-      uint16_t crc_calc   =0;             ///<Check Sum value recalculated, 16 bits
-      int      SlotNumber =0;             ///<Calculated chip position
-      bool     isBlockGood=0;             ///<Shows if block is good (control bits, chip ID and CRC checks)
+	    uint8_t  b1010      =0xA;           ///<1010:4 Control bits, shoud be 1010
+	    uint16_t BC         =0;             ///<Bunch Crossing number, 12 bits
+	    uint8_t  b1100      =0xC;           ///<1100:4, Control bits, shoud be 1100
+	    uint8_t  EC         =0;             ///<Event Counter, 8 bits
+	    uint8_t  Flag       =0;             ///<Control Flags: 4 bits, Hamming Error/AFULL/SEUlogic/SUEI2C
+	    uint8_t  b1110      =0xE;           ///<1110:4 Control bits, shoud be 1110
+	    //uint16_t crc        =0;             ///<Check Sum value, 16 bits
+	    uint16_t crc_calc   =0;             ///<Check Sum value recalculated, 16 bits
+	    int      SlotNumber =0;             ///<Calculated chip position
+	    bool     isBlockGood=1;             ///<Shows if block is good (control bits, chip ID and CRC checks)
 
-      uint16_t ChipID = vFatStrIt->first; ///<Chip ID, 12 bits
-      uint64_t lsData     =0;             ///<channels from 1to64 
-      uint64_t msData     =0;             ///<channels from 65to128
-      
-      for (auto strip : vFatStrIt->second){
-	std::cout <<"strip "<< strip<< std::endl;
-	// set lsData and msData depending on strip no.	
+	    uint16_t ChipID = 0xFFF & vFatStrIt->first; ///<Chip ID, 12 bits
+	    uint64_t lsData     =0;             ///<channels from 1to64 
+	    uint64_t msData     =0;             ///<channels from 65to128
+	    
+	    for (auto chan : vFatStrIt->second){
+	      //std::cout <<"chan "<< chan<< std::endl;
+	      uint64_t oneBit = 0x1;
+	      if (chan < 64) lsData = lsData | (oneBit << chan);
+	      else msData = msData | (oneBit << (chan-64));
+	    }
+
+	    uint16_t crc = checkCRC(b1010, BC, b1100,
+				    EC, Flag, b1110,
+				    ChipID, msData, lsData);
+	    
+	    VFATdata * vfatData =
+	      new VFATdata(b1010, BC, b1100, EC, Flag, b1110, ChipID, lsData, msData,
+			   crc, crc_calc, SlotNumber, isBlockGood);
+
+	    ++Vwh;
+	    ++Vwh;
+	    ++Vwh;
+	    gebData->v_add(*vfatData);
+	  }
+
+	  gebData->setVwh(Vwh);
+	  amcData->g_add(*gebData);
+	  
+	}
       }
-      
-      VFATdata * vfatData =
-	new VFATdata(b1010, BC, b1100, EC, Flag, b1110, ChipID, lsData, msData, crc, crc_calc, SlotNumber, isBlockGood);
-
-      gebData->v_add(*vfatData);
-      delete vfatData;
     }
-
-    amcData->g_add(*gebData);
-    delete gebData;
-
+    
+    amcData->setGDcount(GDcount);    
     amc13Event->addAMCpayload(*amcData);
-    delete amcData;
 
-    amc13Events.push_back(amc13Event);    
-  }
-
-  for (auto amc13It : amc13Events){
-    AMC13Event * amc13Event = amc13It;
-    std::cout <<"amc13Event->nAMC() "<< int(amc13Event->nAMC()) << std::endl;
-    
-    //FEDRawData * rawData = new FEDRawData(amc13Event.dataSize());
-
-    int fedId = FEDNumbering::MINGEMFEDID;    
-    int dataSize = sizeof(uint64_t)*100;
-
-    FEDRawData & fedRawData = fedRawDataCol->FEDData(fedId);
-    fedRawData.resize(dataSize);
-    
-    uint64_t * word = reinterpret_cast<uint64_t* >(fedRawData.data());
-
-    FEDHeader::set( fedRawData.data(), event_type_, e.id().event(), e.bunchCrossing(), fedId );
-    word++;
-
-    // // write data
-    // unsigned int nWord32InFed = words.find(fedId)->second.size();
-    // for (unsigned int i=0; i < nWord32InFed; i+=2) {
-    //   *word = (Word64(words.find(fedId)->second[i]) << 32 ) | words.find(fedId)->second[i+1];
-    //   LogDebug("PixelDataFormatter")  << print(*word);
-    //   word++;
-    // }
-
-    // write one trailer
-    FEDTrailer::set( fedRawData.data(), dataSize/sizeof(uint64_t), 0,0,0 );
-    word++;
   }
   
+  //AMC13 trailer
+  uint32_t CRC_amc13 = 0;
+  uint8_t Blk_NoT = 0;
+  uint8_t LV1_idT = 0;
+  uint16_t BX_idT = 0;
+  amc13Event->setAMC13trailer(CRC_amc13, Blk_NoT, LV1_idT, BX_idT);
+  //CDF trailer
+  uint8_t cbA = 0xA; // control bit, should be 0xA bits 60-63
+  uint32_t EvtLength = 0;
+  uint16_t CRC_cdf = 0;
+  amc13Event->setCDFTrailer(cbA, EvtLength, CRC_cdf);  
+  amc13Events.push_back(amc13Event);    
+
+
+  
+  // read out amc13Events into fedRawData
+  for (auto amc13It : amc13Events){
+    AMC13Event * amc13Event = amc13It;
+    std::vector<uint64_t> words;    
+    words.push_back(amc13Event->getCDFHeader());
+    words.push_back(amc13Event->getAMC13header());    
+
+    std::cout <<"GEMDigiToRawModule amc13Event"
+	      <<" nAMC "<< amc13Event->nAMC()
+	      <<" LV1_id "<< amc13Event->LV1_id()
+	      <<" Source_id "<< amc13Event->Source_id()
+	      <<std::endl;
+
+    for (auto w: amc13Event->getAMCheader())
+      words.push_back(w);    
+
+    for (auto amc : amc13Event->getAMCpayload()){
+      AMCdata * amcData = &amc;
+      
+      words.push_back(amcData->getAMCheader1());      
+      words.push_back(amcData->getAMCheader2());
+      words.push_back(amcData->getGEMeventHeader());
+
+      //std::cout <<"GEMDigiToRawModule amcData->GDcount() "<<amcData->GDcount()<<std::endl;
+      for (auto geb: amcData->gebs()){
+	GEBdata * gebData = &geb;
+	words.push_back(gebData->getChamberHeader());
+
+	for (auto vfat: gebData->vfats()){
+	  VFATdata * vfatData = &vfat;
+	  words.push_back(vfatData->get_fw());
+	  words.push_back(vfatData->get_sw());
+	  words.push_back(vfatData->get_tw());
+	  delete vfatData;
+	}
+	
+	words.push_back(gebData->getChamberTrailer());
+	delete gebData;
+      }
+      
+      words.push_back(amcData->getGEMeventTrailer());
+      words.push_back(amcData->getAMCTrailer());
+      delete amcData;
+    }
+    
+    words.push_back(amc13Event->getAMC13trailer());
+    words.push_back(amc13Event->getCDFTrailer());
+
+    FEDRawData & fedRawData = fedRawDataCol->FEDData(amc13Event->Source_id());
+    
+    int dataSize = (words.size()) * sizeof(uint64_t);
+    fedRawData.resize(dataSize);
+    
+    uint64_t * w = reinterpret_cast<uint64_t* >(fedRawData.data());  
+    for (auto word: words) *(w++) = word;
+        
+    std::cout << "GEMDigiToRawModule words " <<std::dec << words.size() << std::endl;
+    delete amc13Event;
+  }
+
+  std::cout << "GEMDigiToRawModule ndigis " << ndigis << std::endl;
+
   e.put(std::move(fedRawDataCol));
 }
+
+uint16_t GEMDigiToRawModule::checkCRC(uint8_t b1010, uint16_t BC, uint8_t b1100,
+				      uint8_t EC, uint8_t Flag, uint8_t b1110,
+				      uint16_t ChipID, uint64_t msData, uint64_t lsData)
+{
+  uint16_t vfatBlockWords[12];
+  vfatBlockWords[11] = ((0x000f & b1010)<<12) | BC;
+  vfatBlockWords[10] = ((0x000f & b1100)<<12) | ((0x00ff & EC) <<4) | (0x000f & Flag);
+  vfatBlockWords[9]  = ((0x000f & b1110)<<12) | ChipID;
+  vfatBlockWords[8]  = (0xffff000000000000 & msData) >> 48;
+  vfatBlockWords[7]  = (0x0000ffff00000000 & msData) >> 32;
+  vfatBlockWords[6]  = (0x00000000ffff0000 & msData) >> 16;
+  vfatBlockWords[5]  = (0x000000000000ffff & msData);
+  vfatBlockWords[4]  = (0xffff000000000000 & lsData) >> 48;
+  vfatBlockWords[3]  = (0x0000ffff00000000 & lsData) >> 32;
+  vfatBlockWords[2]  = (0x00000000ffff0000 & lsData) >> 16;
+  vfatBlockWords[1]  = (0x000000000000ffff & lsData);
+
+  uint16_t crc_fin = 0xffff;
+  for (int i = 11; i >= 1; i--){
+    crc_fin = this->crc_cal(crc_fin, vfatBlockWords[i]);
+  }
+  
+  return(crc_fin);
+}
+
+uint16_t GEMDigiToRawModule::crc_cal(uint16_t crc_in, uint16_t dato)
+{
+  uint16_t v = 0x0001;
+  uint16_t mask = 0x0001;
+  bool d=0;
+  uint16_t crc_temp = crc_in;
+  unsigned char datalen = 16;
+
+  for (int i=0; i<datalen; i++){
+    if (dato & v) d = 1;
+    else d = 0;
+    if ((crc_temp & mask)^d) crc_temp = crc_temp>>1 ^ 0x8408;
+    else crc_temp = crc_temp>>1;
+    v<<=1;
+  }
+  
+  return(crc_temp);
+}
+

@@ -45,11 +45,14 @@ class GEMDigiToRawModule : public edm::EDProducer {
 
  private:
 
-  // ------------ method called once each 64 Bits data word and keep in vector ------------
-  void ByteVector(std::vector<unsigned char>&, uint64_t&);
+  uint16_t checkCRC(uint8_t b1010, uint16_t BC, uint8_t b1100,
+		    uint8_t EC, uint8_t Flag, uint8_t b1110,
+		    uint16_t ChipID, uint64_t msData, uint64_t lsData);
+  uint16_t crc_cal(uint16_t crc_in, uint16_t dato);
   
   int event_type_;
-  edm::EDGetTokenT<GEMDigiCollection>             digi_token;
+  edm::EDGetTokenT<GEMDigiCollection> digi_token;
+  bool useDBEMap_;
 
   const GEMEMap* m_gemEMap;
   GEMROmap* m_gemROMap;
