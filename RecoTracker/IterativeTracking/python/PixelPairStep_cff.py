@@ -156,6 +156,7 @@ pixelPairStepTrackingRegionsSeedLayersB = _pixelInactiveAreaTrackingRegionsAndSe
         zErrorVertex = 0.03,
         maxNVertices = 5,
     ),
+    ignoreSingleFPixPanelModules = True,
 )
 pixelPairStepHitDoubletsB = pixelPairStepHitDoublets.clone(
     seedingLayers = "",
