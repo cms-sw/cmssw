@@ -1068,7 +1068,6 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     ),
     toGet = cms.VPSet(
     ),
-    connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     globaltag = cms.string( "GR_H_V29::All" ),
     timetype = cms.string( "runnumber" ),
     RefreshEachRun = cms.untracked.bool( True )
