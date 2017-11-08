@@ -55,7 +55,6 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
             pdesc.add<edm::InputTag>("tracks",edm::InputTag("particleFlow"));
             pdesc.add<unsigned int>("minHits",0);
           } else {
-            std::cout << "TIVF defaulted!" << std::endl;
             pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
           }	  
 	  
@@ -96,7 +95,6 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
           } else if ( std::is_same<VTX,reco::VertexCompositePtrCandidate>::value ) {
             cdesc.add("inclusiveCandidateVertexFinderDefault",pdesc);
           } else {
-            std::cout << "TIVF defaulted!" << std::endl;
             cdesc.addDefault(pdesc);
           }
 	}
