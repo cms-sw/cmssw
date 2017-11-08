@@ -437,10 +437,9 @@ void TkLayerMap::initialize(int layer){
 void TkLayerMap::createTIB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   
   std::vector<uint32_t> LayerDetIdList;
-  SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTIBDetectors(TkDetIdList,LayerDetIdList,layerEnumNb,0,0,0);
+  SiStripSubStructure::getTIBDetectors(TkDetIdList,LayerDetIdList,nullptr,layerEnumNb,0,0,0);
 
   LogTrace("TkLayerMap") << "[TkLayerMap::createTIB12] layer " << layerEnumNb  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
@@ -456,10 +455,9 @@ void TkLayerMap::createTIB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
 void TkLayerMap::createTOB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   
   std::vector<uint32_t> LayerDetIdList;
-  SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTOBDetectors(TkDetIdList,LayerDetIdList,layerEnumNb-10,0,0);
+  SiStripSubStructure::getTOBDetectors(TkDetIdList,LayerDetIdList,nullptr,layerEnumNb-10,0,0);
 
   LogTrace("TkLayerMap") << "[TkLayerMap::createTOB] layer " << layerEnumNb-10  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
@@ -475,10 +473,9 @@ void TkLayerMap::createTOB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
 void TkLayerMap::createTID(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   
   std::vector<uint32_t> LayerDetIdList;
-  SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTIDDetectors(TkDetIdList,LayerDetIdList,(layerEnumNb-TkLayerMap::TIDM_D1)/3+1,(layerEnumNb-TkLayerMap::TIDM_D1)%3+1,0,0);
+  SiStripSubStructure::getTIDDetectors(TkDetIdList,LayerDetIdList,nullptr,(layerEnumNb-TkLayerMap::TIDM_D1)/3+1,(layerEnumNb-TkLayerMap::TIDM_D1)%3+1,0,0);
 
   LogTrace("TkLayerMap") << "[TkLayerMap::createTID] layer side " << (layerEnumNb-TkLayerMap::TIDM_D1)/3+1 << " nb " << (layerEnumNb-TkLayerMap::TIDM_D1)%3+1  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
   
@@ -494,10 +491,9 @@ void TkLayerMap::createTID(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
 void TkLayerMap::createTEC(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   
   std::vector<uint32_t> LayerDetIdList;
-  SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTECDetectors(TkDetIdList,LayerDetIdList,(layerEnumNb-TkLayerMap::TECM_W1)/9+1,(layerEnumNb-TkLayerMap::TECM_W1)%9+1,0,0);
+  SiStripSubStructure::getTECDetectors(TkDetIdList,LayerDetIdList,nullptr,(layerEnumNb-TkLayerMap::TECM_W1)/9+1,(layerEnumNb-TkLayerMap::TECM_W1)%9+1,0,0);
   
   LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] layer side " << (layerEnumNb-TkLayerMap::TECM_W1)/9+1 << " " << (layerEnumNb-TkLayerMap::TECM_W1)%9+1  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
