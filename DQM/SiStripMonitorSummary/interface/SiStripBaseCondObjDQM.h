@@ -14,7 +14,6 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
@@ -64,7 +63,7 @@ class SiStripBaseCondObjDQM {
   
 
     std::vector<uint32_t> getCabledModules();
-    void selectModules(std::vector<uint32_t> & detIds_);
+    void selectModules(std::vector<uint32_t> & detIds_, const TrackerTopology* tTopo);
   
     //    virtual void fillTopSummaryMEs()=0;
  
