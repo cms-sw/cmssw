@@ -166,7 +166,7 @@ namespace SiStripPI {
   }
 
   /*--------------------------------------------------------------------*/
-  std::pair<float,float> getTheRange(std::map<uint32_t,float> values)
+  std::pair<float,float> getTheRange(std::map<uint32_t,float> values,const int nsigma)
   /*--------------------------------------------------------------------*/
   {
     float sum = std::accumulate(std::begin(values), 
@@ -187,7 +187,7 @@ namespace SiStripPI {
     
     float stdev = sqrt(accum / (values.size()-1)); 
     
-    return std::make_pair(m-2*stdev,m+2*stdev);
+    return std::make_pair(m-nsigma*stdev,m+nsigma*stdev);
     
   }
   
