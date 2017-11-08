@@ -31,6 +31,7 @@ process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = .oO[offlineModuleLevelProfiles]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..stripYResiduals = .oO[stripYResiduals]Oo.
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..maxtracks = .oO[maxtracks]Oo.
 """
 
 OfflineValidationSequence = "process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo."
