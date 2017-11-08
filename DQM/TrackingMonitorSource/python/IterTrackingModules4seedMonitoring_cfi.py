@@ -58,6 +58,12 @@ seedMonitoring['pixelPairStep'] = cms.PSet(
     clusterBin        = cms.int32(100),
     clusterMax        = cms.double(20000),
 )
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(seedMonitoring['pixelPairStep'],
+    RegionSeedingLayersProducer = cms.InputTag("pixelPairStepTrackingRegionsSeedLayersB"),
+    RegionSizeBin               = cms.int32(100),
+    RegionSizeMax               = cms.double(399.5),
+)
 
 seedMonitoring['detachedQuadStep'] = cms.PSet(
     seedInputTag      = cms.InputTag("detachedQuadStepSeeds"),

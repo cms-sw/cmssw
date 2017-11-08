@@ -224,6 +224,9 @@ import DQM.TrackingMonitor.TrackingMonitorSeed_cfi
 from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
 # Create first modules for all possible iterations, select later which
 # ones to actually use based on era
+def _copyIfExists(mod, pset, name):
+    if hasattr(pset, name):
+        setattr(mod, name, getattr(pset, name))
 for _step, _pset in seedMonitoring.iteritems():
     _mod = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
         doTrackCandHistos = cms.bool(True)
@@ -244,9 +247,12 @@ for _step, _pset in seedMonitoring.iteritems():
     elif _pset.clusterLabel == cms.vstring('Strip') or _pset.clusterLabel == cms.vstring('Tot') :
         _mod.NClusStrBin = _pset.clusterBin
         _mod.NClusStrMax = _pset.clusterMax
-    if hasattr(_pset, "RegionProducer"):
+    if hasattr(_pset, "RegionProducer") or hasattr(_pset, "RegionSeedingLayersProducer"):
         _mod.doRegionPlots = True
-        _mod.RegionProducer = _pset.RegionProducer
+        _copyIfExists(_mod, _pset, "RegionProducer")
+        _copyIfExists(_mod, _pset, "RegionSeedingLayersProducer")
+        _copyIfExists(_mod, _pset, "RegionSizeBin")
+        _copyIfExists(_mod, _pset, "RegionSizeMax")
         if hasattr(_pset, "RegionCandidates"):
             _mod.doRegionCandidatePlots = True
             _mod.RegionCandidates = _pset.RegionCandidates

@@ -30,6 +30,7 @@ Monitoring source for general quantities related to tracks.
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSets.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
@@ -75,11 +76,18 @@ class TrackBuildingAnalyzer
         (
             const edm::OwnVector<TrackingRegion>& regions
         );
+        void analyze
+        (
+            const TrackingRegionsSeedingLayerSets& regions
+        );
 
     private:
 
         void fillHistos(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
         void bookHistos(std::string sname, DQMStore::IBooker & ibooker);
+
+        template <typename T>
+        void analyzeRegions(const T& regions);
 
         // ----------member data ---------------------------
 
