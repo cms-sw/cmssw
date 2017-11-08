@@ -5,7 +5,6 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"

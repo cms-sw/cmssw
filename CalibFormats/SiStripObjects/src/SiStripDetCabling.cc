@@ -6,7 +6,6 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <iostream>
