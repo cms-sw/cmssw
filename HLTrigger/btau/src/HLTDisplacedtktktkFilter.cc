@@ -110,17 +110,12 @@ bool HLTDisplacedtktktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSet
   // this HLT filter, and place it in the Event.
 
 
-  // Ref to Candidate object to be recorded in filter object
-  reco::RecoChargedCandidateRef ref1;
-  reco::RecoChargedCandidateRef ref2;
-  reco::RecoChargedCandidateRef ref3;
-
   if (saveTags()) filterproduct.addCollectionTag(TrackTag_);
 
   bool triggered = false;
 
   // loop over vertex collection
-  for(auto displacedVertex : displacedVertexColl){
+  for(auto const &displacedVertex : displacedVertexColl){
     // check if the vertex actually consists of exactly three track tracks, reject the event if not
     if(displacedVertex.tracksSize() != 3){
       edm::LogError("HLTDisplacedtktktkFilter") << "HLTDisplacedtktktkFilter: ERROR: the tktktk vertex must have exactly three tracks by definition. It now has n tracks = "<< displacedVertex.tracksSize() << std::endl;
@@ -167,15 +162,12 @@ bool HLTDisplacedtktktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSet
                           0.);
 
     const reco::Vertex::Point& vpoint=displacedVertex.position();
-    //translate to global point, should be improved
-    GlobalPoint secondaryVertex (vpoint.x(), vpoint.y(), vpoint.z());
-
     reco::Vertex::Error verr = displacedVertex.error();
     // translate to global error, should be improved
     GlobalError err(verr.At(0,0), verr.At(1,0), verr.At(1,1), verr.At(2,0), verr.At(2,1), verr.At(2,2) );
 
-    GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() -  secondaryVertex.x()) +  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()),
-                                          -1*((vertexBeamSpot.y0() - secondaryVertex.y())+  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
+    GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() -  vpoint.x()) +  (vpoint.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()),
+                                          -1*((vertexBeamSpot.y0() - vpoint.y())+  (vpoint.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
 
     float lxy = displacementFromBeamspot.perp();
     float lxyerr = sqrt(err.rerr(displacementFromBeamspot));
@@ -194,6 +186,11 @@ bool HLTDisplacedtktktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSet
 
     // now add the tracks that passed to the filter object
 	
+    // Ref to Candidate object to be recorded in filter object
+    reco::RecoChargedCandidateRef ref1;
+    reco::RecoChargedCandidateRef ref2;
+    reco::RecoChargedCandidateRef ref3;
+    
     ref1=reco::RecoChargedCandidateRef( edm::Ref<reco::RecoChargedCandidateCollection> 	(trackcands,distance(trackcands->begin(), cand1)));
     filterproduct.addObject(triggerTypeDaughters_,ref1);
 	

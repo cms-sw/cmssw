@@ -56,8 +56,30 @@ HLTDisplacedtktktkVtxProducer::HLTDisplacedtktktkVtxProducer(const edm::Paramete
 
 {
   produces<VertexCollection>();
-}
 
+  firstTrackMass = massParticle1_;
+  secondTrackMass = massParticle2_;
+  thirdTrackMass = massParticle3_;
+  firstTrackPt = minPtTk1_;
+  secondTrackPt = minPtTk2_;
+  thirdTrackPt = minPtTk3_;
+  if(resOpt_<=0 && massParticle1_!=massParticle2_)
+    {
+      if(massParticle1_==massParticle3_) 
+        {
+          std::swap(secondTrackMass, thirdTrackMass);
+          std::swap(secondTrackPt, thirdTrackPt);
+        }
+      if(massParticle2_==massParticle3_) 
+        {
+          std::swap(firstTrackMass, thirdTrackMass);
+          std::swap(firstTrackPt, thirdTrackPt);
+        }
+    }
+  firstTrackMass2 = firstTrackMass*firstTrackMass;
+  secondTrackMass2 = secondTrackMass*secondTrackMass;
+  thirdTrackMass2 = thirdTrackMass*thirdTrackMass;
+}
 
 HLTDisplacedtktktkVtxProducer::~HLTDisplacedtktktkVtxProducer() = default;
 
@@ -101,33 +123,11 @@ void HLTDisplacedtktktkVtxProducer::endJob()
 // ------------ method called on each new Event  ------------
 void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  double firstTrackMass = massParticle1_;
-  double secondTrackMass = massParticle2_;
-  double thirdTrackMass = massParticle3_;
-  double firstTrackPt = minPtTk1_;
-  double secondTrackPt = minPtTk2_;
-  double thirdTrackPt = minPtTk3_;
-  if(resOpt_<=0 && massParticle1_!=massParticle2_)
-    {
-      if(massParticle1_==massParticle3_) 
-        {
-          std::swap(secondTrackMass, thirdTrackMass);
-          std::swap(secondTrackPt, thirdTrackPt);
-        }
-      if(massParticle2_==massParticle3_) 
-        {
-          std::swap(firstTrackMass, thirdTrackMass);
-          std::swap(firstTrackPt, thirdTrackPt);
-        }
-    }
-  double const firstTrackMass2 = firstTrackMass*firstTrackMass;
-  double const secondTrackMass2 = secondTrackMass*secondTrackMass;
-  double const thirdTrackMass2 = thirdTrackMass*thirdTrackMass;
-
   // get hold of track trks
   Handle<RecoChargedCandidateCollection> trackcands;
   iEvent.getByToken(srcToken_,trackcands);
-	
+  if ( trackcands->size()  < 3 )   return;
+  	
   //get the transient track builder:
   edm::ESHandle<TransientTrackBuilder> theB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
@@ -136,10 +136,9 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
 
   // look at all trackcands,  check cuts and make vertices
   double e1,e2,e3;
-  Particle::LorentzVector p,p1,p2,p3,pres;
+  // Particle::LorentzVector p,p1,p2,p3,pres;
+  Particle::LorentzVector p,pres;
 
-  if ( trackcands->size()  < 3 )   return;
-	
   RecoChargedCandidateCollection::const_iterator cand1;
   RecoChargedCandidateCollection::const_iterator cand2;
   RecoChargedCandidateCollection::const_iterator cand3;
@@ -165,7 +164,7 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
     // if( ! checkPreviousCand( tk1, vPrevCands) ) continue;
     
     // cuts
-    if (abs(cand1->eta())>maxEta_) continue;
+    if (std::abs(cand1->eta())>maxEta_) continue;
     if (cand1->pt() < firstTrackPt) continue;
     
     cand2=trackcands->begin();
@@ -182,7 +181,7 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
       // if( ! checkPreviousCand( tk2, vPrevCands) ) continue;
 			 
       // cuts
-      if (abs(cand2->eta()) > maxEta_) continue;
+      if (std::abs(cand2->eta()) > maxEta_) continue;
       if (cand2->pt() < secondTrackPt) continue;
 
       // opposite sign or same sign for resonance
@@ -199,14 +198,14 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
       // Combined ditrack system
       e1 = sqrt(cand1->momentum().Mag2()+firstTrackMass2);
       e2 = sqrt(cand2->momentum().Mag2()+secondTrackMass2);
-      p1 = Particle::LorentzVector(cand1->px(),cand1->py(),cand1->pz(),e1);
-      p2 = Particle::LorentzVector(cand2->px(),cand2->py(),cand2->pz(),e2);
-      pres = p1+p2;
+      // p1 = Particle::LorentzVector(cand1->px(),cand1->py(),cand1->pz(),e1);
+      // p2 = Particle::LorentzVector(cand2->px(),cand2->py(),cand2->pz(),e2);
+      pres = Particle::LorentzVector(cand1->px(),cand1->py(),cand1->pz(),e1)+Particle::LorentzVector(cand2->px(),cand2->py(),cand2->pz(),e2);
 			 	
       if(resOpt_>0)
         {
           if (pres.pt()<minPtRes_) continue;
-          double invmassRes = abs(pres.mass());
+          double invmassRes = std::abs(pres.mass());
           LogDebug("HLTDisplacedtktktkVtxProducer") << " ... 1-2 invmass= " << invmassRes;
           if (invmassRes<minInvMassRes_) continue;
           if (invmassRes>maxInvMassRes_) continue;
@@ -226,15 +225,15 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
         // if( ! checkPreviousCand( tk3, vPrevCands) ) continue;
  	
         // cuts
-        if (abs(cand3->eta())>maxEta_) continue;
+        if (std::abs(cand3->eta())>maxEta_) continue;
         if (cand3->pt() < thirdTrackPt) continue;
 
         e3 = sqrt(cand3->momentum().Mag2()+thirdTrackMass2);
-        p3 = Particle::LorentzVector(cand3->px(),cand3->py(),cand3->pz(),e3);
-        p = p1+p2+p3;
+        // p3 = Particle::LorentzVector(cand3->px(),cand3->py(),cand3->pz(),e3);
+        p = Particle::LorentzVector(cand1->px(),cand1->py(),cand1->pz(),e1)+Particle::LorentzVector(cand2->px(),cand2->py(),cand2->pz(),e2)+Particle::LorentzVector(cand3->px(),cand3->py(),cand3->pz(),e3);
 			 
         if (p.pt()<minPtTri_) continue;
-        double invmass = abs(p.mass());
+        double invmass = std::abs(p.mass());
         LogDebug("HLTDisplacedtktktkVtxProducer") << " ... 1-2-3 invmass= " << invmass;			 
         if (invmass<minInvMass_) continue;
         if (invmass>maxInvMass_) continue;
