@@ -2041,6 +2041,7 @@ defaultDataSets['2017Design']='CMSSW_9_4_0_pre3-94X_mc2017_design_IdealBS_v4-v'
 defaultDataSets['2023D17']=''
 defaultDataSets['2023D19']=''
 defaultDataSets['2023D20']=''
+defaultDataSets['2023D21']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
