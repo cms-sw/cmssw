@@ -248,7 +248,6 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
     float min = -1.;
     float max = -1.;
     bool logQ = false;
-    bool extendable = false;
     std::string name = "";
     for (int i=0; i<monQuantity::END; i++) {
       if (monName[i] == suffix) {
@@ -259,7 +258,6 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
 	min = MIN[i];
 	max = MAX[i];
 	name = NAME[i];
-	extendable = (i!=1); // extendable x-axis not really needed for VsBX
       }
     }
   
@@ -291,16 +289,12 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
 		  Key(det, sub_det, mon), logQ? 
                   ibooker.book1D(title, title, nbins, &logBins[0]) :
 		  ibooker.book1D(title, title, nbins, min, max)));
-	      if (extendable) 
-		hits_valid_[Key(det, sub_det, mon)]->getTH1()->SetCanExtend(TH1::kAllAxes);    
               break;
             case 4:
               hits_total_.insert(std::make_pair(
 		  Key(det, sub_det, mon), logQ?	
                   ibooker.book1D(title, title, nbins, &logBins[0]) :
                   ibooker.book1D(title, title, nbins, min, max)));
-	      if (extendable) 
-		hits_total_[Key(det, sub_det, mon)]->getTH1()->SetCanExtend(TH1::kAllAxes);    
               break;
             default:
               LogDebug("TrackAnalyzer") << "Invalid hit category used " << cat << " ignored\n";
