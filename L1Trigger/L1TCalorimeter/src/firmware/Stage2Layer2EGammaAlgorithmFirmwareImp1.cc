@@ -503,7 +503,6 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::trimmingLutIndex(unsi
 unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::returnShape(const l1t::CaloCluster& clus)
 /*****************************************************************/
 {
-  const l1t::CaloCluster& clusCopy = clus;
 
   unsigned int shape = 0;
   if( (clus.checkClusterFlag(CaloCluster::INCLUDE_N)) ) shape |= (0x1);
