@@ -117,12 +117,14 @@ const reco::CandidatePtr RecoTauVertexAssociator::getLeadCand(const Jet& jet) co
 
 const reco::Track* RecoTauVertexAssociator::getLeadTrack(const Jet& jet) const {
   auto leadPFCand = getLeadCand(jet);
+  if(leadPFCand.isNull()) return nullptr;
   const reco::Track* track = getTrack(*leadPFCand);
   return track;
 }
 
 const reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrackRef(const Jet& jet) const {
   auto leadPFCand = getLeadCand(jet);
+  if(leadPFCand.isNull()) return reco::TrackBaseRef();
   return getTrackRef(*leadPFCand);
 }
 
