@@ -421,7 +421,7 @@ namespace {
 
       //=========================
       
-      TCanvas canvas("BadStrip Partion summary","SiStripBadStrip region summary",1200,1000); 
+      TCanvas canvas("BadStrip Region summary","SiStripBadStrip region summary",1200,1000); 
       canvas.cd();
       auto h_BadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion","SiStrip Bad Strip summary by region;; n. bad strips",mapBadStrips.size(),0.,mapBadStrips.size()));
       h_BadStrips->SetStats(false);

@@ -28,7 +28,29 @@ mkdir $W_DIR/plots
     --db Prep \
     --test;
 
-mv *.png $W_DIR/plots/G2_update.png
+mv *.png $W_DIR/plots/G2_Value_update.png
+
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+    --plugin pluginSiStripApvGain_PayloadInspector \
+    --plot plot_SiStripApvGainsMaxDeviationRatio2sigmaTrackerMap \
+    --tag SiStripApvGainAfterAbortGap_PCL_v0_prompt \
+    --time_type Run \
+    --iovs '{"start_iov": "302393", "end_iov": "305114"}' \
+    --db Prep \
+    --test;
+
+mv *.png $W_DIR/plots/G2_MaxDeviatonRatio_update.png
+
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+    --plugin pluginSiStripApvGain_PayloadInspector \
+    --plot plot_SiStripApvGainsRatioComparatorByRegion \
+    --tag SiStripApvGainAfterAbortGap_PCL_v0_prompt \
+    --time_type Run \
+    --iovs '{"start_iov": "302393", "end_iov": "305114"}' \
+    --db Prep \
+    --test;
+
+mv *.png $W_DIR/plots/G2_Ratio_update.png
 
 /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
@@ -39,4 +61,4 @@ mv *.png $W_DIR/plots/G2_update.png
     --db Prod \
     --test;
 
-mv *.png $W_DIR/plots/G1_updated.png
+mv *.png $W_DIR/plots/G1_Value_update.png

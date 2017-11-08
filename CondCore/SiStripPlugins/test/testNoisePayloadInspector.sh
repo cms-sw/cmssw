@@ -50,14 +50,14 @@ do
 
     /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
 	--plugin pluginSiStripNoises_PayloadInspector \
-	--plot plot_SiStripNoise${i}ByPartition \
+	--plot plot_SiStripNoise${i}ByRegion \
 	--tag SiStripNoise_v2_prompt \
 	--time_type Run \
 	--iovs '{"start_iov": "303420", "end_iov": "303420"}' \
 	--db Prod \
 	--test;
 
-    mv *.png $W_DIR/results/SiStripNoises${i}ByPartition.png
+    mv *.png $W_DIR/results/SiStripNoises${i}ByRegion.png
 
 done
 
