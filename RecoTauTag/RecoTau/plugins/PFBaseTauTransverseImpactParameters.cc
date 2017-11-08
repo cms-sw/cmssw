@@ -62,7 +62,7 @@ class PFBaseTauTransverseImpactParameters : public edm::stream::EDProducer<> {
   enum Alg{useInputPV=0, useFont};
   enum CMSSWPerigee{aCurv=0,aTheta,aPhi,aTip,aLip};
   explicit PFBaseTauTransverseImpactParameters(const edm::ParameterSet& iConfig);
-  ~PFBaseTauTransverseImpactParameters();
+  ~PFBaseTauTransverseImpactParameters() override;
   void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   edm::EDGetTokenT<std::vector<reco::PFBaseTau> > PFTauToken_;

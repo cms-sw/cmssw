@@ -163,7 +163,7 @@ void PFBaseTau::setisolationPiZeroCandidates(std::vector<RecoTauPiZero> cands) {
 
 // Tau Charged Hadron information
 PFRecoTauChargedHadronRef PFBaseTau::leadTauChargedHadronCandidate() const {
-  if ( signalTauChargedHadronCandidatesRefs_.size() > 0 ) {
+  if ( !signalTauChargedHadronCandidatesRefs_.empty() ) {
     return signalTauChargedHadronCandidatesRefs_[0];
   } else {
     return PFRecoTauChargedHadronRef();

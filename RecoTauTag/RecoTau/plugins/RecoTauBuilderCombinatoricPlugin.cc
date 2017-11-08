@@ -30,7 +30,7 @@ class RecoTauBuilderGenericCombinatoricPlugin : public RecoTauBuilderPlugin<TauT
 {
  public:
   explicit RecoTauBuilderGenericCombinatoricPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
-  virtual ~RecoTauBuilderGenericCombinatoricPlugin() override {}
+  ~RecoTauBuilderGenericCombinatoricPlugin() override {}
 
   typename RecoTauBuilderPlugin<TauType, PFType>::return_type operator()(
       const reco::JetBaseRef&, 

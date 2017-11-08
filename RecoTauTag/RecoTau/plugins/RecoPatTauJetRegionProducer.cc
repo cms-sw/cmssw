@@ -34,7 +34,7 @@ class RecoTauPatJetRegionProducer : public edm::stream::EDProducer<>
   typedef edm::Association<pat::JetCollection> PatJetMatchMap;
   typedef edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>, std::vector<pat::PackedCandidate>, unsigned int> > JetToPackedCandidateAssociation;
   explicit RecoTauPatJetRegionProducer(const edm::ParameterSet& pset);
-  ~RecoTauPatJetRegionProducer() {}
+  ~RecoTauPatJetRegionProducer() override {}
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 

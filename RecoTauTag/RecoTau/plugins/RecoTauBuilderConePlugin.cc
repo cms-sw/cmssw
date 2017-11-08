@@ -36,7 +36,7 @@ template<class TauType, class PFType, class PFInTauType>
 class RecoTauBuilderGenericConePlugin : public RecoTauBuilderPlugin<TauType, PFType> {
   public:
   explicit RecoTauBuilderGenericConePlugin(const edm::ParameterSet& pset,edm::ConsumesCollector &&iC);
-    ~RecoTauBuilderGenericConePlugin() {}
+    ~RecoTauBuilderGenericConePlugin() override {}
     // Build a tau from a jet
     typename reco::tau::RecoTauBuilderPlugin<TauType, PFType>::return_type operator()(const reco::JetBaseRef& jet,
 	const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons,

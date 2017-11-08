@@ -175,7 +175,7 @@ RecoTauGenericDiscriminantCutMultiplexer<TauType>::RecoTauGenericDiscriminantCut
     } else if ( mappingEntry->existsAs<std::string>("cut") ) {
       cut->cutName_ = mappingEntry->getParameter<std::string>("cut");
       std::string cutVariable_string = mappingEntry->getParameter<std::string>("variable");
-      cut->cutVariable_.reset( new StringObjectFunction<TauType>(cutVariable_string.data()) );
+      cut->cutVariable_.reset( new StringObjectFunction<TauType>(cutVariable_string) );
       cut->mode_ = DiscriminantCutEntry::kVariableCut;
     } else {
       throw cms::Exception("RecoTauGenericDiscriminantCutMultiplexer") 

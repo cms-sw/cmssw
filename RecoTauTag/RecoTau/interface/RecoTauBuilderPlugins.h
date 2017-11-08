@@ -110,7 +110,7 @@ class RecoTauModifierPlugin : public RecoTauEventHolderPlugin
   ~RecoTauModifierPlugin() override {}
   // Modify an existing PFTau (i.e. add electron rejection, etc)
   virtual void operator()(TauType&) const = 0;
-  virtual void beginEvent() {}
+  void beginEvent() override {}
   virtual void endEvent() {}
 };
 

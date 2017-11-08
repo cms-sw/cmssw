@@ -189,7 +189,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   std::unique_ptr<reco::PFJetChargedHadronAssociation> pfJetChargedHadronAssociations;
 
 
-  if ( pfJets.size() ) {
+  if ( !pfJets.empty() ) {
     // edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
     // evt.get(pfJets.id(), pfJetCollectionHandle);
     pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::JetRefBaseProd(jets));
