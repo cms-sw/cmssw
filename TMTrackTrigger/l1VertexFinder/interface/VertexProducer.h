@@ -47,6 +47,8 @@ private:
   const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
   const edm::EDGetTokenT<TTTrackCollectionView> l1TracksToken_;
 
+  const bool printResults_;
+
   l1tVertexFinder::Settings *settings_;
   l1tVertexFinder::Histos   *hists_;
 };

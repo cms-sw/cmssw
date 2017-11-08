@@ -30,7 +30,8 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   stubInputTag( consumes<DetSetVec>( iConfig.getParameter<edm::InputTag>("stubInputTag") ) ),
   stubTruthInputTag( consumes<TTStubAssMap>( iConfig.getParameter<edm::InputTag>("stubTruthInputTag") ) ),
   clusterTruthInputTag( consumes<TTClusterAssMap>( iConfig.getParameter<edm::InputTag>("clusterTruthInputTag") ) ),
-  l1TracksToken_( consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) )
+  l1TracksToken_( consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) ),
+  printResults_( iConfig.getParameter<bool>("printResults") )
 {
   // Get configuration parameters
   settings_ = new Settings(iConfig);
@@ -158,12 +159,13 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //=== Fill histograms studying vertex reconstruction performance
   hists_->fillVertexReconstruction(inputData, vf);    
 
-  // Debug output
-  std::cout << vf.numVertices() << " vertices were found ... " << std::endl;
-  for (const auto& vtx : vf.Vertices()) {
-    std::cout << "  * z0 = " << vtx.z0() << "; contains " << vtx.numTracks() << " tracks ..." <<  std::endl;
-    for (const auto& trackPtr : vtx.tracks())
-      std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
+  if (printResults_) {
+    std::cout << vf.numVertices() << " vertices were found ... " << std::endl;
+    for (const auto& vtx : vf.Vertices()) {
+      std::cout << "  * z0 = " << vtx.z0() << "; contains " << vtx.numTracks() << " tracks ..." <<  std::endl;
+      for (const auto& trackPtr : vtx.tracks())
+        std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
+    }
   }
 
 
