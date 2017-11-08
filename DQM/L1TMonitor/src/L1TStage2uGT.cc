@@ -224,12 +224,7 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
            } // end of uGtAlgs
         } // end of BX
      } // selecting FirstCollisionInTrain
-  } // end of uGTAlgs = 1
-
-
-  for(auto itr = uGtAlgs->begin(0); itr != uGtAlgs->end(0); ++itr) {
-     if(itr->getAlgoDecisionInitial(488) && itr->getAlgoDecisionInitial(487)) { 
-//   Algo bit for the first and last bunch in train trigger simultaneously
+     if(itr->getAlgoDecisionInitial(488) && itr->getAlgoDecisionInitial(487)) {
         for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
            for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
               auto algoBits = itr2->getAlgoDecisionInitial();
@@ -241,13 +236,7 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
            } // end of uGtAlgs
         } // end of BX
      } // selecting FirstCollisionInTrain && LastCollisionInTrain
-  } // end of uGTAlgs = 1
-
-
-
-  for(auto itr = uGtAlgs->begin(0); itr != uGtAlgs->end(0); ++itr) {
      if(itr->getAlgoDecisionInitial(487)) {
-//   Algo bit for the last bunch in train trigger
         for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
            for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
               auto algoBits = itr2->getAlgoDecisionInitial();
