@@ -4,6 +4,7 @@
 
 #include <vector>
 
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 // TTStubAssociationMap.h forgets to two needed files, so must include them here ...
@@ -29,7 +30,7 @@ typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_>        TTClusterAssMap;
 //! Simple wrapper class for TTTrack, to avoid changing other areas of packages immediately
 class L1fittedTrack {
 public:
-  L1fittedTrack(const TTTrack< Ref_Phase2TrackerDigi_ >&, const Settings& , const TrackerGeometry* , const TrackerTopology*, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle);
+  L1fittedTrack(const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>&, const Settings& , const TrackerGeometry* , const TrackerTopology*, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle);
   ~L1fittedTrack();
 
   float eta() const;
@@ -43,8 +44,10 @@ public:
   // Get best matching tracking particle (=nullptr if none).
   const TP* getMatchedTP() const;
 
+  const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>& getTTTrackPtr() const;
+
 private:
-  TTTrack< Ref_Phase2TrackerDigi_ > track_;
+  edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >> track_;
 
   //--- Information about its association (if any) to a truth Tracking Particle.
   const TP*             matchedTP_;

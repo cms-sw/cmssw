@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/L1TVertex/interface/Vertex.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
@@ -29,7 +30,7 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   stubInputTag( consumes<DetSetVec>( iConfig.getParameter<edm::InputTag>("stubInputTag") ) ),
   stubTruthInputTag( consumes<TTStubAssMap>( iConfig.getParameter<edm::InputTag>("stubTruthInputTag") ) ),
   clusterTruthInputTag( consumes<TTClusterAssMap>( iConfig.getParameter<edm::InputTag>("clusterTruthInputTag") ) ),
-  l1TracksToken_( consumes<TTTrackCollection>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) )
+  l1TracksToken_( consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) )
 {
   // Get configuration parameters
   settings_ = new Settings(iConfig);
@@ -43,9 +44,7 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   hists_->book();
 
   //--- Define EDM output to be written to file (if required) 
-
-//  // L1 tracks found by Hough Transform without any track fit.
-//  produces< TTTrackCollection >( "TML1TracksHT" ).setBranchAlias("TML1TracksHT");
+  produces< l1t::VertexCollection >( "l1vertices" );
 }
 
 
@@ -73,7 +72,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // hists_->fillInputData(inputData);
 
 
-  edm::Handle<TTTrackCollection> l1TracksHandle;
+  edm::Handle<TTTrackCollectionView> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
 
   std::vector<L1fittedTrack> l1Tracks;
@@ -98,7 +97,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(stubTruthInputTag, mcTruthTTStubHandle );
     iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle );
 
-    for(const auto& track : *l1TracksHandle)
+    for(const auto& track : l1TracksHandle->ptrs())
       l1Tracks.push_back(L1fittedTrack(track, *settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle));
   }
 
@@ -159,14 +158,24 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //=== Fill histograms studying vertex reconstruction performance
   hists_->fillVertexReconstruction(inputData, vf);    
 
+  // Debug output
+  std::cout << vf.numVertices() << " vertices were found ... " << std::endl;
+  for (const auto& vtx : vf.Vertices()) {
+    std::cout << "  * z0 = " << vtx.z0() << "; contains " << vtx.numTracks() << " tracks ..." <<  std::endl;
+    for (const auto& trackPtr : vtx.tracks())
+      std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
+  }
 
 
   // //=== Store output EDM track and hardware stub collections.
-  // iEvent.put( std::move( htTTTracksForOutput ),  "TML1TracksHT");
-  // for (const string& fitterName : settings_->trackFitters()) {
-  //   string edmName = string("TML1Tracks") + fitterName;
-  //   iEvent.put(std::move( allFitTTTracksForOutput[locationInsideArray[fitterName]] ), edmName);
-  // }
+  std::unique_ptr<l1t::VertexCollection> lProduct(new std::vector<l1t::Vertex>());
+  for (const auto& vtx : vf.Vertices()) {
+    std::vector<edm::Ptr<l1t::Vertex::Track_t>> lVtxTracks;
+    for (const auto& t : vtx.tracks() )
+      lVtxTracks.push_back( t->getTTTrackPtr() );
+    lProduct->push_back(l1t::Vertex(vtx.z0(), lVtxTracks));
+  }
+  iEvent.put(std::move(lProduct), "l1vertices");
 }
 
 

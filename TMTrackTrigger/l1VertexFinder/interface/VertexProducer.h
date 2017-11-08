@@ -31,7 +31,7 @@ public:
 
 private:
 
-  typedef std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > TTTrackCollection;
+  typedef edm::View< TTTrack< Ref_Phase2TrackerDigi_ > > TTTrackCollectionView;
 
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -45,7 +45,7 @@ private:
   const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag;
   typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_>        TTClusterAssMap;
   const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
-  const edm::EDGetTokenT<TTTrackCollection> l1TracksToken_;
+  const edm::EDGetTokenT<TTTrackCollectionView> l1TracksToken_;
 
   l1tVertexFinder::Settings *settings_;
   l1tVertexFinder::Histos   *hists_;

@@ -1,6 +1,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/L1TrackTrigger"/>
+<use name="DataFormats/L1TVertex"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/Phase2TrackerDigi"/>
 <use name="FWCore/Framework"/>
@@ -14,7 +15,9 @@
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="SimGeneral/TrackingAnalysis"/>
 <use name="SimTracker/TrackTriggerAssociation"/>
+
 <use name="boost"/>
 <use name="roothistmatrix"/>
+
 <flags CXXFLAGS="-g -Wno-unused-variable -Wno-misleading-indentation"/>
 <flags EDM_PLUGIN="1"/>
