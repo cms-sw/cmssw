@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.L1Trigger.L1TMuonDQMOffline_cff import muonEfficiencyThresholds, muonEfficiencyThresholds_HI
+from DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi import muonEfficiencyThresholds, muonEfficiencyThresholds_HI
 
 plots = ["EffvsPt", "EffvsEta", "EffvsPhi",
         "EffvsPt_OPEN", "EffvsEta_OPEN", "EffvsPhi_OPEN",
