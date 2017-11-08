@@ -136,7 +136,6 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
 
   // look at all trackcands,  check cuts and make vertices
   double e1,e2,e3;
-  // Particle::LorentzVector p,p1,p2,p3,pres;
   Particle::LorentzVector p,pres;
 
   RecoChargedCandidateCollection::const_iterator cand1;
@@ -198,8 +197,6 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
       // Combined ditrack system
       e1 = sqrt(cand1->momentum().Mag2()+firstTrackMass2);
       e2 = sqrt(cand2->momentum().Mag2()+secondTrackMass2);
-      // p1 = Particle::LorentzVector(cand1->px(),cand1->py(),cand1->pz(),e1);
-      // p2 = Particle::LorentzVector(cand2->px(),cand2->py(),cand2->pz(),e2);
       pres = Particle::LorentzVector(cand1->px(),cand1->py(),cand1->pz(),e1)+Particle::LorentzVector(cand2->px(),cand2->py(),cand2->pz(),e2);
 			 	
       if(resOpt_>0)
@@ -229,7 +226,6 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
         if (cand3->pt() < thirdTrackPt) continue;
 
         e3 = sqrt(cand3->momentum().Mag2()+thirdTrackMass2);
-        // p3 = Particle::LorentzVector(cand3->px(),cand3->py(),cand3->pz(),e3);
         p = Particle::LorentzVector(cand1->px(),cand1->py(),cand1->pz(),e1)+Particle::LorentzVector(cand2->px(),cand2->py(),cand2->pz(),e2)+Particle::LorentzVector(cand3->px(),cand3->py(),cand3->pz(),e3);
 			 
         if (p.pt()<minPtTri_) continue;
