@@ -16,14 +16,14 @@ CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm( const 
 {}
 
 void
-CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const edm::DetSetVector<CTPPSDiamondDigi>& input, edm::DetSetVector<CTPPSDiamondRecHit>& output )
+CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm::DetSetVector<CTPPSDiamondDigi>& input, edm::DetSetVector<CTPPSDiamondRecHit>& output )
 {
   for ( edm::DetSetVector<CTPPSDiamondDigi>::const_iterator vec = input.begin(); vec != input.end(); ++vec ) {
     const CTPPSDiamondDetId detid( vec->detId() );
 
     if ( detid.channel() > 20 ) continue;              // VFAT-like information, to be ignored by CTPPSDiamondRecHitProducer
 
-    const DetGeomDesc* det = geom->GetDetector( detid );
+    const DetGeomDesc* det = geom->getSensor( detid );
     const float x_pos = det->translation().x(),
                 x_width = 2.0 * det->params().at( 0 ), // parameters stand for half the size
                 y_pos = det->translation().y(),

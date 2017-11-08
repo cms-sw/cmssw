@@ -10,7 +10,7 @@
 
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include <map>
 #include <cmath>
@@ -63,7 +63,7 @@ void FastLineRecognition::Cluster::add(const Point *p1, const Point *p2, double 
 //----------------------------------------------------------------------------------------------------
 
 FastLineRecognition::FastLineRecognition(double cw_a, double cw_b) :
-  chw_a(cw_a/2.), chw_b(cw_b/2.), geometry(NULL)
+  chw_a(cw_a/2.), chw_b(cw_b/2.), geometry(nullptr)
 {
 }
 
@@ -83,8 +83,8 @@ FastLineRecognition::GeomData FastLineRecognition::getGeomData(unsigned int id)
     return it->second;
 
   // calculate it
-  CLHEP::Hep3Vector d = geometry->LocalToGlobalDirection(id, CLHEP::Hep3Vector(0., 1., 0.));
-  DDTranslation c = geometry->GetDetector(TotemRPDetId(id))->translation();
+  CLHEP::Hep3Vector d = geometry->localToGlobalDirection(id, CLHEP::Hep3Vector(0., 1., 0.));
+  DDTranslation c = geometry->getSensor(TotemRPDetId(id))->translation();
   GeomData gd;
   gd.z = c.z();
   gd.s = d.x()*c.x() + d.y()*c.y();
