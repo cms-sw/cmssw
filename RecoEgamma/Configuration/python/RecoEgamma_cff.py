@@ -48,10 +48,19 @@ from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducerpp
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducerppGED
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducerppIsland
+from RecoHI.HiCentralityAlgos.HiCentrality_cfi import hiCentrality
+from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import hiClusterCompatibility
+pp_on_XeXe_2017.toModify(hiCentrality,
+                         producePixelTracks = False,
+                         srcTracks = cms.InputTag("generalTracks"),
+                         srcVertex = cms.InputTag("offlinePrimaryVertices")
+                         )
 
 _egammaHighLevelRecoPostPF_HI = egammaHighLevelRecoPostPF.copy()
 _egammaHighLevelRecoPostPF_HI += photonIsolationHIProducerpp
 _egammaHighLevelRecoPostPF_HI += photonIsolationHIProducerppGED
 _egammaHighLevelRecoPostPF_HI += photonIsolationHIProducerppIsland
+_egammaHighLevelRecoPostPF_HI += hiCentrality
+_egammaHighLevelRecoPostPF_HI += hiClusterCompatibility
 for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017, ppRef_2017]:
     e.toReplaceWith(egammaHighLevelRecoPostPF, _egammaHighLevelRecoPostPF_HI)
