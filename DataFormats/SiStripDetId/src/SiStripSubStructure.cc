@@ -9,6 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Wed Jan 25 07:19:38 CET 2006
 //
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
@@ -19,19 +20,15 @@
 
 using namespace std;
 
-SiStripSubStructure::SiStripSubStructure(){
-}
-
-SiStripSubStructure::~SiStripSubStructure(){
-}
-
 
 void SiStripSubStructure::getTIBDetectors(const std::vector<uint32_t> & inputDetRawIds,
                                           std::vector<uint32_t> & tibDetRawIds,
+                                          const TrackerTopology* tTopo,
                                           uint32_t requested_layer,
                                           uint32_t requested_bkw_frw,
                                           uint32_t requested_int_ext,
-                                          uint32_t requested_string) const{
+                                          uint32_t requested_string)
+{
  // loop over all input detectors
   for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
     uint32_t therawid = (*it);                  // raw id of single detector
@@ -52,10 +49,12 @@ void SiStripSubStructure::getTIBDetectors(const std::vector<uint32_t> & inputDet
 
 void SiStripSubStructure::getTIDDetectors(const std::vector<uint32_t> & inputDetRawIds,
                                           std::vector<uint32_t> & tidDetRawIds,
+                                          const TrackerTopology* tTopo,
                                           uint32_t requested_side,
                                           uint32_t requested_wheel,
                                           uint32_t requested_ring,
-                                          uint32_t requested_ster) const{
+                                          uint32_t requested_ster)
+{
  // loop over all input detectors
   for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
     uint32_t therawid = (*it);                  // raw id of single detector
@@ -76,9 +75,11 @@ void SiStripSubStructure::getTIDDetectors(const std::vector<uint32_t> & inputDet
 
 void SiStripSubStructure::getTOBDetectors(const std::vector<uint32_t> & inputDetRawIds,
                                           std::vector<uint32_t> & tobDetRawIds,
+                                          const TrackerTopology* tTopo,
                                           uint32_t requested_layer,
                                           uint32_t requested_bkw_frw,
-                                          uint32_t requested_rod) const{
+                                          uint32_t requested_rod)
+{
  // loop over all input detectors
   for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
     uint32_t therawid = (*it);                  // raw id of single detector
@@ -98,12 +99,14 @@ void SiStripSubStructure::getTOBDetectors(const std::vector<uint32_t> & inputDet
 
 void SiStripSubStructure::getTECDetectors(const std::vector<uint32_t> & inputDetRawIds,
                                           std::vector<uint32_t> & tecDetRawIds,
+                                          const TrackerTopology* tTopo,
                                           uint32_t requested_side,
                                           uint32_t requested_wheel,
                                           uint32_t requested_petal_bkw_frw,
                                           uint32_t requested_petal,
                                           uint32_t requested_ring,
-                                          uint32_t requested_ster) const{ 
+                                          uint32_t requested_ster)
+{
  // loop over all input detectors
   for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
     uint32_t therawid = (*it);                  // raw id of single detector
