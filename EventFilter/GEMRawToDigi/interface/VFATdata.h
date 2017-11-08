@@ -48,12 +48,30 @@ namespace gem {
       fChipID = 0x0fff & (word >> 16);
       fmsData = 0xffff000000000000 & (word << 48);
     }
-    
+    uint64_t get_fw()
+    {
+      return
+	(static_cast<uint64_t>(fb1010 & 0x0f) <<  60) |
+	(static_cast<uint64_t>(fBC & 0x0fff) <<  48) |
+	(static_cast<uint64_t>(fb1100 & 0x0f) <<  44) |
+	(static_cast<uint64_t>(fEC) <<  36) |
+	(static_cast<uint64_t>(fFlag & 0x0f) <<  32) |
+	(static_cast<uint64_t>(fb1110 & 0x0f) <<  28) |
+	(static_cast<uint64_t>(fChipID & 0x0fff) <<  16) |
+	(static_cast<uint64_t>(fmsData & 0xffff000000000000) >> 48);
+    }
+
     //!Read second word from the block.
     void read_sw(uint64_t word)
     {
       fmsData = fmsData | (0x0000ffffffffffff & word >> 16);
       flsData = 0xffff000000000000 & (word << 48);
+    }
+    uint64_t get_sw()
+    {
+      return
+	(static_cast<uint64_t>(fmsData & 0x0000ffffffffffff) <<  16) |
+	(static_cast<uint64_t>(flsData & 0xffff000000000000) >>  48);
     }
     
     //!Read third word from the block.
@@ -63,6 +81,12 @@ namespace gem {
       fcrc = word;
     }
     // make write_word function
+    uint64_t get_tw()
+    {
+      return
+	(static_cast<uint64_t>(flsData & 0x0000ffffffffffff) <<  16) |
+	(static_cast<uint64_t>(fcrc));
+    }
     
     
     uint8_t   b1010      (){ return fb1010;      }
