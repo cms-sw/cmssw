@@ -1193,6 +1193,7 @@ public :
   Bool_t                     t_TrigPass;
   Bool_t                     t_TrigPassSel;
   Bool_t                     t_L1Bit;
+  std::vector<Bool_t>       *t_hltbits;
   std::vector<int>          *t_ietaAll;
   std::vector<int>          *t_ietaGood;
 
@@ -1205,6 +1206,7 @@ public :
   TBranch                   *b_t_TrigPass;      //!
   TBranch                   *b_t_TrigPassSel;   //!
   TBranch                   *b_t_L1Bit;         //!
+  TBranch                   *b_t_hltbits;       //!
   TBranch                   *b_t_ietaAll;       //!
   TBranch                   *b_t_ietaGood;      //!
 
@@ -1269,6 +1271,7 @@ void GetEntries::Init(TTree *tree) {
 
   // Set branch addresses and branch pointers
   // Set object pointer
+  t_hltbits      = 0;
   t_ietaAll      = 0;
   t_ietaGood     = 0;
   t_L1Bit        = false;
@@ -1284,6 +1287,7 @@ void GetEntries::Init(TTree *tree) {
   fChain->SetBranchAddress("t_TrigPass",    &t_TrigPass,    &b_t_TrigPass);
   fChain->SetBranchAddress("t_TrigPassSel", &t_TrigPassSel, &b_t_TrigPassSel);
   fChain->SetBranchAddress("t_L1Bit",       &t_L1Bit,       &b_t_L1Bit);
+  fChain->SetBranchAddress("t_hltbits",     &t_hltbits,     &b_t_hltbits);
   fChain->SetBranchAddress("t_ietaAll",     &t_ietaAll,     &b_t_ietaAll);
   fChain->SetBranchAddress("t_ietaGood",    &t_ietaGood,    &b_t_ietaGood);
   Notify();
