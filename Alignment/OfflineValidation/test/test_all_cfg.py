@@ -1,12 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 import sys
+from enum import Enum
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
+
+class RefitType(Enum):
+     STANDARD = 1
+     COMMON   = 2
  
 isDA = True
 isMC = True
 allFromGT = True
 applyBows = True
 applyExtraConditions = True
+theRefitter = RefitType.COMMON
 
 process = cms.Process("Demo") 
 
@@ -168,42 +174,57 @@ if isMC:
 else:
      process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
 
-####################################################################
-# Load and Configure Measurement Tracker Event
-# (needed in case NavigationSchool is set != '')
-####################################################################
-# process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
-# process.MeasurementTrackerEvent.pixelClusterProducer = 'generalTracks'
-# process.MeasurementTrackerEvent.stripClusterProducer = 'generalTracks'
-# process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
-# process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 
-####################################################################
-# Load and Configure TrackRefitter
-####################################################################
-# process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-# import RecoTracker.TrackProducer.TrackRefitters_cff
-# process.FinalTrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-# process.FinalTrackRefitter.src = "generalTracks"
-# process.FinalTrackRefitter.TrajectoryInEvent = True
-# process.FinalTrackRefitter.NavigationSchool = ''
-# process.FinalTrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+if(theRefitter == RefitType.COMMON):
 
-####################################################################
-# Load and Configure Common Track Selection and refitting sequence
-####################################################################
-import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-process.seqTrackselRefit = trackselRefit.getSequence(process, 'generalTracks',
-                                                     isPVValidation=True, 
-                                                     TTRHBuilder='WithAngleAndTemplate',
-                                                     usePixelQualityFlag=True,
-                                                     openMassWindow=False,
-                                                     cosmicsDecoMode=True,
-                                                     cosmicsZeroTesla=False,
-                                                     momentumConstraint=None,
-                                                     cosmicTrackSplitting=False,
-                                                     use_d0cut=False,
-                                                     )
+     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the common track selection and refit sequence!"          
+     ####################################################################
+     # Load and Configure Common Track Selection and refitting sequence
+     ####################################################################
+     import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
+     process.seqTrackselRefit = trackselRefit.getSequence(process, 'generalTracks',
+                                                          isPVValidation=True, 
+                                                          TTRHBuilder='WithAngleAndTemplate',
+                                                          usePixelQualityFlag=True,
+                                                          openMassWindow=False,
+                                                          cosmicsDecoMode=True,
+                                                          cosmicsZeroTesla=False,
+                                                          momentumConstraint=None,
+                                                          cosmicTrackSplitting=False,
+                                                          use_d0cut=False,
+                                                          )
+     
+elif (theRefitter == RefitType.STANDARD):
+
+     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the standard single refit sequence!"          
+     ####################################################################
+     # Load and Configure Measurement Tracker Event
+     # (needed in case NavigationSchool is set != '')
+     ####################################################################
+     # process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
+     # process.MeasurementTrackerEvent.pixelClusterProducer = 'generalTracks'
+     # process.MeasurementTrackerEvent.stripClusterProducer = 'generalTracks'
+     # process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
+     # process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
+
+     ####################################################################
+     # Load and Configure TrackRefitter
+     ####################################################################
+     process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+     import RecoTracker.TrackProducer.TrackRefitters_cff
+     process.FinalTrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
+     process.FinalTrackRefitter.src = "generalTracks"
+     process.FinalTrackRefitter.TrajectoryInEvent = True
+     process.FinalTrackRefitter.NavigationSchool = ''
+     process.FinalTrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+
+     ####################################################################
+     # Sequence
+     ####################################################################
+     process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
+                                             # in case NavigatioSchool is set !='' 
+                                             #process.MeasurementTrackerEvent*
+                                             process.FinalTrackRefitter)     
 
 ####################################################################
 # Output file
@@ -291,15 +312,11 @@ else:
                                                                        )
                                            )
 
+
+
 ####################################################################
 # Path
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
-                     #### in case of old-style single refit sequence
-                     #process.offlineBeamSpot*
-                     # in case NavigatioSchool is set !='' 
-                     #process.MeasurementTrackerEvent*
-                     #process.FinalTrackRefitter*
-                     # in case common fit sequence is used
                      process.seqTrackselRefit*
                      process.PVValidation)
