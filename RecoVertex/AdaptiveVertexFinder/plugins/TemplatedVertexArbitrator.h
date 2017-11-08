@@ -84,7 +84,6 @@ class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
           } else if (  std::is_same<VTX,reco::VertexCompositePtrCandidate>::value ) {
             cdesc.add("candidateVertexArbitratorDefault",pdesc); 
           } else {
-            std::cout << "TVA defaulted!" << std::endl;
             cdesc.addDefault(pdesc); 
           }
 	}
