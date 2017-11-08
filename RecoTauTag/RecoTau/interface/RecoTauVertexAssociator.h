@@ -68,8 +68,8 @@ class RecoTauVertexAssociator {
     /// Convenience function to get the PV associated to the jet that
     /// seeded this tau (useJet=true, old behaviour) 
     /// or leaging charged hadron if set (useJet=false).
-    reco::VertexRef associatedVertex(const reco::PFTau& tau, bool useJet=false) const;
-    reco::VertexRef associatedVertex(const reco::PFBaseTau& tau, bool useJet=false) const;
+    reco::VertexRef associatedVertex(const PFTau& tau, bool useJet=false) const;
+    reco::VertexRef associatedVertex(const PFBaseTau& tau, bool useJet=false) const;
     reco::VertexRef associatedVertex(const Track* track) const;
     reco::VertexRef associatedVertex(const TrackBaseRef& track) const;
 
