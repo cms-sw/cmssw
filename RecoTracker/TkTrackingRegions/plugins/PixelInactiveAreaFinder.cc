@@ -426,6 +426,7 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
                                                  edm::ConsumesCollector&& iC):
   debug_(iConfig.getUntrackedParameter<bool>("debug")),
   createPlottingFiles_(iConfig.getUntrackedParameter<bool>("createPlottingFiles")),
+  ignoreSingleFPixPanelModules_(iConfig.getParameter<bool>("ignoreSingleFPixPanelModules")),
   inactivePixelDetectorTokens_(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("inactivePixelDetectorLabels"), [&](const auto& tag) { return iC.consumes<DetIdCollection>(tag); })),
   badPixelFEDChannelsTokens_(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("badPixelFEDChannelCollectionLabels"), [&](const auto& tag) { return iC.consumes<PixelFEDChannelCollection>(tag); }))
 {
@@ -490,6 +491,7 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
 void PixelInactiveAreaFinder::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<std::vector<edm::InputTag>>("inactivePixelDetectorLabels", std::vector<edm::InputTag>{{edm::InputTag("siPixelDigis")}})->setComment("One or more DetIdCollections of modules to mask on the fly for a given event");
   desc.add<std::vector<edm::InputTag>>("badPixelFEDChannelCollectionLabels", std::vector<edm::InputTag>())->setComment("One or more PixelFEDChannelCollections of modules+ROCs to mask on the fly for a given event");
+  desc.add<bool>("ignoreSingleFPixPanelModules", false);
 
   desc.addUntracked<bool>("debug", false);
   desc.addUntracked<bool>("createPlottingFiles", false);
@@ -927,7 +929,14 @@ PixelInactiveAreaFinder::DetGroupContainer PixelInactiveAreaFinder::badDetGroups
   DetectorSet foundDets;
   for(auto const & badDet : badPixelDetsEndcap_){
     if(foundDets.find(badDet) == foundDets.end()){
-      detGroups.push_back(this->reachableDetGroup(badDet,foundDets));
+      auto adjacentDets = this->reachableDetGroup(badDet,foundDets);
+      if(ignoreSingleFPixPanelModules_ && adjacentDets.size() == 1) {
+        // size==1 means that only a single panel of a blade was inactive
+        // because of the large overlap with the other panel (i.e.
+        // redundancy in the detectory) ignoring these may help to decrease fakes
+        continue;
+      }
+      detGroups.push_back(adjacentDets);
     } 
   }
   return detGroups;
