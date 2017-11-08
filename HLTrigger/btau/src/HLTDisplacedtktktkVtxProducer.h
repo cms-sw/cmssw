@@ -65,6 +65,16 @@ class HLTDisplacedtktktkVtxProducer : public edm::stream::EDProducer<> {
   const int resOpt_;
   const int triggerTypeDaughters_;  
 
+  double firstTrackMass;
+  double secondTrackMass;
+  double thirdTrackMass;
+  double firstTrackPt;
+  double secondTrackPt;
+  double thirdTrackPt;
+  double firstTrackMass2;
+  double secondTrackMass2;
+  double thirdTrackMass2;
+
 };
 
 #endif
