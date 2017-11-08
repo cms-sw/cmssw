@@ -76,6 +76,7 @@ private:
   // Configuration
   const bool debug_;
   const bool createPlottingFiles_;
+  const bool ignoreSingleFPixPanelModules_;
 
   std::vector<SeedingLayerId> inactiveLayers_; // layers to check for inactive regions
   std::vector<std::pair<unsigned short, unsigned short> > inactiveLayerSetIndices_; // indices within inactiveLayers_
