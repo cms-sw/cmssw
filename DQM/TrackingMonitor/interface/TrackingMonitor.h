@@ -44,6 +44,7 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSets.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -100,6 +101,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
 	edm::EDGetTokenT<std::vector<SeedStopInfo> > seedStopInfoToken_;
 	edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
+	edm::EDGetTokenT<TrackingRegionsSeedingLayerSets> regionLayerSetsToken_;
 	edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
 	edm::EDGetTokenT<LumiScalersCollection>  lumiscalersToken_;	

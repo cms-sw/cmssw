@@ -671,11 +671,28 @@ void TrackBuildingAnalyzer::analyze(const reco::CandidateView& regionCandidates)
 }
 
 void TrackBuildingAnalyzer::analyze(const edm::OwnVector<TrackingRegion>& regions) {
+  analyzeRegions(regions);
+}
+void TrackBuildingAnalyzer::analyze(const TrackingRegionsSeedingLayerSets& regions) {
+  analyzeRegions(regions);
+}
+
+namespace {
+  const TrackingRegion *regionPtr(const TrackingRegion& region) {
+    return &region;
+  }
+  const TrackingRegion *regionPtr(const TrackingRegionsSeedingLayerSets::RegionLayers& regionLayers) {
+    return &(regionLayers.region());
+  }
+}
+
+template <typename T>
+void TrackBuildingAnalyzer::analyzeRegions(const T& regions) {
   if(!doRegionPlots && etaBinWidth <= 0. && phiBinWidth <= 0.)
     return;
 
-  for(const auto& region: regions) {
-    if(const auto *etaPhiRegion = dynamic_cast<const RectangularEtaPhiTrackingRegion *>(&region)) {
+  for(const auto& tmp: regions) {
+    if(const auto *etaPhiRegion = dynamic_cast<const RectangularEtaPhiTrackingRegion *>(regionPtr(tmp))) {
       const auto& etaRange = etaPhiRegion->etaRange();
       const auto& phiMargin = etaPhiRegion->phiMargin();
 
@@ -706,3 +723,4 @@ void TrackBuildingAnalyzer::analyze(const edm::OwnVector<TrackingRegion>& region
     }
   }
 }
+
