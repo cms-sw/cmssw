@@ -20,7 +20,7 @@ public:
   ZGeneratorLineShape(const ZGeneratorLineShape& other, const char* name);
   inline TObject* clone(const char* newname) const override { return new ZGeneratorLineShape(*this,newname);}
   inline ~ZGeneratorLineShape() override{};
-  ClassDef(ZGeneratorLineShape,1)
+  ClassDefOverride(ZGeneratorLineShape,1)
     Double_t evaluate() const override;  
  protected:
   RooRealProxy m ;
