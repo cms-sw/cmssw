@@ -13,23 +13,23 @@ namespace gem {
   {
   public:
     GEBdata(){};
-  GEBdata(const uint32_t &ZeroSup_, 
-	  const uint8_t &InputID_, 
-	  const uint16_t &Vwh_, 
-	  const uint16_t &ErrorC_, 
-	  const uint16_t &OHCRC_, 
-	  const uint16_t &Vwt_,
-	  const uint8_t &InFu_,
-	  const uint8_t &Stuckd_) : 
-    m_ZeroSup(ZeroSup_),                                
-      m_InputID(InputID_),
-      m_Vwh(Vwh_),                                  
-      m_ErrorC(ErrorC_),
-      m_OHCRC(OHCRC_),                                    
-      m_Vwt(Vwt_),                             
-      m_InFu(InFu_),                                   
-      m_Stuckd(Stuckd_){}         
-    ~GEBdata(){vfatd.clear();}
+    /* GEBdata(const uint32_t &ZeroSup_,  */
+    /* 	  const uint8_t &InputID_,  */
+    /* 	  const uint16_t &Vwh_,  */
+    /* 	  const uint16_t &ErrorC_,  */
+    /* 	  const uint16_t &OHCRC_,  */
+    /* 	  const uint16_t &Vwt_, */
+    /* 	  const uint8_t &InFu_, */
+    /* 	  const uint8_t &Stuckd_) :  */
+    /*   m_ZeroSup(ZeroSup_),                                 */
+    /*     m_InputID(InputID_), */
+    /*     m_Vwh(Vwh_),                                   */
+    /*     m_ErrorC(ErrorC_), */
+    /*     m_OHCRC(OHCRC_),                                     */
+    /*     m_Vwt(Vwt_),                              */
+    /*     m_InFu(InFu_),                                    */
+    /*     m_Stuckd(Stuckd_){}          */
+    /*   ~GEBdata(){vfatd.clear();} */
 
     // need to include all the flags
     //!Reads the word for the GEM Chamber Header. Puts the thirteen flags in a vector.
@@ -46,6 +46,14 @@ namespace gem {
 	{
 	  v_GEBflags.push_back(0x01 & (m_ErrorC >> i));
 	}
+    }
+    uint64_t getChamberHeader()
+    {
+      return
+	(static_cast<uint64_t>(m_ZeroSup & 0x00ffffff) <<  40) |
+	(static_cast<uint64_t>(m_InputID & 0b00011111) <<  35) |
+	(static_cast<uint64_t>(m_Vwh & 0x0fff) <<  23) |
+	(static_cast<uint64_t>(m_ErrorC & 0b0001111111111111));
     }
 
     //return specific flags
@@ -73,6 +81,17 @@ namespace gem {
       m_InFu = 0x0f & (word >> 35);   /*!<InFIFO underflow*/
       m_Stuckd = 0x01 & (word >> 34); /*!<Stuck data*/
     }
+    uint64_t getChamberTrailer()
+    {
+      return
+	(static_cast<uint64_t>(m_OHCRC) <<  48) |
+	(static_cast<uint64_t>(m_Vwt & 0x0fff) <<  36) |
+	(static_cast<uint64_t>(m_InFu & 0x0f) <<  35) |
+	(static_cast<uint64_t>(m_Stuckd & 0x01) << 34);
+    }
+
+    void setVwh(uint16_t n){m_Vwh = n;}       ///<Returns VFAT word count (size of VFAT payload)
+    void setInputID(uint8_t n){m_InputID = n;}///<Returns GLIB input ID
 
     uint32_t ZeroSup()  {return m_ZeroSup;}   ///<Returns Zero Suppression flags
     uint8_t  InputID()  {return m_InputID;}   ///<Returns GLIB input ID
