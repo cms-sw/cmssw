@@ -193,11 +193,10 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
 
   //extract  vector of module in the layer
   /*
-    SiStripSubStructure siStripSubStructure;
-    siStripSubStructure.getTIBDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
-    siStripSubStructure.getTOBDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
-    siStripSubStructure.getTIDDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
-    //siStripSubStructure.getTECDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
+    SiStripSubStructure::getTIBDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
+    SiStripSubStructure::getTOBDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
+    SiStripSubStructure::getTIDDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
+    //SiStripSubStructure::getTECDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
   */
 
   tkhisto->fillFromAscii("test.txt");

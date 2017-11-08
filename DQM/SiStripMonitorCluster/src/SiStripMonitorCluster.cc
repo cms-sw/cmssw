@@ -248,8 +248,6 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
     std::vector<uint32_t> activeDets;
     SiStripDetCabling_->addActiveDetectorsRawIds(activeDets);
 
-    SiStripSubStructure substructure;
-
     SiStripFolderOrganizer folder_organizer;
     folder_organizer.setSiStripFolderName(topFolderName_);
     folder_organizer.setSiStripFolder();
@@ -300,17 +298,17 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
         int32_t lnumber = det_layer_pair.second;
 	std::vector<uint32_t> layerDetIds;
         if (det_layer_pair.first == "TIB") {
-          substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
+          SiStripSubStructure::getTIBDetectors(activeDets,layerDetIds,tTopo,lnumber,0,0,0);
         } else if (det_layer_pair.first == "TOB") {
-          substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
+          SiStripSubStructure::getTOBDetectors(activeDets,layerDetIds,tTopo,lnumber,0,0);
         } else if (det_layer_pair.first == "TID" && lnumber > 0) {
-          substructure.getTIDDetectors(activeDets,layerDetIds,2,std::abs(lnumber),0,0);
+          SiStripSubStructure::getTIDDetectors(activeDets,layerDetIds,tTopo,2,std::abs(lnumber),0,0);
         } else if (det_layer_pair.first == "TID" && lnumber < 0) {
-          substructure.getTIDDetectors(activeDets,layerDetIds,1,std::abs(lnumber),0,0);
+          SiStripSubStructure::getTIDDetectors(activeDets,layerDetIds,tTopo,1,std::abs(lnumber),0,0);
         } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
-          substructure.getTECDetectors(activeDets,layerDetIds,2,std::abs(lnumber),0,0,0,0);
+          SiStripSubStructure::getTECDetectors(activeDets,layerDetIds,tTopo,2,std::abs(lnumber),0,0,0,0);
         } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
-          substructure.getTECDetectors(activeDets,layerDetIds,1,std::abs(lnumber),0,0,0,0);
+          SiStripSubStructure::getTECDetectors(activeDets,layerDetIds,tTopo,1,std::abs(lnumber),0,0,0,0);
         }
 	LayerDetMap[label] = layerDetIds;
 

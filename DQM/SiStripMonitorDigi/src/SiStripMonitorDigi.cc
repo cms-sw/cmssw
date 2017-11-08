@@ -338,8 +338,6 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     activeDets.clear(); // just in case
     SiStripDetCabling_->addActiveDetectorsRawIds(activeDets);
 
-    SiStripSubStructure substructure;
-
     // remove any eventual zero elements - there should be none, but just in case
     for(std::vector<uint32_t>::iterator idets = activeDets.begin(); idets != activeDets.end(); idets++){
       if(*idets == 0) activeDets.erase(idets);
@@ -395,17 +393,17 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
         int32_t lnumber = det_layer_pair.second;
         std::vector<uint32_t> layerDetIds;
         if (det_layer_pair.first == "TIB") {
-          substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
+          SiStripSubStructure::getTIBDetectors(activeDets,layerDetIds,tTopo,lnumber,0,0,0);
         } else if (det_layer_pair.first == "TOB") {
-          substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
+          SiStripSubStructure::getTOBDetectors(activeDets,layerDetIds,tTopo,lnumber,0,0);
         } else if (det_layer_pair.first == "TID" && lnumber > 0) {
-          substructure.getTIDDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0);
+          SiStripSubStructure::getTIDDetectors(activeDets,layerDetIds,tTopo,2,abs(lnumber),0,0);
         } else if (det_layer_pair.first == "TID" && lnumber < 0) {
-          substructure.getTIDDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0);
+          SiStripSubStructure::getTIDDetectors(activeDets,layerDetIds,tTopo,1,abs(lnumber),0,0);
         } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
-          substructure.getTECDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0,0,0);
+          SiStripSubStructure::getTECDetectors(activeDets,layerDetIds,tTopo,2,abs(lnumber),0,0,0,0);
         } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
-          substructure.getTECDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0,0,0);
+          SiStripSubStructure::getTECDetectors(activeDets,layerDetIds,tTopo,1,abs(lnumber),0,0,0,0);
         }
 
         LayerDetMap[label] = layerDetIds;
