@@ -23,7 +23,7 @@ private:
   bool udscAsEquivalent_;
   bool udscbAsEquivalent_;
   bool wzAsEquivalent_;
-  std::vector<int> mothers_;
+  std::set<int> mothers_;
   std::vector<int> daughters_;
   
   std::map<int,int> requestedDaughters_;
