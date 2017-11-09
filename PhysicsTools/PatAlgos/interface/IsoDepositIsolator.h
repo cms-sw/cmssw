@@ -13,11 +13,11 @@ class IsoDepositIsolator : public BaseIsolator {
 
         IsoDepositIsolator() {}
         IsoDepositIsolator(const edm::ParameterSet &conf, edm::ConsumesCollector & iC, bool withCut) ;
-        virtual ~IsoDepositIsolator() ;
-        virtual void beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) ;
-        virtual void endEvent() ;
+        ~IsoDepositIsolator() override ;
+        void beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) override ;
+        void endEvent() override ;
 
-        virtual std::string description() const ;
+        std::string description() const override ;
     protected:
         enum Mode { Sum, Sum2, SumRelative, Sum2Relative, Max, MaxRelative, Count };
         edm::Handle<Isolation> handle_;
@@ -29,7 +29,7 @@ class IsoDepositIsolator : public BaseIsolator {
         bool skipDefaultVeto_;
         edm::EDGetTokenT<Isolation> inputIsoDepositToken_;
 
-        virtual float getValue(const edm::ProductID &id, size_t index) const ;
+        float getValue(const edm::ProductID &id, size_t index) const override ;
 }; // class IsoDepositIsolator
 } } // namespaces
 

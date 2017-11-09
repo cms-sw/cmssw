@@ -60,8 +60,6 @@ def _allToHP(s):
     return s.replace("All", "High purity")
 def _allToBTV(s):
     return s.replace("All", "BTV-like")
-def _byOriginalAlgo(s):
-    return s.replace("tracks", "tracks by originalAlgo")
 def _ptCut(s):
     return s.replace("Tracks", "Tracks pT &gt; 0.9 GeV").replace("tracks", "tracks pT &gt; 0.9 GeV")
 _trackQualityNameOrder = collections.OrderedDict([
@@ -82,8 +80,10 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("highPurityByAlgoMask", _toAlgoMask(_toHP(_allName))),
     ("tpPtLess09_", _tpPtLess09Name),
     ("tpPtLess09_highPurity", _allToHP(_tpPtLess09Name)),
-    ("tpPtLess09_ByOriginalAlgo", _byOriginalAlgo(_tpPtLess09Name)),
-    ("tpPtLess09_highPurityByOriginalAlgo", _byOriginalAlgo(_allToHP(_tpPtLess09Name))),
+    ("tpPtLess09_ByOriginalAlgo", _toOriAlgo(_tpPtLess09Name)),
+    ("tpPtLess09_highPurityByOriginalAlgo", _toOriAlgo(_allToHP(_tpPtLess09Name))),
+    ("tpPtLess09_ByAlgoMask", _toAlgoMask(_tpPtLess09Name)),
+    ("tpPtLess09_highPurityByAlgoMask", _toAlgoMask(_allToHP(_tpPtLess09Name))),
     ("btvLike", _allToBTV(_allName)),
     ("ak4PFJets", "AK4 PF jets"),
     ("allTPEffic_", _allTPEfficName),

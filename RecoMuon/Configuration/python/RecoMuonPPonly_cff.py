@@ -46,11 +46,16 @@ from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 # ---------------------------------------------------- #
 ################## Make the sequences ##################
 # ---------------------------------------------------- #
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 # Muon Tracking sequence
 standalonemuontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*refittedStandAloneMuons*displacedMuonSeeds*displacedStandAloneMuons)
+# not commisoned and not relevant in FastSim (?):
+fastSim.toReplaceWith(standalonemuontracking,standalonemuontracking.copyAndExclude([displacedMuonSeeds,displacedStandAloneMuons]))
 displacedGlobalMuonTracking = cms.Sequence(iterDisplcedTracking*displacedGlobalMuons)
 globalmuontracking = cms.Sequence(globalMuons*tevMuons*displacedGlobalMuonTracking)
+# not commisoned and not relevant in FastSim (?):
+fastSim.toReplaceWith(globalmuontracking,globalmuontracking.copyAndExclude([displacedGlobalMuonTracking]))
 muontracking = cms.Sequence(standalonemuontracking*globalmuontracking)
 
 # Muon Reconstruction
@@ -82,3 +87,5 @@ muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSele
 # 6th - Run the remnant part of the muon sequence (muonGlobalReco) 
 
 ########################################################
+# not commisoned and not relevant in FastSim (?):
+fastSim.toReplaceWith(muonGlobalReco, muonGlobalReco.copyAndExclude([muonreco_with_SET,muonSelectionTypeSequence]))

@@ -13,10 +13,10 @@ class MonCrystalConsistencyDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonCrystalConsistencyDat();
-  ~MonCrystalConsistencyDat();
+  ~MonCrystalConsistencyDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_CRYSTAL_CONSISTENCY_DAT"; }
+  inline std::string getTable() override { return "MON_CRYSTAL_CONSISTENCY_DAT"; }
 
   inline void setProcessedEvents(int proc) { m_processedEvents = proc; }
   inline int getProcessedEvents() const { return m_processedEvents; }
@@ -38,7 +38,7 @@ class MonCrystalConsistencyDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonCrystalConsistencyDat* item, MonRunIOV* iov)
     noexcept(false);

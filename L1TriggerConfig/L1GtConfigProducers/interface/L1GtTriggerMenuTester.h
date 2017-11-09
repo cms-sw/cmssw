@@ -49,32 +49,32 @@ public:
     explicit L1GtTriggerMenuTester(const edm::ParameterSet&);
 
     // destructor
-    virtual ~L1GtTriggerMenuTester();
+    ~L1GtTriggerMenuTester() override;
 
 private:
 
     /// begin job
-    void beginJob();
+    void beginJob() override;
 
     /// begin run
-    void beginRun(const edm::Run&, const edm::EventSetup&);
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
     /// begin luminosity block
     void beginLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
+            const edm::EventSetup&) override;
 
     /// analyze
-    void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     /// end luminosity block
     void
-    endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+    endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
     /// end run
-    void endRun(const edm::Run&, const edm::EventSetup&);
+    void endRun(const edm::Run&, const edm::EventSetup&) override;
 
     /// end job
-    void endJob();
+    void endJob() override;
 
 private:
 

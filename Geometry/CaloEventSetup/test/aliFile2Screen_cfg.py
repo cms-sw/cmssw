@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("read")
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load('CondCore.CondDB.CondDB_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -9,9 +9,9 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptySource")
 
+process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBSetup,
-    connect = cms.string('sqlite_file:myfile.db'),
+    process.CondDB,
     toGet = cms.VPSet(
       cms.PSet(
         record = cms.string('EBAlignmentRcd'),

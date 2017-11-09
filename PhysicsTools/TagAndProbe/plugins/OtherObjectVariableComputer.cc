@@ -28,9 +28,9 @@ template<typename T>
 class OtherObjectVariableComputer : public edm::EDProducer {
     public:
         explicit OtherObjectVariableComputer(const edm::ParameterSet & iConfig);
-        virtual ~OtherObjectVariableComputer() ;
+        ~OtherObjectVariableComputer() override ;
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+        void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
         edm::EDGetTokenT<edm::View<reco::Candidate> > probesToken_;

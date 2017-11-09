@@ -42,10 +42,10 @@ public:
     L1GtPsbSetupConfigOnlineProd(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtPsbSetupConfigOnlineProd();
+    ~L1GtPsbSetupConfigOnlineProd() override;
 
     /// public methods
-    virtual std::shared_ptr<L1GtPsbSetup> newObject(const std::string& objectKey);
+    std::shared_ptr<L1GtPsbSetup> newObject(const std::string& objectKey) override;
 
 private:
 

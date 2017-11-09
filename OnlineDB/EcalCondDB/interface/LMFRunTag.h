@@ -22,7 +22,7 @@ class LMFRunTag : public LMFUnique {
   LMFRunTag(oracle::occi::Environment* env,
 	    oracle::occi::Connection* conn);
   LMFRunTag(EcalDBConnection *c);
-  ~LMFRunTag();
+  ~LMFRunTag() override;
 
   // Methods for user data
   std::string getGeneralTag() const;
@@ -36,7 +36,7 @@ class LMFRunTag : public LMFUnique {
     return *this;
   }
   
-  bool isValid();
+  bool isValid() override;
 
   // Operators
   inline bool operator==(const LMFRunTag &t) const { 
@@ -51,11 +51,11 @@ class LMFRunTag : public LMFUnique {
  private:
 
   // Methods from LMFUnique
-  std::string fetchIdSql(Statement *stmt);
-  std::string fetchAllSql(Statement *stmt) const;
-  std::string setByIDSql(Statement *stmt, int id);
-  void getParameters(ResultSet *rset);
-  LMFUnique *createObject() const;
+  std::string fetchIdSql(Statement *stmt) override;
+  std::string fetchAllSql(Statement *stmt) const override;
+  std::string setByIDSql(Statement *stmt, int id) override;
+  void getParameters(ResultSet *rset) override;
+  LMFUnique *createObject() const override;
 
 };
 

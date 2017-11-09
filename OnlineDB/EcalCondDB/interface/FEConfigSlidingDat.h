@@ -12,16 +12,16 @@ class FEConfigSlidingDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   FEConfigSlidingDat();
-  ~FEConfigSlidingDat();
+  ~FEConfigSlidingDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_SLIDING_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_SLIDING_DAT"; }
 
   inline void setSliding(float mean) { m_sliding = mean; }
   inline float getSliding() const { return m_sliding; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigSlidingDat* item, FEConfigSlidingInfo* iconf) noexcept(false);
 

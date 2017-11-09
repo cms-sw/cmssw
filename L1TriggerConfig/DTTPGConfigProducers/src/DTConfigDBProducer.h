@@ -51,7 +51,7 @@ class DTConfigDBProducer : public edm::ESProducer{
   DTConfigDBProducer(const edm::ParameterSet&);
 
   //! Destructor
-  ~DTConfigDBProducer();
+  ~DTConfigDBProducer() override;
   
   //! ES produce method
   std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);

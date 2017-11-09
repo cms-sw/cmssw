@@ -48,9 +48,9 @@ namespace pat {
     public:
 
       explicit PATTauProducer(const edm::ParameterSet & iConfig);
-      ~PATTauProducer();
+      ~PATTauProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -93,7 +93,7 @@ namespace pat {
       std::vector<NameTag> tauIDSrcs_;
       std::vector<edm::EDGetTokenT<reco::CaloTauDiscriminator> > caloTauIDTokens_;
       std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > pfTauIDTokens_;
-
+      bool          skipMissingTauID_;
       // tools
       GreaterByPt<Tau>       pTTauComparator_;
 

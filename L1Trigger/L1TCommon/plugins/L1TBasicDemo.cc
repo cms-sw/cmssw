@@ -23,13 +23,13 @@
 class L1TBasicDemo : public edm::EDAnalyzer {
 public:
   explicit L1TBasicDemo(const edm::ParameterSet&);
-  ~L1TBasicDemo();
+  ~L1TBasicDemo() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
 
-  virtual void analyze(edm::Event const&, edm::EventSetup const&);
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   // EDM tokens:
   edm::EDGetTokenT<l1t::EGammaBxCollection> egToken_;

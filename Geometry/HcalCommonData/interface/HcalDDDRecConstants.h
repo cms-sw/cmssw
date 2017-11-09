@@ -68,6 +68,8 @@ public:
   std::vector<int>          getDepth(const unsigned int& eta, const bool& extra) const;
   int                       getDepthEta16(const int& det, const int& iphi, 
 					  const int& zside) const {return hcons.getDepthEta16(det,iphi,zside);}
+  int                       getDepthEta29(const int& iphi, const int& zside, 
+					  const int& type) const {return hcons.getDepthEta29(iphi,zside,type);}
   std::vector<HcalEtaBin>   getEtaBins(const int& itype) const;
   std::pair<double,double>  getEtaPhi(const int& subdet, const int& ieta, const int& iphi) const;
   std::pair<int,int>        getEtaRange(const int& i) const
@@ -79,6 +81,8 @@ public:
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay, int idepth) const;
   std::vector<HFCellParameters>    getHFCellParameters() const;
   void                      getLayerDepth(const int& ieta, std::map<int,int>& layers) const;
+  int                       getLayerBack(const int& det, const int& eta, const int& phi,
+					 const int& depth) const;
   int                       getLayerFront(const int& det, const int& eta, const int& phi,
 					  const int& depth) const;
   double                    getLayer0Wt(const int& det, const int& phi,
@@ -102,6 +106,7 @@ public:
   double                    getRZ(const int& subdet, const int& ieta, const int& iphi,
 				  const int& depth) const;
   double                    getRZ(const int& subdet, const int& layer) const;
+  std::pair<double,double>  getRZ(const HcalDetId& id) const;
   std::vector<HcalActiveLength>    getThickActive(const int& type) const;
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
   int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}

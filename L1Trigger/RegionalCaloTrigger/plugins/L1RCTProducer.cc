@@ -45,7 +45,7 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   queryDelayInLS(conf.getParameter<unsigned int>("queryDelayInLS")),
   queryIntervalInLS(conf.getParameter<unsigned int>("queryIntervalInLS")),
   conditionsLabel(conf.getParameter<std::string>("conditionsLabel")),
-  fedUpdatedMask(0)
+  fedUpdatedMask(nullptr)
 {
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
@@ -61,9 +61,9 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
 
 L1RCTProducer::~L1RCTProducer()
 {
-  if(rct != 0) delete rct;
-  if(rctLookupTables != 0) delete rctLookupTables;
-  if(fedUpdatedMask != 0) delete fedUpdatedMask;
+  if(rct != nullptr) delete rct;
+  if(rctLookupTables != nullptr) delete rctLookupTables;
+  if(fedUpdatedMask != nullptr) delete fedUpdatedMask;
 }
 
 
@@ -160,7 +160,7 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
   //This is the beginning of run. We delete the old
   //create the new and set it in the LUTs
 
-  if(fedUpdatedMask!=0) delete fedUpdatedMask;
+  if(fedUpdatedMask!=nullptr) delete fedUpdatedMask;
 
   fedUpdatedMask = new L1RCTChannelMask();
   // copy a constant object
@@ -432,7 +432,7 @@ void L1RCTProducer::printFedVector(const std::vector<int>& fedVector)
 // print contents of RCT channel mask fedUpdatedMask
 void L1RCTProducer::printUpdatedFedMask()
 {
-  if (fedUpdatedMask != 0)
+  if (fedUpdatedMask != nullptr)
     {
       fedUpdatedMask->print(std::cout);
     }
@@ -445,7 +445,7 @@ void L1RCTProducer::printUpdatedFedMask()
 // print contents of RCT channel mask fedUpdatedMask
 void L1RCTProducer::printUpdatedFedMaskVerbose()
 {
-  if (fedUpdatedMask != 0)
+  if (fedUpdatedMask != nullptr)
     {
       // print contents of fedvector
       std::cout << "Contents of fedUpdatedMask: ";

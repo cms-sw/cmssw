@@ -116,7 +116,7 @@ namespace PhysicsTools
     ProcessRegistryImpl<Base_t, CalibBase_t, Parent_t, Instance_t, Calibration_t>(const char *name) : ProcessRegistry<Base_t, CalibBase_t, Parent_t>(name){}
   protected:
     Base_t *instance(const char *name, const CalibBase_t *calib,
-		     Parent_t *parent) const
+		     Parent_t *parent) const override
       {
 	return new Instance_t(name,
 			      dynamic_cast<const Calibration_t*>(calib),

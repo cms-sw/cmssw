@@ -28,7 +28,7 @@ namespace gen
          // ctor & dtor
          Pythia6Service();
 	 Pythia6Service( edm::ParameterSet const& );
-	 ~Pythia6Service() ; 
+	 ~Pythia6Service() override ; 
      
          void setGeneralParams();
          void setCSAParams();
@@ -42,7 +42,7 @@ namespace gen
 	 void closePYUPDA();
 
          // initialise Pythia on first call from "dummy" instance
-         virtual void enter();
+         void enter() override;
 
          CLHEP::HepRandomEngine* randomEngine() const { return fRandomEngine; }
          void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }

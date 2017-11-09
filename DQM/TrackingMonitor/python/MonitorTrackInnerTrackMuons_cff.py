@@ -22,7 +22,6 @@ muonInnerTrack.muonsTag = cms.InputTag("muonsPt10")
 muonInnerTrack.selectionTags = ('All',)
 muonInnerTrack.trackType = "innerTrack"
 
-
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 MonitorTrackMuonsInnerTrack = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
 MonitorTrackMuonsInnerTrack.TrackProducer = 'muonInnerTrack'
@@ -42,6 +41,13 @@ MonitorTrackMuonsInnerTrack.doDCAwrt000Plots = False
 MonitorTrackMuonsInnerTrack.doSIPPlots  = True
 MonitorTrackMuonsInnerTrack.doEffFromHitPatternVsPU = True
 MonitorTrackMuonsInnerTrack.doEffFromHitPatternVsBX = False
+MonitorTrackMuonsInnerTrack.TkSizeBin = 10
+MonitorTrackMuonsInnerTrack.TkSizeMax = 10.
+MonitorTrackMuonsInnerTrack.phiErrMax = 0.001
+MonitorTrackMuonsInnerTrack.etaErrMax = 0.001
+MonitorTrackMuonsInnerTrack.PVBin =  40
+MonitorTrackMuonsInnerTrack.PVMin =   0.5
+MonitorTrackMuonsInnerTrack.PVMax = 120.5
 
 #MonitorTrackINNMuons = cms.Sequence(muonInnerTrack+MonitorTrackMuonsInnerTrack)
 MonitorTrackINNMuons = cms.Sequence(cms.ignore(muonsPt10)+muonInnerTrack+MonitorTrackMuonsInnerTrack)

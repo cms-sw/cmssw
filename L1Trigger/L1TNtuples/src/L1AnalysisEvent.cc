@@ -57,7 +57,7 @@ void L1Analysis::L1AnalysisEvent::Set(const edm::Event& e, const edm::EDGetToken
   if (!hlt_.isUninitialized()){
     edm::Handle<edm::TriggerResults> hltresults;
     e.getByToken(hlt_,hltresults);
-    const edm::TriggerNames TrigNames_ = e.triggerNames(*hltresults);
+    const edm::TriggerNames& TrigNames_ = e.triggerNames(*hltresults);
     const int ntrigs = hltresults->size();
     
     for (int itr=0; itr<ntrigs; itr++){
