@@ -36,6 +36,21 @@ generalConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrac
     setArbitratedMergedEcalGeneral = cms.bool(True),
 )
 
+#fastSim
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+# the conversion producer depends on trajectories
+# so we feed it with the 'before mixing' track collection
+generalConversionTrackProducerTmp = generalConversionTrackProducer.clone(
+    TrackProducer = 'generalTracksBeforeMixing')
+
+# then we need to fix the track references, so that they point to the final track collection, after mixing
+import FastSimulation.Tracking.ConversionTrackRefFix_cfi
+_fastSim_conversionTrackRefFix = FastSimulation.Tracking.ConversionTrackRefFix_cfi.fixedConversionTracks.clone(
+                 src = cms.InputTag("generalConversionTrackProducerTmp"))
+fastSim.toReplaceWith(generalConversionTrackProducer,
+                      _fastSim_conversionTrackRefFix)
+
+
 #producer from conversionStep tracks collection, set tracker only, merged arbitrated, merged arbitrated ecal/general flags
 conversionStepConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
     TrackProducer = cms.string('conversionStepTracks'),
@@ -154,3 +169,7 @@ gsfGeneralConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTra
 
 #special sequence for fastsim which skips the ecal-seeded and conversionStep tracks for now
 conversionTrackSequenceNoEcalSeeded = cms.Sequence(generalConversionTrackProducer*gsfConversionTrackProducer*gsfGeneralConversionTrackMerger)
+
+_fastSim_conversionTrackSequenceNoEcalSeeded = conversionTrackSequenceNoEcalSeeded.copy()
+_fastSim_conversionTrackSequenceNoEcalSeeded.replace(generalConversionTrackProducer,generalConversionTrackProducerTmp+generalConversionTrackProducer)
+fastSim.toReplaceWith(conversionTrackSequenceNoEcalSeeded,_fastSim_conversionTrackSequenceNoEcalSeeded)

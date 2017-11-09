@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 # NEW CLUSTERS (remove previously used clusters)
 pixelPairStepClusters = _cfg.clusterRemoverForIter("PixelPairStep")
@@ -79,6 +80,7 @@ _region_Phase1 = dict(
 trackingPhase1.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
 trackingPhase1QuadProp.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
 trackingPhase2PU140.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
+fastSim.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(VertexCollection = "firstStepPrimaryVerticesBeforeMixing"))
 
 # SEEDS
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
@@ -102,6 +104,17 @@ pixelPairStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
 
 # Clone for the phase1 recovery mode
 pixelPairStepSeedsA = pixelPairStepSeeds.clone()
+
+#have to do it after making pixelPairStepSeedsA since pixelPairStepSeedsB clones A
+# and then modifies it
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+fastSim.toReplaceWith(pixelPairStepSeeds,
+                      FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+        layerList = pixelPairStepSeedLayers.layerList.value(),
+        trackingRegions = "pixelPairStepTrackingRegions",
+        hitMasks = cms.InputTag("pixelPairStepMasks"),
+        )
+)
 
 # Recovery for L2L3
 pixelPairStepSeedLayersB = pixelPairStepSeedLayers.clone(
@@ -244,6 +257,14 @@ trackingPhase2PU140.toModify(pixelPairStepTrackCandidates,
     phase2clustersToSkip = cms.InputTag("pixelPairStepClusters"),
     TrajectoryCleaner = "pixelPairStepTrajectoryCleanerBySharedHits"
 )
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+fastSim.toReplaceWith(pixelPairStepTrackCandidates,
+                      FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+        src = cms.InputTag("pixelPairStepSeeds"),
+        MinNumberOfCrossedLayers = 2, # ?
+        hitMasks = cms.InputTag("pixelPairStepMasks")
+        )
+)
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits as _trajectoryCleanerBySharedHits
 pixelPairStepTrajectoryCleanerBySharedHits = _trajectoryCleanerBySharedHits.clone(
@@ -260,6 +281,7 @@ pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
     src = 'pixelPairStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
+fastSim.toModify(pixelPairStepTracks, TTRHBuilder = 'WithoutRefit')
 
 # Final selection
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
@@ -270,6 +292,7 @@ pixelPairStep.qualityCuts = [-0.2,0.0,0.3]
 
 trackingPhase1.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
 trackingPhase1QuadProp.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
+fastSim.toModify(pixelPairStep, vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # For LowPU and Phase2PU140
 import RecoTracker.IterativeTracking.LowPtTripletStep_cff
@@ -360,3 +383,16 @@ _PixelPairStep_Phase1.replace(pixelPairStepSeeds,
                               pixelPairStepSeeds)
 trackingPhase1.toReplaceWith(PixelPairStep, _PixelPairStep_Phase1)
 trackingPhase1QuadProp.toReplaceWith(PixelPairStep, _PixelPairStep_Phase1)
+
+#fastSim
+import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
+pixelPairStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(pixelPairStepClusters)
+fastSim.toReplaceWith(PixelPairStep,
+                      cms.Sequence(pixelPairStepMasks
+                                   +pixelPairStepTrackingRegions
+                                   +pixelPairStepSeeds
+                                   +pixelPairStepTrackCandidates
+                                   +pixelPairStepTracks
+                                   +pixelPairStep 
+                                   )
+)
