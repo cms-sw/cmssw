@@ -25,12 +25,12 @@
 class TracksFilter : public edm::global::EDFilter<> {
    public:
       explicit TracksFilter(const edm::ParameterSet&);
-      ~TracksFilter()=default;
+      ~TracksFilter() override =default;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-  virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
       // ----------member data ---------------------------
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
