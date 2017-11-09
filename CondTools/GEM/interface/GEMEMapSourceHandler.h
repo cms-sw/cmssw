@@ -19,6 +19,7 @@ namespace popcon
     void getNewObjects();
     void ConnectOnlineDB( const std::string& connect, const edm::ParameterSet& connectionPset ); // additional work
     void DisconnectOnlineDB(); // additional work
+    void readGEMEMap();
     std::string id() const { return m_name; }
       
   private:

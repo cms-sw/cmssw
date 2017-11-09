@@ -76,8 +76,19 @@ options.parseArguments()
 pname="Raw2Digi"
 if (options.process!=""):
     pname=options.process
+#process = cms.Process(pname)
 
-process = cms.Process(pname)
+#from Configuration.StandardSequences.Eras import eras
+#process = cms.Process(pname, eras.Run2_2017, eras.run2_GEM_2017_MCTest)
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process('RECO',eras.Run2_2017,eras.run2_GEM_2017_MCTest)
+
+process.load('Configuration.StandardSequences.L1Reco_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.StandardSequences.RecoSim_cff')
+#process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
+
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -135,7 +146,8 @@ if (options.debug):
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 # validation event filter
 process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
@@ -160,12 +172,26 @@ process.muonGEMDigis.InputLabel = cms.InputTag('rawDataCollector')
 if (options.debug):
     process.muonGEMDigis.debug = cms.untracked.bool(True)
 
+#process.load('Geometry.GEMGeometryBuilder.gemGeometry_cfi')
+process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
+
+process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
+    recAlgoConfig = cms.PSet(),
+    recAlgo = cms.string('GEMRecHitStandardAlgo'),
+    gemDigiLabel = cms.InputTag("muonGEMDigis"),
+    # maskSource = cms.string('File'),
+    # maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
+    # deadSource = cms.string('File'),
+    # deadvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMDeadVec.dat')
+)
+
 
 # Path and EndPath definitions
 process.path = cms.Path(
     #process.validationEventFilter
     process.dumpRaw
     +process.muonGEMDigis
+    +process.gemRecHits
 )
 
 # enable validation event filtering
