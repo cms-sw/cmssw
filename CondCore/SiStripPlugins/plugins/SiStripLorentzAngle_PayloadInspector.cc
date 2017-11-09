@@ -159,7 +159,7 @@ namespace {
 	  }
 
 	h1->SetBinContent(iBin,mean);
-	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h1->GetXaxis()->LabelsOption("v");
 	
 	if(detector!=currentDetector) {

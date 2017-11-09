@@ -1440,17 +1440,23 @@ namespace {
       std::string currentDetector;
 
       for (const auto &element : lastmap){
-	auto region = getTheRegion(element.first.first);
-      	h2last->Fill(SiStripPI::EnumToBinMap[region],element.second);
-	h2last->GetXaxis()->SetBinLabel(SiStripPI::EnumToBinMap[region],SiStripPI::regionType(region));
-	h2ratio->Fill(SiStripPI::EnumToBinMap[region],element.second/firstmap[element.first]);
-	h2ratio->GetXaxis()->SetBinLabel(SiStripPI::EnumToBinMap[region],SiStripPI::regionType(region));
+	auto region = this->getTheRegion(element.first.first);
+	auto bin   = SiStripPI::regionType(region).first;
+	auto label = SiStripPI::regionType(region).second;
+
+      	h2last->Fill(bin,element.second);
+	h2last->GetXaxis()->SetBinLabel(bin,label);
+	h2ratio->Fill(bin,element.second/firstmap[element.first]);
+	h2ratio->GetXaxis()->SetBinLabel(bin,label);
       }
 
       for (const auto &element : firstmap){
-	auto region = getTheRegion(element.first.first);
-	h2first->Fill(SiStripPI::EnumToBinMap[region],element.second);
-	h2first->GetXaxis()->SetBinLabel(SiStripPI::EnumToBinMap[region],SiStripPI::regionType(region));
+	auto region = this->getTheRegion(element.first.first);
+	auto bin   = SiStripPI::regionType(region).first;
+	auto label = SiStripPI::regionType(region).second;
+
+	h2first->Fill(bin,element.second);
+	h2first->GetXaxis()->SetBinLabel(bin,label);
       }
       
       h2first->GetXaxis()->LabelsOption("v");
@@ -1477,7 +1483,7 @@ namespace {
       canvas.cd(2)->SetRightMargin(0.14);
 
       h2ratio->Draw("COLZ");
-      TProfile *hpfx_tmp = (TProfile*) h2ratio->ProfileX("_pfx",1,-1,"o");
+      auto hpfx_tmp = (TProfile*)(h2ratio->ProfileX("_pfx",1,-1,"o"));
       hpfx_tmp->SetStats(kFALSE);
       hpfx_tmp->SetMarkerColor(kRed);
       hpfx_tmp->SetLineColor(kRed);
@@ -1628,7 +1634,7 @@ namespace {
 
 	hlast->SetBinContent(iBin,mean);	
 	hlast->SetBinError(iBin,mean/10000.);
-	hlast->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	hlast->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	hlast->GetXaxis()->LabelsOption("v");
 	
 	if(detector!=currentDetector) {
@@ -1647,7 +1653,7 @@ namespace {
 
 	hfirst->SetBinContent(iBin,mean);
 	hfirst->SetBinError(iBin,mean/10000.);
-	hfirst->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	hfirst->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	hfirst->GetXaxis()->LabelsOption("v");	
       }
 
@@ -1765,7 +1771,7 @@ namespace {
 	  }
 
 	h1->SetBinContent(iBin,mean);
-	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h1->GetXaxis()->LabelsOption("v");
 	
 	if(detector!=currentDetector) {

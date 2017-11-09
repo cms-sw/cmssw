@@ -281,11 +281,11 @@ namespace {
 	  }
 
 	h_HV->SetBinContent(iBin,countHV);
-	h_HV->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(index));
+	h_HV->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(index).second);
 	h_HV->GetXaxis()->LabelsOption("v");
 
 	h_LV->SetBinContent(iBin,countLV);
-	h_LV->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(index));
+	h_LV->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(index).second);
 	h_LV->GetXaxis()->LabelsOption("v");
 
 	if(detector!=currentDetector) {
