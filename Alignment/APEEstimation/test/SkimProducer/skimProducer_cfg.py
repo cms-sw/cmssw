@@ -118,8 +118,9 @@ if isZmumu50: process.load("Alignment.APEEstimation.samples.DYToMuMu_M-50_Tune4C
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-#~ process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V56', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+
 print "Using global tag "+process.GlobalTag.globaltag._value
 
 process.load("Configuration.StandardSequences.Services_cff")
