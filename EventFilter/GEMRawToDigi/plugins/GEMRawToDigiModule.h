@@ -51,6 +51,8 @@ class GEMRawToDigiModule : public edm::EDProducer {
   
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
   bool unpackStatusDigis;
+  bool useDBEMap_;
+  
   const GEMEMap* m_gemEMap;
   GEMROmap* m_gemROMap;
   

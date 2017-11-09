@@ -19,12 +19,12 @@ class ME0ROmap{
   
   struct dCoord{
     int stripId;
-    ME0DetId gemDetId;
+    ME0DetId me0DetId;
     bool operator < (const dCoord& r) const{
-      if ( gemDetId == r.gemDetId)
+      if ( me0DetId == r.me0DetId)
 	return stripId < r.stripId;
       else
-	return gemDetId < r.gemDetId;
+	return me0DetId < r.me0DetId;
     }    
   };
 
@@ -38,10 +38,19 @@ class ME0ROmap{
   
   void add(eCoord e,dCoord d) {roMapED_[e]=d;}
   void add(dCoord d,eCoord e) {roMapDE_[d]=e;}
+
+  const int& gebPosition(const ME0DetId& r){return roMapDet2Geb_[r];}
+  const ME0DetId& gebPosition(const int& r){return roMapGeb2Det_[r];}
+  
+  void add(ME0DetId d,int e) {roMapDet2Geb_[d]=e;}
+  void add(int d,ME0DetId e) {roMapGeb2Det_[d]=e;}
   
  private:
   std::map<eCoord,dCoord> roMapED_;
   std::map<dCoord,eCoord> roMapDE_;
+
+  std::map<ME0DetId,int> roMapDet2Geb_;
+  std::map<int,ME0DetId> roMapGeb2Det_;
   
 };
 #endif

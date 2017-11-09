@@ -15,6 +15,7 @@ class ME0EMap {
 
   const std::string & version() const;
   ME0ROmap* convert() const;
+  ME0ROmap* convertDummy() const;
 
   struct ME0EMapItem {
     int ChamberID;

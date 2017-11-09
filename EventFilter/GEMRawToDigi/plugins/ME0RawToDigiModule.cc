@@ -19,20 +19,29 @@ using namespace gem;
 ME0RawToDigiModule::ME0RawToDigiModule(const edm::ParameterSet & pset)
 {
   fed_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("InputLabel") );  
+  useDBEMap_ = pset.getParameter<bool>("useDBEMap");
   produces<ME0DigiCollection>(); 
 }
 
 void ME0RawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector")); 
+  desc.add<bool>("useDBEMap", false); 
 }
 
 void ME0RawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<ME0EMap> gemEMap;
-  iSetup.get<ME0EMapRcd>().get(gemEMap); 
-  m_gemEMap = gemEMap.product();
-  m_gemROMap = m_gemEMap->convert();
+  if (useDBEMap_){
+    edm::ESHandle<ME0EMap> me0EMap;
+    iSetup.get<ME0EMapRcd>().get(me0EMap);
+    m_me0EMap = me0EMap.product();
+    m_me0ROMap = m_me0EMap->convert();
+  }
+  else {
+    // no eMap, using dummy
+    m_me0EMap = new ME0EMap();
+    m_me0ROMap = m_me0EMap->convertDummy();
+  }
 }
 
 void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup )
@@ -42,61 +51,52 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
   // Take raw from the event
   edm::Handle<FEDRawDataCollection> fed_buffers;
   e.getByToken( fed_token, fed_buffers );
+
+  int ndigis = 0;
   
-  for (unsigned int id=FEDNumbering::MINME0FEDID; id<=FEDNumbering::MAXME0FEDID; ++id){ 
+  for (unsigned int id=FEDNumbering::MINME0FEDID; id<=FEDNumbering::MINME0FEDID; ++id){ 
+    std::cout <<"ME0RawToDigiModule start "<<std::endl;
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
-    if (nWords==0) continue;
-
-    const unsigned char * data = fedData.data();
-    std::cout <<"ME0RawToDigiModule data.size() "<< nWords<<std::endl;
+    std::cout <<"ME0RawToDigiModule words "<< nWords<<std::endl;
     
-    AMC13Event * amc13Event = new AMC13Event();
+    if (nWords<10) continue;
+    const unsigned char * data = fedData.data();
+    
+    auto amc13Event = std::make_unique<AMC13Event>();
     
     const uint64_t* word = reinterpret_cast<const uint64_t* >(data);
-    amc13Event->setCDFHeader(*word);
-    std::cout <<"ME0RawToDigiModule setCDFHeader "<< word<<std::endl;    
-    amc13Event->setAMC13header(*(++word));
-    std::cout <<"ME0RawToDigiModule setAMC13header "<< word<<std::endl;    
     
+    amc13Event->setCDFHeader(*word);
+    amc13Event->setAMC13header(*(++word));
+
     // Readout out AMC headers
-    for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
+    for (unsigned short i = 0; i < amc13Event->nAMC(); ++i)
       amc13Event->addAMCheader(*(++word));
-    std::cout <<"ME0RawToDigiModule addAMCheader "<< word<<std::endl;    
-    }
-    std::cout <<"ME0RawToDigiModule amc13Event->nAMC() "<< amc13Event->nAMC()<<std::endl;
 
     // Readout out AMC payloads
     for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
-      AMCdata * amcData = new AMCdata();
-      
+      auto amcData = std::make_unique<AMCdata>();
       amcData->setAMCheader1(*(++word));      
-      std::cout <<"ME0RawToDigiModule setAMCheader1 "<< word<<std::endl;    
       amcData->setAMCheader2(*(++word));
-      std::cout <<"ME0RawToDigiModule setAMCheader2 "<< word<<std::endl;    
       amcData->setGEMeventHeader(*(++word));
-      std::cout <<"ME0RawToDigiModule setGEMeventHeader "<< word<<std::endl;    
 
-      std::cout <<"ME0RawToDigiModule amcData->GDcount() "<<amcData->GDcount()<<std::endl;
       // Fill GEB
       for (unsigned short j = 0; j < amcData->GDcount(); ++j){
-	GEBdata * gebData = new GEBdata();
+	auto gebData = std::make_unique<GEBdata>();
 	gebData->setChamberHeader(*(++word));
-      std::cout <<"ME0RawToDigiModule setChamberHeader "<< word<<std::endl;    
-	int m_nvb = gebData->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
-
-	std::cout <<"ME0RawToDigiModule number of VFAT2 blocks "<< m_nvb<<std::endl;
+	
+	unsigned int m_nvb = gebData->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
+	int gebID = gebData->InputID();
+	
 	for (unsigned short k = 0; k < m_nvb; k++){
-	  VFATdata * vfatData = new VFATdata();
+	  auto vfatData = std::make_unique<VFATdata>();
 	  vfatData->read_fw(*(++word));
-	  std::cout <<"ME0RawToDigiModule read_fw "<< word<<std::endl;    
 	  vfatData->read_sw(*(++word));
-	  std::cout <<"ME0RawToDigiModule read_sw "<< word<<std::endl;    
 	  vfatData->read_tw(*(++word));
-	  std::cout <<"ME0RawToDigiModule read_tw "<< word<<std::endl;    
 	  gebData->v_add(*vfatData);
-
+	  
 	  uint16_t bc=vfatData->BC();
 	  //uint8_t ec=vfatData->EC();
 	  uint8_t b1010=vfatData->b1010();
@@ -105,20 +105,23 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  uint16_t ChipID=vfatData->ChipID();
 	  //int slot=vfatData->SlotNumber(); 
 	  uint16_t crc = vfatData->crc();
-	  uint16_t crc_check = checkCRC(vfatData);
-	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check) ;
-	  //uint64_t converted=ChipID+0xf000;    
+	  uint16_t crc_check = checkCRC(vfatData.get());
+	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check);
 
-	  if(crc!=crc_check) std::cout<<"DIFFERENT CRC :"<<crc<<"   "<<crc_check<<std::endl;
-	  std::cout <<"ME0RawToDigiModule Quality "<< Quality <<std::endl;	    
+	  if (crc!=crc_check) std::cout<<"DIFFERENT CRC :"<<crc<<"   "<<crc_check<<std::endl;
+	  if (!Quality) std::cout <<"ME0RawToDigiModule Quality "<< Quality <<std::endl;
+	  
+	  uint16_t vfatId = ChipID | gebID << 12;
+	  //need to add gebId to DB
+	  if (useDBEMap_) vfatId = ChipID;
+	    
 	  //check if ChipID exists.
 	  ME0ROmap::eCoord ec;
-	  ec.vfatId = ChipID+0xf000;
-	  ec.channelId = 1;
-	  if (!m_gemROMap->isValidChipID(ec)){
-	    std::cout <<"ME0RawToDigiModule InValid ChipID "<< ec.vfatId
-		      <<std::endl;	    
-	    delete vfatData;
+	  ec.vfatId = vfatId;
+	  ec.channelId = 1;	  
+	  if (!m_me0ROMap->isValidChipID(ec)){
+	    std::cout <<"ME0RawToDigiModule InValid ChipID "<< ec.vfatId <<std::endl;	    
+	    //delete vfatData;
 	    continue;
 	  }
 	  
@@ -127,46 +130,40 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
 	    else chan0xf = ((vfatData->msData() >> (chan-64)) & 0x1);
 
+	    // no hits
 	    if(chan0xf==0) continue;  
 
-	    // need to check if vfatData->lsData() starts from 0 or 1
-	    // currently mapping has chan 1 - 129
-	    ec.channelId = chan+1;
-	    ME0ROmap::dCoord dc = m_gemROMap->hitPosition(ec);
+	    ec.channelId = chan;
+	    ME0ROmap::dCoord dc = m_me0ROMap->hitPosition(ec);
 	    
-	    ME0DetId gemDetId(dc.gemDetId);
+	    ME0DetId me0DetId(dc.me0DetId);
 	    ME0Digi digi(dc.stripId,bc);
-	    
-	    std::cout <<"ME0RawToDigiModule ChipID "<< ec.vfatId
-	    	      <<" gemDetId "<< gemDetId
-	    	      <<" chan "<< chan
+
+	    std::cout <<"ME0RawToDigiModule ChipID "<<ec.vfatId
+		      <<" me0DetId "<< me0DetId
+	    	      <<" chan "<< ec.channelId
 	    	      <<" strip "<< dc.stripId
 	    	      <<std::endl;
+	    ndigis++;
 	    
-	    outME0Digis.get()->insertDigi(gemDetId,digi);
+	    outME0Digis.get()->insertDigi(me0DetId,digi);	    
 	  }
-	  delete vfatData;
 	}
-	
+		  	
 	gebData->setChamberTrailer(*(++word));
-	std::cout <<"ME0RawToDigiModule setChamberTrailer "<< word<<std::endl;    
 	amcData->g_add(*gebData);
-	delete gebData;
       }
       
       amcData->setGEMeventTrailer(*(++word));
-	std::cout <<"ME0RawToDigiModule setGEMeventTrailer "<< word<<std::endl;    
       amcData->setAMCTrailer(*(++word));
-	std::cout <<"ME0RawToDigiModule setAMCTrailer "<< word<<std::endl;    
       amc13Event->addAMCpayload(*amcData);
-      delete amcData;
     }
     
     amc13Event->setAMC13trailer(*(++word));
-	std::cout <<"ME0RawToDigiModule setAMC13trailer "<< word<<std::endl;    
     amc13Event->setCDFTrailer(*(++word));
-	std::cout <<"ME0RawToDigiModule setCDFTrailer "<< word<<std::endl;    
   }
+  
+  std::cout << "ME0RawToDigiModule ndigis " << ndigis << std::endl;
   
   e.put(std::move(outME0Digis));
 }
@@ -184,7 +181,7 @@ uint16_t ME0RawToDigiModule::checkCRC(VFATdata * vfatData)
   vfatBlockWords[4]  = (0xffff000000000000 & vfatData->lsData()) >> 48;
   vfatBlockWords[3]  = (0x0000ffff00000000 & vfatData->lsData()) >> 32;
   vfatBlockWords[2]  = (0x00000000ffff0000 & vfatData->lsData()) >> 16;
-  vfatBlockWords[1] = (0x000000000000ffff & vfatData->lsData());
+  vfatBlockWords[1]  = (0x000000000000ffff & vfatData->lsData());
 
   uint16_t crc_fin = 0xffff;
   for (int i = 11; i >= 1; i--){

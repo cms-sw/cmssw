@@ -13,37 +13,30 @@ namespace gem {
 
     int nAMC(){return unsigned(m_nAMC);}
     int LV1_id(){return unsigned(m_LV1_id);}
+    int Source_id(){return unsigned(m_Source_id);}
     std::vector<AMCdata> amcs(){return m_amcs;}
 
     uint64_t getCDFHeader();    
-    void setCDFHeader(uint8_t cb5,
-			  uint8_t Evt_ty,
-			  uint32_t LV1_id,
-			  uint16_t BX_id,
-			  uint16_t Source_id);
+    void setCDFHeader(uint8_t cb5, uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id);
     void setCDFHeader(uint64_t word);
 
-    uint64_t getAMC13header();    
-    void setAMC13header(uint8_t CalTyp,
-			uint8_t nAMC,
-			uint32_t OrN,
-			uint8_t cb0);    
+    uint64_t getAMC13header();
+    void setAMC13header(uint8_t CalTyp, uint8_t nAMC, uint32_t OrN, uint8_t cb0);
     void setAMC13header(uint64_t word);
-
+    
+    std::vector<uint64_t> getAMCheader();
     void addAMCheader(uint64_t word);
+    void addAMCheader(uint32_t AMC_size, uint8_t Blk_No, uint8_t AMC_No, uint16_t BoardID);
+
+    std::vector<AMCdata> getAMCpayload(){return m_amcs;}   
     void addAMCpayload(AMCdata a){m_amcs.push_back(a);}
     
     uint64_t getAMC13trailer();
-    void setAMC13trailer(uint32_t CRC_amc13,
-			 uint8_t Blk_NoT,
-			 uint8_t LV1_idT,
-			 uint16_t BX_idT);
+    void setAMC13trailer(uint32_t CRC_amc13, uint8_t Blk_NoT, uint8_t LV1_idT, uint16_t BX_idT);
     void setAMC13trailer(uint64_t word);
 
     uint64_t getCDFTrailer();
-    void setCDFTrailer(uint8_t cbA,
-		       uint32_t EvtLength,
-		       uint16_t CRC_cdf);      
+    void setCDFTrailer(uint8_t cbA, uint32_t EvtLength, uint16_t CRC_cdf);      
     void setCDFTrailer(uint64_t word);
     
   private:

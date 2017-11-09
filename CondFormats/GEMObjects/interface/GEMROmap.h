@@ -38,10 +38,19 @@ class GEMROmap{
   
   void add(eCoord e,dCoord d) {roMapED_[e]=d;}
   void add(dCoord d,eCoord e) {roMapDE_[d]=e;}
+
+  const int& gebPosition(const GEMDetId& r){return roMapDet2Geb_[r];}
+  const GEMDetId& gebPosition(const int& r){return roMapGeb2Det_[r];}
+  
+  void add(GEMDetId d,int e) {roMapDet2Geb_[d]=e;}
+  void add(int d,GEMDetId e) {roMapGeb2Det_[d]=e;}
   
  private:
   std::map<eCoord,dCoord> roMapED_;
   std::map<dCoord,eCoord> roMapDE_;
+
+  std::map<GEMDetId,int> roMapDet2Geb_;
+  std::map<int,GEMDetId> roMapGeb2Det_;
   
 };
 #endif
