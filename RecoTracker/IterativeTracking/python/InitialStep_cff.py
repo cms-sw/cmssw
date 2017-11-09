@@ -408,7 +408,7 @@ _InitialStepTask_fastSim = cms.Task(initialStepTrackingRegions
                            ,initialStepTrackCandidates
                            ,initialStepTracks                                    
                            ,firstStepPrimaryVerticesBeforeMixing
-                           ,initialStepClassifier1*initialStepClassifier2*initialStepClassifier3
+                           ,initialStepClassifier1,initialStepClassifier2,initialStepClassifier3
                            ,initialStep
                            )
 fastSim.toReplaceWith(InitialStepTask, _InitialStepTask_fastSim)

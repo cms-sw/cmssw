@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.Configuration.RecoMuonPPonly_cff import *
-from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
 
 hiTracks = 'hiGeneralTracks' #heavy ion track label
 

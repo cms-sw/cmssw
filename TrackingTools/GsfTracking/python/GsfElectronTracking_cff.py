@@ -15,9 +15,9 @@ phase2_hgcal.toReplaceWith(
   electronSeeds, _electronSeedsFromMultiCl )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-_fastSim_electronSeeds = electronSeeds.copy()
-_fastSim_electronSeeds.replace(trackerDrivenElectronSeeds,trackerDrivenElectronSeedsTmp+trackerDrivenElectronSeeds)
-fastSim.toReplaceWith(electronSeeds, _fastSim_electronSeeds)
+_fastSim_electronSeedsTask = electronSeedsTask.copy()
+_fastSim_electronSeedsTask.replace(trackerDrivenElectronSeeds, cms.Task(trackerDrivenElectronSeedsTmp,trackerDrivenElectronSeeds))
+fastSim.toReplaceWith(electronSeedsTask, _fastSim_electronSeedsTask)
 # replace the ECAL driven electron track candidates with the FastSim emulated ones
 import FastSimulation.Tracking.electronCkfTrackCandidates_cff
 fastElectronCkfTrackCandidates = FastSimulation.Tracking.electronCkfTrackCandidates_cff.electronCkfTrackCandidates.clone()

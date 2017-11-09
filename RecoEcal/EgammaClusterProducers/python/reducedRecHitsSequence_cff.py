@@ -177,6 +177,6 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith( reducedEcalRecHitsTask , _phase2_reducedEcalRecHitsTask )
 
 
-_fastSim_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copyAndExclude([seldigis])
+_fastSim_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copyAndExclude(seldigisTask)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith( reducedEcalRecHitsTask, _fastSim_reducedEcalRecHitsTask)

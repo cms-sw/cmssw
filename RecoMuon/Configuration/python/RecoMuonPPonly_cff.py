@@ -51,7 +51,6 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 # Muon Tracking sequence
 standalonemuontrackingTask = cms.Task(standAloneMuons,refittedStandAloneMuons,displacedMuonSeeds,displacedStandAloneMuons,standAloneMuonSeedsTask)
 standalonemuontracking = cms.Sequence(standalonemuontrackingTask)
-standalonemuontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*refittedStandAloneMuons*displacedMuonSeeds*displacedStandAloneMuons)
 # not commisoned and not relevant in FastSim (?):
 fastSim.toReplaceWith(standalonemuontrackingTask,standalonemuontrackingTask.copyAndExclude([displacedMuonSeeds,displacedStandAloneMuons]))
 displacedGlobalMuonTracking = cms.Sequence(iterDisplcedTracking*displacedGlobalMuons)
