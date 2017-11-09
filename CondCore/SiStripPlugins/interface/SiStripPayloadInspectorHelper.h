@@ -72,101 +72,59 @@ namespace SiStripPI {
     END_OF_REGIONS	
   };
 
-  // mapping to get the bin number
-  std::map<SiStripPI::TrackerRegion,unsigned int> EnumToBinMap{
-    {TrackerRegion::TIB1r,1 }, 
-    {TrackerRegion::TIB1s,2 },
-    {TrackerRegion::TIB2r,3 }, 
-    {TrackerRegion::TIB2s,4 },
-    {TrackerRegion::TIB3r,5 },
-    {TrackerRegion::TIB4r,6 },
-    {TrackerRegion::TOB1r,7 }, 
-    {TrackerRegion::TOB1s,8 },
-    {TrackerRegion::TOB2r,9 }, 
-    {TrackerRegion::TOB2s,10},
-    {TrackerRegion::TOB3r,11},
-    {TrackerRegion::TOB4r,12},
-    {TrackerRegion::TOB5r,13},
-    {TrackerRegion::TOB6r,14},
-    {TrackerRegion::TEC1r,15}, 
-    {TrackerRegion::TEC1s,16},
-    {TrackerRegion::TEC2r,17}, 
-    {TrackerRegion::TEC2s,18},
-    {TrackerRegion::TEC3r,19}, 
-    {TrackerRegion::TEC3s,20},
-    {TrackerRegion::TEC4r,21}, 
-    {TrackerRegion::TEC4s,22},
-    {TrackerRegion::TEC5r,23}, 
-    {TrackerRegion::TEC5s,24},
-    {TrackerRegion::TEC6r,25}, 
-    {TrackerRegion::TEC6s,26},
-    {TrackerRegion::TEC7r,27}, 
-    {TrackerRegion::TEC7s,28},
-    {TrackerRegion::TEC8r,29}, 
-    {TrackerRegion::TEC8s,30},
-    {TrackerRegion::TEC9r,31}, 
-    {TrackerRegion::TEC9s,32},
-    {TrackerRegion::TID1r,33}, 
-    {TrackerRegion::TID1s,34},
-    {TrackerRegion::TID2r,35}, 
-    {TrackerRegion::TID2s,36},
-    {TrackerRegion::TID3r,37}, 
-    {TrackerRegion::TID3s,38}
-  };
-
   /*--------------------------------------------------------------------*/
-  const char * regionType(int index)
+  std::pair<int,const char *> regionType(int index)
   /*--------------------------------------------------------------------*/
   {
     
     auto region = static_cast<std::underlying_type_t<SiStripPI::TrackerRegion> >(index);
 
     switch(region){
-    case SiStripPI::TIB1r: return "TIB L1 r-#varphi";
-    case SiStripPI::TIB1s: return "TIB L1 stereo";
-    case SiStripPI::TIB2r: return "TIB L2 r-#varphi";
-    case SiStripPI::TIB2s: return "TIB L2 stereo";
-    case SiStripPI::TIB3r: return "TIB L3";
-    case SiStripPI::TIB4r: return "TIB L4";
-    case SiStripPI::TOB1r: return "TOB L1 r-#varphi";
-    case SiStripPI::TOB1s: return "TOB L1 stereo";
-    case SiStripPI::TOB2r: return "TOB L2 r-#varphi";
-    case SiStripPI::TOB2s: return "TOB L2 stereo";
-    case SiStripPI::TOB3r: return "TOB L3 r-#varphi";
-    case SiStripPI::TOB4r: return "TOB L4";
-    case SiStripPI::TOB5r: return "TOB L5";
-    case SiStripPI::TOB6r: return "TOB L6";
-    case SiStripPI::TEC1r: return "TEC D1 r-#varphi";
-    case SiStripPI::TEC1s: return "TEC D1 stereo";
-    case SiStripPI::TEC2r: return "TEC D2 r-#varphi";
-    case SiStripPI::TEC2s: return "TEC D2 stereo";
-    case SiStripPI::TEC3r: return "TEC D3 r-#varphi";
-    case SiStripPI::TEC3s: return "TEC D3 stereo";
-    case SiStripPI::TEC4r: return "TEC D4 r-#varphi";
-    case SiStripPI::TEC4s: return "TEC D4 stereo";
-    case SiStripPI::TEC5r: return "TEC D5 r-#varphi";
-    case SiStripPI::TEC5s: return "TEC D5 stereo";
-    case SiStripPI::TEC6r: return "TEC D6 r-#varphi";
-    case SiStripPI::TEC6s: return "TEC D6 stereo";
-    case SiStripPI::TEC7r: return "TEC D7 r-#varphi";
-    case SiStripPI::TEC7s: return "TEC D7 stereo";
-    case SiStripPI::TEC8r: return "TEC D8 r-#varphi";
-    case SiStripPI::TEC8s: return "TEC D8 stereo";
-    case SiStripPI::TEC9r: return "TEC D9 r-#varphi";
-    case SiStripPI::TEC9s: return "TEC D9 stereo";
-    case SiStripPI::TID1r: return "TID D1 r-#varphi";
-    case SiStripPI::TID1s: return "TID D1 stereo";
-    case SiStripPI::TID2r: return "TID D2 r-#varphi";
-    case SiStripPI::TID2s: return "TID D2 stereo";
-    case SiStripPI::TID3r: return "TID D3 r-#varphi"; 
-    case SiStripPI::TID3s: return "TID D3 stereo";
-    case SiStripPI::END_OF_REGIONS : return "undefined";
-    default : return "should never be here";  
+    case SiStripPI::TIB1r: return std::make_pair(1 ,"TIB L1 r-#varphi");
+    case SiStripPI::TIB1s: return std::make_pair(2 ,"TIB L1 stereo");
+    case SiStripPI::TIB2r: return std::make_pair(3 ,"TIB L2 r-#varphi");
+    case SiStripPI::TIB2s: return std::make_pair(4 ,"TIB L2 stereo");
+    case SiStripPI::TIB3r: return std::make_pair(5 ,"TIB L3");
+    case SiStripPI::TIB4r: return std::make_pair(6 ,"TIB L4");
+    case SiStripPI::TOB1r: return std::make_pair(7 ,"TOB L1 r-#varphi");
+    case SiStripPI::TOB1s: return std::make_pair(8 ,"TOB L1 stereo");
+    case SiStripPI::TOB2r: return std::make_pair(9 ,"TOB L2 r-#varphi");
+    case SiStripPI::TOB2s: return std::make_pair(10,"TOB L2 stereo");
+    case SiStripPI::TOB3r: return std::make_pair(11,"TOB L3 r-#varphi");
+    case SiStripPI::TOB4r: return std::make_pair(12,"TOB L4");
+    case SiStripPI::TOB5r: return std::make_pair(13,"TOB L5");
+    case SiStripPI::TOB6r: return std::make_pair(14,"TOB L6");
+    case SiStripPI::TEC1r: return std::make_pair(15,"TEC D1 r-#varphi");
+    case SiStripPI::TEC1s: return std::make_pair(16,"TEC D1 stereo");
+    case SiStripPI::TEC2r: return std::make_pair(17,"TEC D2 r-#varphi");
+    case SiStripPI::TEC2s: return std::make_pair(18,"TEC D2 stereo");
+    case SiStripPI::TEC3r: return std::make_pair(19,"TEC D3 r-#varphi");
+    case SiStripPI::TEC3s: return std::make_pair(20,"TEC D3 stereo");
+    case SiStripPI::TEC4r: return std::make_pair(21,"TEC D4 r-#varphi");
+    case SiStripPI::TEC4s: return std::make_pair(22,"TEC D4 stereo");
+    case SiStripPI::TEC5r: return std::make_pair(23,"TEC D5 r-#varphi");
+    case SiStripPI::TEC5s: return std::make_pair(24,"TEC D5 stereo");
+    case SiStripPI::TEC6r: return std::make_pair(25,"TEC D6 r-#varphi");
+    case SiStripPI::TEC6s: return std::make_pair(26,"TEC D6 stereo");
+    case SiStripPI::TEC7r: return std::make_pair(27,"TEC D7 r-#varphi");
+    case SiStripPI::TEC7s: return std::make_pair(28,"TEC D7 stereo");
+    case SiStripPI::TEC8r: return std::make_pair(29,"TEC D8 r-#varphi");
+    case SiStripPI::TEC8s: return std::make_pair(30,"TEC D8 stereo");
+    case SiStripPI::TEC9r: return std::make_pair(31,"TEC D9 r-#varphi");
+    case SiStripPI::TEC9s: return std::make_pair(32,"TEC D9 stereo");
+    case SiStripPI::TID1r: return std::make_pair(33,"TID D1 r-#varphi");
+    case SiStripPI::TID1s: return std::make_pair(34,"TID D1 stereo");
+    case SiStripPI::TID2r: return std::make_pair(35,"TID D2 r-#varphi");
+    case SiStripPI::TID2s: return std::make_pair(36,"TID D2 stereo");
+    case SiStripPI::TID3r: return std::make_pair(37,"TID D3 r-#varphi"); 
+    case SiStripPI::TID3s: return std::make_pair(38,"TID D3 stereo");
+    case SiStripPI::END_OF_REGIONS : std::make_pair(-1,"undefined");
+    default : return std::make_pair(999,"should never be here");  
     }
   }
 
   /*--------------------------------------------------------------------*/
-  std::pair<float,float> getTheRange(std::map<uint32_t,float> values,const int nsigma)
+  std::pair<float,float> getTheRange(std::map<uint32_t,float> values,const float nsigma)
   /*--------------------------------------------------------------------*/
   {
     float sum = std::accumulate(std::begin(values), 
@@ -295,7 +253,7 @@ namespace SiStripPI {
       int layer  = (element.first)/10 - (element.first)/1000*100;
       int stereo = (element.first) - (layer*10) -(element.first)/1000*1000;
       
-      std::cout<<"key of the map:"<<element.first <<" ( region: "<<regionType(element.first) <<" ) "  
+      std::cout<<"key of the map:"<<element.first <<" ( region: "<<regionType(element.first).second <<" ) "  
 	       << detector<<" layer: "<<layer<<" stereo:"<<stereo
 	       <<"| count:"<<count<<" mean: "<<mean<<" rms: "<<rms<<std::endl;
       

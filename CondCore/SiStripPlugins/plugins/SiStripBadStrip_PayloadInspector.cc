@@ -460,7 +460,7 @@ namespace {
 	  }
 
 	h_BadStrips->SetBinContent(iBin,countBadStrips);
-	h_BadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h_BadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h_BadStrips->GetXaxis()->LabelsOption("v");
 
 	if(detector!=currentDetector) {
@@ -621,7 +621,7 @@ namespace {
 	  }
 
 	h_LastBadStrips->SetBinContent(iBin,countBadStrips);
-	h_LastBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h_LastBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h_LastBadStrips->GetXaxis()->LabelsOption("v");
 
 	if(detector!=currentDetector) {
@@ -638,7 +638,7 @@ namespace {
 	int countBadStrips = (element.second.mean);
 
 	h_FirstBadStrips->SetBinContent(iBin,countBadStrips);
-	h_FirstBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h_FirstBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h_FirstBadStrips->GetXaxis()->LabelsOption("v");
 
       }
