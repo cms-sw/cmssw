@@ -27,10 +27,10 @@ public:
   HLTDTROMonitorFilter(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~HLTDTROMonitorFilter();
+  ~HLTDTROMonitorFilter() override;
 
   // Operations
-  virtual bool filter(edm::Event& event, const edm::EventSetup& setup);
+  bool filter(edm::Event& event, const edm::EventSetup& setup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
   
 protected:

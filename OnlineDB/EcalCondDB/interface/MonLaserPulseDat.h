@@ -12,10 +12,10 @@ class MonLaserPulseDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonLaserPulseDat();
-  ~MonLaserPulseDat();
+  ~MonLaserPulseDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_LASER_PULSE_DAT"; }
+  inline std::string getTable() override { return "MON_LASER_PULSE_DAT"; }
 
   inline void setPulseHeightMean(float p) { m_pulseHeightMean = p; }
   inline float getPulseHeightMean() const { return m_pulseHeightMean; }
@@ -31,7 +31,7 @@ class MonLaserPulseDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonLaserPulseDat* item, MonRunIOV* iov )
     noexcept(false);

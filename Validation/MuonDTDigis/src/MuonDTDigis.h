@@ -54,7 +54,7 @@ class MuonDTDigis : public DQMEDAnalyzer{
   explicit MuonDTDigis(const edm::ParameterSet& pset);
 
   // Destructor
-  virtual ~MuonDTDigis();
+  ~MuonDTDigis() override;
 
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

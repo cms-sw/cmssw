@@ -36,7 +36,7 @@ private:
    int m_maxLevel;
    bool m_filterOff;
 
-   ClassDef(FWEveDetectorGeo, 0);
+   ClassDefOverride(FWEveDetectorGeo, 0);
 };
 
 #endif

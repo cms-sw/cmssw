@@ -34,7 +34,7 @@ public:
    void   DirectDraw(TGLRnrCtx & rnrCtx) const override;
 Bool_t IgnoreSizeForOfInterest() const override { return kTRUE; }
 
-  ClassDef(TEveEllipsoidGL, 0); // GL renderer class for TEveEllipsoid.
+  ClassDefOverride(TEveEllipsoidGL, 0); // GL renderer class for TEveEllipsoid.
 };
 
 
@@ -64,7 +64,7 @@ public:
    void   SetBBox() override;
 
    void   DirectDraw(TGLRnrCtx & rnrCtx) const override;
-   ClassDef(TEveEllipsoidProjectedGL, 0); // GL renderer class for TEveEllipsoid.
+   ClassDefOverride(TEveEllipsoidProjectedGL, 0); // GL renderer class for TEveEllipsoid.
 };
 
 #endif

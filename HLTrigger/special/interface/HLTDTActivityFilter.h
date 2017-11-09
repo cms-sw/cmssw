@@ -54,12 +54,12 @@ class HLTDTActivityFilter : public HLTFilter {
 public:
 
   explicit HLTDTActivityFilter(const edm::ParameterSet&);
-  virtual ~HLTDTActivityFilter();
+  ~HLTDTActivityFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
 
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   bool hasActivity(const std::bitset<4> &) const;
   bool matchChamber(uint32_t rawId, L1MuRegionalCand const & rpcTrig, DTGeometry const * dtGeom) const;

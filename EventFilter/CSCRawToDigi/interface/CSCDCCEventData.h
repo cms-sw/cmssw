@@ -15,7 +15,7 @@ public:
   CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a);
   /// buf may need to stay pinned in memory as long
   /// as this data is used.  Not sure
-  explicit CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner=NULL);
+  explicit CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner=nullptr);
 
   ~CSCDCCEventData();
 
@@ -51,7 +51,7 @@ public:
 
 
 protected:
-  void unpack_data(unsigned short * buf, CSCDCCExaminer* examiner=NULL);
+  void unpack_data(unsigned short * buf, CSCDCCExaminer* examiner=nullptr);
   CSCDCCHeader theDCCHeader;
   // DDUData is unpacked and stored in this vector
   std::vector<CSCDDUEventData> theDDUData;

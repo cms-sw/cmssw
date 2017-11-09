@@ -81,7 +81,7 @@ HLTMonoJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
-  if(objects->size() > 0){ 
+  if(!objects->empty()){ 
     int countJet(0);
     double jet1Phi = 0.;
     double jet2Phi = 0.;

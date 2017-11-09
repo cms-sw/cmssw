@@ -23,7 +23,7 @@ namespace helpers {
     bool operator()( const T & c, const reco::Candidate & mc ) const {
       if ( mc.status() != 1 ) return false;
       if ( checkCharge_ && c.charge() != mc.charge() ) return false;
-      if ( matchIds_.size() == 0 ) return true;
+      if ( matchIds_.empty() ) return true;
       return matchIds_.find( std::abs( mc.pdgId() ) ) != matchIds_.end();
     }
   private:

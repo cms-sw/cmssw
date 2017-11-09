@@ -26,6 +26,8 @@ upgradeKeys[2023] = [
     '2023D19PU',
     '2023D20',
     '2023D20PU',
+    '2023D21',
+    '2023D21PU',
 ]
 
 # pre-generation of WF numbers
@@ -67,6 +69,7 @@ upgradeSteps['baseline'] = {
         'HARVESTFast',
         'HARVESTFullGlobal',
         'ALCAFull',
+        'NanoFull',
     ],
     'PU' : [
         'DigiFullTrigger',
@@ -194,6 +197,13 @@ upgradeProperties[2023] = {
         'Era' : 'Phase2',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },
+    '2023D21' : {
+        'Geom' : 'Extended2023D21',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+     },
 }
 
 
@@ -205,6 +215,8 @@ upgradeProperties[2023]['2023D19PU'] = deepcopy(upgradeProperties[2023]['2023D19
 upgradeProperties[2023]['2023D19PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D20PU'] = deepcopy(upgradeProperties[2023]['2023D20'])
 upgradeProperties[2023]['2023D20PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D21PU'] = deepcopy(upgradeProperties[2023]['2023D21'])
+upgradeProperties[2023]['2023D21PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
@@ -374,7 +386,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'Wjet_Pt_80_120_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
            'Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
            'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi':Kby(9,50),
-           'QCDForPF_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'QCDForPF_13TeV_TuneCUETP8M1_cfi':Kby(50,100),
            'PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff':Kby(9,50),
            'RSKKGluon_m3000GeV_13TeV_TuneCUETP8M1_cff':Kby(9,50),
            'ZpMM_2250_13TeV_TuneCUETP8M1_cfi':Kby(9,50),

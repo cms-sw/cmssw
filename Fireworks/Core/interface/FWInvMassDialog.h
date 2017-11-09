@@ -65,7 +65,7 @@ private:
 
    bool          m_firstLine;
 
-   ClassDef(FWInvMassDialog, 0);
+   ClassDefOverride(FWInvMassDialog, 0);
 };
 
 

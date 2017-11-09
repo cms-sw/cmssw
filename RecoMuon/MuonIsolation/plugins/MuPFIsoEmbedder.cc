@@ -40,12 +40,12 @@
 class MuPFIsoEmbedder : public edm::EDProducer {
    public:
   explicit MuPFIsoEmbedder(const edm::ParameterSet&);
-      ~MuPFIsoEmbedder();
+      ~MuPFIsoEmbedder() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
 
       // ----------member data ---------------------------

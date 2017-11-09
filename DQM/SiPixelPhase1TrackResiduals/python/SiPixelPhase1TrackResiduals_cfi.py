@@ -12,14 +12,13 @@ SiPixelPhase1TrackResidualsResidualsX = DefaultHistoTrack.clone(
     StandardSpecification2DProfile,
     Specification().groupBy("PXBarrel/PXLayer").saveAll(),
     Specification().groupBy("PXForward/PXDisk").saveAll(),
-    StandardSpecification2DProfile,
     
-    Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+    Specification().groupBy("PXBarrel/PXLayer/LumiBlock")
                    .reduce("MEAN")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_X")
                    .save(),
 
-    Specification().groupBy("PXForward/PXDisk/Lumisection")
+    Specification().groupBy("PXForward/PXDisk/LumiBlock")
                    .reduce("MEAN")
                    .groupBy("PXForward/PXDisk", "EXTEND_X")
                    .save(),

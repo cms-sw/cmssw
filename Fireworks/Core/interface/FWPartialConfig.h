@@ -20,7 +20,7 @@ class FWPartialConfigGUI : public TGTransientFrame
   FWConfiguration m_origConfig;
   FWConfigurationManager* m_cfgMng;
 
-  ClassDef(FWPartialConfigGUI, 0);
+  ClassDefOverride(FWPartialConfigGUI, 0);
 };
 
 //---------------------------------------------------------------------
@@ -36,7 +36,7 @@ class FWPartialConfigLoadGUI : public FWPartialConfigGUI
  private:
   FWEventItemsManager* m_eiMng;
   const char* m_oldConfigName;
-  ClassDef(FWPartialConfigLoadGUI, 0);
+  ClassDefOverride(FWPartialConfigLoadGUI, 0);
 };
 
 
@@ -54,7 +54,7 @@ class FWPartialConfigSaveGUI : public FWPartialConfigGUI
   std::string m_outFileName;
   std::string m_currFileName;
 
-  ClassDef(FWPartialConfigSaveGUI, 0);
+  ClassDefOverride(FWPartialConfigSaveGUI, 0);
 };
 
 

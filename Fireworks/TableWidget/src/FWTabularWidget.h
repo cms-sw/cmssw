@@ -62,7 +62,7 @@ public:
    void dataChanged();
    void needToRedraw();
 
-   ClassDef(FWTabularWidget,0);
+   ClassDefOverride(FWTabularWidget,0);
    
    void setLineContext(GContext_t iContext);
    void setBackgroundAreaContext(GContext_t iContext);

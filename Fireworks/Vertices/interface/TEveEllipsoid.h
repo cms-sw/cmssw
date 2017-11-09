@@ -41,7 +41,7 @@ public:
 
    void SetScale(float x) {fEScale = x; }
 
-   ClassDef(TEveEllipsoid, 0); // Short description.
+   ClassDefOverride(TEveEllipsoid, 0); // Short description.
 };
 
 
@@ -73,7 +73,7 @@ public:
 
    TEveElement* GetProjectedAsElement() override { return this; }
 
-   ClassDef(TEveEllipsoidProjected, 0); // Projection of TEveEllipsoid.
+   ClassDefOverride(TEveEllipsoidProjected, 0); // Projection of TEveEllipsoid.
 };
 
 #endif

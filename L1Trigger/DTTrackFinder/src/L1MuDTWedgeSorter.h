@@ -50,16 +50,16 @@ class L1MuDTWedgeSorter : public L1AbstractProcessor {
     L1MuDTWedgeSorter(const L1MuDTTrackFinder&, int id );
 
     /// destructor
-    virtual ~L1MuDTWedgeSorter();
+    ~L1MuDTWedgeSorter() override;
  
     /// return Wedge Sorter identifier (0-11)
     inline int id() const { return m_wsid; }
     
     /// run Wedge Sorter
-    virtual void run();
+    void run() override;
     
     /// reset Wedge Sorter
-    virtual void reset();
+    void reset() override;
     
     /// print results after sorting 
     void print() const;

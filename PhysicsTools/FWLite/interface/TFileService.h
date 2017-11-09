@@ -18,7 +18,7 @@ class TFileService : public TFileDirectory {
   TFileService(TFile * aFile);
 
   /// destructor
-  ~TFileService();
+  ~TFileService() override;
 
   /// return opened TFile
   TFile & file() const { return * file_; }

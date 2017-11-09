@@ -38,7 +38,7 @@ public:
     produces<METCollection>("");
   }
 
-  ~CorrectedCaloMETProducer() { }
+  ~CorrectedCaloMETProducer() override { }
 
 private:
 

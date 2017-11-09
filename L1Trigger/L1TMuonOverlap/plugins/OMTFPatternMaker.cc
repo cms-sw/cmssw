@@ -35,7 +35,7 @@ OMTFPatternMaker::OMTFPatternMaker(const edm::ParameterSet& cfg):
   makeConnectionsMaps = theConfig.getParameter<bool>("makeConnectionsMaps");
   mergeXMLFiles = theConfig.getParameter<bool>("mergeXMLFiles");
 
-  myOMTFConfig = 0;
+  myOMTFConfig = nullptr;
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
@@ -283,7 +283,7 @@ void OMTFPatternMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 /////////////////////////////////////////////////////  
 const SimTrack * OMTFPatternMaker::findSimMuon(const edm::Event &ev, const edm::EventSetup &es, const SimTrack * previous){
 
-  const SimTrack * result = 0;
+  const SimTrack * result = nullptr;
   edm::Handle<edm::SimTrackContainer> simTks;
   ev.getByToken(inputTokenSimHit,simTks);
 

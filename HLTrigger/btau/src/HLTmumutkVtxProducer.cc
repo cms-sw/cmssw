@@ -110,7 +110,7 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   Particle::LorentzVector p,p1,p2,p3;
 
   if ( mucands->size()  < 2 )   return;
-  if ( trkcands->size() < 1 )   return;
+  if ( trkcands->empty() )   return;
 
   RecoChargedCandidateCollection::const_iterator mucand1;
   RecoChargedCandidateCollection::const_iterator mucand2;
@@ -218,8 +218,8 @@ FreeTrajectoryState HLTmumutkVtxProducer::initialFreeState( const reco::Track& t
 }
 
 bool HLTmumutkVtxProducer::overlap(const TrackRef& trackref1, const TrackRef& trackref2){
-  if (deltaR(trackref1->eta(), trackref1->phi(),trackref2->eta(), trackref2->phi()) < overlapDR_) return 1;
-  return 0;
+  if (deltaR(trackref1->eta(), trackref1->phi(),trackref2->eta(), trackref2->phi()) < overlapDR_) return true;
+  return false;
 }
 
 bool HLTmumutkVtxProducer::checkPreviousCand(const TrackRef& trackref, vector<RecoChargedCandidateRef> & refVect){

@@ -15,7 +15,7 @@ class CaliIOV : public IIOV {
   friend class EcalCondDBInterface;
 
   CaliIOV();
-  ~CaliIOV();
+  ~CaliIOV() override;
 
   // Methods for user data
 
@@ -29,8 +29,8 @@ class CaliIOV : public IIOV {
 
   // Methods from IUniqueDBObject
   int getID(){ return m_ID;} ;
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   // Operators
   inline bool operator==(const CaliIOV &m) const

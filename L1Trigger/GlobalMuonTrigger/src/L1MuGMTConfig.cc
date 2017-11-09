@@ -323,7 +323,7 @@ void L1MuGMTConfig::dumpRegs(std::string dir) {
 
 // static data members
 
-const edm::ParameterSet* L1MuGMTConfig::m_ps=0;
+const edm::ParameterSet* L1MuGMTConfig::m_ps=nullptr;
 
 edm::InputTag L1MuGMTConfig::m_DTInputTag = edm::InputTag();
 edm::InputTag L1MuGMTConfig::m_CSCInputTag = edm::InputTag();
@@ -354,44 +354,44 @@ bool  L1MuGMTConfig::m_PropagatePhi = false;
 unsigned L1MuGMTConfig::m_VersionSortRankEtaQLUT = 2;
 unsigned L1MuGMTConfig::m_VersionLUTs = 0;
 
-L1MuGMTRegCDLConfig* L1MuGMTConfig::m_RegCDLConfig=0;
-L1MuGMTRegMMConfigPhi* L1MuGMTConfig::m_RegMMConfigPhi=0;
-L1MuGMTRegMMConfigEta* L1MuGMTConfig::m_RegMMConfigEta=0;
-L1MuGMTRegMMConfigPt* L1MuGMTConfig::m_RegMMConfigPt=0;
-L1MuGMTRegMMConfigCharge* L1MuGMTConfig::m_RegMMConfigCharge=0;
-L1MuGMTRegMMConfigMIP* L1MuGMTConfig::m_RegMMConfigMIP=0;
-L1MuGMTRegMMConfigISO* L1MuGMTConfig::m_RegMMConfigISO=0;
-L1MuGMTRegMMConfigSRK* L1MuGMTConfig::m_RegMMConfigSRK=0;
-L1MuGMTRegSortRankOffset* L1MuGMTConfig::m_RegSortRankOffset=0;
+L1MuGMTRegCDLConfig* L1MuGMTConfig::m_RegCDLConfig=nullptr;
+L1MuGMTRegMMConfigPhi* L1MuGMTConfig::m_RegMMConfigPhi=nullptr;
+L1MuGMTRegMMConfigEta* L1MuGMTConfig::m_RegMMConfigEta=nullptr;
+L1MuGMTRegMMConfigPt* L1MuGMTConfig::m_RegMMConfigPt=nullptr;
+L1MuGMTRegMMConfigCharge* L1MuGMTConfig::m_RegMMConfigCharge=nullptr;
+L1MuGMTRegMMConfigMIP* L1MuGMTConfig::m_RegMMConfigMIP=nullptr;
+L1MuGMTRegMMConfigISO* L1MuGMTConfig::m_RegMMConfigISO=nullptr;
+L1MuGMTRegMMConfigSRK* L1MuGMTConfig::m_RegMMConfigSRK=nullptr;
+L1MuGMTRegSortRankOffset* L1MuGMTConfig::m_RegSortRankOffset=nullptr;
 
-L1MuGMTEtaLUT* L1MuGMTConfig::m_EtaLUT=0;
-L1MuGMTLFCOUDeltaEtaLUT* L1MuGMTConfig::m_LFCOUDeltaEtaLUT=0;
-L1MuGMTLFDeltaEtaLUT* L1MuGMTConfig::m_LFDeltaEtaLUT=0;
-L1MuGMTLFDisableHotLUT* L1MuGMTConfig::m_LFDisableHotLUT=0;
-L1MuGMTLFEtaConvLUT* L1MuGMTConfig::m_LFEtaConvLUT=0;
-L1MuGMTLFMatchQualLUT* L1MuGMTConfig::m_LFMatchQualLUT=0;
-L1MuGMTLFMergeRankCombineLUT* L1MuGMTConfig::m_LFMergeRankCombineLUT=0;
-L1MuGMTLFMergeRankEtaPhiLUT* L1MuGMTConfig::m_LFMergeRankEtaPhiLUT=0;
-L1MuGMTLFMergeRankEtaQLUT* L1MuGMTConfig::m_LFMergeRankEtaQLUT=0;
-L1MuGMTLFMergeRankPtQLUT* L1MuGMTConfig::m_LFMergeRankPtQLUT=0;
-L1MuGMTLFOvlEtaConvLUT* L1MuGMTConfig::m_LFOvlEtaConvLUT=0;
-L1MuGMTLFPhiProEtaConvLUT* L1MuGMTConfig::m_LFPhiProEtaConvLUT=0;
-L1MuGMTLFPhiProLUT* L1MuGMTConfig::m_LFPhiProLUT=0;
-L1MuGMTLFPtMixLUT* L1MuGMTConfig::m_LFPtMixLUT=0;
-L1MuGMTLFSortRankCombineLUT* L1MuGMTConfig::m_LFSortRankCombineLUT=0;
-L1MuGMTLFSortRankEtaPhiLUT* L1MuGMTConfig::m_LFSortRankEtaPhiLUT=0;
-L1MuGMTLFSortRankEtaQLUT* L1MuGMTConfig::m_LFSortRankEtaQLUT=0;
-L1MuGMTLFSortRankPtQLUT* L1MuGMTConfig::m_LFSortRankPtQLUT=0;
-L1MuGMTMIAUEtaConvLUT* L1MuGMTConfig::m_MIAUEtaConvLUT=0;
-L1MuGMTMIAUEtaProLUT* L1MuGMTConfig::m_MIAUEtaProLUT=0;
-L1MuGMTMIAUPhiPro1LUT* L1MuGMTConfig::m_MIAUPhiPro1LUT=0;
-L1MuGMTMIAUPhiPro2LUT* L1MuGMTConfig::m_MIAUPhiPro2LUT=0;
-L1MuGMTPhiLUT* L1MuGMTConfig::m_PhiLUT=0;
+L1MuGMTEtaLUT* L1MuGMTConfig::m_EtaLUT=nullptr;
+L1MuGMTLFCOUDeltaEtaLUT* L1MuGMTConfig::m_LFCOUDeltaEtaLUT=nullptr;
+L1MuGMTLFDeltaEtaLUT* L1MuGMTConfig::m_LFDeltaEtaLUT=nullptr;
+L1MuGMTLFDisableHotLUT* L1MuGMTConfig::m_LFDisableHotLUT=nullptr;
+L1MuGMTLFEtaConvLUT* L1MuGMTConfig::m_LFEtaConvLUT=nullptr;
+L1MuGMTLFMatchQualLUT* L1MuGMTConfig::m_LFMatchQualLUT=nullptr;
+L1MuGMTLFMergeRankCombineLUT* L1MuGMTConfig::m_LFMergeRankCombineLUT=nullptr;
+L1MuGMTLFMergeRankEtaPhiLUT* L1MuGMTConfig::m_LFMergeRankEtaPhiLUT=nullptr;
+L1MuGMTLFMergeRankEtaQLUT* L1MuGMTConfig::m_LFMergeRankEtaQLUT=nullptr;
+L1MuGMTLFMergeRankPtQLUT* L1MuGMTConfig::m_LFMergeRankPtQLUT=nullptr;
+L1MuGMTLFOvlEtaConvLUT* L1MuGMTConfig::m_LFOvlEtaConvLUT=nullptr;
+L1MuGMTLFPhiProEtaConvLUT* L1MuGMTConfig::m_LFPhiProEtaConvLUT=nullptr;
+L1MuGMTLFPhiProLUT* L1MuGMTConfig::m_LFPhiProLUT=nullptr;
+L1MuGMTLFPtMixLUT* L1MuGMTConfig::m_LFPtMixLUT=nullptr;
+L1MuGMTLFSortRankCombineLUT* L1MuGMTConfig::m_LFSortRankCombineLUT=nullptr;
+L1MuGMTLFSortRankEtaPhiLUT* L1MuGMTConfig::m_LFSortRankEtaPhiLUT=nullptr;
+L1MuGMTLFSortRankEtaQLUT* L1MuGMTConfig::m_LFSortRankEtaQLUT=nullptr;
+L1MuGMTLFSortRankPtQLUT* L1MuGMTConfig::m_LFSortRankPtQLUT=nullptr;
+L1MuGMTMIAUEtaConvLUT* L1MuGMTConfig::m_MIAUEtaConvLUT=nullptr;
+L1MuGMTMIAUEtaProLUT* L1MuGMTConfig::m_MIAUEtaProLUT=nullptr;
+L1MuGMTMIAUPhiPro1LUT* L1MuGMTConfig::m_MIAUPhiPro1LUT=nullptr;
+L1MuGMTMIAUPhiPro2LUT* L1MuGMTConfig::m_MIAUPhiPro2LUT=nullptr;
+L1MuGMTPhiLUT* L1MuGMTConfig::m_PhiLUT=nullptr;
 
-const L1MuGMTScales* L1MuGMTConfig::m_GMTScales=0;
-const L1MuTriggerScales* L1MuGMTConfig::m_TriggerScales=0;
-const L1MuTriggerPtScale* L1MuGMTConfig::m_TriggerPtScale=0;
-const L1MuGMTParameters* L1MuGMTConfig::m_GMTParams=0;
-const L1MuGMTChannelMask* L1MuGMTConfig::m_GMTChanMask=0;
+const L1MuGMTScales* L1MuGMTConfig::m_GMTScales=nullptr;
+const L1MuTriggerScales* L1MuGMTConfig::m_TriggerScales=nullptr;
+const L1MuTriggerPtScale* L1MuGMTConfig::m_TriggerPtScale=nullptr;
+const L1MuGMTParameters* L1MuGMTConfig::m_GMTParams=nullptr;
+const L1MuGMTChannelMask* L1MuGMTConfig::m_GMTChanMask=nullptr;
 
-const L1CaloGeometry* L1MuGMTConfig::m_caloGeom = 0 ;
+const L1CaloGeometry* L1MuGMTConfig::m_caloGeom = nullptr ;

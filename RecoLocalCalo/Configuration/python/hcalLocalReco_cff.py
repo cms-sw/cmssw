@@ -44,3 +44,7 @@ _phase2_hcalLocalRecoSequence.remove(hbheprereco)
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 phase2_hcal.toReplaceWith( hcalLocalRecoSequence, _phase2_hcalLocalRecoSequence )
 
+
+_fastSim_hcalLocalRecoSequence = hcalLocalRecoSequence.copyAndExclude([zdcreco])
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith( hcalLocalRecoSequence, _fastSim_hcalLocalRecoSequence )

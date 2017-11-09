@@ -3,9 +3,9 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <stdlib.h>
 #include <cstdlib>
-#include <time.h>
+#include <cstdlib>
+#include <ctime>
 #include <stdexcept>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
@@ -350,7 +350,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDMappedTo(int lmr_log
   }
   std::vector<EcalLogicID> ret;
   try {
-    stmt->setSQL(sql.c_str());
+    stmt->setSQL(sql);
     stmt->setInt(1, lmr_logic_id);
     stmt->setString(2, maps_to);
     stmt->setPrefetchRowCount(IDBObject::ECALDB_NROWS);    

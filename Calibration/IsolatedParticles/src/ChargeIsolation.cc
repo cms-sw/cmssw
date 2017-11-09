@@ -48,8 +48,8 @@ namespace spr{
 
   double chargeIsolationEcal(const DetId& coreDet, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const CaloGeometry* geo, const CaloTopology* caloTopology, const MagneticField* bField, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
   
-    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
-    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
+    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
 
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
 #ifdef EDM_ML_DEBUG

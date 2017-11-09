@@ -49,7 +49,7 @@ class FWCheckedTextTableCellRenderer : public FWTextTableCellRenderer, public TQ
 
       void checkBoxClicked(); //*SIGNAL*
 
-      ClassDef(FWCheckedTextTableCellRenderer,0);
+      ClassDefOverride(FWCheckedTextTableCellRenderer,0);
 
    private:
       //FWCheckedTextTableCellRenderer(const FWCheckedTextTableCellRenderer&); // stop default

@@ -86,7 +86,7 @@ public:
    void moveToLayer(Long_t);
    void show(FWDataCategories);
 
-   ClassDef(CmsShowEDI, 0);
+   ClassDefOverride(CmsShowEDI, 0);
 
 private:
    CmsShowEDI(const CmsShowEDI&);    // stop default

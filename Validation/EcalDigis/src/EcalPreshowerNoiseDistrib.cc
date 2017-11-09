@@ -13,8 +13,8 @@ EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const edm::ParameterSet& ps
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
     
   // histos
-  meESDigiMultiplicity_=0;
-  for (int ii=0; ii<3; ii++ ) { meESDigiADC_[ii] = 0; }
+  meESDigiMultiplicity_=nullptr;
+  for (int ii=0; ii<3; ii++ ) { meESDigiADC_[ii] = nullptr; }
   
 }
 

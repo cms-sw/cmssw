@@ -1,6 +1,6 @@
 #include "Validation/RecoVertex/interface/VertexWeighter.h"
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 

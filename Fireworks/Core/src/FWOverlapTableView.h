@@ -94,7 +94,7 @@ public:
 
    
 #endif
-   ClassDef(FWOverlapTableView, 0);
+   ClassDefOverride(FWOverlapTableView, 0);
 };
 
 

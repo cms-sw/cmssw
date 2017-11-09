@@ -36,7 +36,7 @@ using namespace muonisolation;
 MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   theConfig(par),
   theDepositNames(std::vector<std::string>(1,std::string())),
-  theExtractor(0)
+  theExtractor(nullptr)
 {
   LogDebug("RecoMuon|MuonIsolation")<<" MuIsoDepositProducer CTOR";
 

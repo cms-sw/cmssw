@@ -19,7 +19,7 @@ class MVAComputerESSourceBase : public edm::ESProducer {
 	typedef std::shared_ptr<Calibration::MVAComputerContainer> ReturnType;
 
 	MVAComputerESSourceBase(const edm::ParameterSet &params);
-	virtual ~MVAComputerESSourceBase();
+	~MVAComputerESSourceBase() override;
 
     protected:
 	ReturnType produce() const;

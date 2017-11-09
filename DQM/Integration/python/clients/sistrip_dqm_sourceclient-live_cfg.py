@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("SiStrpDQMLive")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("SiStrpDQMLive", eras.Run2_2017)
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siStripDigis', 
@@ -48,22 +50,6 @@ process.dqmEnvTr = cms.EDAnalyzer("DQMEventInfo",
                  eventInfoFolder = cms.untracked.string('EventInfo')
 )
 
-## uncooment for running in local
-## collector
-#process.DQM.collectorHost = 'vmepcs2b18-20.cms'
-#process.DQM.collectorPort = 9190
-#process.DQM.collectorHost = 'lxplus414'
-#process.DQM.collectorPort = 8070
-
-#--------------------------
-#  Lumi Producer and DB access
-#-------------------------
-#process.DBService=cms.Service('DBService',
-#                              authPath= cms.untracked.string('/nfshome0/popcondev/conddb/')
-#                              )
-#process.DIPLumiProducer=cms.ESSource("DIPLumiProducer",
-#          connect=cms.string('oracle://cms_omds_lb/CMS_RUNTIME_LOGGER')
-#                            )
 
 #-----------------------------
 # Magnetic Field
@@ -83,7 +69,9 @@ if (live):
     process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
 elif(offlineTesting):
+    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#you may need to set manually the GT in the line below
     process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 #--------------------------------------------
@@ -92,7 +80,6 @@ elif(offlineTesting):
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
    cms.PSet( record = cms.string("SiStripDetVOffRcd"),    tag    = cms.string("") ),
    cms.PSet( record = cms.string("SiStripDetCablingRcd"), tag    = cms.string("") ),
-#  cms.PSet( record = cms.string("RunInfoRcd"),           tag    = cms.string("") ),
    cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
    cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") ),
    cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
@@ -104,7 +91,6 @@ process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
 #-----------------------
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-#process.siStripDigis.UnpackBadChannels = cms.bool(True)
 
 ## Cosmic Track Reconstruction
 if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
@@ -113,15 +99,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
 else:
     process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-
-## # offline beam spot
-## process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-## # online beam spot
-## process.load("RecoVertex.BeamSpotProducer.BeamSpotOnline_cff")
-
-# handle onlineBeamSpot w/o changing all configuration
-# the same shortcut is also used in Express ;)
-# http://cmslxr.fnal.gov/lxr/source/Configuration/DataProcessing/python/RecoTLR.py#044
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
@@ -214,7 +191,7 @@ process.hltHighLevel.throw =  cms.bool(False)
 #--------------------------
 process.SiStripSources_LocalReco = cms.Sequence(process.siStripFEDMonitor*process.SiStripMonitorDigi*process.SiStripMonitorClusterReal)
 process.DQMCommon                = cms.Sequence(process.stripQTester*process.trackingQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver)
-process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco*process.gtEvmDigis)
+process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
 
 #--------------------------
 # Global Plot Switches
@@ -224,7 +201,7 @@ process.SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = cms.bool(F
 ### COSMIC RUN SETTING
 if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
     # event selection for cosmic data
-    if (process.runType.getRunType() == process.runType.cosmic_run): process.source.SelectEvents = cms.untracked.vstring('HLT*SingleMu*','HLT_L1*')
+    if ((process.runType.getRunType() == process.runType.cosmic_run) and live): process.source.SelectEvents = cms.untracked.vstring('HLT*SingleMu*','HLT_L1*')
     # Reference run for cosmic
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_cosmic.root'
     # Source config for cosmic data
@@ -284,7 +261,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
 ### pp COLLISION SETTING
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1):
     #event selection for pp collisions
-    if (process.runType.getRunType() == process.runType.pp_run):
+    if ((process.runType.getRunType() == process.runType.pp_run) and live):
         process.source.SelectEvents = cms.untracked.vstring(
             'HLT_L1*',
             'HLT_Jet*',
@@ -453,7 +430,6 @@ if (process.runType.getRunType() == process.runType.hpu_run):
         *process.earlyGeneralTracks
         )
 
-    #process.RecoForDQM_TrkReco       = cms.Sequence(process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)
     process.RecoForDQM_TrkReco       = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.recopixelvertexing*process.iterTracking_FirstStep)
 
     process.p = cms.Path(process.scalersRawToDigi*
@@ -479,7 +455,6 @@ process.ecalDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
 process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
 process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
-process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
 process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
 process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
@@ -502,7 +477,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
@@ -538,14 +512,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
     process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)
 
-#    process.trackingQTester = cms.EDAnalyzer("QualityTester",
-#                                               qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml'),
-#                                               prescaleFactor = cms.untracked.int32(2),
-#                                               getQualityTestsFromFile = cms.untracked.bool(True),
-#                                               qtestOnEndLumi = cms.untracked.bool(True),
-#                                               qtestOnEndRun = cms.untracked.bool(True)
-#                                            )
-
     # Sources for HI 
     process.load("Configuration.StandardSequences.RawToDigi_Repacked_cff")
     process.SiStripBaselineValidator.srcProcessedRawDigi =  cms.InputTag('siStripVRDigis','VirginRaw')
@@ -553,7 +519,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.TrackMon_hi.TrackProducer = "hiSelectedTracks"
 
     process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_hi*process.TrackMon_hi)
-    # Client for HI
+
     ### STRIP
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_HeavyIons_cff")
     process.SiStripAnalyserHI.RawDataTag = cms.untracked.InputTag("rawDataRepacker")

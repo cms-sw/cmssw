@@ -12,10 +12,10 @@ class RunConfigDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   RunConfigDat();
-  ~RunConfigDat();
+  ~RunConfigDat() override;
 
   // User data methods
-  inline std::string getTable() { return "RUN_CONFIG_DAT"; }
+  inline std::string getTable() override { return "RUN_CONFIG_DAT"; }
 
   inline std::string getConfigTag() const { return m_configTag; }
   inline void setConfigTag(std::string tag) { m_configTag = tag; }
@@ -24,7 +24,7 @@ class RunConfigDat : public IDataItem {
   inline void setConfigVersion(int ver) { m_configVer = ver; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const RunConfigDat* item, RunIOV* iov ) noexcept(false);
 

@@ -30,13 +30,13 @@
 class GenFilterEfficiencyAnalyzer : public edm::EDAnalyzer {
 public:
   explicit GenFilterEfficiencyAnalyzer(const edm::ParameterSet&);
-  ~GenFilterEfficiencyAnalyzer();
+  ~GenFilterEfficiencyAnalyzer() override;
   
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endJob() override;
 
   edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;
   GenFilterInfo totalGenFilterInfo_;

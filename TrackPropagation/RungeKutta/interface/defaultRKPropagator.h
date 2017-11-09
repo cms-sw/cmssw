@@ -33,10 +33,10 @@ namespace defaultRKPropagator {
 		 DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
       MagVolume( pos, rot, shape, mfp) {}
     
-    virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const {return true;}
+    bool inside( const GlobalPoint& gp, double tolerance=0.) const override {return true;}
     
     /// Access to volume faces - dummy implementation
-    virtual const std::vector<VolumeSide>& faces() const {return theFaces;}
+    const std::vector<VolumeSide>& faces() const override {return theFaces;}
     
   private:
     std::vector<VolumeSide> theFaces;

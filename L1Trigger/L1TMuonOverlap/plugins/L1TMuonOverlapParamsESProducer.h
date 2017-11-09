@@ -16,7 +16,7 @@ class L1TMuonOverlapParamsESProducer : public edm::ESProducer {
    public:
   
       L1TMuonOverlapParamsESProducer(const edm::ParameterSet&);
-      ~L1TMuonOverlapParamsESProducer();
+      ~L1TMuonOverlapParamsESProducer() override;
 
       typedef std::shared_ptr<L1TMuonOverlapParams> ReturnType;
 

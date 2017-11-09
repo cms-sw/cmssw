@@ -1717,15 +1717,15 @@ void IsolatedTracksNxN::printTrack(const reco::Track* pTrack) {
     const reco::HitPattern& p = pTrack->hitPattern();
 
     std::cout<<"default " << std::endl;
-    for (int i=0; i<p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+    for (int i=0; i<p.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
       p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
     }
     std::cout<<"trackerMissingInnerHits() " << std::endl;
-    for (int i=0; i<p.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
+    for (int i=0; i<p.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
       p.printHitPattern(reco::HitPattern::MISSING_INNER_HITS, i, std::cout);
     }
     std::cout<<"trackerMissingOuterHits() " << std::endl;
-    for (int i=0; i<p.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); i++) {
+    for (int i=0; i<p.numberOfAllHits(reco::HitPattern::MISSING_OUTER_HITS); i++) {
       p.printHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i, std::cout);
     }
 

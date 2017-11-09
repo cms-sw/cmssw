@@ -2,7 +2,7 @@
 #define LOGICFACTORY_H 1
 
 // Include files
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <map>
 
@@ -42,7 +42,7 @@ public:
     
     if ( itr != m_associations.end() )  {
       return ( itr->second )();
-    } else return NULL; // handle error
+    } else return nullptr; // handle error
   }
   
 protected:

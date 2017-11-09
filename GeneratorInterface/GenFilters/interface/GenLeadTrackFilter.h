@@ -32,11 +32,11 @@ class GenLeadTrackFilter : public edm::EDFilter
 {
   public:
   explicit GenLeadTrackFilter(const edm::ParameterSet&);
-  ~GenLeadTrackFilter();
+  ~GenLeadTrackFilter() override;
 
   private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   // ----------member data ---------------------------
   edm::InputTag hepMCProduct_label_;
   double   genLeadTrackPt_,

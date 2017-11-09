@@ -68,9 +68,9 @@ public:
   /// Constructor
   explicit ME0MuonConverter(const edm::ParameterSet&);
   /// Destructor
-  ~ME0MuonConverter();
+  ~ME0MuonConverter() override;
   /// Produce the converted collection
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
     
 

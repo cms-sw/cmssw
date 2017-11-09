@@ -34,18 +34,18 @@ class ProcNormalize : public TrainProcessor {
 
 	ProcNormalize(const char *name, const AtomicId *id,
 	              MVATrainer *trainer);
-	virtual ~ProcNormalize();
+	~ProcNormalize() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
-	virtual void trainBegin() override;
-	virtual void trainData(const std::vector<double> *values,
+	void trainBegin() override;
+	void trainData(const std::vector<double> *values,
 	                       bool target, double weight) override;
-	virtual void trainEnd() override;
+	void trainEnd() override;
 
-	virtual bool load() override;
-	virtual void save() override;
+	bool load() override;
+	void save() override;
 
     private:
 	enum Iteration {
@@ -426,7 +426,7 @@ bool ProcNormalize::load()
 				<< std::endl;
 		elem = static_cast<DOMElement*>(node);
 
-		PDF *pdf = 0;
+		PDF *pdf = nullptr;
 		switch(version) {
 		    case 1:
 			if (cur == pdfs.end())

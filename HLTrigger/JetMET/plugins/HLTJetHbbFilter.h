@@ -44,10 +44,10 @@ class HLTJetHbbFilter : public HLTFilter {
   }
 
   explicit HLTJetHbbFilter(const edm::ParameterSet&);
-  ~HLTJetHbbFilter();
+  ~HLTJetHbbFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static float findCSV(const  typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection & jetTags);	
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&,trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&,trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
  private:
   edm::EDGetTokenT<std::vector<T>> m_theJetsToken;

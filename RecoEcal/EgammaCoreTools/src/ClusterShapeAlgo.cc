@@ -560,7 +560,6 @@ double ClusterShapeAlgo::calc_AbsZernikeMoment(const reco::BasicCluster &passedC
                                                int n, int m, double R0) {
   double r,ph,e,Re=0,Im=0,f_nm,result;
   double TotalEnergy = passedCluster.energy();
-  const std::vector< std::pair<DetId, float> >& clusterDetIds = passedCluster.hitsAndFractions();
   int clusterSize=energyDistribution_.size();
   if(clusterSize<3) return 0.0;
 

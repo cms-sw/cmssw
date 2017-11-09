@@ -116,29 +116,29 @@ class HGCalTriggerGeometryGenericMapping : public HGCalTriggerGeometryBase {
   typedef std::unordered_map<unsigned,std::unique_ptr<const HGCalTriggerGeometry::TriggerCell> > trigger_cell_map;
 
   HGCalTriggerGeometryGenericMapping(const edm::ParameterSet& conf);
-  virtual ~HGCalTriggerGeometryGenericMapping() {}
+  ~HGCalTriggerGeometryGenericMapping() override {}
 
   // non-const access to the geometry class
-  virtual void reset() override final;
+  void reset() final;
   
-  virtual unsigned getTriggerCellFromCell( const unsigned cell_det_id ) const override final;
-  virtual unsigned getModuleFromCell( const unsigned cell_det_id ) const override final;
-  virtual unsigned getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const override final;
+  unsigned getTriggerCellFromCell( const unsigned cell_det_id ) const final;
+  unsigned getModuleFromCell( const unsigned cell_det_id ) const final;
+  unsigned getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const final;
 
-  virtual geom_set getCellsFromTriggerCell( const unsigned cell_det_id ) const override final;
-  virtual geom_set getCellsFromModule( const unsigned cell_det_id ) const override final;
-  virtual geom_set getTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const override final;
+  geom_set getCellsFromTriggerCell( const unsigned cell_det_id ) const final;
+  geom_set getCellsFromModule( const unsigned cell_det_id ) const final;
+  geom_set getTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const final;
 
-  virtual geom_ordered_set getOrderedCellsFromModule( const unsigned cell_det_id ) const override final;
-  virtual geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const override final;
+  geom_ordered_set getOrderedCellsFromModule( const unsigned cell_det_id ) const final;
+  geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const final;
 
-  virtual geom_set getNeighborsFromTriggerCell( const unsigned trigger_cell_det_id ) const override final;
+  geom_set getNeighborsFromTriggerCell( const unsigned trigger_cell_det_id ) const final;
 
-  virtual GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const override final;
-  virtual GlobalPoint getModulePosition(const unsigned module_det_id) const override final;
+  GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const final;
+  GlobalPoint getModulePosition(const unsigned module_det_id) const final;
 
-  virtual bool validTriggerCell( const unsigned trigger_cell_det_id ) const override final;
-  virtual bool disconnectedModule(const unsigned module_id) const override final;
+  bool validTriggerCell( const unsigned trigger_cell_det_id ) const final;
+  bool disconnectedModule(const unsigned module_id) const final;
 
  protected:
   geom_map cells_to_trigger_cells_;

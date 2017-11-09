@@ -12,7 +12,7 @@ public:
    FWEveDigitSetScalableMarker() {}
    ~FWEveDigitSetScalableMarker() override {}
    
-   ClassDef( FWEveDigitSetScalableMarker, 0);
+   ClassDefOverride( FWEveDigitSetScalableMarker, 0);
 };
 
 //--------------------------------------------
@@ -24,7 +24,7 @@ public:
    
    void DirectDraw(TGLRnrCtx & rnrCtx) const override;
    
-   ClassDef(FWEveDigitSetScalableMarkerGL, 0);
+   ClassDefOverride(FWEveDigitSetScalableMarkerGL, 0);
 };
 
 

@@ -69,7 +69,7 @@ class VersionedSelector : public Selector<T> {
     this->retInternal_  = this->getBitTemplate();
   }
   
-  virtual bool operator()( const T& ref, pat::strbitset& ret ) CINT_GUARD(override final) {
+  bool operator()( const T& ref, pat::strbitset& ret ) CINT_GUARD(final) {
     howfar_ = 0;
     bitmap_ = 0;
     values_.clear();
@@ -94,7 +94,7 @@ class VersionedSelector : public Selector<T> {
     return (bool)ret;
   }
   
-  virtual bool operator()(const T& ref, edm::EventBase const& e, pat::strbitset& ret) CINT_GUARD(override final) {
+  bool operator()(const T& ref, edm::EventBase const& e, pat::strbitset& ret) CINT_GUARD(final) {
     // setup isolation needs
     for( size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i ) {
       if( needs_event_content_[i] ) {
@@ -120,14 +120,14 @@ class VersionedSelector : public Selector<T> {
     return this->operator()(temp,e);
   }
   
-  virtual bool operator()( T const & t ) CINT_GUARD(override final) {
+  bool operator()( T const & t ) CINT_GUARD(final) {
     this->retInternal_.set(false);
     this->operator()(t, this->retInternal_);
     this->setIgnored(this->retInternal_);
     return (bool)this->retInternal_;
   }
   
-  virtual bool operator()( T const & t, edm::EventBase const & e) CINT_GUARD(override final) {
+  bool operator()( T const & t, edm::EventBase const & e) CINT_GUARD(final) {
     this->retInternal_.set(false);
     this->operator()(t, e, this->retInternal_);
     this->setIgnored(this->retInternal_);
@@ -202,7 +202,7 @@ initialize( const edm::ParameterSet& conf ) {
   }  
   const std::vector<edm::ParameterSet>& cutflow =
     conf.getParameterSetVector("cutFlow");  
-  if( cutflow.size() == 0 ) {
+  if( cutflow.empty() ) {
     throw cms::Exception("InvalidCutFlow")
       << "You have supplied a null/empty cutflow to VersionedIDSelector,"
       << " please add content to the cuflow and try again.";

@@ -116,32 +116,6 @@ void MakeAngleLUT::generateLUTs() {
     return 0.5 * (x + y);
   };
 
-  // from RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.cc
-  //      RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.cc
-  //      RecoMuon/DetLayers/src/MuonGEMDetLayerGeometryBuilder.cc
-  auto isFront = [](int subsystem, int station, int ring, int chamber, int subsector) {
-    bool result = false;
-
-    if (subsystem == TriggerPrimitive::kCSC) {
-      bool isOverlapping = !(station == 1 && ring == 3);
-      // not overlapping means back
-      if(isOverlapping)
-      {
-        bool isEven = (chamber % 2 == 0);
-        // odd chambers are bolted to the iron, which faces
-        // forward in 1&2, backward in 3&4, so...
-        result = (station < 3) ? isEven : !isEven;
-      }
-    } else if (subsystem == TriggerPrimitive::kRPC) {
-      // 10 degree rings have odd subsectors in front
-      result = (subsector % 2 == 0);
-    } else if (subsystem == TriggerPrimitive::kGEM) {
-      //
-      result = (chamber % 2 == 0);
-    }
-    return result;
-  };
-  if (isFront) {}  // get around GCC unused-but-set-variable error
 
   // Save z positions for ME1/1, ME1/2, ME1/3, ME2/2, ME3/2, ME4/2,
   //                      RE1/2, RE1/3, RE2/2, RE3/2, RE4/2,

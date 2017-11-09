@@ -213,7 +213,7 @@ void PATTriggerProducer::beginRun(const Run & iRun, const EventSetup & iSetup )
 
   // Initialize
   firstInRun_    = true;
-  l1PSet_        = 0;
+  l1PSet_        = nullptr;
   hltConfigInit_ = false;
 
   // Initialize process name
@@ -377,7 +377,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     }
     unsigned set( hltPrescaleTable.set() );
     if ( hltPrescaleTable.size() > 0 ) {
-      if ( hltPrescaleLabel_.size() > 0 ) {
+      if ( !hltPrescaleLabel_.empty() ) {
         bool foundPrescaleLabel( false );
         for ( unsigned iLabel = 0; iLabel <  hltPrescaleTable.labels().size(); ++iLabel ) {
           if ( hltPrescaleTable.labels().at( iLabel ) == hltPrescaleLabel_ ) {
@@ -426,7 +426,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         assert( indexLastFilterPathModules < sizeModulesPath );
         std::map< unsigned, std::string > indicesModules;
         for ( size_t iM = 0; iM < sizeModulesPath; ++iM ) {
-          const std::string nameModule( hltConfig.moduleLabel( indexPath, iM ) );
+          const std::string& nameModule( hltConfig.moduleLabel( indexPath, iM ) );
           if ( addPathModuleLabels_ ) {
             triggerPath.addModule( nameModule );
           }
@@ -438,7 +438,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           indicesModules.insert( std::pair< unsigned, std::string >( slotModule, nameModule ) );
         }
         // add L1 seeds
-        const L1SeedCollection l1Seeds( hltConfig.hltL1GTSeeds( namePath ) );
+        const L1SeedCollection& l1Seeds( hltConfig.hltL1GTSeeds( namePath ) );
         for ( L1SeedCollection::const_iterator iSeed = l1Seeds.begin(); iSeed != l1Seeds.end(); ++iSeed ) {
           triggerPath.addL1Seed( *iSeed );
         }
@@ -844,12 +844,12 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       handleL1GlobalTriggerObjectMaps->consistencyCheck();
       if ( firstInRun_ ) {
         l1PSet_ = ( ParameterSet* )( pset::Registry::instance()->getMapped(handleL1GlobalTriggerObjectMaps->namesParameterSetID()) );
-        if (l1PSet_ == 0) {
+        if (l1PSet_ == nullptr) {
           LogError( "l1ObjectMap" ) << "ParameterSet registry not available\n"
                                     << "Skipping conditions for all L1 physics algorithm names in this run";
         }
       } else {
-        if (l1PSet_ == 0) {
+        if (l1PSet_ == nullptr) {
           LogInfo( "l1ObjectMap" ) << "ParameterSet registry not available\n"
                                    << "Skipping conditions for all L1 physics algorithm names in this event";
         }
@@ -907,7 +907,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         triggerAlgo.setGtlResult( algorithmResult );
         // conditions in algorithm
         L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = handleL1GlobalTriggerObjectMaps->getConditionsInAlgorithm(bit);
-        if (l1PSet_ == 0) {
+        if (l1PSet_ == nullptr) {
           triggerAlgos->push_back( triggerAlgo );
           continue;
         }

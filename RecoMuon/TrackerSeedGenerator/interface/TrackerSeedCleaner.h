@@ -37,7 +37,7 @@ public:
 
   typedef std::vector<TrajectorySeed> tkSeeds;
   /// constructor  
-  TrackerSeedCleaner(const edm::ParameterSet& pset,edm::ConsumesCollector& iC) : theProxyService(0),theEvent(0) {
+  TrackerSeedCleaner(const edm::ParameterSet& pset,edm::ConsumesCollector& iC) : theProxyService(nullptr),theEvent(nullptr) {
                    builderName_ = pset.getParameter<std::string>("TTRHBuilder");
                    theBeamSpotTag = pset.getParameter<edm::InputTag>("beamSpot");
                    useDirection_Cleaner = pset.getParameter<bool>("directionCleaner");

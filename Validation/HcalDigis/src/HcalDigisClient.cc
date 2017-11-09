@@ -65,7 +65,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
     string strtmp;
 
 
-    MonitorElement * nevtot(0);
+    MonitorElement * nevtot(nullptr);
 
     std::vector<MonitorElement*> ieta_iphi_occupancy_maps;
     std::vector<std::string> depthID;
@@ -100,7 +100,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
     }
 
 
-    if ( hcalMEs.size() == 0){
+    if ( hcalMEs.empty()){
       edm::LogError("HcalDigisClient") << "No nevtot or maps histo found..."; 
       return 0;
     }
@@ -108,7 +108,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
       edm::LogError("HcalDigisClient") << "No nevtot histoo found...";
       return 0;
     }
-    if( ieta_iphi_occupancy_maps.size() < 1){
+    if( ieta_iphi_occupancy_maps.empty()){
       edm::LogError("HcalDigisClient") << "No maps histos found...";
       return 0;
     }
@@ -202,7 +202,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
 }
 
 MonitorElement* HcalDigisClient::monitor(std::string name) {
-    if (!msm_->count(name)) return NULL;
+    if (!msm_->count(name)) return nullptr;
     else return msm_->find(name)->second;
 }
 

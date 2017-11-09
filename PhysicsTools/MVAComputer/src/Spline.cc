@@ -50,7 +50,7 @@ float Spline::Segment::integral(float x) const
 	return area;
 }
 
-Spline::Spline() : n(0), segments(0), area(0.0)
+Spline::Spline() : n(0), segments(nullptr), area(0.0)
 {}
 
 Spline::Spline(const Spline &orig) : n(orig.n), area(orig.area)
@@ -60,7 +60,7 @@ Spline::Spline(const Spline &orig) : n(orig.n), area(orig.area)
 }
 
 Spline::Spline(unsigned int n_, const double *vals) :
-	n(0), segments(0), area(0.0)
+	n(0), segments(nullptr), area(0.0)
 { set(n_, vals); }
 
 void Spline::set(unsigned int n_, const double *vals)

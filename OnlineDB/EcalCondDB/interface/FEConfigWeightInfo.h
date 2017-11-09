@@ -13,10 +13,10 @@ class FEConfigWeightInfo : public  IODConfig {
   friend class EcalCondDBInterface;
 
   FEConfigWeightInfo();
-  ~FEConfigWeightInfo();
+  ~FEConfigWeightInfo() override;
 
   // Methods for user data
-  inline std::string getTable() { return "FE_CONFIG_WEIGHT_INFO"; }
+  inline std::string getTable() override { return "FE_CONFIG_WEIGHT_INFO"; }
 
 
   void setNumberOfGroups(int n){m_ngr=n;}
@@ -53,7 +53,7 @@ class FEConfigWeightInfo : public  IODConfig {
   Tm m_db_time;
   int m_version;
 
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void writeDB() noexcept(false);
   void clear();
   void fetchData(FEConfigWeightInfo * result) noexcept(false);

@@ -59,7 +59,7 @@ class FlavorHistoryProducer : public edm::EDProducer {
   /// constructor
   FlavorHistoryProducer( const edm::ParameterSet & );
   /// destructor
-  ~FlavorHistoryProducer();
+  ~FlavorHistoryProducer() override;
 
  private:
   /// process one event

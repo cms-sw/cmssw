@@ -25,8 +25,8 @@ namespace sistrip {
       //construct from buffer
       //if allowBadBuffer is set to true then exceptions will not be thrown if the channel lengths do not make sense or the event format is not recognized
       FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer = false);
-      virtual ~FEDBuffer();
-      virtual void print(std::ostream& os) const;
+      ~FEDBuffer() override;
+      void print(std::ostream& os) const override;
       const FEDFEHeader* feHeader() const;
       //check that a FE unit is enabled, has a good majority address and, if in full debug mode, that it is present
       bool feGood(const uint8_t internalFEUnitNum) const;
@@ -68,7 +68,7 @@ namespace sistrip {
       bool checkFEPayloadsPresent() const;
   
       //print a summary of all checks
-      virtual std::string checkSummary() const;
+      std::string checkSummary() const override;
     private:
       uint8_t nFEUnitsPresent() const;
       void findChannels();
@@ -205,7 +205,7 @@ namespace sistrip {
   //FEDBSChannelUnpacker
 
   inline FEDBSChannelUnpacker::FEDBSChannelUnpacker()
-    : data_(NULL),
+    : data_(nullptr),
       oldWordOffset_(0), currentWordOffset_(0),
       currentBitOffset_(0), currentLocalBitOffset_(0),
       bitOffsetIncrement_(10),
@@ -347,7 +347,7 @@ namespace sistrip {
   //FEDZSChannelUnpacker
   
   inline FEDZSChannelUnpacker::FEDZSChannelUnpacker()
-    : data_(NULL),
+    : data_(nullptr),
       offsetIncrement_(1),
       valuesLeftInCluster_(0),
       channelPayloadOffset_(0),

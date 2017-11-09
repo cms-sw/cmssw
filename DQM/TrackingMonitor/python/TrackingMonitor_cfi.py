@@ -414,6 +414,10 @@ LongDCAMax = cms.double(8.0),
 
 # Overcoming the 255 arguments limit
 # TrackingRegion monitoring
+TrackMon.PVBin = cms.int32 ( 150 )
+TrackMon.PVMin = cms.double(   0.5)
+TrackMon.PVMax = cms.double( 150.5)
+
 TrackMon.RegionProducer = cms.InputTag("")
 TrackMon.RegionCandidates = cms.InputTag("")
 TrackMon.doRegionPlots = cms.bool(False)
