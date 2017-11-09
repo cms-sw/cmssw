@@ -40,7 +40,13 @@ hltassociation = cms.Sequence(
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
-hltvalidation = cms.Sequence(
+# hcal
+from DQMOffline.Trigger.HCALMonitoring_cff import *
+
+hltvalidationCommon = cms.Sequence(
+    hcalMonitoringSequence
+)
+hltvalidationWithMC    = cms.Sequence(
     HLTMuonVal
     +HLTTauVal
     +egammaValidationSequence
@@ -53,9 +59,17 @@ hltvalidation = cms.Sequence(
     +ExoticaValidationSequence
     +b2gHLTriggerValidation
     +SMPValidationSequence
-    +hltbtagValidationSequence
+    +hltbtagValidationSequence #too noisy for now
     +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
-    )
+)
+hltvalidationWithData  = cms.Sequence(
+)
+
+hltvalidation = cms.Sequence(
+    hltvalidationCommon *
+    hltvalidationWithMC *
+    hltvalidationWithData
+)
 
 # some hlt collections have no direct fastsim equivalent
 # remove the dependent modules for now
