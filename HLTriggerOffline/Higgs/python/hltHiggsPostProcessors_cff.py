@@ -115,7 +115,8 @@ triggers = list(triggers)
 for type in plot_types:
     for obj in obj_types:
         for trig in triggers:
-            efficiency_strings.append(efficiency_string(obj,type,trig))
+            if obj.lower() in trig.lower():  
+                efficiency_strings.append(efficiency_string(obj,type,trig))
 
 
 #add the summary plots

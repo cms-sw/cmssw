@@ -88,9 +88,11 @@ triggers = list(triggers)
 
 # Generating the list with all the efficiencies
 for type in plot_types:
-	for obj in obj_types:
-		for trig in triggers:
-			efficiency_strings.append(efficiency_string(obj,type,trig))
+    for obj in obj_types:
+        for trig in triggers:
+            if obj.lower() in trig.lower():            
+                efficiency_strings.append(efficiency_string(obj,type,trig))
+
 #for item in efficiency_strings:
 #    print item
 
