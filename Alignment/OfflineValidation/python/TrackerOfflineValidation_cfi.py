@@ -14,7 +14,7 @@ TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     useFit                    = cms.bool(False),  # Unused in DQM mode, where it has to be specified in TrackerOfflineValidationSummary
     useCombinedTrajectory     = cms.bool(False),
     useOverflowForRMS         = cms.bool(False),
-    maxtracks                 = cms.uint64(0),
+    maxTracks                 = cms.uint64(0),
     # Normalized X Residuals, normal local coordinates (Strip)
     TH1NormXResStripModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)
