@@ -5,15 +5,11 @@
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
+#include "SimTracker/TrackAssociation/interface/trackHitsToClusterRefs.h"
 
 //
 // Use the unnamed namespace for utility functions only used in this file
@@ -343,7 +339,7 @@ template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<
 	// Most reco clusters will probably have come from the same sim track (i.e TP), so the number of entries in this
 	// vector should be fewer than the number of clusters. The pair::second entries should add up to the total
 	// number of reco clusters though.
-	std::vector<OmniClusterRef> oClusters=getMatchedClusters( begin, end );
+	std::vector<OmniClusterRef> oClusters = track_associator::hitsToClusterRefs( begin, end );
 
 	std::map < TrackingParticleRef, double > lmap;
 	for( std::vector<OmniClusterRef>::const_iterator it=oClusters.begin(); it != oClusters.end(); ++it )
@@ -394,61 +390,6 @@ template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<
 	return returnValue;
 }
 
-template<typename iter> std::vector<OmniClusterRef> QuickTrackAssociatorByHitsImpl::getMatchedClusters(iter begin, iter end) const
-{
-  std::vector<OmniClusterRef> returnValue;
-  for (iter iRecHit = begin; iRecHit != end; ++iRecHit) {
-    const TrackingRecHit* rhit = getHitFromIter(iRecHit);
-    if (rhit->isValid()) {
-      int subdetid = rhit->geographicalId().subdetId();
-      if (subdetid==PixelSubdetector::PixelBarrel||subdetid==PixelSubdetector::PixelEndcap) {
-	const SiPixelRecHit* pRHit = dynamic_cast<const SiPixelRecHit*>(rhit);
-	if (!pRHit->cluster().isNonnull())
-	  edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-	returnValue.push_back(pRHit->omniClusterRef());
-      }
-      else if (subdetid==SiStripDetId::TIB||subdetid==SiStripDetId::TOB||subdetid==SiStripDetId::TID||subdetid==SiStripDetId::TEC) {
-	const std::type_info &tid = typeid(*rhit);
-	if (tid == typeid(SiStripMatchedRecHit2D)) {
-	  const SiStripMatchedRecHit2D* sMatchedRHit = dynamic_cast<const SiStripMatchedRecHit2D*>(rhit);
-	  if (!sMatchedRHit->monoHit().cluster().isNonnull() || !sMatchedRHit->stereoHit().cluster().isNonnull())
-	    edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-	  returnValue.push_back(sMatchedRHit->monoClusterRef());
-	  returnValue.push_back(sMatchedRHit->stereoClusterRef());
-	}
-	else if (tid == typeid(SiStripRecHit2D)) {
-	  const SiStripRecHit2D* sRHit = dynamic_cast<const SiStripRecHit2D*>(rhit);
-	  if (!sRHit->cluster().isNonnull())
-	    edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-	  returnValue.push_back(sRHit->omniClusterRef());
-	}
-	else if (tid == typeid(SiStripRecHit1D)) {
-	  const SiStripRecHit1D* sRHit = dynamic_cast<const SiStripRecHit1D*>(rhit);
-	  if (!sRHit->cluster().isNonnull())
-	    edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-	  returnValue.push_back(sRHit->omniClusterRef());
-	}
-	else if (tid == typeid(Phase2TrackerRecHit1D)) {
-	  const Phase2TrackerRecHit1D* ph2Hit = dynamic_cast<const Phase2TrackerRecHit1D*>(rhit);
-          if (!ph2Hit->cluster().isNonnull() )
-	    edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-	  returnValue.push_back(ph2Hit->omniClusterRef());
-        }
-	else {
-	  auto const & thit = static_cast<BaseTrackerRecHit const&>(*rhit);
-	  if ( thit.isProjected() ) {
-	  } else {
-	    edm::LogError("TrackAssociator") << ">>> getMatchedClusters: TrackingRecHit not associated to any SiStripCluster! subdetid = " << subdetid;
-	  }
-	}
-      }
-      else {
-	edm::LogError("TrackAssociator") << ">>> getMatchedClusters: TrackingRecHit not associated to any cluster! subdetid = " << subdetid;
-      }
-    }
-  }
-  return returnValue;
-}
 
 template<typename iter> std::vector< std::pair<QuickTrackAssociatorByHitsImpl::SimTrackIdentifiers,double> > QuickTrackAssociatorByHitsImpl::getAllSimTrackIdentifiers( const TrackerHitAssociator& hitAssociator, iter begin, iter end ) const
 {
@@ -460,15 +401,15 @@ template<typename iter> std::vector< std::pair<QuickTrackAssociatorByHitsImpl::S
 	//iter tRHIterBeginEnd = getTRHIterBeginEnd( pTrack );
 	for( iter iRecHit=begin; iRecHit != end; ++iRecHit )
 	{
-		if( getHitFromIter( iRecHit )->isValid() )
+		if( track_associator::getHitFromIter( iRecHit )->isValid() )
 		{
 			simTrackIdentifiers.clear();
 
 			// Get the identifiers for the sim track that this hit came from. There should only be one entry unless clusters
 			// have merged (as far as I know).
-			hitAssociator.associateHitId( *(getHitFromIter( iRecHit )), simTrackIdentifiers ); // This call fills simTrackIdentifiers
+			hitAssociator.associateHitId( *(track_associator::getHitFromIter( iRecHit )), simTrackIdentifiers ); // This call fills simTrackIdentifiers
 
-                        const auto subdetId = getHitFromIter(iRecHit)->geographicalId().subdetId();
+                        const auto subdetId = track_associator::getHitFromIter(iRecHit)->geographicalId().subdetId();
                         const double weight = (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) ?  pixelHitWeight_ : 1.0;
 
 			// Loop over each identifier, and add it to the return value only if it's not already in there
@@ -530,7 +471,7 @@ template<typename iter> double QuickTrackAssociatorByHitsImpl::getDoubleCount( c
 		int idcount=0;
 
 		SimTrackIdsDC.clear();
-		hitAssociator.associateHitId( *(getHitFromIter( iHit )), SimTrackIdsDC );
+		hitAssociator.associateHitId( *(track_associator::getHitFromIter( iHit )), SimTrackIdsDC );
 		if( SimTrackIdsDC.size() > 1 )
 		{
 			for( TrackingParticle::g4t_iterator g4T=associatedTrackingParticle->g4Track_begin(); g4T != associatedTrackingParticle->g4Track_end();
@@ -544,7 +485,7 @@ template<typename iter> double QuickTrackAssociatorByHitsImpl::getDoubleCount( c
 			}
 		}
 		if( idcount > 1 ) {
-                  const auto subdetId = getHitFromIter(iHit)->geographicalId().subdetId();
+                  const auto subdetId = track_associator::getHitFromIter(iHit)->geographicalId().subdetId();
                   const double weight = (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) ?  pixelHitWeight_ : 1.0;
                   doubleCount += weight*(idcount - 1);
                 }
@@ -576,7 +517,7 @@ template<typename iter> double QuickTrackAssociatorByHitsImpl::getDoubleCount( c
 
 	for( iter iHit=startIterator; iHit != endIterator; iHit++ )
 	{
-		std::vector < OmniClusterRef > oClusters=getMatchedClusters( iHit, iHit + 1 );  //only for the cluster being checked
+		std::vector < OmniClusterRef > oClusters = track_associator::hitsToClusterRefs( iHit, iHit + 1 );  //only for the cluster being checked
 		for( std::vector<OmniClusterRef>::const_iterator it=oClusters.begin(); it != oClusters.end(); ++it )
 		{
                 	int idcount=0;
@@ -595,7 +536,7 @@ template<typename iter> double QuickTrackAssociatorByHitsImpl::getDoubleCount( c
 			}
 
 			if( idcount > 1 ) {
-                	  const auto subdetId = getHitFromIter(iHit)->geographicalId().subdetId();
+                	  const auto subdetId = track_associator::getHitFromIter(iHit)->geographicalId().subdetId();
                 	  const double weight = (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) ?  pixelHitWeight_ : 1.0;
                 	  doubleCount += weight*(idcount - 1);
                 	}
@@ -741,7 +682,7 @@ double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const reco:
 double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const TrajectorySeed& seed, const TrackerHitAssociator&) const {
   double sum = 0.0;
   for(auto iHit=seed.recHits().first; iHit!=seed.recHits().second; ++iHit) {
-    const auto subdetId = getHitFromIter(iHit)->geographicalId().subdetId();
+    const auto subdetId = track_associator::getHitFromIter(iHit)->geographicalId().subdetId();
     const double weight = (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) ?  pixelHitWeight_ : 1.0;
     sum += weight;
   }
@@ -762,11 +703,11 @@ template<typename iter> double QuickTrackAssociatorByHitsImpl::weightedNumberOfT
   double weightedClusters = 0.0;
   for (iter iRecHit = begin; iRecHit != end; ++iRecHit) {
 
-    const auto subdetId = getHitFromIter(iRecHit)->geographicalId().subdetId();
+    const auto subdetId = track_associator::getHitFromIter(iRecHit)->geographicalId().subdetId();
     const double weight = (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) ?  pixelHitWeight_ : 1.0;
-    LogTrace("QuickTrackAssociatorByHitsImpl") << "  detId: " << getHitFromIter(iRecHit)->geographicalId().rawId();
+    LogTrace("QuickTrackAssociatorByHitsImpl") << "  detId: " << track_associator::getHitFromIter(iRecHit)->geographicalId().rawId();
     LogTrace("QuickTrackAssociatorByHitsImpl") << "  weight: " << weight;
-    std::vector < OmniClusterRef > oClusters=getMatchedClusters( iRecHit, iRecHit + 1 );  //only for the cluster being checked
+    std::vector < OmniClusterRef > oClusters = track_associator::hitsToClusterRefs( iRecHit, iRecHit + 1 );  //only for the cluster being checked
     for( std::vector<OmniClusterRef>::const_iterator it=oClusters.begin(); it != oClusters.end(); ++it ) {
       weightedClusters += weight;
     }

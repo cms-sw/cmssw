@@ -232,6 +232,50 @@ private:
     }
   }
   
+  void Worker::prePrefetchSelectionAsync(WaitingTask* successTask,
+                                 StreamID id,
+                                 EventPrincipal const* iPrincipal) {
+    std::vector<ProductResolverIndexAndSkipBit> items;
+    itemsToGetForSelection(items);
+
+    successTask->increment_ref_count();
+    auto token = ServiceRegistry::instance().presentToken();
+
+    auto choiceTask = edm::make_waiting_task(tbb::task::allocate_root(),
+     [id,successTask,iPrincipal,this,token](std::exception_ptr const*) {
+       ServiceRegistry::Operate guard(token);
+       try {
+         if( not implDoPrePrefetchSelection(id,*iPrincipal,&moduleCallingContext_) ) {
+           timesRun_.fetch_add(1,std::memory_order_relaxed);
+           setPassed<true>();
+           waitingTasks_.doneWaiting(nullptr);
+           //TBB requires that destroyed tasks have count 0
+           if ( 0 == successTask->decrement_ref_count() ) {
+             tbb::task::destroy(*successTask);
+           }
+           return;
+         }
+       } catch(...) {}
+       if(0 == successTask->decrement_ref_count()) {
+         tbb::task::spawn(*successTask);
+       }
+     });
+    
+    choiceTask->increment_ref_count();
+    for(auto const& item : items) {
+      ProductResolverIndex productResolverIndex = item.productResolverIndex();
+      bool skipCurrentProcess = item.skipCurrentProcess();
+      if(productResolverIndex != ProductResolverIndexAmbiguous) {
+        iPrincipal->prefetchAsync(choiceTask,productResolverIndex, skipCurrentProcess, &moduleCallingContext_);
+      }
+    }
+
+    if(0 == choiceTask->decrement_ref_count()) {
+      tbb::task::spawn(*choiceTask);
+    }
+  }
+
+  
   void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) {
     earlyDeleteHelper_=iHelper;
   }

@@ -37,7 +37,7 @@ public:
   /// Copy constructor
   L1GctHtMissLut(const L1GctHtMissLut& lut);
   /// Destructor
-  virtual ~L1GctHtMissLut();
+  ~L1GctHtMissLut() override;
   
   /// Overload = operator
   L1GctHtMissLut operator= (const L1GctHtMissLut& lut);
@@ -46,7 +46,7 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1GctHtMissLut& lut);
 
   /// Set the functions
-  void setEtScale(const L1CaloEtScale* const fn) { m_etScale = fn; if (fn != 0) { m_setupOk = true; } }
+  void setEtScale(const L1CaloEtScale* const fn) { m_etScale = fn; if (fn != nullptr) { m_setupOk = true; } }
   void setExEyLsb(const double lsb) { m_componentLsb = lsb; }
 
   /// Return the Lut functions and parameters
@@ -60,7 +60,7 @@ public:
 protected:
   
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  uint16_t value (const uint16_t lutAddress) const override;
 
 private:
 

@@ -28,11 +28,11 @@ namespace pat {
   public:
     
     explicit PATTriggerObjectStandAloneSlimmer( const edm::ParameterSet & iConfig );
-    ~PATTriggerObjectStandAloneSlimmer() {};
+    ~PATTriggerObjectStandAloneSlimmer() override {};
     
   private:
     
-    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
     
     const edm::EDGetTokenT<TriggerObjectStandAloneCollection> srcToken_;
     const edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;

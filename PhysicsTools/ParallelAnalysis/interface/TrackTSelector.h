@@ -22,11 +22,11 @@ namespace examples {
     /// default constructor
     TrackTSelector();
     /// begin processing
-    void begin( TList * & );
+    void begin( TList * & ) override;
     /// terminate processing
-    void terminate( TList & );
+    void terminate( TList & ) override;
 
-    ClassDef(TrackTSelector,2)
+    ClassDefOverride(TrackTSelector,2)
   private:
     /// avoid copy constructor
     TrackTSelector( const TrackTSelector & );

@@ -679,7 +679,6 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    
    
-   ilow = ihigh = 0;
    auto xxratio = 0.f;
    
    {

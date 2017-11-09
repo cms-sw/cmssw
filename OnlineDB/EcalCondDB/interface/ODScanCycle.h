@@ -15,9 +15,9 @@ class ODScanCycle :  public IODConfig  {
 
 
   ODScanCycle();
-  ~ODScanCycle();
+  ~ODScanCycle() override;
 
-  inline std::string getTable() { return "ECAL_Scan_CYCLE"; }
+  inline std::string getTable() override { return "ECAL_Scan_CYCLE"; }
 
   inline void setId(int id){m_ID=id;}
   inline int getId()const{ return m_ID;} ;
@@ -35,7 +35,7 @@ class ODScanCycle :  public IODConfig  {
   int m_ID;
   int  m_scan_config_id;
   void writeDB() noexcept(false);
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void clear();
   void fetchData(ODScanCycle * result) noexcept(false);
    void insertConfig() noexcept(false);

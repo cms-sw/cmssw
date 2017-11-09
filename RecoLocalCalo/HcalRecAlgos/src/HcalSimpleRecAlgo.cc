@@ -85,7 +85,7 @@ void HcalSimpleRecAlgo::setForData (int runnum) {
          shapeNum = HPDShapev3DataNum;
       }
       bool isHPD=true;
-      psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum),isHPD);
+      psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum),isHPD,CaloSamples::MAXSAMPLES);
    }
 }
 

@@ -41,7 +41,7 @@ class BPHPlusMinusVertex: public virtual BPHDecayVertex {
 
   /** Destructor
    */
-  virtual ~BPHPlusMinusVertex();
+  ~BPHPlusMinusVertex() override;
 
   /** Operations
    */
@@ -64,7 +64,7 @@ class BPHPlusMinusVertex: public virtual BPHDecayVertex {
   bool chkSize( const std::string& msg ) const;
 
   // utility function used to cash reconstruction results
-  virtual void setNotUpdated() const;
+  void setNotUpdated() const override;
 
  private:
 

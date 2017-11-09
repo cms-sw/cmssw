@@ -43,7 +43,7 @@ trackElectrons = cms.EDFilter(
     "TauValElectronSelector",
     src = cms.InputTag('idElectrons'),
     cut = cms.string('gsfTrack.isNonnull  && 0.7 < eSuperClusterOverP < 1.5'),
-#    cut = cms.string('gsfTrack.isNonnull && gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') = 0 && 0.7 < eSuperClusterOverP < 1.5'),
+#    cut = cms.string('gsfTrack.isNonnull && gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') = 0 && 0.7 < eSuperClusterOverP < 1.5'),
     filter = cms.bool(False)
 )
 

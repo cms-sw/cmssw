@@ -38,7 +38,7 @@ float TrackerIsolationPt::calculate(const Muon & theMuon, const edm::View<reco::
 float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::View<reco::Track> & theTracks, float isoCone) const {
   // initialize some variables
   float isoPtLepton = 0;
-  const reco::Track * closestTrackDRPt = 0, * closestTrackDR = 0;
+  const reco::Track * closestTrackDRPt = nullptr, * closestTrackDR = nullptr;
   float closestDRPt = 10000, closestDR = 10000;
   // use all these pointless vector conversions because the momenta from tracks
   // are completely unusable; bah, these math-vectors are worthless!

@@ -4,8 +4,8 @@
 //  Run(inFileName, dirName, treeName, outFileName, corrFileName, dupFileName,
 //      rcorFileName, useweight, useMean, nMin, inverse, ratMin, ratMax, 
 //      ietaMax, sysmode, puCorr, applyL1Cut, l1Cut, truncateFlag, maxIter, 
-//      useGen, runlo, runhi, phimin, phimax, zside, fraction, writeDebugHisto,
-//      debug);
+//      useGen, runlo, runhi, phimin, phimax, zside, rbx, exclude, higheta,
+//      fraction, writeDebugHisto, debug);
 //
 //  where:
 //
@@ -24,26 +24,27 @@
 //                              factors as a function of run numbers to be 
 //                              used for raddam correction 
 //                              (default="", no corr.)
-//  useweight   (bool)        = Flag to use event weight (True)
-//  useMean     (bool)        = Flag to use Mean of Most probable value
+//  useweight       (bool)    = Flag to use event weight (True)
+//  useMean         (bool)    = Flag to use Mean of Most probable value
 //                              (True -- use mean)
-//  nMin        (int)         = Minmum entries for a given cell which will be
+//  nMin            (int)     = Minmum entries for a given cell which will be
 //                              used in evaluating convergence criterion (0)
-//  inverse     (bool)        = Use the ratio E/p or p/E in determining the
+//  inverse         (bool)    = Use the ratio E/p or p/E in determining the
 //                              coefficients (True -- use p/E)
-//  ratMin      (double)      = Lower  cut on E/p to select a track (0.25)
-//  ratMax      (double)      = Higher cut on E/p to select a track (3.0)
-//  ietaMax     (int)         = Maximum ieta value for which correcttion
+//  ratMin          (double)  = Lower  cut on E/p to select a track (0.25)
+//  ratMax          (double)  = Higher cut on E/p to select a track (3.0)
+//  ietaMax         (int)     = Maximum ieta value for which correcttion
 //                              factor is to be determined (25)
-//  sysmode     (int)         = systematic error study (0 if default)
+//  sysmode         (int)     = systematic error study (0 if default)
 //                              -1 loose, -2 flexible, > 0 for systematic
-//  puCorr      (bool)        = PU correction to be applied or not (true)
-//  applyL1Cut  (int)         = Flag to see if closeness to L1 object to be
+//  puCorr          (bool)    = PU correction to be applied or not (true)
+//  applyL1Cut      (int)     = Flag to see if closeness to L1 object to be
 //                              applied: 0 no check; 1 only to events with
 //                              datatype not equal to 1; 2 to all (1)
-//  l1Cut       (double)      = Cut value for the closeness parameter (0.5)
-//  truncateFlag    (bool)    = Flag to treat both depths of ieta 15, 16 of
-//                              HB as depth 1 (True -- treat together)
+//  l1Cut           (double)  = Cut value for the closeness parameter (0.5)
+//  truncateFlag    (int)     = Flag to treat different depths differently (0)
+//                              both depths of ieta 15, 16 of HB as depth 1 (1)
+//                              all depths as depth 1 (2) (Default 0)
 //  maxIter         (int)     = number of iterations (30)
 //  useGen          (bool)    = use generator level momentum information (False)
 //  runlo           (int)     = lower value of run number (def -1)
@@ -52,6 +53,12 @@
 //  phimax          (int)     = maximum iphi value (72)
 //  zside           (int)     = the side of the detector (0)
 //                              (if 0 no selection on zside will be made)
+//  rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
+//  exclude         (bool)    = RBX specified by *rbx* to be exluded or only
+//                              considered (false)
+//  higheta         (int)     = take correction factors for |ieta| > ietamax
+//                              as 1 (0) or of ieta = ietamax with same sign
+//                              amd depth 1 (1) (default 1)
 //  fraction        (double)  = fraction of events to be done (-1)    
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (False)
@@ -89,14 +96,14 @@ void Run(const char *inFileName="Silver",
 	 const char *outFileName="Silver_out.root",
 	 const char *corrFileName="Silver_corr.txt",
 	 const char *dupFileName="events_DXS2.txt", 
-	 const std::string& rcorFileName="",
+	 const char *rcorFileName="",
 	 bool useweight=true, bool useMean=true, int nMin=0, bool inverse=true,
 	 double ratMin=0.25, double ratMax=3., int ietaMax=25, 
 	 int sysmode=0, bool puCorr=true, int applyL1Cut=1, double l1Cut=0.5, 
-	 bool truncateFlag=true, int maxIter=30, bool useGen=false, 
+	 int truncateFlag=0, int maxIter=30, bool useGen=false, 
 	 int runlo=-1, int runhi=99999999, int phimin=1, int phimax=72,
-	 int zside=0, double fraction=1.0, bool writeDebugHisto=false, 
-	 bool debug=false);
+	 int zside=0, int rbx=0, bool exclude=true, int higheta=1,
+	 double fraction=1.0, bool writeDebugHisto=false, bool debug=false);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -188,11 +195,14 @@ public :
   TH1D                                             *h_pbyE, *h_cvg;
   TProfile                                         *h_Ebyp_bfr, *h_Ebyp_aftr;
   CalibCorr                                        *cFactor_;
-  const bool                                        truncateFlag_, useMean_;
+  CalibSelectRBX                                   *cSelect_;
+  const int                                         truncateFlag_;
+  const bool                                        useMean_;
   const int                                         runlo_, runhi_;
   const int                                         phimin_, phimax_;
-  const int                                         zside_, sysmode_;
-  const bool                                        puCorr_, useGen_;
+  const int                                         zside_, sysmode_, rbx_;
+  const bool                                        puCorr_, useGen_, exclude_;
+  const int                                         higheta_;
   double                                            log2by18_, eHcalDelta_;
   std::vector<Long64_t>                             entries;
   std::vector<unsigned int>                         detIds;
@@ -206,9 +216,10 @@ public :
     double fact0, fact1, fact2;
   };
 
-  CalibTree(const char *dupFileName, const std::string& rcorFileName, bool flag,
+  CalibTree(const char *dupFileName, const char* rcorFileName, int truncateFlag,
 	    bool useMean, int runlo, int runhi, int phimin, int phimax,
-	    int zside, int sysmode, bool puCorr, bool useGen, TTree *tree=0);
+	    int zside, int sysmode, int rbx, bool puCorr, bool useGen, 
+	    bool exclude, int higheta, TTree *tree=0);
   virtual ~CalibTree();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -228,6 +239,7 @@ public :
   void             makeplots(double rmin, double rmax, int ietaMax,
 			     bool useWeight, double fraction, bool debug);
   void             fitPol0(TH1D* hist, bool debug);
+  void             highEtaFactors(int ietaMax, bool debug);
 };
 
 
@@ -240,19 +252,19 @@ void doIt(const char* infile, const char* dup) {
     double lumi = (k==0) ? -1 : lumt;
     lumt *= fac;
     Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,"",true,true,0,
-	true,0.25,3.0,25,0,true,1,0.5,false,30,false,-1,99999999,1,72,0,lumi,
-	false,false);
+	true,0.25,3.0,25,0,true,1,0.5,0,30,false,-1,99999999,1,72,0,0,true,
+	1,lumi,false,false);
   }
 }
 
 void Run(const char *inFileName, const char *dirName, const char *treeName, 
 	 const char *outFileName, const char *corrFileName,
-	 const char *dupFileName, const std::string& rcorFileName, 
+	 const char *dupFileName, const char* rcorFileName, 
 	 bool useweight, bool useMean, int nMin, bool inverse, double ratMin, 
 	 double ratMax, int ietaMax, int sysmode, bool puCorr, int applyL1Cut,
-	 double l1Cut, bool truncateFlag, int maxIter, bool useGen, int runlo,
-	 int runhi, int phimin, int phimax, int zside, double fraction, 
-	 bool writeHisto, bool debug) {
+	 double l1Cut, int truncateFlag, int maxIter, bool useGen, int runlo,
+	 int runhi, int phimin, int phimax, int zside, int rbx, bool exclude,
+	 int higheta, double fraction, bool writeHisto, bool debug) {
  
   char name[500];
   sprintf(name, "%s.root",inFileName);
@@ -267,7 +279,8 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	    << nentries << std::endl;
   unsigned int k(0), kmax(maxIter);
   CalibTree t(dupFileName, rcorFileName, truncateFlag, useMean, runlo, runhi, 
-	      phimin, phimax, zside, sysmode, puCorr, useGen, tree); 
+	      phimin, phimax, zside, sysmode, rbx, puCorr, useGen, exclude, 
+	      higheta, tree); 
   t.h_pbyE      = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
   t.h_Ebyp_bfr  = new TProfile("Ebyp_bfr","Ebyp_bfr",60,-30,30,0,10);
   t.h_Ebyp_aftr = new TProfile("Ebyp_aftr","Ebyp_aftr",60,-30,30,0,10);
@@ -305,15 +318,18 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
   fout->Close();
 }
 
-CalibTree::CalibTree(const char *dupFileName, const std::string& rcorFileName,
-		     bool flag, bool useMean, int runlo, int runhi, int phimin,
-		     int phimax, int zside, int mode, bool pu, bool gen,
+CalibTree::CalibTree(const char *dupFileName, const char* rcorFileName,
+		     int flag, bool useMean, int runlo, int runhi, 
+		     int phimin, int phimax, int zside, int mode, 
+		     int rbx, bool pu, bool gen, bool exclude, int higheta,
 		     TTree *tree) : fChain(nullptr), cFactor_(nullptr),
-				    truncateFlag_(flag), useMean_(useMean),
-				    runlo_(runlo), runhi_(runhi), 
-				    phimin_(phimin), phimax_(phimax), 
-				    zside_(zside), sysmode_(mode), 
-				    puCorr_(pu), useGen_(gen) {
+				    cSelect_(nullptr), truncateFlag_(flag),
+				    useMean_(useMean), runlo_(runlo), 
+				    runhi_(runhi), phimin_(phimin),
+				    phimax_(phimax), zside_(zside), 
+				    sysmode_(mode), rbx_(rbx), puCorr_(pu),
+				    useGen_(gen), exclude_(exclude),
+				    higheta_(higheta) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   if (tree == 0) {
@@ -329,14 +345,21 @@ CalibTree::CalibTree(const char *dupFileName, const std::string& rcorFileName,
   std::cout << "Initialize CalibTree with TruncateFlag " << truncateFlag_
 	    << " UseMean " << useMean_ << " Run Range " << runlo_ << ":"
 	    << runhi_ << " Phi Range " << phimin_ << ":" << phimax_ << ":" 
-	    << zside_ << " Mode " << sysmode_ << ":" << puCorr_ << ":" 
-	    << useGen_ << std::endl;
+	    << zside_ << " Mode " << sysmode_ << " PU " << puCorr_ << " Gen " 
+	    << useGen_ << " High Eta " << higheta_ << std::endl;
+  std::cout << "Duplicate events read from " << dupFileName 
+	    << " RadDam Corrections read from " << rcorFileName
+	    << " Treat RBX " << rbx_ << " with exclusion mode " << exclude_
+	    << std::endl;
   Init(tree, dupFileName);
-  if (rcorFileName != "") cFactor_ = new CalibCorr(rcorFileName,false);
+  if (std::string(rcorFileName) != "") 
+    cFactor_ = new CalibCorr(rcorFileName,false);
+  if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx);
 }
 
 CalibTree::~CalibTree() {
   delete cFactor_;
+  delete cSelect_;
   if (!fChain) return;
   delete fChain->GetCurrentFile();
 }
@@ -468,7 +491,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 			 double fraction, bool writeHisto, bool debug) {
 
   if (fChain == 0) return 0;
-  Long64_t nbytes(0), nb(0);
+  Long64_t nbytes(0), nb(0), kprint(0);
   Long64_t nentryTot = fChain->GetEntriesFast();
   Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? 
     (Long64_t)(fraction*nentryTot) : nentryTot;
@@ -479,26 +502,31 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       // Find DetIds contributing to the track
       if ((t_Run >= runlo_) && (t_Run <= runhi_)) {
-	for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
-	  if (selectPhi((*t_DetIds)[idet])) {
-	    unsigned int detid = truncateId((*t_DetIds)[idet]);
-	    if (debug) std::cout << "DetId[" << idet << "] Original " <<std::hex
-				 << (*t_DetIds)[idet] << " truncated " << detid
-				 << std::dec;
-	    if (std::find(detIds.begin(),detIds.end(),detid) == detIds.end()) {
-	      detIds.push_back(detid);
-	      if (debug) std::cout << " new";
-	    }
-	    if (debug) std::cout << std::endl;
-	  }
-	}
-	// Also look at the neighbouring cells if available
-	if (t_DetIds3 != 0) {
-	  for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
-	    if (selectPhi((*t_DetIds3)[idet])) {
-	      unsigned int detid = truncateId((*t_DetIds3)[idet]);
+	bool isItRBX = (cSelect_ && exclude_ && cSelect_->isItRBX(t_DetIds));
+	++kprint;
+	if (!isItRBX) {
+	  for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
+	    if (selectPhi((*t_DetIds)[idet])) {
+	      unsigned int detid = truncateId((*t_DetIds)[idet]);
+	      if (debug && (kprint<=10))
+		std::cout << "DetId[" << idet << "] Original " << std::hex 
+			  << (*t_DetIds)[idet] << " truncated " << detid 
+			  << std::dec;
 	      if (std::find(detIds.begin(),detIds.end(),detid) == detIds.end()){
 		detIds.push_back(detid);
+		if (debug && (kprint<=10)) std::cout << " new";
+	      }
+	      if (debug && (kprint<=10)) std::cout << std::endl;
+	    }
+	  }
+	  // Also look at the neighbouring cells if available
+	  if (t_DetIds3 != 0) {
+	    for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
+	      if (selectPhi((*t_DetIds3)[idet])) {
+		unsigned int detid = truncateId((*t_DetIds3)[idet]);
+		if (std::find(detIds.begin(),detIds.end(),detid)==detIds.end()){
+		  detIds.push_back(detid);
+		}
 	      }
 	    }
 	  }
@@ -511,12 +539,11 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	      << histos.size() << " histos found" << std::endl;
     // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     for (unsigned int k=0; k<detIds.size(); ++k) {
-      int subdet = (detIds[k] >> 25) & (0x7);
-      int depth  = (detIds[k] >> 20) & (0xF);
-      int zside  = (detIds[k]&0x80000)?(1):(-1);
-      int ieta   = (detIds[k] >> 10) & (0x1FF);
+      int subdet, depth, zside, ieta, iphi;
+      unpackDetId(detIds[k], subdet, zside, ieta, iphi, depth);
       std::cout << "DetId[" << k << "] " << subdet << ":" << zside*ieta << ":"
-		<< depth << "  " << std::hex << detIds[k] << std::dec << "\n";
+		<< depth << ":" << iphi << "  " << std::hex << detIds[k] 
+		<< std::dec << std::endl;
     }
   }
   unsigned int k(0);
@@ -534,12 +561,9 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   for (unsigned int k=0; k<detIds.size(); ++k) {
     char name[20], title[100];
     sprintf (name, "Hist%d_%d", detIds[k], loop);
-    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-    int subdet = (detIds[k] >> 25) & (0x7);
-    int depth  = (detIds[k] >> 20) & (0xF);
-    int zside  = (detIds[k]&0x80000)?(1):(-1);
-    int ieta   = zside * ((detIds[k] >> 10) & 0x1FF);
-    sprintf (title, "Correction for Subdet %d #eta %d depth %d (Loop %d)", subdet, ieta, depth, loop);
+    int subdet, depth, zside, ieta, iphi;
+    unpackDetId(detIds[k], subdet, zside, ieta, iphi, depth);
+    sprintf (title, "Correction for Subdet %d #eta %d depth %d (Loop %d)", subdet, zside*ieta, depth, loop);
     TH1D* hist = new TH1D(name,title,100, 0.0, 5.0);
     hist->Sumw2();
     if (debug) std::cout << "Book Histo " << k << " " << title << std::endl;
@@ -559,6 +583,14 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     if (std::find(entries.begin(),entries.end(),jentry) != entries.end()) continue;
     if ((t_Run < runlo_) || (t_Run > runhi_))                             continue;
+    if (cSelect_ != nullptr) {
+      if (exclude_) {
+	if (cSelect_->isItRBX(t_DetIds))          continue;
+      } else {
+	if (!(cSelect_->isItRBX(t_ieta,t_iphi)))  continue;
+      }
+    }
+
     if (debug) {
       std::cout << "***Entry (Track) Number : " << ientry << std::endl;
       std::cout << "p/eHCal/eMipDR/nDets : " << t_p << "/" << t_eHcal << "/"
@@ -703,8 +735,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       (itr->second)->Write();
     }
     // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-    int subdet = ((itr->first) >> 25) & (0x7);
-    int ieta   = ((itr->first) >> 10) & (0x1FF);
+    int subdet, depth, zside, ieta, iphi;
+    unpackDetId(itr->first, subdet, zside, ieta, iphi, depth);
     if (debug) std::cout << "DETID :" << subdet << "  IETA :" << ieta
 			 << " HIST ENTRIES :" << (itr->second)->GetEntries()
 			 << std::endl;
@@ -715,11 +747,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     std::pair<double,double> result = fitMean(itr->second, 0);
     double factor = (inverse) ? (2.-result.first) : result.first;
     if (debug) {
-      // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-      int subdet = ((itr->first) >> 25) & (0x7);
-      int depth  = ((itr->first) >> 20) & (0xF);
-      int zside  = ((itr->first)&0x80000)?(1):(-1);
-      int ieta   = ((itr->first) >> 10) & (0x1FF);
+      int subdet, depth, zside, ieta, iphi;
+      unpackDetId(itr->first, subdet, zside, ieta, iphi, depth);
       std::cout << "DetId[" << kount << "] " << subdet << ":" << zside*ieta 
 		<< ":" << depth << " Factor " << factor << " +- " 
 		<< result.second << std::endl;
@@ -737,11 +766,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   std::map<unsigned int, myEntry>::const_iterator SumWItr = SumW.begin();
   for (; SumWItr != SumW.end(); SumWItr++) {
     unsigned int detid = SumWItr->first;
-    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-    int subdet = (detid >> 25) & (0x7);
-    int depth  = (detid >> 20) & (0xF);
-    int zside  = (detid&0x80000)?(1):(-1);
-    int ieta   = (detid >> 10) & (0x1FF);
+    int subdet, depth, zside, ieta, iphi;
+    unpackDetId(detid, subdet, zside, ieta, iphi, depth);
     if (debug) 
       std::cout << "Detid|kount|SumWi|SumFac|myId : " << subdet << ":" 
 		<< zside*ieta << ":" << depth << " | " 
@@ -770,10 +796,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   std::map<unsigned int,std::pair<double,double> >::const_iterator itr=cfactors.begin();
   for (; itr !=cfactors.end(); ++itr,++kount) {
     unsigned int detid = itr->first;
-    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-    int depth  = (detid >> 20) & (0xF);
-    int zside  = (detid&0x80000)?(1):(-1);
-    int ieta   = (detid >> 10) & (0x1FF);
+    int subdet, depth, zside, ieta, iphi;
+    unpackDetId(detid, subdet, zside, ieta, iphi, depth);
     double id  = ieta*zside + 0.25*(depth-1);
     double factor = (itr->second).first;
     double dfac   = (itr->second).second;
@@ -797,7 +821,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     myId[kount] = id;
     nTrk[kount] = nTrks[detid];
   }
-  
+  if (higheta_ > 0) highEtaFactors(ietaMax, debug);
+
   std::cout << kountus << " detids out of " << kount << " have tracks > "
 	    << nMin << std::endl;
 
@@ -840,10 +865,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   unsigned int indx(0);
   for (; CprevItr != Cprev.end(); CprevItr++, indx++){
     unsigned int detid = CprevItr->first;
-    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-    int ieta   = ((detid >> 10) & 0x1FF);
-    int zside  = (detid&0x80000)?(1):(-1);
-    int depth  = ((detid >> 20) & 0xF);
+    int subdet, depth, zside, ieta, iphi;
+    unpackDetId(detid, subdet, zside, ieta, iphi, depth);
     std::cout << "DetId[" << indx << "] " << std::hex << detid << std::dec
 	      << "(" << ieta*zside << "," << depth << ") (nTrks:" 
 	      << nTrks[detid] << ") : " << CprevItr->second.first << " +- "
@@ -858,7 +881,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 }
 
 bool CalibTree::goodTrack() {
-  bool ok(true);
+  bool   ok(true);
   double cut(2.0);
   double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
   if        (sysmode_ == 1) {
@@ -914,14 +937,12 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
     std::map<unsigned int, std::pair<double,double> >::const_iterator itr;
     for (itr=Cprev.begin(); itr != Cprev.end(); ++itr) {
       unsigned int detId = itr->first;
-      // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-      int etaAbs= ((detId>>10)&0x1FF);
-      int ieta  = ((detId&0x80000) ? etaAbs : -etaAbs);
-      int depth = (detId >> 20) & (0xF);
-      if (etaAbs <= ietaMax) {
+      int subdet, depth, zside, ieta, iphi;
+      unpackDetId(detId, subdet, zside, ieta, iphi, depth);
+      if (ieta <= ietaMax) {
 	myfile << std::setw(10) << std::hex << detId << std::setw(10) 
-	       << std::dec << ieta << std::setw(10) << depth << std::setw(10) 
-	       << itr->second.first << " " << std::setw(10) 
+	       << std::dec << zside*ieta << std::setw(10) << depth 
+	       << std::setw(10) << itr->second.first << " " << std::setw(10) 
 	       << itr->second.second << std::endl;
 	std::cout << itr->second.first << ",";
       }
@@ -934,14 +955,15 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
 bool CalibTree::selectPhi(unsigned int detId) {
   bool flag(true);
   // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-  if (phimin_ > 1 || phimax_ < 72) {
-    int iphi = ((detId&0x1000000) == 0) ? (detId & 0x3F) : (detId & 0x3FF);
-    if ((iphi < phimin_) || (iphi > phimax_)) flag = false;
-  }
-  if (zside_ != 0) {
-    int zside = ((detId&0x1000000) == 0) ? ((detId&0x2000)?(1):(-1)) : 
-      ((detId&0x80000)?(1):(-1));
-    if (zside != zside_)                      flag = false;
+  if ((phimin_ > 1) || (phimax_ < 72) || (zside_ != 0)) {
+    int subdet, depth, zside, ieta, iphi;
+    unpackDetId(detId, subdet, zside, ieta, iphi, depth);
+    if (phimin_ > 1 || phimax_ < 72) {
+      if ((iphi < phimin_) || (iphi > phimax_)) flag = false;
+    }
+    if (zside_ != 0) {
+      if (zside != zside_)                      flag = false;
+    }
   }
   return flag;
 }
@@ -949,21 +971,14 @@ bool CalibTree::selectPhi(unsigned int detId) {
 unsigned int CalibTree::truncateId(unsigned int detId) {
   unsigned int id(detId);
   //std::cout << "Truncate 1 " << std::hex << detId << " " << id << std::dec << std::endl;
-  int subdet = ((detId >> 25) & (0x7));
-  int ieta, zside, depth;
-  // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-  if ((id&0x1000000) == 0) {
-    ieta   = ((detId >> 7) & 0x3F);
-    zside  = (detId&0x2000)?(1):(-1);
-    depth  = ((detId >> 14) & 0x1F);
-  } else {
-    ieta   = ((detId >> 10) & 0x1FF);
-    zside  = (detId&0x80000)?(1):(-1);
-    depth  = ((detId >> 20) & 0xF);
-  }
-  if (truncateFlag_) {
+  int subdet, depth, zside, ieta, iphi;
+  unpackDetId(detId, subdet, zside, ieta, iphi, depth);
+  if (truncateFlag_ == 1) {
     //Ignore depth index of ieta values of 15 and 16 of HB
     if ((subdet == 1) && (ieta > 14)) depth  = 1;
+  } else if (truncateFlag_ == 2) {
+    //Ignore depth index of ieta values of 15 and 16 of HB
+    depth = 1;
   }
   id = (subdet<<25) | (0x1000000) | ((depth&0xF)<<20) | ((zside>0)?(0x80000|(ieta<<10)):(ieta<<10));
   //  std::cout << "Truncate 2: " << subdet << " " << zside*ieta << " " << depth << " " << std::hex << id << " input " << detId << std::dec << std::endl;
@@ -1112,4 +1127,34 @@ void CalibTree::fitPol0(TH1D* hist, bool debug) {
 		       << Fit->Value(0) << " +- " << Fit->FitResult::Error(0)
 		       << std::endl;
   hist->Write();
+}
+
+void CalibTree::highEtaFactors(int ietaMax, bool debug) {
+  std::map<unsigned int,std::pair<double,double> >::const_iterator itr;
+  std::pair<double,double> cfacp, cfacn;
+  cfacp = cfacn = std::pair<double,double>(1.0,0.0);
+  for (itr=Cprev.begin(); itr !=Cprev.end(); ++itr) {
+    unsigned int detid = itr->first;
+    int subdet, depth, zside, ieta, iphi;
+    unpackDetId(detid, subdet, zside, ieta, iphi, depth);
+    if ((ieta = ietaMax) && (depth == 1)) {
+      if (zside > 0) cfacp = itr->second;
+      else           cfacn = itr->second;
+    }
+  }
+  if (debug) std::cout << "Correction factor for (" << ietaMax << ",1) = " 
+		       << cfacp.first << ":" << cfacp.second << " and (" 
+		       << -ietaMax << ",1) = " << cfacn.first << ":" 
+		       << cfacn.second << std::endl;
+  for (itr=Cprev.begin(); itr !=Cprev.end(); ++itr) {
+    unsigned int detid = itr->first;
+    int subdet, depth, zside, ieta, iphi;
+    unpackDetId(detid, subdet, zside, ieta, iphi, depth);
+    if (ieta > ietaMax) {
+      Cprev[detid] = (zside > 0) ? cfacp : cfacn;
+      if (debug) std::cout << "Set correction factor for (" << zside*ieta
+			   << "," << depth << ") = " << Cprev[detid].first
+			   << ":" << Cprev[detid].second << std::endl;
+    }
+  }      
 }

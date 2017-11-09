@@ -409,7 +409,7 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
     LogDebug("L1T") << s.str();
 #endif
     
-    load32.push_back(block.header().raw(MP7));
+    load32.push_back(block.header().raw());
     load32.insert(load32.end(), load.begin(), load.end());
   }
   

@@ -28,7 +28,7 @@ effVsEtaBins = [i*(etaMax-etaMin)/nEtaBins + etaMin for i in range(nEtaBins+1)]
 l1tMuonDQMOffline = cms.EDAnalyzer("L1TMuonDQMOffline",
     histFolder = cms.untracked.string('L1T/L1TMuon'),
     gmtPtCuts = cms.untracked.vint32(muonEfficiencyThresholds),
-
+    tagPtCut = cms.untracked.double(30.),
     muonInputTag = cms.untracked.InputTag("muons"),
     gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis","Muon"),
     vtxInputTag = cms.untracked.InputTag("offlinePrimaryVertices"),
@@ -53,3 +53,15 @@ l1tMuonDQMOffline = cms.EDAnalyzer("L1TMuonDQMOffline",
 
     verbose   = cms.untracked.bool(False)
 )
+
+# modifications for the pp reference run
+muonEfficiencyThresholds_HI = [5, 7, 12]
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+ppRef_2017.toModify(l1tMuonDQMOffline,
+    gmtPtCuts = cms.untracked.vint32(muonEfficiencyThresholds_HI),
+    tagPtCut = cms.untracked.double(14.),
+    triggerNames = cms.untracked.vstring(
+        "HLT_HIL3Mu12_v*",
+    )
+)
+

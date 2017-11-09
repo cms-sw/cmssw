@@ -871,7 +871,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( useExpectedMissingHits1_ || calculateExpectedMissingHits1_ ) {
 
-        Int_t numberOfInnerHits = (Int_t)( maxETelec1.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+        Int_t numberOfInnerHits = (Int_t)( maxETelec1.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS));
 
         if ( ( numberOfInnerHits > maxNumberOfExpectedMissingHits1_ ) && useExpectedMissingHits1_ ) {
             delete [] sorted;
@@ -887,7 +887,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( useExpectedMissingHits2_ || calculateExpectedMissingHits2_ ) {
 
-        Int_t numberOfInnerHits = (Int_t)( maxETelec2.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) );
+        Int_t numberOfInnerHits = (Int_t)( maxETelec2.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) );
 
         if ( ( numberOfInnerHits > maxNumberOfExpectedMissingHits2_ ) && useExpectedMissingHits2_ ) {
             delete [] sorted;

@@ -87,6 +87,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   }
   caloTauIDTokens_ = edm::vector_transform(tauIDSrcs_, [this](NameTag const & tag){return mayConsume<reco::CaloTauDiscriminator>(tag.second);});
   pfTauIDTokens_   = edm::vector_transform(tauIDSrcs_, [this](NameTag const & tag){return mayConsume<reco::PFTauDiscriminator>(tag.second);});
+  skipMissingTauID_ = iConfig.getParameter<bool>( "skipMissingTauID" );
   // IsoDeposit configurables
   if (iConfig.exists("isoDeposits")) {
     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
@@ -315,6 +316,11 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
 	  iEvent.getByToken(pfTauIDTokens_[i], pfTauIdDiscr);
 
+	  if(skipMissingTauID_ && !pfTauIdDiscr.isValid()){
+	    edm::LogWarning("DataSource") << "Tau discriminator '" << tauIDSrcs_[i].first
+					  << "' has not been found in the event. It will not be embedded into the pat::Tau object.";
+	    continue;
+	  }
 	  ids[i].first = tauIDSrcs_[i].first;
 	  ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
 	} else if ( typeid(*tausRef) == typeid(reco::CaloTau) ) {
@@ -325,6 +331,11 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  edm::Handle<reco::CaloTauDiscriminator> caloTauIdDiscr;
 	  iEvent.getByToken(caloTauIDTokens_[i], caloTauIdDiscr);
 
+	  if(skipMissingTauID_ && !caloTauIdDiscr.isValid()){
+	    edm::LogWarning("DataSource") << "Tau discriminator '" << tauIDSrcs_[i].first
+					  << "' has not been found in the event. It will not be embedded into the pat::Tau object.";
+	    continue;
+	  }
 	  ids[i].first = tauIDSrcs_[i].first;
 	  ids[i].second = getTauIdDiscriminator(caloTauCollection, idx, caloTauIdDiscr);
 	} else {
@@ -367,7 +378,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	sumPhiTimesEnergy += icand->positionAtECALEntrance().phi()*icand->energy();		
 	sumEtaTimesEnergy += icand->positionAtECALEntrance().eta()*icand->energy();
         sumEnergy += icand->energy();	 
-	const reco::Track* track = 0;
+	const reco::Track* track = nullptr;
      	if ( icand->trackRef().isNonnull() ) track = icand->trackRef().get();
      	else if ( icand->muonRef().isNonnull() && icand->muonRef()->innerTrack().isNonnull()  ) track = icand->muonRef()->innerTrack().get();
      	else if ( icand->muonRef().isNonnull() && icand->muonRef()->globalTrack().isNonnull() ) track = icand->muonRef()->globalTrack().get();
@@ -522,7 +533,9 @@ void PATTauProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   tauIDSourcesPSet.setAllowAnything();
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("tauIDSource", edm::InputTag(), true) xor
                  edm::ParameterDescription<edm::ParameterSetDescription>("tauIDSources", tauIDSourcesPSet, true)
-               )->setComment("input with electron ID variables");
+               )->setComment("input with tau ID variables");
+  // (Dis)allow to skip missing tauId sources
+  iDesc.add<bool>("skipMissingTauID", false)->setComment("allow to skip a tau ID variable when not present in the event");
 
   // IsoDeposit configurables
   edm::ParameterSetDescription isoDepositsPSet;

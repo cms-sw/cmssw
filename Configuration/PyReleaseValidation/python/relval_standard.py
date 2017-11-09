@@ -442,6 +442,9 @@ workflows[150.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI2018','RECOHI2018','HARVEST
 workflows[150.2] = ['',['PhotonJets_Pt_10_13_HI','DIGIHI2018','RECOHI2018','HARVESTHI2018']]
 workflows[150.3] = ['',['ZEEMM_13_HI','DIGIHI2018','RECOHI2018','HARVESTHI2018']]
 
+### pp reference test ###
+workflows[149] = ['',['QCD_Pt_80_120_13_PPREF','DIGIPPREF2017','RECOPPREF2017','HARVESTPPREF2017']]
+
 ### pPb test ###
 workflows[280]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO','HARVEST']]
 

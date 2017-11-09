@@ -490,11 +490,11 @@ void IsoTrackCalibration::beginJob() {
   t_HitEnergies3 = new std::vector<double>();
 
   tree->Branch("t_DetIds",       "std::vector<unsigned int>", &t_DetIds);
-  tree->Branch("t_DetIds1",      "std::vector<unsigned int>", &t_DetIds1);
-  tree->Branch("t_DetIds3",      "std::vector<unsigned int>", &t_DetIds3);
+//tree->Branch("t_DetIds1",      "std::vector<unsigned int>", &t_DetIds1);
+//tree->Branch("t_DetIds3",      "std::vector<unsigned int>", &t_DetIds3);
   tree->Branch("t_HitEnergies",  "std::vector<double>",       &t_HitEnergies);
-  tree->Branch("t_HitEnergies1", "std::vector<double>",       &t_HitEnergies1);
-  tree->Branch("t_HitEnergies3", "std::vector<double>",       &t_HitEnergies3);
+//tree->Branch("t_HitEnergies1", "std::vector<double>",       &t_HitEnergies1);
+//tree->Branch("t_HitEnergies3", "std::vector<double>",       &t_HitEnergies3);
 }
 
 // ------------ method called when starting to processes a run  ------------

@@ -93,7 +93,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -115,8 +115,8 @@ class GlobalDigisAnalyzer : public DQMEDAnalyzer
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
   explicit GlobalDigisAnalyzer(const edm::ParameterSet&);
-  virtual ~GlobalDigisAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  ~GlobalDigisAnalyzer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

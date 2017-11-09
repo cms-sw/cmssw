@@ -56,7 +56,7 @@ namespace egHLT {
   private:
     std::string filterName_;
     const TrigCodes::TrigBitSet filterBit_;
-    
+    bool doHEP_;    
     //we own the pointers in the vectors
     std::vector<MonElemManagerBase<trigger::TriggerObject>*> trigMonElems_;
     std::vector<MonElemContainer<OffPho>*> phoEffHists_;
@@ -73,7 +73,7 @@ namespace egHLT {
     PhoHLTFilterMon(const PhoHLTFilterMon&){}
     PhoHLTFilterMon& operator=(const PhoHLTFilterMon&){return *this;}
   public:
-    PhoHLTFilterMon(MonElemFuncs& monElemFuncs, std::string  filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks);
+    PhoHLTFilterMon(MonElemFuncs& monElemFuncs, std::string  filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks, bool doHEP);
     ~PhoHLTFilterMon();
     
     

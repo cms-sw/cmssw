@@ -15,7 +15,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <fstream>
-#include <math.h>
+#include <cmath>
 #include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h>
 
 lclphidat CSCSectorReceiverMiniLUT::calcLocalPhiMini(unsigned theadd,  const bool gangedME1a )

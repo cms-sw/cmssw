@@ -109,7 +109,7 @@ DTSC::run() {
   if(config()->debug()){
     std::cout << "SC: DTSC::run: first Phi track is = " << first << std::endl;
   }
-  if(first!=0) {
+  if(first!=nullptr) {
     _outcand_ph.push_back(first); 
 
   }
@@ -130,7 +130,7 @@ DTSC::run() {
   // end debugging
 
   DTSectCollPhCand* second=DTSectCollsort2();
-  if(second!=0) {
+  if(second!=nullptr) {
     _outcand_ph.push_back(second); 
   }
   
@@ -141,8 +141,8 @@ DTSectCollPhCand*
 DTSC::DTSectCollsort1() {
 
   // Do a sort 1
-  DTSectCollPhCand* best=0;
-  DTSectCollPhCand* carry=0;
+  DTSectCollPhCand* best=nullptr;
+  DTSectCollPhCand* carry=nullptr;
   std::vector<DTSectCollPhCand*>::iterator p;
   for(p=_incand_ph[0].begin(); p!=_incand_ph[0].end(); p++) {
     DTSectCollPhCand* curr=(*p);
@@ -152,14 +152,14 @@ DTSC::DTSectCollsort1() {
     // NO Carry in Sector Collector sorting in default 
     if(config()->SCGetCarryFlag(_stat)) {  // get carry
 
-      if(best==0){
+      if(best==nullptr){
 	best=curr;
       } 
       else if((*curr)<(*best)){
 	carry=best;
 	best=curr;
       } 
-      else if(carry==0){
+      else if(carry==nullptr){
 	carry=curr;
       } 
       else if((*curr)<(*carry)){
@@ -168,7 +168,7 @@ DTSC::DTSectCollsort1() {
 
     }
     else if(config()->SCGetCarryFlag(_stat)==0){ // no carry (default)
-      if(best==0){
+      if(best==nullptr){
 	best=curr;
       } 
       else if((*curr)<(*best)){
@@ -178,7 +178,7 @@ DTSC::DTSectCollsort1() {
       
     }
     
-    if(carry!=0 && config()->SCGetCarryFlag(_stat)) { // reassign carry to sort 2 candidates
+    if(carry!=nullptr && config()->SCGetCarryFlag(_stat)) { // reassign carry to sort 2 candidates
       carry->setSecondTrack(); // change value of 1st/2nd track bit
       _incand_ph[1].push_back(carry); // add to list of 2nd track
  
@@ -198,7 +198,7 @@ DTSC::DTSectCollsort2() {
   if(nTracksPh()<1){
     std::cout << "DTSC::DTSectCollsort2: called with no first Phi track.";
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   // If a first track at the following BX is present, ignore second tracks of any kind
   if(_ignoreSecondTrack){
@@ -206,18 +206,18 @@ DTSC::DTSectCollsort2() {
     for(std::vector<DTSectCollPhCand*>::iterator p=_incand_ph[1].begin(); p!=_incand_ph[1].end(); p++) {
 
     }
-    return 0;
+    return nullptr;
   }
 
   // If no first tracks at the following BX, do a sort 2
   //  DTSectCollCand* best=getTrack(1);  ! not needed as lons as there is no comparison with best in sort 2
-  DTSectCollPhCand* second=0;
+  DTSectCollPhCand* second=nullptr;
   std::vector<DTSectCollPhCand*>::iterator p;
   for(p=_incand_ph[1].begin(); p!=_incand_ph[1].end(); p++) {
     DTSectCollPhCand* curr=(*p);
     curr->setBitsSectColl();    // SM sector collector set bits in dataword to make SC sorting
     
-    if(second==0){
+    if(second==nullptr){
       second=curr;
     } 
     else if((*curr)<(*second)){
@@ -272,12 +272,12 @@ DTSC::getDTSectCollPhCand(int ifs, unsigned n) const {
   if(ifs<1||ifs>2){
     std::cout << "DTSC::getDTSectCollPhCand: wrong track number: " << ifs;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   if(n<1 || n>nCandPh(ifs)) {
     std::cout << "DTSC::getDTSectCollPhCand: requested trigger not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   std::vector<DTSectCollPhCand*>::const_iterator p = _incand_ph[ifs-1].begin()+n-1;
@@ -291,7 +291,7 @@ DTSC::getDTSectCollThCand(unsigned n) const {
   if(n<1 || n>nCandTh()) {
     std::cout << "DTSC::getDTSectCollThCand: requested trigger not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   std::vector<DTSectCollThCand*>::const_iterator p = _cand_th.begin()+n-1;
@@ -314,7 +314,7 @@ DTSC::getTrackPh(int n) const {
   if(n<1 || n>nTracksPh()) {
     std::cout << "DTSC::getTrackPh: requested track not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   std::vector<DTSectCollPhCand*>::const_iterator p = _outcand_ph.begin()+n-1;
@@ -330,7 +330,7 @@ DTSC::getTrackTh(int n) const {
   if(n<1 || n>nTracksTh()) {
     std::cout << "DTSC::getTrackTh: requested track not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   std::vector<DTSectCollThCand*>::const_iterator p = _cand_th.begin()+n-1;

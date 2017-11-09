@@ -185,10 +185,12 @@ void TrackAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup
   bookHistosForHitProperties(ibooker);
   bookHistosForBeamSpot(ibooker);
   bookHistosForLScertification( ibooker);
-  if (doEffFromHitPatternVsPU_   || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "");
-  if (doEffFromHitPatternVsBX_   || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsBX");
-  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsSCALLUMI");
+  if (doEffFromHitPatternVsPU_   || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "",false);
+  if (doEffFromHitPatternVsBX_   || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsBX",false);
+  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsSCALLUMI",false);
   //  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsPIXELLUMI");
+  if (doEffFromHitPatternVsPU_   || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "",true);
+  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsSCALLUMI",true);
 
   // book tracker specific related histograms
   // ---------------------------------------------------------------------------------//
@@ -220,19 +222,23 @@ void TrackAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup
 
 void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker,
                                                          const edm::EventSetup & iSetup,
-							 const std::string suffix)
+							 const std::string suffix,bool useInac)
 {
 
-    ibooker.setCurrentFolder(TopFolder_ + "/HitEffFromHitPattern" + suffix);
+    ibooker.setCurrentFolder(TopFolder_ + "/HitEffFromHitPattern" + (useInac ? "All" :"") + suffix);
     
     constexpr int LUMIBin   = 300;   // conf_->getParameter<int>("LUMIBin");
     float LUMIMin = conf_->getParameter<double>("LUMIMin");
     float LUMIMax = conf_->getParameter<double>("LUMIMax");
     
+    int   PVBin = conf_->getParameter<int>   ("PVBin");
+    float PVMin = conf_->getParameter<double>("PVMin");
+    float PVMax = conf_->getParameter<double>("PVMax");
+    
 
-    int NBINS[]        = { 150,   int(GetLumi::lastBunchCrossing),  LUMIBin, LUMIBin};
-    float MIN[]        = { 0.5,     0.5,  LUMIMin, LUMIMin };
-    float MAX[]        = { 150.5, float(GetLumi::lastBunchCrossing)+0.5,  LUMIMax, LUMIMax };
+    int NBINS[]        = { PVBin,   int(GetLumi::lastBunchCrossing),  LUMIBin, LUMIBin};
+    float MIN[]        = { PVMin,     0.5,  LUMIMin, LUMIMin };
+    float MAX[]        = { PVMax, float(GetLumi::lastBunchCrossing)+0.5,  LUMIMax, LUMIMax };
     std::string NAME[] = { "", "VsBX", "VsLUMI", "VsLUMI" };
    
     auto logBins = makeLogBins<float,LUMIBin>(LUMIMin,LUMIMax);
@@ -247,6 +253,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
       if (monName[i] == suffix) {
         logQ =  (i>1); 
 	mon = i;
+        if (useInac) mon+=monQuantity::END;
 	nbins = NBINS[i];
 	min = MIN[i];
 	max = MAX[i];
@@ -1035,7 +1042,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   auto phiOut =  track.outerPosition().phi();
   auto etaOut =  track.outerPosition().eta();
 
-  int nRecHits      = track.hitPattern().numberOfHits(reco::HitPattern::TRACK_HITS);
+  int nRecHits      = track.hitPattern().numberOfAllHits(reco::HitPattern::TRACK_HITS);
   int nValidRecHits = track.numberOfValidHits();
   int nLostRecHits  = track.numberOfLostHits();
   int nLostIn =      track.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
@@ -1089,10 +1096,12 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   }
 
-  if (doEffFromHitPatternVsPU_   || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"",           float(good_vertices_) );
-  if (doEffFromHitPatternVsBX_   || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsBX",       float(bx_)            );
-  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsSCALLUMI", scal_lumi_            );
+  if (doEffFromHitPatternVsPU_   || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"",           float(good_vertices_), false );
+  if (doEffFromHitPatternVsBX_   || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsBX",       float(bx_), false            );
+  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsSCALLUMI", scal_lumi_, false            );
   //  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsPIXELLUMI", pixel_lumi_           );
+  if (doEffFromHitPatternVsPU_   || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"",           float(good_vertices_), true );
+  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsSCALLUMI", scal_lumi_, true            );
 
 
   if (doGeneralPropertiesPlots_ || doAllPlots_){
@@ -1259,12 +1268,13 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 }
 
-void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const float monitoring) {
+void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const float monitoring, bool useInac) {
 
     int mon = -1;
     for (int i=0; i<monQuantity::END; i++) {
       if (monName[i] == suffix) mon = i;
     }
+    if (useInac) mon+=monQuantity::END;
 
     //    if (track.pt() > 1.0 && track.dxy() < 0.1 and monitoring > 0) {
     if (track.pt() > 1.0 && track.dxy() < 0.1 and monitoring > -9.) {
@@ -1273,7 +1283,7 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & tra
       // reco::HitPattern::HitCategory, defined here:
       // http://cmslxr.fnal.gov/dxr/CMSSW/source/DataFormats/TrackReco/interface/HitPattern.h
       for (unsigned int category = 0; category < 3; ++category) {
-        for (int hit = 0; hit < hp.numberOfHits((reco::HitPattern::HitCategory)(category)); ++hit) {
+        for (int hit = 0; hit < hp.numberOfAllHits((reco::HitPattern::HitCategory)(category)); ++hit) {
           auto pattern = hp.getHitPattern((reco::HitPattern::HitCategory)(category), hit);
           // Boolean bad is missing simply because it is inferred and the only missing case.
           bool valid = hp.validHitFilter(pattern);
@@ -1296,6 +1306,8 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & tra
               hits_valid_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
               hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
               break;
+            case 2:
+              if (!useInac) break;
             case 1:
               hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
               break;
@@ -1750,7 +1762,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       tkmes.TrackPhiErr->Fill(phierror);
       tkmes.TrackEtaErr->Fill(etaerror);
       
-      int nRecHits      = track.hitPattern().numberOfHits(reco::HitPattern::TRACK_HITS);
+      int nRecHits      = track.hitPattern().numberOfAllHits(reco::HitPattern::TRACK_HITS);
       int nValidRecHits = track.numberOfValidHits();
       // rec hits 
       tkmes.NumberOfRecHitsPerTrackVsPhi->Fill(phi,    nRecHits);

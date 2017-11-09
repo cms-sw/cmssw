@@ -97,7 +97,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 //-----------------------------------------------------------------------------
 PixelCPETemplateReco::~PixelCPETemplateReco()
 {
-   // &&& delete template store?
+   for(auto x : thePixelTemp_) x.destroy();
 }
 
 PixelCPEBase::ClusterParam* PixelCPETemplateReco::createClusterParam(const SiPixelCluster & cl) const
@@ -362,54 +362,17 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
          templXrec2_ += lp.x();
          templYrec2_ += lp.y();
          
-         // calculate distance from each hit to the track and choose the
-         // hit closest to the track
-         float distance11 = sqrt( (templXrec1_ - theClusterParam.trk_lp_x)*(templXrec1_ - theClusterParam.trk_lp_x) +
-                                 (templYrec1_ - theClusterParam.trk_lp_y)*(templYrec1_ - theClusterParam.trk_lp_y) );
-         
-         float distance12 = sqrt( (templXrec1_ - theClusterParam.trk_lp_x)*(templXrec1_ - theClusterParam.trk_lp_x) +
-                                 (templYrec2_ - theClusterParam.trk_lp_y)*(templYrec2_ - theClusterParam.trk_lp_y) );
-         
-         float distance21 = sqrt( (templXrec2_ - theClusterParam.trk_lp_x)*(templXrec2_ - theClusterParam.trk_lp_x) +
-                                 (templYrec1_ - theClusterParam.trk_lp_y)*(templYrec1_ - theClusterParam.trk_lp_y) );
-         
-         float distance22 = sqrt( (templXrec2_ - theClusterParam.trk_lp_x)*(templXrec2_ - theClusterParam.trk_lp_x) +
-                                 (templYrec2_ - theClusterParam.trk_lp_y)*(templYrec2_ - theClusterParam.trk_lp_y) );
-         
-         float min_templXrec_ = -999.9;
-         float min_templYrec_ = -999.9;
-         float distance_min = 9999999999.9;
-         if ( distance11 < distance_min )
-         {
-            distance_min = distance11;
-            min_templXrec_ = templXrec1_;
-            min_templYrec_ = templYrec1_;
-         }
-         if ( distance12 < distance_min )
-         {
-            distance_min = distance12;
-            min_templXrec_ = templXrec1_;
-            min_templYrec_ = templYrec2_;
-         }
-         if ( distance21 < distance_min )
-         {
-            distance_min = distance21;
-            min_templXrec_ = templXrec2_;
-            min_templYrec_ = templYrec1_;
-         }
-         if ( distance22 < distance_min )
-         {
-            distance_min = distance22;
-            min_templXrec_ = templXrec2_;
-            min_templYrec_ = templYrec2_;
-         }
-         
-         theClusterParam.templXrec_ = min_templXrec_;
-         theClusterParam.templYrec_ = min_templYrec_;
+         // calculate distance from each hit to the track and choose the hit closest to the track
+         float distX1 = std::abs (templXrec1_ - theClusterParam.trk_lp_x);
+         float distX2 = std::abs (templXrec2_ - theClusterParam.trk_lp_x);
+         float distY1 = std::abs (templYrec1_ - theClusterParam.trk_lp_y);
+         float distY2 = std::abs (templYrec2_ - theClusterParam.trk_lp_y);
+         theClusterParam.templXrec_ = (distX1<distX2? templXrec1_ : templXrec2_);
+         theClusterParam.templYrec_ = (distY1<distY2? templYrec1_ : templYrec2_);
       }
    } // else if ( UseClusterSplitter_ && templQbin_ == 0 )
    
-   else // apparenly this is he good one!
+   else // apparenly this is the good one!
    {
       // go from micrometer to centimeter
       theClusterParam.templXrec_ *= micronsToCm;
@@ -476,9 +439,11 @@ PixelCPETemplateReco::localError(DetParam const & theDetParam,  ClusterParam & t
    //cout << "CPETemplate : " << endl;
    
    //--- Default is the maximum error used for edge clusters.
-   const float sig12 = 1./sqrt(12.0);
-   float xerr = theDetParam.thePitchX *sig12;
-   float yerr = theDetParam.thePitchY *sig12;
+   //--- (never used, in fact: let comment it out, shut up the complains of the static analyzer, and save a few CPU cycles)
+   //   const float sig12 = 1./sqrt(12.0);
+   //   float xerr = theDetParam.thePitchX *sig12;
+   //   float yerr = theDetParam.thePitchY *sig12;
+   float xerr, yerr;
    
    // Check if the errors were already set at the clusters splitting level
    if ( theClusterParam.theCluster->getSplitClusterErrorX() > 0.0f && theClusterParam.theCluster->getSplitClusterErrorX() < 7777.7f &&

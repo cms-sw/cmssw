@@ -135,7 +135,7 @@ void CaloTowersAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
   occupancy_map = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
 
   sprintf  (histo, "CaloTowersTask_occupancy_vs_ieta" );
-  occupancy_vs_ieta = ibooker.book1D(histo, histo, ieta_bins_, -41, 41);
+  occupancy_vs_ieta = ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_);
   
   if( isub == 1 || isub == 0) {
     //All cell histos are used

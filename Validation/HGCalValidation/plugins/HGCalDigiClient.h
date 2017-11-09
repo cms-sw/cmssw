@@ -37,10 +37,10 @@ private:
 
 public:
   explicit HGCalDigiClient(const edm::ParameterSet& );
-  virtual ~HGCalDigiClient();
+  ~HGCalDigiClient() override;
   
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
   void         runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig);   
   int          digisEndjob(const std::vector<MonitorElement*> &hcalMEs);
 };

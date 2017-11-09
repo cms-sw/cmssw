@@ -60,10 +60,10 @@ class L1MuDTTrack : public L1MuRegionalCand {
     L1MuDTTrack(const L1MuDTTrack&);
 
     /// destructor
-    virtual ~L1MuDTTrack();
+    ~L1MuDTTrack() override;
 
     /// reset muon candidate
-    void reset();
+    void reset() override;
 
     /// get name of object
     inline std::string name() const { return m_name; }
@@ -87,7 +87,7 @@ class L1MuDTTrack : public L1MuRegionalCand {
     inline TrackClass tc() const { return m_tc; }
 
     /// is it an empty  muon candidate?
-    inline bool empty() const { return m_empty; }
+    inline bool empty() const override { return m_empty; }
     
     /// return Sector Processor in which the muon candidate was found
     inline const L1MuDTSecProcId& spid() const { return m_spid; }
@@ -174,7 +174,7 @@ class L1MuDTTrack : public L1MuRegionalCand {
     bool operator!=(const L1MuDTTrack&) const;
 
     /// print parameters of muon candidate
-    void print() const;
+    void print() const override;
   
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1MuDTTrack&);

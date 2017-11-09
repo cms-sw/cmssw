@@ -3,7 +3,7 @@
 
 tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC) :
   srcToken_(iC.consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("tagProbePairs"))),
-  randGen_(0)
+  randGen_(nullptr)
 {
   std::string arbitration = iConfig.getParameter<std::string>("arbitration");
   if (arbitration == "None") {
@@ -59,7 +59,7 @@ tnp::TagProbePairMaker::run(const edm::Event &iEvent) const
     arbitrate(pairs);
   }
 
-  if (phiCutForTwoLeg_ && pairs.size() > 0) {
+  if (phiCutForTwoLeg_ && !pairs.empty()) {
     int eventNum = iEvent.id().event();
     std::cout << "Calling phiCutByEventNumber on eventNum=" << eventNum << std::endl;
     phiCutByEventNumber(pairs,eventNum);

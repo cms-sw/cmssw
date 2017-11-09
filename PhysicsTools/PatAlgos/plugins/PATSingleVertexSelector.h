@@ -30,9 +30,9 @@ namespace pat {
     public:
 
       explicit PATSingleVertexSelector(const edm::ParameterSet & iConfig);
-      ~PATSingleVertexSelector();
+      ~PATSingleVertexSelector() override;
 
-      virtual bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
       enum Mode { First, NearestToCand, FromCand, FromBeamSpot };
