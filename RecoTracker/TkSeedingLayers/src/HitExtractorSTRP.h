@@ -44,7 +44,7 @@ public:
 
   bool skipThis(DetId id, OmniClusterRef const& clus, edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
 
-  void setNoProjection() {failProjection=true;};
+  void setNoProjection() {failProjection=true;}
   void setMinAbsZ(double minZToSet) {minAbsZ=minZToSet;}
 
   bool useRingSelector() const { return hasRingSelector; }
