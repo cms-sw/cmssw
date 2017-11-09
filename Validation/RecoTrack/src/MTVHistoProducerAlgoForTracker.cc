@@ -1581,7 +1581,7 @@ unsigned int MTVHistoProducerAlgoForTracker::getSeedingLayerSetBin(const reco::T
     default: throw cms::Exception("LogicError") << "Unknown subdetId " << detId.subdetId();
     };
 
-    TrackerDetSide::Side side = static_cast<TrackerDetSide::Side>(ttopo.side(detId));
+    TrackerDetSide side = static_cast<TrackerDetSide>(ttopo.side(detId));
 
     // This is an ugly assumption, but a generic solution would
     // require significantly more effort
