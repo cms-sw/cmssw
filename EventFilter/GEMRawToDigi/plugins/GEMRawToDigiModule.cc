@@ -20,6 +20,11 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet & pset)
 {
   fed_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("InputLabel") );  
   produces<GEMDigiCollection>(); 
+  unpackStatusDigis  = pset.getParameter<bool>("UnpackStatusDigis");
+  if (unpackStatusDigis){
+    produces<GEMVfatStatusDigiCollection>("vfatStatus"); 
+    produces<GEMGEBStatusDigiCollection>("GEBStatus"); 
+  }
 }
 
 void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
@@ -33,12 +38,15 @@ void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
   iSetup.get<GEMEMapRcd>().get(gemEMap); 
   m_gemEMap = gemEMap.product();
   m_gemROMap = m_gemEMap->convert();
+
 }
 
 void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup )
 {
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
 
+  auto outVfatStatus = std::make_unique<GEMVfatStatusDigiCollection>();
+  auto outGEBStatus = std::make_unique<GEMGEBStatusDigiCollection>();
   // Take raw from the event
   edm::Handle<FEDRawDataCollection> fed_buffers;
   e.getByToken( fed_token, fed_buffers );
@@ -56,14 +64,11 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
     
     const uint64_t* word = reinterpret_cast<const uint64_t* >(data);
     amc13Event->setCDFHeader(*word);
-    std::cout <<"GEMRawToDigiModule setCDFHeader "<< word<<std::endl;    
     amc13Event->setAMC13header(*(++word));
-    std::cout <<"GEMRawToDigiModule setAMC13header "<< word<<std::endl;    
     
     // Readout out AMC headers
     for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
       amc13Event->addAMCheader(*(++word));
-    std::cout <<"GEMRawToDigiModule addAMCheader "<< word<<std::endl;    
     }
     std::cout <<"GEMRawToDigiModule amc13Event->nAMC() "<< amc13Event->nAMC()<<std::endl;
 
@@ -72,29 +77,22 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
       AMCdata * amcData = new AMCdata();
       
       amcData->setAMCheader1(*(++word));      
-      std::cout <<"GEMRawToDigiModule setAMCheader1 "<< word<<std::endl;    
       amcData->setAMCheader2(*(++word));
-      std::cout <<"GEMRawToDigiModule setAMCheader2 "<< word<<std::endl;    
       amcData->setGEMeventHeader(*(++word));
-      std::cout <<"GEMRawToDigiModule setGEMeventHeader "<< word<<std::endl;    
 
       std::cout <<"GEMRawToDigiModule amcData->GDcount() "<<amcData->GDcount()<<std::endl;
       // Fill GEB
       for (unsigned short j = 0; j < amcData->GDcount(); ++j){
 	GEBdata * gebData = new GEBdata();
 	gebData->setChamberHeader(*(++word));
-      std::cout <<"GEMRawToDigiModule setChamberHeader "<< word<<std::endl;    
 	int m_nvb = gebData->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
 
 	std::cout <<"GEMRawToDigiModule number of VFAT2 blocks "<< m_nvb<<std::endl;
 	for (unsigned short k = 0; k < m_nvb; k++){
 	  VFATdata * vfatData = new VFATdata();
 	  vfatData->read_fw(*(++word));
-	  std::cout <<"GEMRawToDigiModule read_fw "<< word<<std::endl;    
 	  vfatData->read_sw(*(++word));
-	  std::cout <<"GEMRawToDigiModule read_sw "<< word<<std::endl;    
 	  vfatData->read_tw(*(++word));
-	  std::cout <<"GEMRawToDigiModule read_tw "<< word<<std::endl;    
 	  gebData->v_add(*vfatData);
 
 	  uint16_t bc=vfatData->BC();
@@ -121,7 +119,12 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    delete vfatData;
 	    continue;
 	  }
-	  
+          if (unpackStatusDigis){
+	    GEMVfatStatusDigi vfatStatus(b1010, b1100, vfatData->Flag(), b1110, vfatData->lsData(), vfatData->msData(), crc, vfatData->crc_calc(), vfatData->isBlockGood());
+            GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
+            GEMDetId tmpDetId(dc.gemDetId);
+            outVfatStatus.get()->insertDigi(tmpDetId,vfatStatus);
+	  }
 	  for (int chan = 0; chan < 128; ++chan) {
 	    uint8_t chan0xf = 0;
 	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
@@ -137,38 +140,54 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    GEMDetId gemDetId(dc.gemDetId);
 	    GEMDigi digi(dc.stripId,bc);
 	    
-	    std::cout <<"GEMRawToDigiModule ChipID "<< ec.vfatId
+	    /*std::cout <<"GEMRawToDigiModule ChipID "<< ec.vfatId
 	    	      <<" gemDetId "<< gemDetId
 	    	      <<" chan "<< chan
 	    	      <<" strip "<< dc.stripId
 	    	      <<std::endl;
-	    
+            if (dc.stripId < 0) {
+              std::cout << "wrong channel : " << ec.channelId << " vfat : "<< ec.vfatId << " detId : "<< gemDetId << " det strip : " << dc.stripId  << std::endl;
+              continue; 
+            }	   */ 
 	    outGEMDigis.get()->insertDigi(gemDetId,digi);
 	  }
 	  delete vfatData;
 	}
-	
+        if (unpackStatusDigis){
+          GEMGEBStatusDigi gebStatus(gebData->ZeroSup(),
+                                     gebData->InputID(),
+                                     gebData->Vwh(),
+                                     gebData->ErrorC(),
+                                     gebData->OHCRC(),
+                                     gebData->Vwt(),
+                                     gebData->InFu(),
+                                     gebData->Stuckd(),
+                                     gebData->GEBflag());
+          // need to update with GEB ID 
+          //GEMDetId tmpDetId(dc.gemDetId.region(), dc.gemDetId.ring(), dc.gemDetId.station(), dc.gemDetId.layer(), dc.gemDetId.chamber(),0);
+          GEMDetId tmpDetId(-1,1,1,1,1,0);
+          outGEBStatus.get()->insertDigi(tmpDetId,gebStatus); 
+        }
 	gebData->setChamberTrailer(*(++word));
-	std::cout <<"GEMRawToDigiModule setChamberTrailer "<< word<<std::endl;    
 	amcData->g_add(*gebData);
 	delete gebData;
       }
       
       amcData->setGEMeventTrailer(*(++word));
-	std::cout <<"GEMRawToDigiModule setGEMeventTrailer "<< word<<std::endl;    
       amcData->setAMCTrailer(*(++word));
-	std::cout <<"GEMRawToDigiModule setAMCTrailer "<< word<<std::endl;    
       amc13Event->addAMCpayload(*amcData);
       delete amcData;
     }
     
     amc13Event->setAMC13trailer(*(++word));
-	std::cout <<"GEMRawToDigiModule setAMC13trailer "<< word<<std::endl;    
     amc13Event->setCDFTrailer(*(++word));
-	std::cout <<"GEMRawToDigiModule setCDFTrailer "<< word<<std::endl;    
   }
   
   e.put(std::move(outGEMDigis));
+  if (unpackStatusDigis){
+    e.put(std::move(outVfatStatus), "vfatStatus");
+    e.put(std::move(outGEBStatus), "GEBStatus");
+  }
 }
 
 uint16_t GEMRawToDigiModule::checkCRC(VFATdata * vfatData)

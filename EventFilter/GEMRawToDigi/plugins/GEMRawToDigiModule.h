@@ -15,6 +15,8 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMGEBStatusDigiCollection.h"
 
 #include "CondFormats/DataRecord/interface/GEMEMapRcd.h"
 #include "CondFormats/GEMObjects/interface/GEMEMap.h"
@@ -48,7 +50,7 @@ class GEMRawToDigiModule : public edm::EDProducer {
   uint16_t crc_cal(uint16_t crc_in, uint16_t dato);
   
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
-
+  bool unpackStatusDigis;
   const GEMEMap* m_gemEMap;
   GEMROmap* m_gemROMap;
   
