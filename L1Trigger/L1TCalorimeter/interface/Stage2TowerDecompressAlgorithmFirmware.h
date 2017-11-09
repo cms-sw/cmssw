@@ -22,9 +22,9 @@ namespace l1t {
   class Stage2TowerDecompressAlgorithmFirmwareImp1 : public Stage2TowerDecompressAlgorithm {
   public:
     Stage2TowerDecompressAlgorithmFirmwareImp1(CaloParamsHelper* params);
-    virtual ~Stage2TowerDecompressAlgorithmFirmwareImp1();
-    virtual void processEvent(const std::vector<l1t::CaloTower> & inTowers,
-			      std::vector<l1t::CaloTower> & outTowers);
+    ~Stage2TowerDecompressAlgorithmFirmwareImp1() override;
+    void processEvent(const std::vector<l1t::CaloTower> & inTowers,
+			      std::vector<l1t::CaloTower> & outTowers) override;
   private:
     CaloParamsHelper* params_;
 

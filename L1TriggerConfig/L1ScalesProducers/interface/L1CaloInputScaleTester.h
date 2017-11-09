@@ -27,13 +27,13 @@
 class L1CaloInputScaleTester : public edm::EDAnalyzer {
    public:
       explicit L1CaloInputScaleTester(const edm::ParameterSet&);
-      ~L1CaloInputScaleTester();
+      ~L1CaloInputScaleTester() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
 };

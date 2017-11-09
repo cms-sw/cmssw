@@ -194,7 +194,7 @@ DTTSTheta::runDTTSTheta() {
 
   // debugging...
   if(config()->debug()){
-    if(_cache.size()>0){
+    if(!_cache.empty()){
       std::cout << "====================================================" << std::endl;
       std::cout << "                 Theta segments                     " << std::endl;
       std::vector<DTChambThSegm>::const_iterator p;
@@ -225,7 +225,7 @@ DTTSTheta::segment(int step, unsigned n) {
     if(p->step()==step&&n==1)
       return &(*p);
   }
-  return 0;
+  return nullptr;
 }
 
 int 
@@ -255,7 +255,7 @@ DTTSTheta::btiMask(int step) const {
   if(step<DTConfigTSTheta::NSTEPF||step>DTConfigTSTheta::NSTEPL){
     std::cout << "DTTSTheta::btiMask: step out of range " << step;
     std::cout << " empty pointer returned" << std::endl;
-    return 0;
+    return nullptr;
   }
   return (BitArray<DTConfigTSTheta::NCELLTH>*)&_trig[step-DTConfigTSTheta::NSTEPF]; 
 }
@@ -265,7 +265,7 @@ DTTSTheta::btiQual(int step) const {
   if(step<DTConfigTSTheta::NSTEPF||step>DTConfigTSTheta::NSTEPL){
     std::cout << "DTTSTheta::btiQual: step out of range " << step;
     std::cout << " empty pointer returned" << std::endl;
-    return 0;
+    return nullptr;
   }
   return (BitArray<DTConfigTSTheta::NCELLTH>*)&_Htrig[step-DTConfigTSTheta::NSTEPF]; 
 }

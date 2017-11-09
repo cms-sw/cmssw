@@ -72,7 +72,7 @@ bool L1GctWheelJetFpga::checkSetup() const
   
   for(unsigned int i = 0; i < MAX_LEAF_CARDS; ++i)
     {
-      if(m_inputLeafCards.at(i) == 0)
+      if(m_inputLeafCards.at(i) == nullptr)
 	{
 	  result = false;
 	  if (m_verbose) {
@@ -87,9 +87,9 @@ bool L1GctWheelJetFpga::checkSetup() const
 
 L1GctWheelJetFpga::~L1GctWheelJetFpga()
 {
-  if (m_centralJetSorter != 0) delete m_centralJetSorter;
-  if (m_forwardJetSorter != 0) delete m_forwardJetSorter;
-  if (m_tauJetSorter != 0)     delete m_tauJetSorter;
+  if (m_centralJetSorter != nullptr) delete m_centralJetSorter;
+  if (m_forwardJetSorter != nullptr) delete m_forwardJetSorter;
+  if (m_tauJetSorter != nullptr)     delete m_tauJetSorter;
 }
 
 std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
@@ -171,7 +171,7 @@ void L1GctWheelJetFpga::fetchInput()
     //Get Jets
     for(unsigned short iLeaf = 0; iLeaf < MAX_LEAF_CARDS; ++iLeaf)
       {
-	if (m_inputLeafCards.at(iLeaf) != 0) {  //check that the pointers have been set up!
+	if (m_inputLeafCards.at(iLeaf) != nullptr) {  //check that the pointers have been set up!
 
 	  storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsA(), iLeaf, 0);
 	  storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsB(), iLeaf, L1GctJetFinderBase::MAX_JETS_OUT);

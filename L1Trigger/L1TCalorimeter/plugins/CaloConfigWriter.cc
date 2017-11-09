@@ -31,8 +31,8 @@
 class CaloConfigWriter : public edm::EDAnalyzer {
 public:
   explicit CaloConfigWriter(const edm::ParameterSet&) {}
-  virtual  ~CaloConfigWriter() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;  
+   ~CaloConfigWriter() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;  
 
 };
 

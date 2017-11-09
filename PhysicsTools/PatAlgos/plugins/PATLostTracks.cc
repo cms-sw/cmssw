@@ -38,9 +38,9 @@ namespace pat {
   class PATLostTracks : public edm::global::EDProducer<> {
   public:
     explicit PATLostTracks(const edm::ParameterSet&);
-    ~PATLostTracks();
+    ~PATLostTracks() override;
     
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
    
   private:  
     enum class TrkStatus {

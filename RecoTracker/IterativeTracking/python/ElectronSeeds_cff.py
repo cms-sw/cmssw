@@ -261,6 +261,10 @@ trackingPhase2PU140.toModify(newCombinedSeeds, seedCollections = [
     'tripletElectronSeeds'
 ])
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+from FastSimulation.Tracking.ElectronSeeds_cff import _newCombinedSeeds
+fastSim.toReplaceWith(newCombinedSeeds,_newCombinedSeeds.clone())
+
 electronSeedsSeq = cms.Sequence( initialStepSeedClusterMask*
                                  pixelPairStepSeedClusterMask*
                                  mixedTripletStepSeedClusterMask*

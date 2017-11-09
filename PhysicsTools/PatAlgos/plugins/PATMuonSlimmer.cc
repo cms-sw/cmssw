@@ -26,10 +26,10 @@ namespace pat {
   class PATMuonSlimmer : public edm::stream::EDProducer<> {
   public:
     explicit PATMuonSlimmer(const edm::ParameterSet & iConfig);
-    virtual ~PATMuonSlimmer() { }
+    ~PATMuonSlimmer() override { }
     
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) final;
     
   private:
     const edm::EDGetTokenT<pat::MuonCollection> src_;

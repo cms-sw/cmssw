@@ -50,20 +50,20 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
         dirName+="_TkAsso";
       }
       std::replace(dirName.begin(), dirName.end(), ':', '_');
-      ibooker.setCurrentFolder(dirName.c_str());
+      ibooker.setCurrentFolder(dirName);
 
       setUpVectors();
 
       ibooker.goUp();
       string subDirName = dirName + "/simulation";
-      ibooker.setCurrentFolder(subDirName.c_str());
+      ibooker.setCurrentFolder(subDirName);
       h_ptSIM.push_back( ibooker.book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
       h_etaSIM.push_back( ibooker.book1D("etaSIM", "generated pseudorapidity", 500, -2.5, 2.5 ) );
       h_tracksSIM.push_back( ibooker.book1D("tracksSIM","number of simulated tracks",200,-0.5,99.5) );
       h_vertposSIM.push_back( ibooker.book1D("vertposSIM","Transverse position of sim vertices",100,0.,120.) );
       
       ibooker.cd();
-      ibooker.setCurrentFolder(dirName.c_str());
+      ibooker.setCurrentFolder(dirName);
       h_tracks.push_back( ibooker.book1D("tracks","number of reconstructed tracks",200,-0.5,19.5) );
       h_fakes.push_back( ibooker.book1D("fakes","number of fake reco tracks",20,-0.5,19.5) );
       h_charge.push_back( ibooker.book1D("charge","charge",3,-1.5,1.5) );
@@ -395,7 +395,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	std::vector<std::pair<RefToBase<Track>, double> > rt;
 	if(simRecColl.find(tpr) != simRecColl.end()){
 	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tpr];
-	  if (rt.size()!=0) {
+	  if (!rt.empty()) {
 	    RefToBase<Track> assoc_recoTrack = rt.begin()->first;
 	    edm::LogVerbatim("MuonTrackValidator")<<"-----------------------------associated Track #"<<assoc_recoTrack.key();
 	    TP_is_matched = true;
@@ -573,7 +573,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  
 	  if(recSimColl.find(track) != recSimColl.end()) {
 	    tp = recSimColl[track];	
-	    if (tp.size() != 0) {
+	    if (!tp.empty()) {
 	      tpr = tp.begin()->first;	
 	      // RtS and StR must associate the same pair !
 	      if(simRecColl.find(tpr) != simRecColl.end()) {
@@ -603,7 +603,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	else {
 	  if(recSimColl.find(track) != recSimColl.end()){
 	    tp = recSimColl[track];
-	    if (tp.size()!=0) {
+	    if (!tp.empty()) {
 	      Track_is_matched = true;
 	      tpr = tp.begin()->first;
 	      at++;
@@ -737,10 +737,10 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	double phiErrorRec(0);
 	
 	//loop to decide whether to take gsfTrack (utilisation of mode-function) or common track
-	const GsfTrack* gsfTrack(0);
+	const GsfTrack* gsfTrack(nullptr);
 	if(useGsf){
 	  gsfTrack = dynamic_cast<const GsfTrack*>(&(*track));
-	  if (gsfTrack==0) edm::LogInfo("MuonTrackValidator") << "Trying to access mode for a non-GsfTrack";
+	  if (gsfTrack==nullptr) edm::LogInfo("MuonTrackValidator") << "Trying to access mode for a non-GsfTrack";
 	}
 	
 	if (gsfTrack) {
@@ -961,7 +961,7 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
     }
   }
   
-  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+  if ( !out.empty() && dbe_ ) dbe_->save(out);
 }
 
 void MuonTrackValidator::getRecoMomentum (const reco::Track& track,

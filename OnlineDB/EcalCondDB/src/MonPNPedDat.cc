@@ -11,16 +11,16 @@ using namespace oracle::occi;
 
 MonPNPedDat::MonPNPedDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_pedMeanG1 = 0;
   m_pedRMSG1 = 0;
   m_pedMeanG16 = 0;
   m_pedRMSG16 = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

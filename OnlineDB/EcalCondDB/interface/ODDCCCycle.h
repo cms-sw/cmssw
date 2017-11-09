@@ -14,9 +14,9 @@ class ODDCCCycle :  public IODConfig  {
   friend class ODEcalCycle;
 
   ODDCCCycle();
-  ~ODDCCCycle();
+  ~ODDCCCycle() override;
 
-  inline std::string getTable() { return "ECAL_DCC_CYCLE"; }
+  inline std::string getTable() override { return "ECAL_DCC_CYCLE"; }
 
   inline void setId(int id){m_ID=id;}
   inline int getId()const{ return m_ID;} ;
@@ -34,7 +34,7 @@ class ODDCCCycle :  public IODConfig  {
   int m_ID;
   int  m_dcc_config_id;
   void writeDB() noexcept(false);
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void clear();
   void fetchData(ODDCCCycle * result) noexcept(false);
   void insertConfig() noexcept(false);

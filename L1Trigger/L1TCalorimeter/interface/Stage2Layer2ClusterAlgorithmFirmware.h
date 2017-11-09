@@ -31,8 +31,8 @@ namespace l1t
       };
 
       Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParamsHelper* params, ClusterInput clusterInput);
-      virtual ~Stage2Layer2ClusterAlgorithmFirmwareImp1();
-      virtual void processEvent(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters);
+      ~Stage2Layer2ClusterAlgorithmFirmwareImp1() override;
+      void processEvent(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters) override;
 
     private:
       void clustering(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters);

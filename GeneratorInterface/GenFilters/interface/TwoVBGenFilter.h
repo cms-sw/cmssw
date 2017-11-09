@@ -37,12 +37,12 @@
 class TwoVBGenFilter : public edm::EDFilter {
    public:
       explicit TwoVBGenFilter(const edm::ParameterSet&);
-      ~TwoVBGenFilter();
+      ~TwoVBGenFilter() override;
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
       edm::InputTag src_;

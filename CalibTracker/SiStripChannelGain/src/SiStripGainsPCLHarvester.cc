@@ -271,8 +271,8 @@ SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_, const 
        if(FitMPV>0.) Gains->Fill(Gain);
  
        MPVs->Fill(FitMPV);
-       if(Thickness<0.04) MPVs320->Fill(Phi,FitMPV);
-       if(Thickness>0.04) MPVs500->Fill(Phi,FitMPV);
+       if(Thickness<0.04) MPVs320->Fill(FitMPV);
+       if(Thickness>0.04) MPVs500->Fill(FitMPV);
 
        MPVError->Fill(FitMPVErr);
        MPVErrorVsMPV->Fill(FitMPV,FitMPVErr);

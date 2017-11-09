@@ -42,7 +42,7 @@ typedef SectCollPhiColl::const_iterator SectCollPhiColl_iterator;
 typedef vector<DTSectCollThSegm>  SectCollThetaColl;
 typedef SectCollThetaColl::const_iterator SectCollThetaColl_iterator;
 
-DTTrigProd::DTTrigProd(const ParameterSet& pset) : my_trig(0) {
+DTTrigProd::DTTrigProd(const ParameterSet& pset) : my_trig(nullptr) {
   
   produces<L1MuDTChambPhContainer>();
   produces<L1MuDTChambThContainer>();

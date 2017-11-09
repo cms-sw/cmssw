@@ -27,11 +27,11 @@ class ShiftedMETcorrInputProducer : public edm::stream::EDProducer<>
  public:
 
   explicit ShiftedMETcorrInputProducer(const edm::ParameterSet&);
-  ~ShiftedMETcorrInputProducer();
+  ~ShiftedMETcorrInputProducer() override;
 
  private:
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef std::vector<edm::InputTag> vInputTag;
   vInputTag src_;

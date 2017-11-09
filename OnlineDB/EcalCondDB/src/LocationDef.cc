@@ -9,8 +9,8 @@ using namespace oracle::occi;
 
 LocationDef::LocationDef()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_loc = "";
 }

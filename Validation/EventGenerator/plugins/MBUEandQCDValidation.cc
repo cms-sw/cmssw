@@ -254,7 +254,7 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
     if ( (*iter)->status() == 1) {
       hepmcGPCollection.push_back(*iter);
       const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID((*iter)->pdg_id()));
-      if(PData==0) { charge = -999.; }
+      if(PData==nullptr) { charge = -999.; }
       else
         charge = PData->charge();
 

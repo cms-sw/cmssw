@@ -172,7 +172,7 @@ namespace edmNew {
     struct IterHelp {
       typedef DetSet result_type;
       //      IterHelp() : v(0),update(true){}
-      IterHelp() : m_v(0),m_update(false){}
+      IterHelp() : m_v(nullptr),m_update(false){}
       IterHelp(DetSetVector<T> const & iv, bool iup) : m_v(&iv), m_update(iup){}
       
       result_type & operator()(Item const& item) const {

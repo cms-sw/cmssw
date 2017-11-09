@@ -206,15 +206,16 @@ SiPixelPhase1ClustersReadoutNClusters = DefaultHistoReadout.clone(
                              .groupBy("PXForward/HalfCylinder").save(),
 
     Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/DetId/Event").reduce("COUNT")
-                             .groupBy("PXBarrel/Shell/Sector/Lumisection").reduce("MEAN")
+                             .groupBy("PXBarrel/Shell/Sector/LumiBlock").reduce("MEAN")
                              .groupBy("PXBarrel/Shell/Sector", "EXTEND_X").save(),
     Specification(PerReadout).groupBy("PXForward/HalfCylinder/DetId/Event").reduce("COUNT")
-                             .groupBy("PXForward/HalfCylinder/Lumisection").reduce("MEAN")
+                             .groupBy("PXForward/HalfCylinder/LumiBlock").reduce("MEAN")
                              .groupBy("PXForward/HalfCylinder", "EXTEND_X").save(),
   )
 )
 
 SiPixelPhase1ClustersPixelToStripRatio = DefaultHistoDigiCluster.clone(
+  enabled = False,
   name = "cluster_ratio",
   title = "Pixel to Strip clusters ratio",
   
@@ -223,7 +224,7 @@ SiPixelPhase1ClustersPixelToStripRatio = DefaultHistoDigiCluster.clone(
   
   specs = VPSet(
     Specification().groupBy("PXAll").save(100, 0, 1), 
-    Specification().groupBy("PXAll/Lumisection")
+    Specification().groupBy("PXAll/LumiBlock")
                    .reduce("MEAN") 
                    .groupBy("PXAll", "EXTEND_X")
                    .save(),

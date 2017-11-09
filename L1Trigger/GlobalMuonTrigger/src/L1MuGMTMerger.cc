@@ -102,14 +102,14 @@ void L1MuGMTMerger::run() {
 void L1MuGMTMerger::reset() {
 
   for ( int i = 0; i < 4; i++ ) {  
-    dtcsc_mu[i] = 0;
-    rpc_mu[i] = 0;
+    dtcsc_mu[i] = nullptr;
+    rpc_mu[i] = nullptr;
   }
   
   std::vector<L1MuGMTExtendedCand*>::iterator iter;
   for ( iter = m_MuonCands.begin(); iter != m_MuonCands.end(); iter++ ) {
     if ( *iter ) delete (*iter); 
-    *iter = 0;
+    *iter = nullptr;
   }
 
   m_MuonCands.clear();
@@ -189,7 +189,7 @@ void L1MuGMTMerger::merge() {
   
   // loop over DT/CSC muons
   for (int i=0; i<4; i++) {
-    if (dtcsc_mu[i] != 0) {
+    if (dtcsc_mu[i] != nullptr) {
 
       int match_idx = pairM.rowAny(i);
 
@@ -210,7 +210,7 @@ void L1MuGMTMerger::merge() {
 
   // additionally loop over RPC muons
   for (int j=0; j<4; j++) {
-    if (rpc_mu[j] != 0) {      
+    if (rpc_mu[j] != nullptr) {      
       
       int match_idx = pairM.colAny(j);
       
@@ -529,7 +529,7 @@ void L1MuGMTMerger::createMergedCand(int idx_dtcsc, int idx_rpc) {
 
 int L1MuGMTMerger::merge_rank(const L1MuRegionalCand* muon) const {
 
-  if ( muon == 0 || muon->empty() ) return 0;
+  if ( muon == nullptr || muon->empty() ) return 0;
 
   unsigned lut_idx= muon->type_idx();
   

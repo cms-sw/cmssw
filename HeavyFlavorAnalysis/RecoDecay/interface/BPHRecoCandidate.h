@@ -58,7 +58,7 @@ class BPHRecoCandidate: public virtual BPHKinematicFit {
 
   /** Destructor
    */
-  virtual ~BPHRecoCandidate();
+  ~BPHRecoCandidate() override;
 
   /** Operations
    */
@@ -109,7 +109,7 @@ void BPHRecoCandidate::fill( std::vector<
   int i;
   int n = dll.size();
   cList.reserve( n );
-  T* rc = 0;
+  T* rc = nullptr;
   for ( i = 0; i < n; ++i ) {
     // create reconstructed particle
     rc = new T( builder.eventSetup(), dll[i] );

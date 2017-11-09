@@ -24,11 +24,11 @@ namespace pat {
     public:
 
       explicit PATLeptonCountFilter(const edm::ParameterSet & iConfig);
-      virtual ~PATLeptonCountFilter();
+      ~PATLeptonCountFilter() override;
 
     private:
 
-      virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+      bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
 
     private:
 

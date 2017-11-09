@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 FEConfigLUTGroupDat::FEConfigLUTGroupDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_group_id=0;
   for(int i=0; i<1024; i++){
@@ -142,7 +142,7 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
     m_readStmt->setInt(1, iconfID);
     ResultSet* rset = m_readStmt->executeQuery();
 
-    FEConfigLUTGroupDat* dat(0);
+    FEConfigLUTGroupDat* dat(nullptr);
     std::pair< EcalLogicID, FEConfigLUTGroupDat > p;
 
 

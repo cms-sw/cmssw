@@ -33,7 +33,7 @@
 TFitParticleEMomDev::TFitParticleEMomDev()
   :TAbsFitParticle()  
 {
-  init(0, 0);
+  init(nullptr, nullptr);
 }
 
 TFitParticleEMomDev::TFitParticleEMomDev( const TFitParticleEMomDev& fitParticle )
@@ -101,7 +101,7 @@ void TFitParticleEMomDev::setIni4Vec(const TLorentzVector* pini) {
   _iniparameters.ResizeTo(_nPar,1);
   _parameters.ResizeTo(_nPar,1);
 
-  if (pini == 0) {
+  if (pini == nullptr) {
     _iniparameters(0,0)=0.;
     _iniparameters(1,0)=0.;
     _iniparameters(2,0)=0.;
@@ -143,14 +143,14 @@ TLorentzVector* TFitParticleEMomDev::calc4Vec( const TMatrixD* params ) {
   // Calculates a 4vector corresponding to the given
   // parameter values
 
-  if (params == 0) {
-    return 0;
+  if (params == nullptr) {
+    return nullptr;
   }
 
   if ( params->GetNcols() != 1 || params->GetNrows() !=_nPar ) {
     edm::LogError ("WrongMatrixSize")
       << GetName() << "::calc4Vec - Parameter matrix has wrong size.";
-    return 0;
+    return nullptr;
   }
 
   Double_t X = _pini.P() * (*params)(0,0) *_u1.X() +
