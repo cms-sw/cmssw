@@ -46,3 +46,36 @@ l1tStage2CaloLayer2Efficiency = l1tEfficiencyHarvesting.clone(
         ),
     )
 )
+
+# modifications for the pp reference run
+variables_HI = variables
+variables_HI['jet'] = L1TStep1.jetEfficiencyThresholds_HI
+
+allEfficiencyPlots_HI = []
+add_plot = allEfficiencyPlots_HI.append
+for variable, thresholds in variables_HI.iteritems():
+    for plot in plots[variable]:
+        for threshold in thresholds:
+            plotName = '{0}_threshold_{1}'.format(plot, threshold)
+            add_plot(plotName)
+
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+ppRef_2017.toModify(l1tStage2CaloLayer2Efficiency,
+    plotCfgs=cms.untracked.VPSet(
+        cms.untracked.PSet(
+            numeratorDir=cms.untracked.string("L1T/L1TStage2CaloLayer2/efficiency_raw"),
+            outputDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
+            numeratorSuffix=cms.untracked.string("_Num"),
+            denominatorSuffix=cms.untracked.string("_Den"),
+            plots=cms.untracked.vstring(allEfficiencyPlots_HI)
+        ),
+        cms.untracked.PSet(
+            numeratorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2/efficiency_raw"),
+            outputDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
+            numeratorSuffix=cms.untracked.string("_Num"),
+            denominatorSuffix=cms.untracked.string("_Den"),
+            plots=cms.untracked.vstring(allEfficiencyPlots_HI)
+        ),
+    )
+)
+
