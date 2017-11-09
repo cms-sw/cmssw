@@ -166,8 +166,6 @@ double LumiReWeighting::weight( const edm::EventBase &e ) {
 
     for(; PHist_iter<PHist.end() ;++PHist_iter) {
       edm::ProcessConfiguration PConf = *(PHist_iter);
-      const edm::ReleaseVersion& Release =  PConf.releaseVersion() ;
-      const std::string& Process =  PConf.processName();
 
     }
     //    SetFirstFalse();
@@ -218,8 +216,6 @@ double LumiReWeighting::weightOOT( const edm::EventBase &e ) {
 
     for(; PHist_iter<PHist.end() ;++PHist_iter) {
       edm::ProcessConfiguration PConf = *(PHist_iter);
-      const edm::ReleaseVersion& Release =  PConf.releaseVersion() ;
-      const std::string& Process =  PConf.processName();
 
     }
     OldLumiSection_ = LumiSection;
