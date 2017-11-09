@@ -26,8 +26,8 @@ drawIteration1.drawIteration(39,48);
 drawIteration1.drawIteration(49,68);
 
 
-gROOT->ProcessLine("DrawIteration drawIteration2(15)");
-drawIteration2.yAxisFixed(true);
+//gROOT->ProcessLine("DrawIteration drawIteration2(15)");
+//drawIteration2.yAxisFixed(true);
 
 
 //~ drawIteration2.drawIteration(1,8);
@@ -49,7 +49,7 @@ drawIteration1.drawResult();
 
 //drawIteration2.addSystematics();
 //drawIteration2.addCmsText("CMS Preliminary");
-drawIteration2.drawResult();
+//drawIteration2.drawResult();
 
 gROOT->ProcessLine(".q");
 
