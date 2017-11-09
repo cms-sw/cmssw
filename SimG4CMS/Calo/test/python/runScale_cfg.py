@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
@@ -17,29 +18,9 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run1_mc']
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HitStudy', 'G4cout', 'G4cerr'),
-#    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HitStudy = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    )
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('G4cerr')
+    process.MessageLogger.categories.append('HitStudy')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -75,11 +56,11 @@ process.TFileService = cms.Service("TFileService",
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.caloSimHitStudy)
+process.analysis_step   = cms.Path(process.CaloSimHitStudy)
 
-process.caloSimHitStudy.MaxEnergy = 60.0
-process.caloSimHitStudy.TimeCut   = 100.0
-process.caloSimHitStudy.MIPCut    = 0.75
+process.CaloSimHitStudy.MaxEnergy = 60.0
+process.CaloSimHitStudy.TimeCut   = 100.0
+process.CaloSimHitStudy.MIPCut    = 0.75
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 
 # Schedule definition

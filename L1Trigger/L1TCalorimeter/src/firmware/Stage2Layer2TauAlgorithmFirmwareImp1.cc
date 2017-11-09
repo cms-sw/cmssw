@@ -103,7 +103,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
             if (is3x3Maximum(towerS2E, towers, caloNav) && towerS2E.hwPt() >= seedThreshold)
                 sites.push_back(3);	    
           
-            if (sites.size() == 0) // no merging candidate
+            if (sites.empty()) // no merging candidate
             {
                 //math::PtEtaPhiMLorentzVector p4(calibPt, eta, phi, 0.);
                 math::PtEtaPhiMLorentzVector emptyP4;
@@ -197,9 +197,9 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 // Then if N>S, use N
                 // else S
                 std::vector<l1t::CaloCluster*> secClusters = makeSecClusters (towers, sites, mainCluster, caloNav);
-                l1t::CaloCluster* secMaxN = 0;
-                l1t::CaloCluster* secMaxS = 0;
-                l1t::CaloCluster* secondaryCluster = 0;
+                l1t::CaloCluster* secMaxN = nullptr;
+                l1t::CaloCluster* secMaxS = nullptr;
+                l1t::CaloCluster* secondaryCluster = nullptr;
                 
                 std::vector<int>::iterator isNeigh0 = find(sites.begin(), sites.end(), 0);
                 std::vector<int>::iterator isNeigh1 = find(sites.begin(), sites.end(), 1);
@@ -268,15 +268,15 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 else if (isNeigh6 != sites.end()) secMaxS = secClusters.at(isNeigh6 - sites.begin());
 
                 // N vs S neighbor --------------------------------------------------
-                if (secMaxN != 0 && secMaxS != 0)
+                if (secMaxN != nullptr && secMaxS != nullptr)
                 {
                     if (secMaxN->hwPt() > secMaxS->hwPt()) secondaryCluster = secMaxN;
                     else secondaryCluster = secMaxS;
                 }
                 else
                 {
-                    if (secMaxN != 0) secondaryCluster = secMaxN;
-                    else if (secMaxS != 0) secondaryCluster = secMaxS;
+                    if (secMaxN != nullptr) secondaryCluster = secMaxN;
+                    else if (secMaxS != nullptr) secondaryCluster = secMaxS;
                     else cout << "!! No cluster formed but there were valid seeds!" << endl;
                 }
 

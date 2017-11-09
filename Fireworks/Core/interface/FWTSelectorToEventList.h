@@ -30,7 +30,7 @@ public:
    Bool_t GetOwnEventList() const   { return fOwnEvList; }
    void   SetOwnEventList(Bool_t o) { fOwnEvList = o; }
 
-   ClassDef(FWTSelectorToEventList, 0);
+   ClassDefOverride(FWTSelectorToEventList, 0);
 };
 
 #endif

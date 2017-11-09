@@ -46,13 +46,13 @@ namespace edm {
 class Timer : public edm::EDProducer {
  public:
   explicit Timer(const edm::ParameterSet&);
-  ~Timer();
+  ~Timer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   // fwk calls this method when new module measurement arrives;
   void newTimingMeasurement(const edm::ModuleDescription& iMod, double iTime);
   // put output into Event
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   //
  private:
   // ----------member data ---------------------------

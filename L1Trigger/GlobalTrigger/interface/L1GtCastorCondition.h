@@ -45,7 +45,7 @@ public:
     L1GtCastorCondition(const L1GtCastorCondition&);
 
     // destructor
-    virtual ~L1GtCastorCondition();
+    ~L1GtCastorCondition() override;
 
     // assign operator
     L1GtCastorCondition& operator=(const L1GtCastorCondition&);
@@ -53,10 +53,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition() const;
+    const bool evaluateCondition() const override;
 
     /// print condition
-    void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
 public:
 

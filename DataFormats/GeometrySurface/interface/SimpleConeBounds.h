@@ -38,24 +38,24 @@ public:
   }
 
   /// Length along Z.
-  virtual float length()    const { return theZmax - theZmin;}
+  float length()    const override { return theZmax - theZmin;}
   /// Maximum diameter.
-  virtual float width()     const { return 2*std::max(theRmaxZmin,theRmaxZmax);}
+  float width()     const override { return 2*std::max(theRmaxZmin,theRmaxZmax);}
   /// Thickness in the middle (Z center). 
   /// Maybe it's useless, but it is pure abstract in Bounds...
-  virtual float thickness() const { return ((theRmaxZmin-theRminZmin)+
+  float thickness() const override { return ((theRmaxZmin-theRminZmin)+
 					    (theRmaxZmax-theRminZmax))/2.;}
   
   using Bounds::inside;
 
-  virtual bool inside( const Local3DPoint& p) const {
+  bool inside( const Local3DPoint& p) const override {
     float lrmin = (p.z()-theZmin)*(theRminZmax-theRminZmin)/(theZmax-theZmin);
     float lrmax = (p.z()-theZmin)*(theRmaxZmax-theRmaxZmin)/(theZmax-theZmin);
     return p.z()    > theZmin && p.z()    < theZmax &&
            p.perp() > lrmin && p.perp() < lrmax;
   }
     
-  virtual bool inside( const Local3DPoint& p, const LocalError& err, float scale) const {
+  bool inside( const Local3DPoint& p, const LocalError& err, float scale) const override {
     // std::cout << "WARNING: SimpleConeBounds::inside(const Local3DPoint&, const LocalError not fully implemented" 
     //	      << std::endl;     // FIXME! does not check R.
     SimpleConeBounds tmp(theZmin - sqrt(err.yy())*scale,
@@ -69,7 +69,7 @@ public:
     return Bounds::inside(p,err);
   }
 
-  virtual Bounds* clone() const { 
+  Bounds* clone() const override { 
     return new SimpleConeBounds(*this);
   }
 

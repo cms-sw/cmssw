@@ -91,10 +91,10 @@ class JetFlavourIdentifier : public edm::global::EDProducer<>
 		      NULL_DEF};
 
     JetFlavourIdentifier( const edm::ParameterSet & );
-    ~JetFlavourIdentifier();
+    ~JetFlavourIdentifier() override;
 
   private:
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 
     JetFlavour::Leptons findLeptons(const GenParticleRef &) const;
     std::vector<const reco::Candidate*> findCandidates(const reco::Candidate*, int, math::XYZTLorentzVector const&  thePartonLV) const;
@@ -171,7 +171,7 @@ void JetFlavourIdentifier::produce( StreamID, Event& iEvent, const EventSetup& i
     // get the partons based on which definition to use.
     switch (definition) {
       case PHYSICS: {
-        const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton();
+        const GenParticleRef& aPartPhy = aMatch.physicsDefinitionParton();
         if (aPartPhy.isNonnull()) {
 	        thePartonLorentzVector = aPartPhy.get()->p4();
 	        thePartonVertex        = aPartPhy.get()->vertex();
@@ -181,7 +181,7 @@ void JetFlavourIdentifier::produce( StreamID, Event& iEvent, const EventSetup& i
         break;
       }
       case ALGO: {
-        const GenParticleRef aPartAlg = aMatch.algoDefinitionParton();
+        const GenParticleRef& aPartAlg = aMatch.algoDefinitionParton();
         if (aPartAlg.isNonnull()) {
 	        thePartonLorentzVector = aPartAlg.get()->p4();
 	        thePartonVertex        = aPartAlg.get()->vertex();
@@ -191,7 +191,7 @@ void JetFlavourIdentifier::produce( StreamID, Event& iEvent, const EventSetup& i
         break;
       }
       case NEAREST_STATUS2 : {
-        const GenParticleRef aPartN2 = aMatch.nearest_status2();
+        const GenParticleRef& aPartN2 = aMatch.nearest_status2();
         if (aPartN2.isNonnull()) {
 	        thePartonLorentzVector = aPartN2.get()->p4();
 	        thePartonVertex        = aPartN2.get()->vertex();
@@ -201,7 +201,7 @@ void JetFlavourIdentifier::produce( StreamID, Event& iEvent, const EventSetup& i
         break;
       }
       case NEAREST_STATUS3: {
-        const GenParticleRef aPartN3 = aMatch.nearest_status3();
+        const GenParticleRef& aPartN3 = aMatch.nearest_status3();
         if (aPartN3.isNonnull()) {
 	        thePartonLorentzVector = aPartN3.get()->p4();
 	        thePartonVertex        = aPartN3.get()->vertex();
@@ -223,7 +223,7 @@ void JetFlavourIdentifier::produce( StreamID, Event& iEvent, const EventSetup& i
       // Default case is backwards-compatible
       default:{
         if (physDefinition) {
-          const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton();
+          const GenParticleRef& aPartPhy = aMatch.physicsDefinitionParton();
 	  if (aPartPhy.isNonnull()) {
             thePartonLorentzVector = aPartPhy.get()->p4();
             thePartonVertex        = aPartPhy.get()->vertex();
@@ -231,7 +231,7 @@ void JetFlavourIdentifier::produce( StreamID, Event& iEvent, const EventSetup& i
             if (leptonInfo_) theLeptons = findLeptons(aPartPhy);
           }
         } else {
-          const GenParticleRef aPartAlg = aMatch.algoDefinitionParton();
+          const GenParticleRef& aPartAlg = aMatch.algoDefinitionParton();
           if (aPartAlg.isNonnull()) {
             thePartonLorentzVector = aPartAlg.get()->p4();
             thePartonVertex        = aPartAlg.get()->vertex();
@@ -247,7 +247,7 @@ void JetFlavourIdentifier::produce( StreamID, Event& iEvent, const EventSetup& i
 
     if (thePartonFlavour == 0) {
       if (physDefinition) {
-        const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton();
+        const GenParticleRef& aPartPhy = aMatch.physicsDefinitionParton();
         if (aPartPhy.isNonnull()) {
           thePartonLorentzVector = aPartPhy.get()->p4();
           thePartonVertex        = aPartPhy.get()->vertex();
@@ -255,7 +255,7 @@ void JetFlavourIdentifier::produce( StreamID, Event& iEvent, const EventSetup& i
           if (leptonInfo_) theLeptons = findLeptons(aPartPhy);
         }
       } else {
-        const GenParticleRef aPartAlg = aMatch.algoDefinitionParton();
+        const GenParticleRef& aPartAlg = aMatch.algoDefinitionParton();
         if (aPartAlg.isNonnull()) {
           thePartonLorentzVector = aPartAlg.get()->p4();
           thePartonVertex        = aPartAlg.get()->vertex();

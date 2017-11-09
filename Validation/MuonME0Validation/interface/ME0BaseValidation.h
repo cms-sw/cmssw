@@ -23,8 +23,8 @@ class ME0BaseValidation : public DQMEDAnalyzer
 {
 public:
   explicit ME0BaseValidation( const edm::ParameterSet& ps );
-  virtual ~ME0BaseValidation();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0 ;
+  ~ME0BaseValidation() override;
+  void analyze(const edm::Event& e, const edm::EventSetup&) override = 0 ;
   MonitorElement* BookHistZR( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, unsigned int layer_num =99 ); 
   MonitorElement* BookHistXY( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, unsigned int layer_num =99 ); 
 protected:

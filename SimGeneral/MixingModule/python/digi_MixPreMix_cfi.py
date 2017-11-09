@@ -20,6 +20,9 @@ theDigitizersMixPreMix = cms.PSet(
   ),
   puVtx = cms.PSet(
     pileupVtxDigitizer
+  ),
+  mergedtruth = cms.PSet(
+    trackingParticles
   )
 )
 
@@ -39,10 +42,6 @@ if fastSim.isChosen():
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( theDigitizersMixPreMix, castor = None )
     
-theDigitizersMixPreMixValid = cms.PSet(
-    theDigitizersMixPreMix,
-    mergedtruth = cms.PSet(
-        trackingParticles
-        )
-    )
+theDigitizersMixPreMixValid = cms.PSet( theDigitizersMixPreMix )
+theDigitizersMixPreMix.mergedtruth.select.signalOnlyTP = cms.bool(True)
 

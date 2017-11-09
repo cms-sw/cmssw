@@ -244,13 +244,13 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
 
   //avoid selecting Segments with similar direction
   for (MuonRecHitContainer::iterator hit = result.begin(); hit != result.end(); hit++) {
-    if (*hit == 0) continue;
+    if (*hit == nullptr) continue;
     if ( !(*hit)->isValid() ) continue;
     bool good = true;
     //UNUSED:    GlobalVector dir1 = (*hit)->globalDirection();
     //UNUSED:    GlobalPoint pos1 = (*hit)->globalPosition();
     for (MuonRecHitContainer::iterator hit2 = hit + 1; hit2 != result.end(); hit2++) {
-        if (*hit2 == 0) continue;
+        if (*hit2 == nullptr) continue;
         if ( !(*hit2)->isValid() ) continue;
 
           //compare direction and position
@@ -260,7 +260,7 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
 
         if ( !leftIsBetter((*hit),(*hit2)) ) { 
           good = false;
-        } else (*hit2) = 0;
+        } else (*hit2) = nullptr;
     }
 
     if ( good ) result2.push_back(*hit);
@@ -278,7 +278,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
 
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
-  if (hits.size() == 0 || results.size() >= theMaxSeeds ) return;
+  if (hits.empty() || results.size() >= theMaxSeeds ) return;
   for (MuonRecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
     const std::vector<TrajectorySeed>& sds = createSeed((*ihit),eSetup);
     LogTrace(category)<<"created seeds from rechit "<<sds.size();
@@ -294,7 +294,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
 
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
-  if (hitpairs.size() == 0 || results.size() >= theMaxSeeds ) return;
+  if (hitpairs.empty() || results.size() >= theMaxSeeds ) return;
   for (CosmicMuonSeedGenerator::MuonRecHitPairVector::const_iterator ihitpair = hitpairs.begin(); ihitpair != hitpairs.end(); ihitpair++) {
     const std::vector<TrajectorySeed>& sds = createSeed((*ihitpair),eSetup);
     LogTrace(category)<<"created seeds from rechit "<<sds.size();

@@ -48,7 +48,7 @@ private:
    TGComboBox*               m_combo;
    FWHLTValidator*           m_validator;
 
-   ClassDef(FWGUIEventSelector, 0); // Manager for EVE windows.
+   ClassDefOverride(FWGUIEventSelector, 0); // Manager for EVE windows.
 };
 
 #endif

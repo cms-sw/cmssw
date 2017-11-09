@@ -71,7 +71,7 @@ void ME0RecHitProducer::produce(edm::Event& event, const edm::EventSetup& setup)
     edm::OwnVector<ME0RecHit> recHits =
       theAlgo->reconstruct(me0Id, range);
     
-    if(recHits.size() > 0)
+    if(!recHits.empty())
       recHitCollection->put(me0Id, recHits.begin(), recHits.end());
   }
 

@@ -3,7 +3,7 @@
 #ifndef MATACQRAWEVENT_H
 #define MATACQRAWEVENT_H
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <vector>
 
 #if 0 //replace 1 by 0 to remove XDAQ dependency. In this case it is assumed the

@@ -140,7 +140,7 @@ public:
   Int_t    GetTimeStamp() const { return fTimeStamp; }
   void     DumpIt(const TString& Name);
 
-  ClassDef(AliDaqDistance,1)
+  ClassDefOverride(AliDaqDistance,1)
 };
 
 //-----------------------------------------------------------------------------

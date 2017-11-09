@@ -155,6 +155,11 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> occupancy_map_HF;
   MonitorElement              *occupancy_map_HO;
 
+  std::vector<MonitorElement*> occupancy_vs_ieta_HB;
+  std::vector<MonitorElement*> occupancy_vs_ieta_HE;
+  std::vector<MonitorElement*> occupancy_vs_ieta_HF;
+  MonitorElement              *occupancy_vs_ieta_HO;
+
   std::vector<MonitorElement*> nrechits_vs_iphi_HBP, nrechits_vs_iphi_HBM;
   std::vector<MonitorElement*> nrechits_vs_iphi_HEP, nrechits_vs_iphi_HEM;
   std::vector<MonitorElement*> nrechits_vs_iphi_HFP, nrechits_vs_iphi_HFM;

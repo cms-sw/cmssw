@@ -63,8 +63,8 @@ class BPHRecoSelect {
  private:
 
   // private copy and assigment constructors
-  BPHRecoSelect           ( const BPHRecoSelect& x );
-  BPHRecoSelect& operator=( const BPHRecoSelect& x );
+  BPHRecoSelect           ( const BPHRecoSelect& x ) = delete;
+  BPHRecoSelect& operator=( const BPHRecoSelect& x ) = delete;
 
 };
 

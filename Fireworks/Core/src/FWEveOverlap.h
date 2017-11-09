@@ -25,7 +25,7 @@ private:
 #ifndef __CINT__
    bool paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx,  const TGeoHMatrix& mtx);
 #endif
-   ClassDef(FWEveOverlap, 0);
+   ClassDefOverride(FWEveOverlap, 0);
 };
 
 #endif

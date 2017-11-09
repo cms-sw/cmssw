@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 10.00
+//  SiPixelTemplate.cc  Version 10.13
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -73,6 +73,12 @@
 //  V9.00 - Expand header to include multi and single dcol thresholds, LA biases, and (variable) Qbin definitions
 //  V9.01 - Protect against negative error squared
 //  V10.00 - Update to work with Phase 1 FPix.  Fix some code problems introduced by other maintainers.
+//  V10.01 - Fix initialization style as suggested by S. Krutelyov
+//  V10.10 - Add class variables and methods to be used to correctly calculate the probabilities of single pixel clusters
+//  V10.11 - Allow subdetector ID=5 for FPix R2P2 [allows better internal labeling of templates]
+//  V10.12 - Enforce minimum signal size in pixel charge uncertainty calculation
+//  V10.13 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
+
 
 
 //  Created by Morris Swartz on 10/27/06.
@@ -86,7 +92,7 @@
 #endif
 #include <algorithm>
 #include <vector>
-//#include "boost/multi_array.hpp"
+#include "boost/multi_array.hpp"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -213,6 +219,10 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
       
       // next, layout the 1-d/2-d structures needed to store template
       
+      theCurrentTemp.cotbetaY = new float[theCurrentTemp.head.NTy];
+      theCurrentTemp.cotbetaX = new float[theCurrentTemp.head.NTyx];
+      theCurrentTemp.cotalphaX = new float[theCurrentTemp.head.NTxx];
+
       theCurrentTemp.enty.resize(boost::extents[theCurrentTemp.head.NTy]);
       
       theCurrentTemp.entx.resize(boost::extents[theCurrentTemp.head.NTyx][theCurrentTemp.head.NTxx]);
@@ -629,6 +639,9 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 #ifdef SI_PIXEL_TEMPLATE_USE_BOOST
       
       // next, layout the 1-d/2-d structures needed to store template
+      theCurrentTemp.cotbetaY = new float[theCurrentTemp.head.NTy];
+      theCurrentTemp.cotbetaX = new float[theCurrentTemp.head.NTyx];
+      theCurrentTemp.cotalphaX = new float[theCurrentTemp.head.NTxx];
       theCurrentTemp.enty.resize(boost::extents[theCurrentTemp.head.NTy]);
       theCurrentTemp.entx.resize(boost::extents[theCurrentTemp.head.NTyx][theCurrentTemp.head.NTxx]);
       
@@ -1073,6 +1086,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
          case 2:
          case 3:
          case 4:
+         case 5:
             if(locBx*locBz < 0.f) {
                cota = -cotalpha;
                flip_x = true;
@@ -1219,12 +1233,15 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
          }
       }
       
-      //// Do the spares next
+      //// Single pixel cluster probabilities
       
       chi2yavgone_=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2yavgone + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2yavgone;
       chi2yminone_=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2yminone + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2yminone;
       chi2xavgone=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2xavgone + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2xavgone;
       chi2xminone=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2xminone + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2xminone;
+      
+      fracyone_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].fracyone + yratio*thePixelTemp_[index_id_].enty[ihigh].fracyone;
+      fracytwo_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].fracytwo + yratio*thePixelTemp_[index_id_].enty[ihigh].fracytwo;
       //       for(i=0; i<10; ++i) {
       //		    pyspare[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].yspare[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].yspare[i];
       //       }
@@ -1415,6 +1432,12 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       
       chi2xminone_=((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].chi2xminone + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].chi2xminone);
       if(thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xminone != 0.f) {chi2xminone_=chi2xminone_/thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xminone*chi2xminone;}
+      
+      fracxone_ = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].fracxone + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].fracxone)
+   +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].fracxone + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].fracxone);
+      fracxtwo_ = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].fracxtwo + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].fracxtwo)
+   +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].fracxtwo + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].fracxtwo);
+   
       //       for(i=0; i<10; ++i) {
       //	      pxspare[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].xspare[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].xspare[i])
       //		          +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xspare[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xspare[i]);
@@ -1517,7 +1540,7 @@ void SiPixelTemplate::ysigma2(int fypix, int lypix, float sythr, float ysum[25],
    
    // Local variables
    int i;
-   float sigi, sigi2, sigi3, sigi4, symax, qscale;
+   float sigi, sigi2, sigi3, sigi4, symax, qscale, s25;
    
    // Make sure that input is OK
    
@@ -1539,6 +1562,7 @@ void SiPixelTemplate::ysigma2(int fypix, int lypix, float sythr, float ysum[25],
    // Define the maximum signal to use in the parameterization
    
    symax = symax_;
+   s25 = 0.5f*s50_;
    if(symax_ > syparmax_) {symax = syparmax_;}
    
    // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis
@@ -1553,6 +1577,7 @@ void SiPixelTemplate::ysigma2(int fypix, int lypix, float sythr, float ysum[25],
          if(ysum[i] < symax) {
             sigi = ysum[i];
             qscale = 1.f;
+            if(sigi < s25) sigi = s25;
          } else {
             sigi = symax;
             qscale = ysum[i]/symax;
@@ -1594,7 +1619,7 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
    // Interpolate using quantities already stored in the private variables
    
    // Local variables
-   float sigi, sigi2, sigi3, sigi4, symax, qscale, err2;
+   float sigi, sigi2, sigi3, sigi4, symax, qscale, err2, s25;
    
    // Make sure that input is OK
    
@@ -1609,6 +1634,7 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
    // Define the maximum signal to use in the parameterization
    
    symax = symax_;
+   s25 = 0.5f*s50_;
    if(symax_ > syparmax_) {symax = syparmax_;}
    
    // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis
@@ -1616,6 +1642,7 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
 			if(qpixel < symax) {
             sigi = qpixel;
             qscale = 1.f;
+            if(sigi < s25) sigi = s25;
          } else {
             sigi = symax;
             qscale = qpixel/symax;
@@ -1660,7 +1687,7 @@ void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[11],
    
    // Local variables
    int i;
-   float sigi, sigi2, sigi3, sigi4, yint, sxmax, x0, qscale;
+   float sigi, sigi2, sigi3, sigi4, yint, sxmax, x0, qscale, s25;
    
    // Make sure that input is OK
    
@@ -1682,6 +1709,7 @@ void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[11],
    // Define the maximum signal to use in the parameterization
    
    sxmax = sxmax_;
+   s25 = 0.5f*s50_;
    if(sxmax_ > sxparmax_) {sxmax = sxparmax_;}
    
    // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis
@@ -1696,6 +1724,7 @@ void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[11],
          if(xsum[i] < sxmax) {
             sigi = xsum[i];
             qscale = 1.f;
+            if(sigi < s25) sigi = s25;
          } else {
             sigi = sxmax;
             qscale = xsum[i]/sxmax;
@@ -2406,6 +2435,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
       case 2:
       case 3:
       case 4:
+      case 5:
          if(locBx*locBz < 0.f) {
             cota = -cotalpha;
             flip_x = true;
@@ -2543,7 +2573,6 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    
    
-   ilow = ihigh = 0;
    auto xxratio = 0.f;
    
    {
@@ -2630,9 +2659,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    // Interpolate for a new set of track angles
    
    // Local variables
-   float locBx; //  lorywidth, lorxwidth;
-   // Local variables
-   locBx = 1.f;
+   float locBx = 1.f; //  lorywidth, lorxwidth;
    
    return SiPixelTemplate::qbin(id, cotalpha, cotbeta, locBz, locBx, qclus, pixmx, sigmay, deltay, sigmax, deltax,
                                 sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2); // , lorywidth, lorxwidth);
@@ -2687,9 +2714,9 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float qclus)
    // Interpolate for a new set of track angles
    
    // Local variables
-   float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz, locBx; //  lorywidth, lorxwidth;
+   float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz; //  lorywidth, lorxwidth;
    // Local variables
-   locBx = 1.f;
+   float locBx = 1.f;
    if(cotbeta < 0.f) {locBx = -1.f;}
    locBz = locBx;
    if(cotalpha < 0.f) {locBz = -locBx;}

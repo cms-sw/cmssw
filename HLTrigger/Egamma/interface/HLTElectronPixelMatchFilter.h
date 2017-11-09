@@ -19,8 +19,8 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
 
  public:
   explicit HLTElectronPixelMatchFilter(const edm::ParameterSet&);
-  ~HLTElectronPixelMatchFilter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  ~HLTElectronPixelMatchFilter() override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
  private:

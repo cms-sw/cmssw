@@ -74,7 +74,7 @@ HLTHcalSimpleRecHitFilter::HLTHcalSimpleRecHitFilter(const edm::ParameterSet& iC
       //worry about possible user menus with the old interface
       if (iConfig.existsAs<std::vector<int> >("maskedChannels")) {
 	std::vector<int> tVec=iConfig.getParameter<std::vector<int> >("maskedChannels");
-	if ( tVec.size() > 0 ) {
+	if ( !tVec.empty() ) {
 	  edm::LogError("cfg error")  << "masked list of channels missing from HLT menu. Migration from vector of ints to vector of uints needed for this release";
 	  cms::Exception("Invalid/obsolete masked list of channels");
 	}

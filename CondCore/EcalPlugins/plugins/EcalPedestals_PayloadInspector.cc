@@ -119,7 +119,9 @@ namespace {
 	pad[gId + kGains][1]->cd();
 	endcap_r[gId]->Draw();
       }
-      canvas.SaveAs("ecalpedhist.png");
+
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }   // fill method
   };   //   class EcalPedestalsHist
@@ -297,8 +299,8 @@ namespace {
 	if(EBrms[gId] == 0.) EBrms[gId] = 0.001;
 	pEBmin[gId] = EBmean[gId] - kRMS * EBrms[gId];
 	pEBmax[gId] = EBmean[gId] + kRMS * EBrms[gId];
-	std::cout << " mean " << EBmean[gId] << " rms " << EBrms[gId] << " entries " << EBtot[gId] << " min " << pEBmin[gId] 
-		  << " max " << pEBmax[gId] << std::endl;
+	//	std::cout << " mean " << EBmean[gId] << " rms " << EBrms[gId] << " entries " << EBtot[gId] << " min " << pEBmin[gId] 
+	//		  << " max " << pEBmax[gId] << std::endl;
 	if(pEBmin[gId] < 0.) pEBmin[gId] = 0.;
 	vt =(double)EEtot[gId];
 	EEmean[gId] = EEmean[gId] / vt;
@@ -331,7 +333,9 @@ namespace {
 	pad[gId + kGains][2]->cd();
 	DrawEE(endc_p_r[gId], pEEmin[gId], pEEmax[gId]);
       }
-      canvas.SaveAs("ecalped.png");
+
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
 
@@ -401,7 +405,7 @@ namespace {
 	      barrel_m[0]->Fill(phi, eta, (*payload)[rawid].mean_x12 - meanEB[0][cellid]);
 	      double diff = (*payload)[rawid].rms_x12 - rmsEB[0][cellid];
 	      barrel_r[0]->Fill(phi, eta, diff);
-	      if(abs(diff) < 1.) {
+	      if(std::abs(diff) < 1.) {
 		EBmean[0] = EBmean[0] + diff;
 		EBrms[0] = EBrms[0] + diff * diff;
 		EBtot[0]++;
@@ -410,7 +414,7 @@ namespace {
 	      barrel_m[1]->Fill(phi, eta,(*payload)[rawid].mean_x6 -  meanEB[1][cellid]);
 	      diff = (*payload)[rawid].rms_x6 - rmsEB[1][cellid];
 	      barrel_r[1]->Fill(phi, eta, diff);
-	      if(abs(diff) < 1.) {
+	      if(std::abs(diff) < 1.) {
 		EBmean[1] = EBmean[1] + diff;
 		EBrms[1] = EBrms[1] + diff * diff;
 		EBtot[1]++;
@@ -419,7 +423,7 @@ namespace {
 	      barrel_m[2]->Fill(phi, eta, (*payload)[rawid].mean_x1 - meanEB[2][cellid]);
 	      diff = (*payload)[rawid].rms_x1 - rmsEB[2][cellid];
 	      barrel_r[2]->Fill(phi, eta, diff);
-	      if(abs(diff) < 1.) {
+	      if(std::abs(diff) < 1.) {
 		EBmean[2] = EBmean[2] + diff;
 		EBrms[2] = EBrms[2] + diff * diff;
 		EBtot[2]++;
@@ -451,7 +455,7 @@ namespace {
 		      endc_p_m[0]->Fill(ix, iy, (*payload)[rawid].mean_x12 - meanEE[0][index]);
 		      double diff = (*payload)[rawid].rms_x12 - rmsEE[0][index];
 		      endc_p_r[0]->Fill(ix, iy, rmsEE[0][index] - (*payload)[rawid].rms_x12);
-		      if(abs(diff) < 1.) {
+		      if(std::abs(diff) < 1.) {
 			EEmean[0] = EEmean[0] + diff;
 			EErms[0] = EErms[0] + diff * diff;
 			EEtot[0]++;
@@ -460,7 +464,7 @@ namespace {
 		      endc_p_m[1]->Fill(ix, iy, (*payload)[rawid].mean_x6 - meanEE[1][index]);
 		      diff = (*payload)[rawid].rms_x6 - rmsEE[1][index];
 		      endc_p_r[1]->Fill(ix, iy, diff);
-		      if(abs(diff) < 1.) {
+		      if(std::abs(diff) < 1.) {
 			EEmean[1] = EEmean[1] + diff;
 			EErms[1] = EErms[1] + diff * diff;
 			EEtot[1]++;
@@ -469,7 +473,7 @@ namespace {
 		      endc_p_m[2]->Fill(ix, iy, (*payload)[rawid].mean_x1 - meanEE[2][index]);
 		      diff = (*payload)[rawid].rms_x1 - rmsEE[2][index];
 		      endc_p_r[2]->Fill(ix, iy, diff);
-		      if(abs(diff) < 1.) {
+		      if(std::abs(diff) < 1.) {
 			EEmean[2] = EEmean[2] + diff;
 			EErms[2] = EErms[2] + diff * diff;
 			EEtot[2]++;
@@ -480,7 +484,7 @@ namespace {
 		      endc_m_m[0]->Fill(ix, iy, (*payload)[rawid].mean_x12 - meanEE[0][index]);
 		      double diff = (*payload)[rawid].rms_x12 - rmsEE[0][index];
 		      endc_m_r[0]->Fill(ix, iy, rmsEE[0][index] - (*payload)[rawid].rms_x12);
-		      if(abs(diff) < 1.) {
+		      if(std::abs(diff) < 1.) {
 			EEmean[0] = EEmean[0] + diff;
 			EErms[0] = EErms[0] + diff * diff;
 			EEtot[0]++;
@@ -489,7 +493,7 @@ namespace {
 		      endc_m_m[1]->Fill(ix, iy, (*payload)[rawid].mean_x6 - meanEE[1][index]);
 		      diff = (*payload)[rawid].rms_x6 - rmsEE[1][index];
 		      endc_m_r[1]->Fill(ix, iy, diff);
-		      if(abs(diff) < 1.) {
+		      if(std::abs(diff) < 1.) {
 			EEmean[1] = EEmean[1] + diff;
 			EErms[1] = EErms[1] + diff * diff;
 			EEtot[1]++;
@@ -498,7 +502,7 @@ namespace {
 		      endc_m_m[2]->Fill(ix, iy, (*payload)[rawid].mean_x1 - meanEE[2][index]);
 		      diff = (*payload)[rawid].rms_x1 - rmsEE[2][index];
 		      endc_m_r[2]->Fill(ix, iy, diff);
-		      if(abs(diff) < 1.) {
+		      if(std::abs(diff) < 1.) {
 			EEmean[2] = EEmean[2] + diff;
 			EErms[2] = EErms[2] + diff * diff;
 			EEtot[2]++;
@@ -573,7 +577,9 @@ namespace {
 	pad[gId + kGains][2]->cd();
 	DrawEE(endc_p_r[gId], pEEmin[gId], pEEmax[gId]);
       }
-      canvas.SaveAs("ecalpedDiff.png");
+
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };   // class EcalPedestalsDiff

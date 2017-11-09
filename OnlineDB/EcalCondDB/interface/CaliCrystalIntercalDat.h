@@ -13,10 +13,10 @@ class CaliCrystalIntercalDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   CaliCrystalIntercalDat();
-  ~CaliCrystalIntercalDat();
+  ~CaliCrystalIntercalDat() override;
   
   // User data methods
-  inline std::string getTable() { return "CALI_CRYSTAL_INTERCAL_DAT"; }
+  inline std::string getTable() override { return "CALI_CRYSTAL_INTERCAL_DAT"; }
 
   inline void setCali(float c) { m_cali = c; }
   inline float getCali() const { return m_cali; }
@@ -32,7 +32,7 @@ class CaliCrystalIntercalDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
   
   void writeDB(const EcalLogicID* ecid, const CaliCrystalIntercalDat* item, CaliIOV* iov)
     noexcept(false);

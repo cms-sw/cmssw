@@ -36,6 +36,7 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
     from L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi import *
     from L1Trigger.L1TCalorimeter.simCaloStage1FinalDigis_cfi import *
     from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
+    from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
     SimL1TCalorimeter = cms.Sequence(simRctDigis + simRctUpgradeFormatDigis + simCaloStage1Digis + simCaloStage1FinalDigis + simCaloStage1LegacyFormatDigis)
 #
 # Stage-2 Trigger
@@ -47,6 +48,17 @@ if stage2L1Trigger.isChosen():
     # - layer1 from L1Trigger/L1TCaloLayer1 package
     from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
     from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
+    from CondCore.CondDB.CondDB_cfi import CondDB
+    CondDB.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+    l1conddb = cms.ESSource("PoolDBESSource",
+       CondDB,
+       toGet   = cms.VPSet(
+            cms.PSet(
+                 record = cms.string('L1TCaloParamsO2ORcd'),
+                 tag = cms.string("L1TCaloParams_static_CMSSW_9_2_10_2017_v1_8_2_updateHFSF_v6MET")
+            )
+       )
+    )
     SimL1TCalorimeter = cms.Sequence( simCaloStage2Layer1Digis + simCaloStage2Digis )
 
     

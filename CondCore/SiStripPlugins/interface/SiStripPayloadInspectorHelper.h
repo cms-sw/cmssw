@@ -6,10 +6,45 @@
 #include <string>
 #include "TH1.h"
 #include "TPaveText.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 
 namespace SiStripPI {
   
+  enum estimator {
+    min,
+    max,
+    mean,
+    rms
+  };
+  
+  /*--------------------------------------------------------------------*/
+  std::string estimatorType(SiStripPI::estimator e)
+  /*--------------------------------------------------------------------*/
+  {
+    switch(e){
+    case SiStripPI::min : return "minimum";
+    case SiStripPI::max : return "maximum";
+    case SiStripPI::mean : return "mean";
+    case SiStripPI::rms  : return "RMS";
+    default: return "should never be here";
+    }
+  }
+   
+  /*--------------------------------------------------------------------*/
+  std::string getStringFromSubdet(StripSubdetector::SubDetector sub)
+  /*-------------------------------------------------------------------*/
+  {
+    switch(sub){
+    case StripSubdetector::TIB : return "TIB";
+    case StripSubdetector::TOB : return "TOB";
+    case StripSubdetector::TID : return "TID";
+    case StripSubdetector::TEC : return "TEC";
+    default : return "should never be here"; 
+    }
+  }
+ 
   enum TrackerRegion { 
     TIB1r = 1010, TIB1s = 1011, 
     TIB2r = 1020, TIB2s = 1021,
@@ -223,6 +258,30 @@ namespace SiStripPI {
       
     }
   }
+
+  // code is mutuated from CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics
+
+  /*--------------------------------------------------------------------*/
+  void setBadComponents(int i, int component, SiStripQuality::BadComponent& BC,int NBadComponent[4][19][4])
+  /*--------------------------------------------------------------------*/
+  {
+   
+    if (BC.BadApvs){
+      NBadComponent[i][0][2]+= std::bitset<16>(BC.BadApvs&0x3f).count(); 
+      NBadComponent[i][component][2]+= std::bitset<16>(BC.BadApvs&0x3f).count(); 
+    }
+
+    if (BC.BadFibers){ 
+      NBadComponent[i][0][1]+= std::bitset<4>(BC.BadFibers&0x7).count();
+      NBadComponent[i][component][1]+= std::bitset<4>(BC.BadFibers&0x7).count();
+    }   
+
+    if (BC.BadModule){
+      NBadComponent[i][0][0]++;
+      NBadComponent[i][component][0]++;
+    }
+  }
+
 };
 
 #endif

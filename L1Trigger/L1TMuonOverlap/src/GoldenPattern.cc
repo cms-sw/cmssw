@@ -89,8 +89,8 @@ std::ostream & operator << (std::ostream &out, const GoldenPattern & aPattern){
       <<", number of measurement layers: "<<aPattern.pdfAllRef.size()
       <<std::endl;
 
-  if(!aPattern.meanDistPhi.size()) return out;
-  if(!aPattern.pdfAllRef.size()) return out;
+  if(aPattern.meanDistPhi.empty()) return out;
+  if(aPattern.pdfAllRef.empty()) return out;
 
   out<<"Mean dist phi per layer:"<<std::endl;
   for (unsigned int iRefLayer=0;iRefLayer<aPattern.meanDistPhi[0].size();++iRefLayer){
@@ -101,7 +101,7 @@ std::ostream & operator << (std::ostream &out, const GoldenPattern & aPattern){
     out<<")"<<std::endl;
   }
 
-  if(aPattern.meanDistPhiCounts.size()){
+  if(!aPattern.meanDistPhiCounts.empty()){
     out<<"Counts number per layer:"<<std::endl;
     for (unsigned int iRefLayer=0;iRefLayer<aPattern.meanDistPhi[0].size();++iRefLayer){
       out<<"Ref layer: "<<iRefLayer<<" (";
@@ -162,7 +162,7 @@ void GoldenPattern::normalise(unsigned int nPdfAddrBits){
   ///Mean dist phi  
   for (unsigned int iRefLayer=0;iRefLayer<meanDistPhi[0].size();++iRefLayer){
     for (unsigned int iLayer=0;iLayer<meanDistPhi.size();++iLayer){   
-      if(meanDistPhiCounts.size() && meanDistPhiCounts[iLayer][iRefLayer]){
+      if(!meanDistPhiCounts.empty() && meanDistPhiCounts[iLayer][iRefLayer]){
 	if(meanDistPhiCounts[iLayer][iRefLayer]<1000) 	meanDistPhi[iLayer][iRefLayer] = 0;
 	else meanDistPhi[iLayer][iRefLayer] = rint((float)meanDistPhi[iLayer][iRefLayer]/meanDistPhiCounts[iLayer][iRefLayer]);      
       }
@@ -214,7 +214,7 @@ bool GoldenPattern::hasCounts(){
 
  for (unsigned int iRefLayer=0;iRefLayer<meanDistPhi[0].size();++iRefLayer){
     for (unsigned int iLayer=0;iLayer<meanDistPhi.size();++iLayer){   
-      if(meanDistPhiCounts.size() && meanDistPhiCounts[iLayer][iRefLayer]) return true;
+      if(!meanDistPhiCounts.empty() && meanDistPhiCounts[iLayer][iRefLayer]) return true;
   }
  }
  return false;

@@ -45,7 +45,7 @@ public:
    void setPaletteGUI();
 
    TGComboBox* getCombo() {return m_combo;}
-   ClassDef(CmsShowCommonPopup, 0);
+   ClassDefOverride(CmsShowCommonPopup, 0);
  
 private:
    CmsShowCommonPopup(const CmsShowCommonPopup&);

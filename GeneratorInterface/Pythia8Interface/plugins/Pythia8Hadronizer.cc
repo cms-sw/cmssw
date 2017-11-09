@@ -2,7 +2,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 #include "HepMC/GenEvent.h"
@@ -10,6 +10,8 @@
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8Plugins/HepMC2.h"
+
+#include "Vincia/Vincia.h"
 
 using namespace Pythia8;
 
@@ -74,7 +76,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
   public:
 
     Pythia8Hadronizer(const edm::ParameterSet &params);
-   ~Pythia8Hadronizer();
+   ~Pythia8Hadronizer() override;
  
     bool initializeForInternalPartons() override;
     bool initializeForExternalPartons();
@@ -94,8 +96,10 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     
   private:
 
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
-    virtual std::vector<std::string> const& doSharedResources() const override { return p8SharedResources; }
+    std::auto_ptr<Vincia::VinciaPlugin> fvincia;
+
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
+    std::vector<std::string> const& doSharedResources() const override { return p8SharedResources; }
 
     /// Center-of-Mass energy
     double       comEnergy;
@@ -305,6 +309,11 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
                                EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoOn, 0));
   }
   
+  if( params.exists( "VinciaPlugin" ) ) {
+    fMasterGen.reset(new Pythia);
+    fvincia.reset(new Vincia::VinciaPlugin(fMasterGen.get()));
+  }
+
 }
 
 
@@ -430,7 +439,11 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   }
 
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
-  status = fMasterGen->init();
+  if( fvincia.get() ) {
+    fvincia->init(); status = true;
+  } else {
+    status = fMasterGen->init();
+  }
   
   //clean up temp file
   if (!slhafile_.empty()) {
@@ -454,11 +467,11 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   if (useEvtGen) {
     edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
 
-    evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str()));
+    evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
 
     for (unsigned int i=0; i<evtgenUserFiles.size(); i++) {
       edm::FileInPath evtgenUserFile(evtgenUserFiles.at(i)); 
-      evtgenDecays->readDecayFile(evtgenUserFile.fullPath().c_str());
+      evtgenDecays->readDecayFile(evtgenUserFile.fullPath());
     }
 
   }
@@ -605,11 +618,11 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
 
     std::string evtgenpath(getenv("EVTGENDATA"));
-    evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str()));
+    evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
 
     for (unsigned int i=0; i<evtgenUserFiles.size(); i++) {
       edm::FileInPath evtgenUserFile(evtgenUserFiles.at(i));
-      evtgenDecays->readDecayFile(evtgenUserFile.fullPath().c_str());
+      evtgenDecays->readDecayFile(evtgenUserFile.fullPath());
     }
 
   }
@@ -794,6 +807,15 @@ bool Pythia8Hadronizer::hadronize()
     nFSRveto += fEmissionVetoHook->getNFSRveto();  
   }
 
+  // fill shower weights
+  // http://home.thep.lu.se/~torbjorn/pythia82html/Variations.html
+  if( fMasterGen->info.nWeights() > 1 ){
+    for(int i = 0; i < fMasterGen->info.nWeights(); ++i) {
+      double wgt = fMasterGen->info.weight(i);
+      event()->weights().push_back(wgt);
+    }
+  }
+
   return true;
 
 }
@@ -850,7 +872,7 @@ bool Pythia8Hadronizer::residualDecay()
 
 void Pythia8Hadronizer::finalizeEvent()
 {
-  bool lhe = lheEvent() != 0;
+  bool lhe = lheEvent() != nullptr;
 
   // now create the GenEventInfo product from the GenEvent and fill
   // the missing pieces

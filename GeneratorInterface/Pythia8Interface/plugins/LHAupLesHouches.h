@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <assert.h>
+#include <cassert>
 
 #include "boost/shared_ptr.hpp"
 
@@ -21,7 +21,7 @@
 
 class LHAupLesHouches : public Pythia8::LHAup {
   public:
-    LHAupLesHouches() : setScalesFromLHEF_(false),fEvAttributes(0) {;}
+    LHAupLesHouches() : setScalesFromLHEF_(false),fEvAttributes(nullptr) {;}
 
     //void loadRunInfo(const boost::shared_ptr<lhef::LHERunInfo> &runInfo)
     void loadRunInfo(lhef::LHERunInfo* runInfo)
@@ -33,12 +33,12 @@ class LHAupLesHouches : public Pythia8::LHAup {
       
     void setScalesFromLHEF(bool b) { setScalesFromLHEF_ = b; }
 
-    ~LHAupLesHouches() {if(fEvAttributes) delete fEvAttributes;}
+    ~LHAupLesHouches() override {if(fEvAttributes) delete fEvAttributes;}
 
   private:
 
-    bool setInit();
-    bool setEvent(int idProcIn);
+    bool setInit() override;
+    bool setEvent(int idProcIn) override;
 
     //boost::shared_ptr<lhef::LHERunInfo> runInfo;
     lhef::LHERunInfo* runInfo;

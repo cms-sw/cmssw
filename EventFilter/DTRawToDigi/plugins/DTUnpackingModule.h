@@ -21,7 +21,7 @@ class DTUnpackingModule: public edm::stream::EDProducer<> {
   DTUnpackingModule(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTUnpackingModule();
+  ~DTUnpackingModule() override;
     
   /// Call the Unpackers and create the digis 
   void produce(edm::Event & e, const edm::EventSetup& c) override;

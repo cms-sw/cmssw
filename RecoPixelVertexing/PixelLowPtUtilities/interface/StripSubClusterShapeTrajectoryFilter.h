@@ -71,17 +71,17 @@ class StripSubClusterShapeTrajectoryFilter: public StripSubClusterShapeFilterBas
         StripSubClusterShapeTrajectoryFilter(const edm::ParameterSet &iConfig, edm::ConsumesCollector& iC):
             StripSubClusterShapeFilterBase(iConfig,iC) {}
 
-        virtual ~StripSubClusterShapeTrajectoryFilter() {}
+        ~StripSubClusterShapeTrajectoryFilter() override {}
 
-        virtual bool qualityFilter(const TempTrajectory&) const override;
-        virtual bool qualityFilter(const Trajectory&) const override;
+        bool qualityFilter(const TempTrajectory&) const override;
+        bool qualityFilter(const Trajectory&) const override;
 
-        virtual bool toBeContinued(TempTrajectory&) const override;
-        virtual bool toBeContinued(Trajectory&) const override;
+        bool toBeContinued(TempTrajectory&) const override;
+        bool toBeContinued(Trajectory&) const override;
 
-        virtual std::string name() const override { return "StripSubClusterShapeTrajectoryFilter"; }
+        std::string name() const override { return "StripSubClusterShapeTrajectoryFilter"; }
 
-        virtual void setEvent(const edm::Event & e, const edm::EventSetup & es) override {
+        void setEvent(const edm::Event & e, const edm::EventSetup & es) override {
             setEventBase(e,es);
         }
 
@@ -94,16 +94,16 @@ class StripSubClusterShapeSeedFilter: public StripSubClusterShapeFilterBase, pub
     public:
         StripSubClusterShapeSeedFilter(const edm::ParameterSet &iConfig, edm::ConsumesCollector& iC) ;
 
-        virtual ~StripSubClusterShapeSeedFilter() {}
+        ~StripSubClusterShapeSeedFilter() override {}
 
-        virtual void init(const edm::Event& ev, const edm::EventSetup& es) override {
+        void init(const edm::Event& ev, const edm::EventSetup& es) override {
             setEventBase(ev,es);
         }
         // implemented
-        virtual bool compatible(const TrajectoryStateOnSurface &tsos,  SeedingHitSet::ConstRecHitPointer hit) const override ;
+        bool compatible(const TrajectoryStateOnSurface &tsos,  SeedingHitSet::ConstRecHitPointer hit) const override ;
         // not implemented 
-        virtual bool compatible(const SeedingHitSet &hits) const override { return true; }
-        virtual bool compatible(const SeedingHitSet &hits, const GlobalTrajectoryParameters &helixStateAtVertex, const FastHelix &helix) const override ;
+        bool compatible(const SeedingHitSet &hits) const override { return true; }
+        bool compatible(const SeedingHitSet &hits, const GlobalTrajectoryParameters &helixStateAtVertex, const FastHelix &helix) const override ;
 
     protected:
         bool filterAtHelixStage_;

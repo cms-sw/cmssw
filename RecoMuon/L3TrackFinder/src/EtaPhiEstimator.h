@@ -21,8 +21,8 @@ class EtaPhiEstimator : public Chi2MeasurementEstimatorBase {
     thedPhi2(phi*phi)
       { }
 
-    virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface& tsos,
-					    const TrackingRecHit& aRecHit) const{
+    std::pair<bool,double> estimate(const TrajectoryStateOnSurface& tsos,
+					    const TrackingRecHit& aRecHit) const override{
       
       std::pair<bool,double> primaryResult = estimator_->estimate(tsos,aRecHit);
 
@@ -42,7 +42,7 @@ class EtaPhiEstimator : public Chi2MeasurementEstimatorBase {
 	return std::make_pair(false, primaryResult.second);
     }
     
-    virtual EtaPhiEstimator* clone() const {
+    EtaPhiEstimator* clone() const override {
       return new EtaPhiEstimator(*this);
     }
 

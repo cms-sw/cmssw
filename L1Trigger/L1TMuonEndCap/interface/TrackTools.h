@@ -2,7 +2,7 @@
 #define L1TMuonEndCap_TrackTools_h
 
 #include <cmath>
-#include <assert.h>
+#include <cassert>
 
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"

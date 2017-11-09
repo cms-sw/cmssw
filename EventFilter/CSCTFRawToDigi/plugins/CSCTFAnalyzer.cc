@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <strings.h>
-#include <errno.h>
+#include <cerrno>
 #include <iostream>
 #include <iomanip>
 

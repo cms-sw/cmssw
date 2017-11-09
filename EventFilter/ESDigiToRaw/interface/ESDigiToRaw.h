@@ -20,7 +20,7 @@
 class ESDigiToRaw : public edm::global::EDProducer<> {
 public:
   ESDigiToRaw(const edm::ParameterSet& ps);
-  virtual ~ESDigiToRaw();
+  ~ESDigiToRaw() override;
   
   void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const override;
 

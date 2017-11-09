@@ -112,3 +112,9 @@ DEFINE_FWK_MODULE( L1GtHwValidation);
 
 #include "DQM/L1TMonitor/interface/L1ExtraDQM.h"
 DEFINE_FWK_MODULE(L1ExtraDQM);
+
+#include "DQM/L1TMonitor/interface/L1TStage2uGTCaloLayer2Comp.h"
+DEFINE_FWK_MODULE(L1TStage2uGTCaloLayer2Comp);
+
+#include "DQM/L1TMonitor/interface/L1TdeStage2CaloLayer2.h"
+DEFINE_FWK_MODULE(L1TdeStage2CaloLayer2);

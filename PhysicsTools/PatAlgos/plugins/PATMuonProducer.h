@@ -186,6 +186,9 @@ namespace pat {
     pat::helper::EfficiencyLoader efficiencyLoader_;
     /// helper class to add userData to the muon
     pat::PATUserDataHelper<pat::Muon> userDataHelper_;
+
+    /// MC info
+    edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo> > simInfo_;
   };
 
 }

@@ -100,7 +100,7 @@ public:
    sigc::signal<void> closed_;
 #endif
 
-   ClassDef(CmsShowViewPopup, 0);
+   ClassDefOverride(CmsShowViewPopup, 0);
 
 private:
    CmsShowViewPopup(const CmsShowViewPopup&);                  // stop default

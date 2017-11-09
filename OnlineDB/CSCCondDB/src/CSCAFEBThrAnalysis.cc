@@ -9,7 +9,7 @@ class CSCFitAFEBThr;
 
 CSCAFEBThrAnalysis::CSCAFEBThrAnalysis() {
 
-hist_file=0; // set to null
+hist_file=nullptr; // set to null
 
 nmbev=0;
 nmbev_no_wire=0;
@@ -412,10 +412,10 @@ fitAnodeThr->ThresholdNoise(inputx,inputy,npulses,vecDacOccup,mypar,ermypar,erco
   //std::cout<<"Last AFEB thresholds run "<<run<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
   //if(debug) dbon->cdbon_write(cn,"afeb_thresholds",run+1,myTime);
   
-  if(hist_file!=0) { // if there was a histogram file...
+  if(hist_file!=nullptr) { // if there was a histogram file...
     hist_file->Write(); // write out the histrograms
     delete hist_file; // close and delete the file
-    hist_file=0; // set to zero to clean up
+    hist_file=nullptr; // set to zero to clean up
     std::cout << "Hist. file was closed\n";
   }
 

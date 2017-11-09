@@ -1423,4 +1423,3 @@ bool L1TdeStage2CaloLayer2::compareSums(
   return eventGood;
 }
 
-DEFINE_FWK_MODULE (L1TdeStage2CaloLayer2);

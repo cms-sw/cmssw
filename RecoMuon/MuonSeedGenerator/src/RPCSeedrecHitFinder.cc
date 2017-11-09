@@ -115,7 +115,7 @@ void RPCSeedrecHitFinder::complete(unsigned int LayerIndex) {
             continue;
         // Check cluster size
         bool Clustercheck = false;
-        if(ClusterSet.size() == 0)
+        if(ClusterSet.empty())
             Clustercheck = true;
         for(std::vector<int>::const_iterator CluIter = ClusterSet.begin(); CluIter != ClusterSet.end(); CluIter++)
             if(ClusterSize == (*CluIter))

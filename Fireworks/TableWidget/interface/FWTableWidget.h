@@ -78,7 +78,7 @@ public:
    void childrenEvent(Event_t *);
    void Clicked();
 
-   ClassDef(FWTableWidget,0);
+   ClassDefOverride(FWTableWidget,0);
 
    void forceLayout() { m_forceLayout = true; }
    void dataChanged();

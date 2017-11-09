@@ -26,13 +26,9 @@ KDTreeLinkerPSEcal::~KDTreeLinkerPSEcal()
 void
 KDTreeLinkerPSEcal::insertTargetElt(reco::PFBlockElement	*psCluster)
 {
-  const reco::PFClusterRef& clusterref = psCluster->clusterRef();
-
   // This test is more or less done in PFBlockAlgo.h. In others cases, it should be switch on.
-  //   if (!((clusterref->layer() == PFLayer::PS1) || 
-  // 	(clusterref->layer() == PFLayer::PS2)))
-  //     return;
-
+  //if (!((psCluster->clusterRef()->layer() == PFLayer::PS1) || (psCluster->clusterRef()->layer() == PFLayer::PS2)))
+  //  return;
   targetSet_.insert(psCluster);
 }
 

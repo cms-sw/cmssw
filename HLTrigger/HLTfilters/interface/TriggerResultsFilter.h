@@ -40,7 +40,7 @@ class TriggerResultsFilter : public edm::stream::EDFilter<>
 {
 public:
   explicit TriggerResultsFilter(const edm::ParameterSet &);
-  ~TriggerResultsFilter();
+  ~TriggerResultsFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   bool filter(edm::Event &, const edm::EventSetup &) override;
 

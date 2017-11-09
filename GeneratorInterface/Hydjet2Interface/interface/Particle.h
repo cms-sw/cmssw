@@ -39,7 +39,7 @@ class Particle {
   bool           fDecayed;                  // true if the decay procedure already applied
 
  public:
-  Particle(ParticlePDG *pdg = 0);
+  Particle(ParticlePDG *pdg = nullptr);
   Particle(ParticlePDG *pdg, const TLorentzVector &pos, const TLorentzVector &mom,
 	   double lastInterTime = 0., int lastInterNum = 0, int type=0);
   Particle(ParticlePDG *pdg, const TLorentzVector &pos, const TLorentzVector &mom,

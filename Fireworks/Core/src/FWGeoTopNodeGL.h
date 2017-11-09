@@ -24,7 +24,7 @@ public:
    Bool_t AlwaysSecondarySelect()   const override { return kTRUE; }
    void   ProcessSelection(TGLRnrCtx& rnrCtx, TGLSelectRecord& rec) override;
 
-   ClassDef(FWGeoTopNodeGL, 0); // GL renderer class for FWGeoTopNodeGL.
+   ClassDefOverride(FWGeoTopNodeGL, 0); // GL renderer class for FWGeoTopNodeGL.
 
 };
 #endif

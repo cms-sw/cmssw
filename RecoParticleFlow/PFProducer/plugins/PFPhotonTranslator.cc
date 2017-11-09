@@ -715,7 +715,6 @@ void PFPhotonTranslator::createOneLegConversions(const edm::OrphanHandle<reco::S
 	    std::vector<reco::TrackRef> OneLegConvVector;
 	    OneLegConvVector.push_back(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]);
 	    
-	    const reco::CaloClusterPtrVector& clu=scPtrVec;
 	    std::vector<reco::TrackRef> tr=OneLegConvVector;
 	    std::vector<math::XYZPointF>trackPositionAtEcalVec;
 	    std::vector<math::XYZPointF>innPointVec;

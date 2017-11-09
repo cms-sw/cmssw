@@ -104,7 +104,7 @@ public:
    void setSummaryViewWeight(float);
    float getSummaryViewWeight() const;
 
-   ClassDef(CmsShowMainFrame, 0);
+   ClassDefOverride(CmsShowMainFrame, 0);
 
 protected:
    FWCustomIconsButton* m_filterEnableBtn;

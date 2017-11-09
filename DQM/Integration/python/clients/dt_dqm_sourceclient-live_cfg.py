@@ -27,7 +27,7 @@ process.dqmSaver.tag = "DT"
 
 #Enable HLT*Mu* filtering to monitor on Muon events
 #OR HLT_Physics* to monitor FEDs in commissioning runs
-process.source.SelectEvents = cms.untracked.vstring("HLT*Mu*","HLT_Physics*")
+process.source.SelectEvents = cms.untracked.vstring("HLT*Mu*","HLT_*Physics*")
 
 # DT reco and DQM sequences
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")

@@ -116,7 +116,8 @@ namespace {
       pad[2]->cd();
       DrawEE(endc_p, pEEmin, pEEmax);
 
-      canvas.SaveAs("ecalfloatcondobject.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -235,7 +236,8 @@ namespace {
       pad[2]->cd();
       DrawEE(endc_p, pEEmin, pEEmax);
 
-      canvas.SaveAs("ecalfloatcondobjectDiff.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };

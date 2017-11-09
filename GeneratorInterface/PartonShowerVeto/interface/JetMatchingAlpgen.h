@@ -11,20 +11,20 @@ namespace gen
 class JetMatchingAlpgen : public JetMatching {
     public:
 	JetMatchingAlpgen(const edm::ParameterSet &params);
-	~JetMatchingAlpgen();
+	~JetMatchingAlpgen() override;
 
     private:
-	void init(const lhef::LHERunInfo* runInfo);
-	void beforeHadronisation(const lhef::LHEEvent* event);
+	void init(const lhef::LHERunInfo* runInfo) override;
+	void beforeHadronisation(const lhef::LHEEvent* event) override;
 	
-	int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput );
-	virtual double getJetEtaMax() const { return 0.; }
+	int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput ) override;
+	double getJetEtaMax() const override { return 0.; }
 /*
 	int match(const HepMC::GenEvent* partonLevel,
 		  const HepMC::GenEvent* finalState,
 		  bool showeredFinalState);
 */
-	std::set<std::string> capabilities() const;
+	std::set<std::string> capabilities() const override;
 
 	bool applyMatching;
 	bool runInitialized;

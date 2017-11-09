@@ -47,7 +47,7 @@ class DTConfigLUTs : public DTConfig {
   DTConfigLUTs(bool debug, unsigned short int * buffer);
 
   //! Destructor
-  ~DTConfigLUTs();
+  ~DTConfigLUTs() override;
 
   //! Debug flag
   inline bool debug() const { return m_debug; }

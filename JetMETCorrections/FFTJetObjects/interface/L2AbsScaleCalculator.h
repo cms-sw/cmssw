@@ -16,12 +16,12 @@ public:
           m_zeroPtLog(ps.getParameter<double>("zeroPtLog")),
           m_takePtLog(ps.getParameter<bool>("takePtLog")) {}
 
-    inline virtual ~L2AbsScaleCalculator() {}
+    inline ~L2AbsScaleCalculator() override {}
 
-    inline virtual void mapFFTJet(const reco::Jet& /* jet */,
+    inline void mapFFTJet(const reco::Jet& /* jet */,
                                   const reco::FFTJet<float>& fftJet,
                                   const math::XYZTLorentzVector& current,
-                                  double* buf, const unsigned dim) const
+                                  double* buf, const unsigned dim) const override
     {
         if (dim != 2)
             throw cms::Exception("FFTJetBadConfig")
