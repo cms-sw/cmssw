@@ -13,7 +13,7 @@ gsfEcalDrivenElectronTask = cms.Task(ecalDrivenGsfElectronCores,ecalDrivenGsfEle
 gsfEcalDrivenElectronSequence = cms.Sequence(gsfEcalDrivenElectronTask)
 
 _gsfEcalDrivenElectronTaskFromMultiCl = gsfEcalDrivenElectronTask.copy()
-_gsfEcalDrivenElectronTaskFromMultiCl.add(ecalDrivenGsfElectronCoresFromMultiCl,ecalDrivenGsfElectronsFromMultiCl)
+_gsfEcalDrivenElectronTaskFromMultiCl.add(cms.Task(ecalDrivenGsfElectronCoresFromMultiCl,ecalDrivenGsfElectronsFromMultiCl))
 _gsfEcalDrivenElectronSequenceFromMultiCl = cms.Sequence(_gsfEcalDrivenElectronTaskFromMultiCl)
 
 #gsfElectronMergingSequence = cms.Sequence(gsfElectronCores*gsfElectrons)
