@@ -48,8 +48,8 @@
 //#define VTXDEBUG
 
 namespace svhelper {
-  double cov33(const reco::Vertex & sv) { return sv.covariance(3,3); }
-  double cov33(const reco::VertexCompositePtrCandidate & sv) { return sv.vertexCovariance(3,3); }
+  inline double cov33(const reco::Vertex & sv) { return sv.covariance(3,3); }
+  inline double cov33(const reco::VertexCompositePtrCandidate & sv) { return sv.vertexCovariance(3,3); }
 }
 
 
@@ -174,8 +174,8 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
         for(typename std::vector<VTX>::const_iterator sv = secondaryVertices.begin();
 	    sv != secondaryVertices.end(); ++sv) {
 
-	  const bool svHasTime = ( svhelper::cov33(*sv) > 0. );
 	  const double svTime(sv->t()), svTimeCov(svhelper::cov33(*sv));
+          const bool svHasTime = svTimeCov > 0.;
 	    
 	    GlobalPoint ssv(sv->position().x(),sv->position().y(),sv->position().z());
             GlobalVector flightDir = ssv-ppv;
