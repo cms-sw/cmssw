@@ -24,8 +24,6 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class ME0DigiToRaw;
-
 class ME0DigiToRawModule : public edm::EDProducer {
  public:
   
@@ -45,14 +43,17 @@ class ME0DigiToRawModule : public edm::EDProducer {
 
  private:
 
-  // ------------ method called once each 64 Bits data word and keep in vector ------------
-  void ByteVector(std::vector<unsigned char>&, uint64_t&);
+  uint16_t checkCRC(uint8_t b1010, uint16_t BC, uint8_t b1100,
+		    uint8_t EC, uint8_t Flag, uint8_t b1110,
+		    uint16_t ChipID, uint64_t msData, uint64_t lsData);
+  uint16_t crc_cal(uint16_t crc_in, uint16_t dato);
   
   int event_type_;
-  edm::EDGetTokenT<ME0DigiCollection>             digi_token;
+  edm::EDGetTokenT<ME0DigiCollection> digi_token;
+  bool useDBEMap_;
 
-  const ME0EMap* m_gemEMap;
-  ME0ROmap* m_gemROMap;
+  const ME0EMap* m_me0EMap;
+  ME0ROmap* m_me0ROMap;
   
 };
 DEFINE_FWK_MODULE(ME0DigiToRawModule);
