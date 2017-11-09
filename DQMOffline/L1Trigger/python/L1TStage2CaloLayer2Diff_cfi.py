@@ -84,14 +84,6 @@ allPlots_HI.extend(plots2D)
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(l1tStage2CaloLayer2EmuDiff,
-    plotCfgs=cms.untracked.VPSet(
-        cms.untracked.PSet(  # EMU comparison
-            dir1=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
-            dir2=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
-            outputDir=cms.untracked.string(
-                "L1TEMU/L1TStage2CaloLayer2/Comparison"),
-            plots=cms.untracked.vstring(allPlots_HI)
-        ),
-    )
+    plotCfgs = {0:dict(plots = allPlots_HI)}
 )
 
