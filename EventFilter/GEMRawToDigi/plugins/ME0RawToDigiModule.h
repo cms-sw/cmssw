@@ -48,9 +48,10 @@ class ME0RawToDigiModule : public edm::EDProducer {
   uint16_t crc_cal(uint16_t crc_in, uint16_t dato);
   
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
-
-  const ME0EMap* m_gemEMap;
-  ME0ROmap* m_gemROMap;
+  bool useDBEMap_;
+  
+  const ME0EMap* m_me0EMap;
+  ME0ROmap* m_me0ROMap;
   
 };
 DEFINE_FWK_MODULE(ME0RawToDigiModule);
