@@ -1,0 +1,30 @@
+Instructions to Run GPU RawToDigi only, 9 November 2017
+
+********************************************************
+*                                                      *
+* Instructions to compile and run GPU RawToDigi        *
+*                                                      *
+* Output part1: Index(or pixel_no), xcord, ycord & adc *
+* Output part2: Start & End Index of each              *
+* module in part 1                                     * 
+* The output is stored in the text file                *
+*                                                      *
+********************************************************
+
+Input file: /home/fpantale/data/920/PU50/085D5AAF-9E40-E711-B12A-0025905A609E.root
+
+0. login to felk40
+   > ssh username@lxplus.cern.ch
+   > ssh felk40
+
+1. Download the code from repository
+   > cmsrel CMSSW_9_2_0
+   > cd src
+   > cmsenv
+   > git cms-merge-topic sushildubey171:GPU_RawToDigi
+   > scram setup /home/fpantale/cuda_8.0.44.xml
+   > scram b -j8
+
+3. Run 
+   > cd /EventFilter/SiPixelRawToDigi/test
+   > cmsRun runRawToDigi_GPU_phase1.py   
