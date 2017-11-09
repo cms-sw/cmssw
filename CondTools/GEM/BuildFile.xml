@@ -1,0 +1,14 @@
+<use   name="CondFormats/GEMObjects"/>
+<use   name="CondCore/CondDB"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="CondCore/PopCon"/>
+<use   name="CoralBase"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="RelationalAccess"/>
+<use   name="boost"/>
+<flag  EDM_PLUGIN="1"/>
+<export>
+  <lib   name="1"/>
+</export>
