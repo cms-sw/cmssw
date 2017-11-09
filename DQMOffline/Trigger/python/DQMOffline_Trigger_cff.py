@@ -9,7 +9,7 @@ from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
 # Egamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
-from DQMOffline.Trigger.EgammaMonitoring_cff import *
+from DQMOffline.Trigger.EgammaMonitoring_cff import * # tag-n-probe (egammaMonitorHLT + egmHLTDQMSourceExtra)
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
@@ -49,14 +49,14 @@ from DQMOffline.Trigger.SiPixel_OfflineMonitoring_cff import *
 # photon jet
 from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
 
-#hotline 
-from DQMOffline.Trigger.hotlineDQM_cfi import *
+##hotline 
+#from DQMOffline.Trigger.hotlineDQM_cfi import * # ORPHAN
 
-#eventshape
-from DQMOffline.Trigger.eventshapeDQM_cfi import *
+##eventshape
+#from DQMOffline.Trigger.eventshapeDQM_cfi import * # OBSOLETE
 
-#UCC
-from DQMOffline.Trigger.heavyionUCCDQM_cfi import *
+##UCC
+#from DQMOffline.Trigger.heavyionUCCDQM_cfi import * # OBSOLETE
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -92,18 +92,14 @@ egHLTOffDQMSource_HEP17.doHEP =cms.bool(True)
 offlineHLTSourceOnAOD = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
-    egHLTOffDQMSource * ## NEEDED in VALIDATION, not really in MONITORING
-    egHLTOffDQMSource_HEP17 * ## NEEDED in VALIDATION, not really in MONITORING
     muonFullOfflineDQM *
     HLTTauDQMOffline *
-    fsqHLTOfflineSourceSequence *
-    HILowLumiHLTOfflineSourceSequence *
     hltInclusiveVBFSource *
-    higPhotonJetHLTOfflineSource*
+    higPhotonJetHLTOfflineSource* # plots are filled, but I'm not sure who is really looking at them and what you can get from them ... good candidates to be moved in offlineHLTSourceOnAODextra
     dqmEnvHLT *
-    topHLTriggerOfflineDQM *
-    eventshapeDQMSequence *
-    HeavyIonUCCDQMSequence *
+    topHLTriggerOfflineDQM * # plots are filled, but I'm not sure who is really looking at them and what you can get from them ... good candidates to be moved in offlineHLTSourceOnAODextra
+#    eventshapeDQMSequence * ## OBSOLETE !!!! (looks for HLT_HIQ2Top005_Centrality1030_v, HLT_HIQ2Bottom005_Centrality1030_v, etc)
+#    HeavyIonUCCDQMSequence * ## OBSOLETE !!!! (looks for HLT_HIUCC100_v and HLT_HIUCC020_v)
 #    hotlineDQMSequence * ## ORPHAN !!!!
     egammaMonitorHLT * 
     exoticaMonitorHLT *
@@ -114,8 +110,12 @@ offlineHLTSourceOnAOD = cms.Sequence(
     topMonitorHLT *
     btagMonitorHLT *
     bphMonitorHLT *
-    hltObjectsMonitor *
+    hltObjectsMonitor * # as online DQM, requested/suggested by TSG coordinators
     jetmetMonitorHLT
+)
+
+offlineHLTSourceWithRECO = cms.Sequence(
+    jetMETHLTOfflineAnalyzer
 )
 
 # offline DQM for running in the standard RECO,DQM (in PromptReco, ReReco, relval, etc)
@@ -123,9 +123,20 @@ offlineHLTSourceOnAOD = cms.Sequence(
 ## ADD here only sequences/modules which rely on transient collections produced by the RECO step
 ## and not stored in the AOD format
 offlineHLTSource = cms.Sequence(
+    offlineHLTSourceWithRECO *
     offlineHLTSourceOnAOD
-    + hcalMonitoringSequence
-    + jetMETHLTOfflineAnalyzer
+)
+
+## sequence for HI, FSQ and LowLumi
+offlineHLTSourceOnAOD4LowLumi = cms.Sequence(
+    offlineHLTSourceOnAOD *
+    fsqHLTOfflineSourceSequence * 
+    HILowLumiHLTOfflineSourceSequence
+)
+
+offlineHLTSource4LowLumi = cms.Sequence(
+    offlineHLTSourceWithRECO *
+    offlineHLTSourceOnAOD4LowLumi
 )
 
 # offline DQM to be run on AOD (w/o the need of the RECO step on-the-fly) only in the VALIDATION of the HLT menu based on data
@@ -133,6 +144,8 @@ offlineHLTSource = cms.Sequence(
 # asa the new modules in the sequence offlineHLTSourceOnAODextra are tested,
 # these have to be migrated in the main offlineHLTSourceOnAOD sequence
 offlineHLTSourceOnAODextra = cms.Sequence(
+    egHLTOffDQMSource * ## NEEDED in VALIDATION, not really in MONITORING
+    egHLTOffDQMSource_HEP17 * ## NEEDED in VALIDATION, not really in MONITORING
 ### POG
     btvHLTDQMSourceExtra
     * egmHLTDQMSourceExtra
@@ -156,7 +169,7 @@ offlineHLTSourceOnAODextra = cms.Sequence(
 # it is needed in order to have the DQM code in the release, w/o the issue of crashing the tier0
 # asa the new modules in the sequence offlineHLTSourceOnAODextra are tested
 # these have to be migrated in the main offlineHLTSourceOnAOD sequence
-offlineValidationHLTSource = cms.Sequence(
+offlineValidationHLTSourceOnAOD = cms.Sequence(
     offlineHLTSourceOnAOD 
     + offlineHLTSourceOnAODextra
 )
@@ -168,6 +181,7 @@ dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('HLT')
     )
 
+# sequences run @tier0 on HLTMonitor PD
 OfflineHLTMonitoring = cms.Sequence(
     dqmInfoHLTMon *
     lumiMonitorHLTsequence * # lumi
@@ -179,11 +193,26 @@ OfflineHLTMonitoring = cms.Sequence(
     egmTrackingMonitorHLT * # egm tracking
     vertexingMonitorHLT # vertexing
     )
+
+# sequences run @tier0 on HLTMonitor PD w/ HI (PbPb, XeXe), pPb, ppRef
 OfflineHLTMonitoringPA = cms.Sequence(
     dqmInfoHLTMon *
     trackingMonitorHLT *
     PAtrackingMonitorHLT  
     )
 
-triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource)
+### sequence run @tier0 (called by main DQM sequences in DQMOffline/Configuration/python/DQMOffline_cff.py) on all PDs, but HLTMonitor one
+triggerOfflineDQMSource =  cms.Sequence(
+    offlineHLTSource
+)
+
+triggerOfflineDQMSource4LowLumi =  cms.Sequence(
+    offlineHLTSource4LowLumi
+)
  
+# this sequence can be used by AlCa for the validation of conditions,
+# because it is like offlineHLTSource (run @tier0) + offlineHLTSourceOnAODextra (meant to validate new features)
+offlineValidationHLTSource = cms.Sequence(
+    offlineHLTSource
+    + offlineHLTSourceOnAODextra
+)
