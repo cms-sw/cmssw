@@ -55,7 +55,6 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
   int ndigis = 0;
   
   for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MINGEMFEDID; ++id){ 
-    std::cout <<"GEMRawToDigiModule start "<<std::endl;
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
@@ -81,6 +80,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
       amcData->setAMCheader1(*(++word));      
       amcData->setAMCheader2(*(++word));
       amcData->setGEMeventHeader(*(++word));
+      uint16_t amcId = amcData->BID();
 
       // Fill GEB
       for (unsigned short j = 0; j < amcData->GDcount(); ++j){
@@ -88,7 +88,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	gebData->setChamberHeader(*(++word));
 	
 	unsigned int m_nvb = gebData->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
-	int gebID = gebData->InputID();
+	uint16_t gebId = gebData->InputID();
 	
 	for (unsigned short k = 0; k < m_nvb; k++){
 	  auto vfatData = std::make_unique<VFATdata>();
@@ -111,14 +111,14 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  if (crc!=crc_check) std::cout<<"DIFFERENT CRC :"<<crc<<"   "<<crc_check<<std::endl;
 	  if (!Quality) std::cout <<"GEMRawToDigiModule Quality "<< Quality <<std::endl;
 	  
-	  uint16_t vfatId = ChipID | gebID << 12;
+	  uint32_t vfatId = (amcId << 17) | (gebId << 12) | ChipID;
 	  //need to add gebId to DB
 	  if (useDBEMap_) vfatId = ChipID;
 	    
 	  //check if ChipID exists.
 	  GEMROmap::eCoord ec;
 	  ec.vfatId = vfatId;
-	  ec.channelId = 1;	  
+	  ec.channelId = 1;
 	  if (!m_gemROMap->isValidChipID(ec)){
 	    std::cout <<"GEMRawToDigiModule InValid ChipID "<< ec.vfatId <<std::endl;	    
 	    //delete vfatData;
@@ -131,22 +131,24 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    else chan0xf = ((vfatData->msData() >> (chan-64)) & 0x1);
 
 	    // no hits
-	    if(chan0xf==0) continue;  
+	    if(chan0xf==0) continue;
 
 	    ec.channelId = chan;
 	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
-	    
-	    GEMDetId gemDetId(dc.gemDetId);
-	    GEMDigi digi(dc.stripId,bc);
+	    int bx = bc-25;
+	    GEMDetId gemId(dc.gemDetId);
+	    GEMDigi digi(dc.stripId,bx);
 
-	    std::cout <<"GEMRawToDigiModule ChipID "<<ec.vfatId
-		      <<" gemDetId "<< gemDetId
-	    	      <<" chan "<< ec.channelId
-	    	      <<" strip "<< dc.stripId
-	    	      <<std::endl;
+	    std::cout <<"GEMRawToDigiModule vfatId "<<ec.vfatId
+		      <<" gemDetId "<< gemId
+		      <<" chan "<< ec.channelId
+		      <<" strip "<< dc.stripId
+		      <<" bx "<< digi.bx()
+		      <<std::endl;
+	    	      
 	    ndigis++;
 	    
-	    outGEMDigis.get()->insertDigi(gemDetId,digi);	    
+	    outGEMDigis.get()->insertDigi(gemId,digi);	    
 	  }
 	}
 		  	

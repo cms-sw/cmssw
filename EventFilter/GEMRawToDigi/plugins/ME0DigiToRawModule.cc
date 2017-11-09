@@ -63,90 +63,61 @@ void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
   // currently only one FEDRaw
   {
     AMC13Event * amc13Event = new AMC13Event();
-    // CDFHeader
-    uint8_t cb5 = 0x5;// control bit, should be 0x5 bits 60-63
-    uint8_t Evt_ty = event_type_;
-    uint32_t LV1_id = e.id().event();
-    uint16_t BX_id = e.bunchCrossing();
-    uint16_t Source_id = FEDNumbering::MINME0FEDID;
-    amc13Event->setCDFHeader(cb5, Evt_ty, LV1_id, BX_id, Source_id);
-
-    // AMC13header
-    uint8_t CalTyp = 1;
-    uint8_t nAMC = 1; // currently only one AMC13Event
-    uint32_t OrN = 2;
-    uint8_t cb0  = 0b0000;// control bit, should be 0b0000
-    amc13Event->setAMC13header(CalTyp, nAMC, OrN, cb0);
-
-    for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
-      uint32_t AMC_size = 0;
-      uint8_t Blk_No = 0;
-      uint8_t AMC_No = 0;
-      uint16_t BoardID = 0;
-      amc13Event->addAMCheader(AMC_size, Blk_No, AMC_No, BoardID);
-    }
-
-    // Now make AMC payloads
-    for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
-      uint8_t GDcount = 0; // count GEBs
-      AMCdata * amcData = new AMCdata();
-
     
-      for (int re = -1; re <= 1; re = re+2) {
-	for (int ch = ME0DetId::minChamberId; ch<=ME0DetId::maxChamberId; ++ch) {
+    for (auto amc : m_me0ROMap->getAMCs()){	
+      AMCdata * amcData = new AMCdata();
+      uint16_t amcId = amc;
 
-	  // 1 GEB per superChamber
-	  ME0DetId gebDetId(re, 0, ch, 0);
-	  
+      for (auto geb : m_me0ROMap->getAMC2GEBs(amcId)){
+	
+	uint16_t gebId = geb;
+	uint32_t chamberId = (amcId << 5) | gebId;
+	
+	ME0DetId chamDetId = m_me0ROMap->gebPosition(chamberId);
+
+	GEBdata * gebData = new GEBdata();
+	gebData->setInputID(gebId);
+	
+	// 1 GEB per chamber
+	// making vfats
+	for (uint16_t bc = 0; bc < 50; ++bc){
 	  std::map<int, std::vector<int> > vFatToStripMap;
 	  bool hasDigi = false;
-	  for (int ly = 1; ly<=ME0DetId::maxLayerId; ++ly) {
-	    for (int roll = 1; roll<=ME0DetId::maxRollId; ++roll) {
-	      ME0DetId me0Id(re, ly, ch, roll);
-	      
-	      ME0DigiCollection::Range range = me0Digis->get(me0Id);
-	      for (ME0DigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
-		const ME0Digi & digi = (*digiIt);
+	
+	  for (int roll = 1; roll<=8; ++roll){
+	  
+	    ME0DetId me0Id(chamDetId.region(), chamDetId.layer(), chamDetId.chamber(), roll);
+	  
+	    ME0DigiCollection::Range range = me0Digis->get(me0Id);
+	    for (ME0DigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
+
+	      const ME0Digi & digi = (*digiIt);
+	      if (digi.bx() != bc-25) continue;
+	
+	      ME0ROmap::dCoord dc;
+	      dc.me0DetId = me0Id;
+	      dc.stripId = digi.strip();
+
+	      ME0ROmap::eCoord ec = m_me0ROMap->hitPosition(dc);
+	      uint32_t vFatID = ec.vfatId;
+	      int channelId = ec.channelId;
 		
-		ME0ROmap::dCoord dc;
-		dc.me0DetId = me0Id;
-		dc.stripId = digi.strip();
+	      vFatToStripMap[vFatID].push_back(channelId);	
+	      hasDigi = true;
 
-		ME0ROmap::eCoord ec = m_me0ROMap->hitPosition(dc);
-		int vFatID = ec.vfatId;
-		int channelId = ec.channelId;
-		
-		vFatToStripMap[vFatID].push_back(channelId);	
-		hasDigi = true;
+	      std::cout <<"ME0DigiToRawModule vfatId "<<ec.vfatId
+			<<" me0DetId "<< me0Id
+			<<" chan "<< ec.channelId
+			<<" strip "<< dc.stripId
+			<<" bx "<< digi.bx()
+			<<std::endl;
+	      ndigis++;
 
-		std::cout <<"ME0DigiToRawModule ChipID "<<ec.vfatId
-			  <<" me0DetId "<< me0Id
-			  <<" chan "<< ec.channelId
-			  <<" strip "<< dc.stripId
-			  <<std::endl;
-		ndigis++;
-
-	      }
 	    }
 	  }
+	  
 	  if (!hasDigi) continue;
 	  
-	  // count no. of superChambers with hits
-	  ++GDcount;
-	  uint16_t Vwh = 0;
-	  // const uint32_t &ZeroSup = 0;
-	  // const uint8_t &InputID = 0;
-	  // const uint16_t &ErrorC = 0;
-	  // const uint16_t &OHCRC = 0;
-	  // const uint16_t &Vwt = 0;
-	  // const uint8_t &InFu = 0;
-	  // const uint8_t &Stuckd = 0;
-	  // GEBdata * gebData = new GEBdata(ZeroSup, InputID, Vwt, ErrorC,
-	  // 				  OHCRC, Vwt, InFu, Stuckd);
-	  GEBdata * gebData = new GEBdata();
-	  int gebID = m_me0ROMap->gebPosition(gebDetId.chamberId());
-	  gebData->setInputID(gebID);
-
 	  // fill in vFat
 	  std::map<int, std::vector<int> >::const_iterator vFatStrIt = vFatToStripMap.begin();    
 	  for (; vFatStrIt != vFatToStripMap.end(); ++vFatStrIt) {
@@ -154,7 +125,7 @@ void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	    if (vFatStrIt->second.size() == 0) continue;
       
 	    uint8_t  b1010      =0xA;           ///<1010:4 Control bits, shoud be 1010
-	    uint16_t BC         =0;             ///<Bunch Crossing number, 12 bits
+	    uint16_t BC         =bc;             ///<Bunch Crossing number, 12 bits
 	    uint8_t  b1100      =0xC;           ///<1100:4, Control bits, shoud be 1100
 	    uint8_t  EC         =0;             ///<Event Counter, 8 bits
 	    uint8_t  Flag       =0;             ///<Control Flags: 4 bits, Hamming Error/AFULL/SEUlogic/SUEI2C
@@ -167,7 +138,7 @@ void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	    uint16_t ChipID = 0xFFF & vFatStrIt->first; ///<Chip ID, 12 bits
 	    uint64_t lsData     =0;             ///<channels from 1to64 
 	    uint64_t msData     =0;             ///<channels from 65to128
-	    
+	  
 	    for (auto chan : vFatStrIt->second){
 	      //std::cout <<"chan "<< chan<< std::endl;
 	      uint64_t oneBit = 0x1;
@@ -182,32 +153,56 @@ void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	    VFATdata * vfatData =
 	      new VFATdata(b1010, BC, b1100, EC, Flag, b1110, ChipID, lsData, msData,
 			   crc, crc_calc, SlotNumber, isBlockGood);
-
-	    ++Vwh;
-	    ++Vwh;
-	    ++Vwh;
+	  
 	    gebData->v_add(*vfatData);
 	    delete vfatData;
 	  }
-
-	  gebData->setVwh(Vwh);
-	  amcData->g_add(*gebData);
-	  delete gebData;
-	  
 	}
+	
+	if (gebData->vfats().size()){
+	  gebData->setInputID(gebId);
+	  gebData->setVwh(gebData->vfats().size()*3);
+	  amcData->g_add(*gebData);
+	}
+	delete gebData;	
       }
-    
-      amcData->setGDcount(GDcount);    
-      amc13Event->addAMCpayload(*amcData);
-      delete amcData;
 
+      if (amcData->gebs().size()){
+	amcData->setGDcount(amcData->gebs().size());
+	amcData->setBID(amcId);
+	amc13Event->addAMCpayload(*amcData);
+      }
+      delete amcData;
     }
-  
+
+    // CDFHeader
+    uint8_t cb5 = 0x5;// control bit, should be 0x5 bits 60-63
+    uint8_t Evt_ty = event_type_;
+    uint32_t LV1_id = e.id().event();
+    uint16_t BX_id = e.bunchCrossing();
+    uint16_t Source_id = FEDNumbering::MINME0FEDID;
+    amc13Event->setCDFHeader(cb5, Evt_ty, LV1_id, BX_id, Source_id);
+
+    // AMC13header
+    uint8_t CalTyp = 1;
+    uint8_t nAMC = amc13Event->getAMCpayload().size(); // currently only one AMC13Event
+    uint32_t OrN = 2;
+    uint8_t cb0  = 0b0000;// control bit, should be 0b0000
+    amc13Event->setAMC13header(CalTyp, nAMC, OrN, cb0);
+
+    for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
+      uint32_t AMC_size = 0;
+      uint8_t Blk_No = 0;
+      uint8_t AMC_No = 0;
+      uint16_t BoardID = 0;
+      amc13Event->addAMCheader(AMC_size, Blk_No, AMC_No, BoardID);
+    }
+    
     //AMC13 trailer
     uint32_t CRC_amc13 = 0;
     uint8_t Blk_NoT = 0;
     uint8_t LV1_idT = 0;
-    uint16_t BX_idT = 0;
+    uint16_t BX_idT = BX_id;
     amc13Event->setAMC13trailer(CRC_amc13, Blk_NoT, LV1_idT, BX_idT);
     //CDF trailer
     uint8_t cbA = 0xA; // control bit, should be 0xA bits 60-63

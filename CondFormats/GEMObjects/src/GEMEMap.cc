@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include "CondFormats/GEMObjects/interface/GEMEMap.h"
 #include "CondFormats/GEMObjects/interface/GEMROmap.h"
@@ -38,43 +37,64 @@ GEMROmap* GEMEMap::convert() const{
 
 GEMROmap* GEMEMap::convertDummy() const{
   GEMROmap* romap=new GEMROmap();
-
-  uint16_t gebId = 0;
+  uint16_t amcId = 1; //amc
+  uint16_t gebId = 1; 
+  romap->addAMC(amcId);
+	
   for (int re = -1; re <= 1; re = re+2) {
     for (int st = 1; st<=2; ++st) {
+      // for (int ch = GEMDetId::minChamberId; ch<=GEMDetId::maxChamberId; ++ch) {
+      // 	for (int ly = 1; ly<=GEMDetId::maxLayerId; ++ly) {
       for (int ch = 1; ch<=36; ++ch) {
-	gebId++;
-	GEMDetId gebDetId(re, 1, st, 0, ch, 0);
-	romap->add(gebId,gebDetId);
-	romap->add(gebDetId,gebId);
-	
-	uint16_t vfatId = 0;
-	
 	for (int ly = 1; ly<=2; ++ly) {
-	  for (int roll = 1; roll<=8; ++roll) {
-	    GEMDetId gemId(re, 1, st, ly, ch, roll);
+	  
+	  // 1 geb per chamber
+	  // 24 gebs per amc
+	  if (gebId > 25){
+	    gebId = 1;
+	    amcId++;
+	    romap->addAMC(amcId);
+	  }
+
+	  romap->addAMC2GEB(amcId, gebId);
+	  
+	  GEMDetId chamDetId(re, 1, st, ly, ch, 0);
+	  uint32_t chamberId = (amcId << 5) | gebId;	  
+	  romap->add(chamDetId,chamberId);
+	  romap->add(chamberId,chamDetId);
+	  
+	  uint16_t chipId = 0;	 	  
+	  for (int roll = 1; roll<=GEMDetId::maxRollId; ++roll) {
 	    int maxVFat = 3;
 	    if (st == 2){
-	      if (ch > 18) continue;
 	      maxVFat = 6;
 	    }
-	    int stripId = 0;
-	    for (int nVfat = 0; nVfat < maxVFat; ++nVfat){
-	      vfatId++;
-	      for (unsigned chan = 0; chan < 128; ++chan){
-		GEMROmap::eCoord ec;
-		ec.vfatId = vfatId | gebId << 12;
-		ec.channelId = chan;
 	    
+	    int stripId = 0;
+	    GEMDetId gemId(re, 1, st, ly, ch, roll);
+	    
+	    for (int nVfat = 0; nVfat < maxVFat; ++nVfat){
+	      chipId++;
+	      
+	      for (unsigned chan = 0; chan < 128; ++chan){	    
 		GEMROmap::dCoord dc;
 		dc.stripId = ++stripId;
 		dc.gemDetId = gemId;
+
+		uint32_t vfatId = (amcId << 17) | (gebId << 12) | chipId;
+		
+		GEMROmap::eCoord ec;
+		ec.vfatId =  vfatId;
+		ec.channelId = chan;
 		romap->add(ec,dc);
 		romap->add(dc,ec);
+
 	      }
-	    }
-	    
+	    }	    
 	  }
+
+	  gebId++;
+
 	}
       }
     }

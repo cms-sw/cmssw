@@ -55,7 +55,6 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
   int ndigis = 0;
   
   for (unsigned int id=FEDNumbering::MINME0FEDID; id<=FEDNumbering::MINME0FEDID; ++id){ 
-    std::cout <<"ME0RawToDigiModule start "<<std::endl;
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
@@ -81,6 +80,7 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
       amcData->setAMCheader1(*(++word));      
       amcData->setAMCheader2(*(++word));
       amcData->setGEMeventHeader(*(++word));
+      uint16_t amcId = amcData->BID();
 
       // Fill GEB
       for (unsigned short j = 0; j < amcData->GDcount(); ++j){
@@ -88,7 +88,7 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	gebData->setChamberHeader(*(++word));
 	
 	unsigned int m_nvb = gebData->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
-	int gebID = gebData->InputID();
+	uint16_t gebId = gebData->InputID();
 	
 	for (unsigned short k = 0; k < m_nvb; k++){
 	  auto vfatData = std::make_unique<VFATdata>();
@@ -111,14 +111,14 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  if (crc!=crc_check) std::cout<<"DIFFERENT CRC :"<<crc<<"   "<<crc_check<<std::endl;
 	  if (!Quality) std::cout <<"ME0RawToDigiModule Quality "<< Quality <<std::endl;
 	  
-	  uint16_t vfatId = ChipID | gebID << 12;
+	  uint32_t vfatId = (amcId << 17) | (gebId << 12) | ChipID;
 	  //need to add gebId to DB
 	  if (useDBEMap_) vfatId = ChipID;
 	    
 	  //check if ChipID exists.
 	  ME0ROmap::eCoord ec;
 	  ec.vfatId = vfatId;
-	  ec.channelId = 1;	  
+	  ec.channelId = 1;
 	  if (!m_me0ROMap->isValidChipID(ec)){
 	    std::cout <<"ME0RawToDigiModule InValid ChipID "<< ec.vfatId <<std::endl;	    
 	    //delete vfatData;
@@ -131,22 +131,24 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    else chan0xf = ((vfatData->msData() >> (chan-64)) & 0x1);
 
 	    // no hits
-	    if(chan0xf==0) continue;  
+	    if(chan0xf==0) continue;
 
 	    ec.channelId = chan;
 	    ME0ROmap::dCoord dc = m_me0ROMap->hitPosition(ec);
-	    
-	    ME0DetId me0DetId(dc.me0DetId);
-	    ME0Digi digi(dc.stripId,bc);
+	    int bx = bc-25;
+	    ME0DetId me0Id(dc.me0DetId);
+	    ME0Digi digi(dc.stripId,bx);
 
-	    std::cout <<"ME0RawToDigiModule ChipID "<<ec.vfatId
-		      <<" me0DetId "<< me0DetId
-	    	      <<" chan "<< ec.channelId
-	    	      <<" strip "<< dc.stripId
-	    	      <<std::endl;
+	    std::cout <<"ME0RawToDigiModule vfatId "<<ec.vfatId
+		      <<" me0DetId "<< me0Id
+		      <<" chan "<< ec.channelId
+		      <<" strip "<< dc.stripId
+		      <<" bx "<< digi.bx()
+		      <<std::endl;
+	    	      
 	    ndigis++;
 	    
-	    outME0Digis.get()->insertDigi(me0DetId,digi);	    
+	    outME0Digis.get()->insertDigi(me0Id,digi);	    
 	  }
 	}
 		  	
