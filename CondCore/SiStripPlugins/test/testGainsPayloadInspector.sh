@@ -46,7 +46,7 @@ mv *.png $W_DIR/plots/G2_MaxDeviatonRatio_update.png
     --plot plot_SiStripApvGainsRatioComparatorByRegion \
     --tag SiStripApvGainAfterAbortGap_PCL_v0_prompt \
     --time_type Run \
-    --iovs '{"start_iov": "302393", "end_iov": "305114"}' \
+    --iovs '{"start_iov": "280000", "end_iov": "305114"}' \
     --db Prep \
     --test;
 
