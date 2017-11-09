@@ -446,6 +446,10 @@ QuadPFJet111_90_80_15.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Qua
 
 ###############################Higgs Monitor HLT##############################################
 higgsMonitorHLT = cms.Sequence(
+)
+
+
+higHLTDQMSourceExtra = cms.Sequence(
     higgsinvHLTJetMETmonitoring
   + higgsHLTDiphotonMonitoring
   + higgstautauHLTVBFmonitoring
@@ -486,8 +490,4 @@ higgsMonitorHLT = cms.Sequence(
   + QuadPFJet111_90_80_15	
   + mssmHbbBtagTriggerMonitor 
   + mssmHbbMonitorHLT 
-)
-
-
-higHLTDQMSourceExtra = cms.Sequence(
 )
