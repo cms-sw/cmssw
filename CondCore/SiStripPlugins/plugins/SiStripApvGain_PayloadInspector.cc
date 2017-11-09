@@ -1419,8 +1419,8 @@ namespace {
       TCanvas canvas("Payload comparison by Tracker Region","payload comparison by Tracker Region",1800,800); 
       canvas.Divide(2,1);
       
-      auto h2first = std::unique_ptr<TH2F>(new TH2F("byRegion1","SiStrip APV Gain average by region;; average SiStrip Gain",38,1.,39.,100.,0.,2.));
-      auto h2last  = std::unique_ptr<TH2F>(new TH2F("byRegion2","SiStrip APV Gain average by region;; average SiStrip Gain",38,1.,39.,100.,0.,2.));
+      auto h2first = std::unique_ptr<TH2F>(new TH2F("byRegion1","SiStrip APV Gain values by region;; average SiStrip Gain",38,1.,39.,100.,0.,2.));
+      auto h2last  = std::unique_ptr<TH2F>(new TH2F("byRegion2","SiStrip APV Gain values by region;; average SiStrip Gain",38,1.,39.,100.,0.,2.));
 
       auto h2ratio  = std::unique_ptr<TH2F>(new TH2F("byRegionRatio",
 						     Form("SiStrip APV Gains ratio by region;; Gains ratio IOV: %s/ IOV %s",lastIOVsince.c_str(),firstIOVsince.c_str())
@@ -1432,7 +1432,7 @@ namespace {
 
       canvas.cd(1)->SetBottomMargin(0.18);
       canvas.cd(1)->SetLeftMargin(0.12);
-      canvas.cd(1)->SetRightMargin(0.08);
+      canvas.cd(1)->SetRightMargin(0.05);
       canvas.Modified();
 
       std::vector<int> boundaries;
@@ -1467,20 +1467,26 @@ namespace {
       h2first->SetLineColor(kRed);
       h2first->SetFillColor(kRed);
 
+      h2first->SetMarkerStyle(20);
+      h2last->SetMarkerStyle(21);
+
+      h2first->SetMarkerColor(kRed);
+      h2last->SetMarkerColor(kBlue);
+
       canvas.cd(1);
       h2first->Draw("BOX");
       h2last->Draw("BOXsame");
       
       TLegend legend = TLegend(0.70,0.8,0.95,0.9);
       legend.SetHeader("Gain Comparison","C"); // option "C" allows to center the header
-      legend.AddEntry(h2first.get(),("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"PL");
-      legend.AddEntry(h2last.get() ,("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"PL");
+      legend.AddEntry(h2first.get(),("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"F");
+      legend.AddEntry(h2last.get() ,("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"F");
       legend.Draw("same");
 
       canvas.cd(2);
       canvas.cd(2)->SetBottomMargin(0.18);
       canvas.cd(2)->SetLeftMargin(0.12);
-      canvas.cd(2)->SetRightMargin(0.14);
+      canvas.cd(2)->SetRightMargin(0.12);
 
       h2ratio->Draw("COLZ");
       auto hpfx_tmp = (TProfile*)(h2ratio->ProfileX("_pfx",1,-1,"o"));
