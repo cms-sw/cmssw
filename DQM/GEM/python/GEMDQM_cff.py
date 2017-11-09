@@ -5,8 +5,7 @@ from DQM.GEM.GEMDQMSourceDigi_cfi import *
 from DQM.GEM.GEMDQMHarvester_cfi import *
 
 GEMDQM = cms.Sequence(
-  #GEMDQMSource
-  #*
-  GEMDQMSourceDigi
+  GEMDQMSource
+  *GEMDQMSourceDigi
   *GEMDQMHarvester
 )
