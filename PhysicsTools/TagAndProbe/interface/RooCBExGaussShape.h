@@ -30,7 +30,7 @@ public:
   inline ~RooCBExGaussShape() override{}
   Double_t evaluate() const override ;
   
-  ClassDef(RooCBExGaussShape,1)
+  ClassDefOverride(RooCBExGaussShape,1)
 
 protected:
 

@@ -83,7 +83,7 @@ class ExclusionBandPlot : public StatisticalPlot {
 
 //For Cint/**/
 // #if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(ExclusionBandPlot,1)
+ClassDefOverride(ExclusionBandPlot,1)
 // #endif
  };
 
