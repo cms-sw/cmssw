@@ -110,7 +110,7 @@ class LEPBandPlot : public StatisticalPlot {
 
 //For Cint
 // #if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(LEPBandPlot,1)
+ClassDefOverride(LEPBandPlot,1)
 // #endif
  };
 
