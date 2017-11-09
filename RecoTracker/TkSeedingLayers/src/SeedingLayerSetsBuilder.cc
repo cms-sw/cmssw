@@ -31,7 +31,7 @@ using namespace std;
 
 SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(const std::string& name) {
     GeomDetEnumerators::SubDetector subdet = GeomDetEnumerators::invalidDet;
-    TrackerDetSide::Side side = TrackerDetSide::Barrel;
+    TrackerDetSide side = TrackerDetSide::Barrel;
     int idLayer = 0;
 
     size_t index;

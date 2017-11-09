@@ -24,7 +24,7 @@ class HitExtractorSTRP final : public HitExtractor {
 public:
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
-  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, TrackerDetSide::Side & side, int idLayer, float iminGoodCharge);
+  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, TrackerDetSide side, int idLayer, float iminGoodCharge);
   ~HitExtractorSTRP() override{}
 
   HitExtractor::Hits hits( const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup&) const override;
@@ -56,7 +56,7 @@ private:
   void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) override;
 private:
   const GeomDetEnumerators::SubDetector theLayerSubDet;
-  TrackerDetSide::Side theSide;
+  TrackerDetSide theSide;
   int theIdLayer;
   double minAbsZ;
   int theMinRing, theMaxRing;

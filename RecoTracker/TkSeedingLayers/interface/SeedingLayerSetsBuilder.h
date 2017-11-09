@@ -34,7 +34,7 @@ public:
   unsigned short numberOfLayers() const { return theLayers.size(); }
   std::unique_ptr<SeedingLayerSetsHits> hits(const edm::Event& ev, const edm::EventSetup& es);
 
-  using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, TrackerDetSide::Side, int>;
+  using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, TrackerDetSide, int>;
   static SeedingLayerId nameToEnumId(const std::string& name);
   static std::vector<std::vector<std::string> > layerNamesInSets(const std::vector<std::string> & namesPSet) ;
 
@@ -58,7 +58,7 @@ private:
     const std::string hitBuilder;
 
     GeomDetEnumerators::SubDetector subdet;
-    TrackerDetSide::Side side;
+    TrackerDetSide side;
     int idLayer;
     std::unique_ptr<ctfseeding::HitExtractor> extractor;
 
