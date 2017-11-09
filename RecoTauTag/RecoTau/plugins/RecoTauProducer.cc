@@ -290,9 +290,9 @@ template class RecoGenericTauProducer<reco::PFTau, reco::PFCandidate>;
 template class RecoGenericTauProducer<reco::PFBaseTau, pat::PackedCandidate>; 
 
 typedef RecoGenericTauProducer<reco::PFTau, reco::PFCandidate> RecoTauProducer;
-typedef RecoGenericTauProducer<reco::PFBaseTau, pat::PackedCandidate> RecoPFBaseTauProducer;
+typedef RecoGenericTauProducer<reco::PFBaseTau, pat::PackedCandidate> RecoBaseTauProducer;
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RecoTauProducer);
-DEFINE_FWK_MODULE(RecoPFBaseTauProducer);
+DEFINE_FWK_MODULE(RecoBaseTauProducer);
