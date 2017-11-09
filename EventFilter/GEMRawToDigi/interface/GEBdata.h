@@ -68,7 +68,10 @@ namespace gem {
     {
       return v_GEBflags[c];
     }
-    
+    std::vector<uint8_t> GEBflag()
+    {
+      return v_GEBflags;
+    }    
     // need to include all the flags
     //!Reads the word for GEM Chamber Trailer
     /**
