@@ -21,7 +21,7 @@ Input file: /home/fpantale/data/920/PU50/085D5AAF-9E40-E711-B12A-0025905A609E.ro
    > cmsrel CMSSW_9_2_0
    > cd src
    > cmsenv
-   > git cms-merge-topic sushildubey171:GPU_RawToDigi
+   > git cms-merge-topic sushildubey171:GPU_RawToDigi_C920
    > scram setup /home/fpantale/cuda_8.0.44.xml
    > scram b -j8
 
