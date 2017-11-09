@@ -128,7 +128,7 @@ void HGCPassive::update(const G4Step * aStep) {
       if (it != mapLV_.end()) {
 	storeInfo(it, plv, copy, time, energy, true);
       } else if (topLV_ != nullptr) {
-	auto itr = (init_) ? mapLV_.find(topLV_) : findLV(topLV_);
+	auto itr = findLV(topLV_);
 	if (itr != mapLV_.end()) {
 	  storeInfo(itr, topLV_, copy, time, energy, true);
 	}
@@ -141,8 +141,7 @@ void HGCPassive::update(const G4Step * aStep) {
       double energy = (aStep->GetTotalEnergyDeposit())/CLHEP::GeV;
       double time   = (aStep->GetTrack()->GetGlobalTime());
 
-      for (int ii=0; ii<level; ++ii) {
-	int i = level - ii;
+      for (int i=level; i>0; --i) {
 	G4LogicalVolume* plv = touchable->GetVolume(i)->GetLogicalVolume();
 	auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
 #ifdef EDM_ML_DEBUG
@@ -151,7 +150,7 @@ void HGCPassive::update(const G4Step * aStep) {
 				       << (it != mapLV_.end());
 #endif
 	if (it != mapLV_.end()) {
-	  unsigned int copy = (ii == level) ? 0 :
+	  unsigned int copy = (i == level) ? 0 :
 	    (unsigned int)(touchable->GetReplicaNumber(i) + 
 			   1000*touchable->GetReplicaNumber(i+1));
 	  storeInfo(it, plv, copy, time, energy, false);
