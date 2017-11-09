@@ -408,15 +408,14 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
                 Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
                 Plot1D('eta', 'eta', 20, -4, 4, 'eta'),
                 Plot1D('mass', 'mass', 20, -200, 200, 'mass'),
+                Plot1D('n2b1', 'n2b1', 20, 0, 1, 'N2 (beta=1)'),
+                Plot1D('n3b1', 'n3b1', 20, 0, 5, 'N3 (beta=1)'),                
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
                 Plot1D('tau1', 'tau1', 20, 0, 1, 'Nsubjettiness (1 axis)'),
                 Plot1D('tau2', 'tau2', 20, 0, 1, 'Nsubjettiness (2 axis)'),
                 Plot1D('tau3', 'tau3', 20, 0, 1, 'Nsubjettiness (3 axis)'),
                 Plot1D('tau4', 'tau4', 20, 0, 1, 'Nsubjettiness (4 axis)'),
-                Plot1D('n2b1', 'n2b1', 20, 0, 1, 'N2 (beta=1)'),
-                Plot1D('n3b1', 'n3b1', 20, 0, 5, 'N3 (beta=1)'),
-
             )
         ),
         Tau = cms.PSet(
