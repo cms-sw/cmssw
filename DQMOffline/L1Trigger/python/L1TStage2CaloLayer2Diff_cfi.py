@@ -64,3 +64,34 @@ l1tStage2CaloLayer2EmuDiff = l1tDiffHarvesting.clone(
         ),
     )
 )
+
+# modifications for the pp reference run
+variables_HI = variables
+variables_HI['jet'] = L1TStep1.jetEfficiencyThresholds_HI
+
+allEfficiencyPlots_HI = []
+add_plot = allEfficiencyPlots_HI.append
+for variable, thresholds in variables_HI.iteritems():
+    for plot in plots[variable]:
+        for threshold in thresholds:
+            plotName = '{0}_threshold_{1}'.format(plot, threshold)
+            add_plot(plotName)
+
+allPlots_HI = []
+allPlots_HI.extend(allEfficiencyPlots_HI)
+allPlots_HI.extend(resolution_plots)
+allPlots_HI.extend(plots2D)
+
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+ppRef_2017.toModify(l1tStage2CaloLayer2EmuDiff,
+    plotCfgs=cms.untracked.VPSet(
+        cms.untracked.PSet(  # EMU comparison
+            dir1=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
+            dir2=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
+            outputDir=cms.untracked.string(
+                "L1TEMU/L1TStage2CaloLayer2/Comparison"),
+            plots=cms.untracked.vstring(allPlots_HI)
+        ),
+    )
+)
+
