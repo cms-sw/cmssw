@@ -87,6 +87,11 @@ _ctpps_2016_DQMOffline = DQMOffline.copy()
 #_ctpps_2016_DQMOffline *= ctppsDQM
 ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
+DQMOfflineExtraHLT = cms.Sequence( 
+    offlineValidationHLTSource
+)
+
+
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
 DQMOfflineFakeHLT.remove( HLTMonitoring )
 
