@@ -72,7 +72,6 @@ DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       dqmFastTimerServiceClient)
 
 DQMOffline_SecondStep_ExtraHLT = cms.Sequence( 
-    DQMOffline_SecondStep *
     hltOfflineDQMClientExtra
 )
 
