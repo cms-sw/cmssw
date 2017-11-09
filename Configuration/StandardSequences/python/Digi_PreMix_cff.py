@@ -28,7 +28,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 if fastSim.isChosen():
     # no need for the aliases for usual mixing
     del generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis
-else:
+#else:
 #no need for this hack running at Nebraska
 ##hack - our code is too fast at large scale - lets slow it down and idle for 15 seconds
 #    cpuSpender=cms.EDAnalyzer("CPUSpender")
