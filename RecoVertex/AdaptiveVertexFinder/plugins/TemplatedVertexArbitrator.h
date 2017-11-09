@@ -68,7 +68,7 @@ class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
             pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
             pdesc.add<edm::InputTag>("secondaryVertices",edm::InputTag("vertexMerger"));
           }
-	  pdesc.add<double>("dLenFraction",0.3333);
+	  pdesc.add<double>("dLenFraction",0.333);
 	  pdesc.add<double>("dRCut",0.4);
 	  pdesc.add<double>("distCut",0.04);
 	  pdesc.add<double>("sigCut",5.0);
