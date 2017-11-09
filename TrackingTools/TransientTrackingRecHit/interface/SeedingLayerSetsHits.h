@@ -184,6 +184,7 @@ public:
   SeedingLayerSetsHits& operator=(SeedingLayerSetsHits &&)=default;
 
 
+  void shrink_to_fit();
   void addHits(LayerIndex layerIndex, OwnedHits&& hits);
 
 

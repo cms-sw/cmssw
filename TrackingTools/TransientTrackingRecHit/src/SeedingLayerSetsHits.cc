@@ -18,7 +18,9 @@ SeedingLayerSetsHits::SeedingLayerSetsHits(unsigned short nlayers,
   layerHitIndices_.reserve(layerNames->size());
 }
 
-
+void SeedingLayerSetsHits::shrink_to_fit() {
+  rechits_.shrink_to_fit();
+}
 
 void SeedingLayerSetsHits::addHits(LayerIndex layerIndex, OwnedHits&& hits) {
   if(layerIndex != layerHitIndices_.size()) {
