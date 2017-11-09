@@ -52,7 +52,7 @@ MonitorTrackMuonsInnerTrack.PVMax = 79.5 ## it might need to be adjust if CMS as
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase1Pixel.toModify(MonitorTrackMuonsInnerTrack, EtaBin=30, EtaMin=-3, EtaMax=3)
+phase1Pixel.toModify(MonitorTrackMuonsInnerTrack, EtaBin=31, EtaMin=-3., EtaMax=3.)
 phase2_tracker.toModify(MonitorTrackMuonsInnerTrack, EtaBin=46, EtaMin=-4.5, EtaMax=4.5)
 phase2_tracker.toModify(MonitorTrackMuonsInnerTrack, PVBin=125, PVMin=-0.5, PVMax=249.5)
 
