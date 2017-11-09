@@ -35,14 +35,6 @@ l1tMuonDQMEfficiency = l1tEfficiencyHarvesting.clone(
 # modifications for the pp reference run
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(l1tMuonDQMEfficiency,
-    plotCfgs = cms.untracked.VPSet(
-        cms.untracked.PSet(
-            numeratorDir = cms.untracked.string("L1T/L1TMuon/numerators_and_denominators"),
-            outputDir = cms.untracked.string("L1T/L1TMuon"),
-            numeratorSuffix = cms.untracked.string("_Num"),
-            denominatorSuffix = cms.untracked.string("_Den"),
-            plots = cms.untracked.vstring(allEfficiencyPlots_HI)
-        )
-    )
+    plotCfgs = {0:dict(plots = allEfficiencyPlots_HI)}
 )
 
