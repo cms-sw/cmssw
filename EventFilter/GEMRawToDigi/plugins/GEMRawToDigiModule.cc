@@ -54,17 +54,17 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 
   int ndigis = 0;
   
-  for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MAXGEMFEDID; ++id){ 
+  for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MINGEMFEDID; ++id){ 
+    std::cout <<"GEMRawToDigiModule start "<<std::endl;
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
-    if (nWords==0) continue;
-
-    const unsigned char * data = fedData.data();
-
-    //std::cout <<"GEMRawToDigiModule data.size() "<< nWords<<std::endl;
+    std::cout <<"GEMRawToDigiModule words "<< nWords<<std::endl;
     
-    AMC13Event * amc13Event = new AMC13Event();
+    if (nWords<10) continue;
+    const unsigned char * data = fedData.data();
+    
+    auto amc13Event = std::make_unique<AMC13Event>();
     
     const uint64_t* word = reinterpret_cast<const uint64_t* >(data);
     
@@ -77,27 +77,25 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 
     // Readout out AMC payloads
     for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
-      AMCdata * amcData = new AMCdata();      
+      auto amcData = std::make_unique<AMCdata>();
       amcData->setAMCheader1(*(++word));      
       amcData->setAMCheader2(*(++word));
       amcData->setGEMeventHeader(*(++word));
 
       // Fill GEB
       for (unsigned short j = 0; j < amcData->GDcount(); ++j){
-	GEBdata * gebData = new GEBdata();
+	auto gebData = std::make_unique<GEBdata>();
 	gebData->setChamberHeader(*(++word));
 	
 	unsigned int m_nvb = gebData->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
 	int gebID = gebData->InputID();
 	
 	for (unsigned short k = 0; k < m_nvb; k++){
-	  VFATdata * vfatData = new VFATdata();
+	  auto vfatData = std::make_unique<VFATdata>();
 	  vfatData->read_fw(*(++word));
 	  vfatData->read_sw(*(++word));
 	  vfatData->read_tw(*(++word));
 	  gebData->v_add(*vfatData);
-
-	  std::cout <<"GEMRawToDigiModule vfatData->ChipID() "<< int(vfatData->ChipID()) <<std::endl;
 	  
 	  uint16_t bc=vfatData->BC();
 	  //uint8_t ec=vfatData->EC();
@@ -107,22 +105,23 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  uint16_t ChipID=vfatData->ChipID();
 	  //int slot=vfatData->SlotNumber(); 
 	  uint16_t crc = vfatData->crc();
-	  uint16_t crc_check = checkCRC(vfatData);
+	  uint16_t crc_check = checkCRC(vfatData.get());
 	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check);
 
-	  if(crc!=crc_check) std::cout<<"DIFFERENT CRC :"<<crc<<"   "<<crc_check<<std::endl;
-	  std::cout <<"GEMRawToDigiModule Quality "<< Quality <<std::endl;
-	  //check if ChipID exists.
+	  if (crc!=crc_check) std::cout<<"DIFFERENT CRC :"<<crc<<"   "<<crc_check<<std::endl;
+	  if (!Quality) std::cout <<"GEMRawToDigiModule Quality "<< Quality <<std::endl;
+	  
 	  uint16_t vfatId = ChipID | gebID << 12;
 	  //need to add gebId to DB
 	  if (useDBEMap_) vfatId = ChipID;
 	    
+	  //check if ChipID exists.
 	  GEMROmap::eCoord ec;
 	  ec.vfatId = vfatId;
-	  ec.channelId = 1;
+	  ec.channelId = 1;	  
 	  if (!m_gemROMap->isValidChipID(ec)){
 	    std::cout <<"GEMRawToDigiModule InValid ChipID "<< ec.vfatId <<std::endl;	    
-	    delete vfatData;
+	    //delete vfatData;
 	    continue;
 	  }
 	  
@@ -131,10 +130,9 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
 	    else chan0xf = ((vfatData->msData() >> (chan-64)) & 0x1);
 
+	    // no hits
 	    if(chan0xf==0) continue;  
 
-	    // need to check if vfatData->lsData() starts from 0 or 1
-	    // currently mapping has chan 1 - 129
 	    ec.channelId = chan;
 	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
 	    
@@ -148,28 +146,21 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    	      <<std::endl;
 	    ndigis++;
 	    
-	    outGEMDigis.get()->insertDigi(gemDetId,digi);
+	    outGEMDigis.get()->insertDigi(gemDetId,digi);	    
 	  }
-	  delete vfatData;
-	  
 	}
 		  	
 	gebData->setChamberTrailer(*(++word));
 	amcData->g_add(*gebData);
-	delete gebData;
-	
       }
       
       amcData->setGEMeventTrailer(*(++word));
       amcData->setAMCTrailer(*(++word));
       amc13Event->addAMCpayload(*amcData);
-      delete amcData;
-      
     }
+    
     amc13Event->setAMC13trailer(*(++word));
     amc13Event->setCDFTrailer(*(++word));
-    delete amc13Event;
-    
   }
   
   std::cout << "GEMRawToDigiModule ndigis " << ndigis << std::endl;

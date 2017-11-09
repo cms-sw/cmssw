@@ -24,8 +24,6 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class GEMDigiToRaw;
-
 class GEMDigiToRawModule : public edm::EDProducer {
  public:
   
