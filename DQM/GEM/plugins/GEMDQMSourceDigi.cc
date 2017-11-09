@@ -19,7 +19,7 @@
 //#include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
 //#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMVfatErrorsCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigiCollection.h"
 
 
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -102,7 +102,7 @@ GEMDQMSourceDigi::GEMDQMSourceDigi(const edm::ParameterSet& cfg)
 {
 
   tagDigi = consumes<GEMDigiCollection>(cfg.getParameter<edm::InputTag>("digisInputLabel")); 
-  tagError = consumes<GEMVfatErrorsCollection>(cfg.getParameter<edm::InputTag>("errorsInputLabel")); 
+  tagError = consumes<GEMVfatStatusDigiCollection>(cfg.getParameter<edm::InputTag>("errorsInputLabel")); 
 
 }
 
@@ -138,8 +138,8 @@ void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   ibooker.setCurrentFolder("GEM/digi");
   for (auto ch : gemChambers){
     GEMDetId gid = ch.id();
-    string hName_digi = "Digi_Strips_Gemini_"+to_string(gid.superChamberId())+"_la_"+to_string(gid.layer());
-    string hTitle_digi = "Digi Strip Gemini ID : "+to_string(gid.superChamberId())+", layer : "+to_string(gid.layer());
+    string hName_digi = "Digi_Strips_Gemini_"+to_string(gid.chamber())+"_la_"+to_string(gid.layer());
+    string hTitle_digi = "Digi Strip Gemini ID : "+to_string(gid.chamber())+", layer : "+to_string(gid.layer());
 //     string hName_digi = "digi_"+to_string(gid.chamber());
 //     string hTitle_digi = "digi "+to_string(gid.chamber());
     Digi_Strip_vs_eta[ ch.id() ] = ibooker.book2D(hName_digi, hTitle_digi, 384, 0.5, 384.5, 8, 0.5,8.5);
@@ -172,7 +172,7 @@ void GEMDQMSourceDigi::analyze(edm::Event const& event, edm::EventSetup const& e
   ///// Digi /////
   ////////////////
   edm::Handle<GEMDigiCollection> gemDigis;
-  edm::Handle<GEMVfatErrorsCollection> gemErrors;
+  edm::Handle<GEMVfatStatusDigiCollection> gemErrors;
   event.getByToken( this->tagDigi, gemDigis);
   event.getByToken( this->tagError, gemErrors);
 //   if (!gemDigis.isValid()){
