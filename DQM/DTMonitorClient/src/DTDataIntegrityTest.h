@@ -75,6 +75,9 @@ private:
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;  
   std::map<std::string, std::map<int, std::vector <MonitorElement*> > > dduVectorHistos;
 
+  std::map<std::string, std::map<int, MonitorElement*> > fedHistos;
+  std::map<std::string, std::map<int, std::vector <MonitorElement*> > > fedVectorHistos;
+
   MonitorElement *summaryHisto;
   MonitorElement *summaryTDCHisto;
   MonitorElement *glbSummaryHisto;

@@ -48,6 +48,7 @@ from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
 DTDataIntegrityTask.processingMode = 'Online'
 DTDataIntegrityTask.dtDDULabel     = 'dtunpacker'
 DTDataIntegrityTask.dtROS25Label   = 'dtunpacker'
+DTDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
 
 # Digi task
 from DQM.DTMonitorModule.dtDigiTask_cfi import *
@@ -117,3 +118,10 @@ dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + d
 
 # sequence to be run on physics events (includes filters, reco and DQM)
 dtDQMPhysSequence = cms.Sequence(dtScalerInfoMonitor + gtDigis + reco + dtDQMTask + dtDQMTest)
+
+import EventFilter.DTRawToDigi.dturosunpacker_cfi
+_dturosunpacker = EventFilter.DTRawToDigi.dturospacker_cfi.dturosunpacker.clone()
+from Configuration.Eras.Modifier_run2_DT_2018_cff import run2_DT_2018
+run2_DT_2018.toReplaceWith(dtunpacker, _dturosunpacker)
+
+
