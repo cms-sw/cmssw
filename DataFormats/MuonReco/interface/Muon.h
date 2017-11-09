@@ -212,6 +212,7 @@ namespace reco {
     };
     
     bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }
+    bool passed( Selector selection ) const { return passed(static_cast<unsigned int>(selection)); }
     unsigned int selectors() const { return selectors_; }
     void setSelectors( unsigned int selectors ){ selectors_ = selectors; }
     void setSelector(Selector selector, bool passed){ 
