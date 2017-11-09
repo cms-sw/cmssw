@@ -28,8 +28,9 @@
 
 DTuROSRawToDigi::DTuROSRawToDigi(const edm::ParameterSet& pset) {
 
-  produces<DTDigiCollection>("DTuROSDigis");
-  produces<std::vector<DTuROSFEDData>>("DTuROSWords");
+  produces<DTDigiCollection>();
+//  produces<std::vector<DTuROSFEDData>>("DTuROSWords");
+  produces<std::vector<DTuROSFEDData>>();
 
   DTuROSInputTag_ = pset.getParameter<edm::InputTag>("DTuROS_FED_Source");
 
