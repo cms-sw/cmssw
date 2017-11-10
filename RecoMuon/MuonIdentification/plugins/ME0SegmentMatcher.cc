@@ -2,7 +2,6 @@
  *
  * \author David Nash
  */
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -17,11 +16,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/MuonReco/interface/ME0Muon.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
@@ -30,21 +24,11 @@
 #include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-#include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
-#include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
-
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToLocal.h"
-#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCartesian.h"
 
-#include "TLorentzVector.h"
-
-class FreeTrajectoryState;
-class MagneticField;
 class ME0SegmentMatcher : public edm::stream::EDProducer<> {
 public:
   /// Constructor
