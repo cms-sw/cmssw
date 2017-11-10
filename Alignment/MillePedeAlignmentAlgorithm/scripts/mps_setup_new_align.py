@@ -109,6 +109,14 @@ def main(argv = None):
                     print "    - no configuration files for '"+args.copy+"'"
                     copy_default_templates(args, next_campaign)
                 else:
+                    alignment_config_ini = os.path.join(next_campaign,
+                                                        "alignment_config.ini")
+                    regex_input = (r"^(jobname\s*[=:])(\s*)"+
+                                   os.path.basename(args.copy.strip("/"))+r"\s*$",
+                                   r"\1 "+next_campaign+r"\n")
+                    if os.path.isfile(alignment_config_ini):
+                        customize_default_template(alignment_config_ini,
+                                                   regex_input)
                     print "    - copied configuration files from",
                     print "'"+args.copy+"':", ", ".join(copied_files)
 
