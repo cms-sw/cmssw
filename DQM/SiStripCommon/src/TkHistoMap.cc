@@ -3,13 +3,14 @@
 
 //#define debug_TkHistoMap
 
-TkHistoMap::TkHistoMap():
+TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap):
   HistoNumber(35){
   cached_detid=0;
   cached_layer=0;
   
   LogTrace("TkHistoMap") <<"TkHistoMap::constructor without parameters"; 
   loadServices();
+  tkdetmap_ = tkDetMap;
 }
 
 
@@ -25,7 +26,7 @@ TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const 
   createTkHistoMap(path,MapName_, baseline, mechanicalView);
 }
 
-TkHistoMap::TkHistoMap(DQMStore::IBooker & ibooker, const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName,float baseline, bool mechanicalView):
+TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap, DQMStore::IBooker & ibooker, const std::string& path, const std::string& MapName,float baseline, bool mechanicalView):
   HistoNumber(35),
   MapName_(MapName)
 {

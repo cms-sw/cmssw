@@ -240,6 +240,9 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
     edm::ESHandle<TrackerTopology> tTopoHandle;
     es.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    es.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    const TkDetMap* tkDetMap = tkDetMapHandle.product();
 
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
     es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
@@ -257,13 +260,13 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
     if (clustertkhistomapon) {
       //      std::cout << "[SiStripMonitorCluster::createMEs] topFolderName_: " << topFolderName_ << "     ";
       if ( (topFolderName_ == "SiStrip") or (std::string::npos != topFolderName_.find("HLT")) )
-	tkmapcluster = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NumberOfCluster",0.,true);
-      else tkmapcluster = new TkHistoMap(ibooker , topFolderName_+"/TkHistoMap","TkHMap_NumberOfCluster",0.,false);
+	tkmapcluster = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_,"TkHMap_NumberOfCluster",0.,true);
+      else tkmapcluster = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_+"/TkHistoMap","TkHMap_NumberOfCluster",0.,false);
     }
     if (clusterchtkhistomapon) {
      if ( (topFolderName_ == "SiStrip") or (std::string::npos != topFolderName_.find("HLT")) )
-       tkmapclusterch = new TkHistoMap(ibooker , topFolderName_,"TkHMap_ClusterCharge",0.,true);
-     else tkmapclusterch = new TkHistoMap(ibooker , topFolderName_+"/TkHistoMap","TkHMap_ClusterCharge",0.,false);
+       tkmapclusterch = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_,"TkHMap_ClusterCharge",0.,true);
+     else tkmapclusterch = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_+"/TkHistoMap","TkHMap_ClusterCharge",0.,false);
     }
 
     // loop over detectors and book MEs

@@ -329,6 +329,9 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     edm::ESHandle<TrackerTopology> tTopoHandle;
     es.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    es.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    const TkDetMap* tkDetMap = tkDetMapHandle.product();
 
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
     es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
@@ -348,10 +351,10 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
 
     // Create TkHistoMap for Digi and APV shots properies
 
-    if (digitkhistomapon)      tkmapdigi                = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NumberOfDigi",        0.0,true);
-    if (shotshistomapon)       tkmapNApvshots           = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NApvShots",           0.0,true);
-    if (shotsstripshistomapon) tkmapNstripApvshot       = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NStripApvShots",      0.0,true);
-    if (shotschargehistomapon) tkmapMedianChargeApvshots= new TkHistoMap(ibooker , topFolderName_,"TkHMap_MedianChargeApvShots",0.0,true);
+    if (digitkhistomapon)      tkmapdigi                = std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_NumberOfDigi",        0.0,true);
+    if (shotshistomapon)       tkmapNApvshots           = std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_NApvShots",           0.0,true);
+    if (shotsstripshistomapon) tkmapNstripApvshot       = std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_NStripApvShots",      0.0,true);
+    if (shotschargehistomapon) tkmapMedianChargeApvshots= std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_MedianChargeApvShots",0.0,true);
 
     std::vector<uint32_t> tibDetIds;
 
@@ -690,8 +693,8 @@ else{
 	const std::vector<APVShot>& shots = theShotFinder.getShots();
 	AddApvShotsToSubDet(shots,SubDetMEsMap[subdet_label].SubDetApvShots);
 	if (shotshistomapon) tkmapNApvshots->fill(detid,shots.size());
-	if (shotsstripshistomapon) FillApvShotsMap(tkmapNstripApvshot,shots,detid,1);
-	if (shotschargehistomapon) FillApvShotsMap(tkmapMedianChargeApvshots,shots,detid,2);
+	if (shotsstripshistomapon) FillApvShotsMap(tkmapNstripApvshot.get(),shots,detid,1);
+	if (shotschargehistomapon) FillApvShotsMap(tkmapMedianChargeApvshots.get(),shots,detid,2);
       }
 
       if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != nullptr))
