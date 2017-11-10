@@ -1,7 +1,6 @@
-/** \file
+/** \packer for gem
  *  \author J. Lee - UoS
  */
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -56,8 +55,6 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
   edm::Handle<GEMDigiCollection> gemDigis;
   e.getByToken( digi_token, gemDigis );
 
-  int ndigis = 0;
-
   std::vector<AMC13Event*> amc13Events;
 
   // currently only one FEDRaw
@@ -106,13 +103,11 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	      hasDigi = true;
 
 	      std::cout <<"GEMDigiToRawModule vfatId "<<ec.vfatId
-			<<" gemDetId "<< gemId
-			<<" chan "<< ec.channelId
-			<<" strip "<< dc.stripId
-			<<" bx "<< digi.bx()
-			<<std::endl;
-	      ndigis++;
-
+	      		<<" gemDetId "<< gemId
+	      		<<" chan "<< ec.channelId
+	      		<<" strip "<< dc.stripId
+	      		<<" bx "<< digi.bx()
+	      		<<std::endl;
 	    }
 	  }
 	  
@@ -140,7 +135,6 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	    uint64_t msData     =0;             ///<channels from 65to128
 	  
 	    for (auto chan : vFatStrIt->second){
-	      //std::cout <<"chan "<< chan<< std::endl;
 	      uint64_t oneBit = 0x1;
 	      if (chan < 64) lsData = lsData | (oneBit << chan);
 	      else msData = msData | (oneBit << (chan-64));
@@ -220,12 +214,6 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
     words.push_back(amc13Event->getCDFHeader());
     words.push_back(amc13Event->getAMC13header());    
 
-    std::cout <<"GEMDigiToRawModule amc13Event"
-	      <<" nAMC "<< amc13Event->nAMC()
-	      <<" LV1_id "<< amc13Event->LV1_id()
-	      <<" Source_id "<< amc13Event->Source_id()
-	      <<std::endl;
-
     for (auto w: amc13Event->getAMCheader())
       words.push_back(w);    
 
@@ -236,7 +224,6 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
       words.push_back(amcData->getAMCheader2());
       words.push_back(amcData->getGEMeventHeader());
 
-      //std::cout <<"GEMDigiToRawModule amcData->GDcount() "<<amcData->GDcount()<<std::endl;
       for (auto geb: amcData->gebs()){
 	GEBdata * gebData = &geb;
 	words.push_back(gebData->getChamberHeader());
@@ -246,16 +233,13 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	  words.push_back(vfatData->get_fw());
 	  words.push_back(vfatData->get_sw());
 	  words.push_back(vfatData->get_tw());
-	  //delete vfatData;
 	}
 	
 	words.push_back(gebData->getChamberTrailer());
-	//delete gebData;
       }
       
       words.push_back(amcData->getGEMeventTrailer());
       words.push_back(amcData->getAMCTrailer());
-      //delete amcData;
     }
     
     words.push_back(amc13Event->getAMC13trailer());
@@ -272,8 +256,6 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
     std::cout << "GEMDigiToRawModule words " <<std::dec << words.size() << std::endl;
     delete amc13Event;
   }
-
-  std::cout << "GEMDigiToRawModule ndigis " << ndigis << std::endl;
 
   e.put(std::move(fedRawDataCol));
 }
