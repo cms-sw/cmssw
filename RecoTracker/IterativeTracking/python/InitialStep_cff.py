@@ -386,7 +386,7 @@ InitialStepTask = cms.Task(initialStepSeedLayers,
                            initialStep,caloJetsForTrkTask)
 InitialStep = cms.Sequence(InitialStepTask)
 
-_InitialStepTask_LowPU = InitialStepTask.copyAndExclude([caloJetsForTrkTask,firstStepPrimaryVerticesUnsorted, initialStepTrackRefsForJets, firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
+_InitialStepTask_LowPU = InitialStepTask.copyAndExclude([firstStepPrimaryVerticesUnsorted, initialStepTrackRefsForJets, caloJetsForTrkTask, firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
 _InitialStepTask_LowPU.replace(initialStep, initialStepSelector)
 trackingLowPU.toReplaceWith(InitialStepTask, _InitialStepTask_LowPU)
 
@@ -406,7 +406,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _InitialStepTask_fastSim = cms.Task(initialStepTrackingRegions
                            ,initialStepSeeds
                            ,initialStepTrackCandidates
-                           ,initialStepTracks                                    
+                           ,initialStepTracks
                            ,firstStepPrimaryVerticesBeforeMixing
                            ,initialStepClassifier1,initialStepClassifier2,initialStepClassifier3
                            ,initialStep
