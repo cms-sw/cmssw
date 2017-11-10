@@ -108,10 +108,10 @@ _run2_GEM_2017_RawToDigi = RawToDigi.copy()
 _run2_GEM_2017_RawToDigi.insert(1,muonGEMDigis)
 
 _run3_RawToDigi = _run2_GEM_2017_RawToDigi.copy()
-_run3_RawToDigi.insert(1,muonME0Digis)
+#_run3_RawToDigi.insert(1,muonME0Digis) # to be done once proper ME0 digitiser is done
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-#run2_GEM_2017.toReplaceWith(RawToDigi, _run2_GEM_2017_RawToDigi)
+run2_GEM_2017.toReplaceWith(RawToDigi, _run2_GEM_2017_RawToDigi)
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-#run3_GEM.toReplaceWith(RawToDigi, _run3_RawToDigi)
+run3_GEM.toReplaceWith(RawToDigi, _run3_RawToDigi)
