@@ -1,7 +1,3 @@
-/****************************************************************************
-
-****************************************************************************/
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -32,39 +28,38 @@
  
 class GEMDQMSourceDigi: public DQMEDAnalyzer
 {
-  public:
-    GEMDQMSourceDigi(const edm::ParameterSet& cfg);
-    virtual ~GEMDQMSourceDigi();
+public:
+  GEMDQMSourceDigi(const edm::ParameterSet& cfg);
+  ~GEMDQMSourceDigi() override;
   
-  protected:
-    void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-    void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-    void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-    void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+protected:
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
-  private:
-    unsigned int verbosity;
+private:
+  unsigned int verbosity;
    
-    int nCh;
+  int nCh;
 
+  edm::EDGetToken tagDigi;
+  edm::EDGetToken tagError;
 
-    edm::EDGetToken tagDigi;
-    edm::EDGetToken tagError;
-
-    const GEMGeometry* initGeometry(edm::EventSetup const & iSetup);
-    int findVFAT(float min_, float max_, float x_, int roll_);
+  const GEMGeometry* initGeometry(edm::EventSetup const & iSetup);
+  int findVFAT(float min_, float max_, float x_, int roll_);
      
-    const GEMGeometry* GEMGeometry_; 
+  const GEMGeometry* GEMGeometry_; 
 
-    std::vector<GEMChamber> gemChambers;
+  std::vector<GEMChamber> gemChambers;
 
-    std::unordered_map<UInt_t,  MonitorElement*> Digi_Strip_vs_eta;
-    std::unordered_map<UInt_t,  MonitorElement*> h1B1010;
-    std::unordered_map<UInt_t,  MonitorElement*> h1B1100;
-    std::unordered_map<UInt_t,  MonitorElement*> h1B1110;
-    std::unordered_map<UInt_t,  MonitorElement*> h1Flag;
+  std::unordered_map<UInt_t,  MonitorElement*> Digi_Strip_vs_eta;
+  std::unordered_map<UInt_t,  MonitorElement*> h1B1010;
+  std::unordered_map<UInt_t,  MonitorElement*> h1B1100;
+  std::unordered_map<UInt_t,  MonitorElement*> h1B1110;
+  std::unordered_map<UInt_t,  MonitorElement*> h1Flag;
 
 };
 
@@ -140,8 +135,8 @@ void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
     GEMDetId gid = ch.id();
     string hName_digi = "Digi_Strips_Gemini_"+to_string(gid.chamber())+"_la_"+to_string(gid.layer());
     string hTitle_digi = "Digi Strip Gemini ID : "+to_string(gid.chamber())+", layer : "+to_string(gid.layer());
-//     string hName_digi = "digi_"+to_string(gid.chamber());
-//     string hTitle_digi = "digi "+to_string(gid.chamber());
+    //     string hName_digi = "digi_"+to_string(gid.chamber());
+    //     string hTitle_digi = "digi "+to_string(gid.chamber());
     Digi_Strip_vs_eta[ ch.id() ] = ibooker.book2D(hName_digi, hTitle_digi, 384, 0.5, 384.5, 8, 0.5,8.5);
     string hNameErrors = "vfatErrors_"+to_string(gid.chamber())+"_la_"+to_string(gid.layer());
     h1B1010[ ch.id() ] = ibooker.book1D(hNameErrors+"_b1010", hNameErrors+"_b1010", 15, 0x0 , 0xf);   
@@ -175,18 +170,18 @@ void GEMDQMSourceDigi::analyze(edm::Event const& event, edm::EventSetup const& e
   edm::Handle<GEMVfatStatusDigiCollection> gemErrors;
   event.getByToken( this->tagDigi, gemDigis);
   event.getByToken( this->tagError, gemErrors);
-//   if (!gemDigis.isValid()){
-//   		edm::LogError("GEMDQMSourceDigi") << "GEM Digi is not valid.\n";
-//   		return;
-//   }
+  //   if (!gemDigis.isValid()){
+  //   		edm::LogError("GEMDQMSourceDigi") << "GEM Digi is not valid.\n";
+  //   		return;
+  //   }
   for (auto ch : gemChambers){
     GEMDetId cId = ch.id();
      
-   for(auto roll : ch.etaPartitions()){
+    for(auto roll : ch.etaPartitions()){
       GEMDetId rId = roll->id();      
       const auto& digis_in_det = gemDigis->get(rId);
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d){
-      		Digi_Strip_vs_eta[ cId ]->Fill(d->strip(), rId.roll());
+	Digi_Strip_vs_eta[ cId ]->Fill(d->strip(), rId.roll());
       }
       const auto& errors_in_det = gemErrors->get(rId);
       for(auto vfatError = errors_in_det.first; vfatError != errors_in_det.second; ++vfatError ){

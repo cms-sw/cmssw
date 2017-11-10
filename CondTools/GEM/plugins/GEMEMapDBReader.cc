@@ -13,23 +13,17 @@
 
 #include <iomanip>
 
-//using namespace std;
-//using namespace edm;
-
 // class declaration
 class GEMEMapDBReader : public edm::EDAnalyzer {
 public:
   explicit GEMEMapDBReader( const edm::ParameterSet& );
-  ~GEMEMapDBReader();
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  ~GEMEMapDBReader() override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 private:
   bool m_flag;
 };
 
-GEMEMapDBReader::GEMEMapDBReader( const edm::ParameterSet& iConfig )
-{
-
-}
+GEMEMapDBReader::GEMEMapDBReader( const edm::ParameterSet& iConfig ){}
 
 GEMEMapDBReader::~GEMEMapDBReader(){}
 

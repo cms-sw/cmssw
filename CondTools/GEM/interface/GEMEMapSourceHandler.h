@@ -11,16 +11,15 @@ namespace popcon
 {
   class GEMEMapSourceHandler : public popcon::PopConSourceHandler<GEMEMap>
   {
-      
   public:
       
     GEMEMapSourceHandler( const edm::ParameterSet& ps );
-    ~GEMEMapSourceHandler();
-    void getNewObjects();
+    ~GEMEMapSourceHandler() override;
+    void getNewObjects() override;
     void ConnectOnlineDB( const std::string& connect, const edm::ParameterSet& connectionPset ); // additional work
     void DisconnectOnlineDB(); // additional work
     void readGEMEMap();
-    std::string id() const { return m_name; }
+    std::string id() const override { return m_name; }
       
   private:
       

@@ -30,24 +30,16 @@ class GEMDigiToRawModule : public edm::EDProducer {
   /// Constructor
   GEMDigiToRawModule(const edm::ParameterSet & pset);
 
-  /// Destructor
-  virtual ~GEMDigiToRawModule(){}
-
-  virtual void beginRun(const edm::Run &, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run &, const edm::EventSetup&) override;
 
   // Operations
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
 
-  uint16_t checkCRC(uint8_t b1010, uint16_t BC, uint8_t b1100,
-		    uint8_t EC, uint8_t Flag, uint8_t b1110,
-		    uint16_t ChipID, uint64_t msData, uint64_t lsData);
-  uint16_t crc_cal(uint16_t crc_in, uint16_t dato);
-  
   int event_type_;
   edm::EDGetTokenT<GEMDigiCollection> digi_token;
   bool useDBEMap_;
