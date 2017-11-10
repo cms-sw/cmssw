@@ -117,7 +117,7 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	  std::map<int, std::vector<int> >::const_iterator vFatStrIt = vFatToStripMap.begin();    
 	  for (; vFatStrIt != vFatToStripMap.end(); ++vFatStrIt) {
 
-	    if (vFatStrIt->second.size() == 0) continue;
+	    if (vFatStrIt->second.empty()) continue;
       
 	    uint8_t  b1010      =0xA;           ///<1010:4 Control bits, shoud be 1010
 	    uint16_t BC         =bc;             ///<Bunch Crossing number, 12 bits
@@ -125,10 +125,10 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	    uint8_t  EC         =0;             ///<Event Counter, 8 bits
 	    uint8_t  Flag       =0;             ///<Control Flags: 4 bits, Hamming Error/AFULL/SEUlogic/SUEI2C
 	    uint8_t  b1110      =0xE;           ///<1110:4 Control bits, shoud be 1110
-	    //uint16_t crc        =0;             ///<Check Sum value, 16 bits
+	    uint16_t crc        =0;             ///<Check Sum value, 16 bits
 	    uint16_t crc_calc   =0;             ///<Check Sum value recalculated, 16 bits
 	    int      SlotNumber =0;             ///<Calculated chip position
-	    bool     isBlockGood=1;             ///<Shows if block is good (control bits, chip ID and CRC checks)
+	    bool     isBlockGood=false;         ///<Shows if block is good (control bits, chip ID and CRC checks)
 
 	    uint16_t ChipID = 0xFFF & vFatStrIt->first; ///<Chip ID, 12 bits
 	    uint64_t lsData     =0;             ///<channels from 1to64 
@@ -140,9 +140,9 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	      else msData = msData | (oneBit << (chan-64));
 	    }
 
-	    uint16_t crc = checkCRC(b1010, BC, b1100,
-				    EC, Flag, b1110,
-				    ChipID, msData, lsData);
+	    // uint16_t crc = checkCRC(b1010, BC, b1100,
+	    // 			    EC, Flag, b1110,
+	    // 			    ChipID, msData, lsData);
 	    
 	    VFATdata * vfatData =
 	      new VFATdata(b1010, BC, b1100, EC, Flag, b1110, ChipID, lsData, msData,
@@ -153,7 +153,7 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	  }
 	}
 	
-	if (gebData->vfats().size()){
+	if (!gebData->vfats().empty()){
 	  gebData->setInputID(gebId);
 	  gebData->setVwh(gebData->vfats().size()*3);
 	  amcData->g_add(*gebData);
@@ -161,7 +161,7 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	delete gebData;	
       }
 
-      if (amcData->gebs().size()){
+      if (!amcData->gebs().empty()){
 	amcData->setGDcount(amcData->gebs().size());
 	amcData->setBID(amcId);
 	amc13Event->addAMCpayload(*amcData);
@@ -259,48 +259,3 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 
   e.put(std::move(fedRawDataCol));
 }
-
-uint16_t GEMDigiToRawModule::checkCRC(uint8_t b1010, uint16_t BC, uint8_t b1100,
-				      uint8_t EC, uint8_t Flag, uint8_t b1110,
-				      uint16_t ChipID, uint64_t msData, uint64_t lsData)
-{
-  uint16_t vfatBlockWords[12];
-  vfatBlockWords[11] = ((0x000f & b1010)<<12) | BC;
-  vfatBlockWords[10] = ((0x000f & b1100)<<12) | ((0x00ff & EC) <<4) | (0x000f & Flag);
-  vfatBlockWords[9]  = ((0x000f & b1110)<<12) | ChipID;
-  vfatBlockWords[8]  = (0xffff000000000000 & msData) >> 48;
-  vfatBlockWords[7]  = (0x0000ffff00000000 & msData) >> 32;
-  vfatBlockWords[6]  = (0x00000000ffff0000 & msData) >> 16;
-  vfatBlockWords[5]  = (0x000000000000ffff & msData);
-  vfatBlockWords[4]  = (0xffff000000000000 & lsData) >> 48;
-  vfatBlockWords[3]  = (0x0000ffff00000000 & lsData) >> 32;
-  vfatBlockWords[2]  = (0x00000000ffff0000 & lsData) >> 16;
-  vfatBlockWords[1]  = (0x000000000000ffff & lsData);
-
-  uint16_t crc_fin = 0xffff;
-  for (int i = 11; i >= 1; i--){
-    crc_fin = this->crc_cal(crc_fin, vfatBlockWords[i]);
-  }
-  
-  return(crc_fin);
-}
-
-uint16_t GEMDigiToRawModule::crc_cal(uint16_t crc_in, uint16_t dato)
-{
-  uint16_t v = 0x0001;
-  uint16_t mask = 0x0001;
-  bool d=0;
-  uint16_t crc_temp = crc_in;
-  unsigned char datalen = 16;
-
-  for (int i=0; i<datalen; i++){
-    if (dato & v) d = 1;
-    else d = 0;
-    if ((crc_temp & mask)^d) crc_temp = crc_temp>>1 ^ 0x8408;
-    else crc_temp = crc_temp>>1;
-    v<<=1;
-  }
-  
-  return(crc_temp);
-}
-
