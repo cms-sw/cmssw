@@ -50,5 +50,6 @@
 <use   name="Geometry/EcalAlgo"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="TrackingTools/TransientTrack"/>
+<use   name="CalibCalorimetry/EcalTPGTools"/>
 
 <flags   EDM_PLUGIN="1"/>
