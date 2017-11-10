@@ -15,9 +15,9 @@ class TkHistoMap{
   typedef std::vector<MonitorElement*> tkHistoMapVect;
 
  public:
-  TkHistoMap(DQMStore::IBooker & ibooker , const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline=0, bool mechanicalView=false);
+  TkHistoMap(const TkDetMap* tkDetMap, DQMStore::IBooker & ibooker, const std::string& path, const std::string& MapName, float baseline=0, bool mechanicalView=false);
   TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline=0, bool mechanicalView=false);
-  TkHistoMap();
+  TkHistoMap(const TkDetMap* tkDetMap);
   ~TkHistoMap(){};
 
   void loadServices();
@@ -25,6 +25,7 @@ class TkHistoMap{
   void loadTkHistoMap(const std::string& path, const std::string& MapName, bool mechanicalView=false);
 
   MonitorElement* getMap(short layerNumber){return tkHistoMap_[layerNumber];};
+  const std::vector<MonitorElement*>& getAllMaps() const {return tkHistoMap_;};
   std::vector<MonitorElement*>& getAllMaps(){return tkHistoMap_;};
 
   float getValue(DetId detid);

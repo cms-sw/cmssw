@@ -676,15 +676,15 @@ void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> map_names
     }
     dqm_store->cd();
 
-    std::vector<TkHistoMap*> tkHMaps;
+    std::vector<TkHistoMap> tkHMaps;
 
     uint32_t nHists = map_names.size();
 
     for(uint32_t ih = 0; ih < nHists; ++ih) {
-      tkHMaps.push_back(new TkHistoMap());
+      tkHMaps.emplace_back(tkDetMap_);
       if(map_names.at(ih) != "QTestAlarm") {
         std::string tkhmap_name = "TkHMap_" + map_names.at(ih);
-        tkHMaps.at(ih)->loadTkHistoMap(dirname, tkhmap_name, true);
+        tkHMaps.at(ih).loadTkHistoMap(dirname, tkhmap_name, true);
       }
     } 
 
@@ -695,7 +695,7 @@ void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> map_names
           std::ostringstream comment;
           qtalarm_flag = getDetectorFlag(det_id);
         } else {
-          tkhmap_value[map_names.at(ih)] = tkHMaps.at(ih)->getValue(det_id);
+          tkhmap_value[map_names.at(ih)] = tkHMaps.at(ih).getValue(det_id);
         }
       }
       if(!tkinfo_tree) {
@@ -705,12 +705,6 @@ void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> map_names
         tkinfo_tree->Fill();
       }
     }
-
-    // delete pointers
-    for(uint32_t ih = 0; ih < nHists; ++ih) {
-      delete tkHMaps.at(ih);
-    }
-
   }
 
 }

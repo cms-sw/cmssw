@@ -77,7 +77,7 @@ private:
   struct Det2MEs;
 
   //booking
-  void book(DQMStore::IBooker &, const TrackerTopology* tTopo);
+  void book(DQMStore::IBooker &, const TrackerTopology* tTopo, const TkDetMap* tkDetMap);
   void bookModMEs(DQMStore::IBooker &, const uint32_t );
   void bookLayerMEs(DQMStore::IBooker &, const uint32_t, std::string&);
   void bookRing(DQMStore::IBooker &, const uint32_t, std::string&);
@@ -166,10 +166,10 @@ private:
   std::string topFolderName_;
 
   //******* TkHistoMaps
-  TkHistoMap *tkhisto_StoNCorrOnTrack, *tkhisto_NumOnTrack, *tkhisto_NumOffTrack;
-  TkHistoMap *tkhisto_ClChPerCMfromOrigin, *tkhisto_ClChPerCMfromTrack;
-  TkHistoMap *tkhisto_NumMissingHits, *tkhisto_NumberInactiveHits, *tkhisto_NumberValidHits;
-  TkHistoMap *tkhisto_NoiseOnTrack, *tkhisto_NoiseOffTrack, *tkhisto_ClusterWidthOnTrack, *tkhisto_ClusterWidthOffTrack;
+  std::unique_ptr<TkHistoMap> tkhisto_StoNCorrOnTrack, tkhisto_NumOnTrack, tkhisto_NumOffTrack;
+  std::unique_ptr<TkHistoMap> tkhisto_ClChPerCMfromOrigin, tkhisto_ClChPerCMfromTrack;
+  std::unique_ptr<TkHistoMap> tkhisto_NumMissingHits, tkhisto_NumberInactiveHits, tkhisto_NumberValidHits;
+  std::unique_ptr<TkHistoMap> tkhisto_NoiseOnTrack, tkhisto_NoiseOffTrack, tkhisto_ClusterWidthOnTrack, tkhisto_ClusterWidthOffTrack;
   //******** TkHistoMaps
   int numTracks;
 
