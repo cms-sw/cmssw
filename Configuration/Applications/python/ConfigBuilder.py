@@ -2088,8 +2088,7 @@ class ConfigBuilder(object):
 	# now set up the modifies
 	modifiers=[]
 	modifierStrings=[]
-	self.pythonCfgCode += "from Configuration.StandardSequences.Eras import eras\n\n"
-	self.pythonCfgCode += "process = cms.Process('"+self._options.name+"'" # Start of the line, finished after the loop
+	modifierImports=['from Configuration.StandardSequences.Eras import eras']
 
         if hasattr(self._options,"era") and self._options.era :
             # Multiple eras can be specified in a comma seperated list
@@ -2097,6 +2096,20 @@ class ConfigBuilder(object):
             for requestedEra in self._options.era.split(",") :
 		    modifierStrings.append("eras."+requestedEra)
 		    modifiers.append(getattr(eras,requestedEra))
+
+
+	if hasattr(self._options,"processModifiers") and self._options.processModifiers:
+            import importlib
+	    thingsImported=[]
+ 	    for pm in self._options.processModifiers.split(','):
+                   modifierStrings.append(pm)
+		   modifierImports.append('from Configuration.ProcessModifiers.'+pm+'_cff import '+pm)
+                   modifiers.append(getattr(importlib.import_module('Configuration.ProcessModifiers.'+pm+'_cff'),pm))
+
+	self.pythonCfgCode += '\n'.join(modifierImports)+'\n\n'
+	self.pythonCfgCode += "process = cms.Process('"+self._options.name+"'" # Start of the line, finished after the loop
+
+
 	if len(modifierStrings)>0:
 		self.pythonCfgCode+= ','+','.join(modifierStrings)
 	self.pythonCfgCode+=')\n\n'
