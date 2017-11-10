@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <cstdint>
 #include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
 
 using namespace gem;
