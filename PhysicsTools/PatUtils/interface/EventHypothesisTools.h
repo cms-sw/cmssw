@@ -12,9 +12,9 @@ namespace pat { namespace eventhypothesis {
                 public:
                     AndFilter() : filters_(2) {}
                     AndFilter(ParticleFilter *f1, ParticleFilter *f2) ;
-                    virtual ~AndFilter() {}
+                    ~AndFilter() override {}
                     AndFilter & operator&=(ParticleFilter *filter) { filters_.push_back(filter); return *this; }
-                    virtual bool operator()(const CandRefType &cand, const std::string &role) const ;
+                    bool operator()(const CandRefType &cand, const std::string &role) const override ;
                 private:
                     boost::ptr_vector<ParticleFilter> filters_;
             };
@@ -24,9 +24,9 @@ namespace pat { namespace eventhypothesis {
                 public:
                     OrFilter() : filters_(2) {}
                     OrFilter(ParticleFilter *f1, ParticleFilter *f2) ;
-                    virtual ~OrFilter() {}
+                    ~OrFilter() override {}
                     OrFilter & operator&=(ParticleFilter *filter) { filters_.push_back(filter); return *this; }
-                    virtual bool operator()(const CandRefType &cand, const std::string &role) const ;
+                    bool operator()(const CandRefType &cand, const std::string &role) const override ;
                 private:
                     boost::ptr_vector<ParticleFilter> filters_;
             };
@@ -34,8 +34,8 @@ namespace pat { namespace eventhypothesis {
             class ByPdgId : public ParticleFilter {
                 public:
                     explicit ByPdgId(int32_t pdgCode, bool alsoAntiparticle=true) ;
-                    virtual ~ByPdgId() {}
-                    virtual bool operator()(const CandRefType &cand, const std::string &role) const ;
+                    ~ByPdgId() override {}
+                    bool operator()(const CandRefType &cand, const std::string &role) const override ;
                 private:
                     int32_t pdgCode_;
                     bool    antiparticle_;
@@ -44,8 +44,8 @@ namespace pat { namespace eventhypothesis {
             class ByString : public ParticleFilter {
                 public:
                     ByString(const std::string &cut) ; // not putting the explicit on purpose, I want to see what happens
-                    virtual ~ByString() {}
-                    virtual bool operator()(const CandRefType &cand, const std::string &role) const ;
+                    ~ByString() override {}
+                    bool operator()(const CandRefType &cand, const std::string &role) const override ;
                 private:
                     StringCutObjectSelector<reco::Candidate> sel_;
                     

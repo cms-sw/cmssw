@@ -12,12 +12,12 @@ class DeepCopyPointerByClone {
 public:
   
   ~DeepCopyPointerByClone() { delete theData;}
-  DeepCopyPointerByClone() : theData(0) {}
+  DeepCopyPointerByClone() : theData(nullptr) {}
 
   DeepCopyPointerByClone( T* t) : theData(t) {}
 
   DeepCopyPointerByClone( const DeepCopyPointerByClone& other) {
-    if (other.theData) theData = other->clone(); else theData = 0;
+    if (other.theData) theData = other->clone(); else theData = nullptr;
   }
 
 

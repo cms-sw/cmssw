@@ -13,10 +13,10 @@ class DCULVRTempsDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   DCULVRTempsDat();
-  ~DCULVRTempsDat();
+  ~DCULVRTempsDat() override;
 
   // User data methods
-  inline std::string getTable() { return "DCU_LVR_TEMPS_DAT"; }
+  inline std::string getTable() override { return "DCU_LVR_TEMPS_DAT"; }
 
   inline void setT1(float temp) { m_t1 = temp; }
   inline float getT1() const { return m_t1; }
@@ -30,7 +30,7 @@ class DCULVRTempsDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const DCULVRTempsDat* item, DCUIOV* iov)
     noexcept(false);

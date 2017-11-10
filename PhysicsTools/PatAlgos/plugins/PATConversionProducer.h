@@ -39,9 +39,9 @@ namespace pat {
     public:
 
       explicit PATConversionProducer(const edm::ParameterSet & iConfig);
-      ~PATConversionProducer();
+      ~PATConversionProducer() override;
 
-      virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+      void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
 
     private:
 

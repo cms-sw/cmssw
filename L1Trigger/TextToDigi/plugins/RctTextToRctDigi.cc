@@ -180,13 +180,13 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // Isolated electrons
     for (unsigned j=0; j<4; j++){
       m_file[i] >> uLongBuffer;
-      em->push_back(L1CaloEmCand(uLongBuffer, i, true, j,BXNum,0));
+      em->push_back(L1CaloEmCand(uLongBuffer, i, true, j,BXNum,false));
     }
 
     // Non-isolated electrons
     for (unsigned j=0; j<4; j++){
       m_file[i] >> uLongBuffer;
-      em->push_back(L1CaloEmCand(uLongBuffer, i, false, j,BXNum,0));
+      em->push_back(L1CaloEmCand(uLongBuffer, i, false, j,BXNum,false));
     }      
     
     // MIP bits 

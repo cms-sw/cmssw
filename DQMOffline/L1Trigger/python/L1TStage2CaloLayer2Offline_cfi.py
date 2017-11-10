@@ -78,6 +78,25 @@ l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
     recoMHTMaxEta=cms.double(2.5),
 )
 
+# modifications for the pp reference run
+jetEfficiencyThresholds_HI = [8, 16, 24, 44, 60, 80, 90]
+jetEfficiencyBins_HI = []
+jetEfficiencyBins_HI.extend(list(xrange(0, 60, 2)))
+jetEfficiencyBins_HI.extend(list(xrange(60, 90, 5)))
+jetEfficiencyBins_HI.extend(list(xrange(90, 120, 10)))
+jetEfficiencyBins_HI.extend(list(xrange(120, 180, 20)))
+jetEfficiencyBins_HI.extend(list(xrange(180, 300, 40)))
+jetEfficiencyBins_HI.extend(list(xrange(300, 401, 100)))
+
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+ppRef_2017.toModify(l1tStage2CaloLayer2OfflineDQM,
+    TriggerFilter=cms.InputTag('hltEle20WPLoose1GsfTrackIsoFilter', '', 'HLT'),
+    TriggerPath=cms.string('HLT_Ele20_WPLoose_Gsf_v4'),
+    jetEfficiencyThresholds=cms.vdouble(jetEfficiencyThresholds_HI),
+    jetEfficiencyBins=cms.vdouble(jetEfficiencyBins_HI),
+)
+
+# emulator module
 l1tStage2CaloLayer2OfflineDQMEmu = l1tStage2CaloLayer2OfflineDQM.clone(
     stage2CaloLayer2JetSource=cms.InputTag("simCaloStage2Digis"),
     stage2CaloLayer2EtSumSource=cms.InputTag("simCaloStage2Digis"),

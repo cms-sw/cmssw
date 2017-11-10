@@ -119,7 +119,7 @@ public:
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
   L1GctJetFinderBase(int id);
                  
-  ~L1GctJetFinderBase();
+  ~L1GctJetFinderBase() override;
    
   /// Set pointers to neighbours - needed to complete the setup
   void setNeighbourJetFinders(const std::vector<L1GctJetFinderBase*>& neighbours);
@@ -150,10 +150,10 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);
 
   /// get input data from sources; to be filled in by derived jetFinders
-  virtual void fetchInput() = 0;
+  void fetchInput() override = 0;
 
   /// process the data, fill output buffers; to be filled in by derived jetFinders
-  virtual void process() = 0;
+  void process() override = 0;
 
   /// Set input data
   void setInputRegion(const L1CaloRegion& region);
@@ -207,11 +207,11 @@ public:
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines();
+  void resetProcessor() override;
+  void resetPipelines() override;
 
   /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects();
+  void setupObjects() override;
 
  protected:
 

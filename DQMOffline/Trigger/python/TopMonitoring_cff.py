@@ -622,6 +622,9 @@ fullyhadronic_DoubleBTag_DeepCSV_bjet.denGenericTriggerEventPSet.hltPaths = cms.
 from DQMOffline.Trigger.HLTEGTnPMonitor_cfi import egmGsfElectronIDsForDQM
 
 topMonitorHLT = cms.Sequence(
+    )
+
+topHLTDQMSourceExtra = cms.Sequence(
     egmGsfElectronIDsForDQM # Use of electron VID requires this module being executed first
     + topEleJet_ele
     + topEleJet_jet
@@ -668,7 +671,4 @@ topMonitorHLT = cms.Sequence(
     + fullyhadronic_DoubleBTag_DeepCSV_all
     + fullyhadronic_DoubleBTag_DeepCSV_jet
     + fullyhadronic_DoubleBTag_DeepCSV_bjet
-    )
-
-topHLTDQMSourceExtra = cms.Sequence(
 )

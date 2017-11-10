@@ -6,25 +6,25 @@
 class ExpressionEvaluatorCutWithEventContent : public CutApplicatorWithEventContentBase {
 public:
   ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c);
-  virtual ~ExpressionEvaluatorCutWithEventContent() {};
+  ~ExpressionEvaluatorCutWithEventContent() override {};
 
-  result_type asCandidate(const argument_type& cand) const override final {
+  result_type asCandidate(const argument_type& cand) const final {
     return (*cut_)(cand);
   }
 
-  void setConsumes(edm::ConsumesCollector& sumes) override final { 
+  void setConsumes(edm::ConsumesCollector& sumes) final { 
     cut_->setConsumes(sumes);
   }
 
-  void getEventContent(const edm::EventBase& event) override final { 
+  void getEventContent(const edm::EventBase& event) final { 
     cut_->getEventContent(event);
   }
 
-  double value(const reco::CandidatePtr& cand) const override final {
+  double value(const reco::CandidatePtr& cand) const final {
     return cut_->value(cand);
   }
 
-  const std::string& name() const override final { return realname_; }
+  const std::string& name() const final { return realname_; }
 
 private:
   const std::string realname_;
@@ -67,7 +67,7 @@ ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c) :
                                    getEventContentExpr             );
   reco::ExpressionEvaluator eval("PhysicsTools/SelectorUtils",
                                  "CutApplicatorWithEventContentBase",
-                                 total_expr.c_str());
+                                 total_expr);
   cut_ = eval.expr<CutApplicatorWithEventContentBase>();
 
 }

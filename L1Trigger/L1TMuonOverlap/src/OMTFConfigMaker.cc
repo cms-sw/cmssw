@@ -35,7 +35,7 @@ void OMTFConfigMaker::fillPhiMaps(unsigned int iProcessor,
   ////Find starting and ending iPhi of each input used for reference hits.
   for(unsigned int iRefLayer=0;iRefLayer<myOmtfConfig->nRefLayers();++iRefLayer){
     const OMTFinput::vector1D & refLayerHits = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[iRefLayer]);	
-    if(!refLayerHits.size()) continue;
+    if(refLayerHits.empty()) continue;
     for(unsigned int iInput=0;iInput<myOmtfConfig->nInputs();++iInput){	
       int phiRef = refLayerHits[iInput];
       unsigned int iRegion = myOmtfConfig->getRegionNumberFromMap(iInput,iRefLayer,phiRef);       
@@ -77,7 +77,7 @@ void OMTFConfigMaker::makeConnetionsMap(unsigned int iProcessor,
   
   for(unsigned int iRefLayer=0;iRefLayer<myOmtfConfig->nRefLayers();++iRefLayer){
     const OMTFinput::vector1D & refLayerHits = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[iRefLayer]);    
-    if(!refLayerHits.size()) continue;
+    if(refLayerHits.empty()) continue;
     //////////////////////
     for(unsigned int iInput=0;iInput<refLayerHits.size();++iInput){
       int phiRef = refLayerHits[iInput];

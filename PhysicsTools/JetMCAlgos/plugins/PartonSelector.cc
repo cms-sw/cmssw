@@ -37,11 +37,11 @@ class PartonSelector : public edm::global::EDProducer<>
 {
   public:
     PartonSelector( const edm::ParameterSet & );
-    ~PartonSelector();
+    ~PartonSelector() override;
 
   private:
 
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
     bool withLeptons;  // Optionally specify leptons
     bool withTop;      // Optionally include top quarks in the list
     bool acceptNoDaughters;      // Parton with zero daugthers are not considered by default, make it configurable

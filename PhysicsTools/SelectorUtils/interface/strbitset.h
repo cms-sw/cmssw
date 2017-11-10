@@ -31,7 +31,7 @@ class strbitset {
     
     friend class strbitset;
 
-  index_type() :bitset_(0), i_(0) {}
+  index_type() :bitset_(nullptr), i_(0) {}
     
   index_type( strbitset const * b, std::string const & s) :
     bitset_(b) 

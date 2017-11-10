@@ -182,7 +182,7 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) 
   L1GctJetCandCollection::const_iterator fj;
   L1GctJetCandCollection::const_iterator tj;
   
-  const std::string labelStr = label.label();
+  const std::string& labelStr = label.label();
   
   iEvent.getByLabel(labelStr,"cenJets",cenJets);
   iEvent.getByLabel(labelStr,"forJets",forJets);

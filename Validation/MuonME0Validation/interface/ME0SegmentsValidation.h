@@ -18,7 +18,7 @@ class ME0SegmentsValidation : public ME0BaseValidation
 {
 public:
   explicit ME0SegmentsValidation( const edm::ParameterSet& );
-  ~ME0SegmentsValidation();
+  ~ME0SegmentsValidation() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
   std::pair<int,int> isMatched(ME0DetId, LocalPoint, edm::Handle<ME0DigiPreRecoCollection>);

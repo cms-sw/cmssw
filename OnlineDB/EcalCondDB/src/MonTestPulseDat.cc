@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 MonTestPulseDat::MonTestPulseDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_adcMeanG1 = 0;
   m_adcRMSG1 = 0;
@@ -22,7 +22,7 @@ MonTestPulseDat::MonTestPulseDat()
   m_adcRMSG6 = 0;
   m_adcMeanG12 = 0;
   m_adcRMSG12 = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

@@ -186,7 +186,7 @@ std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax,
     std::cout << "Executing query: " << std::endl << sql << std::endl;
   }
   std::list<int> ret; 
-  if (m_conn != NULL) {
+  if (m_conn != nullptr) {
     try {
       DateHandler dh(m_env, m_conn);
       Statement *stmt = m_conn->createStatement();

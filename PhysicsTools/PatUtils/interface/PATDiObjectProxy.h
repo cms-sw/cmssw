@@ -20,7 +20,7 @@ class DiObjectProxy {
 
    public: 
         /// Default constructor, requested by ROOT. NEVER use a default constructed item!
-        DiObjectProxy() : cand1_(0), cand2_(0), type1_(0), type2_(0), totalP4ok_(false), totalP4_()  {}
+        DiObjectProxy() : cand1_(nullptr), cand2_(nullptr), type1_(nullptr), type2_(nullptr), totalP4ok_(false), totalP4_()  {}
         /// Constructor of the pair from two Candidates
         /// Note: the Proxy MUST NOT outlive the Candidates, otherwise you get dangling pointers
         DiObjectProxy(const reco::Candidate &c1, const reco::Candidate &c2) :

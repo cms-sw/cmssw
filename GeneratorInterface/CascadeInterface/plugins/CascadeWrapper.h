@@ -4,7 +4,7 @@
 //-- the pyhepc routine used by Pythia to fill the HEPEVT common block
 //-- is using double precision and 4000 entries
 
-#include <ctype.h>
+#include <cctype>
 #include <cstring>
 
 //-- CASCADE Common Block Declarations

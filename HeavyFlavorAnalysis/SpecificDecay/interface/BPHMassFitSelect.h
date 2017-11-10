@@ -58,13 +58,13 @@ class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
 
   /** Destructor
    */
-  virtual ~BPHMassFitSelect() {
+  ~BPHMassFitSelect() override {
   }
 
   /** Operations
    */
   /// select particle
-  virtual bool accept( const BPHKinematicFit& cand ) const {
+  bool accept( const BPHKinematicFit& cand ) const override {
     switch ( type ) {
     default:
     case none: break;
@@ -83,24 +83,24 @@ class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
     cName  = ""  ;
     cMass  = -1.0;
     cSigma = -1.0;
-      kc   =  0  ;
-    mtkc   =  0  ;
+      kc   =  nullptr  ;
+    mtkc   =  nullptr  ;
   }
   void setFitConstraint( const std::string& name, double mass ) {
     type = mcst;
     cName  = name ;
     cMass  = mass ;
     cSigma = -1.0 ;
-      kc   =  0   ;
-    mtkc   =  0   ;
+      kc   =  nullptr   ;
+    mtkc   =  nullptr   ;
   }
   void setFitConstraint( const std::string& name, double mass, double sigma ) {
     type = mcss;
     cName  = name ;
     cMass  = mass ;
     cSigma = sigma;
-      kc   =  0   ;
-    mtkc   =  0   ;
+      kc   =  nullptr   ;
+    mtkc   =  nullptr   ;
   }
   void setFitConstraint( const std::string& name, KinematicConstraint* c ) {
     type = kf;
@@ -108,7 +108,7 @@ class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
     cMass  = -1.0 ;
     cSigma = -1.0 ;
       kc   =  c   ;
-    mtkc   =  0   ;
+    mtkc   =  nullptr   ;
   }
   void setFitConstraint( const std::string& name, 
                                         MultiTrackKinematicConstraint* c ) {
@@ -116,7 +116,7 @@ class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
     cName  = name ;
     cMass  = -1.0 ;
     cSigma = -1.0 ;
-      kc   =  0   ;
+      kc   =  nullptr   ;
     mtkc   =  c   ;
   }
 
@@ -130,8 +130,8 @@ class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
  private:
 
   // private copy and assigment constructors
-  BPHMassFitSelect           ( const BPHMassFitSelect& x );
-  BPHMassFitSelect& operator=( const BPHMassFitSelect& x );
+  BPHMassFitSelect           ( const BPHMassFitSelect& x ) = delete;
+  BPHMassFitSelect& operator=( const BPHMassFitSelect& x ) = delete;
 
   enum fit_type { none, mcss, mcst, kf, mtkf };
 

@@ -102,7 +102,7 @@ PATSingleVertexSelector::filter(edm::Event & iEvent, const edm::EventSetup & iSe
   for (std::vector<Mode>::const_iterator itm = modes_.begin(), endm = modes_.end(); itm != endm; ++itm) {
     result = filter_(*itm, iEvent, iSetup);
     // Check if we got any vertices.  If so, take them.
-    if (result->size()) {
+    if (!result->empty()) {
       passes = true;
       break;
     }

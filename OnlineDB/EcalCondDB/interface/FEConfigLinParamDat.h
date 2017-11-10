@@ -12,10 +12,10 @@ class FEConfigLinParamDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; 
   FEConfigLinParamDat();
-  ~FEConfigLinParamDat();
+  ~FEConfigLinParamDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_LINPARAM_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_LINPARAM_DAT"; }
 
 
   inline void setETSat(float x) { m_etsat = x; }
@@ -23,7 +23,7 @@ class FEConfigLinParamDat : public IDataItem {
   inline float getETSat() const       { return m_etsat; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigLinParamDat* item, FEConfigLinInfo* iconf) noexcept(false);
 
