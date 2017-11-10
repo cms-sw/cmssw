@@ -905,14 +905,14 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
            GlobalPoint refpoint = (*iseed)->globalPosition(); //starting from the one with smallest value of phi
            muonRecHitsThetaTemp.clear();
            muonRecHitsThetaTemp = findThetaCluster(muonCorrelatedHits.at(stat), refpoint);
+	   if (muonRecHitsThetaTemp.size() > 1) {
+	     float dtheta = fabs((float)muonRecHitsThetaTemp.back()->globalPosition().theta() - (float)muonRecHitsThetaTemp.front()->globalPosition().theta());
+	     if (dtheta > dthetamax) {
+	       dthetamax = dtheta;
+	       muonRecHitsThetaBest = muonRecHitsThetaTemp;
+	     }
+	   } //at least two hits
        }//loop over seeds
-       if (muonRecHitsThetaTemp.size() > 1) {
-         float dtheta = fabs((float)muonRecHitsThetaTemp.back()->globalPosition().theta() - (float)muonRecHitsThetaTemp.front()->globalPosition().theta());
-         if (dtheta > dthetamax) {
-           dthetamax = dtheta;
-           muonRecHitsThetaBest = muonRecHitsThetaTemp;
-         }
-       } //at least two hits
      }//not empty container2
 
      //fill deltaRs
