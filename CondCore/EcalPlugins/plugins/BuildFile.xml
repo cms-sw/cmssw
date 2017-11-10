@@ -1,5 +1,3 @@
-<flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable"/>
-
 <library   file="EcalPyUtils.cc" name="EcalPyUtils">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/EcalObjects"/>
