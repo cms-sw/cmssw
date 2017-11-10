@@ -26,6 +26,7 @@ namespace HcalConst{
    constexpr int nsPerBX = 25;
    constexpr float iniTimeShift = 92.5f;
    constexpr double invertnsPerBx = 0.04;
+   constexpr int shiftTS = 4;
 
 }
 
@@ -35,7 +36,7 @@ namespace FitterFuncs{
       public:
      PulseShapeFunctor(const HcalPulseShapes::Shape& pulse,bool iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iAddTimeSlew,
 		       double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
-		       double iNoise);
+		       double iNoise, unsigned int nSamplesToFit);
      ~PulseShapeFunctor();
      
      double EvalPulse(const double *pars, unsigned int nPar);
@@ -67,6 +68,7 @@ namespace FitterFuncs{
      void funcHPDShape(std::array<double,HcalConst::maxSamples> & ntmpbin, const double &pulseTime, const double &pulseHeight,const double &slew);
      double psFit_x[HcalConst::maxSamples], psFit_y[HcalConst::maxSamples], psFit_erry[HcalConst::maxSamples], psFit_erry2[HcalConst::maxSamples], psFit_slew[HcalConst::maxSamples];
      
+     unsigned nSamplesToFit_;
      bool pedestalConstraint_;
      bool timeConstraint_;
      bool addPulseJitter_;
@@ -120,14 +122,14 @@ public:
     const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
     void setChi2Term( bool isHPD );
 
-    void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD);
-    void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
+    void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples);
+    void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples);
 
 private:
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
-		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * ADCnoise) const;
+		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * ADCnoise, unsigned int soi) const;
     void fit(int iFit,float &timevalfit,float &chargevalfit,float &pedvalfit,float &chi2,bool &fitStatus,double &iTSMax,
-	     const double  &iTSTOTen,double *iEnArr,int (&iBX)[3]) const;
+	     const double  &iTSTOTen,double *iEnArr,unsigned (&iBX)[3]) const;
 
     PSFitter::HybridMinimizer * hybridfitter;
     int cntsetPulseShape;
@@ -167,6 +169,7 @@ private:
     bool dcConstraint_;
 
     bool isCurrentChannelHPD_;
+
 };
 
 #endif // PulseShapeFitOOTPileupCorrection_h

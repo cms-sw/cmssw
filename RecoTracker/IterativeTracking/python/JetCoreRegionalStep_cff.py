@@ -137,6 +137,17 @@ jetCoreRegionalStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackPro
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+_fastSim_jetCoreRegionalStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = (),
+    hasSelector=cms.vint32(),
+    selectedTrackQuals = cms.VInputTag(),
+    copyExtras = True
+    )
+fastSim.toReplaceWith(jetCoreRegionalStepTracks,_fastSim_jetCoreRegionalStepTracks)
+
+
 # Final selection
 from RecoTracker.IterativeTracking.InitialStep_cff import initialStepClassifier1
 #from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepClassifier1
@@ -183,6 +194,7 @@ trackingPhase1QuadProp.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierProm
      mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
      qualityCuts = [-0.2,0.0,0.4],
 ))
+fastSim.toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
 JetCoreRegionalStep = cms.Sequence(cms.ignore(jetsForCoreTracking)*
@@ -196,3 +208,6 @@ JetCoreRegionalStep = cms.Sequence(cms.ignore(jetsForCoreTracking)*
                                    jetCoreRegionalStepTracks*
 #                                   jetCoreRegionalStepClassifier1*jetCoreRegionalStepClassifier2*
                                    jetCoreRegionalStep)
+fastSim.toReplaceWith(JetCoreRegionalStep, 
+                      cms.Sequence(jetCoreRegionalStepTracks*
+                                   jetCoreRegionalStep))

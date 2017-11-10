@@ -18,7 +18,7 @@ ProductRegistryHelper:
 namespace edm {
   class ModuleDescription;
   class ProductRegistry;
-  class DoNotRecordParents;
+  struct DoNotRecordParents;
   
   class ProductRegistryHelper {
   public:
