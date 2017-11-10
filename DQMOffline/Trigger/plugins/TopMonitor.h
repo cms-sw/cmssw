@@ -42,6 +42,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
+//
+#include "CommonTools/TriggerUtils/interface/PrescaleWeightProvider.h"
 
 class GenericTriggerEventFlag;
 
@@ -232,6 +234,7 @@ private:
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+  std::unique_ptr<PrescaleWeightProvider > prescaleWeightProvider_ ;
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;

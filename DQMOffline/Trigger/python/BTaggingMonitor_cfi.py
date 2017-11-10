@@ -105,6 +105,10 @@ hltBTVmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "Trigg
 hltBTVmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltBTVmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
+hltBTVmonitoring.PrescaleTriggerEventPSet.prescaleWeightVerbosityLevel      = cms.uint32(1)
+hltBTVmonitoring.PrescaleTriggerEventPSet.prescaleWeightTriggerResults      = cms.InputTag( "TriggerResults::HLT" )
+hltBTVmonitoring.PrescaleTriggerEventPSet.prescaleWeightL1GtTriggerMenuLite = cms.InputTag( "l1GtTriggerMenuLite" )
+
 hltBTVmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBTVmonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
 hltBTVmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )

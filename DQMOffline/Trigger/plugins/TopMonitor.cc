@@ -63,6 +63,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , phi_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("phiBinning2D") )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
+  , prescaleWeightProvider_( new PrescaleWeightProvider( iConfig.getParameter<edm::ParameterSet>("PrescaleTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
@@ -152,6 +153,7 @@ TopMonitor::~TopMonitor() throw()
 {
     if (num_genTriggerEventFlag_) num_genTriggerEventFlag_.reset();
     if (den_genTriggerEventFlag_) den_genTriggerEventFlag_.reset();
+    if (prescaleWeightProvider_ ) prescaleWeightProvider_.reset();
 }
 
 void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
@@ -530,14 +532,18 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
   if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
-
+  prescaleWeightProvider_ ->initRun( iRun, iSetup );
 }
 
 void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
   mll=-2;
   sign=0;
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+
+  int prescaleWeight = prescaleWeightProvider_->prescaleWeight( iEvent, iSetup );
+  // std::cout<<endl<<"*******"<<endl<<"prescale weight = "<<prescaleWeight<<endl<<"*******"<<endl<<endl;
 
   //Suvankar
   edm::Handle<reco::VertexCollection> primaryVertices;
@@ -885,137 +891,137 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   // filling histograms (num_genTriggerEventFlag_)
 
   if (applyMETcut_>0){
-      metME_.numerator -> Fill(met);
-      metME_variableBinning_.numerator -> Fill(met);
-      metPhiME_.numerator -> Fill(phi);
-      metVsLS_.numerator -> Fill(ls, met);
+      metME_.numerator -> Fill(met,prescaleWeight);
+      metME_variableBinning_.numerator -> Fill(met,prescaleWeight);
+      metPhiME_.numerator -> Fill(phi, prescaleWeight);
+      metVsLS_.numerator -> Fill(ls, met * prescaleWeight);
   }
 
   if (HTcut_>0){
-      htVsLS_.numerator -> Fill(ls, eventHT);
-      eventHT_.numerator -> Fill(eventHT);
-      eventHT_variableBinning_.numerator -> Fill(eventHT);
+      htVsLS_.numerator -> Fill(ls, eventHT * prescaleWeight);
+      eventHT_.numerator -> Fill(eventHT, prescaleWeight);
+      eventHT_variableBinning_.numerator -> Fill(eventHT, prescaleWeight);
   }
 
   if (MHTcut_>0){
-      eventMHT_.numerator -> Fill(eventMHT.pt());
-      eventMHT_variableBinning_.numerator -> Fill(eventMHT.pt());
+      eventMHT_.numerator -> Fill(eventMHT.pt(), prescaleWeight);
+      eventMHT_variableBinning_.numerator -> Fill(eventMHT.pt(), prescaleWeight);
   }
 
   if (nmuons_ > 0){
-      muMulti_.numerator -> Fill(muons.size());
-      muVsLS_.numerator -> Fill(ls, muons.at(0).pt());
+      muMulti_.numerator -> Fill(muons.size(), prescaleWeight);
+      muVsLS_.numerator -> Fill(ls, muons.at(0).pt() * prescaleWeight);
       if (nmuons_>1) {
-          mu1Pt_mu2Pt_.numerator->Fill(muons.at(0).pt(),muons.at(1).pt());
-          mu1Eta_mu2Eta_.numerator->Fill(muons.at(0).eta(),muons.at(1).eta());
-          invMass_mumu_.numerator->Fill(mll);
-          invMass_mumu_variableBinning_.numerator->Fill(mll);
+          mu1Pt_mu2Pt_.numerator->Fill(muons.at(0).pt(),muons.at(1).pt(), prescaleWeight);
+          mu1Eta_mu2Eta_.numerator->Fill(muons.at(0).eta(),muons.at(1).eta(), prescaleWeight);
+          invMass_mumu_.numerator->Fill(mll, prescaleWeight);
+          invMass_mumu_variableBinning_.numerator->Fill(mll, prescaleWeight);
       }
       if(njets_>0){
-          DeltaR_jet_Mu_.numerator -> Fill (deltaR(jets.at(0),muons.at(0)));
+          DeltaR_jet_Mu_.numerator -> Fill (deltaR(jets.at(0),muons.at(0)), prescaleWeight);
       }
 
   }
   if (njets_ > 0){
-      jetMulti_.numerator -> Fill(jets.size());
-      jetVsLS_.numerator -> Fill(ls, jets.at(0).pt());
-      jetEtaPhi_HEP17_.numerator -> Fill (jets.at(0).eta(), jets.at(0).phi()); // for HEP17 monitorning
+      jetMulti_.numerator -> Fill(jets.size(), prescaleWeight);
+      jetVsLS_.numerator -> Fill(ls, jets.at(0).pt() * prescaleWeight);
+      jetEtaPhi_HEP17_.numerator -> Fill (jets.at(0).eta(), jets.at(0).phi(), prescaleWeight); // for HEP17 monitorning
   }
 
   if (nelectrons_ > 0) {
-      eleMulti_.numerator -> Fill(electrons.size());
-      eleVsLS_.numerator -> Fill(ls, electrons.at(0).pt());
-      if (HTcut_>0) elePt_eventHT_.numerator -> Fill (electrons.at(0).pt(), eventHT);
-      if (njets_>0) elePt_jetPt_.numerator -> Fill (electrons.at(0).pt(), jets.at(0).pt());
+      eleMulti_.numerator -> Fill(electrons.size(), prescaleWeight);
+      eleVsLS_.numerator -> Fill(ls, electrons.at(0).pt() * prescaleWeight);
+      if (HTcut_>0) elePt_eventHT_.numerator -> Fill (electrons.at(0).pt(), eventHT, prescaleWeight);
+      if (njets_>0) elePt_jetPt_.numerator -> Fill (electrons.at(0).pt(), jets.at(0).pt(), prescaleWeight);
       if (nmuons_>0) {
-          elePt_muPt_.numerator->Fill(electrons.at(0).pt(),muons.at(0).pt());
-          eleEta_muEta_.numerator->Fill(electrons.at(0).eta(),muons.at(0).eta());
+          elePt_muPt_.numerator->Fill(electrons.at(0).pt(),muons.at(0).pt(), prescaleWeight);
+          eleEta_muEta_.numerator->Fill(electrons.at(0).eta(),muons.at(0).eta(), prescaleWeight);
       }
       if (nelectrons_>1) {
-          ele1Pt_ele2Pt_.numerator->Fill(electrons.at(0).pt(),electrons.at(1).pt());
-          ele1Eta_ele2Eta_.numerator->Fill(electrons.at(0).eta(),electrons.at(1).eta());
+          ele1Pt_ele2Pt_.numerator->Fill(electrons.at(0).pt(),electrons.at(1).pt(), prescaleWeight);
+          ele1Eta_ele2Eta_.numerator->Fill(electrons.at(0).eta(),electrons.at(1).eta(), prescaleWeight);
       }
   }
 
   //Menglei
   if(enablePhotonPlot_){
     if (nphotons_ > 0){
-        phoVsLS_.numerator -> Fill(ls, photons.at(0).pt());
+        phoVsLS_.numerator -> Fill(ls, photons.at(0).pt() * prescaleWeight);
         if (nmuons_>0) {
-            muPt_phoPt_.numerator->Fill(muons.at(0).pt(), photons.at(0).pt());
-            muEta_phoEta_.numerator->Fill(muons.at(0).eta(), photons.at(0).eta());
+            muPt_phoPt_.numerator->Fill(muons.at(0).pt(), photons.at(0).pt(), prescaleWeight);
+            muEta_phoEta_.numerator->Fill(muons.at(0).eta(), photons.at(0).eta(), prescaleWeight);
         }
     }
   }
 
   // Marina
   if (nbjets_ > 0){
-      bjetMulti_.numerator -> Fill(bjets.size());
-      bjetVsLS_.numerator-> Fill(ls, bjets.begin()->first->pt());
+      bjetMulti_.numerator -> Fill(bjets.size(), prescaleWeight);
+      bjetVsLS_.numerator-> Fill(ls, bjets.begin()->first->pt() * prescaleWeight);
   }
 
   //Menglei
   if(enablePhotonPlot_){
-    phoMulti_.numerator -> Fill(photons.size());
+    phoMulti_.numerator -> Fill(photons.size(), prescaleWeight);
   }
 
   for (unsigned int iMu=0; iMu<muons.size(); ++iMu){
       if (iMu>=nmuons_) break;
 
-      muPhi_.at(iMu).numerator  -> Fill(muons.at(iMu).phi());
-      muEta_.at(iMu).numerator  -> Fill(muons.at(iMu).eta());
-      muPt_.at(iMu).numerator   -> Fill(muons.at(iMu).pt() );
-      muEta_variableBinning_.at(iMu).numerator  -> Fill(muons.at(iMu).eta());
-      muPt_variableBinning_.at(iMu).numerator   -> Fill(muons.at(iMu).pt() );
-      muPtEta_.at(iMu).numerator   -> Fill(muons.at(iMu).pt(), muons.at(iMu).eta() );
-      muEtaPhi_.at(iMu).numerator   -> Fill(muons.at(iMu).eta(), muons.at(iMu).phi() );
+      muPhi_.at(iMu).numerator  -> Fill(muons.at(iMu).phi(), prescaleWeight);
+      muEta_.at(iMu).numerator  -> Fill(muons.at(iMu).eta(), prescaleWeight);
+      muPt_.at(iMu).numerator   -> Fill(muons.at(iMu).pt() , prescaleWeight);
+      muEta_variableBinning_.at(iMu).numerator  -> Fill(muons.at(iMu).eta(), prescaleWeight);
+      muPt_variableBinning_.at(iMu).numerator   -> Fill(muons.at(iMu).pt() , prescaleWeight);
+      muPtEta_.at(iMu).numerator   -> Fill(muons.at(iMu).pt(), muons.at(iMu).eta() , prescaleWeight);
+      muEtaPhi_.at(iMu).numerator   -> Fill(muons.at(iMu).eta(), muons.at(iMu).phi() , prescaleWeight);
   }
   for (unsigned int iEle=0; iEle<electrons.size(); ++iEle){
       if (iEle>=nelectrons_) break;
-      elePhi_.at(iEle).numerator  -> Fill(electrons.at(iEle).phi());
-      eleEta_.at(iEle).numerator  -> Fill(electrons.at(iEle).eta());
-      elePt_.at(iEle).numerator   -> Fill(electrons.at(iEle).pt() );
-      eleEta_variableBinning_.at(iEle).numerator  -> Fill(electrons.at(iEle).eta());
-      elePt_variableBinning_.at(iEle).numerator   -> Fill(electrons.at(iEle).pt() );
-      elePtEta_.at(iEle).numerator   -> Fill(electrons.at(iEle).pt(), electrons.at(iEle).eta() );
-      eleEtaPhi_.at(iEle).numerator   -> Fill(electrons.at(iEle).eta(), electrons.at(iEle).phi() );
+      elePhi_.at(iEle).numerator  -> Fill(electrons.at(iEle).phi(), prescaleWeight);
+      eleEta_.at(iEle).numerator  -> Fill(electrons.at(iEle).eta(), prescaleWeight);
+      elePt_.at(iEle).numerator   -> Fill(electrons.at(iEle).pt() , prescaleWeight);
+      eleEta_variableBinning_.at(iEle).numerator  -> Fill(electrons.at(iEle).eta(), prescaleWeight);
+      elePt_variableBinning_.at(iEle).numerator   -> Fill(electrons.at(iEle).pt() , prescaleWeight);
+      elePtEta_.at(iEle).numerator   -> Fill(electrons.at(iEle).pt(), electrons.at(iEle).eta() , prescaleWeight);
+      eleEtaPhi_.at(iEle).numerator   -> Fill(electrons.at(iEle).eta(), electrons.at(iEle).phi() , prescaleWeight);
   }
 	//Menglei
   if(enablePhotonPlot_){
     for (unsigned int iPho=0; iPho<photons.size(); ++iPho){
         if (iPho>=nphotons_) break;
-        phoPhi_[iPho].numerator  -> Fill(photons[iPho].phi());
-        phoEta_[iPho].numerator  -> Fill(photons[iPho].eta());
-        phoPt_[iPho].numerator   -> Fill(photons[iPho].pt() );
-        phoPtEta_[iPho].numerator   -> Fill(photons[iPho].pt(), photons[iPho].eta() );
-        phoEtaPhi_[iPho].numerator   -> Fill(photons[iPho].eta(), photons[iPho].phi() );
+        phoPhi_[iPho].numerator  -> Fill(photons[iPho].phi(), prescaleWeight);
+        phoEta_[iPho].numerator  -> Fill(photons[iPho].eta(), prescaleWeight);
+        phoPt_[iPho].numerator   -> Fill(photons[iPho].pt() , prescaleWeight);
+        phoPtEta_[iPho].numerator   -> Fill(photons[iPho].pt(), photons[iPho].eta() , prescaleWeight);
+        phoEtaPhi_[iPho].numerator   -> Fill(photons[iPho].eta(), photons[iPho].phi() , prescaleWeight);
     }
   }
 
   for (unsigned int iJet=0; iJet<jets.size(); ++iJet){
       if (iJet>=njets_) break;
-      jetPhi_.at(iJet).numerator  -> Fill(jets.at(iJet).phi());
-      jetEta_.at(iJet).numerator  -> Fill(jets.at(iJet).eta());
-      jetPt_.at(iJet).numerator   -> Fill(jets.at(iJet).pt() );
-      jetEta_variableBinning_.at(iJet).numerator  -> Fill(jets.at(iJet).eta());
-      jetPt_variableBinning_.at(iJet).numerator   -> Fill(jets.at(iJet).pt() );
-      jetPtEta_.at(iJet).numerator   -> Fill(jets.at(iJet).pt(), jets.at(iJet).eta() );
-      jetEtaPhi_.at(iJet).numerator   -> Fill(jets.at(iJet).eta(), jets.at(iJet).phi() );
+      jetPhi_.at(iJet).numerator  -> Fill(jets.at(iJet).phi(), prescaleWeight);
+      jetEta_.at(iJet).numerator  -> Fill(jets.at(iJet).eta(), prescaleWeight);
+      jetPt_.at(iJet).numerator   -> Fill(jets.at(iJet).pt() , prescaleWeight);
+      jetEta_variableBinning_.at(iJet).numerator  -> Fill(jets.at(iJet).eta(), prescaleWeight);
+      jetPt_variableBinning_.at(iJet).numerator   -> Fill(jets.at(iJet).pt() , prescaleWeight);
+      jetPtEta_.at(iJet).numerator   -> Fill(jets.at(iJet).pt(), jets.at(iJet).eta() , prescaleWeight);
+      jetEtaPhi_.at(iJet).numerator   -> Fill(jets.at(iJet).eta(), jets.at(iJet).phi() , prescaleWeight);
   }
 
   // Marina
   unsigned int j = 0;
   for (auto & bjet: bjets){
     if (j >=nbjets_) break;
-    bjetPhi_.at(j).numerator -> Fill(bjet.first->pt());
-    bjetEta_.at(j).numerator -> Fill(bjet.first->eta());
-    bjetPt_.at(j).numerator  -> Fill(bjet.first->pt());
-    bjetCSV_.at(j).numerator -> Fill(std::fmax(0.0,bjet.second));
-    bjetEta_variableBinning_.at(j).numerator -> Fill(bjet.first->eta());
-    bjetPt_variableBinning_.at(j).numerator  -> Fill(bjet.first->pt());
-    bjetPtEta_.at(j).numerator  -> Fill(bjet.first->pt(), bjet.first->eta());
-    bjetEtaPhi_.at(j).numerator -> Fill(bjet.first->eta(), bjet.first->phi());
-    bjetCSVHT_.at(j).numerator  -> Fill(std::fmax(0.0,bjet.second), eventHT);
+    bjetPhi_.at(j).numerator -> Fill(bjet.first->pt(), prescaleWeight);
+    bjetEta_.at(j).numerator -> Fill(bjet.first->eta(), prescaleWeight);
+    bjetPt_.at(j).numerator  -> Fill(bjet.first->pt(), prescaleWeight);
+    bjetCSV_.at(j).numerator -> Fill(std::fmax(0.0,bjet.second), prescaleWeight);
+    bjetEta_variableBinning_.at(j).numerator -> Fill(bjet.first->eta(), prescaleWeight);
+    bjetPt_variableBinning_.at(j).numerator  -> Fill(bjet.first->pt(), prescaleWeight);
+    bjetPtEta_.at(j).numerator  -> Fill(bjet.first->pt(), bjet.first->eta(), prescaleWeight);
+    bjetEtaPhi_.at(j).numerator -> Fill(bjet.first->eta(), bjet.first->phi(), prescaleWeight);
+    bjetCSVHT_.at(j).numerator  -> Fill(std::fmax(0.0,bjet.second), eventHT, prescaleWeight);
 
     j++;
   }
@@ -1086,6 +1092,13 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
+
+  edm::ParameterSetDescription PrescaleTriggerEventPSet;
+  PrescaleTriggerEventPSet.add<unsigned int>("prescaleWeightVerbosityLevel",0);
+  PrescaleTriggerEventPSet.add<edm::InputTag>("prescaleWeightTriggerResults",edm::InputTag("TriggerResults::HLT"));
+  PrescaleTriggerEventPSet.add<edm::InputTag>("prescaleWeightL1GtTriggerMenuLite",edm::InputTag("l1GtTriggerMenuLite"));
+  PrescaleTriggerEventPSet.add<std::vector<std::string>>("prescaleWeightHltPaths",{});
+  desc.add<edm::ParameterSetDescription>("PrescaleTriggerEventPSet", PrescaleTriggerEventPSet);
 
   edm::ParameterSetDescription histoPSet;
   edm::ParameterSetDescription metPSet;
