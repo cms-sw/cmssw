@@ -1320,7 +1320,7 @@ namespace {
       hratio->SetTitle("");
       hratio->SetMinimum(0.55);  // Define Y ..
       hratio->SetMaximum(1.55);  // .. range
-      hratio->SetStats(0);       // No statistics on lower plot
+      hratio->SetStats(false);       // No statistics on lower plot
       hratio->Divide(h_lastGains.get());
       hratio->SetMarkerStyle(20);
       hratio->Draw("ep");       // Draw the ratio plot
