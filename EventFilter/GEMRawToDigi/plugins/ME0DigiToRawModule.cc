@@ -1,7 +1,6 @@
-/** \file
+/** \packer for me0
  *  \author J. Lee - UoS
  */
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -56,8 +55,6 @@ void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
   edm::Handle<ME0DigiCollection> me0Digis;
   e.getByToken( digi_token, me0Digis );
 
-  int ndigis = 0;
-
   std::vector<AMC13Event*> amc13Events;
   
   // currently only one FEDRaw
@@ -105,14 +102,12 @@ void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	      vFatToStripMap[vFatID].push_back(channelId);	
 	      hasDigi = true;
 
-	      std::cout <<"ME0DigiToRawModule vfatId "<<ec.vfatId
-			<<" me0DetId "<< me0Id
-			<<" chan "<< ec.channelId
-			<<" strip "<< dc.stripId
-			<<" bx "<< digi.bx()
-			<<std::endl;
-	      ndigis++;
-
+	      // std::cout <<"ME0DigiToRawModule vfatId "<<ec.vfatId
+	      // 		<<" me0DetId "<< me0Id
+	      // 		<<" chan "<< ec.channelId
+	      // 		<<" strip "<< dc.stripId
+	      // 		<<" bx "<< digi.bx()
+	      // 		<<std::endl;
 	    }
 	  }
 	  
@@ -140,7 +135,6 @@ void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	    uint64_t msData     =0;             ///<channels from 65to128
 	  
 	    for (auto chan : vFatStrIt->second){
-	      //std::cout <<"chan "<< chan<< std::endl;
 	      uint64_t oneBit = 0x1;
 	      if (chan < 64) lsData = lsData | (oneBit << chan);
 	      else msData = msData | (oneBit << (chan-64));
@@ -220,12 +214,6 @@ void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
     words.push_back(amc13Event->getCDFHeader());
     words.push_back(amc13Event->getAMC13header());    
 
-    std::cout <<"ME0DigiToRawModule amc13Event"
-	      <<" nAMC "<< amc13Event->nAMC()
-	      <<" LV1_id "<< amc13Event->LV1_id()
-	      <<" Source_id "<< amc13Event->Source_id()
-	      <<std::endl;
-
     for (auto w: amc13Event->getAMCheader())
       words.push_back(w);    
 
@@ -236,7 +224,6 @@ void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
       words.push_back(amcData->getAMCheader2());
       words.push_back(amcData->getGEMeventHeader());
 
-      //std::cout <<"ME0DigiToRawModule amcData->GDcount() "<<amcData->GDcount()<<std::endl;
       for (auto geb: amcData->gebs()){
 	GEBdata * gebData = &geb;
 	words.push_back(gebData->getChamberHeader());
@@ -269,11 +256,9 @@ void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
     uint64_t * w = reinterpret_cast<uint64_t* >(fedRawData.data());  
     for (auto word: words) *(w++) = word;
         
-    std::cout << "ME0DigiToRawModule words " <<std::dec << words.size() << std::endl;
+    //std::cout << "ME0DigiToRawModule words " <<std::dec << words.size() << std::endl;
     delete amc13Event;
   }
-
-  std::cout << "ME0DigiToRawModule ndigis " << ndigis << std::endl;
 
   e.put(std::move(fedRawDataCol));
 }
