@@ -756,7 +756,7 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
 //  if(propDir == oppositeToMomentum && theRefitDirection == insideOut) propDir=alongMomentum;
 
   const TrajectoryStateOnSurface& tsosForDir = inner_is_first ? lastTSOS : firstTSOS;
-  propDir = (tsosForDir.globalPosition().basicVector().dot(tsosForDir.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
+  PropagationDirection propDir = (tsosForDir.globalPosition().basicVector().dot(tsosForDir.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
   LogTrace(theCategory) << "propDir based on firstTSOS x dot p is " << propDir
 			<< " (alongMomentum == " << alongMomentum << ", oppositeToMomentum == " << oppositeToMomentum << ")";
 
