@@ -44,15 +44,10 @@ SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup
   trackerMap_ = nullptr;
   stripTopLevelDir_="";
   eSetup_.get<SiStripDetCablingRcd>().get(detcabling_);
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  eSetup_.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  tkDetMap_ = tkDetMapHandle.product();
   //  psumap_.BuildMap("CalibTracker/SiStripDCS/data/StripPSUDetIDMap_FromJan132010.dat",false);
-  if(!edm::Service<TkDetMap>().isAvailable()){
-    edm::LogError("TkHistoMap") <<
-      "\n------------------------------------------"
-      "\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like"
-      "\n\tprocess.TkDetMap = cms.Service(\"TkDetMap\")"
-      "\n------------------------------------------";
-  }
-  tkDetMap_=edm::Service<TkDetMap>().operator->();
 }
 //
 // -- Destructor
@@ -497,11 +492,8 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
   const std::string& name  = me->getName();
   std::string lname = name.substr(name.find("TkHMap_")+7);  
   lname = lname.substr(lname.find("_T")+1);
-  std::vector<uint32_t> layer_detids;
-  tkDetMap_->getDetsForLayer(tkDetMap_->getLayerNum(lname), layer_detids);
-  for (std::vector<uint32_t>::const_iterator idet = layer_detids.begin(); idet != layer_detids.end(); idet++) {
-    uint32_t det_id= (*idet);
-    if (det_id <= 0) continue;
+  for ( DetId det_id : tkDetMap_->getDetsForLayer(TkDetMap::getLayerNum(lname)) ) {
+    if (det_id.rawId() <= 0) continue;
     nDet++;
     const TkLayerMap::XYbin& xyval = tkDetMap_->getXY(det_id , cached_detid , cached_layer , cached_XYbin);
     float fval = 0.0;

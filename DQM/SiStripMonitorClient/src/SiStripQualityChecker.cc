@@ -36,16 +36,6 @@ SiStripQualityChecker::SiStripQualityChecker(edm::ParameterSet const& ps):pSet_(
   SubDetFolderMap.insert(std::pair<std::string, std::string>("TIDF", "TID/PLUS"));
   SubDetFolderMap.insert(std::pair<std::string, std::string>("TIDB", "TID/MINUS"));
   badModuleList.clear();
-
-  if(!edm::Service<TkDetMap>().isAvailable()){
-    edm::LogError("TkHistoMap") <<
-      "\n------------------------------------------"
-      "\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like"
-      "\n\tprocess.TkDetMap = cms.Service(\"TkDetMap\")"
-      "\n------------------------------------------";
-  }
-  tkDetMap_=edm::Service<TkDetMap>().operator->();
-
 }
 //
 // --  Destructor
@@ -215,6 +205,10 @@ void SiStripQualityChecker::resetStatus() {
 //
 void SiStripQualityChecker::fillStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling, const edm::EventSetup& eSetup) {
   if (!bookedStripStatus_) bookStatus(dqm_store);
+
+  edm::ESHandle<TkDetMap> tkMapHandle;
+  eSetup.get<TrackerTopologyRcd>().get(tkMapHandle);
+  tkDetMap_ = tkMapHandle.product();
 
   fillDummyStatus();
   fillDetectorStatus(dqm_store, cabling);
