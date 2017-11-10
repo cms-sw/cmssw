@@ -417,6 +417,8 @@ namespace {
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
       
+      std::map<uint32_t,float> store;
+
       for (const auto & d : detid) {
 	SiStripApvGain::Range range=payload->getRange(d);
 	float sumOfGains=0;
@@ -426,13 +428,16 @@ namespace {
 	  sumOfGains+=payload->getApvGain(it,range);
 	} // loop over APVs
 	// fill the tracker map taking the average gain on a single DetId
+	store[d]=(sumOfGains/nAPVsPerModule);
 	tmap->fill(d,(sumOfGains/nAPVsPerModule));
       } // loop over detIds
 
       //=========================
-      
+      // saturate at 2 std deviations
+      auto range = SiStripPI::getTheRange(store,2);
+
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+      tmap->save(true,range.first,range.second,fileName);
 
       return true;
     }
@@ -461,8 +466,8 @@ namespace {
       /*
 	the defaul G1 value comes from the ratio of DefaultTickHeight/GainNormalizationFactor
 	as defined in the default of the O2O producer: OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc
-       */
-
+      */
+      
       float G1default = 690./640.;  
       float G2default = 1.;
 
