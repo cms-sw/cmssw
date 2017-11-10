@@ -311,6 +311,10 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   resLimitedFit_ = pset.getUntrackedParameter<bool>("resolutionLimitedFit",false);
   isWildcardUsed_ = false;
+
+  if (efficOptions_.size() > 10000) {
+    LogWarning("DQMGenericClient") << "Too many efficiency options: " << efficOptions_.size();
+  }
 }
 
 void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
