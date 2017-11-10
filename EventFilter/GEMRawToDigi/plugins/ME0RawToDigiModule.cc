@@ -1,7 +1,6 @@
-/** \file
+/** \unpacker for me0
  *  \author J. Lee - UoS
  */
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -51,16 +50,14 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
   // Take raw from the event
   edm::Handle<FEDRawDataCollection> fed_buffers;
   e.getByToken( fed_token, fed_buffers );
-
-  int ndigis = 0;
   
   for (unsigned int id=FEDNumbering::MINME0FEDID; id<=FEDNumbering::MINME0FEDID; ++id){ 
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
-    std::cout <<"ME0RawToDigiModule words "<< nWords<<std::endl;
+    //std::cout <<"ME0RawToDigiModule words "<< nWords<<std::endl;
     
-    if (nWords<10) continue;
+    if (nWords<5) continue;
     const unsigned char * data = fedData.data();
     
     auto amc13Event = std::make_unique<AMC13Event>();
@@ -108,8 +105,8 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  uint16_t crc_check = checkCRC(vfatData.get());
 	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check);
 
-	  if (crc!=crc_check) std::cout<<"DIFFERENT CRC :"<<crc<<"   "<<crc_check<<std::endl;
-	  if (!Quality) std::cout <<"ME0RawToDigiModule Quality "<< Quality <<std::endl;
+	  if (crc!=crc_check) edm::LogWarning("ME0RawToDigiModule") << "DIFFERENT CRC :"<<crc<<"   "<<crc_check;
+	  if (!Quality) edm::LogWarning("ME0RawToDigiModule") << "Quality "<< Quality;
 	  
 	  uint32_t vfatId = (amcId << 17) | (gebId << 12) | ChipID;
 	  //need to add gebId to DB
@@ -120,8 +117,7 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  ec.vfatId = vfatId;
 	  ec.channelId = 1;
 	  if (!m_me0ROMap->isValidChipID(ec)){
-	    std::cout <<"ME0RawToDigiModule InValid ChipID "<< ec.vfatId <<std::endl;	    
-	    //delete vfatData;
+	    edm::LogWarning("ME0RawToDigiModule") << "InValid ChipID :"<<ec.vfatId;
 	    continue;
 	  }
 	  
@@ -139,14 +135,12 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    ME0DetId me0Id(dc.me0DetId);
 	    ME0Digi digi(dc.stripId,bx);
 
-	    std::cout <<"ME0RawToDigiModule vfatId "<<ec.vfatId
-		      <<" me0DetId "<< me0Id
-		      <<" chan "<< ec.channelId
-		      <<" strip "<< dc.stripId
-		      <<" bx "<< digi.bx()
-		      <<std::endl;
-	    	      
-	    ndigis++;
+	    // std::cout <<"ME0RawToDigiModule vfatId "<<ec.vfatId
+	    // 	      <<" me0DetId "<< me0Id
+	    // 	      <<" chan "<< ec.channelId
+	    // 	      <<" strip "<< dc.stripId
+	    // 	      <<" bx "<< digi.bx()
+	    // 	      <<std::endl;
 	    
 	    outME0Digis.get()->insertDigi(me0Id,digi);	    
 	  }
@@ -164,9 +158,7 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
     amc13Event->setAMC13trailer(*(++word));
     amc13Event->setCDFTrailer(*(++word));
   }
-  
-  std::cout << "ME0RawToDigiModule ndigis " << ndigis << std::endl;
-  
+    
   e.put(std::move(outME0Digis));
 }
 

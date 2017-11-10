@@ -48,6 +48,10 @@ class GEMRawToDigiModule : public edm::EDProducer {
   uint16_t crc_cal(uint16_t crc_in, uint16_t dato);
   
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
+<<<<<<< HEAD
+=======
+  bool unpackStatusDigis_;
+>>>>>>> adding packing and unpacking to std seq
   bool useDBEMap_;
   
   const GEMEMap* m_gemEMap;
