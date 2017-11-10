@@ -92,8 +92,8 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(nullptr
     yBins = errorMatrixValuesPSet.getParameter<std::vector<double> >("yAxis");
     NEta = yBins.size()-1;
     yBinsArray = &(yBins.front());
-    minPt = yBins.front();
-    maxPt = yBins.back();
+    minEta = yBins.front();
+    maxEta = yBins.back();
 
     std::vector<double> zBins = errorMatrixValuesPSet.getParameter<std::vector<double> >("zAxis");
     NPhi=1;
