@@ -102,12 +102,12 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 	      vFatToStripMap[vFatID].push_back(channelId);	
 	      hasDigi = true;
 
-	      std::cout <<"GEMDigiToRawModule vfatId "<<ec.vfatId
-	      		<<" gemDetId "<< gemId
-	      		<<" chan "<< ec.channelId
-	      		<<" strip "<< dc.stripId
-	      		<<" bx "<< digi.bx()
-	      		<<std::endl;
+	      // std::cout <<"GEMDigiToRawModule vfatId "<<ec.vfatId
+	      // 		<<" gemDetId "<< gemId
+	      // 		<<" chan "<< ec.channelId
+	      // 		<<" strip "<< dc.stripId
+	      // 		<<" bx "<< digi.bx()
+	      // 		<<std::endl;
 	    }
 	  }
 	  
@@ -253,7 +253,7 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
     uint64_t * w = reinterpret_cast<uint64_t* >(fedRawData.data());  
     for (auto word: words) *(w++) = word;
         
-    std::cout << "GEMDigiToRawModule words " <<std::dec << words.size() << std::endl;
+    //    std::cout << "GEMDigiToRawModule words " <<std::dec << words.size() << std::endl;
     delete amc13Event;
   }
 
