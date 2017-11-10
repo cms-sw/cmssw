@@ -34,4 +34,4 @@ Please change the input file path in the python script
 
 3. Output
    Upon successful execution it will dispaly message on the console 
-   and will produce output files mentioned at the beginning 
+   and will produce output files mentioned at the beginning in the current directory 
