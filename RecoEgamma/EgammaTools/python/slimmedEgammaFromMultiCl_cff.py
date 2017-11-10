@@ -1,10 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.EgammaTools.hgcalElectronFilter_cfi import cleanedEcalDrivenGsfElectronsFromMultiCl 
 from RecoEgamma.EgammaTools.hgcalElectronIDValueMap_cfi import hgcalElectronIDValueMap
 
-hgcElectronID = hgcalElectronIDValueMap.clone()
+hgcElectronID = hgcalElectronIDValueMap.clone(
+    electrons = cms.InputTag("cleanedEcalDrivenGsfElectronsFromMultiCl"),
+)
 patElectronsFromMultiCl = cms.EDProducer("PATElectronProducer",
-    electronSource = cms.InputTag("ecalDrivenGsfElectronsFromMultiCl"),
+    electronSource = cms.InputTag("cleanedEcalDrivenGsfElectronsFromMultiCl"),
     beamLineSrc    = cms.InputTag("offlineBeamSpot"),
     pvSrc          = cms.InputTag("offlinePrimaryVertices"),
     addElectronID  = cms.bool(False),
@@ -37,7 +40,7 @@ patElectronsFromMultiCl = cms.EDProducer("PATElectronProducer",
 )
 selectedPatElectronsFromMultiCl = cms.EDFilter("PATElectronSelector",
     src = cms.InputTag("patElectronsFromMultiCl"),
-    cut = cms.string("!isEB && pt > 15"),
+    cut = cms.string("!isEB && pt >= 10."),
 )
 slimmedElectronsFromMultiCl = cms.EDProducer("PATElectronSlimmer",
     src = cms.InputTag("selectedPatElectronsFromMultiCl"),
@@ -64,6 +67,7 @@ slimmedElectronsFromMultiCl = cms.EDProducer("PATElectronSlimmer",
 )
 
 slimmedElectronsFromMultiClTask = cms.Task(
+    cleanedEcalDrivenGsfElectronsFromMultiCl,
     hgcElectronID,
     patElectronsFromMultiCl,
     selectedPatElectronsFromMultiCl,
@@ -100,7 +104,7 @@ patPhotonsFromMultiCl = cms.EDProducer("PATPhotonProducer",
 )
 selectedPatPhotonsFromMultiCl = cms.EDFilter("PATPhotonSelector",
     src = cms.InputTag("patPhotonsFromMultiCl"),
-    cut = cms.string("!isEB && pt > 15"),
+    cut = cms.string("!isEB && pt >= 15."),
 )
 slimmedPhotonsFromMultiCl = cms.EDProducer("PATPhotonSlimmer",
     src = cms.InputTag("selectedPatPhotonsFromMultiCl"),
