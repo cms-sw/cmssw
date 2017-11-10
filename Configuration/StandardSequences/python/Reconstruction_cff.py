@@ -125,6 +125,13 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              cosmicDCTracksSeq
                              )
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from RecoHI.HiCentralityAlgos.HiCentrality_cfi import hiCentrality
+from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import hiClusterCompatibility
+_highlevelreco_HI = highlevelreco.copy()
+_highlevelreco_HI += hiCentrality
+_highlevelreco_HI += hiClusterCompatibility
+pp_on_XeXe_2017.toReplaceWith(highlevelreco, _highlevelreco_HI)
 
 from FWCore.Modules.logErrorHarvester_cfi import *
 
