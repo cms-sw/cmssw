@@ -186,8 +186,6 @@ for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017, ppRef_2017]:
         e.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppGED_*_*',
                                                                            'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerpp_*_*',
                                                                            'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppIsland_*_*',
-                                                                           'keep recoPhotons_islandPhotons_*_*',
-                                                                           'keep recoCentrality*_hiCentrality_*_*',
-                                                                           'keep recoClusterCompatibility*_hiClusterCompatibility_*_*'
+                                                                           'keep recoPhotons_islandPhotons_*_*'
                                                                            ])
                     )
