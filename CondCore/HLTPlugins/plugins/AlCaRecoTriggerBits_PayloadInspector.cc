@@ -54,7 +54,7 @@ namespace {
 
 	y -= pitch; 
 	y_x1.push_back(y);
-	s_x1.push_back(element.first.c_str());
+	s_x1.push_back(element.first);
 
 	std::map<int,std::string> output;
 	int count=0;
