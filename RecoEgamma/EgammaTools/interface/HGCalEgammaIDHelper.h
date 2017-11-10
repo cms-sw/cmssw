@@ -2,13 +2,13 @@
 //
 // EGammaID Helper
 //
-// Helper Class to compute electron ID observables
+// Helper Class to compute HGCal Egamma cluster ID observables
 //
-// Authors: F. Beaudette,A. Lobanov
+// Authors: F. Beaudette, A. Lobanov, N. Smith
 //--------------------------------------------------------------------------------------------------
 
-#ifndef ElectronIDHelper_H
-#define ElectronIDHelper_H
+#ifndef RecoEgamma_EgammaTools_HGCalEgammaIDHelper_h
+#define RecoEgamma_EgammaTools_HGCalEgammaIDHelper_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
@@ -27,54 +28,47 @@
 #include <vector>
 #include "HGCalIsoCalculator.h"
 
-class ElectronIDHelper {
+class HGCalEgammaIDHelper {
 public:
-    ElectronIDHelper(){;}
-    ElectronIDHelper(const edm::ParameterSet &, edm::ConsumesCollector && iC);
-    ~ElectronIDHelper(){;}
+    HGCalEgammaIDHelper() {}
+    HGCalEgammaIDHelper(const edm::ParameterSet &, edm::ConsumesCollector && iC);
+    ~HGCalEgammaIDHelper() {}
 
     // Use eventInit once per event
     void eventInit(const edm::Event& iEvent,const edm::EventSetup &iSetup);
 
+    // Call computeHGCAL before accessing results below
+    void computeHGCAL(const reco::Photon & thePhoton, float radius);
     void computeHGCAL(const reco::GsfElectron & theElectron, float radius);
 
-    inline double electronClusterEnergy() const { return theElectron_->electronCluster()->energy();}
-
-    inline double electronSCEnergy() const {return theElectron_->superCluster()->energy();}
-
-    inline double sigmaUU() const {  return pcaHelper_.sigmaUU();}
-    inline double sigmaVV() const {  return pcaHelper_.sigmaVV();}
-    inline double sigmaEE() const {  return pcaHelper_.sigmaEE();}
-    inline double sigmaPP() const {  return pcaHelper_.sigmaPP();}
-    inline TVectorD eigenValues () const {return pcaHelper_.eigenValues();}
-    inline TVectorD sigmas() const {return pcaHelper_.sigmas();}
-
+    // PCA results
+    double sigmaUU() const {  return pcaHelper_.sigmaUU();}
+    double sigmaVV() const {  return pcaHelper_.sigmaVV();}
+    double sigmaEE() const {  return pcaHelper_.sigmaEE();}
+    double sigmaPP() const {  return pcaHelper_.sigmaPP();}
+    const TVectorD& eigenValues () const {return pcaHelper_.eigenValues();}
+    const TVectorD& sigmas() const {return pcaHelper_.sigmas();}
+    const math::XYZPoint  & barycenter() const {return pcaHelper_.barycenter();}
+    const math::XYZVector & axis() const {return pcaHelper_.axis();}
 
     // longitudinal energy deposits and energy per subdetector as well as layers crossed
     LongDeps energyPerLayer(float radius, bool withHalo=true) {
         return pcaHelper_.energyPerLayer(radius,withHalo);
     }
-    inline  math::XYZVectorF trackMomentumAtEleClus() const {return theElectron_->trackMomentumAtEleClus();}
-    inline float deltaEtaEleClusterTrackAtCalo() const {return theElectron_->deltaEtaEleClusterTrackAtCalo();}
-    inline float deltaPhiEleClusterTrackAtCalo() const {return theElectron_->deltaPhiEleClusterTrackAtCalo();}
-    inline float eEleClusterOverPout() const {return theElectron_->eEleClusterOverPout();}
 
-    const math::XYZPoint  & barycenter() const {return pcaHelper_.barycenter();}
-    const math::XYZVector & axis() const {return pcaHelper_.axis();}
-    void printHits(float radius) const { pcaHelper_.printHits(radius); }
-
+    // shower depth (distance between start and shower max) from ShowerDepth tool
     float clusterDepthCompatibility(const LongDeps & ld, float & measDepth, float & expDepth, float & expSigma)
         { return pcaHelper_.clusterDepthCompatibility(ld,measDepth,expDepth,expSigma);}
 
+    // projective calo isolation
+    inline float getIsolationRing(unsigned int ring) const { return isoHelper_.getIso(ring); };
 
-    inline float getIsolationRing(size_t ring) const { return isoHelper_.getIso(ring); };
 
-    /// for debugging purposes, if you have to use it, it means that an interface method is missing
+    // for debugging purposes
+    void printHits(float radius) const { pcaHelper_.printHits(radius); }
     const EGammaPCAHelper * pcaHelper () const {return &pcaHelper_;}
 
 private:
-    const reco::GsfElectron * theElectron_;
-
     edm::InputTag  eeRecHitInputTag_;
     edm::InputTag  fhRecHitInputTag_;
     edm::InputTag  bhRecHitInputTag_;

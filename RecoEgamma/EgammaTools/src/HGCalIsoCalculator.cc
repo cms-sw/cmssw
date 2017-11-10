@@ -106,7 +106,7 @@ void HGCalIsoCalculator::setNRings(const size_t nrings){
     isoringdeposits_.resize(nrings,0);
 }
 
-const float& HGCalIsoCalculator::getIso(const size_t& ring)const{
+const float HGCalIsoCalculator::getIso(const unsigned int ring)const{
     if(ring>=isoringdeposits_.size())
         throw cms::Exception("HGCalIsoCalculator::getIso: ring index out of range");
     return isoringdeposits_[ring];

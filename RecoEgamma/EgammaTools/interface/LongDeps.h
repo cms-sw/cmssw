@@ -11,7 +11,7 @@
 class LongDeps{
     public:
         LongDeps(float radius, const std::vector<float>& energyPerLayer, float energyEE,float energyFH,float energyBH,const std::set<int>& layers);
-        ~LongDeps(){;}
+        ~LongDeps() {}
         // to check the radius used
         inline float radius() const {return radius_;};
         inline float energyEE() const {return energyEE_;}

@@ -36,7 +36,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
-#include "RecoEgamma/EgammaTools/interface/ElectronIDHelper.h"
+#include "RecoEgamma/EgammaTools/interface/HGCalEgammaIDHelper.h"
 #include "RecoEgamma/EgammaTools/interface/LongDeps.h"
 
 class HGCalElectronIDValueMapProducer : public edm::stream::EDProducer<> {
@@ -56,7 +56,7 @@ class HGCalElectronIDValueMapProducer : public edm::stream::EDProducer<> {
     float radius_;
     std::map<const std::string, std::vector<float>> maps_;
 
-    std::unique_ptr<ElectronIDHelper> eIDHelper_;
+    std::unique_ptr<HGCalEgammaIDHelper> eIDHelper_;
 };
 
 HGCalElectronIDValueMapProducer::HGCalElectronIDValueMapProducer(const edm::ParameterSet& iConfig) :
@@ -65,12 +65,12 @@ HGCalElectronIDValueMapProducer::HGCalElectronIDValueMapProducer(const edm::Para
 {
   // All the ValueMap names to output are defined in the python config
   // so that potential consumers can configure themselves in a simple manner
-  for(auto key : iConfig.getParameter<std::vector<std::string>>("variables")) {
+  for(const auto& key : iConfig.getParameter<std::vector<std::string>>("variables")) {
     maps_[key] = {};
     produces<edm::ValueMap<float>>(key);
   }
 
-  eIDHelper_.reset(new ElectronIDHelper(iConfig, consumesCollector()));
+  eIDHelper_.reset(new HGCalEgammaIDHelper(iConfig, consumesCollector()));
 }
 
 
@@ -125,12 +125,13 @@ HGCalElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
 
       // Energies / PT
       const auto* eleCluster = electron.electronCluster().get();
-      maps_["ecOrigEt"].push_back(eleCluster->energy() / std::cosh(eleCluster->eta()));
+      const double div_cosh_eta = eleCluster->position().rho() / eleCluster->position().r();
+      maps_["ecOrigEt"].push_back(eleCluster->energy() * div_cosh_eta );
       maps_["ecOrigEnergy"].push_back(eleCluster->energy());
 
       // energies calculated in an cylinder around the axis of the electron cluster
       float ec_tot_energy = ld.energyEE() + ld.energyFH() + ld.energyBH();
-      maps_["ecEt"].push_back(ec_tot_energy / std::cosh(eleCluster->eta()));
+      maps_["ecEt"].push_back(ec_tot_energy * div_cosh_eta );
       maps_["ecEnergy"].push_back(ec_tot_energy);
       maps_["ecEnergyEE"].push_back(ld.energyEE());
       maps_["ecEnergyFH"].push_back(ld.energyFH());

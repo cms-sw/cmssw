@@ -1,5 +1,6 @@
-#ifndef SPOT_H
-#define SPOT_H
+#ifndef RecoEgamma_EgammaTools_Spot_h
+#define RecoEgamma_EgammaTools_Spot_h
+
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <vector>
