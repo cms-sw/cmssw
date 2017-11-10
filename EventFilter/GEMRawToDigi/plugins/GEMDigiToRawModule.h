@@ -30,10 +30,10 @@ class GEMDigiToRawModule : public edm::EDProducer {
   /// Constructor
   GEMDigiToRawModule(const edm::ParameterSet & pset);
 
-  virtual void beginRun(const edm::Run &, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup&) override;
 
   // Operations
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
 
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
