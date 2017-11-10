@@ -195,11 +195,11 @@ class EventSingletonSimpleFlatTableProducer : public SimpleFlatTableProducerBase
         EventSingletonSimpleFlatTableProducer( edm::ParameterSet const & params ):
             SimpleFlatTableProducerBase<T,T>(params) {}
 
-        virtual ~EventSingletonSimpleFlatTableProducer() {}
+        ~EventSingletonSimpleFlatTableProducer() override {}
 
         std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &, const edm::Handle<T> & prod) const override {
             auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
-            std::vector<const T *> selobjs(1, prod->product());
+            std::vector<const T *> selobjs(1, prod.product());
             for (const auto & var : this->vars_) var.fill(selobjs, *out);
             return out;
         }
@@ -227,7 +227,11 @@ typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProduce
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 typedef FirstObjectSimpleFlatTableProducer<PileupSummaryInfo> SimplePileupFlatTableProducer;
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+typedef EventSingletonSimpleFlatTableProducer<GenEventInfoProduct> SimpleGenEventFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePileupFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleGenEventFlatTableProducer);
 
