@@ -36,9 +36,9 @@ class RPCConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCConfigRcd,
 							   L1RPCConfig > {
    public:
       RPCConfigOnlineProd(const edm::ParameterSet&);
-      ~RPCConfigOnlineProd();
+      ~RPCConfigOnlineProd() override;
 
-  virtual std::shared_ptr< L1RPCConfig > newObject(
+  std::shared_ptr< L1RPCConfig > newObject(
     const std::string& objectKey ) override ;
 
    private:

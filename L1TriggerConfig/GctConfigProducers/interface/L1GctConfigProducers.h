@@ -49,7 +49,7 @@ class L1GctChannelMaskRcd;
 class L1GctConfigProducers : public edm::ESProducer {
  public:
   L1GctConfigProducers(const edm::ParameterSet&);
-  ~L1GctConfigProducers();
+  ~L1GctConfigProducers() override;
   
   typedef std::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
   typedef std::shared_ptr<L1GctChannelMask>          ChanMaskReturnType;

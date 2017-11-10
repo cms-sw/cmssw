@@ -1,6 +1,6 @@
 #include <iostream>
-#include <stdlib.h>
-#include <stdint.h>
+#include <cstdlib>
+#include <cstdint>
 
 #include "UCTCrate.hh"
 #include "UCTCard.hh"
@@ -19,14 +19,14 @@ UCTCrate::UCTCrate(uint32_t crt, int fwv) :
 
 UCTCrate::~UCTCrate() {
   for(uint32_t i = 0; i < cards.size(); i++) {
-    if(cards[i] != 0) delete cards[i];
+    if(cards[i] != nullptr) delete cards[i];
   }
 }
 
 bool UCTCrate::process() {
   crateSummary = 0;
   for(uint32_t i = 0; i < cards.size(); i++) {
-    if(cards[i] != 0) {
+    if(cards[i] != nullptr) {
       cards[i]->process();
       crateSummary += cards[i]->et();
     }

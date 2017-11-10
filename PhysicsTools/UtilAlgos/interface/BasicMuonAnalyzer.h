@@ -24,13 +24,13 @@ class BasicMuonAnalyzer : public edm::BasicAnalyzer {
   BasicMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fs);
   BasicMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fs, edm::ConsumesCollector&& iC);
   /// default destructor
-  virtual ~BasicMuonAnalyzer(){};
+  ~BasicMuonAnalyzer() override{};
   /// everything that needs to be done before the event loop
-  void beginJob(){};
+  void beginJob() override{};
   /// everything that needs to be done after the event loop
-  void endJob(){};
+  void endJob() override{};
   /// everything that needs to be done during the event loop
-  void analyze(const edm::EventBase& event);
+  void analyze(const edm::EventBase& event) override;
 
  private:
   /// input tag for mouns

@@ -24,9 +24,9 @@ class L1MuGMTParametersKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       {
 	LogDebug( "L1-O2O" ) << "L1MuGMTParametersKeysOnlineProd created"  << std::endl;
       }
-      ~L1MuGMTParametersKeysOnlineProd() {}
+      ~L1MuGMTParametersKeysOnlineProd() override {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
 };
 

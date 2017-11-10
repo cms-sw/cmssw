@@ -23,7 +23,7 @@ namespace edm {
 class JetCorrectionESChain : public edm::ESProducer {
 public:
   JetCorrectionESChain(edm::ParameterSet const& fParameters);
-  ~JetCorrectionESChain();
+  ~JetCorrectionESChain() override;
 
   std::shared_ptr<JetCorrector> produce(JetCorrectionsRecord const& );
 

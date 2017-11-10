@@ -69,7 +69,7 @@ template <class SecondaryVertex>
 std::vector<unsigned int> VertexSorting<SecondaryVertex>::operator () (
 		const std::vector<SecondaryVertex> &svCandidates) const
 {
-	Measurement1D (SecondaryVertex::*measurementFn)() const = 0;
+	Measurement1D (SecondaryVertex::*measurementFn)() const = nullptr;
 	switch(sortCriterium) {
 	    case sortDist3dErr:
 	    case sortDist3dVal:
@@ -83,7 +83,7 @@ std::vector<unsigned int> VertexSorting<SecondaryVertex>::operator () (
 		break;
 	}
 
-	double (Measurement1D::*valueFn)() const = 0;
+	double (Measurement1D::*valueFn)() const = nullptr;
 	switch(sortCriterium) {
 	    case sortDist3dErr:
 	    case sortDist2dErr:

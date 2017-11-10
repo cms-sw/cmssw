@@ -192,7 +192,7 @@ bool MCTruthHelper<P>::isPrompt(const P &p) const {
   //particle from hadron/muon/tau decay -> not prompt
   //checking all the way up the chain treats properly the radiated photon
   //case as well
-  return findDecayedMother(p) == 0;
+  return findDecayedMother(p) == nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -214,7 +214,7 @@ bool MCTruthHelper<P>::isPromptDecayed(const P &p) const {
 /////////////////////////////////////////////////////////////////////////////
 template<typename P>
 bool MCTruthHelper<P>::isTauDecayProduct(const P &p) const {
-  return findDecayedMother(p,15) != 0;
+  return findDecayedMother(p,15) != nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -301,7 +301,7 @@ bool MCTruthHelper<P>::isHardProcess(const P &p) const {
 /////////////////////////////////////////////////////////////////////////////
 template<typename P>
 bool MCTruthHelper<P>::fromHardProcess(const P &p) const {
-  return hardProcessMotherCopy(p) != 0;
+  return hardProcessMotherCopy(p) != nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -384,7 +384,7 @@ const P *MCTruthHelper<P>::uniqueMother(const P &p) const {
   while (mo && pdgId(*mo)==pdgId(p)) {
     dupCheck.insert(mo);
     mo = mother(*mo);
-    if (dupCheck.count(mo)) return 0;
+    if (dupCheck.count(mo)) return nullptr;
   }
   return mo;
 }
@@ -397,7 +397,7 @@ const P *MCTruthHelper<P>::firstCopy(const P &p) const {
   while (previousCopy(*pcopy)) {
     dupCheck.insert(pcopy);
     pcopy = previousCopy(*pcopy);
-    if (dupCheck.count(pcopy)) return 0;
+    if (dupCheck.count(pcopy)) return nullptr;
   }
   return pcopy;    
 }
@@ -410,7 +410,7 @@ const P *MCTruthHelper<P>::lastCopy(const P &p) const {
   while (nextCopy(*pcopy)) {
     dupCheck.insert(pcopy);
     pcopy = nextCopy(*pcopy);
-    if (dupCheck.count(pcopy)) return 0;
+    if (dupCheck.count(pcopy)) return nullptr;
   }
   return pcopy;    
 }
@@ -420,7 +420,7 @@ template<typename P>
 const P *MCTruthHelper<P>::lastCopyBeforeFSR(const P &p) const {
   //start with first copy and then walk down until there is FSR
   const P *pcopy = firstCopy(p);
-  if (!pcopy) return 0;
+  if (!pcopy) return nullptr;
   bool hasDaughterCopy = true;
   std::unordered_set<const P*> dupCheck;
   while (hasDaughterCopy) {
@@ -444,7 +444,7 @@ const P *MCTruthHelper<P>::lastCopyBeforeFSR(const P &p) const {
         break;
       }
     }
-    if (dupCheck.count(pcopy)) return 0;
+    if (dupCheck.count(pcopy)) return nullptr;
   }
   return pcopy;       
 }
@@ -477,7 +477,7 @@ const P *MCTruthHelper<P>::lastDaughterCopyBeforeFSR(const P &p) const {
         break;
       }
     }
-    if (dupCheck.count(pcopy)) return 0;
+    if (dupCheck.count(pcopy)) return nullptr;
   }
   return pcopy;       
 }  
@@ -497,7 +497,7 @@ const P *MCTruthHelper<P>::hardProcessMotherCopy(const P &p) const {
     if (isHardProcess(*pcopy)) return pcopy;
     if (dupCheck.count(pcopy)) break;
   }
-  return 0;
+  return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -512,7 +512,7 @@ const P *MCTruthHelper<P>::previousCopy(const P &p) const {
     }
   }
   
-  return 0;     
+  return nullptr;     
 }   
 
 /////////////////////////////////////////////////////////////////////////////
@@ -527,7 +527,7 @@ const P *MCTruthHelper<P>::nextCopy(const P &p) const {
     }
   }
   
-  return 0;     
+  return nullptr;     
 }  
 
 /////////////////////////////////////////////////////////////////////////////
@@ -538,7 +538,7 @@ const P *MCTruthHelper<P>::findDecayedMother(const P &p) const {
   while (mo && !isDecayedLeptonHadron(*mo)) {
     dupCheck.insert(mo);
     mo = mother(*mo);
-    if (dupCheck.count(mo)) return 0;
+    if (dupCheck.count(mo)) return nullptr;
   }
   return mo;
 }  
@@ -551,7 +551,7 @@ const P *MCTruthHelper<P>::findDecayedMother(const P &p, int abspdgid) const {
   while (mo && (absPdgId(*mo)!=abspdgid || !isDecayedLeptonHadron(*mo)) ) {
     dupCheck.insert(mo);
     mo = mother(*mo);
-    if (dupCheck.count(mo)) return 0;
+    if (dupCheck.count(mo)) return nullptr;
   }
   return mo;
 }
@@ -601,7 +601,7 @@ const reco::GenParticle *MCTruthHelper<P>::mother(const reco::GenParticle &p, un
 /////////////////////////////////////////////////////////////////////////////
 template<typename P>
 const HepMC::GenParticle *MCTruthHelper<P>::mother(const HepMC::GenParticle &p, unsigned int imoth) const {
-  return p.production_vertex() && p.production_vertex()->particles_in_size() ? *(p.production_vertex()->particles_in_const_begin() + imoth) : 0;
+  return p.production_vertex() && p.production_vertex()->particles_in_size() ? *(p.production_vertex()->particles_in_const_begin() + imoth) : nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////

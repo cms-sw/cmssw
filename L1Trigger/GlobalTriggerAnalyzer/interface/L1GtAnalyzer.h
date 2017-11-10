@@ -49,14 +49,14 @@ class L1GtAnalyzer: public edm::EDAnalyzer {
 
 public:
     explicit L1GtAnalyzer(const edm::ParameterSet&);
-    ~L1GtAnalyzer();
+    ~L1GtAnalyzer() override;
 
 private:
 
-    virtual void beginJob();
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
+    void beginJob() override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void beginLuminosityBlock(const edm::LuminosityBlock&,
+            const edm::EventSetup&) override;
 
     /// analyze: decision and decision word
     ///   bunch cross in event BxInEvent = 0 - L1Accept event
@@ -91,15 +91,15 @@ private:
     void printOutput(std::ostringstream&);
 
     /// analyze each event: event loop over various code snippets
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     /// end section
-    virtual void endLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
-    virtual void endRun(const edm::Run&, const edm::EventSetup&);
+    void endLuminosityBlock(const edm::LuminosityBlock&,
+            const edm::EventSetup&) override;
+    void endRun(const edm::Run&, const edm::EventSetup&) override;
 
     /// end of job
-    virtual void endJob();
+    void endJob() override;
 
 private:
 

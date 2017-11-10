@@ -39,7 +39,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
-#include <math.h>
+#include <cmath>
 
 //
 // class declaration
@@ -48,15 +48,15 @@
 class L1TStage2InputPatternWriter : public edm::EDAnalyzer {
 public:
   explicit L1TStage2InputPatternWriter(const edm::ParameterSet&);
-  ~L1TStage2InputPatternWriter();
+  ~L1TStage2InputPatternWriter() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;

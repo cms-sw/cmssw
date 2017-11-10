@@ -15,7 +15,7 @@ class JetChargeProducer : public edm::global::EDProducer<> {
         typedef reco::JetFloatAssociation::Container JetChargeCollection;
 
         explicit JetChargeProducer(const edm::ParameterSet &cfg) ;
-        virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+        void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
     private:
         const edm::EDGetTokenT<reco::JetTracksAssociationCollection> srcToken_;
         const JetCharge     algo_;

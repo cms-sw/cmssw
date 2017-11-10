@@ -20,7 +20,7 @@ public:
 private:
     inline void map(const MyJet& jet,
                     const Adjustable& current,
-                    double* buf, const unsigned dim) const
+                    double* buf, const unsigned dim) const override
     {
         assert(buf);
         if (dim != 3)
@@ -49,12 +49,12 @@ public:
         const AbsFFTSpecificScaleCalculator* p)
         : AbsFFTJetScaleCalculator<MyJet, Adjustable>(f), calc_(p) {assert(p);}
 
-    inline virtual ~FFTSpecificScaleCalculator() {delete calc_;}
+    inline ~FFTSpecificScaleCalculator() override {delete calc_;}
 
 private:
     inline void map(const MyJet& jet,
                     const Adjustable& current,
-                    double* buf, const unsigned dim) const
+                    double* buf, const unsigned dim) const override
     {
         return calc_->mapFFTJet(jet, jet.getFFTSpecific(),
                                 current.vec(), buf, dim);

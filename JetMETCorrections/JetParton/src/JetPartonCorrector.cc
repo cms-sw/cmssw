@@ -105,7 +105,7 @@ class   JetPartonCalibrationParameterSet{
   double eta(int ieta){return etavector[ieta];}
   int type(int ieta){return typevector[ieta];}
   const vector<double>& parameters(int ieta){return pars[ieta];}
-  bool valid(){return etavector.size();}
+  bool valid(){return !etavector.empty();}
   
  private:
   
@@ -127,7 +127,7 @@ JetPartonCalibrationParameterSet::JetPartonCalibrationParameterSet(string tag){
   //  if ( f1.isLocal() ){
     string line;
     while( std::getline( in, line) ){
-      if(!line.size() || line[0]=='#') continue;
+      if(line.empty() || line[0]=='#') continue;
       istringstream linestream(line);
       double par;
       int type;
