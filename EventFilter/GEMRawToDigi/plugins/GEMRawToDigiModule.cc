@@ -61,7 +61,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
-    std::cout <<"GEMRawToDigiModule words "<< nWords<<std::endl;
+    //std::cout <<"GEMRawToDigiModule words "<< nWords<<std::endl;
     
     if (nWords<5) continue;
     const unsigned char * data = fedData.data();
@@ -139,15 +139,14 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
 	    int bx = bc-25;
 	    gemId = dc.gemDetId;
-	    GEMDetId gemId(gemId);
 	    GEMDigi digi(dc.stripId,bx);
 
-	    std::cout <<"GEMRawToDigiModule vfatId "<<ec.vfatId
-	    	      <<" gemDetId "<< gemId
-	    	      <<" chan "<< ec.channelId
-	    	      <<" strip "<< dc.stripId
-	    	      <<" bx "<< digi.bx()
-	    	      <<std::endl;
+	    // std::cout <<"GEMRawToDigiModule vfatId "<<ec.vfatId
+	    // 	      <<" gemDetId "<< gemId
+	    // 	      <<" chan "<< ec.channelId
+	    // 	      <<" strip "<< dc.stripId
+	    // 	      <<" bx "<< digi.bx()
+	    // 	      <<std::endl;
 	    
 	    outGEMDigis.get()->insertDigi(gemId,digi);	    
 	  }
