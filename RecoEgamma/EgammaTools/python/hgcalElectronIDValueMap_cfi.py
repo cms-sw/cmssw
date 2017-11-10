@@ -8,9 +8,9 @@ hgcalElectronIDValueMap = cms.EDProducer("HGCalElectronIDValueMapProducer",
     FHRecHits = cms.InputTag('HGCalRecHit:HGCHEFRecHits'),
     BHRecHits = cms.InputTag('HGCalRecHit:HGCHEBRecHits'),
     dEdXWeights = dEdX,
-    electronIsoDeltaR = cms.double(0.15),
-    electronIsoNRings = cms.uint32(5),
-    electronIsoDeltaRmin = cms.double(0.),
+    isoDeltaR = cms.double(0.15),
+    isoNRings = cms.uint32(5),
+    isoDeltaRmin = cms.double(0.),
     variables = cms.vstring([
         # Energies for the electron BasicCluster
         # which cannot be embedded in PAT currently

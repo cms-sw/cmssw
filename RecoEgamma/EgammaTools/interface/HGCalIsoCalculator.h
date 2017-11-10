@@ -68,7 +68,7 @@ public:
 
     void produceHGCalIso(const reco::CaloClusterPtr & seedCluster);
 
-    const float& getIso(const size_t& ring)const;
+    const float getIso(const unsigned int ring) const;
 
 private:
     std::vector<float> isoringdeposits_;
