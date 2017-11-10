@@ -79,7 +79,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     if (method2)
     {
         psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),
-                                               !info.hasTimeInfo());
+                                               !info.hasTimeInfo(),info.nSamples());
         // "phase1Apply" call below sets m2E, m2t, useTriple, and chi2.
         // These parameters are pased by non-const reference.
         method2->phase1Apply(info, m2E, m2t, useTriple, chi2);

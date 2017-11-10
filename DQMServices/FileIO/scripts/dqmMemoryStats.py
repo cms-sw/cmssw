@@ -71,12 +71,14 @@ class HistogramAnalyzer(object):
         return results
 
 
-def kibisize(num):
+def kibisize(num,args):
+    pStr="%."+str(args.precision)+"f %s"
     for prefix in ['KiB','MiB','GiB']:
         num /= 1024.0
 
-        if num < 1024.0:
-            return "%.2f %s" % (num, prefix)
+        if num < 1024.0 or args.units == prefix:
+            return pStr % (num, prefix)
+    return pStr % (num, prefix)
 
 def displayDirectoryStatistics(stats, args):
     group_stats = stats.group(args.depth)
@@ -96,14 +98,14 @@ def displayDirectoryStatistics(stats, args):
         print "*" * 80
         print (" DQM level %d folder breakdown " % args.depth).center(80, "*")
         if cutoff:
-            print ("* Size cutoff: %s" % kibisize(cutoff)).ljust(79) + "*"
+            print ("* Size cutoff: %s" % kibisize(cutoff,args)).ljust(79) + "*"
         if display:
             print ("* Showing top %d entries." % display).ljust(79) + "*"
         print "*" * 80
 
     for v, k in as_list:
         if args.human:
-            print kibisize(v).ljust(16, " "), k
+            print kibisize(v,args).ljust(16, " "), k
         else:
             print v, k  
 
@@ -118,6 +120,8 @@ if __name__ == '__main__':
     parser.add_argument("-n", "--display", help = "Max entries to display in --summary.", type = int, default = None)
     parser.add_argument("-c", "--cutoff", help = "Max cutoff to display in --summary.", type = float, default = 512, metavar="KiB")
     parser.add_argument("-d", "--depth", help = "Folder depth in --summary.", type = int, default = 2)
+    parser.add_argument("-u", "--units", help = "Memory units to use (KiB,MiB,GiB) if fixed output desired", type = str, default = "None")
+    parser.add_argument("-p", "--precision", help = "Places after decimal to display.", type = int, default = 2)
 
     args = parser.parse_args()
 
@@ -141,6 +145,6 @@ if __name__ == '__main__':
 
     total = stats.group(0)
     if args.human:
-        print "Total bytes: %s" % kibisize(total[""])
+        print "Total bytes: %s" % kibisize(total[""],args)
     else:
         print total[""]
