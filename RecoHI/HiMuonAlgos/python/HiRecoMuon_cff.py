@@ -23,7 +23,7 @@ muonShowerInformation.muonCollection = "hiMuons1stStep"
 
 #don't modify somebody else's sequence, create a new one if needed
 #standalone muon tracking is already done... so remove standalonemuontracking from muontracking
-from FWCore.ParameterSet.SequenceTypes import ModuleNodeVistor
+from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
 _excludes=[]
 _visitor=ModuleNodeVisitor(_excludes)
 standalonemuontracking.visit(_visitor)
