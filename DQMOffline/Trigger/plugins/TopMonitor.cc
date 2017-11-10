@@ -590,12 +590,11 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   std::vector<reco::GsfElectron> electrons;
   if (nelectrons_>0){
     if ( eleHandle->size() < nelectrons_ ) return;
-    size_t index=0;                          //ATHER
-    for ( auto const & e : *eleHandle ) {
-      const auto el = eleHandle->ptrAt(index);  //ATHER                                                                                                                                                                                   
-      bool pass_id = (*eleIDHandle)[el];   //ATHER                                                                                                                                                                                         
-      index++;  //ATHER
-      if (eleSelection_(e) && pass_id) electrons.push_back(e); //ATHER
+    for (size_t index = 0; index < eleHandle->size() ; index++) {
+      const auto e  = eleHandle->at(index);
+      const auto el = eleHandle->ptrAt(index);              
+      bool pass_id = (*eleIDHandle)[el];                                                                                                                                                                                           
+      if (eleSelection_(e) && pass_id) electrons.push_back(e); 
       //Suvankar
       if ( usePVcuts_ &&
 	   (std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy || std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz) ) continue;
