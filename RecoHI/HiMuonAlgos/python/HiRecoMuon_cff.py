@@ -23,13 +23,12 @@ muonShowerInformation.muonCollection = "hiMuons1stStep"
 
 #don't modify somebody else's sequence, create a new one if needed
 #standalone muon tracking is already done... so remove standalonemuontracking from muontracking
-# muonreco_plus_isolation = cms.Sequence(muonreco+muIsolation)
-# muonreco = cms.Sequence(standalonemuontracking+globalmuontracking+muonIdProducerSequence)
-# globalmuontracking = cms.Sequence(globalMuons+tevMuons+displacedGlobalMuonTracking)
-# 
-#muonreco_plus_isolation_PbPb = muonreco_plus_isolation.copyAndExclude(standalonemuontracking+displacedGlobalMuonTracking)
-#eqivalent sequence 
-muonreco_plus_isolation_PbPb = cms.Sequence(globalMuons+tevMuons+muonIdProducerSequence)
+from FWCore.ParameterSet.SequenceTypes import ModuleVistor
+_excludes=[]
+_visitor=ModuleVisitor(_excludes)
+standalonemuontracking.visit(_visitor)
+displacedGlobalMuonTracking.visit(_visitor)
+muonreco_plus_isolation_PbPb = muonreco_plus_isolation.copyAndExclude(_excludes)
 
 muonreco_plus_isolation_PbPb.replace(muons1stStep, hiMuons1stStep)
 #iso deposits are not used in HI
