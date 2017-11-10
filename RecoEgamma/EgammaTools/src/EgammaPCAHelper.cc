@@ -42,30 +42,20 @@ void EGammaPCAHelper::fillHitMap(const HGCRecHitCollection & rechitsEE,
                                  const HGCRecHitCollection & rechitsFH,
                                  const HGCRecHitCollection & rechitsBH) {
     hitMap_->clear();
-    unsigned hitsize = rechitsEE.size();
-    for ( unsigned i=0; i< hitsize ; ++i) {
-        (*hitMap_)[rechitsEE[i].detid()] = & rechitsEE[i];
+    for (const auto& hit : rechitsEE) {
+        hitMap_->emplace_hint(hitMap_->end(), hit.detid(), &hit);
     }
 
-    if (debug_)
-        std::cout << " EE " << hitsize << " RecHits " << std::endl;
-    hitsize = rechitsFH.size();
-    for ( unsigned i=0; i< hitsize ; ++i) {
-        (*hitMap_)[rechitsFH[i].detid()] = & rechitsFH[i];
+    for (const auto& hit : rechitsFH) {
+        hitMap_->emplace_hint(hitMap_->end(), hit.detid(), &hit);
     }
-    if (debug_)
-        std::cout << " FH " << hitsize << " RecHits " << std::endl;
-    hitsize = rechitsBH.size();
-    for ( unsigned i=0; i< hitsize ; ++i) {
-        (*hitMap_)[rechitsBH[i].detid()] = & rechitsBH[i];
+
+    for (const auto& hit : rechitsBH) {
+        hitMap_->emplace_hint(hitMap_->end(), hit.detid(), &hit);
     }
-    if (debug_)
-        std::cout << " BH " << hitsize << " RecHits " << std::endl;
-    if( debug_)
-        std::cout << " Stored " << hitMap_->size() << " rechits " << std::endl;
+
     pcaIteration_ = 0;
     hitMapOrigin_ = 2;
-
 }
 
 void EGammaPCAHelper::storeRecHits(const reco::HGCalMultiCluster &cluster ){
@@ -192,10 +182,8 @@ void EGammaPCAHelper::computePCA(float radius , bool withHalo) {
     }
     pca_->MakePrincipals();
     ++pcaIteration_;
-    const TVectorD means = *(pca_->GetMeanValues());
-    const TMatrixD eigens = *(pca_->GetEigenVectors());
-    const TVectorD eigenVals= *(pca_->GetEigenValues());
-    const TVectorD sigmas = *(pca_->GetSigmas());
+    const TVectorD& means = *(pca_->GetMeanValues());
+    const TMatrixD& eigens = *(pca_->GetEigenVectors());
 
     barycenter_ = math::XYZPoint(means[0], means[1], means[2]);
     axis_ = math::XYZVector(eigens(0, 0), eigens(1, 0), eigens(2, 0));

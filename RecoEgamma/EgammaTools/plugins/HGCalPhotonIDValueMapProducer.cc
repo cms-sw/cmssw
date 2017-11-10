@@ -35,7 +35,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
-#include "RecoEgamma/EgammaTools/interface/PhotonIDHelper.h"
+#include "RecoEgamma/EgammaTools/interface/HGCalEgammaIDHelper.h"
 #include "RecoEgamma/EgammaTools/interface/LongDeps.h"
 
 class HGCalPhotonIDValueMapProducer : public edm::stream::EDProducer<> {
@@ -55,7 +55,7 @@ class HGCalPhotonIDValueMapProducer : public edm::stream::EDProducer<> {
     float radius_;
     std::map<const std::string, std::vector<float>> maps_;
 
-    std::unique_ptr<PhotonIDHelper> phoIDHelper_;
+    std::unique_ptr<HGCalEgammaIDHelper> phoIDHelper_;
 };
 
 HGCalPhotonIDValueMapProducer::HGCalPhotonIDValueMapProducer(const edm::ParameterSet& iConfig) :
@@ -64,12 +64,12 @@ HGCalPhotonIDValueMapProducer::HGCalPhotonIDValueMapProducer(const edm::Paramete
 {
   // All the ValueMap names to output are defined in the python config
   // so that potential consumers can configure themselves in a simple manner
-  for(auto key : iConfig.getParameter<std::vector<std::string>>("variables")) {
+  for(const auto& key : iConfig.getParameter<std::vector<std::string>>("variables")) {
     maps_[key] = {};
     produces<edm::ValueMap<float>>(key);
   }
 
-  phoIDHelper_.reset(new PhotonIDHelper(iConfig, consumesCollector()));
+  phoIDHelper_.reset(new HGCalEgammaIDHelper(iConfig, consumesCollector()));
 }
 
 
@@ -124,7 +124,8 @@ HGCalPhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
       // energies calculated in an cylinder around the axis of the pho cluster
       float seed_tot_energy = ld.energyEE() + ld.energyFH() + ld.energyBH();
-      maps_["seedEt"].push_back(seed_tot_energy / std::cosh(pho.superCluster()->seed()->eta()));
+      const double div_cosh_eta = pho.superCluster()->seed()->position().rho() / pho.superCluster()->seed()->position().r();
+      maps_["seedEt"].push_back(seed_tot_energy * div_cosh_eta );
       maps_["seedEnergy"].push_back(seed_tot_energy);
       maps_["seedEnergyEE"].push_back(ld.energyEE());
       maps_["seedEnergyFH"].push_back(ld.energyFH());

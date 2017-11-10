@@ -8,9 +8,9 @@ hgcalPhotonIDValueMap = cms.EDProducer("HGCalPhotonIDValueMapProducer",
     FHRecHits = cms.InputTag('HGCalRecHit:HGCHEFRecHits'),
     BHRecHits = cms.InputTag('HGCalRecHit:HGCHEBRecHits'),
     dEdXWeights = dEdX,
-    photonIsoDeltaR = cms.double(0.15),
-    photonIsoNRings = cms.uint32(5),
-    photonIsoDeltaRmin = cms.double(0.),
+    isoDeltaR = cms.double(0.15),
+    isoNRings = cms.uint32(5),
+    isoDeltaRmin = cms.double(0.),
     variables = cms.vstring([
         # energies calculated in an cylinder around the axis of the seed cluster
         "seedEt",
