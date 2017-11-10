@@ -102,7 +102,7 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  uint16_t ChipID=vfatData->ChipID();
 	  //int slot=vfatData->SlotNumber(); 
 	  uint16_t crc = vfatData->crc();
-	  uint16_t crc_check = checkCRC(vfatData.get());
+	  uint16_t crc_check = vfatData->checkCRC();
 	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check);
 
 	  if (crc!=crc_check) edm::LogWarning("ME0RawToDigiModule") << "DIFFERENT CRC :"<<crc<<"   "<<crc_check;
@@ -161,46 +161,3 @@ void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
     
   e.put(std::move(outME0Digis));
 }
-
-uint16_t ME0RawToDigiModule::checkCRC(VFATdata * vfatData)
-{
-  uint16_t vfatBlockWords[12]; 
-  vfatBlockWords[11] = ((0x000f & vfatData->b1010())<<12) | vfatData->BC();
-  vfatBlockWords[10] = ((0x000f & vfatData->b1100())<<12) | ((0x00ff & vfatData->EC()) <<4) | (0x000f & vfatData->Flag());
-  vfatBlockWords[9]  = ((0x000f & vfatData->b1110())<<12) | vfatData->ChipID();
-  vfatBlockWords[8]  = (0xffff000000000000 & vfatData->msData()) >> 48;
-  vfatBlockWords[7]  = (0x0000ffff00000000 & vfatData->msData()) >> 32;
-  vfatBlockWords[6]  = (0x00000000ffff0000 & vfatData->msData()) >> 16;
-  vfatBlockWords[5]  = (0x000000000000ffff & vfatData->msData());
-  vfatBlockWords[4]  = (0xffff000000000000 & vfatData->lsData()) >> 48;
-  vfatBlockWords[3]  = (0x0000ffff00000000 & vfatData->lsData()) >> 32;
-  vfatBlockWords[2]  = (0x00000000ffff0000 & vfatData->lsData()) >> 16;
-  vfatBlockWords[1]  = (0x000000000000ffff & vfatData->lsData());
-
-  uint16_t crc_fin = 0xffff;
-  for (int i = 11; i >= 1; i--){
-    crc_fin = this->crc_cal(crc_fin, vfatBlockWords[i]);
-  }
-  
-  return(crc_fin);
-}
-
-uint16_t ME0RawToDigiModule::crc_cal(uint16_t crc_in, uint16_t dato)
-{
-  uint16_t v = 0x0001;
-  uint16_t mask = 0x0001;
-  bool d=0;
-  uint16_t crc_temp = crc_in;
-  unsigned char datalen = 16;
-
-  for (int i=0; i<datalen; i++){
-    if (dato & v) d = 1;
-    else d = 0;
-    if ((crc_temp & mask)^d) crc_temp = crc_temp>>1 ^ 0x8408;
-    else crc_temp = crc_temp>>1;
-    v<<=1;
-  }
-  
-  return(crc_temp);
-}
-

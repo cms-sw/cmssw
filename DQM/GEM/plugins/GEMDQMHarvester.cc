@@ -8,7 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -16,7 +15,7 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -25,27 +24,16 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-
 using namespace std;
 using namespace edm;
 
 class GEMDQMHarvester: public DQMEDHarvester
-{
-  
- public:
+{  
+public:
 
   GEMDQMHarvester(const edm::ParameterSet&);
-  virtual ~GEMDQMHarvester();
-  
- 
-//   virtual void beginJob(){return;};
-//   
-//   virtual void endJob(){return;};  
-//  
-//   virtual void analyze(const edm::Event&, const edm::EventSetup&){return;};
-//   
-//   virtual void endRun(const edm::Run&, const edm::EventSetup&){return;};
-  
+  ~GEMDQMHarvester() override;
+    
 protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {}
   
@@ -54,22 +42,21 @@ protected:
   
 private:
 
-	void prova(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const & iSetup);
-	std::string fName;
-	int verbosity;
-	DQMStore *dbe;
+  void prova(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const & iSetup);
+  std::string fName;
+  int verbosity;
+  DQMStore *dbe;
 	
-    const GEMGeometry* initGeometry(edm::EventSetup const & iSetup);
-    int findVFAT(float min_, float max_, float x_, int roll_);
+  const GEMGeometry* initGeometry(edm::EventSetup const & iSetup);
+  int findVFAT(float min_, float max_, float x_, int roll_);
      
-    const GEMGeometry* GEMGeometry_; 
+  const GEMGeometry* GEMGeometry_; 
 
-    std::vector<GEMChamber> gemChambers;
+  std::vector<GEMChamber> gemChambers;
     
-    int nCh;
+  int nCh;
     
-    std::unordered_map<UInt_t,  MonitorElement*> Eff_Strips_vs_eta;
-
+  std::unordered_map<UInt_t,  MonitorElement*> Eff_Strips_vs_eta;
 
 };
 
@@ -98,7 +85,7 @@ const GEMGeometry* GEMDQMHarvester::initGeometry(edm::EventSetup const & iSetup)
 
 GEMDQMHarvester::GEMDQMHarvester(const edm::ParameterSet& ps)
 {
-//   fName = ps.getUntrackedParameter<std::string>("Name");
+  //   fName = ps.getUntrackedParameter<std::string>("Name");
 
   //dbe_path_ = std::string("GEMDQM/");
   //outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "myfile.root");
@@ -135,18 +122,18 @@ void GEMDQMHarvester::prova(DQMStore::IBooker &ibooker, edm::Run const &, edm::E
     hist_2->SetMarkerSize(0.5);
   }
 
-// 	MonitorElement* eta_1 = igetter.get("/GEM/testEta"); 
-// 	MonitorElement* eta_2 = igetter.get("/GEM/testEta_2"); 
-// 	MonitorElement* eff = igetter.get("/GEM/prova/eff");
-// 	
-// 	for(int i = 0; i < eta_1->getNbinsX(); i++){
-// 		if(eta_2->getBinContent(i) == 0)
-// 			eff->setBinContent(i, 0);
-// 		else{
-// 			double r = eta_1->getBinContent(i) / eta_2->getBinContent(i);
-// 			eff->setBinContent(i, r);
-// 		}
-// 	}
+  // 	MonitorElement* eta_1 = igetter.get("/GEM/testEta"); 
+  // 	MonitorElement* eta_2 = igetter.get("/GEM/testEta_2"); 
+  // 	MonitorElement* eff = igetter.get("/GEM/prova/eff");
+  // 	
+  // 	for(int i = 0; i < eta_1->getNbinsX(); i++){
+  // 		if(eta_2->getBinContent(i) == 0)
+  // 			eff->setBinContent(i, 0);
+  // 		else{
+  // 			double r = eta_1->getBinContent(i) / eta_2->getBinContent(i);
+  // 			eff->setBinContent(i, r);
+  // 		}
+  // 	}
 }
 
 void GEMDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock &, const edm::EventSetup &)
@@ -155,7 +142,7 @@ void GEMDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore
 
 //void GEMDQMHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &ig )
 //{
-  //ig.setCurrentFolder(dbe_path_.c_str());
+//ig.setCurrentFolder(dbe_path_.c_str());
 
 //}
 DEFINE_FWK_MODULE(GEMDQMHarvester);

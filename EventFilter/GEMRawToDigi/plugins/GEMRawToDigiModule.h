@@ -31,21 +31,15 @@ class GEMRawToDigiModule : public edm::EDProducer {
   /// Constructor
   GEMRawToDigiModule(const edm::ParameterSet & pset);
 
-  /// Destructor
-  virtual ~GEMRawToDigiModule(){}
-
-  virtual void beginRun(const edm::Run &, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run &, const edm::EventSetup&) override;
 
   // Operations
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
-
-  uint16_t checkCRC(gem::VFATdata * m_vfatdata);
-  uint16_t crc_cal(uint16_t crc_in, uint16_t dato);
   
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
 <<<<<<< HEAD
