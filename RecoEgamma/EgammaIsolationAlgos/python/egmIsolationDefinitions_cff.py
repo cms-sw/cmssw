@@ -9,9 +9,10 @@ from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 pfNoPileUpCandidates = pfAllChargedHadrons.clone()
 pfNoPileUpCandidates.pdgId.extend(pfAllNeutralHadronsAndPhotons.pdgId)
 
-egmIsolationTask = cms.Task( pfNoPileUpCandidates,
-                                     pfParticleSelectionTask,
-                                     pfClusterIsolationTask,
-                                     egmGedGsfElectronPFNoPileUpIsolation,
-                                     egmGedGsfElectronPFPileUpIsolation )
+egmIsolationTask = cms.Task( pfParticleSelectionTask,
+                             pfNoPileUpCandidates,
+                             egmGedGsfElectronPFNoPileUpIsolation,
+                             egmGedGsfElectronPFPileUpIsolation,
+                             pfClusterIsolationTask
+                             )
 egmIsolationSequence = cms.Sequence(egmIsolationTask)
