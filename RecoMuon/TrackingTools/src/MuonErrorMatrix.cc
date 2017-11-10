@@ -64,8 +64,8 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(nullptr
       if (yBins.empty()){edm::LogError( theCategory)<<"NEta=0 and no entries in the vector. I will do aseg fault soon.";}
       NEta = yBins.size()-1;
       yBinsArray = &(yBins.front());
-      minPt = yBins.front();
-      maxPt = yBins.back();}
+      minEta = yBins.front();
+      maxEta = yBins.back();}
 
     NPhi = iConfig.getParameter<int>("NPhi");
     std::stringstream get(iConfig.getParameter<std::string>("minPhi"));
