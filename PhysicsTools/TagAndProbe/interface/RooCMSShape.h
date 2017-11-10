@@ -45,7 +45,7 @@ public:
   Double_t evaluate() const override ;
   
 
-  ClassDef(RooCMSShape,1);
+  ClassDefOverride(RooCMSShape,1);
 
 protected:
 

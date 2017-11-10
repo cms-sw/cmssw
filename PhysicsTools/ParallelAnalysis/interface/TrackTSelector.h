@@ -26,7 +26,7 @@ namespace examples {
     /// terminate processing
     void terminate( TList & ) override;
 
-    ClassDef(TrackTSelector,2)
+    ClassDefOverride(TrackTSelector,2)
   private:
     /// avoid copy constructor
     TrackTSelector( const TrackTSelector & );

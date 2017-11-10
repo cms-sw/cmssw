@@ -1,18 +1,20 @@
-#include "getChi2.h"
+#include "SimTracker/TrackAssociation/interface/trackAssociationChi2.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "TrackingTools/PatternTools/interface/trackingParametersAtClosestApproachToBeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace track_associator {
-  double getChi2(const reco::TrackBase::ParameterVector& rParameters,
-                 const reco::TrackBase::CovarianceMatrix& recoTrackCovMatrix,
-                 const Basic3DVector<double>& momAtVtx,
-                 const Basic3DVector<double>& vert,
-                 int charge,
-                 const MagneticField& magfield,
-                 const reco::BeamSpot& bs) {
+  constexpr double invalidChi2 = 10000000000.;
+
+  double trackAssociationChi2(const reco::TrackBase::ParameterVector& rParameters,
+                              const reco::TrackBase::CovarianceMatrix& recoTrackCovMatrix,
+                              const Basic3DVector<double>& momAtVtx,
+                              const Basic3DVector<double>& vert,
+                              int charge,
+                              const MagneticField& magfield,
+                              const reco::BeamSpot& bs) {
     
-    double chi2 = 10000000000.;
+    double chi2 = invalidChi2;
     
     std::pair<bool,reco::TrackBase::ParameterVector> params = reco::trackingParametersAtClosestApproachToBeamSpot(vert, momAtVtx, charge, magfield, bs);
     if (params.first){
@@ -40,5 +42,32 @@ namespace track_associator {
       
     }
     return chi2;
+  }
+
+  double trackAssociationChi2(const reco::TrackBase::ParameterVector& rParameters,
+                              const reco::TrackBase::CovarianceMatrix& recoTrackCovMatrix,
+                              const TrackingParticle& trackingParticle,
+                              const MagneticField& magfield,
+                              const reco::BeamSpot& bs) {
+    const int charge = trackingParticle.charge();
+    if(charge==0)
+      return invalidChi2;
+
+    const auto tpMom = trackingParticle.momentum();
+    Basic3DVector<double> momAtVtx(tpMom.x(), tpMom.y(), tpMom.z());
+    Basic3DVector<double> vert(trackingParticle.vertex());
+
+    return trackAssociationChi2(rParameters, recoTrackCovMatrix, momAtVtx, vert, charge, magfield, bs);
+  }
+
+
+  double trackAssociationChi2(const reco::TrackBase& track,
+                              const TrackingParticle& trackingParticle,
+                              const MagneticField& magfield,
+                              const reco::BeamSpot& bs) {
+    auto cov = track.covariance();
+    cov.Invert();
+
+    return trackAssociationChi2(track.parameters(), cov, trackingParticle, magfield, bs);
   }
 }

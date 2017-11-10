@@ -37,6 +37,7 @@ class HLTBTagHarvestingAnalyzer : public DQMEDHarvester {
 
 		private:
 			// ----------member data ---------------------------
+			std::string			                mainFolder_;
 			std::vector<std::string>			hltPathNames_;
 			typedef unsigned int				flavour_t;
 			typedef std::vector<flavour_t>		flavours_t;

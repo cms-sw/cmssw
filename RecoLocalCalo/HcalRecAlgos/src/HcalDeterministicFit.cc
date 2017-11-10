@@ -62,6 +62,9 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 				       float& reconstructedTime) const
 {
 
+
+  unsigned int soi=channelData.soi();
+
   std::vector<double> corrCharge;
   std::vector<double> inputCharge;
   std::vector<double> inputPedestal;
@@ -110,9 +113,9 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   if(applyTimeSlew_) {
 
-    tsShift3=HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift4=HcalTimeSlew::delay(inputCharge[4], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift5=HcalTimeSlew::delay(inputCharge[5], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift3=HcalTimeSlew::delay(inputCharge[soi-1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift4=HcalTimeSlew::delay(inputCharge[soi], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift5=HcalTimeSlew::delay(inputCharge[soi+1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
 
   }
 
@@ -153,17 +156,17 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   if (i3 != 0 && i4 != 0 && i5 != 0) {
 
-    ch3=corrCharge[3]/i3;
-    ch4=(i3*corrCharge[4]-n3*corrCharge[3])/(i3*i4);
-    ch5=(n3*n4*corrCharge[3]-i4*nn3*corrCharge[3]-i3*n4*corrCharge[4]+i3*i4*corrCharge[5])/(i3*i4*i5);
+    ch3=corrCharge[soi-1]/i3;
+    ch4=(i3*corrCharge[soi]-n3*corrCharge[soi-1])/(i3*i4);
+    ch5=(n3*n4*corrCharge[soi-1]-i4*nn3*corrCharge[soi-1]-i3*n4*corrCharge[soi]+i3*i4*corrCharge[soi+1])/(i3*i4*i5);
 
     if (ch3<negThresh[0]) {
       ch3=negThresh[0];
-      ch4=corrCharge[4]/i4;
-      ch5=(i4*corrCharge[5]-n4*corrCharge[4])/(i4*i5);
+      ch4=corrCharge[soi]/i4;
+      ch5=(i4*corrCharge[soi+1]-n4*corrCharge[soi])/(i4*i5);
     }
     if (ch5<negThresh[0] && ch4>negThresh[1]) {
-      double ratio = (corrCharge[4]-ch3*i3)/(corrCharge[5]-negThresh[0]*i5);
+      double ratio = (corrCharge[soi]-ch3*i3)/(corrCharge[soi+1]-negThresh[0]*i5);
       if (ratio < 5 && ratio > 0.5) {
         double invG = invGpar[0]+invGpar[1]*std::sqrt(2*std::log(invGpar[2]/ratio));
         float iG=0;
@@ -174,7 +177,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 	  getLandauFrac(-invG,-invG+tsWidth,iG);
 	}
 	if (iG != 0 ) {
-	  ch4=(corrCharge[4]-ch3*n3)/(iG);
+	  ch4=(corrCharge[soi]-ch3*n3)/(iG);
 	  tsShift4=invG;
 	}
       }
