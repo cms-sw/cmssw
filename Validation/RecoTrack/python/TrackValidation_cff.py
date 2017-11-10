@@ -480,6 +480,10 @@ def _uniqueFirstLayers(layerList):
     for l in firstLayers:
         if not l in ret:
             ret.append(l)
+            # For conversions add also the mono-TEC to the list as 'TEC'
+            # is used for both matched and unmatched rphi/stereo hits
+            if l.startswith("TEC"):
+                ret.append("M"+l)
     return ret
 # PhotonConversionTrajectorySeedProducerFromSingleLeg keeps only the
 # first hit of the pairs in the seed, bookkeeping those is the best we
