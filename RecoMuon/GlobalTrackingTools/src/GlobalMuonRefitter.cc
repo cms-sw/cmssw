@@ -749,8 +749,6 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
   // This is the only way to get a TrajectorySeed with settable propagation direction
   PTrajectoryStateOnDet garbage1;
   edm::OwnVector<TrackingRecHit> garbage2;
-  PropagationDirection propDir = 
-    (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
 
   // These lines cause the code to ignore completely what was set
   // above, and force propDir for tracks from collisions!
