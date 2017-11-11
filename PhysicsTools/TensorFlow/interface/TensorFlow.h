@@ -45,6 +45,10 @@ MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag
 MetaGraphDef* loadMetaGraph(const std::string& exportDir,
     const std::string& tag = kSavedModelTagServe, int nThreads = 1);
 
+// loads a graph definition saved as a protobuf file at pbFile
+// transfers ownership
+GraphDef* loadGraphDef(const std::string& pbFile);
+
 // return a new, empty session using predefined sessionOptions
 // transfers ownership
 Session* createSession(SessionOptions& sessionOptions);
@@ -53,16 +57,25 @@ Session* createSession(SessionOptions& sessionOptions);
 // transfers ownership
 Session* createSession(int nThreads = 1);
 
-// return a new session that will contain an already loaded meta graph whose exportDir must be given in
-// order to load and initialize the variables, sessionOptions are predefined
+// return a new session that will contain an already loaded meta graph whose exportDir must be given
+// in order to load and initialize the variables, sessionOptions are predefined
 // transfers ownership
 Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir,
     SessionOptions& sessionOptions);
 
-// return a new session that will contain an already loaded meta graph whose exportDir must be given in
-// order to load and initialize the variables
+// return a new session that will contain an already loaded meta graph whose exportDir must be given
+// in order to load and initialize the variables, threading options are inferred from nThreads
 // transfers ownership
 Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, int nThreads = 1);
+
+// return a new session that will contain an already loaded graph def, sessionOptions are predefined
+// transfers ownership
+Session* createSession(GraphDef* graphDef, SessionOptions& sessionOptions);
+
+// return a new session that will contain an already loaded graph def, threading options are
+// inferred from nThreads
+// transfers ownership
+Session* createSession(GraphDef* graphDef, int nThreads = 1);
 
 // closes a session, calls its destructor, resets the pointer, and returns true on success
 bool closeSession(Session*& session);
