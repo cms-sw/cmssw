@@ -191,7 +191,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     
     
     short TowerStatus[MAX_TT_SIZE+1];
-    char buffer[20];
+    char buffer[25];
     std::vector<short> theTTstatus;
     for(int i=1;i<MAX_TT_SIZE+1;i++)
       { 
