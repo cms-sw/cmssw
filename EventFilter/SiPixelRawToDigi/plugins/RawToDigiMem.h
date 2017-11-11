@@ -7,8 +7,9 @@
 #define RAWTODIGI_CPU_GPU_H
 
 // wrapper function to call RawToDigi on the GPU from host side
-void  RawToDigi_wrapper (const unsigned int wordCounterGPU,
-     unsigned int *word,const unsigned int fedCounter,unsigned int *fedIndex, unsigned int *eventIndex);
+void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounter,  uint *fedIndex,
+                        uint *eventIndex, uint *xx_h, uint *yy_h, uint *adc_h, int *mIndexStart_h,
+                        int *mIndexEnd_h);
 
 void initCablingMap();
 void initDeviceMemory();
@@ -23,7 +24,7 @@ struct ADCThreshold {
   const int ConversionFactor = 65;  // adc to electron conversion factor
   
   // following are the default value
-  // not present in _cfg.py
+  // it should be i python script
   const int theStackADC_  = 255; // the maximum adc count for stack layer
   const int theFirstStack_ = 5; // the index of the fits stack layer
   const double theElectronPerADCGain_ = 600; //ADC to electron conversion

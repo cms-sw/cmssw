@@ -463,14 +463,15 @@ __global__ void RawToDigi_kernel(const CablingMap *Map,const uint *Word,const ui
 
 // kernel wrapper called from runRawToDigi_kernel
 void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounter,  uint *fedIndex,
-                                    uint *eventIndex) { 
+                        uint *eventIndex, uint *xx_h, uint *yy_h, uint *adc_h, int *mIndexStart_h,
+                        int *mIndexEnd_h) { 
   
  
-  cout<<"Inside GPU RawToDigi , total words: "<<wordCounter<<endl;
+  cout<<"Inside GPU RawToDigi , Total pixels: "<<wordCounter<<endl;
 
   const int threads = 512;
-  const int blockX = 108; // 108 feds
-  const int blockY = NEVENT/NSTREAM;   //blockIdx.y=2 is the no of events processed in kernel concurrently
+  const int blockX = 108; // only 108 feds are present
+  const int blockY = NEVENT/NSTREAM;   //blockIdx.y is the no of events processed in kernel concurrently
   dim3 gridsize(blockX, blockY); 
   
   int MSIZE = NMODULE*NEVENT*sizeof(int)+sizeof(int);
@@ -515,56 +516,22 @@ void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounte
   cudaDeviceSynchronize();
   checkCUDAError("Error in applying ADC threshold");
   cout << "Raw data is converted into digi for " << NEVENT << "  Events" << endl;
-  cout << "Writing output to the file " << endl;
-  // copy data to host memory to print output in file
-  // uint *word_h, *fedIndex_h, *eventIndex_h;       // host copy of input data
-  uint *xx_h, *yy_h, *adc_h;  // host copy without ADC to elcetron calibration & thresholding
-  uint *xx_adc_h,  *yy_adc_h;
-  // store the start and end index for each module (total 1856 modules-phase 1)
-  int *mIndexStart_h, *mIndexEnd_h; 
-  xx_h = new uint[wordCounter+1];
-  yy_h = new uint[wordCounter+1];
-  adc_h = new uint[wordCounter+1];
-  xx_adc_h = new uint[wordCounter+1];
-  yy_adc_h = new uint[wordCounter+1];
-  mIndexStart_h = new int[NEVENT*NMODULE +1];
-  mIndexEnd_h = new int[NEVENT*NMODULE +1];
 
+  // make it true, if you want to copy data after applying ADC threshold
+  bool copyAfterADCThreshold = false; 
   // copy data to host variable
-  cudaMemcpy(xx_h, xx_d, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
-  cudaMemcpy(yy_h, yy_d, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
+  if(copyAfterADCThreshold) {
+    cudaMemcpy(xx_h, xx_adc, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
+    cudaMemcpy(yy_h, yy_adc, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
+  }
+  else {
+    cudaMemcpy(xx_h, xx_d, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
+    cudaMemcpy(yy_h, yy_d, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
+  }
   cudaMemcpy(adc_h, adc_d, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
-  cudaMemcpy(xx_adc_h, xx_adc, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
-  cudaMemcpy(yy_adc_h, yy_adc, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
+
   cudaMemcpy(mIndexStart_h, mIndexStart_d, NEVENT*NMODULE*sizeof(int), cudaMemcpyDeviceToHost);
   cudaMemcpy(mIndexEnd_h, mIndexEnd_d, NEVENT*NMODULE*sizeof(int), cudaMemcpyDeviceToHost);
-  static int count = 1;
-  ofstream ofileXY("GPU_RawToDigi_Output_Part1_Event_"+to_string((count-1)*NEVENT+1)+"to"+to_string(count*NEVENT)+".txt");
-  ofileXY<<"  Index     xcor   ycor    adc  "<<endl;
-  for(int i=0; i<wordCounter; i++) {
-     // without ADC_threshold
-     ofileXY<<setw(10) << i  << setw(6) << xx_h[i] << setw(6) << yy_h[i] << setw(8) << adc_h[i] << endl;
-     // after aplying the ADC threshold
-     // ofileXY<<setw(6) << xx_adc_h[i] << setw(6) << yy_adc_h[i] << setw(8) << adc_h[i] << endl;
-  }
-  // store the module index, which stores the index of x, y & for each module
-  ofstream ofileModule("GPU_RawToDigi_Output_Part2_Event_"+to_string((count-1)*NEVENT+1)+"to"+to_string(count*NEVENT)+".txt");
-  ofileModule<<"Event_No  Module_no   mIndexStart   mIndexEnd "<<endl;
-  for(int ev = (count-1)*NEVENT+1; ev <=count*NEVENT; ev++) {
-    for(int mod =0; mod < NMODULE; mod++) {
-      ofileModule << setw(8) << ev << setw(8) <<mod << setw(10) << mIndexStart_h[mod] << setw(10) << mIndexEnd_h[mod]<<endl;
-    }
-  }
-  count++;
-  ofileXY.close();
-  ofileModule.close();
-  delete[] xx_h;
-  delete[] yy_h;
-  delete[] xx_adc_h;
-  delete[] yy_adc_h;
-  delete[] adc_h;
-  delete[] mIndexStart_h;
-  delete[] mIndexEnd_h;
 
   // End  of Raw2Digi and passing data for cluserisation
   // PixelCluster_Wrapper(xx_adc , yy_adc, adc_d,wordCounter, mIndexStart_d, mIndexEnd_d);

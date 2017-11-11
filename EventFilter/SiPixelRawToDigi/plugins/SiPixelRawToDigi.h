@@ -64,9 +64,15 @@ private:
   typedef cms_uint32_t Word32;
   typedef cms_uint64_t Word64;
 
-  unsigned int *word;        // to hold input for rawtodigi on GPU
+  unsigned int *word;        // to hold input for rawtodigi
   unsigned int *fedIndex;    // to hold fed index inside word[] array for rawtodigi on GPU
   unsigned int *eventIndex;  // to store staring index of each event in word[] array
+
+  // to store the output
+  // uint *word_h, *fedIndex_h, *eventIndex_h;       // host copy of input data
+  uint *xx_h, *yy_h, *adc_h;  // host copy of output
+  // store the start and end index for each module (total 1856 modules-phase 1)
+  int *mIndexStart_h, *mIndexEnd_h; 
   
 };
 #endif

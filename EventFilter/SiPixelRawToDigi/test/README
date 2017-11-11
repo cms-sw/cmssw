@@ -1,18 +1,19 @@
 Instructions to Run GPU RawToDigi only, 9 November 2017
 
-********************************************************
+*******************************************************************
 *                                                      
 * Instructions to compile and run GPU RawToDigi        
 *                                                      
 * Output part1: Index(or pixel_no), xcord, ycord & adc 
-* Output part2: Start & End Index of each              
-* module in part 1                                      
+* Output part2: Start & End Index of each module in part 1                                      
 * The output is stored in the text file viz. 
 * GPU_RawToDigi_Output_Part1_Event_NtoN+128.txt
 * GPU_RawToDigi_Output_Part2_Event_NtoN+128.txt
-*                                                      
-********************************************************
+* The file RawId_moduleId.txt contains RawId(DetId) for module index
+********************************************************************
+
 file type:/eos/cms/store/relval/CMSSW_9_2_0/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2017_realistic_v5_PU50-v1/10000/
+
 Input file: /home/fpantale/data/920/PU50/085D5AAF-9E40-E711-B12A-0025905A609E.root
 Please change the input file path in the python script
 
@@ -34,4 +35,4 @@ Please change the input file path in the python script
 
 3. Output
    Upon successful execution it will dispaly message on the console 
-   and will produce output files mentioned at the beginning in the current directory 
+   and will produce output files mentioned at the beginning in the current directory(test) 

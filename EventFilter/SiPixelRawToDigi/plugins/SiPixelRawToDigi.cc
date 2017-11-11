@@ -132,6 +132,13 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   cudaMallocHost((void**)&fedIndex, FSIZE);
   eventIndex = (unsigned int*)malloc((NEVENT+1)*sizeof(unsigned int));
   eventIndex[0] =0;
+  // to store the output of RawToDigi
+  xx_h = new uint[WSIZE];
+  yy_h = new uint[WSIZE];
+  adc_h = new uint[WSIZE];
+
+  mIndexStart_h = new int[NEVENT*NMODULE +1];
+  mIndexEnd_h = new int[NEVENT*NMODULE +1];
 
   // allocate memory for RawToDigi on GPU
   initDeviceMemory();
@@ -161,6 +168,11 @@ SiPixelRawToDigi::~SiPixelRawToDigi() {
   // free(fedIndex);
   cudaFreeHost(fedIndex);
   free(eventIndex);
+  delete[] xx_h;
+  delete[] yy_h;
+  delete[] adc_h;
+  delete[] mIndexStart_h;
+  delete[] mIndexEnd_h;
   // free device memory used for RawToDigi on GPU
   freeMemory(); 
   // // free auxilary memory used for clustering
@@ -324,18 +336,36 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     }
   }  // end of for loop
   
- 
-
   // GPU specific: RawToDigi -> clustering -> CPE
   eventCount++;
   eventIndex[eventCount] = wordCounterGPU;
   static int ec=1;
   cout<<"Data read for event: "<<ec++<<endl;
   if(eventCount==NEVENT) {
-    RawToDigi_wrapper(wordCounterGPU, word, fedCounter,fedIndex, eventIndex);
+    RawToDigi_wrapper(wordCounterGPU, word, fedCounter,fedIndex, eventIndex, xx_h, yy_h, adc_h, mIndexStart_h, mIndexEnd_h);
+
+    //write output to text file
+    static int count = 1;
+    cout << "Writing output to the file " << endl;
+    ofstream ofileXY("GPU_RawToDigi_Output_Part1_Event_"+to_string((count-1)*NEVENT+1)+"to"+to_string(count*NEVENT)+".txt");
+    ofileXY<<"  Index     xcor   ycor    adc  "<<endl;
+    for(uint i=0; i<wordCounterGPU; i++) {
+      ofileXY<<setw(10) << i  << setw(6) << xx_h[i] << setw(6) << yy_h[i] << setw(8) << adc_h[i] << endl;
+    }
+    // store the module index, which stores the index of x, y & adc for each module
+    ofstream ofileModule("GPU_RawToDigi_Output_Part2_Event_"+to_string((count-1)*NEVENT+1)+"to"+to_string(count*NEVENT)+".txt");
+    ofileModule<<"Event_No  Module_no   mIndexStart   mIndexEnd "<<endl;
+    for(int ev = (count-1)*NEVENT+1; ev <=count*NEVENT; ev++) {
+      for(int mod =0; mod < NMODULE; mod++) {
+        ofileModule << setw(8) << ev << setw(8) <<mod << setw(10) << mIndexStart_h[mod] << setw(10) << mIndexEnd_h[mod]<<endl;
+      }
+    }
+    count++;
+    ofileXY.close();
+    ofileModule.close();
     wordCounterGPU =  0;
     eventCount=0;
-  }
+  } // if(eventCount == NEVENT)
   fedCounter =0;
 } // end of produce function
 
