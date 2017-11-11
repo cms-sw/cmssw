@@ -38,8 +38,6 @@ process.load('Configuration/EventContent/EventContent_cff')
  
 process.GlobalTag.globaltag = 'GR10_H_V4::All'
 
-process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_GLOBALTAG"
-
 ## process.GlobalTag.toGet.append(cms.PSet(record  = cms.string( "L1MuCSCTFConfigurationRcd" ),
 ##                                         tag     = cms.string("L1MuCSCTFConfiguration_IDEAL" ),
 ##                                         connect = cms.untracked.string( "sqlite_file:csctf.db")
