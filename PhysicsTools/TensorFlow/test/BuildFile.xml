@@ -6,7 +6,15 @@
     <use name="FWCore/Utilities" />
 </bin>
 
-<bin name="testTFLoading" file="testRunner.cpp,testLoading.cc">
+<bin name="testTFMetaGraphLoading" file="testRunner.cpp,testMetaGraphLoading.cc">
+    <use name="boost_filesystem" />
+    <use name="cppunit" />
+
+    <use name="FWCore/Utilities" />
+    <use name="PhysicsTools/TensorFlow" />
+</bin>
+
+<bin name="testTFGraphLoading" file="testRunner.cpp,testGraphLoading.cc">
     <use name="boost_filesystem" />
     <use name="cppunit" />
 
