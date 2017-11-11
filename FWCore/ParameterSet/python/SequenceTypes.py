@@ -300,6 +300,10 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         visitor = NodeNameVisitor(result)
         self.visit(visitor)
         return result
+    def contains(self, mod):
+        visitor = ContainsModuleVisitor(mod)
+        self.visit(visitor)
+        return visitor.result()
     def copy(self):
         returnValue =_ModuleSequenceType.__new__(type(self))
         if self._seq is not None:
@@ -618,6 +622,17 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         for t in self._tasks:
             t.visit(visitor)
         return result
+    def contains(self, mod):
+        visitor = ContainsModuleVisitor(mod)
+        for seq in self:
+            seq.visit(visitor)
+            if visitor.result():
+                return True
+        for t in self._tasks:
+            t.visit(visitor)
+            if visitor.result():
+                return True
+        return visitor.result()
     def dumpPython(self, options=PrintOptions()):
         pathNames = ['process.'+p.label_() for p in self]
         if pathNames:
@@ -731,6 +746,26 @@ class ModuleNodeNotOnTaskVisitor(object):
         if self._levelInTasks > 0:
             if isinstance(visitee, Task):
                 self._levelInTasks -= 1
+
+# Can visit Tasks, Sequences, Paths, and EndPaths
+# result will be set to True if and only if
+# the module is in the object directly or
+# indirectly through contained Sequences or
+# associated Tasks.
+class ContainsModuleVisitor(object):
+    def __init__(self,mod):
+        self._mod = mod
+        self._result = False
+
+    def result(self):
+        return self._result
+
+    def enter(self,visitee):
+        if self._mod is visitee:
+            self._result = True
+
+    def leave(self,visitee):
+        pass
 
 # Can visit Tasks, Sequences, Paths, and EndPaths
 # Fills a set of the names of the visited leaves.
@@ -1332,6 +1367,10 @@ class Task(_ConfigureComponent, _Labelable) :
         visitor = NodeNameVisitor(result)
         self.visit(visitor)
         return result
+    def contains(self, mod):
+        visitor = ContainsModuleVisitor(mod)
+        self.visit(visitor)
+        return visitor.result()
     def copy(self):
         return Task(*self._collection)
     def copyAndExclude(self,listOfModulesToExclude):
