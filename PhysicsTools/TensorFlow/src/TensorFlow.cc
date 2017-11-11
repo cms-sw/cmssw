@@ -48,7 +48,8 @@ MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag
     status = LoadSavedModel(sessionOptions, runOptions, exportDir, { tag }, &bundle);
     if (!status.ok())
     {
-        throw cms::Exception("InvalidGraph") << "error while loading graph: " << status.ToString();
+        throw cms::Exception("InvalidMetaGraph")
+            << "error while loading meta graph: " << status.ToString();
     }
 
     // return a copy of the graph
@@ -62,6 +63,25 @@ MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag
     setThreading(sessionOptions, nThreads);
 
     return loadMetaGraph(exportDir, tag, sessionOptions);
+}
+
+GraphDef* loadGraphDef(const std::string& pbFile)
+{
+    // objects to load the graph
+    Status status;
+
+    // load it
+    GraphDef* graphDef = new GraphDef();
+    status = ReadBinaryProto(Env::Default(), pbFile, graphDef);
+
+    // check for success
+    if (!status.ok())
+    {
+        throw cms::Exception("InvalidGraphDef")
+            << "error while loading graph def: " << status.ToString();
+    }
+
+    return graphDef;
 }
 
 Session* createSession(SessionOptions& sessionOptions)
@@ -101,7 +121,7 @@ Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir,
     if (!status.ok())
     {
         throw cms::Exception("InvalidSession")
-            << "error while attaching graph to session: " << status.ToString();
+            << "error while attaching meta graph to session: " << status.ToString();
     }
 
     // restore variables using the variable and index files in the export directory
@@ -140,6 +160,34 @@ Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, in
     setThreading(sessionOptions, nThreads);
 
     return createSession(metaGraph, exportDir, sessionOptions);
+}
+
+Session* createSession(GraphDef* graphDef, SessionOptions& sessionOptions)
+{
+    // create a new, empty session
+    Session* session = createSession(sessionOptions);
+
+    // add the graph def
+    Status status;
+    status = session->Create(*graphDef);
+
+    // check for success
+    if (!status.ok())
+    {
+        throw cms::Exception("InvalidSession")
+            << "error while attaching graph def to session: " << status.ToString();
+    }
+
+    return session;
+}
+
+Session* createSession(GraphDef* graphDef, int nThreads)
+{
+    // create session options and set thread options
+    SessionOptions sessionOptions;
+    setThreading(sessionOptions, nThreads);
+
+    return createSession(graphDef, sessionOptions);
 }
 
 bool closeSession(Session*& session)
