@@ -1229,7 +1229,7 @@ TPaveText* TEcnaParHistos::SetPaveAnalysisRun(const TString& ana_type,  const In
 {
 // Analysis name + Nb of samples + run number comment
 
-  char f_in[fgMaxCar]{0};
+  char f_in[fgMaxCar];
   
   //...................... Pave Analysis name/run number (bottom_left_box)
   Double_t pav_bot_left_xgauche = BoxLeftX("bottom_left_box");
@@ -1286,7 +1286,7 @@ TPaveText* TEcnaParHistos::SetPaveNbOfEvts(const Int_t& nb_of_evts,
 {
 // Number of events box
 
-  char f_in[fgMaxCar]{0};
+  char f_in[fgMaxCar];
   
   //...................... Pave number of events (bottom_right_box)
 
