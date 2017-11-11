@@ -121,6 +121,8 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
 
   h_npv                   = ibooker_.book2D("h_npv",     "h_npv",     LumiBin_, LumiMin_, LumiMax_, PVBin_, PVMin_, PVMax_);
   h_yield_Z               = ibooker_.book1D("h_yield_Z", "h_yield_Z", LumiBin_, LumiMin_, LumiMax_);
+  h_yieldBB_Z             = ibooker_.book1D("h_yieldBB_Z", "h_yieldBB_Z", LumiBin_, LumiMin_, LumiMax_);
+  h_yieldEE_Z             = ibooker_.book1D("h_yieldEE_Z", "h_yieldEE_Z", LumiBin_, LumiMin_, LumiMax_);
 
 }
 //
@@ -307,6 +309,8 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
         // category 2HLT + 1HLT: Fill once for Z yield 
         h_yield_Z->Fill(iEvent.luminosityBlock());
+        if(isTagCentral && isProbeCentral) h_yieldBB_Z->Fill(iEvent.luminosityBlock());
+	else if(!isTagCentral && !isProbeCentral) h_yieldEE_Z->Fill(iEvent.luminosityBlock());
       }
       else if(itMu2.isGlobalMuon()){
         // category NoSel: probe is a GLB muon but failing selection 
