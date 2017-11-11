@@ -44,14 +44,14 @@ CSCSegmentReader::CSCSegmentReader(const edm::ParameterSet& pset) {
   hy       = new TH1F("h10", "deltaY",400, -100, +100);
     
   char a[4];
-  for (int i=0; i<9; i++) {
-    snprintf(a, sizeof(a), "h2%d", i);
+  for (unsigned char i=0; i<9; i++) {
+    snprintf(a, sizeof(a), "h2%hhu", i);
     hdxOri[i]    = new TH1F(a, "#Delta X", 101, -5.05, 5.05);
-    snprintf(a, sizeof(a), "h3%d", i);
+    snprintf(a, sizeof(a), "h3%hhu", i);
     hdyOri[i]    = new TH1F(a, "#Delta Y", 101, -5.05, 5.05);
-    snprintf(a, sizeof(a), "h4%d", i);
+    snprintf(a, sizeof(a), "h4%hhu", i);
     hphiDir[i]   = new TH1F(a, "#Delta #phi", 101, -0.505, 0.505);
-    snprintf(a, sizeof(a), "h5%d", i);
+    snprintf(a, sizeof(a), "h5%hhu", i);
     hthetaDir[i] = new TH1F(a, "#Delta #theta", 101, -0.505, 0.505);
   }    
 }
