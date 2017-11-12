@@ -722,14 +722,21 @@ void HcalPulseShapes::computeSiPMShapeHE206()
   siPMShapeMC2018_.setNBin(nBinsSiPM_);
 
   //skip first bin, always 0
+  int shift = -2;
   double norm = 0.;
-  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
-    norm += (nt[j]>0) ? nt[j] : 0.;
+  for (int j = 1; j <= nBinsSiPM_; ++j) {
+    ((j-shift)>=0) ? (norm += (nt[j-shift]>0) ? nt[j-shift] : 0.) : 0;
   }
 
-  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
+  for (int j = 1; j <= nBinsSiPM_; ++j) {
     nt[j] /= norm;
-    siPMShapeMC2018_.setShapeBin(j,nt[j]);
+    if((j-shift)>=0){
+      siPMShapeMC2018_.setShapeBin(j,nt[j-shift]);
+      //std::cout<<"206 shape  "<<j<<"  "<<nt[j-shift]<<std::endl;
+    } else {
+      siPMShapeMC2018_.setShapeBin(j,0);
+      //std::cout<<"206 shape  "<<j<<"  "<<0<<std::endl;
+    }
   }
 }
 
@@ -857,18 +864,22 @@ double HcalPulseShapes::Y11203(double t) {
 
 //New scintillator+Y11 model from Vasken's 2017 measurement plus a Landau correction term
 double HcalPulseShapes::Y11206(double t) {
+  double shift = 7.2;
+
   //Fit From Deconvolved Data
   double A,n,t0,fit;
   A=0.104204; n=0.44064; t0=10.0186;
-  fit = A*(1-exp(-t/n))*exp(-t/t0);
+  if(t>shift) fit = A*(1-exp(-(t-shift)/n))*exp(-(t-shift)/t0);
+  else fit = 0.0;
 
   //Correction Term
   double norm,mpv,sigma,corTerm;
-  norm=0.0806123; mpv=0; sigma=20;
-  corTerm = norm*TMath::Landau(t,mpv,sigma);
+  norm=0.0809882; mpv=0; sigma=20;
+  if(t>shift) corTerm = norm*TMath::Landau((t-shift),mpv,sigma);
+  else corTerm = 0.0;
 
   //Overall Y11
-  double frac = 0.13;
+  double frac = 0.11;
   double val  = (1-frac)*fit + frac*corTerm;
 
   if(val >= 0) return val;

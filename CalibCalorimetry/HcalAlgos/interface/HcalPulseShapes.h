@@ -48,7 +48,7 @@ public:
   static double analyticPulseShapeSiPMHE(double t);
   static constexpr float Y11RANGE_ = nBinsSiPM_;
   static constexpr float Y11MAX203_ = 0.04;
-  static constexpr float Y11MAX206_ = 0.09;
+  static constexpr float Y11MAX206_ = 0.08;
   static double Y11203(double t);
   static double Y11206(double t);
   static double generatePhotonTime(CLHEP::HepRandomEngine* engine, unsigned int signalShape);
