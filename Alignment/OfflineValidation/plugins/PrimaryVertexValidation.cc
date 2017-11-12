@@ -1229,8 +1229,8 @@ void PrimaryVertexValidation::beginJob()
 
   h_runFromConfig     = EventFeatures.make<TH1I>("h_runFromConfig","run number from config;;run number (from configuration)",
 						 runControlNumbers_.size(),0.,runControlNumbers_.size());
-  for(const auto & r : runControlNumbers_){
-    h_runFromConfig->SetBinContent(r+1,runControlNumbers_[r]);
+  for(const auto r : runControlNumbers_){
+    h_runFromConfig->SetBinContent(r+1, r);
   }
   
   h_runFromEvent      = EventFeatures.make<TH1I>("h_runFromEvent","run number from config;;run number (from event)",1,-0.5,0.5);
