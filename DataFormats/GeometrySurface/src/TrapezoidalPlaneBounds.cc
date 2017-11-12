@@ -44,7 +44,7 @@ bool TrapezoidalPlaneBounds::inside( const Local2DPoint& p, const LocalError& er
   return Bounds::inside(p,err,scale);
 }
 
-float TrapezoidalPlaneBounds::howMuchInside(const Local3DPoint& p, const LocalError& err) const {
+float TrapezoidalPlaneBounds::significanceInside(const Local3DPoint& p, const LocalError& err) const {
    return std::max( 
                    (std::abs(p.y())-hapothem)/std::sqrt(err.yy()),
                    (std::abs(p.x())-tan_a*std::abs(p.y()+offset))/std::sqrt(err.xx())
