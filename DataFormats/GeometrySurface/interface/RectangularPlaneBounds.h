@@ -55,7 +55,7 @@ public:
 
   bool inside( const Local2DPoint& p, const LocalError& err, float scale=1.f) const override;
 
-  float howMuchInside(const Local3DPoint&, const LocalError&) const override;
+  float significanceInside(const Local3DPoint&, const LocalError&) const override;
 
 
   // compatible of being inside or outside...
