@@ -65,7 +65,7 @@ public:
     return inside( Local3DPoint(p.x(), p.y(), 0), err, scale);
   }
 
-  virtual float howMuchInside(const Local3DPoint&, const LocalError&) const;
+  virtual float significanceInside(const Local3DPoint&, const LocalError&) const;
 
   virtual Bounds* clone() const = 0;
   
