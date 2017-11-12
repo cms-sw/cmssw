@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from SimGeneral.MixingModule.mix_probFunction_25ns_PoissonOOTPU_cfi import *
-mix.input.nbPileupEvents.probFunctionVariable = cms.vint32(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 
+mix.input.nbPileupEvents.probFunctionVariable = cms.vint32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 
 							   15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 
 							   27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 
 							   39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 
@@ -10,6 +10,7 @@ mix.input.nbPileupEvents.probFunctionVariable = cms.vint32(1, 2, 3, 4, 5, 6, 7, 
 							   87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 
 							   99)
 mix.input.nbPileupEvents.probValue = cms.vdouble(
+              0,
               3.39597497605e-05,
               6.63688402133e-06,
               1.39533611284e-05,
