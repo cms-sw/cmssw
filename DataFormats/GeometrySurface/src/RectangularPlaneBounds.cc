@@ -25,7 +25,7 @@ bool RectangularPlaneBounds::inside( const Local2DPoint& p, const LocalError& er
       (std::abs(p.y()) < halfLength + std::sqrt(err.yy())*scale);
 }
 
-float RectangularPlaneBounds::howMuchInside(const Local3DPoint& p, const LocalError& err) const {
+float RectangularPlaneBounds::significanceInside(const Local3DPoint& p, const LocalError& err) const {
    return std::max((std::abs(p.x()) - halfWidth )/std::sqrt(err.xx()),
                    (std::abs(p.y()) - halfLength)/std::sqrt(err.yy())
                   );
