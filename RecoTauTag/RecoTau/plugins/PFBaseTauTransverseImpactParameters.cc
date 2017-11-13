@@ -59,7 +59,6 @@ using namespace std;
 
 class PFBaseTauTransverseImpactParameters : public edm::stream::EDProducer<> {
  public:
-  enum Alg{useInputPV=0, useFont};
   enum CMSSWPerigee{aCurv=0,aTheta,aPhi,aTip,aLip};
   explicit PFBaseTauTransverseImpactParameters(const edm::ParameterSet& iConfig);
   ~PFBaseTauTransverseImpactParameters() override;
@@ -67,11 +66,13 @@ class PFBaseTauTransverseImpactParameters : public edm::stream::EDProducer<> {
  private:
   edm::EDGetTokenT<std::vector<reco::PFBaseTau> > PFTauToken_;
   std::auto_ptr<tau::RecoTauVertexAssociator> vertexAssociator_;
+  edm::EDGetTokenT<edm::AssociationVector<PFBaseTauRefProd,std::vector<std::vector<reco::VertexRef> > > > PFTauSVAToken_;
   bool useFullCalculation_;
 };
 
 PFBaseTauTransverseImpactParameters::PFBaseTauTransverseImpactParameters(const edm::ParameterSet& iConfig):
   PFTauToken_(consumes<std::vector<reco::PFBaseTau> >(iConfig.getParameter<edm::InputTag>("PFTauTag"))),
+  PFTauSVAToken_(consumes<edm::AssociationVector<PFBaseTauRefProd,std::vector<std::vector<reco::VertexRef> > > >(iConfig.getParameter<edm::InputTag>("PFTauSVATag"))),
   useFullCalculation_(iConfig.getParameter<bool>("useFullCalculation"))
 {
   produces<edm::AssociationVector<PFBaseTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > >(); 
@@ -104,6 +105,9 @@ void PFBaseTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::
 
   vertexAssociator_->setEvent(iEvent);
 
+  edm::Handle<edm::AssociationVector<PFBaseTauRefProd,std::vector<std::vector<reco::VertexRef> > > > PFTauSVA;
+  iEvent.getByToken(PFTauSVAToken_,PFTauSVA);
+
   // Set Association Map
   auto AVPFTauTIP = std::make_unique< edm::AssociationVector<PFBaseTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>(PFBaseTauRefProd(Tau));
   auto TIPCollection_out = std::make_unique<PFTauTransverseImpactParameterCollection>();
@@ -115,7 +119,7 @@ void PFBaseTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::
     for(reco::PFBaseTauCollection::size_type iPFTau = 0; iPFTau < Tau->size(); iPFTau++) {
       reco::PFBaseTauRef RefPFTau(Tau, iPFTau);
       const reco::VertexRef PV = vertexAssociator_->associatedVertex(*RefPFTau);
-      const std::vector<reco::VertexRef> SV;
+      const std::vector<reco::VertexRef> SV = PFTauSVA->value(RefPFTau.key());
       double dxy(-999), dxy_err(-999);
       reco::Vertex::Point poca(0,0,0);
       double ip3d(-999), ip3d_err(-999);

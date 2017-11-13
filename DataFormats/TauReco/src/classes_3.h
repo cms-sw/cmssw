@@ -205,7 +205,15 @@ namespace DataFormats_TauReco {
     edm::Wrapper<reco::PFTauVertexAssociation>        pftauvertexass_w;
     std::pair<reco::PFTauRef, reco::VertexRef >                 pftaupairvertex_o;
     std::vector<std::pair<reco::PFTauRef, reco::VertexRef > >   pftaupairvertex_v;
-    
+
+    reco::PFBaseTauVertexAssociation                      pfbtauvertexass_o;
+    reco::PFBaseTauVertexAssociationRef                   pfbtauvertexass_r;
+    reco::PFBaseTauVertexAssociationRefProd               pfbtauvertexass_rp;
+    reco::PFBaseTauVertexAssociationRefVector             pfbtauvertexass_rv;
+    edm::Wrapper<reco::PFBaseTauVertexAssociation>        pfbtauvertexass_w;
+    std::pair<reco::PFBaseTauRef, reco::VertexRef >                 pfbtaupairvertex_o;
+    std::vector<std::pair<reco::PFBaseTauRef, reco::VertexRef > >   pfbtaupairvertex_v;
+
     reco::PFTauVertexVAssociation                     pftauvertexvass_o;
     reco::PFTauVertexVAssociationRef                  pftauvertexvass_r;
     reco::PFTauVertexVAssociationRefProd              pftauvertexvass_rp;
@@ -214,6 +222,13 @@ namespace DataFormats_TauReco {
     std::pair<reco::PFTauRef, std::vector<reco::VertexRef> >                pftaupairvertexv_o;
     std::vector<std::pair<reco::PFTauRef, std::vector<reco::VertexRef> > >  pftaupairvertexv_v;
 
+    reco::PFBaseTauVertexVAssociation                     pfbtauvertexvass_o;
+    reco::PFBaseTauVertexVAssociationRef                  pfbtauvertexvass_r;
+    reco::PFBaseTauVertexVAssociationRefProd              pfbtauvertexvass_rp;
+    reco::PFBaseTauVertexVAssociationRefVector            pfbtauvertexvass_rv;
+    edm::Wrapper<reco::PFBaseTauVertexVAssociation>       pfbtauvertexvass_w;
+    std::pair<reco::PFBaseTauRef, std::vector<reco::VertexRef> >                pfbtaupairvertexv_o;
+    std::vector<std::pair<reco::PFBaseTauRef, std::vector<reco::VertexRef> > >  pfbtaupairvertexv_v;
 
     reco::PFTau3ProngSummary                                                        pftau3prong_o;
     std::vector<reco::PFTau3ProngSummary>                                           pftau3prong_v;
