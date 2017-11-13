@@ -33,7 +33,7 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descr
   desc.add<bool>("useDBEMap", false); 
 }
 
-void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
+void GEMRawToDigiModule::doBeginRun_(edm::Run const& rp, edm::EventSetup const& iSetup)
 {
   if (useDBEMap_){
     edm::ESHandle<GEMEMap> gemEMap;
@@ -48,7 +48,7 @@ void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
   }
 }
 
-void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup )
+void GEMRawToDigiModule::produce(edm::StreamID, edm::Event & e, const edm::EventSetup & iSetup) const
 {
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
   auto outVfatStatus = std::make_unique<GEMVfatStatusDigiCollection>();

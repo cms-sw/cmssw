@@ -32,7 +32,7 @@ void ME0DigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descr
   desc.add<edm::InputTag>("me0Digi", edm::InputTag("simMuonME0Digis"));
 }
 
-void ME0DigiToRawModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
+void ME0DigiToRawModule::doBeginRun_(edm::Run const& rp, edm::EventSetup const& iSetup)
 {
   if (useDBEMap_){
     edm::ESHandle<ME0EMap> me0EMap;
@@ -47,7 +47,7 @@ void ME0DigiToRawModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
   }
 }
 
-void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
+void ME0DigiToRawModule::produce(edm::StreamID, edm::Event & e, const edm::EventSetup & iSetup) const
 {
   auto fedRawDataCol = std::make_unique<FEDRawDataCollection>();
 
