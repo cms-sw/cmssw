@@ -262,7 +262,6 @@ HcalLaserEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
            if( hSummary->GetLaserMonitorCharge() > minLaserMonitorCharge_ ) 
              {
                if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter>  Filtering because of large Laser monitor charge in HcalNoiseSummary; "<<hSummary->GetLaserMonitorCharge()<<" charge is greater than or equal to the allowed maximum of "<<minLaserMonitorCharge_;
-               std::cout <<"<HcalLaserEventFilter>  Filtering because of large Laser monitor charge in HcalNoiseSummary; "<<hSummary->GetLaserMonitorCharge()<<" charge is greater than or equal to the allowed maximum of "<<minLaserMonitorCharge_ << std::endl;
                filterDecision=false;
              }
          }
