@@ -87,11 +87,5 @@ muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSele
 # 6th - Run the remnant part of the muon sequence (muonGlobalReco) 
 
 ########################################################
-
-from RecoMuon.MuonIdentification.me0MuonReco_cff import *
-_phase2_muonGlobalReco = muonGlobalReco.copy()
-_phase2_muonGlobalReco += me0MuonReco
-phase2_muon.toReplaceWith( muonGlobalReco, _phase2_muonGlobalReco )
-
 # not commisoned and not relevant in FastSim (?):
 fastSim.toReplaceWith(muonGlobalReco, muonGlobalReco.copyAndExclude([muonreco_with_SET,muonSelectionTypeSequence]))

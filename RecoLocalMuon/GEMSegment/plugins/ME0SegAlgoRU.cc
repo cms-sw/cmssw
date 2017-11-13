@@ -126,10 +126,11 @@ std::vector<ME0Segment> ME0SegAlgoRU::run(const ME0Chamber * chamber, const HitA
 		for(unsigned int n_seg_min = 6u; n_seg_min  >= displacedParameters.minNumberOfHits; --n_seg_min)
 			lookForSegments(displacedParameters,n_seg_min,rechits,recHits_per_layer, used,segments);
 	};
-	auto doWide = [&] () {
-		for(unsigned int n_seg_min = 6u; n_seg_min >= wideParameters.minNumberOfHits; --n_seg_min)
-			lookForSegments(wideParameters,n_seg_min,rechits,recHits_per_layer, used,segments);
-	};
+	// Not currently used
+	// auto doWide = [&] () {
+	// 	for(unsigned int n_seg_min = 6u; n_seg_min >= wideParameters.minNumberOfHits; --n_seg_min)
+	// 		lookForSegments(wideParameters,n_seg_min,rechits,recHits_per_layer, used,segments);
+	// };
 	auto printSegments = [&] {
 #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
 		for(unsigned int iS = 0; iS < segments.size(); ++iS) {
@@ -165,7 +166,7 @@ std::vector<ME0Segment> ME0SegAlgoRU::run(const ME0Chamber * chamber, const HitA
 			doDisplaced();
 			return segments;
 		}
-		doWide();
+		//doWide();
 		doDisplaced();
 	}
 	printSegments();
