@@ -136,7 +136,7 @@ void DeepFlavourTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::vector<std::string>>("input_names", 
     { "input_1", "input_2", "input_3", "input_4", "input_5" });
   desc.add<edm::FileInPath>("graph_path",
-    edm::FileInPath("RecoBTag/Combined/data/DeepFlavourV01_C_PtCut/constant_graph.pb"));
+    edm::FileInPath("RecoBTag/Combined/data/DeepFlavourV01_GraphDef_PtCut/constant_graph.pb"));
   desc.add<std::vector<std::string>>("lp_names",
     { "globals_input_batchnorm/keras_learning_phase" });
   desc.add<std::vector<std::string>>("output_names",
