@@ -25,22 +25,24 @@ fastElectronCkfTrackCandidates = FastSimulation.Tracking.electronCkfTrackCandida
 
 from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
 from TrackingTools.GsfTracking.GsfElectronGsfFit_cff import *
-electronGsfTracking = cms.Sequence(electronSeeds*electronCkfTrackCandidates*electronGsfTracks)
-_electronGsfTracking = electronGsfTracking.copy()
-_electronGsfTracking += cms.Sequence(electronCkfTrackCandidatesFromMultiCl*electronGsfTracksFromMultiCl)
-_fastSim_electronGsfTracking = electronGsfTracking.copy()
-_fastSim_electronGsfTracking.replace(electronCkfTrackCandidates,fastElectronCkfTrackCandidates)
-fastSim.toReplaceWith(electronGsfTracking,_fastSim_electronGsfTracking)
+electronGsfTrackingTask = cms.Task(electronSeedsTask,electronCkfTrackCandidates,electronGsfTracks)
+electronGsfTracking = cms.Sequence(electronGsfTrackingTask)
+_electronGsfTrackingTask = electronGsfTrackingTask.copy()
+_electronGsfTrackingTask.add(cms.Task(electronCkfTrackCandidatesFromMultiCl,electronGsfTracksFromMultiCl))
+_fastSim_electronGsfTrackingTask = electronGsfTrackingTask.copy()
+_fastSim_electronGsfTrackingTask.replace(electronCkfTrackCandidates,fastElectronCkfTrackCandidates)
+fastSim.toReplaceWith(electronGsfTrackingTask,_fastSim_electronGsfTrackingTask)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(
-  electronGsfTracking, _electronGsfTracking
+  electronGsfTrackingTask, _electronGsfTrackingTask
 )
 
 from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeValueMapProducer
 gsfTrackTimeValueMapProducer = trackTimeValueMapProducer.clone(trackSrc = cms.InputTag('electronGsfTracks'))
 
-electronGsfTrackingWithTiming = cms.Sequence(electronGsfTracking.copy()*gsfTrackTimeValueMapProducer)
+electronGsfTrackingWithTimingTask = cms.Task(electronGsfTrackingTask.copy(),gsfTrackTimeValueMapProducer)
+electronGsfTrackingWithTiming = cms.Sequence(electronGsfTrackingWithTimingTask)
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toReplaceWith(electronGsfTracking, electronGsfTrackingWithTiming)
+phase2_timing.toReplaceWith(electronGsfTrackingTask, electronGsfTrackingWithTimingTask)
