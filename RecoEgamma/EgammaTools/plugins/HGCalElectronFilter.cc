@@ -50,20 +50,15 @@ class HGCalElectronFilter : public edm::stream::EDProducer<> {
       void produce(edm::Event&, const edm::EventSetup&) override;
       void endStream() override;
 
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
       // ----------member data ---------------------------
-      edm::EDGetTokenT<edm::View<reco::GsfElectron>> ElectronsToken_;
+      edm::EDGetTokenT<edm::View<reco::GsfElectron>> electronsToken_;
       std::string  outputCollection_;
       bool cleanBarrel_;
 };
 
 
 HGCalElectronFilter::HGCalElectronFilter(const edm::ParameterSet& iConfig):
-    ElectronsToken_(consumes<edm::View<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("inputGsfElectrons"))),
+    electronsToken_(consumes<edm::View<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("inputGsfElectrons"))),
     outputCollection_(iConfig.getParameter<std::string>("outputCollection")),
     cleanBarrel_(iConfig.getParameter<bool>("cleanBarrel"))
 {
@@ -85,42 +80,36 @@ HGCalElectronFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     auto gsfElectrons_p = std::make_unique<reco::GsfElectronCollection>();
 
-    edm::Handle<edm::View<reco::GsfElectron>> ElectronsH;
-    iEvent.getByToken(ElectronsToken_, ElectronsH);
+    edm::Handle<edm::View<reco::GsfElectron>> electronsH;
+    iEvent.getByToken(electronsToken_, electronsH);
 
-    unsigned nElectrons = ElectronsH->size();
-
-    if (nElectrons > 0 ) {
-        for(unsigned iEle1 = 0; iEle1 < nElectrons; ++iEle1) {
-            bool isBest = true;
-            const auto& electron1 = ElectronsH->at(iEle1);
-            if (!cleanBarrel_ && electron1.isEB()) {// keep all barrel electrons
-                isBest = true;
-                gsfElectrons_p->push_back(electron1);
-                continue;
-            } else {
-                for (unsigned iEle2 = 0; iEle2 < nElectrons; ++iEle2) {
-                    if (iEle1 == iEle2) continue;
-                    const auto& electron2 = ElectronsH->at(iEle2);
-                    if (electron1.superCluster() != electron2.superCluster()) continue;
-                    if (electron1.electronCluster() != electron2.electronCluster()) {
-                        if (electron1.electronCluster()->energy() < electron2.electronCluster()->energy()) {
-                            isBest=false;
-                            break;
-                        }
-                    } else {
-                        if (fabs(electron1.eEleClusterOverPout()-1.) > fabs(electron2.eEleClusterOverPout()-1.)) {
-                            isBest=false;
-                            break;
-                        }
+    for(const auto& electron1 : *electronsH) {
+        bool isBest = true;
+        if (!cleanBarrel_ && electron1.isEB()) { // keep all barrel electrons
+            isBest = true;
+            gsfElectrons_p->push_back(electron1);
+            continue;
+        } else {
+            for (const auto& electron2 : *electronsH) {
+                if (&electron1 == &electron2) continue;
+                if (electron1.superCluster() != electron2.superCluster()) continue;
+                if (electron1.electronCluster() != electron2.electronCluster()) {
+                    if (electron1.electronCluster()->energy() < electron2.electronCluster()->energy()) {
+                        isBest=false;
+                        break;
+                    }
+                } else {
+                    if (fabs(electron1.eEleClusterOverPout()-1.) > fabs(electron2.eEleClusterOverPout()-1.)) {
+                        isBest=false;
+                        break;
                     }
                 }
-                if (isBest) gsfElectrons_p->push_back(electron1);
             }
+            if (isBest) gsfElectrons_p->push_back(electron1);
         }
     }
 
-    iEvent.put(std::move(gsfElectrons_p),outputCollection_);
+    iEvent.put(std::move(gsfElectrons_p), outputCollection_);
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
@@ -134,46 +123,16 @@ void
 HGCalElectronFilter::endStream() {
 }
 
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-HGCalElectronFilter::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-HGCalElectronFilter::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-HGCalElectronFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-HGCalElectronFilter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 HGCalElectronFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  // cleanedEcalDrivenGsfElectronsFromMultiCl
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("inputGsfElectrons", edm::InputTag("ecalDrivenGsfElectronsFromMultiCl"));
+  desc.add<bool>("cleanBarrel", false);
+  desc.add<std::string>("outputCollection", "");
+  descriptions.add("cleanedEcalDrivenGsfElectronsFromMultiCl", desc);
 }
 
 //define this as a plug-in

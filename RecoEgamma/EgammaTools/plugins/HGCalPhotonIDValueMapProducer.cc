@@ -53,18 +53,55 @@ class HGCalPhotonIDValueMapProducer : public edm::stream::EDProducer<> {
     // ----------member data ---------------------------
     edm::EDGetTokenT<edm::View<reco::Photon>> photonsToken_;
     float radius_;
+
+    static const std::vector<std::string> valuesProduced_;
     std::map<const std::string, std::vector<float>> maps_;
 
     std::unique_ptr<HGCalEgammaIDHelper> phoIDHelper_;
 };
 
+// All the ValueMap names to output are defined in the auto-generated python cfi
+// so that potential consumers can configure themselves in a simple manner
+// Would be cool to use compile-time validation, but need constexpr strings, e.g. std::string_view in C++17
+const std::vector<std::string> HGCalPhotonIDValueMapProducer::valuesProduced_ = {
+    "seedEt",
+    "seedEnergy",
+    "seedEnergyEE",
+    "seedEnergyFH",
+    "seedEnergyBH",
+    "pcaEig1",
+    "pcaEig2",
+    "pcaEig3",
+    "pcaSig1",
+    "pcaSig2",
+    "pcaSig3",
+    "sigmaUU",
+    "sigmaVV",
+    "sigmaEE",
+    "sigmaPP",
+    "nLayers",
+    "firstLayer",
+    "lastLayer",
+    "e4oEtot",
+    "layerEfrac10",
+    "layerEfrac90",
+    "measuredDepth",
+    "expectedDepth",
+    "expectedSigma",
+    "depthCompatibility",
+    "caloIsoRing0",
+    "caloIsoRing1",
+    "caloIsoRing2",
+    "caloIsoRing3",
+    "caloIsoRing4",
+};
+
+
 HGCalPhotonIDValueMapProducer::HGCalPhotonIDValueMapProducer(const edm::ParameterSet& iConfig) :
   photonsToken_(consumes<edm::View<reco::Photon>>(iConfig.getParameter<edm::InputTag>("photons"))),
   radius_(iConfig.getParameter<double>("pcaRadius"))
 {
-  // All the ValueMap names to output are defined in the python config
-  // so that potential consumers can configure themselves in a simple manner
-  for(const auto& key : iConfig.getParameter<std::vector<std::string>>("variables")) {
+  for(const auto& key : valuesProduced_) {
     maps_[key] = {};
     produces<edm::ValueMap<float>>(key);
   }
@@ -86,8 +123,6 @@ HGCalPhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   Handle<edm::View<reco::Photon>> photonsH;
   iEvent.getByToken(photonsToken_, photonsH);
-
-  const size_t prevMapSize = maps_.size();
 
   // Clear previous map
   for(auto&& kv : maps_) {
@@ -171,7 +206,7 @@ HGCalPhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   // Check we didn't make up a new variable and forget it in the constructor
   // (or some other pathology)
-  if ( maps_.size() != prevMapSize ) {
+  if ( maps_.size() != valuesProduced_.size() ) {
     throw cms::Exception("HGCalPhotonIDValueMapProducer") << "We have a miscoded value map producer, since map size changed";
   }
 
@@ -204,11 +239,19 @@ HGCalPhotonIDValueMapProducer::endStream() {
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 HGCalPhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  // hgcalPhotonIDValueMap
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("photons", edm::InputTag("photonsFromMultiCl"));
+  desc.add<double>("pcaRadius", 3.0);
+  desc.add<std::vector<std::string>>("variables", valuesProduced_);
+  desc.add<std::vector<double>>("dEdXWeights")->setComment("This must be copied from dEdX_weights in RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi");
+  desc.add<unsigned int>("isoNRings", 5);
+  desc.add<double>("isoDeltaR", 0.15);
+  desc.add<double>("isoDeltaRmin", 0.0);
+  desc.add<edm::InputTag>("EERecHits", edm::InputTag("HGCalRecHit","HGCEERecHits"));
+  desc.add<edm::InputTag>("FHRecHits", edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
+  desc.add<edm::InputTag>("BHRecHits", edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
+  descriptions.add("hgcalPhotonIDValueMap", desc);
 }
 
 //define this as a plug-in
