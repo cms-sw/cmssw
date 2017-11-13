@@ -162,8 +162,8 @@ oldegConversionTrackMergersTask = cms.Task(inOutOutInOldEGConversionTrackMerger,
 oldegConversionTrackMergers = cms.Sequence(oldegConversionTrackMergersTask)
 
 
-conversionTrackSequence = cms.Sequence(ckfTracksFromConversions*conversionTrackProducers*conversionTrackMergers)
-
+conversionTrackTask = cms.Task(ckfTracksFromConversionsTask,conversionTrackProducersTask,conversionTrackMergersTask)
+conversionTrackSequence = cms.Sequence(conversionTrackTask)
 #merge the general tracks with the collection from gsf tracks
 #arbitratedmerged flag set based on overlap removal by shared hits, with precedence given to gsf tracks
 gsfGeneralConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
