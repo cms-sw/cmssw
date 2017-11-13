@@ -6,8 +6,8 @@
  *  \author J. Lee - UoS
  */
 
-#include <FWCore/Framework/interface/ConsumesCollector.h>
-#include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -26,15 +26,15 @@ namespace edm {
    class ConfigurationDescriptions;
 }
 
-class GEMRawToDigiModule : public edm::EDProducer {
+class GEMRawToDigiModule : public edm::global::EDProducer<> {
  public:
   /// Constructor
   GEMRawToDigiModule(const edm::ParameterSet & pset);
 
-  void beginRun(const edm::Run &, const edm::EventSetup&) override;
+  void doBeginRun_(edm::Run const& rp, edm::EventSetup const& c) override;
 
   // Operations
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce( edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
