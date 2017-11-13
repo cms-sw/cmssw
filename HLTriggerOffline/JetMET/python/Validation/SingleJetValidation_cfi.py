@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #pfjetcoll="hltAK4PFJetsCorrected"
 pfjetcoll="hltAK4PFJets"
 
-foldernm="HLT/HLTJETMET/"
+foldernm="HLT/JME/HLTJETMET/"
 
 SingleJetMetPaths = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
