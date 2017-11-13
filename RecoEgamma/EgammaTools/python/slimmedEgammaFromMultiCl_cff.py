@@ -2,11 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaTools.cleanedEcalDrivenGsfElectronsFromMultiCl_cfi import cleanedEcalDrivenGsfElectronsFromMultiCl
 from RecoEgamma.EgammaTools.hgcalElectronIDValueMap_cff import hgcalElectronIDValueMap
+from PhysicsTools.PatAlgos.PATElectronProducer_cfi import PATElectronProducer
+from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import slimmedElectrons
 
 hgcElectronID = hgcalElectronIDValueMap.clone(
     electrons = cms.InputTag("cleanedEcalDrivenGsfElectronsFromMultiCl"),
 )
-patElectronsFromMultiCl = cms.EDProducer("PATElectronProducer",
+patElectronsFromMultiCl = PATElectronProducer.clone(
     electronSource = cms.InputTag("cleanedEcalDrivenGsfElectronsFromMultiCl"),
     beamLineSrc    = cms.InputTag("offlineBeamSpot"),
     pvSrc          = cms.InputTag("offlinePrimaryVertices"),
@@ -42,7 +44,7 @@ selectedPatElectronsFromMultiCl = cms.EDFilter("PATElectronSelector",
     src = cms.InputTag("patElectronsFromMultiCl"),
     cut = cms.string("!isEB && pt >= 10."),
 )
-slimmedElectronsFromMultiCl = cms.EDProducer("PATElectronSlimmer",
+slimmedElectronsFromMultiCl = slimmedElectrons.clone(
     src = cms.InputTag("selectedPatElectronsFromMultiCl"),
     dropSuperCluster = cms.string("0"),
     dropBasicClusters = cms.string("0"),
@@ -74,10 +76,13 @@ slimmedElectronsFromMultiClTask = cms.Task(
     slimmedElectronsFromMultiCl
 )
 
+
 from RecoEgamma.EgammaTools.hgcalPhotonIDValueMap_cff import hgcalPhotonIDValueMap
+from PhysicsTools.PatAlgos.PATPhotonProducer_cfi import PATPhotonProducer
+from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi import slimmedPhotons
 
 hgcPhotonID = hgcalPhotonIDValueMap.clone()
-patPhotonsFromMultiCl = cms.EDProducer("PATPhotonProducer",
+patPhotonsFromMultiCl = PATPhotonProducer.clone(
     photonSource = cms.InputTag("photonsFromMultiCl"),
     electronSource = cms.InputTag("ecalDrivenGsfElectronsFromMultiCl"),
     beamLineSrc = cms.InputTag("offlineBeamSpot"),
@@ -106,7 +111,7 @@ selectedPatPhotonsFromMultiCl = cms.EDFilter("PATPhotonSelector",
     src = cms.InputTag("patPhotonsFromMultiCl"),
     cut = cms.string("!isEB && pt >= 15."),
 )
-slimmedPhotonsFromMultiCl = cms.EDProducer("PATPhotonSlimmer",
+slimmedPhotonsFromMultiCl = slimmedPhotons.clone(
     src = cms.InputTag("selectedPatPhotonsFromMultiCl"),
     dropSuperCluster = cms.string("0"),
     dropBasicClusters = cms.string("0"),
