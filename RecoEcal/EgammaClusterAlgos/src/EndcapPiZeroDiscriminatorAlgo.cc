@@ -104,15 +104,15 @@ vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,  Rec
   final_strip--;
   ESDetId last_stripID = final_strip->first;
 
-  float E = 0;
   vector<ESDetId>::iterator itID;
   for (itID = road_2d.begin(); itID != road_2d.end(); itID++) {
     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: ID = " << *itID ;
   
+    float E = 0.;
     RecHitsMap::iterator strip_it = rechits_map->find(*itID);
     if(goodPi0Strip(strip_it,last_stripID)) { // continue if strip not found in rechit_map
       E = strip_it->second.energy();
-    } else  E = 0;
+    }
     vout_stripE.push_back(E);
     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: E = " << E ;
     
@@ -144,15 +144,15 @@ bool EndcapPiZeroDiscriminatorAlgo::goodPi0Strip(RecHitsMap::iterator candidate_
   RecHitsMap::iterator candidate_tmp = candidate_it;
   candidate_tmp--;
 
-  if (candidate_tmp->first == lastID )
-  LogTrace("EcalClusters") <<"EndcapPiZeroDiscriminatorAlgo: goodPi0Strip No such a strip in rechits_map " ;
-  if (candidate_it->second.energy() <= preshStripEnergyCut_)
-  LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: goodPi0Strip Strip energy " << candidate_it->second.energy() <<" is below threshold " ;
-  
   // crystal should not be included...
-  if ( (candidate_tmp->first == lastID )                    ||       // ...if it corresponds to a hit
-       (candidate_it->second.energy() <= preshStripEnergyCut_ ) )   // ...if it has a negative or zero energy
+  if ( candidate_tmp->first == lastID )                              // ...if it corresponds to a hit
     {
+      LogTrace("EcalClusters") <<"EndcapPiZeroDiscriminatorAlgo: goodPi0Strip No such a strip in rechits_map " ;
+      return false;
+    }
+  else if (candidate_it->second.energy() <= preshStripEnergyCut_ )   // ...if it has a negative or zero energy
+    {
+      LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: goodPi0Strip Strip energy " << candidate_it->second.energy() <<" is below threshold " ;
       return false;
     }
 

@@ -2,7 +2,7 @@ import os
 import ConfigParser # needed for exceptions in this module
 import configTemplates
 from genericValidation import GenericValidation
-from helperFunctions import replaceByMap, getCommandOutput2, cppboolstring, pythonboolstring
+from helperFunctions import replaceByMap, getCommandOutput2, cppboolstring, pythonboolstring, clean_name
 from TkAlExceptions import AllInOneError
 
 
@@ -17,7 +17,7 @@ class GeometryComparison(GenericValidation):
         "modulesToPlot":"all",
         "moduleList": "/store/caf/user/cschomak/emptyModuleList.txt",
         "useDefaultRange":"false",
-        "plotOnlyGlobal":"false",
+        "plotOnlyGlobal":"true",
         "plotPng":"true",
         "makeProfilePlots":"true",
         "dx_min":"-99999",
@@ -89,12 +89,12 @@ class GeometryComparison(GenericValidation):
         common = self.__compares.keys()[0]
 
         repMap.update({
-            "common": common,
+            "common": clean_name(common),
             "comparedGeometry": (".oO[alignmentName]Oo."
                                  "ROOTGeometry.root"),
             "referenceGeometry": "IDEAL", # will be replaced later
                                           #  if not compared to IDEAL
-            "reference": referenceName,
+            "reference": clean_name(referenceName),
             "referenceTitle": referenceTitle,
             "alignmentTitle": self.alignmentToValidate.title,
             "moduleListBase": os.path.basename(repMap["moduleList"]),
@@ -231,17 +231,8 @@ class GeometryComparison(GenericValidation):
                         " \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]]\n"
-                        "then\n"
-                        "    rfmkdir -p .oO[workdir]Oo./.oO[name]Oo.."+name
-                        +"_ArrowPlots\n"
-                        "else\n"
-                        "    mkdir -p $CWD/TkAllInOneTool/.oO[name]Oo.."+name
-                        +"_ArrowPlots\n"
-                        "fi\n")
-                   repMap["runComparisonScripts"] += \
                        ("rfcp .oO[Alignment/OfflineValidation]Oo."
-                        "/scripts/makeArrowPlots.C "
+                        "/macros/makeArrowPlots.C "
                         ".\n"
                         "root -b -q 'makeArrowPlots.C(\""
                         ".oO[name]Oo..Comparison_common"+name
@@ -253,6 +244,11 @@ class GeometryComparison(GenericValidation):
                    repMap["runComparisonScripts"] += \
                        ("find .oO[name]Oo.."+name+"_ArrowPlots "
                         "-maxdepth 1 -name \"*.png\" -print | xargs -I {} bash "
+                        "-c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
+                        ".Comparison_common"+name+"_Images/ArrowPlots\"\n")
+                   repMap["runComparisonScripts"] += \
+                       ("find .oO[name]Oo.."+name+"_ArrowPlots "
+                        "-maxdepth 1 -name \"*.pdf\" -print | xargs -I {} bash "
                         "-c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/ArrowPlots\"\n")
                    repMap["runComparisonScripts"] += \

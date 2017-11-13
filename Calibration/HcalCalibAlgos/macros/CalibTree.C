@@ -26,7 +26,7 @@
 //                              (default="", no corr.)
 //  useweight       (bool)    = Flag to use event weight (True)
 //  useMean         (bool)    = Flag to use Mean of Most probable value
-//                              (True -- use mean)
+//                              (False -- use MPV)
 //  nMin            (int)     = Minmum entries for a given cell which will be
 //                              used in evaluating convergence criterion (0)
 //  inverse         (bool)    = Use the ratio E/p or p/E in determining the
@@ -34,8 +34,8 @@
 //  ratMin          (double)  = Lower  cut on E/p to select a track (0.25)
 //  ratMax          (double)  = Higher cut on E/p to select a track (3.0)
 //  ietaMax         (int)     = Maximum ieta value for which correcttion
-//                              factor is to be determined (25)
-//  sysmode         (int)     = systematic error study (0 if default)
+//                              factor is to be determined (23)
+//  sysmode         (int)     = systematic error study (-1 if default)
 //                              -1 loose, -2 flexible, > 0 for systematic
 //  puCorr          (bool)    = PU correction to be applied or not (true)
 //  applyL1Cut      (int)     = Flag to see if closeness to L1 object to be
@@ -97,9 +97,9 @@ void Run(const char *inFileName="Silver",
 	 const char *corrFileName="Silver_corr.txt",
 	 const char *dupFileName="events_DXS2.txt", 
 	 const char *rcorFileName="",
-	 bool useweight=true, bool useMean=true, int nMin=0, bool inverse=true,
-	 double ratMin=0.25, double ratMax=3., int ietaMax=25, 
-	 int sysmode=0, bool puCorr=true, int applyL1Cut=1, double l1Cut=0.5, 
+	 bool useweight=true, bool useMean=false, int nMin=0, bool inverse=true,
+	 double ratMin=0.25, double ratMax=3., int ietaMax=23, 
+	 int sysmode=-1, bool puCorr=true, int applyL1Cut=1, double l1Cut=0.5, 
 	 int truncateFlag=0, int maxIter=30, bool useGen=false, 
 	 int runlo=-1, int runhi=99999999, int phimin=1, int phimax=72,
 	 int zside=0, int rbx=0, bool exclude=true, int higheta=1,
@@ -251,8 +251,8 @@ void doIt(const char* infile, const char* dup) {
     sprintf (outf2, "%s_%d.txt",  infile, k);
     double lumi = (k==0) ? -1 : lumt;
     lumt *= fac;
-    Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,"",true,true,0,
-	true,0.25,3.0,25,0,true,1,0.5,0,30,false,-1,99999999,1,72,0,0,true,
+    Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,"",true,false,0,
+	true,0.25,3.0,23,-1,true,1,0.5,0,30,false,-1,99999999,1,72,0,0,true,
 	1,lumi,false,false);
   }
 }
@@ -400,8 +400,8 @@ void CalibTree::Init(TTree *tree, const char *dupFileName) {
   t_HitEnergies1 = 0;
   t_HitEnergies3 = 0;
   // Set branch addresses and branch pointers
-  if (!tree) return;
   fChain = tree;
+  if (!tree) return;
   fCurrent = -1;
   fChain->SetMakeClass(1);
 
@@ -1137,7 +1137,7 @@ void CalibTree::highEtaFactors(int ietaMax, bool debug) {
     unsigned int detid = itr->first;
     int subdet, depth, zside, ieta, iphi;
     unpackDetId(detid, subdet, zside, ieta, iphi, depth);
-    if ((ieta = ietaMax) && (depth == 1)) {
+    if ((ieta == ietaMax) && (depth == 1)) {
       if (zside > 0) cfacp = itr->second;
       else           cfacn = itr->second;
     }
