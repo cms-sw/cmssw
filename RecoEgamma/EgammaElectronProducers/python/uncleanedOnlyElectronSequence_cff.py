@@ -104,8 +104,8 @@ uncleanedOnlyAllConversions = allConversions.clone(
     src = cms.InputTag("uncleanedOnlyGsfGeneralInOutOutInConversionTrackMerger")
     )
 
-uncleanedOnlyConversions = cms.Sequence(uncleanedOnlyCkfTracksFromConversions*uncleanedOnlyConversionTrackProducers*uncleanedOnlyConversionTrackMergers*uncleanedOnlyAllConversions)
-
+uncleanedOnlyConversionsTask = cms.Task(uncleanedOnlyCkfTracksFromConversionsTask,uncleanedOnlyConversionTrackProducersTask,uncleanedOnlyConversionTrackMergersTask,uncleanedOnlyAllConversions)
+uncleanedOnlyConversions = cms.Sequence(uncleanedOnlyConversionsTask)
 #
 # Particle Flow Tracking
 #
@@ -153,5 +153,5 @@ uncleanedOnlyElectrons = cms.Sequence(uncleanedOnlyElectronsTask)
 # Whole Sequence
 #
 
-uncleanedOnlyElectronSequence = cms.Sequence(uncleanedOnlyTracking*uncleanedOnlyConversions*uncleanedOnlyPfTracking*uncleanedOnlyElectrons)
-
+uncleanedOnlyElectronTask = cms.Task(uncleanedOnlyTrackingTask,uncleanedOnlyConversionsTask,uncleanedOnlyPfTrackingTask,uncleanedOnlyElectronsTask)
+uncleanedOnlyElectronSequence = cms.Sequence(uncleanedOnlyElectronTask)

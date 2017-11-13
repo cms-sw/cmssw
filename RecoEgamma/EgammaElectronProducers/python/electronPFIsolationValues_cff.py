@@ -90,19 +90,20 @@ elPFIsoValuePU04.deposits[0].deltaR = cms.double(0.4)
 
 
 
-electronPFIsolationValuesSequence = cms.Sequence (
-    elPFIsoValueCharged03+
-    elPFIsoValueChargedAll03+
-    elPFIsoValueGamma03+
-    elPFIsoValueNeutral03+
-    elPFIsoValuePU03+
+electronPFIsolationValuesTask = cms.Task (
+    elPFIsoValueCharged03,
+    elPFIsoValueChargedAll03,
+    elPFIsoValueGamma03,
+    elPFIsoValueNeutral03,
+    elPFIsoValuePU03,
     ##############################
-    elPFIsoValueCharged04+
-    elPFIsoValueChargedAll04+
-    elPFIsoValueGamma04+
-    elPFIsoValueNeutral04+
+    elPFIsoValueCharged04,
+    elPFIsoValueChargedAll04,
+    elPFIsoValueGamma04,
+    elPFIsoValueNeutral04,
     elPFIsoValuePU04
 )
+electronPFIsolationValuesSequence = cms.Sequence(electronPFIsolationValuesTask)
 
 #<----------------
 
