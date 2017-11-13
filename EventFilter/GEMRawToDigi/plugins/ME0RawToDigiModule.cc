@@ -28,7 +28,7 @@ void ME0RawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descr
   desc.add<bool>("useDBEMap", false); 
 }
 
-void ME0RawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
+void ME0RawToDigiModule::doBeginRun_(edm::Run const& rp, edm::EventSetup const& iSetup)
 {
   if (useDBEMap_){
     edm::ESHandle<ME0EMap> me0EMap;
@@ -43,7 +43,7 @@ void ME0RawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
   }
 }
 
-void ME0RawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup )
+void ME0RawToDigiModule::produce(edm::StreamID, edm::Event & e, const edm::EventSetup & iSetup) const
 {
   auto outME0Digis = std::make_unique<ME0DigiCollection>();
 
