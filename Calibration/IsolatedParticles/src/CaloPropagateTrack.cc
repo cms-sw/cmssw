@@ -824,4 +824,80 @@ namespace spr{
     return trk;
   }
 
+  bool propagateHCAL(const reco::Track *track, const CaloGeometry* geo, const MagneticField* bField, bool typeRZ, const std::pair<double,double> rz, bool debug) {
+    const GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    const GlobalVector momentum (track->px(), track->py(), track->pz());
+    int charge (track->charge());
+#ifdef EDM_ML_DEBUG
+    if (debug) std::cout << "Propagate track with charge " << charge << " position " << vertex << " p " << momentum << std::endl;
+#endif
+    std::pair<HcalDetId,HcalDetId> ids = propagateHCAL(geo, bField, vertex, momentum, charge, typeRZ, rz, debug);
+    bool ok = ((ids.first != HcalDetId()) && 
+	       (ids.first.ieta() == ids.second.ieta()) && 
+	       (ids.first.iphi() == ids.second.iphi()));
+    return ok;
+  }
+
+  bool propagateHCAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const CaloGeometry* geo, const MagneticField* bField, bool typeRZ, const std::pair<double,double> rz, bool debug) {
+
+    spr::trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
+#ifdef EDM_ML_DEBUG
+    if (debug) std::cout << "Propagate track " << thisTrk << " charge " << trk.charge << " position " << trk.position << " p " << trk.momentum << std::endl;
+#endif
+    std::pair<HcalDetId,HcalDetId> ids = propagateHCAL(geo, bField, trk.position, trk.momentum, trk.charge, typeRZ, rz, debug);
+    bool ok = ((ids.first != HcalDetId()) && 
+	       (ids.first.ieta() == ids.second.ieta()) && 
+	       (ids.first.iphi() == ids.second.iphi()));
+    return ok;
+  }
+  
+  std::pair<HcalDetId,HcalDetId> propagateHCAL(const CaloGeometry* geo,
+					       const MagneticField* bField,
+					       const GlobalPoint& vertex, 
+					       const GlobalVector& momentum, 
+					       int charge, bool typeRZ,
+					       const std::pair<double,double> rz, bool
+#ifdef EDM_ML_DEBUG
+					       debug
+#endif
+					       ) {
+    
+#ifdef EDM_ML_DEBUG
+    if (debug) std::cout << "propagateCalo:: Vertex " << vertex << " Momentum " << momentum << " Charge " << charge << " R/Z " << rz.first << " : " << rz.second << " Type " << typeRZ << std::endl;
+#endif
+    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    FreeTrajectoryState fts (vertex, momentum, charge, bField);
+    AnalyticalPropagator myAP (bField, alongMomentum, 2*M_PI);
+    
+    HcalDetId id1, id2;
+    for (int k=0; k<2; ++k) {
+      TrajectoryStateOnSurface tsos;
+      double rzv = (k == 0) ? rz.first : rz.second;
+      if (typeRZ) {
+	Cylinder::CylinderPointer barrel = Cylinder::build(Cylinder::PositionType (0, 0, 0), Cylinder::RotationType (), rzv);
+	tsos = myAP.propagate(fts, *barrel);
+      } else {
+	Plane::PlanePointer endcap = Plane::build(Plane::PositionType (0, 0, rzv), Plane::RotationType());
+	tsos = myAP.propagate(fts, *endcap);
+      }
+
+      if (tsos.isValid()) {
+	GlobalPoint point = tsos.globalPosition();
+	if (k == 0) id1 = gHB->getClosestCell(point);
+	else        id2 = gHB->getClosestCell(point);
+#ifdef EDM_ML_DEBUG
+	if (debug) {
+	  std::cout << "Iteration " << k << " Point " << point << " ID ";
+	  if (k == 0) std::cout << id1;
+	  else        std::cout << id2;
+	  std::cout << std::endl;
+	}
+#endif
+      } 
+    }
+#ifdef EDM_ML_DEBUG
+    if (debug) std::cout << "propagateCalo:: Front " << id1 << " Back " << id2 << std::endl;
+#endif
+    return std::pair<HcalDetId,HcalDetId>(id1,id2);
+  }
 }

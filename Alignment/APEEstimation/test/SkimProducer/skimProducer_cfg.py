@@ -10,7 +10,6 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 options = VarParsing.VarParsing ('standard')
 options.register('sample', 'data1', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Input sample")
-options.register('atCern', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "At DESY or at CERN")
 options.register('useTrackList', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Use list of preselected tracks")
 options.register('isTest', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Test run")
 
@@ -24,7 +23,6 @@ if( hasattr(sys, "argv") ):
                 setattr(options,val[0], val[1])
 
 print "Input sample: ", options.sample
-print "At CERN: ", options.atCern
 print "Use list of preselected tracks: ", options.useTrackList
 print "Test run: ", options.isTest
 
@@ -113,23 +111,22 @@ if isData3: process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_
 if isData4: process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_22Jan2013D_v1_cff")
 if isQcd: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_qcd_cff")
 if isWlnu: process.load("Alignment.APEEstimation.samples.Mc_WJetsToLNu_74XTest_cff")
-if isZmumu: process.load("Alignment.APEEstimation.samples.Mc_TkAlZMuMu_PhaseI_Fall16_81X_DY_cff")
+if isZmumu10: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_zmumu10_cff")
 if isZmumu20: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_zmumu20_cff")
 if isZmumu50: process.load("Alignment.APEEstimation.samples.DYToMuMu_M-50_Tune4C_13TeV-pythia8_Spring14dr-TkAlMuonIsolated-castor_PU_S14_POSTLS170_V6-v1_ALCARECO_cff")
 
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-#~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+
 print "Using global tag "+process.GlobalTag.globaltag._value
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-
 
 ##
 ## Number of Events (should be after input file)
@@ -154,8 +151,8 @@ if options.useTrackList:
     process.TriggerSelectionSequence *= process.TrackList
 
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-#~ process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlMuonIsolated')
-process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlZMuMu')
+process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlMuonIsolated')
+#~ process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlZMuMu')
 
 ##
 ## Path
@@ -184,8 +181,7 @@ EventSelection = cms.PSet(
 ##
 process.out = cms.OutputModule("PoolOutputModule",
     ## Parameters directly for PoolOutputModule
-    #~ fileName = cms.untracked.string('Data_TkAlMuonIsolated_DoubleMuon_Run2015B_PromptReco1.root'),
-    fileName = cms.untracked.string('MC_TkAlZMuMu_PhaseI_Fall16_81X_DY.root'),
+    fileName = cms.untracked.string('Data_TkAlMuonIsolated_DoubleMuon_Run2015B_PromptReco1.root'),
     #logicalFileName = cms.untracked.string(''),
     #catalog = cms.untracked.string(''),
     # Maximus size per file before a new one is created
@@ -214,6 +210,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.load("Alignment.APEEstimation.PrivateSkim_EventContent_cff")
 process.out.outputCommands.extend(process.ApeSkimEventContent.outputCommands)
 
+
 if options.isTest:
   process.out.fileName = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_apeSkim.root'
 
@@ -225,7 +222,3 @@ if options.isTest:
 ## Outpath
 ##
 process.outpath = cms.EndPath(process.out)
-
-
-
-
