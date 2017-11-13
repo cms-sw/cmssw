@@ -123,8 +123,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
     AlgebraicSymMatrix66 covReco;
     //This is to fill the cov matrix correctly
-    AlgebraicSymMatrix55 covReco_curv;
-    covReco_curv = thisTrack->outerStateCovariance();
+    const AlgebraicSymMatrix55 & covReco_curv = thisTrack->outerStateCovariance();
     FreeTrajectoryState initrecostate = getFTS(p3reco, r3reco, chargeReco, covReco_curv, &*bField);
     getFromFTS(initrecostate, p3reco, r3reco, chargeReco, covReco);
 
