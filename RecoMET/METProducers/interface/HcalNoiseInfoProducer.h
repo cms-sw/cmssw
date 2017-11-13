@@ -49,6 +49,8 @@ namespace reco {
   public:
     explicit HcalNoiseInfoProducer(const edm::ParameterSet&);
     ~HcalNoiseInfoProducer() override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
   private:
     
@@ -110,8 +112,8 @@ namespace reco {
     edm::EDGetTokenT<reco::TrackCollection> track_token_;
     edm::EDGetTokenT<reco::PFJetCollection> jet_token_;
 
-    double TotalCalibCharge;    // placeholder to calculate total charge in calibration channels
-    double TotalLasmonCharge;    // placeholder to calculate total charge in laser monitor channels
+    double totalCalibCharge;    // placeholder to calculate total charge in calibration channels
+    double totalLasmonCharge;    // placeholder to calculate total charge in laser monitor channels
 
     double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_; // parameters used to determine noise status
     HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
@@ -133,12 +135,12 @@ namespace reco {
     uint32_t HcalAcceptSeverityLevel_;
     std::vector<int> HcalRecHitFlagsToBeExcluded_;
 
-    std::vector<int> LaserMonDetTypeList_;
-    std::vector<int> LaserMonIPhiList_;
-    std::vector<int> LaserMonIEtaList_;
+    std::vector<int> laserMonDetTypeList_;
+    std::vector<int> laserMonIPhiList_;
+    std::vector<int> laserMonIEtaList_;
 
-    int LaserMonitorTSStart_;
-    int LaserMonitorTSEnd_;
+    int laserMonitorTSStart_;
+    int laserMonitorTSEnd_;
     
     float adc2fC[128];
     float adc2fCHF[128];
