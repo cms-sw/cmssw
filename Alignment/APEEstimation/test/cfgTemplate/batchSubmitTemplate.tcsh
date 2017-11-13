@@ -21,7 +21,7 @@ xrdcp _THE_INPUTBASE__THE_NUMBER_.root reco.root
 cmsRun $CMSSW_BASE/src/Alignment/APEEstimation/test/cfgTemplate/apeEstimator_cfg.py_THE_COMMANDS_
 
 
-
+rm -- "$0"
 
 
 
