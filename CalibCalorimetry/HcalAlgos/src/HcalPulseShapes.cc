@@ -721,8 +721,10 @@ void HcalPulseShapes::computeSiPMShapeHE206()
 
   siPMShapeMC2018_.setNBin(nBinsSiPM_);
 
-  //skip first bin, always 0
+  //Aligning 206 phase closer to 205 in order to have good reco agreement
   int shift = -2;
+
+  //skip first bin, always 0
   double norm = 0.;
   for (int j = 1; j <= nBinsSiPM_; ++j) {
     ((j-shift)>=0) ? (norm += (nt[j-shift]>0) ? nt[j-shift] : 0.) : 0;
@@ -730,13 +732,8 @@ void HcalPulseShapes::computeSiPMShapeHE206()
 
   for (int j = 1; j <= nBinsSiPM_; ++j) {
     nt[j] /= norm;
-    if((j-shift)>=0){
-      siPMShapeMC2018_.setShapeBin(j,nt[j-shift]);
-      //std::cout<<"206 shape  "<<j<<"  "<<nt[j-shift]<<std::endl;
-    } else {
-      siPMShapeMC2018_.setShapeBin(j,0);
-      //std::cout<<"206 shape  "<<j<<"  "<<0<<std::endl;
-    }
+    if((j-shift)>=0) siPMShapeMC2018_.setShapeBin(j,nt[j-shift]);
+    else siPMShapeMC2018_.setShapeBin(j,0);
   }
 }
 
@@ -864,6 +861,10 @@ double HcalPulseShapes::Y11203(double t) {
 
 //New scintillator+Y11 model from Vasken's 2017 measurement plus a Landau correction term
 double HcalPulseShapes::Y11206(double t) {
+  //Shifting phase to have better comparison of digi shape with data
+  //If necessary, further digi phase adjustment can be done here:
+  //SimCalorimetry/HcalSimProducers/python/hcalSimParameters_cfi.py 
+  //by changing "timePhase"
   double shift = 7.2;
 
   //Fit From Deconvolved Data

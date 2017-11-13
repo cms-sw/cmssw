@@ -114,10 +114,9 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   else if (fTimeSlew==2) channelData.hasTimeInfo()?respCorr=rCorrSiPM[1]:respCorr=rCorr[1];
   else if (fTimeSlew==3)respCorr=frespCorr;
 
-  float tsShift3=0;
-  float tsShift4=0;
-  float tsShift5=0;
-
+  float tsShift3,tsShift4,tsShift5;
+  tsShift3=0,tsShift4=0,tsShift5=0;
+  
   if(applyTimeSlew_) {
 
     tsShift3=HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
@@ -126,50 +125,23 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   }
 
-  float ch3=0;
-  float ch4=0;
-  float ch5=0;
+  float ch3,ch4,ch5, i3,n3,nn3, i4,n4,i5,n5;
+  ch3=0,ch4=0,ch5=0,i3=0,n3=0,nn3=0,i4=0,n4=0,i5=0,n5=0;
 
-  float i3=0;
-  float n3=0;
-  float nn3=0;
+  HcalDeterministicFit Frac;
+  if(channelData.hasTimeInfo() && channelData.recoShape()==205) Frac.getFrac = &HcalDeterministicFit::get205Frac;
+  else if(channelData.hasTimeInfo() && channelData.recoShape()==206) Frac.getFrac = &HcalDeterministicFit::get206Frac;
+  else Frac.getFrac = &HcalDeterministicFit::getLandauFrac;
 
-  float i4=0;
-  float n4=0;
-  float i5=0;
-  float n5=0;
+  (Frac.*(Frac.getFrac))(-tsShift3,-tsShift3+tsWidth,i3);
+  (Frac.*(Frac.getFrac))(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
+  (Frac.*(Frac.getFrac))(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
 
-  if(channelData.hasTimeInfo() && channelData.recoShape()==205) {
-    get205Frac(-tsShift3,-tsShift3+tsWidth,i3);
-    get205Frac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
-    get205Frac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
+  (Frac.*(Frac.getFrac))(-tsShift4,-tsShift4+tsWidth,i4);
+  (Frac.*(Frac.getFrac))(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
 
-    get205Frac(-tsShift4,-tsShift4+tsWidth,i4);
-    get205Frac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
-
-    get205Frac(-tsShift5,-tsShift5+tsWidth,i5);
-    get205Frac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
-  }else if(channelData.hasTimeInfo() && channelData.recoShape()==206) {
-    get206Frac(-tsShift3,-tsShift3+tsWidth,i3);
-    get206Frac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
-    get206Frac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
-
-    get206Frac(-tsShift4,-tsShift4+tsWidth,i4);
-    get206Frac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
-
-    get206Frac(-tsShift5,-tsShift5+tsWidth,i5);
-    get206Frac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
-  }else {
-    getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
-    getLandauFrac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
-    getLandauFrac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
-
-    getLandauFrac(-tsShift4,-tsShift4+tsWidth,i4);
-    getLandauFrac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
-
-    getLandauFrac(-tsShift5,-tsShift5+tsWidth,i5);
-    getLandauFrac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
-  }
+  (Frac.*(Frac.getFrac))(-tsShift5,-tsShift5+tsWidth,i5);
+  (Frac.*(Frac.getFrac))(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
 
   if (i3 != 0 && i4 != 0 && i5 != 0) {
 

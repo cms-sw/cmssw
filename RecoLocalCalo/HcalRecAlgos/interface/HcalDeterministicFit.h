@@ -30,6 +30,7 @@ class HcalDeterministicFit {
   void getLandauFrac(float tStart, float tEnd, float &sum) const;
   void get205Frac(float tStart, float tEnd, float &sum) const;
   void get206Frac(float tStart, float tEnd, float &sum) const;
+  void (HcalDeterministicFit::*getFrac)(float,float,float&) const; 
 
  private:
   HcalTimeSlew::ParaSource fTimeSlew;
