@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaTools.hgcalElectronFilter_cfi import cleanedEcalDrivenGsfElectronsFromMultiCl 
-from RecoEgamma.EgammaTools.hgcalElectronIDValueMap_cfi import hgcalElectronIDValueMap
+from RecoEgamma.EgammaTools.cleanedEcalDrivenGsfElectronsFromMultiCl_cfi import cleanedEcalDrivenGsfElectronsFromMultiCl
+from RecoEgamma.EgammaTools.hgcalElectronIDValueMap_cff import hgcalElectronIDValueMap
 
 hgcElectronID = hgcalElectronIDValueMap.clone(
     electrons = cms.InputTag("cleanedEcalDrivenGsfElectronsFromMultiCl"),
@@ -74,7 +74,7 @@ slimmedElectronsFromMultiClTask = cms.Task(
     slimmedElectronsFromMultiCl
 )
 
-from RecoEgamma.EgammaTools.hgcalPhotonIDValueMap_cfi import hgcalPhotonIDValueMap
+from RecoEgamma.EgammaTools.hgcalPhotonIDValueMap_cff import hgcalPhotonIDValueMap
 
 hgcPhotonID = hgcalPhotonIDValueMap.clone()
 patPhotonsFromMultiCl = cms.EDProducer("PATPhotonProducer",
