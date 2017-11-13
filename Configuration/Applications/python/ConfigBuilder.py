@@ -2098,10 +2098,10 @@ class ConfigBuilder(object):
 		    modifiers.append(getattr(eras,requestedEra))
 
 
-	if hasattr(self._options,"processModifiers") and self._options.processModifiers:
+	if hasattr(self._options,"procModifiers") and self._options.procModifiers:
             import importlib
 	    thingsImported=[]
- 	    for pm in self._options.processModifiers.split(','):
+ 	    for pm in self._options.procModifiers.split(','):
                    modifierStrings.append(pm)
 		   modifierImports.append('from Configuration.ProcessModifiers.'+pm+'_cff import '+pm)
                    modifiers.append(getattr(importlib.import_module('Configuration.ProcessModifiers.'+pm+'_cff'),pm))

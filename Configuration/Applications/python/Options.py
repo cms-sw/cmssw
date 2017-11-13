@@ -351,10 +351,10 @@ expertSettings.add_option("--era",
                           default=None,
                           dest="era")
 
-expertSettings.add_option("--processModifiers",
+expertSettings.add_option("--procModifiers",
                           help="Specify any process Modifiers to include (in Configuration/ProcessModiers) - comma separated list",
                           default=None,
-                          dest="processModifiers")
+                          dest="procModifiers")
 
 expertSettings.add_option("--evt_type",
                           help="specify the gen fragment",
