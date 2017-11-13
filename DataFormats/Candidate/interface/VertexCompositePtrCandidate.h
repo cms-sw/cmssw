@@ -21,7 +21,7 @@ namespace reco {
     /// matix size
     enum { size4D = dimension4D * (dimension4D + 1)/2 };
 
-    VertexCompositePtrCandidate() : CompositePtrCandidate() { }
+    VertexCompositePtrCandidate() : CompositePtrCandidate(), chi2_(0), ndof_(0), time_(0) { }
     /// constructor from values
     VertexCompositePtrCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
 				int pdgId = 0, int status = 0, bool integerCharge = true) :
