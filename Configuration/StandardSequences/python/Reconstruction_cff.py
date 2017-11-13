@@ -144,9 +144,20 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              reducedRecHits*
                              cosmicDCTracksSeq
                              )
+
+# XeXe data with pp reco
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from RecoHI.HiCentralityAlgos.HiCentrality_cfi import hiCentrality
+from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import hiClusterCompatibility
+_highlevelreco_HI = highlevelreco.copy()
+_highlevelreco_HI += hiCentrality
+_highlevelreco_HI += hiClusterCompatibility
+pp_on_XeXe_2017.toReplaceWith(highlevelreco, _highlevelreco_HI)
+
 # not commisoned and not relevant in FastSim (?):
 _fastSim_highlevelreco = highlevelreco.copyAndExclude([cosmicDCTracksSeq,muoncosmichighlevelreco])
 fastSim.toReplaceWith(highlevelreco,_fastSim_highlevelreco)
+
 
 from FWCore.Modules.logErrorHarvester_cfi import *
 
