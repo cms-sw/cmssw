@@ -13,7 +13,7 @@
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="DataFormats/L1TGlobal"/>
 <use   name="IOPool/Provenance"/>
-
+<use   name="DQMServices/Core"/>
 <library   file="*.cc" name="PhysicsToolsNanoAODPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
