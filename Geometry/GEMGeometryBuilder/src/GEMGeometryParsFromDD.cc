@@ -217,7 +217,7 @@ GEMGeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, GEMDetId detId, Rec
 
 std::vector<double> GEMGeometryParsFromDD::getTranslation(DDFilteredView& fv)
 {
-  DDTranslation tran = fv.translation();
+  const DDTranslation& tran = fv.translation();
   std::vector<double> vtra(3);
   vtra[0]=(float) 1.0 * (tran.x());
   vtra[1]=(float) 1.0 * (tran.y());
@@ -227,7 +227,7 @@ std::vector<double> GEMGeometryParsFromDD::getTranslation(DDFilteredView& fv)
 
 std::vector<double> GEMGeometryParsFromDD::getRotation(DDFilteredView& fv)
 {
-  DDRotationMatrix rota = fv.rotation();//.Inverse();
+  const DDRotationMatrix& rota = fv.rotation();//.Inverse();
   DD3Vector x, y, z;
   rota.GetComponents(x,y,z);  
   std::vector<double> vrot(9);
