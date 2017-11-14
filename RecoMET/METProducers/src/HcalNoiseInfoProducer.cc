@@ -677,32 +677,6 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
         if(digi->id().hcalSubdet() == 0)
            continue;
 
-        /*
-        HcalCalibDetId cell = digi->id();
-        DetId detcell = (DetId)cell;
-        
-        const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
-
-        if(mySeverity->dropChannel(mydigistatus->getValue()))
-           continue;
-        if(digi->zsMarkAndPass())
-           continue;
-
-        const HcalQIECoder *channelCoder = conditions->getHcalCoder(cell);
-	const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
-        HcalCoderDb coder(*channelCoder, *shape);
-
-        CaloSamples tool;
-        coder.adc2fC(*digi, tool);
-
-        for(int i = 0; i < (int)digi->size(); i++)
-           totalCalibCharge = totalCalibCharge + tool[i];
-        */
-
-	// Original code computes total calib charge over all digis.  While I think it would be more useful to skip
-	// zs mark-and-pass channels, I keep this computation as is.  Individual HBHE and HF variables do skip
-	// the m-p channels.  -- Jeff Temple, 6 December 2012
-        
         // Fill the lasermonitor channels
         if( fillLaserMonitor_ ) {
           int dettype = digi->id().hcalSubdet( );
