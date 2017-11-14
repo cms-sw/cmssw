@@ -41,8 +41,8 @@ fileNames =  cms.untracked.vstring(
 #2017 CMSSW_9_2_0
 # download this file
 # /store/relval/CMSSW_9_2_0/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2017_realistic_v5_PU50-v1/10000/7C654D7C-9E40-E711-8690-0025905A48BC.root
-'file:/afs/cern.ch/work/s/sdubey/data/Raw_Data_Phase1/7C654D7C-9E40-E711-8690-0025905A48BC.root'
-#'file:/home/fpantale/data/920/PU50/085D5AAF-9E40-E711-B12A-0025905A609E.root'
+#'file:/afs/cern.ch/work/s/sdubey/data/Raw_Data_Phase1/7C654D7C-9E40-E711-8690-0025905A48BC.root'
+'file:/home/fpantale/data/920/PU50/085D5AAF-9E40-E711-B12A-0025905A609E.root'
 #2016 CMSSW_8_1_0
 #'file:/afs/cern.ch/work/s/sdubey/data/Raw_Data_Phase1/0216ABF7-19B1-E611-8786-0025905A60F8.root'
 #'file:/afs/cern.ch/work/s/sdubey/data/9279A7C3-59ED-E511-95C8-0025905A60F8.root'
@@ -53,36 +53,16 @@ fileNames =  cms.untracked.vstring(
  )
 )
 #file=/store/relval/CMSSW_8_1_0/RelValMinBias_13/GEN-SIM-DIGI-RAW/81X_upgrade2017_realistic_v26_HLT2017Trk-v1/10000/06A2997E-3BC1-E611-B286-0CC47A78A30E.root
-# Cabling
-useLocal = False
-if useLocal:
-  process.CablingReader = cms.ESSource("PoolDBESSource",
-    DBParameters = cms.PSet(
-       messageLevel = cms.untracked.int32(0),
-       authenticationPath = cms.untracked.string('')
-    ),
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('SiPixelFedCablingMapRcd'),
-        tag = cms.string('SiPixelFedCablingMap_phase1_v2')
-    )),
-    #connect = cms.string('sqlite_file:../../../../../DB/phase1/SiPixelFedCablingMap_phase1_v2.db')
-    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-  ) # end process
-  process.prefer = cms.ESPrefer("PoolDBESSource","CablingReader")
-# end if
 
 
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-# for simultaions 
-#process.siPixelDigis.InputLabel = 'siPixelRawData'
-# for data
-#process.siPixelDigis.InputLabel = 'source'
 
 process.siPixelDigis.InputLabel = 'rawDataCollector'
 process.siPixelDigis.IncludeErrors = False #True
 process.siPixelDigis.Timing = False 
 process.siPixelDigis.UsePhase1 = cms.bool(True)
+# do the calibration ADC -> Electrons as required in clustering and apply the channel threshold
+process.siPixelDigis.ConvertADCtoElectrons = cms.bool(False)
 
 process.MessageLogger = cms.Service("MessageLogger",
     #debugModules = cms.untracked.vstring('siPixelDigis'),
@@ -91,14 +71,4 @@ process.MessageLogger = cms.Service("MessageLogger",
     #log = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
 )
 
-# process.out = cms.OutputModule("PoolOutputModule",
-#      fileName =  cms.untracked.string('file:digis_phase1.root'),
-# #    fileName =  cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/data/digis/digi_zb_248025.root'),
-#     #fileName =  cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu_phase1/pt100_81/digis/digis1_formatfix.root'),
-#     #outputCommands = cms.untracked.vstring("drop *","keep *_siPixelDigis_*_*")
-# )
-
-
 process.p = cms.Path(process.siPixelDigis)
-#process.p = cms.Path(process.siPixelDigis*process.a)
-# process.ep = cms.EndPath(process.out)
