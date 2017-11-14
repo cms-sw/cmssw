@@ -1,4 +1,4 @@
-# hltGetConfiguration --full --offline --data /dev/CMSSW_9_2_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run2_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_9_2_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run2_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
 # /dev/CMSSW_9_2_0/PRef/V167 (CMSSW_9_2_14)
 
