@@ -272,6 +272,8 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
         if (!newZsFlagSet) {
           totalBlockSize += blockSize;
         }
+        auto totalBlockSizeExpected = totalBlockSize;
+        auto totalBlockSizeNoZS = blockHeaderSize + blockSize;
 
         auto bxBlocks = block->getBxBlocks(6, newZsFlagSet); // 6 32 bit MP7 payload words per BX
 
@@ -296,6 +298,9 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
                         << masks_[blockCapId].at(wordcounter%6) << std::dec << ", wordsum: " << wordsum << std::endl;
             }
             if (wordsum > 0) {
+              if (verbose_) {
+                std::cout << "wordsum not 0: this BX block should be kept" << std::endl;
+              }
               break;
             }
             ++wordcounter;
@@ -337,13 +342,15 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
               }
             } else if (!toSuppress && !bxZsFlagSet) {
               if (verbose_) std::cout << "GOOD BX block with ZS flag false" << std::endl;
+              totalBlockSize += totalBxBlockSize;
+              totalBlockSizeExpected += totalBxBlockSize;
               zeroSuppValMap_[maxMasks_]->Fill(ZSBXBLKSGOOD);
               if (capIdDefined) {
                 zeroSuppValMap_[blockCapId]->Fill(ZSBXBLKSGOOD);
               }
             } else if (!toSuppress && bxZsFlagSet) {
               if (verbose_) std::cout << "BAD BX block with ZS flag true" << std::endl;
-              totalBlockSize += totalBxBlockSize;
+              totalBlockSizeExpected += totalBxBlockSize;
               zeroSuppValMap_[maxMasks_]->Fill(ZSBXBLKSBAD);
               zeroSuppValMap_[maxMasks_]->Fill(ZSBXBLKSBADFALSEPOS);
               errorSummaryNumMap_[maxMasks_]->Fill(RBXBLKS);
@@ -375,9 +382,9 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           }
         }
 
-        readoutSizeNoZSMap[maxMasks_] += totalBlockSize;
+        readoutSizeNoZSMap[maxMasks_] += totalBlockSizeNoZS;
         if (capIdDefined) {
-          readoutSizeNoZSMap[blockCapId] += totalBlockSize;
+          readoutSizeNoZSMap[blockCapId] += totalBlockSizeNoZS;
         }
 
         // check if zero suppression flag agrees for the whole block
@@ -391,11 +398,11 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           if (verbose_) std::cout << "GOOD block with ZS flag false" << std::endl;
           zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSGOOD);
           readoutSizeZSMap[maxMasks_] += totalBlockSize;
-          readoutSizeZSExpectedMap[maxMasks_] += totalBlockSize;
+          readoutSizeZSExpectedMap[maxMasks_] += totalBlockSizeExpected;
           if (capIdDefined) {
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSGOOD);
             readoutSizeZSMap[blockCapId] += totalBlockSize;
-            readoutSizeZSExpectedMap[blockCapId] += totalBlockSize;
+            readoutSizeZSExpectedMap[blockCapId] += totalBlockSizeExpected;
           }
         } else if (!allToSuppress && blockZsFlagSet) {
           if (verbose_) std::cout << "BAD block with ZS flag true" << std::endl;
@@ -403,14 +410,14 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBADFALSEPOS);
           errorSummaryNumMap_[maxMasks_]->Fill(RBLKS);
           errorSummaryNumMap_[maxMasks_]->Fill(RBLKSFALSEPOS);
-          readoutSizeZSExpectedMap[maxMasks_] += totalBlockSize;
+          readoutSizeZSExpectedMap[maxMasks_] += totalBlockSizeExpected;
           evtGood[maxMasks_] = false;
           if (capIdDefined) {
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBAD);
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBADFALSEPOS);
             errorSummaryNumMap_[blockCapId]->Fill(RBLKS);
             errorSummaryNumMap_[blockCapId]->Fill(RBLKSFALSEPOS);
-            readoutSizeZSExpectedMap[blockCapId] += totalBlockSize;
+            readoutSizeZSExpectedMap[blockCapId] += totalBlockSizeExpected;
             evtGood[blockCapId] = false;
           }
         } else {
@@ -431,6 +438,14 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           }
         }
       }
+    }
+    if (verbose_) {
+      std::cout << "FED data size: " << fedDataSize << " bytes" << std::endl;
+      std::cout << "Payload size no ZS: " << readoutSizeNoZSMap[maxMasks_] << " bytes" << std::endl;
+      std::cout << "Payload size ZS: " << readoutSizeZSMap[maxMasks_] << " bytes" << std::endl;
+      std::cout << "Payload size expected ZS: " << readoutSizeZSExpectedMap[maxMasks_] << " bytes" << std::endl;
+      std::cout << "Filled readout size ZS with headers: " << readoutSizeZSMap[maxMasks_] + fedDataSize - readoutSizeNoZSMap[maxMasks_] << " bytes" << std::endl;
+      std::cout << "Filled expected readout size ZS with headers: " << readoutSizeZSExpectedMap[maxMasks_] + fedDataSize - readoutSizeNoZSMap[maxMasks_] << " bytes" << std::endl;
     }
     readoutSizeNoZSMap_[maxMasks_]->Fill(fedDataSize);
     readoutSizeZSMap_[maxMasks_]->Fill(readoutSizeZSMap[maxMasks_] + fedDataSize - readoutSizeNoZSMap[maxMasks_]);
