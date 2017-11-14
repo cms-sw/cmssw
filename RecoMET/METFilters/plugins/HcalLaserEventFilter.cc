@@ -265,11 +265,11 @@ HcalLaserEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
                filterDecision=false;
              }
          }
-     else 
-       {
-         if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter::Error> No valid HcalNoiseSummary with label '"<<hcalNoiseSummaryLabel_<<"' found";
-       }
-   }
+       else 
+         {
+           if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter::Error> No valid HcalNoiseSummary with label '"<<hcalNoiseSummaryLabel_<<"' found";
+         }
+     }
 
    // Reverse decision, if specified by user
    if (reverseFilter_)
