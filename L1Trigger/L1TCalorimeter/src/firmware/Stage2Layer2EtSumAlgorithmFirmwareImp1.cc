@@ -17,9 +17,9 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareI
 {
 
   // Add some LogDebug for these settings
-  metEtaMax_ = params_->etSumEtaMax(0);
+  metEtaMax_ = params_->etSumEtaMax(2);
   metEtaMaxHF_ = CaloTools::kHFEnd;
-  ettEtaMax_ = params_->etSumEtaMax(2);
+  ettEtaMax_ = params_->etSumEtaMax(0);
   ettEtaMaxHF_ = CaloTools::kHFEnd;
 
   nTowThresholdHw_ = floor(params_->etSumEtThreshold(4)/params_->towerLsbSum());
