@@ -1,4 +1,4 @@
-# hltGetConfiguration --cff --offline --data /dev/CMSSW_9_2_0/Fake --type Fake
+# hltGetConfiguration --cff --data /dev/CMSSW_9_2_0/Fake --type Fake
 
 # /dev/CMSSW_9_2_0/Fake/V9 (CMSSW_9_2_14)
 

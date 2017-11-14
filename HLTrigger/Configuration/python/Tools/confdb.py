@@ -278,7 +278,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
         if match:
           module = 'hltOutput' + match.group(1)
           self.data = self.data.replace(path+' = cms.EndPath', path+' = cms.Path')
-          self.data = self.data.replace(' + process.hltOutputScouting%s', '')
+          self.data = self.data.replace(' + process.'+module, '')
 
     else:
 
