@@ -21,6 +21,21 @@ puTable = cms.EDProducer("SimplePileupFlatTableProducer",
         nPU = Var( "getPU_NumInteractions()", int, doc="the number of pileup interactions that have been added to the event in the current bunch crossing" ),
         ),
 )
+genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
+        src = cms.InputTag("generator"),
+        cut = cms.string(""), 
+        name= cms.string("Generator"),
+        doc = cms.string("Generator information"),
+        singleton = cms.bool(True), 
+        extension = cms.bool(False),
+    variables = cms.PSet(
+        x1 = Var( "?hasPDF?pdf().x.first:-1", float, doc="x1 fraction of proton momentum carried by the first parton",precision=14 ),
+        x2 = Var( "?hasPDF?pdf().x.second:-1", float, doc="x2 fraction of proton momentum carried by the second parton",precision=14 ),
+	#AR: not sure what "xPDF" is wrt to just "x"
+        #x1PDF = Var( "?hasPDF?pdf().xPDF.first:-1", float, doc="x1 fraction of proton momentum carried by the first parton" ),
+        #x2PDF = Var( "?hasPDF?pdf().xPDF.second:-1", float, doc="x2 fraction of proton momentum carried by the second parton" ),
+        ),
+)
 
 globalTables = cms.Sequence(rhoTable)
-globalTablesMC = cms.Sequence(puTable)
+globalTablesMC = cms.Sequence(puTable+genTable)

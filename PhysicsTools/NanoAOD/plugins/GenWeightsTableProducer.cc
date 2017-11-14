@@ -227,10 +227,11 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 std::vector<ScaleVarWeight> scaleVariationIDs;
                 std::vector<PDFSetWeights>  pdfSetWeightIDs;
                 
-                std::regex weightgroup("<weightgroup\\s+combine=\"(.*)\"\\s+name=\"(.*)\"\\s*>");
+                std::regex weightgroup("<weightgroup\\s+combine=\"(.*)\"\\s+(?:name|type)=\"(.*)\"\\s*>");
                 std::regex endweightgroup("</weightgroup>");
-                std::regex scalew("<weight\\s+id=\"(\\d+)\">\\s*(muR=(\\S+)\\s+muF=(\\S+)(\\s+.*)?)</weight>");
+                std::regex scalew("<weight\\s+id=\"(\\d+)\">\\s*(mu[rR]=(\\S+)\\s+mu[Ff]=(\\S+)(\\s+.*)?)</weight>");
                 std::regex pdfw("<weight\\s+id=\"(\\d+)\">\\s*PDF set\\s*=\\s*(\\d+)\\s*</weight>");
+                std::regex pdfwOld("<weight\\s+id=\"(\\d+)\">\\s*Member \\s*(\\d+)\\s*</weight>");
                 std::smatch groups;
                 for (auto iter=lheInfo->headers_begin(), end = lheInfo->headers_end(); iter != end; ++iter) {
                     if (iter->tag() != "initrwgt") {
@@ -243,7 +244,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                         if (lheDebug) std::cout << lines[iLine];
                         if (std::regex_search(lines[iLine], groups, weightgroup)) {
                             if (lheDebug) std::cout << ">>> Looks like the beginning of a weight group for " << groups.str(2) << std::endl;
-                            if (groups.str(2) == "scale_variation") {
+                            if (groups.str(2) == "scale_variation" || groups.str(2) == "Central scale variation") {
                                 for ( ++iLine; iLine < nLines; ++iLine) {
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, scalew)) {
@@ -264,6 +265,26 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                     if (std::regex_search(lines[iLine], groups, pdfw)) {
                                         unsigned int lhaID = std::stoi(groups.str(2));
                                         if (lheDebug) std::cout << "    >>> PDF weight " << groups.str(1) << " for " << groups.str(2) << " = " << lhaID << std::endl;
+                                        if (pdfSetWeightIDs.empty() || ! pdfSetWeightIDs.back().maybe_add(groups.str(1),lhaID)) {
+                                            pdfSetWeightIDs.emplace_back(groups.str(1),lhaID);
+                                        }
+                                    } else if (std::regex_search(lines[iLine], endweightgroup)) {
+                                        if (lheDebug) std::cout << ">>> Looks like the end of a weight group" << std::endl;
+                                        break;
+                                    } else if (std::regex_search(lines[iLine], weightgroup)) {
+                                        if (lheDebug) std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end of the group." << std::endl;
+                                        --iLine; // rewind by one, and go back to the outer loop
+                                        break;
+                                    }
+                                }
+                            } else if (groups.str(2) == "NNPDF30_lo_as_0130.LHgrid") { // some old 80X samples have PDF names in the header instead of using "PDF_variation" (e.g. MLM LO samples)
+                                for ( ++iLine; iLine < nLines; ++iLine) {              // we explicitly catch this one, and set the LHA ID by hand
+                                    if (lheDebug) std::cout << "    " << lines[iLine];
+                                    if (std::regex_search(lines[iLine], groups, pdfwOld)) {
+                                        unsigned int lhaID = std::stoi(groups.str(2))+262000; // ids in LHE are 0 ... N, to be mapped to the LHAPDF ids 262000 ... 262000 + N
+                                                                                              // 262000 is NNPDF30_lo_as_0130, as per https://lhapdf.hepforge.org/pdfsets.html
+                                        if (lheDebug) std::cout << "    >>> PDF weight " << groups.str(1) << " for " << groups.str(2) << " = " << lhaID << std::endl;
+                                        if (lhaID == 262000) continue; // skip the central value weight as we have it already as nominal weight, only record the uncertainty weights
                                         if (pdfSetWeightIDs.empty() || ! pdfSetWeightIDs.back().maybe_add(groups.str(1),lhaID)) {
                                             pdfSetWeightIDs.emplace_back(groups.str(1),lhaID);
                                         }
