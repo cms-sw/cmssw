@@ -237,14 +237,13 @@ class ConfigBuilder(object):
         #print "map of steps is:",self.stepMap
 
         self.with_output = with_output
+	self.process=process
+
         if hasattr(self._options,"no_output_flag") and self._options.no_output_flag:
                 self.with_output = False
         self.with_input = with_input
-        if process == None:
-            self.process = cms.Process(self._options.name)
-        else:
-            self.process = process
         self.imports = []
+	self.create_process()
         self.define_Configs()
         self.schedule = list()
 
@@ -2080,6 +2079,52 @@ class ConfigBuilder(object):
         self.addedObjects.append(("Production Info","configurationMetadata"))
 
 
+    def create_process(self):
+        self.pythonCfgCode =  "# Auto generated configuration file\n"
+        self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+'\n'
+        self.pythonCfgCode += "# with command line options: "+self._options.arguments+'\n'
+        self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
+
+	# now set up the modifies
+	modifiers=[]
+	modifierStrings=[]
+	modifierImports=['from Configuration.StandardSequences.Eras import eras']
+
+        if hasattr(self._options,"era") and self._options.era :
+            # Multiple eras can be specified in a comma seperated list
+            from Configuration.StandardSequences.Eras import eras
+            for requestedEra in self._options.era.split(",") :
+		    modifierStrings.append("eras."+requestedEra)
+		    modifiers.append(getattr(eras,requestedEra))
+
+
+	if hasattr(self._options,"procModifiers") and self._options.procModifiers:
+            import importlib
+	    thingsImported=[]
+ 	    for pm in self._options.procModifiers.split(','):
+                   modifierStrings.append(pm)
+		   modifierImports.append('from Configuration.ProcessModifiers.'+pm+'_cff import '+pm)
+                   modifiers.append(getattr(importlib.import_module('Configuration.ProcessModifiers.'+pm+'_cff'),pm))
+
+	self.pythonCfgCode += '\n'.join(modifierImports)+'\n\n'
+	self.pythonCfgCode += "process = cms.Process('"+self._options.name+"'" # Start of the line, finished after the loop
+
+
+	if len(modifierStrings)>0:
+		self.pythonCfgCode+= ','+','.join(modifierStrings)
+	self.pythonCfgCode+=')\n\n'
+
+        #yes, the cfg code gets out of sync here if a process is passed in. That could be fixed in the future
+        #assuming there is some way for the fwk to get the list of modifiers (and their stringified name)
+        if self.process == None:
+	    if len(modifiers)>0:	
+               self.process = cms.Process(self._options.name,*modifiers)
+            else:
+               self.process = cms.Process(self._options.name)
+	
+
+
+
     def prepare(self, doChecking = False):
         """ Prepare the configuration string and add missing pieces."""
 
@@ -2098,20 +2143,6 @@ class ConfigBuilder(object):
                 outputModuleCfgCode=self.addOutput()
 
         self.addCommon()
-
-        self.pythonCfgCode =  "# Auto generated configuration file\n"
-        self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+'\n'
-        self.pythonCfgCode += "# with command line options: "+self._options.arguments+'\n'
-        self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
-        if hasattr(self._options,"era") and self._options.era :
-            self.pythonCfgCode += "from Configuration.StandardSequences.Eras import eras\n\n"
-            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"'" # Start of the line, finished after the loop
-            # Multiple eras can be specified in a comma seperated list
-            for requestedEra in self._options.era.split(",") :
-                self.pythonCfgCode += ",eras."+requestedEra
-            self.pythonCfgCode += ")\n\n" # end of the line
-        else :
-            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
 
         self.pythonCfgCode += "# import of standard configurations\n"
         for module in self.imports:
