@@ -80,12 +80,14 @@ namespace spr{
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  } else {
-	    const DetId anyCell = endcapGeom->getClosestCell(point2);
-	    if (!spr::chargeIsolation(anyCell,vdets)) {
+	    if (endcapGeom) {
+	      const DetId anyCell = endcapGeom->getClosestCell(point2);
+	      if (!spr::chargeIsolation(anyCell,vdets)) {
 #ifdef EDM_ML_DEBUG
-	      if (debug) std::cout << "chargeIsolationEcal Cell " << (EEDetId)(anyCell) << " pt " << pTrack2->p() << std::endl;
+		if (debug) std::cout << "chargeIsolationEcal Cell " << (EEDetId)(anyCell) << " pt " << pTrack2->p() << std::endl;
 #endif
-	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
+		if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
+	      }
 	    }
 	  }
 	} //info.second
