@@ -188,23 +188,19 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	convertModuleToBaseTau(process, 'hpsPFTauFootprintCorrectiondR03')
 	convertModuleToBaseTau(process, 'hpsPFTauPhotonPtSumOutsideSignalConedR03')
 
-	process.hpsPFTauVertexAndImpactParametersTask.remove(process.hpsPFTauPrimaryVertexProducer) #MB: Tau PV producer need be updated and added back
-	# Redefine SV producer
+	# Redefine tau PV producer
+	process.hpsPFTauPrimaryVertexProducer.__dict__['_TypedParameterizable__type'] = 'PFBaseTauPrimaryVertexProducer'
+	process.hpsPFTauPrimaryVertexProducer.PVTag = 'offlineSlimmedPrimaryVertices'
+	process.hpsPFTauPrimaryVertexProducer.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'
+	process.hpsPFTauPrimaryVertexProducer.packedCandidatesTag = cms.InputTag("packedPFCandidates")
+	process.hpsPFTauPrimaryVertexProducer.lostCandidatesTag = cms.InputTag("lostTracks")
+
+	# Redefine tau SV producer
 	process.hpsPFTauSecondaryVertexProducer = cms.EDProducer("PFBaseTauSecondaryVertexProducer",
 		PFTauTag = cms.InputTag("hpsPFTauProducer")
 	)
 	# Redefine IP producer
-	process.hpsPFTauTransverseImpactParameters = cms.EDProducer("PFBaseTauTransverseImpactParameters",
-		PFTauTag = cms.InputTag("hpsPFTauProducer"),
-		PFTauSVATag = cms.InputTag("hpsPFTauSecondaryVertexProducer"),
-		useFullCalculation = cms.bool(True),
-		leadingTrkOrPFCandOption = process.combinatoricRecoTaus.builders[0].qualityCuts.leadingTrkOrPFCandOption,
-		primaryVertexSrc = process.combinatoricRecoTaus.builders[0].qualityCuts.primaryVertexSrc,
-		pvFindingAlgo = process.combinatoricRecoTaus.builders[0].qualityCuts.pvFindingAlgo,
-		recoverLeadingTrk = process.combinatoricRecoTaus.builders[0].qualityCuts.recoverLeadingTrk,
-		vxAssocQualityCuts = process.combinatoricRecoTaus.builders[0].qualityCuts.vxAssocQualityCuts,
-		vertexTrackFiltering = process.combinatoricRecoTaus.builders[0].qualityCuts.vertexTrackFiltering
-	)
+	process.hpsPFTauTransverseImpactParameters.__dict__['_TypedParameterizable__type'] = 'PFBaseTauTransverseImpactParameters'
 
 	# Adapt MVAIso discriminants (DBoldDMwLT)
 	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw')
