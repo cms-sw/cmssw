@@ -11,7 +11,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -81,11 +80,6 @@ public:
   TrackingRegionBase(rh),
       theMeasurementTracker_(rh.theMeasurementTracker_),
       measurementTrackerName_(rh.measurementTrackerName_){}
-  
-  virtual TrackingRegion::ctfHits 
-  hits(
-       const edm::EventSetup& es, 
-       const ctfseeding::SeedingLayer* layer) const;
   
    TrackingRegion::Hits 
    hits(
