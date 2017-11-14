@@ -1,4 +1,4 @@
-# hltGetConfiguration --cff --offline --data /dev/CMSSW_9_2_0/PRef --type PRef
+# hltGetConfiguration --cff --data /dev/CMSSW_9_2_0/PRef --type PRef
 
 # /dev/CMSSW_9_2_0/PRef/V167 (CMSSW_9_2_14)
 
