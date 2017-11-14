@@ -516,7 +516,7 @@ namespace {
   class SiStripBadStripByRegionComparison : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
   public:
     SiStripBadStripByRegionComparison() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "SiStrip BadStrip By Region Comparison" ),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( false );
     }
@@ -822,7 +822,7 @@ namespace {
   class SiStripBadStripQualityAnalysis : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
   public:
     SiStripBadStripQualityAnalysis() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "SiStrip BadStrip Quality Analysis" ),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
     }
