@@ -69,7 +69,7 @@ MuonIDTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
         const pat::Muon & mu = (*muons)[i];
         tight[i] = muon::isTightMuon(mu, pv);
         highPt[i] = muon::isHighPtMuon(mu, pv) ? 2 : isTrackerHighPt(mu,pv);
-        soft[i] = isRun2016BCDEF ? isSoftMuonHIP(mu,pv) : muon::isTightMuon(mu, pv);
+        soft[i] = isRun2016BCDEF ? isSoftMuonHIP(mu,pv) : muon::isSoftMuon(mu, pv);
         medium[i] = isRun2016BCDEF ? isMediumMuonHIP(mu) : muon::isMediumMuon(mu);
     }
 
