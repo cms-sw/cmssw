@@ -277,13 +277,14 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                         break;
                                     }
                                 }
-                            } else if (groups.str(2) == "NNPDF30_lo_as_0130.LHgrid") {
-                                for ( ++iLine; iLine < nLines; ++iLine) {
+                            } else if (groups.str(2) == "NNPDF30_lo_as_0130.LHgrid") { // some old 80X samples have PDF names in the header instead of using "PDF_variation" (e.g. MLM LO samples)
+                                for ( ++iLine; iLine < nLines; ++iLine) {              // we explicitly catch this one, and set the LHA ID by hand
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, pdfwOld)) {
-                                        unsigned int lhaID = std::stoi(groups.str(2))+262000;
+                                        unsigned int lhaID = std::stoi(groups.str(2))+262000; // ids in LHE are 0 ... N, to be mapped to the LHAPDF ids 262000 ... 262000 + N
+                                                                                              // 262000 is NNPDF30_lo_as_0130, as per https://lhapdf.hepforge.org/pdfsets.html
                                         if (lheDebug) std::cout << "    >>> PDF weight " << groups.str(1) << " for " << groups.str(2) << " = " << lhaID << std::endl;
-                                        if (lhaID == 262000) continue;
+                                        if (lhaID == 262000) continue; // skip the central value weight as we have it already as nominal weight, only record the uncertainty weights
                                         if (pdfSetWeightIDs.empty() || ! pdfSetWeightIDs.back().maybe_add(groups.str(1),lhaID)) {
                                             pdfSetWeightIDs.emplace_back(groups.str(1),lhaID);
                                         }
