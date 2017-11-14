@@ -19,35 +19,45 @@ namespace clangcms
 
 
 void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
-		clang::ento::CheckerContext &C) const 
+      clang::ento::CheckerContext &C) const 
 {
-     if (! ( clang::CStyleCastExpr::classof(CE) || clang::CXXConstCastExpr::classof(CE) )) return;
-	const Expr * SE = CE->getSubExpr();	
-	const CXXRecordDecl * CRD = 0;
-	if (SE->getType()->isPointerType()) CRD = SE->getType()->getPointeeCXXRecordDecl();
-	else CRD = SE->getType()->getAsCXXRecordDecl();
-	if (CRD) {
-		std::string cname = CRD->getQualifiedNameAsString();
-		if (! support::isDataClass(cname) ) return; 
-	}
+   if (! ( clang::CStyleCastExpr::classof(CE) || clang::CXXConstCastExpr::classof(CE) ))
+      return;
+   const Expr * SE = CE->getSubExpr();   
+   const CXXRecordDecl * CRD = nullptr;
+   std::string cname;
+   if (SE->getType()->isPointerType()) 
+      CRD = SE->getType()->getPointeeCXXRecordDecl();
+   else 
+      CRD = SE->getType()->getAsCXXRecordDecl();
 
-	const clang::Expr *E = CE->getSubExpr();
-	clang::ASTContext &Ctx = C.getASTContext();
-	clang::QualType OrigTy = Ctx.getCanonicalType(E->getType());
-	clang::QualType ToTy = Ctx.getCanonicalType(CE->getType());
+   if (CRD)
+      cname = CRD->getQualifiedNameAsString();
+   
+   clang::ASTContext &Ctx = C.getASTContext();
+   clang::QualType OrigTy = Ctx.getCanonicalType(SE->getType());
+   clang::QualType ToTy = Ctx.getCanonicalType(CE->getType());
 
-	if ( support::isConst( OrigTy ) && ! support::isConst(ToTy) ) {
-		if ( clang::ento::ExplodedNode *errorNode = C.generateErrorNode()) {
-			if (!BT)
-				BT.reset(new clang::ento::BugType(this,"const cast away","ThreadSafety"));
-			std::unique_ptr<clang::ento::BugReport> R = llvm::make_unique<clang::ento::BugReport>(*BT, 
-					"const qualifier was removed via a cast, this may result in thread-unsafe code.", errorNode);
-			R->addRange(CE->getSourceRange());
-		   	if ( ! m_exception.reportConstCastAway( *R, C ) )
-				return;
-			C.emitReport(std::move(R));
-		}
-	}
+   if ( support::isConst( OrigTy ) && ! support::isConst(ToTy) ) {
+      if ( clang::ento::ExplodedNode *errorNode = C.generateErrorNode()) {
+         if (!BT)
+            BT.reset(new clang::ento::BugType(this,"const cast away","ConstThreadSafety"));
+         std::string buf;
+         llvm::raw_string_ostream os(buf);
+         os << "const qualifier was removed via a cast, this may result in thread-unsafe code.";  
+         std::unique_ptr<clang::ento::BugReport> R = llvm::make_unique<clang::ento::BugReport>(*BT, 
+               os.str(), errorNode);
+         R->addRange(CE->getSourceRange());
+         if ( ! m_exception.reportConstCastAway( *R, C ) )
+             return;
+         C.emitReport(std::move(R));
+         if (cname == "")
+             return;
+         std::string tname ="constcastaway-checker.txt.unsorted";
+         std::string tolog ="flagged class '"+cname+"' const qualifier cast away"; 
+         support::writeLog(tolog,tname);
+      }
+   }
 }
 
 }
