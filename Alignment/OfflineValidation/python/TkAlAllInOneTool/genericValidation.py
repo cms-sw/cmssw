@@ -522,6 +522,7 @@ class GenericValidationData_CTSR(GenericValidationData):
             "istracksplitting": str(isinstance(self, TrackSplittingValidation)),
             "cosmics0T": str(self.cosmics0T),
             "use_d0cut": str(self.use_d0cut),
+            "ispvvalidation": str(self.isPVValidation) 
         })
 
         commands = []
@@ -537,6 +538,9 @@ class GenericValidationData_CTSR(GenericValidationData):
     @property
     def use_d0cut(self):
         return "Cosmics" not in self.general["trackcollection"]  #use it for collisions only
+    @property
+    def isPVValidation(self):
+        return False  # only for PV Validation sequence
     @property
     def TrackSelectionRefitting(self):
         return configTemplates.CommonTrackSelectionRefitting
