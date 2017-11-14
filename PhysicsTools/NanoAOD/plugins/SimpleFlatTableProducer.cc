@@ -27,7 +27,7 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
                 const std::string & type = varPSet.getParameter<std::string>("type");
                 if (type == "int") vars_.push_back(new IntVar(vname, nanoaod::FlatTable::IntColumn, varPSet));
                 else if (type == "float") vars_.push_back(new FloatVar(vname, nanoaod::FlatTable::FloatColumn, varPSet));
-                else if (type == "uint8") vars_.push_back(new BoolVar(vname, nanoaod::FlatTable::UInt8Column, varPSet));
+                else if (type == "uint8") vars_.push_back(new UInt8Var(vname, nanoaod::FlatTable::UInt8Column, varPSet));
                 else if (type == "bool") vars_.push_back(new BoolVar(vname, nanoaod::FlatTable::BoolColumn, varPSet));
                 else throw cms::Exception("Configuration", "unsupported type "+type+" for variable "+vname);
             }
@@ -97,6 +97,7 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
             };
         typedef FuncVariable<StringObjectFunction<T>,int> IntVar;
         typedef FuncVariable<StringObjectFunction<T>,float> FloatVar;
+        typedef FuncVariable<StringObjectFunction<T>,uint8_t> UInt8Var;
         typedef FuncVariable<StringCutObjectSelector<T>,uint8_t> BoolVar;
         boost::ptr_vector<Variable> vars_;
 };
