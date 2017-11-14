@@ -127,8 +127,7 @@ void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
 }
 
 
-HLTTauDQML1Plotter::~HLTTauDQML1Plotter() {
-}
+HLTTauDQML1Plotter::~HLTTauDQML1Plotter() = default;
 
 //
 // member functions
@@ -137,17 +136,17 @@ HLTTauDQML1Plotter::~HLTTauDQML1Plotter() {
 void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup, const HLTTauDQMOfflineObjects& refC ) {
     if ( doRefAnalysis_ ) {
         //Tau reference
-        for ( LVColl::const_iterator iter = refC.taus.begin(); iter != refC.taus.end(); ++iter ) {
-            l1tauEtEffDenom_->Fill(iter->pt());
-            l1tauHighEtEffDenom_->Fill(iter->pt());
+        for (auto const & tau : refC.taus) {
+            l1tauEtEffDenom_->Fill(tau.pt());
+            l1tauHighEtEffDenom_->Fill(tau.pt());
             
-            l1tauEtaEffDenom_->Fill(iter->eta());
+            l1tauEtaEffDenom_->Fill(tau.eta());
             
-            l1tauPhiEffDenom_->Fill(iter->phi());
+            l1tauPhiEffDenom_->Fill(tau.phi());
 
-            l1isotauEtEffDenom_->Fill(iter->pt());
-            l1isotauEtaEffDenom_->Fill(iter->eta());
-            l1isotauPhiEffDenom_->Fill(iter->phi());
+            l1isotauEtEffDenom_->Fill(tau.pt());
+            l1isotauEtaEffDenom_->Fill(tau.eta());
+            l1isotauPhiEffDenom_->Fill(tau.phi());
         }
 	if(refC.met.size() > 0) l1etmEtEffDenom_->Fill(refC.met[0].pt());
     }
@@ -168,19 +167,19 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
     LVColl l1met;
 
     if(taus.isValid()) {
-      for(l1t::TauBxCollection::const_iterator i = taus->begin(); i != taus->end(); ++i) {
-        l1taus.push_back(i->p4());
-        if(i->hwIso() > 0) l1isotaus.push_back(i->p4());
+      for(auto const & i : *taus) {
+        l1taus.push_back(i.p4());
+        if(i.hwIso() > 0) l1isotaus.push_back(i.p4());
         if(!doRefAnalysis_) {
-          l1tauEt_->Fill(i->et());
-          l1tauEta_->Fill(i->eta());
-          l1tauPhi_->Fill(i->phi());
-          pathTaus.push_back(i->p4());
+          l1tauEt_->Fill(i.et());
+          l1tauEta_->Fill(i.eta());
+          l1tauPhi_->Fill(i.phi());
+          pathTaus.push_back(i.p4());
 
-          l1isotauEt_->Fill(i->et());
-          l1isotauEta_->Fill(i->eta());
-          l1isotauPhi_->Fill(i->phi());
-          if(i->hwIso() > 0) pathIsoTaus.push_back(i->p4());
+          l1isotauEt_->Fill(i.et());
+          l1isotauEta_->Fill(i.eta());
+          l1isotauPhi_->Fill(i.phi());
+          if(i.hwIso() > 0) pathIsoTaus.push_back(i.p4());
         }
       }
     }
@@ -191,8 +190,8 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
     if(sums.isValid() && sums.product()->size() > 0) {
       if(!doRefAnalysis_) {
         for (int ibx = sums->getFirstBX(); ibx <= sums->getLastBX(); ++ibx) {
-          for (l1t::EtSumBxCollection::const_iterator it=sums->begin(ibx); it!=sums->end(ibx); it++) {
-            int type = static_cast<int>( it->getType() );
+          for (auto it=sums->begin(ibx); it!=sums->end(ibx); it++) {
+            auto type = static_cast<int>( it->getType() );
             if(type == l1t::EtSum::EtSumType::kMissingEt) l1etmEt_->Fill(it->et());
           }
         }
@@ -204,33 +203,33 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
 
     //Now do the efficiency matching
     if ( doRefAnalysis_ ) {
-        for ( LVColl::const_iterator i = refC.taus.begin(); i != refC.taus.end(); ++i ) {
-            std::pair<bool,LV> m = match(*i,l1taus,matchDeltaR_);
+        for (auto const & tau : refC.taus) {
+            std::pair<bool,LV> m = match(tau,l1taus,matchDeltaR_);
             if ( m.first ) {
                 l1tauEt_->Fill(m.second.pt());
                 l1tauEta_->Fill(m.second.eta());
                 l1tauPhi_->Fill(m.second.phi());
 
-                l1tauEtEffNum_->Fill(i->pt());
-                l1tauHighEtEffNum_->Fill(i->pt());
-                l1tauEtaEffNum_->Fill(i->eta());
-                l1tauPhiEffNum_->Fill(i->phi());
+                l1tauEtEffNum_->Fill(tau.pt());
+                l1tauHighEtEffNum_->Fill(tau.pt());
+                l1tauEtaEffNum_->Fill(tau.eta());
+                l1tauPhiEffNum_->Fill(tau.phi());
 
-                l1tauEtRes_->Fill((m.second.pt()-i->pt())/i->pt());
+                l1tauEtRes_->Fill((m.second.pt()-tau.pt())/tau.pt());
 
                 pathTaus.push_back(m.second);
             }
-            m = match(*i,l1isotaus,matchDeltaR_);
+            m = match(tau,l1isotaus,matchDeltaR_);
             if ( m.first ) {
                 l1isotauEt_->Fill(m.second.pt());
                 l1isotauEta_->Fill(m.second.eta());
                 l1isotauPhi_->Fill(m.second.phi());
 
-                l1isotauEtEffNum_->Fill(i->pt());
-                l1isotauEtaEffNum_->Fill(i->eta());
-                l1isotauPhiEffNum_->Fill(i->phi());
+                l1isotauEtEffNum_->Fill(tau.pt());
+                l1isotauEtaEffNum_->Fill(tau.eta());
+                l1isotauPhiEffNum_->Fill(tau.phi());
 
-                l1isotauEtRes_->Fill((m.second.pt()-i->pt())/i->pt());
+                l1isotauEtRes_->Fill((m.second.pt()-tau.pt())/tau.pt());
 
                 pathIsoTaus.push_back(m.second);
             }
@@ -239,8 +238,8 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
 
         if(sums.isValid() && sums.product()->size() > 0) {
           for (int ibx = sums->getFirstBX(); ibx <= sums->getLastBX(); ++ibx) {
-            for (l1t::EtSumBxCollection::const_iterator it=sums->begin(ibx); it!=sums->end(ibx); it++) {
-              int type = static_cast<int>( it->getType() );
+            for (auto it=sums->begin(ibx); it!=sums->end(ibx); it++) {
+              auto type = static_cast<int>( it->getType() );
               if(type == l1t::EtSum::EtSumType::kMissingEt) {
                 l1etmEt_->Fill(it->et());
                 l1etmPhi_->Fill(it->phi());

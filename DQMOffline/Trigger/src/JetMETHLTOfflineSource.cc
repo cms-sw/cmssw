@@ -91,10 +91,10 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   pathFilter_          = iConfig.getUntrackedParameter<vector<std::string> >("pathFilter");
   pathRejectKeyword_   = iConfig.getUntrackedParameter<vector<std::string> >("pathRejectKeyword");
   std::vector<edm::ParameterSet> paths =  iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
-  for(std::vector<edm::ParameterSet>::iterator pathconf = paths.begin() ; pathconf != paths.end();  pathconf++) { 
+  for(auto & path : paths) { 
     custompathnamepairs_.push_back(make_pair(
-					     pathconf->getParameter<std::string>("pathname"),
-					     pathconf->getParameter<std::string>("denompathname")
+					     path.getParameter<std::string>("pathname"),
+					     path.getParameter<std::string>("denompathname")
 					     ));
   }
 }
@@ -207,7 +207,7 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //---------- CaloJet Correction (on-the-fly) ----------
   edm::Handle<reco::JetCorrector> calocorrector;
   iEvent.getByToken(CaloJetCorToken_, calocorrector);
-  CaloJetCollection::const_iterator calojet_ = calojet.begin();
+  auto calojet_ = calojet.begin();
   for(; calojet_ != calojet.end(); ++calojet_){
     double scale = calocorrector->correction(*calojet_);	
     jetID->calculate(iEvent, *calojet_);
@@ -249,7 +249,7 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   pfMHTy_All = 0.;
   edm::Handle<reco::JetCorrector> pfcorrector;
   iEvent.getByToken(PFJetCorToken_, pfcorrector);
-  PFJetCollection::const_iterator pfjet_ = pfjet.begin();
+  auto pfjet_ = pfjet.begin();
   for(; pfjet_ != pfjet.end(); ++pfjet_){
     double scale = pfcorrector->correction(*pfjet_);
     pfMHTx_All = pfMHTx_All + scale*pfjet_->px();
@@ -315,11 +315,11 @@ JetMETHLTOfflineSource::fillMEforMonTriggerSummary(const Event & iEvent, const e
     cout << ">> Inside fillMEforMonTriggerSummary " << endl;
   bool muTrig = false;
   
-  for(size_t i=0;i<MuonTrigPaths_.size();++i){
+  for(auto const & MuonTrigPath : MuonTrigPaths_){
     const unsigned int nPath(hltConfig_.size());
     for (unsigned int j=0; j!=nPath; ++j) {
       std::string pathname = hltConfig_.triggerName(j);
-      if(pathname.find(MuonTrigPaths_[i]) != std::string::npos){
+      if(pathname.find(MuonTrigPath) != std::string::npos){
         if(isHLTPathAccepted(pathname)){ 
 	  muTrig = true;
 	  if(verbose_) cout<<"fillMEforMonTriggerSummary: Muon Match"<<endl;
@@ -331,11 +331,11 @@ JetMETHLTOfflineSource::fillMEforMonTriggerSummary(const Event & iEvent, const e
   }
  
   bool mbTrig = false;
-  for(size_t i=0;i<MBTrigPaths_.size();++i){
+  for(auto const & MBTrigPath : MBTrigPaths_){
     const unsigned int nPath(hltConfig_.size());
     for (unsigned int j=0; j!=nPath; ++j) {
       std::string pathname = hltConfig_.triggerName(j);
-      if(pathname.find(MBTrigPaths_[i]) != std::string::npos){
+      if(pathname.find(MBTrigPath) != std::string::npos){
         if(isHLTPathAccepted(pathname)){
 	  mbTrig = true;
 	  if(verbose_) cout<<"fillMEforMonTriggerSummary: MinBias Match"<<endl;
@@ -346,7 +346,7 @@ JetMETHLTOfflineSource::fillMEforMonTriggerSummary(const Event & iEvent, const e
     if(mbTrig) break;
   }
   
-  PathInfoCollection::iterator v = hltPathsAll_.begin();
+  auto v = hltPathsAll_.begin();
   for(; v!= hltPathsAll_.end(); ++v ){
     bool trigFirst= false;  
     double binV = TriggerPosition(v->getPath());       
@@ -364,7 +364,7 @@ JetMETHLTOfflineSource::fillMEforMonTriggerSummary(const Event & iEvent, const e
 	correlation_AllWrtMB->Fill(binV,binV);
       }
     }
-    for(PathInfoCollection::iterator w = v+1; w!= hltPathsAll_.end(); ++w ){
+    for(auto w = v+1; w!= hltPathsAll_.end(); ++w ){
       bool trigSec = false; 
       double binW = TriggerPosition(w->getPath()); 
       if(isHLTPathAccepted(w->getPath()))trigSec = true;
@@ -385,9 +385,9 @@ JetMETHLTOfflineSource::fillMEforMonTriggerSummary(const Event & iEvent, const e
   edm::Handle<VertexCollection> Vtx;
   iEvent.getByToken (vertexToken,Vtx);
   int vtxcnt=0;
-  for (VertexCollection::const_iterator itv=Vtx->begin(); itv!=Vtx->end(); itv++){
+  for (auto const & itv : *Vtx){
     //if(vtxcnt>=20) break;
-    PVZ->Fill(itv->z());
+    PVZ->Fill(itv.z());
     //chi2vtx[vtxcnt] = itv->chi2();
     //ndofvtx[vtxcnt] = itv->ndof();
     //ntrkvtx[vtxcnt] = itv->tracksSize();
@@ -407,53 +407,53 @@ JetMETHLTOfflineSource::fillMEforTriggerNTfired()
     cout << "   ... and triggerResults is valid" << endl;
    
   //
-  for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
-    unsigned index = triggerNames_.triggerIndex(v->getPath()); 
+  for(auto & v : hltPathsAll_){
+    unsigned index = triggerNames_.triggerIndex(v.getPath()); 
     if (index < triggerNames_.size() ){
-      v->getMEhisto_TriggerSummary()->Fill(0.);
-      edm::InputTag l1Tag(v->getl1Path(),"",processname_);
+      v.getMEhisto_TriggerSummary()->Fill(0.);
+      edm::InputTag l1Tag(v.getl1Path(),"",processname_);
       const int l1Index = triggerObj_->filterIndex(l1Tag);
       bool l1found = false;
       if(l1Index < triggerObj_->sizeFilters() ) l1found = true;
-      if(!l1found)v->getMEhisto_TriggerSummary()->Fill(1.);
-      if(!l1found && !(triggerResults_->accept(index)))v->getMEhisto_TriggerSummary()->Fill(2.);
-      if(!l1found && (triggerResults_->accept(index)))v->getMEhisto_TriggerSummary()->Fill(3.);
-      if(l1found)v->getMEhisto_TriggerSummary()->Fill(4.);
-      if(l1found && (triggerResults_->accept(index)))v->getMEhisto_TriggerSummary()->Fill(5.); 
-      if(l1found && !(triggerResults_->accept(index)))v->getMEhisto_TriggerSummary()->Fill(6.);
+      if(!l1found)v.getMEhisto_TriggerSummary()->Fill(1.);
+      if(!l1found && !(triggerResults_->accept(index)))v.getMEhisto_TriggerSummary()->Fill(2.);
+      if(!l1found && (triggerResults_->accept(index)))v.getMEhisto_TriggerSummary()->Fill(3.);
+      if(l1found)v.getMEhisto_TriggerSummary()->Fill(4.);
+      if(l1found && (triggerResults_->accept(index)))v.getMEhisto_TriggerSummary()->Fill(5.); 
+      if(l1found && !(triggerResults_->accept(index)))v.getMEhisto_TriggerSummary()->Fill(6.);
       if(!(triggerResults_->accept(index)) && l1found){ 
 	//cout<<v->getTriggerType()<<endl;
-	if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && (calojetColl_.isValid()) && calojet.size()){
-	  CaloJetCollection::const_iterator jet = calojet.begin();
-	  v->getMEhisto_JetPt()->Fill(jet->pt());
-	  v->getMEhisto_EtavsPt()->Fill(jet->eta(),jet->pt());
-	  v->getMEhisto_PhivsPt()->Fill(jet->phi(),jet->pt());
+	if((v.getTriggerType() == "SingleJet_Trigger") && (calojetColl_.isValid()) && calojet.size()){
+	  auto jet = calojet.begin();
+	  v.getMEhisto_JetPt()->Fill(jet->pt());
+	  v.getMEhisto_EtavsPt()->Fill(jet->eta(),jet->pt());
+	  v.getMEhisto_PhivsPt()->Fill(jet->phi(),jet->pt());
 	}
 	// single jet trigger is not fired
 
-	if((v->getTriggerType().compare("DiJet_Trigger") == 0) && calojetColl_.isValid()  && calojet.size()){
-	  v->getMEhisto_JetSize()->Fill(calojet.size());
+	if((v.getTriggerType() == "DiJet_Trigger") && calojetColl_.isValid()  && calojet.size()){
+	  v.getMEhisto_JetSize()->Fill(calojet.size());
 	  if (calojet.size()>=2){
-	    CaloJetCollection::const_iterator jet = calojet.begin();
-	    CaloJetCollection::const_iterator jet2= calojet.begin(); jet2++;
+	    auto jet = calojet.begin();
+	    auto jet2= calojet.begin(); jet2++;
 	    double jet3pt = 0.;
 	    if(calojet.size()>2){
-	      CaloJetCollection::const_iterator jet3 = jet2++;
+	      auto jet3 = jet2++;
 	      jet3pt = jet3->pt();
 	    }
-	    v->getMEhisto_Pt12()->Fill((jet->pt()+jet2->pt())/2.);
-	    v->getMEhisto_Eta12()->Fill((jet->eta()+jet2->eta())/2.);
-	    v->getMEhisto_Phi12()->Fill(deltaPhi(jet->phi(),jet2->phi()));
-	    v->getMEhisto_Pt3()->Fill(jet3pt);
-	    v->getMEhisto_Pt12Pt3()->Fill((jet->pt()+jet2->pt())/2., jet3pt);
-	    v->getMEhisto_Pt12Phi12()->Fill((jet->pt()+jet2->pt())/2., deltaPhi(jet->phi(),jet2->phi()));
+	    v.getMEhisto_Pt12()->Fill((jet->pt()+jet2->pt())/2.);
+	    v.getMEhisto_Eta12()->Fill((jet->eta()+jet2->eta())/2.);
+	    v.getMEhisto_Phi12()->Fill(deltaPhi(jet->phi(),jet2->phi()));
+	    v.getMEhisto_Pt3()->Fill(jet3pt);
+	    v.getMEhisto_Pt12Pt3()->Fill((jet->pt()+jet2->pt())/2., jet3pt);
+	    v.getMEhisto_Pt12Phi12()->Fill((jet->pt()+jet2->pt())/2., deltaPhi(jet->phi(),jet2->phi()));
 	  }
 	}// di jet trigger is not fired 
 	
-	if(((v->getTriggerType().compare("MET_Trigger") == 0)|| (v->getTriggerType().compare("TET_Trigger") == 0)) && calometColl_.isValid() ){
+	if(((v.getTriggerType() == "MET_Trigger")|| (v.getTriggerType() == "TET_Trigger")) && calometColl_.isValid() ){
 	  const CaloMETCollection *calometcol = calometColl_.product();
 	  const CaloMET met = calometcol->front();
-	  v->getMEhisto_JetPt()->Fill(met.pt());
+	  v.getMEhisto_JetPt()->Fill(met.pt());
 	}//MET trigger is not fired   
       } // L1 is fired
     }//
@@ -471,10 +471,10 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
     cout << "   ... and triggerResults is valid" << endl;
   
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects());
-  for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
+  for(auto & v : hltPathsAll_){
     if (verbose_)
-      cout << "   + Checking path " << v->getPath();
-    if(isHLTPathAccepted(v->getPath())==false) {
+      cout << "   + Checking path " << v.getPath();
+    if(isHLTPathAccepted(v.getPath())==false) {
       if (verbose_)
 	cout << " - failed" << endl;
       continue;
@@ -499,18 +499,18 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
       
     //L1 and HLT indices
     if (verbose_) {
-      cout << "     - L1Path = " << v->getl1Path() << endl;
-      cout << "     - Label  = " << v->getLabel() << endl;
+      cout << "     - L1Path = " << v.getl1Path() << endl;
+      cout << "     - Label  = " << v.getLabel() << endl;
     }
 
     //edm::InputTag l1Tag(v->getl1Path(),"",processname_);
-    edm::InputTag l1Tag(v->getLabel(),"",processname_);
+    edm::InputTag l1Tag(v.getLabel(),"",processname_);
     const int l1Index = triggerObj_->filterIndex(l1Tag);
     if (verbose_)
       cout << "     - l1Index = " << l1Index << " - l1Tag = [" << l1Tag << "]" << endl;
     
 
-    edm::InputTag hltTag(v->getLabel(),"",processname_);
+    edm::InputTag hltTag(v.getLabel(),"",processname_);
     const int hltIndex = triggerObj_->filterIndex(hltTag);
     if (verbose_)
       cout << "     - hltIndex = " << hltIndex << " - hltTag = [" << hltTag << "]" << endl;
@@ -531,32 +531,32 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
       //l1TrigBool = true;
       const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
       //
-      if(v->getObjectType() == trigger::TriggerJet 
-	 && v->getTriggerType().compare("SingleJet_Trigger") == 0)
-	v->getMEhisto_N_L1()->Fill(kl1.size());
+      if(v.getObjectType() == trigger::TriggerJet 
+	 && v.getTriggerType() == "SingleJet_Trigger")
+	v.getMEhisto_N_L1()->Fill(kl1.size());
       //
-      trigger::Keys::const_iterator ki = kl1.begin();
+      auto ki = kl1.begin();
       for(; ki != kl1.end(); ++ki){
 	double l1TrigEta = -100;
 	double l1TrigPhi = -100;
 	//
-	if(v->getObjectType() == trigger::TriggerJet){ 
+	if(v.getObjectType() == trigger::TriggerJet){ 
 	  l1TrigEta = toc[*ki].eta();
 	  l1TrigPhi = toc[*ki].phi();
-	  if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
-	    v->getMEhisto_Pt_L1()->Fill(toc[*ki].pt());
-	    if (isBarrel(toc[*ki].eta())) v->getMEhisto_PtBarrel_L1()->Fill(toc[*ki].pt());
-	    if (isEndCap(toc[*ki].eta())) v->getMEhisto_PtEndcap_L1()->Fill(toc[*ki].pt());
-	    if (isForward(toc[*ki].eta())) v->getMEhisto_PtForward_L1()->Fill(toc[*ki].pt());
-	    v->getMEhisto_Eta_L1()->Fill(toc[*ki].eta());
-	    v->getMEhisto_Phi_L1()->Fill(toc[*ki].phi());
-	    v->getMEhisto_EtaPhi_L1()->Fill(toc[*ki].eta(),toc[*ki].phi());
+	  if(v.getTriggerType() == "SingleJet_Trigger"){
+	    v.getMEhisto_Pt_L1()->Fill(toc[*ki].pt());
+	    if (isBarrel(toc[*ki].eta())) v.getMEhisto_PtBarrel_L1()->Fill(toc[*ki].pt());
+	    if (isEndCap(toc[*ki].eta())) v.getMEhisto_PtEndcap_L1()->Fill(toc[*ki].pt());
+	    if (isForward(toc[*ki].eta())) v.getMEhisto_PtForward_L1()->Fill(toc[*ki].pt());
+	    v.getMEhisto_Eta_L1()->Fill(toc[*ki].eta());
+	    v.getMEhisto_Phi_L1()->Fill(toc[*ki].phi());
+	    v.getMEhisto_EtaPhi_L1()->Fill(toc[*ki].eta(),toc[*ki].phi());
 	  }
 	}
-	if(v->getObjectType() == trigger::TriggerMET || 
-	   v->getObjectType() == trigger::TriggerTET){
-	  v->getMEhisto_Pt_L1()->Fill(toc[*ki].pt());
-	  v->getMEhisto_Phi_L1()->Fill(toc[*ki].phi());
+	if(v.getObjectType() == trigger::TriggerMET || 
+	   v.getObjectType() == trigger::TriggerTET){
+	  v.getMEhisto_Pt_L1()->Fill(toc[*ki].pt());
+	  v.getMEhisto_Phi_L1()->Fill(toc[*ki].phi());
 	}
 	
 	//-----------------------------------------------  
@@ -568,21 +568,21 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	} 
 	else {
 	  const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex);
-	  if(v->getObjectType() == trigger::TriggerJet 
+	  if(v.getObjectType() == trigger::TriggerJet 
 	     && ki == kl1.begin() 
-	     && v->getTriggerType().compare("SingleJet_Trigger") == 0)
-	    v->getMEhisto_N_HLT()->Fill(khlt.size());
+	     && v.getTriggerType() == "SingleJet_Trigger")
+	    v.getMEhisto_N_HLT()->Fill(khlt.size());
 	  //
-	  trigger::Keys::const_iterator kj = khlt.begin();
+	  auto kj = khlt.begin();
 	  //Define hltTrigBool
 	  for(;kj != khlt.end(); ++kj){
-	    if(v->getObjectType() == trigger::TriggerJet){
+	    if(v.getObjectType() == trigger::TriggerJet){
 	      double hltTrigEta = -100;
 	      double hltTrigPhi = -100;
 	      hltTrigEta = toc[*kj].eta();
 	      hltTrigPhi = toc[*kj].phi();
 	      if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4 
-		 && (v->getTriggerType().compare("DiJet_Trigger") == 0))
+		 && (v.getTriggerType() == "DiJet_Trigger"))
 		hltTrigBool = true;
 	    }  
 	  }
@@ -595,74 +595,74 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	    //MET Triggers
 	    if (verbose_)
 	      cout << "+ MET Triggers plots" << endl;
-	    if(v->getObjectType() == trigger::TriggerMET || (v->getObjectType() == trigger::TriggerTET)){
-	      v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
-	      v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
-	      v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
-	      v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
-	      v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
-	      v->getMEhisto_PhiResolution_L1HLT()->Fill(toc[*ki].phi()-toc[*kj].phi());
+	    if(v.getObjectType() == trigger::TriggerMET || (v.getObjectType() == trigger::TriggerTET)){
+	      v.getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
+	      v.getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
+	      v.getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
+	      v.getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
+	      v.getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
+	      v.getMEhisto_PhiResolution_L1HLT()->Fill(toc[*ki].phi()-toc[*kj].phi());
 	    }
 	    //Jet Triggers
 	    if (verbose_)
 	      cout << "+ Jet Trigger plots" << endl;
-	    if(v->getObjectType() == trigger::TriggerJet){
+	    if(v.getObjectType() == trigger::TriggerJet){
 	      if (verbose_)
 		cout << "  - Going for those..." << endl;
 	      hltTrigEta = toc[*kj].eta();
 	      hltTrigPhi = toc[*kj].phi();
 	      if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4){
-		if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
-		  v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
-		  v->getMEhisto_EtaCorrelation_L1HLT()->Fill(toc[*ki].eta(),toc[*kj].eta());
-		  v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
-		  v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
-		  v->getMEhisto_EtaResolution_L1HLT()->Fill(toc[*ki].eta()-toc[*kj].eta());
-		  v->getMEhisto_PhiResolution_L1HLT()->Fill(toc[*ki].phi()-toc[*kj].phi());
+		if(v.getTriggerType() == "SingleJet_Trigger"){
+		  v.getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
+		  v.getMEhisto_EtaCorrelation_L1HLT()->Fill(toc[*ki].eta(),toc[*kj].eta());
+		  v.getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
+		  v.getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
+		  v.getMEhisto_EtaResolution_L1HLT()->Fill(toc[*ki].eta()-toc[*kj].eta());
+		  v.getMEhisto_PhiResolution_L1HLT()->Fill(toc[*ki].phi()-toc[*kj].phi());
 		}
 	      }
 	      if(((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi) < 0.4 ) 
-		  || ((v->getTriggerType().compare("DiJet_Trigger") == 0)  && hltTrigBool)) && !diJetFire){ 
-		if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
-		  v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
-		  if (isBarrel(toc[*kj].eta())) v->getMEhisto_PtBarrel_HLT()->Fill(toc[*kj].pt());
-		  if (isEndCap(toc[*kj].eta())) v->getMEhisto_PtEndcap_HLT()->Fill(toc[*kj].pt());
-		  if (isForward(toc[*kj].eta())) v->getMEhisto_PtForward_HLT()->Fill(toc[*kj].pt());
-		  v->getMEhisto_Eta_HLT()->Fill(toc[*kj].eta());
-		  v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
-		  v->getMEhisto_EtaPhi_HLT()->Fill(toc[*kj].eta(),toc[*kj].phi());
+		  || ((v.getTriggerType() == "DiJet_Trigger")  && hltTrigBool)) && !diJetFire){ 
+		if(v.getTriggerType() == "SingleJet_Trigger"){
+		  v.getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
+		  if (isBarrel(toc[*kj].eta())) v.getMEhisto_PtBarrel_HLT()->Fill(toc[*kj].pt());
+		  if (isEndCap(toc[*kj].eta())) v.getMEhisto_PtEndcap_HLT()->Fill(toc[*kj].pt());
+		  if (isForward(toc[*kj].eta())) v.getMEhisto_PtForward_HLT()->Fill(toc[*kj].pt());
+		  v.getMEhisto_Eta_HLT()->Fill(toc[*kj].eta());
+		  v.getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
+		  v.getMEhisto_EtaPhi_HLT()->Fill(toc[*kj].eta(),toc[*kj].phi());
 		}
 		
 		//Calojet
 		if(calojetColl_.isValid() 
-		   && (v->getObjectType() == trigger::TriggerJet)
-		   && (v->getPath().compare("PFJet") == 0)){
+		   && (v.getObjectType() == trigger::TriggerJet)
+		   && (v.getPath() == "PFJet")){
 		  //CaloJetCollection::const_iterator jet = calojet.begin();
 		  //for(; jet != calojet.end(); ++jet) {
 		  for(int iCalo=0; iCalo<2; iCalo++){
 		    if(deltaR(hltTrigEta, hltTrigPhi, CaloJetEta[iCalo], CaloJetPhi[iCalo]) < 0.4){
 		      jetsize++; 
-		      if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
-			v->getMEhisto_Pt()->Fill(CaloJetPt[iCalo]);
-			if (isBarrel(CaloJetEta[iCalo]))  v->getMEhisto_PtBarrel()->Fill(CaloJetPt[iCalo]);
-			if (isEndCap(CaloJetEta[iCalo]))  v->getMEhisto_PtEndcap()->Fill(CaloJetPt[iCalo]);
-			if (isForward(CaloJetEta[iCalo])) v->getMEhisto_PtForward()->Fill(CaloJetPt[iCalo]);
+		      if(v.getTriggerType() == "SingleJet_Trigger"){
+			v.getMEhisto_Pt()->Fill(CaloJetPt[iCalo]);
+			if (isBarrel(CaloJetEta[iCalo]))  v.getMEhisto_PtBarrel()->Fill(CaloJetPt[iCalo]);
+			if (isEndCap(CaloJetEta[iCalo]))  v.getMEhisto_PtEndcap()->Fill(CaloJetPt[iCalo]);
+			if (isForward(CaloJetEta[iCalo])) v.getMEhisto_PtForward()->Fill(CaloJetPt[iCalo]);
 			//
-			v->getMEhisto_Eta()->Fill(CaloJetEta[iCalo]);
-			v->getMEhisto_Phi()->Fill(CaloJetPhi[iCalo]);
-			v->getMEhisto_EtaPhi()->Fill(CaloJetEta[iCalo],CaloJetPhi[iCalo]); 
+			v.getMEhisto_Eta()->Fill(CaloJetEta[iCalo]);
+			v.getMEhisto_Phi()->Fill(CaloJetPhi[iCalo]);
+			v.getMEhisto_EtaPhi()->Fill(CaloJetEta[iCalo],CaloJetPhi[iCalo]); 
 			//
-			v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),CaloJetPt[iCalo]);
-			v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),CaloJetEta[iCalo]);
-			v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),CaloJetPhi[iCalo]);
+			v.getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),CaloJetPt[iCalo]);
+			v.getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),CaloJetEta[iCalo]);
+			v.getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),CaloJetPhi[iCalo]);
 			//
-			v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-CaloJetPt[iCalo])/(toc[*kj].pt()));
-			v->getMEhisto_EtaResolution_HLTRecObj()->Fill(toc[*kj].eta()-CaloJetEta[iCalo]);
-			v->getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-CaloJetPhi[iCalo]);
+			v.getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-CaloJetPt[iCalo])/(toc[*kj].pt()));
+			v.getMEhisto_EtaResolution_HLTRecObj()->Fill(toc[*kj].eta()-CaloJetEta[iCalo]);
+			v.getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-CaloJetPhi[iCalo]);
 		      }
                       
 		      //-------------------------------------------------------    
-		      if((v->getTriggerType().compare("DiJet_Trigger") == 0)){
+		      if((v.getTriggerType() == "DiJet_Trigger")){
 			jetPhiVec.push_back(CaloJetPhi[iCalo]);
 			jetPtVec.push_back(CaloJetPt[iCalo]);
 			jetEtaVec.push_back(CaloJetEta[iCalo]);         
@@ -681,34 +681,34 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 
 		//PFJet trigger
 		if(pfjetColl_.isValid() 
-		   && (v->getObjectType() == trigger::TriggerJet)
-		   && (v->getPath().compare("PFJet") != 0)){
+		   && (v.getObjectType() == trigger::TriggerJet)
+		   && (v.getPath() != "PFJet")){
 		  //PFJetCollection::const_iterator jet = pfjet.begin();
 		  //for(; jet != pfjet.end(); ++jet){ 
 		  for(int iPF=0; iPF<2; iPF++){
 		    if(deltaR(hltTrigEta, hltTrigPhi, PFJetEta[iPF], PFJetPhi[iPF]) < 0.4){
 		      jetsize++;
-		      if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
-			v->getMEhisto_Pt()->Fill(PFJetPt[iPF]);
-			if (isBarrel(PFJetEta[iPF]))  v->getMEhisto_PtBarrel()->Fill(PFJetPt[iPF]);
-			if (isEndCap(PFJetEta[iPF]))  v->getMEhisto_PtEndcap()->Fill(PFJetPt[iPF]);
-			if (isForward(PFJetEta[iPF])) v->getMEhisto_PtForward()->Fill(PFJetPt[iPF]);
+		      if(v.getTriggerType() == "SingleJet_Trigger"){
+			v.getMEhisto_Pt()->Fill(PFJetPt[iPF]);
+			if (isBarrel(PFJetEta[iPF]))  v.getMEhisto_PtBarrel()->Fill(PFJetPt[iPF]);
+			if (isEndCap(PFJetEta[iPF]))  v.getMEhisto_PtEndcap()->Fill(PFJetPt[iPF]);
+			if (isForward(PFJetEta[iPF])) v.getMEhisto_PtForward()->Fill(PFJetPt[iPF]);
 			//
-			v->getMEhisto_Eta()->Fill(PFJetEta[iPF]);
-			v->getMEhisto_Phi()->Fill(PFJetPhi[iPF]);
-			v->getMEhisto_EtaPhi()->Fill(PFJetEta[iPF],PFJetPhi[iPF]); 
+			v.getMEhisto_Eta()->Fill(PFJetEta[iPF]);
+			v.getMEhisto_Phi()->Fill(PFJetPhi[iPF]);
+			v.getMEhisto_EtaPhi()->Fill(PFJetEta[iPF],PFJetPhi[iPF]); 
 			//
-			v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),PFJetPt[iPF]);
-			v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),PFJetEta[iPF]);
-			v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),PFJetPhi[iPF]);
+			v.getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),PFJetPt[iPF]);
+			v.getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),PFJetEta[iPF]);
+			v.getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),PFJetPhi[iPF]);
 			//
-			v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-PFJetPt[iPF])/(toc[*kj].pt()));
-			v->getMEhisto_EtaResolution_HLTRecObj()->Fill(toc[*kj].eta()-PFJetEta[iPF]);
-			v->getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-PFJetPhi[iPF]);
+			v.getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-PFJetPt[iPF])/(toc[*kj].pt()));
+			v.getMEhisto_EtaResolution_HLTRecObj()->Fill(toc[*kj].eta()-PFJetEta[iPF]);
+			v.getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-PFJetPhi[iPF]);
                       }
 		      
 		      //-------------------------------------------------------    
-		      if((v->getTriggerType().compare("DiJet_Trigger") == 0)){
+		      if((v.getTriggerType() == "DiJet_Trigger")){
 			jetPhiVec.push_back(PFJetPhi[iPF]);
 			jetPtVec.push_back(PFJetPt[iPF]);
 			jetEtaVec.push_back(PFJetEta[iPF]);         
@@ -730,57 +730,57 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 
 	    //------------------------------------------------------
 	    if(calometColl_.isValid() 
-	       && ((v->getObjectType() == trigger::TriggerMET) || (v->getObjectType() == trigger::TriggerTET))
-	       && (v->getPath().find("HLT_PFMET")==std::string::npos)){
+	       && ((v.getObjectType() == trigger::TriggerMET) || (v.getObjectType() == trigger::TriggerTET))
+	       && (v.getPath().find("HLT_PFMET")==std::string::npos)){
 	      const CaloMETCollection *calometcol = calometColl_.product();
 	      const CaloMET met = calometcol->front();
 	      //
-	      v->getMEhisto_Pt()->Fill(met.et()); 
-	      v->getMEhisto_Phi()->Fill(met.phi());
+	      v.getMEhisto_Pt()->Fill(met.et()); 
+	      v.getMEhisto_Phi()->Fill(met.phi());
 	      //
-	      v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].et(),met.et());
-	      v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),met.phi());
-	      v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].et()-met.et())/(toc[*kj].et()));
-	      v->getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-met.phi()); 
+	      v.getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].et(),met.et());
+	      v.getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),met.phi());
+	      v.getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].et()-met.et())/(toc[*kj].et()));
+	      v.getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-met.phi()); 
 	    }
 	    
 	    //--------------------------------------------------------
 	    if(pfmetColl_.isValid() 
-	       && ((v->getObjectType() == trigger::TriggerMET) || (v->getObjectType() == trigger::TriggerTET))
-	       && (v->getPath().find("HLT_PFMET")!=std::string::npos)){
+	       && ((v.getObjectType() == trigger::TriggerMET) || (v.getObjectType() == trigger::TriggerTET))
+	       && (v.getPath().find("HLT_PFMET")!=std::string::npos)){
 	      const PFMETCollection *pfmetcol = pfmetColl_.product();
 	      const PFMET pfmet = pfmetcol->front();
 	      //
-	      v->getMEhisto_Pt()->Fill(pfmet.et()); 
-	      v->getMEhisto_Phi()->Fill(pfmet.phi());
+	      v.getMEhisto_Pt()->Fill(pfmet.et()); 
+	      v.getMEhisto_Phi()->Fill(pfmet.phi());
 	      //
-	      v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].et(),pfmet.et());
-	      v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),pfmet.phi());
-	      v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].et()-pfmet.et())/(toc[*kj].et()));
-	      v->getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-pfmet.phi()); 
+	      v.getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].et(),pfmet.et());
+	      v.getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),pfmet.phi());
+	      v.getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].et()-pfmet.et())/(toc[*kj].et()));
+	      v.getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-pfmet.phi()); 
 	    }
 	  }//Loop over HLT trigger candidates
-	  if((v->getTriggerType().compare("DiJet_Trigger") == 0)) diJetFire = true;
+	  if((v.getTriggerType() == "DiJet_Trigger")) diJetFire = true;
 	}// Valid hlt trigger object
       }// Loop over L1 objects
     }// Valid L1 trigger object
-    v->getMEhisto_N()->Fill(jetsize);
+    v.getMEhisto_N()->Fill(jetsize);
     
     //--------------------------------------------------------
-    if((v->getTriggerType().compare("DiJet_Trigger") == 0) && jetPtVec.size() >1){
+    if((v.getTriggerType() == "DiJet_Trigger") && jetPtVec.size() >1){
       double AveJetPt  = (jetPtVec[0] + jetPtVec[1])/2;
       double AveJetEta = (jetEtaVec[0] + jetEtaVec[1])/2;               
       double JetDelPhi = deltaPhi(jetPhiVec[0],jetPhiVec[1]);
       double AveHLTPt  = (hltPtVec[0] + hltPtVec[1])/2;
       double AveHLTEta = (hltEtaVec[0] + hltEtaVec[1])/2;
       double HLTDelPhi = deltaPhi(hltPhiVec[0],hltPhiVec[1]);
-      v->getMEhisto_AveragePt_RecObj()->Fill(AveJetPt);
-      v->getMEhisto_AverageEta_RecObj()->Fill(AveJetEta);
-      v->getMEhisto_DeltaPhi_RecObj()->Fill(JetDelPhi);
+      v.getMEhisto_AveragePt_RecObj()->Fill(AveJetPt);
+      v.getMEhisto_AverageEta_RecObj()->Fill(AveJetEta);
+      v.getMEhisto_DeltaPhi_RecObj()->Fill(JetDelPhi);
       //
-      v->getMEhisto_AveragePt_HLTObj()->Fill(AveHLTPt);
-      v->getMEhisto_AverageEta_HLTObj()->Fill(AveHLTEta);
-      v->getMEhisto_DeltaPhi_HLTObj()->Fill(HLTDelPhi);
+      v.getMEhisto_AveragePt_HLTObj()->Fill(AveHLTPt);
+      v.getMEhisto_AverageEta_HLTObj()->Fill(AveHLTEta);
+      v.getMEhisto_DeltaPhi_HLTObj()->Fill(HLTDelPhi);
     }
     
   }  
@@ -801,14 +801,14 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
   bool numpassed   = false; 
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects());
 
-  for(PathInfoCollection::iterator v = hltPathsEff_.begin(); v!= hltPathsEff_.end(); ++v ){
+  for(auto & v : hltPathsEff_){
     num++;
     denom++;
     denompassed = false;
     numpassed   = false; 
     
-    unsigned indexNum = triggerNames_.triggerIndex(v->getPath());
-    unsigned indexDenom = triggerNames_.triggerIndex(v->getDenomPath());
+    unsigned indexNum = triggerNames_.triggerIndex(v.getPath());
+    unsigned indexDenom = triggerNames_.triggerIndex(v.getDenomPath());
     
     if(indexNum   < triggerNames_.size() && triggerResults_->accept(indexNum))   numpassed   = true;
     if(indexDenom < triggerNames_.size() && triggerResults_->accept(indexDenom)) denompassed = true;
@@ -816,9 +816,9 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
     if(denompassed==false) continue;
     
     //if(numpassed==true){
-    edm::InputTag hltTag(v->getLabel(),"",processname_);
+    edm::InputTag hltTag(v.getLabel(),"",processname_);
     const int hltIndex = triggerObj_->filterIndex(hltTag);
-    edm::InputTag l1Tag(v->getl1Path(),"",processname_);
+    edm::InputTag l1Tag(v.getl1Path(),"",processname_);
     const int l1Index = triggerObj_->filterIndex(l1Tag);
     //}
     
@@ -840,9 +840,9 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
     double trigHighpTPFcutFwd = 0;
     //
     //cout<<"pre-path" << v->getPath()<<endl;
-    size_t jetstrfound = v->getPath().find("Jet");
+    size_t jetstrfound = v.getPath().find("Jet");
     //size_t censtrfound = v->getPath().find("Central"); //shoouldn't be needed?
-    string tpath = v->getPath();
+    string tpath = v.getPath();
     string jetTrigVal;
     float jetVal = 0.;
     //
@@ -852,7 +852,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 	if(!isdigit(tpath[trig])) break;
 	jetTrigVal+=tpath[trig];
       }
-      char *cjetTrigVal = (char*)jetTrigVal.c_str();
+      auto *cjetTrigVal = (char*)jetTrigVal.c_str();
       jetVal=atof(cjetTrigVal);
       //
       if(jetVal>0.){
@@ -903,7 +903,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
     
     //CaloJet paths   
     if(verbose_) std::cout << "fillMEforEffAllTrigger: CaloJet -------------------" << std::endl;
-    if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+    if(calojetColl_.isValid() && (v.getObjectType() == trigger::TriggerJet)){
       //cout<<"   - CaloJet "<<endl;
       //&& (v->getPath().find("HLT_PFJet")==std::string::npos)
       //&& (v->getPath().find("HLT_DiPFJet")==std::string::npos)){
@@ -914,44 +914,44 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
       //double ljemf    = CaloJetEMF[0];
       double ljfhpd   = CaloJetfHPD[0];
       double ljn90    = CaloJetn90[0];
-      if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size()){ //this line stops the central jets
+      if((v.getTriggerType() == "SingleJet_Trigger") && calojet.size()){ //this line stops the central jets
 	if( (ljfhpd < _fHPD) && (ljn90 > _n90Hits )){
 	  if(verbose_) cout<<"Passed CaloJet ID -------------------" << endl;
 	  jetIDbool = true;
 	  //Denominator fill
-	  v->getMEhisto_DenominatorPt()->Fill(leadjpt);
-	  if (isBarrel(leadjeta))  v->getMEhisto_DenominatorPtBarrel()->Fill(leadjpt);
-	  if (isEndCap(leadjeta))  v->getMEhisto_DenominatorPtEndcap()->Fill(leadjpt);
-	  if (isForward(leadjeta)) v->getMEhisto_DenominatorPtForward()->Fill(leadjpt);
-	  v->getMEhisto_DenominatorEta()->Fill(leadjeta);
-	  v->getMEhisto_DenominatorPhi()->Fill(leadjphi);
-	  v->getMEhisto_DenominatorEtaPhi()->Fill(leadjeta,leadjphi);
+	  v.getMEhisto_DenominatorPt()->Fill(leadjpt);
+	  if (isBarrel(leadjeta))  v.getMEhisto_DenominatorPtBarrel()->Fill(leadjpt);
+	  if (isEndCap(leadjeta))  v.getMEhisto_DenominatorPtEndcap()->Fill(leadjpt);
+	  if (isForward(leadjeta)) v.getMEhisto_DenominatorPtForward()->Fill(leadjpt);
+	  v.getMEhisto_DenominatorEta()->Fill(leadjeta);
+	  v.getMEhisto_DenominatorPhi()->Fill(leadjphi);
+	  v.getMEhisto_DenominatorEtaPhi()->Fill(leadjeta,leadjphi);
 	  if (isBarrel(leadjeta)){
-	    v->getMEhisto_DenominatorEtaBarrel()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPhiBarrel()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorEtaBarrel()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPhiBarrel()->Fill(leadjphi);
 	  }
 	  if (isEndCap(leadjeta)){
-	    v->getMEhisto_DenominatorEtaEndcap()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPhiEndcap()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorEtaEndcap()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPhiEndcap()->Fill(leadjphi);
 	  }
 	  if (isForward(leadjeta)){
-	    v->getMEhisto_DenominatorEtaForward()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPhiForward()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorEtaForward()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPhiForward()->Fill(leadjphi);
 	  }
 	  if((leadjpt > trigLowpTcut && !isForward(leadjeta)) || (leadjpt > trigLowpTcutFwd && isForward(leadjeta))){
-	    v->getMEhisto_DenominatorEta_LowpTcut()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPhi_LowpTcut()->Fill(leadjphi);
-	    v->getMEhisto_DenominatorEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
+	    v.getMEhisto_DenominatorEta_LowpTcut()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPhi_LowpTcut()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
 	  }
 	  if((leadjpt > trigMedpTcut && !isForward(leadjeta)) || (leadjpt > trigMedpTcutFwd && isForward(leadjeta))){
-	    v->getMEhisto_DenominatorEta_MedpTcut()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPhi_MedpTcut()->Fill(leadjphi);
-	    v->getMEhisto_DenominatorEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
+	    v.getMEhisto_DenominatorEta_MedpTcut()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPhi_MedpTcut()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
 	  }
 	  if((leadjpt > trigHighpTcut && !isForward(leadjeta)) || (leadjpt > trigHighpTcutFwd && isForward(leadjeta))){
-	    v->getMEhisto_DenominatorEta_HighpTcut()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPhi_HighpTcut()->Fill(leadjphi);
-	    v->getMEhisto_DenominatorEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
+	    v.getMEhisto_DenominatorEta_HighpTcut()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPhi_HighpTcut()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
 	  }
 	  
 	  //Numerator fill
@@ -959,14 +959,14 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 	    //
 	    double dRmin = 99999.;
 	    double dPhimin = 9999.;
-	    if(v->getPath().find("L1") != std::string::npos){ 
+	    if(v.getPath().find("L1") != std::string::npos){ 
 	      if ( l1Index >= triggerObj_->sizeFilters() ) {
 		edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
 	      } 
 	      else {
 		const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
-		for(trigger::Keys::const_iterator ki = kl1.begin();ki != kl1.end(); ++ki){
-		  double dR = deltaR(toc[*ki].eta(), toc[*ki].phi(), leadjeta, leadjphi);
+		for(unsigned short ki : kl1){
+		  double dR = deltaR(toc[ki].eta(), toc[ki].phi(), leadjeta, leadjphi);
 		  if(dR < dRmin){
 		    dRmin = dR;
 		  } 
@@ -979,7 +979,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 	      } 
 	      else {    
 		const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex); 
-		trigger::Keys::const_iterator kj = khlt.begin();
+		auto kj = khlt.begin();
 		for(;kj != khlt.end(); ++kj){
 		  double dR = deltaR(toc[*kj].eta(), toc[*kj].phi(), 
 				     leadjeta, leadjphi);
@@ -992,58 +992,58 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 		  }
 		}   
 		//v->getMEhisto_DeltaPhi()->Fill(dPhimin);
-		v->getMEhisto_DeltaPhi()->Fill(dPhimin);
-		v->getMEhisto_DeltaR()->Fill(dRmin);
+		v.getMEhisto_DeltaPhi()->Fill(dPhimin);
+		v.getMEhisto_DeltaR()->Fill(dRmin);
 	      }
 	    }
-	    if(dRmin < 0.1 || (v->getPath().find("L1") != std::string::npos && dRmin < 0.4)){
-	      v->getMEhisto_NumeratorPt()->Fill(leadjpt);
-	      if (isBarrel(leadjeta))  v->getMEhisto_NumeratorPtBarrel()->Fill(leadjpt);
-	      if (isEndCap(leadjeta))  v->getMEhisto_NumeratorPtEndcap()->Fill(leadjpt);
-	      if (isForward(leadjeta)) v->getMEhisto_NumeratorPtForward()->Fill(leadjpt);
-	      v->getMEhisto_NumeratorEta()->Fill(leadjeta);
-	      v->getMEhisto_NumeratorPhi()->Fill(leadjphi);
-	      v->getMEhisto_NumeratorEtaPhi()->Fill(leadjeta,leadjphi);
+	    if(dRmin < 0.1 || (v.getPath().find("L1") != std::string::npos && dRmin < 0.4)){
+	      v.getMEhisto_NumeratorPt()->Fill(leadjpt);
+	      if (isBarrel(leadjeta))  v.getMEhisto_NumeratorPtBarrel()->Fill(leadjpt);
+	      if (isEndCap(leadjeta))  v.getMEhisto_NumeratorPtEndcap()->Fill(leadjpt);
+	      if (isForward(leadjeta)) v.getMEhisto_NumeratorPtForward()->Fill(leadjpt);
+	      v.getMEhisto_NumeratorEta()->Fill(leadjeta);
+	      v.getMEhisto_NumeratorPhi()->Fill(leadjphi);
+	      v.getMEhisto_NumeratorEtaPhi()->Fill(leadjeta,leadjphi);
 	      if (isBarrel(leadjeta)){
-		v->getMEhisto_NumeratorEtaBarrel()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPhiBarrel()->Fill(leadjphi);
+		v.getMEhisto_NumeratorEtaBarrel()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPhiBarrel()->Fill(leadjphi);
 	      }
 	      if (isEndCap(leadjeta)){
-		v->getMEhisto_NumeratorEtaEndcap()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPhiEndcap()->Fill(leadjphi);
+		v.getMEhisto_NumeratorEtaEndcap()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPhiEndcap()->Fill(leadjphi);
 	      }
 	      if (isForward(leadjeta)){
-		v->getMEhisto_NumeratorEtaForward()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPhiForward()->Fill(leadjphi);
+		v.getMEhisto_NumeratorEtaForward()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPhiForward()->Fill(leadjphi);
 	      }
 	      if((leadjpt > trigLowpTcut && !isForward(leadjeta)) || (leadjpt > trigLowpTcutFwd && isForward(leadjeta))){
-		v->getMEhisto_NumeratorEta_LowpTcut()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPhi_LowpTcut()->Fill(leadjphi);
-		v->getMEhisto_NumeratorEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
+		v.getMEhisto_NumeratorEta_LowpTcut()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPhi_LowpTcut()->Fill(leadjphi);
+		v.getMEhisto_NumeratorEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
 	      }
 	      if((leadjpt > trigMedpTcut && !isForward(leadjeta)) || (leadjpt > trigMedpTcutFwd && isForward(leadjeta))){
-		v->getMEhisto_NumeratorEta_MedpTcut()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPhi_MedpTcut()->Fill(leadjphi);
-		v->getMEhisto_NumeratorEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
+		v.getMEhisto_NumeratorEta_MedpTcut()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPhi_MedpTcut()->Fill(leadjphi);
+		v.getMEhisto_NumeratorEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
 	      }
 	      if((leadjpt > trigHighpTcut && !isForward(leadjeta)) || (leadjpt > trigHighpTcutFwd && isForward(leadjeta))){
-		v->getMEhisto_NumeratorEta_HighpTcut()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPhi_HighpTcut()->Fill(leadjphi);
-		v->getMEhisto_NumeratorEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
+		v.getMEhisto_NumeratorEta_HighpTcut()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPhi_HighpTcut()->Fill(leadjphi);
+		v.getMEhisto_NumeratorEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
 	      }
 	    }
 	  }//numpassed
 	}//CalojetID filter
       }
       
-      if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size()>1){
+      if(jetIDbool == true && (v.getTriggerType() == "DiJet_Trigger") && calojet.size()>1){
 	if(((CaloJetEMF[1] > _fEMF || std::abs(CaloJetEta[1]) > _feta) && 
 	    CaloJetfHPD[0] < _fHPD && CaloJetn90[0] > _n90Hits)){
-	  v->getMEhisto_DenominatorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
-	  v->getMEhisto_DenominatorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.); 
+	  v.getMEhisto_DenominatorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
+	  v.getMEhisto_DenominatorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.); 
 	  if(numpassed==true){
-	    v->getMEhisto_NumeratorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
-	    v->getMEhisto_NumeratorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.);
+	    v.getMEhisto_NumeratorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
+	    v.getMEhisto_NumeratorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.);
 	  }
 	}
       }
@@ -1051,7 +1051,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
     
     //PFJet paths
     if(verbose_) std::cout << "fillMEforEffAllTrigger: PFJet -------------------" << std::endl;
-    if(pfjetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+    if(pfjetColl_.isValid() && (v.getObjectType() == trigger::TriggerJet)){
       //cout<<"   - PFJet "<<endl;
       //&& (v->getPath().find("HLT_PFJet")!=std::string::npos)
       //&& (v->getPath().find("HLT_DiPFJet")!=std::string::npos)){
@@ -1074,11 +1074,11 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
       double pfMHTx    = pfMHTx_All;
       double pfMHTy    = pfMHTy_All;
       //
-      if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && pfjet.size()){ //this line stops the central jets
+      if((v.getTriggerType() == "SingleJet_Trigger") && pfjet.size()){ //this line stops the central jets
 	
 	//======get pfmht
 	_pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
-	v->getMEhisto_DenominatorPFMHT()->Fill(_pfMHT);
+	v.getMEhisto_DenominatorPFMHT()->Fill(_pfMHT);
 	
 	if( ljNHEF >= _min_NHEF && ljNHEF <= _max_NHEF
 	    && ljCHEF >= _min_CHEF && ljCHEF <= _max_CHEF
@@ -1086,53 +1086,53 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 	    && ljCEMF >= _min_CEMF && ljCEMF <= _max_CEMF){
 	  if(verbose_) cout<<"Passed PFJet ID -------------------" << endl;
 	  jetIDbool = true;
-	  v->getMEhisto_DenominatorPFPt()->Fill(leadjpt);
-	  if (isBarrel(leadjeta))  v->getMEhisto_DenominatorPFPtBarrel()->Fill(leadjpt);
-	  if (isEndCap(leadjeta))  v->getMEhisto_DenominatorPFPtEndcap()->Fill(leadjpt);
-	  if (isForward(leadjeta)) v->getMEhisto_DenominatorPFPtForward()->Fill(leadjpt);
-	  v->getMEhisto_DenominatorPFEta()->Fill(leadjeta);
-	  v->getMEhisto_DenominatorPFPhi()->Fill(leadjphi);
-	  v->getMEhisto_DenominatorPFEtaPhi()->Fill(leadjeta,leadjphi);
+	  v.getMEhisto_DenominatorPFPt()->Fill(leadjpt);
+	  if (isBarrel(leadjeta))  v.getMEhisto_DenominatorPFPtBarrel()->Fill(leadjpt);
+	  if (isEndCap(leadjeta))  v.getMEhisto_DenominatorPFPtEndcap()->Fill(leadjpt);
+	  if (isForward(leadjeta)) v.getMEhisto_DenominatorPFPtForward()->Fill(leadjpt);
+	  v.getMEhisto_DenominatorPFEta()->Fill(leadjeta);
+	  v.getMEhisto_DenominatorPFPhi()->Fill(leadjphi);
+	  v.getMEhisto_DenominatorPFEtaPhi()->Fill(leadjeta,leadjphi);
 	  if(isBarrel(leadjeta)){
-	    v->getMEhisto_DenominatorPFEtaBarrel()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPFPhiBarrel()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorPFEtaBarrel()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPFPhiBarrel()->Fill(leadjphi);
 	  }
 	  if (isEndCap(leadjeta)){
-	    v->getMEhisto_DenominatorPFEtaEndcap()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPFPhiEndcap()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorPFEtaEndcap()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPFPhiEndcap()->Fill(leadjphi);
 	  }
 	  if (isForward(leadjeta)){
-	    v->getMEhisto_DenominatorPFEtaForward()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPFPhiForward()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorPFEtaForward()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPFPhiForward()->Fill(leadjphi);
 	  }
 	  if((leadjpt > trigLowpTPFcut && !isForward(leadjeta)) || (leadjpt > trigLowpTPFcutFwd && isForward(leadjeta))){
-	    v->getMEhisto_DenominatorPFEta_LowpTcut()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPFPhi_LowpTcut()->Fill(leadjphi);
-	    v->getMEhisto_DenominatorPFEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
+	    v.getMEhisto_DenominatorPFEta_LowpTcut()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPFPhi_LowpTcut()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorPFEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
 	  }
 	  if((leadjpt > trigMedpTPFcut && !isForward(leadjeta)) || (leadjpt > trigMedpTPFcutFwd && isForward(leadjeta))){
-	    v->getMEhisto_DenominatorPFEta_MedpTcut()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPFPhi_MedpTcut()->Fill(leadjphi);
-	    v->getMEhisto_DenominatorPFEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
+	    v.getMEhisto_DenominatorPFEta_MedpTcut()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPFPhi_MedpTcut()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorPFEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
 	  }
 	  if((leadjpt > trigHighpTPFcut && !isForward(leadjeta)) || (leadjpt > trigHighpTPFcutFwd && isForward(leadjeta))){
-	    v->getMEhisto_DenominatorPFEta_HighpTcut()->Fill(leadjeta);
-	    v->getMEhisto_DenominatorPFPhi_HighpTcut()->Fill(leadjphi);
-	    v->getMEhisto_DenominatorPFEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
+	    v.getMEhisto_DenominatorPFEta_HighpTcut()->Fill(leadjeta);
+	    v.getMEhisto_DenominatorPFPhi_HighpTcut()->Fill(leadjphi);
+	    v.getMEhisto_DenominatorPFEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
 	  }
 	  
 	  //Numerator fill
 	  if(numpassed){
 	    double dRmin = 99999.;
 	    double dPhimin = 9999.;
-	    if(v->getPath().find("L1") != std::string::npos){ 
+	    if(v.getPath().find("L1") != std::string::npos){ 
 	      if ( l1Index >= triggerObj_->sizeFilters() ) {
 		edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
 	      } 
 	      else{    
 		const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
-		for(trigger::Keys::const_iterator ki = kl1.begin();ki != kl1.end(); ++ki){      
-		  double dR = deltaR(toc[*ki].eta(), toc[*ki].phi(), leadjeta, leadjphi);
+		for(unsigned short ki : kl1){      
+		  double dR = deltaR(toc[ki].eta(), toc[ki].phi(), leadjeta, leadjphi);
 		  if(dR < dRmin){
 		    dRmin = dR;
 		  } 
@@ -1145,63 +1145,63 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 	      } 
 	      else{    
 		const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex); 
-		for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj){      
-		  double dR = deltaR(toc[*kj].eta(), toc[*kj].phi(), leadjeta, leadjphi);
+		for(unsigned short kj : khlt){      
+		  double dR = deltaR(toc[kj].eta(), toc[kj].phi(), leadjeta, leadjphi);
 		  if(dR < dRmin){
 		    dRmin = dR;
 		  } 
-		  double dPhi = deltaPhi(toc[*kj].phi(), leadjphi);
+		  double dPhi = deltaPhi(toc[kj].phi(), leadjphi);
 		  if(dPhi < dPhimin){
 		    dPhimin = dPhi;
 		  }
 		}  
-		v->getMEhisto_PFDeltaPhi()->Fill(dPhimin);
-		v->getMEhisto_PFDeltaR()->Fill(dRmin);
+		v.getMEhisto_PFDeltaPhi()->Fill(dPhimin);
+		v.getMEhisto_PFDeltaR()->Fill(dRmin);
 	      }  
 	    }
-	    if(dRmin < 0.1 || (v->getPath().find("L1") != std::string::npos && dRmin < 0.4)){
-	      v->getMEhisto_NumeratorPFPt()->Fill(leadjpt);
-	      if (isBarrel(leadjeta))  v->getMEhisto_NumeratorPFPtBarrel()->Fill(leadjpt);
-	      if (isEndCap(leadjeta))  v->getMEhisto_NumeratorPFPtEndcap()->Fill(leadjpt);
-	      if (isForward(leadjeta)) v->getMEhisto_NumeratorPFPtForward()->Fill(leadjpt);
-	      v->getMEhisto_NumeratorPFEta()->Fill(leadjeta);
-	      v->getMEhisto_NumeratorPFPhi()->Fill(leadjphi);
-	      v->getMEhisto_NumeratorPFEtaPhi()->Fill(leadjeta,leadjphi);
+	    if(dRmin < 0.1 || (v.getPath().find("L1") != std::string::npos && dRmin < 0.4)){
+	      v.getMEhisto_NumeratorPFPt()->Fill(leadjpt);
+	      if (isBarrel(leadjeta))  v.getMEhisto_NumeratorPFPtBarrel()->Fill(leadjpt);
+	      if (isEndCap(leadjeta))  v.getMEhisto_NumeratorPFPtEndcap()->Fill(leadjpt);
+	      if (isForward(leadjeta)) v.getMEhisto_NumeratorPFPtForward()->Fill(leadjpt);
+	      v.getMEhisto_NumeratorPFEta()->Fill(leadjeta);
+	      v.getMEhisto_NumeratorPFPhi()->Fill(leadjphi);
+	      v.getMEhisto_NumeratorPFEtaPhi()->Fill(leadjeta,leadjphi);
 	      if (isBarrel(leadjeta)){
-		v->getMEhisto_NumeratorPFEtaBarrel()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPFPhiBarrel()->Fill(leadjphi);
+		v.getMEhisto_NumeratorPFEtaBarrel()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPFPhiBarrel()->Fill(leadjphi);
 	      }
 	      if (isEndCap(leadjeta)){
-		v->getMEhisto_NumeratorPFEtaEndcap()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPFPhiEndcap()->Fill(leadjphi);
+		v.getMEhisto_NumeratorPFEtaEndcap()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPFPhiEndcap()->Fill(leadjphi);
 	      }
 	      if (isForward(leadjeta)){
-		v->getMEhisto_NumeratorPFEtaForward()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPFPhiForward()->Fill(leadjphi);
+		v.getMEhisto_NumeratorPFEtaForward()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPFPhiForward()->Fill(leadjphi);
 	      }
 	      if((leadjpt > trigLowpTPFcut && !isForward(leadjeta)) 
 		 || (leadjpt > trigLowpTPFcutFwd && isForward(leadjeta))){
-		v->getMEhisto_NumeratorPFEta_LowpTcut()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPFPhi_LowpTcut()->Fill(leadjphi);
-		v->getMEhisto_NumeratorPFEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
+		v.getMEhisto_NumeratorPFEta_LowpTcut()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPFPhi_LowpTcut()->Fill(leadjphi);
+		v.getMEhisto_NumeratorPFEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
 	      }
 	      if((leadjpt > trigMedpTPFcut && !isForward(leadjeta)) 
 		 || (leadjpt > trigMedpTPFcutFwd && isForward(leadjeta))){
-		v->getMEhisto_NumeratorPFEta_MedpTcut()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPFPhi_MedpTcut()->Fill(leadjphi);
-		v->getMEhisto_NumeratorPFEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
+		v.getMEhisto_NumeratorPFEta_MedpTcut()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPFPhi_MedpTcut()->Fill(leadjphi);
+		v.getMEhisto_NumeratorPFEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
 	      }
 	      if((leadjpt > trigHighpTPFcut && !isForward(leadjeta)) 
 		 || (leadjpt > trigHighpTPFcutFwd && isForward(leadjeta))){
-		v->getMEhisto_NumeratorPFEta_HighpTcut()->Fill(leadjeta);
-		v->getMEhisto_NumeratorPFPhi_HighpTcut()->Fill(leadjphi);
-		v->getMEhisto_NumeratorPFEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
+		v.getMEhisto_NumeratorPFEta_HighpTcut()->Fill(leadjeta);
+		v.getMEhisto_NumeratorPFPhi_HighpTcut()->Fill(leadjphi);
+		v.getMEhisto_NumeratorPFEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
 	      }
 	    }
 	  }
 	}
       }
-      if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && pfjet.size()>1){
+      if(jetIDbool == true && (v.getTriggerType() == "DiJet_Trigger") && pfjet.size()>1){
 	if( ljNHEF     >= _min_NHEF && ljNHEF  <= _max_NHEF
 	    && ljCHEF  >= _min_CHEF && ljCHEF  <= _max_CHEF
 	    && ljNEMF  >= _min_NEMF && ljNEMF  <= _max_NEMF
@@ -1210,11 +1210,11 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 	    && sljCHEF >= _min_CHEF && sljCHEF <= _max_CHEF
 	    && sljNEMF >= _min_NEMF && sljNEMF <= _max_NEMF
 	    && sljCEMF >= _min_CEMF && sljCEMF <= _max_CEMF ){
-	  v->getMEhisto_DenominatorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
-	  v->getMEhisto_DenominatorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
+	  v.getMEhisto_DenominatorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
+	  v.getMEhisto_DenominatorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
 	  if(numpassed){
-	    v->getMEhisto_NumeratorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
-	    v->getMEhisto_NumeratorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
+	    v.getMEhisto_NumeratorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
+	    v.getMEhisto_NumeratorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
 	  }
 	}
       }
@@ -1223,28 +1223,28 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
     //CaloMET path
     if(verbose_) std::cout << "fillMEforEffAllTrigger: CaloMET -------------------" << std::endl;
     if(calometColl_.isValid() 
-       && ((v->getObjectType() == trigger::TriggerMET) || (v->getObjectType() == trigger::TriggerTET))
-       && (v->getPath().find("HLT_PFMET")==std::string::npos)){
+       && ((v.getObjectType() == trigger::TriggerMET) || (v.getObjectType() == trigger::TriggerTET))
+       && (v.getPath().find("HLT_PFMET")==std::string::npos)){
       const CaloMETCollection *calometcol = calometColl_.product();
       const CaloMET met = calometcol->front();
-      v->getMEhisto_DenominatorPt()->Fill(met.et());
-      v->getMEhisto_DenominatorPhi()->Fill(met.phi()); 
+      v.getMEhisto_DenominatorPt()->Fill(met.et());
+      v.getMEhisto_DenominatorPhi()->Fill(met.phi()); 
       if(numpassed){
-	v->getMEhisto_NumeratorPt()->Fill(met.et());
-	v->getMEhisto_NumeratorPhi()->Fill(met.phi());
+	v.getMEhisto_NumeratorPt()->Fill(met.et());
+	v.getMEhisto_NumeratorPhi()->Fill(met.phi());
 	if(hltIndex >= triggerObj_->sizeFilters()){
 	  edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
 	} 
 	else{
 	  double dPhimin = 9999.;//
 	  const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex); 
-	  for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj){
-	    double dPhi = deltaPhi(toc[*kj].phi(), met.phi());
+	  for(unsigned short kj : khlt){
+	    double dPhi = deltaPhi(toc[kj].phi(), met.phi());
 	    if(dPhi < dPhimin){
 	      dPhimin = dPhi;
 	    }
 	  }  
-	  v->getMEhisto_DeltaPhi()->Fill(dPhimin);
+	  v.getMEhisto_DeltaPhi()->Fill(dPhimin);
 	}
       } 
     }
@@ -1252,28 +1252,28 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
     //PFMET
     if(verbose_) std::cout << "fillMEforEffAllTrigger: PFMET -------------------" << std::endl;
     if(pfmetColl_.isValid() 
-       && ((v->getObjectType() == trigger::TriggerMET) || (v->getObjectType() == trigger::TriggerTET))
-       && (v->getPath().find("HLT_PFMET")!=std::string::npos)){
+       && ((v.getObjectType() == trigger::TriggerMET) || (v.getObjectType() == trigger::TriggerTET))
+       && (v.getPath().find("HLT_PFMET")!=std::string::npos)){
       const PFMETCollection *pfmetcol = pfmetColl_.product();
       const PFMET met = pfmetcol->front();
-      v->getMEhisto_DenominatorPt()->Fill(met.et());
-      v->getMEhisto_DenominatorPhi()->Fill(met.phi()); 
+      v.getMEhisto_DenominatorPt()->Fill(met.et());
+      v.getMEhisto_DenominatorPhi()->Fill(met.phi()); 
       if(numpassed){
-	v->getMEhisto_NumeratorPt()->Fill(met.et());
-	v->getMEhisto_NumeratorPhi()->Fill(met.phi());
+	v.getMEhisto_NumeratorPt()->Fill(met.et());
+	v.getMEhisto_NumeratorPhi()->Fill(met.phi());
 	if(hltIndex >= triggerObj_->sizeFilters()){
 	  edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
 	} 
 	else{
 	  double dPhimin = 9999.;//
 	  const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex); 
-	  for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj){
-	    double dPhi = deltaPhi(toc[*kj].phi(), met.phi());
+	  for(unsigned short kj : khlt){
+	    double dPhi = deltaPhi(toc[kj].phi(), met.phi());
 	    if(dPhi < dPhimin){
 	      dPhimin = dPhi;
 	    }
 	  }  
-	  v->getMEhisto_DeltaPhi()->Fill(dPhimin);
+	  v.getMEhisto_DeltaPhi()->Fill(dPhimin);
 	}
       } 
     }
@@ -1322,7 +1322,7 @@ JetMETHLTOfflineSource::dqmBeginRun(edm::Run const& run,edm::EventSetup const& c
       //Look for paths if "path name fraction" is found in the pathname
       std::string pathname = hltConfig_.triggerName(i);
       //Filter only paths JetMET triggers are interested in
-      std::vector<std::string>::const_iterator controlPathname = pathFilter_.begin();
+      auto controlPathname = pathFilter_.begin();
       for(;controlPathname!=pathFilter_.end(); ++controlPathname){
 	if(pathname.find((*controlPathname)) != std::string::npos){
 	  checkPath = true;
@@ -1332,7 +1332,7 @@ JetMETHLTOfflineSource::dqmBeginRun(edm::Run const& run,edm::EventSetup const& c
       if(checkPath==false) continue;
       
       //Reject if keyword(s) is found in the pathname
-      std::vector<std::string>::const_iterator rejectPathname = pathRejectKeyword_.begin();
+      auto rejectPathname = pathRejectKeyword_.begin();
       for(; rejectPathname!=pathRejectKeyword_.end();++rejectPathname){
 	if(pathname.find((*rejectPathname)) != std::string::npos){
 	  checkPath = false;
@@ -1420,31 +1420,31 @@ JetMETHLTOfflineSource::dqmBeginRun(edm::Run const& run,edm::EventSetup const& c
 	l1pathname = getL1ConditionModuleName(pathname); //ml added L1conditionmodulename	
 	//ml added
 	std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
-        for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-	  edm::InputTag testTag(*numpathmodule,"",processname_);
-	  if ((hltConfig_.moduleType(*numpathmodule)    == "HLT1CaloJet")
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLT1PFJet")
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter")
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLTDiPFJetAveFilter") 
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET") 
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLTMhtFilter") 
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLTPrescaler"))
-	    filtername = *numpathmodule;
+        for(auto & numpathmodule : numpathmodules) {
+	  edm::InputTag testTag(numpathmodule,"",processname_);
+	  if ((hltConfig_.moduleType(numpathmodule)    == "HLT1CaloJet")
+	      || (hltConfig_.moduleType(numpathmodule) == "HLT1PFJet")
+	      || (hltConfig_.moduleType(numpathmodule) == "HLTDiJetAveFilter")
+	      || (hltConfig_.moduleType(numpathmodule) == "HLTDiPFJetAveFilter") 
+	      || (hltConfig_.moduleType(numpathmodule) == "HLT1CaloMET") 
+	      || (hltConfig_.moduleType(numpathmodule) == "HLTMhtFilter") 
+	      || (hltConfig_.moduleType(numpathmodule) == "HLTPrescaler"))
+	    filtername = numpathmodule;
 	}
       }
 
       if(objectType != 0 && denomFound){
         std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(dpathname);
-        for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-	  edm::InputTag testTag(*numpathmodule,"",processname_);
-	  if ((hltConfig_.moduleType(*numpathmodule)    == "HLT1CaloJet")
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLT1PFJet")
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter") 
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLTDiPFJetAveFilter") 
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET" ) 
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLTMhtFilter") 
-	      || (hltConfig_.moduleType(*numpathmodule) == "HLTPrescaler") )
-	    Denomfiltername = *numpathmodule;
+        for(auto & numpathmodule : numpathmodules) {
+	  edm::InputTag testTag(numpathmodule,"",processname_);
+	  if ((hltConfig_.moduleType(numpathmodule)    == "HLT1CaloJet")
+	      || (hltConfig_.moduleType(numpathmodule) == "HLT1PFJet")
+	      || (hltConfig_.moduleType(numpathmodule) == "HLTDiJetAveFilter") 
+	      || (hltConfig_.moduleType(numpathmodule) == "HLTDiPFJetAveFilter") 
+	      || (hltConfig_.moduleType(numpathmodule) == "HLT1CaloMET" ) 
+	      || (hltConfig_.moduleType(numpathmodule) == "HLTMhtFilter") 
+	      || (hltConfig_.moduleType(numpathmodule) == "HLTPrescaler") )
+	    Denomfiltername = numpathmodule;
 	}
       }
 
@@ -1476,10 +1476,9 @@ JetMETHLTOfflineSource::dqmBeginRun(edm::Run const& run,edm::EventSetup const& c
       std::string triggerType = "";
       std::string filtername("dummy");
       std::string Denomfiltername("denomdummy");
-      for (std::vector<std::pair<std::string, std::string> >::iterator custompathnamepair = custompathnamepairs_.begin(); 
-	   custompathnamepair != custompathnamepairs_.end(); ++custompathnamepair){
-	std::string pathname  = custompathnamepair->first;
-	std::string dpathname = custompathnamepair->second;
+      for (auto & custompathnamepair : custompathnamepairs_){
+	std::string pathname  = custompathnamepair.first;
+	std::string dpathname = custompathnamepair.second;
 	bool numFound = false;
 	bool denomFound = false;
 	// Checking if the trigger exist in HLT table or not
@@ -1516,30 +1515,30 @@ JetMETHLTOfflineSource::dqmBeginRun(edm::Run const& run,edm::EventSetup const& c
 	  
 	  l1pathname = getL1ConditionModuleName(pathname); //ml added L1conditionmodulename
 	  std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
-	  for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-	    edm::InputTag testTag(*numpathmodule,"",processname_);
-	    if ((hltConfig_.moduleType(*numpathmodule) == "HLT1CaloJet")
-		|| (hltConfig_.moduleType(*numpathmodule) == "HLT1PFJet")
-		|| (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter") 
-		|| (hltConfig_.moduleType(*numpathmodule) == "HLTDiPFJetAveFilter") 
-		|| (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET" ) 
-		|| (hltConfig_.moduleType(*numpathmodule) == "HLTMhtFilter") 
-		|| (hltConfig_.moduleType(*numpathmodule) == "HLTPrescaler") )
-	      filtername = *numpathmodule;
+	  for(auto & numpathmodule : numpathmodules) {
+	    edm::InputTag testTag(numpathmodule,"",processname_);
+	    if ((hltConfig_.moduleType(numpathmodule) == "HLT1CaloJet")
+		|| (hltConfig_.moduleType(numpathmodule) == "HLT1PFJet")
+		|| (hltConfig_.moduleType(numpathmodule) == "HLTDiJetAveFilter") 
+		|| (hltConfig_.moduleType(numpathmodule) == "HLTDiPFJetAveFilter") 
+		|| (hltConfig_.moduleType(numpathmodule) == "HLT1CaloMET" ) 
+		|| (hltConfig_.moduleType(numpathmodule) == "HLTMhtFilter") 
+		|| (hltConfig_.moduleType(numpathmodule) == "HLTPrescaler") )
+	      filtername = numpathmodule;
 	  }
 	  
 	  if(objectType != 0){
 	    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(dpathname);
-	    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-	      edm::InputTag testTag(*numpathmodule,"",processname_);
-	      if ((hltConfig_.moduleType(*numpathmodule)    == "HLT1CaloJet")
-		  || (hltConfig_.moduleType(*numpathmodule) == "HLT1PFJet")
-		  || (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter")
-		  || (hltConfig_.moduleType(*numpathmodule) == "HLTDiPFJetAveFilter")  
-		  || (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET" ) 
-		  || (hltConfig_.moduleType(*numpathmodule) == "HLTMhtFilter") 
-		  || (hltConfig_.moduleType(*numpathmodule) == "HLTPrescaler") )
-		Denomfiltername = *numpathmodule;
+	    for(auto & numpathmodule : numpathmodules) {
+	      edm::InputTag testTag(numpathmodule,"",processname_);
+	      if ((hltConfig_.moduleType(numpathmodule)    == "HLT1CaloJet")
+		  || (hltConfig_.moduleType(numpathmodule) == "HLT1PFJet")
+		  || (hltConfig_.moduleType(numpathmodule) == "HLTDiJetAveFilter")
+		  || (hltConfig_.moduleType(numpathmodule) == "HLTDiPFJetAveFilter")  
+		  || (hltConfig_.moduleType(numpathmodule) == "HLT1CaloMET" ) 
+		  || (hltConfig_.moduleType(numpathmodule) == "HLTMhtFilter") 
+		  || (hltConfig_.moduleType(numpathmodule) == "HLTPrescaler") )
+		Denomfiltername = numpathmodule;
 	    }
      
 	    if(verbose_)cout<<"==pathname=="<<pathname
@@ -1616,14 +1615,14 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
     }
     //---Set bin label
     
-    for(PathInfoCollection::iterator v = hltPathsAllTriggerSummary_.begin(); v!= hltPathsAllTriggerSummary_.end(); ++v ){
+    for(auto & v : hltPathsAllTriggerSummary_){
       std::string labelnm("dummy");
-      labelnm = v->getPath(); 
+      labelnm = v.getPath(); 
       int nbins = rate_All->getTH1()->GetNbinsX();
       for(int ibin=1; ibin<nbins+1; ibin++){
 	const char * binLabel = rate_All->getTH1()->GetXaxis()->GetBinLabel(ibin);
 	std::string binLabel_str = string(binLabel);
-	if(binLabel_str.compare(labelnm)==0)break;
+	if(binLabel_str==labelnm)break;
 	if(binLabel[0]=='\0'){
 	  rate_All->setBinLabel(ibin,labelnm);  
 	  correlation_All->setBinLabel(ibin,labelnm,1);
@@ -1667,9 +1666,9 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
       double ResMax_   =   1.5;
       //
       std::string dirName = dirname_ + "/MonitorAllTriggers/";
-      for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
+      for(auto & v : hltPathsAll_){
 	//
-	std::string trgPathName = HLTConfigProvider::removeVersion(v->getPath());
+	std::string trgPathName = HLTConfigProvider::removeVersion(v.getPath());
 	std::string subdirName  = dirName + trgPathName;
 	std::string trigPath    = "("+trgPathName+")";
 	iBooker.setCurrentFolder(subdirName);  
@@ -1681,7 +1680,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	MonitorElement *dummy;
 	dummy =  iBooker.bookFloat("dummy");  
 	
-	if(v->getObjectType() == trigger::TriggerJet && v->getTriggerType().compare("SingleJet_Trigger") == 0){
+	if(v.getObjectType() == trigger::TriggerJet && v.getTriggerType() == "SingleJet_Trigger"){
 	  
 	  histoname = labelname+"_recObjN";
 	  title     = labelname+"_recObjN;Reco multiplicity()"+trigPath;
@@ -1863,7 +1862,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  MonitorElement * PhiCorrelation_HLTRecObj = iBooker.book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
 	  PhiCorrelation_HLTRecObj->getTH1();
 	  
-	  v->setHistos(N, 
+	  v.setHistos(N, 
 		       Pt,  
 		       PtBarrel, 
 		       PtEndcap, 
@@ -1911,7 +1910,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 		       );
 	}// histos for SingleJet Triggers
 
-	if(v->getObjectType() == trigger::TriggerJet && v->getTriggerType().compare("DiJet_Trigger") == 0){
+	if(v.getObjectType() == trigger::TriggerJet && v.getTriggerType() == "DiJet_Trigger"){
 	  
 	  histoname = labelname+"_RecObjAveragePt";
 	  title     = labelname+"_RecObjAveragePt;Reco Average Pt[GeV/c]"+trigPath;
@@ -1943,7 +1942,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  MonitorElement * hltPhiDifference = iBooker.book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  hltPhiDifference->getTH1();
 
-	  v->setHistos(dummy, 
+	  v.setHistos(dummy, 
 		       dummy,  
 		       dummy, 
 		       dummy, 
@@ -1991,7 +1990,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 		       );  
 	}// histos for DiJet Triggers
 
-	if(v->getObjectType() == trigger::TriggerMET || (v->getObjectType() == trigger::TriggerTET)){ 
+	if(v.getObjectType() == trigger::TriggerMET || (v.getObjectType() == trigger::TriggerTET)){ 
 	  
 	  histoname = labelname+"_recObjPt";
 	  title = labelname+"_recObjPt;Reco Pt[GeV/c]"+trigPath;
@@ -2063,7 +2062,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  MonitorElement * PhiCorrelation_HLTRecObj = iBooker.book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
 	  PhiCorrelation_HLTRecObj->getTH1();
 	  
-	  v->setHistos(dummy, 
+	  v.setHistos(dummy, 
 		       Pt,  
 		       dummy, 
 		       dummy, 
@@ -2129,10 +2128,10 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
       double PhiMax_   = 3.5;
       // Now define histos wrt lower threshold trigger
       std::string dirName1 = dirname_ + "/RelativeTriggerEff/";
-      for(PathInfoCollection::iterator v = hltPathsEff_.begin(); v!= hltPathsEff_.end(); ++v ){
+      for(auto & v : hltPathsEff_){
 	//
-	std::string trgPathName    = HLTConfigProvider::removeVersion(v->getPath());
-	std::string trgPathNameD   = HLTConfigProvider::removeVersion(v->getDenomPath());
+	std::string trgPathName    = HLTConfigProvider::removeVersion(v.getPath());
+	std::string trgPathNameD   = HLTConfigProvider::removeVersion(v.getDenomPath());
 	//
 	std::string labelname("ME") ;
 	std::string subdirName = dirName1 + trgPathName + "_wrt_" + trgPathNameD;
@@ -2144,7 +2143,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	MonitorElement *dummy;
 	dummy =  iBooker.bookFloat("dummy");   
     
-	if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("SingleJet_Trigger") == 0)){   
+	if((v.getObjectType() == trigger::TriggerJet) && (v.getTriggerType() == "SingleJet_Trigger")){   
 	  
 	  histoname = labelname+"_NumeratorPt";
 	  title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
@@ -2616,7 +2615,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  MonitorElement * PFDeltaPhi =  iBooker.book1D(histoname.c_str(),title.c_str(),500,-5.0,5.0);
 	  PFDeltaPhi->getTH1();
 	  
-	  v->setEffHistos(NumeratorPt,
+	  v.setEffHistos(NumeratorPt,
 			  NumeratorPtBarrel,
 			  NumeratorPtEndcap,
 			  NumeratorPtForward,
@@ -2718,7 +2717,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  
 	}// Loop over Jet Trigger
 	
-	if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("DiJet_Trigger") == 0)){
+	if((v.getObjectType() == trigger::TriggerJet) && (v.getTriggerType() == "DiJet_Trigger")){
 	  
 	  histoname = labelname+"_NumeratorAvrgPt";
 	  title     = labelname+"NumeratorAvrgPt;Calo Pt[GeV/c]";
@@ -2781,7 +2780,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  MonitorElement * PFDeltaPhi =  iBooker.book1D(histoname.c_str(),title.c_str(),500,-5.,5.);
 	  PFDeltaPhi->getTH1();
 	  
-	  v->setEffHistos(  dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+	  v.setEffHistos(  dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
 			    dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
 			    dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, 
 			    dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
@@ -2794,10 +2793,10 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 			    );
 	}
 	
-	if(v->getObjectType() == trigger::TriggerMET || (v->getObjectType() == trigger::TriggerTET)){
+	if(v.getObjectType() == trigger::TriggerMET || (v.getObjectType() == trigger::TriggerTET)){
 	  
 	  histoname = labelname+"_NumeratorPt";
-	  if(v->getPath().find("HLT_PFMET")==std::string::npos)
+	  if(v.getPath().find("HLT_PFMET")==std::string::npos)
 	    title     = labelname+"NumeratorPt; CaloMET[GeV/c]";
 	  else
 	    title     = labelname+"NumeratorPt; PFMET[GeV/c]"; 
@@ -2810,7 +2809,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  NumeratorPhi->getTH1();
 	  
 	  histoname = labelname+"_DenominatorPt";
-	  if(v->getPath().find("HLT_PFMET")==std::string::npos)
+	  if(v.getPath().find("HLT_PFMET")==std::string::npos)
 	    title     = labelname+"DenominatorPt; CaloMET[GeV/c]";
 	  else
 	    title     = labelname+"DenominatorPt; PFMET[GeV/c]"; 
@@ -2822,7 +2821,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  MonitorElement * DenominatorPhi =  iBooker.book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  DenominatorPhi->getTH1();
 	  
-	  v->setEffHistos(  NumeratorPt, dummy, dummy, dummy, dummy, NumeratorPhi, dummy, dummy, dummy, dummy,
+	  v.setEffHistos(  NumeratorPt, dummy, dummy, dummy, dummy, NumeratorPhi, dummy, dummy, dummy, dummy,
 			    dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
 			    dummy, dummy, DenominatorPt, dummy, dummy, dummy, dummy, DenominatorPhi, dummy, dummy, 
 			    dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
@@ -2855,7 +2854,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
       std::string dirName4_ = dirname_ + "/TriggerNotFired/";
       //      iBooker.setCurrentFolder(dirName4); 
  
-     for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
+     for(auto & v : hltPathsAll_){
 
 	MonitorElement *dummy;
 	dummy =  iBooker.bookFloat("dummy");
@@ -2863,25 +2862,25 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	std::string labelname("ME") ;
 	std::string histoname(labelname+"");
 	std::string title(labelname+"");
-	iBooker.setCurrentFolder(dirName4_ + v->getPath());
+	iBooker.setCurrentFolder(dirName4_ + v.getPath());
 	
 	histoname = labelname+"_TriggerSummary";
 	title     = labelname+"Summary of trigger levels"; 
 	MonitorElement * TriggerSummary = iBooker.book1D(histoname.c_str(),title.c_str(),7, -0.5,6.5);
 	
 	std::vector<std::string> trigger;
-	trigger.push_back("Nevt");
-	trigger.push_back("L1 failed");
-	trigger.push_back("L1 & HLT failed");
-	trigger.push_back("L1 failed but not HLT");
-	trigger.push_back("L1 passed");
-	trigger.push_back("L1 & HLT passed");
-	trigger.push_back("L1 passed but not HLT");
+	trigger.emplace_back("Nevt");
+	trigger.emplace_back("L1 failed");
+	trigger.emplace_back("L1 & HLT failed");
+	trigger.emplace_back("L1 failed but not HLT");
+	trigger.emplace_back("L1 passed");
+	trigger.emplace_back("L1 & HLT passed");
+	trigger.emplace_back("L1 passed but not HLT");
 	
 	for(unsigned int i =0; i < trigger.size(); i++)
 	  TriggerSummary->setBinLabel(i+1, trigger[i]);
 	
-	if((v->getTriggerType().compare("SingleJet_Trigger") == 0)){
+	if((v.getTriggerType() == "SingleJet_Trigger")){
 	  histoname = labelname+"_JetPt"; 
 	  title     = labelname+"Leading jet pT;Pt[GeV/c]";
 	  MonitorElement * JetPt = iBooker.book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
@@ -2897,10 +2896,10 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  MonitorElement * JetPhiVsPt = iBooker.book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Ptbins_,PtMin_,PtMax_);
 	  JetPhiVsPt->getTH1();
 	  
-	  v->setDgnsHistos( TriggerSummary, dummy, JetPt, JetEtaVsPt, JetPhiVsPt, dummy, dummy, dummy, dummy, dummy, dummy); 
+	  v.setDgnsHistos( TriggerSummary, dummy, JetPt, JetEtaVsPt, JetPhiVsPt, dummy, dummy, dummy, dummy, dummy, dummy); 
 	}// single Jet trigger  
 	
-	if((v->getTriggerType().compare("DiJet_Trigger") == 0)){
+	if((v.getTriggerType() == "DiJet_Trigger")){
 	  histoname = labelname+"_JetSize"; 
 	  title     = labelname+"Jet Size;multiplicity";
 	  MonitorElement * JetSize = iBooker.book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
@@ -2936,25 +2935,25 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  MonitorElement * Pt12Phi12 = iBooker.book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Phibins_,PhiMin_,PhiMax_);
 	  Pt12Phi12->getTH1();
 	  
-	  v->setDgnsHistos( TriggerSummary, JetSize, dummy, dummy, dummy, Pt12, Eta12, Phi12, Pt3, Pt12Pt3, Pt12Phi12);
+	  v.setDgnsHistos( TriggerSummary, JetSize, dummy, dummy, dummy, Pt12, Eta12, Phi12, Pt3, Pt12Pt3, Pt12Phi12);
 	}// Dijet Jet trigger
 	
-	if((v->getTriggerType().compare("MET_Trigger") == 0)){
+	if((v.getTriggerType() == "MET_Trigger")){
 	  histoname = labelname+"_MET";
 	  title     = labelname+"MET;Pt[GeV/c]";
 	  MonitorElement * MET = iBooker.book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  MET->getTH1();
 	  
-	  v->setDgnsHistos(TriggerSummary, dummy, MET, dummy, dummy, dummy, dummy, dummy,dummy,dummy,dummy);
+	  v.setDgnsHistos(TriggerSummary, dummy, MET, dummy, dummy, dummy, dummy, dummy,dummy,dummy,dummy);
 	} // MET trigger  
 	
-	if((v->getTriggerType().compare("TET_Trigger") == 0)){
+	if((v.getTriggerType() == "TET_Trigger")){
 	  histoname = labelname+"_TET";
 	  title     = labelname+"TET;Pt[GeV/c]";
 	  MonitorElement * TET = iBooker.book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TET->getTH1();
 	  
-	  v->setDgnsHistos(TriggerSummary, dummy, TET, dummy, dummy, dummy, dummy, dummy,dummy,dummy,dummy);
+	  v.setDgnsHistos(TriggerSummary, dummy, TET, dummy, dummy, dummy, dummy, dummy,dummy,dummy,dummy);
 	} // TET trigger  
       }
     }//runStandalone
@@ -2972,11 +2971,10 @@ const std::string JetMETHLTOfflineSource::getL1ConditionModuleName(const std::st
   
   std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
   
-  for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-      numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+  for(auto & numpathmodule : numpathmodules) {
     
-    if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed") {
-      l1pathname = *numpathmodule;
+    if (hltConfig_.moduleType(numpathmodule) == "HLTLevel1GTSeed") {
+      l1pathname = numpathmodule;
       break; 
     }
   }
@@ -3037,9 +3035,9 @@ double JetMETHLTOfflineSource::TriggerPosition(std::string trigName){
     if(binLabel[0]=='\0')continue;
     //       std::string binLabel_str = string(binLabel);
     //       if(binLabel_str.compare(trigName)!=0)continue;
-    if(trigName.compare(binLabel)!=0)continue;
+    if(trigName!=binLabel)continue;
 
-    if(trigName.compare(binLabel)==0){
+    if(trigName==binLabel){
       binVal = rate_All->getTH1()->GetBinCenter(ibin);
       break;
     }

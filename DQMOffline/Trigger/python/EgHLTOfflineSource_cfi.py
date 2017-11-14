@@ -28,7 +28,7 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  IsolTrackCollection = cms.InputTag("generalTracks"),
                                  HBHERecHitCollection = cms.InputTag("hbhereco"),
                                  HFRecHitCollection = cms.InputTag("hfreco"),
-                                 DQMDirName=cms.string("HLT/EgOffline"),
+                                 DQMDirName=cms.string("HLT/EGM"),
 
                                  BeamSpotProducer = cms.InputTag("offlineBeamSpot"),
                                  CaloTowers = cms.InputTag("towerMaker"),

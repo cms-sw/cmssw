@@ -53,17 +53,17 @@ public:
 private:
 
   // Analyzer Methods
-  virtual void dqmBeginRun(const edm::Run &,
+  void dqmBeginRun(const edm::Run &,
 			   const edm::EventSetup &) override;
-  virtual void bookHistograms(DQMStore::IBooker &,
+  void bookHistograms(DQMStore::IBooker &,
 			      edm::Run const &,
 			      edm::EventSetup const &) override;  
-  virtual void analyze(const edm::Event &,
+  void analyze(const edm::Event &,
 		       const edm::EventSetup &) override;
-  virtual void endRun(const edm::Run &,
+  void endRun(const edm::Run &,
 		      const edm::EventSetup &) override;
-  bool isMonitoredTriggerAccepted(const edm::TriggerNames,
-				  const edm::Handle<edm::TriggerResults>); 
+  bool isMonitoredTriggerAccepted(const edm::TriggerNames&,
+				  const edm::Handle<edm::TriggerResults>&); 
 
   // Input from Configuration File
   edm::ParameterSet pset_;
@@ -200,7 +200,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   }
 
   // Check whether contains monitored trigger and accepted
-  const edm::TriggerNames triggerNames = iEvent.triggerNames(*triggerResults); 
+  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults); 
   bool triggered = isMonitoredTriggerAccepted(triggerNames, triggerResults); 
 
   // if (!triggered) return; 
@@ -222,7 +222,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
 
   // Fill trigger info
   for (unsigned int itrig = 0; itrig < triggerResults->size(); itrig++){
-    std::string triggername = triggerNames.triggerName(itrig);
+    const std::string& triggername = triggerNames.triggerName(itrig);
     for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
       if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
   	 triggers_reco_->Fill(i);
@@ -254,15 +254,14 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   iEvent.getByToken(photonsToken_, photons);
   if(!photons.isValid()) return;
   int nphotons = 0; 
-  for(reco::PhotonCollection::const_iterator phoIter=photons->begin();
-      phoIter!=photons->end();++phoIter){
-    if (phoIter->pt() < photonMinPt_ )  continue;
+  for(auto const & phoIter : *photons){
+    if (phoIter.pt() < photonMinPt_ )  continue;
     nphotons++;
-    photonpt_reco_->Fill(phoIter->pt());
-    photonrapidity_reco_->Fill(phoIter->rapidity()); 
-    if (triggered) photonpt_->Fill(phoIter->pt()); 
-    if (triggered) photonrapidity_->Fill(phoIter->rapidity()); 
-    double tmp_delphiphomet = fabs(deltaPhi(phoIter->phi(), pfmet.phi())); 
+    photonpt_reco_->Fill(phoIter.pt());
+    photonrapidity_reco_->Fill(phoIter.rapidity()); 
+    if (triggered) photonpt_->Fill(phoIter.pt()); 
+    if (triggered) photonrapidity_->Fill(phoIter.rapidity()); 
+    double tmp_delphiphomet = fabs(deltaPhi(phoIter.phi(), pfmet.phi())); 
     delphiphomet_reco_->Fill(tmp_delphiphomet); 
     if (triggered) delphiphomet_->Fill(tmp_delphiphomet); 
   }
@@ -281,22 +280,21 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   // Two leading jets eta
   double etajet1(0), etajet2(0);
   int njet = 0;  
-  for(reco::PFJetCollection::const_iterator jetIter=pfjets->begin();
-      jetIter!=pfjets->end();++jetIter){
-    if (jetIter->pt() < pfjetMinPt_ ) continue; 
+  for(auto const & jetIter : *pfjets){
+    if (jetIter.pt() < pfjetMinPt_ ) continue; 
     njet++;
 
-    double tmp_delphijetmet = fabs(deltaPhi(jetIter->phi(), pfmet.phi())); 
+    double tmp_delphijetmet = fabs(deltaPhi(jetIter.phi(), pfmet.phi())); 
     if (tmp_delphijetmet < min_delphijetmet)
       min_delphijetmet = tmp_delphijetmet;
 
     if (njet == 1) {
-      p4jet1.SetXYZM(jetIter->px(), jetIter->py(), jetIter->pz(), jetIter->mass()); 
-      etajet1 = jetIter->eta(); 
+      p4jet1.SetXYZM(jetIter.px(), jetIter.py(), jetIter.pz(), jetIter.mass()); 
+      etajet1 = jetIter.eta(); 
     }
     if (njet == 2){
-      p4jet2.SetXYZM(jetIter->px(), jetIter->py(), jetIter->pz(), jetIter->mass()); 
-      etajet2 = jetIter->eta(); 
+      p4jet2.SetXYZM(jetIter.px(), jetIter.py(), jetIter.pz(), jetIter.mass()); 
+      etajet2 = jetIter.eta(); 
     }
   }
   npfjets_reco_->Fill(njet);   
@@ -333,15 +331,15 @@ HigPhotonJetHLTOfflineSource::endRun(const edm::Run & iRun,
 }
 
 bool
-HigPhotonJetHLTOfflineSource::isMonitoredTriggerAccepted(const edm::TriggerNames triggerNames,
-							 const edm::Handle<edm::TriggerResults> triggerResults )
+HigPhotonJetHLTOfflineSource::isMonitoredTriggerAccepted(const edm::TriggerNames& triggerNames,
+							 const edm::Handle<edm::TriggerResults>& triggerResults )
 {
   for (unsigned int itrig = 0; itrig < triggerResults->size(); itrig++){
     // Only consider the triggered case.
     if ( triggerAccept_ && ( (*triggerResults)[itrig].accept() != 1) ) continue; 
-    std::string triggername = triggerNames.triggerName(itrig);
-    for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
-      if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
+    const std::string& triggername = triggerNames.triggerName(itrig);
+    for (auto const & i : hltPathsToCheck_) {
+      if ( triggername.find(i) != std::string::npos) {
   	return true;
       }
     }
