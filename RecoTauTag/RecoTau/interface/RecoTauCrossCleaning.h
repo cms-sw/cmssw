@@ -120,7 +120,6 @@ class FilterCandByAbsPdgId {
       id_(pdgId){};
       template<typename CandCompatiblePtrType>
       bool operator()(const CandCompatiblePtrType& ptr) const {
-        const CandidatePtr& pfptr(ptr);
         return std::abs(ptr->pdgId()) == id_;
       }
   private:
