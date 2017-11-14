@@ -42,7 +42,7 @@ EventFilter/SiPixelRawToDigi/test/runRawToDigi_GPU_phase1.py
 
 3. Output:
    Upon successful execution it will dispaly message on the console.
-   It can produce output files for debugging if some of the lines marked 
-   after //XXX01 are uncommented in SiPixelRawToDigi.cc 
+   It can produce output files for debugging according to value of 
+   r2d_debug variable in SiPixelRawToDigi.cc 
    located in CMSSW_9_2_0/src/EventFilter/SiPixelRawToDigi/plugins/
    The output is stored in the test directory
