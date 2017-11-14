@@ -56,6 +56,9 @@ class SiPixelPhase1Base : public DQMEDAnalyzer, public HistogramManagerHolder {
   // Returns a value of whether the trigger stored at position "trgidx" is properly fired.
   bool checktrigger( const edm::Event& iEvent, const edm::EventSetup& iSetup, const unsigned trgidx ) const;
 
+  // must match order in TriggerEventFlag_cfi.py
+  enum { DCS };
+
   private:
   // Storing the trigger objects per plugin instance
   std::vector<std::unique_ptr<GenericTriggerEventFlag>>   triggerlist;
