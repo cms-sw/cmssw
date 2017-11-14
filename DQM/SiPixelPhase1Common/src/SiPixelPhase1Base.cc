@@ -49,11 +49,8 @@ SiPixelPhase1Base::checktrigger(
   const edm::EventSetup& iSetup,
   const unsigned         trgidx ) const
 {
-  // Always return true for MC
-  if( !iEvent.isRealData() ) { return true; }
+  //true if no trigger, MC, off, or accepted
 
-  // Always return true is flag is not on;
-  if( !triggerlist.at(trgidx)->on() ) { return true; }
-
-  return triggerlist.at(trgidx)->accept( iEvent, iSetup );
+  return  triggerlist.empty() || !iEvent.isRealData() ||
+         !triggerlist.at(trgidx)->on() || triggerlist.at(trgidx)->accept( iEvent, iSetup );
 }
