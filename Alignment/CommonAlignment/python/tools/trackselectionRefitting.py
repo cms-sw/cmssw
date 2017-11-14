@@ -12,6 +12,7 @@ def getSequence(process, collection,
                 cosmicsZeroTesla = True,
                 momentumConstraint = None,
                 cosmicTrackSplitting = False,
+                isPVValidation = False,
                 use_d0cut = True):
     """This function returns a cms.Sequence containing as last element the
     module 'FinalTrackRefitter', which can be used as cms.InputTag for
@@ -42,6 +43,8 @@ def getSequence(process, collection,
                             to provide here the name of the constraint module.
     - `cosmicTrackSplitting`: If set to 'True' cosmic tracks are split before the
                               second track refitter.
+    - `isPVValidation`: If set to 'True' most of the selection cuts are overridden
+                        to allow unbiased selection of tracks for vertex refitting 
     - `use_d0cut`: If 'True' (default), apply a cut |d0| < 50.
     """
 
@@ -272,6 +275,25 @@ def getSequence(process, collection,
                                              "clone": True})]
         if isCosmics: mods = mods[1:] # skip high purity selector for cosmics
 
+    #############################
+    ## PV Validation cuts tune ##                 
+    #############################
+
+    if isPVValidation:
+        options["TrackSelector"]["HighPurity"].update({
+                "trackQualities": [],
+                "pMin": 0.
+                })
+        options["TrackSelector"]["Alignment"].update({
+                "pMin" :      0.,      
+                "ptMin" :     0.,       
+                "nHitMin2D" : 0,       
+                "nHitMin"   : 0,       
+                "d0Min" : -999999.0,
+                "d0Max" :  999999.0,
+                "dzMin" : -999999.0,
+                "dzMax" :  999999.0
+                })
 
     ################################
     ## apply momentum constraint? ##
