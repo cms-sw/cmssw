@@ -121,6 +121,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   cablingMapLabel = config_.getParameter<std::string> ("CablingMapLabel");
   
   //GPU specific
+  convertADCtoElectrons = config_.getParameter<bool>("ConvertADCtoElectrons");
   const int MAX_FED  = 150;
   const int MAX_WORD = 2000;
   int WSIZE    = MAX_FED*MAX_WORD*NEVENT*sizeof(unsigned int);
@@ -175,9 +176,9 @@ SiPixelRawToDigi::~SiPixelRawToDigi() {
   delete[] mIndexEnd_h;
   // free device memory used for RawToDigi on GPU
   freeMemory(); 
-  // // free auxilary memory used for clustering
+  // free auxilary memory used for clustering
   // freeDeviceMemCluster();
-  // // free device memory used for CPE on GPU
+  // free device memory used for CPE on GPU
   // freeDeviceMemCPE();
 }
 
@@ -212,6 +213,7 @@ SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<bool>("UsePhase1",false)->setComment("##  Use phase1");
   desc.add<std::string>("CablingMapLabel","")->setComment("CablingMap label"); //Tav
   desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
+  desc.add<bool>("ConvertADCtoElectrons", false)->setComment("## do the calibration ADC-> Electron and apply the threshold, requried for clustering");
   descriptions.add("siPixelRawToDigi",desc);
 }
 
@@ -341,33 +343,36 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   eventIndex[eventCount] = wordCounterGPU;
   static int ec=1;
   cout<<"Data read for event: "<<ec++<<endl;
+  int r2d_debug=0;
   if(eventCount==NEVENT) {
-    RawToDigi_wrapper(wordCounterGPU, word, fedCounter,fedIndex, eventIndex, xx_h, yy_h, adc_h, mIndexStart_h, mIndexEnd_h);
+    RawToDigi_wrapper(wordCounterGPU, word, fedCounter,fedIndex, eventIndex, convertADCtoElectrons, xx_h, yy_h, adc_h, mIndexStart_h, mIndexEnd_h);
 
-    //write output to text file
-    static int count = 1;
-    cout << "Writing output to the file " << endl;
-    ofstream ofileXY("GPU_RawToDigi_Output_Part1_Event_"+to_string((count-1)*NEVENT+1)+"to"+to_string(count*NEVENT)+".txt");
-    ofileXY<<"  Index     xcor   ycor    adc  "<<endl;
-    for(uint i=0; i<wordCounterGPU; i++) {
-      ofileXY<<setw(10) << i  << setw(6) << xx_h[i] << setw(6) << yy_h[i] << setw(8) << adc_h[i] << endl;
-    }
-    // store the module index, which stores the index of x, y & adc for each module
-    ofstream ofileModule("GPU_RawToDigi_Output_Part2_Event_"+to_string((count-1)*NEVENT+1)+"to"+to_string(count*NEVENT)+".txt");
-    ofileModule<<"Event_No  Module_no   mIndexStart   mIndexEnd "<<endl;
-    for(int ev = (count-1)*NEVENT+1; ev <=count*NEVENT; ev++) {
-      for(int mod =0; mod < NMODULE; mod++) {
-        ofileModule << setw(8) << ev << setw(8) <<mod << setw(10) << mIndexStart_h[mod] << setw(10) << mIndexEnd_h[mod]<<endl;
+    if(r2d_debug==1){
+      //write output to text file (for debugging purpose only)
+      static int count = 1;
+      cout << "Writing output to the file " << endl;
+      ofstream ofileXY("GPU_RawToDigi_Output_Part1_Event_"+to_string((count-1)*NEVENT+1)+"to"+to_string(count*NEVENT)+".txt");
+      ofileXY<<"  Index     xcor   ycor    adc  "<<endl;
+      for(uint i=0; i<wordCounterGPU; i++) {
+        ofileXY<<setw(10) << i  << setw(6) << xx_h[i] << setw(6) << yy_h[i] << setw(8) << adc_h[i] << endl;
       }
+      //store the module index, which stores the index of x, y & adc for each module
+      ofstream ofileModule("GPU_RawToDigi_Output_Part2_Event_"+to_string((count-1)*NEVENT+1)+"to"+to_string(count*NEVENT)+".txt");
+      ofileModule<<"Event_No  Module_no   mIndexStart   mIndexEnd "<<endl;
+      for(int ev = (count-1)*NEVENT+1; ev <=count*NEVENT; ev++) {
+        for(int mod =0; mod < NMODULE; mod++) {
+          ofileModule << setw(8) << ev << setw(8) <<mod << setw(10) << mIndexStart_h[mod] << setw(10) << mIndexEnd_h[mod]<<endl;
+        }
+      }
+      count++;
+      ofileXY.close();
+      ofileModule.close();
     }
-    count++;
-    ofileXY.close();
-    ofileModule.close();
     wordCounterGPU =  0;
     eventCount=0;
-  } // if(eventCount == NEVENT)
+  } //if(eventCount == NEVENT)
   fedCounter =0;
-} // end of produce function
+} //end of produce function
 
 //define as runnable module
 DEFINE_FWK_MODULE(SiPixelRawToDigi);

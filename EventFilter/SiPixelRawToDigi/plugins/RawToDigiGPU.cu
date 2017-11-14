@@ -1,4 +1,4 @@
-/* Sushil Dubey, Shashi Dugad, TIFR
+/* Sushil Dubey, Shashi Dugad, TIFR, July 2017
  *
  * File Name: RawToDigiGPU.cu
  * Description: It converts Raw data into Digi Format on GPU
@@ -463,7 +463,7 @@ __global__ void RawToDigi_kernel(const CablingMap *Map,const uint *Word,const ui
 
 // kernel wrapper called from runRawToDigi_kernel
 void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounter,  uint *fedIndex,
-                        uint *eventIndex, uint *xx_h, uint *yy_h, uint *adc_h, int *mIndexStart_h,
+                        uint *eventIndex,bool convertADCtoElectrons, uint *xx_h, uint *yy_h, uint *adc_h, int *mIndexStart_h,
                         int *mIndexEnd_h) { 
   
  
@@ -517,10 +517,9 @@ void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounte
   checkCUDAError("Error in applying ADC threshold");
   cout << "Raw data is converted into digi for " << NEVENT << "  Events" << endl;
 
-  // make it true, if you want to copy data after applying ADC threshold
-  bool copyAfterADCThreshold = false; 
   // copy data to host variable
-  if(copyAfterADCThreshold) {
+  // if you want to copy data after applying ADC threshold
+  if(convertADCtoElectrons) {
     cudaMemcpy(xx_h, xx_adc, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
     cudaMemcpy(yy_h, yy_adc, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
   }
