@@ -1,4 +1,4 @@
-# hltGetConfiguration --full --offline --data /frozen/2017/2e34/v3.1/HLT --type 2e34v31 --unprescale --process HLT2e34v31 --globaltag auto:run2_hlt_2e34v31 --input file:RelVal_Raw_2e34v31_DATA.root
+# hltGetConfiguration --full --data /frozen/2017/2e34/v3.1/HLT --type 2e34v31 --unprescale --process HLT2e34v31 --globaltag auto:run2_hlt_2e34v31 --input file:RelVal_Raw_2e34v31_DATA.root
 
 # /frozen/2017/2e34/v3.1/HLT/V2 (CMSSW_9_2_10)
 
