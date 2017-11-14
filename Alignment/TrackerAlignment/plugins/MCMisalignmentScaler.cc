@@ -174,6 +174,16 @@ MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSetup)
       auto y_diff = misaligned->translation().y() - (*ideal)->position().y();
       auto z_diff = misaligned->translation().z() - (*ideal)->position().z();
 
+      auto xx_diff = misaligned->rotation().xx() - (*ideal)->rotation().xx();
+      auto xy_diff = misaligned->rotation().xy() - (*ideal)->rotation().xy();
+      auto xz_diff = misaligned->rotation().xz() - (*ideal)->rotation().xz();
+      auto yx_diff = misaligned->rotation().yx() - (*ideal)->rotation().yx();
+      auto yy_diff = misaligned->rotation().yy() - (*ideal)->rotation().yy();
+      auto yz_diff = misaligned->rotation().yz() - (*ideal)->rotation().yz();
+      auto zx_diff = misaligned->rotation().zx() - (*ideal)->rotation().zx();
+      auto zy_diff = misaligned->rotation().zy() - (*ideal)->rotation().zy();
+      auto zz_diff = misaligned->rotation().zz() - (*ideal)->rotation().zz();
+
       if (outlierPullToIdealCut_ > 0.0 &&
           (x_diff*x_diff + y_diff*y_diff + z_diff*z_diff)
           > outlierPullToIdealCut_*outlierPullToIdealCut_) {
@@ -183,6 +193,15 @@ MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSetup)
           << ":  delta x: " << x_diff
           << ",  delta y: " << y_diff
           << ",  delta z: " << z_diff
+          << ",  delta xx: " << xx_diff
+          << ",  delta xy: " << xy_diff
+          << ",  delta xz: " << xz_diff
+          << ",  delta yx: " << yx_diff
+          << ",  delta yx: " << yy_diff
+          << ",  delta yy: " << yz_diff
+          << ",  delta zz: " << zx_diff
+          << ",  delta zy: " << zy_diff
+          << ",  delta zz: " << zz_diff
           << "\n";
         scaleFactor = 0.0;
       }
@@ -193,8 +212,22 @@ MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSetup)
         (*ideal)->position().z() + scaleFactor*z_diff
           };
 
+      const AlignTransform::Rotation rescaledRotation{
+        CLHEP::HepRep3x3{
+            (*ideal)->rotation().xx() + scaleFactor*xx_diff,
+            (*ideal)->rotation().xy() + scaleFactor*xy_diff,
+            (*ideal)->rotation().xz() + scaleFactor*xz_diff,
+            (*ideal)->rotation().yx() + scaleFactor*yx_diff,
+            (*ideal)->rotation().yy() + scaleFactor*yy_diff,
+            (*ideal)->rotation().yz() + scaleFactor*yz_diff,
+            (*ideal)->rotation().zx() + scaleFactor*zx_diff,
+            (*ideal)->rotation().zy() + scaleFactor*zy_diff,
+            (*ideal)->rotation().zz() + scaleFactor*zz_diff
+            }
+          };
+
       const AlignTransform rescaledTransform{rescaledTranslation,
-                                             misaligned->rotation(),
+                                             rescaledRotation,
                                              misaligned->rawId()};
       rescaledAlignments.m_align.emplace_back(std::move(rescaledTransform));
     }
