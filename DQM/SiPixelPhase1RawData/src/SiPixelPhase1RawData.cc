@@ -21,6 +21,8 @@ SiPixelPhase1RawData::SiPixelPhase1RawData(const edm::ParameterSet& iConfig) :
 
 
 void SiPixelPhase1RawData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if( !checktrigger(iEvent,iSetup,DCS) ) return;
+
   edm::Handle<DetSetVector<SiPixelRawDataError>> input;
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return;
