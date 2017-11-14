@@ -34,7 +34,6 @@ namespace
 
 
 using namespace std;
-using namespace ctfseeding;
 
 constexpr unsigned int CAHitQuadrupletGenerator::minLayers;
 

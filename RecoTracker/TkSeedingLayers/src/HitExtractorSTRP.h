@@ -1,7 +1,7 @@
 #ifndef RecoTracker_TkSeedingLayers_HitExtractorSTRP_H
 #define RecoTracker_TkSeedingLayers_HitExtractorSTRP_H
 
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
+#include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HitExtractor.h"
 
@@ -24,7 +24,7 @@ class HitExtractorSTRP final : public HitExtractor {
 public:
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
-  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer, float iminGoodCharge);
+  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, TrackerDetSide side, int idLayer, float iminGoodCharge);
   ~HitExtractorSTRP() override{}
 
   HitExtractor::Hits hits( const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup&) const override;
@@ -44,7 +44,7 @@ public:
 
   bool skipThis(DetId id, OmniClusterRef const& clus, edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
 
-  void setNoProjection() const {failProjection=true;};
+  void setNoProjection() {failProjection=true;}
   void setMinAbsZ(double minZToSet) {minAbsZ=minZToSet;}
 
   bool useRingSelector() const { return hasRingSelector; }
@@ -56,8 +56,7 @@ private:
   void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) override;
 private:
   const GeomDetEnumerators::SubDetector theLayerSubDet;
-  SeedingLayer::Side theSide;
-  mutable const SeedingLayer * theSLayer;
+  TrackerDetSide theSide;
   int theIdLayer;
   double minAbsZ;
   int theMinRing, theMaxRing;
@@ -70,7 +69,7 @@ private:
   bool hasStereoHits;
   bool hasRingSelector;
   bool hasSimpleRphiHitsCleaner;
-  mutable bool failProjection;
+  bool failProjection;
 };
 
 }
