@@ -62,6 +62,9 @@ namespace spr{
 #endif
       std::pair<math::XYZPoint,bool> info = 
 	spr::propagateECAL (vertex, momentum, charge, bField, debug);
+#ifdef EDM_ML_DEBUG
+      if (debug) std::cout << "Propagate to ECAL " << info.second << " at (" << info.first.x() << ", "<< info.first.y() << ", " << info.first.z() << ")\n";
+#endif
 
       vdet.okECAL = info.second;
       if (vdet.okECAL) {
@@ -71,11 +74,27 @@ namespace spr{
 	if (std::abs(point.eta())<spr::etaBEEcal) {
 	  vdet.detIdECAL = barrelGeom->getClosestCell(point);
 	} else {
-	  vdet.detIdECAL = endcapGeom->getClosestCell(point);
+	  if (endcapGeom) 
+	    vdet.detIdECAL = endcapGeom->getClosestCell(point);
+	  else
+	    vdet.okECAL    = false;
 	}
 	vdet.detIdEHCAL = gHB->getClosestCell(point);
+#ifdef EDM_ML_DEBUG
+	if (debug) {
+	  std::cout << "Point at ECAL (" << vdet.etaECAL << ", " << vdet.phiECAL << " ";
+	  if (std::abs(point.eta())<spr::etaBEEcal)
+	    std::cout << EBDetId(vdet.detIdECAL);
+	  else
+	    std::cout << EEDetId(vdet.detIdECAL);
+	  std::cout << " " << HcalDetId(vdet.detIdEHCAL) << std::endl;
+	}
+#endif
       }
       info = spr::propagateHCAL (vertex, momentum, charge, bField, debug);
+#ifdef EDM_ML_DEBUG
+      if (debug) std::cout << "Propagate to HCAL " << info.second << " at (" << info.first.x() << ", "<< info.first.y() << ", " << info.first.z() << ")\n";
+#endif
       vdet.okHCAL = info.second;
       if (vdet.okHCAL) {
 	const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
@@ -150,7 +169,10 @@ namespace spr{
 	if (std::abs(point.eta())<spr::etaBEEcal) {
 	  vdet.detIdECAL = barrelGeom->getClosestCell(point);
 	} else {
-	  vdet.detIdECAL = endcapGeom->getClosestCell(point);
+	  if (endcapGeom) 
+	    vdet.detIdECAL = endcapGeom->getClosestCell(point);
+	  else 
+	    vdet.okECAL    = false;
 	}
 	vdet.detIdEHCAL = gHB->getClosestCell(point);
       }
@@ -220,7 +242,10 @@ namespace spr{
 	if (std::abs(info.point.eta())<spr::etaBEEcal) {
 	  trkD.detIdECAL = barrelGeom->getClosestCell(point);
 	} else {
-	  trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	  if (endcapGeom) 
+	    trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	  else 
+	    trkD.okECAL    = false;
 	}
 	trkD.detIdEHCAL = gHB->getClosestCell(point);
       }
@@ -283,7 +308,10 @@ namespace spr{
       if (std::abs(point.eta())<spr::etaBEEcal) {
 	vdet.detIdECAL = barrelGeom->getClosestCell(point);
       } else {
-	vdet.detIdECAL = endcapGeom->getClosestCell(point);
+	if (endcapGeom) 
+	  vdet.detIdECAL = endcapGeom->getClosestCell(point);
+	else
+	  vdet.okECAL    = false;
       }
       vdet.detIdEHCAL = gHB->getClosestCell(point);
     }
@@ -346,7 +374,10 @@ namespace spr{
 	  if (std::abs(info.point.eta())<spr::etaBEEcal) {
 	    trkD.detIdECAL = barrelGeom->getClosestCell(point);
 	  } else {
-	    trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	    if (endcapGeom) 
+	      trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	    else 
+	      trkD.okECAL    = false;
 	  }
 	  trkD.detIdEHCAL = gHB->getClosestCell(point);
 	}
@@ -423,7 +454,10 @@ namespace spr{
 	  if (std::abs(info.point.eta())<spr::etaBEEcal) {
 	    trkD.detIdECAL = barrelGeom->getClosestCell(point);
 	  } else {
-	    trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	    if (endcapGeom) 
+	      trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	    else 
+	      trkD.okECAL    = false;
 	  }
 	  trkD.detIdEHCAL = gHB->getClosestCell(point);
 	}
@@ -491,7 +525,10 @@ namespace spr{
 	if (std::abs(info.point.eta())<spr::etaBEEcal) {
 	  trkD.detIdECAL = barrelGeom->getClosestCell(point);
 	} else {
-	  trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	  if (endcapGeom) 
+	    trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	  else 
+	    trkD.okECAL    = false;
 	}
 	trkD.detIdEHCAL = gHB->getClosestCell(point);
       }
@@ -615,7 +652,10 @@ namespace spr{
 	eId = barrelGeom->getClosestCell(point);
       } else {
 	const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-	eId = endcapGeom->getClosestCell(point);
+	if (endcapGeom) 
+	   eId = endcapGeom->getClosestCell(point);
+	  else 
+	    info.second = false;
       }
     }
     return std::pair<DetId,bool>(eId,info.second);
