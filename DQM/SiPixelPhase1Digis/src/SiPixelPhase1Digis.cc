@@ -26,6 +26,7 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
 } 
 
 void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if( !checktrigger(iEvent,iSetup,DCS) ) return;
 
   edm::Handle<edm::DetSetVector<PixelDigi>> input;
   iEvent.getByToken(srcToken_, input);
