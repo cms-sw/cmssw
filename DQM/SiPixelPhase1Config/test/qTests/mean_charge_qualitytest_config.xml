@@ -8,7 +8,7 @@
       <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.65</PARAM>
       <PARAM name="warning">0.80</PARAM>
-      <PARAM name="ymin">35000.</PARAM>
+      <PARAM name="ymin">27500.</PARAM>
       <PARAM name="ymax">75000.</PARAM>
     </QTEST>
 
@@ -17,7 +17,7 @@
       <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.65</PARAM>
       <PARAM name="warning">0.80</PARAM>
-      <PARAM name="ymin">35000.</PARAM>
+      <PARAM name="ymin">27500.</PARAM>
       <PARAM name="ymax">75000.</PARAM>
     </QTEST>
 
@@ -35,7 +35,7 @@
       <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.65</PARAM>
       <PARAM name="warning">0.80</PARAM>
-      <PARAM name="ymin">35000.</PARAM>
+      <PARAM name="ymin">30000.</PARAM>
       <PARAM name="ymax">75000.</PARAM>
     </QTEST>
 
@@ -72,7 +72,7 @@
       <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.75</PARAM>
       <PARAM name="warning">0.90</PARAM>
-      <PARAM name="ymin">35000.</PARAM>
+      <PARAM name="ymin">25000.</PARAM>
       <PARAM name="ymax">75000.</PARAM>
     </QTEST>
 
@@ -158,7 +158,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -167,7 +167,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -176,7 +176,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -186,7 +186,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -216,7 +216,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -225,7 +225,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -234,7 +234,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -274,7 +274,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -283,7 +283,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -292,7 +292,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -332,7 +332,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -341,7 +341,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
@@ -350,7 +350,7 @@
         <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">25000.</PARAM>
+        <PARAM name="ymin">20000.</PARAM>
         <PARAM name="ymax">50000.</PARAM>
       </QTEST>
 
