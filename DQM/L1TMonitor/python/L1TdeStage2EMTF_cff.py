@@ -16,3 +16,9 @@ l1tdeStage2EmtfComp = cms.EDAnalyzer(
     verbose = cms.untracked.bool(False),
 )
 
+# sequences
+l1tdeStage2EmtfOnlineDQMSeq = cms.Sequence(
+    l1tdeStage2Emtf +
+    l1tdeStage2EmtfComp
+)
+
