@@ -8,10 +8,14 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   testNumber_ = conf.getUntrackedParameter<bool>("TestNumber",false);
 
   // register for data access
+  g4Label_  = ps.getParameter<std::string>("ModuleLabel","g4SimHits");
+  hcalHits_ = ps.getParameter<std::string>("HcalHitCollection","HcalHits");
+  ebHits_ = ps.getParameter<std::string>("EBHitCollection","EcalHitsEB");
+  eeHits_ = ps.getParameter<std::string>("EEHitCollection","EcalHitsEE");
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
-  tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
-  tok_ecalEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEB"));
-  tok_ecalEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEE"));
+  tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,hcalHits_));
+  tok_ecalEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,ebHits_));
+  tok_ecalEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,eeHits_));
   
   if ( !outputFile_.empty() ) {    edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
