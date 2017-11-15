@@ -27,6 +27,7 @@ from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import *
 
 l1tStage2Unpack = cms.Sequence(
     l1tCaloLayer1Digis +
+    omtfStage2Digis +
     emtfStage2Digis +
     gmtStage2Digis
 )
@@ -34,7 +35,6 @@ l1tStage2Unpack = cms.Sequence(
 l1tStage2UnpackValidationEvents = cms.Sequence(
     caloStage2Digis +
     bmtfDigis  +
-    omtfStage2Digis +
     gtStage2Digis
 )
 
@@ -100,6 +100,7 @@ valGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(False)
 
 Stage2L1HardwareValidation = cms.Sequence(
     valCaloStage2Layer1Digis +
+    valOmtfDigis +
     valEmtfStage2Digis +
     valGmtCaloSumDigis +
     valGmtStage2Digis
@@ -108,7 +109,6 @@ Stage2L1HardwareValidation = cms.Sequence(
 Stage2L1HardwareValidationForValidationEvents = cms.Sequence(
     valCaloStage2Layer2Digis +
     valBmtfDigis +
-    valOmtfDigis +
     valGtStage2Digis
 )
 
@@ -143,6 +143,7 @@ from DQM.L1TMonitor.L1TStage2uGTEmul_cfi import *
 
 # sequence to run for every event
 l1tStage2EmulatorOnlineDQM = cms.Sequence(
+    l1tdeStage2Omtf +
     l1tdeStage2EmtfOnlineDQMSeq +
     l1tStage2uGMTEmulatorOnlineDQMSeq
 )
@@ -155,7 +156,6 @@ l1tStage2EmulatorOnlineDQMValidationEvents = cms.Sequence(
     l1tdeStage2CaloLayer2 +
     l1tStage2CaloLayer2 + l1tStage2CaloLayer2Emul +
     l1tdeStage2Bmtf +
-    l1tdeStage2Omtf +
     l1tStage2uGtEmul
 )
 
