@@ -1,41 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #-------------------------------------------------
-# Stage2 Unpacker Modules
-# TODO: This needs to be setup as a StandardSequence.
-
-# CaloLayer1
-from EventFilter.L1TRawToDigi.caloLayer1Digis_cfi import *
-
-# CaloLayer2
-from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
-
-# BMTF 
-from EventFilter.L1TRawToDigi.bmtfDigis_cfi import *
-
-# OMTF
-from EventFilter.L1TRawToDigi.omtfStage2Digis_cfi import *
-
-# EMTF
-from EventFilter.L1TRawToDigi.emtfStage2Digis_cfi import *
-
-# uGMT
-from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import *
-
-# uGT
-from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import *
-
-l1tStage2Unpack = cms.Sequence(
-    caloLayer1Digis +
-    caloStage2Digis +
-    bmtfDigis  +
-    omtfStage2Digis +
-    emtfStage2Digis +
-    gmtStage2Digis +
-    gtStage2Digis
-)
-
-#-------------------------------------------------
 # DQM Modules
 
 # CaloLayer1
