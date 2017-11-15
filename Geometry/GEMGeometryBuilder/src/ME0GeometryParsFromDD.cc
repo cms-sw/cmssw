@@ -106,9 +106,9 @@ ME0GeometryParsFromDD::buildChamber(DDFilteredView& fv, ME0DetId detId, RecoIdea
   //dz += dpar[3]/cm;// chamber thickness
 
   ME0DetId me0id = detId.chamberId();
-  std::vector<std::string> strpars;
   std::string name = fv.logicalPart().name().name();
-  strpars.emplace_back(name);
+  std::vector<std::string> strpars{name};
+
   
   std::vector<double> pars{dx1, dx2, dy, dz};
   std::vector<double> vtra = getTranslation(fv);
@@ -134,9 +134,9 @@ ME0GeometryParsFromDD::buildLayer(DDFilteredView& fv, ME0DetId detId, RecoIdealG
   //dz += dpar[3]/cm;// chamber thickness
 
   ME0DetId me0id = detId.chamberId();
-  std::vector<std::string> strpars;
   std::string name = fv.logicalPart().name().name();
-  strpars.emplace_back(name);
+  std::vector<std::string> strpars{name};
+
   
   std::vector<double> pars{dx1, dx2, dy, dz};
   std::vector<double> vtra = getTranslation(fv);
@@ -174,9 +174,8 @@ ME0GeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, ME0DetId detId, Rec
   double dx1= dpar[4]/cm;// bottom width is along local X
   double dx2= dpar[8]/cm;// top width is along local X
 
-  std::vector<std::string> strpars;
   std::string name = fv.logicalPart().name().name();
-  strpars.emplace_back(name);
+  std::vector<std::string> strpars{name};
   
   std::vector<double> pars{dx1, dx2, dy, dz, nStrips, nPads};
   std::vector<double> vtra = getTranslation(fv);
@@ -195,9 +194,8 @@ std::vector<double> ME0GeometryParsFromDD::getRotation(DDFilteredView& fv)
 {
   const DDRotationMatrix& rota = fv.rotation();//.Inverse();
   DD3Vector x, y, z;
-  rota.GetComponents(x,y,z);  
-  return
-    { x.X(), x.Y(), x.Z(),
-      y.X(), y.Y(), y.Z(),
-      z.X(), z.Y(), z.Z() };
+  rota.GetComponents(x,y,z);
+  return { x.X(), x.Y(), x.Z(),
+           y.X(), y.Y(), y.Z(),
+	   z.X(), z.Y(), z.Z() };
 }
