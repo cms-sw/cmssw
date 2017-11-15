@@ -58,6 +58,7 @@ private:
   double dPhiWsign(double phi1,double phi2);  
 
   std::string outputFile_;
+  std::string g4Label_,hcalHits_,ebHits_,eeHits_;
 
   edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
