@@ -10,8 +10,6 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <boost/lexical_cast.hpp>
-
 void
 ME0GeometryParsFromDD::build( const DDCompactView* cview, 
 			      const MuonDDDConstants& muonConstants,
@@ -112,12 +110,7 @@ ME0GeometryParsFromDD::buildChamber(DDFilteredView& fv, ME0DetId detId, RecoIdea
   std::string name = fv.logicalPart().name().name();
   strpars.emplace_back(name);
   
-  std::vector<double> pars;  
-  pars.emplace_back(dx1); //b/2; bottom width is along local X
-  pars.emplace_back(dx2); //B/2; top width is along local X
-  pars.emplace_back(dy); //h/2; length is along local Y
-  pars.emplace_back(dz); // thickness is long local Z
-
+  std::vector<double> pars{dx1, dx2, dy, dz};
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
 
@@ -145,12 +138,7 @@ ME0GeometryParsFromDD::buildLayer(DDFilteredView& fv, ME0DetId detId, RecoIdealG
   std::string name = fv.logicalPart().name().name();
   strpars.emplace_back(name);
   
-  std::vector<double> pars;  
-  pars.emplace_back(dx1); //b/2; bottom width is along local X
-  pars.emplace_back(dx2); //B/2; top width is along local X
-  pars.emplace_back(dy); //h/2; length is along local Y
-  pars.emplace_back(dz); // thickness is long local Z
-
+  std::vector<double> pars{dx1, dx2, dy, dz};
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
 
@@ -174,9 +162,9 @@ ME0GeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, ME0DetId detId, Rec
     if (DDfetch( *is, numbOfPads))   nPads = numbOfPads.doubles()[0];
   }
   LogDebug("ME0GeometryParsFromDD") 
-    << ((nStrips == 0. ) ? ("No nStrips found!!") : ("Number of strips: " + boost::lexical_cast<std::string>(nStrips))); 
+    << ((nStrips == 0. ) ? ("No nStrips found!!") : ("Number of strips: " + std::to_string(nStrips))); 
   LogDebug("ME0GeometryParsFromDD") 
-    << ((nPads == 0. ) ? ("No nPads found!!") : ("Number of pads: " + boost::lexical_cast<std::string>(nPads)));
+    << ((nPads == 0. ) ? ("No nPads found!!") : ("Number of pads: " + std::to_string(nPads)));
   
   // EtaPartition specific parameter (size) 
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
@@ -190,14 +178,7 @@ ME0GeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, ME0DetId detId, Rec
   std::string name = fv.logicalPart().name().name();
   strpars.emplace_back(name);
   
-  std::vector<double> pars;  
-  pars.emplace_back(dx1); //b/2; bottom width is along local X
-  pars.emplace_back(dx2); //B/2; top width is along local X
-  pars.emplace_back(dy); //h/2; length is along local Y
-  pars.emplace_back(dz); // thickness is long local Z
-  pars.emplace_back(nStrips);
-  pars.emplace_back(nPads);
-
+  std::vector<double> pars{dx1, dx2, dy, dz, nStrips, nPads};
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
 
@@ -207,11 +188,7 @@ ME0GeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, ME0DetId detId, Rec
 std::vector<double> ME0GeometryParsFromDD::getTranslation(DDFilteredView& fv)
 {
   const DDTranslation& tran = fv.translation();
-  std::vector<double> vtra(3);
-  vtra[0]=(float) 1.0 * (tran.x());
-  vtra[1]=(float) 1.0 * (tran.y());
-  vtra[2]=(float) 1.0 * (tran.z());
-  return vtra;  
+  return {tran.x(), tran.y(), tran.z()};
 }
 
 std::vector<double> ME0GeometryParsFromDD::getRotation(DDFilteredView& fv)
@@ -219,15 +196,8 @@ std::vector<double> ME0GeometryParsFromDD::getRotation(DDFilteredView& fv)
   const DDRotationMatrix& rota = fv.rotation();//.Inverse();
   DD3Vector x, y, z;
   rota.GetComponents(x,y,z);  
-  std::vector<double> vrot(9);
-  vrot[0]=(float) 1.0 * x.X();
-  vrot[1]=(float) 1.0 * x.Y();
-  vrot[2]=(float) 1.0 * x.Z();
-  vrot[3]=(float) 1.0 * y.X();
-  vrot[4]=(float) 1.0 * y.Y();
-  vrot[5]=(float) 1.0 * y.Z();
-  vrot[6]=(float) 1.0 * z.X();
-  vrot[7]=(float) 1.0 * z.Y();
-  vrot[8]=(float) 1.0 * z.Z();
-  return vrot;
+  return
+    { x.X(), x.Y(), x.Z(),
+      y.X(), y.Y(), y.Z(),
+      z.X(), z.Y(), z.Z() };
 }
