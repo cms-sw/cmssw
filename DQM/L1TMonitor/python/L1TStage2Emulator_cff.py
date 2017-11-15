@@ -30,12 +30,12 @@ l1tStage2Unpack = cms.Sequence(
     bmtfDigis  +
     omtfStage2Digis +
     emtfStage2Digis +
-    gmtStage2Digis
+    gmtStage2Digis +
+    gtStage2Digis
 )
 
 l1tStage2UnpackValidationEvents = cms.Sequence(
-    caloStage2Digis +
-    gtStage2Digis
+    caloStage2Digis
 )
 
 #-------------------------------------------------
@@ -90,11 +90,11 @@ from L1Trigger.L1TGlobal.simGtExtFakeProd_cfi import simGtExtFakeProd
 
 valGtStage2Digis = simGtStage2Digis.clone()
 valGtStage2Digis.ExtInputTag = cms.InputTag("simGtExtFakeProd")
-valGtStage2Digis.MuonInputTag = cms.InputTag("gmtStage2Digis", "Muon")
-valGtStage2Digis.EGammaInputTag = cms.InputTag("caloStage2Digis", "EGamma")
-valGtStage2Digis.TauInputTag = cms.InputTag("caloStage2Digis", "Tau")
-valGtStage2Digis.JetInputTag = cms.InputTag("caloStage2Digis", "Jet")
-valGtStage2Digis.EtSumInputTag = cms.InputTag("caloStage2Digis", "EtSum")
+valGtStage2Digis.MuonInputTag = cms.InputTag("gtStage2Digis", "Muon")
+valGtStage2Digis.EGammaInputTag = cms.InputTag("gtStage2Digis", "EGamma")
+valGtStage2Digis.TauInputTag = cms.InputTag("gtStage2Digis", "Tau")
+valGtStage2Digis.JetInputTag = cms.InputTag("gtStage2Digis", "Jet")
+valGtStage2Digis.EtSumInputTag = cms.InputTag("gtStage2Digis", "EtSum")
 valGtStage2Digis.AlgorithmTriggersUnmasked = cms.bool(False)
 valGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(False)
 
@@ -104,12 +104,12 @@ Stage2L1HardwareValidation = cms.Sequence(
     valOmtfDigis +
     valEmtfStage2Digis +
     valGmtCaloSumDigis +
-    valGmtStage2Digis
+    valGmtStage2Digis +
+    valGtStage2Digis
 )
 
 Stage2L1HardwareValidationForValidationEvents = cms.Sequence(
-    valCaloStage2Layer2Digis +
-    valGtStage2Digis
+    valCaloStage2Layer2Digis
 )
 
 #-------------------------------------------------
@@ -146,7 +146,8 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tdeStage2Bmtf +
     l1tdeStage2Omtf +
     l1tdeStage2EmtfOnlineDQMSeq +
-    l1tStage2uGMTEmulatorOnlineDQMSeq
+    l1tStage2uGMTEmulatorOnlineDQMSeq +
+    l1tStage2uGtEmul
 )
 
 # sequence to run only for validation events
@@ -155,7 +156,7 @@ l1tStage2EmulatorOnlineDQMValidationEvents = cms.Sequence(
     # We process both layer2 and layer2emu in same sourceclient
     # to be able to divide them in the MonitorClient
     l1tdeStage2CaloLayer2 +
-    l1tStage2CaloLayer2 + l1tStage2CaloLayer2Emul +
-    l1tStage2uGtEmul
+    l1tStage2CaloLayer2 +
+    l1tStage2CaloLayer2Emul
 )
 
