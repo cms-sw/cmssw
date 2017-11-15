@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # Seed generator
 from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cff import *
-
 # Stand alone muon track producer
 from RecoMuon.StandAloneMuonProducer.standAloneMuons_cff import *
 
@@ -59,7 +58,7 @@ displacedGlobalMuonTracking = cms.Sequence(displacedGlobalMuonTrackingTask)
 globalmuontrackingTask = cms.Task(globalMuons,tevMuons,displacedGlobalMuonTrackingTask)
 globalmuontracking = cms.Sequence(globalmuontrackingTask)
 # not commisoned and not relevant in FastSim (?):
-fastSim.toReplaceWith(globalmuontracking,globalmuontracking.copyAndExclude([displacedGlobalMuonTracking]))
+fastSim.toReplaceWith(globalmuontrackingTask,globalmuontrackingTask.copyAndExclude([displacedGlobalMuonTrackingTask]))
 muontrackingTask = cms.Task(standalonemuontrackingTask,globalmuontrackingTask)
 muontracking = cms.Sequence(muontrackingTask)
 # Muon Reconstruction
