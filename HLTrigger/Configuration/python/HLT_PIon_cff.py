@@ -1,4 +1,4 @@
-# hltGetConfiguration --cff --offline --data /dev/CMSSW_9_2_0/PIon --type PIon
+# hltGetConfiguration --cff --data /dev/CMSSW_9_2_0/PIon --type PIon
 
 # /dev/CMSSW_9_2_0/PIon/V167 (CMSSW_9_2_14)
 

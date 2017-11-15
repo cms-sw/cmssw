@@ -128,16 +128,13 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::E
     // print some debug info
     if (debug_) {
       
-      int ix,iy,iz;
-      ix=0,iy=0,iz=0;
-      
       // ref: DataFormats/EcalDetId/interface/EcalSubdetector.h
       // EcalBarrel
       if (ecaldet.subdetId()==1) {
 	EBDetId ebdet(ecalit);
-	ix=ebdet.ieta();
-	iy=ebdet.iphi();
-	iz=ebdet.zside();
+	int ix=ebdet.ieta();
+	int iy=ebdet.iphi();
+	int iz=ebdet.zside();
 	
 	edm::LogInfo("EcalBadCalibFilter") << "DetId=" <<  ecaldet.rawId();
 	edm::LogInfo("EcalBadCalibFilter") << "ieta=" << ix << " iphi=" << iy << " iz=" << iz;
@@ -145,11 +142,11 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::E
       }
 
       // EcalEndcap
-      if (ecaldet.subdetId()==2) {
+      else if (ecaldet.subdetId()==2) {
 	EEDetId eedet(ecalit);
-	ix=eedet.ix();
-	iy=eedet.iy();
-	iz=eedet.zside();
+	int ix=eedet.ix();
+	int iy=eedet.iy();
+	int iz=eedet.zside();
 
 	edm::LogInfo("EcalBadCalibFilter") << "DetId=" <<  ecaldet.rawId();
 	edm::LogInfo("EcalBadCalibFilter") << "ix=" << ix << " iy=" << iy << " iz=" << iz;

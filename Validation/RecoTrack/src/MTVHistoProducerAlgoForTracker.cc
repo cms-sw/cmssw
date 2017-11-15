@@ -259,10 +259,10 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
       }
       SeedingLayerSetId setId;
       for(size_t j=0; j<layerSet.size(); ++j) {
-        // It is a bit ugly to assume here that 'M' prefix stands for
-        // strip mono hits, as in the SeedingLayerSetsBuilder code any
-        // prefixes are arbitrary and their meaning is defined fully
-        // in the configuration. But, this is the easiest way.
+        // SeedingLayerSetsBuilder::fillDescriptions() kind-of
+        // suggests that the 'M' prefix stands for strip mono hits
+        // (maybe it should force), so making the assumption here is
+        // (still) a bit ugly. But, this is the easiest way.
         bool isStripMono = !layerSet[j].empty() && layerSet[j][0] == 'M';
         setId[j] = std::make_tuple(SeedingLayerSetsBuilder::nameToEnumId(layerSet[j]), isStripMono);
       }
@@ -1581,23 +1581,12 @@ unsigned int MTVHistoProducerAlgoForTracker::getSeedingLayerSetBin(const reco::T
     default: throw cms::Exception("LogicError") << "Unknown subdetId " << detId.subdetId();
     };
 
-    ctfseeding::SeedingLayer::Side side;
-    switch(ttopo.side(detId)) {
-    case 0: side = ctfseeding::SeedingLayer::Barrel; break;
-    case 1: side = ctfseeding::SeedingLayer::NegEndcap; break;
-    case 2: side = ctfseeding::SeedingLayer::PosEndcap; break;
-    default: throw cms::Exception("LogicError") << "Unknown side " << ttopo.side(detId);
-    };
+    TrackerDetSide side = static_cast<TrackerDetSide>(ttopo.side(detId));
 
-    // This is an ugly assumption, but a generic solution would
-    // require significantly more effort
-    // The "if hit is strip mono or not" is checked only for the last
-    // hit and only if nhits is 3, because the "mono-only" definition
-    // is only used by strip triplet seeds
-    bool isStripMono = false;
-    if(nhits == 3 && i == nhits-1 && subdetStrip) {
-      isStripMono = trackerHitRTTI::isSingle(*iHit);
-    }
+    // Even with the recent addition of
+    // SeedingLayerSetsBuilder::fillDescription() this assumption is a
+    // bit ugly.
+    const bool isStripMono = subdetStrip && trackerHitRTTI::isSingle(*iHit);
     searchId[i] = SeedingLayerId(SeedingLayerSetsBuilder::SeedingLayerId(subdet, side, ttopo.layer(detId)), isStripMono);
   }
   auto found = seedingLayerSetToBin.find(searchId);
