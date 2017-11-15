@@ -1,7 +1,7 @@
 ***********************************************************************
 *                                                                     *
 * Instructions to compile and Run GPU RawToDigi only                  *
-* 9 November 2017                                                     *
+* 15 November 2017                                                     *
 *                                                                     *
 * Input File: Raw Data in root format                                 *
 *                                                                     *
@@ -13,9 +13,9 @@
 * The file RawId_moduleId.txt contains RawId(DetId) for module index  *
 ***********************************************************************
 
-file type:/eos/cms/store/relval/CMSSW_9_2_0/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2017_realistic_v5_PU50-v1/10000/
+file type:/eos/cms/store/relval/CMSSW_9_4_0/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_upgrade2018_realistic_v5-v1/10000/
 
-Input file: /home/fpantale/data/920/PU50/085D5AAF-9E40-E711-B12A-0025905A609E.root
+Input file: /store/relval/CMSSW_9_4_0/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_upgrade2018_realistic_v5-v1/10000/F87005CD-CBC8-E711-A9F5-0CC47A4D7694.root
 Please change the input file path or name in python script
 EventFilter/SiPixelRawToDigi/test/runRawToDigi_GPU_phase1.py
 
@@ -25,11 +25,11 @@ EventFilter/SiPixelRawToDigi/test/runRawToDigi_GPU_phase1.py
 
 
 1. Download the code from repository:
-   > cmsrel CMSSW_9_2_0
-   > cd CMSSW_9_2_0/src
+   > cmsrel CMSSW_9_4_0
+   > cd CMSSW_9_4_0/src
    > cmsenv
-   > git cms-merge-topic sushildubey171:GPU_RawToDigi_C920
-   > scram setup /home/fpantale/cuda_8.0.44.xml
+   > git cms-merge-topic sushildubey171:GPU_RawToDigi_C940
+   > scram setup cuda
    > scram b -j8
 
 
@@ -44,5 +44,5 @@ EventFilter/SiPixelRawToDigi/test/runRawToDigi_GPU_phase1.py
    Upon successful execution it will dispaly message on the console.
    It can produce output files for debugging according to value of 
    r2d_debug variable in SiPixelRawToDigi.cc 
-   located in CMSSW_9_2_0/src/EventFilter/SiPixelRawToDigi/plugins/
+   located in CMSSW_9_4_0/src/EventFilter/SiPixelRawToDigi/plugins/
    The output is stored in the test directory
