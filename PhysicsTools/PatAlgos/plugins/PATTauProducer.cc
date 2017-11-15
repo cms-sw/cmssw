@@ -355,7 +355,7 @@ void PATTauGenericProducer<TauType>::produce(edm::Event & iEvent, const edm::Eve
 
     // extraction of reconstructed tau decay mode
     // (only available for PFTaus)
-    if ( aTau.isPFTau() ) {
+    if ( aTau.isAnyPFTau() ) {
       edm::Handle<std::vector<TauType>> pfTaus;
       iEvent.getByToken(pfTauToken_, pfTaus);
       edm::Ref<std::vector<TauType> > pfTauRef(pfTaus, idx);
@@ -364,7 +364,7 @@ void PATTauGenericProducer<TauType>::produce(edm::Event & iEvent, const edm::Eve
     }
 
     // extraction of variables needed to rerun MVA isolation and anti-electron discriminator on MiniAOD
-    if( aTau.isPFTau() ) {
+    if( aTau.isAnyPFTau() ) {
       edm::Handle<std::vector<TauType>> pfTaus;
       iEvent.getByToken(pfTauToken_, pfTaus);
       edm::Ref<std::vector<TauType> > pfTauRef(pfTaus, idx);
