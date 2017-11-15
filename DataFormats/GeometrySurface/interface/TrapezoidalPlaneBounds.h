@@ -51,6 +51,9 @@ public:
 
   bool inside( const Local2DPoint& p, const LocalError& err, float scale) const override;
 
+  float significanceInside(const Local3DPoint&, const LocalError&) const override;
+
+
   /** returns the 4 parameters needed for construction, in the order
    * ( half bottom edge, half top edge, half thickness, half apothem).
    * Beware! This order is different from the one in the constructor!
