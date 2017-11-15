@@ -312,7 +312,7 @@ namespace edm {
     PreallocationConfiguration                    preallocations_;
     
     bool                                          asyncStopRequestedWhileProcessingEvents_;
-    InputSource::ItemType                         nextItemTypeFromProcessingEvents_;
+    std::atomic<InputSource::ItemType>            nextItemTypeFromProcessingEvents_;
     StatusCode                                    asyncStopStatusCodeFromProcessingEvents_;
     bool firstEventInBlock_=true;
     

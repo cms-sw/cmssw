@@ -338,7 +338,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 
      histname = "NumberOfGoodPVtxWO0VsLS_" + CategoryName;
      NumberOfGoodPVtxWO0VsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,GoodPVtxMin,3.*GoodPVtxMax,"");
-     NumberOfGoodPVtxWO0VsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
      NumberOfGoodPVtxWO0VsLS->setAxisTitle("#Lumi section",1);
      NumberOfGoodPVtxWO0VsLS->setAxisTitle("Mean number of good PV",2);
 
@@ -356,38 +355,32 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        
        histname = "NumberEventsVsBX_" + CategoryName;
        NumberEventsOfVsBX = ibooker.book1D(histname,histname, BXBin,BXMin,BXMax);
-       NumberEventsOfVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberEventsOfVsBX->setAxisTitle("BX",1);
        NumberEventsOfVsBX->setAxisTitle("Number of events",2);
        
        histname = "NumberOfTracksVsBX_"+ CategoryName;
        NumberOfTracksVsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax, TKNoMin, TKNoMax*3.,"");
-       NumberOfTracksVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfTracksVsBX->setAxisTitle("BX",1);
        NumberOfTracksVsBX->setAxisTitle("Number of  Tracks",2);
        
        histname = "NumberOfRecHitsPerTrackVsBX_" + CategoryName;
        NumberOfRecHitsPerTrackVsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax,0.,200.,"");
-       NumberOfRecHitsPerTrackVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfRecHitsPerTrackVsBX->setAxisTitle("BX",1);
        NumberOfRecHitsPerTrackVsBX->setAxisTitle("Mean number of Valid RecHits per track",2);
        
        histname = "NumberOfGoodPVtxVsBX_" + CategoryName;
        NumberOfGoodPVtxVsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax,GoodPVtxMin,3.*GoodPVtxMax,"");
-       NumberOfGoodPVtxVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfGoodPVtxVsBX->setAxisTitle("BX",1);
        NumberOfGoodPVtxVsBX->setAxisTitle("Mean number of good PV",2);
        
        histname = "NumberOfGoodPVtxWO0VsBX_" + CategoryName;
        NumberOfGoodPVtxWO0VsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax,GoodPVtxMin,3.*GoodPVtxMax,"");
-       NumberOfGoodPVtxWO0VsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfGoodPVtxWO0VsBX->setAxisTitle("BX",1);
        NumberOfGoodPVtxWO0VsBX->setAxisTitle("Mean number of good PV",2);
        
        if (doFractionPlot_) {
 	 histname = "GoodTracksFractionVsBX_"+ CategoryName;
 	 GoodTracksFractionVsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax,0,1.1,"");
-	 GoodTracksFractionVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
 	 GoodTracksFractionVsBX->setAxisTitle("BX",1);
 	 GoodTracksFractionVsBX->setAxisTitle("Fraction of Good Tracks",2);
        }
@@ -407,61 +400,53 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      if ( doPlotsVsGoodPVtx_ ) {
       ibooker.setCurrentFolder(MEFolderName+"/PUmonitoring");
       // get binning from the configuration
-       int    GoodPVtxBin   = conf->getParameter<int>("GoodPVtxBin");
-       double GoodPVtxMin   = conf->getParameter<double>("GoodPVtxMin");
-       double GoodPVtxMax   = conf->getParameter<double>("GoodPVtxMax");
+      int   PVBin = conf->getParameter<int>   ("PVBin");
+      float PVMin = conf->getParameter<double>("PVMin");
+      float PVMax = conf->getParameter<double>("PVMax");
     
        histname = "NumberOfTracksVsGoodPVtx";
-       NumberOfTracksVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,TKNoMin, TKNoMax*5.,"");
-       NumberOfTracksVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfTracksVsGoodPVtx = ibooker.bookProfile(histname,histname,PVBin,PVMin,PVMax,TKNoMin, TKNoMax*5.,"");
        NumberOfTracksVsGoodPVtx->setAxisTitle("Number of PV",1);
        NumberOfTracksVsGoodPVtx->setAxisTitle("Mean number of Tracks per Event",2);
 
        histname = "NumberOfTracksVsPUPVtx";
-       NumberOfTracksVsPUPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0., 5000.,"");
-       NumberOfTracksVsPUPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfTracksVsPUPVtx = ibooker.bookProfile(histname,histname,PVBin,PVMin,PVMax,0., TKNoMax*5.,"");
        NumberOfTracksVsPUPVtx->setAxisTitle("Number of PU",1);
        NumberOfTracksVsPUPVtx->setAxisTitle("Mean number of Tracks per PUvtx",2);
 
        histname = "NumberEventsVsGoodPVtx";
-       NumberEventsOfVsGoodPVtx = ibooker.book1D(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax);
-       NumberEventsOfVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberEventsOfVsGoodPVtx = ibooker.book1D(histname,histname,PVBin,PVMin,PVMax);
        NumberEventsOfVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
        NumberEventsOfVsGoodPVtx->setAxisTitle("Number of events",2);
 
        if (doFractionPlot_) {
 	 histname = "GoodTracksFractionVsGoodPVtx";
-	 GoodTracksFractionVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0., 1.1,"");
-	 GoodTracksFractionVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+	 GoodTracksFractionVsGoodPVtx = ibooker.bookProfile(histname,histname,PVBin,PVMin,PVMax,0., 1.1,"");
 	 GoodTracksFractionVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
 	 GoodTracksFractionVsGoodPVtx->setAxisTitle("Mean fraction of good tracks",2);
        }
 
        histname = "NumberOfRecHitsPerTrackVsGoodPVtx";
-       NumberOfRecHitsPerTrackVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0., 200.,"");
-       NumberOfRecHitsPerTrackVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfRecHitsPerTrackVsGoodPVtx = ibooker.bookProfile(histname,histname,PVBin,PVMin,PVMax,0., 200.,"");
        NumberOfRecHitsPerTrackVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
        NumberOfRecHitsPerTrackVsGoodPVtx->setAxisTitle("Mean number of valid rechits per Tracks",2);
 
        histname = "NumberOfPVtxVsGoodPVtx";
-       NumberOfPVtxVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0., 3.*GoodPVtxMax,"");
-       NumberOfPVtxVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfPVtxVsGoodPVtx = ibooker.bookProfile(histname,histname,PVBin,PVMin,PVMax,0., 3.*PVMax,"");
        NumberOfPVtxVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
        NumberOfPVtxVsGoodPVtx->setAxisTitle("Mean number of vertices",2);
 
        double NClusPxMin = conf->getParameter<double>("NClusPxMin");
        double NClusPxMax = conf->getParameter<double>("NClusPxMax");
        histname = "NumberOfPixelClustersVsGoodPVtx";
-       NumberOfPixelClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,NClusPxMin,3.*NClusPxMax,"");
-       NumberOfPixelClustersVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfPixelClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,PVBin,PVMin,PVMax,NClusPxMin,3.*NClusPxMax,"");
        NumberOfPixelClustersVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
        NumberOfPixelClustersVsGoodPVtx->setAxisTitle("Mean number of pixel clusters",2);
        
        double NClusStrMin = conf->getParameter<double>("NClusStrMin");
        double NClusStrMax = conf->getParameter<double>("NClusStrMax");
        histname = "NumberOfStripClustersVsGoodPVtx";
-       NumberOfStripClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,NClusStrMin,3.*NClusStrMax,"");
-       NumberOfStripClustersVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfStripClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,PVBin,PVMin,PVMax,NClusStrMin,3.*NClusStrMax,"");
        NumberOfStripClustersVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
        NumberOfStripClustersVsGoodPVtx->setAxisTitle("Mean number of strip clusters",2);
   
@@ -476,42 +461,36 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        
        histname = "NumberEventsVsLUMI";
        NumberEventsOfVsLUMI = ibooker.book1D(histname,histname,LUMIBin,LUMIMin,LUMIMax);
-       NumberEventsOfVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberEventsOfVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberEventsOfVsLUMI->setAxisTitle("Number of events",2);
        
        histname = "NumberOfTracksVsLUMI";
        NumberOfTracksVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,0., 2000.,"");
-       NumberOfTracksVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfTracksVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfTracksVsLUMI->setAxisTitle("Mean number of vertices",2);
        
        if (doFractionPlot_) {
 	 histname = "GoodTracksFractionVsLUMI";
 	 GoodTracksFractionVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,0., 1.1,"");
-	 GoodTracksFractionVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
 	 GoodTracksFractionVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
 	 GoodTracksFractionVsLUMI->setAxisTitle("Mean number of vertices",2);
        }
 
        histname = "NumberOfRecHitsPerTrackVsLUMI";
        NumberOfRecHitsPerTrackVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,0., 200.,"");
-       NumberOfRecHitsPerTrackVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("Mean number of vertices",2);
 
-       double GoodPVtxMin   = conf->getParameter<double>("GoodPVtxMin");
-       double GoodPVtxMax   = conf->getParameter<double>("GoodPVtxMax");
+       double PVMin   = conf->getParameter<double>("PVMin");
+       double PVMax   = conf->getParameter<double>("PVMax");
        
        histname = "NumberOfGoodPVtxVsLUMI";
-       NumberOfGoodPVtxVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,GoodPVtxMin,3.*GoodPVtxMax,"");
-       NumberOfGoodPVtxVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfGoodPVtxVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,PVMin,3.*PVMax,"");
        NumberOfGoodPVtxVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfGoodPVtxVsLUMI->setAxisTitle("Mean number of vertices",2);
 
        histname = "NumberOfGoodPVtxWO0VsLUMI";
-       NumberOfGoodPVtxWO0VsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,GoodPVtxMin,3.*GoodPVtxMax,"");
-       NumberOfGoodPVtxWO0VsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfGoodPVtxWO0VsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,PVMin,3.*PVMax,"");
        NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("Mean number of vertices",2);
 
@@ -519,7 +498,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        double NClusPxMax = conf->getParameter<double>("NClusPxMax");
        histname = "NumberOfPixelClustersVsGoodPVtx";
        NumberOfPixelClustersVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,NClusPxMin,3.*NClusPxMax,"");
-       NumberOfPixelClustersVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfPixelClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfPixelClustersVsLUMI->setAxisTitle("Mean number of pixel clusters",2);
        
@@ -527,7 +505,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        double NClusStrMax = conf->getParameter<double>("NClusStrMax");
        histname = "NumberOfStripClustersVsLUMI";
        NumberOfStripClustersVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,NClusStrMin,3.*NClusStrMax,"");
-       NumberOfStripClustersVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfStripClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfStripClustersVsLUMI->setAxisTitle("Mean number of strip clusters",2);
   
@@ -544,7 +521,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
     
        histname = "NumberOfTracksVsBXlumi_"+ CategoryName;
        NumberOfTracksVsBXlumi = ibooker.bookProfile(histname,histname, BXlumiBin,BXlumiMin,BXlumiMax, TKNoMin, 3.*TKNoMax,"");
-       NumberOfTracksVsBXlumi->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfTracksVsBXlumi->setAxisTitle("lumi BX [10^{30}Hzcm^{-2}]",1);
        NumberOfTracksVsBXlumi->setAxisTitle("Mean number of Tracks",2);
     

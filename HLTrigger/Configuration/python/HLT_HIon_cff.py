@@ -1,4 +1,4 @@
-# hltGetConfiguration --cff --offline --data /dev/CMSSW_9_2_0/HIon --type HIon
+# hltGetConfiguration --cff --data /dev/CMSSW_9_2_0/HIon --type HIon
 
 # /dev/CMSSW_9_2_0/HIon/V167 (CMSSW_9_2_14)
 

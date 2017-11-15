@@ -1,4 +1,4 @@
-# hltGetConfiguration --full --offline --data /dev/CMSSW_9_2_0/Fake1 --type Fake1 --unprescale --process HLTFake1 --globaltag auto:run2_hlt_Fake1 --input file:RelVal_Raw_Fake1_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_9_2_0/Fake1 --type Fake1 --unprescale --process HLTFake1 --globaltag auto:run2_hlt_Fake1 --input file:RelVal_Raw_Fake1_DATA.root
 
 # /dev/CMSSW_9_2_0/Fake1/V9 (CMSSW_9_2_14)
 

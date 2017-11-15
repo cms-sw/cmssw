@@ -208,19 +208,8 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
 
     getTightMuons(muons,primaryVertex);
     getProbeMuons(trigResults,trigEvent); // CB add flag to run on orthogonal datasets (no T&P)
+
     getMuonGmtPairs(gmtCands);
-
-//    MuonCollection::const_iterator muonIt  = muons->begin();
-//    MuonCollection::const_iterator muonEnd = muons->end();
-
-    vector<l1t::Muon> gmtContainer;// = gmtCands->getRecord(0).getGMTCands();                       
-
-    for (auto mu = gmtCands->begin(0); mu != gmtCands->end(0); ++mu) {
-        gmtContainer.push_back(*mu);
-    }
-
-//    vector<l1t::Muon>::const_iterator gmtIt = gmtContainer.begin();
-//    vector<l1t::Muon>::const_iterator gmtEnd = gmtContainer.end();
 
     if (m_verbose) cout << "[L1TMuonDQMOffline:] Computing efficiencies" << endl;
 
@@ -614,14 +603,9 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
 
     vector<const reco::Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
     vector<const reco::Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();
-    vector<l1t::Muon> gmtContainer;
 
-    for (auto mu = gmtCands->begin(0); mu != gmtCands->end(0); ++mu) {
-        gmtContainer.push_back(*mu);
-    }
-
-    vector<l1t::Muon>::const_iterator gmtIt;
-    vector<l1t::Muon>::const_iterator gmtEnd = gmtContainer.end();
+    l1t::MuonBxCollection::const_iterator gmtIt;
+    l1t::MuonBxCollection::const_iterator gmtEnd = gmtCands->end();
 
     for (; probeMuIt!=probeMuEnd; ++probeMuIt) {
         float eta = (*probeMuIt)->eta();
@@ -634,7 +618,7 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
 
         MuonGmtPair pairBestCand((*probeMuIt),nullptr);
 //      pairBestCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
-        gmtIt = gmtContainer.begin();
+        gmtIt = gmtCands->begin();
 
         for(; gmtIt!=gmtEnd; ++gmtIt) {
             MuonGmtPair pairTmpCand((*probeMuIt),&(*gmtIt));

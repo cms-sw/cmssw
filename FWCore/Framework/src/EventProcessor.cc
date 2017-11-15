@@ -1432,7 +1432,7 @@ namespace edm {
     if(deferredExceptionPtrIsSet_) {
       std::rethrow_exception(deferredExceptionPtr_);
     }
-    return nextItemTypeFromProcessingEvents_;
+    return nextItemTypeFromProcessingEvents_.load();
   }
 
   void EventProcessor::readEvent(unsigned int iStreamIndex) {

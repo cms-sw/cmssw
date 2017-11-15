@@ -18,7 +18,6 @@
 
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 #include <utility>
@@ -45,7 +44,6 @@ public:
   typedef PixelRecoRange<float> Range;
   typedef SeedingLayerSetsHits::ConstRecHitPointer Hit;
   typedef SeedingLayerSetsHits::Hits Hits;
-  using   ctfHits = ctfseeding::SeedingLayer::Hits;
 
 public:
 

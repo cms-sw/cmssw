@@ -32,7 +32,6 @@ using pixelrecoutilities::LongitudinalBendingCorrection;
 using Range=PixelRecoRange<float>;
 
 using namespace std;
-using namespace ctfseeding;
 
 
 PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
