@@ -67,6 +67,14 @@ void HcalDeterministicFit::get206Frac(float tStart, float tEnd, float &sum) cons
   return;
 }
 
+void HcalDeterministicFit::getFrac(float tStart, float tEnd, float &sum, FType fType) const{ 
+  switch(fType){
+    case shape205:    get205Frac(tStart,tEnd,sum);    break; 
+    case shape206:    get206Frac(tStart,tEnd,sum);    break; 
+    case shapeLandau: getLandauFrac(tStart,tEnd,sum); break; 
+  }
+}
+
 void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 				       float& reconstructedEnergy,
 				       float& reconstructedTime) const
@@ -128,21 +136,21 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   float ch3,ch4,ch5, i3,n3,nn3, i4,n4,i5,n5;
   ch3=0,ch4=0,ch5=0,i3=0,n3=0,nn3=0,i4=0,n4=0,i5=0,n5=0;
 
-  HcalDeterministicFit Frac;
-  if(channelData.hasTimeInfo() && channelData.recoShape()==205) Frac.getFrac = &HcalDeterministicFit::get205Frac;
-  else if(channelData.hasTimeInfo() && channelData.recoShape()==206) Frac.getFrac = &HcalDeterministicFit::get206Frac;
-  else Frac.getFrac = &HcalDeterministicFit::getLandauFrac;
+  FType fType;
+  if(channelData.hasTimeInfo() && channelData.recoShape()==205) fType = shape205;
+  else if(channelData.hasTimeInfo() && channelData.recoShape()==206) fType = shape206;
+  else fType = shapeLandau;
 
-  (Frac.*(Frac.getFrac))(-tsShift3,-tsShift3+tsWidth,i3);
-  (Frac.*(Frac.getFrac))(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
-  (Frac.*(Frac.getFrac))(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
+  getFrac(-tsShift3,-tsShift3+tsWidth,i3,fType);
+  getFrac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3,fType);
+  getFrac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3,fType);
 
-  (Frac.*(Frac.getFrac))(-tsShift4,-tsShift4+tsWidth,i4);
-  (Frac.*(Frac.getFrac))(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
+  getFrac(-tsShift4,-tsShift4+tsWidth,i4,fType);
+  getFrac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4,fType);
 
-  (Frac.*(Frac.getFrac))(-tsShift5,-tsShift5+tsWidth,i5);
-  (Frac.*(Frac.getFrac))(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
-
+  getFrac(-tsShift5,-tsShift5+tsWidth,i5,fType);
+  getFrac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5,fType);
+  
   if (i3 != 0 && i4 != 0 && i5 != 0) {
 
     ch3=corrCharge[3]/i3;
