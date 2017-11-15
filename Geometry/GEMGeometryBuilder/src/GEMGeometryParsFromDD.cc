@@ -118,9 +118,8 @@ GEMGeometryParsFromDD::buildSuperChamber(DDFilteredView& fv, GEMDetId detId, Rec
   dz += 2.105;// gap between chambers
 
   GEMDetId gemid = detId.superChamberId();
-  std::vector<std::string> strpars;
   std::string name = fv.logicalPart().name().name();
-  strpars.emplace_back(name);
+  std::vector<std::string> strpars{name};
   
   std::vector<double> pars{dx1, dx2, dy, dz};
   std::vector<double> vtra = getTranslation(fv);
@@ -146,9 +145,8 @@ GEMGeometryParsFromDD::buildChamber(DDFilteredView& fv, GEMDetId detId, RecoIdea
   dz += dpar[3]/cm;// chamber thickness
 
   GEMDetId gemid = detId.chamberId();
-  std::vector<std::string> strpars;
   std::string name = fv.logicalPart().name().name();
-  strpars.emplace_back(name);
+  std::vector<std::string> strpars{name};
 
   std::vector<double> pars{dx1, dx2, dy, dz};
   std::vector<double> vtra = getTranslation(fv);
@@ -186,9 +184,8 @@ GEMGeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, GEMDetId detId, Rec
   double dx1= dpar[4]/cm;// bottom width is along local X
   double dx2= dpar[8]/cm;// top width is along local X
 
-  std::vector<std::string> strpars;
   std::string name = fv.logicalPart().name().name();
-  strpars.emplace_back(name);
+  std::vector<std::string> strpars{name};
 
   std::vector<double> pars{dx1, dx2, dy, dz, nStrips, nPads};
   std::vector<double> vtra = getTranslation(fv);
@@ -200,7 +197,6 @@ GEMGeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, GEMDetId detId, Rec
 std::vector<double> GEMGeometryParsFromDD::getTranslation(DDFilteredView& fv)
 {
   const DDTranslation& tran = fv.translation();
-  std::vector<double> vtra(3);
   return {tran.x(), tran.y(), tran.z()};
 }
 
@@ -209,8 +205,7 @@ std::vector<double> GEMGeometryParsFromDD::getRotation(DDFilteredView& fv)
   const DDRotationMatrix& rota = fv.rotation();//.Inverse();
   DD3Vector x, y, z;
   rota.GetComponents(x,y,z);  
-  return
-    { x.X(), x.Y(), x.Z(),
-      y.X(), y.Y(), y.Z(),
-      z.X(), z.Y(), z.Z() };
+  return { x.X(), x.Y(), x.Z(),
+           y.X(), y.Y(), y.Z(),
+	   z.X(), z.Y(), z.Z() };
 }
