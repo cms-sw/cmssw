@@ -28,12 +28,12 @@ _excludes=[]
 _visitor=ModuleNodeVisitor(_excludes)
 standalonemuontracking.visit(_visitor)
 displacedGlobalMuonTracking.visit(_visitor)
-muonreco_plus_isolation_PbPb = muonreco_plus_isolation.copyAndExclude(_excludes)
+muonreco_plus_isolation_PbPb_Task = muonreco_plus_isolation_Task.copyAndExclude(_excludes)
 
-muonreco_plus_isolation_PbPb.replace(muons1stStep, hiMuons1stStep)
+muonreco_plus_isolation_PbPb_Task.replace(muons1stStep, hiMuons1stStep)
 #iso deposits are not used in HI
-muonreco_plus_isolation_PbPb.remove(muIsoDeposits_muons)
-
+muonreco_plus_isolation_PbPb_Task.remove(muIsoDeposits_muons)
+muonreco_plus_isolation_PbPb = cms.Sequence(muonreco_plus_isolation_PbPb_Task)
 
 globalMuons.TrackerCollectionLabel = hiTracks
 
@@ -57,5 +57,5 @@ muonRecoHighLevelPbPb = cms.Sequence(muons)
 
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
 
-muonRecoPbPb = cms.Sequence(muonreco_plus_isolation_PbPb)
+muonRecoPbPb = cms.Sequence(muonreco_plus_isolation_PbPb_Task)
 

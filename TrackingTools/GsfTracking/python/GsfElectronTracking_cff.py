@@ -7,12 +7,12 @@ from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 electronSeedsTask = cms.Task(trackerDrivenElectronSeeds,ecalDrivenElectronSeeds,electronMergedSeeds) 
 electronSeeds = cms.Sequence(electronSeedsTask)
 _electronSeedsTaskFromMultiCl = electronSeedsTask.copy()
-_electronSeedsTaskFromMultiCl.add(ecalDrivenElectronSeedsFromMultiCl,electronMergedSeedsFromMultiCl)
+_electronSeedsTaskFromMultiCl.add(cms.Task(ecalDrivenElectronSeedsFromMultiCl,electronMergedSeedsFromMultiCl))
 _electronSeedsFromMultiCl = cms.Sequence(_electronSeedsTaskFromMultiCl)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(
-  electronSeeds, _electronSeedsFromMultiCl )
+  electronSeedsTask, _electronSeedsTaskFromMultiCl )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _fastSim_electronSeedsTask = electronSeedsTask.copy()
