@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # TODO: This needs to be setup as a StandardSequence.
 
 # CaloLayer1
-from EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi import *
+from EventFilter.L1TRawToDigi.caloLayer1Digis_cfi import *
 
 # CaloLayer2
 from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
@@ -26,7 +26,7 @@ from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import *
 from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import *
 
 l1tStage2Unpack = cms.Sequence(
-    l1tCaloLayer1Digis +
+    caloLayer1Digis +
     caloStage2Digis +
     bmtfDigis  +
     omtfStage2Digis +
@@ -71,7 +71,7 @@ from DQM.L1TMonitor.L1TStage2uGT_cfi import *
 
 # sequence to run for every event
 l1tStage2OnlineDQM = cms.Sequence(
-    l1tStage2CaloLayer1  +
+    l1tStage2CaloLayer1 +
     l1tStage2CaloLayer2 +
     l1tStage2Bmtf +
     l1tStage2Omtf +
