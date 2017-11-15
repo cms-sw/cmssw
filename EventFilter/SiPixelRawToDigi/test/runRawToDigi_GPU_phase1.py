@@ -28,7 +28,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2017', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '76X_upgrade2017_design_v8', '')
 #process.GlobalTag.globaltag ="81X_dataRun2_relval_v14"
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(128))
 
