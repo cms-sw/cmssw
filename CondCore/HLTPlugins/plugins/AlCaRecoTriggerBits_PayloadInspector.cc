@@ -38,6 +38,8 @@ namespace {
       std::vector<float> y_x1,y_x2,y_line;
       std::vector<std::string>   s_x1,s_x2,s_x3;
 
+      // starting table at y=1.0 (top of the canvas)
+      // first column is at 0.02, second column at 0.32 NDC
       y = 1.0; x1 = 0.02; x2 = x1+0.30;
 	
       y -= pitch; 
@@ -50,23 +52,26 @@ namespace {
       y_line.push_back(y);
 
       for(const auto &element : triggerMap){
-	//std::cout<< element.first << " : " ;
 
 	y -= pitch; 
 	y_x1.push_back(y);
 	s_x1.push_back(element.first);
 
-	std::map<int,std::string> output;
-	int count=0;
+	std::vector<std::string> output;
+	std::string toAppend=""; 
 	const std::vector<std::string> paths = payload->decompose(element.second);
 	for (unsigned int iPath = 0; iPath < paths.size(); ++iPath) {
-	  if((output[count]+paths[iPath]).length()<60){
-	    output[count]+=paths[iPath];
-	    output[count]+=";";
+	  // if the line to be added has less than 60 chars append to current 
+	  if((toAppend+paths[iPath]).length()<60){
+	    toAppend+=paths[iPath]+";";
 	  } else {
-	    count++;
-	    output[count]+=paths[iPath];
+	    // else if the line exceeds 60 chars, dump in the vector and resume from scratch
+	    output.push_back(toAppend);
+	    toAppend.clear();
+	    toAppend+=paths[iPath]+";";
 	  }
+	  // if it's the last, dump it
+	  if(iPath==paths.size()-1) output.push_back(toAppend);
 	}
       	
 	for (unsigned int br=0; br<output.size();br++){
@@ -77,7 +82,6 @@ namespace {
 
 	y_line.push_back(y-(pitch/2.));
        
-	//std::cout << std::endl;
       }
 
       TCanvas canvas("AlCaRecoTriggerBits","AlCaRecoTriggerBits",2000,std::max(y_x1.size(),y_x2.size())*40); 
@@ -103,7 +107,6 @@ namespace {
       TLine lines[y_line.size()];
       unsigned int iL=0;
       for (const auto & line : y_line){
-	//std::cout<<1-(1-line)*factor<<std::endl;
 	lines[iL] = TLine(gPad->GetUxmin(),1-(1-line)*factor,gPad->GetUxmax(),1-(1-line)*factor);
 	lines[iL].SetLineWidth(1);
 	lines[iL].SetLineStyle(9);
@@ -192,25 +195,26 @@ namespace {
 
       // print the ones missing in the last key
       for(const auto& key : not_in_last_keys ) {
-	//std::cout<< key ;
 	y -= pitch;  
 	y_x1.push_back(y);
 	s_x1.push_back(key);
 
 	const std::vector<std::string> missing_in_last_paths = first_payload->decompose(first_triggerMap.at(key));
 	
-	std::map<int,std::string> output;
-	int count=0;
+	std::vector<std::string> output;
+	std::string toAppend=""; 
 	for (unsigned int iPath = 0; iPath < missing_in_last_paths.size(); ++iPath) {
-	  //std::cout << missing_in_last_paths[iPath] << " ; " ;
-
-	  if((output[count]+missing_in_last_paths[iPath]).length()<60){
-	    output[count]+=missing_in_last_paths[iPath];
-	    output[count]+=";";
+	  // if the line to be added has less than 60 chars append to current 
+	  if((toAppend+missing_in_last_paths[iPath]).length()<60){
+	    toAppend+=missing_in_last_paths[iPath]+";";
 	  } else {
-	    count++;
-	    output[count]+=missing_in_last_paths[iPath];
+	    // else if the line exceeds 60 chars, dump in the vector and resume from scratch
+	    output.push_back(toAppend);
+	    toAppend.clear();
+	    toAppend+=missing_in_last_paths[iPath]+";";
 	  }
+	  // if it's the last, dump it
+	  if(iPath==missing_in_last_paths.size()-1) output.push_back(toAppend);
 	}
 	
 	for (unsigned int br=0; br<output.size();br++){
@@ -218,35 +222,31 @@ namespace {
 	  s_x2.push_back("#color[2]{"+output[br]+"}");
 	  if(br!=output.size()-1) y -=pitch;
 	}
-	//std::cout << " |||||| not in last";
-	//std::cout << std::endl;
-
 	y_line.push_back(y-0.008);
 
       }
       
-
       // print the ones missing in the first key
       for(const auto& key : not_in_first_keys ) {
-	//std::cout<< key ;
 	y -= pitch;  
 	y_x1.push_back(y);
 	s_x1.push_back(key);
 	const std::vector<std::string> missing_in_first_paths = last_payload->decompose(last_triggerMap.at(key));
 
-	//std::cout << " not in first ||||||";
-	std::map<int,std::string> output;
-	int count=0;
+	std::vector<std::string> output;
+	std::string toAppend=""; 
 	for (unsigned int iPath = 0; iPath < missing_in_first_paths.size(); ++iPath) {
-	  //std::cout << missing_in_first_paths[iPath] << " ; " ;
-
-	  if((output[count]+missing_in_first_paths[iPath]).length()<60){
-	    output[count]+=missing_in_first_paths[iPath];
-	    output[count]+=";";
+	  // if the line to be added has less than 60 chars append to current 
+	  if((toAppend+missing_in_first_paths[iPath]).length()<60){
+	    toAppend+=missing_in_first_paths[iPath]+";";
 	  } else {
-	    count++;
-	    output[count]+=missing_in_first_paths[iPath];
+	    // else if the line exceeds 60 chars, dump in the vector and resume from scratch
+	    output.push_back(toAppend);
+	    toAppend.clear();
+	    toAppend+=missing_in_first_paths[iPath]+";";
 	  }
+	  // if it's the last, dump it
+	  if(iPath==missing_in_first_paths.size()-1) output.push_back(toAppend);
 	}
 
 	for (unsigned int br=0; br<output.size();br++){
@@ -254,8 +254,6 @@ namespace {
 	  s_x3.push_back("#color[4]{"+output[br]+"}");
 	  if(br!=output.size()-1) y -= pitch;
 	}
-	//std::cout << std::endl;
-	
 	y_line.push_back(y-0.008);
 	
       }
@@ -281,56 +279,62 @@ namespace {
 
       	  if(!not_in_last.empty() || !not_in_first.empty()) {
 
-      	    //std::cout<< element.first << " : "  ;
       	    y -= pitch;  
 	    y_x1.push_back(y);
 	    s_x1.push_back(element.first);
     
-      	    std::map<int,std::string> output; 
-      	    int count(0);
-      	    for (unsigned int iPath = 0; iPath < not_in_last.size(); ++iPath) {
-      	      //std::cout << not_in_last[iPath] << " ; " ;
-	      
-	      if((output[count]+not_in_last[iPath]).length()<60){
-		output[count]+=not_in_last[iPath];
-		output[count]+=";";
+	    std::vector<std::string> output;
+	    std::string toAppend=""; 
+	    for (unsigned int iPath = 0; iPath < not_in_last.size(); ++iPath) {
+	      // if the line to be added has less than 60 chars append to current 
+	      if((toAppend+not_in_last[iPath]).length()<60){
+		toAppend+=not_in_last[iPath]+";";
 	      } else {
-		count++;
-		output[count]+=not_in_last[iPath];
+		// else if the line exceeds 60 chars, dump in the vector and resume from scratch
+		output.push_back(toAppend);
+		toAppend.clear();
+		toAppend+=not_in_last[iPath]+";";
 	      }
-      	    }
+	      // if it's the last and not empty, dump it
+	      if(toAppend.length()>0 && iPath==not_in_last.size()-1) output.push_back(toAppend);
+	    }
 
-      	    for (unsigned int br=0; br<output.size();br++){
+	    unsigned int count = output.size();
+
+      	    for (unsigned int br=0; br<count;br++){
 	      y_x2.push_back(y-(br*pitch));
 	      s_x2.push_back("#color[6]{"+output[br]+"}");
       	    }  
-      	    //std::cout << " ||||||";
 	    
-      	    output.clear();
-      	    int count1=0;
-      	    for (unsigned int jPath = 0; jPath < not_in_first.size(); ++jPath) {
-      	      //std::cout << not_in_first[jPath] << " ; " ;
-
-	      if((output[count]+not_in_first[jPath]).length()<60){
-		output[count]+=not_in_first[jPath];
-		output[count]+=";";
+	    // clear vector and string
+	    toAppend.clear();
+	    output.clear();
+	    for (unsigned int jPath = 0; jPath < not_in_first.size(); ++jPath) {
+	      // if the line to be added has less than 60 chars append to current 
+	      if((toAppend+not_in_first[jPath]).length()<60){
+		toAppend+=not_in_first[jPath]+";";
 	      } else {
-		count++;
-		output[count]+=not_in_first[jPath];
+		// else if the line exceeds 60 chars, dump in the vector and resume from scratch
+		output.push_back(toAppend);
+		toAppend.clear();
+		toAppend+=not_in_first[jPath]+";";
 	      }
-      	    }
-
-      	    for (unsigned int br=0; br<output.size();br++){  
+	      // if it's the last and not empty, dump it
+	      if(toAppend.length()>0 && jPath==not_in_first.size()-1) output.push_back(toAppend);
+	    }
+	    
+	    unsigned int count1 = output.size();
+		    
+      	    for (unsigned int br=0; br<count1;br++){  
 	      y_x3.push_back(y-(br*pitch));
 	      s_x3.push_back("#color[8]{"+output[br]+"}");
       	    }
 
 	    // decrease the y position to the maximum of the two lists
-	    y-=std::max(count,count1)*pitch;
+	    y-=(std::max(count,count1)-1)*pitch;
+	    //y-=count*pitch;
 	    y_line.push_back(y-0.008);
 	    
-      	    //std::cout << std::endl;
- 
       	  } // close if there is at least a difference 
       	} // if there is a common key
       }//loop on the keys
@@ -341,6 +345,7 @@ namespace {
       // Draw the columns titles
       l.SetTextAlign(12);
 
+      // rescale the width of the table row to fit into the canvas
       float newpitch = 1/(std::max(y_x1.size(),y_x2.size())*1.65);
       float factor  = newpitch/pitch;
       l.SetTextSize(newpitch-0.002);
@@ -363,7 +368,6 @@ namespace {
       TLine lines[y_line.size()];
       unsigned int iL=0;
       for (const auto & line : y_line){
-	//std::cout<<1-(1-line)*factor<<std::endl;
 	lines[iL] = TLine(gPad->GetUxmin(),1-(1-line)*factor,gPad->GetUxmax(),1-(1-line)*factor);
 	lines[iL].SetLineWidth(1);
 	lines[iL].SetLineStyle(9);
