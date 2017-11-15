@@ -172,12 +172,12 @@ supportedBtagDiscr = {
   , 'pfPositiveDeepCMVAJetTags:probcc'                     : [["pfDeepCMVAPositiveTagInfos"], ["pfImpactParameterTagInfos","softPFMuonsTagInfos","softPFElectronsTagInfos","pfInclusiveSecondaryVertexFinderTagInfos"]]    
     # ChargeTagging
   , 'pfChargeBJetTags'                                      : [["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]]
-  , 'pfDeepFlavourJetTags:probb'                                      : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos']]
-  , 'pfDeepFlavourJetTags:probbb'                                      : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos']]
-  , 'pfDeepFlavourJetTags:problepb'                                      : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos']]
-  , 'pfDeepFlavourJetTags:probc'                                      : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos']]
-  , 'pfDeepFlavourJetTags:probuds'                                      : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos']]
-  , 'pfDeepFlavourJetTags:probg'                                      : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos']]
+  , 'pfDeepFlavourJetTags:probb'                            : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepFlavourJetTags:probbb'                           : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepFlavourJetTags:problepb'                         : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepFlavourJetTags:probc'                            : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepFlavourJetTags:probuds'                          : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepFlavourJetTags:probg'                            : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
 }
 
 #meta-taggers are simple arithmetic on top of other taggers, they are stored here
