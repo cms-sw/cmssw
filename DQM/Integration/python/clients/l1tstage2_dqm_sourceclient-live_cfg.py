@@ -57,7 +57,6 @@ process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
 process.load("DQM.L1TMonitor.L1TStage2_cff")
 
 process.l1tMonitorPath = cms.Path(
-    process.l1tStage2Unpack +
     process.l1tStage2OnlineDQM +
     process.hltFatEventFilter +
 #    process.selfFatEventFilter +
