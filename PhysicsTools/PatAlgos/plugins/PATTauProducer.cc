@@ -12,6 +12,7 @@
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/PFBaseTau.h"
 #include "DataFormats/TauReco/interface/PFBaseTauDiscriminator.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -362,98 +363,159 @@ void PATTauGenericProducer<TauType>::produce(edm::Event & iEvent, const edm::Eve
       aTau.setDecayMode(pfTauRef->decayMode());
     }
 
- //    // extraction of variables needed to rerun MVA isolation and anti-electron discriminator on MiniAOD
- //    if( aTau.isPFTau() ) {
- //      edm::Handle<std::vector<TauType>> pfTaus;
- //      iEvent.getByToken(pfTauToken_, pfTaus);
- //      edm::Ref<std::vector<TauType> > pfTauRef(pfTaus, idx);
- //      pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
- //      float ecalEnergy = 0;
- //      float hcalEnergy = 0;
- //      float sumPhiTimesEnergy = 0.;
- //      float sumEtaTimesEnergy = 0.;
- //      float sumEnergy = 0.;
- //      float leadChargedCandPt = -99;
- //      float leadChargedCandEtaAtEcalEntrance = -99;	
- //      const auto& signalCands = pfTauRef->signalPFCands();
- //      for(const auto it = signalCands.begin(); it != signalCands.end(); ++it) {
- //        const auto& icand = *it;
- //        ecalEnergy += icand->ecalEnergy();
- //        hcalEnergy += icand->hcalEnergy();
-	// sumPhiTimesEnergy += icand->positionAtECALEntrance().phi()*icand->energy();		
-	// sumEtaTimesEnergy += icand->positionAtECALEntrance().eta()*icand->energy();
- //        sumEnergy += icand->energy();	 
-	// const reco::Track* track = 0;
- //     	if ( icand->trackRef().isNonnull() ) track = icand->trackRef().get();
- //     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->innerTrack().isNonnull()  ) track = icand->muonRef()->innerTrack().get();
- //     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->globalTrack().isNonnull() ) track = icand->muonRef()->globalTrack().get();
- //     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->outerTrack().isNonnull()  ) track = icand->muonRef()->outerTrack().get();
- //     	else if ( icand->gsfTrackRef().isNonnull() ) track = icand->gsfTrackRef().get();
- //     	if( track ) {
- //     	  if( track->pt() > leadChargedCandPt ) {
- //     	    leadChargedCandEtaAtEcalEntrance = icand->positionAtECALEntrance().eta();
- //     	    leadChargedCandPt = track->pt();
- //     	  }
- //        } 		
- //      }
- //      aTauPFEssential.ecalEnergy_ = ecalEnergy;
- //      aTauPFEssential.hcalEnergy_ = hcalEnergy;
- //      aTauPFEssential.ptLeadChargedCand_ = leadChargedCandPt;      
- //      aTauPFEssential.etaAtEcalEntranceLeadChargedCand_ = leadChargedCandEtaAtEcalEntrance;
- //      if (sumEnergy != 0.) {
- //        aTauPFEssential.phiAtEcalEntrance_ = sumPhiTimesEnergy/sumEnergy;
- //        aTauPFEssential.etaAtEcalEntrance_ = sumEtaTimesEnergy/sumEnergy;
- //      }
- //      else {
- //        aTauPFEssential.phiAtEcalEntrance_ = -99.;
- //        aTauPFEssential.etaAtEcalEntrance_ = -99.;
- //      }	
- //      float leadingTrackNormChi2 = 0;
- //      float ecalEnergyLeadChargedHadrCand = -99.;
- //      float hcalEnergyLeadChargedHadrCand = -99.;
- //      float emFraction = -1.;
- //      float myHCALenergy = 0.;
- //      float myECALenergy = 0.;	
- //      const auto& leadingPFCharged = pfTauRef->leadPFChargedHadrCand();
- //      if(leadingPFCharged.isNonnull()) {
-	// ecalEnergyLeadChargedHadrCand = leadingPFCharged->ecalEnergy();
- //        hcalEnergyLeadChargedHadrCand = leadingPFCharged->hcalEnergy(); 
- //        reco::TrackRef trackRef = leadingPFCharged->trackRef();
- //        if( trackRef.isNonnull() ) {
- //          leadingTrackNormChi2 = trackRef->normalizedChi2();			
-	//   for( const auto tauIt = pfTauRef->isolationPFCands().begin(); tauIt!=pfTauRef->isolationPFCands().end(); ++tauIt ){
-	//     myHCALenergy += (*tauIt)->hcalEnergy();
-	//     myECALenergy += (*tauIt)->ecalEnergy();
-	//   }
-	//   for( const auto tauIt = pfTauRef->signalPFCands().begin(); tauIt!=pfTauRef->signalPFCands().end(); ++tauIt ){
-	//     myHCALenergy += (*tauIt)->hcalEnergy();
-	//     myECALenergy += (*tauIt)->ecalEnergy();
-	//   }	  
-	//   if( myHCALenergy + myECALenergy != 0. ) {
- //            emFraction = myECALenergy/( myHCALenergy + myECALenergy);    
-	//   }
- //        }
- //      }
- //      aTauPFEssential.emFraction_ = emFraction;
- //      aTauPFEssential.leadingTrackNormChi2_ = leadingTrackNormChi2;
- //      aTauPFEssential.ecalEnergyLeadChargedHadrCand_ = ecalEnergyLeadChargedHadrCand;
- //      aTauPFEssential.hcalEnergyLeadChargedHadrCand_ = hcalEnergyLeadChargedHadrCand; 	
- //      // extraction of tau lifetime information
- //      if( tauTransverseImpactParameterSrc_.label() != "" ) {
- //        edm::Handle<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> >> tauLifetimeInfos;
- //        iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
- //        const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];
- //        pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
- //        aTauPFEssential.dxy_PCA_ = tauLifetimeInfo.dxy_PCA();
- //        aTauPFEssential.dxy_ = tauLifetimeInfo.dxy();
- //        aTauPFEssential.dxy_error_ = tauLifetimeInfo.dxy_error();
- //        aTauPFEssential.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
- //        aTauPFEssential.flightLength_ = tauLifetimeInfo.flightLength();
- //        aTauPFEssential.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
- //        aTauPFEssential.ip3d_ = tauLifetimeInfo.ip3d();
- //        aTauPFEssential.ip3d_error_ = tauLifetimeInfo.ip3d_error();
- //      }
- //    }
+    // extraction of variables needed to rerun MVA isolation and anti-electron discriminator on MiniAOD
+    if( aTau.isPFTau() ) {
+      edm::Handle<std::vector<TauType>> pfTaus;
+      iEvent.getByToken(pfTauToken_, pfTaus);
+      edm::Ref<std::vector<TauType> > pfTauRef(pfTaus, idx);
+      pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
+      float ecalEnergy = 0;
+      float hcalEnergy = 0;
+      float sumPhiTimesEnergy = 0.;
+      float sumEtaTimesEnergy = 0.;
+      float sumEnergy = 0.;
+      float leadChargedCandPt = -99;
+      float leadChargedCandEtaAtEcalEntrance = -99;	
+      const auto& signalCands = pfTauRef->signalPFCands();
+      for(const auto& it : signalCands) {
+	const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(it.get());
+	if(pfCandPtr != nullptr) {
+	  ecalEnergy += pfCandPtr->ecalEnergy();
+	  hcalEnergy += pfCandPtr->hcalEnergy();
+	  sumPhiTimesEnergy += pfCandPtr->positionAtECALEntrance().phi()*pfCandPtr->energy();		
+	  sumEtaTimesEnergy += pfCandPtr->positionAtECALEntrance().eta()*pfCandPtr->energy();
+	  sumEnergy += pfCandPtr->energy();	 
+	  const reco::Track* track = nullptr;
+	  if ( pfCandPtr->trackRef().isNonnull() ) track = pfCandPtr->trackRef().get();
+	  else if ( pfCandPtr->muonRef().isNonnull() && pfCandPtr->muonRef()->innerTrack().isNonnull()  ) track = pfCandPtr->muonRef()->innerTrack().get();
+	  else if ( pfCandPtr->muonRef().isNonnull() && pfCandPtr->muonRef()->globalTrack().isNonnull() ) track = pfCandPtr->muonRef()->globalTrack().get();
+	  else if ( pfCandPtr->muonRef().isNonnull() && pfCandPtr->muonRef()->outerTrack().isNonnull()  ) track = pfCandPtr->muonRef()->outerTrack().get();
+	  else if ( pfCandPtr->gsfTrackRef().isNonnull() ) track = pfCandPtr->gsfTrackRef().get();
+	  if( track != nullptr ) {
+	    if( track->pt() > leadChargedCandPt ) {
+	      leadChargedCandEtaAtEcalEntrance = pfCandPtr->positionAtECALEntrance().eta();
+	      leadChargedCandPt = track->pt();
+	    }
+	  }
+	}
+	else{
+	  const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(it.get());
+	  if(packedCandPtr != nullptr) {
+	    //potition at ECAL entrance can be recomputed, but individual ECAL and HCAL energies not
+	    //ecalEnergy += packedCandPtr->ecalEnergy();
+	    //hcalEnergy += packedCandPtr->hcalEnergy();
+	    //sumPhiTimesEnergy += packedCandPtr->positionAtECALEntrance().phi()*packedCandPtr->energy();		
+	    //sumEtaTimesEnergy += packedCandPtr->positionAtECALEntrance().eta()*packedCandPtr->energy();
+	    sumEnergy += packedCandPtr->energy();
+	    const reco::Track* track = packedCandPtr->hasTrackDetails() ? &packedCandPtr->pseudoTrack() : nullptr;
+	    if( track != nullptr ) {
+	      if( track->pt() > leadChargedCandPt ) {
+		//leadChargedCandEtaAtEcalEntrance = packedCandPtr->positionAtECALEntrance().eta();
+		leadChargedCandPt = track->pt();
+	      }
+	    }
+	  }
+	}
+      }
+      aTauPFEssential.ecalEnergy_ = ecalEnergy;
+      aTauPFEssential.hcalEnergy_ = hcalEnergy;
+      aTauPFEssential.ptLeadChargedCand_ = leadChargedCandPt;      
+      aTauPFEssential.etaAtEcalEntranceLeadChargedCand_ = leadChargedCandEtaAtEcalEntrance;
+      if (sumEnergy > 0.) {
+	aTauPFEssential.phiAtEcalEntrance_ = sumPhiTimesEnergy/sumEnergy;
+	aTauPFEssential.etaAtEcalEntrance_ = sumEtaTimesEnergy/sumEnergy;
+      }
+      else {
+	aTauPFEssential.phiAtEcalEntrance_ = -99.;
+	aTauPFEssential.etaAtEcalEntrance_ = -99.;
+      }	
+      float leadingTrackNormChi2 = 0;
+      float ecalEnergyLeadChargedHadrCand = -99.;
+      float hcalEnergyLeadChargedHadrCand = -99.;
+      float emFraction = -1.;
+      float myHCALenergy = 0.;
+      float myECALenergy = 0.;	
+      const auto& leadingPFCharged = pfTauRef->leadPFChargedHadrCand();
+      if(leadingPFCharged.isNonnull()) {
+	const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(leadingPFCharged.get());
+	if(pfCandPtr != nullptr) {
+	  ecalEnergyLeadChargedHadrCand = pfCandPtr->ecalEnergy();
+	  hcalEnergyLeadChargedHadrCand = pfCandPtr->hcalEnergy(); 
+	  reco::TrackRef trackRef = pfCandPtr->trackRef();
+	  if( trackRef.isNonnull() ) {
+	    leadingTrackNormChi2 = trackRef->normalizedChi2();			
+	    for(const auto& tauIt : pfTauRef->isolationPFCands()){
+	      const reco::PFCandidate* pfPtr = dynamic_cast<const reco::PFCandidate*>(tauIt.get());
+	      if(pfPtr != nullptr) {
+		myHCALenergy += pfPtr->hcalEnergy();
+		myECALenergy += pfPtr->ecalEnergy();
+	      }
+	    }
+	    for(const auto& tauIt : pfTauRef->signalPFCands() ){
+	      const reco::PFCandidate* pfPtr = dynamic_cast<const reco::PFCandidate*>(tauIt.get());
+	      if(pfPtr != nullptr) {
+		myHCALenergy += pfPtr->hcalEnergy();
+		myECALenergy += pfPtr->ecalEnergy();
+	      }
+	    }
+	    if( myHCALenergy + myECALenergy > 0. ) {
+	      emFraction = myECALenergy/( myHCALenergy + myECALenergy);    
+	    }
+	  }
+	}
+	else {
+	  const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(leadingPFCharged.get());
+	  if(packedCandPtr != nullptr) {
+	    //individual ECAL and HCAL energies not available with packedCandPtridates
+	    //ecalEnergyLeadChargedHadrCand = packedCandPtr->ecalEnergy();
+	    //hcalEnergyLeadChargedHadrCand = packedCandPtr->hcalEnergy(); 
+	    const reco::Track* track = packedCandPtr->hasTrackDetails() ? &packedCandPtr->pseudoTrack() : nullptr;
+	    if( track != nullptr ) {
+	      leadingTrackNormChi2 = track->normalizedChi2();			
+	      //individual ECAL and HCAL energies not available with packedCandidates
+	      /*
+	      for(const auto& tauIt : pfTauRef->isolationPFCands()){
+		const pat::PackedCandidate* packedPtr = dynamic_cast<const pat::PackedCandidate*>(tauIt.get());
+		if(packedPtr != nullptr) {
+		  myHCALenergy += packedPtr->hcalEnergy();
+		  myECALenergy += packedPtr->ecalEnergy();
+		}
+	      }
+	      for(const auto& tauIt : pfTauRef->signalPFCands()){
+		const pat::PackedCandidate* packedPtr = dynamic_cast<const pat::PackedCandidate*>(tauIt.get());
+		if(packedPtr != nullptr) {
+		  myHCALenergy += packedPtr->hcalEnergy();
+		  myECALenergy += packedPtr->ecalEnergy();
+		}
+	      }
+	      if( myHCALenergy + myECALenergy > 0. ) {
+		emFraction = myECALenergy/( myHCALenergy + myECALenergy);    
+	      }
+	      */
+	    }
+	  }
+	}
+      }
+      aTauPFEssential.emFraction_ = emFraction;
+      aTauPFEssential.leadingTrackNormChi2_ = leadingTrackNormChi2;
+      aTauPFEssential.ecalEnergyLeadChargedHadrCand_ = ecalEnergyLeadChargedHadrCand;
+      aTauPFEssential.hcalEnergyLeadChargedHadrCand_ = hcalEnergyLeadChargedHadrCand; 	
+      // extraction of tau lifetime information
+      if( tauTransverseImpactParameterSrc_.label() != "" ) {
+	edm::Handle<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> >> tauLifetimeInfos;
+	iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
+	const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];
+	pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
+	aTauPFEssential.dxy_PCA_ = tauLifetimeInfo.dxy_PCA();
+	aTauPFEssential.dxy_ = tauLifetimeInfo.dxy();
+	aTauPFEssential.dxy_error_ = tauLifetimeInfo.dxy_error();
+	aTauPFEssential.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
+	aTauPFEssential.flightLength_ = tauLifetimeInfo.flightLength();
+	aTauPFEssential.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
+	aTauPFEssential.ip3d_ = tauLifetimeInfo.ip3d();
+	aTauPFEssential.ip3d_error_ = tauLifetimeInfo.ip3d_error();
+      }
+    }
 
     // Isolation
     if (isolator_.enabled()) {
