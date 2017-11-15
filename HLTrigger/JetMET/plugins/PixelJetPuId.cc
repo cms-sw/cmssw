@@ -234,6 +234,6 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
     iEvent.put(std::move(pOut_jetTagCollection));
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 DEFINE_FWK_MODULE(PixelJetPuId);
 

@@ -500,6 +500,6 @@ FastTimerServiceClient::fillDescriptions(edm::ConfigurationDescriptions & descri
   descriptions.add("fastTimerServiceClient", desc);
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(FastTimerServiceClient);

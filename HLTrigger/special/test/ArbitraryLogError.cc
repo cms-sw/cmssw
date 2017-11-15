@@ -84,6 +84,6 @@ void
 ArbitraryLogError::endJob() {
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ArbitraryLogError);
