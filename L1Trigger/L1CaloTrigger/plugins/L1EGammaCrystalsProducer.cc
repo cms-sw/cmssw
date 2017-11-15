@@ -292,14 +292,6 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
            continue;
          }
 
-         // Get the detId associated with the HCAL TP
-         // if no detIds associated, skip
-         std::vector<HcalDetId> hcId = theTrigTowerGeometry.detIds(hit.id());
-         if (hcId.size() == 0) {
-           std::cout << "Cannot find any HCalDetId corresponding to " << hit.id() << std::endl;
-           continue;
-         }
-
          // Skip HCAL TPs which don't have HB detIds
          if (hcId[0].subdetId() > 1) continue;
 
