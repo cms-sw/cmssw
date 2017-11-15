@@ -1,4 +1,5 @@
 <use   name="EventFilter/SiPixelRawToDigi"/>
-<library   file="*.cc" name="EventFilterSiPixelRawToDigiPlugins">
+<use   name="cuda"/>
+<library   file="SiPixelRawToDigi.cc RawToDigiGPU.cu " name="EventFilterSiPixelRawToDigiPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
