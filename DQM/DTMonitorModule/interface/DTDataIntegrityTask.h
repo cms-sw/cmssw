@@ -105,13 +105,9 @@ private:
   // Monitor Elements
   MonitorElement* nEventMonitor;
   // <histoType, <index , histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
-  // <histoType, <index , histo> >
   std::map<std::string, std::map<int, MonitorElement*> > fedHistos;
   // <histoType, histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > rosSHistos;
-  // <histoType, histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > urosSHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > summaryHistos;
   // <histoType, <index , histo> >
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
   // <histoType, <fed , index, histo> >
