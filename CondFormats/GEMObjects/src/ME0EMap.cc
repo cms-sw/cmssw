@@ -1,8 +1,6 @@
-#include <iostream>
 #include "CondFormats/GEMObjects/interface/ME0EMap.h"
 #include "CondFormats/GEMObjects/interface/ME0ROmap.h"
-
-#include <DataFormats/MuonDetId/interface/ME0DetId.h>
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 ME0EMap::ME0EMap():
   theVersion("") {}
@@ -19,15 +17,14 @@ const std::string & ME0EMap::version() const{
 ME0ROmap* ME0EMap::convert() const{
   ME0ROmap* romap=new ME0ROmap();
 
-  std::vector<ME0EMap::ME0VFatMaptype>::const_iterator imap;
-  for (imap=this->theVFatMaptype.begin(); imap<this->theVFatMaptype.end();imap++){
-    for (unsigned int ix=0;ix<imap->strip_number.size();ix++){
+  for (auto imap : theVFatMaptype){
+    for (unsigned int ix=0;ix<imap.strip_number.size();ix++){
       ME0ROmap::eCoord ec;
-      ec.vfatId= imap->vfatId[ix] - 0xf000;// chip ID is 12 bits
-      ec.channelId=imap->vfat_chnnel_number[ix];
+      ec.vfatId= imap.vfatId[ix] - 0xf000;// chip ID is 12 bits
+      ec.channelId=imap.vfat_chnnel_number[ix];
       ME0ROmap::dCoord dc;
-      dc.stripId = 1 + imap->strip_number[ix]+(imap->iPhi[ix]-1)%3*128;
-      dc.me0DetId = ME0DetId(imap->z_direction[ix], imap->depth[ix], imap->sec[ix], imap->iEta[ix]); 
+      dc.stripId = 1 + imap.strip_number[ix]+(imap.iPhi[ix]-1)%3*128;
+      dc.me0DetId = ME0DetId(imap.z_direction[ix], imap.depth[ix], imap.sec[ix], imap.iEta[ix]); 
       romap->add(ec,dc);
       romap->add(dc,ec);
     }
@@ -47,6 +44,7 @@ ME0ROmap* ME0EMap::convertDummy() const{
 	  
 	// 1 geb per chamber
 	// 24 gebs per amc
+	// make new amcId once 24 gebs are used up
 	if (gebId > 25){
 	  gebId = 1;
 	  amcId++;
@@ -59,7 +57,7 @@ ME0ROmap* ME0EMap::convertDummy() const{
 	uint32_t chamberId = (amcId << 5) | gebId;	  
 	romap->add(chamDetId,chamberId);
 	romap->add(chamberId,chamDetId);
-	  
+	
 	uint16_t chipId = 0;	 	  
 	for (int roll = 1; roll<=ME0DetId::maxRollId; ++roll) {
 	  int maxVFat = 12;// set to 12, not yet known
