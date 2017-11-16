@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
-
-process = cms.Process('TEST',eras.Run2_2017)
+process = cms.Process("TEST")
 
 ### RANDOM setting (change last digit(s) to make runs different !)
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
@@ -14,10 +12,8 @@ process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# from Configuration.AlCa.autoCond import autoCond
-# process.GlobalTag.globaltag = autoCond['run2_mc']
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run2_mc']
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
@@ -60,7 +56,7 @@ process.calotowersAnalyzer.outputFile = cms.untracked.string('CaloTowersValidati
 #--- replace hbhereco with hbheprereco
 delattr(process,"hbhereco")
 process.hbhereco = process.hbheprereco.clone()
-process.hcalLocalRecoSequence = cms.Sequence(process.hbhereco+process.hfprereco+process.hfreco+process.horeco)
+process.hcalLocalRecoSequence = cms.Sequence(process.hbhereco+process.hfreco+process.horeco)
 
 #--- post-LS1 customization 
 process.mix.digitizers.hcal.minFCToDelay=cms.double(5.) # new TS model
