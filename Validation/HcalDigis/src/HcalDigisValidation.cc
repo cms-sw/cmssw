@@ -42,7 +42,7 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     hep17_     = iConfig.getParameter<bool>("hep17");
     HEPhase1_  = iConfig.getParameter<bool>("HEPhase1");
     HBPhase1_  = iConfig.getParameter<bool>("HBPhase1");
-    PlotV_ = iConfig.getParameter<bool>("PlotV");
+    Plot_TP_ver_ = iConfig.getParameter<bool>("Plot_TP_ver");
 
     // register for data access
     if (iConfig.exists("simHits"))
@@ -156,7 +156,7 @@ void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &
     book2D(ib,"HcalDigiTask_tp_et_ieta", tp_hl_ieta, tp_hl_et);
     book2D(ib,"HcalDigiTask_tp_ieta_iphi", tp_hl_ieta, tp_hl_iphi);
     bookPf(ib,"HcalDigiTask_tp_ave_et_ieta", tp_hl_ieta, tp_hl_et, " "); 
-    if (PlotV_){
+    if (Plot_TP_ver_){
     	book1D(ib,"HcalDigiTask_tp_et_v0", tp_hl_et);
 	book1D(ib,"HcalDigiTask_tp_et_v1", tp_hl_et);
 	book1D(ib,"HcalDigiTask_tp_et_HF_v0", tp_hl_et);
@@ -516,7 +516,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
      if ( en > 10. ) fill1D("HcalDigiTask_tp_ntp_10_ieta",ieta);
 
      //3x2 Trig Primitives (tpVersion == 0)
-     if( (subdet != HcalSubdetector::HcalForward || tpVersion==0) && PlotV_){
+     if( (subdet != HcalSubdetector::HcalForward || tpVersion==0) && Plot_TP_ver_){
         fill1D("HcalDigiTask_tp_et_v0",en);
         fill2D("HcalDigiTask_tp_et_ieta_v0",ieta,en);
         fill2D("HcalDigiTask_tp_ieta_iphi_v0",ieta,iphi);
@@ -541,7 +541,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
      if ( subdet == HcalSubdetector::HcalBarrel ) {
         fill1D("HcalDigiTask_tp_et_HB",en);
        ++chb;
-	   if (PlotV_){
+	   if (Plot_TP_ver_){
 		   ++cv0;
 		   ++cv1;
 	   }
@@ -549,7 +549,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
      if ( subdet == HcalSubdetector::HcalEndcap ) {
        fill1D("HcalDigiTask_tp_et_HE",en);
        ++che;
-       if (PlotV_){
+       if (Plot_TP_ver_){
 		   ++cv0;
 		   ++cv1;
 	   }
@@ -558,13 +558,13 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
        fill1D("HcalDigiTask_tp_et_HF",en);
        ++chf;
      
-       if(tpVersion == 0 && PlotV_){
+       if(tpVersion == 0 && Plot_TP_ver_){
 			fill1D("HcalDigiTask_tp_et_HF_v0",en);
 			++chfv0;
 			++cv0;
        }
 
-       if(tpVersion == 1 && PlotV_){
+       if(tpVersion == 1 && Plot_TP_ver_){
 			fill1D("HcalDigiTask_tp_et_HF_v1",en);
 			++chfv1;
 			++cv1;
@@ -578,7 +578,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
    fill1D("HcalDigiTask_tp_ntp_HB",chb);
    fill1D("HcalDigiTask_tp_ntp_HE",che);
    fill1D("HcalDigiTask_tp_ntp_HF",chf);
-   if (PlotV_){
+   if (Plot_TP_ver_){
 	fill1D("HcalDigiTask_tp_ntp_v0",cv0);
 	fill1D("HcalDigiTask_tp_ntp_v1",cv1);
 	fill1D("HcalDigiTask_tp_ntp_HF_v0",chfv0);
