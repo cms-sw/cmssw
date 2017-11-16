@@ -19,5 +19,3 @@ GEMGEBStatusDigi::GEMGEBStatusDigi(uint32_t ZeroSup,
   Stuckd_(Stuckd),
   v_GEBflags_(v_GEBflags)
 {};
-
-GEMGEBStatusDigi::GEMGEBStatusDigi(){};

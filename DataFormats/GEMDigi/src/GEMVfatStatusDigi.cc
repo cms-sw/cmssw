@@ -19,5 +19,3 @@ GEMVfatStatusDigi::GEMVfatStatusDigi(uint8_t b1010,
   crc_calc_(crc_calc),
   isBlockGood_(isBlockGood)
 {};
-
-GEMVfatStatusDigi::GEMVfatStatusDigi(){};
