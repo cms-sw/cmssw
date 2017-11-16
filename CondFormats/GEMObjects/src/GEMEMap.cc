@@ -20,11 +20,17 @@ GEMROmap* GEMEMap::convert() const{
   for (auto imap : theVFatMaptype){
     for (unsigned int ix=0;ix<imap.strip_number.size();ix++){
       GEMROmap::eCoord ec;
-      ec.vfatId= imap.vfatId[ix] - 0xf000;// chip ID is 12 bits
+      ec.vfatId= imap.vfatId[ix] & chipIdMask_;// chip ID is 12 bits
       ec.channelId=imap.vfat_chnnel_number[ix];
+
+      int st = std::abs(imap.z_direction[ix]);
+      int maxVFat = maxVFatGE11_;
+      if (st == 2) maxVFat = maxVFatGE21_;      
+      
       GEMROmap::dCoord dc;
-      dc.stripId = 1 + imap.strip_number[ix]+(imap.iPhi[ix]-1)%3*128;
-      dc.gemDetId = GEMDetId(imap.z_direction[ix], 1, std::abs(imap.z_direction[ix]), imap.depth[ix], imap.sec[ix], imap.iEta[ix]); 
+      dc.stripId = 1 + imap.strip_number[ix]+(imap.iPhi[ix]-1)%maxVFat*maxChan_;
+      dc.gemDetId = GEMDetId(imap.z_direction[ix], 1, st, imap.depth[ix], imap.sec[ix], imap.iEta[ix]);
+      
       romap->add(ec,dc);
       romap->add(dc,ec);
     }
@@ -40,13 +46,16 @@ GEMROmap* GEMEMap::convertDummy() const{
 	
   for (int re = -1; re <= 1; re = re+2) {
     for (int st = GEMDetId::minStationId; st<=GEMDetId::maxStationId; ++st) {
+      int maxVFat = maxVFatGE11_;
+      if (st == 2) maxVFat = maxVFatGE21_;      
+      
       for (int ch = 1; ch<=GEMDetId::maxChamberId; ++ch) {
       	for (int ly = 1; ly<=GEMDetId::maxLayerId; ++ly) {
 	  
 	  // 1 geb per chamber
 	  // 24 gebs per amc
 	  // make new amcId once 24 gebs are used up
-	  if (gebId > 25){
+	  if (gebId > maxGEBs_){
 	    gebId = 1;
 	    amcId++;
 	    romap->addAMC(amcId);
@@ -55,16 +64,12 @@ GEMROmap* GEMEMap::convertDummy() const{
 	  romap->addAMC2GEB(amcId, gebId);
 	  
 	  GEMDetId chamDetId(re, 1, st, ly, ch, 0);
-	  uint32_t chamberId = (amcId << 5) | gebId;	  
+	  uint32_t chamberId = (amcId << gebIdBits_) | gebId;	  
 	  romap->add(chamDetId,chamberId);
 	  romap->add(chamberId,chamDetId);
 	  
 	  uint16_t chipId = 0;	 	  
 	  for (int roll = 1; roll<=GEMDetId::maxRollId; ++roll) {
-	    int maxVFat = 3;
-	    if (st == 2){
-	      maxVFat = 6;
-	    }
 	    
 	    int stripId = 0;
 	    GEMDetId gemId(re, 1, st, ly, ch, roll);
@@ -72,7 +77,7 @@ GEMROmap* GEMEMap::convertDummy() const{
 	    for (int nVfat = 0; nVfat < maxVFat; ++nVfat){
 	      chipId++;
 	      
-	      for (unsigned chan = 0; chan < 128; ++chan){
+	      for (unsigned chan = 0; chan < maxChan_; ++chan){
 		GEMROmap::dCoord dc;
 		dc.stripId = ++stripId;
 		dc.gemDetId = gemId;

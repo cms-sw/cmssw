@@ -55,8 +55,11 @@ class ME0EMap {
   COND_SERIALIZABLE;
 
   // size of ID bits
-  static const int chipIdBits_ = 12; // ID size from VFat
-  static const int gebIdBits_  = 5;  // ID size from GEB
+  static const int chipIdBits_ = 12;     // ID size from VFat
+  static const int chipIdMask_ = 0xfff;  // chipId mask for 12 bits
+  static const int gebIdBits_  = 5;      // ID size from GEB
+  static const int maxGEBs_    = 24;     // 24 gebs per amc
+  static const int maxVFat_    = 12;     // vFat per eta partition, not known yet for ME0
+  static const int maxChan_    = 128;    // channels per vFat
 };
-
 #endif // ME0EMap_H
