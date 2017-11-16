@@ -21,6 +21,8 @@ if 'es_prefer_GlobalTag' in process.__dict__:
 #process.load("DQM.Integration.config.fileinputsource_cfi")
 #process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
+# required for EMTF emulator
+process.load('Configuration.StandardSequences.MagneticField_cff')
 # Required to load EcalMappingRecord
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
