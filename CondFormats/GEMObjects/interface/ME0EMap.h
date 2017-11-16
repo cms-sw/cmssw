@@ -51,8 +51,12 @@ class ME0EMap {
   
  private:
   std::string theVersion;
-
+  
   COND_SERIALIZABLE;
+
+  // size of ID bits
+  static const int chipIdBits_ = 12; // ID size from VFat
+  static const int gebIdBits_  = 5;  // ID size from GEB
 };
 
 #endif // ME0EMap_H
