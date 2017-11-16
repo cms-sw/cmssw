@@ -1,6 +1,6 @@
 #include "RecoVertex/AdaptiveVertexFinder/interface/TracksClusteringFromDisplacedSeed.h"
 //#define VTXDEBUG 1
-
+#include "FWCore/Utilities/interface/isFinite.h"
 
 TracksClusteringFromDisplacedSeed::TracksClusteringFromDisplacedSeed(const edm::ParameterSet &params) :
 //	maxNTracks(params.getParameter<unsigned int>("maxNTracks")),
@@ -11,7 +11,8 @@ TracksClusteringFromDisplacedSeed::TracksClusteringFromDisplacedSeed(const edm::
 	clusterMaxDistance(params.getParameter<double>("clusterMaxDistance")),
         clusterMaxSignificance(params.getParameter<double>("clusterMaxSignificance")), //3
         distanceRatio(params.getParameter<double>("distanceRatio")),//was clusterScale/densityFactor
-        clusterMinAngleCosine(params.getParameter<double>("clusterMinAngleCosine")) //0.0
+        clusterMinAngleCosine(params.getParameter<double>("clusterMinAngleCosine")), //0.0
+	maxTimeSignificance(params.getParameter<double>("maxTimeSignificance"))
 
 {
 	
@@ -40,6 +41,11 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
                  Measurement1D m = distanceComputer.distance(VertexState(seedPosition,seedPositionErr), VertexState(ttPoint, ttPointErr));
                  GlobalPoint cp(dist.crossingPoint()); 
 
+		 double timeSig = 0.;
+		 if( edm::isFinite(seed.timeExt()) && edm::isFinite(tt->timeExt()) ) { // apply only if time available
+		   const double tError = std::sqrt( std::pow(seed.dtErrorExt(),2) + std::pow(tt->dtErrorExt(),2) );
+		   timeSig = std::abs( seed.timeExt() - tt->timeExt() ) / tError;
+		 }
 
                  float distanceFromPV =  (dist.points().second-pv).mag();
                  float distance = dist.distance();
@@ -52,19 +58,21 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
 
                  float w = distanceFromPV*distanceFromPV/(pvDistance*distance);
           	 bool selected = (m.significance() < clusterMaxSignificance && 
-                    dotprodSeed > clusterMinAngleCosine && //Angles between PV-PCAonSeed vectors and seed directions
-                    dotprodTrack > clusterMinAngleCosine && //Angles between PV-PCAonTrack vectors and track directions
-//                    dotprodTrackSeed2D > clusterMinAngleCosine && //Angle between track and seed
-        //      distance*clusterScale*tracks.size() < (distanceFromPV+pvDistance)*(distanceFromPV+pvDistance)/pvDistance && // cut scaling with track density
-                   distance*distanceRatio < distanceFromPV && // cut scaling with track density
-                    distance < clusterMaxDistance);  // absolute distance cut
+				  dotprodSeed > clusterMinAngleCosine && //Angles between PV-PCAonSeed vectors and seed directions
+				  dotprodTrack > clusterMinAngleCosine && //Angles between PV-PCAonTrack vectors and track directions
+				  //dotprodTrackSeed2D > clusterMinAngleCosine && //Angle between track and seed
+				  //distance*clusterScale*tracks.size() < (distanceFromPV+pvDistance)*(distanceFromPV+pvDistance)/pvDistance && // cut scaling with track density
+				  distance*distanceRatio < distanceFromPV && // cut scaling with track density
+				  distance < clusterMaxDistance &&
+				  timeSig < maxTimeSignificance);  // absolute distance cut
 
 #ifdef VTXDEBUG
             	    std::cout << tt->trackBaseRef().key() << " :  " << (selected?"+":" ")<< " " << m.significance() << " < " << clusterMaxSignificance <<  " &&  " << 
                     dotprodSeed  << " > " <<  clusterMinAngleCosine << "  && " << 
                     dotprodTrack  << " > " <<  clusterMinAngleCosine << "  && " << 
                     dotprodTrackSeed2D  << " > " <<  clusterMinAngleCosine << "  &&  "  << 
-                    distance*distanceRatio  << " < " <<  distanceFromPV << "  crossingtoPV: " << distanceFromPV << " dis*scal " <<  distance*distanceRatio << "  <  " << distanceFromPV << " dist: " << distance << " < " << clusterMaxDistance <<  std::endl; // cut scaling with track density
+                    distance*distanceRatio  << " < " <<  distanceFromPV << "  crossingtoPV: " << distanceFromPV << " dis*scal " <<  distance*distanceRatio << "  <  " << distanceFromPV << " dist: " << distance << " < " << clusterMaxDistance << 
+			      << "timeSig: " << timeSig << std::endl; // cut scaling with track density
 #endif           
                  if(selected)
                  {
@@ -116,7 +124,7 @@ std::vector<TracksClusteringFromDisplacedSeed::Cluster> TracksClusteringFromDisp
 //                if(ntracks.first.size() == 0 || ntracks.first.size() > maxNTracks ) continue;
                 ntracks.first.push_back(*s);
 	        Cluster aCl;
-                aCl.seedingTrack = *s;
+                aCl.seedingTrack = *s;		
                 aCl.seedPoint = ntracks.second; 
 	        aCl.tracks = ntracks.first; 
                 clusters.push_back(aCl); 
