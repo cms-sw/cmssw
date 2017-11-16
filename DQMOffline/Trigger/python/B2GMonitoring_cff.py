@@ -158,10 +158,10 @@ b2gDimuonHLTOfflineDQM.preselection.trigger.select = cms.vstring(['HLT_Mu37_TkMu
 
 
 
-b2gMonitorHLT = cms.Sequence(
+b2gHLTDQMSourceExtra = cms.Sequence(
 )
 
-b2gHLTDQMSourceExtra = cms.Sequence(
+b2gMonitorHLT = cms.Sequence(
     PFHT1050_Mjjmonitoring +
     PFHT1050_Softdropmonitoring +
 
