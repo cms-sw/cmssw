@@ -29,9 +29,9 @@ def addTauReReco(process):
 def convertModuleToBaseTau(process, name):
     module = getattr(process, name)
     module.__dict__['_TypedParameterizable__type'] = module.type_().replace('RecoTau', 'RecoBaseTau')
-    if hasattr(module, 'PFTauProducer'):
-        module.PFBaseTauProducer = module.PFTauProducer
-        # del module.PFTauProducer
+    #MBif hasattr(module, 'PFTauProducer'):
+    #MB    module.PFBaseTauProducer = module.PFTauProducer
+    #MB    # del module.PFTauProducer
     if hasattr(module, 'particleFlowSrc'):
         module.particleFlowSrc = cms.InputTag("packedPFCandidates", "", "")
     if hasattr(module, 'vertexSrc'):
