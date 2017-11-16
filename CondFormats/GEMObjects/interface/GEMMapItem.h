@@ -20,9 +20,6 @@ class GEMMapItem{
     int gemIndex;
     int layerIndex;
     int stripIndex;
-    /* int anodeIndex; */
-    /* int strips; */
-    /* int anodes; */
     std::string crateLabel;
     int crateid;
     int sector;
@@ -39,10 +36,10 @@ class GEMMapItem{
     int fiber_pos;
     std::string fiber_socket;
   
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif
