@@ -383,11 +383,12 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   } //Loop over SimHits
 
   //Ecal EB SimHits
+  double EcalCone = 0;
+
+  if (ebHits_.size() != 0){
   edm::Handle<PCaloHitContainer> ecalEBHits;
   ev.getByToken(tok_ecalEB_,ecalEBHits);
   const PCaloHitContainer * SimHitResultEB = ecalEBHits.product () ;
-
-  double EcalCone = 0;
 
   for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEB->begin () ; SimHits != SimHitResultEB->end(); ++SimHits) {
 
@@ -402,8 +403,10 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
     if (r < partR) EcalCone += en;   
   }
+  } // ebHits_
 
   //Ecal EE SimHits
+  if (eeHits_.size() != 0){
   edm::Handle<PCaloHitContainer> ecalEEHits;
   ev.getByToken(tok_ecalEE_,ecalEEHits);
   const PCaloHitContainer * SimHitResultEE = ecalEEHits.product () ;
@@ -421,6 +424,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
     if (r < partR) EcalCone += en;   
   }
+  } // eeHits_
 
   if (ietaMax != 0){            //If ietaMax == 0, there were no good HCAL SimHits 
     if (ietaMax > 0) ietaMax--; //Account for lack of ieta = 0
