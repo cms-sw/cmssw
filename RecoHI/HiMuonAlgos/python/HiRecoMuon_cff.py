@@ -32,7 +32,7 @@ muonreco_plus_isolation_PbPbTask = muonreco_plus_isolationTask.copyAndExclude(_e
 
 muonreco_plus_isolation_PbPbTask.replace(muons1stStep, hiMuons1stStep)
 #iso deposits are not used in HI
-muonreco_plus_isolation_PbPbTask.remove(muIsoDeposits_muons)
+muonreco_plus_isolation_PbPbTask.remove(muIsoDeposits_muonsTask)
 muonreco_plus_isolation_PbPb = cms.Sequence(muonreco_plus_isolation_PbPbTask)
 
 globalMuons.TrackerCollectionLabel = hiTracks
