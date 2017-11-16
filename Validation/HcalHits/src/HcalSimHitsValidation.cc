@@ -8,10 +8,10 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   testNumber_ = conf.getUntrackedParameter<bool>("TestNumber",false);
 
   // register for data access
-  g4Label_  = ps.getParameter<std::string>("ModuleLabel","g4SimHits");
-  hcalHits_ = ps.getParameter<std::string>("HcalHitCollection","HcalHits");
-  ebHits_ = ps.getParameter<std::string>("EBHitCollection","EcalHitsEB");
-  eeHits_ = ps.getParameter<std::string>("EEHitCollection","EcalHitsEE");
+  g4Label_  = conf.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
+  hcalHits_ = conf.getUntrackedParameter<std::string>("HcalHitCollection","HcalHits");
+  ebHits_ = conf.getUntrackedParameter<std::string>("EBHitCollection","EcalHitsEB");
+  eeHits_ = conf.getUntrackedParameter<std::string>("EEHitCollection","EcalHitsEE");
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,hcalHits_));
   tok_ecalEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,ebHits_));
@@ -24,7 +24,6 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   
   nevtot = 0;
   
-
 }
 
 
@@ -90,7 +89,7 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 
   Char_t histo[200];
 
-    ib.setCurrentFolder("HcalSimHitsV/HcalSimHitTask");
+    ib.setCurrentFolder("HcalHitsV/HcalSimHitTask");
 
     // General counters
     for(int depth = 0; depth <= maxDepthHB_; depth++){
