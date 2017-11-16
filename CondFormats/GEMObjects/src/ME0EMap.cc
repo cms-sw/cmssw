@@ -72,7 +72,9 @@ ME0ROmap* ME0EMap::convertDummy() const{
 	      ME0ROmap::dCoord dc;
 	      dc.stripId = ++stripId;
 	      dc.me0DetId = me0Id;
-
+	      
+	      // fChipID 12 bits, gebId 5 bits, amcId 16 bits
+	      // make 1 full vfat ID from amc + geb + chip Ids
 	      uint32_t vfatId = (amcId << 17) | (gebId << 12) | chipId;
 		
 	      ME0ROmap::eCoord ec;
