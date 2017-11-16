@@ -48,49 +48,30 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   caloTowerCollName_ = iConfig.getParameter<std::string>("caloTowerCollName");
   trackCollName_     = iConfig.getParameter<std::string>("trackCollName");
 
-  if (iConfig.existsAs<std::string>("jetCollName"))
-  {
-      jetCollName_   = iConfig.getParameter<std::string>("jetCollName");
-      maxNHF_        = iConfig.getParameter<double>("maxNHF");
-      maxjetindex_   = iConfig.getParameter<int>("maxjetindex");
-      jet_token_     = consumes<reco::PFJetCollection>(edm::InputTag(jetCollName_));
-  }
+  jetCollName_   = iConfig.getParameter<std::string>("jetCollName");
+  maxNHF_        = iConfig.getParameter<double>("maxNHF");
+  maxjetindex_   = iConfig.getParameter<int>("maxjetindex");
+  jet_token_     = consumes<reco::PFJetCollection>(edm::InputTag(jetCollName_));
 
   minRecHitE_        = iConfig.getParameter<double>("minRecHitE");
   minLowHitE_        = iConfig.getParameter<double>("minLowHitE");
   minHighHitE_       = iConfig.getParameter<double>("minHighHitE");
-  if(iConfig.existsAs<double>("minR45HitE"))
-     minR45HitE_        = iConfig.getParameter<double>("minR45HitE");
+  
+  minR45HitE_        = iConfig.getParameter<double>("minR45HitE");
 
   HcalAcceptSeverityLevel_ = iConfig.getParameter<uint32_t>("HcalAcceptSeverityLevel");
-  if (iConfig.exists("HcalRecHitFlagsToBeExcluded"))
-      HcalRecHitFlagsToBeExcluded_ = iConfig.getParameter<std::vector<int> >("HcalRecHitFlagsToBeExcluded");
-  else{
-    edm::LogWarning("MisConfiguration")<<"the module is missing the parameter HcalAcceptSeverityLevel. created empty.";
-    HcalRecHitFlagsToBeExcluded_.resize(0);
-  }
+  HcalRecHitFlagsToBeExcluded_ = iConfig.getParameter<std::vector<int> >("HcalRecHitFlagsToBeExcluded");
 
   // Digi threshold and time slices to use for HBHE and HF calibration digis
-  useCalibDigi_ = true;
-  if(iConfig.existsAs<double>("calibdigiHBHEthreshold") == false)               useCalibDigi_ = false;
-  if(iConfig.existsAs<double>("calibdigiHFthreshold") == false)                 useCalibDigi_ = false;
-  if(iConfig.existsAs<std::vector<int> >("calibdigiHBHEtimeslices") == false)   useCalibDigi_ = false;
-  if(iConfig.existsAs<std::vector<int> >("calibdigiHFtimeslices") == false)     useCalibDigi_ = false;
+  calibdigiHBHEthreshold_ = 0;
+  calibdigiHBHEtimeslices_ = std::vector<int>();
+  calibdigiHFthreshold_ = 0;
+  calibdigiHFtimeslices_ = std::vector<int>();
 
-  if(useCalibDigi_ == true)
-  {
-    calibdigiHBHEthreshold_   = iConfig.getParameter<double>("calibdigiHBHEthreshold");
-    calibdigiHBHEtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHBHEtimeslices");
-    calibdigiHFthreshold_   = iConfig.getParameter<double>("calibdigiHFthreshold");
-    calibdigiHFtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHFtimeslices");
-  }
-  else
-  {
-     calibdigiHBHEthreshold_ = 0;
-     calibdigiHBHEtimeslices_ = std::vector<int>();
-     calibdigiHFthreshold_ = 0;
-     calibdigiHFtimeslices_ = std::vector<int>();
-  }
+  calibdigiHBHEthreshold_   = iConfig.getParameter<double>("calibdigiHBHEthreshold");
+  calibdigiHBHEtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHBHEtimeslices");
+  calibdigiHFthreshold_   = iConfig.getParameter<double>("calibdigiHFthreshold");
+  calibdigiHFtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHFtimeslices");
 
   TS4TS5EnergyThreshold_ = iConfig.getParameter<double>("TS4TS5EnergyThreshold");
 
@@ -114,26 +95,9 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   }
 
   // get the fiber configuration vectors
-  std::vector<int> tmpLaserMonDetTypeList = iConfig.getParameter<std::vector<int> >("laserMonDetTypeList");
-  std::vector<int> tmpLaserMonIPhiList = iConfig.getParameter<std::vector<int> >("laserMonIPhiList");
-  std::vector<int> tmpLaserMonIEtaList = iConfig.getParameter<std::vector<int> >("laserMonIEtaList");
-
-  // the transfer of data from python to c seems to have issues
-  // this can be fixed by explicitly filling the vector
-  for( std::vector<int>::const_iterator itr = tmpLaserMonDetTypeList.begin();
-          itr != tmpLaserMonDetTypeList.end(); ++itr ) {
-      laserMonDetTypeList_.push_back( *itr );
-  }
-
-  for( std::vector<int>::const_iterator itr = tmpLaserMonIPhiList.begin();
-          itr != tmpLaserMonIPhiList.end(); ++itr ) {
-      laserMonIPhiList_.push_back( *itr );
-  }
-
-  for( std::vector<int>::const_iterator itr = tmpLaserMonIEtaList.begin();
-          itr != tmpLaserMonIEtaList.end(); ++itr ) {
-      laserMonIEtaList_.push_back( *itr );
-  }
+  laserMonDetTypeList_ = iConfig.getParameter<std::vector<int> >("laserMonDetTypeList");
+  laserMonIPhiList_    = iConfig.getParameter<std::vector<int> >("laserMonIPhiList");
+  laserMonIEtaList_    = iConfig.getParameter<std::vector<int> >("laserMonIEtaList");
 
   // check that the vectors have the same size, if not
   // disable the laser monitor
