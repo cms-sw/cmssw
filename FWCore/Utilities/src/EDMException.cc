@@ -42,6 +42,7 @@ namespace edm {
       EDM_MAP_ENTRY_NONS(trans_, ExceededResourceVSize);
       EDM_MAP_ENTRY_NONS(trans_, ExceededResourceRSS);
       EDM_MAP_ENTRY_NONS(trans_, ExceededResourceTime);
+      EDM_MAP_ENTRY_NONS(trans_, EventGenerationFailure);
     }
   }
 
