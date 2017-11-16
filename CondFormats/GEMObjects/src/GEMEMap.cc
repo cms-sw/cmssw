@@ -77,6 +77,8 @@ GEMROmap* GEMEMap::convertDummy() const{
 		dc.stripId = ++stripId;
 		dc.gemDetId = gemId;
 
+		// fChipID 12 bits, gebId 5 bits, amcId 16 bits
+		// make 1 full vfat ID from amc + geb + chip Ids		
 		uint32_t vfatId = (amcId << 17) | (gebId << 12) | chipId;
 		
 		GEMROmap::eCoord ec;
