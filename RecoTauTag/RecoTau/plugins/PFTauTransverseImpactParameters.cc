@@ -87,7 +87,7 @@ namespace {
     const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
     if (pfCandPtr != nullptr) {
       if      ( pfCandPtr->trackRef().isNonnull()    ) return pfCandPtr->trackRef().get();
-      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return pfCandPtr->gsfTrackRef().get();
+      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return pfCandPtr->gsfTrackRef().get(); //MB comment out to keep backward compability with the non-template version (not recommended)
       else return nullptr;
     }
     const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
