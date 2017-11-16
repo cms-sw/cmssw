@@ -36,16 +36,14 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
   dduToken = consumes<DTDDUCollection>(ps.getParameter<InputTag>("dtDDULabel"));
   ros25Token = consumes<DTROS25Collection>(ps.getParameter<InputTag>("dtROS25Label"));
   fedToken = consumes<DTuROSFEDDataCollection>(ps.getParameter<InputTag>("dtFEDlabel"));
-  checkUros = parameters.getUntrackedParameter<bool>("checkUros");
+  checkUros = parameters.getUntrackedParameter<bool>("checkUros",true);
   
-  FEDIDmin = parameters.getUntrackedParameter<int>("FEDIDmin");
-  FEDIDMax = parameters.getUntrackedParameter<int>("FEDIDmax");
+  FEDIDmin = parameters.getUntrackedParameter<int>("FEDIDmin",1368);
+  FEDIDMax = parameters.getUntrackedParameter<int>("FEDIDmax",1370);
 
   neventsFED = 0;
   neventsuROS = 0;
 
-  FEDIDmin = 1368;
-  FEDIDMax = 1370;
 
 //   If you want info VS time histos
 //   doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", false);
@@ -82,12 +80,18 @@ DTDataIntegrityTask::~DTDataIntegrityTask() {
 }
 
 /*
-  Folder Structure:
+  Folder Structure (ROS Legacy):
   - One folder for each DDU, named FEDn
   - Inside each DDU folder the DDU histos and the ROSn folder
   - Inside each ROS folder the ROS histos and the ROBn folder
   - Inside each ROB folder one occupancy plot and the TimeBoxes
   with the chosen granularity (simply change the histo name)
+ 
+  uROS (starting 2018):
+  - 3 uROS Summary plots: WheelNEG (FED1368), Wheel0 (FED1369), WheelPOS (FED1370)
+  - One folder for each FED
+  - Inside each FED folder the uROSStatus histos, FED histos and the uROSn folders
+  = Inside each uROS folder the TDC and uROS errors histos, 12 Links/plot
 */
 
 void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & iSetup) {
@@ -312,18 +316,19 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     ((summaryHistos[histoType])[fed]) = ibooker.book2D(histoName,histoTitle,20,0,20,12,1,13);
     MonitorElement *histo = ((summaryHistos[histoType])[fed]);
     // ROS error bins
-    histo ->setBinLabel(1,"Link TimeOut",1);
-    histo ->setBinLabel(2,"Ev.Id.Mis.",1);
-    histo ->setBinLabel(3,"FIFO almost full",1);
-    histo ->setBinLabel(4,"FIFO full",1);
-    histo ->setBinLabel(5,"CEROS timeout",1);
-    histo ->setBinLabel(6,"Max. wds",1);
-    histo ->setBinLabel(7,"WO L1A FIFO",1);
-    histo ->setBinLabel(8,"TDC parity err.",1);
-    histo ->setBinLabel(9,"BX ID Mis.",1);
-    histo ->setBinLabel(10,"TXP",1);
-    histo ->setBinLabel(11,"L1A almost full",1);
-    histo ->setBinLabel(12,"Ch. blocked",1);
+    // Placeholders for Global Errors for the moment
+    histo ->setBinLabel(1,"Error G 1",1);
+    histo ->setBinLabel(2,"Error G 2",1);
+    histo ->setBinLabel(3,"Error G 3",1);
+    histo ->setBinLabel(4,"Error G 4",1);
+    histo ->setBinLabel(5,"Error G 5",1);
+    histo ->setBinLabel(6,"Error G 6",1);
+    histo ->setBinLabel(7,"Error G 7",1);
+    histo ->setBinLabel(8,"Error G 8",1);
+    histo ->setBinLabel(9,"Error G 9",1);
+    histo ->setBinLabel(10,"Error G 10",1);
+    histo ->setBinLabel(11,"Error G 11",1);
+    histo ->setBinLabel(12,"Error G 12",1);
     histo ->setBinLabel(13,"Ev. Id. Mis.",1);
     histo ->setBinLabel(14,"Not OKflag",1);//it was CEROS blocked
     // TDC error bins
@@ -680,151 +685,88 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int 
   stringstream uRos_s; uRos_s << uRos;
   ibooker.setCurrentFolder(topFolder(false) + "FED" + fed_s.str() + "/uROS" + uRos_s.str());
 
-  string histoType = "uROSError0";
-  string histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_uROSError0";
-  string histoTitle = histoName + " (Link 0-35 error summary)";
-  if(mode <= 1)
-    ((urosHistos[histoType])[fed])[uRos] = ibooker.book2D(histoName,histoTitle,17,0,17,36,0,36);
-  else
-    ((urosHistos[histoType]))[fed][uRos] = ibooker.book2D(histoName,histoTitle,11,0,11,36,0,36);
+  for (int counter=0; counter<3; counter++){
+	stringstream counter_s; counter_s << counter;
+  	string histoType = "uROSError"+counter_s.str();
+	int linkDown = counter*24; stringstream linkDown_s; linkDown_s << linkDown;
+	int linkUp = linkDown+23;  stringstream linkUp_s; linkUp_s << linkUp;
+  	string histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_"+histoType;
+  	string histoTitle = histoName + " (Link " + linkDown_s.str() +"-"+ linkUp_s.str() + "error summary)";
+	if(mode <= 1)
+    		((urosHistos[histoType])[fed])[uRos] = ibooker.book2D(histoName,histoTitle,14,0,14,24,0,24);
+  	else
+    		((urosHistos[histoType]))[fed][uRos] = ibooker.book2D(histoName,histoTitle,8,0,8,24,0,24);
 
-  MonitorElement* histo = ((urosHistos[histoType])[fed])[uRos];
-  // ROS error bins
-    histo->setBinLabel(1,"Link TimeOut",1);
-    histo->setBinLabel(2,"Ev.Id.Mis.",1);
-    histo->setBinLabel(3,"FIFO almost full",1);
-    histo->setBinLabel(4,"FIFO full",1);
-    histo->setBinLabel(5,"CEROS timeout",1);
-    histo->setBinLabel(6,"Max. wds",1);
-    histo->setBinLabel(7,"TDC parity err.",1);
-    histo->setBinLabel(8,"BX ID Mis.",1);
-    histo->setBinLabel(9,"Ch. blocked",1);
-    histo->setBinLabel(10,"Ev. Id. Mis.",1);
-    histo->setBinLabel(11,"Not OKFlag",1); //It was CEROS blocked
-    if(mode < 1) { //Online only
-  // TDC error bins
-      histo->setBinLabel(12,"TDC Fatal",1);
-      histo->setBinLabel(13,"TDC RO FIFO ov.",1);
-      histo->setBinLabel(14,"TDC L1 buf. ov.",1);
-      histo->setBinLabel(15,"TDC L1A FIFO ov.",1);
-      histo->setBinLabel(16,"TDC hit err.",1);
-      histo->setBinLabel(17,"TDC hit rej.",1);
-    }
-   for (int link=0; link < 36; ++link){
-    stringstream link_s; link_s<<link;
-    histo->setBinLabel(link,"Link"+link_s.str(),2);
-   }
+  	MonitorElement* histo = ((urosHistos[histoType])[fed])[uRos];
+  	// uROS error bins
+  	// Placeholders for the moment
+    	histo->setBinLabel(1,"Error 1",1);
+    	histo->setBinLabel(2,"Error 2",1);
+    	histo->setBinLabel(3,"Error 3",1);
+    	histo->setBinLabel(4,"Error 4",1);
+    	histo->setBinLabel(5,"Error 5",1);
+    	histo->setBinLabel(6,"Error 6",1);
+    	histo->setBinLabel(7,"Error 7",1);
+    	histo->setBinLabel(8,"Not OKFlag",1); //It was CEROS blocked
+    	if(mode < 1) { //Online only
+  	// TDC error bins
+      	histo->setBinLabel(9,"TDC Fatal",1);
+      	histo->setBinLabel(10,"TDC RO FIFO ov.",1);
+      	histo->setBinLabel(11,"TDC L1 buf. ov.",1);
+      	histo->setBinLabel(12,"TDC L1A FIFO ov.",1);
+      	histo->setBinLabel(13,"TDC hit err.",1);
+      	histo->setBinLabel(14,"TDC hit rej.",1);
+    	}
+   	for (int link=linkDown; link < (linkUp+1); ++link){
+    		stringstream link_s; link_s<<link;
+    		histo->setBinLabel(link-linkDown+1,"Link"+link_s.str(),2);
+   	}
+  }
 
 
-  histoType = "uROSError1";
-  histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_uROSError1";
-  histoTitle = histoName + " (Link 36-71 error summary)";
-  if(mode <= 1)
-    ((urosHistos[histoType])[fed])[uRos] = ibooker.book2D(histoName,histoTitle,17,0,17,36,0,36);
-  else
-    ((urosHistos[histoType]))[fed][uRos] = ibooker.book2D(histoName,histoTitle,11,0,11,36,0,36);
+  if(mode > 1) return;
 
-  histo = ((urosHistos[histoType])[fed])[uRos];
-  // ROS error bins
-    histo->setBinLabel(1,"Link TimeOut",1);
-    histo->setBinLabel(2,"Ev.Id.Mis.",1);
-    histo->setBinLabel(3,"FIFO almost full",1);
-    histo->setBinLabel(4,"FIFO full",1);
-    histo->setBinLabel(5,"CEROS timeout",1);
-    histo->setBinLabel(6,"Max. wds",1);
-    histo->setBinLabel(7,"TDC parity err.",1);
-    histo->setBinLabel(8,"BX ID Mis.",1);
-    histo->setBinLabel(9,"Ch. blocked",1);
-    histo->setBinLabel(10,"Ev. Id. Mis.",1);
-    histo->setBinLabel(11,"Not OKFlag",1); //It was CEROS blocked
-    if(mode < 1) { //Online only
-  // TDC error bins
-      histo->setBinLabel(12,"TDC Fatal",1);
-      histo->setBinLabel(13,"TDC RO FIFO ov.",1);
-      histo->setBinLabel(14,"TDC L1 buf. ov.",1);
-      histo->setBinLabel(15,"TDC L1A FIFO ov.",1);
-      histo->setBinLabel(16,"TDC hit err.",1);
-      histo->setBinLabel(17,"TDC hit rej.",1);
-    }
-   for (int link=36; link < 72; ++link){
-    stringstream link_s; link_s<<link;
-    histo->setBinLabel(link-36,"Link"+link_s.str(),2);
-   }
+  for (int counter=0; counter<3; counter++){
+        stringstream counter_s; counter_s << counter;
+        string histoType = "TDCError"+counter_s.str();
+        int linkDown = counter*24; stringstream linkDown_s; linkDown_s << linkDown;
+        int linkUp = linkDown+23;  stringstream linkUp_s; linkUp_s << linkUp;
+        string histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_"+histoType;
+        string histoTitle = histoName + " (Link " + linkDown_s.str() +"-"+ linkUp_s.str() + "error summary)";
+  
+    	(urosHistos[histoType])[fed][uRos] = ibooker.book2D(histoName,histoTitle,24,0,24,24,0,24);
+    	MonitorElement* histo = (urosHistos[histoType])[fed][uRos];
+	// TDC error bins
+    	histo->setBinLabel(1,"Fatal",1);
+    	histo->setBinLabel(2,"RO FIFO ov.",1);
+    	histo->setBinLabel(3,"L1 buf. ov.",1);
+    	histo->setBinLabel(4,"L1A FIFO ov.",1);
+    	histo->setBinLabel(5,"hit err.",1);
+    	histo->setBinLabel(6,"hit rej.",1);
+    	histo->setBinLabel(7,"Fatal",1);
+    	histo->setBinLabel(8,"RO FIFO ov.",1);
+    	histo->setBinLabel(9,"L1 buf. ov.",1);
+    	histo->setBinLabel(10,"L1A FIFO ov.",1);
+    	histo->setBinLabel(11,"hit err.",1);
+    	histo->setBinLabel(12,"hit rej.",1);
+    	histo->setBinLabel(13,"Fatal",1);
+    	histo->setBinLabel(14,"RO FIFO ov.",1);
+    	histo->setBinLabel(15,"L1 buf. ov.",1);
+    	histo->setBinLabel(16,"L1A FIFO ov.",1);
+    	histo->setBinLabel(17,"hit err.",1);
+    	histo->setBinLabel(18,"hit rej.",1);
+    	histo->setBinLabel(19,"Fatal",1);
+    	histo->setBinLabel(20,"RO FIFO ov.",1);
+    	histo->setBinLabel(21,"L1 buf. ov.",1);
+    	histo->setBinLabel(22,"L1A FIFO ov.",1);
+    	histo->setBinLabel(23,"hit err.",1);
+    	histo->setBinLabel(24,"hit rej.",1);
 
-   if(mode > 1) return;
-
-    histoType = "TDCError0";
-    histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_TDCError0";
-    histoTitle = histoName + " (Link 0-35 error summary)";
-    (urosHistos[histoType])[fed][uRos] = ibooker.book2D(histoName,histoTitle,24,0,24,36,0,36);
-    histo = (urosHistos[histoType])[fed][uRos];
-    // TDC error bins
-    histo->setBinLabel(1,"Fatal",1);
-    histo->setBinLabel(2,"RO FIFO ov.",1);
-    histo->setBinLabel(3,"L1 buf. ov.",1);
-    histo->setBinLabel(4,"L1A FIFO ov.",1);
-    histo->setBinLabel(5,"hit err.",1);
-    histo->setBinLabel(6,"hit rej.",1);
-    histo->setBinLabel(7,"Fatal",1);
-    histo->setBinLabel(8,"RO FIFO ov.",1);
-    histo->setBinLabel(9,"L1 buf. ov.",1);
-    histo->setBinLabel(10,"L1A FIFO ov.",1);
-    histo->setBinLabel(11,"hit err.",1);
-    histo->setBinLabel(12,"hit rej.",1);
-    histo->setBinLabel(13,"Fatal",1);
-    histo->setBinLabel(14,"RO FIFO ov.",1);
-    histo->setBinLabel(15,"L1 buf. ov.",1);
-    histo->setBinLabel(16,"L1A FIFO ov.",1);
-    histo->setBinLabel(17,"hit err.",1);
-    histo->setBinLabel(18,"hit rej.",1);
-    histo->setBinLabel(19,"Fatal",1);
-    histo->setBinLabel(20,"RO FIFO ov.",1);
-    histo->setBinLabel(21,"L1 buf. ov.",1);
-    histo->setBinLabel(22,"L1A FIFO ov.",1);
-    histo->setBinLabel(23,"hit err.",1);
-    histo->setBinLabel(24,"hit rej.",1);
-
-    for (int link=0; link < 36; ++link){
-    stringstream link_s; link_s<<link;
-    histo->setBinLabel(link,"Link"+link_s.str(),2);
-    }
-
-    histoType = "TDCError1";
-    histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_TDCError1";
-    histoTitle = histoName + " (Link 36-71 error summary)";
-    (urosHistos[histoType])[fed][uRos] = ibooker.book2D(histoName,histoTitle,24,0,24,36,0,36);
-    histo = (urosHistos[histoType])[fed][uRos];
-    // TDC error bins
-    histo->setBinLabel(1,"Fatal",1);
-    histo->setBinLabel(2,"RO FIFO ov.",1);
-    histo->setBinLabel(3,"L1 buf. ov.",1);
-    histo->setBinLabel(4,"L1A FIFO ov.",1);
-    histo->setBinLabel(5,"hit err.",1);
-    histo->setBinLabel(6,"hit rej.",1);
-    histo->setBinLabel(7,"Fatal",1);
-    histo->setBinLabel(8,"RO FIFO ov.",1);
-    histo->setBinLabel(9,"L1 buf. ov.",1);
-    histo->setBinLabel(10,"L1A FIFO ov.",1);
-    histo->setBinLabel(11,"hit err.",1);
-    histo->setBinLabel(12,"hit rej.",1);
-    histo->setBinLabel(13,"Fatal",1);
-    histo->setBinLabel(14,"RO FIFO ov.",1);
-    histo->setBinLabel(15,"L1 buf. ov.",1);
-    histo->setBinLabel(16,"L1A FIFO ov.",1);
-    histo->setBinLabel(17,"hit err.",1);
-    histo->setBinLabel(18,"hit rej.",1);
-    histo->setBinLabel(19,"Fatal",1);
-    histo->setBinLabel(20,"RO FIFO ov.",1);
-    histo->setBinLabel(21,"L1 buf. ov.",1);
-    histo->setBinLabel(22,"L1A FIFO ov.",1);
-    histo->setBinLabel(23,"hit err.",1);
-    histo->setBinLabel(24,"hit rej.",1);
-
-    for (int link=36; link < 72; ++link){
-    stringstream link_s; link_s<<link;
-    histo->setBinLabel(link-36,"Link"+link_s.str(),2);
-    }
-
+        for (int link=linkDown; link < (linkUp+1); ++link){
+                stringstream link_s; link_s<<link;
+                histo->setBinLabel(link-linkDown+1,"Link"+link_s.str(),2);
+        }
+  }
 
 }
 
@@ -848,9 +790,11 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
   // Summary of all Link errors
   MonitorElement* uROSError0 = 0;
   MonitorElement* uROSError1 = 0;
+  MonitorElement* uROSError2 = 0;
   if(mode <= 2){
     uROSError0 = urosHistos["uROSError0"][fed][uRos];
     uROSError1 = urosHistos["uROSError1"][fed][uRos];
+    uROSError2 = urosHistos["uROSError2"][fed][uRos];
 
     if ((!uROSError1) || (!uROSError0) ) {
       LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") <<
@@ -868,8 +812,9 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
 //   << " Link " << link << "OK flag " << okflag <<endl;
     sumOKs+=okflag;
     if(okflag==0) {
-	if((link+1)<36) uROSError0->Fill(10,link+1); //bins start at 0 despite labeling
-	else uROSError1->Fill(10,link+1-36);
+	if(link<24) uROSError0->Fill(8,link+1); //bins start at 1 despite labeling
+	else if(link<48) uROSError1->Fill(8,link+1-24);
+	else uROSError2->Fill(8,link+1-48);
     }
    }
 
@@ -883,12 +828,12 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
    int link = data.geterrorROBID(icounter);
    int tdc = data.geterrorTDCID(icounter);
    int error =  data.geterror(icounter);
-   cout<<" Error in uROS " << uRos
+/*   cout<<" Error in uROS " << uRos
    << " Link " << link << " Error type " << error <<endl;
    cout<<"geterrorROBID "<<data.geterrorROBID(icounter)<<endl;
    cout<<"geterrorTDCID "<<data.geterrorTDCID(icounter)<<endl;
    cout<<"geterrorFlag " <<data.geterrorFlag(icounter)<<endl;
-
+*/
     int tdcError_ROSSummary = 0;
     int tdcError_ROSError = 0;
     int tdcError_TDCHisto = 0;
@@ -952,17 +897,19 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
         << " TDC error code not known " << error << endl;
     }
 
-   cout<<"tdcError_TDCHisto "<<tdcError_TDCHisto<<endl;
+/*   cout<<"tdcError_TDCHisto "<<tdcError_TDCHisto<<endl;
    cout<<"tdcError_ROSSummary "<<tdcError_ROSSummary<<endl;
-   cout<<"tdcError_ROSError "<<tdcError_ROSError <<endl;
+   cout<<"tdcError_ROSError "<<tdcError_ROSError <<endl;*/
    uROSSummary->Fill(tdcError_ROSSummary,uRos); 
    if(mode<=2){
-     if(link<37)  uROSError0->Fill(tdcError_ROSError,link);
-     else         uROSError1->Fill(tdcError_ROSError,link-36);
+     if (link<24)  	uROSError0->Fill(tdcError_ROSError,link+1);
+     else if (link<48)  uROSError1->Fill(tdcError_ROSError,link-24+1);
+     else 		uROSError2->Fill(tdcError_ROSError,link-48+1);
      
      if(mode<=1){
-	if(link<37) urosHistos["TDCError0"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link);
-	else urosHistos["TDCError1"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link-36);
+	if(link<24) urosHistos["TDCError0"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link+1);
+	else if(link<48) urosHistos["TDCError1"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link-24+1);
+	else urosHistos["TDCError2"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link-48+1);
      }
    }	
   
@@ -1543,12 +1490,6 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   if(!outputFifoFull && !outputFifoAlmostFull){
     hFIFOStatus->Fill(6,2);
   }
-
-
-
-
-
-
 
   //1D HISTO: EVENT TYPE from header
   fedHistos["EventType"][code.getDDUID()]->Fill(header.triggerType());
