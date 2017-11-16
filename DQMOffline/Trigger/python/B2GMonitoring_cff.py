@@ -139,10 +139,10 @@ AK8PFJet420_TrimMass30_PromptMonitoring.FolderName = cms.string('HLT/B2G/AK8PFJe
 AK8PFJet420_TrimMass30_PromptMonitoring.ptcut = cms.double(420)
 AK8PFJet420_TrimMass30_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet420_TrimMass30_v*")
 
-b2gMonitorHLT = cms.Sequence(
+b2gHLTDQMSourceExtra = cms.Sequence(
 )
 
-b2gHLTDQMSourceExtra = cms.Sequence(
+b2gMonitorHLT = cms.Sequence(
     PFHT1050_Mjjmonitoring +
     PFHT1050_Softdropmonitoring +
 
