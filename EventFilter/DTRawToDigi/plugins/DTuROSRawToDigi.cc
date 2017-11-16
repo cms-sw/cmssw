@@ -58,8 +58,8 @@ void DTuROSRawToDigi::produce(edm::Event& e, const edm::EventSetup& c) {
   auto uROSDTDigi_product = std::make_unique<DTDigiCollection>(digis);
   auto uROSDTWord_product = std::make_unique<std::vector<DTuROSFEDData>>(words);
 
-  e.put(std::move(uROSDTDigi_product), "DTuROSDigis");
-  e.put(std::move(uROSDTWord_product), "DTuROSWords");
+  e.put(std::move(uROSDTDigi_product));
+  e.put(std::move(uROSDTWord_product));
 
 }
 

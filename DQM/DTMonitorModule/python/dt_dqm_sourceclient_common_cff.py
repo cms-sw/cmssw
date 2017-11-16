@@ -123,5 +123,6 @@ import EventFilter.DTRawToDigi.dturosunpacker_cfi
 _dturosunpacker = EventFilter.DTRawToDigi.dturosunpacker_cfi.dturosunpacker.clone()
 from Configuration.Eras.Modifier_run2_DT_2018_cff import run2_DT_2018
 run2_DT_2018.toReplaceWith(dtunpacker, _dturosunpacker)
-
+run2_DT_2018.toModify(DTDataIntegrityTask,FEDIDmin=cms.untracked.int32(1368))
+run2_DT_2018.toModify(DTDataIntegrityTask,FEDIDmax=cms.untracked.int32(1370))
 
