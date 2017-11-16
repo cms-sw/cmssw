@@ -53,6 +53,14 @@ class GEMEMap {
   std::string theVersion;
 
   COND_SERIALIZABLE;
-};
 
+  // size of ID bits
+  static const int chipIdBits_ = 12;     // ID size from VFat
+  static const int chipIdMask_ = 0xfff;  // chipId mask for 12 bits
+  static const int gebIdBits_  = 5;      // ID size from GEB
+  static const int maxGEBs_    = 24;     // 24 gebs per amc
+  static const int maxVFatGE11_= 3;     // vFat per eta partition in GE11
+  static const int maxVFatGE21_= 6;     // vFat per eta partition in GE21
+  static const int maxChan_    = 128;    // channels per vFat
+};
 #endif // GEMEMap_H
