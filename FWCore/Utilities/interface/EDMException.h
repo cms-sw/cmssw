@@ -63,6 +63,8 @@ namespace edm {
        ExceededResourceRSS = 8031,
        ExceededResourceTime = 8032,
       
+       EventGenerationFailure = 8501,
+
        CaughtSignal = 9000
     };
 
