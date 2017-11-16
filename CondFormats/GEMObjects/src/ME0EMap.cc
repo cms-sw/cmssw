@@ -67,15 +67,14 @@ ME0ROmap* ME0EMap::convertDummy() const{
 	    
 	  for (int nVfat = 0; nVfat < maxVFat; ++nVfat){
 	    chipId++;
-	      
-	    for (unsigned chan = 0; chan < 128; ++chan){	    
+	    
+	    for (unsigned chan = 0; chan < 128; ++chan){
 	      ME0ROmap::dCoord dc;
 	      dc.stripId = ++stripId;
 	      dc.me0DetId = me0Id;
 	      
-	      // fChipID 12 bits, gebId 5 bits, amcId 16 bits
 	      // make 1 full vfat ID from amc + geb + chip Ids
-	      uint32_t vfatId = (amcId << 17) | (gebId << 12) | chipId;
+	      uint32_t vfatId = (amcId << (gebIdBits_+chipIdBits_)) | (gebId << chipIdBits_) | chipId;
 		
 	      ME0ROmap::eCoord ec;
 	      ec.vfatId =  vfatId;
@@ -84,7 +83,7 @@ ME0ROmap* ME0EMap::convertDummy() const{
 	      romap->add(dc,ec);
 
 	    }
-	  }	    
+	  }
 	}
 	gebId++;
 	

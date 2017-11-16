@@ -72,14 +72,13 @@ GEMROmap* GEMEMap::convertDummy() const{
 	    for (int nVfat = 0; nVfat < maxVFat; ++nVfat){
 	      chipId++;
 	      
-	      for (unsigned chan = 0; chan < 128; ++chan){	    
+	      for (unsigned chan = 0; chan < 128; ++chan){
 		GEMROmap::dCoord dc;
 		dc.stripId = ++stripId;
 		dc.gemDetId = gemId;
 
-		// fChipID 12 bits, gebId 5 bits, amcId 16 bits
-		// make 1 full vfat ID from amc + geb + chip Ids		
-		uint32_t vfatId = (amcId << 17) | (gebId << 12) | chipId;
+		// make 1 full vfat ID from amc + geb + chip Ids
+		uint32_t vfatId = (amcId << (gebIdBits_+chipIdBits_)) | (gebId << chipIdBits_) | chipId;
 		
 		GEMROmap::eCoord ec;
 		ec.vfatId =  vfatId;
@@ -88,7 +87,7 @@ GEMROmap* GEMEMap::convertDummy() const{
 		romap->add(dc,ec);
 
 	      }
-	    }	    
+	    }
 	  }
 
 	  gebId++;
