@@ -42,7 +42,7 @@
 
 #include "TH1D.h"
 #include "TFile.h"
-#include "SiPixelRawToDigi.h"
+#include "SiPixelRawToDigiGPU.h"
 #include <string>
 #include <chrono>
 #include <iostream>
@@ -61,7 +61,7 @@
 using namespace std;
 
 // -----------------------------------------------------------------------------
-SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
+SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf ) 
   : config_(conf), 
     badPixelInfo_(nullptr),
     regions_(nullptr),
@@ -111,14 +111,14 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   usePilotBlade = false; 
   if (config_.exists("UsePilotBlade")) {
     usePilotBlade = config_.getParameter<bool> ("UsePilotBlade");
-    if(usePilotBlade) edm::LogInfo("SiPixelRawToDigi")  << " Use pilot blade data (FED 40)";
+    if(usePilotBlade) edm::LogInfo("SiPixelRawToDigiGPU")  << " Use pilot blade data (FED 40)";
   }
 
   // Control the usage of phase1
   usePhase1 = false;
   if (config_.exists("UsePhase1")) {
     usePhase1 = config_.getParameter<bool> ("UsePhase1");
-    if(usePhase1) edm::LogInfo("SiPixelRawToDigi")  << " Using phase1";
+    if(usePhase1) edm::LogInfo("SiPixelRawToDigiGPU")  << " Using phase1";
   }
   //CablingMap could have a label //Tav
   cablingMapLabel = config_.getParameter<std::string> ("CablingMapLabel");
@@ -157,8 +157,8 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 
 
 // -----------------------------------------------------------------------------
-SiPixelRawToDigi::~SiPixelRawToDigi() {
-  edm::LogInfo("SiPixelRawToDigi")  << " HERE ** SiPixelRawToDigi destructor!";
+SiPixelRawToDigiGPU::~SiPixelRawToDigiGPU() {
+  edm::LogInfo("SiPixelRawToDigiGPU")  << " HERE ** SiPixelRawToDigiGPU destructor!";
 
   if (regions_) delete regions_;
 
@@ -186,7 +186,7 @@ SiPixelRawToDigi::~SiPixelRawToDigi() {
 }
 
 void
-SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+SiPixelRawToDigiGPU::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("IncludeErrors",true);
   desc.add<bool>("UseQualityInfo",false);
@@ -224,7 +224,7 @@ SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 
 // -----------------------------------------------------------------------------
-void SiPixelRawToDigi::produce( edm::Event& ev,
+void SiPixelRawToDigiGPU::produce( edm::Event& ev,
                               const edm::EventSetup& es) 
 {
   //const uint32_t dummydetid = 0xffffffff;
@@ -276,8 +276,8 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   if (regions_) {
     regions_->run(ev, es);
     formatter.setModulesToUnpack(regions_->modulesToUnpack());
-    LogDebug("SiPixelRawToDigi") << "region2unpack #feds: "<<regions_->nFEDs();
-    LogDebug("SiPixelRawToDigi") << "region2unpack #modules (BPIX,EPIX,total): "<<regions_->nBarrelModules()<<" "<<regions_->nForwardModules()<<" "<<regions_->nModules();
+    LogDebug("SiPixelRawToDigiGPU") << "region2unpack #feds: "<<regions_->nFEDs();
+    LogDebug("SiPixelRawToDigiGPU") << "region2unpack #modules (BPIX,EPIX,total): "<<regions_->nBarrelModules()<<" "<<regions_->nForwardModules()<<" "<<regions_->nModules();
   }*/
   // GPU specific: Data extraction for RawToDigi GPU
   static unsigned int wordCounterGPU =0;
@@ -379,4 +379,4 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 } //end of produce function
 
 //define as runnable module
-DEFINE_FWK_MODULE(SiPixelRawToDigi);
+DEFINE_FWK_MODULE(SiPixelRawToDigiGPU);

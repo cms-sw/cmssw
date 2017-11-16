@@ -1,7 +1,7 @@
-#ifndef SiPixelRawToDigi_H
-#define SiPixelRawToDigi_H
+#ifndef SiPixelRawToDigiGPU_H
+#define SiPixelRawToDigiGPU_H
 
-/** \class SiPixelRawToDigi_H
+/** \class SiPixelRawToDigiGPU_H
  *  Plug-in module that performs Raw data to digi conversion 
  *  for pixel subdetector
  */
@@ -23,14 +23,14 @@ class SiPixelQuality;
 class TH1D;
 class PixelUnpackingRegions;
 
-class SiPixelRawToDigi : public edm::stream::EDProducer<> {
+class SiPixelRawToDigiGPU : public edm::stream::EDProducer<> {
 public:
 
   /// ctor
-  explicit SiPixelRawToDigi( const edm::ParameterSet& );
+  explicit SiPixelRawToDigiGPU( const edm::ParameterSet& );
 
   /// dtor
-  ~SiPixelRawToDigi() override;
+  ~SiPixelRawToDigiGPU() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
