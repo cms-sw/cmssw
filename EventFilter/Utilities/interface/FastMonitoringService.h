@@ -263,8 +263,6 @@ namespace evf{
       timeval fileLookStart_, fileLookStop_;//this could also be calculated in the input source
 
       unsigned int lastGlobalLumi_;
-      std::queue<unsigned int> lastGlobalLumisClosed_;
-      bool isGlobalLumiTransition_;
       std::atomic<bool> isInitTransition_;
       unsigned int lumiFromSource_;
 
