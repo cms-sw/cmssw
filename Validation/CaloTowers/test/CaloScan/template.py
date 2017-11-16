@@ -42,9 +42,8 @@ process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
 
-process.HcalSimHitsAnalyser = cms.EDAnalyzer("HcalSimHitsValidation",
-    outputFile = cms.untracked.string('HcalSimHitsValidation.root')
-)   
+process.load("Validation.HcalHits.HcalSimHitsValidation_cfi")
+process.HcalSimHitsAnalyser.outputFile = cms.untracked.string('HcalSimHitsValidation.root')
 
 process.load("Validation.HcalDigis.HcalDigisParam_cfi")
 process.hcaldigisAnalyzer.outputFile = cms.untracked.string('HcalDigisValidationRelVal.root')
@@ -53,7 +52,6 @@ process.load("Validation.HcalRecHits.HcalRecHitParam_cfi")
 
 process.load("Validation.CaloTowers.CaloTowersParam_cfi")
 process.calotowersAnalyzer.outputFile = cms.untracked.string('CaloTowersValidationRelVal.root')
-process.calotowersAnalyzer.mc = cms.untracked.string('yes')  # default!
 
 #--- replace hbhereco with hbheprereco
 delattr(process,"hbhereco")
