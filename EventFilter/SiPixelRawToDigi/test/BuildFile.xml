@@ -1,0 +1,18 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="CondFormats/SiPixelObjects"/>
+<use   name="EventFilter/SiPixelRawToDigi"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="root"/>
+<library   file="SiPixelRawDumper.cc" name="SiPixelRawDumper">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="FedErrorDumper.cc" name="FedErrorDumper">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="findHotPixels.cc" name="findHotPixels">
+  <flags   EDM_PLUGIN="1"/>
+</library>
