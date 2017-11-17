@@ -155,7 +155,7 @@ bool trkLongitudinalImpactParameter_cand(const Candidate& cand, const reco::Vert
 }
 
 /// DZ cut, with respect to the current lead rack
-bool trkLongitudinalImpactParameterWrtTrack(const Track* track, const reco::Track* leadTrack, const reco::VertexRef* pv, double cut) 
+bool trkLongitudinalImpactParameterWrtTrack(const Track* track, const Track* leadTrack, const reco::VertexRef* pv, double cut)
 {
   if ( leadTrack == nullptr ) {
     edm::LogError("QCutsNoValidLeadTrack") << "Lead track Ref in " <<
@@ -185,15 +185,38 @@ bool minTrackVertexWeight(const TrackBaseRef& track, const reco::VertexRef* pv, 
   return ((*pv)->trackWeight(track) >= cut);
 }
 
+bool minPackedCandVertexWeight(const pat::PackedCandidate& pCand, const reco::VertexRef* pv, double cut) {
+
+  if ( pv->isNull() ) {
+    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+      "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
+    return false;
+  }
+  //there is some low granular information on track weight in the vertex available with packed cands
+  double weight = -9.9;
+  if( pCand.vertexRef().isNonnull() && pCand.vertexRef().key() == pv->key() ){
+    int quality = pCand.pvAssociationQuality();
+    if( quality == pat::PackedCandidate::UsedInFitTight ) weight = 0.6;//0.6 as proxy for weight above 0.5
+    else if( quality == pat::PackedCandidate::UsedInFitLoose ) weight = 0.1;//0.6 as proxy for weight below 0.5
+  }
+  LogDebug("TauQCuts") << " packedCand: Pt = " << pCand.pt() << ", eta = " << pCand.eta() << ", phi = " << pCand.phi() ;
+  LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
+  LogDebug("TauQCuts") << "--> trackWeight from packedCand = " << weight << " (cut = " << cut << ")" ;
+  return (weight >= cut);
+}
+
 bool minTrackVertexWeight_cand(const Candidate& cand, const reco::VertexRef* pv, double cut) 
 {
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) {
     return minTrackVertexWeight(track, pv, cut);
-  } else {
-    LogDebug("TauQCuts") << "<minTrackVertexWeight_cand>: weight = N/A, cut = " << cut ;
-    return false;
   }
+  const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+  if( pCand != nullptr && cand.charge() != 0) {
+    return minPackedCandVertexWeight(*pCand, pv, cut);
+  }
+  LogDebug("TauQCuts") << "<minTrackVertexWeight_cand>: weight = N/A, cut = " << cut ;
+  return false;
 }
 
 bool trkChi2(const Track* track, double cut) 
@@ -359,7 +382,7 @@ bool RecoTauQualityCuts::filterTrack(const reco::TrackBaseRef& track) const
 {
   if (!filterTrack_(track.get()))
     return false;
-  if(minTrackVertexWeight_ > -1.0 && !(pv_->trackWeight(convertRef(track)) >= minTrackVertexWeight_)) return false;
+  if(minTrackVertexWeight_ >= 0. && !(pv_->trackWeight(convertRef(track)) >= minTrackVertexWeight_)) return false;
   return true;
 }
 
@@ -367,13 +390,12 @@ bool RecoTauQualityCuts::filterTrack(const reco::TrackRef& track) const
 {
   if (!filterTrack_(track.get()))
     return false;
-  if(minTrackVertexWeight_ > -1.0 && !(pv_->trackWeight(convertRef(track)) >= minTrackVertexWeight_)) return false;
+  if(minTrackVertexWeight_ >= 0. && !(pv_->trackWeight(convertRef(track)) >= minTrackVertexWeight_)) return false;
   return true;
 }
 
 bool RecoTauQualityCuts::filterTrack(const reco::Track& track) const
 {
-  // JAN - FIXME if(minTrackVertexWeight_ > -1.0): NOT IMPLEMENTED ERROR
   return filterTrack_(&track);
 }
 
@@ -412,7 +434,7 @@ bool RecoTauQualityCuts::filterTrack_(const reco::Track* track) const
 
 bool RecoTauQualityCuts::filterCandIP(const reco::Candidate& cand) const {
   const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
-  if (!pCand)
+  if (pCand == nullptr)
     return true;
 
   if(checkPV_ && pv_.isNull()) {
@@ -475,16 +497,21 @@ bool RecoTauQualityCuts::filterCand(const reco::Candidate& cand) const
 
   if(trackRef.isNonnull())
     result = filterTrack(trackRef);
-  else { // MiniAOD: Get track, not track base ref
+  else if (cand.charge() != 0) {// MiniAOD: consider only charged patricles and repeat logic as in filterTrack(trackRef)
+    // MiniAOD: Get track, not track base ref, it should be present for pT(charged)>0.5GeV
     auto track = getTrack(cand);
     if (track != nullptr)
       result = filterTrack(*track);
     // MiniAOD pT(charged) < 0.5 GeV: Can still calculate dxy and dz
-    else if (cand.charge() != 0) { 
+    else
       result = filterCandIP(cand);
+    // MiniAOD: check vertex weight; some low granular info is available with packed cands
+    if(result && minTrackVertexWeight_ >= 0.){
+      const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+      if(pCand != nullptr)
+	result = qcuts::minPackedCandVertexWeight(*pCand, &pv_,  minTrackVertexWeight_);
     }
   }
-    
   if(result)
     result = filterCandByType(cand);
   return result;
