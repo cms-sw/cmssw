@@ -158,8 +158,11 @@ double LumiReWeighting::weight( float npv ) {
 double LumiReWeighting::weight( const edm::EventBase &e ) {
 
   // get pileup summary information
-
-  e.processHistory(); // keep the function call
+  if(FirstWarning_) {
+    e.processHistory(); // keep the function call
+    //    SetFirstFalse();
+    FirstWarning_ = false;
+  }
   Handle<std::vector< PileupSummaryInfo > >  PupInfo;
   e.getByLabel(pileupSumInfoTag_, PupInfo);
 
@@ -192,12 +195,12 @@ double LumiReWeighting::weightOOT( const edm::EventBase &e ) {
 
   //int Run = e.run();
   int LumiSection = e.luminosityBlock();
-  e.processHistory(); // keep the function call
   // do some caching here, attempt to catch file boundaries
 
-  if(LumiSection != OldLumiSection_)
+  if(LumiSection != OldLumiSection_){
+    e.processHistory(); // keep the function call
     OldLumiSection_ = LumiSection;
-
+  }
   // find the pileup summary information
 
   Handle<std::vector< PileupSummaryInfo > >  PupInfo;
