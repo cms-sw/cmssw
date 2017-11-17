@@ -3,6 +3,8 @@
 #include <vector>
 #include <set>
 
+namespace hgcal {
+
 /*
  * Stores information about the HGCal EM MultiCluster computed
  * using EGammaPCAHelper, including in particular hits restricted to
@@ -37,4 +39,7 @@ class LongDeps{
         int lay_Efrac90_ ;
         float e4oEtot_;
     };
+
+}
+
 #endif

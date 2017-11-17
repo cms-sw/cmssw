@@ -28,6 +28,8 @@
 
 class HGCalRecHit;
 
+namespace hgcal {
+
 class EGammaPCAHelper
 {
 public:
@@ -110,5 +112,7 @@ private:
     ShowerDepth showerDepth_;
 
 };
+
+}
 
 #endif
