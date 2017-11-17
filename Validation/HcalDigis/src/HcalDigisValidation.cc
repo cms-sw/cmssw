@@ -527,7 +527,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
      }
 
      //1x1 Trig Primitives (tpVersion == 1)
-     if( subdet != HcalSubdetector::HcalForward || tpVersion==1){
+     if( (subdet != HcalSubdetector::HcalForward || tpVersion==1) && Plot_TP_ver_){
         fill1D("HcalDigiTask_tp_et_v1",en);
         fill2D("HcalDigiTask_tp_et_ieta_v1",ieta,en);
         fill2D("HcalDigiTask_tp_ieta_iphi_v1",ieta,iphi);
