@@ -515,12 +515,10 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
   // Get beamspot
   edm::Handle<reco::BeamSpot> beamspotHandle;
   iEvent.getByToken(fBeamspotToken, beamspotHandle);
-  EleID_.setBeamspot(beamspotHandle);
 
   // Conversions
   edm::Handle<reco::ConversionCollection> conversionsHandle;
   iEvent.getByToken(fConversionToken, conversionsHandle);
-  EleID_.setConversions(conversionsHandle);
 
 
   edm::Ptr<reco::GsfElectron> eleProbe;
@@ -529,7 +527,7 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
   // Loop over Tags
   for (size_t itag = 0; itag < electrons->size(); ++itag){
     const auto el1 = electrons->ptrAt(itag);
-    if( not EleID_.passID(el1) ) continue;
+    if( not EleID_.passID(el1,beamspotHandle,conversionsHandle) ) continue;
 
     float pt1  = el1->pt();
     float eta1 = el1->eta();
@@ -594,7 +592,7 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
 
       long ls = iEvent.luminosityBlock();
       bool probe_pass_trigger = isElectronTriggerObj(*fTrigger, TriggerTools::matchHLT(vProbe.Eta(), vProbe.Phi(), fTrigger->fRecords, *hTrgEvt));
-      bool probe_pass_id = eleProbe.isNonnull() and EleID_.passID(eleProbe);
+      bool probe_pass_id = eleProbe.isNonnull() and EleID_.passID(eleProbe,beamspotHandle,conversionsHandle);
 
       //// Fill for yields
       bool probe_is_forward = probe_abseta > ELE_ETA_CRACK_LOW;

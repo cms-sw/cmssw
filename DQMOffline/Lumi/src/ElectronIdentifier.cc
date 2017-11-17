@@ -126,15 +126,6 @@ void ElectronIdentifier::setID(std::string ID) {
    else if(ID=="VETO") ID_ = EleIDWorkingPoints::VETO;
    else throw;
 }
-void ElectronIdentifier::setBeamspot(edm::Handle<reco::BeamSpot> beamspot) {
-   beamspot_ = beamspot;
-}
-void ElectronIdentifier::setConversions(edm::Handle<reco::ConversionCollection> conversions) {
-   conversions_ = conversions;
-}
-void ElectronIdentifier::loadEvent(const edm::Event& iEvent){
-   //~ iEvent.getByToken(fRhoToken, rho);
-}
 float ElectronIdentifier::dEtaInSeed(const reco::GsfElectronPtr& ele){
          return ele->superCluster().isNonnull() && ele->superCluster()->seed().isNonnull() ?
          ele->deltaEtaSuperClusterTrackAtVtx() - ele->superCluster()->eta() + ele->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
@@ -156,7 +147,7 @@ float ElectronIdentifier::isolation(const reco::GsfElectronPtr& ele) {
 }
 
 
-bool ElectronIdentifier::passID(const reco::GsfElectronPtr& ele) {
+bool ElectronIdentifier::passID(const reco::GsfElectronPtr& ele,edm::Handle<reco::BeamSpot> beamspot,edm::Handle<reco::ConversionCollection> conversions) {
    if(ID_ == -1) throw;
    unsigned int region = fabs(ele->superCluster()->eta()) < 1.479 ? EleIDEtaBins::BARREL : EleIDEtaBins::BARREL;
 
@@ -170,7 +161,7 @@ bool ElectronIdentifier::passID(const reco::GsfElectronPtr& ele) {
    passes.push_back( isolation(ele)/ele->pt()                         < cuts_[EleIDCutNames::ISO][ID_][region]);
    passes.push_back( std::abs(1.0 - ele->eSuperClusterOverP())/ele->ecalEnergy()  < cuts_[EleIDCutNames::ONEOVERE][ID_][region]);
    passes.push_back( (ele->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS)) <= cuts_[EleIDCutNames::MISSINGHITS][ID_][region]);
-   passes.push_back( !ConversionTools::hasMatchedConversion(*ele,conversions_,beamspot_->position()));
+   passes.push_back( !ConversionTools::hasMatchedConversion(*ele,conversions,beamspot->position()));
 
    for (auto const p:passes) {
       pass &= p;

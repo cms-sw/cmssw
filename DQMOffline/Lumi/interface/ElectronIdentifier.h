@@ -48,19 +48,14 @@ class ElectronIdentifier{
    public:
       ElectronIdentifier (const edm::ParameterSet& c);
       float dEtaInSeed(const reco::GsfElectronPtr& ele);
-      bool passID(const reco::GsfElectronPtr& ele);
+      bool passID(const reco::GsfElectronPtr& ele,edm::Handle<reco::BeamSpot> beamspot,edm::Handle<reco::ConversionCollection> conversions);
       float isolation(const reco::GsfElectronPtr& ele);
-      void loadEvent(const edm::Event& iEvent);
 
       void setID(std::string ID);
       void setRho(double rho);
-      void setBeamspot(edm::Handle<reco::BeamSpot> beamspot);
-      void setConversions(edm::Handle<reco::ConversionCollection> conversions);
    private:
      double rho_;
      int ID_;
-     edm::Handle<reco::BeamSpot> beamspot_;
-     edm::Handle<reco::ConversionCollection> conversions_;
      std::array<std::array<std::array<double,2>,3>,8> cuts_;
      // Effective area constants
      EffectiveAreas _effectiveAreas;
