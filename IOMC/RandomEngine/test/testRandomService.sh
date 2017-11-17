@@ -16,11 +16,13 @@ pushd ${LOCAL_TMP_DIR}
   mv testRandomService_0_t2.txt testRandomService1_0_t2.txt
   mv testRandomService_0_t3.txt testRandomService1_0_t3.txt
   mv testRandomService_0_t4.txt testRandomService1_0_t4.txt
+  mv testRandomService_0_t6.txt testRandomService1_0_t6.txt
 
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1_0_t1.txt testRandomService1_0_t1.txt || die "comparing testRandomService1_0_t1.txt" $?
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1_0_t2.txt testRandomService1_0_t2.txt || die "comparing testRandomService1_0_t2.txt" $?
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1_0_t3.txt testRandomService1_0_t3.txt || die "comparing testRandomService1_0_t3.txt" $?
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1_0_t4.txt testRandomService1_0_t4.txt || die "comparing testRandomService1_0_t4.txt" $?
+  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1_0_t6.txt testRandomService1_0_t6.txt || die "comparing testRandomService1_0_t6.txt" $?
 
   echo " "
   echo "RandomNumberGeneratorService 2"
