@@ -56,55 +56,63 @@ def make_efficiency_string(objtype, plot_type, triggerpath):
     return "Eff_%s_%s '%s' %s_%s %s" % (input_type,triggerpath,
 		    all_titles,input_type,triggerpath,input_type)
 
-plot_types = ["TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4", "EffEta", "EffPhi", "EffDxy"]
-#--- IMPORTANT: Update this collection whenever you introduce a new object
-#               in the code (from EVTColContainer::getTypeString)
-obj_types  = ["Mu","refittedStandAloneMuons","Track","Ele","Photon","PFTau","PFJet","MET","PFMET","PFMHT","GenMET","CaloJet"
-             ,"CaloMET","CaloMHT","l1MET"]
 
 #--- IMPORTANT: Trigger are extracted from the hltExoticaValidator_cfi.py module
 from HLTriggerOffline.Exotica.hltExoticaValidator_cfi import hltExoticaValidator as _config
 #------------------------------------------------------------
-
-def make_postprocessor(analysis_name):
+#--- IMPORTANT: Update this collection whenever you introduce a new object
+#               in the code (from EVTColContainer::getTypeString)
+def make_exo_postprocessor(analysis_name, plot_types=["TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4", "EffEta", "EffPhi", "EffDxy"], object_types=["Mu","refittedStandAloneMuons","Track","Ele","Photon","PFTau","PFJet","MET","PFMET","PFMHT","GenMET","CaloJet","CaloMET","CaloMHT","l1MET"], extra_str_templates=[]):
     postprocessor = hltExoticaPostProcessor.clone()
     postprocessor.subDirs = ["HLT/Exotica/" + analysis_name]
     efficiency_strings = [] # List of plots to look for. This is quite a bit larger than the number of plots that will be made.
+
+    # Higgs and SMP postprocessors use this string, but exo does not, for now.
+    #efficiency_summary_string = "EffSummaryPaths_" + analysis_name + "_gen ' Efficiency of paths used in " + analysis_name + " ; trigger path ' SummaryPaths_" + analysis_name + "_gen_passingHLT SummaryPaths_" + analysis_name + "_gen"
+    #efficiency_strings.append(efficiency_summary_string)
+    #efficiency_strings.append(efficiency_summary_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
+
     for plot_type in plot_types:
-        for object_type in obj_types:
+        for object_type in object_types:
             for trigger in [x.replace("_v", "") for x in _config.__getattribute__(analysis_name).hltPathsToCheck]:
                 this_efficiency_string = make_efficiency_string(object_type, plot_type, trigger)
                 efficiency_strings.append(this_efficiency_string)
                 efficiency_strings.append(this_efficiency_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
+
+                for str_template in extra_str_templates:
+                    this_extra_string = str_template.replace("@AN@", analysis_name).replace("@TRIGGER@", trigger)
+                    efficiency_strings.append(this_extra_string)
+                    efficiency_strings.append(this_extra_stringreplace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
+
     postprocessor.efficiencyProfile = efficiency_strings
     return postprocessor
 
-hltExoticaPostLowPtTrimuon = make_postprocessor("LowPtTrimuon")
-hltExoticaPostHighPtDimuon = make_postprocessor("HighPtDimuon")
-hltExoticaPostHighPtDielectron = make_postprocessor("HighPtDielectron")
-hltExoticaPostHighPtElectron = make_postprocessor("HighPtElectron")
-#hltExoticaPostLowPtElectron = make_postprocessor("LowPtElectron")
-hltExoticaPostLowPtDimuon = make_postprocessor("LowPtDimuon")
-hltExoticaPostLowPtDielectron = make_postprocessor("LowPtDielectron")
-hltExoticaPostHighPtPhoton = make_postprocessor("HighPtPhoton")
-hltExoticaPostDiPhoton = make_postprocessor("DiPhoton")
-hltExoticaPostSingleMuon = make_postprocessor("SingleMuon")
-hltExoticaPostPFHT = make_postprocessor("PFHT")
-hltExoticaPostCaloHT = make_postprocessor("CaloHT")
-hltExoticaPostJetNoBptx = make_postprocessor("JetNoBptx")
-hltExoticaPostMuonNoBptx = make_postprocessor("MuonNoBptx")
-hltExoticaPostDisplacedMuEG = make_postprocessor("DisplacedMuEG")
-hltExoticaPostDisplacedDimuon = make_postprocessor("DisplacedDimuon")
-hltExoticaPostMonojet = make_postprocessor("Monojet")
-hltExoticaPostMonojetBackup = make_postprocessor("MonojetBackup")
-hltExoticaPostPureMET = make_postprocessor("PureMET")
-hltExoticaPostMETplusTrack = make_postprocessor("METplusTrack")
-hltExoticaEleMu = make_postprocessor("EleMu")
-hltExoticaPhotonMET = make_postprocessor("PhotonMET")
-hltExoticaHTDisplacedJets = make_postprocessor("HTDisplacedJets")
-hltExoticaDSTJets = make_postprocessor("DSTJets")
-hltExoticaDSTMuons = make_postprocessor("DSTMuons")
-hltExoticaTracklessJets = make_postprocessor("TracklessJets")
+hltExoticaPostLowPtTrimuon = make_exo_postprocessor("LowPtTrimuon")
+hltExoticaPostHighPtDimuon = make_exo_postprocessor("HighPtDimuon")
+hltExoticaPostHighPtDielectron = make_exo_postprocessor("HighPtDielectron")
+hltExoticaPostHighPtElectron = make_exo_postprocessor("HighPtElectron")
+#hltExoticaPostLowPtElectron = make_exo_postprocessor("LowPtElectron")
+hltExoticaPostLowPtDimuon = make_exo_postprocessor("LowPtDimuon")
+hltExoticaPostLowPtDielectron = make_exo_postprocessor("LowPtDielectron")
+hltExoticaPostHighPtPhoton = make_exo_postprocessor("HighPtPhoton")
+hltExoticaPostDiPhoton = make_exo_postprocessor("DiPhoton")
+hltExoticaPostSingleMuon = make_exo_postprocessor("SingleMuon")
+hltExoticaPostPFHT = make_exo_postprocessor("PFHT")
+hltExoticaPostCaloHT = make_exo_postprocessor("CaloHT")
+hltExoticaPostJetNoBptx = make_exo_postprocessor("JetNoBptx")
+hltExoticaPostMuonNoBptx = make_exo_postprocessor("MuonNoBptx")
+hltExoticaPostDisplacedMuEG = make_exo_postprocessor("DisplacedMuEG")
+hltExoticaPostDisplacedDimuon = make_exo_postprocessor("DisplacedDimuon")
+hltExoticaPostMonojet = make_exo_postprocessor("Monojet")
+hltExoticaPostMonojetBackup = make_exo_postprocessor("MonojetBackup")
+hltExoticaPostPureMET = make_exo_postprocessor("PureMET")
+hltExoticaPostMETplusTrack = make_exo_postprocessor("METplusTrack")
+hltExoticaEleMu = make_exo_postprocessor("EleMu")
+hltExoticaPhotonMET = make_exo_postprocessor("PhotonMET")
+hltExoticaHTDisplacedJets = make_exo_postprocessor("HTDisplacedJets")
+hltExoticaDSTJets = make_exo_postprocessor("DSTJets")
+hltExoticaDSTMuons = make_exo_postprocessor("DSTMuons")
+hltExoticaTracklessJets = make_exo_postprocessor("TracklessJets")
 
 hltExoticaPostProcessors = cms.Sequence(
     # Tri-lepton paths
