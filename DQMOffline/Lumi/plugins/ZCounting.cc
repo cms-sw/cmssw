@@ -44,6 +44,9 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig):
   ELE_ETA_CUT_TAG(iConfig.getUntrackedParameter<double>("EtaCutEleTag")),
   ELE_ETA_CUT_PROBE(iConfig.getUntrackedParameter<double>("EtaCutEleProbe")),
 
+  ELE_MASS_CUT_LOW(iConfig.getUntrackedParameter<double>("MassCutEleLow")),
+  ELE_MASS_CUT_HIGH(iConfig.getUntrackedParameter<double>("MassCutEleHigh")),
+
   ELE_ID_WP( iConfig.getUntrackedParameter<std::string>("ElectronIDType","TIGHT")),
   EleID_(ElectronIdentifier(iConfig))
 {
@@ -583,9 +586,8 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
 
       // Require good Z
       TLorentzVector vDilep = vTag + vProbe;
-      float MASS_LOW = 80.0;
-      float MASS_HIGH = 100.0;
-      if((vDilep.M()<MASS_LOW) || (vDilep.M()>MASS_HIGH)) continue;
+
+      if((vDilep.M()<ELE_MASS_CUT_LOW) || (vDilep.M()>ELE_MASS_CUT_HIGH)) continue;
       if(eleProbe.isNonnull() and (eleProbe->charge() != - el1->charge())) continue;
 
       // Good Z found!
