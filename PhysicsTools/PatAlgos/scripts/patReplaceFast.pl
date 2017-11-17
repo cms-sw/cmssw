@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/bin/env perl
 #
 # Replaces for fast simulation
 #

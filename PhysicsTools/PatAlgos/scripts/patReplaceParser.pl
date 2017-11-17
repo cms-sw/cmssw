@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/bin/env perl
 #
 # A script to parse cfi files for parameters to replace
 # Probably not very stable...
