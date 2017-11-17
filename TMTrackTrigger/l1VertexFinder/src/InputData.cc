@@ -197,11 +197,13 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
     if(vertex.numTracks() >= settings->vx_minTracks()) recoVertices_.push_back(vertex);
   }
 
+  cout << vertices_.size() << " pileup vertices in the event, "<< recoVertices_.size() << " reconstructable" << endl;
+  
 
   vertex_.computeParameters();
   if(settings->debug() == 7) {
     cout << "Vertex "<< vertex_.z0() << " containing "<< vertex_.numTracks() << " total pT "<< vertex_.pT() << endl;
-    cout << vertices_.size() << " pileup vertices in the event, "<< recoVertices_.size() << " reconstructable" << endl;
+  
   }
 
   for(unsigned int i = 0; i<vertices_.size(); ++i){

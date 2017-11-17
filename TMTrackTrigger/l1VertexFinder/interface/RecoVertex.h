@@ -29,7 +29,7 @@ public:
   /// Assign fitted track to this vertex
   void              insert(const L1fittedTrack* fitTrack)     { tracks_.push_back(fitTrack); if(fitTrack->getMatchedTP()!= nullptr and fitTrack->getMatchedTP()->physicsCollision()) trueTracks_.insert(fitTrack->getMatchedTP());}
   /// Compute vertex parameters
-  void              computeParameters();
+  void              computeParameters(bool weightedmean = false);
   /// Set z0 position
   void              setZ(double z)    {z0_ = z;}
   /// Sum ot fitted tracks transverse momentum
@@ -46,6 +46,8 @@ public:
   void              isPrimary(bool is) { pv_ = is;}
   /// Contain high-pT track?
   bool              hasHighPt() const { return highPt_;}
+  /// highest track pT in the vertex
+  double            highestPt() const { return highestPt_;}
   /// Number of high-pT tracks (pT > 10 GeV)
   unsigned int      numHighPtTracks() const { return numHighPtTracks_;}
   /// Vertec MET
@@ -60,6 +62,7 @@ private:
   double            met_;
   double            metX_;
   double            metY_;
+  double            highestPt_;
 
   std::vector<const L1fittedTrack*>   tracks_;
   std::set< const TP* >   trueTracks_;
@@ -67,8 +70,7 @@ private:
   bool              highPt_;
   unsigned int      numHighPtTracks_;
   
-
-}; // end namespace vertexFinder
+};
 
 }
 #endif

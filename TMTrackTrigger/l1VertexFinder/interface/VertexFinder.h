@@ -58,6 +58,8 @@ public:
   FitTrackCollection TDRPileUpTracks()      const { return tdr_pileup_tracks_;}
   /// Find the primary vertex
   void  FindPrimaryVertex();
+  /// Associate the primary vertex with the real one
+  void  AssociatePrimaryVertex(double trueZ0);
   /// Gap Clustering Algorithm
   void GapClustering();
   /// Find maximum distance in two clusters of tracks

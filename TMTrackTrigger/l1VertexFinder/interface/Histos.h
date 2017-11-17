@@ -57,8 +57,8 @@ private:
   const Settings *settings_; // Configuration parameters.
 
   edm::Service<TFileService> fs_;
-
-
+  // Histograms for Vertex Reconstruction
+  
   TH1F* hisNoRecoVertices_;
   TH1F* hisNoPileUpVertices_;
   TH1F* hisRecoVertexZ0Resolution_;
@@ -105,7 +105,7 @@ private:
   TH1F* hisRecoVertexPT_;
   TH1F* hisRecoPileUpVertexPT_;
   TH1F* hisRecoVertexOffPT_;
-
+  TH1F* hisRecoVertexTrackRank_;
 
   TProfile* hisRecoPrimaryVertexResolutionVsTrueZ0_;
   TProfile* hisTDRPrimaryVertexResolutionVsTrueZ0_;

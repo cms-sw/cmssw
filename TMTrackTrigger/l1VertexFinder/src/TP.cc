@@ -14,6 +14,8 @@ TP::TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const Settings* se
   TrackingParticlePtr(tpPtr),
   index_in_vTPs_(index_in_vTPs),
   settings_(settings),
+  pdgId_(tpPtr->pdgId()),                       
+
   charge_(tpPtr->charge()),
   mass_(tpPtr->mass()),
   pt_(tpPtr->pt()),
@@ -25,7 +27,9 @@ TP::TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const Settings* se
   vy_(tpPtr->vertex().y()),
   vz_(tpPtr->vertex().z()),
   d0_(vx_*sin(phi0_) - vy_*cos(phi0_)), // Copied from CMSSW class TrackBase::d0().
-  z0_(vz_ - (vx_*cos(phi0_) + vy_*sin(phi0_))*tanLambda_) // Copied from CMSSW class TrackBase::dz().
+  z0_(vz_ - (vx_*cos(phi0_) + vy_*sin(phi0_))*tanLambda_), // Copied from CMSSW class TrackBase::dz().
+  tip_(sqrt(tpPtr->vertex().perp2()))
+
 {
   const vector<SimTrack> &vst = tpPtr->g4Tracks();
   EncodedEventId eid = vst.at(0).eventId(); 
@@ -48,8 +52,39 @@ void TP::fillTruth(const vector<Stub>& vStubs) {
   }
 
   this->fillUseForAlgEff(); // Fill useForAlgEff_ flag.
-
+  this->fillUseForVertexReco();
   this->calcNumLayers(); // Calculate number of tracker layers this TP has stubs in.
+}
+
+
+void TP::fillUseForVertexReco() {
+
+  useForVertexReco_ = false;
+  if (use_) {
+    const bool useOnlyTPfromPhysicsCollision = false;
+    const bool useOnlyInTimeParticles = true;
+
+    static TrackingParticleSelector trackingParticleSelector( 
+                   settings_->genMinPt(),
+                   99999999.,
+                  -settings_->genMaxAbsEta(),
+                   settings_->genMaxAbsEta(),
+                   settings_->genMaxVertR(),
+                   settings_->genMaxVertZ(),
+                   0,
+                   useOnlyTPfromPhysicsCollision,
+                   useOnlyInTimeParticles,
+                   true,
+                   false,
+                   settings_->genPdgIds());
+
+    const TrackingParticlePtr tp_ptr(*this); // cast to base class.
+    useForVertexReco_ = trackingParticleSelector(*tp_ptr);
+  }
+
+  if(useForVertexReco_){
+    useForVertexReco_ = (utility::countLayers(settings_, assocStubs_, true) >= settings_->genMinStubLayers() and utility::countLayers(settings_, assocStubs_, true, true) >= 2);
+  }
 }
 
 

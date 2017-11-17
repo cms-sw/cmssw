@@ -31,6 +31,8 @@ public:
   // Location in InputData::vTPs_
   unsigned int                           index() const { return     index_in_vTPs_; }
   // Did it come from the main physics collision or from pileup?
+   // Basic TP properties
+  int                                    pdgId() const { return             pdgId_; }
   bool                        physicsCollision() const { return  physicsCollision_; }
   int                                   charge() const { return            charge_; }
   float                                   mass() const { return              mass_; }
@@ -47,12 +49,14 @@ public:
   // d0 and z0 impact parameters with respect to (x,y) = (0,0).
   float                                     d0() const { return                d0_;}
   float                                     z0() const { return                z0_;}
-
+  float                                    tip() const { return               tip_;}
   // == Functions returning stubs produced by tracking particle.
   unsigned int                   numAssocStubs() const { return assocStubs_.size(); }
 
   // TP is worth keeping (e.g. for fake rate measurement)
   bool                                     use() const { return               use_; }
+
+  bool                               useForEff() const {return           useForEff_;}
   // TP can be used for algorithmic efficiency measurement (also requires stubs in enough layers).
   bool                            useForAlgEff() const { return      useForAlgEff_; } 
  // TP can be used for vertex reconstruction measuremetn
@@ -63,7 +67,7 @@ private:
   void fillUse();          // Fill the use_ flag.
   void fillUseForEff();    // Fill the useForEff_ flag.
   void fillUseForAlgEff(); // Fill the useforAlgEff_ flag.
-  void fillUseForVertexReco() { assert(false); }
+  void fillUseForVertexReco();
 
   // Calculate how many tracker layers this TP has stubs in.
   void calcNumLayers() { nLayersWithStubs_ = utility::countLayers( settings_, assocStubs_, false); }
@@ -73,6 +77,7 @@ private:
 
   const Settings*                        settings_; // Configuration parameters
 
+  int                                       pdgId_;
   bool                                   inTimeBx_; // TP came from in-time bunch crossing.
   bool                           physicsCollision_; // True if TP from physics collision rather than pileup.
   int                                      charge_;
@@ -87,7 +92,7 @@ private:
   float                                        vz_;
   float                                        d0_; // d0 impact parameter with respect to (x,y) = (0,0)
   float                                        z0_; // z0 impact parameter with respect to (x,y) = (0,0)
-
+  float                                       tip_;
   bool                                        use_; // TP is worth keeping (e.g. for fake rate measurement)
   bool                                  useForEff_; // TP can be used for tracking efficiency measurement.
   bool                               useForAlgEff_; // TP can be used for tracking algorithmic efficiency measurement.

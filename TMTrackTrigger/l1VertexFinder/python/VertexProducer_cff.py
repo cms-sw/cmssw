@@ -52,30 +52,34 @@ VertexProducer = cms.EDProducer('VertexProducer',
   ),
 
 
-# === Vertex Reconstruction configuration
+  # === Vertex Reconstruction configuration
   VertexReconstruction=cms.PSet(
         # Vertex Reconstruction Id (0: GapClustering, 1: AgglomerativeClustering, 2: DBSCAN, 3: PVR, 4: AdaptiveVertexReconstruction, 5: HPV, 6: Kmeans)
         AlgorithmId = cms.uint32(2),
         # Vertex distance
         VertexDistance = cms.double(.15),
         # Assumed Vertex Resolution
-        VertexResolution = cms.double(.15),
+        VertexResolution = cms.double(.10),
         # Distance Type for agglomerative algorithm (0: MaxDistance, 1: MinDistance, 2: MeanDistance, 3: CentralDistance)
         DistanceType  = cms.uint32(0),
+        # Keep only PV from hard interaction (highest pT)
+        KeepOnlyPV   = cms.bool(True),
         # Minimum number of tracks to accept vertex
         MinTracks   = cms.uint32(2),
-        # Chi2 cut for the Adaptive Vertex Recostruction Algorithm
+        # Compute the z0 position of the vertex with a mean weighted with track momenta
+        WeightedMean = cms.bool(True),
+        # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
         AVR_chi2cut = cms.double(5.),
         # TDR algorithm assumed vertex width [cm]
         TDR_VertexWidth = cms.double(.15),
         # Run locally the vertex reconstruction algorithms
         VertexLocal  = cms.bool(False),
         # Kmeans number of iterations
-        KmeansIterations = cms.uint32(50),
+        KmeansIterations = cms.uint32(10),
         # Kmeans number of clusters
         KmeansNumClusters  = cms.uint32(18),
         # DBSCAN pt threshold
-        DBSCANPtThreshold = cms.double(3.),
+        DBSCANPtThreshold = cms.double(2.),
         # DBSCAN min density tracks
         DBSCANMinDensityTracks = cms.uint32(1),
         # Maximum distance to merge two vertices (only if VertexLocal is true)
@@ -83,7 +87,7 @@ VertexProducer = cms.EDProducer('VertexProducer',
         VxInHTsector = cms.bool(True),
         VxMergeByTracks = cms.bool(False),
         VxMinTrackPt   = cms.double(2.)
-    ), 
+    ),
   # Debug printout
   Debug  = cms.uint32(0), #(0=none, 1=print tracks/sec, 2=show filled cells in HT array in each sector of each event, 3=print all HT cells each TP is found in, to look for duplicates, 4=print missed tracking particles by r-z filters, 5 = show debug info about duplicate track removal, 6 = show debug info about fitters)
 )

@@ -43,40 +43,27 @@ void Histos::bookVertexReconstruction(){
 
   hisGenVertexPt_ = inputDir.make<TH1F>("hisGenVertexPt_", "hisGenVertexPt_",100,0,500);
   hisGenTkVertexPt_ = inputDir.make<TH1F>("hisGenTkVertexPt_", "hisGenTkVertexPt_",100,0,500);
-
-  hisRecoGenuineVertexVsGenTkVertexPt_ = inputDir.make<TH1F>("hisRecoGenuineVertexVsGenTkVertexPt_", "hisRecoGenuineVertexVsGenTkVertexPt_",100,0,500);
-
-  hisRecoVertexVsGenVertexPt_ = inputDir.make<TH1F>("hisRecoVertexVsGenVertexPt_", "hisRecoVertexVsGenVertexPt_",100,0,500);
-  hisRecoVertexVsGenTkVertexPtForEff_ = inputDir.make<TH1F>("hisRecoVertexVsGenTkVertexPtForEff_", "hisRecoVertexVsGenTkVertexPtForEff_",100,0,500);
-  hisRecoVertexVsGenTkVertexMETForEff_ = inputDir.make<TH1F>("hisRecoVertexVsGenTkVertexMETForEff_", "hisRecoVertexVsGenTkVertexMETForEff_",100,0,500);
-
   hisGenVertexTrackPt_ = inputDir.make<TH1F>("hisGenVertexTrackPt_", "hisGenVertexTrackPt_",50,0,300);
   hisGenVertexNumTracks_ = inputDir.make<TH1F>("hisGenVertexNumTracks_", "hisGenVertexNumTracks_",20,0,50);
-  hisRecoVertexVsNumGenTracks_ = inputDir.make<TH1F>("hisRecoVertexVsNumGenTracks_", "hisRecoVertexVsNumGenTracks_",20,0,50);
-
   hisGenVertexMET_ = inputDir.make<TH1F>("hisGenVertexMET_", "hisGenVertexMET_",100,0,500);
   hisGenTkVertexMET_ = inputDir.make<TH1F>("hisGenTkVertexMET_", "hisGenTkVertexMET_",100,0,500);
-
-  hisRecoVertexVsGenMET_ = inputDir.make<TH1F>("hisRecoVertexVsGenMET_", "hisRecoVertexVsGenMET_",100,0,500);
-
-  hisRecoGenuineVertexVsGenMET_ = inputDir.make<TH1F>("hisRecoGenuineVertexVsGenMET_", "hisRecoGenuineVertexVsGenMET_",100,0,500);
-  hisRecoGenuineVertexVsGenTkMET_ = inputDir.make<TH1F>("hisRecoGenuineVertexVsGenTkMET_", "hisRecoGenuineVertexVsGenTkMET_",100,0,500);
 
   hisPUVertexPt_ = inputDir.make<TH1F>("hisPUVertexPt_", "hisPUVertexPt_",50,0,300);
   hisPUVertexTrackPt_ = inputDir.make<TH1F>("hisPUVertexTrackPt_", "hisPUVertexTrackPt_",50,0,300);
   hisPUVertexNumTracks_ = inputDir.make<TH1F>("hisPUVertexNumTracks_", "hisPUVertexNumTracks_",20,0,50);
 
-
-  // Plot number of reconstructed vertices against number of true vertices
+  hisRecoGenuineVertexVsGenTkVertexPt_ = inputDir.make<TH1F>("hisRecoGenuineVertexVsGenTkVertexPt_", "hisRecoGenuineVertexVsGenTkVertexPt_",100,0,500);
+  hisRecoVertexVsGenVertexPt_ = inputDir.make<TH1F>("hisRecoVertexVsGenVertexPt_", "hisRecoVertexVsGenVertexPt_",100,0,500);
+  hisRecoVertexVsGenTkVertexPtForEff_ = inputDir.make<TH1F>("hisRecoVertexVsGenTkVertexPtForEff_", "hisRecoVertexVsGenTkVertexPtForEff_",100,0,500);
+  hisRecoVertexVsGenTkVertexMETForEff_ = inputDir.make<TH1F>("hisRecoVertexVsGenTkVertexMETForEff_", "hisRecoVertexVsGenTkVertexMETForEff_",100,0,500);
+  hisRecoVertexVsNumGenTracks_ = inputDir.make<TH1F>("hisRecoVertexVsNumGenTracks_", "hisRecoVertexVsNumGenTracks_",20,0,50);
+  hisRecoVertexVsGenMET_ = inputDir.make<TH1F>("hisRecoVertexVsGenMET_", "hisRecoVertexVsGenMET_",100,0,500);
+  hisRecoGenuineVertexVsGenMET_ = inputDir.make<TH1F>("hisRecoGenuineVertexVsGenMET_", "hisRecoGenuineVertexVsGenMET_",100,0,500);
+  hisRecoGenuineVertexVsGenTkMET_ = inputDir.make<TH1F>("hisRecoGenuineVertexVsGenTkMET_", "hisRecoGenuineVertexVsGenTkMET_",100,0,500);
   hisNoRecoVertices_                 = inputDir.make<TH1F>("hisNoRecoVertices_","No. reconstructed Vertices; No. reco vertices; Events",50,0,50);
-  // Plot number of reconstructed vertices against number of true vertices
   hisNoPileUpVertices_               = inputDir.make<TH1F>("hisNoPileUpVertices_","No. pile-up Vertices; No. pile-up vertices; Events",50,0,50);
   hisNoRecoVsNoTruePileUpVertices_   = inputDir.make<TH2F>("hisNoRecoVsNoTruePileUpVertices_","No. reconstructed pile-up vertices vs. no. true pile-up vertices; No. reco pile-up vertices; No. true pile-up vertices",50,0,50,50,0,50);
-  
-  // *** Vertex Reconstruction algorithm Plots ***
   hisRecoVertexZ0Resolution_         = inputDir.make<TH1F>("hisRecoVertexZ0Resolution","Reconstructed primary vertex z_{0} resolution; z_{0} Resolution [cm]; Counts", 100, 0., 1.);
-  hisUnmatchedVertexZ0distance_            = inputDir.make<TH1F>("hisUnmatchedVertexZ0distance_"," Unmatched primary vertex z_{0} - true PV z_{0}; |z_{0}^{reco} - z_{0}^{true}| [cm]; Counts", 200, 1., 5.);
-
   hisRecoVertexPTResolution_         = inputDir.make<TH1F>("hisRecoVertexPTResolution","Reconstructed primary vertex p_{T} relative resolution; p_{T} relative Resolution; Counts", 100, 0, 1.);
   hisRecoVertexPTResolutionVsTruePt_ = inputDir.make<TProfile>("hisRecoVertexPTResolutionVsTruePt","Reconstructed primary vertex relative p_{T} resolution vs. True Pt; True p_{T}; p_{T} Resolution [GeV]", 100, 0, 500);
   hisRecoVertexPTVsTruePt_ = inputDir.make<TH2F>("hisRecoVertexPtVsTruePt_","Reconstructed primary vertex p_{T}  vs. True Pt; p_{T} [GeV]; True p_{T}", 100, 0, 500.,100, 0, 500.);
@@ -84,9 +71,24 @@ void Histos::bookVertexReconstruction(){
   hisNoTracksFromPrimaryVertex_      = inputDir.make<TH2F>("hisNoTracksFromPrimaryVertex_","No. of Tracks from Primary Vertex (Reco vs. Truth); no. Reco Tracks in PV; no. Truth Tracks in PV ",50,0,50,50,0,50);
   hisNoTrueTracksFromPrimaryVertex_  = inputDir.make<TH2F>("hisNoTrueTracksFromPrimaryVertex_","No. of Matched Tracks from Primary Vertex (Reco vs. Truth); no. Reco Tracks in PV; no. Truth Tracks in PV ",50,0,50,50,0,50);
   hisRecoPrimaryVertexZ0width_       = inputDir.make<TH1F>("hisRecoPrimaryVertexZ0width_", "Reconstructed primary vertex z_{0} width", 100, 0, 0.5);
-  hisRatioMatchedTracksInPV_         = inputDir.make<TH1F>("hisRatioMatchedTracksInPV", "Primary vertex matching ratio ", 100, 0, 1.1);
-  hisFakeTracksRateInPV_             = inputDir.make<TH1F>("hisFakeTracksRateInPV", "Percentage of fake tracks in recontructed primary vertex", 100, 0, 1.1);
-  hisTrueTracksRateInPV_             = inputDir.make<TH1F>("hisTrueTracksRateInPV", "Percentage of true tracks in recontructed primary vertex", 100, 0, 1.1);
+  hisRatioMatchedTracksInPV_         = inputDir.make<TH1F>("hisRatioMatchedTracksInPV", "Primary vertex matching ratio ", 20, 0, 1.);
+  hisFakeTracksRateInPV_             = inputDir.make<TH1F>("hisFakeTracksRateInPV", "Percentage of fake tracks in reconstructed primary vertex", 20, 0, 1.);
+  hisTrueTracksRateInPV_             = inputDir.make<TH1F>("hisTrueTracksRateInPV", "Percentage of true tracks in reconstructed primary vertex", 20, 0, 1.);
+
+  hisRecoPrimaryVertexVsTrueZ0_      = inputDir.make<TH1F>("hisRecoPrimaryVertexVsTrueZ0_","No. of reconstructed primary vertices per true z_{0}; true z_{0} [cm]; No. Vertices", 50, -25.,25.);
+  hisRecoPrimaryVertexResolutionVsTrueZ0_      = inputDir.make<TProfile>("hisRecoPrimaryVertexResolutionVsTrueZ0_","No. of reconstructed primary vertices per true z_{0}; true z_{0} [cm]; Resolution [mm]", 100, -25.,25.);
+  hisRecoVertexMET_ = inputDir.make<TH1F>("hisRecoVertexMET_","; L1TrkMET (GeV) ; Entries", 50, 0, 200);
+  hisRecoVertexMETResolution_ = inputDir.make<TProfile>("hisRecoVertexResolutionMET_","; GenTrkMET (GeV) ; |L1TrkMET - GenMET|/GenMET", 50, 0, 200);
+  hisRecoVertexPT_ = inputDir.make<TH1F>("hisRecoVertexPT_","; #Sigma_{vtx} p_{T} (GeV) ; Entries", 100, 0, 500);
+  hisRecoPileUpVertexPT_ = inputDir.make<TH1F>("hisRecoPileUpVertexPT_","; #Sigma_{vtx} p_{T} (GeV) ; Entries", 50, 0, 200);
+  hisRecoVertexOffPT_ = inputDir.make<TH1F>("hisRecoVertexOffPT_","; #Sigma_{vtx} p_{T} (GeV) ; Entries", 50, 0, 200);
+  hisRecoVertexTrackRank_ = inputDir.make<TH1F>("hisRecoVertexTrackRank_","; Track Rank; Entries", 20, 0, 20);
+
+  // Plot number of reconstructed vertices against number of true vertices
+  // Plot number of reconstructed vertices against number of true vertices
+  
+  // *** Vertex Reconstruction algorithm Plots ***
+  hisUnmatchedVertexZ0distance_            = inputDir.make<TH1F>("hisUnmatchedVertexZ0distance_"," Unmatched primary vertex z_{0} - true PV z_{0}; |z_{0}^{reco} - z_{0}^{true}| [cm]; Counts", 200, 1., 5.);
   hisUnmatchZ0distance_              = inputDir.make<TH1F>("hisUnmatchZ0distance_", "z0 distance from reconstructed privary vertex of unmatched tracks; |z_{0}^{track} - z_{0}^{vertex}|; no. L1 Tracks", 100, 0, 5.);
   hisUnmatchZ0MinDistance_              = inputDir.make<TH1F>("hisUnmatchZ0MinDistance_", "z0 distance from the closest track in reconstructed privary vertex of unmatched tracks; |z_{0}^{track} - z_{0}^{PV track}|; no. L1 Tracks", 100, 0, 5.);
   hisUnmatchPt_                      = inputDir.make<TH1F>("hisUnmatchPt_", "Transverse momentum of unmatched PV tracks; p_{T} [GeV/c]; no. L1 Tracks", 100, 0, 100.);
@@ -94,17 +96,8 @@ void Histos::bookVertexReconstruction(){
   hisUnmatchTruePt_                      = inputDir.make<TH1F>("hisUnmatchTruePt_", "True transverse momentum of unmatched PV tracks; p_{T} [GeV/c]; no. L1 Tracks", 100, 0, 100.);
   hisUnmatchTrueEta_                      = inputDir.make<TH1F>("hisUnmatchTrueEta_", "True #eta of unmatched PV tracks; #eta; no. L1 Tracks", 100, 2.4, 2.4);
   hisUnmatchedPVtracks_              = inputDir.make<TH1F>("hisUnmatchedPVtracks_", " No. of tracks from primary collision that are misassigned; No. misassigned Tracks, No. Events ", 100, 0, 100);
-  hisRecoPrimaryVertexVsTrueZ0_      = inputDir.make<TH1F>("hisRecoPrimaryVertexVsTrueZ0_","No. of reconstructed primary vertices per true z_{0}; true z_{0} [cm]; No. Vertices", 50, -25.,25.);
-  hisRecoPrimaryVertexResolutionVsTrueZ0_      = inputDir.make<TProfile>("hisRecoPrimaryVertexResolutionVsTrueZ0_","No. of reconstructed primary vertices per true z_{0}; true z_{0} [cm]; Resolution [mm]", 100, -25.,25.);
-  hisRecoVertexMET_ = inputDir.make<TH1F>("hisRecoVertexMET_","; L1TrkMET (GeV) ; Entries", 50, 0, 200);
-  hisRecoVertexMETResolution_ = inputDir.make<TProfile>("hisRecoVertexResolutionMET_","; GenTrkMET (GeV) ; |L1TrkMET - GenMET|/GenMET", 50, 0, 200);
-
-  hisRecoVertexPT_ = inputDir.make<TH1F>("hisRecoVertexPT_","; #Sigma_{vtx} p_{T} (GeV) ; Entries", 100, 0, 500);
-
-
-  hisRecoPileUpVertexPT_ = inputDir.make<TH1F>("hisRecoPileUpVertexPT_","; #Sigma_{vtx} p_{T} (GeV) ; Entries", 50, 0, 200);
-  hisRecoVertexOffPT_ = inputDir.make<TH1F>("hisRecoVertexOffPT_","; #Sigma_{vtx} p_{T} (GeV) ; Entries", 50, 0, 200);
-
+  
+  
 
   // *** TDR vertex reconstruction algorithm ***
   hisTDRVertexZ0Resolution_            = inputDir.make<TH1F>("hisTDRVertexZ0Resolution","TDR Reconstructed primary vertex z_{0} resolution; z_{0} Resolution [cm]; Counts", 100, 0., 1);
@@ -117,9 +110,9 @@ void Histos::bookVertexReconstruction(){
   hisTDRNoTracksFromPrimaryVertex_     = inputDir.make<TH2F>("hisTDRNoTracksFromPrimaryVertex_","No. of Tracks from Primary Vertex (TDR vs. Truth); no. Reco Tracks in PV; no. Truth Tracks in PV ",50,0,50,50,0,50);
   hisTDRNoTrueTracksFromPrimaryVertex_ = inputDir.make<TH2F>("hisTDRNoTrueTracksFromPrimaryVertex_","No. of Matched Tracks from Primary Vertex (TDR vs. Truth); no. Reco Tracks in PV; no. Truth Tracks in PV ",50,0,50,50,0,50);
   hisTDRPrimaryVertexZ0width_          = inputDir.make<TH1F>("hisTDRPrimaryVertexZ0width_", "TDRReconstructed primary vertex z_{0} width", 100, 0, 0.5);
-  hisRatioMatchedTracksInTDRPV_         = inputDir.make<TH1F>("hisRatioMatchedTracksInTDRPV", "TDR Primary vertex matching ratio ", 100, 0, 1.1);
-  hisFakeTracksRateInTDRPV_             = inputDir.make<TH1F>("hisFakeTracksRateInTDRPV", "Percentage of fake tracks in TDR recontructed primary vertex", 100, 0, 1.1);
-  hisTrueTracksRateInTDRPV_             = inputDir.make<TH1F>("hisTrueTracksRateInTDRPV", "Percentage of true tracks in TDR recontructed primary vertex", 100, 0, 1.1);
+  hisRatioMatchedTracksInTDRPV_         = inputDir.make<TH1F>("hisRatioMatchedTracksInTDRPV", "TDR Primary vertex matching ratio ", 100, 0, 1.);
+  hisFakeTracksRateInTDRPV_             = inputDir.make<TH1F>("hisFakeTracksRateInTDRPV", "Percentage of fake tracks in TDR recontructed primary vertex", 100, 0, 1.);
+  hisTrueTracksRateInTDRPV_             = inputDir.make<TH1F>("hisTrueTracksRateInTDRPV", "Percentage of true tracks in TDR recontructed primary vertex", 100, 0, 1.);
   
   hisTDRUnmatchZ0distance_              = inputDir.make<TH1F>("hisTDRUnmatchZ0distance_", "z0 distance from TDR reconstructed privary vertex of unmatched tracks; |z_{0}^{track} - z_{0}^{vertex}|; no. L1 Tracks", 100, 0, 5.);
   hisTDRUnmatchZ0MinDistance_              = inputDir.make<TH1F>("hisTDRUnmatchZ0MinDistance_", "z0 distance from the closest track in TDR reconstructed privary vertex of unmatched tracks; |z_{0}^{track} - z_{0}^{PV track}|; no. L1 Tracks", 100, 0, 5.);
@@ -240,8 +233,11 @@ void Histos::bookVertexReconstruction(){
 void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFinder& vf){
   cout << "Input Tracks to L1 Correlator " << vf.numInputTracks() << endl;
 
+
+
   // noEvents++;
   const Vertex     TruePrimaryVertex = inputData.getPrimaryVertex();
+  // Associate true primary vertex with the closest reconstructed vertex
   const RecoVertex RecoPrimaryVertex = vf.PrimaryVertex();
   const RecoVertex TDRVertex         = vf.TDRPrimaryVertex();
 
@@ -274,13 +270,22 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
   if(settings_->debug()==7){
     cout << "** RECO VERTICES ***" << endl;
     for(RecoVertex vertex : vf.Vertices()){
-      cout << "recovertex z0 "<< vertex.z0() << " pt "<< vertex.pT() << endl;
+      cout << "recovertex z0 "<< vertex.z0() << " pt "<< vertex.pT() << " highpt " << vertex.hasHighPt() << " numtracks "<< vertex.numTracks() << " numTrueTracks "<< vertex.numTrueTracks() << endl;
     }
  
     cout << "True PrimaryVertex z0 "<< TruePrimaryVertex.z0() << " pT "<< TruePrimaryVertex.pT() << " met "<< TruePrimaryVertex.met() << endl;
-    cout << "Reco PrimaryVertex z0 "<< RecoPrimaryVertex.z0() << " pT "<< RecoPrimaryVertex.pT() << " met "<< RecoPrimaryVertex.met() << endl;
+    cout << "Reco PrimaryVertex z0 "<< RecoPrimaryVertex.z0() << " pT "<< RecoPrimaryVertex.pT() << " met "<< RecoPrimaryVertex.met() << " nTracks "<< RecoPrimaryVertex.numTracks() << endl;
     cout << "TP PrimaryVertex z0 "<< TDRVertex.z0() << " pT "<< TDRVertex.pT() << " met "<< RecoPrimaryVertex.met() << endl;
   }
+
+  unsigned int TrackRank = 0;
+  for(unsigned int id = 0; id < vf.numVertices() ; ++id){
+    if(id!=vf.PrimaryVertexId()){
+      if(vf.Vertices()[id].numTrueTracks() > RecoPrimaryVertex.numTrueTracks()) TrackRank++;
+    }
+  }
+
+  hisRecoVertexTrackRank_->Fill(TrackRank);
 
   hisCorrelatorInputTracks_->Fill(vf.numInputTracks());
   hisCorrelatorTPInputTracks_->Fill(vf.numInputTracks());
@@ -358,7 +363,6 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
       hisRecoGenuineVertexVsGenTkMET_->Fill(TruePrimaryVertex.met());
     }
 
-
     hisRecoVertexVsNumGenTracks_->Fill(TruePrimaryVertex.numTracks());
     hisRecoVertexVsGenTkVertexPtForEff_->Fill(TruePrimaryVertex.pT());
     hisRecoVertexVsGenTkVertexMETForEff_->Fill(TruePrimaryVertex.met());
@@ -410,6 +414,8 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
 
   }
   else{
+    
+
     hisRecoVertexOffPT_->Fill(RecoPrimaryVertex.pT());
     hisUnmatchedVertexZ0distance_->Fill(fabs(z0res));
     if(settings_->debug() == 7) {
@@ -426,7 +432,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
         cout << "Pile-Up track assigned to PV. Track z0: "<< l1track->z0() << " track pT "<< l1track->pt() << endl;
       } else{
           cout << "Physics Collision track assigned to PV. Track z0: "<< l1track->z0() << " track pT "<< l1track->pt() << " numstubs "<< l1track->getNumStubs();
-          cout << " (real values) id: "<< l1track->getMatchedTP()->index()<< " pT " <<  l1track->getMatchedTP()->pt() << " eta " << l1track->getMatchedTP()->eta() << " d0 "<< l1track->getMatchedTP()->d0() << " z0 "<< l1track->getMatchedTP()->z0() << " physicsCollision " << l1track->getMatchedTP()->physicsCollision() << " useForAlgEff() " << l1track->getMatchedTP()->useForAlgEff() << endl;
+          cout << " (real values) id: "<< l1track->getMatchedTP()->index()<< " pT " <<  l1track->getMatchedTP()->pt() << " eta " << l1track->getMatchedTP()->eta() << " d0 "<< l1track->getMatchedTP()->d0() << " z0 "<< l1track->getMatchedTP()->z0() << " physicsCollision " << l1track->getMatchedTP()->physicsCollision() << " useForEff() " << l1track->getMatchedTP()->useForEff() << " pdg "<< l1track->getMatchedTP()->pdgId() << " tip "<< l1track->getMatchedTP()->tip() << endl;
       }
     }
   }
@@ -522,7 +528,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
             hisUnmatchZ0MinDistance_->Fill(mindistance);
             
             if(settings_->debug()>5){
-              cout << "PV Track assigned to wrong vertex. Track z0: "<< l1track->z0() << " PV z0: "<< RecoPrimaryVertex.z0() << " tp z0 "<< tp.z0() << " track pT "<< l1track->pt() << " tp pT "<< tp.pt() << " tp d0 "<< tp.d0() << endl;
+              cout << "PV Track assigned to wrong vertex. Track z0: "<< l1track->z0() << " PV z0: "<< RecoPrimaryVertex.z0() << " tp z0 "<< tp.z0() << " track pT "<< l1track->pt() << " tp pT "<< tp.pt() << " tp d0 "<< tp.d0() << " track eta "<< l1track->eta() << endl;
             }
             break;  
           }
@@ -658,12 +664,12 @@ void Histos::endJobAnalysis() {
   cout << "PrimaryVertex Finding Efficiency = "<< recoPVeff << " +/- "<<recoPVeff_err << " Technical Proposal Algo "<< tdrPVeff << " +/- "<<tdrPVeff_err << endl;
 
   
-  cout << "================= L1TrkMET Trigger =============================" << endl;
+  // cout << "================= L1TrkMET Trigger =============================" << endl;
   for (unsigned int i = 0; i < 4; ++i){
     float genmet = 25. + i*25.;
     float met_steps = (genmet-10.)/10;
 
-    cout << "********** GenMET > " << genmet << " GeV << ************" << endl;
+    // cout << "********** GenMET > " << genmet << " GeV << ************" << endl;
     ostringstream name;
     name << "GenMET" <<genmet<<".txt";
     float sigEvents = double(noSignalEvents[i]);
@@ -676,7 +682,7 @@ void Histos::endJobAnalysis() {
 
     for (unsigned int j = 0; j < 10; ++j){
       float cutmet = 10. + j*met_steps;
-      cout << "... L1TrkMet > "<<cutmet<<" GeV ..."<< endl;
+      // cout << "... L1TrkMet > "<<cutmet<<" GeV ..."<< endl;
       float efficiency = 0.;
       float rejection = 0.;
       float efficiency_tdr = 0.;
@@ -730,8 +736,8 @@ void Histos::endJobAnalysis() {
 
       
 
-      cout << "Signal Efficiency : "<< efficiency << " +/- "<< sigma_eff << " ("<< noRecoSignalEvents[i][j]<<"/"<<noSignalEvents[i]<<") Bkg Rejection Efficiency : "<< rejection << " +/- " << sigma_rej << "("<< noRecoBackgroundEvents[i][j]<<"/"<<noBackgroundEvents[i]<< ")"<<endl;
-      cout << "TP Algo: Signal Efficiency : "<< efficiency_tdr << " +/- "<< sigma_eff_tdr <<" ("<< noTDRSignalEvents[i][j]<<"/"<<noSignalEvents[i]<<") Bkg Rejection Efficiency : "<< rejection_tdr <<" +/- " << sigma_rej_tdr << " ("<< noTDRBackgroundEvents[i][j]<<"/"<<noBackgroundEvents[i]<< ")"<<endl;
+      // cout << "Signal Efficiency : "<< efficiency << " +/- "<< sigma_eff << " ("<< noRecoSignalEvents[i][j]<<"/"<<noSignalEvents[i]<<") Bkg Rejection Efficiency : "<< rejection << " +/- " << sigma_rej << "("<< noRecoBackgroundEvents[i][j]<<"/"<<noBackgroundEvents[i]<< ")"<<endl;
+      // cout << "TP Algo: Signal Efficiency : "<< efficiency_tdr << " +/- "<< sigma_eff_tdr <<" ("<< noTDRSignalEvents[i][j]<<"/"<<noSignalEvents[i]<<") Bkg Rejection Efficiency : "<< rejection_tdr <<" +/- " << sigma_rej_tdr << " ("<< noTDRBackgroundEvents[i][j]<<"/"<<noBackgroundEvents[i]<< ")"<<endl;
 
       grMET_[i]->SetPoint(j, efficiency, rejection);
       grMET_[i]->SetPointError(j, sigma_eff, sigma_rej);

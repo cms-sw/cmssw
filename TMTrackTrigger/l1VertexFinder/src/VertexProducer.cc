@@ -158,8 +158,13 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   vf.TDRalgorithm();
   vf.SortVerticesInZ0();
-  vf.FindPrimaryVertex();
-
+  
+  if(settings_->vx_keepOnlyPV()){
+    vf.FindPrimaryVertex();
+  } else{
+    vf.AssociatePrimaryVertex(inputData.getPrimaryVertex().z0());
+  }
+  
   if(settings_->debug()==7 and vf.numVertices() > 0){
     cout << "Num Found Vertices " << vf.numVertices() << endl;
     cout << "Reconstructed Primary Vertex z0 "<<vf.PrimaryVertex().z0() << " pT "<< vf.PrimaryVertex().pT() << endl;

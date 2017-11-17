@@ -38,10 +38,12 @@ Settings::Settings(const edm::ParameterSet& iConfig) :
 
   //=== Vertex Reconstruction configuration
   vx_algoId_              (vertex_.getParameter<unsigned int>                 ( "AlgorithmId")),
-  vx_distanceType_            (vertex_.getParameter<unsigned int>                 ( "DistanceType")),
   vx_distance_            (vertex_.getParameter<double>                 ( "VertexDistance")),
-  vx_resolution_            (vertex_.getParameter<double>                 ( "VertexResolution")),
+  vx_resolution_          (vertex_.getParameter<double>                 ( "VertexResolution")),
+  vx_distanceType_        (vertex_.getParameter<unsigned int>                 ( "DistanceType")),
+  vx_keepOnlyPV_          (vertex_.getParameter<bool>                   ("KeepOnlyPV")),
   vx_minTracks_           (vertex_.getParameter<unsigned int>                 ( "MinTracks")),
+  vx_weightedmean_        (vertex_.getParameter<bool>                 ("WeightedMean")),
   vx_chi2cut_             (vertex_.getParameter<double>               ("AVR_chi2cut")),
   tdr_vx_width_           (vertex_.getParameter<double>               ("TDR_VertexWidth")),
   vx_local_               (vertex_.getParameter<bool>                 ("VertexLocal")),

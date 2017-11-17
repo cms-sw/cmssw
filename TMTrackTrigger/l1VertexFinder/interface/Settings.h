@@ -49,17 +49,21 @@ public:
   // Associate stub to TP only if the TP contributed to both its clusters? (If False, then associate even if only one cluster was made by TP).
   bool                 stubMatchStrict()         const   {return stubMatchStrict_;}
 
-  //=== Vertex Reconstruction configuration
+   //=== Vertex Reconstruction configuration
   // Vertex Reconstruction Id (0: GapClustering, 1: SimpleMergeClustering )
   unsigned int        vx_algoId()                const {return vx_algoId_;        }
   /// For Agglomerative cluster algorithm, select a definition of distance between clusters
   unsigned int        vx_distanceType()          const {return vx_distanceType_;  }
+  /// Keep only PV from hard interaction (highest pT)
+  bool                vx_keepOnlyPV()            const {return vx_keepOnlyPV_;    }
   // Assumed Vertex Distance
   float               vx_distance()              const {return vx_distance_;      }
   // Assumed Vertex Resolution
   float               vx_resolution()            const {return vx_resolution_;    }
   // Minimum number of tracks to accept vertex
   unsigned int        vx_minTracks()             const {return vx_minTracks_;     }
+  // Compute the z0 position of the vertex with a mean weighted with track momenta
+  bool                vx_weightedmean()          const {return vx_weightedmean_;     }
   /// Chi2 cut for the Adaptive Vertex Recostruction Algorithm
   float               vx_chi2cut()               const {return vx_chi2cut_;       }
   /// TDR assumed vertex width
@@ -78,6 +82,7 @@ public:
   bool                vx_inHTsector()            const {return vx_inHTsector_;}
   bool                vx_mergebytracks()         const {return vx_mergebytracks_;}
   float               vx_TrackMinPt()            const {return vx_TrackMinPt_;}
+
 
 
    //=== Debug printout
@@ -136,10 +141,12 @@ private:
 
   // Vertex Reconstruction configuration
   unsigned int         vx_algoId_;
-  unsigned int         vx_distanceType_;
   float                vx_distance_;
   float                vx_resolution_;
+  unsigned int         vx_distanceType_;
+  bool                 vx_keepOnlyPV_;
   unsigned int         vx_minTracks_;
+  bool                 vx_weightedmean_;
   float                vx_chi2cut_;
   float                tdr_vx_width_;
   bool                 vx_local_;
@@ -151,7 +158,7 @@ private:
   float                vx_dbscan_mintracks_;
   unsigned int         vx_kmeans_iterations_;
   unsigned int         vx_kmeans_nclusters_;
-
+  
   // Debug printout
   unsigned int         debug_;
 

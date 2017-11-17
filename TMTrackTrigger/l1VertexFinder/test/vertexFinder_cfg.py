@@ -22,7 +22,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 options = VarParsing.VarParsing ('analysis')
 
 #--- Specify input MC
-options.register('inputMC','ttbar_NoPU.txt', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
+options.register('inputMC','TMTrackTrigger/l1VertexFinder/Samples/DavidePhaseIIFall/Zjet/PU200_L1tracksSLR.txt', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
 
 #--- Specify number of events to process.
 options.register('Events',-1,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,"Number of Events to analyze")

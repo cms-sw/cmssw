@@ -21,7 +21,7 @@ void VertexFinder::GapClustering(){
 		iterations_++;
 		if((i+1 < fitTracks_.size() and fitTracks_[i+1]->z0()-fitTracks_[i]->z0() > settings_->vx_distance()) or i==fitTracks_.size()-1){
 			if(Vertex.numTracks() >= settings_->vx_minTracks()) {
-				Vertex.computeParameters();
+				Vertex.computeParameters(settings_->vx_weightedmean());
 				vertices_.push_back(Vertex);
 			}
 			Vertex.clear();
@@ -70,8 +70,8 @@ float VertexFinder::MeanDistance(RecoVertex cluster0, RecoVertex cluster1){
 }
 
 float VertexFinder::CentralDistance(RecoVertex cluster0, RecoVertex cluster1){
-	cluster0.computeParameters();
-	cluster1.computeParameters();
+	cluster0.computeParameters(settings_->vx_weightedmean());
+	cluster1.computeParameters(settings_->vx_weightedmean());
 
 	float distance = fabs(cluster0.z0()-cluster1.z0());
 	return distance;
@@ -119,7 +119,7 @@ void VertexFinder::AgglomerativeHierarchicalClustering(){
 
 	for(RecoVertex clust : vClusters){
 		if(clust.numTracks()>=settings_->vx_minTracks()){
-			clust.computeParameters();
+			clust.computeParameters(settings_->vx_weightedmean());
 			vertices_.push_back(clust);
 		}
 	}
@@ -135,27 +135,31 @@ void VertexFinder::DBSCAN(){
 
 	for(unsigned int i = 0; i< fitTracks_.size(); ++i){
 		if( find( visited.begin(), visited.end(), i) != visited.end() ) continue;
-
+		
 		// if(fitTracks_[i]->pt()>10.){
 			visited.push_back(i);
 			std::set<unsigned int> neighbourTrackIds;
 			unsigned int numDensityTracks = 0;
-			if(fitTracks_[i]->pt() > settings_->vx_dbscan_pt()){
-				numDensityTracks++;
-				// if(settings_->debug()==7) cout << "density track z0 "<< fitTracks_[i]->z0() << " pT "<< fitTracks_[i]->pt() << endl;
-			} else{
-				continue;
-			}
+			if(fitTracks_[i]->pt() > settings_->vx_dbscan_pt()) numDensityTracks++;
 			for(unsigned int k = 0; k < fitTracks_.size(); ++k){
 				iterations_++;
-				if(k!= i and fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < settings_->vx_distance()){ 
-					neighbourTrackIds.insert(k);
-					if(fitTracks_[k]->pt() > settings_->vx_dbscan_pt()) numDensityTracks++;
+				if(k!= i and (fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < settings_->vx_distance() or (fabs(fitTracks_[i]->eta())> 1.5 and fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < 0.5 )) ){ neighbourTrackIds.insert(k); 
+					if(fitTracks_[k]->pt() > settings_->vx_dbscan_pt()){
+						numDensityTracks++;
+						if(settings_->debug() == 7 and fitTracks_[i]->getMatchedTP()!=nullptr and fitTracks_[i]->getMatchedTP()->physicsCollision() == 0){
+							
+						}
+					}
 				}
+			}
+
+			if(settings_->debug() == 7 and fitTracks_[i]->getMatchedTP()!=nullptr and fitTracks_[i]->getMatchedTP()->physicsCollision() == 0){
+				
 			}
 
 			if(numDensityTracks < settings_->vx_dbscan_mintracks() ){
 				// mark track as noise	
+				
 			} else{
 				RecoVertex vertex;
 				vertex.insert(fitTracks_[i]);
@@ -164,28 +168,27 @@ void VertexFinder::DBSCAN(){
 					if(find( visited.begin(), visited.end(), id) == visited.end()){
 						visited.push_back(id);
 						std::vector<unsigned int> neighbourTrackIds2;
-						// cout << "neighbouring track z0 "<< fitTracks_[id]->z0() << " pT "<< fitTracks_[id]->pt() << endl;
-
 						for(unsigned int k = 0; k < fitTracks_.size(); ++k){
 							iterations_++;
-							if(fabs(fitTracks_[k]->z0()-fitTracks_[id]->z0()) < settings_->vx_distance()) {
-								neighbourTrackIds2.push_back(k);
+							if(fabs(fitTracks_[k]->z0()-fitTracks_[id]->z0()) < settings_->vx_distance() or ( fabs(fitTracks_[id]->eta())> 1.5 and fabs(fitTracks_[k]->z0()-fitTracks_[id]->z0()) < 0.5 )){
+								neighbourTrackIds2.push_back(k); 
+								if(settings_->debug() == 7 and fitTracks_[i]->getMatchedTP()!=nullptr and fitTracks_[i]->getMatchedTP()->physicsCollision() == 0){
+									
+								}
 
-								// cout << "neighbouring track 2 z0 "<< fitTracks_[k]->z0() << " pT "<< fitTracks_[k]->pt() << endl;
 							}
 						}
 
-						// if(neighbourTrackIds2.size() >= settings_->vx_minTracks()){
+						if(neighbourTrackIds2.size() >= settings_->vx_minTracks()){
 							for(unsigned int id2 : neighbourTrackIds2){
 								neighbourTrackIds.insert(id2);
 							}
-						// }
+						}
 					}				
 					if(find( saved.begin(), saved.end(), id) == saved.end()) vertex.insert(fitTracks_[id]);
 				}
-				vertex.computeParameters();
-				// cout << "vertex z0 "<< vertex.z0() << " pt "<< vertex.pT() << " numTracks "<< vertex.numTracks() << endl;
-				if(vertex.numTracks() >= settings_->vx_minTracks())	vertices_.push_back(vertex);
+				vertex.computeParameters(settings_->vx_weightedmean());
+				if(vertex.numTracks() >= settings_->vx_minTracks()) vertices_.push_back(vertex);
 			}
 		// }
 	}
@@ -243,7 +246,7 @@ void VertexFinder::PVR(){
 			for(const L1fittedTrack* track :acceptedTracks ){
 				vertex.insert(track);
 			}		
-			vertex.computeParameters();
+			vertex.computeParameters(settings_->vx_weightedmean());
 			vertices_.push_back(vertex);
 		}
 		if(settings_->debug() == 7) cout << "discardedTracks size "<< discardedTracks.size() << endl;
@@ -304,7 +307,7 @@ void VertexFinder::AdaptiveVertexReconstruction(){
 			for(const L1fittedTrack* track :acceptedTracks ){
 				vertex.insert(track);
 			}		
-			vertex.computeParameters();
+			vertex.computeParameters(settings_->vx_weightedmean());
 			vertices_.push_back(vertex);
 		}
 
@@ -333,7 +336,7 @@ void VertexFinder::HPV(){
 		}
 	}
 	
-	vertex.computeParameters();
+	vertex.computeParameters(settings_->vx_weightedmean());
 	
 	vertex.setZ(z);
 	vertices_.push_back(vertex);
@@ -386,7 +389,7 @@ void VertexFinder::Kmeans(){
 			for(const L1fittedTrack* track : vertices_[i].tracks()){
 				// cout << "track z0 "<< track->z0() << endl;
 			}
-			if(vertices_[i].numTracks() > 0) vertices_[i].computeParameters();
+			if(vertices_[i].numTracks() >= settings_->vx_minTracks() ) vertices_[i].computeParameters(settings_->vx_weightedmean());
 		}
 		iterations++;
 	}
@@ -394,19 +397,61 @@ void VertexFinder::Kmeans(){
 
 void VertexFinder::FindPrimaryVertex() {
 	double vertexPt = 0;
-	unsigned int numTracks = 0;
+	// unsigned int numTracks = 0;
+	pv_index_ = 0;
+
 	for(unsigned int i = 0; i < vertices_.size(); ++i){
-		if(vertices_[i].numTracks() > numTracks*2 and vertices_[i].numTracks() > 10){
-			vertexPt = vertices_[i].pT();
-			numTracks = vertices_[i].numTracks();
-			pv_index_ = i;
-		}
-		if(vertices_[i].pT() > vertexPt and vertices_[i].numTracks() > numTracks/3){
+		if(vertices_[i].pT() > vertexPt){
 			vertexPt = vertices_[i].pT();
 			pv_index_ = i;
-			numTracks = vertices_[i].numTracks();
+			// numTracks = vertices_[i].numTracks();
 		}
 	}
+
+	// for(unsigned int i = 0; i < vertices_.size(); ++i){
+	// 	if(vertices_[i].hasHighPt()) {
+	// 		if(!vertices_[pv_index_].hasHighPt() ){
+	// 			vertexPt = vertices_[i].pT();
+	// 			pv_index_ = i;
+	// 			numTracks = vertices_[i].numTracks();
+	// 		} else if(vertices_[i].highestPt() > vertices_[pv_index_].highestPt()){
+	// 			if(vertices_[i].numTracks() > numTracks*2 and vertices_[i].numTracks() > 10){
+	// 				vertexPt = vertices_[i].pT();
+	// 				numTracks = vertices_[i].numTracks();
+	// 				pv_index_ = i;
+	// 			}
+	// 			if(vertices_[i].pT() > vertexPt and vertices_[i].numTracks() > numTracks/3){
+	// 				vertexPt = vertices_[i].pT();
+	// 				pv_index_ = i;
+	// 				numTracks = vertices_[i].numTracks();
+	// 			}
+	// 		}
+	// 	} else{
+	// 		if(vertices_[i].numTracks() > numTracks*2 and vertices_[i].numTracks() > 10 and !vertices_[pv_index_].hasHighPt()){
+	// 			vertexPt = vertices_[i].pT();
+	// 			numTracks = vertices_[i].numTracks();
+	// 			pv_index_ = i;
+	// 		}
+	// 		if(vertices_[i].pT() > vertexPt and vertices_[i].numTracks() > numTracks/3 and !vertices_[pv_index_].hasHighPt()){
+	// 			vertexPt = vertices_[i].pT();
+	// 			pv_index_ = i;
+	// 			numTracks = vertices_[i].numTracks();
+	// 		}
+	// 	}
+	// }
+
+	// cout << "Vertex id " << pv_index_ << " is primary" << endl;
+}
+
+void VertexFinder::AssociatePrimaryVertex(double trueZ0){
+	
+	double distance = 999.;
+	for(unsigned int id = 0; id < vertices_.size(); ++id){
+		if( fabs(trueZ0 - vertices_[id].z0()) < distance){
+			distance = fabs(trueZ0 - vertices_[id].z0());
+			pv_index_ = id;
+		}
+	}	
 }
 
 
@@ -425,7 +470,7 @@ void VertexFinder::TDRalgorithm(){
 				tracks.push_back(track);
 			}
 		}
-		vertex.computeParameters();
+		vertex.computeParameters(settings_->vx_weightedmean());
 		// cout << "TDR pt "<< vertex.pT() << endl;
         vertex.setZ(z);
 		if(vertex.pT() > vxPt){
