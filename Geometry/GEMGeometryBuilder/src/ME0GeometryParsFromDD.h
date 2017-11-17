@@ -30,9 +30,9 @@ class ME0GeometryParsFromDD
   void buildLayer(DDFilteredView& fv, ME0DetId detId, RecoIdealGeometry& rgeo);
   void buildEtaPartition(DDFilteredView& fv, ME0DetId detId, RecoIdealGeometry& rgeo);
 
+  std::vector<double> getDimension(DDFilteredView& fv);
   std::vector<double> getTranslation(DDFilteredView& fv);
   std::vector<double> getRotation(DDFilteredView& fv);
   
 };
-
 #endif

@@ -34,18 +34,18 @@ ME0GeometryParsFromDD::buildGeometry(DDFilteredView& fv,
   LogDebug("ME0GeometryParsFromDD") << "About to run through the ME0 structure\n" 
 				    <<" First logical part "
 				    <<fv.logicalPart().name().name(); 
+
+  MuonDDDNumbering muonDDDNumbering(muonConstants);
+  ME0NumberingScheme me0Numbering(muonConstants);
   
   bool doChambers = fv.firstChild();
-  LogDebug("ME0GeometryParsFromDD") << "doSuperChamber = " << doChambers;
+  LogDebug("ME0GeometryParsFromDD") << "doChamber = " << doChambers;
   // loop over superchambers
   while (doChambers){
 
     // getting chamber id from eta partitions
     fv.firstChild();fv.firstChild();
-    MuonDDDNumbering mdddnumCh(muonConstants);
-    ME0NumberingScheme me0NumCh(muonConstants);
-    int rawidCh = me0NumCh.baseNumberToUnitNumber(mdddnumCh.geoHistoryToBaseNumber(fv.geoHistory()));
-    ME0DetId detIdCh = ME0DetId(rawidCh);
+    ME0DetId detIdCh = ME0DetId(me0Numbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
     // back to chambers
     fv.parent();fv.parent();
 
@@ -55,16 +55,11 @@ ME0GeometryParsFromDD::buildGeometry(DDFilteredView& fv,
     // only 1 chamber
     bool doLayers = fv.firstChild();
     while (doLayers){
-      
 
+      // get layer ID
       fv.firstChild();
-      MuonDDDNumbering mdddnum(muonConstants);
-      ME0NumberingScheme me0Num(muonConstants);
-      int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
-      ME0DetId detId = ME0DetId(rawId);
-      ME0DetId detIdLa = detId.layerId();
+      ME0DetId detIdLa = ME0DetId(me0Numbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
       fv.parent();
-
       // build layer
       buildLayer(fv, detIdLa, rgeo);
       
@@ -72,11 +67,7 @@ ME0GeometryParsFromDD::buildGeometry(DDFilteredView& fv,
       bool doEtaPart = fv.firstChild();
       while (doEtaPart){
 
-	MuonDDDNumbering mdddnum(muonConstants);
-	ME0NumberingScheme me0Num(muonConstants);
-	int rawid = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
-	ME0DetId detId = ME0DetId(rawid);
-
+	ME0DetId detId = ME0DetId(me0Numbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
 	buildEtaPartition(fv, detId, rgeo);
 	
 	doEtaPart = fv.nextSibling();
@@ -94,27 +85,12 @@ ME0GeometryParsFromDD::buildChamber(DDFilteredView& fv, ME0DetId detId, RecoIdea
 {
   LogDebug("ME0GeometryParsFromDD") << "buildChamber "<<fv.logicalPart().name().name()
 				    <<" "<< detId <<std::endl;
-  
-  DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
-  std::vector<double> dpar = solid.parameters(); 
-  
-  double dy = dpar[0]/cm;//length is along local Y
-  double dz = dpar[3]/cm;// thickness is long local Z
-  double dx1= dpar[4]/cm;// bottom width is along local X
-  double dx2= dpar[8]/cm;// top width is along local X
-  //dpar = solid.solidB().parameters();
-  //dz += dpar[3]/cm;// chamber thickness
 
-  ME0DetId me0id = detId.chamberId();
-  std::string name = fv.logicalPart().name().name();
-  std::vector<std::string> strpars{name};
-
-  
-  std::vector<double> pars{dx1, dx2, dy, dz};
+  std::vector<double> pars = getDimension(fv);
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
 
-  rgeo.insert(me0id.rawId(), vtra, vrot, pars, strpars);
+  rgeo.insert(detId.chamberId().rawId(), vtra, vrot, pars, {fv.logicalPart().name().name()});
 }
 
 void
@@ -122,27 +98,12 @@ ME0GeometryParsFromDD::buildLayer(DDFilteredView& fv, ME0DetId detId, RecoIdealG
 {
   LogDebug("ME0GeometryParsFromDD") << "buildLayer "<<fv.logicalPart().name().name()
 				    <<" "<< detId <<std::endl;
-  
-  DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
-  std::vector<double> dpar = solid.parameters(); 
-  
-  double dy = dpar[0]/cm;//length is along local Y
-  double dz = dpar[3]/cm;// thickness is long local Z
-  double dx1= dpar[4]/cm;// bottom width is along local X
-  double dx2= dpar[8]/cm;// top width is along local X
-  //dpar = solid.solidB().parameters();
-  //dz += dpar[3]/cm;// chamber thickness
 
-  ME0DetId me0id = detId.chamberId();
-  std::string name = fv.logicalPart().name().name();
-  std::vector<std::string> strpars{name};
-
-  
-  std::vector<double> pars{dx1, dx2, dy, dz};
+  std::vector<double> pars = getDimension(fv);
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
 
-  rgeo.insert(me0id.rawId(), vtra, vrot, pars, strpars);
+  rgeo.insert(detId.layerId().rawId(), vtra, vrot, pars, {fv.logicalPart().name().name()});
 }
 
 void
@@ -165,23 +126,25 @@ ME0GeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, ME0DetId detId, Rec
     << ((nStrips == 0. ) ? ("No nStrips found!!") : ("Number of strips: " + std::to_string(nStrips))); 
   LogDebug("ME0GeometryParsFromDD") 
     << ((nPads == 0. ) ? ("No nPads found!!") : ("Number of pads: " + std::to_string(nPads)));
-  
-  // EtaPartition specific parameter (size) 
-  std::vector<double> dpar = fv.logicalPart().solid().parameters();
-
-  double dy = dpar[0]/cm;//length is along local Y
-  double dz = dpar[3]/cm;// thickness is long local Z
-  double dx1= dpar[4]/cm;// bottom width is along local X
-  double dx2= dpar[8]/cm;// top width is along local X
-
-  std::string name = fv.logicalPart().name().name();
-  std::vector<std::string> strpars{name};
-  
-  std::vector<double> pars{dx1, dx2, dy, dz, nStrips, nPads};
+    
+  std::vector<double> pars = getDimension(fv);
+  pars.emplace_back(nStrips);
+  pars.emplace_back(nPads);  
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
 
-  rgeo.insert(detId.rawId(), vtra, vrot, pars, strpars);
+  rgeo.insert(detId.rawId(), vtra, vrot, pars, {fv.logicalPart().name().name()});
+}
+
+std::vector<double> ME0GeometryParsFromDD::getDimension(DDFilteredView& fv)
+{
+  std::vector<double> dpar = fv.logicalPart().solid().parameters();
+  //dpar[4] bottom width is along local X
+  //dpar[8] top width is along local X
+  //dpar[3] thickness is long local Z
+  //dpar[0] length is along local Y
+  LogDebug("ME0GeometryParsFromDD") << "dimension dx1 "<< dpar[4] << ", dx2 "<< dpar[8] << ", dy "<< dpar[0] << ", dz "<< dpar[3];  
+  return {dpar[4], dpar[8], dpar[0], dpar[3]};
 }
 
 std::vector<double> ME0GeometryParsFromDD::getTranslation(DDFilteredView& fv)
@@ -196,6 +159,6 @@ std::vector<double> ME0GeometryParsFromDD::getRotation(DDFilteredView& fv)
   DD3Vector x, y, z;
   rota.GetComponents(x,y,z);
   return { x.X(), x.Y(), x.Z(),
-           y.X(), y.Y(), y.Z(),
-	   z.X(), z.Y(), z.Z() };
+      y.X(), y.Y(), y.Z(),
+      z.X(), z.Y(), z.Z() };
 }

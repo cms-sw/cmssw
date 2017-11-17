@@ -50,6 +50,9 @@ GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
   LogDebug("GEMGeometryParsFromDD") << "About to run through the GEM structure\n" 
 				    <<" First logical part "
 				    <<fv.logicalPart().name().name(); 
+
+  MuonDDDNumbering muonDDDNumbering(muonConstants);
+  GEMNumberingScheme gemNumbering(muonConstants);
   
   bool doSuper = fv.firstChild();
   LogDebug("GEMGeometryParsFromDD") << "doSuperChamber = " << doSuper;
@@ -58,10 +61,7 @@ GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
 
     // getting chamber id from eta partitions
     fv.firstChild();fv.firstChild();
-    MuonDDDNumbering mdddnumCh(muonConstants);
-    GEMNumberingScheme gemNumCh(muonConstants);
-    int rawidCh = gemNumCh.baseNumberToUnitNumber(mdddnumCh.geoHistoryToBaseNumber(fv.geoHistory()));
-    GEMDetId detIdCh = GEMDetId(rawidCh);
+    GEMDetId detIdCh = GEMDetId(gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
     // back to chambers
     fv.parent();fv.parent();
 
@@ -82,11 +82,7 @@ GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
       bool doEtaPart = fv.firstChild();
       while (doEtaPart){
 
-	MuonDDDNumbering mdddnum(muonConstants);
-	GEMNumberingScheme gemNum(muonConstants);
-	int rawid = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
-	GEMDetId detId = GEMDetId(rawid);
-
+	GEMDetId detId = GEMDetId(gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
 	buildEtaPartition(fv, detId, rgeo);
 	
 	doEtaPart = fv.nextSibling();
@@ -118,14 +114,13 @@ GEMGeometryParsFromDD::buildSuperChamber(DDFilteredView& fv, GEMDetId detId, Rec
   dz += 2.105;// gap between chambers
 
   GEMDetId gemid = detId.superChamberId();
-  std::string name = fv.logicalPart().name().name();
-  std::vector<std::string> strpars{name};
   
   std::vector<double> pars{dx1, dx2, dy, dz};
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
-  
-  rgeo.insert(gemid.rawId(), vtra, vrot, pars, strpars);
+
+  LogDebug("GEMGeometryParsFromDD") << "dimension dx1 "<< dx1 << ", dx2 "<< dx2 << ", dy "<< dy << ", dz "<< dz;  
+  rgeo.insert(gemid.rawId(), vtra, vrot, pars, {fv.logicalPart().name().name()});
 }
 
 void
@@ -145,14 +140,13 @@ GEMGeometryParsFromDD::buildChamber(DDFilteredView& fv, GEMDetId detId, RecoIdea
   dz += dpar[3]/cm;// chamber thickness
 
   GEMDetId gemid = detId.chamberId();
-  std::string name = fv.logicalPart().name().name();
-  std::vector<std::string> strpars{name};
 
   std::vector<double> pars{dx1, dx2, dy, dz};
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
   
-  rgeo.insert(gemid.rawId(), vtra, vrot, pars, strpars);
+  LogDebug("GEMGeometryParsFromDD") << "dimension dx1 "<< dx1 << ", dx2 "<< dx2 << ", dy "<< dy << ", dz "<< dz;
+  rgeo.insert(gemid.rawId(), vtra, vrot, pars, {fv.logicalPart().name().name()});
 }
 
 void
@@ -180,18 +174,16 @@ GEMGeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, GEMDetId detId, Rec
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
 
   double dy = dpar[0]/cm;//length is along local Y
-  double dz = 0.4/cm;// thickness is long local Z
+  double dz = dpar[3]/cm;//0.4/cm;// thickness is long local Z
   double dx1= dpar[4]/cm;// bottom width is along local X
   double dx2= dpar[8]/cm;// top width is along local X
-
-  std::string name = fv.logicalPart().name().name();
-  std::vector<std::string> strpars{name};
 
   std::vector<double> pars{dx1, dx2, dy, dz, nStrips, nPads};
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
   
-  rgeo.insert(detId.rawId(), vtra, vrot, pars, strpars);
+  LogDebug("GEMGeometryParsFromDD") << "dimension dx1 "<< dx1 << ", dx2 "<< dx2 << ", dy "<< dy << ", dz "<< dz;
+  rgeo.insert(detId.rawId(), vtra, vrot, pars, {fv.logicalPart().name().name()});
 }
 
 std::vector<double> GEMGeometryParsFromDD::getTranslation(DDFilteredView& fv)
