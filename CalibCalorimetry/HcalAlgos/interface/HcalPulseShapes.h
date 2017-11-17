@@ -76,9 +76,10 @@ private:
   void computeSiPMShapeHE203();
   void computeSiPMShapeHE206();
   void computeSiPMShapeData2017();
+  void computeSiPMShapeData2018();
   Shape hpdShape_, hfShape_, siPMShapeHO_;
   Shape siPMShapeMC2017_, siPMShapeData2017_;
-  Shape siPMShapeMC2018_;
+  Shape siPMShapeMC2018_, siPMShapeData2018_;
   Shape hpdShape_v2, hpdShapeMC_v2;
   Shape hpdShape_v3, hpdShapeMC_v3;
   Shape hpdBV30Shape_v2, hpdBV30ShapeMC_v2;

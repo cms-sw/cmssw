@@ -18,7 +18,7 @@ class HcalDeterministicFit {
   HcalDeterministicFit();
   ~HcalDeterministicFit();
 
-  enum FType {shape205, shape206, shapeLandau};
+  enum FType {shapeLandau, shape205, shape206, shape207};
   void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr);
 
   void phase1Apply(const HBHEChannelInfo& channelData,
@@ -29,6 +29,7 @@ class HcalDeterministicFit {
   void getLandauFrac(float tStart, float tEnd, float &sum) const;
   void get205Frac(float tStart, float tEnd, float &sum) const;
   void get206Frac(float tStart, float tEnd, float &sum) const;
+  void get207Frac(float tStart, float tEnd, float &sum) const;
   void getFrac(float,float,float&,FType) const;
 
  private:
@@ -91,6 +92,123 @@ class HcalDeterministicFit {
     0.0218199, 0.0211214, 0.0204587, 0.0198294,   0.0192313,  0.0186626, 0.0181214, 0.0176059, 0.0171146, 0.016646, 
     0.0161986, 0.0157713, 0.0153627, 0.0149719,   0.0145977,  0.0142393, 0.0138956, 0.0135659, 0.0132493, 0.0129451,   
     0.0126528, 0.0123715, 0.0121007, 0.0118399,   0.0115885};
+
+  static constexpr float siPM207Frac[125] = {
+    8.79768e-07, 1.0741e-05, 7.99305e-05, 0.000401863, 0.00148019, 0.00425688, 
+    0.0100505, 0.0202671, 0.0360159, 0.0578184, 0.0855186, 0.118382, 0.155299, 0.195005, 0.236264, 0.277979, 
+    0.319254, 0.359407, 0.397953, 0.434579, 0.469106, 0.50146, 0.531646, 0.559717, 0.585765, 0.609901, 
+    0.632248, 0.652923, 0.672002, 0.689414, 0.70477, 0.717237, 0.725596, 0.728535, 0.725028, 0.714632, 
+    0.697574, 0.674653, 0.647036, 0.616039, 0.58295, 0.548907, 0.514845, 0.481483, 0.449338, 0.418754, 
+    0.389935, 0.36298, 0.337908, 0.314684, 0.293236, 0.27347, 0.255279, 0.23855, 0.22317, 0.209031, 
+    0.196027, 0.184061, 0.173041, 0.162884, 0.153513, 0.144857, 0.136854, 0.129445, 0.122577, 0.116205, 
+    0.110283, 0.104775, 0.0996449, 0.0948609, 0.0903944, 0.0862196, 0.0823128, 0.0786528, 0.0752202, 0.0719973, 
+    0.0689682, 0.0661182, 0.0634341, 0.0609038, 0.058516, 0.0562608, 0.0541287, 0.0521113, 0.0502007, 0.0483898, 
+    0.046672, 0.0450411, 0.0434916, 0.0420183, 0.0406164, 0.0392815, 0.0380094, 0.0367964, 0.035639, 0.0345339, 
+    0.0334781, 0.0324687, 0.0315032, 0.030579, 0.0296939, 0.0288458, 0.0280326, 0.0272526, 0.0265039, 0.025785, 
+    0.0250943, 0.0244304, 0.0237919, 0.0231777, 0.0225864, 0.022017, 0.0214684, 0.0209397, 0.0204298, 0.0199381, 
+    0.0194635, 0.0190053, 0.0185629, 0.0181354, 0.0177223, 0.0173229, 0.0169366, 0.0165628, 0.0162011};
+  
+};
+
+template<class Digi>
+void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, double & reconstructedEnergy, float & reconstructedTime) const {
+  std::vector<double> corrCharge;
+  std::vector<double> inputCharge;
+  std::vector<double> inputPedestal;
+  double gainCorr = 0;
+  double respCorr = 0;
+
+  for(int ip=0; ip<cs.size(); ip++){
+    const int capid = capidvec[ip];
+    double charge = cs[ip];
+    double ped = calibs.pedestal(capid);
+    double gain = calibs.respcorrgain(capid);
+    gainCorr = gain;
+    inputCharge.push_back(charge);
+    inputPedestal.push_back(ped);
+  }
+
+  fPedestalSubFxn_.calculate(inputCharge, inputPedestal, corrCharge);
+
+  const HcalDetId& cell = digi.id();
+  double fpar0, fpar1, fpar2;
+  if(std::abs(cell.ieta())<HcalRegion[0]){
+    fpar0 = fpars[0];
+    fpar1 = fpars[1];
+    fpar2 = fpars[2];
+  }else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]){
+    fpar0 = fpars[3];
+    fpar1 = fpars[4];
+    fpar2 = fpars[5];
+  }else{
+    fpar0 = fpars[6];
+    fpar1 = fpars[7];
+    fpar2 = fpars[8];
+  }
+
+  if (fTimeSlew==0)respCorr=1.0;
+  else if (fTimeSlew==1)respCorr=rCorr[0];
+  else if (fTimeSlew==2)respCorr=rCorr[1];
+  else if (fTimeSlew==3)respCorr=frespCorr;
+
+  float tsShift3=HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift4=HcalTimeSlew::delay(inputCharge[4], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift5=HcalTimeSlew::delay(inputCharge[5], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+
+  float i3=0;
+  getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
+  float n3=0;
+  getLandauFrac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
+  float nn3=0;
+  getLandauFrac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
+
+  float i4=0;
+  getLandauFrac(-tsShift4,-tsShift4+tsWidth,i4);
+  float n4=0;
+  getLandauFrac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
+
+  float i5=0;
+  getLandauFrac(-tsShift5,-tsShift5+tsWidth,i5);
+  float n5=0;
+  getLandauFrac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
+
+  float ch3=0;
+  float ch4=0;
+  float ch5=0;
+
+  if (i3 != 0 && i4 != 0 && i5 != 0) {
+
+    ch3=corrCharge[3]/i3;
+    ch4=(i3*corrCharge[4]-n3*corrCharge[3])/(i3*i4);
+    ch5=(n3*n4*corrCharge[3]-i4*nn3*corrCharge[3]-i3*n4*corrCharge[4]+i3*i4*corrCharge[5])/(i3*i4*i5);
+
+    if (ch3<negThresh[0]) {
+      ch3=negThresh[0];
+      ch4=corrCharge[4]/i4;
+      ch5=(i4*corrCharge[5]-n4*corrCharge[4])/(i4*i5);
+    }
+    if (ch5<negThresh[0] && ch4>negThresh[1]) {
+      double ratio = (corrCharge[4]-ch3*i3)/(corrCharge[5]-negThresh[0]*i5);
+      if (ratio < 5 && ratio > 0.5) {
+        double invG = invGpar[0]+invGpar[1]*std::sqrt(2*std::log(invGpar[2]/ratio));
+        float iG=0;
+        getLandauFrac(-invG,-invG+tsWidth,iG);
+        if (iG != 0 ) {
+	  ch4=(corrCharge[4]-ch3*n3)/(iG);
+	  tsShift4=invG;
+	}
+      }
+    }
+  }
+
+  if (ch4<1) {
+    ch4=0;
+  }
+
+  double ampl=ch4*gainCorr*respCorr;
+  reconstructedEnergy=ampl;
+  reconstructedTime=tsShift4;
+}
 
 };
 
