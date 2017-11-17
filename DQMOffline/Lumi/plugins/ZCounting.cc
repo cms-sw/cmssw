@@ -519,9 +519,7 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(fConversionToken, conversionsHandle);
   EleID_.setConversions(conversionsHandle);
 
-  TLorentzVector vTag(0.,0.,0.,0.);
-  TLorentzVector vProbe(0.,0.,0.,0.);
-  TLorentzVector vDilep(0.,0.,0.,0.);
+
   edm::Ptr<reco::GsfElectron> eleProbe;
   enum { eEleEle2HLT=1, eEleEle1HLT1L1, eEleEle1HLT, eEleEleNoSel, eEleSC };  // event category enum
 
@@ -535,6 +533,7 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
     float phi1 = el1->phi();
 
     if(!isElectronTriggerObj(*fTrigger, TriggerTools::matchHLT(eta1, phi1, fTrigger->fRecords, *hTrgEvt))) continue;
+    TLorentzVector vTag(0.,0.,0.,0.);
     vTag.SetPtEtaPhiM(pt1, eta1, phi1, ELECTRON_MASS);
 
 
@@ -566,6 +565,7 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
       }
 
       // Assign final probe 4-vector
+      TLorentzVector vProbe(0.,0.,0.,0.);
       if(eleProbe.isNonnull()){
         vProbe.SetPtEtaPhiM( eleProbe->pt(), eleProbe->eta(), eleProbe->phi(), ELECTRON_MASS);
       } else {
@@ -582,7 +582,7 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
       // Good Probe found!
 
       // Require good Z
-      vDilep = vTag + vProbe;
+      TLorentzVector vDilep = vTag + vProbe;
       float MASS_LOW = 80.0;
       float MASS_HIGH = 100.0;
       if((vDilep.M()<MASS_LOW) || (vDilep.M()>MASS_HIGH)) continue;
