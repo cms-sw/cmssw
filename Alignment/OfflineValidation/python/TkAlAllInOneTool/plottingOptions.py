@@ -10,6 +10,7 @@ from .genericValidation import ValidationMetaClass, ValidationWithComparison, Va
 from .helperFunctions import getCommandOutput2, replaceByMap, cppboolstring
 from .offlineValidation import OfflineValidation
 from .primaryVertexValidation import PrimaryVertexValidation
+from .primaryVertexResolution import PrimaryVertexResolution
 from .TkAlExceptions import AllInOneError
 from .trackSplittingValidation import TrackSplittingValidation
 from .zMuMuValidation import ZMuMuValidation
@@ -230,6 +231,12 @@ class PlottingOptionsOverlap(BasePlottingOptions):
     def __init__(self, config):
         super(PlottingOptionsOverlap, self).__init__(config, "overlap")
 
+class PlottingOptionsPVResolution(BasePlottingOptions):
+    defaults = {}
+    validationclass = PrimaryVertexResolution
+    def __init__(self, config):
+        super(PlottingOptionsPVResolution, self).__init__(config, "pvresolution")
+
 def PlottingOptions(config, valType):
     plottingOptionsClasses = {
                               "offline": PlottingOptionsOffline,
@@ -237,6 +244,7 @@ def PlottingOptions(config, valType):
                               "zmumu": PlottingOptionsZMuMu,
                               "primaryvertex": PlottingOptionsPrimaryVertex,
                               "overlap": PlottingOptionsOverlap
+                              "pvresolution": PlottingOptionsPVResolution,
                              }
     if isinstance(valType, type):
         valType = valType.valType

@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from .alternateValidationTemplates import *
 from .offlineValidationTemplates import *
 from .primaryVertexValidationTemplates import *
+from .primaryVertexResolutionTemplates import *
 from .geometryComparisonTemplates import *
 from .monteCarloValidationTemplates import *
 from .trackSplittingValidationTemplates import *

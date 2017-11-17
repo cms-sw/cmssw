@@ -42,6 +42,8 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation \
     import ZMuMuValidation
 from Alignment.OfflineValidation.TkAlAllInOneTool.primaryVertexValidation \
     import PrimaryVertexValidation
+from Alignment.OfflineValidation.TkAlAllInOneTool.primaryVertexResolution \
+    import PrimaryVertexResolution
 from Alignment.OfflineValidation.TkAlAllInOneTool.preexistingValidation \
     import *
 from Alignment.OfflineValidation.TkAlAllInOneTool.plottingOptions \
@@ -194,6 +196,9 @@ class ValidationJob(ValidationBase):
             validation = PreexistingPrimaryVertexValidation(name, self.__config)
         elif valType == "overlap":
             validation = OverlapValidation( name,
+                Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "pvresolution":
+            validation = PrimaryVertexResolution( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
             raise AllInOneError("Unknown validation mode '%s'"%valType)
