@@ -35,6 +35,7 @@ class GEMGeometryParsFromDD
   void buildGeometry(DDFilteredView& fview, 
 		     const MuonDDDConstants& muonConstants,
 		     RecoIdealGeometry& rgeo);
+  
   void buildSuperChamber(DDFilteredView& fv, GEMDetId detId, RecoIdealGeometry& rgeo);
   void buildChamber(DDFilteredView& fv, GEMDetId detId, RecoIdealGeometry& rgeo);
   void buildEtaPartition(DDFilteredView& fv, GEMDetId detId, RecoIdealGeometry& rgeo);
@@ -43,5 +44,4 @@ class GEMGeometryParsFromDD
   std::vector<double> getRotation(DDFilteredView& fv);
 
 };
-
 #endif
