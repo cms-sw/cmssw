@@ -4,6 +4,7 @@
 #include <cmath>
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 class HGCalShowerShape{
 
@@ -19,7 +20,7 @@ class HGCalShowerShape{
     int maxLayer(const l1t::HGCalMulticluster& c3d) const;
     int showerLength(const l1t::HGCalMulticluster& c3d) const {return lastLayer(c3d)-firstLayer(c3d)+1; }//in number of layers
     // Maximum number of consecutive layers in the cluster
-    int coreShowerLength(const l1t::HGCalMulticluster& c3d) const;
+    int coreShowerLength(const l1t::HGCalMulticluster& c3d, const HGCalTriggerGeometryBase& triggerGeometry) const;
   
     float eMax(const l1t::HGCalMulticluster& c3d) const;  
   

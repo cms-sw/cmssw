@@ -187,10 +187,10 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     /* call to multiclustering and compute shower shape*/
     switch(multiclusteringAlgoType_){
     case dRC3d : 
-      multiclustering_.clusterizeDR( clustersPtrs, *multicluster_product_ );
+      multiclustering_.clusterizeDR( clustersPtrs, *multicluster_product_, *triggerGeometry_);
       break;
     case DBSCANC3d:
-      multiclustering_.clusterizeDBSCAN( clustersPtrs, *multicluster_product_ );
+      multiclustering_.clusterizeDBSCAN( clustersPtrs, *multicluster_product_, *triggerGeometry_);
       break;
     default:
       // Should not happen, clustering type checked in constructor

@@ -73,7 +73,8 @@ void HGCalMulticlusteringImpl::findNeighbor( const std::vector<std::pair<unsigne
 
 
 void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
-                                           l1t::HGCalMulticlusterBxCollection & multiclusters)
+                                           l1t::HGCalMulticlusterBxCollection & multiclusters,
+                                           const HGCalTriggerGeometryBase & triggerGeometry)
 {
 
     std::vector<l1t::HGCalMulticluster> multiclustersTmp;
@@ -145,7 +146,7 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
 
             //compute shower shape
             multiclustersTmp.at(i).set_showerLength(shape_.showerLength(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).set_coreShowerLength(shape_.coreShowerLength(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).set_coreShowerLength(shape_.coreShowerLength(multiclustersTmp.at(i), triggerGeometry));
             multiclustersTmp.at(i).set_firstLayer(shape_.firstLayer(multiclustersTmp.at(i)));
             multiclustersTmp.at(i).set_maxLayer(shape_.maxLayer(multiclustersTmp.at(i)));
             multiclustersTmp.at(i).set_sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multiclustersTmp.at(i)));
@@ -157,13 +158,15 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
             multiclustersTmp.at(i).set_sigmaRRMax(shape_.sigmaRRMax(multiclustersTmp.at(i)));
             multiclustersTmp.at(i).set_sigmaRRMean(shape_.sigmaRRMean(multiclustersTmp.at(i)));
             multiclustersTmp.at(i).set_eMax(shape_.eMax(multiclustersTmp.at(i)));
+
             multiclusters.push_back( 0, multiclustersTmp.at(i));  
         }
     }
     
 }
 void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
-                                                 l1t::HGCalMulticlusterBxCollection & multiclusters)
+                                                 l1t::HGCalMulticlusterBxCollection & multiclusters,
+                                                 const HGCalTriggerGeometryBase & triggerGeometry)
 {
 
   std::vector<l1t::HGCalMulticluster> multiclustersTmp;
