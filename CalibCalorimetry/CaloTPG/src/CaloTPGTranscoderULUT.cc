@@ -106,7 +106,6 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
                  if (outputLUT_[index][i] != tpg){
                     unsigned int mid = (low + i)/2; 
                     hcaluncomp_[index][tpg] = (tpg == 0 ? low : factor * mid);
-                    std::cout << "UNCOMP " << int(tpg) << " -> " << hcaluncomp_[index][tpg] << std::endl;
                     low = i;
                     tpg = outputLUT_[index][i];
                  }
