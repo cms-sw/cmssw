@@ -36,6 +36,7 @@ PATTauGenericProducer<TauType>::PATTauGenericProducer(const edm::ParameterSet & 
   isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false) ,
   useUserData_(iConfig.exists("userData"))
 {
+  firstOccurence_=true;
   // initialize the configurables
   baseTauToken_ = consumes<edm::View<reco::BaseTau> >(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   tauTransverseImpactParameterSrc_ = iConfig.getParameter<edm::InputTag>( "tauTransverseImpactParameterSource" );
@@ -312,6 +313,7 @@ void PATTauGenericProducer<TauType>::produce(edm::Event & iEvent, const edm::Eve
 
     // prepare ID extraction
     if ( addTauID_ ) {
+      std::string missingDiscriminators;
       std::vector<pat::Tau::IdPair> ids(tauIDSrcs_.size());
       for ( size_t i = 0; i < tauIDSrcs_.size(); ++i ) {
 	if ( typeid(*tausRef) == typeid(TauType) ) {
@@ -323,8 +325,10 @@ void PATTauGenericProducer<TauType>::produce(edm::Event & iEvent, const edm::Eve
 	  iEvent.getByToken(pfTauIDTokens_[i], pfTauIdDiscr);
 
 	  if(skipMissingTauID_ && !pfTauIdDiscr.isValid()){
-	    edm::LogWarning("DataSource") << "Tau discriminator '" << tauIDSrcs_[i].first
-					  << "' has not been found in the event. It will not be embedded into the pat::Tau object.";
+	    if(!missingDiscriminators.empty()){
+	      missingDiscriminators+=", ";
+	    }
+	    missingDiscriminators+=tauIDSrcs_[i].first;
 	    continue;
 	  }
 	  ids[i].first = tauIDSrcs_[i].first;
@@ -338,8 +342,10 @@ void PATTauGenericProducer<TauType>::produce(edm::Event & iEvent, const edm::Eve
 	  iEvent.getByToken(caloTauIDTokens_[i], caloTauIdDiscr);
 
 	  if(skipMissingTauID_ && !caloTauIdDiscr.isValid()){
-	    edm::LogWarning("DataSource") << "Tau discriminator '" << tauIDSrcs_[i].first
-					  << "' has not been found in the event. It will not be embedded into the pat::Tau object.";
+	    if(!missingDiscriminators.empty()){
+	      missingDiscriminators+=", ";
+	    }
+	    missingDiscriminators+=tauIDSrcs_[i].first;
 	    continue;
 	  }
 	  ids[i].first = tauIDSrcs_[i].first;
@@ -349,7 +355,13 @@ void PATTauGenericProducer<TauType>::produce(edm::Event & iEvent, const edm::Eve
 	    "PATTauGenericProducer: unsupported datatype '" << typeid(*tausRef).name() << "' for tauSource\n";
 	}
       }
-
+      if(!missingDiscriminators.empty() && firstOccurence_){
+	edm::LogWarning("DataSource") << "The following tau discriminators have not been found in the event:\n"
+				      << missingDiscriminators <<"\n"
+				      << "They will not be embedded into the pat::Tau object.\n"
+				      << "Note: this message will be printed only at first occurence.";
+	firstOccurence_=false;
+      }
       aTau.setTauIDs(ids);
     }
 

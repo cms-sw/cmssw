@@ -55,7 +55,8 @@ namespace pat {
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
-      
+      bool firstOccurence_; // used to print LogWarnings only at first occurnece in the event loop
+
       // configurables
       edm::EDGetTokenT<edm::View<reco::BaseTau> > baseTauToken_;
       edm::EDGetTokenT<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> >> tauTransverseImpactParameterToken_;
