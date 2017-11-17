@@ -12,5 +12,4 @@ muondtdigianalyzer = cms.EDAnalyzer("MuonDTDigis",
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    muondtdigianalyzer.SimHitLabel = cms.InputTag("MuonSimHits","MuonDTHits")
+fastSim.toModify(muondtdigianalyzer, SimHitLabel = "MuonSimHits:MuonDTHits")

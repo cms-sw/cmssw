@@ -96,19 +96,17 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
 
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-#if True:
-    obj = muonAssociatorByHitsCommonParameters
-    obj.simtracksTag = "famosSimHits"
-    obj.DTsimhitsTag  = "MuonSimHits:MuonDTHits"
-    obj.CSCsimHitsTag = "MuonSimHits:MuonCSCHits"
-    obj.RPCsimhitsTag = "MuonSimHits:MuonRPCHits"
-    obj.simtracksXFTag = "mix:famosSimHits"
-    obj.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
-    obj.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
-    obj.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
-    obj.ROUList = ['famosSimHitsTrackerHits']
-
+fastSim.toModify(muonAssociatorByHitsCommonParameters,
+    simtracksTag = "famosSimHits",
+    DTsimhitsTag  = "MuonSimHits:MuonDTHits",
+    CSCsimHitsTag = "MuonSimHits:MuonCSCHits",
+    RPCsimhitsTag = "MuonSimHits:MuonRPCHits",
+    simtracksXFTag = "mix:famosSimHits",
+    DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits",
+    CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits",
+    RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits",
+    ROUList = ['famosSimHitsTrackerHits']
+)
   
 muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     # COMMON CONFIGURATION
