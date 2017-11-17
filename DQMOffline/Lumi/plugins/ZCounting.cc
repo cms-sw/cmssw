@@ -569,7 +569,7 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
       if(eleProbe.isNonnull()){
         vProbe.SetPtEtaPhiM( eleProbe->pt(), eleProbe->eta(), eleProbe->phi(), ELECTRON_MASS);
       } else {
-        double pt = sc->energy() * TMath::Sqrt( 1 - pow(TMath::TanH(sc->eta()),2) );
+        double pt = sc->energy() * sqrt( 1 - pow(tanh(sc->eta()),2) );
         vProbe.SetPtEtaPhiM( pt, sc->eta(), sc->phi(), ELECTRON_MASS);
       }
 
