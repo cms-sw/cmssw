@@ -22,7 +22,7 @@
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/DTDigi/interface/DTControlData.h"
-
+#include "DataFormats/DTDigi/interface/DTuROSControlData.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -35,6 +35,9 @@
 
 class DTROS25Data;
 class DTDDUData;
+//to remove
+class DTuROSROSData;
+class DTuROSFEDData;
 class DTTimeEvolutionHisto;
 
 class DTDataIntegrityTask: public DQMEDAnalyzer {
@@ -47,6 +50,8 @@ public:
 
   void TimeHistos(DQMStore::IBooker &, std::string histoType);
 
+  void processuROS(DTuROSROSData & data, int fed, int uRos);
+  void processFED(DTuROSFEDData  & data, int fed);
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
@@ -72,7 +77,9 @@ private:
 
   void bookHistos(DQMStore::IBooker &, const int fedMin, const int fedMax);
   void bookHistos(DQMStore::IBooker &, std::string folder, DTROChainCoding code);
+  void bookHistos(DQMStore::IBooker &, std::string folder, const int fed);
   void bookHistosROS25(DQMStore::IBooker &, DTROChainCoding code);
+  void bookHistosuROS(DQMStore::IBooker &,const int fed, const int uRos);
 
   void channelsInCEROS(int cerosId, int chMask, std::vector<int>& channels);
   void channelsInROS(int cerosMask, std::vector<int>& channels);
@@ -88,6 +95,8 @@ private:
   bool doTimeHisto;
   // Plot quantities about SC
   bool getSCInfo;
+  // Check FEDs from uROS, otherwise standard ROS
+  bool checkUros;
 
   int nevents;
 
@@ -96,11 +105,13 @@ private:
   // Monitor Elements
   MonitorElement* nEventMonitor;
   // <histoType, <index , histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > fedHistos;
   // <histoType, histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > rosSHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > summaryHistos;
   // <histoType, <index , histo> >
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
+  // <histoType, <fed , index, histo> >
+  std::map<std::string, std::map<int, std::map< int, MonitorElement*> > > urosHistos;
   // <histoType, <tdcID, histo> >
   std::map<std::string, std::map<int, MonitorElement*> > robHistos;
 
@@ -115,15 +126,18 @@ private:
 
   //time histos for DDU/ROS
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > dduTimeHistos;
+  std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > fedTimeHistos;
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > rosTimeHistos;
 
   int nEventsLS;
 
-  int neventsDDU;
-  int neventsROS25;
+  int neventsFED;
+  int neventsuROS;
+
   float trigger_counter;
   std::string outputFile;
   double rob_max[25];
+  double link_max[72];
 
   int FEDIDmin;
   int FEDIDMax;
@@ -153,6 +167,9 @@ private:
   edm::EDGetTokenT<DTDDUCollection> dduToken;
 
   edm::EDGetTokenT<DTROS25Collection> ros25Token;
+
+  edm::EDGetTokenT<DTuROSFEDDataCollection> fedToken;  
+
  
 };
 
