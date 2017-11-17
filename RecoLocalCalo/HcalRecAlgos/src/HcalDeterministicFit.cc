@@ -67,10 +67,23 @@ void HcalDeterministicFit::get206Frac(float tStart, float tEnd, float &sum) cons
   return;
 }
 
+
+constexpr float HcalDeterministicFit::siPM207Frac[];
+void HcalDeterministicFit::get207Frac(float tStart, float tEnd, float &sum) const{
+
+  if (std::abs(tStart-tEnd-tsWidth)<0.1) {
+    sum=0;
+    return;
+  }
+  sum= siPM207Frac[int(ceil(tStart+tsWidth))];
+  return;
+}
+
 void HcalDeterministicFit::getFrac(float tStart, float tEnd, float &sum, FType fType) const{ 
   switch(fType){
     case shape205:    get205Frac(tStart,tEnd,sum);    break; 
     case shape206:    get206Frac(tStart,tEnd,sum);    break; 
+    case shape207:    get207Frac(tStart,tEnd,sum);    break; 
     case shapeLandau: getLandauFrac(tStart,tEnd,sum); break; 
   }
 }
@@ -142,6 +155,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   FType fType;
   if(channelData.hasTimeInfo() && channelData.recoShape()==205) fType = shape205;
   else if(channelData.hasTimeInfo() && channelData.recoShape()==206) fType = shape206;
+  else if(channelData.hasTimeInfo() && channelData.recoShape()==207) fType = shape207;
   else fType = shapeLandau;
 
   getFrac(-tsShift3,-tsShift3+tsWidth,i3,fType);
@@ -171,13 +185,16 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
         double invG = invGpar[0]+invGpar[1]*std::sqrt(2*std::log(invGpar[2]/ratio));
         float iG=0.f;
 
-	if(channelData.hasTimeInfo() && channelData.recoShape()==205) {
-	  get205Frac(-invG,-invG+tsWidth,iG);
-	}else if(channelData.hasTimeInfo() && channelData.recoShape()==206) {
-	  get206Frac(-invG,-invG+tsWidth,iG);
-	}else {
-	  getLandauFrac(-invG,-invG+tsWidth,iG);
-	}
+	//if(channelData.hasTimeInfo() && channelData.recoShape()==205) {
+        //  get205Frac(-invG,-invG+tsWidth,iG);
+        //} else if(channelData.hasTimeInfo() && channelData.recoShape()==206) {
+	//  get206Frac(-invG,-invG+tsWidth,iG);
+	//}else if(channelData.hasTimeInfo() && channelData.recoShape()==207) {
+	//  get207Frac(-invG,-invG+tsWidth,iG);
+	//}else {
+	//  getLandauFrac(-invG,-invG+tsWidth,iG);
+	//}
+	getFrac(-invG,-invG+tsWidth,iG,fType);
 	if (iG != 0 ) {
 	  ch4=(corrCharge[soi]-ch3*n3)/(iG);
 	  tsShift4=invG;
