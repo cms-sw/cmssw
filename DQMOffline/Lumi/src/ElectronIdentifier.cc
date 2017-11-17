@@ -27,86 +27,86 @@ ElectronIdentifier::ElectronIdentifier (const edm::ParameterSet& c) :
 
 {
    rho_ = -1;
-   ID_ = "NULL";
-   cuts_["SIGMAIETA"]["VETO"]  ["BARREL"] = 0.0115;
-   cuts_["SIGMAIETA"]["LOOSE"] ["BARREL"] = 0.011;
-   cuts_["SIGMAIETA"]["MEDIUM"]["BARREL"] = 0.00998;
-   cuts_["SIGMAIETA"]["TIGHT"] ["BARREL"] = 0.00998;
+   ID_ = -1;
+   cuts_[EleIDCutNames::SIGMAIETA][EleIDWorkingPoints::VETO]  [EleIDEtaBins::BARREL] = 0.0115;
+   cuts_[EleIDCutNames::SIGMAIETA][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::BARREL] = 0.011;
+   cuts_[EleIDCutNames::SIGMAIETA][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::BARREL] = 0.00998;
+   cuts_[EleIDCutNames::SIGMAIETA][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::BARREL] = 0.00998;
 
-   cuts_["SIGMAIETA"]["VETO"]  ["ENDCAP"] = 0.037;
-   cuts_["SIGMAIETA"]["LOOSE"] ["ENDCAP"] = 0.0314;
-   cuts_["SIGMAIETA"]["MEDIUM"]["ENDCAP"] = 0.0298;
-   cuts_["SIGMAIETA"]["TIGHT"] ["ENDCAP"] = 0.0292;
+   cuts_[EleIDCutNames::SIGMAIETA][EleIDWorkingPoints::VETO]  [EleIDEtaBins::ENDCAP] = 0.037;
+   cuts_[EleIDCutNames::SIGMAIETA][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::ENDCAP] = 0.0314;
+   cuts_[EleIDCutNames::SIGMAIETA][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::ENDCAP] = 0.0298;
+   cuts_[EleIDCutNames::SIGMAIETA][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::ENDCAP] = 0.0292;
 
-   cuts_["DETAINSEED"]["VETO"]  ["BARREL"] = 0.00749;
-   cuts_["DETAINSEED"]["LOOSE"] ["BARREL"] = 0.00477;
-   cuts_["DETAINSEED"]["MEDIUM"]["BARREL"] = 0.00311;
-   cuts_["DETAINSEED"]["TIGHT"] ["BARREL"] = 0.00308;
+   cuts_[EleIDCutNames::DETAINSEED][EleIDWorkingPoints::VETO]  [EleIDEtaBins::BARREL] = 0.00749;
+   cuts_[EleIDCutNames::DETAINSEED][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::BARREL] = 0.00477;
+   cuts_[EleIDCutNames::DETAINSEED][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::BARREL] = 0.00311;
+   cuts_[EleIDCutNames::DETAINSEED][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::BARREL] = 0.00308;
 
-   cuts_["DETAINSEED"]["VETO"]  ["ENDCAP"] = 0.00895;
-   cuts_["DETAINSEED"]["LOOSE"] ["ENDCAP"] = 0.00868;
-   cuts_["DETAINSEED"]["MEDIUM"]["ENDCAP"] = 0.00609;
-   cuts_["DETAINSEED"]["TIGHT"] ["ENDCAP"] = 0.00605;
+   cuts_[EleIDCutNames::DETAINSEED][EleIDWorkingPoints::VETO]  [EleIDEtaBins::ENDCAP] = 0.00895;
+   cuts_[EleIDCutNames::DETAINSEED][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::ENDCAP] = 0.00868;
+   cuts_[EleIDCutNames::DETAINSEED][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::ENDCAP] = 0.00609;
+   cuts_[EleIDCutNames::DETAINSEED][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::ENDCAP] = 0.00605;
 
-   cuts_["DPHIIN"]["VETO"]  ["BARREL"] = 0.228;
-   cuts_["DPHIIN"]["LOOSE"] ["BARREL"] = 	0.222;
-   cuts_["DPHIIN"]["MEDIUM"]["BARREL"] = 	0.103;
-   cuts_["DPHIIN"]["TIGHT"] ["BARREL"] = 	0.0816;
+   cuts_[EleIDCutNames::DPHIIN][EleIDWorkingPoints::VETO]  [EleIDEtaBins::BARREL] = 0.228;
+   cuts_[EleIDCutNames::DPHIIN][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::BARREL] = 0.222;
+   cuts_[EleIDCutNames::DPHIIN][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::BARREL] = 0.103;
+   cuts_[EleIDCutNames::DPHIIN][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::BARREL] = 0.0816;
 
-   cuts_["DPHIIN"]["VETO"]  ["ENDCAP"] = 0.213;
-   cuts_["DPHIIN"]["LOOSE"] ["ENDCAP"] = 	0.213;
-   cuts_["DPHIIN"]["MEDIUM"]["ENDCAP"] = 	0.045;
-   cuts_["DPHIIN"]["TIGHT"] ["ENDCAP"] = 	0.0394;
+   cuts_[EleIDCutNames::DPHIIN][EleIDWorkingPoints::VETO]  [EleIDEtaBins::ENDCAP] = 0.213;
+   cuts_[EleIDCutNames::DPHIIN][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::ENDCAP] = 0.213;
+   cuts_[EleIDCutNames::DPHIIN][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::ENDCAP] = 0.045;
+   cuts_[EleIDCutNames::DPHIIN][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::ENDCAP] = 0.0394;
 
-   cuts_["HOVERE"]["VETO"]  ["BARREL"] = 0.356;
-   cuts_["HOVERE"]["LOOSE"] ["BARREL"] = 	0.298;
-   cuts_["HOVERE"]["MEDIUM"]["BARREL"] = 0.253;
-   cuts_["HOVERE"]["TIGHT"] ["BARREL"] = 0.0414;
+   cuts_[EleIDCutNames::HOVERE][EleIDWorkingPoints::VETO]  [EleIDEtaBins::BARREL] = 0.356;
+   cuts_[EleIDCutNames::HOVERE][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::BARREL] = 	0.298;
+   cuts_[EleIDCutNames::HOVERE][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::BARREL] = 0.253;
+   cuts_[EleIDCutNames::HOVERE][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::BARREL] = 0.0414;
 
-   cuts_["HOVERE"]["VETO"]  ["ENDCAP"] = 0.211;
-   cuts_["HOVERE"]["LOOSE"] ["ENDCAP"] = 0.101;
-   cuts_["HOVERE"]["MEDIUM"]["ENDCAP"] = 0.0878;
-   cuts_["HOVERE"]["TIGHT"] ["ENDCAP"] = 0.0641;
+   cuts_[EleIDCutNames::HOVERE][EleIDWorkingPoints::VETO]  [EleIDEtaBins::ENDCAP] = 0.211;
+   cuts_[EleIDCutNames::HOVERE][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::ENDCAP] = 0.101;
+   cuts_[EleIDCutNames::HOVERE][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::ENDCAP] = 0.0878;
+   cuts_[EleIDCutNames::HOVERE][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::ENDCAP] = 0.0641;
 
-   cuts_["ISO"]["VETO"]  ["BARREL"] = 0.175;
-   cuts_["ISO"]["LOOSE"] ["BARREL"] = 0.0994;
-   cuts_["ISO"]["MEDIUM"]["BARREL"] = 	0.0695;
-   cuts_["ISO"]["TIGHT"] ["BARREL"] = 	0.0588;
+   cuts_[EleIDCutNames::ISO][EleIDWorkingPoints::VETO]  [EleIDEtaBins::BARREL] = 0.175;
+   cuts_[EleIDCutNames::ISO][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::BARREL] = 0.0994;
+   cuts_[EleIDCutNames::ISO][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::BARREL] = 0.0695;
+   cuts_[EleIDCutNames::ISO][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::BARREL] = 0.0588;
 
-   cuts_["ISO"]["VETO"]  ["ENDCAP"] = 0.159;
-   cuts_["ISO"]["LOOSE"] ["ENDCAP"] = 	0.107;
-   cuts_["ISO"]["MEDIUM"]["ENDCAP"] = 	0.0821;
-   cuts_["ISO"]["TIGHT"] ["ENDCAP"] = 	0.0571;
+   cuts_[EleIDCutNames::ISO][EleIDWorkingPoints::VETO]  [EleIDEtaBins::ENDCAP] = 0.159;
+   cuts_[EleIDCutNames::ISO][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::ENDCAP] = 0.107;
+   cuts_[EleIDCutNames::ISO][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::ENDCAP] = 0.0821;
+   cuts_[EleIDCutNames::ISO][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::ENDCAP] = 0.0571;
 
-   cuts_["1OVERE"]["VETO"]  ["BARREL"] = 0.299;
-   cuts_["1OVERE"]["LOOSE"] ["BARREL"] = 0.241;
-   cuts_["1OVERE"]["MEDIUM"]["BARREL"] = 0.134;
-   cuts_["1OVERE"]["TIGHT"] ["BARREL"] = 0.0129;
+   cuts_[EleIDCutNames::ONEOVERE][EleIDWorkingPoints::VETO]  [EleIDEtaBins::BARREL] = 0.299;
+   cuts_[EleIDCutNames::ONEOVERE][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::BARREL] = 0.241;
+   cuts_[EleIDCutNames::ONEOVERE][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::BARREL] = 0.134;
+   cuts_[EleIDCutNames::ONEOVERE][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::BARREL] = 0.0129;
 
-   cuts_["1OVERE"]["VETO"]  ["ENDCAP"] = 0.15;
-   cuts_["1OVERE"]["LOOSE"] ["ENDCAP"] = 0.14;
-   cuts_["1OVERE"]["MEDIUM"]["ENDCAP"] = 0.13;
-   cuts_["1OVERE"]["TIGHT"] ["ENDCAP"] = 0.0129;
+   cuts_[EleIDCutNames::ONEOVERE][EleIDWorkingPoints::VETO]  [EleIDEtaBins::ENDCAP] = 0.15;
+   cuts_[EleIDCutNames::ONEOVERE][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::ENDCAP] = 0.14;
+   cuts_[EleIDCutNames::ONEOVERE][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::ENDCAP] = 0.13;
+   cuts_[EleIDCutNames::ONEOVERE][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::ENDCAP] = 0.0129;
 
-   cuts_["MISSINGHITS"]["VETO"]  ["BARREL"] = 2;
-   cuts_["MISSINGHITS"]["LOOSE"] ["BARREL"] = 1;
-   cuts_["MISSINGHITS"]["MEDIUM"]["BARREL"] = 1;
-   cuts_["MISSINGHITS"]["TIGHT"] ["BARREL"] = 1;
+   cuts_[EleIDCutNames::MISSINGHITS][EleIDWorkingPoints::VETO]  [EleIDEtaBins::BARREL] = 2;
+   cuts_[EleIDCutNames::MISSINGHITS][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::BARREL] = 1;
+   cuts_[EleIDCutNames::MISSINGHITS][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::BARREL] = 1;
+   cuts_[EleIDCutNames::MISSINGHITS][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::BARREL] = 1;
 
-   cuts_["MISSINGHITS"]["VETO"]  ["ENDCAP"] = 3;
-   cuts_["MISSINGHITS"]["LOOSE"] ["ENDCAP"] = 1;
-   cuts_["MISSINGHITS"]["MEDIUM"]["ENDCAP"] = 1;
-   cuts_["MISSINGHITS"]["TIGHT"] ["ENDCAP"] = 1;
+   cuts_[EleIDCutNames::MISSINGHITS][EleIDWorkingPoints::VETO]  [EleIDEtaBins::ENDCAP] = 3;
+   cuts_[EleIDCutNames::MISSINGHITS][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::ENDCAP] = 1;
+   cuts_[EleIDCutNames::MISSINGHITS][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::ENDCAP] = 1;
+   cuts_[EleIDCutNames::MISSINGHITS][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::ENDCAP] = 1;
 
-   cuts_["CONVERSION"]["VETO"]  ["BARREL"] = 1;
-   cuts_["CONVERSION"]["LOOSE"] ["BARREL"] = 1;
-   cuts_["CONVERSION"]["MEDIUM"]["BARREL"] = 1;
-   cuts_["CONVERSION"]["TIGHT"] ["BARREL"] = 1;
+   cuts_[EleIDCutNames::CONVERSION][EleIDWorkingPoints::VETO]  [EleIDEtaBins::BARREL] = 1;
+   cuts_[EleIDCutNames::CONVERSION][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::BARREL] = 1;
+   cuts_[EleIDCutNames::CONVERSION][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::BARREL] = 1;
+   cuts_[EleIDCutNames::CONVERSION][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::BARREL] = 1;
 
-   cuts_["CONVERSION"]["VETO"]  ["ENDCAP"] = 1;
-   cuts_["CONVERSION"]["LOOSE"] ["ENDCAP"] = 1;
-   cuts_["CONVERSION"]["MEDIUM"]["ENDCAP"] = 1;
-   cuts_["CONVERSION"]["TIGHT"] ["ENDCAP"] = 1;
+   cuts_[EleIDCutNames::CONVERSION][EleIDWorkingPoints::VETO]  [EleIDEtaBins::ENDCAP] = 1;
+   cuts_[EleIDCutNames::CONVERSION][EleIDWorkingPoints::LOOSE] [EleIDEtaBins::ENDCAP] = 1;
+   cuts_[EleIDCutNames::CONVERSION][EleIDWorkingPoints::MEDIUM][EleIDEtaBins::ENDCAP] = 1;
+   cuts_[EleIDCutNames::CONVERSION][EleIDWorkingPoints::TIGHT] [EleIDEtaBins::ENDCAP] = 1;
 }
 
 void ElectronIdentifier::setRho(double rho) {
@@ -117,19 +117,11 @@ void ElectronIdentifier::setRho(double rho) {
    }
 }
 void ElectronIdentifier::setID(std::string ID) {
-   bool is_available = true;
-   for (auto const cutmap : cuts_) {
-      bool tmp = false;
-      for( auto const item : cutmap.second ){
-            tmp |= (item.first == ID);
-      }
-      is_available &= tmp;
-   }
-   if(is_available){
-      ID_ = ID;
-   } else {
-      throw;
-   }
+   if(ID=="TIGHT") ID_ = EleIDWorkingPoints::TIGHT;
+   else if(ID=="MEDIUM") ID_ = EleIDWorkingPoints::MEDIUM;
+   else if(ID=="LOOSE") ID_ = EleIDWorkingPoints::LOOSE;
+   else if(ID=="VETO") ID_ = EleIDWorkingPoints::VETO;
+   else throw;
 }
 void ElectronIdentifier::setBeamspot(edm::Handle<reco::BeamSpot> beamspot) {
    beamspot_ = beamspot;
@@ -162,19 +154,19 @@ float ElectronIdentifier::isolation(const reco::GsfElectronPtr& ele) {
 
 
 bool ElectronIdentifier::passID(const reco::GsfElectronPtr& ele) {
-   if(ID_ == "NULL") throw;
-   std::string region = fabs(ele->superCluster()->eta()) < 1.479 ? "BARREL" : "ENDCAP";
+   if(ID_ == -1) throw;
+   unsigned int region = fabs(ele->superCluster()->eta()) < 1.479 ? EleIDEtaBins::BARREL : EleIDEtaBins::BARREL;
 
    bool pass = true;
 
    std::vector<bool> passes;
-   passes.push_back( ele->full5x5_sigmaIetaIeta()                     < cuts_["SIGMAIETA"][ID_][region]);
-   passes.push_back( dEtaInSeed(ele)                                  < cuts_["DETAINSEED"][ID_][region]);
-   passes.push_back( std::abs(ele->deltaPhiSuperClusterTrackAtVtx())  < cuts_["DPHIIN"][ID_][region]);
-   passes.push_back( ele->hadronicOverEm()                            < cuts_["HOVERE"][ID_][region]);
-   passes.push_back( isolation(ele)/ele->pt()                         < cuts_["ISO"][ID_][region]);
-   passes.push_back( std::abs(1.0 - ele->eSuperClusterOverP())/ele->ecalEnergy()  < cuts_["1OVERE"][ID_][region]);
-   passes.push_back( (ele->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS)) <= cuts_["MISSINGHITS"][ID_][region]);
+   passes.push_back( ele->full5x5_sigmaIetaIeta()                     < cuts_[EleIDCutNames::SIGMAIETA][ID_][region]);
+   passes.push_back( dEtaInSeed(ele)                                  < cuts_[EleIDCutNames::DETAINSEED][ID_][region]);
+   passes.push_back( std::abs(ele->deltaPhiSuperClusterTrackAtVtx())  < cuts_[EleIDCutNames::DPHIIN][ID_][region]);
+   passes.push_back( ele->hadronicOverEm()                            < cuts_[EleIDCutNames::HOVERE][ID_][region]);
+   passes.push_back( isolation(ele)/ele->pt()                         < cuts_[EleIDCutNames::ISO][ID_][region]);
+   passes.push_back( std::abs(1.0 - ele->eSuperClusterOverP())/ele->ecalEnergy()  < cuts_[EleIDCutNames::ONEOVERE][ID_][region]);
+   passes.push_back( (ele->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS)) <= cuts_[EleIDCutNames::MISSINGHITS][ID_][region]);
    passes.push_back( !ConversionTools::hasMatchedConversion(*ele,conversions_,beamspot_->position()));
 
    for (auto const p:passes) {

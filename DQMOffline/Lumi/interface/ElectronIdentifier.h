@@ -24,7 +24,26 @@
 
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 #include <DataFormats/BeamSpot/interface/BeamSpot.h>
-
+enum EleIDCutNames{
+   SIGMAIETA,
+   DETAINSEED,
+   DPHIIN,
+   HOVERE,
+   ISO,
+   ONEOVERE,
+   MISSINGHITS,
+   CONVERSION,
+};
+enum EleIDWorkingPoints{
+   VETO,
+   MEDIUM,
+   LOOSE,
+   TIGHT
+};
+enum EleIDEtaBins{
+   BARREL,
+   ENDCAP
+};
 class ElectronIdentifier{
    public:
       ElectronIdentifier (const edm::ParameterSet& c);
@@ -39,11 +58,10 @@ class ElectronIdentifier{
       void setConversions(edm::Handle<reco::ConversionCollection> conversions);
    private:
      double rho_;
-     std::string ID_;
+     int ID_;
      edm::Handle<reco::BeamSpot> beamspot_;
      edm::Handle<reco::ConversionCollection> conversions_;
-     std::map<std::string,std::map<std::string,std::map<std::string, double>>> cuts_;
-
+     std::array<std::array<std::array<double,2>,3>,8> cuts_;
      // Effective area constants
      EffectiveAreas _effectiveAreas;
 };
