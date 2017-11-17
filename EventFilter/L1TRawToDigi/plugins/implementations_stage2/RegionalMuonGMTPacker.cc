@@ -40,12 +40,15 @@ namespace l1t {
             for (auto mu = muons->begin(i); mu != muons->end(i); ++mu) {
                const auto linkTimes2 = mu->link() * 2;
 
-               // If there was no muon on the link of this muon in previous
-               // BX the payload up to this BX must be filled with zeros.
-               if (payloadMap.count(linkTimes2) == 0 && bxCtr > 0) {
+               // If the map key is new reserve the payload size.
+               if (payloadMap.count(linkTimes2) == 0) {
                   payloadMap[linkTimes2].reserve(wordsPerBx * nBx);
-                  while (payloadMap[linkTimes2].size() < bxCtr * wordsPerBx) {
-                     payloadMap[linkTimes2].push_back(0);
+                  // If there was no muon on the link of this muon in previous
+                  // BX the payload up to this BX must be filled with zeros.
+                  if (bxCtr > 0) {
+                     while (payloadMap[linkTimes2].size() < bxCtr * wordsPerBx) {
+                        payloadMap[linkTimes2].push_back(0);
+                     }
                   }
                }
 
