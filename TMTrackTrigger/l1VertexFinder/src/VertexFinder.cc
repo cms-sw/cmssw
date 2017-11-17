@@ -1,8 +1,8 @@
 
-#include "TMTrackTrigger/VertexFinder/interface/VertexFinder.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/VertexFinder.h"
 
 
-#include "TMTrackTrigger/VertexFinder/interface/Settings.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
 
 
 using namespace std;

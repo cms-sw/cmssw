@@ -1,11 +1,11 @@
 
-#include "TMTrackTrigger/VertexFinder/interface/TP.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/TP.h"
 
 
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 
-#include "TMTrackTrigger/VertexFinder/interface/Settings.h"
-#include "TMTrackTrigger/VertexFinder/interface/Stub.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Stub.h"
 
 
 namespace vertexFinder {
@@ -55,6 +55,7 @@ void TP::fillTruth(const vector<Stub>& vStubs) {
 
 //=== Check if this tracking particle is worth keeping.
 
+
 void TP::fillUse() {
 
   const bool useOnlyInTimeParticles = false;
@@ -69,18 +70,23 @@ void TP::fillUse() {
     genPdgIdsAll.push_back( -genPdgIdsAllUnsigned[i] );
   }
 
-  static TrackingParticleSelector trackingParticleSelector( 
-							   min(2.0, settings_->genMinPt()),
-							 - max(3.5, settings_->genMaxAbsEta()),
-							   max(3.5, settings_->genMaxAbsEta()),
-							   max(10.0, settings_->genMaxVertR()),
-							   max(35.0, settings_->genMaxVertZ()),
-							   0,
-							   useOnlyTPfromPhysicsCollisionFalse,
+  // Range big enough to include all TP needed to measure tracking efficiency
+  // and big enough to include any TP that might be reconstructed for fake rate measurement.
+  const float ptMin  = min(settings_->genMinPt(), 2.);
+  const float etaMax = max(settings_->genMaxAbsEta(), 3.5);
+
+  static TrackingParticleSelector trackingParticleSelector(ptMin,
+                 9999999999,
+                 -etaMax,
+                  etaMax,
+                 max(10.0, settings_->genMaxVertR()),
+                 max(35.0, settings_->genMaxVertZ()),
+                 0,
+                 useOnlyTPfromPhysicsCollisionFalse,
                  useOnlyInTimeParticles,
-							   true,
-    						 false,
-    						 genPdgIdsAll);
+                 true,
+                 false,
+                 genPdgIdsAll);
 
   const TrackingParticlePtr tp_ptr(*this); // cast to base class.
   use_ = trackingParticleSelector(*tp_ptr);
@@ -95,9 +101,10 @@ void TP::fillUseForEff() {
   if (use_) {
     const bool useOnlyInTimeParticles = true;
     const bool useOnlyTPfromPhysicsCollision = true;
-    static TrackingParticleSelector trackingParticleSelector( 
+    static TrackingParticleSelector trackingParticleSelector(
                    settings_->genMinPt(),
-                  -settings_->genMaxAbsEta(),
+                   9999999999,
+                   -settings_->genMaxAbsEta(),
                    settings_->genMaxAbsEta(),
                    settings_->genMaxVertR(),
                    settings_->genMaxVertZ(),
@@ -112,7 +119,6 @@ void TP::fillUseForEff() {
     useForEff_ = trackingParticleSelector(*tp_ptr);
   }
 }
-
 //=== Check if this tracking particle can be used to measure the L1 tracking algorithmic efficiency (makes stubs in enough layers).
 
 void TP::fillUseForAlgEff() {

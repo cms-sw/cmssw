@@ -1,5 +1,5 @@
 
-#include "TMTrackTrigger/VertexFinder/interface/Stub.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Stub.h"
 
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -7,7 +7,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
-#include "TMTrackTrigger/VertexFinder/interface/Settings.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
 
 
 namespace vertexFinder {

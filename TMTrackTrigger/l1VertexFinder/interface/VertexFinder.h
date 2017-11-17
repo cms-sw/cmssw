@@ -4,8 +4,8 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include "TMTrackTrigger/VertexFinder/interface/L1fittedTrack.h"
-#include "TMTrackTrigger/VertexFinder/interface/RecoVertex.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/L1fittedTrack.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/RecoVertex.h"
 
 #include <vector>
 

@@ -1,5 +1,5 @@
 
-#include "TMTrackTrigger/VertexFinder/interface/Vertex.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Vertex.h"
 
 
 namespace vertexFinder {

@@ -7,9 +7,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "TMTrackTrigger/VertexFinder/interface/Stub.h"
-#include "TMTrackTrigger/VertexFinder/interface/TP.h"
-#include "TMTrackTrigger/VertexFinder/interface/Vertex.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Stub.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/TP.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Vertex.h"
 
 
 using namespace std;

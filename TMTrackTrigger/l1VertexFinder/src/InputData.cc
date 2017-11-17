@@ -17,8 +17,8 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
-#include "TMTrackTrigger/VertexFinder/interface/InputData.h"
-#include "TMTrackTrigger/VertexFinder/interface/Settings.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/InputData.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
 
 #include <map>
 
