@@ -144,13 +144,13 @@ int HGCalShowerShape::lastLayer(const l1t::HGCalMulticluster& c3d) const {
     
 }
 
-int HGCalShowerShape::coreShowerLength(const l1t::HGCalMulticluster& c3d) const
+int HGCalShowerShape::coreShowerLength(const l1t::HGCalMulticluster& c3d, const HGCalTriggerGeometryBase& triggerGeometry) const
 {
   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
   std::vector<bool> layers(kLayersEE_+kLayersFH_+kLayersBH_);
   for(const auto& cluster_ptr : clustersPtrs)
   {
-    int layer = HGC_layer(cluster_ptr->subdetId(), cluster_ptr->layer());
+    int layer = triggerGeometry.triggerLayer(cluster_ptr->detId());
     layers[layer-1] = true;
   }
   int length = 0;

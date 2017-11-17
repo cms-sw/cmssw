@@ -62,6 +62,7 @@ class HGCalTriggerGeometryBase
 
         virtual bool validTriggerCell( const unsigned trigger_cell_id) const = 0;
         virtual bool disconnectedModule(const unsigned module_id) const = 0;
+        virtual unsigned triggerLayer(const unsigned id) const = 0;
 
     protected:
         void setCaloGeometry(const edm::ESHandle<CaloGeometry>& geom) {calo_geometry_=geom;}

@@ -37,6 +37,7 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
 
         virtual bool validTriggerCell( const unsigned ) const override final;
         virtual bool disconnectedModule(const unsigned) const override final;
+        virtual unsigned triggerLayer(const unsigned) const override final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
@@ -68,10 +69,12 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         // Disconnected modules and layers
         std::unordered_set<unsigned> disconnected_modules_;
         std::unordered_set<unsigned> disconnected_layers_;
+        std::vector<unsigned> trigger_layers_;
 
         // layer offsets 
         unsigned fhOffset_;
         unsigned bhOffset_;
+        unsigned totalLayers_;
 
         void fillMaps();
         void fillNeighborMaps(const edm::FileInPath&,  std::unordered_map<int, std::set<std::pair<short,short>>>&);
@@ -129,6 +132,22 @@ initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
     setCaloGeometry(calo_geometry);
     fhOffset_ = eeTopology().dddConstants().layers(true);
     bhOffset_ = fhOffset_ + fhTopology().dddConstants().layers(true);
+    totalLayers_ =  bhOffset_ + bhTopology().dddConstants()->getMaxDepth(1);
+    trigger_layers_.resize(totalLayers_+1);
+    unsigned trigger_layer = 0;
+    for(unsigned layer=0; layer<trigger_layers_.size(); layer++)
+    {
+        if(disconnected_layers_.find(layer)==disconnected_layers_.end())
+        {
+            // Increase trigger layer number if the layer is not disconnected
+            trigger_layers_[layer] = trigger_layer;
+            trigger_layer++;
+        }
+        else
+        {
+            trigger_layers_[layer] = 0;
+        }
+    }
     fillMaps();
     fillNeighborMaps(l1tCellNeighborsMapping_, trigger_cell_neighbors_);
     fillNeighborMaps(l1tCellNeighborsBHMapping_, trigger_cell_neighbors_bh_);
@@ -696,6 +715,15 @@ disconnectedModule(const unsigned module_id) const
     if(disconnected_modules_.find(HGCalDetId(module_id).wafer())!=disconnected_modules_.end()) disconnected = true;
     if(disconnected_layers_.find(layerWithOffset(module_id))!=disconnected_layers_.end()) disconnected = true;
     return disconnected;
+}
+
+unsigned 
+HGCalTriggerGeometryHexLayerBasedImp1::
+triggerLayer(const unsigned id) const
+{
+    unsigned layer = layerWithOffset(id);
+    if(layer>=trigger_layers_.size()) return 0;
+    return trigger_layers_[layer];
 }
 
 bool 
