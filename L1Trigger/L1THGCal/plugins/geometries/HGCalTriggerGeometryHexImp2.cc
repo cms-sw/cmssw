@@ -36,6 +36,7 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
 
         virtual bool validTriggerCell( const unsigned ) const override final;
         virtual bool disconnectedModule(const unsigned) const override final;
+        virtual unsigned triggerLayer(const unsigned) const override final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
@@ -771,6 +772,14 @@ HGCalTriggerGeometryHexImp2::
 disconnectedModule(const unsigned module_id) const
 {
     return false;
+}
+
+
+unsigned 
+HGCalTriggerGeometryHexImp2::
+triggerLayer(const unsigned id) const
+{
+    return HGCalDetId(id).layer();
 }
 
 bool 
