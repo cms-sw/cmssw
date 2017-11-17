@@ -1,6 +1,8 @@
 #ifndef RecoEgamma_EgammaTools_ShowerDepth_h
 #define RecoEgamma_EgammaTools_ShowerDepth_h
 
+namespace hgcal {
+
 /* ShowerDepth: computes expected EM shower mean depth
  * in the HGCal, and compares it to measured depth
  *
@@ -53,5 +55,7 @@ private:
     static constexpr double corrlnalphalnt0_{ 0.7858 };
     static constexpr double corrlnalphalnt1_{ -0.0232 };
 };
+
+}
 
 #endif

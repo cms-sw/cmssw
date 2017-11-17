@@ -1,6 +1,6 @@
 #include "RecoEgamma/EgammaTools/interface/LongDeps.h"
 
-
+using namespace hgcal;
 
 LongDeps::LongDeps(float radius, const std::vector<float>& energyPerLayer, float energyEE,float energyFH,float energyBH,const std::set<int>& layers):
 energyPerLayer_(energyPerLayer),radius_(radius),energyEE_(energyEE),energyFH_(energyFH),

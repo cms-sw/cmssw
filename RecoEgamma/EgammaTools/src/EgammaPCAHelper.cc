@@ -9,9 +9,10 @@
 // Also available as HGCal3DClustering::lastLayerBH and HGCalDepthPreClusterer::lastLayerBH
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 
-
 #include <algorithm>
 #include <iostream>
+
+using namespace hgcal;
 
 EGammaPCAHelper::EGammaPCAHelper():
   // Thickness correction to dEdx weights
