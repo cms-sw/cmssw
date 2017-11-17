@@ -7,7 +7,7 @@ RandomNumberGeneratorService dump
         t2  5  RanecuEngine  1  2
         t3  6  TRandom3  83
         t4  7  HepJamesRandom  84
-        t5  4294967295  TRandom3  191
+        t6  8  MixMaxRng  85
     nStreams_ = 3
     saveFileName_ = StashStateStream.data
     saveFileNameRecorded_ = 0
@@ -24,16 +24,19 @@ RandomNumberGeneratorService dump
         t2 1 2 RanecuEngine  engine does not know seeds
         t3 83 TRandom3  engine does not know seeds
         t4 84 HepJamesRandom  84
+        t6 85 MixMaxRng  85
         Stream 1
         t1 82 HepJamesRandom  82
         t2 2 2 RanecuEngine  engine does not know seeds
         t3 84 TRandom3  engine does not know seeds
         t4 85 HepJamesRandom  85
+        t6 86 MixMaxRng  86
         Stream 2
         t1 83 HepJamesRandom  83
         t2 3 2 RanecuEngine  engine does not know seeds
         t3 85 TRandom3  engine does not know seeds
         t4 86 HepJamesRandom  86
+        t6 87 MixMaxRng  87
 
     lumiEngines_
         lumiIndex 0
@@ -41,3 +44,4 @@ RandomNumberGeneratorService dump
         t2 4 2 RanecuEngine  engine does not know seeds
         t3 86 TRandom3  engine does not know seeds
         t4 87 HepJamesRandom  87
+        t6 88 MixMaxRng  88
