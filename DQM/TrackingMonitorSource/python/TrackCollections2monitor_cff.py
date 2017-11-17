@@ -311,7 +311,9 @@ selectedTracks.extend( ['generalTracks'] )
 selectedTracks.extend( ['highPurityPt1'] )
 selectedTracks.extend( ['highPurityPtRange0to1'] )
 selectedTracks.extend( ['highPurityPV0p1'] )
-selectedTracks.extend( ['highPurityPt1Eta2p5to3p0'] )
+
+# not by default
+#selectedTracks.extend( ['highPurityPt1Eta2p5to3p0'] )
 
 
 #selectedTracks2runSequence=cms.Sequence()
