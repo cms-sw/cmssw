@@ -1,6 +1,7 @@
 #include "RecoEgamma/EgammaTools/interface/ShowerDepth.h"
 #include <cmath>
 
+using namespace hgcal;
 
 float ShowerDepth::getClusterDepthCompatibility(float measuredDepth, float emEnergy, float& expectedDepth, float& expectedSigma) const {
     double lny = (emEnergy > criticalEnergy_) ? std::log(emEnergy/criticalEnergy_) : 0.;

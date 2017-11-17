@@ -46,26 +46,9 @@ selectedPatElectronsFromMultiCl = cms.EDFilter("PATElectronSelector",
 )
 slimmedElectronsFromMultiCl = slimmedElectrons.clone(
     src = cms.InputTag("selectedPatElectronsFromMultiCl"),
-    dropSuperCluster = cms.string("0"),
-    dropBasicClusters = cms.string("0"),
-    dropPFlowClusters = cms.string("0"),
-    dropPreshowerClusters = cms.string("0"),
-    dropSeedCluster = cms.string("0"),
-    dropRecHits = cms.string("0"),
-    dropCorrections = cms.string("pt < 5"),
-    dropIsolations = cms.string("pt < 5"),
-    dropShapes = cms.string("pt < 5"),
-    dropSaturation = cms.string("pt < 5"),
-    dropExtrapolations  = cms.string("pt < 5"),
-    dropClassifications  = cms.string("pt < 5"),
     linkToPackedPFCandidates = cms.bool(False),
-    recoToPFMap = cms.InputTag("reducedEgamma", "reducedGsfElectronPfCandMap"),
-    packedPFCandidates = cms.InputTag("packedPFCandidates"), 
     saveNonZSClusterShapes = cms.string("0"),
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
     modifyElectrons = cms.bool(False),
-    modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
 
 slimmedElectronsFromMultiClTask = cms.Task(
@@ -113,21 +96,9 @@ selectedPatPhotonsFromMultiCl = cms.EDFilter("PATPhotonSelector",
 )
 slimmedPhotonsFromMultiCl = slimmedPhotons.clone(
     src = cms.InputTag("selectedPatPhotonsFromMultiCl"),
-    dropSuperCluster = cms.string("0"),
-    dropBasicClusters = cms.string("0"),
-    dropPreshowerClusters = cms.string("0"),
-    dropSeedCluster = cms.string("0"),
-    dropRecHits = cms.string("0"),
-    dropSaturation = cms.string("0"),
-    dropRegressionData = cms.string("1"),
     linkToPackedPFCandidates = cms.bool(False),
-    recoToPFMap = cms.InputTag("reducedEgamma","reducedPhotonPfCandMap"),
-    packedPFCandidates = cms.InputTag("packedPFCandidates"),
     saveNonZSClusterShapes = cms.string("0"),
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
     modifyPhotons = cms.bool(False),
-    modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
 
 slimmedPhotonsFromMultiClTask = cms.Task(

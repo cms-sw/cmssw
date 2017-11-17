@@ -151,7 +151,7 @@ HGCalPhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
         continue;
       }
 
-      LongDeps ld(phoIDHelper_->energyPerLayer(radius_, true));
+      hgcal::LongDeps ld(phoIDHelper_->energyPerLayer(radius_, true));
       float measuredDepth, expectedDepth, expectedSigma;
       float depthCompatibility = phoIDHelper_->clusterDepthCompatibility(ld, measuredDepth, expectedDepth, expectedSigma);
 

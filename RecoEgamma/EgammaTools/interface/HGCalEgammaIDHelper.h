@@ -52,12 +52,12 @@ public:
     const math::XYZVector & axis() const {return pcaHelper_.axis();}
 
     // longitudinal energy deposits and energy per subdetector as well as layers crossed
-    LongDeps energyPerLayer(float radius, bool withHalo=true) {
+    hgcal::LongDeps energyPerLayer(float radius, bool withHalo=true) {
         return pcaHelper_.energyPerLayer(radius,withHalo);
     }
 
     // shower depth (distance between start and shower max) from ShowerDepth tool
-    float clusterDepthCompatibility(const LongDeps & ld, float & measDepth, float & expDepth, float & expSigma)
+    float clusterDepthCompatibility(const hgcal::LongDeps & ld, float & measDepth, float & expDepth, float & expSigma)
         { return pcaHelper_.clusterDepthCompatibility(ld,measDepth,expDepth,expSigma);}
 
     // projective calo isolation
@@ -66,7 +66,7 @@ public:
 
     // for debugging purposes
     void printHits(float radius) const { pcaHelper_.printHits(radius); }
-    const EGammaPCAHelper * pcaHelper () const {return &pcaHelper_;}
+    const hgcal::EGammaPCAHelper * pcaHelper () const {return &pcaHelper_;}
 
 private:
     edm::InputTag  eeRecHitInputTag_;
@@ -74,7 +74,7 @@ private:
     edm::InputTag  bhRecHitInputTag_;
 
     std::vector<double> dEdXWeights_;
-    EGammaPCAHelper pcaHelper_;
+    hgcal::EGammaPCAHelper pcaHelper_;
     HGCalIsoCalculator isoHelper_;
     edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
     edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;

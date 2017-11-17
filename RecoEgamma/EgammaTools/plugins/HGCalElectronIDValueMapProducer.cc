@@ -159,7 +159,7 @@ HGCalElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
 	  continue;
       }
 
-      LongDeps ld(eIDHelper_->energyPerLayer(radius_, true));
+      hgcal::LongDeps ld(eIDHelper_->energyPerLayer(radius_, true));
       float measuredDepth, expectedDepth, expectedSigma;
       float depthCompatibility = eIDHelper_->clusterDepthCompatibility(ld, measuredDepth, expectedDepth, expectedSigma);
 

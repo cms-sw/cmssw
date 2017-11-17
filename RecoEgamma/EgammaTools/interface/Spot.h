@@ -2,8 +2,9 @@
 #define RecoEgamma_EgammaTools_Spot_h
 
 #include "DataFormats/DetId/interface/DetId.h"
-
 #include <vector>
+
+namespace hgcal {
 
 class Spot{
     public:
@@ -32,5 +33,7 @@ class Spot{
         int subdet_;
         bool isCore_;
 };
+
+}
 
 #endif
