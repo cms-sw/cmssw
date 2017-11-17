@@ -386,7 +386,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   //Ecal EB SimHits
   double EcalCone = 0;
 
-  if (ebHits_.size() != 0){
+  if (!ebHits_.empty()){
   edm::Handle<PCaloHitContainer> ecalEBHits;
   ev.getByToken(tok_ecalEB_,ecalEBHits);
   const PCaloHitContainer * SimHitResultEB = ecalEBHits.product () ;
@@ -407,7 +407,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   } // ebHits_
 
   //Ecal EE SimHits
-  if (eeHits_.size() != 0){
+  if (!eeHits_.empty()){
   edm::Handle<PCaloHitContainer> ecalEEHits;
   ev.getByToken(tok_ecalEE_,ecalEEHits);
   const PCaloHitContainer * SimHitResultEE = ecalEEHits.product () ;
