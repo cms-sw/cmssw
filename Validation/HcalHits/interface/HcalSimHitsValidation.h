@@ -70,6 +70,7 @@ private:
   int                                      maxDepthHO_, maxDepthHF_;
 
   bool                                     testNumber_;
+  bool                                     auxPlots_;
 
   // Hits counters
   std::vector<MonitorElement*> Nhb;
