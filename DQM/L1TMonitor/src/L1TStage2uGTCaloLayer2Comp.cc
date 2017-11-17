@@ -43,7 +43,7 @@ void L1TStage2uGTCaloLayer2Comp::bookHistograms(
 
   comparisonNum->setBinLabel(EVENTBAD, "# bad evts");
   comparisonNum->setBinLabel(EVENTBADJETCOL, "# evts w/ bad jet col size");
-  comparisonNum->setBinLabel(EVENTBADEGCOL, "# evts w/ bad et col size");
+  comparisonNum->setBinLabel(EVENTBADEGCOL, "# evts w/ bad eg col size");
   comparisonNum->setBinLabel(EVENTBADTAUCOL, "# evts w/ bad tau col size");
   comparisonNum->setBinLabel(EVENTBADSUMCOL, "# evts w/ bad sum col size");
   comparisonNum->setBinLabel(JETBADET, "# jets bad Et");
