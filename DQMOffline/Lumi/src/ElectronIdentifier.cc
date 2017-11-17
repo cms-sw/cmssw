@@ -113,7 +113,10 @@ void ElectronIdentifier::setRho(double rho) {
    if(rho >= 0) {
       rho_ = rho;
    } else {
-      throw;
+      throw cms::Exception("ValueError")
+         << "Encountered invalid value for energy density rho.\n"
+         << "Value: " << rho << "\n"
+         << "Rho should be a real, positive number.\n";
    }
 }
 void ElectronIdentifier::setID(std::string ID) {
