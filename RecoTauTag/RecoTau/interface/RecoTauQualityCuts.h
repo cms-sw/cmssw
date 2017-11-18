@@ -93,7 +93,7 @@ class RecoTauQualityCuts
   bool filterGammaCand(const reco::Candidate& cand) const;
   bool filterNeutralHadronCand(const reco::Candidate& cand) const;
   bool filterCandByType(const reco::Candidate& cand) const;
-  bool filterCandIP(const reco::Candidate& cand) const;
+  bool filterChargedCand(const reco::Candidate& cand) const;
 
   // The current primary vertex
   mutable reco::VertexRef pv_;

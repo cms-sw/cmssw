@@ -189,7 +189,7 @@ bool minPackedCandVertexWeight(const pat::PackedCandidate& pCand, const reco::Ve
 
   if ( pv->isNull() ) {
     edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
-      "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
+      "RecoTauQualityCuts is invalid. - minPackedCandVertexWeight";
     return false;
   }
   //there is some low granular information on track weight in the vertex available with packed cands
@@ -432,31 +432,46 @@ bool RecoTauQualityCuts::filterTrack_(const reco::Track* track) const
   return true;
 }
 
-bool RecoTauQualityCuts::filterCandIP(const reco::Candidate& cand) const {
+bool RecoTauQualityCuts::filterChargedCand(const reco::Candidate& cand) const {
+
+  if (cand.charge() == 0)
+    return true;
   const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
   if (pCand == nullptr)
     return true;
 
-  if(checkPV_ && pv_.isNull()) {
-    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
-      "RecoTauQualityCuts is invalid. - filterCandIP";
-    return false;
-  }
-
-  if(maxTransverseImpactParameter_ >= 0 &&
-     !(std::fabs(pCand->dxy(pv_->position())) <= maxTransverseImpactParameter_))
+  //Get track, it should be present for cands with pT(charged)>0.5GeV
+  //and check track quality critera other than vertex weight
+  auto track = getTrack(cand);
+  if (track != nullptr){
+    if (!filterTrack(*track))
       return false;
-  if(maxDeltaZ_ >= 0 && !(std::fabs(pCand->dz(pv_->position())) <= maxDeltaZ_)) return false;
-  if(maxDeltaZToLeadTrack_ >= 0) {
-    if ( leadTrack_ == nullptr) {
-      edm::LogError("QCutsNoValidLeadTrack") << "Lead track Ref in " <<
-        "RecoTauQualityCuts is invalid. - filterTrack";
+  } else {//Candidates without track (pT(charged)<0.5GeV): Can still check pT and calculate dxy and dz
+    if(minTrackPt_ >= 0 && !(pCand->pt() > minTrackPt_)) return false;
+    if(checkPV_ && pv_.isNull()) {
+      edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+	"RecoTauQualityCuts is invalid. - filterChargedCand";
       return false;
     }
 
-    if(!(std::fabs(pCand->dz(pv_->position()) - leadTrack_->dz(pv_->position())) <= maxDeltaZToLeadTrack_))
+    if(maxTransverseImpactParameter_ >= 0 &&
+       !(std::fabs(pCand->dxy(pv_->position())) <= maxTransverseImpactParameter_))
       return false;
+    if(maxDeltaZ_ >= 0 && !(std::fabs(pCand->dz(pv_->position())) <= maxDeltaZ_)) return false;
+    if(maxDeltaZToLeadTrack_ >= 0) {
+      if ( leadTrack_ == nullptr) {
+	edm::LogError("QCutsNoValidLeadTrack") << "Lead track Ref in " <<
+	  "RecoTauQualityCuts is invalid. - filterChargedCand";
+	return false;
+      }
+
+      if(!(std::fabs(pCand->dz(pv_->position()) - leadTrack_->dz(pv_->position())) <= maxDeltaZToLeadTrack_))
+	return false;
+    }
   }
+  if(minTrackVertexWeight_ >= 0. &&
+     !(qcuts::minPackedCandVertexWeight(*pCand, &pv_,  minTrackVertexWeight_)))
+     return false;
 
   return true;
 }
@@ -497,23 +512,12 @@ bool RecoTauQualityCuts::filterCand(const reco::Candidate& cand) const
 
   if(trackRef.isNonnull())
     result = filterTrack(trackRef);
-  else if (cand.charge() != 0) {// MiniAOD: consider only charged patricles and repeat logic as in filterTrack(trackRef)
-    // MiniAOD: Get track, not track base ref, it should be present for pT(charged)>0.5GeV
-    auto track = getTrack(cand);
-    if (track != nullptr)
-      result = filterTrack(*track);
-    // MiniAOD pT(charged) < 0.5 GeV: Can still calculate dxy and dz
-    else
-      result = filterCandIP(cand);
-    // MiniAOD: check vertex weight; some low granular info is available with packed cands
-    if(result && minTrackVertexWeight_ >= 0.){
-      const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
-      if(pCand != nullptr)
-	result = qcuts::minPackedCandVertexWeight(*pCand, &pv_,  minTrackVertexWeight_);
-    }
+  else if(cand.charge() != 0){
+    result = filterChargedCand(cand);
   }
   if(result)
     result = filterCandByType(cand);
+
   return result;
 }
 
