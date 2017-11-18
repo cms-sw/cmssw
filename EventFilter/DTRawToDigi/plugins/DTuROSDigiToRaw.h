@@ -76,8 +76,6 @@ private:
   // utilities
   void clear();
 
-  void calcCRC(int myD1, int myD2, int& myC);
-
   int theCRT(int ddu);
 
   int theSLT(int ddu, int ros, int rob);
