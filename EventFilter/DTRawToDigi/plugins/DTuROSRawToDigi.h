@@ -79,8 +79,6 @@ private:
     ++lines;
   }
 
-  void calcCRC(long word, int& myC);
-
   int theDDU(int crate, int slot, int link);
 
   int theROS(int crate, int slot, int link);
