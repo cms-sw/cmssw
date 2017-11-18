@@ -136,12 +136,18 @@ bool HLTmumutkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
     bool track3Matched = false;
     for (auto cand=mucands->begin(); cand!=mucands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-      if     (tkRef == vertextkRef1 && iFoundRefs==0 && !track1Matched) {mucand1 = cand; iFoundRefs++; track1Matched = true;}
-      else if(tkRef == vertextkRef1 && iFoundRefs==1 && !track1Matched) {mucand2 = cand; iFoundRefs++; track1Matched = true;}
-      if     (tkRef == vertextkRef2 && iFoundRefs==0 && !track2Matched) {mucand1 = cand; iFoundRefs++; track2Matched = true;}
-      else if(tkRef == vertextkRef2 && iFoundRefs==1 && !track2Matched) {mucand2 = cand; iFoundRefs++; track2Matched = true;}
-      if     (tkRef == vertextkRef3 && iFoundRefs==0 && !track3Matched) {mucand1 = cand; iFoundRefs++; track3Matched = true;}
-      else if(tkRef == vertextkRef3 && iFoundRefs==1 && !track3Matched) {mucand2 = cand; iFoundRefs++; track3Matched = true;}
+      if (!track1Matched) {
+	if     (tkRef == vertextkRef1 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++; track1Matched = true;}
+	else if(tkRef == vertextkRef1 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++; track1Matched = true;}
+      }
+      if (!track2Matched) {
+	if     (tkRef == vertextkRef2 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++; track2Matched = true;}
+	else if(tkRef == vertextkRef2 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++; track2Matched = true;}
+      }
+      if (!track3Matched) {
+	if     (tkRef == vertextkRef3 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++; track3Matched = true;}
+	else if(tkRef == vertextkRef3 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++; track3Matched = true;}
+      }
     }
     if(iFoundRefs < 2) throw cms::Exception("BadLogic") << "HLTmumutkFilterr: ERROR: the vertex must have "
                                                     << " at least two muons by definition."  << std::endl;
@@ -149,11 +155,11 @@ bool HLTmumutkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
     int iTrkFoundRefs = 0;
     for (auto cand=trkcands->begin(); cand!=trkcands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-      if     (tkRef == vertextkRef1 && iTrkFoundRefs==0 && !track1Matched) {tkcand = cand; iTrkFoundRefs++; track1Matched = true;}
-      if     (tkRef == vertextkRef2 && iTrkFoundRefs==0 && !track2Matched) {tkcand = cand; iTrkFoundRefs++; track2Matched = true;}
-      if     (tkRef == vertextkRef3 && iTrkFoundRefs==0 && !track3Matched) {tkcand = cand; iTrkFoundRefs++; track3Matched = true;}
+      if     (tkRef == vertextkRef1 && iTrkFoundRefs==0 && !track1Matched) {tkcand = cand; iTrkFoundRefs++; track1Matched = true; break;}
+      if     (tkRef == vertextkRef2 && iTrkFoundRefs==0 && !track2Matched) {tkcand = cand; iTrkFoundRefs++; track2Matched = true; break;}
+      if     (tkRef == vertextkRef3 && iTrkFoundRefs==0 && !track3Matched) {tkcand = cand; iTrkFoundRefs++; track3Matched = true; break;}
     }
-    if(iTrkFoundRefs < 1) throw cms::Exception("BadLogic") << "HLTmumutkFilterr: ERROR: the vertex must have "
+    if(iTrkFoundRefs == 0) throw cms::Exception("BadLogic") << "HLTmumutkFilterr: ERROR: the vertex must have "
                                                  << " at least one track by definition."  << std::endl;
 
     // calculate three-track transverse momentum
