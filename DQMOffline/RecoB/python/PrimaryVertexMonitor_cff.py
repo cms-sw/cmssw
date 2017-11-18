@@ -26,7 +26,7 @@ pvMonitor = cms.EDAnalyzer("PrimaryVertexMonitor",
    EtaMin         = cms.double(-2.5)
 )
 
-// same as above, should be in sync with cut used in Vertex finder...
+# same as above, should be in sync with cut used in Vertex finder...
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase1Pixel.toModify(pvMonitor, EtaBin=26, EtaMin=-2.5, EtaMax=2.5)
