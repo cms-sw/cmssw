@@ -97,7 +97,6 @@ bool MuonIDTableProducer::isSoftMuonHIP(const pat::Muon& mu, const reco::Vertex&
     return muon::isGoodMuon(mu, muon::TMOneStationTight) && 
            mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
            mu.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0 && 
-           mu.innerTrack()->quality(reco::Track::highPurity) && 
            std::abs(mu.innerTrack()->dxy(vtx.position())) < 0.3 && 
            std::abs(mu.innerTrack()->dz(vtx.position())) < 20.;
 }
