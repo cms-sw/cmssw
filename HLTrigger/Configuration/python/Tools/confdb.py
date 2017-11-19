@@ -272,6 +272,14 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     %(process)s.HLTriggerFirstPath.replace(%(process)s.hltGetConditions,%(process)s.hltDummyConditions)
 """
 
+      # fix the Scouting EndPaths
+      for path in self.all_paths:
+        match = re.match(r'(Scouting\w+)Output$', path)
+        if match:
+          module = 'hltOutput' + match.group(1)
+          self.data = self.data.replace(path+' = cms.EndPath', path+' = cms.Path')
+          self.data = self.data.replace(' + process.'+module, '')
+
     else:
 
       # override the process name and adapt the relevant filters
@@ -455,12 +463,30 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
       self.data
     )
 
-    if not self.config.fragment and self.config.output == 'full':
+    if not self.config.fragment and self.config.output == 'minimal':
+      # add a single output to keep the TriggerResults and TriggerEvent
+      self.data += """
+# add a single "keep *" output
+%(process)s.hltOutputMinimal = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "output.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string( 'AOD' ),
+        filterName = cms.untracked.string( '' )
+    ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+        'keep edmTriggerResults_*_*_*',
+        'keep triggerTriggerEvent_*_*_*'
+    )
+)
+%(process)s.MinimalOutput = cms.EndPath( %(process)s.hltOutputMinimal )
+"""
+    elif not self.config.fragment and self.config.output == 'full':
       # add a single "keep *" output
       self.data += """
 # add a single "keep *" output
-%(process)s.hltOutputFULL = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputFULL.root" ),
+%(process)s.hltOutputFull = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "output.root" ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string( 'RECO' ),
@@ -468,8 +494,9 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
     ),
     outputCommands = cms.untracked.vstring( 'keep *' )
 )
-%(process)s.FULLOutput = cms.EndPath( %(process)s.hltOutputFULL )
+%(process)s.FullOutput = cms.EndPath( %(process)s.hltOutputFull )
 """
+
   # select specific Eras
   def addEras(self):
     if self.config.eras is None:
@@ -643,31 +670,40 @@ if 'GlobalTag' in %%(dict)s:
       # dump only the requested paths, plus the eventual output endpaths
       paths = []
 
-    if self.config.fragment or self.config.output in ('none', 'full'):
-      # 'full' removes all outputs (same as 'none') and then adds a single "keep *" output (see the overrideOutput method)
+    # 'none'    should remove all outputs
+    # 'dqm'     should remove all outputs but DQMHistograms
+    # 'minimal' should remove all outputs but DQMHistograms, and add a single output module to keep the TriggerResults and TriggerEvent
+    # 'full'    should remove all outputs but DQMHistograms, and add a single output module to "keep *"
+    # See also the `overrideOutput` method
+    if self.config.fragment or self.config.output in ('none', ):
       if self.config.paths:
-        # paths are removed by default
+        # keep only the Paths and EndPaths requested explicitly
         pass
       else:
-        # drop all output endpaths
+        # drop all output EndPaths but the Scouting ones, and drop the RatesMonitoring and DQMHistograms
         paths.append( "-*Output" )
+        paths.append( "Scouting*Output" )
         paths.append( "-RatesMonitoring")
         paths.append( "-DQMHistograms")
-    elif self.config.output == 'minimal':
-      # drop all output endpaths but HLTDQMResultsOutput
+
+    elif self.config.output in ('dqm', 'minimal', 'full'):
       if self.config.paths:
-        paths.append( "HLTDQMResultsOutput" )
+        # keep only the Paths and EndPaths requested explicitly, and the DQMHistograms
+        paths.append( "DQMHistograms" )
       else:
+        # drop all output EndPaths but the Scouting ones, and drop the RatesMonitoring
         paths.append( "-*Output" )
+        paths.append( "Scouting*Output" )
         paths.append( "-RatesMonitoring")
-        paths.append( "-DQMHistograms")
-        paths.append( "HLTDQMResultsOutput" )
+
     else:
-      # keep / add back all output endpaths
       if self.config.paths:
+        # keep all output EndPaths, including the DQMHistograms
         paths.append( "*Output" )
+        paths.append( "DQMHistograms" )
       else:
-        pass    # paths are kepy by default
+        # keep all Paths and EndPaths
+        pass
 
     # drop unwanted paths for profiling (and timing studies)
     if self.config.profiling:
@@ -681,13 +717,13 @@ if 'GlobalTag' in %%(dict)s:
 
     if self.config.paths:
       # do an "additive" consolidation
-      self.options['paths'] = self.consolidatePositiveList(paths)
-      if not self.options['paths']:
+      paths = self.consolidatePositiveList(paths)
+      if not paths:
         raise RuntimeError('Error: option "--paths %s" does not select any valid paths' % self.config.paths)
     else:
       # do a "subtractive" consolidation
-      self.options['paths'] = self.consolidateNegativeList(paths)
-
+      paths = self.consolidateNegativeList(paths)
+    self.options['paths'] = paths
 
   def buildOptions(self):
     # common configuration for all scenarios
@@ -773,6 +809,10 @@ if 'GlobalTag' in %%(dict)s:
 
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
+
+      # remove Scouting OutputModules even though the EndPaths are kept
+      self.options['modules'].append( "-hltOutputScoutingCaloMuon" )
+      self.options['modules'].append( "-hltOutputScoutingPF" )
 
     if self.config.fragment or (self.config.prescale and (self.config.prescale.lower() == 'none')):
       self.options['services'].append( "-PrescaleService" )
