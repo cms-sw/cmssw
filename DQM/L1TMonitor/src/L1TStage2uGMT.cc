@@ -253,14 +253,14 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ibooker.setCurrentFolder(monitorDir);
 
   if (!emul) {
-    ugmtBMTFBXvsProcessor = ibooker.book2D("ugmtBMTFBXvsProcessor", "uGMT BMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
+    ugmtBMTFBXvsProcessor = ibooker.book2D("ugmtBXvsProcessorBMTF", "uGMT BMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
     ugmtBMTFBXvsProcessor->setAxisTitle("Wedge", 1);
     for (int bin = 1; bin <= 12; ++bin) {
       ugmtBMTFBXvsProcessor->setBinLabel(bin, std::to_string(bin), 1);
     }
     ugmtBMTFBXvsProcessor->setAxisTitle("BX", 2);
 
-    ugmtOMTFBXvsProcessor = ibooker.book2D("ugmtOMTFBXvsProcessor", "uGMT OMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
+    ugmtOMTFBXvsProcessor = ibooker.book2D("ugmtBXvsProcessorOMTF", "uGMT OMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
     ugmtOMTFBXvsProcessor->setAxisTitle("Sector (Detector Side)", 1);
     for (int bin = 1; bin <= 6; ++bin) {
       ugmtOMTFBXvsProcessor->setBinLabel(bin, std::to_string(7 - bin) + " (-)", 1);
@@ -268,7 +268,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     }
     ugmtOMTFBXvsProcessor->setAxisTitle("BX", 2);
 
-    ugmtEMTFBXvsProcessor = ibooker.book2D("ugmtEMTFBXvsProcessor", "uGMT EMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
+    ugmtEMTFBXvsProcessor = ibooker.book2D("ugmtBXvsProcessorEMTF", "uGMT EMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
     ugmtEMTFBXvsProcessor->setAxisTitle("Sector (Detector Side)", 1);
     for (int bin = 1; bin <= 6; ++bin) {
       ugmtEMTFBXvsProcessor->setBinLabel(bin, std::to_string(7 - bin) + " (-)", 1);
@@ -344,15 +344,6 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtMuonPhiEmtf = ibooker.book1D("ugmtMuonPhiEmtf", "uGMT Muon #phi for EMTF Inputs", 126, -3.15, 3.15);
   ugmtMuonPhiEmtf->setAxisTitle("#phi", 1);
 
-  ugmtMuonPhiAtVtxBmtf = ibooker.book1D("ugmtMuonPhiAtVtxBmtf", "uGMT Muon #phi at vertex for BMTF Inputs", 126, -3.15, 3.15);
-  ugmtMuonPhiAtVtxBmtf->setAxisTitle("#phi at vertex", 1);
-
-  ugmtMuonPhiAtVtxOmtf = ibooker.book1D("ugmtMuonPhiAtVtxOmtf", "uGMT Muon #phi at vertex for OMTF Inputs", 126, -3.15, 3.15);
-  ugmtMuonPhiAtVtxOmtf->setAxisTitle("#phi at vertex", 1);
-
-  ugmtMuonPhiAtVtxEmtf = ibooker.book1D("ugmtMuonPhiAtVtxEmtf", "uGMT Muon #phi at vertex for EMTF Inputs", 126, -3.15, 3.15);
-  ugmtMuonPhiAtVtxEmtf->setAxisTitle("#phi at vertex", 1);
-
   const float dPhiScale = 4*phiScale_;
   const float dEtaScale = etaScale_;
   ugmtMuonDEtavsPtBmtf = ibooker.book2D("ugmtMuonDEtavsPtBmtf", "uGMT Muon from BMTF #eta_{at vertex} - #eta_{at muon system} vs p_{T}", 32, 0, 64, 31, -15.5*dEtaScale, 15.5*dEtaScale);
@@ -391,14 +382,6 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtMuonPhivsEta->setAxisTitle("#eta", 1);
   ugmtMuonPhivsEta->setAxisTitle("#phi", 2);
 
-  ugmtMuonPtvsEtaAtVtx = ibooker.book2D("ugmtMuonPtvsEtaAtVtx", "uGMT Muon p_{T} vs #eta at vertex", 100, -2.5, 2.5, 256, -0.5, 255.5);
-  ugmtMuonPtvsEtaAtVtx->setAxisTitle("#eta at vertex", 1);
-  ugmtMuonPtvsEtaAtVtx->setAxisTitle("p_{T} [GeV]", 2);
-
-  ugmtMuonPtvsPhiAtVtx = ibooker.book2D("ugmtMuonPtvsPhiAtVtx", "uGMT Muon p_{T} vs #phi at vertex", 64, -3.2, 3.2, 256, -0.5, 255.5);
-  ugmtMuonPtvsPhiAtVtx->setAxisTitle("#phi at vertex", 1);
-  ugmtMuonPtvsPhiAtVtx->setAxisTitle("p_{T} [GeV]", 2);
-
   ugmtMuonPhiAtVtxvsEtaAtVtx = ibooker.book2D("ugmtMuonPhiAtVtxvsEtaAtVtx", "uGMT Muon #phi at vertex vs #eta at vertex", 100, -2.5, 2.5, 64, -3.2, 3.2);
   ugmtMuonPhiAtVtxvsEtaAtVtx->setAxisTitle("#eta at vertex", 1);
   ugmtMuonPhiAtVtxvsEtaAtVtx->setAxisTitle("#phi at vertex", 2);
@@ -418,14 +401,6 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtMuonBXvshwPhi = ibooker.book2D("ugmtMuonBXvshwPhi", "uGMT Muon BX vs #phi", 116, -2.5, 577.5, 5, -2.5, 2.5);
   ugmtMuonBXvshwPhi->setAxisTitle("Hardware #phi", 1);
   ugmtMuonBXvshwPhi->setAxisTitle("BX", 2);
-
-  ugmtMuonBXvshwEtaAtVtx = ibooker.book2D("ugmtMuonBXvshwEtaAtVtx", "uGMT Muon BX vs #eta at vertex", 93, -232.5, 232.5, 5, -2.5, 2.5);
-  ugmtMuonBXvshwEtaAtVtx->setAxisTitle("Hardware #eta at vertex", 1);
-  ugmtMuonBXvshwEtaAtVtx->setAxisTitle("BX", 2);
-
-  ugmtMuonBXvshwPhiAtVtx = ibooker.book2D("ugmtMuonBXvshwPhiAtVtx", "uGMT Muon BX vs #phi at vertex", 116, -2.5, 577.5, 5, -2.5, 2.5);
-  ugmtMuonBXvshwPhiAtVtx->setAxisTitle("Hardware #phi at vertex", 1);
-  ugmtMuonBXvshwPhiAtVtx->setAxisTitle("BX", 2);
 
   ugmtMuonBXvshwCharge = ibooker.book2D("ugmtMuonBXvshwCharge", "uGMT Muon BX vs Charge", 2, -0.5, 1.5, 5, -2.5, 2.5);
   ugmtMuonBXvshwCharge->setAxisTitle("Hardware Charge", 1);
@@ -782,17 +757,14 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       l1t::tftype tfType{getTfOrigin(tfMuonIndex)};
       if (tfType == l1t::emtf_pos || tfType == l1t::emtf_neg) {
         ugmtMuonPhiEmtf->Fill(Muon->phi());
-        ugmtMuonPhiAtVtxEmtf->Fill(Muon->phiAtVtx());
         ugmtMuonDEtavsPtEmtf->Fill(Muon->pt(), Muon->hwDEtaExtra()*etaScale_);
         ugmtMuonDPhivsPtEmtf->Fill(Muon->pt(), Muon->hwDPhiExtra()*phiScale_);
       } else if (tfType == l1t::omtf_pos || tfType == l1t::omtf_neg) {
         ugmtMuonPhiOmtf->Fill(Muon->phi());
-        ugmtMuonPhiAtVtxOmtf->Fill(Muon->phiAtVtx());
         ugmtMuonDEtavsPtOmtf->Fill(Muon->pt(), Muon->hwDEtaExtra()*etaScale_);
         ugmtMuonDPhivsPtOmtf->Fill(Muon->pt(), Muon->hwDPhiExtra()*phiScale_);
       } else if (tfType == l1t::bmtf) {
         ugmtMuonPhiBmtf->Fill(Muon->phi());
-        ugmtMuonPhiAtVtxBmtf->Fill(Muon->phiAtVtx());
         ugmtMuonDEtavsPtBmtf->Fill(Muon->pt(), Muon->hwDEtaExtra()*etaScale_);
         ugmtMuonDPhivsPtBmtf->Fill(Muon->pt(), Muon->hwDPhiExtra()*phiScale_);
       }
@@ -801,16 +773,12 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       ugmtMuonPtvsPhi->Fill(Muon->phi(), Muon->pt());
       ugmtMuonPhivsEta->Fill(Muon->eta(), Muon->phi());
 
-      ugmtMuonPtvsEtaAtVtx->Fill(Muon->etaAtVtx(), Muon->pt());
-      ugmtMuonPtvsPhiAtVtx->Fill(Muon->phiAtVtx(), Muon->pt());
       ugmtMuonPhiAtVtxvsEtaAtVtx->Fill(Muon->etaAtVtx(), Muon->phiAtVtx());
 
       ugmtMuonBXvsLink->Fill(int(Muon->tfMuonIndex()/3.) + 36, itBX);
       ugmtMuonBXvshwPt->Fill(Muon->hwPt(), itBX);
       ugmtMuonBXvshwEta->Fill(Muon->hwEta(), itBX);
       ugmtMuonBXvshwPhi->Fill(Muon->hwPhi(), itBX);
-      ugmtMuonBXvshwEtaAtVtx->Fill(Muon->hwEtaAtVtx(), itBX);
-      ugmtMuonBXvshwPhiAtVtx->Fill(Muon->hwPhiAtVtx(), itBX);
       ugmtMuonBXvshwCharge->Fill(Muon->hwCharge(), itBX);
       ugmtMuonBXvshwChargeValid->Fill(Muon->hwChargeValid(), itBX);
       ugmtMuonBXvshwQual->Fill(Muon->hwQual(), itBX);
