@@ -82,7 +82,6 @@ private:
   std::ofstream m_outFile;
   std::ofstream m_logFile;
   std::ofstream m_outputFileXML;
-  char output[100];
  
   int m_startTS;
   int m_endTS;
