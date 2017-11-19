@@ -356,4 +356,6 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       ph->RegisterProcess(new G4hIonisation(), particle);
     }
   }
+  G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
+  G4LossTableManager::Instance()->SetAtomDeexcitation(de);
 }
