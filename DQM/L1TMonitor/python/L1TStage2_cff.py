@@ -49,6 +49,7 @@ from DQM.L1TMonitor.L1TStage2CaloLayer1_cfi import *
 # UPDATE Apr 21: Since emulator client is stalled due to 
 # GlobalTag/CaloParams conflicts, we move back to this client
 from DQM.L1TMonitor.L1TStage2CaloLayer2_cfi import *
+from DQM.L1TMonitor.L1TStage2uGTCaloLayer2Comp_cfi import *
 
 # BMTF
 from DQM.L1TMonitor.L1TStage2BMTF_cfi import *
@@ -76,6 +77,7 @@ l1tStage2OnlineDQM = cms.Sequence(
     #l1tStage2Omtf +
     l1tStage2Emtf +
     l1tStage2uGMTOnlineDQMSeq +
+    l1tStage2uGTCaloLayer2Comp +
     l1tStage2uGt
 )
 
