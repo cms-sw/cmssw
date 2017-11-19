@@ -135,6 +135,7 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
       dt_crc::calcCRC(*dataWord1, *dataWord2, newCRC);
 
+      LineFED+=4;
       *((int*)LineFED)=*dataWord2; 
       LineFED+=4;
       *((int*)LineFED)=*dataWord1; 
@@ -172,6 +173,7 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     dt_crc::calcCRC(*dataWord1, *dataWord2, newCRC);
 
+    LineFED+=4;
     *((int*)LineFED)=*dataWord2; 
     LineFED+=4;
     *((int*)LineFED)=*dataWord1; 
@@ -200,6 +202,7 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     dt_crc::calcCRC(*dataWord1, *dataWord2, newCRC);
 
+    LineFED+=4;
     *((int*)LineFED)=*dataWord2; 
     LineFED+=4;
     *((int*)LineFED)=*dataWord1; 
@@ -217,6 +220,7 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     dt_crc::calcCRC(*dataWord1, *dataWord2, newCRC);
 
+    LineFED+=4;
     *((int*)LineFED)=*dataWord2; 
     LineFED+=4;
     *((int*)LineFED)=*dataWord1; 
@@ -244,6 +248,7 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     dt_crc::calcCRC(*dataWord1, *dataWord2, newCRC);
 
+    LineFED+=4;
     *((int*)LineFED)=*dataWord2; 
     LineFED+=4;
     *((int*)LineFED)=*dataWord1; 
