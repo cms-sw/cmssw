@@ -362,7 +362,7 @@ private:
   TTree              *outtree_;
   int                 t_ieta, t_iphi, t_nvtx;
   double              t_p;
-  std::vector<double> t_ene, t_actln, t_charge;
+  std::vector<double> t_ene, t_enec, t_actln, t_charge;
   std::vector<int>    t_depth;
   
   TH1D  *h_Pt_Muon[3], *h_Eta_Muon[3], *h_Phi_Muon[3], *h_P_Muon[3];
@@ -760,7 +760,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
     if (debug_) std::cout << "Run " << Run_No << " Event " << Event_No << " Muons " << pt_of_muon->size() << std::endl;
     for (unsigned int ml = 0; ml< pt_of_muon->size(); ml++) {
       
-      t_ene.clear(); t_charge.clear(); t_actln.clear(); t_depth.clear();
+      t_ene.clear(); t_enec.clear(); t_charge.clear(); t_actln.clear();
+      t_depth.clear();
       
       if(debug_) std::cout << "ecal_det_id " << ecal_detID->at(ml) << std::endl;
       
@@ -848,10 +849,13 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 	  h_HotCell[cut]->Fill(hcal_cellHot->at(ml));
 	  if (mergeDepth_) {
 	    double en1(0), en2(0), energyFill(0), chargeS(0), chargeBG(0);
+	    double enh(0), enc(0);
 	    for (int dep=0; dep<nDepth; ++dep) {
 	      if (dep == 0) {
 		en1 += ((useCorrect_) ? hcal_edepthCorrect1->at(ml) : hcal_edepth1->at(ml));
 		en2 += ((useCorrect_) ? hcal_edepthHotCorrect1->at(ml) : hcal_edepthHot1->at(ml));
+		enh += (hcal_edepthHot1->at(ml));
+		enc += (hcal_edepthHotCorrect1->at(ml));
 		energyFill += (hcal_activeHotL1->at(ml));
 		chargeS += (hcal_cdepthHot1->at(ml));
 		chargeBG += (hcal_cdepthHotBG1->at(ml));
@@ -859,6 +863,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 	      } else if (dep == 1) {
 		en1 += ((useCorrect_) ? hcal_edepthCorrect2->at(ml) : hcal_edepth2->at(ml));
 		en2 += ((useCorrect_) ? hcal_edepthHotCorrect2->at(ml) : hcal_edepthHot2->at(ml));
+		enh += (hcal_edepthHot2->at(ml));
+		enc += (hcal_edepthHotCorrect2->at(ml));
 		energyFill += (hcal_activeHotL2->at(ml));
 		chargeS += (hcal_cdepthHot2->at(ml));    
 		chargeBG += (hcal_cdepthHotBG2->at(ml)); 
@@ -866,6 +872,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 	      } else if (dep == 2) {
 		en1 += ((useCorrect_) ? hcal_edepthCorrect3->at(ml) : hcal_edepth3->at(ml));
 		en2 += ((useCorrect_) ? hcal_edepthHotCorrect3->at(ml) : hcal_edepthHot3->at(ml));
+		enh += (hcal_edepthHot3->at(ml));
+		enc += (hcal_edepthHotCorrect3->at(ml));
 		energyFill += (hcal_activeHotL3->at(ml));
 		chargeS += (hcal_cdepthHot3->at(ml));    
 		chargeBG += (hcal_cdepthHotBG3->at(ml)); 
@@ -873,6 +881,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 	      } else if (dep == 3) {
 		en1 += ((useCorrect_) ? hcal_edepthCorrect4->at(ml) : hcal_edepth4->at(ml));
 		en2 += ((useCorrect_) ? hcal_edepthHotCorrect4->at(ml) : hcal_edepthHot4->at(ml));
+		enh += (hcal_edepthHot4->at(ml));
+		enc += (hcal_edepthHotCorrect4->at(ml));
 		energyFill = hcal_activeHotL4->at(ml);  		
 		chargeS += (hcal_cdepthHot4->at(ml));    
 		chargeBG += (hcal_cdepthHotBG4->at(ml)); 
@@ -881,6 +891,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 		if (hcal_edepthCorrect5->size() > ml) {
 		  en1 += ((useCorrect_) ? hcal_edepthCorrect5->at(ml) : hcal_edepth5->at(ml));
 		  en2 += ((useCorrect_) ? hcal_edepthHotCorrect5->at(ml) : hcal_edepthHot5->at(ml));
+		  enh += (hcal_edepthHot5->at(ml));
+		  enc += (hcal_edepthHotCorrect5->at(ml));
 		  energyFill += (hcal_activeHotL5->at(ml));
 		  chargeS += (hcal_cdepthHot5->at(ml));    
 		  chargeBG += (hcal_cdepthHotBG5->at(ml)); 
@@ -890,6 +902,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 		if (hcal_edepthCorrect6->size() > ml) {
 		  en1 += ((useCorrect_) ? hcal_edepthCorrect6->at(ml) : hcal_edepth6->at(ml));
 		  en2 += ((useCorrect_) ? hcal_edepthHotCorrect6->at(ml) : hcal_edepthHot6->at(ml));
+		  enh += (hcal_edepthHot6->at(ml));
+		  enc += (hcal_edepthHotCorrect6->at(ml));
 		  energyFill += (hcal_activeHotL6->at(ml));
 		  chargeS += (hcal_cdepthHot6->at(ml));    
 		  chargeBG += (hcal_cdepthHotBG6->at(ml)); 
@@ -899,6 +913,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 		if (hcal_edepthCorrect7->size() > ml) {
 		  en1 += ((useCorrect_) ? hcal_edepthCorrect7->at(ml) : hcal_edepth7->at(ml));
 		  en2 += ((useCorrect_) ? hcal_edepthHotCorrect7->at(ml) : hcal_edepthHot7->at(ml));
+		  enh += (hcal_edepthHot7->at(ml));
+		  enc += (hcal_edepthHotCorrect7->at(ml));
 		  energyFill += (hcal_activeHotL7->at(ml));  		
 		  chargeS += (hcal_cdepthHot7->at(ml));    
 		  chargeBG += (hcal_cdepthHotBG7->at(ml)); 
@@ -911,9 +927,9 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 	      std::cout << "Matched Id " << matchedId->at(ml) << " Hot "
 			<< hcal_cellHot->at(ml) << " eta " << etaHcal << ":"
 			<< eta << " phi " << phiHcal << ":" << PHI
-			<< " Index " << ind << " E " << en2 << ":" 
-			<< energyFill << " Charge " << chargeS << ":" 
-			<< chargeBG << std::endl;
+			<< " Index " << ind << " E " << en1 << ":"  << en2
+			<< ":" << enh << ":" << enc << " L " << energyFill 
+			<< " Charge " << chargeS << ":" << chargeBG <<std::endl;
 	    if (!(matchedId->at(ml))) continue;
 	    if (hcal_cellHot->at(ml)==1) {
 	      if (energyFill > 0) {
@@ -924,7 +940,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 		h_charge_signal[cut][ind]->Fill(chargeS);
 		h_charge_bg[cut][ind]->Fill(chargeBG);
 		
-		t_ene.push_back(en2);
+		t_ene.push_back(enh);
+		t_enec.push_back(enc);
 		t_charge.push_back(chargeS);
 		t_actln.push_back(energyFill);
 		t_depth.push_back(0);
@@ -938,28 +955,37 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 	      
 	      if(debug_) std::cout<<"dep:"<<dep<<std::endl;
 	      
-	      double en1(-9999), en2(-9999), energyFill(0), chargeS(-9999), chargeBG(-9999);
+	      double en1(-9999), en2(-9999), energyFill(0), chargeS(-9999);
+	      double enh(-9999), enc(-9999), chargeBG(-9999);
 	      if (dep == 0) {
 		en1 = (useCorrect_) ? hcal_edepthCorrect1->at(ml) : hcal_edepth1->at(ml);
 		en2 = (useCorrect_) ? hcal_edepthHotCorrect1->at(ml) : hcal_edepthHot1->at(ml);
+		enh = (hcal_edepthHot1->at(ml));
+		enc = (hcal_edepthHotCorrect1->at(ml));
 		energyFill = hcal_activeHotL1->at(ml);  	
 		chargeS = (hcal_cdepthHot1->at(ml));                       
 		chargeBG = (hcal_cdepthHotBG1->at(ml));    	
 	      } else if (dep == 1) {
 		en1 = (useCorrect_) ? hcal_edepthCorrect2->at(ml) : hcal_edepth2->at(ml);
 		en2 = (useCorrect_) ? hcal_edepthHotCorrect2->at(ml) : hcal_edepthHot2->at(ml);
+		enh = (hcal_edepthHot2->at(ml));
+		enc = (hcal_edepthHotCorrect2->at(ml));
 		energyFill = hcal_activeHotL2->at(ml);  	
 		chargeS = (hcal_cdepthHot2->at(ml));                       
 		chargeBG = (hcal_cdepthHotBG2->at(ml));    	
 	      } else if (dep == 2) {
 		en1 = (useCorrect_) ? hcal_edepthCorrect3->at(ml) : hcal_edepth3->at(ml);
 		en2 = (useCorrect_) ? hcal_edepthHotCorrect3->at(ml) : hcal_edepthHot3->at(ml);
+		enh = (hcal_edepthHot3->at(ml));
+		enc = (hcal_edepthHotCorrect3->at(ml));
 		energyFill = hcal_activeHotL3->at(ml);  		
 		chargeS = (hcal_cdepthHot3->at(ml));                       
 		chargeBG = (hcal_cdepthHotBG3->at(ml));    
 	      } else if (dep == 3) {
 		en1 = (useCorrect_) ? hcal_edepthCorrect4->at(ml) : hcal_edepth4->at(ml);
 		en2 = (useCorrect_) ? hcal_edepthHotCorrect4->at(ml) : hcal_edepthHot4->at(ml);
+		enh = (hcal_edepthHot4->at(ml));
+		enc = (hcal_edepthHotCorrect4->at(ml));
 		energyFill = hcal_activeHotL4->at(ml);  		
 		chargeS = (hcal_cdepthHot4->at(ml));                       
 		chargeBG = (hcal_cdepthHotBG4->at(ml));    
@@ -967,6 +993,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 		if (hcal_edepthCorrect5->size() > ml) {
 		  en1 = (useCorrect_) ? hcal_edepthCorrect5->at(ml) : hcal_edepth5->at(ml);
 		  en2 = (useCorrect_) ? hcal_edepthHotCorrect5->at(ml) : hcal_edepthHot5->at(ml);
+		  enh = (hcal_edepthHot5->at(ml));
+		  enc = (hcal_edepthHotCorrect5->at(ml));
 		  energyFill = hcal_activeHotL5->at(ml);  		
 		  chargeS = (hcal_cdepthHot5->at(ml));                       
 		  chargeBG = (hcal_cdepthHotBG5->at(ml));    
@@ -975,6 +1003,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 		if (hcal_edepthCorrect6->size() > ml) {
 		  en1 = (useCorrect_) ? hcal_edepthCorrect6->at(ml) : hcal_edepth6->at(ml);
 		  en2 = (useCorrect_) ? hcal_edepthHotCorrect6->at(ml) : hcal_edepthHot6->at(ml);
+		  enh = (hcal_edepthHot6->at(ml));
+		  enc = (hcal_edepthHotCorrect6->at(ml));
 		  energyFill = hcal_activeHotL6->at(ml);  		
 		  chargeS = (hcal_cdepthHot6->at(ml));                       
 		  chargeBG = (hcal_cdepthHotBG6->at(ml));    
@@ -983,6 +1013,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 		if (hcal_edepthCorrect7->size() > ml) {
 		  en1 = (useCorrect_) ? hcal_edepthCorrect7->at(ml) : hcal_edepth7->at(ml);
 		  en2 = (useCorrect_) ? hcal_edepthHotCorrect7->at(ml) : hcal_edepthHot7->at(ml);
+		  enh = (hcal_edepthHot7->at(ml));
+		  enc = (hcal_edepthHotCorrect7->at(ml));
 		  energyFill = hcal_activeHotL7->at(ml);  		
 		  chargeS = (hcal_cdepthHot7->at(ml));                       
 		  chargeBG = (hcal_cdepthHotBG7->at(ml));    
@@ -1004,8 +1036,9 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 			  << hcal_cellHot->at(ml) << " eta " << etaHcal << ":"
 			  << eta << " phi " << phiHcal << ":" << PHI 
 			  << " depth " << dep << " Index " << ind << " E " 
-			  << en2 << ":" << energyFill << " Charge "
-			  << chargeS << ":" << chargeBG << std::endl;
+			  << en1 << ":" << en2 << ":" << enh << ":" << enc
+			  << " L " << energyFill << " Charge " << chargeS 
+			  << ":" << chargeBG << std::endl;
 	      if (!(matchedId->at(ml))) continue;
 	      if (ok1) {
 		if (debug_) std::cout<<"enter ok1"<<std::endl;
@@ -1018,7 +1051,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 		    h_p_muon_ineta[cut][ind]->Fill(p_of_muon->at(ml));
 		    h_charge_signal[cut][ind]->Fill(chargeS);
 		    h_charge_bg[cut][ind]->Fill(chargeBG);
-		    t_ene.push_back(en2);
+		    t_ene.push_back(enh);
+		    t_enec.push_back(enc);
 		    t_charge.push_back(chargeS);
 		    t_actln.push_back(energyFill);
 		    // added depth vector AmanKalsi
@@ -1026,6 +1060,7 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 		    fillTree    = true;
 		  } else {
 		    t_ene.push_back(-999.0);
+		    t_enec.push_back(-999.0);
 		    t_charge.push_back(-999.0);
 		    t_actln.push_back(-999.0);
 		    t_depth.push_back(-999.0);
@@ -1079,6 +1114,7 @@ void HBHEMuonOfflineAnalyzer::BookHistograms(const char* fname) {
   outtree_->Branch("t_nvtx",      &t_nvtx);
   outtree_->Branch("t_p",         &t_p);
   outtree_->Branch("t_ene",       &t_ene);
+  outtree_->Branch("t_enec",      &t_enec);
   outtree_->Branch("t_charge",    &t_charge);
   outtree_->Branch("t_actln",     &t_actln);
   outtree_->Branch("t_depth",     &t_depth);
