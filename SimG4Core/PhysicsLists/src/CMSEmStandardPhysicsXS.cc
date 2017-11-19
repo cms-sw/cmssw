@@ -203,7 +203,7 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
       msc3->SetHighEnergyLimit(highEnergyLimit);
-      msc->SetEmModel(msc1);
+      msc->AddEmModel(0, msc1);
       msc->AddEmModel(0, msc2);
       msc->AddEmModel(-1, msc3, aRegion);
       if (bRegion) msc->AddEmModel(-1, msc3, bRegion);
@@ -234,7 +234,7 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       msc2->SetLowEnergyLimit(highEnergyLimit);
       msc3->SetHighEnergyLimit(highEnergyLimit);
       msc3->SetLocked(true);
-      msc->SetEmModel(msc1);
+      msc->AddEmModel(0, msc1);
       msc->AddEmModel(0, msc2);
       msc->AddEmModel(-1, msc3, aRegion);
       if (bRegion) msc->AddEmModel(-1, msc3, bRegion);
