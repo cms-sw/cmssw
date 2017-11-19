@@ -276,7 +276,7 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
   dataWord1 = 0;
   dataWord2 = 0;
 
-  dt_crc::calcCRC(dataWord1, dataWord2&0xFFFF, newCRC);
+  dt_crc::calcCRC(dataWord1, dataWord2, newCRC);
 
   lineFED+=4;
   *((int*)lineFED)=dataWord2; 
@@ -289,7 +289,7 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
              + (lines&0xFFFFFF);
   dataWord2 = 0;
 
-  dt_crc::calcCRC(dataWord1, dataWord2, newCRC);
+  dt_crc::calcCRC(dataWord1, dataWord2&0xFFFF, newCRC);
 
   dataWord2 += (newCRC&0xFFFF)<<16;
 
