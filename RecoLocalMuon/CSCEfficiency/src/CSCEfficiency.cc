@@ -1690,7 +1690,7 @@ CSCEfficiency::CSCEfficiency(const edm::ParameterSet& pset){
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
   //---- Book histograms for the analysis
-  char SpecName[50];
+  char SpecName[60];
   
   sprintf(SpecName,"DataFlow"); 
   DataFlow =  
