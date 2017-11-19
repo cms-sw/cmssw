@@ -114,6 +114,7 @@ private:
   Int_t                 t_nvtx;
   Double_t              t_p;
   std::vector<double>  *t_ene;
+  std::vector<double>  *t_enec;
   std::vector<double>  *t_charge;
   std::vector<double>  *t_actln;
   std::vector<int>     *t_depth;
@@ -124,6 +125,7 @@ private:
   TBranch              *b_t_nvtx;      //!
   TBranch              *b_t_p;         //!
   TBranch              *b_t_ene;       //!
+  TBranch              *b_t_enec;      //!
   TBranch              *b_t_charge;    //!
   TBranch              *b_t_actln;     //!
   TBranch              *b_t_depth;     //!
@@ -135,6 +137,7 @@ private:
   std::map<unsigned int, TH2D*> h_pnv_;
   std::map<unsigned int, TH1D*> h_p2_, h_nv2_;
   std::map<unsigned int, TH1D*> h_Energy_, h_Ecorr_, h_Charge_, h_Chcorr_;
+  std::map<unsigned int, TH1D*> h_EnergyC_, h_EcorrC_;
 };
 
 AnalyzeLepTree::AnalyzeLepTree(TTree *tree, int mode1, 
@@ -185,6 +188,7 @@ void AnalyzeLepTree::Init(TTree *tree) {
 
   // Set object pointer
   t_ene    = 0;
+  t_enec   = 0;
   t_charge = 0;
   t_actln  = 0;
   t_depth  = 0;
@@ -199,6 +203,7 @@ void AnalyzeLepTree::Init(TTree *tree) {
   fChain->SetBranchAddress("t_nvtx",   &t_nvtx,   &b_t_nvtx);
   fChain->SetBranchAddress("t_p",      &t_p,      &b_t_p);
   fChain->SetBranchAddress("t_ene",    &t_ene,    &b_t_ene);
+  fChain->SetBranchAddress("t_enec",   &t_enec,   &b_t_enec);
   fChain->SetBranchAddress("t_charge", &t_charge, &b_t_charge);
   fChain->SetBranchAddress("t_actln",  &t_actln,  &b_t_actln);
   fChain->SetBranchAddress("t_depth",  &t_depth,  &b_t_depth);
@@ -289,41 +294,51 @@ void AnalyzeLepTree::Loop() {
 	  int depth       = (*t_depth)[k];
 	  unsigned int id = packID(zside,eta,phi,depth+1,vbin,pbin);
 	  double ene      = (*t_ene)[k];
+	  double enec     = (*t_enec)[k];
 	  double charge   = (*t_charge)[k];
 	  double actl     = (*t_actln)[k];
 	  if (ene > 0 && actl > 0 && charge > 0) {
 	    std::map<unsigned int,TH1D*>::iterator it1 = h_Energy_.find(id);
-	    if (it1 != h_Energy_.end()) (it1->second)->Fill(ene);
+	    if (it1 != h_Energy_.end())  (it1->second)->Fill(ene);
 	    std::map<unsigned int,TH1D*>::iterator it2 = h_Ecorr_.find(id);
-	    if (it2 != h_Ecorr_.end())  (it2->second)->Fill(ene/actl);
-	    std::map<unsigned int,TH1D*>::iterator it3 = h_Charge_.find(id);
-	    if (it3 != h_Charge_.end()) (it3->second)->Fill(charge);
-	    std::map<unsigned int,TH1D*>::iterator it4 = h_Chcorr_.find(id);
-	    if (it4 != h_Chcorr_.end()) (it4->second)->Fill(charge/actl);
+	    if (it2 != h_Ecorr_.end())   (it2->second)->Fill(ene/actl);
+	    std::map<unsigned int,TH1D*>::iterator it3 = h_EnergyC_.find(id);
+	    if (it3 != h_EnergyC_.end()) (it3->second)->Fill(enec);
+	    std::map<unsigned int,TH1D*>::iterator it4 = h_EcorrC_.find(id);
+	    if (it4 != h_EcorrC_.end())  (it4->second)->Fill(enec/actl);
+	    std::map<unsigned int,TH1D*>::iterator it5 = h_Charge_.find(id);
+	    if (it5 != h_Charge_.end())  (it5->second)->Fill(charge);
+	    std::map<unsigned int,TH1D*>::iterator it6 = h_Chcorr_.find(id);
+	    if (it6 != h_Chcorr_.end())  (it6->second)->Fill(charge/actl);
 	    /*
-	    if ((eta>20 && (t_iphi > 35)) || (t_iphi > 71)) std::cout << zside << ":" << eta << ":" << phi << ":" << t_iphi << ":" << depth+1 << ":" << vbin << ":" << pbin << " ID " << std::hex << id << std::dec << " Flags " <<  (it1 != h_Energy_.end()) << ":" << (it2 != h_Ecorr_.end()) << ":" << (it3 != h_Charge_.end()) << ":" << (it4 != h_Chcorr_.end()) << " E " << ene << " C " << charge << " L " << actl << std::endl;
-	    if ((it1 == h_Energy_.end()) || (it2 == h_Ecorr_.end()) || (it3 == h_Charge_.end()) || (it4 == h_Chcorr_.end())) std::cout << zside << ":" << eta << ":" << phi << ":" << t_iphi << ":" << depth+1 << ":" << vbin << ":" << pbin << " ID " << std::hex << id << std::dec << " Flags " <<  (it1 != h_Energy_.end()) << ":" << (it2 != h_Ecorr_.end()) << ":" << (it3 != h_Charge_.end()) << ":" << (it4 != h_Chcorr_.end()) << " E " << ene << " C " << charge << " L " << actl << std::endl;
+	    if ((eta>20 && (t_iphi > 35)) || (t_iphi > 71)) std::cout << zside << ":" << eta << ":" << phi << ":" << t_iphi << ":" << depth+1 << ":" << vbin << ":" << pbin << " ID " << std::hex << id << std::dec << " Flags " <<  (it1 != h_Energy_.end()) << ":" << (it2 != h_Ecorr_.end()) << ":" <<  (it3 != h_EnergyC_.end()) << ":" << (it4 != h_EcorrC_.end()) << ":" << (it5 != h_Charge_.end()) << ":" << (it6 != h_Chcorr_.end()) << " E " << ene << " C " << charge << " L " << actl << std::endl;
+	    if ((it1 == h_Energy_.end()) || (it2 == h_Ecorr_.end()) || (it3 == h_EnergyC_.end()) || (it4 == h_EcorrC_.end()) || (it5 == h_Charge_.end()) || (it6 == h_Chcorr_.end())) std::cout << zside << ":" << eta << ":" << phi << ":" << t_iphi << ":" << depth+1 << ":" << vbin << ":" << pbin << " ID " << std::hex << id << std::dec << " Flags " <<  (it1 != h_Energy_.end()) << ":" << (it2 != h_Ecorr_.end()) << ":" << (it3 != h_Charge_.end()) << ":" << (it4 != h_Chcorr_.end()) << " E " << ene << " C " << charge << " L " << actl << std::endl;
 	    */
 	  }
 	}
       } else {
-	double ene(0), actl(0), charge(0);
+	double ene(0), enec(0), actl(0), charge(0);
 	unsigned int id = packID(zside,eta,phi,1,vbin,pbin);
 	for (unsigned int k=0; k<t_depth->size(); ++k) {
-	  if ((*t_ene)[k] > 0 && (*t_actln)[k] > 0 && (*t_charge)[k] > 0) {
+	  if ((*t_ene)[k] > 0 && (*t_actln)[k] > 0) {
 	    ene    += (*t_ene)[k];
+	    enec   += (*t_enec)[k];
 	    charge += (*t_charge)[k];
 	    actl   += (*t_actln)[k];
 	  }
 	}
 	std::map<unsigned int,TH1D*>::iterator it1 = h_Energy_.find(id);
-	if (it1 != h_Energy_.end()) (it1->second)->Fill(ene);
+	if (it1 != h_Energy_.end())  (it1->second)->Fill(ene);
 	std::map<unsigned int,TH1D*>::iterator it2 = h_Ecorr_.find(id);
-	if (it2 != h_Ecorr_.end())  (it2->second)->Fill(ene/actl);
-	std::map<unsigned int,TH1D*>::iterator it3 = h_Charge_.find(id);
-	if (it3 != h_Charge_.end())  (it3->second)->Fill(charge);
-	std::map<unsigned int,TH1D*>::iterator it4 = h_Chcorr_.find(id);
-	if (it4 != h_Chcorr_.end())  (it4->second)->Fill(charge/actl);
+	if (it2 != h_Ecorr_.end())   (it2->second)->Fill(ene/actl);
+	std::map<unsigned int,TH1D*>::iterator it3 = h_EnergyC_.find(id);
+	if (it3 != h_EnergyC_.end()) (it3->second)->Fill(ene);
+	std::map<unsigned int,TH1D*>::iterator it4 = h_Ecorr_.find(id);
+	if (it4 != h_EcorrC_.end())  (it4->second)->Fill(ene/actl);
+	std::map<unsigned int,TH1D*>::iterator it5 = h_Charge_.find(id);
+	if (it5 != h_Charge_.end())  (it5->second)->Fill(charge);
+	std::map<unsigned int,TH1D*>::iterator it6 = h_Chcorr_.find(id);
+	if (it6 != h_Chcorr_.end())  (it6->second)->Fill(charge/actl);
       }
     }
   }
@@ -400,6 +415,7 @@ void AnalyzeLepTree::bookHisto() {
     }
   } else {
     h_Energy_.clear(); h_Ecorr_.clear(); h_Charge_.clear(); h_Chcorr_.clear();
+    h_EnergyC_.clear(); h_EcorrC_.clear();
     for (int ieta=-26; ieta<=26; ++ieta) {
       if (ieta != 0) {
 	int zside = (ieta>0) ? 1 : -1;
@@ -449,6 +465,14 @@ void AnalyzeLepTree::bookHisto() {
 		sprintf (title,"Active length corrected energy for %s %s %s %s %s (GeV/cm)", etas, phis, deps, ps, vtx);
 		h_Ecorr_[id] = new TH1D(name,title,4000,0.0,10.0);
 		h_Ecorr_[id]->Sumw2();
+		sprintf (name,"EdepCE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
+		sprintf (title,"Response Corrected deposited energy for %s %s %s %s %s (GeV)", etas, phis, deps, ps, vtx);
+		h_EnergyC_[id] = new TH1D(name,title,4000,0.0,10.0);
+		h_EnergyC_[id]->Sumw2();
+		sprintf (name,"EcorCE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
+		sprintf (title,"Response and active length corrected energy for %s %s %s %s %s (GeV/cm)", etas, phis, deps, ps, vtx);
+		h_EcorrC_[id] = new TH1D(name,title,4000,0.0,10.0);
+		h_EcorrC_[id]->Sumw2();
 		sprintf (name,"ChrgE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Measured charge for %s %s %s %s %s (cm)", etas, phis, deps, ps, vtx);
 		h_Charge_[id] = new TH1D(name,title,20,0.0,20.0);
@@ -505,13 +529,17 @@ void AnalyzeLepTree::writeHisto(std::string fname) {
 		unsigned int id = packID(zside,eta,phi,depth+1,vbin,pbin);
 		std::map<unsigned int,TH1D*>::const_iterator itr;
 		itr = h_Energy_.find(id);
-		if (itr != h_Energy_.end()) (itr->second)->Write();
+		if (itr != h_Energy_.end())  (itr->second)->Write();
 		itr = h_Ecorr_.find(id);
-		if (itr != h_Ecorr_.end())  (itr->second)->Write();
+		if (itr != h_Ecorr_.end())   (itr->second)->Write();
+		itr = h_EnergyC_.find(id);
+		if (itr != h_EnergyC_.end()) (itr->second)->Write();
+		itr = h_EcorrC_.find(id);
+		if (itr != h_EcorrC_.end())  (itr->second)->Write();
 		itr = h_Charge_.find(id);
-		if (itr != h_Charge_.end()) (itr->second)->Write();
+		if (itr != h_Charge_.end())  (itr->second)->Write();
 		itr = h_Chcorr_.find(id);
-		if (itr != h_Chcorr_.end()) (itr->second)->Write();
+		if (itr != h_Chcorr_.end())  (itr->second)->Write();
 	      }
 	    }
 	  }
@@ -548,10 +576,12 @@ std::vector<TCanvas*> AnalyzeLepTree::plotHisto(bool drawStatBox, int type,
     bool doEnL = ((type/2)%2 > 0);
     bool doChg = ((type/4)%2 > 0);
     bool doChL = ((type/8)%2 > 0);
-    if (doEn)  plotHisto(h_Energy_, phi0, depth0, cvs, save);
-    if (doEnL) plotHisto(h_Ecorr_,  phi0, depth0, cvs, save);
-    if (doChg) plotHisto(h_Charge_, phi0, depth0, cvs, save);
-    if (doChL) plotHisto(h_Chcorr_, phi0, depth0, cvs, save);
+    if (doEn)  plotHisto(h_Energy_,  phi0, depth0, cvs, save);
+    if (doEn)  plotHisto(h_EnergyC_, phi0, depth0, cvs, save);
+    if (doEnL) plotHisto(h_Ecorr_,   phi0, depth0, cvs, save);
+    if (doEnL) plotHisto(h_EcorrC_,  phi0, depth0, cvs, save);
+    if (doChg) plotHisto(h_Charge_,  phi0, depth0, cvs, save);
+    if (doChL) plotHisto(h_Chcorr_,  phi0, depth0, cvs, save);
   }
   return cvs;
 }
