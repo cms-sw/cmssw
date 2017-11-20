@@ -58,6 +58,8 @@ class RecoTauQualityCuts
   bool filterTrack(const reco::TrackBaseRef& track) const;
   bool filterTrack(const reco::TrackRef& track) const;
   bool filterTrack(const reco::Track& track) const;
+  /// or a single charged candidate
+  bool filterChargedCand(const reco::Candidate& cand) const;
 
   /// Filter a collection of Tracks
   template<typename Coll> 
@@ -93,7 +95,6 @@ class RecoTauQualityCuts
   bool filterGammaCand(const reco::Candidate& cand) const;
   bool filterNeutralHadronCand(const reco::Candidate& cand) const;
   bool filterCandByType(const reco::Candidate& cand) const;
-  bool filterChargedCand(const reco::Candidate& cand) const;
 
   // The current primary vertex
   mutable reco::VertexRef pv_;

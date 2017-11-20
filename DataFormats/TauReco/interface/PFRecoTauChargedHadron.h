@@ -10,6 +10,7 @@
 namespace reco { namespace tau {
   class PFRecoTauChargedHadronFromPFCandidatePlugin;
   class PFRecoTauChargedHadronFromTrackPlugin;
+  class PFRecoTauChargedHadronFromLostTrackPlugin;
   template<class T, typename U, typename V>
   class RecoTauConstructor;
   template<class T>
@@ -54,6 +55,9 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
   /// reference to reco::Track
   const TrackPtr& getTrack() const;
 
+  /// reference to "lostTrack Candidate" when chadron built with tracks stored as pat::PackedCandidates
+  const CandidatePtr& getLostTrackCandidate() const;
+
   /// references to additional neutral PFCandidates
   const std::vector<CandidatePtr>& getNeutralPFCandidates() const;  
 
@@ -71,6 +75,7 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
  private:
   friend class tau::PFRecoTauChargedHadronFromPFCandidatePlugin;
   friend class tau::PFRecoTauChargedHadronFromTrackPlugin;
+  friend class tau::PFRecoTauChargedHadronFromLostTrackPlugin;
   template<typename T, typename U, typename V>
   friend class tau::RecoTauConstructor;
   template<typename T>
@@ -80,6 +85,7 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
   PFRecoTauChargedHadronAlgorithm algo_;
 
   CandidatePtr chargedPFCandidate_;
+  CandidatePtr lostTrackCandidate_;
   TrackPtr track_;
   std::vector<CandidatePtr> neutralPFCandidates_;
 

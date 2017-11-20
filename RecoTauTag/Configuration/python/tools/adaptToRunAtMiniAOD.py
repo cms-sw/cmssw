@@ -105,10 +105,15 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	# Adapt TauChargedHadrons producer
 	for builder in process.ak4PFJetsRecoTauChargedHadrons.builders:
 		builder.qualityCuts.primaryVertexSrc = cms.InputTag("offlineSlimmedPrimaryVertices")
+		if builder.name.value() == 'tracks': #replace plugin based on generalTracks by one based on lostTracks
+			builder.name = 'lostTracks'
+			builder.plugin = 'PFRecoTauChargedHadronFromLostTrackPlugin'
+			builder.srcLostTracks = cms.InputTag("lostTracks")
+			del builder.srcTracks
 	process.ak4PFJetsRecoTauChargedHadrons.jetSrc = cms.InputTag(jetCollection)
 	# FIXME - remove builder from tracks. well, because there are no tracks in miniAOD
 	# One can develop similar builder from lostTracks (packedCandidates) 
-	process.ak4PFJetsRecoTauChargedHadrons.builders =  cms.VPSet(process.ak4PFJetsRecoTauChargedHadrons.builders[0], process.ak4PFJetsRecoTauChargedHadrons.builders[2])
+	#process.ak4PFJetsRecoTauChargedHadrons.builders =  cms.VPSet(process.ak4PFJetsRecoTauChargedHadrons.builders[0], process.ak4PFJetsRecoTauChargedHadrons.builders[2])
 
 	# Adapt combinatoricRecoTau producer
 	convertModuleToBaseTau(process, 'combinatoricRecoTaus')
@@ -131,6 +136,9 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 		elif mod.name.value() == 'TTIworkaround':
 			modifiersToRemove_.append(mod)
 			continue
+		#elif mod.name.value() == 'tau_en_reconstruction':#MB FIXME
+                #        modifiersToRemove_.append(mod)
+                #        continue
 		mod.plugin = mod.plugin.value().replace('RecoTau', 'RecoBaseTau')
 		for name,value in mod.parameters_().iteritems():
 			if name == 'qualityCuts':
