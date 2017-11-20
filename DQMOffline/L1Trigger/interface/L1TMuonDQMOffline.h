@@ -62,10 +62,46 @@
 #include <utility>
 #include <vector>
 
+#include <boost/preprocessor.hpp>
+
+#define X_DEFINE_ENUM_WITH_STRING_CONVERSIONS_TOSTRING_CASE(r, data, elem)    \
+    case elem : return BOOST_PP_STRINGIZE(elem);
+
+#define DEFINE_ENUM_WITH_STRING_CONVERSIONS(name, enumerators)                \
+    enum name {                                                               \
+        BOOST_PP_SEQ_ENUM(enumerators)                                        \
+    };                                                                        \
+                                                                              \
+    inline const char* ToString(name v)                                       \
+    {                                                                         \
+        switch (v)                                                            \
+        {                                                                     \
+            BOOST_PP_SEQ_FOR_EACH(                                            \
+                X_DEFINE_ENUM_WITH_STRING_CONVERSIONS_TOSTRING_CASE,          \
+                name,                                                         \
+                enumerators                                                   \
+            )                                                                 \
+            default: return "[Unknown " BOOST_PP_STRINGIZE(name) "]";         \
+        }                                                                     \
+    }
+
+DEFINE_ENUM_WITH_STRING_CONVERSIONS(Eff, (EFF_Pt)(EFF_Phi)(EFF_Eta))
+DEFINE_ENUM_WITH_STRING_CONVERSIONS(Res, (RES_Pt)(RES_1overPt)(RES_Phi)(RES_Eta)(RES_Charge))
+DEFINE_ENUM_WITH_STRING_CONVERSIONS(EtaRegion, (ETAREGION_any)(ETAREGION_BMTF)(ETAREGION_OMTF)(ETAREGION_EMTF)(ETAREGION_out))
+DEFINE_ENUM_WITH_STRING_CONVERSIONS(Qual, (QUAL_any)(QUAL_Open)(QUAL_Double)(QUAL_Single)(QUAL_else)(QUAL_no))
+DEFINE_ENUM_WITH_STRING_CONVERSIONS(Type, (TYPE_Num)(TYPE_Den)(TYPE_Div))
+
+        enum Control
+        {
+            CONTROL_MuonGmtDeltaR,
+            CONTROL_NTightVsAll,
+            CONTROL_NProbesVsTight,
+        };
+
+float maxEta = 2.4;
 //
 // helper class to manage GMT-Muon pairing
 //
-
 class MuonGmtPair {
     public :
         MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu) :
@@ -76,6 +112,7 @@ class MuonGmtPair {
 
         double dR();
         double pt()  const { return m_muon->pt(); };
+//        static const double pt = m_muon->pt();
         double eta() const { return m_muon->eta(); };
         double phi() const { return m_muon->phi(); };
         int charge() const {return m_muon->charge(); };
@@ -84,10 +121,58 @@ class MuonGmtPair {
         double gmtPhi() const { return m_regMu ? m_regMu->phi() : -5.; };
         int gmtCharge() const {return m_regMu ? m_regMu->charge() : -5; };
         int gmtQual() const { return m_regMu ? m_regMu->hwQual() : -1; };
-        
+//        std::tuple<m_muon->charge(), m_regMu->hwQual()> pairInfo;       //lathos
+//        std::tuple<MuonGmtPair.charge(), MuonGmtPair.gmtQual()> pairInfo;       //lathos
+ //       double anna = pt();
+  //      double vava = eta();
+//        mama = (5,5);
+//        double anna = phi();  
+//double pt = pt();
+//        std::tuple<double, double, double, double, double, double, double, EtaRegion, int, Qual> pairInfo = std::make_tuple(pt(), pt() - gmtPt(), 1/pt() - 1/gmtPt(), phi(), phi() - gmtPhi(), eta(), eta() - gmtEta(), ETAREGION_BMTF, charge() - gmtCharge(), QUAL_Open);
+
+        std::tuple<double, double, double> pairInfoEff = {pt(), phi(), eta()};
+        std::tuple<double, double, double, double, int> pairInfoRes = {pt() - gmtPt(), 1/pt() - 1/gmtPt(), phi() - gmtPhi(), eta() - gmtEta(), charge() - gmtCharge()};
+
+        EtaRegion etaRegion() const {
+            if (fabs(eta()) <= 0.83) {
+                return ETAREGION_BMTF;
+                if (fabs(eta()) < 1.24) {
+                    return ETAREGION_OMTF;
+                    if (fabs(eta()) < maxEta) return ETAREGION_EMTF;
+                }
+            }
+            return ETAREGION_out;
+        }
+        Qual quality() const {
+            if (gmtQual() >= 12) {
+                return QUAL_Single;
+                if (gmtQual() >= 8) {
+                    return QUAL_Double;
+                    if (gmtQual() >= 4) return QUAL_Open;
+                }
+            }
+        return QUAL_else;
+        }
+        std::tuple<EtaRegion, Qual> etaQual(int etaQualCase) const {
+            if (etaQualCase == 1)   return {ETAREGION_any, QUAL_any};
+            if (etaQualCase == 2)   return {ETAREGION_any, quality()};
+            if (etaQualCase == 3)   return {etaRegion(), QUAL_any};
+            if (etaQualCase == 4)   return {etaRegion(), quality()};
+            throw std::invalid_argument("etaQualCase");
+        }
+//        std::tuple<double, double, double, double, double, double, double, EtaRegion, int, Qual> pairInfo ;
+//        std::get<0>(pairInfo) = pt();
+
         void propagate(edm::ESHandle<MagneticField> bField,
          edm::ESHandle<Propagator> propagatorAlong,
          edm::ESHandle<Propagator> propagatorOpposite);
+
+        //std::tuple<double, double, double, double, double, double, double, EtaRegion, int, Qual> pairInfo;
+      //  std::tie(std::tuple<float, float> pairInfo) 
+            //= std::make_tuple(0,0);
+//        std::tuple<int, int> pairInfo;
+//        std::tuple<int m_muon->charge(), int m_regMu->hwQual()> pairInfo;
+            //= std::make_tuple(0,0);
 
     private :
     // propagation private members
@@ -146,44 +231,40 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         edm::ESHandle<MagneticField> m_BField;
         edm::ESHandle<Propagator> m_propagatorAlong;
         edm::ESHandle<Propagator> m_propagatorOpposite;
+/*
+        std::vector<double> m_effVsPtBins;
+        std::vector<double> m_effVsPhiBins;
+        std::vector<double> m_effVsEtaBins;
+*/
+        int nEffVsPtBins, nEffVsPhiBins, nEffVsEtaBins;
+        float* ptBinsArray, phiBinsArray, etaBinsArray;
+/*
+        std::tuple<int, float*> getHistBinsEff(Eff eff){
+            if (eff == EFF_Pt)        return {nEffVsPtBins,ptBinsArray};
+            if (eff == EFF_Phi)       return {nEffVsPhiBins,phiBinsArray};
+            if (eff == EFF_Eta)       return {nEffVsEtaBins,etaBinsArray};
+            throw std::invalid_argument("eff");
+        }*/
+        std::tuple<int, double, double> getHistBinsRes(Res res){
+            if (res == RES_Pt)        return {100,-50.,-50.};
+            if (res == RES_1overPt)   return {50,-0.05,0.05};
+            if (res == RES_Phi)       return {96,-0.2,-0.2};
+            if (res == RES_Eta)       return {100,-0.1,0.1};
+            if (res == RES_Charge)    return {5,-2,-3};
+            throw std::invalid_argument("res");
+        }
 
-        enum Resol
-        {
-            RESOL_Pt,
-            RESOL_1overPt,
-            RESOL_Eta,
-            RESOL_Phi,
-            RESOL_Charge,
+//        std::tuple<Res, double, double, EtaRegion, Qual, int, double, double> histoInfoEff, histoInfoRes;
+        std::tuple<Eff, double, int, double, EtaRegion, Qual> histoInfoEffNum, histoInfoEffDen, histoInfoEff,  histoInfoEffTagPt,  histoInfoEffTagPhi,  histoInfoEffTagEta,  histoInfoEffProbePt,  histoInfoEffProbePhi,  histoInfoEffProbeEta;
+        std::tuple<Res, double, double, EtaRegion, Qual> histoInfoRes;
+//        std::tuple<Res, double, double, annoula, Qual, int, double, double> testing;
+  //      std::tuple<double, double, double> getHistBins(Plot);
 
-            RESOL_Pt_OPEN,
-            RESOL_1overPt_OPEN,
-            RESOL_Eta_OPEN,
-            RESOL_Phi_OPEN,
-            RESOL_Charge_OPEN,
+// histos
+//        std::map<int, std::map<std::string, MonitorElement*> > m_EfficiencyHistos;
+        std::map<std::tuple<Eff, double, int, double, EtaRegion, Qual, Type>, MonitorElement*> m_EfficiencyHistos;
+        std::map<std::tuple<Res, double, double, EtaRegion, Qual>, MonitorElement*> m_ResolutionHistos;
 
-            RESOL_Pt_DOUBLE,
-            RESOL_1overPt_DOUBLE,
-            RESOL_Eta_DOUBLE,
-            RESOL_Phi_DOUBLE,
-            RESOL_Charge_DOUBLE,
-
-            RESOL_Pt_SINGLE,
-            RESOL_1overPt_SINGLE,
-            RESOL_Eta_SINGLE,
-            RESOL_Phi_SINGLE,
-            RESOL_Charge_SINGLE,
-        };
-
-        enum Control
-        {
-            CONTROL_MuonGmtDeltaR,
-            CONTROL_NTightVsAll,
-            CONTROL_NProbesVsTight,
-        };
-
-        // histos
-        std::map<int, std::map<std::string, MonitorElement*> > m_EfficiencyHistos;
-        std::map<Resol, MonitorElement*> m_ResolutionHistos;
         std::map<Control, MonitorElement*> m_ControlHistos;
 
         // helper variables
@@ -208,6 +289,9 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         edm::EDGetTokenT<trigger::TriggerEvent> m_trigInputTag;
         std::string m_trigProcess;
         edm::EDGetTokenT<edm::TriggerResults> m_trigProcess_token;
+
+
+
         std::vector<std::string> m_trigNames;
         std::vector<double> m_effVsPtBins;
         std::vector<double> m_effVsPhiBins;
@@ -215,7 +299,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
 
         std::vector<int> m_trigIndices;
 
-        float m_MaxMuonEta;
+
         float m_MaxGmtMuonDR;
         float m_MaxHltMuonDR;
 

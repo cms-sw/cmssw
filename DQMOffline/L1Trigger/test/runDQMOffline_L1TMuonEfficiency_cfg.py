@@ -52,7 +52,8 @@ process.source = cms.Source('PoolSource',
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+#20171102#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(30000))    #20171102
 process.load('DQMOffline.L1Trigger.L1TMuonDQMEfficiency_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
