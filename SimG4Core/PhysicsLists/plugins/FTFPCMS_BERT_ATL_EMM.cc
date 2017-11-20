@@ -1,4 +1,4 @@
-#include "FTFPCMS_BERT_ATL_EMM.hh"
+#include "FTFPCMS_BERT_ATL_EMM.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
 #include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT_ATL.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"

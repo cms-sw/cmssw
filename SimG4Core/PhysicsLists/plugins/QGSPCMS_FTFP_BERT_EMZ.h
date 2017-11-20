@@ -1,5 +1,5 @@
 #ifndef SimG4Core_PhysicsLists_QGSPCMS_FTFP_BERT_EMZ_H
-#define SimG4Core_PhysicsLists_QGSPCMS_FTFP_BERT_EMZ_H
+#define SimG4Core_PhysicsLists_QGSPCMS_FTFP_BERT_EMZ_H 1
 
 // QGSP_FTFP_BERT_EMZ is a standard Geant4 Physics List FTFP_BERT with Option4
 //                    EM Physics configuration: used GS multiple scattering 

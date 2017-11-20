@@ -1,4 +1,4 @@
-#include "QBBCCMS.hh"
+#include "QBBCCMS.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -1,5 +1,5 @@
 #ifndef SimG4Core_PhysicsLists_QGSPCMS_FTFP_BERT_EMY_H
-#define SimG4Core_PhysicsLists_QGSPCMS_FTFP_BERT_EMY_H
+#define SimG4Core_PhysicsLists_QGSPCMS_FTFP_BERT_EMY_H 1
 
 // QGSP_FTFP_BERT_EMY  is a standard Geant4 Physics List QGSP_FTFP_BERT 
 //                     with Option3 EM Physics configuration: forced more steps 
