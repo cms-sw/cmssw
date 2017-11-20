@@ -308,6 +308,10 @@ _globalTags = {
     "CMSSW_9_4_0_pre3_phase1": {"default": "94X_mc2017_realistic_v4",
                                 "fullsim_25ns_PU50": "94X_mc2017_realistic_v4_highPU_AVE50",
                                 "Design": "94X_mc2017_design_IdealBS_v4"},
+    "CMSSW_9_4_0": {"default": "94X_mcRun2_asymptotic_v0"},
+    "CMSSW_9_4_0_phase1": {"default": "94X_mc2017_realistic_v10",
+                           "fullsim_25ns_PU50": "94X_mc2017_realistic_v10_highPU_AVE50",
+                           "Design": "94X_mc2017_design_IdealBS_v5"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_v2", "_v3", "_pmx", "_Fall14DR", "_FIXGT", "_PU", "_PXbest", "_PXworst", "_hcal", "_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
