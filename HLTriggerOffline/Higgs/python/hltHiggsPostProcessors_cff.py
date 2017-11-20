@@ -106,7 +106,7 @@ def make_higgs_postprocessor(analysis_name, plot_types=["TurnOn1", "TurnOn2", "E
                 efficiency_strings.append(this_efficiency_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
 
                 for str_template in extra_str_templates:
-                    this_extra_string = str_template.replace("@AN@", analysis_name).replace("@TRIGGER@", trigger)
+                    this_extra_string = str_template.replace("@ANALYSIS@", analysis_name).replace("@TRIGGER@", trigger)
                     efficiency_strings.append(this_extra_string)
                     efficiency_strings.append(this_extra_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
 
@@ -126,7 +126,7 @@ hltHiggsPostH2tau = make_higgs_postprocessor("H2tau", extra_str_templates=[truev
 hltHiggsPostHtaunu = make_higgs_postprocessor("Htaunu", extra_str_templates=[truevtx_string_template])
 hltHiggsPostVBFHToInv = make_higgs_postprocessor("VBFHToInv", extra_str_templates=[truevtx_string_template])
 
-TTHbbej_HtDist_template = "Eff_HtDist_@ANALYSIS@_gen_@TRIGGER ' Efficiency of @TRIGGER vs sum pT of jets ; sum pT of jets ' HtDist_@ANALYSIS@_gen_@TRIGGER HtDist_@ANALYSIS@_gen"
+TTHbbej_HtDist_template = "Eff_HtDist_@ANALYSIS@_gen_@TRIGGER@ ' Efficiency of @TRIGGER@ vs sum pT of jets ; sum pT of jets ' HtDist_@ANALYSIS@_gen_@TRIGGER@ HtDist_@ANALYSIS@_gen"
 hltHiggsPostTTHbbej = make_higgs_postprocessor("TTHbbej", extra_str_templates=[truevtx_string_template, TTHbbej_HtDist_template])
 hltHiggsPostAHttH = make_higgs_postprocessor("AHttH", extra_str_templates=[truevtx_string_template, TTHbbej_HtDist_template])
 
@@ -141,7 +141,7 @@ if NminOneCuts:
             if( NminOneCutNames[iCut] == "EffmaxCSV" ):
                 VBFHbb_2btag_plot_types.pop()
             VBFHbb_2btag_plot_types.append(NminOneCutNames[iCut])
-hltHiggsPostVBFHbb_2btag = make_higgs_postprocessor("VBFHbb_2btag", object_types=["Jet"], plot_types=VBFHbb_2btag_plot_types)
+hltHiggsPostVBFHbb_2btag = make_higgs_postprocessor("VBFHbb_2btag", object_types=["Jet"], plot_types=VBFHbb_2btag_plot_types, extra_str_templates=[truevtx_string_template])
 
 #Specific plots for VBFHbb_1btag  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
@@ -153,7 +153,7 @@ if NminOneCuts:
             if( NminOneCutNames[iCut] == "EffmaxCSV" ):
                 VBFHbb_1btag_plot_types.pop()
             VBFHbb_1btag_plot_types.append(NminOneCutNames[iCut])
-hltHiggsPostVBFHbb_1btag = make_higgs_postprocessor("VBFHbb_1btag", plot_types=VBFHbb_1btag_plot_types, object_types=["Jet"])
+hltHiggsPostVBFHbb_1btag = make_higgs_postprocessor("VBFHbb_1btag", plot_types=VBFHbb_1btag_plot_types, object_types=["Jet"], extra_str_templates=[truevtx_string_template])
 
 #Specific plots for VBFHbb_0btag  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
@@ -165,7 +165,7 @@ if NminOneCuts:
             if( NminOneCutNames[iCut] == "EffmaxCSV" ):
                 VBFHbb_0btag_plot_types.pop()
             VBFHbb_0btag_plot_types.append(NminOneCutNames[iCut])
-hltHiggsPostVBFHbb_0btag = make_higgs_postprocessor("VBFHbb_0btag", plot_types=VBFHbb_0btag_plot_types, object_types=["Jet"])
+hltHiggsPostVBFHbb_0btag = make_higgs_postprocessor("VBFHbb_0btag", plot_types=VBFHbb_0btag_plot_types, object_types=["Jet"], extra_str_templates=[truevtx_string_template])
 
 
 #Specific plots for ZnnHbb
@@ -175,7 +175,7 @@ if NminOneCuts:
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
             ZnnHbb_plot_types.append(NminOneCutNames[iCut])
-hltHiggsPostZnnHbb = make_higgs_postprocessor("ZnnHbb", plot_types=["EffEta", "EffPhi", "TurnOn1"], object_types=["Jet", "PFMet"])
+hltHiggsPostZnnHbb = make_higgs_postprocessor("ZnnHbb", plot_types=ZnnHbb_plot_types, object_types=["Jet", "PFMET"], extra_str_templates=[truevtx_string_template])
 
 #Specific plots for X4b
 #Jet plots

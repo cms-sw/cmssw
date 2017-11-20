@@ -80,10 +80,9 @@ def make_exo_postprocessor(analysis_name, plot_types=["TurnOn1", "TurnOn2", "Tur
                 efficiency_strings.append(this_efficiency_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
 
                 for str_template in extra_str_templates:
-                    this_extra_string = str_template.replace("@AN@", analysis_name).replace("@TRIGGER@", trigger)
+                    this_extra_string = str_template.replace("@ANALYSIS@", analysis_name).replace("@TRIGGER@", trigger)
                     efficiency_strings.append(this_extra_string)
                     efficiency_strings.append(this_extra_stringreplace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
-
     postprocessor.efficiencyProfile = efficiency_strings
     return postprocessor
 
@@ -91,7 +90,7 @@ hltExoticaPostLowPtTrimuon = make_exo_postprocessor("LowPtTrimuon")
 hltExoticaPostHighPtDimuon = make_exo_postprocessor("HighPtDimuon")
 hltExoticaPostHighPtDielectron = make_exo_postprocessor("HighPtDielectron")
 hltExoticaPostHighPtElectron = make_exo_postprocessor("HighPtElectron")
-#hltExoticaPostLowPtElectron = make_exo_postprocessor("LowPtElectron")
+hltExoticaPostLowPtElectron = make_exo_postprocessor("LowPtElectron")
 hltExoticaPostLowPtDimuon = make_exo_postprocessor("LowPtDimuon")
 hltExoticaPostLowPtDielectron = make_exo_postprocessor("LowPtDielectron")
 hltExoticaPostHighPtPhoton = make_exo_postprocessor("HighPtPhoton")
@@ -124,7 +123,7 @@ hltExoticaPostProcessors = cms.Sequence(
     hltExoticaPostLowPtDielectron +
     # Single Lepton paths
     hltExoticaPostHighPtElectron +
-    #hltExoticaPostLowPtElectron +
+    hltExoticaPostLowPtElectron +
     # Photon paths
     hltExoticaPostHighPtPhoton +
     hltExoticaPostDiPhoton +
