@@ -146,7 +146,7 @@ namespace l1t {
 
 	RegionalMuonCandBxCollection* res_cand;
 	res_cand = static_cast<EMTFCollections*>(coll)->getRegionalMuonCands();
-	RegionalMuonCand mu_;
+	RegionalMuonCand mu_(0, 0, 0, 0, 0, 0, 0, tftype::emtf_pos);
 	
 	///////////////////////////////////
 	// Unpack the SP Output Data Record
