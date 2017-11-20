@@ -81,6 +81,13 @@ void loadFileList(const char *inputFile, TString baseDir, TString legendName, in
   sourceList.push_back( new PVValidationVariables( inputFile, baseDir, legendName, lineColor, lineStyle ) ); 
 }
 
+//*************************************************************
+void clearFileList()
+//*************************************************************
+{
+  sourceList.clear();
+}
+
 namespace statmode{
   using fitParams = std::pair<std::pair<double,double>, std::pair<double,double> >;
 }
@@ -367,6 +374,8 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
 
   }
 
+  // adjust the maxima
+
   adjustMaximum(p_resolX_vsSumPt_,nFiles_);
   adjustMaximum(p_resolY_vsSumPt_,nFiles_);
   adjustMaximum(p_resolZ_vsSumPt_,nFiles_);
@@ -378,6 +387,18 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
   adjustMaximum(p_resolX_vsNVtx_,nFiles_);
   adjustMaximum(p_resolY_vsNVtx_,nFiles_);
   adjustMaximum(p_resolZ_vsNVtx_,nFiles_);
+
+  adjustMaximum(p_pullX_vsSumPt_,nFiles_);
+  adjustMaximum(p_pullY_vsSumPt_,nFiles_);
+  adjustMaximum(p_pullZ_vsSumPt_,nFiles_);
+		                   	
+  adjustMaximum(p_pullX_vsNtracks_,nFiles_);
+  adjustMaximum(p_pullY_vsNtracks_,nFiles_);
+  adjustMaximum(p_pullZ_vsNtracks_,nFiles_);
+		                     
+  adjustMaximum(p_pullX_vsNVtx_,nFiles_);
+  adjustMaximum(p_pullY_vsNVtx_,nFiles_);
+  adjustMaximum(p_pullZ_vsNVtx_,nFiles_);
 
   TCanvas *c1 = new TCanvas("VertexResolVsSumPt","Vertex Resolution vs #sum p_{T} [GeV]",1500,700);
   c1->Divide(3,1);
@@ -458,7 +479,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     // first canvas
     
     c1->cd(1);
-    j==0 ? p_resolX_vsSumPt_[j]->Draw() : p_resolX_vsSumPt_[j]->Draw("same");
+    j==0 ? p_resolX_vsSumPt_[j]->Draw("E1") : p_resolX_vsSumPt_[j]->Draw("E1same");
     lego->AddEntry(p_resolX_vsSumPt_[j],LegLabels[j]);
 
     if(j==nFiles_-1) lego->Draw("same");
@@ -467,7 +488,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c1->cd(2);
-    j==0 ? p_resolY_vsSumPt_[j]->Draw() : p_resolY_vsSumPt_[j]->Draw("same");
+    j==0 ? p_resolY_vsSumPt_[j]->Draw("E1") : p_resolY_vsSumPt_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -475,7 +496,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c1->cd(3);
-    j==0 ? p_resolZ_vsSumPt_[j]->Draw() : p_resolZ_vsSumPt_[j]->Draw("same");
+    j==0 ? p_resolZ_vsSumPt_[j]->Draw("E1") : p_resolZ_vsSumPt_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -485,7 +506,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     // second canvas
 
     c2->cd(1);
-    j==0 ? p_pullX_vsSumPt_[j]->Draw() : p_pullX_vsSumPt_[j]->Draw("same");
+    j==0 ? p_pullX_vsSumPt_[j]->Draw("E1") : p_pullX_vsSumPt_[j]->Draw("E1same");
     
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -493,7 +514,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c2->cd(2);
-    j==0 ? p_pullY_vsSumPt_[j]->Draw() : p_pullY_vsSumPt_[j]->Draw("same");
+    j==0 ? p_pullY_vsSumPt_[j]->Draw("E1") : p_pullY_vsSumPt_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -501,7 +522,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c2->cd(3);
-    j==0 ? p_pullZ_vsSumPt_[j]->Draw() : p_pullZ_vsSumPt_[j]->Draw("same");
+    j==0 ? p_pullZ_vsSumPt_[j]->Draw("E1") : p_pullZ_vsSumPt_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -511,7 +532,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     // third canvas
 
     c3->cd(1);
-    j==0 ? p_resolX_vsNtracks_[j]->Draw() : p_resolX_vsNtracks_[j]->Draw("same");
+    j==0 ? p_resolX_vsNtracks_[j]->Draw("E1") : p_resolX_vsNtracks_[j]->Draw("E1same");
     
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -519,7 +540,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c3->cd(2);
-    j==0 ? p_resolY_vsNtracks_[j]->Draw() : p_resolY_vsNtracks_[j]->Draw("same");
+    j==0 ? p_resolY_vsNtracks_[j]->Draw("E1") : p_resolY_vsNtracks_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -527,7 +548,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c3->cd(3);
-    j==0 ? p_resolZ_vsNtracks_[j]->Draw() : p_resolZ_vsNtracks_[j]->Draw("same");
+    j==0 ? p_resolZ_vsNtracks_[j]->Draw("E1") : p_resolZ_vsNtracks_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -537,7 +558,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     // fourth canvas
     
     c4->cd(1);
-    j==0 ? p_pullX_vsNtracks_[j]->Draw() : p_pullX_vsNtracks_[j]->Draw("same");
+    j==0 ? p_pullX_vsNtracks_[j]->Draw("E1") : p_pullX_vsNtracks_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -545,7 +566,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c4->cd(2);
-    j==0 ? p_pullY_vsNtracks_[j]->Draw() : p_pullY_vsNtracks_[j]->Draw("same");
+    j==0 ? p_pullY_vsNtracks_[j]->Draw("E1") : p_pullY_vsNtracks_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -553,7 +574,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c4->cd(3);
-    j==0 ? p_pullZ_vsNtracks_[j]->Draw() : p_pullZ_vsNtracks_[j]->Draw("same");
+    j==0 ? p_pullZ_vsNtracks_[j]->Draw("E1") : p_pullZ_vsNtracks_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -563,7 +584,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     // fifth canvas
 
     c5->cd(1);
-    j==0 ? p_resolX_vsNVtx_[j]->Draw() : p_resolX_vsNVtx_[j]->Draw("same");
+    j==0 ? p_resolX_vsNVtx_[j]->Draw("E1") : p_resolX_vsNVtx_[j]->Draw("E1same");
     
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -571,7 +592,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c5->cd(2);
-    j==0 ? p_resolY_vsNVtx_[j]->Draw() : p_resolY_vsNVtx_[j]->Draw("same");
+    j==0 ? p_resolY_vsNVtx_[j]->Draw("E1") : p_resolY_vsNVtx_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -579,7 +600,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c5->cd(3);
-    j==0 ? p_resolZ_vsNVtx_[j]->Draw() : p_resolZ_vsNVtx_[j]->Draw("same");
+    j==0 ? p_resolZ_vsNVtx_[j]->Draw("E1") : p_resolZ_vsNVtx_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -589,7 +610,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     // sixth canvas
     
     c6->cd(1);
-    j==0 ? p_pullX_vsNVtx_[j]->Draw() : p_pullX_vsNVtx_[j]->Draw("same");
+    j==0 ? p_pullX_vsNVtx_[j]->Draw("E1") : p_pullX_vsNVtx_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -597,7 +618,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c6->cd(2);
-    j==0 ? p_pullY_vsNVtx_[j]->Draw() : p_pullY_vsNVtx_[j]->Draw("same");
+    j==0 ? p_pullY_vsNVtx_[j]->Draw("E1") : p_pullY_vsNVtx_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -605,7 +626,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
     c6->cd(3);
-    j==0 ? p_pullZ_vsNVtx_[j]->Draw() : p_pullZ_vsNVtx_[j]->Draw("same");
+    j==0 ? p_pullZ_vsNVtx_[j]->Draw("E1") : p_pullZ_vsNVtx_[j]->Draw("E1same");
 
     if(j==nFiles_-1) lego->Draw("same");
     if(theDate.Length()!=0) ptDate->Draw("same");
@@ -613,6 +634,8 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     CMS_lumi(current_pad,4,33 );
 
   }
+
+  if(theDate.Length()!=0) theDate.Prepend("_");
 
   c1->SaveAs("VertexResolVsSumPt"+theDate+".png");
   c2->SaveAs("VertexPullVsSumPt"+theDate+".png");
