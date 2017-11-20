@@ -121,7 +121,7 @@ TriggerObjectTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
             for (const auto & seed : *src) {
                 float dr2 = deltaR2(seed, obj);
                 if (dr2 < best && sel.l1cut(seed)) {
-                    l2pt[i] = seed.pt();
+                    l1pt[i] = seed.pt();
                 }
             }
         }
