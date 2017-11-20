@@ -75,13 +75,13 @@ do
     rfcp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
-cp .oO[Alignment/OfflineValidation]Oo./macros/FitPVResiduals.C .
+cp .oO[Alignment/OfflineValidation]Oo./macros/FitPVResolution.C .
 cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.C .
 cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.h .
 
  if [[ .oO[pvresolutionreference]Oo. == *store* ]]; then xrdcp -f .oO[pvresolutionreference]Oo. PVValidation_reference.root; else ln -fs .oO[pvresolutionreference]Oo. ./PVResolution_reference.root; fi
 
-root -b -q "FitPVResiduals.C(\\"${PWD}/${RootOutputFile}=${theLabel},${PWD}/PVValidation_reference.root=Design simulation\\",true,true,\\"$theDate\\")"
+root -b -q "FitPVResolution.C(\\"${PWD}/${RootOutputFile}=${theLabel},${PWD}/PVValidation_reference.root=Design simulation\\",\\"$theDate\\")"
 
 mkdir -p .oO[plotsdir]Oo.
 for PngOutputFile in $(ls *png ); do
@@ -93,54 +93,6 @@ for PdfOutputFile in $(ls *pdf ); do
     xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/${PdfOutputFile}
     rfcp ${PdfOutputFile}  .oO[plotsdir]Oo.
 done
-
-mkdir .oO[plotsdir]Oo./Biases/
-mkdir .oO[plotsdir]Oo./Biases/dzPhi
-mkdir .oO[plotsdir]Oo./Biases/dxyPhi
-mkdir .oO[plotsdir]Oo./Biases/dzEta
-mkdir .oO[plotsdir]Oo./Biases/dxyEta
-mkdir .oO[plotsdir]Oo./Fit
-mkdir .oO[plotsdir]Oo./dxyVsEta
-mkdir .oO[plotsdir]Oo./dzVsEta
-mkdir .oO[plotsdir]Oo./dxyVsPhi
-mkdir .oO[plotsdir]Oo./dzVsPhi
-mkdir .oO[plotsdir]Oo./dxyVsEtaNorm
-mkdir .oO[plotsdir]Oo./dzVsEtaNorm
-mkdir .oO[plotsdir]Oo./dxyVsPhiNorm
-mkdir .oO[plotsdir]Oo./dzVsPhiNorm
-
-mv .oO[plotsdir]Oo./BiasesCanvas*     .oO[plotsdir]Oo./Biases/
-mv .oO[plotsdir]Oo./dzPhiBiasCanvas*  .oO[plotsdir]Oo./Biases/dzPhi
-mv .oO[plotsdir]Oo./dxyPhiBiasCanvas* .oO[plotsdir]Oo./Biases/dxyPhi
-mv .oO[plotsdir]Oo./dzEtaBiasCanvas*  .oO[plotsdir]Oo./Biases/dzEta
-mv .oO[plotsdir]Oo./dxyEtaBiasCanvas* .oO[plotsdir]Oo./Biases/dxyEta
-mv .oO[plotsdir]Oo./dzPhiTrendFit*    .oO[plotsdir]Oo./Fit
-mv .oO[plotsdir]Oo./dxyEtaTrendNorm*  .oO[plotsdir]Oo./dxyVsEtaNorm
-mv .oO[plotsdir]Oo./dzEtaTrendNorm*   .oO[plotsdir]Oo./dzVsEtaNorm
-mv .oO[plotsdir]Oo./dxyPhiTrendNorm*  .oO[plotsdir]Oo./dxyVsPhiNorm
-mv .oO[plotsdir]Oo./dzPhiTrendNorm*   .oO[plotsdir]Oo./dzVsPhiNorm
-mv .oO[plotsdir]Oo./dxyEtaTrend*      .oO[plotsdir]Oo./dxyVsEta
-mv .oO[plotsdir]Oo./dzEtaTrend*       .oO[plotsdir]Oo./dzVsEta
-mv .oO[plotsdir]Oo./dxyPhiTrend*      .oO[plotsdir]Oo./dxyVsPhi
-mv .oO[plotsdir]Oo./dzPhiTrend*       .oO[plotsdir]Oo./dzVsPhi
-
-wget https://raw.githubusercontent.com/mmusich/PVToolScripts/master/PolishedScripts/index.php
-
-cp index.php .oO[plotsdir]Oo./Biases/
-cp index.php .oO[plotsdir]Oo./Biases/dzPhi
-cp index.php .oO[plotsdir]Oo./Biases/dxyPhi
-cp index.php .oO[plotsdir]Oo./Biases/dzEta
-cp index.php .oO[plotsdir]Oo./Biases/dxyEta
-cp index.php .oO[plotsdir]Oo./Fit
-cp index.php .oO[plotsdir]Oo./dxyVsEta
-cp index.php .oO[plotsdir]Oo./dzVsEta
-cp index.php .oO[plotsdir]Oo./dxyVsPhi
-cp index.php .oO[plotsdir]Oo./dzVsPhi
-cp index.php .oO[plotsdir]Oo./dxyVsEtaNorm
-cp index.php .oO[plotsdir]Oo./dzVsEtaNorm
-cp index.php .oO[plotsdir]Oo./dxyVsPhiNorm
-cp index.php .oO[plotsdir]Oo./dzVsPhiNorm
-
 
 echo  -----------------------
 echo  Job ended at `date`
@@ -178,13 +130,14 @@ This can be run directly in root, or you
  can run ./TkAlMerge.sh in this directory
 ****************************************/
 
-#include "Alignment/OfflineValidation/macros/FitPVResiduals.C"
+#include "Alignment/OfflineValidation/macros/FitPVResolution.C"
 
 void TkAlPrimaryVertexResolutionPlot()
 {
 
   // initialize the plot y-axis ranges
  .oO[PlottingInstantiation]Oo.
+ FitPVResolution("","")
 
 }
 """
