@@ -63,7 +63,7 @@ def make_smp_postprocessor(analysis_name, plot_types=["TurnOn1", "TurnOn2", "Eff
                 efficiency_strings.append(this_efficiency_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
 
                 for str_template in extra_str_templates:
-                    this_extra_string = str_template.replace("@AN@", analysis_name).replace("@TRIGGER@", trigger)
+                    this_extra_string = str_template.replace("@ANALYSIS@", analysis_name).replace("@TRIGGER@", trigger)
                     efficiency_strings.append(this_extra_string)
                     efficiency_strings.append(this_extra_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
 
