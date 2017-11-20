@@ -9,11 +9,10 @@
 #include "TObject.h"
 #include "TStyle.h"
 #include "TClass.h"
-#include <iostream>
 #include "TLegend.h"
 #include <string>
+#include <iomanip>
 #include "TPaveText.h"
-
 #include <fstream>      // std::ofstream
 #include <iostream>
 #include <algorithm>
@@ -24,6 +23,63 @@
 
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
 #include "Alignment/OfflineValidation/macros/CMS_lumi.C"
+
+/* 
+   This is an auxilliary class to store the list of files
+   to be used to plot
+*/
+
+class PVValidationVariables {
+public:
+  PVValidationVariables(TString fileName, TString baseDir, TString legName="", int color=1, int style=1);
+  int getLineColor(){ return lineColor; }
+  int getLineStyle(){ return lineStyle; }
+  TString getName(){ return legendName; }
+  TFile* getFile(){ return file; }
+  TString getFileName() { return fname;}
+private:
+  TFile* file;
+  int lineColor;
+  int lineStyle;
+  TString legendName;
+  TString fname;
+};
+
+PVValidationVariables::PVValidationVariables(TString fileName, TString baseDir, TString legName, int lColor, int lStyle)
+{
+  fname = fileName;
+  lineColor = lColor;
+  lineStyle = lStyle % 100;
+  if (legName=="") {
+    std::string s_fileName = fileName.Data();
+    int start = 0;
+    if (s_fileName.find('/') ) start =s_fileName.find_last_of('/')+1;
+    int stop = s_fileName.find_last_of('.');
+    legendName = s_fileName.substr(start,stop-start);
+  } else { 
+    legendName = legName;
+  }
+
+  // check if the base dir exists
+  file = TFile::Open( fileName.Data(), "READ" );
+  if (file->Get( baseDir.Data() ) )  {
+    std::cout<<"found base directory: " << baseDir.Data()<<std::endl;
+  } else {
+    std::cout<<"no directory named: "<<baseDir.Data()<<std::endl;
+    assert(false);
+  }
+}
+
+std::vector<PVValidationVariables*> sourceList;
+
+// fill the list of files
+//*************************************************************
+void loadFileList(const char *inputFile, TString baseDir, TString legendName, int lineColor, int lineStyle)
+//*************************************************************
+{
+  gErrorIgnoreLevel = kFatal;
+  sourceList.push_back( new PVValidationVariables( inputFile, baseDir, legendName, lineColor, lineStyle ) ); 
+}
 
 namespace statmode{
   using fitParams = std::pair<std::pair<double,double>, std::pair<double,double> >;
@@ -40,19 +96,46 @@ void makeNiceTrendPlotStyle(TH1 *hist,Int_t color,Int_t style);
 void adjustMaximum(TH1F* histos[], int size);
 
 // MAIN
-
+//*************************************************************
 void FitPVResolution(TString namesandlabels,TString theDate=""){
-  
+//*************************************************************
+
+  bool fromLoader = false;
   setStyle();
+
+  // check if the loader is empty
+  if (sourceList.size()!=0){
+    fromLoader = true;
+  }
+
+  // if enters here, whatever is passed from command line is neglected
+  if(fromLoader) {
+    std::cout << "FitPVResiduals::FitPVResiduals(): file list specified from loader" << std::endl;
+    std::cout << "======================================================" << std::endl;
+    std::cout << "!!    arguments passed from CLI will be neglected   !!" << std::endl;
+    std::cout << "======================================================" << std::endl;
+    for(std::vector<PVValidationVariables*>::iterator it = sourceList.begin();
+	it != sourceList.end(); ++it){
+      std::cout<<"name:  "  << std::setw(20) << (*it)->getName()
+	       <<" |file:  " << std::setw(15) << (*it)->getFile()
+	       <<" |color: " << std::setw(5) << (*it)->getLineColor()
+	       <<" |style: " << std::setw(5) << (*it)->getLineStyle()
+	       << std::endl;
+    }
+    std::cout << "======================================================" << std::endl;
+  }
+
 
   Int_t theFileCount=0;
   TList *FileList  = new TList();
   TList *LabelList = new TList();
 
-  namesandlabels.Remove(TString::kTrailing, ',');
-  TObjArray *nameandlabelpairs = namesandlabels.Tokenize(",");
-  for (Int_t i = 0; i < nameandlabelpairs->GetEntries(); ++i) {
-    TObjArray *aFileLegPair = TString(nameandlabelpairs->At(i)->GetName()).Tokenize("=");
+  if(!fromLoader){
+    
+    namesandlabels.Remove(TString::kTrailing, ',');
+    TObjArray *nameandlabelpairs = namesandlabels.Tokenize(",");
+    for (Int_t i = 0; i < nameandlabelpairs->GetEntries(); ++i) {
+      TObjArray *aFileLegPair = TString(nameandlabelpairs->At(i)->GetName()).Tokenize("=");
     
       if(aFileLegPair->GetEntries() == 2) {
 	FileList->Add( TFile::Open(aFileLegPair->At(0)->GetName(),"READ")  );  // 2
@@ -63,10 +146,19 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
 		  << " filename1=legendentry1,filename2=legendentry2\n";
 	return;
       }    
-  }
+    }
 
-  theFileCount=FileList->GetSize();
-  
+    theFileCount=FileList->GetSize();
+  } else {
+    
+    for(std::vector<PVValidationVariables*>::iterator it = sourceList.begin();
+	it != sourceList.end(); ++it){
+      //FileList->Add((*it)->getFile()); // was extremely slow
+      FileList->Add( TFile::Open((*it)->getFileName(),"READ")  );  
+    }
+    theFileCount = sourceList.size();
+  }
+ 
   const Int_t nFiles_ = theFileCount;
   TString LegLabels[10];  
   TFile *fins[nFiles_]; 
@@ -77,10 +169,18 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
     
     // Retrieve files
     fins[j] = (TFile*)FileList->At(j);    
-    TObjString* legend = (TObjString*)LabelList->At(j);
-    LegLabels[j] = legend->String();
-    markers[j] = def_markers[j];
-    colors[j]  = def_colors[j];
+
+    if(!fromLoader){
+      TObjString* legend = (TObjString*)LabelList->At(j);
+      LegLabels[j] = legend->String();
+      markers[j] = def_markers[j];
+      colors[j]  = def_colors[j];
+    } else {
+      LegLabels[j] = sourceList[j]->getName();
+      markers[j] = sourceList[j]->getLineStyle();
+      colors[j]  = sourceList[j]->getLineColor();
+    }
+
     LegLabels[j].ReplaceAll("_"," ");
     cout<<"FitPVResolution::FitPVResolution(): label["<<j<<"] "<<LegLabels[j]<<endl;
     
@@ -536,6 +636,11 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
   delete c5;
   delete c6;
 
+  // delete everything in the source list
+  for(std::vector<PVValidationVariables*>::iterator it = sourceList.begin();
+      it != sourceList.end(); ++it){
+    delete (*it);
+  }
 }
 
 
