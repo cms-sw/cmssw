@@ -1,4 +1,4 @@
-#include "QGSPCMS_BERT_HP_EML.hh"
+#include "QGSPCMS_BERT_HP_EML.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
