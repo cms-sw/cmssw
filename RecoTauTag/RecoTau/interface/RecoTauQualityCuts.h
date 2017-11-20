@@ -57,6 +57,9 @@ class RecoTauQualityCuts
   /// Filter a single Track
   bool filterTrack(const reco::TrackBaseRef& track) const;
   bool filterTrack(const reco::TrackRef& track) const;
+  bool filterTrack(const reco::Track& track) const;
+  /// or a single charged candidate
+  bool filterChargedCand(const reco::Candidate& cand) const;
 
   /// Filter a collection of Tracks
   template<typename Coll> 

@@ -7,6 +7,27 @@
 
 namespace reco { namespace tau {
 
+namespace {
+  const reco::Track* getTrackFromChargedHadron(const reco::PFRecoTauChargedHadron& chargedHadron) {
+    // Charged hadron made from track (reco::Track) - RECO/AOD only
+    if ( chargedHadron.getTrack().isNonnull()) {
+      return chargedHadron.getTrack().get();
+    }
+    // In MiniAOD, even isolated tracks are saved as candidates, so the track Ptr doesn't exist
+    const pat::PackedCandidate* chargedPFPCand = dynamic_cast<const pat::PackedCandidate*> (&*chargedHadron.getChargedPFCandidate());
+    if (chargedPFPCand != nullptr) {
+        if (chargedPFPCand->hasTrackDetails())
+          return &chargedPFPCand->pseudoTrack();
+    }
+    const pat::PackedCandidate* lostTrackCand = dynamic_cast<const pat::PackedCandidate*> (&*chargedHadron.getLostTrackCandidate());
+    if (lostTrackCand != nullptr) {
+        if (lostTrackCand->hasTrackDetails())
+          return &lostTrackCand->pseudoTrack();
+    }
+    return nullptr;
+  }
+}
+
 void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scaleFactor_neutralPFCands)
 {
   double chargedHadronP  = 0.;
