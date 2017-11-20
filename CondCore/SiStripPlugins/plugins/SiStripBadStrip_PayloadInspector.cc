@@ -421,7 +421,7 @@ namespace {
 
       //=========================
       
-      TCanvas canvas("BadStrip Partion summary","SiStripBadStrip region summary",1200,1000); 
+      TCanvas canvas("BadStrip Region summary","SiStripBadStrip region summary",1200,1000); 
       canvas.cd();
       auto h_BadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion","SiStrip Bad Strip summary by region;; n. bad strips",mapBadStrips.size(),0.,mapBadStrips.size()));
       h_BadStrips->SetStats(false);
@@ -460,7 +460,7 @@ namespace {
 	  }
 
 	h_BadStrips->SetBinContent(iBin,countBadStrips);
-	h_BadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h_BadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h_BadStrips->GetXaxis()->LabelsOption("v");
 
 	if(detector!=currentDetector) {
@@ -621,7 +621,7 @@ namespace {
 	  }
 
 	h_LastBadStrips->SetBinContent(iBin,countBadStrips);
-	h_LastBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h_LastBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h_LastBadStrips->GetXaxis()->LabelsOption("v");
 
 	if(detector!=currentDetector) {
@@ -638,7 +638,7 @@ namespace {
 	int countBadStrips = (element.second.mean);
 
 	h_FirstBadStrips->SetBinContent(iBin,countBadStrips);
-	h_FirstBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h_FirstBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h_FirstBadStrips->GetXaxis()->LabelsOption("v");
 
       }
