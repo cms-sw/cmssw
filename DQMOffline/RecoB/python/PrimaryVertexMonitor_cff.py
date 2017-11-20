@@ -30,5 +30,5 @@ pvMonitor = cms.EDAnalyzer("PrimaryVertexMonitor",
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase1Pixel.toModify(pvMonitor, EtaBin=26, EtaMin=-2.5, EtaMax=2.5)
-phase2_tracker.toModify(pvMonitor, EtaBin=26, EtaMin=-2.5, EtaMax=2.5)
+phase2_tracker.toModify(pvMonitor, EtaBin=41, EtaMin=-4.0, EtaMax=4.0)
 
