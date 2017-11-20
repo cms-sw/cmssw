@@ -49,6 +49,11 @@ const PFRecoTauChargedHadron::TrackPtr& PFRecoTauChargedHadron::getTrack() const
   return track_;
 }
 
+const CandidatePtr& PFRecoTauChargedHadron::getLostTrackCandidate() const
+{
+  return lostTrackCandidate_;
+}
+
 const std::vector<CandidatePtr>& PFRecoTauChargedHadron::getNeutralPFCandidates() const
 {
   return neutralPFCandidates_;
@@ -101,6 +106,9 @@ void PFRecoTauChargedHadron::print(std::ostream& stream) const
   stream << "reco::Track: ";
   if ( track_.isNonnull() ) {
     stream << "Pt = " << track_->pt() << " +/- " << track_->ptError() << ", eta = " << track_->eta() << ", phi = " << track_->phi() << std::endl;
+  } else if ( lostTrackCandidate_.isNonnull() ) {
+    stream << "(lostTrackCandidate: " << lostTrackCandidate_.id() << ":" << lostTrackCandidate_.key() << "):"
+	   << " Pt = " << lostTrackCandidate_->pt() << ", eta = " << lostTrackCandidate_->eta() << ", phi = " << lostTrackCandidate_->phi() << std::endl;
   } else {
     stream << "N/A" << std::endl;
   }
