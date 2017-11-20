@@ -81,13 +81,7 @@ def make_efficiency_string(objtype,plot_type,triggerpath):
     return "Eff_%s_%s '%s' %s_%s %s" % (input_type,triggerpath,
             all_titles,input_type,triggerpath,input_type)
 
-
-#plot_types = ["TurnOn1", "TurnOn2", "EffEta", "EffPhi"]
-#--- IMPORTANT: Update this collection whenever you introduce a new object
-#               in the code (from EVTColContainer::getTypeString)
-#obj_types  = ["Mu","Ele","Photon","MET","PFMET","PFTau","Jet"]
 #--- IMPORTANT: Trigger are extracted from the hltHiggsValidator_cfi.py module
-
 from HLTriggerOffline.Higgs.hltHiggsValidator_cfi import hltHiggsValidator as _config
 def make_higgs_postprocessor(analysis_name, plot_types=["TurnOn1", "TurnOn2", "EffEta", "EffPhi"], object_types=["Mu","Ele","Photon","MET","PFMET","PFTau","Jet"], extra_str_templates=[]):
     postprocessor = hltHiggsPostProcessor.clone()
