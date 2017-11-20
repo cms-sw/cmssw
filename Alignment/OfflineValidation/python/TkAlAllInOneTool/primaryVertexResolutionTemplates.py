@@ -137,7 +137,7 @@ void TkAlPrimaryVertexResolutionPlot()
 
   // initialize the plot y-axis ranges
  .oO[PlottingInstantiation]Oo.
- FitPVResolution("","")
+ FitPVResolution("","");
 
 }
 """
