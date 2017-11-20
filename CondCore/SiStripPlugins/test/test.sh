@@ -15,7 +15,7 @@ cd $W_DIR;
 ####################
 /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
-    --plot plot_SiStripApvGainsByPartition \
+    --plot plot_SiStripApvGainsByRegion \
     --tag SiStripApvGain_FromParticles_GR10_v1_express \
     --time_type Run \
     --iovs '{"start_iov": "286042", "end_iov": "286042"}' \
@@ -27,7 +27,7 @@ cd $W_DIR;
 ######################
 /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
     --plugin pluginSiStripLorentzAngle_PayloadInspector \
-    --plot plot_SiStripLorentzAngleByPartition \
+    --plot plot_SiStripLorentzAngleByRegion \
     --tag  SiStripLorentzAngleDeco_GR10_v1_prompt \
     --time_type Run \
     --iovs '{"start_iov": "1", "end_iov": "1"}' \
@@ -39,7 +39,7 @@ cd $W_DIR;
 ######################
 /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
     --plugin pluginSiStripBackPlaneCorrection_PayloadInspector \
-    --plot plot_SiStripBackPlaneCorrectionByPartition \
+    --plot plot_SiStripBackPlaneCorrectionByRegion \
     --tag SiStripBackPlaneCorrection_deco_GR10_v1_express \
     --time_type Run \
     --iovs '{"start_iov": "153690", "end_iov": "153690"}' \
