@@ -142,8 +142,8 @@ namespace reco {
     int laserMonitorTSStart_;
     int laserMonitorTSEnd_;
     
-    float adc2fC[128];
-    float adc2fCHF[128];
+    std::vector<float> adc2fC;
+    std::vector<float> adc2fCHF;
   };
   
 } // end of namespace

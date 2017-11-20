@@ -111,7 +111,7 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   laserMonitorTSStart_ = iConfig.getParameter<int>("laserMonTSStart");
   laserMonitorTSEnd_   = iConfig.getParameter<int>("laserMonTSEnd");
 
-  const float adc2fCTemp[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5,
+  adc2fC= std::vector<float> {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5,
      13.5,15.,17.,19.,21.,23.,25.,27.,29.5,32.5,35.5,38.5,42.,46.,50.,54.5,59.5,
      64.5,59.5,64.5,69.5,74.5,79.5,84.5,89.5,94.5,99.5,104.5,109.5,114.5,119.5,
      124.5,129.5,137.,147.,157.,167.,177.,187.,197.,209.5,224.5,239.5,254.5,272.,
@@ -121,11 +121,11 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
      1859.5,1984.5,2109.5,2234.5,2359.5,2484.5,2609.5,2734.5,2859.5,2984.5,
      3109.5,3234.5,3359.5,3484.5,3609.5,3797.,4047.,4297.,4547.,4797.,5047.,
      5297.,5609.5,5984.5,6359.5,6734.5,7172.,7672.,8172.,8734.5,9359.5,9984.5};
-  for(int i = 0; i < 128; i++)
-     adc2fC[i] = adc2fCTemp[i];
 
   // adc -> fC for qie8 with PMT input, for laser monitor
-  const float adc2fCTempHF[128]={-3,-0.4,2.2,4.8,7.4,10,12.6,15.2,17.8,20.4,23,25.6,28.2,30.8,33.4,
+  // Taken from Table 2 in 
+  // https://cms-docdb.cern.ch/cgi-bin/DocDB/RetrieveFile?docid=3275&filename=qie_spec.pdf&version=1
+  adc2fCHF = std::vector<float> {-3,-0.4,2.2,4.8,7.4,10,12.6,15.2,17.8,20.4,23,25.6,28.2,30.8,33.4,
                                  36,41.2,46.4,51.6,56.8,62,67.2,73,80.8,88.6,96.4,104,114.4,124.8,135,
                                  148,161,150,163,176,189,202,215,228,241,254,267,280,293,306,319,332,
                                  343,369,395,421,447,473,499,525,564,603,642,681,733,785,837,902,967,
@@ -134,8 +134,6 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
                                  3827,4087,4347,4672,4997,4672,4997,5322,5647,5972,6297,6622,6947,
                                  7272,7597,7922,8247,8572,8897,9222,9547,10197,10847,11497,12147,
                                  12797,13447,14097,15072,16047,17022,17997,19297,20597,21897,23522,25147};
-  for(int i = 0; i < 128; i++)
-     adc2fCHF[i] = adc2fCTempHF[i];
 
   hbhedigi_token_      = consumes<HBHEDigiCollection>(edm::InputTag(digiCollName_));
   hcalcalibdigi_token_ = consumes<HcalCalibDigiCollection>(edm::InputTag("hcalDigis"));
@@ -624,17 +622,9 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   if(hCalib.isValid() == true)
   {
 
-     // store the data from the lasermon fibers
-     std::map<int, std::vector<int> > lasmon_adcs;
-     std::map<int, std::vector<int> > lasmon_capids;
 
-     // we may find the fibers in different orders, initialize them here
-     if( fillLaserMonitor_ ) {
-         for( unsigned i = 0; i < laserMonDetTypeList_.size() ; ++i ) {
-             lasmon_adcs[i] = std::vector<int>();
-             lasmon_capids[i] = std::vector<int>();
-         }
-     }
+     std::vector<std::vector<int> > lasmon_adcs(laserMonDetTypeList_.size(), std::vector<int>());
+     std::vector<std::vector<int> > lasmon_capids(laserMonDetTypeList_.size(), std::vector<int>());
 
      for(HcalCalibDigiCollection::const_iterator digi = hCalib->begin(); digi != hCalib->end(); digi++)
      {
@@ -663,8 +653,8 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
                         ieta  == laserMonIEtaList_[idx] ) {
 
                     // now get the digis
-                    int ts_size = int(digi->size());
-                    for(int i = 0; i < ts_size; i++) {
+                    unsigned ts_size = digi->size();
+                    for(unsigned i = 0; i < ts_size; i++) {
                       lasmon_adcs[idx].push_back( digi->sample(i).adc() );
                       lasmon_capids[idx].push_back( digi->sample(i).capid() );
                     } // end digi loop
@@ -676,7 +666,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
         } // end filllasmon check
 
 
-	for(int i = 0; i < (int)digi->size(); i++)
+	for(unsigned i = 0; i < (unsigned)digi->size(); i++)
 	  totalCalibCharge = totalCalibCharge + adc2fC[digi->sample(i).adc()&0xff];
 	
 
@@ -724,26 +714,22 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
        // them so we dont run into problems later
        for( unsigned idx = 0; idx < laserMonDetTypeList_.size(); ++idx ) {
            if( lasmon_adcs[idx].empty() ) {
-               for( int i = 0; i < 10; ++i ) {
-                   lasmon_adcs[idx].push_back( -1 );
-               }
+               lasmon_adcs[idx] = std::vector<int>(10, -1);
            }
            if( lasmon_capids[idx].empty() ) {
-               for( int i = 0; i < 10; ++i ) {
-                   lasmon_capids[idx].push_back( -1 );
-               }
+               lasmon_capids[idx] = std::vector<int>(10, -1);
            }
        }
-       int nFibers = laserMonIEtaList_.size();
+       unsigned nFibers = laserMonIEtaList_.size();
        // for each fiber we need to find the index at with the 
        // data from the next fiber matches in order to stitch them together.
        // When there is an overlap, the data from the end of the
        // earlier fiber is removed.  There is no removal of the last fiber
-       std::map<int, int> matching_idx; 
+       std::vector<unsigned> matching_idx; 
        // we assume that the list of fibers was given in time order
        // (if this was not the case, then we just end up using 
        // all data from all fibers )
-       for( int fidx = 0; fidx < (nFibers - 1); ++fidx ) {
+       for( unsigned fidx = 0; fidx < (nFibers - 1); ++fidx ) {
          // start with the last TS and loop backwards
          // on each iteration check if all capId and ADCs from this
          // TS forward match the beginning entries of 
@@ -815,16 +801,16 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
          }
 
          // now store as the matching index
-         matching_idx[fidx] = start_ts;
+         matching_idx.push_back(start_ts);
        }
 
        // for the last fiber we always use all of the data
-       matching_idx[nFibers - 1] = 10;
+       matching_idx.push_back(10);
 
        // now loop over the time slices of each fiber and make the sum
        int icombts = -1;
-       for( int fidx = 0 ; fidx < nFibers; ++fidx ) {
-         for( int its = 0; its < matching_idx[fidx]; ++its ) {
+       for( unsigned fidx = 0 ; fidx < nFibers; ++fidx ) {
+         for( unsigned its = 0; its < matching_idx[fidx]; ++its ) {
            icombts++;
 
            // apply integration limits
