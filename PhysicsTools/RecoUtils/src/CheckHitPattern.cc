@@ -16,10 +16,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-
-// For a given subdetector & layer number, this static map stores the minimum and maximum
-// r (or z) values if it is barrel (or endcap) respectively.
-CheckHitPattern::RZrangeMap CheckHitPattern::rangeRorZ_;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 void CheckHitPattern::init(const edm::EventSetup& iSetup) {
 
@@ -27,6 +24,8 @@ void CheckHitPattern::init(const edm::EventSetup& iSetup) {
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",trkTool_); // Needed for vertex fits
 
   //
   // Note min/max radius (z) of each barrel layer (endcap disk).
@@ -92,20 +91,18 @@ bool CheckHitPattern::barrel(uint32_t subDet) {
 }
 
 
-CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup, 
-			 const reco::Track& track, const VertexState& vert) 
+CheckHitPattern::Result CheckHitPattern::operator()(const reco::Track& track, const VertexState& vert) const
 {
   // Check if hit pattern of this track is consistent with it being produced
   // at given vertex. 
 
   // Initialise geometry info if not yet done.
-  if (!geomInitDone_) this->init(iSetup);
+  if (!geomInitDone_) throw cms::Exception("CheckHitPattern::operator() called before CheckHitPattern::init"); 
 
   // Optionally set vertex position to zero for debugging.
   // VertexState vertDebug( GlobalPoint(0.,0.,0.) , GlobalError(1e-8, 0., 1e-8, 0., 0., 1e-8) );
 
   // Evaluate track parameters at vertex.
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",trkTool_); // Needed for vertex fits
   reco::TransientTrack t_trk = trkTool_->build(track);
   GlobalVector p3_trk = t_trk.trajectoryStateClosestToPoint(vert.position()).momentum();
   bool trkGoesInsideOut = fabs(reco::deltaPhi<const GlobalVector, const GlobalPoint>(p3_trk, vert.position())) < 0.5*M_PI;
@@ -133,7 +130,7 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
           uint32_t subDet = reco::HitPattern::getSubStructure(hit);
           uint32_t layer = reco::HitPattern::getLayer(hit);
           DetInfo detInfo(subDet, layer);
-          double maxRZ = rangeRorZ_[detInfo].second;
+          auto maxRZ = (*rangeRorZ_.find(detInfo)).second.second;
 
           if (this->barrel(subDet)) {
               // Be careful. If the track starts by going outside-->in, it is allowed to have hits before the vertex !
@@ -154,7 +151,7 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
           uint32_t subDet = reco::HitPattern::getSubStructure(hit);
           uint32_t layer = reco::HitPattern::getLayer(hit);
           DetInfo detInfo(subDet, layer);
-          double minRZ = rangeRorZ_[detInfo].first;
+          auto minRZ = (*rangeRorZ_.find(detInfo)).second.first;
 
           if (this->barrel(subDet)) {
               // Be careful. If the track starts by going outside-->in, then it misses hits
@@ -172,16 +169,16 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
   return result;
 }
 
-void CheckHitPattern::print(const reco::Track& track) const {
+void CheckHitPattern::print(const reco::Track& track) {
     // Get hit patterns of this track
     const reco::HitPattern &hp = track.hitPattern();
     std::cout<<"=== Hits on Track ==="<<std::endl;
-    this->print(reco::HitPattern::TRACK_HITS, hp);
+    print(reco::HitPattern::TRACK_HITS, hp);
     std::cout<<"=== Hits before track ==="<<std::endl;
-    this->print(reco::HitPattern::MISSING_INNER_HITS, hp);
+    print(reco::HitPattern::MISSING_INNER_HITS, hp);
 }
 
-void CheckHitPattern::print(const reco::HitPattern::HitCategory category, const reco::HitPattern& hp) const {
+void CheckHitPattern::print(const reco::HitPattern::HitCategory category, const reco::HitPattern& hp) {
     for (int i = 0; i < hp.numberOfAllHits(category); i++) {
         uint32_t hit = hp.getHitPattern(category, i);
         if (reco::HitPattern::trackerHitFilter(hit)) {
