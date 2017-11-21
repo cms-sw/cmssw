@@ -134,8 +134,8 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
         if (tkRef == iVec) {mucandVec.push_back(cand); break;}
       }
     }
-    if(mucandVec.size()!= 2) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
-                                                              << " exactly two muons by definition."  << std::endl;
+    if(mucandVec.size() < 2) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
+                                                              << " at least two muons by definition."  << std::endl;
 
     for (auto cand=trkcands->begin(); cand!=trkcands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
@@ -143,8 +143,8 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
         if (tkRef == iVec) {trkcandVec.push_back(cand); break;}
       }
     }
-    if(trkcandVec.size()!= 2 ) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
-                                                                << " exactly two tracks by definition."  << std::endl;
+    if(trkcandVec.size() < 2 ) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
+                                                                << " at least two tracks by definition."  << std::endl;
 
     // calculate four-track transverse momentum
     math::XYZVector pperp(mucandVec.at(0)->px() + mucandVec.at(1)->px() + trkcandVec.at(0)->px() + trkcandVec.at(1)->px(),
@@ -152,7 +152,7 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
                           0.);
                           
     // get vertex position and error to calculate the decay length significance
-    reco::Vertex::Point vpoint=displacedVertex.position();
+    const reco::Vertex::Point& vpoint=displacedVertex.position();
     reco::Vertex::Error verr = displacedVertex.error();
     GlobalPoint secondaryVertex (vpoint.x(), vpoint.y(), vpoint.z());
     GlobalError err(verr.At(0,0), verr.At(1,0), verr.At(1,1), verr.At(2,0), verr.At(2,1), verr.At(2,2) );

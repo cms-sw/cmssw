@@ -131,35 +131,36 @@ bool HLTmumutkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
     reco::RecoChargedCandidateCollection::const_iterator tkcand ;    
 
     int iFoundRefs = 0;
-    bool threeMuons = false;
+    bool track1Matched = false;
+    bool track2Matched = false;
+    bool track3Matched = false;
     for (auto cand=mucands->begin(); cand!=mucands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-      if     (tkRef == vertextkRef1 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef1 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef1 && iFoundRefs==2) {threeMuons = true;}
-      if     (tkRef == vertextkRef2 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef2 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef2 && iFoundRefs==2) {threeMuons = true;}
-      if     (tkRef == vertextkRef3 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef3 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef3 && iFoundRefs==2) {threeMuons = true;}
+      if (!track1Matched) {
+	if     (tkRef == vertextkRef1 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++; track1Matched = true;}
+	else if(tkRef == vertextkRef1 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++; track1Matched = true;}
+      }
+      if (!track2Matched) {
+	if     (tkRef == vertextkRef2 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++; track2Matched = true;}
+	else if(tkRef == vertextkRef2 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++; track2Matched = true;}
+      }
+      if (!track3Matched) {
+	if     (tkRef == vertextkRef3 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++; track3Matched = true;}
+	else if(tkRef == vertextkRef3 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++; track3Matched = true;}
+      }
     }
-    if(threeMuons) throw cms::Exception("BadLogic") << "HLTmumutkFilterr: ERROR: the vertex must have "
-                                                    << " exactly two muons by definition."  << std::endl;
+    if(iFoundRefs < 2) throw cms::Exception("BadLogic") << "HLTmumutkFilterr: ERROR: the vertex must have "
+                                                    << " at least two muons by definition."  << std::endl;
 
-    bool twoTrks = false;
     int iTrkFoundRefs = 0;
     for (auto cand=trkcands->begin(); cand!=trkcands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-      if     (tkRef == vertextkRef1 && iTrkFoundRefs==0) {tkcand = cand; iTrkFoundRefs++;}
-      else if(tkRef == vertextkRef1 && iTrkFoundRefs==1) {twoTrks = true;}
-      if     (tkRef == vertextkRef2 && iTrkFoundRefs==0) {tkcand = cand; iTrkFoundRefs++;}
-      else if(tkRef == vertextkRef2 && iTrkFoundRefs==1) {twoTrks = true;}
-      if     (tkRef == vertextkRef3 && iTrkFoundRefs==0) {tkcand = cand; iTrkFoundRefs++;}
-      else if(tkRef == vertextkRef3 && iTrkFoundRefs==1) {twoTrks = true;}
+      if     (tkRef == vertextkRef1 && iTrkFoundRefs==0 && !track1Matched) {tkcand = cand; iTrkFoundRefs++; track1Matched = true; break;}
+      if     (tkRef == vertextkRef2 && iTrkFoundRefs==0 && !track2Matched) {tkcand = cand; iTrkFoundRefs++; track2Matched = true; break;}
+      if     (tkRef == vertextkRef3 && iTrkFoundRefs==0 && !track3Matched) {tkcand = cand; iTrkFoundRefs++; track3Matched = true; break;}
     }
-    if(twoTrks) throw cms::Exception("BadLogic") << "HLTmumutkFilterr: ERROR: the vertex must have "
-                                                 << " exactly one track by definition."  << std::endl;
+    if(iTrkFoundRefs == 0) throw cms::Exception("BadLogic") << "HLTmumutkFilterr: ERROR: the vertex must have "
+                                                 << " at least one track by definition."  << std::endl;
 
     // calculate three-track transverse momentum
     math::XYZVector pperp(mucand1->px() + mucand2->px() + tkcand->px(),
@@ -167,7 +168,7 @@ bool HLTmumutkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
                           0.);
             
     // get vertex position and error to calculate the decay length significance
-    reco::Vertex::Point vpoint=displacedVertex.position();
+    const reco::Vertex::Point& vpoint=displacedVertex.position();
     reco::Vertex::Error verr = displacedVertex.error();
     GlobalPoint secondaryVertex (vpoint.x(), vpoint.y(), vpoint.z());
     GlobalError err(verr.At(0,0), verr.At(1,0), verr.At(1,1), verr.At(2,0), verr.At(2,1), verr.At(2,2) );
