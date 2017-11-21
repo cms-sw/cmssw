@@ -36,17 +36,17 @@ class CTPPSDiamondLocalTrackFitter : public edm::stream::EDProducer<>
   private:
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
-    edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondRecHit> > recHitsToken_;
+    edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit> > recHitsToken_;
     CTPPSDiamondTrackRecognition trk_algo_45_;
     CTPPSDiamondTrackRecognition trk_algo_56_;
 };
 
 CTPPSDiamondLocalTrackFitter::CTPPSDiamondLocalTrackFitter( const edm::ParameterSet& iConfig ) :
-  recHitsToken_( consumes< edm::DetSetVector<CTPPSDiamondRecHit> >( iConfig.getParameter<edm::InputTag>( "recHitsTag" ) ) ),
+  recHitsToken_( consumes<edm::DetSetVector<CTPPSDiamondRecHit> >( iConfig.getParameter<edm::InputTag>( "recHitsTag" ) ) ),
   trk_algo_45_ ( iConfig.getParameter<edm::ParameterSet>( "trackingAlgorithmParams" ) ),
   trk_algo_56_ ( iConfig.getParameter<edm::ParameterSet>( "trackingAlgorithmParams" ) )
 {
-  produces< edm::DetSetVector<CTPPSDiamondLocalTrack> >();
+  produces<edm::DetSetVector<CTPPSDiamondLocalTrack> >();
 }
 
 CTPPSDiamondLocalTrackFitter::~CTPPSDiamondLocalTrackFitter()
@@ -55,9 +55,9 @@ CTPPSDiamondLocalTrackFitter::~CTPPSDiamondLocalTrackFitter()
 void
 CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr< edm::DetSetVector<CTPPSDiamondLocalTrack> > pOut( new edm::DetSetVector<CTPPSDiamondLocalTrack> );
+  std::unique_ptr<edm::DetSetVector<CTPPSDiamondLocalTrack> > pOut( new edm::DetSetVector<CTPPSDiamondLocalTrack> );
 
-  edm::Handle< edm::DetSetVector<CTPPSDiamondRecHit> > recHits;
+  edm::Handle<edm::DetSetVector<CTPPSDiamondRecHit> > recHits;
   iEvent.getByToken( recHitsToken_, recHits );
 
   const CTPPSDiamondDetId id_45( 0, 1, 6, 0, 0 ), id_56( 1, 1, 6, 0, 0 );

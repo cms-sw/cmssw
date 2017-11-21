@@ -78,8 +78,10 @@ int
 CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>& tracks )
 {
   int number_of_tracks = 0;
+  const double inv_resolution = 1./resolution_;
+
   for ( auto const& oot : hitParametersVectorMap_ ) {
-    std::vector<float> hit_profile( ( stopAtX_-startFromX_ )/resolution_, 0. );
+    std::vector<float> hit_profile( ( stopAtX_-startFromX_ ) * inv_resolution, 0. );
     for ( auto const& param : oot.second ) {
       hit_f_.SetParameters( param.center, param.width, sigma_ );
       for ( unsigned int i = 0; i < hit_profile.size(); ++i ) {
@@ -94,7 +96,7 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
     for ( unsigned int i = 0; i < hit_profile.size(); ++i ) {
       if ( below && hit_profile[i] >= threshold_ ) { // going above the threshold
         track_start_n = i;
-        maximum=0;
+        maximum = 0;
         below = false;
       }
       if ( !below ) {
