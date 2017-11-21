@@ -64,7 +64,6 @@ class CTPPSDiamondRecHit
 
     inline void setHPTDCErrorFlags( const HPTDCErrorFlags& err ) { hptdc_err_ = err; }
     inline HPTDCErrorFlags getHPTDCErrorFlags() const { return hptdc_err_; }
-    
 
   private:
     float x_, x_width_;
@@ -86,3 +85,4 @@ inline bool operator<( const CTPPSDiamondRecHit& l, const CTPPSDiamondRecHit& r 
 }
 
 #endif
+
