@@ -237,11 +237,12 @@ PFRecoTauChargedHadronFromLostTrackPlugin::return_type PFRecoTauChargedHadronFro
     std::sort(neutralJetConstituents_withDistance.begin(), neutralJetConstituents_withDistance.end(), isSmallerDistance);
 
     const double caloResolutionCoeff = 1.0; // CV: approximate ECAL + HCAL calorimeter resolution for hadrons by 100%*sqrt(E)
-    double trackPtError = 0.06; // MB: Approximate avarage track PtError by 2.5% (barrel), 4% (transition), 6% (endcaps) lostTracks w/o detailed track information available (after TRK-11-001)
+    double trackPtError = 0.06; // MB: Approximate average track PtError by 2.5% (barrel), 4% (transition), 6% (endcaps) for lostTracks w/o detailed track information available assuming their 0.5<Pt<1GeV (after TRK-11-001)
     if( std::abs((*lostTracks)[iTrack].eta()) < 0.9 )
       trackPtError = 0.025;
     else if( std::abs((*lostTracks)[iTrack].eta()) < 1.4 )
       trackPtError = 0.04;
+    trackPtError *= (*lostTracks)[iTrack].pt();// MB: It shoule be an absolute error
     if(track != nullptr)
       trackPtError = track->ptError();
     double resolutionTrackP =(*lostTracks)[iTrack].p()*(trackPtError/(*lostTracks)[iTrack].pt());
