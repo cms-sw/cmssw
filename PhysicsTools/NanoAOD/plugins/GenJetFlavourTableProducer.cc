@@ -27,6 +27,7 @@ class GenJetFlavourTableProducer : public edm::stream::EDProducer<> {
             name_(iConfig.getParameter<std::string>("name")),
             src_(consumes<std::vector<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src"))),
             cut_(iConfig.getParameter<std::string>("cut"), true),
+            deltaR_(iConfig.getParameter<double>("deltaR")),
             jetFlavourInfosToken_(consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>("jetFlavourInfos")))
         {
             produces<nanoaod::FlatTable>();
@@ -40,6 +41,7 @@ class GenJetFlavourTableProducer : public edm::stream::EDProducer<> {
             desc.add<edm::InputTag>("jetFlavourInfos")->setComment("input flavour info collection");
             desc.add<std::string>("name")->setComment("name of the genJet FlatTable we are extending with flavour information");
             desc.add<std::string>("cut")->setComment("cut on input genJet collection");
+            desc.add<double>("deltaR")->setComment("deltaR to match genjets");
             descriptions.add("genJetFlavourTable", desc);
         }
 
@@ -49,6 +51,7 @@ class GenJetFlavourTableProducer : public edm::stream::EDProducer<> {
         std::string name_;
         edm::EDGetTokenT<std::vector<reco::GenJet> > src_;
         const StringCutObjectSelector<reco::GenJet> cut_;
+        const double deltaR_;
         edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetFlavourInfosToken_;
 
 };
@@ -72,7 +75,7 @@ GenJetFlavourTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       ++ncand;
       bool matched = false;
       for (const reco::JetFlavourInfoMatching & jetFlavourInfoMatching : *jetFlavourInfos) {
-        if (deltaR(jet.p4(), jetFlavourInfoMatching.first->p4()) < 0.1) {
+        if (deltaR(jet.p4(), jetFlavourInfoMatching.first->p4()) < deltaR_) {
           partonFlavour.push_back(jetFlavourInfoMatching.second.getPartonFlavour());
           hadronFlavour.push_back(jetFlavourInfoMatching.second.getHadronFlavour());
           matched = true;
