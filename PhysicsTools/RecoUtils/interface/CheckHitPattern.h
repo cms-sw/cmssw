@@ -44,12 +44,8 @@ public:
 
   // Check if hit pattern of this track is consistent with it being produced
   // at given vertex. See comments above for "Result" struct for details of returned information.
-  // N.B. If FixHitPattern = true, then Result.missHitsAfterVert will be calculated after rederiving
-  // the missing hit pattern. This rederivation is sometimes a good idea, since otherwise the
-  // number of missing hits can be substantially underestimated. See comments in FixTrackHitPattern.h
-  // for details.
   Result analyze(const edm::EventSetup& iSetup, 
-                 const reco::Track& track, const VertexState& vert, bool fixHitPattern=true);
+                 const reco::Track& track, const VertexState& vert);
 
   // Print hit pattern on track
   void print(const reco::Track& track) const;
