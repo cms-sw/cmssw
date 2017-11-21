@@ -54,7 +54,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
     'phase1_2018_cosmics'      :   '100X_upgrade2018cosmics_realistic_deco_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
-    'phase1_2019_design'       : '100X_postLS2_realistic_v1', # GT containing realistic conditions for postLS2
+    'phase1_2019_realistic'       : '100X_postLS2_realistic_v1', # GT containing realistic conditions for postLS2
     # GlobalTag for MC production with realistic conditions for Phase2 2023
     'phase2_realistic'         : '94X_upgrade2023_realistic_v3'
 }
@@ -85,5 +85,5 @@ autoCond['hltonline']        = ( autoCond['run1_hlt'] )
 autoCond['upgradePLS1']      = ( autoCond['run2_mc'] )
 autoCond['upgradePLS150ns']  = ( autoCond['run2_mc_50ns'] )
 autoCond['upgrade2017']      = ( autoCond['phase1_2017_design'] )
-autoCond['upgrade2019']      = ( autoCond['phase1_2019_design'] )
+autoCond['upgrade2019']      = ( autoCond['phase1_2019_realistic'] )
 autoCond['upgradePLS3']      = ( autoCond['phase2_realistic'] )
