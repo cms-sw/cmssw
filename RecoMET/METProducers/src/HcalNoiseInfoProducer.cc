@@ -745,10 +745,13 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
            int nmatch_cap = 0; // count the number of TS where capID matched
            int nmatch_adc = 0; // count the number of TS where ADC matched
 
-           for( int cidx = start_ts, nidx = 0; cidx <= last_ts; cidx++, nidx++ ) { 
+           unsigned nidx = 0;
+           for( int cidx = start_ts; cidx <= last_ts; cidx++, nidx++ ) { 
              ncheck++;
-             // if we get an invald value, move on
-             if( lasmon_capids[fidx][cidx] == -1 ) continue;
+             // if we get an invald value, this fiber has no data
+             // the check and match will fail, so the start_ts will 
+             // be decrimented
+             if( lasmon_capids[fidx][cidx] == -1 ) break;
 
              if( lasmon_capids[fidx][cidx] == lasmon_capids[fidx+1][nidx] ) {
                nmatch_cap++;
