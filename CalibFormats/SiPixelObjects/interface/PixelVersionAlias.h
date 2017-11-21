@@ -1,6 +1,8 @@
 #ifndef PixelVersionAlias_h
 #define PixelVersionAlias_h
 
+#include <string>
+
 namespace pos{
   class PixelVersionAlias {
 
