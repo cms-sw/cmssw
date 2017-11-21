@@ -37,10 +37,10 @@ class CTPPSDiamondLocalTrack
 
     inline float getZ0() const { return pos0_.z(); }
     inline float getZ0Sigma() const { return pos0_sigma_.z(); }
-    
+
     inline int getNumOfHits() const { return num_hits_; }
     inline int getNumOfPlanes() const { return num_planes_; }
-    
+
     //--- spatial set'ters
 
     inline void setPosition( const math::XYZPoint& pos0 ) { pos0_ = pos0; }
@@ -56,15 +56,15 @@ class CTPPSDiamondLocalTrack
 
     inline float getT() const { return t_; }
     inline float getTSigma() const { return t_sigma_; }
-    
+ 
     //--- temporal set'ters
 
     inline void setT( const float t ) { t_ = t; }
     inline void setTSigma( const float t_sigma ) { t_sigma_ = t_sigma; }
-    
+
     inline void setOOTIndex( const int i ) { ts_index_ = i; }
     inline int getOOTIndex() const { return ts_index_; }
-    
+
     inline void setMultipleHits( const int i ) { mh_ = i; }
     inline int getMultipleHits() const { return mh_; }
 

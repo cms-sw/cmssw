@@ -20,14 +20,19 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm
   for ( const auto& vec : input ) {
     const CTPPSDiamondDetId detid( vec.detId() );
 
-    if ( detid.channel() > 20 ) continue;              // VFAT-like information, to be ignored by CTPPSDiamondRecHitProducer
+    if ( detid.channel() > 20 ) continue; // VFAT-like information, to be ignored
 
+    // retrieve the geometry element associated to this DetID
     const DetGeomDesc* det = geom->getSensor( detid );
+
+    if ( det->parents().empty() )
+      edm::LogWarning("CTPPSDiamondRecHitProducerAlgorithm") << "The geometry element for " << detid << " has no parents. Check the geometry hierarchy!";
+
     const float x_pos = det->translation().x(),
                 x_width = 2.0 * det->params().at( 0 ), // parameters stand for half the size
                 y_pos = det->translation().y(),
                 y_width = 2.0 * det->params().at( 1 ),
-                z_pos = det->translation().z(),
+                z_pos = det->parents()[det->parents().size()-1].absTranslation().z(), // retrieve the plane position
                 z_width = 2.0 * det->params().at( 2 );  // TODO ?
 
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );

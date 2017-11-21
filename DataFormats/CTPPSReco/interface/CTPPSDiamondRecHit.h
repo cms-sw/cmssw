@@ -34,7 +34,7 @@ class CTPPSDiamondRecHit
 
     inline void setY( const float& y ) { y_ = y; }
     inline float getY() const { return y_; }
-    
+
     inline void setZ( const float& z ) { z_ = z; }
     inline float getZ() const { return z_; }
 
@@ -43,7 +43,7 @@ class CTPPSDiamondRecHit
 
     inline void setYWidth( const float& ywidth ) { y_width_ = ywidth; }
     inline float getYWidth() const { return y_width_; }
-    
+
     inline void setZWidth( const float& zwidth ) { z_width_ = zwidth; }
     inline float getZWidth() const { return z_width_; }
 
@@ -52,13 +52,13 @@ class CTPPSDiamondRecHit
 
     inline void setToT( const float& tot ) { tot_ = tot;  }
     inline float getToT() const { return tot_; }
-    
+
     inline void setTPrecision( const float& t_precision ) { t_precision_ = t_precision;  }
     inline float getTPrecision() const { return t_precision_; }
 
     inline void setOOTIndex( const int& i ) { ts_index_ = i; }
     inline int getOOTIndex() const { return ts_index_; }
-    
+
     inline void setMultipleHits( const bool mh ) { mh_ = mh; }
     inline bool getMultipleHits() const { return mh_; }
 
