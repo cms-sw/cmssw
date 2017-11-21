@@ -1,4 +1,4 @@
-#include "FTFPCMS_BERT_XS_EML.hh"
+#include "FTFPCMS_BERT_XS_EML.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSThermalNeutrons.h"
