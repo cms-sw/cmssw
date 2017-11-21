@@ -4,6 +4,9 @@
 /*
  * Determine if a track has hits in front of its assumed production point.
  * Also determine if it misses hits between its assumed production point and its innermost hit.
+ *
+ * FIXME: as it stands it is pretty inefficient for numerous reasons
+ *        if used seriously it needs to be optimized and used properly... 
  */
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -33,15 +36,15 @@ public:
 
   // Check if hit pattern of this track is consistent with it being produced
   // at given vertex. See comments above for "Result" struct for details of returned information.
-  Result analyze(const edm::EventSetup& iSetup, 
-                 const reco::Track& track, const VertexState& vert);
+  Result operator()(const reco::Track& track, const VertexState& vert) const;
 
   // Print hit pattern on track
-  void print(const reco::Track& track) const;
+  static void print(const reco::Track& track);
 
-private:
+
   // Create map indicating r/z values of all layers/disks.
   void init (const edm::EventSetup& iSetup);
+
 
   // Return a pair<uint32, uint32> consisting of the numbers used by HitPattern to 
   // identify subdetector and layer number respectively.
@@ -51,7 +54,7 @@ private:
   // Return a bool indicating if a given subdetector is in the barrel.
   static bool barrel(uint32_t subDet);
 
-  void print(const reco::HitPattern::HitCategory category, const reco::HitPattern& hp) const;
+  static void print(const reco::HitPattern::HitCategory category, const reco::HitPattern& hp);
 
 private:
   // Note if geometry info is already initialized.
