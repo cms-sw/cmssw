@@ -41,6 +41,7 @@ class GenJetFlavourTableProducer : public edm::stream::EDProducer<> {
             desc.add<edm::InputTag>("jetFlavourInfos")->setComment("input flavour info collection");
             desc.add<std::string>("name")->setComment("name of the genJet FlatTable we are extending with flavour information");
             desc.add<std::string>("cut")->setComment("cut on input genJet collection");
+            desc.add<double>("deltaR")->setComment("deltaR to match genjets");
             descriptions.add("genJetFlavourTable", desc);
         }
 
