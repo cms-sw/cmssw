@@ -1,11 +1,9 @@
-#include "QGSPCMS_FTFP_BERT_EML_New.hh"
-//#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
-//#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
+#include "FTFPCMS_BERT_EMZ.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4EmStandardPhysics_option1.hh"
 #include "G4DecayPhysics.hh"
+#include "G4EmStandardPhysics_option4.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
 #include "G4StoppingPhysics.hh"
@@ -14,9 +12,9 @@
 #include "G4HadronicProcessStore.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
+#include "G4HadronPhysicsFTFP_BERT.hh"
 
-QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalPartMap& map, 
+FTFPCMS_BERT_EMZ::FTFPCMS_BERT_EMZ(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
 			   sim::ChordFinderSetter *chordFinderSetter_, 
 			   const edm::ParameterSet & p) 
@@ -30,15 +28,14 @@ QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalP
   bool tracking= p.getParameter<bool>("TrackingCut");
   double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT_EML_New \n Flags for EM Physics "
+			      << "FTFP_BERT_EMZ \n Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking
 			      << "   t(ns)= " << timeLimit/ns;
 
   if (emPhys) {
     // EM Physics
-    //RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
-    RegisterPhysics( new G4EmStandardPhysics_option1(ver));
+    RegisterPhysics(new G4EmStandardPhysics_option4(ver));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
@@ -46,7 +43,7 @@ QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalP
   }
 
   // Decays
-  this->RegisterPhysics( new G4DecayPhysics(ver));
+  this->RegisterPhysics( new G4DecayPhysics(ver) );
 
   if (hadPhys) {
     G4HadronicProcessStore::Instance()->SetVerbose(ver);
@@ -55,7 +52,7 @@ QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalP
     RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new G4HadronPhysicsQGSP_FTFP_BERT(ver));
+    RegisterPhysics(  new G4HadronPhysicsFTFP_BERT(ver));
 
     // Stopping Physics
     RegisterPhysics( new G4StoppingPhysics(ver));
