@@ -205,7 +205,7 @@ void FitPVResolution(TString namesandlabels,TString theDate=""){
   const int max_n_tracks = 60;
   std::array<float,max_n_tracks+1> myNTrack_bins_;
   for(float i=0; i<=max_n_tracks; i++){
-    myNTrack_bins_[i]=-0.5+i*2;
+    myNTrack_bins_[i]=1+i*2;
   }
 
   // max sumPt
