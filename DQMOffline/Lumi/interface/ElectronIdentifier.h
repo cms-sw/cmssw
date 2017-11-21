@@ -56,7 +56,7 @@ class ElectronIdentifier{
    private:
      double rho_;
      int ID_;
-     std::array<std::array<std::array<double,2>,3>,8> cuts_;
+     std::array<std::array<std::array<double,2>,4>,8> cuts_;
      // Effective area constants
      EffectiveAreas _effectiveAreas;
 };
