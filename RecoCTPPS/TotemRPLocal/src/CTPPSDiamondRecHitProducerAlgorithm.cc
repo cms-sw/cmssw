@@ -49,6 +49,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm
                                               ( t0 * ts_to_ns_ ),
                                               ( tot * ts_to_ns_),
                                               time_slice,
+                                              0., // time precision
                                               digi->getHPTDCErrorFlags(),
                                               digi->getMultipleHit() ) );
     }
