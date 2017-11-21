@@ -7,6 +7,7 @@ from PhysicsTools.NanoAOD.electrons_cff import *
 from PhysicsTools.NanoAOD.photons_cff import *
 from PhysicsTools.NanoAOD.globals_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
+from PhysicsTools.NanoAOD.particlelevel_cff import *
 from PhysicsTools.NanoAOD.vertices_cff import *
 from PhysicsTools.NanoAOD.met_cff import *
 from PhysicsTools.NanoAOD.triggerObjects_cff import *
@@ -48,7 +49,7 @@ simpleCleanerTable = cms.EDProducer("NanoAODSimpleCrossCleaner",
 genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     genEvent = cms.InputTag("generator"),
     lheInfo = cms.InputTag("externalLHEProducer"),
-    preferredPDFs = cms.vuint32(91400,260001),
+    preferredPDFs = cms.vuint32(91400,260001,262001),
     namedWeightIDs = cms.vstring(),
     namedWeightLabels = cms.vstring(),
     lheWeightPrecision = cms.int32(14),
@@ -68,7 +69,7 @@ nanoSequence = cms.Sequence(
         jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + triggerObjectTables + isoTrackTables +
 	l1bits)
 
-nanoSequenceMC = cms.Sequence(genParticleSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + globalTablesMC + genWeightsTable + genParticleTables + lheInfoTable)
+nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + globalTablesMC + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable)
 
 
 def nanoAOD_customizeCommon(process):
@@ -82,24 +83,39 @@ def nanoAOD_customizeData(process):
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
-    ## FIXME:  WILL NO LONGER NEED RANDOM SEEDS WHEN DETERMINISTIC SMEARING WILL BE IMPLEMENTED
-    if not hasattr(process,'RandomNumberGeneratorService'):
-        process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService")
-    for X in 'calibratedPatElectrons','calibratedPatPhotons':
-        if not hasattr(process.RandomNumberGeneratorService,X):
-            setattr(process.RandomNumberGeneratorService, X, 
-                cms.PSet(initialSeed = cms.untracked.uint32(81), engineName = cms.untracked.string('TRandom3')))
     process.calibratedPatElectrons.isMC = cms.bool(True)
     process.calibratedPatPhotons.isMC = cms.bool(True)
     return process
 
 ### Era dependent customization
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-#remove stuff 
+from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
+qgtagger80x=QGTagger.clone(srcJets="slimmedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
 _80x_sequence = nanoSequence.copy()
+#remove stuff 
 _80x_sequence.remove(isoTrackTable)
 _80x_sequence.remove(isoTrackSequence)
+#add qgl
+_80x_sequence.insert(1,qgtagger80x)
+
+_80x_sequenceMC = nanoSequenceMC.copy()
+_80x_sequenceMC.remove(genSubJetAK8Table)
+_80x_sequenceMC.remove(genJetFlavourTable)
+_80x_sequenceMC.insert(-1,genJetFlavourAssociation)
+_80x_sequenceMC.insert(-1,genJetFlavourTable)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
+run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceMC, _80x_sequenceMC)
 
 	
 
+from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
+#remove stuff
+
+_92x_sequence = nanoSequence.copy()
+_92x_sequenceMC = nanoSequenceMC.copy()
+_92x_sequenceMC.remove(genSubJetAK8Table)
+_92x_sequenceMC.remove(genJetFlavourTable)
+_92x_sequenceMC.insert(-1,genJetFlavourAssociation)
+_92x_sequenceMC.insert(-1,genJetFlavourTable)
+run2_nanoAOD_92X.toReplaceWith( nanoSequence, _92x_sequence)
+run2_nanoAOD_92X.toReplaceWith( nanoSequenceMC, _92x_sequenceMC)
