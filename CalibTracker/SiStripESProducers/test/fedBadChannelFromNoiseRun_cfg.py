@@ -38,9 +38,7 @@ process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
 process.siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3)
 
 #### Add these lines to produce a tracker map
-process.load("DQMServices.Core.DQMStore_cfg")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 ####
 
 process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
