@@ -117,8 +117,8 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
               below = true;
 
               //store track
-              math::XYZPoint pos0_sigma( ( j-track_start_n )*resolution_*0.5, yWidth_ * 0.5, 0. );
-              math::XYZPoint pos0( startFromX_ + track_start_n*resolution_ + pos0_sigma.X(), yPosition_, 0. );
+              math::XYZPoint pos0_sigma( ( j-track_start_n )*resolution_*0.5, yWidth_ * 0.5, zWidth_ * 0.5 );
+              math::XYZPoint pos0( startFromX_ + track_start_n*resolution_ + pos0_sigma.X(), yPosition_, zPosition_ );
               int mult_hits = 0;
               if ( mhMap_.find( oot.first ) != mhMap_.end() ) mult_hits = mhMap_[oot.first];
 
