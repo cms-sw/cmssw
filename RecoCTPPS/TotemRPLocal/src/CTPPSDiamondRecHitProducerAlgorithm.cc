@@ -11,8 +11,7 @@
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm( const edm::ParameterSet& iConfig ) :
-  ts_to_ns_( iConfig.getParameter<double>( "timeSliceNs" ) ),
-  t_shift_( iConfig.getParameter<int>( "timeShift" ) )
+  ts_to_ns_( iConfig.getParameter<double>( "timeSliceNs" ) )
 {}
 
 void
@@ -36,10 +35,10 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm
 
     for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator digi = vec->begin(); digi != vec->end(); ++digi ) {
       if ( digi->getLeadingEdge()==0 and digi->getTrailingEdge()==0 ) { continue; }
-
+      
       const int t = digi->getLeadingEdge();
-      const int t0 = ( t-t_shift_ ) % 1024;
-      int time_slice = ( t-t_shift_ ) / 1024;
+      const int t0 = t % 1024;
+      int time_slice = t / 1024;
       
       if ( t==0 ) time_slice= CTPPSDIAMONDRECHIT_WITHOUT_LEADING_TIMESLICE;
 
