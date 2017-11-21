@@ -135,7 +135,7 @@ namespace reco {
     uint32_t HcalAcceptSeverityLevel_;
     std::vector<int> HcalRecHitFlagsToBeExcluded_;
 
-    std::vector<int> laserMonDetTypeList_;
+    std::vector<int> laserMonCBoxList_;
     std::vector<int> laserMonIPhiList_;
     std::vector<int> laserMonIEtaList_;
 
