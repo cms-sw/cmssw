@@ -155,6 +155,11 @@ void zerr(int ret)
 /* compress or decompress from stdin to stdout */
 int Unzip(std::string infile, std::string outfile)
 {
+    std::string tmpdir = getenv("TMPDIR");
+    std::string command = "ln -s $PWD "+tmpdir+"/tmp;";
+    system(command.c_str());
+    command = tmpdir+"/tmp";
+    setenv("TMPDIR",command.c_str(), true);
     int ret;
 	FILE *in = fopen(infile.c_str(),"r");
 	if (!in) return -1;
