@@ -43,7 +43,7 @@ class CTPPSDiamondTrackRecognition
 
   private:
     struct HitParameters {
-      HitParameters( const float center, const float width) :
+      HitParameters( const float center, const float width ) :
         center( center ), width( width ) {}
       float center;
       float width;

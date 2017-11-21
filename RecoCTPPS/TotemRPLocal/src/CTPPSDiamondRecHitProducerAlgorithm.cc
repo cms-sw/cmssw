@@ -17,8 +17,8 @@ CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm( const 
 void
 CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm::DetSetVector<CTPPSDiamondDigi>& input, edm::DetSetVector<CTPPSDiamondRecHit>& output )
 {
-  for ( edm::DetSetVector<CTPPSDiamondDigi>::const_iterator vec = input.begin(); vec != input.end(); ++vec ) {
-    const CTPPSDiamondDetId detid( vec->detId() );
+  for ( const auto& vec : input ) {
+    const CTPPSDiamondDetId detid( vec.detId() );
 
     if ( detid.channel() > 20 ) continue;              // VFAT-like information, to be ignored by CTPPSDiamondRecHitProducer
 
@@ -29,29 +29,28 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm
                 y_width = 2.0 * det->params().at( 1 ),
                 z_pos = det->translation().z(),
                 z_width = 2.0 * det->params().at( 2 );  // TODO ?
-                
 
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );
 
-    for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator digi = vec->begin(); digi != vec->end(); ++digi ) {
-      if ( digi->getLeadingEdge()==0 and digi->getTrailingEdge()==0 ) { continue; }
-      
-      const int t = digi->getLeadingEdge();
+    for ( const auto& digi : vec ) {
+      if ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() == 0 ) continue;
+
+      const int t = digi.getLeadingEdge();
       const int t0 = t % 1024;
       int time_slice = t / 1024;
       
-      if ( t==0 ) time_slice= CTPPSDIAMONDRECHIT_WITHOUT_LEADING_TIMESLICE;
+      if ( t == 0 ) time_slice = CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
       int tot = 0;
-      if ( t!=0 && digi->getTrailingEdge()!=0 ) tot = ( (int) digi->getTrailingEdge() ) - t;
+      if ( t != 0 && digi.getTrailingEdge() != 0 ) tot = ( (int)digi.getTrailingEdge() ) - t;
 
       rec_hits.push_back( CTPPSDiamondRecHit( x_pos, x_width, y_pos, y_width, z_pos, z_width, // spatial information
                                               ( t0 * ts_to_ns_ ),
                                               ( tot * ts_to_ns_),
                                               time_slice,
                                               0., // time precision
-                                              digi->getHPTDCErrorFlags(),
-                                              digi->getMultipleHit() ) );
+                                              digi.getHPTDCErrorFlags(),
+                                              digi.getMultipleHit() ) );
     }
   }
 }

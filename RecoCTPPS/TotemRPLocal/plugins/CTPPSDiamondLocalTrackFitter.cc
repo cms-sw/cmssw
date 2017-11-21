@@ -25,7 +25,6 @@
 
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondTrackRecognition.h"
 
-
 class CTPPSDiamondLocalTrackFitter : public edm::stream::EDProducer<>
 {
   public:
@@ -83,7 +82,7 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
   for ( const auto& vec : *recHits ) {
     const CTPPSDiamondDetId detid( vec.detId() );
     for ( const auto& hit : vec ) {
-      if ( hit.getOOTIndex() != CTPPSDIAMONDRECHIT_WITHOUT_LEADING_TIMESLICE )
+      if ( hit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING )
         trackRecoPair.at( detid.arm() )->addHit( hit );
     }
   }

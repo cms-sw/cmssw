@@ -92,7 +92,6 @@ class CTPPSDiamondLocalTrack
     int ts_index_;
     /// Multiple hits counter
     int mh_;
-
 };
 
 inline bool operator<( const CTPPSDiamondLocalTrack& lhs, const CTPPSDiamondLocalTrack& rhs )
@@ -105,16 +104,15 @@ inline bool operator<( const CTPPSDiamondLocalTrack& lhs, const CTPPSDiamondLoca
 }
 
 inline bool
-CTPPSHitBelongsToTrack( const CTPPSDiamondLocalTrack& localTrack, const CTPPSDiamondRecHit& recHit, float tolerance=0.1 )
+CTPPSHitBelongsToTrack( const CTPPSDiamondLocalTrack& localTrack, const CTPPSDiamondRecHit& recHit, float tolerance = 0.1 )
 {
-  return
-  ( recHit.getOOTIndex() == localTrack.getOOTIndex() &&
-               ( ( recHit.getX() + 0.5 * recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() - tolerance
-                && recHit.getX() + 0.5 * recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() + tolerance )
-              || ( recHit.getX() - 0.5 * recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() - tolerance
-                && recHit.getX() - 0.5 * recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() + tolerance )
-              || ( recHit.getX() - 0.5 * recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() - tolerance
-                && recHit.getX() + 0.5 * recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma() + tolerance ) ) );
+  return ( recHit.getOOTIndex() == localTrack.getOOTIndex()
+        && ( ( recHit.getX() + 0.5 * recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() - tolerance
+            && recHit.getX() + 0.5 * recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() + tolerance )
+          || ( recHit.getX() - 0.5 * recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() - tolerance
+            && recHit.getX() - 0.5 * recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() + tolerance )
+          || ( recHit.getX() - 0.5 * recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() - tolerance
+            && recHit.getX() + 0.5 * recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma() + tolerance ) ) );
 };
 
 #endif
