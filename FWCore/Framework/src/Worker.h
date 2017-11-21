@@ -693,11 +693,33 @@ namespace edm {
         auto runTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
                                                                          this, ep,es,streamID,parentContext,context);
 
+        //make sure the task is either run or destroyed
+        struct DestroyTask {
+        DestroyTask(edm::WaitingTask* iTask):
+          m_task(iTask) {}
+          
+          ~DestroyTask() {
+            auto p = m_task.load();
+            if(p) {
+              tbb::task::destroy(*p);
+            }
+          }
+          
+          edm::WaitingTask* release() {
+            auto t = m_task.load();
+            m_task.store(nullptr);
+            return t;
+          }
+
+          std::atomic<edm::WaitingTask*> m_task;
+        };
+
+        auto ownRunTask = std::make_shared<DestroyTask>(runTask);
         auto token = ServiceRegistry::instance().presentToken();
-        auto selectionTask = make_waiting_task(tbb::task::allocate_root(), [runTask,parentContext,&ep,token, this] (std::exception_ptr const* ){
+        auto selectionTask = make_waiting_task(tbb::task::allocate_root(), [ownRunTask,parentContext,&ep,token, this] (std::exception_ptr const* ) mutable {
           
           ServiceRegistry::Operate guard(token);
-          prefetchAsync(runTask, parentContext, ep);
+          prefetchAsync(ownRunTask->release(), parentContext, ep);
         });
         prePrefetchSelectionAsync(selectionTask,streamID, &ep);
       } else {
