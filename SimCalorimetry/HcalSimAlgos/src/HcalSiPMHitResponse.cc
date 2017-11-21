@@ -67,6 +67,11 @@ void HcalSiPMHitResponse::finalizeHits(CLHEP::HepRandomEngine* engine) {
 
     LogDebug("HcalSiPMHitResponse") << HcalDetId(signal.id()) << ' ' << signal;
 
+    //if we don't want to keep precise info at the end
+    if (!HighFidelityPreMix){
+      signal.setPreciseSize(0);
+    }
+
     if (keep) CaloHitResponse::add(signal);
   }
 }
