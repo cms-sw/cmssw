@@ -1,4 +1,4 @@
-#include "FTFCMS_BIC.hh"
+#include "FTFCMS_BIC.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

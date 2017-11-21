@@ -139,6 +139,6 @@ ThroughputServiceClient::fillDescriptions(edm::ConfigurationDescriptions & descr
   descriptions.add("throughputServiceClient", desc);
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ThroughputServiceClient);

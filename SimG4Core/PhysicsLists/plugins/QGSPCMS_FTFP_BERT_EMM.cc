@@ -1,4 +1,4 @@
-#include "QGSPCMS_FTFP_BERT_EMM.hh"
+#include "QGSPCMS_FTFP_BERT_EMM.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,7 +29,7 @@ QGSPCMS_FTFP_BERT_EMM::QGSPCMS_FTFP_BERT_EMM(
   bool tracking= p.getParameter<bool>("TrackingCut");
   double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT_EML \n Flags for EM Physics "
+			      << "QGSP_FTFP_BERT_EMM \n Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking
 			      << "   t(ns)= " << timeLimit/ns;
