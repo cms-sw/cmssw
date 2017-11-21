@@ -119,6 +119,9 @@ class PrimaryVertexResolution : public edm::one::EDAnalyzer<edm::one::SharedReso
       TH1F * h_PVCL_subVtx1;
       TH1F * h_PVCL_subVtx2;
 
+      TH1F * h_runNumber; 
+
+      TH1I * h_nOfflineVertices;
       TH1I * h_nVertices;
       TH1I * h_nNonFakeVertices;
       TH1I * h_nFinalVertices;
@@ -214,10 +217,12 @@ PrimaryVertexResolution::PrimaryVertexResolution(const edm::ParameterSet& iConfi
   minVtxNdf_        (iConfig.getUntrackedParameter<double>("minVertexNdf")), 
   minVtxWgt_        (iConfig.getUntrackedParameter<double>("minVertexMeanWeight"))
 {
-  std::vector<float> vect = PVValHelper::generateBins(nTrackBins_+1,-0.5,120.);   
+  
+  std::vector<float> vect = PVValHelper::generateBins(nTrackBins_+1,1.,120.);   
   std::copy(vect.begin(), vect.begin() + nTrackBins_+1, myNTrack_bins_.begin());  
+
   vect.clear();
-  vect = PVValHelper::generateBins(nTrackBins_+1,1.,41.);
+  vect = PVValHelper::generateBins(nVtxBins_+1,1.,40.);
   std::copy(vect.begin(), vect.begin() + nVtxBins_+1, myNVtx_bins_.begin());  
 }
 
@@ -234,9 +239,7 @@ PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup
   using namespace edm;
 
   // Fill general info
-  //event_.runNumber             = iEvent.id().run();
-  //event_.luminosityBlockNumber = iEvent.id().luminosityBlock();
-  //event_.eventNumber           = iEvent.id().event();
+  h_runNumber->Fill(iEvent.id().run());;
   
   edm::ESHandle<TransientTrackBuilder>            theB                ;
   edm::ESHandle<GlobalTrackingGeometry>           theTrackingGeometry ;
@@ -251,6 +254,8 @@ PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(tracksToken_, tracks);
   
   int nOfflineVtx = pvtx.size();
+
+  h_nOfflineVertices->Fill(nOfflineVtx);
 
   int counter       = 0;
   int noFakecounter = 0;
@@ -417,11 +422,14 @@ PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup
     // filling the vertex multeplicity binned distributions
 
     for(int inVtxBin=0; inVtxBin<nVtxBins_; inVtxBin++){
-      
-      float nVtxF = myNVtx_bins_[inVtxBin];
-      float nVtxL = myNVtx_bins_[inVtxBin+1];
-      
-      if(nOfflineVtx >= nVtxF && nOfflineVtx < nVtxL){
+
+      /*
+	float nVtxF = myNVtx_bins_[inVtxBin];
+	float nVtxL = myNVtx_bins_[inVtxBin+1];
+      	if(nOfflineVtx >= nVtxF && nOfflineVtx < nVtxL){
+      */
+
+      if(nOfflineVtx==inVtxBin){
 
 	PVValHelper::fillByIndex(h_resolX_Nvtx_,inVtxBin,deltaX*cmToUm,"7");
 	PVValHelper::fillByIndex(h_resolY_Nvtx_,inVtxBin,deltaY*cmToUm,"8");
@@ -473,6 +481,8 @@ PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup
 void 
 PrimaryVertexResolution::beginJob()
 {
+
+  TH1F::SetDefaultSumw2(kTRUE);
 
   // resolutions
 
@@ -543,7 +553,9 @@ PrimaryVertexResolution::beginJob()
 
 
   // control plots
+  h_runNumber        = outfile_->make<TH1F>("h_runNumber","run number;run number;n_{events}",100000,250000.,350000.);	
 
+  h_nOfflineVertices = outfile_->make<TH1I>("h_nOfflineVertices","n. of vertices;n. vertices; events",100,0,100);
   h_nVertices        = outfile_->make<TH1I>("h_nVertices","n. of vertices;n. vertices; events",100,0,100);
   h_nNonFakeVertices = outfile_->make<TH1I>("h_nRealVertices","n. of non-fake vertices;n. vertices; events",100,0,100);
   h_nFinalVertices   = outfile_->make<TH1I>("h_nSelectedVertices","n. of selected vertices vertices;n. vertices; events",100,0,100); ;  
