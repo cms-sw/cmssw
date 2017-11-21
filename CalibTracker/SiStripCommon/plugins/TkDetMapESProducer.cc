@@ -15,7 +15,7 @@ class TkDetMapESProducer : public edm::ESProducer
 {
 public:
   TkDetMapESProducer(const edm::ParameterSet&);
-  virtual ~TkDetMapESProducer() {}
+  ~TkDetMapESProducer() override {}
 
   std::shared_ptr<TkDetMap> produce(const TrackerTopologyRcd&);
 };
@@ -167,7 +167,7 @@ std::shared_ptr<TkDetMap> TkDetMapESProducer::produce(const TrackerTopologyRcd& 
       "\n------------------------------------------";
   }
   SiStripDetInfoFileReader* fr = edm::Service<SiStripDetInfoFileReader>().operator->();
-  const std::vector<uint32_t> TkDetIdList = fr->getAllDetIds();
+  const std::vector<uint32_t>& TkDetIdList = fr->getAllDetIds();
 
   edm::ESHandle<TrackerTopology> tTopoHandle;
   tTopoRcd.get(tTopoHandle);
