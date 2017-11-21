@@ -1,5 +1,4 @@
 #include "PhysicsTools/RecoUtils/interface/CheckHitPattern.h"
-#include "RecoTracker/DebugTools/interface/FixTrackHitPattern.h"
 
 // To get Tracker Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -94,7 +93,7 @@ bool CheckHitPattern::barrel(uint32_t subDet) {
 
 
 CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup, 
-			 const reco::Track& track, const VertexState& vert, bool fixHitPattern) 
+			 const reco::Track& track, const VertexState& vert) 
 {
   // Check if hit pattern of this track is consistent with it being produced
   // at given vertex. 
@@ -125,12 +124,6 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
   const reco::HitPattern &hp = track.hitPattern(); 
   reco::HitPattern ip = track.hitPattern(); 
 
-  // Optionally fix inner hit pattern (needed if uncertainty on track trajectory is large).
-  if (fixHitPattern) {
-    static FixTrackHitPattern fixTrackHitPattern;
-    ip = fixTrackHitPattern.analyze(iSetup, track).innerHitPattern;
-  }
-  
   // Count number of valid hits on track definately in front of the vertex,
   // taking into account finite depth of each layer.
   unsigned int nHitBefore = 0;
