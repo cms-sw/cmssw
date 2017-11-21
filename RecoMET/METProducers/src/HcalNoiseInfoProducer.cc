@@ -95,15 +95,15 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   }
 
   // get the fiber configuration vectors
-  laserMonDetTypeList_ = iConfig.getParameter<std::vector<int> >("laserMonDetTypeList");
-  laserMonIPhiList_    = iConfig.getParameter<std::vector<int> >("laserMonIPhiList");
-  laserMonIEtaList_    = iConfig.getParameter<std::vector<int> >("laserMonIEtaList");
+  laserMonCBoxList_ = iConfig.getParameter<std::vector<int> >("laserMonCBoxList");
+  laserMonIPhiList_ = iConfig.getParameter<std::vector<int> >("laserMonIPhiList");
+  laserMonIEtaList_ = iConfig.getParameter<std::vector<int> >("laserMonIEtaList");
 
   // check that the vectors have the same size, if not
   // disable the laser monitor
-  if( !( (laserMonDetTypeList_.size() == laserMonIEtaList_.size() ) && 
-         (laserMonDetTypeList_.size() == laserMonIPhiList_.size() ) ) ) { 
-    edm::LogWarning("MisConfiguration")<<"Must provide equally sized lists for laserMonDetTypeList, laserMonIEtaList, and laserMonIPhiList.  Will not fill LaserMon\n";
+  if( !( (laserMonCBoxList_.size() == laserMonIEtaList_.size() ) && 
+         (laserMonCBoxList_.size() == laserMonIPhiList_.size() ) ) ) { 
+    edm::LogWarning("MisConfiguration")<<"Must provide equally sized lists for laserMonCBoxList, laserMonIEtaList, and laserMonIPhiList.  Will not fill LaserMon\n";
     fillLaserMonitor_=false;
   }
 
@@ -160,15 +160,15 @@ void HcalNoiseInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("lMaxLowEHitTime", 9999.0);
   desc.add<double>("TS4TS5EnergyThreshold", 50);
   desc.add<std::string>("digiCollName", "hcalDigis");
-  desc.add<std::vector<int>>("laserMonDetTypeList", {
-    3,
-    3,
-    3,
-    3,
-    3,
-    3,
-    3,
-    3,
+  desc.add<std::vector<int>>("laserMonCBoxList", {
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
   });
   desc.add<int>("tMinRBXHits", 50);
   desc.add<std::vector<double>>("TS4TS5UpperThreshold", {
@@ -623,8 +623,8 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   {
 
 
-     std::vector<std::vector<int> > lasmon_adcs(laserMonDetTypeList_.size(), std::vector<int>());
-     std::vector<std::vector<int> > lasmon_capids(laserMonDetTypeList_.size(), std::vector<int>());
+     std::vector<std::vector<int> > lasmon_adcs(laserMonCBoxList_.size(), std::vector<int>());
+     std::vector<std::vector<int> > lasmon_capids(laserMonCBoxList_.size(), std::vector<int>());
 
      for(HcalCalibDigiCollection::const_iterator digi = hCalib->begin(); digi != hCalib->end(); digi++)
      {
@@ -633,13 +633,13 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 
         // Fill the lasermonitor channels
         if( fillLaserMonitor_ ) {
-          int dettype = digi->id().hcalSubdet( );
+          int cboxch  = digi->id().cboxChannel( );
           int iphi    = digi->id().iphi();
           int ieta    = digi->id().ieta();
          
-          // check that we have the correct dettype
-          if (std::find( laserMonDetTypeList_.begin(), laserMonDetTypeList_.end(),
-                         dettype ) != laserMonDetTypeList_.end() ) {
+          // check that we have the correct cboxch
+          if (std::find( laserMonCBoxList_.begin(), laserMonCBoxList_.end(),
+                         cboxch ) != laserMonCBoxList_.end() ) {
               // check that we have a contained IPhi
             if( std::find( laserMonIPhiList_.begin(), laserMonIPhiList_.end(),
                            iphi ) != laserMonIPhiList_.end() ) {
@@ -647,8 +647,8 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
               if( std::find( laserMonIEtaList_.begin(), laserMonIEtaList_.end(),
                              ieta ) != laserMonIEtaList_.end() ) {
                 // we have a lasmon channel, find the index in the list of inputs
-                for( unsigned idx = 0; idx < laserMonDetTypeList_.size(); ++idx ) {
-                  if( dettype == laserMonDetTypeList_[idx] &&
+                for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
+                  if( cboxch == laserMonCBoxList_[idx] &&
                         iphi  == laserMonIPhiList_[idx] && 
                         ieta  == laserMonIEtaList_[idx] ) {
 
@@ -662,7 +662,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
                 } // end fiber order loop
               } // end ieta check 
             } // end iphi check
-          } // end dettype check
+          } // end cboxch check
         } // end filllasmon check
 
 
@@ -712,7 +712,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
      if( fillLaserMonitor_ ) {
        // check for any fibers without data and fill
        // them so we dont run into problems later
-       for( unsigned idx = 0; idx < laserMonDetTypeList_.size(); ++idx ) {
+       for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
            if( lasmon_adcs[idx].empty() ) {
                lasmon_adcs[idx] = std::vector<int>(10, -1);
            }
@@ -745,8 +745,8 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
            int nmatch_cap = 0; // count the number of TS where capID matched
            int nmatch_adc = 0; // count the number of TS where ADC matched
 
-           unsigned nidx = 0;
-           for( int cidx = start_ts; cidx <= last_ts; cidx++, nidx++ ) { 
+           for( unsigned cidx = (unsigned)start_ts, nidx=0; 
+                   cidx <= (unsigned)last_ts; cidx++, nidx++ ) {
              ncheck++;
              // if we get an invald value, this fiber has no data
              // the check and match will fail, so the start_ts will 

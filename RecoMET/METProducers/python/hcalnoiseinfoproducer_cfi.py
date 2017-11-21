@@ -84,7 +84,7 @@ HcalNoiseParameterSet = cms.PSet(
     tRBXRecHitR45Cuts = cms.vdouble(0.0, 1.0, 0.0, -0.2,   # equivalent to "fraction > 0.2"
                                     0.0, 0.0, 1.0, -0.2),   # equivalent to "energy fraction > 0.2"
 
-    laserMonDetTypeList = cms.vint32(3,3,3,3,3,3,3,3),
+    laserMonCBoxList = cms.vint32(6,6,6,6,6,6,6,6),
     laserMonIPhiList = cms.vint32(23,17,11,5,29,35,41,47),
     laserMonIEtaList = cms.vint32(0,0,0,0,0,0,0,0),
 
