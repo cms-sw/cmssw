@@ -33,7 +33,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm
                 y_pos = det->translation().y(),
                 y_width = 2.0 * det->params().at( 1 ),
                 z_pos = det->parents()[det->parents().size()-1].absTranslation().z(), // retrieve the plane position
-                z_width = 2.0 * det->params().at( 2 );  // TODO ?
+                z_width = 2.0 * det->params().at( 2 );
 
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );
 
