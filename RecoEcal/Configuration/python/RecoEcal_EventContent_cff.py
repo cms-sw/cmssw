@@ -84,9 +84,11 @@ RecoEcalAOD = cms.PSet(
         )
 )
 
-_phase2_hgcal_scCommands = ['keep *_particleFlowSuperClusterHGCal_*_*']
+_phase2_hgcal_scCommands = ['keep *_particleFlowSuperClusterHGCal_*_*', 'keep *_particleFlowSuperClusterHGCalFromMultiCl_*_*']
 _phase2_hgcal_scCommandsAOD = ['keep recoSuperClusters_particleFlowSuperClusterHGCal__*',
-                               'keep recoCaloClusters_particleFlowSuperClusterHGCal__*']
+                               'keep recoCaloClusters_particleFlowSuperClusterHGCal__*',
+                               'keep recoSuperClusters_particleFlowSuperClusterHGCalFromMultiCl__*',
+                               'keep recoCaloClusters_particleFlowSuperClusterHGCalFromMultiCl__*']
 _phase2_hgcal_RecoEcalFEVT = RecoEcalFEVT.clone()
 _phase2_hgcal_RecoEcalFEVT.outputCommands += _phase2_hgcal_scCommands
 _phase2_hgcal_RecoEcalRECO = RecoEcalRECO.clone()
