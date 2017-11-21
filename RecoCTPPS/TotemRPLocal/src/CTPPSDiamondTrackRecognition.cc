@@ -28,7 +28,7 @@ CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::Parameter
   yWidthInitial_       ( iConfig.getParameter<double>( "yWidth" ) ),
   hit_f_( "hit_TF1_CTPPS", iConfig.getParameter<std::string>( "pixelEfficiencyFunction" ).c_str(), startFromX_, stopAtX_ )
 {
-  if (sigma_==0.0) {
+  if ( sigma_ == 0. ) {
     hit_f_ = TF1( "hit_TF1_CTPPS", pixelEfficiencyDefaultFunction_.c_str(), startFromX_, stopAtX_ ); // simple step function
   }
 }
@@ -58,15 +58,15 @@ CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
 {
   // store hit parameters
   hitParametersVectorMap_[recHit.getOOTIndex()].emplace_back( recHit.getX(), recHit.getXWidth() );
-  
-  // Check y
-  if ( yPosition_ == yPositionInitial_ and yWidth_ == yWidthInitial_ ) {
+
+  // check y
+  if ( yPosition_ == yPositionInitial_ && yWidth_ == yWidthInitial_ ) {
     yPosition_ = recHit.getY();
     yWidth_ = recHit.getYWidth();
   }
-  
-  // Check z
-  if ( zPosition_ == zPositionInitial_ and zWidth_ == zWidthInitial_ ) {
+
+  // check z
+  if ( zPosition_ == zPositionInitial_ && zWidth_ == zWidthInitial_ ) {
     zPosition_ = recHit.getZ();
     zWidth_ = recHit.getZWidth();
   }
@@ -82,7 +82,7 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
     std::vector<float> hit_profile( ( stopAtX_-startFromX_ )/resolution_, 0. );
     for ( auto const& param : oot.second ) {
       hit_f_.SetParameters( param.center, param.width, sigma_ );
-      for ( unsigned int i=0; i<hit_profile.size(); ++i ) {
+      for ( unsigned int i = 0; i < hit_profile.size(); ++i ) {
         hit_profile[i] += hit_f_.Eval( startFromX_ + i*resolution_ );
       }
     }
@@ -91,7 +91,7 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
     bool below = true; // start below the threshold
     int track_start_n = 0;
 
-    for ( unsigned int i=0; i<hit_profile.size(); ++i ) {
+    for ( unsigned int i = 0; i < hit_profile.size(); ++i ) {
       if ( below && hit_profile[i] >= threshold_ ) { // going above the threshold
         track_start_n = i;
         maximum=0;
@@ -106,7 +106,7 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
 
           // go back and use new threshold
           const float threshold = maximum - thresholdFromMaximum_;
-          for ( unsigned int j=track_start_n; j<=i; ++j ) {
+          for ( unsigned int j = track_start_n; j <= i; ++j ) {
             if ( below && hit_profile[j] >= threshold ) { // going above the threshold
               track_start_n = j;
               below = false;
@@ -121,8 +121,7 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
               if ( mhMap_.find( oot.first ) != mhMap_.end() ) mult_hits = mhMap_[oot.first];
 
               CTPPSDiamondLocalTrack track( pos0, pos0_sigma, 0., 0., 0., oot.first, mult_hits );
-              track.setValid( true );              
-              
+              track.setValid( true );
               tracks.push_back( track );
               ++number_of_tracks;
             }
