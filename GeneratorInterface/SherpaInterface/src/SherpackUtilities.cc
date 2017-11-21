@@ -1,6 +1,6 @@
 #include "GeneratorInterface/SherpaInterface/interface/SherpackUtilities.h"
 #include <unistd.h>
-#include <stdlib.h>
+#include <cstdlib>
 namespace spu {
 	
 // functions for inflating (and deflating)
