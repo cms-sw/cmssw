@@ -804,7 +804,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
              // if this is not the case, then we just take
              // the value of latest match
              if( latest_cap_match == int(nts - 4) ) {
-               start_ts = lasmon_capids[fidx].size();
+               start_ts = nts;
              } else {
                start_ts = latest_cap_match;
              }
