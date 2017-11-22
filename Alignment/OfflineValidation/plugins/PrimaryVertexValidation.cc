@@ -186,6 +186,8 @@ PrimaryVertexValidation::~PrimaryVertexValidation()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+  if (theTrackFilter_) delete theTrackFilter_;
+  if (theTrackClusterizer_) delete theTrackClusterizer_;
 }
 
 
