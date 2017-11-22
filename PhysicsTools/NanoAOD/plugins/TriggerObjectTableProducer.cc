@@ -131,7 +131,7 @@ TriggerObjectTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     for(unsigned int i = 0; i < selected.size(); ++i) {
         const auto & obj = *selected[i].first;
         const auto & sel = *selected[i].second;
-	selected_bits[&obj] = int(sel.qualityBits(obj));
+        selected_bits[&obj] = int(sel.qualityBits(obj));
 
 	for(unsigned int j=0; j<i; ++j){
 	  const auto & obj2 = *selected[j].first;
