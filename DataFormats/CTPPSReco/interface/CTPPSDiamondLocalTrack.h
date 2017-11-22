@@ -27,14 +27,14 @@ class CTPPSDiamondLocalTrack
       t_( t ), t_sigma_( t_sigma ), ts_index_( oot_idx ), mh_( mult_hits ) {}
     virtual ~CTPPSDiamondLocalTrack() {}
 
-    inline static bool containsHit( const CTPPSDiamondLocalTrack& localTrack, const CTPPSDiamondRecHit& recHit, float tolerance = 0.1 ) {
-      return ( recHit.getOOTIndex() == localTrack.getOOTIndex()
-        && ( ( recHit.getX() + 0.5 * recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() - tolerance
-            && recHit.getX() + 0.5 * recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() + tolerance )
-          || ( recHit.getX() - 0.5 * recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() - tolerance
-            && recHit.getX() - 0.5 * recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() + tolerance )
-          || ( recHit.getX() - 0.5 * recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() - tolerance
-            && recHit.getX() + 0.5 * recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma() + tolerance ) ) );
+    inline bool containsHit( const CTPPSDiamondRecHit& recHit, float tolerance = 0.1 ) const {
+      const float x_low  = pos0_.x() - pos0_sigma_.x() - tolerance;
+      const float x_high = pos0_.x() + pos0_sigma_.x() + tolerance;
+      return ( recHit.getOOTIndex() == ts_index_
+        && ( recHit.getZ() * pos0_.z() > 0. )
+        && ( ( recHit.getX() + 0.5 * recHit.getXWidth() > x_low && recHit.getX() + 0.5 * recHit.getXWidth() < x_high )
+          || ( recHit.getX() - 0.5 * recHit.getXWidth() > x_low && recHit.getX() - 0.5 * recHit.getXWidth() < x_high )
+          || ( recHit.getX() - 0.5 * recHit.getXWidth() < x_low && recHit.getX() + 0.5 * recHit.getXWidth() > x_high ) ) );
     }
 
     //--- spatial get'ters
