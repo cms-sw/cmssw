@@ -15,18 +15,40 @@
 L1TStage2uGT::L1TStage2uGT(const edm::ParameterSet& params):
    l1tStage2uGtSource_(consumes<GlobalAlgBlkBxCollection>(params.getParameter<edm::InputTag>("l1tStage2uGtSource"))),
    monitorDir_(params.getUntrackedParameter<std::string> ("monitorDir", "")),
-   verbose_(params.getUntrackedParameter<bool>("verbose", false))
+   verbose_(params.getUntrackedParameter<bool>("verbose", false)),
+   algoBitFirstBxInTrain_(-1),
+   algoBitLastBxInTrain_(-1),
+   algoNameFirstBxInTrain_("L1_FirstCollisionInTrain"), // FIXME: Make this configurable
+   algoNameLastBxInTrain_("L1_LastCollisionInTrain") // FIXME: Make this configurable
 {
-   // empty
+   // Get the trigger bits corresponding to the trigger names from the event setup.
+   // Use the same input tag for everything
+   const auto algInputTag = params.getParameter<edm::InputTag>("l1tStage2uGtSource");
+   const auto extInputTag = params.getParameter<edm::InputTag>("l1tStage2uGtSource");
+   gtUtil_ = new l1t::L1TGlobalUtil(params, consumesCollector(), *this, algInputTag, extInputTag);
 }
 
 // Destructor
 L1TStage2uGT::~L1TStage2uGT() {
-   // empty
+   delete gtUtil_;
 }
 
 void L1TStage2uGT::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& evtSetup) {
-   // empty 
+   // Get the trigger menu information
+   gtUtil_->retrieveL1Setup(evtSetup);
+   // Get the algo bits needed for the timing histograms
+   if (!gtUtil_->getAlgBitFromName(algoNameFirstBxInTrain_, algoBitFirstBxInTrain_)) {
+      edm::LogWarning("L1TStage2uGT") << "Algo \"" << algoNameFirstBxInTrain_ << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+   }
+   if (!gtUtil_->getAlgBitFromName(algoNameLastBxInTrain_, algoBitLastBxInTrain_)) {
+      edm::LogWarning("L1TStage2uGT") << "Algo \"" << algoNameLastBxInTrain_ << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+   }
+
+   // FIXME: This is just for testing. Remove after proper implementation of algo bit usage.
+   if (algoBitFirstBxInTrain_ > -1 && algoBitLastBxInTrain_ > -1) {
+      std::cout << "Algo name: " << algoNameFirstBxInTrain_ << ", bit number: " << algoBitFirstBxInTrain_ << std::endl;
+      std::cout << "Algo name: " << algoNameLastBxInTrain_ << ", bit number: " << algoBitLastBxInTrain_ << std::endl;
+   }
 }
 
 void L1TStage2uGT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evtSetup) { 
