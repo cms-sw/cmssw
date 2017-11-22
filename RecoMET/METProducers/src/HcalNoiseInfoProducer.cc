@@ -729,42 +729,49 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
        // we assume that the list of fibers was given in time order
        // (if this was not the case, then we just end up using 
        // all data from all fibers )
-       for( unsigned fidx = 0; fidx < (nFibers - 1); ++fidx ) {
+       for( unsigned fidx = 0; nFibers > 0 && (fidx < (nFibers - 1)); ++fidx ) {
 
-         // start with the last TS and loop backwards
-         // on each iteration check if all capId and ADCs from this
-         // TS forward match the beginning entries of 
-         // the next fiber
-         unsigned last_ts = lasmon_capids[fidx].size()-1;  // last TS
-         int start_ts = last_ts; // start_ts will be decrimented on each loop
+         unsigned nts = lasmon_capids[fidx].size();  // number of time slices
+
+         // start by checking just the last TS of the earlier fiber
+         // against the first TS of the later fiber
+         // on each iteration, check one additional TS
+         // moving back in time on the earlier fiber and
+         // forward in time in the later fiber
+         
+         int start_ts = nts - 1; // start_ts will be decrimented on each loop where a match is not found
+
          // in the case that our stringent check below doesn't work 
          // store the latest capID that has a match
          int latest_cap_match = -1;
-         // reverse loop over TSs
-         for( unsigned ncheck = 1; ncheck <= lasmon_capids[fidx].size() ; ncheck++ ) {
-           unsigned nmatch_cap = 0; // count the number of TS where capID matched
-           unsigned nmatch_adc = 0; // count the number of TS where ADC matched
+
+         // loop over the number of checks to make
+         for( unsigned ncheck = 1; ncheck <= nts ; ncheck++ ) {
+           bool cap_match = true; //will be set to false if at least one check fails below
+           bool adc_match = true; //will be set to false if at least one check fails below
 
            // loop over the channel TS, this is for the later fiber in time
            for( unsigned lidx = 0; lidx < ncheck; lidx++) {
              // we are looping over the TS of the later fiber in time
              // the TS of the earlier fiber starts from the end
-             unsigned eidx = last_ts-ncheck+lidx+1;
+             unsigned eidx = nts-ncheck+lidx;
              // if we get an invald value, this fiber has no data
              // the check and match will fail, so the start_ts will 
              // be decrimented
-             if( lasmon_capids[fidx][eidx] == -1 || lasmon_capids[fidx+1][lidx] == -1 ) break;
+             if( lasmon_capids[fidx][eidx] == -1 || lasmon_capids[fidx+1][lidx] == -1 ) {
+               cap_match = false;
+               adc_match = false;
+               break;
+             }
 
-             if( lasmon_capids[fidx][eidx] == lasmon_capids[fidx+1][lidx] ) {
-               nmatch_cap++;
+             if( lasmon_capids[fidx][eidx] != lasmon_capids[fidx+1][lidx] ) {
+               cap_match = false;
              }
              // check the data values as well
-             if( lasmon_adcs[fidx][eidx] == lasmon_adcs[fidx+1][lidx] ) {
-               nmatch_adc++;
+             if( lasmon_adcs[fidx][eidx] != lasmon_adcs[fidx+1][lidx] ) {
+               adc_match = false;
              }
            }
-           bool cap_match = (ncheck == nmatch_cap);
-           bool adc_match = (ncheck == nmatch_adc);
            if( cap_match && (start_ts > latest_cap_match) ) {
              latest_cap_match = start_ts;
            }
@@ -785,7 +792,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
            // if we didn't find any match, use the capID only to compare
            if( latest_cap_match < 0 ) {
              //this shouldn't happen, in this case use all the data from the fiber
-             start_ts = lasmon_capids[fidx].size();
+             start_ts = nts;
            }
            else {
              // its possible that the timing of the fibers
@@ -796,7 +803,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
              // N-4 spot (and the ADCs will not)
              // if this is not the case, then we just take
              // the value of latest match
-             if( latest_cap_match == int(last_ts - 3) ) {
+             if( latest_cap_match == int(nts - 4) ) {
                start_ts = lasmon_capids[fidx].size();
              } else {
                start_ts = latest_cap_match;
