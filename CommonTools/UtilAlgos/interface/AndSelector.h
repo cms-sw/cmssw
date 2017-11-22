@@ -1,6 +1,7 @@
 #ifndef UtilAlgos_AndSelector_h
 #define UtilAlgos_AndSelector_h
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/Utils/interface/AndSelector.h"
 
@@ -30,6 +31,15 @@ namespace reco {
 						modules::make<S4>( cfg, iC ),
 						modules::make<S5>( cfg, iC ) );
       }
+
+      template <typename FD>
+      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+        modules::fillDescriptions<S1, FD>(desc);
+        modules::fillDescriptions<S2, FD>(desc);
+        modules::fillDescriptions<S3, FD>(desc);
+        modules::fillDescriptions<S4, FD>(desc);
+        modules::fillDescriptions<S5, FD>(desc);
+      }
     };
 
     template<typename S1, typename S2, typename S3, typename S4>
@@ -52,6 +62,14 @@ namespace reco {
 					    modules::make<S3>( cfg, iC ),
 					    modules::make<S4>( cfg, iC ) );
       }
+
+      template <typename FD>
+      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+        modules::fillDescriptions<S1, FD>(desc);
+        modules::fillDescriptions<S2, FD>(desc);
+        modules::fillDescriptions<S3, FD>(desc);
+        modules::fillDescriptions<S4, FD>(desc);
+      }
     };
 
     template<typename S1, typename S2, typename S3>
@@ -71,6 +89,13 @@ namespace reco {
 					modules::make<S2>( cfg, iC ),
 					modules::make<S3>( cfg, iC ) );
       }
+
+      template <typename FD>
+      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+        modules::fillDescriptions<S1, FD>(desc);
+        modules::fillDescriptions<S2, FD>(desc);
+        modules::fillDescriptions<S3, FD>(desc);
+      }
     };
 
     template<typename S1, typename S2>
@@ -86,6 +111,12 @@ namespace reco {
       static AndSelector<S1, S2> make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
 	return AndSelector<S1, S2>( modules::make<S1>( cfg, iC ),
 				    modules::make<S2>( cfg, iC ) );
+      }
+
+      template <typename FD>
+      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+        modules::fillDescriptions<S1, FD>(desc);
+        modules::fillDescriptions<S2, FD>(desc);
       }
     };
 
