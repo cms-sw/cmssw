@@ -115,12 +115,11 @@ ME0GeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, ME0DetId detId, Rec
   // EtaPartition specific parameter (nstrips and npads) 
   DDValue numbOfStrips("nStrips");
   DDValue numbOfPads("nPads");
-  std::vector<const DDsvalues_type* > specs(fv.specifics());
-  std::vector<const DDsvalues_type* >::iterator is = specs.begin();
+  const std::vector<const DDsvalues_type*> & specs = fv.specifics();
   double nStrips = 0., nPads = 0.;
-  for (;is != specs.end(); is++){
-    if (DDfetch( *is, numbOfStrips)) nStrips = numbOfStrips.doubles()[0];
-    if (DDfetch( *is, numbOfPads))   nPads = numbOfPads.doubles()[0];
+  for ( auto const & is: specs){
+    if (DDfetch( is, numbOfStrips)) nStrips = numbOfStrips.doubles()[0];
+    if (DDfetch( is, numbOfPads))   nPads = numbOfPads.doubles()[0];
   }
   LogDebug("ME0GeometryParsFromDD") 
     << ((nStrips == 0. ) ? ("No nStrips found!!") : ("Number of strips: " + std::to_string(nStrips))); 
