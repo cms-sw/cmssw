@@ -38,7 +38,7 @@ hbherecoMBNZS.algorithm.firstSample = 4
 hbherecoMBNZS.algorithm.samplesToAdd = 4
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
-horecoMBNZS = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
+horecoMBNZS = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.hosimplereco.clone()
 
 horecoMBNZS.firstSample = 4
 horecoMBNZS.samplesToAdd = 4
@@ -47,7 +47,7 @@ horecoMBNZS.tsFromDB = cms.bool(False)
 horecoMBNZS.dropZSmarkedPassed = cms.bool(False)
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
-hfrecoMBNZS = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
+hfrecoMBNZS = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfsimplereco.clone()
 
 hfrecoMBNZS.firstSample = 2
 hfrecoMBNZS.samplesToAdd = 2

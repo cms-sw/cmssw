@@ -28,6 +28,7 @@ class HcalTopology;
       explicit HcalSimpleReconstructor(const edm::ParameterSet& ps);
       ~HcalSimpleReconstructor() override;
       void produce(edm::Event& e, const edm::EventSetup& c) final;
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       void beginRun(edm::Run const&r, edm::EventSetup const & es) final;
       void endRun(edm::Run const&r, edm::EventSetup const & es) final;
 

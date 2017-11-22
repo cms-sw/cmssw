@@ -42,7 +42,7 @@ hbherecoNoise.algorithm.firstSample = 0
 hbherecoNoise.algorithm.samplesToAdd = 4
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
-horecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
+horecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.hosimplereco.clone()
 
 horecoNoise.firstSample = 0
 horecoNoise.samplesToAdd = 4
@@ -51,7 +51,7 @@ horecoNoise.tsFromDB = cms.bool(False)
 horecoNoise.dropZSmarkedPassed = cms.bool(False)
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
-hfrecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
+hfrecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfsimplereco.clone()
 
 hfrecoNoise.firstSample = 0
 hfrecoNoise.samplesToAdd = 2

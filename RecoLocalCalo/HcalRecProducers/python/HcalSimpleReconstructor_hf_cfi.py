@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hfreco = cms.EDProducer("HcalSimpleReconstructor",
+hfsimplereco = cms.EDProducer("HcalSimpleReconstructor",
     correctionPhaseNS = cms.double(0.0),
     digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('HF'),
