@@ -270,11 +270,11 @@ TriggerObjectTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     tab->addColumn<float>("pt", pt, "pt", nanoaod::FlatTable::FloatColumn, 12);
     tab->addColumn<float>("eta", eta, "eta", nanoaod::FlatTable::FloatColumn, 12);
     tab->addColumn<float>("phi", phi, "phi", nanoaod::FlatTable::FloatColumn, 12);
-    tab->addColumn<float>("l1pt", l1pt, "pt of associated L1 seed", nanoaod::FlatTable::FloatColumn, 10);
+    tab->addColumn<float>("l1pt", l1pt, "pt of associated L1 seed", nanoaod::FlatTable::FloatColumn, 8);
     tab->addColumn<int>("l1iso", l1iso, "iso of associated L1 seed", nanoaod::FlatTable::IntColumn);
-    tab->addColumn<float>("l1pt_2", l1pt_2, "pt of associated secondary L1 seed", nanoaod::FlatTable::FloatColumn, 10);
+    tab->addColumn<float>("l1pt_2", l1pt_2, "pt of associated secondary L1 seed", nanoaod::FlatTable::FloatColumn, 8);
     tab->addColumn<float>("l2pt", l2pt, "pt of associated 'L2' seed (i.e. HLT before tracking/PF)", nanoaod::FlatTable::FloatColumn, 10);
-    tab->addColumn<float>("filterBits", bits, "extra bits of associated information: "+bitsDoc_, nanoaod::FlatTable::FloatColumn, 10);
+    tab->addColumn<int>("filterBits", bits, "extra bits of associated information: "+bitsDoc_, nanoaod::FlatTable::IntColumn);
     iEvent.put(std::move(tab));
 }
 
