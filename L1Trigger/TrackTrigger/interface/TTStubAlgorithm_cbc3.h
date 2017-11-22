@@ -50,7 +50,8 @@ class TTStubAlgorithm_cbc3 : public TTStubAlgorithm< T >
     void PatternHitCorrelation( bool &aConfirmation,
                                 int &aDisplacement,
                                 int &anOffset,
-                                const TTStub< T > &aTTStub ) const;
+				float &anROffset,
+                                const TTStub< T > &aTTStub ) const override;
 
 }; /// Close class
 
@@ -66,6 +67,7 @@ template< >
 void TTStubAlgorithm_cbc3< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                     int &aDisplacement,
                                                                     int &anOffset,
+								    float &anROffset,
                                                                     const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
 /*! \class   ES_TTStubAlgorithm_cbc3

@@ -49,6 +49,7 @@ class TTStubAlgorithm
     virtual void PatternHitCorrelation( bool &aConfirmation,
                                         int &aDisplacement,
                                         int &anOffset,
+					float &anROffset,
                                         const TTStub< T > &aTTStub ) const {}
 
     /// Algorithm name

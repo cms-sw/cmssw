@@ -15,6 +15,7 @@ template< >
 void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                        int &aDisplacement, 
                                                                        int &anOffset, 
+								       float &anROffset,
                                                                        const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
 { 
   /// Calculate average coordinates col/row for inner/outer Cluster
@@ -124,7 +125,8 @@ void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( 
   {
     aConfirmation = true;
     aDisplacement = dispI; /// In HALF-STRIP units!
-    anOffset = offsetI; /// In HALF-STRIP units!
+    anOffset      = offsetI; /// In HALF-STRIP units!
+    anROffset     = static_cast<float>(offsetD); /// In HALF-STRIP units!
   } /// End of stub is accepted
 
 }
