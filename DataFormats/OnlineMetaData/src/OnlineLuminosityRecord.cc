@@ -1,5 +1,5 @@
 #include <iomanip>
-#include <time.h>
+#include <ctime>
 
 #include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineMetaDataRaw.h"
