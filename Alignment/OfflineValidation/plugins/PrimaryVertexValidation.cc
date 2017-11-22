@@ -824,6 +824,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		    module_num = tTopo->pxbModule(detId);
 		  }
 		}
+		delete hit;
 	      }
 
 	      h_probeL1Ladder_->Fill(ladder_num);
