@@ -45,6 +45,9 @@ class TTStub
     void   setTriggerDisplacement( int aDisplacement ); /// In HALF-STRIP units!
     double getTriggerOffset() const;         /// In FULL-STRIP units! (hence, not implemented herein)
     void   setTriggerOffset( int anOffset ); /// In HALF-STRIP units!
+    double getRealTriggerOffset() const;         /// In FULL-STRIP units! (hence, not implemented herein)
+    void   setRealTriggerOffset( float anOffset ); /// In HALF-STRIP units!
+
 
     /// CBC3-style trigger information
     /// for sake of simplicity, these methods are
@@ -62,6 +65,7 @@ class TTStub
     edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > theClusterRef1;
     int theDisplacement;
     int theOffset;
+    float theRealOffset;
 
 }; /// Close class
 
@@ -80,6 +84,7 @@ TTStub< T >::TTStub()
   theDetId = 0;
   theDisplacement = 999999;
   theOffset = 0;
+  theRealOffset = 0;
 }
 
 /// Another Constructor
@@ -92,6 +97,7 @@ TTStub< T >::TTStub( DetId aDetId )
   /// Set default data members
   theDisplacement = 999999;
   theOffset = 0;
+  theRealOffset = 0;
 }
 
 /// Destructor
@@ -124,6 +130,13 @@ double TTStub< T >::getTriggerOffset() const { return 0.5*theOffset; }
 
 template< typename T >
 void TTStub< T >::setTriggerOffset( int anOffset ) { theOffset = anOffset; }
+
+template< typename T >
+double TTStub< T >::getRealTriggerOffset() const { return 0.5*theRealOffset; }
+
+template< typename T >
+void TTStub< T >::setRealTriggerOffset( float anOffset ) { theRealOffset = anOffset; }
+
 
 /// CBC3-style trigger info
 template< typename T >
