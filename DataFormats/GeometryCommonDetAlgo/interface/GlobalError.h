@@ -3,7 +3,7 @@
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalErrorBase.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalErrorBaseExtended.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorMatrixTag.h"
+#include "DataFormats/Common/interface/ErrorMatrixTag.h"
 
   /**
    * typedef to a  GlobalErrorBase object defined as a 4*4 covariance matrix
