@@ -23,7 +23,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
-#include "HLTrigger/btau/src/HLTDisplacedtktktkVtxProducer.h"
+#include "HLTDisplacedtktktkVtxProducer.h"
 
 using namespace edm;
 using namespace reco;

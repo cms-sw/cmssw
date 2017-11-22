@@ -27,7 +27,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include "HLTrigger/btau/src/HLTDisplacedtktktkFilter.h"
+#include "HLTDisplacedtktktkFilter.h"
 #include "TMath.h"
 
 //
