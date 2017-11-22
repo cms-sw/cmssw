@@ -111,7 +111,7 @@ GaussianSumUtilities<N>::computeMode () const
  	i!=components().end(); i++ ) {
     Vector newMean = rotT*((**i).mean()-trans);
     Matrix newCov = ROOT::Math::Similarity(rotT,(**i).covariance());
-    auto sgs = make_shared<SingleState>(newMean,newCov,(**i).weight());
+    auto sgs = std::make_shared<SingleState>(newMean,newCov,(**i).weight());
     newStates.push_back(sgs);
   }
   MultiState newState(newStates);
