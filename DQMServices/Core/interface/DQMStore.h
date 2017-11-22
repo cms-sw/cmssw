@@ -1,25 +1,28 @@
-#ifndef DQMSERVICES_CORE_DQM_STORE_H
-# define DQMSERVICES_CORE_DQM_STORE_H
+#ifndef DQMServices_Core_DQMStore_h
+#define DQMServices_Core_DQMStore_h
 
-# if __GNUC__ && ! defined DQM_DEPRECATED
-#  define DQM_DEPRECATED __attribute__((deprecated))
-# endif
+#if __GNUC__ && ! defined DQM_DEPRECATED
+#define DQM_DEPRECATED __attribute__((deprecated))
+#endif
 
-# include "DQMServices/Core/interface/DQMDefinitions.h"
-# include "classlib/utils/Regexp.h"
-# include <vector>
-# include <string>
-# include <list>
-# include <map>
-# include <set>
-# include <cassert>
-# include <mutex>
-# include <thread>
-# include <execinfo.h>
-# include <cstdio>
-# include <cstdlib>
-# include <cxxabi.h>
-# include <iosfwd>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <iosfwd>
+#include <list>
+#include <map>
+#include <mutex>
+#include <set>
+#include <string>
+#include <thread>
+#include <vector>
+#include <cxxabi.h>
+#include <execinfo.h>
+
+#include <classlib/utils/Regexp.h>
+
+#include "DQMServices/Core/interface/DQMDefinitions.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
@@ -187,6 +190,109 @@ class DQMStore
     DQMStore * owner_;
   };  // IBooker
 
+  class ConcurrentBooker : public IBooker
+  {
+  public:
+    friend class DQMStore;
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookString
+    template <typename... Args>
+    ConcurrentMonitorElement bookString(Args && ... args) {
+      MonitorElement* me = IBooker::bookString(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookInt
+    template <typename... Args>
+    ConcurrentMonitorElement bookInt(Args && ... args) {
+      MonitorElement* me = IBooker::bookInt(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookFloat
+    template <typename... Args>
+    ConcurrentMonitorElement bookFloat(Args && ... args) {
+      MonitorElement* me = IBooker::bookFloat(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1D
+    template <typename... Args>
+    ConcurrentMonitorElement book1D(Args && ... args) {
+      MonitorElement* me = IBooker::book1D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1S
+    template <typename... Args>
+    ConcurrentMonitorElement book1S(Args && ... args) {
+      MonitorElement* me = IBooker::book1S(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1DD
+    template <typename... Args>
+    ConcurrentMonitorElement book1DD(Args && ... args) {
+      MonitorElement* me = IBooker::book1DD(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2D
+    template <typename... Args>
+    ConcurrentMonitorElement book2D(Args && ... args) {
+      MonitorElement* me = IBooker::book2D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2S
+    template <typename... Args>
+    ConcurrentMonitorElement book2S(Args && ... args) {
+      MonitorElement* me = IBooker::book2S(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2DD
+    template <typename... Args>
+    ConcurrentMonitorElement book2DD(Args && ... args) {
+      MonitorElement* me = IBooker::book2DD(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book3D
+    template <typename... Args>
+    ConcurrentMonitorElement book3D(Args && ... args) {
+      MonitorElement* me = IBooker::book3D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookProfile
+    template <typename... Args>
+    ConcurrentMonitorElement bookProfile(Args && ... args) {
+      MonitorElement* me = IBooker::bookProfile(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookProfile2D
+    template <typename... Args>
+    ConcurrentMonitorElement bookProfile2D(Args && ... args) {
+      MonitorElement* me = IBooker::bookProfile2D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+  private:
+    explicit ConcurrentBooker(DQMStore * store) :
+      IBooker(store)
+    { }
+
+    ConcurrentBooker() = delete;
+    ConcurrentBooker(ConcurrentBooker const&) = delete;
+    ConcurrentBooker(ConcurrentBooker &&) = delete;
+    ConcurrentBooker& operator= (ConcurrentBooker const&) = delete;
+    ConcurrentBooker& operator= (ConcurrentBooker &&) = delete;
+
+    ~ConcurrentBooker() = default;
+  };
+
   class IGetter
   {
    public:
@@ -240,7 +346,7 @@ class DQMStore
   // is passed the instance of the IBooker class (owned by the *only*
   // DQMStore instance), that is capable of booking MonitorElements
   // into the DQMStore via a public API. The central mutex is acquired
-  // *before* invoking fand automatically released upon returns.
+  // *before* invoking and automatically released upon returns.
   template <typename iFunc>
   void bookTransaction(iFunc f,
 		       uint32_t run,
@@ -266,6 +372,27 @@ class DQMStore
       moduleId_ = 0;
     }
   }
+
+  // Similar function used to book "global" histograms via the
+  // ConcurrentMonitorElement interface.
+  template <typename iFunc>
+  void bookConcurrentTransaction(iFunc f, uint32_t run) {
+    std::lock_guard<std::mutex> guard(book_mutex_);
+    /* Even if enableMultiThread_ is enabled, keep the streamId_
+       and moduleId_ to 0, since we want to book global histograms. */
+    if (enableMultiThread_) {
+      run_ = run;
+    }
+    ConcurrentBooker booker(this);
+    f(booker);
+
+    /* Set back to 0 the run_ in case we run in mixed conditions
+       with DQMEDAnalyzers and legacy modules */
+    if (enableMultiThread_) {
+      run_ = 0;
+    }
+  }
+
   // Signature needed in the harvesting where the booking is done
   // in the endJob. No handles to the run there. Two arguments ensure
   // the capability of booking and getting. The method relies on the
@@ -275,6 +402,7 @@ class DQMStore
   void meBookerGetter(iFunc f) {
     f(*ibooker_, *igetter_);
   }
+
   // Signature needed in the harvesting where it might be needed to get
   // the LS based histograms. Handle to the Lumi and to the iSetup are available.
   // No need to book anything there. The method relies on the
@@ -640,7 +768,7 @@ class DQMStore
   void        initializeFrom(const edm::ParameterSet&);
   void        reset(void);
   void        forceReset(void);
-  
+
   bool        extract(TObject *obj, const std::string &dir, bool overwrite, bool collateHistograms);
   TObject *   extractNextObject(TBufferFile&) const;
 
@@ -690,7 +818,7 @@ class DQMStore
 
   //-------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------
-  typedef std::pair<fastmatch *, QCriterion *>                  QTestSpec;
+  typedef std::pair<fastmatch *, QCriterion *>                          QTestSpec;
   typedef std::list<QTestSpec>                                          QTestSpecs;
   typedef std::set<MonitorElement>                                      MEMap;
   typedef std::map<std::string, QCriterion *>                           QCMap;
@@ -733,4 +861,4 @@ class DQMStore
   friend class MEtoEDMConverter;
 };
 
-#endif // DQMSERVICES_CORE_DQM_STORE_H
+#endif // DQMServices_Core_DQMStore_h
