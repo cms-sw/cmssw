@@ -1,6 +1,10 @@
-#include "VZeroProducer.h"
+#include "VZeroFinder.h"
 
-#include "RecoVZero/VZeroFinding/interface/VZeroFinder.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -15,6 +19,31 @@
 
 using namespace std;
 using namespace edm;
+
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+namespace {
+
+class VZeroProducer final : public edm::stream::EDProducer<> {
+
+public:
+  explicit VZeroProducer(const edm::ParameterSet& pset);
+
+  ~VZeroProducer() override;
+
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
+
+private:
+
+  edm::ParameterSet pset_;
+
+  float minImpactPositiveDaughter,
+        minImpactNegativeDaughter;
+};
 
 /*****************************************************************************/
 VZeroProducer::VZeroProducer(const ParameterSet& pset)
@@ -107,4 +136,11 @@ void VZeroProducer::produce(Event& ev, const EventSetup& es)
   // Put result back to the event
   ev.put(std::move(result));
 }
+
+}
+ 
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+// Producer
+DEFINE_FWK_MODULE(VZeroProducer);
 
