@@ -211,6 +211,7 @@ TriggerObjectTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       pat::TriggerObjectStandAlone l1obj(it->p4());
       l1obj.setCollection("L1Mu");
       l1obj.addTriggerObjectType(trigger::TriggerL1Mu);
+      l1obj.setCharge(it->charge());
       l1Objects.emplace_back(l1obj,it->hwIso());
     }
 
@@ -224,7 +225,7 @@ TriggerObjectTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     unsigned int nobj = selected.size();
     std::vector<float> pt(nobj,0), eta(nobj,0), phi(nobj,0), l1pt(nobj, 0), l1pt_2(nobj, 0), l2pt(nobj, 0);
-    std::vector<int>   id(nobj,0), bits(nobj, 0), l1iso(nobj, 0);
+    std::vector<int>   id(nobj,0), bits(nobj, 0), l1iso(nobj, 0), l1charge(nobj,0);
     for (unsigned int i = 0; i < nobj; ++i) {
         const auto & obj = *selected[i].first;
         const auto & sel = *selected[i].second;
@@ -241,6 +242,7 @@ TriggerObjectTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
                 if (dr2 < best && sel.l1cut(seed)) {
                     l1pt[i] = seed.pt();
                     l1iso[i] = l1obj.second;
+                    l1charge[i] = seed.charge();
                 }
             }
         }
@@ -272,6 +274,7 @@ TriggerObjectTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     tab->addColumn<float>("phi", phi, "phi", nanoaod::FlatTable::FloatColumn, 12);
     tab->addColumn<float>("l1pt", l1pt, "pt of associated L1 seed", nanoaod::FlatTable::FloatColumn, 8);
     tab->addColumn<int>("l1iso", l1iso, "iso of associated L1 seed", nanoaod::FlatTable::IntColumn);
+    tab->addColumn<int>("l1charge", l1charge, "charge of associated L1 seed", nanoaod::FlatTable::IntColumn);
     tab->addColumn<float>("l1pt_2", l1pt_2, "pt of associated secondary L1 seed", nanoaod::FlatTable::FloatColumn, 8);
     tab->addColumn<float>("l2pt", l2pt, "pt of associated 'L2' seed (i.e. HLT before tracking/PF)", nanoaod::FlatTable::FloatColumn, 10);
     tab->addColumn<int>("filterBits", bits, "extra bits of associated information: "+bitsDoc_, nanoaod::FlatTable::IntColumn);
