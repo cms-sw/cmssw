@@ -158,7 +158,7 @@ if args.append and os.path.isdir("jobData"):
 
 if nJobExist == 0 or nJobExist <=0 or nJobExist > 999: # quite rude method... -> enforce job number limit earlier?
     # Delete all
-    shutil.rmtree("jobData", ignore_errors = True)
+    mps_tools.remove_existing_object("jobData")
     os.makedirs("jobData")
     nJobExist = 0;
 
