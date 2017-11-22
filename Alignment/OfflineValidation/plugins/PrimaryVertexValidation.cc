@@ -169,6 +169,8 @@ PrimaryVertexValidation::~PrimaryVertexValidation()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+  if (theTrackFilter_) delete theTrackFilter_;
+  if (theTrackClusterizer_) delete theTrackClusterizer_;
 }
 
 
@@ -804,6 +806,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		    module_num = tTopo->pxbModule(detId);
 		  }
 		}
+		delete hit;
 	      }
 
 	      h_probeL1Ladder_->Fill(ladder_num);
