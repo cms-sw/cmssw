@@ -2,7 +2,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "HLTrigger/special/interface/HLTCountNumberOfObject.h"
+#include "HLTrigger/special/plugins/HLTCountNumberOfObject.h"
 
 // declare these template instantiations as framework plugins
 #include "FWCore/Framework/interface/MakerMacros.h"
