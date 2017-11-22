@@ -157,9 +157,8 @@ double LumiReWeighting::weight( float npv ) {
 
 double LumiReWeighting::weight( const edm::EventBase &e ) {
 
-  // get pileup summary information
   if(FirstWarning_) {
-    e.processHistory(); // keep the function call
+    e.processHistory();
     //    SetFirstFalse();
     FirstWarning_ = false;
   }
