@@ -17,6 +17,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+
+template <typename T>
+struct FillDescriptionTraits {
+  static std::string moduleLabel() { return defaultModuleLabel<T>(); }
+};
 
 template<typename T>
 class EventSelectorAdapter : public edm::global::EDFilter<>
@@ -29,6 +37,14 @@ class EventSelectorAdapter : public edm::global::EDFilter<>
 
   // destructor
   ~EventSelectorAdapter() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    using Traits = FillDescriptionTraits<EventSelectorAdapter<T> >;
+
+    edm::ParameterSetDescription desc;
+    T::template fillDescriptions<Traits>(desc);
+    descriptions.add(Traits::moduleLabel(), desc);
+  }
 
  private:
   bool filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override { return eventSelector_(evt, es); }

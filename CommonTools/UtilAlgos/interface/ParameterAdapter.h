@@ -2,6 +2,7 @@
 #define UtilAlgos_ParameterAdapter_h
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace reco {
@@ -18,6 +19,11 @@ namespace reco {
       static S make(const edm::ParameterSet & cfg, edm::ConsumesCollector & iC) {
 	return S(cfg, iC);
       }
+
+      template <typename FD>
+      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+        S::template fillDescriptions<FD>(desc);
+      }
     };
 
     template<typename S>
@@ -33,6 +39,10 @@ namespace reco {
       return ParameterAdapter<S>::make(cfg, iC);
     }
 
+    template <typename S, typename FD>
+    void fillDescriptions(edm::ParameterSetDescription& desc) {
+      ParameterAdapter<S>::template fillDescriptions<FD>(desc);
+    }
   }
 }
 
@@ -49,6 +59,8 @@ namespace reco { \
       static TYPE make(const edm::ParameterSet & cfg, edm::ConsumesCollector & iC) { \
 	return TYPE(); \
       } \
+      template <typename FD> \
+      static void fillDescriptions(edm::ParameterSetDescription& desc) {} \
     }; \
   } \
 }

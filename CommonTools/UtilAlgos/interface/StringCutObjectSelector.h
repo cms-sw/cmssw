@@ -1,6 +1,7 @@
 #ifndef UtilAlgos_StringCutObjectSelector_h
 #define UtilAlgos_StringCutObjectSelector_h
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -11,6 +12,15 @@ namespace reco {
     struct ParameterAdapter<StringCutObjectSelector<T, Lazy> > {
       static StringCutObjectSelector<T, Lazy> make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
 	return StringCutObjectSelector<T, Lazy>( cfg.template getParameter<std::string>( "cut" ) );
+      }
+
+      // SFINAE trick to provide default when FD::cut() is not implemented
+      template <typename FD> static decltype(FD::cut()) cut(int) { return FD::cut(); }
+      template <typename FD> static auto cut(long) { return std::string(); }
+
+      template <typename FD>
+      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+        desc.add<std::string>("cut", cut<FD>(0));
       }
     };
 
