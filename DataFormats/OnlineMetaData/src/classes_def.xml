@@ -1,0 +1,19 @@
+<lcgdict>
+  <class name="DCSRecord" ClassVersion="0">
+    <version ClassVersion="0" checksum="2059251589"/>
+  </class>
+  <class name="OnlineBeamSpotRecord" ClassVersion="0">
+    <version ClassVersion="0" checksum="1614588742"/>
+  </class>
+  <class name="OnlineLuminosityRecord" ClassVersion="0">
+    <version ClassVersion="0" checksum="3886767679"/>
+  </class>
+
+  <class name="edm::RefProd<DCSRecord>"/>
+  <class name="edm::RefProd<OnlineBeamSpotRecord>"/>
+  <class name="edm::RefProd<OnlineLuminosityRecord>"/>
+
+  <class name="edm::Wrapper<DCSRecord>"/>
+  <class name="edm::Wrapper<OnlineBeamSpotRecord>"/>
+  <class name="edm::Wrapper<OnlineLuminosityRecord>"/>
+</lcgdict>
