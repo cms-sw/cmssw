@@ -64,10 +64,18 @@ namespace btagbtvdeep {
 
         c_pf_features.puppiw = c_pf->puppiWeight();
 
-        const auto & pseudo_track =  c_pf->pseudoTrack();
-        c_pf_features.chi2 = catch_infs_and_bound(pseudo_track.normalizedChi2(),300,-1,300);
-        // this returns the quality enum not a mask.
-        c_pf_features.quality = pseudo_track.qualityMask();
+        // if PackedCandidate does not have TrackDetails this gives an Exception
+        // because unpackCovariance might be called for pseudoTrack/bestTrack
+        if (c_pf->hasTrackDetails()) {
+          const auto & pseudo_track =  c_pf->pseudoTrack();
+          c_pf_features.chi2 = catch_infs_and_bound(pseudo_track.normalizedChi2(),300,-1,300);
+          // this returns the quality enum not a mask.
+          c_pf_features.quality = pseudo_track.qualityMask();
+        } else {
+          // default negative chi2 and loose track if notTrackDetails
+          c_pf_features.chi2 = catch_infs_and_bound(-1,300,-1,300);
+          c_pf_features.quality =(1 << reco::TrackBase::loose);
+        }
 
       } 
     

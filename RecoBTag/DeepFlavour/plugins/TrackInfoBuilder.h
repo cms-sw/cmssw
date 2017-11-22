@@ -40,15 +40,19 @@ public:
     void buildTrackInfo(const reco::Candidate * candidate ,const math::XYZVector&  jetDir, GlobalVector refjetdirection, const reco::Vertex & pv){
         TVector3 jetDir3(jetDir.x(),jetDir.y(),jetDir.z());
 
+
         // deal with PAT/AOD polymorphism to get track
         const reco::Track * track_ptr = nullptr;
         auto packed_candidate = dynamic_cast<const pat::PackedCandidate *>(candidate);
         auto pf_candidate = dynamic_cast<const reco::PFCandidate *>(candidate);
         if (pf_candidate) {
           track_ptr = pf_candidate->bestTrack(); // trackRef was sometimes null
-        } else if (packed_candidate) {
+        } else if (packed_candidate && packed_candidate->hasTrackDetails()) {
+          // if PackedCandidate does not have TrackDetails this gives an Exception
+          // because unpackCovariance might be called for pseudoTrack/bestTrack
           track_ptr = &(packed_candidate->pseudoTrack());
         }
+
         if(!track_ptr) {
           TVector3 trackMom3(
             candidate->momentum().x(),
@@ -72,11 +76,6 @@ public:
           return;
         }
 
-        reco::TransientTrack transientTrack;
-        transientTrack=builder_->build(*track_ptr);
-        Measurement1D meas_ip2d=IPTools::signedTransverseImpactParameter(transientTrack, refjetdirection, pv).second;
-        Measurement1D meas_ip3d=IPTools::signedImpactParameter3D(transientTrack, refjetdirection, pv).second;
-        Measurement1D jetdist=IPTools::jetTrackDistance(transientTrack, refjetdirection, pv).second;
         math::XYZVector trackMom = track_ptr->momentum();
         double trackMag = std::sqrt(trackMom.Mag2());
         TVector3 trackMom3(trackMom.x(),trackMom.y(),trackMom.z());
@@ -89,12 +88,15 @@ public:
         trackDeltaR_=reco::deltaR(trackMom, jetDir);
         trackPtRatio_=trackMom3.Perp(jetDir3) / trackMag;
         trackPParRatio_=jetDir.Dot(trackMom) / trackMag;
-        trackSip2dVal_=static_cast<float>(meas_ip2d.value());
 
+        reco::TransientTrack transientTrack;
+        transientTrack=builder_->build(*track_ptr);
+        Measurement1D meas_ip2d=IPTools::signedTransverseImpactParameter(transientTrack, refjetdirection, pv).second;
+        Measurement1D meas_ip3d=IPTools::signedImpactParameter3D(transientTrack, refjetdirection, pv).second;
+        Measurement1D jetdist=IPTools::jetTrackDistance(transientTrack, refjetdirection, pv).second;
+        trackSip2dVal_=static_cast<float>(meas_ip2d.value());
         trackSip2dSig_=static_cast<float>(meas_ip2d.significance());
         trackSip3dVal_=static_cast<float>(meas_ip3d.value());
-
-
         trackSip3dSig_=static_cast<float>(meas_ip3d.significance());
         trackJetDistVal_=static_cast<float>(jetdist.value());
         trackJetDistSig_=static_cast<float>(jetdist.significance());
