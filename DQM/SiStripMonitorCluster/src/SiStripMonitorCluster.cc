@@ -615,7 +615,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   //  std::cout << "passBPTXfilter_ ? " << passBPTXfilter_ << std::endl;
 
   // Filter out events if DCS Event if requested
-  bool doFill =  !(dcsStatus_ && !dcsStatus_->getStatus(iEvent,iSetup));
+  bool doDCSFilter =  !(dcsStatus_ && !dcsStatus_->getStatus(iEvent,iSetup));
 
   runNb   = iEvent.id().run();
   eventNb++;
@@ -654,14 +654,14 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     isPixValid=true;
     MultiplicityRegion=FindRegion(NStripClusters,NPixClusters);
 
-    if ( passBPTXfilter_ and passPixelDCSfilter_ and passStripDCSfilter_ and doFill) {
+    if ( passBPTXfilter_ and passPixelDCSfilter_ and passStripDCSfilter_ and doDCSFilter) {
       if (globalswitchcstripvscpix) GlobalCStripVsCpix->Fill(NStripClusters,NPixClusters);
       if (globalswitchmaindiagonalposition && NStripClusters > 0) GlobalMainDiagonalPosition->Fill(atan(NPixClusters/(k0*NStripClusters)));
 
       if (globalswitchMultiRegions) PixVsStripMultiplicityRegions->Fill(MultiplicityRegion);
     }
 
-    if (ClusterHisto_ and doFill){
+    if (ClusterHisto_ and doDCSFilter){
       if ( passBPTXfilter_ and passPixelDCSfilter_ )
     NumberOfPixelClus->Fill(NPixClusters);
       if ( passBPTXfilter_ and passStripDCSfilter_ )
@@ -723,12 +723,12 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       edmNew::DetSetVector<SiStripCluster>::const_iterator isearch = cluster_detsetvektor->find(detid); // search  clusters of detid
 
       if(isearch==cluster_detsetvektor->end()){
-    if(found_module_me && moduleswitchncluson && (mod_single.NumberOfClusters) and doFill){
+    if(found_module_me && moduleswitchncluson && (mod_single.NumberOfClusters) and doDCSFilter){
       (mod_single.NumberOfClusters)->Fill(0.); // no clusters for this detector module,fill histogram with 0
     }
-    if(clustertkhistomapon and doFill) tkmapcluster->fill(detid,0.);
-    if(clusterchtkhistomapon  and doFill) tkmapclusterch->fill(detid,0.);
-    if (found_layer_me && layerswitchnumclusterprofon  and doFill) layer_single.LayerNumberOfClusterProfile->Fill(iDet, 0.0);
+    if(clustertkhistomapon and doDCSFilter) tkmapcluster->fill(detid,0.);
+    if(clusterchtkhistomapon  and doDCSFilter) tkmapclusterch->fill(detid,0.);
+    if (found_layer_me && layerswitchnumclusterprofon  and doDCSFilter) layer_single.LayerNumberOfClusterProfile->Fill(iDet, 0.0);
     continue; // no clusters for this detid => jump to next step of loop
       }
 
@@ -772,15 +772,15 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
 
       // Filling TkHistoMap with number of clusters for each module
-      if(clustertkhistomapon and doFill) {
+      if(clustertkhistomapon and doDCSFilter) {
     tkmapcluster->fill(detid,static_cast<float>(cluster_detset.size()));
       }
 
-      if(moduleswitchncluson && found_module_me && (mod_single.NumberOfClusters != nullptr)  and doFill){ // nr. of clusters per module
+      if(moduleswitchncluson && found_module_me && (mod_single.NumberOfClusters != nullptr)  and doDCSFilter){ // nr. of clusters per module
     (mod_single.NumberOfClusters)->Fill(static_cast<float>(cluster_detset.size()));
       }
 
-      if (found_layer_me && layerswitchnumclusterprofon  and doFill)
+      if (found_layer_me && layerswitchnumclusterprofon  and doDCSFilter)
     layer_single.LayerNumberOfClusterProfile->Fill(iDet, static_cast<float>(cluster_detset.size()));
       ncluster_layer +=  cluster_detset.size();
 
@@ -802,7 +802,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     // add nr of strips of this cluster to total nr. of clusterized strips
     total_clusterized_strips = total_clusterized_strips + cluster_width;
 
-    if(clusterchtkhistomapon  and doFill) tkmapclusterch->fill(detid,static_cast<float>(clusterIter->charge()));
+    if(clusterchtkhistomapon  and doDCSFilter) tkmapclusterch->fill(detid,static_cast<float>(clusterIter->charge()));
 
     // cluster signal and noise from the amplitudes
     float cluster_signal = 0.0;
@@ -837,16 +837,16 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     cluster_properties.noise     = cluster_noise;
 
     // Fill Module Level MEs
-    if (found_module_me  and doFill) fillModuleMEs(mod_single, cluster_properties);
+    if (found_module_me  and doDCSFilter) fillModuleMEs(mod_single, cluster_properties);
 
     // Fill Layer Level MEs
-    if (found_layer_me  and doFill) {
+    if (found_layer_me  and doDCSFilter) {
           fillLayerMEs(layer_single, cluster_properties);
-      if (layerswitchclusterwidthprofon  and doFill)
+      if (layerswitchclusterwidthprofon  and doDCSFilter)
         layer_single.LayerClusterWidthProfile->Fill(iDet, cluster_width);
     }
 
-    if ( (subdetswitchcluschargeon || subdetswitchcluswidthon)  and doFill )
+    if ( (subdetswitchcluschargeon || subdetswitchcluswidthon)  and doDCSFilter )
       {
         std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
         if(iSubdet != SubDetMEsMap.end())
@@ -857,52 +857,52 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       }
 
 
-    if (subdet_clusterWidth_vs_amplitude_on  and doFill){
+    if (subdet_clusterWidth_vs_amplitude_on  and doDCSFilter){
         std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
         if(iSubdet != SubDetMEsMap.end()) iSubdet->second.SubDetClusWidthVsAmpTH2->Fill(cluster_signal, cluster_width);
     }
 
-    if ( clusterWidth_vs_amplitude_on  and doFill) {
+    if ( clusterWidth_vs_amplitude_on  and doDCSFilter) {
       ClusWidthVsAmpTH2->Fill(cluster_signal, cluster_width);
     }
 
-        if (subdetswitchtotclusprofon && (subdet_label.find("TID")!=std::string::npos || subdet_label.find("TEC")!=std::string::npos)  and doFill){
+        if (subdetswitchtotclusprofon && (subdet_label.find("TID")!=std::string::npos || subdet_label.find("TEC")!=std::string::npos)  and doDCSFilter){
           std::pair<std::string,int32_t> det_ring_pair = folder_organizer.GetSubDetAndLayer(detid,tTopo,true);
           ncluster_ring[std::abs(det_ring_pair.second)] ++ ;
         }
 
       } // end loop over clusters
 
-      if (subdetswitchtotclusprofon  and doFill) {
+      if (subdetswitchtotclusprofon  and doDCSFilter) {
        std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
        std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detid, tTopo);
        iSubdet->second.SubDetNumberOfClusterPerLayerTrend->Fill(trendVar,std::abs(det_layer_pair.second), ncluster_layer);
       }
 
-      if (subdetswitchtotclusprofon && (subdet_label.find("TID")!=std::string::npos || subdet_label.find("TEC")!=std::string::npos)  and doFill){
+      if (subdetswitchtotclusprofon && (subdet_label.find("TID")!=std::string::npos || subdet_label.find("TEC")!=std::string::npos)  and doDCSFilter){
        std::pair<std::string,int32_t> det_ring_pair = folder_organizer.GetSubDetAndLayer(detid,tTopo,true);
        layer_single.LayerNumberOfClusterPerRingTrend->Fill(trendVar, std::abs(det_ring_pair.second), ncluster_ring[std::abs(det_ring_pair.second)]);
       }
 
       short total_nr_strips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128; // get correct # of avp pairs
       float local_occupancy = static_cast<float>(total_clusterized_strips)/static_cast<float>(total_nr_strips);
-      if (found_module_me  and doFill) {
+      if (found_module_me  and doDCSFilter) {
     if(moduleswitchnrclusterizedstrip && mod_single.NrOfClusterizedStrips ){ // nr of clusterized strips
       mod_single.NrOfClusterizedStrips->Fill(static_cast<float>(total_clusterized_strips));
     }
 
-    if(moduleswitchlocaloccupancy && mod_single.ModuleLocalOccupancy  and doFill ){ // Occupancy
+    if(moduleswitchlocaloccupancy && mod_single.ModuleLocalOccupancy  and doDCSFilter ){ // Occupancy
       mod_single.ModuleLocalOccupancy->Fill(local_occupancy);
     }
       }
-      if (layerswitchlocaloccupancy && found_layer_me && layer_single.LayerLocalOccupancy  and doFill) {
+      if (layerswitchlocaloccupancy && found_layer_me && layer_single.LayerLocalOccupancy  and doDCSFilter) {
     fillME(layer_single.LayerLocalOccupancy,local_occupancy);
-    if (createTrendMEs  and doFill)
+    if (createTrendMEs  and doDCSFilter)
       fillME(layer_single.LayerLocalOccupancyTrend,trendVar,local_occupancy);
       }
     }
 
-    if (subdetswitchtotclusprofon  and doFill)
+    if (subdetswitchtotclusprofon  and doDCSFilter)
       fillME(layer_single.LayerNumberOfClusterTrend,trendVar,ncluster_layer);
 
     std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
@@ -935,7 +935,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     bool MultiplicityRegion_Vs_APVcycle_filled=false;
 
     // plot n 2
-    if ( passBPTXfilter_ and passPixelDCSfilter_ and passStripDCSfilter_  and doFill) {
+    if ( passBPTXfilter_ and passPixelDCSfilter_ and passStripDCSfilter_  and doDCSFilter) {
       if (globalswitchcstripvscpix)  GlobalABXTH1_CSCP->Fill(tbx%3564);
     }
     // plot n 2
@@ -961,7 +961,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
       long long dbxincycle = event_history->deltaBXinCycle(the_phase);
       //std::cout<<"dbx in cycle: " << dbxincycle << std::endl;
-      if (globalswitchapvcycledbxth2on && !global_histo_filled  and doFill) {
+      if (globalswitchapvcycledbxth2on && !global_histo_filled  and doDCSFilter) {
         GlobalApvCycleDBxTH2->Fill(tbx_corr%70,dbx);
     GlobalDBxTH1->Fill(dbx);
     GlobalDBxCycleTH1->Fill(dbxincycle);
@@ -971,7 +971,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
       // Fill MainDiagonalPosition plots ***************
       if (cluster_detsetvektor_pix.isValid()){
-    if (ClusterHisto_  and doFill){
+    if (ClusterHisto_  and doDCSFilter){
       if ( passBPTXfilter_ and passStripDCSfilter_ ){
         NumberOfStripClus_vs_BX->Fill(tbx%3564,NStripClusters);
         if(passPixelDCSfilter_ ){
@@ -999,28 +999,28 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     }
       }
 
-      if (isPixValid && !MultiplicityRegion_Vs_APVcycle_filled  and doFill){
+      if (isPixValid && !MultiplicityRegion_Vs_APVcycle_filled  and doDCSFilter){
     if (globalswitchstripnoise2apvcycle && MultiplicityRegion==2) {StripNoise2Cycle->Fill(tbx_corr%70);}
     if (globalswitchstripnoise3apvcycle && MultiplicityRegion==3) {StripNoise3Cycle->Fill(tbx_corr%70);}
     MultiplicityRegion_Vs_APVcycle_filled=true;
       }
 
-      if (subdetswitchtotclusth1on  and doFill)
+      if (subdetswitchtotclusth1on  and doDCSFilter)
       sdetmes.SubDetTotClusterTH1->Fill(sdetmes.totNClusters);
       if (subdetswitchtotclusprofon)
       sdetmes.SubDetTotClusterProf->Fill(trendVar,sdetmes.totNClusters);
-      if (subdetswitchapvcycleprofon  and doFill)
+      if (subdetswitchapvcycleprofon  and doDCSFilter)
     sdetmes.SubDetClusterApvProf->Fill(tbx_corr%70,sdetmes.totNClusters);
-      if (subdetswitchapvcycleth2on  and doFill)
+      if (subdetswitchapvcycleth2on  and doDCSFilter)
     sdetmes.SubDetClusterApvTH2->Fill(tbx_corr%70,sdetmes.totNClusters);
-      if (subdetswitchdbxcycleprofon  and doFill) {
+      if (subdetswitchdbxcycleprofon  and doDCSFilter) {
     sdetmes.SubDetClusterDBxCycleProf->Fill(dbxincycle,sdetmes.totNClusters);
       }
-      if (subdetswitchapvcycledbxprof2on  and doFill)
+      if (subdetswitchapvcycledbxprof2on  and doDCSFilter)
     sdetmes.SubDetApvDBxProf2->Fill(tbx_corr%70,dbx,sdetmes.totNClusters);
     }
 
-    if ( globalswitchnclusvscycletimeprof2don  and doFill )
+    if ( globalswitchnclusvscycletimeprof2don  and doDCSFilter )
       {
     long long tbx_corr = tbx;
     int the_phase = apv_phase_collection->getPhase("All");
