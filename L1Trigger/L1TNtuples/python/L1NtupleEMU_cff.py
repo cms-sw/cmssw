@@ -13,6 +13,7 @@ l1UpgradeTfMuonEmuTree.omtfMuonToken = cms.untracked.InputTag("simOmtfDigis","OM
 l1UpgradeTfMuonEmuTree.emtfMuonToken = cms.untracked.InputTag("simEmtfDigis","EMTF") 
 
 l1CaloTowerEmuTree = l1CaloTowerTree.clone()
+l1CaloTowerEmuTree.ecalEBToken = cms.untracked.InputTag("simEcalEBTriggerPrimitiveDigis")
 l1CaloTowerEmuTree.ecalToken = cms.untracked.InputTag("simEcalTriggerPrimitiveDigis")
 l1CaloTowerEmuTree.hcalToken = cms.untracked.InputTag("simHcalTriggerPrimitiveDigis")
 l1CaloTowerEmuTree.l1TowerToken = cms.untracked.InputTag("simCaloStage2Layer1Digis")
