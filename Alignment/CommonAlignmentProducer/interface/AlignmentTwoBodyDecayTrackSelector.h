@@ -12,6 +12,8 @@
 #include <DataFormats/TrackReco/interface/TrackFwd.h>
 #include <DataFormats/METReco/interface/CaloMETFwd.h>
 
+namespace edm { class Event; class EventSetup; }
+
 class AlignmentTwoBodyDecayTrackSelector
 {
  public:
