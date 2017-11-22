@@ -1,11 +1,5 @@
 #include "VZeroFinder.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -21,21 +15,22 @@ using namespace std;
 using namespace edm;
 
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace {
 
-class VZeroProducer final : public edm::stream::EDProducer<> {
+class VZeroProducer final : public edm::global::EDProducer<> {
 
 public:
   explicit VZeroProducer(const edm::ParameterSet& pset);
 
   ~VZeroProducer() override;
 
-  void produce(edm::Event& ev, const edm::EventSetup& es) override;
+
+  void produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const override;
 
 private:
 
@@ -66,7 +61,7 @@ VZeroProducer::~VZeroProducer()
 }
 
 /*****************************************************************************/
-void VZeroProducer::produce(Event& ev, const EventSetup& es)
+void VZeroProducer::produce(edm::StreamID, Event& ev, const EventSetup& es) const
 {
   // Get tracks
   Handle<reco::TrackCollection> trackCollection;
