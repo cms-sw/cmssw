@@ -128,3 +128,34 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
     }
   } 
 }
+
+void
+HcalSimpleReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+
+  // horeco
+  edm::ParameterSetDescription descHO;
+  descHO.add<double>("correctionPhaseNS", 13.0);
+  descHO.add<edm::InputTag>("digiLabel", edm::InputTag("hcalDigis"));
+  descHO.add<bool>("tsFromDB", true);
+  descHO.add<int>("samplesToAdd", 4);
+  descHO.add<std::string>("Subdetector", "HO");
+  descHO.add<bool>("correctForTimeslew", true);
+  descHO.add<bool>("dropZSmarkedPassed", true);
+  descHO.add<bool>("correctForPhaseContainment", true);
+  descHO.add<int>("firstSample", 4);
+  descriptions.add("hosimplereco", descHO);
+
+  // hfreco
+  edm::ParameterSetDescription descHF;
+  descHF.add<double>("correctionPhaseNS", 0.0);
+  descHF.add<edm::InputTag>("digiLabel", edm::InputTag("hcalDigis"));
+  descHF.add<bool>("tsFromDB", true);
+  descHF.add<int>("samplesToAdd", 2);
+  descHF.add<std::string>("Subdetector", "HF");
+  descHF.add<bool>("correctForTimeslew", false);
+  descHF.add<bool>("dropZSmarkedPassed", true);
+  descHF.add<bool>("correctForPhaseContainment", false);
+  descHF.add<int>("firstSample", 4);
+  descriptions.add("hfsimplereco", descHF);
+}

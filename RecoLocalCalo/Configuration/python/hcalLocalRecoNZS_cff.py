@@ -19,10 +19,10 @@ hbherecoMB = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbheprer
 )
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
-hfrecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
+hfrecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfsimplereco.clone()
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
-horecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
+horecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.hosimplereco.clone()
 
 # switch off "Hcal ZS in reco":
 hfrecoMB.dropZSmarkedPassed = cms.bool(False)

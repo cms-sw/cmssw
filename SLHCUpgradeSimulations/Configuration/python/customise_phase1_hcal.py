@@ -92,18 +92,16 @@ def customise(process):
     process.ecalRecHit.recoverEBFE = cms.bool(False)
     process.ecalRecHit.recoverEEFE = cms.bool(False)
 
-    process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
 
-    process.hbheprereco.digiLabel = "simHcalUnsuppressedDigis"
-    process.horeco.digiLabel = "simHcalUnsuppressedDigis"
-    process.hfreco.digiLabel = "simHcalUnsuppressedDigis"
+    process.hosimplereco.digiLabel = "simHcalUnsuppressedDigis"
+    process.hfsimplereco.digiLabel = "simHcalUnsuppressedDigis"
     process.hcalupgradereco.digiLabel = "simHcalUnsuppressedDigis"
 
 ### Known alterations for Reco #####################################################
-    delattr(process,"hbhereco")
-    process.hbhereco = process.hbheprereco.clone()
+    #delattr(process,"hbhereco")
+    #process.hbhereco = process.hbheprereco.clone()
 
     process.metrecoPlusHCALNoise.remove(process.BeamHaloSummary)
     process.metrecoPlusHCALNoise.remove(process.GlobalHaloData)
@@ -121,8 +119,8 @@ def customise(process):
                                 process.ecalTPSkim+
                                 process.ecalPreshowerRecHit+
                                 #process.hbheprereco+
-                                process.hbhereco+
-                                process.horeco+process.hfreco+process.hcalupgradereco+process.towerMaker
+                                #process.hbhereco+
+                                process.hosimplereco+process.hfsimplereco+process.hcalupgradereco+process.towerMaker
                                 #+process.zdcreco
                                 )
     process.localreco  = cms.Sequence(process.trackerlocalreco+

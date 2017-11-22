@@ -16,7 +16,7 @@ hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 import RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
-hfrecoMBNZS = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
+hfrecoMBNZS = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfsimplereco.clone()
 
 hfrecoMBNZS.firstSample = 2
 hfrecoMBNZS.samplesToAdd = 2
