@@ -226,7 +226,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
           // might change if we use also white-listing
           if (cand->pt()< min_candidate_pt_) continue; 
           if (cand->charge() != 0) {
-            auto trackinfo = trackinfos.emplace(i,track_builder).first->second;
+            auto & trackinfo = trackinfos.emplace(i,track_builder).first->second;
             trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
             c_sorted.emplace_back(i, trackinfo.getTrackSip2dSig(),
                     -btagbtvdeep::mindrsvpfcand(svs_unsorted,cand), cand->pt()/jet.pt());
