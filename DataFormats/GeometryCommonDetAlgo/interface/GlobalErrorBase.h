@@ -1,7 +1,7 @@
 #ifndef GlobalErrorType_H
 #define GlobalErrorType_H
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointer.h"
+#include "DataFormats/Common/interface/DeepCopyPointer.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 //

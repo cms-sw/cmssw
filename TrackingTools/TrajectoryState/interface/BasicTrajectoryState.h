@@ -18,7 +18,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointer.h"
+#include "DataFormats/Common/interface/DeepCopyPointer.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
