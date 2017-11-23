@@ -27,17 +27,19 @@
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 //
 // constructors and destructor
 //
 CmsShowCommon::CmsShowCommon(fireworks::Context* c):
    FWConfigurableParameterizable(2),
-   m_view(0),
+   m_view(nullptr),
    m_context(c),  
    m_trackBreak(this, "     ", 2l, 0l, 2l), // do not want to render text at setter
    m_drawBreakPoints(this, "Show y=0 points as markers", false),
@@ -46,9 +48,10 @@ CmsShowCommon::CmsShowCommon(fireworks::Context* c):
    m_palette(this, "Palette", 1l, 0l, 2l ),
    m_geomTransparency2D(this, "Transparency 2D", long(colorManager()->geomTransparency(true)), 0l, 100l),
    m_geomTransparency3D(this, "Transparency 3D", long(colorManager()->geomTransparency(false)), 0l, 100l),
-   m_energyScale(new FWViewEnergyScale("global", 2))
+   m_useBeamSpot(true)
 {
-   // projections 
+  m_viewContext.setEnergyScale(new FWViewEnergyScale("global", 2));
+  // projections 
    m_trackBreak.addEntry(0, "Jump to proper hemisphere");
    m_trackBreak.addEntry(1, "Stay on first point side");
    m_trackBreak.addEntry(2, "Stay on last point side");
@@ -233,7 +236,7 @@ CmsShowCommon::addTo(FWConfiguration& oTo) const
   m_backgroundColor.set(int(colorManager()->background()));
 
   FWConfigurableParameterizable::addTo(oTo);
-  m_energyScale->addTo(oTo);
+  m_viewContext.getEnergyScale()->addTo(oTo);
 
   if (gEve)
   {
@@ -274,7 +277,7 @@ CmsShowCommon::setFrom(const FWConfiguration& iFrom)
         maxH = atof(iFrom.valueForKey("MaxTowerH [m]")->value().c_str());
          
      int et = atoi(iFrom.valueForKey("PlotEt")->value().c_str());
-     m_energyScale->SetFromCmsShowCommonConfig(mode, convert, maxH, et);
+     m_viewContext.getEnergyScale()->SetFromCmsShowCommonConfig(mode, convert, maxH, et);
   }
       
   // background
@@ -338,5 +341,38 @@ CmsShowCommon::loopPalettes()
    {
       m_palette.set(val);
       setPalette();
+   }
+}
+
+void CmsShowCommon::getEventCenter(float* iC) const
+{
+   if (m_useBeamSpot) {
+      FWBeamSpot* beamSpot = fireworks::Context::getInstance()->getBeamSpot();
+      iC[0] = float(beamSpot->x0());
+      iC[1] = float(beamSpot->y0());
+      iC[2] = float(beamSpot->z0());
+   }
+   else {
+      iC[0] = m_externalEventCenter.fX;
+      iC[1] = m_externalEventCenter.fY;
+      iC[2] = m_externalEventCenter.fZ;
+   }
+}
+
+void CmsShowCommon::setEventCenter(float x, float y , float z)
+{
+   m_useBeamSpot = false;
+   m_externalEventCenter.Set(x, y, z);
+   eventCenterChanged_.emit(this);
+}
+
+
+void CmsShowCommon::resetEventCenter()
+{
+   if (!m_useBeamSpot) {
+      fwLog( fwlog::kInfo ) <<  "CmsShowCommon re-set event center to BeamSpot\n ";
+      m_useBeamSpot = true;
+      FWBeamSpot* beamSpot = fireworks::Context::getInstance()->getBeamSpot();
+      setEventCenter(beamSpot->x0(), beamSpot->y0(), beamSpot->z0());
    }
 }
