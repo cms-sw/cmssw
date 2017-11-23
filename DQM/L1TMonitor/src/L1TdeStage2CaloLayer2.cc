@@ -929,8 +929,8 @@ bool L1TdeStage2CaloLayer2::compareSums(
 
   // if either data or emulator collections are empty, or they have different
   // size, mark the event as bad (this should never occur in normal running)
-  if (dataCol->isEmpty(currBx) == 0 || emulCol->isEmpty(currBx) == 0 ||
-      (dataCol->size() != emulCol->size()))
+  if (dataCol->isEmpty(currBx) || emulCol->isEmpty(currBx) ||
+      (dataCol->size(currBx) != emulCol->size(currBx)))
     return false;
 
   while(true) {
