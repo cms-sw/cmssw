@@ -9,6 +9,7 @@
 #include "TStyle.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 
 namespace SiStripPI {
