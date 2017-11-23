@@ -832,7 +832,7 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
   // get the calo geometry
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  CaloGeometry* geo = (CaloGeometry*)(pG.product());
 
   // get the rechits
   edm::Handle<HBHERecHitCollection> handle;

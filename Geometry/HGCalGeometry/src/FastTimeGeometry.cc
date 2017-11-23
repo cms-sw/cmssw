@@ -84,7 +84,7 @@ void FastTimeGeometry::newCell( const GlobalPoint& f1 ,
 #endif
 }
 
-const CaloCellGeometry* FastTimeGeometry::getGeometry(const DetId& id) const {
+std::shared_ptr<CaloCellGeometry> FastTimeGeometry::getGeometry(const DetId& id) {
 
   if (id == DetId()) return nullptr; // nothing to get
   DetId geoId = (DetId)(FastTimeDetId(id).geometryCell());
@@ -92,7 +92,7 @@ const CaloCellGeometry* FastTimeGeometry::getGeometry(const DetId& id) const {
   return cellGeomPtr (cellIndex);
 }
 
-GlobalPoint FastTimeGeometry::getPosition(const DetId& id) const {
+GlobalPoint FastTimeGeometry::getPosition(const DetId& id) {
 
   FastTimeDetId id_ = FastTimeDetId(id);
   auto pos = topology().dddConstants().getPosition(m_Type,id_.ieta(),id_.iphi(),id_.zside());
@@ -110,7 +110,7 @@ FastTimeGeometry::CornersVec FastTimeGeometry::getCorners(const DetId& id) const
   return out;
 }
 
-DetId FastTimeGeometry::getClosestCell(const GlobalPoint& r) const {
+DetId FastTimeGeometry::getClosestCell(const GlobalPoint& r) {
   int zside = (r.z() > 0) ? 1 : -1;
   std::pair<int,int> etaZPhi;
   if (m_Type == 1) {
@@ -130,7 +130,7 @@ DetId FastTimeGeometry::getClosestCell(const GlobalPoint& r) const {
   return (topology().valid(id) ? DetId(id) : DetId());
 }
 
-FastTimeGeometry::DetIdSet FastTimeGeometry::getCells(const GlobalPoint& r, double dR ) const {
+FastTimeGeometry::DetIdSet FastTimeGeometry::getCells(const GlobalPoint& r, double dR ) {
    FastTimeGeometry::DetIdSet dss;
    return dss;
 }
@@ -158,10 +158,10 @@ unsigned int FastTimeGeometry::sizeForDenseIndex() const {
   return topology().totalGeomModules();
 }
 
-const CaloCellGeometry* FastTimeGeometry::cellGeomPtr(uint32_t index) const {
+std::shared_ptr<CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t index) {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return nullptr;
-  const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
+  auto cell = (std::shared_ptr<CaloCellGeometry>)(&m_cellVec[index]);
 #ifdef EDM_ML_DEBUG
   //  std::cout << "cellGeomPtr " << m_cellVec[index];
 #endif
@@ -191,7 +191,7 @@ void FastTimeGeometry::sortDetIds( void ) {
 void FastTimeGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 				  CaloSubdetectorGeometry::IVec&   iVector,
 				  CaloSubdetectorGeometry::DimVec& dimVector,
-				  CaloSubdetectorGeometry::IVec& dinsVector ) const {
+				  CaloSubdetectorGeometry::IVec& dinsVector ) {
 
   unsigned int numberOfCells = topology().totalGeomModules(); // total Geom Modules both sides
   unsigned int numberOfShapes = FastTimeGeometry::k_NumberOfShapes;
@@ -220,7 +220,7 @@ void FastTimeGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
     iVector.emplace_back(1);
     
     Tr3D tr;
-    const CaloCellGeometry* ptr( cellGeomPtr( i ));
+    auto ptr( cellGeomPtr( i ));
     if ( nullptr != ptr ) {
       ptr->getTransform( tr, ( Pt3DVec* ) nullptr );
 

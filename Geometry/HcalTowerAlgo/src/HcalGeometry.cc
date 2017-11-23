@@ -83,7 +83,7 @@ HcalGeometry::getValidDetIds( DetId::Detector det,
 		 ( HcalForward == subdet ? *m_hfIds.load() : *m_emptyIds.load() ) ) ) ) ) ;
 }
 
-const CaloCellGeometry* HcalGeometry::getGeometry(const DetId& id) const {
+std::shared_ptr<CaloCellGeometry> HcalGeometry::getGeometry(const DetId& id) {
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalGeometry::getGeometry for " << HcalDetId(id) << "  " 
 	    << m_mergePosition << " ";
@@ -103,7 +103,7 @@ const CaloCellGeometry* HcalGeometry::getGeometry(const DetId& id) const {
   }
 }
 
-DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
+DetId HcalGeometry::getClosestCell(const GlobalPoint& r) {
 
   // Now find the closest eta_bin, eta value of a bin i is average
   // of eta[i] and eta[i-1]
@@ -149,7 +149,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     else                  pointrz = std::abs(r.z());
     HcalDetId bestId;
     for ( ; currentId != HcalDetId(); m_topology.incrementDepth(currentId)) {
-      const CaloCellGeometry * cell = getGeometry(currentId);
+      std::shared_ptr<CaloCellGeometry> cell = getGeometry(currentId);
       if (cell == nullptr) {
         assert (bestId != HcalDetId());
         break;
@@ -168,7 +168,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
   }
 }
 
-GlobalPoint HcalGeometry::getPosition(const DetId& id) const {
+GlobalPoint HcalGeometry::getPosition(const DetId& id) {
   if (!m_mergePosition) {
     return (getGeometryBase(id)->getPosition());
   } else {
@@ -176,7 +176,7 @@ GlobalPoint HcalGeometry::getPosition(const DetId& id) const {
   }
 }
 
-GlobalPoint HcalGeometry::getBackPosition(const DetId& id) const {
+GlobalPoint HcalGeometry::getBackPosition(const DetId& id) {
   if (!m_mergePosition) {
     return (getGeometryBase(id)->getBackPoint());
   } else {
@@ -186,7 +186,7 @@ GlobalPoint HcalGeometry::getBackPosition(const DetId& id) const {
   }
 }
 
-CaloCellGeometry::CornersVec HcalGeometry::getCorners(const DetId& id) const {
+CaloCellGeometry::CornersVec HcalGeometry::getCorners(const DetId& id) {
   if (!m_mergePosition) {
     return (getGeometryBase(id)->getCorners());
   } else {
@@ -212,7 +212,7 @@ int HcalGeometry::phiBin(HcalSubdetector bc, int etaring, double phi) const {
 }
 
 CaloSubdetectorGeometry::DetIdSet HcalGeometry::getCells(const GlobalPoint& r, 
-							 double dR ) const {
+							 double dR ) {
   CaloSubdetectorGeometry::DetIdSet dis;  // this is the return object
 
   if (0.000001 < dR) {
@@ -252,7 +252,7 @@ CaloSubdetectorGeometry::DetIdSet HcalGeometry::getCells(const GlobalPoint& r,
 		 for (int idep ( idep_lo ) ; idep <= idep_hi ; ++idep ) {
 		   const HcalDetId did ( hs[is], ieta, iphi, idep ) ;
 		   if (m_topology.valid(did)) {
-		     const CaloCellGeometry* cell ( getGeometryBase( did ) );
+		     std::shared_ptr<CaloCellGeometry> cell ( getGeometryBase( did ) );
 		     if (nullptr != cell ) {
 		       const GlobalPoint& p   ( cell->getPosition() ) ;
 		       const double       eta ( p.eta() ) ;
@@ -445,10 +445,10 @@ unsigned int HcalGeometry::newCellImpl(const GlobalPoint& f1 ,
 }
 
 void HcalGeometry::newCell(const GlobalPoint& f1 ,
-               const GlobalPoint& f2 ,
-               const GlobalPoint& f3 ,
-               const CCGFloat*    parm ,
-               const DetId&       detId) {
+			   const GlobalPoint& f2 ,
+			   const GlobalPoint& f3 ,
+			   const CCGFloat*    parm ,
+			   const DetId&       detId) {
 
   unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
 
@@ -468,32 +468,30 @@ void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
   m_dins.emplace_back( din );
 }
 
-const CaloCellGeometry* HcalGeometry::cellGeomPtr( unsigned int din ) const {
-  const CaloCellGeometry* cell ( nullptr ) ;
-  if( m_hbCellVec.size() > din ) {
-    cell = &m_hbCellVec[ din ] ;
-  } else {
-    if (m_hbCellVec.size() + m_heCellVec.size() > din) {
+std::shared_ptr<CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int din ) {
+  std::shared_ptr<CaloCellGeometry> cell ( nullptr ) ;
+  if (m_hbCellVec.size() > din) {
+    cell = std::shared_ptr<CaloCellGeometry>(&m_hbCellVec[din]) ;
+  } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
       const unsigned int index (din - m_hbCellVec.size() ) ;
-      cell = &m_heCellVec[ index ] ;
-    } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
-      const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size());
-      cell = &m_hoCellVec[ index ] ;
-    } else if (m_hbCellVec.size() + m_heCellVec.size() + m_hoCellVec.size() +
-	       m_hfCellVec.size() > din) {
-      const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size() -
-				m_hoCellVec.size() ) ;
-      cell = &m_hfCellVec[ index ] ;
-    }
+      cell = std::shared_ptr<CaloCellGeometry>(&m_heCellVec[index]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
+    const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size());
+    cell = std::shared_ptr<CaloCellGeometry>(&m_hoCellVec[index]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size()+
+	     m_hfCellVec.size() > din) {
+    const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size() -
+			      m_hoCellVec.size() ) ;
+    cell = std::shared_ptr<CaloCellGeometry>(&m_hfCellVec[index]);
   }
-   
+  
   return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;
 }
 
 void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
 			       CaloSubdetectorGeometry::IVec&   iVec,
 			       CaloSubdetectorGeometry::DimVec& dVec,
-			       CaloSubdetectorGeometry::IVec& dinsVec ) const {
+			       CaloSubdetectorGeometry::IVec& dinsVec ) {
 
   tVec.reserve( m_topology.ncells()*numberOfTransformParms());
   iVec.reserve( numberOfShapes()==1 ? 1 : m_topology.ncells());
@@ -508,7 +506,7 @@ void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
    
   for( auto i : m_dins ) {
     Tr3D tr ;
-    const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
+    auto ptr = cellGeomPtr( i );
        
     if (nullptr != ptr) {
       dinsVec.emplace_back( i );

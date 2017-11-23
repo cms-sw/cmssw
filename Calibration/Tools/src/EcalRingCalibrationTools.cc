@@ -222,7 +222,7 @@ void EcalRingCalibrationTools::initializeFromGeometry(CaloGeometry const* geomet
       endcapRingIndex_[ix][iy]=-9;
     }
   
-  CaloSubdetectorGeometry const* endcapGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  CaloSubdetectorGeometry* endcapGeometry = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
   if (not endcapGeometry)
     throw std::logic_error("EcalRingCalibrationTools::initializeFromGeometry Ecal Endcap geometry not found");
 
@@ -234,7 +234,7 @@ void EcalRingCalibrationTools::initializeFromGeometry(CaloGeometry const* geomet
     {
       EEDetId ee(*endcapIt);
       if (ee.zside() == -1) continue; //Just using +side to fill absEta x,y map
-      const CaloCellGeometry *cellGeometry = endcapGeometry->getGeometry(*endcapIt) ;
+      auto cellGeometry = endcapGeometry->getGeometry(*endcapIt) ;
       int ics=ee.ix() - 1 ;
       int ips=ee.iy() - 1 ;
       cellPosEta[ics][ips] = fabs(cellGeometry->getPosition().eta());

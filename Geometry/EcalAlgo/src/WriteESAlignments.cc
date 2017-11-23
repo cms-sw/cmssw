@@ -75,7 +75,7 @@ WEA::convert( const edm::EventSetup& eS ,
    edm::ESHandle<CaloGeometry>       pG   ;
    eS.get<CaloGeometryRecord>().get( pG ) ;
 
-   const CaloSubdetectorGeometry* geom ( 
+   CaloSubdetectorGeometry* geom = (CaloSubdetectorGeometry*)( 
       pG->getSubdetectorGeometry( DetId::Ecal, EcalPreshower ) ) ;
 
    edm::ESHandle<Alignments>  pA ;
@@ -91,7 +91,7 @@ WEA::convert( const edm::EventSetup& eS ,
 
       const ESDetId id ( EcalPreshowerGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
 
-      const double zPlanePrev ( geom->getGeometry( id )->getPosition().z() ) ;
+      double zPlanePrev ( geom->getGeometry( id )->getPosition().z() ) ;
       const double zAlignPrev ( vaPrev[i].translation().z() ) ;
       const Trl    q_I ( 0, 0, zPlanePrev - zAlignPrev ) ;
       const Trl&   s_p ( vaPrev[i].translation() ) ;

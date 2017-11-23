@@ -29,7 +29,7 @@ void EcalClusterPUCleaningTools::getGeometry( const edm::EventSetup &es )
 {
   edm::ESHandle<CaloGeometry> pGeometry;
   es.get<CaloGeometryRecord>().get(pGeometry);
-  geometry_ = pGeometry.product();
+  geometry_ = (pGeometry.product());
 }
 
 void EcalClusterPUCleaningTools::getEBRecHits( const edm::Event &ev, const edm::InputTag& redEBRecHits )
@@ -104,16 +104,16 @@ reco::SuperCluster EcalClusterPUCleaningTools::CleanedSuperCluster(float xi, con
   
 
   // construct cluster shape to compute ieta and iphi covariances of the SC 
-  const CaloSubdetectorGeometry *geometry_p=nullptr;
+  CaloSubdetectorGeometry *geometry_p=nullptr;
   if (seed->seed().det() == DetId::Ecal && seed->seed().subdetId() == EcalBarrel){
-    geometry_p = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    geometry_p = (CaloSubdetectorGeometry *)(geometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
     SuperClusterShapeAlgo  SCShape(   ebRecHits_ , geometry_p); 
     SCShape.Calculate_Covariances( suCltmp );
     phiWidth= SCShape.phiWidth(); 
     etaWidth= SCShape.etaWidth(); 
   }
   else if (seed->seed().det() == DetId::Ecal && seed->seed().subdetId() == EcalEndcap){
-    geometry_p = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    geometry_p = (CaloSubdetectorGeometry *)(geometry_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
     SuperClusterShapeAlgo  SCShape(   eeRecHits_ , geometry_p); 
     SCShape.Calculate_Covariances( suCltmp );
     phiWidth= SCShape.phiWidth(); 

@@ -843,8 +843,8 @@ ValidateGeometry::validateCaloGeometry(DetId::Detector detector,
 {
   clearData();
 
-  const CaloSubdetectorGeometry* geometry = 
-    caloGeometry_->getSubdetectorGeometry(detector, subdetector);
+  CaloSubdetectorGeometry* geometry = (CaloSubdetectorGeometry*)
+    (caloGeometry_->getSubdetectorGeometry(detector, subdetector));
 
   const std::vector<DetId>& ids = geometry->getValidDetIds(detector, subdetector);
 
@@ -863,7 +863,7 @@ ValidateGeometry::validateCaloGeometry(DetId::Detector detector,
       continue;
     }
 
-    const CaloCellGeometry* cellGeometry = geometry->getGeometry(*it);
+    auto cellGeometry = geometry->getGeometry(*it);
     const CaloCellGeometry::CornersVec& corners = cellGeometry->getCorners();
     
     assert(corners.size() == 8);

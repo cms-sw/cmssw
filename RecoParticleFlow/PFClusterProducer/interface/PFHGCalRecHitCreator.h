@@ -73,10 +73,10 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
 	
     const CaloCellGeometry *thisCell;
     if( detid.det() == DetId::Hcal ) {
-      thisCell = geom->getSubdetectorGeometry(detid.det(),detid.subdetId())->getGeometry(detid);
+      thisCell = ((CaloSubdetectorGeometry*)(geom->getSubdetectorGeometry(detid.det(),detid.subdetId())))->getGeometry(detid).get();
     } else {
-      const auto* hg = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(detid.det(),detid.subdetId()));
-      caloCells_.push_back(new CaloCellGeometryHGCALAdapter(static_cast<const FlatTrd*>(hg->getGeometry(detid)),
+      HGCalGeometry* hg = (HGCalGeometry*)(geom->getSubdetectorGeometry(detid.det(),detid.subdetId()));
+      caloCells_.push_back(new CaloCellGeometryHGCALAdapter(((FlatTrd*)(hg->getGeometry(detid).get())),
                            recHitTools_.getPosition(detid)));
       thisCell = caloCells_.back();
     }

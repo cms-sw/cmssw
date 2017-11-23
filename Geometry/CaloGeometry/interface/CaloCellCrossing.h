@@ -20,7 +20,7 @@ class CaloCellCrossing
       CaloCellCrossing( const GlobalPoint&             gp ,
 			const GlobalVector&            gv ,
 			const DetIds*                  di ,
-			const CaloSubdetectorGeometry* sg ,
+			CaloSubdetectorGeometry*       sg ,
 			DetId::Detector                det ,
 			int                            subdet,
 			double                         small  = 1.e-10,

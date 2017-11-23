@@ -48,8 +48,8 @@ namespace spr{
 
   double chargeIsolationEcal(const DetId& coreDet, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const CaloGeometry* geo, const CaloTopology* caloTopology, const MagneticField* bField, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
   
-    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+    CaloSubdetectorGeometry *barrelGeom = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+    CaloSubdetectorGeometry *endcapGeom = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
 
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
 #ifdef EDM_ML_DEBUG
@@ -165,7 +165,7 @@ namespace spr{
 	}
 #endif
 	if (info.second) {
-	  const DetId anyCell = gHB->getClosestCell(point2);
+	  const DetId anyCell = ((CaloSubdetectorGeometry*)(gHB))->getClosestCell(point2);
 	  if (!spr::chargeIsolation(anyCell,vdets)) {	
 	    if(maxNearP<pTrack2->p())  maxNearP=pTrack2->p();
 	  }

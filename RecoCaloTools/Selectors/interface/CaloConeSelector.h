@@ -29,7 +29,7 @@ public:
     // TODO: handle default setting of detector_ (loops over subdet)
     // TODO: heuristics of when it is better to loop over inputCollection instead (small # hits)
     for (int subdet=subdet_; subdet<=7 && (subdet_==0 || subdet_==subdet); subdet++) {
-      const CaloSubdetectorGeometry* sdg=geom_->getSubdetectorGeometry(detector_,subdet);
+      CaloSubdetectorGeometry* sdg=(CaloSubdetectorGeometry*)(geom_->getSubdetectorGeometry(detector_,subdet));
       if (sdg!=nullptr) {
         // get the list of detids within range (from geometry)
         CaloSubdetectorGeometry::DetIdSet dis=sdg->getCells(p,deltaR_);

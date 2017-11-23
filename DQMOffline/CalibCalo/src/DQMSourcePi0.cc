@@ -375,22 +375,15 @@ void DQMSourcePi0::analyze(const Event& iEvent,
   if(isMonEEeta_) iEvent.getByToken(productMonitoredEEeta_, rhEEeta);
 
   // Initialize the Position Calc
-  const CaloSubdetectorGeometry *geometry_p; 
-  const CaloSubdetectorGeometry *geometryEE_p;    
-  const CaloSubdetectorGeometry *geometryES_p;
-  
-  const CaloSubdetectorTopology *topology_p;
-  const CaloSubdetectorTopology *topology_ee;
-  
-
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);     
-  geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  geometryEE_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
-  geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  topology_p = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-  topology_ee = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
+  CaloSubdetectorGeometry* geometry_p   = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+  CaloSubdetectorGeometry* geometryEE_p = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+  CaloSubdetectorGeometry* geometryES_p = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
+
+  const CaloSubdetectorTopology* topology_p  = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
+  const CaloSubdetectorTopology* topology_ee = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
   
   EcalRecHitCollection::const_iterator itb;
   

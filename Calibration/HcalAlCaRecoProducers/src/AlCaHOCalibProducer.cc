@@ -409,8 +409,8 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
-  const CaloSubdetectorGeometry* gHO = 
-    geo->getSubdetectorGeometry(DetId::Hcal,HcalOuter);
+  CaloSubdetectorGeometry* gHO = (CaloSubdetectorGeometry*)
+    (geo->getSubdetectorGeometry(DetId::Hcal,HcalOuter));
  
   // Get Hcal Severity Level Computer, so that the severity of each rechit flag/status may be determined
   //  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;

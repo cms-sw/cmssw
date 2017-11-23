@@ -74,8 +74,6 @@ private:
   double mDeltaRPhotonThreshold;
   double mDeltaRJetThreshold;
   
-  edm::ESHandle<CaloGeometry> geomH;
-
   MonitorElement * eb_chi2;
   MonitorElement * eb_chi2_eta;
   MonitorElement * eb_chi2_e5;
@@ -131,7 +129,9 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event& iEvent, const edm::Event
 
   using namespace edm;
   
+  edm::ESHandle<CaloGeometry> geomH;
   iSetup.get<CaloGeometryRecord>().get(geomH);
+  CaloGeometry* geom = (CaloGeometry*)(geomH.product());
 
   Handle<std::vector<reco::Photon> > recoPhotonsHandle;
   iEvent.getByToken(recoPhotonsCollection_, recoPhotonsHandle);
@@ -148,8 +148,8 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event& iEvent, const edm::Event
   for(EcalRecHitCollection::const_iterator hit = ebHandle->begin(); hit != ebHandle->end(); ++hit) {
     eb_chi2->Fill(hit->chi2() );
     eb_errors->Fill(hit->energyError() );
-    double eta = geomH->getGeometry(hit->detid())->getPosition().eta();
-    double phi = geomH->getGeometry(hit->detid())->getPosition().phi();
+    double eta = geom->getGeometry(hit->detid())->getPosition().eta();
+    double phi = geom->getGeometry(hit->detid())->getPosition().phi();
     eb_chi2_eta->Fill(eta, hit->chi2() );
     eb_errors_eta->Fill(eta, hit->energyError() );
     if(hit->energy() > mRechitEnergyThreshold)
@@ -183,8 +183,8 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event& iEvent, const edm::Event
   for(EcalRecHitCollection::const_iterator hit = eeHandle->begin(); hit != eeHandle->end(); ++hit) {
     ee_chi2->Fill(hit->chi2() );
     ee_errors->Fill(hit->energyError() );
-    double eta = geomH->getGeometry(hit->detid())->getPosition().eta();
-    double phi = geomH->getGeometry(hit->detid())->getPosition().phi();
+    double eta = geom->getGeometry(hit->detid())->getPosition().eta();
+    double phi = geom->getGeometry(hit->detid())->getPosition().phi();
     ee_chi2_eta->Fill(eta, hit->chi2() );
     ee_errors_eta->Fill(eta, hit->energyError() );
     if(hit->energy() > mRechitEnergyThreshold)

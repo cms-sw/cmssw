@@ -47,15 +47,15 @@ void reco::writeSpecific(reco::CaloJet & jet,
   // Get geometry
   edm::ESHandle<CaloGeometry> geometry;
   c.get<CaloGeometryRecord>().get(geometry);
-  const CaloSubdetectorGeometry* towerGeometry = 
-    geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
+  CaloSubdetectorGeometry* towerGeometry = (CaloSubdetectorGeometry*)
+    (geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId));
 
   edm::ESHandle<HcalTopology> topology;
   c.get<HcalRecNumberingRecord>().get(topology);
 
   // Make the specific
   reco::CaloJet::Specific specific;
-  makeSpecific (constituents, *towerGeometry, &specific, *topology);
+  makeSpecific (constituents, towerGeometry, &specific, *topology);
   // Set the calo jet
   jet = reco::CaloJet( p4, point, specific, constituents);  
 }
@@ -133,7 +133,7 @@ void reco::writeSpecific(reco::PFClusterJet & jet,
 
 //______________________________________________________________________________
 bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
-			const CaloSubdetectorGeometry& towerGeometry,
+			CaloSubdetectorGeometry* towerGeometry,
 			CaloJet::Specific* caloJetSpecific,
 			const HcalTopology &topology)
 {
@@ -189,7 +189,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
 	break;
       }
       // get area of the tower (++ minus --)
-      const CaloCellGeometry* geometry = towerGeometry.getGeometry(tower->id());
+      auto geometry = towerGeometry->getGeometry(tower->id());
       if (geometry) {
 	jetArea += geometry->etaSpan() * geometry->phiSpan();
       }

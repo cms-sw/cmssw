@@ -62,7 +62,7 @@ double EgammaHcalIsolation::getHcalSum(const GlobalPoint &pclu, const HcalDepth 
     {
         //Compute the HCAL energy behind ECAL
         doubleConeSel_->selectCallback(pclu, mhbhe_, [this, &sum, &depth, &scale](const HBHERecHit& i) {
-            double eta = theCaloGeom_.product()->getPosition(i.detid()).eta();
+            double eta = ((CaloGeometry*)(theCaloGeom_.product()))->getPosition(i.detid()).eta();
             HcalDetId hcalDetId(i.detid());
             if(hcalDetId.subdet() == HcalBarrel &&              //Is it in the barrel?
                i.energy() > eLowB_ &&                          //Does it pass the min energy?

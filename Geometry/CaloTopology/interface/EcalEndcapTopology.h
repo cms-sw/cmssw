@@ -4,6 +4,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <utility>
 #include <vector>
@@ -11,7 +12,7 @@
 
 class EcalEndcapTopology final : public CaloSubdetectorTopology {
 
- public:
+public:
   /// create a new Topology
   EcalEndcapTopology() : theGeom_(nullptr) {};
 
@@ -19,9 +20,9 @@ class EcalEndcapTopology final : public CaloSubdetectorTopology {
   ~EcalEndcapTopology() override { }  
   
   /// create a new Topology from geometry
-  EcalEndcapTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(std::move(theGeom))
-    {
-    }
+  EcalEndcapTopology(edm::ESHandle<CaloGeometry> theGeom) {
+    theGeom_ = (CaloSubdetectorGeometry*)((theGeom.product())->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+  }
 
   /// move the Topology north (increment iy)  
   DetId  goNorth(const DetId& id) const override {
@@ -103,7 +104,7 @@ class EcalEndcapTopology final : public CaloSubdetectorTopology {
   /// move the nagivator to smaller iy
   EEDetId decrementIy(const EEDetId& id) const;
 
-  edm::ESHandle<CaloGeometry> theGeom_;
+  CaloSubdetectorGeometry* theGeom_;
 };
 
 #endif

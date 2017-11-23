@@ -46,8 +46,8 @@ class PositionCalc
   template<typename HitType>
   math::XYZPoint Calculate_Location( const HitsAndFractions&      iDetIds  ,
 				     const edm::SortedCollection<HitType>*    iRecHits ,
-				     const CaloSubdetectorGeometry* iSubGeom ,
-				     const CaloSubdetectorGeometry* iESGeom = nullptr ) ;
+				     CaloSubdetectorGeometry* iSubGeom ,
+				     CaloSubdetectorGeometry* iESGeom = nullptr ) ;
 
  private:
   bool    param_LogWeighted_;
@@ -57,7 +57,7 @@ class PositionCalc
   double  param_W0_;
   double  param_X0_;
 
-  const CaloSubdetectorGeometry* m_esGeom ;
+  CaloSubdetectorGeometry* m_esGeom ;
   bool m_esPlus ;
   bool m_esMinus ;
 
@@ -67,8 +67,8 @@ template<typename HitType>
 math::XYZPoint 
 PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds  ,
 				  const edm::SortedCollection<HitType>* iRecHits ,
-				  const CaloSubdetectorGeometry* iSubGeom ,
-				  const CaloSubdetectorGeometry* iESGeom   ) {
+				  CaloSubdetectorGeometry* iSubGeom ,
+				  CaloSubdetectorGeometry* iESGeom   ) {
   typedef edm::SortedCollection<HitType> HitTypeCollection;
   math::XYZPoint returnValue ( 0, 0, 0 ) ;
   
@@ -129,7 +129,7 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
       }
       
       //Select the correct value of the T0 parameter depending on subdetector       
-      const CaloCellGeometry* center_cell ( iSubGeom->getGeometry( maxId ) ) ;
+      auto center_cell ( iSubGeom->getGeometry( maxId ) ) ;
       const double ctreta (center_cell->getPosition().eta());
       
       // for barrel, use barrel T0; 
@@ -176,10 +176,10 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
 	  weight = e_j*eTot_inv;
 	}
 	
-	const CaloCellGeometry* cell ( iSubGeom->getGeometry( dId ) ) ;
+	auto cell ( iSubGeom->getGeometry( dId ) ) ;
 	const float depth ( maxDepth + maxToFront - cell->getPosition().mag() ) ;
 	
-	const GlobalPoint pos (static_cast<const TruncatedPyramid*>( cell )->getPosition( depth ) );
+	const GlobalPoint pos (cell->getPosition( depth ) );
 	
 	xw += weight*pos.x() ;
 	yw += weight*pos.y() ;

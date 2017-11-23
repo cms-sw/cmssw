@@ -260,11 +260,11 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       trkPosAtEcal_[nTracks_][0]   = info.trkGlobPosAtEcal.eta();
       trkPosAtEcal_[nTracks_][1]   = info.trkGlobPosAtEcal.phi();
       if ( geometry->getSubdetectorGeometry(centerId) &&
-	   geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId) ) 
+	   ((CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(centerId)))->getGeometry(centerId) ) 
 	{
-	   GlobalPoint position = geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId)->getPosition();
-	   ecalMaxPos_[nTracks_][0] = position.eta();
-	   ecalMaxPos_[nTracks_][1] = position.phi();
+	  GlobalPoint position = ((CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(centerId)))->getGeometry(centerId)->getPosition();
+	  ecalMaxPos_[nTracks_][0] = position.eta();
+	  ecalMaxPos_[nTracks_][1] = position.phi();
 	}
       else
 	{
@@ -289,11 +289,11 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       trkPosAtHcal_[nTracks_][0]   = info.trkGlobPosAtHcal.eta();
       trkPosAtHcal_[nTracks_][1]   = info.trkGlobPosAtHcal.phi();
       if ( geometry->getSubdetectorGeometry(centerId) &&
-	   geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId) ) 
+	   ((CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(centerId)))->getGeometry(centerId) ) 
 	{
-	   GlobalPoint position = geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId)->getPosition();
-	   hcalMaxPos_[nTracks_][0] = position.eta();
-	   hcalMaxPos_[nTracks_][1] = position.phi();
+	  GlobalPoint position = ((CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(centerId)))->getGeometry(centerId)->getPosition();
+	  hcalMaxPos_[nTracks_][0] = position.eta();
+	  hcalMaxPos_[nTracks_][1] = position.phi();
 	}
       else
 	{

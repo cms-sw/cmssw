@@ -108,7 +108,7 @@ class EcalSimple2007H4TBAnalyzer : public edm::EDAnalyzer {
       EBDetId xtalInBeamTmp;
       EEDetId Xtals5x5[25];
 
-      const CaloGeometry* theTBGeometry_;
+      CaloGeometry* theTBGeometry_;
 };
 
 

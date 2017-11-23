@@ -75,13 +75,13 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
 }
 
 GlobalPoint RecHitTools::getPosition(const DetId& id) const {
-  auto geom = geom_->getSubdetectorGeometry(id);
+  auto geom = (CaloSubdetectorGeometry*)(geom_->getSubdetectorGeometry(id));
   check_geom(geom);
   GlobalPoint position;
   if( id.det() == DetId::Hcal ) {
     position = geom->getGeometry(id)->getPosition();
   } else {
-    const auto* hg = static_cast<const HGCalGeometry*>(geom);
+    auto hg = (HGCalGeometry*)(geom);
     position = hg->getPosition(id);
   }
   return position;

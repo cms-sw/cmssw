@@ -78,7 +78,7 @@ class PileUpSubtractor{
   ActiveAreaSpecPtr               fjActiveArea_;    // fastjet active area definition
   RangeDefPtr                     fjRangeDef_;      // range definition
 
-  CaloGeometry const *  geo_;                       // geometry
+  CaloGeometry       *  geo_;                       // geometry
   int                   ietamax_;                   // maximum eta in geometry
   int                   ietamin_;                   // minimum eta in geometry
   std::vector<HcalDetId> allgeomid_;                // all det ids in the geometry

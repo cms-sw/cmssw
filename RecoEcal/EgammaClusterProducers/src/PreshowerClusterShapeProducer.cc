@@ -153,8 +153,8 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 	      
 	      // Get the Preshower 2-planes RecHit vectors associated with the given SC
 	      
-	      DetId tmp_stripX = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(pointSC, 1);
-	      DetId tmp_stripY = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(pointSC, 2);
+	      DetId tmp_stripX = ((EcalPreshowerGeometry*)(geometry_p))->getClosestCellInPlane(pointSC, 1);
+	      DetId tmp_stripY = ((EcalPreshowerGeometry*)(geometry_p))->getClosestCellInPlane(pointSC, 2);
 	      ESDetId stripX = (tmp_stripX == DetId(0)) ? ESDetId(0) : ESDetId(tmp_stripX);
 	      ESDetId stripY = (tmp_stripY == DetId(0)) ? ESDetId(0) : ESDetId(tmp_stripY);
 	      

@@ -29,7 +29,7 @@ update(const edm::EventSetup& es) {
       for( uint32_t ic = 0; 
 	   ic < _esGeom->getValidDetIds().size() && 
 	     ( !_esPlus || !_esMinus ); ++ic ) {
-        const double z = _esGeom->getGeometry( _esGeom->getValidDetIds()[ic] )->getPosition().z();
+        const double z = ((CaloSubdetectorGeometry*)(_esGeom))->getGeometry( _esGeom->getValidDetIds()[ic] )->getPosition().z();
         _esPlus = _esPlus || ( 0 < z ) ;
         _esMinus = _esMinus || ( 0 > z ) ;
       }  
@@ -117,8 +117,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       << "ECAL Position Calc only accepts ECAL_BARREL or ECAL_ENDCAP";
   }
 
-  const CaloCellGeometry* center_cell = 
-    ecal_geom->getGeometry(refmax->detId());
+  auto center_cell = ((CaloSubdetectorGeometry*)
+		      (ecal_geom))->getGeometry(refmax->detId());
   const double ctreta = center_cell->etaPos();
   const double actreta = std::abs(ctreta);
   // need to change T0 if in ES
@@ -140,7 +140,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     if( rh_energy > 0.0 ) weight = std::max(0.0,( _param_W0 + 
 						  vdt::fast_log(rh_energy) + 
 						  logETot_inv ));
-    const CaloCellGeometry* cell = ecal_geom->getGeometry(refhit->detId());
+    const CaloCellGeometry* cell = ((CaloSubdetectorGeometry*)(ecal_geom))->getGeometry(refhit->detId()).get();
     const float depth = maxDepth + maxToFront - cell->getPosition().mag();    
     const GlobalPoint pos =
       static_cast<const TruncatedPyramid*>(cell)->getPosition(depth);
@@ -161,7 +161,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       if( rh_energy > 0.0 ) 
 	weight = rh_energy/cluster.energy();
 
-      const CaloCellGeometry* cell = ecal_geom->getGeometry(refhit->detId());
+      const CaloCellGeometry* cell = ((CaloSubdetectorGeometry*)(ecal_geom))->getGeometry(refhit->detId()).get();
       const float depth = maxDepth + maxToFront - cell->getPosition().mag();    
       const GlobalPoint pos = static_cast<const TruncatedPyramid*>(cell)->getPosition(depth);
       

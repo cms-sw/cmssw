@@ -83,8 +83,7 @@ HcalDDDGeometry::getValidDetIds(DetId::Detector det,
 }
 
 DetId
-HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const
-{
+HcalDDDGeometry::getClosestCell(const GlobalPoint& r) {
   constexpr double twopi = M_PI+M_PI;
   constexpr double deg   = M_PI/180.;
 
@@ -147,7 +146,7 @@ HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const
 }
 
 int
-HcalDDDGeometry::insertCell(std::vector<HcalCellType> const & cells){
+HcalDDDGeometry::insertCell(std::vector<HcalCellType> const & cells) {
 
   hcalCells_.insert(hcalCells_.end(), cells.begin(), cells.end());
   int num = static_cast<int>(hcalCells_.size());
@@ -220,49 +219,25 @@ HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
   m_validIds.emplace_back(detId);
 }
 
-const CaloCellGeometry* 
-HcalDDDGeometry::cellGeomPtr( uint32_t din ) const
-{
-  const CaloCellGeometry* cell ( nullptr ) ;
-  if( m_hbCellVec.size() > din )
-  {
-    cell = &m_hbCellVec[ din ] ;
+std::shared_ptr<CaloCellGeometry>
+HcalDDDGeometry::cellGeomPtr( uint32_t din ) {
+
+  std::shared_ptr<CaloCellGeometry> cell = nullptr;
+  if (m_hbCellVec.size() > din) {
+    cell = std::shared_ptr<CaloCellGeometry>(&m_hbCellVec[ din ]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
+    const unsigned int index (din - m_hbCellVec.size()) ;
+    cell = std::shared_ptr<CaloCellGeometry>(&m_heCellVec[ index ]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din ) {
+    const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size()) ;
+    cell = std::shared_ptr<CaloCellGeometry>(&m_hoCellVec[ index ]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() +
+	     m_hfCellVec.size() > din){
+    const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size() -
+			      m_hoCellVec.size() ) ;
+    cell = std::shared_ptr<CaloCellGeometry>(&m_hfCellVec[ index ]);
   }
-  else
-  {
-    if( m_hbCellVec.size() +
-	m_heCellVec.size() > din )
-    {
-      const unsigned int index ( din - m_hbCellVec.size() ) ;
-      cell = &m_heCellVec[ index ] ;
-    }
-    else
-    {
-      if( m_hbCellVec.size() +
-	  m_heCellVec.size() +
-	  m_hoCellVec.size() > din )
-      {
-	const unsigned int index ( din 
-				   - m_hbCellVec.size() 
-				   - m_heCellVec.size() ) ;
-	cell = &m_hoCellVec[ index ] ;
-      }
-      else
-      {
-	if( m_hbCellVec.size() +
-	    m_heCellVec.size() +
-	    m_hoCellVec.size() +
-	    m_hfCellVec.size() > din )
-	{
-	  const unsigned int index ( din 
-				     - m_hbCellVec.size() 
-				     - m_heCellVec.size() 
-				     - m_hoCellVec.size() ) ;
-	  cell = &m_hfCellVec[ index ] ;
-	}
-      }
-    }
-  }
+
   return ( nullptr == cell || nullptr == cell->param() ? nullptr : cell ) ;
 }
 

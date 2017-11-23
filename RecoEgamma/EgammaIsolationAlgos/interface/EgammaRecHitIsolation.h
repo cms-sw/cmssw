@@ -90,7 +90,7 @@ class EgammaRecHitIsolation {
   //float spIdThreshold_;
   std::vector<int> flags_;
 
-  const CaloSubdetectorGeometry* subdet_[2]; // barrel+endcap
+  CaloSubdetectorGeometry* subdet_[2]; // barrel+endcap
 };
 
 #endif

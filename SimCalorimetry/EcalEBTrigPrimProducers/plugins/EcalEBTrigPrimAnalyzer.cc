@@ -151,8 +151,7 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
 
   edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry_handle;
   iSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
-  const CaloSubdetectorGeometry *theBarrelGeometry;
-  theBarrelGeometry = &(*theBarrelGeometry_handle);
+  CaloSubdetectorGeometry *theBarrelGeometry = (CaloSubdetectorGeometry*)(theBarrelGeometry_handle.product());
 
   if (debug_) { std::cout << " TP analyzer  =================> Treating event  "<<iEvent.id()  <<  " Number of TPs " <<  tp.product()->size() <<  std::endl;
     if ( recHits_ ) std::cout << " Number of EB rechits "<<  rechit_EB_col.product()->size() << std::endl;

@@ -78,18 +78,18 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
   OccupancyMap_plus_.clear();
   OccupancyMap_minus_.clear();
   
-  const HGCalGeometry* geom0(nullptr);
-  const CaloGeometry*  geom1(nullptr);
+  HGCalGeometry* geom0(nullptr);
+  CaloGeometry*  geom1(nullptr);
   if (nameDetector_ == "HCal") {
     edm::ESHandle<CaloGeometry> geom;
     iSetup.get<CaloGeometryRecord>().get(geom);
     if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    geom1 = geom.product();
+    geom1 = (CaloGeometry*)(geom.product());
   } else {
     edm::ESHandle<HGCalGeometry> geom;
     iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
     if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    geom0 = geom.product();
+    geom0 = (HGCalGeometry*)(geom.product());
   }
 
   unsigned int ntot(0), nused(0);
@@ -215,7 +215,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 }
 
 template<class T1, class T2>
-void HGCalDigiValidation::digiValidation(const T1& detId, const T2* geom, 
+void HGCalDigiValidation::digiValidation(const T1& detId, T2* geom, 
 					 int layer, uint16_t adc, double charge) {
   
   if (verbosity_>1) edm::LogInfo("HGCalValidation") << detId;

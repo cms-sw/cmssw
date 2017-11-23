@@ -1221,7 +1221,7 @@ const std::map<CaloHitID,float>& EcalHitMaker::getHits()
     {
 	  //calculate time of flight
 	  float tof = 0.0;
-	  if(onEcal_==1 || onEcal_==2) tof = (myCalorimeter->getEcalGeometry(onEcal_)->getGeometry(regionOfInterest_[ic].getDetId())->getPosition().mag())/29.98; //speed of light
+	  if(onEcal_==1 || onEcal_==2) tof = (((CaloSubdetectorGeometry*)(myCalorimeter->getEcalGeometry(onEcal_)))->getGeometry(regionOfInterest_[ic].getDetId())->getPosition().mag())/29.98; //speed of light
 	
 	  if(onEcal_==1){
 	    CaloHitID current_id(EBDetId(regionOfInterest_[ic].getDetId().rawId()).hashedIndex(),tof,0); //no track yet

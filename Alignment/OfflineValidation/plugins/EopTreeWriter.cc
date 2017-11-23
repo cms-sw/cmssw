@@ -137,7 +137,7 @@ EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get geometry
    edm::ESHandle<CaloGeometry> geometry;
    iSetup.get<CaloGeometryRecord>().get(geometry);
-   const CaloGeometry* geo = geometry.product();
+   CaloGeometry* geo = (CaloGeometry*)(geometry.product());
 //    const CaloSubdetectorGeometry* towerGeometry = 
 //      geo->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
 

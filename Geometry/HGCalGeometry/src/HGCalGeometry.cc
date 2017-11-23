@@ -117,7 +117,7 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 #endif
 }
 
-const CaloCellGeometry* HGCalGeometry::getGeometry(const DetId& id) const {
+std::shared_ptr<CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& id) {
   if (id == DetId()) return nullptr; // nothing to get
   DetId geoId;
   if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
@@ -141,7 +141,7 @@ const CaloCellGeometry* HGCalGeometry::getGeometry(const DetId& id) const {
 
 }
 
-GlobalPoint HGCalGeometry::getPosition(const DetId& id) const {
+GlobalPoint HGCalGeometry::getPosition(const DetId& id) {
 
   unsigned int cellIndex =  indexFor(id);
   GlobalPoint glob;
@@ -164,7 +164,7 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& id) const {
   return glob;
 }
 
-HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& id) const {
+HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& id) {
 
   HGCalGeometry::CornersVec co (8, GlobalPoint(0,0,0));
   unsigned int cellIndex =  indexFor(id);
@@ -189,7 +189,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& id) const {
   return co;
 }
 
-DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
+DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) {
   unsigned int cellIndex = getClosestCellIndex(r);
   if (cellIndex < m_cellVec.size()) {
     HGCalTopology::DecodedDetId id_ = topology().decode(m_validGeomIds[cellIndex]);
@@ -225,10 +225,11 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
   return DetId();
 }
 
-HGCalGeometry::DetIdSet HGCalGeometry::getCells( const GlobalPoint& r, double dR ) const {
+HGCalGeometry::DetIdSet HGCalGeometry::getCells( const GlobalPoint& r, double dR )  {
    HGCalGeometry::DetIdSet dss;
    return dss;
 }
+
 std::string HGCalGeometry::cellElement() const {
   if      (m_subdet == HGCEE)  return "HGCalEE";
   else if (m_subdet == HGCHEF) return "HGCalHEFront";
@@ -260,10 +261,10 @@ unsigned int HGCalGeometry::sizeForDenseIndex() const {
   return topology().totalGeomModules();
 }
 
-const CaloCellGeometry* HGCalGeometry::cellGeomPtr(uint32_t index) const {
+std::shared_ptr<CaloCellGeometry> HGCalGeometry::cellGeomPtr(uint32_t index) {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return nullptr;
-  const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
+  auto cell = (std::shared_ptr<CaloCellGeometry>)(&m_cellVec[index]) ;
 #ifdef EDM_ML_DEBUG
   //  std::cout << "cellGeomPtr " << m_cellVec[index];
 #endif
@@ -276,7 +277,7 @@ void HGCalGeometry::addValidID(const DetId& id) {
 }
 
 
-unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
+unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) {
 
   float phip = r.phi();
   float zp   = r.z();
@@ -329,7 +330,7 @@ void HGCalGeometry::sortDetIds( void ) {
 void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 			       CaloSubdetectorGeometry::IVec&   iVector,
 			       CaloSubdetectorGeometry::DimVec& dimVector,
-			       CaloSubdetectorGeometry::IVec& dinsVector ) const {
+			       CaloSubdetectorGeometry::IVec& dinsVector ) {
 
   unsigned int numberOfCells = topology().totalGeomModules(); // total Geom Modules both sides
   unsigned int numberOfShapes = HGCalGeometry::k_NumberOfShapes;
@@ -383,7 +384,7 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
     iVector.emplace_back( layer );
     
     Tr3D tr;
-    const CaloCellGeometry* ptr( cellGeomPtr( i ));
+    auto ptr =  cellGeomPtr( i );
     if ( nullptr != ptr ) {
       ptr->getTransform( tr, ( Pt3DVec* ) nullptr );
 

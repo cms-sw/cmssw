@@ -146,8 +146,8 @@ PhysicsTowerOrganizer::PhysicsTowerOrganizer(const edm::Event& iEvent,
   edm::ESHandle<CaloGeometry> pG;
   evSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
-  const CaloSubdetectorGeometry* gEB = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  const CaloSubdetectorGeometry* gEE = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+  CaloSubdetectorGeometry* gEB = ((CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
+  CaloSubdetectorGeometry* gEE = ((CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
 
   // do the HCAL hits
   for(HBHERecHitCollection::const_iterator it=hbhehitcoll_h->begin(); it!=hbhehitcoll_h->end(); ++it) {

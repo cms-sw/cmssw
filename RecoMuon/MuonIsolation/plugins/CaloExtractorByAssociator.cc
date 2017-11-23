@@ -154,8 +154,9 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
   if (theUseRecHitsFlag){
     //! do things based on rec-hits here
     //! too much copy-pasting now (refactor later?)
-    edm::ESHandle<CaloGeometry> caloGeom;
-    eventSetup.get<CaloGeometryRecord>().get(caloGeom);
+    edm::ESHandle<CaloGeometry> caloGeomH;
+    eventSetup.get<CaloGeometryRecord>().get(caloGeomH);
+    CaloGeometry* caloGeom = (CaloGeometry*)(caloGeomH.product());
 
     //Ecal
     std::vector<const EcalRecHit*>::const_iterator eHitCI = mInfo.ecalRecHits.begin();

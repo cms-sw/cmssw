@@ -100,7 +100,7 @@ PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
   point = XYZPoint(point.x(),point.y(),z*myCalorimeter->preshowerZPosition(layer));
   //  std::cout << "r " << r << "  Point after " << point  << std::endl;
   //  std::cout << " Layer " << layer << " " << point << std::endl;
-  DetId strip = myCalorimeter->getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(point.x(),point.y(),point.z()),layer);
+  DetId strip = ((EcalPreshowerGeometry*)(myCalorimeter->getEcalPreshowerGeometry()))->getClosestCellInPlane(GlobalPoint(point.x(),point.y(),point.z()),layer);
 
   float meanspot=(layer==1) ? mip1_ : mip2_; 
   float spote = meanspot + 0.000021*theGenerator->landau(random);
@@ -109,8 +109,8 @@ PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
   if(!strip.null())
     {
       //calculate time of flight
-      double tof = (myCalorimeter->getEcalPreshowerGeometry()->getGeometry(strip)->getPosition().mag())/29.98;//speed of light
-	  CaloHitID current_id(strip.rawId(),tof,0); //no track yet
+      double tof = (((EcalPreshowerGeometry*)(myCalorimeter->getEcalPreshowerGeometry()))->getGeometry(strip)->getPosition().mag())/29.98;//speed of light
+      CaloHitID current_id(strip.rawId(),tof,0); //no track yet
       std::map<CaloHitID,float>::iterator cellitr;
       cellitr = hitMap_.find(current_id);
       if( cellitr==hitMap_.end())

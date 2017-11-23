@@ -212,8 +212,8 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
-  geo_  = pGeo.product();
-  hgeo_ = dynamic_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
+  geo_  = (CaloGeometry*)pGeo.product();
+  hgeo_ = (HcalGeometry*)(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
 
   //Halo cluster building:
   //Various clusters are built, depending on the subdetector. 

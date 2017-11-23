@@ -180,18 +180,17 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt, const edm::Ev
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<CaloGeometryRecord>().get(geoHandle);
   
-  const CaloSubdetectorGeometry *geometry_p;
+  CaloSubdetectorGeometry *geometry_p;
   std::unique_ptr<CaloSubdetectorTopology> topology_p;
   if (detector == reco::CaloID::DET_ECAL_BARREL) {
-    geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    geometry_p = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
     topology_p.reset(new EcalBarrelTopology(geoHandle));
   }else {
-    geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    geometry_p = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
     topology_p.reset(new EcalEndcapTopology(geoHandle)); 
   }
   
-  const CaloSubdetectorGeometry *geometryES_p;
-  geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  CaloSubdetectorGeometry *geometryES_p = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
     
 
   

@@ -355,7 +355,7 @@ void filterCellsInCone(std::vector<TCell>& selectCells, const GlobalPoint hitPos
     if (id.det() == DetId::Hcal) {
       recHitPoint = ((HcalGeometry*)(theCaloGeometry->getSubdetectorGeometry(id)))->getPosition(id);
     } else {
-      recHitPoint = GlobalPoint(theCaloGeometry->getPosition(id));
+      recHitPoint = GlobalPoint(((CaloGeometry*)(theCaloGeometry))->getPosition(id));
     }
 
     if (getDistInPlaneSimple(hitPositionHcal, recHitPoint)<= maxConeDist) 

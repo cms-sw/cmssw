@@ -814,13 +814,13 @@ void CaloTowersCreationAlgo::assignHitEcal(const EcalRecHit * recHit) {
   bool passEmThreshold = false;
   
   if (detId.subdetId() == EcalBarrel) {
-    if (theUseEtEBTresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
+    if (theUseEtEBTresholdFlag) energy /= cosh( (((CaloGeometry*)(theGeometry))->getGeometry(detId)->getPosition()).eta() ) ;
     if (theUseSymEBTresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
     else  passEmThreshold = (energy >= threshold);
 
   }
   else if (detId.subdetId() == EcalEndcap) {
-    if (theUseEtEETresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
+    if (theUseEtEETresholdFlag) energy /= cosh( (((CaloGeometry*)(theGeometry))->getGeometry(detId)->getPosition()).eta() ) ;
     if (theUseSymEETresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
     else  passEmThreshold = (energy >= threshold);
   }
@@ -1020,7 +1020,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       // FIXME  : move to simple cartesian algebra
     case 0 :
       {  // Simple 4-momentum assignment
-	GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
+	GlobalPoint p=((CaloSubdetectorGeometry*)(theTowerGeometry))->getGeometry(id)->getPosition();
 	towerP4 = p.basicVector().unit();
 	towerP4[3] = 1.f;  // energy
 	towerP4 *=E;
@@ -1069,7 +1069,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 	  }
 	}
 	else {  // forward detector: use the CaloTower position 
-	  GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
+	  GlobalPoint p=((CaloSubdetectorGeometry*)(theTowerGeometry))->getGeometry(id)->getPosition();
 	  towerP4 = p.basicVector().unit();
 	  towerP4[3] = 1.f;  // energy
 	  towerP4 *=E;
@@ -1085,7 +1085,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       {   // use ECAL position for the tower (when E_cal>0), else default CaloTower position (massless tower)
 	if (id.ietaAbs()<theTowerTopology->firstHFRing()) {
 	  if (E_em>0)  emPoint = emShwrLogWeightPos(metaContains, momEmDepth, E_em);
-	  else emPoint = theTowerGeometry->getGeometry(id)->getPosition();
+	  else emPoint = ((CaloSubdetectorGeometry*)(theTowerGeometry))->getGeometry(id)->getPosition();
 	  towerP4 = emPoint.basicVector().unit();
 	  towerP4[3] = 1.f;  // energy
 	  towerP4 *=E;
@@ -1096,7 +1096,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 	  hadPoint = emPoint;
 	}
 	else {  // forward detector: use the CaloTower position 
-	  GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
+	  GlobalPoint p=((CaloSubdetectorGeometry*)(theTowerGeometry))->getGeometry(id)->getPosition();
 	  towerP4 = p.basicVector().unit();
 	  towerP4[3] = 1.f;  // energy
 	  towerP4 *=E;
@@ -1393,7 +1393,7 @@ void CaloTowersCreationAlgo::setHF2EScale(double scale){
 
 
 GlobalPoint CaloTowersCreationAlgo::emCrystalShwrPos(DetId detId, float fracDepth) {
-   const CaloCellGeometry* cellGeometry = theGeometry->getGeometry(detId);
+  auto cellGeometry = ((CaloGeometry*)(theGeometry))->getGeometry(detId);
    GlobalPoint point = cellGeometry->getPosition();  // face of the cell
 
    if (fracDepth<=0) return point;
@@ -1543,15 +1543,15 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
 #endif
   }
 
-    const CaloCellGeometry* frontCellGeometry = theGeometry->getGeometry(DetId(hid1));
-    const CaloCellGeometry* backCellGeometry  = theGeometry->getGeometry(DetId(hid2));
+  auto frontCellGeometry = ((CaloGeometry*)(theGeometry))->getGeometry(DetId(hid1));
+  auto backCellGeometry  = ((CaloGeometry*)(theGeometry))->getGeometry(DetId(hid2));
 
-    GlobalPoint point     = frontCellGeometry->getPosition();
-    const GlobalPoint& backPoint = backCellGeometry->getBackPoint();
+  GlobalPoint point     = frontCellGeometry->getPosition();
+  const GlobalPoint& backPoint = backCellGeometry->getBackPoint();
 
-    point += fracDepth * (backPoint - point);
+  point += fracDepth * (backPoint - point);
 
-    return point;
+  return point;
 }
 
 

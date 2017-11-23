@@ -193,7 +193,7 @@ double compEcalEnergySum(const EcalRecHitCollection& ecalRecHits,
   double ecalEnergySum = 0.;
   for ( EcalRecHitCollection::const_iterator ecalRecHit = ecalRecHits.begin();
 	ecalRecHit != ecalRecHits.end(); ++ecalRecHit ) {
-    const CaloCellGeometry* cellGeometry = detGeometry->getGeometry(ecalRecHit->detid());
+    auto cellGeometry = ((CaloSubdetectorGeometry*)(detGeometry))->getGeometry(ecalRecHit->detid());
     
     if ( !cellGeometry ) {
       edm::LogError ("compEcalEnergySum") 
@@ -237,7 +237,7 @@ double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits,
   for ( HBHERecHitCollection::const_iterator hcalRecHit = hcalRecHits.begin();
 	hcalRecHit != hcalRecHits.end(); ++hcalRecHit ) {
 
-    const GlobalPoint cellPosition = hcGeometry->getPosition(hcalRecHit->detid());
+    const GlobalPoint cellPosition = ((HcalGeometry*)(hcGeometry))->getPosition(hcalRecHit->detid());
 
 //--- CV: speed up computation by requiring eta-phi distance
 //        between cell position and track direction to be dR < 0.5

@@ -85,10 +85,9 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   using namespace edm;
 
-   const CaloGeometry* geo;
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);
-   geo = pG.product();
+   CaloGeometry* geo = ((CaloGeometry*)(pG.product()));
    
 
   std::vector<StableProvenance const*> theProvenance;

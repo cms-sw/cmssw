@@ -128,7 +128,9 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   }
   if( m_calo )
   {
-    record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
+    edm::ESHandle<CaloGeometry>                caloGeomH;
+    record.getRecord<CaloGeometryRecord>().get(caloGeomH);
+    m_caloGeom = (CaloGeometry*)(caloGeomH.product());
     addCaloGeometry();
   }
 
@@ -534,7 +536,7 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
       const CaloCellGeometry::CornersVec& cor =  m_caloGeom->getGeometry( *it )->getCorners();      
       fillPoints( id, cor.begin(), cor.end());
     } else {
-      const HGCalGeometry* geom = static_cast<const HGCalGeometry*>( m_caloGeom->getSubdetectorGeometry( *it ) );
+      HGCalGeometry* geom = (HGCalGeometry*)( m_caloGeom->getSubdetectorGeometry( *it ) );
       const auto& cor = geom->getCorners( *it );
       fillPoints( id, cor.begin(), cor.end() );
     }

@@ -60,8 +60,8 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
 	double energy = it->energy();
 	if (energy < threshold) continue; // need to check to see if this line is useful!
 
-	auto const & thisCell = *geometry_p->getGeometry(it->id());
-	auto const &  position = thisCell.getPosition();
+	auto thisCell = ((CaloSubdetectorGeometry*)(geometry_p))->getGeometry(it->id());
+	auto const &  position = thisCell->getPosition();
 
 	// Require that RecHit is within clustering region in case
 	// of regional reconstruction
@@ -69,7 +69,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
 	if (regional) {
 	  std::vector<EcalEtaPhiRegion>::const_iterator region;
 	  for (region=regions.begin(); region!=regions.end(); region++) {
-	    if (region->inRegion(thisCell.etaPos(),thisCell.phiPos())) {
+	    if (region->inRegion(thisCell->etaPos(),thisCell->phiPos())) {
 	      withinRegion =  true;
 	      break;
 	    }
@@ -271,7 +271,7 @@ void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
   reco::CaloID caloID;
 
   Point position;
-  position = posCalculator_.Calculate_Location(current_v,hits,geometry,geometryES);
+  position = posCalculator_.Calculate_Location(current_v,hits,((CaloSubdetectorGeometry*)(geometry)),((CaloSubdetectorGeometry*)(geometryES)));
   
   std::vector< std::pair<DetId, float> >::iterator it;
   for (it = current_v.begin(); it != current_v.end(); it++)

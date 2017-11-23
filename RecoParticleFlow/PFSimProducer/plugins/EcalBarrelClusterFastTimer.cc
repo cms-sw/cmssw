@@ -172,7 +172,7 @@ float EcalBarrelClusterFastTimer::correctTimeToVertex(const float intime, const 
                                                       const CaloSubdetectorGeometry* ecalGeom) const {
   if( timeDet.rawId() == 0 ) return -999.;
   // correct the cluster time from 0,0,0 to the primary vertex given
-  const CaloCellGeometry* cellGeometry ( ecalGeom->getGeometry( timeDet ) ) ;
+  auto cellGeometry = ((CaloSubdetectorGeometry*)(ecalGeom))->getGeometry(timeDet).get();
   if( nullptr == cellGeometry ) {
     throw cms::Exception("BadECALBarrelCell")
       << timeDet << " is not a valid ECAL Barrel DetId!";

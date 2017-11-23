@@ -59,11 +59,11 @@ class ClusterShapeAlgo
   void Calculate_e2x5Bottom();
   void Calculate_Covariances(const reco::BasicCluster &passedCluster,
 			     const EcalRecHitCollection* hits,
-			     const CaloSubdetectorGeometry* geometry);
+			     CaloSubdetectorGeometry* geometry);
   void Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits,
-                                            const int EtaPhi,const CaloSubdetectorGeometry * geometry);
+                                            const int EtaPhi, CaloSubdetectorGeometry * geometry);
   // defines a energy deposition topology in a reference system centered on the cluster
-  void Calculate_EnergyDepTopology(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits, const CaloSubdetectorGeometry * geometry, bool logW=true);
+  void Calculate_EnergyDepTopology(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits, CaloSubdetectorGeometry * geometry, bool logW=true);
   void Calculate_Polynomials(double rho);
   double factorial(int n) const;
   void Calculate_lat(const reco::BasicCluster &passedCluster);

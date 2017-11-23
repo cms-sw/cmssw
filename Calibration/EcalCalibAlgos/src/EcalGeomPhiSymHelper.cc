@@ -54,8 +54,8 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
 
 
 
-  const CaloSubdetectorGeometry *endcapGeometry = 
-    geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  CaloSubdetectorGeometry *endcapGeometry = (CaloSubdetectorGeometry*)
+    (geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
  
   for (int ix=0; ix<kEndcWedgesX; ix++) {
     for (int iy=0; iy<kEndcWedgesY; iy++) {
@@ -70,7 +70,7 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
   std::vector<DetId>::const_iterator endcapIt;
   for (endcapIt=endcapCells.begin(); endcapIt!=endcapCells.end(); endcapIt++) {
 
-    const CaloCellGeometry *cellGeometry = endcapGeometry->getGeometry(*endcapIt);
+    auto cellGeometry = endcapGeometry->getGeometry(*endcapIt);
     EEDetId ee(*endcapIt);
     int ix=ee.ix()-1;
     int iy=ee.iy()-1;
@@ -97,10 +97,10 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
     cellArea_[ix][iy] = fabs(cellArea_[ix][iy])/2.;
 /*
     const double deltaPhi =
-      (dynamic_cast<const EcalEndcapGeometry*>(endcapGeometry))->deltaPhi(ee);
+      ((EcalEndcapGeometry*)(endcapGeometry))->deltaPhi(ee);
 
     const double deltaEta =
-      (dynamic_cast<const EcalEndcapGeometry*>(endcapGeometry))->deltaEta(ee) ;
+      ((EcalEndcapGeometry*)(endcapGeometry))->deltaEta(ee) ;
 
     cellArea_[ix][iy] = deltaEta*deltaPhi;
 */

@@ -72,7 +72,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
     edm::ESHandle<CaloGeometry> geom;
     iSetup.get<CaloGeometryRecord>().get(geom);
     if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    const CaloGeometry* geom0 = geom.product();
+    CaloGeometry* geom0 = (CaloGeometry*)(geom.product());
 
     if (ifHCAL_) {
       edm::Handle<HBHERecHitCollection> hbhecoll;
@@ -118,7 +118,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
     edm::ESHandle<HGCalGeometry> geom;
     iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
     if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    const HGCalGeometry* geom0 = geom.product();
+    HGCalGeometry* geom0 = (HGCalGeometry*)(geom.product());
 
     edm::Handle<HGCRecHitCollection> theRecHitContainers;
     iEvent.getByToken(recHitSource_, theRecHitContainers);
@@ -147,7 +147,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
 
 template<class T1, class T2>
 void HGCalRecHitValidation::recHitValidation(DetId & detId, int layer, 
-					     const T1* geom, T2 it) {
+					     T1* geom, T2 it) {
 
   const GlobalPoint& global = geom->getPosition(detId);
   double      energy = it->energy();

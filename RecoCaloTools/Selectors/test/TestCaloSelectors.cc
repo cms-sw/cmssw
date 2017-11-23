@@ -25,8 +25,9 @@ private:
 void TestCaloSelectors::analyze(const edm::Event& evt, const edm::EventSetup& c) {
   edm::Handle<HBHERecHitCollection> hbhe;
   evt.getByLabel(inputTag_, hbhe);
-  edm::ESHandle<CaloGeometry> pG;
-  c.get<CaloGeometryRecord>().get(pG);
+  edm::ESHandle<CaloGeometry> pGH;
+  c.get<CaloGeometryRecord>().get(pGH);
+  CaloGeometry* pG = (CaloGeometry*)(pGH.product());
 
   const HBHERecHitCollection& mhbhe = *hbhe;
 
@@ -42,8 +43,8 @@ void TestCaloSelectors::analyze(const edm::Event& evt, const edm::EventSetup& c)
   }
   
 
-  CaloConeSelector<HBHERecHit> sel(0.3, pG.product(), DetId::Hcal);
-  CaloDualConeSelector<HBHERecHit> sel2(0.3, 0.5, pG.product(), DetId::Hcal);
+  CaloConeSelector<HBHERecHit> sel(0.3, pG, DetId::Hcal);
+  CaloDualConeSelector<HBHERecHit> sel2(0.3, 0.5, pG, DetId::Hcal);
   
   std::cout << "Center at " << pMax.eta() << "," << pMax.phi() << " (ET=" << maxEt << ")" << std::endl;
 

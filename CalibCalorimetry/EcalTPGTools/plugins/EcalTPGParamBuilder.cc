@@ -408,8 +408,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   evtSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
   evtSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
   evtSetup.get<IdealGeometryRecord>().get(eTTmap_);
-  theEndcapGeometry_ = &(*theEndcapGeometry_handle);
-  theBarrelGeometry_ = &(*theBarrelGeometry_handle);
+  theEndcapGeometry_ = (CaloSubdetectorGeometry*)(theEndcapGeometry_handle.product());
+  theBarrelGeometry_ = (CaloSubdetectorGeometry*)(theBarrelGeometry_handle.product());
 
   // electronics mapping
   ESHandle< EcalElectronicsMapping > ecalmapping;

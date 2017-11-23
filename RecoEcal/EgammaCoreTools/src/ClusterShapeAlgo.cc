@@ -24,6 +24,7 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedC
                                                const CaloSubdetectorGeometry * geometry,
                                                const CaloSubdetectorTopology* topology)
 {
+  CaloSubdetectorGeometry *geom = (CaloSubdetectorGeometry *)(geometry);
   Calculate_TopEnergy(passedCluster,hits);
   Calculate_2ndEnergy(passedCluster,hits);
   Create_Map(hits,topology);
@@ -36,10 +37,10 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedC
   Calculate_e2x5Left();
   Calculate_e2x5Top();
   Calculate_e2x5Bottom();
-  Calculate_Covariances(passedCluster,hits,geometry);
-  Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Eta, geometry);
-  Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Phi, geometry);
-  Calculate_EnergyDepTopology (passedCluster,hits,geometry,true) ;
+  Calculate_Covariances(passedCluster,hits,geom);
+  Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Eta, geom);
+  Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Phi, geom);
+  Calculate_EnergyDepTopology (passedCluster,hits,geom,true) ;
   Calculate_lat(passedCluster);
   Calculate_ComplexZernikeMoments(passedCluster);
 
@@ -308,7 +309,7 @@ double e2x5T=0.0;
 }
 
 void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster &passedCluster, const EcalRecHitCollection* hits, 
-					     const CaloSubdetectorGeometry* geometry)
+					     CaloSubdetectorGeometry* geometry)
 {
   if (e5x5_ > 0.)
     {
@@ -382,7 +383,7 @@ void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster &passedClu
 void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster,
                                                             const EcalRecHitCollection *hits,
                                                             const int EtaPhi,
-                                                            const CaloSubdetectorGeometry* geometry) 
+                                                            CaloSubdetectorGeometry* geometry) 
 {
   if(  (hits!=nullptr) && ( ((*hits)[0]).id().subdetId() != EcalBarrel )  ) {
      //std::cout << "No basket correction for endacap!" << std::endl;
@@ -391,7 +392,7 @@ void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicClu
 
   std::map<int,double> indexedBasketEnergy;
   const std::vector< std::pair<DetId, float> >& clusterDetIds = passedCluster.hitsAndFractions();
-  const EcalBarrelGeometry* subDetGeometry = (const EcalBarrelGeometry*) geometry;
+  EcalBarrelGeometry* subDetGeometry = (EcalBarrelGeometry*) geometry;
 
   for(auto const& posCurrent : clusterDetIds)
   {
@@ -589,7 +590,7 @@ double ClusterShapeAlgo::calc_AbsZernikeMoment(const reco::BasicCluster &passedC
 
 void ClusterShapeAlgo::Calculate_EnergyDepTopology (const reco::BasicCluster &passedCluster,
 						    const EcalRecHitCollection *hits,
-						    const CaloSubdetectorGeometry* geometry,
+						    CaloSubdetectorGeometry* geometry,
 						    bool logW) {
   // resets the energy distribution
   energyDistribution_.clear();
@@ -635,7 +636,7 @@ void ClusterShapeAlgo::Calculate_EnergyDepTopology (const reco::BasicCluster &pa
         else LogDebug("ClusterShapeAlgo") << "===> got crystal. Energy = " << clEdep.deposited_energy << " GeV. ";
       }
       DetId id_ = posCurrent.first;
-      const CaloCellGeometry *this_cell = geometry->getGeometry(id_);
+      auto this_cell = geometry->getGeometry(id_);
       const GlobalPoint& cellPos = this_cell->getPosition();
       CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?
       // Evaluate the distance from the cluster centroid

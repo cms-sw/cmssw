@@ -90,8 +90,8 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
       
       //Make the vector of seeds that we're going to use.
       //One of the few places position is used, needed for ET calculation.    
-      const CaloCellGeometry & this_cell = *(*geometry).getGeometry(it->id());
-      const GlobalPoint& position = this_cell.getPosition();
+      auto this_cell = ((CaloSubdetectorGeometry*)(geometry))->getGeometry(it->id());
+      const GlobalPoint& position = this_cell->getPosition();
       
       
       // Require that RecHit is within clustering region in case
@@ -100,7 +100,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
       if (regional) {
 	std::vector<EcalEtaPhiRegion>::const_iterator region;
 	for (region=regions.begin(); region!=regions.end(); region++) {
-	  if (region->inRegion(this_cell.etaPos(),this_cell.phiPos())) {
+	  if (region->inRegion(this_cell->etaPos(),this_cell->phiPos())) {
 	    withinRegion =  true;
 	    break;
 	  }
@@ -416,7 +416,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 			LogTrace("EcalClusters") << "total dets: " << dets.size() ;
 	
 			//Get Calorimeter position
-			Point pos = posCalculator_.Calculate_Location(dets,hits,geometry);
+			Point pos = posCalculator_.Calculate_Location(dets,hits,((CaloSubdetectorGeometry*)(geometry)));
 
 			//double totChi2=0;
 			//double totE=0;
@@ -656,7 +656,7 @@ double HybridClusterAlgo::et25(EcalBarrelNavigatorHT &navigator,
 
 	// convert it to ET
 	//std::cout << "dets.size(), energySum: " << dets.size() << ", " << energySum << std::endl;
-	Point pos = posCalculator_.Calculate_Location(dets, hits, geometry);
+	Point pos = posCalculator_.Calculate_Location(dets, hits, ((CaloSubdetectorGeometry*)(geometry)));
 	double et = energySum/cosh(pos.eta());
 	return et;
 
@@ -692,7 +692,7 @@ double HybridClusterAlgo::e2Et(EcalBarrelNavigatorHT &navigator,
     }
   
   // compute coefficient to turn E into Et 
-  Point pos = posCalculator_.Calculate_Location(dets, hits, geometry);
+  Point pos = posCalculator_.Calculate_Location(dets, hits, ((CaloSubdetectorGeometry*)(geometry)));
   return  1/cosh(pos.eta());
 
 }

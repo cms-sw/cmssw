@@ -67,25 +67,32 @@ CaloGeometry::getSubdetectorGeometry( DetId::Detector det    ,
 static const GlobalPoint notFound(0,0,0);
 
 const GlobalPoint& 
-CaloGeometry::getPosition( const DetId& id ) const 
-{
-   const CaloSubdetectorGeometry* geom=getSubdetectorGeometry( id ) ;
-   const CaloCellGeometry* cell ( ( nullptr == geom ? nullptr : geom->getGeometry( id ) ) ) ;
-   return ( nullptr == cell ?  notFound : cell->getPosition() ) ;
+CaloGeometry::getPosition( const DetId& id ) {
+  CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)getSubdetectorGeometry( id ) ;
+   if (geom) {
+     auto cell = (geom->getGeometry(id));
+     return (cell->getPosition());
+   } else {
+     return notFound;
+   }
 }
 
-const CaloCellGeometry* 
-CaloGeometry::getGeometry( const DetId& id ) const 
+std::shared_ptr<CaloCellGeometry>
+CaloGeometry::getGeometry( const DetId& id ) 
 {
-   const CaloSubdetectorGeometry* geom ( getSubdetectorGeometry( id ) ) ;
-   const CaloCellGeometry* cell ( nullptr == geom ? nullptr : geom->getGeometry( id ) ) ;
-   return cell ;
+  CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)(getSubdetectorGeometry(id)) ;
+   if (geom) {
+     auto cell = (geom->getGeometry(id));
+     return cell;
+   } else {
+     return std::shared_ptr<CaloCellGeometry>();
+   }
 }
 
 bool 
-CaloGeometry::present( const DetId& id ) const 
+CaloGeometry::present( const DetId& id ) 
 {
-   const CaloSubdetectorGeometry* geom ( getSubdetectorGeometry( id ) ) ;
+  CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)(getSubdetectorGeometry(id)) ;
    return ( nullptr == geom ? false : geom->present( id ) ) ;
 }
 

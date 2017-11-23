@@ -99,10 +99,10 @@ private:
 private:
   //HGC Geometry
   std::vector<const HGCalDDDConstants*> hgcCons_;
-  std::vector<const HGCalGeometry*>     hgcGeometry_;
+  std::vector<HGCalGeometry*>           hgcGeometry_;
   const HcalDDDSimConstants*            hcCons_;
   const HcalDDDRecConstants*            hcConr_;
-  const CaloSubdetectorGeometry*        hcGeometry_;
+  CaloSubdetectorGeometry*              hcGeometry_;
   std::vector<std::string>              geometrySource_;
   std::vector<int>                      ietaExcludeBH_;
   bool                                  ifHCAL_;
@@ -238,7 +238,7 @@ void HGCHitValidation::beginRun(edm::Run const& iRun,
       iSetup.get<CaloGeometryRecord>().get(caloG);
       if (caloG.isValid()) {
 	const CaloGeometry* geo = caloG.product();
-	hcGeometry_ = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+	hcGeometry_ = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
 	hgcGeometry_.push_back(0);
       } else {
         edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for "
@@ -256,7 +256,7 @@ void HGCHitValidation::beginRun(edm::Run const& iRun,
       edm::ESHandle<HGCalGeometry> hgcGeom;
       iSetup.get<IdealGeometryRecord>().get(geometrySource_[i],hgcGeom);	
       if(hgcGeom.isValid()) {
-	hgcGeometry_.push_back(hgcGeom.product());	
+	hgcGeometry_.push_back((HGCalGeometry*)(hgcGeom.product()));	
       } else {
 	edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for "
 				      << geometrySource_[i] << std::endl;

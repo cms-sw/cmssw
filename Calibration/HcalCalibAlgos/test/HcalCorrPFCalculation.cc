@@ -81,8 +81,8 @@ private:
   TrackDetectorAssociator trackAssociator_;
   TrackAssociatorParameters parameters_;
 
-  const CaloGeometry* geo;
-  const HcalGeometry* gHcal;
+  CaloGeometry* geo;
+  HcalGeometry* gHcal;
 
   Float_t xTrkHcal,yTrkHcal,zTrkHcal;
   Float_t xTrkEcal, yTrkEcal, zTrkEcal;
@@ -220,9 +220,9 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
    
     edm::ESHandle<CaloGeometry> pG;
     c.get<CaloGeometryRecord>().get(pG);
-    geo = pG.product();
+    geo = (CaloGeometry*)(pG.product());
 
-    gHcal = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    gHcal = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
     
     parameters_.useEcal = true;
     parameters_.useHcal = true;

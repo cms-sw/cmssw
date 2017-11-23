@@ -215,12 +215,12 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   const CaloGeometry cG = *pG;
   
   //----Fill Ecal Barrel----//
-  const CaloSubdetectorGeometry* EBgeom=cG.getSubdetectorGeometry(DetId::Ecal,1);
+  CaloSubdetectorGeometry* EBgeom=(CaloSubdetectorGeometry*)(cG.getSubdetectorGeometry(DetId::Ecal,1));
   int n=0;
   std::vector<DetId> EBids=EBgeom->getValidDetIds(DetId::Ecal, 1);
   for (std::vector<DetId>::iterator i=EBids.begin(); i!=EBids.end(); i++) {
     n++;
-    const CaloCellGeometry* cell=EBgeom->getGeometry(*i);
+    auto cell=EBgeom->getGeometry(*i);
     //GlobalPoint p = cell->getPosition();
     
     EBDetId EcalID(i->rawId());
@@ -239,12 +239,12 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     
   }
   //----Fill Ecal Endcap----------//
-  const CaloSubdetectorGeometry* EEgeom=cG.getSubdetectorGeometry(DetId::Ecal,2);
+  CaloSubdetectorGeometry* EEgeom=(CaloSubdetectorGeometry*)(cG.getSubdetectorGeometry(DetId::Ecal,2));
   n=0;
   std::vector<DetId> EEids=EEgeom->getValidDetIds(DetId::Ecal, 2);
   for (std::vector<DetId>::iterator i=EEids.begin(); i!=EEids.end(); i++) {
     n++;
-    const CaloCellGeometry* cell=EEgeom->getGeometry(*i);
+    auto cell=EEgeom->getGeometry(*i);
     //GlobalPoint p = cell->getPosition();
     EEDetId EcalID(i->rawId());
     int Crystal_zside = EcalID.zside();

@@ -35,10 +35,10 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
       // get the ecal geometry
-      const CaloSubdetectorGeometry *hcalBarrelGeo = 
-	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-      const CaloSubdetectorGeometry *hcalEndcapGeo = 
-	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
+      CaloSubdetectorGeometry *hcalBarrelGeo = ((CaloSubdetectorGeometry*)
+						(geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel)));
+      CaloSubdetectorGeometry *hcalEndcapGeo = ((CaloSubdetectorGeometry*)
+						(geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap)));
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
@@ -53,12 +53,12 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
 	switch(esd) {
 	case HcalBarrel:
-	  thisCell =hcalBarrelGeo->getGeometry(detid); 
+	  thisCell = (hcalBarrelGeo->getGeometry(detid)).get(); 
 	  layer =PFLayer::HCAL_BARREL1;
 	  break;
 
 	case HcalEndcap:
-	  thisCell =hcalEndcapGeo->getGeometry(detid); 
+	  thisCell = (hcalEndcapGeo->getGeometry(detid)).get(); 
 	  layer =PFLayer::HCAL_ENDCAP;
 	  break;
 	default:

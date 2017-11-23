@@ -90,8 +90,8 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   std::string getDet(int tcc) ;
   std::pair < std::string, int > getCrate(int tcc) ;
 
-  const CaloSubdetectorGeometry * theEndcapGeometry_ ;
-  const CaloSubdetectorGeometry * theBarrelGeometry_ ;
+  CaloSubdetectorGeometry * theEndcapGeometry_ ;
+  CaloSubdetectorGeometry * theBarrelGeometry_ ;
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
   const EcalElectronicsMapping * theMapping_ ;
 

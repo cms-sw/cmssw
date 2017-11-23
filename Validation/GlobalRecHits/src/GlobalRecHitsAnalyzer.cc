@@ -670,7 +670,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 
   if (validHBHE) {
     std::vector<edm::Handle<HBHERecHitCollection> >::iterator ihbhe;
-    const CaloGeometry* geo = geometry.product();
+    CaloGeometry* geo = (CaloGeometry*)(geometry.product());
     
     int iHB = 0;
     int iHE = 0; 
@@ -684,10 +684,10 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	
 	if (cell.subdet() == sdHcalBrl) {
 	  
-	  const HcalGeometry* cellGeometry = 
+	  HcalGeometry* cellGeometry = 
 	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-//	  const CaloCellGeometry* cellGeometry =
-//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+//	  auto cellGeometry = ((CaloSubdetectorGeometry*)
+//	    (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  if ( (jhbhe->energy()) > maxHBEnergy ) {
 	    maxHBEnergy = jhbhe->energy();
@@ -698,10 +698,10 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
       
 	if (cell.subdet() == sdHcalEC) {
 	  
-	  const HcalGeometry* cellGeometry = 
+	  HcalGeometry* cellGeometry = 
 	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-//	  const CaloCellGeometry* cellGeometry =
-//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+//	  auto cellGeometry = ((CaloSubdetectorGeometry*)
+//	    (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  if ( (jhbhe->energy()) > maxHEEnergy ) {
 	    maxHEEnergy = jhbhe->energy();
@@ -719,10 +719,10 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHB;
 	  
-	  const HcalGeometry* cellGeometry = 
+	  HcalGeometry* cellGeometry = 
 	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-//	  const CaloCellGeometry* cellGeometry =
-//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+//	  auto cellGeometry = ((CaloSubdetectorGeometry*)
+//	    (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  
 	  float deltaphi = maxHBPhi - fPhi;
@@ -737,10 +737,10 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHE;
 	  
-	  const HcalGeometry* cellGeometry = 
+	  HcalGeometry* cellGeometry = 
 	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-//	  const CaloCellGeometry* cellGeometry =
-//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+//	  auto cellGeometry = ((CaloSubdetectorGeometry*)
+//	    (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  
 	  float deltaphi = maxHEPhi - fPhi;
@@ -791,8 +791,8 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	
 	if (cell.subdet() == sdHcalFwd) {
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  auto cellGeometry = ((CaloSubdetectorGeometry*)
+			       (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition().phi () ;
 	  if ( (jhf->energy()) > maxHFEnergy ) {
 	    maxHFEnergy = jhf->energy();
@@ -810,8 +810,8 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHF;
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  auto cellGeometry = ((CaloSubdetectorGeometry*)
+			       (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition().phi () ;
 	  
 	  float deltaphi = maxHBPhi - fPhi;
@@ -857,8 +857,8 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHO;
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  auto cellGeometry = ((CaloSubdetectorGeometry*)
+			       (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition().phi () ;
 	  
 	  float deltaphi = maxHOPhi - fPhi;

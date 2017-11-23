@@ -186,7 +186,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                 
                                 for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
 				        if (alreadyInserted(*dit)) continue;
-				        float theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
+				        float theta = ((CaloSubdetectorGeometry*)(ebGeom_))->getGeometry(*dit)->getPosition().theta();
                                         float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
                                         if(checkChannelStatus(*dit, dbStatusToBeExcludedEB_)){
 						EcalRecHit hit( *dit, tpEt /((float)vid.size()) / sin(theta), 0.);
@@ -317,7 +317,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                 EcalRecHitCollection::const_iterator jt = hits->find( *it );
                                 if ( jt != hits->end() ) {
 				  float energy = jt->energy(); // Correct conversion to Et
-				  float eta = geo_->getPosition(jt->id()).eta();
+				  float eta = ((CaloGeometry*)(geo_))->getPosition(jt->id()).eta();
 				  float pf = 1.0/cosh(eta);
 				  // use Et instead of E, consistent with the Et estimation of the associated TT
 				  totE -= energy*pf;
@@ -336,7 +336,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 			                                            // in the tower, nothing is returned. No negative values from noise.
 			  for ( std::set<DetId>::const_iterator it = eeC.begin(); it != eeC.end(); ++it ) {
 
-			    float eta = geo_->getPosition(*it).eta(); //Convert back to E from Et for the recovered hits
+			    float eta = ((CaloGeometry*)(geo_))->getPosition(*it).eta(); //Convert back to E from Et for the recovered hits
 			    float pf = 1.0/cosh(eta);
 			    EcalRecHit hit( *it, totE / ((float)eeC.size()*pf), 0);
 			    
@@ -358,7 +358,7 @@ float EcalRecHitWorkerRecover::estimateEnergy(int ieta, EcalRecHitCollection* hi
 		std::set<DetId>::const_iterator sIdit = sId.find(*vIdit);
 		if (sIdit==sId.end()){
 			float energy = hits->find(*vIdit)->energy();
-			float eta = geo_->getPosition(*vIdit).eta();
+			float eta = ((CaloGeometry*)(geo_))->getPosition(*vIdit).eta();
 			float pf = 1.0/cosh(eta);
 			xtalE += energy*pf;
 			count++;

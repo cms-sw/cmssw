@@ -59,7 +59,7 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
     const CaloSubdetectorGeometry *gTmp = 
       geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
 
-    const EcalEndcapGeometry *ecalGeo =dynamic_cast< const EcalEndcapGeometry* > (gTmp);
+    EcalEndcapGeometry *ecalGeo = (EcalEndcapGeometry*)(gTmp);
 
     iEvent.getByToken(recHitToken_,recHitHandle);
     for(const auto& erh : *recHitHandle ) {      
@@ -69,7 +69,7 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
 
       bool hi = (useSrF ? isHighInterest(detid) : true);
         
-      const CaloCellGeometry * thisCell= ecalGeo->getGeometry(detid);
+      const CaloCellGeometry * thisCell= ecalGeo->getGeometry(detid).get();
   
       // find rechit geometry
       if(!thisCell) {

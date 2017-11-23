@@ -110,7 +110,7 @@ class EcalHitResponse
 
       const CaloVShape* shape() const ;
 
-      const CaloSubdetectorGeometry* geometry() const ;
+      CaloSubdetectorGeometry* geometry() const ;
 
       int minBunch() const ;
 
@@ -129,7 +129,7 @@ class EcalHitResponse
       const CaloVHitCorrection*      m_hitCorrection ;
       const CaloVPECorrection*       m_PECorrection  ;
       const CaloVHitFilter*          m_hitFilter     ;
-      const CaloSubdetectorGeometry* m_geometry      ;
+      CaloSubdetectorGeometry* m_geometry      ;
       const EcalLaserDbService*      m_lasercals     ;
 
       int    m_minBunch   ;

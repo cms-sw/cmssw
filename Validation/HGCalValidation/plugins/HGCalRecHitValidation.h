@@ -69,7 +69,7 @@ public:
   
 private:
   template<class T1, class T2>
-    void recHitValidation(DetId & detId, int layer, const T1* geom, T2 it);
+    void recHitValidation(DetId & detId, int layer,  T1* geom, T2 it);
   void fillHitsInfo(); 
   void fillHitsInfo(HitsInfo& hits); 
   void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);

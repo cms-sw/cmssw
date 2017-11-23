@@ -88,7 +88,7 @@ private:
   double taECALCone_;
   double taHCALCone_;
 
-  const CaloGeometry* geo;
+  CaloGeometry* geo;
   // nothing is done with these tags, so I leave it - cowden
   InputTag genhbheLabel_;  
   InputTag genhoLabel_;
@@ -293,7 +293,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
-  geo = pG.product();
+  geo = (CaloGeometry*)(pG.product());
   
   HcalGeometry* gHcal = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   //Note: even though it says HcalBarrel, we actually get the whole Hcal detector geometry!

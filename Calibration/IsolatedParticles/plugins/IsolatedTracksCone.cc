@@ -166,14 +166,14 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
-  const CaloSubdetectorGeometry* gEB = 
-    geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  const CaloSubdetectorGeometry* gEE = 
-    geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
-  const CaloSubdetectorGeometry* gHB = 
-    geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-  const CaloSubdetectorGeometry* gHE = 
-    geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
+  CaloSubdetectorGeometry* gEB = (CaloSubdetectorGeometry*)
+    (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+  CaloSubdetectorGeometry* gEE = (CaloSubdetectorGeometry*)
+    (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+  CaloSubdetectorGeometry* gHB = (CaloSubdetectorGeometry*)
+    (geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+  CaloSubdetectorGeometry* gHE = (CaloSubdetectorGeometry*)
+    (geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap));
   
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology); 

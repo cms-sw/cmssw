@@ -33,7 +33,7 @@ class ReducedESRecHitCollectionProducer : public edm::stream::EDProducer<> {
   
  private :
 
-  const EcalPreshowerGeometry *geometry_p;
+  EcalPreshowerGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;
 
   double scEtThresh_;

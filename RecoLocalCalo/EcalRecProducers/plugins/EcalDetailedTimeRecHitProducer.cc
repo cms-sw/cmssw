@@ -83,7 +83,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 	edm::ESHandle<CaloGeometry>               hGeometry   ;
 	es.get<CaloGeometryRecord>().get( hGeometry ) ;
 	
-	m_geometry = &*hGeometry;
+	m_geometry = (CaloGeometry*)(hGeometry.product());
 
         Handle< EBRecHitCollection > pEBRecHits;
         Handle< EERecHitCollection > pEERecHits;
@@ -232,9 +232,9 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 
 double EcalDetailedTimeRecHitProducer::deltaTimeOfFlight( GlobalPoint& vertex, const DetId& detId , int layer) const 
 {
-  const CaloCellGeometry* cellGeometry ( m_geometry->getGeometry( detId ) ) ;
+  auto cellGeometry ( m_geometry->getGeometry( detId ) ) ;
   assert( nullptr != cellGeometry ) ;
-  GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
+  GlobalPoint layerPos = cellGeometry->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
   GlobalVector tofVector = layerPos-vertex;
   return (layerPos.mag()*cm-tofVector.mag()*cm)/(float)c_light ;
 }

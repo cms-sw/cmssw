@@ -122,21 +122,21 @@ CaloTowerConstituentsMapBuilder::parseTextMap( const std::string& filename, Calo
 //algorithm to assign EE cells to HE towers if no text map is provided
 void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology * cttopo){
   //get EE and HE geometries
-  const CaloSubdetectorGeometry* geomEE ( geometry->getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) );
+  CaloSubdetectorGeometry* geomEE = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
   if(geomEE==nullptr) return; // if no EE is defined don't know where it is used  
 
-  const CaloSubdetectorGeometry* geomHE ( geometry->getSubdetectorGeometry( DetId::Hcal, HcalEndcap ) );
+  CaloSubdetectorGeometry* geomHE = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
   
   //get list of EE detids
   const std::vector<DetId>& vec(geomEE->getValidDetIds());
   //loop over EE detids
   for(auto detId_itr : vec){
     //get detid position
-    const CaloCellGeometry* cellGeometry = geomEE->getGeometry(detId_itr);
-    const GlobalPoint& gp ( cellGeometry->getPosition() ) ;
+    auto cellGeometry = geomEE->getGeometry(detId_itr);
+    const GlobalPoint& gp (cellGeometry->getPosition()) ;
     
     //find closest HE cell
-    const HcalDetId closestCell ( geomHE->getClosestCell( gp ) ) ;
+    HcalDetId closestCell (geomHE->getClosestCell(gp)) ;
     
     //assign to appropriate CaloTower
     CaloTowerDetId tid(cttopo->convertHcaltoCT(closestCell.ietaAbs(),closestCell.subdet())*closestCell.zside(), closestCell.iphi());

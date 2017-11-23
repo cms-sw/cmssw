@@ -3,6 +3,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include <memory>
 #include <vector>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
@@ -31,10 +32,10 @@ class CaloGeometry
 			      const CaloSubdetectorGeometry* geom    ) ;
     
       /// Get the position of a given detector id
-      const GlobalPoint& getPosition( const DetId& id ) const ;
+      const GlobalPoint& getPosition( const DetId& id );
 
       /// Get the cell geometry of a given detector id
-      const CaloCellGeometry* getGeometry( const DetId& id ) const ;
+      std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id ) ;
 
       /// Get the list of all valid detector ids
       std::vector<DetId> getValidDetIds() const ;
@@ -43,7 +44,7 @@ class CaloGeometry
       const std::vector<DetId>& getValidDetIds( DetId::Detector det, int subdet ) const;
 
       /// is this detid present in the geometry?
-      bool present( const DetId& id ) const ;
+      bool present( const DetId& id );
 
       /// access the subdetector geometry for the given subdetector directly
       const CaloSubdetectorGeometry* getSubdetectorGeometry( const DetId& id ) const ;

@@ -108,7 +108,7 @@ EcalSimple2007H4TBAnalyzer::beginRun(edm::Run const &, edm::EventSetup const& iS
   iSetup.get<CaloGeometryRecord>().get(pG);   
 
   
-  theTBGeometry_ =  &(*pG);
+  theTBGeometry_ =  (CaloGeometry*)(pG.product());
 //  const std::vector<DetId>& validIds=theTBGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
 //   std::cout << "Found " << validIds.size() << " channels in the geometry" << std::endl;
 //   for (unsigned int i=0;i<validIds.size();++i)
@@ -360,11 +360,10 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
 	   else
 	     {
 	       Xtals5x5[icry]=tempId;
-	       const CaloCellGeometry* cell=theTBGeometry_->getGeometry(Xtals5x5[icry]);
+	       auto cell=theTBGeometry_->getGeometry(Xtals5x5[icry]);
 	       if (!cell) 
 		 continue;
-	       const TruncatedPyramid* tp ( dynamic_cast<const TruncatedPyramid*>(cell) ) ;
-	       std::cout << "** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry] << " Position " << tp->getPosition(0.) << std::endl;
+	       std::cout << "** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry] << " Position " << cell->getPosition(0.) << std::endl;
 	     }
 	 }
      }

@@ -88,13 +88,13 @@ CrystalCenterDump::~CrystalCenterDump()
 
 void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name) {
   std::fstream f(name,std::ios_base::out);
-  const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
+  CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)(cg.getSubdetectorGeometry(det,subdetn));
 
   int n=0;
   const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
   for (auto id : ids) {
     n++;
-    const CaloCellGeometry* cell=geom->getGeometry(id);
+    auto cell=geom->getGeometry(id);
     if (det == DetId::Ecal)
       {
         if (subdetn == EcalBarrel) {
@@ -102,9 +102,9 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
           if (ebid.ism() == 1) {
             
             float depth = (crystalDepth());
-            double crysX = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).x();
-            double crysY = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).y();
-            double crysZ = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).z();
+            double crysX = (cell)->getPosition(depth).x();
+            double crysY = (cell)->getPosition(depth).y();
+            double crysZ = (cell)->getPosition(depth).z();
 
             CLHEP::Hep3Vector crysPos(crysX,crysY,crysZ);
             double crysEta = crysPos.eta();

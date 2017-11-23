@@ -100,7 +100,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
       // looking for cluster seeds	  
 	  if (uhit_p.amplitude() <  (inEB ? ecalBarrelSeedThreshold : ecalEndcapSeedThreshold) ) continue; // 
 	  
-	  const CaloCellGeometry & thisCell = *geometry_p->getGeometry(it->id());
+	  auto thisCell = ((CaloSubdetectorGeometry*)(geometry_p))->getGeometry(it->id());
 
 	// Require that RecHit is within clustering region in case
 	// of regional reconstruction
@@ -108,7 +108,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	if (regional) {
 	  std::vector<EcalEtaPhiRegion>::const_iterator region;
 	  for (region=regions.begin(); region!=regions.end(); region++) {
-	    if (region->inRegion(thisCell.etaPos(),thisCell.phiPos())) {
+	    if (region->inRegion(thisCell->etaPos(),thisCell->phiPos())) {
 	      withinRegion =  true;
 	      break;
 	    }
@@ -280,7 +280,7 @@ void CosmicClusterAlgo::makeCluster(
    }
    
    Point position;
-   position = posCalculator_.Calculate_Location(current_v25Sup,recHits_, geometry, geometryES);
+   position = posCalculator_.Calculate_Location(current_v25Sup,recHits_, ((CaloSubdetectorGeometry*)(geometry)), ((CaloSubdetectorGeometry*)(geometryES)));
    
    //don't write empty clusters
    if (energy == 0 && position == Point(0,0,0)) return;

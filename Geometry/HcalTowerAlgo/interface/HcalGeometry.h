@@ -53,16 +53,15 @@ public:
   const std::vector<DetId>& getValidDetIds(DetId::Detector det    = DetId::Detector ( 0 ), 
 					   int             subdet = 0 ) const override;
 
-  const CaloCellGeometry* getGeometry( const DetId& id ) const override ;
+  std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id ) override ;
   
-  DetId getClosestCell(const GlobalPoint& r) const override ;
+  DetId getClosestCell(const GlobalPoint& r) override ;
   
-  CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-					      double             dR ) const override ;
+  CaloSubdetectorGeometry::DetIdSet getCells(const GlobalPoint& r, double dR) override ;
 
-  GlobalPoint                   getPosition(const DetId& id) const;
-  GlobalPoint                   getBackPosition(const DetId& id) const;
-  CaloCellGeometry::CornersVec  getCorners(const DetId& id) const;
+  GlobalPoint                   getPosition(const DetId& id);
+  GlobalPoint                   getBackPosition(const DetId& id);
+  CaloCellGeometry::CornersVec  getCorners(const DetId& id);
 
   static std::string producerTag() { return "HCAL" ; }
   
@@ -112,13 +111,13 @@ public:
   void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
 		   CaloSubdetectorGeometry::IVec&   iVector,
 		   CaloSubdetectorGeometry::DimVec& dimVector,
-		   CaloSubdetectorGeometry::IVec& dinsVector ) const override ;
+		   CaloSubdetectorGeometry::IVec& dinsVector ) override ;
 
   const HcalTopology& topology() const { return m_topology; }
 
 protected:
 
-  const CaloCellGeometry* cellGeomPtr( unsigned int index ) const override ;
+  std::shared_ptr<CaloCellGeometry> cellGeomPtr( unsigned int index ) override ;
 
   unsigned int indexFor(const DetId& id) const override { return  m_topology.detId2denseId(id); }
   unsigned int sizeForDenseIndex(const DetId& id) const override { return m_topology.ncells(); }
@@ -126,7 +125,7 @@ protected:
 private:
 
   // Base clas for getting geometry
-  const CaloCellGeometry* getGeometryBase( const DetId& id ) const {
+  std::shared_ptr<CaloCellGeometry> getGeometryBase( const DetId& id ) {
     return cellGeomPtr( m_topology.detId2denseId( id ) ) ;
   }
 

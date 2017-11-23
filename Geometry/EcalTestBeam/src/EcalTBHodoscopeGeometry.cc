@@ -374,10 +374,10 @@ EcalTBHodoscopeGeometry::getFiredFibresInPlane( float xtr,
    return firedFibres ;
 }
 
-const CaloCellGeometry* 
-EcalTBHodoscopeGeometry::cellGeomPtr( uint32_t index ) const
+std::shared_ptr<CaloCellGeometry>
+EcalTBHodoscopeGeometry::cellGeomPtr( uint32_t index ) 
 {
-   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
-   return ( m_cellVec.size() > index &&
-	    nullptr != cell->param() ? cell : nullptr ) ;
+  auto cell = (std::shared_ptr<CaloCellGeometry>)( &m_cellVec[ index ] ) ;
+  return ( m_cellVec.size() > index &&
+	   nullptr != cell->param() ? cell : nullptr ) ;
 }

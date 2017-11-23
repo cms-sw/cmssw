@@ -342,7 +342,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 
 
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
-    math::XYZPoint unconvPos = posCalculator_.Calculate_Location(scRef->seed()->hitsAndFractions(),hits,subDetGeometry,geometryES);
+    math::XYZPoint unconvPos = posCalculator_.Calculate_Location(scRef->seed()->hitsAndFractions(),hits,((CaloSubdetectorGeometry*)(subDetGeometry)),((CaloSubdetectorGeometry*)(geometryES)));
 
 
     float maxXtal =   EcalClusterTools::eMax( *(scRef->seed()), &(*hits) );

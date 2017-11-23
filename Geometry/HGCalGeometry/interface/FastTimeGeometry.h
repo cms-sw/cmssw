@@ -54,20 +54,20 @@ public:
 		    Pt3D&           ref) ;
   
   void newCell(const GlobalPoint& f1 ,
-		       const GlobalPoint& f2 ,
-		       const GlobalPoint& f3 ,
-		       const CCGFloat*    parm ,
-		       const DetId&       detId) override;
+	       const GlobalPoint& f2 ,
+	       const GlobalPoint& f3 ,
+	       const CCGFloat*    parm ,
+	       const DetId&       detId) override;
   
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  const CaloCellGeometry* getGeometry(const DetId& id) const override;
+  std::shared_ptr<CaloCellGeometry> getGeometry(const DetId& id) override;
 
   void getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
-			  CaloSubdetectorGeometry::IVec&   iVector,
-			  CaloSubdetectorGeometry::DimVec& dimVector,
-			  CaloSubdetectorGeometry::IVec& dinsVector ) const override;
+		  CaloSubdetectorGeometry::IVec&   iVector,
+		  CaloSubdetectorGeometry::DimVec& dimVector,
+		  CaloSubdetectorGeometry::IVec& dinsVector ) override;
   
-  GlobalPoint getPosition(const DetId& id) const;
+  GlobalPoint getPosition(const DetId& id);
       
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners(const DetId& id) const; 
@@ -77,7 +77,7 @@ public:
   const std::vector<DetId>& getValidGeomDetIds( void ) const { return m_validGeomIds; }
 					       
   // Get closest cell, etc...
-  DetId getClosestCell(const GlobalPoint& r) const override;
+  DetId getClosestCell(const GlobalPoint& r) override;
   
   /** \brief Get a list of all cells within a dR of the given cell
       
@@ -85,7 +85,7 @@ public:
       Cleverer implementations are suggested to use rough conversions between
       eta/phi and ieta/iphi and test on the boundaries.
   */
-  DetIdSet getCells(const GlobalPoint& r, double dR) const override;
+  DetIdSet getCells(const GlobalPoint& r, double dR) override;
   
   virtual void fillNamedParams (DDFilteredView fv);
   void initializeParms() override;
@@ -102,7 +102,7 @@ protected:
   using CaloSubdetectorGeometry::sizeForDenseIndex;
   unsigned int sizeForDenseIndex() const;
   
-  const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;
+  std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
   
   void addValidID(const DetId& id);
   

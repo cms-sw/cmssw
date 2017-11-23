@@ -95,7 +95,7 @@ FlatTrd::FlatTrd( const FlatTrd& tr, const Pt3D & local ) :
 
 FlatTrd::~FlatTrd() {}
 
-GlobalPoint FlatTrd::getPosition(const Pt3D& local ) const {
+const GlobalPoint FlatTrd::getPosition(const Pt3D& local ) const {
   Pt3D glb = m_tr*local;
 #ifdef DebugLog
   std::cout << "FlatTrd::Local " << local.x() << ":" << local.y() << ":" 

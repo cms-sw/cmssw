@@ -56,13 +56,13 @@ class CaloDetIdAssociator: public DetIdAssociator{
    std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const override;
 
    bool insideElement(const GlobalPoint& point, const DetId& id) const override{
-      return  geometry_->getSubdetectorGeometry(id)->getGeometry(id)->inside(point);
+     return  ((CaloSubdetectorGeometry*)(geometry_->getSubdetectorGeometry(id)))->getGeometry(id)->inside(point);
    };
 
    bool crossedElement(const GlobalPoint&, 
-			       const GlobalPoint&, 
-			       const DetId& id,
-			       const double tolerance = -1,
+		       const GlobalPoint&, 
+		       const DetId& id,
+		       const double tolerance = -1,
 			       const SteppingHelixStateInfo* = nullptr ) const override;
    const CaloGeometry* geometry_;
    std::vector<GlobalPoint> dummy_;

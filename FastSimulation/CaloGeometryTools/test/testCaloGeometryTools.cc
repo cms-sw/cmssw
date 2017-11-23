@@ -140,7 +140,7 @@ void testCaloGeometryTools::checkSM()
   unsigned size=vec.size();
   for(unsigned ic=0;ic<size;++ic)
     {
-      const CaloCellGeometry * geom=myGeometry.getEcalBarrelGeometry()->getGeometry(vec[ic]);
+      auto geom=((EcalBarrelGeometry*)(myGeometry.getEcalBarrelGeometry()))->getGeometry(vec[ic]);
       GlobalPoint p=geom->getPosition();
       XYZPoint pp(p.x(),p.y(),p.z());
        // Build the name of the object
@@ -162,7 +162,7 @@ void testCaloGeometryTools::checkSC()
   unsigned size=vec.size();
   for(unsigned ic=0;ic<size;++ic)
     {
-      const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec[ic]);
+      auto geom=((EcalEndcapGeometry*)(myGeometry.getEcalEndcapGeometry()))->getGeometry(vec[ic]);
       GlobalPoint p=geom->getPosition();
       XYZPoint pp(p.x(),p.y(),p.z());
        // Build the name of the object
@@ -237,10 +237,10 @@ void testCaloGeometryTools::testBorderCrossing()
 	  if(neighbours[in].null()) continue;
 	  if(myGeometry.borderCrossing(vec[ic],neighbours[in]))
 	    {
-	      const CaloCellGeometry * geom=myGeometry.getEcalBarrelGeometry()->getGeometry(vec[ic]);
+	      auto geom=((EcalBarrelGeometry*)(myGeometry.getEcalBarrelGeometry()))->getGeometry(vec[ic]);
 	      GlobalPoint p1=geom->getPosition();
 	      XYZPoint pp1(p1.x(),p1.y(),p1.z());
-	      geom=myGeometry.getEcalBarrelGeometry()->getGeometry(neighbours[in]);
+	      geom=((EcalBarrelGeometry*)(myGeometry.getEcalBarrelGeometry()))->getGeometry(neighbours[in]);
 	      GlobalPoint p2=geom->getPosition();
 	      XYZPoint pp2(p2.x(),p2.y(),p2.z());
 	      TMarker * myMarker= new TMarker((pp1+pp2).eta()*0.5,((pp1+pp2)*0.5).phi(),22);
@@ -264,10 +264,10 @@ void testCaloGeometryTools::testBorderCrossing()
 	  if(neighbours[in].null()) continue;
 	  if(myGeometry.borderCrossing(vec2[ic],neighbours[in]))
 	    {
-	      const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec2[ic]);
+	      auto geom=((EcalEndcapGeometry*)(myGeometry.getEcalEndcapGeometry()))->getGeometry(vec2[ic]);
 	      GlobalPoint p1=geom->getPosition();
 	      XYZPoint pp1(p1.x(),p1.y(),p1.z());
-	      geom=myGeometry.getEcalEndcapGeometry()->getGeometry(neighbours[in]);
+	      geom=((EcalEndcapGeometry*)(myGeometry.getEcalEndcapGeometry()))->getGeometry(neighbours[in]);
 	      GlobalPoint p2=geom->getPosition();
 	      XYZPoint pp2(p2.x(),p2.y(),p2.z());
 	      TMarker * myMarker= new TMarker((pp1+pp2).x()*0.5,(pp1+pp2).y()*0.5,22);

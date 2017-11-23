@@ -936,7 +936,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     
       for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
 	HcalDetId cell(j->id());
-	const HcalGeometry* cellGeometry = 
+	HcalGeometry* cellGeometry = 
 	  (HcalGeometry*)(geometry->getSubdetectorGeometry(cell));
 	double eta  = cellGeometry->getPosition(cell).eta () ;
 	double phi  = cellGeometry->getPosition(cell).phi () ;
@@ -990,11 +990,11 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       
       for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
 	HcalDetId cell(j->id());
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	auto cellGeometry = ((CaloSubdetectorGeometry*)
+			     (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	double eta   = cellGeometry->getPosition().eta () ;
 	double phi   = cellGeometry->getPosition().phi () ;
-	double zc     = cellGeometry->getPosition().z ();
+	double zc    = cellGeometry->getPosition().z ();
 	int sub      = cell.subdet();
 	int depth    = cell.depth();
 	int inteta   = cell.ieta();
@@ -1041,8 +1041,8 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       
       for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
 	HcalDetId cell(j->id());
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	auto cellGeometry = ((CaloSubdetectorGeometry*)
+			     (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	double eta   = cellGeometry->getPosition().eta () ;
 	double phi   = cellGeometry->getPosition().phi () ;
 	double zc    = cellGeometry->getPosition().z ();

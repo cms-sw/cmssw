@@ -146,7 +146,7 @@ class EcalTimeMapDigitizer
   
   int m_timeLayerId;
   
-  const CaloSubdetectorGeometry* m_geometry ;
+  CaloSubdetectorGeometry* m_geometry ;
   
   double timeOfFlight( const DetId& detId , int layer) const; 
 

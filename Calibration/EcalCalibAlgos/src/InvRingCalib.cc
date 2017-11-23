@@ -459,7 +459,7 @@ void InvRingCalib::EERingDef(const edm::EventSetup& iSetup)
  iSetup.get<CaloGeometryRecord>().get(geoHandle);
  //Gets the geometry of the endcap
  const CaloGeometry& geometry = *geoHandle;
- const CaloSubdetectorGeometry *endcapGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+ CaloSubdetectorGeometry *endcapGeometry = (CaloSubdetectorGeometry*)(geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
 // const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
  //for every xtal gets the position Vector and the phi position
  
@@ -475,7 +475,7 @@ void InvRingCalib::EERingDef(const edm::EventSetup& iSetup)
  for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin();
     endcapIt!=m_endcapCells.end();
     ++endcapIt) {
-     const CaloCellGeometry *cellGeometry = endcapGeometry->getGeometry(*endcapIt);
+     auto cellGeometry = endcapGeometry->getGeometry(*endcapIt);
      m_cellPos[endcapIt->rawId()] = cellGeometry->getPosition();
      m_cellPhi[endcapIt->rawId()] = cellGeometry->getPosition().phi();
   }

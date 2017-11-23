@@ -64,7 +64,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	auto depth =detid.depth();
 	  
 	
-	const CaloCellGeometry * thisCell= hcalGeo->getGeometry(detid);
+	const CaloCellGeometry * thisCell= ((CaloSubdetectorGeometry*)(hcalGeo))->getGeometry(detid).get();
   
 	// find rechit geometry
 	if(!thisCell) {

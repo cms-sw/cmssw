@@ -122,13 +122,13 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
                 if ( (recIt->energy()) < energyCut_) return;  //dont fill if below E noise value
 
                 double et = recIt->energy() *
-                            caloGeom->getPosition(recIt->detid()).perp() /
-                            caloGeom->getPosition(recIt->detid()).mag();
+		  ((CaloGeometry*)(caloGeom))->getPosition(recIt->detid()).perp() /
+		  ((CaloGeometry*)(caloGeom))->getPosition(recIt->detid()).mag();
                 
                 if ( et < etCut_) return;  //dont fill if below ET noise value
 
                 bool isBarrel = false;
-                if (fabs(caloGeom->getPosition(recIt->detid()).eta() < 1.479)) 
+                if (fabs(((CaloGeometry*)(caloGeom))->getPosition(recIt->detid()).eta() < 1.479)) 
                   isBarrel = true;
 
                 int severityFlag = sevLevel->severityLevel(recIt->detid(), *recHitsH);
