@@ -427,9 +427,9 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
 
   }
 
-  TVector2 *tv2 = new TVector2(mHx,mHy);
-  met_data->mHt	   = tv2->Mod();
-  met_data->mHtPhi = tv2->Phi();
+  TVector2 tv2 = TVector2(mHx,mHy);
+  met_data->mHt	   = tv2.Mod();
+  met_data->mHtPhi = tv2.Phi();
 
 
 }
