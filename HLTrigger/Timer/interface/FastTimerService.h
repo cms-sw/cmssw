@@ -82,7 +82,7 @@ Performance of std::chrono::high_resolution_clock
 class FastTimerService {
 public:
   FastTimerService(const edm::ParameterSet &, edm::ActivityRegistry & );
-  ~FastTimerService();
+  ~FastTimerService() override;
 
 private:
   double queryModuleTime_(edm::StreamID, unsigned int id) const;
@@ -101,8 +101,8 @@ public:
   double queryHighlightTime(edm::StreamID sid, std::string const& label) const;
 
 private:
-  void ignoredSignal(std::string signal) const;
-  void unsupportedSignal(std::string signal) const;
+  void ignoredSignal(const std::string& signal) const;
+  void unsupportedSignal(const std::string& signal) const;
 
   // these signal pairs are not guaranteed to happen in the same thread
 

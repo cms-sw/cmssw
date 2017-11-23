@@ -30,9 +30,7 @@
 #include "HLTrigger/Timer/interface/ProcessCallGraph.h"
 
 
-ProcessCallGraph::ProcessCallGraph()
-{
-}
+ProcessCallGraph::ProcessCallGraph() = default;
 
 
 // adaptor to use range-based for loops with boost::graph edges(...) and vertices(...) functions
@@ -198,8 +196,8 @@ ProcessCallGraph::depends(unsigned int module) const
   // count the visited vertices (the `black' ones) in order to properly size the
   // output vector; then fill the dependencies with the list of visited nodes
   unsigned int size = 0;
-  for (unsigned int i = 0; i < colors.size(); ++i)
-    if (boost::black_color == colors[i])
+  for (unsigned int color : colors)
+    if (boost::black_color == color)
       ++size;
   std::vector<unsigned int> dependencies(size);
   unsigned j = 0;
@@ -228,8 +226,8 @@ ProcessCallGraph::dependencies(std::vector<unsigned int> const & path)
     boost::depth_first_visit(graph_, module, visitor, colormap);
 
   unsigned int size = 0;
-  for (unsigned int i = 0; i < colors.size(); ++i)
-    if (colors[i] == 0)
+  for (unsigned int color : colors)
+    if (color == 0)
       ++size;
 
   // allocate the output vectors
@@ -239,8 +237,8 @@ ProcessCallGraph::dependencies(std::vector<unsigned int> const & path)
   indices.resize(0);
 
   // reset the color map
-  for (unsigned int i = 0; i < colors.size(); ++i)
-    colors[i] = 0;
+  for (unsigned int & color : colors)
+    color = 0;
 
   // find again all the dependencies, and record those associated to each module
   struct record_vertices : boost::default_dfs_visitor {
