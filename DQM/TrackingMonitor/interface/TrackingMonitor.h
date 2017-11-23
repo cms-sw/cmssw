@@ -16,6 +16,7 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,12 +24,16 @@ Monitoring source for general quantities related to tracks.
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h" 
+
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
