@@ -217,7 +217,7 @@ SiPixelRawToDigiGPU::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<std::string>("CablingMapLabel","")->setComment("CablingMap label"); //Tav
   desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
   desc.add<bool>("ConvertADCtoElectrons", false)->setComment("## do the calibration ADC-> Electron and apply the threshold, requried for clustering");
-  descriptions.add("siPixelRawToDigi",desc);
+  descriptions.add("siPixelRawToDigiGPU",desc);
 }
 
 // -----------------------------------------------------------------------------
