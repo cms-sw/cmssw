@@ -50,6 +50,7 @@ class TTStubAlgorithm
                                         int &aDisplacement,
                                         int &anOffset,
 					float &anROffset,
+					float &anHardBend,
                                         const TTStub< T > &aTTStub ) const {}
 
     /// Algorithm name

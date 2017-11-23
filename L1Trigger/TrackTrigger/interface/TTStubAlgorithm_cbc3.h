@@ -51,6 +51,7 @@ class TTStubAlgorithm_cbc3 : public TTStubAlgorithm< T >
                                 int &aDisplacement,
                                 int &anOffset,
 				float &anROffset,
+				float &anHardBend,
                                 const TTStub< T > &aTTStub ) const override;
 
 }; /// Close class
@@ -68,6 +69,7 @@ void TTStubAlgorithm_cbc3< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool
                                                                     int &aDisplacement,
                                                                     int &anOffset,
 								    float &anROffset,
+								    float &anHardBend,
                                                                     const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
 /*! \class   ES_TTStubAlgorithm_cbc3
