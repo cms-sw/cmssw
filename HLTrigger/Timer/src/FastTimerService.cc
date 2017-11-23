@@ -1008,13 +1008,13 @@ FastTimerService::queryHighlightTime(edm::StreamID sid, std::string const& label
 
 
 void
-FastTimerService::ignoredSignal(std::string signal) const
+FastTimerService::ignoredSignal(const std::string& signal) const
 {
   LogDebug("FastTimerService") << "The FastTimerService received is currently not monitoring the signal \"" << signal << "\".\n";
 }
 
 void
-FastTimerService::unsupportedSignal(std::string signal) const
+FastTimerService::unsupportedSignal(const std::string& signal) const
 {
   // warn about each signal only once per job
   if (unsupported_signals_.insert(signal).second)
