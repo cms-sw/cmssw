@@ -242,6 +242,31 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByDeadECALElectronRejection)
 	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByLooseMuonRejection3)
 	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByTightMuonRejection3)
+	# add against-mu discriminants which are MiniAOD compatible
+	process.hpsPFTauDiscriminationByLooseMuonRejectionSimple = cms.EDProducer("PFRecoBaseTauDiscriminationAgainstMuonSimple",
+		PFTauProducer = cms.InputTag("hpsPFTauProducer"),
+		Prediscriminants = process.hpsPFTauDiscriminationByLooseMuonRejection3.Prediscriminants,
+		HoPMin = cms.double(0.15),#use smaller value that with AOD as raw energy is used
+		doCaloMuonVeto = process.hpsPFTauDiscriminationByLooseMuonRejection3.doCaloMuonVeto,
+		srcPatMuons = cms.InputTag("slimmedMuons"),
+		minPtMatchedMuon = process.hpsPFTauDiscriminationByLooseMuonRejection3.minPtMatchedMuon,
+		maskHitsCSC = process.hpsPFTauDiscriminationByLooseMuonRejection3.maskHitsCSC,
+		maskHitsDT = process.hpsPFTauDiscriminationByLooseMuonRejection3.maskHitsDT,
+		maskHitsRPC = process.hpsPFTauDiscriminationByLooseMuonRejection3.maskHitsRPC,
+		maxNumberOfHitsLast2Stations = process.hpsPFTauDiscriminationByLooseMuonRejection3.maxNumberOfHitsLast2Stations,
+		maskMatchesCSC = process.hpsPFTauDiscriminationByLooseMuonRejection3.maskMatchesCSC,
+		maskMatchesDT = process.hpsPFTauDiscriminationByLooseMuonRejection3.maskMatchesDT,
+		maskMatchesRPC = process.hpsPFTauDiscriminationByLooseMuonRejection3.maskMatchesRPC,
+		maxNumberOfMatches = process.hpsPFTauDiscriminationByLooseMuonRejection3.maxNumberOfMatches,
+		maxNumberOfSTAMuons = cms.int32(-1),
+		maxNumberOfRPCMuons = cms.int32(-1),
+		verbosity = cms.int32(0)
+	)
+	process.hpsPFTauDiscriminationByTightMuonRejectionSimple = process.hpsPFTauDiscriminationByLooseMuonRejectionSimple.clone(
+		maxNumberOfHitsLast2Stations = process.hpsPFTauDiscriminationByTightMuonRejection3.maxNumberOfHitsLast2Stations
+	)
+	process.produceAndDiscriminateHPSPFTausTask.add(process.hpsPFTauDiscriminationByLooseMuonRejectionSimple)
+	process.produceAndDiscriminateHPSPFTausTask.add(process.hpsPFTauDiscriminationByTightMuonRejectionSimple)
 
 	#####
 	# OK NOW COMES PATTY PAT
@@ -258,6 +283,9 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	for name, src in process.patTaus.tauIDSources.parameters_().iteritems():
 		if name.find('againstElectron') > -1 or name.find('againstMuon') > -1:
 			delattr(process.patTaus.tauIDSources,name)
+	# Add MiniAOD specific ones
+	setattr(process.patTaus.tauIDSources,'againstMuonLooseSimple',cms.InputTag('hpsPFTauDiscriminationByLooseMuonRejectionSimple'))
+	setattr(process.patTaus.tauIDSources,'againstMuonTightSimple',cms.InputTag('hpsPFTauDiscriminationByTightMuonRejectionSimple'))
 	
 	#print '[adaptTauToMiniAODReReco]: Done!'
 
@@ -288,6 +316,8 @@ def setOutputModule(mode=0):
 			if prod.find('MuonRejection') > -1:
 				continue
 			output.outputCommands.append(prod)
+		output.outputCommands.append('keep *_hpsPFTauDiscriminationByLooseMuonRejectionSimple_*_*')
+		output.outputCommands.append('keep *_hpsPFTauDiscriminationByTightMuonRejectionSimple_*_*')
 
 	return output
 
