@@ -46,12 +46,12 @@ DTDataIntegrityTask.processingMode = "Offline"
 
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
 
-dtSources = cms.Sequence(#dtDataIntegrityUnpacker  +
-                         #DTDataIntegrityTask +
+dtSources = cms.Sequence(dtDataIntegrityUnpacker  +
+                         DTDataIntegrityTask +
                          dtDCSByLumiMonitor + 
                          dtRunConditionVar + 
                          dtSegmentAnalysisMonitor +
                          dtResolutionAnalysisMonitor +
                          dtEfficiencyMonitor +
-                         #dtTriggerEfficiencyMonitor +
+                         dtTriggerEfficiencyMonitor +
                          dqmInfoDT)
