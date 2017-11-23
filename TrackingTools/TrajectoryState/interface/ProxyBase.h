@@ -2,10 +2,8 @@
 #define Tracker_ProxyBase_H
 
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingNew.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /** A base class for reference counting proxies.
  *  The class to which this one is proxy must inherit from
