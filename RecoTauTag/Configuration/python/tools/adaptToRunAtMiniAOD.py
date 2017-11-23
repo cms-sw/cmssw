@@ -230,26 +230,28 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 		convertModuleToBaseTau(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1PWdR03oldDMwLT'.format(wp))
 
 	# Remove RecoTau producers which are not supported (yet?), i.e. against-e/mu discriminats
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByTightElectronRejection)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByMediumElectronRejection)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByLooseElectronRejection)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByMVA6rawElectronRejection)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByMVA6LooseElectronRejection)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByMVA6MediumElectronRejection)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByMVA6TightElectronRejection)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByMVA6VTightElectronRejection)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByDeadECALElectronRejection)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByLooseMuonRejection3)
-	process.produceAndDiscriminateHPSPFTausTask.remove(process.hpsPFTauDiscriminationByTightMuonRejection3)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByTightElectronRejection)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByMediumElectronRejection)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByLooseElectronRejection)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByMVA6rawElectronRejection)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByMVA6LooseElectronRejection)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByMVA6MediumElectronRejection)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByMVA6TightElectronRejection)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByMVA6VTightElectronRejection)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByDeadECALElectronRejection)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByLooseMuonRejection3)
+	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByTightMuonRejection3)
 	# add against-mu discriminants which are MiniAOD compatible
 	process.hpsPFTauDiscriminationByLooseMuonRejectionSimple = cms.EDProducer("PFRecoBaseTauDiscriminationAgainstMuonSimple",
 		PFTauProducer = cms.InputTag("hpsPFTauProducer"),
 		Prediscriminants = process.hpsPFTauDiscriminationByLooseMuonRejection3.Prediscriminants,
-		HoPMin = cms.double(0.15),#use smaller value that with AOD as raw energy is used
-		doCaloMuonVeto = process.hpsPFTauDiscriminationByLooseMuonRejection3.doCaloMuonVeto,
+		HoPMin = cms.double(0.1), #use smaller value that with AOD as raw energy is used
+		doCaloMuonVeto = cms.bool(False), #do not use it until tuned
 		srcPatMuons = cms.InputTag("slimmedMuons"),
 		minPtMatchedMuon = process.hpsPFTauDiscriminationByLooseMuonRejection3.minPtMatchedMuon,
+		dRmuonMatch = process.hpsPFTauDiscriminationByLooseMuonRejection3.dRmuonMatch,
+		dRmuonMatchLimitedToJetArea = process.hpsPFTauDiscriminationByLooseMuonRejection3.dRmuonMatchLimitedToJetArea,
 		maskHitsCSC = process.hpsPFTauDiscriminationByLooseMuonRejection3.maskHitsCSC,
 		maskHitsDT = process.hpsPFTauDiscriminationByLooseMuonRejection3.maskHitsDT,
 		maskHitsRPC = process.hpsPFTauDiscriminationByLooseMuonRejection3.maskHitsRPC,
@@ -265,8 +267,8 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	process.hpsPFTauDiscriminationByTightMuonRejectionSimple = process.hpsPFTauDiscriminationByLooseMuonRejectionSimple.clone(
 		maxNumberOfHitsLast2Stations = process.hpsPFTauDiscriminationByTightMuonRejection3.maxNumberOfHitsLast2Stations
 	)
-	process.produceAndDiscriminateHPSPFTausTask.add(process.hpsPFTauDiscriminationByLooseMuonRejectionSimple)
-	process.produceAndDiscriminateHPSPFTausTask.add(process.hpsPFTauDiscriminationByTightMuonRejectionSimple)
+	process.miniAODTausTask.add(process.hpsPFTauDiscriminationByLooseMuonRejectionSimple)
+	process.miniAODTausTask.add(process.hpsPFTauDiscriminationByTightMuonRejectionSimple)
 
 	#####
 	# OK NOW COMES PATTY PAT

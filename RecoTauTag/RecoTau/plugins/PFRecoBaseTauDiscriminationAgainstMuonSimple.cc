@@ -180,7 +180,7 @@ double PFRecoBaseTauDiscriminationAgainstMuonSimple::discriminate(const reco::PF
     }
   }
   if ( doCaloMuonVeto_ && !passesCaloMuonVeto ) {
-    if ( verbosity_ ) edm::LogPrint("PFBaseTauAgainstMuonSimple") << "--> CaloMuonVeto failed returning 0";
+    if ( verbosity_ ) edm::LogPrint("PFBaseTauAgainstMuonSimple") << "--> CaloMuonVeto failed, returning 0";
     return 0.;
   }
 
@@ -249,7 +249,7 @@ double PFRecoBaseTauDiscriminationAgainstMuonSimple::discriminate(const reco::PF
     numHitsRPC[iStation] = 0;
   } 
   int numSTAMuons=0, numRPCMuons=0;
-  if ( verbosity_ && !muonsToCheck.empty() ) edm::LogPrint("PFBaseTauAgainstMuonSimple") << "Muons to check (" << muonsToCheck.size() << "):\n";
+  if ( verbosity_ && !muonsToCheck.empty() ) edm::LogPrint("PFBaseTauAgainstMuonSimple") << "Muons to check (" << muonsToCheck.size() << "):";
   size_t iMu = 0;
   for (const auto &mu: muonsToCheck) {
     if ( mu->isStandAloneMuon() ) numSTAMuons++;
@@ -273,7 +273,7 @@ double PFRecoBaseTauDiscriminationAgainstMuonSimple::discriminate(const reco::PF
 	<< "\t" << iMu << ": Pt = " << mu->pt() << ", eta = " << mu->eta() << ", phi = " << mu->phi() 
 	<< "\n\t" 
 	<< "   isSTA: "<<mu->isStandAloneMuon()
-	<< "   isRPCLoose: "<<mu->muonID("RPCMuLoose")
+	<< ", isRPCLoose: "<<mu->muonID("RPCMuLoose")
 	<< "\n\t   numMatchesDT  = " << format_vint(numMatchesDT)
 	<< "\n\t   numMatchesCSC = " << format_vint(numMatchesCSC)
 	<< "\n\t   numMatchesRPC = " << format_vint(numMatchesRPC)
