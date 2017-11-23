@@ -15,6 +15,7 @@
 #define DTDigi_DTuROSControlData_h
 
 #define DOCESLOTS 12
+#define SEISXOK 12
 
 
 #include <vector>
@@ -25,7 +26,10 @@ class DTuROSROSData {
 public:
 
   /// Constructor
-  DTuROSROSData() {slot_ = -1;}
+  DTuROSROSData() {
+    slot_ = -1;
+    for (int i=0; i<SEISXOK; i++) okxword_[i] = 0;
+  }
 
   /// Destructor
   ~DTuROSROSData(){};
@@ -38,9 +42,13 @@ public:
 
   void settrailer(long dword) {trailer_ = dword;}
 
-  void setokword1(int okword) {okword1_ = okword;}
+  void setokword1(long okword) {okword1_ = okword;}
 
-  void setokword2(int okword) {okword2_ = okword;}
+  void setokword2(long okword) {okword2_ = okword;}
+
+  void setokxword(int i, long okxword) {okxword_[i] = okxword;}
+
+  void setexword(long exword) {exword_.push_back(exword);}
 
   void seterror(int error) {error_.push_back(error);}
 
@@ -52,11 +60,19 @@ public:
 
   long gettrailer() const {return trailer_;}
 
-  int getokword1() const {return okword1_;}
+  long getokword1() const {return okword1_;}
 
-  int getokword2() const {return okword2_;}
+  long getokword2() const {return okword2_;}
 
   int getokflag(int i) const {if (i < 60) return ((okword1_ >> i)&0x1); return ((okword2_ >> (i-60))&0x1);}
+
+  long getokxword(int i) const {return okxword_[i];}
+
+  int getokxflag(int i) const {return ((okxword_[i/12] >> (5*(i%12)))&0x1F);}
+
+  std::vector<long> getexwords() const {return exword_;}
+
+  long getexword(int i) const {return exword_.at(i);}
 
   std::vector<int> geterrors() const {return error_;}
 
@@ -68,11 +84,19 @@ public:
 
   int geterrorFlag(int i) const {return (error_.at(i))&0x7FFF;}
 
+  int getboardId() const {return (getheader2())&0xFFFF;}
+
+  int getuserWord() const {return (getheader2() >> 32)&0xFFFFFFFF;}
+
 private:
+
+  int slot_;
 
   long header1_, header2_, trailer_;
 
-  int slot_, okword1_, okword2_;
+  long okword1_=0, okword2_=0, okxword_[SEISXOK];
+
+  std::vector<long> exword_;
 
   std::vector<int> error_;
 
@@ -118,6 +142,10 @@ public:
   int getevtlgth() const {return evtLgth_;}
 
   int getslotsize(int slot) const {return rsize_[slot-1];}
+
+  int getBXId() const {return (getheader1() >> 20)&0xFFF;}
+
+  int getTTS() const {return (gettrailer() >> 4)&0xF;}
 
   DTuROSROSData getuROS(int slot) const {return rdata_[slot-1];}
 
