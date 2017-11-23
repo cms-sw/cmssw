@@ -1,0 +1,124 @@
+24-Nov-2017 00:07:15 CET  Initiating request to open file file:/data/rovere/HGCAL/study/CMSSW_9_4_0/src/SimGeneral/Debugging/test/20016.0_SingleGammaPt35Extended+DoubleGammaPt35Extended_pythia8_2023D17_GenSimHLBeamSpotFull+DigiFullTrigger_2023D17+RecoFullGlobal_2023D17+HARVESTFullGlobal_2023D17/step2.root
+24-Nov-2017 00:07:19 CET  Successfully opened file file:/data/rovere/HGCAL/study/CMSSW_9_4_0/src/SimGeneral/Debugging/test/20016.0_SingleGammaPt35Extended+DoubleGammaPt35Extended_pythia8_2023D17_GenSimHLBeamSpotFull+DigiFullTrigger_2023D17+RecoFullGlobal_2023D17+HARVESTFullGlobal_2023D17/step2.root
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 24-Nov-2017 00:07:40.933 CET
+HGCHitsEE
+HGCHitsHEfront
+HcalHits
+Printing SimTracks information
+IDX	TrackId	PDGID	MOMENTUM(x,y,z,E)	VertexIdx	GenPartIdx
+0	1	22, (23.9368,25.5223,317.538,319.46), 0, 1
+1	2	22, (-23.9368,-25.5223,-317.538,319.46), 0, 2
+2	3	11, (-3.37743,-3.60093,-44.7991,45.0703), 1, -1
+3	4	-11, (-20.5594,-21.9214,-272.739,274.39), 1, -1
+4	70175	11, (16.3076,17.3875,216.332,217.641), 2, -1
+5	70176	-11, (7.62926,8.13475,101.206,101.819), 2, -1
+Printing GenParticles information
+IDX	PDGID	MOMENTUM(x,y,z)	Vertex(x,y,z)
+0	22	(23.9368,25.5223,317.538)	(-0.000431682,4.01473e-05,3.70219)
+1	22	(-23.9368,-25.5223,-317.538)	(-0.000431682,4.01473e-05,3.70219)
+Printing SimVertex information
+IDX	POSITION(x,y,z)	PARENT_INDEX	VERTEX_ID
+0	(-0.000431682,4.01473e-05,3.70219,-5.80577e-11), -1, 0
+1	(-19.5447,-20.8387,-255.565,8.64252e-09), 2, 1
+2	(23.8543,25.4348,320.152,1.05615e-08), 1, 2
+Examining edges (0,1) --> particle 22(2) with SimClusters: 0 and total Energy: 0
+Examining edges (1,1000000) --> particle 11(3) with SimClusters: 442 and total Energy: 214.723
+Examining edges (1,1000001) --> particle -11(4) with SimClusters: 1317 and total Energy: 1231.28
+Examining edges (0,2) --> particle 22(1) with SimClusters: 0 and total Energy: 0
+Examining edges (2,1000002) --> particle 11(70175) with SimClusters: 1207 and total Energy: 1046.24
+Examining edges (2,1000003) --> particle -11(70176) with SimClusters: 676 and total Energy: 435.758
+Printing TrackingParticles information
+0	TP momentum, q, ID, & Event #: (-23.9368,-25.5223,-317.538,319.46) 0 22 0.0
+ HepMC Track Momentum 34.9908
+ Geant Track Momentum  (-23.9368,-25.5223,-317.538,319.46)
+ Geant Track ID & type 2 22
+ TP Vertex (-0.000431682,4.01473e-05,3.70219)
+ Source vertex: (-0.000431682,4.01473e-05,3.70219,-5.80577e-11)
+ 1 Decay vertices
+ Decay vertices:      (-19.5447,-20.8387,-255.565,8.64252e-09)
+
+1	TP momentum, q, ID, & Event #: (-3.37743,-3.60093,-44.7991,45.0703) -1 11 0.0
+ Geant Track Momentum  (-3.37743,-3.60093,-44.7991,45.0703)
+ Geant Track ID & type 3 11
+ TP Vertex (-19.5447,-20.8387,-255.565)
+ Source vertex: (-19.5447,-20.8387,-255.565,8.64252e-09)
+ 0 Decay vertices
+
+2	TP momentum, q, ID, & Event #: (-20.5594,-21.9214,-272.739,274.39) 1 -11 0.0
+ Geant Track Momentum  (-20.5594,-21.9214,-272.739,274.39)
+ Geant Track ID & type 4 -11
+ TP Vertex (-19.5447,-20.8387,-255.565)
+ Source vertex: (-19.5447,-20.8387,-255.565,8.64252e-09)
+ 0 Decay vertices
+
+3	TP momentum, q, ID, & Event #: (23.9368,25.5223,317.538,319.46) 0 22 0.0
+ HepMC Track Momentum 34.9908
+ Geant Track Momentum  (23.9368,25.5223,317.538,319.46)
+ Geant Track ID & type 1 22
+ TP Vertex (-0.000431682,4.01473e-05,3.70219)
+ Source vertex: (-0.000431682,4.01473e-05,3.70219,-5.80577e-11)
+ 1 Decay vertices
+ Decay vertices:      (23.8543,25.4348,320.152,1.05615e-08)
+
+4	TP momentum, q, ID, & Event #: (16.3076,17.3875,216.332,217.641) -1 11 0.0
+ Geant Track Momentum  (16.3076,17.3875,216.332,217.641)
+ Geant Track ID & type 70175 11
+ TP Vertex (23.8543,25.4348,320.152)
+ Source vertex: (23.8543,25.4348,320.152,1.05615e-08)
+ 0 Decay vertices
+
+5	TP momentum, q, ID, & Event #: (7.62926,8.13475,101.206,101.819) 1 -11 0.0
+ Geant Track Momentum  (7.62926,8.13475,101.206,101.819)
+ Geant Track ID & type 70176 -11
+ TP Vertex (23.8543,25.4348,320.152)
+ Source vertex: (23.8543,25.4348,320.152,1.05615e-08)
+ 0 Decay vertices
+
+Printing CaloParticles information
+0 |Eta|: 2.90168	Energy: 319.46	Calo Particle:
+CP momentum, q, ID, & Event #: (23.9368,25.5223,317.538,319.46) 0 22 0.0
+ Geant Track Momentum  (23.9368,25.5223,317.538,319.46)
+ Geant Track ID & type 1 22
+SimClusters in this CaloParticle: 
+CP momentum, q, ID, & Event #: (23.9368,25.5223,317.538,319.46) 0 22 0.0
+ Geant Track Momentum  (23.9368,25.5223,317.538,319.46)
+ Geant Track ID & type 1 22
+ # of cells = 1482, effective cells = 1482
+
+
+1 |Eta|: 2.90168	Energy: 319.46	Calo Particle:
+CP momentum, q, ID, & Event #: (-23.9368,-25.5223,-317.538,319.46) 0 22 0.0
+ Geant Track Momentum  (-23.9368,-25.5223,-317.538,319.46)
+ Geant Track ID & type 2 22
+SimClusters in this CaloParticle: 
+CP momentum, q, ID, & Event #: (-20.5594,-21.9214,-272.739,274.39) 1 -11 0.0
+ Geant Track Momentum  (-20.5594,-21.9214,-272.739,274.39)
+ Geant Track ID & type 4 -11
+ # of cells = 1317, effective cells = 1231.28
+CP momentum, q, ID, & Event #: (-3.37743,-3.60093,-44.7991,45.0703) -1 11 0.0
+ Geant Track Momentum  (-3.37743,-3.60093,-44.7991,45.0703)
+ Geant Track ID & type 3 11
+ # of cells = 442, effective cells = 214.723
+
+
+24-Nov-2017 00:08:02 CET  Closed file file:/data/rovere/HGCAL/study/CMSSW_9_4_0/src/SimGeneral/Debugging/test/20016.0_SingleGammaPt35Extended+DoubleGammaPt35Extended_pythia8_2023D17_GenSimHLBeamSpotFull+DigiFullTrigger_2023D17+RecoFullGlobal_2023D17+HARVESTFullGlobal_2023D17/step2.root
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 fileAction           -s file_close                             1        1
+    2 fileAction           -s file_open                              2        2
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 fileAction           PostGlobalEndRun                  
+    2 fileAction           pre-events       pre-events       
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+System                  3                   3
+
+dropped waiting message count 0

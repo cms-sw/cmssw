@@ -1,0 +1,14 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimDataFormats/CaloAnalysis"/>
+<use name="SimDataFormats/CaloHit"/>
+<use name="SimDataFormats/CaloTest"/>
+<use name="CondFormats/DataRecord"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/HGCalGeometry"/>
+<flags EDM_PLUGIN="1"/>
