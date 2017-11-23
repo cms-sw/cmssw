@@ -131,7 +131,7 @@ PFBaseTauPrimaryVertexProducer::~PFBaseTauPrimaryVertexProducer(){}
 namespace {
   const reco::Track* getTrack(const reco::Candidate& cand) {
     const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
-    if (pCand && pCand->hasTrackDetails())
+    if (pCand != nullptr && pCand->hasTrackDetails())
       return &pCand->pseudoTrack();
     return nullptr;
   }
