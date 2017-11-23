@@ -18,7 +18,7 @@
 <class name="edm::Wrapper<MuonDigiCollection<DTChamberId,DTLocalTrigger>>" splitLevel="0"/> 
 
 <class name="DTuROSROSData" ClassVersion="3">
- <version ClassVersion="3" checksum="4217850162"/>
+ <version ClassVersion="3" checksum="3011150516"/>
 </class>
 
 <class name="DTuROSFEDData" ClassVersion="3">

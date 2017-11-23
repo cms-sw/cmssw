@@ -213,8 +213,8 @@ void DTuROSRawToDigi::process(int DTuROSFED,
   }    
 
 
-  evtLgth = ( dataWord >> 32 ) & 0xFFFFFF; // positions 33 ->56
-  CRC     = ( dataWord >> 16 ) & 0xFFFF;   // positions 17 ->32
+  evtLgth = ( dataWord >> 32 ) & 0xFFFFFF; // positions 33 ->55
+  CRC     = ( dataWord >> 16 ) & 0xFFFF;   // positions 16 ->31
 
 
   dt_crc::calcCRC(dataWord & 0xFFFFFFFF0000FFFF, newCRC);
@@ -285,6 +285,16 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 
 	if ( rwords.getokword1() ){ rwords.setokword2(dataWord); }
 	else { rwords.setokword1(dataWord); }
+
+      }
+      else if ( selector >= 8 && selector <= 13 ) { // OK xword
+
+        rwords.setokxword(selector-8, dataWord);                                              
+
+      }
+      else if ( selector == 15 ) { // extra word
+
+        rwords.setexword(dataWord);     
 
       }
       else {
