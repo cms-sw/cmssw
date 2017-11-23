@@ -18,7 +18,7 @@
 #include "DataFormats/Common/interface/SortedCollection.h"
 
 #include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
-//#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
+//#include "DataFormats/HcalRecHit/interface/HcalRecHitDefs.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 namespace reco {

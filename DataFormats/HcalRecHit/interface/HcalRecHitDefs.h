@@ -6,12 +6,12 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-class HBHERecHit;
-class HORecHit;
-class HFRecHit;
-class ZDCRecHit;
-class CastorRecHit;
-class HcalCalibRecHit;
+#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HcalRecHit/interface/HORecHit.h"
+#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
+#include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
+#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalCalibRecHit.h"
 
 typedef edm::SortedCollection<HBHERecHit> HBHERecHitCollection;
 typedef edm::Ref<HBHERecHitCollection> HBHERecHitRef;
