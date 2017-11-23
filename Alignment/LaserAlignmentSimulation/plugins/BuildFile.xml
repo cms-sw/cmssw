@@ -6,6 +6,7 @@
   <use   name="Alignment/LaserAlignmentSimulation"/>
   <use   name="SimG4Core/Notification"/>
   <use   name="SimG4Core/Watcher"/>
+  <use   name="SimG4CMS/Tracker"/>
   <use   name="FWCore/PluginManager"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

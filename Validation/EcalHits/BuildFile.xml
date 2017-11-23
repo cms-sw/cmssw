@@ -4,6 +4,7 @@
 <use   name="boost"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="SimG4Core/Watcher"/>
+<use   name="SimG4CMS/Calo"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/ValidationFormats"/>
