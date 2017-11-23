@@ -56,6 +56,11 @@ ntuple_multicluster = cms.PSet(
     Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D')
 )
 
+ntuple_panels = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCPanels'),
+    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells')
+)
+
 hgcalTriggerNtuplizer = cms.EDAnalyzer(
     "HGCalTriggerNtupleManager",
     Ntuples = cms.VPSet(
