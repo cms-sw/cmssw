@@ -121,8 +121,9 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
         int thisDisplacement = 999999;
         int thisOffset = 0;
 	float thisROffset = 0;
+	float thisHardBend = 0;
 
-        theStubFindingAlgoHandle->PatternHitCorrelation( thisConfirmation, thisDisplacement, thisOffset, thisROffset, tempTTStub );
+        theStubFindingAlgoHandle->PatternHitCorrelation( thisConfirmation, thisDisplacement, thisOffset, thisROffset, thisHardBend, tempTTStub );
 
         /// If the Stub is above threshold
         if ( thisConfirmation )
@@ -130,6 +131,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
           tempTTStub.setTriggerDisplacement( thisDisplacement );
           tempTTStub.setTriggerOffset( thisOffset );
 	  tempTTStub.setRealTriggerOffset( thisROffset );
+	  tempTTStub.setHardwareBend( thisHardBend );
 	  tempOutput.push_back( tempTTStub );
         } /// Stub accepted
       } /// End of loop over outer clusters
@@ -208,6 +210,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 		tempTTStub2.setTriggerDisplacement( 500+2.*tempTTStub.getTriggerDisplacement() );
 		tempTTStub2.setTriggerOffset( 500+2.*tempTTStub.getTriggerOffset() ); 
 		tempTTStub2.setRealTriggerOffset( 500+2.*tempTTStub.getRealTriggerOffset() );
+		tempTTStub2.setHardwareBend( tempTTStub.getHardwareBend() );
 
 		tempInner.push_back( *(tempTTStub2.getClusterRef(0)) );
 		tempOuter.push_back( *(tempTTStub2.getClusterRef(1)) );
@@ -239,6 +242,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 		tempTTStub2.setTriggerDisplacement( 500+2.*tempTTStub.getTriggerDisplacement() ); 
 		tempTTStub2.setTriggerOffset( 500+2.*tempTTStub.getTriggerOffset() ); 
 		tempTTStub2.setRealTriggerOffset( 500+2.*tempTTStub.getRealTriggerOffset() );
+		tempTTStub2.setHardwareBend( tempTTStub.getHardwareBend() );
 
 		tempInner.push_back( *(tempTTStub2.getClusterRef(0)) );
 		tempOuter.push_back( *(tempTTStub2.getClusterRef(1)) );
@@ -316,7 +320,8 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 		tempTTStub2.setTriggerDisplacement( 1000+2.*tempTTStub.getTriggerDisplacement() ); 
 		tempTTStub2.setTriggerOffset( 1000+2.*tempTTStub.getTriggerOffset() ); 
 	     	tempTTStub2.setRealTriggerOffset( 1000+2.*tempTTStub.getRealTriggerOffset() );
-	      
+		tempTTStub2.setHardwareBend( tempTTStub.getHardwareBend() );
+
 		tempInner.push_back( *(tempTTStub2.getClusterRef(0)) );
 		tempOuter.push_back( *(tempTTStub2.getClusterRef(1)) );
 		tempAccepted.push_back( tempTTStub2 );
@@ -438,7 +443,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
       tempTTStub.setTriggerDisplacement( 2.*stubIter->getTriggerDisplacement() ); /// getter is in FULL-strip units, setter is in HALF-strip units
       tempTTStub.setTriggerOffset( 2.*stubIter->getTriggerOffset() );             /// getter is in FULL-strip units, setter is in HALF-strip units
       tempTTStub.setRealTriggerOffset( 2.*stubIter->getRealTriggerOffset() );
-
+      tempTTStub.setHardwareBend( stubIter->getHardwareBend() );
 
       acceptedOutputFiller.push_back( tempTTStub );
 

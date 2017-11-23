@@ -49,11 +49,14 @@ class TTStub
     void   setRealTriggerOffset( float anOffset ); /// In HALF-STRIP units!
 
 
+
     /// CBC3-style trigger information
     /// for sake of simplicity, these methods are
     /// slightly out of the getABC(...)/findABC(...) rule
     double getTriggerPosition() const; /// In FULL-STRIP units!
     double getTriggerBend() const;     /// In FULL-STRIP units!
+    double getHardwareBend() const; /// In FULL-STRIP units!
+    void   setHardwareBend( float aBend ); /// In HALF-STRIP units!
 
     /// Information
     std::string print( unsigned int i = 0 ) const;
@@ -66,6 +69,7 @@ class TTStub
     int theDisplacement;
     int theOffset;
     float theRealOffset;
+    float theHardwareBend;
 
 }; /// Close class
 
@@ -85,6 +89,7 @@ TTStub< T >::TTStub()
   theDisplacement = 999999;
   theOffset = 0;
   theRealOffset = 0;
+  theHardwareBend = 999999;
 }
 
 /// Another Constructor
@@ -98,6 +103,7 @@ TTStub< T >::TTStub( DetId aDetId )
   theDisplacement = 999999;
   theOffset = 0;
   theRealOffset = 0;
+  theHardwareBend = 999999;
 }
 
 /// Destructor
@@ -137,6 +143,9 @@ double TTStub< T >::getRealTriggerOffset() const { return 0.5*theRealOffset; }
 template< typename T >
 void TTStub< T >::setRealTriggerOffset( float anOffset ) { theRealOffset = anOffset; }
 
+template< typename T >
+void TTStub< T >::setHardwareBend( float aBend ) { theHardwareBend = aBend; }
+
 
 /// CBC3-style trigger info
 template< typename T >
@@ -154,6 +163,16 @@ double TTStub< T >::getTriggerBend() const
   return 0.5*( theDisplacement - theOffset );
 }
 
+template< typename T >
+double TTStub< T >::getHardwareBend() const
+{
+  if ( theHardwareBend == 999999 )
+    return this->getTriggerBend(); // If not set make it transparent
+
+  return theHardwareBend;
+}
+
+
 /// Information
 template< typename T >
 std::string TTStub< T >::print( unsigned int i ) const
@@ -169,6 +188,7 @@ std::string TTStub< T >::print( unsigned int i ) const
   padding+='\t';
   output << padding << "DetId: " << theDetId.rawId() << ", position: " << this->getTriggerPosition();
   output << ", bend: " << this->getTriggerBend() << '\n';
+  output << ", hardware bend: " << this->getHardwareBend() << '\n';
   unsigned int iClu = 0;
   output << padding << "cluster 0: address: " << theClusterRef0.get();
   output << ", cluster size: " << theClusterRef0->getHits().size() << '\n';
