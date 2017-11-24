@@ -2,7 +2,6 @@
 #define TrackingTools_PatternTools_TrajAnnealing_h
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-
 #include <vector>
 
 /**  This class allow to save all the traj info
@@ -14,16 +13,11 @@
 class TrajAnnealing 
 {
 public:
-    TrajAnnealing():
-      traj_(),
-      annealing_(0),
-      theWeights(){}
-    virtual ~TrajAnnealing(){}
-
+    TrajAnnealing(){}
     TrajAnnealing( const Trajectory&, float );
 
     float getAnnealing() const { return annealing_; }
-    Trajectory getTraj() const { return traj_; }
+    Trajectory const & getTraj() const { return traj_; }
 
     //vector of weights
     std::vector<float> const & weights() const {return theWeights;}
@@ -32,7 +26,7 @@ public:
 private:
   
     Trajectory traj_;
-    float annealing_;
+    float annealing_=0;
     std::vector<float> theWeights;
     TrackingRecHit::RecHitContainer theHits_;
 
@@ -41,6 +35,6 @@ private:
 
 // this is our new product, it is simply a 
 // collection of TrajAnnealing held in an std::vector
-typedef std::vector<TrajAnnealing> TrajAnnealingCollection;
+using TrajAnnealingCollection=std::vector<TrajAnnealing>;
 
 #endif

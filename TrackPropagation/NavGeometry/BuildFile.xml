@@ -1,6 +1,0 @@
-<use   name="MagneticField/VolumeGeometry"/>
-<use   name="TrackingTools/GeomPropagators"/>
-<use   name="FWCore/MessageLogger"/>
-<export>
-  <lib   name="1"/>
-</export>
