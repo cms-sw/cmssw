@@ -36,7 +36,7 @@ const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
 
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false) {
+HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false), linearLSB_(1.) {
   firstHBEta_ = topo_->firstHBRing();      
   lastHBEta_  = topo_->lastHBRing();
   nHBEta_     = (lastHBEta_-firstHBEta_+1);
@@ -332,7 +332,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		      nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
 		    }
                     if (allLinear_)
-                       lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / (8 * lsb_) / cosh_ieta[cell.ietaAbs()])), MASK);
+                       lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / linearLSB_ / cosh_ieta[cell.ietaAbs()])), MASK);
                     else
                        lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / nominalgain_ / granularity)), MASK);
 
