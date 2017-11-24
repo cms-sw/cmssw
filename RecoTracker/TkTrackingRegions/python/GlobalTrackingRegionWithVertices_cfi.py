@@ -14,7 +14,7 @@ RegionPSetWithVerticesBlock = cms.PSet(
         useFoundVertices = cms.bool(True),
         useFakeVertices = cms.bool(False),
         maxNVertices = cms.int32(-1),
-        nSigmaZ = cms.double(4.0)
+        nSigmaZ = cms.double(4.0),
 
         #parameters for HI collisions; doesn't do anything if all 3 booleans are False
         originRScaling4BigEvts = cms.bool(False),
