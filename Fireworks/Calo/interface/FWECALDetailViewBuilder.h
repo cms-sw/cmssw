@@ -1,3 +1,6 @@
+#ifndef Fireworks_Calo_FWECALDetailViewBuilder_h
+#define Fireworks_Calo_FWECALDetailViewBuilder_h
+
 #include "Rtypes.h"
 #include <map>
 #include <vector>
@@ -91,3 +94,5 @@ private:
    float sizeRad() const;
 
 };
+
+#endif // Fireworks_Calo_FWECALDetailViewBuilder_h
