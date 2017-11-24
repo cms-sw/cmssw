@@ -119,7 +119,6 @@ CheckHitPattern::Result CheckHitPattern::operator()(const reco::Track& track, co
   //  if (vert.position().perp() < 3.5 && fabs(vert.position().z()) < 10. && fabs(track.eta()) < 1 && fabs(track.dxy()) < 2 && fabs(track.dz()) < 2 && track.hitPattern().numberOfValidPixelHits() == 0 && track.hitPattern().numberOfValidStripTIBHits() == 0) LogDebug("CHP")<<"LOOKATTHISTRACK";
   // Get hit patterns of this track
   const reco::HitPattern &hp = track.hitPattern(); 
-  reco::HitPattern ip = track.hitPattern(); 
 
   // Count number of valid hits on track definately in front of the vertex,
   // taking into account finite depth of each layer.
@@ -144,9 +143,9 @@ CheckHitPattern::Result CheckHitPattern::operator()(const reco::Track& track, co
   // Count number of missing hits before the innermost hit on the track,
   // taking into account finite depth of each layer.
   unsigned int nMissHitAfter = 0;
-  for (int i = 0; i < ip.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
-      uint32_t hit = ip.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i);
-      //    if (ip.trackerHitFilter(hit)) {
+  for (int i = 0; i < hp.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
+      uint32_t hit = hp.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i);
+      //    if (hp.trackerHitFilter(hit)) {
       if (reco::HitPattern::trackerHitFilter(hit) && reco::HitPattern::missingHitFilter(hit)) {
           uint32_t subDet = reco::HitPattern::getSubStructure(hit);
           uint32_t layer = reco::HitPattern::getLayer(hit);
