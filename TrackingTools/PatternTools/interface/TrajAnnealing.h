@@ -1,6 +1,8 @@
 #ifndef TrackingTools_PatternTools_TrajAnnealing_h
 #define TrackingTools_PatternTools_TrajAnnealing_h
 
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
 #include <vector>
 
 /**  This class allow to save all the traj info
