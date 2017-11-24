@@ -4,6 +4,8 @@
 
 #include "HepMC/PythiaWrapper6_4.h"
 
+#include <string>
+
 namespace gen
 {
 
