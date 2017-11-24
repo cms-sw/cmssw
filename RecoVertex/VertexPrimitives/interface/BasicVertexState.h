@@ -1,7 +1,7 @@
 #ifndef BasicVertexState_H
 #define BasicVertexState_H
 
-#include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
+#include "TrackingTools/TrajectoryState/interface/ProxyBase11.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 
@@ -19,25 +19,22 @@ class VertexState;
 /** Class containing a measurement of a vertex.
  */
 
-class BasicVertexState  : public ReferenceCounted {
+class BasicVertexState {
 
 public:
 
-  typedef ProxyBase< BasicVertexState, CopyUsingClone<BasicVertexState> > Proxy;
-  typedef ReferenceCountingPointer<BasicVertexState>    		  RCPtr;
-
-private:
-  //
-  // HELP !  new G++ refuses friend class Proxy;
-  //
-  friend class   ProxyBase< BasicVertexState, CopyUsingClone<BasicVertexState> >;
-  friend  class ReferenceCountingPointer<BasicVertexState>    		  ;
+  using Proxy=ProxyBase11<BasicVertexState>;
+  using pointer=Proxy::pointer;
 
 public:
 
-  ~BasicVertexState() override {}
+  virtual ~BasicVertexState() {}
 
-  virtual BasicVertexState* clone() const = 0;
+  template<typename T, typename... Args>
+    static std::shared_ptr<BasicVertexState> build(Args && ...args){ return std::make_shared<T>(std::forward<Args>(args)...);}
+
+
+  virtual pointer clone() const = 0;
 
   /** Access methods
    */
@@ -55,10 +52,6 @@ public:
   virtual bool isValid() const = 0;
   virtual bool is4D() const = 0;
 
-
-  /** conversion to VertexSeed
-   */
-//   virtual RefCountedVertexSeed seedWithoutTracks() const = 0;
 };
 
 #endif
