@@ -16,6 +16,8 @@
 //
 //
 
+#ifndef AnalysisErsatz_h
+#define AnalysisErsatz_h
 
 // system include files
 #include <memory>
@@ -94,7 +96,6 @@ class AnalysisErsatz : public edm::EDAnalyzer {
 	double mW_, mZ_;
         edm::EDGetTokenT<trigger::TriggerEvent> TriggerEvent_;
         edm::EDGetTokenT<edm::TriggerResults> TriggerResults_;
-        TriggerPath_;
 	std::string TriggerName_;
 
 	TTree* t_;
@@ -137,3 +138,4 @@ class AnalysisErsatz : public edm::EDAnalyzer {
 	double HltObj_pt_[nEntries_arr_], HltObj_eta_[nEntries_arr_];
 };
 
+#endif // AnalysisErsatz_h
