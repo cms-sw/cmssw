@@ -10,6 +10,8 @@
  *
  */
 
+#include <vector>
+
 class TimeMeasurementSequence {
 
     public:
