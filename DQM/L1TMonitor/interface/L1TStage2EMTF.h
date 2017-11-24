@@ -47,9 +47,11 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* cscChamberStrip[20];
   MonitorElement* cscChamberWire[20];
   MonitorElement* cscLCTOccupancy;
+  MonitorElement* cscDQMOccupancy; 
   MonitorElement* cscLCTTiming[5];
-  MonitorElement* cscLCTTimingFrac[4];
-  
+  MonitorElement* cscLCTTimingFrac[5];
+  MonitorElement* cscTimingTot;
+ 
   MonitorElement* emtfnTracks;
   MonitorElement* emtfTracknHits;
   MonitorElement* emtfTrackBX;
@@ -73,7 +75,8 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* rpcHitBX;
   MonitorElement* rpcHitOccupancy;
   MonitorElement* rpcHitTiming[5];
-  MonitorElement* rpcHitTimingFrac[4];
+  MonitorElement* rpcHitTimingFrac[5];
+  MonitorElement* rpcHitTimingTot;
   MonitorElement* rpcHitPhi[12];
   MonitorElement* rpcHitTheta[12];
   MonitorElement* rpcChamberPhi[12];
