@@ -16,7 +16,9 @@
 
 using namespace CLHEP;
 
-G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
+G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p, 
+                                 CustomParticleFactory* ptr) {
+  fParticleFactory = ptr;
 
   particleTable = G4ParticleTable::GetParticleTable();
 
@@ -95,7 +97,7 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
 
   process_stream.close();
 
-  for(auto part : CustomParticleFactory::GetCustomParticles()) {
+  for(auto part : fParticleFactory->GetCustomParticles()) {
     CustomParticle* particle = dynamic_cast<CustomParticle*>(part);
     if(particle) {
       edm::LogInfo("SimG4CoreCustomPhysics")
@@ -104,6 +106,9 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
 	<<" isStable: "<<particle->GetPDGStable();
     }
   }
+}
+
+G4ProcessHelper::~G4ProcessHelper(){
 }
 
 G4bool G4ProcessHelper::ApplicabilityTester(const G4ParticleDefinition& aPart){
