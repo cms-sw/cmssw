@@ -17,6 +17,7 @@ RegionPSetWithVerticesBlock = cms.PSet(
         nSigmaZ = cms.double(4.0),
 
         #parameters for HI collisions; doesn't do anything if all 3 booleans are False
+       
         originRScaling4BigEvts = cms.bool(False),
         ptMinScaling4BigEvts = cms.bool(False),
         halfLengthScaling4BigEvts = cms.bool(False),
