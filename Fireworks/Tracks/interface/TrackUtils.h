@@ -8,6 +8,7 @@
 
 // system include files
 #include "TEveVSDStructs.h"
+#include <set>
 
 // forward declarations
 namespace reco 
