@@ -187,11 +187,6 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       label = "ME+" + suffix_label[9 - i];
     }
 
-    //if (hist < 6 || hist > 13) {
-    //  nChambs = (i % 2) ? 18 : 36;
-    //} else {
-    //  nChambs = 36;
-    //}
     if (hist < 6){
       nChambs = (i % 2) ? 18 : 36;
     } else if (hist >13){
@@ -338,7 +333,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   }
       
-  rpcHitTimingInTrack = ibooker.book2D("rpcHitTimingInTrack", "RPC Hit Timing (in Track)", 7, -3, 4, 12, 0, 12);
+  rpcHitTimingInTrack = ibooker.book2D("rpcHitTimingInTrack", "RPC Hit Timing (matched to track in BX 0)", 7, -3, 4, 12, 0, 12);
   rpcHitTimingInTrack->setAxisTitle("BX", 1);
   for (int xbin = 1, xbin_label = -3; xbin <= 7; ++xbin, ++xbin_label) {
     rpcHitTimingInTrack->setBinLabel(xbin, std::to_string(xbin_label), 1);
@@ -681,7 +676,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
               rpcHitTimingInTrack->Fill(Hit->BX(), hist_index + 0.5);
 	      rpcHitTiming[histIndexBX.at(Hit->BX())]->Fill((Hit->Sector_RPC() - 1) * 7 + Hit->Subsector(), hist_index + 0.5);   
               rpcHitTimingTot->Fill((Hit->Sector_RPC() - 1) * 7 + Hit->Subsector(), hist_index + 0.5);
-	    } // En     aaaaaad loop: for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
+	    } // End loop: for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
 	  } // End conditional: if (trackHitBX == 0 && ring == 2)
 	} // End conditional: if (TrkHit.Is_CSC() == true)
 	
