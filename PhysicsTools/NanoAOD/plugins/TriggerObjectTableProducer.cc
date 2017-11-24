@@ -126,6 +126,23 @@ TriggerObjectTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
         }
     }
 
+    // Self-cleaning
+    std::map<const pat::TriggerObjectStandAlone *,int> selected_bits;
+    for(unsigned int i = 0; i < selected.size(); ++i) {
+        const auto & obj = *selected[i].first;
+        const auto & sel = *selected[i].second;
+        selected_bits[&obj] = int(sel.qualityBits(obj));
+
+	for(unsigned int j=0; j<i; ++j){
+	  const auto & obj2 = *selected[j].first;
+	  const auto & sel2 = *selected[j].second;
+	  if(sel.id==sel2.id && abs(obj.pt()-obj2.pt())<1e-6 && deltaR2(obj,obj2)<1e-6){
+	    selected_bits[&obj2] |= selected_bits[&obj]; //Keep filters from all the objects
+	    selected.erase(selected.begin()+i);
+	    i--;
+	  }
+	}
+    }
 
     edm::Handle<l1t::EGammaBxCollection> l1EG;
     edm::Handle<l1t::EtSumBxCollection> l1Sum;
@@ -233,7 +250,7 @@ TriggerObjectTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
         eta[i] = obj.eta(); 
         phi[i] = obj.phi(); 
         id[i] = sel.id;
-        bits[i] = sel.qualityBits(obj);
+        bits[i] = selected_bits[&obj];
         if (sel.l1DR2 > 0) {   
             float best = sel.l1DR2;
             for (const auto & l1obj : l1Objects) {
