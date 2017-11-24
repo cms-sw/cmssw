@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 def reEmulateLayer2(process):
 
+    process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+
     process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
     process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_2_updateHFSF_v6MET_cfi')
 
