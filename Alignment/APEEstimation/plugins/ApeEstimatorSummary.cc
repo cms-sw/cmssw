@@ -26,7 +26,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -59,7 +59,7 @@
 // class declaration
 //
 
-class ApeEstimatorSummary : public edm::EDAnalyzer {
+class ApeEstimatorSummary : public edm::one::EDAnalyzer<> {
    public:
       explicit ApeEstimatorSummary(const edm::ParameterSet&);
       ~ApeEstimatorSummary() override;
@@ -164,23 +164,23 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
       bool intervalBool(true);
       for(unsigned int iInterval(1);intervalBool;++iInterval){
         std::stringstream intervalName, fullIntervalName;
-	intervalName << "Interval_" << iInterval <<"/";
-	fullIntervalName << fullSectorName.str() << intervalName.str();
-	fullName = fullIntervalName.str().c_str();
-	intervalDir = (TDirectory*)inputFile_->TDirectory::GetDirectory(fullName);
-	if(intervalDir){
-	  intervalDir->GetObject("h_sigmaX;1", tkSector.m_binnedHists[iInterval]["sigmaX"]);
-	  intervalDir->GetObject("h_norResX;1", tkSector.m_binnedHists[iInterval]["norResX"]);
-	  intervalDir->GetObject("h_sigmaY;1", tkSector.m_binnedHists[iInterval]["sigmaY"]);
-	  intervalDir->GetObject("h_norResY;1", tkSector.m_binnedHists[iInterval]["norResY"]);
-	  if(tkSector.m_binnedHists[iInterval]["sigmaY"] && tkSector.m_binnedHists[iInterval]["norResY"]){
-	    tkSector.isPixel = true;
-	  }
-	}
-	else{
-	  intervalBool = false;
-	  if(iSector==1)edm::LogInfo("CalculateAPE")<<"There are "<<iInterval-1<<" intervals per sector defined in input file";
-	}
+       intervalName << "Interval_" << iInterval <<"/";
+       fullIntervalName << fullSectorName.str() << intervalName.str();
+       fullName = fullIntervalName.str().c_str();
+       intervalDir = (TDirectory*)inputFile_->TDirectory::GetDirectory(fullName);
+       if(intervalDir){
+         intervalDir->GetObject("h_sigmaX;1", tkSector.m_binnedHists[iInterval]["sigmaX"]);
+         intervalDir->GetObject("h_norResX;1", tkSector.m_binnedHists[iInterval]["norResX"]);
+         intervalDir->GetObject("h_sigmaY;1", tkSector.m_binnedHists[iInterval]["sigmaY"]);
+         intervalDir->GetObject("h_norResY;1", tkSector.m_binnedHists[iInterval]["norResY"]);
+         if(tkSector.m_binnedHists[iInterval]["sigmaY"] && tkSector.m_binnedHists[iInterval]["norResY"]){
+           tkSector.isPixel = true;
+         }
+       }
+       else{
+         intervalBool = false;
+         if(iSector==1)edm::LogInfo("CalculateAPE")<<"There are "<<iInterval-1<<" intervals per sector defined in input file";
+       }
       }
       TDirectory *resultsDir(nullptr);
       std::stringstream fullResultName;
@@ -189,21 +189,21 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
       resultsDir = (TDirectory*)inputFile_->TDirectory::GetDirectory(fullName);
       if(resultsDir){
         resultsDir->GetObject("h_entriesX;1", tkSector.EntriesX);
-	if(tkSector.isPixel)resultsDir->GetObject("h_entriesY;1", tkSector.EntriesY);
-	TTree* rawIdTree(nullptr);
-	resultsDir->GetObject("rawIdTree", rawIdTree);
-	unsigned int rawId(0);
-	rawIdTree->SetBranchAddress("RawId", &rawId);
-	for(Int_t entry=0; entry<rawIdTree->GetEntries(); ++entry){
-	  rawIdTree->GetEntry(entry);
-	  // command "hadd" adds entries in TTree, so rawId are existing as often as number of files are added
-	  bool alreadyAdded(false);
-	  for(std::vector<unsigned int>::const_iterator i_rawId = tkSector.v_rawId.begin(); i_rawId != tkSector.v_rawId.end(); ++i_rawId){
-	    if(rawId==*i_rawId)alreadyAdded = true;
-	  }
-	  if(alreadyAdded)break;
-	  tkSector.v_rawId.push_back(rawId);
-	}
+       if(tkSector.isPixel)resultsDir->GetObject("h_entriesY;1", tkSector.EntriesY);
+       TTree* rawIdTree(nullptr);
+       resultsDir->GetObject("rawIdTree", rawIdTree);
+       unsigned int rawId(0);
+       rawIdTree->SetBranchAddress("RawId", &rawId);
+       for(Int_t entry=0; entry<rawIdTree->GetEntries(); ++entry){
+         rawIdTree->GetEntry(entry);
+         // command "hadd" adds entries in TTree, so rawId are existing as often as number of files are added
+         bool alreadyAdded(false);
+         for(std::vector<unsigned int>::const_iterator i_rawId = tkSector.v_rawId.begin(); i_rawId != tkSector.v_rawId.end(); ++i_rawId){
+           if(rawId==*i_rawId)alreadyAdded = true;
+         }
+         if(alreadyAdded)break;
+         tkSector.v_rawId.push_back(rawId);
+       }
       }
       m_tkSector_[iSector] = tkSector;
     }
@@ -271,22 +271,22 @@ ApeEstimatorSummary::writeHists(){
     
     (*i_sector).second.WeightX->Write();
     (*i_sector).second.MeanX->Write();
-    (*i_sector).second.RmsX->Write();	   
-    (*i_sector).second.FitMeanX1->Write();	   
+    (*i_sector).second.RmsX->Write();        
+    (*i_sector).second.FitMeanX1->Write();          
     (*i_sector).second.ResidualWidthX1 ->Write();
     (*i_sector).second.CorrectionX1->Write();   
-    (*i_sector).second.FitMeanX2->Write();	   
+    (*i_sector).second.FitMeanX2->Write();          
     (*i_sector).second.ResidualWidthX2->Write();
     (*i_sector).second.CorrectionX2->Write();
     
     if((*i_sector).second.isPixel){
       (*i_sector).second.WeightY->Write();
       (*i_sector).second.MeanY->Write();
-      (*i_sector).second.RmsY->Write();	   
-      (*i_sector).second.FitMeanY1->Write();	   
+      (*i_sector).second.RmsY->Write();      
+      (*i_sector).second.FitMeanY1->Write();        
       (*i_sector).second.ResidualWidthY1 ->Write();
       (*i_sector).second.CorrectionY1->Write();   
-      (*i_sector).second.FitMeanY2->Write();	   
+      (*i_sector).second.FitMeanY2->Write();        
       (*i_sector).second.ResidualWidthY2->Write();
       (*i_sector).second.CorrectionY2->Write();
     }
@@ -429,7 +429,7 @@ ApeEstimatorSummary::calculateApe(){
        if(name!=nameLastIter){
          edm::LogError("CalculateAPE")<<"Inconsistent sector definition in iterationFile for sector "<<i_sector->first<<",\n"
                                       <<"Recent iteration has name \""<<name<<"\", while previous had \""<<nameLastIter<<"\"\n"
-				      <<"...APE calculation stopped. Please check sector definitions in config!\n";
+                                  <<"...APE calculation stopped. Please check sector definitions in config!\n";
          return;
        }
      }
@@ -439,7 +439,7 @@ ApeEstimatorSummary::calculateApe(){
        if(name!=nameBaseline){
          edm::LogError("CalculateAPE")<<"Inconsistent sector definition in baselineFile for sector "<<i_sector->first<<",\n"
                                       <<"Recent iteration has name \""<<name<<"\", while baseline had \""<<nameBaseline<<"\"\n"
-				      <<"...APE calculation stopped. Please check sector definitions in config!\n";
+                                  <<"...APE calculation stopped. Please check sector definitions in config!\n";
          return;
        }
      }
@@ -473,7 +473,7 @@ ApeEstimatorSummary::calculateApe(){
    if(apeWeight==wInvalid){
      edm::LogError("CalculateAPE")<<"Invalid parameter 'apeWeight' in cfg file: \""<<apeWeightName
                                   <<"\"\nimplemented apeWeights are \"unity\", \"entries\", \"entriesOverSigmaX2\""
-				  <<"\n...APE calculation stopped.";
+                              <<"\n...APE calculation stopped.";
      return;
    }
    const double minHitsPerInterval(parameterSet_.getParameter<double>("minHitsPerInterval"));
@@ -484,7 +484,7 @@ ApeEstimatorSummary::calculateApe(){
    if(smoothFraction<=0. || smoothFraction>1.){
      edm::LogError("CalculateAPE")<<"Incorrect parameter in cfg file,"
                                   <<"\nsmoothFraction has to be in [0,1], but is "<<smoothFraction
-				  <<"\n...APE calculation stopped.";
+                              <<"\n...APE calculation stopped.";
      return;
    }
    for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
@@ -537,7 +537,7 @@ ApeEstimatorSummary::calculateApe(){
        if(integralX>minHitsPerInterval){
          if(mHists["norResX"]->Fit(&funcX_2, fitOpt)){
            edm::LogWarning("CalculateAPE")<<"Fit2 did not work for x : "<<mHists["norResX"]->Fit(&funcX_2, fitOpt);
-	   continue;
+          continue;
          }
          LogDebug("CalculateAPE")<<"FitResultX2\t"<<mHists["norResX"]->Fit(&funcX_2, fitOpt)<<"\n";
        }
@@ -567,8 +567,8 @@ ApeEstimatorSummary::calculateApe(){
          meanY = mHists["norResY"]->GetMean();
          rmsY = mHists["norResY"]->GetRMS();
          double maximumY = mHists["norResY"]->GetBinContent(mHists["norResY"]->GetMaximumBin());
-	 
-	 // First Gaus Fit
+        
+        // First Gaus Fit
          TF1 funcY_1("mygausY", "gaus", yMin, yMax);
          funcY_1.SetParameters(maximumY, meanY, rmsY);
          if(integralY>minHitsPerInterval){
@@ -579,15 +579,15 @@ ApeEstimatorSummary::calculateApe(){
             LogDebug("CalculateAPE")<<"FitResultY1\t"<<mHists["norResY"]->Fit(&funcY_1, fitOpt)<<"\n";
          }
          meanY_1  = funcY_1.GetParameter(1);
-	 sigmaY_1 = funcY_1.GetParameter(2);
-	 
-	 // Second gaus fit
+        sigmaY_1 = funcY_1.GetParameter(2);
+        
+        // Second gaus fit
          TF1 funcY_2("mygausY2","gaus",meanY_1 - sigmaFactorFit*TMath::Abs(sigmaY_1), meanY_1 + sigmaFactorFit*TMath::Abs(sigmaY_1));
          funcY_2.SetParameters(funcY_1.GetParameter(0),meanY_1,sigmaY_1);
          if(integralY>minHitsPerInterval){
            if(mHists["norResY"]->Fit(&funcY_2, fitOpt)){
              edm::LogWarning("CalculateAPE")<<"Fit2 did not work for y : "<<mHists["norResY"]->Fit(&funcY_2, fitOpt);
-	     continue;
+            continue;
            }
             LogDebug("CalculateAPE")<<"FitResultY2\t"<<mHists["norResY"]->Fit(&funcY_2, fitOpt)<<"\n";
          }
@@ -629,7 +629,7 @@ ApeEstimatorSummary::calculateApe(){
        }
        
        if(entriesY<minHitsPerInterval){
-	 meanY = 0.; rmsY = -0.0010;
+        meanY = 0.; rmsY = -0.0010;
          fitMeanY_1 = 0.; correctionY_1 = residualWidthY_1 = -0.0010;
          fitMeanY_2 = 0.; correctionY_2 = residualWidthY_2 = -0.0010;
        }
@@ -666,31 +666,31 @@ ApeEstimatorSummary::calculateApe(){
        double weightY(0.);
        if(apeWeight==wUnity){
          weightX = 1.;
-	 weightY = 1.;
+        weightY = 1.;
        }
        else if(apeWeight==wEntries){
          weightX = entriesX;
-	 weightY = entriesY;
+        weightY = entriesY;
        }
        else if(apeWeight==wEntriesOverSigmaX2){
          weightX = entriesX/(meanSigmaX*meanSigmaX);
-	 weightY = entriesY/(meanSigmaY*meanSigmaY);
+        weightY = entriesY/(meanSigmaY*meanSigmaY);
        }
        
        const Error2AndResidualWidth2PerBin error2AndResidualWidth2PerBinX(meanSigmaX*meanSigmaX, residualWidthX_1*residualWidthX_1);
        const WeightAndResultsPerBin weightAndResultsPerBinX(weightX, error2AndResidualWidth2PerBinX);
        if(!(entriesX<minHitsPerInterval)){
          //Fill absolute weights
-	 (*i_sector).second.WeightX->SetBinContent((*i_errBins).first,weightX);
-	 v_weightAndResultsPerBinX.push_back(weightAndResultsPerBinX);
+        (*i_sector).second.WeightX->SetBinContent((*i_errBins).first,weightX);
+        v_weightAndResultsPerBinX.push_back(weightAndResultsPerBinX);
        }
        
        const Error2AndResidualWidth2PerBin error2AndResidualWidth2PerBinY(meanSigmaY*meanSigmaY, residualWidthY_1*residualWidthY_1);
        const WeightAndResultsPerBin weightAndResultsPerBinY(weightY, error2AndResidualWidth2PerBinY);
        if(!(entriesY<minHitsPerInterval)){
          //Fill absolute weights
-	 (*i_sector).second.WeightY->SetBinContent((*i_errBins).first,weightY);
-	 v_weightAndResultsPerBinY.push_back(weightAndResultsPerBinY);
+        (*i_sector).second.WeightY->SetBinContent((*i_errBins).first,weightY);
+        v_weightAndResultsPerBinY.push_back(weightAndResultsPerBinY);
        }
      }
      
@@ -732,12 +732,12 @@ ApeEstimatorSummary::calculateApe(){
        bool firstIntervalX(true);
        for(i_apeBin=v_weightAndResultsPerBinX.begin(); i_apeBin!=v_weightAndResultsPerBinX.end(); ++i_apeBin){
          if(firstIntervalX){
-	   correctionX2 = i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthX2);
-	   firstIntervalX = false;
-	 }
-	 else{
-	   correctionX2 += i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthX2);
-	 }
+          correctionX2 = i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthX2);
+          firstIntervalX = false;
+        }
+        else{
+          correctionX2 += i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthX2);
+        }
        }
        correctionX2 = correctionX2/weightSumX;
      }
@@ -746,7 +746,7 @@ ApeEstimatorSummary::calculateApe(){
        std::vector<WeightAndResultsPerBin>::const_iterator i_apeBin;
        for(i_apeBin=v_weightAndResultsPerBinX.begin(); i_apeBin!=v_weightAndResultsPerBinX.end(); ++i_apeBin){
          numeratorX += i_apeBin->first*i_apeBin->second.first*i_apeBin->second.second;
-	 denominatorX += i_apeBin->first*i_apeBin->second.first;
+        denominatorX += i_apeBin->first*i_apeBin->second.first;
        }
        correctionX2 = numeratorX/denominatorX;
      }
@@ -757,12 +757,12 @@ ApeEstimatorSummary::calculateApe(){
          bool firstIntervalY(true);
          for(i_apeBin=v_weightAndResultsPerBinY.begin(); i_apeBin!=v_weightAndResultsPerBinY.end(); ++i_apeBin){
            if(firstIntervalY){
-	     correctionY2 = i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthY2);
-	     firstIntervalY = false;
-	   }
-	   else{
-	     correctionY2 += i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthY2);
-	   }
+            correctionY2 = i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthY2);
+            firstIntervalY = false;
+          }
+          else{
+            correctionY2 += i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthY2);
+          }
          }
          correctionY2 = correctionY2/weightSumY;
        }
@@ -771,7 +771,7 @@ ApeEstimatorSummary::calculateApe(){
          std::vector<WeightAndResultsPerBin>::const_iterator i_apeBin;
          for(i_apeBin=v_weightAndResultsPerBinY.begin(); i_apeBin!=v_weightAndResultsPerBinY.end(); ++i_apeBin){
            numeratorY += i_apeBin->first*i_apeBin->second.first*i_apeBin->second.second;
-	   denominatorY += i_apeBin->first*i_apeBin->second.first;
+          denominatorY += i_apeBin->first*i_apeBin->second.first;
          }
          correctionY2 = numeratorY/denominatorY;
        }
@@ -787,11 +787,11 @@ ApeEstimatorSummary::calculateApe(){
        // old APE value from last iteration
        if(firstIter){
          apeX2 = 0.;
-	 apeY2 = 0.;
+        apeY2 = 0.;
        }
        else{
          apeX2 = a_apeSectorX[(*i_sector).first];
-	 apeY2 = a_apeSectorY[(*i_sector).first];
+        apeY2 = a_apeSectorY[(*i_sector).first];
        }
        const double apeX2old = apeX2;
        const double apeY2old = apeY2;
@@ -812,11 +812,11 @@ ApeEstimatorSummary::calculateApe(){
        const double apeY2new(apeY2old + correctionY2);
        if(!smoothIteration || firstIter){
          apeX2 = apeX2new;
-	 apeY2 = apeY2new;
+        apeY2 = apeY2new;
        }
        else{
          apeX2 = std::pow(smoothFraction*std::sqrt(apeX2new) + (1-smoothFraction)*std::sqrt(apeX2old), 2);
-	 apeY2 = std::pow(smoothFraction*std::sqrt(apeY2new) + (1-smoothFraction)*std::sqrt(apeY2old), 2);
+        apeY2 = std::pow(smoothFraction*std::sqrt(apeY2new) + (1-smoothFraction)*std::sqrt(apeY2old), 2);
        }
        if(apeX2<0. || apeY2<0.)edm::LogError("CalculateAPE")<<"\n\n\tBad APE, but why???\n\n\n";
        a_apeSectorX[(*i_sector).first] = apeX2;
@@ -829,11 +829,11 @@ ApeEstimatorSummary::calculateApe(){
        std::vector<unsigned int>::const_iterator i_rawId;
        for(i_rawId = (*i_sector).second.v_rawId.begin(); i_rawId != (*i_sector).second.v_rawId.end(); ++i_rawId){
          if((*i_sector).second.isPixel){
-	   apeOutputFile<<*i_rawId<<" "<<std::fixed<<std::setprecision(5)<<apeX<<" "<<apeY<<" "<<apeZ<<"\n";
-	 }
-	 else{
-	   apeOutputFile<<*i_rawId<<" "<<std::fixed<<std::setprecision(5)<<apeX<<" "<<apeX<<" "<<apeX<<"\n";
-	 }
+          apeOutputFile<<*i_rawId<<" "<<std::fixed<<std::setprecision(5)<<apeX<<" "<<apeY<<" "<<apeZ<<"\n";
+        }
+        else{
+          apeOutputFile<<*i_rawId<<" "<<std::fixed<<std::setprecision(5)<<apeX<<" "<<apeX<<" "<<apeX<<"\n";
+        }
        }
      }
      // In setBaseline mode, just fill estimated mean value of residual width
@@ -866,163 +866,163 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    // Load APEs from the GT and write them to root files similar to the ones from calculateAPE()
    
    if(firstEvent){
-	   // Set baseline or calculate APE value?
-	   const bool setBaseline(parameterSet_.getParameter<bool>("setBaseline"));
-	   
-	   edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-	   iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
-	   
-	   // Read in baseline file for calculation of APE value (if not setting baseline)
-	   // Has same format as iterationFile
-	   const std::string baselineFileName(parameterSet_.getParameter<std::string>("BaselineFile"));
-	   TFile* baselineFile(nullptr);
-	   TTree* sectorNameBaselineTree(nullptr);
-	   if(!setBaseline){
-	     std::ifstream baselineFileStream;
-	     // Check if baseline file exists
-	     baselineFileStream.open(baselineFileName.c_str());
-	     if(baselineFileStream.is_open()){
-	       baselineFileStream.close();
-	       baselineFile = new TFile(baselineFileName.c_str(),"READ");
-	     }
-	     if(baselineFile){
-	       edm::LogInfo("CalculateAPE")<<"Baseline file for APE values sucessfully opened";
-	       baselineFile->GetObject("nameTree;1",sectorNameBaselineTree);
-	     }
-	     else{
-	       edm::LogWarning("CalculateAPE")<<"There is NO baseline file for APE values, so normalized residual width =1 for ideal conditions is assumed";
-	     }
-	   }
-	   
-	   // Set up root file for default APE values
-	   const std::string defaultFileName(parameterSet_.getParameter<std::string>("DefaultFile"));
-	   TFile* defaultFile = new TFile(defaultFileName.c_str(),"RECREATE");
-	   
-	   // Naming in the root files has to be iterTreeX to be consistent for the plotting tool
-	   TTree* defaultTreeX(nullptr);
-	   TTree* defaultTreeY(nullptr);
-	   defaultFile->GetObject("iterTreeX;1",defaultTreeX);
-	   defaultFile->GetObject("iterTreeY;1",defaultTreeY);
-	   // The same for TTree containing the names of the sectors (no additional check, since always handled exactly as defaultTree)
-	   TTree* sectorNameTree(nullptr);
-	   defaultFile->GetObject("nameTree;1",sectorNameTree);
-	   
-	   bool firstIter(false);
-	   if(!defaultTreeX){ // should be always true in setBaseline mode, since file is recreated
-	     firstIter = true;
-	     defaultTreeX = new TTree("iterTreeX","Tree for default APE x values from GT");
-	     defaultTreeY = new TTree("iterTreeY","Tree for default APE y values from GT");
-	     edm::LogInfo("CalculateAPE")<<"First APE iteration (number 0.), create default file with TTree";
-	     sectorNameTree = new TTree("nameTree","Tree with names of sectors");
-	   }
-	   else{
-	     edm::LogWarning("CalculateAPE")<<"NOT the first APE iteration (number 0.), is this wanted or forgot to delete old iteration file with TTree?";
-	   }
-	     
-	   // Assign the information stored in the trees to arrays
-	   double a_defaultSectorX[16589];
-	   double a_defaultSectorY[16589];
-	   
-	   std::string* a_sectorName[16589];
-	   std::string* a_sectorBaselineName[16589];
-	   std::map<unsigned int, TrackerSectorStruct>::const_iterator i_sector;
-	   for(i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-	     const unsigned int iSector(i_sector->first);
-	     const bool pixelSector(i_sector->second.isPixel);
-	     
-	     a_defaultSectorX[iSector] = -99.;
-	     a_defaultSectorY[iSector] = -99.;
-	     
-	     a_sectorName[iSector] = nullptr;
-	     a_sectorBaselineName[iSector] = nullptr;
-	     std::stringstream ss_sector, ss_sectorSuffixed;
-	     ss_sector << "Ape_Sector_" << iSector;
-	     if(!setBaseline && sectorNameBaselineTree){
-	       sectorNameBaselineTree->SetBranchAddress(ss_sector.str().c_str(), &a_sectorBaselineName[iSector]);
-	       sectorNameBaselineTree->GetEntry(0);
-	     }
+          // Set baseline or calculate APE value?
+          const bool setBaseline(parameterSet_.getParameter<bool>("setBaseline"));
+          
+          edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
+          iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
+          
+          // Read in baseline file for calculation of APE value (if not setting baseline)
+          // Has same format as iterationFile
+          const std::string baselineFileName(parameterSet_.getParameter<std::string>("BaselineFile"));
+          TFile* baselineFile(nullptr);
+          TTree* sectorNameBaselineTree(nullptr);
+          if(!setBaseline){
+            std::ifstream baselineFileStream;
+            // Check if baseline file exists
+            baselineFileStream.open(baselineFileName.c_str());
+            if(baselineFileStream.is_open()){
+              baselineFileStream.close();
+              baselineFile = new TFile(baselineFileName.c_str(),"READ");
+            }
+            if(baselineFile){
+              edm::LogInfo("CalculateAPE")<<"Baseline file for APE values sucessfully opened";
+              baselineFile->GetObject("nameTree;1",sectorNameBaselineTree);
+            }
+            else{
+              edm::LogWarning("CalculateAPE")<<"There is NO baseline file for APE values, so normalized residual width =1 for ideal conditions is assumed";
+            }
+          }
+          
+          // Set up root file for default APE values
+          const std::string defaultFileName(parameterSet_.getParameter<std::string>("DefaultFile"));
+          TFile* defaultFile = new TFile(defaultFileName.c_str(),"RECREATE");
+          
+          // Naming in the root files has to be iterTreeX to be consistent for the plotting tool
+          TTree* defaultTreeX(nullptr);
+          TTree* defaultTreeY(nullptr);
+          defaultFile->GetObject("iterTreeX;1",defaultTreeX);
+          defaultFile->GetObject("iterTreeY;1",defaultTreeY);
+          // The same for TTree containing the names of the sectors (no additional check, since always handled exactly as defaultTree)
+          TTree* sectorNameTree(nullptr);
+          defaultFile->GetObject("nameTree;1",sectorNameTree);
+          
+          bool firstIter(false);
+          if(!defaultTreeX){ // should be always true in setBaseline mode, since file is recreated
+            firstIter = true;
+            defaultTreeX = new TTree("iterTreeX","Tree for default APE x values from GT");
+            defaultTreeY = new TTree("iterTreeY","Tree for default APE y values from GT");
+            edm::LogInfo("CalculateAPE")<<"First APE iteration (number 0.), create default file with TTree";
+            sectorNameTree = new TTree("nameTree","Tree with names of sectors");
+          }
+          else{
+            edm::LogWarning("CalculateAPE")<<"NOT the first APE iteration (number 0.), is this wanted or forgot to delete old iteration file with TTree?";
+          }
+            
+          // Assign the information stored in the trees to arrays
+          double a_defaultSectorX[16589];
+          double a_defaultSectorY[16589];
+          
+          std::string* a_sectorName[16589];
+          std::string* a_sectorBaselineName[16589];
+          std::map<unsigned int, TrackerSectorStruct>::const_iterator i_sector;
+          for(i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
+            const unsigned int iSector(i_sector->first);
+            const bool pixelSector(i_sector->second.isPixel);
+            
+            a_defaultSectorX[iSector] = -99.;
+            a_defaultSectorY[iSector] = -99.;
+            
+            a_sectorName[iSector] = nullptr;
+            a_sectorBaselineName[iSector] = nullptr;
+            std::stringstream ss_sector, ss_sectorSuffixed;
+            ss_sector << "Ape_Sector_" << iSector;
+            if(!setBaseline && sectorNameBaselineTree){
+              sectorNameBaselineTree->SetBranchAddress(ss_sector.str().c_str(), &a_sectorBaselineName[iSector]);
+              sectorNameBaselineTree->GetEntry(0);
+            }
 
-	     if(firstIter){ // should be always true in setBaseline mode, since file is recreated  
-	       ss_sectorSuffixed << ss_sector.str() << "/D";
-	       defaultTreeX->Branch(ss_sector.str().c_str(), &a_defaultSectorX[iSector], ss_sectorSuffixed.str().c_str());
-	       if(pixelSector){
-	       defaultTreeY->Branch(ss_sector.str().c_str(), &a_defaultSectorY[iSector], ss_sectorSuffixed.str().c_str());
-	       }
-	       sectorNameTree->Branch(ss_sector.str().c_str(), &a_sectorName[iSector], 32000, 00);
-	     }
-	     else{
-	       defaultTreeX->SetBranchAddress(ss_sector.str().c_str(), &a_defaultSectorX[iSector]);
-	       defaultTreeX->GetEntry(0);
-	       if(pixelSector){
-	       defaultTreeY->SetBranchAddress(ss_sector.str().c_str(), &a_defaultSectorY[iSector]);
-	       defaultTreeY->GetEntry(0);
-	       }
-	       sectorNameTree->SetBranchAddress(ss_sector.str().c_str(), &a_sectorName[iSector]);
-	       sectorNameTree->GetEntry(0);
-	     }
-	   }
-	   
-	   
-	   // Check whether sector definitions are identical with the ones of previous iterations and with the ones in baseline file
-	   for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-	     const std::string& name(i_sector->second.name);
-	     if(!firstIter){
-	       const std::string& nameLastIter(*a_sectorName[(*i_sector).first]);
-	       if(name!=nameLastIter){
-	         edm::LogError("CalculateAPE")<<"Inconsistent sector definition in iterationFile for sector "<<i_sector->first<<",\n"
-	                                      <<"Recent iteration has name \""<<name<<"\", while previous had \""<<nameLastIter<<"\"\n"
-					      <<"...APE calculation stopped. Please check sector definitions in config!\n";
-	         return;
-	       }
-	     }
-	     else a_sectorName[(*i_sector).first] = new std::string(name);
-	     if(!setBaseline && baselineFile){
-	       const std::string& nameBaseline(*a_sectorBaselineName[(*i_sector).first]);
-	       if(name!=nameBaseline){
-	         edm::LogError("CalculateAPE")<<"Inconsistent sector definition in baselineFile for sector "<<i_sector->first<<",\n"
-	                                      <<"Recent iteration has name \""<<name<<"\", while baseline had \""<<nameBaseline<<"\"\n"
-					      <<"...APE calculation stopped. Please check sector definitions in config!\n";
-	         return;
-	       }
-	     }
-	   }
-	   
-	   
-	   // Loop over sectors for calculating getting default APE
-	   
-	   for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-	     
-	     double defaultApeX(0.);
-	     double defaultApeY(0.);
-	     unsigned int nModules(0);
-	     std::vector<unsigned int>::const_iterator i_rawId;
-	     for(i_rawId = (*i_sector).second.v_rawId.begin(); i_rawId != (*i_sector).second.v_rawId.end(); ++i_rawId){
-			 std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
-			 for(std::vector<AlignTransformErrorExtended>::const_iterator i_alignError = alignErrors.begin(); i_alignError != alignErrors.end(); ++i_alignError){
-				 if(*i_rawId ==  i_alignError->rawId()){
-					 CLHEP::HepSymMatrix errMatrix = i_alignError->matrix();
-					 defaultApeX += errMatrix[0][0];
-					 defaultApeY += errMatrix[1][1];
-					 nModules++;
-				 }
-			 }
-		 }
-		 a_defaultSectorX[(*i_sector).first] = defaultApeX/nModules;
-		 a_defaultSectorY[(*i_sector).first] = defaultApeY/nModules;
-		 
-	   }
-	   sectorNameTree->Fill();
-	   sectorNameTree->Write("nameTree");
-	   defaultTreeX->Fill();
-	   defaultTreeX->Write("iterTreeX");
-	   defaultTreeY->Fill();
-	   defaultTreeY->Write("iterTreeY");
-	   
-	   defaultFile->Close();
-	   if(baselineFile)baselineFile->Close();
-	   
-	   
-	   firstEvent = false;   
+            if(firstIter){ // should be always true in setBaseline mode, since file is recreated  
+              ss_sectorSuffixed << ss_sector.str() << "/D";
+              defaultTreeX->Branch(ss_sector.str().c_str(), &a_defaultSectorX[iSector], ss_sectorSuffixed.str().c_str());
+              if(pixelSector){
+              defaultTreeY->Branch(ss_sector.str().c_str(), &a_defaultSectorY[iSector], ss_sectorSuffixed.str().c_str());
+              }
+              sectorNameTree->Branch(ss_sector.str().c_str(), &a_sectorName[iSector], 32000, 00);
+            }
+            else{
+              defaultTreeX->SetBranchAddress(ss_sector.str().c_str(), &a_defaultSectorX[iSector]);
+              defaultTreeX->GetEntry(0);
+              if(pixelSector){
+              defaultTreeY->SetBranchAddress(ss_sector.str().c_str(), &a_defaultSectorY[iSector]);
+              defaultTreeY->GetEntry(0);
+              }
+              sectorNameTree->SetBranchAddress(ss_sector.str().c_str(), &a_sectorName[iSector]);
+              sectorNameTree->GetEntry(0);
+            }
+          }
+          
+          
+          // Check whether sector definitions are identical with the ones of previous iterations and with the ones in baseline file
+          for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
+            const std::string& name(i_sector->second.name);
+            if(!firstIter){
+              const std::string& nameLastIter(*a_sectorName[(*i_sector).first]);
+              if(name!=nameLastIter){
+                edm::LogError("CalculateAPE")<<"Inconsistent sector definition in iterationFile for sector "<<i_sector->first<<",\n"
+                                             <<"Recent iteration has name \""<<name<<"\", while previous had \""<<nameLastIter<<"\"\n"
+                                         <<"...APE calculation stopped. Please check sector definitions in config!\n";
+                return;
+              }
+            }
+            else a_sectorName[(*i_sector).first] = new std::string(name);
+            if(!setBaseline && baselineFile){
+              const std::string& nameBaseline(*a_sectorBaselineName[(*i_sector).first]);
+              if(name!=nameBaseline){
+                edm::LogError("CalculateAPE")<<"Inconsistent sector definition in baselineFile for sector "<<i_sector->first<<",\n"
+                                             <<"Recent iteration has name \""<<name<<"\", while baseline had \""<<nameBaseline<<"\"\n"
+                                         <<"...APE calculation stopped. Please check sector definitions in config!\n";
+                return;
+              }
+            }
+          }
+          
+          
+          // Loop over sectors for calculating getting default APE
+          
+          for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
+            
+            double defaultApeX(0.);
+            double defaultApeY(0.);
+            unsigned int nModules(0);
+            std::vector<unsigned int>::const_iterator i_rawId;
+            for(i_rawId = (*i_sector).second.v_rawId.begin(); i_rawId != (*i_sector).second.v_rawId.end(); ++i_rawId){
+                      std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
+                      for(std::vector<AlignTransformErrorExtended>::const_iterator i_alignError = alignErrors.begin(); i_alignError != alignErrors.end(); ++i_alignError){
+                             if(*i_rawId ==  i_alignError->rawId()){
+                                    CLHEP::HepSymMatrix errMatrix = i_alignError->matrix();
+                                    defaultApeX += errMatrix[0][0];
+                                    defaultApeY += errMatrix[1][1];
+                                    nModules++;
+                             }
+                      }
+               }
+               a_defaultSectorX[(*i_sector).first] = defaultApeX/nModules;
+               a_defaultSectorY[(*i_sector).first] = defaultApeY/nModules;
+               
+          }
+          sectorNameTree->Fill();
+          sectorNameTree->Write("nameTree");
+          defaultTreeX->Fill();
+          defaultTreeX->Write("iterTreeX");
+          defaultTreeY->Fill();
+          defaultTreeY->Write("iterTreeY");
+          
+          defaultFile->Close();
+          if(baselineFile)baselineFile->Close();
+          
+          
+          firstEvent = false;   
    }
   
 }
