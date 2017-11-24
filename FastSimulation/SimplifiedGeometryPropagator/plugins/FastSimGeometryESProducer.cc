@@ -17,8 +17,8 @@ FastSimGeometryESProducer::~FastSimGeometryESProducer() {}
 
 std::shared_ptr<fastsim::Geometry>
 FastSimGeometryESProducer::produce(const GeometryRecord & iRecord){  
-  _tracker = std::make_shared<fastsim::Geometry>(theTrackerMaterial);
-  return _tracker;
+    _tracker = std::make_shared<fastsim::Geometry>(theTrackerMaterial);
+    return _tracker;
 }
 
 

@@ -113,9 +113,9 @@ fastsim::MuonBremsstrahlung::MuonBremsstrahlung(const std::string & name, const 
 
 
 void fastsim::MuonBremsstrahlung::interact(fastsim::Particle & particle, 
-					   const SimplifiedGeometry & layer,
-					   std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,
-					   const RandomEngineAndDistribution & random)
+                       const SimplifiedGeometry & layer,
+                       std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,
+                       const RandomEngineAndDistribution & random)
 {
     // only consider muons
     if(abs(particle.pdgId())!=13)
@@ -205,13 +205,13 @@ void fastsim::MuonBremsstrahlung::interact(fastsim::Particle & particle,
         // Update the original e+/-
         particle.momentum() -= photonMom;
     }
-}	
+}   
 
 
 math::XYZTLorentzVector
 fastsim::MuonBremsstrahlung::brem(fastsim::Particle & particle, 
-				  double xmin, 
-				  const RandomEngineAndDistribution & random) const 
+                  double xmin, 
+                  const RandomEngineAndDistribution & random) const 
 {
     // This is a simple version of a Muon Brem using Petrukhin model.
     // Ref: http://pdg.lbl.gov/2008/AtomicNuclearProperties/adndt.pdf
@@ -237,9 +237,9 @@ fastsim::MuonBremsstrahlung::brem(fastsim::Particle & particle,
 
 double
 fastsim::MuonBremsstrahlung::gbteth(const double ener,
-				    const double partm,
-				    const double efrac,
-				    const RandomEngineAndDistribution & random) const 
+                    const double partm,
+                    const double efrac,
+                    const RandomEngineAndDistribution & random) const 
 {
     const double alfa = 0.625;
     
@@ -358,8 +358,8 @@ fastsim::MuonBremsstrahlung::PetrukhinFunc(double *x, double *p){
 
 
 DEFINE_EDM_PLUGIN(
-		  fastsim::InteractionModelFactory,
-		  fastsim::MuonBremsstrahlung,
-		  "fastsim::MuonBremsstrahlung"
-		  );
+          fastsim::InteractionModelFactory,
+          fastsim::MuonBremsstrahlung,
+          "fastsim::MuonBremsstrahlung"
+          );
 

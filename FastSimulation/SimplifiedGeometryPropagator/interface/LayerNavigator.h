@@ -55,7 +55,7 @@ namespace fastsim
         /*!
             \param geometry The geometry of the tracker material.
         */
-    	LayerNavigator(const Geometry & geometry);
+        LayerNavigator(const Geometry & geometry);
 
         //! Move particle along its trajectory to the next intersection with any of the tracker layers.
         /*!
@@ -63,15 +63,15 @@ namespace fastsim
             \param layer The layer to which the particle was moved in the previous call of this function (0 if first call). Returns the layer this particle was then moved to.
             \return true / false if propagation succeeded / failed.
         */
-    	bool moveParticleToNextLayer(Particle & particle, const SimplifiedGeometry * & layer);
+        bool moveParticleToNextLayer(Particle & particle, const SimplifiedGeometry * & layer);
 
         private:
-    	const Geometry * const geometry_;  //!< The geometry of the tracker material
+        const Geometry * const geometry_;  //!< The geometry of the tracker material
         const BarrelSimplifiedGeometry * nextBarrelLayer_;  //!< Pointer to the next (direction of the particle's momentum) barrel layer
-    	const BarrelSimplifiedGeometry * previousBarrelLayer_;  //!< Pointer to the previous (opposite direction of the particle's momentum) barrel layer
+        const BarrelSimplifiedGeometry * previousBarrelLayer_;  //!< Pointer to the previous (opposite direction of the particle's momentum) barrel layer
         const ForwardSimplifiedGeometry * nextForwardLayer_;  //!< Pointer to the next (direction of the particle's momentum) forward layer
-    	const ForwardSimplifiedGeometry * previousForwardLayer_;  //!< Pointer to the previous (opposite direction of the particle's momentum) forward layer
-    	static const std::string MESSAGECATEGORY;
+        const ForwardSimplifiedGeometry * previousForwardLayer_;  //!< Pointer to the previous (opposite direction of the particle's momentum) forward layer
+        static const std::string MESSAGECATEGORY;
     };
 }
 
