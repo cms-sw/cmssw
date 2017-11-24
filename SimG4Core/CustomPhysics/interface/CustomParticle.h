@@ -5,9 +5,8 @@
 #include "globals.hh"
 
 // ######################################################################
-// ###                          CustomParticle                                ###
+// ###                          CustomParticle                        ###
 // ######################################################################
-class CustomParticleFactory;
 
 class CustomParticle : public G4ParticleDefinition
 {
