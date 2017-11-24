@@ -2034,7 +2034,7 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 defaultDataSets={}
 defaultDataSets['2017']='CMSSW_9_4_0_pre3-94X_mc2017_realistic_v4-v'
 defaultDataSets['2017Design']='CMSSW_9_4_0_pre3-94X_mc2017_design_IdealBS_v4-v'
-#defaultDataSets['2018']='CMSSW_9_4_0_pre3-94X_upgrade2018_realistic_v4-v'
+defaultDataSets['2018']='CMSSW_10_0_0_pre1-94X_upgrade2018_realistic_v5-v'
 #defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
 #defaultDataSets['2019']=''
 #defaultDataSets['2019Design']=''
