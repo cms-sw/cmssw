@@ -1,5 +1,5 @@
-#ifndef FullModelHadronicProcess_h
-#define FullModelHadronicProcess_h 1
+#ifndef SimG4Core_CustomPhysics_FullModelHadronicProcess_h
+#define SimG4Core_CustomPhysics_FullModelHadronicProcess_h 1
 
 #include "globals.hh"
 #include "G4VDiscreteProcess.hh"
@@ -8,10 +8,10 @@
 #include "G4ReactionProduct.hh"
 #include <vector>
 #include "G4HadronicException.hh"
-#include "FullModelReactionDynamics.hh"
+
+#include "SimG4Core/CustomPhysics/interface/FullModelReactionDynamics.h"
 
 class G4ProcessHelper;
-//class HistoHelper;
 
 class FullModelHadronicProcess : public G4VDiscreteProcess
 {

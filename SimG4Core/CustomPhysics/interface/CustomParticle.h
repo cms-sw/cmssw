@@ -1,5 +1,5 @@
-#ifndef CustomParticle_h
-#define CustomParticle_h 1
+#ifndef SimG4Core_CustomPhysics_CustomParticle_h
+#define SimG4Core_CustomPhysics_CustomParticle_h 1
 
 #include "G4ParticleDefinition.hh"
 #include "globals.hh"
@@ -10,8 +10,7 @@
 
 class CustomParticle : public G4ParticleDefinition
 {
- friend class CustomParticleFactory;
- private:
+ public:
    CustomParticle(
        const G4String&     aName,        G4double            mass,
        G4double            width,        G4double            charge,   
@@ -23,6 +22,7 @@ class CustomParticle : public G4ParticleDefinition
        G4bool              stable,       G4double            lifetime,
        G4DecayTable        *decaytable
    );
+ private:
    G4ParticleDefinition* m_cloud;
    G4ParticleDefinition* m_spec;
  public:

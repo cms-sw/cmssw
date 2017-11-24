@@ -41,8 +41,8 @@ public:
 
 private:
 
-  G4ProcessHelper(const G4ProcessHelper&);
-  G4ProcessHelper& operator= (const G4ProcessHelper&);
+  G4ProcessHelper(const G4ProcessHelper&) = delete;
+  G4ProcessHelper& operator= (const G4ProcessHelper&) = delete;
 
   G4double Regge(const double boost);
   G4double Pom(const double boost);
@@ -104,3 +104,4 @@ private:
   TProfile* h_q_gamma;
 
 };
+#endif
