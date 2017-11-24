@@ -10,7 +10,7 @@ fastSimProducer = cms.EDProducer(
     "FastSimProducer",
     src = cms.InputTag("generatorSmeared"),
     particleFilter =  ParticleFilterBlock.ParticleFilter,
-    detectorDefinition = TrackerMaterialBlock.TrackerMaterial,
+    trackerDefinition = TrackerMaterialBlock.TrackerMaterial,
     simulateCalorimetry = cms.bool(True),
     simulateMuons = cms.bool(True),
     caloDefinition = CaloMaterialBlock.CaloMaterial, #  Hack to interface "old" calorimetry with "new" propagation in tracker

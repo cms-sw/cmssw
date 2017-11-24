@@ -3,8 +3,8 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "HepMC/GenEvent.h"
-#include "vector"
-#include "memory"
+#include <vector>
+#include <memory>
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -55,8 +55,8 @@ namespace fastsim {
 		    double beamPipeRadius,
 		    double deltaRchargedMother,
 		    const ParticleFilter & particleFilter,
-		    std::unique_ptr<std::vector<SimTrack> > & simTracks,
-		    std::unique_ptr<std::vector<SimVertex> > & simVertices);
+		    std::vector<SimTrack> & simTracks,
+		    std::vector<SimVertex> & simVertices);
 		
 		//! Default destructor.
 		~ParticleManager();
@@ -83,12 +83,6 @@ namespace fastsim {
 		    int motherSimTrackId,
 		    std::vector<std::unique_ptr<Particle> > & secondaries,
 		    const SimplifiedGeometry * layer = nullptr);
-
-		//! Returns the simTracks so they can be added to the event.
-		std::unique_ptr<std::vector<SimTrack> > harvestSimTracks() { return std::move(simTracks_); }
-
-		//! Returns the simVertices so they can be added to the event.
-		std::unique_ptr<std::vector<SimVertex> > harvestSimVertices() { return std::move(simVertices_);	}
 
 		//! Returns the position of a given SimVertex. Needed for interfacing the code with the old calorimetry.
 		const SimVertex getSimVertex(unsigned i) { return simVertices_->at(i); }
@@ -137,8 +131,8 @@ namespace fastsim {
 		const double beamPipeRadius2_;  //!< (Radius of the beampipe)^2
 		const double deltaRchargedMother_;  //!< For FastSim (cheat) tracking: cut on the angle between a charged mother and charged daughter.
 		const ParticleFilter * const particleFilter_;  //!< (Kinematic) cuts on the particles that have to be propagated.
-		std::unique_ptr<std::vector<SimTrack> > simTracks_;  //!< The generated SimTrack of this event.
-		std::unique_ptr<std::vector<SimVertex> > simVertices_;  //!< The generated SimVertices of this event.
+		std::vector<SimTrack> * simTracks_;  //!< The generated SimTrack of this event.
+		std::vector<SimVertex> * simVertices_;  //!< The generated SimVertices of this event.
 		double momentumUnitConversionFactor_;  //!< Convert pythia units to GeV (FastSim standard)
 		double lengthUnitConversionFactor_;  //!< Convert pythia unis to cm (FastSim standard)
 		double lengthUnitConversionFactor2_;  //!< Convert pythia unis to cm^2 (FastSim standard)

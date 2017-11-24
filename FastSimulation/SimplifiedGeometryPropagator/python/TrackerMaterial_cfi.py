@@ -180,7 +180,7 @@ TrackerMaterialBlock = cms.PSet(
             ),
         ),
 
-		ForwardLayers = cms.VPSet(
+		EndcapLayers = cms.VPSet(
 			########### Pixel Barrel Outside walls and cables (endcap) ###########
             #PIXBOut4
             cms.PSet(

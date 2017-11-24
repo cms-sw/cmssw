@@ -1,6 +1,7 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/SimplifiedGeometry.h"
-#include "iostream"
-#include "TH1F.h"
+
+#include <iostream>
+#include <TH1F.h>
 
 std::ostream& fastsim::operator << (std::ostream& os , const SimplifiedGeometry & layer)
 {
