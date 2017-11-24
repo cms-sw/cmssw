@@ -293,7 +293,7 @@ hiMixedTripletStep = cms.Sequence(
                                 hiMixedTripletStepTrackingRegionsA*
                                 hiMixedTripletStepHitDoubletsA*
                                 hiMixedTripletStepHitTripletsA*
-                                hiMixedTripletStepSeedsiA*
+                                hiMixedTripletStepSeedsA*
                                 hiMixedTripletStepSeedLayersB*
                                 hiMixedTripletStepTrackingRegionsB*
                                 hiMixedTripletStepHitDoubletsB*
