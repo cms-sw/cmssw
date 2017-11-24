@@ -8,10 +8,9 @@
 
 #include "DataFormats/Common/interface/SortedCollection.h"
 
-namespace l1t {
-  //fwd decl. of FETriggerDigi
-  class HGCFETriggerDigi;
+#include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
 
+namespace l1t {
   // main collection type
   typedef edm::SortedCollection<HGCFETriggerDigi> HGCFETriggerDigiCollection;
 
