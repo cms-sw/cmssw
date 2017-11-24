@@ -63,7 +63,7 @@ CaloMaterialBlock = cms.PSet(
             ),
         ),
 
-		ForwardLayers = cms.VPSet(
+		EndcapLayers = cms.VPSet(
             ########### PreShowerLayer1 ###########
             cms.PSet(
                 z = cms.untracked.double(303.353),

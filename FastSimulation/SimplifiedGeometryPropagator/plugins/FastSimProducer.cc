@@ -75,7 +75,7 @@ class FastSimProducer : public edm::stream::EDProducer<> {
     virtual FSimTrack createFSimTrack(fastsim::Particle* particle, fastsim::ParticleManager* particleManager);
 
     edm::EDGetTokenT<edm::HepMCProduct> genParticlesToken_; //!< Token to get the genParticles
-    fastsim::Geometry geometry_; //!< The definition of the detector according to python config
+    fastsim::Geometry geometry_; //!< The definition of the tracker according to python config
     fastsim::Geometry caloGeometry_; //!< Hack to interface "old" calo to "new" tracking
     double beamPipeRadius_; //!< The radius of the beampipe
     double deltaRchargedMother_;  //!< Cut on deltaR for ClosestChargedDaughter algorithm (FastSim tracking)
@@ -97,7 +97,7 @@ const std::string FastSimProducer::MESSAGECATEGORY = "FastSimulation";
 
 FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
     : genParticlesToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("src"))) 
-    , geometry_(iConfig.getParameter<edm::ParameterSet>("detectorDefinition"))
+    , geometry_(iConfig.getParameter<edm::ParameterSet>("trackerDefinition"))
     , caloGeometry_(iConfig.getParameter<edm::ParameterSet>("caloDefinition"))
     , beamPipeRadius_(iConfig.getParameter<double>("beamPipeRadius"))
     , deltaRchargedMother_(iConfig.getParameter<double>("deltaRchargedMother"))
@@ -179,8 +179,8 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     // Define containers for SimTracks, SimVertices
-    std::unique_ptr<edm::SimTrackContainer> output_simTracks(new edm::SimTrackContainer);
-    std::unique_ptr<edm::SimVertexContainer> output_simVertices(new edm::SimVertexContainer);
+    std::unique_ptr<edm::SimTrackContainer> simTracks_(new edm::SimTrackContainer);
+    std::unique_ptr<edm::SimVertexContainer> simVertices_(new edm::SimVertexContainer);
 
     // Get the particle data table (in case lifetime or charge of GenParticles not set)
     edm::ESHandle <HepPDT::ParticleDataTable> pdt;
@@ -198,8 +198,8 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 											,beamPipeRadius_
 											,deltaRchargedMother_
 											,particleFilter_
-											,output_simTracks
-											,output_simVertices);
+											,*simTracks_
+											,*simVertices_);
 
     //  Initialize the calorimeter geometry
 	if(simulateCalorimetry)
@@ -339,8 +339,8 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     // store simTracks and simVertices
-    iEvent.put(particleManager.harvestSimTracks());
-    iEvent.put(particleManager.harvestSimVertices());
+    iEvent.put(std::move(simTracks_));
+    iEvent.put(std::move(simVertices_));
     // store products of interaction models, i.e. simHits
     for(auto & interactionModel : interactionModels_)
     {
@@ -481,12 +481,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 	    // Save the hit
 	    if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::PRESHOWER1)
 		{	
-			if(myFSimTrack.onLayer1())
-			{
-				//caloLayer = 0;
-				//break;
-			}
-			else
+			if(!myFSimTrack.onLayer1())
 			{
 				myFSimTrack.setLayer1(PP, success);
 			}
@@ -494,12 +489,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 
 		if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::PRESHOWER2)
 		{					
-			if(myFSimTrack.onLayer2())
-			{
-				//caloLayer = 0;
-				//break;
-			}
-			else
+			if(!myFSimTrack.onLayer2())
 			{
 				myFSimTrack.setLayer2(PP, success);
 			}
@@ -507,12 +497,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 
 	    if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::ECAL)
 		{					
-			if(myFSimTrack.onEcal())
-			{
-				//caloLayer = 0;
-				//break;
-			}
-			else
+			if(!myFSimTrack.onEcal())
 			{
 				myFSimTrack.setEcal(PP, success);
 			}
@@ -520,12 +505,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 
 	    if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::HCAL)
 		{					
-			if(myFSimTrack.onHcal())
-			{
-				//caloLayer = 0;
-				//break;
-			}
-			else
+			if(!myFSimTrack.onHcal())
 			{
 				myFSimTrack.setHcal(PP, success);
 			}
@@ -533,12 +513,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 
 		if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL)
 		{					
-			if(myFSimTrack.onVFcal())
-			{
-				//caloLayer = 0;
-				//break;
-			}
-			else
+			if(!myFSimTrack.onVFcal())
 			{
 				myFSimTrack.setVFcal(PP, success);
 			}

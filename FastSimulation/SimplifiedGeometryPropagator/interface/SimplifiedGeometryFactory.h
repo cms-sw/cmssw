@@ -7,10 +7,10 @@ class DetLayer;
 class BarrelDetLayer;
 class ForwardDetLayer;
 
-#include "memory"
-#include "map"
-#include "vector"
-#include "string"
+#include <memory>
+#include <map>
+#include <vector>
+#include <string>
 
 
 ///////////////////////////////////////////////

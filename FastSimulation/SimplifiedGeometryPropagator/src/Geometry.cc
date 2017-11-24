@@ -29,7 +29,7 @@ Geometry::Geometry(const edm::ParameterSet& cfg)
     , useTrackerRecoGeometryRecord_(cfg.getUntrackedParameter<bool>("useTrackerRecoGeometryRecord",true))
     , trackerAlignmentLabel_(cfg.getUntrackedParameter<std::string>("trackerAlignmentLabel",""))
     , barrelLayerCfg_(cfg.getParameter<std::vector<edm::ParameterSet>>("BarrelLayers"))
-    , forwardLayerCfg_(cfg.getParameter<std::vector<edm::ParameterSet>>("ForwardLayers"))
+    , forwardLayerCfg_(cfg.getParameter<std::vector<edm::ParameterSet>>("EndcapLayers"))
     , maxRadius_(cfg.getUntrackedParameter<double>("maxRadius",500.))
     , maxZ_(cfg.getUntrackedParameter<double>("maxZ",1200.))
     , barrelBoundary_(cfg.exists("trackerBarrelBoundary"))  // Hack to interface "old" calo to "new" tracking

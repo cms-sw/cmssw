@@ -72,8 +72,6 @@ void
 	const PSimHit & simHit = (*simHits)[simHitCounter];
 	const FastTrackerRecHitRef & recHit = (*simHit2RecHitMap)[simHitCounter];
 
-    //std::cout<< std::setprecision(5) << simHit.detUnitId() << " " << simHit.entryPoint() << " " << simHit.tof() <<std::endl;
-
 	// add recHit to latest combination
 	if(!recHit.isNull())
 	    currentCombination.push_back(recHit);
