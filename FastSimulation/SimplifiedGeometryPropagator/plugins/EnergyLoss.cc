@@ -155,7 +155,7 @@ void fastsim::EnergyLoss::interact(fastsim::Particle & particle, const Simplifie
         particle.momentum().Py() * fac,
         particle.momentum().Pz() * fac,
         newE);
-}	
+}   
 
 DEFINE_EDM_PLUGIN(
     fastsim::InteractionModelFactory,

@@ -36,7 +36,7 @@ bool fastsim::ParticleFilter::accepts(const fastsim::Particle & particle) const
     // skip invisible particles
     if(absPdgId == 12 || absPdgId == 14 || absPdgId == 16 || absPdgId == 1000022)
     {
-	   return false;
+       return false;
     }
     // keep all high-energy protons
     else if(absPdgId == 2212 && particle.momentum().E() >= protonEMin_)
@@ -47,7 +47,7 @@ bool fastsim::ParticleFilter::accepts(const fastsim::Particle & particle) const
     // cut on eta if the origin vertex is close to the beam
     else if(particle.position().Perp2() < 25. && particle.momentum().Pz()*particle.momentum().Pz()/particle.momentum().P2() > cos2ThetaMax_)
     {
-	   return false;
+       return false;
     }
 
     // possible to extend list of invisible particles

@@ -38,10 +38,10 @@ namespace fastsim
     {
         public:
         //! Default Constructor.
-    	Decayer();
+        Decayer();
 
         //! Default destructor.
-    	~Decayer();
+        ~Decayer();
 
         //! Decay particle using pythia.
         /*!
@@ -49,11 +49,11 @@ namespace fastsim
             \param secondaries The decay products.
             \param engine The Random Engine.
         */
-    	void decay(const Particle & particle, std::vector<std::unique_ptr<Particle> > & secondaries, CLHEP::HepRandomEngine & engine) const;
-        	
-        private:  	
-    	std::unique_ptr<Pythia8::Pythia> pythia_;  //!< Instance of pythia
-    	std::unique_ptr<gen::P8RndmEngine> pythiaRandomEngine_;  //!< Instance of pythia Random Engine
+        void decay(const Particle & particle, std::vector<std::unique_ptr<Particle> > & secondaries, CLHEP::HepRandomEngine & engine) const;
+            
+        private:    
+        std::unique_ptr<Pythia8::Pythia> pythia_;  //!< Instance of pythia
+        std::unique_ptr<gen::P8RndmEngine> pythiaRandomEngine_;  //!< Instance of pythia Random Engine
     };
 }
 #endif

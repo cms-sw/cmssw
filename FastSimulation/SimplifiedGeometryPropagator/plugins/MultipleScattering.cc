@@ -38,7 +38,7 @@ namespace fastsim
     {
         public:
         //! Constructor.
-    	MultipleScattering(const std::string & name,const edm::ParameterSet & cfg);
+        MultipleScattering(const std::string & name,const edm::ParameterSet & cfg);
 
         //! Default destructor.
         ~MultipleScattering() override{;};
@@ -50,13 +50,13 @@ namespace fastsim
             \param secondaries Particles that are produced in the interaction (if any).
             \param random The Random Engine.
         */
-    	void interact(Particle & particle,const SimplifiedGeometry & layer, std::vector<std::unique_ptr<Particle> > & secondaries, const RandomEngineAndDistribution & random) override;
+        void interact(Particle & particle,const SimplifiedGeometry & layer, std::vector<std::unique_ptr<Particle> > & secondaries, const RandomEngineAndDistribution & random) override;
         
         private:
         //! Return an orthogonal vector.
         XYZVector orthogonal(const XYZVector& aVector) const;
 
-    	double minPt_; //!< Cut on minimum pT of particle
+        double minPt_; //!< Cut on minimum pT of particle
         double radLenInCm_; //!< Radiation length of material (usually silicon X0=9.360)
     };
 }
@@ -93,7 +93,7 @@ void fastsim::MultipleScattering::interact(fastsim::Particle & particle, const S
     // particle must have minimum pT
     if(particle.momentum().Pt() < minPt_)
     {
-	return;
+    return;
     }
 
     double p2 = particle.momentum().Vect().Mag2();
