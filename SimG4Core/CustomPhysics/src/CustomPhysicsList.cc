@@ -2,7 +2,7 @@
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
-#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
+#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,8 +14,8 @@
 #include "G4hIonisation.hh"
 #include "G4ProcessManager.hh"
 
-#include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.hh"
-#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.hh"
+#include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
+#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
 
 using namespace CLHEP;
 

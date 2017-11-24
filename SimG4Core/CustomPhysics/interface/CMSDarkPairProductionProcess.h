@@ -7,7 +7,7 @@
 #ifndef SimG4Core_CustomPhysics_CMSDarkPairProductionProcess_h
 #define SimG4Core_CustomPhysics_CMSDarkPairProductionProcess_h
 
-#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProduction.hh"
+#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProduction.h"
 #include "globals.hh"
 #include "G4VEmProcess.hh"
 #include "G4Gamma.hh"

@@ -1,5 +1,6 @@
-#ifndef HadronicProcessHelper_H
-#define HadronicProcessHelper_H
+#ifndef SimG4Core_CustomPhysics_HadronicProcessHelper_H
+#define SimG4Core_CustomPhysics_HadronicProcessHelper_H
+
 #include"globals.hh"
 #include"G4ParticleDefinition.hh"
 #include"G4DynamicParticle.hh"
