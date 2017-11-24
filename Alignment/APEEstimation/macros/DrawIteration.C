@@ -24,7 +24,7 @@
 
 
 DrawIteration::DrawIteration(unsigned int iterationNumber, const bool overlayMode):
-outpath_(0), file_(0), overlayMode_(overlayMode), yAxisFixed_(false), systematics_(false), cmsText_("")
+outpath_(nullptr), file_(nullptr), overlayMode_(overlayMode), yAxisFixed_(false), systematics_(false), cmsText_("")
 {
   if(!overlayMode_){
     std::stringstream ss_inpath;
