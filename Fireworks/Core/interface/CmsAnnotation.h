@@ -4,6 +4,7 @@
 #include "TGLOverlay.h"
 
 class TGLViewer;
+class TGLViewerBase;
 class FWConfiguration;
 
 class CmsAnnotation : public TGLOverlayElement {
