@@ -26,7 +26,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -126,7 +126,7 @@
 // class decleration
 //
 
-class ApeEstimator : public edm::EDAnalyzer {
+class ApeEstimator : public edm::one::EDAnalyzer<> {
    public:
       explicit ApeEstimator(const edm::ParameterSet&);
       ~ApeEstimator() override;
@@ -135,11 +135,11 @@ class ApeEstimator : public edm::EDAnalyzer {
    private:
       struct PositionAndError2{
         PositionAndError2(): posX(-999.F), posY(-999.F), errX2(-999.F), errY2(-999.F) {};
-	PositionAndError2(float x, float y, float eX, float eY): posX(x), posY(y), errX2(eX), errY2(eY) {};
-	float posX;
-	float posY;
-	float errX2;
-	float errY2;
+  PositionAndError2(float x, float y, float eX, float eY): posX(x), posY(y), errX2(eX), errY2(eY) {};
+  float posX;
+  float posY;
+  float errX2;
+  float errY2;
       };
       typedef std::pair<TrackStruct::HitState,PositionAndError2> StatePositionAndError2;
       
@@ -309,29 +309,29 @@ ApeEstimator::sectorBuilder(){
     const std::string& sectorName(parSet.getParameter<std::string>("name"));
     std::vector<unsigned int> v_rawId(parSet.getParameter<std::vector<unsigned int> >("rawId")),
                               v_subdetId(parSet.getParameter<std::vector<unsigned int> >("subdetId")),
-			      v_layer(parSet.getParameter<std::vector<unsigned int> >("layer")),
-			      v_side(parSet.getParameter<std::vector<unsigned int> >("side")),
-			      v_half(parSet.getParameter<std::vector<unsigned int> >("half")),
-			      v_rod(parSet.getParameter<std::vector<unsigned int> >("rod")),
-			      v_ring(parSet.getParameter<std::vector<unsigned int> >("ring")),
-			      v_petal(parSet.getParameter<std::vector<unsigned int> >("petal")),
+            v_layer(parSet.getParameter<std::vector<unsigned int> >("layer")),
+            v_side(parSet.getParameter<std::vector<unsigned int> >("side")),
+            v_half(parSet.getParameter<std::vector<unsigned int> >("half")),
+            v_rod(parSet.getParameter<std::vector<unsigned int> >("rod")),
+            v_ring(parSet.getParameter<std::vector<unsigned int> >("ring")),
+            v_petal(parSet.getParameter<std::vector<unsigned int> >("petal")),
                               v_blade(parSet.getParameter<std::vector<unsigned int> >("blade")),
-			      v_panel(parSet.getParameter<std::vector<unsigned int> >("panel")),
-			      v_outerInner(parSet.getParameter<std::vector<unsigned int> >("outerInner")),
-			      v_module(parSet.getParameter<std::vector<unsigned int> >("module")),
-			      v_nStrips(parSet.getParameter<std::vector<unsigned int> >("nStrips")),
-			      v_isDoubleSide(parSet.getParameter<std::vector<unsigned int> >("isDoubleSide")),
-			      v_isRPhi(parSet.getParameter<std::vector<unsigned int> >("isRPhi")),
-			      v_isStereo(parSet.getParameter<std::vector<unsigned int> >("isStereo"));
+            v_panel(parSet.getParameter<std::vector<unsigned int> >("panel")),
+            v_outerInner(parSet.getParameter<std::vector<unsigned int> >("outerInner")),
+            v_module(parSet.getParameter<std::vector<unsigned int> >("module")),
+            v_nStrips(parSet.getParameter<std::vector<unsigned int> >("nStrips")),
+            v_isDoubleSide(parSet.getParameter<std::vector<unsigned int> >("isDoubleSide")),
+            v_isRPhi(parSet.getParameter<std::vector<unsigned int> >("isRPhi")),
+            v_isStereo(parSet.getParameter<std::vector<unsigned int> >("isStereo"));
     std::vector<int> v_uDirection(parSet.getParameter<std::vector<int> >("uDirection")),
                      v_vDirection(parSet.getParameter<std::vector<int> >("vDirection")),
-		     v_wDirection(parSet.getParameter<std::vector<int> >("wDirection"));
+         v_wDirection(parSet.getParameter<std::vector<int> >("wDirection"));
     std::vector<double> v_posR(parSet.getParameter<std::vector<double> >("posR")),
                         v_posPhi(parSet.getParameter<std::vector<double> >("posPhi")),
-			v_posEta(parSet.getParameter<std::vector<double> >("posEta")),
-			v_posX(parSet.getParameter<std::vector<double> >("posX")),
-			v_posY(parSet.getParameter<std::vector<double> >("posY")),
-			v_posZ(parSet.getParameter<std::vector<double> >("posZ"));
+      v_posEta(parSet.getParameter<std::vector<double> >("posEta")),
+      v_posX(parSet.getParameter<std::vector<double> >("posX")),
+      v_posY(parSet.getParameter<std::vector<double> >("posY")),
+      v_posZ(parSet.getParameter<std::vector<double> >("posZ"));
     
     if(!this->checkIntervalsForSectors(sectorCounter,v_posR) || !this->checkIntervalsForSectors(sectorCounter,v_posPhi) ||
        !this->checkIntervalsForSectors(sectorCounter,v_posEta) || !this->checkIntervalsForSectors(sectorCounter,v_posX) ||
@@ -350,10 +350,10 @@ ApeEstimator::sectorBuilder(){
       if(sectorCounter==1){
         tkTreeVar.subdetId = subdetId;
         tkTreeVar.nStrips = nStrips;
-	tkTreeVar.uDirection = uDirection;
+  tkTreeVar.uDirection = uDirection;
         tkTreeVar.vDirection = vDirection;
         tkTreeVar.wDirection = wDirection;
-	m_tkTreeVar_[rawId] = tkTreeVar;
+  m_tkTreeVar_[rawId] = tkTreeVar;
       }
       
       if(!this->checkModuleIds(rawId,v_rawId))continue;
@@ -524,7 +524,7 @@ ApeEstimator::residualErrorBinning(){
    if(v_residualErrorBinning.size()==1){
      edm::LogError("ResidualErrorBinning")<<"Incorrect selection of Residual Error Bins (used for APE calculation): \t"
                                           <<"Only one argument passed, so no interval is specified"
-					  <<"\n... delete whole bin selection";    //m_resErrBins_ remains empty
+            <<"\n... delete whole bin selection";    //m_resErrBins_ remains empty
      return;
    }
    double xMin(0.), xMax(0.);
@@ -535,7 +535,7 @@ ApeEstimator::residualErrorBinning(){
      if(xMax<=xMin){
        edm::LogError("ResidualErrorBinning")<<"Incorrect selection of Residual Error Bins (used for APE calculation): \t"
                                             <<xMin<<" is bigger than "<<xMax<<" but is expected to be smaller"
-					    <<"\n... delete whole bin selection";
+              <<"\n... delete whole bin selection";
        m_resErrBins_.clear();
        return;
      }
@@ -905,10 +905,10 @@ ApeEstimator::bookTrackHists(){
   tkDetector_.Dz            = trkDir.make<TH1F>("h_dz","Closest approach d_{z};d_{z}  [cm];# tracks",200,-dzmax,dzmax);
   tkDetector_.DzErr         = trkDir.make<TH1F>("h_dzErr","Error of d_{z};#sigma(d_{z})  [cm];# tracks",200,0,0.01);
   tkDetector_.DzSig         = trkDir.make<TH1F>("h_dzSig","Significance of d_{z};d_{z}/#sigma(d_{z});# tracks",100,-10000,10000);
-  tkDetector_.Pt	    = trkDir.make<TH1F>("h_pt","transverse momentum p_{t};p_{t}  [GeV];# tracks",100,0,pMax);
+  tkDetector_.Pt      = trkDir.make<TH1F>("h_pt","transverse momentum p_{t};p_{t}  [GeV];# tracks",100,0,pMax);
   tkDetector_.PtErr         = trkDir.make<TH1F>("h_ptErr","Error of p_{t};#sigma(p_{t})  [GeV];# tracks",100,0,1.6);
   tkDetector_.PtSig         = trkDir.make<TH1F>("h_ptSig","Significance of p_{t};p_{t}/#sigma(p_{t});# tracks",100,0,200);
-  tkDetector_.P	            = trkDir.make<TH1F>("h_p","momentum magnitude |p|;|p|  [GeV];# tracks",100,0,pMax);
+  tkDetector_.P             = trkDir.make<TH1F>("h_p","momentum magnitude |p|;|p|  [GeV];# tracks",100,0,pMax);
   tkDetector_.MeanAngle     = trkDir.make<TH1F>("h_meanAngle","mean angle on module <#phi_{module}>;<#phi_{module}>  [ ^{o}];# tracks",100,-5,95);
   tkDetector_.HitsGood      = trkDir.make<TH1F>("h_hitsGood","# hits  [good];# hits  [good];# tracks",51,-1,50);
   
@@ -942,7 +942,7 @@ ApeEstimator::fillTrackVariables(const reco::Track& track, const Trajectory& tra
   const math::XYZPoint beamPoint(beamSpot.x0(),beamSpot.y0(), beamSpot.z0());
   double d0BeamspotErr = std::sqrt( track.d0Error()*track.d0Error() + 0.5*beamSpot.BeamWidthX()*beamSpot.BeamWidthX() + 0.5*beamSpot.BeamWidthY()*beamSpot.BeamWidthY() );
   
-  static TrajectoryStateCombiner tsoscomb;
+  const static TrajectoryStateCombiner tsoscomb;
   
   const reco::HitPattern& hitPattern(track.hitPattern());
   
@@ -1016,7 +1016,7 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
   
   TrackStruct::HitParameterStruct hitParams;
   
-  static TrajectoryStateCombiner tsoscomb;
+  const static TrajectoryStateCombiner tsoscomb;
   
   const TrajectoryMeasurement& meas = i_meas;
   const TransientTrackingRecHit& hit = *meas.recHit();
@@ -1066,11 +1066,11 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
 
   if(m_tkTreeVar_[rawId].subdetId==PixelSubdetector::PixelBarrel || m_tkTreeVar_[rawId].subdetId==PixelSubdetector::PixelEndcap){
         Pixel = true;
-	}
+  }
   else if(m_tkTreeVar_[rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TOB ||
           m_tkTreeVar_[rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TEC){
         Strip = true;
-	}
+  }
   else { edm::LogWarning("FillHitVariables")<<"cant identify wether hit is from pixel or strip";
         hitParams.hitState = TrackStruct::invalid; return hitParams;}
 
@@ -1078,7 +1078,7 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
    if(!hit.detUnit()){hitParams.hitState = TrackStruct::invalid; return hitParams;} // is it a single physical module?
     const GeomDetUnit& detUnit = *hit.detUnit();
 
-	
+  
          if(Pixel){
     if(!dynamic_cast<const PixelTopology*>(&detUnit.type().topology())){hitParams.hitState = TrackStruct::invalid; return hitParams;}
     const PixelGeomDetUnit * pixelDet = (const PixelGeomDetUnit*)(&detUnit);
@@ -1087,15 +1087,15 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
               { errorWithoutAPE = LocalError(errHitApe.xx() -lape.xx(), errHitApe.xy()- lape.xy(), errHitApe.yy()-lape.yy());
 
                }
-	 }
-	if(Strip){
+   }
+  if(Strip){
     if(!dynamic_cast<const StripTopology*>(&detUnit.type().topology())){hitParams.hitState = TrackStruct::invalid; return hitParams;}
      const StripGeomDetUnit * stripDet = (const StripGeomDetUnit*)(&detUnit);
      const LocalError& lape = stripDet->localAlignmentError();
            if (lape.valid())
               { errorWithoutAPE = LocalError(errHitApe.xx() -lape.xx(), errHitApe.xy()- lape.xy(), errHitApe.yy()-lape.yy());
-		}
-	}
+    }
+  }
 
 
   const LocalError& errHitWoApe = errorWithoutAPE;
@@ -1103,7 +1103,7 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
   
   const StatePositionAndError2 positionAndError2Hit = this->positionAndError2(lPHit, errHitApe, hit);
   const StatePositionAndError2 positionAndError2HitWoApe = this->positionAndError2(lPHit, errHitWoApe, hit);
-	std::cout<<"errHitWoApe  " <<errHitWoApe<<"errHitApe   "<<errHitApe<<std::endl;
+  std::cout<<"errHitWoApe  " <<errHitWoApe<<"errHitApe   "<<errHitApe<<std::endl;
 
   const StatePositionAndError2 positionAndError2Trk = this->positionAndError2(lPTrk, errTrk, hit);
   
@@ -1244,12 +1244,12 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
     if(m_tkTreeVar_[rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TOB){
       if(dynamic_cast<const SiStripRecHit1D*>(&recHit)){
         const SiStripRecHit1D& stripHit = dynamic_cast<const SiStripRecHit1D&>(recHit);
-	clusterPtr = &(*stripHit.cluster());
+  clusterPtr = &(*stripHit.cluster());
       }
       else if(dynamic_cast<const SiStripRecHit2D*>(&recHit)){
         edm::LogWarning("FillHitVariables")<<"Data has TIB/TOB hits as SiStripRecHit2D and not 1D. Probably data is processed with CMSSW<34X. Nevertheless everything should work fine";
-	const SiStripRecHit2D& stripHit = dynamic_cast<const SiStripRecHit2D&>(recHit);
-	clusterPtr = &(*stripHit.cluster());
+  const SiStripRecHit2D& stripHit = dynamic_cast<const SiStripRecHit2D&>(recHit);
+  clusterPtr = &(*stripHit.cluster());
       }
     }
     else if(m_tkTreeVar_[rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TEC){
@@ -1519,16 +1519,16 @@ ApeEstimator::hitSelection(){
       int entry(1); double intervalBegin(999.);
       for(std::vector<double>::iterator i_hitInterval = (*i_hitSelection).second.begin(); i_hitInterval != (*i_hitSelection).second.end(); ++entry){
         if(entry%2==1){intervalBegin = *i_hitInterval; ++i_hitInterval;}
-	else{
-	  if(intervalBegin > *i_hitInterval){
-	    edm::LogError("HitSelector")<<"INVALID Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<" > "<<(*i_hitInterval)
-	                                <<"\n ... delete Selection for "<<(*i_hitSelection).first;
-	    (*i_hitSelection).second.clear(); i_hitInterval = (*i_hitSelection).second.begin(); //emptyMap = true; i_hitSelection = m_hitSelection_.begin();
-	  }else{
-	    edm::LogInfo("HitSelector")<<"Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<", "<<(*i_hitInterval);
+  else{
+    if(intervalBegin > *i_hitInterval){
+      edm::LogError("HitSelector")<<"INVALID Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<" > "<<(*i_hitInterval)
+                                  <<"\n ... delete Selection for "<<(*i_hitSelection).first;
+      (*i_hitSelection).second.clear(); i_hitInterval = (*i_hitSelection).second.begin(); //emptyMap = true; i_hitSelection = m_hitSelection_.begin();
+    }else{
+      edm::LogInfo("HitSelector")<<"Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<", "<<(*i_hitInterval);
             ++i_hitInterval;
-	  }
-	}
+    }
+  }
       }
       if(!(*i_hitSelection).second.empty())emptyMap = false;
     }
@@ -1541,16 +1541,16 @@ ApeEstimator::hitSelection(){
       int entry(1); unsigned int intervalBegin(999);
       for(std::vector<unsigned int>::iterator i_hitInterval = (*i_hitSelection).second.begin(); i_hitInterval != (*i_hitSelection).second.end(); ++entry){
         if(entry%2==1){intervalBegin = *i_hitInterval; ++i_hitInterval;}
-	else{
-	  if(intervalBegin > *i_hitInterval){
-	    edm::LogError("HitSelector")<<"INVALID Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<" > "<<(*i_hitInterval)
-	                                <<"\n ... delete Selection for "<<(*i_hitSelection).first;
-	    (*i_hitSelection).second.clear(); i_hitInterval = (*i_hitSelection).second.begin(); //emptyMap = true; i_hitSelection = m_hitSelection_.begin();
-	  }else{
-	    edm::LogInfo("HitSelector")<<"Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<", "<<(*i_hitInterval);
+  else{
+    if(intervalBegin > *i_hitInterval){
+      edm::LogError("HitSelector")<<"INVALID Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<" > "<<(*i_hitInterval)
+                                  <<"\n ... delete Selection for "<<(*i_hitSelection).first;
+      (*i_hitSelection).second.clear(); i_hitInterval = (*i_hitSelection).second.begin(); //emptyMap = true; i_hitSelection = m_hitSelection_.begin();
+    }else{
+      edm::LogInfo("HitSelector")<<"Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<", "<<(*i_hitInterval);
             ++i_hitInterval;
-	  }
-	}
+    }
+  }
       }
       if(!(*i_hitSelection).second.empty())emptyMapUInt = false;
     }
@@ -1772,7 +1772,7 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
   tkDetector_.Dz           ->Fill(trackStruct.trkParams.dz);
   tkDetector_.DzErr        ->Fill(trackStruct.trkParams.dzErr);
   tkDetector_.DzSig        ->Fill(trackStruct.trkParams.dz/trackStruct.trkParams.dzErr);
-  tkDetector_.P	           ->Fill(trackStruct.trkParams.p);
+  tkDetector_.P            ->Fill(trackStruct.trkParams.p);
   tkDetector_.Pt           ->Fill(trackStruct.trkParams.pt);
   tkDetector_.PtErr        ->Fill(trackStruct.trkParams.ptErr);
   tkDetector_.PtSig        ->Fill(trackStruct.trkParams.pt/trackStruct.trkParams.ptErr);
@@ -1783,15 +1783,15 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
   tkDetector_.HitsPixelVsTheta->Fill(trackStruct.trkParams.theta*180./M_PI,trackStruct.trkParams.hitsPixel);
   tkDetector_.HitsStripVsEta  ->Fill(trackStruct.trkParams.eta,trackStruct.trkParams.hitsStrip);
   tkDetector_.HitsStripVsTheta->Fill(trackStruct.trkParams.theta*180./M_PI,trackStruct.trkParams.hitsStrip);
-  tkDetector_.PtVsEta	      ->Fill(trackStruct.trkParams.eta,trackStruct.trkParams.pt);
-  tkDetector_.PtVsTheta	      ->Fill(trackStruct.trkParams.theta*180./M_PI,trackStruct.trkParams.pt);
+  tkDetector_.PtVsEta       ->Fill(trackStruct.trkParams.eta,trackStruct.trkParams.pt);
+  tkDetector_.PtVsTheta       ->Fill(trackStruct.trkParams.theta*180./M_PI,trackStruct.trkParams.pt);
   
   tkDetector_.PMeanAngleVsHits ->Fill(trackStruct.trkParams.hitsSize,trackStruct.trkParams.meanPhiSensToNorm*180./M_PI);
   tkDetector_.PHitsPixelVsEta  ->Fill(trackStruct.trkParams.eta,trackStruct.trkParams.hitsPixel);
   tkDetector_.PHitsPixelVsTheta->Fill(trackStruct.trkParams.theta*180./M_PI,trackStruct.trkParams.hitsPixel);
   tkDetector_.PHitsStripVsEta  ->Fill(trackStruct.trkParams.eta,trackStruct.trkParams.hitsStrip);
   tkDetector_.PHitsStripVsTheta->Fill(trackStruct.trkParams.theta*180./M_PI,trackStruct.trkParams.hitsStrip);
-  tkDetector_.PPtVsEta	       ->Fill(trackStruct.trkParams.eta,trackStruct.trkParams.pt);
+  tkDetector_.PPtVsEta         ->Fill(trackStruct.trkParams.eta,trackStruct.trkParams.pt);
   tkDetector_.PPtVsTheta       ->Fill(trackStruct.trkParams.theta*180./M_PI,trackStruct.trkParams.pt);
   
   
@@ -1804,19 +1804,19 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
     for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
       bool moduleInSector(false);
       for(std::vector<unsigned int>::const_iterator i_hitSector = hit.v_sector.begin(); i_hitSector != hit.v_sector.end(); ++i_hitSector){
-	if((*i_sector).first == *i_hitSector){moduleInSector = true; break;}
+  if((*i_sector).first == *i_hitSector){moduleInSector = true; break;}
       }
       if(!moduleInSector)continue;
       TrackerSectorStruct& sector((*i_sector).second);
       
       if(hit.goodXMeasurement){
         std::map<std::string,TrackerSectorStruct::CorrelationHists>& m_corrHists(sector.m_correlationHistsX);
-	
-	// Cluster and Hit Parameters
-	this->fillHitHistsXForAnalyzerMode(hit, sector);
-	
-	// Track Parameters
-	m_corrHists["HitsValid"].fillCorrHistsX(hit,trackStruct.trkParams.hitsValid);
+  
+  // Cluster and Hit Parameters
+  this->fillHitHistsXForAnalyzerMode(hit, sector);
+  
+  // Track Parameters
+  m_corrHists["HitsValid"].fillCorrHistsX(hit,trackStruct.trkParams.hitsValid);
         m_corrHists["HitsGood"].fillCorrHistsX(hit,goodHitsPerTrack);
         m_corrHists["HitsInvalid"].fillCorrHistsX(hit,trackStruct.trkParams.hitsInvalid);
         m_corrHists["Hits2D"].fillCorrHistsX(hit,trackStruct.trkParams.hits2D);
@@ -1837,10 +1837,10 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
       
       if(hit.goodYMeasurement){
         std::map<std::string,TrackerSectorStruct::CorrelationHists>& m_corrHists(sector.m_correlationHistsY);
-	
-	// Cluster and Hit Parameters
-	this->fillHitHistsYForAnalyzerMode(hit, sector);
-	
+  
+  // Cluster and Hit Parameters
+  this->fillHitHistsYForAnalyzerMode(hit, sector);
+  
         // Track Parameters
         m_corrHists["HitsValid"].fillCorrHistsY(hit,trackStruct.trkParams.hitsValid);
         m_corrHists["HitsGood"].fillCorrHistsY(hit,goodHitsPerTrack);
@@ -1863,17 +1863,17 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
       // Special Histograms 
       for(std::map<std::string,std::vector<TH1*> >::iterator i_sigmaX = sector.m_sigmaX.begin(); i_sigmaX != sector.m_sigmaX.end(); ++i_sigmaX){
         for(std::vector<TH1*>::iterator iHist = (*i_sigmaX).second.begin(); iHist != (*i_sigmaX).second.end(); ++iHist){
-	  if     ((*i_sigmaX).first=="sigmaXHit")(*iHist)->Fill(hit.errXHit*10000.);
-	  else if((*i_sigmaX).first=="sigmaXTrk")(*iHist)->Fill(hit.errXTrk*10000.);
-	  else if((*i_sigmaX).first=="sigmaX")   (*iHist)->Fill(hit.errX*10000.);
-	}
+    if     ((*i_sigmaX).first=="sigmaXHit")(*iHist)->Fill(hit.errXHit*10000.);
+    else if((*i_sigmaX).first=="sigmaXTrk")(*iHist)->Fill(hit.errXTrk*10000.);
+    else if((*i_sigmaX).first=="sigmaX")   (*iHist)->Fill(hit.errX*10000.);
+  }
       }
       for(std::map<std::string,std::vector<TH1*> >::iterator i_sigmaY = sector.m_sigmaY.begin(); i_sigmaY != sector.m_sigmaY.end(); ++i_sigmaY){
         for(std::vector<TH1*>::iterator iHist = (*i_sigmaY).second.begin(); iHist != (*i_sigmaY).second.end(); ++iHist){
-	  if     ((*i_sigmaY).first=="sigmaYHit")(*iHist)->Fill(hit.errYHit*10000.);
-	  else if((*i_sigmaY).first=="sigmaYTrk")(*iHist)->Fill(hit.errYTrk*10000.);
-	  else if((*i_sigmaY).first=="sigmaY")   (*iHist)->Fill(hit.errY*10000.);
-	}
+    if     ((*i_sigmaY).first=="sigmaYHit")(*iHist)->Fill(hit.errYHit*10000.);
+    else if((*i_sigmaY).first=="sigmaYTrk")(*iHist)->Fill(hit.errYTrk*10000.);
+    else if((*i_sigmaY).first=="sigmaY")   (*iHist)->Fill(hit.errY*10000.);
+  }
       }
     }
   }
@@ -1936,11 +1936,11 @@ ApeEstimator::fillHitHistsXForAnalyzerMode(const TrackStruct::HitParameterStruct
   m_corrHists["PhiSensX"].fillCorrHistsX(hit, hit.phiSensX*180./M_PI);
   m_corrHists["PhiSensY"].fillCorrHistsX(hit, hit.phiSensY*180./M_PI);
   
-  sector.XHit	->Fill(hit.xHit);
-  sector.XTrk	->Fill(hit.xTrk);
+  sector.XHit ->Fill(hit.xHit);
+  sector.XTrk ->Fill(hit.xTrk);
   sector.SigmaX2->Fill(hit.errX2*10000.*10000.);
   
-  sector.ResX	->Fill(hit.resX*10000.);
+  sector.ResX ->Fill(hit.resX*10000.);
   sector.NorResX->Fill(hit.norResX);
   
   sector.ProbX->Fill(hit.probX);
@@ -1980,11 +1980,11 @@ ApeEstimator::fillHitHistsYForAnalyzerMode(const TrackStruct::HitParameterStruct
   m_corrHists["PhiSensX"].fillCorrHistsY(hit, hit.phiSensX*180./M_PI);
   m_corrHists["PhiSensY"].fillCorrHistsY(hit, hit.phiSensY*180./M_PI);
   
-  sector.YHit	->Fill(hit.yHit);
-  sector.YTrk	->Fill(hit.yTrk);
+  sector.YHit ->Fill(hit.yHit);
+  sector.YTrk ->Fill(hit.yTrk);
   sector.SigmaY2->Fill(hit.errY2*10000.*10000.);
   
-  sector.ResY	->Fill(hit.resY*10000.);
+  sector.ResY ->Fill(hit.resY*10000.);
   sector.NorResY->Fill(hit.norResY);
   
   sector.ProbY->Fill(hit.probY);
@@ -2014,7 +2014,7 @@ ApeEstimator::fillHistsForApeCalculation(const TrackStruct& trackStruct){
       
       bool moduleInSector(false);
       for(std::vector<unsigned int>::const_iterator i_hitSector = (*i_hit).v_sector.begin(); i_hitSector != (*i_hit).v_sector.end(); ++i_hitSector){
-	if((*i_sector).first == *i_hitSector){moduleInSector = true; break;}
+  if((*i_sector).first == *i_hitSector){moduleInSector = true; break;}
       }
       if(!moduleInSector)continue;      
       
@@ -2023,35 +2023,35 @@ ApeEstimator::fillHistsForApeCalculation(const TrackStruct& trackStruct){
       if((*i_hit).goodXMeasurement){
         for(std::map<unsigned int,std::pair<double,double> >::const_iterator i_errBins = m_resErrBins_.begin();
             i_errBins != m_resErrBins_.end(); ++i_errBins){
-	  // Separate the bins for residual resolution w/o APE, to be consistent within iterations where APE will change (have same hit always in same bin)
-	  // So also fill this value in the histogram sigmaX
-	  // But of course use the normalized residual regarding the APE to have its influence in its width
-	  if((*i_hit).errXWoApe < (*i_errBins).second.first || (*i_hit).errXWoApe >= (*i_errBins).second.second){
-	    continue;
-	  }
-	  (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaX"] ->Fill((*i_hit).errXWoApe);
-	  (*i_sector).second.m_binnedHists[(*i_errBins).first]["norResX"]->Fill((*i_hit).norResX);
-	  break;
+    // Separate the bins for residual resolution w/o APE, to be consistent within iterations where APE will change (have same hit always in same bin)
+    // So also fill this value in the histogram sigmaX
+    // But of course use the normalized residual regarding the APE to have its influence in its width
+    if((*i_hit).errXWoApe < (*i_errBins).second.first || (*i_hit).errXWoApe >= (*i_errBins).second.second){
+      continue;
+    }
+    (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaX"] ->Fill((*i_hit).errXWoApe);
+    (*i_sector).second.m_binnedHists[(*i_errBins).first]["norResX"]->Fill((*i_hit).norResX);
+    break;
         }
-	(*i_sector).second.ResX->Fill((*i_hit).resX*10000.);
-	(*i_sector).second.NorResX->Fill((*i_hit).norResX);
+  (*i_sector).second.ResX->Fill((*i_hit).resX*10000.);
+  (*i_sector).second.NorResX->Fill((*i_hit).norResX);
       }
       
       if((*i_hit).goodYMeasurement){
         for(std::map<unsigned int,std::pair<double,double> >::const_iterator i_errBins = m_resErrBins_.begin();
             i_errBins != m_resErrBins_.end(); ++i_errBins){
-	  // Separate the bins for residual resolution w/o APE, to be consistent within iterations where APE will change (have same hit always in same bin)
-	  // So also fill this value in the histogram sigmaY
-	  // But of course use the normalized residual regarding the APE to have its influence in its width
-	  if((*i_hit).errYWoApe < (*i_errBins).second.first || (*i_hit).errYWoApe >= (*i_errBins).second.second){
-	    continue;
-	  }
-	  (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaY"] ->Fill((*i_hit).errYWoApe);
-	  (*i_sector).second.m_binnedHists[(*i_errBins).first]["norResY"]->Fill((*i_hit).norResY);
-	  break;
+    // Separate the bins for residual resolution w/o APE, to be consistent within iterations where APE will change (have same hit always in same bin)
+    // So also fill this value in the histogram sigmaY
+    // But of course use the normalized residual regarding the APE to have its influence in its width
+    if((*i_hit).errYWoApe < (*i_errBins).second.first || (*i_hit).errYWoApe >= (*i_errBins).second.second){
+      continue;
+    }
+    (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaY"] ->Fill((*i_hit).errYWoApe);
+    (*i_sector).second.m_binnedHists[(*i_errBins).first]["norResY"]->Fill((*i_hit).norResY);
+    break;
         }
-	(*i_sector).second.ResY->Fill((*i_hit).resY*10000.);
-	(*i_sector).second.NorResY->Fill((*i_hit).norResY);
+  (*i_sector).second.ResY->Fill((*i_hit).resY*10000.);
+  (*i_sector).second.NorResY->Fill((*i_hit).norResY);
       }
     }
   }
@@ -2107,16 +2107,16 @@ ApeEstimator::isHit2D(const TrackingRecHit &hit) const
       if (detId.subdetId() == PixelSubdetector::PixelBarrel || detId.subdetId() == PixelSubdetector::PixelEndcap) {
         return true; // pixel is always 2D
       } else { // should be SiStrip now
-	const SiStripDetId stripId(detId);
-	if (stripId.stereo()) return true; // stereo modules
+  const SiStripDetId stripId(detId);
+  if (stripId.stereo()) return true; // stereo modules
         else if (dynamic_cast<const SiStripRecHit1D*>(&hit)
-		 || dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // rphi modules hit
-	//the following two are not used any more since ages... 
+     || dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // rphi modules hit
+  //the following two are not used any more since ages... 
         else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) return true; // matched is 2D
         else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
-	  const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
-	  return (this->isHit2D(pH->originalHit())); // depends on original...
-	} else {
+    const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
+    return (this->isHit2D(pH->originalHit())); // depends on original...
+  } else {
           edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
                                       << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
