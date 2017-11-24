@@ -20,11 +20,12 @@ RegionPSetWithVerticesBlock = cms.PSet(
         originRScaling4BigEvts = cms.bool(False),
         ptMinScaling4BigEvts = cms.bool(False),
         halfLengthScaling4BigEvts = cms.bool(False),
+        pixelClustersForScaling = cms.InputTag("siPixelClusters"),
         minOriginR = cms.double(0),
         maxPtMin = cms.double(1000),
         minHalfLength = cms.double(0),
-        scalingStartNPix = cms.double(20000),
-        scalingEndNPix = cms.double(35000)
+        scalingStartNPix = cms.double(0),
+        scalingEndNPix = cms.double(1)
     )
 )
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
