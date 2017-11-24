@@ -975,7 +975,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
     ttsCodeValue = 5;
     break;
   }
-  case 16:{ //disconnected
+  case 15:{ //disconnected
     ttsCodeValue = 6;
     break;
   }
@@ -1334,7 +1334,7 @@ void DTDataIntegrityTask::processFED(DTuROSFEDData  & data, int fed){
     ttsCodeValue = 5;
     break;
   }
-  case 16:{ //disconnected
+  case 15:{ //disconnected
     ttsCodeValue = 6;
     break;
   }
