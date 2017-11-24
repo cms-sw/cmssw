@@ -1,3 +1,6 @@
+#ifndef UniqueElectrons_h
+#define UniqueElectrons_h
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include <vector>
@@ -34,3 +37,4 @@ std::vector<reco::GsfElectronRef> uniqueElectronFinder(edm::Handle<reco::GsfElec
 	return UniqueElectrons;
 }
 
+#endif // UniqueElectrons_h
