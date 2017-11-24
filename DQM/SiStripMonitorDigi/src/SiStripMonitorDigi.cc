@@ -165,7 +165,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
 
   createTrendMEs        = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_               = conf_.getParameter<bool>("Mod_On");
-  m_trendVs10LS             = conf_.getParameter<bool>("TrendVs10LS");
+  m_trendVs10LS         = conf_.getParameter<bool>("TrendVs10LS");
   //  xLumiProf             = conf_.getParameter<int>("xLumiProf");
   // Event History Producer
   historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
