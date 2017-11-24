@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import shutil
+import tarfile
 import argparse
 import subprocess
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
@@ -323,7 +324,8 @@ for f in (args.batch_script, args.config_template, args.input_file_list):
     shutil.copy2(f, ScriptCfg)
 if args.setup_merge:
     shutil.copy2(args.merge_script, ScriptCfg)
-mps_tools.run_checked(["tar", "-cf", ScriptCfg+".tar", ScriptCfg])
+
+with tarfile.open(ScriptCfg+".tar", "w") as tar: tar.add(ScriptCfg)
 shutil.rmtree(ScriptCfg)
 
 
