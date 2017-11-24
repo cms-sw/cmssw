@@ -84,10 +84,10 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
    produces<HcalTrigPrimDigiCollection>();
    theAlgo_.setPeakFinderAlgorithm(ps.getParameter<int>("PeakFinderAlgorithm"));
 
-   edm::ParameterSet hfSS=ps.getParameter<edm::ParameterSet>("HFTPScaleShift");
+   edm::ParameterSet hfSS=ps.getParameter<edm::ParameterSet>("TPScaleShift");
 
-   theAlgo_.setNCTScaleShift(hfSS.getParameter<int>("NCT"));
-   theAlgo_.setRCTScaleShift(hfSS.getParameter<int>("RCT"));
+   theAlgo_.setNCTScaleShift(hfSS.getParameter<int>("HFNCT"));
+   theAlgo_.setRCTScaleShift(hfSS.getParameter<int>("HFRCT"));
 }
 
 
