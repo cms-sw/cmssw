@@ -615,7 +615,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   //  std::cout << "passBPTXfilter_ ? " << passBPTXfilter_ << std::endl;
 
   // Filter out events if DCS Event if requested
-  bool passDCSFilter_ = (dcsStatus_ && !dcsStatus_->getStatus(iEvent,iSetup));
+  bool passDCSFilter_ = !(dcsStatus_ && !dcsStatus_->getStatus(iEvent,iSetup));
 
   runNb   = iEvent.id().run();
   eventNb++;
