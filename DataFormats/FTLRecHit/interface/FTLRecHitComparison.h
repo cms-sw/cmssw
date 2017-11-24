@@ -1,6 +1,8 @@
 #ifndef DataFormats_FTLRecHitComparison_H
 #define DataFormats_FTLRecHitComparison_H
 
+#include "DataFormats/FTLRecHit/interface/FTLRecHit.h"
+
 //ordering capability mandatory for lazy getter framework
 // Comparison operators
 inline bool operator<( const FTLRecHit& one, const FTLRecHit& other) {
