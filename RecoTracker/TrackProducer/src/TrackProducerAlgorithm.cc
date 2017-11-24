@@ -17,7 +17,6 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
@@ -25,7 +24,6 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit1DMomConstraint.h"
-// #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"

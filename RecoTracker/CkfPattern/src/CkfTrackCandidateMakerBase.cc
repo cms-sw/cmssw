@@ -24,9 +24,6 @@
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilderFactory.h"
 
 
-#include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
-#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
-#include "RecoTracker/CkfPattern/interface/SeedCleanerBySharedInput.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
@@ -99,13 +96,7 @@ namespace cms{
       }
 #ifndef VI_REPRODUCIBLE
     std::string cleaner = conf.getParameter<std::string>("RedundantSeedCleaner");
-    if (cleaner == "SeedCleanerByHitPosition") {
-        theSeedCleaner = new SeedCleanerByHitPosition();
-    } else if (cleaner == "SeedCleanerBySharedInput") {
-        theSeedCleaner = new SeedCleanerBySharedInput();
-    } else if (cleaner == "CachingSeedCleanerByHitPosition") {
-        theSeedCleaner = new CachingSeedCleanerByHitPosition();
-    } else if (cleaner == "CachingSeedCleanerBySharedInput") {
+    if (cleaner == "CachingSeedCleanerBySharedInput") {
       int numHitsForSeedCleaner = conf.existsAs<int>("numHitsForSeedCleaner") ?
 	conf.getParameter<int>("numHitsForSeedCleaner") : 4;
       int onlyPixelHits = conf.existsAs<bool>("onlyPixelHitsForSeedCleaner") ?
@@ -114,7 +105,7 @@ namespace cms{
     } else if (cleaner == "none") {
         theSeedCleaner = nullptr;
     } else {
-        throw cms::Exception("RedundantSeedCleaner not found", cleaner);
+        throw cms::Exception("RedundantSeedCleaner not found, please use CachingSeedCleanerBySharedInput ro none", cleaner);
     }
 #endif
 

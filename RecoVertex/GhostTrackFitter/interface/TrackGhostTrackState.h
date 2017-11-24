@@ -43,8 +43,8 @@ class TrackGhostTrackState : public BasicGhostTrackState {
 	                                bool withGhostTrackError) const override;
 
     private:
-	BasicGhostTrackState *clone() const override
-	{ return new TrackGhostTrackState(*this); }
+	pointer clone() const override
+	{ return build<TrackGhostTrackState>(*this); }
 
 	TrajectoryStateOnSurface	tsos_;
 	TransientTrack			track_;
