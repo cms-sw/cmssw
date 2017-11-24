@@ -10,6 +10,7 @@
 
 
 #include <cstdint>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -61,7 +62,7 @@ private:
   float magnetCurrent_;
   float magneticField_;
 
-  const std::vector<std::string> partitionNames_ = {
+  std::vector<std::string> partitionNames_ = {
     "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO",
     "RPC","DT0","DTp","DTm","CSCp","CSCm","CASTOR","ZDC",
     "TIBTID","TOB","TECp","TECm","BPIX","FPIX","ESp","ESm"
