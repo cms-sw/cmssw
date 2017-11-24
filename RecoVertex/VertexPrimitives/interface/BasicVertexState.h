@@ -2,15 +2,10 @@
 #define BasicVertexState_H
 
 #include "TrackingTools/TrajectoryState/interface/ProxyBase11.h"
-#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalWeight.h"
-//#include "CommonReco/CommonVertex/interface/RefCountedVertexSeed.h"
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <vector>
 

@@ -3,9 +3,7 @@
 
 #include <utility>
 
-#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "TrackingTools/TrajectoryState/interface/ProxyBase11.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
