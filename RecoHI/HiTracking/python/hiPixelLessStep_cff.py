@@ -229,7 +229,7 @@ hiPixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduce
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiPixelLessStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src='hiPixelLessStepTracks',
-    useAnyMVA = cms.bool(True),
+    useAnyMVA = cms.bool(False),
     GBRForestLabel = cms.string('HIMVASelectorIter12'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(

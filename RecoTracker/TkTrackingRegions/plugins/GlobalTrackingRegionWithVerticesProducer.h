@@ -69,6 +69,7 @@ public:
     desc.add<bool>("useFakeVertices", false);
     desc.add<int>("maxNVertices", -1)->setComment("-1 for all vertices");
     desc.add<double>("nSigmaZ", 4.0);
+    desc.add<edm::InputTag>("pixelClustersForScaling",edm::InputTag("siPixelClusters"));
     desc.add<bool>("originRScaling4BigEvts",false);
     desc.add<bool>("ptMinScaling4BigEvts",false);
     desc.add<bool>("halfLengthScaling4BigEvts",false);
