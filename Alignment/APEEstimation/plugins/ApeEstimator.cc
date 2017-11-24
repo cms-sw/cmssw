@@ -1103,7 +1103,7 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
   
   const StatePositionAndError2 positionAndError2Hit = this->positionAndError2(lPHit, errHitApe, hit);
   const StatePositionAndError2 positionAndError2HitWoApe = this->positionAndError2(lPHit, errHitWoApe, hit);
-  std::cout<<"errHitWoApe  " <<errHitWoApe<<"errHitApe   "<<errHitApe<<std::endl;
+  edm::LogInfo("CalculateAPE")<<"errHitWoApe  "<<errHitWoApe<<"errHitApe  "<<errHitApe;
 
   const StatePositionAndError2 positionAndError2Trk = this->positionAndError2(lPTrk, errTrk, hit);
   
