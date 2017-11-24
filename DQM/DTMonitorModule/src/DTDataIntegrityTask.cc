@@ -33,11 +33,13 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
   << "[DTDataIntegrityTask]: Constructor" <<endl;
 
-  dduToken = consumes<DTDDUCollection>(ps.getParameter<InputTag>("dtDDULabel"));
-  ros25Token = consumes<DTROS25Collection>(ps.getParameter<InputTag>("dtROS25Label"));
   checkUros = parameters.getUntrackedParameter<bool>("checkUros",true);
 
-  if (checkUros) fedToken = consumes<DTuROSFEDDataCollection>(ps.getParameter<InputTag>("dtFEDlabel"));  
+  if (checkUros) fedToken = consumes<DTuROSFEDDataCollection>(ps.getParameter<InputTag>("dtFEDlabel")); 
+  else { dduToken = consumes<DTDDUCollection>(ps.getParameter<InputTag>("dtDDULabel"));
+  ros25Token = consumes<DTROS25Collection>(ps.getParameter<InputTag>("dtROS25Label"));
+
+	} 
   FEDIDmin = parameters.getUntrackedParameter<int>("FEDIDmin",1368);
   FEDIDMax = parameters.getUntrackedParameter<int>("FEDIDmax",1370);
 
