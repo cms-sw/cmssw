@@ -276,6 +276,21 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
     << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
+  vector<l1t::EtSumRef> seedsL1EtSumETMHF;
+  filterproduct.getObjects(trigger::TriggerL1ETMHF, seedsL1EtSumETMHF);
+  const size_t sizeSeedsL1EtSumETMHF = seedsL1EtSumETMHF.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum ETMHF seeds:      " << sizeSeedsL1EtSumETMHF << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumETMHF; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumETMHF[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  ETMHF" << "\t" << "pt = "
+    << obj->pt() << "\t" << "eta =  " << obj->eta()
+    << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+  }
+
   vector<l1t::EtSumRef> seedsL1EtSumHTM;
   filterproduct.getObjects(trigger::TriggerL1HTM, seedsL1EtSumHTM);
   const size_t sizeSeedsL1EtSumHTM = seedsL1EtSumHTM.size();
@@ -319,6 +334,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     std::list<int> listETT;
     std::list<int> listHTT;
     std::list<int> listHTM;
+    std::list<int> listETMHF;
 
     std::list<int> listJetCounts;
 
@@ -607,7 +623,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
 
 		// THESE OBJECT CASES ARE CURRENTLY MISSING:
-		//gtETM2,
 		//gtMinBias,
 		//gtExternal,
 		//ObjNull
@@ -632,27 +647,25 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                     break;
                     case l1t::gtETM: {
                         listETM.push_back(*itObject);
-
                     }
                     break;
                     case l1t::gtETT: {
                         listETT.push_back(*itObject);
-
                     }
-
                     break;
                     case l1t::gtHTT: {
                         listHTT.push_back(*itObject);
-
                     }
-
                     break;
                     case l1t::gtHTM: {
                         listHTM.push_back(*itObject);
-
                     }
-
                     break;
+                    case l1t::gtETMHF: {
+                        listETMHF.push_back(*itObject);
+                    }
+                    break;
+
                     //case JetCounts: {
                     //    listJetCounts.push_back(*itObject);
                     //}
@@ -705,6 +718,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     listHTM.sort();
     listHTM.unique();
+
+    listETMHF.sort();
+    listETMHF.unique();
 
     listJetCounts.sort();
     listJetCounts.unique();
@@ -865,6 +881,10 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 			    case l1t::EtSum::kMissingHt: 
             if(!listHTM.empty())
 			        filterproduct.addObject(trigger::TriggerL1HTM, myref); 
+			      break;
+			    case l1t::EtSum::kMissingEtHF: 
+            if(!listETMHF.empty())
+			        filterproduct.addObject(trigger::TriggerL1ETMHF, myref); 
 			      break;
 			    default:
 			      LogTrace("HLTL1TSeed") << "  L1EtSum seed of currently unsuported HLT TriggerType. l1t::EtSum type:      " << iter->getType() << "\n";
