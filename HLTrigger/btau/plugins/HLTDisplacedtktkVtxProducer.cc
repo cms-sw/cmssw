@@ -35,7 +35,7 @@ using namespace trigger;
 HLTDisplacedtktkVtxProducer::HLTDisplacedtktkVtxProducer(const edm::ParameterSet& iConfig):	
 	srcTag_ (iConfig.getParameter<edm::InputTag>("Src")),
 	srcToken_(consumes<reco::RecoChargedCandidateCollection>(srcTag_)),
-    previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
+        previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
 	previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
 	maxEta_ (iConfig.getParameter<double>("MaxEta")),
 	minPt_ (iConfig.getParameter<double>("MinPt")),
@@ -115,13 +115,18 @@ void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 	vector<RecoChargedCandidateRef> vPrevCands;
 	previousCands->getObjects(triggerTypeDaughters_,vPrevCands);
+
+        std::vector<bool> candComp;
+        for (cand1=trackcands->begin(); cand1!=trackcands->end(); cand1++)
+          candComp.push_back(checkPreviousCand( cand1->get<TrackRef>(), vPrevCands));
 	
 	for (cand1=trackcands->begin(); cand1!=trackcands->end(); cand1++) {
 	       TrackRef tk1 = cand1->get<TrackRef>();
 	       LogDebug("HLTDisplacedtktkVtxProducer") << " 1st track in loop: q*pt= " << cand1->charge()*cand1->pt() << ", eta= " << cand1->eta() << ", hits= " << tk1->numberOfValidHits();
 	     
 	       //first check if this track passed the previous filter
-	       if( ! checkPreviousCand( tk1, vPrevCands) ) continue;
+               if (!candComp[cand1-trackcands->begin()]) continue;
+	       // if( ! checkPreviousCand( tk1, vPrevCands) ) continue;
  	
 	       // cuts
 	       if (abs(cand1->eta())>maxEta_) continue;
@@ -139,7 +144,8 @@ void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 			 // eta cut
 			 LogDebug("HLTDisplacedtktkVtxProducer") << " 2nd track in loop: q*pt= " << cand2->charge()*cand2->pt() << ", eta= " << cand2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
 			 //first check if this track passed the previous filter
-			 if( ! checkPreviousCand( tk2, vPrevCands) ) continue;
+                         if (!candComp[cand2-trackcands->begin()]) continue;
+			 // if( ! checkPreviousCand( tk2, vPrevCands) ) continue;
 			 
 			 // cuts
 			 if (abs(cand2->eta())>maxEta_) continue;
