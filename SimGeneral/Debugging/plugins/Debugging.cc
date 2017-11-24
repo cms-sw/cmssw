@@ -4,6 +4,11 @@
 //
 //
 
+// BOOST GRAPH LIBRARY
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/breadth_first_search.hpp>
+//
 // system include files
 #include <memory>
 #include <iostream>
@@ -38,72 +43,121 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/depth_first_search.hpp>
-#include <boost/graph/breadth_first_search.hpp>
 
 using namespace boost;
-// Graph Definitions
-// The graph is meant to represent the full decay chain.
-// The parent-child relationship is the natural one, following "time".
-// Each edge has a property (edge_weight_t) that holds a const pointer to the SimTrack that connects the 2 vertices of the edge.
-// Each vertex has a property (vertex_name_t) that holds a const pointer to the SimTrack that originated that vertex.
-// Stable particles are recovered/added in a second iterations and are linked to ghost vertices with a reasonably high offset(1E6).
+
+/* GRAPH DEFINITIONS
+
+   The graph represents the full decay chain.
+
+   The parent-child relationship is the natural one, following "time".
+
+   Each edge has a property (edge_weight_t) that holds a const pointer to the
+   SimTrack that connects the 2 vertices of the edge, the number of simHits
+   associated to that simTrack, the overall energy deposited in the
+   associated simHits and the cumulative number of simHits of itself and of all
+   its children.
+
+   Each vertex has a property (vertex_name_t) that holds a const pointer to the
+   SimTrack that originated that vertex and the cumulative number of simHits of
+   all its outgoing edges.
+
+   Stable particles are recovered/added in a second iterations and are linked
+   to ghost vertices with an offset starting from the highest generated vertex.
+*/
 struct EdgeProperty {
-  EdgeProperty(const SimTrack* t, int h, float e) : simTrack(t), simHits(h), energy(e) {};
+  EdgeProperty(const SimTrack* t,
+               int h,
+               int c,
+               float e)
+    : simTrack(t), simHits(h), cumulative_simHits(c), energy(e) {}
   const SimTrack* simTrack;
   int simHits;
+  int cumulative_simHits;
   float energy;
 };
 
-typedef property<edge_weight_t, const SimTrack*> EdgeParticleProperty;
+struct VertexProperty {
+  VertexProperty() : simTrack(nullptr), cumulative_simHits(0) {}
+  VertexProperty(const SimTrack* t, int c) : simTrack(t), cumulative_simHits(c) {}
+  VertexProperty(const VertexProperty& other) : simTrack(other.simTrack), cumulative_simHits(other.cumulative_simHits) {}
+  const SimTrack * simTrack;
+  int cumulative_simHits;
+};
+
 typedef property<edge_weight_t, EdgeProperty> EdgeParticleClustersProperty;
-typedef property<vertex_name_t, const SimTrack*> VertexMotherParticleProperty;
+typedef property<vertex_name_t, VertexProperty> VertexMotherParticleProperty;
 typedef adjacency_list< listS, vecS, directedS,
                         VertexMotherParticleProperty, EdgeParticleClustersProperty> DecayChain;
 
 namespace {
-  template < typename Edge, typename Graph>
-    void print_edge( Edge &e, const Graph & g) {
+  template < typename Edge, typename Graph, typename Visitor>
+    void print_edge(Edge &e, const Graph & g, Visitor * v) {
       auto const edge_property = get(edge_weight, g, e);
+      v->total_simHits += edge_property.simHits;
       std::cout << "Examining edges " << e
         << " --> particle " << edge_property.simTrack->type()
         << "(" << edge_property.simTrack->trackId() << ")"
         << " with SimClusters: " << edge_property.simHits
-        << " and total Energy: " << edge_property.energy << std::endl;
+        << " and total Energy: " << edge_property.energy
+        << " Accumulated SimClusters: " << v->total_simHits << std::endl;
     }
   template < typename Vertex, typename Graph >
-    void print_vertex (Vertex &u, const Graph & g) {
-      auto const sim_track = get(vertex_name, g, u);
+    void print_vertex(Vertex &u, const Graph & g) {
+      auto const vertex_property = get(vertex_name, g, u);
       std::cout << "At " << u;
       // The Mother of all vertices has **no** SimTrack associated.
-      if (sim_track)
-        std::cout << "[" << sim_track->type() << "]"
-                  << "(" << sim_track->trackId() << ")";
+      if (vertex_property.simTrack)
+        std::cout << "[" << vertex_property.simTrack->type() << "]"
+                  << "(" << vertex_property.simTrack->trackId() << ")";
       std::cout << std::endl;
     }
-  class Custom_dfs_visitor : public boost::default_dfs_visitor
-  {
+  class Custom_dfs_visitor : public boost::default_dfs_visitor {
     public:
+      int total_simHits = 0;
       template < typename Vertex, typename Graph >
-        void examine_vertex(Vertex u, const Graph & g) const {
-          print_vertex(u, g);
+        void finish_vertex(Vertex u, const Graph & g) {
+//          print_vertex(u, g);
         }
       template < typename Edge, typename Graph >
-        void examine_edge(Edge e, const Graph& g) const {
-          print_edge(e, g);
+        void examine_edge(Edge e, const Graph& g) {
+          print_edge(e, g, this);
         }
+      template < typename Edge, typename Graph >
+        void finish_edge(Edge e, const Graph & g) {
+          auto const edge_property = get(edge_weight, g, e);
+          auto src = source(e, g);
+          auto trg = target(e, g);
+          auto cumulative = edge_property.simHits
+                          + get(vertex_name, g, trg).cumulative_simHits
+                          + (get(vertex_name, g, src).simTrack ? get(vertex_name, g, src).cumulative_simHits : 0); // when we hit the root vertex we have to stop adding back its contribution.
+          auto const src_vertex_property = get(vertex_name, g, src);
+          put(get(vertex_name, const_cast<Graph&>(g)),
+              src,
+              VertexProperty(src_vertex_property.simTrack, cumulative));
+          put(get(edge_weight, const_cast<Graph&>(g)), e,
+              EdgeProperty(edge_property.simTrack,
+                           edge_property.simHits,
+                           cumulative,
+                           edge_property.energy));
+          std::cout << "Finished edge: " << e
+                    << " Track id: " << get(edge_weight, g, e).simTrack->trackId()
+                    << " has cumulated " << cumulative
+                    << " hits" << std::endl;
+          std::cout << " SrcVtx: " << src << "\t" << get(vertex_name, g, src).simTrack << "\t" << get(vertex_name, g, src).cumulative_simHits << std::endl;
+          std::cout << " TrgVtx: " << trg << "\t" << get(vertex_name, g, trg).simTrack << "\t" << get(vertex_name, g, trg).cumulative_simHits << std::endl;
+      }
   };
-  class Custom_bfs_visitor : public boost::default_bfs_visitor
-  {
+  class Custom_bfs_visitor : public boost::default_bfs_visitor {
     public:
+      int total_simHits = 0;
       template < typename Vertex, typename Graph >
-        void examine_vertex(Vertex u, const Graph & g) const {
+        void examine_vertex(Vertex u, const Graph & g) {
           print_vertex(u, g);
         }
       template < typename Edge, typename Graph >
-        void examine_edge(Edge e, const Graph& g) const {
-          print_edge(e, g);
+        void examine_edge(Edge e, const Graph& g) {
+          print_edge(e, g, this);
         }
   };
 }
@@ -160,22 +214,19 @@ Debugging::Debugging(const edm::ParameterSet& iConfig)
   simVertices_(iConfig.getParameter<edm::InputTag>("simVertices")),
   trackingParticles_(iConfig.getParameter<edm::InputTag>("trackingParticles")),
   caloParticles_(iConfig.getParameter<edm::InputTag>("caloParticles")),
-  collectionTags_(iConfig.getParameter<std::vector<edm::InputTag> >("collectionTags"))
-{
+  collectionTags_(iConfig.getParameter<std::vector<edm::InputTag> >("collectionTags")) {
   edm::ConsumesCollector&& iC = consumesCollector();
   simTracksToken_ = iC.consumes<std::vector<SimTrack> >(simTracks_);
   genParticlesToken_ = iC.consumes<std::vector<reco::GenParticle> > (genParticles_);
   simVerticesToken_ = iC.consumes<std::vector<SimVertex> >(simVertices_);
   trackingParticlesToken_ = iC.consumes<std::vector<TrackingParticle> >(trackingParticles_);
   caloParticlesToken_ = iC.consumes<std::vector<CaloParticle> >(caloParticles_);
-  for( const auto& collectionTag : collectionTags_ ) {
+  for (auto const & collectionTag : collectionTags_) {
     collectionTagsToken_.push_back(iC.consumes<std::vector<PCaloHit> >(collectionTag));
   }
 }
 
-Debugging::~Debugging()
-{
-}
+Debugging::~Debugging() {}
 
 
 //
@@ -184,8 +235,7 @@ Debugging::~Debugging()
 
 // ------------ method called for each event  ------------
 void
-Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   edm::Handle<std::vector<SimTrack> > simTracksH;
@@ -210,7 +260,7 @@ Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto const & calopart = *caloParticlesH.product();
 
   // Let's first fill in hits information
-  std::vector<std::pair<DetId,const PCaloHit*> > simHitPointers;
+  std::vector<std::pair<DetId, const PCaloHit*> > simHitPointers;
   std::map<int, std::map<int, float> > simTrackDetIdEnergyMap;
   std::map<int, float> detIdToTotalSimEnergy;
   fillSimHits(simHitPointers, simTrackDetIdEnergyMap, detIdToTotalSimEnergy, iEvent, iSetup);
@@ -254,6 +304,7 @@ Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           v.vertexId(),
           EdgeProperty(&tracks.at(trackid_to_track_index[v.parentIndex()]),
             simTrackDetIdEnergyMap[trackid_to_track_index[v.parentIndex()]].size(),
+            0,
             std::accumulate(simTrackDetIdEnergyMap[trackid_to_track_index[v.parentIndex()]].begin(),
               simTrackDetIdEnergyMap[trackid_to_track_index[v.parentIndex()]].end(), 0.,
               [&](float partial, std::pair<int, float> current) {
@@ -262,13 +313,15 @@ Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       used_sim_tracks[trackid_to_track_index[v.parentIndex()]] = true;
     }
   }
-  // Now recover the particles that did not decay.
-  int offset = 1000000;
+  // Now recover the particles that did not decay. Append them with an index
+  // bigger than the size of the generated vertices.
+  int offset = vertices.size() + 1;
   for (size_t i = 0; i < tracks.size(); ++i) {
     if (!used_sim_tracks[i])
       add_edge(tracks.at(i).vertIndex(), offset++,
                EdgeProperty(&tracks.at(i),
                  simTrackDetIdEnergyMap[tracks.at(i).trackId()].size(),
+                 0,
                  std::accumulate(simTrackDetIdEnergyMap[tracks.at(i).trackId()].begin(),
                                  simTrackDetIdEnergyMap[tracks.at(i).trackId()].end(), 0.,
                                  [&](float partial, std::pair<int, float> current) {
@@ -279,14 +332,24 @@ Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto const & vertexMothersProp = get(vertex_name, decay);
   for (auto const & v: vertices) {
     if (v.parentIndex() != -1) {
-      put(vertexMothersProp, v.vertexId(), &tracks.at(trackid_to_track_index[v.parentIndex()]));
+      put(vertexMothersProp, v.vertexId(), VertexProperty(&tracks.at(trackid_to_track_index[v.parentIndex()]), 0));
     }
   }
-
 #define DFS
 #ifdef  DFS
   Custom_dfs_visitor vis;
   depth_first_search(decay, visitor(vis));
+  auto const first_generation = out_edges(0, decay);
+  for (auto edge = first_generation.first; edge != first_generation.second; ++edge) {
+    auto const edge_property = get(edge_weight, decay, *edge);
+    Custom_bfs_visitor bfs;
+    std::cout << "Creating CaloParticle particle: "
+              << edge_property.simTrack->type()
+              << "(" << edge_property.simTrack->trackId() << ")"
+              << " with total SimClusters: " << get(edge_weight, decay, *edge).cumulative_simHits
+              << " and total Energy: " << edge_property.energy
+              << std::endl;
+  }
 #else
   Custom_bfs_visitor vis;
   breadth_first_search(decay, 0, visitor(vis));
@@ -307,15 +370,11 @@ Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-Debugging::beginJob()
-{
-}
+Debugging::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-Debugging::endJob()
-{
-}
+Debugging::endJob() {}
 
 void Debugging::fillSimHits(
     std::vector<std::pair<DetId, const PCaloHit*> >& returnValue,
@@ -331,14 +390,14 @@ void Debugging::fillSimHits(
   const HGCalTopology*     hgtopo[2];
   const HcalDDDRecConstants* hcddd;
 
-  eegeom = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward,HGCEE));
-  fhgeom = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward,HGCHEF));
-  bhgeom = dynamic_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal,HcalEndcap));
+  eegeom = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
+  fhgeom = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
+  bhgeom = dynamic_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
 
   hgtopo[0] = &(eegeom->topology());
   hgtopo[1] = &(fhgeom->topology());
 
-  for( unsigned i = 0; i < 2; ++i ) {
+  for (unsigned i = 0; i < 2; ++i) {
     hgddd[i] = &(hgtopo[i]->dddConstants());
   }
 
@@ -346,40 +405,42 @@ void Debugging::fillSimHits(
 
   // loop over the collections
   int token = 0;
-  for( const auto& collectionTag : collectionTags_ ) {
+  for (auto const& collectionTag : collectionTags_) {
     edm::Handle< std::vector<PCaloHit> > hSimHits;
     std::cout << collectionTag.instance() << std::endl;
     const bool isHcal = ( collectionTag.instance().find("HcalHits") != std::string::npos );
     iEvent.getByToken(collectionTagsToken_[token++], hSimHits);
-    for( const auto& simHit : *hSimHits ) {
+    for (auto const& simHit : *hSimHits) {
       DetId id(0);
       const uint32_t simId = simHit.id();
-      if( isHcal ) {
+      if (isHcal) {
         HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd);
-        if(hid.subdet()==HcalEndcap) id = hid;
+        if (hid.subdet() == HcalEndcap) id = hid;
       } else {
         int subdet, layer, cell, sec, subsec, zp;
         HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
         const HGCalDDDConstants* ddd = hgddd[subdet-3];
-        std::pair<int,int> recoLayerCell = ddd->simToReco(cell,layer,sec,
+        std::pair<int, int> recoLayerCell = ddd->simToReco(cell, layer, sec,
             hgtopo[subdet-3]->detectorType());
         cell  = recoLayerCell.first;
         layer = recoLayerCell.second;
         // skip simhits with bad barcodes or non-existant layers
-        if( layer == -1  || simHit.geantTrackId() == 0 ) continue;
-        id = HGCalDetId((ForwardSubdetector)subdet,zp,layer,subsec,sec,cell);
+        if (layer == -1 || simHit.geantTrackId() == 0) continue;
+        id = HGCalDetId((ForwardSubdetector)subdet, zp, layer, subsec, sec, cell);
       }
 
-      if( DetId(0) == id ) continue;
+      if (DetId(0) == id) continue;
 
       returnValue.emplace_back(id, &simHit);
-      if ( simTrackDetIdEnergyMap.count(simHit.geantTrackId())
+      if (simTrackDetIdEnergyMap.count(simHit.geantTrackId())
           && simTrackDetIdEnergyMap[simHit.geantTrackId()].count(id.rawId()))
         simTrackDetIdEnergyMap[simHit.geantTrackId()][id.rawId()] += simHit.energy();
       else
         simTrackDetIdEnergyMap[simHit.geantTrackId()][id.rawId()] = simHit.energy();
-      if( detIdToTotalSimEnergy.count(id.rawId()) ) detIdToTotalSimEnergy[id.rawId()] += simHit.energy();
-      else detIdToTotalSimEnergy[id.rawId()] = simHit.energy();
+      if (detIdToTotalSimEnergy.count(id.rawId()))
+        detIdToTotalSimEnergy[id.rawId()] += simHit.energy();
+      else
+        detIdToTotalSimEnergy[id.rawId()] = simHit.energy();
     }
   } // end of loop over InputTags
 }
@@ -387,7 +448,7 @@ void Debugging::fillSimHits(
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 Debugging::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
+  // The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("simTracks", edm::InputTag("g4SimHits"));
@@ -395,11 +456,12 @@ Debugging::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
   desc.add<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.add<std::vector<edm::InputTag> >("collectionTags", {edm::InputTag("g4SimHits","HGCHitsEE"),
-                                                           edm::InputTag("g4SimHits","HGCHitsHEfront"),
-                                                           edm::InputTag("g4SimHits","HcalHits")});
+  desc.add<std::vector<edm::InputTag> >("collectionTags",
+      { edm::InputTag("g4SimHits", "HGCHitsEE"),
+        edm::InputTag("g4SimHits", "HGCHitsHEfront"),
+        edm::InputTag("g4SimHits", "HcalHits")});
   descriptions.addDefault(desc);
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(Debugging);
