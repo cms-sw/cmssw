@@ -10,8 +10,7 @@
 
 
 #include <cstdint>
-#include <string>
-#include <vector>
+#include <ostream>
 
 #include "DataFormats/OnlineMetaData/interface/OnlineMetaDataRaw.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
