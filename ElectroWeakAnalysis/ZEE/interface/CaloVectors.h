@@ -1,3 +1,10 @@
+#ifndef CaloVectors_h
+#define CaloVectors_h
+
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
 
 math::XYZTLorentzVector DetectorVector(const reco::SuperClusterRef& sc)
@@ -40,3 +47,4 @@ math::XYZTLorentzVector PhysicsVectorRaw(const math::XYZPoint& vertex, const rec
 	math::XYZTLorentzVector probe(pt*cos(phi), pt*sin(phi), pt*sinh(eta), sc.rawEnergy());
 	return probe;
 }
+#endif //CaloVectors_h
