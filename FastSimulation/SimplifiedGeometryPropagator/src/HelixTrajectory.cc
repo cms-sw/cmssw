@@ -27,7 +27,7 @@ fastsim::HelixTrajectory::HelixTrajectory(const fastsim::Particle & particle,dou
     // -> sin(atan(x) + pi/2)  = + 1 / sqrt(x^2+1)
     // -> sin(atan(x) +3*pi/2) = - 1 / sqrt(x^2+1)
     , centerX_(position_.X() - radius_ * (momentum_.Py()/momentum_.Px()) / std::sqrt((momentum_.Py()/momentum_.Px())*(momentum_.Py()/momentum_.Px())+1) * (momentum_.Px()*particle.charge() < 0 ? 1. : -1.))
-    , centerY_(position_.Y() - radius_ * 1 								 / std::sqrt((momentum_.Py()/momentum_.Px())*(momentum_.Py()/momentum_.Px())+1) * (momentum_.Px()*particle.charge() < 0 ? -1. : 1.))
+    , centerY_(position_.Y() - radius_ * 1                               / std::sqrt((momentum_.Py()/momentum_.Px())*(momentum_.Py()/momentum_.Px())+1) * (momentum_.Px()*particle.charge() < 0 ? -1. : 1.))
     //, centerX_(position_.X() - radius_*std::cos(phi_))
     //, centerY_(position_.Y() - radius_*std::sin(phi_))
     , centerR_(std::sqrt(centerX_*centerX_ + centerY_*centerY_))
@@ -47,7 +47,7 @@ bool fastsim::HelixTrajectory::crosses(const BarrelSimplifiedGeometry & layer) c
 
 double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelSimplifiedGeometry & layer, bool onLayer) const
 {
-	if(!crosses(layer)) return -1;
+    if(!crosses(layer)) return -1;
 
     // solve the following equation for sin(phi)
     // (x^2 + y^2 = R_L^2)     (1)      the layer 
@@ -95,7 +95,7 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelSimplifiedGeometr
     // case of no solution
     if(delta < 0)
     {   
-    	// Should not be reached: Full Propagation does always have a solution "if(crosses(layer)) == -1"
+        // Should not be reached: Full Propagation does always have a solution "if(crosses(layer)) == -1"
         // Even if particle is outside all layers -> can turn around in magnetic field
         throw cms::Exception("FastSimulation") << "HelixTrajectory: should not be reached (no solution).";
     }
@@ -192,18 +192,18 @@ void fastsim::HelixTrajectory::move(double deltaTimeC)
     double deltaT = deltaTimeC/fastsim::Constants::speedOfLight;
     double deltaPhi = phiSpeed_*deltaT;
     position_.SetXYZT(
-	   centerX_ + radius_*std::cos(phi_ + deltaPhi),
-	   centerY_ + radius_*std::sin(phi_ + deltaPhi),
-	   position_.Z() + momentum_.Z()/momentum_.E()*deltaTimeC,
-	   position_.T() + deltaT);
+       centerX_ + radius_*std::cos(phi_ + deltaPhi),
+       centerY_ + radius_*std::sin(phi_ + deltaPhi),
+       position_.Z() + momentum_.Z()/momentum_.E()*deltaTimeC,
+       position_.T() + deltaT);
     // Rotation defined by
     // x' = x cos θ - y sin θ
     // y' = x sin θ + y cos θ
     momentum_.SetXYZT(
-	   momentum_.X()*std::cos(deltaPhi) - momentum_.Y()*std::sin(deltaPhi),
-	   momentum_.X()*std::sin(deltaPhi) + momentum_.Y()*std::cos(deltaPhi),
-	   momentum_.Z(),
-	   momentum_.E());
+       momentum_.X()*std::cos(deltaPhi) - momentum_.Y()*std::sin(deltaPhi),
+       momentum_.X()*std::sin(deltaPhi) + momentum_.Y()*std::cos(deltaPhi),
+       momentum_.Z(),
+       momentum_.E());
 }
 
 double fastsim::HelixTrajectory::getRadParticle(double phi) const

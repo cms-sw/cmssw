@@ -71,13 +71,13 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
 
     // if the layer is provided, the particle must be on it
     if(layer)
-    {	
-		if(!particle.isOnLayer(layer->isForward(), layer->index()))
-		{
-		    throw cms::Exception("FastSimulation") << "If layer is provided, particle must be on layer."
-		    << "\n   Layer: " << *layer
-		    << "\n   Particle: " << particle;
-		}
+    {   
+        if(!particle.isOnLayer(layer->isForward(), layer->index()))
+        {
+            throw cms::Exception("FastSimulation") << "If layer is provided, particle must be on layer."
+            << "\n   Layer: " << *layer
+            << "\n   Particle: " << particle;
+        }
     }
 
     // magnetic field at the current position of the particle
@@ -96,98 +96,98 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     // first time method is called
     ////////////
     if(!layer)
-    {		
-		LogDebug(MESSAGECATEGORY) << "      called for first time";
+    {       
+        LogDebug(MESSAGECATEGORY) << "      called for first time";
 
-		// find the narrowest barrel layers with
-		// layer.r > particle.r (the closest layer with layer.r < particle.r will then be considered, too)
-		// assume barrel layers are ordered with increasing r
-		for(const auto & layer : geometry_->barrelLayers())
-		{
-			if(particle.isOnLayer(false, layer->index()) || std::abs(layer->getRadius() - particle.position().Rho()) < 1e-2){
-				if(particleMovesInwards){
-					nextBarrelLayer_ = layer.get();
-					break;
-				}else{
-					continue;
-				}
-			}
+        // find the narrowest barrel layers with
+        // layer.r > particle.r (the closest layer with layer.r < particle.r will then be considered, too)
+        // assume barrel layers are ordered with increasing r
+        for(const auto & layer : geometry_->barrelLayers())
+        {
+            if(particle.isOnLayer(false, layer->index()) || std::abs(layer->getRadius() - particle.position().Rho()) < 1e-2){
+                if(particleMovesInwards){
+                    nextBarrelLayer_ = layer.get();
+                    break;
+                }else{
+                    continue;
+                }
+            }
 
-		    if(particle.position().Pt() < layer->getRadius())
-		    {
-				nextBarrelLayer_ = layer.get();
-				break;
-		    }
+            if(particle.position().Pt() < layer->getRadius())
+            {
+                nextBarrelLayer_ = layer.get();
+                break;
+            }
 
-			previousBarrelLayer_ = layer.get();
-		}
+            previousBarrelLayer_ = layer.get();
+        }
 
-		//  find the forward layer with smallest z with
-		//  layer.z > particle z (the closest layer with layer.z < particle.z will then be considered, too)
-		for(const auto & layer : geometry_->forwardLayers())
-		{
-			if(particle.isOnLayer(true, layer->index()) || std::abs(layer->getZ() - particle.position().Z()) < 1e-3){
-				if(particle.momentum().Z() < 0){
-					nextForwardLayer_ = layer.get();
-					break;
-				}else{
-					continue;
-				}
-			}
+        //  find the forward layer with smallest z with
+        //  layer.z > particle z (the closest layer with layer.z < particle.z will then be considered, too)
+        for(const auto & layer : geometry_->forwardLayers())
+        {
+            if(particle.isOnLayer(true, layer->index()) || std::abs(layer->getZ() - particle.position().Z()) < 1e-3){
+                if(particle.momentum().Z() < 0){
+                    nextForwardLayer_ = layer.get();
+                    break;
+                }else{
+                    continue;
+                }
+            }
 
-		    if(particle.position().Z() < layer->getZ())
-		    {
-				nextForwardLayer_ = layer.get();
-				break;
-		    }
+            if(particle.position().Z() < layer->getZ())
+            {
+                nextForwardLayer_ = layer.get();
+                break;
+            }
 
-			previousForwardLayer_ = layer.get();
-		}
+            previousForwardLayer_ = layer.get();
+        }
     }
     ////////////
     // last move worked, let's update
     ////////////
     else
     {
-		LogDebug(MESSAGECATEGORY) << "      ordinary call";
+        LogDebug(MESSAGECATEGORY) << "      ordinary call";
 
-		// barrel layer was hit
-		if(layer == nextBarrelLayer_)
-		{
-		    if(!particleMovesInwards)
-		    {
-		    	previousBarrelLayer_ = nextBarrelLayer_;
-				nextBarrelLayer_ = geometry_->nextLayer(nextBarrelLayer_);
-		    }
-		}
-		else if(layer == previousBarrelLayer_)
-		{
-		    if(particleMovesInwards)
-		    {
-				nextBarrelLayer_ = previousBarrelLayer_;
-				previousBarrelLayer_ = geometry_->previousLayer(previousBarrelLayer_);
-		    }
-		}
-		// forward layer was hit
-		else if(layer == nextForwardLayer_)
-		{
-		    if(particle.momentum().Z() > 0)
-		    {
-				previousForwardLayer_ = nextForwardLayer_;
-				nextForwardLayer_ = geometry_->nextLayer(nextForwardLayer_);
-		    }
-		}
-		else if(layer == previousForwardLayer_)
-		{
-		    if(particle.momentum().Z() < 0)
-		    {
-				nextForwardLayer_ = previousForwardLayer_;
-				previousForwardLayer_ = geometry_->previousLayer(previousForwardLayer_);
-		    }
-		}
+        // barrel layer was hit
+        if(layer == nextBarrelLayer_)
+        {
+            if(!particleMovesInwards)
+            {
+                previousBarrelLayer_ = nextBarrelLayer_;
+                nextBarrelLayer_ = geometry_->nextLayer(nextBarrelLayer_);
+            }
+        }
+        else if(layer == previousBarrelLayer_)
+        {
+            if(particleMovesInwards)
+            {
+                nextBarrelLayer_ = previousBarrelLayer_;
+                previousBarrelLayer_ = geometry_->previousLayer(previousBarrelLayer_);
+            }
+        }
+        // forward layer was hit
+        else if(layer == nextForwardLayer_)
+        {
+            if(particle.momentum().Z() > 0)
+            {
+                previousForwardLayer_ = nextForwardLayer_;
+                nextForwardLayer_ = geometry_->nextLayer(nextForwardLayer_);
+            }
+        }
+        else if(layer == previousForwardLayer_)
+        {
+            if(particle.momentum().Z() < 0)
+            {
+                nextForwardLayer_ = previousForwardLayer_;
+                previousForwardLayer_ = geometry_->previousLayer(previousForwardLayer_);
+            }
+        }
 
-		// reset layer
-		layer = nullptr;
+        // reset layer
+        layer = nullptr;
     }
 
     ////////////
@@ -195,7 +195,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     ////////////
     
     LogDebug(MESSAGECATEGORY) << "   particle between BarrelLayers: " << (previousBarrelLayer_ ? previousBarrelLayer_->index() : -1) << "/" << (nextBarrelLayer_ ? nextBarrelLayer_->index() : -1) << " (total: "<< geometry_->barrelLayers().size() <<")"
-			      << "\n   particle between ForwardLayers: " << (previousForwardLayer_ ? previousForwardLayer_->index() : -1) << "/" << (nextForwardLayer_ ? nextForwardLayer_->index() : -1) << " (total: "<< geometry_->forwardLayers().size() <<")";
+                  << "\n   particle between ForwardLayers: " << (previousForwardLayer_ ? previousForwardLayer_->index() : -1) << "/" << (nextForwardLayer_ ? nextForwardLayer_->index() : -1) << " (total: "<< geometry_->forwardLayers().size() <<")";
     
     // calculate and store some variables related to the particle's trajectory
     std::unique_ptr<fastsim::Trajectory> trajectory = Trajectory::createTrajectory(particle,magneticFieldZ);
@@ -204,76 +204,76 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     std::vector<const fastsim::SimplifiedGeometry*> layers;
     if(nextBarrelLayer_) 
     {
-		layers.push_back(nextBarrelLayer_);
+        layers.push_back(nextBarrelLayer_);
     }
     if(previousBarrelLayer_)
     {
-		layers.push_back(previousBarrelLayer_);
+        layers.push_back(previousBarrelLayer_);
     }
 
     if(particle.momentum().Z() > 0)
     {
-		if(nextForwardLayer_)
-		{
-		    layers.push_back(nextForwardLayer_);
-		}
+        if(nextForwardLayer_)
+        {
+            layers.push_back(nextForwardLayer_);
+        }
     }
     else
     {
-		if(previousForwardLayer_)
-		{
-		    layers.push_back(previousForwardLayer_);
-		}
+        if(previousForwardLayer_)
+        {
+            layers.push_back(previousForwardLayer_);
+        }
     }
 
-	// calculate time until each possible intersection
-	// -> pick layer that is hit first    
+    // calculate time until each possible intersection
+    // -> pick layer that is hit first    
     double deltaTimeC = -1;
     for(auto _layer : layers)
     {
-		double tempDeltaTime = trajectory->nextCrossingTimeC(*_layer, particle.isOnLayer(_layer->isForward(), _layer->index()));
-		LogDebug(MESSAGECATEGORY) << "   particle crosses layer " << *_layer << " in time " << tempDeltaTime;
-		if(tempDeltaTime > 0 && (layer == nullptr || tempDeltaTime<deltaTimeC || deltaTimeC < 0))
-		{
-		    layer = _layer;
-		    deltaTimeC = tempDeltaTime;
-		}
+        double tempDeltaTime = trajectory->nextCrossingTimeC(*_layer, particle.isOnLayer(_layer->isForward(), _layer->index()));
+        LogDebug(MESSAGECATEGORY) << "   particle crosses layer " << *_layer << " in time " << tempDeltaTime;
+        if(tempDeltaTime > 0 && (layer == nullptr || tempDeltaTime<deltaTimeC || deltaTimeC < 0))
+        {
+            layer = _layer;
+            deltaTimeC = tempDeltaTime;
+        }
     }
 
     // if particle decays on the way to the next layer, stop propagation there and return
     double properDeltaTimeC = deltaTimeC / particle.gamma();
     if(!particle.isStable() && properDeltaTimeC > particle.remainingProperLifeTimeC())
     {
-    	// move particle in space, time and momentum until it decays
-		deltaTimeC = particle.remainingProperLifeTimeC() * particle.gamma();
+        // move particle in space, time and momentum until it decays
+        deltaTimeC = particle.remainingProperLifeTimeC() * particle.gamma();
 
-		trajectory->move(deltaTimeC);
-		particle.position() = trajectory->getPosition();
-		particle.momentum() = trajectory->getMomentum();
+        trajectory->move(deltaTimeC);
+        particle.position() = trajectory->getPosition();
+        particle.momentum() = trajectory->getMomentum();
 
-		particle.setRemainingProperLifeTimeC(0.);
+        particle.setRemainingProperLifeTimeC(0.);
 
-		// particle no longer is on a layer
-    	particle.resetOnLayer();
-		LogDebug(MESSAGECATEGORY) << "    particle about to decay. Will not be moved all the way to the next layer.";
-		return false;
+        // particle no longer is on a layer
+        particle.resetOnLayer();
+        LogDebug(MESSAGECATEGORY) << "    particle about to decay. Will not be moved all the way to the next layer.";
+        return false;
     }
 
     if(layer)
     {
-    	// move particle in space, time and momentum so it is on the next layer
-    	trajectory->move(deltaTimeC);
-		particle.position() = trajectory->getPosition();
-		particle.momentum() = trajectory->getMomentum();
+        // move particle in space, time and momentum so it is on the next layer
+        trajectory->move(deltaTimeC);
+        particle.position() = trajectory->getPosition();
+        particle.momentum() = trajectory->getMomentum();
 
-		if(!particle.isStable()) particle.setRemainingProperLifeTimeC(particle.remainingProperLifeTimeC() - properDeltaTimeC);
+        if(!particle.isStable()) particle.setRemainingProperLifeTimeC(particle.remainingProperLifeTimeC() - properDeltaTimeC);
 
-		// link the particle to the layer
-		particle.setOnLayer(layer->isForward(), layer->index());
-		LogDebug(MESSAGECATEGORY) << "    moved particle to layer: " << *layer;
+        // link the particle to the layer
+        particle.setOnLayer(layer->isForward(), layer->index());
+        LogDebug(MESSAGECATEGORY) << "    moved particle to layer: " << *layer;
     }else{
-    	// particle no longer is on a layer
-    	particle.resetOnLayer();
+        // particle no longer is on a layer
+        particle.resetOnLayer();
     }
 
     // return true / false if propagations succeeded /failed
@@ -281,4 +281,4 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     return layer;
 }
 
-	
+    

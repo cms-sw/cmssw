@@ -24,8 +24,8 @@ fastsim::Decayer::Decayer()
     int pid = 0;
     while(pdt.nextId(pid) > pid)
     {
-    	pid = pdt.nextId(pid);
-    	pdt.mayDecay(pid,false);
+        pid = pdt.nextId(pid);
+        pdt.mayDecay(pid,false);
     }
 }
 
@@ -41,11 +41,11 @@ fastsim::Decayer::decay(const Particle & particle,std::vector<std::unique_ptr<fa
     
     // create a pythia particle which has the same properties as the FastSim particle
     Pythia8::Particle pythiaParticle( pid , 93, 0, 0, 0, 0, 0, 0,
-				      particle.momentum().X(),
-				      particle.momentum().Y(),
-				      particle.momentum().Z(),
-				      particle.momentum().E(),
-				      particle.momentum().M() );
+                      particle.momentum().X(),
+                      particle.momentum().Y(),
+                      particle.momentum().Z(),
+                      particle.momentum().E(),
+                      particle.momentum().M() );
     pythiaParticle.vProd(particle.position().X(), particle.position().Y(), particle.position().Z(), particle.position().T());
     pythia_->event.append(pythiaParticle);
 
@@ -63,11 +63,11 @@ fastsim::Decayer::decay(const Particle & particle,std::vector<std::unique_ptr<fa
     // add decay products back to the event
     for(int ipart=nentries_before; ipart<nentries_after; ipart++) 
     {
-    	Pythia8::Particle& daughter = pythia_->event[ipart];
+        Pythia8::Particle& daughter = pythia_->event[ipart];
         
-    	secondaries.emplace_back(new fastsim::Particle(daughter.id()
-    						       ,math::XYZTLorentzVector(daughter.xProd(),daughter.yProd(),daughter.zProd(),daughter.tProd())
-    						       ,math::XYZTLorentzVector(daughter.px(), daughter.py(), daughter.pz(), daughter.e())));
+        secondaries.emplace_back(new fastsim::Particle(daughter.id()
+                                   ,math::XYZTLorentzVector(daughter.xProd(),daughter.yProd(),daughter.zProd(),daughter.tProd())
+                                   ,math::XYZTLorentzVector(daughter.px(), daughter.py(), daughter.pz(), daughter.e())));
 
         // daughter can inherit the SimTrackIndex of mother (if both charged): necessary for FastSim (cheat) tracking
         if(particle.charge() != 0 && std::abs(particle.charge()-daughter.charge()) < 1E-10){

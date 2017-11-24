@@ -36,11 +36,11 @@ namespace fastsim
         /*!
             \param name Enique name for every instance.
         */
-    	InteractionModel(std::string name)
-    	    : name_(name){}
+        InteractionModel(std::string name)
+            : name_(name){}
 
         //! Default destructor.
-    	virtual ~InteractionModel(){;}
+        virtual ~InteractionModel(){;}
 
         //! Perform the interaction.
         /*!
@@ -49,22 +49,22 @@ namespace fastsim
             \param secondaries Particles that are produced in the interaction (if any).
             \param random The Random Engine.
         */
-    	virtual void interact(Particle & particle, const SimplifiedGeometry & layer, std::vector<std::unique_ptr<Particle> > & secondaries, const RandomEngineAndDistribution & random) = 0;
-    	
+        virtual void interact(Particle & particle, const SimplifiedGeometry & layer, std::vector<std::unique_ptr<Particle> > & secondaries, const RandomEngineAndDistribution & random) = 0;
+        
         //! In case interaction produces and stores content in the event (e.g. TrackerSimHits).
         virtual void registerProducts(edm::ProducerBase & producer) const{;}
 
         //! In case interaction produces and stores content in the event (e.g. TrackerSimHits).
-    	virtual void storeProducts(edm::Event & iEvent) {;}
+        virtual void storeProducts(edm::Event & iEvent) {;}
 
         //! Return (unique) name of this interaction.
-    	const std::string getName() {return name_;}
+        const std::string getName() {return name_;}
 
         //! Basic information output.
-     	friend std::ostream& operator << (std::ostream& o, const InteractionModel & model); 
+        friend std::ostream& operator << (std::ostream& o, const InteractionModel & model); 
         
         private:
-    	const std::string name_;  //!< A unique name for every instance of any interaction.
+        const std::string name_;  //!< A unique name for every instance of any interaction.
     };
     std::ostream& operator << (std::ostream& os, const InteractionModel & interactionModel);
 

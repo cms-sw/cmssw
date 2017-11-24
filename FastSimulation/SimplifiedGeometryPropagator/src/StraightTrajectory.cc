@@ -34,7 +34,7 @@ double fastsim::StraightTrajectory::nextCrossingTimeC(const fastsim::BarrelSimpl
     double delta = b*b - a*c;
     if(delta < 0)
     {
-	   return -1;
+       return -1;
     }
     double sqrtDelta = sqrt(delta);
 
@@ -81,8 +81,8 @@ double fastsim::StraightTrajectory::nextCrossingTimeC(const fastsim::BarrelSimpl
 void fastsim::StraightTrajectory::move(double deltaTimeC)
 {
     position_.SetXYZT(
-    	position_.X() + momentum_.X()/momentum_.E()*deltaTimeC,
-    	position_.Y() + momentum_.Y()/momentum_.E()*deltaTimeC,
-    	position_.Z() + momentum_.Z()/momentum_.E()*deltaTimeC,
-    	position_.T() + deltaTimeC / fastsim::Constants::speedOfLight);
+        position_.X() + momentum_.X()/momentum_.E()*deltaTimeC,
+        position_.Y() + momentum_.Y()/momentum_.E()*deltaTimeC,
+        position_.Z() + momentum_.Z()/momentum_.E()*deltaTimeC,
+        position_.T() + deltaTimeC / fastsim::Constants::speedOfLight);
 }

@@ -9,13 +9,13 @@
 #include <string>
 
 class FastSimGeometryESProducer: public edm::ESProducer{
- public:
-  FastSimGeometryESProducer(const edm::ParameterSet & p);
-  ~FastSimGeometryESProducer() override; 
-  std::shared_ptr<fastsim::Geometry> produce(const GeometryRecord &);
- private:
-  std::shared_ptr<fastsim::Geometry> _tracker;
-  edm::ParameterSet theTrackerMaterial;
+    public:
+    FastSimGeometryESProducer(const edm::ParameterSet & p);
+    ~FastSimGeometryESProducer() override; 
+    std::shared_ptr<fastsim::Geometry> produce(const GeometryRecord &);
+    private:
+    std::shared_ptr<fastsim::Geometry> _tracker;
+    edm::ParameterSet theTrackerMaterial;
 };
 
 
