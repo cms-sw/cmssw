@@ -787,11 +787,11 @@ ApeEstimatorSummary::calculateApe(){
        // old APE value from last iteration
        if(firstIter){
          apeX2 = 0.;
-        apeY2 = 0.;
+         apeY2 = 0.;
        }
        else{
          apeX2 = a_apeSectorX[(*i_sector).first];
-        apeY2 = a_apeSectorY[(*i_sector).first];
+         apeY2 = a_apeSectorY[(*i_sector).first];
        }
        const double apeX2old = apeX2;
        const double apeY2old = apeY2;
@@ -812,11 +812,13 @@ ApeEstimatorSummary::calculateApe(){
        const double apeY2new(apeY2old + correctionY2);
        if(!smoothIteration || firstIter){
          apeX2 = apeX2new;
-        apeY2 = apeY2new;
+         apeY2 = apeY2new;
        }
        else{
-         apeX2 = std::pow(smoothFraction*std::sqrt(apeX2new) + (1-smoothFraction)*std::sqrt(apeX2old), 2);
-        apeY2 = std::pow(smoothFraction*std::sqrt(apeY2new) + (1-smoothFraction)*std::sqrt(apeY2old), 2);
+         const double apeXtmp = smoothFraction*std::sqrt(apeX2new) + (1-smoothFraction)*std::sqrt(apeX2old);
+         const double apeYtmp = smoothFraction*std::sqrt(apeY2new) + (1-smoothFraction)*std::sqrt(apeY2old);
+         apeX2 = apeXtmp*apeXtmp;
+         apeY2 = apeYtmp*apeYtmp;
        }
        if(apeX2<0. || apeY2<0.)edm::LogError("CalculateAPE")<<"\n\n\tBad APE, but why???\n\n\n";
        a_apeSectorX[(*i_sector).first] = apeX2;
