@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include "Rtypes.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWLongParameter.h"
