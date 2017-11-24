@@ -1,4 +1,9 @@
+#ifndef ElectronSelector_H
+#define ElectronSelector_H
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include <vector>
 
@@ -108,3 +113,4 @@ std::vector<reco::GsfElectronRef> electronSelector(const std::vector<reco::GsfEl
 	return ChosenOnes;
 }
 
+#endif // ElectronSelector_H
