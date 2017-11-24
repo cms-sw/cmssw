@@ -223,7 +223,6 @@ void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
   for (std::size_t i=0; i < input_sizes.size(); i++) {
     input_tensors[i] = tensorflow::NamedTensor(
       input_names_[i], tensorflow::Tensor(tensorflow::DT_FLOAT, input_sizes.at(i)));
-    input_tensors[i].second.flat<float>().setZero();
   }
 
   // add learning-phase tensors behind them
@@ -233,6 +232,11 @@ void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
 
   std::size_t n_batches = n_jets/n_batch_jets; // either 1 or n_jets
   for (std::size_t batch_n=0; batch_n < n_batches; batch_n++) {
+
+    // tensors have to be zeroed before filling per batch
+    for (std::size_t i=0; i < input_sizes.size(); i++) {
+      input_tensors[i].second.flat<float>().setZero();
+    }
 
     // fill values of the input tensors
     for (std::size_t jet_bn=0; jet_bn < (std::size_t) n_batch_jets; jet_bn++) {
