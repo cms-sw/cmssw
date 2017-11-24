@@ -20,8 +20,8 @@ fastsim::ParticleManager::ParticleManager(
     double beamPipeRadius,
     double deltaRchargedMother,
     const fastsim::ParticleFilter & particleFilter,
-    std::unique_ptr<std::vector<SimTrack> > & simTracks,
-    std::unique_ptr<std::vector<SimVertex> > & simVertices)
+    std::vector<SimTrack> & simTracks,
+    std::vector<SimVertex> & simVertices)
     : genEvent_(&genEvent)
     , genParticleIterator_(genEvent_->particles_begin())
     , genParticleEnd_(genEvent_->particles_end())
@@ -30,8 +30,8 @@ fastsim::ParticleManager::ParticleManager(
     , beamPipeRadius2_(beamPipeRadius*beamPipeRadius)
     , deltaRchargedMother_(deltaRchargedMother)
     , particleFilter_(&particleFilter)
-    , simTracks_(std::move(simTracks))
-    , simVertices_(std::move(simVertices))
+    , simTracks_(&simTracks)
+    , simVertices_(&simVertices)
     // prepare unit convsersions
     //  --------------------------------------------
     // |          |      hepmc               |  cms |
@@ -46,6 +46,7 @@ fastsim::ParticleManager::ParticleManager(
     , timeUnitConversionFactor_(lengthUnitConversionFactor_/fastsim::Constants::speedOfLight)
 
 {
+
     // add the main vertex from the signal event to the simvertex collection
     if(genEvent.vertices_begin() != genEvent_->vertices_end())
     {
@@ -279,7 +280,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle()
     	if(endVertex)
     	{
     	    double labFrameLifeTime = (endVertex->position().t() - productionVertex->position().t())*timeUnitConversionFactor_;
-    	    newParticle->setRemainingProperLifeTimeC(labFrameLifeTime * newParticle->gamma() * fastsim::Constants::speedOfLight);
+    	    newParticle->setRemainingProperLifeTimeC(labFrameLifeTime / newParticle->gamma() * fastsim::Constants::speedOfLight);
     	}
 
         // TODO: The products of a b-decay should point to that vertex and not to the primary vertex!

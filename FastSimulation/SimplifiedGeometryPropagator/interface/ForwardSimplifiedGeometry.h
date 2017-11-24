@@ -3,7 +3,7 @@
 
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/SimplifiedGeometry.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "TH1F.h"
+#include <TH1F.h>
 #include "FWCore/Utilities/interface/Exception.h"
 
 
@@ -25,7 +25,7 @@ namespace fastsim{
 	    public:		
 		//! Constructor.
 		/*!
-	  		Create a forward layer with a given radius.
+	  		Create a forward layer with a given position (along z-axis).
 	  		\param radius The z-position of the layer (in cm).
 		*/
 		ForwardSimplifiedGeometry(double z) :

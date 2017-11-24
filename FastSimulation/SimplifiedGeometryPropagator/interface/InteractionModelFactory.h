@@ -2,7 +2,7 @@
 #define FASTSIM_INTERACTIONMODELFACTORY
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include "string"
+#include <string>
 
 namespace edm
 {

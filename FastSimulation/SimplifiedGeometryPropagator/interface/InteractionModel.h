@@ -1,9 +1,9 @@
 #ifndef FASTSIM_INTERACTIONMODEL
 #define FASTSIM_INTERACTIONMODEL
 
-#include "string"
-#include "vector"
-#include "memory"
+#include <string>
+#include <vector>
+#include <memory>
 
 
 ///////////////////////////////////////////////

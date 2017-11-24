@@ -1,7 +1,7 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/LayerNavigator.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Constants.h"
 
-#include "vector"
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

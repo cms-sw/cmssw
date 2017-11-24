@@ -1337,5 +1337,6 @@ void CalorimetryManager::harvestMuonSimTracks(edm::SimTrackContainer &c) const
   for(unsigned i=0; i<savedMuonSimTracks.size(); i++) {
     if(savedMuonSimTracks[i].momentum().perp2() > 1.0 && fabs(savedMuonSimTracks[i].momentum().eta()) < 3.0)  c.push_back(savedMuonSimTracks[i]);
   }
+  c.shrink_to_fit();
 }
 

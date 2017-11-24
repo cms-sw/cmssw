@@ -80,7 +80,7 @@ void fastsim::PairProduction::interact(fastsim::Particle & particle, const Simpl
 
     double eGamma = particle.momentum().e();
     //
-    // only consider electrons and positrons
+    // only consider photons
     //
     if(particle.pdgId()!=22)
     {

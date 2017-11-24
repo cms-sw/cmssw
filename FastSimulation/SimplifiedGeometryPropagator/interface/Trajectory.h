@@ -1,7 +1,7 @@
 #ifndef FASTSIM_TRAJECTORY_H
 #define FASTSIM_TRAJECTORY_H
 
-#include "memory"
+#include <memory>
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
