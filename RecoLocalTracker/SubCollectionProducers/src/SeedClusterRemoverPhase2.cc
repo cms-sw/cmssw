@@ -19,11 +19,7 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -56,7 +52,6 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
 
     inline void process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg);
 
-    reco::TrackBase::TrackQuality trackQuality_;
     std::vector<bool> collectedOuterTrackers_;
     std::vector<bool> collectedPixels_;
 };
@@ -64,7 +59,6 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
 
 using namespace std;
 using namespace edm;
-using namespace reco;
 
 SeedClusterRemoverPhase2::SeedClusterRemoverPhase2(const ParameterSet& iConfig):
     doOuterTracker_(iConfig.existsAs<bool>("doOuterTracker") ? iConfig.getParameter<bool>("doOuterTracker") : true),
@@ -74,11 +68,6 @@ SeedClusterRemoverPhase2::SeedClusterRemoverPhase2(const ParameterSet& iConfig):
   produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
   produces<edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > >();
   
-  trackQuality_=reco::TrackBase::undefQuality;
-  if (iConfig.exists("TrackQuality")){
-    trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
-  }
-
   trajectories_ = consumes<TrajectorySeedCollection>(iConfig.getParameter<InputTag>("trajectories"));
   if (doPixel_) pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<InputTag>("pixelClusters"));
   if (doOuterTracker_) phase2OTClusters_ = consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(iConfig.getParameter<InputTag>("phase2OTClusters"));
