@@ -21,11 +21,7 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -87,7 +83,6 @@ class SeedClusterRemover : public edm::stream::EDProducer<> {
 
 using namespace std;
 using namespace edm;
-using namespace reco;
 
 void
 SeedClusterRemover::readPSet(const edm::ParameterSet& iConfig, const std::string &name, 
