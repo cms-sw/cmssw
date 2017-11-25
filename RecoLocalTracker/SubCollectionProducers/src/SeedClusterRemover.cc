@@ -142,6 +142,9 @@ SeedClusterRemover::SeedClusterRemover(const ParameterSet& iConfig):
       oldPxlMaskToken_ = consumes<PixelMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
       oldStrMaskToken_ = consumes<StripMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
     }
+
+    produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
+    produces<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >();
 }
 
 
