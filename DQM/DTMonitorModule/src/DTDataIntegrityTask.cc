@@ -114,9 +114,9 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   // static booking of the histograms
   for(int fed = FEDIDmin; fed <= FEDIDMax; ++fed) { // loop over the FEDs in the readout
 
-    bookHistos(ibooker, string("ROS_S"), fed);
+    bookHistos(ibooker, string("FED"), fed);
 
-    bookHistos(ibooker, string("DDU"), fed);
+    bookHistos(ibooker, string("CRATE"), fed);
 
     for(int uRos = 1; uRos <= 12; ++uRos) {// loop over all ROS
       //code.setROS(ros);
@@ -210,7 +210,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   MonitorElement* histo = nullptr;
 
   // Crate (old DDU) Histograms
-  if (folder == "DDU") {
+  if (folder == "CRATE") {
 
     ibooker.setCurrentFolder(topFolder(false) + "FED" + fed_s.str());
 
@@ -257,8 +257,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histoType = "FEDAvgEvLenghtvsLumi";
     histoName = "FED" + fed_s.str() + "_" + histoType;
     histoTitle = "Avg Event Lenght (Bytes) vs LumiSec FED " +  fed_s.str();
-    fedTimeHistos[histoType][fed] = new DTTimeEvolutionHisto(ibooker,histoName,histoTitle,200,10,true,0);
-
+    (fedTimeHistos[histoType])[fed] = new DTTimeEvolutionHisto(ibooker,histoName,histoTitle,200,10,true,0);
     
     histoType = "TTSValues";
     histoName = "FED" + fed_s.str() + "_" + histoType;
@@ -308,8 +307,8 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     
   }
 
-  // ROS Histograms
-  if ( folder == "ROS_S" ) { // The summary of the error of the ROS on the same FED
+  // uROS Histograms
+  if ( folder == "FED" ) { // The summary of the error of the ROS on the same FED
     ibooker.setCurrentFolder(topFolder(false));
 
     if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
@@ -951,7 +950,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
 
   // 1D histograms for TTS values per uROS
   int ttsCodeValue = -1;
-
+  cout<<"data.getuserWord() & 0xF"<<(data.getuserWord() & 0xF)<<endl;
   switch(data.getuserWord() & 0xF) { //FIXME Not sure if well extracted
   case 0:{ //disconnected
     ttsCodeValue = 0;
@@ -983,7 +982,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
   }
   default:{
     LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
-      <<"[DTDataIntegrityTask] FED control: wrong TTS value "<<(data.getuserWord() & 0xF)<<endl; //FIXME
+      <<"[DTDataIntegrityTask] FED User control: wrong TTS value "<<(data.getuserWord() & 0xF)<<endl; //FIXME
     ttsCodeValue = 7;
   }
   }
@@ -1292,9 +1291,11 @@ void DTDataIntegrityTask::processFED(DTuROSFEDData  & data, int fed){
   if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
   //1D HISTOS: EVENT LENGHT from trailer
-  int fedEvtLenght = data.getevtlgth()*8;
+  int fedEvtLenght = data.getevtlgth()*8;  //1 word = 8 bytes
   //   if(fedEvtLenght > 16000) fedEvtLenght = 16000; // overflow bin
   fedHistos["EventLenght"][fed]->Fill(fedEvtLenght);
+
+  if(mode > 1) return;
 
   fedTimeHistos["FEDAvgEvLenghtvsLumi"][fed]->accumulateValueTimeSlot(fedEvtLenght);
 
@@ -1342,7 +1343,7 @@ void DTDataIntegrityTask::processFED(DTuROSFEDData  & data, int fed){
   }
   default:{
     LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
-      <<"[DTDataIntegrityTask] FED control: wrong TTS value "<<data.getTTS()<<endl;
+      <<"[DTDataIntegrityTask] FED TTS control: wrong TTS value "<<data.getTTS()<<endl;
     ttsCodeValue = 7;
   }
   }
@@ -1697,6 +1698,18 @@ void DTDataIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock& ls, con
 
   int lumiBlock = ls.luminosityBlock();
 
+  if (checkUros){
+  map<std::string, map<int, DTTimeEvolutionHisto*> >::iterator fedIt  = fedTimeHistos.begin();
+  map<std::string, map<int, DTTimeEvolutionHisto*> >::iterator fedEnd = fedTimeHistos.end();
+  for(; fedIt!=fedEnd; ++fedIt) {
+    map<int, DTTimeEvolutionHisto*>::iterator histoIt  = fedIt->second.begin();
+    map<int, DTTimeEvolutionHisto*>::iterator histoEnd = fedIt->second.end();
+    for(; histoIt!=histoEnd; ++histoIt) {
+      histoIt->second->updateTimeSlot(lumiBlock,nEventsLS);
+    }
+  }
+  }//uROS starting on 2018
+  else{
   map<std::string, map<int, DTTimeEvolutionHisto*> >::iterator dduIt  = dduTimeHistos.begin();
   map<std::string, map<int, DTTimeEvolutionHisto*> >::iterator dduEnd = dduTimeHistos.end();
   for(; dduIt!=dduEnd; ++dduIt) {
@@ -1716,7 +1729,7 @@ void DTDataIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock& ls, con
       histoIt->second->updateTimeSlot(lumiBlock,nEventsLS);
     }
   }
-
+  }//ROS Legacy
 }
 
 void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
