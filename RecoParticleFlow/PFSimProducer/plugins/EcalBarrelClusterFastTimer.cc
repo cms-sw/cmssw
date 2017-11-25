@@ -25,14 +25,12 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
+#include <random>
 #include <memory>
 
 #include "SimTracker/TrackAssociation/interface/ResolutionModel.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 class EcalBarrelClusterFastTimer : public edm::global::EDProducer<> {
 public:    
@@ -93,20 +91,9 @@ EcalBarrelClusterFastTimer::EcalBarrelClusterFastTimer(const edm::ParameterSet& 
     produces<edm::ValueMap<float> >(name); 
     produces<edm::ValueMap<float> >(name+resolution);    
   }
-  // get RNG engine
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if (!rng.isAvailable()){
-    throw cms::Exception("Configuration")
-      << "EcalBarrelClusterFastTimer::EcalBarrelClusterFastTimer() - RandomNumberGeneratorService is not present in configuration file.\n"
-      << "Add the service in the configuration file or remove the modules that require it.";
-  }
 }
 
 void EcalBarrelClusterFastTimer::produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const {
-  // get RNG engine
-  edm::Service<edm::RandomNumberGenerator> rng; 
-  auto rng_engine = &(rng->getEngine(sid));
-
   edm::Handle<std::vector<reco::PFCluster> > clustersH;
   edm::Handle<EcalRecHitCollection> timehitsH;
 
@@ -116,6 +103,13 @@ void EcalBarrelClusterFastTimer::produce(edm::StreamID sid, edm::Event& evt, con
   const auto& clusters = *clustersH;
   const auto& timehits = *timehitsH;
   
+  // get event-based seed for RNG
+  unsigned int runNum_uint = static_cast <unsigned int> (evt.id().run());
+  unsigned int lumiNum_uint = static_cast <unsigned int> (evt.id().luminosityBlock());
+  unsigned int evNum_uint = static_cast <unsigned int> (evt.id().event());
+  std::uint32_t seed = (lumiNum_uint<<10) + (runNum_uint<<20) + evNum_uint;
+  std::mt19937 rng(seed);
+
   std::vector<std::pair<float,DetId> > times; // perfect times keyed to cluster index
   times.reserve(clusters.size());
   
@@ -133,8 +127,9 @@ void EcalBarrelClusterFastTimer::produce(edm::StreamID sid, edm::Event& evt, con
     // smear once then correct to multiple vertices
     for( unsigned i = 0 ; i < clusters.size(); ++i ) {      
       const float theresolution = reso->getTimeResolution(clusters[i]);
+      std::normal_distribution<float> gausTime(times[i].first, theresolution);
       
-      smeared_times.emplace_back( CLHEP::RandGauss::shoot(rng_engine, times[i].first, theresolution) );
+      smeared_times.emplace_back( gausTime(rng) );
       resolutions.push_back( theresolution );
     }    
 
