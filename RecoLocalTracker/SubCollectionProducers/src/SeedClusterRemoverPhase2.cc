@@ -91,6 +91,9 @@ SeedClusterRemoverPhase2::SeedClusterRemoverPhase2(const ParameterSet& iConfig):
   if (doOuterTracker_ && clusterWasteSolution_) produces< edmNew::DetSetVector<Phase2TrackerCluster1D> >();
   if (clusterWasteSolution_) produces< ClusterRemovalInfo >();
 
+  assert(!clusterWasteSolution_);
+
+
   if (!clusterWasteSolution_){
     produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
     produces<edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > >();
