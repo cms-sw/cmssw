@@ -52,7 +52,7 @@ private:
   ReturnType coder_;  
   HcaluLUTTPGCoder* theCoder_;
   bool read_FGLut_, read_Ascii_,read_XML_,LUTGenerationMode_,linearLUTs_;
-  double linearLSB_;
+  double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
   unsigned int FG_HF_threshold_;
   edm::FileInPath fgfile_,ifilename_;
@@ -81,7 +81,10 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
     setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
     LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
     linearLUTs_ = iConfig.getParameter<bool>("linearLUTs");
-    linearLSB_ = iConfig.getParameter<double>("linearLSB");
+    auto scales = iConfig.getParameter<edm::ParameterSet>("TPScales").getParameter<edm::ParameterSet>("HBHE");
+    linearLSB_QIE8_ = scales.getParameter<double>("LSBQIE8");
+    linearLSB_QIE11_ = scales.getParameter<double>("LSBQIE11");
+    linearLSB_QIE11Overlap_ = scales.getParameter<double>("LSBQIE11Overlap");
     maskBit_ = iConfig.getParameter<int>("MaskBit");
     FG_HF_threshold_ = iConfig.getParameter<uint32_t>("FG_HF_threshold"); 
   } else {
@@ -108,7 +111,7 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo) {
       theCoder_->update(fgfile_.fullPath().c_str(), true);
     } 
   } else {
-    theCoder_->setAllLinear(linearLUTs_, linearLSB_);
+    theCoder_->setAllLinear(linearLUTs_, linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_);
     theCoder_->setLUTGenerationMode(LUTGenerationMode_);
     theCoder_->setMaskBit(maskBit_);
     theCoder_->setFGHFthreshold(FG_HF_threshold_);

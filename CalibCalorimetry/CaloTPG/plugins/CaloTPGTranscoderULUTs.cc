@@ -65,7 +65,8 @@ private:
   double RCTLSB;
   int NCTScaleShift;
   int RCTScaleShift;  
-  int linScaleShift;
+  double lsbQIE8;
+  double lsbQIE11;
 };
 
 //
@@ -101,10 +102,13 @@ CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig)
    nominal_gain = iConfig.getParameter<double>("nominal_gain");
    RCTLSB = iConfig.getParameter<double>("RCTLSB");
 
-   edm::ParameterSet hfSS=iConfig.getParameter<edm::ParameterSet>("TPScaleShift");
-   NCTScaleShift = hfSS.getParameter<int>("HFNCT");
-   RCTScaleShift = hfSS.getParameter<int>("HFRCT");
-   linScaleShift = hfSS.getParameter<int>("HBHElinear");
+   auto scales = iConfig.getParameter<edm::ParameterSet>("TPScales");
+   auto hfscales = scales.getParameter<edm::ParameterSet>("HF");
+   NCTScaleShift = hfscales.getParameter<int>("NCTShift");
+   RCTScaleShift = hfscales.getParameter<int>("RCTShift");
+   auto hbhescales = scales.getParameter<edm::ParameterSet>("HBHE");
+   lsbQIE8 = hbhescales.getParameter<double>("LSBQIE8");
+   lsbQIE11 = hbhescales.getParameter<double>("LSBQIE11");
 }
 
 
@@ -166,7 +170,7 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
    fullLut.setTopo(htopo.product());
 
    std::auto_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
-   pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift, linScaleShift, linearLUTs_);
+   pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift, lsbQIE8, lsbQIE11, linearLUTs_);
    return std::auto_ptr<CaloTPGTranscoder>( pTCoder );
 }
 
