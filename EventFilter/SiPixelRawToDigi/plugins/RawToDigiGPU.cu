@@ -98,6 +98,7 @@ void initDeviceMemory() {
   cudaMalloc((void**)&yy_adc,       MAX_WORD_SIZE);
   cudaMalloc((void**)&adc_d,        MAX_WORD_SIZE);
   cudaMalloc((void**)&layer_d ,     MAX_WORD_SIZE);
+  cudaMalloc((void**)&rawIdArr_d,         MAX_WORD_SIZE); // to store the x and y coordinate
 
   cudaMalloc((void**)&moduleId_d,   MAX_WORD_SIZE);
   cudaMalloc((void**)&mIndexStart_d, MSIZE);
@@ -125,6 +126,7 @@ void freeMemory() {
   cudaFree(yy_d);
   cudaFree(xx_adc);
   cudaFree(yy_adc);
+  cudaFree(rawIdArr_d);
   
   cudaFree(moduleId_d);
   cudaFree(mIndexStart_d);
@@ -293,7 +295,7 @@ __global__ void applyADCthreshold_kernel
 // Kernel to perform Raw to Digi conversion
 __global__ void RawToDigi_kernel(const CablingMap *Map,const uint *Word,const uint *fedIndex, 
                                  uint *eventIndex,const uint stream, uint *XX, uint *YY, uint *moduleId, int *mIndexStart, 
-                                 int *mIndexEnd, uint *ADC, uint *layerArr) 
+                                 int *mIndexEnd, uint *ADC, uint *layerArr, uint *rawIdArr)
 {
   uint blockId  = blockIdx.x;
   uint eventno  = blockIdx.y + gridDim.y*stream;
@@ -314,17 +316,18 @@ __global__ void RawToDigi_kernel(const CablingMap *Map,const uint *Word,const ui
   //if(threadId==0) printf("Event: %u blockId: %u start: %u end: %u\n", eventno, blockId, begin, end);
   int no_itr = (end - begin)/blockDim.x + 1; // to deal with number of hits greater than blockDim.x 
   #pragma unroll
-  for(int i =0; i<no_itr; i++) { // use a static number to optimize this loop
+  for(int i = 0; i < no_itr; i++) { // use a static number to optimize this loop
     uint gIndex = begin + threadId + i*blockDim.x; 
-    if(gIndex <end) {
-      uint ww    = Word[gIndex]; // Array containing 32 bit raw data
-      if(ww == 0 ) {
+    if(gIndex < end) {
+      uint ww = Word[gIndex]; // Array containing 32 bit raw data
+      if(ww == 0) {
         //noise and dead channels are ignored
         XX[gIndex]    = 0;  // 0 is an indicator of a noise/dead channel
         YY[gIndex]    = 0; // skip these pixels during clusterization
         ADC[gIndex]   = 0;
         layerArr[gIndex] = 0; 
-        moduleId[gIndex] = 9999; //9999 is the indication of bad module, taken care later  
+        moduleId[gIndex] = 9999; //9999 is the indication of bad module, taken care later
+        rawIdArr[gIndex] = 9999;
         continue ;         // 0: bad word, 
       } 
       uint link  = getLink(ww);            // Extract link
@@ -377,6 +380,7 @@ __global__ void RawToDigi_kernel(const CablingMap *Map,const uint *Word,const ui
       ADC[gIndex]   = getADC(ww);
       layerArr[gIndex] = layer;
       moduleId[gIndex] = detId.moduleId;
+      rawIdArr[gIndex] = rawId;
     } // end of if(gIndex < end)
   } // end of for(int i =0;i<no_itr...)
   
@@ -401,6 +405,7 @@ __global__ void RawToDigi_kernel(const CablingMap *Map,const uint *Word,const ui
         atomicExch(&YY[gIndex+2], atomicExch(&YY[gIndex+1], YY[gIndex+2]));
         atomicExch(&ADC[gIndex+2], atomicExch(&ADC[gIndex+1], ADC[gIndex+2]));
         atomicExch(&layerArr[gIndex+2], atomicExch(&layerArr[gIndex+1], layerArr[gIndex+2]));
+        atomicExch(&rawIdArr[gIndex+2], atomicExch(&rawIdArr[gIndex+1], rawIdArr[gIndex+2]));
       }
       __syncthreads();
 
@@ -414,6 +419,7 @@ __global__ void RawToDigi_kernel(const CablingMap *Map,const uint *Word,const ui
         atomicExch(&YY[gIndex+1], atomicExch(&YY[gIndex], YY[gIndex+1]));
         atomicExch(&ADC[gIndex+1], atomicExch(&ADC[gIndex], ADC[gIndex+1]));
         atomicExch(&layerArr[gIndex+1], atomicExch(&layerArr[gIndex], layerArr[gIndex+1]));
+        atomicExch(&rawIdArr[gIndex+1], atomicExch(&rawIdArr[gIndex], rawIdArr[gIndex+1]));
       }
 
       // moduleId== 9999 then pixel is bad with x=y=layer=adc=0
@@ -464,7 +470,7 @@ __global__ void RawToDigi_kernel(const CablingMap *Map,const uint *Word,const ui
 // kernel wrapper called from runRawToDigi_kernel
 void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounter,  uint *fedIndex,
                         uint *eventIndex,bool convertADCtoElectrons, uint *xx_h, uint *yy_h, uint *adc_h, int *mIndexStart_h,
-                        int *mIndexEnd_h) { 
+                        int *mIndexEnd_h, uint *rawIdArr_h) {
   
  
   cout<<"Inside GPU RawToDigi , Total pixels: "<<wordCounter<<endl;
@@ -497,7 +503,7 @@ void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounte
     cudaMemcpyAsync(&fedIndex_d[fedOffset], &fedIndex[fedOffset], FSIZE, cudaMemcpyHostToDevice, stream[i]); 
     // Launch rawToDigi kernel
     RawToDigi_kernel<<<gridsize,threads,0, stream[i]>>>(Map,word_d, fedIndex_d,eventIndex_d,i, xx_d, yy_d, moduleId_d,
-                                        mIndexStart_d, mIndexEnd_d, adc_d,layer_d);
+                                        mIndexStart_d, mIndexEnd_d, adc_d, layer_d, rawIdArr_d);
   }
   
   checkCUDAError("Error in RawToDigi_kernel");
@@ -509,12 +515,12 @@ void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounte
   //cudaDeviceSynchronize();  
  
   // kernel to apply adc threashold on the channel
-  ADCThreshold adcThreshold;
-  uint numThreads = 512;
-  uint numBlocks = wordCounter/512 +1;
-  applyADCthreshold_kernel<<<numBlocks, numThreads>>>(xx_d, yy_d,layer_d,adc_d,wordCounter,adcThreshold, xx_adc, yy_adc);
-  cudaDeviceSynchronize();
-  checkCUDAError("Error in applying ADC threshold");
+  //ADCThreshold adcThreshold;
+  //uint numThreads = 512;
+  //uint numBlocks = wordCounter/512 +1;
+  //applyADCthreshold_kernel<<<numBlocks, numThreads>>>(xx_d, yy_d,layer_d,adc_d, wordCounter, adcThreshold, xx_adc, yy_adc);
+  //cudaDeviceSynchronize();
+  //checkCUDAError("Error in applying ADC threshold");
   cout << "Raw data is converted into digi for " << NEVENT << "  Events" << endl;
 
   // copy data to host variable
@@ -528,6 +534,7 @@ void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounte
     cudaMemcpy(yy_h, yy_d, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
   }
   cudaMemcpy(adc_h, adc_d, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
+  cudaMemcpy(rawIdArr_h, rawIdArr_d, wordCounter*sizeof(uint), cudaMemcpyDeviceToHost);
 
   cudaMemcpy(mIndexStart_h, mIndexStart_d, NEVENT*NMODULE*sizeof(int), cudaMemcpyDeviceToHost);
   cudaMemcpy(mIndexEnd_h, mIndexEnd_d, NEVENT*NMODULE*sizeof(int), cudaMemcpyDeviceToHost);

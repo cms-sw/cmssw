@@ -25,7 +25,7 @@ class PixelUnpackingRegions;
 
 class SiPixelRawToDigiGPU : public edm::stream::EDProducer<> {
 public:
-
+ 
   /// ctor
   explicit SiPixelRawToDigiGPU( const edm::ParameterSet& );
 
@@ -72,7 +72,7 @@ private:
 
   // to store the output
   // uint *word_h, *fedIndex_h, *eventIndex_h;       // host copy of input data
-  uint *xx_h, *yy_h, *adc_h;  // host copy of output
+  uint *xx_h, *yy_h, *adc_h, *rawIdArr_h;  // host copy of output
   // store the start and end index for each module (total 1856 modules-phase 1)
   int *mIndexStart_h, *mIndexEnd_h; 
   

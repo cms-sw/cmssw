@@ -43,7 +43,7 @@ const uint numColsInRoc = 52;
  const uint MAX_LINK = 48; //maximum links/channels for phase1 
  const uint MAX_ROC  = 8;
  const uint MAX_WORD = 2000;//500; 
- const int   NSTREAM = 4;
+ const int NSTREAM = 1;
                  
  const uint ADC_shift  = 0;
  const uint PXID_shift = ADC_shift + ADC_bits;
@@ -82,7 +82,7 @@ struct  CablingMap{
  //CablingMap *Map;
  //GPU specific
  uint *word_d, *fedIndex_d, *eventIndex_d;       // Device copy of input data
- uint *xx_d, *yy_d,*xx_adc, *yy_adc, *moduleId_d, *adc_d, *layer_d;  // Device copy
+ uint *xx_d, *yy_d,*xx_adc, *yy_adc, *moduleId_d, *adc_d, *layer_d, *rawIdArr_d;  // Device copy
  // store the start and end index for each module (total 1856 modules-phase 1)
  cudaStream_t stream[NSTREAM];
  int *mIndexStart_d, *mIndexEnd_d; 

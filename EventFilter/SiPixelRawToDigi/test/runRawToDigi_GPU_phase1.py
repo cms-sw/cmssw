@@ -1,75 +1,164 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("MyRawToDigi")
+from Configuration.StandardSequences.Eras import eras
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2017NewFPixReco_cff')
+process = cms.Process('MyDigis',eras.Run2_2017)
 
-#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-#process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
-process.load("Configuration.StandardSequences.Services_cff")
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('Configuration.StandardSequences.L1Reco_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('CommonTools.ParticleFlow.EITopPAG_cff')
+process.load('PhysicsTools.PatAlgos.slimming.metFilterPaths_cff')
+process.load('Configuration.StandardSequences.PATMC_cff')
+process.load('Configuration.StandardSequences.Validation_cff')
+process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.GlobalTag import GlobalTag
-# to use no All 
-# 2015
-#process.GlobalTag.globaltag = 'GR_P_V56' # for 247607
-#process.GlobalTag.globaltag = 'PRE_R_71_V3' #2014
-
-#2017
-#process.GlobalTag.globaltag='81X_upgrade2017_realistic_v26'
-# AUTO conditions 
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_data', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2017', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, '76X_upgrade2017_design_v8', '')
-#process.GlobalTag.globaltag ="81X_dataRun2_relval_v14"
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(128))
-
-process.source = cms.Source("PoolSource",
-fileNames =  cms.untracked.vstring(
-# 'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu_phase1/pt100_81/raw/raw1_formatfix.root'
-#'root://cms-xrd-global.cern.ch//store/relval/CMSSW_8_1_0/RelValMinBias_13/GEN-SIM-DIGI-RAW/81X_upgrade2017_realistic_v26_HLT2017Trk-v1/10000/06A2997E-3BC1-E611-B286-0CC47A78A30E.root'
-#2018 CMSSW_9_4_0
-'/store/relval/CMSSW_9_4_0/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_upgrade2018_realistic_v5-v1/10000/F87005CD-CBC8-E711-A9F5-0CC47A4D7694.root'
-
-#2017 CMSSW_9_2_0
-# download this file
-# /store/relval/CMSSW_9_2_0/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2017_realistic_v5_PU50-v1/10000/7C654D7C-9E40-E711-8690-0025905A48BC.root
-#'file:/afs/cern.ch/work/s/sdubey/data/Raw_Data_Phase1/7C654D7C-9E40-E711-8690-0025905A48BC.root'
-#'file:/home/fpantale/data/920/PU50/085D5AAF-9E40-E711-B12A-0025905A609E.root'
-#2016 CMSSW_8_1_0
-#'file:/afs/cern.ch/work/s/sdubey/data/Raw_Data_Phase1/0216ABF7-19B1-E611-8786-0025905A60F8.root'
-#'file:/afs/cern.ch/work/s/sdubey/data/9279A7C3-59ED-E511-95C8-0025905A60F8.root'
-#'file:/afs/cern.ch/work/s/sdubey/data/RawToDigi/2EF61B7D-F216-E211-98C3-001D09F28D54.root'
-#'file:/afs/cern.ch/work/s/sdubey/data/RawToDigi/data_phase1/0A176EE8-38C1-E611-B912-0CC47A4D765A.root'
-#'/store/backfill/1/data/Tier0_Test_SUPERBUNNIES_vocms015/Commissioning/RAW/v82/000/276/357/00000/1AA497F3-EC6D-E611-A6B3-02163E0146CB.root'
-#'/store/relval/CMSSW_8_1_0/MET/RAW-RECO/HighMET-81X_dataRun2_relval_v14_RelVal_met2016B-v1/10000/182C5786-C8BE-E611-B1C2-0CC47A7    8A33E.root'
- )
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(10)
 )
-#file=/store/relval/CMSSW_8_1_0/RelValMinBias_13/GEN-SIM-DIGI-RAW/81X_upgrade2017_realistic_v26_HLT2017Trk-v1/10000/06A2997E-3BC1-E611-B286-0CC47A78A30E.root
 
+# Input source
+process.source = cms.Source("PoolSource",
+                            fileNames = cms.untracked.vstring(
+                                                              'file:step2.root',
+#                                                              '/store/relval/CMSSW_9_4_0_pre3/RelValTTbar_13/GEN-SIM-RECO/PU25ns_94X_mc2017_realistic_v4_highPU_AVE50-v1/10000/22E2A744-E3BA-E711-A1A8-5065F3815241.root',
+                                                              ),
+    secondaryFileNames = cms.untracked.vstring(
+#                                               '/store/relval/CMSSW_9_4_0_pre3/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_mc2017_realistic_v4_highPU_AVE50-v1/10000/62236337-BEBA-E711-9962-4C79BA1810EB.root',
+#                                               '/store/relval/CMSSW_9_4_0_pre3/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_mc2017_realistic_v4_highPU_AVE50-v1/10000/D6384D37-BEBA-E711-B24C-4C79BA180B9F.root',
+                                               )
+)
+
+process.options = cms.untracked.PSet(
+    Rethrow = cms.untracked.vstring('ProductNotFound'),
+    fileMode = cms.untracked.string('FULLMERGE')
+)
+
+# Production Info
+process.configurationMetadata = cms.untracked.PSet(
+    annotation = cms.untracked.string('step3 nevts:10'),
+    name = cms.untracked.string('Applications'),
+    version = cms.untracked.string('$Revision: 1.19 $')
+)
+
+# Output definition
+
+process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:digi.root'),
+#    outputCommands = cms.untracked.vstring("drop *", "keep *_simSiPixelDigis_*_*", "keep *_siPixelDigisGPU_*_*"),
+    outputCommands = cms.untracked.vstring("keep *"),
+    splitLevel = cms.untracked.int32(0)
+)
+
+process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('DQMIO'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:step3_inDQM.root'),
+    outputCommands = process.DQMEventContent.outputCommands,
+    splitLevel = cms.untracked.int32(0)
+)
+
+
+# Additional output definition
+
+# Other statements
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
+process.siPixelClustersPreSplitting.src = cms.InputTag("siPixelDigisGPU")
 
-process.siPixelDigis.InputLabel = 'rawDataCollector'
-process.siPixelDigis.IncludeErrors = False #True
-process.siPixelDigis.Timing = False 
-process.siPixelDigis.UsePhase1 = cms.bool(True)
-# do the calibration ADC -> Electrons as required in clustering and apply the channel threshold
-process.siPixelDigis.ConvertADCtoElectrons = cms.bool(False)
+from Validation.SiPixelPhase1DigisV.SiPixelPhase1DigisV_cfi import *
 
-process.MessageLogger = cms.Service("MessageLogger",
-    #debugModules = cms.untracked.vstring('siPixelDigis'),
-    destinations = cms.untracked.vstring('log'),
-    log = cms.untracked.PSet( threshold = cms.untracked.string('WARNING'))
-    #log = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
-)
+SiPixelPhase1DigisADCGPU = SiPixelPhase1DigisADC.clone()
+SiPixelPhase1DigisNdigisGPU = SiPixelPhase1DigisNdigis.clone()
+SiPixelPhase1DigisRowsGPU = SiPixelPhase1DigisRows.clone()
+SiPixelPhase1DigisColumnsGPU = SiPixelPhase1DigisColumns.clone()
+SiPixelPhase1DigisADCGPU.topFolderName = "PixelPhase1V/DigisGPU"
+SiPixelPhase1DigisNdigisGPU.topFolderName = "PixelPhase1V/DigisGPU"
+SiPixelPhase1DigisRowsGPU.topFolderName = "PixelPhase1V/DigisGPU"
+SiPixelPhase1DigisColumnsGPU.topFolderName = "PixelPhase1V/DigisGPU"
+SiPixelPhase1DigisColumns.range_max = 450
+SiPixelPhase1DigisColumns.range_nbins = 450
+SiPixelPhase1DigisColumnsGPU.range_max = 450
+SiPixelPhase1DigisColumnsGPU.range_nbins = 450
+SiPixelPhase1DigisConfGPU = cms.VPSet(SiPixelPhase1DigisADCGPU,
+                                      SiPixelPhase1DigisNdigisGPU,
+                                      SiPixelPhase1DigisRowsGPU,
+                                      SiPixelPhase1DigisColumnsGPU)
 
-process.p = cms.Path(process.siPixelDigis)
+process.SiPixelPhase1DigisAnalyzerVGPU = process.SiPixelPhase1DigisAnalyzerV.clone()
+process.SiPixelPhase1DigisHarvesterVGPU = process.SiPixelPhase1DigisHarvesterV.clone()
+process.SiPixelPhase1DigisAnalyzerVGPU.src = cms.InputTag("siPixelDigisGPU")
+process.SiPixelPhase1DigisAnalyzerVGPU.histograms = SiPixelPhase1DigisConfGPU
+process.SiPixelPhase1DigisHarvesterVGPU.histograms = SiPixelPhase1DigisConfGPU
+
+
+# Path and EndPath definitions
+process.raw2digi_step = cms.Path(process.siPixelDigis)
+process.raw2digiGPU_step = cms.Path(process.siPixelDigisGPU)
+process.clustering = cms.Path(process.siPixelClustersPreSplitting)
+process.validation_step = cms.Path(process.SiPixelPhase1DigisAnalyzerV + process.SiPixelPhase1DigisAnalyzerVGPU)
+process.harvesting_step = cms.Path(process.SiPixelPhase1DigisHarvesterV + process.SiPixelPhase1DigisHarvesterVGPU)
+process.RECOSIMoutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
+process.DQMoutput_step = cms.EndPath(process.DQMoutput)
+process.dqmsave_step = cms.Path(process.DQMSaver)
+
+# Schedule definition
+process.schedule = cms.Schedule(#process.raw2digi_step,
+                                process.raw2digiGPU_step,
+#                                process.clustering,
+                                process.validation_step,
+                                process.harvesting_step,
+                                process.RECOSIMoutput_step,
+                                process.DQMoutput_step,
+                                process.dqmsave_step)
+
+
+# customisation of the process.
+
+# Automatic addition of the customisation function from SimGeneral.MixingModule.fullMixCustomize_cff
+from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
+
+#call to customisation function setCrossingFrameOn imported from SimGeneral.MixingModule.fullMixCustomize_cff
+process = setCrossingFrameOn(process)
+
+# End of customisation functions
+#do not add changes to your config after this point (unless you know what you are doing)
+from FWCore.ParameterSet.Utilities import convertToUnscheduled
+process=convertToUnscheduled(process)
+
+# customisation of the process.
+
+# Automatic addition of the customisation function from PhysicsTools.PatAlgos.slimming.miniAOD_tools
+from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllMC
+
+#call to customisation function miniAOD_customizeAllMC imported from PhysicsTools.PatAlgos.slimming.miniAOD_tools
+process = miniAOD_customizeAllMC(process)
+
+# End of customisation functions
+
+# Customisation from command line
+
+# Add early deletion of temporary data products to reduce peak memory need
+from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+process = customiseEarlyDelete(process)
+# End adding early deletion
+
+
