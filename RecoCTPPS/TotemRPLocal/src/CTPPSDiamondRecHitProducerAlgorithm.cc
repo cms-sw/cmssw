@@ -44,9 +44,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm
 
       const int t = digi.getLeadingEdge();
       const int t0 = t % 1024;
-      int time_slice = t / 1024;
-      
-      if ( t == 0 ) time_slice = CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
+      const int time_slice = ( t != 0 ) ? t / 1024 : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
       int tot = 0;
       if ( t != 0 && digi.getTrailingEdge() != 0 ) tot = ( (int)digi.getTrailingEdge() ) - t;
