@@ -15,9 +15,7 @@ def getMVASelectors(postfix):
             seq = getattr(_iterativeTk_cff, seqName)
 
             # Ignore iteration if the MVA selector module is not in the sequence
-            try:
-                seq.index(mod)
-            except:
+            if not seq.contains(mod):
                 continue
 
             typeName = mod._TypedParameterizable__type

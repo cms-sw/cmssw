@@ -374,14 +374,15 @@ convStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiT
         ) #end of vpset
     ) #end of clone
 
-ConvStep = cms.Sequence( convClusters 
-                         + convLayerPairs
-                         + photonConvTrajSeedFromSingleLeg 
-                         + convTrackCandidates
-                         + convStepTracks
-                         + convStepSelector
+ConvStepTask = cms.Task( convClusters 
+                         , convLayerPairs
+                         , photonConvTrajSeedFromSingleLeg 
+                         , convTrackCandidates
+                         , convStepTracks
+                         , convStepSelector
                          #+ Conv2Step #full quad-seeding sequence
                          )
+ConvStep = cms.Sequence( ConvStepTask ) 
 
 
 ### Quad-seeding sequence disabled (#+ Conv2Step)
