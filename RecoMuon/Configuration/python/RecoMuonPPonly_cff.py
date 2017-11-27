@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # Seed generator
 from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cff import *
-
 # Stand alone muon track producer
 from RecoMuon.StandAloneMuonProducer.standAloneMuons_cff import *
 
@@ -49,22 +48,27 @@ from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 # Muon Tracking sequence
-standalonemuontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*refittedStandAloneMuons*displacedMuonSeeds*displacedStandAloneMuons)
+standalonemuontrackingTask = cms.Task(standAloneMuons,refittedStandAloneMuons,displacedMuonSeeds,displacedStandAloneMuons,standAloneMuonSeedsTask)
+standalonemuontracking = cms.Sequence(standalonemuontrackingTask)
 # not commisoned and not relevant in FastSim (?):
-fastSim.toReplaceWith(standalonemuontracking,standalonemuontracking.copyAndExclude([displacedMuonSeeds,displacedStandAloneMuons]))
-displacedGlobalMuonTracking = cms.Sequence(iterDisplcedTracking*displacedGlobalMuons)
-globalmuontracking = cms.Sequence(globalMuons*tevMuons*displacedGlobalMuonTracking)
-# not commisoned and not relevant in FastSim (?):
-fastSim.toReplaceWith(globalmuontracking,globalmuontracking.copyAndExclude([displacedGlobalMuonTracking]))
-muontracking = cms.Sequence(standalonemuontracking*globalmuontracking)
+fastSim.toReplaceWith(standalonemuontrackingTask,standalonemuontrackingTask.copyAndExclude([displacedMuonSeeds,displacedStandAloneMuons]))
+displacedGlobalMuonTrackingTask = cms.Task(iterDisplcedTrackingTask,displacedGlobalMuons)
+displacedGlobalMuonTracking = cms.Sequence(displacedGlobalMuonTrackingTask)
 
+globalmuontrackingTask = cms.Task(globalMuons,tevMuons,displacedGlobalMuonTrackingTask)
+globalmuontracking = cms.Sequence(globalmuontrackingTask)
+# not commisoned and not relevant in FastSim (?):
+fastSim.toReplaceWith(globalmuontrackingTask,globalmuontrackingTask.copyAndExclude([displacedGlobalMuonTrackingTask]))
+muontrackingTask = cms.Task(standalonemuontrackingTask,globalmuontrackingTask)
+muontracking = cms.Sequence(muontrackingTask)
 # Muon Reconstruction
-muonreco = cms.Sequence(muontracking*muonIdProducerSequence)
-
+muonrecoTask = cms.Task(muontrackingTask,muonIdProducerTask)
+muonreco = cms.Sequence(muonrecoTask)
 # Muon Reconstruction plus Isolation
-muonreco_plus_isolation = cms.Sequence(muonreco*muIsolation)
+muonreco_plus_isolationTask = cms.Task(muonrecoTask,muIsolationTask)
+muonreco_plus_isolation = cms.Sequence(muonreco_plus_isolationTask)
 
-muonrecoComplete = cms.Sequence(muonreco_plus_isolation*muonSelectionTypeSequence)
+muonrecoComplete = cms.Sequence(muonreco_plus_isolationTask,muonSelectionTypeTask)
 
 
 # _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_- #
@@ -76,7 +80,8 @@ muonrecoComplete = cms.Sequence(muonreco_plus_isolation*muonSelectionTypeSequenc
 
 #from RecoMuon.MuonIdentification.earlyMuons_cfi import earlyMuons
 
-muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation)
+muonGlobalRecoTask = cms.Task(globalmuontrackingTask,muonIdProducerTask,muonSelectionTypeTask,muIsolationTask)
+muonGlobalReco = cms.Sequence(muonGlobalRecoTask)
 
 # ... instead, the sequences will be run in the following order:
 # 1st - standalonemuontracking
@@ -88,4 +93,4 @@ muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSele
 
 ########################################################
 # not commisoned and not relevant in FastSim (?):
-fastSim.toReplaceWith(muonGlobalReco, muonGlobalReco.copyAndExclude([muonreco_with_SET,muonSelectionTypeSequence]))
+fastSim.toReplaceWith(muonGlobalRecoTask, muonGlobalRecoTask.copyAndExclude([muonreco_with_SET_Task,muonSelectionTypeTask]))

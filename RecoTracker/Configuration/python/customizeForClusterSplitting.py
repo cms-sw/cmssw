@@ -59,20 +59,21 @@ def customizeForClusterSplitting(process):
      )
  
  
-     process.InitialStepPreSplitting = cms.Sequence(process.initialStepSeedLayersPreSplitting +
-                                                    process.initialStepSeedsPreSplitting +
-                                                    process.initialStepTrackCandidatesPreSplitting +
-                                                    process.initialStepTracksPreSplitting +
-                                                    process.firstStepPrimaryVerticesPreSplitting +
-                                                    process.initialStepTrackRefsForJetsPreSplitting +
-                                                    process.caloTowerForTrkPreSplitting +
-                                                    process.ak4CaloJetsForTrkPreSplitting +
-                                                    process.jetsForCoreTrackingPreSplitting +
-                                                    process.siPixelClusters +
-                                                    process.siPixelRecHits +
-                                                    process.MeasurementTrackerEvent +
+     process.InitialStepPreSplittingTask = cms.Task(process.initialStepSeedLayersPreSplitting ,
+                                                    process.initialStepSeedsPreSplitting ,
+                                                    process.initialStepTrackCandidatesPreSplitting ,
+                                                    process.initialStepTracksPreSplitting ,
+                                                    process.firstStepPrimaryVerticesPreSplitting ,
+                                                    process.initialStepTrackRefsForJetsPreSplitting ,
+                                                    process.caloTowerForTrkPreSplitting ,
+                                                    process.ak4CaloJetsForTrkPreSplitting ,
+                                                    process.jetsForCoreTrackingPreSplitting ,
+                                                    process.siPixelClusters ,
+                                                    process.siPixelRecHits ,
+                                                    process.MeasurementTrackerEvent ,
                                                     process.siPixelClusterShapeCache)
- 
+     process.InitialStepPreSplitting = cms.Sequence(process.InitialStepPreSplittingTask)
+
      process.iterTracking.insert(0,process.InitialStepPreSplitting)
  
      return process

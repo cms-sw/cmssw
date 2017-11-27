@@ -273,16 +273,18 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
 ) #end of clone
 
 # Final sequence
-HighPtTripletStep = cms.Sequence(highPtTripletStepClusters*
-                                 highPtTripletStepSeedLayers*
-                                 highPtTripletStepTrackingRegions*
-                                 highPtTripletStepHitDoublets*
-                                 highPtTripletStepHitTriplets*
-                                 highPtTripletStepSeeds*
-                                 highPtTripletStepTrackCandidates*
-                                 highPtTripletStepTracks*
-#                                 highPtTripletStepClassifier1*highPtTripletStepClassifier2*highPtTripletStepClassifier3*
+HighPtTripletStepTask = cms.Task(highPtTripletStepClusters,
+                                 highPtTripletStepSeedLayers,
+                                 highPtTripletStepTrackingRegions,
+                                 highPtTripletStepHitDoublets,
+                                 highPtTripletStepHitTriplets,
+                                 highPtTripletStepSeeds,
+                                 highPtTripletStepTrackCandidates,
+                                 highPtTripletStepTracks,
+#                                 highPtTripletStepClassifier1,highPtTripletStepClassifier2,highPtTripletStepClassifier3*
                                  highPtTripletStep)
-_HighPtTripletStep_Phase2PU140 = HighPtTripletStep.copy()
-_HighPtTripletStep_Phase2PU140.replace(highPtTripletStep, highPtTripletStepSelector)
-trackingPhase2PU140.toReplaceWith(HighPtTripletStep, _HighPtTripletStep_Phase2PU140)
+HighPtTripletStep = cms.Sequence(HighPtTripletStepTask)
+_HighPtTripletStepTask_Phase2PU140 = HighPtTripletStepTask.copy()
+_HighPtTripletStepTask_Phase2PU140.replace(highPtTripletStep, highPtTripletStepSelector)
+_HighPtTripletStep_Phase2PU140 = cms.Sequence(_HighPtTripletStepTask_Phase2PU140)
+trackingPhase2PU140.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_Phase2PU140)
