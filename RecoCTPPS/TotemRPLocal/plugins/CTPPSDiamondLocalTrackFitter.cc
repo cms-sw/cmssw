@@ -75,10 +75,13 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
       // skip hits without a leading edge
       if ( hit.getOOTIndex() == CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING ) continue;
 
-      if ( detid.arm() == 0 )
-        trk_algo_45_.addHit( hit );
-      if ( detid.arm() == 1 )
-        trk_algo_56_.addHit( hit );
+      switch ( detid.arm() ) {
+        case 0: { trk_algo_45_.addHit( hit ); } break;
+        case 1: { trk_algo_56_.addHit( hit ); } break;
+        default:
+          edm::LogWarning("CTPPSDiamondLocalTrackFitter") << "Invalid arm for rechit: " << detid.arm();
+          break;
+      }
     }
   }
 
