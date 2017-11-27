@@ -149,7 +149,7 @@ namespace {
                 {}, modulesInRingFront, modulesInRingBack, { 0, 0, 0, 1, 3, 5, 8, 10 });
             break;
           case TkLayerMap::TECP_W9:
-            return TkLayerMap(layer, 8, 8., -16., 80, 0., 80., tTopo, tkDetIdList,
+            return TkLayerMap(layer, 8, 8., 16., 80, 0., 80., tTopo, tkDetIdList,
                 {}, modulesInRingFront, modulesInRingBack, { 0, 0, 0, 0, 1, 3, 6, 8 });
         }
     }
