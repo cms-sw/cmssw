@@ -199,17 +199,18 @@ trackingPhase1QuadProp.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierProm
 fastSim.toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(cms.ignore(jetsForCoreTracking)*
-                                   cms.ignore(firstStepGoodPrimaryVertices)*
-                                   #jetCoreRegionalStepClusters*
-                                   jetCoreRegionalStepSeedLayers*
-                                   jetCoreRegionalStepTrackingRegions*
-                                   jetCoreRegionalStepHitDoublets*
-                                   jetCoreRegionalStepSeeds*
-                                   jetCoreRegionalStepTrackCandidates*
-                                   jetCoreRegionalStepTracks*
-#                                   jetCoreRegionalStepClassifier1*jetCoreRegionalStepClassifier2*
+JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,
+                                   firstStepGoodPrimaryVertices,
+                                   #jetCoreRegionalStepClusters,
+                                   jetCoreRegionalStepSeedLayers,
+                                   jetCoreRegionalStepTrackingRegions,
+                                   jetCoreRegionalStepHitDoublets,
+                                   jetCoreRegionalStepSeeds,
+                                   jetCoreRegionalStepTrackCandidates,
+                                   jetCoreRegionalStepTracks,
+#                                   jetCoreRegionalStepClassifier1,jetCoreRegionalStepClassifier2,
                                    jetCoreRegionalStep)
-fastSim.toReplaceWith(JetCoreRegionalStep, 
-                      cms.Sequence(jetCoreRegionalStepTracks*
+JetCoreRegionalStep = cms.Sequence(JetCoreRegionalStepTask)
+fastSim.toReplaceWith(JetCoreRegionalStepTask, 
+                      cms.Task(jetCoreRegionalStepTracks,
                                    jetCoreRegionalStep))
