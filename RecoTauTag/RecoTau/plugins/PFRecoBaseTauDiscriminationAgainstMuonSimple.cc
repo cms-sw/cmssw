@@ -172,7 +172,7 @@ double PFRecoBaseTauDiscriminationAgainstMuonSimple::discriminate(const reco::PF
     const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(pfLeadChargedHadron.get());
     if ( pCand != nullptr ) {
       double rawCaloEnergyFraction = pCand->rawCaloFraction();
-      if ( !(rawCaloEnergyFraction > 0.) ) rawCaloEnergyFraction = 99; //MB: hack against cases when rawCaloEnergyFraction is not stored; it makes performance of the H/P cut rather poor
+      //if ( !(rawCaloEnergyFraction > 0.) ) rawCaloEnergyFraction = 99; //MB: hack against cases when rawCaloEnergyFraction is not stored; it makes performance of the H/P cut rather poor
       if ( verbosity_ ) {
 	edm::LogPrint("PFBaseTauAgainstMuonSimple") << "decayMode = " << pfTau->decayMode() << ", rawCaloEnergy(ECAL+HCAL)Fraction = " << rawCaloEnergyFraction << ", leadPFChargedHadronP = " << pCand->p() << ", leadPFChargedHadron pdgId = " << pCand->pdgId();
       }
