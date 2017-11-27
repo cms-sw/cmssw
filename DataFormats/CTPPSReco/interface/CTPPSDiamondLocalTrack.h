@@ -30,8 +30,8 @@ class CTPPSDiamondLocalTrack
     inline bool containsHit( const CTPPSDiamondRecHit& recHit, float tolerance = 0.1 ) const {
       const float x_low  = pos0_.x() - pos0_sigma_.x() - tolerance;
       const float x_high = pos0_.x() + pos0_sigma_.x() + tolerance;
-      return ( recHit.getOOTIndex() == ts_index_
-        && ( recHit.getZ() * pos0_.z() > 0. )
+      return ( ( recHit.getZ() * pos0_.z() > 0. )
+        && ( recHit.getOOTIndex() == ts_index_ || recHit.getOOTIndex() == ts_index_ + CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING )
         && ( ( recHit.getX() + 0.5 * recHit.getXWidth() > x_low && recHit.getX() + 0.5 * recHit.getXWidth() < x_high )
           || ( recHit.getX() - 0.5 * recHit.getXWidth() > x_low && recHit.getX() - 0.5 * recHit.getXWidth() < x_high )
           || ( recHit.getX() - 0.5 * recHit.getXWidth() < x_low && recHit.getX() + 0.5 * recHit.getXWidth() > x_high ) ) );
