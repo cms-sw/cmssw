@@ -341,29 +341,30 @@ trackingLowPU.toReplaceWith(detachedTripletStep, RecoTracker.FinalTrackSelectors
     writeOnlyTrkQuals =True
 ))
 
-DetachedTripletStep = cms.Sequence(detachedTripletStepClusters*
-                                   detachedTripletStepSeedLayers*
-                                   detachedTripletStepTrackingRegions*
-                                   detachedTripletStepHitDoublets*
-                                   detachedTripletStepHitTriplets*
-                                   detachedTripletStepSeeds*
-                                   detachedTripletStepTrackCandidates*
-                                   detachedTripletStepTracks*
-                                   detachedTripletStepClassifier1*detachedTripletStepClassifier2*
+DetachedTripletStepTask = cms.Task(detachedTripletStepClusters,
+                                   detachedTripletStepSeedLayers,
+                                   detachedTripletStepTrackingRegions,
+                                   detachedTripletStepHitDoublets,
+                                   detachedTripletStepHitTriplets,
+                                   detachedTripletStepSeeds,
+                                   detachedTripletStepTrackCandidates,
+                                   detachedTripletStepTracks,
+                                   detachedTripletStepClassifier1,detachedTripletStepClassifier2,
                                    detachedTripletStep)
-_DetachedTripletStep_LowPU = DetachedTripletStep.copyAndExclude([detachedTripletStepClassifier2])
-_DetachedTripletStep_LowPU.replace(detachedTripletStepClassifier1, detachedTripletStepSelector)
-trackingLowPU.toReplaceWith(DetachedTripletStep, _DetachedTripletStep_LowPU)
+DetachedTripletStep = cms.Sequence(DetachedTripletStepTask)
+_DetachedTripletStepTask_LowPU = DetachedTripletStepTask.copyAndExclude([detachedTripletStepClassifier2])
+_DetachedTripletStepTask_LowPU.replace(detachedTripletStepClassifier1, detachedTripletStepSelector)
+trackingLowPU.toReplaceWith(DetachedTripletStepTask, _DetachedTripletStepTask_LowPU)
 
 # fast tracking mask producer
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
 detachedTripletStepMasks = maskProducerFromClusterRemover(detachedTripletStepClusters)
-fastSim.toReplaceWith(DetachedTripletStep,
-                      cms.Sequence(detachedTripletStepMasks
-                                   +detachedTripletStepTrackingRegions
-                                   +detachedTripletStepSeeds
-                                   +detachedTripletStepTrackCandidates
-                                   +detachedTripletStepTracks
-                                   +detachedTripletStepClassifier1*detachedTripletStepClassifier2
-                                   +detachedTripletStep
+fastSim.toReplaceWith(DetachedTripletStepTask,
+                      cms.Task(detachedTripletStepMasks
+                                   ,detachedTripletStepTrackingRegions
+                                   ,detachedTripletStepSeeds
+                                   ,detachedTripletStepTrackCandidates
+                                   ,detachedTripletStepTracks
+                                   ,detachedTripletStepClassifier1,detachedTripletStepClassifier2
+                                   ,detachedTripletStep
                                    ) )

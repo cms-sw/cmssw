@@ -151,31 +151,32 @@ reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
 #selected digis
 from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 
-reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
-                                          interestingEcalDetIdEE*
-                                          interestingEcalDetIdPFEB*interestingEcalDetIdPFEE*interestingEcalDetIdPFES*
-                                          interestingEcalDetIdOOTPFEB*interestingEcalDetIdOOTPFEE*interestingEcalDetIdOOTPFES*
-                                          interestingEcalDetIdRefinedEB*interestingEcalDetIdRefinedEE*interestingEcalDetIdRefinedES*
-                                          interestingTrackEcalDetIds*
-                                          reducedEcalRecHitsEB*
-                                          reducedEcalRecHitsEE*
-                                          seldigis*
+reducedEcalRecHitsTask = cms.Task(interestingEcalDetIdEB,interestingEcalDetIdEBU,
+                                          interestingEcalDetIdEE,
+                                          interestingEcalDetIdPFEB,interestingEcalDetIdPFEE,interestingEcalDetIdPFES,
+                                          interestingEcalDetIdOOTPFEB,interestingEcalDetIdOOTPFEE,interestingEcalDetIdOOTPFES,
+                                          interestingEcalDetIdRefinedEB,interestingEcalDetIdRefinedEE,interestingEcalDetIdRefinedES,
+                                          interestingTrackEcalDetIds,
+                                          reducedEcalRecHitsEB,
+                                          reducedEcalRecHitsEE,
+                                          seldigisTask,
                                           reducedEcalRecHitsES)
+reducedEcalRecHitsSequence = cms.Sequence(reducedEcalRecHitsTask)
                                           
-reducedEcalRecHitsSequenceEcalOnly = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
-                                          interestingEcalDetIdEE*
-                                          reducedEcalRecHitsEB*
-                                          reducedEcalRecHitsEE*
-                                          seldigis)                                          
+reducedEcalRecHitsSequenceEcalOnlyTask = cms.Task(interestingEcalDetIdEB,interestingEcalDetIdEBU,
+                                          interestingEcalDetIdEE,
+                                          reducedEcalRecHitsEB,
+                                          reducedEcalRecHitsEE,
+                                          seldigisTask)
+reducedEcalRecHitsSequenceEcalOnly = cms.Sequence(reducedEcalRecHitsSequenceEcalOnlyTask)
 
-
-_phase2_reducedEcalRecHitsSequence = reducedEcalRecHitsSequence.copy()
-_phase2_reducedEcalRecHitsSequence.remove(reducedEcalRecHitsES)
+_phase2_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copy()
+_phase2_reducedEcalRecHitsTask.remove(reducedEcalRecHitsES)
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toReplaceWith( reducedEcalRecHitsSequence , _phase2_reducedEcalRecHitsSequence )
+phase2_common.toReplaceWith( reducedEcalRecHitsTask , _phase2_reducedEcalRecHitsTask )
 
 
-_fastSim_reducedEcalRecHitsSequence = reducedEcalRecHitsSequence.copyAndExclude([seldigis])
+_fastSim_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copyAndExclude(seldigisTask)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith( reducedEcalRecHitsSequence, _fastSim_reducedEcalRecHitsSequence)
+fastSim.toReplaceWith( reducedEcalRecHitsTask, _fastSim_reducedEcalRecHitsTask)

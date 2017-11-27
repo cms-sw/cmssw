@@ -44,17 +44,19 @@ generalTracks.candidateSource = cms.InputTag("duplicateTrackCandidates","candida
 generalTracks.candidateComponents = cms.InputTag("duplicateTrackCandidates","candidateMap")
 
 
-generalTracksSequence = cms.Sequence(
-    duplicateTrackCandidates*
-    mergedDuplicateTracks*
-    duplicateTrackClassifier*
+generalTracksTask = cms.Task(
+    duplicateTrackCandidates,
+    mergedDuplicateTracks,
+    duplicateTrackClassifier,
     generalTracks
     )
+generalTracksSequence = cms.Sequence(generalTracksTask)
+
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(generalTracksSequence, 
-                      cms.Sequence(
-        duplicateTrackCandidates*
-        mergedDuplicateTracks*
+fastSim.toReplaceWith(generalTracksTask, 
+                      cms.Task(
+        duplicateTrackCandidates,
+        mergedDuplicateTracks,
         duplicateTrackClassifier
         )
 )
