@@ -64,9 +64,9 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   cscDQMOccupancy = ibooker.book2D("cscDQMOccupancy", "CSC Chamber Occupancy", 42, 1, 43, 20, 0, 20);
   cscDQMOccupancy->setAxisTitle("10 degree Chamber", 1);
   int count=0;
-  for (int xbin=1; xbin < 43; ++xbin){
+  for (int xbin=1; xbin < 43; ++xbin) {
   cscDQMOccupancy->setBinLabel(xbin, std::to_string(xbin-count), 1);
-    if (xbin==2 || xbin==9 || xbin==16 || xbin==23 || xbin==30 ||xbin==37 ){
+    if (xbin==2 || xbin==9 || xbin==16 || xbin==23 || xbin==30 ||xbin==37 ) {
        ++xbin;
        ++count;
        cscDQMOccupancy->setBinLabel(xbin, "N", 1);
@@ -187,9 +187,9 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       label = "ME+" + suffix_label[9 - i];
     }
 
-    if (hist < 6){
+    if (hist < 6) {
       nChambs = (i % 2) ? 18 : 36;
-    } else if (hist >13){
+    } else if (hist >13) {
       nChambs = (i % 2) ? 36 : 18;
     } else {
       nChambs = 36;
@@ -270,65 +270,65 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     cscLCTTiming[hist] = ibooker.book2D("cscLCTTiming" + nameBX[hist], "CSC Chamber Occupancy " + labelBX[hist], 42, 1, 43, 20, 0, 20);
     cscLCTTiming[hist]->setAxisTitle("10 degree Chambers", 1);
 
-    for (int xbin=1; xbin < 43; ++xbin){
-       cscLCTTiming[hist]->setBinLabel(xbin, std::to_string(xbin-count), 1);
-       if (hist==0) cscTimingTot->setBinLabel(xbin, std::to_string(xbin-count), 1);//only fill once in the loop
-       if (xbin==2 || xbin==9 || xbin==16 || xbin==23 || xbin==30 ||xbin==37 ){
-         ++xbin;
-         ++count;
-         cscLCTTiming[hist]->setBinLabel(xbin, "N", 1);
-         if (hist==0) cscTimingTot->setBinLabel(xbin, "N", 1);
-       }
-     }
+    for (int xbin=1; xbin < 43; ++xbin) {
+      cscLCTTiming[hist]->setBinLabel(xbin, std::to_string(xbin-count), 1);
+      if (hist==0) cscTimingTot->setBinLabel(xbin, std::to_string(xbin-count), 1);//only fill once in the loop
+      if (xbin==2 || xbin==9 || xbin==16 || xbin==23 || xbin==30 ||xbin==37 ) {
+        ++xbin;
+        ++count;
+        cscLCTTiming[hist]->setBinLabel(xbin, "N", 1);
+        if (hist==0) cscTimingTot->setBinLabel(xbin, "N", 1);
+      }
+    }
 
-     for (int ybin = 1; ybin <= 10; ++ybin) {
-        cscLCTTiming[hist]->setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
-        cscLCTTiming[hist]->setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
-        if (hist==0) cscTimingTot->setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
-        if (hist==0) cscTimingTot->setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
-     }
+    for (int ybin = 1; ybin <= 10; ++ybin) {
+      cscLCTTiming[hist]->setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
+      cscLCTTiming[hist]->setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
+      if (hist==0) cscTimingTot->setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
+      if (hist==0) cscTimingTot->setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
+    }
       
     rpcHitTiming[hist] = ibooker.book2D("rpcHitTiming" + nameBX[hist], "RPC Chamber Occupancy " + labelBX[hist], 42, 1, 43, 12, 0, 12);
     rpcHitTiming[hist]->setAxisTitle("Sector", 1);
     for (int bin = 1; bin < 7; ++bin) {
-       rpcHitTiming[hist]->setBinLabel(bin*7 - 6, std::to_string(bin), 1);
-       rpcHitTiming[hist]->setBinLabel(bin*7, "N", 1);
-       rpcHitTiming[hist]->setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
-       rpcHitTiming[hist]->setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
+      rpcHitTiming[hist]->setBinLabel(bin*7 - 6, std::to_string(bin), 1);
+      rpcHitTiming[hist]->setBinLabel(bin*7, "N", 1);
+      rpcHitTiming[hist]->setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
+      rpcHitTiming[hist]->setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
     }
-    if (hist==0){
-        for (int bin = 1; bin < 7; ++bin) {
-       rpcHitTimingTot->setBinLabel(bin*7 - 6, std::to_string(bin), 1);
-       rpcHitTimingTot->setBinLabel(bin*7, "N", 1);
-       rpcHitTimingTot->setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
-       rpcHitTimingTot->setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
-       }
+    if (hist==0) {
+      for (int bin = 1; bin < 7; ++bin) {
+        rpcHitTimingTot->setBinLabel(bin*7 - 6, std::to_string(bin), 1);
+        rpcHitTimingTot->setBinLabel(bin*7, "N", 1);
+        rpcHitTimingTot->setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
+        rpcHitTimingTot->setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
+      }
     }
     //if (hist == 4) continue; // Don't book for BX = 0
 
     count = 0;
     cscLCTTimingFrac[hist] = ibooker.book2D("cscLCTTimingFrac" + nameBX[hist], "CSC Chamber Occupancy " + labelBX[hist], 42, 1, 43, 20, 0, 20);
     cscLCTTimingFrac[hist]->setAxisTitle("10 degree Chambers", 1);
-    for (int xbin=1; xbin < 43; ++xbin){
-    cscLCTTimingFrac[hist]->setBinLabel(xbin, std::to_string(xbin-count), 1);
-    if (xbin==2 || xbin==9 || xbin==16 || xbin==23 || xbin==30 ||xbin==37 ){
-          ++xbin;
-          ++count;
-          cscLCTTimingFrac[hist]->setBinLabel(xbin, "N", 1);
-        }
+    for (int xbin=1; xbin < 43; ++xbin) {
+      cscLCTTimingFrac[hist]->setBinLabel(xbin, std::to_string(xbin-count), 1);
+      if (xbin==2 || xbin==9 || xbin==16 || xbin==23 || xbin==30 || xbin==37 ) {
+        ++xbin;
+        ++count;
+        cscLCTTimingFrac[hist]->setBinLabel(xbin, "N", 1);
+      }
     }
     for (int ybin = 1; ybin <= 10; ++ybin) {
-       cscLCTTimingFrac[hist]->setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
-       cscLCTTimingFrac[hist]->setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
+      cscLCTTimingFrac[hist]->setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
+      cscLCTTimingFrac[hist]->setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
     }  
 
     rpcHitTimingFrac[hist] = ibooker.book2D("rpcHitTimingFrac" + nameBX[hist], "RPC Chamber Fraction in " + labelBX[hist], 42, 1, 43, 12, 0, 12);
     rpcHitTimingFrac[hist]->setAxisTitle("Sector", 1);
     for (int bin = 1; bin < 7; ++bin) {
-       rpcHitTimingFrac[hist]->setBinLabel(bin*7 - 6, std::to_string(bin), 1);
-       rpcHitTimingFrac[hist]->setBinLabel(bin*7, "N", 1);
-       rpcHitTimingFrac[hist]->setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
-       rpcHitTimingFrac[hist]->setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
+      rpcHitTimingFrac[hist]->setBinLabel(bin*7 - 6, std::to_string(bin), 1);
+      rpcHitTimingFrac[hist]->setBinLabel(bin*7, "N", 1);
+      rpcHitTimingFrac[hist]->setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
+      rpcHitTimingFrac[hist]->setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
     }
 
   }
@@ -391,44 +391,17 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   }
 }
 
-//CSCOccupancy chamber mapping for neighbor inclusive plots
+// CSCOccupancy chamber mapping for neighbor inclusive plots
 int chamber_bin (int station, int ring, int chamber) {
-        int chamber_bin_index = 0;
-        if (station>1 && (ring % 2)==1){
-           if (chamber<2){
-           chamber_bin_index = chamber*2;
-           }if (chamber>1 && chamber<5){
-           chamber_bin_index = chamber*2+1;
-           }if (chamber>4 && chamber<8){
-           chamber_bin_index = chamber*2+2;
-           }if (chamber>7 && chamber<11){
-           chamber_bin_index = chamber*2+3;
-           }if (chamber>10 && chamber<14){
-           chamber_bin_index = chamber*2+4;
-           }if (chamber>13 && chamber<17){
-           chamber_bin_index = chamber*2+5;
-           }if (chamber>16){
-           chamber_bin_index = chamber*2+6;
-           }
-        }else {
-           if (chamber<3){
-           chamber_bin_index = chamber;
-           }if (chamber>2 && chamber<9){
-           chamber_bin_index = chamber+1;
-           }if (chamber>8 && chamber<15){
-           chamber_bin_index = chamber+2;
-           }if (chamber>14 && chamber<21){
-           chamber_bin_index = chamber+3;
-           }if (chamber>20 && chamber<27){
-           chamber_bin_index = chamber+4;
-           }if (chamber>26 && chamber<33){
-           chamber_bin_index = chamber+5;
-           }if (chamber>32){
-           chamber_bin_index = chamber+6;
-           }
-        } 
-    return chamber_bin_index;
+  int chamber_bin_index = 0;
+  if (station > 1 && (ring % 2) == 1) {
+    chamber_bin_index = (chamber * 2) + ((chamber + 1) / 3);
+  } else {
+    chamber_bin_index = chamber + ((chamber + 3) / 6);
+  }
+  return chamber_bin_index;
 };
+
 
 void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
@@ -522,8 +495,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       if (Hit->Neighbor() == false) {
         //Map for cscDQMOccupancy plot
         cscDQMOccupancy->Fill(chamber_bin(station,ring,chamber),hist_index,evt_wgt);
-        if (station>1 && (ring % 2)==1){
-           cscDQMOccupancy->Fill(chamber_bin(station,ring,chamber)-1,hist_index,evt_wgt);
+        if (station>1 && (ring % 2)==1) {
+          cscDQMOccupancy->Fill(chamber_bin(station,ring,chamber)-1,hist_index,evt_wgt);
         }         
         cscLCTStrip[hist_index]->Fill(strip);
         cscLCTWire[hist_index]->Fill(wire);
@@ -538,8 +511,9 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 	// Map neighbor chambers to "fake" CSC IDs: 1/3 --> 1, 1/6 --> 2, 1/9 --> 3, 2/3 --> 4, 2/9 --> 5, etc.
 	int cscid_n = (station == 1 ? (cscid / 3) : (station * 2) + ((cscid - 3) / 6) );
         cscLCTOccupancy->Fill(cscid_n + cscid_offset, endcap * 5.5);
-      } if (Hit->Neighbor() == true) {
-           cscDQMOccupancy->Fill(sector*7-4,hist_index,evt_wgt);
+      } 
+      if (Hit->Neighbor() == true) {
+        cscDQMOccupancy->Fill(sector*7-4,hist_index,evt_wgt);
       }  
     }
    
@@ -558,7 +532,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       } else if (Hit->Neighbor() == true) {
  	rpcHitOccupancy->Fill((Hit->Sector_RPC() - 1) * 7 + 7, hist_index + 0.5);
       }	 
-   }
+    }
   }
 
   // Tracks
@@ -647,12 +621,12 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
           hist_index = histIndexCSC.at( {station, ring} );
           if (endcap > 0) hist_index = 19 - hist_index;
 	  if (neighbor == false) {
-              cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill(chamber_bin(station,ring,chamber),hist_index,evt_wgt);
-              cscTimingTot->Fill(chamber_bin(station,ring,chamber),hist_index,evt_wgt);
-              if (station>1 && (ring % 2)==1){
-                 cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill(chamber_bin(station,ring,chamber)-1,hist_index,evt_wgt);
-                 cscTimingTot->Fill(chamber_bin(station,ring,chamber)-1,hist_index,evt_wgt);
-              }
+            cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill(chamber_bin(station,ring,chamber),hist_index,evt_wgt);
+            cscTimingTot->Fill(chamber_bin(station,ring,chamber),hist_index,evt_wgt);
+            if (station>1 && (ring % 2)==1) {
+              cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill(chamber_bin(station,ring,chamber)-1,hist_index,evt_wgt);
+              cscTimingTot->Fill(chamber_bin(station,ring,chamber)-1,hist_index,evt_wgt);
+            }
 	  }
 	  else {
 	    // Map neighbor chambers to "fake" CSC IDs: 1/3 --> 1, 1/6 --> 2, 1/9 --> 3, 2/3 --> 4, 2/9 --> 5, etc.
@@ -691,10 +665,10 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
           rpcHitTiming[histIndexBX.at(trackHitBX)]->Fill((TrkHit.Sector_RPC() - 1) * 7 + subsector, hist_index + 0.5); 
           rpcHitTimingTot->Fill((TrkHit.Sector_RPC() - 1) * 7 + subsector, hist_index + 0.5);
 	} // End conditional: if (TrkHit.Is_RPC() == true && neighbor == false)
-        if (TrkHit.Is_RPC() == true && neighbor == true){
-            hist_index = histIndexRPC.at( {station, ring} );
-            if (endcap > 0) hist_index = 11 - hist_index;
-            rpcHitTiming[histIndexBX.at(trackHitBX)]->Fill((TrkHit.Sector_RPC() - 1) * 7, hist_index + 0.5);
+        if (TrkHit.Is_RPC() == true && neighbor == true) {
+          hist_index = histIndexRPC.at( {station, ring} );
+          if (endcap > 0) hist_index = 11 - hist_index;
+          rpcHitTiming[histIndexBX.at(trackHitBX)]->Fill((TrkHit.Sector_RPC() - 1) * 7, hist_index + 0.5);
         }
       } // End loop: for (int iHit = 0; iHit < numHits; ++iHit)
     } 
