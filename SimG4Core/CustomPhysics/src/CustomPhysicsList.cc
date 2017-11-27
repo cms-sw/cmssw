@@ -1,7 +1,8 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
+#include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
-#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
+#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,16 +14,15 @@
 #include "G4hIonisation.hh"
 #include "G4ProcessManager.hh"
 
-#include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.hh"
-#include "SimG4Core/CustomPhysics/interface/ToyModelHadronicProcess.hh"
-#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.hh"
+#include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
+#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
 
 using namespace CLHEP;
 
-G4ThreadLocal G4Decay* CustomPhysicsList::fDecayProcess = nullptr;
-G4ThreadLocal G4ProcessHelper* CustomPhysicsList::myHelper = nullptr;
+G4ThreadLocal std::unique_ptr<G4Decay> CustomPhysicsList::fDecayProcess;
+G4ThreadLocal std::unique_ptr<G4ProcessHelper> CustomPhysicsList::myHelper;
 
-CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet & p)  
+CustomPhysicsList::CustomPhysicsList(const std::string& name, const edm::ParameterSet & p)  
   :  G4VPhysicsConstructor(name) 
 {  
   myConfig = p;
@@ -31,6 +31,11 @@ CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet &
   fHadronicInteraction = p.getParameter<bool>("rhadronPhysics");
 
   particleDefFilePath = fp.fullPath();
+
+  fParticleFactory.reset(new CustomParticleFactory());
+  fDecayProcess.reset(nullptr);
+  myHelper.reset(nullptr);
+
   edm::LogInfo("SimG4CoreCustomPhysics") 
     << "CustomPhysicsList: Path for custom particle definition file: \n"
     <<particleDefFilePath << "\n" << "      dark_factor= " << dfactor;
@@ -40,8 +45,9 @@ CustomPhysicsList::~CustomPhysicsList() {
 }
  
 void CustomPhysicsList::ConstructParticle(){
-  G4cout << "===== CustomPhysicsList::ConstructParticle " << this << G4endl;
-  CustomParticleFactory::loadCustomParticles(particleDefFilePath);
+  edm::LogInfo("SimG4CoreCustomPhysics") 
+    << "===== CustomPhysicsList::ConstructParticle ";
+  fParticleFactory.get()->loadCustomParticles(particleDefFilePath);
 }
  
 void CustomPhysicsList::ConstructProcess() {
@@ -50,11 +56,10 @@ void CustomPhysicsList::ConstructProcess() {
     <<"CustomPhysicsList: adding CustomPhysics processes "
     << "for the list of particles";
 
-  fDecayProcess = new G4Decay();
-  
+  fDecayProcess.reset(new G4Decay());
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
-  for(auto particle : CustomParticleFactory::GetCustomParticles()) {
+  for(auto particle : fParticleFactory.get()->GetCustomParticles()) {
     CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
     if(cp) {
       G4ProcessManager* pmanager = particle->GetProcessManager();
@@ -67,8 +72,8 @@ void CustomPhysicsList::ConstructProcess() {
 	  ph->RegisterProcess(new G4hMultipleScattering, particle);
 	  ph->RegisterProcess(new G4hIonisation, particle);
 	}
-	if(fDecayProcess->IsApplicable(*particle)) {
-	  ph->RegisterProcess(fDecayProcess, particle);
+	if(fDecayProcess.get()->IsApplicable(*particle)) {
+	  ph->RegisterProcess(fDecayProcess.get(), particle);
 	}
 	if(cp->GetCloud() && fHadronicInteraction && 
 	   CustomPDGParser::s_isRHadron(particle->GetPDGEncoding())) {
@@ -77,8 +82,8 @@ void CustomPhysicsList::ConstructProcess() {
 	    <<" CloudMass= " <<cp->GetCloud()->GetPDGMass()/GeV
 	    <<" GeV; SpectatorMass= " << cp->GetSpectator()->GetPDGMass()/GeV<<" GeV.";
        
-          if(!myHelper) { myHelper = new G4ProcessHelper(myConfig); }
-	  pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper));
+          if(!myHelper.get()) { myHelper.reset(new G4ProcessHelper(myConfig, fParticleFactory.get())); }
+	  pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper.get()));
 	}
         if(particle->GetParticleType()=="darkpho"){
           CMSDarkPairProductionProcess * darkGamma = new CMSDarkPairProductionProcess(dfactor);
