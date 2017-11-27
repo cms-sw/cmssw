@@ -133,13 +133,14 @@ void MergedGenParticleProducer::produce(edm::Event& event, const edm::EventSetup
 
 bool MergedGenParticleProducer::isPhotonFromPrunedHadron(const pat::PackedGenParticle& pk) const
 {
-  HepPDT::ParticleID motherid(pk.mother(0)->pdgId());
-  return
-    ( pk.pdgId() == 22 // We care about photons for lepton dressing here
-      and pk.statusFlags().isDirectHadronDecayProduct() // Gen status flag seems correct
-      // Catch cases where miniaod mother is not compatible with the status flag
-      and not (motherid.isHadron() and pk.mother(0)->status() == 2)
-    );
+  if (pk.pdgId() == 22 and pk.statusFlags().isDirectHadronDecayProduct()) {
+    // no mother
+    if (pk.numberOfMothers() == 0) return true;
+    // miniaod mother not compatible with the status flag
+    HepPDT::ParticleID motherid(pk.mother(0)->pdgId());
+    if (not (motherid.isHadron() and pk.mother(0)->status() == 2)) return true;
+  }
+  return false;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
