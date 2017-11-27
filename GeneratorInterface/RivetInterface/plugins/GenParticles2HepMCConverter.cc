@@ -113,7 +113,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     genCandToHepMCMap[p] = hepmc_particle;
 
     // Find incident proton pair
-    if ( p->pdgId() == 2212 and std::abs(p->eta()) > 100 and std::abs(p->pz()) > 1000 ) {
+    if ( p->mother() == nullptr and std::abs(p->eta()) > 5 and std::abs(p->pz()) > 1000 ) {
       if ( !parton1 and p->pz() > 0 ) {
         parton1 = p;
         hepmc_parton1 = hepmc_particle;
@@ -132,7 +132,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   hepmc_event->add_vertex(vertex2);
   vertex1->add_particle_in(hepmc_parton1);
   vertex2->add_particle_in(hepmc_parton2);
-  hepmc_event->set_beam_particles(hepmc_parton1, hepmc_parton2);
+  //hepmc_event->set_beam_particles(hepmc_parton1, hepmc_parton2);
 
   // Prepare vertex list
   typedef std::map<const reco::Candidate*, HepMC::GenVertex*> ParticleToVertexMap;
