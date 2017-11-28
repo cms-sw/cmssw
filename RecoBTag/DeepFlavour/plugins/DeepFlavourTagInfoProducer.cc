@@ -158,8 +158,9 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     // reco jet reference (use as much as possible)
     const auto & jet = jets->at(jet_n);
-    // dynamical castoting to pointers, null if not possible
+    // dynamical casting to pointers, null if not possible
     const auto * pf_jet = dynamic_cast<const reco::PFJet *>(&jet);
+    const auto * pat_jet = dynamic_cast<const pat::Jet *>(&jet);
     edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
     // TagInfoCollection not in an associative container so search for matchs
     const edm::View<reco::ShallowTagInfo> & taginfos = *shallow_tag_infos;
@@ -269,6 +270,22 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand);
     auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
 
+    // need some edm::Ptr or edm::Ref if reco candidates
+    reco::PFCandidatePtr reco_ptr;
+    if (pf_jet) {
+      reco_ptr = pf_jet->getPFConstituent(i);
+    } else if (pat_jet && reco_cand) {
+      reco_ptr = pat_jet->getPFConstituent(i);
+    }
+    // get PUPPI weight from value map
+    float puppiw = 1.0; // fallback value
+    if (reco_cand && use_puppi_value_map_) {
+      puppiw = (*puppi_value_map)[reco_ptr];
+    } else if (reco_cand) {
+      edm::LogWarning("MissingFeatures") << "PUPPI value map missing. "
+                                         << puppiw << " will be used as default";
+    } 
+
     float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand);
     
     if (cand->charge() != 0) {
@@ -283,12 +300,14 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         btagbtvdeep::ChargedCandidateConverter::PackedCandidateToFeatures(packed_cand, jet, trackinfo, 
                                                                           drminpfcandsv, c_pf_features);
       } else if (reco_cand) {
-        if (pf_jet) { 
-        // need some edm::Ptr or edm::Ref
-        auto reco_ptr = pf_jet->getPFConstituent(i);
-        // get PUPPI weight from value map
-        float puppiw = (*puppi_value_map)[reco_ptr];
-        int pv_ass_quality = (*pvasq_value_map)[reco_ptr];
+        // get vertex association quality
+        int pv_ass_quality = 0; // fallback value
+        if (use_pvasq_value_map_) {
+          pv_ass_quality = (*pvasq_value_map)[reco_ptr];
+        } else {
+          edm::LogWarning("MissingFeatures") << "vertex association quality map missing. "
+                                             << pv_ass_quality << " will be used as default";
+        }
         // getting the PV as PackedCandidatesProducer
         // but using not the slimmed but original vertices
         auto ctrack = reco_cand->bestTrack();
@@ -299,12 +318,16 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
           if(dz<dist) {pvi=ii;dist=dz; }
         }
         auto PV = reco::VertexRef(vtxs, pvi);
-        const reco::VertexRef & PV_orig = (*pvas)[reco_ptr];
-        if(PV_orig.isNonnull()) PV = reco::VertexRef(vtxs, PV_orig.key());
+        if (use_pvasq_value_map_) {
+          const reco::VertexRef & PV_orig = (*pvas)[reco_ptr];
+          if(PV_orig.isNonnull()) PV = reco::VertexRef(vtxs, PV_orig.key());
+        } else {
+          edm::LogWarning("MissingFeatures") << "vertex association missing. "
+                                             << "dz closest PV will be used as default";
+        }
         btagbtvdeep::ChargedCandidateConverter::RecoCandidateToFeatures(reco_cand, jet, trackinfo, 
                                            drminpfcandsv, puppiw,
-                                           pv_ass_quality, PV_orig, c_pf_features);
-        }
+                                           pv_ass_quality, PV, c_pf_features);
       }
     } else {
       // is neutral candidate
@@ -316,15 +339,9 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         btagbtvdeep::NeutralCandidateConverter::PackedCandidateToFeatures(packed_cand, jet, drminpfcandsv, 
                                                                           n_pf_features);
       } else if (reco_cand) {
-        if (pf_jet) { 
-        // need some edm::Ptr or edm::Ref
-        auto reco_ptr = pf_jet->getPFConstituent(i);
-        // get PUPPI weight from value map
-        float puppiw = (*puppi_value_map)[reco_ptr];
         btagbtvdeep::NeutralCandidateConverter::RecoCandidateToFeatures(reco_cand, jet,
                                                                         drminpfcandsv, puppiw,
                                                                         n_pf_features);
-        }
       }
     }
 
