@@ -145,8 +145,11 @@ namespace SiStripPI {
     
     float stdev = sqrt(accum / (values.size()-1)); 
     
-    return std::make_pair(m-nsigma*stdev,m+nsigma*stdev);
-    
+    if(stdev!=0.){
+      return std::make_pair(m-nsigma*stdev,m+nsigma*stdev);
+    } else {
+      return std::make_pair(m>0.? 0.95*m : 1.05*m, m>0? 1.05*m : 0.95*m);
+    }
   }
   
   /*--------------------------------------------------------------------*/
