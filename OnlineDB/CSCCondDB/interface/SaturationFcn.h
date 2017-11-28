@@ -2,7 +2,11 @@
 #define SaturationFcn_h
                                                                
 #include "Minuit2/FCNBase.h"  
+#include <cmath>
 #include <vector>
+
+
+using namespace ROOT::Minuit2;
 
 class SaturationFcn : public FCNBase{ 
 
