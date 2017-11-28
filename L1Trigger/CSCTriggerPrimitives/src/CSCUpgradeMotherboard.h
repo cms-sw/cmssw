@@ -1,6 +1,15 @@
 #ifndef L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboard_h
 #define L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboard_h
 
+/** \class CSCUpgradeMotherboard
+ *
+ * Base class for upgrade TMBs (MEX/1) chambers, that either run the
+ * upgrade CSC-only TMB algorithm or the CSC-GEM algorithm
+ *
+ * \author Sven Dildick (TAMU)
+ *
+ */
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUT.h"
@@ -9,12 +18,15 @@
 // generic container type
 namespace{
 
+// first: raw detid, second: digi
 template <class T>
 using match = std::pair<unsigned int, T>;
 
+// vector of template above
 template <class T>
 using matches = std::vector<std::pair<unsigned int, T> >;
 
+// first: BX number, second: vector of template above
 template <class T>
 using matchesBX = std::map<int, std::vector<std::pair<unsigned int, T> > >;
 
@@ -31,34 +43,58 @@ public:
       maximum match window = 15 */
   class LCTContainer {
   public:
-    LCTContainer (unsigned int match_trig_window_size ) : match_trig_window_size(match_trig_window_size){}
-    CSCCorrelatedLCTDigi& operator()(int bx, int match_bx, int lct) { return data[bx][match_bx][lct]; }
+    // constructor
+    LCTContainer(unsigned int trig_window_size);
+
+    // access the LCT in a particular ALCT BX, a particular CLCT matched BX
+    // and particular LCT number
+    CSCCorrelatedLCTDigi& operator()(int bx, int match_bx, int lct);
+
+    // get the matching LCTs for a certain ALCT BX
     void getTimeMatched(const int bx, std::vector<CSCCorrelatedLCTDigi>&) const;
+
+    // get all LCTs in the 16 BX readout window
     void getMatched(std::vector<CSCCorrelatedLCTDigi>&) const;
+
+    // array with stored LCTs
     CSCCorrelatedLCTDigi data[CSCMotherboard::MAX_LCT_BINS][15][2];
+
+    // matching trigger window
     const unsigned int match_trig_window_size;
   };
 
+  // standard constructor
   CSCUpgradeMotherboard(unsigned endcap, unsigned station, unsigned sector,
-			unsigned subsector, unsigned chamber,
-			const edm::ParameterSet& conf);
+                        unsigned subsector, unsigned chamber,
+                        const edm::ParameterSet& conf);
 
    //Default constructor for testing
   CSCUpgradeMotherboard();
 
   ~CSCUpgradeMotherboard() override;
 
+  // Compare two matches of type <ID,DIGI>
+  // The template is match<GEMPadDigi> or match<GEMCoPadDigi>
   template <class S>
-  bool compare(const S& p, const S& q);
+  bool compare(const S& p, const S& q) const;
 
+  // Get the common matches of type <ID,DIGI>. Could be more than 1
+  // The template is matches<GEMPadDigi> or matches<GEMCoPadDigi>
   template <class S>
-  S intersection(const S& d1, const S& d2);
+  void intersection(const S& d1, const S& d2, S& result) const;
 
   /** Methods to sort the LCTs */
-  static bool sortLCTsByQuality(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&);
-  static bool sortLCTsByGEMDphi(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&);
-  void sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts, bool (*sorter)(const CSCCorrelatedLCTDigi&,const CSCCorrelatedLCTDigi&));
+  static bool sortLCTsByQuality(const CSCCorrelatedLCTDigi&,
+                                const CSCCorrelatedLCTDigi&);
+  static bool sortLCTsByGEMDphi(const CSCCorrelatedLCTDigi&,
+                                const CSCCorrelatedLCTDigi&);
+  // generic sorting function
+  // provide an LCT collection and a sorting function
+  void sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts,
+                bool (*sorter)(const CSCCorrelatedLCTDigi&,
+                               const CSCCorrelatedLCTDigi&)) const;
 
+  // functions to setup geometry and LUTs
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setupGeometry();
   void debugLUTs();
@@ -107,25 +143,21 @@ public:
 };
 
 template <class S>
-bool CSCUpgradeMotherboard::compare(const S& p, const S& q)
+bool CSCUpgradeMotherboard::compare(const S& p, const S& q) const
 {
   return (p.first == q.first) and (p.second == q.second);
 }
 
 template <class S>
-S CSCUpgradeMotherboard::intersection(const S& d1, const S& d2)
+void CSCUpgradeMotherboard::intersection(const S& d1, const S& d2, S& result) const
 {
-  S result;
   for (const auto& p: d1){
     for (const auto& q: d2){
       if (compare(p,q)){
-	result.push_back(p);
-	break;
+        result.push_back(p);
       }
     }
   }
-  return result;
  }
-
 
 #endif
