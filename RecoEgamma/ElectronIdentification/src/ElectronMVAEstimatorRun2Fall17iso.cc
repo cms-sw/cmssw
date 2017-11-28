@@ -2,6 +2,49 @@
 
 // A function that should work on both pat and reco objects
 std::vector<float> ElectronMVAEstimatorRun2Fall17iso::
+fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
+
+  //
+  // Declare all value maps corresponding to the products we defined earlier
+  //
+  edm::Handle<double> theRho;
+  edm::Handle<reco::BeamSpot> theBeamSpot;
+  edm::Handle<reco::ConversionCollection> conversions;
+
+  iEvent.getByLabel(rhoLabel_, theRho);
+
+  // Get data needed for conversion rejection
+  iEvent.getByLabel(beamSpotLabel_, theBeamSpot);
+
+  // Conversions in miniAOD and AOD have different names,
+  // but the same type, so we use the same handle with different tokens.
+  iEvent.getByLabel(conversionsLabelAOD_, conversions);
+  if( !conversions.isValid() )
+    iEvent.getByLabel(conversionsLabelMiniAOD_, conversions);
+
+  // Make sure everything is retrieved successfully
+  if(! (theBeamSpot.isValid()
+    && conversions.isValid() )
+     )
+    throw cms::Exception("MVA failure: ")
+      << "Failed to retrieve event content needed for this MVA"
+      << std::endl
+      << "Check python MVA configuration file."
+      << std::endl;
+
+  // Try to cast the particle into a reco particle.
+  // This should work for both reco and pat.
+  const edm::Ptr<reco::GsfElectron> eleRecoPtr = ( edm::Ptr<reco::GsfElectron> )particle;
+  if( eleRecoPtr.get() == nullptr )
+    throw cms::Exception("MVA failure: ")
+      << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
+      << " but appears to be neither" << std::endl;
+
+  return fillMVAVariables(eleRecoPtr.get(), conversions, theBeamSpot.product(), theRho);
+}
+
+// A function that should work on both pat and reco objects
+std::vector<float> ElectronMVAEstimatorRun2Fall17iso::
 fillMVAVariables(const reco::GsfElectron* eleRecoPtr, const edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *theBeamSpot, const edm::Handle<double> rho) const {
 
 
