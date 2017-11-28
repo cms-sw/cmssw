@@ -2,7 +2,6 @@
 #define GEMMapItem_h
 // based on CSCMapItem
 #include "CondFormats/Serialization/interface/Serializable.h"
-
 #include <string>
 
 class GEMMapItem{

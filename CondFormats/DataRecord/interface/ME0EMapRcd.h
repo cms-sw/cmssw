@@ -1,5 +1,5 @@
-#ifndef ME0EMapRcd_ME0EMapRcd_h
-#define ME0EMapRcd_ME0EMapRcd_h
+#ifndef DataRecord_ME0EMapRcd_h
+#define DataRecord_ME0EMapRcd_h
 // -*- C++ -*-
 //
 // Package:     CondFormats/DataRecord
