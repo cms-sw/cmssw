@@ -65,14 +65,14 @@ process.updatedPatJetsSoftDropSubjets.userData.userFloats.src = []
 ## An example where puppi jet specifics are computed
 from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
 process.patPuppiJetSpecificProducer = patPuppiJetSpecificProducer.clone(
-  jets=cms.InputTag("slimmedJets"),
+  src=cms.InputTag("slimmedJetsPuppi"),
   )
 patAlgosToolsTask.add(process.patPuppiJetSpecificProducer)
 
 updateJetCollection(
    process,
    labelName = 'PuppiJetSpecific',
-   jetSource = cms.InputTag('slimmedJets'),
+   jetSource = cms.InputTag('slimmedJetsPuppi'),
 )
 process.updatedPatJetsPuppiJetSpecific.userData.userFloats.src = ['patPuppiJetSpecificProducer:puppiMultiplicity', 'patPuppiJetSpecificProducer:neutralPuppiMultiplicity', 'patPuppiJetSpecificProducer:neutralHadronPuppiMultiplicity', 'patPuppiJetSpecificProducer:photonPuppiMultiplicity', 'patPuppiJetSpecificProducer:HFHadronPuppiMultiplicity', 'patPuppiJetSpecificProducer:HFEMPuppiMultiplicity' ]
 
