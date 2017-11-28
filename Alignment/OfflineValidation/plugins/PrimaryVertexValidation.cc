@@ -186,6 +186,8 @@ PrimaryVertexValidation::~PrimaryVertexValidation()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+  if (theTrackFilter_) delete theTrackFilter_;
+  if (theTrackClusterizer_) delete theTrackClusterizer_;
 }
 
 
@@ -812,11 +814,10 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      int L1BPixHitCount = 0;
 
 	      for (trackingRecHit_iterator iHit = theTrack.recHitsBegin(); iHit != theTrack.recHitsEnd(); ++iHit) {
-		TrackingRecHit* hit = (*iHit)->clone();
-		const DetId& detId = hit->geographicalId();
+		const DetId& detId = (*iHit)->geographicalId();
 		unsigned int subid = detId.subdetId();
 		
-		if(hit->isValid() && ( subid == PixelSubdetector::PixelBarrel ) ) {
+		if((*iHit)->isValid() && ( subid == PixelSubdetector::PixelBarrel ) ) {
 		  int layer = tTopo->pxbLayer(detId);
 		  if(layer==1){
 		    L1BPixHitCount+=1;
