@@ -190,8 +190,10 @@ b2gHLTDQMSourceExtra = cms.Sequence(
     AK8PFJet400_TrimMass30_PromptMonitoring +
     AK8PFJet420_TrimMass30_PromptMonitoring +
 
-    B2GegmGsfElectronIDsForDQM*
     B2GegHLTDQMOfflineTnPSource*
     b2gDileptonHLTOfflineDQM*
-    b2gDimuonHLTOfflineDQM
+    b2gDimuonHLTOfflineDQM,
+
+    cms.Task(B2GegmGsfElectronIDsForDQM)
+
 )
