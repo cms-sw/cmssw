@@ -1,6 +1,6 @@
-#include "RecoEgamma//ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17noIso.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"
 
-ElectronMVAEstimatorRun2Fall17noIso::ElectronMVAEstimatorRun2Fall17noIso(const edm::ParameterSet& conf):
+ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
   tag_(conf.getParameter<std::string>("mvaTag")),
   MethodName_("BDTG method"),
@@ -28,12 +28,12 @@ ElectronMVAEstimatorRun2Fall17noIso::ElectronMVAEstimatorRun2Fall17noIso(const e
   }
 }
 
-ElectronMVAEstimatorRun2Fall17noIso::
-~ElectronMVAEstimatorRun2Fall17noIso(){
+ElectronMVAEstimatorRun2::
+~ElectronMVAEstimatorRun2(){
 }
 
 
-void ElectronMVAEstimatorRun2Fall17noIso::setConsumes(edm::ConsumesCollector&& cc) const {
+void ElectronMVAEstimatorRun2::setConsumes(edm::ConsumesCollector&& cc) const {
 
   // All tokens for event content needed by this MVA
 
@@ -48,7 +48,7 @@ void ElectronMVAEstimatorRun2Fall17noIso::setConsumes(edm::ConsumesCollector&& c
 
 }
 
-float ElectronMVAEstimatorRun2Fall17noIso::
+float ElectronMVAEstimatorRun2::
 mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
@@ -57,14 +57,13 @@ mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) c
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
-  auto xxx = eleRecoPtr.get();
 
-  const int iCategory = findCategory( xxx );
+  const int iCategory = findCategory( eleRecoPtr.get() );
   const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );
   return mvaValue(iCategory, vars);
 }
 
-float ElectronMVAEstimatorRun2Fall17noIso::
+float ElectronMVAEstimatorRun2::
 mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) const {
   edm::Handle<reco::ConversionCollection> conversions;
   edm::Handle<reco::BeamSpot> beamSpot;
@@ -77,7 +76,7 @@ mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) con
   return mvaValue(iCategory, vars);
 }
 
-float ElectronMVAEstimatorRun2Fall17noIso::
+float ElectronMVAEstimatorRun2::
 mvaValue( const int iCategory, const std::vector<float> & vars) const  {
   const float result = gbrForest_s.at(iCategory)->GetClassifier(vars.data());
 
@@ -111,7 +110,7 @@ mvaValue( const int iCategory, const std::vector<float> & vars) const  {
   return result;
 }
 
-int ElectronMVAEstimatorRun2Fall17noIso::findCategory( const edm::Ptr<reco::Candidate>& particle) const {
+int ElectronMVAEstimatorRun2::findCategory( const edm::Ptr<reco::Candidate>& particle) const {
 
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
@@ -123,7 +122,7 @@ int ElectronMVAEstimatorRun2Fall17noIso::findCategory( const edm::Ptr<reco::Cand
    return findCategory(eleRecoPtr.get());
 }
 
-int ElectronMVAEstimatorRun2Fall17noIso::findCategory( const reco::GsfElectron * eleRecoPtr ) const {
+int ElectronMVAEstimatorRun2::findCategory( const reco::GsfElectron * eleRecoPtr ) const {
   float pt = eleRecoPtr->pt();
   float eta = eleRecoPtr->superCluster()->eta();
 
@@ -156,7 +155,7 @@ int ElectronMVAEstimatorRun2Fall17noIso::findCategory( const reco::GsfElectron *
   return iCategory;
 }
 
-bool ElectronMVAEstimatorRun2Fall17noIso::
+bool ElectronMVAEstimatorRun2::
 isEndcapCategory(int category ) const {
 
   bool isEndcap = false;
@@ -168,7 +167,7 @@ isEndcapCategory(int category ) const {
 
 
 // A function that should work on both pat and reco objects
-std::vector<float> ElectronMVAEstimatorRun2Fall17noIso::
+std::vector<float> ElectronMVAEstimatorRun2::
 fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
 
   //
@@ -211,7 +210,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iE
 }
 
 // A function that should work on both pat and reco objects
-std::vector<float> ElectronMVAEstimatorRun2Fall17noIso::
+std::vector<float> ElectronMVAEstimatorRun2::
 fillMVAVariables(const reco::GsfElectron* eleRecoPtr, const edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *theBeamSpot, const edm::Handle<double> rho) const {
 
 
@@ -309,7 +308,7 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr, const edm::Handle<reco::Co
   return vars;
 }
 
-void ElectronMVAEstimatorRun2Fall17noIso::constrainMVAVariables(std::vector<float>& vars) const {
+void ElectronMVAEstimatorRun2::constrainMVAVariables(std::vector<float>& vars) const {
 
   // Check that variables do not have crazy values
 
