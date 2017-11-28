@@ -179,7 +179,7 @@ if NminOneCuts:
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
             X4b_plot_types.append(NminOneCutNames[iCut])
-hltHiggsPostX4b = make_higgs_postprocessor("X4b", plot_types=X4b_plot_types, object_types=["Jet"])
+hltHiggsPostX4b = make_higgs_postprocessor("X4b", plot_types=X4b_plot_types, object_types=["Jet"], extra_str_templates=[truevtx_string_template])
 
 #Specific plots for WH -> ev + bb
 hltHiggsPostWHToENuBB = make_higgs_postprocessor("WHToENuBB", extra_str_templates=[truevtx_string_template, TTHbbej_HtDist_template])
@@ -192,7 +192,7 @@ if NminOneCuts:
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
             MSSMHbb_plot_types.append(NminOneCutNames[iCut])
-hltHiggsPostMSSMHbb = make_higgs_postprocessor("MSSMHbb", plot_types=MSSMHbb_plot_types, object_types=["Jet"])
+hltHiggsPostMSSMHbb = make_higgs_postprocessor("MSSMHbb", plot_types=MSSMHbb_plot_types, object_types=["Jet"], extra_str_templates=[truevtx_string_template])
 
 #Specific plots for MSSMHbbmu
 MSSMHbbmu_plot_types = ["EffEta", "EffPhi", "TurnOn1"]
@@ -201,7 +201,7 @@ if NminOneCuts:
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
             MSSMHbbmu_plot_types.append(NminOneCutNames[iCut])
-hltHiggsPostMSSMHbbmu = make_higgs_postprocessor("MSSMHbbmu", plot_types=MSSMHbbmu_plot_types, object_types=["Jet"])
+hltHiggsPostMSSMHbbmu = make_higgs_postprocessor("MSSMHbbmu", plot_types=MSSMHbbmu_plot_types, object_types=["Jet"], extra_str_templates=[truevtx_string_template])
 
 hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHWW+
