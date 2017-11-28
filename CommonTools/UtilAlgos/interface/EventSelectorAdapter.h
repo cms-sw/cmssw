@@ -42,7 +42,7 @@ class EventSelectorAdapter : public edm::global::EDFilter<>
     using Traits = FillDescriptionTraits<EventSelectorAdapter<T> >;
 
     edm::ParameterSetDescription desc;
-    T::template fillDescriptions<Traits>(desc);
+    T::fillDescriptions(desc);
     descriptions.add(Traits::moduleLabel(), desc);
   }
 

@@ -20,9 +20,8 @@ namespace reco {
 	return S(cfg, iC);
       }
 
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        S::template fillDescriptions<FD>(desc);
+        S::template fillDescriptions(desc);
       }
     };
 
@@ -39,9 +38,9 @@ namespace reco {
       return ParameterAdapter<S>::make(cfg, iC);
     }
 
-    template <typename S, typename FD>
+    template <typename S>
     void fillDescriptions(edm::ParameterSetDescription& desc) {
-      ParameterAdapter<S>::template fillDescriptions<FD>(desc);
+      ParameterAdapter<S>::fillDescriptions(desc);
     }
   }
 }
@@ -59,7 +58,6 @@ namespace reco { \
       static TYPE make(const edm::ParameterSet & cfg, edm::ConsumesCollector & iC) { \
 	return TYPE(); \
       } \
-      template <typename FD> \
       static void fillDescriptions(edm::ParameterSetDescription& desc) {} \
     }; \
   } \

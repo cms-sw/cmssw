@@ -14,13 +14,8 @@ namespace reco {
 	return StringCutObjectSelector<T, Lazy>( cfg.template getParameter<std::string>( "cut" ) );
       }
 
-      // SFINAE trick to provide default when FD::cut() is not implemented
-      template <typename FD> static decltype(FD::cut()) cut(int) { return FD::cut(); }
-      template <typename FD> static auto cut(long) { return std::string(); }
-
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        desc.add<std::string>("cut", cut<FD>(0));
+        desc.add<std::string>("cut", "");
       }
     };
 

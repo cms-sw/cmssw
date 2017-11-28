@@ -14,13 +14,8 @@ namespace reco {
 	return PtMinSelector( cfg.getParameter<double>( "ptMin" ) );
       }
 
-      // SFINAE trick to provide default when FD::ptMin() is not implemented
-      template <typename FD> static decltype(FD::ptMin()) ptMin(int) { return FD::ptMin(); }
-      template <typename FD> static auto ptMin(long) { return 0.; }
-
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        desc.add<double>("ptMin", ptMin<FD>(0));
+        desc.add<double>("ptMin", 0.);
       }
     };
 

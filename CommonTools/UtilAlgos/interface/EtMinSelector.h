@@ -14,13 +14,8 @@ namespace reco {
 	return EtMinSelector( cfg.getParameter<double>( "etMin" ) );
       }
 
-      // SFINAE trick to provide default when FD::etMin() is not implemented
-      template <typename FD> static decltype(FD::etMin()) ptMin(int) { return FD::etMin(); }
-      template <typename FD> static auto etMin(long) { return 0.; }
-
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        desc.add<double>("etMin", etMin<FD>(0));
+        desc.add<double>("etMin", 0.);
       }
     };
 

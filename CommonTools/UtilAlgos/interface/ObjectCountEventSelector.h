@@ -22,10 +22,6 @@
 #include "CommonTools/UtilAlgos/interface/CollectionFilterTrait.h"
 #include "CommonTools/UtilAlgos/interface/EventSelectorBase.h"
 
-// SFINAE trick to provide default when FD::src() is not implemented
-template <typename FD> decltype(FD::src()) objectCountEventSelectorSrc(int) { return FD::src(); }
-template <typename FD> auto objectCountEventSelectorSrc(long) { return edm::InputTag(); }
-
 template<typename C,
 	 typename S = AnySelector,
 	 typename N = MinNumberSelector,
@@ -40,11 +36,10 @@ class ObjectCountEventSelector : public EventSelectorBase
     sizeSelect_( reco::modules::make<N>( cfg, iC ) ) {
   }
 
-  template <typename FD>
   static void fillDescriptions(edm::ParameterSetDescription& desc) {
-    desc.add<edm::InputTag>("src", objectCountEventSelectorSrc<FD>(0));
-    reco::modules::fillDescriptions<S, FD>(desc);
-    reco::modules::fillDescriptions<N, FD>(desc);
+    desc.add<edm::InputTag>("src", edm::InputTag());
+    reco::modules::fillDescriptions<S>(desc);
+    reco::modules::fillDescriptions<N>(desc);
   }
 
   bool operator()(edm::Event& evt, const edm::EventSetup&) const override {
