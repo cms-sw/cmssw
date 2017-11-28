@@ -20,7 +20,6 @@ namespace reco {
 	return AnySelector();
       }
 
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {}
     };
 

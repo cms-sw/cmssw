@@ -15,15 +15,9 @@ namespace reco {
 			    cfg.getParameter<double>( "etaMax" ) );
       }
 
-      // SFINAE trick to provide default when FD::etaMin() or etaMax() is not implemented
-      template <typename FD> static decltype(std::make_pair(FD::etaMin(), FD::etaMax())) etaRange(int) { return std::make_pair(FD::etaMin(), FD::etaMax()); }
-      template <typename FD> static auto etaRange(long) { return std::make_pair(0., 0.); }
-
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        auto range = etaRange<FD>(0);
-        desc.add<double>("etaMin", range.first);
-        desc.add<double>("etaMax", range.second);
+        desc.add<double>("etaMin", 0.);
+        desc.add<double>("etaMax", 0.);
       }
     };
 

@@ -14,13 +14,8 @@ namespace reco {
 	return MinNumberSelector(cfg.getParameter<unsigned int>("minNumber"));
       }
 
-      // SFINAE trick to provide default when FD::minNumber() is not implemented
-      template <typename FD> static decltype(FD::minNumber()) minNumber(int) { return FD::minNumber(); }
-      template <typename FD> static auto minNumber(long) { return 0U; }
-
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        desc.add<unsigned int>("minNumber", minNumber<FD>(0));
+        desc.add<unsigned int>("minNumber", 0);
       }
     };
 

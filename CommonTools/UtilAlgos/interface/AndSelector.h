@@ -32,13 +32,12 @@ namespace reco {
 						modules::make<S5>( cfg, iC ) );
       }
 
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        modules::fillDescriptions<S1, FD>(desc);
-        modules::fillDescriptions<S2, FD>(desc);
-        modules::fillDescriptions<S3, FD>(desc);
-        modules::fillDescriptions<S4, FD>(desc);
-        modules::fillDescriptions<S5, FD>(desc);
+        modules::fillDescriptions<S1>(desc);
+        modules::fillDescriptions<S2>(desc);
+        modules::fillDescriptions<S3>(desc);
+        modules::fillDescriptions<S4>(desc);
+        modules::fillDescriptions<S5>(desc);
       }
     };
 
@@ -63,12 +62,11 @@ namespace reco {
 					    modules::make<S4>( cfg, iC ) );
       }
 
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        modules::fillDescriptions<S1, FD>(desc);
-        modules::fillDescriptions<S2, FD>(desc);
-        modules::fillDescriptions<S3, FD>(desc);
-        modules::fillDescriptions<S4, FD>(desc);
+        modules::fillDescriptions<S1>(desc);
+        modules::fillDescriptions<S2>(desc);
+        modules::fillDescriptions<S3>(desc);
+        modules::fillDescriptions<S4>(desc);
       }
     };
 
@@ -90,11 +88,10 @@ namespace reco {
 					modules::make<S3>( cfg, iC ) );
       }
 
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        modules::fillDescriptions<S1, FD>(desc);
-        modules::fillDescriptions<S2, FD>(desc);
-        modules::fillDescriptions<S3, FD>(desc);
+        modules::fillDescriptions<S1>(desc);
+        modules::fillDescriptions<S2>(desc);
+        modules::fillDescriptions<S3>(desc);
       }
     };
 
@@ -113,10 +110,9 @@ namespace reco {
 				    modules::make<S2>( cfg, iC ) );
       }
 
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        modules::fillDescriptions<S1, FD>(desc);
-        modules::fillDescriptions<S2, FD>(desc);
+        modules::fillDescriptions<S1>(desc);
+        modules::fillDescriptions<S2>(desc);
       }
     };
 

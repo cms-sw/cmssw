@@ -14,13 +14,8 @@ namespace reco {
 	return MaxNumberSelector(cfg.getParameter<unsigned int>("maxNumber"));
       }
 
-      // SFINAE trick to provide default when FD::maxNumber() is not implemented
-      template <typename FD> static decltype(FD::maxNumber()) maxNumber(int) { return FD::maxNumber(); }
-      template <typename FD> static auto maxNumber(long) { return 0U; }
-
-      template <typename FD>
       static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        desc.add<unsigned int>("maxNumber", maxNumber<FD>(0));
+        desc.add<unsigned int>("maxNumber", 0);
       }
     };
 
