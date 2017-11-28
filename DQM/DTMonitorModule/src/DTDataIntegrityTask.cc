@@ -379,7 +379,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   string histoType;
   string histoName;
   string histoTitle;
-  MonitorElement* histo = 0;
+  MonitorElement* histo = nullptr;
 
   // DDU Histograms
   if (folder == "DDU") {
@@ -807,7 +807,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
 
   if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
-  MonitorElement* uROSSummary = 0;
+  MonitorElement* uROSSummary = nullptr;
   uROSSummary = summaryHistos["uROSSummary"][fed];
   if(!uROSSummary) {
     LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") <<
@@ -817,9 +817,9 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
   }
 
   // Summary of all Link errors
-  MonitorElement* uROSError0 = 0;
-  MonitorElement* uROSError1 = 0;
-  MonitorElement* uROSError2 = 0;
+  MonitorElement* uROSError0 = nullptr;
+  MonitorElement* uROSError1 = nullptr;
+  MonitorElement* uROSError2 = nullptr;
   if(mode <= 2){
     uROSError0 = urosHistos["uROSError0"][fed][uRos];
     uROSError1 = urosHistos["uROSError1"][fed][uRos];
@@ -1401,7 +1401,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
-  const DTDDUSecondStatusWord secondWord = data.getSecondStatusWord();
+  const DTDDUSecondStatusWord& secondWord = data.getSecondStatusWord();
 
   // Fill the status summary of the TTS
 
