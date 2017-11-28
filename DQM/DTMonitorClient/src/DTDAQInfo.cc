@@ -39,7 +39,7 @@ using namespace edm;
 DTDAQInfo::DTDAQInfo(const ParameterSet& pset) {
 
   bookingdone = false;
-
+  //FIXME switch for uROS FEDIDs
 }
 
 DTDAQInfo::~DTDAQInfo() {}
@@ -158,7 +158,8 @@ DTDAQInfo::~DTDAQInfo() {}
 
     // the range of DT feds
     static int FEDIDmin = FEDNumbering::MINDTFEDID;
-    static int FEDIDMax = FEDNumbering::MAXDTFEDID;
+    static int FEDIDMax = 774; //FEDNumbering::MAXDTFEDID; Monitoring only real used FEDs
+    //FIXME for uROS FEDIDs once mapping has been defined
 
     // loop on all active feds
     for(vector<int>::const_iterator fed = fedInIDs.begin();

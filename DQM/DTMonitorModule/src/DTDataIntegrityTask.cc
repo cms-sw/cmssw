@@ -41,7 +41,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
 
 	} 
   FEDIDmin = parameters.getUntrackedParameter<int>("FEDIDmin",1368);
-  FEDIDMax = parameters.getUntrackedParameter<int>("FEDIDmax",1370);
+  FEDIDmax = parameters.getUntrackedParameter<int>("FEDIDmax",1370);
 
   neventsFED = 0;
   neventsuROS = 0;
@@ -105,14 +105,16 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   // Loop over the DT FEDs
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
-    << " FEDS: " << FEDIDmin  << " to " <<  FEDIDMax << " in the RO" << endl;
+    << " FEDS: " << FEDIDmin  << " to " <<  FEDIDmax << " in the RO" << endl;
 
   // book FED integrity histos
-  bookHistos(ibooker, FEDIDmin, FEDIDMax);
+  bookHistos(ibooker, FEDIDmin, FEDIDmax);
 
   if (checkUros){ //uROS starting on 2018
   // static booking of the histograms
-  for(int fed = FEDIDmin; fed <= FEDIDMax; ++fed) { // loop over the FEDs in the readout
+
+  if(mode == 0 || mode ==2){
+  for(int fed = FEDIDmin; fed <= FEDIDmax; ++fed) { // loop over the FEDs in the readout
 
     bookHistos(ibooker, string("FED"), fed);
 
@@ -124,6 +126,7 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
       bookHistosuROS(ibooker,fed,uRos);
     }
    }
+  } //Not in HLT or SM mode
   } //uROS
  
   else{ //Legacy ROS
@@ -131,7 +134,7 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   if(mode == 0 || mode ==2){
   // static booking of the histograms
 
-  for(int fed = FEDIDmin; fed <= FEDIDMax; ++fed) { // loop over the FEDs in the readout
+  for(int fed = FEDIDmin; fed <= FEDIDmax; ++fed) { // loop over the FEDs in the readout
     DTROChainCoding code;
     code.setDDU(fed);
 
@@ -219,8 +222,8 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histoTitle = "Event Lenght (Bytes) FED " +  fed_s.str();
     (fedHistos[histoType])[fed] = ibooker.book1D(histoName,histoTitle,501,0,16032);
 
-    if(mode > 2) return;
-    
+    if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
+ 
     histoType = "uROSStatus";
     histoName = "FED" + fed_s.str() + "_" + histoType;
     (fedHistos[histoType])[fed] = ibooker.book2D(histoName,histoName,12,0,12,12,0,12);
@@ -252,7 +255,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histo->setBinLabel(11,"uROS 11",2);
     histo->setBinLabel(12,"uROS 12",2);
     
-    if(mode > 1) return;
+    if(mode > 0) return; //Info for Online only
 
     histoType = "FEDAvgEvLenghtvsLumi";
     histoName = "FED" + fed_s.str() + "_" + histoType;
@@ -314,7 +317,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
     histoType = "uROSSummary";
-    histoName = "FED" + fed_s.str() + "_ROSSummary";
+    histoName = "FED" + fed_s.str() + "_uROSSummary";
     string histoTitle = "Summary Wheel" + wheel + " (FED " + fed_s.str() + ")";
 
     ((summaryHistos[histoType])[fed]) = ibooker.book2D(histoName,histoTitle,20,0,20,12,1,13);
@@ -701,8 +704,9 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int 
 	int linkDown = counter*24; stringstream linkDown_s; linkDown_s << linkDown;
 	int linkUp = linkDown+23;  stringstream linkUp_s; linkUp_s << linkUp;
   	string histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_"+histoType;
-  	string histoTitle = histoName + " (Link " + linkDown_s.str() +"-"+ linkUp_s.str() + "error summary)";
-	if(mode < 1) // produce only when not in HLT or SM
+  	string histoTitle = histoName + " (Link " + linkDown_s.str() +"-"+ linkUp_s.str() + " error summary)";
+
+	if(mode < 1) // Online only
     		((urosHistos[histoType])[fed])[uRos] = ibooker.book2D(histoName,histoTitle,11,0,11,24,0,24);
   	else
     		((urosHistos[histoType]))[fed][uRos] = ibooker.book2D(histoName,histoTitle,5,0,5,24,0,24);
@@ -739,7 +743,7 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int 
         int linkDown = counter*24; stringstream linkDown_s; linkDown_s << linkDown;
         int linkUp = linkDown+23;  stringstream linkUp_s; linkUp_s << linkUp;
         string histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_"+histoType;
-        string histoTitle = histoName + " (Link " + linkDown_s.str() +"-"+ linkUp_s.str() + "error summary)";
+        string histoTitle = histoName + " (Link " + linkDown_s.str() +"-"+ linkUp_s.str() + " error summary)";
   
     	(urosHistos[histoType])[fed][uRos] = ibooker.book2D(histoName,histoTitle,24,0,24,24,0,24);
     	MonitorElement* histo = (urosHistos[histoType])[fed][uRos];
@@ -801,6 +805,8 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
       LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
         << "[DTDataIntegrityTask]: " << neventsuROS << " events analyzed by processuROS" << endl;
 
+  if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
+
   MonitorElement* uROSSummary = 0;
   uROSSummary = summaryHistos["uROSSummary"][fed];
   if(!uROSSummary) {
@@ -819,7 +825,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
     uROSError1 = urosHistos["uROSError1"][fed][uRos];
     uROSError2 = urosHistos["uROSError2"][fed][uRos];
 
-    if ((!uROSError1) || (!uROSError0) ) {
+    if ((!uROSError2) || (!uROSError1) || (!uROSError0) ) {
       LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") <<
         "Trying to access non existing ME at uROS " << uRos  <<
         std::endl;
@@ -950,8 +956,8 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
 
   // 1D histograms for TTS values per uROS
   int ttsCodeValue = -1;
-  cout<<"data.getuserWord() & 0xF"<<(data.getuserWord() & 0xF)<<endl;
-  switch(data.getuserWord() & 0xF) { //FIXME Not sure if well extracted
+//  cout<<"data.getuserWord() & 0xF"<<(data.getuserWord() & 0xF)<<endl;
+  switch(data.getuserWord() & 0xF) { 
   case 0:{ //disconnected
     ttsCodeValue = 0;
     break;
@@ -1284,7 +1290,7 @@ void DTDataIntegrityTask::processFED(DTuROSFEDData  & data, int fed){
     LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       << "[DTDataIntegrityTask]: " << neventsFED << " events analyzed by processFED" << endl;
 
-  if(fed < FEDIDmin || fed > FEDIDMax) return;
+  if(fed < FEDIDmin || fed > FEDIDmax) return;
 
   hFEDEntry->Fill(fed);
 
@@ -1366,7 +1372,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   DTROChainCoding code;
   code.setDDU(ddu);
-  if(code.getDDUID() < FEDIDmin || code.getDDUID() > FEDIDMax) return;
+  if(code.getDDUID() < FEDIDmin || code.getDDUID() > FEDIDmax) return;
 
   hFEDEntry->Fill(code.getDDUID());
 
