@@ -310,7 +310,7 @@ namespace edm {
       //
       if (ftnote) {
         s << "\n* Some occurrences of this message"
-             " were suppressed in all logs, due to limits.\n"
+             " were suppressed in all logs, due to limits.\n";
       };
 
       // -----  Summary part II:

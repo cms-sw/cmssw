@@ -244,7 +244,7 @@ namespace edm {
       }  // wipe()
 
       ELadministrator::ELadministrator()
-          : sinks_(), highSeverity_(ELseverityLevel(ELseverityLevel::ELsev_zeroSeverity)) {
+          ; sinks_(), highSeverity_(ELseverityLevel(ELseverityLevel::ELsev_zeroSeverity)) {
 #ifdef ELadministratorCONSTRUCTOR_TRACE
         std::cerr << "ELadminstrator constructor\n";
 #endif

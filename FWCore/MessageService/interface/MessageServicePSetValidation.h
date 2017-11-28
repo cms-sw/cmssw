@@ -86,8 +86,9 @@ namespace edm {
       T check(ParameterSet const& pset, std::string const& psetName, std::string const& parameterLabel) {
         T val = T();
         try {
-          if (!pset.exists(parameterLabel))
-            return val;
+          if (!pset.exists(parameterLabel)) {
+            return val; }
+}
           if (pset.existsAs<T>(parameterLabel, false)) {
             val = pset.getUntrackedParameter<T>(parameterLabel, val);
             return val;
@@ -128,8 +129,9 @@ namespace edm {
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
-          if ((*i) == "@service_type")
-            continue;
+          if ((*i) == "@service_type") {
+            continue; }
+}
           flaws << psetName << " PSet: \n"
                 << (*i) << " is used as a tracked " << type << "\n"
                 << "Tracked parameters not allowed here, "
@@ -153,8 +155,9 @@ namespace edm {
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
-          if ((*i) == "@service_type")
-            continue;
+          if ((*i) == "@service_type") {
+            continue; }
+}
           flaws << psetName << " PSet: \n"
                 << (*i) << " is used as a tracked " << type << "\n"
                 << "Tracked parameters not allowed here\n";
@@ -177,8 +180,9 @@ namespace edm {
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
-          if ((*i) == "@service_type")
-            continue;
+          if ((*i) == "@service_type") {
+            continue; }
+}
           flaws << psetName << " PSet: \n"
                 << (*i) << " is used as a tracked " << type << "\n"
                 << "Tracked parameters not allowed here\n";
@@ -194,8 +198,9 @@ namespace edm {
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
           bool found = false;
           for (vString::const_iterator vit = vok.begin(); vit != vend; ++vit) {
-            if (*i == *vit)
-              found = true;
+            if (*i == *vit) {
+              found = true; }
+}
           }
           if (!found) {
             flaws << psetName << " PSet: \n"
@@ -206,8 +211,9 @@ namespace edm {
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
-          if ((*i) == "@service_type")
-            continue;
+          if ((*i) == "@service_type") {
+            continue; }
+}
           flaws << psetName << " PSet: \n"
                 << (*i) << " is used as a tracked " << type << "\n"
                 << "Tracked parameters not allowed here\n";

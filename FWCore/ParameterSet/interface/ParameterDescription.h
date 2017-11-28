@@ -158,8 +158,9 @@ namespace edm {
     bool exists_(ParameterSet const& pset) const override { return pset.existsAs<T>(label(), isTracked()); }
 
     bool hasNestedContent_() const override {
-      if (!hasDefault())
-        return false;
+      if (!hasDefault()) {
+        return false; }
+}
       return writeParameterValue::hasNestedContent(value_);
     }
 

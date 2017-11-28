@@ -43,20 +43,20 @@ namespace edm {
         : category(cat), module(mod), severity(sev), count(cnt) {}
     ErrorSummaryEntry() : category(), module(), severity(), count(0) {}
     bool operator<(ErrorSummaryEntry const& rhs) const {
-      if (category < rhs.category)
-        return true;
-      if (category > rhs.category)
-        return false;
-      if (module < rhs.module)
-        return true;
-      if (module > rhs.module)
-        return false;
-      if (severity < rhs.severity)
-        return true;
-      if (severity > rhs.severity)
-        return false;
-      if (count < rhs.count)
-        return true;
+      if (category < rhs.category) {
+        return true; }
+      if (category > rhs.category) {
+        return false; }
+      if (module < rhs.module) {
+        return true; }
+      if (module > rhs.module) {
+        return false; }
+      if (severity < rhs.severity) {
+        return true; }
+      if (severity > rhs.severity) {
+        return false; }
+      if (count < rhs.count) {
+        return true; }
       return false;
     }
     bool operator==(ErrorSummaryEntry const& rhs) const {

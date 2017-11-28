@@ -69,8 +69,9 @@ namespace edm {
     public:
       explicit OperateBuffer(SingleConsumerQ& b) : b_(b), v_(T::get(b)), committed_(false) {}
       ~OperateBuffer() {
-        if (!committed_)
-          T::release(b_, v_.ptr_);
+        if (!committed_) {
+          T::release(b_, v_.ptr_); }
+}
       }
 
       void* buffer() const { return v_.ptr_; }

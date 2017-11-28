@@ -42,8 +42,9 @@ namespace edm {
       std::pair<typename CaseMap::iterator, bool> status;
       status = caseMap_->insert(casePair);
       (*caseMap_)[caseValue] = std::move(node);
-      if (status.second == false)
-        duplicateCaseValues_ = true;
+      if (status.second == false) {
+        duplicateCaseValues_ = true; }
+}
     }
 
     std::unique_ptr<CaseMap> caseMap() { return std::move(caseMap_); }

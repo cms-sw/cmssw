@@ -148,18 +148,18 @@ namespace edm {
 
     template <class T>
     LogWarning& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
+      if (ap.valid()) {
+        ap << t; }
       return *this;
     }
     LogWarning& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     LogWarning& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
 
@@ -179,18 +179,18 @@ namespace edm {
 
     template <class T>
     LogError& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
+      if (ap.valid()) {
+        ap << t; }
       return *this;
     }
     LogError& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     LogError& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
 
@@ -237,18 +237,18 @@ namespace edm {
 
     template <class T>
     LogInfo& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
+      if (ap.valid()) {
+        ap << t; }
       return *this;
     }
     LogInfo& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     LogInfo& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
 
@@ -271,19 +271,19 @@ namespace edm {
 
     template <class T>
     LogVerbatim& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
+      if (ap.valid()) {
+        ap << t; }
       return *this;
     }
     // Change log 14
     LogVerbatim& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     LogVerbatim& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
 
@@ -306,19 +306,19 @@ namespace edm {
 
     template <class T>
     LogPrint& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
+      if (ap.valid()) {
+        ap << t; }
       return *this;
     }
     // Change log 14
     LogPrint& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     LogPrint& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
 
@@ -340,18 +340,18 @@ namespace edm {
 
     template <class T>
     LogProblem& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
+      if (ap.valid()) {
+        ap << t; }
       return *this;
     }
     LogProblem& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     LogProblem& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
 
@@ -373,18 +373,18 @@ namespace edm {
 
     template <class T>
     LogImportant& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
+      if (ap.valid()) {
+        ap << t; }
       return *this;
     }
     LogImportant& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     LogImportant& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
 
@@ -439,18 +439,18 @@ namespace edm {
 
     template <class T>
     LogDebug_& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
+      if (ap.valid()) {
+        ap << t; }
       return *this;
     }
     LogDebug_& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     LogDebug_& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     // Change log 8:  The tests for ap.valid() being null
@@ -469,18 +469,18 @@ namespace edm {
 
     template <class T>
     LogTrace_& operator<<(T const& t) {
-      if (ap.valid())
-        ap << t;
+      if (ap.valid()) {
+        ap << t; }
       return *this;
     }
     LogTrace_& operator<<(std::ostream& (*f)(std::ostream&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     LogTrace_& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-      if (ap.valid())
-        ap << f;
+      if (ap.valid()) {
+        ap << f; }
       return *this;
     }
     // Change log 8:  The tests for ap.valid() being null
@@ -501,18 +501,18 @@ namespace edm {
       ~LogWarningThatSuppressesLikeLogInfo();
       template <class T>
       LogWarningThatSuppressesLikeLogInfo& operator<<(T const& t) {
-        if (ap.valid())
-          ap << t;
+        if (ap.valid()) {
+          ap << t; }
         return *this;
       }
       LogWarningThatSuppressesLikeLogInfo& operator<<(std::ostream& (*f)(std::ostream&)) {
-        if (ap.valid())
-          ap << f;
+        if (ap.valid()) {
+          ap << f; }
         return *this;
       }
       LogWarningThatSuppressesLikeLogInfo& operator<<(std::ios_base& (*f)(std::ios_base&)) {
-        if (ap.valid())
-          ap << f;
+        if (ap.valid()) {
+          ap << f; }
         return *this;
       }
 

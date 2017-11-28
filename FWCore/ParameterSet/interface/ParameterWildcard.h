@@ -42,13 +42,15 @@ namespace edm {
     }
 
     bool exists_(ParameterSet const& pset) const override {
-      if (criteria() == RequireZeroOrMore)
-        return true;
+      if (criteria() == RequireZeroOrMore) {
+        return true; }
+}
 
       std::vector<std::string> parameterNames = pset.getParameterNamesForType<T>(isTracked());
 
-      if (criteria() == RequireAtLeastOne)
-        return !parameterNames.empty();
+      if (criteria() == RequireAtLeastOne) {
+        return !parameterNames.empty(); }
+}
       return parameterNames.size() == 1U;
     }
 

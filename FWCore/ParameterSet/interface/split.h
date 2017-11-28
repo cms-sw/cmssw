@@ -35,12 +35,13 @@ namespace edm {
 template <class FwdIter>
 FwdIter edm::contextual_find(FwdIter b, FwdIter e, char first, char sep, char last) {
   for (int nested = 0; b != e; ++b) {
-    if (*b == first)
+    if (*b == first) {
       ++nested;
-    else if (*b == last)
+    } else if (*b == last) {
       --nested;
-    else if (*b == sep && nested == 0)
-      return b;
+    } else if (*b == sep && nested == 0) {
+      return b; }
+}
   }
 
   return e;
@@ -53,8 +54,9 @@ FwdIter edm::contextual_find(FwdIter b, FwdIter e, char first, char sep, char la
 template <class FwdIter>
 FwdIter edm::contextual_find_not(FwdIter b, FwdIter e, char /* first */, char sep, char /* last */) {
   for (; b != e; ++b) {
-    if (*b != sep)
-      return b;
+    if (*b != sep) {
+      return b; }
+}
   }
 
   return e;
@@ -69,16 +71,19 @@ bool edm::split(OutIter dest, std::string const& s, char first, char sep, char l
   typedef std::string::const_iterator str_c_iter;
   str_c_iter b = s.begin(), e = s.end();
 
-  if (static_cast<unsigned int>(e - b) < 2u)
-    return false;
+  if (static_cast<unsigned int>(e - b) < 2u) {
+    return false; }
+}
 
-  if (*b == first)
+  if (*b == first) {
     ++b;
-  else
-    return false;
+  } else {
+    return false; }
+}
 
-  if (*--e != last)
-    return false;
+  if (*--e != last) {
+    return false; }
+}
 
   // invariant:  we've found all items in [b..boi)
   for (str_c_iter  // boi = std::find_if(b, e, is_not_a(sep))

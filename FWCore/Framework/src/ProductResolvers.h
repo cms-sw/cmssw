@@ -242,8 +242,8 @@ namespace edm {
       realProduct_->prefetchAsync(waitTask, *parentPrincipal_, skipCurrentProcess, sra, mcc);
     }
     bool unscheduledWasNotRun_() const override {
-      if (realProduct_)
-        return realProduct_->unscheduledWasNotRun();
+      if (realProduct_) {
+        return realProduct_->unscheduledWasNotRun(); }
       throwNullRealProduct();
       return false;
     }

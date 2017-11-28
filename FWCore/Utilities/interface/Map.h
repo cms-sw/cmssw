@@ -47,16 +47,18 @@ namespace edm {
   template <typename Key, typename Value>
   inline Value const& findOrAssert(std::map<Key, Value> const& m, Key const& k) {
     typename std::map<Key, Value>::const_iterator it = m.find(k);
-    if (it == m.end())
+    if (it == m.end()) {
       assert("findOrAssert" && 0);
+}
     return it->second;
   }
 
   template <typename Key, typename Value>
   inline Value& findOrAssert(std::map<Key, Value>& m, Key const& k) {
     typename std::map<Key, Value>::const_iterator it = m.find(k);
-    if (it == m.end())
+    if (it == m.end()) {
       assert("findOrAssert" && 0);
+}
     return it->second;
   }
 }

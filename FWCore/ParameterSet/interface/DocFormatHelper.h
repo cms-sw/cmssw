@@ -51,16 +51,19 @@ namespace edm {
     size_t column3() const { return column3_; }
 
     void setAtLeast1(size_t width) {
-      if (width > column1_)
-        column1_ = width;
+      if (width > column1_) {
+        column1_ = width; }
+}
     }
     void setAtLeast2(size_t width) {
-      if (width > column2_)
-        column2_ = width;
+      if (width > column2_) {
+        column2_ = width; }
+}
     }
     void setAtLeast3(size_t width) {
-      if (width > column3_)
-        column3_ = width;
+      if (width > column3_) {
+        column3_ = width; }
+}
     }
 
     int counter() const { return counter_; }

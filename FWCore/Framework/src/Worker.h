@@ -426,13 +426,13 @@ namespace edm {
       ModuleSignalSentry(ActivityRegistry* a, typename T::Context const* context,
                          ModuleCallingContext const* moduleCallingContext)
           : a_(a), context_(context), moduleCallingContext_(moduleCallingContext) {
-        if (a_)
-          T::preModuleSignal(a_, context, moduleCallingContext_);
+        if (a_) {
+          T::preModuleSignal(a_, context, moduleCallingContext_); }
       }
 
       ~ModuleSignalSentry() {
-        if (a_)
-          T::postModuleSignal(a_, context_, moduleCallingContext_);
+        if (a_) {
+          T::postModuleSignal(a_, context_, moduleCallingContext_); }
       }
 
     private:

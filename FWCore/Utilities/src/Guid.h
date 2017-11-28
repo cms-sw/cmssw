@@ -55,12 +55,15 @@ namespace edm {
     /// Equality operator
     bool operator==(Guid const& g) const {
       if (this != &g) {
-        if (Data1 != g.Data1)
+        if (Data1 != g.Data1) {
           return false;
-        if (Data2 != g.Data2)
+}
+        if (Data2 != g.Data2) {
           return false;
-        if (Data3 != g.Data3)
+}
+        if (Data3 != g.Data3) {
           return false;
+}
         unsigned int const* p = reinterpret_cast<unsigned int const*>(&Data4[0]);
         unsigned int const* q = reinterpret_cast<unsigned int const*>(&g.Data4[0]);
         return *p == *q && *(p + 1) == *(q + 1);

@@ -122,8 +122,8 @@ namespace edm {
     public:
       StreamScheduleSignalSentry(ActivityRegistry* a, typename T::Context const* context)
           : a_(a), context_(context), allowThrow_(false) {
-        if (a_)
-          T::preScheduleSignal(a_, context_);
+        if (a_) {
+          T::preScheduleSignal(a_, context_); }
       }
       ~StreamScheduleSignalSentry() noexcept(false) {
         try {

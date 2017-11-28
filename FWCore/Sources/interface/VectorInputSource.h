@@ -79,8 +79,9 @@ namespace edm {
     for (; i < number; ++i) {
       clearEventPrincipal(cache);
       bool found = readOneEvent(cache, fileNameHash, engine, id, recycleFiles);
-      if (!found)
+      if (!found) {
         break;
+}
       eventOperator(cache, fileNameHash);
     }
     return i;

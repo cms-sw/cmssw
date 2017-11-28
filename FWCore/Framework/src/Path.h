@@ -142,13 +142,13 @@ namespace edm {
       PathSignalSentry(ActivityRegistry* a, int const& nwrwue, hlt::HLTState const& state,
                        PathContext const* pathContext)
           : a_(a), nwrwue_(nwrwue), state_(state), pathContext_(pathContext) {
-        if (a_)
-          T::prePathSignal(a_, pathContext_);
+        if (a_) {
+          T::prePathSignal(a_, pathContext_); }
       }
       ~PathSignalSentry() {
         HLTPathStatus status(state_, nwrwue_);
-        if (a_)
-          T::postPathSignal(a_, status, pathContext_);
+        if (a_) {
+          T::postPathSignal(a_, status, pathContext_); }
       }
 
     private:

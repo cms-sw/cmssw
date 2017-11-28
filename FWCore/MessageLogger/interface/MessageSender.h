@@ -38,8 +38,8 @@ namespace edm {
     // ---  stream out the next part of a message:
     template <class T>
     MessageSender& operator<<(T const& t) {
-      if (valid())
-        (*errorobj_p) << t;
+      if (valid()) {
+        (*errorobj_p) << t; }
       return *this;
     }
 
