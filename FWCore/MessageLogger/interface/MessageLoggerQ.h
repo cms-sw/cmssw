@@ -2,6 +2,7 @@
 #define FWCore_MessageLogger_MessageLoggerQ_h
 
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <memory>
 
@@ -81,9 +82,9 @@ private:
   void  operator = ( MessageLoggerQ const & ) = delete;
 
   // --- data:
-  [[cms::thread_safe]] static  std::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
-  [[cms::thread_safe]] static  edm::ELseverityLevel threshold;
-  [[cms::thread_safe]] static  std::set<std::string> squelchSet;
+  CMS_THREAD_SAFE static  std::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
+  CMS_THREAD_SAFE static  edm::ELseverityLevel threshold;
+  CMS_THREAD_SAFE static  std::set<std::string> squelchSet;
   
 };  // MessageLoggerQ
 
