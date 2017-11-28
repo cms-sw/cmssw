@@ -361,7 +361,7 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
 			   
 			       if( !ok ) // if not ok, then we have to test this cell for being inside cone
 				 {
-				   auto cell  = std::shared_ptr<CaloCellGeometry>(&m_cellVec[ id.denseIndex()]);
+				   const CaloCellGeometry* cell(&m_cellVec[ id.denseIndex()]);
 				   const float       eta ( cell->etaPos() ) ;
 				   const float       phi ( cell->phiPos() ) ;
 				   ok = ( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) ;
@@ -493,9 +493,16 @@ EcalBarrelGeometry::avgRadiusXYFrontFaceCenter()
    return m_radius ;
 }
 
+const CaloCellGeometry*
+EcalBarrelGeometry::cellGeomPtr(uint32_t index) const {
+  const CaloCellGeometry* cell(&m_cellVec[index]) ;
+  return ( m_cellVec.size() < index ||
+	   nullptr == cell->param() ? nullptr : cell ) ;
+}
+
 std::shared_ptr<CaloCellGeometry> 
 EcalBarrelGeometry::cellGeomPtr(uint32_t index) {
-  std::shared_ptr<CaloCellGeometry> cell = std::shared_ptr<CaloCellGeometry>( &m_cellVec[ index ] ) ;
-   return ( m_cellVec.size() < index ||
-	    nullptr == cell->param() ? nullptr : cell ) ;
+  if (m_cellVec.size() < index) return nullptr;
+  std::shared_ptr<CaloCellGeometry> cell = std::shared_ptr<CaloCellGeometry>( new TruncatedPyramid(m_cellVec[ index ]) ) ;
+  return ((nullptr == cell->param()) ? nullptr : cell ) ;
 }

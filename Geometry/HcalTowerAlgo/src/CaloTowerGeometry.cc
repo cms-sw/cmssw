@@ -70,11 +70,18 @@ CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
    m_dins.emplace_back( di );
 }
 
+const CaloCellGeometry*
+CaloTowerGeometry::cellGeomPtr(uint32_t index) const {
+  const CaloCellGeometry* cell(&m_cellVec[index]) ;
+  return ( m_cellVec.size() < index ||
+	   nullptr == cell->param() ? nullptr : cell ) ;
+}
+
 std::shared_ptr<CaloCellGeometry>
 CaloTowerGeometry::cellGeomPtr( uint32_t index ) {
-  std::shared_ptr<CaloCellGeometry> cell ( &m_cellVec[ index ] ) ;
-  return  ( m_cellVec.size() < index ||
-	    nullptr == cell->param() ? nullptr : cell ) ;
+  if (m_cellVec.size() < index) return nullptr;
+  std::shared_ptr<CaloCellGeometry> cell(new IdealObliquePrism(m_cellVec[index]));
+  return ((nullptr == cell->param()) ? nullptr : cell) ;
 }
 
 void

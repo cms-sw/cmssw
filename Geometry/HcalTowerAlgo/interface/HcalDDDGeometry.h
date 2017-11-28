@@ -44,6 +44,7 @@ public:
 					
 protected:
 
+  const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
   std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) override ;
 
 private:

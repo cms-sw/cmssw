@@ -411,7 +411,7 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
 			if( EEDetId::validDetId( kx, ky, iz ) ) // reject invalid ids
 			{
 			  const EEDetId id ( kx, ky, iz ) ;
-			  auto cell  = std::shared_ptr<CaloCellGeometry>(&m_cellVec[ id.denseIndex()]);
+			  const CaloCellGeometry* cell(&m_cellVec[id.denseIndex()]);
 			  const float       eta  (cell->etaPos() ) ;
 			  const float       phi  (cell->phiPos() ) ;
 			  if( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) dis.insert( id ) ;
@@ -516,10 +516,16 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter()
    return m_avgZ;
 }
 
-std::shared_ptr<CaloCellGeometry>  
-EcalEndcapGeometry::cellGeomPtr( uint32_t index ) 
-{
-  auto cell = std::shared_ptr<CaloCellGeometry>(&m_cellVec[index]) ;
+const CaloCellGeometry*
+EcalEndcapGeometry::cellGeomPtr(uint32_t index) const {
+  const CaloCellGeometry* cell(&m_cellVec[index]) ;
   return ( m_cellVec.size() < index ||
 	   nullptr == cell->param() ? nullptr : cell ) ;
+}
+
+std::shared_ptr<CaloCellGeometry>  
+EcalEndcapGeometry::cellGeomPtr( uint32_t index ) {
+  if (m_cellVec.size() < index) return nullptr;
+  auto cell = std::shared_ptr<CaloCellGeometry>(new TruncatedPyramid(m_cellVec[index])) ;
+  return ((nullptr == cell->param()) ? nullptr : cell) ;
 }

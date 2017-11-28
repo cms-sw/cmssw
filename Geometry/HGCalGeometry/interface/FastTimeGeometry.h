@@ -102,6 +102,7 @@ protected:
   using CaloSubdetectorGeometry::sizeForDenseIndex;
   unsigned int sizeForDenseIndex() const;
   
+  const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
   std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
   
   void addValidID(const DetId& id);

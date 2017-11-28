@@ -104,6 +104,7 @@ class EcalBarrelGeometry final : public CaloSubdetectorGeometry
 			    const DetId&       detId ) override ;
    protected:
 
+      const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
       std::shared_ptr<CaloCellGeometry>  cellGeomPtr( uint32_t index ) override ;
 
    private:

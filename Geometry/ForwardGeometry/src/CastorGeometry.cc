@@ -91,9 +91,16 @@ CastorGeometry::newCell( const GlobalPoint& f1 ,
    addValidID( detId ) ;
 }
 
-std::shared_ptr<CaloCellGeometry>
-CastorGeometry::cellGeomPtr( uint32_t index ) {
-  auto cell = (std::shared_ptr<CaloCellGeometry>)( &m_cellVec[ index ] ) ;
+const CaloCellGeometry*
+CastorGeometry::cellGeomPtr(uint32_t index) const {
+  const CaloCellGeometry* cell(&m_cellVec[index]) ;
   return ( m_cellVec.size() < index ||
 	   nullptr == cell->param() ? nullptr : cell ) ;
+}
+
+std::shared_ptr<CaloCellGeometry>
+CastorGeometry::cellGeomPtr( uint32_t index ) {
+  if (m_cellVec.size() < index) return nullptr;
+  auto cell = (std::shared_ptr<CaloCellGeometry>)(new IdealCastorTrapezoid(m_cellVec[index])) ;
+  return ((nullptr == cell->param()) ? nullptr : cell) ;
 }

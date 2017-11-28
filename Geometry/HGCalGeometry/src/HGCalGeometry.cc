@@ -261,10 +261,17 @@ unsigned int HGCalGeometry::sizeForDenseIndex() const {
   return topology().totalGeomModules();
 }
 
+const CaloCellGeometry* HGCalGeometry::cellGeomPtr(uint32_t index) const {
+  if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
+    return nullptr;
+  const CaloCellGeometry* cell(&m_cellVec[index]) ;
+  return (nullptr == cell->param() ? nullptr : cell) ;
+}
+
 std::shared_ptr<CaloCellGeometry> HGCalGeometry::cellGeomPtr(uint32_t index) {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return nullptr;
-  auto cell = (std::shared_ptr<CaloCellGeometry>)(&m_cellVec[index]) ;
+  auto cell = (std::shared_ptr<CaloCellGeometry>)(new FlatTrd(m_cellVec[index])) ;
 #ifdef EDM_ML_DEBUG
   //  std::cout << "cellGeomPtr " << m_cellVec[index];
 #endif
