@@ -40,7 +40,7 @@ namespace edm {
       std::pair<T, edm::value_ptr<ParameterDescriptionNode> > casePair(caseValue,
                                                                        edm::value_ptr<ParameterDescriptionNode>());
       std::pair<typename CaseMap::iterator, bool> status;
-      status = casePair->insert(casePair);
+      status = casePair.insert(casePair);
       (*casePair)[caseValue] = std::move(node);
       if (status.second == false) {
         duplicateCaseValues_ = true; }
@@ -48,7 +48,7 @@ namespace edm {
     };
 
     std::unique_ptr<CaseMap> caseMap() { return std::move(caseMap_); }
-    bool duplicateCaseValues() { return duplicateCaseValues; }
+    bool duplicateCaseValues() { return &duplicateCaseValues(); }
 
   private:
     friend std::unique_ptr<ParameterDescriptionCases<bool> > operator>>(bool caseValue,

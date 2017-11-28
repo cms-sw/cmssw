@@ -121,7 +121,7 @@ namespace edm {
       void noneExcept(ParameterSet const& pset, std::string const& psetName, std::string const& type) {
         vString x = pset.template getParameterNamesForType<T>(false);
         vString::const_iterator std::end = x.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        for (vString::const_iterator i = x.begin(); i != std::end; ++i) {
           flaws << psetName << " PSet: \n"
                 << (*i) << " is used as a " << type << "\n"
                 << "Usage of " << type << " is not recognized here\n";

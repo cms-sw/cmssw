@@ -31,16 +31,16 @@ namespace edm {
 
     void init();
 
-    bool brief() const { return brief; }
-    size_t lineWidth() const { return lineWidth; }
-    int indentation() const { return indentation; }
-    int startColumn2() const { return startColumn2; }
+    bool brief() const { return brief(); }
+    size_t lineWidth() const { return lineWidth(); }
+    int indentation() const { return indentation(); }
+    int startColumn2() const { return startColumn2(); }
 
     void setBrief(bool value) { brief_ = value; }
     void setLineWidth(size_t value) { lineWidth_ = value; }
     void setIndentation(int value) { indentation_ = value; }
 
-    std::string const& section() const { return section; }
+    std::string const& section() const { return section(); }
     void setSection(std::string const& value) { section_ = value; }
 
     int pass() const { return pass_; }

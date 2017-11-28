@@ -94,12 +94,12 @@ namespace edm {
     void releaseProducerBuffer(void*);
     void commitProducerBuffer(void*, int);
 
-    Buffer getConsumerBuffer();
+    SingleConsumerQ::Buffer getConsumerBuffer();
     void releaseConsumerBuffer(void*);
     void commitConsumerBuffer(void*, int);
 
-    int maxEventSize() const { return max_event_size_; }
-    int maxQueueDepth() const { return max_queue_depth_; }
+    int maxEventSize() { return maxEventSize; }
+    int maxQueueDepth() { return maxQueueDepth; }
 
   private:
     // no copy
