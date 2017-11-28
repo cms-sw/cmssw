@@ -28,6 +28,11 @@ std::string get_substring(std::string str, int n1, int n2)
     return str.substr(pos, count - 1);
 }
 
+std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const std::string weightFile){
+  edm::FileInPath weightFileEdm(weightFile);
+  return GBRForestTools::createGBRForest(weightFileEdm);
+}
+
 // Creates a pointer to new GBRForest corresponding to a TMVA weights file
 std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::FileInPath &weightFile){
 

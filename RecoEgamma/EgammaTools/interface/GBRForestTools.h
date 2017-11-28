@@ -25,6 +25,7 @@ class GBRForestTools
   public:
     GBRForestTools() {}
 
+    static std::unique_ptr<const GBRForest> createGBRForest(const std::string weightFile);
     static std::unique_ptr<const GBRForest> createGBRForest(const edm::FileInPath &weightFile);
 
 };

@@ -44,8 +44,7 @@ void ElectronMVAEstimatorRun2Fall17iso::setConsumes(edm::ConsumesCollector&& cc)
   cc.mayConsume<reco::ConversionCollection>(conversionsLabelAOD_);
   cc.mayConsume<reco::ConversionCollection>(conversionsLabelMiniAOD_);
 
-  cc.consumes<double>(rhoLabel_);
-
+  cc.consumes<float>(rhoLabel_);
 }
 
 float ElectronMVAEstimatorRun2Fall17iso::
@@ -273,6 +272,11 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr, const edm::Handle<reco::Co
   float dphi            = eleRecoPtr->deltaPhiSuperClusterTrackAtVtx();
   float detacalo        = eleRecoPtr->deltaEtaSeedClusterTrackAtCalo();
 
+  // Isolation variables
+  float ele_pfChargedHadIso   = (eleRecoPtr->pfIsolationVariables()).sumChargedHadronPt ; //chargedHadronIso();
+  float ele_pfNeutralHadIso   = (eleRecoPtr->pfIsolationVariables()).sumNeutralHadronEt ; //neutralHadronIso();
+  float ele_pfPhotonIso       = (eleRecoPtr->pfIsolationVariables()).sumPhotonEt; //photonIso();
+
   std::vector<float> vars = std::move( packMVAVariables(
                                            see,                      // 0
                                            spp,                      // 1
@@ -297,9 +301,14 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr, const edm::Handle<reco::Co
                                            deta,                     // 17
                                            dphi,
                                            detacalo,
+                                           // Isolation variables
+                                           ele_pfPhotonIso,    
+                                           ele_pfChargedHadIso,
+                                           ele_pfNeutralHadIso,
+                                           // Pileup
                                            (float)*rho,
                                            // Endcap only variables
-                                           PreShowerOverRaw          // 21
+                                           PreShowerOverRaw          // 24
                                       )
                       );
 
