@@ -122,7 +122,7 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
               int mult_hits = 0;
               if ( mhMap_.find( oot.first ) != mhMap_.end() ) mult_hits = mhMap_[oot.first];
 
-              CTPPSDiamondLocalTrack track( pos0, pos0_sigma, 0., 0., 0., oot.first, mult_hits );
+              CTPPSDiamondLocalTrack track( pos0, pos0_sigma, 0., 0., oot.first, mult_hits );
               track.setValid( true );
               tracks.push_back( track );
               ++number_of_tracks;

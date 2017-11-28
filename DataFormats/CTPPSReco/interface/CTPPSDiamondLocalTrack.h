@@ -21,7 +21,7 @@ class CTPPSDiamondLocalTrack
     CTPPSDiamondLocalTrack() :
       num_hits_( 0 ), num_planes_( 0 ), valid_( true ),
       t_( 0. ), t_sigma_( 0. ), ts_index_( 0 ), mh_( 0 ) {}
-    CTPPSDiamondLocalTrack( const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma, float chisq, float t, float t_sigma, int oot_idx, int mult_hits ) :
+    CTPPSDiamondLocalTrack( const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma, float t, float t_sigma, int oot_idx, int mult_hits ) :
       pos0_( pos0 ), pos0_sigma_( pos0_sigma ),
       num_hits_( 0 ), num_planes_( 0 ), valid_( false ),
       t_( t ), t_sigma_( t_sigma ), ts_index_( oot_idx ), mh_( mult_hits ) {}
@@ -30,8 +30,8 @@ class CTPPSDiamondLocalTrack
     inline bool containsHit( const CTPPSDiamondRecHit& recHit, float tolerance = 0.1 ) const {
       const float x_low  = pos0_.x() - pos0_sigma_.x() - tolerance;
       const float x_high = pos0_.x() + pos0_sigma_.x() + tolerance;
-      return ( recHit.getOOTIndex() == ts_index_
-        && ( recHit.getZ() * pos0_.z() > 0. )
+      return ( ( recHit.getZ() * pos0_.z() > 0. )
+        && ( recHit.getOOTIndex() == ts_index_ || recHit.getOOTIndex() == ts_index_ + CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING )
         && ( ( recHit.getX() + 0.5 * recHit.getXWidth() > x_low && recHit.getX() + 0.5 * recHit.getXWidth() < x_high )
           || ( recHit.getX() - 0.5 * recHit.getXWidth() > x_low && recHit.getX() - 0.5 * recHit.getXWidth() < x_high )
           || ( recHit.getX() - 0.5 * recHit.getXWidth() < x_low && recHit.getX() + 0.5 * recHit.getXWidth() > x_high ) ) );
