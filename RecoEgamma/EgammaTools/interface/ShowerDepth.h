@@ -33,27 +33,27 @@ namespace hgcal {
 
     private:
       // HGCAL average medium
-      static constexpr double criticalEnergy_ = 0.00536; // in GeV
-      static constexpr double radiationLength_ = 0.968; // in cm
+      static constexpr float criticalEnergy_ = 0.00536; // in GeV
+      static constexpr float radiationLength_ = 0.968; // in cm
 
       // mean values
       // shower max <t_max> = t0 + t1*lny
-      static constexpr double meant0_{ -1.396 };
-      static constexpr double meant1_{ 1.007 };
+      static constexpr float meant0_{ -1.396 };
+      static constexpr float meant1_{ 1.007 };
       // <alpha> = alpha0 + alpha1*lny
-      static constexpr double meanalpha0_{ -0.0433 };
-      static constexpr double meanalpha1_{ 0.540 };
+      static constexpr float meanalpha0_{ -0.0433 };
+      static constexpr float meanalpha1_{ 0.540 };
       // sigmas (relative uncertainty)
       // sigma(ln(t_max)) = 1 / (sigmalnt0 + sigmalnt1*lny);
-      static constexpr double sigmalnt0_{ -2.506 };
-      static constexpr double sigmalnt1_{ 1.245 };
+      static constexpr float sigmalnt0_{ -2.506 };
+      static constexpr float sigmalnt1_{ 1.245 };
       // sigma(ln(alpha)) = 1 / (sigmalnt0 + sigmalnt1*lny);
-      static constexpr double sigmalnalpha0_{ -0.08442 };
-      static constexpr double sigmalnalpha1_{ 0.7904 };
+      static constexpr float sigmalnalpha0_{ -0.08442 };
+      static constexpr float sigmalnalpha1_{ 0.7904 };
       // correlation coefficient
       // corr(ln(alpha), ln(t_max)) = corrlnalpha0_+corrlnalphalnt1_*lny
-      static constexpr double corrlnalphalnt0_{ 0.7858 };
-      static constexpr double corrlnalphalnt1_{ -0.0232 };
+      static constexpr float corrlnalphalnt0_{ 0.7858 };
+      static constexpr float corrlnalphalnt1_{ -0.0232 };
   };
 
 }
