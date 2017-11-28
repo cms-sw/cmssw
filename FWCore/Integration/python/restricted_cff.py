@@ -1,1 +1,3 @@
-import FWCore.ParameterSet.Config as cms cms.checkImportPermission(allowedPatterns =['allowed'])
+import FWCore.ParameterSet.Config as cms
+
+cms.checkImportPermission(allowedPatterns = ['allowed'])

@@ -12,7 +12,7 @@ PenaltyExcessCharacter: 100
 AlignAfterOpenBracket: Align
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
-#above are changes from CMSSW core sw meeting discussions
+#above are changes from CMSSW core sw meeting discussions (last 171128)
 
 #things unchanged
 #AccessModifierOffset: -1

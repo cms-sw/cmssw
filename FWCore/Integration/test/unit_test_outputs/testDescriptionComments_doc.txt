@@ -144,3 +144,4 @@ configurations. The label below is used when generating the cfi file.
         x
                         type: int32 
                         default: 1
+
