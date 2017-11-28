@@ -86,5 +86,5 @@ ecalSelectiveReadoutValidation = cms.EDAnalyzer("EcalSelectiveReadoutValidation"
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(ecalSelectiveReadoutValidation,
     EbSimHitCollection = "famosSimHits:EcalHitsEB",
-    EeSimHitCollection = "famosSimHits;EcalHitsEE"
+    EeSimHitCollection = "famosSimHits:EcalHitsEE"
 )
