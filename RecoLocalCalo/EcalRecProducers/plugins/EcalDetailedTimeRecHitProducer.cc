@@ -83,7 +83,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 	edm::ESHandle<CaloGeometry>               hGeometry   ;
 	es.get<CaloGeometryRecord>().get( hGeometry ) ;
 	
-	m_geometry = (CaloGeometry*)(hGeometry.product());
+	m_geometry = (hGeometry.product());
 
         Handle< EBRecHitCollection > pEBRecHits;
         Handle< EERecHitCollection > pEERecHits;
@@ -232,7 +232,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 
 double EcalDetailedTimeRecHitProducer::deltaTimeOfFlight( GlobalPoint& vertex, const DetId& detId , int layer) const 
 {
-  auto cellGeometry ( m_geometry->getGeometry( detId ) ) ;
+  auto cellGeometry ((const_cast<CaloGeometry*>(m_geometry))->getGeometry( detId ) ) ;
   assert( nullptr != cellGeometry ) ;
   GlobalPoint layerPos = cellGeometry->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
   GlobalVector tofVector = layerPos-vertex;

@@ -84,12 +84,12 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
     edm::ESHandle<CaloGeometry> geom;
     iSetup.get<CaloGeometryRecord>().get(geom);
     if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    geom1 = (CaloGeometry*)(geom.product());
+    geom1 = const_cast<CaloGeometry*>(geom.product());
   } else {
     edm::ESHandle<HGCalGeometry> geom;
     iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
     if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    geom0 = (HGCalGeometry*)(geom.product());
+    geom0 = const_cast<HGCalGeometry*>(geom.product());
   }
 
   unsigned int ntot(0), nused(0);

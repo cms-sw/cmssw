@@ -92,8 +92,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
-  geo_  = (CaloGeometry*)(pGeo.product());
-  hgeo_ = (HcalGeometry*)(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
+  geo_  = (pGeo.product());
+  hgeo_ = static_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
 
   //}
   bool trkmuunvetoisdefault = false; //Pb with low pt tracker muons that veto good csc segments/halo triggers. 
@@ -519,7 +519,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 
 math::XYZPoint CSCHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
 
-  const GlobalPoint pos = ((id.det() == DetId::Hcal) ? hgeo_->getPosition(id) :	GlobalPoint(geo_->getPosition(id)));
+  const GlobalPoint pos = ((id.det() == DetId::Hcal) ? (const_cast<HcalGeometry*>(hgeo_))->getPosition(id) :	GlobalPoint((const_cast<CaloGeometry*>(geo_))->getPosition(id)));
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());
   return posV;
 }

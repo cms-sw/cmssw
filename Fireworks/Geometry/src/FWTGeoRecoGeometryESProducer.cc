@@ -272,7 +272,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    if( m_calo ) {
      edm::ESHandle<CaloGeometry> caloH;
      record.getRecord<CaloGeometryRecord>().get(caloH);
-     m_caloGeom = (CaloGeometry*)(caloH.product());
+     m_caloGeom = const_cast<CaloGeometry*>(caloH.product());
    }
 
    TGeoManager* geom = new TGeoManager( "cmsGeo", "CMS Detector" );

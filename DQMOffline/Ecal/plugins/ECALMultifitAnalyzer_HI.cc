@@ -131,7 +131,7 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event& iEvent, const edm::Event
   
   edm::ESHandle<CaloGeometry> geomH;
   iSetup.get<CaloGeometryRecord>().get(geomH);
-  CaloGeometry* geom = (CaloGeometry*)(geomH.product());
+  CaloGeometry* geom = const_cast<CaloGeometry*>(geomH.product());
 
   Handle<std::vector<reco::Photon> > recoPhotonsHandle;
   iEvent.getByToken(recoPhotonsCollection_, recoPhotonsHandle);

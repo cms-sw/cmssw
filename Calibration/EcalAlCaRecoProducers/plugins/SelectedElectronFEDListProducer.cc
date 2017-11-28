@@ -411,7 +411,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	    for( ; itSChits!=hits.end() ; ++itSChits){
 	      if((*itSChits).first.subdetId()== EcalBarrel){ // barrel part
 		EBDetId idEBRaw ((*itSChits).first);
-		GlobalPoint point = ((CaloGeometry*)(GeometryCalo_))->getPosition(idEBRaw);
+		GlobalPoint point = (const_cast<CaloGeometry*>(GeometryCalo_))->getPosition(idEBRaw);
 		int hitFED = FEDNumbering::MINECALFEDID + EcalMapping_->GetFED(double(point.eta()),double(point.phi())*radTodeg);
 		if( hitFED < FEDNumbering::MINECALFEDID || hitFED > FEDNumbering::MAXECALFEDID ) continue;
 		
@@ -427,7 +427,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	      }
 	      else if((*itSChits).first.subdetId()== EcalEndcap){ // endcap one
 		EEDetId idEERaw ((*itSChits).first);
-		GlobalPoint point = ((CaloGeometry*)(GeometryCalo_))->getPosition(idEERaw);
+		GlobalPoint point = (const_cast<CaloGeometry*>(GeometryCalo_))->getPosition(idEERaw);
 		int hitFED = FEDNumbering::MINECALFEDID + EcalMapping_->GetFED(double(point.eta()),double(point.phi())*radTodeg);
 		if( hitFED < FEDNumbering::MINECALFEDID || hitFED > FEDNumbering::MAXECALFEDID ) continue;
 		

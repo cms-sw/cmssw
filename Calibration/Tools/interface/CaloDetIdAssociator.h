@@ -41,7 +41,7 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
    GlobalPoint getPosition(const DetId& id) override{
       GlobalPoint point = (id.det() == DetId::Hcal) ? 
 	((HcalGeometry*)(geometry_->getSubdetectorGeometry(id)))->getPosition(id) : 
-	((CaloGeometry*)(geometry_))->getPosition(id);
+	(const_cast<CaloGeometry*>(geometry_))->getPosition(id);
       return point;
    };
    

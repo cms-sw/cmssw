@@ -18,7 +18,7 @@ namespace spr{
 
     GlobalPoint point = (id.det() == DetId::Hcal) ? 
       ((HcalGeometry*)(geo->getSubdetectorGeometry(id)))->getPosition(id) : 
-      ((CaloGeometry*)(geo))->getPosition(id);
+      (const_cast<CaloGeometry*>(geo))->getPosition(id);
     double R   = point.mag();
     double tmp = R/CLHEP::c_light/CLHEP::ns;
 #ifdef EDM_ML_DEBUG

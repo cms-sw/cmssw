@@ -814,13 +814,13 @@ void CaloTowersCreationAlgo::assignHitEcal(const EcalRecHit * recHit) {
   bool passEmThreshold = false;
   
   if (detId.subdetId() == EcalBarrel) {
-    if (theUseEtEBTresholdFlag) energy /= cosh( (((CaloGeometry*)(theGeometry))->getGeometry(detId)->getPosition()).eta() ) ;
+    if (theUseEtEBTresholdFlag) energy /= cosh( ((const_cast<CaloGeometry*>(theGeometry))->getGeometry(detId)->getPosition()).eta() ) ;
     if (theUseSymEBTresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
     else  passEmThreshold = (energy >= threshold);
 
   }
   else if (detId.subdetId() == EcalEndcap) {
-    if (theUseEtEETresholdFlag) energy /= cosh( (((CaloGeometry*)(theGeometry))->getGeometry(detId)->getPosition()).eta() ) ;
+    if (theUseEtEETresholdFlag) energy /= cosh( ((const_cast<CaloGeometry*>(theGeometry))->getGeometry(detId)->getPosition()).eta() ) ;
     if (theUseSymEETresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
     else  passEmThreshold = (energy >= threshold);
   }
@@ -1393,7 +1393,7 @@ void CaloTowersCreationAlgo::setHF2EScale(double scale){
 
 
 GlobalPoint CaloTowersCreationAlgo::emCrystalShwrPos(DetId detId, float fracDepth) {
-  auto cellGeometry = ((CaloGeometry*)(theGeometry))->getGeometry(detId);
+  auto cellGeometry = (const_cast<CaloGeometry*>(theGeometry))->getGeometry(detId);
    GlobalPoint point = cellGeometry->getPosition();  // face of the cell
 
    if (fracDepth<=0) return point;
@@ -1543,8 +1543,8 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
 #endif
   }
 
-  auto frontCellGeometry = ((CaloGeometry*)(theGeometry))->getGeometry(DetId(hid1));
-  auto backCellGeometry  = ((CaloGeometry*)(theGeometry))->getGeometry(DetId(hid2));
+  auto frontCellGeometry = (const_cast<CaloGeometry*>(theGeometry))->getGeometry(DetId(hid1));
+  auto backCellGeometry  = (const_cast<CaloGeometry*>(theGeometry))->getGeometry(DetId(hid2));
 
   GlobalPoint point     = frontCellGeometry->getPosition();
   const GlobalPoint& backPoint = backCellGeometry->getBackPoint();

@@ -36,7 +36,7 @@ class  EcalDetailedTimeRecHitProducer : public edm::stream::EDProducer<> {
 		//Functions to correct the TOF from the EcalDigi which is not corrected for the vertex position
 		double deltaTimeOfFlight( GlobalPoint& vertex, const DetId& detId , int layer) const ;
 
-		CaloGeometry* m_geometry;
+		const CaloGeometry* m_geometry;
 
 		edm::EDGetTokenT<EBRecHitCollection> EBRecHitCollection_; // secondary name given to collection of EBrechits
                 edm::EDGetTokenT<EERecHitCollection> EERecHitCollection_; // secondary name given to collection of EErechits

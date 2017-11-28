@@ -233,7 +233,7 @@ void EcalPileUpDepMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
 {
 
-  CaloGeometry* geom = (CaloGeometry*)(geomH.product());
+  CaloGeometry* geom = const_cast<CaloGeometry*>(geomH.product());
   //Vertex collection: 
   //-----------------------------------------
   edm::Handle<reco::VertexCollection> PVCollection_h;

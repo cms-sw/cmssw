@@ -155,8 +155,8 @@ class CSCHaloAlgo {
 
   
   
-  CaloGeometry *geo_;
-  HcalGeometry *hgeo_;
+  const CaloGeometry *geo_;
+  const HcalGeometry *hgeo_;
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
   bool HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll, float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi);
   bool ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitcoll,  float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi );

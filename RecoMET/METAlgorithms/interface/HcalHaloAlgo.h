@@ -83,8 +83,8 @@ class HcalHaloAlgo{
   float SumEnergyThreshold;
   int NHitsThreshold;
 
-  CaloGeometry *geo_;
-  HcalGeometry *hgeo_;
+  const CaloGeometry *geo_;
+  const HcalGeometry *hgeo_;
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
   
 };

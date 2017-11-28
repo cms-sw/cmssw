@@ -186,7 +186,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(produceEcalhits_) {
     edm::ESHandle<CaloGeometry> geoH;
     iSetup.get<CaloGeometryRecord>().get(geoH);
-    cGeo = (CaloGeometry*)(geoH.product());
+    cGeo = const_cast<CaloGeometry*>(geoH.product());
   }
 
   auto creco = std::make_unique<Centrality>();

@@ -130,7 +130,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   {
     edm::ESHandle<CaloGeometry>                caloGeomH;
     record.getRecord<CaloGeometryRecord>().get(caloGeomH);
-    m_caloGeom = (CaloGeometry*)(caloGeomH.product());
+    m_caloGeom = const_cast<CaloGeometry*>(caloGeomH.product());
     addCaloGeometry();
   }
 

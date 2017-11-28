@@ -198,7 +198,7 @@ namespace spr {
     DetId detId(hit->id());
     GlobalPoint point = (detId.det() == DetId::Hcal) ? 
       ((HcalGeometry*)(geo->getSubdetectorGeometry(detId)))->getPosition(detId) : 
-      ((CaloGeometry*)(geo))->getPosition(detId);
+      (const_cast<CaloGeometry*>(geo))->getPosition(detId);
     return point;
   }
 
@@ -206,10 +206,10 @@ namespace spr {
     // Not tested for EcalRecHits!!
     if (hit->id().subdetId() == EcalEndcap) {
       EEDetId EEid = EEDetId(hit->id());
-      return ((CaloGeometry*)(geo))->getPosition(EEid);
+      return (const_cast<CaloGeometry*>(geo))->getPosition(EEid);
     } else { // (hit->id().subdetId() == EcalBarrel)
       EBDetId EBid = EBDetId(hit->id());
-      return ((CaloGeometry*)(geo))->getPosition(EBid);
+      return (const_cast<CaloGeometry*>(geo))->getPosition(EBid);
     }
   }
 

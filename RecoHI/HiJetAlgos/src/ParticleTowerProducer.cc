@@ -171,7 +171,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
      if(et>0){
 
-       GlobalPoint pos = ((CaloGeometry*)(geo_))->getGeometry(newTowerId)->getPosition();
+       GlobalPoint pos = (const_cast<CaloGeometry*>(geo_))->getGeometry(newTowerId)->getPosition();
        
        if(!useHF_ && fabs(pos.eta()) > 3. ) continue;
 
@@ -290,7 +290,7 @@ void ParticleTowerProducer::resetTowers(edm::Event& iEvent,const edm::EventSetup
        if( hid.depth() == 1 ) {
 	 
 	 if(!useHF_){
-	   GlobalPoint pos = ((CaloGeometry*)(geo_))->getGeometry(hid)->getPosition();	 
+	   GlobalPoint pos = (const_cast<CaloGeometry*>(geo_))->getGeometry(hid)->getPosition();	 
 	   //if((hid).iphi()==1)std::cout<<" ieta "<<(hid).ieta()<<" eta "<<pos.eta()<<" iphi "<<(hid).iphi()<<" phi "<<pos.phi()<<std::endl;
 	   if(fabs(pos.eta())>3.) continue;
 	 }
@@ -343,7 +343,7 @@ DetId ParticleTowerProducer::getNearestTower(const reco::PFCandidate & in) const
 
       if( hid.depth() != 1 ) continue;
 
-      GlobalPoint pos = ((CaloGeometry*)(geo_))->getGeometry(hid)->getPosition();
+      GlobalPoint pos = (const_cast<CaloGeometry*>(geo_))->getGeometry(hid)->getPosition();
       
       double hcalEta = pos.eta();
       double hcalPhi = pos.phi();
@@ -413,7 +413,7 @@ DetId ParticleTowerProducer::getNearestTower(double eta, double phi) const {
 
       if( hid.depth() != 1 ) continue;
 
-      GlobalPoint pos = ((CaloGeometry*)(geo_))->getGeometry(hid)->getPosition();
+      GlobalPoint pos = (const_cast<CaloGeometry*>(geo_))->getGeometry(hid)->getPosition();
       
       double hcalEta = pos.eta();
       double hcalPhi = pos.phi();

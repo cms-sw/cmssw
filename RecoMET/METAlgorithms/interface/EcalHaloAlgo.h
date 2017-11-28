@@ -103,7 +103,7 @@ class EcalHaloAlgo
   float SumEnergyThreshold;
   int NHitsThreshold;
 
-  CaloGeometry *geo;
+  const CaloGeometry *geo;
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
 
 };

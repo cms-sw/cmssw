@@ -1145,7 +1145,7 @@ CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
 
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);
-   CaloGeometry* cG = (CaloGeometry*)(pG.product());
+   CaloGeometry* cG = const_cast<CaloGeometry*>(pG.product());
    edm::ESHandle<HcalTopology> pT;
    iSetup.get<HcalRecNumberingRecord>().get(pT);
 

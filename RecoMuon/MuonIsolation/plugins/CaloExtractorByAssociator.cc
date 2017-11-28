@@ -156,7 +156,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
     //! too much copy-pasting now (refactor later?)
     edm::ESHandle<CaloGeometry> caloGeomH;
     eventSetup.get<CaloGeometryRecord>().get(caloGeomH);
-    CaloGeometry* caloGeom = (CaloGeometry*)(caloGeomH.product());
+    CaloGeometry* caloGeom = const_cast<CaloGeometry*>(caloGeomH.product());
 
     //Ecal
     std::vector<const EcalRecHit*>::const_iterator eHitCI = mInfo.ecalRecHits.begin();

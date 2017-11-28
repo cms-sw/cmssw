@@ -670,7 +670,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 
   if (validHBHE) {
     std::vector<edm::Handle<HBHERecHitCollection> >::iterator ihbhe;
-    CaloGeometry* geo = (CaloGeometry*)(geometry.product());
+    CaloGeometry* geo = const_cast<CaloGeometry*>(geometry.product());
     
     int iHB = 0;
     int iHE = 0; 

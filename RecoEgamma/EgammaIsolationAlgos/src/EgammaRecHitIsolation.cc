@@ -91,7 +91,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
       for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i != chosen.end (); ++i){ //loop selected cells
 	j = caloHits_.find(*i); // find selected cell among rechits
 	if(j != caloHits_.end()) { // add rechit only if available 
-	  auto cell = ((CaloGeometry*)(theCaloGeom_.product()))->getGeometry(*i);
+	  auto cell = (const_cast<CaloGeometry*>(theCaloGeom_.product()))->getGeometry(*i);
 	  float eta = cell->etaPos();
 	  float phi = cell->phiPos();
 	  float etaDiff = eta - etaclus;
@@ -208,7 +208,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
 	
 	j=caloHits_.find(*i); // find selected cell among rechits
 	if( j!=caloHits_.end()){ // add rechit only if available 
-	  const  GlobalPoint & position = ((CaloGeometry*)(theCaloGeom_.product()))->getPosition(*i);
+	  const  GlobalPoint & position = (const_cast<CaloGeometry*>(theCaloGeom_.product()))->getPosition(*i);
 	  double eta = position.eta();
 	  double phi = position.phi();
 	  double etaDiff = eta - etaclus;

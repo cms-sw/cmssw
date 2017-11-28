@@ -212,8 +212,8 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
-  geo_  = (CaloGeometry*)pGeo.product();
-  hgeo_ = (HcalGeometry*)(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
+  geo_  = pGeo.product();
+  hgeo_ = static_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
 
   //Halo cluster building:
   //Various clusters are built, depending on the subdetector. 
@@ -506,8 +506,9 @@ bool HcalHaloAlgo::HEClusterShapeandTimeStudy( HaloClusterCandidateHCAL hcand, b
 
 math::XYZPoint HcalHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
 
-  const GlobalPoint pos = ((id.det() == DetId::Hcal) ? hgeo_->getPosition(id) :
-			   GlobalPoint(geo_->getPosition(id)));
+  const GlobalPoint pos = ((id.det() == DetId::Hcal) ? 
+			   (const_cast<HcalGeometry*>(hgeo_))->getPosition(id) :
+			    GlobalPoint((const_cast<CaloGeometry*>(geo_))->getPosition(id)));
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());
   return posV;
 }

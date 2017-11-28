@@ -236,7 +236,7 @@ namespace ecaldqm
   double
   eta(const EEDetId& _id)
   {
-    return ((CaloGeometry*)(getGeometry()))->getPosition(_id).eta();
+    return (const_cast<CaloGeometry*>(getGeometry()))->getPosition(_id).eta();
   }
 
   double

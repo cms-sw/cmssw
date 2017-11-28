@@ -68,7 +68,7 @@ reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event & iEvent,
 
     //Compute the HCAL energy behind ECAL
 	coneSel.selectCallback(point, *hcalRecHitHandle, [&](const HBHERecHit& i) {
-	    const  GlobalPoint & hcalHit_position = ((CaloGeometry*)(caloGeom))->getPosition(i.detid());
+	    const  GlobalPoint & hcalHit_position = (const_cast<CaloGeometry*>(caloGeom))->getPosition(i.detid());
         double hcalHit_eta = hcalHit_position.eta();
         double hcalHit_Et = i.energy()*sin(2*atan(exp(-hcalHit_eta)));
         if ( hcalHit_Et > etLow_) {

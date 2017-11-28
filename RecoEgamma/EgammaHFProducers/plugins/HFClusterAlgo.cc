@@ -119,9 +119,9 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
     }
 
     if (m_cutByEta[iz]<0) {
-      double eta=((CaloGeometry*)(geom))->getPosition(j->id()).eta();
+      double eta=(const_cast<CaloGeometry*>(geom))->getPosition(j->id()).eta();
       m_cutByEta[iz]=m_seedThreshold*cosh(eta); // convert ET to E for this ring
-      auto ccg=((CaloGeometry*)(geom))->getGeometry(j->id()); 
+      auto ccg=(const_cast<CaloGeometry*>(geom))->getGeometry(j->id()); 
       const CaloCellGeometry::CornersVec& CellCorners=ccg->getCorners();
       for(size_t sc=0;sc<CellCorners.size();sc++){
 	if(fabs(CellCorners[sc].z())<1200){
@@ -142,7 +142,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       if(isPMTHit(*j)) continue;
 
       HFCompleteHit ahit;
-      double eta=((CaloGeometry*)(geom))->getPosition(j->id()).eta();
+      double eta=(const_cast<CaloGeometry*>(geom))->getPosition(j->id()).eta();
       ahit.id=j->id();
       ahit.energy=elong;
       ahit.et=ahit.energy/cosh(eta);
@@ -218,7 +218,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   double s_1=0;
   int de, dp, phiWrap;
   double l_1e=0;
-  const GlobalPoint& sp=((CaloGeometry*)(geom))->getPosition(seedid);
+  const GlobalPoint& sp=(const_cast<CaloGeometry*>(geom))->getPosition(seedid);
   std::vector<double> coreCanid;
   std::vector<double>::const_iterator ci;
   HFRecHitCollection::const_iterator i,is,il;
@@ -311,7 +311,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	  }
 	  
 	  // position calculation
-	  const GlobalPoint& p=((CaloGeometry*)(geom))->getPosition(idl);
+	  const GlobalPoint& p=(const_cast<CaloGeometry*>(geom))->getPosition(idl);
           
 	  double d_p = p.phi()-sp.phi();
 	  while (d_p < -M_PI)

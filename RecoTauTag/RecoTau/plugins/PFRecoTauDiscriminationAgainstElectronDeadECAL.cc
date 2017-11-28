@@ -134,7 +134,7 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
       unsigned status = ( it == channelStatus->end() ) ? 
 	0 : (it->getStatusCode() & statusMask_);
       if ( status >= minStatus_ ) {
-	const GlobalPoint& point = ((CaloGeometry*)(caloGeometry))->getPosition(id);
+	const GlobalPoint& point = (const_cast<CaloGeometry*>(caloGeometry))->getPosition(id);
 	uint32_t key = ttMap->towerOf(id);
 	maxStatus[key] = TMath::Max(status, maxStatus[key]);
 	++nBadCrystals[key];
