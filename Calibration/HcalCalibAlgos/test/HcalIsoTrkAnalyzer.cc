@@ -171,7 +171,7 @@ private:
   bool                       t_L1Bit;
   int                        t_Tracks, t_TracksProp, t_TracksSaved;
   int                        t_TracksLoose, t_TracksTight;
-  std::vector<int>          *t_ietaAll, *t_ietaGood;
+  std::vector<int>          *t_ietaAll, *t_ietaGood, *t_trackType;
 };
 
 static const bool useL1EventSetup(false);
@@ -449,7 +449,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   std::vector<math::XYZTLorentzVector> vecL1, vecL3;
   t_Tracks     = trkCollection->size();
   t_TracksProp = trkCaloDirections.size();
-  t_ietaAll->clear(); t_ietaGood->clear();
+  t_ietaAll->clear(); t_ietaGood->clear(); t_trackType->clear();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "# of propagated tracks " << t_TracksProp
 				   << " out of " << t_Tracks << " with Trigger "
@@ -705,8 +705,10 @@ void HcalIsoTrkAnalyzer::beginJob() {
   t_hltbits     = new std::vector<bool>();
   t_ietaAll     = new std::vector<int>();
   t_ietaGood    = new std::vector<int>();
+  t_trackType   = new std::vector<int>();
   tree2->Branch("t_ietaAll",    "std::vector<int>",          &t_ietaAll);
   tree2->Branch("t_ietaGood",   "std::vector<int>",          &t_ietaGood);
+  tree2->Branch("t_trackType",  "std::vector<int>",          &t_trackType);
   tree2->Branch("t_hltbits",    "std::vector<bool>",         &t_hltbits); 
 }
 
@@ -967,12 +969,15 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
 	if (t_p>pTrackMin_) {
 	  tree->Fill();
 	  nSave++;
+	  int type(0);
 	  if (t_eMipDR < 1.0) {
-	    if (t_hmaxNearP < 2.0)  ++nTight;
-	    if (t_hmaxNearP < 10.0) ++nLoose;
+	    if (t_hmaxNearP < 10.0) { ++nLoose; type = 1;}
+	    if (t_hmaxNearP < 2.0)  { ++nTight; type = 2;}
 	  }
-	  if (t_p > 40.0 && t_p <= 60.0 && t_selectTk) 
+	  if (t_p > 40.0 && t_p <= 60.0 && t_selectTk) {
 	    t_ietaGood->emplace_back(t_ieta);
+	    t_trackType->emplace_back(type);
+	  }
 #ifdef EDM_ML_DEBUG
 	  for (unsigned int k=0; k<t_trgbits->size(); k++) {
 	    edm::LogVerbatim("HcalIsoTrack") << "trigger bit is  = " 
@@ -983,7 +988,7 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
       }
     }
   }
-  std::array<int,3> i3{ {nSave,nTight,nLoose} };
+  std::array<int,3> i3{ {nSave,nLoose,nTight} };
   return i3;
 }
 
