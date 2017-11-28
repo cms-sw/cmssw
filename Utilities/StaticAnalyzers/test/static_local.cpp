@@ -1,3 +1,4 @@
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 class Foo
 {
@@ -5,7 +6,7 @@ public:
     void bar()
     {
         // will produce a warning by StaticLocalChecker
-        	[[cms::thread_safe]] static int evilStaticLocal = 0;
+        	CMS_THREAD_SAFE static int evilStaticLocal = 0;
 		static int & intRef = evilStaticLocal;
 		static int * intPtr = & evilStaticLocal;
 
