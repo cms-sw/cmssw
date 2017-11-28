@@ -10,7 +10,7 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
@@ -49,7 +49,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 
   // CaloParams contains all persisted parameters for Layer 1
   edm::ESHandle<l1t::CaloParams> paramsHandle;
-  iSetup.get<L1TCaloStage2ParamsRcd>().get(paramsHandle);
+  iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
   if ( paramsHandle.product() == nullptr ) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Missing CaloParams object! Check Global Tag, etc.";
     return false;
@@ -122,7 +122,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   }
 
   // Sanity check scale factors exist
-  if ( useCalib && (ecalSF.size()==0 || hcalSF.size()==0 || hfSF.size()==0) ) {
+  if ( useCalib && (ecalSF.empty() || hcalSF.empty() || hfSF.empty()) ) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Layer 1 calibrations requested (useCalib = True) but there are missing scale factors in CaloParams!  Please check conditions setup.";
     return false;
   }
