@@ -151,14 +151,14 @@ upgradeProperties[2017] = {
     },
     '2019' : {
         'Geom' : 'Extended2019',
-        'GT' : 'auto:phase1_2018_realistic',
+        'GT' : 'auto:phase1_2019_realistic',
         'HLTmenu': '@relval2017',
         'Era' : 'Run3',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
     '2019Design' : {
         'Geom' : 'Extended2019',
-        'GT' : 'auto:phase1_2018_design',
+        'GT' : 'auto:phase1_2019_design',
         'HLTmenu': '@relval2017',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
