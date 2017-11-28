@@ -3,7 +3,8 @@
 // Package:    TestModuleChangeLooper
 // Class:      TestModuleChangeLooper
 //
-/**\class TestModuleChangeLooper TestModuleChangeLooper.h FWCore/TestModuleChangeLooper/interface/TestModuleChangeLooper.h
+/**\class TestModuleChangeLooper TestModuleChangeLooper.h
+ FWCore/TestModuleChangeLooper/interface/TestModuleChangeLooper.h
 
  Description: <one line class summary>
 
@@ -32,37 +33,36 @@
 //
 
 class TestModuleChangeLooper : public edm::EDLooper {
-   public:
-      TestModuleChangeLooper(edm::ParameterSet const&);
-      ~TestModuleChangeLooper();
+public:
+  TestModuleChangeLooper(edm::ParameterSet const&);
+  ~TestModuleChangeLooper();
 
-      void startingNewLoop(unsigned int) {
+  void startingNewLoop(unsigned int) {}
+  Status duringLoop(edm::Event const& iEvent, edm::EventSetup const&) {
+    edm::Handle<edmtest::IntProduct> handle;
+    iEvent.getByLabel(m_tag, handle);
+    if (handle->value != m_expectedValue) {
+      throw cms::Exception("WrongValue") << "expected value " << m_expectedValue << " but got " << handle->value;
+    }
+    return kContinue;
+  }
+  Status endOfLoop(edm::EventSetup const&, unsigned int iCount) {
+    // modify the module
+    edm::ParameterSet const* pset = scheduleInfo()->parametersForModule(m_tag.label());
+    assert(0 != pset);
 
-      }
-      Status duringLoop(edm::Event const& iEvent, edm::EventSetup const&) {
-         edm::Handle<edmtest::IntProduct> handle;
-         iEvent.getByLabel(m_tag, handle);
-         if(handle->value != m_expectedValue) {
-            throw cms::Exception("WrongValue") << "expected value " << m_expectedValue << " but got " << handle->value;
-         }
-         return kContinue;
-      }
-      Status endOfLoop(edm::EventSetup const&,  unsigned int iCount) {
-         //modify the module
-         edm::ParameterSet const* pset = scheduleInfo()->parametersForModule(m_tag.label());
-         assert(0 != pset);
+    edm::ParameterSet newPSet(*pset);
+    newPSet.addParameter<int>("ivalue", ++m_expectedValue);
 
-         edm::ParameterSet newPSet(*pset);
-         newPSet.addParameter<int>("ivalue", ++m_expectedValue);
+    assert(moduleChanger()->changeModule(m_tag.label(), newPSet));
 
-         assert(moduleChanger()->changeModule(m_tag.label(), newPSet));
+    return iCount == 2 ? kStop : kContinue;
+  }
 
-         return iCount == 2 ? kStop : kContinue;
-      }
-   private:
-      // ----------member data ---------------------------
-   int m_expectedValue;
-   edm::InputTag m_tag;
+private:
+  // ----------member data ---------------------------
+  int m_expectedValue;
+  edm::InputTag m_tag;
 };
 
 //
@@ -77,16 +77,14 @@ class TestModuleChangeLooper : public edm::EDLooper {
 // constructors and destructor
 //
 TestModuleChangeLooper::TestModuleChangeLooper(edm::ParameterSet const& iConfig)
-            : m_expectedValue(iConfig.getUntrackedParameter<int>("startingValue")),
-              m_tag(iConfig.getUntrackedParameter<edm::InputTag>("tag")) {
-
-   //now do what ever other initialization is needed
+    : m_expectedValue(iConfig.getUntrackedParameter<int>("startingValue")),
+      m_tag(iConfig.getUntrackedParameter<edm::InputTag>("tag")) {
+  // now do what ever other initialization is needed
 }
 
 TestModuleChangeLooper::~TestModuleChangeLooper() {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -95,5 +93,5 @@ TestModuleChangeLooper::~TestModuleChangeLooper() {
 
 // ------------ method called to produce the data  ------------
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_LOOPER(TestModuleChangeLooper);

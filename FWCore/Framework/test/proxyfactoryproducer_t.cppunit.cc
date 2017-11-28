@@ -21,95 +21,83 @@ using edm::ESProxyFactoryProducer;
 
 class DummyProxy : public DataProxyTemplate<DummyRecord, DummyData> {
 public:
-   DummyProxy() {}
+  DummyProxy() {}
+
 protected:
-   const value_type* make(const record_type&, const DataKey&) {
-      return static_cast<const value_type*>(nullptr) ;
-   }
-   void invalidateCache() {
-   }   
+  const value_type* make(const record_type&, const DataKey&) { return static_cast<const value_type*>(nullptr); }
+  void invalidateCache() {}
+
 private:
 };
 
 class Test1Producer : public ESProxyFactoryProducer {
 public:
-   Test1Producer() {
-      registerFactory(std::make_unique<ProxyFactoryTemplate<DummyProxy>>());
-   }
+  Test1Producer() { registerFactory(std::make_unique<ProxyFactoryTemplate<DummyProxy>>()); }
 };
 
 class TestLabelProducer : public ESProxyFactoryProducer {
 public:
-   TestLabelProducer() {
-      registerFactory(std::make_unique<ProxyFactoryTemplate<DummyProxy>>(), "fred");
-   }
+  TestLabelProducer() { registerFactory(std::make_unique<ProxyFactoryTemplate<DummyProxy>>(), "fred"); }
 };
 
-class testProxyfactor: public CppUnit::TestFixture
-{
-CPPUNIT_TEST_SUITE(testProxyfactor);
+class testProxyfactor : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testProxyfactor);
 
-CPPUNIT_TEST(registerProxyfactorytemplateTest);
-CPPUNIT_TEST(labelTest);
-CPPUNIT_TEST(appendLabelTest);
+  CPPUNIT_TEST(registerProxyfactorytemplateTest);
+  CPPUNIT_TEST(labelTest);
+  CPPUNIT_TEST(appendLabelTest);
 
-CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END();
+
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() {}
+  void tearDown() {}
 
   void registerProxyfactorytemplateTest();
   void appendLabelTest();
   void labelTest();
 };
 
-///registration of the test so that the runner can find it
+/// registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testProxyfactor);
 
-void testProxyfactor::registerProxyfactorytemplateTest()
-{
-   Test1Producer testProd;
-   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
-   CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
+void testProxyfactor::registerProxyfactorytemplateTest() {
+  Test1Producer testProd;
+  EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
+  CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
 
-   const DataProxyProvider::KeyedProxies& keyedProxies =
-      testProd.keyedProxies(dummyRecordKey);
+  const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
 
-   CPPUNIT_ASSERT(keyedProxies.size() == 1);
-   CPPUNIT_ASSERT(nullptr != dynamic_cast<DummyProxy const*>(&(*(keyedProxies.front().second))));
+  CPPUNIT_ASSERT(keyedProxies.size() == 1);
+  CPPUNIT_ASSERT(nullptr != dynamic_cast<DummyProxy const*>(&(*(keyedProxies.front().second))));
 }
 
-void testProxyfactor::labelTest()
-{
-   TestLabelProducer testProd;
-   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
-   CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
-   
-   const DataProxyProvider::KeyedProxies& keyedProxies =
-      testProd.keyedProxies(dummyRecordKey);
-   
-   CPPUNIT_ASSERT(keyedProxies.size() == 1);
-   CPPUNIT_ASSERT(nullptr != dynamic_cast<DummyProxy const*>(&(*(keyedProxies.front().second))));
-   const std::string kFred("fred");
-   CPPUNIT_ASSERT(kFred == keyedProxies.front().first.name().value());
+void testProxyfactor::labelTest() {
+  TestLabelProducer testProd;
+  EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
+  CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
+
+  const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
+
+  CPPUNIT_ASSERT(keyedProxies.size() == 1);
+  CPPUNIT_ASSERT(nullptr != dynamic_cast<DummyProxy const*>(&(*(keyedProxies.front().second))));
+  const std::string kFred("fred");
+  CPPUNIT_ASSERT(kFred == keyedProxies.front().first.name().value());
 }
 
-void testProxyfactor::appendLabelTest()
-{
+void testProxyfactor::appendLabelTest() {
   edm::ParameterSet pset;
   std::string kToAppend("Barney");
-  pset.addParameter("appendToDataLabel",
-                    kToAppend);
+  pset.addParameter("appendToDataLabel", kToAppend);
   pset.registerIt();
   {
     TestLabelProducer testProd;
     testProd.setAppendToDataLabel(pset);
     EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
     CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
-  
-    const DataProxyProvider::KeyedProxies& keyedProxies =
-      testProd.keyedProxies(dummyRecordKey);
-    
+
+    const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
+
     CPPUNIT_ASSERT(keyedProxies.size() == 1);
     CPPUNIT_ASSERT(nullptr != dynamic_cast<DummyProxy const*>(&(*(keyedProxies.front().second))));
     const std::string kFredBarney("fredBarney");
@@ -120,13 +108,11 @@ void testProxyfactor::appendLabelTest()
   testProd.setAppendToDataLabel(pset);
   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
   CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
-  
-  const DataProxyProvider::KeyedProxies& keyedProxies =
-    testProd.keyedProxies(dummyRecordKey);
-  
+
+  const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
+
   CPPUNIT_ASSERT(keyedProxies.size() == 1);
   CPPUNIT_ASSERT(nullptr != dynamic_cast<DummyProxy const*>(&(*(keyedProxies.front().second))));
   const std::string kBarney("Barney");
   CPPUNIT_ASSERT(kBarney == keyedProxies.front().first.name().value());
-  
 }

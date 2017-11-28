@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Sources
 // Class  :     PuttableSourceBase
-// 
+//
 /**\class PuttableSourceBase PuttableSourceBase.h "PuttableSourceBase.h"
 
  Description: [one line class summary]
@@ -27,43 +27,40 @@
 
 // forward declarations
 namespace edm {
-  class PuttableSourceBase : public InputSource, public ProducerBase
-{
-  
-public:
-  PuttableSourceBase(ParameterSet const&, InputSourceDescription const&);
-  
-  // ---------- const member functions ---------------------
-  
-  // ---------- static member functions --------------------
-  
-  // ---------- member functions ---------------------------
-  using ProducerBase::resolvePutIndicies;
-  using ProducerBase::registerProducts;
-  void registerProducts() final;
-  
-protected:
-  //If inheriting class overrides, they need to call this function as well
-  void beginJob() override;
-private:
-  void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*) override;
-  void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*) override;
-  void doBeginRun(RunPrincipal& rp, ProcessContext const*) override;
-  void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*) override;
-  
-  
-  virtual void beginRun(Run&);
-  virtual void endRun(Run&);
-  virtual void beginLuminosityBlock(LuminosityBlock&);
-  virtual void endLuminosityBlock(LuminosityBlock&);
-  
-  PuttableSourceBase(const PuttableSourceBase&) = delete;
-  
-  PuttableSourceBase& operator=(const PuttableSourceBase&) = delete;
-  
-  // ---------- member data --------------------------------
-  
-};
+  class PuttableSourceBase : public InputSource, public ProducerBase {
+  public:
+    PuttableSourceBase(ParameterSet const&, InputSourceDescription const&);
+
+    // ---------- const member functions ---------------------
+
+    // ---------- static member functions --------------------
+
+    // ---------- member functions ---------------------------
+    using ProducerBase::resolvePutIndicies;
+    using ProducerBase::registerProducts;
+    void registerProducts() final;
+
+  protected:
+    // If inheriting class overrides, they need to call this function as well
+    void beginJob() override;
+
+  private:
+    void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*) override;
+    void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*) override;
+    void doBeginRun(RunPrincipal& rp, ProcessContext const*) override;
+    void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*) override;
+
+    virtual void beginRun(Run&);
+    virtual void endRun(Run&);
+    virtual void beginLuminosityBlock(LuminosityBlock&);
+    virtual void endLuminosityBlock(LuminosityBlock&);
+
+    PuttableSourceBase(const PuttableSourceBase&) = delete;
+
+    PuttableSourceBase& operator=(const PuttableSourceBase&) = delete;
+
+    // ---------- member data --------------------------------
+  };
 }
 
 #endif

@@ -6,15 +6,10 @@
 
 #include <memory>
 
-namespace edm
-{
-  EndPathStatusInserter::EndPathStatusInserter(unsigned int) {
-    produces<EndPathStatus>();
-  }
+namespace edm {
+  EndPathStatusInserter::EndPathStatusInserter(unsigned int) { produces<EndPathStatus>(); }
 
-  void
-  EndPathStatusInserter::produce(StreamID, edm::Event& event, edm::EventSetup const&) const
-  {
+  void EndPathStatusInserter::produce(StreamID, edm::Event& event, edm::EventSetup const&) const {
     event.put(std::make_unique<EndPathStatus>());
   }
 }

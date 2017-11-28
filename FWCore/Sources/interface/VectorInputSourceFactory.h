@@ -11,7 +11,7 @@ namespace edm {
   struct VectorInputSourceDescription;
   class ParameterSet;
 
-  typedef VectorInputSource* (ISVecFunc)(ParameterSet const&, VectorInputSourceDescription const&);
+  typedef VectorInputSource*(ISVecFunc)(ParameterSet const&, VectorInputSourceDescription const&);
   typedef edmplugin::PluginFactory<ISVecFunc> VectorInputSourcePluginFactory;
 
   class VectorInputSourceFactory {
@@ -20,9 +20,8 @@ namespace edm {
 
     static VectorInputSourceFactory const* get();
 
-    std::unique_ptr<VectorInputSource>
-      makeVectorInputSource(ParameterSet const&,
-                            VectorInputSourceDescription const&) const;
+    std::unique_ptr<VectorInputSource> makeVectorInputSource(ParameterSet const&,
+                                                             VectorInputSourceDescription const&) const;
 
   private:
     VectorInputSourceFactory();

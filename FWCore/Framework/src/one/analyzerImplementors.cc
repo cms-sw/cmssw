@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     analyzerImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDAnalyzerBase
 //

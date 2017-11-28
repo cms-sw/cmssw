@@ -35,28 +35,32 @@ namespace edm {
     int counter_;
   };
 
-  AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset) :
-    global::OutputModuleBase(pset),
-    global::OutputModule<>(pset),
-    prescale_(pset.getUntrackedParameter<unsigned int>("prescale")),
-    verbosity_(pset.getUntrackedParameter<unsigned int>("verbosity")),
-    counter_(0) {
-     if (prescale_ == 0) { prescale_ = 1; }
+  AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset)
+      : global::OutputModuleBase(pset),
+        global::OutputModule<>(pset),
+        prescale_(pset.getUntrackedParameter<unsigned int>("prescale")),
+        verbosity_(pset.getUntrackedParameter<unsigned int>("verbosity")),
+        counter_(0) {
+    if (prescale_ == 0) {
+      prescale_ = 1;
+    }
   }
 
   AsciiOutputModule::~AsciiOutputModule() {
     LogAbsolute("AsciiOut") << ">>> processed " << counter_ << " events" << std::endl;
   }
 
-  void
-  AsciiOutputModule::write(EventForOutput const& e) {
-
-    if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) { return; }
+  void AsciiOutputModule::write(EventForOutput const& e) {
+    if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) {
+      return;
+    }
 
     // RunForOutput const& run = evt.getRun(); // this is still unused
-    LogAbsolute("AsciiOut")<< ">>> processing event # " << e.id() << " time " << e.time().value() << std::endl;
+    LogAbsolute("AsciiOut") << ">>> processing event # " << e.id() << " time " << e.time().value() << std::endl;
 
-    if (verbosity_ <= 1) { return; }
+    if (verbosity_ <= 1) {
+      return;
+    }
 
     // Write out non-EDProduct contents...
 
@@ -72,7 +76,7 @@ namespace edm {
 
     std::vector<Provenance const*> provs;
     e.getAllProvenance(provs);
-    for(auto const& prov : provs) {
+    for (auto const& prov : provs) {
       BranchDescription const& desc = prov->branchDescription();
       if (selected(desc)) {
         LogAbsolute("AsciiOut") << *prov << '\n';
@@ -80,16 +84,15 @@ namespace edm {
     }
   }
 
-  void
-  AsciiOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
+  void AsciiOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setComment("Outputs event information into text file.");
-    desc.addUntracked("prescale", 1U)
-        ->setComment("prescale factor");
+    desc.addUntracked("prescale", 1U)->setComment("prescale factor");
     desc.addUntracked("verbosity", 1U)
-        ->setComment("0: no output\n"
-                     "1: event ID and timestamp only\n"
-                     ">1: full output");
+        ->setComment(
+            "0: no output\n"
+            "1: event ID and timestamp only\n"
+            ">1: full output");
     OutputModule::fillDescription(desc);
     descriptions.add("asciiOutput", desc);
   }

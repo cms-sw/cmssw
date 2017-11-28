@@ -13,81 +13,79 @@
 #include <cassert>
 
 namespace callbacktest {
-   struct Data {
-      Data() : value_(0) {}
-      Data(int iValue) : value_(iValue) {}
-      virtual ~Data() {}
-      int value_;
-   };
-   
-   struct Double {
-      Double() : value_(0) {}
-      Double(double iValue) : value_(iValue) {}
-      virtual ~Double() {}
-      double value_;
-   };
+  struct Data {
+    Data() : value_(0) {}
+    Data(int iValue) : value_(iValue) {}
+    virtual ~Data() {}
+    int value_;
+  };
 
-   struct Record { };
-   
-   struct ConstPtrProd {
-      ConstPtrProd() : data_() {}
-      const Data* method(const Record&) {
-         ++data_.value_;
-         return &data_;
-      }      
-      Data data_;
-   };
+  struct Double {
+    Double() : value_(0) {}
+    Double(double iValue) : value_(iValue) {}
+    virtual ~Double() {}
+    double value_;
+  };
 
-   struct UniquePtrProd {
-      UniquePtrProd() : value_(0) {}
-      std::unique_ptr<Data> method(const Record&) {
-         return std::make_unique<Data>(++value_);
-      }
-      
-      int value_;
-   };
+  struct Record {};
 
-   struct SharedPtrProd {
-      SharedPtrProd() : ptr_(new Data()) {}
-      std::shared_ptr<Data> method(const Record&) {
-         ++ptr_->value_;
-         return ptr_;
-      }      
-      std::shared_ptr<Data> ptr_;
-   };
-   
-   struct PtrProductsProd {
-      PtrProductsProd() : data_(), double_() {}
-      edm::ESProducts<const Data*, const Double*> method(const Record&) {
-         using namespace edm::es;
-         const Data* dataT = &data_;
-         const Double* doubleT = &double_;
-         ++data_.value_;
-         ++double_.value_;
-         return products(dataT, doubleT);
-      }
-      Data data_;
-      Double double_;
-   };
+  struct ConstPtrProd {
+    ConstPtrProd() : data_() {}
+    const Data* method(const Record&) {
+      ++data_.value_;
+      return &data_;
+    }
+    Data data_;
+  };
+
+  struct UniquePtrProd {
+    UniquePtrProd() : value_(0) {}
+    std::unique_ptr<Data> method(const Record&) { return std::make_unique<Data>(++value_); }
+
+    int value_;
+  };
+
+  struct SharedPtrProd {
+    SharedPtrProd() : ptr_(new Data()) {}
+    std::shared_ptr<Data> method(const Record&) {
+      ++ptr_->value_;
+      return ptr_;
+    }
+    std::shared_ptr<Data> ptr_;
+  };
+
+  struct PtrProductsProd {
+    PtrProductsProd() : data_(), double_() {}
+    edm::ESProducts<const Data*, const Double*> method(const Record&) {
+      using namespace edm::es;
+      const Data* dataT = &data_;
+      const Double* doubleT = &double_;
+      ++data_.value_;
+      ++double_.value_;
+      return products(dataT, doubleT);
+    }
+    Data data_;
+    Double double_;
+  };
 }
 
 using namespace callbacktest;
 using namespace edm::eventsetup;
 typedef Callback<ConstPtrProd, const Data*, Record> ConstPtrCallback;
 
-class testCallback: public CppUnit::TestFixture
-{
-CPPUNIT_TEST_SUITE(testCallback);
+class testCallback : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testCallback);
 
-CPPUNIT_TEST(constPtrTest);
-CPPUNIT_TEST(uniquePtrTest);
-CPPUNIT_TEST(sharedPtrTest);
-CPPUNIT_TEST(ptrProductsTest);
+  CPPUNIT_TEST(constPtrTest);
+  CPPUNIT_TEST(uniquePtrTest);
+  CPPUNIT_TEST(sharedPtrTest);
+  CPPUNIT_TEST(ptrProductsTest);
 
-CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END();
+
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() {}
+  void tearDown() {}
 
   void constPtrTest();
   void uniquePtrTest();
@@ -95,135 +93,124 @@ public:
   void ptrProductsTest();
 };
 
-///registration of the test so that the runner can find it
+/// registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testCallback);
 
-void testCallback::constPtrTest()
-{
-   ConstPtrProd prod;
+void testCallback::constPtrTest() {
+  ConstPtrProd prod;
 
-   ConstPtrCallback callback(&prod, &ConstPtrProd::method);
-   const Data* handle;
+  ConstPtrCallback callback(&prod, &ConstPtrProd::method);
+  const Data* handle;
 
+  callback.holdOntoPointer(&handle);
 
-   callback.holdOntoPointer(&handle);
-   
-   Record record;
-   callback.newRecordComing();
-   callback(record);
-   CPPUNIT_ASSERT(handle == &(prod.data_));
-   CPPUNIT_ASSERT(prod.data_.value_ == 1);
+  Record record;
+  callback.newRecordComing();
+  callback(record);
+  CPPUNIT_ASSERT(handle == &(prod.data_));
+  CPPUNIT_ASSERT(prod.data_.value_ == 1);
 
-   //since haven't cleared, should not have changed
-   callback(record);
-   CPPUNIT_ASSERT(handle == &(prod.data_));
-   CPPUNIT_ASSERT(prod.data_.value_ == 1);
+  // since haven't cleared, should not have changed
+  callback(record);
+  CPPUNIT_ASSERT(handle == &(prod.data_));
+  CPPUNIT_ASSERT(prod.data_.value_ == 1);
 
-   callback.newRecordComing();
+  callback.newRecordComing();
 
-   callback(record);
-   CPPUNIT_ASSERT(handle == &(prod.data_));
-   CPPUNIT_ASSERT(prod.data_.value_ == 2);
-   
+  callback(record);
+  CPPUNIT_ASSERT(handle == &(prod.data_));
+  CPPUNIT_ASSERT(prod.data_.value_ == 2);
 }
 
 typedef Callback<UniquePtrProd, std::unique_ptr<Data>, Record> UniquePtrCallback;
 
-void testCallback::uniquePtrTest()
-{
-   UniquePtrProd prod;
-   
-   UniquePtrCallback callback(&prod, &UniquePtrProd::method);
-   std::unique_ptr<Data> handle;
-   
-   
-   callback.holdOntoPointer(&handle);
-   
-   Record record;
-   callback.newRecordComing();
-   callback(record);
-   CPPUNIT_ASSERT(0 != handle.get());
-   CPPUNIT_ASSERT(prod.value_ == 1);
-   assert(0 != handle.get());
-   CPPUNIT_ASSERT(prod.value_ == handle->value_);
-   
-   //since haven't cleared, should not have changed
-   callback(record);
-   CPPUNIT_ASSERT(prod.value_ == 1);
-   CPPUNIT_ASSERT(prod.value_ == handle->value_);
-   
-   handle.release();
+void testCallback::uniquePtrTest() {
+  UniquePtrProd prod;
 
-   callback.newRecordComing();
-   
-   callback(record);
-   CPPUNIT_ASSERT(0 != handle.get());
-   CPPUNIT_ASSERT(prod.value_ == 2);
-   assert(0 != handle.get());
-   CPPUNIT_ASSERT(prod.value_ == handle->value_);
-   
+  UniquePtrCallback callback(&prod, &UniquePtrProd::method);
+  std::unique_ptr<Data> handle;
+
+  callback.holdOntoPointer(&handle);
+
+  Record record;
+  callback.newRecordComing();
+  callback(record);
+  CPPUNIT_ASSERT(0 != handle.get());
+  CPPUNIT_ASSERT(prod.value_ == 1);
+  assert(0 != handle.get());
+  CPPUNIT_ASSERT(prod.value_ == handle->value_);
+
+  // since haven't cleared, should not have changed
+  callback(record);
+  CPPUNIT_ASSERT(prod.value_ == 1);
+  CPPUNIT_ASSERT(prod.value_ == handle->value_);
+
+  handle.release();
+
+  callback.newRecordComing();
+
+  callback(record);
+  CPPUNIT_ASSERT(0 != handle.get());
+  CPPUNIT_ASSERT(prod.value_ == 2);
+  assert(0 != handle.get());
+  CPPUNIT_ASSERT(prod.value_ == handle->value_);
 }
 
 typedef Callback<SharedPtrProd, std::shared_ptr<Data>, Record> SharedPtrCallback;
 
-void testCallback::sharedPtrTest()
-{
-   SharedPtrProd prod;
-   
-   SharedPtrCallback callback(&prod, &SharedPtrProd::method);
-   std::shared_ptr<Data> handle;
-   
-   
-   callback.holdOntoPointer(&handle);
-   
-   Record record;
-   callback.newRecordComing();
-   callback(record);
-   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
-   CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
-   
-   //since haven't cleared, should not have changed
-   callback(record);
-   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
-   CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
-   
-   handle.reset() ;
-   callback.newRecordComing();
-   
-   callback(record);
-   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
-   CPPUNIT_ASSERT(prod.ptr_->value_ == 2);
-   
+void testCallback::sharedPtrTest() {
+  SharedPtrProd prod;
+
+  SharedPtrCallback callback(&prod, &SharedPtrProd::method);
+  std::shared_ptr<Data> handle;
+
+  callback.holdOntoPointer(&handle);
+
+  Record record;
+  callback.newRecordComing();
+  callback(record);
+  CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
+  CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
+
+  // since haven't cleared, should not have changed
+  callback(record);
+  CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
+  CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
+
+  handle.reset();
+  callback.newRecordComing();
+
+  callback(record);
+  CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
+  CPPUNIT_ASSERT(prod.ptr_->value_ == 2);
 }
 
 typedef Callback<PtrProductsProd, edm::ESProducts<const Data*, const Double*>, Record> PtrProductsCallback;
 
-void testCallback::ptrProductsTest()
-{
-   PtrProductsProd prod;
-   
-   PtrProductsCallback callback(&prod, &PtrProductsProd::method);
-   const Data* handle;
-   const Double* doubleHandle;
-   
-   callback.holdOntoPointer(&handle);
-   callback.holdOntoPointer(&doubleHandle);
-   
-   Record record;
-   callback.newRecordComing();
-   callback(record);
-   CPPUNIT_ASSERT(handle == &(prod.data_));
-   CPPUNIT_ASSERT(prod.data_.value_ == 1);
-   
-   //since haven't cleared, should not have changed
-   callback(record);
-   CPPUNIT_ASSERT(handle == &(prod.data_));
-   CPPUNIT_ASSERT(prod.data_.value_ == 1);
-   
-   callback.newRecordComing();
-   
-   callback(record);
-   CPPUNIT_ASSERT(handle == &(prod.data_));
-   CPPUNIT_ASSERT(prod.data_.value_ == 2);
-   
+void testCallback::ptrProductsTest() {
+  PtrProductsProd prod;
+
+  PtrProductsCallback callback(&prod, &PtrProductsProd::method);
+  const Data* handle;
+  const Double* doubleHandle;
+
+  callback.holdOntoPointer(&handle);
+  callback.holdOntoPointer(&doubleHandle);
+
+  Record record;
+  callback.newRecordComing();
+  callback(record);
+  CPPUNIT_ASSERT(handle == &(prod.data_));
+  CPPUNIT_ASSERT(prod.data_.value_ == 1);
+
+  // since haven't cleared, should not have changed
+  callback(record);
+  CPPUNIT_ASSERT(handle == &(prod.data_));
+  CPPUNIT_ASSERT(prod.data_.value_ == 1);
+
+  callback.newRecordComing();
+
+  callback(record);
+  CPPUNIT_ASSERT(handle == &(prod.data_));
+  CPPUNIT_ASSERT(prod.data_.value_ == 2);
 }

@@ -6,11 +6,11 @@
 //
 // Function to drive test programs and scripts.
 //
-// Write your test program with whatever name you want; the 
+// Write your test program with whatever name you want; the
 // implementation should be:
 //
 //    int main(int argc, char* argv[]) { return ptomaine(argc, argv); }
-//    
+//
 //
 // Asumming you call your program RunThis, invocation of this program
 // should look like:
@@ -26,6 +26,8 @@
 
 int ptomaine(int argc, char* argv[], char** env);
 
-#define RUNTEST() extern "C" char** environ; int main(int argc, char* argv[]) { return ptomaine(argc, argv, environ); }
+#define RUNTEST()            \
+  extern "C" char** environ; \
+  int main(int argc, char* argv[]) { return ptomaine(argc, argv, environ); }
 
 #endif

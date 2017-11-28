@@ -26,12 +26,12 @@ public:
   */
   PythonProcessDesc(std::string const& config);
 
-  PythonProcessDesc(std::string const& config, int argc, char * argv[]);
+  PythonProcessDesc(std::string const& config, int argc, char* argv[]);
 
-  PythonParameterSet newPSet() const {return PythonParameterSet();}
+  PythonParameterSet newPSet() const { return PythonParameterSet(); }
 
-  PythonParameterSet& pset() { return theProcessPSet;}
-  
+  PythonParameterSet& pset() { return theProcessPSet; }
+
   std::string dump() const;
 
   // makes a new (copy) of the ParameterSet

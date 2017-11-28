@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ESProducer
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,52 +15,47 @@
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 
-
 //
 // constants, enums and typedefs
 //
 namespace edm {
-//
-// static data member definitions
-//
+  //
+  // static data member definitions
+  //
 
-//
-// constructors and destructor
-//
-ESProducer::ESProducer()
-{
-}
+  //
+  // constructors and destructor
+  //
+  ESProducer::ESProducer() {}
 
-// ESProducer::ESProducer(const ESProducer& rhs)
-// {
-//    // do actual copying here;
-// }
+  // ESProducer::ESProducer(const ESProducer& rhs)
+  // {
+  //    // do actual copying here;
+  // }
 
-ESProducer::~ESProducer() noexcept(false)
-{
-}
+  ESProducer::~ESProducer() noexcept(false) {}
 
-//
-// assignment operators
-//
-// const ESProducer& ESProducer::operator=(const ESProducer& rhs)
-// {
-//   //An exception safe implementation is
-//   ESProducer temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+  //
+  // assignment operators
+  //
+  // const ESProducer& ESProducer::operator=(const ESProducer& rhs)
+  // {
+  //   //An exception safe implementation is
+  //   ESProducer temp(rhs);
+  //   swap(rhs);
+  //
+  //   return *this;
+  // }
 
-//
-// member functions
-//
+  //
+  // member functions
+  //
 
-//
-// const member functions
-//
+  //
+  // const member functions
+  //
 
-//
-// static member functions
-//
+  //
+  // static member functions
+  //
 }

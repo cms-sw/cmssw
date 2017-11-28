@@ -2,7 +2,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     ConcurrentModuleTimer
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -23,18 +23,18 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
-
 namespace edm {
   namespace service {
     class ConcurrentModuleTimer {
     public:
       ConcurrentModuleTimer(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iAR);
       ~ConcurrentModuleTimer();
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
     private:
       void start();
       void stop();
-      
+
       bool trackModule(ModuleCallingContext const& iContext) const;
       std::unique_ptr<std::atomic<std::chrono::high_resolution_clock::rep>[]> m_timeSums;
       std::vector<std::string> m_modulesToExclude;
@@ -65,101 +65,92 @@ using namespace edm::service;
 //
 // constructors and destructor
 //
-ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iReg):
-m_modulesToExclude(iConfig.getUntrackedParameter<std::vector<std::string>>("modulesToExclude")),
-m_time(),
-m_nModules(0),
-m_spinLock{false},
-m_startedTiming(false),
-m_excludeSource(iConfig.getUntrackedParameter<bool>("excludeSource"))
-{
-  if(not m_modulesToExclude.empty()) {
-    iReg.watchPreModuleConstruction( [this](ModuleDescription const& iMod) {
-      for(auto const& name: m_modulesToExclude) {
-        if( iMod.moduleLabel() == name) {
+ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iReg)
+    : m_modulesToExclude(iConfig.getUntrackedParameter<std::vector<std::string>>("modulesToExclude")),
+      m_time(),
+      m_nModules(0),
+      m_spinLock{false},
+      m_startedTiming(false),
+      m_excludeSource(iConfig.getUntrackedParameter<bool>("excludeSource")) {
+  if (not m_modulesToExclude.empty()) {
+    iReg.watchPreModuleConstruction([this](ModuleDescription const& iMod) {
+      for (auto const& name : m_modulesToExclude) {
+        if (iMod.moduleLabel() == name) {
           m_excludedModuleIds.push_back(iMod.id());
           break;
         }
       }
     });
-    iReg.watchPreModuleEvent([this](StreamContext const&, ModuleCallingContext const& iContext){
-      if(trackModule(iContext)) {
+    iReg.watchPreModuleEvent([this](StreamContext const&, ModuleCallingContext const& iContext) {
+      if (trackModule(iContext)) {
         start();
       }
     });
-    iReg.watchPostModuleEvent([this](StreamContext const&, ModuleCallingContext const& iContext){
-      if(trackModule(iContext)) {
+    iReg.watchPostModuleEvent([this](StreamContext const&, ModuleCallingContext const& iContext) {
+      if (trackModule(iContext)) {
         stop();
       }
     });
-    
-    iReg.watchPreModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const& iContext){
-      if(trackModule(iContext)) {
-        if(iContext.state() == ModuleCallingContext::State::kRunning) {
+
+    iReg.watchPreModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const& iContext) {
+      if (trackModule(iContext)) {
+        if (iContext.state() == ModuleCallingContext::State::kRunning) {
           stop();
         }
       }
     });
-    iReg.watchPostModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const& iContext){
-      if(trackModule(iContext)) {
-        if(iContext.state() == ModuleCallingContext::State::kRunning) {
+    iReg.watchPostModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const& iContext) {
+      if (trackModule(iContext)) {
+        if (iContext.state() == ModuleCallingContext::State::kRunning) {
           start();
         }
       }
     });
-    
+
   } else {
-    //apply to all modules so can use faster version
-    iReg.watchPreModuleEvent([this](StreamContext const&, ModuleCallingContext const&){
-      start();
+    // apply to all modules so can use faster version
+    iReg.watchPreModuleEvent([this](StreamContext const&, ModuleCallingContext const&) { start(); });
+    iReg.watchPostModuleEvent([this](StreamContext const&, ModuleCallingContext const&) { stop(); });
+
+    iReg.watchPreModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const& iContext) {
+      if (iContext.state() == ModuleCallingContext::State::kRunning) {
+        stop();
+      }
     });
-    iReg.watchPostModuleEvent([this](StreamContext const&, ModuleCallingContext const&){
-      stop();
-    });
-    
-    iReg.watchPreModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const& iContext){
-        if(iContext.state() == ModuleCallingContext::State::kRunning) {
-    stop();
-        }
-    });
-    iReg.watchPostModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const& iContext){
-        if(iContext.state() == ModuleCallingContext::State::kRunning) {
-    start();
-        }
+    iReg.watchPostModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const& iContext) {
+      if (iContext.state() == ModuleCallingContext::State::kRunning) {
+        start();
+      }
     });
   }
-    
-  iReg.watchPreallocate([this](edm::service::SystemBounds const& iBounds){
-    m_nTimeSums =iBounds.maxNumberOfThreads()+1;
+
+  iReg.watchPreallocate([this](edm::service::SystemBounds const& iBounds) {
+    m_nTimeSums = iBounds.maxNumberOfThreads() + 1;
     m_timeSums.reset(new std::atomic<std::chrono::high_resolution_clock::rep>[m_nTimeSums]);
-    for(unsigned int i=0; i<m_nTimeSums;++i) {
-      m_timeSums[i]=0;
+    for (unsigned int i = 0; i < m_nTimeSums; ++i) {
+      m_timeSums[i] = 0;
     }
   });
-  
-  iReg.watchPreSourceEvent([this](StreamID){
-    if(not m_startedTiming) {
+
+  iReg.watchPreSourceEvent([this](StreamID) {
+    if (not m_startedTiming) {
       m_time = std::chrono::high_resolution_clock::now();
-      m_startedTiming=true;
+      m_startedTiming = true;
     }
-    if(not m_excludeSource) {
+    if (not m_excludeSource) {
       start();
     }
   });
-  if(not m_excludeSource) {
-    iReg.watchPostSourceEvent([this](StreamID){
-      stop();
-    });
+  if (not m_excludeSource) {
+    iReg.watchPostSourceEvent([this](StreamID) { stop(); });
   }
 }
 
 ConcurrentModuleTimer::~ConcurrentModuleTimer() {
-  
-  std::cout <<"Fraction of time running n Modules simultaneously"<<std::endl;
-  for (unsigned int i=0; i<m_nTimeSums; ++i) {
-    std::cout <<i<<" "<<m_timeSums[i]/double(m_timeSums[0])<<" "<<m_timeSums[i]<<std::endl;
+  std::cout << "Fraction of time running n Modules simultaneously" << std::endl;
+  for (unsigned int i = 0; i < m_nTimeSums; ++i) {
+    std::cout << i << " " << m_timeSums[i] / double(m_timeSums[0]) << " " << m_timeSums[i] << std::endl;
   }
-  
 }
 
 // ConcurrentModuleTimer::ConcurrentModuleTimer(const ConcurrentModuleTimer& rhs)
@@ -182,48 +173,44 @@ ConcurrentModuleTimer::~ConcurrentModuleTimer() {
 //
 // member functions
 //
-void
-ConcurrentModuleTimer::start()
-{
-  auto const newTime =std::chrono::high_resolution_clock::now();
+void ConcurrentModuleTimer::start() {
+  auto const newTime = std::chrono::high_resolution_clock::now();
   std::chrono::high_resolution_clock::time_point oldTime;
   bool expected = false;
   unsigned int nModules;
-  while (not m_spinLock.compare_exchange_strong(expected,true,std::memory_order_acq_rel)){
+  while (not m_spinLock.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
     expected = false;
   }
   {
     oldTime = m_time;
     m_time = newTime;
     nModules = ++m_nModules;
-    m_spinLock.store(false,std::memory_order_release);
+    m_spinLock.store(false, std::memory_order_release);
   }
-  assert(nModules <m_nTimeSums);
+  assert(nModules < m_nTimeSums);
   auto diff = newTime - oldTime;
-  for(unsigned int i=0;i<nModules;++i) {
+  for (unsigned int i = 0; i < nModules; ++i) {
     m_timeSums[i].fetch_add(diff.count());
   }
 }
 
-void
-ConcurrentModuleTimer::stop()
-{
-  auto const newTime =std::chrono::high_resolution_clock::now();
+void ConcurrentModuleTimer::stop() {
+  auto const newTime = std::chrono::high_resolution_clock::now();
   std::chrono::high_resolution_clock::time_point oldTime;
   bool expected = false;
   unsigned int nModules;
-  while (not m_spinLock.compare_exchange_weak(expected,true,std::memory_order_acq_rel)){
+  while (not m_spinLock.compare_exchange_weak(expected, true, std::memory_order_acq_rel)) {
     expected = false;
   }
   {
     oldTime = m_time;
     m_time = newTime;
     nModules = m_nModules--;
-    m_spinLock.store(false,std::memory_order_release);
+    m_spinLock.store(false, std::memory_order_release);
   }
-  assert(nModules <m_nTimeSums);
+  assert(nModules < m_nTimeSums);
   auto diff = newTime - oldTime;
-  for(unsigned int i=0;i<=nModules;++i) {
+  for (unsigned int i = 0; i <= nModules; ++i) {
     m_timeSums[i].fetch_add(diff.count());
   }
 }
@@ -231,12 +218,10 @@ ConcurrentModuleTimer::stop()
 //
 // const member functions
 //
-bool
-ConcurrentModuleTimer::trackModule(ModuleCallingContext const& iContext) const
-{
+bool ConcurrentModuleTimer::trackModule(ModuleCallingContext const& iContext) const {
   auto modId = iContext.moduleDescription()->id();
-  for(auto const id: m_excludedModuleIds) {
-    if(modId == id) {
+  for (auto const id : m_excludedModuleIds) {
+    if (modId == id) {
       return false;
     }
   }
@@ -246,14 +231,12 @@ ConcurrentModuleTimer::trackModule(ModuleCallingContext const& iContext) const
 //
 // static member functions
 //
-void
-ConcurrentModuleTimer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void ConcurrentModuleTimer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::vector<std::string> >("modulesToExclude", std::vector<std::string>{})->setComment("Module labels to exclude from the timing measurements");
-  desc.addUntracked<bool>("excludeSource",false)->setComment("Exclude the time the source is running");
+  desc.addUntracked<std::vector<std::string>>("modulesToExclude", std::vector<std::string>{})
+      ->setComment("Module labels to exclude from the timing measurements");
+  desc.addUntracked<bool>("excludeSource", false)->setComment("Exclude the time the source is running");
   descriptions.add("ConcurrentModuleTimer", desc);
 }
 
 DEFINE_FWK_SERVICE(ConcurrentModuleTimer);
-

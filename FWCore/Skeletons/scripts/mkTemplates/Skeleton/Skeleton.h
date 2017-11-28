@@ -4,7 +4,7 @@
 //
 // Package:     __subsys__/__pkgname__
 // Class  :     __class__
-// 
+//
 /**\class __class__ __class__.h "__incdir____class__.h"
 
  Description: [one line class summary]
@@ -24,27 +24,23 @@
 
 // forward declarations
 
-class __class__
-{
+class __class__ {
+public:
+  __class__();
+  virtual ~__class__();
 
-   public:
-      __class__();
-      virtual ~__class__();
+  // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
 
-      // ---------- member functions ---------------------------
+private:
+  __class__(const __class__&);  // stop default
 
-   private:
-      __class__(const __class__&); // stop default
+  const __class__& operator=(const __class__&);  // stop default
 
-      const __class__& operator=(const __class__&); // stop default
-
-      // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-
 
 #endif

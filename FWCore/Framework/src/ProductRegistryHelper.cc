@@ -13,35 +13,29 @@
 #include <typeindex>
 
 namespace edm {
-  ProductRegistryHelper::~ProductRegistryHelper() { }
+  ProductRegistryHelper::~ProductRegistryHelper() {}
 
-  ProductRegistryHelper::TypeLabelList const& ProductRegistryHelper::typeLabelList() const {
-    return typeLabelList_;
-  }
+  ProductRegistryHelper::TypeLabelList const& ProductRegistryHelper::typeLabelList() const { return typeLabelList_; }
 
-  void
-  ProductRegistryHelper::addToRegistry(TypeLabelList::const_iterator const& iBegin,
-                                       TypeLabelList::const_iterator const& iEnd,
-                                       ModuleDescription const& iDesc,
-                                       ProductRegistry& iReg,
-                                       bool iIsListener) {
-
+  void ProductRegistryHelper::addToRegistry(TypeLabelList::const_iterator const& iBegin,
+                                            TypeLabelList::const_iterator const& iEnd, ModuleDescription const& iDesc,
+                                            ProductRegistry& iReg, bool iIsListener) {
     std::vector<std::string> missingDictionaries;
     std::vector<std::string> producedTypes;
-    std::set<std::tuple<BranchType,std::type_index,std::string>> registeredProducts;
+    std::set<std::tuple<BranchType, std::type_index, std::string>> registeredProducts;
 
-    for(TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
-
+    for (TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
       if (!checkDictionary(missingDictionaries, p->typeID_)) {
         checkDictionaryOfWrappedType(missingDictionaries, p->typeID_);
         producedTypes.emplace_back(p->typeID_.className());
         continue;
       }
       auto branchType = convertToBranchType(p->transition_);
-      if(branchType != InEvent) {
-        std::tuple<BranchType, std::type_index, std::string> entry{ branchType,p->typeID_.typeInfo(),p->productInstanceName_};
-        if(registeredProducts.end() != registeredProducts.find(entry) ) {
-          //ignore registration of items if in both begin and end transitions for now
+      if (branchType != InEvent) {
+        std::tuple<BranchType, std::type_index, std::string> entry{branchType, p->typeID_.typeInfo(),
+                                                                   p->productInstanceName_};
+        if (registeredProducts.end() != registeredProducts.find(entry)) {
+          // ignore registration of items if in both begin and end transitions for now
           // This is to work around ExternalLHEProducer
           continue;
         } else {
@@ -50,17 +44,9 @@ namespace edm {
       }
 
       TypeWithDict type(p->typeID_.typeInfo());
-      BranchDescription pdesc(branchType,
-                              iDesc.moduleLabel(),
-                              iDesc.processName(),
-                              p->typeID_.userClassName(),
-                              p->typeID_.friendlyClassName(),
-                              p->productInstanceName_,
-                              iDesc.moduleName(),
-                              iDesc.parameterSetID(),
-                              type,
-                              true,
-                              isEndTransition(p->transition_));
+      BranchDescription pdesc(branchType, iDesc.moduleLabel(), iDesc.processName(), p->typeID_.userClassName(),
+                              p->typeID_.friendlyClassName(), p->productInstanceName_, iDesc.moduleName(),
+                              iDesc.parameterSetID(), type, true, isEndTransition(p->transition_));
 
       if (pdesc.transient()) {
         if (!checkDictionary(missingDictionaries, pdesc.wrappedName(), pdesc.wrappedType())) {
@@ -77,8 +63,9 @@ namespace edm {
           continue;
         }
       }
-      if (!p->branchAlias_.empty()) { pdesc.insertBranchAlias(p->branchAlias_);
-}
+      if (!p->branchAlias_.empty()) {
+        pdesc.insertBranchAlias(p->branchAlias_);
+      }
       iReg.addProduct(pdesc, iIsListener);
     }
 

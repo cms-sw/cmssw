@@ -5,13 +5,12 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 namespace edmtest {
-  //struct ThingWithHist {
-//	TH1F hist_;
- // };
+  // struct ThingWithHist {
+  //	TH1F hist_;
+  // };
 
   class HistProducer : public edm::EDProducer {
   public:
-
     explicit HistProducer(edm::ParameterSet const& ps);
 
     virtual ~HistProducer();

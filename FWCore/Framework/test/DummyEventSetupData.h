@@ -8,23 +8,22 @@
  *
  */
 
-//used to set the default record
+// used to set the default record
 #include "FWCore/Framework/test/DummyEventSetupRecord.h"
 
 namespace edm {
-   struct DummyEventSetupData { 
-      DummyEventSetupData(int iValue) : value_(iValue) {}
-      int value_; 
-   };
+  struct DummyEventSetupData {
+    DummyEventSetupData(int iValue) : value_(iValue) {}
+    int value_;
+  };
 }
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 EVENTSETUP_DATA_DEFAULT_RECORD(edm::DummyEventSetupData, edm::DummyEventSetupRecord)
 
 #if !defined(TEST_EXCLUDE_DEF)
-//NOTE: This should really be put into a .cc file
+// NOTE: This should really be put into a .cc file
 #include "FWCore/Utilities/interface/typelookup.h"
 TYPELOOKUP_DATA_REG(edm::DummyEventSetupData);
 #endif
 #endif
-

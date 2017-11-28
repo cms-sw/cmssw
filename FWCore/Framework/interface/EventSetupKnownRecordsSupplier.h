@@ -5,7 +5,8 @@
 // Package:     Framework
 // Class:      EventSetupKnownRecordsSupplier
 //
-/**\class EventSetupKnownRecordsSupplier EventSetupKnownRecordsSupplier.h FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h
+/**\class EventSetupKnownRecordsSupplier EventSetupKnownRecordsSupplier.h
+ FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h
 
  Description: Interface for determining if an EventSetup Record is known to the framework
 
@@ -22,30 +23,25 @@
 
 // system include files
 
-
 // forward declarations
 namespace edm {
 
-   namespace eventsetup {
-      class EventSetupRecordKey;
+  namespace eventsetup {
+    class EventSetupRecordKey;
 
-class EventSetupKnownRecordsSupplier {
-
-   public:
-
+    class EventSetupKnownRecordsSupplier {
+    public:
       EventSetupKnownRecordsSupplier() = default;
       virtual ~EventSetupKnownRecordsSupplier() = default;
 
       // ---------- const member functions ---------------------
       virtual bool isKnown(EventSetupRecordKey const&) const = 0;
 
-   private:
+    private:
       EventSetupKnownRecordsSupplier(EventSetupKnownRecordsSupplier const&) = delete;
 
       EventSetupKnownRecordsSupplier const& operator=(EventSetupKnownRecordsSupplier const&) = delete;
-
-};
-
-   }
+    };
+  }
 }
 #endif

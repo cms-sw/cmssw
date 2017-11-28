@@ -44,7 +44,6 @@ namespace edm {
 
   class PrincipalCache {
   public:
-
     PrincipalCache();
     ~PrincipalCache();
 
@@ -52,13 +51,15 @@ namespace edm {
     std::shared_ptr<RunPrincipal> const& runPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run) const;
     RunPrincipal& runPrincipal() const;
     std::shared_ptr<RunPrincipal> const& runPrincipalPtr() const;
-    bool hasRunPrincipal() const {return bool(runPrincipal_);}
+    bool hasRunPrincipal() const { return bool(runPrincipal_); }
 
-    LuminosityBlockPrincipal& lumiPrincipal(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const;
-    std::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const;
+    LuminosityBlockPrincipal& lumiPrincipal(ProcessHistoryID const& phid, RunNumber_t run,
+                                            LuminosityBlockNumber_t lumi) const;
+    std::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run,
+                                                                      LuminosityBlockNumber_t lumi) const;
     LuminosityBlockPrincipal& lumiPrincipal() const;
     std::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipalPtr() const;
-    bool hasLumiPrincipal() const {return bool(lumiPrincipal_);}
+    bool hasLumiPrincipal() const { return bool(lumiPrincipal_); }
 
     EventPrincipal& eventPrincipal(unsigned int iStreamIndex) const { return *(eventPrincipals_[iStreamIndex]); }
 
@@ -77,10 +78,9 @@ namespace edm {
 
     void adjustIndexesAfterProductRegistryAddition();
 
-    void setProcessHistoryRegistry(ProcessHistoryRegistry const& phr) {processHistoryRegistry_ = &phr;}
+    void setProcessHistoryRegistry(ProcessHistoryRegistry const& phr) { processHistoryRegistry_ = &phr; }
 
   private:
-
     void throwRunMissing() const;
     void throwLumiMissing() const;
 
@@ -90,8 +90,8 @@ namespace edm {
     std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
     std::vector<std::shared_ptr<EventPrincipal>> eventPrincipals_;
 
-    // This is just an accessor to the registry owned by the input source. 
-    ProcessHistoryRegistry const* processHistoryRegistry_; // We don't own this
+    // This is just an accessor to the registry owned by the input source.
+    ProcessHistoryRegistry const* processHistoryRegistry_;  // We don't own this
 
     // These are intentionally not cleared so that when inserting
     // the next principal the conversion from full ProcessHistoryID_

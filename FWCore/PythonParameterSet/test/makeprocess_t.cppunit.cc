@@ -21,22 +21,23 @@
 #include <algorithm>
 #include <set>
 
-class testmakeprocess: public CppUnit::TestFixture {
-CPPUNIT_TEST_SUITE(testmakeprocess);
-CPPUNIT_TEST(simpleProcessTest);
-CPPUNIT_TEST(usingTest);
-CPPUNIT_TEST(pathTest);
-CPPUNIT_TEST(moduleTest);
-CPPUNIT_TEST(emptyModuleTest);
-CPPUNIT_TEST(taskTest);
-CPPUNIT_TEST(taskTestWithEmptySchedule);
-CPPUNIT_TEST(taskTestWithSchedule);
-//CPPUNIT_TEST(windowsLineEndingTest);
-//CPPUNIT_TEST_EXCEPTION(emptyPsetTest,edm::Exception);
-CPPUNIT_TEST_SUITE_END();
+class testmakeprocess : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testmakeprocess);
+  CPPUNIT_TEST(simpleProcessTest);
+  CPPUNIT_TEST(usingTest);
+  CPPUNIT_TEST(pathTest);
+  CPPUNIT_TEST(moduleTest);
+  CPPUNIT_TEST(emptyModuleTest);
+  CPPUNIT_TEST(taskTest);
+  CPPUNIT_TEST(taskTestWithEmptySchedule);
+  CPPUNIT_TEST(taskTestWithSchedule);
+  // CPPUNIT_TEST(windowsLineEndingTest);
+  // CPPUNIT_TEST_EXCEPTION(emptyPsetTest,edm::Exception);
+  CPPUNIT_TEST_SUITE_END();
+
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() {}
+  void tearDown() {}
   void simpleProcessTest();
   void usingTest();
   void pathTest();
@@ -45,13 +46,11 @@ public:
   void taskTest();
   void taskTestWithEmptySchedule();
   void taskTestWithSchedule();
-  //void windowsLineEndingTest();
+  // void windowsLineEndingTest();
 private:
-
   typedef std::shared_ptr<edm::ParameterSet> ParameterSetPtr;
   ParameterSetPtr pSet(char const* c) {
-
-    //ParameterSetPtr result( new edm::ProcessDesc(std::string(c)) );
+    // ParameterSetPtr result( new edm::ProcessDesc(std::string(c)) );
     ParameterSetPtr result = PythonProcessDesc(std::string(c)).parameterSet();
     CPPUNIT_ASSERT(result->getParameter<std::string>("@process_name") == "test");
     return result;
@@ -59,701 +58,525 @@ private:
   //  void emptyPsetTest();
 };
 
-///registration of the test so that the runner can find it
+/// registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testmakeprocess);
 
 void testmakeprocess::simpleProcessTest() {
-   char const* kTest = "import FWCore.ParameterSet.Config as cms\n"
-                       "process = cms.Process('test')\n"
-                       "dummy =  cms.PSet(b = cms.bool(True))\n";
-   ParameterSetPtr test = pSet(kTest);
+  char const* kTest =
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('test')\n"
+      "dummy =  cms.PSet(b = cms.bool(True))\n";
+  ParameterSetPtr test = pSet(kTest);
 }
 
 void testmakeprocess::usingTest() {
-   char const* kTest =  "import FWCore.ParameterSet.Config as cms\n"
-  "process = cms.Process('test')\n"
-  "process.dummy = cms.PSet(\n"
-  "    b = cms.bool(True)\n"
-  ")\n"
-  "process.dummy2 = cms.PSet(\n"
-  "    d = cms.bool(True)\n"
-  ")\n"
-  "process.m1 = cms.EDFilter('Dummy',\n"
-  "    process.dummy\n"
-  ")\n"
-  "process.m2 = cms.EDFilter('Dummy2',\n"
-  "    process.dummy2\n"
-  ")\n"
-  "process.p = cms.Path(process.m1+process.m2)\n";
+  char const* kTest =
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('test')\n"
+      "process.dummy = cms.PSet(\n"
+      "    b = cms.bool(True)\n"
+      ")\n"
+      "process.dummy2 = cms.PSet(\n"
+      "    d = cms.bool(True)\n"
+      ")\n"
+      "process.m1 = cms.EDFilter('Dummy',\n"
+      "    process.dummy\n"
+      ")\n"
+      "process.m2 = cms.EDFilter('Dummy2',\n"
+      "    process.dummy2\n"
+      ")\n"
+      "process.p = cms.Path(process.m1+process.m2)\n";
 
-   ParameterSetPtr test = pSet(kTest);
+  ParameterSetPtr test = pSet(kTest);
 
-   //CPPUNIT_ASSERT(test->getParameterSet("dummy").getBool("b") == true);
-   CPPUNIT_ASSERT(test->getParameterSet("m1").getParameter<bool>("b") == true);
-   CPPUNIT_ASSERT(test->getParameterSet("m2").getParameter<bool>("d") == true);
+  // CPPUNIT_ASSERT(test->getParameterSet("dummy").getBool("b") == true);
+  CPPUNIT_ASSERT(test->getParameterSet("m1").getParameter<bool>("b") == true);
+  CPPUNIT_ASSERT(test->getParameterSet("m2").getParameter<bool>("d") == true);
 }
 
 void testmakeprocess::pathTest() {
-   char const* kTest =   "import FWCore.ParameterSet.Config as cms\n"
-  "process = cms.Process('test')\n"
-  "process.cone5 = cms.EDFilter('PhonyConeJet',\n"
-  "    i = cms.int32(5)\n"
-  ")\n"
-  "process.cone7 = cms.EDFilter('PhonyConeJet',\n"
-  "    i = cms.int32(7)\n"
-  ")\n"
-  "process.jtanalyzer = cms.EDAnalyzer('jtanalyzer')\n"
-  "process.writer = cms.OutputModule('Writer')\n"
-  "process.cones = cms.Sequence(process.cone5*process.cone7)\n"
-  "process.term1 = cms.Path(process.cones+process.jtanalyzer)\n"
-  "process.atEnd = cms.EndPath(process.writer)\n";
+  char const* kTest =
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('test')\n"
+      "process.cone5 = cms.EDFilter('PhonyConeJet',\n"
+      "    i = cms.int32(5)\n"
+      ")\n"
+      "process.cone7 = cms.EDFilter('PhonyConeJet',\n"
+      "    i = cms.int32(7)\n"
+      ")\n"
+      "process.jtanalyzer = cms.EDAnalyzer('jtanalyzer')\n"
+      "process.writer = cms.OutputModule('Writer')\n"
+      "process.cones = cms.Sequence(process.cone5*process.cone7)\n"
+      "process.term1 = cms.Path(process.cones+process.jtanalyzer)\n"
+      "process.atEnd = cms.EndPath(process.writer)\n";
 
+  ParameterSetPtr test = pSet(kTest);
+  // CPPUNIT_ASSERT(test->pathFragments().size() == 5);
 
-   ParameterSetPtr test = pSet(kTest);
-   //CPPUNIT_ASSERT(test->pathFragments().size() == 5);
-
-   edm::ParameterSet& myparams = *(test);
-   myparams.registerIt();
-//    std::cout << "ParameterSet looks like:\n";
-//    std::cout << myparams.toString() << std::endl;
-   std::string rep = myparams.toString();
-   edm::ParameterSet copy(rep);
-   CPPUNIT_ASSERT(copy == myparams);
+  edm::ParameterSet& myparams = *(test);
+  myparams.registerIt();
+  //    std::cout << "ParameterSet looks like:\n";
+  //    std::cout << myparams.toString() << std::endl;
+  std::string rep = myparams.toString();
+  edm::ParameterSet copy(rep);
+  CPPUNIT_ASSERT(copy == myparams);
 }
 
-
 edm::ParameterSet modulePSet(std::string const& iLabel, std::string const& iType, std::string const& iCppType) {
-   edm::ParameterSet temp;
-   temp.addParameter("s", 1);
-   temp.addParameter("@module_label", iLabel);
-   temp.addParameter("@module_type", iType);
-   temp.addParameter("@module_edm_type", iCppType);
-   return temp;
+  edm::ParameterSet temp;
+  temp.addParameter("s", 1);
+  temp.addParameter("@module_label", iLabel);
+  temp.addParameter("@module_type", iType);
+  temp.addParameter("@module_edm_type", iCppType);
+  return temp;
 }
 
 void testmakeprocess::moduleTest() {
-   char const* kTest =  "import FWCore.ParameterSet.Config as cms\n"
-  "process = cms.Process('test')\n"
-  "process.cones = cms.EDFilter('Module',\n"
-  "    s = cms.int32(1)\n"
-  ")\n"
-  "process.NoLabelModule = cms.ESProducer('NoLabelModule',\n"
-  "    s = cms.int32(1)\n"
-  ")\n"
-  "process.labeled = cms.ESProducer('LabelModule',\n"
-  "    s = cms.int32(1)\n"
-  ")\n"
-  "process.source = cms.Source('InputSource',\n"
-  "    s = cms.int32(1)\n"
-  ")\n"
-  "process.NoLabelRetriever = cms.ESSource('NoLabelRetriever',\n"
-  "    s = cms.int32(1)\n"
-  ")\n"
-  "process.label = cms.ESSource('LabelRetriever',\n"
-  "    s = cms.int32(1)\n"
-  ")\n"
-  "process.p = cms.Path(process.cones)\n";
+  char const* kTest =
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('test')\n"
+      "process.cones = cms.EDFilter('Module',\n"
+      "    s = cms.int32(1)\n"
+      ")\n"
+      "process.NoLabelModule = cms.ESProducer('NoLabelModule',\n"
+      "    s = cms.int32(1)\n"
+      ")\n"
+      "process.labeled = cms.ESProducer('LabelModule',\n"
+      "    s = cms.int32(1)\n"
+      ")\n"
+      "process.source = cms.Source('InputSource',\n"
+      "    s = cms.int32(1)\n"
+      ")\n"
+      "process.NoLabelRetriever = cms.ESSource('NoLabelRetriever',\n"
+      "    s = cms.int32(1)\n"
+      ")\n"
+      "process.label = cms.ESSource('LabelRetriever',\n"
+      "    s = cms.int32(1)\n"
+      ")\n"
+      "process.p = cms.Path(process.cones)\n";
 
+  ParameterSetPtr test = pSet(kTest);
 
-   ParameterSetPtr test = pSet(kTest);
+  static edm::ParameterSet const kEmpty;
+  edm::ParameterSet const kCone(modulePSet("cones", "Module", "EDFilter"));
+  std::ostringstream out;
+  out << kCone.toString() << std::endl;
+  out << test->getParameterSet("cones").toString() << std::endl;
 
-   static edm::ParameterSet const kEmpty;
-   edm::ParameterSet const kCone(modulePSet("cones", "Module","EDFilter"));
-   std::ostringstream out;
-   out << kCone.toString() << std::endl;
-   out << test->getParameterSet("cones").toString() << std::endl;
+  edm::ParameterSet const kMainInput(modulePSet("@main_input", "InputSource", "Source"));
 
-   edm::ParameterSet const kMainInput(modulePSet("@main_input","InputSource","Source"));
+  edm::ParameterSet const kNoLabelModule(modulePSet("", "NoLabelModule", "ESProducer"));
+  edm::ParameterSet const kLabelModule(modulePSet("labeled", "LabelModule", "ESProducer"));
+  edm::ParameterSet const kNoLabelRetriever(modulePSet("", "NoLabelRetriever", "ESSource"));
+  edm::ParameterSet const kLabelRetriever(modulePSet("label", "LabelRetriever", "ESSource"));
 
-   edm::ParameterSet const kNoLabelModule(modulePSet("", "NoLabelModule","ESProducer"));
-   edm::ParameterSet const kLabelModule(modulePSet("labeled", "LabelModule","ESProducer"));
-   edm::ParameterSet const kNoLabelRetriever(modulePSet("", "NoLabelRetriever","ESSource"));
-   edm::ParameterSet const kLabelRetriever(modulePSet("label", "LabelRetriever","ESSource"));
+  CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("cones")));
+  CPPUNIT_ASSERT(kCone == test->getParameterSet("cones"));
 
-   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("cones")));
-   CPPUNIT_ASSERT(kCone == test->getParameterSet("cones"));
+  CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("@main_input")));
+  CPPUNIT_ASSERT(kMainInput == (test->getParameterSet("@main_input")));
 
-   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("@main_input")));
-   CPPUNIT_ASSERT(kMainInput == (test->getParameterSet("@main_input")));
+  CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("NoLabelModule@")));
+  CPPUNIT_ASSERT(kNoLabelModule == test->getParameterSet("NoLabelModule@"));
 
-   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("NoLabelModule@")));
-   CPPUNIT_ASSERT(kNoLabelModule == test->getParameterSet("NoLabelModule@"));
+  CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("LabelModule@labeled")));
+  CPPUNIT_ASSERT(kLabelModule == test->getParameterSet("LabelModule@labeled"));
 
-   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("LabelModule@labeled")));
-   CPPUNIT_ASSERT(kLabelModule == test->getParameterSet("LabelModule@labeled"));
+  CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("NoLabelRetriever@")));
+  CPPUNIT_ASSERT(kNoLabelRetriever == test->getParameterSet("NoLabelRetriever@"));
 
-   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("NoLabelRetriever@")));
-   CPPUNIT_ASSERT(kNoLabelRetriever == test->getParameterSet("NoLabelRetriever@"));
-
-   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("LabelRetriever@label")));
-   CPPUNIT_ASSERT(kLabelRetriever == test->getParameterSet("LabelRetriever@label"));
+  CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("LabelRetriever@label")));
+  CPPUNIT_ASSERT(kLabelRetriever == test->getParameterSet("LabelRetriever@label"));
 }
 
 void testmakeprocess::emptyModuleTest() {
-   char const* kTest =
-  "import FWCore.ParameterSet.Config as cms\n"
-  "process = cms.Process('test')\n"
-  "process.thing = cms.EDFilter('XX')\n"
-  "process.p = cms.Path(process.thing)\n";
+  char const* kTest =
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('test')\n"
+      "process.thing = cms.EDFilter('XX')\n"
+      "process.p = cms.Path(process.thing)\n";
 
-   ParameterSetPtr test = pSet(kTest);
+  ParameterSetPtr test = pSet(kTest);
 
-   edm::ParameterSet& myparams = *(test);
-   myparams.registerIt();
-//    std::cout << "ParameterSet looks like:\n";
-//    std::cout << myparams.toString() << std::endl;
-   std::string rep = myparams.toString();
-   edm::ParameterSet copy(rep);
-   CPPUNIT_ASSERT(copy == myparams);
+  edm::ParameterSet& myparams = *(test);
+  myparams.registerIt();
+  //    std::cout << "ParameterSet looks like:\n";
+  //    std::cout << myparams.toString() << std::endl;
+  std::string rep = myparams.toString();
+  edm::ParameterSet copy(rep);
+  CPPUNIT_ASSERT(copy == myparams);
 }
 
 void testmakeprocess::taskTest() {
-   char const* kTest =  "import FWCore.ParameterSet.Config as cms\n"
-   "process = cms.Process('test')\n"
-   "process.load(\"FWCore.PythonParameterSet.test.testTask_cff\")\n"
-   "t10 = cms.Task(process.m29, process.m30, process.f29, process.f30,"
-                   "process.ess27, process.ess28, process.esp27, process.esp28,"
-                   "process.serv27, process.serv28)\n";
+  char const* kTest =
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('test')\n"
+      "process.load(\"FWCore.PythonParameterSet.test.testTask_cff\")\n"
+      "t10 = cms.Task(process.m29, process.m30, process.f29, process.f30,"
+      "process.ess27, process.ess28, process.esp27, process.esp28,"
+      "process.serv27, process.serv28)\n";
 
-   ParameterSetPtr test = pSet(kTest);
+  ParameterSetPtr test = pSet(kTest);
 
-   //std::cout << "Dumping parameter names\n";
-   //std::vector<std::string> names = test->getParameterNames();
-   //std::sort(names.begin(), names.end());
-   //for (auto const& name : names) {
-   //  std::cout << name << std::endl;
-   //}
+  // std::cout << "Dumping parameter names\n";
+  // std::vector<std::string> names = test->getParameterNames();
+  // std::sort(names.begin(), names.end());
+  // for (auto const& name : names) {
+  //  std::cout << name << std::endl;
+  //}
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("m1") &&
-                  !test->existsAs<edm::ParameterSet>("m2") &&
-                  test->existsAs<edm::ParameterSet>("m3") &&
-                  test->existsAs<edm::ParameterSet>("m4") &&
-                  test->existsAs<edm::ParameterSet>("m5") &&
-                  test->existsAs<edm::ParameterSet>("m6") &&
-                  test->existsAs<edm::ParameterSet>("m7") &&
-                  test->existsAs<edm::ParameterSet>("m8") &&
-                  test->existsAs<edm::ParameterSet>("m9") &&
-                  test->existsAs<edm::ParameterSet>("m10") &&
-                  test->existsAs<edm::ParameterSet>("m11") &&
-                  test->existsAs<edm::ParameterSet>("m12") &&
-                  test->existsAs<edm::ParameterSet>("m13") &&
-                  test->existsAs<edm::ParameterSet>("m14") &&
-                  test->existsAs<edm::ParameterSet>("m15") &&
-                  test->existsAs<edm::ParameterSet>("m16") &&
-                  test->existsAs<edm::ParameterSet>("m17") &&
-                  test->existsAs<edm::ParameterSet>("m18") &&
-                  test->existsAs<edm::ParameterSet>("m19") &&
-                  test->existsAs<edm::ParameterSet>("m20") &&
-                  test->existsAs<edm::ParameterSet>("m21") &&
-                  test->existsAs<edm::ParameterSet>("m22") &&
-                  test->existsAs<edm::ParameterSet>("m23") &&
-                  test->existsAs<edm::ParameterSet>("m24") &&
-                  test->existsAs<edm::ParameterSet>("m25") &&
-                  test->existsAs<edm::ParameterSet>("m26") &&
-                  !test->existsAs<edm::ParameterSet>("m27") &&
-                  !test->existsAs<edm::ParameterSet>("m28") &&
-                  !test->existsAs<edm::ParameterSet>("m29") &&
-                  !test->existsAs<edm::ParameterSet>("m30"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("m1") && !test->existsAs<edm::ParameterSet>("m2") &&
+                 test->existsAs<edm::ParameterSet>("m3") && test->existsAs<edm::ParameterSet>("m4") &&
+                 test->existsAs<edm::ParameterSet>("m5") && test->existsAs<edm::ParameterSet>("m6") &&
+                 test->existsAs<edm::ParameterSet>("m7") && test->existsAs<edm::ParameterSet>("m8") &&
+                 test->existsAs<edm::ParameterSet>("m9") && test->existsAs<edm::ParameterSet>("m10") &&
+                 test->existsAs<edm::ParameterSet>("m11") && test->existsAs<edm::ParameterSet>("m12") &&
+                 test->existsAs<edm::ParameterSet>("m13") && test->existsAs<edm::ParameterSet>("m14") &&
+                 test->existsAs<edm::ParameterSet>("m15") && test->existsAs<edm::ParameterSet>("m16") &&
+                 test->existsAs<edm::ParameterSet>("m17") && test->existsAs<edm::ParameterSet>("m18") &&
+                 test->existsAs<edm::ParameterSet>("m19") && test->existsAs<edm::ParameterSet>("m20") &&
+                 test->existsAs<edm::ParameterSet>("m21") && test->existsAs<edm::ParameterSet>("m22") &&
+                 test->existsAs<edm::ParameterSet>("m23") && test->existsAs<edm::ParameterSet>("m24") &&
+                 test->existsAs<edm::ParameterSet>("m25") && test->existsAs<edm::ParameterSet>("m26") &&
+                 !test->existsAs<edm::ParameterSet>("m27") && !test->existsAs<edm::ParameterSet>("m28") &&
+                 !test->existsAs<edm::ParameterSet>("m29") && !test->existsAs<edm::ParameterSet>("m30"));
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("f1") &&
-                  !test->existsAs<edm::ParameterSet>("f2") &&
-                  test->existsAs<edm::ParameterSet>("f3") &&
-                  test->existsAs<edm::ParameterSet>("f4") &&
-                  test->existsAs<edm::ParameterSet>("f5") &&
-                  test->existsAs<edm::ParameterSet>("f6") &&
-                  test->existsAs<edm::ParameterSet>("f7") &&
-                  test->existsAs<edm::ParameterSet>("f8") &&
-                  test->existsAs<edm::ParameterSet>("f9") &&
-                  test->existsAs<edm::ParameterSet>("f10") &&
-                  test->existsAs<edm::ParameterSet>("f11") &&
-                  test->existsAs<edm::ParameterSet>("f12") &&
-                  test->existsAs<edm::ParameterSet>("f13") &&
-                  test->existsAs<edm::ParameterSet>("f14") &&
-                  test->existsAs<edm::ParameterSet>("f15") &&
-                  test->existsAs<edm::ParameterSet>("f16") &&
-                  test->existsAs<edm::ParameterSet>("f17") &&
-                  test->existsAs<edm::ParameterSet>("f18") &&
-                  test->existsAs<edm::ParameterSet>("f19") &&
-                  test->existsAs<edm::ParameterSet>("f20") &&
-                  test->existsAs<edm::ParameterSet>("f21") &&
-                  test->existsAs<edm::ParameterSet>("f22") &&
-                  test->existsAs<edm::ParameterSet>("f23") &&
-                  test->existsAs<edm::ParameterSet>("f24") &&
-                  test->existsAs<edm::ParameterSet>("f25") &&
-                  test->existsAs<edm::ParameterSet>("f26") &&
-                  !test->existsAs<edm::ParameterSet>("f27") &&
-                  !test->existsAs<edm::ParameterSet>("f28") &&
-                  !test->existsAs<edm::ParameterSet>("f29") &&
-                  !test->existsAs<edm::ParameterSet>("f30"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("f1") && !test->existsAs<edm::ParameterSet>("f2") &&
+                 test->existsAs<edm::ParameterSet>("f3") && test->existsAs<edm::ParameterSet>("f4") &&
+                 test->existsAs<edm::ParameterSet>("f5") && test->existsAs<edm::ParameterSet>("f6") &&
+                 test->existsAs<edm::ParameterSet>("f7") && test->existsAs<edm::ParameterSet>("f8") &&
+                 test->existsAs<edm::ParameterSet>("f9") && test->existsAs<edm::ParameterSet>("f10") &&
+                 test->existsAs<edm::ParameterSet>("f11") && test->existsAs<edm::ParameterSet>("f12") &&
+                 test->existsAs<edm::ParameterSet>("f13") && test->existsAs<edm::ParameterSet>("f14") &&
+                 test->existsAs<edm::ParameterSet>("f15") && test->existsAs<edm::ParameterSet>("f16") &&
+                 test->existsAs<edm::ParameterSet>("f17") && test->existsAs<edm::ParameterSet>("f18") &&
+                 test->existsAs<edm::ParameterSet>("f19") && test->existsAs<edm::ParameterSet>("f20") &&
+                 test->existsAs<edm::ParameterSet>("f21") && test->existsAs<edm::ParameterSet>("f22") &&
+                 test->existsAs<edm::ParameterSet>("f23") && test->existsAs<edm::ParameterSet>("f24") &&
+                 test->existsAs<edm::ParameterSet>("f25") && test->existsAs<edm::ParameterSet>("f26") &&
+                 !test->existsAs<edm::ParameterSet>("f27") && !test->existsAs<edm::ParameterSet>("f28") &&
+                 !test->existsAs<edm::ParameterSet>("f29") && !test->existsAs<edm::ParameterSet>("f30"));
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("a1") &&
-                  !test->existsAs<edm::ParameterSet>("a2") &&
-                  test->existsAs<edm::ParameterSet>("a3") &&
-                  test->existsAs<edm::ParameterSet>("a4") &&
-                  test->existsAs<edm::ParameterSet>("a5") &&
-                  test->existsAs<edm::ParameterSet>("a6") &&
-                  test->existsAs<edm::ParameterSet>("a7") &&
-                  test->existsAs<edm::ParameterSet>("a8") &&
-                  test->existsAs<edm::ParameterSet>("a9") &&
-                  test->existsAs<edm::ParameterSet>("a10"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("a1") && !test->existsAs<edm::ParameterSet>("a2") &&
+                 test->existsAs<edm::ParameterSet>("a3") && test->existsAs<edm::ParameterSet>("a4") &&
+                 test->existsAs<edm::ParameterSet>("a5") && test->existsAs<edm::ParameterSet>("a6") &&
+                 test->existsAs<edm::ParameterSet>("a7") && test->existsAs<edm::ParameterSet>("a8") &&
+                 test->existsAs<edm::ParameterSet>("a9") && test->existsAs<edm::ParameterSet>("a10"));
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("o1") &&
-                  !test->existsAs<edm::ParameterSet>("o2") &&
-                  test->existsAs<edm::ParameterSet>("o7") &&
-                  test->existsAs<edm::ParameterSet>("o8") &&
-                  test->existsAs<edm::ParameterSet>("o9") &&
-                  test->existsAs<edm::ParameterSet>("o10"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("o1") && !test->existsAs<edm::ParameterSet>("o2") &&
+                 test->existsAs<edm::ParameterSet>("o7") && test->existsAs<edm::ParameterSet>("o8") &&
+                 test->existsAs<edm::ParameterSet>("o9") && test->existsAs<edm::ParameterSet>("o10"));
 
-   CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("ess@ess1") &&
-                  test->existsAs<edm::ParameterSet>("ess2@") &&
-                  !test->existsAs<edm::ParameterSet>("ess@ess3") &&
-                  !test->existsAs<edm::ParameterSet>("ess4@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess11") &&
-                  test->existsAs<edm::ParameterSet>("ess12@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess13") &&
-                  test->existsAs<edm::ParameterSet>("ess14@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess15") &&
-                  test->existsAs<edm::ParameterSet>("ess16@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess17") &&
-                  test->existsAs<edm::ParameterSet>("ess18@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess19") &&
-                  test->existsAs<edm::ParameterSet>("ess20@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess21") &&
-                  test->existsAs<edm::ParameterSet>("ess22@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess23") &&
-                  test->existsAs<edm::ParameterSet>("ess24@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess25") &&
-                  test->existsAs<edm::ParameterSet>("ess26@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess27") &&
-                  test->existsAs<edm::ParameterSet>("ess28@"));
+  CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("ess@ess1") && test->existsAs<edm::ParameterSet>("ess2@") &&
+                 !test->existsAs<edm::ParameterSet>("ess@ess3") && !test->existsAs<edm::ParameterSet>("ess4@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess11") && test->existsAs<edm::ParameterSet>("ess12@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess13") && test->existsAs<edm::ParameterSet>("ess14@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess15") && test->existsAs<edm::ParameterSet>("ess16@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess17") && test->existsAs<edm::ParameterSet>("ess18@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess19") && test->existsAs<edm::ParameterSet>("ess20@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess21") && test->existsAs<edm::ParameterSet>("ess22@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess23") && test->existsAs<edm::ParameterSet>("ess24@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess25") && test->existsAs<edm::ParameterSet>("ess26@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess27") && test->existsAs<edm::ParameterSet>("ess28@"));
 
-   CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("esp@esp1") &&
-                  test->existsAs<edm::ParameterSet>("esp2@") &&
-                  !test->existsAs<edm::ParameterSet>("esp@esp3") &&
-                  !test->existsAs<edm::ParameterSet>("esp4@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp11") &&
-                  test->existsAs<edm::ParameterSet>("esp12@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp13") &&
-                  test->existsAs<edm::ParameterSet>("esp14@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp15") &&
-                  test->existsAs<edm::ParameterSet>("esp16@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp17") &&
-                  test->existsAs<edm::ParameterSet>("esp18@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp19") &&
-                  test->existsAs<edm::ParameterSet>("esp20@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp21") &&
-                  test->existsAs<edm::ParameterSet>("esp22@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp23") &&
-                  test->existsAs<edm::ParameterSet>("esp24@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp25") &&
-                  test->existsAs<edm::ParameterSet>("esp26@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp27") &&
-                  test->existsAs<edm::ParameterSet>("esp28@"));
+  CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("esp@esp1") && test->existsAs<edm::ParameterSet>("esp2@") &&
+                 !test->existsAs<edm::ParameterSet>("esp@esp3") && !test->existsAs<edm::ParameterSet>("esp4@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp11") && test->existsAs<edm::ParameterSet>("esp12@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp13") && test->existsAs<edm::ParameterSet>("esp14@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp15") && test->existsAs<edm::ParameterSet>("esp16@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp17") && test->existsAs<edm::ParameterSet>("esp18@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp19") && test->existsAs<edm::ParameterSet>("esp20@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp21") && test->existsAs<edm::ParameterSet>("esp22@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp23") && test->existsAs<edm::ParameterSet>("esp24@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp25") && test->existsAs<edm::ParameterSet>("esp26@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp27") && test->existsAs<edm::ParameterSet>("esp28@"));
 
-   std::vector<edm::ParameterSet> const& vpsetServices = test->getUntrackedParameterSetVector("services");
-   // Note that the vector<ParameterSet> is not sorted. The order
-   // depends on the order of a python iteration through a dictionary
-   // which could be anything.
-   std::set<std::string> serviceNames;
-   for (auto const& pset : vpsetServices) {
-     serviceNames.insert(pset.getParameter<std::string>("@service_type"));
-     // std::cout << "serviceName = " << pset.getParameter<std::string>("@service_type") << std::endl;
-   }
-   std::vector<std::string> expectedServiceNames;
-   expectedServiceNames.emplace_back("serv1");
-   expectedServiceNames.emplace_back("serv2");
-   expectedServiceNames.emplace_back("serv11");
-   expectedServiceNames.emplace_back("serv12");
-   expectedServiceNames.emplace_back("serv13");
-   expectedServiceNames.emplace_back("serv14");
-   expectedServiceNames.emplace_back("serv15");
-   expectedServiceNames.emplace_back("serv16");
-   expectedServiceNames.emplace_back("serv17");
-   expectedServiceNames.emplace_back("serv18");
-   expectedServiceNames.emplace_back("serv19");
-   expectedServiceNames.emplace_back("serv20");
-   expectedServiceNames.emplace_back("serv21");
-   expectedServiceNames.emplace_back("serv22");
-   expectedServiceNames.emplace_back("serv23");
-   expectedServiceNames.emplace_back("serv24");
-   expectedServiceNames.emplace_back("serv25");
-   expectedServiceNames.emplace_back("serv26");
-   expectedServiceNames.emplace_back("serv27");
-   expectedServiceNames.emplace_back("serv28");
-   bool result = true;
-   for (auto const& name : expectedServiceNames) {
-     if (serviceNames.find(name) == serviceNames.end()) {
-       result = false;
-     }
-   }
-   if (serviceNames.size() != expectedServiceNames.size()) {
-     result = false;
-   }
-   CPPUNIT_ASSERT(result);
+  std::vector<edm::ParameterSet> const& vpsetServices = test->getUntrackedParameterSetVector("services");
+  // Note that the vector<ParameterSet> is not sorted. The order
+  // depends on the order of a python iteration through a dictionary
+  // which could be anything.
+  std::set<std::string> serviceNames;
+  for (auto const& pset : vpsetServices) {
+    serviceNames.insert(pset.getParameter<std::string>("@service_type"));
+    // std::cout << "serviceName = " << pset.getParameter<std::string>("@service_type") << std::endl;
+  }
+  std::vector<std::string> expectedServiceNames;
+  expectedServiceNames.emplace_back("serv1");
+  expectedServiceNames.emplace_back("serv2");
+  expectedServiceNames.emplace_back("serv11");
+  expectedServiceNames.emplace_back("serv12");
+  expectedServiceNames.emplace_back("serv13");
+  expectedServiceNames.emplace_back("serv14");
+  expectedServiceNames.emplace_back("serv15");
+  expectedServiceNames.emplace_back("serv16");
+  expectedServiceNames.emplace_back("serv17");
+  expectedServiceNames.emplace_back("serv18");
+  expectedServiceNames.emplace_back("serv19");
+  expectedServiceNames.emplace_back("serv20");
+  expectedServiceNames.emplace_back("serv21");
+  expectedServiceNames.emplace_back("serv22");
+  expectedServiceNames.emplace_back("serv23");
+  expectedServiceNames.emplace_back("serv24");
+  expectedServiceNames.emplace_back("serv25");
+  expectedServiceNames.emplace_back("serv26");
+  expectedServiceNames.emplace_back("serv27");
+  expectedServiceNames.emplace_back("serv28");
+  bool result = true;
+  for (auto const& name : expectedServiceNames) {
+    if (serviceNames.find(name) == serviceNames.end()) {
+      result = false;
+    }
+  }
+  if (serviceNames.size() != expectedServiceNames.size()) {
+    result = false;
+  }
+  CPPUNIT_ASSERT(result);
 }
 
 void testmakeprocess::taskTestWithEmptySchedule() {
-   char const* kTest =  "import FWCore.ParameterSet.Config as cms\n"
-   "process = cms.Process('test')\n"
-   "process.load(\"FWCore.PythonParameterSet.test.testTask_cff\")\n"
-   "t10 = cms.Task(process.m29, process.m30, process.f29, process.f30,"
-                   "process.ess27, process.ess28, process.esp27, process.esp28,"
-                   "process.serv27, process.serv28)\n"
-   "process.schedule = cms.Schedule()\n";
+  char const* kTest =
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('test')\n"
+      "process.load(\"FWCore.PythonParameterSet.test.testTask_cff\")\n"
+      "t10 = cms.Task(process.m29, process.m30, process.f29, process.f30,"
+      "process.ess27, process.ess28, process.esp27, process.esp28,"
+      "process.serv27, process.serv28)\n"
+      "process.schedule = cms.Schedule()\n";
 
-   ParameterSetPtr test = pSet(kTest);
+  ParameterSetPtr test = pSet(kTest);
 
-   //std::cout << "Dumping parameter names\n";
-   //std::vector<std::string> names = test->getParameterNames();
-   //std::sort(names.begin(), names.end());
-   //for (auto const& name : names) {
-   //  std::cout << name << std::endl;
-   //}
+  // std::cout << "Dumping parameter names\n";
+  // std::vector<std::string> names = test->getParameterNames();
+  // std::sort(names.begin(), names.end());
+  // for (auto const& name : names) {
+  //  std::cout << name << std::endl;
+  //}
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("m1") &&
-                  !test->existsAs<edm::ParameterSet>("m2") &&
-                  !test->existsAs<edm::ParameterSet>("m3") &&
-                  !test->existsAs<edm::ParameterSet>("m4") &&
-                  !test->existsAs<edm::ParameterSet>("m5") &&
-                  !test->existsAs<edm::ParameterSet>("m6") &&
-                  !test->existsAs<edm::ParameterSet>("m7") &&
-                  !test->existsAs<edm::ParameterSet>("m8") &&
-                  !test->existsAs<edm::ParameterSet>("m9") &&
-                  !test->existsAs<edm::ParameterSet>("m10") &&
-                  !test->existsAs<edm::ParameterSet>("m11") &&
-                  !test->existsAs<edm::ParameterSet>("m12") &&
-                  !test->existsAs<edm::ParameterSet>("m13") &&
-                  !test->existsAs<edm::ParameterSet>("m14") &&
-                  !test->existsAs<edm::ParameterSet>("m15") &&
-                  !test->existsAs<edm::ParameterSet>("m16") &&
-                  !test->existsAs<edm::ParameterSet>("m17") &&
-                  !test->existsAs<edm::ParameterSet>("m18") &&
-                  !test->existsAs<edm::ParameterSet>("m19") &&
-                  !test->existsAs<edm::ParameterSet>("m20") &&
-                  !test->existsAs<edm::ParameterSet>("m21") &&
-                  !test->existsAs<edm::ParameterSet>("m22") &&
-                  !test->existsAs<edm::ParameterSet>("m23") &&
-                  !test->existsAs<edm::ParameterSet>("m24") &&
-                  !test->existsAs<edm::ParameterSet>("m25") &&
-                  !test->existsAs<edm::ParameterSet>("m26") &&
-                  !test->existsAs<edm::ParameterSet>("m27") &&
-                  !test->existsAs<edm::ParameterSet>("m28") &&
-                  !test->existsAs<edm::ParameterSet>("m29") &&
-                  !test->existsAs<edm::ParameterSet>("m30"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("m1") && !test->existsAs<edm::ParameterSet>("m2") &&
+                 !test->existsAs<edm::ParameterSet>("m3") && !test->existsAs<edm::ParameterSet>("m4") &&
+                 !test->existsAs<edm::ParameterSet>("m5") && !test->existsAs<edm::ParameterSet>("m6") &&
+                 !test->existsAs<edm::ParameterSet>("m7") && !test->existsAs<edm::ParameterSet>("m8") &&
+                 !test->existsAs<edm::ParameterSet>("m9") && !test->existsAs<edm::ParameterSet>("m10") &&
+                 !test->existsAs<edm::ParameterSet>("m11") && !test->existsAs<edm::ParameterSet>("m12") &&
+                 !test->existsAs<edm::ParameterSet>("m13") && !test->existsAs<edm::ParameterSet>("m14") &&
+                 !test->existsAs<edm::ParameterSet>("m15") && !test->existsAs<edm::ParameterSet>("m16") &&
+                 !test->existsAs<edm::ParameterSet>("m17") && !test->existsAs<edm::ParameterSet>("m18") &&
+                 !test->existsAs<edm::ParameterSet>("m19") && !test->existsAs<edm::ParameterSet>("m20") &&
+                 !test->existsAs<edm::ParameterSet>("m21") && !test->existsAs<edm::ParameterSet>("m22") &&
+                 !test->existsAs<edm::ParameterSet>("m23") && !test->existsAs<edm::ParameterSet>("m24") &&
+                 !test->existsAs<edm::ParameterSet>("m25") && !test->existsAs<edm::ParameterSet>("m26") &&
+                 !test->existsAs<edm::ParameterSet>("m27") && !test->existsAs<edm::ParameterSet>("m28") &&
+                 !test->existsAs<edm::ParameterSet>("m29") && !test->existsAs<edm::ParameterSet>("m30"));
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("f1") &&
-                  !test->existsAs<edm::ParameterSet>("f2") &&
-                  !test->existsAs<edm::ParameterSet>("f3") &&
-                  !test->existsAs<edm::ParameterSet>("f4") &&
-                  !test->existsAs<edm::ParameterSet>("f5") &&
-                  !test->existsAs<edm::ParameterSet>("f6") &&
-                  !test->existsAs<edm::ParameterSet>("f7") &&
-                  !test->existsAs<edm::ParameterSet>("f8") &&
-                  !test->existsAs<edm::ParameterSet>("f9") &&
-                  !test->existsAs<edm::ParameterSet>("f10") &&
-                  !test->existsAs<edm::ParameterSet>("f11") &&
-                  !test->existsAs<edm::ParameterSet>("f12") &&
-                  !test->existsAs<edm::ParameterSet>("f13") &&
-                  !test->existsAs<edm::ParameterSet>("f14") &&
-                  !test->existsAs<edm::ParameterSet>("f15") &&
-                  !test->existsAs<edm::ParameterSet>("f16") &&
-                  !test->existsAs<edm::ParameterSet>("f17") &&
-                  !test->existsAs<edm::ParameterSet>("f18") &&
-                  !test->existsAs<edm::ParameterSet>("f19") &&
-                  !test->existsAs<edm::ParameterSet>("f20") &&
-                  !test->existsAs<edm::ParameterSet>("f21") &&
-                  !test->existsAs<edm::ParameterSet>("f22") &&
-                  !test->existsAs<edm::ParameterSet>("f23") &&
-                  !test->existsAs<edm::ParameterSet>("f24") &&
-                  !test->existsAs<edm::ParameterSet>("f25") &&
-                  !test->existsAs<edm::ParameterSet>("f26") &&
-                  !test->existsAs<edm::ParameterSet>("f27") &&
-                  !test->existsAs<edm::ParameterSet>("f28") &&
-                  !test->existsAs<edm::ParameterSet>("f29") &&
-                  !test->existsAs<edm::ParameterSet>("f30"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("f1") && !test->existsAs<edm::ParameterSet>("f2") &&
+                 !test->existsAs<edm::ParameterSet>("f3") && !test->existsAs<edm::ParameterSet>("f4") &&
+                 !test->existsAs<edm::ParameterSet>("f5") && !test->existsAs<edm::ParameterSet>("f6") &&
+                 !test->existsAs<edm::ParameterSet>("f7") && !test->existsAs<edm::ParameterSet>("f8") &&
+                 !test->existsAs<edm::ParameterSet>("f9") && !test->existsAs<edm::ParameterSet>("f10") &&
+                 !test->existsAs<edm::ParameterSet>("f11") && !test->existsAs<edm::ParameterSet>("f12") &&
+                 !test->existsAs<edm::ParameterSet>("f13") && !test->existsAs<edm::ParameterSet>("f14") &&
+                 !test->existsAs<edm::ParameterSet>("f15") && !test->existsAs<edm::ParameterSet>("f16") &&
+                 !test->existsAs<edm::ParameterSet>("f17") && !test->existsAs<edm::ParameterSet>("f18") &&
+                 !test->existsAs<edm::ParameterSet>("f19") && !test->existsAs<edm::ParameterSet>("f20") &&
+                 !test->existsAs<edm::ParameterSet>("f21") && !test->existsAs<edm::ParameterSet>("f22") &&
+                 !test->existsAs<edm::ParameterSet>("f23") && !test->existsAs<edm::ParameterSet>("f24") &&
+                 !test->existsAs<edm::ParameterSet>("f25") && !test->existsAs<edm::ParameterSet>("f26") &&
+                 !test->existsAs<edm::ParameterSet>("f27") && !test->existsAs<edm::ParameterSet>("f28") &&
+                 !test->existsAs<edm::ParameterSet>("f29") && !test->existsAs<edm::ParameterSet>("f30"));
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("a1") &&
-                  !test->existsAs<edm::ParameterSet>("a2") &&
-                  !test->existsAs<edm::ParameterSet>("a3") &&
-                  !test->existsAs<edm::ParameterSet>("a4") &&
-                  !test->existsAs<edm::ParameterSet>("a5") &&
-                  !test->existsAs<edm::ParameterSet>("a6") &&
-                  !test->existsAs<edm::ParameterSet>("a7") &&
-                  !test->existsAs<edm::ParameterSet>("a8") &&
-                  !test->existsAs<edm::ParameterSet>("a9") &&
-                  !test->existsAs<edm::ParameterSet>("a10"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("a1") && !test->existsAs<edm::ParameterSet>("a2") &&
+                 !test->existsAs<edm::ParameterSet>("a3") && !test->existsAs<edm::ParameterSet>("a4") &&
+                 !test->existsAs<edm::ParameterSet>("a5") && !test->existsAs<edm::ParameterSet>("a6") &&
+                 !test->existsAs<edm::ParameterSet>("a7") && !test->existsAs<edm::ParameterSet>("a8") &&
+                 !test->existsAs<edm::ParameterSet>("a9") && !test->existsAs<edm::ParameterSet>("a10"));
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("o1") &&
-                  !test->existsAs<edm::ParameterSet>("o2") &&
-                  !test->existsAs<edm::ParameterSet>("o7") &&
-                  !test->existsAs<edm::ParameterSet>("o8") &&
-                  !test->existsAs<edm::ParameterSet>("o9") &&
-                  !test->existsAs<edm::ParameterSet>("o10"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("o1") && !test->existsAs<edm::ParameterSet>("o2") &&
+                 !test->existsAs<edm::ParameterSet>("o7") && !test->existsAs<edm::ParameterSet>("o8") &&
+                 !test->existsAs<edm::ParameterSet>("o9") && !test->existsAs<edm::ParameterSet>("o10"));
 
-   CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("ess@ess1") &&
-                  test->existsAs<edm::ParameterSet>("ess2@") &&
-                  !test->existsAs<edm::ParameterSet>("ess@ess3") &&
-                  !test->existsAs<edm::ParameterSet>("ess4@") &&
-                  !test->existsAs<edm::ParameterSet>("ess@ess11") &&
-                  !test->existsAs<edm::ParameterSet>("ess12@") &&
-                  !test->existsAs<edm::ParameterSet>("ess@ess13") &&
-                  !test->existsAs<edm::ParameterSet>("ess14@") &&
-                  !test->existsAs<edm::ParameterSet>("ess@ess15") &&
-                  !test->existsAs<edm::ParameterSet>("ess16@") &&
-                  !test->existsAs<edm::ParameterSet>("ess@ess17") &&
-                  !test->existsAs<edm::ParameterSet>("ess18@") &&
-                  !test->existsAs<edm::ParameterSet>("ess@ess19") &&
-                  !test->existsAs<edm::ParameterSet>("ess20@") &&
-                  !test->existsAs<edm::ParameterSet>("ess@ess21") &&
-                  !test->existsAs<edm::ParameterSet>("ess22@") &&
-                  !test->existsAs<edm::ParameterSet>("ess@ess23") &&
-                  !test->existsAs<edm::ParameterSet>("ess24@") &&
-                  !test->existsAs<edm::ParameterSet>("ess@ess25") &&
-                  !test->existsAs<edm::ParameterSet>("ess26@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess27") &&
-                  test->existsAs<edm::ParameterSet>("ess28@"));
+  CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("ess@ess1") && test->existsAs<edm::ParameterSet>("ess2@") &&
+                 !test->existsAs<edm::ParameterSet>("ess@ess3") && !test->existsAs<edm::ParameterSet>("ess4@") &&
+                 !test->existsAs<edm::ParameterSet>("ess@ess11") && !test->existsAs<edm::ParameterSet>("ess12@") &&
+                 !test->existsAs<edm::ParameterSet>("ess@ess13") && !test->existsAs<edm::ParameterSet>("ess14@") &&
+                 !test->existsAs<edm::ParameterSet>("ess@ess15") && !test->existsAs<edm::ParameterSet>("ess16@") &&
+                 !test->existsAs<edm::ParameterSet>("ess@ess17") && !test->existsAs<edm::ParameterSet>("ess18@") &&
+                 !test->existsAs<edm::ParameterSet>("ess@ess19") && !test->existsAs<edm::ParameterSet>("ess20@") &&
+                 !test->existsAs<edm::ParameterSet>("ess@ess21") && !test->existsAs<edm::ParameterSet>("ess22@") &&
+                 !test->existsAs<edm::ParameterSet>("ess@ess23") && !test->existsAs<edm::ParameterSet>("ess24@") &&
+                 !test->existsAs<edm::ParameterSet>("ess@ess25") && !test->existsAs<edm::ParameterSet>("ess26@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess27") && test->existsAs<edm::ParameterSet>("ess28@"));
 
-   CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("esp@esp1") &&
-                  test->existsAs<edm::ParameterSet>("esp2@") &&
-                  !test->existsAs<edm::ParameterSet>("esp@esp3") &&
-                  !test->existsAs<edm::ParameterSet>("esp4@") &&
-                  !test->existsAs<edm::ParameterSet>("esp@esp11") &&
-                  !test->existsAs<edm::ParameterSet>("esp12@") &&
-                  !test->existsAs<edm::ParameterSet>("esp@esp13") &&
-                  !test->existsAs<edm::ParameterSet>("esp14@") &&
-                  !test->existsAs<edm::ParameterSet>("esp@esp15") &&
-                  !test->existsAs<edm::ParameterSet>("esp16@") &&
-                  !test->existsAs<edm::ParameterSet>("esp@esp17") &&
-                  !test->existsAs<edm::ParameterSet>("esp18@") &&
-                  !test->existsAs<edm::ParameterSet>("esp@esp19") &&
-                  !test->existsAs<edm::ParameterSet>("esp20@") &&
-                  !test->existsAs<edm::ParameterSet>("esp@esp21") &&
-                  !test->existsAs<edm::ParameterSet>("esp22@") &&
-                  !test->existsAs<edm::ParameterSet>("esp@esp23") &&
-                  !test->existsAs<edm::ParameterSet>("esp24@") &&
-                  !test->existsAs<edm::ParameterSet>("esp@esp25") &&
-                  !test->existsAs<edm::ParameterSet>("esp26@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp27") &&
-                  test->existsAs<edm::ParameterSet>("esp28@"));
+  CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("esp@esp1") && test->existsAs<edm::ParameterSet>("esp2@") &&
+                 !test->existsAs<edm::ParameterSet>("esp@esp3") && !test->existsAs<edm::ParameterSet>("esp4@") &&
+                 !test->existsAs<edm::ParameterSet>("esp@esp11") && !test->existsAs<edm::ParameterSet>("esp12@") &&
+                 !test->existsAs<edm::ParameterSet>("esp@esp13") && !test->existsAs<edm::ParameterSet>("esp14@") &&
+                 !test->existsAs<edm::ParameterSet>("esp@esp15") && !test->existsAs<edm::ParameterSet>("esp16@") &&
+                 !test->existsAs<edm::ParameterSet>("esp@esp17") && !test->existsAs<edm::ParameterSet>("esp18@") &&
+                 !test->existsAs<edm::ParameterSet>("esp@esp19") && !test->existsAs<edm::ParameterSet>("esp20@") &&
+                 !test->existsAs<edm::ParameterSet>("esp@esp21") && !test->existsAs<edm::ParameterSet>("esp22@") &&
+                 !test->existsAs<edm::ParameterSet>("esp@esp23") && !test->existsAs<edm::ParameterSet>("esp24@") &&
+                 !test->existsAs<edm::ParameterSet>("esp@esp25") && !test->existsAs<edm::ParameterSet>("esp26@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp27") && test->existsAs<edm::ParameterSet>("esp28@"));
 
-   std::vector<edm::ParameterSet> const& vpsetServices = test->getUntrackedParameterSetVector("services");
-   // Note that the vector<ParameterSet> is not sorted. The order
-   // depends on the order of a python iteration through a dictionary
-   // which could be anything.
-   std::set<std::string> serviceNames;
-   for (auto const& pset : vpsetServices) {
-     serviceNames.insert(pset.getParameter<std::string>("@service_type"));
-     // std::cout << "serviceName = " << pset.getParameter<std::string>("@service_type") << std::endl;
-   }
-   std::vector<std::string> expectedServiceNames;
-   expectedServiceNames.emplace_back("serv1");
-   expectedServiceNames.emplace_back("serv2");
-   expectedServiceNames.emplace_back("serv27");
-   expectedServiceNames.emplace_back("serv28");
-   bool result = true;
-   for (auto const& name : expectedServiceNames) {
-     if (serviceNames.find(name) == serviceNames.end()) {
-       result = false;
-     }
-   }
-   if (serviceNames.size() != expectedServiceNames.size()) {
-     result = false;
-   }
-   CPPUNIT_ASSERT(result);
+  std::vector<edm::ParameterSet> const& vpsetServices = test->getUntrackedParameterSetVector("services");
+  // Note that the vector<ParameterSet> is not sorted. The order
+  // depends on the order of a python iteration through a dictionary
+  // which could be anything.
+  std::set<std::string> serviceNames;
+  for (auto const& pset : vpsetServices) {
+    serviceNames.insert(pset.getParameter<std::string>("@service_type"));
+    // std::cout << "serviceName = " << pset.getParameter<std::string>("@service_type") << std::endl;
+  }
+  std::vector<std::string> expectedServiceNames;
+  expectedServiceNames.emplace_back("serv1");
+  expectedServiceNames.emplace_back("serv2");
+  expectedServiceNames.emplace_back("serv27");
+  expectedServiceNames.emplace_back("serv28");
+  bool result = true;
+  for (auto const& name : expectedServiceNames) {
+    if (serviceNames.find(name) == serviceNames.end()) {
+      result = false;
+    }
+  }
+  if (serviceNames.size() != expectedServiceNames.size()) {
+    result = false;
+  }
+  CPPUNIT_ASSERT(result);
 }
 
 void testmakeprocess::taskTestWithSchedule() {
-   char const* kTest =  "import FWCore.ParameterSet.Config as cms\n"
-   "process = cms.Process('test')\n"
-   "process.load(\"FWCore.PythonParameterSet.test.testTask_cff\")\n"
-   "t10 = cms.Task(process.m29, process.m30, process.f29, process.f30,"
-                   "process.ess27, process.ess28, process.esp27, process.esp28,"
-                   "process.serv27, process.serv28)\n"
-   "process.schedule = cms.Schedule(process.p1, process.p2, process.e1, process.e2,"
-                                    "process.pf1, process.pf2, process.ef1, process.ef2,"
-                                    "process.pa1, process.pa2, process.ea1, process.ea2,"
-                                    "process.eo1, process.eo2, process.pess2, process.eess2,"
-                                    "process.pesp2, process.eesp2, process.pserv2, process.eserv2,"
-                                    "tasks=[process.t9, process.tf9, process.tess10,process.tesp10,"
-                                    "process.tserv10])\n";
+  char const* kTest =
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('test')\n"
+      "process.load(\"FWCore.PythonParameterSet.test.testTask_cff\")\n"
+      "t10 = cms.Task(process.m29, process.m30, process.f29, process.f30,"
+      "process.ess27, process.ess28, process.esp27, process.esp28,"
+      "process.serv27, process.serv28)\n"
+      "process.schedule = cms.Schedule(process.p1, process.p2, process.e1, process.e2,"
+      "process.pf1, process.pf2, process.ef1, process.ef2,"
+      "process.pa1, process.pa2, process.ea1, process.ea2,"
+      "process.eo1, process.eo2, process.pess2, process.eess2,"
+      "process.pesp2, process.eesp2, process.pserv2, process.eserv2,"
+      "tasks=[process.t9, process.tf9, process.tess10,process.tesp10,"
+      "process.tserv10])\n";
 
-   ParameterSetPtr test = pSet(kTest);
+  ParameterSetPtr test = pSet(kTest);
 
-   //std::cout << "Dumping parameter names\n";
-   //std::vector<std::string> names = test->getParameterNames();
-   //std::sort(names.begin(), names.end());
-   //for (auto const& name : names) {
-   //  std::cout << name << std::endl;
-   //}
+  // std::cout << "Dumping parameter names\n";
+  // std::vector<std::string> names = test->getParameterNames();
+  // std::sort(names.begin(), names.end());
+  // for (auto const& name : names) {
+  //  std::cout << name << std::endl;
+  //}
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("m1") &&
-                  !test->existsAs<edm::ParameterSet>("m2") &&
-                  test->existsAs<edm::ParameterSet>("m3") &&
-                  test->existsAs<edm::ParameterSet>("m4") &&
-                  test->existsAs<edm::ParameterSet>("m5") &&
-                  test->existsAs<edm::ParameterSet>("m6") &&
-                  test->existsAs<edm::ParameterSet>("m7") &&
-                  test->existsAs<edm::ParameterSet>("m8") &&
-                  test->existsAs<edm::ParameterSet>("m9") &&
-                  test->existsAs<edm::ParameterSet>("m10") &&
-                  test->existsAs<edm::ParameterSet>("m11") &&
-                  test->existsAs<edm::ParameterSet>("m12") &&
-                  test->existsAs<edm::ParameterSet>("m13") &&
-                  test->existsAs<edm::ParameterSet>("m14") &&
-                  test->existsAs<edm::ParameterSet>("m15") &&
-                  test->existsAs<edm::ParameterSet>("m16") &&
-                  test->existsAs<edm::ParameterSet>("m17") &&
-                  test->existsAs<edm::ParameterSet>("m18") &&
-                  test->existsAs<edm::ParameterSet>("m19") &&
-                  test->existsAs<edm::ParameterSet>("m20") &&
-                  test->existsAs<edm::ParameterSet>("m21") &&
-                  test->existsAs<edm::ParameterSet>("m22") &&
-                  test->existsAs<edm::ParameterSet>("m23") &&
-                  test->existsAs<edm::ParameterSet>("m24") &&
-                  test->existsAs<edm::ParameterSet>("m25") &&
-                  test->existsAs<edm::ParameterSet>("m26") &&
-                  test->existsAs<edm::ParameterSet>("m27") &&
-                  test->existsAs<edm::ParameterSet>("m28") &&
-                  !test->existsAs<edm::ParameterSet>("m29") &&
-                  !test->existsAs<edm::ParameterSet>("m30"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("m1") && !test->existsAs<edm::ParameterSet>("m2") &&
+                 test->existsAs<edm::ParameterSet>("m3") && test->existsAs<edm::ParameterSet>("m4") &&
+                 test->existsAs<edm::ParameterSet>("m5") && test->existsAs<edm::ParameterSet>("m6") &&
+                 test->existsAs<edm::ParameterSet>("m7") && test->existsAs<edm::ParameterSet>("m8") &&
+                 test->existsAs<edm::ParameterSet>("m9") && test->existsAs<edm::ParameterSet>("m10") &&
+                 test->existsAs<edm::ParameterSet>("m11") && test->existsAs<edm::ParameterSet>("m12") &&
+                 test->existsAs<edm::ParameterSet>("m13") && test->existsAs<edm::ParameterSet>("m14") &&
+                 test->existsAs<edm::ParameterSet>("m15") && test->existsAs<edm::ParameterSet>("m16") &&
+                 test->existsAs<edm::ParameterSet>("m17") && test->existsAs<edm::ParameterSet>("m18") &&
+                 test->existsAs<edm::ParameterSet>("m19") && test->existsAs<edm::ParameterSet>("m20") &&
+                 test->existsAs<edm::ParameterSet>("m21") && test->existsAs<edm::ParameterSet>("m22") &&
+                 test->existsAs<edm::ParameterSet>("m23") && test->existsAs<edm::ParameterSet>("m24") &&
+                 test->existsAs<edm::ParameterSet>("m25") && test->existsAs<edm::ParameterSet>("m26") &&
+                 test->existsAs<edm::ParameterSet>("m27") && test->existsAs<edm::ParameterSet>("m28") &&
+                 !test->existsAs<edm::ParameterSet>("m29") && !test->existsAs<edm::ParameterSet>("m30"));
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("f1") &&
-                  !test->existsAs<edm::ParameterSet>("f2") &&
-                  test->existsAs<edm::ParameterSet>("f3") &&
-                  test->existsAs<edm::ParameterSet>("f4") &&
-                  test->existsAs<edm::ParameterSet>("f5") &&
-                  test->existsAs<edm::ParameterSet>("f6") &&
-                  test->existsAs<edm::ParameterSet>("f7") &&
-                  test->existsAs<edm::ParameterSet>("f8") &&
-                  test->existsAs<edm::ParameterSet>("f9") &&
-                  test->existsAs<edm::ParameterSet>("f10") &&
-                  test->existsAs<edm::ParameterSet>("f11") &&
-                  test->existsAs<edm::ParameterSet>("f12") &&
-                  test->existsAs<edm::ParameterSet>("f13") &&
-                  test->existsAs<edm::ParameterSet>("f14") &&
-                  test->existsAs<edm::ParameterSet>("f15") &&
-                  test->existsAs<edm::ParameterSet>("f16") &&
-                  test->existsAs<edm::ParameterSet>("f17") &&
-                  test->existsAs<edm::ParameterSet>("f18") &&
-                  test->existsAs<edm::ParameterSet>("f19") &&
-                  test->existsAs<edm::ParameterSet>("f20") &&
-                  test->existsAs<edm::ParameterSet>("f21") &&
-                  test->existsAs<edm::ParameterSet>("f22") &&
-                  test->existsAs<edm::ParameterSet>("f23") &&
-                  test->existsAs<edm::ParameterSet>("f24") &&
-                  test->existsAs<edm::ParameterSet>("f25") &&
-                  test->existsAs<edm::ParameterSet>("f26") &&
-                  test->existsAs<edm::ParameterSet>("f27") &&
-                  test->existsAs<edm::ParameterSet>("f28") &&
-                  !test->existsAs<edm::ParameterSet>("f29") &&
-                  !test->existsAs<edm::ParameterSet>("f30"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("f1") && !test->existsAs<edm::ParameterSet>("f2") &&
+                 test->existsAs<edm::ParameterSet>("f3") && test->existsAs<edm::ParameterSet>("f4") &&
+                 test->existsAs<edm::ParameterSet>("f5") && test->existsAs<edm::ParameterSet>("f6") &&
+                 test->existsAs<edm::ParameterSet>("f7") && test->existsAs<edm::ParameterSet>("f8") &&
+                 test->existsAs<edm::ParameterSet>("f9") && test->existsAs<edm::ParameterSet>("f10") &&
+                 test->existsAs<edm::ParameterSet>("f11") && test->existsAs<edm::ParameterSet>("f12") &&
+                 test->existsAs<edm::ParameterSet>("f13") && test->existsAs<edm::ParameterSet>("f14") &&
+                 test->existsAs<edm::ParameterSet>("f15") && test->existsAs<edm::ParameterSet>("f16") &&
+                 test->existsAs<edm::ParameterSet>("f17") && test->existsAs<edm::ParameterSet>("f18") &&
+                 test->existsAs<edm::ParameterSet>("f19") && test->existsAs<edm::ParameterSet>("f20") &&
+                 test->existsAs<edm::ParameterSet>("f21") && test->existsAs<edm::ParameterSet>("f22") &&
+                 test->existsAs<edm::ParameterSet>("f23") && test->existsAs<edm::ParameterSet>("f24") &&
+                 test->existsAs<edm::ParameterSet>("f25") && test->existsAs<edm::ParameterSet>("f26") &&
+                 test->existsAs<edm::ParameterSet>("f27") && test->existsAs<edm::ParameterSet>("f28") &&
+                 !test->existsAs<edm::ParameterSet>("f29") && !test->existsAs<edm::ParameterSet>("f30"));
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("a1") &&
-                  !test->existsAs<edm::ParameterSet>("a2") &&
-                  test->existsAs<edm::ParameterSet>("a3") &&
-                  test->existsAs<edm::ParameterSet>("a4") &&
-                  test->existsAs<edm::ParameterSet>("a5") &&
-                  test->existsAs<edm::ParameterSet>("a6") &&
-                  test->existsAs<edm::ParameterSet>("a7") &&
-                  test->existsAs<edm::ParameterSet>("a8") &&
-                  test->existsAs<edm::ParameterSet>("a9") &&
-                  test->existsAs<edm::ParameterSet>("a10"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("a1") && !test->existsAs<edm::ParameterSet>("a2") &&
+                 test->existsAs<edm::ParameterSet>("a3") && test->existsAs<edm::ParameterSet>("a4") &&
+                 test->existsAs<edm::ParameterSet>("a5") && test->existsAs<edm::ParameterSet>("a6") &&
+                 test->existsAs<edm::ParameterSet>("a7") && test->existsAs<edm::ParameterSet>("a8") &&
+                 test->existsAs<edm::ParameterSet>("a9") && test->existsAs<edm::ParameterSet>("a10"));
 
-   CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("o1") &&
-                  !test->existsAs<edm::ParameterSet>("o2") &&
-                  test->existsAs<edm::ParameterSet>("o7") &&
-                  test->existsAs<edm::ParameterSet>("o8") &&
-                  test->existsAs<edm::ParameterSet>("o9") &&
-                  test->existsAs<edm::ParameterSet>("o10"));
+  CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("o1") && !test->existsAs<edm::ParameterSet>("o2") &&
+                 test->existsAs<edm::ParameterSet>("o7") && test->existsAs<edm::ParameterSet>("o8") &&
+                 test->existsAs<edm::ParameterSet>("o9") && test->existsAs<edm::ParameterSet>("o10"));
 
-   CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("ess@ess1") &&
-                  test->existsAs<edm::ParameterSet>("ess2@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess3") &&
-                  test->existsAs<edm::ParameterSet>("ess4@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess11") &&
-                  test->existsAs<edm::ParameterSet>("ess12@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess13") &&
-                  test->existsAs<edm::ParameterSet>("ess14@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess15") &&
-                  test->existsAs<edm::ParameterSet>("ess16@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess17") &&
-                  test->existsAs<edm::ParameterSet>("ess18@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess19") &&
-                  test->existsAs<edm::ParameterSet>("ess20@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess21") &&
-                  test->existsAs<edm::ParameterSet>("ess22@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess23") &&
-                  test->existsAs<edm::ParameterSet>("ess24@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess25") &&
-                  test->existsAs<edm::ParameterSet>("ess26@") &&
-                  test->existsAs<edm::ParameterSet>("ess@ess27") &&
-                  test->existsAs<edm::ParameterSet>("ess28@"));
+  CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("ess@ess1") && test->existsAs<edm::ParameterSet>("ess2@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess3") && test->existsAs<edm::ParameterSet>("ess4@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess11") && test->existsAs<edm::ParameterSet>("ess12@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess13") && test->existsAs<edm::ParameterSet>("ess14@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess15") && test->existsAs<edm::ParameterSet>("ess16@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess17") && test->existsAs<edm::ParameterSet>("ess18@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess19") && test->existsAs<edm::ParameterSet>("ess20@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess21") && test->existsAs<edm::ParameterSet>("ess22@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess23") && test->existsAs<edm::ParameterSet>("ess24@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess25") && test->existsAs<edm::ParameterSet>("ess26@") &&
+                 test->existsAs<edm::ParameterSet>("ess@ess27") && test->existsAs<edm::ParameterSet>("ess28@"));
 
-   CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("esp@esp1") &&
-                  test->existsAs<edm::ParameterSet>("esp2@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp3") &&
-                  test->existsAs<edm::ParameterSet>("esp4@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp11") &&
-                  test->existsAs<edm::ParameterSet>("esp12@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp13") &&
-                  test->existsAs<edm::ParameterSet>("esp14@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp15") &&
-                  test->existsAs<edm::ParameterSet>("esp16@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp17") &&
-                  test->existsAs<edm::ParameterSet>("esp18@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp19") &&
-                  test->existsAs<edm::ParameterSet>("esp20@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp21") &&
-                  test->existsAs<edm::ParameterSet>("esp22@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp23") &&
-                  test->existsAs<edm::ParameterSet>("esp24@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp25") &&
-                  test->existsAs<edm::ParameterSet>("esp26@") &&
-                  test->existsAs<edm::ParameterSet>("esp@esp27") &&
-                  test->existsAs<edm::ParameterSet>("esp28@"));
+  CPPUNIT_ASSERT(test->existsAs<edm::ParameterSet>("esp@esp1") && test->existsAs<edm::ParameterSet>("esp2@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp3") && test->existsAs<edm::ParameterSet>("esp4@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp11") && test->existsAs<edm::ParameterSet>("esp12@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp13") && test->existsAs<edm::ParameterSet>("esp14@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp15") && test->existsAs<edm::ParameterSet>("esp16@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp17") && test->existsAs<edm::ParameterSet>("esp18@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp19") && test->existsAs<edm::ParameterSet>("esp20@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp21") && test->existsAs<edm::ParameterSet>("esp22@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp23") && test->existsAs<edm::ParameterSet>("esp24@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp25") && test->existsAs<edm::ParameterSet>("esp26@") &&
+                 test->existsAs<edm::ParameterSet>("esp@esp27") && test->existsAs<edm::ParameterSet>("esp28@"));
 
-   std::vector<edm::ParameterSet> const& vpsetServices = test->getUntrackedParameterSetVector("services");
-   // Note that the vector<ParameterSet> is not sorted. The order
-   // depends on the order of a python iteration through a dictionary
-   // which could be anything.
-   std::set<std::string> serviceNames;
-   for (auto const& pset : vpsetServices) {
-     serviceNames.insert(pset.getParameter<std::string>("@service_type"));
-     // std::cout << "serviceName = " << pset.getParameter<std::string>("@service_type") << std::endl;
-   }
-   std::vector<std::string> expectedServiceNames;
-   expectedServiceNames.emplace_back("serv1");
-   expectedServiceNames.emplace_back("serv2");
-   expectedServiceNames.emplace_back("serv3");
-   expectedServiceNames.emplace_back("serv4");
-   expectedServiceNames.emplace_back("serv11");
-   expectedServiceNames.emplace_back("serv12");
-   expectedServiceNames.emplace_back("serv13");
-   expectedServiceNames.emplace_back("serv14");
-   expectedServiceNames.emplace_back("serv15");
-   expectedServiceNames.emplace_back("serv16");
-   expectedServiceNames.emplace_back("serv17");
-   expectedServiceNames.emplace_back("serv18");
-   expectedServiceNames.emplace_back("serv19");
-   expectedServiceNames.emplace_back("serv20");
-   expectedServiceNames.emplace_back("serv21");
-   expectedServiceNames.emplace_back("serv22");
-   expectedServiceNames.emplace_back("serv23");
-   expectedServiceNames.emplace_back("serv24");
-   expectedServiceNames.emplace_back("serv25");
-   expectedServiceNames.emplace_back("serv26");
-   expectedServiceNames.emplace_back("serv27");
-   expectedServiceNames.emplace_back("serv28");
-   bool result = true;
-   for (auto const& name : expectedServiceNames) {
-     if (serviceNames.find(name) == serviceNames.end()) {
-       result = false;
-     }
-   }
-   if (serviceNames.size() != expectedServiceNames.size()) {
-     result = false;
-   }
-   CPPUNIT_ASSERT(result);
+  std::vector<edm::ParameterSet> const& vpsetServices = test->getUntrackedParameterSetVector("services");
+  // Note that the vector<ParameterSet> is not sorted. The order
+  // depends on the order of a python iteration through a dictionary
+  // which could be anything.
+  std::set<std::string> serviceNames;
+  for (auto const& pset : vpsetServices) {
+    serviceNames.insert(pset.getParameter<std::string>("@service_type"));
+    // std::cout << "serviceName = " << pset.getParameter<std::string>("@service_type") << std::endl;
+  }
+  std::vector<std::string> expectedServiceNames;
+  expectedServiceNames.emplace_back("serv1");
+  expectedServiceNames.emplace_back("serv2");
+  expectedServiceNames.emplace_back("serv3");
+  expectedServiceNames.emplace_back("serv4");
+  expectedServiceNames.emplace_back("serv11");
+  expectedServiceNames.emplace_back("serv12");
+  expectedServiceNames.emplace_back("serv13");
+  expectedServiceNames.emplace_back("serv14");
+  expectedServiceNames.emplace_back("serv15");
+  expectedServiceNames.emplace_back("serv16");
+  expectedServiceNames.emplace_back("serv17");
+  expectedServiceNames.emplace_back("serv18");
+  expectedServiceNames.emplace_back("serv19");
+  expectedServiceNames.emplace_back("serv20");
+  expectedServiceNames.emplace_back("serv21");
+  expectedServiceNames.emplace_back("serv22");
+  expectedServiceNames.emplace_back("serv23");
+  expectedServiceNames.emplace_back("serv24");
+  expectedServiceNames.emplace_back("serv25");
+  expectedServiceNames.emplace_back("serv26");
+  expectedServiceNames.emplace_back("serv27");
+  expectedServiceNames.emplace_back("serv28");
+  bool result = true;
+  for (auto const& name : expectedServiceNames) {
+    if (serviceNames.find(name) == serviceNames.end()) {
+      result = false;
+    }
+  }
+  if (serviceNames.size() != expectedServiceNames.size()) {
+    result = false;
+  }
+  CPPUNIT_ASSERT(result);
 }
 
 /*

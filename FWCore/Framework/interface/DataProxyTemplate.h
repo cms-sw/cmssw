@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     DataProxyTemplate
-// 
+//
 /**\class DataProxyTemplate DataProxyTemplate.h FWCore/Framework/interface/DataProxyTemplate.h
 
  Description: A DataProxy base class which allows one to write type-safe proxies
@@ -28,40 +28,36 @@
 // forward declarations
 
 namespace edm {
-   namespace eventsetup {
-template<class RecordT, class DataT>
-class DataProxyTemplate : public DataProxy
-{
-
-   public:
+  namespace eventsetup {
+    template <class RecordT, class DataT>
+    class DataProxyTemplate : public DataProxy {
+    public:
       typedef DataT value_type;
       typedef RecordT record_type;
-   
-      DataProxyTemplate(){}
-      //virtual ~DataProxyTemplate();
+
+      DataProxyTemplate() {}
+      // virtual ~DataProxyTemplate();
 
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      const void* getImpl(const EventSetupRecord& iRecord,
-                                  const DataKey& iKey) override {
-         assert(iRecord.key() == RecordT::keyForClass());
-         return this->make(static_cast<const RecordT&>(iRecord), iKey);
+      const void* getImpl(const EventSetupRecord& iRecord, const DataKey& iKey) override {
+        assert(iRecord.key() == RecordT::keyForClass());
+        return this->make(static_cast<const RecordT&>(iRecord), iKey);
       }
-      
-   protected:
-      virtual const DataT* make(const RecordT&, const DataKey&) = 0;
-      
-   private:
-      DataProxyTemplate(const DataProxyTemplate&) = delete; // stop default
 
-      const DataProxyTemplate& operator=(const DataProxyTemplate&) = delete; // stop default
+    protected:
+      virtual const DataT* make(const RecordT&, const DataKey&) = 0;
+
+    private:
+      DataProxyTemplate(const DataProxyTemplate&) = delete;  // stop default
+
+      const DataProxyTemplate& operator=(const DataProxyTemplate&) = delete;  // stop default
 
       // ---------- member data --------------------------------
-};
-
-   }
+    };
+  }
 }
 #endif

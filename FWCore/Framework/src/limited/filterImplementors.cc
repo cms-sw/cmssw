@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     filterImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDFilterBase
 //

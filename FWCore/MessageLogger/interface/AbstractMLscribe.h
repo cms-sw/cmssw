@@ -3,29 +3,26 @@
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 
-namespace edm  {
-namespace service {       
+namespace edm {
+  namespace service {
 
-class AbstractMLscribe 
-{
-public:
-  // ---  birth/death:
-  AbstractMLscribe();
-  virtual ~AbstractMLscribe();
+    class AbstractMLscribe {
+    public:
+      // ---  birth/death:
+      AbstractMLscribe();
+      virtual ~AbstractMLscribe();
 
-  // ---  methods needed for logging
-  virtual
-  void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand);
+      // ---  methods needed for logging
+      virtual void runCommand(MessageLoggerQ::OpCode opcode, void *operand);
 
-private:
-  // --- no copying:
-  AbstractMLscribe(AbstractMLscribe const &) = delete;
-  void  operator = (AbstractMLscribe const &) = delete;
+    private:
+      // --- no copying:
+      AbstractMLscribe(AbstractMLscribe const &) = delete;
+      void operator=(AbstractMLscribe const &) = delete;
 
-};  // AbstractMLscribe
+    };  // AbstractMLscribe
 
-}   // end of namespace service
+  }  // end of namespace service
 }  // namespace edm
 
-
-#endif // FWCore_MessageLogger_AbstractMLscribe_h
+#endif  // FWCore_MessageLogger_AbstractMLscribe_h

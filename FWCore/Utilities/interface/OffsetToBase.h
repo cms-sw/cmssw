@@ -35,18 +35,15 @@
  *
 */
 
-
 namespace edm {
-  template<typename T>
+  template <typename T>
   class OffsetToBase {
   public:
-    OffsetToBase() {} 
-    size_t offsetToBase(std::type_info const& baseTypeInfo) const {
-      return 0;
-    }
+    OffsetToBase() {}
+    size_t offsetToBase(std::type_info const& baseTypeInfo) const { return 0; }
   };
 
-  template<typename T>
+  template <typename T>
   void const* pointerToBase(std::type_info const& baseTypeInfo, T const* address) {
     OffsetToBase<T> offsetToBase;
     int offset = offsetToBase.offsetToBase(baseTypeInfo);

@@ -2,7 +2,7 @@
 //
 // Package:    Framework
 // Class:      TestNThreadsChecker
-// 
+//
 /**\class TestNThreadsChecker TestNThreadsChecker.cc FWCore/Framework/test/stubs/TestNThreadsChecker.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Thu Jan 03 11:02:00 EST 2013
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,11 +36,10 @@
 
 class TestNThreadsChecker {
 public:
-  explicit TestNThreadsChecker(const edm::ParameterSet&, edm::ActivityRegistry& );
+  explicit TestNThreadsChecker(const edm::ParameterSet&, edm::ActivityRegistry&);
 
 private:
-
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
   unsigned int m_nExpectedThreads;
 };
 
@@ -56,21 +54,21 @@ private:
 //
 // constructors and destructor
 //
-TestNThreadsChecker::TestNThreadsChecker(const edm::ParameterSet& iConfig, edm::ActivityRegistry& iReg) :
-m_nExpectedThreads(iConfig.getUntrackedParameter<unsigned int>("nExpectedThreads"))
-{
-   unsigned int expectedThreads =m_nExpectedThreads;
-   if(expectedThreads == 0 ) {
-      expectedThreads =tbb::task_scheduler_init::default_num_threads();
-   }
-   
-   //now do what ever initialization is needed
-   iReg.watchPreallocate([expectedThreads](edm::service::SystemBounds const& iBounds) {
-      if(expectedThreads != iBounds.maxNumberOfThreads()) {
-         throw cms::Exception("UnexpectedNumberOfThreads")<<"Expected "<<expectedThreads<<" threads but actual value is "<<iBounds.maxNumberOfThreads();
-      }
-   });
+TestNThreadsChecker::TestNThreadsChecker(const edm::ParameterSet& iConfig, edm::ActivityRegistry& iReg)
+    : m_nExpectedThreads(iConfig.getUntrackedParameter<unsigned int>("nExpectedThreads")) {
+  unsigned int expectedThreads = m_nExpectedThreads;
+  if (expectedThreads == 0) {
+    expectedThreads = tbb::task_scheduler_init::default_num_threads();
+  }
+
+  // now do what ever initialization is needed
+  iReg.watchPreallocate([expectedThreads](edm::service::SystemBounds const& iBounds) {
+    if (expectedThreads != iBounds.maxNumberOfThreads()) {
+      throw cms::Exception("UnexpectedNumberOfThreads")
+          << "Expected " << expectedThreads << " threads but actual value is " << iBounds.maxNumberOfThreads();
+    }
+  });
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_SERVICE(TestNThreadsChecker);

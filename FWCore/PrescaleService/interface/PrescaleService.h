@@ -9,7 +9,6 @@
 #include <vector>
 #include <map>
 
-
 namespace edm {
   class ActivityRegistry;
   class ConfigurationDescriptions;
@@ -18,10 +17,8 @@ namespace edm {
 
   namespace service {
 
-    class PrescaleService : public edm::serviceregistry::SaveConfiguration
-    {
+    class PrescaleService : public edm::serviceregistry::SaveConfiguration {
     public:
-
       //
       // construction/destruction
       //
@@ -34,17 +31,16 @@ namespace edm {
       //
 
       unsigned int getPrescale(std::string const& prescaledPath) const;
-      unsigned int getPrescale(unsigned int lvl1Index,
-                               std::string const& prescaledPath) const;
+      unsigned int getPrescale(unsigned int lvl1Index, std::string const& prescaledPath) const;
 
-      typedef std::vector<std::string>                          VString_t;
+      typedef std::vector<std::string> VString_t;
       typedef std::map<std::string, std::vector<unsigned int> > PrescaleTable_t;
-      unsigned int getLvl1IndexDefault() const {return lvl1Default_;}
-      const VString_t& getLvl1Labels()   const {return lvl1Labels_;}
-      const PrescaleTable_t& getPrescaleTable() const {return prescaleTable_;}
+      unsigned int getLvl1IndexDefault() const { return lvl1Default_; }
+      const VString_t& getLvl1Labels() const { return lvl1Labels_; }
+      const PrescaleTable_t& getPrescaleTable() const { return prescaleTable_; }
 
-      static unsigned int findDefaultIndex(std::string const & label, std::vector<std::string> const & labels);
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+      static unsigned int findDefaultIndex(std::string const& label, std::vector<std::string> const& labels);
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
       //
@@ -52,13 +48,13 @@ namespace edm {
       //
       void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
       void postBeginJob();
-      
+
       //
       // member data
       //
-      const bool            forceDefault_;
-      const VString_t       lvl1Labels_; 
-      const unsigned int    lvl1Default_;
+      const bool forceDefault_;
+      const VString_t lvl1Labels_;
+      const unsigned int lvl1Default_;
       const std::vector<ParameterSet> vpsetPrescales_;
       PrescaleTable_t prescaleTable_;
       ParameterSetID processParameterSetID_;
@@ -67,4 +63,3 @@ namespace edm {
 }
 
 #endif
-

@@ -6,7 +6,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     TypeInfoHolder
-// 
+//
 /**\class TypeInfoHolder TypeInfoHolder.h FWCore/ServiceRegistry/interface/TypeInfoHolder.h
 
  Description: wrapper to allow std::type_info to be used as a key to a std::map
@@ -26,20 +26,19 @@
 
 // forward declarations
 namespace edm {
-   namespace serviceregistry {
+  namespace serviceregistry {
 
-      class TypeInfoHolder {
-        public:
-         TypeInfoHolder(const std::type_info& iInfo) : m_info(iInfo) {}
-         const std::type_info& info() const { return m_info;}
-         
-         bool operator<(const TypeInfoHolder& iRHS) const {
-            return m_info.before(iRHS.m_info) ;
-         }
-        private:
-         const std::type_info& m_info;
-      };
-   }
+    class TypeInfoHolder {
+    public:
+      TypeInfoHolder(const std::type_info& iInfo) : m_info(iInfo) {}
+      const std::type_info& info() const { return m_info; }
+
+      bool operator<(const TypeInfoHolder& iRHS) const { return m_info.before(iRHS.m_info); }
+
+    private:
+      const std::type_info& m_info;
+    };
+  }
 }
 
 #endif

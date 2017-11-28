@@ -2,7 +2,7 @@
 //
 // Package:     PluginManager
 // Class  :     pluginfactorymanager_t
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -20,53 +20,44 @@
 #include "FWCore/PluginManager/interface/PluginFactoryManager.h"
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
 
-class TestPluginFactoryManager : public CppUnit::TestFixture
-{
+class TestPluginFactoryManager : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestPluginFactoryManager);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
+
 public:
-    void test();
-    void setUp() {}
-    void tearDown() {}
+  void test();
+  void setUp() {}
+  void tearDown() {}
 };
 
-///registration of the test so that the runner can find it
+/// registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(TestPluginFactoryManager);
 
 class DummyTestPlugin : public edmplugin::PluginFactoryBase {
 public:
-  DummyTestPlugin(const std::string& iName): name_(iName) {
-    finishedConstruction();
-  }
-  const std::string& category() const {return name_;}
-  std::vector<edmplugin::PluginInfo> available() const {
-    return std::vector<edmplugin::PluginInfo>();
-  }
+  DummyTestPlugin(const std::string& iName) : name_(iName) { finishedConstruction(); }
+  const std::string& category() const { return name_; }
+  std::vector<edmplugin::PluginInfo> available() const { return std::vector<edmplugin::PluginInfo>(); }
   const std::string name_;
 };
 
 struct Catcher {
   std::string lastSeen_;
-  
-  void catchIt(const edmplugin::PluginFactoryBase* iFactory) {
-    lastSeen_=iFactory->category();
-  }
+
+  void catchIt(const edmplugin::PluginFactoryBase* iFactory) { lastSeen_ = iFactory->category(); }
 };
 
-void
-TestPluginFactoryManager::test()
-{
+void TestPluginFactoryManager::test() {
   using namespace edmplugin;
   using std::placeholders::_1;
   PluginFactoryManager& pfm = *(PluginFactoryManager::get());
-  CPPUNIT_ASSERT(pfm.begin()==pfm.end());
-  
+  CPPUNIT_ASSERT(pfm.begin() == pfm.end());
+
   Catcher catcher;
-  pfm.newFactory_.connect(std::bind(std::mem_fn(&Catcher::catchIt),&catcher,_1));
-  
+  pfm.newFactory_.connect(std::bind(std::mem_fn(&Catcher::catchIt), &catcher, _1));
+
   DummyTestPlugin one("one");
-  CPPUNIT_ASSERT((pfm.begin()!=pfm.end()));
+  CPPUNIT_ASSERT((pfm.begin() != pfm.end()));
   CPPUNIT_ASSERT(catcher.lastSeen_ == std::string("one"));
-  
 }

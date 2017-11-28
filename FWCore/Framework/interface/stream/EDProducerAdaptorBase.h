@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Framework
 // Class  :     EDProducerAdaptorBase
-// 
-/**\class edm::stream::EDProducerAdaptorBase EDProducerAdaptorBase.h "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
+//
+/**\class edm::stream::EDProducerAdaptorBase EDProducerAdaptorBase.h
+ "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
 
  Description: [one line class summary]
 
@@ -29,7 +30,6 @@
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 
-
 // forward declarations
 
 namespace edm {
@@ -37,43 +37,44 @@ namespace edm {
   class ModuleCallingContext;
   class ActivityRegistry;
   class WaitingTask;
-  
+
   namespace maker {
-    template<typename T> class ModuleHolderT;
+    template <typename T>
+    class ModuleHolderT;
   }
 
   namespace stream {
     class EDProducerBase;
-    class EDProducerAdaptorBase : public ProducingModuleAdaptorBase<EDProducerBase>
-    {
-      
+    class EDProducerAdaptorBase : public ProducingModuleAdaptorBase<EDProducerBase> {
     public:
-      template <typename T> friend class edm::maker::ModuleHolderT;
-      template <typename T> friend class edm::WorkerT;
+      template <typename T>
+      friend class edm::maker::ModuleHolderT;
+      template <typename T>
+      friend class edm::WorkerT;
 
       EDProducerAdaptorBase();
-      
+
       // ---------- const member functions ---------------------
-      
+
       // ---------- static member functions --------------------
-      
+
       // ---------- member functions ---------------------------
-      
-      std::string workerType() const { return "WorkerT<EDProducerAdaptorBase>";}
+
+      std::string workerType() const { return "WorkerT<EDProducerAdaptorBase>"; }
+
     protected:
       using ProducingModuleAdaptorBase<EDProducerBase>::commit;
 
     private:
-      EDProducerAdaptorBase(const EDProducerAdaptorBase&) =delete; // stop default
-      
-      const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) =delete; // stop default
-      
-      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
-                   ActivityRegistry*,
-                   ModuleCallingContext const*) ;
-      //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+      EDProducerAdaptorBase(const EDProducerAdaptorBase&) = delete;  // stop default
 
+      const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) = delete;  // stop default
+
+      bool doEvent(EventPrincipal const& ep, EventSetup const& c, ActivityRegistry*, ModuleCallingContext const*);
+      // For now this is a placeholder
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
+                                                    ModuleCallingContext const& iModuleCallingContext,
+                                                    Principal const& iPrincipal) const {}
     };
   }
 }

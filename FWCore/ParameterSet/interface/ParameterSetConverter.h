@@ -44,9 +44,11 @@ namespace edm {
     typedef std::map<std::string, std::string> StringMap;
     typedef std::list<std::pair<std::string, ParameterSetID> > StringWithIDList;
     typedef std::map<ParameterSetID, ParameterSetID> ParameterSetIdConverter;
-    ParameterSetConverter(ParameterSetMap const& psetMap, ParameterSetIdConverter& idConverter, bool alreadyByReference);
+    ParameterSetConverter(ParameterSetMap const& psetMap, ParameterSetIdConverter& idConverter,
+                          bool alreadyByReference);
     ~ParameterSetConverter();
-    ParameterSetIdConverter const& parameterSetIdConverter() const {return parameterSetIdConverter_;}
+    ParameterSetIdConverter const& parameterSetIdConverter() const { return parameterSetIdConverter_; }
+
   private:
     void convertParameterSets();
     void noConvertParameterSets();

@@ -4,7 +4,7 @@
 //
 // Package:     test
 // Class  :     TestPRegisterModule2
-// 
+//
 /**\class TestPRegisterModule2 TestPRegisterModule2.h Framework/test/interface/TestPRegisterModule2.h
 
  Description: <one line class summary>
@@ -31,13 +31,12 @@ namespace edm {
   class ParameterSet;
 }
 
-class TestPRegisterModule2 : public edm::EDProducer
-{
+class TestPRegisterModule2 : public edm::EDProducer {
 public:
-   explicit TestPRegisterModule2(edm::ParameterSet const& p);
-   
-   void produce(edm::Event& e, edm::EventSetup const&);
-   
+  explicit TestPRegisterModule2(edm::ParameterSet const& p);
+
+  void produce(edm::Event& e, edm::EventSetup const&);
+
 private:
 };
 

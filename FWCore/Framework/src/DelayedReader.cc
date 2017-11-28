@@ -7,28 +7,24 @@
 #include <mutex>
 #include <cassert>
 /*----------------------------------------------------------------------
-  
+
 
 ----------------------------------------------------------------------*/
-
 
 namespace edm {
   DelayedReader::~DelayedReader() {}
 
-  std::unique_ptr<WrapperBase>
-  DelayedReader::getProduct(BranchKey const& k,
-                            EDProductGetter const* ep,
-                            ModuleCallingContext const* mcc) {
-
+  std::unique_ptr<WrapperBase> DelayedReader::getProduct(BranchKey const& k, EDProductGetter const* ep,
+                                                         ModuleCallingContext const* mcc) {
     auto preSignal = preEventReadFromSourceSignal();
-    if(mcc and preSignal) {
-      preSignal->emit(*(mcc->getStreamContext()),*mcc);
+    if (mcc and preSignal) {
+      preSignal->emit(*(mcc->getStreamContext()), *mcc);
     }
     auto postSignal = postEventReadFromSourceSignal();
-    
-    auto sentryCall = [&postSignal]( ModuleCallingContext const* iContext) {
-      if(postSignal) {
-        postSignal->emit(*(iContext->getStreamContext()),*iContext);
+
+    auto sentryCall = [&postSignal](ModuleCallingContext const* iContext) {
+      if (postSignal) {
+        postSignal->emit(*(iContext->getStreamContext()), *iContext);
       }
     };
     std::unique_ptr<ModuleCallingContext const, decltype(sentryCall)> sentry(mcc, sentryCall);
@@ -36,8 +32,7 @@ namespace edm {
     return getProduct_(k, ep);
   }
 
-  std::pair<SharedResourcesAcquirer*, std::recursive_mutex*>
-  DelayedReader::sharedResources_() const {
+  std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> DelayedReader::sharedResources_() const {
     return std::pair<SharedResourcesAcquirer*, std::recursive_mutex*>(nullptr, nullptr);
   }
 }

@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     data_default_record_trait
-// 
+//
 /**\class data_default_record_trait data_default_record_trait.h FWCore/Framework/interface/data_default_record_trait.h
 
  Description: trait class that assigns a default EventSetup Record to a particular data type
@@ -46,20 +46,26 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      template< class T> struct MUST_GET_RECORD_FROM_EVENTSETUP_TO_GET_DATA;
-      
-      template<class DataT>
-         struct data_default_record_trait
-      {
-         //NOTE: by default, a data item does not have a default record
-         typedef MUST_GET_RECORD_FROM_EVENTSETUP_TO_GET_DATA<DataT> type;
-      };
-   }
+  namespace eventsetup {
+    template <class T>
+    struct MUST_GET_RECORD_FROM_EVENTSETUP_TO_GET_DATA;
+
+    template <class DataT>
+    struct data_default_record_trait {
+      // NOTE: by default, a data item does not have a default record
+      typedef MUST_GET_RECORD_FROM_EVENTSETUP_TO_GET_DATA<DataT> type;
+    };
+  }
 }
 
-
 #define EVENTSETUP_DATA_DEFAULT_RECORD(_data_, _record_) \
-namespace edm { namespace eventsetup { template<> struct data_default_record_trait<_data_>{ typedef _record_ type; }; } }
+  namespace edm {                                        \
+    namespace eventsetup {                               \
+      template <>                                        \
+      struct data_default_record_trait<_data_> {         \
+        typedef _record_ type;                           \
+      };                                                 \
+    }                                                    \
+  }
 
 #endif

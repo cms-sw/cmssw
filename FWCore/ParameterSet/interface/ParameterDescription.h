@@ -50,7 +50,8 @@ namespace edm {
     void writeValue(std::ostream& os, int indentation, long long const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<long long> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, unsigned long long const& value_, ValueFormat format);
-    void writeValue(std::ostream& os, int indentation, std::vector<unsigned long long> const& value_, ValueFormat format);
+    void writeValue(std::ostream& os, int indentation, std::vector<unsigned long long> const& value_,
+                    ValueFormat format);
     void writeValue(std::ostream& os, int indentation, double const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<double> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, bool const& value_, ValueFormat format);
@@ -59,9 +60,11 @@ namespace edm {
     void writeValue(std::ostream& os, int indentation, EventID const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<EventID> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, LuminosityBlockID const& value_, ValueFormat format);
-    void writeValue(std::ostream& os, int indentation, std::vector<LuminosityBlockID> const& value_, ValueFormat format);
+    void writeValue(std::ostream& os, int indentation, std::vector<LuminosityBlockID> const& value_,
+                    ValueFormat format);
     void writeValue(std::ostream& os, int indentation, LuminosityBlockRange const& value_, ValueFormat format);
-    void writeValue(std::ostream& os, int indentation, std::vector<LuminosityBlockRange> const& value_, ValueFormat format);
+    void writeValue(std::ostream& os, int indentation, std::vector<LuminosityBlockRange> const& value_,
+                    ValueFormat format);
     void writeValue(std::ostream& os, int indentation, EventRange const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<EventRange> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, InputTag const& value_, ValueFormat format);
@@ -94,88 +97,69 @@ namespace edm {
     bool hasNestedContent(FileInPath const& value);
   }
 
-  template<typename T>
+  template <typename T>
   class ParameterDescription : public ParameterDescriptionBase {
   public:
+    ParameterDescription(std::string const& iLabel, T const& value, bool isTracked, Comment const& iComment = Comment())
+        :  // WARNING: the toEnum function is intentionally undefined if the template
+          // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
+          // are handled by full template specializations below.  In the first case.
+          // ParameterSetDescription should be used instead of ParameterSet.
+          // In the second case the function arguments are completely different.
+          // Note that this template parameter is most often passed through from
+          // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
+          // use the addVPSet* versions of those functions.
+          ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true, iComment),
+          value_(value) {}
 
-    ParameterDescription(std::string const& iLabel,
-                         T const& value,
-                         bool isTracked,
-                         Comment const& iComment = Comment()) :
-      // WARNING: the toEnum function is intentionally undefined if the template
-      // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
-      // are handled by full template specializations below.  In the first case.
-      // ParameterSetDescription should be used instead of ParameterSet.
-      // In the second case the function arguments are completely different.
-      // Note that this template parameter is most often passed through from
-      // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
-      // use the addVPSet* versions of those functions.
-      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true, iComment),
-      value_(value) {
-    }
+    ParameterDescription(char const* iLabel, T const& value, bool isTracked, Comment const& iComment = Comment())
+        :  // WARNING: the toEnum function is intentionally undefined if the template
+          // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
+          // are handled by full template specializations below.  In the first case.
+          // ParameterSetDescription should be used instead of ParameterSet.
+          // In the second case the function arguments are completely different.
+          // Note that this template parameter is most often passed through from
+          // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
+          // use the addVPSet* versions of those functions.
+          ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true, iComment),
+          value_(value) {}
 
-    ParameterDescription(char const* iLabel,
-                         T const& value,
-                         bool isTracked,
-                         Comment const& iComment = Comment()) :
-      // WARNING: the toEnum function is intentionally undefined if the template
-      // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
-      // are handled by full template specializations below.  In the first case.
-      // ParameterSetDescription should be used instead of ParameterSet.
-      // In the second case the function arguments are completely different.
-      // Note that this template parameter is most often passed through from
-      // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
-      // use the addVPSet* versions of those functions.
-      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true, iComment),
-      value_(value) {
-    }
+    ParameterDescription(std::string const& iLabel, bool isTracked, Comment const& iComment = Comment())
+        :  // WARNING: the toEnum function is intentionally undefined if the template
+          // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
+          // are handled by full template specializations below.  In the first case.
+          // ParameterSetDescription should be used instead of ParameterSet.
+          // In the second case the function arguments are completely different.
+          // Note that this template parameter is most often passed through from
+          // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
+          // use the addVPSet* versions of those functions.
+          ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false, iComment),
+          value_() {}
 
-    ParameterDescription(std::string const& iLabel,
-                         bool isTracked,
-                         Comment const& iComment = Comment()) :
-      // WARNING: the toEnum function is intentionally undefined if the template
-      // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
-      // are handled by full template specializations below.  In the first case.
-      // ParameterSetDescription should be used instead of ParameterSet.
-      // In the second case the function arguments are completely different.
-      // Note that this template parameter is most often passed through from
-      // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
-      // use the addVPSet* versions of those functions.
-      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false, iComment),
-      value_() {
-    }
+    ParameterDescription(char const* iLabel, bool isTracked, Comment const& iComment = Comment())
+        :  // WARNING: the toEnum function is intentionally undefined if the template
+          // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
+          // are handled by full template specializations below.  In the first case.
+          // ParameterSetDescription should be used instead of ParameterSet.
+          // In the second case the function arguments are completely different.
+          // Note that this template parameter is most often passed through from
+          // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
+          // use the addVPSet* versions of those functions.
+          ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false, iComment),
+          value_() {}
 
-    ParameterDescription(char const* iLabel,
-                         bool isTracked,
-                         Comment const& iComment = Comment()) :
-      // WARNING: the toEnum function is intentionally undefined if the template
-      // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
-      // are handled by full template specializations below.  In the first case.
-      // ParameterSetDescription should be used instead of ParameterSet.
-      // In the second case the function arguments are completely different.
-      // Note that this template parameter is most often passed through from
-      // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
-      // use the addVPSet* versions of those functions.
-      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false, iComment),
-      value_() {
-    }
+    ~ParameterDescription() override {}
 
-    ~ParameterDescription() override { }
-
-    ParameterDescriptionNode* clone() const override {
-      return new ParameterDescription(*this);
-    }
+    ParameterDescriptionNode* clone() const override { return new ParameterDescription(*this); }
 
     T getDefaultValue() const { return value_; }
 
   private:
-
-    bool exists_(ParameterSet const& pset) const override {
-      return pset.existsAs<T>(label(), isTracked());
-    }
+    bool exists_(ParameterSet const& pset) const override { return pset.existsAs<T>(label(), isTracked()); }
 
     bool hasNestedContent_() const override {
-      if (!hasDefault()) return false;
+      if (!hasDefault())
+        return false;
       return writeParameterValue::hasNestedContent(value_);
     }
 
@@ -194,8 +178,7 @@ namespace edm {
     void insertDefault_(ParameterSet& pset) const override {
       if (isTracked()) {
         pset.addParameter(label(), value_);
-      }
-      else {
+      } else {
         pset.addUntrackedParameter(label(), value_);
       }
     }
@@ -203,45 +186,30 @@ namespace edm {
     T value_;
   };
 
-  template<>
+  template <>
   class ParameterDescription<ParameterSetDescription> : public ParameterDescriptionBase {
-
   public:
-
-    ParameterDescription(std::string const& iLabel,
-                         ParameterSetDescription const& value,
-                         bool isTracked,
+    ParameterDescription(std::string const& iLabel, ParameterSetDescription const& value, bool isTracked,
                          Comment const& iComment = Comment());
 
-    ParameterDescription(char const* iLabel,
-                         ParameterSetDescription const& value,
-                         bool isTracked,
+    ParameterDescription(char const* iLabel, ParameterSetDescription const& value, bool isTracked,
                          Comment const& iComment = Comment());
 
     ~ParameterDescription() override;
 
     ParameterSetDescription const* parameterSetDescription() const override;
-    ParameterSetDescription * parameterSetDescription() override;
+    ParameterSetDescription* parameterSetDescription() override;
 
-    ParameterDescriptionNode* clone() const override {
-      return new ParameterDescription(*this);
-    }
+    ParameterDescriptionNode* clone() const override { return new ParameterDescription(*this); }
 
   private:
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
 
-    void validate_(ParameterSet& pset,
-                   std::set<std::string>& validatedLabels,
-                   bool optional) const override;
-
-    void printDefault_(std::ostream& os,
-                       bool writeToCfi,
-                       DocFormatHelper& dfh) const override;
+    void printDefault_(std::ostream& os, bool writeToCfi, DocFormatHelper& dfh) const override;
 
     bool hasNestedContent_() const override;
 
-    void printNestedContent_(std::ostream& os,
-                             bool optional,
-                             DocFormatHelper& dfh) const override;
+    void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& dfh) const override;
 
     bool exists_(ParameterSet const& pset) const override;
 
@@ -256,59 +224,38 @@ namespace edm {
     value_ptr<ParameterSetDescription> psetDesc_;
   };
 
-  template<>
+  template <>
   class ParameterDescription<std::vector<ParameterSet> > : public ParameterDescriptionBase {
-
   public:
+    ParameterDescription(std::string const& iLabel, ParameterSetDescription const& psetDesc, bool isTracked,
+                         std::vector<ParameterSet> const& vPset, Comment const& iComment = Comment());
 
-    ParameterDescription(std::string const& iLabel,
-                         ParameterSetDescription const& psetDesc,
-                         bool isTracked,
-                         std::vector<ParameterSet> const& vPset,
+    ParameterDescription(char const* iLabel, ParameterSetDescription const& psetDesc, bool isTracked,
+                         std::vector<ParameterSet> const& vPset, Comment const& iComment = Comment());
+
+    ParameterDescription(std::string const& iLabel, ParameterSetDescription const& psetDesc, bool isTracked,
                          Comment const& iComment = Comment());
 
-    ParameterDescription(char const* iLabel,
-                         ParameterSetDescription const& psetDesc,
-                         bool isTracked,
-                         std::vector<ParameterSet> const& vPset,
-                         Comment const& iComment = Comment());
-
-    ParameterDescription(std::string const& iLabel,
-                         ParameterSetDescription const& psetDesc,
-                         bool isTracked,
-                         Comment const& iComment = Comment());
-
-    ParameterDescription(char const* iLabel,
-                         ParameterSetDescription const& psetDesc,
-                         bool isTracked,
+    ParameterDescription(char const* iLabel, ParameterSetDescription const& psetDesc, bool isTracked,
                          Comment const& iComment = Comment());
 
     ~ParameterDescription() override;
 
     ParameterSetDescription const* parameterSetDescription() const override;
-    ParameterSetDescription * parameterSetDescription() override;
+    ParameterSetDescription* parameterSetDescription() override;
 
-    ParameterDescriptionNode* clone() const override {
-      return new ParameterDescription(*this);
-    }
+    ParameterDescriptionNode* clone() const override { return new ParameterDescription(*this); }
 
     void setPartOfDefaultOfVPSet(bool value) { partOfDefaultOfVPSet_ = value; }
 
   private:
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
 
-    void validate_(ParameterSet& pset,
-                   std::set<std::string>& validatedLabels,
-                   bool optional) const override;
-
-    void printDefault_(std::ostream& os,
-                       bool writeToCfi,
-                       DocFormatHelper& dfh) const override;
+    void printDefault_(std::ostream& os, bool writeToCfi, DocFormatHelper& dfh) const override;
 
     bool hasNestedContent_() const override;
 
-    void printNestedContent_(std::ostream& os,
-                             bool optional,
-                             DocFormatHelper& dfh) const override;
+    void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& dfh) const override;
 
     bool exists_(ParameterSet const& pset) const override;
 
@@ -320,9 +267,7 @@ namespace edm {
 
     void insertDefault_(ParameterSet& pset) const override;
 
-    static void writeOneElementToCfi(ParameterSet const& pset,
-                                     std::ostream& os,
-                                     int indentation,
+    static void writeOneElementToCfi(ParameterSet const& pset, std::ostream& os, int indentation,
                                      bool& nextOneStartsWithAComma);
 
     value_ptr<ParameterSetDescription> psetDesc_;

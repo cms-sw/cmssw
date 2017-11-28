@@ -22,15 +22,8 @@
 namespace edm {
   class ConsumesInfo {
   public:
-
-    ConsumesInfo(TypeID const& iType,
-                 char const* iLabel,
-                 char const* iInstance,
-                 char const* iProcess,
-                 BranchType iBranchType,
-                 KindOfType iKindOfType,
-                 bool iAlwaysGets,
-                 bool iSkipCurrentProcess_);
+    ConsumesInfo(TypeID const& iType, char const* iLabel, char const* iInstance, char const* iProcess,
+                 BranchType iBranchType, KindOfType iKindOfType, bool iAlwaysGets, bool iSkipCurrentProcess_);
 
     TypeID const& type() const { return type_; }
     std::string const& label() const { return label_; }
@@ -52,7 +45,6 @@ namespace edm {
     //    from and it is possible for this to vary from event to event)
 
   private:
-
     TypeID type_;
     std::string label_;
     std::string instance_;

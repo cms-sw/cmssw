@@ -2,7 +2,7 @@
 //
 // Package:     PythonParameterSet
 // Class  :     initializeModule
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -16,24 +16,21 @@
 #include "FWCore/PythonParameterSet/src/initializeModule.h"
 #include "FWCore/PythonParameterSet/src/PythonModule.h"
 
-
 //
 // constants, enums and typedefs
 //
 static bool s_initialized = false;
 
 namespace edm {
-   namespace python {
-      void initializeModule() {
-         char *libFWCoreParameterSet = const_cast<char *>("libFWCorePythonParameterSet");
-         PyImport_AppendInittab(libFWCoreParameterSet, &initlibFWCorePythonParameterSet );
-         Py_Initialize();
-         if(!s_initialized)
-         {
-            PyImport_ImportModule(libFWCoreParameterSet);
-            s_initialized = true;
-         }
-         
+  namespace python {
+    void initializeModule() {
+      char *libFWCoreParameterSet = const_cast<char *>("libFWCorePythonParameterSet");
+      PyImport_AppendInittab(libFWCoreParameterSet, &initlibFWCorePythonParameterSet);
+      Py_Initialize();
+      if (!s_initialized) {
+        PyImport_ImportModule(libFWCoreParameterSet);
+        s_initialized = true;
       }
-   }
+    }
+  }
 }

@@ -11,86 +11,60 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
-namespace edmtest 
-{
-  class PathAnalyzer : public edm::EDAnalyzer
-  {
+namespace edmtest {
+  class PathAnalyzer : public edm::EDAnalyzer {
   public:
-
     explicit PathAnalyzer(edm::ParameterSet const&);
     virtual ~PathAnalyzer();
-    
+
     virtual void analyze(edm::Event const&, edm::EventSetup const&);
     virtual void beginJob();
     virtual void endJob();
 
   private:
     void dumpTriggerNamesServiceInfo(char const* where);
-  }; // class PathAnalyzer
+  };  // class PathAnalyzer
 
   //--------------------------------------------------------------------
   //
   // Implementation details
 
-  PathAnalyzer::PathAnalyzer(edm::ParameterSet const&) { }
+  PathAnalyzer::PathAnalyzer(edm::ParameterSet const&) {}
 
   PathAnalyzer::~PathAnalyzer() {}
 
-  void
-  PathAnalyzer::analyze(edm::Event const&, edm::EventSetup const&)
-  {
-    dumpTriggerNamesServiceInfo("analyze");
-  }
+  void PathAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) { dumpTriggerNamesServiceInfo("analyze"); }
 
-  void
-  PathAnalyzer::beginJob()
-  {
-    dumpTriggerNamesServiceInfo("beginJob");
-  }
+  void PathAnalyzer::beginJob() { dumpTriggerNamesServiceInfo("beginJob"); }
 
-  void
-  PathAnalyzer::endJob()
-  {
-    dumpTriggerNamesServiceInfo("endJob");
-  }
+  void PathAnalyzer::endJob() { dumpTriggerNamesServiceInfo("endJob"); }
 
-  void
-  PathAnalyzer::dumpTriggerNamesServiceInfo(char const* where)
-  {
-    typedef edm::Service<edm::service::TriggerNamesService>  TNS;
+  void PathAnalyzer::dumpTriggerNamesServiceInfo(char const* where) {
+    typedef edm::Service<edm::service::TriggerNamesService> TNS;
     typedef std::vector<std::string> stringvec;
 
     TNS tns;
     std::ostringstream message;
 
     stringvec const& trigpaths = tns->getTrigPaths();
-    message << "dumpTriggernamesServiceInfo called from PathAnalyzer::"
-	    << where << '\n';
+    message << "dumpTriggernamesServiceInfo called from PathAnalyzer::" << where << '\n';
     message << "trigger paths are: ";
 
     edm::copy_all(trigpaths, std::ostream_iterator<std::string>(message, " "));
     message << '\n';
 
-    for (stringvec::const_iterator i = trigpaths.begin(), e = trigpaths.end();
-	 i != e;
-	 ++i)
-      {
-	message << "path name: " << *i << " contains: ";
-	edm::copy_all(tns->getTrigPathModules(*i), std::ostream_iterator<std::string>(message, " "));
-	message << '\n';
-      }
+    for (stringvec::const_iterator i = trigpaths.begin(), e = trigpaths.end(); i != e; ++i) {
+      message << "path name: " << *i << " contains: ";
+      edm::copy_all(tns->getTrigPathModules(*i), std::ostream_iterator<std::string>(message, " "));
+      message << '\n';
+    }
 
-    message << "trigger ParameterSet:\n"
-	    << tns->getTriggerPSet()
-	    << '\n';
+    message << "trigger ParameterSet:\n" << tns->getTriggerPSet() << '\n';
 
-    edm::LogInfo("PathAnalyzer") << "TNS size: " << tns->size() 
-				 << "\n"
-				 << message.str()
-				 << std::endl;
+    edm::LogInfo("PathAnalyzer") << "TNS size: " << tns->size() << "\n" << message.str() << std::endl;
   }
 
-} // namespace edmtest
+}  // namespace edmtest
 
 using edmtest::PathAnalyzer;
 DEFINE_FWK_MODULE(PathAnalyzer);

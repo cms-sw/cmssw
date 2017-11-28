@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordProviderFactoryManager
-// 
-/**\class EventSetupRecordProviderFactoryManager EventSetupRecordProviderFactoryManager.h FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h
+//
+/**\class EventSetupRecordProviderFactoryManager EventSetupRecordProviderFactoryManager.h
+ FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h
 
  Description: <one line class summary>
 
@@ -26,15 +27,14 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      class EventSetupRecordProviderFactory;
-      class EventSetupRecordProvider;
-      
-class EventSetupRecordProviderFactoryManager
-{
-   friend class NonExistentClassToSuppressStupidCompilerWarning;
+  namespace eventsetup {
+    class EventSetupRecordProviderFactory;
+    class EventSetupRecordProvider;
 
-   public:
+    class EventSetupRecordProviderFactoryManager {
+      friend class NonExistentClassToSuppressStupidCompilerWarning;
+
+    public:
       virtual ~EventSetupRecordProviderFactoryManager();
 
       // ---------- const member functions ---------------------
@@ -42,21 +42,20 @@ class EventSetupRecordProviderFactoryManager
 
       // ---------- static member functions --------------------
       static EventSetupRecordProviderFactoryManager& instance();
-   
+
       // ---------- member functions ---------------------------
-      void addFactory(const EventSetupRecordProviderFactory&, 
-                       const EventSetupRecordKey&);
+      void addFactory(const EventSetupRecordProviderFactory&, const EventSetupRecordKey&);
 
-   private:
+    private:
       EventSetupRecordProviderFactoryManager();
-      EventSetupRecordProviderFactoryManager(const EventSetupRecordProviderFactoryManager&) = delete; // stop default
+      EventSetupRecordProviderFactoryManager(const EventSetupRecordProviderFactoryManager&) = delete;  // stop default
 
-      const EventSetupRecordProviderFactoryManager& operator=(const EventSetupRecordProviderFactoryManager&) = delete; // stop default
+      const EventSetupRecordProviderFactoryManager& operator=(const EventSetupRecordProviderFactoryManager&) =
+          delete;  // stop default
 
       // ---------- member data --------------------------------
       std::map<EventSetupRecordKey, const EventSetupRecordProviderFactory*> factories_;
-};
-
-   }
+    };
+  }
 }
 #endif

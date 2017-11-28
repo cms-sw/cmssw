@@ -11,33 +11,33 @@ IterWithDict:  An iterator for a TList so a range for loop can be used
 
 namespace edm {
 
-class IterWithDictBase {
-private:
-  TIter iter_;
-  bool atEnd_;
-protected:
-  void advance();
-  TIter const& iter() const;
-public:
-  IterWithDictBase();
-  explicit IterWithDictBase(TList*);
-  bool operator!=(IterWithDictBase const&) const;
-};
+  class IterWithDictBase {
+  private:
+    TIter iter_;
+    bool atEnd_;
 
-template<typename T>
-class IterWithDict : public IterWithDictBase {
-public:
-  IterWithDict() : IterWithDictBase() {}
-  explicit IterWithDict(TList* list) : IterWithDictBase(list) {}
-  IterWithDict<T>& operator++() {
-    advance();
-    return *this;
-  }
-  T* operator*() const {
-    return static_cast<T*>(*iter());
-  }
-};
+  protected:
+    void advance();
+    TIter const& iter() const;
 
-} // namespace edm
+  public:
+    IterWithDictBase();
+    explicit IterWithDictBase(TList*);
+    bool operator!=(IterWithDictBase const&) const;
+  };
 
-#endif // FWCore_Utilities_IterWithDict_h
+  template <typename T>
+  class IterWithDict : public IterWithDictBase {
+  public:
+    IterWithDict() : IterWithDictBase() {}
+    explicit IterWithDict(TList* list) : IterWithDictBase(list) {}
+    IterWithDict<T>& operator++() {
+      advance();
+      return *this;
+    }
+    T* operator*() const { return static_cast<T*>(*iter()); }
+  };
+
+}  // namespace edm
+
+#endif  // FWCore_Utilities_IterWithDict_h

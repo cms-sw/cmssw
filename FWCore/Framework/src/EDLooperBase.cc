@@ -2,7 +2,7 @@
 //
 // Package:     <package>
 // Module:      EDLooperBase
-// 
+//
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
 
@@ -28,21 +28,19 @@
 
 namespace edm {
 
-  EDLooperBase::EDLooperBase() : iCounter_(0), act_table_(nullptr), moduleChanger_(nullptr),
-                                 moduleDescription_("Looper", "looper"),
-                                 moduleCallingContext_(&moduleDescription_)
- { }
-  EDLooperBase::~EDLooperBase() noexcept(false) { }
+  EDLooperBase::EDLooperBase()
+      : iCounter_(0),
+        act_table_(nullptr),
+        moduleChanger_(nullptr),
+        moduleDescription_("Looper", "looper"),
+        moduleCallingContext_(&moduleDescription_) {}
+  EDLooperBase::~EDLooperBase() noexcept(false) {}
 
-  void
-  EDLooperBase::doStartingNewLoop() {
-    startingNewLoop(iCounter_);
-  }
+  void EDLooperBase::doStartingNewLoop() { startingNewLoop(iCounter_); }
 
-  EDLooperBase::Status
-  EDLooperBase::doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es,
-                             edm::ProcessingController& ioController, StreamContext* streamContext) {
-
+  EDLooperBase::Status EDLooperBase::doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es,
+                                                  edm::ProcessingController& ioController,
+                                                  StreamContext* streamContext) {
     streamContext->setTransition(StreamContext::Transition::kEvent);
     streamContext->setEventID(eventPrincipal.id());
     streamContext->setRunIndex(eventPrincipal.luminosityBlockPrincipal().runPrincipal().index());
@@ -55,118 +53,83 @@ namespace edm {
     Status status = kContinue;
     try {
       status = duringLoop(event, es, ioController);
-    }
-    catch(cms::Exception& e) {
+    } catch (cms::Exception& e) {
       e.addContext("Calling the 'duringLoop' method of a looper");
       exception_actions::ActionCodes action = (act_table_->find(e.category()));
       if (action != exception_actions::Rethrow) {
         edm::printCmsExceptionWarning("SkipEvent", e);
-      }
-      else {
+      } else {
         throw;
       }
     }
     return status;
   }
 
-  EDLooperBase::Status
-  EDLooperBase::doEndOfLoop(const edm::EventSetup& es) {
-    return endOfLoop(es, iCounter_);
-  }
+  EDLooperBase::Status EDLooperBase::doEndOfLoop(const edm::EventSetup& es) { return endOfLoop(es, iCounter_); }
 
-  void
-  EDLooperBase::prepareForNextLoop(eventsetup::EventSetupProvider* esp) {
+  void EDLooperBase::prepareForNextLoop(eventsetup::EventSetupProvider* esp) {
     ++iCounter_;
 
     std::set<edm::eventsetup::EventSetupRecordKey> const& keys = modifyingRecords();
     for_all(keys,
-      std::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords,
-                  esp, std::placeholders::_1));
+            std::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords, esp, std::placeholders::_1));
   }
 
-  void EDLooperBase::beginOfJob(const edm::EventSetup&) { beginOfJob();}
-  void EDLooperBase::beginOfJob() { }
+  void EDLooperBase::beginOfJob(const edm::EventSetup&) { beginOfJob(); }
+  void EDLooperBase::beginOfJob() {}
 
-  void EDLooperBase::endOfJob() { }
+  void EDLooperBase::endOfJob() {}
 
   void EDLooperBase::doBeginRun(RunPrincipal& iRP, EventSetup const& iES, ProcessContext* processContext) {
-        GlobalContext globalContext(GlobalContext::Transition::kBeginRun,
-                                    LuminosityBlockID(iRP.run(), 0),
-                                    iRP.index(),
-                                    LuminosityBlockIndex::invalidLuminosityBlockIndex(),
-                                    iRP.beginTime(),
-                                    processContext);
-        ParentContext parentContext(&globalContext);
-        ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-        Run run(iRP, moduleDescription_, &moduleCallingContext_);
-        beginRun(run,iES);
+    GlobalContext globalContext(GlobalContext::Transition::kBeginRun, LuminosityBlockID(iRP.run(), 0), iRP.index(),
+                                LuminosityBlockIndex::invalidLuminosityBlockIndex(), iRP.beginTime(), processContext);
+    ParentContext parentContext(&globalContext);
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+    Run run(iRP, moduleDescription_, &moduleCallingContext_);
+    beginRun(run, iES);
   }
 
-  void EDLooperBase::doEndRun(RunPrincipal& iRP, EventSetup const& iES, ProcessContext* processContext){
-        GlobalContext globalContext(GlobalContext::Transition::kEndRun,
-                                    LuminosityBlockID(iRP.run(), 0),
-                                    iRP.index(),
-                                    LuminosityBlockIndex::invalidLuminosityBlockIndex(),
-                                    iRP.endTime(),
-                                    processContext);
-        ParentContext parentContext(&globalContext);
-        ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-        Run run(iRP, moduleDescription_, &moduleCallingContext_);
-        endRun(run,iES);
+  void EDLooperBase::doEndRun(RunPrincipal& iRP, EventSetup const& iES, ProcessContext* processContext) {
+    GlobalContext globalContext(GlobalContext::Transition::kEndRun, LuminosityBlockID(iRP.run(), 0), iRP.index(),
+                                LuminosityBlockIndex::invalidLuminosityBlockIndex(), iRP.endTime(), processContext);
+    ParentContext parentContext(&globalContext);
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+    Run run(iRP, moduleDescription_, &moduleCallingContext_);
+    endRun(run, iES);
   }
-  void EDLooperBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES, ProcessContext* processContext){
-    GlobalContext globalContext(GlobalContext::Transition::kBeginLuminosityBlock,
-                                iLB.id(),
-                                iLB.runPrincipal().index(),
-                                iLB.index(),
-                                iLB.beginTime(),
-                                processContext);
+  void EDLooperBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES,
+                                            ProcessContext* processContext) {
+    GlobalContext globalContext(GlobalContext::Transition::kBeginLuminosityBlock, iLB.id(), iLB.runPrincipal().index(),
+                                iLB.index(), iLB.beginTime(), processContext);
     ParentContext parentContext(&globalContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_);
-    beginLuminosityBlock(luminosityBlock,iES);
+    beginLuminosityBlock(luminosityBlock, iES);
   }
-  void EDLooperBase::doEndLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES, ProcessContext* processContext){
-    GlobalContext globalContext(GlobalContext::Transition::kEndLuminosityBlock,
-                                iLB.id(),
-                                iLB.runPrincipal().index(),
-                                iLB.index(),
-                                iLB.beginTime(),
-                                processContext);
+  void EDLooperBase::doEndLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES,
+                                          ProcessContext* processContext) {
+    GlobalContext globalContext(GlobalContext::Transition::kEndLuminosityBlock, iLB.id(), iLB.runPrincipal().index(),
+                                iLB.index(), iLB.beginTime(), processContext);
     ParentContext parentContext(&globalContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_);
-    endLuminosityBlock(luminosityBlock,iES);
+    endLuminosityBlock(luminosityBlock, iES);
   }
 
-  void EDLooperBase::beginRun(Run const&, EventSetup const&){}
-  void EDLooperBase::endRun(Run const&, EventSetup const&){}
-  void EDLooperBase::beginLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
-  void EDLooperBase::endLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
+  void EDLooperBase::beginRun(Run const&, EventSetup const&) {}
+  void EDLooperBase::endRun(Run const&, EventSetup const&) {}
+  void EDLooperBase::beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
+  void EDLooperBase::endLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
 
-  void EDLooperBase::attachTo(ActivityRegistry&){}
-   
+  void EDLooperBase::attachTo(ActivityRegistry&) {}
 
-  std::set<eventsetup::EventSetupRecordKey> 
-  EDLooperBase::modifyingRecords() const
-  {
-    return std::set<eventsetup::EventSetupRecordKey> ();
-  }
-   
-  void 
-  EDLooperBase::copyInfo(const ScheduleInfo& iInfo){
-    scheduleInfo_ = std::make_unique<ScheduleInfo>(iInfo);
-  }
-  void 
-  EDLooperBase::setModuleChanger(ModuleChanger* iChanger) {
-    moduleChanger_ = iChanger;
+  std::set<eventsetup::EventSetupRecordKey> EDLooperBase::modifyingRecords() const {
+    return std::set<eventsetup::EventSetupRecordKey>();
   }
 
-  ModuleChanger* EDLooperBase::moduleChanger() {
-    return moduleChanger_;
-  }
-  const ScheduleInfo* EDLooperBase::scheduleInfo() const {
-    return scheduleInfo_.get();
-  }
-  
+  void EDLooperBase::copyInfo(const ScheduleInfo& iInfo) { scheduleInfo_ = std::make_unique<ScheduleInfo>(iInfo); }
+  void EDLooperBase::setModuleChanger(ModuleChanger* iChanger) { moduleChanger_ = iChanger; }
+
+  ModuleChanger* EDLooperBase::moduleChanger() { return moduleChanger_; }
+  const ScheduleInfo* EDLooperBase::scheduleInfo() const { return scheduleInfo_.get(); }
 }

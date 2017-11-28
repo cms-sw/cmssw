@@ -2,7 +2,7 @@
 //
 // Package:     test
 // Class  :     ValueExample
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,4 +16,4 @@
 #include "FWCore/Integration/test/ValueExample.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 using namespace edm::serviceregistry;
-DEFINE_FWK_SERVICE_MAKER(ValueExample,ParameterSetMaker<ValueExample>);
+DEFINE_FWK_SERVICE_MAKER(ValueExample, ParameterSetMaker<ValueExample>);

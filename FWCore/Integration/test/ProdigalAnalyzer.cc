@@ -7,17 +7,13 @@
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 namespace edmtest {
-  ProdigalAnalyzer::ProdigalAnalyzer(edm::ParameterSet const& )
-  {
-    consumes<Prodigal>(edm::InputTag{"maker"});
-  }
+  ProdigalAnalyzer::ProdigalAnalyzer(edm::ParameterSet const&) { consumes<Prodigal>(edm::InputTag{"maker"}); }
 
   void ProdigalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     edm::Handle<Prodigal> h;
     assert(e.getByLabel("maker", h));
     assert(h.provenance()->productProvenance()->parentage().parents().empty());
   }
-
 }
 using edmtest::ProdigalAnalyzer;
 DEFINE_FWK_MODULE(ProdigalAnalyzer);

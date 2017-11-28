@@ -4,7 +4,7 @@
 /*----------------------------------------------------------------------
 
 VectorInputSourceDescription : the stuff that is needed to configure
-a VectorinputSource that does not come in through the ParameterSet  
+a VectorinputSource that does not come in through the ParameterSet
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
@@ -16,13 +16,10 @@ namespace edm {
   class ProductRegistry;
 
   struct VectorInputSourceDescription {
-    VectorInputSourceDescription() :
-      productRegistry_(nullptr) {
-    }
+    VectorInputSourceDescription() : productRegistry_(nullptr) {}
 
-    VectorInputSourceDescription(std::shared_ptr<ProductRegistry> preg, PreallocationConfiguration const& allocations) :
-      productRegistry_(preg), allocations_(&allocations) {
-    }
+    VectorInputSourceDescription(std::shared_ptr<ProductRegistry> preg, PreallocationConfiguration const& allocations)
+        : productRegistry_(preg), allocations_(&allocations) {}
 
     std::shared_ptr<ProductRegistry> productRegistry_;
     PreallocationConfiguration const* allocations_;

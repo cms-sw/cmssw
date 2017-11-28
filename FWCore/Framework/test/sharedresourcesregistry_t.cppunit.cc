@@ -14,30 +14,28 @@
 
 using namespace edm;
 
-class testSharedResourcesRegistry: public CppUnit::TestFixture
-{
-   CPPUNIT_TEST_SUITE(testSharedResourcesRegistry);
-   
-   CPPUNIT_TEST(oneTest);
-   CPPUNIT_TEST(legacyTest);
-   CPPUNIT_TEST(multipleTest);
-  
-   CPPUNIT_TEST_SUITE_END();
+class testSharedResourcesRegistry : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testSharedResourcesRegistry);
+
+  CPPUNIT_TEST(oneTest);
+  CPPUNIT_TEST(legacyTest);
+  CPPUNIT_TEST(multipleTest);
+
+  CPPUNIT_TEST_SUITE_END();
+
 public:
-      void setUp(){}
-   void tearDown(){}
-   
-   void oneTest();
-   void legacyTest();
-   void multipleTest();
+  void setUp() {}
+  void tearDown() {}
+
+  void oneTest();
+  void legacyTest();
+  void multipleTest();
 };
 
-///registration of the test so that the runner can find it
+/// registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testSharedResourcesRegistry);
 
-
-void testSharedResourcesRegistry::oneTest()
-{
+void testSharedResourcesRegistry::oneTest() {
   edm::SharedResourcesRegistry reg;
 
   CPPUNIT_ASSERT(reg.resourceMap().size() == 0);
@@ -47,25 +45,24 @@ void testSharedResourcesRegistry::oneTest()
   reg.registerSharedResource("zoo");
 
   {
-    std::vector<std::string> res{"foo","bar","zoo"};
+    std::vector<std::string> res{"foo", "bar", "zoo"};
     auto tester = reg.createAcquirer(res);
-    
+
     CPPUNIT_ASSERT(1 == tester.numberOfResources());
   }
   {
     std::vector<std::string> res{"foo"};
     auto tester = reg.createAcquirer(res);
-    
+
     CPPUNIT_ASSERT(1 == tester.numberOfResources());
   }
 }
 
-void testSharedResourcesRegistry::legacyTest()
-{
+void testSharedResourcesRegistry::legacyTest() {
   std::vector<std::string> res{edm::SharedResourcesRegistry::kLegacyModuleResourceName};
   {
     edm::SharedResourcesRegistry reg;
-    
+
     reg.registerSharedResource(edm::SharedResourcesRegistry::kLegacyModuleResourceName);
     auto tester = reg.createAcquirer(res);
 
@@ -73,14 +70,13 @@ void testSharedResourcesRegistry::legacyTest()
   }
   {
     edm::SharedResourcesRegistry reg;
-    
+
     reg.registerSharedResource(edm::SharedResourcesRegistry::kLegacyModuleResourceName);
     reg.registerSharedResource(edm::SharedResourcesRegistry::kLegacyModuleResourceName);
 
     auto tester = reg.createAcquirer(res);
-    
+
     CPPUNIT_ASSERT(1 == tester.numberOfResources());
-    
   }
   {
     edm::SharedResourcesRegistry reg;
@@ -119,11 +115,10 @@ void testSharedResourcesRegistry::legacyTest()
   }
 }
 
-void testSharedResourcesRegistry::multipleTest()
-{
+void testSharedResourcesRegistry::multipleTest() {
   edm::SharedResourcesRegistry reg;
   auto const& resourceMap = reg.resourceMap();
-  
+
   reg.registerSharedResource("foo");
   reg.registerSharedResource("bar");
   reg.registerSharedResource("zoo");
@@ -140,22 +135,21 @@ void testSharedResourcesRegistry::multipleTest()
   CPPUNIT_ASSERT(resourceMap.size() == 3);
 
   {
-    std::vector<std::string> res{"foo","bar","zoo"};
+    std::vector<std::string> res{"foo", "bar", "zoo"};
     auto tester = reg.createAcquirer(res);
-    
+
     CPPUNIT_ASSERT(2 == tester.numberOfResources());
   }
   {
     std::vector<std::string> res{"foo"};
     auto tester = reg.createAcquirer(res);
-    
+
     CPPUNIT_ASSERT(1 == tester.numberOfResources());
   }
   {
     std::vector<std::string> res{"bar"};
     auto tester = reg.createAcquirer(res);
-    
+
     CPPUNIT_ASSERT(1 == tester.numberOfResources());
   }
-
 }

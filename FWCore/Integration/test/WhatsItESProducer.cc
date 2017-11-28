@@ -2,7 +2,7 @@
 //
 // Package:    WhatsItESProducer
 // Class:      WhatsItESProducer
-// 
+//
 /**\class WhatsItESProducer WhatsItESProducer.h test/WhatsItESProducer/interface/WhatsItESProducer.h
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
 //
 //
-
 
 // system include files
 #include <memory>
@@ -38,87 +37,79 @@
 //
 namespace edmtest {
 
-class WhatsItESProducer : public edm::ESProducer {
-   public:
-      WhatsItESProducer(edm::ParameterSet const& pset);
-      ~WhatsItESProducer();
+  class WhatsItESProducer : public edm::ESProducer {
+  public:
+    WhatsItESProducer(edm::ParameterSet const& pset);
+    ~WhatsItESProducer();
 
-      typedef std::unique_ptr<WhatsIt> ReturnType;
+    typedef std::unique_ptr<WhatsIt> ReturnType;
 
-      ReturnType produce(const GadgetRcd &);
+    ReturnType produce(const GadgetRcd&);
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      // ----------member data ---------------------------
-      std::string dataLabel_;
-};
+  private:
+    // ----------member data ---------------------------
+    std::string dataLabel_;
+  };
 
-//
-// constants, enums and typedefs
-//
+  //
+  // constants, enums and typedefs
+  //
 
-//
-// static data member definitions
-//
+  //
+  // static data member definitions
+  //
 
-//
-// constructors and destructor
-//
-WhatsItESProducer::WhatsItESProducer(edm::ParameterSet const& pset)
-: dataLabel_(pset.exists("doodadLabel")? pset.getParameter<std::string>("doodadLabel"):std::string(""))
-{
-  if (pset.getUntrackedParameter<bool>("test", true)) {
-     throw edm::Exception(edm::errors::Configuration, "Something is wrong with ESProducer validation\n")
-       << "Or the test configuration parameter was set true (it should never be true unless you want this exception)\n";
-   }
+  //
+  // constructors and destructor
+  //
+  WhatsItESProducer::WhatsItESProducer(edm::ParameterSet const& pset)
+      : dataLabel_(pset.exists("doodadLabel") ? pset.getParameter<std::string>("doodadLabel") : std::string("")) {
+    if (pset.getUntrackedParameter<bool>("test", true)) {
+      throw edm::Exception(edm::errors::Configuration, "Something is wrong with ESProducer validation\n")
+          << "Or the test configuration parameter was set true (it should never be true unless you want this "
+             "exception)\n";
+    }
 
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this);
+    // the following line is needed to tell the framework what
+    // data is being produced
+    setWhatProduced(this);
 
-   //now do what ever other initialization is needed
-}
+    // now do what ever other initialization is needed
+  }
 
+  WhatsItESProducer::~WhatsItESProducer() {
+    // do anything here that needs to be done at desctruction time
+    // (e.g. close files, deallocate resources etc.)
+  }
 
-WhatsItESProducer::~WhatsItESProducer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  //
+  // member functions
+  //
 
-}
+  // ------------ method called to produce the data  ------------
+  WhatsItESProducer::ReturnType WhatsItESProducer::produce(const GadgetRcd& iRecord) {
+    using namespace edmtest;
 
+    edm::ESHandle<Doodad> doodad;
+    iRecord.get(dataLabel_, doodad);
 
-//
-// member functions
-//
+    auto pWhatsIt = std::make_unique<WhatsIt>();
 
-// ------------ method called to produce the data  ------------
-WhatsItESProducer::ReturnType
-WhatsItESProducer::produce(const GadgetRcd& iRecord)
-{
-   using namespace edmtest;
+    pWhatsIt->a = doodad->a;
 
-   edm::ESHandle<Doodad> doodad;
-   iRecord.get(dataLabel_,doodad);
-   
-   auto pWhatsIt = std::make_unique<WhatsIt>() ;
+    return pWhatsIt;
+  }
 
-   pWhatsIt->a = doodad->a;
-
-   return pWhatsIt ;
-}
-
-void
-WhatsItESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.addOptional<std::string>("doodadLabel");
-  desc.addUntracked<bool>("test", false)->
-    setComment("This parameter exists only to test the parameter set validation for ESSources"); 
-  descriptions.add("WhatsItESProducer", desc);
-}
+  void WhatsItESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.addOptional<std::string>("doodadLabel");
+    desc.addUntracked<bool>("test", false)
+        ->setComment("This parameter exists only to test the parameter set validation for ESSources");
+    descriptions.add("WhatsItESProducer", desc);
+  }
 }
 using namespace edmtest;
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(WhatsItESProducer);

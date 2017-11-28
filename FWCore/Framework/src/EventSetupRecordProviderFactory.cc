@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordProviderFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,53 +16,52 @@
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactory.h"
 
 namespace edm {
-   namespace eventsetup {
-//
-// constants, enums and typedefs
-//
+  namespace eventsetup {
+    //
+    // constants, enums and typedefs
+    //
 
-//
-// static data member definitions
-//
+    //
+    // static data member definitions
+    //
 
-//
-// constructors and destructor
-//
-//EventSetupRecordProviderFactory::EventSetupRecordProviderFactory()
-//{
-//}
+    //
+    // constructors and destructor
+    //
+    // EventSetupRecordProviderFactory::EventSetupRecordProviderFactory()
+    //{
+    //}
 
-// EventSetupRecordProviderFactory::EventSetupRecordProviderFactory(const EventSetupRecordProviderFactory& rhs)
-// {
-//    // do actual copying here;
-// }
+    // EventSetupRecordProviderFactory::EventSetupRecordProviderFactory(const EventSetupRecordProviderFactory& rhs)
+    // {
+    //    // do actual copying here;
+    // }
 
-EventSetupRecordProviderFactory::~EventSetupRecordProviderFactory()
-{
-}
+    EventSetupRecordProviderFactory::~EventSetupRecordProviderFactory() {}
 
-//
-// assignment operators
-//
-// const EventSetupRecordProviderFactory& EventSetupRecordProviderFactory::operator=(const EventSetupRecordProviderFactory& rhs)
-// {
-//   //An exception safe implementation is
-//   EventSetupRecordProviderFactory temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+    //
+    // assignment operators
+    //
+    // const EventSetupRecordProviderFactory& EventSetupRecordProviderFactory::operator=(const
+    // EventSetupRecordProviderFactory& rhs)
+    // {
+    //   //An exception safe implementation is
+    //   EventSetupRecordProviderFactory temp(rhs);
+    //   swap(rhs);
+    //
+    //   return *this;
+    // }
 
-//
-// member functions
-//
+    //
+    // member functions
+    //
 
-//
-// const member functions
-//
+    //
+    // const member functions
+    //
 
-//
-// static member functions
-//
-   }
+    //
+    // static member functions
+    //
+  }
 }

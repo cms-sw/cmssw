@@ -2,7 +2,7 @@
 //
 // Package:     test
 // Class  :     DummyService
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -26,24 +26,20 @@ using namespace testserviceregistry;
 // static data member definitions
 //
 
-void
-DummyService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+void DummyService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
 
-    edm::ParameterSetDescription desc;
+  desc.add<int>("value");
 
-    desc.add<int>("value");
-
-    descriptions.addDefault(desc);
+  descriptions.addDefault(desc);
 }
 
 //
 // constructors and destructor
 //
-DummyService::DummyService(const edm::ParameterSet& iPSet,edm::ActivityRegistry&iAR):
-value_(iPSet.getParameter<int>("value")),
-beginJobCalled_(false)
-{
-   iAR.watchPostBeginJob(this,&DummyService::doOnBeginJob);
+DummyService::DummyService(const edm::ParameterSet& iPSet, edm::ActivityRegistry& iAR)
+    : value_(iPSet.getParameter<int>("value")), beginJobCalled_(false) {
+  iAR.watchPostBeginJob(this, &DummyService::doOnBeginJob);
 }
 
 // DummyService::DummyService(const DummyService& rhs)
@@ -51,9 +47,7 @@ beginJobCalled_(false)
 //    // do actual copying here;
 // }
 
-DummyService::~DummyService()
-{
-}
+DummyService::~DummyService() {}
 
 //
 // assignment operators

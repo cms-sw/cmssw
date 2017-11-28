@@ -8,13 +8,7 @@
 
 namespace edm {
   namespace exception_actions {
-    enum ActionCodes {
-      IgnoreCompletely=0,
-      Rethrow,
-      SkipEvent,
-      FailPath,
-      LastCode
-    };
+    enum ActionCodes { IgnoreCompletely = 0, Rethrow, SkipEvent, FailPath, LastCode };
 
     const char* actionName(ActionCodes code);
   }

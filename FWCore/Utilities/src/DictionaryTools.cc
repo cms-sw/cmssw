@@ -64,10 +64,7 @@ to have dictionaries.
 
 namespace edm {
 
-  bool
-  checkDictionary(std::vector<std::string>& missingDictionaries,
-                  TypeID const& typeID) {
-
+  bool checkDictionary(std::vector<std::string>& missingDictionaries, TypeID const& typeID) {
     TClass::GetClass(typeID.typeInfo());
     if (!hasDictionary(typeID.typeInfo())) {
       // a second attempt to load
@@ -80,24 +77,20 @@ namespace edm {
     return true;
   }
 
-  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
-                                    TypeID const& unwrappedTypeID) {
+  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries, TypeID const& unwrappedTypeID) {
     std::string wrappedName = wrappedClassName(unwrappedTypeID.className());
     TypeWithDict wrappedTypeWithDict = TypeWithDict::byName(wrappedName);
     return checkDictionary(missingDictionaries, wrappedName, wrappedTypeWithDict);
   }
 
-  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
-                                    std::string const& unwrappedName) {
+  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries, std::string const& unwrappedName) {
     std::string wrappedName = wrappedClassName(unwrappedName);
     TypeWithDict wrappedTypeWithDict = TypeWithDict::byName(wrappedName);
     return checkDictionary(missingDictionaries, wrappedName, wrappedTypeWithDict);
   }
 
-  bool
-  checkDictionary(std::vector<std::string>& missingDictionaries,
-                  std::string const& name,
-                  TypeWithDict const& typeWithDict) {
+  bool checkDictionary(std::vector<std::string>& missingDictionaries, std::string const& name,
+                       TypeWithDict const& typeWithDict) {
     if (!bool(typeWithDict) || typeWithDict.invalidTypeInfo()) {
       missingDictionaries.emplace_back(name);
       return false;
@@ -105,10 +98,7 @@ namespace edm {
     return true;
   }
 
-  bool
-  checkClassDictionaries(std::vector<std::string>& missingDictionaries,
-                         TypeID const& typeID) {
-
+  bool checkClassDictionaries(std::vector<std::string>& missingDictionaries, TypeID const& typeID) {
     // For a class type with a dictionary the TClass* will be
     // non-null and hasDictionary will return true.
     // For a type like "int", the TClass* pointer will be a
@@ -137,7 +127,7 @@ namespace edm {
     bool recursive = true;
     tClass->GetMissingDictionaries(hashTable, recursive);
 
-    for(auto const& item : hashTable) {
+    for (auto const& item : hashTable) {
       TClass const* cl = static_cast<TClass const*>(item);
       missingDictionaries.emplace_back(cl->GetName());
       result = false;
@@ -145,16 +135,14 @@ namespace edm {
     return result;
   }
 
-  bool
-  checkClassDictionaries(std::vector<std::string>& missingDictionaries,
-                         std::string const& name,
-                         TypeWithDict const& typeWithDict) {
+  bool checkClassDictionaries(std::vector<std::string>& missingDictionaries, std::string const& name,
+                              TypeWithDict const& typeWithDict) {
     if (!bool(typeWithDict) || typeWithDict.invalidTypeInfo()) {
       missingDictionaries.emplace_back(name);
       return false;
     }
 
-    TClass *tClass = typeWithDict.getClass();
+    TClass* tClass = typeWithDict.getClass();
     if (tClass == nullptr) {
       missingDictionaries.emplace_back(name);
       return false;
@@ -166,7 +154,7 @@ namespace edm {
 
     bool result = true;
 
-    for(auto const& item : hashTable) {
+    for (auto const& item : hashTable) {
       TClass const* cl = static_cast<TClass const*>(item);
       missingDictionaries.emplace_back(cl->GetName());
       result = false;
@@ -174,15 +162,14 @@ namespace edm {
     return result;
   }
 
-  void addToMissingDictionariesException(edm::Exception& exception,
-                                         std::vector<std::string>& missingDictionaries,
+  void addToMissingDictionariesException(edm::Exception& exception, std::vector<std::string>& missingDictionaries,
                                          std::string const& context) {
-
     std::sort(missingDictionaries.begin(), missingDictionaries.end());
-    missingDictionaries.erase(std::unique(missingDictionaries.begin(), missingDictionaries.end()), missingDictionaries.end());
+    missingDictionaries.erase(std::unique(missingDictionaries.begin(), missingDictionaries.end()),
+                              missingDictionaries.end());
 
     std::ostringstream ostr;
-    for(auto const& item : missingDictionaries) {
+    for (auto const& item : missingDictionaries) {
       ostr << "  " << item << "\n";
     }
     exception << "No data dictionary found for the following classes:\n\n"
@@ -200,16 +187,13 @@ namespace edm {
     }
   }
 
-  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
-                                         std::string const& context) {
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries, std::string const& context) {
     std::vector<std::string> empty;
     throwMissingDictionariesException(missingDictionaries, context, empty);
   }
 
-  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
-                                         std::string const& context,
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries, std::string const& context,
                                          std::vector<std::string>& producedTypes) {
-
     edm::Exception exception(errors::DictionaryNotFound);
     addToMissingDictionariesException(exception, missingDictionaries, context);
 
@@ -218,7 +202,7 @@ namespace edm {
       producedTypes.erase(std::unique(producedTypes.begin(), producedTypes.end()), producedTypes.end());
 
       std::ostringstream ostr;
-      for(auto const& item : producedTypes) {
+      for (auto const& item : producedTypes) {
         ostr << "  " << item << "\n";
       }
       exception << "\nA type listed above might or might not be the same as a\n"
@@ -233,14 +217,9 @@ namespace edm {
     throw exception;
   }
 
-
-  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
-                                         std::string const& context,
-                                         std::vector<std::string>& producedTypes,
-                                         std::vector<std::string>& branchNames,
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries, std::string const& context,
+                                         std::vector<std::string>& producedTypes, std::vector<std::string>& branchNames,
                                          bool fromStreamerSource) {
-
-
     edm::Exception exception(errors::DictionaryNotFound);
     addToMissingDictionariesException(exception, missingDictionaries, context);
 
@@ -249,7 +228,7 @@ namespace edm {
       producedTypes.erase(std::unique(producedTypes.begin(), producedTypes.end()), producedTypes.end());
 
       std::ostringstream ostr;
-      for(auto const& item : producedTypes) {
+      for (auto const& item : producedTypes) {
         ostr << "  " << item << "\n";
       }
       if (fromStreamerSource) {
@@ -272,41 +251,35 @@ namespace edm {
     }
 
     if (!branchNames.empty()) {
-
       std::sort(branchNames.begin(), branchNames.end());
       branchNames.erase(std::unique(branchNames.begin(), branchNames.end()), branchNames.end());
 
       std::ostringstream ostr;
-      for(auto const& item : branchNames) {
+      for (auto const& item : branchNames) {
         ostr << "  " << item << "\n";
       }
       if (fromStreamerSource) {
-        exception  << "Missing dictionaries are associated with these branch names:\n\n"
-                   << ostr.str() << "\n";
+        exception << "Missing dictionaries are associated with these branch names:\n\n" << ostr.str() << "\n";
       } else {
-        exception  << "Missing dictionaries are associated with these branch names:\n\n"
-                   << ostr.str() << "\n"
-                   << "If you do not need these branches and they are not produced\n"
-                   << "in the current process, an alternate solution to adding\n"
-                   << "dictionaries is to drop these branches on input using the\n"
-                   << "inputCommands parameter of the PoolSource.";
+        exception << "Missing dictionaries are associated with these branch names:\n\n"
+                  << ostr.str() << "\n"
+                  << "If you do not need these branches and they are not produced\n"
+                  << "in the current process, an alternate solution to adding\n"
+                  << "dictionaries is to drop these branches on input using the\n"
+                  << "inputCommands parameter of the PoolSource.";
       }
     }
     throw exception;
   }
 
-  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
-                                         std::string const& context,
-                                         std::set<std::string>& producedTypes,
-                                         bool consumedWithView) {
-
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries, std::string const& context,
+                                         std::set<std::string>& producedTypes, bool consumedWithView) {
     edm::Exception exception(errors::DictionaryNotFound);
     addToMissingDictionariesException(exception, missingDictionaries, context);
 
     if (!producedTypes.empty()) {
-
       std::ostringstream ostr;
-      for(auto const& item : producedTypes) {
+      for (auto const& item : producedTypes) {
         ostr << "  " << item << "\n";
       }
       if (consumedWithView) {
@@ -335,12 +308,8 @@ namespace edm {
     throw exception;
   }
 
-
-  bool
-  public_base_classes(std::vector<std::string>& missingDictionaries,
-                      TypeID const& typeID,
-                      std::vector<TypeWithDict>& baseTypes) {
-
+  bool public_base_classes(std::vector<std::string>& missingDictionaries, TypeID const& typeID,
+                           std::vector<TypeWithDict>& baseTypes) {
     if (!checkDictionary(missingDictionaries, typeID)) {
       return false;
     }
@@ -377,7 +346,7 @@ namespace edm {
       // After some more testing we may decide to uncomment the following
       // exception.
       //
-      //else {
+      // else {
       //  throw Exception(errors::UnimplementedFeature)
       //    << "DataFormats/Common/src/DictionaryTools.cc in function public_base_classes.\n"
       //    << "Encountered class that has a public base class that appears\n"
@@ -396,4 +365,4 @@ namespace edm {
     return returnValue;
   }
 
-} // namespace edm
+}  // namespace edm

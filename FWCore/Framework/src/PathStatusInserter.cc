@@ -5,23 +5,16 @@
 
 #include <memory>
 
-namespace edm
-{
-  PathStatusInserter::PathStatusInserter(unsigned int numberOfStreams) :
-    hltPathStatus_(numberOfStreams)
-  {
+namespace edm {
+  PathStatusInserter::PathStatusInserter(unsigned int numberOfStreams) : hltPathStatus_(numberOfStreams) {
     produces<HLTPathStatus>();
   }
 
-  void
-  PathStatusInserter::setPathStatus(StreamID const& streamID,
-                                    HLTPathStatus const& hltPathStatus) {
+  void PathStatusInserter::setPathStatus(StreamID const& streamID, HLTPathStatus const& hltPathStatus) {
     hltPathStatus_[streamID.value()] = hltPathStatus;
   }
 
-  void
-  PathStatusInserter::produce(StreamID streamID, edm::Event& event, edm::EventSetup const&) const
-  {
+  void PathStatusInserter::produce(StreamID streamID, edm::Event& event, edm::EventSetup const&) const {
     event.put(std::make_unique<HLTPathStatus>(hltPathStatus_[streamID.value()]));
   }
 }

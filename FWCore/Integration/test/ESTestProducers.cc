@@ -5,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-#include<memory>
+#include <memory>
 
 namespace edmtest {
 
@@ -13,13 +13,12 @@ namespace edmtest {
   public:
     ESTestProducerA(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataA> produce(ESTestRecordA const&);
+
   private:
     std::shared_ptr<ESTestDataA> data_;
   };
 
-  ESTestProducerA::ESTestProducerA(edm::ParameterSet const&) : data_(new ESTestDataA(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerA::ESTestProducerA(edm::ParameterSet const&) : data_(new ESTestDataA(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataA> ESTestProducerA::produce(ESTestRecordA const& rec) {
     ++data_->value();
@@ -32,13 +31,12 @@ namespace edmtest {
   public:
     ESTestProducerB(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataB> produce(ESTestRecordB const&);
+
   private:
     std::shared_ptr<ESTestDataB> data_;
   };
 
-  ESTestProducerB::ESTestProducerB(edm::ParameterSet const&) : data_(new ESTestDataB(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerB::ESTestProducerB(edm::ParameterSet const&) : data_(new ESTestDataB(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataB> ESTestProducerB::produce(ESTestRecordB const& rec) {
     ++data_->value();
@@ -51,13 +49,12 @@ namespace edmtest {
   public:
     ESTestProducerC(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataC> produce(ESTestRecordC const&);
+
   private:
     std::shared_ptr<ESTestDataC> data_;
   };
 
-  ESTestProducerC::ESTestProducerC(edm::ParameterSet const&) : data_(new ESTestDataC(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerC::ESTestProducerC(edm::ParameterSet const&) : data_(new ESTestDataC(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataC> ESTestProducerC::produce(ESTestRecordC const& rec) {
     ++data_->value();
@@ -70,13 +67,12 @@ namespace edmtest {
   public:
     ESTestProducerD(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataD> produce(ESTestRecordD const&);
+
   private:
     std::shared_ptr<ESTestDataD> data_;
   };
 
-  ESTestProducerD::ESTestProducerD(edm::ParameterSet const&) : data_(new ESTestDataD(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerD::ESTestProducerD(edm::ParameterSet const&) : data_(new ESTestDataD(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataD> ESTestProducerD::produce(ESTestRecordD const& rec) {
     ++data_->value();
@@ -89,13 +85,12 @@ namespace edmtest {
   public:
     ESTestProducerE(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataE> produce(ESTestRecordE const&);
+
   private:
     std::shared_ptr<ESTestDataE> data_;
   };
 
-  ESTestProducerE::ESTestProducerE(edm::ParameterSet const&) : data_(new ESTestDataE(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerE::ESTestProducerE(edm::ParameterSet const&) : data_(new ESTestDataE(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataE> ESTestProducerE::produce(ESTestRecordE const& rec) {
     ++data_->value();
@@ -108,13 +103,12 @@ namespace edmtest {
   public:
     ESTestProducerF(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataF> produce(ESTestRecordF const&);
+
   private:
     std::shared_ptr<ESTestDataF> data_;
   };
 
-  ESTestProducerF::ESTestProducerF(edm::ParameterSet const&) : data_(new ESTestDataF(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerF::ESTestProducerF(edm::ParameterSet const&) : data_(new ESTestDataF(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataF> ESTestProducerF::produce(ESTestRecordF const& rec) {
     ++data_->value();
@@ -127,13 +121,12 @@ namespace edmtest {
   public:
     ESTestProducerG(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataG> produce(ESTestRecordG const&);
+
   private:
     std::shared_ptr<ESTestDataG> data_;
   };
 
-  ESTestProducerG::ESTestProducerG(edm::ParameterSet const&) : data_(new ESTestDataG(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerG::ESTestProducerG(edm::ParameterSet const&) : data_(new ESTestDataG(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataG> ESTestProducerG::produce(ESTestRecordG const& rec) {
     ++data_->value();
@@ -146,13 +139,12 @@ namespace edmtest {
   public:
     ESTestProducerH(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataH> produce(ESTestRecordH const&);
+
   private:
     std::shared_ptr<ESTestDataH> data_;
   };
 
-  ESTestProducerH::ESTestProducerH(edm::ParameterSet const&) : data_(new ESTestDataH(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerH::ESTestProducerH(edm::ParameterSet const&) : data_(new ESTestDataH(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataH> ESTestProducerH::produce(ESTestRecordH const& rec) {
     ++data_->value();
@@ -165,13 +157,12 @@ namespace edmtest {
   public:
     ESTestProducerI(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataI> produce(ESTestRecordI const&);
+
   private:
     std::shared_ptr<ESTestDataI> data_;
   };
 
-  ESTestProducerI::ESTestProducerI(edm::ParameterSet const&) : data_(new ESTestDataI(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerI::ESTestProducerI(edm::ParameterSet const&) : data_(new ESTestDataI(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataI> ESTestProducerI::produce(ESTestRecordI const& rec) {
     ++data_->value();
@@ -184,13 +175,12 @@ namespace edmtest {
   public:
     ESTestProducerJ(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataJ> produce(ESTestRecordJ const&);
+
   private:
     std::shared_ptr<ESTestDataJ> data_;
   };
 
-  ESTestProducerJ::ESTestProducerJ(edm::ParameterSet const&) : data_(new ESTestDataJ(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerJ::ESTestProducerJ(edm::ParameterSet const&) : data_(new ESTestDataJ(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataJ> ESTestProducerJ::produce(ESTestRecordJ const& rec) {
     ++data_->value();
@@ -203,13 +193,12 @@ namespace edmtest {
   public:
     ESTestProducerK(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataK> produce(ESTestRecordK const&);
+
   private:
     std::shared_ptr<ESTestDataK> data_;
   };
 
-  ESTestProducerK::ESTestProducerK(edm::ParameterSet const&) : data_(new ESTestDataK(0)) {
-    setWhatProduced(this);
-  }
+  ESTestProducerK::ESTestProducerK(edm::ParameterSet const&) : data_(new ESTestDataK(0)) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataK> ESTestProducerK::produce(ESTestRecordK const& rec) {
     ++data_->value();
@@ -223,14 +212,14 @@ namespace edmtest {
     ESTestProducerAZ(edm::ParameterSet const&);
     std::shared_ptr<ESTestDataA> produceA(ESTestRecordA const&);
     std::shared_ptr<ESTestDataZ> produceZ(ESTestRecordZ const&);
+
   private:
     std::shared_ptr<ESTestDataA> dataA_;
     std::shared_ptr<ESTestDataZ> dataZ_;
   };
 
-  ESTestProducerAZ::ESTestProducerAZ(edm::ParameterSet const&) :
-    dataA_(new ESTestDataA(0)),
-    dataZ_(new ESTestDataZ(0)) {
+  ESTestProducerAZ::ESTestProducerAZ(edm::ParameterSet const&)
+      : dataA_(new ESTestDataA(0)), dataZ_(new ESTestDataZ(0)) {
     setWhatProduced(this, &edmtest::ESTestProducerAZ::produceA, edm::es::Label("foo"));
     setWhatProduced(this, &edmtest::ESTestProducerAZ::produceZ, edm::es::Label("foo"));
   }
@@ -244,7 +233,6 @@ namespace edmtest {
     ++dataZ_->value();
     return dataZ_;
   }
-
 }
 
 using namespace edmtest;

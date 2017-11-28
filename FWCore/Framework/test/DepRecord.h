@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     DepRecord
-// 
+//
 /**\class DepRecord DepRecord.h FWCore/Framework/test/DepRecord.h
 
  Description: A test Record that is dependent on DummyRecord
@@ -27,9 +27,6 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "FWCore/Framework/test/DummyRecord.h"
 
-class DepRecord 
-: public edm::eventsetup::DependentRecordImplementation<DepRecord, boost::mpl::vector<DummyRecord> >
-{
-};
+class DepRecord : public edm::eventsetup::DependentRecordImplementation<DepRecord, boost::mpl::vector<DummyRecord> > {};
 
 #endif

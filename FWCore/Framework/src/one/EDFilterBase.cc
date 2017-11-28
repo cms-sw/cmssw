@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     one::EDFilterBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -24,7 +24,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -35,73 +34,56 @@ namespace edm {
     //
     // static data member definitions
     //
-    
+
     //
     // constructors and destructor
     //
-    EDFilterBase::EDFilterBase():
-    ProducerBase(),
-    moduleDescription_(),
-    previousParentage_(),
-    previousParentageId_() { }
-    
-    EDFilterBase::~EDFilterBase()
-    {
-    }
-    
-    bool
-    EDFilterBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
-                          ActivityRegistry* act,
-                          ModuleCallingContext const* mcc) {
+    EDFilterBase::EDFilterBase() : ProducerBase(), moduleDescription_(), previousParentage_(), previousParentageId_() {}
+
+    EDFilterBase::~EDFilterBase() {}
+
+    bool EDFilterBase::doEvent(EventPrincipal const& ep, EventSetup const& c, ActivityRegistry* act,
+                               ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
-      e.setProducer(this,&previousParentage_);
-      bool returnValue =true;
+      e.setProducer(this, &previousParentage_);
+      bool returnValue = true;
       e.setSharedResourcesAcquirer(&resourcesAcquirer_);
-      EventSignalsSentry sentry(act,mcc);
+      EventSignalsSentry sentry(act, mcc);
       returnValue = this->filter(e, c);
       commit_(e, &previousParentageId_);
       return returnValue;
     }
-    
+
     SharedResourcesAcquirer EDFilterBase::createAcquirer() {
       return SharedResourcesAcquirer{
-        std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
+          std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
 
-    void
-    EDFilterBase::doBeginJob() {
+    void EDFilterBase::doBeginJob() {
       resourcesAcquirer_ = createAcquirer();
 
       this->beginJob();
     }
-    
-    void
-    EDFilterBase::doEndJob() {
-      this->endJob();
-    }
-    
-    void
-    EDFilterBase::doPreallocate(PreallocationConfiguration const&iPrealloc) {
+
+    void EDFilterBase::doEndJob() { this->endJob(); }
+
+    void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nThreads = iPrealloc.numberOfThreads();
       preallocThreads(nThreads);
     }
 
-    void
-    EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
-                             ModuleCallingContext const* mcc) {
+    void EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
       r.setProducer(this);
-      this->doBeginRunProduce_(r,c);
+      this->doBeginRunProduce_(r, c);
       commit_(r);
     }
-    
-    void
-    EDFilterBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
-                           ModuleCallingContext const* mcc) {
+
+    void EDFilterBase::doEndRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
       Run const& cnstR = r;
@@ -110,10 +92,9 @@ namespace edm {
       this->doEndRunProduce_(r, c);
       commit_(r);
     }
-    
-    void
-    EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                                         ModuleCallingContext const* mcc) {
+
+    void EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+                                              ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
@@ -122,10 +103,9 @@ namespace edm {
       this->doBeginLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }
-    
-    void
-    EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                                       ModuleCallingContext const* mcc) {
+
+    void EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+                                            ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
@@ -134,17 +114,15 @@ namespace edm {
       this->doEndLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }
-    
-    void
-    EDFilterBase::doRespondToOpenInputFile(FileBlock const& fb) {
-      //respondToOpenInputFile(fb);
+
+    void EDFilterBase::doRespondToOpenInputFile(FileBlock const& fb) {
+      // respondToOpenInputFile(fb);
     }
-    
-    void
-    EDFilterBase::doRespondToCloseInputFile(FileBlock const& fb) {
-      //respondToCloseInputFile(fb);
+
+    void EDFilterBase::doRespondToCloseInputFile(FileBlock const& fb) {
+      // respondToCloseInputFile(fb);
     }
-    
+
     void EDFilterBase::doBeginRun_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doEndRun_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c) {}
@@ -154,25 +132,17 @@ namespace edm {
     void EDFilterBase::doEndRunProduce_(Run& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
     void EDFilterBase::doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
-    
-    void
-    EDFilterBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
+
+    void EDFilterBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
       desc.setUnknown();
       descriptions.addDefault(desc);
     }
-    
-    void
-    EDFilterBase::prevalidate(ConfigurationDescriptions& iConfig) {
-      edmodule_mightGet_config(iConfig);
-    }
-    
-    static const std::string kBaseType("EDFilter");
-    
-    const std::string&
-    EDFilterBase::baseType() {
-      return kBaseType;
-    }
 
+    void EDFilterBase::prevalidate(ConfigurationDescriptions& iConfig) { edmodule_mightGet_config(iConfig); }
+
+    static const std::string kBaseType("EDFilter");
+
+    const std::string& EDFilterBase::baseType() { return kBaseType; }
   }
 }

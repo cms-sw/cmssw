@@ -3,7 +3,7 @@
 
 /**
 ExceptionCollector is a utility class that can be used to make sure that
-each function or functor in a sequence of calls is invoked even if 
+each function or functor in a sequence of calls is invoked even if
 a previous function throws.  Each function/functor must take no arguments
 and return a void.  std::bind can be used to convert a function
 taking arguments into a function taking no arguments.

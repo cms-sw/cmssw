@@ -4,13 +4,13 @@
 //
 // Package:     Concurrency
 // Class  :     FunctorTask
-// 
+//
 /**\class FunctorTask FunctorTask.h FWCore/Concurrency/interface/FunctorTask.h
 
  Description: Builds a tbb::task from a lambda.
 
  Usage:
- 
+
 */
 //
 // Original Author:  Chris Jones
@@ -29,22 +29,22 @@
 // forward declarations
 
 namespace edm {
-  template<typename F>
+  template <typename F>
   class FunctorTask : public tbb::task {
   public:
-    explicit FunctorTask( F f): func_(f) {}
-    
+    explicit FunctorTask(F f) : func_(f) {}
+
     task* execute() override {
       func_();
       return nullptr;
     };
-    
+
   private:
     F func_;
   };
-  
-  template< typename ALLOC, typename F>
-  FunctorTask<F>* make_functor_task( ALLOC&& iAlloc, F f) {
+
+  template <typename ALLOC, typename F>
+  FunctorTask<F>* make_functor_task(ALLOC&& iAlloc, F f) {
     return new (iAlloc) FunctorTask<F>(f);
   }
 }

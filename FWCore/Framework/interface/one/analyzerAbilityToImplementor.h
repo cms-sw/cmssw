@@ -4,8 +4,9 @@
 //
 // Package:     Package
 // Class  :     analyzer::AbilityToImplementor
-// 
-/**\class analyzer::AbilityToImplementor analyzerAbilityToImplementor.h "FWCore/Framework/interface/one/analyzerAbilityToImplementor.h"
+//
+/**\class analyzer::AbilityToImplementor analyzerAbilityToImplementor.h
+ "FWCore/Framework/interface/one/analyzerAbilityToImplementor.h"
 
  Description: [one line class summary]
 
@@ -31,25 +32,25 @@
 namespace edm {
   namespace one {
     namespace analyzer {
-      template<typename T> struct AbilityToImplementor;
-      
-      template<>
+      template <typename T>
+      struct AbilityToImplementor;
+
+      template <>
       struct AbilityToImplementor<edm::one::SharedResources> {
         typedef edm::one::impl::SharedResourcesUser<edm::one::EDAnalyzerBase> Type;
       };
-      
-      template<>
+
+      template <>
       struct AbilityToImplementor<edm::one::WatchRuns> {
         typedef edm::one::impl::RunWatcher<edm::one::EDAnalyzerBase> Type;
       };
 
-      template<>
+      template <>
       struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
         typedef edm::one::impl::LuminosityBlockWatcher<edm::one::EDAnalyzerBase> Type;
       };
     }
   }
 }
-
 
 #endif

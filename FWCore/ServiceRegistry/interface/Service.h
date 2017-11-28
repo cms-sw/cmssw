@@ -4,13 +4,13 @@
 //
 // Package:     ServiceRegistry
 // Class  :     Service
-// 
+//
 /**\class Service Service.h FWCore/ServiceRegistry/interface/Service.h
 
  Description: Smart pointer used to give easy access to Service's
 
  Usage:
-    
+
 
 */
 //
@@ -26,38 +26,27 @@
 // forward declarations
 
 namespace edm {
-   template<class T>
-   class Service
-{
-   
-   public:
-   Service() {}
-   //virtual ~Service();
-   
-   // ---------- const member functions ---------------------
-   T* operator->() const {
-      return &(ServiceRegistry::instance().template get<T>());
-   }
+  template <class T>
+  class Service {
+  public:
+    Service() {}
+    // virtual ~Service();
 
-   T& operator*() const {
-      return ServiceRegistry::instance().template get<T>();
-   }
-   
-   bool isAvailable() const {
-      return ServiceRegistry::instance().template isAvailable<T>();
-   }
-   
-   operator bool() const {
-      return isAvailable();
-   }
-   
-   // ---------- static member functions --------------------
-   
-   // ---------- member functions ---------------------------
-   
-   private:
-};
+    // ---------- const member functions ---------------------
+    T* operator->() const { return &(ServiceRegistry::instance().template get<T>()); }
 
+    T& operator*() const { return ServiceRegistry::instance().template get<T>(); }
+
+    bool isAvailable() const { return ServiceRegistry::instance().template isAvailable<T>(); }
+
+    operator bool() const { return isAvailable(); }
+
+    // ---------- static member functions --------------------
+
+    // ---------- member functions ---------------------------
+
+  private:
+  };
 }
 
 #endif

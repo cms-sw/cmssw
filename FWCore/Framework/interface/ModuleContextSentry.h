@@ -10,9 +10,8 @@ namespace edm {
 
   class ModuleContextSentry {
   public:
-    ModuleContextSentry(ModuleCallingContext* moduleCallingContext,
-                        ParentContext const& parentContext) :
-      moduleCallingContext_(moduleCallingContext) {
+    ModuleContextSentry(ModuleCallingContext* moduleCallingContext, ParentContext const& parentContext)
+        : moduleCallingContext_(moduleCallingContext) {
       moduleCallingContext_->setContext(ModuleCallingContext::State::kRunning, parentContext,
                                         CurrentModuleOnThread::getCurrentModuleOnThread());
       CurrentModuleOnThread::setCurrentModuleOnThread(moduleCallingContext_);
@@ -21,6 +20,7 @@ namespace edm {
       CurrentModuleOnThread::setCurrentModuleOnThread(moduleCallingContext_->previousModuleOnThread());
       moduleCallingContext_->setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
     }
+
   private:
     edm::propagate_const<ModuleCallingContext*> moduleCallingContext_;
   };

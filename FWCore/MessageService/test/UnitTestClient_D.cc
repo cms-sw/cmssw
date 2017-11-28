@@ -6,27 +6,22 @@
 #include <string>
 #include <iomanip>
 
-namespace edmtest
-{
+namespace edmtest {
 
+  void UnitTestClient_D::analyze(edm::Event const& /*unused*/
+                                 ,
+                                 edm::EventSetup const& /*unused*/
+                                 ) {
+    edm::LogWarning("cat_A") << "This message should not appear in "
+                             << "the framework job report";
+    edm::LogWarning("FwkJob") << "<Message>This message should appear in "
+                              << "the framework job report</Message>";
+    edm::LogWarning("special") << "This message should appear in "
+                               << "restrict but the others should not";
 
-void
-  UnitTestClient_D::analyze( edm::Event      const & /*unused*/
-                           , edm::EventSetup const & /*unused*/
-                              )
-{
-  edm::LogWarning("cat_A")   << "This message should not appear in " 
-  			     << "the framework job report";
-  edm::LogWarning("FwkJob")  << "<Message>This message should appear in " 
- 			     << "the framework job report</Message>";
-  edm::LogWarning("special") << "This message should appear in " 
- 			     << "restrict but the others should not";
-
-}  // MessageLoggerClient::analyze()
-
+  }  // MessageLoggerClient::analyze()
 
 }  // namespace edmtest
-
 
 using edmtest::UnitTestClient_D;
 DEFINE_FWK_MODULE(UnitTestClient_D);

@@ -4,13 +4,13 @@
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceToken
-// 
+//
 /**\class ServiceToken ServiceToken.h FWCore/ServiceRegistry/interface/ServiceToken.h
 
- Description: Token used to denote a 'service set' 
+ Description: Token used to denote a 'service set'
 
  Usage:
-    When you request a new 'service set' to be created from the ServiceRegistry, 
+    When you request a new 'service set' to be created from the ServiceRegistry,
   the ServiceRegistry will return a ServiceToken.  When you want this 'service set' to be used,
   create a ServiceRegistry::Operate by passing the ServiceToken via the constructor.
 
@@ -30,52 +30,50 @@ class testServicesManager;
 class TestServicesManagerOrder;
 
 namespace edm {
-   class ServiceRegistry;
-   class ActivityRegistry;
-   
-   namespace serviceregistry {
-      class ServicesManager;
-   }
-   
-   class ServiceToken
-   {
-      friend class edm::ServiceRegistry;
-      friend class edm::serviceregistry::ServicesManager;
-      //for testing
-      friend class ::testServicesManager;
-      friend class ::TestServicesManagerOrder;
-     
-    public:
-      ServiceToken() {}
-      //virtual ~ServiceToken();
-      
-      // ---------- const member functions ---------------------
+  class ServiceRegistry;
+  class ActivityRegistry;
 
-      // ---------- static member functions --------------------
+  namespace serviceregistry {
+    class ServicesManager;
+  }
 
-      // ---------- member functions ---------------------------
+  class ServiceToken {
+    friend class edm::ServiceRegistry;
+    friend class edm::serviceregistry::ServicesManager;
+    // for testing
+    friend class ::testServicesManager;
+    friend class ::TestServicesManagerOrder;
 
-      ///the argument's signals are propagated to the Service's held by the token
-      void connectTo(ActivityRegistry&);
-      ///the argument's signals will forward the token's signals
-      void connect(ActivityRegistry&);
+  public:
+    ServiceToken() {}
+    // virtual ~ServiceToken();
 
-      ///copy our Service's slots to the argument's signals
-      void copySlotsTo(ActivityRegistry&);
-      ///the copy the argument's slots to the token's signals
-      void copySlotsFrom(ActivityRegistry&);
-      
-    private:
-      ServiceToken(std::shared_ptr<edm::serviceregistry::ServicesManager>  iManager):
-      manager_(iManager) {}
-      
-      //ServiceToken(const ServiceToken&); // stop default
+    // ---------- const member functions ---------------------
 
-      //const ServiceToken& operator=(const ServiceToken&); // stop default
+    // ---------- static member functions --------------------
 
-      // ---------- member data --------------------------------
-      std::shared_ptr<edm::serviceregistry::ServicesManager> manager_;
-   };
+    // ---------- member functions ---------------------------
+
+    /// the argument's signals are propagated to the Service's held by the token
+    void connectTo(ActivityRegistry&);
+    /// the argument's signals will forward the token's signals
+    void connect(ActivityRegistry&);
+
+    /// copy our Service's slots to the argument's signals
+    void copySlotsTo(ActivityRegistry&);
+    /// the copy the argument's slots to the token's signals
+    void copySlotsFrom(ActivityRegistry&);
+
+  private:
+    ServiceToken(std::shared_ptr<edm::serviceregistry::ServicesManager> iManager) : manager_(iManager) {}
+
+    // ServiceToken(const ServiceToken&); // stop default
+
+    // const ServiceToken& operator=(const ServiceToken&); // stop default
+
+    // ---------- member data --------------------------------
+    std::shared_ptr<edm::serviceregistry::ServicesManager> manager_;
+  };
 }
 
 #endif

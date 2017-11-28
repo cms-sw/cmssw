@@ -17,74 +17,73 @@
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 namespace edm {
-  //used for defaults
+  // used for defaults
   static unsigned long long const kNanoSecPerSec = 1000000000ULL;
   static unsigned long long const kAveEventPerSec = 200ULL;
-  
-  ProducerSourceBase::ProducerSourceBase(ParameterSet const& pset,
-				       InputSourceDescription const& desc, bool realData) :
-      PuttableSourceBase(pset, desc),
-      numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
-      numberEventsInLumi_(pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
-      presentTime_(pset.getUntrackedParameter<unsigned long long>("firstTime", 1ULL)),  //time in ns
-      origTime_(presentTime_),
-      timeBetweenEvents_(pset.getUntrackedParameter<unsigned long long>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
-      eventCreationDelay_(pset.getUntrackedParameter<unsigned int>("eventCreationDelay", 0)),
-      numberEventsInThisRun_(0),
-      numberEventsInThisLumi_(0),
-      zerothEvent_(pset.existsAs<unsigned int>("firstEvent", false) ? pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1 :
-                                                                      pset.getUntrackedParameter<unsigned long long>("firstEvent", 1) - 1),
-      eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1), zerothEvent_),
-      origEventID_(eventID_),
-      isRealData_(realData),
-      eType_(EventAuxiliary::Undefined) {
 
+  ProducerSourceBase::ProducerSourceBase(ParameterSet const& pset, InputSourceDescription const& desc, bool realData)
+      : PuttableSourceBase(pset, desc),
+        numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
+        numberEventsInLumi_(
+            pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
+        presentTime_(pset.getUntrackedParameter<unsigned long long>("firstTime", 1ULL)),  // time in ns
+        origTime_(presentTime_),
+        timeBetweenEvents_(
+            pset.getUntrackedParameter<unsigned long long>("timeBetweenEvents", kNanoSecPerSec / kAveEventPerSec)),
+        eventCreationDelay_(pset.getUntrackedParameter<unsigned int>("eventCreationDelay", 0)),
+        numberEventsInThisRun_(0),
+        numberEventsInThisLumi_(0),
+        zerothEvent_(pset.existsAs<unsigned int>("firstEvent", false)
+                         ? pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1
+                         : pset.getUntrackedParameter<unsigned long long>("firstEvent", 1) - 1),
+        eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1),
+                 pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1), zerothEvent_),
+        origEventID_(eventID_),
+        isRealData_(realData),
+        eType_(EventAuxiliary::Undefined) {
     setTimestamp(Timestamp(presentTime_));
     // We need to map this string to the EventAuxiliary::ExperimentType enumeration
     // std::string eType = pset.getUntrackedParameter<std::string>("experimentType", std::string("Any"))),
   }
 
-  ProducerSourceBase::~ProducerSourceBase() noexcept(false) {
-  }
+  ProducerSourceBase::~ProducerSourceBase() noexcept(false) {}
 
-  
-  std::shared_ptr<RunAuxiliary>
-  ProducerSourceBase::readRunAuxiliary_() {
+  std::shared_ptr<RunAuxiliary> ProducerSourceBase::readRunAuxiliary_() {
     Timestamp ts = Timestamp(presentTime_);
     resetNewRun();
     return std::make_shared<RunAuxiliary>(eventID_.run(), ts, Timestamp::invalidTimestamp());
   }
 
-  std::shared_ptr<LuminosityBlockAuxiliary>
-  ProducerSourceBase::readLuminosityBlockAuxiliary_() {
-    if (processingMode() == Runs) { return std::shared_ptr<LuminosityBlockAuxiliary>(); }
+  std::shared_ptr<LuminosityBlockAuxiliary> ProducerSourceBase::readLuminosityBlockAuxiliary_() {
+    if (processingMode() == Runs) {
+      return std::shared_ptr<LuminosityBlockAuxiliary>();
+    }
     Timestamp ts = Timestamp(presentTime_);
     resetNewLumi();
-    return std::make_shared<LuminosityBlockAuxiliary>(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp());
+    return std::make_shared<LuminosityBlockAuxiliary>(eventID_.run(), eventID_.luminosityBlock(), ts,
+                                                      Timestamp::invalidTimestamp());
   }
 
-  void
-  ProducerSourceBase::readEvent_(EventPrincipal& eventPrincipal) {
+  void ProducerSourceBase::readEvent_(EventPrincipal& eventPrincipal) {
     assert(eventCached() || processingMode() != RunsLumisAndEvents);
     EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
     eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
     Event e(eventPrincipal, moduleDescription(), nullptr);
-    e.setProducer(this,nullptr);
+    e.setProducer(this, nullptr);
     produce(e);
     e.commit_(std::vector<ProductResolverIndex>());
     resetEventCached();
   }
 
-  void
-  ProducerSourceBase::skip(int offset) {
+  void ProducerSourceBase::skip(int offset) {
     EventID oldEventID = eventID_;
-    for(; offset < 0; ++offset) {
+    for (; offset < 0; ++offset) {
       retreatToPrevious(eventID_, presentTime_);
     }
-    for(; offset > 0; --offset) {
+    for (; offset > 0; --offset) {
       advanceToNext(eventID_, presentTime_);
     }
-    if(eventID_.run() != oldEventID.run()) {
+    if (eventID_.run() != oldEventID.run()) {
       // New Run
       setNewRun();
       setNewLumi();
@@ -95,20 +94,16 @@ namespace edm {
     }
   }
 
-  void
-  ProducerSourceBase::beginJob() {
+  void ProducerSourceBase::beginJob() {
     PuttableSourceBase::beginJob();
     // Initialize cannot be called from the constructor, because it is a virtual function
     // that needs to be invoked from a derived class if the derived class overrides it.
     initialize(eventID_, presentTime_, timeBetweenEvents_);
   }
 
-  void
-  ProducerSourceBase::initialize(EventID&, TimeValue_t&, TimeValue_t&) {
-  }
+  void ProducerSourceBase::initialize(EventID&, TimeValue_t&, TimeValue_t&) {}
 
-  void
-  ProducerSourceBase::rewind_() {
+  void ProducerSourceBase::rewind_() {
     presentTime_ = origTime_;
     eventID_ = origEventID_;
     numberEventsInThisRun_ = 0;
@@ -116,10 +111,9 @@ namespace edm {
     setNewRun();
     setNewLumi();
   }
-    
-  InputSource::ItemType 
-  ProducerSourceBase::getNextItemType() {
-    if(state() == IsInvalid) {
+
+  InputSource::ItemType ProducerSourceBase::getNextItemType() {
+    if (state() == IsInvalid) {
       return noFiles() ? IsStop : IsFile;
     }
     if (newRun()) {
@@ -128,20 +122,22 @@ namespace edm {
     if (newLumi()) {
       return IsLumi;
     }
-    if(eventCached()) {
+    if (eventCached()) {
       return IsEvent;
     }
     EventID oldEventID = eventID_;
     advanceToNext(eventID_, presentTime_);
-    if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
+    if (eventCreationDelay_ > 0) {
+      usleep(eventCreationDelay_);
+    }
     size_t index = fileIndex();
     bool another = setRunAndEventInfo(eventID_, presentTime_, eType_);
-    if(!another) {
+    if (!another) {
       return IsStop;
     }
     bool newFile = (fileIndex() > index);
     setEventCached();
-    if(newRun() || eventID_.run() != oldEventID.run()) {
+    if (newRun() || eventID_.run() != oldEventID.run()) {
       // New Run
       setNewRun();
       setNewLumi();
@@ -162,8 +158,7 @@ namespace edm {
     return newFile ? IsFile : IsEvent;
   }
 
-  void 
-  ProducerSourceBase::advanceToNext(EventID& eventID, TimeValue_t& time)  {
+  void ProducerSourceBase::advanceToNext(EventID& eventID, TimeValue_t& time) {
     if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
       // same run
       ++numberEventsInThisRun_;
@@ -184,8 +179,7 @@ namespace edm {
     time += timeBetweenEvents_;
   }
 
-  void 
-  ProducerSourceBase::retreatToPrevious(EventID& eventID, TimeValue_t& time)  {
+  void ProducerSourceBase::retreatToPrevious(EventID& eventID, TimeValue_t& time) {
     if (numberEventsInRun_ < 1 || numberEventsInThisRun_ > 0) {
       // same run
       --numberEventsInThisRun_;
@@ -200,7 +194,7 @@ namespace edm {
     } else {
       // new run
       assert(numberEventsInLumi_ != 0);
-      eventID = eventID.previousRunLastEvent(origEventID_.luminosityBlock() + numberEventsInRun_/numberEventsInLumi_);
+      eventID = eventID.previousRunLastEvent(origEventID_.luminosityBlock() + numberEventsInRun_ / numberEventsInLumi_);
       eventID = EventID(numberEventsInRun_, eventID.luminosityBlock(), eventID.run());
       numberEventsInThisLumi_ = numberEventsInLumi_;
       numberEventsInThisRun_ = numberEventsInRun_;
@@ -208,32 +202,30 @@ namespace edm {
     time -= timeBetweenEvents_;
   }
 
-  bool
-  ProducerSourceBase::noFiles() const {
-    return false;
-  }
-  
-  size_t
-  ProducerSourceBase::fileIndex() const {
-    return 0UL;
-  }
-  
-  void
-  ProducerSourceBase::fillDescription(ParameterSetDescription& desc) {
-    desc.addOptionalUntracked<unsigned int>("numberEventsInRun")->setComment("Number of events to generate in each run.");
-    desc.addOptionalUntracked<unsigned int>("numberEventsInLuminosityBlock")->setComment("Number of events to generate in each lumi.");
+  bool ProducerSourceBase::noFiles() const { return false; }
+
+  size_t ProducerSourceBase::fileIndex() const { return 0UL; }
+
+  void ProducerSourceBase::fillDescription(ParameterSetDescription& desc) {
+    desc.addOptionalUntracked<unsigned int>("numberEventsInRun")
+        ->setComment("Number of events to generate in each run.");
+    desc.addOptionalUntracked<unsigned int>("numberEventsInLuminosityBlock")
+        ->setComment("Number of events to generate in each lumi.");
     desc.addUntracked<unsigned long long>("firstTime", 1)->setComment("Time before first event (ns) (for timestamp).");
-    desc.addUntracked<unsigned long long>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)->setComment("Time between consecutive events (ns) (for timestamp).");
-    desc.addUntracked<unsigned int>("eventCreationDelay", 0)->setComment("Real time delay between generation of consecutive events (ms).");
+    desc.addUntracked<unsigned long long>("timeBetweenEvents", kNanoSecPerSec / kAveEventPerSec)
+        ->setComment("Time between consecutive events (ns) (for timestamp).");
+    desc.addUntracked<unsigned int>("eventCreationDelay", 0)
+        ->setComment("Real time delay between generation of consecutive events (ms).");
 
-    desc.addNode( edm::ParameterDescription<unsigned int>("firstEvent", 1U, false) xor
-                  edm::ParameterDescription<unsigned long long>("firstEvent", 1ULL, false))
-        ->setComment("'firstEvent' is an XOR group because it can have type uint32 or uint64, default:1\n"
-                     "Event number of first event to generate.");
+    desc.addNode(edm::ParameterDescription<unsigned int>("firstEvent", 1U, false) xor
+                 edm::ParameterDescription<unsigned long long>("firstEvent", 1ULL, false))
+        ->setComment(
+            "'firstEvent' is an XOR group because it can have type uint32 or uint64, default:1\n"
+            "Event number of first event to generate.");
 
-    desc.addUntracked<unsigned int>("firstLuminosityBlock", 1)->setComment("Luminosity block number of first lumi to generate.");
+    desc.addUntracked<unsigned int>("firstLuminosityBlock", 1)
+        ->setComment("Luminosity block number of first lumi to generate.");
     desc.addUntracked<unsigned int>("firstRun", 1)->setComment("Run number of first run to generate.");
     InputSource::fillDescription(desc);
   }
 }
-

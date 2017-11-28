@@ -27,24 +27,30 @@
    use an EventID to exactly specify what next event you want.  However, if you say to go 'back' one event while the
    job is on the first event of the loop or pass an EventID for an event not contained in the source the job will
    immediately go to 'end of loop'.
-   NOTE: if you have no need of controlling exactly what 'next' event should be processed then you should instead inherit
+   NOTE: if you have no need of controlling exactly what 'next' event should be processed then you should instead
+ inherit
    from the subclass EDLooper and us it simplified interface for 'duringLoop'.
  3) end of loop
-   Once all events have been processed or kStop was returned from 'duringLoop' or ProcessingController was told to go to an
+   Once all events have been processed or kStop was returned from 'duringLoop' or ProcessingController was told to go to
+ an
    'invalid' event then the method
       Status endOfLoop(EventSetup const&, unsigned int iCounter)
-   will be called.  iCounter will be the number of loops which have been run in the job starting at index 0. If kContinue
+   will be called.  iCounter will be the number of loops which have been run in the job starting at index 0. If
+ kContinue
    is returned from endOfLoop then a new loop will begin else if kStop is called then the job will end.
 
- Like other modules, an EDLooperBase is called for 'beginJob', 'endJob', 'beginRun', 'endRun', 'beginLuminosityBlock' and
+ Like other modules, an EDLooperBase is called for 'beginJob', 'endJob', 'beginRun', 'endRun', 'beginLuminosityBlock'
+ and
  'endLuminosityBlock'.
 
  Additional information and control of a job is possible via the interfaces:
  attachTo(ActivityRegistry&) : via the ActivityRegistry you can monitor exactly which modules are being run
  scheduleInfo(): returns a ScheduleInfo which you can use to determine what paths are in a job and what
     modules are on each path.
- moduleChanger(): returns a ModuleChanger instance which can be used to modify the parameters of an EDLooper or EDFilter.
-    Such modifications can only occur during a call to 'endOfLoop' since the newly changed module can only be properly initialized
+ moduleChanger(): returns a ModuleChanger instance which can be used to modify the parameters of an EDLooper or
+ EDFilter.
+    Such modifications can only occur during a call to 'endOfLoop' since the newly changed module can only be properly
+ initialized
     at the start of the next loop.
 
 */
@@ -75,84 +81,83 @@ namespace edm {
   class ActivityRegistry;
 
   class EDLooperBase {
-    public:
-      enum Status {kContinue, kStop};
+  public:
+    enum Status { kContinue, kStop };
 
-      EDLooperBase();
-      virtual ~EDLooperBase() noexcept(false);
+    EDLooperBase();
+    virtual ~EDLooperBase() noexcept(false);
 
-      EDLooperBase(EDLooperBase const&) = delete; // Disallow copying and moving
-      EDLooperBase& operator=(EDLooperBase const&) = delete; // Disallow copying and moving
+    EDLooperBase(EDLooperBase const&) = delete;             // Disallow copying and moving
+    EDLooperBase& operator=(EDLooperBase const&) = delete;  // Disallow copying and moving
 
-      void doStartingNewLoop();
-      Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetup const& es, ProcessingController&, StreamContext*);
-      Status doEndOfLoop(EventSetup const& es);
-      void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
-      void doBeginRun(RunPrincipal&, EventSetup const&, ProcessContext*);
-      void doEndRun(RunPrincipal&, EventSetup const&, ProcessContext*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
+    void doStartingNewLoop();
+    Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetup const& es, ProcessingController&, StreamContext*);
+    Status doEndOfLoop(EventSetup const& es);
+    void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
+    void doBeginRun(RunPrincipal&, EventSetup const&, ProcessContext*);
+    void doEndRun(RunPrincipal&, EventSetup const&, ProcessContext*);
+    void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
+    void doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
 
-      //This interface is deprecated
-      virtual void beginOfJob(EventSetup const&);
-      virtual void beginOfJob();
+    // This interface is deprecated
+    virtual void beginOfJob(EventSetup const&);
+    virtual void beginOfJob();
 
-      virtual void endOfJob();
+    virtual void endOfJob();
 
-      ///Override this method if you need to monitor the state of the processing
-      virtual void attachTo(ActivityRegistry&);
+    /// Override this method if you need to monitor the state of the processing
+    virtual void attachTo(ActivityRegistry&);
 
-      void setActionTable(ExceptionToActionTable const* actionTable) { act_table_ = actionTable; }
+    void setActionTable(ExceptionToActionTable const* actionTable) { act_table_ = actionTable; }
 
-      virtual std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const;
+    virtual std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const;
 
-      void copyInfo(ScheduleInfo const&);
-      void setModuleChanger(ModuleChanger*);
+    void copyInfo(ScheduleInfo const&);
+    void setModuleChanger(ModuleChanger*);
 
-    protected:
-      ///This only returns a non-zero value during the call to endOfLoop
-      ModuleChanger* moduleChanger();
-      ///This returns a non-zero value after the constructor has been called
-      ScheduleInfo const* scheduleInfo() const;
-    private:
+  protected:
+    /// This only returns a non-zero value during the call to endOfLoop
+    ModuleChanger* moduleChanger();
+    /// This returns a non-zero value after the constructor has been called
+    ScheduleInfo const* scheduleInfo() const;
 
-      /**Called before system starts to loop over the events. The argument is a count of
-       how many loops have been processed.  For the first time through the events the argument
-       will be 0.
-       */
-      virtual void startingNewLoop(unsigned int ) = 0;
+  private:
+    /**Called before system starts to loop over the events. The argument is a count of
+     how many loops have been processed.  For the first time through the events the argument
+     will be 0.
+     */
+    virtual void startingNewLoop(unsigned int) = 0;
 
-      /**Called after all event modules have had a chance to process the Event.
-       */
-      virtual Status duringLoop(Event const&, EventSetup const&, ProcessingController&) = 0;
+    /**Called after all event modules have had a chance to process the Event.
+     */
+    virtual Status duringLoop(Event const&, EventSetup const&, ProcessingController&) = 0;
 
-      /**Called after the system has finished one loop over the events. Thar argument is a
-       count of how many loops have been processed before this loo.  For the first time through
-       the events the argument will be 0.
-       */
-      virtual Status endOfLoop(EventSetup const&, unsigned int iCounter) = 0;
+    /**Called after the system has finished one loop over the events. Thar argument is a
+     count of how many loops have been processed before this loo.  For the first time through
+     the events the argument will be 0.
+     */
+    virtual Status endOfLoop(EventSetup const&, unsigned int iCounter) = 0;
 
-      ///Called after all event modules have processed the begin of a Run
-      virtual void beginRun(Run const&, EventSetup const&);
+    /// Called after all event modules have processed the begin of a Run
+    virtual void beginRun(Run const&, EventSetup const&);
 
-      ///Called after all event modules have processed the end of a Run
-      virtual void endRun(Run const&, EventSetup const&);
+    /// Called after all event modules have processed the end of a Run
+    virtual void endRun(Run const&, EventSetup const&);
 
-      ///Called after all event modules have processed the begin of a LuminosityBlock
-      virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+    /// Called after all event modules have processed the begin of a LuminosityBlock
+    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
 
-      ///Called after all event modules have processed the end of a LuminosityBlock
-      virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+    /// Called after all event modules have processed the end of a LuminosityBlock
+    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
 
+    unsigned int iCounter_;
+    ExceptionToActionTable const* act_table_;
 
-      unsigned int iCounter_;
-      ExceptionToActionTable const* act_table_;
+    edm::propagate_const<std::unique_ptr<ScheduleInfo>> scheduleInfo_;
+    edm::propagate_const<ModuleChanger*> moduleChanger_;
 
-      edm::propagate_const<std::unique_ptr<ScheduleInfo>> scheduleInfo_;
-      edm::propagate_const<ModuleChanger*> moduleChanger_;
-
-      ModuleDescription moduleDescription_;
-      ModuleCallingContext moduleCallingContext_;
+    ModuleDescription moduleDescription_;
+    ModuleCallingContext moduleCallingContext_;
   };
 }
 

@@ -22,9 +22,7 @@
 #include <vector>
 
 namespace {
-  void getAncestors(edm::Event const& e,
-                    edm::BranchID const& branchID,
-                    std::set<edm::BranchID>& ancestors) {
+  void getAncestors(edm::Event const& e, edm::BranchID const& branchID, std::set<edm::BranchID>& ancestors) {
     edm::Provenance prov = e.getProvenance(branchID);
     if (prov.productProvenance()) {
       for (auto const& parent : prov.productProvenance()->parentage().parents()) {
@@ -39,8 +37,7 @@ namespace {
   // ProductsResolver which for SubProcesses could lead to a different
   // retriever. In SubProcesses, the following function follows the
   // links in the retrievers themselves. Both should give the same answer.
-  void getAncestorsFromRetriever(edm::ProductProvenanceRetriever const* retriever,
-                                 edm::BranchID const& branchID,
+  void getAncestorsFromRetriever(edm::ProductProvenanceRetriever const* retriever, edm::BranchID const& branchID,
                                  std::set<edm::BranchID>& ancestors) {
     edm::ProductProvenance const* productProvenance = retriever->branchIDToProvenance(branchID);
     if (productProvenance) {
@@ -54,35 +51,30 @@ namespace {
 
 namespace edmtest {
 
-  class TestParentage : public edm::EDAnalyzer { 
+  class TestParentage : public edm::EDAnalyzer {
   public:
-
     explicit TestParentage(edm::ParameterSet const& pset);
     virtual ~TestParentage();
 
     virtual void analyze(edm::Event const& e, edm::EventSetup const& es) override;
 
   private:
-
     edm::InputTag inputTag_;
     edm::EDGetTokenT<IntProduct> token_;
     std::vector<std::string> expectedAncestors_;
     bool callGetProvenance_;
   };
 
-  TestParentage::TestParentage(edm::ParameterSet const& pset) :
-    inputTag_(pset.getParameter<edm::InputTag>("inputTag")),
-    expectedAncestors_(pset.getParameter<std::vector<std::string> >("expectedAncestors")),
-    callGetProvenance_(pset.getUntrackedParameter<bool>("callGetProvenance", true)) {
-
+  TestParentage::TestParentage(edm::ParameterSet const& pset)
+      : inputTag_(pset.getParameter<edm::InputTag>("inputTag")),
+        expectedAncestors_(pset.getParameter<std::vector<std::string> >("expectedAncestors")),
+        callGetProvenance_(pset.getUntrackedParameter<bool>("callGetProvenance", true)) {
     token_ = consumes<IntProduct>(inputTag_);
   }
 
   TestParentage::~TestParentage() {}
 
-  void
-  TestParentage::analyze(edm::Event const& e, edm::EventSetup const&) {
-
+  void TestParentage::analyze(edm::Event const& e, edm::EventSetup const&) {
     edm::Handle<IntProduct> h;
     e.getByToken(token_, h);
 
@@ -97,7 +89,7 @@ namespace edmtest {
 
     std::map<edm::BranchID, std::string> branchIDToLabel;
     edm::Service<edm::ConstProductRegistry> reg;
-    for(auto const& prod : reg->productList()) {
+    for (auto const& prod : reg->productList()) {
       branchIDToLabel[prod.second.branchID()] = prod.second.moduleLabel();
     }
 
@@ -105,10 +97,8 @@ namespace edmtest {
     // from a SubProcess and the parentage includes a product not kept
     // in the SubProcess. This might get fixed someday ...
     if (callGetProvenance_) {
-
       std::set<edm::BranchID> ancestors;
       getAncestors(e, prov->branchID(), ancestors);
-
 
       std::set<std::string> ancestorLabels;
       for (edm::BranchID const& ancestor : ancestors) {
@@ -129,11 +119,12 @@ namespace edmtest {
       ancestorLabels2.insert(branchIDToLabel[ancestor]);
     }
     if (ancestorLabels2 != expectedAncestors) {
-      std::cerr << "TestParentage::analyze: ancestors do not match expected ancestors (parentage from retriever)" << std::endl;
+      std::cerr << "TestParentage::analyze: ancestors do not match expected ancestors (parentage from retriever)"
+                << std::endl;
       abort();
     }
   }
-} // namespace edmtest
+}  // namespace edmtest
 
 using edmtest::TestParentage;
 DEFINE_FWK_MODULE(TestParentage);

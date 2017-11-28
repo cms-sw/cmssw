@@ -30,26 +30,24 @@
 #include <string>
 #include <vector>
 
-
 // forward declarations
 namespace edm {
-   class EventSetupRecordIntervalFinder;
-   class IOVSyncValue;
-   class ParameterSet;
+  class EventSetupRecordIntervalFinder;
+  class IOVSyncValue;
+  class ParameterSet;
 
-   namespace eventsetup {
-      struct ComponentDescription;
-      class DataKey;
-      class DataProxyProvider;
-      class EventSetupRecord;
-      class EventSetupRecordKey;
-      class EventSetupRecordProvider;
-      class EventSetupsController;
-      class ParameterSetIDHolder;
+  namespace eventsetup {
+    struct ComponentDescription;
+    class DataKey;
+    class DataProxyProvider;
+    class EventSetupRecord;
+    class EventSetupRecordKey;
+    class EventSetupRecordProvider;
+    class EventSetupsController;
+    class ParameterSetIDHolder;
 
-class EventSetupProvider {
-
-   public:
+    class EventSetupProvider {
+    public:
       typedef std::string RecordName;
       typedef std::string DataType;
       typedef std::string DataLabel;
@@ -68,9 +66,9 @@ class EventSetupProvider {
       // ---------- member functions ---------------------------
       EventSetup const& eventSetupForInstance(IOVSyncValue const&);
 
-      EventSetup const& eventSetup() const {return eventSetup_;}
+      EventSetup const& eventSetup() const { return eventSetup_; }
 
-      //called by specializations of EventSetupRecordProviders
+      // called by specializations of EventSetupRecordProviders
       void addRecordToEventSetup(EventSetupRecord& iRecord);
 
       void add(std::shared_ptr<DataProxyProvider>);
@@ -79,20 +77,19 @@ class EventSetupProvider {
 
       void finishConfiguration();
 
-      ///Used when we need to force a Record to reset all its proxies
+      /// Used when we need to force a Record to reset all its proxies
       void resetRecordPlusDependentRecords(EventSetupRecordKey const&);
 
-      ///Used when testing that all code properly updates on IOV changes of all Records
+      /// Used when testing that all code properly updates on IOV changes of all Records
       void forceCacheClear();
 
-      void checkESProducerSharing(EventSetupProvider & precedingESProvider,
-                                  std::set<ParameterSetIDHolder>& sharingCheckDone,
-                                  std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers,
-                                  EventSetupsController & esController);
+      void checkESProducerSharing(
+          EventSetupProvider& precedingESProvider, std::set<ParameterSetIDHolder>& sharingCheckDone,
+          std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers,
+          EventSetupsController& esController);
 
-      bool doRecordsMatch(EventSetupProvider & precedingESProvider,
-                          EventSetupRecordKey const& eventSetupRecordKey,
-                          std::map<EventSetupRecordKey, bool> & allComponentsMatch,
+      bool doRecordsMatch(EventSetupProvider& precedingESProvider, EventSetupRecordKey const& eventSetupRecordKey,
+                          std::map<EventSetupRecordKey, bool>& allComponentsMatch,
                           EventSetupsController const& esController);
 
       void fillReferencedDataKeys(EventSetupRecordKey const& eventSetupRecordKey);
@@ -105,21 +102,18 @@ class EventSetupProvider {
 
       static void logInfoWhenSharing(ParameterSet const& iConfiguration);
 
-   protected:
-
+    protected:
       template <typename T>
-         void insert(std::unique_ptr<T> iRecordProvider) {
-            std::unique_ptr<EventSetupRecordProvider> temp(iRecordProvider.release());
-            insert(eventsetup::heterocontainer::makeKey<
-                    typename T::RecordType,
-                       eventsetup::EventSetupRecordKey>(),
-                    std::move(temp));
-         }
+      void insert(std::unique_ptr<T> iRecordProvider) {
+        std::unique_ptr<EventSetupRecordProvider> temp(iRecordProvider.release());
+        insert(eventsetup::heterocontainer::makeKey<typename T::RecordType, eventsetup::EventSetupRecordKey>(),
+               std::move(temp));
+      }
 
-   private:
-      EventSetupProvider(EventSetupProvider const&) = delete; // stop default
+    private:
+      EventSetupProvider(EventSetupProvider const&) = delete;  // stop default
 
-      EventSetupProvider const& operator=(EventSetupProvider const&) = delete; // stop default
+      EventSetupProvider const& operator=(EventSetupProvider const&) = delete;  // stop default
 
       void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);
 
@@ -136,13 +130,14 @@ class EventSetupProvider {
       std::unique_ptr<PreferredProviderInfo> preferredProviderInfo_;
       std::unique_ptr<std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> > > finders_;
       std::unique_ptr<std::vector<std::shared_ptr<DataProxyProvider> > > dataProviders_;
-      std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription const*> > > referencedDataKeys_;
-      std::unique_ptr<std::map<EventSetupRecordKey, std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> > > > recordToFinders_;
+      std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription const*> > >
+          referencedDataKeys_;
+      std::unique_ptr<std::map<EventSetupRecordKey, std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> > > >
+          recordToFinders_;
       std::unique_ptr<std::map<ParameterSetIDHolder, std::set<EventSetupRecordKey> > > psetIDToRecordKey_;
       std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription> > > recordToPreferred_;
       std::unique_ptr<std::set<EventSetupRecordKey> > recordsWithALooperProxy_;
-};
-
-   }
+    };
+  }
 }
 #endif

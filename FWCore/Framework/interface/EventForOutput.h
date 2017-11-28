@@ -49,32 +49,24 @@ namespace edm {
 
   class EventForOutput : public OccurrenceForOutput {
   public:
-    EventForOutput(EventPrincipal const& ep, ModuleDescription const& md,
-          ModuleCallingContext const*);
+    EventForOutput(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const*);
     ~EventForOutput() override;
-    
-    EventAuxiliary const& eventAuxiliary() const {return aux_;}
-    EventID const& id() const {return aux_.id();}
-    EventNumber_t event() const {return aux_.event();}
-    LuminosityBlockNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
-    Timestamp const& time() const {return aux_.time();}
-    
+
+    EventAuxiliary const& eventAuxiliary() const { return aux_; }
+    EventID const& id() const { return aux_.id(); }
+    EventNumber_t event() const { return aux_.event(); }
+    LuminosityBlockNumber_t luminosityBlock() const { return aux_.luminosityBlock(); }
+    Timestamp const& time() const { return aux_.time(); }
+
     ///\return The id for the particular Stream processing the Event
-    StreamID streamID() const {
-      return streamID_;
-    }
+    StreamID streamID() const { return streamID_; }
 
-    LuminosityBlockForOutput const&
-    getLuminosityBlock() const {
-      return *luminosityBlock_;
-    }
+    LuminosityBlockForOutput const& getLuminosityBlock() const { return *luminosityBlock_; }
 
-    RunForOutput const&
-    getRun() const;
+    RunForOutput const& getRun() const;
 
-    RunNumber_t
-    run() const {return id().run();}
-    
+    RunNumber_t run() const { return id().run(); }
+
     BranchListIndexes const& branchListIndexes() const;
 
     EventSelectionIDVector const& eventSelectionIDs() const;
@@ -82,10 +74,9 @@ namespace edm {
     ProductProvenanceRetriever const* productProvenanceRetrieverPtr() const;
 
   private:
-    friend class edmtest::TestOutputModule; // For testing
+    friend class edmtest::TestOutputModule;  // For testing
 
-    EventPrincipal const&
-    eventPrincipal() const;
+    EventPrincipal const& eventPrincipal() const;
 
     EventAuxiliary const& aux_;
     std::shared_ptr<LuminosityBlockForOutput const> const luminosityBlock_;
@@ -94,4 +85,3 @@ namespace edm {
   };
 }
 #endif
-

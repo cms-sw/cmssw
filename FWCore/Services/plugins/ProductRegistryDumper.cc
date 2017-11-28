@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Services
 // Class  :     ProductRegistryDumper
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -25,12 +25,10 @@
 
 namespace edm {
   namespace service {
-    class ProductRegistryDumper
-    {
+    class ProductRegistryDumper {
     public:
       ProductRegistryDumper(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iAR);
     };
-
   }
 }
 
@@ -46,16 +44,15 @@ namespace edm {
 // constructors and destructor
 //
 using namespace edm::service;
-ProductRegistryDumper::ProductRegistryDumper(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iAR)
-{
-  iAR.watchPostBeginJob( [] () {
-      Service<ConstProductRegistry> regService;
-      for(auto const& branch: regService->allBranchDescriptions()) {
-        if(branch) {
-          edm::LogSystem("ProductRegistry")<<*branch;
-        }
+ProductRegistryDumper::ProductRegistryDumper(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iAR) {
+  iAR.watchPostBeginJob([]() {
+    Service<ConstProductRegistry> regService;
+    for (auto const& branch : regService->allBranchDescriptions()) {
+      if (branch) {
+        edm::LogSystem("ProductRegistry") << *branch;
       }
-    });
+    }
+  });
 }
 
 DEFINE_FWK_SERVICE(ProductRegistryDumper);

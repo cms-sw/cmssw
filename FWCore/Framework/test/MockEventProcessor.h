@@ -21,13 +21,10 @@ namespace edm {
   public:
     class TestException : public std::exception {
     public:
-      TestException() noexcept
-      :std::exception() {}
+      TestException() noexcept : std::exception() {}
     };
-    
-    MockEventProcessor(std::string const& mockData,
-                       std::ostream& output,
-                       bool iDoNotMerge);
+
+    MockEventProcessor(std::string const& mockData, std::ostream& output, bool iDoNotMerge);
 
     void runToCompletion();
 
@@ -52,13 +49,16 @@ namespace edm {
     void doErrorStuff();
 
     void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalTransitionSucceeded);
-    void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTranstitionSucceeded, bool cleaningUpAfterException);
+    void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTranstitionSucceeded,
+                bool cleaningUpAfterException);
 
-    void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool& globalTransitionSucceeded);
-    void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool globalTransitionSucceeded, bool cleaningUpAfterException);
+    void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi,
+                   bool& globalTransitionSucceeded);
+    void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi,
+                 bool globalTransitionSucceeded, bool cleaningUpAfterException);
 
-    std::pair<ProcessHistoryID,RunNumber_t> readRun();
-    std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
+    std::pair<ProcessHistoryID, RunNumber_t> readRun();
+    std::pair<ProcessHistoryID, RunNumber_t> readAndMergeRun();
     int readLuminosityBlock();
     int readAndMergeLumi();
     void writeRun(ProcessHistoryID const& phid, RunNumber_t run);
@@ -81,9 +81,9 @@ namespace edm {
     void throwIfNeeded();
 
     std::string mockData_;
-    std::ostream & output_;
+    std::ostream& output_;
     std::istringstream input_;
-    
+
     int run_;
     int lumi_;
 

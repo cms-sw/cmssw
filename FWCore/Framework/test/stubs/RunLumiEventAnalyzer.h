@@ -16,7 +16,6 @@ namespace edmtest {
 
   class RunLumiEventAnalyzer : public edm::EDAnalyzer {
   public:
-
     explicit RunLumiEventAnalyzer(edm::ParameterSet const& pset);
 
     virtual ~RunLumiEventAnalyzer() {}
@@ -29,7 +28,6 @@ namespace edmtest {
     virtual void endJob();
 
   private:
-
     std::vector<unsigned long long> expectedRunLumisEvents0_;
     std::vector<unsigned long long> expectedRunLumisEvents1_;
     edm::propagate_const<std::vector<unsigned long long>*> expectedRunLumisEvents_;

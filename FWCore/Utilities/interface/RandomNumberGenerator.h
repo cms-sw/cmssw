@@ -143,10 +143,8 @@ namespace edm {
   class LuminosityBlockIndex;
   class StreamID;
 
-  class RandomNumberGenerator
-  {
+  class RandomNumberGenerator {
   public:
-
     RandomNumberGenerator() {}
     virtual ~RandomNumberGenerator();
 
@@ -190,7 +188,6 @@ namespace edm {
     virtual void print(std::ostream& os) const = 0;
 
   private:
-
     RandomNumberGenerator(RandomNumberGenerator const&) = delete;
     RandomNumberGenerator const& operator=(RandomNumberGenerator const&) = delete;
   };

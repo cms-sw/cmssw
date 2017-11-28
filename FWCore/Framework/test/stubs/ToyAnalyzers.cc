@@ -37,35 +37,32 @@ namespace edmtest {
   //
   class NonAnalyzer : public edm::EDAnalyzer {
   public:
-    explicit NonAnalyzer(edm::ParameterSet const& /*p*/) {
-    }
+    explicit NonAnalyzer(edm::ParameterSet const& /*p*/) {}
     virtual ~NonAnalyzer() {}
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   };
 
-  void
-  NonAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) {
-  }
+  void NonAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) {}
 
   //--------------------------------------------------------------------
   //
   class IntTestAnalyzer : public edm::EDAnalyzer {
   public:
-    IntTestAnalyzer(edm::ParameterSet const& iPSet) :
-      value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
-      moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
+    IntTestAnalyzer(edm::ParameterSet const& iPSet)
+        : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
+          moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
       consumes<IntProduct>(moduleLabel_);
     }
 
     void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
       edm::Handle<IntProduct> handle;
       iEvent.getByLabel(moduleLabel_, handle);
-      if(handle->value != value_) {
-        throw cms::Exception("ValueMissMatch")
-          << "The value for \"" << moduleLabel_ << "\" is "
-          << handle->value << " but it was supposed to be " << value_;
+      if (handle->value != value_) {
+        throw cms::Exception("ValueMissMatch") << "The value for \"" << moduleLabel_ << "\" is " << handle->value
+                                               << " but it was supposed to be " << value_;
       }
     }
+
   private:
     int value_;
     edm::InputTag moduleLabel_;
@@ -75,91 +72,81 @@ namespace edmtest {
   //
   class MultipleIntsAnalyzer : public edm::global::EDAnalyzer<> {
   public:
-    MultipleIntsAnalyzer(edm::ParameterSet const& iPSet)
-    {
+    MultipleIntsAnalyzer(edm::ParameterSet const& iPSet) {
       auto const& tags = iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("getFromModules");
-      for(auto const& tag: tags) {
+      for (auto const& tag : tags) {
         m_tokens.emplace_back(consumes<IntProduct>(tag));
       }
     }
-    
+
     void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const override {
       edm::Handle<IntProduct> h;
-      for(auto const& token: m_tokens) {
-        iEvent.getByToken(token,h);
+      for (auto const& token : m_tokens) {
+        iEvent.getByToken(token, h);
       }
     }
-    
+
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<std::vector<edm::InputTag>>("getFromModules");
       descriptions.addDefault(desc);
-      
     }
+
   private:
     std::vector<edm::EDGetTokenT<IntProduct>> m_tokens;
-    
   };
 
   //--------------------------------------------------------------------
   //
   class IntConsumingAnalyzer : public edm::global::EDAnalyzer<> {
   public:
-    IntConsumingAnalyzer(edm::ParameterSet const& iPSet)
-     {
+    IntConsumingAnalyzer(edm::ParameterSet const& iPSet) {
       consumes<IntProduct>(iPSet.getUntrackedParameter<edm::InputTag>("getFromModule"));
     }
-    
+
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override {}
-    
+
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<edm::InputTag>("getFromModule");
       descriptions.addDefault(desc);
-
     }
-
-    
   };
   //--------------------------------------------------------------------
   //
   class IntFromRunConsumingAnalyzer : public edm::global::EDAnalyzer<> {
   public:
-    IntFromRunConsumingAnalyzer(edm::ParameterSet const& iPSet)
-    {
+    IntFromRunConsumingAnalyzer(edm::ParameterSet const& iPSet) {
       consumes<IntProduct, edm::InRun>(iPSet.getUntrackedParameter<edm::InputTag>("getFromModule"));
     }
-    
+
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override {}
-    
+
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<edm::InputTag>("getFromModule");
       descriptions.addDefault(desc);
-      
     }
-    
-    
   };
   //--------------------------------------------------------------------
   //
   class ConsumingStreamAnalyzer : public edm::stream::EDAnalyzer<> {
   public:
-    ConsumingStreamAnalyzer(edm::ParameterSet const& iPSet) :
-      value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
-      moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
+    ConsumingStreamAnalyzer(edm::ParameterSet const& iPSet)
+        : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
+          moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
       mayConsume<IntProduct>(moduleLabel_);
     }
 
     void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
       edm::Handle<IntProduct> handle;
       iEvent.getByLabel(moduleLabel_, handle);
-      if(handle->value != value_) {
-        throw cms::Exception("ValueMissMatch")
-          << "The value for \"" << moduleLabel_ << "\" is "
-          << handle->value << " but it was supposed to be " << value_;
+      if (handle->value != value_) {
+        throw cms::Exception("ValueMissMatch") << "The value for \"" << moduleLabel_ << "\" is " << handle->value
+                                               << " but it was supposed to be " << value_;
       }
     }
+
   private:
     int value_;
     edm::InputTag moduleLabel_;
@@ -169,22 +156,22 @@ namespace edmtest {
   //
   class ConsumingOneSharedResourceAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
-    ConsumingOneSharedResourceAnalyzer(edm::ParameterSet const& iPSet) :
-    value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
-    moduleLabel_(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel")) {
+    ConsumingOneSharedResourceAnalyzer(edm::ParameterSet const& iPSet)
+        : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
+          moduleLabel_(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel")) {
       mayConsume<IntProduct>(moduleLabel_);
       usesResource(iPSet.getUntrackedParameter<std::string>("resourceName"));
     }
-    
+
     void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
       edm::Handle<IntProduct> handle;
       iEvent.getByLabel(moduleLabel_, handle);
-      if(handle->value != value_) {
-        throw cms::Exception("ValueMissMatch")
-        << "The value for \"" << moduleLabel_ << "\" is "
-        << handle->value << " but it was supposed to be " << value_;
+      if (handle->value != value_) {
+        throw cms::Exception("ValueMissMatch") << "The value for \"" << moduleLabel_ << "\" is " << handle->value
+                                               << " but it was supposed to be " << value_;
       }
     }
+
   private:
     int value_;
     edm::InputTag moduleLabel_;
@@ -196,13 +183,10 @@ namespace edmtest {
   public:
     SCSimpleAnalyzer(edm::ParameterSet const&) {}
 
-    virtual void
-    analyze(edm::Event const& e, edm::EventSetup const&);
+    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
   };
 
-  void
-  SCSimpleAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
-
+  void SCSimpleAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     // Get the product back out; it should be sorted.
     edm::Handle<SCSimpleProduct> h;
     e.getByLabel("scs", h);
@@ -218,8 +202,8 @@ namespace edmtest {
 
     // Verify that the vector *is* sorted.
 
-    for(size_type i = 1, end = after.size(); i < end; ++i) {
-      assert(after[i-1].id() < after[i].id());
+    for (size_type i = 1, end = after.size(); i < end; ++i) {
+      assert(after[i - 1].id() < after[i].id());
     }
   }
 
@@ -229,24 +213,22 @@ namespace edmtest {
   public:
     DSVAnalyzer(edm::ParameterSet const&) {}
 
-    virtual void
-    analyze(edm::Event const& e, edm::EventSetup const&);
+    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
+
   private:
     void do_sorted_stuff(edm::Event const& e);
     void do_unsorted_stuff(edm::Event const& e);
   };
 
-  void
-  DSVAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
+  void DSVAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     do_sorted_stuff(e);
     do_unsorted_stuff(e);
   }
 
-  void
-  DSVAnalyzer::do_sorted_stuff(edm::Event const& e) {
-    typedef DSVSimpleProduct         product_type;
+  void DSVAnalyzer::do_sorted_stuff(edm::Event const& e) {
+    typedef DSVSimpleProduct product_type;
     typedef product_type::value_type detset;
-    typedef detset::value_type       value_type;
+    typedef detset::value_type value_type;
     // Get the product back out; it should be sorted.
     edm::Handle<product_type> h;
     e.getByLabel("dsv1", h);
@@ -257,21 +239,20 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is sorted.
-    std::vector<value_type> const& after = (h->end()-1)->data;
+    std::vector<value_type> const& after = (h->end() - 1)->data;
     typedef std::vector<value_type>::size_type size_type;
 
     // Verify that the vector *is* sorted.
 
-    for(size_type i = 1, end = after.size(); i < end; ++i) {
-      assert(after[i-1].data < after[i].data);
+    for (size_type i = 1, end = after.size(); i < end; ++i) {
+      assert(after[i - 1].data < after[i].data);
     }
   }
 
-  void
-  DSVAnalyzer::do_unsorted_stuff(edm::Event const& e) {
-    typedef DSVWeirdProduct         product_type;
+  void DSVAnalyzer::do_unsorted_stuff(edm::Event const& e) {
+    typedef DSVWeirdProduct product_type;
     typedef product_type::value_type detset;
-    typedef detset::value_type       value_type;
+    typedef detset::value_type value_type;
     // Get the product back out; it should be unsorted.
     edm::Handle<product_type> h;
     e.getByLabel("dsv1", h);
@@ -282,13 +263,13 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is not sorted.
-    std::vector<value_type> const& after = (h->end()-1)->data;
+    std::vector<value_type> const& after = (h->end() - 1)->data;
     typedef std::vector<value_type>::size_type size_type;
 
     // Verify that the vector is reverse-sorted.
 
-    for(size_type i = 1, end = after.size(); i < end; ++i) {
-        assert(after[i-1].data > after[i].data);
+    for (size_type i = 1, end = after.size(); i < end; ++i) {
+      assert(after[i - 1].data > after[i].data);
     }
   }
 }
@@ -310,4 +291,3 @@ DEFINE_FWK_MODULE(ConsumingStreamAnalyzer);
 DEFINE_FWK_MODULE(ConsumingOneSharedResourceAnalyzer);
 DEFINE_FWK_MODULE(SCSimpleAnalyzer);
 DEFINE_FWK_MODULE(DSVAnalyzer);
-

@@ -4,8 +4,9 @@
 //
 // Package:     FWCore/Framework
 // Class  :     outputmodule::AbilityToImplementor
-// 
-/**\class outputmodule::AbilityToImplementor outputmoduleAbilityToImplementor.h "FWCore/Framework/interface/limited/outputmoduleAbilityToImplementor.h"
+//
+/**\class outputmodule::AbilityToImplementor outputmoduleAbilityToImplementor.h
+ "FWCore/Framework/interface/limited/outputmoduleAbilityToImplementor.h"
 
  Description: [one line class summary]
 
@@ -28,59 +29,58 @@
 namespace edm {
   class FileBlock;
   class ModuleCallingContext;
-  
+
   namespace limited {
     namespace outputmodule {
       class InputFileWatcher : public virtual OutputModuleBase {
       public:
-        InputFileWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet) {}
+        InputFileWatcher(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         InputFileWatcher(InputFileWatcher const&) = delete;
         InputFileWatcher& operator=(InputFileWatcher const&) = delete;
-        ~InputFileWatcher() noexcept(false) override {};
-        
+        ~InputFileWatcher() noexcept(false) override{};
+
       private:
         void doRespondToOpenInputFile_(FileBlock const&) final;
         void doRespondToCloseInputFile_(FileBlock const&) final;
-        
+
         virtual void respondToOpenInputFile(FileBlock const&) = 0;
         virtual void respondToCloseInputFile(FileBlock const&) = 0;
       };
-      
-      template<typename T> struct AbilityToImplementor;
-      
-      template<>
+
+      template <typename T>
+      struct AbilityToImplementor;
+
+      template <>
       struct AbilityToImplementor<edm::WatchInputFiles> {
         typedef edm::limited::outputmodule::InputFileWatcher Type;
       };
 
-      template<typename C>
+      template <typename C>
       struct AbilityToImplementor<edm::StreamCache<C>> {
-        typedef edm::limited::impl::StreamCacheHolder<edm::limited::OutputModuleBase,C> Type;
+        typedef edm::limited::impl::StreamCacheHolder<edm::limited::OutputModuleBase, C> Type;
       };
 
-      template<typename C>
+      template <typename C>
       struct AbilityToImplementor<edm::RunCache<C>> {
-        typedef edm::limited::impl::RunCacheHolder<edm::limited::OutputModuleBase,C> Type;
+        typedef edm::limited::impl::RunCacheHolder<edm::limited::OutputModuleBase, C> Type;
       };
 
-      template<typename C>
+      template <typename C>
       struct AbilityToImplementor<edm::RunSummaryCache<C>> {
-        typedef edm::limited::impl::RunSummaryCacheHolder<edm::limited::OutputModuleBase,C> Type;
+        typedef edm::limited::impl::RunSummaryCacheHolder<edm::limited::OutputModuleBase, C> Type;
       };
 
-      template<typename C>
+      template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-        typedef edm::limited::impl::LuminosityBlockCacheHolder<edm::limited::OutputModuleBase,C> Type;
+        typedef edm::limited::impl::LuminosityBlockCacheHolder<edm::limited::OutputModuleBase, C> Type;
       };
 
-      template<typename C>
+      template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockSummaryCache<C>> {
-        typedef edm::limited::impl::LuminosityBlockSummaryCacheHolder<edm::limited::OutputModuleBase,C> Type;
+        typedef edm::limited::impl::LuminosityBlockSummaryCacheHolder<edm::limited::OutputModuleBase, C> Type;
       };
-
     }
   }
 }
-
 
 #endif

@@ -2,7 +2,7 @@
 #define Framework_Frameworkfwd_h
 
 /*----------------------------------------------------------------------
-  
+
 Forward declarations of types in the EDM.
 
 ----------------------------------------------------------------------*/
@@ -45,8 +45,10 @@ namespace edm {
   struct EventSummary;
   struct PathSummary;
   struct TriggerReport;
-  template <typename T> class View;
-  template <typename T> class WorkerT;
+  template <typename T>
+  class View;
+  template <typename T>
+  class WorkerT;
 }
 
 #endif

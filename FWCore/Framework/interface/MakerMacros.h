@@ -13,7 +13,7 @@
 // implementation file only.
 #include "FWCore/Framework/src/WorkerT.h"
 
-
-#define DEFINE_FWK_MODULE(type) \
-  DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+#define DEFINE_FWK_MODULE(type)                                              \
+  DEFINE_EDM_PLUGIN(edm::MakerPluginFactory, edm::WorkerMaker<type>, #type); \
+  DEFINE_FWK_PSET_DESC_FILLER(type)
 #endif

@@ -26,15 +26,7 @@ namespace edm {
 
   class ParentContext {
   public:
-
-    enum class Type {
-      kGlobal,
-      kInternal,
-      kModule,
-      kPlaceInPath,
-      kStream,
-      kInvalid
-    };
+    enum class Type { kGlobal, kInternal, kModule, kPlaceInPath, kStream, kInvalid };
 
     ParentContext();
     ParentContext(GlobalContext const*);

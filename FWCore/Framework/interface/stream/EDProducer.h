@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     EDProducer
-// 
+//
 /**\class edm::stream::EDProducer EDProducer.h "FWCore/Framework/interface/stream/EDProducer.h"
 
  Description: Base class for stream based EDProducers
@@ -29,47 +29,38 @@
 // forward declarations
 namespace edm {
   namespace stream {
-    template< typename... T>
-    class EDProducer : public AbilityToImplementor<T>::Type...,
-                       public EDProducerBase
-    {
-      
+    template <typename... T>
+    class EDProducer : public AbilityToImplementor<T>::Type..., public EDProducerBase {
     public:
       typedef CacheContexts<T...> CacheTypes;
-      
+
       typedef typename CacheTypes::GlobalCache GlobalCache;
       typedef typename CacheTypes::RunCache RunCache;
       typedef typename CacheTypes::LuminosityBlockCache LuminosityBlockCache;
-      typedef RunContextT<RunCache,GlobalCache> RunContext;
-      typedef LuminosityBlockContextT<LuminosityBlockCache,
-                                     RunCache,
-                                     GlobalCache> LuminosityBlockContext;
+      typedef RunContextT<RunCache, GlobalCache> RunContext;
+      typedef LuminosityBlockContextT<LuminosityBlockCache, RunCache, GlobalCache> LuminosityBlockContext;
       typedef typename CacheTypes::RunSummaryCache RunSummaryCache;
       typedef typename CacheTypes::LuminosityBlockSummaryCache LuminosityBlockSummaryCache;
 
       typedef AbilityChecker<T...> HasAbility;
-      
-      
+
       EDProducer() = default;
-      //virtual ~EDProducer();
-      
+      // virtual ~EDProducer();
+
       // ---------- const member functions ---------------------
-      
+
       // ---------- static member functions --------------------
-      
+
       // ---------- member functions ---------------------------
-      
+
     private:
-      EDProducer(const EDProducer&) = delete; // stop default
-      
-      const EDProducer& operator=(const EDProducer&) = delete; // stop default
-      
+      EDProducer(const EDProducer&) = delete;  // stop default
+
+      const EDProducer& operator=(const EDProducer&) = delete;  // stop default
+
       // ---------- member data --------------------------------
-      
     };
-    
   }
 }
-
 
 #endif

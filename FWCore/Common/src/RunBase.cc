@@ -17,15 +17,9 @@
 // user include files
 #include "FWCore/Common/interface/RunBase.h"
 
-namespace edm
-{
+namespace edm {
 
-   RunBase::RunBase()
-   {
-   }
+  RunBase::RunBase() {}
 
-   RunBase::~RunBase()
-   {
-   }
-
+  RunBase::~RunBase() {}
 }

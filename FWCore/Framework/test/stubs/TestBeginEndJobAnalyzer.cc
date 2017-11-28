@@ -2,8 +2,9 @@
 //
 // Package:    TestBeginEndJobAnalyzer
 // Class:      TestBeginEndJobAnalyzer
-// 
-/**\class TestBeginEndJobAnalyzer TestBeginEndJobAnalyzer.cc stubs/TestBeginEndJobAnalyzer/src/TestBeginEndJobAnalyzer.cc
+//
+/**\class TestBeginEndJobAnalyzer TestBeginEndJobAnalyzer.cc
+ stubs/TestBeginEndJobAnalyzer/src/TestBeginEndJobAnalyzer.cc
 
  Description: <one line class summary>
 
@@ -16,64 +17,47 @@
 //
 //
 
-
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <memory>
 #include <iostream>
 
-void hello(const char * hi) {
-  //std::cout << "IN " << hi << std::endl;
+void hello(const char* hi) {
+  // std::cout << "IN " << hi << std::endl;
 }
 
-TestBeginEndJobAnalyzer::Control & 
-TestBeginEndJobAnalyzer::control() {
+TestBeginEndJobAnalyzer::Control& TestBeginEndJobAnalyzer::control() {
   static Control l;
   return l;
 }
 
-TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const edm::ParameterSet& /* iConfig */) {
-   hello("constr");
-}
+TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const edm::ParameterSet& /* iConfig */) { hello("constr"); }
 
 TestBeginEndJobAnalyzer::~TestBeginEndJobAnalyzer() {
-     hello("destr");
+  hello("destr");
   control().destructorCalled = true;
 }
 
-
-void 
-TestBeginEndJobAnalyzer::beginJob() {
-     hello("bjob");
+void TestBeginEndJobAnalyzer::beginJob() {
+  hello("bjob");
   control().beginJobCalled = true;
 }
 
-void 
-TestBeginEndJobAnalyzer::endJob() {
-   hello("ejob");
+void TestBeginEndJobAnalyzer::endJob() {
+  hello("ejob");
   control().endJobCalled = true;
 }
 
-void
-TestBeginEndJobAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&) {
-  control().beginRunCalled = true;
-}
+void TestBeginEndJobAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&) { control().beginRunCalled = true; }
 
-void
-TestBeginEndJobAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
-  control().endRunCalled = true;
-}
+void TestBeginEndJobAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) { control().endRunCalled = true; }
 
-void
-TestBeginEndJobAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+void TestBeginEndJobAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
   control().beginLumiCalled = true;
 }
 
-void
-TestBeginEndJobAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+void TestBeginEndJobAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
   control().endLumiCalled = true;
 }
 
-void
-TestBeginEndJobAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup */) {
-}
+void TestBeginEndJobAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup */) {}

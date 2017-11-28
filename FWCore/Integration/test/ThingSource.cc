@@ -6,8 +6,8 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 
 namespace edmtest {
-  ThingSource::ThingSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc) :
-    ProducerSourceBase(pset, desc, false), alg_() {
+  ThingSource::ThingSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
+      : ProducerSourceBase(pset, desc, false), alg_() {
     produces<ThingCollection>();
     produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi");
     produces<ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi");
@@ -16,14 +16,14 @@ namespace edmtest {
   }
 
   // Virtual destructor needed.
-  ThingSource::~ThingSource() { }  
+  ThingSource::~ThingSource() {}
 
   // Functions that gets called by framework every event
   void ThingSource::produce(edm::Event& e) {
-    // Step A: Get Inputs 
+    // Step A: Get Inputs
 
-    // Step B: Create empty output 
-    auto result = std::make_unique<ThingCollection>();  //Empty
+    // Step B: Create empty output
+    auto result = std::make_unique<ThingCollection>();  // Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
@@ -34,10 +34,10 @@ namespace edmtest {
 
   // Functions that gets called by framework every luminosity block
   void ThingSource::beginLuminosityBlock(edm::LuminosityBlock& lb) {
-    // Step A: Get Inputs 
+    // Step A: Get Inputs
 
-    // Step B: Create empty output 
-    auto result = std::make_unique<ThingCollection>();  //Empty
+    // Step B: Create empty output
+    auto result = std::make_unique<ThingCollection>();  // Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
@@ -47,10 +47,10 @@ namespace edmtest {
   }
 
   void ThingSource::endLuminosityBlock(edm::LuminosityBlock& lb) {
-    // Step A: Get Inputs 
+    // Step A: Get Inputs
 
-    // Step B: Create empty output 
-    auto result = std::make_unique<ThingCollection>();  //Empty
+    // Step B: Create empty output
+    auto result = std::make_unique<ThingCollection>();  // Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
@@ -61,10 +61,10 @@ namespace edmtest {
 
   // Functions that gets called by framework every run
   void ThingSource::beginRun(edm::Run& r) {
-    // Step A: Get Inputs 
+    // Step A: Get Inputs
 
-    // Step B: Create empty output 
-    auto result = std::make_unique<ThingCollection>();  //Empty
+    // Step B: Create empty output
+    auto result = std::make_unique<ThingCollection>();  // Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
@@ -74,10 +74,10 @@ namespace edmtest {
   }
 
   void ThingSource::endRun(edm::Run& r) {
-    // Step A: Get Inputs 
+    // Step A: Get Inputs
 
-    // Step B: Create empty output 
-    auto result = std::make_unique<ThingCollection>();  //Empty
+    // Step B: Create empty output
+    auto result = std::make_unique<ThingCollection>();  // Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);

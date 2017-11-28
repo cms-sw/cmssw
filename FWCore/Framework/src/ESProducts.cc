@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ESProducts
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 
 namespace edm {
-   namespace es {
-      const eventsetup::produce::Produce produced;
-   }
+  namespace es {
+    const eventsetup::produce::Produce produced;
+  }
 }

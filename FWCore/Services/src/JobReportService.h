@@ -4,7 +4,7 @@
 //
 // Package:     Services
 // Class  :     JobReport
-// 
+//
 /**\class JobReportService JobReportService.h FWCore/Services/src/JobReportService.h
 
 Description: A service that collections job handling information.
@@ -40,13 +40,10 @@ namespace edm {
 
       void frameworkShutdownOnFailure();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     };
 
-    inline
-    bool isProcessWideService(JobReportService const*) {
-      return true;
-    }
+    inline bool isProcessWideService(JobReportService const*) { return true; }
   }
 }
 #endif

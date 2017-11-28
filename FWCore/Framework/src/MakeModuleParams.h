@@ -19,18 +19,11 @@ namespace edm {
   class PreallocationConfiguration;
 
   struct MakeModuleParams {
-    MakeModuleParams() :
-      pset_(nullptr), reg_(nullptr), preallocate_(nullptr), processConfiguration_()
-      {}
+    MakeModuleParams() : pset_(nullptr), reg_(nullptr), preallocate_(nullptr), processConfiguration_() {}
 
-    MakeModuleParams(ParameterSet* pset,
-                     ProductRegistry& reg,
-                     PreallocationConfiguration const* prealloc,
-                     std::shared_ptr<ProcessConfiguration const> processConfiguration) :
-      pset_(pset),
-      reg_(&reg),
-      preallocate_(prealloc),
-      processConfiguration_(processConfiguration) {}
+    MakeModuleParams(ParameterSet* pset, ProductRegistry& reg, PreallocationConfiguration const* prealloc,
+                     std::shared_ptr<ProcessConfiguration const> processConfiguration)
+        : pset_(pset), reg_(&reg), preallocate_(prealloc), processConfiguration_(processConfiguration) {}
 
     ParameterSet* pset_;
     ProductRegistry* reg_;

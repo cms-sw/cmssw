@@ -2,7 +2,7 @@
 //
 // Package:     test
 // Class  :     TestPRegisterModules
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

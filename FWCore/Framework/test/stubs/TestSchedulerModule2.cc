@@ -6,8 +6,6 @@
    \date 19 May 2005
 */
 
-
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,14 +15,11 @@
 #include <memory>
 #include <string>
 
-namespace edm{
+namespace edm {
 
-  class TestSchedulerModule2 : public EDProducer
-  {
+  class TestSchedulerModule2 : public EDProducer {
   public:
-    explicit TestSchedulerModule2(ParameterSet const& p):pset_(p){
-       produces<edmtest::StringProduct>();
-    }
+    explicit TestSchedulerModule2(ParameterSet const& p) : pset_(p) { produces<edmtest::StringProduct>(); }
 
     void produce(Event& e, EventSetup const&);
 
@@ -32,15 +27,11 @@ namespace edm{
     ParameterSet pset_;
   };
 
-
-  void TestSchedulerModule2::produce(Event& e, EventSetup const&)
-  {
-
+  void TestSchedulerModule2::produce(Event& e, EventSetup const&) {
     std::string myname = pset_.getParameter<std::string>("module_name");
     e.put(std::make_unique<edmtest::StringProduct>(myname));
-    
   }
-}//namespace  
+}  // namespace
 using edm::TestSchedulerModule2;
 DEFINE_FWK_MODULE(TestSchedulerModule2);
 

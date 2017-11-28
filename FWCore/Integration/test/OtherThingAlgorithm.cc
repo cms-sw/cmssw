@@ -5,11 +5,8 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 namespace edmtest {
-  void OtherThingAlgorithm::run(edm::Handle<ThingCollection> const& parentHandle,
-				OtherThingCollection& result,
-				bool useRefs,
-				bool refsAreTransient) const {
-
+  void OtherThingAlgorithm::run(edm::Handle<ThingCollection> const& parentHandle, OtherThingCollection& result,
+                                bool useRefs, bool refsAreTransient) const {
     const size_t numToMake = 20;
     result.reserve(numToMake);
     ThingCollection const* parent = parentHandle.product();
@@ -25,19 +22,19 @@ namespace edmtest {
         element.ref = edm::Ref<ThingCollection>(element.refProd, i);
         element.refVec.push_back(element.ref);
         element.refVec.push_back(element.ref);
-        element.refVec.push_back(edm::Ref<ThingCollection>(parent, 19-i));
+        element.refVec.push_back(edm::Ref<ThingCollection>(parent, 19 - i));
         edm::RefVector<ThingCollection>::iterator ri = element.refVec.begin();
         element.refVec.erase(ri);
         element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(null, 0));
         element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parent, 0));
-        assert(element.oneNullOneNot.size() == 2); // we'll check this in our tests
+        assert(element.oneNullOneNot.size() == 2);  // we'll check this in our tests
         element.ptr = edm::Ptr<Thing>(&parent->at(i), i);
-        assert (element.ptr == edm::refToPtr(element.ref));
+        assert(element.ptr == edm::refToPtr(element.ref));
         element.ptrVec.push_back(element.ptr);
-        element.ptrVec.push_back(edm::Ptr<Thing>(&parent->at(19-i), 19-i));
+        element.ptrVec.push_back(edm::Ptr<Thing>(&parent->at(19 - i), 19 - i));
         element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(nullptr, 0ul));
         element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(&parent->at(0), 0ul));
-        assert(element.ptrOneNullOneNot.size() == 2); // we'll check this in our tests
+        assert(element.ptrOneNullOneNot.size() == 2);  // we'll check this in our tests
         edm::RefProd<ThingCollection> refProd = edm::RefProd<ThingCollection>(parentHandle);
         edm::Ref<ThingCollection> ref = edm::Ref<ThingCollection>(refProd, i);
         element.refToBaseProd = edm::RefToBaseProd<Thing>(refProd);
@@ -48,19 +45,19 @@ namespace edmtest {
         element.ref = edm::Ref<ThingCollection>(element.refProd, i);
         element.refVec.push_back(element.ref);
         element.refVec.push_back(element.ref);
-        element.refVec.push_back(edm::Ref<ThingCollection>(parentHandle, 19-i));
+        element.refVec.push_back(edm::Ref<ThingCollection>(parentHandle, 19 - i));
         edm::RefVector<ThingCollection>::iterator ri = element.refVec.begin();
         element.refVec.erase(ri);
         element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parentHandle.id()));
         element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parentHandle, 0));
-        assert(element.oneNullOneNot.size() == 2); // we'll check this in our tests
+        assert(element.oneNullOneNot.size() == 2);  // we'll check this in our tests
         element.ptr = edm::Ptr<Thing>(parentHandle, i);
-        assert (element.ptr == edm::refToPtr(element.ref));
+        assert(element.ptr == edm::refToPtr(element.ref));
         element.ptrVec.push_back(element.ptr);
-        element.ptrVec.push_back(edm::Ptr<Thing>(parentHandle, 19-i));
+        element.ptrVec.push_back(edm::Ptr<Thing>(parentHandle, 19 - i));
         element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(parentHandle.id()));
         element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(parentHandle, 0));
-        assert(element.ptrOneNullOneNot.size() == 2); // we'll check this in our tests
+        assert(element.ptrOneNullOneNot.size() == 2);  // we'll check this in our tests
         edm::RefProd<ThingCollection> refProd = edm::RefProd<ThingCollection>(parentHandle);
         edm::Ref<ThingCollection> ref = edm::Ref<ThingCollection>(refProd, i);
         element.refToBaseProd = edm::RefToBaseProd<Thing>(element.refProd);

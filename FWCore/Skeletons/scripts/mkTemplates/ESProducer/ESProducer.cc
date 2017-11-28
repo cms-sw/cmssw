@@ -2,7 +2,7 @@
 //
 // Package:    __subsys__/__pkgname__
 // Class:      __class__
-// 
+//
 /**\class __class__ __class__.h __subsys__/__pkgname__/plugins/__class__.cc
 
  Description: [one line class summary]
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -28,18 +27,17 @@
 
 #include "FWCore/Framework/interface/ESProducts.h"
 
-
 //
 // class declaration
 //
 
 class __class__ : public edm::ESProducer {
-   public:
-      __class__(const edm::ParameterSet&);
-      ~__class__();
+public:
+  __class__(const edm::ParameterSet&);
+  ~__class__();
 
 #python_begin
-    if  len(__datatypes__) > 1:
+  if  len(__datatypes__) > 1:
         datatypes = []
         for dtype in __datatypes__:
             datatypes.append("std::shared_ptr<%s>" % dtype)
@@ -49,8 +47,8 @@ class __class__ : public edm::ESProducer {
 #python_end
 
       ReturnType produce(const __record__&);
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 };
 
 //
@@ -64,34 +62,26 @@ class __class__ : public edm::ESProducer {
 //
 // constructors and destructor
 //
-__class__::__class__(const edm::ParameterSet& iConfig)
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this);
+__class__::__class__(const edm::ParameterSet& iConfig) {
+  // the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced(this);
 
-   //now do what ever other initialization is needed
+  // now do what ever other initialization is needed
 }
 
-
-__class__::~__class__()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+__class__::~__class__() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-__class__::ReturnType
-__class__::produce(const __record__& iRecord)
-{
-   using namespace edm::es;
+__class__::ReturnType __class__::produce(const __record__& iRecord) {
+  using namespace edm::es;
 #python_begin
     out1 = []
     out2 = []
@@ -102,8 +92,7 @@ __class__::produce(const __record__& iRecord)
     output += "\n   return products(%s);" % ','.join(out2)
     print output
 #python_end
-
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(__class__);

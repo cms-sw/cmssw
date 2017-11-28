@@ -17,20 +17,17 @@
 // to add module type and label context to the messages being caught
 // here. At this point we did not think it worth the time to implement.
 namespace {
-  void translator(cms::Exception const& ex) {
-    PyErr_SetString(PyExc_RuntimeError, ex.message().c_str());
-  }
+  void translator(cms::Exception const& ex) { PyErr_SetString(PyExc_RuntimeError, ex.message().c_str()); }
 }
 
-BOOST_PYTHON_MODULE(libFWCorePythonFramework)
-{
+BOOST_PYTHON_MODULE(libFWCorePythonFramework) {
   boost::python::register_exception_translator<cms::Exception>(translator);
 
-  boost::python::class_<PythonEventProcessor, boost::noncopyable>("PythonEventProcessor", boost::python::init<PythonProcessDesc const&>())
-    .def("run", &PythonEventProcessor::run)
-    .def("totalEvents", &PythonEventProcessor::totalEvents)
-    .def("totalEventsPassed", &PythonEventProcessor::totalEventsPassed)
-    .def("totalEventsFailed", &PythonEventProcessor::totalEventsFailed)
-  ;
+  boost::python::class_<PythonEventProcessor, boost::noncopyable>("PythonEventProcessor",
+                                                                  boost::python::init<PythonProcessDesc const&>())
+      .def("run", &PythonEventProcessor::run)
+      .def("totalEvents", &PythonEventProcessor::totalEvents)
+      .def("totalEventsPassed", &PythonEventProcessor::totalEventsPassed)
+      .def("totalEventsFailed", &PythonEventProcessor::totalEventsFailed);
 }
 #endif

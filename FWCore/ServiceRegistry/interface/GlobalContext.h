@@ -27,9 +27,7 @@ namespace edm {
   class ProcessContext;
 
   class GlobalContext {
-
   public:
-
     enum class Transition {
       kBeginJob,
       kBeginRun,
@@ -40,12 +38,9 @@ namespace edm {
       kWriteRun,
       kWriteLuminosityBlock
     };
-    
-    GlobalContext(Transition transition,
-                  LuminosityBlockID const& luminosityBlockID,
-                  RunIndex const& runIndex,
-                  LuminosityBlockIndex const& luminosityBlockIndex, 
-                  Timestamp const & timestamp,
+
+    GlobalContext(Transition transition, LuminosityBlockID const& luminosityBlockID, RunIndex const& runIndex,
+                  LuminosityBlockIndex const& luminosityBlockIndex, Timestamp const& timestamp,
                   ProcessContext const* processContext);
 
     Transition transition() const { return transition_; }
@@ -59,7 +54,7 @@ namespace edm {
     Transition transition_;
     LuminosityBlockID luminosityBlockID_;
     RunIndex runIndex_;
-    LuminosityBlockIndex luminosityBlockIndex_; 
+    LuminosityBlockIndex luminosityBlockIndex_;
     Timestamp timestamp_;
     ProcessContext const* processContext_;
   };

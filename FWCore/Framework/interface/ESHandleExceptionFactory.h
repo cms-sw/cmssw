@@ -28,9 +28,7 @@
 
 namespace edm {
 
-  class ESHandleExceptionFactory
-  {
-
+  class ESHandleExceptionFactory {
   public:
     ESHandleExceptionFactory();
     virtual ~ESHandleExceptionFactory();

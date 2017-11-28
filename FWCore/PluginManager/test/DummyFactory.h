@@ -4,7 +4,7 @@
 //
 // Package:     PluginManager
 // Class  :     DummyFactory
-// 
+//
 /**\class DummyFactory DummyFactory.h FWCore/PluginManager/interface/DummyFactory.h
 
  Description: <one line class summary>
@@ -29,7 +29,6 @@ namespace testedmplugin {
     virtual ~DummyBase();
     virtual int value() const = 0;
   };
-
 
   typedef edmplugin::PluginFactory<DummyBase*(void)> DummyFactory;
 }

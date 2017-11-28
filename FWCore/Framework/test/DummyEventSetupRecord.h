@@ -11,12 +11,11 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 namespace edm {
-   class DummyEventSetupRecord : 
-     public edm::eventsetup::EventSetupRecordImplementation<DummyEventSetupRecord> {};
+  class DummyEventSetupRecord : public edm::eventsetup::EventSetupRecordImplementation<DummyEventSetupRecord> {};
 }
 
 #if !defined(TEST_EXCLUDE_DEF)
-//NOTE: the following should really go into a DummyEventSetupRecord.cc file
+// NOTE: the following should really go into a DummyEventSetupRecord.cc file
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 EVENTSETUP_RECORD_REG(edm::DummyEventSetupRecord);
 #endif

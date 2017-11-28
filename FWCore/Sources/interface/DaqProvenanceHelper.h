@@ -6,7 +6,6 @@
 #include <vector>
 #include "tbb/concurrent_unordered_map.h"
 
-
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
@@ -21,9 +20,7 @@ namespace edm {
 
   namespace dqh {
     struct parentage_hash {
-      std::size_t operator()(edm::ParentageID const& iKey) const{
-        return iKey.smallHash();
-      }
+      std::size_t operator()(edm::ParentageID const& iKey) const { return iKey.smallHash(); }
     };
   }
 
@@ -46,7 +43,7 @@ namespace edm {
     ParentageID const& mapParentageID(ParentageID const& phid) const;
     BranchID const& mapBranchID(BranchID const& branchID) const;
 
-    BranchDescription const& branchDescription() const {return constBranchDescription_;}
+    BranchDescription const& branchDescription() const { return constBranchDescription_; }
     ProcessHistoryID const* oldProcessHistoryID() const { return oldProcessHistoryID_; }
     ProductProvenance const& dummyProvenance() const { return dummyProvenance_; }
 

@@ -3,7 +3,7 @@
 
 /** \class ThingProducer
  *
- * \version   1st Version Apr. 6, 2005  
+ * \version   1st Version Apr. 6, 2005
 
  *
  ************************************************************/
@@ -15,14 +15,11 @@
 
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 
-
 namespace edmtest {
-  class ThingProducer : public edm::global::EDProducer<edm::BeginRunProducer,
-  edm::EndRunProducer,
-  edm::EndLuminosityBlockProducer,
-  edm::BeginLuminosityBlockProducer> {
+  class ThingProducer
+      : public edm::global::EDProducer<edm::BeginRunProducer, edm::EndRunProducer, edm::EndLuminosityBlockProducer,
+                                       edm::BeginLuminosityBlockProducer> {
   public:
-
     explicit ThingProducer(edm::ParameterSet const& ps);
 
     ~ThingProducer() override;

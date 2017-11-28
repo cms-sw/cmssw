@@ -2,7 +2,7 @@
 //
 // Package:     ParameterSet
 // Class  :     ParameterSetDescriptionFillerBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -14,7 +14,6 @@
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
-
 
 //
 // constants, enums and typedefs
@@ -50,7 +49,7 @@ const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForLimite
 //
 // constructors and destructor
 //
-//ParameterSetDescriptionFillerBase::ParameterSetDescriptionFillerBase()
+// ParameterSetDescriptionFillerBase::ParameterSetDescriptionFillerBase()
 //{
 //}
 
@@ -59,14 +58,13 @@ const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForLimite
 //    // do actual copying here;
 // }
 namespace edm {
-ParameterSetDescriptionFillerBase::~ParameterSetDescriptionFillerBase()
-{
-}
+  ParameterSetDescriptionFillerBase::~ParameterSetDescriptionFillerBase() {}
 }
 //
 // assignment operators
 //
-// const ParameterSetDescriptionFillerBase& ParameterSetDescriptionFillerBase::operator=(const ParameterSetDescriptionFillerBase& rhs)
+// const ParameterSetDescriptionFillerBase& ParameterSetDescriptionFillerBase::operator=(const
+// ParameterSetDescriptionFillerBase& rhs)
 // {
 //   //An exception safe implementation is
 //   ParameterSetDescriptionFillerBase temp(rhs);

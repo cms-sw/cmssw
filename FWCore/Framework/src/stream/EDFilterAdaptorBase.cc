@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::stream::EDFilterAdaptorBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -24,42 +24,36 @@
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/stream/ProducingModuleAdaptorBase.cc"
 
-
-
 using namespace edm::stream;
 namespace edm {
   namespace stream {
-    
+
     //
     // constants, enums and typedefs
     //
-    
+
     //
     // static data member definitions
     //
-    
+
     //
     // constructors and destructor
     //
-    EDFilterAdaptorBase::EDFilterAdaptorBase()
-    {
-    }
-    
-    bool
-    EDFilterAdaptorBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
-                                 ActivityRegistry* act,
-                                 ModuleCallingContext const* mcc) {
-      assert(ep.streamID()<m_streamModules.size());
+    EDFilterAdaptorBase::EDFilterAdaptorBase() {}
+
+    bool EDFilterAdaptorBase::doEvent(EventPrincipal const& ep, EventSetup const& c, ActivityRegistry* act,
+                                      ModuleCallingContext const* mcc) {
+      assert(ep.streamID() < m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
-      e.setProducer(mod,&mod->previousParentage_);
-      EventSignalsSentry sentry(act,mcc);
+      e.setProducer(mod, &mod->previousParentage_);
+      EventSignalsSentry sentry(act, mcc);
       bool result = mod->filter(e, c);
       commit(e, &mod->previousParentageId_);
       return result;
     }
-    
+
     template class edm::stream::ProducingModuleAdaptorBase<edm::stream::EDFilterBase>;
   }
 }

@@ -28,21 +28,18 @@ namespace edmtest {
 
   class MissingDictionaryTestProducer : public edm::one::EDProducer<> {
   public:
-
     explicit MissingDictionaryTestProducer(edm::ParameterSet const&);
     virtual ~MissingDictionaryTestProducer();
 
     void produce(edm::Event&, edm::EventSetup const&) override;
 
   private:
-
     edm::EDGetTokenT<MissingDictionaryTestA> inputToken1_;
     edm::EDGetTokenT<std::vector<MissingDictionaryTestA> > inputToken2_;
     edm::EDGetTokenT<std::list<MissingDictionaryTestA> > inputToken3_;
   };
 
   MissingDictionaryTestProducer::MissingDictionaryTestProducer(edm::ParameterSet const& pset) {
-
     consumes<edm::View<MissingDictionaryTestA> >(pset.getParameter<edm::InputTag>("inputTag"));
     inputToken1_ = consumes<MissingDictionaryTestA>(pset.getParameter<edm::InputTag>("inputTag"));
     inputToken2_ = consumes<std::vector<MissingDictionaryTestA> >(pset.getParameter<edm::InputTag>("inputTag"));
@@ -55,15 +52,14 @@ namespace edmtest {
     produces<std::list<MissingDictionaryTestA> >();
   }
 
-  MissingDictionaryTestProducer::~MissingDictionaryTestProducer() { }
+  MissingDictionaryTestProducer::~MissingDictionaryTestProducer() {}
 
   void MissingDictionaryTestProducer::produce(edm::Event& event, edm::EventSetup const&) {
-
     edm::Handle<MissingDictionaryTestA> h1;
-    //event.getByToken(inputToken1_, h1);
+    // event.getByToken(inputToken1_, h1);
 
     edm::Handle<std::vector<MissingDictionaryTestA> > h2;
-    //event.getByToken(inputToken2_, h2);
+    // event.getByToken(inputToken2_, h2);
 
     auto result1 = std::make_unique<MissingDictionaryTestA>();
     event.put(std::move(result1));

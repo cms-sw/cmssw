@@ -4,7 +4,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     DummyService
-// 
+//
 /**\class DummyService DummyService.h FWCore/ServiceRegistry/test/stubs/DummyService.h
 
  Description: <one line class summary>
@@ -30,34 +30,32 @@ namespace edm {
 
 // forward declarations
 namespace testserviceregistry {
-   class DummyService
-   {
+  class DummyService {
+  public:
+    DummyService(const edm::ParameterSet&, edm::ActivityRegistry&);
+    virtual ~DummyService();
 
-   public:
-      DummyService(const edm::ParameterSet&,edm::ActivityRegistry&);
-      virtual ~DummyService();
+    // ---------- const member functions ---------------------
+    int value() const { return value_; }
 
-      // ---------- const member functions ---------------------
-      int value() const { return value_; }
-      
-      bool beginJobCalled() const {return beginJobCalled_;}
+    bool beginJobCalled() const { return beginJobCalled_; }
 
-      // ---------- static member functions --------------------
+    // ---------- static member functions --------------------
 
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-      // ---------- member functions ---------------------------
+    // ---------- member functions ---------------------------
 
-   private:
-      void doOnBeginJob() { beginJobCalled_=true;}
-      DummyService(const DummyService&); // stop default
+  private:
+    void doOnBeginJob() { beginJobCalled_ = true; }
+    DummyService(const DummyService&);  // stop default
 
-      const DummyService& operator=(const DummyService&); // stop default
+    const DummyService& operator=(const DummyService&);  // stop default
 
-      // ---------- member data --------------------------------
-      int value_;
-      bool beginJobCalled_;
-   };
+    // ---------- member data --------------------------------
+    int value_;
+    bool beginJobCalled_;
+  };
 }
 
 #endif

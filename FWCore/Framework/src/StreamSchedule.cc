@@ -43,10 +43,10 @@ namespace edm {
     // should take a const_reference to the 'input', and write to a
     // reference to the 'output'.
     template <typename InputIterator, typename ForwardIterator, typename Func>
-    void
-    transform_into(InputIterator begin, InputIterator end,
-                   ForwardIterator out, Func func) {
-      for (; begin != end; ++begin, ++out) { func(*begin, *out); }
+    void transform_into(InputIterator begin, InputIterator end, ForwardIterator out, Func func) {
+      for (; begin != end; ++begin, ++out) {
+        func(*begin, *out);
+      }
     }
 
     // Function template that takes a sequence 'from', a sequence
@@ -55,9 +55,8 @@ namespace edm {
     // calcuated by the callable object, taking care to fill the
     // outupt only if all calls succeed.
     template <typename FROM, typename TO, typename FUNC>
-    void
-    fill_summary(FROM const& from, TO& to, FUNC func) {
-      if(to.size()!=from.size()) {
+    void fill_summary(FROM const& from, TO& to, FUNC func) {
+      if (to.size() != from.size()) {
         TO temp(from.size());
         transform_into(from.begin(), from.end(), temp.begin(), func);
         to.swap(temp);
@@ -71,55 +70,51 @@ namespace edm {
     // Here we make the trigger results inserter directly.  This should
     // probably be a utility in the WorkerRegistry or elsewhere.
 
-    StreamSchedule::WorkerPtr
-    makeInserter(ExceptionToActionTable const& actions,
-                 std::shared_ptr<ActivityRegistry> areg,
-                 std::shared_ptr<TriggerResultInserter> inserter) {
-      StreamSchedule::WorkerPtr ptr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
+    StreamSchedule::WorkerPtr makeInserter(ExceptionToActionTable const& actions,
+                                           std::shared_ptr<ActivityRegistry> areg,
+                                           std::shared_ptr<TriggerResultInserter> inserter) {
+      StreamSchedule::WorkerPtr ptr(
+          new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
       ptr->setActivityRegistry(areg);
       return ptr;
     }
 
-    void
-    initializeBranchToReadingWorker(ParameterSet const& opts,
-                                    ProductRegistry const& preg,
-                                    std::multimap<std::string,Worker*>& branchToReadingWorker)
-    {
+    void initializeBranchToReadingWorker(ParameterSet const& opts, ProductRegistry const& preg,
+                                         std::multimap<std::string, Worker*>& branchToReadingWorker) {
       // See if any data has been marked to be deleted early (removing any duplicates)
-      auto vBranchesToDeleteEarly = opts.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly",std::vector<std::string>());
-      if(not vBranchesToDeleteEarly.empty()) {
-        std::sort(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end(),std::less<std::string>());
-        vBranchesToDeleteEarly.erase(std::unique(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end()),
+      auto vBranchesToDeleteEarly =
+          opts.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly", std::vector<std::string>());
+      if (not vBranchesToDeleteEarly.empty()) {
+        std::sort(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end(), std::less<std::string>());
+        vBranchesToDeleteEarly.erase(std::unique(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end()),
                                      vBranchesToDeleteEarly.end());
-        
+
         // Are the requested items in the product registry?
         auto allBranchNames = preg.allBranchNames();
-        //the branch names all end with a period, which we do not want to compare with
-        for(auto & b:allBranchNames) {
-          b.resize(b.size()-1);
+        // the branch names all end with a period, which we do not want to compare with
+        for (auto& b : allBranchNames) {
+          b.resize(b.size() - 1);
         }
-        std::sort(allBranchNames.begin(),allBranchNames.end(),std::less<std::string>());
+        std::sort(allBranchNames.begin(), allBranchNames.end(), std::less<std::string>());
         std::vector<std::string> temp;
-        temp.reserve(vBranchesToDeleteEarly.size());  
-        
-        std::set_intersection(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end(),
-                              allBranchNames.begin(),allBranchNames.end(),
-                              std::back_inserter(temp));
+        temp.reserve(vBranchesToDeleteEarly.size());
+
+        std::set_intersection(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end(), allBranchNames.begin(),
+                              allBranchNames.end(), std::back_inserter(temp));
         vBranchesToDeleteEarly.swap(temp);
-        if(temp.size() != vBranchesToDeleteEarly.size()) {
+        if (temp.size() != vBranchesToDeleteEarly.size()) {
           std::vector<std::string> missingProducts;
-          std::set_difference(temp.begin(),temp.end(),
-                              vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end(),
+          std::set_difference(temp.begin(), temp.end(), vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end(),
                               std::back_inserter(missingProducts));
           LogInfo l("MissingProductsForCanDeleteEarly");
-          l<<"The following products in the 'canDeleteEarly' list are not available in this job and will be ignored.";
-          for(auto const& n:missingProducts){
-            l<<"\n "<<n;
+          l << "The following products in the 'canDeleteEarly' list are not available in this job and will be ignored.";
+          for (auto const& n : missingProducts) {
+            l << "\n " << n;
           }
         }
-        //set placeholder for the branch, we will remove the nullptr if a
+        // set placeholder for the branch, we will remove the nullptr if a
         // module actually wants the branch.
-        for(auto const& branch:vBranchesToDeleteEarly) {
+        for (auto const& branch : vBranchesToDeleteEarly) {
           branchToReadingWorker.insert(std::make_pair(branch, static_cast<Worker*>(nullptr)));
         }
       }
@@ -132,35 +127,28 @@ namespace edm {
 
   // -----------------------------
 
-  StreamSchedule::StreamSchedule(std::shared_ptr<TriggerResultInserter> inserter,
-                                 std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
-                                 std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-                                 std::shared_ptr<ModuleRegistry> modReg,
-                                 ParameterSet& proc_pset,
-                                 service::TriggerNamesService const& tns,
-                                 PreallocationConfiguration const& prealloc,
-                                 ProductRegistry& preg,
-                                 BranchIDListHelper& branchIDListHelper,
-                                 ExceptionToActionTable const& actions,
-                                 std::shared_ptr<ActivityRegistry> areg,
-                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
-                                 bool allowEarlyDelete,
-                                 StreamID streamID,
-                                 ProcessContext const* processContext) :
-    workerManager_(modReg,areg, actions),
-    actReg_(areg),
-    results_(new HLTGlobalStatus(tns.getTrigPaths().size())),
-    results_inserter_(),
-    trig_paths_(),
-    end_paths_(),
-    total_events_(),
-    total_passed_(),
-    number_of_unscheduled_modules_(0),
-    streamID_(streamID),
-    streamContext_(streamID_, processContext),
-    endpathsAreActive_(true),
-    skippingEvent_(false){
-
+  StreamSchedule::StreamSchedule(
+      std::shared_ptr<TriggerResultInserter> inserter,
+      std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
+      std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
+      std::shared_ptr<ModuleRegistry> modReg, ParameterSet& proc_pset, service::TriggerNamesService const& tns,
+      PreallocationConfiguration const& prealloc, ProductRegistry& preg, BranchIDListHelper& branchIDListHelper,
+      ExceptionToActionTable const& actions, std::shared_ptr<ActivityRegistry> areg,
+      std::shared_ptr<ProcessConfiguration> processConfiguration, bool allowEarlyDelete, StreamID streamID,
+      ProcessContext const* processContext)
+      : workerManager_(modReg, areg, actions),
+        actReg_(areg),
+        results_(new HLTGlobalStatus(tns.getTrigPaths().size())),
+        results_inserter_(),
+        trig_paths_(),
+        end_paths_(),
+        total_events_(),
+        total_passed_(),
+        number_of_unscheduled_modules_(0),
+        streamID_(streamID),
+        streamContext_(streamID_, processContext),
+        endpathsAreActive_(true),
+        skippingEvent_(false) {
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
     bool hasPath = false;
     std::vector<std::string> const& pathNames = tns.getTrigPaths();
@@ -192,21 +180,20 @@ namespace edm {
 
     makePathStatusInserters(pathStatusInserters, endPathStatusInserters, actions);
 
-    //See if all modules were used
+    // See if all modules were used
     std::set<std::string> usedWorkerLabels;
     for (auto const& worker : allWorkers()) {
       usedWorkerLabels.insert(worker->description().moduleLabel());
     }
-    std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
+    std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string>>("@all_modules"));
     std::set<std::string> modulesInConfigSet(modulesInConfig.begin(), modulesInConfig.end());
     std::vector<std::string> unusedLabels;
-    set_difference(modulesInConfigSet.begin(), modulesInConfigSet.end(),
-                   usedWorkerLabels.begin(), usedWorkerLabels.end(),
-                   back_inserter(unusedLabels));
+    set_difference(modulesInConfigSet.begin(), modulesInConfigSet.end(), usedWorkerLabels.begin(),
+                   usedWorkerLabels.end(), back_inserter(unusedLabels));
     std::set<std::string> unscheduledLabels;
-    std::vector<std::string>  shouldBeUsedLabels;
+    std::vector<std::string> shouldBeUsedLabels;
     if (!unusedLabels.empty()) {
-      //Need to
+      // Need to
       // 1) create worker
       // 2) if it is a WorkerT<EDProducer>, add it to our list
       // 3) hand list to our delayed reader
@@ -215,97 +202,93 @@ namespace edm {
         ParameterSet* modulePSet(proc_pset.getPSetForUpdate(label, isTracked));
         assert(isTracked);
         assert(modulePSet != nullptr);
-        workerManager_.addToUnscheduledWorkers(*modulePSet, preg, &prealloc, processConfiguration, label, unscheduledLabels, shouldBeUsedLabels);
+        workerManager_.addToUnscheduledWorkers(*modulePSet, preg, &prealloc, processConfiguration, label,
+                                               unscheduledLabels, shouldBeUsedLabels);
       }
       if (!shouldBeUsedLabels.empty()) {
         std::ostringstream unusedStream;
         unusedStream << "'" << shouldBeUsedLabels.front() << "'";
         for (std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin() + 1,
-              itLabelEnd = shouldBeUsedLabels.end();
-            itLabel != itLabelEnd;
-            ++itLabel) {
+                                                itLabelEnd = shouldBeUsedLabels.end();
+             itLabel != itLabelEnd; ++itLabel) {
           unusedStream << ",'" << *itLabel << "'";
         }
-        LogInfo("path")
-          << "The following module labels are not assigned to any path:\n"
-          << unusedStream.str()
-          << "\n";
+        LogInfo("path") << "The following module labels are not assigned to any path:\n" << unusedStream.str() << "\n";
       }
     }
     if (!unscheduledLabels.empty()) {
-      number_of_unscheduled_modules_=unscheduledLabels.size();
+      number_of_unscheduled_modules_ = unscheduledLabels.size();
       workerManager_.setOnDemandProducts(preg, unscheduledLabels);
     }
 
+    initializeEarlyDelete(*modReg, opts, preg, allowEarlyDelete);
 
-    initializeEarlyDelete(*modReg, opts,preg,allowEarlyDelete);
-    
-  } // StreamSchedule::StreamSchedule
+  }  // StreamSchedule::StreamSchedule
 
-  
-  void StreamSchedule::initializeEarlyDelete(ModuleRegistry & modReg,
-                                             edm::ParameterSet const& opts, edm::ProductRegistry const& preg,
-                                       bool allowEarlyDelete) {
-    //for now, if have a subProcess, don't allow early delete
+  void StreamSchedule::initializeEarlyDelete(ModuleRegistry& modReg, edm::ParameterSet const& opts,
+                                             edm::ProductRegistry const& preg, bool allowEarlyDelete) {
+    // for now, if have a subProcess, don't allow early delete
     // In the future we should use the SubProcess's 'keep list' to decide what can be kept
-    if(not allowEarlyDelete) {  return; }
+    if (not allowEarlyDelete) {
+      return;
+    }
 
-    //see if 'canDeleteEarly' was set and if so setup the list with those products actually
+    // see if 'canDeleteEarly' was set and if so setup the list with those products actually
     // registered for this job
-    std::multimap<std::string,Worker*> branchToReadingWorker;
-    initializeBranchToReadingWorker(opts,preg,branchToReadingWorker);
-    
-    //If no delete early items have been specified we don't have to do anything
-    if(branchToReadingWorker.empty()) {
+    std::multimap<std::string, Worker*> branchToReadingWorker;
+    initializeBranchToReadingWorker(opts, preg, branchToReadingWorker);
+
+    // If no delete early items have been specified we don't have to do anything
+    if (branchToReadingWorker.empty()) {
       return;
     }
     const std::vector<std::string> kEmpty;
-    std::map<Worker*,unsigned int> reserveSizeForWorker;
-    unsigned int upperLimitOnReadingWorker =0;
+    std::map<Worker*, unsigned int> reserveSizeForWorker;
+    unsigned int upperLimitOnReadingWorker = 0;
     unsigned int upperLimitOnIndicies = 0;
-    unsigned int nUniqueBranchesToDelete=branchToReadingWorker.size();
-    
-    //talk with output modules first
-    modReg.forAllModuleHolders([this, &branchToReadingWorker,&nUniqueBranchesToDelete](maker::ModuleHolder* iHolder){
+    unsigned int nUniqueBranchesToDelete = branchToReadingWorker.size();
+
+    // talk with output modules first
+    modReg.forAllModuleHolders([this, &branchToReadingWorker, &nUniqueBranchesToDelete](maker::ModuleHolder* iHolder) {
       auto comm = iHolder->createOutputModuleCommunicator();
       if (comm) {
-        if(!branchToReadingWorker.empty()) {
-          //If an OutputModule needs a product, we can't delete it early
+        if (!branchToReadingWorker.empty()) {
+          // If an OutputModule needs a product, we can't delete it early
           // so we should remove it from our list
           SelectedProductsForBranchType const& kept = comm->keptProducts();
-          for(auto const& item: kept[InEvent]) {
+          for (auto const& item : kept[InEvent]) {
             BranchDescription const& desc = *item.first;
             auto found = branchToReadingWorker.equal_range(desc.branchName());
-            if(found.first !=found.second) {
+            if (found.first != found.second) {
               --nUniqueBranchesToDelete;
-              branchToReadingWorker.erase(found.first,found.second);
+              branchToReadingWorker.erase(found.first, found.second);
             }
           }
         }
       }
     });
-    
-    if(branchToReadingWorker.empty()) {
+
+    if (branchToReadingWorker.empty()) {
       return;
     }
-    
-    for (auto w :allWorkers()) {
-      //determine if this module could read a branch we want to delete early
+
+    for (auto w : allWorkers()) {
+      // determine if this module could read a branch we want to delete early
       auto pset = pset::Registry::instance()->getMapped(w->description().parameterSetID());
-      if(nullptr!=pset) {
-        auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet",kEmpty);
-        if(not branches.empty()) {
+      if (nullptr != pset) {
+        auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet", kEmpty);
+        if (not branches.empty()) {
           ++upperLimitOnReadingWorker;
         }
-        for(auto const& branch:branches){
+        for (auto const& branch : branches) {
           auto found = branchToReadingWorker.equal_range(branch);
-          if(found.first != found.second) {
+          if (found.first != found.second) {
             ++upperLimitOnIndicies;
             ++reserveSizeForWorker[w];
-            if(nullptr == found.first->second) {
+            if (nullptr == found.first->second) {
               found.first->second = w;
             } else {
-              branchToReadingWorker.insert(make_pair(found.first->first,w));
+              branchToReadingWorker.insert(make_pair(found.first->first, w));
             }
           }
         }
@@ -314,10 +297,10 @@ namespace edm {
     {
       auto it = branchToReadingWorker.begin();
       std::vector<std::string> unusedBranches;
-      while(it !=branchToReadingWorker.end()) {
-        if(it->second == nullptr) {
+      while (it != branchToReadingWorker.end()) {
+        if (it->second == nullptr) {
           unusedBranches.push_back(it->first);
-          //erasing the object invalidates the iterator so must advance it first
+          // erasing the object invalidates the iterator so must advance it first
           auto temp = it;
           ++it;
           branchToReadingWorker.erase(temp);
@@ -325,100 +308,99 @@ namespace edm {
           ++it;
         }
       }
-      if(not unusedBranches.empty()) {
+      if (not unusedBranches.empty()) {
         LogWarning l("UnusedProductsForCanDeleteEarly");
-        l<<"The following products in the 'canDeleteEarly' list are not used in this job and will be ignored.\n"
-        " If possible, remove the producer from the job or add the product to the producer's own 'mightGet' list.";
-        for(auto const& n:unusedBranches){
-          l<<"\n "<<n;
+        l << "The following products in the 'canDeleteEarly' list are not used in this job and will be ignored.\n"
+             " If possible, remove the producer from the job or add the product to the producer's own 'mightGet' list.";
+        for (auto const& n : unusedBranches) {
+          l << "\n " << n;
         }
       }
-    }  
-    if(!branchToReadingWorker.empty()) {
+    }
+    if (!branchToReadingWorker.empty()) {
       earlyDeleteHelpers_.reserve(upperLimitOnReadingWorker);
-      earlyDeleteHelperToBranchIndicies_.resize(upperLimitOnIndicies,0);
+      earlyDeleteHelperToBranchIndicies_.resize(upperLimitOnIndicies, 0);
       earlyDeleteBranchToCount_.reserve(nUniqueBranchesToDelete);
-      std::map<const Worker*,EarlyDeleteHelper*> alreadySeenWorkers;
+      std::map<const Worker*, EarlyDeleteHelper*> alreadySeenWorkers;
       std::string lastBranchName;
       size_t nextOpenIndex = 0;
       unsigned int* beginAddress = &(earlyDeleteHelperToBranchIndicies_.front());
-      for(auto& branchAndWorker:branchToReadingWorker) {
-        if(lastBranchName != branchAndWorker.first) {
-          //have to put back the period we removed earlier in order to get the proper name
-          BranchID bid(branchAndWorker.first+".");
-          earlyDeleteBranchToCount_.emplace_back(bid,0U);
+      for (auto& branchAndWorker : branchToReadingWorker) {
+        if (lastBranchName != branchAndWorker.first) {
+          // have to put back the period we removed earlier in order to get the proper name
+          BranchID bid(branchAndWorker.first + ".");
+          earlyDeleteBranchToCount_.emplace_back(bid, 0U);
           lastBranchName = branchAndWorker.first;
         }
         auto found = alreadySeenWorkers.find(branchAndWorker.second);
-        if(alreadySeenWorkers.end() == found) {
-          //NOTE: we will set aside enough space in earlyDeleteHelperToBranchIndicies_ to accommodate
+        if (alreadySeenWorkers.end() == found) {
+          // NOTE: we will set aside enough space in earlyDeleteHelperToBranchIndicies_ to accommodate
           // all the branches that might be read by this worker. However, initially we will only tell the
           // EarlyDeleteHelper about the first one. As additional branches are added via 'appendIndex' the
           // EarlyDeleteHelper will automatically advance its internal end pointer.
           size_t index = nextOpenIndex;
           size_t nIndices = reserveSizeForWorker[branchAndWorker.second];
-          earlyDeleteHelperToBranchIndicies_[index]=earlyDeleteBranchToCount_.size()-1;
-          earlyDeleteHelpers_.emplace_back(beginAddress+index,
-                                           beginAddress+index+1,
-                                           &earlyDeleteBranchToCount_);
+          earlyDeleteHelperToBranchIndicies_[index] = earlyDeleteBranchToCount_.size() - 1;
+          earlyDeleteHelpers_.emplace_back(beginAddress + index, beginAddress + index + 1, &earlyDeleteBranchToCount_);
           branchAndWorker.second->setEarlyDeleteHelper(&(earlyDeleteHelpers_.back()));
-          alreadySeenWorkers.insert(std::make_pair(branchAndWorker.second,&(earlyDeleteHelpers_.back())));
-          nextOpenIndex +=nIndices;
+          alreadySeenWorkers.insert(std::make_pair(branchAndWorker.second, &(earlyDeleteHelpers_.back())));
+          nextOpenIndex += nIndices;
         } else {
-          found->second->appendIndex(earlyDeleteBranchToCount_.size()-1);
+          found->second->appendIndex(earlyDeleteBranchToCount_.size() - 1);
         }
       }
-      
-      //Now we can compactify the earlyDeleteHelperToBranchIndicies_ since we may have over estimated the
+
+      // Now we can compactify the earlyDeleteHelperToBranchIndicies_ since we may have over estimated the
       // space needed for each module
       auto itLast = earlyDeleteHelpers_.begin();
-      for(auto it = earlyDeleteHelpers_.begin()+1;it != earlyDeleteHelpers_.end();++it) {
-        if(itLast->end() != it->begin()) {
-          //figure the offset for next Worker since it hasn't been moved yet so it has the original address
-          unsigned int delta = it->begin()- itLast->end();
+      for (auto it = earlyDeleteHelpers_.begin() + 1; it != earlyDeleteHelpers_.end(); ++it) {
+        if (itLast->end() != it->begin()) {
+          // figure the offset for next Worker since it hasn't been moved yet so it has the original address
+          unsigned int delta = it->begin() - itLast->end();
           it->shiftIndexPointers(delta);
-          
-          earlyDeleteHelperToBranchIndicies_.erase(earlyDeleteHelperToBranchIndicies_.begin()+
-                                                   (itLast->end()-beginAddress),
-                                                   earlyDeleteHelperToBranchIndicies_.begin()+
-                                                   (it->begin()-beginAddress));
+
+          earlyDeleteHelperToBranchIndicies_.erase(
+              earlyDeleteHelperToBranchIndicies_.begin() + (itLast->end() - beginAddress),
+              earlyDeleteHelperToBranchIndicies_.begin() + (it->begin() - beginAddress));
         }
         itLast = it;
       }
-      earlyDeleteHelperToBranchIndicies_.erase(earlyDeleteHelperToBranchIndicies_.begin()+(itLast->end()-beginAddress),
-                                               earlyDeleteHelperToBranchIndicies_.end());
-      
-      //now tell the paths about the deleters
-      for(auto& p : trig_paths_) {
+      earlyDeleteHelperToBranchIndicies_.erase(
+          earlyDeleteHelperToBranchIndicies_.begin() + (itLast->end() - beginAddress),
+          earlyDeleteHelperToBranchIndicies_.end());
+
+      // now tell the paths about the deleters
+      for (auto& p : trig_paths_) {
         p.setEarlyDeleteHelpers(alreadySeenWorkers);
       }
-      for(auto& p : end_paths_) {
+      for (auto& p : end_paths_) {
         p.setEarlyDeleteHelpers(alreadySeenWorkers);
       }
       resetEarlyDelete();
     }
   }
 
-  void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
-                                   ProductRegistry& preg,
+  void StreamSchedule::fillWorkers(ParameterSet& proc_pset, ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                   std::string const& pathName,
-                                   bool ignoreFilters,
-                                   PathWorkers& out,
+                                   std::string const& pathName, bool ignoreFilters, PathWorkers& out,
                                    std::vector<std::string> const& endPathNames) {
     vstring modnames = proc_pset.getParameter<vstring>(pathName);
     PathWorkers tmpworkers;
 
     unsigned int placeInPath = 0;
     for (auto const& name : modnames) {
-
       WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
-      if (name[0] == '!') {       filterAction = WorkerInPath::Veto;
-      } else if (name[0] == '-') {  filterAction = WorkerInPath::Ignore; }
+      if (name[0] == '!') {
+        filterAction = WorkerInPath::Veto;
+      } else if (name[0] == '-') {
+        filterAction = WorkerInPath::Ignore;
+      }
 
       std::string moduleLabel = name;
-      if (filterAction != WorkerInPath::Normal) { moduleLabel.erase(0, 1); }
+      if (filterAction != WorkerInPath::Normal) {
+        moduleLabel.erase(0, 1);
+      }
 
       bool isTracked;
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
@@ -427,26 +409,26 @@ namespace edm {
         if (!search_all(endPathNames, pathName)) {
           pathType = std::string("path");
         }
-        throw Exception(errors::Configuration) <<
-          "The unknown module label \"" << moduleLabel <<
-          "\" appears in " << pathType << " \"" << pathName <<
-          "\"\n please check spelling or remove that label from the path.";
+        throw Exception(errors::Configuration)
+            << "The unknown module label \"" << moduleLabel << "\" appears in " << pathType << " \"" << pathName
+            << "\"\n please check spelling or remove that label from the path.";
       }
       assert(isTracked);
 
       Worker* worker = workerManager_.getWorker(*modpset, preg, prealloc, processConfiguration, moduleLabel);
-      if (ignoreFilters && filterAction != WorkerInPath::Ignore && worker->moduleType()==Worker::kFilter) {
+      if (ignoreFilters && filterAction != WorkerInPath::Ignore && worker->moduleType() == Worker::kFilter) {
         // We have a filter on an end path, and the filter is not explicitly ignored.
         // See if the filter is allowed.
         std::vector<std::string> allowed_filters = proc_pset.getUntrackedParameter<vstring>("@filters_on_endpaths");
         if (!search_all(allowed_filters, worker->description().moduleName())) {
           // Filter is not allowed. Ignore the result, and issue a warning.
           filterAction = WorkerInPath::Ignore;
-          LogWarning("FilterOnEndPath")
-            << "The EDFilter '" << worker->description().moduleName() << "' with module label '" << moduleLabel << "' appears on EndPath '" << pathName << "'.\n"
-            << "The return value of the filter will be ignored.\n"
-            << "To suppress this warning, either remove the filter from the endpath,\n"
-            << "or explicitly ignore it in the configuration by using cms.ignore().\n";
+          LogWarning("FilterOnEndPath") << "The EDFilter '" << worker->description().moduleName()
+                                        << "' with module label '" << moduleLabel << "' appears on EndPath '"
+                                        << pathName << "'.\n"
+                                        << "The return value of the filter will be ignored.\n"
+                                        << "To suppress this warning, either remove the filter from the endpath,\n"
+                                        << "or explicitly ignore it in the configuration by using cms.ignore().\n";
         }
       }
       tmpworkers.emplace_back(worker, filterAction, placeInPath);
@@ -456,18 +438,18 @@ namespace edm {
     out.swap(tmpworkers);
   }
 
-  void StreamSchedule::fillTrigPath(ParameterSet& proc_pset,
-                                    ProductRegistry& preg,
+  void StreamSchedule::fillTrigPath(ParameterSet& proc_pset, ProductRegistry& preg,
                                     PreallocationConfiguration const* prealloc,
-                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                    int bitpos, std::string const& name, TrigResPtr trptr,
+                                    std::shared_ptr<ProcessConfiguration const> processConfiguration, int bitpos,
+                                    std::string const& name, TrigResPtr trptr,
                                     std::vector<std::string> const& endPathNames) {
     PathWorkers tmpworkers;
     fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, false, tmpworkers, endPathNames);
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
-      trig_paths_.emplace_back(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, &streamContext_, &skippingEvent_, PathContext::PathType::kPath);
+      trig_paths_.emplace_back(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, &streamContext_,
+                               &skippingEvent_, PathContext::PathType::kPath);
     } else {
       empty_trig_paths_.push_back(bitpos);
     }
@@ -476,18 +458,17 @@ namespace edm {
     }
   }
 
-  void StreamSchedule::fillEndPath(ParameterSet& proc_pset,
-                                   ProductRegistry& preg,
+  void StreamSchedule::fillEndPath(ParameterSet& proc_pset, ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
-                                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                   int bitpos, std::string const& name,
-                                   std::vector<std::string> const& endPathNames) {
+                                   std::shared_ptr<ProcessConfiguration const> processConfiguration, int bitpos,
+                                   std::string const& name, std::vector<std::string> const& endPathNames) {
     PathWorkers tmpworkers;
     fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, true, tmpworkers, endPathNames);
 
     if (!tmpworkers.empty()) {
-      //EndPaths are not supposed to stop if SkipEvent type exception happens
-      end_paths_.emplace_back(bitpos, name, tmpworkers, TrigResPtr(), actionTable(), actReg_, &streamContext_, nullptr, PathContext::PathType::kEndPath);
+      // EndPaths are not supposed to stop if SkipEvent type exception happens
+      end_paths_.emplace_back(bitpos, name, tmpworkers, TrigResPtr(), actionTable(), actReg_, &streamContext_, nullptr,
+                              PathContext::PathType::kEndPath);
     } else {
       empty_end_paths_.push_back(bitpos);
     }
@@ -496,16 +477,11 @@ namespace edm {
     }
   }
 
-  void StreamSchedule::beginStream() {
-    workerManager_.beginStream(streamID_, streamContext_);
-  }
-  
-  void StreamSchedule::endStream() {
-    workerManager_.endStream(streamID_, streamContext_);
-  }
+  void StreamSchedule::beginStream() { workerManager_.beginStream(streamID_, streamContext_); }
 
-  void StreamSchedule::replaceModule(maker::ModuleHolder* iMod,
-                                    std::string const& iLabel) {
+  void StreamSchedule::endStream() { workerManager_.endStream(streamID_, streamContext_); }
+
+  void StreamSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {
       if (worker->description().moduleLabel() == iLabel) {
@@ -518,11 +494,10 @@ namespace edm {
     }
 
     iMod->replaceModuleFor(found);
-    found->beginStream(streamID_,streamContext_);
+    found->beginStream(streamID_, streamContext_);
   }
 
-  std::vector<ModuleDescription const*>
-  StreamSchedule::getAllModuleDescriptions() const {
+  std::vector<ModuleDescription const*> StreamSchedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
     result.reserve(allWorkers().size());
 
@@ -532,15 +507,14 @@ namespace edm {
     }
     return result;
   }
-  
-  void StreamSchedule::processOneEventAsync(WaitingTaskHolder iTask,
-                                            EventPrincipal& ep,
-                                            EventSetup const& es,
-                                            std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters) {
+
+  void StreamSchedule::processOneEventAsync(
+      WaitingTaskHolder iTask, EventPrincipal& ep, EventSetup const& es,
+      std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters) {
     this->resetAll();
 
     using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
-    
+
     Traits::setStreamContext(streamContext_, ep);
     Traits::preScheduleSignal(actReg_.get(), &streamContext_);
 
@@ -548,124 +522,116 @@ namespace edm {
     for (int empty_trig_path : empty_trig_paths_) {
       results_->at(empty_trig_path) = hltPathStatus;
       pathStatusInserters[empty_trig_path]->setPathStatus(streamID_, hltPathStatus);
-      std::exception_ptr iException = pathStatusInserterWorkers_[empty_trig_path]->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-          ep, es, streamID_, ParentContext(&streamContext_), &streamContext_
-      );
+      std::exception_ptr iException =
+          pathStatusInserterWorkers_[empty_trig_path]
+              ->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+                  ep, es, streamID_, ParentContext(&streamContext_), &streamContext_);
       if (iException) {
         iTask.doneWaiting(iException);
         return;
       }
     }
     for (int empty_end_path : empty_end_paths_) {
-      std::exception_ptr iException = endPathStatusInserterWorkers_[empty_end_path]->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-          ep, es, streamID_, ParentContext(&streamContext_), &streamContext_
-      );
+      std::exception_ptr iException =
+          endPathStatusInserterWorkers_[empty_end_path]
+              ->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+                  ep, es, streamID_, ParentContext(&streamContext_), &streamContext_);
       if (iException) {
         iTask.doneWaiting(iException);
         return;
       }
     }
-    
+
     // This call takes care of the unscheduled processing.
-    workerManager_.setupOnDemandSystem(ep,es);
-    
+    workerManager_.setupOnDemandSystem(ep, es);
+
     ++total_events_;
     auto serviceToken = ServiceRegistry::instance().presentToken();
-    
+
     auto allPathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                          [iTask,this,serviceToken](std::exception_ptr const* iPtr) mutable
-                                          {
+                                          [iTask, this, serviceToken](std::exception_ptr const* iPtr) mutable {
                                             ServiceRegistry::Operate operate(serviceToken);
-                                            
+
                                             std::exception_ptr ptr;
-                                            if(iPtr) {
+                                            if (iPtr) {
                                               ptr = *iPtr;
                                             }
                                             iTask.doneWaiting(finishProcessOneEvent(ptr));
                                           });
-    //The holder guarantees that if the paths finish before the loop ends
+    // The holder guarantees that if the paths finish before the loop ends
     // that we do not start too soon. It also guarantees that the task will
     // run under that condition.
     WaitingTaskHolder allPathsHolder(allPathsDone);
 
-    auto pathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                          [allPathsHolder,&ep, &es, this,serviceToken](std::exception_ptr const* iPtr) mutable
-                                          {
-                                            ServiceRegistry::Operate operate(serviceToken);
+    auto pathsDone =
+        make_waiting_task(tbb::task::allocate_root(),
+                          [allPathsHolder, &ep, &es, this, serviceToken](std::exception_ptr const* iPtr) mutable {
+                            ServiceRegistry::Operate operate(serviceToken);
 
-                                            std::exception_ptr ptr;
-                                            if(iPtr) {
-                                              ptr = *iPtr;
-                                            }
-                                            finishedPaths(ptr, std::move(allPathsHolder), ep, es);
-                                          });
-    
-    //The holder guarantees that if the paths finish before the loop ends
+                            std::exception_ptr ptr;
+                            if (iPtr) {
+                              ptr = *iPtr;
+                            }
+                            finishedPaths(ptr, std::move(allPathsHolder), ep, es);
+                          });
+
+    // The holder guarantees that if the paths finish before the loop ends
     // that we do not start too soon. It also guarantees that the task will
     // run under that condition.
     WaitingTaskHolder taskHolder(pathsDone);
 
-    //start end paths first so on single threaded the paths will run first
-    for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
-        it != itEnd; ++it) {
-      it->processOneOccurrenceAsync(allPathsDone,ep, es, streamID_, &streamContext_);
+    // start end paths first so on single threaded the paths will run first
+    for (auto it = end_paths_.rbegin(), itEnd = end_paths_.rend(); it != itEnd; ++it) {
+      it->processOneOccurrenceAsync(allPathsDone, ep, es, streamID_, &streamContext_);
     }
 
-    for(auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend();
-        it != itEnd; ++ it) {
-      it->processOneOccurrenceAsync(pathsDone,ep, es, streamID_, &streamContext_);
+    for (auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend(); it != itEnd; ++it) {
+      it->processOneOccurrenceAsync(pathsDone, ep, es, streamID_, &streamContext_);
     }
   }
-  
-  void
-  StreamSchedule::finishedPaths(std::exception_ptr iExcept, WaitingTaskHolder iWait, EventPrincipal& ep,
-                                EventSetup const& es) {
-    
-    if(iExcept) {
+
+  void StreamSchedule::finishedPaths(std::exception_ptr iExcept, WaitingTaskHolder iWait, EventPrincipal& ep,
+                                     EventSetup const& es) {
+    if (iExcept) {
       try {
         std::rethrow_exception(iExcept);
-      }
-      catch(cms::Exception& e) {
+      } catch (cms::Exception& e) {
         exception_actions::ActionCodes action = actionTable().find(e.category());
-        assert (action != exception_actions::IgnoreCompletely);
-        assert (action != exception_actions::FailPath);
+        assert(action != exception_actions::IgnoreCompletely);
+        assert(action != exception_actions::FailPath);
         if (action == exception_actions::SkipEvent) {
           edm::printCmsExceptionWarning("SkipEvent", e);
           iExcept = std::exception_ptr();
         } else {
           iExcept = std::current_exception();
         }
-      }
-      catch(...) {
+      } catch (...) {
         iExcept = std::current_exception();
       }
     }
 
-    
-    if((not iExcept) and results_->accept()) {
+    if ((not iExcept) and results_->accept()) {
       ++total_passed_;
     }
 
-    if(nullptr != results_inserter_.get()) {
+    if (nullptr != results_inserter_.get()) {
       try {
-        //Even if there was an exception, we need to allow results inserter
+        // Even if there was an exception, we need to allow results inserter
         // to run since some module may be waiting on its results.
         ParentContext parentContext(&streamContext_);
         using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
 
         results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
-      }
-      catch (cms::Exception & ex) {
+      } catch (cms::Exception& ex) {
         if (not iExcept) {
-          if(ex.context().empty()) {
+          if (ex.context().empty()) {
             std::ostringstream ost;
             ost << "Processing Event " << ep.id();
             ex.addContext(ost.str());
           }
           iExcept = std::current_exception();
         }
-      }
-      catch(...) {
+      } catch (...) {
         if (not iExcept) {
           iExcept = std::current_exception();
         }
@@ -674,18 +640,14 @@ namespace edm {
     iWait.doneWaiting(iExcept);
   }
 
-  
-  std::exception_ptr
-  StreamSchedule::finishProcessOneEvent(std::exception_ptr iExcept) {
+  std::exception_ptr StreamSchedule::finishProcessOneEvent(std::exception_ptr iExcept) {
     using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
 
-    if(iExcept) {
-      //add context information to the exception and print message
+    if (iExcept) {
+      // add context information to the exception and print message
       try {
-        convertException::wrap([&]() {
-          std::rethrow_exception(iExcept);
-        });
-      } catch(cms::Exception& ex) {
+        convertException::wrap([&]() { std::rethrow_exception(iExcept); });
+      } catch (cms::Exception& ex) {
         bool const cleaningUpAfterException = false;
         if (ex.context().empty()) {
           addContextAndPrintException("Calling function StreamSchedule::processOneEvent", ex, cleaningUpAfterException);
@@ -695,43 +657,34 @@ namespace edm {
         iExcept = std::current_exception();
       }
 
-      actReg_->preStreamEarlyTerminationSignal_(streamContext_,TerminationOrigin::ExceptionFromThisContext);
+      actReg_->preStreamEarlyTerminationSignal_(streamContext_, TerminationOrigin::ExceptionFromThisContext);
     }
-    
+
     try {
       Traits::postScheduleSignal(actReg_.get(), &streamContext_);
-    } catch(...) {
-      if(not iExcept) {
+    } catch (...) {
+      if (not iExcept) {
         iExcept = std::current_exception();
       }
     }
-    if(not iExcept ) {
+    if (not iExcept) {
       resetEarlyDelete();
     }
-    
+
     return iExcept;
   }
 
-
-  void
-  StreamSchedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
+  void StreamSchedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
     oLabelsToFill.reserve(trig_paths_.size());
-    std::transform(trig_paths_.begin(),
-                   trig_paths_.end(),
-                   std::back_inserter(oLabelsToFill),
+    std::transform(trig_paths_.begin(), trig_paths_.end(), std::back_inserter(oLabelsToFill),
                    std::bind(&Path::name, std::placeholders::_1));
   }
 
-  void
-  StreamSchedule::modulesInPath(std::string const& iPathLabel,
-                          std::vector<std::string>& oLabelsToFill) const {
-    TrigPaths::const_iterator itFound =
-    std::find_if (trig_paths_.begin(),
-                 trig_paths_.end(),
-                 std::bind(std::equal_to<std::string>(),
-                             iPathLabel,
-                             std::bind(&Path::name, std::placeholders::_1)));
-    if (itFound!=trig_paths_.end()) {
+  void StreamSchedule::modulesInPath(std::string const& iPathLabel, std::vector<std::string>& oLabelsToFill) const {
+    TrigPaths::const_iterator itFound = std::find_if(
+        trig_paths_.begin(), trig_paths_.end(),
+        std::bind(std::equal_to<std::string>(), iPathLabel, std::bind(&Path::name, std::placeholders::_1)));
+    if (itFound != trig_paths_.end()) {
       oLabelsToFill.reserve(itFound->size());
       for (size_t i = 0; i < itFound->size(); ++i) {
         oLabelsToFill.push_back(itFound->getWorker(i)->description().moduleLabel());
@@ -739,26 +692,27 @@ namespace edm {
     }
   }
 
-  void
-  StreamSchedule::moduleDescriptionsInPath(std::string const& iPathLabel,
-                                           std::vector<ModuleDescription const*>& descriptions,
-                                           unsigned int hint) const {
+  void StreamSchedule::moduleDescriptionsInPath(std::string const& iPathLabel,
+                                                std::vector<ModuleDescription const*>& descriptions,
+                                                unsigned int hint) const {
     descriptions.clear();
     bool found = false;
     TrigPaths::const_iterator itFound;
 
-    if(hint < trig_paths_.size()) {
+    if (hint < trig_paths_.size()) {
       itFound = trig_paths_.begin() + hint;
-      if(itFound->name() == iPathLabel) { found = true; }
+      if (itFound->name() == iPathLabel) {
+        found = true;
+      }
     }
-    if(!found) {
+    if (!found) {
       // if the hint did not work, do it the slow way
-      itFound = std::find_if (trig_paths_.begin(),
-                              trig_paths_.end(),
-                              std::bind(std::equal_to<std::string>(),
-                                        iPathLabel,
-                                        std::bind(&Path::name, std::placeholders::_1)));
-      if (itFound != trig_paths_.end()) { found = true; }
+      itFound = std::find_if(
+          trig_paths_.begin(), trig_paths_.end(),
+          std::bind(std::equal_to<std::string>(), iPathLabel, std::bind(&Path::name, std::placeholders::_1)));
+      if (itFound != trig_paths_.end()) {
+        found = true;
+      }
     }
     if (found) {
       descriptions.reserve(itFound->size());
@@ -768,26 +722,27 @@ namespace edm {
     }
   }
 
-  void
-  StreamSchedule::moduleDescriptionsInEndPath(std::string const& iEndPathLabel,
-                                              std::vector<ModuleDescription const*>& descriptions,
-                                              unsigned int hint) const {
+  void StreamSchedule::moduleDescriptionsInEndPath(std::string const& iEndPathLabel,
+                                                   std::vector<ModuleDescription const*>& descriptions,
+                                                   unsigned int hint) const {
     descriptions.clear();
     bool found = false;
     TrigPaths::const_iterator itFound;
 
-    if(hint < end_paths_.size()) {
+    if (hint < end_paths_.size()) {
       itFound = end_paths_.begin() + hint;
-      if(itFound->name() == iEndPathLabel) { found = true; }
+      if (itFound->name() == iEndPathLabel) {
+        found = true;
+      }
     }
-    if(!found) {
+    if (!found) {
       // if the hint did not work, do it the slow way
-      itFound = std::find_if (end_paths_.begin(),
-                              end_paths_.end(),
-                              std::bind(std::equal_to<std::string>(),
-                                        iEndPathLabel,
-                                        std::bind(&Path::name, std::placeholders::_1)));
-      if (itFound != end_paths_.end()) { found = true; }
+      itFound = std::find_if(
+          end_paths_.begin(), end_paths_.end(),
+          std::bind(std::equal_to<std::string>(), iEndPathLabel, std::bind(&Path::name, std::placeholders::_1)));
+      if (itFound != end_paths_.end()) {
+        found = true;
+      }
     }
     if (found) {
       descriptions.reserve(itFound->size());
@@ -797,38 +752,28 @@ namespace edm {
     }
   }
 
-  void
-  StreamSchedule::enableEndPaths(bool active) {
-    endpathsAreActive_ = active;
-  }
+  void StreamSchedule::enableEndPaths(bool active) { endpathsAreActive_ = active; }
 
-  bool
-  StreamSchedule::endPathsEnabled() const {
-    return endpathsAreActive_;
-  }
+  bool StreamSchedule::endPathsEnabled() const { return endpathsAreActive_; }
 
-  static void
-  fillModuleInPathSummary(Path const& path,
-                          size_t which,
-                          ModuleInPathSummary& sum) {
+  static void fillModuleInPathSummary(Path const& path, size_t which, ModuleInPathSummary& sum) {
     sum.timesVisited += path.timesVisited(which);
-    sum.timesPassed  += path.timesPassed(which);
-    sum.timesFailed  += path.timesFailed(which);
-    sum.timesExcept  += path.timesExcept(which);
-    sum.moduleLabel  = path.getWorker(which)->description().moduleLabel();
+    sum.timesPassed += path.timesPassed(which);
+    sum.timesFailed += path.timesFailed(which);
+    sum.timesExcept += path.timesExcept(which);
+    sum.moduleLabel = path.getWorker(which)->description().moduleLabel();
   }
 
-  static void
-  fillPathSummary(Path const& path, PathSummary& sum) {
-    sum.name        = path.name();
+  static void fillPathSummary(Path const& path, PathSummary& sum) {
+    sum.name = path.name();
     sum.bitPosition = path.bitPosition();
-    sum.timesRun    += path.timesRun();
+    sum.timesRun += path.timesRun();
     sum.timesPassed += path.timesPassed();
     sum.timesFailed += path.timesFailed();
     sum.timesExcept += path.timesExcept();
-    
+
     Path::size_type sz = path.size();
-    if(sum.moduleInPathSummaries.empty()) {
+    if (sum.moduleInPathSummaries.empty()) {
       std::vector<ModuleInPathSummary> temp(sz);
       for (size_t i = 0; i != sz; ++i) {
         fillModuleInPathSummary(path, i, temp[i]);
@@ -842,34 +787,28 @@ namespace edm {
     }
   }
 
-  static void
-  fillWorkerSummaryAux(Worker const& w, WorkerSummary& sum) {
+  static void fillWorkerSummaryAux(Worker const& w, WorkerSummary& sum) {
     sum.timesVisited += w.timesVisited();
-    sum.timesRun     += w.timesRun();
-    sum.timesPassed  += w.timesPassed();
-    sum.timesFailed  += w.timesFailed();
-    sum.timesExcept  += w.timesExcept();
-    sum.moduleLabel  = w.description().moduleLabel();
+    sum.timesRun += w.timesRun();
+    sum.timesPassed += w.timesPassed();
+    sum.timesFailed += w.timesFailed();
+    sum.timesExcept += w.timesExcept();
+    sum.moduleLabel = w.description().moduleLabel();
   }
 
-  static void
-  fillWorkerSummary(Worker const* pw, WorkerSummary& sum) {
-    fillWorkerSummaryAux(*pw, sum);
-  }
+  static void fillWorkerSummary(Worker const* pw, WorkerSummary& sum) { fillWorkerSummaryAux(*pw, sum); }
 
-  void
-  StreamSchedule::getTriggerReport(TriggerReport& rep) const {
+  void StreamSchedule::getTriggerReport(TriggerReport& rep) const {
     rep.eventSummary.totalEvents += totalEvents();
     rep.eventSummary.totalEventsPassed += totalEventsPassed();
     rep.eventSummary.totalEventsFailed += totalEventsFailed();
 
-    fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathSummary);
-    fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathSummary);
-    fill_summary(allWorkers(), rep.workerSummaries,   &fillWorkerSummary);
+    fill_summary(trig_paths_, rep.trigPathSummaries, &fillPathSummary);
+    fill_summary(end_paths_, rep.endPathSummaries, &fillPathSummary);
+    fill_summary(allWorkers(), rep.workerSummaries, &fillWorkerSummary);
   }
 
-  void
-  StreamSchedule::clearCounters() {
+  void StreamSchedule::clearCounters() {
     using std::placeholders::_1;
     total_events_ = total_passed_ = 0;
     for_all(trig_paths_, std::bind(&Path::clearCounters, _1));
@@ -877,46 +816,38 @@ namespace edm {
     for_all(allWorkers(), std::bind(&Worker::clearCounters, _1));
   }
 
-  void
-  StreamSchedule::resetAll() {
+  void StreamSchedule::resetAll() {
     skippingEvent_ = false;
     results_->reset();
   }
 
-  void
-  StreamSchedule::addToAllWorkers(Worker* w) {
-    workerManager_.addToAllWorkers(w);
-  }
+  void StreamSchedule::addToAllWorkers(Worker* w) { workerManager_.addToAllWorkers(w); }
 
-  void 
-  StreamSchedule::resetEarlyDelete() {
-    //must be sure we have cleared the count first
-    for(auto& count:earlyDeleteBranchToCount_) {
+  void StreamSchedule::resetEarlyDelete() {
+    // must be sure we have cleared the count first
+    for (auto& count : earlyDeleteBranchToCount_) {
       count.count = 0;
     }
-    //now reset based on how many helpers use that branch
-    for(auto& index: earlyDeleteHelperToBranchIndicies_) {
+    // now reset based on how many helpers use that branch
+    for (auto& index : earlyDeleteHelperToBranchIndicies_) {
       ++(earlyDeleteBranchToCount_[index].count);
     }
-    for(auto& helper: earlyDeleteHelpers_) {
+    for (auto& helper : earlyDeleteHelpers_) {
       helper.reset();
     }
   }
 
-  void
-  StreamSchedule::makePathStatusInserters(
+  void StreamSchedule::makePathStatusInserters(
       std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
       std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
       ExceptionToActionTable const& actions) {
-
     int bitpos = 0;
     unsigned int indexEmpty = 0;
     unsigned int indexOfPath = 0;
-    for(auto & pathStatusInserter : pathStatusInserters) {
+    for (auto& pathStatusInserter : pathStatusInserters) {
       std::shared_ptr<PathStatusInserter> inserterPtr = get_underlying(pathStatusInserter);
-      WorkerPtr workerPtr(new edm::WorkerT<PathStatusInserter::ModuleType>(inserterPtr,
-                                                                           inserterPtr->moduleDescription(),
-                                                                           &actions));
+      WorkerPtr workerPtr(
+          new edm::WorkerT<PathStatusInserter::ModuleType>(inserterPtr, inserterPtr->moduleDescription(), &actions));
       pathStatusInserterWorkers_.emplace_back(workerPtr);
       workerPtr->setActivityRegistry(actReg_);
       addToAllWorkers(workerPtr.get());
@@ -927,8 +858,7 @@ namespace edm {
       if (indexEmpty < empty_trig_paths_.size() && bitpos == empty_trig_paths_.at(indexEmpty)) {
         ++indexEmpty;
       } else {
-        trig_paths_.at(indexOfPath).setPathStatusInserter(inserterPtr.get(),
-                                                          workerPtr.get());
+        trig_paths_.at(indexOfPath).setPathStatusInserter(inserterPtr.get(), workerPtr.get());
         ++indexOfPath;
       }
       ++bitpos;
@@ -937,11 +867,10 @@ namespace edm {
     bitpos = 0;
     indexEmpty = 0;
     indexOfPath = 0;
-    for(auto & endPathStatusInserter : endPathStatusInserters) {
+    for (auto& endPathStatusInserter : endPathStatusInserters) {
       std::shared_ptr<EndPathStatusInserter> inserterPtr = get_underlying(endPathStatusInserter);
-      WorkerPtr workerPtr(new edm::WorkerT<EndPathStatusInserter::ModuleType>(inserterPtr,
-                                                                              inserterPtr->moduleDescription(),
-                                                                              &actions));
+      WorkerPtr workerPtr(
+          new edm::WorkerT<EndPathStatusInserter::ModuleType>(inserterPtr, inserterPtr->moduleDescription(), &actions));
       endPathStatusInserterWorkers_.emplace_back(workerPtr);
       workerPtr->setActivityRegistry(actReg_);
       addToAllWorkers(workerPtr.get());
@@ -952,8 +881,7 @@ namespace edm {
       if (indexEmpty < empty_end_paths_.size() && bitpos == empty_end_paths_.at(indexEmpty)) {
         ++indexEmpty;
       } else {
-        end_paths_.at(indexOfPath).setPathStatusInserter(nullptr,
-                                                         workerPtr.get());
+        end_paths_.at(indexOfPath).setPathStatusInserter(nullptr, workerPtr.get());
         ++indexOfPath;
       }
       ++bitpos;

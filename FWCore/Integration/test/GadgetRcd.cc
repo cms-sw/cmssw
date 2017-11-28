@@ -2,7 +2,7 @@
 //
 // Package:     Integration
 // Class  :     GadgetRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

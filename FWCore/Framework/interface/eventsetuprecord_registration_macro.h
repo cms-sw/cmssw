@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     eventsetuprecord_registration_macro
-// 
-/**\class eventsetuprecord_registration_macro eventsetuprecord_registration_macro.h FWCore/Framework/interface/eventsetuprecord_registration_macro.h
+//
+/**\class eventsetuprecord_registration_macro eventsetuprecord_registration_macro.h
+FWCore/Framework/interface/eventsetuprecord_registration_macro.h
 
  Description: CPP macro used to register a new EventSetupRecord into the system
 
@@ -33,11 +34,12 @@ macro EVENTSETUP_RECORD_REG is used to create that code.
 
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
 
-#define EVENTSETUP_RECORD_NAME2(_a_, _b_) EVENTSETUP_RECORD_NAME2_HIDDEN(_a_,_b_)
-#define EVENTSETUP_RECORD_NAME2_HIDDEN(_a_,_b_) _a_ ## _b_
+#define EVENTSETUP_RECORD_NAME2(_a_, _b_) EVENTSETUP_RECORD_NAME2_HIDDEN(_a_, _b_)
+#define EVENTSETUP_RECORD_NAME2_HIDDEN(_a_, _b_) _a_##_b_
 
-#define EVENTSETUP_RECORD_REG(_recordclassname_) \
-TYPELOOKUP_DATA_REG(_recordclassname_); \
-static const edm::eventsetup::EventSetupRecordProviderFactoryTemplate<_recordclassname_> EVENTSETUP_RECORD_NAME2(s_factory,__LINE__)
+#define EVENTSETUP_RECORD_REG(_recordclassname_)                                                                    \
+  TYPELOOKUP_DATA_REG(_recordclassname_);                                                                           \
+  static const edm::eventsetup::EventSetupRecordProviderFactoryTemplate<_recordclassname_> EVENTSETUP_RECORD_NAME2( \
+      s_factory, __LINE__)
 
 #endif

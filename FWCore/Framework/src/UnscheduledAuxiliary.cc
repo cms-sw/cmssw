@@ -2,7 +2,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     UnscheduledAuxiliary
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "UnscheduledAuxiliary.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,7 +26,6 @@
 //
 // constructors and destructor
 //
-
 
 //
 // member functions

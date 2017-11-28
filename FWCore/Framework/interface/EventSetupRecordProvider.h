@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordProvider
-// 
+//
 /**\class EventSetupRecordProvider EventSetupRecordProvider.h FWCore/Framework/interface/EventSetupRecordProvider.h
 
  Description: Coordinates all EventSetupDataProviders with the same 'interval of validity'
@@ -32,43 +32,39 @@
 
 // forward declarations
 namespace edm {
-   class EventSetupRecordIntervalFinder;
+  class EventSetupRecordIntervalFinder;
 
-   namespace eventsetup {
-      struct ComponentDescription;
-      class DataKey;
-      class DataProxyProvider;
-      class EventSetupProvider;
-      class EventSetupRecord;
-      class ParameterSetIDHolder;
-      
-class EventSetupRecordProvider {
+  namespace eventsetup {
+    struct ComponentDescription;
+    class DataKey;
+    class DataProxyProvider;
+    class EventSetupProvider;
+    class EventSetupRecord;
+    class ParameterSetIDHolder;
 
-   public:
+    class EventSetupRecordProvider {
+    public:
       typedef std::map<DataKey, ComponentDescription> DataToPreferredProviderMap;
-   
+
       EventSetupRecordProvider(EventSetupRecordKey const& iKey);
       virtual ~EventSetupRecordProvider();
 
       // ---------- const member functions ---------------------
 
-      ValidityInterval const& validityInterval() const {
-         return validityInterval_;
-      }
-      EventSetupRecordKey const& key() const { return key_; }      
+      ValidityInterval const& validityInterval() const { return validityInterval_; }
+      EventSetupRecordKey const& key() const { return key_; }
 
-      ///Returns the list of Records the provided Record depends on (usually none)
+      /// Returns the list of Records the provided Record depends on (usually none)
       virtual std::set<EventSetupRecordKey> dependentRecords() const;
-      
-      ///return information on which DataProxyProviders are supplying information
+
+      /// return information on which DataProxyProviders are supplying information
       std::set<ComponentDescription> proxyProviderDescriptions() const;
-      
-      ///returns the first matching DataProxyProvider or a 'null' if not found
+
+      /// returns the first matching DataProxyProvider or a 'null' if not found
       std::shared_ptr<DataProxyProvider> proxyProvider(ComponentDescription const&);
 
-      ///returns the first matching DataProxyProvider or a 'null' if not found
+      /// returns the first matching DataProxyProvider or a 'null' if not found
       std::shared_ptr<DataProxyProvider> proxyProvider(ParameterSetIDHolder const&);
-
 
       // ---------- static member functions --------------------
 
@@ -77,53 +73,55 @@ class EventSetupRecordProvider {
       void resetProxyProvider(ParameterSetIDHolder const&, std::shared_ptr<DataProxyProvider> const&);
 
       void addRecordTo(EventSetupProvider&);
-      void addRecordToIfValid(EventSetupProvider&, IOVSyncValue const&) ;
+      void addRecordToIfValid(EventSetupProvider&, IOVSyncValue const&);
 
       void add(std::shared_ptr<DataProxyProvider>);
-      ///For now, only use one finder
+      /// For now, only use one finder
       void addFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
       void setValidityInterval(ValidityInterval const&);
-      
-      ///sets interval to this time and returns true if have a valid interval for time
+
+      /// sets interval to this time and returns true if have a valid interval for time
       bool setValidityIntervalFor(IOVSyncValue const&);
 
-      ///If the provided Record depends on other Records, here are the dependent Providers
-      void setDependentProviders(std::vector<std::shared_ptr<EventSetupRecordProvider> >const&);
+      /// If the provided Record depends on other Records, here are the dependent Providers
+      void setDependentProviders(std::vector<std::shared_ptr<EventSetupRecordProvider>> const&);
 
       /**In the case of a conflict, sets what Provider to call.  This must be called after
          all providers have been added.  An empty map is acceptable. */
       void usePreferred(DataToPreferredProviderMap const&);
-      
-      ///This will clear the cache's of all the Proxies so that next time they are called they will run
-      void resetProxies();
-      
-      std::shared_ptr<EventSetupRecordIntervalFinder const> finder() const {return get_underlying_safe(finder_);}
-      std::shared_ptr<EventSetupRecordIntervalFinder>& finder() {return get_underlying_safe(finder_);}
 
-      void getReferencedESProducers(std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers);
+      /// This will clear the cache's of all the Proxies so that next time they are called they will run
+      void resetProxies();
+
+      std::shared_ptr<EventSetupRecordIntervalFinder const> finder() const { return get_underlying_safe(finder_); }
+      std::shared_ptr<EventSetupRecordIntervalFinder>& finder() { return get_underlying_safe(finder_); }
+
+      void getReferencedESProducers(
+          std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers);
 
       void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
 
       void resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap);
 
-   protected:
+    protected:
       void addProxiesToRecordHelper(edm::propagate_const<std::shared_ptr<DataProxyProvider>>& dpp,
-                              DataToPreferredProviderMap const& mp) {addProxiesToRecord(get_underlying_safe(dpp), mp);}
-      void addProxiesToRecord(std::shared_ptr<DataProxyProvider>,
-                              DataToPreferredProviderMap const&);
+                                    DataToPreferredProviderMap const& mp) {
+        addProxiesToRecord(get_underlying_safe(dpp), mp);
+      }
+      void addProxiesToRecord(std::shared_ptr<DataProxyProvider>, DataToPreferredProviderMap const&);
       void cacheReset();
-   
+
       virtual EventSetupRecord& record() = 0;
-      
+
       std::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
         std::swap(iNew, finder());
         return iNew;
       }
 
-   private:
-      EventSetupRecordProvider(EventSetupRecordProvider const&) = delete; // stop default
+    private:
+      EventSetupRecordProvider(EventSetupRecordProvider const&) = delete;  // stop default
 
-      EventSetupRecordProvider const& operator=(EventSetupRecordProvider const&) = delete; // stop default
+      EventSetupRecordProvider const& operator=(EventSetupRecordProvider const&) = delete;  // stop default
 
       void resetTransients();
       bool checkResetTransients();
@@ -132,10 +130,11 @@ class EventSetupRecordProvider {
       ValidityInterval validityInterval_;
       edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
       std::vector<edm::propagate_const<std::shared_ptr<DataProxyProvider>>> providers_;
-      std::unique_ptr<std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>> multipleFinders_;
+      std::unique_ptr<std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>>
+          multipleFinders_;
       bool lastSyncWasBeginOfRun_;
-};
-   }
+    };
+  }
 }
 
 #endif

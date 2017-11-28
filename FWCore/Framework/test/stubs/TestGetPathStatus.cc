@@ -19,14 +19,12 @@ namespace edmtest {
 
   class TestGetPathStatus : public edm::global::EDAnalyzer<> {
   public:
-
     explicit TestGetPathStatus(edm::ParameterSet const& pset);
     virtual ~TestGetPathStatus() {}
 
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 
-private:
-
+  private:
     std::vector<int> expectedStates_;
     std::vector<unsigned int> expectedIndexes_;
 
@@ -34,16 +32,13 @@ private:
     edm::EDGetTokenT<edm::EndPathStatus> tokenEndPathStatus_;
   };
 
-  TestGetPathStatus::TestGetPathStatus(edm::ParameterSet const& pset) :
-    expectedStates_(pset.getParameter<std::vector<int>>("expectedStates")),
-    expectedIndexes_(pset.getParameter<std::vector<unsigned int>>("expectedIndexes")),
-    tokenPathStatus_(consumes<edm::PathStatus>(pset.getParameter<edm::InputTag>("pathStatusTag"))),
-    tokenEndPathStatus_(consumes<edm::EndPathStatus>(pset.getParameter<edm::InputTag>("endPathStatusTag"))){
-  }
+  TestGetPathStatus::TestGetPathStatus(edm::ParameterSet const& pset)
+      : expectedStates_(pset.getParameter<std::vector<int>>("expectedStates")),
+        expectedIndexes_(pset.getParameter<std::vector<unsigned int>>("expectedIndexes")),
+        tokenPathStatus_(consumes<edm::PathStatus>(pset.getParameter<edm::InputTag>("pathStatusTag"))),
+        tokenEndPathStatus_(consumes<edm::EndPathStatus>(pset.getParameter<edm::InputTag>("endPathStatusTag"))) {}
 
-  void
-  TestGetPathStatus::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const {
-
+  void TestGetPathStatus::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const {
     edm::Handle<edm::PathStatus> hPathStatus;
     event.getByToken(tokenPathStatus_, hPathStatus);
     *hPathStatus;
@@ -53,8 +48,7 @@ private:
       std::cerr << "TestGetPathStatus::analyze unexpected path status state" << std::endl;
       abort();
     }
-    if (eventID < expectedIndexes_.size() &&
-        expectedIndexes_[eventID] != hPathStatus->index()) {
+    if (eventID < expectedIndexes_.size() && expectedIndexes_[eventID] != hPathStatus->index()) {
       std::cerr << "TestGetPathStatus::analyze unexpected path status index " << std::endl;
       abort();
     }

@@ -4,7 +4,7 @@
 //
 // Package:     Integration
 // Class  :     ValueExample
-// 
+//
 /**\class ValueExample ValueExample.h FWCore/Integration/test/stubs/ValueExample.h
 
  Description: An example of a trivial Service
@@ -23,28 +23,26 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class ValueExample
-{
-   
+class ValueExample {
 public:
-   ValueExample(const edm::ParameterSet&);
-   virtual ~ValueExample();
-   
-   // ---------- const member functions ---------------------
-   int value() const { return value_; }
-   
-   // ---------- static member functions --------------------
-   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  ValueExample(const edm::ParameterSet&);
+  virtual ~ValueExample();
 
-   // ---------- member functions ---------------------------
-   
+  // ---------- const member functions ---------------------
+  int value() const { return value_; }
+
+  // ---------- static member functions --------------------
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  // ---------- member functions ---------------------------
+
 private:
-      ValueExample(const ValueExample&); // stop default
-   
-   const ValueExample& operator=(const ValueExample&); // stop default
-   
-   // ---------- member data --------------------------------
-   int value_;
+  ValueExample(const ValueExample&);  // stop default
+
+  const ValueExample& operator=(const ValueExample&);  // stop default
+
+  // ---------- member data --------------------------------
+  int value_;
 };
 
 #endif

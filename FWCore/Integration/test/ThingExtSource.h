@@ -3,7 +3,7 @@
 
 /** \class ThingExtSource
  *
- * \version   1st Version Dec. 27, 2005  
+ * \version   1st Version Dec. 27, 2005
 
  *
  ************************************************************/
@@ -15,7 +15,6 @@
 namespace edmtest {
   class ThingExtSource : public edm::ProducerSourceFromFiles {
   public:
-
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //

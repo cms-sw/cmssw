@@ -2,7 +2,7 @@
 //
 // Package:    __subsys__/__pkgname__
 // Class:      __class__
-// 
+//
 /**\class __class__ __class__.cc __subsys__/__pkgname__/plugins/__class__.cc
 
  Description: [one line class summary]
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -28,18 +27,17 @@
 
 #include "FWCore/Framework/interface/ESProducts.h"
 
-
 //
 // class declaration
 //
 
 class __class__ : public edm::ESProducerLooper {
-   public:
-      __class__(const edm::ParameterSet&);
-      ~__class__();
+public:
+  __class__(const edm::ParameterSet&);
+  ~__class__();
 
 #python_begin
-    if  len(__datatypes__) > 1:
+  if  len(__datatypes__) > 1:
         datatypes = []
         for dtype in __datatypes__:
             datatypes.append("std::unique_ptr<%s>" % dtype)
@@ -50,13 +48,14 @@ class __class__ : public edm::ESProducerLooper {
 
       ReturnType produce(const recordname&);
 
-      virtual void beginOfJob(); 
-      virtual void startingNewLoop(unsigned int ) ; 
-      virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) ; 
-      virtual Status endOfLoop(const edm::EventSetup&); 
-      virtual void endOfJob();
+  virtual void beginOfJob();
+  virtual void startingNewLoop(unsigned int);
+  virtual Status duringLoop(const edm::Event&, const edm::EventSetup&);
+  virtual Status endOfLoop(const edm::EventSetup&);
+  virtual void endOfJob();
+
 private:
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
 
 //
@@ -70,34 +69,26 @@ private:
 //
 // constructors and destructor
 //
-__class__::__class__(const edm::ParameterSet& iConfig)
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this);
+__class__::__class__(const edm::ParameterSet& iConfig) {
+  // the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced(this);
 
-   //now do what ever other initialization is needed
+  // now do what ever other initialization is needed
 }
 
-
-__class__::~__class__()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+__class__::~__class__() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-__class__::ReturnType
-__class__::produce(const recordname& iRecord)
-{
-   using namespace edm::es;
+__class__::ReturnType __class__::produce(const recordname& iRecord) {
+  using namespace edm::es;
 #python_begin
     out1 = []
     out2 = []
@@ -110,40 +101,21 @@ __class__::produce(const recordname& iRecord)
 #python_end
 }
 
-
 // ------------ method called once per job just before starting to loop over events  ------------
-void 
-__class__::beginOfJob(const edm::EventSetup&)
-{
-}
+void __class__::beginOfJob(const edm::EventSetup&) {}
 
 // ------------ method called at the beginning of a new loop over the event  ------------
 // ------------ the argument starts at 0 and increments for each loop        ------------
-void 
-__class__::startingNewLoop(unsigned int iIteration)
-{
-}
+void __class__::startingNewLoop(unsigned int iIteration) {}
 
 // ------------ called for each event in the loop.  The present event loop can be stopped by return kStop ------------
-__class__::Status 
-__class__::duringLoop(const edm::Event&, const edm::EventSetup&)
-{
-  return kContinue;
-}
-
+__class__::Status __class__::duringLoop(const edm::Event&, const edm::EventSetup&) { return kContinue; }
 
 // ------------ called at the end of each event loop. A new loop will occur if you return kContinue ------------
-__class__::Status 
-__class__::endOfLoop(const edm::EventSetup&, unsigned int)
-{
-  return kStop;
-}
+__class__::Status __class__::endOfLoop(const edm::EventSetup&, unsigned int) { return kStop; }
 
 // ------------ called once each job just before the job ends ------------
-void 
-__class__::endOfJob()
-{
-}
+void __class__::endOfJob() {}
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_LOOPER(__class__);

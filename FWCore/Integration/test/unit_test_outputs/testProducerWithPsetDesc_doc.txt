@@ -2189,4 +2189,3 @@ generated for each configuration with a module label.
                         the one used for OutputModules, except no wild cards 
                         are allowed. E.g.
                         Foos_foomodule_whichFoo_RECO
-

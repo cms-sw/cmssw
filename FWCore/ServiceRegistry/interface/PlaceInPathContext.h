@@ -17,9 +17,7 @@ namespace edm {
   class PathContext;
 
   class PlaceInPathContext {
-
   public:
-
     PlaceInPathContext(unsigned int);
 
     unsigned int placeInPath() const { return placeInPath_; }

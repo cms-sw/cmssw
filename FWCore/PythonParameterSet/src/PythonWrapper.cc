@@ -3,44 +3,39 @@
 //#include <iostream>
 namespace edm {
 
-void pythonToCppException(const std::string& iType)
- {
-  using namespace boost::python;
-  PyObject *exc=nullptr, *val=nullptr, *trace=nullptr;
-  PyErr_Fetch(&exc,&val,&trace);
-  PyErr_NormalizeException(&exc,&val,&trace);
-  handle<> hExc(allow_null(exc));
-  handle<> hVal(allow_null(val));
-  handle<> hTrace(allow_null(trace));
- 
-  if(hTrace) {
-    object oTrace(hTrace);
-    handle<> hStringTr(PyObject_Str(oTrace.ptr()));
-    object stringTr(hStringTr);
-//std::cout << "PR TR " << stringTr <<  " DONE "<<  std::endl;
-  }
+  void pythonToCppException(const std::string& iType) {
+    using namespace boost::python;
+    PyObject *exc = nullptr, *val = nullptr, *trace = nullptr;
+    PyErr_Fetch(&exc, &val, &trace);
+    PyErr_NormalizeException(&exc, &val, &trace);
+    handle<> hExc(allow_null(exc));
+    handle<> hVal(allow_null(val));
+    handle<> hTrace(allow_null(trace));
 
-  if(hVal && hExc) {
-    object oExc(hExc);
-    object oVal(hVal);
-    handle<> hStringVal(PyObject_Str(oVal.ptr()));
-    object stringVal( hStringVal );
+    if (hTrace) {
+      object oTrace(hTrace);
+      handle<> hStringTr(PyObject_Str(oTrace.ptr()));
+      object stringTr(hStringTr);
+      // std::cout << "PR TR " << stringTr <<  " DONE "<<  std::endl;
+    }
 
-    handle<> hStringExc(PyObject_Str(oExc.ptr()));
-    object stringExc( hStringExc);
+    if (hVal && hExc) {
+      object oExc(hExc);
+      object oVal(hVal);
+      handle<> hStringVal(PyObject_Str(oVal.ptr()));
+      object stringVal(hStringVal);
 
-    //PyErr_Print();
-    throw cms::Exception(iType)
-      << "python encountered the error: "
-      // include python exception type
-      << PyString_AsString(stringExc.ptr()) << "\n"
-      // message in the python exception
-      << PyString_AsString(stringVal.ptr()) << "\n"; 
-  } else {
-    throw cms::Exception(iType)<<" unknown python problem occurred.\n";
+      handle<> hStringExc(PyObject_Str(oExc.ptr()));
+      object stringExc(hStringExc);
+
+      // PyErr_Print();
+      throw cms::Exception(iType) << "python encountered the error: "
+                                  // include python exception type
+                                  << PyString_AsString(stringExc.ptr()) << "\n"
+                                  // message in the python exception
+                                  << PyString_AsString(stringVal.ptr()) << "\n";
+    } else {
+      throw cms::Exception(iType) << " unknown python problem occurred.\n";
+    }
   }
 }
-
-}
-
-

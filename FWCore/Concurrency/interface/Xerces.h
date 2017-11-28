@@ -11,4 +11,4 @@ namespace cms {
   }
 }
 
-#endif // FWCore_Concurrency_h
+#endif  // FWCore_Concurrency_h

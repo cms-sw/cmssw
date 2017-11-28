@@ -22,7 +22,7 @@ namespace edm {
     using FromFiles::logicalFileNames;
     using FromFiles::fileNames;
     using FromFiles::catalog;
-    
+
     static void fillDescription(ParameterSetDescription& desc);
 
   protected:

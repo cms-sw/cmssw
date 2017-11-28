@@ -18,13 +18,12 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 
 namespace edm {
-   class ParameterSet;
+  class ParameterSet;
 }
 
 class LoadableDummyEventSetupRecordRetriever : public edm::DummyEventSetupRecordRetriever {
 public:
-  LoadableDummyEventSetupRecordRetriever(edm::ParameterSet const&) {
-   }
+  LoadableDummyEventSetupRecordRetriever(edm::ParameterSet const&) {}
 };
 
 DEFINE_FWK_EVENTSETUP_SOURCE(LoadableDummyEventSetupRecordRetriever);

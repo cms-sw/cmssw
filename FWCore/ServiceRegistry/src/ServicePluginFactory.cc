@@ -2,7 +2,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     ServicePluginFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,5 +15,4 @@
 // user include files
 #include "FWCore/ServiceRegistry/interface/ServicePluginFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(edm::serviceregistry::ServicePluginFactory,"CMS EDM Framework Service");
-
+EDM_REGISTER_PLUGINFACTORY(edm::serviceregistry::ServicePluginFactory, "CMS EDM Framework Service");
