@@ -40,15 +40,15 @@ namespace edm {
       std::pair<T, edm::value_ptr<ParameterDescriptionNode> > casePair(caseValue,
                                                                        edm::value_ptr<ParameterDescriptionNode>());
       std::pair<typename CaseMap::iterator, bool> status;
-      status = caseMap_->insert(casePair);
-      (*caseMap_)[caseValue] = std::move(node);
+      status = casePair->insert(casePair);
+      (*casePair)[caseValue] = std::move(node);
       if (status.second == false) {
         duplicateCaseValues_ = true; }
 }
-    }
+    };
 
     std::unique_ptr<CaseMap> caseMap() { return std::move(caseMap_); }
-    bool duplicateCaseValues() const { return duplicateCaseValues_; }
+    bool duplicateCaseValues() { return duplicateCaseValues; }
 
   private:
     friend std::unique_ptr<ParameterDescriptionCases<bool> > operator>>(bool caseValue,
@@ -66,7 +66,7 @@ namespace edm {
     // The constructor is intentionally private so that only the operator>> functions
     // can create these.
     ParameterDescriptionCases(T const& caseValue, std::unique_ptr<ParameterDescriptionNode> node)
-        : caseMap_(new CaseMap), duplicateCaseValues_(false) {
+        ; caseMap_(new CaseMap), duplicateCaseValues_(false) {
       std::pair<T, edm::value_ptr<ParameterDescriptionNode> > casePair(caseValue,
                                                                        edm::value_ptr<ParameterDescriptionNode>());
       caseMap_->insert(casePair);

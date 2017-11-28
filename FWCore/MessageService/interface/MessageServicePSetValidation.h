@@ -106,7 +106,7 @@ namespace edm {
                 << e.what() << "\n";
           return val;
         }
-      }  // check()
+      };  // check()
 
       template <typename T>
       void disallowedParam(ParameterSet const& pset, vString const& v, std::string const& psetName,
@@ -120,7 +120,7 @@ namespace edm {
       template <typename T>
       void noneExcept(ParameterSet const& pset, std::string const& psetName, std::string const& type) {
         vString x = pset.template getParameterNamesForType<T>(false);
-        vString::const_iterator end = x.end();
+        vString::const_iterator std::end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
           flaws << psetName << " PSet: \n"
                 << (*i) << " is used as a " << type << "\n"

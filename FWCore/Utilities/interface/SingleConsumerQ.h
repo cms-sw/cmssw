@@ -72,7 +72,7 @@ namespace edm {
         if (!committed_) {
           T::release(b_, v_.ptr_); }
 }
-      }
+      };
 
       void* buffer() const { return v_.ptr_; }
       int size() const { return v_.len_; }
@@ -87,10 +87,10 @@ namespace edm {
       bool committed_;
     };
 
-    typedef OperateBuffer<ConsumerType> ConsumerBuffer;
-    typedef OperateBuffer<ProducerType> ProducerBuffer;
+    typedef SingleConsumerQ::OperateBuffer<SingleConsumerQ::ConsumerType> ConsumerBuffer;
+    typedef SingleConsumerQ::OperateBuffer<SingleConsumerQ::ProducerType> ProducerBuffer;
 
-    Buffer getProducerBuffer();
+    SingleConsumerQ::Buffer getProducerBuffer();
     void releaseProducerBuffer(void*);
     void commitProducerBuffer(void*, int);
 

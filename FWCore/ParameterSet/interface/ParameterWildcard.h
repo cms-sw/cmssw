@@ -46,11 +46,11 @@ namespace edm {
         return true; }
 }
 
-      std::vector<std::string> parameterNames = pset.getParameterNamesForType<T>(isTracked());
+      std::vector<std::string> parameterNames = pset.template getParameterNamesForType<T>(isTracked());
 
       if (criteria() == RequireAtLeastOne) {
         return !parameterNames.empty(); }
-}
+};
       return parameterNames.size() == 1U;
     }
 
@@ -58,7 +58,7 @@ namespace edm {
   };
 
   template <>
-  class ParameterWildcard<ParameterSetDescription> : public ParameterWildcardBase {
+  class edm::ParameterWildcard<edm::ParameterSetDescription> : public ParameterWildcardBase {
   public:
     ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked);
     ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked);
@@ -87,7 +87,7 @@ namespace edm {
   };
 
   template <>
-  class ParameterWildcard<std::vector<ParameterSet> > : public ParameterWildcardBase {
+  class edm::ParameterWildcard<std::vector<edm::ParameterSet> > : public ParameterWildcardBase {
   public:
     ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked);
     ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked);

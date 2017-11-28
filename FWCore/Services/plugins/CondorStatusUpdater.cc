@@ -356,7 +356,7 @@ bool CondorStatusService::updateChirp(const std::string &key_suffix, const T &va
 }
 
 bool CondorStatusService::updateChirpQuoted(const std::string &key_suffix, const std::string &value) {
-  std::string value_copy = value;
+  const std::string& value_copy = value;
   // Remove double-quotes or the \ character (as it has special escaping semantics in ClassAds).
   // Make sure we have ASCII characters.
   // Otherwise, remainder is allowed (including tabs, newlines, single-quotes).

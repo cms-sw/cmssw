@@ -162,7 +162,7 @@ namespace edm {
         return false; }
 }
       return writeParameterValue::hasNestedContent(value_);
-    }
+    };
 
     void writeCfi_(std::ostream& os, int indentation) const override {
       writeParameterValue::writeValue(os, indentation, value_, writeParameterValue::CFI);
@@ -188,7 +188,7 @@ namespace edm {
   };
 
   template <>
-  class ParameterDescription<ParameterSetDescription> : public ParameterDescriptionBase {
+  class edm::ParameterDescription<edm::ParameterSetDescription> : public ParameterDescriptionBase {
   public:
     ParameterDescription(std::string const& iLabel, ParameterSetDescription const& value, bool isTracked,
                          Comment const& iComment = Comment());
@@ -226,7 +226,7 @@ namespace edm {
   };
 
   template <>
-  class ParameterDescription<std::vector<ParameterSet> > : public ParameterDescriptionBase {
+  class edm::ParameterDescription<std::vector<edm::ParameterSet> > : public ParameterDescriptionBase {
   public:
     ParameterDescription(std::string const& iLabel, ParameterSetDescription const& psetDesc, bool isTracked,
                          std::vector<ParameterSet> const& vPset, Comment const& iComment = Comment());
