@@ -14,7 +14,7 @@ namespace reco {
 	return StringCutObjectSelector<T, Lazy>( cfg.template getParameter<std::string>( "cut" ) );
       }
 
-      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
         desc.add<std::string>("cut", "");
       }
     };

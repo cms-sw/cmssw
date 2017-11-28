@@ -14,7 +14,7 @@ namespace reco {
 	return PtMinSelector( cfg.getParameter<double>( "ptMin" ) );
       }
 
-      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
         desc.add<double>("ptMin", 0.);
       }
     };

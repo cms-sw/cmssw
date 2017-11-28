@@ -14,7 +14,7 @@ namespace reco {
 	return MaxNumberSelector(cfg.getParameter<unsigned int>("maxNumber"));
       }
 
-      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
         desc.add<unsigned int>("maxNumber", 0);
       }
     };
