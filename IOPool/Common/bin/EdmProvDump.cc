@@ -646,43 +646,38 @@ ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id) {
 void
 ProvenanceDumper::dumpProcessHistory_() {
   std::cout << "Processing History:" << std::endl;
-  if(1 == phv_.size()) {
-    std::cout << *phv_.begin();
-    historyGraph_.addChild(HistoryNode(*(phv_.begin()->begin()), 1));
-  } else {
-    std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
-    for(auto const& ph : phv_) {
-      //loop over the history entries looking for matches
-      HistoryNode* parent = &historyGraph_;
-      for(auto const& pc : ph) {
-        if(parent->size() == 0) {
-          unsigned int id = simpleIDs[pc.id()];
-          if(0 == id) {
-            id = 1;
-            simpleIDs[pc.id()] = id;
+  std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
+  for(auto const& ph : phv_) {
+    //loop over the history entries looking for matches
+    HistoryNode* parent = &historyGraph_;
+    for(auto const& pc : ph) {
+      if(parent->size() == 0) {
+        unsigned int id = simpleIDs[pc.id()];
+        if(0 == id) {
+          id = 1;
+          simpleIDs[pc.id()] = id;
+        }
+        parent->addChild(HistoryNode(pc, id));
+        parent = parent->lastChildAddress();
+      } else {
+        //see if this is unique
+        bool isUnique = true;
+        for(auto& child : *parent) {
+          if(child.configurationID() == pc.id()) {
+            isUnique = false;
+            parent = &child;
+            break;
           }
-          parent->addChild(HistoryNode(pc, id));
+        }
+        if(isUnique) {
+          simpleIDs[pc.id()] = parent->size() + 1;
+          parent->addChild(HistoryNode(pc, simpleIDs[pc.id()]));
           parent = parent->lastChildAddress();
-        } else {
-          //see if this is unique
-          bool isUnique = true;
-          for(auto& child : *parent) {
-            if(child.configurationID() == pc.id()) {
-              isUnique = false;
-              parent = &child;
-              break;
-            }
-          }
-          if(isUnique) {
-            simpleIDs[pc.id()] = parent->size() + 1;
-            parent->addChild(HistoryNode(pc, simpleIDs[pc.id()]));
-            parent = parent->lastChildAddress();
-          }
         }
       }
     }
-    historyGraph_.printHistory();
   }
+  historyGraph_.printHistory();
 }
 
 void
@@ -875,6 +870,7 @@ ProvenanceDumper::work_() {
 
   dumpProcessHistory_();
 
+
   if (productRegistryPresent_) {
     std::cout << "---------Producers with data in file---------" << std::endl;
   }
@@ -1021,6 +1017,7 @@ ProvenanceDumper::work_() {
       std::cout <<sout.str()<<std::endl;
     }
   } // end loop over module label/process
+
   if(productRegistryPresent_ && showOtherModules_) {
     std::cout << "---------Other Modules---------" << std::endl;
     historyGraph_.printOtherModulesHistory(psm_, moduleToIdBranches, findMatch_, errorLog_);
