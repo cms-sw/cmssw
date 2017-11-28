@@ -20,7 +20,7 @@ namespace reco {
 	return AnySelector();
       }
 
-      static void fillDescriptions(edm::ParameterSetDescription& desc) {}
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
     };
 
   }

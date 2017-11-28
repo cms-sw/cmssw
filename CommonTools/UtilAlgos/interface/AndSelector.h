@@ -32,12 +32,12 @@ namespace reco {
 						modules::make<S5>( cfg, iC ) );
       }
 
-      static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        modules::fillDescriptions<S1>(desc);
-        modules::fillDescriptions<S2>(desc);
-        modules::fillDescriptions<S3>(desc);
-        modules::fillDescriptions<S4>(desc);
-        modules::fillDescriptions<S5>(desc);
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+        modules::fillPSetDescription<S1>(desc);
+        modules::fillPSetDescription<S2>(desc);
+        modules::fillPSetDescription<S3>(desc);
+        modules::fillPSetDescription<S4>(desc);
+        modules::fillPSetDescription<S5>(desc);
       }
     };
 
@@ -62,11 +62,11 @@ namespace reco {
 					    modules::make<S4>( cfg, iC ) );
       }
 
-      static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        modules::fillDescriptions<S1>(desc);
-        modules::fillDescriptions<S2>(desc);
-        modules::fillDescriptions<S3>(desc);
-        modules::fillDescriptions<S4>(desc);
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+        modules::fillPSetDescription<S1>(desc);
+        modules::fillPSetDescription<S2>(desc);
+        modules::fillPSetDescription<S3>(desc);
+        modules::fillPSetDescription<S4>(desc);
       }
     };
 
@@ -88,10 +88,10 @@ namespace reco {
 					modules::make<S3>( cfg, iC ) );
       }
 
-      static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        modules::fillDescriptions<S1>(desc);
-        modules::fillDescriptions<S2>(desc);
-        modules::fillDescriptions<S3>(desc);
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+        modules::fillPSetDescription<S1>(desc);
+        modules::fillPSetDescription<S2>(desc);
+        modules::fillPSetDescription<S3>(desc);
       }
     };
 
@@ -110,9 +110,9 @@ namespace reco {
 				    modules::make<S2>( cfg, iC ) );
       }
 
-      static void fillDescriptions(edm::ParameterSetDescription& desc) {
-        modules::fillDescriptions<S1>(desc);
-        modules::fillDescriptions<S2>(desc);
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+        modules::fillPSetDescription<S1>(desc);
+        modules::fillPSetDescription<S2>(desc);
       }
     };
 

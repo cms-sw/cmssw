@@ -18,7 +18,7 @@ namespace reco {
 	 return EtMinSuperClusterSelector( cfg.getParameter<double>( "etMin" ) );
        }
 
-       static void fillDescriptions(edm::ParameterSetDescription& desc) {
+       static void fillPSetDescription(edm::ParameterSetDescription& desc) {
          desc.add<double>("etMin", 0);
        }
      };

@@ -36,10 +36,10 @@ class ObjectCountEventSelector : public EventSelectorBase
     sizeSelect_( reco::modules::make<N>( cfg, iC ) ) {
   }
 
-  static void fillDescriptions(edm::ParameterSetDescription& desc) {
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
     desc.add<edm::InputTag>("src", edm::InputTag());
-    reco::modules::fillDescriptions<S>(desc);
-    reco::modules::fillDescriptions<N>(desc);
+    reco::modules::fillPSetDescription<S>(desc);
+    reco::modules::fillPSetDescription<N>(desc);
   }
 
   bool operator()(edm::Event& evt, const edm::EventSetup&) const override {

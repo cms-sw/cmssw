@@ -14,7 +14,7 @@ namespace reco {
 	return MinNumberSelector(cfg.getParameter<unsigned int>("minNumber"));
       }
 
-      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
         desc.add<unsigned int>("minNumber", 0);
       }
     };

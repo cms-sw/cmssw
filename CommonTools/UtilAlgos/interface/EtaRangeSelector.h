@@ -15,7 +15,7 @@ namespace reco {
 			    cfg.getParameter<double>( "etaMax" ) );
       }
 
-      static void fillDescriptions(edm::ParameterSetDescription& desc) {
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
         desc.add<double>("etaMin", 0.);
         desc.add<double>("etaMax", 0.);
       }
