@@ -140,7 +140,7 @@ private:
   double link_max[72];
 
   int FEDIDmin;
-  int FEDIDMax;
+  int FEDIDmax;
 
 
   //Event counter for the graphs VS time
