@@ -98,12 +98,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                                            conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM"):edm::ParameterSet());
   const edm::ParameterSet me21tmbGemParams(conf.existsAs<edm::ParameterSet>("me21tmbSLHCGEM")?
                                            conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"):edm::ParameterSet());
-  const edm::ParameterSet me3141tmbRpcParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHCRPC")?
-                                             conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC"):edm::ParameterSet());
 
   const bool runME11ILT(commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false);
   const bool runME21ILT(commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false);
-  const bool runME3141ILT(commonParams.existsAs<bool>("runME3141ILT")?commonParams.getParameter<bool>("runME3141ILT"):false);
 
   // run upgrade TMBs for all MEX/1 stations
   if (isSLHC and theRing == 1){
@@ -119,11 +116,6 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
       tmbParams = me21tmbGemParams;
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
-    }
-    else if ((theStation == 3 or theStation == 4) and runME3141ILT) {
-      tmbParams = me3141tmbRpcParams;
-      alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME3141");
-      clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME3141");
     }
   }
 
@@ -292,11 +284,16 @@ void CSCMotherboard::checkConfigParameters() {
 }
 
 void CSCMotherboard::run(
- const std::vector<int> w_times[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
- const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
- const std::vector<int> ds_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
+			 const std::vector<int> w_times[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
+			 const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+			 const std::vector<int> ds_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
   // Debug version.  -JM
   clear();
+
+  // set geometry
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+
   alct->run(w_times);            // run anode LCT
   clct->run(hs_times, ds_times); // run cathodeLCT
 
@@ -345,6 +342,11 @@ void
 CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                     const CSCComparatorDigiCollection* compdc) {
   clear();
+
+  // set geometry
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+
   if (alct && clct) {
     {
       std::vector<CSCALCTDigi> alctV = alct->run(wiredc); // run anodeLCT
@@ -596,7 +598,7 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
 // constructor of correlated LCTs.
 CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    const CSCCLCTDigi& cLCT,
-						   int type) {
+                                                   int type) const {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
 
@@ -620,7 +622,7 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
 // CLCT pattern number: encodes the pattern number itself and
 // whether the pattern consists of half-strips or di-strips.
 unsigned int CSCMotherboard::encodePattern(const int ptn,
-                                           const int stripType) {
+                                           const int stripType) const {
   const int kPatternBitWidth = 4;
   unsigned int pattern;
 
@@ -646,7 +648,7 @@ unsigned int CSCMotherboard::encodePattern(const int ptn,
 // http://www.phys.ufl.edu/~acosta/tb/tmb_quality.txt.  Made by TMB lookup
 // tables and used for MPC sorting.
 unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
-                                         const CSCCLCTDigi& cLCT) {
+                                         const CSCCLCTDigi& cLCT) const {
   unsigned int quality = 0;
 
   if (!isTMB07) {
@@ -838,18 +840,4 @@ void CSCMotherboard::dumpConfigParams() const {
        << tmb_l1a_window_size << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCMotherboard") << strm.str();
-}
-
-
-// compare LCTs by quality
-bool CSCMotherboard::sortByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2)
-{
-  return lct1.getQuality() > lct2.getQuality();
-}
-
-// compare LCTs by GEM bending angle
-bool CSCMotherboard::sortByGEMDphi(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2)
-{
-  //  return lct1.getGEMDPhi() < lct2.getGEMDPhi();
-  return true;
 }
