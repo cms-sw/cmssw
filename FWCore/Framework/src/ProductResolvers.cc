@@ -692,7 +692,7 @@ namespace edm {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     for(unsigned int k : lookupProcessOrder) {
       assert(k < ambiguous_.size());
-      if(k == 0) break; // Done
+      if(k == 0) { break; // Done }
       if(ambiguous_[k]) {
         updateCacheIndex = choiceSize + kAmbiguousOffset;
         return ProductResolverBase::Resolution::makeAmbiguous();

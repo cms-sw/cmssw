@@ -32,8 +32,8 @@ namespace {
       str << "$" << i;
       // std::cerr << "Current match: " << matches[i] << std::endl;
       std::string const matchedString(matches[i].first, matches[i].second);
-      if (!matchedString.empty())
-        boost::algorithm::replace_all(result, str.str(), matchedString);
+      if (!matchedString.empty()) {
+        boost::algorithm::replace_all(result, str.str(), matchedString); }
     }
     // std::cerr << "Final string: " << result << std::endl;
     return result;
@@ -87,8 +87,8 @@ namespace edm {
 
     for (size_t pi = 0, pe = m_protocols.size(); pi != pe; ++pi) {
       out = applyRules(rules, m_protocols[pi], m_destination, direct, input);
-      if (!out.empty())
-        return out;
+      if (!out.empty()) {
+        return out; }
     }
     return out;
   }
@@ -131,8 +131,8 @@ namespace edm {
       
     if (m_url.empty()) {
       Service<SiteLocalConfig> localconfservice;
-      if (!localconfservice.isAvailable())
-              throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
+      if (!localconfservice.isAvailable()) {
+              throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available"); }
 
       m_url = (fallback ? localconfservice->fallbackDataCatalog() : localconfservice->dataCatalog());
     }

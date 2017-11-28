@@ -104,7 +104,7 @@ namespace edm {
   ParameterSetDescription::validate(ParameterSet & pset) const
   {
     using std::placeholders::_1;
-    if (unknown_) return;
+    if (unknown_) { return; }
 
     std::set<std::string> validatedLabels;
     for_all(entries_,
@@ -184,7 +184,7 @@ namespace edm {
       os << "Description is unknown.  The configured PSet will not be validated\n";
       dfh.indent(os);
       os << "because the plugin has not defined this parameter set description.\n";
-      if (!dfh.brief()) os << "\n";
+      if (!dfh.brief()) { os << "\n"; }
     }
 
     if (anythingAllowed()) {
@@ -192,13 +192,13 @@ namespace edm {
       os << "Description allows anything. If the configured PSet contains illegal parameters,\n";
       dfh.indent(os);
       os << "then validation will ignore them instead of throwing an exception.\n";
-      if (!dfh.brief()) os << "\n";
+      if (!dfh.brief()) { os << "\n"; }
     }
 
     if (entries_.empty()) {
       dfh.indent(os);
       os << "Description is empty\n";
-      if (!dfh.brief()) os << "\n";
+      if (!dfh.brief()) { os << "\n"; }
       return;
     }
 

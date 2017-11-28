@@ -54,10 +54,14 @@ namespace edm {
 
 
     bool DecomposedReleaseVersion::operator<(DecomposedReleaseVersion const& other) const {
-      if(irregular_ || other.irregular_) return false;
-      if(major_ < other.major_) return true;
-      if(major_ > other.major_) return false;
-      if(minor_ < other.minor_) return true;
+      if(irregular_ || other.irregular_) { return false;
+}
+      if(major_ < other.major_) { return true;
+}
+      if(major_ > other.major_) { return false;
+}
+      if(minor_ < other.minor_) { return true;
+}
 //      if(minor_ > other.minor_) return false;
 //      if(point_ < other.point_) return true;
 //      if(point_ > other.point_) return false;

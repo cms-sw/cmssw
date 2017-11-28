@@ -697,7 +697,7 @@ namespace edm {
       return;
     }
 
-    if (wantSummary_ == false) return;
+    if (wantSummary_ == false) { return; }
     {
       TriggerReport tr;
       getTriggerReport(tr);

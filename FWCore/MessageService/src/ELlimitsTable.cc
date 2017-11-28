@@ -163,8 +163,9 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
     }
 
     // save, if possible, this xid's initial entry:
-    if ( tableLimit < 0  || static_cast<int>(counts.size()) < tableLimit )
+    if ( tableLimit < 0  || static_cast<int>(counts.size()) < tableLimit ) {
       counts[xid] = CountAndLimit( lim, ts, ivl );
+}
     c = counts.find( xid );
   }
 
@@ -209,14 +210,16 @@ void ELlimitsTable::zero()  {
   // and for individual ID's.
 
   ELmap_counts::iterator i;
-  for ( i = counts.begin();  i != counts.end();  ++i )
+  for ( i = counts.begin();  i != counts.end();  ++i ) {
     (*i).second.n = 0;
+}
 }
 
 
 void ELlimitsTable::setLimit( const ELstring & id, int n )  {
-  if ( id[0] == '*' )  wildcardLimit    = n;
-  else                 limits[id].limit = n;
+  if ( id[0] == '*' ) {  wildcardLimit    = n;
+  } else {                 limits[id].limit = n;
+}
 }
 
 
@@ -225,8 +228,9 @@ void ELlimitsTable::setLimit( const ELseverityLevel & sev, int n )  {
 }
 
 void ELlimitsTable::setInterval( const ELstring & id, int interval )  {
-  if ( id[0] == '*' )  wildcardInterval    = interval;
-  else                 limits[id].interval = interval;
+  if ( id[0] == '*' ) {  wildcardInterval    = interval;
+  } else {                 limits[id].interval = interval;
+}
 }
 
 
@@ -236,8 +240,9 @@ void ELlimitsTable::setInterval( const ELseverityLevel & sev, int interval )  {
 
 
 void ELlimitsTable::setTimespan( const ELstring & id, int n )  {
-  if ( id[0] == '*' )  wildcardTimespan    = n;
-  else                 limits[id].timespan = n;
+  if ( id[0] == '*' ) {  wildcardTimespan    = n;
+  } else {                 limits[id].timespan = n;
+}
 }
 
 

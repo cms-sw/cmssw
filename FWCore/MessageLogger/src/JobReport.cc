@@ -606,7 +606,7 @@ namespace edm {
 
   void
   JobReport::reportReadBranches() {
-    if(impl_->printedReadBranches_) return;
+    if(impl_->printedReadBranches_) { return; }
     impl_->printedReadBranches_ = true;
     if(impl_->ost_) {
       std::ostream& ost = *(impl_->ost_);

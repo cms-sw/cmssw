@@ -88,7 +88,7 @@ namespace edm {
                   DocFormatHelper& dfh) const {
     os << "see Section " << dfh.section()
        << "." << dfh.counter();
-    if(!writeToCfi) os << " (do not write to cfi)";
+    if(!writeToCfi) { os << " (do not write to cfi)"; }
     os << "\n";
   }
 
@@ -115,7 +115,7 @@ namespace edm {
     printSpaces(os, indentation);
     os << "Section " << newSection
        << " " << label() << " PSet description:\n";
-    if(!dfh.brief()) os << "\n";
+    if(!dfh.brief()) { os << "\n"; }
 
     DocFormatHelper new_dfh(dfh);
     new_dfh.init();
@@ -282,7 +282,7 @@ namespace edm {
                 DocFormatHelper& dfh) const {
     os << "see Section " << dfh.section()
        << "." << dfh.counter();
-    if(!writeToCfi) os << " (do not write to cfi)";
+    if(!writeToCfi) { os << " (do not write to cfi)"; }
     os << "\n";
   }
 
@@ -321,12 +321,12 @@ namespace edm {
     printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
 
     unsigned subsectionOffset = 2;
-    if(partOfDefaultOfVPSet_) subsectionOffset = 1;
+    if(partOfDefaultOfVPSet_) { subsectionOffset = 1; }
 
     if(hasDefault()) {
-      if(vPset_.empty()) os << "The default VPSet is empty.\n";
-      else if(vPset_.size() == 1U) os << "The default VPSet has 1 element.\n";
-      else os << "The default VPSet has " << vPset_.size() << " elements.\n";
+      if(vPset_.empty()) { os << "The default VPSet is empty.\n";
+      } else if(vPset_.size() == 1U) { os << "The default VPSet has 1 element.\n";
+      } else { os << "The default VPSet has " << vPset_.size() << " elements.\n"; }
 
       if(!vPset_.empty()) {
         for(unsigned i = 0; i < vPset_.size(); ++i) {
@@ -339,7 +339,7 @@ namespace edm {
       os << "Does not have a default VPSet.\n";
     }
 
-    if(!dfh.brief()) os << "\n";
+    if(!dfh.brief()) { os << "\n"; }
 
     if(!partOfDefaultOfVPSet_) {
 
@@ -349,7 +349,7 @@ namespace edm {
 
       printSpaces(os, indentation);
       os << "Section " << newSection << " description of PSet used to validate elements of VPSet:\n";
-      if(!dfh.brief()) os << "\n";
+      if(!dfh.brief()) { os << "\n"; }
 
       DocFormatHelper new_dfh(dfh);
       new_dfh.init();
@@ -370,7 +370,7 @@ namespace edm {
         printSpaces(os, indentation);
         os << "Section " << newSection << " PSet description of "
            << "default VPSet element [" << i << "]\n";
-        if(!dfh.brief()) os << "\n";
+        if(!dfh.brief()) { os << "\n"; }
 
         DocFormatHelper new_dfh(dfh);
         new_dfh.init();
@@ -398,7 +398,7 @@ namespace edm {
                        std::ostream& os,
                        int indentation,
                        bool& nextOneStartsWithAComma) {
-    if(nextOneStartsWithAComma) os << ",";
+    if(nextOneStartsWithAComma) { os << ","; }
     nextOneStartsWithAComma = true;
     os << "\n";
     printSpaces(os, indentation + 2);
@@ -527,31 +527,31 @@ namespace edm {
 
     template<>
     void writeSingleValue<LuminosityBlockID>(std::ostream& os, LuminosityBlockID const& value, ValueFormat format) {
-      if(format == CFI) os << value.run() << ", " << value.luminosityBlock();
-      else os << value.run() << ":" << value.luminosityBlock();
+      if(format == CFI) { os << value.run() << ", " << value.luminosityBlock();
+      } else { os << value.run() << ":" << value.luminosityBlock(); }
     }
 
     template<>
     void writeSingleValue<EventRange>(std::ostream& os, EventRange const& value, ValueFormat format) {
       if(value.startLumi() == 0U) {
-        if(format == CFI) os << "'" << value.startRun() << ":" << value.startEvent() << "-"
+        if(format == CFI) { os << "'" << value.startRun() << ":" << value.startEvent() << "-"
                                      << value.endRun() << ":" << value.endEvent() << "'";
-        else os << value.startRun() << ":" << value.startEvent() << "-"
-                << value.endRun() << ":" << value.endEvent();
+        } else { os << value.startRun() << ":" << value.startEvent() << "-"
+                << value.endRun() << ":" << value.endEvent(); }
       } else {
-        if(format == CFI) os << "'" << value.startRun() << ":" << value.startLumi() << ":" << value.startEvent() << "-"
+        if(format == CFI) { os << "'" << value.startRun() << ":" << value.startLumi() << ":" << value.startEvent() << "-"
                                      << value.endRun() << ":" << value.endLumi() << ":" << value.endEvent() << "'";
-        else os << value.startRun() << ":" << value.startLumi() << ":" << value.startEvent() << "-"
-                << value.endRun() << ":" << value.endLumi() << ":" << value.endEvent();
+        } else { os << value.startRun() << ":" << value.startLumi() << ":" << value.startEvent() << "-"
+                << value.endRun() << ":" << value.endLumi() << ":" << value.endEvent(); }
       }
     }
 
     template<>
     void writeSingleValue<LuminosityBlockRange>(std::ostream& os, LuminosityBlockRange const& value, ValueFormat format) {
-      if(format == CFI) os << "'" << value.startRun() << ":" << value.startLumi() << "-"
+      if(format == CFI) { os << "'" << value.startRun() << ":" << value.startLumi() << "-"
                             << value.endRun() << ":" << value.endLumi() << "'";
-      else os << value.startRun() << ":" << value.startLumi() << "-"
-              << value.endRun() << ":" << value.endLumi();
+      } else { os << value.startRun() << ":" << value.startLumi() << "-"
+              << value.endRun() << ":" << value.endLumi(); }
     }
 
     template<>
@@ -599,18 +599,18 @@ namespace edm {
     template<>
     void writeValueInVector<EventID>(std::ostream& os, EventID const& value, ValueFormat format) {
       if(value.luminosityBlock() == 0U) {
-        if(format == CFI) os << "'" << value.run() << ":" << value.event() << "'";
-        else os << value.run() << ":" << value.event();
+        if(format == CFI) { os << "'" << value.run() << ":" << value.event() << "'";
+        } else { os << value.run() << ":" << value.event(); }
       } else {
-        if(format == CFI) os << "'" << value.run() << ":" << value.luminosityBlock() << ":" << value.event() << "'";
-        else os << value.run() << ":" << value.luminosityBlock() << ":" << value.event();
+        if(format == CFI) { os << "'" << value.run() << ":" << value.luminosityBlock() << ":" << value.event() << "'";
+        } else { os << value.run() << ":" << value.luminosityBlock() << ":" << value.event(); }
       }
     }
 
     template<>
     void writeValueInVector<LuminosityBlockID>(std::ostream& os, LuminosityBlockID const& value, ValueFormat format) {
-      if(format == CFI) os << "'" << value.run() << ":" << value.luminosityBlock() << "'";
-      else os << value.run() << ":" << value.luminosityBlock();
+      if(format == CFI) { os << "'" << value.run() << ":" << value.luminosityBlock() << "'";
+      } else { os << value.run() << ":" << value.luminosityBlock(); }
     }
 
     template<>
@@ -632,10 +632,10 @@ namespace edm {
                                      bool& startWithComma,
                                      ValueFormat format,
                                      int& i) {
-      if(startWithComma && format == CFI) os << ",";
+      if(startWithComma && format == CFI) { os << ","; }
       startWithComma = true;
       os << "\n" << std::setw(indentation) << "";
-      if(format == DOC) os << "[" << i << "]: ";
+      if(format == DOC) { os << "[" << i << "]: "; }
       writeValueInVector<T>(os, value, format);
       ++i;
     }
@@ -650,8 +650,8 @@ namespace edm {
       } else if(value_.size() == 1U && format == CFI) {
         writeValueInVector<T>(os, value_[0], format);
       } else if(!value_.empty()) {
-        if(format == DOC) os << "(vector size = " << value_.size() << ")";
-        if(format == CFI and value_.size() > 255U) os << " *(";
+        if(format == DOC) { os << "(vector size = " << value_.size() << ")"; }
+        if(format == CFI and value_.size() > 255U) { os << " *("; }
         os.fill(' ');
         bool startWithComma = false;
         int i = 0;
@@ -662,8 +662,8 @@ namespace edm {
                                     std::ref(startWithComma),
                                     format,
                                     std::ref(i)));
-        if(format == CFI) os << "\n" << std::setw(indentation) << "";
-        if(format == CFI and value_.size() > 255U) os << ") ";
+        if(format == CFI) { os << "\n" << std::setw(indentation) << ""; }
+        if(format == CFI and value_.size() > 255U) { os << ") "; }
       }
       os.flags(ff);
       os.fill(oldFill);

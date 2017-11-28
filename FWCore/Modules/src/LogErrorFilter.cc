@@ -113,19 +113,19 @@ LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const&) {
       // update counters here
       for(unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
 	const edm::ErrorSummaryEntry& iSummary = (*errorsAndWarnings)[iE];
-	if (std::find(avoidCategories_.begin(),avoidCategories_.end(), iSummary.category) != avoidCategories_.end() )
-	  continue;
+	if (std::find(avoidCategories_.begin(),avoidCategories_.end(), iSummary.category) != avoidCategories_.end() ) {
+	  continue; }
 	std::string kind= iSummary.category + ":" + iSummary.module;
 	int iSeverity = iSummary.severity.getLevel();
 	if (iSeverity == edm::ELseverityLevel::ELsev_error){
 	  unsigned int& iCount = errorCounts_[kind];
 	  iCount++;
-	  if (iCount <= maxErrorKindsPerLumi_) errorsBelowThreshold++;
+	  if (iCount <= maxErrorKindsPerLumi_) { errorsBelowThreshold++; }
 	}
 	if (iSeverity == edm::ELseverityLevel::ELsev_warning){
 	  unsigned int& iCount = warningCounts_[kind];
 	  iCount++;
-	  if (iCount <= maxWarningKindsPerLumi_) warningsBelowThreshold++;
+	  if (iCount <= maxWarningKindsPerLumi_) { warningsBelowThreshold++; }
 	}
       }
       return ( (atLeastOneEntry_ && (errorsBelowThreshold > 0 || warningsBelowThreshold > 0))
@@ -186,10 +186,10 @@ void LogErrorFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::Even
     typedef std::map<std::string, unsigned int>::iterator msIter;
     msIter errorMI = errorCounts_.begin();
     msIter errorMIEnd = errorCounts_.end();
-    for (;errorMI != errorMIEnd; ++errorMI) errorMI->second = 0;
+    for (;errorMI != errorMIEnd; ++errorMI) { errorMI->second = 0; }
     msIter warningMI = warningCounts_.begin();
     msIter warningMIEnd = warningCounts_.end();
-    for (;warningMI != warningMIEnd; ++warningMI) warningMI->second = 0;
+    for (;warningMI != warningMIEnd; ++warningMI) { warningMI->second = 0; }
   }
 
   return;

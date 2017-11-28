@@ -92,9 +92,11 @@ bool  CountAndLimit::add()  {
   	                              << "-- interval is " << interval << "\n";
 #endif
   
-  if (skipped < interval) return false;
+  if (skipped < interval) { return false;
+}
 
-  if ( limit == 0 ) return false;        // Zero limit - never react to this
+  if ( limit == 0 ) { return false;        // Zero limit - never react to this
+}
   if ( (limit < 0)  || ( n <= limit )) {
     skipped = 0;
     return true;
@@ -112,7 +114,8 @@ bool  CountAndLimit::add()  {
   }
 
   while ( r > 1 )  {
-    if ( (r & 1) != 0 )  return false;  // Not 2**n times limit - don't react
+    if ( (r & 1) != 0 ) {  return false;  // Not 2**n times limit - don't react
+}
     r >>= 1;
   }
   // If you never get an odd number till one, r is 2**n so react
@@ -146,8 +149,9 @@ void  StatsCount::add( const ELstring & context, bool reactedTo )  {
   :            contextLast
   )                        = ELstring( context, 0, 16 );
 
-  if ( ! reactedTo )
+  if ( ! reactedTo ) {
     ignoredFlag = true;
+}
 
 }  // add()
 

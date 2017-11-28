@@ -71,12 +71,12 @@ namespace edm {
       dfh.indent2(os);
     }
     os << "see Section " << newSection << "\n";
-    if (!dfh.brief()) os << "\n";
+    if (!dfh.brief()) { os << "\n"; }
 
     printSpaces(os, indentation);
     os << "Section " << newSection
        << " PSet description:\n";
-    if (!dfh.brief()) os << "\n";
+    if (!dfh.brief()) { os << "\n"; }
 
     DocFormatHelper new_dfh(dfh);
     new_dfh.setSection(newSection);
@@ -166,12 +166,12 @@ namespace edm {
       dfh.indent2(os);
     }
     os << "see Section " << newSection << "\n";
-    if (!dfh.brief()) os << "\n";
+    if (!dfh.brief()) { os << "\n"; }
 
     printSpaces(os, indentation);
     os << "Section " << newSection
        << " PSet description used to validate all elements of VPSet's:\n";
-    if (!dfh.brief()) os << "\n";
+    if (!dfh.brief()) { os << "\n"; }
 
     DocFormatHelper new_dfh(dfh);
     new_dfh.setSection(newSection);

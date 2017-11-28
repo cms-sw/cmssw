@@ -115,9 +115,9 @@ namespace edm
     bool exception_star    = false;
 
     for(auto const& pathspecifier : pathspecs_) {
-      if (pathspecifier == "*")           unrestricted_star = true;
-      if (pathspecifier == "!*")          negated_star = true;
-      if (pathspecifier == "exception@*") exception_star = true;
+      if (pathspecifier == "*") {           unrestricted_star = true; }
+      if (pathspecifier == "!*") {          negated_star = true; }
+      if (pathspecifier == "exception@*") { exception_star = true; }
     }
     return (unrestricted_star && negated_star && exception_star);
   }
@@ -152,11 +152,11 @@ namespace edm
       and_noexception = basePathSpec.find("&noexception");
       and_noex = basePathSpec.find("&noex");	
       if (and_noexception != std::string::npos ||
-	   and_noex != std::string::npos)
+	   and_noex != std::string::npos) {
           throw edm::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request a trigger name, but specifying &noexceptions twice\n"
-            << "The improper trigger name is: " << pathspecifier << "\n";
+            << "The improper trigger name is: " << pathspecifier << "\n"; }
 
       std::string realname(basePathSpec);
       bool negative_criterion = false;
@@ -170,18 +170,18 @@ namespace edm
 	realname = realname.substr(10, std::string::npos);
 	// strip off 10 chars, which is length of "exception@"
       }	
-      if (negative_criterion &&  exception_spec)
+      if (negative_criterion &&  exception_spec) {
           throw edm::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request a trigger name starting with !exception@.\n"
 	       "This is not supported.\n"
-            << "The improper trigger name is: " << pathspecifier << "\n";
-      if (noex_demanded &&  exception_spec)
+            << "The improper trigger name is: " << pathspecifier << "\n"; }
+      if (noex_demanded &&  exception_spec) {
           throw edm::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request a trigger name starting with exception@ "
 	       "and also demanding no &exceptions.\n"
-            << "The improper trigger name is: " << pathspecifier << "\n";
+            << "The improper trigger name is: " << pathspecifier << "\n"; }
 
 
       // instead of "see if the name can be found in the full list of paths"
@@ -264,7 +264,7 @@ namespace edm
   } // EventSelector::init
 
   bool EventSelector::acceptEvent(TriggerResults const& tr) {
-    if (accept_all_) return true;
+    if (accept_all_) { return true; }
 
     if (!results_from_current_process_) {
       // The path names for prior processes may be different in different runs.
@@ -316,7 +316,7 @@ namespace edm
         << "will not work and ought to be impossible\n";
     }
 
-    if (accept_all_) return true;
+    if (accept_all_) { return true; }
 
     // Form HLTGlobalStatus object to represent the array_of_trigger_results
     HLTGlobalStatus tr(number_of_trigger_paths);
@@ -345,27 +345,27 @@ namespace edm
   bool
   EventSelector::selectionDecision(HLTGlobalStatus const& tr) const
   {
-    if (accept_all_) return true;
+    if (accept_all_) { return true; }
 
     bool exceptionPresent = false;
     bool exceptionsLookedFor = false;
 
-    if (acceptOneBit(absolute_acceptors_, tr)) return true;
+    if (acceptOneBit(absolute_acceptors_, tr)) { return true; }
     if (acceptOneBit(conditional_acceptors_, tr)) {
       exceptionPresent = containsExceptions(tr);
-      if (!exceptionPresent) return true;
+      if (!exceptionPresent) { return true; }
       exceptionsLookedFor = true;
     }
-    if (acceptOneBit(exception_acceptors_, tr, hlt::Exception)) return true;
+    if (acceptOneBit(exception_acceptors_, tr, hlt::Exception)) { return true; }
 
     for (auto const& bit : all_must_fail_)
     {
-      if (acceptAllBits(bit, tr)) return true;
+      if (acceptAllBits(bit, tr)) { return true; }
     }
     for (auto const& bitn : all_must_fail_noex_)
     {
       if (acceptAllBits(bitn, tr)) {
-        if (!exceptionsLookedFor) exceptionPresent = containsExceptions(tr);
+        if (!exceptionsLookedFor) { exceptionPresent = containsExceptions(tr); }
         return (!exceptionPresent);
       }
     }
@@ -400,7 +400,7 @@ namespace edm
           lookForException ? hlt::Exception
       			   : bit.accept_state_ ? hlt::Pass
 				               : hlt::Fail;
-      if (tr[bit.pos_].state() == bstate) return true;
+      if (tr[bit.pos_].state() == bstate) { return true; }
     }
     return false;
   } // acceptOneBit			
@@ -413,7 +413,7 @@ namespace edm
   {
     for(auto const& bit : b) {
       hlt::HLTState bstate = bit.accept_state_ ? hlt::Pass : hlt::Fail;
-      if (tr[bit.pos_].state() != bstate) return false;
+      if (tr[bit.pos_].state() != bstate) { return false; }
     }
     return true;
   } // acceptAllBits			
@@ -483,7 +483,7 @@ namespace edm
             sampleResults.reset(iPath);
           }
 
-          if (oneResultMatched) break;
+          if (oneResultMatched) { break; }
         }
 
 	// Finally, check in case the selection element was a wildcarded
@@ -602,41 +602,41 @@ namespace edm
       overlap = overlapping(aPass, bPass) ||
       		overlapping(aFail, bFail) ||
      		overlapping(aExc, bExc);
-      if (overlap) return identical(a,b,N) ? evtSel::ExactMatch
-      					     : evtSel::PartialOverlap;
+      if (overlap) { return identical(a,b,N) ? evtSel::ExactMatch
+      					     : evtSel::PartialOverlap; }
 
       // Check for overlap of a primary fail mask with a must fail mask
       for (unsigned int f = 0; f != aMustFail.size(); ++f) {
         overlap = overlapping(aMustFail[f], bFail);
-	if (overlap) return evtSel::PartialOverlap;
+	if (overlap) { return evtSel::PartialOverlap; }
 	for (unsigned int g = 0; g != bMustFail.size(); ++g) {
           overlap = subset(aMustFail[f], bMustFail[g]);
-	  if (overlap) return evtSel::PartialOverlap;
+	  if (overlap) { return evtSel::PartialOverlap; }
 	}
 	for (unsigned int g = 0; g != bMustFailNoex.size(); ++g) {
           overlap = subset(aMustFail[f], bMustFailNoex[g]);
-	  if (overlap) return evtSel::PartialOverlap;
+	  if (overlap) { return evtSel::PartialOverlap; }
 	}
       }
       for (unsigned int f = 0; f != aMustFailNoex.size(); ++f) {
         overlap = overlapping(aMustFailNoex[f], bFail);
-	if (overlap) return evtSel::PartialOverlap;
+	if (overlap) { return evtSel::PartialOverlap; }
 	for (unsigned int g = 0; g != bMustFail.size(); ++g) {
           overlap = subset(aMustFailNoex[f], bMustFail[g]);
-	  if (overlap) return evtSel::PartialOverlap;
+	  if (overlap) { return evtSel::PartialOverlap; }
 	}
 	for (unsigned int g = 0; g != bMustFailNoex.size(); ++g) {
           overlap = subset(aMustFailNoex[f], bMustFailNoex[g]);
-	  if (overlap) return evtSel::PartialOverlap;
+	  if (overlap) { return evtSel::PartialOverlap; }
 	}
       }
       for (unsigned int g = 0; g != bMustFail.size(); ++g) {
         overlap = overlapping(bMustFail[g], aFail);
-	if (overlap) return evtSel::PartialOverlap;
+	if (overlap) { return evtSel::PartialOverlap; }
       }
       for (unsigned int g = 0; g != bMustFailNoex.size(); ++g) {
         overlap = overlapping(bMustFail[g], aFail);
-	if (overlap) return evtSel::PartialOverlap;
+	if (overlap) { return evtSel::PartialOverlap; }
       }
 
     }
@@ -938,7 +938,7 @@ namespace edm
   {
     unsigned int e = tr.size();
     for (unsigned int i = 0; i < e; ++i) {
-      if (tr[i].state() == hlt::Exception) return true;
+      if (tr[i].state() == hlt::Exception) { return true; }
     }
     return false;
   }
@@ -949,9 +949,9 @@ namespace edm
   EventSelector::identical(std::vector<bool> const& a,
   			   std::vector<bool> const& b) {
      unsigned int n = a.size();
-     if (n != b.size()) return false;
+     if (n != b.size()) { return false; }
      for (unsigned int i=0; i!=n; ++i) {
-       if (a[i] != b[i]) return false;
+       if (a[i] != b[i]) { return false; }
      }
      return true;
   }
@@ -963,21 +963,21 @@ namespace edm
   {
         // create the expanded masks for the various decision lists in a and b
     if (!identical(expandDecisionList(a.absolute_acceptors_,true,N),
-                   expandDecisionList(b.absolute_acceptors_,true,N)))
-		   return false;
+                   expandDecisionList(b.absolute_acceptors_,true,N))) {
+		   return false; }
     if (!identical(expandDecisionList(a.conditional_acceptors_,true,N),
-                   expandDecisionList(b.conditional_acceptors_,true,N)))
-		   return false;
+                   expandDecisionList(b.conditional_acceptors_,true,N))) {
+		   return false; }
     if (!identical(expandDecisionList(a.absolute_acceptors_,false,N),
-                   expandDecisionList(b.absolute_acceptors_,false,N)))
-		   return false;
+                   expandDecisionList(b.absolute_acceptors_,false,N))) {
+		   return false; }
     if (!identical(expandDecisionList(a.conditional_acceptors_,false,N),
-                   expandDecisionList(b.conditional_acceptors_,false,N)))
-		   return false;
+                   expandDecisionList(b.conditional_acceptors_,false,N))) {
+		   return false; }
     if (!identical(expandDecisionList(a.exception_acceptors_,true,N),
-                   expandDecisionList(b.exception_acceptors_,true,N)))
-		   return false;
-    if (a.all_must_fail_.size() != b.all_must_fail_.size()) return false;
+                   expandDecisionList(b.exception_acceptors_,true,N))) {
+		   return false; }
+    if (a.all_must_fail_.size() != b.all_must_fail_.size()) { return false; }
 
     std::vector< std::vector<bool> > aMustFail;
     for (unsigned int m = 0; m != a.all_must_fail_.size(); ++m) {
@@ -1006,7 +1006,7 @@ namespace edm
 	  break;
 	}
       }
-      if (!match) return false;
+      if (!match) { return false; }
     }
     for (unsigned int m = 0; m != aMustFailNoex.size(); ++m) {
       bool match = false;
@@ -1016,7 +1016,7 @@ namespace edm
 	  break;
 	}
       }
-      if (!match) return false;
+      if (!match) { return false; }
     }
 
     return true;
@@ -1030,7 +1030,7 @@ namespace edm
   {
     std::vector<bool> x(n, false);
     for (unsigned int i = 0; i != b.size(); ++i) {
-      if (b[i].accept_state_ == PassOrFail) x[b[i].pos_] = true;
+      if (b[i].accept_state_ == PassOrFail) { x[b[i].pos_] = true; }
     }
     return x;
   } // expandDecisionList	
@@ -1039,9 +1039,9 @@ namespace edm
   bool EventSelector::overlapping(std::vector<bool> const& a,
     			             std::vector<bool> const& b)
   {
-    if (a.size() != b.size()) return false;
+    if (a.size() != b.size()) { return false; }
     for (unsigned int i = 0; i != a.size(); ++i) {
-      if (a[i] && b[i]) return true;
+      if (a[i] && b[i]) { return true; }
     }
     return false;
   } // overlapping
@@ -1051,7 +1051,7 @@ namespace edm
   bool EventSelector::subset(std::vector<bool> const& a,
     			       std::vector<bool> const& b)
   {
-    if (a.size() != b.size()) return false;
+    if (a.size() != b.size()) { return false; }
     // First test whether a is a non-empty subset of b
     bool aPresent = false;
     bool aSubset = true;
@@ -1064,8 +1064,8 @@ namespace edm
 	}
       }
     }
-    if (!aPresent) return false;
-    if (aSubset) return true;
+    if (!aPresent) { return false; }
+    if (aSubset) { return true; }
 
     // Now test whether b is a non-empty subset of a
     bool bPresent = false;
@@ -1079,8 +1079,8 @@ namespace edm
 	}
       }
     }
-    if (!bPresent) return false;
-    if (bSubset) return true;
+    if (!bPresent) { return false; }
+    if (bSubset) { return true; }
 
     return false;
   } // subset

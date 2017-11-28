@@ -175,10 +175,10 @@ namespace edm {
             ++itDatum) {
             bool wasGotten = r->wasGotten(itDatum->first);
             if (wasGotten != itDatum->second) {
-               if (not msg)
+               if (not msg) {
                   msg.reset(new LogSystem("ESContent"));
-               else
-                  *msg << "\n";
+               } else {
+                  *msg << "\n"; }
                itDatum->second = wasGotten;
                *msg << "Retrieved> record:" << it->name() << " data:" << itDatum->first.type().name() << " '" << itDatum->first.name().value() << "'";
                if (m_printProviders) {

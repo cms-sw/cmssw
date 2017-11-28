@@ -67,8 +67,9 @@ int do_work(int argc, char* argv[], char** env) {
     std::cout << "Current directory is: " << currentPath.string() << '\n';
     std::cout << "Current environment:\n";
     std::cout << "---------------------\n";
-    for(int i = 0; env[i] != nullptr; ++i) std::cout << env[i] << '\n';
-    std::cout << "---------------------\n";
+    for(int i = 0; env[i] != nullptr; ++i) { std::cout << env[i] << '\n';
+    
+}std::cout << "---------------------\n";
     std::cout << "Executable name: " << argv[0] << '\n';
     return -1;
   }
@@ -86,7 +87,8 @@ int do_work(int argc, char* argv[], char** env) {
   // It is unclear about which of these environment variables should
   // be used.
   char const* topdir = getenv("SCRAMRT_LOCALRT");
-  if(!topdir) topdir = getenv("LOCALRT");
+  if(!topdir) { topdir = getenv("LOCALRT");
+}
   try {
     if(!edm::untaintString(topdir, goodDirectory)) {
       std::cerr << "Invalid top directory '" << topdir << "'" << std::endl;

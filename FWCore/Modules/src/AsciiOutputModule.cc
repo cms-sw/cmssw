@@ -41,7 +41,7 @@ namespace edm {
     prescale_(pset.getUntrackedParameter<unsigned int>("prescale")),
     verbosity_(pset.getUntrackedParameter<unsigned int>("verbosity")),
     counter_(0) {
-     if (prescale_ == 0) prescale_ = 1;
+     if (prescale_ == 0) { prescale_ = 1; }
   }
 
   AsciiOutputModule::~AsciiOutputModule() {
@@ -51,12 +51,12 @@ namespace edm {
   void
   AsciiOutputModule::write(EventForOutput const& e) {
 
-    if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) return;
+    if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) { return; }
 
     // RunForOutput const& run = evt.getRun(); // this is still unused
     LogAbsolute("AsciiOut")<< ">>> processing event # " << e.id() << " time " << e.time().value() << std::endl;
 
-    if (verbosity_ <= 1) return;
+    if (verbosity_ <= 1) { return; }
 
     // Write out non-EDProduct contents...
 

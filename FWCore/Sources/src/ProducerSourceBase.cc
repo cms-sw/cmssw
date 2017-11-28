@@ -57,7 +57,7 @@ namespace edm {
 
   std::shared_ptr<LuminosityBlockAuxiliary>
   ProducerSourceBase::readLuminosityBlockAuxiliary_() {
-    if (processingMode() == Runs) return std::shared_ptr<LuminosityBlockAuxiliary>();
+    if (processingMode() == Runs) { return std::shared_ptr<LuminosityBlockAuxiliary>(); }
     Timestamp ts = Timestamp(presentTime_);
     resetNewLumi();
     return std::make_shared<LuminosityBlockAuxiliary>(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp());

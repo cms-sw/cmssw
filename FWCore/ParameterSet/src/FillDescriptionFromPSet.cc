@@ -65,7 +65,7 @@ namespace {
   }
 
   std::map<edm::ParameterTypes, FillDescriptionFromParameter>& findTheRightFunction() {
-    if (s_findTheRightFunction.empty()) initMap();
+    if (s_findTheRightFunction.empty()) { initMap(); }
     return s_findTheRightFunction;
   }
 }

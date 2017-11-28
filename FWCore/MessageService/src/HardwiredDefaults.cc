@@ -33,11 +33,16 @@ edm::JobMode
 MessageLoggerDefaults::
 mode(std::string const & jm)
 {
-  if (jm == "")           return       GridJobMode;  // no -mode option = grid
-  if (jm == "grid")       return       GridJobMode;
-  if (jm == "infos")      return       ReleaseValidationJobMode;
-  if (jm == "analysis")   return       AnalysisJobMode;
-  if (jm == "nil")        return       NilJobMode;
+  if (jm == "") {           return       GridJobMode;  // no -mode option = grid
+}
+  if (jm == "grid") {       return       GridJobMode;
+}
+  if (jm == "infos") {      return       ReleaseValidationJobMode;
+}
+  if (jm == "analysis") {   return       AnalysisJobMode;
+}
+  if (jm == "nil") {        return       NilJobMode;
+}
   std::cerr << "Unrecognized Job Mode Option: " << jm
   	    << " -- defaulting to analysis mode ";
   return AnalysisJobMode;

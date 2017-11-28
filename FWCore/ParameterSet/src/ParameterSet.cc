@@ -236,10 +236,10 @@ namespace edm {
   Entry const*
   ParameterSet::getEntryPointerOrThrow_(std::string const& name) const {
     Entry const* result = retrieveUntracked(name);
-    if(result == nullptr)
+    if(result == nullptr) {
       throw Exception(errors::Configuration, "MissingParameter:")
         << "The required parameter '" << name
-        << "' was not specified.\n";
+        << "' was not specified.\n"; }
     return result;
   }
 
@@ -289,7 +289,7 @@ namespace edm {
   ParameterSet::retrieveUntracked(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
 
-    if(it == tbl_.end()) return nullptr;
+    if(it == tbl_.end()) { return nullptr; }
     if(it->second.isTracked()) {
       if(name[0] == '@') {
         throw Exception(errors::Configuration, "StatusMismatch:")
@@ -334,7 +334,7 @@ namespace edm {
   ParameterSet::retrieveUntrackedParameterSet(std::string const& name) const {
     psettable::const_iterator  it = psetTable_.find(name);
 
-    if(it == psetTable_.end()) return nullptr;
+    if(it == psetTable_.end()) { return nullptr; }
     if(it->second.isTracked()) {
       if(name[0] == '@') {
         throw Exception(errors::Configuration, "StatusMismatch:")
@@ -373,7 +373,7 @@ namespace edm {
   ParameterSet::retrieveUntrackedVParameterSet(std::string const& name) const {
     vpsettable::const_iterator it = vpsetTable_.find(name);
 
-    if(it == vpsetTable_.end()) return nullptr;
+    if(it == vpsetTable_.end()) { return nullptr; }
     if(it->second.isTracked()) {
       throw Exception(errors::Configuration, "StatusMismatch:")
         << "VParameterSet '" << name
@@ -451,10 +451,10 @@ namespace edm {
     table::iterator  it = tbl_.find(name);
 
     if(it == tbl_.end())  {
-      if(!tbl_.insert(std::make_pair(name, value)).second)
+      if(!tbl_.insert(std::make_pair(name, value)).second) {
         throw Exception(errors::Configuration, "InsertFailure")
           << "cannot insert " << name
-          << " into a ParameterSet\n";
+          << " into a ParameterSet\n"; }
     }
     else if(okay_to_replace)  {
       it->second = value;
@@ -467,10 +467,10 @@ namespace edm {
     psettable::iterator it = psetTable_.find(name);
 
     if(it == psetTable_.end()) {
-      if(!psetTable_.insert(std::make_pair(name, entry)).second)
+      if(!psetTable_.insert(std::make_pair(name, entry)).second) {
         throw Exception(errors::Configuration, "InsertFailure")
           << "cannot insert " << name
-          << " into a ParameterSet\n";
+          << " into a ParameterSet\n"; }
     } else if(okay_to_replace) {
       it->second = entry;
     }
@@ -482,10 +482,10 @@ namespace edm {
     vpsettable::iterator it = vpsetTable_.find(name);
 
     if(it == vpsetTable_.end()) {
-      if(!vpsetTable_.insert(std::make_pair(name, entry)).second)
+      if(!vpsetTable_.insert(std::make_pair(name, entry)).second) {
         throw Exception(errors::Configuration, "InsertFailure")
           << "cannot insert " << name
-          << " into a VParameterSet\n";
+          << " into a VParameterSet\n"; }
     } else if(okay_to_replace) {
       it->second = entry;
     }
@@ -532,7 +532,7 @@ namespace edm {
     assert(!isRegistered());
     isTracked = false;
     psettable::iterator it = psetTable_.find(name);
-    if(it == psetTable_.end()) return nullptr;
+    if(it == psetTable_.end()) { return nullptr; }
     isTracked = it->second.isTracked();
     return &it->second.psetForUpdate();
   }
@@ -541,7 +541,7 @@ namespace edm {
   ParameterSet::getPSetVectorForUpdate(std::string const& name) {
     assert(!isRegistered());
     vpsettable::iterator it = vpsetTable_.find(name);
-    if(it == vpsetTable_.end()) return nullptr;
+    if(it == vpsetTable_.end()) { return nullptr; }
     return &it->second;
   }
 
@@ -632,8 +632,8 @@ namespace edm {
     bool started = false;
     for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
       if(b->second.isTracked()) {
-        if (started)
-          digest.append(";", 1);
+        if (started) {
+          digest.append(";", 1); }
         digest.append(b->first);
         digest.append("=", 1);
         b->second.toDigest(digest);
@@ -642,8 +642,8 @@ namespace edm {
     }
     for(psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
       if(b->second.isTracked()) {
-        if (started)
-          digest.append(";", 1);
+        if (started) {
+          digest.append(";", 1); }
         digest.append(b->first);
         digest.append("=", 1);
         b->second.toDigest(digest);
@@ -652,8 +652,8 @@ namespace edm {
     }
     for(vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
       if(b->second.isTracked()) {
-        if (started)
-          digest.append(";", 1);
+        if (started) {
+          digest.append(";", 1); }
         digest.append(b->first);
         digest.append("=", 1);
         b->second.toDigest(digest);
@@ -675,20 +675,20 @@ namespace edm {
   bool
   ParameterSet::fromString(std::string const& from) {
     std::vector<std::string> temp;
-    if(!split(std::back_inserter(temp), from, '<', ';', '>'))
-      return false;
+    if(!split(std::back_inserter(temp), from, '<', ';', '>')) {
+      return false; }
 
     tbl_.clear();  // precaution
     for(std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
       // locate required name/value separator
       std::string::const_iterator q = find_in_all(*b, '=');
-      if(q == b->end())
-        return false;
+      if(q == b->end()) {
+        return false; }
 
       // form name unique to this ParameterSet
       std::string  name = std::string(b->begin(), q);
-      if(tbl_.find(name) != tbl_.end())
-        return false;
+      if(tbl_.find(name) != tbl_.end()) {
+        return false; }
 
       std::string rep(q+1, b->end());
       // entries are generically of the form tracked-type-rep
@@ -2392,9 +2392,9 @@ namespace edm {
   ParameterSet const&
   ParameterSet::getUntrackedParameterSet(char const* name) const {
     ParameterSetEntry const* result = retrieveUntrackedParameterSet(name);
-    if(result == nullptr)
+    if(result == nullptr) {
       throw Exception(errors::Configuration, "MissingParameter:")
-        << "The required ParameterSet '" << name << "' was not specified.\n";
+        << "The required ParameterSet '" << name << "' was not specified.\n"; }
     return result->pset();
   }
 
@@ -2427,9 +2427,9 @@ namespace edm {
   VParameterSet const&
   ParameterSet::getUntrackedParameterSetVector(char const* name) const {
     VParameterSetEntry const* result = retrieveUntrackedVParameterSet(name);
-    if(result == nullptr)
+    if(result == nullptr) {
       throw Exception(errors::Configuration, "MissingParameter:")
-        << "The required ParameterSetVector '" << name << "' was not specified.\n";
+        << "The required ParameterSetVector '" << name << "' was not specified.\n"; }
     return result->vpset();
   }
 

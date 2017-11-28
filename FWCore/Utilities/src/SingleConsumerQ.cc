@@ -18,8 +18,8 @@ namespace edm
   {
     // throw if event size 0 or queue depth 0
 
-    for(char* i=&mem_[0];i<&mem_[mem_.size()];i+=max_event_size)
-      buffer_pool_.push_back(i);
+    for(char* i=&mem_[0];i<&mem_[mem_.size()];i+=max_event_size) {
+      buffer_pool_.push_back(i); }
 
   }
 

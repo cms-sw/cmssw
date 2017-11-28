@@ -509,7 +509,7 @@ static void
     std::ostringstream ost;
     ost.precision(std::numeric_limits<double>::digits10 + 1);
     ost << from;
-    if(!ost) return false;
+    if(!ost) { return false; }
     to = ost.str();
     return true;
   }
@@ -522,16 +522,16 @@ static void
   bool
   edm::decode(std::vector<double>& to, std::string const& from) {
     std::vector<std::string> temp;
-    if(!split(std::back_inserter(temp), from, '{', ',', '}'))
-      return false;
+    if(!split(std::back_inserter(temp), from, '{', ',', '}')) {
+      return false; }
 
     to.clear();
     for(std::vector<std::string>::const_iterator b = temp.begin()
                                                , e = temp.end()
         ; b != e; ++b) {
       double  val;
-      if(!decode(val, *b))
-        return false;
+      if(!decode(val, *b)) {
+        return false; }
       to.push_back(val);
     }
 
@@ -548,11 +548,11 @@ static void
     for(std::vector<double>::const_iterator b = from.begin()
                                            , e = from.end()
        ; b != e; ++b) {
-      if(!encode(converted, *b))
-        return false;
+      if(!encode(converted, *b)) {
+        return false; }
 
-      if(b != from.begin())
-        to += ",";
+      if(b != from.begin()) {
+        to += ","; }
       to += converted;
     }
 
@@ -615,7 +615,7 @@ static void
     std::istringstream is(from);
     FileInPath temp;
     temp.readFromParameterSetBlob(is);
-    if (!is) return false;
+    if (!is) { return false; }
     to = temp;
     return true;
   } // decode to FileInPath
@@ -626,7 +626,7 @@ static void
   edm::encode(std::string& to, FileInPath const& from) {
     std::ostringstream ost;
     ost << from;
-    if (!ost) return false;
+    if (!ost) { return false; }
     to = ost.str();
     return true;
   }
@@ -996,8 +996,8 @@ static void
       /*std::cerr << "State: " << state << "; char = " << *b << '\n'; //DEBUG*/
       switch(state)  {
         case NONE:  {
-          if(*b == '\\')  state = BACKSLASH;
-          else              append_hex_rep(to, *b);
+          if(*b == '\\') {  state = BACKSLASH;
+          } else {              append_hex_rep(to, *b); }
           /*std::cerr << "To: |" << to << "|\n"; //DEBUG*/
           break;
         }
@@ -1091,8 +1091,8 @@ static void
   bool
   edm::decode(std::vector<std::string>& to, std::string const& from) {
     std::vector<std::string> temp;
-    if(!split(std::back_inserter(temp), from, '{', ',', '}'))
-      return false;
+    if(!split(std::back_inserter(temp), from, '{', ',', '}')) {
+      return false; }
 
     to.clear();
     for(std::vector<std::string>::const_iterator b = temp.begin()
@@ -1128,8 +1128,8 @@ static void
         return false;
       }
 
-      if(b != from.begin())
-        to += ",";
+      if(b != from.begin()) {
+        to += ","; }
       to += converted;
     }
 
@@ -1164,8 +1164,8 @@ static void
   bool
   edm::decode(std::vector<ParameterSet>& to, std::string const& from) {
     std::vector<std::string> temp;
-    if(!split(std::back_inserter(temp), from, '{', ',', '}'))
-      return false;
+    if(!split(std::back_inserter(temp), from, '{', ',', '}')) {
+      return false; }
 
     to.clear();
     for(std::vector<std::string>::const_iterator b = temp.begin()

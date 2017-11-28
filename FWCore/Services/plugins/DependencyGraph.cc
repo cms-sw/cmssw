@@ -44,8 +44,8 @@ namespace {
     template<typename T>
     std::unordered_set<T> make_unordered_set(std::vector<T> && entries) {
       std::unordered_set<T> u;
-      for (T & entry: entries)
-        u.insert(std::move(entry));
+      for (T & entry: entries) {
+        u.insert(std::move(entry)); }
       return u;
     }
 
@@ -158,8 +158,8 @@ DependencyGraph::EDMModuleType DependencyGraph::edmModuleTypeEnum(edm::ModuleDes
   auto const & registry = * edm::pset::Registry::instance();
   auto const & pset = * registry.getMapped(module.parameterSetID());
 
-  if (not pset.existsAs<std::string>("@module_edm_type"))
-    return EDMModuleType::Unknown;
+  if (not pset.existsAs<std::string>("@module_edm_type")) {
+    return EDMModuleType::Unknown; }
 
   std::string const & t = pset.getParameter<std::string>("@module_edm_type");
   for (EDMModuleType v: {
@@ -171,8 +171,8 @@ DependencyGraph::EDMModuleType DependencyGraph::edmModuleTypeEnum(edm::ModuleDes
     EDMModuleType::EDFilter,
     EDMModuleType::OutputModule
   }) {
-    if (t == module_type_desc[static_cast<std::underlying_type_t<EDMModuleType>>(v)])
-      return v;
+    if (t == module_type_desc[static_cast<std::underlying_type_t<EDMModuleType>>(v)]) {
+      return v; }
   }
   return EDMModuleType::Unknown;
 }
@@ -259,8 +259,8 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
 
     // create graph vertices associated to all modules in the process
     auto size = pathsAndConsumes.allModules().size();
-    for (size_t i = 0; i < size; ++i)
-      boost::add_vertex(m_graph);
+    for (size_t i = 0; i < size; ++i) {
+      boost::add_vertex(m_graph); }
 
     m_initialized = true;
   } else {
@@ -274,8 +274,8 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
 
     // create graph vertices associated to all modules in the subprocess
     auto size = pathsAndConsumes.allModules().size();
-    for (size_t i = 0; i < size; ++i)
-      boost::add_vertex(graph);
+    for (size_t i = 0; i < size; ++i) {
+      boost::add_vertex(graph); }
   }
 
   // set the vertices properties (use the module id as the global index into the graph)
@@ -327,8 +327,8 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
           auto & attributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
           attributes["style"] = "dashed";
           // highlight the arrow between highlighted nodes
-          if (highlighted(module->moduleLabel()) and highlighted(previous->moduleLabel()))
-            attributes["color"] = "darkgreen";
+          if (highlighted(module->moduleLabel()) and highlighted(previous->moduleLabel())) {
+            attributes["color"] = "darkgreen"; }
         }
       }
       previous = module;
@@ -350,8 +350,8 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
           auto & attributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
           attributes["style"] = "dashed";
           // highlight the arrow between highlighted nodes
-          if (highlighted(module->moduleLabel()) and highlighted(previous->moduleLabel()))
-            attributes["color"] = "darkgreen";
+          if (highlighted(module->moduleLabel()) and highlighted(previous->moduleLabel())) {
+            attributes["color"] = "darkgreen"; }
         }
       }
       previous = module;
@@ -362,8 +362,8 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
 void
 DependencyGraph::postBeginJob() {
 
-  if (not m_initialized)
-    return;
+  if (not m_initialized) {
+    return; }
 
   // draw the dependency graph
   std::ofstream out(m_filename);

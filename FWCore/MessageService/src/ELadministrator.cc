@@ -100,8 +100,8 @@ void ELadministrator::log(edm::ErrorObj & msg) {
   // severity level statistics keeping:                 // $$ mf 6/7/01
   int lev = msg.xid().severity.getLevel();
   ++ severityCounts_[lev];
-  if ( lev > highSeverity_.getLevel() )
-    highSeverity_ = msg.xid().severity;
+  if ( lev > highSeverity_.getLevel() ) {
+    highSeverity_ = msg.xid().severity; }
   
   // -----  send the message to each destination:
   //
@@ -111,9 +111,9 @@ void ELadministrator::log(edm::ErrorObj & msg) {
     << std::endl;
     attach(std::make_shared<ELoutput>(std::cerr));
   }
-  for (auto& sink : sinks_)
-    if ( sink->log( msg )  )
-      msg.setReactedTo ( true );
+  for (auto& sink : sinks_) {
+    if ( sink->log( msg )  ) {
+      msg.setReactedTo ( true ); }
   
   return;
   
@@ -155,8 +155,8 @@ int ELadministrator::severityCount(
   int k = from.getLevel();
   int sum = severityCounts_[k];
 
-  while ( ++k != to.getLevel() )
-    sum += severityCounts_[k];
+  while ( ++k != to.getLevel() ) {
+    sum += severityCounts_[k]; }
 
   return  sum;
 
@@ -173,8 +173,8 @@ void ELadministrator::resetSeverityCount( const ELseverityLevel & sev )  {
 void ELadministrator::resetSeverityCount( const ELseverityLevel & from,
                                           const ELseverityLevel & to   )  {
 
-  for ( int k = from.getLevel();  k <= to.getLevel();  ++k )
-    severityCounts_[k] = 0;
+  for ( int k = from.getLevel();  k <= to.getLevel();  ++k ) {
+    severityCounts_[k] = 0; }
 
 }  // resetSeverityCount()
 
@@ -211,16 +211,16 @@ int ELadministrator::severityCounts( const int lev ) const  {
 
 void ELadministrator::setThresholds( const ELseverityLevel & sev )  {
 
-  for (auto& sink : sinks_)
-    sink->threshold = sev;
+  for (auto& sink : sinks_) {
+    sink->threshold = sev; }
 
 }  // setThresholds()
 
 
 void ELadministrator::setLimits( const ELstring & id, int limit )  {
 
-  for (auto& sink : sinks_)
-    sink->limits.setLimit( id, limit );
+  for (auto& sink : sinks_) {
+    sink->limits.setLimit( id, limit ); }
 
 }  // setLimits()
 
@@ -228,54 +228,54 @@ void ELadministrator::setLimits( const ELstring & id, int limit )  {
 void ELadministrator::setIntervals
 			( const ELseverityLevel & sev, int interval )  {
 
-  for (auto& sink : sinks_)
-    sink->limits.setInterval( sev, interval );
+  for (auto& sink : sinks_) {
+    sink->limits.setInterval( sev, interval ); }
 
 }  // setIntervals()
 
 void ELadministrator::setIntervals( const ELstring & id, int interval )  {
 
-  for (auto& sink : sinks_)
-    sink->limits.setInterval( id, interval );
+  for (auto& sink : sinks_) {
+    sink->limits.setInterval( id, interval ); }
 
 }  // setIntervals()
 
 
 void ELadministrator::setLimits( const ELseverityLevel & sev, int limit )  {
 
-  for (auto& sink : sinks_)
-    sink->limits.setLimit( sev, limit );
+  for (auto& sink : sinks_) {
+    sink->limits.setLimit( sev, limit ); }
 
 }  // setLimits()
 
 
 void ELadministrator::setTimespans( const ELstring & id, int seconds )  {
 
-  for (auto& sink : sinks_)
-    sink->limits.setTimespan( id, seconds );
+  for (auto& sink : sinks_) {
+    sink->limits.setTimespan( id, seconds ); }
 
 }  // setTimespans()
 
 
 void ELadministrator::setTimespans( const ELseverityLevel & sev, int seconds )  {
 
-  for (auto& sink : sinks_)
-    sink->limits.setTimespan( sev, seconds );
+  for (auto& sink : sinks_) {
+    sink->limits.setTimespan( sev, seconds ); }
 
 }  // setTimespans()
 
 
 void ELadministrator::wipe()  {
 
-  for (auto& sink : sinks_)
-    sink->limits.wipe();
+  for (auto& sink : sinks_) {
+    sink->limits.wipe(); }
 
 }  // wipe()
 
 void ELadministrator::finish()  {
 
-  for (auto& sink : sinks_)
-    sink->finish();
+  for (auto& sink : sinks_) {
+    sink->finish(); }
 
 }  // wipe()
 
@@ -289,8 +289,8 @@ ELadministrator::ELadministrator()
     std::cerr << "ELadminstrator constructor\n";
   #endif
 
-  for ( int lev = 0;  lev < ELseverityLevel::nLevels;  ++lev )
-    severityCounts_[lev] = 0;
+  for ( int lev = 0;  lev < ELseverityLevel::nLevels;  ++lev ) {
+    severityCounts_[lev] = 0; }
 
 }
 //-*****************************

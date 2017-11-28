@@ -179,10 +179,10 @@ namespace {
   // Arrange to report the error location as furnished by Root
 
     std::string el_location = "@SUB=?";
-    if (location != nullptr) el_location = std::string("@SUB=")+std::string(location);
+    if (location != nullptr) { el_location = std::string("@SUB=")+std::string(location); }
 
     std::string el_message  = "?";
-    if (message != nullptr) el_message  = message;
+    if (message != nullptr) { el_message  = message; }
 
   // Try to create a meaningful id string using knowledge of ROOT error messages
   //
@@ -516,7 +516,7 @@ namespace {
       if (InitRootHandlers::stackTracePause() > 0 && tids.size() > 1) {
         for (auto id : tids) {
           if (self != id) {
-            if (pthread_kill(id, RESUME_SIGNAL) == 0) ++notified;
+            if (pthread_kill(id, RESUME_SIGNAL) == 0) { ++notified; }
           }
         }
       }
@@ -832,7 +832,7 @@ namespace edm {
 
       // Enable Root implicit multi-threading
       bool imt = pset.getUntrackedParameter<bool>("EnableIMT");
-      if (imt) ROOT::EnableImplicitMT();
+      if (imt) { ROOT::EnableImplicitMT(); }
     }
 
     InitRootHandlers::~InitRootHandlers () {

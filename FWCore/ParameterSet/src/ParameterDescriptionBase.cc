@@ -75,7 +75,7 @@ namespace edm {
   void
   ParameterDescriptionBase::throwParameterWrongType() const {
     std::string tr("an untracked");
-    if(isTracked()) tr = "a tracked";
+    if(isTracked()) { tr = "a tracked"; }
 
     throw Exception(errors::Configuration)
       << "Parameter \"" << label() << "\" should be defined "
@@ -87,7 +87,7 @@ namespace edm {
   ParameterDescriptionBase::throwMissingRequiredNoDefault() const {
 
     std::string tr("untracked");
-    if(isTracked()) tr = "tracked";
+    if(isTracked()) { tr = "tracked"; }
 
     throw Exception(errors::Configuration)
       << "Missing required parameter.  It should have label \""
@@ -139,10 +139,10 @@ namespace edm {
            int indentation,
            bool& wroteSomething) const {
 
-    if(!hasDefault()) return;
+    if(!hasDefault()) { return; }
 
     wroteSomething = true;
-    if(startWithComma) os << ",";
+    if(startWithComma) { os << ","; }
     startWithComma = true;
 
     os << "\n";
@@ -150,7 +150,7 @@ namespace edm {
 
     os << label()
        << " = cms.";
-    if(!isTracked()) os << "untracked.";
+    if(!isTracked()) { os << "untracked."; }
     os << parameterTypeEnumToString(type())
        << "(";
     writeCfi_(os, indentation);
@@ -207,11 +207,11 @@ namespace edm {
 
         dfh.indent2(os);
         os << "type: ";
-        if(!isTracked()) os << "untracked ";
+        if(!isTracked()) { os << "untracked "; }
 
         os << parameterTypeEnumToString(type()) << " ";
 
-        if(optional)  os << "optional";
+        if(optional) {  os << "optional"; }
         os << "\n";
 
         dfh.indent2(os);
@@ -233,7 +233,7 @@ namespace edm {
   printDefault_(std::ostream& os,
                   bool writeToCfi,
                   DocFormatHelper& dfh) const {
-    if(!dfh.brief()) os << "default: ";
+    if(!dfh.brief()) { os << "default: "; }
     if(writeToCfi && hasDefault()) {
       if(hasNestedContent()) {
         os << "see Section " << dfh.section()
@@ -266,7 +266,7 @@ namespace edm {
        << " " << label() << " default contents: ";
     writeDoc_(os, indentation + 2);
     os << "\n";
-    if(!dfh.brief()) os << "\n";
+    if(!dfh.brief()) { os << "\n"; }
   }
 
   bool

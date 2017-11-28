@@ -79,7 +79,7 @@ namespace edm {
   bool
   ParameterWildcard<ParameterSetDescription>::
   hasNestedContent_() const {
-    if(psetDesc_) return true;
+    if(psetDesc_) { return true; }
     return false;
   }
 
@@ -98,7 +98,7 @@ namespace edm {
     os << "Section " << dfh.section() << "." << dfh.counter()
        << " description of PSet matching wildcard:";
     os << "\n";
-    if(!dfh.brief()) os << "\n";
+    if(!dfh.brief()) { os << "\n"; }
 
     std::stringstream ss;
     ss << dfh.section() << "." << dfh.counter();
@@ -116,11 +116,11 @@ namespace edm {
   ParameterWildcard<ParameterSetDescription>::
   exists_(ParameterSet const& pset) const {
 
-    if(criteria() == RequireZeroOrMore) return true;
+    if(criteria() == RequireZeroOrMore) { return true; }
 
     std::vector<std::string> parameterNames  = pset.getParameterNamesForType<ParameterSet>(isTracked());
 
-    if(criteria() == RequireAtLeastOne) return !parameterNames.empty();
+    if(criteria() == RequireAtLeastOne) { return !parameterNames.empty(); }
     return parameterNames.size() == 1U;
   }
 
@@ -198,7 +198,7 @@ namespace edm {
   bool
   ParameterWildcard<std::vector<ParameterSet> >::
   hasNestedContent_() const {
-    if(psetDesc_) return true;
+    if(psetDesc_) { return true; }
     return false;
   }
 
@@ -217,7 +217,7 @@ namespace edm {
     os << "Section " << dfh.section() << "." << dfh.counter()
        << " description used to validate all PSets which are in the VPSet matching the wildcard:";
     os << "\n";
-    if(!dfh.brief()) os << "\n";
+    if(!dfh.brief()) { os << "\n"; }
 
     std::stringstream ss;
     ss << dfh.section() << "." << dfh.counter();
@@ -235,11 +235,11 @@ namespace edm {
   ParameterWildcard<std::vector<ParameterSet> >::
   exists_(ParameterSet const& pset) const {
 
-    if(criteria() == RequireZeroOrMore) return true;
+    if(criteria() == RequireZeroOrMore) { return true; }
 
     std::vector<std::string> parameterNames  = pset.getParameterNamesForType<std::vector<ParameterSet> >(isTracked());
 
-    if(criteria() == RequireAtLeastOne) return !parameterNames.empty();
+    if(criteria() == RequireAtLeastOne) { return !parameterNames.empty(); }
     return parameterNames.size() == 1U;
   }
 }

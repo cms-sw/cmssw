@@ -20,7 +20,7 @@ namespace edm {
       << "-----------------------\n"
       << longDesc.str()
       << "----- End " << shortDesc << " -------------------------------------------------";
-    if(jobRep) jobRep->reportError(shortDesc, longDesc.str(), rc);
+    if(jobRep) { jobRep->reportError(shortDesc, longDesc.str(), rc); }
   } catch(...) {
   }
 

@@ -115,7 +115,7 @@ void MessageSender::ErrorObjDeleter::operator()(ErrorObj * errorObjPtr) {
 	errorObjPtr->setContext(drop->runEvent);
       } 
 #ifdef TRACE_DROP
-      if (!drop) std::cerr << "MessageSender::~MessageSender() - Null drop pointer \n";
+      if (!drop) { std::cerr << "MessageSender::~MessageSender() - Null drop pointer \n"; }
 #endif
 								// change log 1
       if ( errorSummaryIsBeingKept.load(std::memory_order_acquire) &&

@@ -12,10 +12,10 @@ namespace edm {
     class ModuleBeginJobSignalSentry {
 public:
       ModuleBeginJobSignalSentry(ActivityRegistry* a, ModuleDescription const& md):a_(a), md_(&md) {
-        if(a_) a_->preModuleBeginJobSignal_(*md_);
+        if(a_) { a_->preModuleBeginJobSignal_(*md_); }
       }
       ~ModuleBeginJobSignalSentry() {
-        if(a_) a_->postModuleBeginJobSignal_(*md_);
+        if(a_) { a_->postModuleBeginJobSignal_(*md_); }
       }
 private:
       ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
@@ -25,10 +25,10 @@ private:
     class ModuleEndJobSignalSentry {
 public:
       ModuleEndJobSignalSentry(ActivityRegistry* a, ModuleDescription const& md):a_(a), md_(&md) {
-        if(a_) a_->preModuleEndJobSignal_(*md_);
+        if(a_) { a_->preModuleEndJobSignal_(*md_); }
       }
       ~ModuleEndJobSignalSentry() {
-        if(a_) a_->postModuleEndJobSignal_(*md_);
+        if(a_) { a_->postModuleEndJobSignal_(*md_); }
       }
 private:
       ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
@@ -40,10 +40,10 @@ private:
       ModuleBeginStreamSignalSentry(ActivityRegistry* a,
                                     StreamContext const& sc,
                                     ModuleCallingContext const& mcc) : a_(a), sc_(sc), mcc_(mcc) {
-        if(a_) a_->preModuleBeginStreamSignal_(sc_, mcc_);
+        if(a_) { a_->preModuleBeginStreamSignal_(sc_, mcc_); }
       }
       ~ModuleBeginStreamSignalSentry() {
-        if(a_) a_->postModuleBeginStreamSignal_(sc_, mcc_);
+        if(a_) { a_->postModuleBeginStreamSignal_(sc_, mcc_); }
       }
     private:
       ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
@@ -56,10 +56,10 @@ private:
       ModuleEndStreamSignalSentry(ActivityRegistry* a,
                                   StreamContext const& sc,
                                   ModuleCallingContext const& mcc) : a_(a), sc_(sc), mcc_(mcc) {
-        if(a_) a_->preModuleEndStreamSignal_(sc_, mcc_);
+        if(a_) { a_->preModuleEndStreamSignal_(sc_, mcc_); }
       }
       ~ModuleEndStreamSignalSentry() {
-        if(a_) a_->postModuleEndStreamSignal_(sc_, mcc_);
+        if(a_) { a_->postModuleEndStreamSignal_(sc_, mcc_); }
       }
     private:
       ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.

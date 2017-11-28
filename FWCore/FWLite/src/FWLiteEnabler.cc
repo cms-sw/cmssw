@@ -66,7 +66,8 @@
      char const* end;
      do {
        //find end
-       for(end=start; *end!=0 and *end != ':';++end);
+       for(end=start; *end!=0 and *end != ':';++end) {;
+}
        std::string dir(start, end);
        intrp->AddIncludePath(dir.c_str());
        start = end+1;

@@ -310,7 +310,7 @@ namespace edm {
 
       ThinnedAssociation const* thinnedAssociation =
         getThinnedAssociation(associatedBranches->association());
-      if(thinnedAssociation == nullptr) continue;
+      if(thinnedAssociation == nullptr) { continue; }
 
       if(associatedBranches->parent() != pidToBid(thinnedAssociation->parentCollectionID())) {
         continue;
@@ -356,7 +356,7 @@ namespace edm {
 
       ThinnedAssociation const* thinnedAssociation =
         getThinnedAssociation(associatedBranches->association());
-      if(thinnedAssociation == nullptr) continue;
+      if(thinnedAssociation == nullptr) { continue; }
 
       if(associatedBranches->parent() != pidToBid(thinnedAssociation->parentCollectionID())) {
         continue;
@@ -368,9 +368,9 @@ namespace edm {
       bool hasAny = false;
       for(unsigned k = 0; k < nKeys; ++k) {
         // Already found this one
-        if(foundContainers[k] != nullptr) continue;
+        if(foundContainers[k] != nullptr) { continue; }
         // Already know this one is not in this thinned container
-        if(keys[k] == doNotLookForThisIndex) continue;
+        if(keys[k] == doNotLookForThisIndex) { continue; }
         // Does the thinned container hold the entry of interest?
         // Modifies thinnedIndexes[k] only if it returns true and
         // sets it to the index in the thinned collection.
@@ -390,13 +390,13 @@ namespace edm {
         // which were made by selecting elements from this thinned container.
         getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes);
         for(unsigned k = 0; k < nKeys; ++k) {
-          if(foundContainers[k] == nullptr) continue;
-          if(thinnedIndexes[k] == doNotLookForThisIndex) continue;
+          if(foundContainers[k] == nullptr) { continue; }
+          if(thinnedIndexes[k] == doNotLookForThisIndex) { continue; }
           keys[k] = thinnedIndexes[k];
         }
       } else {
         for(unsigned k = 0; k < nKeys; ++k) {
-          if(thinnedIndexes[k] == doNotLookForThisIndex) continue;
+          if(thinnedIndexes[k] == doNotLookForThisIndex) { continue; }
           keys[k] = thinnedIndexes[k];
           foundContainers[k] = bhThinned.wrapper();
         }

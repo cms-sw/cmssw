@@ -50,8 +50,9 @@ namespace {
    struct StringHash {
       inline size_t operator()( const char* s) const {
          size_t h = 0;
-         for( const char* c = s; *c; ++c )
+         for( const char* c = s; *c; ++c ) {
             h = static_cast<size_t>(*c) ^ (h * hash_multiplier);
+}
          return h;
       }
    };

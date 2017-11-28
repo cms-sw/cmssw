@@ -125,7 +125,8 @@ PluginFactoryBase::fillInfo(const PMakers &makers,
   for(PMakers::const_iterator it = makers.begin();
       it != makers.end();
       ++it) {
-    while (nullptr ==it->m_ptr.load(std::memory_order_acquire)) ;
+    while (nullptr ==it->m_ptr.load(std::memory_order_acquire)) { ;
+}
     iInfo.loadable_ = it->m_name;
     iReturn.push_back(iInfo);
   }

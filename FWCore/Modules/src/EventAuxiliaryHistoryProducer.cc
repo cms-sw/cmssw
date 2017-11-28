@@ -37,8 +37,8 @@ namespace edm {
                        e.bunchCrossing(), EventAuxiliary::invalidStoreNumber, e.orbitNumber()); 
   //EventAuxiliary const& aux = e.auxiliary(); // when available
     if(!history_.empty()) {
-      if(history_.back().id().next(aux.luminosityBlock()) != aux.id()) history_.clear();
-      if(history_.size() >= depth_) history_.pop_front();
+      if(history_.back().id().next(aux.luminosityBlock()) != aux.id()) { history_.clear(); }
+      if(history_.size() >= depth_) { history_.pop_front(); }
     }
 
     history_.push_back(aux);

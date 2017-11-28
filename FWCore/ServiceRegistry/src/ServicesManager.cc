@@ -163,7 +163,7 @@ namespace edm {
                   break;
             }
             //make sure our signals are propagated to our 'inherited' Services
-            if (associate) registry_.copySlotsFrom(associatedManager_->registry_);
+            if (associate) { registry_.copySlotsFrom(associatedManager_->registry_); }
          }
          createServices();
       }

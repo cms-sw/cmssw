@@ -67,7 +67,8 @@ namespace
     stringvec_t pathElements = edm::tokenize(std::string(var), ":");
     for(auto& element : pathElements) {
       edm::resolveSymbolicLinks(element);
-      if(!theSearchPath.empty()) theSearchPath += ":";
+      if(!theSearchPath.empty()) { theSearchPath += ":";
+}
       theSearchPath += element;
     }
     return theSearchPath;
@@ -84,7 +85,8 @@ namespace
   {
     p /= relative;
 
-    if (!bf::exists(p)) return false;
+    if (!bf::exists(p)) { return false;
+}
 
     if (bf::is_directory(p)) {
       throw edm::Exception(edm::errors::FileInPathError)
@@ -259,7 +261,8 @@ namespace edm
     // This #if needed for backward compatibility
     // for files written before CMSSW_1_5_0_pre3.
     is >> vsn;
-    if (!is) return;
+    if (!is) { return;
+}
     bool oldFormat = (version != vsn);
     if (oldFormat) {
       relname = vsn;
@@ -272,12 +275,14 @@ namespace edm
       int loc;
       is >> relname >> loc;
       location_ = static_cast<FileInPath::LocationCode>(loc);
-      if (location_ != Unknown) is >> canFilename;
+      if (location_ != Unknown) { is >> canFilename;
+}
     }
 #else
     is >> vsn >> relname >> loc >> canFilename;
 #endif
-    if (!is) return;
+    if (!is) { return;
+}
     relativePath_ = relname;
     if (location_ == Local) {
       if (localTop_.empty()) {
@@ -292,9 +297,10 @@ namespace edm
       // for files written before CMSSW_1_5_0_pre3.
       if (oldFormat) {
         canonicalFilename_ = canFilename;
-      } else
+      } else {
 #endif
       canonicalFilename_ = localTop_ + canFilename;
+}
     } else if (location_ == Release) {
       if (releaseTop_.empty()) {
 	throw edm::Exception(edm::errors::FileInPathError)
@@ -314,9 +320,10 @@ namespace edm
           // Needed for files written before CMSSW_1_2_0_pre2.
           canonicalFilename_ = canFilename;
         }
-      } else
+      } else {
 #endif
       canonicalFilename_ = releaseTop_ + canFilename;
+}
     } else if (location_ == Data) {
       if (dataTop_.empty()) {
 	throw edm::Exception(edm::errors::FileInPathError)
@@ -335,7 +342,8 @@ namespace edm
     std::string relname;
     std::string canFilename;
     is >> vsn;
-    if (!is) return;
+    if (!is) { return;
+}
     bool oldFormat = (version != vsn);
     if (oldFormat) {
       relname = vsn;
@@ -348,9 +356,11 @@ namespace edm
       int loc;
       is >> relname >> loc;
       location_ = static_cast<FileInPath::LocationCode>(loc);
-      if (location_ != Unknown) is >> canFilename;
+      if (location_ != Unknown) { is >> canFilename;
+}
     }
-    if (!is) return;
+    if (!is) { return;
+}
     relativePath_ = relname;
     if (location_ == Local) {
       if (localTop_.empty()) {
@@ -358,8 +368,9 @@ namespace edm
       }
       if (oldFormat) {
         canonicalFilename_ = canFilename;
-      } else
+      } else {
       canonicalFilename_ = localTop_ + canFilename;
+}
     } else if (location_ == Release) {
       if (releaseTop_.empty()) {
 	releaseTop_="@RELEASE";
@@ -373,8 +384,9 @@ namespace edm
           // Needed for files written before CMSSW_1_2_0_pre2.
           canonicalFilename_ = canFilename;
         }
-      } else
+      } else {
       canonicalFilename_ = releaseTop_ + canFilename;
+}
     } else if (location_ == Data) {
       if (dataTop_.empty()) {
 	throw edm::Exception(edm::errors::FileInPathError)

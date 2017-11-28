@@ -24,7 +24,8 @@ namespace edm
 bool  eq_nocase( const ELstring & s1, const char s2[] )  {
   using std::toupper;
 
-  if (s1.length() != strlen(s2) ) return false;
+  if (s1.length() != strlen(s2) ) { return false;
+}
 
   ELstring::const_iterator  p1;
   const char             *  p2;

@@ -27,7 +27,8 @@ namespace edmplugin {
 #else
       const char *path = getenv ("LD_LIBRARY_PATH");
 #endif
-      if (! path) path = "";
+      if (! path) { path = "";
+}
       
       std::string spath(path);
       std::string::size_type last=0;

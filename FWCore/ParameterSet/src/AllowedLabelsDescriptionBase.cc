@@ -82,9 +82,9 @@ namespace edm {
 
       if (dfh.brief()) {
 
-        if (optional)  os << " optional";
+        if (optional) {  os << " optional"; }
 
-        if (!writeToCfi) os << " (do not write to cfi)";
+        if (!writeToCfi) { os << " (do not write to cfi)"; }
 
         os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
       }
@@ -94,8 +94,8 @@ namespace edm {
         os << "\n";
         dfh.indent2(os);
 
-        if (optional)  os << "optional";
-        if (!writeToCfi) os << " (do not write to cfi)";
+        if (optional) {  os << "optional"; }
+        if (!writeToCfi) { os << " (do not write to cfi)"; }
         if (optional || !writeToCfi) {
           os << "\n";
           dfh.indent2(os);
@@ -127,7 +127,7 @@ namespace edm {
                       bool optional,
                       DocFormatHelper & dfh) const {
     printNestedContentBase_(os, optional, dfh);
-    if (!dfh.brief()) os << "\n";
+    if (!dfh.brief()) { os << "\n"; }
   }
 
   void
@@ -149,7 +149,7 @@ namespace edm {
     os << "The following parameter contains a list of parameter labels\n";
     printSpaces(os, indentation);
     os << "which are allowed to be in the PSet\n";
-    if (!dfh.brief()) os << "\n";
+    if (!dfh.brief()) { os << "\n"; }
 
     DocFormatHelper new_dfh(dfh);
     new_dfh.init();
@@ -157,12 +157,12 @@ namespace edm {
     parameterHoldingLabels_.print(os, optional, true, new_dfh);
     dfh.indent(os);
     os << "type of allowed parameters:";
-    if (dfh.brief()) os << " ";
-    else {
+    if (dfh.brief()) { os << " ";
+    } else {
       os << "\n";
       dfh.indent2(os);
     } 
-    if (!isTracked()) os << "untracked ";
+    if (!isTracked()) { os << "untracked "; }
     os << parameterTypeEnumToString(type()) << "\n";
   }
 

@@ -46,7 +46,7 @@ namespace edm {
                         std::set<std::string>& validatedLabels,
                         bool optional) const {
     validatedLabels.insert(matchingNames.begin(), matchingNames.end());
-    if(criteria_ == RequireZeroOrMore) return;
+    if(criteria_ == RequireZeroOrMore) { return; }
     if(criteria_ == RequireAtLeastOne && matchingNames.empty() && !optional) {
       throw Exception(errors::Configuration)
         << "Parameter wildcard of type \"" << parameterTypeEnumToString(type()) << "\" requires "
@@ -104,8 +104,8 @@ namespace edm {
 
         os << " ";
         os << std::setw(dfh.column3());
-        if(optional) os << "optional";
-        else os << "";
+        if(optional) { os << "optional";
+        } else { os << ""; }
 
         if(criteria() == RequireZeroOrMore) {
           os << " (require zero or more)";
@@ -135,14 +135,14 @@ namespace edm {
           os << "untracked " << parameterTypeEnumToString(type());
         }
 
-        if(optional)  os << " optional";
+        if(optional) {  os << " optional"; }
         os << "\n";
 
         dfh.indent2(os);
         os << "criteria: ";
-        if(criteria() == RequireZeroOrMore) os << "require zero or more";
-        else if(criteria() == RequireAtLeastOne) os << "require at least one";
-        else if(criteria() == RequireExactlyOne) os << "require exactly one";
+        if(criteria() == RequireZeroOrMore) { os << "require zero or more";
+        } else if(criteria() == RequireAtLeastOne) { os << "require at least one";
+        } else if(criteria() == RequireExactlyOne) { os << "require exactly one"; }
         os << "\n";
 
         if(hasNestedContent()) {

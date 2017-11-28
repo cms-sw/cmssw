@@ -242,7 +242,7 @@ TFWLiteSelectorBasic::SlaveBegin(TTree *iTree) {
 
 void
 TFWLiteSelectorBasic::Init(TTree *iTree) {
-  if(iTree == nullptr) return;
+  if(iTree == nullptr) { return; }
   m_->setTree(iTree);
 }
 

@@ -160,8 +160,8 @@ ELstring ErrorObj::fullText() const  {
   ELstring result;
   for ( ELlist_string::const_iterator it = myItems.begin();
         it != myItems.end();
-        ++it )
-    result +=  *it;
+        ++it ) {
+    result +=  *it; }
   return result;
 
 }  // fullText()
@@ -181,8 +181,8 @@ void ErrorObj::setSeverity( const ELseverityLevel & sev )  {
 
 void ErrorObj::setID( const ELstring & id )  {
   myXid.id = ELstring( id, 0, maxIDlength );
-  if ( id.length() > maxIDlength )
-    myIdOverflow = ELstring( id, maxIDlength, id.length()-maxIDlength );
+  if ( id.length() > maxIDlength ) {
+    myIdOverflow = ELstring( id, maxIDlength, id.length()-maxIDlength ); }
 }
 
 
@@ -280,7 +280,7 @@ ErrorObj::opltlt ( const char s[] ) {
     }
   }
 #else
-  if ( ! myOs.str().empty() ) emitToken( myOs.str() );
+  if ( ! myOs.str().empty() ) { emitToken( myOs.str() ); }
 #endif
   return *this;
 }

@@ -86,7 +86,7 @@ namespace edm {
     
     void OutputModuleBase::selectProducts(ProductRegistry const& preg,
                                           ThinnedAssociationsHelper const& thinnedAssociationsHelper) {
-      if(productSelector_.initialized()) return;
+      if(productSelector_.initialized()) { return; }
       productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
       
       // TODO: See if we can collapse keptProducts_ and productSelector_ into a
@@ -225,7 +225,7 @@ namespace edm {
     }
     
     bool OutputModuleBase::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
-      if(wantAllEvents_) return true;
+      if(wantAllEvents_) { return true; }
       auto& s = selectors_[id.value()];
       EventForOutput e(ep, moduleDescription_, mcc);
       e.setConsumer(this);

@@ -409,10 +409,10 @@ namespace edm {
       p_top_pad = iPS.getUntrackedParameter<int>("M_TOP_PAD"),
       p_mmap_thr = iPS.getUntrackedParameter<int>("M_MMAP_THRESHOLD");
 
-      if(p_mmap_max >= 0) mopts.set_mmap_max(p_mmap_max);
-      if(p_trim_thr >= 0) mopts.set_trim_thr(p_trim_thr);
-      if(p_top_pad >= 0) mopts.set_top_pad(p_top_pad);
-      if(p_mmap_thr >= 0) mopts.set_mmap_thr(p_mmap_thr);
+      if(p_mmap_max >= 0) { mopts.set_mmap_max(p_mmap_max); }
+      if(p_trim_thr >= 0) { mopts.set_trim_thr(p_trim_thr); }
+      if(p_top_pad >= 0) { mopts.set_top_pad(p_top_pad); }
+      if(p_mmap_thr >= 0) { mopts.set_mmap_thr(p_mmap_thr); }
 
       mopts.adjustMallocParams();
 
@@ -556,7 +556,7 @@ namespace edm {
         for(SignificantModulesMap::iterator im = modules_.begin();
             im != modules_.end(); ++im) {
           SignificantModule const& m = im->second;
-          if(m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0) continue;
+          if(m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0) { continue; }
           mmr << im->first << ": ";
           mmr << "n = " << m.postEarlyCount;
           if(m.postEarlyCount > 0) {
@@ -578,35 +578,35 @@ namespace edm {
 //     std::map<std::string, double> reportData;
       std::map<std::string, std::string> reportData;
 
-      if(eventL2_.vsize > 0)
-              eventStatOutput("LargeVsizeIncreaseEventL2", eventL2_, reportData);
-      if(eventL1_.vsize > 0)
-              eventStatOutput("LargeVsizeIncreaseEventL1", eventL1_, reportData);
-      if(eventM_.vsize > 0)
-              eventStatOutput("LargestVsizeIncreaseEvent", eventM_,  reportData);
-      if(eventR1_.vsize > 0)
-              eventStatOutput("LargeVsizeIncreaseEventR1", eventR1_, reportData);
-      if(eventR2_.vsize > 0)
-              eventStatOutput("LargeVsizeIncreaseEventR2", eventR2_, reportData);
-      if(eventT3_.vsize > 0)
-              eventStatOutput("ThirdLargestVsizeEventT3",  eventT3_, reportData);
-      if(eventT2_.vsize > 0)
-              eventStatOutput("SecondLargestVsizeEventT2", eventT2_, reportData);
-      if(eventT1_.vsize > 0)
-              eventStatOutput("LargestVsizeEventT1",       eventT1_, reportData);
+      if(eventL2_.vsize > 0) {
+              eventStatOutput("LargeVsizeIncreaseEventL2", eventL2_, reportData); }
+      if(eventL1_.vsize > 0) {
+              eventStatOutput("LargeVsizeIncreaseEventL1", eventL1_, reportData); }
+      if(eventM_.vsize > 0) {
+              eventStatOutput("LargestVsizeIncreaseEvent", eventM_,  reportData); }
+      if(eventR1_.vsize > 0) {
+              eventStatOutput("LargeVsizeIncreaseEventR1", eventR1_, reportData); }
+      if(eventR2_.vsize > 0) {
+              eventStatOutput("LargeVsizeIncreaseEventR2", eventR2_, reportData); }
+      if(eventT3_.vsize > 0) {
+              eventStatOutput("ThirdLargestVsizeEventT3",  eventT3_, reportData); }
+      if(eventT2_.vsize > 0) {
+              eventStatOutput("SecondLargestVsizeEventT2", eventT2_, reportData); }
+      if(eventT1_.vsize > 0) {
+              eventStatOutput("LargestVsizeEventT1",       eventT1_, reportData); }
 
-      if(eventRssT3_.rss > 0)
-        eventStatOutput("ThirdLargestRssEvent", eventRssT3_, reportData);
-      if(eventRssT2_.rss > 0)
-        eventStatOutput("SecondLargestRssEvent", eventRssT2_, reportData);
-      if(eventRssT1_.rss > 0)
-        eventStatOutput("LargestRssEvent", eventRssT1_, reportData);
-      if(eventDeltaRssT3_.deltaRss > 0)
-        eventStatOutput("ThirdLargestIncreaseRssEvent", eventDeltaRssT3_, reportData);
-      if(eventDeltaRssT2_.deltaRss > 0)
-        eventStatOutput("SecondLargestIncreaseRssEvent", eventDeltaRssT2_, reportData);
-      if(eventDeltaRssT1_.deltaRss > 0)
-        eventStatOutput("LargestIncreaseRssEvent", eventDeltaRssT1_, reportData);
+      if(eventRssT3_.rss > 0) {
+        eventStatOutput("ThirdLargestRssEvent", eventRssT3_, reportData); }
+      if(eventRssT2_.rss > 0) {
+        eventStatOutput("SecondLargestRssEvent", eventRssT2_, reportData); }
+      if(eventRssT1_.rss > 0) {
+        eventStatOutput("LargestRssEvent", eventRssT1_, reportData); }
+      if(eventDeltaRssT3_.deltaRss > 0) {
+        eventStatOutput("ThirdLargestIncreaseRssEvent", eventDeltaRssT3_, reportData); }
+      if(eventDeltaRssT2_.deltaRss > 0) {
+        eventStatOutput("SecondLargestIncreaseRssEvent", eventDeltaRssT2_, reportData); }
+      if(eventDeltaRssT1_.deltaRss > 0) {
+        eventStatOutput("LargestIncreaseRssEvent", eventDeltaRssT1_, reportData); }
 
 #ifdef __linux__
       struct mallinfo minfo = mallinfo();
@@ -640,7 +640,7 @@ namespace edm {
         for(SignificantModulesMap::iterator im = modules_.begin();
             im != modules_.end(); ++im) {
           SignificantModule const& m = im->second;
-          if(m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0) continue;
+          if(m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0) { continue; }
           std::string label = im->first+":";
           reportData.insert(std::make_pair(label+"PostEarlyCount", i2str(m.postEarlyCount)));
           if(m.postEarlyCount > 0) {
@@ -833,7 +833,7 @@ namespace edm {
     }
 
     void SimpleMemoryCheck::updateEventStats(EventID const& e) {
-      if(count_ < num_to_skip_) return;
+      if(count_ < num_to_skip_) { return; }
       if(count_ == num_to_skip_) {
         eventT1_.set(0, 0, e, this);
         eventM_.set (0, 0, e, this);
@@ -1011,7 +1011,7 @@ namespace edm {
                                                double dv, edm::EventID const& currentEventID) {
       if(count_ < num_to_skip_) {
         m.totalEarlyVsize += dv;
-        if(dv > m.maxEarlyVsize)  m.maxEarlyVsize = dv;
+        if(dv > m.maxEarlyVsize) {  m.maxEarlyVsize = dv; }
       } else {
         ++m.postEarlyCount;
         m.totalDeltaVsize += dv;

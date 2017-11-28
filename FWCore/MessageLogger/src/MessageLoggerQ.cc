@@ -250,7 +250,7 @@ void MessageLoggerQ::squelch(std::string const & category) {
 }
 bool MessageLoggerQ::ignore ( edm::ELseverityLevel const & severity, 
   			       std::string const & category ) {
-  if ( severity < threshold ) return true;
-  if ( squelchSet.count(category) > 0 ) return true;
+  if ( severity < threshold ) { return true; }
+  if ( squelchSet.count(category) > 0 ) { return true; }
   return false;
 }			       

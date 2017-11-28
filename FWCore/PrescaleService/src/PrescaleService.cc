@@ -89,7 +89,7 @@ namespace edm {
         ParameterSet const& pset  = prcPS.getParameterSet(allModules[i]);
 	const std::string moduleLabel = pset.getParameter<std::string>("@module_label");
 	const std::string moduleType  = pset.getParameter<std::string>("@module_type");
-        if (moduleType == "HLTPrescaler") module2path[moduleLabel]="";
+        if (moduleType == "HLTPrescaler") { module2path[moduleLabel]=""; }
       }
       // Check all modules on all paths
       const std::vector<std::string> allPaths = prcPS.getParameter<std::vector<std::string> >("@paths");
@@ -141,7 +141,7 @@ namespace edm {
     // const method
     unsigned int PrescaleService::getPrescale(unsigned int lvl1Index, std::string const& prescaledPath) const
     {
-      if (forceDefault_) lvl1Index = lvl1Default_;
+      if (forceDefault_) { lvl1Index = lvl1Default_; }
 
       if (lvl1Index >= lvl1Labels_.size()) {
         throw cms::Exception("InvalidLvl1Index")

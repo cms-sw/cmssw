@@ -158,26 +158,31 @@ namespace edm
 
   void MallocOptionSetter::adjustMallocParams()
   {
-    if(changed_==false) return; // only adjust if they changed
+    if(changed_==false) { return; // only adjust if they changed
+}
     error_message_.clear();
     changed_ = false;
 
 #ifndef __SANITIZE_ADDRESS__
 #ifdef M_MMAP_MAX
-    if(mallopt(M_MMAP_MAX,values_.mmap_max_)<0)
+    if(mallopt(M_MMAP_MAX,values_.mmap_max_)<0) {
       error_message_ += "Could not set M_MMAP_MAX\n"; 
+}
 #endif
 #ifdef M_TRIM_THRESHOLD
-    if(mallopt(M_TRIM_THRESHOLD,values_.trim_thr_)<0)
+    if(mallopt(M_TRIM_THRESHOLD,values_.trim_thr_)<0) {
       error_message_ += "Could not set M_TRIM_THRESHOLD\n"; 
+}
 #endif
 #ifdef M_TOP_PAD
-    if(mallopt(M_TOP_PAD,values_.top_pad_)<0)
+    if(mallopt(M_TOP_PAD,values_.top_pad_)<0) {
       error_message_ += "ERROR: Could not set M_TOP_PAD\n";
+}
 #endif
 #ifdef M_MMAP_THRESHOLD
-    if(mallopt(M_MMAP_THRESHOLD,values_.mmap_thr_)<0)
+    if(mallopt(M_MMAP_THRESHOLD,values_.mmap_thr_)<0) {
       error_message_ += "ERROR: Could not set M_MMAP_THRESHOLD\n";
+}
 #endif
 #endif
   }
@@ -185,7 +190,8 @@ namespace edm
   bool MallocOptionSetter::retrieveFromEnv()
   {
     const char* par = getenv("CMSRUN_MALLOC_RESET");
-    if(par==nullptr) return false; // leave quickly here
+    if(par==nullptr) { return false; // leave quickly here
+}
     std::string spar(par);
     bool rc = false;
       

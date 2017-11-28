@@ -59,9 +59,12 @@ namespace edm {
       throw edm::Exception(errors::Configuration,"InputTag")
         << "Input tag " << s << " has " << nwords << " tokens";
     }
-    if(nwords > 0) label_ = tokens[0];
-    if(nwords > 1) instance_ = tokens[1];
-    if(nwords > 2) process_=tokens[2];
+    if(nwords > 0) { label_ = tokens[0];
+}
+    if(nwords > 1) { instance_ = tokens[1];
+}
+    if(nwords > 2) { process_=tokens[2];
+}
     skipCurrentProcess_ = calcSkipCurrentProcess();
   }
 

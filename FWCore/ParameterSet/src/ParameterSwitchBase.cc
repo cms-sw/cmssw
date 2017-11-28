@@ -114,10 +114,10 @@ namespace edm {
         }
 
         os << " " << std::setw(dfh.column3());
-        if(optional)  os << "optional";
-        else  os << "";
+        if(optional) {  os << "optional";
+        } else {  os << ""; }
 
-        if(!writeToCfi) os << " (do not write to cfi)";
+        if(!writeToCfi) { os << " (do not write to cfi)"; }
 
         os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
         os.flags(oldFlags);
@@ -128,12 +128,12 @@ namespace edm {
 
         dfh.indent2(os);
         os << "type: ";
-        if(!isTracked) os << "untracked ";
+        if(!isTracked) { os << "untracked "; }
         os << typeString << " ";
 
-        if(optional)  os << "optional";
+        if(optional) {  os << "optional"; }
 
-        if(!writeToCfi) os << " (do not write to cfi)";
+        if(!writeToCfi) { os << " (do not write to cfi)"; }
         os << "\n";
 
         dfh.indent2(os);
@@ -182,7 +182,7 @@ namespace edm {
       printSpaces(os, indentation);
       os << "are required or allowed to be in the PSet.\n";
     }
-    if(!dfh.brief()) os << "\n";
+    if(!dfh.brief()) { os << "\n"; }
 
     new_dfh.init();
     new_dfh.setSection(newSection);
@@ -204,8 +204,8 @@ namespace edm {
     if(dfh.pass() == 1) {
       dfh.indent(os);
       os << "if " << switchLabel << " = ";
-      if(p.first) os << "True";
-      else os << "False";
+      if(p.first) { os << "True";
+      } else { os << "False"; }
       os << "\n";
       p.second->print(os, false, true, dfh);
     }

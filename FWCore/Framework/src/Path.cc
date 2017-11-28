@@ -94,7 +94,7 @@ namespace edm {
         }
       }
       default: {
-	  if (isEvent) ++timesExcept_;
+	  if (isEvent) { ++timesExcept_; }
 	  state_ = hlt::Exception;
 	  recordStatus(nwrwue, isEvent);
 	  if (action == exception_actions::Rethrow) {
@@ -159,10 +159,10 @@ namespace edm {
   void
   Path::updateCounters(bool success, bool isEvent) {
     if (success) {
-      if (isEvent) ++timesPassed_;
+      if (isEvent) { ++timesPassed_; }
       state_ = hlt::Pass;
     } else {
-      if(isEvent) ++timesFailed_;
+      if(isEvent) { ++timesFailed_; }
       state_ = hlt::Fail;
     }
   }

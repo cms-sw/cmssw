@@ -93,7 +93,7 @@ void HaltMessageLogging() {
 
 void FlushMessageLog() {
   if (MessageDrop::instance()->messageLoggerScribeIsRunning !=
-  			MLSCRIBE_RUNNING_INDICATOR) return; 	// 6/20/08 mf
+  			MLSCRIBE_RUNNING_INDICATOR) { return; 	// 6/20/08 mf }
   edm::MessageLoggerQ::MLqFLS ( ); // Flush the message log queue
 }
 
@@ -127,8 +127,8 @@ edm::LogDebug_::LogDebug_( std::string const & id, std::string const & file, int
 std::string
 edm::LogDebug_::stripLeadingDirectoryTree(const std::string & file) const {
   std::string::size_type lastSlash = file.find_last_of('/');
-  if (lastSlash == std::string::npos) return file;
-  if (lastSlash == file.size()-1)     return file;
+  if (lastSlash == std::string::npos) { return file; }
+  if (lastSlash == file.size()-1) {     return file; }
   return file.substr(lastSlash+1, file.size()-lastSlash-1);
 }
 

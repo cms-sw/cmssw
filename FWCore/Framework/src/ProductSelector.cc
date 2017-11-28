@@ -30,7 +30,8 @@ namespace edm {
       
       VCBDP::const_iterator it = branchDescriptions.begin();
       VCBDP::const_iterator end = branchDescriptions.end();
-      for (; it != end; ++it) branchstates.emplace_back(*it);
+      for (; it != end; ++it) { branchstates.emplace_back(*it);
+}
     }
 
     // Now  apply the rules to  the branchstates, in order.  Each rule
@@ -45,7 +46,8 @@ namespace edm {
       std::vector<BranchSelectState>::const_iterator it = branchstates.begin();
       std::vector<BranchSelectState>::const_iterator end = branchstates.end();
       for (; it != end; ++it) {
-	  if (it->selectMe) productsToSelect_.push_back(it->desc->branchName());
+	  if (it->selectMe) { productsToSelect_.push_back(it->desc->branchName());
+}
       }
       sort_all(productsToSelect_);
     }
@@ -99,7 +101,8 @@ namespace edm {
                                      std::map<BranchID::value_type, BranchID::value_type>& droppedBranchIDToKeptBranchID_) {
     for(auto const& it : preg.productList()) {
       BranchDescription const& desc = it.second;
-      if(!desc.produced() || desc.isAlias()) continue;
+      if(!desc.produced() || desc.isAlias()) { continue;
+}
       BranchID const& branchID = desc.branchID();
       std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(branchID);
       if(iter != trueBranchIDToKeptBranchDesc.end()) {

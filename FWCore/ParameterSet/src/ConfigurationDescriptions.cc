@@ -250,7 +250,7 @@ namespace edm {
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "PSets will not be validated and no cfi files will be generated.\n";
       os << std::setfill(oldFill);
-      if (!brief) os << "\n";
+      if (!brief) { os << "\n"; }
       return;
     }
 
@@ -264,7 +264,7 @@ namespace edm {
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "Its PSets will not be validated, and no cfi files will be generated.\n";
       os << std::setfill(oldFill);
-      if (!brief) os << "\n";
+      if (!brief) { os << "\n"; }
       return;
     }
 
@@ -358,7 +358,7 @@ namespace edm {
                                            DescriptionCounter & counter) const
   {
     ++counter.iModule;
-    if (!moduleLabel.empty() && label != moduleLabel) return;
+    if (!moduleLabel.empty() && label != moduleLabel) { return; }
     ++counter.iSelectedModule;
 
     std::stringstream ss;
@@ -389,7 +389,7 @@ namespace edm {
       }
       os << "\n";
     }
-    if (printOnlyLabels) return;
+    if (printOnlyLabels) { return; }
 
     DocFormatHelper dfh;
     dfh.setBrief(brief);

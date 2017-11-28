@@ -564,7 +564,7 @@ namespace edm {
 
   void
   EventProcessor::beginJob() {
-    if(beginJobCalled_) return;
+    if(beginJobCalled_) { return; }
     beginJobCalled_=true;
     bk::beginJob();
 
@@ -890,8 +890,8 @@ namespace edm {
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetup());
       looper_->setModuleChanger(nullptr);
-      if(status != EDLooperBase::kContinue || forceLooperToEnd_) return true;
-      else return false;
+      if(status != EDLooperBase::kContinue || forceLooperToEnd_) { return true;
+      } else { return false; }
     }
     FDEBUG(1) << "\tendOfLoop\n";
     return true;
@@ -1544,12 +1544,12 @@ namespace edm {
       }
       pc.setLastOperationSucceeded(succeeded);
     } while(!pc.lastOperationSucceeded());
-    if(status != EDLooperBase::kContinue) shouldWeStop_ = true;
+    if(status != EDLooperBase::kContinue) { shouldWeStop_ = true; }
   }
 
   bool EventProcessor::shouldWeStop() const {
     FDEBUG(1) << "\tshouldWeStop\n";
-    if(shouldWeStop_) return true;
+    if(shouldWeStop_) { return true; }
     if(!subProcesses_.empty()) {
       for(auto const& subProcess : subProcesses_) {
         if(subProcess.terminate()) {

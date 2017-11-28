@@ -95,15 +95,15 @@ namespace edm {
         std::string aux;
         for(std::string::const_iterator iter = s.begin(); iter != s.end(); iter++){
                 if(founded){
-                        if(*iter == ' ') founded = true;
-                        else{
+                        if(*iter == ' ') { founded = true;
+                        } else{
                                 aux += " "; aux += *iter;
                                 founded = false;
                         }
                 }
                 else{
-                        if(*iter == ' ') founded = true;
-                        else aux += *iter;
+                        if(*iter == ' ') { founded = true;
+                        } else { aux += *iter; }
                 }
         }
         return aux;

@@ -34,9 +34,9 @@ namespace edm {
           static std::string const th("th");
           // *0, *4 - *9 use "th".
           int lastDigit = count % 10;
-          if(lastDigit >= 4 || lastDigit == 0) return th;
+          if(lastDigit >= 4 || lastDigit == 0) { return th; }
           // *11, *12, or *13 use "th".
-          if(count % 100 - lastDigit == 10) return th;
+          if(count % 100 - lastDigit == 10) { return th; }
           return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
         }
   }
@@ -245,7 +245,7 @@ namespace edm {
 
   void
   InputSource::closeFile(FileBlock* fb, bool cleaningUpAfterException) {
-    if(fb != nullptr) fb->close();
+    if(fb != nullptr) { fb->close(); }
     callWithTryCatchAndPrint<void>( [this](){ closeFile_(); },
                                     "Calling InputSource::closeFile_",
                                     cleaningUpAfterException );
@@ -314,7 +314,7 @@ namespace edm {
       callWithTryCatchAndPrint<void>( [this,&ep](){ readEvent_(ep); }, "Calling InputSource::readEvent_" );
     }
 
-    if(remainingEvents_ > 0) --remainingEvents_;
+    if(remainingEvents_ > 0) { --remainingEvents_; }
     ++readCount_;
     setTimestamp(ep.time());
     issueReports(ep.id());
@@ -332,7 +332,7 @@ namespace edm {
       result = readIt(eventID, ep, streamContext);
 
       if (result) {
-        if(remainingEvents_ > 0) --remainingEvents_;
+        if(remainingEvents_ > 0) { --remainingEvents_; }
         ++readCount_;
         issueReports(ep.id());
       }

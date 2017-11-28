@@ -253,7 +253,7 @@ namespace edm {
   SubProcess::selectProducts(ProductRegistry const& preg,
                              ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                              std::map<BranchID, bool>& keepAssociation) {
-    if(productSelector_.initialized()) return;
+    if(productSelector_.initialized()) { return; }
     productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
 
     // TODO: See if we can collapse keptProducts_ and productSelector_ into a

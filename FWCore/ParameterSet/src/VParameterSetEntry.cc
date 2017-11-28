@@ -62,8 +62,8 @@ namespace edm {
     digest.append(tracked_ ? "+q{" : "-q{", 3);
     bool started = false;
     for (std::vector<ParameterSetID>::const_iterator i = theIDs_->begin(), e = theIDs_->end(); i != e; ++i) {
-      if (started)
-        digest.append(",", 1);
+      if (started) {
+        digest.append(",", 1); }
       i->toDigest(digest);
       started = true;
     }

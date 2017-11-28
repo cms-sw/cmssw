@@ -40,7 +40,7 @@ namespace edm {
     UnixSignalService::UnixSignalService(ParameterSet const& pset)
       : enableSigInt_(pset.getUntrackedParameter<bool>("EnableCtrlC")) {
       installCustomHandler(SIGUSR2, ep_sigusr2);
-      if(enableSigInt_)  installCustomHandler(SIGINT, ep_sigusr2);
+      if(enableSigInt_) {  installCustomHandler(SIGINT, ep_sigusr2); }
     }
 
     UnixSignalService::~UnixSignalService() {}

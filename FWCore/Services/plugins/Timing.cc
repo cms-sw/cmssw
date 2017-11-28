@@ -116,8 +116,8 @@ namespace edm {
     
     static double getTime() {
       struct timeval t;
-      if(gettimeofday(&t, nullptr) < 0)
-        throw cms::Exception("SysCallFailed", "Failed call to gettimeofday");
+      if(gettimeofday(&t, nullptr) < 0) {
+        throw cms::Exception("SysCallFailed", "Failed call to gettimeofday"); }
       return static_cast<double>(t.tv_sec) + (static_cast<double>(t.tv_usec) * 1E-6);
     }
 
@@ -396,8 +396,8 @@ namespace edm {
         << eventID.run() << " "
         << curr_event_time ;
       }
-      if(curr_event_time > max_events_time_[index]) max_events_time_[index] = curr_event_time;
-      if(curr_event_time < min_events_time_[index]) min_events_time_[index] = curr_event_time;
+      if(curr_event_time > max_events_time_[index]) { max_events_time_[index] = curr_event_time; }
+      if(curr_event_time < min_events_time_[index]) { min_events_time_[index] = curr_event_time; }
       ++total_event_count_;
     }
 

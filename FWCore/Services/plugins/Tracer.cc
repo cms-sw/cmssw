@@ -184,8 +184,8 @@ namespace {
 
     friend
     std::ostream & operator<<(std::ostream & out, TimeStamper const & timestamp) {
-      if (timestamp.enabled_)
-        out << std::setprecision(2) << edm::TimeOfDay() << "  ";
+      if (timestamp.enabled_) {
+        out << std::setprecision(2) << edm::TimeOfDay() << "  "; }
       return out;
     }
 
@@ -202,8 +202,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
   dumpPathsAndConsumes_(iPS.getUntrackedParameter<bool>("dumpPathsAndConsumes")),
   printTimestamps_(iPS.getUntrackedParameter<bool>("printTimestamps"))
 {
-  for (std::string & label: iPS.getUntrackedParameter<std::vector<std::string>>("dumpContextForLabels"))
-    dumpContextForLabels_.insert(std::move(label));
+  for (std::string & label: iPS.getUntrackedParameter<std::vector<std::string>>("dumpContextForLabels")) {
+    dumpContextForLabels_.insert(std::move(label)); }
 
   iRegistry.watchPreallocate(this, &Tracer::preallocate);
 
@@ -495,7 +495,7 @@ Tracer::preOpenFile(std::string const& lfn, bool b) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " starting: open input file: lfn = " << lfn;
-  if(dumpNonModuleContext_) out << " usedFallBack = " << b;
+  if(dumpNonModuleContext_) { out << " usedFallBack = " << b; }
 }
 
 void
@@ -503,7 +503,7 @@ Tracer::postOpenFile (std::string const& lfn, bool b) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: open input file: lfn = " << lfn;
-  if(dumpNonModuleContext_) out << " usedFallBack = " << b;
+  if(dumpNonModuleContext_) { out << " usedFallBack = " << b; }
 }
 
 void
@@ -511,14 +511,14 @@ Tracer::preCloseFile(std::string const & lfn, bool b) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " starting: close input file: lfn = " << lfn;
-  if(dumpNonModuleContext_) out << " usedFallBack = " << b;
+  if(dumpNonModuleContext_) { out << " usedFallBack = " << b; }
 }
 void
 Tracer::postCloseFile (std::string const& lfn, bool b) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: close input file: lfn = " << lfn;
-  if(dumpNonModuleContext_) out << " usedFallBack = " << b;
+  if(dumpNonModuleContext_) { out << " usedFallBack = " << b; }
 }
 
 void

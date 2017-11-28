@@ -77,7 +77,8 @@ namespace edm {
           continue;
         }
       }
-      if (!p->branchAlias_.empty()) pdesc.insertBranchAlias(p->branchAlias_);
+      if (!p->branchAlias_.empty()) { pdesc.insertBranchAlias(p->branchAlias_);
+}
       iReg.addProduct(pdesc, iIsListener);
     }
 

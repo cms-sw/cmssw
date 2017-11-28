@@ -49,8 +49,10 @@ ESInputTag::ESInputTag( const std::string& iEncodedValue)
       throw edm::Exception(errors::Configuration,"ESInputTag")
       << "ESInputTag " << iEncodedValue << " has " << nwords << " tokens but only up two 2 are allowed.";
    }
-   if(nwords > 0) module_ = tokens[0];
-   if(nwords > 1) data_ = tokens[1];
+   if(nwords > 0) { module_ = tokens[0];
+}
+   if(nwords > 1) { data_ = tokens[1];
+}
 }
 // ESInputTag::ESInputTag(const ESInputTag& rhs)
 // {

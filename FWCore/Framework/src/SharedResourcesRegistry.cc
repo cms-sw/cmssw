@@ -100,7 +100,8 @@ namespace edm {
         // It's redundant to declare legacy if the legacy modules
         // all declare all the other resources, so just skip it.
         // But if the only shared resource is the legacy resource don't skip it.
-        if(resource.first == kLegacyModuleResourceName && resourceMap_.size() > 1) continue;
+        if(resource.first == kLegacyModuleResourceName && resourceMap_.size() > 1) { continue;
+}
         //If only one module wants it, it really isn't shared
         if(resource.second.second > 1) {
           sortedResources.insert(std::make_pair(std::make_pair(resource.second.second, resource.first),resource.second.first));

@@ -45,7 +45,7 @@ namespace edm {
   bool
   EventSkipperByID::skipIt(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
 
-    if(run == 0U) run = 1U; // Correct zero run number
+    if(run == 0U) { run = 1U; // Correct zero run number }
     if(run < firstRun_) {
       // Skip all entries before the first run.
       return true;

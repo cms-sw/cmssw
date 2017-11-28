@@ -65,7 +65,7 @@ messageLoggerPSet (ParameterSet const & pset)
   	( pset, "MessageLogger", "generate_preconfiguration_message" );
   std::string thresh = check<std::string> 
      	( pset, "MessageLogger", "threshold" );
-  if (!thresh.empty()) validateThreshold(thresh, "MessageLogger");
+  if (!thresh.empty()) { validateThreshold(thresh, "MessageLogger"); }
   check<unsigned int>
   ( pset, "MessageLogger", "waiting_threshold");
   
@@ -233,17 +233,17 @@ bool
 edm::service::MessageServicePSetValidation:: 
 allowedVstring (std::string const & s)
 {
-  if (s == "destinations") 	return true;
-  if (s == "statistics") 	return true;
-  if (s == "destinations") 	return true;
-  if (s == "fwkJobReports") 	return true;
-  if (s == "categories") 	return true;
-  if (s == "messageIDs") 	return true;
-  if (s == "debugModules") 	return true;
-  if (s == "suppressInfo") 	return true;
-  if (s == "suppressDebug") 	return true;
-  if (s == "suppressWarning") 	return true;
-  if (s == "suppressError") 	return true;
+  if (s == "destinations") { 	return true; }
+  if (s == "statistics") { 	return true; }
+  if (s == "destinations") { 	return true; }
+  if (s == "fwkJobReports") { 	return true; }
+  if (s == "categories") { 	return true; }
+  if (s == "messageIDs") { 	return true; }
+  if (s == "debugModules") { 	return true; }
+  if (s == "suppressInfo") { 	return true; }
+  if (s == "suppressDebug") { 	return true; }
+  if (s == "suppressWarning") { 	return true; }
+  if (s == "suppressError") { 	return true; }
   return false;
 }  // allowedVstring
 
@@ -253,7 +253,7 @@ bool
 edm::service::MessageServicePSetValidation::  
 validateThreshold (std::string const & thresh, std::string const & psetName)
 {
-  if (checkThreshold(thresh)) return true;
+  if (checkThreshold(thresh)) { return true; }
   flaws << psetName << " PSet: \n"
 	<< "threshold has value " << thresh 
 	<< " which is not among {DEBUG, INFO, WARNING, ERROR}\n";
@@ -264,10 +264,10 @@ bool
 edm::service::MessageServicePSetValidation::  
 checkThreshold (std::string const & thresh)
 {
-  if (thresh == "WARNING") 	return true;
-  if (thresh == "INFO") 	return true;
-  if (thresh == "ERROR") 	return true;
-  if (thresh == "DEBUG") 	return true;
+  if (thresh == "WARNING") { 	return true; }
+  if (thresh == "INFO") { 	return true; }
+  if (thresh == "ERROR") { 	return true; }
+  if (thresh == "DEBUG") { 	return true; }
   return false;
 }  
 
@@ -316,8 +316,8 @@ noCoutCerrClash(vString const & v, std::string const & psetName,
   bool coutPresent = false;
   bool cerrPresent = false;
   for (vString::const_iterator i = v.begin(); i != end; ++i) {
-    if ( *i == "cout" ) coutPresent = true;
-    if ( *i == "cerr" ) cerrPresent = true;
+    if ( *i == "cout" ) { coutPresent = true; }
+    if ( *i == "cerr" ) { cerrPresent = true; }
   }
   if (coutPresent && cerrPresent) {
         flaws << psetName << " PSet: \n"
@@ -345,34 +345,34 @@ bool
 edm::service::MessageServicePSetValidation::  
 keywordCheck(std::string const & word)
 {
-  if (word == "default") 	return false;
-  if (word == "categories") 	return false;
-  if (word == "messageIDs") 	return false;
-  if (word == "fwkJobReports")	return false;
-  if (word == "destinations") 	return false;
-  if (word == "statistics") 	return false;
-  if (word == "debugModules") 	return false;
-  if (word == "suppressInfo") 	return false;
-  if (word == "suppressDebug") 	return false;
-  if (word == "suppressWarning")return false;
-  if (word == "suppressError")  return false;
-  if (word == "threshold") 	return false;
-  if (word == "ERROR") 		return false;
-  if (word == "WARNING") 	return false;
-  if (word == "INFO") 		return false;
-  if (word == "DEBUG") 		return false;
-  if (word == "placeholder") 	return false;
-  if (word == "limit") 		return false;
-  if (word == "reportEvery") 	return false;
-  if (word == "timespan") 	return false;
-  if (word == "noLineBreaks") 	return false;
-  if (word == "lineLength") 	return false;
-  if (word == "noTimeStamps") 	return false;
-  if (word == "output") 	return false;
-  if (word == "filename") 	return false;
-  if (word == "extension") 	return false;
-  if (word == "reset") 		return false;
-  if (word == "optionalPSet")	return false;
+  if (word == "default") { 	return false; }
+  if (word == "categories") { 	return false; }
+  if (word == "messageIDs") { 	return false; }
+  if (word == "fwkJobReports") {	return false; }
+  if (word == "destinations") { 	return false; }
+  if (word == "statistics") { 	return false; }
+  if (word == "debugModules") { 	return false; }
+  if (word == "suppressInfo") { 	return false; }
+  if (word == "suppressDebug") { 	return false; }
+  if (word == "suppressWarning") {return false; }
+  if (word == "suppressError") {  return false; }
+  if (word == "threshold") { 	return false; }
+  if (word == "ERROR") { 		return false; }
+  if (word == "WARNING") { 	return false; }
+  if (word == "INFO") { 		return false; }
+  if (word == "DEBUG") { 		return false; }
+  if (word == "placeholder") { 	return false; }
+  if (word == "limit") { 		return false; }
+  if (word == "reportEvery") { 	return false; }
+  if (word == "timespan") { 	return false; }
+  if (word == "noLineBreaks") { 	return false; }
+  if (word == "lineLength") { 	return false; }
+  if (word == "noTimeStamps") { 	return false; }
+  if (word == "output") { 	return false; }
+  if (word == "filename") { 	return false; }
+  if (word == "extension") { 	return false; }
+  if (word == "reset") { 		return false; }
+  if (word == "optionalPSet") {	return false; }
   return true;
 } // keywordCheck
 
@@ -420,7 +420,7 @@ wildcard(vString const & v)
 {
   vString::const_iterator end = v.end();
   for (vString::const_iterator i = v.begin(); i != end; ++i) {
-    if ((*i) == "*") return true;
+    if ((*i) == "*") { return true; }
   }
   return false;
 }
@@ -433,12 +433,12 @@ noOtherPsets(ParameterSet const & pset)
   pset.getParameterSetNames(psnames, false);
   vString::const_iterator end = psnames.end();
   for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
-    if ( lookForMatch (destinations, *i) ) 	continue;
-    if ( lookForMatch (statistics, *i) ) 	continue;
-    if ( lookForMatch (fwkJobReports, *i) ) 	continue;
-    if ( lookForMatch (categories, *i) ) 	continue;
-    if ( lookForMatch (messageIDs, *i) ) 	continue;
-    if ( (*i) == "default" ) 			continue;
+    if ( lookForMatch (destinations, *i) ) { 	continue; }
+    if ( lookForMatch (statistics, *i) ) { 	continue; }
+    if ( lookForMatch (fwkJobReports, *i) ) { 	continue; }
+    if ( lookForMatch (categories, *i) ) { 	continue; }
+    if ( lookForMatch (messageIDs, *i) ) { 	continue; }
+    if ( (*i) == "default" ) { 			continue; }
     ParameterSet empty_PSet;
     bool ok_optionalPSet = false; 
     try {
@@ -450,7 +450,7 @@ noOtherPsets(ParameterSet const & pset)
           culprit.getUntrackedParameter<bool>("optionalPSet", ok_optionalPSet);
     } catch (cms::Exception& e) { 
     }
-    if (ok_optionalPSet) continue; 
+    if (ok_optionalPSet) { continue;  }
     flaws << "MessageLogger " << " PSet: \n"
 	  << *i << " is an unrecognized name for a PSet\n";
   }
@@ -503,7 +503,7 @@ destinationPSet(ParameterSet const & pset, std::string const & psetName)
   
   check <bool> ( pset, psetName, "placeholder" );
   std::string thresh = check<std::string> ( pset, "psetName", "threshold" );
-  if (!thresh.empty()) validateThreshold(thresh, psetName);
+  if (!thresh.empty()) { validateThreshold(thresh, psetName); }
   check <bool> ( pset, psetName, "noLineBreaks" );
   check <int>  ( pset, psetName, "lineLength" );
   check <bool> ( pset, psetName, "noTimeStamps" );
@@ -562,7 +562,7 @@ defaultPSet(ParameterSet const & main_pset)
   
   check <bool> ( pset, psetName, "placeholder" );
   std::string thresh = check<std::string> ( pset, "psetName", "threshold" );
-  if (!thresh.empty()) validateThreshold(thresh, psetName);
+  if (!thresh.empty()) { validateThreshold(thresh, psetName); }
   check <bool> ( pset, psetName, "noLineBreaks" );
   check <int>  ( pset, psetName, "limit" );   
   check <int>  ( pset, psetName, "reportEvery" );   
@@ -597,7 +597,7 @@ statisticsPSets(ParameterSet const & pset)
   std::vector<std::string>::const_iterator end = statistics.end();
   for ( std::vector<std::string>::const_iterator i = statistics.begin();
   							     i != end; ++i )  {
-    if (lookForMatch(destinations, *i)) continue; 
+    if (lookForMatch(destinations, *i)) { continue;  }
     ParameterSet const& d = pset.getUntrackedParameterSet(*i, empty_PSet);
     statisticsPSet(d,*i); 
   }
@@ -618,7 +618,7 @@ statisticsPSet(ParameterSet const & pset, std::string const & psetName)
   // General parameters
   
   std::string thresh = check<std::string> ( pset, "psetName", "threshold" );
-  if (!thresh.empty()) validateThreshold(thresh, psetName);
+  if (!thresh.empty()) { validateThreshold(thresh, psetName); }
   check <bool> ( pset, psetName, "placeholder" );
   check <bool> ( pset, psetName, "reset" );
   std::string s = check<std::string> ( pset, "psetName", "filename" );
@@ -715,13 +715,13 @@ noNoncategoryPsets(ParameterSet const & pset,std::string const & psetName)
   pset.getParameterSetNames(psnames, false);
   vString::const_iterator end = psnames.end();
   for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
-    if ( lookForMatch (categories, *i) ) 	continue;
-    if ( lookForMatch (messageIDs, *i) ) 	continue;
-    if ( (*i) == "default" ) 			continue;
-    if ( (*i) == "ERROR" ) 			continue;
-    if ( (*i) == "WARNING" ) 			continue;
-    if ( (*i) == "INFO" ) 			continue;
-    if ( (*i) == "DEBUG" ) 			continue;
+    if ( lookForMatch (categories, *i) ) { 	continue; }
+    if ( lookForMatch (messageIDs, *i) ) { 	continue; }
+    if ( (*i) == "default" ) { 			continue; }
+    if ( (*i) == "ERROR" ) { 			continue; }
+    if ( (*i) == "WARNING" ) { 			continue; }
+    if ( (*i) == "INFO" ) { 			continue; }
+    if ( (*i) == "DEBUG" ) { 			continue; }
     ParameterSet empty_PSet;
     bool ok_optionalPSet = false; 
     try {
@@ -733,7 +733,7 @@ noNoncategoryPsets(ParameterSet const & pset,std::string const & psetName)
           culprit.getUntrackedParameter<bool>("optionalPSet", ok_optionalPSet);
     } catch (cms::Exception& e) { 
     }
-    if (ok_optionalPSet) continue; 
+    if (ok_optionalPSet) { continue;  }
     flaws << psetName << " PSet: \n"
 	  << *i << " is an unrecognized name for a PSet in this context \n";
   }
@@ -756,7 +756,7 @@ categoryPSets(ParameterSet const & pset, std::string const & psetName )
   categoryPSet (pset, psetName, "WARNING");
   categoryPSet (pset, psetName, "INFO"   ) ;
   categoryPSet (pset, psetName, "DEBUG"  );
-  if (psetName != "MessageLogger") categoryPSet (pset, psetName, "default");
+  if (psetName != "MessageLogger") { categoryPSet (pset, psetName, "default"); }
   // The above conditional is because default in the main level is treated
   // as a set of defaults differnt from those of a simple category. 
   std::vector<std::string>::const_iterator end = categories.end();
@@ -799,9 +799,9 @@ catInts (ParameterSet const & pset,
   vString x = pset.getParameterNamesForType <int> (false);
   vString::const_iterator end = x.end();
   for ( vString::const_iterator i = x.begin(); i != end; ++i ) {
-    if ( *i == "limit" ) continue;
-    if ( *i == "reportEvery" ) continue;
-    if ( *i == "timespan" ) continue;
+    if ( *i == "limit" ) { continue; }
+    if ( *i == "reportEvery" ) { continue; }
+    if ( *i == "timespan" ) { continue; }
     flaws << categoryName << " category PSet nested in "
       	  << psetName << " PSet: \n"
 	  << (*i) << " is not an allowed parameter within a category PSet \n";
@@ -855,7 +855,7 @@ catBoolRestriction (ParameterSet const & pset,
   vString x = pset.getParameterNamesForType <bool> (false);
   vString::const_iterator end = x.end();
   for ( vString::const_iterator i = x.begin(); i != end; ++i ) {
-    if ( ((*i) == "placeholder") || ((*i) == "optionalPSet") ) continue;
+    if ( ((*i) == "placeholder") || ((*i) == "optionalPSet") ) { continue; }
     flaws << categoryName << " category PSet nested in "
       	  << psetName << " PSet: \n"
 	  << (*i) << " is used as a " << type << "\n"

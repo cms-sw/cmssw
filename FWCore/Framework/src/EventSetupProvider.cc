@@ -477,7 +477,7 @@ EventSetupProvider::checkESProducerSharing(EventSetupProvider& precedingESProvid
 
          ParameterSetID const& psetID = iComponent->pid_;
          ParameterSetIDHolder psetIDHolder(psetID);
-         if (sharingCheckDone.find(psetIDHolder) != sharingCheckDone.end()) continue;
+         if (sharingCheckDone.find(psetIDHolder) != sharingCheckDone.end()) { continue; }
 
          bool firstProcessWithThisPSet = false;
          bool precedingHasMatchingPSet = false;
@@ -687,7 +687,7 @@ EventSetupProvider::doRecordsMatch(EventSetupProvider & precedingESProvider,
                                      allComponentsMatch,
                                      esController);            
          allComponentsMatch[dependentRecord] = match;
-         if (!match) return false;
+         if (!match) { return false; }
       }
    }
    return true;
@@ -696,7 +696,7 @@ EventSetupProvider::doRecordsMatch(EventSetupProvider & precedingESProvider,
 void
 EventSetupProvider::fillReferencedDataKeys(EventSetupRecordKey const& eventSetupRecordKey) {
 
-   if (referencedDataKeys_->find(eventSetupRecordKey) != referencedDataKeys_->end()) return;
+   if (referencedDataKeys_->find(eventSetupRecordKey) != referencedDataKeys_->end()) { return; }
 
    auto recordProvider = providers_.find(eventSetupRecordKey);
    if (recordProvider == providers_.end()) {

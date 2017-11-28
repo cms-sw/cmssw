@@ -26,8 +26,8 @@ namespace edm {
         // then print it and we are done
         if ((length - startLine) <= suggestedWidth) {
           os << std::setfill(' ') << std::setw(indent) << "";
-          if (startLine == 0) os << text;
-          else os << text.substr(startLine);
+          if (startLine == 0) { os << text;
+          } else { os << text.substr(startLine); }
           os << "\n";
           break;
         }

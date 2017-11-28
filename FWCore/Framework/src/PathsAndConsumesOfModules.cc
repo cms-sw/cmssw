@@ -28,7 +28,7 @@ namespace edm {
     unsigned int hint = 0;
     for(auto const& path : paths_) {
       schedule->moduleDescriptionsInPath(path, modulesOnPaths_.at(i), hint);
-      if(!modulesOnPaths_.at(i).empty()) ++hint;
+      if(!modulesOnPaths_.at(i).empty()) { ++hint; }
       ++i;
     }
 
@@ -37,7 +37,7 @@ namespace edm {
     hint = 0;
     for(auto const& endpath : endPaths_) {
       schedule->moduleDescriptionsInEndPath(endpath, modulesOnEndPaths_.at(i), hint);
-      if(!modulesOnEndPaths_.at(i).empty()) ++hint;
+      if(!modulesOnEndPaths_.at(i).empty()) { ++hint; }
       ++i;
     }
 

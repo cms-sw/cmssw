@@ -73,7 +73,8 @@ namespace {
         if (c == '>') {
           ++depth;
         } else if (depth > 0) {
-          if (c == '<') --depth;
+          if (c == '<') { --depth;
+}
         } else if (c == '<' || c == ',') {
           demangledName.insert(inx + 1, "const ");
           break;

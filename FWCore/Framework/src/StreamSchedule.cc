@@ -46,7 +46,7 @@ namespace edm {
     void
     transform_into(InputIterator begin, InputIterator end,
                    ForwardIterator out, Func func) {
-      for (; begin != end; ++begin, ++out) func(*begin, *out);
+      for (; begin != end; ++begin, ++out) { func(*begin, *out); }
     }
 
     // Function template that takes a sequence 'from', a sequence
@@ -248,7 +248,7 @@ namespace edm {
                                        bool allowEarlyDelete) {
     //for now, if have a subProcess, don't allow early delete
     // In the future we should use the SubProcess's 'keep list' to decide what can be kept
-    if(not allowEarlyDelete)  return;
+    if(not allowEarlyDelete) {  return; }
 
     //see if 'canDeleteEarly' was set and if so setup the list with those products actually
     // registered for this job
@@ -414,11 +414,11 @@ namespace edm {
     for (auto const& name : modnames) {
 
       WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
-      if (name[0] == '!')       filterAction = WorkerInPath::Veto;
-      else if (name[0] == '-')  filterAction = WorkerInPath::Ignore;
+      if (name[0] == '!') {       filterAction = WorkerInPath::Veto;
+      } else if (name[0] == '-') {  filterAction = WorkerInPath::Ignore; }
 
       std::string moduleLabel = name;
-      if (filterAction != WorkerInPath::Normal) moduleLabel.erase(0, 1);
+      if (filterAction != WorkerInPath::Normal) { moduleLabel.erase(0, 1); }
 
       bool isTracked;
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
@@ -749,7 +749,7 @@ namespace edm {
 
     if(hint < trig_paths_.size()) {
       itFound = trig_paths_.begin() + hint;
-      if(itFound->name() == iPathLabel) found = true;
+      if(itFound->name() == iPathLabel) { found = true; }
     }
     if(!found) {
       // if the hint did not work, do it the slow way
@@ -758,7 +758,7 @@ namespace edm {
                               std::bind(std::equal_to<std::string>(),
                                         iPathLabel,
                                         std::bind(&Path::name, std::placeholders::_1)));
-      if (itFound != trig_paths_.end()) found = true;
+      if (itFound != trig_paths_.end()) { found = true; }
     }
     if (found) {
       descriptions.reserve(itFound->size());
@@ -778,7 +778,7 @@ namespace edm {
 
     if(hint < end_paths_.size()) {
       itFound = end_paths_.begin() + hint;
-      if(itFound->name() == iEndPathLabel) found = true;
+      if(itFound->name() == iEndPathLabel) { found = true; }
     }
     if(!found) {
       // if the hint did not work, do it the slow way
@@ -787,7 +787,7 @@ namespace edm {
                               std::bind(std::equal_to<std::string>(),
                                         iEndPathLabel,
                                         std::bind(&Path::name, std::placeholders::_1)));
-      if (itFound != end_paths_.end()) found = true;
+      if (itFound != end_paths_.end()) { found = true; }
     }
     if (found) {
       descriptions.reserve(itFound->size());

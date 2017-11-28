@@ -66,7 +66,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     instanceName_(),
     processName_()
   {
-    if (s.size() < 6)
+    if (s.size() < 6) {
       throw edm::Exception(edm::errors::Configuration)
         << "Invalid statement in configuration file\n"
         << "In " << owner << " parameter named '" << parameterName << "'\n"
@@ -74,20 +74,20 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "specify 'keep ' or 'drop ' and also supply a pattern.\n"
 	<< "This is the invalid output configuration rule:\n" 
 	<< "    " << s << "\n"
-        << "Exception thrown from ProductSelectorRules::Rule\n";
+        << "Exception thrown from ProductSelectorRules::Rule\n"; }
 
-    if (s.substr(0,4) == "keep")
+    if (s.substr(0,4) == "keep") {
       selectflag_ = true;
-    else if (s.substr(0,4) == "drop")
+    } else if (s.substr(0,4) == "drop") {
       selectflag_ = false;
-    else
+    } else {
       throw edm::Exception(edm::errors::Configuration)
         << "Invalid statement in configuration file\n"
         << "In " << owner << " parameter named '" << parameterName << "'\n"
         << "Rule must specify 'keep ' or 'drop ' and also supply a pattern.\n"
 	<< "This is the invalid output configuration rule:\n" 
 	<< "    " << s << "\n"
-        << "Exception thrown from ProductSelectorRules::Rule\n";
+        << "Exception thrown from ProductSelectorRules::Rule\n"; }
 
     if ( !std::isspace(s[4]) ) {
 
@@ -175,14 +175,14 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   ProductSelectorRules::Rule::applyToAll(std::vector<BranchSelectState>& branchstates) const {
     std::vector<BranchSelectState>::iterator it = branchstates.begin();
     std::vector<BranchSelectState>::iterator end = branchstates.end();
-    for (; it != end; ++it) applyToOne(it->desc, it->selectMe);
+    for (; it != end; ++it) { applyToOne(it->desc, it->selectMe); }
   }
 
   void
   ProductSelectorRules::applyToAll(std::vector<BranchSelectState>& branchstates) const {
     std::vector<Rule>::const_iterator it = rules_.begin();
     std::vector<Rule>::const_iterator end = rules_.end();
-    for (; it != end; ++it) it->applyToAll(branchstates);
+    for (; it != end; ++it) { it->applyToAll(branchstates); }
   }
 
 //   bool
@@ -201,7 +201,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   ProductSelectorRules::Rule::applyToOne(edm::BranchDescription const* branch,
 		   bool& result) const
   {
-    if (this->appliesTo(branch)) result = selectflag_;    
+    if (this->appliesTo(branch)) { result = selectflag_;     }
   }
 
   bool

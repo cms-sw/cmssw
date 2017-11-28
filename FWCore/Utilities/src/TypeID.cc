@@ -86,9 +86,11 @@ namespace {
       theName = theName.substr(0, idx);
     }
     std::string::size_type idxa = after;
-    while (space == theName[--idxa]) --after;
+    while (space == theName[--idxa]) { --after;
+}
     std::string::size_type idxf = first;
-    while (space == theName[idxf++]) ++first;
+    while (space == theName[idxf++]) { ++first;
+}
     theName = theName.substr(first, after - first);
     return true;
   }

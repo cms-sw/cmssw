@@ -271,7 +271,7 @@ void
     case MessageLoggerQ::LOG_A_MESSAGE:  {
       ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
       try {
-	if(active && !purge_mode) log (errorobj_p);        
+	if(active && !purge_mode) { log (errorobj_p);         }
       }
       catch(cms::Exception& e)
       {
@@ -367,7 +367,7 @@ void
       break;
     }
     case MessageLoggerQ::FLUSH_LOG_Q:  {			// changelog 26
-      if (singleThread) return;
+      if (singleThread) { return; }
       ConfigurationHandshake * h_p = 
 	      static_cast<ConfigurationHandshake *>(operand);
       job_pset_p = std::shared_ptr<PSet>(static_cast<PSet*>(h_p->p)); // propagate_const<T> has no reset() function
@@ -524,7 +524,7 @@ void
   // See if this is just a placeholder			// change log 9
   bool is_placeholder 
       = getAparameter<bool>(dest_pset, "placeholder", false);
-  if (is_placeholder) return;
+  if (is_placeholder) { return; }
   
   // grab this destination's default limit/interval/timespan:
   PSet  dest_default_pset
@@ -538,14 +538,14 @@ void
     = getAparameter<int>(dest_default_pset, "timespan", default_timespan);
     						// change log 1a
   if ( dest_default_limit != NO_VALUE_SET ) {
-    if ( dest_default_limit < 0 ) dest_default_limit = 2000000000;
+    if ( dest_default_limit < 0 ) { dest_default_limit = 2000000000; }
     dest_ctrl->setLimit("*", dest_default_limit );
   } 						// change log 1b, 2a, 2b
   if ( dest_default_interval != NO_VALUE_SET ) {  // change log 6
     dest_ctrl->setInterval("*", dest_default_interval );
   } 						
   if ( dest_default_timespan != NO_VALUE_SET ) {
-    if ( dest_default_timespan < 0 ) dest_default_timespan = 2000000000;
+    if ( dest_default_timespan < 0 ) { dest_default_timespan = 2000000000; }
     dest_ctrl->setTimespan("*", dest_default_timespan );
   } 						// change log 1b, 2a, 2b
     						  
@@ -561,7 +561,7 @@ void
   if (dest_threshold == empty_String) {
     dest_threshold = messageLoggerDefaults->threshold(filename);
   }
-  if (dest_threshold == empty_String) dest_threshold = COMMON_DEFAULT_THRESHOLD;
+  if (dest_threshold == empty_String) { dest_threshold = COMMON_DEFAULT_THRESHOLD; }
   ELseverityLevel  threshold_sev(dest_threshold);
   dest_ctrl->setThreshold(threshold_sev);
   // change log 37
@@ -588,19 +588,19 @@ void
        = getAparameter<int>(default_category_pset, "limit", NO_VALUE_SET);
     int  limit
       = getAparameter<int>(category_pset, "limit", category_default_limit);
-    if (limit == NO_VALUE_SET) limit = dest_default_limit;
+    if (limit == NO_VALUE_SET) { limit = dest_default_limit; }
        								// change log 7 
     int  category_default_interval 
        = getAparameter<int>(default_category_pset, "reportEvery", NO_VALUE_SET);
     int  interval
       = getAparameter<int>(category_pset, "reportEvery",category_default_interval);
-    if (interval == NO_VALUE_SET) interval = dest_default_interval;
+    if (interval == NO_VALUE_SET) { interval = dest_default_interval; }
       						// change log 6  and then 7
     int  category_default_timespan 
        = getAparameter<int>(default_category_pset, "timespan", NO_VALUE_SET);
     int  timespan
       = getAparameter<int>(category_pset, "timespan", category_default_timespan);
-    if (timespan == NO_VALUE_SET) timespan = dest_default_timespan;
+    if (timespan == NO_VALUE_SET) { timespan = dest_default_timespan; }
        								// change log 7 
 
     const std::string& category = msgID;
@@ -615,14 +615,14 @@ void
     }  
      
     if( limit     != NO_VALUE_SET )  {
-      if ( limit < 0 ) limit = 2000000000;  
+      if ( limit < 0 ) { limit = 2000000000;   }
       dest_ctrl->setLimit(msgID, limit);
     }  						// change log 2a, 2b
     if( interval  != NO_VALUE_SET )  {
       dest_ctrl->setInterval(msgID, interval);
     }  						// change log 6
     if( timespan  != NO_VALUE_SET )  {
-      if ( timespan < 0 ) timespan = 2000000000;  
+      if ( timespan < 0 ) { timespan = 2000000000;   }
       dest_ctrl->setTimespan(msgID, timespan);
     }						// change log 2a, 2b
 						
@@ -646,21 +646,21 @@ void
        limit = messageLoggerDefaults->sev_limit(filename,sevID);
     }  
     if( limit    != NO_VALUE_SET )  {
-      if (limit < 0) limit = 2000000000;			// change log 38
+      if (limit < 0) { limit = 2000000000;			// change log 38 }
       dest_ctrl->setLimit(severity, limit   );
     }
     int  interval  = getAparameter<int>(sev_pset, "reportEvery", NO_VALUE_SET);
     if ( interval     == NO_VALUE_SET )  {			// change log 24
        interval = messageLoggerDefaults->sev_reportEvery(filename,sevID);
     }  
-    if( interval != NO_VALUE_SET )  dest_ctrl->setInterval(severity, interval);
+    if( interval != NO_VALUE_SET ) {  dest_ctrl->setInterval(severity, interval); }
 						// change log 2
     int  timespan  = getAparameter<int>(sev_pset, "timespan", NO_VALUE_SET);
     if ( timespan     == NO_VALUE_SET )  {			// change log 24
        timespan = messageLoggerDefaults->sev_timespan(filename,sevID);
     }  
     if( timespan    != NO_VALUE_SET )  {
-      if (timespan < 0) timespan = 2000000000;			// change log 38
+      if (timespan < 0) { timespan = 2000000000;			// change log 38 }
       dest_ctrl->setTimespan(severity, timespan   );
     }
   }  // for
@@ -719,8 +719,8 @@ void
   }
   
   // dial down the early destination if other dest's are supplied:
-  if( ! destinations.empty() )
-    early_dest->setThreshold(ELhighestSeverity);
+  if( ! destinations.empty() ) {
+    early_dest->setThreshold(ELhighestSeverity); }
 
   // establish each destination:
   for( vString::const_iterator it = destinations.begin()
@@ -735,7 +735,7 @@ void
     PSet  dest_pset = getAparameter<PSet>(*job_pset_p, psetname, empty_PSet);
     bool is_placeholder 
 	= getAparameter<bool>(dest_pset, "placeholder", false);
-    if (is_placeholder) continue;
+    if (is_placeholder) { continue; }
 
     // Modify the file name if extension or name is explicitly specified
     // change log 14 
@@ -760,7 +760,7 @@ void
 
     String explicit_filename 
         = getAparameter<String>(dest_pset, "filename", filename_default);
-    if (explicit_filename != empty_String) filename = explicit_filename;
+    if (explicit_filename != empty_String) { filename = explicit_filename; }
     String explicit_extension 
         = getAparameter<String>(dest_pset, "extension", empty_String);
     if (explicit_extension != empty_String) {
@@ -869,7 +869,7 @@ void
     PSet  stat_pset = getAparameter<PSet>(*job_pset_p, psetname, empty_PSet);
     bool is_placeholder 
 	= getAparameter<bool>(stat_pset, "placeholder", false);
-    if (is_placeholder) continue;
+    if (is_placeholder) { continue; }
 
     // Determine the destination file name
     String filename 
@@ -887,7 +887,7 @@ void
 					
     String explicit_filename 
         = getAparameter<String>(stat_pset, "filename", filename);
-    if (explicit_filename != empty_String) filename = explicit_filename;
+    if (explicit_filename != empty_String) { filename = explicit_filename; }
     String explicit_extension 
         = getAparameter<String>(stat_pset, "extension", empty_String);
     if (explicit_extension != empty_String) {
@@ -981,7 +981,7 @@ void
     std::string::size_type j = s.find('|',i);   
     cats.push_back (s.substr(i,j-i));
     i = j;
-    while ( (i != npos) && (s[i] == '|') ) ++i; 
+    while ( (i != npos) && (s[i] == '|') ) { ++i;  }
     // the above handles cases of || and also | at end of string
   } 
   // Note:  This algorithm assigns, as desired, one null category if it
@@ -993,7 +993,7 @@ void
     assert (statisticsDestControls.size() == statisticsResets.size());
     for (unsigned int i = 0; i != statisticsDestControls.size(); ++i) {
       statisticsDestControls[i]->summary( 0 );
-      if (statisticsResets[i]) statisticsDestControls[i]->wipe( );
+      if (statisticsResets[i]) { statisticsDestControls[i]->wipe( ); }
     }
 }
 

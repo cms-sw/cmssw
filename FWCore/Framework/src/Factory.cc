@@ -41,7 +41,7 @@ namespace edm {
     {
       std::unique_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
       
-      if(wm.get()==nullptr)
+      if(wm.get()==nullptr) {
         throw edm::Exception(errors::Configuration,"UnknownModule")
         << "Module " << modtype
         << " with version " << p.processConfiguration_->releaseVersion()
@@ -49,7 +49,7 @@ namespace edm {
         << "Perhaps your module type is misspelled or is not a "
         << "framework plugin.\n"
         << "Try running EdmPluginDump to obtain a list of "
-        << "available Plugins.";
+        << "available Plugins."; }
       
       FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
       

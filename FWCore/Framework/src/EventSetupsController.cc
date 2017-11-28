@@ -312,7 +312,7 @@ namespace edm {
       // Loop over SubProcesses, skip the top level process.
       auto esProvider = providers_.begin();
       auto esProviderEnd = providers_.end();
-      if (esProvider != esProviderEnd) ++esProvider;
+      if (esProvider != esProviderEnd) { ++esProvider; }
       for ( ; esProvider != esProviderEnd; ++esProvider) {
 
         // An element is added to this set for each ESProducer

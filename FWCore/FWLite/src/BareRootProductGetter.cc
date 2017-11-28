@@ -172,7 +172,8 @@ BareRootProductGetter::getThinnedProduct(edm::ProductID const& pid, unsigned int
 
   Long_t eventEntry = branchMap_.getEventTree()->GetReadEntry();
   edm::BranchID parent = branchMap_.productToBranchID(pid);
-  if(!parent.isValid()) return nullptr;
+  if(!parent.isValid()) { return nullptr;
+}
   edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper = branchMap_.thinnedAssociationsHelper();
 
   // Loop over thinned containers which were made by selecting elements from the parent container
@@ -182,7 +183,8 @@ BareRootProductGetter::getThinnedProduct(edm::ProductID const& pid, unsigned int
 
     edm::ThinnedAssociation const* thinnedAssociation =
       getThinnedAssociation(associatedBranches->association(), eventEntry);
-    if(thinnedAssociation == nullptr) continue;
+    if(thinnedAssociation == nullptr) { continue;
+}
 
     if(associatedBranches->parent() != branchMap_.productToBranchID(thinnedAssociation->parentCollectionID())) {
       continue;
@@ -221,7 +223,8 @@ BareRootProductGetter::getThinnedProducts(edm::ProductID const& pid,
 
   Long_t eventEntry = branchMap_.getEventTree()->GetReadEntry();
   edm::BranchID parent = branchMap_.productToBranchID(pid);
-  if(!parent.isValid()) return;
+  if(!parent.isValid()) { return;
+}
   edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper = branchMap_.thinnedAssociationsHelper();
 
   // Loop over thinned containers which were made by selecting elements from the parent container
@@ -231,7 +234,8 @@ BareRootProductGetter::getThinnedProducts(edm::ProductID const& pid,
 
     edm::ThinnedAssociation const* thinnedAssociation =
       getThinnedAssociation(associatedBranches->association(), eventEntry);
-    if(thinnedAssociation == nullptr) continue;
+    if(thinnedAssociation == nullptr) { continue;
+}
 
     if(associatedBranches->parent() != branchMap_.productToBranchID(thinnedAssociation->parentCollectionID())) {
       continue;
@@ -243,9 +247,11 @@ BareRootProductGetter::getThinnedProducts(edm::ProductID const& pid,
     bool hasAny = false;
     for(unsigned k = 0; k < nKeys; ++k) {
       // Already found this one
-      if(foundContainers[k] != nullptr) continue;
+      if(foundContainers[k] != nullptr) { continue;
+}
       // Already know this one is not in this thinned container
-      if(keys[k] == doNotLookForThisIndex) continue;
+      if(keys[k] == doNotLookForThisIndex) { continue;
+}
       // Does the thinned container hold the entry of interest?
       // Modifies thinnedIndexes[k] only if it returns true and
       // sets it to the index in the thinned collection.
@@ -266,13 +272,16 @@ BareRootProductGetter::getThinnedProducts(edm::ProductID const& pid,
       // which were made by selecting elements from this thinned container.
       getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes);
       for(unsigned k = 0; k < nKeys; ++k) {
-        if(foundContainers[k] == nullptr) continue;
-        if(thinnedIndexes[k] == doNotLookForThisIndex) continue;
+        if(foundContainers[k] == nullptr) { continue;
+}
+        if(thinnedIndexes[k] == doNotLookForThisIndex) { continue;
+}
         keys[k] = thinnedIndexes[k];
       }
     } else {
       for(unsigned k = 0; k < nKeys; ++k) {
-        if(thinnedIndexes[k] == doNotLookForThisIndex) continue;
+        if(thinnedIndexes[k] == doNotLookForThisIndex) { continue;
+}
         keys[k] = thinnedIndexes[k];
         foundContainers[k] = thinnedCollection;
       }

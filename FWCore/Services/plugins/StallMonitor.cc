@@ -74,7 +74,7 @@ namespace {
       auto const thisTime = ms.count();
       totalTime_ += thisTime;
       rep_t max {maxTime_};
-      while (thisTime > max && !maxTime_.compare_exchange_strong(max, thisTime));
+      while (thisTime > max && !maxTime_.compare_exchange_strong(max, thisTime)) {; }
     }
 
   private:
@@ -278,7 +278,7 @@ void StallMonitor::postBeginJob()
 
     for (std::size_t i{} ; i < moduleLabels_.size(); ++i) {
       auto const& label = moduleLabels_[i];
-      if (label.empty()) continue; // See comment in filling of moduleLabels_;
+      if (label.empty()) { continue; // See comment in filling of moduleLabels_; }
       oss << "#M " << std::setw(width) << std::left << col0(i) << space
           << std::left << moduleLabels_[i] << '\n';
     }
@@ -347,7 +347,7 @@ void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext 
 
   if( milliseconds::duration::zero() != startT) {
     auto const preFetch_to_preModEvent = duration_cast<milliseconds>(preModEvent-start);
-    if (preFetch_to_preModEvent < stallThreshold_) return;
+    if (preFetch_to_preModEvent < stallThreshold_) { return; }
     moduleStats_[mid].update(preFetch_to_preModEvent);
   }
 }
@@ -386,7 +386,7 @@ void StallMonitor::postEndJob()
   // Prepare summary
   std::size_t width {};
   edm::for_all(moduleStats_, [&width](auto const& stats) {
-      if (stats.numberOfStalls() == 0u) return;
+      if (stats.numberOfStalls() == 0u) { return; }
       width = std::max(width, stats.label().size());
     });
 
@@ -423,7 +423,7 @@ void StallMonitor::postEndJob()
   out << std::setfill(' ');
   for (auto const& stats : moduleStats_) {
     if (stats.label().empty() ||  // See comment in filling of moduleLabels_;
-        stats.numberOfStalls() == 0u) continue;
+        stats.numberOfStalls() == 0u) { continue; }
     out << std::left
         << tag << space
         << col1(stats.label()) << space

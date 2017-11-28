@@ -141,8 +141,8 @@ ELstatistics::~ELstatistics()  {
     std::cerr << "Destructor for ELstatistics\n";
   #endif
 
-  if ( updatedStats && printAtTermination )
-    summary( termStream, "Termination Summary" );
+  if ( updatedStats && printAtTermination ) {
+    summary( termStream, "Termination Summary" ); }
 
 }  // ~ELstatistics()
 
@@ -153,18 +153,18 @@ ELstatistics::~ELstatistics()  {
 
 static  std::string summarizeContext(const std::string& c)
   {
-    if ( c.substr (0,4) != "Run:" ) return c;
+    if ( c.substr (0,4) != "Run:" ) { return c; }
     std::istringstream is (c);
     std::string runWord;
     int run;
     is >> runWord >> run;
-    if (!is) return c;
-    if (runWord != "Run:") return c;
+    if (!is) { return c; }
+    if (runWord != "Run:") { return c; }
     std::string eventWord;
     int event;
     is >> eventWord >> event;
-    if (!is) return c;
-    if (eventWord != "Event:") return c;
+    if (!is) { return c; }
+    if (eventWord != "Event:") { return c; }
     std::ostringstream os;
     os << run << "/" << event;
     return os.str();
@@ -179,8 +179,8 @@ bool  ELstatistics::log( const edm::ErrorObj & msg )  {
 
   // See if this message is to be counted.
 
-  if ( msg.xid().severity < threshold )        return false;
-  if ( thisShouldBeIgnored(msg.xid().module) ) return false;
+  if ( msg.xid().severity < threshold ) {        return false; }
+  if ( thisShouldBeIgnored(msg.xid().module) ) { return false; }
 
   // Account for this message, making a new table entry if needed:
   //
@@ -315,7 +315,7 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
     bool groupIgnored = true;
     for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
       if ( (*i).first.id == *g ) {
-        if (groupTotal==0) severityLevel = (*i).first.severity;
+        if (groupTotal==0) { severityLevel = (*i).first.severity; }
 	groupIgnored &= (*i).second.ignoredFlag;
 	groupAggregateN += (*i).second.aggregateN;
         ++groupTotal;
@@ -345,9 +345,9 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
 
   // -----  Provide footnote to part I, if needed:
   //
-  if ( ftnote )
+  if ( ftnote ) {
     s << "\n* Some occurrences of this message"
-         " were suppressed in all logs, due to limits.\n"
+         " were suppressed in all logs, due to limits.\n" }
       ;
 
   // -----  Summary part II:
@@ -445,7 +445,7 @@ void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
     std::ostringstream s;
     s << "Category_";
     std::string sevSymbol = (*i).first.severity.getSymbol();
-    if ( sevSymbol[0] == '-' ) sevSymbol = sevSymbol.substr(1);
+    if ( sevSymbol[0] == '-' ) { sevSymbol = sevSymbol.substr(1); }
     s << sevSymbol << "_" << (*i).first.id;
     int n = (*i).second.aggregateN;    
     std::string catstr = s.str();
@@ -468,7 +468,7 @@ void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
     ELseverityLevel severityLevel;
     for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
       if ( (*i).first.id == *g ) {
-        if (groupTotal==0) severityLevel = (*i).first.severity;
+        if (groupTotal==0) { severityLevel = (*i).first.severity; }
 	groupAggregateN += (*i).second.aggregateN;
         ++groupTotal;
       } 
@@ -479,7 +479,7 @@ void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
       std::ostringstream s;
       s << "Category_";
       std::string sevSymbol = severityLevel.getSymbol();
-      if ( sevSymbol[0] == '-' ) sevSymbol = sevSymbol.substr(1);
+      if ( sevSymbol[0] == '-' ) { sevSymbol = sevSymbol.substr(1); }
       s << sevSymbol << "_" << *g;
       int n = groupAggregateN;    
       std::string catstr = s.str();
@@ -506,8 +506,8 @@ void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
     if (true) {
       std::string sevName;
       sevName = ELseverityLevel( ELseverityLevel::ELsev_(k) ).getName();
-      if (sevName == "Severe")  sevName = "System";
-      if (sevName == "Success") sevName = "Debug";
+      if (sevName == "Severe") {  sevName = "System"; }
+      if (sevName == "Success") { sevName = "Debug"; }
       sevName = std::string("Log")+sevName;
       sevName = dualLogName(sevName);
       if (sevName != "UnusedSeverity") {
@@ -520,11 +520,11 @@ void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
 
 std::string ELstatistics::dualLogName (std::string const & s) 
 {
-  if (s=="LogDebug")   return  "LogDebug_LogTrace";
-  if (s=="LogInfo")    return  "LogInfo_LogVerbatim";
-  if (s=="LogWarning") return  "LogWarnng_LogPrint";
-  if (s=="LogError")   return  "LogError_LogProblem";
-  if (s=="LogSystem")  return  "LogSystem_LogAbsolute";
+  if (s=="LogDebug") {   return  "LogDebug_LogTrace"; }
+  if (s=="LogInfo") {    return  "LogInfo_LogVerbatim"; }
+  if (s=="LogWarning") { return  "LogWarnng_LogPrint"; }
+  if (s=="LogError") {   return  "LogError_LogProblem"; }
+  if (s=="LogSystem") {  return  "LogSystem_LogAbsolute"; }
   return "UnusedSeverity";
 }
 

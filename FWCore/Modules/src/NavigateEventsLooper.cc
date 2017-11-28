@@ -165,7 +165,7 @@ namespace edm {
   EDLooperBase::Status
   NavigateEventsLooper::endOfLoop(EventSetup const&, unsigned int /*iCounter*/) {
     std::cout << "Ending loop" << std::endl;
-    if(shouldStopProcess_) return kStop;
+    if(shouldStopProcess_) { return kStop; }
     ++countLoops_;
     return(maxLoops_ < 0 || countLoops_ < maxLoops_) ? kContinue : kStop;
   }

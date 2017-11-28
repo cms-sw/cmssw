@@ -110,9 +110,9 @@ namespace edm {
 
       if (dfh.brief()) {
 
-        if (optional)  os << " optional";
+        if (optional) {  os << " optional"; }
 
-        if (!writeToCfi) os << " (do not write to cfi)";
+        if (!writeToCfi) { os << " (do not write to cfi)"; }
 
         os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
       }
@@ -122,8 +122,8 @@ namespace edm {
         os << "\n";
         dfh.indent2(os);
 
-        if (optional)  os << "optional";
-        if (!writeToCfi) os << " (do not write to cfi)";
+        if (optional) {  os << "optional"; }
+        if (!writeToCfi) { os << " (do not write to cfi)"; }
         if (optional || !writeToCfi) {
           os << "\n";
           dfh.indent2(os);
@@ -174,7 +174,7 @@ namespace edm {
     else {
       os << "This AND group requires all of the following to be in the PSet\n";
     }
-    if (!dfh.brief()) os << "\n";
+    if (!dfh.brief()) { os << "\n"; }
 
     DocFormatHelper new_dfh(dfh);
     new_dfh.init();

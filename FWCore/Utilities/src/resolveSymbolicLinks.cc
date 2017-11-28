@@ -11,8 +11,10 @@ namespace edm {
   namespace {
     namespace bf = boost::filesystem;
     bool resolveOneSymbolicLink(std::string& fullPath) {
-      if(fullPath.empty()) return false;
-      if(fullPath[0] != '/') return false;
+      if(fullPath.empty()) { return false;
+}
+      if(fullPath[0] != '/') { return false;
+}
       std::string pathToResolve;
       std::vector<std::string> pathElements = edm::tokenize(fullPath, "/");
       for(auto const& path : pathElements) {

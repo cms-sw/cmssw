@@ -325,13 +325,13 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   // See if this message is to be acted upon, and add it to limits table
   // if it was not already present:
   //
-  if ( xid.severity < threshold        )  return false;
+  if ( xid.severity < threshold        ) {  return false; }
   if ( thisShouldBeIgnored(xid.module) 
-  	&& (xid.severity < ELsevere) /* change log 2 */ )  
-					  return false;
+  	&& (xid.severity < ELsevere) /* change log 2 */ ) {  
+					  return false; }
   if ( ! limits.add( xid )              
-    	&& (xid.severity < ELsevere) /* change log 2 */ )  
-					  return false;
+    	&& (xid.severity < ELsevere) /* change log 2 */ ) {  
+					  return false; }
 
   #ifdef ELoutputTRACE_LOG
     std::cerr << "    =:=:=: Limits table work done \n";
@@ -585,9 +585,9 @@ void ELoutput::emitToken( const ELstring & s, bool nl )  {
 
     if (last == '\n' || last2 == '\n')  {  //accounts for newline @ end    $$ JV:2
       (*os) << indent;                    //of the ELstring
-      if (last != ' ')
+      if (last != ' ') {
 	(*os) << ' ';
-      charsOnLine = indent.length() + 1;
+       }charsOnLine = indent.length() + 1;
     }
 
     if ( nl )  { (*os) << newline << std::flush; charsOnLine = 0;           }

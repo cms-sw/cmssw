@@ -31,7 +31,7 @@ namespace edm {
   unsigned int
   TriggerNames::triggerIndex(const std::string& name) const {
     IndexMap::const_iterator const pos = indexMap_.find(name);
-    if (pos == indexMap_.end()) return indexMap_.size();
+    if (pos == indexMap_.end()) { return indexMap_.size(); }
     return pos->second;
   }
 

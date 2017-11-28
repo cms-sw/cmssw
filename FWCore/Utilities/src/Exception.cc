@@ -83,7 +83,8 @@ namespace cms {
     ost_ << message;
     if(!message.empty()) {
 	unsigned sz = message.size()-1;
-	if(message[sz] != '\n' && message[sz] != ' ') ost_ << " ";
+	if(message[sz] != '\n' && message[sz] != ' ') { ost_ << " ";
+}
     }
   }
 

@@ -136,11 +136,11 @@ namespace edm {
         rec->fillRegisteredDataKeys(data);
         if (compact_) {
           for (Data::iterator itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata) {
-            if (not msg)
+            if (not msg) {
               msg.reset(new LogSystem("ESContent"));
-            else
+            } else {
               *msg << '\n';
-            *msg << "ESContent> " << "record:" << itrecords->name() << " data:" << itdata->type().name() << " '" << itdata->name().value() << "'";
+             }*msg << "ESContent> " << "record:" << itrecords->name() << " data:" << itdata->type().name() << " '" << itdata->name().value() << "'";
             if (printProviders_) {
               edm::eventsetup::ComponentDescription const* cd = rec->providerDescription(*itdata);
               *msg << " provider:" << cd->type_ << " '" << cd->label_ << "'";
