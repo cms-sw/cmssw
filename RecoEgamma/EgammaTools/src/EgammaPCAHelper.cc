@@ -189,7 +189,7 @@ void EGammaPCAHelper::computePCA(float radius , bool withHalo) {
     barycenter_ = math::XYZPoint(means[0], means[1], means[2]);
     axis_ = math::XYZVector(eigens(0, 0), eigens(1, 0), eigens(2, 0));
     if (axis_.z() * barycenter_.z() < 0.0) {
-        axis_ = math::XYZVector(-eigens(0, 0), -eigens(1, 0), -eigens(2, 0));
+        axis_ = -1. * axis_;
     }
 }
 
@@ -220,10 +220,11 @@ void EGammaPCAHelper::computePCA(float radius , bool withHalo) {
     }
 
   if (cyl_ene > 0.) {
-    sigu_ = sigu_ / cyl_ene;
-    sigv_ = sigv_ / cyl_ene;
-    sigp_ = sigp_ / cyl_ene;
-    sige_ = sige_ / cyl_ene;
+    const double inv_cyl_ene = 1. / cyl_ene;
+    sigu_ = sigu_ * inv_cyl_ene;
+    sigv_ = sigv_ * inv_cyl_ene;
+    sigp_ = sigp_ * inv_cyl_ene;
+    sige_ = sige_ * inv_cyl_ene;
   }
   sigu_ = std::sqrt(sigu_);
   sigv_ = std::sqrt(sigv_);
