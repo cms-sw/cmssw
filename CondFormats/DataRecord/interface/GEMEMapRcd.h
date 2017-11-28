@@ -1,5 +1,5 @@
-#ifndef GEMEMapRcd_GEMEMapRcd_h
-#define GEMEMapRcd_GEMEMapRcd_h
+#ifndef DataRecord_GEMEMapRcd_h
+#define DataRecord_GEMEMapRcd_h
 // -*- C++ -*-
 //
 // Package:     CondFormats/DataRecord
