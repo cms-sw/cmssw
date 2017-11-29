@@ -120,7 +120,7 @@ private:
   TH1F** _subDetectorrun;
   TH1F** _fedrun;
 
-  TkHistoMap *tkhisto,*tkhisto2;
+  std::unique_ptr<TkHistoMap> tkhisto, tkhisto2;
 
   // DetCabling
   bool _useCabling;
@@ -217,8 +217,8 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
    _medianVsFED->GetXaxis()->SetTitle("fedId");_medianVsFED->GetYaxis()->SetTitle("Charge [ADC]");  _median->GetZaxis()->SetTitle("Shots");
  }
 
- tkhisto      =new TkHistoMap("ShotMultiplicity","ShotMultiplicity",-1);
- tkhisto2      =new TkHistoMap("StripMultiplicity","StripMultiplicity",-1);
+ tkhisto = nullptr;
+ tkhisto2 = nullptr;
 }
 
 
@@ -245,6 +245,15 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    if (_useCabling){
      //retrieve cabling
      updateDetCabling( iSetup );
+   }
+
+   if ( ! ( tkhisto && tkhisto2 ) ) {
+     edm::ESHandle<TkDetMap> tkDetMapHandle;
+     iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+     const TkDetMap* tkDetMap = tkDetMapHandle.product();
+
+     tkhisto = std::make_unique<TkHistoMap>(tkDetMap, "ShotMultiplicity","ShotMultiplicity",-1);
+     tkhisto2 = std::make_unique<TkHistoMap>(tkDetMap, "StripMultiplicity","StripMultiplicity",-1);
    }
 
    _nevents++;

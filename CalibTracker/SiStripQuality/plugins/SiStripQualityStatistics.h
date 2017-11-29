@@ -49,6 +49,6 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
 
   TrackerMap * tkMap, *tkMapFullIOVs;
   SiStripDetInfoFileReader* reader;
-  TkHistoMap* tkhisto;
+  std::unique_ptr<TkHistoMap> tkhisto;
 };
 #endif

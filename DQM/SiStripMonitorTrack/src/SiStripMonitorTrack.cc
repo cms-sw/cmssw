@@ -5,7 +5,6 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
@@ -86,8 +85,9 @@ void SiStripMonitorTrack::bookHistograms(DQMStore::IBooker & ibooker , const edm
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-  book(ibooker , tTopo);
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  es.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  book(ibooker, tTopoHandle.product(), tkDetMapHandle.product());
 }
 
 // ------------ method called to produce the data  ------------
@@ -150,28 +150,27 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
 }
 
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopology* tTopo)
+void SiStripMonitorTrack::book(DQMStore::IBooker& ibooker, const TrackerTopology* tTopo, const TkDetMap* tkDetMap)
 {
 
   SiStripFolderOrganizer folder_organizer;
   folder_organizer.setSiStripFolderName(topFolderName_);
   //******** TkHistoMaps
   if (TkHistoMap_On_) {
-    tkhisto_StoNCorrOnTrack = new TkHistoMap(ibooker , topFolderName_ ,"TkHMap_StoNCorrOnTrack",         0.0,true);
-    tkhisto_NumOnTrack      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberOfOnTrackCluster",  0.0,true);
-    tkhisto_NumOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberOfOfffTrackCluster",0.0,true);
-    tkhisto_ClChPerCMfromTrack  = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ChargePerCMfromTrack",0.0,true);
-    tkhisto_NumMissingHits      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberMissingHits",0.0,true);
-    tkhisto_NumberInactiveHits  = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberInactiveHits",0.0,true);
-    tkhisto_NumberValidHits     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberValidHits",0.0,true);
-    tkhisto_NoiseOnTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NoiseOnTrack",0.0,true);
-    tkhisto_NoiseOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NoiseOffTrack",0.0,true);
-    tkhisto_ClusterWidthOnTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ClusterWidthOnTrack",0.0,true);
-    tkhisto_ClusterWidthOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ClusterWidthOffTrack",0.0,true);
-
+    tkhisto_StoNCorrOnTrack      = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_ ,"TkHMap_StoNCorrOnTrack",         0.0,true);
+    tkhisto_NumOnTrack           = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_NumberOfOnTrackCluster",  0.0,true);
+    tkhisto_NumOffTrack          = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_NumberOfOfffTrackCluster",0.0,true);
+    tkhisto_ClChPerCMfromTrack   = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_ChargePerCMfromTrack",0.0,true);
+    tkhisto_NumMissingHits       = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_NumberMissingHits",0.0,true);
+    tkhisto_NumberInactiveHits   = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_NumberInactiveHits",0.0,true);
+    tkhisto_NumberValidHits      = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_NumberValidHits",0.0,true);
+    tkhisto_NoiseOnTrack         = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_NoiseOnTrack",0.0,true);
+    tkhisto_NoiseOffTrack        = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_NoiseOffTrack",0.0,true);
+    tkhisto_ClusterWidthOnTrack  = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_ClusterWidthOnTrack",0.0,true);
+    tkhisto_ClusterWidthOffTrack = std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_ClusterWidthOffTrack",0.0,true);
   }
   if (clchCMoriginTkHmap_On_)
-    tkhisto_ClChPerCMfromOrigin = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ChargePerCMfromOrigin",0.0,true);
+    tkhisto_ClChPerCMfromOrigin = std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_, "TkHMap_ChargePerCMfromOrigin",0.0,true);
   //******** TkHistoMaps
 
   std::vector<uint32_t> vdetId_;
@@ -1598,16 +1597,5 @@ bool SiStripMonitorTrack::clusterInfos(
     }
   }
   return true;
-  delete tkhisto_StoNCorrOnTrack;
-  delete tkhisto_NumOnTrack;
-  delete tkhisto_NumOffTrack;
-  delete tkhisto_ClChPerCMfromTrack;
-  delete tkhisto_NumMissingHits;
-  delete tkhisto_NumberInactiveHits;
-  delete tkhisto_NumberValidHits;
-  delete tkhisto_NoiseOnTrack;
-  delete tkhisto_NoiseOffTrack;
-  delete tkhisto_ClusterWidthOnTrack;
-  delete tkhisto_ClusterWidthOffTrack;
 }
 //--------------------------------------------------------------------------------

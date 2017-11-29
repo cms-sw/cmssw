@@ -38,5 +38,4 @@ siStripQTesterHI = cms.EDAnalyzer("QualityTester",
 SiStripOfflineDQMClientHI = cms.Sequence(siStripQTesterHI*siStripOfflineAnalyser)
 
 # Services needed for TkHistoMap
-TkDetMap = cms.Service("TkDetMap")
-SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
+from CalibTracker.SiStripCommon.TkDetMap_cff import *
