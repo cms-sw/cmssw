@@ -64,11 +64,11 @@ class SiStripTrackerMapCreator {
   bool ResidualsRMS_;
   std::string ssqLabel_;
   int   nDet;
-  TkDetMap* tkDetMap_;
+  const TkDetMap* tkDetMap_;
   const edm::EventSetup& eSetup_;
   edm::ESHandle< SiStripDetCabling > detcabling_;
   //  SiStripPsuDetIdMap psumap_;
-  uint32_t cached_detid;
+  DetId cached_detid;
   int16_t cached_layer;
   std::map<uint32_t, uint16_t> detflag_;
   TkLayerMap::XYbin cached_XYbin;

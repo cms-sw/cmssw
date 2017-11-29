@@ -35,14 +35,11 @@ SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iCo
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   saveTkHistoMap_(iConfig.getUntrackedParameter<bool>("SaveTkHistoMap",true)),
   tkMap(nullptr),tkMapFullIOVs(nullptr)
-{  
+{
   reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
   tkMapFullIOVs=new TrackerMap( "BadComponents" );
   tkhisto=nullptr;
-  if (TkMapFileName_!=""){
-    tkhisto   =new TkHistoMap("BadComp","BadComp",-1.); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
-  }
 }
 
 void SiStripQualityStatistics::endJob(){
@@ -65,6 +62,12 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
+  if ( ( ! tkhisto ) && ( ! TkMapFileName_.empty() ) ) {
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
+    tkhisto = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "BadComp","BadComp",-1.);
+  }
 
   unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
 

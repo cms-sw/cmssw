@@ -180,7 +180,11 @@ void SiStripCMMonitorPlugin::bookHistograms(DQMStore::IBooker & ibooker , const 
 {
   ibooker.setCurrentFolder(folderName_);
 
-  cmHists_.bookTopLevelHistograms(ibooker);
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  const TkDetMap* tkDetMap = tkDetMapHandle.product();
+
+  cmHists_.bookTopLevelHistograms(ibooker, tkDetMap);
 
   if (fillAllDetailedHistograms_) cmHists_.bookAllFEDHistograms(ibooker);
 }

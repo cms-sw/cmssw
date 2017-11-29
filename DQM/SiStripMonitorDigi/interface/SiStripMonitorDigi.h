@@ -143,7 +143,7 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   //Global MEs to monitor APV Shots properties
   MonitorElement *NApvShotsGlobal, *NApvShotsGlobalProf, *MedianChargeApvShotsGlobal, *NApvApvShotsGlobal, *StripMultiplicityApvShotsGlobal, *ShotsVsTimeApvShotsGlobal;
 
-  TkHistoMap* tkmapdigi, *tkmapNApvshots, *tkmapNstripApvshot, *tkmapMedianChargeApvshots;
+  std::unique_ptr<TkHistoMap> tkmapdigi, tkmapNApvshots, tkmapNstripApvshot, tkmapMedianChargeApvshots;
 
   int runNb, eventNb;
   int firstEvent;

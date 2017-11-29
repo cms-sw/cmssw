@@ -9,6 +9,8 @@
 
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/Common/interface/Time.h"
@@ -86,9 +88,12 @@ void SiStripDetVOffTkMapPlotter::analyze(const edm::Event& evt, const edm::Event
       << "Make tkMap for IOV " << theIov << " (" << boost::posix_time::to_simple_string(cond::time::to_boost(theIov)) << ")";
   auto payload = condDbSession.fetchPayload<SiStripDetVOff>( (*iiov).payloadId );
 
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  evtSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  const TkDetMap* tkDetMap = tkDetMapHandle.product();
   TrackerMap lvmap,hvmap;
-  TkHistoMap lvhisto("LV_Status","LV_Status",-1);
-  TkHistoMap hvhisto("HV_Status","HV_Status",-1);
+  TkHistoMap lvhisto(tkDetMap, "LV_Status","LV_Status",-1);
+  TkHistoMap hvhisto(tkDetMap, "HV_Status","HV_Status",-1);
 
   auto detids = detidReader->getAllDetIds();
   for (auto id : detids){
