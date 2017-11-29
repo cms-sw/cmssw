@@ -30,9 +30,6 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
   eminHitD(0), m_trackManager(manager), currentHit(nullptr), runInit(false),
   timeSlice(timeSliceUnit), ignoreTrackID(ignoreTkID), hcID(-1), theHC(nullptr), 
   meanResponse(nullptr) {
-  //Add Hcal Sentitive Detector Names
-
-  collectionName.insert(name);
 
   //Parameters
   edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
@@ -64,17 +61,6 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
       break;
     }
   }
-#ifdef DebugLog
-  LogDebug("CaloSim") << "***************************************************" 
-                      << "\n"
-                      << "*                                                 *" 
-                      << "\n"
-                      << "* Constructing a CaloSD  with name " << GetName()
-                      << "\n"
-                      << "*                                                 *" 
-                      << "\n"
-                      << "***************************************************";
-#endif
   slave      = new CaloSlaveSD(name);
   currentID  = CaloHitID(timeSlice, ignoreTrackID);
   previousID = CaloHitID(timeSlice, ignoreTrackID);
@@ -83,18 +69,6 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
   cleanIndex = 0;
   totalHits = 0;
   forceSave = false;
-
-  //
-  // Now attach the right detectors (LogicalVolumes) to me
-  //
-  const std::vector<std::string>& lvNames = clg.logicalNames(name);
-  this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin(); it !=lvNames.end(); ++it) {
-    this->AssignSD(*it);
-#ifdef DebugLog
-    LogDebug("CaloSim") << "CaloSD : Assigns SD to LV " << (*it);
-#endif
-  }
 
   edm::LogInfo("CaloSim") << "CaloSD: Minimum energy of track for saving it " 
                           << energyCut/GeV  << " GeV" << "\n"
@@ -111,9 +85,9 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
 }
 
 CaloSD::~CaloSD() { 
-  if (slave)           delete slave; 
-  if (theHC)           delete theHC;
-  if (meanResponse)    delete meanResponse;
+  delete slave; 
+  delete theHC;
+  delete meanResponse;
 }
 
 bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {

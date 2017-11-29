@@ -46,38 +46,14 @@ FastTimerSD::FastTimerSD(const std::string& name, const DDCompactView & cpv,
   currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
   postStepPoint(nullptr), eventno(0) {
     
-  //Add FastTimer Sentitive Detector Name
-  collectionName.insert(name);
-    
-    
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("FastTimerSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
     
   SetVerboseLevel(verbn);
-#ifdef EDM_ML_DEBUG
-  std::cout << "*******************************************************\n"
-	    << "*                                                     *\n"
-	    << "* Constructing a FastTimerSD  with name " << name << "\n"
-	    << "*                                                     *\n"
-	    << "*******************************************************\n";
-#endif    
     
   slave  = new TrackingSlaveSD(name);
-    
-  //
-  // attach detectors (LogicalVolumes)
-  //
-  std::vector<std::string> lvNames = clg.logicalNames(name);
-
-  this->Register();
-
-  for (std::vector<std::string>::iterator it=lvNames.begin();  
-       it !=lvNames.end(); it++) {
-    this->AssignSD(*it);
-    edm::LogInfo("FastTimerSim") << "FastTimerSD : Assigns SD to LV " << (*it);
-  }
-    
+        
   std::string attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,name,0)};
   DDFilteredView fv(cpv,filter);

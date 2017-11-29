@@ -66,9 +66,10 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
   energyCut           = m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV")*GeV; //default must be 0.5
   energyHistoryCut    = m_TrackerSD.getParameter<double>("EnergyThresholdForHistoryInGeV")*GeV;//default must be 0.05
 
-  edm::LogInfo("TrackerSimInfo") <<"Criteria for Saving Tracker SimTracks:  ";
-  edm::LogInfo("TrackerSimInfo")<<" History: "<<energyHistoryCut<< " MeV ; Persistency: "<< energyCut<<" MeV ";
-  edm::LogInfo("TrackerSimInfo")<<" Constructing a TkAccumulatingSensitiveDetector with ";
+  edm::LogInfo("TrackerSimInfo")<<" TkAccumulatingSensitiveDetector: " 
+                                <<" Criteria for Saving Tracker SimTracks: \n"
+                                <<" History: "<<energyHistoryCut<< " MeV ; Persistency: "
+                                << energyCut<<" MeV ";
 
 #ifndef FAKEFRAMEROTATION
   // No Rotation given in input, automagically choose one based upon the name
@@ -97,15 +98,6 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
   temp.push_back(slaveLowTof->name());
   temp.push_back(slaveHighTof->name());
   setNames(temp);  
-
-  // Now attach the right detectors (LogicalVolumes) to me
-  const std::vector<std::string>&  lvNames = clg.logicalNames(name);
-  this->Register();
-  for (auto & lvnam : lvNames)
-    {
-      edm::LogInfo("TrackerSimInfo")<< name << " attaching LV " << lvnam;
-      this->AssignSD(lvnam);
-    }
 
   theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
   myG4TrackToParticleID = new G4TrackToParticleID;

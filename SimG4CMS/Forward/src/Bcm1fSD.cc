@@ -41,21 +41,12 @@ Bcm1fSD::Bcm1fSD(const std::string& name, const DDCompactView & cpv,
   energyCut           = m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV")*GeV; //default must be 0.5 (?)
   energyHistoryCut    = m_TrackerSD.getParameter<double>("EnergyThresholdForHistoryInGeV")*GeV;//default must be 0.05 (?)
 
-  edm::LogInfo("Bcm1fSD") <<"Criteria for Saving Tracker SimTracks: \n "
-				       <<" History: "<<energyHistoryCut<< " MeV ; Persistency: "<< energyCut<<" MeV\n"
-				       <<" Constructing a Bcm1fSD with ";
+  edm::LogInfo("Bcm1fSD") <<" Criteria for Saving Tracker SimTracks: \n "
+			  <<" History: "<<energyHistoryCut<< " MeV ; Persistency: "
+			  << energyCut<<" MeV\n" <<" Constructing a Bcm1fSD";
 
   slave  = new TrackingSlaveSD(name);
   
-  // Now attach the right detectors (LogicalVolumes) to me
-  std::vector<std::string>  lvNames = clg.logicalNames(name);
-  this->Register();
-  for (std::vector<std::string>::iterator it = lvNames.begin(); it != lvNames.end(); it++)
-  {
-     edm::LogInfo("Bcm1fSD")<< name << " attaching LV " << *it;
-     this->AssignSD(*it);
-  }
-
   theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
   myG4TrackToParticleID = new G4TrackToParticleID;
 }

@@ -22,30 +22,10 @@ HFChamberSD::HFChamberSD(const std::string& name, const DDCompactView & cpv,
   SensitiveCaloDetector(name, cpv, clg, p), 
   m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {
 
-  collectionName.insert(name);
-  LogDebug("FiberSim") << "***************************************************"
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "* Constructing a HFChamberSD  with name " << GetName()
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "***************************************************";
-  //
-  // Now attach the right detectors (LogicalVolumes) to me
-  //
-  const std::vector<std::string>& lvNames = clg.logicalNames(name);
-  this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++){
-    this->AssignSD(*it);
-    LogDebug("FiberSim") << "HFChamberSD : Assigns SD to LV " << (*it);
-  }
 }
 
 HFChamberSD::~HFChamberSD() {
-  if (theHC)    delete theHC;
+  delete theHC;
 }
 
 void HFChamberSD::Initialize(G4HCofThisEvent * HCE) {

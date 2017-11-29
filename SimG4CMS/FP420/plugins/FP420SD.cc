@@ -51,39 +51,15 @@ FP420SD::FP420SD(const std::string& name, const DDCompactView & cpv,
   currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
   postStepPoint(nullptr), eventno(0){
     
-    //Add FP420 Sentitive Detector Name
-    collectionName.insert(name);
-    
-    
     //Parameters
       edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("FP420SD");
        int verbn = m_p.getUntrackedParameter<int>("Verbosity");
     //int verbn = 1;
     
     SetVerboseLevel(verbn);
-    LogDebug("FP420Sim") 
-      << "*******************************************************\n"
-      << "*                                                     *\n"
-      << "* Constructing a FP420SD  with name " << name << "\n"
-      << "*                                                     *\n"
-      << "*******************************************************";
-    
     
     slave  = new TrackingSlaveSD(name);
-    
-    //
-    // attach detectors (LogicalVolumes)
-    //
-    const std::vector<std::string>& lvNames = clg.logicalNames(name);
-
-    this->Register();
-
-    for (std::vector<std::string>::const_iterator it=lvNames.begin();
-	 it !=lvNames.end(); it++) {
-      this->AssignSD(*it);
-      edm::LogInfo("FP420Sim") << "FP420SD : Assigns SD to LV " << (*it);
-    }
-    
+        
     if      (name == "FP420SI") {
       if (verbn > 0) {
 	edm::LogInfo("FP420Sim") << "name = FP420SI and  new FP420NumberingSchem";
@@ -92,17 +68,11 @@ FP420SD::FP420SD(const std::string& name, const DDCompactView & cpv,
     } else {
       edm::LogWarning("FP420Sim") << "FP420SD: ReadoutName not supported\n";
     }
-    
-    edm::LogInfo("FP420Sim") << "FP420SD: Instantiation completed";
-  }
+}
 
 FP420SD::~FP420SD() { 
-  //AZ:
-  if (slave) delete slave; 
-
-  if (numberingScheme)
-    delete numberingScheme;
-
+  delete slave; 
+  delete numberingScheme;
 }
 
 double FP420SD::getEnergyDeposit(G4Step* aStep) {
