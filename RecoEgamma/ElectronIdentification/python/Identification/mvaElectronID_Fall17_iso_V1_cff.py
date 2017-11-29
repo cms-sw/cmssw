@@ -1,5 +1,3 @@
-from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-
 import FWCore.ParameterSet.Config as cms
 
 #
@@ -45,18 +43,50 @@ mvaProducerModuleLabel = "electronMVAValueMapProducer"
 mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaFall17ClassName + mvaTag + "Values"
 mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaFall17ClassName + mvaTag + "Categories"
 
-### WP tuned for HZZ analysis with very high efficiency (about 98%)
-idNameHZZ = "mvaEleID-Fall17-iso-V1-HZZ"
-MVA_WPHZZ = EleMVA_6Categories_WP(
-    idName = idNameHZZ,
+## The working point for this MVA that is expected to have about 90% signal
+# WP tuned to give about 90 and 80% signal efficiecny for electrons from Drell-Yan with pT > 25 GeV
+# The working point for the low pt categories is just taken over from the high pt
+idName90 = "mvaEleID-Fall17-iso-V1-wp90"
+MVA_WP90 = EleMVA_6Categories_WP(
+    idName = idName90,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 =  -0.211, # EB1 low pt
-    cutCategory1 =  -0.396, # EB2 low pt
-    cutCategory2 =  -0.215, # EE low pt
-    cutCategory3 =  -0.870, # EB1
-    cutCategory4 =  -0.838, # EB2
-    cutCategory5 =  -0.763  # EE
+    cutCategory0 = 0.9373015403747559, # EB1 low pt
+    cutCategory1 = 0.8866511344909668, # EB2 low pt
+    cutCategory2 = 0.7820309638977051, # EE low pt 
+    cutCategory3 = 0.9373015403747559, # EB1       
+    cutCategory4 = 0.8866511344909668, # EB2       
+    cutCategory5 = 0.7820309638977051  # EE        
+    )
+
+idName80 = "mvaEleID-Fall17-iso-V1-wp80"
+MVA_WP80 = EleMVA_6Categories_WP(
+    idName = idName80,
+    mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
+    mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
+    cutCategory0 = 0.9776940345764159, # EB1 low pt
+    cutCategory1 = 0.963395595550537 , # EB2 low pt
+    cutCategory2 = 0.926754093170166 , # EE low pt 
+    cutCategory3 = 0.9776940345764159, # EB1       
+    cutCategory4 = 0.963395595550537 , # EB2       
+    cutCategory5 = 0.926754093170166   # EE        
+)
+
+### WP tuned for HZZ analysis with very high efficiency (about 98%)
+# The working points were found by requiring the same signal efficiencies in
+# each category as for the Spring 16 HZZ ID
+# (see RecoEgamma/ElectronIdentification/python/Identification/mvaElectronID_Spring16_HZZ_V1_cff.py)
+idNamewpLoose = "mvaEleID-Fall17-iso-V1-wpLoose"
+MVA_WPLoose = EleMVA_6Categories_WP(
+    idName = idNamewpLoose,
+    mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
+    mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
+    cutCategory0 =  -0.09564086146419018, # EB1 low pt
+    cutCategory1 =  -0.28229916981926795, # EB2 low pt
+    cutCategory2 =  -0.05466682296962322, # EE low pt
+    cutCategory3 =  -0.833466688584422  , # EB1
+    cutCategory4 =  -0.7677000247570116 , # EB2
+    cutCategory5 =  -0.6917305995653829   # EE
     )
 
 
@@ -76,17 +106,10 @@ mvaEleID_Fall17_iso_V1_producer_config = cms.PSet(
     weightFileNames    = mvaFall17WeightFiles_V1
     )
 # Create the VPset's for VID cuts
-mvaEleID_Fall17_V1_HZZ = configureVIDMVAEleID_V1( MVA_WPHZZ )
+mvaEleID_Fall17_V1_wpLoose = configureVIDMVAEleID_V1( MVA_WPLoose )
+mvaEleID_Fall17_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90 )
+mvaEleID_Fall17_V1_wp80 = configureVIDMVAEleID_V1( MVA_WP80 )
 
-
-# The MD5 sum numbers below reflect the exact set of cut variables
-# and values above. If anything changes, one has to
-# 1) comment out the lines below about the registry,
-# 2) run "calculateMD5 <this file name> <one of the VID config names just above>
-# 3) update the MD5 sum strings below and uncomment the lines again.
-#
-
-central_id_registry.register(mvaEleID_Fall17_V1_HZZ.idName,
-                             'aa86e21df966d84273f6dc7286b88f10')
-
-mvaEleID_Fall17_V1_HZZ.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Fall17_V1_wpLoose.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Fall17_V1_wp90.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Fall17_V1_wp80.isPOGApproved = cms.untracked.bool(True)
