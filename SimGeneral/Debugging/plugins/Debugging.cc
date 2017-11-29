@@ -48,17 +48,19 @@ using namespace boost;
 
 /* GRAPH DEFINITIONS
 
-   The graph is meant to represent the full decay chain.
+   The graph represents the full decay chain.
 
    The parent-child relationship is the natural one, following "time".
 
    Each edge has a property (edge_weight_t) that holds a const pointer to the
    SimTrack that connects the 2 vertices of the edge, the number of simHits
-   associated to that simTrack and the overall energy deposited in the
-   associated simHits.
+   associated to that simTrack, the overall energy deposited in the
+   associated simHits and the cumulative number of simHits of itself and of all
+   its children.
 
    Each vertex has a property (vertex_name_t) that holds a const pointer to the
-   SimTrack that originated that vertex.
+   SimTrack that originated that vertex and the cumulative number of simHits of
+   all its outgoing edges.
 
    Stable particles are recovered/added in a second iterations and are linked
    to ghost vertices with an offset starting from the highest generated vertex.
@@ -231,17 +233,6 @@ Debugging::~Debugging() {}
 // member functions
 //
 
-// void Debugging::createCaloParticles(const graph & gr) {
-//   /*
-//    * The Logic is the following:
-//    * o Take the first vertex and loop over all its edges
-//    * o For each edge create a CaloParticle
-//    * o Do a DFS on all the children of each vertex and add their linked SimHits to the main CaloParticle
-//    * o Check, after the DFS has finished, if the total amount of SimHits assigned to the CaloParticle is !=0.
-//    * o If it is 0, discard the CaloParticle
-//    */
-// }
-
 // ------------ method called for each event  ------------
 void
 Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -352,7 +343,6 @@ Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (auto edge = first_generation.first; edge != first_generation.second; ++edge) {
     auto const edge_property = get(edge_weight, decay, *edge);
     Custom_bfs_visitor bfs;
-//    breadth_first_search(decay, target(*edge, decay), visitor(bfs));
     std::cout << "Creating CaloParticle particle: "
               << edge_property.simTrack->type()
               << "(" << edge_property.simTrack->trackId() << ")"
