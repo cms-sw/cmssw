@@ -329,6 +329,9 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     edm::ESHandle<TrackerTopology> tTopoHandle;
     es.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    es.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    const TkDetMap* tkDetMap = tkDetMapHandle.product();
 
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
     es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
@@ -337,8 +340,6 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     std::vector<uint32_t> activeDets;
     activeDets.clear(); // just in case
     SiStripDetCabling_->addActiveDetectorsRawIds(activeDets);
-
-    SiStripSubStructure substructure;
 
     // remove any eventual zero elements - there should be none, but just in case
     for(std::vector<uint32_t>::iterator idets = activeDets.begin(); idets != activeDets.end(); idets++){
@@ -350,10 +351,10 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
 
     // Create TkHistoMap for Digi and APV shots properies
 
-    if (digitkhistomapon)      tkmapdigi                = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NumberOfDigi",        0.0,true);
-    if (shotshistomapon)       tkmapNApvshots           = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NApvShots",           0.0,true);
-    if (shotsstripshistomapon) tkmapNstripApvshot       = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NStripApvShots",      0.0,true);
-    if (shotschargehistomapon) tkmapMedianChargeApvshots= new TkHistoMap(ibooker , topFolderName_,"TkHMap_MedianChargeApvShots",0.0,true);
+    if (digitkhistomapon)      tkmapdigi                = std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_NumberOfDigi",        0.0,true);
+    if (shotshistomapon)       tkmapNApvshots           = std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_NApvShots",           0.0,true);
+    if (shotsstripshistomapon) tkmapNstripApvshot       = std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_NStripApvShots",      0.0,true);
+    if (shotschargehistomapon) tkmapMedianChargeApvshots= std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_MedianChargeApvShots",0.0,true);
 
     std::vector<uint32_t> tibDetIds;
 
@@ -395,17 +396,17 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
         int32_t lnumber = det_layer_pair.second;
         std::vector<uint32_t> layerDetIds;
         if (det_layer_pair.first == "TIB") {
-          substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
+          SiStripSubStructure::getTIBDetectors(activeDets,layerDetIds,tTopo,lnumber,0,0,0);
         } else if (det_layer_pair.first == "TOB") {
-          substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
+          SiStripSubStructure::getTOBDetectors(activeDets,layerDetIds,tTopo,lnumber,0,0);
         } else if (det_layer_pair.first == "TID" && lnumber > 0) {
-          substructure.getTIDDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0);
+          SiStripSubStructure::getTIDDetectors(activeDets,layerDetIds,tTopo,2,abs(lnumber),0,0);
         } else if (det_layer_pair.first == "TID" && lnumber < 0) {
-          substructure.getTIDDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0);
+          SiStripSubStructure::getTIDDetectors(activeDets,layerDetIds,tTopo,1,abs(lnumber),0,0);
         } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
-          substructure.getTECDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0,0,0);
+          SiStripSubStructure::getTECDetectors(activeDets,layerDetIds,tTopo,2,abs(lnumber),0,0,0,0);
         } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
-          substructure.getTECDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0,0,0);
+          SiStripSubStructure::getTECDetectors(activeDets,layerDetIds,tTopo,1,abs(lnumber),0,0,0,0);
         }
 
         LayerDetMap[label] = layerDetIds;
@@ -692,8 +693,8 @@ else{
 	const std::vector<APVShot>& shots = theShotFinder.getShots();
 	AddApvShotsToSubDet(shots,SubDetMEsMap[subdet_label].SubDetApvShots);
 	if (shotshistomapon) tkmapNApvshots->fill(detid,shots.size());
-	if (shotsstripshistomapon) FillApvShotsMap(tkmapNstripApvshot,shots,detid,1);
-	if (shotschargehistomapon) FillApvShotsMap(tkmapMedianChargeApvshots,shots,detid,2);
+	if (shotsstripshistomapon) FillApvShotsMap(tkmapNstripApvshot.get(),shots,detid,1);
+	if (shotschargehistomapon) FillApvShotsMap(tkmapMedianChargeApvshots.get(),shots,detid,2);
       }
 
       if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != nullptr))
