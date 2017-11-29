@@ -102,8 +102,7 @@ dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",
 )
 
 # Services needed for TkHistoMap
-TkDetMap = cms.Service("TkDetMap")
-SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
+from CalibTracker.SiStripCommon.TkDetMap_cff import *
 
 # Event History Producer
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
