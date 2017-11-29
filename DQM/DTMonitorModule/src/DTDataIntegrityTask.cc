@@ -982,7 +982,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     //If L1A_ID error identify which ROS has wrong L1A
     for (vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
 	 rosControlData != rosData.end(); rosControlData++) { // loop over the ROS data
-      int ROSHeader_TTCCount = ((*rosControlData).getROSHeader().TTCEventCounter() + 1) % 0x1000000; // fix comparison in case of last counting bin in ROS /first one in DDU
+      unsigned int ROSHeader_TTCCount = ((*rosControlData).getROSHeader().TTCEventCounter() + 1) % 0x1000000; // fix comparison in case of last counting bin in ROS /first one in DDU
       if( ROSHeader_TTCCount != header.lvl1ID() ) {
 	int ros = (*rosControlData).getROSID();
 	if(mode <= 2) hROSStatus->Fill(10,ros-1);
@@ -994,7 +994,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   }
 
   //1D HISTOS: EVENT LENGHT from trailer
-  int fedEvtLenght = trailer.lenght()*8;
+  int fedEvtLenght = trailer.eventSize()*8;
   //   if(fedEvtLenght > 16000) fedEvtLenght = 16000; // overflow bin
   dduHistos["EventLenght"][code.getDDUID()]->Fill(fedEvtLenght);
 

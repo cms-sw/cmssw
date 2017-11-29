@@ -184,7 +184,7 @@ namespace l1t {
 
          if (trailer.check()) {
             LogDebug("L1T") << "Found SLink trailer:"
-               << " Length " << trailer.lenght()
+               << " Size " << trailer.eventSize()
                << " CRC " << trailer.crc()
                << " Status " << trailer.evtStatus()
                << " Throttling bits " << trailer.ttsBits();

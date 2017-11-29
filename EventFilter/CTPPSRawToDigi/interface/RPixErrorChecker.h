@@ -27,7 +27,7 @@ public:
 
   bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header) const;
 
-  bool checkTrailer(bool& errorsInEvent, int fedId, int nWords, const Word64* trailer) const;
+  bool checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer) const;
 
   bool checkROC(bool& errorsInEvent, int fedId, Word32& errorWord) const;
 
