@@ -20,7 +20,7 @@ namespace stage2 {
       auto res = static_cast<CaloLayer1Collections*>(coll);
 
       auto ctp7_phi = block.amc().getBoardID();
-      uint32_t * ptr = &*block.payload().begin();
+      const uint32_t * ptr = block.payload().data();
 
       UCTCTP7RawData ctp7Data(ptr);
       makeECalTPGs(ctp7_phi, ctp7Data, res->getEcalDigis());
