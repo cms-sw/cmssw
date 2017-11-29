@@ -25,12 +25,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define debug
+//#define debug
 //-------------------------------------------------------------------
-BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
+BHMSD::BHMSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg, 
 	     edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), name(name),
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), 
   hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
   currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
   postStepPoint(nullptr), eventno(0){
@@ -76,23 +76,22 @@ BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
   edm::LogInfo("BHMSim") << "BHMSD: Instantiation completed";
 }
 
-
 BHMSD::~BHMSD() { 
 
   if (slave)           delete slave; 
   if (numberingScheme) delete numberingScheme;
 }
 
-double BHMSD::getEnergyDeposit(G4Step* aStep) {
+double BHMSD::getEnergyDeposit(const G4Step* aStep) {
   return aStep->GetTotalEnergyDeposit();
 }
 
 void BHMSD::Initialize(G4HCofThisEvent * HCE) { 
 #ifdef debug
-  LogDebug("BHMSim") << "BHMSD : Initialize called for " << name << std::endl;
+  LogDebug("BHMSim") << "BHMSD : Initialize called for " << GetName();
 #endif
 
-  theHC = new BscG4HitCollection(name, collectionName[0]);
+  theHC = new BscG4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
@@ -166,10 +165,9 @@ void BHMSD::GetStepInfo(G4Step* aStep) {
   Z  = hitPoint.z();
 }
 
-uint32_t BHMSD::setDetUnitId(G4Step * aStep) { 
+uint32_t BHMSD::setDetUnitId(const G4Step * aStep) { 
   return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
-
 
 G4bool BHMSD::HitExists() {
   if (primaryID<1) {
@@ -210,14 +208,12 @@ G4bool BHMSD::HitExists() {
   }    
 }
 
-
 void BHMSD::ResetForNewPrimary() {
   
   entrancePoint  = SetToLocal(hitPoint);
   exitPoint      = SetToLocalExit(hitPointExit);
   incidentEnergy = preStepPoint->GetKineticEnergy();
 }
-
 
 void BHMSD::StoreHit(BscG4Hit* hit){
 
@@ -229,7 +225,6 @@ void BHMSD::StoreHit(BscG4Hit* hit){
 
   theHC->insert( hit );
 }
-
 
 void BHMSD::CreateNewHit() {
 
@@ -289,7 +284,6 @@ void BHMSD::CreateNewHit() {
   StoreHit(currentHit);
 }	 
  
-
 void BHMSD::UpdateHit() {
 
   if (Eloss > 0.) {
@@ -309,7 +303,6 @@ void BHMSD::UpdateHit() {
   previousUnitID = unitID;
 }
 
-
 G4ThreeVector BHMSD::SetToLocal(const G4ThreeVector& global) {
 
   const G4VTouchable* touch= preStepPoint->GetTouchable();
@@ -317,7 +310,6 @@ G4ThreeVector BHMSD::SetToLocal(const G4ThreeVector& global) {
   return theEntryPoint;  
 }
      
-
 G4ThreeVector BHMSD::SetToLocalExit(const G4ThreeVector& globalPoint) {
 
   const G4VTouchable* touch= postStepPoint->GetTouchable();
@@ -325,7 +317,6 @@ G4ThreeVector BHMSD::SetToLocalExit(const G4ThreeVector& globalPoint) {
   return theExitPoint;  
 }
      
-
 void BHMSD::EndOfEvent(G4HCofThisEvent* ) {
 
   // here we loop over transient hits and make them persistent
@@ -352,27 +343,22 @@ void BHMSD::EndOfEvent(G4HCofThisEvent* ) {
   Summarize();
 }
      
-
 void BHMSD::Summarize() {
 }
-
 
 void BHMSD::clear() {
 } 
 
-
 void BHMSD::DrawAll() {
 } 
-
 
 void BHMSD::PrintAll() {
   LogDebug("BHMSim") << "BHMSD: Collection " << theHC->GetName() << "\n";
   theHC->PrintAllHits();
 } 
 
-
-void BHMSD::fillHits(edm::PSimHitContainer& c, std::string n) {
-  if (slave->name() == n) c=slave->hits();
+void BHMSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
+  if (slave->name() == hname) { cc=slave->hits(); }
 }
 
 void BHMSD::update (const BeginOfEvent * i) {
@@ -397,10 +383,4 @@ void BHMSD::update (const ::EndOfEvent*) {
 
 void BHMSD::clearHits(){
   slave->Initialize();
-}
-
-std::vector<std::string> BHMSD::getNames(){
-  std::vector<std::string> temp;
-  temp.push_back(slave->name());
-  return temp;
 }

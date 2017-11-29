@@ -1,5 +1,5 @@
-#ifndef SimG4Core_AttachSD_h
-#define SimG4Core_AttachSD_h
+#ifndef SimG4Core_SensitiveDetector_AttachSD_h
+#define SimG4Core_SensitiveDetector_AttachSD_h
 
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"

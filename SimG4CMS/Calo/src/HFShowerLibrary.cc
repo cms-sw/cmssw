@@ -21,7 +21,7 @@
 
 //#define DebugLog
 
-HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
+HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) : fibre(nullptr),hf(nullptr),
 								emBranch(nullptr),
 								hadBranch(nullptr),
@@ -187,9 +187,9 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 							   double weight,
 							   bool onlyLong) {
 
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
-  G4Track *     track    = aStep->GetTrack();
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
+  const G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
+  const G4Track *     track    = aStep->GetTrack();
   // Get Z-direction 
   const G4DynamicParticle *aParticle = track->GetDynamicParticle();
   G4ThreeVector momDir = aParticle->GetMomentumDirection();

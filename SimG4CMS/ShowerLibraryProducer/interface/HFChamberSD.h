@@ -20,8 +20,9 @@ class HFChamberSD : public SensitiveCaloDetector {
 
 public:
 
-  HFChamberSD(std::string, const DDCompactView&, const SensitiveDetectorCatalog&,
-	  edm::ParameterSet const &, const SimTrackManager*);
+  explicit HFChamberSD(const std::string&, const DDCompactView&, 
+		       const SensitiveDetectorCatalog&,
+		       const edm::ParameterSet&, const SimTrackManager*);
   ~HFChamberSD() override;
 
   void     Initialize(G4HCofThisEvent*HCE) override;
@@ -31,15 +32,12 @@ public:
   void     DrawAll() override;
   void     PrintAll() override;
 
-protected:
-
   void     clearHits() override;
-  uint32_t setDetUnitId(G4Step*) override;
-  void     fillHits(edm::PCaloHitContainer&, std::string) override;
+  uint32_t setDetUnitId(const G4Step*) override;
+  void     fillHits(edm::PCaloHitContainer&, const std::string&) override;
 
 private:
 
-  std::string               theName;
   const SimTrackManager*    m_trackManager;
 
   G4int                     theHCID;

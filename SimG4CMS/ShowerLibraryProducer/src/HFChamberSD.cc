@@ -16,10 +16,10 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
-HFChamberSD::HFChamberSD(std::string name, const DDCompactView & cpv,
+HFChamberSD::HFChamberSD(const std::string& name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :
-  SensitiveCaloDetector(name, cpv, clg, p), theName(name),
+  SensitiveCaloDetector(name, cpv, clg, p), 
   m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {
 
   collectionName.insert(name);
@@ -111,9 +111,9 @@ void HFChamberSD::PrintAll() {}
 
 void HFChamberSD::clearHits() {}
 
-uint32_t HFChamberSD::setDetUnitId(G4Step* aStep) {
+uint32_t HFChamberSD::setDetUnitId(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   return (touch->GetReplicaNumber(0));
 }
 
-void HFChamberSD::fillHits(edm::PCaloHitContainer&, std::string) {}
+void HFChamberSD::fillHits(edm::PCaloHitContainer&, const std::string&) {}
