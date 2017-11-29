@@ -50,37 +50,15 @@ BscSD::BscSD(const std::string& name, const DDCompactView & cpv,
   currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
   postStepPoint(nullptr), eventno(0){
     
-  //Add Bsc Sentitive Detector Name
-  collectionName.insert(name);
-    
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BscSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
   //int verbn = 1;
     
   SetVerboseLevel(verbn);
-  LogDebug("BscSim") 
-    << "*******************************************************\n"
-    << "*                                                     *\n"
-    << "* Constructing a BscSD  with name " << name << "\n"
-    << "*                                                     *\n"
-    << "*******************************************************";
     
   slave  = new TrackingSlaveSD(name);
-    
-  //
-  // attach detectors (LogicalVolumes)
-  //
-  const std::vector<std::string>& lvNames = clg.logicalNames(name);
-
-  this->Register();
-
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++) {
-    this->AssignSD(*it);
-    edm::LogInfo("BscSim") << "BscSD : Assigns SD to LV " << (*it);
-  }
-    
+        
   if      (name == "BSCHits") {
     if (verbn > 0) {
       edm::LogInfo("BscSim") << "name = BSCHits and  new BscNumberingSchem";
@@ -89,8 +67,6 @@ BscSD::BscSD(const std::string& name, const DDCompactView & cpv,
   } else {
     edm::LogWarning("BscSim") << "BscSD: ReadoutName "<<name<<" not supported";
   }
-  
-  edm::LogInfo("BscSim") << "BscSD: Instantiation completed";
 }
 
 BscSD::~BscSD() { 

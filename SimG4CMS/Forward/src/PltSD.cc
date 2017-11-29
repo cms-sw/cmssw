@@ -46,19 +46,10 @@ oldVolume(nullptr), lastId(0), lastTrack(0), eventno(0) {
     
     edm::LogInfo("PltSD") <<"Criteria for Saving Tracker SimTracks: \n "
     <<" History: "<<energyHistoryCut<< " MeV ; Persistency: "<< energyCut<<" MeV\n"
-    <<" Constructing a PltSD with ";
+    <<" Constructing a PltSD";
     
     slave  = new TrackingSlaveSD(name);
-    
-    // Now attach the right detectors (LogicalVolumes) to me
-    const std::vector<std::string>&  lvNames = clg.logicalNames(name);
-    this->Register();
-    for (std::vector<std::string>::const_iterator it = lvNames.begin();
-         it != lvNames.end(); it++)  {
-        edm::LogInfo("PltSD")<< name << " attaching LV " << *it;
-        this->AssignSD(*it);
-    }
-    
+        
     theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
     myG4TrackToParticleID = new G4TrackToParticleID;
 }

@@ -22,30 +22,10 @@ HFWedgeSD::HFWedgeSD(const std::string& iname, const DDCompactView & cpv,
   SensitiveCaloDetector(iname, cpv, clg, p),
   m_trackManager(manager), hcID(-1), theHC(nullptr), currentHit(nullptr) {
 
-  collectionName.insert(iname);
-  LogDebug("FiberSim") << "***************************************************"
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "* Constructing a HFWedgeSD  with name " << GetName()
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "***************************************************";
-  //
-  // Now attach the right detectors (LogicalVolumes) to me
-  //
-  const std::vector<std::string>& lvNames = clg.logicalNames(iname);
-  this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++){
-    this->AssignSD(*it);
-    LogDebug("FiberSim") << "HFWedgeSD : Assigns SD to LV " << (*it);
-  }
 }
 
 HFWedgeSD::~HFWedgeSD() {
-  if (theHC)    delete theHC;
+  delete theHC;
 }
 
 void HFWedgeSD::Initialize(G4HCofThisEvent * HCE) {

@@ -35,45 +35,19 @@ BHMSD::BHMSD(const std::string& name, const DDCompactView & cpv,
   currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
   postStepPoint(nullptr), eventno(0){
     
-  //Add BHM Sentitive Detector Name
-  collectionName.insert(name);
-    
-    
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BHMSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
   //int verbn = 1;
     
   SetVerboseLevel(verbn);
-  LogDebug("BHMSim") 
-    << "*******************************************************\n"
-    << "*                                                     *\n"
-    << "* Constructing a BHMSD  with name " << name << "\n"
-    << "*                                                     *\n"
-    << "*******************************************************";
-    
     
   slave  = new TrackingSlaveSD(name);
-    
-  //
-  // attach detectors (LogicalVolumes)
-  //
-  std::vector<std::string> lvNames = clg.logicalNames(name);
-
-  this->Register();
-
-  for (std::vector<std::string>::iterator it=lvNames.begin();  
-       it !=lvNames.end(); it++) {
-    this->AssignSD(*it);
-    edm::LogInfo("BHMSim") << "BHMSD : Assigns SD to LV " << (*it);
-  }
     
   if (verbn > 0) {
     edm::LogInfo("BHMSim") << "name = " <<name <<" and new BHMNumberingScheme";
   }
   numberingScheme = new BHMNumberingScheme() ;
-  
-  edm::LogInfo("BHMSim") << "BHMSD: Instantiation completed";
 }
 
 BHMSD::~BHMSD() { 

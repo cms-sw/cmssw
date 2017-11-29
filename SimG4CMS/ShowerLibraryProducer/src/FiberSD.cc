@@ -24,34 +24,14 @@ FiberSD::FiberSD(const std::string& iname, const DDCompactView & cpv,
   SensitiveCaloDetector(iname, cpv, clg, p),
   m_trackManager(manager), theHCID(-1), theHC(nullptr) {
 
-  collectionName.insert(iname);
-  LogDebug("FiberSim") << "***************************************************"
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "* Constructing a FiberSD  with name " << GetName()
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "***************************************************";
   theShower = new HFShower(iname, cpv, p, 1);
 
-  //
-  // Now attach the right detectors (LogicalVolumes) to me
-  //
-  const std::vector<std::string>& lvNames = clg.logicalNames(iname);
-  this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++){
-    this->AssignSD(*it);
-    LogDebug("FiberSim") << "FiberSD : Assigns SD to LV " << (*it);
-  }
 }
 
 FiberSD::~FiberSD() {
  
-  if (theShower) delete theShower;
-  if (theHC)     delete theHC;
+  delete theShower;
+  delete theHC;
 }
 
 void FiberSD::Initialize(G4HCofThisEvent * HCE) {

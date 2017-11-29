@@ -75,29 +75,18 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   numbering  = new MuonSimHitNumberingScheme(detector, constants);
   g4numbering = new MuonG4Numbering(constants);
   
-
-  //
-  // Now attach the right detectors (LogicalVolumes) to me
-  //
-  const std::vector<std::string>&  lvNames = clg.logicalNames(name);
-  this->Register();
-  for (std::vector<std::string>::const_iterator it = lvNames.begin();  it != lvNames.end(); it++){
-    LogDebug("MuonSimDebug") << name << " MuonSensitiveDetector:: attaching SD to LV " << *it << std::endl;
-    this->AssignSD(*it);
-  }
-
   if (printHits) {
     thePrinter = new SimHitPrinter("HitPositionOSCAR.dat");
   }
 
 
-    LogDebug("MuonSimDebug") << "  EnergyThresholdForPersistency " << STenergyPersistentCut << " AllMuonsPersistent " <<  STallMuonsPersistent << std::endl;
+  edm::LogInfo("MuonSimDebug") << "  EnergyThresholdForPersistency " 
+			       << STenergyPersistentCut << " AllMuonsPersistent " 
+			       <<  STallMuonsPersistent;
     
-    theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
-    myG4TrackToParticleID = new G4TrackToParticleID;
-
+  theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
+  myG4TrackToParticleID = new G4TrackToParticleID;
 }
-
 
 MuonSensitiveDetector::~MuonSensitiveDetector() { 
   delete g4numbering;
