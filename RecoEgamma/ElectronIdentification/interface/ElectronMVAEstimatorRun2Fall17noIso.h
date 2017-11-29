@@ -1,10 +1,10 @@
-#include "RecoEgamma//ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"
+#include "RecoEgamma//ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17.h"
 
-class ElectronMVAEstimatorRun2Fall17noIso : public ElectronMVAEstimatorRun2 {
+class ElectronMVAEstimatorRun2Fall17noIso : public ElectronMVAEstimatorRun2Fall17 {
 
  public:
 
-  ElectronMVAEstimatorRun2Fall17noIso(const edm::ParameterSet& conf) : ElectronMVAEstimatorRun2(conf) {}
+  ElectronMVAEstimatorRun2Fall17noIso(const edm::ParameterSet& conf) : ElectronMVAEstimatorRun2Fall17(conf, false) {} // False for no isolation
   ~ElectronMVAEstimatorRun2Fall17noIso() {}
 
   const std::string& getName() const final { return name_; }

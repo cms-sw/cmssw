@@ -1,5 +1,5 @@
-#ifndef ElectronMVAEstimatorRun2_h
-#define ElectronMVAEstimatorRun2_h
+#ifndef ElectronMVAEstimatorRun2Fall17Fall17_h
+#define ElectronMVAEstimatorRun2Fall17Fall17_h
 
 #include <vector>
 #include <string>
@@ -16,13 +16,13 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 
-class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
+class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
 
  public:
 
   // Constructor and destructor
-  ElectronMVAEstimatorRun2(const edm::ParameterSet& conf);
-  ~ElectronMVAEstimatorRun2();
+  ElectronMVAEstimatorRun2Fall17(const edm::ParameterSet& conf, bool with_iso);
+  ~ElectronMVAEstimatorRun2Fall17();
 
   // Calculation of the MVA value (VID accessor)
   float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
@@ -73,9 +73,9 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
   // It will be used as part of ValueMap names.
   // For simplicity, keep it set to the class name.
 
-  //const std::string name_ = "ElectronMVAEstimatorRun2";
-  //std::string name_ = "ElectronMVAEstimatorRun2";
-  //const std::string name_ = "ElectronMVAEstimatorRun2Fall17noIso";
+  //const std::string name_ = "ElectronMVAEstimatorRun2Fall17";
+  //std::string name_ = "ElectronMVAEstimatorRun2Fall17";
+  //const std::string name_ = "ElectronMVAEstimatorRun2Fall17Fall17noIso";
 
   // MVA tag. This is an additional string variable to distinguish
   // instances of the estimator of this class configured with different
@@ -97,6 +97,8 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
   const edm::InputTag conversionsLabelAOD_;
   const edm::InputTag conversionsLabelMiniAOD_;
   const edm::InputTag rhoLabel_;
+
+  bool with_iso;
 };
 
 #endif

@@ -1,6 +1,6 @@
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17.h"
 
-ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf):
+ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(const edm::ParameterSet& conf, bool with_iso):
   AnyMVAEstimatorRun2Base(conf),
   tag_(conf.getParameter<std::string>("mvaTag")),
   MethodName_("BDTG method"),
@@ -26,14 +26,16 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf
     edm::FileInPath weightFile( weightFileNames[i] );
     gbrForest_s.push_back( GBRForestTools::createGBRForest( weightFile ) );
   }
+
+  this->with_iso = with_iso;
 }
 
-ElectronMVAEstimatorRun2::
-~ElectronMVAEstimatorRun2(){
+ElectronMVAEstimatorRun2Fall17::
+~ElectronMVAEstimatorRun2Fall17(){
 }
 
 
-void ElectronMVAEstimatorRun2::setConsumes(edm::ConsumesCollector&& cc) const {
+void ElectronMVAEstimatorRun2Fall17::setConsumes(edm::ConsumesCollector&& cc) const {
 
   // All tokens for event content needed by this MVA
 
@@ -48,7 +50,7 @@ void ElectronMVAEstimatorRun2::setConsumes(edm::ConsumesCollector&& cc) const {
 
 }
 
-float ElectronMVAEstimatorRun2::
+float ElectronMVAEstimatorRun2Fall17::
 mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
@@ -63,7 +65,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) c
   return mvaValue(iCategory, vars);
 }
 
-float ElectronMVAEstimatorRun2::
+float ElectronMVAEstimatorRun2Fall17::
 mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) const {
   edm::Handle<reco::ConversionCollection> conversions;
   edm::Handle<reco::BeamSpot> beamSpot;
@@ -76,7 +78,7 @@ mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) con
   return mvaValue(iCategory, vars);
 }
 
-float ElectronMVAEstimatorRun2::
+float ElectronMVAEstimatorRun2Fall17::
 mvaValue( const int iCategory, const std::vector<float> & vars) const  {
   const float result = gbrForest_s.at(iCategory)->GetClassifier(vars.data());
 
@@ -110,7 +112,7 @@ mvaValue( const int iCategory, const std::vector<float> & vars) const  {
   return result;
 }
 
-int ElectronMVAEstimatorRun2::findCategory( const edm::Ptr<reco::Candidate>& particle) const {
+int ElectronMVAEstimatorRun2Fall17::findCategory( const edm::Ptr<reco::Candidate>& particle) const {
 
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
@@ -122,7 +124,7 @@ int ElectronMVAEstimatorRun2::findCategory( const edm::Ptr<reco::Candidate>& par
    return findCategory(eleRecoPtr.get());
 }
 
-int ElectronMVAEstimatorRun2::findCategory( const reco::GsfElectron * eleRecoPtr ) const {
+int ElectronMVAEstimatorRun2Fall17::findCategory( const reco::GsfElectron * eleRecoPtr ) const {
   float pt = eleRecoPtr->pt();
   float eta = eleRecoPtr->superCluster()->eta();
 
@@ -155,7 +157,7 @@ int ElectronMVAEstimatorRun2::findCategory( const reco::GsfElectron * eleRecoPtr
   return iCategory;
 }
 
-bool ElectronMVAEstimatorRun2::
+bool ElectronMVAEstimatorRun2Fall17::
 isEndcapCategory(int category ) const {
 
   bool isEndcap = false;
@@ -165,9 +167,8 @@ isEndcapCategory(int category ) const {
   return isEndcap;
 }
 
-
 // A function that should work on both pat and reco objects
-std::vector<float> ElectronMVAEstimatorRun2::
+std::vector<float> ElectronMVAEstimatorRun2Fall17::
 fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
 
   //
@@ -210,7 +211,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iE
 }
 
 // A function that should work on both pat and reco objects
-std::vector<float> ElectronMVAEstimatorRun2::
+std::vector<float> ElectronMVAEstimatorRun2Fall17::
 fillMVAVariables(const reco::GsfElectron* eleRecoPtr, const edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *theBeamSpot, const edm::Handle<double> rho) const {
 
 
@@ -273,42 +274,93 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr, const edm::Handle<reco::Co
   float dphi            = eleRecoPtr->deltaPhiSuperClusterTrackAtVtx();
   float detacalo        = eleRecoPtr->deltaEtaSeedClusterTrackAtCalo();
 
-  std::vector<float> vars = std::move( packMVAVariables(
-                                           see,                      // 0
-                                           spp,                      // 1
-                                           OneMinusE1x5E5x5,
-                                           R9,
-                                           etawidth,
-                                           phiwidth,                 // 5
-                                           HoE,
-                                           //Pure tracking variables
-                                           kfhits,
-                                           kfchi2,
-                                           gsfchi2,                  // 9
-                                           // Energy matching
-                                           fbrem,
-                                           gsfhits,
-                                           expectedMissingInnerHits,
-                                           convVtxFitProbability,     // 13
-                                           EoP,
-                                           eleEoPout,                // 15
-                                           IoEmIoP,
-                                           // Geometrical matchings
-                                           deta,                     // 17
-                                           dphi,
-                                           detacalo,
-                                           (float)*rho,
-                                           // Endcap only variables
-                                           PreShowerOverRaw          // 21
-                                      )
-                      );
+  if(with_iso)
+  {
 
-  constrainMVAVariables(vars);
+    // Isolation variables
+    float ele_pfChargedHadIso   = (eleRecoPtr->pfIsolationVariables()).sumChargedHadronPt ; //chargedHadronIso();
+    float ele_pfNeutralHadIso   = (eleRecoPtr->pfIsolationVariables()).sumNeutralHadronEt ; //neutralHadronIso();
+    float ele_pfPhotonIso       = (eleRecoPtr->pfIsolationVariables()).sumPhotonEt; //photonIso();
 
-  return vars;
+    std::vector<float> vars = std::move( packMVAVariables(
+                                             see,                      // 0
+                                             spp,                      // 1
+                                             OneMinusE1x5E5x5,
+                                             R9,
+                                             etawidth,
+                                             phiwidth,                 // 5
+                                             HoE,
+                                             //Pure tracking variables
+                                             kfhits,
+                                             kfchi2,
+                                             gsfchi2,                  // 9
+                                             // Energy matching
+                                             fbrem,
+                                             gsfhits,
+                                             expectedMissingInnerHits,
+                                             convVtxFitProbability,     // 13
+                                             EoP,
+                                             eleEoPout,                // 15
+                                             IoEmIoP,
+                                             // Geometrical matchings
+                                             deta,                     // 17
+                                             dphi,
+                                             detacalo,
+                                             // Isolation variables
+                                             ele_pfPhotonIso,
+                                             ele_pfChargedHadIso,
+                                             ele_pfNeutralHadIso,
+                                             // Pileup
+                                             (float)*rho,
+                                             // Endcap only variables
+                                             PreShowerOverRaw          // 24
+                                        )
+                        );
+
+    constrainMVAVariables(vars);
+  
+    return vars;
+  }
+  else
+  {
+    std::vector<float> vars = std::move( packMVAVariables(
+                                             see,                      // 0
+                                             spp,                      // 1
+                                             OneMinusE1x5E5x5,
+                                             R9,
+                                             etawidth,
+                                             phiwidth,                 // 5
+                                             HoE,
+                                             //Pure tracking variables
+                                             kfhits,
+                                             kfchi2,
+                                             gsfchi2,                  // 9
+                                             // Energy matching
+                                             fbrem,
+                                             gsfhits,
+                                             expectedMissingInnerHits,
+                                             convVtxFitProbability,     // 13
+                                             EoP,
+                                             eleEoPout,                // 15
+                                             IoEmIoP,
+                                             // Geometrical matchings
+                                             deta,                     // 17
+                                             dphi,
+                                             detacalo,
+                                             // Pileup
+                                             (float)*rho,
+                                             // Endcap only variables
+                                             PreShowerOverRaw          // 24
+                                        )
+                        );
+
+    constrainMVAVariables(vars);
+  
+    return vars;
+  }
 }
 
-void ElectronMVAEstimatorRun2::constrainMVAVariables(std::vector<float>& vars) const {
+void ElectronMVAEstimatorRun2Fall17::constrainMVAVariables(std::vector<float>& vars) const {
 
   // Check that variables do not have crazy values
 

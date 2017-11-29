@@ -1,16 +1,13 @@
-#include "RecoEgamma//ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17.h"
 
-class ElectronMVAEstimatorRun2Fall17iso : public ElectronMVAEstimatorRun2 {
+class ElectronMVAEstimatorRun2Fall17iso : public ElectronMVAEstimatorRun2Fall17 {
 
  public:
 
-  ElectronMVAEstimatorRun2Fall17iso(const edm::ParameterSet& conf) : ElectronMVAEstimatorRun2(conf) {}
+  ElectronMVAEstimatorRun2Fall17iso(const edm::ParameterSet& conf) : ElectronMVAEstimatorRun2Fall17(conf, true) {} // True for with isolation
   ~ElectronMVAEstimatorRun2Fall17iso() {}
 
   const std::string& getName() const final { return name_; }
-
-  std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const;
-  std::vector<float> fillMVAVariables( const reco::GsfElectron * particle, const edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *beamSpot, const edm::Handle<double> rho) const;
 
  private:
 
