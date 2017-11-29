@@ -27,7 +27,6 @@
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-//#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 //#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 //#include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
 //#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
