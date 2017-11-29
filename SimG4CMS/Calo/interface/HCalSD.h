@@ -37,13 +37,13 @@ class HCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 
 public:    
 
-  HCalSD(G4String , const DDCompactView &, const SensitiveDetectorCatalog &,
+  HCalSD(const std::string& , const DDCompactView &, const SensitiveDetectorCatalog &,
          edm::ParameterSet const &, const SimTrackManager*);
   ~HCalSD() override;
   bool                  ProcessHits(G4Step * , G4TouchableHistory * ) override;
   double                getEnergyDeposit(G4Step* ) override;
-  uint32_t              setDetUnitId(G4Step* step) override;
-  void                          setNumberingScheme(HcalNumberingScheme* );
+  uint32_t              setDetUnitId(const G4Step* step) override;
+  void                  setNumberingScheme(HcalNumberingScheme* );
 
 protected:
 
@@ -58,26 +58,26 @@ private:
   std::vector<double>           getDDDArray(const std::string&, 
                                             const DDsvalues_type&);
   std::vector<G4String>         getNames(DDFilteredView&);
-  bool                          isItHF(G4Step *);
-  bool                          isItHF(G4String);
-  bool                          isItFibre(G4LogicalVolume*);
-  bool                          isItFibre(G4String);
-  bool                          isItPMT(G4LogicalVolume*);
-  bool                          isItStraightBundle(G4LogicalVolume*);
-  bool                          isItConicalBundle(G4LogicalVolume*);
-  bool                          isItScintillator(G4Material*);
-  bool                          isItinFidVolume (G4ThreeVector&);
+  bool                          isItHF(const G4Step *);
+  bool                          isItHF(const G4String&);
+  bool                          isItFibre(const G4LogicalVolume*);
+  bool                          isItFibre(const G4String&);
+  bool                          isItPMT(const G4LogicalVolume*);
+  bool                          isItStraightBundle(const G4LogicalVolume*);
+  bool                          isItConicalBundle(const G4LogicalVolume*);
+  bool                          isItScintillator(const G4Material*);
+  bool                          isItinFidVolume (const G4ThreeVector&);
   void                          getFromLibrary(G4Step * step, double weight);
-  void                          hitForFibre(G4Step * step, double weight);
+  void                          hitForFibre(const G4Step * step, double weight);
   void                          getFromParam(G4Step * step, double weight);
-  void                          getHitPMT(G4Step * step);
-  void                          getHitFibreBundle(G4Step * step, bool type);
-  int                           setTrackID(G4Step * step);
-  void                          readWeightFromFile(std::string);
+  void                          getHitPMT(const G4Step * step);
+  void                          getHitFibreBundle(const G4Step * step, bool type);
+  int                           setTrackID(const G4Step * step);
+  void                          readWeightFromFile(const std::string&);
   double                        layerWeight(int, const G4ThreeVector&, int, int);
-  void                          plotProfile(G4Step* step, const G4ThreeVector& pos, 
+  void                          plotProfile(const G4Step* step, const G4ThreeVector& pos, 
                                             double edep, double time, int id);
-  void                          plotHF(G4ThreeVector& pos, bool emType);
+  void                          plotHF(const G4ThreeVector& pos, bool emType);
   void                          modifyDepth(HcalNumberingFromDDD::HcalID& id);
 
   HcalDDDSimConstants*          hcalConstants;
@@ -103,8 +103,8 @@ private:
   std::vector<double>           gpar;
   std::vector<int>              hfLevels;
   std::vector<G4String>         hfNames, fibreNames, matNames;
-  std::vector<G4Material*>      materials;
-  std::vector<G4LogicalVolume*> hfLV, fibreLV, pmtLV, fibre1LV, fibre2LV;
+  std::vector<const G4Material*>      materials;
+  std::vector<const G4LogicalVolume*> hfLV, fibreLV, pmtLV, fibre1LV, fibre2LV;
   std::map<uint32_t,double>     layerWeights;
   TH1F                          *hit_[9], *time_[9], *dist_[9], *hzvem, *hzvhad;
 

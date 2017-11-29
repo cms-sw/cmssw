@@ -21,11 +21,11 @@ class EcalTBH4BeamSD : public CaloSD {
 
 public:    
 
-  EcalTBH4BeamSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
+  EcalTBH4BeamSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 		 edm::ParameterSet const &, const SimTrackManager*);
   ~EcalTBH4BeamSD() override;
   double getEnergyDeposit(G4Step*) override;
-  uint32_t setDetUnitId(G4Step* step) override;
+  uint32_t setDetUnitId(const G4Step* step) override;
   void setNumberingScheme(EcalNumberingScheme* scheme);
 
 private:    

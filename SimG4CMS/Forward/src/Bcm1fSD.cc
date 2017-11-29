@@ -30,12 +30,11 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-Bcm1fSD::Bcm1fSD(std::string name, 
-					   const DDCompactView & cpv,
-					   const SensitiveDetectorCatalog & clg,
-					   edm::ParameterSet const & p,
-					   const SimTrackManager* manager) : 
-  SensitiveTkDetector(name, cpv, clg, p), myName(name), mySimHit(nullptr),
+Bcm1fSD::Bcm1fSD(const std::string& name, const DDCompactView & cpv,
+		 const SensitiveDetectorCatalog & clg,
+		 edm::ParameterSet const & p,
+		 const SimTrackManager* manager) : 
+  SensitiveTkDetector(name, cpv, clg, p), mySimHit(nullptr),
   oldVolume(nullptr), lastId(0), lastTrack(0), eventno(0) {
   
   edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("Bcm1fSD");
@@ -98,7 +97,7 @@ bool Bcm1fSD::ProcessHits(G4Step * aStep,  G4TouchableHistory *) {
   return false;
 }
 
-uint32_t Bcm1fSD::setDetUnitId(G4Step * aStep ) {
+uint32_t Bcm1fSD::setDetUnitId(const G4Step * aStep ) {
  
   unsigned int detId = 0;
 
@@ -152,14 +151,14 @@ uint32_t Bcm1fSD::setDetUnitId(G4Step * aStep ) {
 
 void Bcm1fSD::EndOfEvent(G4HCofThisEvent *) {
   
-  LogDebug("Bcm1fSD")<< " Saving the last hit in a ROU " << myName;
+  LogDebug("Bcm1fSD")<< " Saving the last hit in a ROU " << GetName();
 
   if (mySimHit == nullptr) return;
   sendHit();
 }
 
-void Bcm1fSD::fillHits(edm::PSimHitContainer& c, std::string n){
-  if (slave->name() == n)  c=slave->hits();
+void Bcm1fSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname){
+  if (slave->name() == hname) { cc=slave->hits(); }
 }
 
 void Bcm1fSD::sendHit() {  
@@ -294,7 +293,6 @@ TrackInformation* Bcm1fSD::getOrCreateTrackInformation( const G4Track* gTrack) {
     TrackInformation* info = dynamic_cast<TrackInformation*>(temp);
     if (info == nullptr){
       edm::LogError("Bcm1fSD") <<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation";
-      abort();
     }
     return info;
   }

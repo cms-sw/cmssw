@@ -32,12 +32,12 @@
 #include <iostream>
 
 
-PltSD::PltSD(std::string name,
+PltSD::PltSD(const std::string& name,
              const DDCompactView & cpv,
              const SensitiveDetectorCatalog & clg,
              edm::ParameterSet const & p,
              const SimTrackManager* manager) :
-SensitiveTkDetector(name, cpv, clg, p), myName(name), mySimHit(nullptr),
+SensitiveTkDetector(name, cpv, clg, p), mySimHit(nullptr),
 oldVolume(nullptr), lastId(0), lastTrack(0), eventno(0) {
     
     edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("PltSD");
@@ -100,7 +100,7 @@ bool PltSD::ProcessHits(G4Step * aStep,  G4TouchableHistory *) {
     return false;
 }
 
-uint32_t PltSD::setDetUnitId(G4Step * aStep ) {
+uint32_t PltSD::setDetUnitId(const G4Step * aStep ) {
     
     unsigned int detId = 0;
     
@@ -196,14 +196,14 @@ uint32_t PltSD::setDetUnitId(G4Step * aStep ) {
 
 void PltSD::EndOfEvent(G4HCofThisEvent *) {
     
-    LogDebug("PltSD")<< " Saving the last hit in a ROU " << myName;
+    LogDebug("PltSD")<< " Saving the last hit in a ROU " << GetName();
     
     if (mySimHit == nullptr) return;
     sendHit();
 }
 
-void PltSD::fillHits(edm::PSimHitContainer& c, std::string n){
-    if (slave->name() == n)  c=slave->hits();
+void PltSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname){
+  if (slave->name() == hname) { cc=slave->hits(); }
 }
 
 void PltSD::sendHit() {

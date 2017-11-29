@@ -39,14 +39,13 @@ class FastTimerSD : public SensitiveTkDetector,
 
 public:
   
-  FastTimerSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &, 
+  FastTimerSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &, 
 	      edm::ParameterSet const &, const SimTrackManager* );
-
 
   ~FastTimerSD() override;
   
   bool     ProcessHits(G4Step *,G4TouchableHistory *) override;
-  uint32_t setDetUnitId(G4Step*) override;
+  uint32_t setDetUnitId(const G4Step*) override;
 
   void     Initialize(G4HCofThisEvent * HCE) override;
   void     EndOfEvent(G4HCofThisEvent * eventHC) override;
@@ -54,20 +53,16 @@ public:
   void     DrawAll() override;
   void     PrintAll() override;
 
-  virtual double   getEnergyDeposit(G4Step* step);
-  void             fillHits(edm::PSimHitContainer&, std::string use) override;
-  
-  std::vector<std::string> getNames() override;
+  double   getEnergyDeposit(const G4Step* step);
+  void     fillHits(edm::PSimHitContainer&, const std::string&) override;
+  void     clearHits() override;
   
 private:
   void     update(const BeginOfJob *) override;
   void     update(const BeginOfRun *) override;
   void     update(const BeginOfEvent *) override;
   void     update(const ::EndOfEvent *) override;
-  void     clearHits() override;
 
-private:
-  
   G4ThreeVector    SetToLocal(const G4ThreeVector& global);
   G4ThreeVector    SetToLocalExit(const G4ThreeVector& globalPoint);
   void             GetStepInfo(G4Step* aStep);

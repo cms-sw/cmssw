@@ -34,16 +34,17 @@ class PltSD : public SensitiveTkDetector,
 
 public:
 
-  PltSD(std::string, const DDCompactView &, 
-		       const SensitiveDetectorCatalog &,
-		       edm::ParameterSet const &, const SimTrackManager*);
+  PltSD(const std::string&, const DDCompactView &, 
+	const SensitiveDetectorCatalog &,
+	edm::ParameterSet const &, const SimTrackManager*);
   ~PltSD() override;
 
   bool     ProcessHits(G4Step *,G4TouchableHistory *) override;
-  uint32_t setDetUnitId(G4Step*) override;
+  uint32_t setDetUnitId(const G4Step*) override;
   void EndOfEvent(G4HCofThisEvent*) override;
 
-  void fillHits (edm::PSimHitContainer&, std::string use) override;
+  void fillHits (edm::PSimHitContainer&, const std::string&) override;
+  void clearHits() override;
 
 private:
 
@@ -55,7 +56,6 @@ private:
   void           update(const BeginOfEvent *) override;
   void           update(const BeginOfTrack *) override;
   void           update(const BeginOfJob *) override;
-  void   clearHits() override;
   TrackInformation* getOrCreateTrackInformation(const G4Track *);
 
 private:
@@ -63,7 +63,6 @@ private:
   TrackingSlaveSD*            slave;
   G4ProcessTypeEnumerator * theG4ProcessTypeEnumerator;
   G4TrackToParticleID * myG4TrackToParticleID;
-  std::string        myName;
   UpdatablePSimHit * mySimHit;
   float energyCut;
   float energyHistoryCut;

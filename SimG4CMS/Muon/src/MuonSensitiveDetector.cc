@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-MuonSensitiveDetector::MuonSensitiveDetector(std::string name, 
+MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name, 
 					     const DDCompactView & cpv,
 					     const SensitiveDetectorCatalog & clg,
 					     edm::ParameterSet const & p,
@@ -121,10 +121,8 @@ void MuonSensitiveDetector::update(const BeginOfEvent * i){
 
 }
 
-void MuonSensitiveDetector::update(const  ::EndOfEvent * ev)
-{
-  //slaveMuon->renumbering(theManager);
-}
+void MuonSensitiveDetector::update(const  ::EndOfEvent *)
+{}
 
 
 void MuonSensitiveDetector::clearHits()
@@ -158,7 +156,7 @@ bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROh
   return false;
 }
 
-uint32_t MuonSensitiveDetector::setDetUnitId(G4Step * aStep)
+uint32_t MuonSensitiveDetector::setDetUnitId(const G4Step * aStep)
 { 
   //  G4VPhysicalVolume * pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
   MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
@@ -179,22 +177,22 @@ uint32_t MuonSensitiveDetector::setDetUnitId(G4Step * aStep)
 }
 
 
-Local3DPoint MuonSensitiveDetector::toOrcaRef(Local3DPoint in ,G4Step * s){
+Local3DPoint MuonSensitiveDetector::toOrcaRef(Local3DPoint in ,G4Step * step){
   if (theRotation !=nullptr ) {
-    return theRotation->transformPoint(in,s);
+    return theRotation->transformPoint(in,step);
   }
   return (in);
 }
 
-Local3DPoint MuonSensitiveDetector::toOrcaUnits(Local3DPoint in){
+Local3DPoint MuonSensitiveDetector::toOrcaUnits(const Local3DPoint& in){
   return Local3DPoint(in.x()/cm,in.y()/cm,in.z()/cm);
 }
 
-Global3DPoint MuonSensitiveDetector::toOrcaUnits(Global3DPoint in){
+Global3DPoint MuonSensitiveDetector::toOrcaUnits(const Global3DPoint& in){
   return Global3DPoint(in.x()/cm,in.y()/cm,in.z()/cm);
 }
 
-void MuonSensitiveDetector::storeVolumeAndTrack(G4Step * aStep) {
+void MuonSensitiveDetector::storeVolumeAndTrack(const G4Step * aStep) {
   G4VPhysicalVolume* pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
   G4Track * t  = aStep->GetTrack();
   thePV=pv;
@@ -409,19 +407,8 @@ void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 }
 
 
-void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& c, std::string n){
-  //
-  // do it once for low, once for High
-  //
-
-  if (slaveMuon->name() == n) c=slaveMuon->hits();
-
-}
-
-std::vector<std::string> MuonSensitiveDetector::getNames(){
-  std::vector<std::string> temp;
-  temp.push_back(slaveMuon->name());
-  return temp;
+void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& cc, const std::string& hname){
+  if (slaveMuon->name() == hname) { cc=slaveMuon->hits(); }
 }
 
 Local3DPoint MuonSensitiveDetector::InitialStepPositionVsParent(G4Step * currentStep, G4int levelsUp) {
