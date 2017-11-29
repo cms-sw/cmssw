@@ -7,7 +7,6 @@
 #include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
@@ -16,7 +15,7 @@ namespace csctf_analysis
 {
 RunSRLUTs::RunSRLUTs()
 {
-  
+
 	//Set up SRLUTs
     bool TMB07 = true;
     edm::ParameterSet srLUTset;
@@ -55,31 +54,31 @@ void RunSRLUTs::run(std::vector<csctf::TrackStub> *stub_list)
 	  	unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
 
         	lclphidat lclPhi;
-        	try 
+        	try
 		{
         			lclPhi = srLUTs_[fpga]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
-        	} 
-		catch( cms::Exception &e ) 
+        	}
+		catch( cms::Exception &e )
 		{
         			bzero(&lclPhi,sizeof(lclPhi));
         	}
 
         	gblphidat gblPhi;
-        	try 
+        	try
 		{
         		gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
-		} 
-		catch( cms::Exception &e ) 
+		}
+		catch( cms::Exception &e )
 		{
         		bzero(&gblPhi,sizeof(gblPhi));
         	}
 
         	gbletadat gblEta;
-        	try 
+        	try
 		{
         		gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
-        	} 
-		catch( cms::Exception &e ) 
+        	}
+		catch( cms::Exception &e )
 		{
         		bzero(&gblEta,sizeof(gblEta));
         	}

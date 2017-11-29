@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -55,7 +56,7 @@
 // class decleration
 //
 
-class L1TCSCTF : public thread_unsafe::DQMEDAnalyzer {
+class L1TCSCTF : public DQMEDAnalyzer {
 
  public:
 
