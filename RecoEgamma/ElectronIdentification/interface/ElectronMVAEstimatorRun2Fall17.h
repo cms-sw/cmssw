@@ -22,7 +22,7 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
 
   // Constructor and destructor
   ElectronMVAEstimatorRun2Fall17(const edm::ParameterSet& conf, bool with_iso);
-  ~ElectronMVAEstimatorRun2Fall17();
+  ~ElectronMVAEstimatorRun2Fall17() override;
 
   // Calculation of the MVA value (VID accessor)
   float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
@@ -39,7 +39,7 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
 
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
-  std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const;
+  std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
   std::vector<float> fillMVAVariables( const reco::GsfElectron * particle, const edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *beamSpot, const edm::Handle<double> rho) const;
   int findCategory( const edm::Ptr<reco::Candidate>& particle) const override;
   int findCategory( const reco::GsfElectron * particle) const ;
@@ -49,7 +49,7 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
 
   // Call this function once after the constructor to declare
   // the needed event content pieces to the framework
-  void setConsumes(edm::ConsumesCollector&&) const;
+  void setConsumes(edm::ConsumesCollector&&) const override;
   // Call this function once per event to retrieve all needed
   // event content pices
 
