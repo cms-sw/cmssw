@@ -98,7 +98,7 @@ void SensitiveDetector::NaNTrap(const G4Step* aStep) const
   if( edm::isNotFinite(xyz) != 0 ) {
 
     const G4VPhysicalVolume* pCurrentVol = aStep->GetPreStepPoint()->GetPhysicalVolume();
-    const G4String NameOfVol = pCurrentVol->GetName();
+    const G4String& NameOfVol = pCurrentVol->GetName();
     throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected in volume "
 			  + NameOfVol);
   }

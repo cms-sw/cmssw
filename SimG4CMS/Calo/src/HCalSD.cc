@@ -957,7 +957,7 @@ void HCalSD::getHitPMT (const G4Step * aStep) {
 
     //
     int    det      = static_cast<int>(HcalForward);
-    G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+    const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
     double rr       = (hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
     double phi      = (rr == 0. ? 0. :atan2(hitPoint.y(),hitPoint.x()));
     double etaR     = showerPMT->getRadius();
@@ -1023,7 +1023,7 @@ void HCalSD::getHitFibreBundle (const G4Step* aStep, bool type) {
 
     //
     int    det      = static_cast<int>(HcalForward);
-    G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+    const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
     double rr       = (hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
     double phi      = (rr == 0. ? 0. :atan2(hitPoint.y(),hitPoint.x()));
     double etaR     = showerBundle->getRadius();
