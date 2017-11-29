@@ -28,21 +28,21 @@ DCSRecord::~DCSRecord() {}
 
 std::ostream& operator<<(std::ostream& s, const DCSRecord& dcs)
 {
-  const time_t ts = dcs.getTimestamp().unixTime();
+  const time_t ts = dcs.timestamp().unixTime();
 
   s << "timeStamp:            " << asctime(localtime(&ts));
 
   std::streamsize ss = s.precision();
   s.setf(std::ios::fixed);
   s.precision(3);
-  s << "Magnet current (A):   " << std::fixed << std::setprecision(3) << dcs.getMagnetCurrent() << std::endl;
+  s << "Magnet current (A):   " << std::fixed << std::setprecision(3) << dcs.magnetCurrent() << std::endl;
   s.unsetf(std::ios::fixed);
   s.precision(ss);
 
   s << "HV state per partition:" << std::endl;
 
   for (unsigned int i = 0; i < DCSRecord::Partition::Last; ++i) {
-    s << "   " << std::setw(7) << std::left << dcs.getPartitionName(i)
+    s << "   " << std::setw(7) << std::left << dcs.partitionName(i)
       << ": " << (dcs.highVoltageReady(i)?"READY":"OFF")
       << std::endl;
   }
