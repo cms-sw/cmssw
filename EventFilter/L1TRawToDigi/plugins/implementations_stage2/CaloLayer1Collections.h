@@ -11,13 +11,7 @@ namespace l1t {
    namespace stage2 {
      class CaloLayer1Collections : public UnpackerCollections {
          public:
-            CaloLayer1Collections(edm::Event& e) :
-               UnpackerCollections(e),
-               ecalDigis_(new EcalTrigPrimDigiCollection()),
-               hcalDigis_(new HcalTrigPrimDigiCollection()),
-               caloRegions_(new L1CaloRegionCollection())
-            {};
-
+            CaloLayer1Collections(edm::Event& e);
             ~CaloLayer1Collections() override;
 
             inline EcalTrigPrimDigiCollection* getEcalDigis() {return ecalDigis_.get();};
