@@ -61,7 +61,7 @@ using namespace boost;
    SimTrack that originated that vertex.
 
    Stable particles are recovered/added in a second iterations and are linked
-   to ghost vertices with a reasonably high offset(1E6).
+   to ghost vertices with an offset starting from the highest generated vertex.
 */
 struct EdgeProperty {
   EdgeProperty(const SimTrack* t,
@@ -322,8 +322,9 @@ Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       used_sim_tracks[trackid_to_track_index[v.parentIndex()]] = true;
     }
   }
-  // Now recover the particles that did not decay.
-  int offset = 1000000;
+  // Now recover the particles that did not decay. Append them with an index
+  // bigger than the size of the generated vertices.
+  int offset = vertices.size() + 1;
   for (size_t i = 0; i < tracks.size(); ++i) {
     if (!used_sim_tracks[i])
       add_edge(tracks.at(i).vertIndex(), offset++,
