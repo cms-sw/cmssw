@@ -36,7 +36,11 @@ dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
     )
 )
 
+
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
+DTDataIntegrityTask.FEDIDmin  = cms.untracked.int32(770)
+DTDataIntegrityTask.FEDIDmax  = cms.untracked.int32(774)
+DTDataIntegrityTask.checkUros  = cms.untracked.bool(False)
 DTDataIntegrityTask.processingMode = "Offline"
 
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
@@ -50,3 +54,12 @@ dtSources = cms.Sequence(dtDataIntegrityUnpacker  +
                          dtEfficiencyMonitor +
                          dtTriggerEfficiencyMonitor +
                          dqmInfoDT)
+
+import EventFilter.DTRawToDigi.dturosunpacker_cfi
+_dturosunpacker = EventFilter.DTRawToDigi.dturosunpacker_cfi.dturosunpacker.clone()
+from Configuration.Eras.Modifier_run2_DT_2018_cff import run2_DT_2018
+run2_DT_2018.toReplaceWith(dtDataIntegrityUnpacker, _dturosunpacker)
+run2_DT_2018.toModify(DTDataIntegrityTask,FEDIDmin=cms.untracked.int32(1368))
+run2_DT_2018.toModify(DTDataIntegrityTask,FEDIDmax=cms.untracked.int32(1370))
+run2_DT_2018.toModify(DTDataIntegrityTask,checkUros=cms.untracked.bool(True))
+

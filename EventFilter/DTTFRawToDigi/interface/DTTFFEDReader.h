@@ -95,8 +95,6 @@ class DTTFFEDReader : public edm::stream::EDProducer<> {
 
   int wheel(int channel);
 
-  void calcCRC(int myD1, int myD2, int &myC);
-
   edm::InputTag getDTTFInputTag() { return DTTFInputTag; }
 
   edm::EDGetTokenT<FEDRawDataCollection> Raw_token;
