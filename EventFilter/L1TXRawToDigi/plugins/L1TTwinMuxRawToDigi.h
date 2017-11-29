@@ -72,8 +72,6 @@ private:
     ++lines;
   }
 
-  void calcCRC( long word, int & myC );
-
   edm::InputTag getDTTM7InputTag() { return DTTM7InputTag_; }
   
   edm::EDGetTokenT<FEDRawDataCollection> Raw_token;
