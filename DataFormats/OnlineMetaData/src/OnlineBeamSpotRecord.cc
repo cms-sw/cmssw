@@ -56,29 +56,29 @@ OnlineBeamSpotRecord::~OnlineBeamSpotRecord() {}
 
 std::ostream& operator<<(std::ostream& s, const OnlineBeamSpotRecord& beamSpot)
 {
-  const time_t ts = beamSpot.getTimestamp().unixTime();
+  const time_t ts = beamSpot.timestamp().unixTime();
 
   s << "timeStamp:         " << asctime(localtime(&ts));
 
   std::streamsize ss = s.precision();
   s.setf(std::ios::fixed);
   s.precision(6);
-  s << "x:                 " << beamSpot.getX() << std::endl;
-  s << "y:                 " << beamSpot.getY() << std::endl;
-  s << "z:                 " << beamSpot.getZ() << std::endl;
-  s << "dxdz:              " << beamSpot.getDxdz() << std::endl;
-  s << "dydz:	           " << beamSpot.getDydz() << std::endl;
-  s << "err of x:          " << beamSpot.getErrX() << std::endl;
-  s << "err of y:          " << beamSpot.getErrX() << std::endl;
-  s << "err of z:          " << beamSpot.getErrZ() << std::endl;
-  s << "err of dxdz:       " << beamSpot.getErrDxdz() << std::endl;
-  s << "err of dydz:       " << beamSpot.getErrDydz() << std::endl;
-  s << "width in x:        " << beamSpot.getWidthX() << std::endl;
-  s << "width in y:        " << beamSpot.getWidthY() << std::endl;
-  s << "sigma z:           " << beamSpot.getSigmaZ() << std::endl;
-  s << "err of width in x: " << beamSpot.getErrWidthX() << std::endl;
-  s << "err of width in y  " << beamSpot.getErrWidthY() << std::endl;
-  s << "err of sigma z:    " << beamSpot.getErrSigmaZ() << std::endl;
+  s << "x:                 " << beamSpot.x() << std::endl;
+  s << "y:                 " << beamSpot.y() << std::endl;
+  s << "z:                 " << beamSpot.z() << std::endl;
+  s << "dxdz:              " << beamSpot.dxdz() << std::endl;
+  s << "dydz:              " << beamSpot.dydz() << std::endl;
+  s << "err of x:          " << beamSpot.errX() << std::endl;
+  s << "err of y:          " << beamSpot.errX() << std::endl;
+  s << "err of z:          " << beamSpot.errZ() << std::endl;
+  s << "err of dxdz:       " << beamSpot.errDxdz() << std::endl;
+  s << "err of dydz:       " << beamSpot.errDydz() << std::endl;
+  s << "width in x:        " << beamSpot.widthX() << std::endl;
+  s << "width in y:        " << beamSpot.widthY() << std::endl;
+  s << "sigma z:           " << beamSpot.sigmaZ() << std::endl;
+  s << "err of width in x: " << beamSpot.errWidthX() << std::endl;
+  s << "err of width in y  " << beamSpot.errWidthY() << std::endl;
+  s << "err of sigma z:    " << beamSpot.errSigmaZ() << std::endl;
   s.unsetf(std::ios::fixed);
   s.precision(ss);
 

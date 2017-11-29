@@ -11,6 +11,8 @@
 #include <string.h>
 #include <vector>
 
+#include <boost/filesystem.hpp>
+
 
 class TestOnlineMetaDataRecord: public CppUnit::TestFixture
 {
@@ -33,7 +35,6 @@ private:
   const std::string dumpFileName = "dump_run000001_event00057185_fed1022.txt";
   std::vector<uint32_t> data;
   onlineMetaData::Data_v1 const* onlineMetaData;
-  //OnlineMetaDataRecord onlineMetaDataRecord;
 };
 
 ///registration of the test so that the runner can find it
@@ -43,12 +44,12 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestOnlineMetaDataRecord);
 void TestOnlineMetaDataRecord::setUp() {
 
   if ( data.empty() ) {
-    char* cmsswBase;
-    cmsswBase = getenv("CMSSW_BASE");
-    std::ostringstream dumpFileStr;
-    dumpFileStr << cmsswBase << "/src/DataFormats/OnlineMetaData/test/" << dumpFileName;
+    std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
+    std::string CMSSW_RELEASE_BASE(std::getenv("CMSSW_RELEASE_BASE"));
+    std::string dumpFileName("/src/DataFormats/OnlineMetaData/test/dump_run000001_event00057185_fed1022.txt");
+    std::string fullPath = boost::filesystem::exists((CMSSW_BASE+dumpFileName).c_str()) ? CMSSW_BASE+dumpFileName : CMSSW_RELEASE_BASE+dumpFileName;
 
-    std::ifstream dumpFile(dumpFileStr.str().c_str());
+    std::ifstream dumpFile(fullPath.c_str());
     uint32_t address;
 
     std::string line, column;
@@ -86,13 +87,13 @@ void TestOnlineMetaDataRecord::testDCSRecord() {
   std::cout << dcs << std::endl;
 
   // DIP timestamp is in milliseconds
-  const uint64_t ts = dcs.getTimestamp().unixTime() * 1000UL + dcs.getTimestamp().microsecondOffset()/1000;
+  const uint64_t ts = dcs.timestamp().unixTime() * 1000UL + dcs.timestamp().microsecondOffset()/1000;
   CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x160036025f6),ts );
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint32_t>(0x0180018f),dcs.getHighVoltageReady() );
+  CPPUNIT_ASSERT_EQUAL( static_cast<uint32_t>(0x0180018f),dcs.highVoltageReady() );
   CPPUNIT_ASSERT( dcs.highVoltageReady(DCSRecord::Partition::HF) );
   CPPUNIT_ASSERT( ! dcs.highVoltageReady(DCSRecord::Partition::CASTOR) );
   CPPUNIT_ASSERT( dcs.highVoltageReady(DCSRecord::Partition::ESm) );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x468de7eb),dcs.getMagnetCurrent() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x468de7eb),dcs.magnetCurrent() );
 }
 
 
@@ -102,24 +103,24 @@ void TestOnlineMetaDataRecord::testOnlineBeamSpotRecord() {
   std::cout << beamSpot << std::endl;
 
   // DIP timestamp is in milliseconds
-  const uint64_t ts = beamSpot.getTimestamp().unixTime() * 1000UL + beamSpot.getTimestamp().microsecondOffset()/1000;
+  const uint64_t ts = beamSpot.timestamp().unixTime() * 1000UL + beamSpot.timestamp().microsecondOffset()/1000;
   CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x15ff7e03190),ts );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3da6a162),beamSpot.getX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0xbcf2b488),beamSpot.getY() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3edb7ed4),beamSpot.getZ() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x38bc750c),beamSpot.getDxdz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0xb84079b1),beamSpot.getDydz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3d6fb475),beamSpot.getErrX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3866b990),beamSpot.getErrY() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x00000000),beamSpot.getErrZ() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x37841abe),beamSpot.getErrDxdz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x37814f2b),beamSpot.getErrDydz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3ae1af07),beamSpot.getWidthX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3ada5b00),beamSpot.getWidthY() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x405c8049),beamSpot.getSigmaZ() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x387463de),beamSpot.getErrWidthX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x387463de),beamSpot.getErrWidthY() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3d29804d),beamSpot.getErrSigmaZ() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3da6a162),beamSpot.x() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0xbcf2b488),beamSpot.y() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3edb7ed4),beamSpot.z() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x38bc750c),beamSpot.dxdz() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0xb84079b1),beamSpot.dydz() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3d6fb475),beamSpot.errX() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3866b990),beamSpot.errY() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x00000000),beamSpot.errZ() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x37841abe),beamSpot.errDxdz() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x37814f2b),beamSpot.errDydz() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3ae1af07),beamSpot.widthX() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3ada5b00),beamSpot.widthY() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x405c8049),beamSpot.sigmaZ() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x387463de),beamSpot.errWidthX() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x387463de),beamSpot.errWidthY() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3d29804d),beamSpot.errSigmaZ() );
 }
 
 
@@ -129,10 +130,10 @@ void TestOnlineMetaDataRecord::testOnlineLuminosityRecord() {
   std::cout << lumi << std::endl;
 
   // DIP timestamp is in milliseconds
-  const uint64_t ts = lumi.getTimestamp().unixTime() * 1000UL + lumi.getTimestamp().microsecondOffset()/1000;
+  const uint64_t ts = lumi.timestamp().unixTime() * 1000UL + lumi.timestamp().microsecondOffset()/1000;
   CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x160070979e4),ts );
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint16_t>(0x59),lumi.getLumiSection() );
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint16_t>(0x30),lumi.getLumiNibble() );
-  CPPUNIT_ASSERT_EQUAL( static_cast<float>(0),lumi.getInstLumi() );
-  CPPUNIT_ASSERT_EQUAL( static_cast<float>(0),lumi.getAvgPileUp() );
+  CPPUNIT_ASSERT_EQUAL( static_cast<uint16_t>(0x59),lumi.lumiSection() );
+  CPPUNIT_ASSERT_EQUAL( static_cast<uint16_t>(0x30),lumi.lumiNibble() );
+  CPPUNIT_ASSERT_EQUAL( static_cast<float>(0),lumi.instLumi() );
+  CPPUNIT_ASSERT_EQUAL( static_cast<float>(0),lumi.avgPileUp() );
 }

@@ -1,12 +1,12 @@
 <lcgdict>
-  <class name="DCSRecord" ClassVersion="0">
-    <version ClassVersion="0" checksum="1773617963"/>
+  <class name="DCSRecord" ClassVersion="3">
+    <version ClassVersion="3" checksum="2851988978"/>
   </class>
-  <class name="OnlineBeamSpotRecord" ClassVersion="0">
-    <version ClassVersion="0" checksum="1614588742"/>
+  <class name="OnlineBeamSpotRecord" ClassVersion="3">
+    <version ClassVersion="3" checksum="1614588742"/>
   </class>
-  <class name="OnlineLuminosityRecord" ClassVersion="0">
-    <version ClassVersion="0" checksum="3886767679"/>
+  <class name="OnlineLuminosityRecord" ClassVersion="3">
+    <version ClassVersion="3" checksum="2293125545"/>
   </class>
 
   <class name="edm::RefProd<DCSRecord>"/>

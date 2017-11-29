@@ -24,29 +24,29 @@ public:
   OnlineLuminosityRecord(const onlineMetaData::Luminosity_v1&);
   virtual ~OnlineLuminosityRecord();
 
-  // Return the time when the lumi was recorded
-  edm::Timestamp getTimestamp() const { return timestamp_; }
+  /// Return the time when the lumi was recorded
+  const edm::Timestamp& timestamp() const { return timestamp_; }
 
-  // Return the lumi-section number
-  uint16_t getLumiSection() const { return lumiSection_; }
+  /// Return the lumi-section number
+  uint16_t lumiSection() const { return lumiSection_; }
 
-  // Return the lumi-nibble number
-  uint16_t getLumiNibble() const { return lumiNibble_; }
+  /// Return the lumi-nibble number
+  uint16_t lumiNibble() const { return lumiNibble_; }
 
-  // Return the luminosity for the current nibble
-  float getInstLumi() const { return instLumi_; }
+  /// Return the luminosity for the current nibble
+  float instLumi() const { return instLumi_; }
 
-  // Return the average pileup for th current nibble
-  float getAvgPileUp() const { return avgPileUp_; }
+  /// Return the average pileup for th current nibble
+  float avgPileUp() const { return avgPileUp_; }
 
 
 private:
 
   edm::Timestamp timestamp_;
-  uint16_t lumiSection_;
-  uint16_t lumiNibble_;
   float instLumi_;
   float avgPileUp_;
+  uint16_t lumiSection_;
+  uint16_t lumiNibble_;
 
 };
 

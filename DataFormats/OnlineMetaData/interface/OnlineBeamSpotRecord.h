@@ -24,25 +24,25 @@ public:
   OnlineBeamSpotRecord(const onlineMetaData::BeamSpot_v1&);
   virtual ~OnlineBeamSpotRecord();
 
-  // Return the time when the beamspot was published
-  edm::Timestamp getTimestamp() const { return timestamp_; }
+  /// Return the time when the beamspot was published
+  const edm::Timestamp& timestamp() const { return timestamp_; }
 
-  float getX() const { return x_; }
-  float getY() const { return y_; }
-  float getZ() const { return z_; }
-  float getDxdz() const { return dxdz_; }
-  float getDydz() const { return dydz_; }
-  float getErrX() const { return errX_; }
-  float getErrY() const { return errY_; }
-  float getErrZ() const { return errZ_; }
-  float getErrDxdz() const { return errDxdz_; }
-  float getErrDydz() const { return errDydz_; }
-  float getWidthX() const { return widthX_; }
-  float getWidthY() const { return widthY_; }
-  float getSigmaZ() const { return sigmaZ_; }
-  float getErrWidthX() const { return errWidthX_; }
-  float getErrWidthY() const { return errWidthY_; }
-  float getErrSigmaZ() const { return errSigmaZ_; }
+  float x() const { return x_; }
+  float y() const { return y_; }
+  float z() const { return z_; }
+  float dxdz() const { return dxdz_; }
+  float dydz() const { return dydz_; }
+  float errX() const { return errX_; }
+  float errY() const { return errY_; }
+  float errZ() const { return errZ_; }
+  float errDxdz() const { return errDxdz_; }
+  float errDydz() const { return errDydz_; }
+  float widthX() const { return widthX_; }
+  float widthY() const { return widthY_; }
+  float sigmaZ() const { return sigmaZ_; }
+  float errWidthX() const { return errWidthX_; }
+  float errWidthY() const { return errWidthY_; }
+  float errSigmaZ() const { return errSigmaZ_; }
 
 
 private:
