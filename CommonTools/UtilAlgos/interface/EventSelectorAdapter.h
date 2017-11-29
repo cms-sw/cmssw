@@ -19,12 +19,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
-
-template <typename T>
-struct FillDescriptionTraits {
-  static std::string moduleLabel() { return defaultModuleLabel<T>(); }
-};
 
 template<typename T>
 class EventSelectorAdapter : public edm::global::EDFilter<>
@@ -39,11 +33,9 @@ class EventSelectorAdapter : public edm::global::EDFilter<>
   ~EventSelectorAdapter() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    using Traits = FillDescriptionTraits<EventSelectorAdapter<T> >;
-
     edm::ParameterSetDescription desc;
     T::fillPSetDescription(desc);
-    descriptions.add(Traits::moduleLabel(), desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
  private:
