@@ -187,13 +187,13 @@ bool DTSpyReader::isHeader(uint64_t word, bool dataTag) {
 }
 
 
-bool DTSpyReader::isTrailer(uint64_t word, bool dataTag, int wordCount) {
+bool DTSpyReader::isTrailer(uint64_t word, bool dataTag, unsigned int wordCount) {
 
   bool it_is = false;
   FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
   if ( candidate.check() ) {
     //  if ( candidate.check() && !dataTag) {
-    if ( wordCount == candidate.lenght())
+    if ( wordCount == candidate.eventSize())
       it_is = true;
   }
   return it_is;
