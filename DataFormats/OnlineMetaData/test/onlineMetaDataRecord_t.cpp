@@ -30,7 +30,7 @@ public:
   void testOnlineLuminosityRecord();
 
 private:
-  const std::string dumpFileName = "dump_run000001_event00020137_fed1022.txt";
+  const std::string dumpFileName = "dump_run000001_event00057185_fed1022.txt";
   std::vector<uint32_t> data;
   onlineMetaData::Data_v1 const* onlineMetaData;
   //OnlineMetaDataRecord onlineMetaDataRecord;
@@ -66,11 +66,9 @@ void TestOnlineMetaDataRecord::setUp() {
     }
     dumpFile.close();
 
-    CPPUNIT_ASSERT( data.size() == 36 );
+    CPPUNIT_ASSERT_EQUAL( static_cast<size_t>(34),data.size() );
 
     onlineMetaData = reinterpret_cast<onlineMetaData::Data_v1 const*>(data.data());
-    //    onlineMetaDataRecord = OnlineMetaDataRecord((unsigned char*)data.data());
-    //    std::cout << onlineMetaDataRecord << std::endl;
   }
 }
 
@@ -89,13 +87,12 @@ void TestOnlineMetaDataRecord::testDCSRecord() {
 
   // DIP timestamp is in milliseconds
   const uint64_t ts = dcs.getTimestamp().unixTime() * 1000UL + dcs.getTimestamp().microsecondOffset()/1000;
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x15fde021420),ts );
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint32_t>(0x019e7dbf),dcs.getHighVoltageReady() );
-  CPPUNIT_ASSERT( dcs.highVoltageReady(DCSRecord::Partition::HBHEa) );
+  CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x160036025f6),ts );
+  CPPUNIT_ASSERT_EQUAL( static_cast<uint32_t>(0x0180018f),dcs.getHighVoltageReady() );
+  CPPUNIT_ASSERT( dcs.highVoltageReady(DCSRecord::Partition::HF) );
   CPPUNIT_ASSERT( ! dcs.highVoltageReady(DCSRecord::Partition::CASTOR) );
   CPPUNIT_ASSERT( dcs.highVoltageReady(DCSRecord::Partition::ESm) );
   CPPUNIT_ASSERT_EQUAL( castToFloat(0x468de7eb),dcs.getMagnetCurrent() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x407340c6),dcs.getMagneticField() );
 }
 
 
@@ -106,23 +103,23 @@ void TestOnlineMetaDataRecord::testOnlineBeamSpotRecord() {
 
   // DIP timestamp is in milliseconds
   const uint64_t ts = beamSpot.getTimestamp().unixTime() * 1000UL + beamSpot.getTimestamp().microsecondOffset()/1000;
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x15fdd282e98),ts );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3db238e8),beamSpot.getX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0xbd02451f),beamSpot.getY() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3fb7c654),beamSpot.getZ() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x38f133ac),beamSpot.getDxdz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x38be5aea),beamSpot.getDydz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3e99ddda),beamSpot.getErrX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x38fb8b6c),beamSpot.getErrY() );
+  CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x15ff7e03190),ts );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3da6a162),beamSpot.getX() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0xbcf2b488),beamSpot.getY() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3edb7ed4),beamSpot.getZ() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x38bc750c),beamSpot.getDxdz() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0xb84079b1),beamSpot.getDydz() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3d6fb475),beamSpot.getErrX() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3866b990),beamSpot.getErrY() );
   CPPUNIT_ASSERT_EQUAL( castToFloat(0x00000000),beamSpot.getErrZ() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x37a38736),beamSpot.getErrDxdz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x379de6fb),beamSpot.getErrDydz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3b9813c8),beamSpot.getWidthX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3b8f8833),beamSpot.getWidthY() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x40c36fe7),beamSpot.getSigmaZ() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x394a1529),beamSpot.getErrWidthX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x394a1529),beamSpot.getErrWidthY() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3e599913),beamSpot.getErrSigmaZ() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x37841abe),beamSpot.getErrDxdz() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x37814f2b),beamSpot.getErrDydz() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3ae1af07),beamSpot.getWidthX() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3ada5b00),beamSpot.getWidthY() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x405c8049),beamSpot.getSigmaZ() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x387463de),beamSpot.getErrWidthX() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x387463de),beamSpot.getErrWidthY() );
+  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3d29804d),beamSpot.getErrSigmaZ() );
 }
 
 
@@ -133,9 +130,9 @@ void TestOnlineMetaDataRecord::testOnlineLuminosityRecord() {
 
   // DIP timestamp is in milliseconds
   const uint64_t ts = lumi.getTimestamp().unixTime() * 1000UL + lumi.getTimestamp().microsecondOffset()/1000;
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x15fde07acb0),ts );
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint16_t>(60),lumi.getLumiSection() );
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint16_t>(40),lumi.getLumiNibble() );
+  CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x160070979e4),ts );
+  CPPUNIT_ASSERT_EQUAL( static_cast<uint16_t>(0x59),lumi.getLumiSection() );
+  CPPUNIT_ASSERT_EQUAL( static_cast<uint16_t>(0x30),lumi.getLumiNibble() );
   CPPUNIT_ASSERT_EQUAL( static_cast<float>(0),lumi.getInstLumi() );
   CPPUNIT_ASSERT_EQUAL( static_cast<float>(0),lumi.getAvgPileUp() );
 }

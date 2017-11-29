@@ -51,16 +51,12 @@ public:
   // Return the current of the CMS magnet in A
   float getMagnetCurrent() const { return magnetCurrent_; }
 
-  // Return the magnetic field in T
-  float getMagneticField() const { return magneticField_; }
-
 
 private:
 
   edm::Timestamp timestamp_;
   uint32_t highVoltageReady_;
   float magnetCurrent_;
-  float magneticField_;
 
   std::vector<std::string> partitionNames_ = {
     "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO",

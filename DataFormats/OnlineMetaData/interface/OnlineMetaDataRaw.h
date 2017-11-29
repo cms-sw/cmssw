@@ -49,7 +49,6 @@ namespace onlineMetaData {
     const uint64_t timestamp;
     const uint32_t highVoltageReady;
     const float magnetCurrent;
-    const float magneticField;
   };
 
   struct Data_v1
