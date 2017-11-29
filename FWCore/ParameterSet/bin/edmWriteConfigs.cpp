@@ -87,7 +87,7 @@ namespace {
 
     std::string baseType = filler->baseType();
 
-    edm::ConfigurationDescriptions descriptions(filler->baseType());
+    edm::ConfigurationDescriptions descriptions(filler->baseType(), pluginName);
 
     try {
       edm::convertException::wrap([&]() {
