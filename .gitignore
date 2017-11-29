@@ -1,4 +1,5 @@
 __init__.py
+*.txt
 *.pyc
 .*.swp
 .#*

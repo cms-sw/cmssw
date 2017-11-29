@@ -1,0 +1,48 @@
+***********************************************************************
+*                                                                     *
+* Instructions to compile and Run GPU RawToDigi only                  *
+* 15 November 2017                                                     *
+*                                                                     *
+* Input File: Raw Data in root format                                 *
+*                                                                     *
+* Output part1: Index(or pixel_no), xcord, ycord & adc                *
+* Output part2: Start & End Index of each module in part 1            *
+* The output CAN BE stored in the text file if you WANT in            *
+* GPU_RawToDigi_Output_Part1_Event_NtoN+128.txt                       *
+* GPU_RawToDigi_Output_Part2_Event_NtoN+128.txt                       *
+* The file RawId_moduleId.txt contains RawId(DetId) for module index  *
+***********************************************************************
+
+file type:/eos/cms/store/relval/CMSSW_9_4_0/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_upgrade2018_realistic_v5-v1/10000/
+
+Input file: /store/relval/CMSSW_9_4_0/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_upgrade2018_realistic_v5-v1/10000/F87005CD-CBC8-E711-A9F5-0CC47A4D7694.root
+Please change the input file path or name in python script
+EventFilter/SiPixelRawToDigi/test/runRawToDigi_GPU_phase1.py
+
+0. login to felk40
+   > ssh username@lxplus.cern.ch
+   > ssh felk40
+
+
+1. Download the code from repository:
+   > cmsrel CMSSW_9_4_0
+   > cd CMSSW_9_4_0/src
+   > cmsenv
+   > git cms-merge-topic sushildubey171:GPU_RawToDigi_C940
+   > scram setup cuda
+   > scram b -j8
+
+
+2. Run: 
+   Before running, please make sure that there is proper 
+   reference of the input file in the runRawToDigi_GPU_phase1.py
+   > cd EventFilter/SiPixelRawToDigi/test
+   > cmsRun runRawToDigi_GPU_phase1.py   
+
+
+3. Output:
+   Upon successful execution it will dispaly message on the console.
+   It can produce output files for debugging according to value of 
+   r2d_debug variable in SiPixelRawToDigi.cc 
+   located in CMSSW_9_4_0/src/EventFilter/SiPixelRawToDigi/plugins/
+   The output is stored in the test directory
