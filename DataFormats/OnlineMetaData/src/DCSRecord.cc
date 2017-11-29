@@ -8,8 +8,7 @@
 DCSRecord::DCSRecord() :
   timestamp_(edm::Timestamp::invalidTimestamp()),
   highVoltageReady_(0),
-  magnetCurrent_(-1),
-  magneticField_(-1)
+  magnetCurrent_(-1)
 {}
 
 
@@ -21,7 +20,6 @@ DCSRecord::DCSRecord(const onlineMetaData::DCS_v1& dcs)
   timestamp_ = edm::Timestamp((seconds<<32) | microseconds );
   highVoltageReady_ = dcs.highVoltageReady;
   magnetCurrent_ = dcs.magnetCurrent;
-  magneticField_ = dcs.magneticField;
 }
 
 
@@ -38,7 +36,6 @@ std::ostream& operator<<(std::ostream& s, const DCSRecord& dcs)
   s.setf(std::ios::fixed);
   s.precision(3);
   s << "Magnet current (A):   " << std::fixed << std::setprecision(3) << dcs.getMagnetCurrent() << std::endl;
-  s << "Magnetic field (T):   " << std::fixed << std::setprecision(3) << dcs.getMagneticField() << std::endl;
   s.unsetf(std::ios::fixed);
   s.precision(ss);
 
