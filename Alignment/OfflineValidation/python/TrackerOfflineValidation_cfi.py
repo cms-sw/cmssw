@@ -9,11 +9,12 @@ TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     moduleLevelHistsTransient = cms.bool(False),  # Do not switch on in DQM mode, TrackerOfflineValidationSummary needs it
     moduleLevelProfiles       = cms.bool(False),  # Do not switch on in DQM mode
     localCoorProfilesOn       = cms.bool(False),
-    stripYResiduals           = cms.bool(False),                                        
+    stripYResiduals           = cms.bool(False),
     useFwhm                   = cms.bool(True),
     useFit                    = cms.bool(False),  # Unused in DQM mode, where it has to be specified in TrackerOfflineValidationSummary
     useCombinedTrajectory     = cms.bool(False),
     useOverflowForRMS         = cms.bool(False),
+    maxTracks                 = cms.uint64(0),
     # Normalized X Residuals, normal local coordinates (Strip)
     TH1NormXResStripModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)
@@ -38,48 +39,48 @@ TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     TH1NormYResStripModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)
     ),
-    # -> very broad distributions expected                                         
+    # -> very broad distributions expected
     TH1YResStripModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-11.0), xmax = cms.double(11.0)
     ),
 
-    # Normalized X residuals normal local coordinates (Pixel)                                        
+    # Normalized X residuals normal local coordinates (Pixel)
     TH1NormXResPixelModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)
     ),
-    # X residuals normal local coordinates (Pixel)                                        
+    # X residuals normal local coordinates (Pixel)
     TH1XResPixelModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-0.5), xmax = cms.double(0.5)
     ),
-    # Normalized X residuals native coordinates (Pixel)                                        
+    # Normalized X residuals native coordinates (Pixel)
     TH1NormXprimeResPixelModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)
     ),
-    # X residuals native coordinates (Pixel)                                        
+    # X residuals native coordinates (Pixel)
     TH1XprimeResPixelModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-    ),                                        
-    # Normalized Y residuals native coordinates (Pixel)                                         
+    ),
+    # Normalized Y residuals native coordinates (Pixel)
     TH1NormYResPixelModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)
     ),
-    # Y residuals native coordinates (Pixel)                                         
+    # Y residuals native coordinates (Pixel)
     TH1YResPixelModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-0.5), xmax = cms.double(0.5)
     ),
-    # X Residuals vs reduced local coordinates (Strip)                      
+    # X Residuals vs reduced local coordinates (Strip)
     TProfileXResStripModules = cms.PSet(
         Nbinx = cms.int32(20), xmin = cms.double(-1.0), xmax = cms.double(1.0)
     ),
-    # X Residuals vs reduced local coordinates (Strip)                      
+    # X Residuals vs reduced local coordinates (Strip)
     TProfileYResStripModules = cms.PSet(
         Nbinx = cms.int32(20), xmin = cms.double(-1.0), xmax = cms.double(1.0)
     ),
-    # X Residuals vs reduced local coordinates (Pixel)                      
+    # X Residuals vs reduced local coordinates (Pixel)
     TProfileXResPixelModules = cms.PSet(
         Nbinx = cms.int32(20), xmin = cms.double(-1.0), xmax = cms.double(1.0)
     ),
-    # X Residuals vs reduced local coordinates (Pixel)                      
+    # X Residuals vs reduced local coordinates (Pixel)
     TProfileYResPixelModules = cms.PSet(
         Nbinx = cms.int32(20), xmin = cms.double(-1.0), xmax = cms.double(1.0)
     )
