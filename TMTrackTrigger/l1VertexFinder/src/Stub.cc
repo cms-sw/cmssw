@@ -61,7 +61,7 @@ Stub::Stub(TTStubRef ttStubRef, unsigned int index_in_vStubs, const Settings* se
 //=== Note which tracking particle(s), if any, produced this stub.
 //=== The 1st argument is a map relating TrackingParticles to TP.
 
-void Stub::fillTruth(const map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle){
+void Stub::fillTruth(const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle){
 
   TTStubRef ttStubRef(*this); // Cast to base class
 
@@ -94,7 +94,7 @@ void Stub::fillTruth(const map<edm::Ptr< TrackingParticle >, const TP* >& transl
        const TTClusterRef& ttClusterRef = ttStubRef->getClusterRef(iClus);
 
       // Now identify all TP's contributing to either cluster in stub.
-      vector< edm::Ptr< TrackingParticle > > vecTpPtr = mcTruthTTClusterHandle->findTrackingParticlePtrs(ttClusterRef);
+      std::vector< edm::Ptr< TrackingParticle > > vecTpPtr = mcTruthTTClusterHandle->findTrackingParticlePtrs(ttClusterRef);
 
       for (edm::Ptr< TrackingParticle> tpPtr : vecTpPtr) {
   if (translateTP.find(tpPtr) != translateTP.end()) {

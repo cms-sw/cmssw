@@ -31,7 +31,7 @@ TP::TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const Settings* se
   tip_(sqrt(tpPtr->vertex().perp2()))
 
 {
-  const vector<SimTrack> &vst = tpPtr->g4Tracks();
+  const std::vector<SimTrack> &vst = tpPtr->g4Tracks();
   EncodedEventId eid = vst.at(0).eventId(); 
   inTimeBx_ = (eid.bunchCrossing() == 0); // TP from in-time or out-of-time Bx.
   physicsCollision_ = (eid.event() == 0);  // TP from physics collision or from pileup.
@@ -43,7 +43,7 @@ TP::TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const Settings* se
 
 //=== Fill truth info with association from tracking particle to stubs.
 
-void TP::fillTruth(const vector<Stub>& vStubs) {
+void TP::fillTruth(const std::vector<Stub>& vStubs) {
 
   for (const Stub& s : vStubs) {
     for (const TP* tp_i : s.assocTPs()) {
@@ -98,8 +98,8 @@ void TP::fillUse() {
   // Use looser cuts here those those used for tracking efficiency measurement.
   // Keep only those TP that have a chance (allowing for finite track resolution) of being reconstructed as L1 tracks. L1 tracks not matching these TP will be defined as fake.
 
-  const vector<int> genPdgIdsAllUnsigned = {11, 13, 211, 321, 2212}; // Include all possible particle types here, as if some are left out, L1 tracks matching one of missing types will be declared fake.
-  vector<int> genPdgIdsAll;
+  const std::vector<int> genPdgIdsAllUnsigned = {11, 13, 211, 321, 2212}; // Include all possible particle types here, as if some are left out, L1 tracks matching one of missing types will be declared fake.
+  std::vector<int> genPdgIdsAll;
   for (unsigned int i = 0; i < genPdgIdsAllUnsigned.size(); i++) {
     genPdgIdsAll.push_back(  genPdgIdsAllUnsigned[i] );
     genPdgIdsAll.push_back( -genPdgIdsAllUnsigned[i] );
@@ -107,15 +107,15 @@ void TP::fillUse() {
 
   // Range big enough to include all TP needed to measure tracking efficiency
   // and big enough to include any TP that might be reconstructed for fake rate measurement.
-  const float ptMin  = min(settings_->genMinPt(), 2.);
-  const float etaMax = max(settings_->genMaxAbsEta(), 3.5);
+  const float ptMin  = std::min(settings_->genMinPt(), 2.);
+  const float etaMax = std::max(settings_->genMaxAbsEta(), 3.5);
 
   static TrackingParticleSelector trackingParticleSelector(ptMin,
                  9999999999,
                  -etaMax,
                   etaMax,
-                 max(10.0, settings_->genMaxVertR()),
-                 max(35.0, settings_->genMaxVertZ()),
+                 std::max(10.0, settings_->genMaxVertR()),
+                 std::max(35.0, settings_->genMaxVertZ()),
                  0,
                  useOnlyTPfromPhysicsCollisionFalse,
                  useOnlyInTimeParticles,

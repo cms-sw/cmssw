@@ -9,6 +9,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 
+
+using namespace std;
+
 namespace vertexFinder {
 namespace utility {
 

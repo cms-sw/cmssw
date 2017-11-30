@@ -63,7 +63,7 @@ Settings::Settings(const edm::ParameterSet& iConfig) :
  
 {
   // If user didn't specify any PDG codes, use e,mu,pi,K,p, to avoid picking up unstable particles like Xi-.
-  vector<unsigned int> genPdgIdsUnsigned( genCuts_.getParameter<std::vector<unsigned int> >   ( "GenPdgIds" ) ); 
+  std::vector<unsigned int> genPdgIdsUnsigned( genCuts_.getParameter<std::vector<unsigned int> >   ( "GenPdgIds" ) ); 
   if (genPdgIdsUnsigned.empty()) {
     genPdgIdsUnsigned = {11, 13, 211, 321, 2212};  
   }

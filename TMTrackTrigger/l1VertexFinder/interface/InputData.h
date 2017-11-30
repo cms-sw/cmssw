@@ -12,8 +12,6 @@
 #include "TMTrackTrigger/l1VertexFinder/interface/Vertex.h"
 
 
-using namespace std;
-
 
 namespace vertexFinder {
 
@@ -42,13 +40,13 @@ public:
   };
 
   // Get tracking particles
-  const vector<TP>&          getTPs()      const {return vTPs_;}
+  const std::vector<TP>&     getTPs()      const {return vTPs_;}
   /// Get Primary vertex information
   const Vertex&              getPrimaryVertex()       const {return vertex_;}
   /// Get PileUp Vertices information
-  const vector<Vertex>&      getPileUpVertices()      const {return vertices_;}
+  const std::vector<Vertex>& getPileUpVertices()      const {return vertices_;}
   /// Get reconstructable pile-up vertices information
-  const vector<Vertex>&      getRecoPileUpVertices()      const {return recoVertices_;}
+  const std::vector<Vertex>& getRecoPileUpVertices()      const {return recoVertices_;}
   /// Generated MET
   const float                GenMET()          const { return genMET_;}
   const float                GenMET_PU()          const { return genMET_PU_;}
@@ -69,14 +67,14 @@ private:
 
 private:
 
-  vector<TP> vTPs_; // tracking particles
+  std::vector<TP> vTPs_; // tracking particles
   Vertex vertex_;
-  vector<Vertex> vertices_;
-  vector<Vertex> recoVertices_;
+  std::vector<Vertex> vertices_;
+  std::vector<Vertex> recoVertices_;
 
   //--- of minor importance ...
 
-  vector<Stub> vAllStubs_; // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure the efficiency of these cuts).
+  std::vector<Stub> vAllStubs_; // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure the efficiency of these cuts).
   float genMET_;
   float genMET_PU_;
   float genPt_;

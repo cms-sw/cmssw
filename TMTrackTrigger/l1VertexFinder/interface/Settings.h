@@ -6,7 +6,6 @@
 #include <vector>
 #include <iostream>
  
-using namespace std;
  
 
 namespace vertexFinder {
@@ -25,7 +24,7 @@ public:
   double               genMaxAbsEta()            const   {return genMaxAbsEta_;}
   double               genMaxVertR()             const   {return genMaxVertR_;}
   double               genMaxVertZ()             const   {return genMaxVertZ_;}
-  vector<int>          genPdgIds()               const   {return genPdgIds_;}
+  std::vector<int>          genPdgIds()               const   {return genPdgIds_;}
   // Additional cut on MC truth tracks for algorithmic tracking efficiency measurements.
   unsigned int         genMinStubLayers()        const   {return genMinStubLayers_;} // Min. number of layers TP made stub in.
 
@@ -115,7 +114,7 @@ private:
   double               genMaxAbsEta_;
   double               genMaxVertR_;
   double               genMaxVertZ_;
-  vector<int>          genPdgIds_;
+  std::vector<int>     genPdgIds_;
   unsigned int         genMinStubLayers_;
 
   // Rules for deciding when the track-finding has found an L1 track candidate
@@ -130,7 +129,7 @@ private:
   bool                 stubMatchStrict_;
  
   // Track Fitting Settings
-  vector<string>       trackFitters_;
+  std::vector<std::string> trackFitters_;
   double               chi2OverNdfCut_;
   bool                 detailedFitOutput_;
   unsigned int         numTrackFitIterations_;

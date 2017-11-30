@@ -2,11 +2,11 @@
 #define __TMTrackTrigger_VertexFinder_Vertex_h__
 
 
+#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/TP.h"
 
-#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
-
 #include <vector>
+
 
 
 namespace vertexFinder {
@@ -22,7 +22,7 @@ public:
   ~Vertex(){}
 
   /// Tracking Particles in vertex    
-  const vector<TP>& tracks()    const { return    tracks_;    }
+  const std::vector<TP>& tracks()    const { return    tracks_;    }
   /// Number of tracks originating from this vertex
   unsigned int      numTracks() const { return  tracks_.size();}
   /// Assign TP to this vertex
