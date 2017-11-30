@@ -1,3 +1,9 @@
+#ifndef ParserFunctions_H
+#define ParserFunctions_H
+
+#include <string>
+#include "xercesc/util/XMLString.hpp"
+
 namespace qtxml{
 	inline std::string _toString(const XMLCh *toTranscode){
 		std::string tmp(xercesc::XMLString::transcode(toTranscode));
@@ -10,3 +16,5 @@ namespace qtxml{
 	}
 
 }
+
+#endif
