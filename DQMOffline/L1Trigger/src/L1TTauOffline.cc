@@ -63,7 +63,8 @@ L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps) :
         efficiencyFolder_(histFolder_ + "/efficiency_raw"),
         stage2CaloLayer2TauToken_(consumes < l1t::TauBxCollection > (ps.getUntrackedParameter < edm::InputTag > ("l1tInputTag"))),
         tauEfficiencyThresholds_(ps.getParameter < std::vector<int> > ("tauEfficiencyThresholds")),
-        tauEfficiencyBins_(ps.getParameter < std::vector<double> > ("tauEfficiencyBins"))
+        tauEfficiencyBins_(ps.getParameter < std::vector<double> > ("tauEfficiencyBins")),
+  histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions")))
 {
   edm::LogInfo("L1TTauOffline") << "Constructor " << "L1TTauOffline::L1TTauOffline " << std::endl;
 }
@@ -315,7 +316,10 @@ void L1TTauOffline::bookTauHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
-  h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
+  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_["nVertex"];
+  h_nVertex_ = ibooker.book1D(
+    nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
+  );
   h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
 
   h_L1TauETvsTauET_EB_ = ibooker.book2D("L1TauETvsTauET_EB",
