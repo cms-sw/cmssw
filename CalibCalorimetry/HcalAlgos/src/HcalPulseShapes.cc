@@ -731,7 +731,7 @@ void HcalPulseShapes::computeSiPMShapeHE206()
   }
 
   for (int j = 1; j <= nBinsSiPM_; ++j) {
-    nt[j] /= norm;
+    nt[j-shift] /= norm;
     if((j-shift)>=0) siPMShapeMC2018_.setShapeBin(j,nt[j-shift]);
     else siPMShapeMC2018_.setShapeBin(j,0);
   }
