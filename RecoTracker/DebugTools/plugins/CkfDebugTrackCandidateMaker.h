@@ -3,7 +3,7 @@
 #define CkfDebugTrackCandidateMaker_h
 
 #include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMakerBase.h"
-#include "RecoTracker/DebugTools/interface/CkfDebugTrajectoryBuilder.h"
+#include "CkfDebugTrajectoryBuilder.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 

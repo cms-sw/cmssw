@@ -9,7 +9,7 @@
  * Some data is calculated on demand to improve performance.
  */
 
-class BasicMultiVertexState : public BasicVertexState {
+class BasicMultiVertexState final : public BasicVertexState {
 
 public:
 
@@ -21,9 +21,9 @@ public:
 
   /** Access methods
    */
-  BasicMultiVertexState* clone() const override
+  pointer clone() const override
   {
-    return new BasicMultiVertexState(*this);
+    return build<BasicMultiVertexState>(*this);
   }
 
   /**
