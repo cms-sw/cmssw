@@ -86,12 +86,11 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 # user stuff
 process.load('EventFilter.L1TRawToDigi.caloLayer1Digis_cfi')
 process.load('EventFilter.L1TRawToDigi.caloLayer1Raw_cfi')
-process.load("EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi")
 
 for prod in [process.caloLayer1RawFed1354, process.caloLayer1RawFed1356, process.caloLayer1RawFed1358]:
-    prod.ecalDigis = cms.InputTag("l1tCaloLayer1Digis")
-    prod.hcalDigis = cms.InputTag("l1tCaloLayer1Digis")
-    prod.caloRegions = cms.InputTag("l1tCaloLayer1Digis")
+    prod.ecalDigis = cms.InputTag("caloLayer1Digis")
+    prod.hcalDigis = cms.InputTag("caloLayer1Digis")
+    prod.caloRegions = cms.InputTag("caloLayer1Digis")
 
 process.collectPackers = cms.EDProducer("RawDataCollectorByLabel",
     verbose = cms.untracked.int32(0),     # 0 = quiet, 1 = collection list, 2 = FED list
@@ -102,31 +101,11 @@ process.collectPackers = cms.EDProducer("RawDataCollectorByLabel",
     ),
 )
 
-process.newUnpackerNewPacked = process.caloLayer1Digis.clone()
-process.newUnpackerNewPacked.InputLabel = cms.InputTag("collectPackers")
-
-process.packMismatch = cms.EDFilter("CaloLayer1MismatchFilter",
-    ecalTPSourceSent = cms.InputTag("l1tCaloLayer1Digis"),
-    hcalTPSourceSent = cms.InputTag("l1tCaloLayer1Digis"),
-    ecalTPSourceRecd = cms.InputTag("newUnpackerNewPacked"),
-    hcalTPSourceRecd = cms.InputTag("newUnpackerNewPacked"),
-    fedRawData = cms.InputTag("rawDataCollector"),
-    filterEcalMismatch = cms.bool(True),
-    filterHcalMismatch = cms.bool(True),
-    filterEcalLinkErrors = cms.bool(False),
-    filterHcalLinkErrors = cms.bool(False),
-    printout = cms.bool(False),
-)
-
-
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.l1tCaloLayer1Digis *
-    #process.caloLayer1Digis *
+    process.caloLayer1Digis *
     process.caloLayer1Raw *
-    process.collectPackers *
-    process.newUnpackerNewPacked *
-    process.packMismatch
+    process.collectPackers
 )
 
 process.out = cms.EndPath(
