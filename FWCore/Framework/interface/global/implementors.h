@@ -302,7 +302,7 @@ namespace edm {
         ExternalWork() = default;
         ExternalWork(ExternalWork const&) = delete;
         ExternalWork& operator=(ExternalWork const&) = delete;
-        ~ExternalWork() noexcept(false) {};
+        ~ExternalWork() noexcept(false) override {};
 
       private:
 
@@ -311,7 +311,7 @@ namespace edm {
         void doAcquire_(StreamID,
                         Event const&,
                         edm::EventSetup const&,
-                        WaitingTaskWithArenaHolder&) override final;
+                        WaitingTaskWithArenaHolder&) final;
 
         virtual void acquire(StreamID,
                              Event const&,
