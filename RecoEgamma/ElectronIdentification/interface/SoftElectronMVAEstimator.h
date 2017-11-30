@@ -6,8 +6,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include <memory>
 #include <string>
 
@@ -29,8 +29,8 @@ class SoftElectronMVAEstimator {
 
  private:
     const Configuration cfg_;
-    std::array<std::unique_ptr<const GBRForest>, ExpectedNBins> gbr;
-    
+    std::vector<std::unique_ptr<const GBRForest>> gbr;
+
     Float_t                    fbrem;
     Float_t                    EtotOvePin;
     Float_t                    EBremOverDeltaP;
@@ -64,7 +64,8 @@ class SoftElectronMVAEstimator {
     Float_t                    eta;
     Float_t                    pt;  
    
-    Float_t 			nPV;
+    Float_t nPV;
+
 };
 
 #endif
