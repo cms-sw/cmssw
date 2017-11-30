@@ -1,5 +1,5 @@
 
-#include "DataFormats/L1Vertex/interface/Vertex.h"
+#include "DataFormats/L1TVertex/interface/Vertex.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 

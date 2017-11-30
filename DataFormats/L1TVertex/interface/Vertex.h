@@ -1,5 +1,5 @@
-#ifndef DataFormats_L1Vertex_Vertex_h
-#define DataFormats_L1Vertex_Vertex_h
+#ifndef DataFormats_L1TVertex_Vertex_h
+#define DataFormats_L1TVertex_Vertex_h
 
 
 #include <vector>
