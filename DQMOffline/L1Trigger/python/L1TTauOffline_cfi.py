@@ -3,10 +3,14 @@ import FWCore.ParameterSet.Config as cms
 tauEfficiencyThresholds = [28, 30, 32, 128, 176]
 
 tauEfficiencyBins = []
-tauEfficiencyBins.extend(list(xrange(0, 120, 1)))
-tauEfficiencyBins.extend(list(xrange(120, 180, 20)))
-tauEfficiencyBins.extend(list(xrange(180, 300, 40)))
-tauEfficiencyBins.extend(list(xrange(300, 401, 100)))
+tauEfficiencyBins.extend(list(xrange(0, 50, 1)))
+tauEfficiencyBins.extend(list(xrange(50, 60, 2)))
+tauEfficiencyBins.extend(list(xrange(60, 80, 5)))
+tauEfficiencyBins.extend(list(xrange(80, 200, 10)))
+tauEfficiencyBins.extend(list(xrange(200, 300, 20)))
+tauEfficiencyBins.extend(list(xrange(300, 400, 50)))
+tauEfficiencyBins.extend(list(xrange(400, 600, 100)))
+tauEfficiencyBins.extend(list(xrange(600, 1200, 200)))
 
 l1tTauOfflineDQM = cms.EDAnalyzer(
     "L1TTauOffline",
