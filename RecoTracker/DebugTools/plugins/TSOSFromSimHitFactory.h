@@ -1,7 +1,7 @@
 #ifndef TSOSFromSimHitFactory_H
 #define TSOSFromSimHitFactory_H
 
-#include "RecoTracker/DebugTools/interface/FTSFromSimHitFactory.h"
+#include "FTSFromSimHitFactory.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
