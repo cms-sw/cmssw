@@ -463,7 +463,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 double HCalSD::getEnergyDeposit(G4Step* aStep) {
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;
-  const G4Track* theTrack = aStep->GetTrack();
+  theTrack = aStep->GetTrack();
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint32_t detid = setDetUnitId(aStep);
@@ -550,9 +550,9 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
 
 uint32_t HCalSD::setDetUnitId(const G4Step * aStep) { 
 
-  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
-  const G4VTouchable* touch = preStepPoint->GetTouchable();
-  const G4ThreeVector& hitPoint    = preStepPoint->GetPosition();
+  const G4StepPoint* prePoint   = aStep->GetPreStepPoint(); 
+  const G4VTouchable* touch     = prePoint->GetTouchable();
+  const G4ThreeVector& hitPoint = prePoint->GetPosition();
 
   int depth = (touch->GetReplicaNumber(0))%10 + 1;
   int lay   = (touch->GetReplicaNumber(0)/10)%100 + 1;
