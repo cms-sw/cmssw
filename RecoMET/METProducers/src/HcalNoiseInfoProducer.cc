@@ -154,184 +154,156 @@ HcalNoiseInfoProducer::~HcalNoiseInfoProducer()
 
 void HcalNoiseInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<double>("lMinRatio", -999.0);
-  desc.add<double>("lMaxHighEHitTime", 9999.0);
-  desc.add<double>("pMinHighEHitTime", -4.0);
-  desc.add<double>("lMaxLowEHitTime", 9999.0);
-  desc.add<double>("TS4TS5EnergyThreshold", 50);
-  desc.add<std::string>("digiCollName", "hcalDigis");
-  desc.add<std::vector<int>>("laserMonCBoxList", {
-    6,
-    6,
-    6,
-    6,
-    6,
-    6,
-    6,
-    6,
-  });
-  desc.add<int>("tMinRBXHits", 50);
-  desc.add<std::vector<double>>("TS4TS5UpperThreshold", {
-    70,
-    90,
-    100,
-    400,
-    4000,
-  });
-  desc.add<double>("minEZeros", 10.0);
-  desc.add<bool>("fillLaserMonitor", true);
-  desc.add<int>("pMinRBXHits", 20);
-  desc.add<int>("tMinHPDHits", 16);
-  desc.add<double>("pMaxHPDEMF", -0.02);
+  // define hit energy thesholds
   desc.add<double>("minRecHitE", 1.5);
-  desc.add<double>("hlMaxHPDEMF", -9999.0);
-  desc.add<std::vector<double>>("lRBXRecHitR45Cuts", {
-    0.0,
-    1.0,
-    0.0,
-    -0.5,
-    0.0,
-    0.0,
-    1.0,
-    -0.5,
-  });
-  desc.add<int>("maxCaloTowerIEta", 20);
-  desc.add<double>("maxNHF", 0.9);
-  desc.add<double>("pMinEEMF", 10.0);
-  desc.add<double>("minEEMF", 50.0);
-  desc.add<double>("pMaxRatio", 0.85);
-  desc.add<std::vector<int>>("HcalRecHitFlagsToBeExcluded", {
-    11,
-    12,
-    13,
-    14,
-    15,
-    27,
-  });
-  desc.add<std::string>("caloTowerCollName", "towerMaker");
-  desc.add<double>("pMinEZeros", 5.0);
-  desc.add<unsigned int>("HcalAcceptSeverityLevel", 9);
-  desc.add<int>("tMinHPDNoOtherHits", 9);
-  desc.add<double>("pMaxHighEHitTime", 5.0);
-  desc.add<double>("pMaxLowEHitTime", 6.0);
+  desc.add<double>("minLowHitE", 10.0);
   desc.add<double>("minHighHitE", 25.0);
   desc.add<double>("minR45HitE", 5.0);
-  desc.add<std::vector<double>>("tRBXRecHitR45Cuts", {
-    0.0,
-    1.0,
-    0.0,
-    -0.2,
-    0.0,
-    0.0,
-    1.0,
-    -0.2,
-  });
-  desc.add<bool>("fillRecHits", true);
-  desc.add<int>("lMinZeros", 10);
-  desc.add<int>("lMinRBXHits", 999);
+
+  // define energy threshold for "problematic" cuts
+  desc.add<double>("pMinERatio", 25.0);
+  desc.add<double>("pMinEZeros", 5.0);
+  desc.add<double>("pMinEEMF", 10.0);
+
+  // define energy threshold for loose/tight/high level cuts
+  desc.add<double>("minERatio", 50.0);
+  desc.add<double>("minEZeros", 10.0);
+  desc.add<double>("minEEMF", 50.0);
+
+  // define problematic RBX
+  desc.add<double>("pMinE", 40.0);
+  desc.add<double>("pMinRatio", 0.75);
+  desc.add<double>("pMaxRatio", 0.85);
+  desc.add<int>("pMinHPDHits", 10);
+  desc.add<int>("pMinRBXHits", 20);
+  desc.add<int>("pMinHPDNoOtherHits", 7);
+  desc.add<int>("pMinZeros", 4);
+  desc.add<double>("pMinLowEHitTime", -6.0);
+  desc.add<double>("pMaxLowEHitTime", 6.0);
+  desc.add<double>("pMinHighEHitTime", -4.0);
+  desc.add<double>("pMaxHighEHitTime", 5.0);
+  desc.add<double>("pMaxHPDEMF", -0.02);
+  desc.add<double>("pMaxRBXEMF", 0.02);
+  desc.add<int>("pMinRBXRechitR45Count", 1);
   desc.add<double>("pMinRBXRechitR45Fraction", 0.1);
   desc.add<double>("pMinRBXRechitR45EnergyFraction", 0.1);
-  desc.add<double>("calibdigiHFthreshold", -999);
-  desc.add<double>("minLowHitE", 10.0);
-  desc.add<std::vector<int>>("laserMonIEtaList", {
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-  });
-  desc.add<std::vector<int>>("laserMonIPhiList", {
-    23,
-    17,
-    11,
-    5,
-    29,
-    35,
-    41,
-    47,
-  });
-  desc.add<double>("pMinRatio", 0.75);
-  desc.add<double>("pMaxRBXEMF", 0.02);
-  desc.add<double>("pMinE", 40.0);
-  desc.add<double>("tMaxRatio", 999.0);
-  desc.add<int>("lMinHPDHits", 17);
-  desc.add<double>("maxTrackEta", 2.0);
-  desc.add<double>("tMinHighEHitTime", -7.0);
-  desc.add<int>("tMinZeros", 8);
+
+  // define loose noise cuts
+  desc.add<double>("lMinRatio", -999.0);
   desc.add<double>("lMaxRatio", 999.0);
-  desc.add<bool>("fillCaloTowers", true);
-  desc.add<bool>("fillDigis", true);
-  desc.add<double>("lMinHighEHitTime", -9999.0);
-  desc.add<int>("laserMonTSEnd", -1);
-  desc.add<std::vector<int>>("calibdigiHFtimeslices", {
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-  });
-  desc.add<double>("calibdigiHBHEthreshold", 15);
-  desc.add<double>("pMinERatio", 25.0);
-  desc.add<bool>("fillTracks", true);
-  desc.add<std::string>("trackCollName", "generalTracks");
-  desc.add<int>("pMinZeros", 4);
-  desc.add<double>("minTrackPt", 1.0);
-  desc.add<double>("tMinRatio", -999.0);
-  desc.add<std::vector<double>>("TS4TS5UpperCut", {
-    1,
-    0.8,
-    0.75,
-    0.72,
-    0.72,
-  });
-  desc.add<double>("pMinLowEHitTime", -6.0);
-  desc.add<int>("maxjetindex", 0);
-  desc.add<int>("pMinRBXRechitR45Count", 1);
-  desc.add<int>("pMinHPDHits", 10);
-  desc.add<double>("lMinLowEHitTime", -9999.0);
-  desc.add<std::string>("recHitCollName", "hbhereco");
-  desc.add<int>("laserMonTSStart", 0);
-  desc.add<double>("minERatio", 50.0);
-  desc.add<std::string>("jetCollName", "ak4PFJets");
-  desc.add<double>("tMinLowEHitTime", -9999.0);
-  desc.add<double>("tMaxHighEHitTime", 6.0);
-  desc.add<std::vector<double>>("TS4TS5LowerCut", {
-    -1,
-    -0.7,
-    -0.4,
-    -0.2,
-    -0.08,
-    0,
-    0.1,
-  });
+  desc.add<int>("lMinHPDHits", 17);
+  desc.add<int>("lMinRBXHits", 999);
   desc.add<int>("lMinHPDNoOtherHits", 10);
-  desc.add<int>("maxProblemRBXs", 72);
-  desc.add<std::vector<double>>("TS4TS5LowerThreshold", {
-    100,
-    120,
-    150,
-    200,
-    300,
-    400,
-    500,
-  });
+  desc.add<int>("lMinZeros", 10);
+  desc.add<double>("lMinLowEHitTime", -9999.0);
+  desc.add<double>("lMaxLowEHitTime", 9999.0);
+  desc.add<double>("lMinHighEHitTime", -9999.0);
+  desc.add<double>("lMaxHighEHitTime", 9999.0);
+
+  // define tight noise cuts
+  desc.add<double>("tMinRatio", -999.0);
+  desc.add<double>("tMaxRatio", 999.0);
+  desc.add<int>("tMinHPDHits", 16);
+  desc.add<int>("tMinRBXHits", 50);
+  desc.add<int>("tMinHPDNoOtherHits", 9);
+  desc.add<int>("tMinZeros", 8);
+  desc.add<double>("tMinLowEHitTime", -9999.0);
   desc.add<double>("tMaxLowEHitTime", 9999.0);
-  desc.add<int>("pMinHPDNoOtherHits", 7);
-  desc.add<std::vector<int>>("calibdigiHBHEtimeslices", {
-    3,
-    4,
-    5,
-    6,
-  });
+  desc.add<double>("tMinHighEHitTime", -7.0);
+  desc.add<double>("tMaxHighEHitTime", 6.0);
+
+  // define high level noise cuts
+  desc.add<double>("hlMaxHPDEMF", -9999.0);
   desc.add<double>("hlMaxRBXEMF", 0.01);
+  
+  // Calibration digi noise variables (used for finding laser noise events)
+  desc.add<double>("calibdigiHBHEthreshold", 15)->
+      setComment("minimum threshold in fC of any HBHE  \
+              calib digi to be counted in summary");
+  desc.add<std::vector<int>>("calibdigiHBHEtimeslices", {3,4,5,6,})->
+      setComment("time slices to use when determining charge of HBHE calib digis");
+  desc.add<double>("calibdigiHFthreshold", -999)->
+      setComment("minimum threshold in fC of any HF calib digi to be counted in summary");
+  desc.add<std::vector<int>>("calibdigiHFtimeslices", {0,1,2,3,4,5,6,7,8,9,})->
+      setComment("time slices to use when determining charge of HF calib digis");
+
+  // RBX-wide TS4TS5 variable
+  desc.add<double>("TS4TS5EnergyThreshold", 50);
+  desc.add<std::vector<double>>("TS4TS5UpperThreshold", {70,90,100,400,4000,});
+  desc.add<std::vector<double>>("TS4TS5UpperCut", {1,0.8,0.75,0.72,0.72,});
+  desc.add<std::vector<double>>("TS4TS5LowerThreshold", {100,120,150,200,300,400,500,});
+  desc.add<std::vector<double>>("TS4TS5LowerCut", {-1,-0.7,-0.4,-0.2,-0.08,0,0.1,});
+
+  // rechit R45 population filter variables
+  // this comes in groups of four: (a_Count, a_Fraction, a_EnergyFraction, const)
+  // flag as noise if (count * a_count + fraction * a_fraction + energyfraction * a_energyfraction + const) > 0
+  desc.add<std::vector<double>>("lRBXRecHitR45Cuts", 
+                                {0.0,1.0,0.0,-0.5,0.0,0.0,1.0,-0.5,})->
+      setComment("first 4 entries : equivalent to 'fraction > 0.5'  \
+                  last 4 entries : equivalent to 'energy fraction > 0.5'");
+  desc.add<std::vector<double>>("tRBXRecHitR45Cuts", 
+                                {0.0,1.0,0.0,-0.2,0.0,0.0,1.0,-0.2,})->
+      setComment("first 4 entries : equivalent to 'fraction > 0.2' \
+                  last 4 entries : equivalent to 'energy fraction > 0.2'" );
+
+  // define the channels used for laser monitoring
+  // note that the order here indicates the time order
+  // of the channels
+  desc.add<std::vector<int>>("laserMonCBoxList", {6,6,6,6,6,6,6,6,})->
+      setComment("time ordered list of the cBox values of laser monitor channels");
+  desc.add<std::vector<int>>("laserMonIPhiList", {23,17,11,5,29,35,41,47,})->
+      setComment("time ordered list of the iPhi values of laser monitor channels");
+  desc.add<std::vector<int>>("laserMonIEtaList", {0,0,0,0,0,0,0,0,})->
+      setComment("time ordered list of the iEta values of laser monitor channels");
+
+  // boundaries for total charge integration
+  desc.add<int>("laserMonTSStart", 0)->
+      setComment("lower bound of laser monitor charge integration window");
+  desc.add<int>("laserMonTSEnd", -1)->
+      setComment("upper bound of laser monitor charge integration window (-1 = no bound)");
+
+  // what to fill
+  desc.add<bool>("fillDigis", true);
+  desc.add<bool>("fillRecHits", true);
+  desc.add<bool>("fillCaloTowers", true);
+  desc.add<bool>("fillTracks", true);
+  desc.add<bool>("fillLaserMonitor", true);
+
+  // maximum number of RBXs to fill
+  // if you want to record all RBXs above some energy threshold,
+  // change maxProblemRBXs to 999 and pMinE (above) to the threshold you want
+  desc.add<int>("maxProblemRBXs", 72)->
+      setComment("maximum number of RBXs to fill.  if you want to record  \
+              all RBXs above some energy threshold,change maxProblemRBXs to  \
+              999 and pMinE (above) to the threshold you want");
+;
+
+  // parameters for calculating summary variables
+  desc.add<int>("maxCaloTowerIEta", 20);
+  desc.add<double>("maxTrackEta", 2.0);
+  desc.add<double>("minTrackPt", 1.0);
+  desc.add<double>("maxNHF", 0.9);
+  desc.add<int>("maxjetindex", 0);
+
+  // collection names
+  desc.add<std::string>("digiCollName", "hcalDigis");
+  desc.add<std::string>("recHitCollName", "hbhereco");
+  desc.add<std::string>("caloTowerCollName", "towerMaker");
+  desc.add<std::string>("trackCollName", "generalTracks");
+  desc.add<std::string>("jetCollName", "ak4PFJets");
+
+  // severity level
+  desc.add<unsigned int>("HcalAcceptSeverityLevel", 9);
+
+  // which hcal calo flags to mask 
+  // (HBHEIsolatedNoise=11, HBHEFlatNoise=12, HBHESpikeNoise=13, 
+  // HBHETriangleNoise=14, HBHETS4TS5Noise=15, HBHENegativeNoise=27)
+  desc.add<std::vector<int>>("HcalRecHitFlagsToBeExcluded", {11,12,13,14,15,27,})->
+      setComment("which hcal calo flags to mask (HBHEIsolatedNoise=11, \
+                  HBHEFlatNoise=12, HBHESpikeNoise=13, \
+                  HBHETriangleNoise=14, HBHETS4TS5Noise=15, HBHENegativeNoise=27)");
+;
+
   descriptions.add("hcalnoise", desc);
 }
 
@@ -637,31 +609,23 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
           int iphi    = digi->id().iphi();
           int ieta    = digi->id().ieta();
          
-          // check that we have the correct cboxch
+          // only check channels having the requested cboxch
           if (std::find( laserMonCBoxList_.begin(), laserMonCBoxList_.end(),
                          cboxch ) != laserMonCBoxList_.end() ) {
-              // check that we have a contained IPhi
-            if( std::find( laserMonIPhiList_.begin(), laserMonIPhiList_.end(),
-                           iphi ) != laserMonIPhiList_.end() ) {
-              // check that we have a contained IEta
-              if( std::find( laserMonIEtaList_.begin(), laserMonIEtaList_.end(),
-                             ieta ) != laserMonIEtaList_.end() ) {
-                // we have a lasmon channel, find the index in the list of inputs
-                for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
-                  if( cboxch == laserMonCBoxList_[idx] &&
-                        iphi  == laserMonIPhiList_[idx] && 
-                        ieta  == laserMonIEtaList_[idx] ) {
+            // find the index of this channel by matching cBox, iEta, iPhi
+            for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
+              if( cboxch == laserMonCBoxList_[idx] &&
+                iphi  == laserMonIPhiList_[idx] && 
+                ieta  == laserMonIEtaList_[idx] ) {
 
-                    // now get the digis
-                    unsigned ts_size = digi->size();
-                    for(unsigned i = 0; i < ts_size; i++) {
-                      lasmon_adcs[idx].push_back( digi->sample(i).adc() );
-                      lasmon_capids[idx].push_back( digi->sample(i).capid() );
-                    } // end digi loop
-                  } // end matching channel if
-                } // end fiber order loop
-              } // end ieta check 
-            } // end iphi check
+                // now get the digis
+                unsigned ts_size = digi->size();
+                for(unsigned i = 0; i < ts_size; i++) {
+                  lasmon_adcs[idx].push_back( digi->sample(i).adc() );
+                  lasmon_capids[idx].push_back( digi->sample(i).capid() );
+                } // end digi loop
+              } // end matching channel if
+            } // end fiber order loop
           } // end cboxch check
         } // end filllasmon check
 
