@@ -2,7 +2,7 @@
 #define CkfDebugTrajectoryBuilder_H
 
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
-#include "RecoTracker/DebugTools/interface/CkfDebugger.h"
+#include "CkfDebugger.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 

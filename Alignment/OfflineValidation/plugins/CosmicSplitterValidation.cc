@@ -49,7 +49,6 @@
 
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
 
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
