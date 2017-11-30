@@ -20,6 +20,7 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "DQM/SiStripCommon/interface/APVShotFinder.h"
 #include "DQM/SiStripCommon/interface/APVShot.h"
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
