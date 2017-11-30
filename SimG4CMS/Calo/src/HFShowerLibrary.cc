@@ -192,10 +192,9 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   const G4Track *     track    = aStep->GetTrack();
   // Get Z-direction 
   const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  G4ThreeVector momDir = aParticle->GetMomentumDirection();
-  //  double mom = aParticle->GetTotalMomentum();
+  const G4ThreeVector& momDir = aParticle->GetMomentumDirection();
 
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
@@ -220,8 +219,8 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   return fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong);
 }
 
-std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitPoint,
-                               G4ThreeVector & momDir,
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector & hitPoint,
+                               const G4ThreeVector & momDir,
                                int parCode, double pin, bool & ok,
                                double weight, double tSlice,bool onlyLong) {
 
