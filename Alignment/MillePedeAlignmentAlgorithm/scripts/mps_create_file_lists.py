@@ -725,7 +725,8 @@ class FileListCreator(object):
         """
 
         if json_file is None: json_file = self._args.json # might still be None
-        if json_file is not None: json_file = os.path.abspath(json_file)
+        if json_file is not None:
+            json_file = os.path.join(self._output_dir, json_file)
 
         name = "_".join(["Dataset",name, "cff.py"])
         print_msg("Creating dataset configuration fragment: "+name)
