@@ -12,8 +12,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TMTrackTrigger/l1VertexFinder/interface/InputData.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
@@ -56,16 +54,6 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
 
 void VertexProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) 
 {
-  // Get the B-field and store its value in the Settings class.
-
-  edm::ESHandle<MagneticField> magneticFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
-  const MagneticField* theMagneticField = magneticFieldHandle.product();
-  float bField = theMagneticField->inTesla(GlobalPoint(0,0,0)).z(); // B field in Tesla.
-  cout<<endl<<"--- B field = "<<bField<<" Tesla ---"<<endl<<endl;
-
-  settings_->setBfield(bField);
-
 }
 
 void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)

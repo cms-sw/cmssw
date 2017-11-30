@@ -97,11 +97,6 @@ public:
   double               trackerHalfLength()       const   {return 270.;}  // half-length  of tracker. 
   double               layerIDfromRadiusBin()    const   {return 6.;}    // When counting stubs in layers, actually histogram stubs in distance from beam-line with this bin size.
  
-  //=== Set and get B-field value in Tesla.
-  // N.B. This must bet set for each event, and can't be initialized at the beginning of the job.
-  void                 setBfield(float bField)           {bField_ = bField;}
-  float                getBfield()               const   {if (bField_ == 0.) throw cms::Exception("Settings.h:You attempted to access the B field before it was initialized"); return bField_;}
- 
 private:
  
   // Parameter sets for differents types of configuration parameter.
@@ -161,9 +156,6 @@ private:
   
   // Debug printout
   unsigned int         debug_;
-
-  // B-field in Tesla
-  float                bField_;
 };
 
 } // end namespace vertexFinder

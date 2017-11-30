@@ -60,11 +60,7 @@ Settings::Settings(const edm::ParameterSet& iConfig) :
   vx_kmeans_iterations_   (vertex_.getParameter<unsigned int>                 ( "KmeansIterations")),
   vx_kmeans_nclusters_    (vertex_.getParameter<unsigned int>                 ( "KmeansNumClusters")),
   // Debug printout
-  debug_                  ( iConfig.getParameter<unsigned int>                ( "Debug"                  ) ),
-
-  // Bfield in Tesla. (Unknown at job initiation. Set to true value for each event
-  bField_                 (0.)
- 
+  debug_                  ( iConfig.getParameter<unsigned int>                ( "Debug"                  ) )
 {
   // If user didn't specify any PDG codes, use e,mu,pi,K,p, to avoid picking up unstable particles like Xi-.
   std::vector<unsigned int> genPdgIdsUnsigned( genCuts_.getParameter<std::vector<unsigned int> >   ( "GenPdgIds" ) ); 
