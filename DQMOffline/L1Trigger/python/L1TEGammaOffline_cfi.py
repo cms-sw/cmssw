@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMOffline.L1Trigger.L1THistDefinitions_cff import histDefinitions
 
 electronEfficiencyThresholds = [34, 36, 38, 40, 42]
 
@@ -48,6 +49,10 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
 
     photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds),
     photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
+
+    histDefinitions=cms.PSet(
+        nVertex = histDefinitions.nVertex.clone(),
+    ),
 )
 
 l1tEGammaOfflineDQMEmu = l1tEGammaOfflineDQM.clone(
