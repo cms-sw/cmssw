@@ -12,7 +12,7 @@
 
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 typedef std::vector<const L1fittedTrack*> FitTrackCollection;
 typedef std::vector<RecoVertex> RecoVertexCollection;
@@ -107,6 +107,6 @@ private:
 
 };
 
-} // end namespace vertexFinder
+} // end namespace l1tVertexFinder
 
 #endif

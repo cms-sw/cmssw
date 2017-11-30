@@ -11,7 +11,7 @@
 
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 
 //=== Store useful info about this stub.
@@ -230,4 +230,4 @@ void Stub::setModuleInfo(const TrackerGeometry* trackerGeometry, const TrackerTo
   sigmaPar_  = stripLength_/sqrt(12.); // resolution parallel to strip (or to longest pixel axis)
 }
 
-} // end namespace vertexFinder
+} // end namespace l1tVertexFinder

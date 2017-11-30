@@ -19,7 +19,7 @@ class TGraphErrors;
 class TEfficiency;
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 class InputData;
 class L1fittedTrack;
@@ -186,6 +186,6 @@ private:
   unsigned int noEvents;
 };
 
-} // end ns vertexFinder
+} // end ns l1tVertexFinder
 
 #endif

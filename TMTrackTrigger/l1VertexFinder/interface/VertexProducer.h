@@ -18,7 +18,7 @@
 
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
   class Histos;
   class Settings;
 }
@@ -47,8 +47,8 @@ private:
   const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
   const edm::EDGetTokenT<TTTrackCollection> l1TracksToken_;
 
-  vertexFinder::Settings *settings_;
-  vertexFinder::Histos   *hists_;
+  l1tVertexFinder::Settings *settings_;
+  l1tVertexFinder::Histos   *hists_;
 };
 
 #endif

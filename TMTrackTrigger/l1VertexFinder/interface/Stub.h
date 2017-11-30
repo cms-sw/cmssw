@@ -19,7 +19,7 @@
 
 class TrackerGeometry;
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 class Settings;
 class TP;
@@ -110,6 +110,6 @@ private:
   std::array<const TP*, 2>        assocTPofCluster_;
 };
 
-} // end namespace vertexFinder
+} // end namespace l1tVertexFinder
 
 #endif

@@ -28,7 +28,7 @@
 
 using namespace std;
  
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Settings* settings, 
   const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag,
@@ -221,4 +221,4 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
   std::sort(recoVertices_.begin(), recoVertices_.end(), SortVertexByZ0());
 }
 
-} // end namespace vertexFinder
+} // end namespace l1tVertexFinder

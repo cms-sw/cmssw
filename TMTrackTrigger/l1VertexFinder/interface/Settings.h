@@ -9,7 +9,7 @@
  
  
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 // Stores all configuration parameters + some hard-wired constants.
  
@@ -158,6 +158,6 @@ private:
   unsigned int         debug_;
 };
 
-} // end namespace vertexFinder
+} // end namespace l1tVertexFinder
 
 #endif

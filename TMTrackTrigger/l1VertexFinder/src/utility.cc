@@ -12,7 +12,7 @@
 
 using namespace std;
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 namespace utility {
 
 //=== Count number of tracker layers a given list of stubs are in.
@@ -151,4 +151,4 @@ const TP* matchingTP(const Settings* settings, const vector<Stub*>& vstubs,
 
 
 } // end namespace utility
-} // end namespace vertexFinder
+} // end namespace l1tVertexFinder

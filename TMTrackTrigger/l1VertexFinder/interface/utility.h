@@ -6,7 +6,7 @@
 
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 class Settings;
 class Stub;
@@ -41,6 +41,6 @@ namespace utility {
 
 
 } // end namespace utility
-} // end namespace vertexFinder
+} // end namespace l1tVertexFinder
 
 #endif

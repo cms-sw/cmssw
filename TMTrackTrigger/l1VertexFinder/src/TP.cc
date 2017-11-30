@@ -9,7 +9,7 @@
 
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 TP::TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const Settings* settings) : 
   TrackingParticlePtr(tpPtr),
@@ -164,4 +164,4 @@ void TP::fillUseForAlgEff() {
   } 
 }
 
-}
+} // end ns l1tVertexFinder

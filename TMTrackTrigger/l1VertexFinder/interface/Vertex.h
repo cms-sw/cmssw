@@ -9,7 +9,7 @@
 
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 class Vertex {
 
@@ -55,6 +55,6 @@ private:
   
 };
 
-} // end namespace vertexFinder
+} // end namespace l1tVertexFinder
 
 #endif

@@ -6,7 +6,7 @@
  
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 ///=== Get configuration parameters
 
@@ -82,4 +82,4 @@ Settings::Settings(const edm::ParameterSet& iConfig) :
   
 }
 
-} // end namespace vertexFinder
+} // end namespace l1tVertexFinder

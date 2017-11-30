@@ -21,11 +21,8 @@
 
 
 
-
+using namespace l1tVertexFinder;
 using namespace std;
-
-using namespace vertexFinder;
-
 
 VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   tpInputTag( consumes<TrackingParticleCollection>( iConfig.getParameter<edm::InputTag>("tpInputTag") ) ),
@@ -35,14 +32,14 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   l1TracksToken_( consumes<TTTrackCollection>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) )
 {
   // Get configuration parameters
-  settings_ = new vertexFinder::Settings(iConfig);
+  settings_ = new Settings(iConfig);
 
   // Tame debug printout.
   cout.setf(ios::fixed, ios::floatfield);
   cout.precision(4);
 
   // Book histograms.
-  hists_ = new vertexFinder::Histos( settings_ );
+  hists_ = new Histos( settings_ );
   hists_->book();
 
   //--- Define EDM output to be written to file (if required) 
@@ -79,7 +76,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<TTTrackCollection> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
 
-  std::vector<vertexFinder::L1fittedTrack> l1Tracks;
+  std::vector<L1fittedTrack> l1Tracks;
   l1Tracks.reserve(l1TracksHandle->size());
 
   {
@@ -102,15 +99,16 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle );
 
     for(const auto& track : *l1TracksHandle)
-      l1Tracks.push_back(vertexFinder::L1fittedTrack(track, *settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle));
+      l1Tracks.push_back(L1fittedTrack(track, *settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle));
   }
 
-  std::vector<const vertexFinder::L1fittedTrack*> l1TrackPtrs;
+  std::vector<const L1fittedTrack*> l1TrackPtrs;
   l1TrackPtrs.reserve(l1Tracks.size());
   for(const auto& track : l1Tracks){
-      if(track.pt() > settings_->vx_TrackMinPt() ){
-        if(track.pt() < 50 or track.getNumStubs() > 5 )       l1TrackPtrs.push_back(&track);
-      }
+    if(track.pt() > settings_->vx_TrackMinPt() ){
+      if(track.pt() < 50 or track.getNumStubs() > 5 )
+        l1TrackPtrs.push_back(&track);
+    }
   }
 
 

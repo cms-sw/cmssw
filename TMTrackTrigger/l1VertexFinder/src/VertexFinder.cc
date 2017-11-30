@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 void VertexFinder::GapClustering(){
 
@@ -482,4 +482,4 @@ void VertexFinder::TDRalgorithm(){
 
 }
 
-}
+} // end ns l1tVertexFinder

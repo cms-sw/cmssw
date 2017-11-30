@@ -29,7 +29,7 @@
 
 using namespace std;
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 //=== Book all histogram
 
@@ -752,8 +752,4 @@ void Histos::endJobAnalysis() {
   }
 }
 
-} // end ns vertexFinder
-
-
-
-
+} // end ns l1tVertexFinder

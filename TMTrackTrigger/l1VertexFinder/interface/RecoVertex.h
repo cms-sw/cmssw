@@ -10,7 +10,7 @@
 
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 class RecoVertex {
 
@@ -73,5 +73,6 @@ private:
   
 };
 
-}
+} // end ns l1tVertexFinder
+
 #endif

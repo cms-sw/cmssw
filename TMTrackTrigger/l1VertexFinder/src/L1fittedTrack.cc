@@ -7,7 +7,7 @@
 
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 L1fittedTrack::L1fittedTrack(const TTTrack<Ref_Phase2TrackerDigi_>& aTrack, const Settings& aSettings, const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle) :
   track_(aTrack)
@@ -59,4 +59,4 @@ const TP* L1fittedTrack::getMatchedTP() const
   return matchedTP_;
 }
 
-} // end ns vertexFinder
+} // end ns l1tVertexFinder

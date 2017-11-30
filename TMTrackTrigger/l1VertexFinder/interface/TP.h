@@ -9,7 +9,7 @@
 
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 typedef edm::Ptr<TrackingParticle> TrackingParticlePtr;
 
@@ -104,6 +104,6 @@ private:
 };
 
 
-} // end namespace 
+} // end namespace l1tVertexFinder
 
 #endif

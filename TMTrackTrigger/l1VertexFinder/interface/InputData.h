@@ -14,7 +14,7 @@
 
 
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 class Settings;
 class Stub;
@@ -82,7 +82,7 @@ private:
   float genPt_PU_;
 };
 
-} // end namespace vertexFinder
+} // end namespace l1tVertexFinder
 
 #endif
 

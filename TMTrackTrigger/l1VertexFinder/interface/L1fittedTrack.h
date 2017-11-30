@@ -17,7 +17,7 @@
 class TrackerGeometry;
 class TrackerTopology;
 
-namespace vertexFinder {
+namespace l1tVertexFinder {
 
 class Settings;
 class Stub;
@@ -53,7 +53,7 @@ private:
   unsigned int          numStubs;
 };
 
-} // end ns vertexFinder
+} // end ns l1tVertexFinder
 
 
 #endif
