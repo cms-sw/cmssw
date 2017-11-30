@@ -20,7 +20,7 @@ namespace stage2 {
       auto res = static_cast<CaloLayer1Collections*>(coll);
 
       auto ctp7_phi = block.amc().getBoardID();
-      uint32_t * ptr = &*block.payload().begin();
+      const uint32_t * ptr = block.payload().data();
 
       UCTCTP7RawData ctp7Data(ptr);
       makeECalTPGs(ctp7_phi, ctp7Data, res->getEcalDigis());
@@ -33,7 +33,6 @@ namespace stage2 {
 
    void CaloLayer1Unpacker::makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, EcalTrigPrimDigiCollection* ecalTPGs) {
       UCTCTP7RawData::CaloType cType = UCTCTP7RawData::EBEE;
-      ecalTPGs->reserve(4228); // # of ECAL TT
       for(uint32_t iPhi = 0; iPhi < 4; iPhi++) { // Loop over all four phi divisions on card
          int cPhi = - 1 + lPhi * 4 + iPhi; // Calorimeter phi index
          if(cPhi == 0) cPhi = 72;
@@ -77,7 +76,6 @@ namespace stage2 {
    }
 
    void CaloLayer1Unpacker::makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, HcalTrigPrimDigiCollection* hcalTPGs) {
-      hcalTPGs->reserve(4608); // # of HCAL TT
       UCTCTP7RawData::CaloType cType = UCTCTP7RawData::HBHE;
       for(uint32_t iPhi = 0; iPhi < 4; iPhi++) { // Loop over all four phi divisions on card
          int cPhi = - 1 + lPhi * 4 + iPhi; // Calorimeter phi index

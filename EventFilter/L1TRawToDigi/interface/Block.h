@@ -57,7 +57,7 @@ namespace l1t {
          inline unsigned int getSize() const { return payload_.size() + 1; };
 
          BlockHeader header() const { return header_; };
-         std::vector<uint32_t> payload() const { return payload_; };
+         const std::vector<uint32_t>& payload() const { return payload_; };
 
          void amc(const amc::Header& h) { amc_ = h; };
          amc::Header amc() const { return amc_; };
