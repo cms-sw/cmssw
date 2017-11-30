@@ -2,6 +2,10 @@
 #define __TMTrackTrigger_VertexFinder_Stub_h__
 
 
+#include <array>
+#include <map>
+#include <set>
+
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -11,9 +15,7 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
-#include <array>
-#include <map>
-#include <set>
+
 
 class TrackerGeometry;
 

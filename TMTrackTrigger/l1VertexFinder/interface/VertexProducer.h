@@ -1,19 +1,20 @@
 #ifndef __TMTrackTrigger_VertexFinder_VertexProducer_h__
 #define __TMTrackTrigger_VertexFinder_VertexProducer_h__
 
+
+#include <map>
+#include <string>
+#include <vector>
+
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-
-
-#include <vector>
-#include <map>
-#include <string>
 
 
 

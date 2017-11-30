@@ -1,6 +1,7 @@
 #ifndef __TMTrackTrigger_VertexFinder_InputData_h__
 #define __TMTrackTrigger_VertexFinder_InputData_h__
 
+
 #include <vector>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"

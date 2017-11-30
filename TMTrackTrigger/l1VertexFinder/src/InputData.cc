@@ -1,8 +1,13 @@
+
+#include "TMTrackTrigger/l1VertexFinder/interface/InputData.h"
+
+
+#include <map>
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
@@ -17,14 +22,12 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
-#include "TMTrackTrigger/l1VertexFinder/interface/InputData.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
 
-#include <map>
+
 
 using namespace std;
  
-
 namespace vertexFinder {
 
 InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Settings* settings, 

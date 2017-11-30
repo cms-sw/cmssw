@@ -2,15 +2,13 @@
 #define __TMTrackTrigger_VertexFinder_Histos_h__
 
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "boost/numeric/ublas/matrix.hpp"
-using  boost::numeric::ublas::matrix;
-
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 
 
 class TH1F;

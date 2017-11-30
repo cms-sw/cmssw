@@ -2,11 +2,12 @@
 #define __TMTrackTrigger_VertexFinder_RecoVertex_h__
 
 
+#include <set>
+#include <vector>
+
 #include "TMTrackTrigger/l1VertexFinder/interface/TP.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/L1fittedTrack.h"
 
-#include <set>
-#include <vector>
 
 
 namespace vertexFinder {

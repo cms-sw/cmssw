@@ -8,6 +8,7 @@
 #include "TMTrackTrigger/l1VertexFinder/interface/Stub.h"
 
 
+
 namespace vertexFinder {
 
 TP::TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const Settings* settings) : 

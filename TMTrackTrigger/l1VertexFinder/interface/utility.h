@@ -5,6 +5,7 @@
 #include <vector>
 
 
+
 namespace vertexFinder {
 
 class Settings;

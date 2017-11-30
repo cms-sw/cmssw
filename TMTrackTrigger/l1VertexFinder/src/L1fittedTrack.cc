@@ -6,6 +6,7 @@
 #include "TMTrackTrigger/l1VertexFinder/interface/utility.h"
 
 
+
 namespace vertexFinder {
 
 L1fittedTrack::L1fittedTrack(const TTTrack<Ref_Phase2TrackerDigi_>& aTrack, const Settings& aSettings, const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle) :

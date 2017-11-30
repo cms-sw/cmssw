@@ -2,10 +2,10 @@
 #define __TMTrackTrigger_VertexFinder_Vertex_h__
 
 
+#include <vector>
+
 #include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/TP.h"
-
-#include <vector>
 
 
 

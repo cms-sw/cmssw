@@ -1,10 +1,11 @@
 #ifndef __TMTrackTrigger_VertexFinder_Settings_h__
 #define __TMTrackTrigger_VertexFinder_Settings_h__
  
+
+#include <vector>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <vector>
-#include <iostream>
  
  
 

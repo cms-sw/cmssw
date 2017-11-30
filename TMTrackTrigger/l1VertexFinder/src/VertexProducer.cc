@@ -1,29 +1,30 @@
 #include <TMTrackTrigger/l1VertexFinder/interface/VertexProducer.h>
 
 
-#include <TMTrackTrigger/l1VertexFinder/interface/InputData.h>
-#include <TMTrackTrigger/l1VertexFinder/interface/Settings.h>
-#include <TMTrackTrigger/l1VertexFinder/interface/Histos.h>
-#include "TMTrackTrigger/l1VertexFinder/interface/VertexFinder.h"
-#include "TMTrackTrigger/l1VertexFinder/interface/L1fittedTrack.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
-#include "boost/numeric/ublas/matrix.hpp"
 #include <iostream>
 #include <vector>
 #include <set>
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "TMTrackTrigger/l1VertexFinder/interface/InputData.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/Histos.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/VertexFinder.h"
+#include "TMTrackTrigger/l1VertexFinder/interface/L1fittedTrack.h"
+
+
+
 
 using namespace std;
-using boost::numeric::ublas::matrix;
 
 using namespace vertexFinder;
 

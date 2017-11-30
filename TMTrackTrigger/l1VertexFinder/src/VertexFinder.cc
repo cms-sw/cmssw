@@ -5,8 +5,8 @@
 #include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
 
 
-using namespace std;
 
+using namespace std;
 
 namespace vertexFinder {
 

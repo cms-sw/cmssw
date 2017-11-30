@@ -2,12 +2,13 @@
 #include "TMTrackTrigger/l1VertexFinder/interface/Stub.h"
 
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
+
 
 
 namespace vertexFinder {
