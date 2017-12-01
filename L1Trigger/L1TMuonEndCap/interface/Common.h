@@ -13,6 +13,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <array>
 
 // Resolve namespaces
 
@@ -61,7 +62,6 @@ namespace emtf {
   constexpr int NUM_STATION_PAIRS = 6;
   
   // Fixed-size arrays
-  #include <array>
   template<typename T>
   using sector_array = std::array<T, NUM_SECTORS>;
   template<typename T>
