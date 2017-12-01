@@ -67,8 +67,8 @@
 #include "G4SystemOfUnits.hh"
 
 static std::once_flag initializeOnce;
-CMS_THREAD_GUARD("initializeOnce") const G4ParticleDefinition* NuclearInteractionFTFSimulator::theG4Hadron[] = {nullptr};
-CMS_THREAD_GUARD("initializeOnce") int NuclearInteractionFTFSimulator::theId[] = {0};
+CMS_THREAD_GUARD(initializeOnce) const G4ParticleDefinition* NuclearInteractionFTFSimulator::theG4Hadron[] = {nullptr};
+CMS_THREAD_GUARD(initializeOnce) int NuclearInteractionFTFSimulator::theId[] = {0};
 
 const double fact = 1.0/CLHEP::GeV;
 

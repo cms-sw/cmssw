@@ -36,11 +36,11 @@ class TMVAEvaluator {
 
     std::string mMethod;
     mutable std::mutex m_mutex;
-    CMS_THREAD_GUARD("m_mutex") std::unique_ptr<TMVA::Reader> mReader;
+    CMS_THREAD_GUARD(m_mutex) std::unique_ptr<TMVA::Reader> mReader;
     std::shared_ptr<const GBRForest> mGBRForest;
 
-    CMS_THREAD_GUARD("m_mutex") mutable std::map<std::string,std::pair<size_t,float>> mVariables;
-    CMS_THREAD_GUARD("m_mutex") mutable std::map<std::string,std::pair<size_t,float>> mSpectators;
+    CMS_THREAD_GUARD(m_mutex) mutable std::map<std::string,std::pair<size_t,float>> mVariables;
+    CMS_THREAD_GUARD(m_mutex) mutable std::map<std::string,std::pair<size_t,float>> mSpectators;
 };
 
 #endif // CommonTools_Utils_TMVAEvaluator_h

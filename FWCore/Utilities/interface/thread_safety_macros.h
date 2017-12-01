@@ -2,7 +2,7 @@
 #define FWCore_Utilites_thread_safe_macros_h 
 #if ! defined __ROOTCLING__ && ! defined __INTEL_COMPILER
 #define CMS_THREAD_SAFE [[cms::thread_safe]]
-#define CMS_THREAD_GUARD(_var_) [[cms::thread_guard("#_var_")]]
+#define CMS_THREAD_GUARD(_var_) [[cms::thread_guard(#_var_)]]
 #else 
 #define CMS_THREAD_SAFE
 #define CMS_THREAD_GUARD(_var_)
