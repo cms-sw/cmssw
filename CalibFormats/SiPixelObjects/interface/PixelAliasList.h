@@ -7,9 +7,13 @@
 */
 
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigAlias.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelConfigList.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelVersionAlias.h"
 
+#include <cassert>
+#include <iostream>
 #include <stdlib.h>
+#include <map>
 
 namespace pos{
 /*! \class PixelAliasList PixelAliasList.h "interface/PixelAliasList.h"
