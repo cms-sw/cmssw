@@ -37,13 +37,14 @@ theDigitizers = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
+fastSim.toModify(theDigitizers,
     # fastsim does not model castor
-    delattr(theDigitizers,"castor")
+    castor = None,
     # fastsim does not digitize pixel and strip hits
-    delattr(theDigitizers,"pixel")
-    delattr(theDigitizers,"strip")
-    setattr(theDigitizers,"tracks",recoTrackAccumulator)
+    pixel = None,
+    strip = None,
+    tracks = recoTrackAccumulator
+)
 
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 

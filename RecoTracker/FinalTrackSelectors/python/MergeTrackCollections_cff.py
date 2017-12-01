@@ -61,13 +61,8 @@ fastSim.toReplaceWith(generalTracksTask,
         )
 )
 def _fastSimGeneralTracks(process):
-    from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliasesWasCalled
-    if loadDigiAliasesWasCalled:
-        from FastSimulation.Configuration.DigiAliases_cff import generalTracks
-        process.generalTracks = generalTracks
-        return
-    from Configuration.StandardSequences.Digi_cff import generalTracks
-    process.generalTracks = generalTracks
+    from FastSimulation.Configuration.DigiAliases_cff import loadGeneralTracksAlias
+    loadGeneralTracksAlias(process)
 modifyMergeTrackCollections_fastSimGeneralTracks = fastSim.makeProcessModifier( _fastSimGeneralTracks )
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
