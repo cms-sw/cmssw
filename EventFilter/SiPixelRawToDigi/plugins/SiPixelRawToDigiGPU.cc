@@ -42,6 +42,7 @@
 
 #include "TH1D.h"
 #include "TFile.h"
+#include "SiPixelFedCablingMapGPU.h"
 #include "SiPixelRawToDigiGPU.h"
 #include <string>
 #include <chrono>
@@ -125,15 +126,26 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
   
   //GPU specific
   convertADCtoElectrons = config_.getParameter<bool>("ConvertADCtoElectrons");
-  const int MAX_FED  = 150;
+  const unsigned int MAX_FED  = 150;
+  const unsigned int MAX_LINK = 48;
+  const unsigned int MAX_ROC = 8;
   const int MAX_WORD = 2000;
+
+  const int MAX_SIZE_BYTE = MAX_FED * MAX_LINK * MAX_ROC*sizeof(unsigned int);
+  // device copy of GPU friendly cablng map
+ 
+  cudaMallocManaged((void**)&cablingMapGPU, sizeof(CablingMap));
+  cudaMallocManaged((void**)&cablingMapGPU->RawId, MAX_SIZE_BYTE);
+  cudaMallocManaged((void**)&cablingMapGPU->rocInDet, MAX_SIZE_BYTE);
+  cudaMallocManaged((void**)&cablingMapGPU->moduleId, MAX_SIZE_BYTE);
+
   int WSIZE    = MAX_FED*MAX_WORD*NEVENT*sizeof(unsigned int);
   int FSIZE    = 2*MAX_FED*NEVENT*sizeof(unsigned int)+sizeof(unsigned int); 
 
-  //word = (unsigned int*)malloc(WSIZE);
-  cudaMallocHost((void**)&word, WSIZE);
-  //fedIndex =(unsigned int*)malloc(FSIZE);
-  cudaMallocHost((void**)&fedIndex, FSIZE);
+  word = (unsigned int*)malloc(WSIZE);
+  //cudaMallocHost((void**)&word, WSIZE);
+  fedIndex =(unsigned int*)malloc(FSIZE);
+  //cudaMallocHost((void**)&fedIndex, FSIZE);
   eventIndex = (unsigned int*)malloc((NEVENT+1)*sizeof(unsigned int));
   eventIndex[0] =0;
   // to store the output of RawToDigi
@@ -168,17 +180,24 @@ SiPixelRawToDigiGPU::~SiPixelRawToDigiGPU() {
     hCPU->Write();
     hDigi->Write();
   }
-  // free(word);
-  cudaFreeHost(word);
-  // free(fedIndex);
-  cudaFreeHost(fedIndex);
+  free(word);
+  // cudaFreeHost(word);
+  free(fedIndex);
+  // cudaFreeHost(fedIndex);
   free(eventIndex);
+
   delete[] xx_h;
   delete[] yy_h;
   delete[] adc_h;
   delete[] rawIdArr_h;
   delete[] mIndexStart_h;
   delete[] mIndexEnd_h;
+
+  // release device memory for cabling map
+  cudaFree(cablingMapGPU->RawId);
+  cudaFree(cablingMapGPU->rocInDet);
+  cudaFree(cablingMapGPU->moduleId);
+  cudaFree(cablingMapGPU);
   // free device memory used for RawToDigi on GPU
   freeMemory(); 
   // free auxilary memory used for clustering
@@ -238,6 +257,13 @@ void SiPixelRawToDigiGPU::produce( edm::Event& ev,
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMapLabel, cablingMap ); //Tav
     fedIds   = cablingMap->fedIds();
+    // for(auto it = fedIds.begin(); it !=fedIds.end(); it++) {
+    //   cout << *it << endl;
+    // }
+    // A new and simplified GPU friendly cabling map
+    SiPixelFedCablingMapGPU cablingMapRcd(cablingMap);
+    cablingMapRcd.process(cablingMapGPU);
+
     // cabling_ = cablingMap->cablingTree();
     // LogDebug("map version:")<< cabling_->version();
   }
@@ -353,7 +379,7 @@ void SiPixelRawToDigiGPU::produce( edm::Event& ev,
   cout<<"Data read for event: "<<ec++<<endl;
   int r2d_debug = 0;
   if(eventCount==NEVENT) {
-    RawToDigi_wrapper(wordCounterGPU, word, fedCounter,fedIndex, eventIndex, convertADCtoElectrons, xx_h, yy_h, adc_h, mIndexStart_h, mIndexEnd_h, rawIdArr_h);
+    RawToDigi_wrapper(cablingMapGPU, wordCounterGPU, word, fedCounter,fedIndex, eventIndex, convertADCtoElectrons, xx_h, yy_h, adc_h, mIndexStart_h, mIndexEnd_h, rawIdArr_h);
 
     if(r2d_debug == 1){
       //write output to text file (for debugging purpose only)

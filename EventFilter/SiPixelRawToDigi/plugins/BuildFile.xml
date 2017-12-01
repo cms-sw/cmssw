@@ -2,7 +2,7 @@
 <library   file="SiPixelDigiToRaw.cc SiPixelRawToDigi.cc SealModule.cc" name="EventFilterSiPixelRawToDigiPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="SiPixelRawToDigiGPU.cc RawToDigiGPU.cu" name="EventFilterSiPixelRawToDigiGPUPlugins">
+<library   file="SiPixelRawToDigiGPU.cc SiPixelFedCablingMapGPU.cc RawToDigiGPU.cu" name="EventFilterSiPixelRawToDigiGPUPlugins">
   <use   name="cuda"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

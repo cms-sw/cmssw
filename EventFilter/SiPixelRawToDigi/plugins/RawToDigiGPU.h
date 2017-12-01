@@ -4,6 +4,8 @@
 
 #ifndef RAWTODIGIGPU_H
 #define RAWTODIGIGPU_H
+
+#include "CablingMapGPU.h"
 //typedef unsigned long long Word64;
 typedef unsigned int uint; 
 
@@ -73,12 +75,6 @@ struct Pixel {
  uint col;
 };
 
-struct  CablingMap{
-  uint *RawId;
-  uint *rocInDet;
-  uint *moduleId;
-};
-
  //CablingMap *Map;
  //GPU specific
  uint *word_d, *fedIndex_d, *eventIndex_d;       // Device copy of input data
@@ -86,5 +82,5 @@ struct  CablingMap{
  // store the start and end index for each module (total 1856 modules-phase 1)
  cudaStream_t stream[NSTREAM];
  int *mIndexStart_d, *mIndexEnd_d; 
- CablingMap *Map;
+ // CablingMap *Map;
 #endif

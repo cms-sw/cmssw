@@ -75,6 +75,7 @@ private:
   uint *xx_h, *yy_h, *adc_h, *rawIdArr_h;  // host copy of output
   // store the start and end index for each module (total 1856 modules-phase 1)
   int *mIndexStart_h, *mIndexEnd_h; 
+  CablingMap *cablingMapGPU;
   
 };
 #endif

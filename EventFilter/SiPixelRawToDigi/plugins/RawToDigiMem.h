@@ -6,11 +6,11 @@
 #define RAWTODIGI_CPU_GPU_H
 
 // wrapper function to call RawToDigi on the GPU from host side
-void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounter,  uint *fedIndex,
+void RawToDigi_wrapper (const CablingMap* cablingMapDevice, const uint wordCounter, uint *word, const uint fedCounter,  uint *fedIndex,
                         uint *eventIndex, bool convertADCtoElectrons, uint *xx_h, uint *yy_h, uint *adc_h, int *mIndexStart_h,
                         int *mIndexEnd_h, uint *rawIdArr_h);
 
-void initCablingMap();
+// void initCablingMap();
 void initDeviceMemory();
 void freeMemory();
 

@@ -31,6 +31,8 @@
 #include "EventInfoGPU.h"
 #include "RawToDigiGPU.h"
 #include "RawToDigiMem.h"
+#include "CablingMapGPU.h"
+
 using namespace std;
 
 // // forward declaration of pixelCluster_wrapper()
@@ -51,37 +53,37 @@ void checkCUDAError(const char *msg) {
 }
 
 
-// New cabling Map
-void initCablingMap() {
-  ifstream mapFile;
-  mapFile.open("Pixel_Phase1_Raw2Digi_GPU_Cabling_Map.dat");
-  if(!mapFile) {
-    cout<<"Cabling Map file does not exist !"<<endl;
-    cout<<"File:Pixel_Phase1_Raw2Digi_GPU_Cabling_Map.dat"<<endl;
-    exit(1);
-  }
-  string str;
-  getline(mapFile, str);
-  uint Index, FedId, Link, idinLNK, B_F, RawID, idinDU, ModuleID;
-  int i =1;  // cabling map index starts at 1
-  while(!mapFile.eof()) {
-    mapFile >> Index>>FedId>>Link>>idinLNK>>B_F>>RawID>>idinDU>>ModuleID;
-    Map->RawId[i] = RawID;
-    Map->rocInDet[i] = idinDU;
-    Map->moduleId[i] = ModuleID;
-    i++;
-  }
-  mapFile.close();
-  cout<<"Cabling Map uploaded successfully!"<<endl;
-}
+// // New cabling Map
+// void initCablingMap() {
+//   ifstream mapFile;
+//   mapFile.open("Pixel_Phase1_Raw2Digi_GPU_Cabling_Map.dat");
+//   if(!mapFile) {
+//     cout<<"Cabling Map file does not exist !"<<endl;
+//     cout<<"File:Pixel_Phase1_Raw2Digi_GPU_Cabling_Map.dat"<<endl;
+//     exit(1);
+//   }
+//   string str;
+//   getline(mapFile, str);
+//   uint Index, FedId, Link, idinLNK, B_F, RawID, idinDU, ModuleID;
+//   int i =1;  // cabling map index starts at 1
+//   while(!mapFile.eof()) {
+//     mapFile >> Index>>FedId>>Link>>idinLNK>>B_F>>RawID>>idinDU>>ModuleID;
+//     Map->RawId[i] = RawID;
+//     Map->rocInDet[i] = idinDU;
+//     Map->moduleId[i] = ModuleID;
+//     i++;
+//   }
+//   mapFile.close();
+//   cout<<"Cabling Map uploaded successfully!"<<endl;
+// }
 
 void initDeviceMemory() {
-  int sizeByte = MAX_FED * MAX_LINK * MAX_ROC * sizeof(uint)+sizeof(uint);
-  // Unified memory for cabling map
-  cudaMallocManaged((void**)&Map,  sizeof(CablingMap));
-  cudaMallocManaged((void**)&Map->RawId,    sizeByte);
-  cudaMallocManaged((void**)&Map->rocInDet, sizeByte);
-  cudaMallocManaged((void**)&Map->moduleId, sizeByte);
+  // int sizeByte = MAX_FED * MAX_LINK * MAX_ROC * sizeof(uint)+sizeof(uint);
+  // // Unified memory for cabling map
+  // cudaMallocManaged((void**)&Map,  sizeof(CablingMap));
+  // cudaMallocManaged((void**)&Map->RawId,    sizeByte);
+  // cudaMallocManaged((void**)&Map->rocInDet, sizeByte);
+  // cudaMallocManaged((void**)&Map->moduleId, sizeByte);
   // Number of words for all the feds 
   uint MAX_WORD_SIZE = MAX_FED*MAX_WORD*NEVENT*sizeof(uint); 
   uint FSIZE = 2*MAX_FED*NEVENT*sizeof(uint)+sizeof(uint);
@@ -110,7 +112,7 @@ void initDeviceMemory() {
   
   cout<<"Memory Allocated successfully !\n";
   // Upload the cabling Map
-  initCablingMap();
+  // initCablingMap();
   
 }
 
@@ -132,10 +134,10 @@ void freeMemory() {
   cudaFree(mIndexStart_d);
   cudaFree(mIndexEnd_d);
 
-  cudaFree(Map->RawId);
-  cudaFree(Map->rocInDet); 
-  cudaFree(Map->moduleId);
-  cudaFree(Map);
+  // cudaFree(Map->RawId);
+  // cudaFree(Map->rocInDet); 
+  // cudaFree(Map->moduleId);
+  // cudaFree(Map);
 
   // destroy the stream
   for(int i=0;i<NSTREAM;i++) {
@@ -468,7 +470,7 @@ __global__ void RawToDigi_kernel(const CablingMap *Map,const uint *Word,const ui
 } // end of Raw to Digi kernel
 
 // kernel wrapper called from runRawToDigi_kernel
-void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounter,  uint *fedIndex,
+void RawToDigi_wrapper (const CablingMap* cablingMapDevice, const uint wordCounter, uint *word, const uint fedCounter,  uint *fedIndex,
                         uint *eventIndex,bool convertADCtoElectrons, uint *xx_h, uint *yy_h, uint *adc_h, int *mIndexStart_h,
                         int *mIndexEnd_h, uint *rawIdArr_h) {
   
@@ -502,8 +504,9 @@ void RawToDigi_wrapper (const uint wordCounter, uint *word, const uint fedCounte
 
     cudaMemcpyAsync(&fedIndex_d[fedOffset], &fedIndex[fedOffset], FSIZE, cudaMemcpyHostToDevice, stream[i]); 
     // Launch rawToDigi kernel
-    RawToDigi_kernel<<<gridsize,threads,0, stream[i]>>>(Map,word_d, fedIndex_d,eventIndex_d,i, xx_d, yy_d, moduleId_d,
-                                        mIndexStart_d, mIndexEnd_d, adc_d, layer_d, rawIdArr_d);
+
+    RawToDigi_kernel<<<gridsize,threads,0, stream[i]>>>(cablingMapDevice, word_d, fedIndex_d,eventIndex_d,i, xx_d, yy_d, moduleId_d,
+                                        mIndexStart_d, mIndexEnd_d, adc_d,layer_d, rawIdArr_d);
   }
   
   checkCUDAError("Error in RawToDigi_kernel");

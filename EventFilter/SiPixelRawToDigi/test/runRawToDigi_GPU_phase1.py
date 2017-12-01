@@ -31,11 +31,11 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
                                                               'file:step2.root',
-#                                                              '/store/relval/CMSSW_9_4_0_pre3/RelValTTbar_13/GEN-SIM-RECO/PU25ns_94X_mc2017_realistic_v4_highPU_AVE50-v1/10000/22E2A744-E3BA-E711-A1A8-5065F3815241.root',
+#   '/store/relval/CMSSW_9_4_0_pre3/RelValTTbar_13/GEN-SIM-RECO/PU25ns_94X_mc2017_realistic_v4_highPU_AVE50-v1/10000/22E2A744-E3BA-E711-A1A8-5065F3815241.root',
                                                               ),
     secondaryFileNames = cms.untracked.vstring(
-#                                               '/store/relval/CMSSW_9_4_0_pre3/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_mc2017_realistic_v4_highPU_AVE50-v1/10000/62236337-BEBA-E711-9962-4C79BA1810EB.root',
-#                                               '/store/relval/CMSSW_9_4_0_pre3/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_mc2017_realistic_v4_highPU_AVE50-v1/10000/D6384D37-BEBA-E711-B24C-4C79BA180B9F.root',
+#   '/store/relval/CMSSW_9_4_0_pre3/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_mc2017_realistic_v4_highPU_AVE50-v1/10000/62236337-BEBA-E711-9962-4C79BA1810EB.root',
+#   '/store/relval/CMSSW_9_4_0_pre3/RelValTTbar_13/GEN-SIM-DIGI-RAW/PU25ns_94X_mc2017_realistic_v4_highPU_AVE50-v1/10000/D6384D37-BEBA-E711-B24C-4C79BA180B9F.root',
                                                )
 )
 
