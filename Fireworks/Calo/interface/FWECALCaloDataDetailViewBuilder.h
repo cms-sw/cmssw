@@ -11,6 +11,7 @@ namespace edm {
 }
 
 class FWGeometry;
+class TEveCaloData;
 class TEveCaloDataVec;
 class TEveCaloLego;
 /*
