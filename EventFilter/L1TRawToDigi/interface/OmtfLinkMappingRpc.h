@@ -37,7 +37,7 @@ public:
 
   unsigned int link(const std::string& board, const std::string& lbName) const { return lbName2link.at(board).at(lbName); }
 
-  const std::vector<EleIndex> &omtfEleIndex ( const std::string& lbName) const { return lbName2OmtfIndex.at(lbName); }
+  std::vector<EleIndex> omtfEleIndex ( const std::string& lbName) const;
 
 private:
     std::map<std::string, std::map<unsigned int, std::string> > link2lbName; //[processorName][rpcRxNum] - lbName
