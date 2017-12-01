@@ -221,6 +221,8 @@ workflows[136.778] = ['',['RunZeroBias2016H','HLTDR2_2016','RECODR2_2016reHLT_Pr
 workflows[136.779] = ['',['RunMuOnia2016H','HLTDR2_2016','RECODR2_2016reHLT_skimMuOnia_Prompt','HARVESTDR2']]
 # reminiAOD wf on 2016H 80X input
 workflows[136.7721] = ['',['RunJetHT2016H_reminiaod','REMINIAOD_data2016','HARVESTDR2_REMINIAOD_data2016']]
+# nanoAOD wf on 2016H 80X input
+workflows[136.7722] = ['',['RunJetHT2016H_nano','NANOEDM2016_80X']]
 
 ### run 2017B ###
 workflows[136.780] = ['',['RunHLTPhy2017B','HLTDR2_2017','RECODR2_2017reHLT_Prompt','HARVEST2017']]
@@ -422,10 +424,10 @@ workflows[1325.5] = ['', ['TTbar_13_reminiaodINPUT','REMINIAOD_mc2016','HARVESTD
 # nanoaod wf without intermediate EDM,  starting from existing MINIAOD inputs
 workflows[1325.6] = ['', ['TTbar_13_94XNanoAODINPUT','NANOAODMC2017']]
 # nanoaod wf with intermediate EDM and merge step, starting from existing MINIAOD inputs
-workflows[1325.7] = ['', ['TTbar_13_94XNanoAODINPUT','NANOEDMMC2017','NANOMERGE']]
-workflows[1325.8] = ['', ['TTbar_13_92XNanoAODINPUT','NANOEDMMC2017_92X','NANOMERGE']]
+workflows[1325.7] = ['', ['TTbar_13_94XNanoAODINPUT','NANOEDMMC2017']]
+workflows[1325.8] = ['', ['TTbar_13_92XNanoAODINPUT','NANOEDMMC2017_92X']]
 #using ZEE as I cannot find TT at CERN
-workflows[1329.1] = ['', ['ZEE_13_80XNanoAODINPUT','NANOEDMMC2016_80X','NANOMERGE']]
+workflows[1329.1] = ['', ['ZEE_13_80XNanoAODINPUT','NANOEDMMC2016_80X']]
 
 
 
