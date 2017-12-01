@@ -1,6 +1,8 @@
 #ifndef TopObjetcResolutionsJet_h
 #define TopObjetcResolutionsJet_h
 
+#include <cmath>
+
 namespace res{
   class HelperJet {
 
