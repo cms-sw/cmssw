@@ -27,7 +27,7 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 
-class DQMStore;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class BeamSpot;
 namespace dqm {
