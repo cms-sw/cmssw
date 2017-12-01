@@ -114,6 +114,7 @@
 //
 
 // system include files
+#include <memory>
 #include <tuple>
 #include <array>
 
