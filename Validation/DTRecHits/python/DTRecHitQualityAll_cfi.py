@@ -53,9 +53,7 @@ dtLocalRecoValidation = cms.Sequence(rechivalidation*seg2dvalidation*seg2dsuperp
 dtLocalRecoValidation_no2D = cms.Sequence(rechivalidation*seg2dsuperphivalidation*seg4dvalidation)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    rechivalidation.simHitLabel = cms.untracked.InputTag("MuonSimHits","MuonDTHits")
-    seg2dvalidation.simHitLabel = cms.untracked.InputTag("MuonSimHits","MuonDTHits")
-    seg2dsuperphivalidation.simHitLabel = cms.untracked.InputTag("MuonSimHits","MuonDTHits")
-    seg4dvalidation.simHitLabel = cms.untracked.InputTag("MuonSimHits","MuonDTHits")
-    
+fastSim.toModify(rechivalidation, simHitLabel = "MuonSimHits:MuonDTHits")
+fastSim.toModify(seg2dvalidation, simHitLabel = "MuonSimHits:MuonDTHits")
+fastSim.toModify(seg2dsuperphivalidation, simHitLabel = "MuonSimHits:MuonDTHits")
+fastSim.toModify(seg4dvalidation, simHitLabel = "MuonSimHits:MuonDTHits")

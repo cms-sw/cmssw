@@ -217,8 +217,7 @@ NEWrecoMuonValidation = cms.Sequence(
 
 # no displaced muons in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    NEWrecoMuonValidation = cms.Sequence(NEWmuonValidation_seq + NEWmuonValidationTEV_seq + NEWmuonValidationRefit_seq)
+fastSim.toReplaceWith(NEWrecoMuonValidation, cms.Sequence(NEWmuonValidation_seq + NEWmuonValidationTEV_seq + NEWmuonValidationRefit_seq))
 
 # sequence for cosmic muons
 NEWrecoCosmicMuonValidation = cms.Sequence(

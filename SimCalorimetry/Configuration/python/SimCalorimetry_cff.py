@@ -7,5 +7,4 @@ calDigi = cms.Sequence(ecalDigiSequence+hcalDigiSequence+castorDigiSequence)
 
 # fastsim has no castor model
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    calDigi.remove(castorDigiSequence)
+fastSim.toReplaceWith(calDigi, calDigi.copyAndExclude([castorDigiSequence]))

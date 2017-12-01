@@ -32,12 +32,13 @@ theDigitizersMixPreMix.strip.FedAlgorithm = cms.int32(5) # special ZS mode: acce
 theDigitizersMixPreMix.pixel.AddPixelInefficiency = cms.bool(False) # will be added in DataMixer    
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
+fastSim.toModify(theDigitizersMixPreMix,
     # fastsim does not model castor
-    delattr(theDigitizersMixPreMix,"castor")
+    castor = None,
     # fastsim does not digitize pixel and strip hits
-    delattr(theDigitizersMixPreMix,"pixel")
-    delattr(theDigitizersMixPreMix,"strip")
+    pixel = None,
+    strip = None
+)
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( theDigitizersMixPreMix, castor = None )
