@@ -64,7 +64,11 @@ class IdealZPrism final : public CaloCellGeometry
   
   
       // corrected geom for PF
-      IdealZPrism const *  forPF() const  { return  m_geoForPF.get();}
+      const std::shared_ptr<IdealZPrism>  forPF() const  { 
+	const auto do_not_delete = [](const void*){};
+	auto cell = std::shared_ptr<IdealZPrism>(m_geoForPF.get(),do_not_delete);
+	return cell;
+      }
   
    private:
 

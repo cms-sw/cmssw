@@ -71,14 +71,15 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
 	double energy = hgrh.energy();
 	double time = hgrh.time();	
 	
-    const CaloCellGeometry *thisCell;
+	std::shared_ptr<CaloCellGeometry> thisCell;
     if( detid.det() == DetId::Hcal ) {
-      thisCell = ((CaloSubdetectorGeometry*)(geom->getSubdetectorGeometry(detid.det(),detid.subdetId())))->getGeometry(detid).get();
+      thisCell = ((CaloSubdetectorGeometry*)(geom->getSubdetectorGeometry(detid.det(),detid.subdetId())))->getGeometry(detid);
     } else {
       HGCalGeometry* hg = (HGCalGeometry*)(geom->getSubdetectorGeometry(detid.det(),detid.subdetId()));
       caloCells_.push_back(new CaloCellGeometryHGCALAdapter(((FlatTrd*)(hg->getGeometry(detid).get())),
                            recHitTools_.getPosition(detid)));
-      thisCell = caloCells_.back();
+      thisCell = hg->getGeometry(detid);
+//    thisCell = std::shared_ptr<CaloCellGeometry>(caloCells_.back());
     }
 
 	// find rechit geometry

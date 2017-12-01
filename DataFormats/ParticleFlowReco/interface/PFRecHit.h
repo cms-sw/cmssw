@@ -4,6 +4,7 @@
  */
 #include <vector>
 #include <map>
+#include <memory>
 #include <iostream>
 
 #include "DataFormats/Math/interface/Point3D.h"
@@ -53,11 +54,10 @@ namespace reco {
     /// default constructor. Sets energy and position to zero
     PFRecHit(){}
 
-    PFRecHit(CaloCellGeometry const * caloCell, unsigned int detId,
-             PFLayer::Layer layer,
-             float energy) :
-        caloCell_(caloCell),  detId_(detId),
-        layer_(layer), energy_(energy){}
+  PFRecHit(std::shared_ptr<CaloCellGeometry> caloCell, 
+	   unsigned int detId, PFLayer::Layer layer,
+	   float energy) : caloCell_(caloCell),  detId_(detId),
+      layer_(layer), energy_(energy){}
 
 
     
@@ -101,8 +101,8 @@ namespace reco {
 
 
     /// calo cell
-    CaloCellGeometry const & caloCell() const { return  *caloCell_; }
-    bool hasCaloCell() const { return caloCell_; }
+    CaloCellGeometry const & caloCell() const { return  *(caloCell_.get()); }
+    bool hasCaloCell() const { return (caloCell_ != nullptr); }
     
     /// rechit detId
     unsigned detId() const {return detId_;}
@@ -154,7 +154,7 @@ namespace reco {
     Neighbours buildNeighbours(unsigned int n) const { return  Neighbours(&neighbours_.front(),n);}
     
     /// cell geometry
-    CaloCellGeometry const * caloCell_=nullptr;
+    std::shared_ptr<CaloCellGeometry> caloCell_=nullptr;
  
     ///cell detid
     unsigned  int        detId_=0;             

@@ -503,6 +503,8 @@ EcalBarrelGeometry::cellGeomPtr(uint32_t index) const {
 std::shared_ptr<CaloCellGeometry> 
 EcalBarrelGeometry::cellGeomPtr(uint32_t index) {
   if (m_cellVec.size() < index) return nullptr;
-  std::shared_ptr<CaloCellGeometry> cell = std::shared_ptr<CaloCellGeometry>( new TruncatedPyramid(m_cellVec[ index ]) ) ;
+  const auto do_not_delete = [](const void*){};
+  auto cell = std::shared_ptr<CaloCellGeometry>(&m_cellVec[index],do_not_delete);
+//std::shared_ptr<CaloCellGeometry> cell = std::shared_ptr<CaloCellGeometry>( new TruncatedPyramid(m_cellVec[ index ]) ) ;
   return ((nullptr == cell->param()) ? nullptr : cell ) ;
 }

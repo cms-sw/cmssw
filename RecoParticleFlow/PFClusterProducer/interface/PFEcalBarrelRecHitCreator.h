@@ -66,7 +66,7 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
       auto time = erh.time();
       bool hi = (useSrF ? isHighInterest(detid) : true);
 
-      auto thisCell= ecalGeo->getGeometry(detid).get();
+      const auto thisCell= ecalGeo->getGeometry(detid);
   
       // find rechit geometry
       if(!thisCell) {

@@ -59,7 +59,7 @@ public:
 
   /// Get the cell geometry of a given detector id.  Should return false if not found.
   virtual const CaloCellGeometry* getGeometry( const DetId& id ) const ;
-  virtual std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id );
+  virtual const std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id );
 
   /** \brief Get a list of valid detector ids (for the given subdetector)
       \note The implementation in this class is relevant for SubdetectorGeometries which handle only

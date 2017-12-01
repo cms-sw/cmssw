@@ -100,7 +100,9 @@ ZdcGeometry::cellGeomPtr(uint32_t index) const {
 std::shared_ptr<CaloCellGeometry>
 ZdcGeometry::cellGeomPtr( uint32_t index ) {
   if (m_cellVec.size() < index) return nullptr;
-  auto cell = (std::shared_ptr<CaloCellGeometry>)(new IdealZDCTrapezoid(m_cellVec[ index ])) ;
+  const auto do_not_delete = [](const void*){};
+  auto cell = std::shared_ptr<CaloCellGeometry>(&m_cellVec[index],do_not_delete);
+//auto cell = (std::shared_ptr<CaloCellGeometry>)(new IdealZDCTrapezoid(m_cellVec[ index ])) ;
   return ((nullptr == cell->param()) ? nullptr : cell) ;
 }
 

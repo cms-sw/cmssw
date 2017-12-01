@@ -46,7 +46,7 @@ CaloSubdetectorGeometry::getGeometry( const DetId& id ) const
   return cellGeomPtr( CaloGenericDetId( id ).denseIndex() ) ;
 }
 
-std::shared_ptr<CaloCellGeometry> 
+const std::shared_ptr<CaloCellGeometry> 
 CaloSubdetectorGeometry::getGeometry( const DetId& id )
 {
   return std::shared_ptr<CaloCellGeometry>(cellGeomPtr( CaloGenericDetId( id ).denseIndex() ) );

@@ -117,7 +117,7 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 #endif
 }
 
-std::shared_ptr<CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& id) {
+const std::shared_ptr<CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& id) {
   if (id == DetId()) return nullptr; // nothing to get
   DetId geoId;
   if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {

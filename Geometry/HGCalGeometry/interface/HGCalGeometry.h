@@ -60,7 +60,7 @@ public:
 			const DetId&       detId ) override;
   
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id ) override;
+  const std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id ) override;
 
   void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
 		   CaloSubdetectorGeometry::IVec&   iVector,

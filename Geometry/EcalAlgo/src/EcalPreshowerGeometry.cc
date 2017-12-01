@@ -264,7 +264,9 @@ EcalPreshowerGeometry::cellGeomPtr(uint32_t index) const {
 std::shared_ptr<CaloCellGeometry>  
 EcalPreshowerGeometry::cellGeomPtr( uint32_t index ) {
   if (index >= m_cellVec.size()) return nullptr; // needed only if called with detId=0
-  auto cell = std::shared_ptr<CaloCellGeometry>(new PreshowerStrip(m_cellVec[index])) ;
+  const auto do_not_delete = [](const void*){};
+  auto cell = std::shared_ptr<CaloCellGeometry>(&m_cellVec[index],do_not_delete);
+//auto cell = std::shared_ptr<CaloCellGeometry>(new PreshowerStrip(m_cellVec[index])) ;
   //assert( cell->param() );
   return cell; 
 }

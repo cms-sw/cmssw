@@ -83,7 +83,7 @@ HcalGeometry::getValidDetIds( DetId::Detector det,
 		 ( HcalForward == subdet ? *m_hfIds.load() : *m_emptyIds.load() ) ) ) ) ) ;
 }
 
-std::shared_ptr<CaloCellGeometry> HcalGeometry::getGeometry(const DetId& id) {
+const std::shared_ptr<CaloCellGeometry> HcalGeometry::getGeometry(const DetId& id) {
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalGeometry::getGeometry for " << HcalDetId(id) << "  " 
 	    << m_mergePosition << " ";
@@ -488,20 +488,25 @@ const CaloCellGeometry* HcalGeometry::cellGeomPtr(unsigned int din) const {
 }
 
 std::shared_ptr<CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int din ) {
+  const auto do_not_delete = [](const void*){};
   std::shared_ptr<CaloCellGeometry> cell ( nullptr ) ;
   if (m_hbCellVec.size() > din) {
-    cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_hbCellVec[din])) ;
+    cell = std::shared_ptr<CaloCellGeometry>(&m_hbCellVec[din],do_not_delete);
+//  cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_hbCellVec[din])) ;
   } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
-      const unsigned int index (din - m_hbCellVec.size() ) ;
-      cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_heCellVec[index]));
+    const unsigned int ind (din - m_hbCellVec.size() ) ;
+    cell = std::shared_ptr<CaloCellGeometry>(&m_heCellVec[ind],do_not_delete);
+//  cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_heCellVec[ind]));
   } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
-    const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size());
-    cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_hoCellVec[index]));
+    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size());
+    cell = std::shared_ptr<CaloCellGeometry>(&m_hoCellVec[ind],do_not_delete);
+//  cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_hoCellVec[ind]));
   } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size()+
 	     m_hfCellVec.size() > din) {
-    const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size() -
-			      m_hoCellVec.size() ) ;
-    cell = std::shared_ptr<CaloCellGeometry>(new IdealZPrism(m_hfCellVec[index]));
+    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size() -
+			    m_hoCellVec.size() ) ;
+    cell = std::shared_ptr<CaloCellGeometry>(&m_hfCellVec[ind],do_not_delete);
+//  cell = std::shared_ptr<CaloCellGeometry>(new IdealZPrism(m_hfCellVec[ind]));
   }
   
   return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;

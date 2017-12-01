@@ -285,7 +285,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
   es.get<CaloGeometryRecord>().get(geoHandle);
   const CaloSubdetectorGeometry *geometry_p
     = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  CaloSubdetectorGeometry const& geometry = *geometry_p;
+//CaloSubdetectorGeometry const& geometry = *geometry_p;
 
   //EE unsupressed digis:
   for (unsigned int digis=0; digis<eeNoZsDigis_->size(); ++digis){
@@ -566,7 +566,7 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
   es.get<CaloGeometryRecord>().get(geoHandle);
   const CaloSubdetectorGeometry *geometry_p
     = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  CaloSubdetectorGeometry const& geometry = *geometry_p;
+//CaloSubdetectorGeometry const& geometry = *geometry_p;
 
   //EB unsuppressed digis:
   for(EBDigiCollection::const_iterator it = ebNoZsDigis_->begin();

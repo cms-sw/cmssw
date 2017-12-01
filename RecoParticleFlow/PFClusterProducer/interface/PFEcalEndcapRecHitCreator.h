@@ -69,7 +69,7 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
 
       bool hi = (useSrF ? isHighInterest(detid) : true);
         
-      const CaloCellGeometry * thisCell= ecalGeo->getGeometry(detid).get();
+      const std::shared_ptr<CaloCellGeometry> thisCell= ecalGeo->getGeometry(detid);
   
       // find rechit geometry
       if(!thisCell) {

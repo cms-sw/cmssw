@@ -84,7 +84,7 @@ void FastTimeGeometry::newCell( const GlobalPoint& f1 ,
 #endif
 }
 
-std::shared_ptr<CaloCellGeometry> FastTimeGeometry::getGeometry(const DetId& id) {
+const std::shared_ptr<CaloCellGeometry> FastTimeGeometry::getGeometry(const DetId& id) {
 
   if (id == DetId()) return nullptr; // nothing to get
   DetId geoId = (DetId)(FastTimeDetId(id).geometryCell());

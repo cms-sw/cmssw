@@ -53,7 +53,7 @@ public:
   const std::vector<DetId>& getValidDetIds(DetId::Detector det    = DetId::Detector ( 0 ), 
 					   int             subdet = 0 ) const override;
 
-  std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id ) override ;
+  const std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id ) override ;
   
   DetId getClosestCell(const GlobalPoint& r) override ;
   

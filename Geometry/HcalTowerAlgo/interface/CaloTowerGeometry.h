@@ -65,7 +65,7 @@ public:
 		const CCGFloat*    parm,
 		const DetId&       detId     ) override ;
 				
-  std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id ) override {
+  const std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id ) override {
     return cellGeomPtr( cttopo->denseIndex(id) ) ;
   }
 

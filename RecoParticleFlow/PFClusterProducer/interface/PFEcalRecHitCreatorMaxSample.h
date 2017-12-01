@@ -54,7 +54,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	auto energy = erh.energy();
 	auto time = erh.time();
 
-	auto thisCell= ecalGeo->getGeometry(detid).get();
+	std::shared_ptr<CaloCellGeometry> thisCell= ecalGeo->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {
