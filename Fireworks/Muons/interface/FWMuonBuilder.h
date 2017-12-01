@@ -17,7 +17,7 @@ class FWEventItem;
 class TEveElementList;
 class TEveTrackPropagator;
 class FWMagField;
-class FWPRoxyBuilderBase;
+class FWProxyBuilderBase;
 
 class FWMuonBuilder
 {
