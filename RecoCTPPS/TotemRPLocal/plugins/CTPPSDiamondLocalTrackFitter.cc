@@ -106,12 +106,12 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
     ->setComment( "general verbosity of this module" );
 
   edm::ParameterSetDescription trackingAlgoParams;
-  trackingAlgoParams.add<double>( "threshold", 1.9 )
+  trackingAlgoParams.add<double>( "threshold", 1.5 )
     ->setComment( "minimal number of rechits to be observed before launching the track recognition algorithm" );
   trackingAlgoParams.add<double>( "thresholdFromMaximum", 0.5 );
-  trackingAlgoParams.add<double>( "resolution", 0.005 /* mm */ )
+  trackingAlgoParams.add<double>( "resolution", 0.01 /* mm */ )
     ->setComment( "spatial resolution on the horizontal coordinate (in mm)" );
-  trackingAlgoParams.add<double>( "sigma", 0 );
+  trackingAlgoParams.add<double>( "sigma", 0.1 );
   trackingAlgoParams.add<double>( "startFromX", -0.5 /* mm */ )
     ->setComment( "starting horizontal coordinate of rechits for the track recognition" );
   trackingAlgoParams.add<double>( "stopAtX", 19.5 /* mm */ )
