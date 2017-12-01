@@ -142,18 +142,18 @@ private:
   const double MUON_BOUND = 0.9;
 
 
-  const Double_t ELECTRON_MASS  = 0.000511;
+  const float ELECTRON_MASS  = 0.000511;
 
-  const Double_t ELE_PT_CUT_TAG;
-  const Double_t ELE_PT_CUT_PROBE;
-  const Double_t ELE_ETA_CUT_TAG;
-  const Double_t ELE_ETA_CUT_PROBE;
-  const Double_t ELE_MASS_CUT_LOW;
-  const Double_t ELE_MASS_CUT_HIGH;
+  const float ELE_PT_CUT_TAG;
+  const float ELE_PT_CUT_PROBE;
+  const float ELE_ETA_CUT_TAG;
+  const float ELE_ETA_CUT_PROBE;
+  const float ELE_MASS_CUT_LOW;
+  const float ELE_MASS_CUT_HIGH;
 
   const std::string ELE_ID_WP;
-  const Double_t ELE_ETA_CRACK_LOW = 1.4442;
-  const Double_t ELE_ETA_CRACK_HIGH = 1.56;
+  const float ELE_ETA_CRACK_LOW = 1.4442;
+  const float ELE_ETA_CRACK_HIGH = 1.56;
   // Electron-specific members
   ElectronIdentifier EleID_;
 
