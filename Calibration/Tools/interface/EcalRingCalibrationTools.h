@@ -49,7 +49,7 @@ class EcalRingCalibrationTools
   
   static std::atomic<bool> isInitializedFromGeometry_;
 
-  CMS_THREAD_GUARD("isInitializedFromGeometry_")
+  CMS_THREAD_GUARD(isInitializedFromGeometry_)
   static short endcapRingIndex_[EEDetId::IX_MAX][EEDetId::IY_MAX];  // array needed only for the endcaps
 
   static std::once_flag once_;
