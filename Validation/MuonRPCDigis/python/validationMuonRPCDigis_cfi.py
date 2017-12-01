@@ -12,6 +12,4 @@ validationMuonRPCDigis = cms.EDAnalyzer("RPCDigiValid",
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    validationMuonRPCDigis.simHitTag = cms.untracked.InputTag("MuonSimHits","MuonRPCHits")
-    
+fastSim.toModify(validationMuonRPCDigis, simHitTag = "MuonSimHits:MuonRPCHits")
