@@ -28,7 +28,8 @@ public:
                       double distXY) const;
 
     void clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
-                     l1t::HGCalClusterBxCollection & clusters 
+                       l1t::HGCalClusterBxCollection & clusters,
+                       bool storeClusters=true
         );
 
     /* NN-algorithms */    
@@ -45,6 +46,13 @@ public:
                      const HGCalTriggerGeometryBase & triggerGeometry 
         );
 
+    /* FW-algorithms */
+    void clusterizeDRNN( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
+                         l1t::HGCalClusterBxCollection & clusters,
+                         const HGCalTriggerGeometryBase & triggerGeometry
+        );
+
+
 
 private:
     
@@ -58,6 +66,7 @@ private:
                                  std::array<std::vector<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>, kNSides_> & reshuffledTriggerCells );
 
     HGCalTriggerTools triggerTools_;
+    bool areTCneighbour_( uint32_t detIDa, uint32_t detIDb, const HGCalTriggerGeometryBase & triggerGeometry );
 
 };
 
