@@ -3,6 +3,8 @@
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
+#include <utility>
+
 // Author: Jake Ribnik (UCSB)
 
 /// functor predicate for standard library sort algorithm
