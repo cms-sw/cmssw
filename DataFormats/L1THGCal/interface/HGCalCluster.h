@@ -1,14 +1,15 @@
 #ifndef DataFormats_L1Trigger_HGCalCluster_h
 #define DataFormats_L1Trigger_HGCalCluster_h
 
+#include <utility>
+
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalClusterT.h"
 
-
 namespace l1t {
-    
+
   class HGCalCluster : public HGCalClusterT<l1t::HGCalTriggerCell> {
     
     public:
@@ -23,6 +24,8 @@ namespace l1t {
       HGCalCluster( const edm::Ptr<l1t::HGCalTriggerCell> &tc );
       
       ~HGCalCluster();
+
+      void removeUnconnectedConstituents( const HGCalTriggerGeometryBase & triggerGeometry );
 
       void setModule(uint32_t module) {module_ = module;}
       uint32_t module() const {return module_;}
