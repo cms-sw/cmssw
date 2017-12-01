@@ -944,7 +944,7 @@ PixelInactiveAreaFinder::DetGroupContainer PixelInactiveAreaFinder::badDetGroups
 // Functions for finding DetGroupSpans
 void PixelInactiveAreaFinder::getPhiSpanBarrel(const DetGroup & detGroup, DetGroupSpan & cspan){
   // find phiSpan using ordered vector of unique ladders in detGroup
-  if(detGroup.size() == 0){
+  if(detGroup.empty()){
     cspan = DetGroupSpan();
     return;
   } else{
