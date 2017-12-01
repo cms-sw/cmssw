@@ -16,6 +16,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 namespace edm {
    class ConfigurationDescriptions;
