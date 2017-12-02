@@ -2,6 +2,7 @@
 #define liblogintpack_h
 
 #include <cmath>
+#include <cstdint>
 
 namespace logintpack
 {
