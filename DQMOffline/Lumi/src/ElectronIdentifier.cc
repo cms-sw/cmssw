@@ -151,22 +151,16 @@ bool ElectronIdentifier::passID(const reco::GsfElectronPtr& ele,edm::Handle<reco
    if(ID_ == -1) throw;
    unsigned int region = fabs(ele->superCluster()->eta()) < 1.479 ? EleIDEtaBins::BARREL : EleIDEtaBins::BARREL;
 
-   bool pass = true;
+   if( ele->full5x5_sigmaIetaIeta()                     > cuts_[EleIDCutNames::SIGMAIETA][ID_][region]) return false;
+   if( dEtaInSeed(ele)                                  > cuts_[EleIDCutNames::DETAINSEED][ID_][region]) return false;
+   if( std::abs(ele->deltaPhiSuperClusterTrackAtVtx())  > cuts_[EleIDCutNames::DPHIIN][ID_][region]) return false;
+   if( ele->hadronicOverEm()                            > cuts_[EleIDCutNames::HOVERE][ID_][region]) return false;
+   if( isolation(ele)/ele->pt()                         > cuts_[EleIDCutNames::ISO][ID_][region]) return false;
+   if( std::abs(1.0 - ele->eSuperClusterOverP())/ele->ecalEnergy()  > cuts_[EleIDCutNames::ONEOVERE][ID_][region]) return false;
+   if( (ele->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS)) > cuts_[EleIDCutNames::MISSINGHITS][ID_][region]) return false;
+   if( ConversionTools::hasMatchedConversion(*ele,conversions,beamspot->position())) return false;
 
-   std::vector<bool> passes;
-   passes.push_back( ele->full5x5_sigmaIetaIeta()                     < cuts_[EleIDCutNames::SIGMAIETA][ID_][region]);
-   passes.push_back( dEtaInSeed(ele)                                  < cuts_[EleIDCutNames::DETAINSEED][ID_][region]);
-   passes.push_back( std::abs(ele->deltaPhiSuperClusterTrackAtVtx())  < cuts_[EleIDCutNames::DPHIIN][ID_][region]);
-   passes.push_back( ele->hadronicOverEm()                            < cuts_[EleIDCutNames::HOVERE][ID_][region]);
-   passes.push_back( isolation(ele)/ele->pt()                         < cuts_[EleIDCutNames::ISO][ID_][region]);
-   passes.push_back( std::abs(1.0 - ele->eSuperClusterOverP())/ele->ecalEnergy()  < cuts_[EleIDCutNames::ONEOVERE][ID_][region]);
-   passes.push_back( (ele->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS)) <= cuts_[EleIDCutNames::MISSINGHITS][ID_][region]);
-   passes.push_back( !ConversionTools::hasMatchedConversion(*ele,conversions,beamspot->position()));
-
-   for (auto const p:passes) {
-      pass &= p;
-   }
-   return pass;
+   return true;
 }
 
 
