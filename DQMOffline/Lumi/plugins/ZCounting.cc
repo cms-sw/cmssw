@@ -646,15 +646,15 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
 
 bool ZCounting::ele_probe_selection(double pt, double abseta){
   if(pt < ELE_PT_CUT_PROBE) return false;
-  else if(abseta > ELE_ETA_CUT_PROBE) return false;
-  else if( (abseta > ELE_ETA_CRACK_LOW) and (abseta < ELE_ETA_CRACK_HIGH) ) return false;
-  else return true;
+  if(abseta > ELE_ETA_CUT_PROBE) return false;
+  if( (abseta > ELE_ETA_CRACK_LOW) and (abseta < ELE_ETA_CRACK_HIGH) ) return false;
+  return true;
 }
 bool ZCounting::ele_tag_selection(double pt, double abseta){
   if(pt < ELE_PT_CUT_TAG) return false;
-  else if(abseta > ELE_ETA_CUT_TAG) return false;
-  else if( (abseta > ELE_ETA_CRACK_LOW) and (abseta < ELE_ETA_CRACK_HIGH) ) return false;
-  else return true;
+  if(abseta > ELE_ETA_CUT_TAG) return false;
+  if( (abseta > ELE_ETA_CRACK_LOW) and (abseta < ELE_ETA_CRACK_HIGH) ) return false;
+  return true;
 }
 //
 // -------------------------------------- endLuminosityBlock --------------------------------------------
