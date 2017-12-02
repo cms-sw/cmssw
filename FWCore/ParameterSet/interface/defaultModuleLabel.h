@@ -9,6 +9,7 @@ namespace edm {
     // remove all colons (module type may contain namespace)
     label.erase(std::remove(label.begin(), label.end(), ':'), label.end());
 
+    // the following code originates from HLTrigger/HLTcore/interface/defaultModuleLabel.h
     // if the label is all uppercase, change it to all lowercase
     // if the label starts with more than one uppercase letter, change n-1 to lowercase
     // otherwise, change the first letter to lowercase
