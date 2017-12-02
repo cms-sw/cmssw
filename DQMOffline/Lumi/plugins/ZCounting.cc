@@ -454,12 +454,12 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
   const reco::VertexCollection *pvCol = hVertexProduct.product();
   int nvtx = 0;
 
-  for(reco::VertexCollection::const_iterator itVtx = pvCol->begin(); itVtx!=pvCol->end(); ++itVtx) {
-    if(itVtx->isFake())                             continue;
-    if(itVtx->tracksSize()     < VtxNTracksFitCut_) continue;
-    if(itVtx->ndof()           < VtxNdofCut_)       continue;
-    if(fabs(itVtx->z())        > VtxAbsZCut_)       continue;
-    if(itVtx->position().Rho() > VtxRhoCut_)        continue;
+  for(auto const & vtx : *pvCol) {
+    if(vtx.isFake())                             continue;
+    if(vtx.tracksSize()     < VtxNTracksFitCut_) continue;
+    if(vtx.ndof()           < VtxNdofCut_)       continue;
+    if(fabs(vtx.z())        > VtxAbsZCut_)       continue;
+    if(vtx.position().Rho() > VtxRhoCut_)        continue;
 
     nvtx++;
   }
