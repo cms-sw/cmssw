@@ -42,6 +42,9 @@ class HcalTimeSlew {
   HcalTimeSlewM3Parameters(double capCon, double tspar0Con, double tspar1Con, double tspar2Con, double tspar0_siPMCon, double tspar1_siPMCon, double tspar2_siPMCon):cap(capCon), tspar0(tspar0Con), tspar1(tspar1Con), tspar2(tspar2Con), tspar0_siPM(tspar0_siPMCon), tspar1_siPM(tspar1_siPMCon), tspar2_siPM(tspar2_siPMCon){} 
   };
 
+  HcalTimeSlew() {};
+  ~HcalTimeSlew() {}
+
   void addM2ParameterSet(double tzero, double slope, double tmax);
   void addM3ParameterSet(double cap, double tspar0, double tspar1, double tspar2, double tspar0_siPM, double tspar1_siPM, double tspar2_siPM);
 
