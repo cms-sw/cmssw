@@ -22,35 +22,30 @@
 template<class T>
 class SensitiveDetectorMaker : public SensitiveDetectorMakerBase
 {
+public:
+  SensitiveDetectorMaker(){}
 
-   public:
-     SensitiveDetectorMaker(){}
-     //virtual ~SensitiveDetectorMaker();
+  // ---------- const member functions ---------------------
+  void make(const std::string& iname,
+	    const DDCompactView& cpv,
+	    const SensitiveDetectorCatalog& clg,
+	    const edm::ParameterSet& p,
+	    const SimTrackManager* man,
+	    SimActivityRegistry& reg,
+	    SensitiveTkDetector* oTK,
+	    SensitiveCaloDetector* oCalo) const override
+  {
+    std::unique_ptr<T> returnValue(new T(iname, cpv, clg, p, man));
+    SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 
-      // ---------- const member functions ---------------------
-      void make(const std::string& iname,
-			const DDCompactView& cpv,
-			const SensitiveDetectorCatalog& clg,
-			const edm::ParameterSet& p,
-			const SimTrackManager* m,
-			SimActivityRegistry& reg,
-			std::unique_ptr<SensitiveTkDetector>& oTK,
-			std::unique_ptr<SensitiveCaloDetector>& oCalo) const override
-      {
-	std::unique_ptr<T> returnValue(new T(iname, cpv, clg, p, m));
-	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
+    convertTo(returnValue.get(), oTK, oCalo);
+    //ownership was passed in the previous function
+    returnValue.release();
+  }
 
-	this->convertTo(returnValue.get(), oTK,oCalo);
-	//ownership was passed in the previous function
-	returnValue.release();
-      }
-
-   private:
-      SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete; // stop default
-
-      const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete; // stop default
-
+private:
+  SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete;
+  const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete;
 };
-
 
 #endif

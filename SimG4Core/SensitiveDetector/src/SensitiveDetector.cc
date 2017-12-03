@@ -51,7 +51,7 @@ void SensitiveDetector::AssignSD(const std::string & vname)
   G4LogicalVolumeStore * theStore = G4LogicalVolumeStore::GetInstance();
   for (auto & lv : *theStore)
     {
-      if (vname==lv->GetName()) { 
+      if (vname == lv->GetName()) { 
 	lv->SetSensitiveDetector(this); 
         break;
       }
@@ -99,7 +99,7 @@ Local3DPoint SensitiveDetector::LocalPostStepPosition(const G4Step * step) const
   return ConvertToLocal3DPoint(localCoordinates); 
 }
 
-void SensitiveDetector::setNames(std::vector<std::string>& hnames)
+void SensitiveDetector::setNames(const std::vector<std::string>& hnames)
 {
   namesOfSD.clear();
   namesOfSD = hnames;

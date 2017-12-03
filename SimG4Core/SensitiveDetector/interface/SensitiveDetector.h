@@ -9,7 +9,6 @@
 
 #include "G4VSensitiveDetector.hh"
 
-//#include <boost/cstdint.hpp>
 #include <string>
 
 class G4Step;
@@ -21,7 +20,8 @@ class DDCompactView;
 class SensitiveDetector : public G4VSensitiveDetector
 {
 public:
-  explicit SensitiveDetector(const std::string & iname, const DDCompactView & cpv,
+  explicit SensitiveDetector(const std::string & iname, 
+                             const DDCompactView & cpv,
 			     const SensitiveDetectorCatalog & ,
 			     edm::ParameterSet const & p);
   ~SensitiveDetector() override;
@@ -32,7 +32,11 @@ public:
 
   virtual uint32_t setDetUnitId(const G4Step * step) = 0;
   virtual void clearHits() = 0;
+
+  inline const std::vector<std::string>& getNames() const { return namesOfSD; }
  
+protected:
+
   enum coordinates {WorldCoordinates, LocalCoordinates};
   Local3DPoint InitialStepPosition(const G4Step * step, coordinates) const;
   Local3DPoint FinalStepPosition(const G4Step * step, coordinates) const;
@@ -42,10 +46,8 @@ public:
 
   inline Local3DPoint ConvertToLocal3DPoint(const G4ThreeVector& point) const
   { return Local3DPoint(point.x(),point.y(),point.z()); }
-
-  inline const std::vector<std::string>& getNames() const { return namesOfSD; }
   
-  void setNames(std::vector<std::string>&);
+  void setNames(const std::vector<std::string>&);
   void NaNTrap(const G4Step* step ) const;
     
 private:
