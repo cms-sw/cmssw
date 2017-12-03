@@ -16,15 +16,16 @@ class SimTrackManager;
 class AttachSD
 {
 public:
-    AttachSD();
-    ~AttachSD();
-    std::pair< std::vector<SensitiveTkDetector*>,
-      std::vector<SensitiveCaloDetector*> > create(const DDDWorld & w, 
-						   const DDCompactView & cpv,
-						   const SensitiveDetectorCatalog & clg,
-						   edm::ParameterSet const & p,
-						   const SimTrackManager* m,
-						   SimActivityRegistry& reg ) const;
+  AttachSD();
+  ~AttachSD();
+
+  std::pair< std::vector<SensitiveTkDetector*>,
+    std::vector<SensitiveCaloDetector*> > 
+    create(const DDDWorld &, const DDCompactView &,
+	   const SensitiveDetectorCatalog &,
+	   edm::ParameterSet const &,
+	   const SimTrackManager*,
+	   SimActivityRegistry& reg ) const;
 };
 
 #endif

@@ -27,44 +27,37 @@ namespace edm{
 class SensitiveDetectorMakerBase
 {
 
-   public:
-      SensitiveDetectorMakerBase(){}
-      virtual ~SensitiveDetectorMakerBase(){}
+public:
+  SensitiveDetectorMakerBase(){}
+  virtual ~SensitiveDetectorMakerBase(){}
 
-      // ---------- const member functions ---------------------
-      virtual void make(const std::string& iname,
-			const DDCompactView& cpv,
-			const SensitiveDetectorCatalog& clg,
-			const edm::ParameterSet& p,
-			const SimTrackManager* m,
-			SimActivityRegistry& reg,
-			std::unique_ptr<SensitiveTkDetector>& oTK,
-			std::unique_ptr<SensitiveCaloDetector>& oCalo) const =0;
+  // ---------- const member functions ---------------------
+  virtual void make(const std::string& iname,
+		    const DDCompactView& cpv,
+		    const SensitiveDetectorCatalog& clg,
+		    const edm::ParameterSet& p,
+		    const SimTrackManager* man,
+		    SimActivityRegistry& reg,
+		    SensitiveTkDetector* oTK,
+		    SensitiveCaloDetector* oCalo) const =0;
       
-      // ---------- static member functions --------------------
+protected:
+  //used to identify which type of Sensitive Detector we have
+  void convertTo( SensitiveTkDetector* iFrom, 
+		  SensitiveTkDetector* oTo,
+		  SensitiveCaloDetector*) const{
+    oTo = iFrom;
+  }
 
-      // ---------- member functions ---------------------------
+  void convertTo( SensitiveCaloDetector* iFrom,
+		  SensitiveTkDetector*,
+		  SensitiveCaloDetector* oTo) const{
+    oTo = iFrom;
+  }
 
-   protected:
-      //used to identify which type of Sensitive Detector we have
-      void convertTo( SensitiveTkDetector* iFrom, 
-		      std::unique_ptr<SensitiveTkDetector>& oTo,
-		      std::unique_ptr<SensitiveCaloDetector>&) const{
-	oTo= std::unique_ptr<SensitiveTkDetector>(iFrom);
-      }
-      void convertTo( SensitiveCaloDetector* iFrom,
-		      std::unique_ptr<SensitiveTkDetector>&,
-		      std::unique_ptr<SensitiveCaloDetector>& oTo) const{
-	oTo=std::unique_ptr<SensitiveCaloDetector>(iFrom);
-      }
-
-   private:
-      SensitiveDetectorMakerBase(const SensitiveDetectorMakerBase&) = delete; // stop default
-
-      const SensitiveDetectorMakerBase& operator=(const SensitiveDetectorMakerBase&) = delete; // stop default
-
-      // ---------- member data --------------------------------
-
+private:
+  SensitiveDetectorMakerBase(const SensitiveDetectorMakerBase&) = delete;
+  const SensitiveDetectorMakerBase& operator=(const SensitiveDetectorMakerBase&) = delete;
 };
 
 

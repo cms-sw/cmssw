@@ -16,7 +16,7 @@ AttachSD::create(const DDDWorld & w,
 		 const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p,
-		 const SimTrackManager* m,
+		 const SimTrackManager* man,
 		 SimActivityRegistry& reg) const
 {
   std::pair< std::vector<SensitiveTkDetector *>,std::vector<SensitiveCaloDetector*> > detList;
@@ -28,16 +28,14 @@ AttachSD::create(const DDDWorld & w,
 					       << className << " "  << rname;
     std::unique_ptr<SensitiveDetectorMakerBase> 
       temp(SensitiveDetectorPluginFactory::get()->create(className));
-    std::unique_ptr<SensitiveTkDetector> tkDet;
-    std::unique_ptr<SensitiveCaloDetector> caloDet;
-    temp->make(rname,cpv,clg,p,m,reg,tkDet,caloDet);
-    if(tkDet.get()){
-      detList.first.push_back(tkDet.get());
-      tkDet.release();
+    SensitiveTkDetector* tkDet = nullptr;
+    SensitiveCaloDetector* caloDet = nullptr;
+    temp.get()->make(rname,cpv,clg,p,man,reg,tkDet,caloDet);
+    if(tkDet){
+      detList.first.push_back(tkDet);
     }
-    if(caloDet.get()){
-      detList.second.push_back(caloDet.get());
-      caloDet.release();
+    if(caloDet){
+      detList.second.push_back(caloDet);
     }
     LogDebug("SimG4CoreSensitiveDetector") 
       << " AttachSD: created a " << className << " with name " << rname;
