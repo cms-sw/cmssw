@@ -69,10 +69,10 @@ HcalTimeSlewEP::produce(const HcalTimeSlewRecord& iRecord){
     double cap_         = p_timeslew.getParameter<double>("cap");
     double tspar0_      = p_timeslew.getParameter<double>("tspar0");
     double tspar1_      = p_timeslew.getParameter<double>("tspar1");
-    double tspar2_      = p_timeslew.getParameter<double>("tspar1");
-    double tspar0_siPM_ = p_timeslew.getParameter<double>("tspar1");
-    double tspar1_siPM_ = p_timeslew.getParameter<double>("tspar1");
-    double tspar2_siPM_ = p_timeslew.getParameter<double>("tspar1");
+    double tspar2_      = p_timeslew.getParameter<double>("tspar2");
+    double tspar0_siPM_ = p_timeslew.getParameter<double>("tspar0_siPM");
+    double tspar1_siPM_ = p_timeslew.getParameter<double>("tspar1_siPM");
+    double tspar2_siPM_ = p_timeslew.getParameter<double>("tspar2_siPM");
     hcalTimeSlew->addM3ParameterSet(cap_,tspar0_,tspar1_,tspar2_,tspar0_siPM_,tspar1_siPM_,tspar2_siPM_);
   }
   
