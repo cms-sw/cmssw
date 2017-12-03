@@ -9,7 +9,7 @@
 
 #include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
-#include "CalibCalorimetry/HcalPlugins/src/HcalTimeSlewEP.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 

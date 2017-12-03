@@ -33,7 +33,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 #include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
-#include "CalibCalorimetry/HcalPlugins/src/HcalTimeSlewEP.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 
 //#define DebugLog
 

@@ -5,7 +5,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/rawEnergy.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCorrectionFunctions.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
-#include "CalibCalorimetry/HcalPlugins/src/HcalTimeSlewEP.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
