@@ -1,7 +1,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CalibCalorimetry/HcalPlugins/src/HcalTimeSlewEP.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 
 HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror ) 
 : entries_(),
