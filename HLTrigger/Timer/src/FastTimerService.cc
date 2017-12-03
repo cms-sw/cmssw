@@ -1432,17 +1432,17 @@ template <typename T>
 void FastTimerService::printEventHeader(T& out, std::string const & label) const
 {
   out << "FastReport       CPU time      Real time      Allocated    Deallocated  " << label << "\n";
-  //      FastReport  ######.### ms  ######.### ms  +######### kB  -######### kB  ...
+  //      FastReport  ########.# ms  ########.# ms  +######### kB  -######### kB  ...
 }
 
 template <typename T>
 void FastTimerService::printEventLine(T& out, Resources const& data, std::string const & label) const
 {
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %+10d kB  %+10d kB  %s\n") 
+  out << boost::format("FastReport  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %s\n")
     % ms(data.time_thread)
     % ms(data.time_real)
-    % kB(data.allocated)
-    % kB(data.deallocated)
+    % +static_cast<int64_t>(kB(data.allocated))
+    % -static_cast<int64_t>(kB(data.deallocated))
     % label;
 }
 
@@ -1503,32 +1503,52 @@ template <typename T>
 void FastTimerService::printSummaryHeader(T& out, std::string const& label, bool detailed) const
 {
   if (detailed)
-    out << "FastReport   CPU time avg.      when run  Real time avg.      when run     Alloc, avg.      when run   Dealloc. avg.      when run  " << label;
-    //      FastReport  ######.### ms  ######.### ms  ######.### ms  ######.### ms  +######### kB  +######### kB  -######### kB  -######### kB  ...
+    out << "FastReport   CPU time avg.      when run  Real time avg.      when run     Alloc. avg.      when run   Dealloc. avg.      when run  ";
+    //      FastReport  ########.# ms  ########.# ms  ########.# ms  ########.# ms  +######### kB  +######### kB  -######### kB  -######### kB  ...
   else
-    out << "FastReport   CPU time avg.                Real time avg.                   Alloc, avg.                 Dealloc. avg.                " << label;
-    //      FastReport  ######.### ms                 ######.### ms                 +######### kB                 -######### kB                 ...
+    out << "FastReport   CPU time avg.                Real time avg.                   Alloc. avg.                 Dealloc. avg.                ";
+    //      FastReport  ########.# ms                 ########.# ms                 +######### kB                 -######### kB                 ...
+  out << label << '\n';
+}
+
+template <typename T>
+void FastTimerService::printPathSummaryHeader(T& out, std::string const& label) const
+{
+  out << "FastReport     CPU time sched. / depend.    Real time sched. / depend.       Alloc. sched. / depend.     Dealloc. sched. / depend.  ";
+  //      FastReport  ########.# ms  ########.# ms  ########.# ms  ########.# ms  +######### kB  +######### kB  -######### kB  -######### kB  ...
+  out << label << '\n';
 }
 
 template <typename T>
 void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const
 {
-  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 %+10d kB                 %+10d kB                   %s\n")
+  out << boost::format("FastReport  %10.1f ms                 %10.1f ms                 %+10d kB                 %+10d kB                 %s\n")
     % (events ? ms(data.time_thread) / events : 0)
     % (events ? ms(data.time_real)   / events : 0)
-    % (events ? kB(data.allocated)   / events : 0)
-    % (events ? kB(data.deallocated) / events : 0)
+    % (events ? +static_cast<int64_t>(kB(data.allocated)   / events) : 0)
+    % (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0)
     % label;
 }
 
 template <typename T>
 void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const
 {
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n")
+  out << boost::format("FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n")
     % (events ? ms(data.time_thread) / events : 0) % (active ? ms(data.time_thread) / active : 0)
     % (events ? ms(data.time_real)   / events : 0) % (active ? ms(data.time_real)   / active : 0)
-    % (events ? kB(data.allocated)   / events : 0) % (active ? kB(data.allocated)   / active : 0)
-    % (events ? kB(data.deallocated) / events : 0) % (active ? kB(data.deallocated) / active : 0)
+    % (events ? +static_cast<int64_t>(kB(data.allocated)   / events) : 0) % (active ? +static_cast<int64_t>(kB(data.allocated)   / active) : 0)
+    % (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) % (active ? -static_cast<int64_t>(kB(data.deallocated) / active) : 0)
+    % label;
+}
+
+template <typename T>
+void FastTimerService::printPathSummaryLine(T& out, Resources const& data, Resources const& total, uint64_t events, std::string const& label) const
+{
+  out << boost::format("FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n")
+    % (events ? ms(data.time_thread) / events : 0) % (events ? ms(total.time_thread) / events : 0)
+    % (events ? ms(data.time_real)   / events : 0) % (events ? ms(total.time_real)   / events : 0)
+    % (events ? +static_cast<int64_t>(kB(data.allocated)   / events) : 0) % (events ? +static_cast<int64_t>(kB(total.allocated)   / events) : 0)
+    % (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) % (events ? -static_cast<int64_t>(kB(total.deallocated) / events) : 0)
     % label;
 }
 
@@ -1547,12 +1567,12 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     for (unsigned int m: proc_d.modules_) {
       auto const& module_d = callgraph_.module(m);
       auto const& module   = data.modules[m];
-      printSummaryLine(out, module.total, data.events, module.events, module_d.moduleLabel());
+      printSummaryLine(out, module.total, data.events, module.events, "  " + module_d.moduleLabel());
     }
   }
   printSummaryLine(out, data.total, data.events, "total");
   out << '\n';
-  printSummaryHeader(out, "Processes and Paths", false);
+  printPathSummaryHeader(out, "Processes and Paths");
   printSummaryLine(out, source.total, data.events, source_d.moduleLabel());
   for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
     auto const& proc_d = callgraph_.processDescription(i);
@@ -1561,14 +1581,12 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     for (unsigned int p = 0; p < proc.paths.size(); ++p) {
       auto const& name = proc_d.paths_[p].name_;
       auto const& path = proc.paths[p];
-      printSummaryLine(out, path.active, data.events, name + " (only scheduled modules)");
-      printSummaryLine(out, path.total,  data.events, name + " (including dependencies)");
+      printPathSummaryLine(out, path.active, path.total, data.events, "  " + name);
     }
     for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
       auto const& name = proc_d.endPaths_[p].name_;
       auto const& path = proc.endpaths[p];
-      printSummaryLine(out, path.active, data.events, name + " (only scheduled modules)");
-      printSummaryLine(out, path.total,  data.events, name + " (including dependencies)");
+      printPathSummaryLine(out, path.active, path.total, data.events, "  " + name);
     }
   }
   printSummaryLine(out, data.total, data.events, "total");
