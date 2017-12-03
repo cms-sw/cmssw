@@ -508,13 +508,19 @@ private:
   void printEvent(T& out, ResourcesPerJob const&) const;
 
   template <typename T>
-  void printSummaryHeader(T& out, std::string const & label, bool detaile) const;
+  void printSummaryHeader(T& out, std::string const & label, bool detailed) const;
+
+  template <typename T>
+  void printPathSummaryHeader(T& out, std::string const & label) const;
 
   template <typename T>
   void printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const;
 
   template <typename T>
   void printSummaryLine(T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const;
+
+  template <typename T>
+  void printPathSummaryLine(T& out, Resources const& data, Resources const& total, uint64_t events, std::string const& label) const;
 
   template <typename T>
   void printSummary(T& out, ResourcesPerJob const&, std::string const& label) const;
