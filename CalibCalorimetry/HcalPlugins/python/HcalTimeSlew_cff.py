@@ -3,10 +3,14 @@ import FWCore.ParameterSet.Config as cms
 HcalTimeSlewEP = cms.ESSource("HcalTimeSlewEP",
     # for method2
     timeSlewParametersM2 = cms.VPSet(
-        cms.PSet(bias = cms.string("Slow"),    tzero = cms.double(23.960177), slope = cms.double(-3.178648), tmax = cms.double(16.00)),
-        cms.PSet(bias = cms.string("Medium"),  tzero = cms.double(13.307784), slope = cms.double(-1.556668), tmax = cms.double(10.00)),
-        cms.PSet(bias = cms.string("Fast"),    tzero = cms.double(9.109694),  slope = cms.double(-1.075824), tmax = cms.double(6.25)),
-        cms.PSet(bias = cms.string("HBHE2018"),tzero = cms.double(11.977461), slope = cms.double(-1.5610227),tmax = cms.double(10.00))
+        cms.PSet(#Slow    
+            tzero = cms.double(23.960177), slope = cms.double(-3.178648), tmax = cms.double(16.00)),
+        cms.PSet(#Medium
+            tzero = cms.double(13.307784), slope = cms.double(-1.556668), tmax = cms.double(10.00)),
+        cms.PSet(#Fast
+            tzero = cms.double(9.109694),  slope = cms.double(-1.075824), tmax = cms.double(6.25)),
+        cms.PSet(#HBHE2018
+            tzero = cms.double(11.977461), slope = cms.double(-1.5610227),tmax = cms.double(10.00))
     ),
     # for method3                          
     timeSlewParametersM3 = cms.VPSet(
