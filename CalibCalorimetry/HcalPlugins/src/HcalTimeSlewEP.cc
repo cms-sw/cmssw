@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <iostream>
 
 HcalTimeSlewEP::HcalTimeSlewEP(const edm::ParameterSet& pset) : pset_(pset)
 {
@@ -27,9 +28,10 @@ void HcalTimeSlewEP::fillDescriptions( edm::ConfigurationDescriptions & descript
   edm::ParameterSetDescription desc;
 
   edm::ParameterSetDescription desc_M2;
-  desc_M2.add<std::string>("bias");
+  //KH desc_M2.add<std::string>("bias");
   desc_M2.add<double>("tzero");
   desc_M2.add<double>("slope");
+  desc_M2.add<double>("tmax");
   std::vector<edm::ParameterSet> default_M2(1);
   desc.addVPSet("delay_M2",desc_M2,default_M2);  
 
@@ -45,6 +47,7 @@ void HcalTimeSlewEP::fillDescriptions( edm::ConfigurationDescriptions & descript
   desc.addVPSet("delay_M3",desc_M3,default_M3);  
 
   descriptions.addDefault(desc);
+
 }
 
 // ------------ method called to produce the data  ------------
