@@ -152,7 +152,7 @@ l1TriggerEmulatorOnline = cms.Sequence(
                                 )
 
 l1TriggerEmulatorOffline = cms.Sequence(
-    l1TriggerEmulatorOnline 
+    l1TriggerEmulatorOnline
 )
 #
 
@@ -257,11 +257,10 @@ l1EmulatorMonitorClient.remove(l1EmulatorErrorFlagClient)
 #l1EmulatorMonitorClient.remove(l1EmulatorEventInfoClient)
 
 
-
-
 ##############################################################################
-#stage2 
+#stage2
 ##############################################################################
+
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 
 #from L1Trigger.L1TGlobal.hackConditions_cff import *
@@ -292,7 +291,7 @@ from DQM.L1TMonitorClient.L1TStage2MonitorClient_cff import *
 # L1T monitor client sequence (system clients and quality tests)
 l1TStage2EmulatorClients = cms.Sequence(
                         l1tStage2CaloLayer2DEClient
-                        # l1tStage2EmulatorEventInfoClient 
+                        # l1tStage2EmulatorEventInfoClient
                         )
 
 l1tStage2EmulatorMonitorClient = cms.Sequence(
@@ -331,10 +330,10 @@ Stage2l1TriggerEmulatorOnline = cms.Sequence(
 l1tStage2EmulatorOnlineDQM.remove(l1tStage2uGtEmul)
 
 Stage2l1TriggerEmulatorOffline = cms.Sequence(
-                                Stage2l1TriggerEmulatorOnline +
-                                l1tStage2CaloLayer2OfflineDQMEmu +
-                                l1tEGammaOfflineDQMEmu +
-                                l1tTauOfflineDQMEmu
+                                Stage2l1TriggerEmulatorOnline# +
+                                # l1tStage2CaloLayer2OfflineDQMEmu +
+                                # l1tEGammaOfflineDQMEmu +
+                                # l1tTauOfflineDQMEmu
                                 )
 
 
@@ -344,7 +343,7 @@ Stage2l1TriggerDqmOffline = cms.Sequence(
                                 * Stage2l1TriggerEmulatorOffline
                                 )
 
-# DQM Offline Step 2 sequence                                 
+# DQM Offline Step 2 sequence
 Stage2l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tStage2EmulatorMonitorClient *
                                 l1tStage2MonitorClient *
