@@ -146,19 +146,8 @@ class CaloTruthAccumulatorWithGraph : public DigiAccumulatorMixMod {
   double caloStartZ;
 
   std::unordered_map<Index_t,float> m_detIdToTotalSimEnergy; // keep track of cell normalizations
-  std::unordered_map<Barcode_t,Index_t> m_genParticleBarcodeToIndex;
-  std::unordered_map<Barcode_t,Index_t> m_simTrackBarcodeToIndex;
-  std::unordered_map<Barcode_t,Index_t> m_genBarcodeToSimTrackIndex;
-  std::unordered_map<Barcode_t,Index_t> m_simVertexBarcodeToIndex;
-  std::unordered_multimap<Index_t,Index_t> m_detIdToCluster;
   std::unordered_multimap<Barcode_t,Index_t> m_simHitBarcodeToIndex;
-  std::unordered_multimap<Barcode_t,Barcode_t> m_simVertexBarcodeToSimTrackBarcode;
-  std::unordered_map<Barcode_t,Barcode_t> m_simTrackBarcodeToSimVertexParentBarcode;
-  std::unordered_multimap<Barcode_t,Index_t> m_simTrackToSimVertex;
-  std::unordered_multimap<Barcode_t,Index_t> m_simVertexToSimTrackParent;
   //	std::unordered_multimap<RecoDetId_t,SimHitInfo_t> m_recoDetIdToSimHits;
-
-  std::vector<Barcode_t> m_simVertexBarcodes;
 
   //	const double volumeRadius_;
   //	const double volumeZ_;
