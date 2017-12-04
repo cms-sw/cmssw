@@ -8,11 +8,13 @@
  *  \author N. Amapane - CERN
  */
 
+#include <atomic>
+
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
-#include <atomic>
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 class MagneticField
 {
@@ -62,9 +64,9 @@ private:
   //nominal field value 
   virtual int computeNominalValue() const;
   mutable std::atomic<char> nominalValueCompiuted;
-//  [[cms::thread_guard("nominalValueCompiuted")]] mutable int theNominalValue;
+//  CMS_THREAD_GUARD(nominalValueCompiuted) mutable int theNominalValue;
 //  PG temporary fix for clang 3.4 which is not parsing thread_guard correctly
-  [[cms::thread_safe]] mutable int theNominalValue;
+  CMS_THREAD_SAFE mutable int theNominalValue;
   enum FooStates {kUnset, kSetting, kSet};
 };
 

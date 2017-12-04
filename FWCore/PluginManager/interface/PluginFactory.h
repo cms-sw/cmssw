@@ -25,6 +25,7 @@
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 // forward declarations
 
 namespace edmplugin {
@@ -89,7 +90,7 @@ class PluginFactory<R*(Args...)> : public PluginFactoryBase
 #define CONCATENATE(a,b) CONCATENATE_HIDDEN(a,b)
 #define EDM_REGISTER_PLUGINFACTORY(_factory_,_category_) \
 namespace edmplugin {\
-  template<> edmplugin::PluginFactory<_factory_::TemplateArgType>* edmplugin::PluginFactory<_factory_::TemplateArgType>::get() { [[cms::thread_safe]] static edmplugin::PluginFactory<_factory_::TemplateArgType> s_instance; return &s_instance;}\
+  template<> edmplugin::PluginFactory<_factory_::TemplateArgType>* edmplugin::PluginFactory<_factory_::TemplateArgType>::get() { CMS_THREAD_SAFE static edmplugin::PluginFactory<_factory_::TemplateArgType> s_instance; return &s_instance;}\
   template<> const std::string& edmplugin::PluginFactory<_factory_::TemplateArgType>::category() const { static const std::string s_cat(_category_);  return s_cat;}\
   } enum {CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__)}
 
