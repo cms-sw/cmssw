@@ -421,14 +421,12 @@ namespace edm {
 
         if( not excptr) {
           if(auto queue = m_worker->serializeRunModule()) {
-            Worker* worker = m_worker;
             auto const & principal = m_principal;
             auto& es = m_es;
-            auto streamID = m_streamID;
-            auto parentContext = m_parentContext;
-            auto serviceToken = m_serviceToken;
-            auto sContext = m_context;
-            queue.push( [worker, &principal, &es, streamID,parentContext,sContext, serviceToken]()
+            queue.push( [worker = m_worker, &principal,
+                         &es, streamID = m_streamID,
+                         parentContext = m_parentContext,
+                         sContext = m_context, serviceToken = m_serviceToken]()
             {
               //Need to make the services available
               ServiceRegistry::Operate guard(serviceToken);
@@ -514,12 +512,11 @@ namespace edm {
 
         if( not excptr) {
           if(auto queue = m_worker->serializeRunModule()) {
-            Worker* worker = m_worker;
             auto const & principal = m_principal;
             auto& es = m_es;
-            auto parentContext = m_parentContext;
-            auto serviceToken = m_serviceToken;
-            queue.push( [worker, &principal, &es, parentContext, serviceToken, holder = m_holder]()
+            queue.push( [worker = m_worker, &principal,
+                         &es, parentContext = m_parentContext,
+                         serviceToken = m_serviceToken, holder = m_holder]()
             {
               //Need to make the services available
               ServiceRegistry::Operate guard(serviceToken);
