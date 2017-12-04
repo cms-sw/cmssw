@@ -36,7 +36,7 @@ namespace edmtest {
 
   private:
 
-    void preallocStreamsExtend(unsigned int) override;
+    void preallocate(unsigned int) override;
 
     std::vector<edm::EDGetTokenT<IntProduct>> m_tokens;
     edm::EDGetTokenT<IntProduct> m_tokenForProduce;
@@ -62,7 +62,7 @@ namespace edmtest {
     }
   }
 
-  void AcquireIntFilter::preallocStreamsExtend(unsigned int iNStreams) {
+  void AcquireIntFilter::preallocate(unsigned int iNStreams) {
 
     m_server = std::make_unique<test_acquire::WaitingServer>(iNStreams,
                                                              m_numberOfStreamsToAccumulate,
