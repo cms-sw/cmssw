@@ -3,6 +3,7 @@
 
 // Framework Headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // Fast Sim headers
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionFTFSimulator.h"
@@ -66,8 +67,8 @@
 #include "G4SystemOfUnits.hh"
 
 static std::once_flag initializeOnce;
-[[cms::thread_guard("initializeOnce")]] const G4ParticleDefinition* NuclearInteractionFTFSimulator::theG4Hadron[] = {nullptr};
-[[cms::thread_guard("initializeOnce")]] int NuclearInteractionFTFSimulator::theId[] = {0};
+CMS_THREAD_GUARD(initializeOnce) const G4ParticleDefinition* NuclearInteractionFTFSimulator::theG4Hadron[] = {nullptr};
+CMS_THREAD_GUARD(initializeOnce) int NuclearInteractionFTFSimulator::theId[] = {0};
 
 const double fact = 1.0/CLHEP::GeV;
 
