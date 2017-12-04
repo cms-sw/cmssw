@@ -20,6 +20,18 @@
 
 
 namespace evf {
+
+  namespace {
+    struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
+    {
+#ifdef __APPLE__
+      return {start, len, pid, type, whence};
+#else
+      return {type, whence, start, len, pid};
+#endif
+    }
+  }
+
   template<typename Consumer>
   class RecoEventOutputModuleForFU : public edm::StreamerOutputModuleBase {
     
@@ -68,7 +80,8 @@ namespace evf {
     jsoncollector::DataPointDefinition outJsonDef_;
     unsigned char* outBuf_=nullptr;
     bool readAdler32Check_=false;
-
+    struct flock data_rw_flk;
+    struct flock data_rw_fulk;
 
   }; //end-of-class-def
 
@@ -89,7 +102,10 @@ namespace evf {
     transferDestination_(),
     mergeType_(),
     hltErrorEvents_(0),
-    outBuf_(new unsigned char[1024*1024])
+    outBuf_(new unsigned char[1024*1024]),
+    data_rw_flk( evf::make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
+    data_rw_fulk( evf:: make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
+ 
   {
     //replace hltOutoputA with stream if the HLT menu uses this convention
     std::string testPrefix="hltOutput";
@@ -304,7 +320,15 @@ namespace evf {
       //lock
       struct stat istat;
       if (!edm::Service<evf::EvFDaqDirector>()->microMergeDisabled()) {
-        FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
+
+        //create if does not exist then lock the merge destination file
+        FILE *des = fopen(edm::Service<evf::EvFDaqDirector>()->getMergedDatFilePath(ls.luminosityBlock(),stream_label_).c_str(), "a"); //open stream for appending
+        int data_readwrite_fd_ = fileno(des);
+        if (data_readwrite_fd_ == -1)
+          edm::LogError("RecoEventOutputModuleForFU") << "problem with creating filedesc for datamerge " << strerror(errno);
+        else
+          LogDebug("RecoEventOutputModuleForFU") << "creating filedesc for datamerge -: " << data_readwrite_fd_;
+        fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_flk);
 
         std::string deschecksum = edm::Service<evf::EvFDaqDirector>()->getMergedDatChecksumFilePath(ls.luminosityBlock(), stream_label_);
 
@@ -348,7 +372,11 @@ namespace evf {
         fprintf(cf,"%u",mergedAdler32);
         fclose(cf);
 
-        edm::Service<evf::EvFDaqDirector>()->unlockAndCloseMergeStream();
+        //unlock and close output file
+        fflush(des);
+        fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_fulk);
+        fclose(des);
+
         fclose(src);
 
         if (readAdler32Check_ && ((adlerb << 16) | adlera) != fileAdler32_.value()) {
