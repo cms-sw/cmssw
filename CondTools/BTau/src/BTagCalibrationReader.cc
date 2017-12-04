@@ -42,7 +42,6 @@ private:
                                      float discr) const;
  
   std::pair<float, float> min_max_eta(BTagEntry::JetFlavor jf,
-                                     float pt,
                                      float discr) const;
 
   BTagEntry::OperatingPoint op_;
@@ -160,9 +159,10 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(
                                              float pt,
                                              float discr) const
 {
-  auto sf_bounds_eta = min_max_eta(jf, pt, discr);
+  auto sf_bounds_eta = min_max_eta(jf, discr);
   bool eta_is_out_of_bounds = false;
-  if(eta < 0) eta = -eta;
+
+  if (sf_bounds_eta.first < 0) sf_bounds_eta.first = -sf_bounds_eta.second;   
   if (eta <= sf_bounds_eta.first || eta > sf_bounds_eta.second ) {
     eta_is_out_of_bounds = true;
   }
@@ -171,7 +171,6 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(
     return 1.;
   }
 
-  else{
 
    auto sf_bounds = min_max_pt(jf, eta, discr);
    float pt_for_eval = pt;
@@ -205,7 +204,6 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(
   // double uncertainty on out-of-bounds and return
   sf_err = sf + 2*(sf_err - sf);
   return sf_err;
- }
 }
 
 std::pair<float, float> BTagCalibrationReader::BTagCalibrationReaderImpl::min_max_pt(
@@ -247,22 +245,13 @@ std::pair<float, float> BTagCalibrationReader::BTagCalibrationReaderImpl::min_ma
 
 std::pair<float, float> BTagCalibrationReader::BTagCalibrationReaderImpl::min_max_eta(
                                                BTagEntry::JetFlavor jf,
-                                               float pt,
                                                float discr) const
 {
   bool use_discr = (op_ == BTagEntry::OP_RESHAPING);
 
   const auto &entries = tmpData_.at(jf);
-  float min_eta = -1., max_eta = -1.;
+  float min_eta = 0., max_eta = 0.;
   for (const auto & e: entries) {
-    if (
-      e.ptMin <= pt && pt < e.ptMax                   // find pt
-    ){
-      if (min_eta < 0.) {                                  // init
-        min_eta = e.etaMin;
-        max_eta = e.etaMax;
-        continue;
-      }
 
       if (use_discr) {                                    // discr. reshaping?
         if (e.discrMin <= discr && discr < e.discrMax) {  // check discr
@@ -274,7 +263,7 @@ std::pair<float, float> BTagCalibrationReader::BTagCalibrationReaderImpl::min_ma
         max_eta = max_eta > e.etaMax ? max_eta : e.etaMax;
       }
     }
-  }
+
 
   return std::make_pair(min_eta, max_eta);
 }
