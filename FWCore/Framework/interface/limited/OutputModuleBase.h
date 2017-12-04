@@ -252,6 +252,7 @@ namespace edm {
       virtual bool isFileOpen() const { return true; }
       
       virtual void preallocStreams(unsigned int){}
+      virtual void preallocate(unsigned int){}
       virtual void doBeginStream_(StreamID){}
       virtual void doEndStream_(StreamID){}
       virtual void doStreamBeginRun_(StreamID, RunForOutput const&, EventSetup const&){}

@@ -130,6 +130,7 @@ namespace edm {
       virtual void endJob(){}
 
       virtual void preallocStreams(unsigned int);
+      virtual void preallocate(unsigned int);
       virtual void doBeginStream_(StreamID id);
       virtual void doEndStream_(StreamID id);
       virtual void doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c);

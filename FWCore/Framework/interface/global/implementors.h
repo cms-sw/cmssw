@@ -55,9 +55,7 @@ namespace edm {
       private:
         void preallocStreams(unsigned int iNStreams) final {
           caches_.resize(iNStreams,static_cast<C*>(nullptr));
-          preallocStreamsExtend(iNStreams);
         }
-        virtual void preallocStreamsExtend(unsigned int iNStreams) {}
         void doBeginStream_(StreamID id) final {
           caches_[id.value()] = beginStream(id).release();
         }

@@ -92,6 +92,7 @@ namespace edm {
       }
       previousParentageIds_.reset( new ParentageID[nStreams]);
       preallocStreams(nStreams);
+      preallocate(nStreams);
     }
     
     void
@@ -218,6 +219,7 @@ namespace edm {
     }
     
     void EDProducerBase::preallocStreams(unsigned int) {}
+    void EDProducerBase::preallocate(unsigned int) {}
     void EDProducerBase::doBeginStream_(StreamID id){}
     void EDProducerBase::doEndStream_(StreamID id) {}
     void EDProducerBase::doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c) {}

@@ -432,7 +432,7 @@ namespace edm {
               ServiceRegistry::Operate guard(serviceToken);
 
               std::exception_ptr* ptr = nullptr;
-              worker->runModuleAfterAsyncPrefetch<T>(ptr,
+              worker->template runModuleAfterAsyncPrefetch<T>(ptr,
                                                     principal,
                                                     es,
                                                     streamID,
