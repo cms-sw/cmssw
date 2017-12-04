@@ -46,6 +46,4 @@ ttbarCategoryTable = cms.EDProducer("GlobalVariablesTableProducer",
                                     )
 )
 
-#ttbarTablesMC = cms.Sequence(ttbarCategoryTable)
 ttbarTablesMC = cms.Sequence(matchGenBHadron + matchGenCHadron + categorizeGenTtbar + ttbarCategoryTable)
-#ttbarTablesMC = cms.Sequence()

@@ -71,9 +71,7 @@ nanoSequence = cms.Sequence(
         jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + triggerObjectTables + isoTrackTables +
 	l1bits)
 
-#content = cms.EDAnalyzer("EventContentAnalyzer")
-
-nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + globalTablesMC + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable +  ttbarTablesMC )
+nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + globalTablesMC + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable + ttbarTablesMC )
 
 
 def nanoAOD_customizeCommon(process):
@@ -105,8 +103,10 @@ _80x_sequence.insert(1,qgtagger80x)
 _80x_sequenceMC = nanoSequenceMC.copy()
 _80x_sequenceMC.remove(genSubJetAK8Table)
 _80x_sequenceMC.remove(genJetFlavourTable)
-_80x_sequenceMC.insert(-3,genJetFlavourAssociation)
-_80x_sequenceMC.insert(-3,genJetFlavourTable)
+_80x_sequenceMC.remove(ttbarTablesMC)
+_80x_sequenceMC.insert(-1,genJetFlavourAssociation)
+_80x_sequenceMC.insert(-1,genJetFlavourTable)
+_80x_sequenceMC.insert(-1,ttbarTablesMC)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceMC, _80x_sequenceMC)
 
@@ -119,7 +119,9 @@ _92x_sequence = nanoSequence.copy()
 _92x_sequenceMC = nanoSequenceMC.copy()
 _92x_sequenceMC.remove(genSubJetAK8Table)
 _92x_sequenceMC.remove(genJetFlavourTable)
-_92x_sequenceMC.insert(-3,genJetFlavourAssociation)
-_92x_sequenceMC.insert(-3,genJetFlavourTable)
+_92x_sequenceMC.remove(ttbarTablesMC)
+_92x_sequenceMC.insert(-1,genJetFlavourAssociation)
+_92x_sequenceMC.insert(-1,genJetFlavourTable)
+_92x_sequenceMC.insert(-1,ttbarTablesMC)
 run2_nanoAOD_92X.toReplaceWith( nanoSequence, _92x_sequence)
 run2_nanoAOD_92X.toReplaceWith( nanoSequenceMC, _92x_sequenceMC)
