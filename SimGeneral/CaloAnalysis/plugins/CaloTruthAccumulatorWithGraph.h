@@ -24,11 +24,7 @@ typedef std::pair<Index_t,Index_t> IndexPair_t;
 typedef std::pair<IndexPair_t,float> SimHitInfo_t;
 typedef std::pair<Barcode_t,Index_t> BarcodeIndexPair_t;
 typedef std::pair<Barcode_t,Barcode_t> BarcodePair_t;
-typedef std::pair<DetId,float> SimHitInfoPerRecoDetId_t;
-typedef std::vector<SimHitInfoPerRecoDetId_t> SimHitInfoPerSimTrack_t;
 
-
-// typedef uint32_t RecoDetId_t;
 
 // Forward declarations
 namespace edm {
@@ -113,18 +109,6 @@ class CaloTruthAccumulatorWithGraph : public DigiAccumulatorMixMod {
       const T& event,
       const edm::EventSetup& setup );
 
-  std::unique_ptr<SimHitInfoPerSimTrack_t> attachedSimHitInfo( Barcode_t st, const std::vector<std::pair<DetId,const PCaloHit*> > & hits,
-							       bool includeOwn = true, bool includeOther = false, bool markUsed = false);
-  std::unique_ptr<SimHitInfoPerSimTrack_t> allAttachedSimHitInfo( Barcode_t st, const std::vector<std::pair<DetId,const PCaloHit*> > & hits, bool markUsed = false);
-
-  SimClusterCollection descendantSimClusters( Barcode_t barcode, const std::vector<std::pair<DetId,const PCaloHit*> > & hits );
-  std::set<Barcode_t> m_simTracksConsideredForSimClusters;
-  void setConsideredBarcode( Barcode_t barcode ) { m_simTracksConsideredForSimClusters.insert( barcode ); }
-  bool consideredBarcode( Barcode_t barcode ) {
-    //	  return (std::find(m_simTracksConsideredForSimClusters.begin(), m_simTracksConsideredForSimClusters.end(), barcode) != m_simTracksConsideredForSimClusters.end());
-    return m_simTracksConsideredForSimClusters.count( barcode );
-  }
-
   const std::string messageCategory_; ///< The message category used to send messages to MessageLogger
 
   struct calo_particles {
@@ -147,13 +131,6 @@ class CaloTruthAccumulatorWithGraph : public DigiAccumulatorMixMod {
 
   std::unordered_map<Index_t,float> m_detIdToTotalSimEnergy; // keep track of cell normalizations
   std::unordered_multimap<Barcode_t,Index_t> m_simHitBarcodeToIndex;
-  //	std::unordered_multimap<RecoDetId_t,SimHitInfo_t> m_recoDetIdToSimHits;
-
-  //	const double volumeRadius_;
-  //	const double volumeZ_;
-  /// maximum distance for HepMC::GenVertex to be added to SimVertex
-  //	const double vertexDistanceCut_;
-  //	const bool ignoreTracksOutsideVolume_;
 
   /** The maximum bunch crossing BEFORE the signal crossing to create TrackinParticles for. Use positive values. If set to zero no
    * previous bunches are added and only in-time, signal and after bunches (defined by maximumSubsequentBunchCrossing_) are used.*/
@@ -161,13 +138,6 @@ class CaloTruthAccumulatorWithGraph : public DigiAccumulatorMixMod {
   /** The maximum bunch crossing AFTER the signal crossing to create TrackinParticles for. E.g. if set to zero only
    * uses the signal and in time pileup (and previous bunches defined by the maximumPreviousBunchCrossing_ parameter). */
   const unsigned int maximumSubsequentBunchCrossing_;
-  /// If bremsstrahlung merging, whether to also add the unmerged collection to the event or not.
-  //	const bool createUnmergedCollection_;
-  //	const bool createMergedCollection_;
-  /// Whether or not to create a separate collection for just the initial interaction vertices
-  //	const bool createInitialVertexCollection_;
-  /// Whether or not to add the full parentage of any TrackingParticle that is inserted in the collection.
-  //	const bool addAncestors_;
 
   const edm::InputTag simTrackLabel_;
   const edm::InputTag simVertexLabel_;

@@ -302,7 +302,6 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent( const T& event,
 
   // Clear maps from previous event fill them for this one
   m_simHitBarcodeToIndex.clear();
-  m_simTracksConsideredForSimClusters.clear();
   for (unsigned int i = 0 ; i < simHitPointers.size(); ++i) {
     m_simHitBarcodeToIndex.emplace(simHitPointers[i].second->geantTrackId(),i);
   }
