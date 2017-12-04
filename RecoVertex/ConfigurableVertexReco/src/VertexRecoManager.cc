@@ -1,3 +1,4 @@
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/VertexRecoManager.h"
 
 using namespace std;
@@ -46,7 +47,7 @@ VertexRecoManager & VertexRecoManager::Instance()
 {
   //The singleton's internal structure only changes while
   // this library is being loaded. All other methods are const.
-  [[cms::thread_safe]] static VertexRecoManager singleton;
+  CMS_THREAD_SAFE static VertexRecoManager singleton;
   return singleton;
 }
 

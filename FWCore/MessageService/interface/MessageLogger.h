@@ -31,11 +31,11 @@
 
 // user include files
 
-#include "FWCore/MessageLogger/interface/ErrorObj.h"
-
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 
@@ -160,10 +160,10 @@ private:
   std::set<std::string> debugEnabledModules_;
   std::map<std::string,ELseverityLevel> suppression_levels_;
   bool debugEnabled_;
-  [[cms::thread_safe]] static bool   anyDebugEnabled_;
-  [[cms::thread_safe]] static bool everyDebugEnabled_;
+  CMS_THREAD_SAFE static bool   anyDebugEnabled_;
+  CMS_THREAD_SAFE static bool everyDebugEnabled_;
 
-  [[cms::thread_safe]] static bool fjrSummaryRequested_;
+  CMS_THREAD_SAFE static bool fjrSummaryRequested_;
   bool messageServicePSetHasBeenValidated_;
   std::string  messageServicePSetValidatationResults_;
 

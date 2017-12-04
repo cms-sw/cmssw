@@ -20,6 +20,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -30,7 +31,7 @@ namespace {
       }
    };
    typedef tbb::concurrent_unordered_map<edm::ParameterSetID, edm::TriggerNames, key_hash> TriggerNamesMap;
-   [[cms::thread_safe]] TriggerNamesMap triggerNamesMap;
+   CMS_THREAD_SAFE TriggerNamesMap triggerNamesMap;
 }
 
 namespace edm
