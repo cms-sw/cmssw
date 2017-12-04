@@ -67,7 +67,7 @@ class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
  
 
 	
-	std::shared_ptr<CaloCellGeometry> thisCell= psGeometry->getGeometry(detid);
+	const std::shared_ptr<CaloCellGeometry> thisCell= psGeometry->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {

@@ -256,7 +256,7 @@ EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
    addValidID( detId ) ;
 }
 
-std::shared_ptr<CaloCellGeometry>  
+const std::shared_ptr<CaloCellGeometry>  
 EcalPreshowerGeometry::cellGeomPtr( uint32_t index ) {
   if (index >= m_cellVec.size()) return nullptr; // needed only if called with detId=0
   static const auto do_not_delete = [](const void*){};

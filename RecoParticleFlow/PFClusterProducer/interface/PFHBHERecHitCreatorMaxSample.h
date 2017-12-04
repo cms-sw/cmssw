@@ -164,16 +164,16 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
 	int depth = detid.depth();
 	
-	std::shared_ptr<CaloCellGeometry> thisCell=nullptr;
+	const std::shared_ptr<CaloCellGeometry> thisCell = 
+	  (esd==HcalBarrel) ? (hcalBarrelGeo->getGeometry(detid)) : 
+	  ((esd==HcalEndcap) ? (hcalEndcapGeo->getGeometry(detid)) : nullptr);
 	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
 	switch(esd) {
 	case HcalBarrel:
-	  thisCell =hcalBarrelGeo->getGeometry(detid); 
 	  layer =PFLayer::HCAL_BARREL1;
 	  break;
 
 	case HcalEndcap:
-	  thisCell =hcalEndcapGeo->getGeometry(detid); 
 	  layer =PFLayer::HCAL_ENDCAP;
 	  break;
 	default:

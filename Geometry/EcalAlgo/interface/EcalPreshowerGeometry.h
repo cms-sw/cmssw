@@ -101,7 +101,7 @@ protected:
 
   /// Get the cell geometry of a given detector id.  Should return nulptr if not found.
   //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
-  std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
+  const std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
 
 private:
 

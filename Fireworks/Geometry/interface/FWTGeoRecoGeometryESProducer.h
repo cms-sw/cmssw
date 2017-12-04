@@ -77,7 +77,7 @@ private:
    std::map<ERecoDet, TGeoMedium*> m_recoMedium;
 
    edm::ESHandle<GlobalTrackingGeometry> m_geomRecord;
-   CaloGeometry*          m_caloGeom;
+   const CaloGeometry*    m_caloGeom;
    const TrackerGeometry* m_trackerGeom;
    const TrackerTopology* m_trackerTopology;
   

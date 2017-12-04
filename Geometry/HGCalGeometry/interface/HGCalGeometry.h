@@ -103,14 +103,14 @@ protected:
   unsigned int sizeForDenseIndex() const;
   
   //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
-  std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
+  const std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
   
   void addValidID(const DetId& id);
   unsigned int getClosestCellIndex ( const GlobalPoint& r );
 
 private:
 
-  std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p);
+  const std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p);
 
   const HGCalTopology&    m_topology;
   

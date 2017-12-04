@@ -70,7 +70,7 @@ CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
    m_dins.emplace_back( di );
 }
 
-std::shared_ptr<CaloCellGeometry>
+const std::shared_ptr<CaloCellGeometry>
 CaloTowerGeometry::cellGeomPtr( uint32_t index ) {
   if (m_cellVec.size() < index) return nullptr;
   static const auto do_not_delete = [](const void*){};

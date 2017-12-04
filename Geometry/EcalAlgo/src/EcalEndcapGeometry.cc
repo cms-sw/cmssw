@@ -516,7 +516,7 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter()
    return m_avgZ;
 }
 
-std::shared_ptr<CaloCellGeometry>  
+const std::shared_ptr<CaloCellGeometry>  
 EcalEndcapGeometry::cellGeomPtr( uint32_t index ) {
   if (m_cellVec.size() < index) return nullptr;
   static const auto do_not_delete = [](const void*){};

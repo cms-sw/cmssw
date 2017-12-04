@@ -219,7 +219,7 @@ HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
   m_validIds.emplace_back(detId);
 }
 
-std::shared_ptr<CaloCellGeometry> HcalDDDGeometry::cellGeomPtr( unsigned int din ) {
+const std::shared_ptr<CaloCellGeometry> HcalDDDGeometry::cellGeomPtr( unsigned int din ) {
   static const auto do_not_delete = [](const void*){};
   std::shared_ptr<CaloCellGeometry> cell ( nullptr ) ;
   if (m_hbCellVec.size() > din) {

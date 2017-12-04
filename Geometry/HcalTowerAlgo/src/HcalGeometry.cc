@@ -468,7 +468,7 @@ void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
   m_dins.emplace_back( din );
 }
 
-std::shared_ptr<CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int din ) {
+const std::shared_ptr<CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int din ) {
   static const auto do_not_delete = [](const void*){};
   std::shared_ptr<CaloCellGeometry> cell ( nullptr ) ;
   if (m_hbCellVec.size() > din) {

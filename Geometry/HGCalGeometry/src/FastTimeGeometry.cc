@@ -159,7 +159,7 @@ unsigned int FastTimeGeometry::sizeForDenseIndex() const {
   return topology().totalGeomModules();
 }
 
-std::shared_ptr<CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t index) {
+const std::shared_ptr<CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t index) {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return nullptr;
   static const auto do_not_delete = [](const void*){};
@@ -168,7 +168,7 @@ std::shared_ptr<CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t index) 
   return cell;
 }
 
-std::shared_ptr<CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t index, const GlobalPoint& pos) {
+const std::shared_ptr<CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t index, const GlobalPoint& pos) {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return nullptr;
   if (pos == GlobalPoint()) return cellGeomPtr(index);

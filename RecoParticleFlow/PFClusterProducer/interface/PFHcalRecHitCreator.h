@@ -64,7 +64,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	auto depth =detid.depth();
 	  
 	
-	std::shared_ptr<CaloCellGeometry> thisCell= ((CaloSubdetectorGeometry*)(hcalGeo))->getGeometry(detid);
+	const std::shared_ptr<CaloCellGeometry> thisCell= ((CaloSubdetectorGeometry*)(hcalGeo))->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {
