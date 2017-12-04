@@ -60,7 +60,8 @@ using namespace boost;
 
    Each vertex has a property (vertex_name_t) that holds a const pointer to the
    SimTrack that originated that vertex and the cumulative number of simHits of
-   all its outgoing edges.
+   all its outgoing edges. The cumulative property is filled during the dfs
+   exploration of the graph: if not explored the number is 0.
 
    Stable particles are recovered/added in a second iterations and are linked
    to ghost vertices with an offset starting from the highest generated vertex.
