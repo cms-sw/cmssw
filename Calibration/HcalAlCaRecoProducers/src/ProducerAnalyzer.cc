@@ -87,7 +87,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);
-   CaloGeometry* geo = const_cast<CaloGeometry*>(pG.product());
+   const CaloGeometry* geo = (pG.product());
    
 
   std::vector<StableProvenance const*> theProvenance;
@@ -178,7 +178,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 //	   " eta "<<(*hite).detid()<<" phi "<<(*hite).detid().getPosition().phi()<<endl;
 
-     const GlobalPoint& posE = geo->getPosition((*hite).detid());
+     const GlobalPoint& posE = (const_cast<CaloGeometry*>(geo))->getPosition((*hite).detid());
        
      cout<<" Energy ECAL "<<(*hite).energy()<<
        " eta "<<posE.eta()<<" phi "<<posE.phi()<<endl;
@@ -195,7 +195,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    for (; hith != (hbhe.product())->end (); hith++)  {
 
-     GlobalPoint posH = ((HcalGeometry*)(geo->getSubdetectorGeometry((*hith).detid())))->getPosition((*hith).detid());
+     GlobalPoint posH = ((HcalGeometry*)((const_cast<CaloGeometry*>(geo))->getSubdetectorGeometry((*hith).detid())))->getPosition((*hith).detid());
      
      cout<<" Energy HCAL "<<(*hith).energy()<<
        " eta "<<posH.eta()<<" phi "<<posH.phi()<<endl;

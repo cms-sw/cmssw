@@ -89,7 +89,8 @@ const std::shared_ptr<CaloCellGeometry> FastTimeGeometry::getGeometry(const DetI
   if (id == DetId()) return nullptr; // nothing to get
   DetId geoId = (DetId)(FastTimeDetId(id).geometryCell());
   const uint32_t cellIndex (topology().detId2denseGeomId(geoId));
-  return cellGeomPtr (cellIndex);
+  const GlobalPoint pos = (id != geoId) ? getPosition(id) : GlobalPoint();
+  return cellGeomPtr (cellIndex, pos);
 }
 
 GlobalPoint FastTimeGeometry::getPosition(const DetId& id) {
@@ -158,20 +159,24 @@ unsigned int FastTimeGeometry::sizeForDenseIndex() const {
   return topology().totalGeomModules();
 }
 
-const CaloCellGeometry*
-FastTimeGeometry::cellGeomPtr(uint32_t index) const {
-  if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
-    return nullptr;
-  const CaloCellGeometry* cell(&m_cellVec[index]) ;
-  return (nullptr == cell->param() ? nullptr : cell) ;
-}
-
 std::shared_ptr<CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t index) {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return nullptr;
-  auto cell = (std::shared_ptr<CaloCellGeometry>)(new FlatTrd(m_cellVec[index]));
+  static const auto do_not_delete = [](const void*){};
+  auto cell = std::shared_ptr<CaloCellGeometry>(&m_cellVec[index],do_not_delete);
+  if (nullptr == cell->param()) return nullptr;
+  return cell;
+}
+
+std::shared_ptr<CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t index, const GlobalPoint& pos) {
+  if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
+    return nullptr;
+  if (pos == GlobalPoint()) return cellGeomPtr(index);
+  FlatTrd* newcell = new FlatTrd(m_cellVec[index]);
+  newcell->setPosition(pos);
+  auto cell = (std::shared_ptr<CaloCellGeometry>)(newcell);
 #ifdef EDM_ML_DEBUG
-  //  std::cout << "cellGeomPtr " << m_cellVec[index];
+  std::cout << "cellGeomPtr " << newcell << ":" << cell << std::endl;
 #endif
   if (nullptr == cell->param()) return nullptr;
   return cell;

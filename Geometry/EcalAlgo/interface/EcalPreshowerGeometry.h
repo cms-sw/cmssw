@@ -97,13 +97,10 @@ public:
     return index < m_cellVec.size();
   }
 
-  /// Get the cell geometry of a given detector id.  Should return nulptr if not found.
-  // const CaloCellGeometry* getGeometry( const DetId& id ) const override;
-
-
 protected:
 
-  const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
+  /// Get the cell geometry of a given detector id.  Should return nulptr if not found.
+  //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
   std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
 
 private:

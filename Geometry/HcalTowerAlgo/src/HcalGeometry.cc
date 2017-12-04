@@ -468,27 +468,8 @@ void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
   m_dins.emplace_back( din );
 }
 
-const CaloCellGeometry* HcalGeometry::cellGeomPtr(unsigned int din) const {
-  const CaloCellGeometry* cell (nullptr) ;
-  if (m_hbCellVec.size() > din) {
-    cell = &m_hbCellVec[din] ;
-  } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
-      const unsigned int index (din - m_hbCellVec.size() ) ;
-      cell = &m_heCellVec[index];
-  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
-    const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size());
-    cell = &m_hoCellVec[index];
-  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size()+
-	     m_hfCellVec.size() > din) {
-    const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size() -
-			      m_hoCellVec.size() ) ;
-    cell = &m_hfCellVec[index];
-  }
-  return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;
-}
-
 std::shared_ptr<CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int din ) {
-  const auto do_not_delete = [](const void*){};
+  static const auto do_not_delete = [](const void*){};
   std::shared_ptr<CaloCellGeometry> cell ( nullptr ) ;
   if (m_hbCellVec.size() > din) {
     cell = std::shared_ptr<CaloCellGeometry>(&m_hbCellVec[din],do_not_delete);

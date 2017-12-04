@@ -374,17 +374,10 @@ EcalTBHodoscopeGeometry::getFiredFibresInPlane( float xtr,
    return firedFibres ;
 }
 
-const CaloCellGeometry*
-EcalTBHodoscopeGeometry::cellGeomPtr(uint32_t index) const {
-  const CaloCellGeometry* cell(&m_cellVec[index]) ;
-  return ( m_cellVec.size() < index ||
-	   nullptr == cell->param() ? nullptr : cell ) ;
-}
-
 std::shared_ptr<CaloCellGeometry>
 EcalTBHodoscopeGeometry::cellGeomPtr( uint32_t index ) {
   if (m_cellVec.size() > index) return nullptr;
-  const auto do_not_delete = [](const void*){};
+  static const auto do_not_delete = [](const void*){};
   auto cell = std::shared_ptr<CaloCellGeometry>(&m_cellVec[index],do_not_delete);
 //auto cell = (std::shared_ptr<CaloCellGeometry>)(new PreshowerStrip(m_cellVec[index]));
   return ((nullptr != cell->param()) ? cell : nullptr) ;

@@ -131,7 +131,7 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event& iEvent, const edm::Event
   
   edm::ESHandle<CaloGeometry> geomH;
   iSetup.get<CaloGeometryRecord>().get(geomH);
-  CaloGeometry* geom = const_cast<CaloGeometry*>(geomH.product());
+  const CaloGeometry* geom = (geomH.product());
 
   Handle<std::vector<reco::Photon> > recoPhotonsHandle;
   iEvent.getByToken(recoPhotonsCollection_, recoPhotonsHandle);
@@ -148,8 +148,8 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event& iEvent, const edm::Event
   for(EcalRecHitCollection::const_iterator hit = ebHandle->begin(); hit != ebHandle->end(); ++hit) {
     eb_chi2->Fill(hit->chi2() );
     eb_errors->Fill(hit->energyError() );
-    double eta = geom->getGeometry(hit->detid())->getPosition().eta();
-    double phi = geom->getGeometry(hit->detid())->getPosition().phi();
+    double eta = (const_cast<CaloGeometry*>(geom))->getGeometry(hit->detid())->getPosition().eta();
+    double phi = (const_cast<CaloGeometry*>(geom))->getGeometry(hit->detid())->getPosition().phi();
     eb_chi2_eta->Fill(eta, hit->chi2() );
     eb_errors_eta->Fill(eta, hit->energyError() );
     if(hit->energy() > mRechitEnergyThreshold)
@@ -183,8 +183,8 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event& iEvent, const edm::Event
   for(EcalRecHitCollection::const_iterator hit = eeHandle->begin(); hit != eeHandle->end(); ++hit) {
     ee_chi2->Fill(hit->chi2() );
     ee_errors->Fill(hit->energyError() );
-    double eta = geom->getGeometry(hit->detid())->getPosition().eta();
-    double phi = geom->getGeometry(hit->detid())->getPosition().phi();
+    double eta = (const_cast<CaloGeometry*>(geom))->getGeometry(hit->detid())->getPosition().eta();
+    double phi = (const_cast<CaloGeometry*>(geom))->getGeometry(hit->detid())->getPosition().phi();
     ee_chi2_eta->Fill(eta, hit->chi2() );
     ee_errors_eta->Fill(eta, hit->energyError() );
     if(hit->energy() > mRechitEnergyThreshold)

@@ -58,7 +58,7 @@ public:
   virtual bool present( const DetId& id );
 
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  virtual const CaloCellGeometry* getGeometry( const DetId& id ) const ;
+  //virtual const CaloCellGeometry* getGeometry( const DetId& id ) const ;
   virtual const std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id );
 
   /** \brief Get a list of valid detector ids (for the given subdetector)
@@ -113,7 +113,7 @@ protected:
   virtual unsigned int indexFor(const DetId& id) const;
   virtual unsigned int sizeForDenseIndex(const DetId& id) const;
 
-  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const = 0 ;
+  //virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const = 0 ;
   virtual std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) = 0 ;
 
   ParVecVec m_parVecVec ;

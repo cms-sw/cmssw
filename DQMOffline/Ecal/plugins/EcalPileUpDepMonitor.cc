@@ -233,7 +233,7 @@ void EcalPileUpDepMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
 {
 
-  CaloGeometry* geom = const_cast<CaloGeometry*>(geomH.product());
+  const CaloGeometry* geom = const_cast<CaloGeometry*>(geomH.product());
   //Vertex collection: 
   //-----------------------------------------
   edm::Handle<reco::VertexCollection> PVCollection_h;
@@ -412,9 +412,9 @@ void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
         ++itr) {	
       //RecHitEt_EB +=itr->energy();
 		
-      GlobalPoint const& position  = geom->getGeometry(itr->detid())->getPosition();
-      RecHitEt_EB += itr -> energy() * sin(position.theta()) ;
-    }//EB Rec Hit
+    GlobalPoint const& position  = (const_cast<CaloGeometry*>(geom))->getGeometry(itr->detid())->getPosition();
+    RecHitEt_EB += itr -> energy() * sin(position.theta()) ;
+  }//EB Rec Hit
 	
   recHitEtEB->Fill(RecHitEt_EB); 
   recHitEtEB_PV->Fill(PVCollection_h->size(),RecHitEt_EB); 
@@ -426,9 +426,9 @@ void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
   for ( EcalRecHitCollection::const_iterator itr = RecHitsEE->begin () ;
         itr != RecHitsEE->end () ;
         ++itr) {
-      GlobalPoint const& position  = geom->getGeometry(itr->detid())->getPosition();
-      RecHitEt_EE += itr -> energy() * sin(position.theta()) ;
-    }//EB Rec Hit
+    GlobalPoint const& position  = (const_cast<CaloGeometry*>(geom))->getGeometry(itr->detid())->getPosition();
+    RecHitEt_EE += itr -> energy() * sin(position.theta()) ;
+  }//EB Rec Hit
 	
   recHitEtEE->Fill(RecHitEt_EE); 
   recHitEtEE_PV->Fill(PVCollection_h->size(),RecHitEt_EE); 

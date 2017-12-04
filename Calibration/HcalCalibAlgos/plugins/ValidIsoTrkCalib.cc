@@ -88,7 +88,7 @@ private:
   double taECALCone_;
   double taHCALCone_;
 
-  CaloGeometry* geo;
+  const CaloGeometry* geo;
   // nothing is done with these tags, so I leave it - cowden
   InputTag genhbheLabel_;  
   InputTag genhoLabel_;
@@ -293,7 +293,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
-  geo = const_cast<CaloGeometry*>(pG.product());
+  geo = (pG.product());
   
   HcalGeometry* gHcal = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   //Note: even though it says HcalBarrel, we actually get the whole Hcal detector geometry!
@@ -433,7 +433,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  float recal = 1;
 	  // rof end
 
-	  GlobalPoint pos = geo->getPosition(hhit->detid());
+	  GlobalPoint pos = (const_cast<CaloGeometry*>(geo))->getPosition(hhit->detid());
 	  //float phihit = pos.phi();
 	  //float etahit = pos.eta();
 	  
@@ -555,7 +555,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 
 	  if( abs(DIETA)<=numbercell && (abs(DIPHI)<=numbercell || ( abs(MaxHit.ietahitm)>=20 && abs(DIPHI)<=numbercell+1)) )
 	    {
-	      const GlobalPoint pos2 = geo->getPosition(hhit->detid());
+	      const GlobalPoint pos2 = (const_cast<CaloGeometry*>(geo))->getPosition(hhit->detid());
 
 	      if(passCuts && hhit->energy()>0)
 		{

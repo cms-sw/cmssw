@@ -142,7 +142,13 @@ protected:
   }
 
   virtual void initCorners(CornersVec&) = 0;
+
+  GlobalPoint         m_refPoint ;
+  GlobalPoint         m_backPoint ;
+  CornersVec          m_corners  ;
+
 private:
+
  void initBack() {
     // from CaloTower code
     CornersVec const & cv = getCorners();
@@ -156,9 +162,6 @@ private:
   }
   
 
-  GlobalPoint         m_refPoint ;
-  GlobalPoint         m_backPoint ;
-  CornersVec  m_corners  ;
   const CCGFloat*     m_parms    ;
   RhoEtaPhi m_rep;
   float m_dEta;

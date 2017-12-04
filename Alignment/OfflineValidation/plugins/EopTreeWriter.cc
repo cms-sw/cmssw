@@ -137,7 +137,7 @@ EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get geometry
    edm::ESHandle<CaloGeometry> geometry;
    iSetup.get<CaloGeometryRecord>().get(geometry);
-   CaloGeometry* geo = const_cast<CaloGeometry*>(geometry.product());
+   const CaloGeometry* geo = (geometry.product());
 //    const CaloSubdetectorGeometry* towerGeometry = 
 //      geo->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
 
@@ -249,7 +249,7 @@ EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 {
 	   ////////////////////// FIND ECAL CLUSTER ENERGY
 	   // R-scheme of ECAL CLUSTERIZATION
-	   const GlobalPoint& posH = geo->getPosition((*ehit).detid());
+	   const GlobalPoint& posH = (const_cast<CaloGeometry*>(geo))->getPosition((*ehit).detid());
 	   double phihit = posH.phi();
 	   double etahit = posH.eta();
 	   

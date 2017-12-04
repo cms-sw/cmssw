@@ -56,7 +56,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event&
 #endif
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
-  CaloGeometry* geo = const_cast<CaloGeometry*>(pG.product());
+  const CaloGeometry* geo = (pG.product());
 
   edm::Handle<EcalRecHitCollection> ecalEB;
   iEvent.getByToken(tok_eb,ecalEB);
@@ -90,7 +90,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event&
 #endif
     if (etaAbs<1.7) {
       for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++) {
-	const GlobalPoint& pos = geo->getPosition(eItr->detid());
+	const GlobalPoint& pos = (const_cast<CaloGeometry*>(geo))->getPosition(eItr->detid());
 	double      R   = reco::deltaR(pos.eta(),pos.phi(),etaPhi.first,etaPhi.second);
 	if (R < coneSize_) {
 	  nhitIn++;
@@ -105,7 +105,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event&
     }
     if (etaAbs>1.25) {
       for (EcalRecHitCollection::const_iterator eItr=ecalEE->begin(); eItr!=ecalEE->end(); eItr++) {
-	const GlobalPoint& pos = geo->getPosition(eItr->detid());
+	const GlobalPoint& pos = (const_cast<CaloGeometry*>(geo))->getPosition(eItr->detid());
 	double      R   = reco::deltaR(pos.eta(),pos.phi(),etaPhi.first,etaPhi.second);
 	if (R < coneSize_) {
 	  nhitIn++;
