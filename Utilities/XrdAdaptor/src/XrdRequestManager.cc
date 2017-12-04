@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
 
 #include "XrdStatistics.h"
@@ -84,7 +85,7 @@ class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHand
     }
 };
 
-[[cms::thread_safe]] SendMonitoringInfoHandler nullHandler;
+CMS_THREAD_SAFE SendMonitoringInfoHandler nullHandler;
 
 
 static void
