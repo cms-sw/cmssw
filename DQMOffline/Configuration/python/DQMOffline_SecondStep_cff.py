@@ -18,6 +18,7 @@ from Validation.RecoTau.DQMSequences_cfi import *
 from DQMOffline.Hcal.HcalDQMOfflinePostProcessor_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
+from PhysicsTools.NanoAOD.nanoDQM_cff import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
@@ -70,6 +71,11 @@ DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       HLTMonitoringClient *
                                       DQMMessageLoggerClientSeq *
                                       dqmFastTimerServiceClient)
+
+DQMOffline_SecondStep_ExtraHLT = cms.Sequence( 
+    hltOfflineDQMClientExtra
+)
+
 DQMOffline_SecondStep_FakeHLT = cms.Sequence( DQMOffline_SecondStep )
 DQMOffline_SecondStep_FakeHLT.remove( HLTMonitoringClient )
 
@@ -140,3 +146,5 @@ DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
+DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
+

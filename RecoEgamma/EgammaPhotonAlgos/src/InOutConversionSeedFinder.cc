@@ -124,7 +124,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     std::vector<TrajectoryMeasurement>::reverse_iterator measurementItr;    
     std::vector<TrajectoryMeasurement*> myItr;
     // TrajectoryMeasurement* myPointer=0;
-    myPointer=0;
+    myPointer=nullptr;
     //std::cout << "  InOutConversionSeedFinder::fillClusterSeeds measurements.size " << measurements.size() <<"\n";
     
     for(measurementItr = measurements.rbegin() ; measurementItr != measurements.rend();  ++measurementItr) {
@@ -150,7 +150,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     // }
     
     
-    if ( myItr.size()==0 ) {
+    if ( myItr.empty() ) {
       //std::cout << "HORRENDOUS ERROR!  No meas on track!" << "\n";
     }      
     unsigned int ilayer;
@@ -455,7 +455,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
     
     
 
-    MeasurementEstimator * newEstimator=0;
+    MeasurementEstimator * newEstimator=nullptr;
     if (layer->location() == GeomDetEnumerators::barrel ) {
      //std::cout << "InOutConversionSeedFinder::findSeeds Barrel ilayer " << ilayer <<  "\n"; 
       newEstimator = new ConversionBarrelEstimator(-dphi, dphi, -zrange, zrange);

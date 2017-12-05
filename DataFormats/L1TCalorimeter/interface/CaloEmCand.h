@@ -16,7 +16,7 @@ namespace l1t {
 		int qual=0
 		);
 
-    ~CaloEmCand();
+    ~CaloEmCand() override;
 
   private:
     //

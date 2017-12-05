@@ -94,6 +94,9 @@ jetCoreRegionalStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajecto
     minPt = 0.1
 )
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toModify(jetCoreRegionalStepTrajectoryFilter, minPt=5.0)
+
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 jetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('jetCoreRegionalStepChi2Est'),
@@ -103,6 +106,8 @@ jetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimat
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+#need to also load the refToPSet_ used by GroupedCkfTrajectoryBuilder
+CkfBaseTrajectoryFilter_block = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.CkfBaseTrajectoryFilter_block
 jetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('jetCoreRegionalStepTrajectoryFilter')),
@@ -133,6 +138,17 @@ jetCoreRegionalStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackPro
     src = 'jetCoreRegionalStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+_fastSim_jetCoreRegionalStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = (),
+    hasSelector=cms.vint32(),
+    selectedTrackQuals = cms.VInputTag(),
+    copyExtras = True
+    )
+fastSim.toReplaceWith(jetCoreRegionalStepTracks,_fastSim_jetCoreRegionalStepTracks)
+
 
 # Final selection
 from RecoTracker.IterativeTracking.InitialStep_cff import initialStepClassifier1
@@ -180,16 +196,21 @@ trackingPhase1QuadProp.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierProm
      mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
      qualityCuts = [-0.2,0.0,0.4],
 ))
+fastSim.toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(cms.ignore(jetsForCoreTracking)*
-                                   cms.ignore(firstStepGoodPrimaryVertices)*
-                                   #jetCoreRegionalStepClusters*
-                                   jetCoreRegionalStepSeedLayers*
-                                   jetCoreRegionalStepTrackingRegions*
-                                   jetCoreRegionalStepHitDoublets*
-                                   jetCoreRegionalStepSeeds*
-                                   jetCoreRegionalStepTrackCandidates*
-                                   jetCoreRegionalStepTracks*
-#                                   jetCoreRegionalStepClassifier1*jetCoreRegionalStepClassifier2*
+JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,
+                                   firstStepGoodPrimaryVertices,
+                                   #jetCoreRegionalStepClusters,
+                                   jetCoreRegionalStepSeedLayers,
+                                   jetCoreRegionalStepTrackingRegions,
+                                   jetCoreRegionalStepHitDoublets,
+                                   jetCoreRegionalStepSeeds,
+                                   jetCoreRegionalStepTrackCandidates,
+                                   jetCoreRegionalStepTracks,
+#                                   jetCoreRegionalStepClassifier1,jetCoreRegionalStepClassifier2,
                                    jetCoreRegionalStep)
+JetCoreRegionalStep = cms.Sequence(JetCoreRegionalStepTask)
+fastSim.toReplaceWith(JetCoreRegionalStepTask, 
+                      cms.Task(jetCoreRegionalStepTracks,
+                                   jetCoreRegionalStep))

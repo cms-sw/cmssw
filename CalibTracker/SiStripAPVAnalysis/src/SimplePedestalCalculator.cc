@@ -1,5 +1,4 @@
 #include "CalibTracker/SiStripAPVAnalysis/interface/SimplePedestalCalculator.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
 #include <cmath>
 #include <numeric>
@@ -10,7 +9,7 @@ SimplePedestalCalculator::SimplePedestalCalculator(int evnt_ini) :
                         numberOfEvents(0),
                         alreadyUsedEvent(false)
 {
-  if (0) cout << "Constructing SimplePedestalCalculator " << endl;
+  if (false) cout << "Constructing SimplePedestalCalculator " << endl;
   eventsRequiredToCalibrate = evnt_ini; 
   //  eventsRequiredToUpdate    = evnt_iter;
   //  cutToAvoidSignal          = sig_cut;
@@ -32,7 +31,7 @@ void SimplePedestalCalculator::init() {
 //  -- Destructor  
 //
 SimplePedestalCalculator::~SimplePedestalCalculator() {
-  if (0) cout << "Destructing SimplePedestalCalculator " << endl;
+  if (false) cout << "Destructing SimplePedestalCalculator " << endl;
 }
 
 

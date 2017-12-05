@@ -16,6 +16,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -44,9 +45,9 @@ class TProfile;
 class TrackSplittingMonitor : public DQMEDAnalyzer {
 public:
 	explicit TrackSplittingMonitor(const edm::ParameterSet&);
-	~TrackSplittingMonitor();
+	~TrackSplittingMonitor() override;
 	
-	virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+	void analyze(const edm::Event&, const edm::EventSetup&) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	
 private:

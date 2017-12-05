@@ -58,13 +58,13 @@ public:
    sigc::signal<void,Int_t,Int_t> openSelectedModelContextMenu_;
 
 protected:
-   virtual ~FWViewBase();
+   ~FWViewBase() override;
    FWViewType           m_type;
 
 private:
-   FWViewBase(const FWViewBase&);    // stop default
+   FWViewBase(const FWViewBase&) = delete;    // stop default
 
-   const FWViewBase& operator=(const FWViewBase&);    // stop default
+   const FWViewBase& operator=(const FWViewBase&) = delete;    // stop default
 
    // ---------- member data --------------------------------
 

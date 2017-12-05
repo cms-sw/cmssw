@@ -50,7 +50,7 @@ class ZMuMuMassConstraintParameterFinder :
   public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 public:
   explicit ZMuMuMassConstraintParameterFinder(const edm::ParameterSet&);
-  ~ZMuMuMassConstraintParameterFinder();
+  ~ZMuMuMassConstraintParameterFinder() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -75,7 +75,7 @@ private:
     const double maxMassPair_;
   };
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;

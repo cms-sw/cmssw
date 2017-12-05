@@ -6,8 +6,8 @@
 #define NGENMAX 10000
 
 // for exit(0)
-#include <stdlib.h>
-#include <float.h> 
+#include <cstdlib>
+#include <cfloat> 
 // for setw
 #include <iomanip>
 //for istreamstring
@@ -21,7 +21,7 @@ EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionF
   smearingType_(ECALELF)
 {
   
-  if(correctionFileName.size() > 0) { 
+  if(!correctionFileName.empty()) { 
     std::string filename = correctionFileName+"_scales.dat";
     ReadFromFile(filename);
     if(scales.empty()) {
@@ -30,7 +30,7 @@ EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionF
     }
   }
   
-  if(correctionFileName.size() > 0) { 
+  if(!correctionFileName.empty()) { 
     std::string filename = correctionFileName+"_smearings.dat";
     ReadSmearingFromFile(filename);
     if(smearings.empty()) {

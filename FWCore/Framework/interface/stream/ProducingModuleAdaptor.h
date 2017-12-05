@@ -49,7 +49,7 @@ namespace edm {
         typename T::GlobalCache const* dummy=nullptr;
         m_global = impl::makeGlobal<T>(iPSet,dummy);
       }
-      ~ProducingModuleAdaptor() {
+      ~ProducingModuleAdaptor() override {
       }
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions) {
@@ -58,6 +58,16 @@ namespace edm {
       static void prevalidate(ConfigurationDescriptions& descriptions) {
         T::prevalidate(descriptions);
       }
+
+      bool wantsGlobalRuns() const final {
+        return T::HasAbility::kRunCache or
+        T::HasAbility::kRunSummaryCache or
+        T::HasAbility::kBeginRunProducer or
+        T::HasAbility::kEndRunProducer; }
+      bool wantsGlobalLuminosityBlocks() const final {return T::HasAbility::kLuminosityBlockCache or
+        T::HasAbility::kLuminosityBlockSummaryCache or
+        T::HasAbility::kBeginLuminosityBlockProducer or
+        T::HasAbility::kEndLuminosityBlockProducer;}
 
       
     private:

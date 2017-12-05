@@ -168,7 +168,7 @@ bool getHcalObject (std::istream& fInput, T* fObject, S* fCondObject) {
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 8) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" << std::endl;
       continue;
@@ -217,7 +217,7 @@ bool getHcalSingleFloatObject (std::istream& fInput, T* fObject, S* fCondObject)
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 5) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, value" << std::endl;
       continue;
@@ -262,7 +262,7 @@ bool getHcalSingleIntObject (std::istream& fInput, T* fObject, S* fCondObject) {
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 5) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, value" << std::endl;
       continue;
@@ -307,7 +307,7 @@ bool getHcalMatrixObject (std::istream& fInput, T* fObject, S* fCondObject) {
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     DetId firstid = HcalDbASCIIIO::getId (items);
     fCondObject = new S(firstid.rawId());
     for(int j = 0; j != 10; j++) fCondObject->setValue(atoi(items[4].c_str()), 0, j, atof(items[j+5].c_str()));
@@ -394,7 +394,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalRecoParams* fObject)
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 6) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, param1, param2" << std::endl;
       continue;
@@ -589,7 +589,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalLongRecoParams* fObject
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size() < 5) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, signalTSs, noiseTSs" << std::endl;
       continue;
@@ -618,7 +618,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTimingParams* fObject)
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 7) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 7 items: eta, phi, depth, subdet, nhit, phase, rms,detid" << std::endl;
       continue;
@@ -703,7 +703,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalMCParams* fObject)
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 5) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, signalShape" << std::endl;
       continue;
@@ -817,7 +817,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestals* fObject) {
 
   while (fInput.getline(buffer, 1024)) {
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     else {
       if (items[0] == "#U")
 	{
@@ -840,7 +840,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestals* fObject) {
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue;
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 8) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" 
 				      << " or 12 items: eta, phi, depth, subdet, 4x values for mean, 4x values for width"
@@ -912,7 +912,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 6) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, base - either (hex) or (dec), value" << std::endl;
       continue;
@@ -985,7 +985,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalL1TriggerObjects* fObje
 	else continue; //ignore comment
       }
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 7) { 
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 7 items: eta, phi, depth, subdet, pedestal, resp.corr.gain, flag" << std::endl;
       continue;
@@ -1040,7 +1040,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
   while (fInput.getline(buffer, 1024)) {
     linecounter++;
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     else {
       if (items[0] == (std::string)"#U")
 	{
@@ -1065,7 +1065,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
     linecounter++;
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 14) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line number: " << linecounter << "\n line must contain 14 items: eta, phi, depth, subdet, 10x correlations" 
 				      << " or 20 items: eta, phi, depth, subdet, 16x correlations" 
@@ -1164,7 +1164,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()<1) continue;
+    if (items.empty()) continue;
     if (items [0] == "SHAPE") { // basic shape
       //this shape keyword is obsolete
     }
@@ -1301,7 +1301,7 @@ template<> std::unique_ptr<HcalElectronicsMap> createObject<HcalElectronicsMap>(
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size () < 12) {
-      if (items.size()==0) continue; // no warning here
+      if (items.empty()) continue; // no warning here
       if (items.size()<9) {
 	edm::LogError("MapFormat") << "HcalElectronicsMap-> line too short: " << buffer;
 	continue;
@@ -1445,7 +1445,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalLutMetadata* fObject){
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     // now get non-channel data
     if (items.size() > 1 && 
 	items[0].find("RctLsb")!=std::string::npos){
@@ -1513,7 +1513,7 @@ bool HcalDbASCIIIO::getObject(std::istream& fInput, HcalDcsValues * fObject) {
   while (getline(fInput, buffer)) {
     if (buffer.at(0) == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (buffer);
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
 
     if (items.size() < 9) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 9 items: subDet, side_ring, slice, type, subChannel, LS, Value, UpperLimit, LowerLimit" << std::endl;
@@ -1637,7 +1637,7 @@ template <> std::unique_ptr<HcalDcsMap> createObject<HcalDcsMap>(std::istream& f
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size () < 8) {
-      if (items.size()==0) continue; // no warning here
+      if (items.empty()) continue; // no warning here
       else {
 	edm::LogError("MapFormat") << "HcalDcsMap-> Bad line: " << buffer 
 				   << "\n line must contain 8 items: line side_ring slice subchannel subdet ieta iphi depth";
@@ -1730,14 +1730,14 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* f
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () != 9) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain at 9 least items: eta, phi, depth, subdet, firstSample, samplesToAdd, ExpectedPeak, MinEnergy, and a set of comma-separated coefficients" << std::endl;
       continue;
     }
     // expects (ieta, iphi, depth, subdet) as first four arguments
     DetId id = HcalDbASCIIIO::getId (items);
-    std::vector<double> coef= splitStringToDoubleByComma(items[8].c_str());
+    std::vector<double> coef= splitStringToDoubleByComma(items[8]);
 
     HcalFlagHFDigiTimeParam* fCondObject = new HcalFlagHFDigiTimeParam(id, 
 								       atoi (items [4].c_str()), //firstSample
@@ -1842,7 +1842,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalSiPMParameters* fObject
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 9) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 9 items: eta, phi, depth, subdet, 5x values" << std::endl;
       continue;
@@ -1934,7 +1934,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMCharacteris
     const float              cTalk  = fObject.getCrossTalk(type);
     const int                auxi1  = fObject.getAuxi1(type);
     const float              auxi2  = fObject.getAuxi2(type);
-    const float              par0   = (pars.size() > 0) ? pars[0] : 0;
+    const float              par0   = (!pars.empty()) ? pars[0] : 0;
     const float              par1   = (pars.size() > 1) ? pars[1] : 0;
     const float              par2   = (pars.size() > 2) ? pars[2] : 0;
     sprintf (buffer, " %8d %8d %15.6e %15.6e %15.6e %15.6f %8d %15.6f\n", 
@@ -1952,7 +1952,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTPChannelParameters* fO
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 8) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" << std::endl;
       continue;
@@ -2009,7 +2009,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTPParameters* fObject) 
     //    std::cout << "HcalTPParameters-> processing line: " << buffer << std::endl;
     int      version = atoi (items [0].c_str());
     int      adcCut  = atoi (items [1].c_str());
-    uint64_t tdcMask = strtoull(items [2].c_str(),NULL,16);
+    uint64_t tdcMask = strtoull(items [2].c_str(),nullptr,16);
     uint32_t tbits   = atoi (items [3].c_str());
     int      auxi1   = atoi (items [4].c_str());
     int      auxi2   = atoi (items [5].c_str());

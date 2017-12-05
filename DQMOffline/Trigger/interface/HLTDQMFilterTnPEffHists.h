@@ -21,6 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMOffline/Trigger/interface/HLTDQMFilterEffHists.h"
+#include "DQMOffline/Trigger/interface/UtilFuncs.h"
 
 #include <string>
 

@@ -34,16 +34,16 @@ public:
   DTDCSByLumiSummary(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTDCSByLumiSummary();
+  ~DTDCSByLumiSummary() override;
 
 
  protected:
 
-  void beginRun (const edm::Run& r, const edm::EventSetup& c);
+  void beginRun (const edm::Run& r, const edm::EventSetup& c) override;
 
   void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, 
-                             edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
-  void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
+                             edm::LuminosityBlock const & lumi, edm::EventSetup const & setup) override;
+  void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) override;
 
 private:
 

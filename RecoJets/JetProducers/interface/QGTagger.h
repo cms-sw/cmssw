@@ -16,11 +16,11 @@
 class QGTagger : public edm::global::EDProducer<>{
    public:
       explicit QGTagger(const edm::ParameterSet&);
-      ~QGTagger(){ delete qgLikelihood;};
+      ~QGTagger() override{ delete qgLikelihood;};
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       std::tuple<int, float, float> calcVariables(const reco::Jet*, edm::Handle<reco::VertexCollection>&, bool) const;
       template <typename T> void putInEvent(const std::string&, const edm::Handle<edm::View<reco::Jet>>&, std::vector<T>*, edm::Event&) const;
       bool isPackedCandidate(const reco::Jet* jet) const;

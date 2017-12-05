@@ -45,7 +45,7 @@ public:
     L1GtHfBitCountsCondition(const L1GtHfBitCountsCondition&);
 
     // destructor
-    virtual ~L1GtHfBitCountsCondition();
+    ~L1GtHfBitCountsCondition() override;
 
     // assign operator
     L1GtHfBitCountsCondition& operator=(const L1GtHfBitCountsCondition&);
@@ -53,10 +53,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-     const bool evaluateCondition() const;
+     const bool evaluateCondition() const override;
 
     /// print condition
-     void print(std::ostream& myCout) const;
+     void print(std::ostream& myCout) const override;
 
 public:
 

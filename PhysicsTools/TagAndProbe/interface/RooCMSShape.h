@@ -40,12 +40,12 @@ public:
 	      RooAbsReal& _peak);
 
   RooCMSShape(const RooCMSShape& other, const char* name);
-  inline virtual TObject* clone(const char* newname) const { return new RooCMSShape(*this,newname); }
-  inline ~RooCMSShape() {}
-  Double_t evaluate() const ;
+  inline TObject* clone(const char* newname) const override { return new RooCMSShape(*this,newname); }
+  inline ~RooCMSShape() override {}
+  Double_t evaluate() const override ;
   
 
-  ClassDef(RooCMSShape,1);
+  ClassDefOverride(RooCMSShape,1);
 
 protected:
 

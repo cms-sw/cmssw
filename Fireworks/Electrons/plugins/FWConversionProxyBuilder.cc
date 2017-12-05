@@ -35,19 +35,19 @@ class FWConversionProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Conve
 
 public:
    FWConversionProxyBuilder() ;
-   virtual ~FWConversionProxyBuilder();
+   ~FWConversionProxyBuilder() override;
 
-   virtual bool haveSingleProduct() const override { return false; }
-   virtual void cleanLocal() override;
+   bool haveSingleProduct() const override { return false; }
+   void cleanLocal() override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWConversionProxyBuilder( const FWConversionProxyBuilder& ); // stop default
-   const FWConversionProxyBuilder& operator=( const FWConversionProxyBuilder& ); // stop default
+   FWConversionProxyBuilder( const FWConversionProxyBuilder& ) = delete; // stop default
+   const FWConversionProxyBuilder& operator=( const FWConversionProxyBuilder& ) = delete; // stop default
   
    using FWSimpleProxyBuilderTemplate<reco::Conversion>::buildViewType;
-   virtual void buildViewType(const reco::Conversion& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
+   void buildViewType(const reco::Conversion& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
    TEveElementList* requestCommon();
 
@@ -56,7 +56,7 @@ private:
 
 
 FWConversionProxyBuilder::FWConversionProxyBuilder():
-   m_common(0)
+   m_common(nullptr)
 {
    m_common = new TEveElementList( "common conversion scene" );
    m_common->IncDenyDestroy();

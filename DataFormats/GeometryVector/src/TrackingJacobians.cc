@@ -9,7 +9,7 @@ AlgebraicMatrix65 jacobianCurvilinearToCartesian(const GlobalVector & momentum, 
   GlobalVector yt(-xt.y(), xt.x(), 0.); 
   GlobalVector zt = xt.cross(yt);
 
-  GlobalVector pvec=momentum;
+  const GlobalVector& pvec=momentum;
   double pt = pvec.perp();
   // for neutrals: qbp is 1/p instead of q/p - 
   //   equivalent to charge 1
@@ -59,7 +59,7 @@ AlgebraicMatrix56 jacobianCartesianToCurvilinear(const GlobalVector & momentum,i
   GlobalVector xt=momentum;
   GlobalVector yt(-xt.y(), xt.x(), 0.);
   GlobalVector zt = xt.cross(yt);
-  GlobalVector pvec=momentum;
+  const GlobalVector& pvec=momentum;
   double pt = pvec.perp(), p = pvec.mag();
   double px = pvec.x(), py = pvec.y(), pz = pvec.z();
   double pt2 = pt*pt, p2 = p*p, p3 = p*p*p;

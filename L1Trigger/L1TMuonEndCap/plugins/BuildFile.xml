@@ -1,9 +1,4 @@
-<library file="*.cc" name="L1TriggerL1TMuonEndCapPlugins"> 
+<library file="*.cc" name="L1TriggerL1TMuonEndCapPlugins">
   <use name="L1Trigger/L1TMuonEndCap"/>
-  <use name="CondFormats/L1TObjects"/>
-  <use name="CondFormats/DataRecord"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="CondCore/DBOutputService"/>
-  <use name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>

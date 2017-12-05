@@ -30,17 +30,21 @@ theDigitizers = cms.PSet(
   ),
   puVtx = cms.PSet(
     pileupVtxDigitizer
+  ),
+  mergedtruth = cms.PSet(
+    trackingParticles
   )
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
+fastSim.toModify(theDigitizers,
     # fastsim does not model castor
-    delattr(theDigitizers,"castor")
+    castor = None,
     # fastsim does not digitize pixel and strip hits
-    delattr(theDigitizers,"pixel")
-    delattr(theDigitizers,"strip")
-    setattr(theDigitizers,"tracks",recoTrackAccumulator)
+    pixel = None,
+    strip = None,
+    tracks = recoTrackAccumulator
+)
 
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
@@ -65,13 +69,8 @@ from SimFastTiming.Configuration.SimFastTiming_cff import fastTimeDigitizer
 phase2_timing_layer.toModify( theDigitizers,
                         fastTimingLayer = fastTimeDigitizer.clone() )
 
-theDigitizersValid = cms.PSet(
-    theDigitizers,
-    mergedtruth = cms.PSet(
-        trackingParticles
-        )
-    )
-
+theDigitizersValid = cms.PSet(theDigitizers)
+theDigitizers.mergedtruth.select.signalOnlyTP = cms.bool(True)
 
 phase2_hgcal.toModify( theDigitizersValid,
                        calotruth = cms.PSet( caloParticles ) )

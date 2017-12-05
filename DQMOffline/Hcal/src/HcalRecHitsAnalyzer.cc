@@ -233,7 +233,9 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf)
       
       // nrechits vs iphi
       for (int depth = 1; depth <= maxDepthHB_; depth++) {
-
+	
+	 sprintf  (histo, "occupancy_vs_ieta_HB%d",depth );
+	 occupancy_vs_ieta_HB.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
          sprintf  (histo, "nrechits_vs_iphi_HBP_d%d",depth );
          nrechits_vs_iphi_HBP.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
          sprintf  (histo, "nrechits_vs_iphi_HBM_d%d",depth );
@@ -241,18 +243,24 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf)
       }
 
       for (int depth = 1; depth <= maxDepthHE_; depth++) {
+         sprintf  (histo, "occupancy_vs_ieta_HE%d",depth );
+         occupancy_vs_ieta_HE.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
          sprintf  (histo, "nrechits_vs_iphi_HEP_d%d",depth );
          nrechits_vs_iphi_HEP.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
          sprintf  (histo, "nrechits_vs_iphi_HEM_d%d",depth );
          nrechits_vs_iphi_HEM.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
       }
 
+      sprintf  (histo, "occupancy_vs_ieta_HO" );
+      occupancy_vs_ieta_HO = ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_);
       sprintf  (histo, "nrechits_vs_iphi_HOP" );
       nrechits_vs_iphi_HOP = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "nrechits_vs_iphi_HOM" );
       nrechits_vs_iphi_HOM = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_);
 
       for (int depth = 1; depth <= maxDepthHF_; depth++) {
+         sprintf  (histo, "occupancy_vs_ieta_HF%d",depth );
+         occupancy_vs_ieta_HF.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
          sprintf  (histo, "nrechits_vs_iphi_HFP_d%d",depth );
          nrechits_vs_iphi_HFP.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
          sprintf  (histo, "nrechits_vs_iphi_HFM_d%d",depth );

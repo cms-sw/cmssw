@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
@@ -18,8 +19,8 @@
 class MakerResponseHandler : public XrdCl::ResponseHandler
 {
 public:
-    virtual void HandleResponse( XrdCl::XRootDStatus *status,
-                                 XrdCl::AnyObject    *response )
+    void HandleResponse( XrdCl::XRootDStatus *status,
+                                 XrdCl::AnyObject    *response ) override
     {
         // Note: Prepare call has a response object.
         delete response;
@@ -53,7 +54,7 @@ public:
 
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  virtual std::unique_ptr<Storage> open (const std::string &proto,
+  std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
 			 int mode,
        const AuxSettings& aux) const override
@@ -76,7 +77,7 @@ public:
     return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
-  virtual void stagein (const std::string &proto, const std::string &path,
+  void stagein (const std::string &proto, const std::string &path,
                         const AuxSettings& aux) const override
   {
     setDebugLevel(aux.debugLevel);
@@ -94,10 +95,10 @@ public:
     }
   }
 
-  virtual bool check (const std::string &proto,
+  bool check (const std::string &proto,
 		      const std::string &path,
           const AuxSettings& aux,
-		      IOOffset *size = 0) const override
+		      IOOffset *size = nullptr) const override
   {
     setDebugLevel(aux.debugLevel);
     setTimeout(aux.timeout);
@@ -188,7 +189,7 @@ public:
   }
 
 private:
-  [[cms::thread_safe]] mutable MakerResponseHandler m_null_handler;
+  CMS_THREAD_SAFE mutable MakerResponseHandler m_null_handler;
   mutable std::mutex m_envMutex;
   mutable std::atomic<unsigned int> m_lastDebugLevel;
   mutable std::atomic<unsigned int> m_lastTimeout;

@@ -51,7 +51,7 @@ class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
 
 public:
   SUSY_HLT_SingleLepton(const edm::ParameterSet& ps);
-  virtual ~SUSY_HLT_SingleLepton();
+  ~SUSY_HLT_SingleLepton() override;
 
 protected:
   void dqmBeginRun(const edm::Run &run, const edm::EventSetup &e) override;

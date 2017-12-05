@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <math.h>
+#include <cmath>
 #include <list>
 #include <string>
 #include <map>
@@ -15,10 +15,10 @@ using namespace oracle::occi;
 
 RunDCSHVDat::RunDCSHVDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_hv = 0;
   m_hvnom = 0;
@@ -63,7 +63,7 @@ ResultSet *RunDCSHVDat::getBarrelRset(const Tm& timeStart) {
 
   DateHandler dh(m_env, m_conn);
 
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query="SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, " 
     " d.actual_vmon, h.nominal_value ,  d.change_date " 
     " FROM "+ getEBAccount()+".FWCAENCHANNEL d " 
@@ -91,7 +91,7 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset(const Tm& timeStart) {
 
   DateHandler dh(m_env, m_conn);
 
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query="SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, " 
     " d.actual_vmon, '800' nominal_value ,  d.change_date " 
     " FROM "+ getEEAccount()+".FWCAENCHANNEL d " 
@@ -119,7 +119,7 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset(const Tm& timeStart) {
 
   DateHandler dh(m_env, m_conn);
 
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query="SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, " 
     " d.actual_vmon, '600' nominal_value ,  d.change_date " 
     " FROM "+ getEEAccount()+".FWCAENCHANNEL d " 
@@ -164,7 +164,7 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
 */
 
 ResultSet *RunDCSHVDat::getBarrelRset() {
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
     " d.VALUE_NUMBER, h.nominal_value , d.CHANGE_DATE "
     "FROM "+ getEBAccount()+".FWCAENCHANNEL_LV d "
@@ -185,7 +185,7 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
 }
 
 ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
     " d.value_number, '800' NOMINAL_VALUE , d.CHANGE_DATE "
     "FROM "+ getEEAccount()+".FWCAENCHANNEL_LV d "
@@ -206,7 +206,7 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
 }
 
 ResultSet *RunDCSHVDat::getEndcapDynodeRset() {
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
     " d.value_number, '600' NOMINAL_VALUE , d.CHANGE_DATE "
     "FROM "+ getEEAccount()+".FWCAENCHANNEL_LV d "

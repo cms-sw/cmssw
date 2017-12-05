@@ -242,7 +242,7 @@ TransientVertex::operator reco::Vertex() const
 {
    //If the vertex is invalid, return an invalid TV !
   if (!isValid()) return Vertex();
-
+  
   Vertex vertex(Vertex::Point(theVertexState.position()),
                 // 	RecoVertex::convertError(theVertexState.error()), 
                 theVertexState.error4D().matrix4D(),
@@ -268,33 +268,34 @@ TransientVertex::operator reco::Vertex() const
 
 TransientVertex::operator reco::VertexCompositePtrCandidate() const
 {
-using namespace reco;
-	if (!isValid())  return VertexCompositePtrCandidate();
-
-	VertexCompositePtrCandidate vtxCompPtrCand;
-
-	vtxCompPtrCand.setCovariance(vertexState().error().matrix());
-	vtxCompPtrCand.setChi2AndNdof(totalChiSquared(), degreesOfFreedom());
-	vtxCompPtrCand.setVertex(Candidate::Point(position().x(),position().y(),position().z()));
-
-	Candidate::LorentzVector p4;
-	for(std::vector<reco::TransientTrack>::const_iterator tt = theOriginalTracks.begin(); tt != theOriginalTracks.end(); ++tt)
+  using namespace reco;
+  if (!isValid())  return VertexCompositePtrCandidate();
+  
+  VertexCompositePtrCandidate vtxCompPtrCand;
+  
+  vtxCompPtrCand.setTime(vertexState().time());
+  vtxCompPtrCand.setCovariance(vertexState().error4D().matrix4D());
+  vtxCompPtrCand.setChi2AndNdof(totalChiSquared(), degreesOfFreedom());
+  vtxCompPtrCand.setVertex(Candidate::Point(position().x(),position().y(),position().z()));
+  
+  Candidate::LorentzVector p4;
+  for(std::vector<reco::TransientTrack>::const_iterator tt = theOriginalTracks.begin(); tt != theOriginalTracks.end(); ++tt)
+    {
+      if (trackWeight(*tt) < 0.5)
+	continue;
+      
+      const CandidatePtrTransientTrack* cptt = dynamic_cast<const CandidatePtrTransientTrack*>(tt->basicTransientTrack());
+      if ( cptt==nullptr )
+	edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
+      else
 	{
-		if (trackWeight(*tt) < 0.5)
-			continue;
-
-		const CandidatePtrTransientTrack* cptt = dynamic_cast<const CandidatePtrTransientTrack*>(tt->basicTransientTrack());
-		if ( cptt==0 )
-			edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
-		else
-		{
-			p4 += cptt->candidate()->p4();
-			vtxCompPtrCand.addDaughter(cptt->candidate());
-		}
+	  p4 += cptt->candidate()->p4();
+	  vtxCompPtrCand.addDaughter(cptt->candidate());
 	}
-
-	//TODO: if has refitted tracks we should scale the candidate p4 to the refitted one
-	vtxCompPtrCand.setP4(p4);
-	return vtxCompPtrCand;
+    }
+  
+  //TODO: if has refitted tracks we should scale the candidate p4 to the refitted one
+  vtxCompPtrCand.setP4(p4);
+  return vtxCompPtrCand;
 }
 

@@ -293,7 +293,7 @@ void GctFormatTranslateMCLegacy::writeRctEmCandBlocks(unsigned char * d, const L
 {
   // This method is one giant "temporary" hack for CMSSW_1_8_X and CMSSW_2_0_0.
 
-  if(rctEm->size() == 0 || rctEm->size()%144 != 0)  // Should be 18 crates * 2 types (iso/noniso) * 4 electrons = 144 for 1 bx.
+  if(rctEm->empty() || rctEm->size()%144 != 0)  // Should be 18 crates * 2 types (iso/noniso) * 4 electrons = 144 for 1 bx.
   {
     LogDebug("GCT") << "Block pack error: bad L1CaloEmCollection size detected!\n"
                     << "Aborting packing of RCT EM Cand data!";
@@ -378,7 +378,7 @@ void GctFormatTranslateMCLegacy::writeAllRctCaloRegionBlock(unsigned char * d, c
 {
   // This method is one giant "temporary" hack for CMSSW_1_8_X and CMSSW_2_0_0.
 
-  if(rctCalo->size() == 0 || rctCalo->size()%396 != 0)  // Should be 396 calo regions for 1 bx.
+  if(rctCalo->empty() || rctCalo->size()%396 != 0)  // Should be 396 calo regions for 1 bx.
   {
     LogDebug("GCT") << "Block pack error: bad L1CaloRegionCollection size detected!\n"
                     << "Aborting packing of RCT Calo Region data!";

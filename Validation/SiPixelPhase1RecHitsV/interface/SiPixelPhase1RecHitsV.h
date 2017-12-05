@@ -30,7 +30,7 @@ class SiPixelPhase1RecHitsV : public SiPixelPhase1Base {
 
   public:
   explicit SiPixelPhase1RecHitsV(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;

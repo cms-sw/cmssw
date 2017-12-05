@@ -16,8 +16,8 @@
 # include <mutex>
 # include <thread>
 # include <execinfo.h>
-# include <stdio.h>
-# include <stdlib.h>
+# include <cstdio>
+# include <cstdlib>
 # include <cxxabi.h>
 # include <iosfwd>
 
@@ -173,7 +173,7 @@ class DQMStore
     void tagContents(const std::string &, unsigned int);
 
    private:
-    explicit IBooker(DQMStore * store):owner_(0) {
+    explicit IBooker(DQMStore * store):owner_(nullptr) {
       assert(store);
       owner_ = store;
     }
@@ -220,7 +220,7 @@ class DQMStore
     void setCurrentFolder(const std::string &fullpath);
 
    private:
-    explicit IGetter(DQMStore * store):owner_(0) {
+    explicit IGetter(DQMStore * store):owner_(nullptr) {
       assert(store);
       owner_ = store;
     }

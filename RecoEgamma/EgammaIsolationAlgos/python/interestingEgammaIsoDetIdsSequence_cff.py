@@ -107,17 +107,18 @@ interestingOotEgammaIsoESDetId.phosLabel=cms.InputTag("ootPhotons")
 interestingOotEgammaIsoESDetId.elesLabel=cms.InputTag("")
 interestingOotEgammaIsoESDetId.superClustersLabel=cms.InputTag("")
 
-interestingEgammaIsoDetIds = cms.Sequence(
-    interestingGedEleIsoDetIdEB *
-    interestingGedEleIsoDetIdEE * 
-    interestingGedGamIsoDetIdEB * 
-    interestingGedGamIsoDetIdEE *   
-    interestingOotGamIsoDetIdEB * 
-    interestingOotGamIsoDetIdEE *   
-    interestingGamIsoDetIdEB * 
-    interestingGamIsoDetIdEE *
-    interestingGedEgammaIsoHCALDetId*
-    interestingOotEgammaIsoHCALDetId*
-    interestingGedEgammaIsoESDetId*
+interestingEgammaIsoDetIdsTask = cms.Task(
+    interestingGedEleIsoDetIdEB ,
+    interestingGedEleIsoDetIdEE , 
+    interestingGedGamIsoDetIdEB , 
+    interestingGedGamIsoDetIdEE ,   
+    interestingOotGamIsoDetIdEB , 
+    interestingOotGamIsoDetIdEE ,   
+    interestingGamIsoDetIdEB , 
+    interestingGamIsoDetIdEE ,
+    interestingGedEgammaIsoHCALDetId,
+    interestingOotEgammaIsoHCALDetId,
+    interestingGedEgammaIsoESDetId,
     interestingOotEgammaIsoESDetId
 )
+interestingEgammaIsoDetIds = cms.Sequence(interestingEgammaIsoDetIdsTask)

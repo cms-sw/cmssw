@@ -26,8 +26,8 @@
 class JetCoreClusterSplitter : public edm::stream::EDProducer<> {
  public:
   JetCoreClusterSplitter(const edm::ParameterSet& iConfig);
-  ~JetCoreClusterSplitter();
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~JetCoreClusterSplitter() override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
  private:
   bool split(const SiPixelCluster& aCluster,
@@ -214,7 +214,7 @@ bool JetCoreClusterSplitter::split(
           [](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
   }
 
-  return (sp.size() > 0);
+  return (!sp.empty());
 }
 
 // order with fast algo and pick first and second instead?
@@ -500,7 +500,7 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
       }
     }
     if (verbose) std::cout << std::endl;
-    if (pixelsForCl[cl].size() > 0) {
+    if (!pixelsForCl[cl].empty()) {
       if (forceXError_ > 0) output.back().setSplitClusterErrorX(forceXError_);
       if (forceYError_ > 0) output.back().setSplitClusterErrorY(forceYError_);
     }

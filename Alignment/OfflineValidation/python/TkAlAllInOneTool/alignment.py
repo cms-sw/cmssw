@@ -3,7 +3,7 @@ import os
 import re
 
 import configTemplates
-from helperFunctions import conddb, parsecolor, parsestyle, replaceByMap
+from helperFunctions import conddb, parsecolor, parsestyle, replaceByMap, clean_name
 from TkAlExceptions import AllInOneError
 
 class Alignment(object):
@@ -39,7 +39,7 @@ class Alignment(object):
         config.checkInput(section,
                           knownSimpleOptions = ['globaltag', 'style', 'color', 'title', 'mp', 'mp_alignments', 'mp_deformations', 'hp', 'hp_alignments', 'hp_deformations', 'sm', 'sm_alignments', 'sm_deformations'],
                           knownKeywords = ['condition'])
-        self.name = name
+        self.name = clean_name(name)
         if config.exists(section,"title"):
             self.title = config.get(section,"title")
         else:

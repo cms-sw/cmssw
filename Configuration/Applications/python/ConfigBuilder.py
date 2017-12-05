@@ -139,7 +139,7 @@ def filesFromDASQuery(query,option="",s=None):
 		if count!=0:
 			print 'Sleeping, then retrying DAS'
 			time.sleep(100)
-		p = Popen('das_client %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
+		p = Popen('dasgoclient %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
                 pipe=p.stdout.read()
 		tupleP = os.waitpid(p.pid, 0)
 		eC=tupleP[1]
@@ -237,14 +237,13 @@ class ConfigBuilder(object):
         #print "map of steps is:",self.stepMap
 
         self.with_output = with_output
+	self.process=process
+
         if hasattr(self._options,"no_output_flag") and self._options.no_output_flag:
                 self.with_output = False
         self.with_input = with_input
-        if process == None:
-            self.process = cms.Process(self._options.name)
-        else:
-            self.process = process
         self.imports = []
+	self.create_process()
         self.define_Configs()
         self.schedule = list()
 
@@ -615,7 +614,13 @@ class ConfigBuilder(object):
 		if streamType=='': continue
 		if streamType == 'ALCARECO' and not 'ALCAPRODUCER' in self._options.step: continue
 		if streamType=='DQMIO': streamType='DQM'
-                theEventContent = getattr(self.process, streamType+"EventContent")
+		eventContent=streamType
+                ## override streamType to eventContent in case NANOEDM
+		if streamType == "NANOEDMAOD" :
+			eventContent = "NANOAOD"
+		elif streamType == "NANOEDMAODSIM" :
+			eventContent = "NANOAODSIM"
+                theEventContent = getattr(self.process, eventContent+"EventContent")
                 if i==0:
                         theFileName=self._options.outfile_name
                         theFilterName=self._options.filtername
@@ -626,6 +631,7 @@ class ConfigBuilder(object):
 		if self._options.timeoutOutput:
 			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
+		if "NANOAOD" in streamType : CppType='NanoAODOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
@@ -658,7 +664,10 @@ class ConfigBuilder(object):
 				self.executeAndRemember("process.%s.outputCommands.append('%s')"%(outputModuleName,evct.strip()))
 				
                 if not self._options.inlineEventContent:
-                        def doNotInlineEventContent(instance,label = "process."+streamType+"EventContent.outputCommands"):
+			tmpstreamType=streamType
+			if "NANOEDM" in tmpstreamType :
+				tmpstreamType=tmpstreamType.replace("NANOEDM","NANO")
+			def doNotInlineEventContent(instance,label = "process."+tmpstreamType+"EventContent.outputCommands"):
                                 return label
                         outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
 
@@ -920,7 +929,9 @@ class ConfigBuilder(object):
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
+        self.RECOSIMDefaultCFF="Configuration/StandardSequences/RecoSim_cff"
         self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
+        self.NANODefaultCFF="PhysicsTools/NanoAOD/nano_cff"
 	self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
@@ -970,7 +981,7 @@ class ConfigBuilder(object):
                 self.RECODefaultSeq='reconstruction'
         else:
                 self.RECODefaultSeq='reconstruction_fromRECO'
-
+        self.RECOSIMDefaultSeq='recosim'
 	self.EIDefaultSeq='top'
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
@@ -980,6 +991,7 @@ class ConfigBuilder(object):
         self.REPACKDefaultSeq='DigiToRawRepack'
 	self.PATDefaultSeq='miniAOD'
 	self.PATGENDefaultSeq='miniGEN'
+	self.NANODefaultSeq='nanoSequence'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
@@ -994,6 +1006,7 @@ class ConfigBuilder(object):
 		self.PATGENDefaultCFF="Configuration/StandardSequences/PATGEN_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
+	        self.NANODefaultSeq='nanoSequenceMC'
 	else:
 		self._options.beamspot = None
 	
@@ -1644,6 +1657,12 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
         return
 
+    def prepare_RECOSIM(self, sequence = "recosim"):
+        ''' Enrich the schedule with reconstruction '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.RECOSIMDefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'recosim_step')
+        return
+
     def prepare_RECOBEFMIX(self, sequence = "reconstruction"):
         ''' Enrich the schedule with the part of reconstruction that is done before mixing in FastSim'''
         if not self._options.fast:
@@ -1687,6 +1706,21 @@ class ConfigBuilder(object):
         if self._options.isData:
             raise Exception("PATGEN step can only run on MC")
         return
+
+    def prepare_NANO(self, sequence = "nanoAOD"):
+        ''' Enrich the schedule with NANO '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.NANODefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'nanoAOD_step')
+        custom = "nanoAOD_customizeData" if self._options.isData else "nanoAOD_customizeMC"
+        if self._options.runUnscheduled:
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/NanoAOD/nano_cff."+custom)
+        else:
+            self._options.customisation_file.insert(0,"PhysicsTools/NanoAOD/nano_cff."+custom)
+	if self._options.hltProcess:
+	     if len(self._options.customise_commands) > 1:
+		     self._options.customise_commands = self._options.customise_commands + " \n"
+             self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+
 
     def prepare_EI(self, sequence = None):
         ''' Enrich the schedule with event interpretation '''
@@ -2054,6 +2088,52 @@ class ConfigBuilder(object):
         self.addedObjects.append(("Production Info","configurationMetadata"))
 
 
+    def create_process(self):
+        self.pythonCfgCode =  "# Auto generated configuration file\n"
+        self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+'\n'
+        self.pythonCfgCode += "# with command line options: "+self._options.arguments+'\n'
+        self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
+
+	# now set up the modifies
+	modifiers=[]
+	modifierStrings=[]
+	modifierImports=['from Configuration.StandardSequences.Eras import eras']
+
+        if hasattr(self._options,"era") and self._options.era :
+            # Multiple eras can be specified in a comma seperated list
+            from Configuration.StandardSequences.Eras import eras
+            for requestedEra in self._options.era.split(",") :
+		    modifierStrings.append("eras."+requestedEra)
+		    modifiers.append(getattr(eras,requestedEra))
+
+
+	if hasattr(self._options,"procModifiers") and self._options.procModifiers:
+            import importlib
+	    thingsImported=[]
+ 	    for pm in self._options.procModifiers.split(','):
+                   modifierStrings.append(pm)
+		   modifierImports.append('from Configuration.ProcessModifiers.'+pm+'_cff import '+pm)
+                   modifiers.append(getattr(importlib.import_module('Configuration.ProcessModifiers.'+pm+'_cff'),pm))
+
+	self.pythonCfgCode += '\n'.join(modifierImports)+'\n\n'
+	self.pythonCfgCode += "process = cms.Process('"+self._options.name+"'" # Start of the line, finished after the loop
+
+
+	if len(modifierStrings)>0:
+		self.pythonCfgCode+= ','+','.join(modifierStrings)
+	self.pythonCfgCode+=')\n\n'
+
+        #yes, the cfg code gets out of sync here if a process is passed in. That could be fixed in the future
+        #assuming there is some way for the fwk to get the list of modifiers (and their stringified name)
+        if self.process == None:
+	    if len(modifiers)>0:	
+               self.process = cms.Process(self._options.name,*modifiers)
+            else:
+               self.process = cms.Process(self._options.name)
+	
+
+
+
     def prepare(self, doChecking = False):
         """ Prepare the configuration string and add missing pieces."""
 
@@ -2072,20 +2152,6 @@ class ConfigBuilder(object):
                 outputModuleCfgCode=self.addOutput()
 
         self.addCommon()
-
-        self.pythonCfgCode =  "# Auto generated configuration file\n"
-        self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+'\n'
-        self.pythonCfgCode += "# with command line options: "+self._options.arguments+'\n'
-        self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
-        if hasattr(self._options,"era") and self._options.era :
-            self.pythonCfgCode += "from Configuration.StandardSequences.Eras import eras\n\n"
-            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"'" # Start of the line, finished after the loop
-            # Multiple eras can be specified in a comma seperated list
-            for requestedEra in self._options.era.split(",") :
-                self.pythonCfgCode += ",eras."+requestedEra
-            self.pythonCfgCode += ")\n\n" # end of the line
-        else :
-            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
 
         self.pythonCfgCode += "# import of standard configurations\n"
         for module in self.imports:
@@ -2224,6 +2290,14 @@ class ConfigBuilder(object):
 		self.pythonCfgCode += self.addCustomise(1)
 
 	self.pythonCfgCode += self.addCustomiseCmdLine()
+
+        if hasattr(self.process,"logErrorHarvester"):
+                #configure logErrorHarvester to wait for same EDProducers to finish as the OutputModules
+                self.pythonCfgCode +="\n#Have logErrorHarvester wait for the same EDProducers to finish as those providing data for the OutputModule\n"
+                self.pythonCfgCode +="from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands\n"
+                self.pythonCfgCode +="process = customiseLogErrorHarvesterUsingOutputCommands(process)\n"
+                from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands
+                self.process = customiseLogErrorHarvesterUsingOutputCommands(self.process)
 
         # Temporary hack to put the early delete customization after
         # everything else

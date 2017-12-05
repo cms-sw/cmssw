@@ -42,9 +42,9 @@ class SharedLibrary
       // ---------- member functions ---------------------------
       
    private:
-      SharedLibrary(const SharedLibrary&); // stop default
+      SharedLibrary(const SharedLibrary&) = delete; // stop default
 
-      const SharedLibrary& operator=(const SharedLibrary&); // stop default
+      const SharedLibrary& operator=(const SharedLibrary&) = delete; // stop default
 
       // ---------- member data --------------------------------
       void* libraryHandle_;

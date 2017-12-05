@@ -42,12 +42,12 @@
 class StatisticsFilter : public edm::EDFilter {
    public:
       explicit StatisticsFilter(const edm::ParameterSet&);
-      ~StatisticsFilter();
+      ~StatisticsFilter() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
 
@@ -77,7 +77,7 @@ StatisticsFilter::StatisticsFilter(const edm::ParameterSet& iConfig) : filename(
    //now do what ever initialization is needed
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
-  dqmStore_->open(filename.c_str(), false);
+  dqmStore_->open(filename, false);
 }
 
 
@@ -109,7 +109,7 @@ StatisticsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       std::string me_name = (*iter)->getName();
 
-      if ( strstr(me_name.c_str(),"TotalNumberOfCluster__T")!=NULL && strstr(me_name.c_str(),"Profile")==NULL )
+      if ( strstr(me_name.c_str(),"TotalNumberOfCluster__T")!=nullptr && strstr(me_name.c_str(),"Profile")==nullptr )
 	{
 	  TotNumberOfEvents = ((TH1F*)(*iter)->getTH1F())->GetEntries();
 

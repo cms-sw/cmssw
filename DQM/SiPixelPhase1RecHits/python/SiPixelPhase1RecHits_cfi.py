@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
+import DQM.SiPixelPhase1Common.TriggerEventFlag_cfi as trigger
 
 SiPixelPhase1RecHitsNRecHits = DefaultHistoTrack.clone(
   name = "rechits",
@@ -92,14 +93,14 @@ SiPixelPhase1RecHitsProb = DefaultHistoTrack.clone(
         Specification().groupBy("PXForward/PXDisk").saveAll(),
         StandardSpecification2DProfile,
     
-        Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+        Specification().groupBy("PXBarrel/LumiBlock")
                        .reduce("MEAN")
-                       .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                       .groupBy("PXBarrel", "EXTEND_X")
                        .save(),
 
-        Specification().groupBy("PXForward/PXDisk/Lumisection")
+        Specification().groupBy("PXForward/LumiBlock")
                        .reduce("MEAN")
-                       .groupBy("PXForward/PXDisk", "EXTEND_X")
+                       .groupBy("PXForward", "EXTEND_X")
                        .save(),
 
         Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
@@ -122,8 +123,8 @@ SiPixelPhase1RecHitsAnalyzer = cms.EDAnalyzer("SiPixelPhase1RecHits",
         src = cms.InputTag("generalTracks"),
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry,
-        onlyValidHits = cms.bool(False)
-
+        onlyValidHits = cms.bool(False),
+        triggerflags = trigger.SiPixelPhase1Triggers
 )
 
 SiPixelPhase1RecHitsHarvester = DQMEDHarvester("SiPixelPhase1Harvester",

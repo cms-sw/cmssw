@@ -108,7 +108,7 @@ class PFMuonSelector : public Selector<pat::Muon> {
   }
 
   // Allow for multiple definitions of the cuts.
-  bool operator()( const pat::Muon & muon, pat::strbitset & ret )
+  bool operator()( const pat::Muon & muon, pat::strbitset & ret ) override
   {
     if (version_ == TOPPAG12_LJETS ) return TopPag12LjetsCuts(muon, ret);
     else {

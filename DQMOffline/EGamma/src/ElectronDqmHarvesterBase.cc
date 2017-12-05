@@ -71,7 +71,7 @@ const std::string * ElectronDqmHarvesterBase::find( DQMStore::IGetter & iGetter,
          (histoName->find(name)==(lsize-nsize)) )
      { res.push_back(histoName) ; }
    }
-  if (res.size()==0)
+  if (res.empty())
    {
     std::ostringstream oss ;
     oss<<"Histogram "<<name<<" not found in "<<outputInternalPath_ ;
@@ -80,7 +80,7 @@ const std::string * ElectronDqmHarvesterBase::find( DQMStore::IGetter & iGetter,
      { oss<<sep<<' '<<*histoName ; sep = ',' ; }
     oss<<'.' ;
     edm::LogWarning("ElectronDqmHarvesterBase::find")<<oss.str() ;
-    return 0 ;
+    return nullptr ;
    }
   else if (res.size()>1)
    {
@@ -92,7 +92,7 @@ const std::string * ElectronDqmHarvesterBase::find( DQMStore::IGetter & iGetter,
      { oss<<sep<<' '<<(**resItr) ; sep = ',' ; }
     oss<<'.' ;
     edm::LogWarning("ElectronDqmHarvesterBase::find")<<oss.str() ;
-    return 0 ;
+    return nullptr ;
    }
   else
    {
@@ -139,7 +139,7 @@ MonitorElement * ElectronDqmHarvesterBase::get( DQMStore::IGetter & iGetter, con
   if (fullName)
    { return iGetter.get(inputInternalPath_+"/"+*fullName) ; }
   else
-  { return 0 ; }
+  { return nullptr ; }
  }
 
 void ElectronDqmHarvesterBase::remove( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, const std::string & name )
@@ -274,7 +274,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
    const std::string & titleX, const std::string & titleY,
    const std::string & title )
  {
-  if ((!num)||(!denom)) return 0 ;
+  if ((!num)||(!denom)) return nullptr ;
   iBooker.setCurrentFolder(outputInternalPath_);
   std::string name2 = newName(name) ;
   TH1F * h_temp = (TH1F *)num->getTH1F()->Clone(name2.c_str()) ;
@@ -296,7 +296,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookH2andDivide
    const std::string & titleX, const std::string & titleY,
    const std::string & title )
  {
-  if ((!num)||(!denom)) return 0 ;
+  if ((!num)||(!denom)) return nullptr ;
   iBooker.setCurrentFolder(outputInternalPath_);
   std::string name2 = newName(name) ;
   TH2F * h_temp = (TH2F *)num->getTH2F()->Clone(name2.c_str()) ;
@@ -317,7 +317,7 @@ MonitorElement * ElectronDqmHarvesterBase::cloneH1
    const std::string & name, MonitorElement * original,
    const std::string & title )
  {
-  if (!original) return 0 ;
+  if (!original) return nullptr ;
   iBooker.setCurrentFolder(outputInternalPath_);
   std::string name2 = newName(name) ;
   TH1F * h_temp = (TH1F *)original->getTH1F()->Clone(name2.c_str()) ;

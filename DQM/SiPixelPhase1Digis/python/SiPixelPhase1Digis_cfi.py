@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+import DQM.SiPixelPhase1Common.TriggerEventFlag_cfi as trigger
 
 # this might also go into te Common config,as we do not reference it
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
@@ -105,12 +106,12 @@ SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
 SiPixelPhase1DigisEvents = DefaultHistoDigiCluster.clone(
   name = "eventrate",
   title = "Rate of Pixel Events",
-  xlabel = "Lumisection",
+  xlabel = "LumiBlock",
   ylabel = "#Events",
   dimensions = 0,
   specs = VPSet(
 
-    Specification().groupBy("Lumisection")
+    Specification().groupBy("LumiBlock")
                    .reduce("MEAN")
                    .groupBy("", "EXTEND_X").save(),
     Specification().groupBy("BX")
@@ -191,7 +192,8 @@ SiPixelPhase1DigisConf = cms.VPSet(
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
         src = cms.InputTag("siPixelDigis"), 
         histograms = SiPixelPhase1DigisConf,
-        geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry,
+        triggerflags = trigger.SiPixelPhase1Triggers
 )
 
 SiPixelPhase1DigisHarvester = DQMEDHarvester("SiPixelPhase1Harvester",

@@ -45,10 +45,10 @@
 class HFFilter : public edm::EDFilter {
    public:
       explicit HFFilter(const edm::ParameterSet&);
-      ~HFFilter();
+      ~HFFilter() override;
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
    private:
       // ----------member data ---------------------------

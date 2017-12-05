@@ -98,6 +98,8 @@
 
 #include <vector>
 
+#include <Eigen/Dense>
+
 #include "GblTrajectory.h"
 
 
@@ -133,7 +135,7 @@ public:
     bool allowZeroMaterial{false};
   };
 
-  virtual ~ReferenceTrajectoryBase() {}
+  ~ReferenceTrajectoryBase() override {}
 
   bool isValid() { return theValidityFlag; }
 

@@ -47,7 +47,7 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
     using DCCDataBlockPrototype::unpack;
     int unpack(const uint64_t ** data, unsigned int * dwToEnd, short tccChId=0);
 	 
-    void display(std::ostream & o); 
+    void display(std::ostream & o) override; 
 	 
   
   protected :

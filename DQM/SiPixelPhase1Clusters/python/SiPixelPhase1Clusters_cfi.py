@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
+import DQM.SiPixelPhase1Common.TriggerEventFlag_cfi as trigger
 
 SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   name = "charge",
@@ -206,15 +207,16 @@ SiPixelPhase1ClustersReadoutNClusters = DefaultHistoReadout.clone(
                              .groupBy("PXForward/HalfCylinder").save(),
 
     Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/DetId/Event").reduce("COUNT")
-                             .groupBy("PXBarrel/Shell/Sector/Lumisection").reduce("MEAN")
+                             .groupBy("PXBarrel/Shell/Sector/LumiBlock").reduce("MEAN")
                              .groupBy("PXBarrel/Shell/Sector", "EXTEND_X").save(),
     Specification(PerReadout).groupBy("PXForward/HalfCylinder/DetId/Event").reduce("COUNT")
-                             .groupBy("PXForward/HalfCylinder/Lumisection").reduce("MEAN")
+                             .groupBy("PXForward/HalfCylinder/LumiBlock").reduce("MEAN")
                              .groupBy("PXForward/HalfCylinder", "EXTEND_X").save(),
   )
 )
 
 SiPixelPhase1ClustersPixelToStripRatio = DefaultHistoDigiCluster.clone(
+  enabled = False,
   name = "cluster_ratio",
   title = "Pixel to Strip clusters ratio",
   
@@ -223,7 +225,7 @@ SiPixelPhase1ClustersPixelToStripRatio = DefaultHistoDigiCluster.clone(
   
   specs = VPSet(
     Specification().groupBy("PXAll").save(100, 0, 1), 
-    Specification().groupBy("PXAll/Lumisection")
+    Specification().groupBy("PXAll/LumiBlock")
                    .reduce("MEAN") 
                    .groupBy("PXAll", "EXTEND_X")
                    .save(),
@@ -252,19 +254,12 @@ SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersPixelToStripRatio
 )
 
-## Uncomment to add trigger event flag settings
-import DQM.SiPixelPhase1Common.TriggerEventFlag_cfi as triggerflag
-SiPixelPhase1ClustersTriggers = cms.VPSet(
-#   triggerflag.genericTriggerEventFlag4HLTdb,
-#   triggerflag.genericTriggerEventFlag4L1bd,
-)
-
 SiPixelPhase1ClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1Clusters",
         pixelSrc = cms.InputTag("siPixelClusters"),
         stripSrc = cms.InputTag("siStripClusters"),
         histograms = SiPixelPhase1ClustersConf,
         geometry = SiPixelPhase1Geometry,
-        triggerflag = SiPixelPhase1ClustersTriggers,
+        triggerflags = trigger.SiPixelPhase1Triggers
 )
 
 SiPixelPhase1ClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",

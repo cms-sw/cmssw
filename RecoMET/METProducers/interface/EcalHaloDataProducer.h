@@ -54,7 +54,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitDefs.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h" 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
@@ -96,11 +96,11 @@ namespace reco
     
   public:
     explicit EcalHaloDataProducer(const edm::ParameterSet&);
-    ~EcalHaloDataProducer();
+    ~EcalHaloDataProducer() override;
     
   private:
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     //RecHit Level
     edm::InputTag IT_EBRecHit;

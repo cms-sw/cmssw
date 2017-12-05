@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 
@@ -104,7 +104,7 @@ void L1MuGMTDebugBlock::reset () {
       _isMIPISO[bx][i]=0;
     }
     for (int i=0; i<NumMatrices; i++) {
-      _pairMatrices[bx][i].init(0);
+      _pairMatrices[bx][i].init(false);
       _mqMatrices[bx][i].init(0);
     }
     for (int i=0; i<4; i++) {

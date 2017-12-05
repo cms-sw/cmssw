@@ -12,25 +12,25 @@ public:
                     emittedMode(emittedModeIn), pTdefMode(pTdefModeIn),
                     MPIvetoOn(MPIvetoOnIn), nISRveto(0), nFSRveto(0),
                     Verbosity(VerbosityIn) {}
- ~EmissionVetoHook1() {
+ ~EmissionVetoHook1() override {
     std::cout << "Number of ISR vetoed = " << nISRveto << std::endl;
     std::cout << "Number of FSR vetoed = " << nFSRveto << std::endl;
   }
 
 //--------------------------------------------------------------------------
 
-  bool canVetoMPIStep()    { return true; }
-  int  numberVetoMPIStep() { return 1; }
-  bool doVetoMPIStep(int nMPI, const Pythia8::Event &e);
+  bool canVetoMPIStep() override    { return true; }
+  int  numberVetoMPIStep() override { return 1; }
+  bool doVetoMPIStep(int nMPI, const Pythia8::Event &e) override;
 
-  bool canVetoISREmission() { return vetoOn; }
-  bool doVetoISREmission(int, const Pythia8::Event &e, int iSys);
+  bool canVetoISREmission() override { return vetoOn; }
+  bool doVetoISREmission(int, const Pythia8::Event &e, int iSys) override;
 
-  bool canVetoFSREmission() { return vetoOn; }
-  bool doVetoFSREmission(int, const Pythia8::Event &e, int iSys, bool);
+  bool canVetoFSREmission() override { return vetoOn; }
+  bool doVetoFSREmission(int, const Pythia8::Event &e, int iSys, bool) override;
 
-  bool canVetoMPIEmission() { return MPIvetoOn; }
-  bool doVetoMPIEmission(int, const Pythia8::Event &e);
+  bool canVetoMPIEmission() override { return MPIvetoOn; }
+  bool doVetoMPIEmission(int, const Pythia8::Event &e) override;
 
   void fatalEmissionVeto(std::string message);
 

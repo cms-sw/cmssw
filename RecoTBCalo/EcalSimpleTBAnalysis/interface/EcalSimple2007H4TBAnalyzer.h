@@ -44,12 +44,12 @@
 class EcalSimple2007H4TBAnalyzer : public edm::EDAnalyzer {
    public:
       explicit EcalSimple2007H4TBAnalyzer( const edm::ParameterSet& );
-      ~EcalSimple2007H4TBAnalyzer();
+      ~EcalSimple2007H4TBAnalyzer() override;
 
 
-      virtual void analyze( edm::Event const &, edm::EventSetup const & );
-      virtual void beginRun(edm::Run const &, edm::EventSetup const&);
-      virtual void endJob();
+      void analyze( edm::Event const &, edm::EventSetup const & ) override;
+      void beginRun(edm::Run const &, edm::EventSetup const&) override;
+      void endJob() override;
  private:
       std::string rootfile_;
       std::string digiCollection_;

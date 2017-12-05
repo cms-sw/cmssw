@@ -20,6 +20,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include <string>
@@ -33,7 +34,7 @@ class CaloTowerCreatorForTauHLT : public edm::global::EDProducer<> {
   /// constructor from parameter set
   CaloTowerCreatorForTauHLT( const edm::ParameterSet & );
   /// destructor
-  ~CaloTowerCreatorForTauHLT();
+  ~CaloTowerCreatorForTauHLT() override;
   /// 
   static void fillDescriptions( edm::ConfigurationDescriptions& desc );
 

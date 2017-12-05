@@ -12,7 +12,7 @@
 class HcalPatternSource : public edm::EDProducer {
 public:
   HcalPatternSource(const edm::ParameterSet & pset);
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 private:  
   void loadPatterns(const std::string& patspec);
   void loadPatternFile(const std::string& filename);

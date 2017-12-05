@@ -51,11 +51,11 @@ namespace edm {
 
     void doErrorStuff();
 
-    void beginRun(ProcessHistoryID const& phid, RunNumber_t run);
-    void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool cleaningUpAfterException);
+    void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalTransitionSucceeded);
+    void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTranstitionSucceeded, bool cleaningUpAfterException);
 
-    void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException);
+    void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool& globalTransitionSucceeded);
+    void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool globalTransitionSucceeded, bool cleaningUpAfterException);
 
     std::pair<ProcessHistoryID,RunNumber_t> readRun();
     std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();

@@ -99,7 +99,7 @@ MuonTCMETValueMapProducer::MuonTCMETValueMapProducer(const edm::ParameterSet& iC
   useCaloMuons_ = iConfig.getParameter<bool>("useCaloMuons");
   muonMinValidStaHits_ = iConfig.getParameter<int>("muonMinValidStaHits");
 
-  response_function = 0;
+  response_function = nullptr;
   tcmetAlgo_=new TCMETAlgo();
 
   if( rfType_ == 1 )
@@ -273,7 +273,7 @@ bool MuonTCMETValueMapProducer::isGoodCaloMuon( const reco::Muon* muon, const un
 //____________________________________________________________________________||
 bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
 {
-  double d0    = -999;
+  double d0;
 
   const reco::TrackRef siTrack = muon->innerTrack();
   if (!siTrack.isNonnull())
@@ -286,8 +286,6 @@ bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
       const Point pvtx = Point(vertices_->begin()->x(),
 			       vertices_->begin()->y(), 
 			       vertices_->begin()->z());
-            
-      d0 = -1 * siTrack->dxy( pvtx );
             
       double dz = siTrack->dz( pvtx );
             
@@ -355,7 +353,7 @@ bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
   if( !( (siTrack->qualityMask() & cut) == cut ) ) return false;
 	  
   bool isGoodAlgo = false;
-  if( trkAlgos_.size() == 0 ) isGoodAlgo = true;
+  if( trkAlgos_.empty() ) isGoodAlgo = true;
   for( unsigned int i = 0; i < trkAlgos_.size(); i++ )
     {
       if( siTrack->algo() == trkAlgos_.at(i) ) isGoodAlgo = true;

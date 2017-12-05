@@ -48,8 +48,8 @@
      const GeomDet* detPos1 = _tracker.idToDet(rh1->geographicalId());
      const GeomDet* detPos2 = _tracker.idToDet(rh2->geographicalId());
 
-     GlobalPoint gp1 = detPos1->position();
-     GlobalPoint gp2 = detPos2->position();
+     const GlobalPoint& gp1 = detPos1->position();
+     const GlobalPoint& gp2 = detPos2->position();
      
      if (gp1.y()>gp2.y())
        return true;
@@ -73,8 +73,8 @@
      const GeomDet* detPos1 = _tracker.idToDet(rh1->geographicalId());
      const GeomDet* detPos2 = _tracker.idToDet(rh2->geographicalId());
 
-     GlobalPoint gp1 = detPos1->position();
-     GlobalPoint gp2 = detPos2->position();
+     const GlobalPoint& gp1 = detPos1->position();
+     const GlobalPoint& gp2 = detPos2->position();
      
      if (gp1.y()<gp2.y())
        return true;

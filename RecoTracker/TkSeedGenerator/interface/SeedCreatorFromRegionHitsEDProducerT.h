@@ -1,6 +1,7 @@
 #ifndef RecoTracker_TkSeedGenerator_SeedCreatorFromRegionHitsEDProducerT_H
 #define RecoTracker_TkSeedGenerator_SeedCreatorFromRegionHitsEDProducerT_H
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,11 +22,11 @@ class SeedCreatorFromRegionHitsEDProducerT: public edm::stream::EDProducer<> {
 public:
 
   SeedCreatorFromRegionHitsEDProducerT(const edm::ParameterSet& iConfig);
-  ~SeedCreatorFromRegionHitsEDProducerT() = default;
+  ~SeedCreatorFromRegionHitsEDProducerT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<RegionsSeedingHitSets> seedingHitSetsToken_;

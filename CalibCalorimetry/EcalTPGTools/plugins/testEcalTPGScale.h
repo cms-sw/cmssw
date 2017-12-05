@@ -24,8 +24,8 @@ class testEcalTPGScale : public edm::EDAnalyzer {
 
  public:
   explicit testEcalTPGScale(edm::ParameterSet const& pSet) ;
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) ;
-  virtual void beginJob() ;
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override ;
+  void beginJob() override ;
 
  private:
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;

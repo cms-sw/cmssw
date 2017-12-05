@@ -905,14 +905,14 @@ void fillNormFactorMaps()
   
   for(unsigned int i = 0; i < tkParts.size(); i++)
   {
-    modulesStackNormFactors[tkParts[i].c_str()] = nModulesStack[i];
-    modulesNoStackNormFactors[tkParts[i].c_str()] = nModulesNoStack[i];
-    fibersStackNormFactors[tkParts[i].c_str()] = nFibersStack[i];
-    fibersNoStackNormFactors[tkParts[i].c_str()] = nFibersNoStack[i];
-    APVsStackNormFactors[tkParts[i].c_str()] = nAPVsStack[i];
-    APVsNoStackNormFactors[tkParts[i].c_str()] = nAPVsNoStack[i];
-    stripsStackNormFactors[tkParts[i].c_str()] = nStripsStack[i];
-    stripsNoStackNormFactors[tkParts[i].c_str()] = nStripsNoStack[i];
+    modulesStackNormFactors[tkParts[i]] = nModulesStack[i];
+    modulesNoStackNormFactors[tkParts[i]] = nModulesNoStack[i];
+    fibersStackNormFactors[tkParts[i]] = nFibersStack[i];
+    fibersNoStackNormFactors[tkParts[i]] = nFibersNoStack[i];
+    APVsStackNormFactors[tkParts[i]] = nAPVsStack[i];
+    APVsNoStackNormFactors[tkParts[i]] = nAPVsNoStack[i];
+    stripsStackNormFactors[tkParts[i]] = nStripsStack[i];
+    stripsNoStackNormFactors[tkParts[i]] = nStripsNoStack[i];
   }
   
   //   for(std::map< std::string, unsigned int>::iterator it = allStripsTK.begin(); it != allStripsTK.end(); it++)
@@ -935,7 +935,7 @@ double findNormFactor(const std::string currentPlotType, const std::string curre
   {
     if(currentPlotType == "BadModules")
     {
-      return modulesStackNormFactors[currentPart.c_str()];
+      return modulesStackNormFactors[currentPart];
     }
     else if(currentPlotType == "BadFibers")
     {
@@ -962,7 +962,7 @@ double findNormFactor(const std::string currentPlotType, const std::string curre
   {
     if(currentPlotType == "BadModules")
     {
-      return modulesNoStackNormFactors[currentPart.c_str()];
+      return modulesNoStackNormFactors[currentPart];
     }
     else if(currentPlotType == "BadFibers")
     {

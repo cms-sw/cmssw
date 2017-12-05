@@ -30,6 +30,7 @@
 #include "DQMOffline/Trigger/interface/HLTDQMHist.h"
 #include "DQMOffline/Trigger/interface/VarRangeCutColl.h"
 #include "DQMOffline/Trigger/interface/FunctionDefs.h"
+#include "DQMOffline/Trigger/interface/UtilFuncs.h"
 
 template <typename ObjType> 
 class HLTDQMFilterEffHists {

@@ -3,7 +3,7 @@
 #include "CalibCalorimetry/CastorCalib/interface/CastorPulseShapes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm> // for "max","min"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 #include "CalibCalorimetry/HcalAlgos/interface/genlkupmap.h"

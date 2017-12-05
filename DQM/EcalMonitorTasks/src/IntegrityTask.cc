@@ -23,9 +23,9 @@ namespace ecaldqm
   IntegrityTask::runOnDetIdCollection(IDCollection const& _ids, Collections _collection)
   {
     // Collection is empty if there are no errors
-    if(_ids.size() == 0) return;
+    if(_ids.empty()) return;
 
-    MESet* set(0);
+    MESet* set(nullptr);
     switch(_collection){
     case kEBGainErrors:
     case kEEGainErrors:
@@ -65,9 +65,9 @@ namespace ecaldqm
   IntegrityTask::runOnElectronicsIdCollection(EcalElectronicsIdCollection const& _ids, Collections _collection)
   {
     // Collection is empty if there are no errors
-    if(_ids.size() == 0) return;
+    if(_ids.empty()) return;
 
-    MESet* set(0);
+    MESet* set(nullptr);
     switch(_collection){
     case kTowerIdErrors:
       set = &MEs_.at("TowerId");

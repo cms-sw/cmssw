@@ -11,11 +11,11 @@ class EENoiseFilter : public edm::EDFilter {
   public:
 
     explicit EENoiseFilter(const edm::ParameterSet & iConfig);
-    ~EENoiseFilter() {}
+    ~EENoiseFilter() override {}
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     edm::EDGetTokenT<EcalRecHitCollection> ebRHSrcToken_;
     edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;

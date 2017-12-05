@@ -22,12 +22,12 @@ class HcalDigiTester : public DQMEDAnalyzer {
 public:
 
   explicit HcalDigiTester(const edm::ParameterSet&);
-  ~HcalDigiTester();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~HcalDigiTester() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   template<class Digi>  void reco(const edm::Event&, const edm::EventSetup&, const edm::EDGetTokenT<edm::SortedCollection<Digi>  >  &);
   virtual void endRun() ;  
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 
  private:

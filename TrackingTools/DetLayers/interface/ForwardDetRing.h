@@ -14,16 +14,16 @@ class ForwardDetRing : public GeometricSearchDet {
   using GeometricSearchDet::GeometricSearchDet;
 
 
-  virtual ~ForwardDetRing();
+  ~ForwardDetRing() override;
 
   
-  virtual void
+  void
   compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 		   const Propagator& prop, 
 		   const MeasurementEstimator& est,
-		   std::vector<DetWithState>& result) const;
+		   std::vector<DetWithState>& result) const override;
   
-  virtual const BoundSurface& surface() const final {return *theDisk;}
+  const BoundSurface& surface() const final {return *theDisk;}
 
   
   //--- Extension of the interface

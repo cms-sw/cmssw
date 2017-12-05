@@ -19,11 +19,11 @@ Original Author: John Paul Chou (Brown University)
 class HBHEIsolatedNoiseReflagger : public edm::stream::EDProducer<> {
  public:
   explicit HBHEIsolatedNoiseReflagger(const edm::ParameterSet&);
-  ~HBHEIsolatedNoiseReflagger();
+  ~HBHEIsolatedNoiseReflagger() override;
   
   
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   void DumpHBHEHitMap(std::vector<HBHEHitMap>& i) const;
 

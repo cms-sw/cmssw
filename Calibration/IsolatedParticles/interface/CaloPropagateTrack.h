@@ -108,6 +108,7 @@ namespace spr{
   spr::propagatedTrack propagateTrackToECAL(const reco::Track*, const MagneticField*, bool debug=false);
   spr::propagatedTrack propagateTrackToECAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField*, bool debug=false);
   std::pair<math::XYZPoint,bool> propagateECAL(const reco::Track*, const MagneticField*, bool debug=false);
+  std::pair<DetId,bool> propagateIdECAL(const HcalDetId& id, const CaloGeometry* geo, const MagneticField*, bool debug=false);
   std::pair<math::XYZPoint,bool> propagateECAL(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField*, bool debug=false);
 
   // Propagate tracks to the HCAL surface and optionally returns the 
@@ -126,6 +127,11 @@ namespace spr{
 
   // Gives the vertex and momentum of a SimTrack
   spr::trackAtOrigin simTrackAtOrigin(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, bool debug=false);
+
+  //Get HcalDetID's for two values of r/z
+  bool propagateHCAL(const reco::Track *track, const CaloGeometry* geo, const MagneticField* bField, bool typeRZ, const std::pair<double,double> rz, bool debug);
+  bool propagateHCAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const CaloGeometry* geo, const MagneticField* bField, bool typeRZ, const std::pair<double,double> rz, bool debug);
+  std::pair<HcalDetId,HcalDetId> propagateHCAL(const CaloGeometry* geo, const MagneticField* bField, const GlobalPoint& vertex, const GlobalVector& momentum,  int charge, bool typeRZ, const std::pair<double,double> rz, bool debug);
 
 }
 #endif

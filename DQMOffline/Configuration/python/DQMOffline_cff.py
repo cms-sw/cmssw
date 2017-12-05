@@ -87,6 +87,11 @@ _ctpps_2016_DQMOffline = DQMOffline.copy()
 #_ctpps_2016_DQMOffline *= ctppsDQM
 ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
+DQMOfflineExtraHLT = cms.Sequence( 
+    offlineValidationHLTSource
+)
+
+
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
 DQMOfflineFakeHLT.remove( HLTMonitoring )
 
@@ -176,4 +181,9 @@ from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
     pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise yet
 ]))
+
+
+from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM
+DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
+#PostDQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 

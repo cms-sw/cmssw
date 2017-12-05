@@ -13,11 +13,11 @@
 class STFilter : public edm::EDFilter {
    public:
       explicit STFilter(const edm::ParameterSet&);
-      ~STFilter();
+      ~STFilter() override;
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
    private:
       double pTMax_;
       // debug level

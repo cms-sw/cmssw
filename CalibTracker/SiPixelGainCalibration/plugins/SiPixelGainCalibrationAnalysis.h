@@ -48,19 +48,19 @@ Implementation:
 class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
 public:
   explicit SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig);
-  ~SiPixelGainCalibrationAnalysis();
+  ~SiPixelGainCalibrationAnalysis() override;
 
   void doSetup(const edm::ParameterSet&);
-  virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
+  bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix) override;
 
-  virtual bool checkCorrectCalibrationType();
+  bool checkCorrectCalibrationType() override;
 
 private:
       
-  virtual void calibrationSetup(const edm::EventSetup& iSetup);
+  void calibrationSetup(const edm::EventSetup& iSetup) override;
       
-  virtual void calibrationEnd();
-  virtual void newDetID(uint32_t detid);
+  void calibrationEnd() override;
+  void newDetID(uint32_t detid) override;
   void fillDatabase();
   void printSummary();
   std::vector<float> CalculateAveragePerColumn(uint32_t detid, std::string label);

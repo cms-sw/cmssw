@@ -26,9 +26,9 @@ public:
    * \return The map containing the covariance matrices.
    */
 
- typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> & vertex) const;
+ typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> & vertex) const override;
  
- KalmanTrackToTrackCovCalculator * clone() const
+ KalmanTrackToTrackCovCalculator * clone() const override
  {
    return new KalmanTrackToTrackCovCalculator(* this);
  }

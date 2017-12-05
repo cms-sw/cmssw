@@ -227,9 +227,8 @@ NewMuonAssociationHLT_seq = cms.Sequence(
 
 # fastsim has no hlt specific dt hit collection
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    _DTrechitTag = SimMuon.MCTruth.NewMuonAssociatorByHits_cfi.NewMuonAssociatorByHits.DTrechitTag
-    NEWtpToL3TkMuonAssociation.DTrechitTag = _DTrechitTag
-    NEWtpToL2MuonAssociation.DTrechitTag = _DTrechitTag
-    NEWtpToL2UpdMuonAssociation.DTrechitTag = _DTrechitTag
-    NEWtpToL3MuonAssociation.DTrechitTag = _DTrechitTag
+_DTrechitTag = SimMuon.MCTruth.NewMuonAssociatorByHits_cfi.NewMuonAssociatorByHits.DTrechitTag
+fastSim.toModify(NEWtpToL3TkMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(NEWtpToL2MuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(NEWtpToL2UpdMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(NEWtpToL3MuonAssociation, DTrechitTag = _DTrechitTag)

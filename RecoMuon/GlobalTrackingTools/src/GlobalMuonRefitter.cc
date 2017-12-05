@@ -249,7 +249,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     // refit the full track with all muon hits
     vector <Trajectory> globalTraj = transform(globalTrack, track, allRecHits);
 
-    if (!globalTraj.size()) {
+    if (globalTraj.empty()) {
       LogTrace(theCategory) << "No trajectory from the TrackTransformer!" << endl;
       return vector<Trajectory>();
     }
@@ -290,7 +290,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     } 
 
 
-  if (outputTraj.size()) {
+  if (!outputTraj.empty()) {
     LogTrace(theCategory) << "Refitted pt: " << outputTraj.front().firstMeasurement().updatedState().globalParameters().momentum().perp() << endl;
     return outputTraj;
   } else {
@@ -315,7 +315,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
   // loop through all muon hits and calculate the maximum # of hits in each chamber
   for (ConstRecHitContainer::const_iterator imrh = all.begin(); imrh != all.end(); imrh++ ) {
         
-    if ( (*imrh != 0 ) && !(*imrh)->isValid() ) continue;
+    if ( (*imrh != nullptr ) && !(*imrh)->isValid() ) continue;
   
     int detRecHits = 0;
     MuonRecHitContainer dRecHits;
@@ -749,8 +749,6 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
   // This is the only way to get a TrajectorySeed with settable propagation direction
   PTrajectoryStateOnDet garbage1;
   edm::OwnVector<TrackingRecHit> garbage2;
-  PropagationDirection propDir = 
-    (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
 
   // These lines cause the code to ignore completely what was set
   // above, and force propDir for tracks from collisions!
@@ -758,7 +756,7 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
 //  if(propDir == oppositeToMomentum && theRefitDirection == insideOut) propDir=alongMomentum;
 
   const TrajectoryStateOnSurface& tsosForDir = inner_is_first ? lastTSOS : firstTSOS;
-  propDir = (tsosForDir.globalPosition().basicVector().dot(tsosForDir.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
+  PropagationDirection propDir = (tsosForDir.globalPosition().basicVector().dot(tsosForDir.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
   LogTrace(theCategory) << "propDir based on firstTSOS x dot p is " << propDir
 			<< " (alongMomentum == " << alongMomentum << ", oppositeToMomentum == " << oppositeToMomentum << ")";
 

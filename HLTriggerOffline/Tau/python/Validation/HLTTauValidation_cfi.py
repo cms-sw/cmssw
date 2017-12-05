@@ -4,7 +4,7 @@ hltTauValidationProcess_IDEAL = "HLT"
 
 hltTauValIdealMonitorMC = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     HLTProcessName = cms.untracked.string(hltTauValidationProcess_IDEAL),
-    DQMBaseFolder = cms.untracked.string("HLT/TauRelVal/MC"),
+    DQMBaseFolder = cms.untracked.string("HLT/TAU/RelVal/MC"),
     TriggerResultsSrc = cms.untracked.InputTag("TriggerResults", "", hltTauValidationProcess_IDEAL),
     TriggerEventSrc = cms.untracked.InputTag("hltTriggerSummaryAOD", "", hltTauValidationProcess_IDEAL),
     L1Plotter = cms.untracked.PSet(
@@ -41,7 +41,7 @@ hltTauValIdealMonitorMC = cms.EDAnalyzer("HLTTauDQMOfflineSource",
 )
 
 hltTauValIdealMonitorPF = hltTauValIdealMonitorMC.clone(
-    DQMBaseFolder = cms.untracked.string("HLT/TauRelVal/PF"),
+    DQMBaseFolder = cms.untracked.string("HLT/TAU/RelVal/PF"),
     Matching = cms.PSet(
         doMatching            = cms.untracked.bool(True),
         matchFilters          = cms.untracked.VPSet(
@@ -67,7 +67,7 @@ hltTauValIdealMonitorPF = hltTauValIdealMonitorMC.clone(
 
 from DQMOffline.Trigger.HLTTauDQMOffline_cfi import hltTauOfflineMonitor_TagAndProbe
 hltTauValTagAndProbe = hltTauValIdealMonitorMC.clone(
-    DQMBaseFolder = cms.untracked.string("HLT/TauRelVal/TagAndProbe"),
+    DQMBaseFolder = cms.untracked.string("HLT/TAU/RelVal/TagAndProbe"),
     Matching = cms.PSet(
         doMatching            = cms.untracked.bool(True),
         matchFilters          = cms.untracked.VPSet(   

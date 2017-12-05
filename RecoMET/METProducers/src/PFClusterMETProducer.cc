@@ -23,7 +23,7 @@
 #include "RecoMET/METAlgorithms/interface/METAlgo.h"
 #include "RecoMET/METAlgorithms/interface/PFClusterSpecificAlgo.h"
 
-#include <string.h>
+#include <cstring>
 
 //____________________________________________________________________________||
 namespace cms

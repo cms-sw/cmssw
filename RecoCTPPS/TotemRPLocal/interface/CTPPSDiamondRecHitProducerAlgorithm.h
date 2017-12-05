@@ -30,7 +30,6 @@ class CTPPSDiamondRecHitProducerAlgorithm
   private:
     /// Conversion constant between HPTDC time slice and absolute time (in ns)
     double ts_to_ns_;
-    int t_shift_;
 };
 
 #endif

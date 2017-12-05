@@ -84,8 +84,8 @@ void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es)
 }
 
 void ZdcHitReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
-  delete myobject; myobject=0;
-  delete theTopology; theTopology=0;
+  delete myobject; myobject=nullptr;
+  delete theTopology; theTopology=nullptr;
 }
 void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
@@ -109,10 +109,13 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
      edm::Handle<ZDCDigiCollection> digi;
      e.getByToken(tok_input_hcal,digi);
      
-     if(digi->size() == 0) {
-       e.getByToken(tok_input_castor,digi);
-       if(digi->size() == 0) 
+     if(digi->empty()) {
+       edm::Handle<ZDCDigiCollection> digi_castor;
+       e.getByToken(tok_input_castor,digi_castor);
+       if(!digi_castor.isValid() || digi_castor->empty()) 
        	 edm::LogInfo("ZdcHitReconstructor") << "No ZDC info found in either castorDigis or hcalDigis." << std::endl;
+       if(digi_castor.isValid())
+         e.getByToken(tok_input_castor,digi);
      }
         
      // create empty output
@@ -154,7 +157,7 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
 	    auxflag+=(i->sample(AuxTSvec_[xx]).adc())<<(7*xx); // store the time slices in the first 28 bits of aux, a set of 4 7-bit a dc values
 	  }
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
-	if (AuxTSvec_.size()>0)
+	if (!AuxTSvec_.empty())
 	  auxflag+=((i->sample(AuxTSvec_[0]).capid())<<28);
 	(rec->back()).setAux(auxflag);
      }

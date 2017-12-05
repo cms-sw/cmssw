@@ -35,19 +35,19 @@ class GenericTriggerEventFlag;
 class dEdxAnalyzer : public DQMEDAnalyzer {
  public:
   explicit dEdxAnalyzer(const edm::ParameterSet&);
-  ~dEdxAnalyzer();
+  ~dEdxAnalyzer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   virtual void beginJob();
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   virtual void endJob() ;
 
   double mass(double P, double I);
   
   //  virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
@@ -71,13 +71,13 @@ class dEdxAnalyzer : public DQMEDAnalyzer {
     MonitorElement* ME_MipHighPtDeDxNHits;
   
     dEdxMEs()
-      :ME_MipDeDx(NULL)
-      ,ME_MipDeDxNHits(NULL)
-      ,ME_MipDeDxNSatHits(NULL)
-      ,ME_MipDeDxMass(NULL)
-      ,ME_HipDeDxMass(NULL)
-      ,ME_MipHighPtDeDx(NULL)
-      ,ME_MipHighPtDeDxNHits(NULL)
+      :ME_MipDeDx(nullptr)
+      ,ME_MipDeDxNHits(nullptr)
+      ,ME_MipDeDxNSatHits(nullptr)
+      ,ME_MipDeDxMass(nullptr)
+      ,ME_HipDeDxMass(nullptr)
+      ,ME_MipHighPtDeDx(nullptr)
+      ,ME_MipHighPtDeDxNHits(nullptr)
     {}
   };
   

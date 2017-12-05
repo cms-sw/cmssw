@@ -62,10 +62,10 @@ EcalClusterEnergyCorrectionXMLTranslator::dumpXML( const EcalCondHeader& header,
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
   DOMDocumentType* doctype = 
-    impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+    impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
 
   DOMDocument* doc = 
-    impl->createDocument( 0, cms::xerces::uStr("EcalClusterEnergyCorrection").ptr(), doctype );
+    impl->createDocument( nullptr, cms::xerces::uStr("EcalClusterEnergyCorrection").ptr(), doctype );
   
   DOMElement* root = doc->getDocumentElement();
   xuti::writeHeader(root, header);

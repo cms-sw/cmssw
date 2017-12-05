@@ -32,11 +32,11 @@ namespace {
   class TrackClusterRemover final : public edm::global::EDProducer<> {
   public:
     TrackClusterRemover(const edm::ParameterSet& iConfig) ;
-    ~TrackClusterRemover(){}
+    ~TrackClusterRemover() override{}
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
     
-    virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
+    void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
  
     using PixelMaskContainer    = edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>;
     using StripMaskContainer    = edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>;

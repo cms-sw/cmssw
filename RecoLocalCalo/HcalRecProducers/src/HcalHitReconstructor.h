@@ -21,12 +21,7 @@
 #include "CondFormats/HcalObjects/interface/HcalRecoParam.h" 
 #include "CondFormats/HcalObjects/interface/HcalFlagHFDigiTimeParams.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimingCorrector.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimingShapedFlag.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHEPulseShapeFlag.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHENegativeFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalADCSaturationFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_S9S1algorithm.h"
@@ -46,12 +41,11 @@ class HcalTopology;
     class HcalHitReconstructor : public edm::stream::EDProducer<> {
     public:
       explicit HcalHitReconstructor(const edm::ParameterSet& ps);
-      virtual ~HcalHitReconstructor();
+      ~HcalHitReconstructor() override;
 
-      virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
-      virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
-      virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+      void beginRun(edm::Run const&r, edm::EventSetup const & es) final;
+      void endRun(edm::Run const&r, edm::EventSetup const & es) final;
+      void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     private:      
       typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(boost::shared_ptr<AbsOOTPileupCorrection>);
@@ -59,11 +53,6 @@ class HcalTopology;
       HcalSimpleRecAlgo reco_;
       HcalADCSaturationFlag* saturationFlagSetter_;
       HFTimingTrustFlag* HFTimingTrustFlagSetter_;
-      HBHEStatusBitSetter* hbheFlagSetter_;
-      HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
-      HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
-      HBHEPulseShapeFlagSetter *hbhePulseShapeFlagSetter_;
-      HBHENegativeFlagSetter *hbheNegativeFlagSetter_;
       HcalHFStatusBitFromDigis*   hfdigibit_;
       HcalHF_S9S1algorithm*       hfS9S1_;
       HcalHF_S9S1algorithm*       hfS8S1_;
@@ -73,7 +62,6 @@ class HcalTopology;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
-      edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
       edm::EDGetTokenT<HODigiCollection> tok_ho_;
       edm::EDGetTokenT<HFDigiCollection> tok_hf_;
       edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
@@ -110,9 +98,6 @@ class HcalTopology;
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
       std::unique_ptr<HcalFlagHFDigiTimeParams> HFDigiTimeParams; // HF DigiTime parameters
 
-      int puCorrMethod_;
-      int cntprtCorrMethod_;
-      bool first_;
       std::string corrName_,cat_;
     };
 

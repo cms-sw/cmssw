@@ -42,6 +42,12 @@ namespace edm {
 #endif
       
       // ---------- const member functions ---------------------
+      bool wantsStreamRuns() const final {
+        return WantsStreamRunTransitions<T...>::value;
+      }
+      bool wantsStreamLuminosityBlocks() const final {
+        return WantsStreamLuminosityBlockTransitions<T...>::value;
+      }
       
       // ---------- static member functions --------------------
       

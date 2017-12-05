@@ -31,7 +31,7 @@ MagGeometry::MagGeometry(int geomVersion, const std::vector<MagBLayer const*>& t
 			 const std::vector<MagESector const*>& tes,
 			 const std::vector<MagVolume6Faces const*>& tbv,
 			 const std::vector<MagVolume6Faces const*>& tev) : 
-  lastVolume(0), theBLayers(tbl), theESectors(tes), theBVolumes(tbv), theEVolumes(tev), cacheLastVolume(true), geometryVersion(geomVersion)
+  lastVolume(nullptr), theBLayers(tbl), theESectors(tes), theBVolumes(tbv), theEVolumes(tev), cacheLastVolume(true), geometryVersion(geomVersion)
 {
   vector<double> rBorders;
 
@@ -76,11 +76,11 @@ MagGeometry::~MagGeometry(){
 
 // Return field vector at the specified global point
 GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
-  MagVolume const * v = 0;
+  MagVolume const * v = nullptr;
 
   
   v = findVolume(gp);
-  if (v!=0) {
+  if (v!=nullptr) {
     return v->fieldInTesla(gp);
   }
   
@@ -100,12 +100,12 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
 MagVolume const* 
 MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {  
 
-  MagVolume6Faces const* found = 0;
+  MagVolume6Faces const* found = nullptr;
 
   if (inBarrel(gp)) { // Barrel
     for (vector<MagVolume6Faces const*>::const_iterator v = theBVolumes.begin();
 	 v!=theBVolumes.end(); ++v){
-      if ((*v)==0) { //FIXME: remove this check
+      if ((*v)==nullptr) { //FIXME: remove this check
 	cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume not set" << endl;
 	continue;
       }
@@ -118,7 +118,7 @@ MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {
   } else { // Endcaps
     for (vector<MagVolume6Faces const*>::const_iterator v = theEVolumes.begin();
 	 v!=theEVolumes.end(); ++v){
-      if ((*v)==0) {  //FIXME: remove this check
+      if ((*v)==nullptr) {  //FIXME: remove this check
 	cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume not set" << endl;
 	continue;
       }
@@ -141,7 +141,7 @@ MagGeometry::findVolume(const GlobalPoint & gp, double tolerance) const{
     return lastVolumeCheck;
   }
 
-  MagVolume const* result=0;
+  MagVolume const* result=nullptr;
   if (inBarrel(gp)) { // Barrel
     double R = gp.perp();
     int bin = theBarrelBinFinder->binIndex(R);
@@ -152,8 +152,8 @@ MagGeometry::findVolume(const GlobalPoint & gp, double tolerance) const{
 		      << " " << R << endl ;
       result = theBLayers[bin1]->findVolume(gp, tolerance);
       if (verbose::debugOut) cout << "***In blayer " << bin1-bin << " " 
-		      << (result==0? " failed " : " OK ") <<endl;
-      if (result != 0) break;
+		      << (result==nullptr? " failed " : " OK ") <<endl;
+      if (result != nullptr) break;
     }
 
   } else { // Endcaps
@@ -163,11 +163,11 @@ MagGeometry::findVolume(const GlobalPoint & gp, double tolerance) const{
 		    << theESectors[bin]->minPhi() << " " << phi << endl ;
     result = theESectors[bin]->findVolume(gp, tolerance);
     if (verbose::debugOut) cout << "***In guessed esector "
-		    << (result==0? " failed " : " OK ") <<endl;
+		    << (result==nullptr? " failed " : " OK ") <<endl;
   }
 
 
-  if (result==0 && tolerance < 0.0001) {
+  if (result==nullptr && tolerance < 0.0001) {
     // If search fails, retry with a 300 micron tolerance.
     // This is a hack for thin gaps on air-iron boundaries,
     // which will not be present anymore once surfaces are matched.

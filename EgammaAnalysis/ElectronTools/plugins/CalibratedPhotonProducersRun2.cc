@@ -13,17 +13,20 @@
 #include "EgammaAnalysis/ElectronTools/interface/PhotonEnergyCalibratorRun2.h"
 
 #include <vector>
+#include <random>
+#include <TRandom2.h>
 
 template<typename T>
 class CalibratedPhotonProducerRun2T: public edm::stream::EDProducer<> {
 public:
   explicit CalibratedPhotonProducerRun2T( const edm::ParameterSet & ) ;
-  virtual ~CalibratedPhotonProducerRun2T();
-  virtual void produce( edm::Event &, const edm::EventSetup & ) override ;
+  ~CalibratedPhotonProducerRun2T() override;
+  void produce( edm::Event &, const edm::EventSetup & ) override ;
 
 private:
   edm::EDGetTokenT<edm::View<T> > thePhotonToken;
   PhotonEnergyCalibratorRun2 theEnCorrectorRun2;
+  std::unique_ptr<TRandom> theSemiDeterministicRng;
 };
 
 template<typename T>
@@ -31,6 +34,10 @@ CalibratedPhotonProducerRun2T<T>::CalibratedPhotonProducerRun2T( const edm::Para
   thePhotonToken(consumes<edm::View<T> >(conf.getParameter<edm::InputTag>("photons"))),
   theEnCorrectorRun2(conf.getParameter<bool>("isMC"), conf.getParameter<bool>("isSynchronization"), conf.getParameter<std::string >("correctionFile")) {
 
+  if (conf.existsAs<bool>("semiDeterministic") && conf.getParameter<bool>("semiDeterministic")) {
+    theSemiDeterministicRng.reset(new TRandom2());
+    theEnCorrectorRun2.initPrivateRng(theSemiDeterministicRng.get());
+  }
   produces<std::vector<T> >();
 }
 
@@ -44,6 +51,17 @@ CalibratedPhotonProducerRun2T<T>::produce( edm::Event & iEvent, const edm::Event
 
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(thePhotonToken, in);
+
+  if (theSemiDeterministicRng && !in->empty()) { // no need to set a seed if in is empty
+      const auto & first = in->front();
+      std::seed_seq seeder = {int(iEvent.id().event()), int(iEvent.id().luminosityBlock()), int(iEvent.id().run()),
+          int(in->size()), int(std::numeric_limits<int>::max()*first.phi()/M_PI) & 0xFFF, int(first.pdgId())};
+      uint32_t seed = 0, tries = 10;
+      do {
+          seeder.generate(&seed,&seed+1); tries++;
+      } while (seed == 0 && tries < 10);
+      theSemiDeterministicRng->SetSeed(seed ? seed : iEvent.id().event());
+  }
 
   std::unique_ptr<std::vector<T> > out(new std::vector<T>());
   out->reserve(in->size());   

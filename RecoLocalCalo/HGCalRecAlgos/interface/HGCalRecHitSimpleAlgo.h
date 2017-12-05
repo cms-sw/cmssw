@@ -23,21 +23,21 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
     adcToGeVConstantIsSet_ = false;
   }
 
-  virtual void setLayerWeights(const std::vector<float>& weights) override {
+  void setLayerWeights(const std::vector<float>& weights) override {
     weights_ = weights;
   }
   
-  virtual void setADCToGeVConstant(const float value) override {
+  void setADCToGeVConstant(const float value) override {
     adcToGeVConstant_ = value;
     adcToGeVConstantIsSet_ = true;
   }
   
   
   // destructor
-  virtual ~HGCalRecHitSimpleAlgo() { };
+  ~HGCalRecHitSimpleAlgo() override { };
   
   /// Compute parameters
-  virtual HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH,
+  HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH,
                                const uint32_t& flags = 0) const override {
     
     if(!adcToGeVConstantIsSet_) {

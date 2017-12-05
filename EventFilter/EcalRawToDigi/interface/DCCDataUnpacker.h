@@ -21,8 +21,8 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <stdio.h>                     
-#include <stdint.h>
+#include <cstdio>                     
+#include <cstdint>
 #include <atomic>
 
 //DATA DECODER

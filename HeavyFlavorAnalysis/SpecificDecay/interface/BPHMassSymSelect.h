@@ -42,12 +42,12 @@ class BPHMassSymSelect: public BPHMomentumSelect {
 
   /** Destructor
    */
-  virtual ~BPHMassSymSelect() {}
+  ~BPHMassSymSelect() override {}
 
   /** Operations
    */
   /// select particle
-  virtual bool accept( const BPHDecayMomentum& cand ) const {
+  bool accept( const BPHDecayMomentum& cand ) const override {
 
     if ( mSel->accept( cand ) ) return true;
 
@@ -74,8 +74,8 @@ class BPHMassSymSelect: public BPHMomentumSelect {
  private:
 
   // private copy and assigment constructors
-  BPHMassSymSelect           ( const BPHMassSymSelect& x );
-  BPHMassSymSelect& operator=( const BPHMassSymSelect& x );
+  BPHMassSymSelect           ( const BPHMassSymSelect& x ) = delete;
+  BPHMassSymSelect& operator=( const BPHMassSymSelect& x ) = delete;
 
   std::string nPos;
   std::string nNeg;

@@ -2,7 +2,6 @@
 #define RefittedTrackState_H
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -30,7 +29,7 @@ public:
 //   typedef ROOT::Math::SMatrix<double,N-2,3,ROOT::Math::MatRepStd<double,N-2,3> > AlgebraicMatrixM3;
   typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
 
-  virtual ~RefittedTrackState(){}
+  ~RefittedTrackState() override{}
 
   /**
    * Transformation into a FreeTrajectoryState

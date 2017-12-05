@@ -10,7 +10,7 @@ BasicMultiTrajectoryState::BasicMultiTrajectoryState( const std::vector<TSOS>& t
  
   // only accept planes!!
   const BoundPlane* bp = dynamic_cast<const BoundPlane*>(&tsvec.begin()->surface());
-  if unlikely( bp==0 )
+  if unlikely( bp==nullptr )
 	       throw cms::Exception("LogicError") << "MultiTrajectoryState constructed on cylinder";
    
   for (auto i=tsvec.begin(); i!=tsvec.end(); i++) {

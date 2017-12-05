@@ -51,7 +51,7 @@ public:
 EcalRecHitsValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalRecHitsValidation();
+~EcalRecHitsValidation() override;
 
 protected:
 

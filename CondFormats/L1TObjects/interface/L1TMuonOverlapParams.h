@@ -43,7 +43,7 @@ class L1TMuonOverlapParams {
     ///I.e both layers have to fire to account a hit
     unsigned int connectedToLayer;
 
-    LayerMapNode(void):hwNumber(0),logicNumber(0),bendingLayer(0),connectedToLayer(0){}
+    LayerMapNode(void):hwNumber(0),logicNumber(0),bendingLayer(false),connectedToLayer(0){}
 
     COND_SERIALIZABLE;
   };

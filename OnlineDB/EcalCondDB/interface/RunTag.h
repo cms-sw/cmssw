@@ -16,7 +16,7 @@ class RunTag : public ITag {
   friend class EcalCondDBInterface;
 
   RunTag();
-  ~RunTag();
+  ~RunTag() override;
 
   // Methods for user data
   std::string getGeneralTag() const;
@@ -29,8 +29,8 @@ class RunTag : public ITag {
   void setRunTypeDef(const RunTypeDef& runTypeDef);
 
   // Methods using ID
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   // operators
   inline bool operator==(const RunTag& t) const

@@ -130,5 +130,5 @@ GeometricSearchTracker::idToLayer(const DetId& id) const
     edm::LogError("TkDetLayers") << "ERROR:layer not found!" ;
     // throw(something);
   }
-  return 0; //just to avoid compile warnings
+  return nullptr; //just to avoid compile warnings
 }

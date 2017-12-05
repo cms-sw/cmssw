@@ -22,7 +22,7 @@ class CSCTriggerGeomManager
 {
  public:
 
-  CSCTriggerGeomManager():geom(0) {}
+  CSCTriggerGeomManager():geom(nullptr) {}
   CSCTriggerGeomManager(const CSCTriggerGeomManager& parent):geom(parent.geom) {}
   ~CSCTriggerGeomManager() {}
 

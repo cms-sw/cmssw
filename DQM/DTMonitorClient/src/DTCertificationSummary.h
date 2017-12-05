@@ -22,7 +22,7 @@ public:
   DTCertificationSummary(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTCertificationSummary();
+  ~DTCertificationSummary() override;
 
   // Operations
 
@@ -30,15 +30,15 @@ protected:
   
 private:
 
-    void beginRun(const edm::Run& run, const  edm::EventSetup& setup);
+    void beginRun(const edm::Run& run, const  edm::EventSetup& setup) override;
 
     /// DQM Client Diagnostic in online mode
-    void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);
+    void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;
 
-    void endRun(const edm::Run& run, const edm::EventSetup& setup);
+    void endRun(const edm::Run& run, const edm::EventSetup& setup) override;
 
     /// DQM Client Diagnostic in offline mode
-    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
     
   MonitorElement*  totalCertFraction;
   MonitorElement*  certMap;

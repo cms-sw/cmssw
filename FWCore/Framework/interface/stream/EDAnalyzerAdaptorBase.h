@@ -72,6 +72,11 @@ namespace edm {
       // ---------- member functions ---------------------------
       const ModuleDescription& moduleDescription() const { return moduleDescription_;}
       
+      virtual bool wantsGlobalRuns() const = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const = 0;
+      bool wantsStreamRuns() const {return true;}
+      bool wantsStreamLuminosityBlocks() const {return true;}
+
       std::string workerType() const { return "WorkerT<EDAnalyzerAdaptorBase>";}
       void
       registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, ProductRegistry* reg);
@@ -104,9 +109,9 @@ namespace edm {
       std::vector<ConsumesInfo> consumesInfo() const;
 
     private:
-      EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&); // stop default
+      EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&) = delete; // stop default
       
-      const EDAnalyzerAdaptorBase& operator=(const EDAnalyzerAdaptorBase&); // stop default
+      const EDAnalyzerAdaptorBase& operator=(const EDAnalyzerAdaptorBase&) = delete; // stop default
       
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,

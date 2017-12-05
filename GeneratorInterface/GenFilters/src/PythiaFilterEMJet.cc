@@ -117,10 +117,10 @@ bool PythiaFilterEMJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     ptEMClus = ptEM;
 
     //check if the EM particle is in the barrel
-    bool inEB(0);
+    bool inEB(false);
     double tgx(0);
     double tgy(0);
-    if( std::abs(etaEM)<ebEtaMax ) inEB=1;
+    if( std::abs(etaEM)<ebEtaMax ) inEB=true;
     else{
       tgx=(*is)->momentum().px()/(*is)->momentum().pz();
       tgy=(*is)->momentum().py()/(*is)->momentum().pz();

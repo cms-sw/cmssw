@@ -4,13 +4,14 @@
 #include <ostream>
 
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
   namespace pset {
 
     Registry*
     Registry::instance() {
-      [[cms::thread_safe]] static Registry s_reg;
+      CMS_THREAD_SAFE static Registry s_reg;
       return &s_reg;
     }
     

@@ -27,14 +27,14 @@ public:
   explicit SiPixelDigiToRaw( const edm::ParameterSet& );
 
   /// dtor
-  virtual ~SiPixelDigiToRaw();
+  ~SiPixelDigiToRaw() override;
 
 
   /// dummy end of job 
-  virtual void endJob() override {}
+  void endJob() override {}
 
   /// get data, convert to raw event, attach again to Event
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
 
 private:
 

@@ -13,7 +13,7 @@ public :
 
   TAbsFitConstraint();
   TAbsFitConstraint(const TString &name, const TString &title);
-  virtual ~TAbsFitConstraint();
+  ~TAbsFitConstraint() override;
 
   // returns derivative df/dP with P=(p,E) and f the constraint f=0.
   // The matrix contains one row (df/dp, df/dE).
@@ -24,7 +24,7 @@ public :
   // new ---  additional parameters
   Int_t getNPar() { return _nPar; } 
 
-  virtual TMatrixD* getDerivativeAlpha() { return 0; }
+  virtual TMatrixD* getDerivativeAlpha() { return nullptr; }
   
   virtual const TMatrixD* getCovMatrix() const { return &_covMatrix; }
   virtual void setCovMatrix(const TMatrixD* theCovMatrix);

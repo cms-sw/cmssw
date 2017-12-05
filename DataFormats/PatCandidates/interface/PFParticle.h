@@ -41,10 +41,10 @@ namespace pat {
       /// constructor from ref
       PFParticle(const edm::RefToBase<reco::PFCandidate> & aPFParticle);
       /// destructor
-      virtual ~PFParticle() {}
+      ~PFParticle() override {}
 
       /// required reimplementation of the Candidate's clone method
-      virtual PFParticle * clone() const { return new PFParticle(*this); }
+      PFParticle * clone() const override { return new PFParticle(*this); }
     
   };
   

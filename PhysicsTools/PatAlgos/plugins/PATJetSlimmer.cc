@@ -26,10 +26,10 @@ namespace pat {
   class PATJetSlimmer : public edm::stream::EDProducer<> {
     public:
       explicit PATJetSlimmer(const edm::ParameterSet & iConfig);
-      virtual ~PATJetSlimmer() { }
+      ~PATJetSlimmer() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) final;
 
     private:
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;

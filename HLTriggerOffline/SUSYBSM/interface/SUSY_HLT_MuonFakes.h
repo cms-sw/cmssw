@@ -40,7 +40,7 @@ class SUSY_HLT_MuonFakes: public DQMEDAnalyzer{
 
   public:
   SUSY_HLT_MuonFakes(const edm::ParameterSet& ps);
-  virtual ~SUSY_HLT_MuonFakes();
+  ~SUSY_HLT_MuonFakes() override;
 
   protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

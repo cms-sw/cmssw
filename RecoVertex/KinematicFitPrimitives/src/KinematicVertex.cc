@@ -14,8 +14,8 @@ KinematicVertex::KinematicVertex(const VertexState state, float totalChiSq,
 					                           
 {
  vl = true;
- tree = 0;
- pVertex = 0;
+ tree = nullptr;
+ pVertex = nullptr;
 }
 
 KinematicVertex::KinematicVertex(const CachingVertex<6>& vertex)                                              
@@ -26,8 +26,8 @@ KinematicVertex::KinematicVertex(const CachingVertex<6>& vertex)
  theState = VertexState(vertex.position(), vertex.error());
  theChiSquared = vertex.totalChiSquared();
  theNDF = vertex.degreesOfFreedom();
- tree = 0;
- pVertex = 0;
+ tree = nullptr;
+ pVertex = nullptr;
 }		 
 
 KinematicVertex::KinematicVertex(const VertexState state, 
@@ -37,7 +37,7 @@ KinematicVertex::KinematicVertex(const VertexState state,
 				    theChiSquared(totalChiSq),theNDF(degreesOfFr) , pVertex(prVertex)
 {
  vl = true;
- tree = 0;
+ tree = nullptr;
 }
 
 
@@ -112,7 +112,7 @@ VertexState KinematicVertex::vertexState() const
 KinematicVertex::operator reco::Vertex() 
 {
    //If the vertex is invalid, return an invalid TV !
-  if (!vertexIsValid() || tree==0) return reco::Vertex();
+  if (!vertexIsValid() || tree==nullptr) return reco::Vertex();
 
 //accessing the tree components, move pointer to top
   if (!tree->findDecayVertex(this)) return reco::Vertex();
@@ -127,14 +127,14 @@ KinematicVertex::operator reco::Vertex()
        i != daughters.end(); ++i) {
 
     const TransientTrackKinematicParticle * ttkp = dynamic_cast<const TransientTrackKinematicParticle * >(&(**i));
-    if(ttkp != 0) {
+    if(ttkp != nullptr) {
       const reco::TrackTransientTrack * ttt = dynamic_cast<const reco::TrackTransientTrack*>(ttkp->initialTransientTrack()->basicTransientTrack());
-      if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull())) {
+      if ((ttt!=nullptr) && (ttt->persistentTrackRef().isNonnull())) {
 	reco::TrackRef tr = ttt->persistentTrackRef();
 	vertex.add(reco::TrackBaseRef(tr), ttkp->refittedTransientTrack().track(), 1.);
       } else {
 	const reco::GsfTransientTrack * ttt = dynamic_cast<const reco::GsfTransientTrack*>(ttkp->initialTransientTrack()->basicTransientTrack());
-	if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull())) {
+	if ((ttt!=nullptr) && (ttt->persistentTrackRef().isNonnull())) {
 	  reco::GsfTrackRef tr = ttt->persistentTrackRef();
 	  vertex.add(reco::TrackBaseRef(tr), ttkp->refittedTransientTrack().track(), 1.);
 	}

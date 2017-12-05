@@ -21,7 +21,7 @@ class FedCablingAlgorithm : public CommissioningAlgorithm {
 
   FedCablingAlgorithm( const edm::ParameterSet & pset, FedCablingAnalysis* const );
 
-  virtual ~FedCablingAlgorithm() {;}
+  ~FedCablingAlgorithm() override {;}
   
   /** Pointer to FED id histogram. */
   inline const Histo& hFedId() const;
@@ -34,10 +34,10 @@ class FedCablingAlgorithm : public CommissioningAlgorithm {
   FedCablingAlgorithm() {;}
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
   /** Performs histogram anaysis. */
-  void analyse();
+  void analyse() override;
   
  private:
 

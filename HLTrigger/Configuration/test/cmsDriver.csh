@@ -56,7 +56,8 @@ set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
 set EraRun2pp2016  = " --era=Run2_2016 "
 set EraRun2pp      = " --era=Run2_2017 "
-set EraRun2HI      = " --era=Run2_2016,Run2_HI "
+set EraRun2HImc    = " --era=Run2_HI "
+set EraRun2HIrd    = " --era=Run2_2016,Run2_HI "
  
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
@@ -91,6 +92,7 @@ foreach gtag ( MC DATA )
     set DATAMC = --data
     set PNAME  = HLT1
     set RNAME  = RECO1
+    set EraRun2HI = $EraRun2HIrd
   else  if ( $gtag == MC ) then
     set BASE1  = $BASE1MC
     set BASE2  = $BASE2MC
@@ -99,6 +101,7 @@ foreach gtag ( MC DATA )
     set DATAMC = --mc
     set PNAME  = HLT
     set RNAME  = RECO
+    set EraRun2HI = $EraRun2HImc
   else
     # unsupported
     continue
@@ -107,7 +110,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2e34v22 2e34v30 2e34v31 )
+    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2e34v22 2e34v31 2e34v40 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -186,11 +189,11 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
-    else if ( $table == 2e34v30 ) then
+    else if ( $table == 2e34v31 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:2e34v30
-      set GTAG = ${BASE2}_2e34v30
-      set RTAG = ${BASE2RD}_2e34v30
+      set XHLT = HLT:2e34v31
+      set GTAG = ${BASE2}_2e34v31
+      set RTAG = ${BASE2RD}_2e34v31
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
@@ -198,11 +201,11 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
-    else if ( $table == 2e34v31 ) then
+    else if ( $table == 2e34v40 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:2e34v31
-      set GTAG = ${BASE2}_2e34v31
-      set RTAG = ${BASE2RD}_2e34v31
+      set XHLT = HLT:2e34v40
+      set GTAG = ${BASE2}_2e34v40
+      set RTAG = ${BASE2RD}_2e34v40
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3

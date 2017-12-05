@@ -15,9 +15,9 @@ using namespace oracle::occi;
 
 RunCommentDat::RunCommentDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
   m_source = "";
   m_comment = "";
   m_time = Tm();

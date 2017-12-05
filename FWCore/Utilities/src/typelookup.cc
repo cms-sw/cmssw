@@ -78,7 +78,7 @@ edm::typelookup::findType(const char* iTypeName) {
    auto itFind = typeNameToValueMap().find(iTypeName);
    
    if(itFind == typeNameToValueMap().end()) {
-      return std::make_pair(static_cast<const char*>(0), static_cast<std::type_info*> (0));
+      return std::make_pair(static_cast<const char*>(nullptr), static_cast<std::type_info*> (nullptr));
    }
    
    return (*itFind);

@@ -36,16 +36,6 @@ SiStripQualityChecker::SiStripQualityChecker(edm::ParameterSet const& ps):pSet_(
   SubDetFolderMap.insert(std::pair<std::string, std::string>("TIDF", "TID/PLUS"));
   SubDetFolderMap.insert(std::pair<std::string, std::string>("TIDB", "TID/MINUS"));
   badModuleList.clear();
-
-  if(!edm::Service<TkDetMap>().isAvailable()){
-    edm::LogError("TkHistoMap") <<
-      "\n------------------------------------------"
-      "\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like"
-      "\n\tprocess.TkDetMap = cms.Service(\"TkDetMap\")"
-      "\n------------------------------------------";
-  }
-  tkDetMap_=edm::Service<TkDetMap>().operator->();
-
 }
 //
 // --  Destructor
@@ -63,7 +53,7 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
     dqm_store->cd();
     std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqm_store, "SiStrip", strip_dir); 
-    if (strip_dir.size() == 0) strip_dir = "SiStrip";
+    if (strip_dir.empty()) strip_dir = "SiStrip";
 
     // Non Standard Plots and should be put outside EventInfo folder
 
@@ -216,6 +206,10 @@ void SiStripQualityChecker::resetStatus() {
 void SiStripQualityChecker::fillStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling, const edm::EventSetup& eSetup) {
   if (!bookedStripStatus_) bookStatus(dqm_store);
 
+  edm::ESHandle<TkDetMap> tkMapHandle;
+  eSetup.get<TrackerTopologyRcd>().get(tkMapHandle);
+  tkDetMap_ = tkMapHandle.product();
+
   fillDummyStatus();
   fillDetectorStatus(dqm_store, cabling);
 
@@ -299,7 +293,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
       if (!me) continue;
       std::vector<QReport *> reports = me->getQReports();
 
-      if (reports.size() == 0) continue;
+      if (reports.empty()) continue;
       std::string name = me->getName();
       
       if( name.find("Summary_ClusterStoNCorr__OnTrack") != std::string::npos){
@@ -368,11 +362,11 @@ void SiStripQualityChecker::printStatusReport() {
     
 
     SiStripUtility::getMEValue(local_mes.DetFraction, sval); 
-    if (sval.size() > 0) fval1 = atof(sval.c_str());
+    if (!sval.empty()) fval1 = atof(sval.c_str());
     SiStripUtility::getMEValue(local_mes.SToNFlag, sval); 
-    if (sval.size() > 0) fval2 = atof(sval.c_str());
+    if (!sval.empty()) fval2 = atof(sval.c_str());
     SiStripUtility::getMEValue(local_mes.SummaryFlag, sval); 
-    if (sval.size() > 0) fval3 = atof(sval.c_str());
+    if (!sval.empty()) fval3 = atof(sval.c_str());
 
     det_summary_str << std::setw(7) << " % of good detectors " << fval1
 		    << " SToN Flag           " << fval2
@@ -391,7 +385,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
     MonitorElement * me = (*it);
     if (!me) continue;
     std::vector<QReport *> qreports = me->getQReports();
-    if (qreports.size() == 0) continue;
+    if (qreports.empty()) continue;
     std::string name = me->getName();
     std::vector<DQMChannel>  bad_channels_me;
     if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
@@ -420,7 +414,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
 	std::ostringstream detid_str;  
 	detid_str << detId;  
 	//now in the layer/wheel dir  
-	std::string currentdir = dqm_store->pwd();  
+	const std::string& currentdir = dqm_store->pwd();  
 	std::string thisMEpath = currentdir.substr( 0 , currentdir.rfind( "/" ) ) + "/BadModuleList/" + detid_str.str() ;  
 	
 	MonitorElement *meBadModule = dqm_store->get ( thisMEpath );  
@@ -469,7 +463,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
 // -- Create Monitor Elements for Modules
 //
 void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store, const edm::EventSetup& eSetup) {
-  if (badModuleList.size() == 0) return;
+  if (badModuleList.empty()) return;
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;

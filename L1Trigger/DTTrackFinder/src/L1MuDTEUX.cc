@@ -51,7 +51,7 @@ using namespace std;
 L1MuDTEUX::L1MuDTEUX(const L1MuDTSectorProcessor& sp, const L1MuDTSEU& seu, int id) : 
     m_sp(sp), m_seu(seu), m_id(id), 
     m_result(false), m_quality(0), m_address(15),
-    m_start(0), m_target(0), 
+    m_start(nullptr), m_target(nullptr), 
     theExtFilter(sp.tf().config()->getExtTSFilter()),
     nbit_phi(sp.tf().config()->getNbitsExtPhi()),
     nbit_phib(sp.tf().config()->getNbitsExtPhib())
@@ -97,7 +97,7 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
   if ( debug4 ) cout << "start :  " << *m_start  << endl;
   if ( debug4 ) cout << "target : " << *m_target << endl;
 
-  if ( m_start == 0 || m_target == 0 ) { 
+  if ( m_start == nullptr || m_target == nullptr ) { 
     if ( debug4 ) cout << "Error: EUX has no data loaded" << endl;
     return;
   }
@@ -215,8 +215,8 @@ void L1MuDTEUX::reset() {
   m_quality = 0;
   m_address = 15;
 
-  m_start  = 0;
-  m_target = 0;
+  m_start  = nullptr;
+  m_target = nullptr;
 
 }
 

@@ -3,7 +3,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include <algorithm> // for "max"
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 
 
@@ -108,7 +108,7 @@ namespace ZdcSimpleRecAlgoImpl {
       } else {
          time = (AvgTSPos*25.0);
       }
-      if (corr!=0) {
+      if (corr!=nullptr) {
       	// Apply phase-based amplitude correction:
 	       ampl *= corr->getCorrection(fc_ampl);     
       }
@@ -218,7 +218,7 @@ namespace ZdcSimpleRecAlgoImpl {
       } else {
          time = (AvgTSPos*25.0);
       }
-      if (corr!=0) {
+      if (corr!=nullptr) {
 	// Apply phase-based amplitude correction:
 	       ampl *= corr->getCorrection(fc_ampl);     
       }
@@ -232,12 +232,12 @@ ZDCRecHit ZdcSimpleRecAlgo::reconstruct(const ZDCDataFrame& digi, const std::vec
   if(recoMethod_ == 1)
    return ZdcSimpleRecAlgoImpl::reco1<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
 							      myNoiseTS,mySignalTS,lowGainOffset_,lowGainFrac_,false,
-							      0,
+							      nullptr,
 							      HcalTimeSlew::Fast);
   if(recoMethod_ == 2)
    return ZdcSimpleRecAlgoImpl::reco2<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
 							      myNoiseTS,mySignalTS,lowGainOffset_,lowGainFrac_,false,
-							      0,HcalTimeSlew::Fast);
+							      nullptr,HcalTimeSlew::Fast);
 
      edm::LogError("ZDCSimpleRecAlgoImpl::reconstruct, recoMethod was not declared");
      throw cms::Exception("ZDCSimpleRecoAlgos::exiting process");

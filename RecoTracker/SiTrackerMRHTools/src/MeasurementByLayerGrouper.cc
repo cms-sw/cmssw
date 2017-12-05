@@ -22,7 +22,7 @@ vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLaye
 		do {ipart++;}
     		while(ipart != vtm.end() && 
 	  		getDetLayer(*start)==getDetLayer(*ipart) &&
-			getDetLayer(*start) != 0  //the returned pointer will be 0 in case
+			getDetLayer(*start) != nullptr  //the returned pointer will be 0 in case
                                                   //the measurement contains an invalid hit with no associated detid.
 						  //This kind of hits are at most one per layer.
 						  //this last condition avoids that 2 consecutive measurements of this kind
@@ -56,16 +56,16 @@ const DetLayer* MeasurementByLayerGrouper::getDetLayer(const TM& tm) const {
 	//returns 0 for the moment
 	//to be revisited
 	
-        if (tm.recHit()->det()==0){
+        if (tm.recHit()->det()==nullptr){
 	  LogDebug("MeasurementByLayerGrouper") <<"This hit has no geomdet associated skipping... ";
-		return 0;
+		return nullptr;
         }
 
 	//now the cases in which the detid is set
 
 	if (!theGeomSearch) {
 		throw cms::Exception("MeasurementByLayerGrouper") << "Impossible to retrieve the det layer because it's not set in the TM and the pointer to the GeometricSearchTracker is 0 ";
-		return 0;	
+		return nullptr;	
 	}
 
 	return theGeomSearch->detLayer(tm.recHit()->det()->geographicalId());

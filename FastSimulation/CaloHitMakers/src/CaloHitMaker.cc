@@ -8,7 +8,7 @@
 typedef ROOT::Math::Plane3D::Point Point;
 
 CaloHitMaker::CaloHitMaker(const CaloGeometryHelper * theCalo,DetId::Detector basedet,int subdetn,int cal,unsigned sht)
-  :myCalorimeter(theCalo),theCaloProperties(NULL),base_(basedet),subdetn_(subdetn),onCal_(cal),showerType_(sht)
+  :myCalorimeter(theCalo),theCaloProperties(nullptr),base_(basedet),subdetn_(subdetn),onCal_(cal),showerType_(sht)
 {
   //  std::cout << " FamosCalorimeter " << basedet << " " << cal << std::endl;
   EMSHOWER=(sht==0);

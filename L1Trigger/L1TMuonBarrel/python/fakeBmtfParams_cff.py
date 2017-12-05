@@ -44,7 +44,7 @@ fakeBmtfParams = cms.ESProducer('L1TMuonBarrelParamsESProducer',
     mask_phtf_st3        = cms.vstring(maskenable,  maskenable, maskenable, maskenable, maskenable, maskenable, maskenable),
     mask_phtf_st4        = cms.vstring(maskenable,  maskenable, maskenable, maskenable, maskenable, maskenable, maskenable),
 
-    mask_ettf_st1        = cms.vstring(maskdisable, maskenable, maskenable, maskenable, maskenable, maskenable, maskdisable),
+    mask_ettf_st1        = cms.vstring(maskenable, maskenable, maskenable, maskenable, maskenable, maskenable, maskenable),
     mask_ettf_st2        = cms.vstring(maskenable,  maskenable, maskenable, maskenable, maskenable, maskenable, maskenable),
     mask_ettf_st3        = cms.vstring(maskenable,  maskenable, maskenable, maskenable, maskenable, maskenable, maskenable)
 
