@@ -252,6 +252,7 @@ steps['RunSingleMu2016E']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2016E-v2/RA
 steps['RunSinglePh2016E']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016E-v2/RAW',label='sigPh2016E',events=100000,location='STD', ls=Run2016E)}
 steps['RunZeroBias2016E']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016E-v2/RAW',label='zb2016E',events=100000,location='STD', ls=Run2016E)}
 steps['RunMuOnia2016E']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016E-v2/RAW',label='muOnia2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunJetHT2016E_reminiaod']={'INPUT':InputInfo(dataSet='/JetHT/Run2016E-18Apr2017-v1/AOD',label='reminiaod_jetHT2016E',events=100000,location='STD', ls=Run2016E)}
 
 #### run2 2016H ####
 Run2016H={283877: [[1, 45]]}
@@ -450,6 +451,8 @@ steps['QCD_FlatPt_15_3000INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_1
 
 steps['QCD_FlatPt_15_3000HSINPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000HS/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['TTbar__DIGIPU1INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_2_2-PU_START52_V4_special_120326-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
+# INPUT command for reminiAOD wf on 80X relval input
+steps['TTbar_13_reminiaodINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_8_0_21-80X_mcRun2_asymptotic_2016_TrancheIV_v6_Tr4GT_v6-v1/GEN-SIM-RECO',label='reminiaod',location='STD')}
 
 # 13 TeV recycle GEN-SIM input
 steps['MinBias_13INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -1712,6 +1715,8 @@ steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvesting',
 
 steps['HARVESTDCRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['HARVESTDC']])
 
+steps['HARVESTDR2_REMINIAOD_data2016']=merge([{'--data':'', '-s':'HARVESTING:@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTDR2']])
+
 steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:run1_data',
                    '--filetype':'DQM',
@@ -1812,6 +1817,8 @@ steps['HARVESTUP15_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidat
 steps['HARVESTUP17']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017'},steps['HARVESTUP15']])
 steps['HARVESTUP17_PU25']=steps['HARVESTUP17']
 
+steps['HARVESTDR2_REMINIAOD_mc2016']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTUP15']])
+
 # for Run1 PPb data workflow
 steps['HARVEST_PPbData']=merge([{'--conditions':'auto:run1_data','-s':'HARVESTING:dqmHarvesting','--scenario':'pp','--era':'Run1_pA' }, steps['HARVESTDHI']])
 
@@ -1893,11 +1900,20 @@ stepMiniAODDataUP15 = merge([{'--conditions'   : 'auto:run1_data',
                           '--filein'       :'file:step3.root'
                           },stepMiniAODDefaults])
 
+steps['REMINIAOD_data2016'] = merge([{'-s' : 'PAT,DQM:@miniAODDQM',
+                                      '--process' : 'PAT',
+                                      '--era' :  'Run2_2016,run2_miniAOD_80XLegacy',
+                                      '--conditions' : 'auto:run2_data_relval',
+                                      '--data' : '',
+                                      '--scenario' : 'pp',
+                                      '--eventcontent' : 'MINIAOD,DQM',
+                                      '--datatier' : 'MINIAOD,DQMIO'
+                                      },stepMiniAODDefaults])
+
 # Not sure whether the customisations are in the dict as "--customise" or "--era" so try to
 # remove both. Currently premixing uses "--customise" and everything else uses "--era".
 try : stepMiniAODData = remove(stepMiniAODDataUP15,'--era')
 except : stepMiniAODData = remove(stepMiniAODDataUP15,'--customise')
-
 
 stepMiniAODMC = merge([{'--conditions'   : 'auto:run2_mc',
                         '--mc'           : '',
@@ -1906,6 +1922,17 @@ stepMiniAODMC = merge([{'--conditions'   : 'auto:run2_mc',
                         '--eventcontent' : 'MINIAODSIM',
                         '--filein'       :'file:step3.root'
                         },stepMiniAODDefaults])
+
+steps['REMINIAOD_mc2016'] = merge([{'-s' : 'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
+                                    '--process' : 'PAT',
+                                    '--era' :  'Run2_2016,run2_miniAOD_80XLegacy',
+                                    '--conditions' : 'auto:run2_mc',
+                                    '--mc' : '',
+                                    '--scenario' : 'pp',
+                                    '--eventcontent' : 'MINIAODSIM,DQM',
+                                    '--datatier' : 'MINIAODSIM,DQMIO'
+                                    },stepMiniAODDefaults])
+
 
 #steps['MINIAODDATA']       =merge([stepMiniAODData])
 #steps['MINIAODDreHLT']     =merge([{'--conditions':'auto:run1_data_%s'%menu},stepMiniAODData])
