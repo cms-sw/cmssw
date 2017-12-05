@@ -82,7 +82,7 @@ TMVA::IMethod* reco::details::loadTMVAWeights(TMVA::Reader* reader, const std::s
     std::string weight_file_name(tmpFilename);
     weight_file_name += ".xml";
     FILE *theActualFile = fopen(weight_file_name.c_str(), "w");
-    if (theActualFile != NULL) {
+    if (theActualFile != nullptr) {
       // write xml
       fputs(c, theActualFile);
       fputs("\n", theActualFile);
