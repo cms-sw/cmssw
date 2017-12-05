@@ -71,7 +71,7 @@ process.mix.input.fileNames     = cms.untracked.vstring('file:MBias_100_TkOnly.r
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.RandomNumberGeneratorService.generator.initialSeed      = 20
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed     = 2
