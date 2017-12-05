@@ -69,31 +69,31 @@ static const GlobalPoint notFound(0,0,0);
 const GlobalPoint& 
 CaloGeometry::getPosition( const DetId& id ) {
   CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)getSubdetectorGeometry( id ) ;
-   if (geom) {
-     auto cell = (geom->getGeometry(id));
-     return (cell->getPosition());
-   } else {
-     return notFound;
-   }
+  if (geom) {
+    const auto cell = (geom->getGeometry(id));
+    return (cell->getPosition());
+  } else {
+    return notFound;
+  }
 }
 
-std::shared_ptr<CaloCellGeometry>
+const std::shared_ptr<CaloCellGeometry>
 CaloGeometry::getGeometry( const DetId& id ) 
 {
   CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)(getSubdetectorGeometry(id)) ;
-   if (geom) {
-     auto cell = (geom->getGeometry(id));
-     return cell;
-   } else {
-     return std::shared_ptr<CaloCellGeometry>();
-   }
+  if (geom) {
+    const auto cell = (geom->getGeometry(id));
+    return cell;
+  } else {
+    return std::shared_ptr<CaloCellGeometry>();
+  }
 }
 
 bool 
 CaloGeometry::present( const DetId& id ) 
 {
   CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)(getSubdetectorGeometry(id)) ;
-   return ( nullptr == geom ? false : geom->present( id ) ) ;
+  return ( nullptr == geom ? false : geom->present( id ) ) ;
 }
 
 std::vector<DetId> CaloGeometry::getValidDetIds() const
