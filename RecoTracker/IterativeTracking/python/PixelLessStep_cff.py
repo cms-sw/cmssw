@@ -283,12 +283,7 @@ pixelLessStep = ClassifierMerger.clone()
 pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassifier2']
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
-     qualityCuts = [-0.4,0.0,0.4],
-))
-trackingPhase1QuadProp.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
      qualityCuts = [-0.4,0.0,0.4],
 ))
