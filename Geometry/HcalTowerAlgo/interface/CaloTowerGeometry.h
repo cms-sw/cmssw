@@ -65,19 +65,19 @@ public:
 		const CCGFloat*    parm,
 		const DetId&       detId     ) override ;
 				
-  std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) override {
+  std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const override {
     return cellGeomPtr( cttopo->denseIndex(id) ) ;
   }
 
   void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
 		   CaloSubdetectorGeometry::IVec&   iVector,
 		   CaloSubdetectorGeometry::DimVec& dimVector,
-		   CaloSubdetectorGeometry::IVec& dinsVector ) override ;
+		   CaloSubdetectorGeometry::IVec& dinsVector ) const override ;
 
 protected:
 
   //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
-  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) override ;
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) const override ;
   unsigned int indexFor(const DetId& id) const override { return  cttopo->denseIndex(id); }
   unsigned int sizeForDenseIndex(const DetId& id) const override { return cttopo->sizeForDenseIndexing(); }
 

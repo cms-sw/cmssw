@@ -60,14 +60,14 @@ public:
 	       const DetId&       detId) override;
   
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) override;
+  std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) const override;
 
   void getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 		  CaloSubdetectorGeometry::IVec&   iVector,
 		  CaloSubdetectorGeometry::DimVec& dimVector,
-		  CaloSubdetectorGeometry::IVec& dinsVector ) override;
+		  CaloSubdetectorGeometry::IVec& dinsVector ) const override;
   
-  GlobalPoint getPosition(const DetId& id);
+  GlobalPoint getPosition(const DetId& id) const;
       
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners(const DetId& id) const; 
@@ -77,7 +77,7 @@ public:
   const std::vector<DetId>& getValidGeomDetIds( void ) const { return m_validGeomIds; }
 					       
   // Get closest cell, etc...
-  DetId getClosestCell(const GlobalPoint& r) override;
+  DetId getClosestCell(const GlobalPoint& r) const override;
   
   /** \brief Get a list of all cells within a dR of the given cell
       
@@ -85,7 +85,7 @@ public:
       Cleverer implementations are suggested to use rough conversions between
       eta/phi and ieta/iphi and test on the boundaries.
   */
-  DetIdSet getCells(const GlobalPoint& r, double dR) override;
+  DetIdSet getCells(const GlobalPoint& r, double dR) const override;
   
   virtual void fillNamedParams (DDFilteredView fv);
   void initializeParms() override;
@@ -103,13 +103,13 @@ protected:
   unsigned int sizeForDenseIndex() const;
   
   // const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
-  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) const override;
   
   void addValidID(const DetId& id);
   
 private:
 
-  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p);
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p) const;
 
   const FastTimeTopology& m_topology;
   

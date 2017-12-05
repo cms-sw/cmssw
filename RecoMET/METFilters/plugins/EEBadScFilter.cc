@@ -95,7 +95,7 @@ void EEBadScFilter::scan5x5(const DetId & det, const edm::Handle<EcalRecHitColle
   // navigator to define a 5x5 region around the input DetId
 
   CaloNavigator<DetId> cursor = CaloNavigator<DetId>(det,caloTopo->getSubdetectorTopology(det));
-  CaloGeometry* geo = const_cast<CaloGeometry*>(geometry.product());
+  const CaloGeometry* geo = (geometry.product());
 
   // loop over a 5x5 array centered on the input DetId
 

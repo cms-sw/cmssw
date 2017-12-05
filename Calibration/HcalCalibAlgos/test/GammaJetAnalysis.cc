@@ -586,10 +586,10 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // Get geometry
     edm::ESHandle<CaloGeometry> geoHandle;
     evSetup.get<CaloGeometryRecord>().get(geoHandle);
-    HcalGeometry *HBGeom = (HcalGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Hcal, 1));
-    HcalGeometry *HEGeom = (HcalGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Hcal, 2));
-    HcalGeometry *HOGeom = (HcalGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Hcal, 3));
-    HcalGeometry *HFGeom = (HcalGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Hcal, 4));
+    const HcalGeometry *HBGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 1));
+    const HcalGeometry *HEGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 2));
+    const HcalGeometry *HOGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 3));
+   const  HcalGeometry *HFGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 4));
 
     HERE("work");
 

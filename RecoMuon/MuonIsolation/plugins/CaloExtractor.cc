@@ -43,7 +43,7 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
 
   edm::ESHandle<CaloGeometry> caloGeomH;
   eventSetup.get<CaloGeometryRecord>().get(caloGeomH);
-  CaloGeometry* caloGeom = const_cast<CaloGeometry*>(caloGeomH.product());
+  const CaloGeometry* caloGeom = (caloGeomH.product());
 
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);
@@ -100,7 +100,7 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
 
   edm::ESHandle<CaloGeometry> caloGeomH;
   eventSetup.get<CaloGeometryRecord>().get(caloGeomH);
-  CaloGeometry* caloGeom = const_cast<CaloGeometry*>(caloGeomH.product());
+  const CaloGeometry* caloGeom = (caloGeomH.product());
 
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);

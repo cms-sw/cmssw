@@ -372,7 +372,7 @@ void EcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
       if (deta <= 1 && dphi <= 1 && dz < 1) e9 += (it.second).energy;
       if (deta <= 2 && dphi <= 2 && dz < 1) {
 	e25 += (it.second).energy;
-	GlobalPoint gpos = (const_cast<CaloGeometry*>(geometry_))->getGeometry(id)->getPosition();
+	GlobalPoint gpos = geometry_->getGeometry(id)->getPosition();
 	math::XYZVector pos(gpos.x(),gpos.y(),gpos.z());
 	meanPosition += (it.second).energy * pos;
 	position.push_back(pos); energy.push_back((it.second).energy);

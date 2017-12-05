@@ -81,10 +81,10 @@ namespace spr{
     GlobalPoint core;
     if (det.subdetId() == EcalEndcap) {
       EEDetId EEid = EEDetId(det);
-      core = (const_cast<CaloGeometry*>(geo))->getPosition(EEid);
+      core = geo->getPosition(EEid);
     } else {
       EBDetId EBid = EBDetId(det);
-      core = (const_cast<CaloGeometry*>(geo))->getPosition(EBid);
+      core = geo->getPosition(EBid);
     }
     int ietaphi = (int)(dR/2.0)+1;
     std::vector<DetId> vdets, vdetx;
@@ -94,10 +94,10 @@ namespace spr{
       GlobalPoint rpoint;
       if (vdets[i].subdetId() == EcalEndcap) {
 	EEDetId EEid = EEDetId(vdets[i]);
-	rpoint = (const_cast<CaloGeometry*>(geo))->getPosition(EEid);
+	rpoint = geo->getPosition(EEid);
       } else {
 	EBDetId EBid = EBDetId(vdets[i]);
-	rpoint = (const_cast<CaloGeometry*>(geo))->getPosition(EBid);
+	rpoint = geo->getPosition(EBid);
       }
       if (spr::getDistInPlaneTrackDir(core, trackMom, rpoint)<dR) {
 	vdetx.push_back(vdets[i]);

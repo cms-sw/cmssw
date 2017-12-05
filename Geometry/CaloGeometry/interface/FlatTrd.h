@@ -71,9 +71,9 @@ public:
   
   void getTransform( Tr3D& tr, Pt3DVec* lptr ) const override;
 
-  void setPosition ( const GlobalPoint& p ) { m_global = m_refPoint = p; }
-  void setBackPoint( const GlobalPoint& p ) { m_backPoint = p; }
-  void setCorners  ( const CornersVec& cor ) { m_corners = cor; }
+  void setPosition ( const GlobalPoint& p ) { m_global = p;  setRefPoint(p); }
+  void setBackPoint( const GlobalPoint& p ) { setBackPoint(p); }
+  void setCorners  ( const CornersVec& cor ) { setCornerVec(cor); }
 
 private:
 

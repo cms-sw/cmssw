@@ -83,7 +83,7 @@ HcalDDDGeometry::getValidDetIds(DetId::Detector det,
 }
 
 DetId
-HcalDDDGeometry::getClosestCell(const GlobalPoint& r) {
+HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
   constexpr double twopi = M_PI+M_PI;
   constexpr double deg   = M_PI/180.;
 
@@ -219,7 +219,7 @@ HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
   m_validIds.emplace_back(detId);
 }
 
-std::shared_ptr<const CaloCellGeometry> HcalDDDGeometry::cellGeomPtr( unsigned int din ) {
+std::shared_ptr<const CaloCellGeometry> HcalDDDGeometry::cellGeomPtr( unsigned int din ) const {
   static const auto do_not_delete = [](const void*){};
   std::shared_ptr<const CaloCellGeometry> cell ( nullptr ) ;
   if (m_hbCellVec.size() > din) {

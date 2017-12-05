@@ -32,11 +32,11 @@ float EgammaHLTHcalIsolationDoubleCone::isolPtSum(const reco::RecoCandidate* rec
   float exclusionSquared= exclusion*exclusion;
 
   for(HBHERecHitCollection::const_iterator hbheItr = hbhe->begin(); hbheItr != hbhe->end(); ++hbheItr){
-    double HcalHit_eta=(const_cast<CaloGeometry*>(geometry))->getPosition(hbheItr->id()).eta(); //Attention getpos
+    double HcalHit_eta=geometry->getPosition(hbheItr->id()).eta(); //Attention getpos
     if(fabs(HcalHit_eta-candSCeta)<conesize) {
       float HcalHit_pth=hbheItr->energy()*sin(2*atan(exp(-HcalHit_eta)));
       if(HcalHit_pth>ptMin) {
-	double HcalHit_phi=(const_cast<CaloGeometry*>(geometry))->getPosition(hbheItr->id()).phi();
+	double HcalHit_phi=geometry->getPosition(hbheItr->id()).phi();
 	float deltaeta=fabs(HcalHit_eta-candSCeta);
 	if(HcalHit_phi<0) HcalHit_phi+=TWOPI;
 	float deltaphi=fabs(HcalHit_phi-candSCphi);
@@ -49,11 +49,11 @@ float EgammaHLTHcalIsolationDoubleCone::isolPtSum(const reco::RecoCandidate* rec
   }
 
   for(HFRecHitCollection::const_iterator hfItr = hf->begin(); hfItr != hf->end(); ++hfItr){
-    double HcalHit_eta=(const_cast<CaloGeometry*>(geometry))->getPosition(hfItr->id()).eta(); //Attention getpos
+    double HcalHit_eta=geometry->getPosition(hfItr->id()).eta(); //Attention getpos
     if(fabs(HcalHit_eta-candSCeta)<conesize) {
       float HcalHit_pth=hfItr->energy()*sin(2*atan(exp(-HcalHit_eta)));
       if(HcalHit_pth>ptMin) {
-	double HcalHit_phi=(const_cast<CaloGeometry*>(geometry))->getPosition(hfItr->id()).phi();
+	double HcalHit_phi=geometry->getPosition(hfItr->id()).phi();
 	float deltaeta=fabs(HcalHit_eta-candSCeta);
 	float deltaphi;
 	if(HcalHit_phi<0) HcalHit_phi+=TWOPI;

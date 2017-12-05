@@ -65,7 +65,7 @@ private:
   void fillDigiInfo();
   void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
   template<class T1, class T2> 
-  void digiValidation(const T1& detId, T2* geom, int, uint16_t, double);
+  void digiValidation(const T1& detId, const T2* geom, int, uint16_t, double);
   
   // ----------member data ---------------------------
   std::string       nameDetector_;

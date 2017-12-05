@@ -604,8 +604,8 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
       
       if (cell.subdet() == sdHcalBrl) {
 	
-	HcalGeometry* cellGeometry = 
-	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 //	const CaloCellGeometry* cellGeometry =
 //	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition(cell).eta () ;
@@ -621,8 +621,8 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	
       if (cell.subdet() == sdHcalEC) {
 	
-	HcalGeometry* cellGeometry = 
-	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 //	const CaloCellGeometry* cellGeometry =
 //	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition(cell).eta () ;
@@ -644,8 +644,8 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	++iHB;
 
-	HcalGeometry* cellGeometry = 
-	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 //	const CaloCellGeometry* cellGeometry =
 //	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition(cell).eta () ;
@@ -666,8 +666,8 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	++iHE;
 
-	HcalGeometry* cellGeometry = 
-	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 //	const CaloCellGeometry* cellGeometry =
 //	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition(cell).eta () ;

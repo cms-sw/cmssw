@@ -65,7 +65,7 @@ void PileUpSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::EventSetup
   if(geo_ == nullptr) {
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
-    geo_ = const_cast<CaloGeometry*>(pG.product());
+    geo_ = (pG.product());
     std::vector<DetId> alldid =  geo_->getValidDetIds();
 
     int ietaold = -10000;

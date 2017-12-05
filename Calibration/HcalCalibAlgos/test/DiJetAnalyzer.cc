@@ -86,10 +86,10 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
   // Get geometry
   edm::ESHandle<CaloGeometry> geoHandle;
   evSetup.get<CaloGeometryRecord>().get(geoHandle);
-  HcalGeometry *HBGeom = (HcalGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Hcal, 1));
-  HcalGeometry *HEGeom = (HcalGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Hcal, 2));
-  CaloSubdetectorGeometry *HOGeom = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Hcal, 3));
-  CaloSubdetectorGeometry *HFGeom = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Hcal, 4));
+  const HcalGeometry *HBGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 1));
+  const HcalGeometry *HEGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 2));
+  const CaloSubdetectorGeometry *HOGeom = (geoHandle->getSubdetectorGeometry(DetId::Hcal, 3));
+  const CaloSubdetectorGeometry *HFGeom = (geoHandle->getSubdetectorGeometry(DetId::Hcal, 4));
   
   int HBHE_n = 0;
   for(edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>::const_iterator ith=hbhereco->begin(); ith!=hbhereco->end(); ++ith){

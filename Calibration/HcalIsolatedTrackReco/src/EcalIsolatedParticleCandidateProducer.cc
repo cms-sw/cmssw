@@ -135,7 +135,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::StreamID, edm::Event& iEvent
 //	std::cout<<" loops over rechits"<<std::endl;
     for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++) {
       double phiD, R;
-      const GlobalPoint& pos = (const_cast<CaloGeometry*>(geo))->getPosition(eItr->detid());
+      const GlobalPoint& pos = geo->getPosition(eItr->detid());
       double phihit = pos.phi();
       double etahit = pos.eta();
       phiD=fabs(phihit-tit->phi());
@@ -160,7 +160,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::StreamID, edm::Event& iEvent
     
     for (EcalRecHitCollection::const_iterator eItr=ecalEE->begin(); eItr!=ecalEE->end(); eItr++)  {
       double phiD, R;
-      const GlobalPoint& pos = (const_cast<CaloGeometry*>(geo))->getPosition(eItr->detid());
+      const GlobalPoint& pos = geo->getPosition(eItr->detid());
       double phihit = pos.phi();
       double etahit = pos.eta();
       phiD=fabs(phihit-tit->phi());

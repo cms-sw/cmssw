@@ -143,9 +143,9 @@ protected:
 
   virtual void initCorners(CornersVec&) = 0;
 
-  GlobalPoint         m_refPoint ;
-  GlobalPoint         m_backPoint ;
-  CornersVec          m_corners  ;
+  void setRefPoint  (const GlobalPoint& pos) {m_refPoint  = pos;}
+  void setBackPoint (const GlobalPoint& pos) {m_backPoint = pos;}
+  void setCornerVec (const CornersVec&  cor) {m_corners   = cor;} 
 
 private:
 
@@ -162,6 +162,9 @@ private:
   }
   
 
+  GlobalPoint         m_refPoint ;
+  GlobalPoint         m_backPoint ;
+  CornersVec          m_corners  ;
   const CCGFloat*     m_parms    ;
   RhoEtaPhi m_rep;
   float m_dEta;

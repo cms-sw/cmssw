@@ -54,12 +54,12 @@ public:
 		   CCGFloat z2plus ) ;
   
   // Get closest cell
-  DetId getClosestCell( const GlobalPoint& r ) override;
+  DetId getClosestCell( const GlobalPoint& r ) const override;
 
 
   // Get closest cell in arbitrary plane (1 or 2)
   virtual DetId getClosestCellInPlane( const GlobalPoint& r     ,
-				       int                plane   );
+				       int                plane   ) const;
 
 
   void initializeParms() override;
@@ -90,7 +90,7 @@ public:
   
 
   /// is this detid present in the geometry?
-  bool present( const DetId& id ) override {
+  bool present( const DetId& id ) const override {
     if(id==DetId(0)) return false;
     // not needed???
     auto index = CaloGenericDetId( id ).denseIndex();
@@ -101,7 +101,7 @@ protected:
 
   /// Get the cell geometry of a given detector id.  Should return nulptr if not found.
   //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
-  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) const override;
 
 private:
 

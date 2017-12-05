@@ -249,7 +249,7 @@ EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 {
 	   ////////////////////// FIND ECAL CLUSTER ENERGY
 	   // R-scheme of ECAL CLUSTERIZATION
-	   const GlobalPoint& posH = (const_cast<CaloGeometry*>(geo))->getPosition((*ehit).detid());
+	   const GlobalPoint& posH = geo->getPosition((*ehit).detid());
 	   double phihit = posH.phi();
 	   double etahit = posH.eta();
 	   

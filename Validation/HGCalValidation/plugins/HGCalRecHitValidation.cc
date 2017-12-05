@@ -72,7 +72,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
     edm::ESHandle<CaloGeometry> geom;
     iSetup.get<CaloGeometryRecord>().get(geom);
     if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    CaloGeometry* geom0 = const_cast<CaloGeometry*>(geom.product());
+    const CaloGeometry* geom0 = (geom.product());
 
     if (ifHCAL_) {
       edm::Handle<HBHERecHitCollection> hbhecoll;

@@ -72,7 +72,7 @@ EcalBarrelGeometry::alignmentTransformIndexGlobal( const DetId& /*id*/ )
 }
 // Get closest cell, etc...
 DetId 
-EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) 
+EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 {
 
   // z is the easy one
@@ -300,7 +300,7 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r)
 
 CaloSubdetectorGeometry::DetIdSet 
 EcalBarrelGeometry::getCells( const GlobalPoint& r, 
-			      double             dR ) 
+			      double             dR ) const
 {
    constexpr int maxphi ( EBDetId::MAX_IPHI ) ;
    constexpr int maxeta ( EBDetId::MAX_IETA ) ;
@@ -473,7 +473,7 @@ EcalBarrelGeometry::newCell( const GlobalPoint& f1 ,
 }
 
 CCGFloat 
-EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() 
+EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const
 {
    if(!m_check.load(std::memory_order_acquire))
    {
@@ -494,10 +494,9 @@ EcalBarrelGeometry::avgRadiusXYFrontFaceCenter()
 }
 
 std::shared_ptr<const CaloCellGeometry> 
-EcalBarrelGeometry::cellGeomPtr(uint32_t index) {
+EcalBarrelGeometry::cellGeomPtr(uint32_t index) const {
   if (m_cellVec.size() < index) return nullptr;
   static const auto do_not_delete = [](const void*){};
   auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);
-//std::shared_ptr<CaloCellGeometry> cell = std::shared_ptr<CaloCellGeometry>( new TruncatedPyramid(m_cellVec[ index ]) ) ;
   return ((nullptr == cell->param()) ? nullptr : cell ) ;
 }

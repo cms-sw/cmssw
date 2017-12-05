@@ -41,19 +41,19 @@ CaloSubdetectorGeometry::getValidDetIds( DetId::Detector /*det*/    ,
 }
 
 std::shared_ptr<const CaloCellGeometry> 
-CaloSubdetectorGeometry::getGeometry( const DetId& id ) 
+CaloSubdetectorGeometry::getGeometry( const DetId& id ) const
 {
   return cellGeomPtr(CaloGenericDetId(id).denseIndex());
 }
 
 bool 
-CaloSubdetectorGeometry::present( const DetId& id ) 
+CaloSubdetectorGeometry::present( const DetId& id ) const
 {
    return ( nullptr != getGeometry( id ) ) ;
 }
 
 DetId 
-CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) {
+CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) const {
   const CCGFloat eta ( r.eta() ) ;
   const CCGFloat phi ( r.phi() ) ;
   uint32_t index ( ~0 ) ;
@@ -78,7 +78,7 @@ CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) {
 }
 
 CaloSubdetectorGeometry::DetIdSet 
-CaloSubdetectorGeometry::getCells(const GlobalPoint& r, double dR) {
+CaloSubdetectorGeometry::getCells(const GlobalPoint& r, double dR) const {
    const double dR2 ( dR*dR ) ;
    const double eta ( r.eta() ) ;
    const double phi ( r.phi() ) ;
@@ -112,7 +112,7 @@ CaloSubdetectorGeometry::getCells(const GlobalPoint& r, double dR) {
 }
 
 CaloSubdetectorGeometry::CellSet 
-CaloSubdetectorGeometry::getCellSet( const GlobalPoint& r, double dR ) {
+CaloSubdetectorGeometry::getCellSet( const GlobalPoint& r, double dR ) const {
   // stupid implementation not to be really used...
   DetIdSet ids = getCells(r, dR);
   CellSet cells; cells.reserve(ids.size());
@@ -142,7 +142,7 @@ void
 CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
 				     CaloSubdetectorGeometry::IVec&   iVec ,   
 				     CaloSubdetectorGeometry::DimVec& dVec ,
-				     CaloSubdetectorGeometry::IVec& /*dins*/) {
+				     CaloSubdetectorGeometry::IVec& /*dins*/) const {
   tVec.reserve( m_validIds.size()*numberOfTransformParms() ) ;
   iVec.reserve( numberOfShapes()==1 ? 1 : m_validIds.size() ) ;
   dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
@@ -201,7 +201,7 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
   }
 }
 
-CCGFloat CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) {
+CCGFloat CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const {
   const CaloGenericDetId cgId ( detId ) ;
   
   if(!m_deltaPhi.load(std::memory_order_acquire))  {
@@ -249,7 +249,7 @@ CCGFloat CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) {
 }
 
 CCGFloat 
-CaloSubdetectorGeometry::deltaEta( const DetId& detId ) {
+CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const {
 
   if(!m_deltaEta.load(std::memory_order_acquire)) {
     const uint32_t kSize ( sizeForDenseIndex(detId));

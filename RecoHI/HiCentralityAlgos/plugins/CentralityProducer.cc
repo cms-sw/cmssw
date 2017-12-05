@@ -98,7 +98,7 @@ class CentralityProducer : public edm::EDProducer {
   reco::TrackBase::TrackQuality trackQuality_;
 
   edm::ESHandle<TrackerGeometry> tGeo;
-  CaloGeometry*                  cGeo;
+  const CaloGeometry*            cGeo;
 
 };
 
@@ -186,7 +186,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(produceEcalhits_) {
     edm::ESHandle<CaloGeometry> geoH;
     iSetup.get<CaloGeometryRecord>().get(geoH);
-    cGeo = const_cast<CaloGeometry*>(geoH.product());
+    cGeo = (geoH.product());
   }
 
   auto creco = std::make_unique<Centrality>();

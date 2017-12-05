@@ -447,8 +447,8 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	
 	if(sub != subdet_ && subdet_ != 5) continue; //If we are not looking at all of the subdetectors and the simhit doesn't come from the specific subdetector of interest, then we won't do any thing with it 
 	
-	HcalGeometry* cellGeometry = 
-	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 	//auto cellGeometry = ((CaloSubdetectorGeometry*)
 	//(geometry->getSubdetectorGeometry(cell)))->getGeometry (cell);
 	double etaS = cellGeometry->getPosition(cell).eta () ;
@@ -528,8 +528,8 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
 	
 	HcalDetId cell(j->id());
-	HcalGeometry* cellGeometry = 
-	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 	//      const CaloCellGeometry* cellGeometry =
 	//	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double eta  = cellGeometry->getPosition(cell).eta () ;

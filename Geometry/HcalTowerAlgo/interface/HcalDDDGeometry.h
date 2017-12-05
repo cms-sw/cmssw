@@ -32,7 +32,7 @@ public:
   const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ) , 
 						    int             subdet = 0   ) const override;
 
-  DetId getClosestCell(const GlobalPoint& r) override ;
+  DetId getClosestCell(const GlobalPoint& r) const override ;
 
   int insertCell (std::vector<HcalCellType> const & );
 
@@ -45,7 +45,7 @@ public:
 protected:
 
   //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
-  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) override ;
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) const override ;
 
 private:
 

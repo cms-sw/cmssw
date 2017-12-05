@@ -62,7 +62,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       DetId id = DetId(hit->id()); 
 
       // Get EB geometry 
-      CaloSubdetectorGeometry* TheSubGeometry = const_cast<CaloSubdetectorGeometry*>(TheCaloGeometry.getSubdetectorGeometry(DetId::Ecal, 1));                                                         
+      const CaloSubdetectorGeometry* TheSubGeometry = (TheCaloGeometry.getSubdetectorGeometry(DetId::Ecal, 1));                                                         
       EBDetId EcalID(id.rawId());
       auto cell = (TheSubGeometry) ? (TheSubGeometry->getGeometry(id)) : nullptr;
   
@@ -526,7 +526,7 @@ bool EcalHaloAlgo::EEClusterShapeandTimeStudy_ITBH(HaloClusterCandidateECAL hcan
 
 math::XYZPoint EcalHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
 
-  const GlobalPoint& pos=(const_cast<CaloGeometry*>(geo))->getPosition(id);
+  const GlobalPoint& pos=geo->getPosition(id);
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());
   return posV;
 }

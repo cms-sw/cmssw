@@ -64,16 +64,16 @@ class EcalEndcapGeometry final: public CaloSubdetectorGeometry
 
       void setNumberOfCrystalPerModule( const int nncrys ) { _nncrys=nncrys ; }
 
-      const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id );
+      const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id ) const;
       // Get closest cell, etc...
-      DetId getClosestCell( const GlobalPoint& r ) override ;
+      DetId getClosestCell( const GlobalPoint& r ) const override ;
 
       CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-							  double             dR ) override ;
+							  double             dR ) const override ;
 
       void initializeParms() override ;
 
-      CCGFloat avgAbsZFrontFaceCenter() ; // average over both endcaps. Positive!
+      CCGFloat avgAbsZFrontFaceCenter() const ; // average over both endcaps. Positive!
 
       static std::string hitString() { return "EcalHitsEE" ; }
 
@@ -101,7 +101,7 @@ class EcalEndcapGeometry final: public CaloSubdetectorGeometry
    protected:
 
       //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
-      std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) override ;
+      std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) const override ;
 
    private:
 

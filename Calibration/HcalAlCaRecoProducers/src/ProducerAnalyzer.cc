@@ -85,82 +85,75 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   using namespace edm;
 
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);
-   const CaloGeometry* geo = (pG.product());
+  edm::ESHandle<CaloGeometry> pG;
+  iSetup.get<CaloGeometryRecord>().get(pG);
+  const CaloGeometry* geo = (pG.product());
    
 
   std::vector<StableProvenance const*> theProvenance;
   iEvent.getAllStableProvenance(theProvenance);
-  for(auto const& provenance : theProvenance)
-  {
-     cout<<" Print all module/label names "<<provenance->moduleName()<<" "<<provenance->moduleLabel()<<
-     " "<<provenance->productInstanceName()<<endl;
+  for(auto const& provenance : theProvenance) {
+    std::cout<<" Print all module/label names "<<provenance->moduleName()<<" "<<provenance->moduleLabel()
+	     <<" "<<provenance->productInstanceName()<<std::endl;
   }
   
   
-  if(nameProd_ == "hoCalibProducer")
-  {
-     edm::Handle<HOCalibVariableCollection> ho;
-     iEvent.getByToken(tok_hovar_, ho);
-     const HOCalibVariableCollection Hitho = *(ho.product());
+  if(nameProd_ == "hoCalibProducer") {
+    edm::Handle<HOCalibVariableCollection> ho;
+    iEvent.getByToken(tok_hovar_, ho);
+    const HOCalibVariableCollection Hitho = *(ho.product());
+    std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
+  }
+  
+   if(nameProd_ == "ALCARECOMuAlZMuMu" ) {
+   
+     edm::Handle<HORecHitCollection> ho;
+     iEvent.getByToken(tok_horeco_, ho);
+     const HORecHitCollection Hitho = *(ho.product());
      std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
-  }
-  
-   if(nameProd_ == "ALCARECOMuAlZMuMu" )
-   {
-   
-   edm::Handle<HORecHitCollection> ho;
-   iEvent.getByToken(tok_horeco_, ho);
-   const HORecHitCollection Hitho = *(ho.product());
-   std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
-   edm::Handle<MuonCollection> mucand;
-   iEvent.getByToken(tok_muons_, mucand);
-   std::cout<<" Size of muon collection "<<mucand->size()<<std::endl;
-   for(MuonCollection::const_iterator it =  mucand->begin(); it != mucand->end(); it++)
-   {
-      TrackRef mu = (*it).combinedMuon();
-      std::cout<<" Pt muon "<<mu->innerMomentum()<<std::endl;
-   }
-   
+     edm::Handle<MuonCollection> mucand;
+     iEvent.getByToken(tok_muons_, mucand);
+     std::cout<<" Size of muon collection "<<mucand->size()<<std::endl;
+     for(MuonCollection::const_iterator it =  mucand->begin(); it != mucand->end(); it++)  {
+       TrackRef mu = (*it).combinedMuon();
+       std::cout<<" Pt muon "<<mu->innerMomentum()<<std::endl;
+     }
+     
    }  
   
-   if(nameProd_ != "IsoProd" && nameProd_ != "ALCARECOMuAlZMuMu" && nameProd_ != "hoCalibProducer")
-   {
-   edm::Handle<HBHERecHitCollection> hbhe;
-   iEvent.getByToken(tok_hbhe_, hbhe);
-   const HBHERecHitCollection Hithbhe = *(hbhe.product());
-   std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
+   if(nameProd_ != "IsoProd" && nameProd_ != "ALCARECOMuAlZMuMu" && nameProd_ != "hoCalibProducer") {
+     edm::Handle<HBHERecHitCollection> hbhe;
+     iEvent.getByToken(tok_hbhe_, hbhe);
+     const HBHERecHitCollection Hithbhe = *(hbhe.product());
+     std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
 
 
-   edm::Handle<HORecHitCollection> ho;
-   iEvent.getByToken(tok_ho_, ho);
-   const HORecHitCollection Hitho = *(ho.product());
-   std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
+     edm::Handle<HORecHitCollection> ho;
+     iEvent.getByToken(tok_ho_, ho);
+     const HORecHitCollection Hitho = *(ho.product());
+     std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
 
 
-   edm::Handle<HFRecHitCollection> hf;
-   iEvent.getByToken(tok_hf_, hf);
-   const HFRecHitCollection Hithf = *(hf.product());
-   std::cout<<" Size of HF "<<(Hithf).size()<<std::endl;
+     edm::Handle<HFRecHitCollection> hf;
+     iEvent.getByToken(tok_hf_, hf);
+     const HFRecHitCollection Hithf = *(hf.product());
+     std::cout<<" Size of HF "<<(Hithf).size()<<std::endl;
    }
-   if(nameProd_ == "IsoProd")
-   {
-   cout<<" We are here "<<endl;
-   edm::Handle<reco::TrackCollection> tracks;
-   iEvent.getByToken(tok_tracks_,tracks);
+   if(nameProd_ == "IsoProd") {
+     std::cout<<" We are here "<<std::endl;
+     edm::Handle<reco::TrackCollection> tracks;
+     iEvent.getByToken(tok_tracks_,tracks);
  
    
-   std::cout<<" Tracks size "<<(*tracks).size()<<std::endl;
-   reco::TrackCollection::const_iterator track = tracks->begin ();
+     std::cout<<" Tracks size "<<(*tracks).size()<<std::endl;
+     reco::TrackCollection::const_iterator track = tracks->begin ();
 
-          for (; track != tracks->end (); track++)
-         {
-           cout<<" P track "<<(*track).p()<<" eta "<<(*track).eta()<<" phi "<<(*track).phi()<<" Outer "<<(*track).outerMomentum()<<" "<<
-	   (*track).outerPosition()<<endl;
-	   TrackExtraRef myextra = (*track).extra();
-	   cout<<" Track extra "<<myextra->outerMomentum()<<" "<<myextra->outerPosition()<<endl;
-         }  
+     for (; track != tracks->end (); track++) {
+       std::cout<<" P track "<<(*track).p()<<" eta "<<(*track).eta()<<" phi "<<(*track).phi()<<" Outer "
+		<<(*track).outerMomentum()<<" "<<(*track).outerPosition()<<std::endl;
+       TrackExtraRef myextra = (*track).extra();
+       std::cout<<" Track extra "<<myextra->outerMomentum()<<" "<<myextra->outerPosition()<<std::endl;
+     }  
 
    edm::Handle<EcalRecHitCollection> ecal;
    iEvent.getByToken(tok_ecal_,ecal);
@@ -178,7 +171,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 //	   " eta "<<(*hite).detid()<<" phi "<<(*hite).detid().getPosition().phi()<<endl;
 
-     const GlobalPoint& posE = (const_cast<CaloGeometry*>(geo))->getPosition((*hite).detid());
+     const GlobalPoint& posE = geo->getPosition((*hite).detid());
        
      cout<<" Energy ECAL "<<(*hite).energy()<<
        " eta "<<posE.eta()<<" phi "<<posE.phi()<<endl;
@@ -195,16 +188,16 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    for (; hith != (hbhe.product())->end (); hith++)  {
 
-     GlobalPoint posH = ((HcalGeometry*)((const_cast<CaloGeometry*>(geo))->getSubdetectorGeometry((*hith).detid())))->getPosition((*hith).detid());
+     GlobalPoint posH = (dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry((*hith).detid())))->getPosition((*hith).detid());
      
-     cout<<" Energy HCAL "<<(*hith).energy()<<
-       " eta "<<posH.eta()<<" phi "<<posH.phi()<<endl;
+     std::cout<<" Energy HCAL "<<(*hith).energy()
+	      <<" eta "<<posH.eta()<<" phi "<<posH.phi()<<std::endl;
 
      energyHCAL = energyHCAL + (*hith).energy();
 	 
    }
    
-   cout<<" Energy ECAL "<< energyECAL<<" Energy HCAL "<< energyHCAL<<endl;
+   std::cout<<" Energy ECAL "<< energyECAL<<" Energy HCAL "<< energyHCAL<<std::endl;
    
    edm::Handle<HORecHitCollection> ho;
    iEvent.getByToken(tok_hoProd_,ho);

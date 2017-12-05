@@ -236,7 +236,7 @@ EcalEndcapGeometry::gId( float x,
 
 // Get closest cell, etc...
 DetId 
-EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) 
+EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 {
    try
    {
@@ -349,7 +349,7 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r )
 
 CaloSubdetectorGeometry::DetIdSet 
 EcalEndcapGeometry::getCells( const GlobalPoint& r, 
-			      double             dR ) 
+			      double             dR ) const
 {
    CaloSubdetectorGeometry::DetIdSet dis ; // return object
    if( 0.000001 < dR )
@@ -427,7 +427,7 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
 }
 
 const EcalEndcapGeometry::OrderedListOfEBDetId*
-EcalEndcapGeometry::getClosestBarrelCells( EEDetId id )
+EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
 {
    OrderedListOfEBDetId* ptr ( nullptr ) ;
    auto ptrVec = m_borderPtrVec.load(std::memory_order_acquire);
@@ -497,7 +497,7 @@ EcalEndcapGeometry::newCell( const GlobalPoint& f1 ,
 
 
 CCGFloat 
-EcalEndcapGeometry::avgAbsZFrontFaceCenter() 
+EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
 {
    if(!m_check.load(std::memory_order_acquire))
    {
@@ -517,12 +517,9 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter()
 }
 
 std::shared_ptr<const CaloCellGeometry>  
-EcalEndcapGeometry::cellGeomPtr( uint32_t index ) {
+EcalEndcapGeometry::cellGeomPtr( uint32_t index ) const {
   if (m_cellVec.size() < index) return nullptr;
   static const auto do_not_delete = [](const void*){};
   auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);
-  /*
-  auto cell = std::shared_ptr<CaloCellGeometry>(new TruncatedPyramid(m_cellVec[index])) ;
-  */
   return ((nullptr == cell->param()) ? nullptr : cell) ;
 }

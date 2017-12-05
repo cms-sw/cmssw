@@ -670,7 +670,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 
   if (validHBHE) {
     std::vector<edm::Handle<HBHERecHitCollection> >::iterator ihbhe;
-    CaloGeometry* geo = const_cast<CaloGeometry*>(geometry.product());
+    const CaloGeometry* geo = (geometry.product());
     
     int iHB = 0;
     int iHE = 0; 
@@ -684,8 +684,8 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	
 	if (cell.subdet() == sdHcalBrl) {
 	  
-	  HcalGeometry* cellGeometry = 
-	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	  const HcalGeometry* cellGeometry = 
+	    dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 //	  auto cellGeometry = ((CaloSubdetectorGeometry*)
 //	    (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition(cell).phi () ;
@@ -698,8 +698,8 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
       
 	if (cell.subdet() == sdHcalEC) {
 	  
-	  HcalGeometry* cellGeometry = 
-	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	  const HcalGeometry* cellGeometry = 
+	    dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 //	  auto cellGeometry = ((CaloSubdetectorGeometry*)
 //	    (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition(cell).phi () ;
@@ -719,8 +719,8 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHB;
 	  
-	  HcalGeometry* cellGeometry = 
-	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	  const HcalGeometry* cellGeometry = 
+	    dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 //	  auto cellGeometry = ((CaloSubdetectorGeometry*)
 //	    (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition(cell).phi () ;
@@ -737,8 +737,8 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHE;
 	  
-	  HcalGeometry* cellGeometry = 
-	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	  const HcalGeometry* cellGeometry = 
+	    dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 //	  auto cellGeometry = ((CaloSubdetectorGeometry*)
 //	    (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
 	  double fPhi = cellGeometry->getPosition(cell).phi () ;

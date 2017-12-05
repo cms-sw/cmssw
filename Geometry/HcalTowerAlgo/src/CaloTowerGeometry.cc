@@ -70,8 +70,8 @@ CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
    m_dins.emplace_back( di );
 }
 
-std::shared_ptr<const CaloCellGeometry>
-CaloTowerGeometry::cellGeomPtr( uint32_t index ) {
+std::shared_ptr<const CaloCellGeometry> 
+CaloTowerGeometry::cellGeomPtr( uint32_t index ) const {
   if (m_cellVec.size() < index) return nullptr;
   static const auto do_not_delete = [](const void*){};
   auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);
@@ -82,7 +82,7 @@ void
 CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  tVec,
                               CaloSubdetectorGeometry::IVec&   iVec,
                               CaloSubdetectorGeometry::DimVec& dVec,
-                              CaloSubdetectorGeometry::IVec& dinsVec ) {
+                              CaloSubdetectorGeometry::IVec& dinsVec ) const {
   tVec.reserve( numberOfCellsForCorners()*numberOfTransformParms() ) ;
   iVec.reserve( numberOfShapes()==1 ? 1 : numberOfCellsForCorners() ) ;
   dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;

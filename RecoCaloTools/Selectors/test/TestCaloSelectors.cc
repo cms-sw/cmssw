@@ -27,7 +27,7 @@ void TestCaloSelectors::analyze(const edm::Event& evt, const edm::EventSetup& c)
   evt.getByLabel(inputTag_, hbhe);
   edm::ESHandle<CaloGeometry> pGH;
   c.get<CaloGeometryRecord>().get(pGH);
-  CaloGeometry* pG = const_cast<CaloGeometry*>(pGH.product());
+  const CaloGeometry* pG = (pGH.product());
 
   const HBHERecHitCollection& mhbhe = *hbhe;
 

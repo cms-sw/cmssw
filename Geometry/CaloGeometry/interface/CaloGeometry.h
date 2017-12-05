@@ -32,10 +32,10 @@ class CaloGeometry
 			      const CaloSubdetectorGeometry* geom    ) ;
     
       /// Get the position of a given detector id
-      const GlobalPoint& getPosition( const DetId& id );
+      const GlobalPoint& getPosition( const DetId& id ) const;
 
       /// Get the cell geometry of a given detector id
-      std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) ;
+      std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const;
 
       /// Get the list of all valid detector ids
       std::vector<DetId> getValidDetIds() const ;
@@ -44,7 +44,7 @@ class CaloGeometry
       const std::vector<DetId>& getValidDetIds( DetId::Detector det, int subdet ) const;
 
       /// is this detid present in the geometry?
-      bool present( const DetId& id );
+      bool present( const DetId& id ) const;
 
       /// access the subdetector geometry for the given subdetector directly
       const CaloSubdetectorGeometry* getSubdetectorGeometry( const DetId& id ) const ;

@@ -30,7 +30,7 @@ ZdcGeometry::~ZdcGeometry()
   if( m_ownsTopology ) delete theTopology ;
 }
 /*
-DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) 
+DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
 {
    DetId returnId ( 0 ) ;
    const std::vector<DetId>& detIds ( getValidDetIds() ) ;
@@ -91,7 +91,7 @@ ZdcGeometry::newCell( const GlobalPoint& f1 ,
 }
 
 std::shared_ptr<const CaloCellGeometry>
-ZdcGeometry::cellGeomPtr( uint32_t index ) {
+ZdcGeometry::cellGeomPtr( uint32_t index ) const {
   if (m_cellVec.size() < index) return nullptr;
   static const auto do_not_delete = [](const void*){};
   auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);

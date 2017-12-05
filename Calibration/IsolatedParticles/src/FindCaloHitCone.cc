@@ -20,11 +20,11 @@ namespace spr {
     
       if (j->id().subdetId() == EcalEndcap) {
 	EEDetId EEid = EEDetId(j->id());
-	const GlobalPoint & rechitPoint = (const_cast<CaloGeometry*>(geo))->getPosition(EEid);
+	const GlobalPoint & rechitPoint = geo->getPosition(EEid);
 	if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
       } else if (j->id().subdetId() == EcalBarrel) {
 	EBDetId EBid = EBDetId(j->id());
-	const GlobalPoint & rechitPoint = (const_cast<CaloGeometry*>(geo))->getPosition(EBid);
+	const GlobalPoint & rechitPoint = geo->getPosition(EBid);
 	if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
       }
 
@@ -52,7 +52,7 @@ namespace spr {
 	bool keepHit = false;
 	if (j->id().subdetId() == EcalBarrel) {
 	  EBDetId EBid = EBDetId(j->id());
-	  const GlobalPoint & rechitPoint = (const_cast<CaloGeometry*>(geo))->getPosition(EBid);
+	  const GlobalPoint & rechitPoint = geo->getPosition(EBid);
 	  if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
 	} else {
 	  std::cout << "PROBLEM : Endcap RecHits in Barrel Collection!?" 
@@ -71,7 +71,7 @@ namespace spr {
       
 	if (j->id().subdetId() == EcalEndcap) {
 	  EEDetId EEid = EEDetId(j->id());
-	  const GlobalPoint & rechitPoint = (const_cast<CaloGeometry*>(geo))->getPosition(EEid);
+	  const GlobalPoint & rechitPoint = geo->getPosition(EEid);
 	  if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
 	} else {
 	  std::cout << "PROBLEM : Barrel RecHits in Endcap Collection!?" 
@@ -94,7 +94,7 @@ namespace spr {
 	 j!=hits->end(); j++) {   
       DetId detId(j->id());
       const GlobalPoint rechitPoint = 
-	((HcalGeometry*)(geo->getSubdetectorGeometry(detId)))->getPosition(detId);
+	(dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(detId)))->getPosition(detId);
       if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint, debug) < dR) hit.push_back(j);
     }  
     return hit;
@@ -108,8 +108,7 @@ namespace spr {
     for (ihit=hits->begin(); ihit!=hits->end(); ihit++) {
       DetId detId(ihit->id());
       const GlobalPoint rechitPoint = (detId.det() == DetId::Hcal) ? 
-	((HcalGeometry*)(geo->getSubdetectorGeometry(detId)))->getPosition(detId) : 
-	(const_cast<CaloGeometry*>(geo))->getPosition(detId);
+	(dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(detId)))->getPosition(detId) : geo->getPosition(detId);
       if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint, debug) < dR) {
 	hit.push_back(ihit);
       }

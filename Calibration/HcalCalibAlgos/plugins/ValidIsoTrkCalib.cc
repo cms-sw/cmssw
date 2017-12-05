@@ -295,7 +295,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iSetup.get<CaloGeometryRecord>().get(pG);
   geo = (pG.product());
   
-  HcalGeometry* gHcal = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+  const HcalGeometry* gHcal = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   //Note: even though it says HcalBarrel, we actually get the whole Hcal detector geometry!
 
   // Lumi_n=iEvent.luminosityBlock();
@@ -433,7 +433,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  float recal = 1;
 	  // rof end
 
-	  GlobalPoint pos = (const_cast<CaloGeometry*>(geo))->getPosition(hhit->detid());
+	  GlobalPoint pos = geo->getPosition(hhit->detid());
 	  //float phihit = pos.phi();
 	  //float etahit = pos.eta();
 	  
@@ -555,7 +555,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 
 	  if( abs(DIETA)<=numbercell && (abs(DIPHI)<=numbercell || ( abs(MaxHit.ietahitm)>=20 && abs(DIPHI)<=numbercell+1)) )
 	    {
-	      const GlobalPoint pos2 = (const_cast<CaloGeometry*>(geo))->getPosition(hhit->detid());
+	      const GlobalPoint pos2 = geo->getPosition(hhit->detid());
 
 	      if(passCuts && hhit->energy()>0)
 		{

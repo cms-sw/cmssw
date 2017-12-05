@@ -71,10 +71,10 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf)
     es.get<CaloGeometryRecord > ().get(geometry);
 
     const CaloGeometry* geo = geometry.product();
-    const HcalGeometry* gHB = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
-    const HcalGeometry* gHE = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap));
-    const HcalGeometry* gHO = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalOuter));
-    const HcalGeometry* gHF = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalForward));
+    const HcalGeometry* gHB = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    const HcalGeometry* gHE = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap));
+    const HcalGeometry* gHO = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalOuter));
+    const HcalGeometry* gHF = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalForward));
 
     nChannels_[1] = gHB->getHxSize(1); 
     nChannels_[2] = gHE->getHxSize(2); 
@@ -936,8 +936,8 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     
       for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
 	HcalDetId cell(j->id());
-	HcalGeometry* cellGeometry = 
-	  (HcalGeometry*)(geometry->getSubdetectorGeometry(cell));
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geometry->getSubdetectorGeometry(cell));
 	double eta  = cellGeometry->getPosition(cell).eta () ;
 	double phi  = cellGeometry->getPosition(cell).phi () ;
 	double zc   = cellGeometry->getPosition(cell).z ();

@@ -814,13 +814,13 @@ void CaloTowersCreationAlgo::assignHitEcal(const EcalRecHit * recHit) {
   bool passEmThreshold = false;
   
   if (detId.subdetId() == EcalBarrel) {
-    if (theUseEtEBTresholdFlag) energy /= cosh( ((const_cast<CaloGeometry*>(theGeometry))->getGeometry(detId)->getPosition()).eta() ) ;
+    if (theUseEtEBTresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
     if (theUseSymEBTresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
     else  passEmThreshold = (energy >= threshold);
 
   }
   else if (detId.subdetId() == EcalEndcap) {
-    if (theUseEtEETresholdFlag) energy /= cosh( ((const_cast<CaloGeometry*>(theGeometry))->getGeometry(detId)->getPosition()).eta() ) ;
+    if (theUseEtEETresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
     if (theUseSymEETresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
     else  passEmThreshold = (energy >= threshold);
   }
@@ -1393,16 +1393,16 @@ void CaloTowersCreationAlgo::setHF2EScale(double scale){
 
 
 GlobalPoint CaloTowersCreationAlgo::emCrystalShwrPos(DetId detId, float fracDepth) {
-  auto cellGeometry = (const_cast<CaloGeometry*>(theGeometry))->getGeometry(detId);
-   GlobalPoint point = cellGeometry->getPosition();  // face of the cell
+  auto cellGeometry = theGeometry->getGeometry(detId);
+  GlobalPoint point = cellGeometry->getPosition();  // face of the cell
 
-   if (fracDepth<=0) return point;
-   if (fracDepth>1) fracDepth=1;
+  if (fracDepth<=0) return point;
+  if (fracDepth>1) fracDepth=1;
 
-     const GlobalPoint& backPoint = cellGeometry->getBackPoint();
-     point += fracDepth * (backPoint-point);
+  const GlobalPoint& backPoint = cellGeometry->getBackPoint();
+  point += fracDepth * (backPoint-point);
 
-   return point;
+  return point;
 }
 
 GlobalPoint CaloTowersCreationAlgo::hadSegmentShwrPos(DetId detId, float fracDepth) {
@@ -1543,8 +1543,8 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
 #endif
   }
 
-  auto frontCellGeometry = (const_cast<CaloGeometry*>(theGeometry))->getGeometry(DetId(hid1));
-  auto backCellGeometry  = (const_cast<CaloGeometry*>(theGeometry))->getGeometry(DetId(hid2));
+  auto frontCellGeometry = theGeometry->getGeometry(DetId(hid1));
+  auto backCellGeometry  = theGeometry->getGeometry(DetId(hid2));
 
   GlobalPoint point     = frontCellGeometry->getPosition();
   const GlobalPoint& backPoint = backCellGeometry->getBackPoint();

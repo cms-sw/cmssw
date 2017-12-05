@@ -83,7 +83,7 @@ HcalGeometry::getValidDetIds( DetId::Detector det,
 		 ( HcalForward == subdet ? *m_hfIds.load() : *m_emptyIds.load() ) ) ) ) ) ;
 }
 
-std::shared_ptr<const CaloCellGeometry> HcalGeometry::getGeometry(const DetId& id) {
+std::shared_ptr<const CaloCellGeometry> HcalGeometry::getGeometry(const DetId& id) const {
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalGeometry::getGeometry for " << HcalDetId(id) << "  " 
 	    << m_mergePosition << " ";
@@ -103,7 +103,7 @@ std::shared_ptr<const CaloCellGeometry> HcalGeometry::getGeometry(const DetId& i
   }
 }
 
-DetId HcalGeometry::getClosestCell(const GlobalPoint& r) {
+DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
 
   // Now find the closest eta_bin, eta value of a bin i is average
   // of eta[i] and eta[i-1]
@@ -168,7 +168,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) {
   }
 }
 
-GlobalPoint HcalGeometry::getPosition(const DetId& id) {
+GlobalPoint HcalGeometry::getPosition(const DetId& id) const {
   if (!m_mergePosition) {
     return (getGeometryBase(id)->getPosition());
   } else {
@@ -176,7 +176,7 @@ GlobalPoint HcalGeometry::getPosition(const DetId& id) {
   }
 }
 
-GlobalPoint HcalGeometry::getBackPosition(const DetId& id) {
+GlobalPoint HcalGeometry::getBackPosition(const DetId& id) const {
   if (!m_mergePosition) {
     return (getGeometryBase(id)->getBackPoint());
   } else {
@@ -186,7 +186,7 @@ GlobalPoint HcalGeometry::getBackPosition(const DetId& id) {
   }
 }
 
-CaloCellGeometry::CornersVec HcalGeometry::getCorners(const DetId& id) {
+CaloCellGeometry::CornersVec HcalGeometry::getCorners(const DetId& id) const {
   if (!m_mergePosition) {
     return (getGeometryBase(id)->getCorners());
   } else {
@@ -212,7 +212,7 @@ int HcalGeometry::phiBin(HcalSubdetector bc, int etaring, double phi) const {
 }
 
 CaloSubdetectorGeometry::DetIdSet HcalGeometry::getCells(const GlobalPoint& r, 
-							 double dR ) {
+							 double dR ) const {
   CaloSubdetectorGeometry::DetIdSet dis;  // this is the return object
 
   if (0.000001 < dR) {
@@ -468,7 +468,7 @@ void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
   m_dins.emplace_back( din );
 }
 
-std::shared_ptr<const CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int din ) {
+std::shared_ptr<const CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int din ) const {
   static const auto do_not_delete = [](const void*){};
   std::shared_ptr<const CaloCellGeometry> cell ( nullptr ) ;
   if (m_hbCellVec.size() > din) {
@@ -492,7 +492,7 @@ std::shared_ptr<const CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int 
 void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
 			       CaloSubdetectorGeometry::IVec&   iVec,
 			       CaloSubdetectorGeometry::DimVec& dVec,
-			       CaloSubdetectorGeometry::IVec& dinsVec ) {
+			       CaloSubdetectorGeometry::IVec& dinsVec ) const {
 
   tVec.reserve( m_topology.ncells()*numberOfTransformParms());
   iVec.reserve( numberOfShapes()==1 ? 1 : m_topology.ncells());

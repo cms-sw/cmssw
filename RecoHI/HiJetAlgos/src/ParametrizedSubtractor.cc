@@ -68,7 +68,7 @@ void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::Even
    if(!geo_) {
       edm::ESHandle<CaloGeometry> pG;
       iSetup.get<CaloGeometryRecord>().get(pG);
-      geo_ = const_cast<CaloGeometry*>(pG.product());
+      geo_ = (pG.product());
       std::vector<DetId> alldid =  geo_->getValidDetIds();
       
       int ietaold = -10000;

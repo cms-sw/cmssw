@@ -360,7 +360,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
 	   else
 	     {
 	       Xtals5x5[icry]=tempId;
-	       auto cell=(const_cast<CaloGeometry*>(theTBGeometry_))->getGeometry(Xtals5x5[icry]);
+	       auto cell=theTBGeometry_->getGeometry(Xtals5x5[icry]);
 	       if (!cell) 
 		 continue;
 	       std::cout << "** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry] << " Position " << cell->getPosition(0.) << std::endl;

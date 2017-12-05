@@ -222,7 +222,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     c.get<CaloGeometryRecord>().get(pG);
     geo = (pG.product());
 
-    gHcal = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    gHcal = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
     
     parameters_.useEcal = true;
     parameters_.useHcal = true;
@@ -377,12 +377,12 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       if (abs(etaParticle)<1.392)
 	{
 	  gPointHcal = barrelMC;
-	  tempId = (const_cast<HcalGeometry*>(gHcal))->getClosestCell(gPointHcal);
+	  tempId = gHcal->getClosestCell(gPointHcal);
 	}
       if (abs(etaParticle)>=1.392 && abs(etaParticle)<3.0)  
 	{
 	  gPointHcal = endcapMC;
-	  tempId = (const_cast<HcalGeometry*>(gHcal))->getClosestCell(gPointHcal);
+	  tempId = gHcal->getClosestCell(gPointHcal);
 	}
       if (abs(etaParticle)>=3.0 && abs(etaParticle)<5.191) 
 	{
@@ -395,13 +395,13 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	    else gPointHcal = forwardMC2;
 	  */
 	  gPointHcal = forwardMC1;
-	  tempId = (const_cast<HcalGeometry*>(gHcal))->getClosestCell(gPointHcal);
+	  tempId = gHcal->getClosestCell(gPointHcal);
 	  //tempId = gHcal->CaloSubdetectorGeometry::getClosestCell(gPointHcal);
 	}
 
       
       
-      tempId = (const_cast<HcalGeometry*>(gHcal))->getClosestCell(gPointHcal);
+      tempId = gHcal->getClosestCell(gPointHcal);
     
       ietatrue = tempId.ieta();
       iphitrue = tempId.iphi();
@@ -470,7 +470,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	//for (HcalRecHitCollection::const_iterator hhit=Hithcal.begin(); hhit!=Hithcal.end(); hhit++) 
 	{ 
 	  recal = RecalibFactor(hhit->detid());
-	  GlobalPoint pos = (const_cast<HcalGeometry*>(gHcal))->getPosition(hhit->detid());
+	  GlobalPoint pos = gHcal->getPosition(hhit->detid());
 	  
 	  int iphihit  = (hhit->id()).iphi();
 	  int ietahit  = (hhit->id()).ieta();
@@ -514,7 +514,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  recal = RecalibFactor(hhit->detid());
 	  
-	  GlobalPoint pos = (const_cast<HcalGeometry*>(gHcal))->getPosition(hhit->detid());
+	  GlobalPoint pos = gHcal->getPosition(hhit->detid());
 	  
 	  int iphihit  = (hhit->id()).iphi();
 	  int ietahit  = (hhit->id()).ieta();
@@ -559,7 +559,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  recal = RecalibFactor(hhit->detid());
 	  //cout<<"recal: "<<recal<<endl;
 	  
-	  GlobalPoint pos = (const_cast<HcalGeometry*>(gHcal))->getPosition(hhit->detid());
+	  GlobalPoint pos = gHcal->getPosition(hhit->detid());
 	  
 	  int iphihit  = (hhit->id()).iphi();
 	  int ietahit  = (hhit->id()).ieta();
@@ -620,7 +620,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  recal = RecalibFactor(hhit->detid());
 	  
-	  GlobalPoint pos = (const_cast<HcalGeometry*>(gHcal))->getPosition(hhit->detid());
+	  GlobalPoint pos = gHcal->getPosition(hhit->detid());
 	  //float phihit = pos.phi();
 	  //float etahit = pos.eta();
 	  

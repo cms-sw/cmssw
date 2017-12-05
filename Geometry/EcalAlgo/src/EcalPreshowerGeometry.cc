@@ -166,14 +166,14 @@ EcalPreshowerGeometry::setzPlanes( CCGFloat z1minus,
 
 // Get closest cell, etc...
 DetId 
-EcalPreshowerGeometry::getClosestCell( const GlobalPoint& point )
+EcalPreshowerGeometry::getClosestCell( const GlobalPoint& point ) const
 {
   return getClosestCellInPlane( point, 2 );
 } 
 
 DetId 
 EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
-					      int                plane          ) 
+					      int                plane          ) const
 {
    const CCGFloat x ( point.x() ) ;
    const CCGFloat y ( point.y() ) ;
@@ -257,11 +257,9 @@ EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
 }
 
 std::shared_ptr<const CaloCellGeometry>  
-EcalPreshowerGeometry::cellGeomPtr( uint32_t index ) {
+EcalPreshowerGeometry::cellGeomPtr( uint32_t index ) const {
   if (index >= m_cellVec.size()) return nullptr; // needed only if called with detId=0
   static const auto do_not_delete = [](const void*){};
   auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);
-//auto cell = std::shared_ptr<CaloCellGeometry>(new PreshowerStrip(m_cellVec[index])) ;
-  //assert( cell->param() );
   return cell; 
 }

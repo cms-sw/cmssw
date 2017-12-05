@@ -519,7 +519,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 
 math::XYZPoint CSCHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
 
-  const GlobalPoint pos = ((id.det() == DetId::Hcal) ? (const_cast<HcalGeometry*>(hgeo_))->getPosition(id) :	GlobalPoint((const_cast<CaloGeometry*>(geo_))->getPosition(id)));
+  const GlobalPoint pos = ((id.det() == DetId::Hcal) ? hgeo_->getPosition(id) :	GlobalPoint(geo_->getPosition(id)));
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());
   return posV;
 }
