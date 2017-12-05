@@ -77,6 +77,12 @@ namespace edm {
         }
       }
     } else if (gotBranchIDsFromAcquire) {
+      // If we get to this point, we are preparing an Event for
+      // a module that is special because it runs external work
+      // and has an acquire function. At this point we are just
+      // before calling the acquire function. We need to tell
+      // the event where to store BranchIDs for any products we
+      // get and clear out any that are in there from a prior event.
       gotBranchIDsFromAcquire_ = gotBranchIDsFromAcquire;
       gotBranchIDsFromAcquire_->clear();
     }
