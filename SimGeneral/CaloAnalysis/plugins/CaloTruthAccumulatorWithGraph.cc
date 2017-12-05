@@ -50,7 +50,6 @@ void accumulateSimHits_edge(Edge& e, const Graph& g, Visitor* v) {
       << " Examining edges " << e << " --> particle " << edge_property.simTrack->type() << "("
       << edge_property.simTrack->trackId() << ")"
       << " with SimClusters: " << edge_property.simHits
-      << " and total Energy: " << edge_property.energy
       << " Accumulated SimClusters: " << v->total_simHits << std::endl;
 }
 template <typename Vertex, typename Graph>
@@ -85,8 +84,7 @@ class SimHitsAccumulator_dfs_visitor : public boost::default_dfs_visitor {
     put(get(vertex_name, const_cast<Graph&>(g)), src,
         VertexProperty(src_vertex_property.simTrack, cumulative));
     put(get(edge_weight, const_cast<Graph&>(g)), e,
-        EdgeProperty(edge_property.simTrack, edge_property.simHits, cumulative,
-                     edge_property.energy));
+        EdgeProperty(edge_property.simTrack, edge_property.simHits, cumulative));
     IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph")
         << " Finished edge: " << e << " Track id: " << get(edge_weight, g, e).simTrack->trackId()
         << " has cumulated " << cumulative << " hits" << std::endl;
@@ -349,13 +347,7 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
       add_edge(tracks.at(trackid_to_track_index[v.parentIndex()]).vertIndex(), v.vertexId(),
                EdgeProperty(
                    &tracks.at(trackid_to_track_index[v.parentIndex()]),
-                   simTrackDetIdEnergyMap[trackid_to_track_index[v.parentIndex()]].size(), 0,
-                   std::accumulate(
-                       simTrackDetIdEnergyMap[trackid_to_track_index[v.parentIndex()]].begin(),
-                       simTrackDetIdEnergyMap[trackid_to_track_index[v.parentIndex()]].end(), 0.,
-                       [&](float partial, std::pair<int, float> current) {
-                         return partial + current.second / m_detIdToTotalSimEnergy[current.first];
-                       })),
+                   simTrackDetIdEnergyMap[trackid_to_track_index[v.parentIndex()]].size(), 0),
                decay);
       used_sim_tracks[trackid_to_track_index[v.parentIndex()]] = true;
     }
@@ -369,13 +361,7 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
     if (!used_sim_tracks[i]) {
       add_edge(tracks.at(i).vertIndex(), offset,
                EdgeProperty(
-                   &tracks.at(i), simTrackDetIdEnergyMap[tracks.at(i).trackId()].size(), 0,
-                   std::accumulate(simTrackDetIdEnergyMap[tracks.at(i).trackId()].begin(),
-                                   simTrackDetIdEnergyMap[tracks.at(i).trackId()].end(), 0.,
-                                   [&](float partial, std::pair<int, float> current) {
-                                     return partial +
-                                            current.second / m_detIdToTotalSimEnergy[current.first];
-                                   })),
+                   &tracks.at(i), simTrackDetIdEnergyMap[tracks.at(i).trackId()].size(), 0),
                decay);
       // The properties for "fake" vertices associated to stable particles have
       // to be set inside this loop, since they do not belong to the vertices
@@ -410,7 +396,7 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
         << " Creating CaloParticle particle: " << edge_property.simTrack->type() << "("
         << edge_property.simTrack->trackId() << ")"
         << " with total SimClusters: " << edge_property.cumulative_simHits
-        << " and total Energy: " << edge_property.energy << std::endl;
+        << std::endl;
   }
 }
 
