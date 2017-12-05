@@ -64,3 +64,36 @@ l1tEGammaEfficiency = l1tEfficiencyHarvesting.clone(
         ),
     )
 )
+
+# modifications for the pp reference run
+variables_HI = {
+    'electron': L1TEGammaOffline_cfi.electronEfficiencyThresholds_HI,
+    'photon': L1TEGammaOffline_cfi.photonEfficiencyThresholds_HI,
+}
+
+deepInspectionThresholds_HI = {
+    'electron': L1TEGammaOffline_cfi.deepInspectionElectronThresholds_HI,
+    'photon': [],
+}
+
+allEfficiencyPlots_HI = []
+add_plot = allEfficiencyPlots_HI.append
+for variable, thresholds in variables_HI.iteritems():
+    for plot in plots[variable]:
+        for threshold in thresholds:
+            plotName = '{0}_threshold_{1}'.format(plot, threshold)
+            add_plot(plotName)
+
+for variable, thresholds in deepInspectionThresholds_HI.iteritems():
+    for plot in deepInspectionPlots[variable]:
+        for threshold in thresholds:
+            plotName = '{0}_threshold_{1}'.format(plot, threshold)
+            add_plot(plotName)
+
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+ppRef_2017.toModify(l1tEGammaEfficiency,
+    plotCfgs = {
+        0:dict(plots = allEfficiencyPlots_HI),
+        1:dict(plots = allEfficiencyPlots_HI)
+    }
+)
