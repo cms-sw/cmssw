@@ -120,7 +120,7 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::E
     ene=ecalhit->energy();
  
     // compute transverse energy
-    GlobalPoint posecal=geo->getPosition(ecaldet);
+    const GlobalPoint & posecal=geo->getPosition(ecaldet);
     float pf = posecal.perp()/posecal.mag();
     et=ene*pf;
     

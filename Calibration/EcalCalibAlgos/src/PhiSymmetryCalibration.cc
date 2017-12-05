@@ -298,9 +298,9 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
   // get the ecal geometry
   edm::ESHandle<CaloGeometry> geoHandle;
   setup.get<CaloGeometryRecord>().get(geoHandle);
-  CaloSubdetectorGeometry *barrelGeometry = (CaloSubdetectorGeometry*)
+  const CaloSubdetectorGeometry *barrelGeometry = 
     (geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
-  CaloSubdetectorGeometry *endcapGeometry = (CaloSubdetectorGeometry*)
+  const CaloSubdetectorGeometry *endcapGeometry =
     (geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
  
   bool pass=false;
