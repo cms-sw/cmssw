@@ -63,9 +63,7 @@ namespace edm {
 
     void validate(ParameterSet & pset, std::string const& moduleLabel) const;
 
-    void writeCfis(std::string const& baseType,
-                   std::string const& pluginName,
-                   std::set<std::string>& usedCfiFileNames) const;
+    void writeCfis(std::set<std::string>& usedCfiFileNames) const;
 
     void print(std::ostream & os,
                std::string const& moduleLabel,
