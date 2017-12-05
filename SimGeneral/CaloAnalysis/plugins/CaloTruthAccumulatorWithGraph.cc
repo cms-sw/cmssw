@@ -36,8 +36,7 @@
 #include <iterator>
 #include <numeric> // for std::accumulate
 
-#define DEBUG std::cout << __FILE__ << ":" << __LINE__ << "\t"
-
+#define DEBUG false
 /* Graph utility functions */
 
 using namespace boost;
@@ -46,7 +45,7 @@ namespace {
     void print_edge(Edge &e, const Graph & g, Visitor * v) {
       auto const edge_property = get(edge_weight, g, e);
       v->total_simHits += edge_property.simHits;
-      std::cout << "Examining edges " << e
+      IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " Examining edges " << e
         << " --> particle " << edge_property.simTrack->type()
         << "(" << edge_property.simTrack->trackId() << ")"
         << " with SimClusters: " << edge_property.simHits
@@ -56,12 +55,12 @@ namespace {
   template < typename Vertex, typename Graph >
     void print_vertex(Vertex &u, const Graph & g) {
       auto const vertex_property = get(vertex_name, g, u);
-      std::cout << "At " << u;
+      IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " At " << u;
       // The Mother of all vertices has **no** SimTrack associated.
       if (vertex_property.simTrack)
-        std::cout << "[" << vertex_property.simTrack->type() << "]"
+        IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " [" << vertex_property.simTrack->type() << "]"
                   << "(" << vertex_property.simTrack->trackId() << ")";
-      std::cout << std::endl;
+      IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << std::endl;
     }
   class Custom_dfs_visitor : public boost::default_dfs_visitor {
     public:
@@ -87,14 +86,14 @@ namespace {
                            edge_property.simHits,
                            cumulative,
                            edge_property.energy));
-          std::cout << "Finished edge: " << e
+          IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " Finished edge: " << e
                     << " Track id: " << get(edge_weight, g, e).simTrack->trackId()
                     << " has cumulated " << cumulative
                     << " hits" << std::endl;
-          std::cout << " SrcVtx: " << src << "\t"
+          IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " SrcVtx: " << src << "\t"
                     << get(vertex_name, g, src).simTrack << "\t"
                     << get(vertex_name, g, src).cumulative_simHits << std::endl;
-          std::cout << " TrgVtx: " << trg << "\t"
+          IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " TrgVtx: " << trg << "\t"
                     << get(vertex_name, g, trg).simTrack << "\t"
                     << get(vertex_name, g, trg).cumulative_simHits << std::endl;
       }
@@ -115,7 +114,7 @@ namespace {
           if (!vertex_property.simTrack)
             return;
           auto trackIdx = vertex_property.simTrack->trackId();
-          std::cout << "Found " << simHitBarcodeToIndex_.count(trackIdx)
+          IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " Found " << simHitBarcodeToIndex_.count(trackIdx)
             << " associated simHits" << std::endl;
           if (simHitBarcodeToIndex_.count(trackIdx)) {
             output_.pSimClusters->emplace_back(*vertex_property.simTrack);
@@ -318,17 +317,19 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent( const T& event,
   // a-posteriori, the ones not used, associating a ghost vertex (starting from
   // the highest simulated vertex number +1), in order to build the edge and
   // identify them immediately as stable (i.e. not decayed).
-  std::cout << "TRACKS" << std::endl;
+  IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " TRACKS" << std::endl;
   for (auto const & t : tracks) {
-    std::cout << idx << "\t" << t.trackId() << "\t" << t << std::endl;
+    IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " "
+      << idx << "\t" << t.trackId() << "\t" << t << std::endl;
     trackid_to_track_index[t.trackId()] = idx;
     idx++;
   }
   idx = 0;
   std::vector<bool> used_sim_tracks(tracks.size(), false);
-  std::cout << "VERTICES" << std::endl;
+  IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " VERTICES" << std::endl;
   for (auto const & v: vertices) {
-    std::cout << idx++ << "\t" << v << std::endl;
+    IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " "
+      << idx++ << "\t" << v << std::endl;
     if (v.parentIndex() != -1) {
       add_edge(tracks.at(trackid_to_track_index[v.parentIndex()]).vertIndex(),
           v.vertexId(),
@@ -389,7 +390,7 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent( const T& event,
                                                  simTrackDetIdEnergyMap);
     depth_first_search(decay, visitor(caloParticleCreator).root_vertex(target(*edge, decay)));
     m_caloParticles.sc_stop_.push_back(output_.pSimClusters->size());
-    std::cout << "Creating CaloParticle particle: "
+    IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " Creating CaloParticle particle: "
               << edge_property.simTrack->type()
               << "(" << edge_property.simTrack->trackId() << ")"
               << " with total SimClusters: " << edge_property.cumulative_simHits
