@@ -18,8 +18,8 @@
 #include <mutex>
 
 //system headers
-//#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <fcntl.h>
 #include <cerrno>
 #include <cstring>
@@ -124,7 +124,6 @@ namespace evf{
       std::string getStreamDestinations(std::string const& stream) const;
       std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
 
-
     private:
       //bool bulock();
       //bool fulock();
@@ -179,10 +178,6 @@ namespace evf{
       struct flock bu_r_fulk;
       struct flock fu_rw_flk;
       struct flock fu_rw_fulk;
-      //struct flock fulocal_rw_flk;
-      //struct flock fulocal_rw_fulk;
-      //struct flock fulocal_rw_flk2;
-      //struct flock fulocal_rw_fulk2;
 
       evf::FastMonitoringService * fms_ = nullptr;
 

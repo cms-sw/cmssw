@@ -151,7 +151,7 @@ namespace evf {
     std::string outJsonDefName = ss.str();
 
     edm::Service<evf::EvFDaqDirector>()->lockInitLock();
-    struct stat   fstat;
+    struct stat fstat;
     if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
       LogDebug("RecoEventOutputModuleForFU") << "writing output definition file -: " << outJsonDefName;
       std::string content;
