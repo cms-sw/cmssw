@@ -90,7 +90,7 @@ namespace edm {
 
     void implDoAcquire(EventPrincipal const& ep, EventSetup const& c,
                        ModuleCallingContext const* mcc,
-                       WaitingTaskWithArenaHolder& holder) override;
+                       WaitingTaskWithArenaHolder& holder) override final;
 
     bool implDoPrePrefetchSelection(StreamID id,
                                             EventPrincipal const& ep,
