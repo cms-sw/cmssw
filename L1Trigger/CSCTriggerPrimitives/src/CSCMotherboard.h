@@ -38,11 +38,13 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 
+class CSCGeometry;
+
 class CSCMotherboard
 {
  public:
   /** Normal constructor. */
-  CSCMotherboard(unsigned endcap, unsigned station, unsigned sector, 
+  CSCMotherboard(unsigned endcap, unsigned station, unsigned sector,
 		 unsigned subsector, unsigned chamber,
 		 const edm::ParameterSet& conf);
 
@@ -74,6 +76,8 @@ class CSCMotherboard
   /** Set configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 
+  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
+
   /** Anode LCT processor. */
   std::unique_ptr<CSCAnodeLCTProcessor> alct;
 
@@ -94,6 +98,8 @@ class CSCMotherboard
   const unsigned theSubsector;
   const unsigned theTrigChamber;
   unsigned theRing;
+
+  const CSCGeometry* csc_g;
 
   /** Flag for MTCC data. */
   bool isMTCC;
@@ -117,7 +123,7 @@ class CSCMotherboard
 
   /** SLHC: separate handle for early time bins */
   int early_tbins;
-  
+
   /** SLHC: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
 
@@ -140,21 +146,36 @@ class CSCMotherboard
   void checkConfigParameters();
 
   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT);
+                     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT);
   CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT,
-				     const CSCCLCTDigi& cLCT, 
-				     int);
-  unsigned int encodePattern(const int ptn, const int highPt);
-  unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT);
+                                     const CSCCLCTDigi& cLCT,
+                                     int type) const;
+  unsigned int encodePattern(const int ptn, const int highPt) const;
+  unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
+
+  enum LCT_Quality{
+    INVALID  = 0,
+    NO_CLCT = 1,
+    NO_ALCT = 2,
+    CLCT_LAYER_TRIGGER = 3,
+    LOW_QUALITY = 4,
+    MARGINAL_ANODE_CATHODE = 5,
+    HQ_ANODE_MARGINAL_CATHODE = 6,
+    HQ_CATHODE_MARGINAL_ANODE = 7,
+    HQ_ACCEL_ALCT = 8,
+    HQ_RESERVED_1 = 9,
+    HQ_RESERVED_2 = 10,
+    HQ_PATTERN_2_3 = 11,
+    HQ_PATTERN_4_5 = 12,
+    HQ_PATTERN_6_7 = 13,
+    HQ_PATTERN_8_9 = 14,
+    HQ_PATTERN_10 = 15
+  };
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
 
   // Method for tests
   void testLCT();
-
-  // utilities for sorting
-  static bool sortByQuality(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&); 
-  static bool sortByGEMDphi(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&); 
 };
 #endif
