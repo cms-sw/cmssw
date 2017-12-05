@@ -15,6 +15,15 @@ limitations under the License.
 //NOTE: The memory layout of the Node class changes depending on if NDEBUG was
 // set when tensorflow was compiled. The reason is Node class holds two edgeset
 // class instances and edgeset adds a member data if NDEBUG is set
+
+/*
+This file is an adaptation of the original direct_session.h file located at
+https://github.com/tensorflow/tensorflow/blob/v1.3.0/tensorflow/core/common_runtime/direct_session.h
+to meet the demands of the software environment developed and used by the CMS collaboration.
+
+Changes with respect to the original code are documented in the NTSession.h header file.
+*/
+
 #if !defined(NDEBUG)
 #define NDEBUG 1
 #endif
