@@ -1,3 +1,4 @@
+
 /** Implementation of the GEM Geometry Builder from DDD
  *
  *  \author Port of: MuDDDGEMBuilder (ORCA)
@@ -31,28 +32,20 @@ GEMGeometryBuilderFromDDD::GEMGeometryBuilderFromDDD()
 GEMGeometryBuilderFromDDD::~GEMGeometryBuilderFromDDD() 
 { }
 
-GEMGeometry* GEMGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants)
+void GEMGeometryBuilderFromDDD::build(const std::shared_ptr<GEMGeometry>& theGeometry,
+				      const DDCompactView* cview, const MuonDDDConstants& muonConstants)
 {
   std::string attribute = "MuStructure"; // "ReadOutName"; // could come from .orcarc
   std::string value     = "MuonEndCapGEM"; // "MuonGEMHits"; // could come from .orcarc
 
-  
   // Asking only for the MuonGEM's
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
-  DDFilteredView fview(*cview,filter);
-
-  return this->buildGeometry(fview, muonConstants);
-}
-
-GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const MuonDDDConstants& muonConstants)
-{
+  DDFilteredView fv(*cview,filter);
+  
   LogDebug("GEMGeometryBuilderFromDDD") <<"Building the geometry service";
-  GEMGeometry* geometry = new GEMGeometry();
   LogDebug("GEMGeometryBuilderFromDDD") << "About to run through the GEM structure\n" 
 					<<" First logical part "
-					<<fv.logicalPart().name().name();
- 
-
+					<<fv.logicalPart().name().name(); 
   
   bool doSuper = fv.firstChild();
   LogDebug("GEMGeometryBuilderFromDDD") << "doSuperChamber = " << doSuper;
@@ -73,7 +66,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
     // making superchamber out of the first chamber layer including the gap between chambers
     if (detIdCh.layer() == 1){// only make superChambers when doing layer 1
       GEMSuperChamber *gemSuperChamber = buildSuperChamber(fv, detIdCh);
-      geometry->add(gemSuperChamber);
+      theGeometry->add(gemSuperChamber);
     }
     GEMChamber *gemChamber = buildChamber(fv, detIdCh);
     
@@ -93,12 +86,12 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
 
 	GEMEtaPartition *etaPart = buildEtaPartition(fv, detId);
 	gemChamber->add(etaPart);
-	geometry->add(etaPart);
+	theGeometry->add(etaPart);
 	doEtaPart = fv.nextSibling();
       }
       fv.parent();
 
-      geometry->add(gemChamber);
+      theGeometry->add(gemChamber);
       
       doChambers = fv.nextSibling();
     }
@@ -107,7 +100,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
     doSuper = fv.nextSibling();
   }
   
-  auto& superChambers(geometry->superChambers());
+  auto& superChambers(theGeometry->superChambers());
   // construct the regions, stations and rings. 
   for (int re = -1; re <= 1; re = re+2) {
     GEMRegion* region = new GEMRegion(re);
@@ -123,8 +116,8 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
 	  const GEMDetId detId(superChamber->id());
 	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
 	  
-	  auto ch1 = geometry->chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),1,detId.chamber(),0));
-	  auto ch2 = geometry->chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),2,detId.chamber(),0));
+	  auto ch1 = theGeometry->chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),1,detId.chamber(),0));
+	  auto ch2 = theGeometry->chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),2,detId.chamber(),0));
 	  superChamber->add(const_cast<GEMChamber*>(ch1));
 	  superChamber->add(const_cast<GEMChamber*>(ch2));
 	  
@@ -134,17 +127,16 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
  	}
 	LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
 	station->add(const_cast<GEMRing*>(ring));
-	geometry->add(const_cast<GEMRing*>(ring));
+	theGeometry->add(const_cast<GEMRing*>(ring));
       }
       LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
       region->add(const_cast<GEMStation*>(station));
-      geometry->add(const_cast<GEMStation*>(station));
+      theGeometry->add(const_cast<GEMStation*>(station));
     }
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
-    geometry->add(const_cast<GEMRegion*>(region));
+    theGeometry->add(const_cast<GEMRegion*>(region));
   }
   
-  return geometry;
 }
 
 GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const {
