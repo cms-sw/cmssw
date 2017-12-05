@@ -73,7 +73,7 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
             if ((!doEcal) && (!doHcal)) continue;
 
             DetId calId = cal->id();
-            GlobalPoint endpos = caloGeom->getPosition(calId);
+            const GlobalPoint & endpos = caloGeom->getPosition(calId);
             GlobalPoint muatcal = MuonAtCaloPosition(*mu,bz,endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
             double deltar = reco::deltaR(muatcal,endpos);
 
@@ -125,7 +125,7 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
       if ((!doEcal) && (!doHcal)) continue;
 
       DetId calId = cal->id();
-      GlobalPoint endpos = caloGeom->getPosition(calId);
+      const GlobalPoint & endpos = caloGeom->getPosition(calId);
       GlobalPoint muatcal = MuonAtCaloPosition(muon,bz,endpos,vertexConstraintFlag_XY, vertexConstraintFlag_Z);
       double deltar = reco::deltaR(muatcal,endpos);
 

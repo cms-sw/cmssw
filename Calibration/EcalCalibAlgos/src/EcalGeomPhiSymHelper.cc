@@ -54,7 +54,7 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
 
 
 
-  CaloSubdetectorGeometry *endcapGeometry = (CaloSubdetectorGeometry*)
+  const CaloSubdetectorGeometry *endcapGeometry = 
     (geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
  
   for (int ix=0; ix<kEndcWedgesX; ix++) {

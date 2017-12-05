@@ -162,7 +162,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
     std::vector<const EcalRecHit*>::const_iterator eHitCI = mInfo.ecalRecHits.begin();
     for (; eHitCI != mInfo.ecalRecHits.end(); ++eHitCI){
       const EcalRecHit* eHitCPtr = *eHitCI;
-      GlobalPoint eHitPos = caloGeom->getPosition(eHitCPtr->detid());
+      const GlobalPoint & eHitPos = caloGeom->getPosition(eHitCPtr->detid());
       double deltar0 = reco::deltaR(muon, eHitPos);
       double cosTheta = 1./cosh(eHitPos.eta());
       double energy = eHitCPtr->energy();
@@ -201,7 +201,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
     std::vector<const HBHERecHit*>::const_iterator hHitCI = mInfo.hcalRecHits.begin();
     for (; hHitCI != mInfo.hcalRecHits.end(); ++hHitCI){
       const HBHERecHit* hHitCPtr = *hHitCI;
-      GlobalPoint hHitPos = caloGeom->getPosition(hHitCPtr->detid());
+      const GlobalPoint & hHitPos = caloGeom->getPosition(hHitCPtr->detid());
       double deltar0 = reco::deltaR(muon, hHitPos);
       double cosTheta = 1./cosh(hHitPos.eta());
       double energy = hHitCPtr->energy();
@@ -240,7 +240,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
     std::vector<const HORecHit*>::const_iterator hoHitCI = mInfo.hoRecHits.begin();
     for (; hoHitCI != mInfo.hoRecHits.end(); ++hoHitCI){
       const HORecHit* hoHitCPtr = *hoHitCI;
-      GlobalPoint hoHitPos = caloGeom->getPosition(hoHitCPtr->detid());
+      const GlobalPoint & hoHitPos = caloGeom->getPosition(hoHitCPtr->detid());
       double deltar0 = reco::deltaR(muon, hoHitPos);
       double cosTheta = 1./cosh(hoHitPos.eta());
       double energy = hoHitCPtr->energy();

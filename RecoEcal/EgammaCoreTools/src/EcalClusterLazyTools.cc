@@ -213,7 +213,7 @@ float EcalClusterLazyToolsBase::BasicClusterTime(const reco::BasicCluster &clust
 	// std::cout << "icalconst set to: " << icalconst << std::endl;
       } else {
 	edm::LogError("EcalClusterLazyTools") << "No intercalib const found for xtal "  << (detitr->first).rawId() << "bailing out";
-	assert(0);
+	assert(false);
       }
       // 3) get adc2GeV
       float adcToGeV = 1.;

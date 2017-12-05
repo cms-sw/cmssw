@@ -440,7 +440,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 		  else fedList_.push_back(hitFED);
 
 		  // preshower hit for each ecal endcap hit
-		  DetId tmpX = ((EcalPreshowerGeometry*)(GeometryES_))->getClosestCellInPlane(point,1);
+		  DetId tmpX = (dynamic_cast<const EcalPreshowerGeometry*>(GeometryES_))->getClosestCellInPlane(point,1);
 		  ESDetId stripX = (tmpX == DetId(0)) ? ESDetId(0) : ESDetId(tmpX);          
 		  int hitFED = ES_fedId_[(3-stripX.zside())/2-1][stripX.plane()-1][stripX.six()-1][stripX.siy()-1];
 		  LogDebug("SelectedElectronFEDListProducer")<<" ES hit plane X (deiID) "<<stripX.rawId()<<" six "<<stripX.six()<<" siy "<<stripX.siy()<<" plane "<<stripX.plane()<<" FED ID "<<hitFED<<std::endl;
@@ -452,7 +452,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 		  }
 		  else fedList_.push_back(hitFED);
 		  
-		  DetId tmpY = ((EcalPreshowerGeometry*)(GeometryES_))->getClosestCellInPlane(point,2);
+		  DetId tmpY = (dynamic_cast<const EcalPreshowerGeometry*>(GeometryES_))->getClosestCellInPlane(point,2);
 		  ESDetId stripY = (tmpY == DetId(0)) ? ESDetId(0) : ESDetId(tmpY);          
 		  hitFED = ES_fedId_[(3-stripY.zside())/2-1][stripY.plane()-1][stripY.six()-1][stripY.siy()-1];
 		  if(hitFED < FEDNumbering::MINPreShowerFEDID || hitFED > FEDNumbering::MAXPreShowerFEDID) continue;

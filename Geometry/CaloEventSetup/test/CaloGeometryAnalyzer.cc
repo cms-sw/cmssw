@@ -1193,11 +1193,11 @@ CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
    {
 
       std::cout<<"**Ecal Barrel avg Radius = "
-	       << ((EcalBarrelGeometry*)(pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel)))->avgRadiusXYFrontFaceCenter()
+	       << dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel))->avgRadiusXYFrontFaceCenter()
 	       << std::endl ;
 
       std::cout<<"**Ecal Endcap avg Zabs = "
-	       << ((EcalEndcapGeometry*)(pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap )))->avgAbsZFrontFaceCenter()
+	       << dynamic_cast<const EcalEndcapGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap))->avgAbsZFrontFaceCenter()
 	       << std::endl ;
 
       m_allOK = true ;
