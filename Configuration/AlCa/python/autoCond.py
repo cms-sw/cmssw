@@ -58,7 +58,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_realistic'       : '100X_postLS2_realistic_v1', # GT containing realistic conditions for postLS2
     # GlobalTag for MC production with realistic conditions for Phase2 2023
-    'phase2_realistic'         : '94X_upgrade2023_realistic_v3'
+    'phase2_realistic'         : '100X_upgrade2023_realistic_v1'
 }
 
 aliases = {
