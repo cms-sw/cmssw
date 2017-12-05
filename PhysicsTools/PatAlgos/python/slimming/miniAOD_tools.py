@@ -333,33 +333,6 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     run2_miniAOD_80XLegacy.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithTauReReco)
-    #---------------------------------------------------------------------------
-    # update jets to include DeepFlavour
-    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-
-    updateJetCollection(
-       process,
-       jetSource = cms.InputTag('selectedPatJets'),
-       # updateJetCollection defaults to MiniAOD inputs.
-       # Here, this needs to be changed to RECO/AOD inputs
-       pvSource = cms.InputTag('offlinePrimaryVertices'),
-       pfCandidates = cms.InputTag('particleFlow'),
-       svSource = cms.InputTag('inclusiveCandidateSecondaryVertices'),
-       muSource = cms.InputTag('muons'),
-       elSource = cms.InputTag('gedGsfElectrons'),
-       jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
-       btagDiscriminators = [
-          'pfDeepFlavourJetTags:probb',
-          'pfDeepFlavourJetTags:probbb',
-          'pfDeepFlavourJetTags:problepb',
-          'pfDeepFlavourJetTags:probc',
-          'pfDeepFlavourJetTags:probuds',
-          'pfDeepFlavourJetTags:probg',
-       ],
-       postfix = 'BTAG'
-    )
-    process.slimmedJets.src = cms.InputTag('selectedUpdatedPatJetsBTAG')
-
     # Adding puppi jets
     if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
         process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
@@ -393,9 +366,43 @@ def miniAOD_customizeCommon(process):
     process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
+
+    # update slimmed jets to include DeepFlavour (keep same name)
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+    # make clone for DeepFlavour-less slimmed jets, so output name is preserved
+    process.slimmedJetsNoDeepFlavour = process.slimmedJets.clone()
+    task.add(process.slimmedJetsNoDeepFlavour)
+    updateJetCollection(
+       process,
+       jetSource = cms.InputTag('slimmedJetsNoDeepFlavour'),
+       # updateJetCollection defaults to MiniAOD inputs but
+       # here it is made explicit (as in training or MINIAOD redoing)
+       pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+       pfCandidates = cms.InputTag('packedPFCandidates'),
+       svSource = cms.InputTag('slimmedSecondaryVertices'),
+       muSource = cms.InputTag('slimmedMuons'),
+       elSource = cms.InputTag('slimmedElectrons'),
+       jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+       btagDiscriminators = [
+          'pfDeepFlavourJetTags:probb',
+          'pfDeepFlavourJetTags:probbb',
+          'pfDeepFlavourJetTags:problepb',
+          'pfDeepFlavourJetTags:probc',
+          'pfDeepFlavourJetTags:probuds',
+          'pfDeepFlavourJetTags:probg',
+       ],
+       postfix = 'SlimmedDeepFlavour'
+    )
+
+    # slimmedJets with DeepFlavour (remove DeepFlavour-less)
+    delattr(process, 'slimmedJets')
+    process.slimmedJets = process.selectedUpdatedPatJetsSlimmedDeepFlavour.clone()
+    # delete module not used anymore (slimmedJets substitutes)
+    delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour')
+
     task.add(process.slimmedJets)
     task.add(process.slimmedJetsAK8)
-    addToProcessAndTask('slimmedJetsPuppi', process.slimmedJets.clone(), process, task)
+    addToProcessAndTask('slimmedJetsPuppi', process.slimmedJetsNoDeepFlavour.clone(), process, task)
     process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")    
     process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
 
