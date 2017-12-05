@@ -47,14 +47,14 @@ class L1TStage2uGT: public DQMEDAnalyzer {
 
 public:
    L1TStage2uGT(const edm::ParameterSet& ps); // constructor
-   virtual ~L1TStage2uGT(); // destructor
+   ~L1TStage2uGT() override; // destructor
 
 protected:
-   virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-   virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-   virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override; // end section
+   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+   void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+   void analyze(const edm::Event&, const edm::EventSetup&) override;
+   void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override; // end section
 
 private:
    
@@ -94,6 +94,11 @@ private:
  
    // Prescale factor index 
    MonitorElement* prescaleFactorSet_;
+
+   // Pre- Post- firing timing dedicated plots
+   MonitorElement* first_collision_run_;
+   MonitorElement* isolated_collision_run_;
+   MonitorElement* last_collision_run_; 
 
 };
 
