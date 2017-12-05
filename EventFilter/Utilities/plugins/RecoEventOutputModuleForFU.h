@@ -313,6 +313,16 @@ namespace evf {
         //create if does not exist then lock the merge destination file
         FILE *des = fopen(edm::Service<evf::EvFDaqDirector>()->getMergedDatFilePath(ls.luminosityBlock(),streamLabel_).c_str(), "a"); //open stream for appending
         int data_readwrite_fd = fileno(des);
+
+        //deleter function: unlock and close file
+        auto finishFile = [des, data_readwrite_fd, this](FILE* f) {
+          fflush(f);
+          fcntl(data_readwrite_fd,F_SETLKW, &dataRwFulk_);
+          fclose(des);
+        };
+
+        std::unique_ptr<FILE,decltype(finishFile)> desGuard{des,finishFile};
+
         if (data_readwrite_fd == -1)
           edm::LogError("RecoEventOutputModuleForFU") << "problem with creating filedesc for datamerge " << strerror(errno);
         else
@@ -360,11 +370,6 @@ namespace evf {
 
         fprintf(cf,"%u",mergedAdler32);
         fclose(cf);
-
-        //unlock and close output file
-        fflush(des);
-        fcntl(data_readwrite_fd, F_SETLKW, &dataRwFulk_);
-        fclose(des);
 
         fclose(src);
 
