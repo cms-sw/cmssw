@@ -548,8 +548,9 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     process, task)
 
             if btagInfo == 'pfDeepFlavourTagInfos':
-                # use right input tags when running with RECO PF candidates
-                if pfCandidates == cms.InputTag("particleFlow"):
+                # use right input tags when running with RECO PF candidates, which actually
+                # depens of wether jets were slimmed or not (check for s/S-limmed in name)
+                if not ('limmed' in jetSource.value()):
                   puppi_value_map = cms.InputTag("puppi")
                   vertex_associator = cms.InputTag("primaryVertexAssociation","original")
                 else:
