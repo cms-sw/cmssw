@@ -13,6 +13,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+/*
+This file is an adaptation of the original direct_session.h file located at
+https://github.com/tensorflow/tensorflow/blob/v1.3.0/tensorflow/core/common_runtime/direct_session.h
+to meet the demands of the software environment developed and used by the CMS collaboration.
+
+Changes:
+  - Renamed the session class to TBBSession (TBB = thread building blocks)
+  - Renamed some members to refelct that change
+  - Removed the thread_pools_ member
+  - Set the session handle to "tbb"
+  - Removed the PRunSetup, PRun, SendPRunInputs, RecvPRunOutputs and CheckFetch methods
+  - Removed the ThreadPool arguments from GetOrCreateExecutors and SchedClosure
+  - Let tbb arena and tbb group handle scheduling in WaitForNotification and SchedClosure
+  - Removed obsolete helper functions NumInterOpThreadsFromSessionOptions,
+    NewThreadPoolFromSessionOptions, NewThreadPoolFromThreadPoolOptions and GlobalThreadPool
+  - Renamed the session factory class to TBBSessionFactory
+  - Renamed the session registrar class to TBBSessionRegistrar
+  - Renamed include guard to reflect location within CMSSW
+*/
+
 #ifndef PHYSICSTOOLS_TENSORFLOW_TBBSESSION_H
 #define PHYSICSTOOLS_TENSORFLOW_TBBSESSION_H
 
