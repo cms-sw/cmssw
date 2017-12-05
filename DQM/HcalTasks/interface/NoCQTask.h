@@ -42,7 +42,6 @@ class NoCQTask : public hcaldqm::DQTask
 
 		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
 
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 
 		hcaldqm::ContainerProf2D _cTimingCut_depth;
