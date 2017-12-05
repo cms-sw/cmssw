@@ -22,9 +22,6 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
 trackingPhase1.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
-trackingPhase1QuadProp.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
 
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
@@ -154,7 +151,6 @@ trackingLowPU.toModify(mixedTripletStepSeedLayersB,
     TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
 )
 trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
-trackingPhase1QuadProp.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
 
 # TrackingRegion
 mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsCommon.clone(RegionPSet = dict(ptMin=0.6, originHalfLength=10.0))
@@ -312,10 +308,6 @@ mixedTripletStep = ClassifierMerger.clone()
 mixedTripletStep.inputClassifiers=['mixedTripletStepClassifier1','mixedTripletStepClassifier2']
 
 trackingPhase1.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
-     qualityCuts = [-0.5,0.0,0.5],
-))
-trackingPhase1QuadProp.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
      qualityCuts = [-0.5,0.0,0.5],
 ))
