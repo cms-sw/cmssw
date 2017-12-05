@@ -18,8 +18,8 @@
 #include <mutex>
 
 //system headers
-//#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <fcntl.h>
 #include <cerrno>
 #include <cstring>
@@ -125,7 +125,7 @@ namespace evf{
       std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
       bool emptyLumisectionMode() const {return emptyLumisectionMode_;}
       bool microMergeDisabled() const {return microMergeDisabled_;}
-
+      static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
 
     private:
       //bool bulock();
@@ -181,10 +181,6 @@ namespace evf{
       struct flock bu_r_fulk;
       struct flock fu_rw_flk;
       struct flock fu_rw_fulk;
-      //struct flock fulocal_rw_flk;
-      //struct flock fulocal_rw_fulk;
-      //struct flock fulocal_rw_flk2;
-      //struct flock fulocal_rw_fulk2;
 
       evf::FastMonitoringService * fms_ = nullptr;
 

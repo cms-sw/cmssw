@@ -21,17 +21,6 @@
 
 namespace evf {
 
-  namespace {
-    struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
-    {
-#ifdef __APPLE__
-      return {start, len, pid, type, whence};
-#else
-      return {type, whence, start, len, pid};
-#endif
-    }
-  }
-
   template<typename Consumer>
   class RecoEventOutputModuleForFU : public edm::StreamerOutputModuleBase {
     
@@ -103,8 +92,8 @@ namespace evf {
     mergeType_(),
     hltErrorEvents_(0),
     outBuf_(new unsigned char[1024*1024]),
-    data_rw_flk( evf::make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    data_rw_fulk( evf:: make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
+    data_rw_flk( evf::EvFDaqDirector::make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
+    data_rw_fulk( evf::EvFDaqDirector::make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
  
   {
     //replace hltOutoputA with stream if the HLT menu uses this convention
@@ -167,7 +156,7 @@ namespace evf {
     std::string outJsonDefName = ss.str();
 
     edm::Service<evf::EvFDaqDirector>()->lockInitLock();
-    struct stat   fstat;
+    struct stat fstat;
     if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
       LogDebug("RecoEventOutputModuleForFU") << "writing output definition file -: " << outJsonDefName;
       std::string content;
