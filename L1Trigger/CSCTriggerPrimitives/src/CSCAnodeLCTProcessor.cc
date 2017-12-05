@@ -26,11 +26,10 @@
 //-----------------------------------------------------------------------------
 
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include <set>
 
 //-----------------
@@ -506,9 +505,10 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   // Get the number of wire groups for the given chamber.  Do it only once
   // per chamber.
   if (numWireGroups == 0) {
-    CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
-    CSCChamber* chamber = theGeom->chamber(theEndcap, theStation, theSector,
-                                           theSubsector, theTrigChamber);
+    const int ring = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+    const int chid = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber);
+    CSCDetId detid(theEndcap, theStation, ring, chid, 0);
+    const auto& chamber = csc_g->chamber(detid);
     if (chamber) {
       numWireGroups = chamber->layer(1)->geometry()->numberOfWireGroups();
       if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {

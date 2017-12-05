@@ -13,9 +13,12 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
   , promoteALCTGEMquality_(tmbParams_.getParameter<bool>("promoteALCTGEMquality"))
   , doLCTGhostBustingWithGEMs_(tmbParams_.getParameter<bool>("doLCTGhostBustingWithGEMs"))
 {
-  gemId = GEMDetId(theRegion, 1, theStation, 1, theChamber, 0).rawId();
-  
-  const edm::ParameterSet coPadParams(conf.getParameter<edm::ParameterSet>("copadParam"));
+  // super chamber has layer=0!
+  gemId = GEMDetId(theRegion, 1, theStation, 0, theChamber, 0).rawId();
+
+  const edm::ParameterSet coPadParams(station==1 ?
+				      conf.getParameter<edm::ParameterSet>("copadParamGE11") :
+				      conf.getParameter<edm::ParameterSet>("copadParamGE21"));
   coPadProcessor.reset( new GEMCoPadProcessor(endcap, station, chamber, coPadParams) );
 
   maxDeltaPadL1_ = (par ? tmbParams_.getParameter<int>("maxDeltaPadL1Even") :
@@ -35,13 +38,13 @@ CSCGEMMotherboard::~CSCGEMMotherboard()
 void CSCGEMMotherboard::clear()
 {
   pads_.clear();
-  coPads_.clear();    
-}  
+  coPads_.clear();
+}
 
 
 void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
-			    const CSCComparatorDigiCollection* compdc,
-			    const GEMPadDigiClusterCollection* gemClusters)
+                            const CSCComparatorDigiCollection* compdc,
+                            const GEMPadDigiClusterCollection* gemClusters)
 {
   std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
   coPadProcessor->declusterize(gemClusters, *gemPads);
@@ -59,8 +62,9 @@ void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, uns
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
         const int bx_shifted(lct_central_bx + pad->bx());
+        // consider matches with BX difference +1/0/-1
         for (int bx = bx_shifted - maxDeltaBXPad_;bx <= bx_shifted + maxDeltaBXPad_; ++bx) {
-	  pads_[bx].emplace_back(roll_id, *pad);  
+          pads_[bx].emplace_back(roll_id.rawId(), *pad);
         }
       }
     }
@@ -71,110 +75,135 @@ void CSCGEMMotherboard::retrieveGEMCoPads()
 {
   coPads_.clear();
   for (const auto& copad: gemCoPadV){
-    if (copad.first().bx() != lct_central_bx) continue;
-    coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad));  
+    GEMDetId detId(theRegion, 1, theStation, 0, theChamber, 0);
+    // only consider matches with same BX
+    coPads_[lct_central_bx + copad.bx(1)].emplace_back(detId.rawId(), copad);
   }
 }
 
 CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
-							 const GEMCoPadDigi& gem,
- 							 enum CSCPart part,
-							 int trknmb) 
+                                                         const GEMCoPadDigi& gem,
+                                                         enum CSCPart part,
+                                                         int trknmb) const
 {
   return constructLCTsGEM(alct, CSCCLCTDigi(), GEMPadDigi(), gem, part, trknmb);
 }
 
 
 CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct,
-							 const GEMCoPadDigi& gem,
-							 enum CSCPart part,
-							 int trknmb) 
+                                                         const GEMCoPadDigi& gem,
+                                                         enum CSCPart part,
+                                                         int trknmb) const
 {
   return constructLCTsGEM(CSCALCTDigi(), clct, GEMPadDigi(), gem, part, trknmb);
 }
 
 CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
-							 const CSCCLCTDigi& clct,
-							 const GEMCoPadDigi& gem,
-							 enum CSCPart part,
-							 int trknmb) 
+                                                         const CSCCLCTDigi& clct,
+                                                         const GEMCoPadDigi& gem,
+                                                         enum CSCPart part,
+                                                         int trknmb) const
 {
   return constructLCTsGEM(alct, clct, GEMPadDigi(), gem, part, trknmb);
 }
 
 
 CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
-							 const CSCCLCTDigi& clct,
-							 const GEMPadDigi& gem,
-							 enum CSCPart part,
-							 int trknmb) 
+                                                         const CSCCLCTDigi& clct,
+                                                         const GEMPadDigi& gem,
+                                                         enum CSCPart part,
+                                                         int trknmb) const
 {
   return constructLCTsGEM(alct, clct, gem, GEMCoPadDigi(), part, trknmb);
 }
 
 CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
-							 const CSCCLCTDigi& clct,
-							 const GEMPadDigi& gem1,
-							 const GEMCoPadDigi& gem2,
-							 enum CSCPart p, int trknmb)
+                                                         const CSCCLCTDigi& clct,
+                                                         const GEMPadDigi& gem1,
+                                                         const GEMCoPadDigi& gem2,
+                                                         enum CSCPart p, int trknmb) const
 {
-  // step 1: determine the case
-  int lctCase = lctTypes::Invalid;
-  if (alct.isValid() and clct.isValid() and gem1 != GEMPadDigi() and gem2 == GEMCoPadDigi())      lctCase = lctTypes::ALCTCLCT2GEM;
-  else if (alct.isValid() and clct.isValid() and gem1 == GEMPadDigi() and gem2 != GEMCoPadDigi()) lctCase = lctTypes::ALCTCLCTGEM;
-  else if (alct.isValid() and gem2 != GEMCoPadDigi()) lctCase = lctTypes::ALCT2GEM;
-  else if (clct.isValid() and gem2 != GEMCoPadDigi()) lctCase = lctTypes::CLCT2GEM;
+  int pattern = 0, quality = 0, bx = 0, keyStrip = 0, keyWG = 0, bend = 0;
 
-  // step 2: assign properties depending on the LCT dataformat (old/new)
-  int pattern = 0, quality = 0, bx = 0, keyStrip = 0, keyWG = 0;
-  switch(lctCase){
-  case lctTypes::ALCTCLCTGEM: {
+  // make a new LCT
+  CSCCorrelatedLCTDigi thisLCT;
+
+  // Determine the case and assign properties depending on the LCT dataformat (old/new)
+  if (alct.isValid() and clct.isValid() and gem1.isValid() and not gem2.isValid()) {
     pattern = encodePattern(clct.getPattern(), clct.getStripType());
     quality = findQualityGEM(alct, clct, 1);
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
-    break;
+    bend = clct.getBend();
+    thisLCT.setALCT(alct);
+    thisLCT.setCLCT(clct);
+    thisLCT.setGEM1(gem1);
+    thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCTGEM);
   }
-  case lctTypes::ALCTCLCT2GEM: {
+  else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
     pattern = encodePattern(clct.getPattern(), clct.getStripType());
     quality = findQualityGEM(alct, clct, 2);
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
-    break;
+    bend = clct.getBend();
+    thisLCT.setALCT(alct);
+    thisLCT.setCLCT(clct);
+    thisLCT.setGEM1(gem2.first());
+    thisLCT.setGEM2(gem2.second());
+    thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCT2GEM);
   }
-  case lctTypes::ALCT2GEM: {
+  else if (alct.isValid() and gem2.isValid()) {
     const auto& mymap1 = getLUT()->get_gem_pad_to_csc_hs(par, p);
     pattern = promoteALCTGEMpattern_ ? 10 : 0;
     quality = promoteALCTGEMquality_ ? 15 : 11;
     bx = alct.getBX();
     keyStrip = mymap1[gem2.pad(2)];
     keyWG = alct.getKeyWG();
-    break;
+    thisLCT.setALCT(alct);
+    thisLCT.setGEM1(gem2.first());
+    thisLCT.setGEM2(gem2.second());
+    thisLCT.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
   }
-  case lctTypes::CLCT2GEM: {
+  else if (clct.isValid() and gem2.isValid()) {
     const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(par, p);
     pattern = encodePattern(clct.getPattern(), clct.getStripType());
     quality = promoteCLCTGEMquality_ ? 15 : 11;
-    bx = gem2.bx(1) + lct_central_bx;;
+    bx = gem2.bx(1) + lct_central_bx;
     keyStrip = clct.getKeyStrip();
     // choose the corresponding wire-group in the middle of the partition
     keyWG = mymap2[gem2.roll()];
-    break;
+    bend = clct.getBend();
+    thisLCT.setCLCT(clct);
+    thisLCT.setGEM1(gem2.first());
+    thisLCT.setGEM2(gem2.second());
+    thisLCT.setType(CSCCorrelatedLCTDigi::CLCT2GEM);
   }
-  };
+
+  // fill the rest of the properties
+  thisLCT.setTrknmb(trknmb);
+  thisLCT.setValid(1);
+  thisLCT.setQuality(quality);
+  thisLCT.setWireGroup(keyWG);
+  thisLCT.setStrip(keyStrip);
+  thisLCT.setPattern(pattern);
+  thisLCT.setBend(bend);
+  thisLCT.setBX(bx);
+  thisLCT.setMPCLink(0);
+  thisLCT.setBX0(0);
+  thisLCT.setSyncErr(0);
+  thisLCT.setCSCID(theTrigChamber);
 
   // future work: add a section that produces LCTs according
   // to the new LCT dataformat (not yet defined)
 
-  // step 3: make new LCT with afore assigned properties}
-  return CSCCorrelatedLCTDigi(trknmb, 1, quality, keyWG, keyStrip,
-			      pattern, 0, bx, 0, 0, 0, theTrigChamber);
+  // return new LCT
+  return thisLCT;
 }
 
 
-bool CSCGEMMotherboard::isPadInOverlap(int roll)
+bool CSCGEMMotherboard::isPadInOverlap(int roll) const
 {
   // this only works for ME1A!
   const auto& mymap = (getLUT()->get_csc_wg_to_gem_roll(par));
@@ -186,42 +215,49 @@ bool CSCGEMMotherboard::isPadInOverlap(int roll)
   return false;
 }
 
-int CSCGEMMotherboard::getBX(const GEMPadDigi& p)
+bool CSCGEMMotherboard::isGEMDetId(unsigned int p) const
+{
+  return (DetId(p).subdetId() == MuonSubdetId::GEM and
+          DetId(p).det() == DetId::Muon);
+}
+
+int CSCGEMMotherboard::getBX(const GEMPadDigi& p) const
 {
   return p.bx();
 }
 
-int CSCGEMMotherboard::getBX(const GEMCoPadDigi& p)
+int CSCGEMMotherboard::getBX(const GEMCoPadDigi& p) const
 {
   return p.bx(1);
 }
 
-int CSCGEMMotherboard::getRoll(const GEMPadDigiId& p)
+int CSCGEMMotherboard::getRoll(const GEMPadDigiId& p) const
 {
   return GEMDetId(p.first).roll();
 }
 
-int CSCGEMMotherboard::getRoll(const GEMCoPadDigiId& p)
+int CSCGEMMotherboard::getRoll(const GEMCoPadDigiId& p) const
 {
   return p.second.roll();
 }
 
-int CSCGEMMotherboard::getRoll(const CSCALCTDigi& alct)
+int CSCGEMMotherboard::getRoll(const CSCALCTDigi& alct) const
 {
   return (getLUT()->get_csc_wg_to_gem_roll(par))[alct.getKeyWG()].first;
 }
 
-float CSCGEMMotherboard::getAvePad(const GEMPadDigi& p)
+float CSCGEMMotherboard::getPad(const GEMPadDigi& p) const
 {
   return p.pad();
 }
 
-float CSCGEMMotherboard::getAvePad(const GEMCoPadDigi& p)
+float CSCGEMMotherboard::getPad(const GEMCoPadDigi& p) const
 {
+  // average pad number for a GEMCoPad
   return 0.5*(p.pad(1) + p.pad(2));
 }
 
-float CSCGEMMotherboard::getAvePad(const CSCCLCTDigi& clct, enum CSCPart part)
+float CSCGEMMotherboard::getPad(const CSCCLCTDigi& clct, enum CSCPart part) const
 {
   const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(par, part));
   return 0.5*(mymap[clct.getKeyStrip()].first + mymap[clct.getKeyStrip()].second);
@@ -242,12 +278,14 @@ void CSCGEMMotherboard::printGEMTriggerPads(int bx_start, int bx_stop, enum CSCP
     const auto& in_pads = pads_[bx];
     LogTrace("CSCGEMMotherboard") << "N(pads) BX " << bx << " : " << in_pads.size() << std::endl;
 
-    for (const auto& pad : in_pads){ 
+    for (const auto& pad : in_pads){
       LogTrace("CSCGEMMotherboard") << "\tdetId " << GEMDetId(pad.first) << ", pad = " << pad.second;
       const auto& roll_id(GEMDetId(pad.first));
 
-      if (part==CSCPart::ME11 and isPadInOverlap(GEMDetId(roll_id).roll())) LogTrace("CSCGEMMotherboard") << " (in overlap)" << std::endl;
-      else LogTrace("CSCGEMMotherboard") << std::endl;
+      if (part==CSCPart::ME11 and isPadInOverlap(GEMDetId(roll_id).roll()))
+        LogTrace("CSCGEMMotherboard") << " (in overlap)" << std::endl;
+      else
+        LogTrace("CSCGEMMotherboard") << std::endl;
     }
   }
 }
@@ -262,7 +300,7 @@ void CSCGEMMotherboard::printGEMTriggerCoPads(int bx_start, int bx_stop, enum CS
     const auto& in_pads = coPads_[bx];
     LogTrace("CSCGEMMotherboard") << "N(copads) BX " << bx << " : " << in_pads.size() << std::endl;
 
-    for (const auto& pad : in_pads){ 
+    for (const auto& pad : in_pads){
       LogTrace("CSCGEMMotherboard") << "\tdetId " << GEMDetId(pad.first) << ", pad = " << pad.second;
       const auto& roll_id(GEMDetId(pad.first));
 
@@ -273,62 +311,133 @@ void CSCGEMMotherboard::printGEMTriggerCoPads(int bx_start, int bx_stop, enum CS
 }
 
 
-unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int gemlayers)
+unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT,
+                                               const CSCCLCTDigi& cLCT, int gemlayers) const
 {
-  /*
-    Same LCT quality definition as standard LCTs
-    a4 and c4 take GEMs into account!!!
-  */
-  
-  unsigned int quality = 0;
-
-  // 2008 definition.
+  // Either ALCT or CLCT is invalid
   if (!(aLCT.isValid()) || !(cLCT.isValid())) {
-    if (aLCT.isValid() && !(cLCT.isValid()))      quality = 1; // no CLCT
-    else if (!(aLCT.isValid()) && cLCT.isValid()) quality = 2; // no ALCT
-    else quality = 0; // both absent; should never happen.
+
+    // No CLCT
+    if (aLCT.isValid() && !(cLCT.isValid()))
+      return LCT_Quality::NO_CLCT;
+
+    // No ALCT
+    else if (!(aLCT.isValid()) && cLCT.isValid())
+      return LCT_Quality::NO_ALCT;
+
+    // No ALCT and no CLCT
+    else
+      return LCT_Quality::INVALID;
   }
+  // Both ALCT and CLCT are valid
   else {
     const int pattern(cLCT.getPattern());
-    if (pattern == 1) quality = 3; // layer-trigger in CLCT
+
+    // Layer-trigger in CLCT
+    if (pattern == 1)
+      return LCT_Quality::CLCT_LAYER_TRIGGER;
+
+    // Multi-layer pattern in CLCT
     else {
       // ALCT quality is the number of layers hit minus 3.
+      bool a4 = false;
+
+      // Case of ME11 with GEMs: require 4 layers for ALCT
+      if (theStation==1) a4 = aLCT.getQuality() >= 1;
+
+      // Case of ME21 with GEMs: require 4 layers for ALCT+GEM
+      if (theStation==2) a4 = aLCT.getQuality() + gemlayers >=1;
+
       // CLCT quality is the number of layers hit.
-      bool a4;
-      // GE11 
-      if (theStation==1) {
-	a4 = (aLCT.getQuality() >= 1);
-      }
-      // GE21
-      else if (theStation==2) {
-	a4 = (aLCT.getQuality() >= 1) or (aLCT.getQuality() >= 0 and gemlayers >=1);
-      }
-      else {
-	return -1; 
-      }
       const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and gemlayers>=1));
-      //              quality = 4; "reserved for low-quality muons in future"
-      if      (!a4 && !c4) quality = 5; // marginal anode and cathode
-      else if ( a4 && !c4) quality = 6; // HQ anode, but marginal cathode
-      else if (!a4 &&  c4) quality = 7; // HQ cathode, but marginal anode
+
+      // quality = 4; "reserved for low-quality muons in future"
+
+      // marginal anode and cathode
+      if (!a4 && !c4)
+        return LCT_Quality::MARGINAL_ANODE_CATHODE;
+
+      // HQ anode, but marginal cathode
+      else if ( a4 && !c4)
+        return LCT_Quality::HQ_ANODE_MARGINAL_CATHODE;
+
+      // HQ cathode, but marginal anode
+      else if (!a4 &&  c4)
+        return LCT_Quality::HQ_CATHODE_MARGINAL_ANODE;
+
+      // HQ muon, but accelerator ALCT
       else if ( a4 &&  c4) {
-	if (aLCT.getAccelerator()) quality = 8; // HQ muon, but accel ALCT
-	else {
-	  // quality =  9; "reserved for HQ muons with future patterns
-	  // quality = 10; "reserved for HQ muons with future patterns
-	  if (pattern == 2 || pattern == 3)      quality = 11;
-	  else if (pattern == 4 || pattern == 5) quality = 12;
-	  else if (pattern == 6 || pattern == 7) quality = 13;
-	  else if (pattern == 8 || pattern == 9) quality = 14;
-	  else if (pattern == 10)                quality = 15;
-	  else {
-	    if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
-			      << "+++ findQuality: Unexpected CLCT pattern id = "
-			      << pattern << "+++\n";
-	  }
-	}
+
+        if (aLCT.getAccelerator())
+          return LCT_Quality::HQ_ACCEL_ALCT;
+
+        else {
+          // quality =  9; "reserved for HQ muons with future patterns
+          // quality = 10; "reserved for HQ muons with future patterns
+
+          // High quality muons are determined by their CLCT pattern
+          if (pattern == 2 || pattern == 3)
+            return LCT_Quality::HQ_PATTERN_2_3;
+
+          else if (pattern == 4 || pattern == 5)
+            return LCT_Quality::HQ_PATTERN_4_5;
+
+          else if (pattern == 6 || pattern == 7)
+            return LCT_Quality::HQ_PATTERN_6_7;
+
+          else if (pattern == 8 || pattern == 9)
+            return LCT_Quality::HQ_PATTERN_8_9;
+
+          else if (pattern == 10)
+            return LCT_Quality::HQ_PATTERN_10;
+
+          else {
+            if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
+                              << "+++ findQuality: Unexpected CLCT pattern id = "
+                              << pattern << "+++\n";
+            return LCT_Quality::INVALID;
+          }
+        }
       }
     }
   }
-  return quality;
+  return LCT_Quality::INVALID;
 }
+
+
+template <> const matchesBX<GEMPadDigi>&
+CSCGEMMotherboard::getPads<GEMPadDigi>() const
+{
+  return pads_;
+}
+
+template <> const matchesBX<GEMCoPadDigi>&
+CSCGEMMotherboard::getPads<GEMCoPadDigi>() const
+{
+  return coPads_;
+}
+
+template <>
+int CSCGEMMotherboard::getMaxDeltaBX<GEMPadDigi>() const
+{
+  return maxDeltaBXPad_;
+}
+
+template <>
+int CSCGEMMotherboard::getMaxDeltaBX<GEMCoPadDigi>() const
+{
+  return maxDeltaBXCoPad_;
+}
+
+template <>
+int CSCGEMMotherboard::getLctTrigEnable<CSCALCTDigi>() const
+{
+  return alct_trig_enable;
+}
+
+template <>
+int CSCGEMMotherboard::getLctTrigEnable<CSCCLCTDigi>() const
+{
+  return clct_trig_enable;
+}
+
