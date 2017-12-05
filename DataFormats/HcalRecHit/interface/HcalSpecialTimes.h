@@ -77,12 +77,12 @@ namespace HcalSpecialTimes
                 t = UNKNOWN_T_UNDERSHOOT;
             else if (tdc == tdc_code_overshoot)
                 t = UNKNOWN_T_OVERSHOOT;
-            else if (tdc > tdc_code_invalid)
-                t = UNKNOWN_T_DLL_FAILURE;
             else if (tdc == tdc_code_invalid)
                 t = UNKNOWN_T_INVALID_CODE;
-            else
+            else if (tdc < tdc_code_invalid)
                 t = UNKNOWN_T_50TO57;
+            else
+                t = UNKNOWN_T_DLL_FAILURE;
         }
 
         return t;
