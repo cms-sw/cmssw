@@ -11,14 +11,10 @@ m2Parameters = cms.PSet(
     ts4Max                = cms.vdouble(100.,45000.), #fC # this is roughly 20 GeV
     pulseJitter           = cms.double(1.),           #GeV/bin 
     ###
+    meanPed               = cms.double(0.),   #GeV
     meanTime              = cms.double(0.),   #ns 
     timeSigmaHPD          = cms.double(5.),   #ns 
     timeSigmaSiPM         = cms.double(2.5),  #ns
-    meanPed               = cms.double(0.),   #GeV
-    pedSigmaHPD           = cms.double(0.5),  #GeV
-    pedSigmaSiPM          = cms.double(0.00065),   #GeV # this correspond roughtly to 1.5 fC for a gain of 2276
-    noiseHPD              = cms.double(1),    #fC
-    noiseSiPM             = cms.double(1),    #fC
     ###
     timeMin               = cms.double(-12.5),#ns
     timeMax               = cms.double(12.5), #ns
