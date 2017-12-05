@@ -174,7 +174,7 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
   clustertkhistomapon = conf_.getParameter<bool>("TkHistoMap_On");
   clusterchtkhistomapon = conf_.getParameter<bool>("ClusterChTkHistoMap_On");
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
-  trendVsLs_ = conf_.getParameter<bool>("TrendVsLS");
+  trendVs10Ls_ = conf_.getParameter<bool>("TrendVs10LS");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
   ClusterHisto_ = conf_.getParameter<bool>("ClusterHisto");
 
@@ -619,7 +619,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
   runNb   = iEvent.id().run();
   eventNb++;
-  trendVar = trendVsLs_ ? iEvent.orbitNumber()/262144.0 : iEvent.orbitNumber()/11223.0; // lumisection : seconds
+  trendVar = trendVs10Ls_ ? iEvent.orbitNumber()/(10*262144.0) : iEvent.orbitNumber()/(1*262144.0); // 10 lumisection : lumisection
 
   int NPixClusters=0, NStripClusters=0, MultiplicityRegion=0;
   bool isPixValid=false;
@@ -1320,7 +1320,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label , DQMStore::IBooke
   }
   // Total Number of Cluster vs Time - Profile
   if (subdetswitchtotclusprofon){
-    edm::ParameterSet Parameters = trendVsLs_ ? conf_.getParameter<edm::ParameterSet>("TrendingLS") : conf_.getParameter<edm::ParameterSet>("Trending");
+    edm::ParameterSet Parameters = trendVs10Ls_ ? conf_.getParameter<edm::ParameterSet>("TrendingLS") : conf_.getParameter<edm::ParameterSet>("Trending");
     HistoName = "TotalNumberOfClusterProfile__" + label;
     subdetMEs.SubDetTotClusterProf = ibooker.bookProfile(HistoName,HistoName,
 							 Parameters.getParameter<int32_t>("Nbins"),
@@ -1514,7 +1514,7 @@ void SiStripMonitorCluster::fillLayerMEs(LayerMEs& layerMEs, ClusterProperties& 
 //------------------------------------------------------------------------------------------
 MonitorElement* SiStripMonitorCluster::bookMETrend(const char* HistoName , DQMStore::IBooker & ibooker)
 {
-  edm::ParameterSet ParametersTrend = trendVsLs_ ? conf_.getParameter<edm::ParameterSet>("TrendingLS") : conf_.getParameter<edm::ParameterSet>("Trending");
+  edm::ParameterSet ParametersTrend = trendVs10Ls_ ? conf_.getParameter<edm::ParameterSet>("TrendingLS") : conf_.getParameter<edm::ParameterSet>("Trending");
   MonitorElement* me = ibooker.bookProfile(HistoName,HistoName,
 					   ParametersTrend.getParameter<int32_t>("Nbins"),
 					   ParametersTrend.getParameter<double>("xmin"),
