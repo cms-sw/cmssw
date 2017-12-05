@@ -32,10 +32,10 @@ public:
 	    const edm::ParameterSet& p,
 	    const SimTrackManager* man,
 	    SimActivityRegistry& reg,
-	    SensitiveTkDetector* oTK,
-	    SensitiveCaloDetector* oCalo) const override
+	    std::auto_ptr<SensitiveTkDetector>& oTK,
+	    std::auto_ptr<SensitiveCaloDetector>& oCalo) const override
   {
-    std::unique_ptr<T> returnValue(new T(iname, cpv, clg, p, man));
+    std::auto_ptr<T> returnValue(new T(iname, cpv, clg, p, man));
     SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 
     convertTo(returnValue.get(), oTK, oCalo);
