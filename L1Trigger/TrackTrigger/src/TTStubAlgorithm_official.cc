@@ -134,8 +134,8 @@ void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( 
 }
 
 
-//--- Does the actual work of degrading the bend. (based on I.Tomalin's code
-)
+//--- Does the actual work of degrading the bend. (based on I.Tomalin's code)
+
 template< >   
 float TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::degradeBend(bool psModule, int window, int bend) const {
  
