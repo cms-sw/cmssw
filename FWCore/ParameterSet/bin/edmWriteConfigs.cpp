@@ -103,7 +103,7 @@ namespace {
 
     try {
       edm::convertException::wrap([&]() {
-        descriptions.writeCfis(baseType, pluginName, usedCfiFileNames);
+        descriptions.writeCfis(usedCfiFileNames);
       });
     }
     catch(cms::Exception& e) {

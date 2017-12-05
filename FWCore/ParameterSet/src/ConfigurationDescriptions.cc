@@ -168,14 +168,12 @@ namespace edm {
   }
 
   void
-  ConfigurationDescriptions::writeCfis(std::string const& baseType,
-                                       std::string const& pluginName,
-                                       std::set<std::string>& usedCfiFileNames) const {
+  ConfigurationDescriptions::writeCfis(std::set<std::string>& usedCfiFileNames) const {
 
     for_all(descriptions_, std::bind(&ConfigurationDescriptions::writeCfiForLabel,
                                        std::placeholders::_1,
-                                       std::cref(baseType),
-                                       std::cref(pluginName),
+                                       std::cref(baseType_),
+                                       std::cref(pluginName_),
                                        std::ref(usedCfiFileNames)));
   }
 
