@@ -23,9 +23,15 @@ class CSCConstants
 
   enum Digis_Info { MAX_DIGIS_PER_ALCT = 10, MAX_DIGIS_PER_CLCT = 8 };
 
-  // Each CSC can send up to 2 LCTs to the MPC.
-  // An MPC receives up to 18 LCTs from 9 CSCs in the trigger sector
-  enum LCT_stubs{ MAX_LCTS_PER_CSC = 2, MAX_LCTS_PER_MPC = 18 };
+  enum LCT_stubs{
+    // CSC local trigger considers 4-bit BX window (16 numbers) in the readout
+    MAX_CLCT_BINS = 16,
+    MAX_ALCT_BINS = 16,
+    MAX_LCT_BINS = 16,
+    // Each CSC can send up to 2 LCTs to the MPC.
+    MAX_LCTS_PER_CSC = 2,
+    // An MPC receives up to 18 LCTs from 9 CSCs in the trigger sector
+    MAX_LCTS_PER_MPC = 18 };
 
 };
 

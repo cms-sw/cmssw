@@ -15,7 +15,7 @@
  *
  * Updates for high pileup running by Vadim Khotilovich (TAMU), December 2012
  *
- * Updates for integrated local trigger with GEMs and RPCs by 
+ * Updates for integrated local trigger with GEMs and RPCs by
  * Sven Dildick (TAMU) and Tao Huang (TAMU), April 2015
  *
  * Removing usage of outdated class CSCTriggerGeometry by Sven Dildick (TAMU)
@@ -63,18 +63,15 @@ class CSCAnodeLCTProcessor
   bool getDigis(const CSCWireDigiCollection* wiredc);
   void getDigis(const CSCWireDigiCollection* wiredc, const CSCDetId& id);
 
-  /** Maximum number of time bins reported in the ALCT readout. */
-  enum {MAX_ALCT_BINS = 16};
-
   /** Best LCTs in this chamber, as found by the processor.
       In old ALCT algorithms, up to two best ALCT per Level-1 accept window
       had been reported.
       In the ALCT-2006 algorithms, up to two best ALCTs PER EVERY TIME BIN in
       Level-1 accept window are reported. */
-  CSCALCTDigi bestALCT[MAX_ALCT_BINS];
+  CSCALCTDigi bestALCT[CSCConstants::MAX_ALCT_BINS];
 
   /** Second best LCTs in this chamber, as found by the processor. */
-  CSCALCTDigi secondALCT[MAX_ALCT_BINS];
+  CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_BINS];
 
   /** Returns vector of ALCTs in the read-out time window, if any. */
   std::vector<CSCALCTDigi> readoutALCTs();
@@ -152,7 +149,7 @@ class CSCAnodeLCTProcessor
   /** SLHC: delta BX time depth for ghostCancellationLogic */
   int ghost_cancellation_bx_depth;
 
-  /** SLHC: whether to consider ALCT candidates' qualities 
+  /** SLHC: whether to consider ALCT candidates' qualities
       while doing ghostCancellationLogic on +-1 wire groups */
   bool ghost_cancellation_side_quality;
 

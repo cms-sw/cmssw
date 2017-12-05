@@ -60,7 +60,7 @@ void CSCGEMMotherboardME11::clear()
   CSCGEMMotherboard::clear();
 
   if (clct1a) clct1a->clear();
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_BINS; bx++) {
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
       for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++) {
         allLCTs1b(bx,mbx,i).clear();
@@ -126,7 +126,7 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   const bool hasCoPads(hasPads and !coPads_.empty());
 
   // ALCT-centric matching
-  for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
+  for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_BINS; bx_alct++)
   {
     if (alct->bestALCT[bx_alct].isValid())
     {
@@ -153,7 +153,7 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       int nSuccesFulMatches = 0;
       for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
       {
-        if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+        if (bx_clct < 0 or bx_clct >= CSCConstants::MAX_CLCT_BINS) continue;
         if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
         if (clct->bestCLCT[bx_clct].isValid())
         {
@@ -273,7 +273,7 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       nSuccesFulMatches = 0;
       for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
       {
-        if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+        if (bx_clct < 0 or bx_clct >= CSCConstants::MAX_CLCT_BINS) continue;
         if (drop_used_clcts and used_clct_mask_1a[bx_clct]) continue;
         if (clct1a->bestCLCT[bx_clct].isValid())
         {
@@ -391,7 +391,7 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         // matching in ME1b
         if (buildLCTfromCLCTandGEM_ME1b_) {
           for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
-            if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+            if (bx_clct < 0 or bx_clct >= CSCConstants::MAX_CLCT_BINS) continue;
             if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
             if (clct->bestCLCT[bx_clct].isValid()) {
               const int quality(clct->bestCLCT[bx_clct].getQuality());
@@ -419,7 +419,7 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         // matching in ME1a
         if (buildLCTfromCLCTandGEM_ME1a_) {
           for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
-            if (bx_clct < 0 || bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+            if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_BINS) continue;
             if (drop_used_clcts && used_clct_mask_1a[bx_clct]) continue;
             if (clct1a->bestCLCT[bx_clct].isValid()){
               const int quality(clct1a->bestCLCT[bx_clct].getQuality());
@@ -454,7 +454,7 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   }
 
   // reduction of nLCTs per each BX
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_BINS; bx++)
   {
     // counting
     unsigned int n1a=0, n1b=0;
@@ -648,7 +648,7 @@ void CSCGEMMotherboardME11::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& LCTs, in
 void CSCGEMMotherboardME11::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& LCTs_final, enum CSCPart me,
                                      bool (*sorter)(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&)) const
 {
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_BINS; bx++)
     {
       // get sorted LCTs per subchamber
       std::vector<CSCCorrelatedLCTDigi> LCTs1a;

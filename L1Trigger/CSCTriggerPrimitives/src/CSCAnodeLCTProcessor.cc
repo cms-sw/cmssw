@@ -384,7 +384,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
   static const unsigned int max_nplanes_hit_accel_pattern = 1 << 3;
   static const unsigned int max_trig_mode        = 1 << 2;
   static const unsigned int max_accel_mode       = 1 << 2;
-  static const unsigned int max_l1a_window_width = MAX_ALCT_BINS; // 4 bits
+  static const unsigned int max_l1a_window_width = CSCConstants::MAX_ALCT_BINS; // 4 bits
 
   // Checks.
   if (fifo_tbins >= max_fifo_tbins) {
@@ -472,7 +472,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
 }
 
 void CSCAnodeLCTProcessor::clear() {
-  for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_ALCT_BINS; bx++) {
     bestALCT[bx].clear();
     secondALCT[bx].clear();
   }
@@ -1280,10 +1280,10 @@ void CSCAnodeLCTProcessor::lctSearch() {
        plct != fourBest.end(); plct++) {
 
     int bx = plct->getBX();
-    if (bx >= MAX_ALCT_BINS) {
+    if (bx >= CSCConstants::MAX_ALCT_BINS) {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeALCT")
         << "+++ Bx of ALCT candidate, " << bx << ", exceeds max allowed, "
-        << MAX_ALCT_BINS-1 << "; skipping it... +++\n";
+        << CSCConstants::MAX_ALCT_BINS-1 << "; skipping it... +++\n";
       continue;
     }
 
@@ -1300,22 +1300,22 @@ void CSCAnodeLCTProcessor::lctSearch() {
 
   if (!isTMB07) {
     // Prior to DAQ-2006 format, only ALCTs at the earliest bx were reported.
-    int first_bx = MAX_ALCT_BINS;
-    for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
+    int first_bx = CSCConstants::MAX_ALCT_BINS;
+    for (int bx = 0; bx < CSCConstants::MAX_ALCT_BINS; bx++) {
       if (bestALCT[bx].isValid()) {
         first_bx = bx;
         break;
       }
     }
-    if (first_bx < MAX_ALCT_BINS) {
-      for (int bx = first_bx + 1; bx < MAX_ALCT_BINS; bx++) {
+    if (first_bx < CSCConstants::MAX_ALCT_BINS) {
+      for (int bx = first_bx + 1; bx < CSCConstants::MAX_ALCT_BINS; bx++) {
         if (bestALCT[bx].isValid())   bestALCT[bx].clear();
         if (secondALCT[bx].isValid()) secondALCT[bx].clear();
       }
     }
   }
 
-  for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_ALCT_BINS; bx++) {
     if (bestALCT[bx].isValid()) {
       bestALCT[bx].setTrknmb(1);
       if (infoV > 0) {
@@ -1347,7 +1347,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
                                  const std::vector<CSCALCTDigi>& all_alcts) {
   /* Selects two collision and two accelerator ALCTs per time bin with
      the best quality. */
-  CSCALCTDigi bestALCTs[MAX_ALCT_BINS][2], secondALCTs[MAX_ALCT_BINS][2];
+  CSCALCTDigi bestALCTs[CSCConstants::MAX_ALCT_BINS][2], secondALCTs[CSCConstants::MAX_ALCT_BINS][2];
 
   if (infoV > 1) {
     LogTrace("CSCAnodeLCTProcessor") << all_alcts.size() <<
@@ -1359,7 +1359,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     }
   }
 
-  CSCALCTDigi tA[MAX_ALCT_BINS][2], tB[MAX_ALCT_BINS][2];
+  CSCALCTDigi tA[CSCConstants::MAX_ALCT_BINS][2], tB[CSCConstants::MAX_ALCT_BINS][2];
   for (std::vector <CSCALCTDigi>::const_iterator plct = all_alcts.begin();
        plct != all_alcts.end(); plct++) {
     if (!plct->isValid()) continue;
@@ -1389,7 +1389,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     }
   }
 
-  for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_ALCT_BINS; bx++) {
     for (int accel = 0; accel <= 1; accel++) {
       // Best ALCT is always tA.
       if (tA[bx][accel].isValid()) {
@@ -1426,7 +1426,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
 
   // Fill the vector with up to four best ALCTs per bx and return it.
   std::vector<CSCALCTDigi> fourBest;
-  for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_ALCT_BINS; bx++) {
     for (int i = 0; i < 2; i++) {
       if (bestALCTs[bx][i].isValid())   fourBest.push_back(bestALCTs[bx][i]);
     }
@@ -1648,12 +1648,12 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
         << "; in-time ALCTs are not getting read-out!!! +++" << "\n";
     }
 
-    if (late_tbins > MAX_ALCT_BINS-1) {
+    if (late_tbins > CSCConstants::MAX_ALCT_BINS-1) {
       if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
         << "+++ Allowed range of time bins, [0-" << late_tbins
-        << "] exceeds max allowed, " << MAX_ALCT_BINS-1 << " +++\n"
+        << "] exceeds max allowed, " << CSCConstants::MAX_ALCT_BINS-1 << " +++\n"
         << "+++ Set late_tbins to max allowed +++\n";
-      late_tbins = MAX_ALCT_BINS-1;
+      late_tbins = CSCConstants::MAX_ALCT_BINS-1;
     }
     ifois = 1;
   }
@@ -1692,7 +1692,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
 // Returns vector of all found ALCTs, if any.  Used in ALCT-CLCT matching.
 std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
   std::vector<CSCALCTDigi> tmpV;
-  for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_ALCT_BINS; bx++) {
     if (bestALCT[bx].isValid())   tmpV.push_back(bestALCT[bx]);
     if (secondALCT[bx].isValid()) tmpV.push_back(secondALCT[bx]);
   }
