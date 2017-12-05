@@ -276,7 +276,6 @@ void HcalPulseShapes::computeSiPMShapeData2018()
 {
 
    //Combination of all phase scan data (May,Jul,Oct2017)
-   //L(X)AG
    //runs:  294736-294740, 294929-294950, 298594-298598 and 305744-305758
 
   unsigned int nbin = 250;
@@ -309,7 +308,7 @@ void HcalPulseShapes::computeSiPMShapeData2018()
 	9.91146e-05, 9.81915e-05, 9.7281e-05, 9.63831e-05, 9.54975e-05, 9.46239e-05, 9.37621e-05, 9.2912e-05, 9.20733e-05, 9.12458e-05
   }};
  
-  siPMShapeLAG2017_.setNBin(nbin);
+  siPMShapeData2018_.setNBin(nbin);
 
   double norm = 0.;
   for (unsigned int j = 0; j < nbin; ++j) {
@@ -318,7 +317,7 @@ void HcalPulseShapes::computeSiPMShapeData2018()
 
   for (unsigned int j = 0; j < nbin; ++j) {
     nt[j] /= norm;
-    siPMShapeLAG2017_.setShapeBin(j,nt[j]);
+    siPMShapeData2018_.setShapeBin(j,nt[j]);
   }
 }
  
