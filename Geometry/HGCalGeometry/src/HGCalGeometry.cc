@@ -117,7 +117,7 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 #endif
 }
 
-const std::shared_ptr<CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& id) {
+std::shared_ptr<const CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& id) {
   if (id == DetId()) return nullptr; // nothing to get
   DetId geoId;
   if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
@@ -253,22 +253,22 @@ unsigned int HGCalGeometry::sizeForDenseIndex() const {
   return topology().totalGeomModules();
 }
 
-const std::shared_ptr<CaloCellGeometry> HGCalGeometry::cellGeomPtr(uint32_t index) {
+std::shared_ptr<const CaloCellGeometry> HGCalGeometry::cellGeomPtr(uint32_t index) {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return nullptr;
   static const auto do_not_delete = [](const void*){};
-  auto cell = std::shared_ptr<CaloCellGeometry>(&m_cellVec[index],do_not_delete);
+  auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);
   if (nullptr == cell->param()) return nullptr;
   return cell;
 }
 
-const std::shared_ptr<CaloCellGeometry> HGCalGeometry::cellGeomPtr(uint32_t index, const GlobalPoint& pos) {
+std::shared_ptr<const CaloCellGeometry> HGCalGeometry::cellGeomPtr(uint32_t index, const GlobalPoint& pos) {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return nullptr;
   if (pos == GlobalPoint()) return cellGeomPtr(index);
   FlatTrd* newcell = new FlatTrd(m_cellVec[index]);
   newcell->setPosition(pos);
-  auto cell = (std::shared_ptr<CaloCellGeometry>)(newcell);
+  auto cell = (std::shared_ptr<const CaloCellGeometry>)(newcell);
 #ifdef EDM_ML_DEBUG
   std::cout << "cellGeomPtr " << newcell << ":" << cell << std::endl;
 #endif

@@ -49,17 +49,17 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 	auto time = erh.time();
 	auto depth = detid.depth();
 	
-	const std::shared_ptr<CaloCellGeometry> thisCell = 
-	  (esd==HcalBarrel) ? (hcalBarrelGeo->getGeometry(detid)) : 
-	  ((esd==HcalEndcap) ? (hcalEndcapGeo->getGeometry(detid)) : nullptr);
+	std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
 	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
 	switch(esd) {
 	case HcalBarrel:
-	  layer =PFLayer::HCAL_BARREL1;
+	  thisCell = (hcalBarrelGeo->getGeometry(detid));
+	  layer    = PFLayer::HCAL_BARREL1;
 	  break;
 
 	case HcalEndcap:
-	  layer =PFLayer::HCAL_ENDCAP;
+	  thisCell = (hcalEndcapGeo->getGeometry(detid));
+	  layer    = PFLayer::HCAL_ENDCAP;
 	  break;
 	default:
 	  break;

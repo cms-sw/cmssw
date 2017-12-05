@@ -35,7 +35,7 @@ class CaloGeometry
       const GlobalPoint& getPosition( const DetId& id );
 
       /// Get the cell geometry of a given detector id
-      const std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id ) ;
+      std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) ;
 
       /// Get the list of all valid detector ids
       std::vector<DetId> getValidDetIds() const ;

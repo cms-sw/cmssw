@@ -140,7 +140,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     if( rh_energy > 0.0 ) weight = std::max(0.0,( _param_W0 + 
 						  vdt::fast_log(rh_energy) + 
 						  logETot_inv ));
-    const std::shared_ptr<CaloCellGeometry> cell = ((CaloSubdetectorGeometry*)(ecal_geom))->getGeometry(refhit->detId());
+    std::shared_ptr<const CaloCellGeometry> cell = ((CaloSubdetectorGeometry*)(ecal_geom))->getGeometry(refhit->detId());
     const float depth = maxDepth + maxToFront - cell->getPosition().mag();    
     const GlobalPoint pos =
       static_cast<const TruncatedPyramid*>(cell.get())->getPosition(depth);

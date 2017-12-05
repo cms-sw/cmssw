@@ -516,11 +516,11 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter()
    return m_avgZ;
 }
 
-const std::shared_ptr<CaloCellGeometry>  
+std::shared_ptr<const CaloCellGeometry>  
 EcalEndcapGeometry::cellGeomPtr( uint32_t index ) {
   if (m_cellVec.size() < index) return nullptr;
   static const auto do_not_delete = [](const void*){};
-  auto cell = std::shared_ptr<CaloCellGeometry>(&m_cellVec[index],do_not_delete);
+  auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);
   /*
   auto cell = std::shared_ptr<CaloCellGeometry>(new TruncatedPyramid(m_cellVec[index])) ;
   */

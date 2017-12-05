@@ -54,7 +54,7 @@ namespace reco {
     /// default constructor. Sets energy and position to zero
     PFRecHit(){}
 
-  PFRecHit(std::shared_ptr<CaloCellGeometry> caloCell, 
+  PFRecHit(std::shared_ptr<const CaloCellGeometry> caloCell, 
 	   unsigned int detId, PFLayer::Layer layer,
 	   float energy) : caloCell_(caloCell),  detId_(detId),
       layer_(layer), energy_(energy){}
@@ -154,7 +154,7 @@ namespace reco {
     Neighbours buildNeighbours(unsigned int n) const { return  Neighbours(&neighbours_.front(),n);}
     
     /// cell geometry
-    std::shared_ptr<CaloCellGeometry> caloCell_=nullptr;
+    std::shared_ptr<const CaloCellGeometry> caloCell_=nullptr;
  
     ///cell detid
     unsigned  int        detId_=0;             

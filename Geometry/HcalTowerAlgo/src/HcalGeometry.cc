@@ -83,7 +83,7 @@ HcalGeometry::getValidDetIds( DetId::Detector det,
 		 ( HcalForward == subdet ? *m_hfIds.load() : *m_emptyIds.load() ) ) ) ) ) ;
 }
 
-const std::shared_ptr<CaloCellGeometry> HcalGeometry::getGeometry(const DetId& id) {
+std::shared_ptr<const CaloCellGeometry> HcalGeometry::getGeometry(const DetId& id) {
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalGeometry::getGeometry for " << HcalDetId(id) << "  " 
 	    << m_mergePosition << " ";
@@ -149,7 +149,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) {
     else                  pointrz = std::abs(r.z());
     HcalDetId bestId;
     for ( ; currentId != HcalDetId(); m_topology.incrementDepth(currentId)) {
-      std::shared_ptr<CaloCellGeometry> cell = getGeometry(currentId);
+      std::shared_ptr<const CaloCellGeometry> cell = getGeometry(currentId);
       if (cell == nullptr) {
         assert (bestId != HcalDetId());
         break;
@@ -252,7 +252,7 @@ CaloSubdetectorGeometry::DetIdSet HcalGeometry::getCells(const GlobalPoint& r,
 		 for (int idep ( idep_lo ) ; idep <= idep_hi ; ++idep ) {
 		   const HcalDetId did ( hs[is], ieta, iphi, idep ) ;
 		   if (m_topology.valid(did)) {
-		     std::shared_ptr<CaloCellGeometry> cell ( getGeometryBase( did ) );
+		     std::shared_ptr<const CaloCellGeometry> cell ( getGeometryBase( did ) );
 		     if (nullptr != cell ) {
 		       const GlobalPoint& p   ( cell->getPosition() ) ;
 		       const double       eta ( p.eta() ) ;
@@ -468,26 +468,22 @@ void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
   m_dins.emplace_back( din );
 }
 
-const std::shared_ptr<CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int din ) {
+std::shared_ptr<const CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int din ) {
   static const auto do_not_delete = [](const void*){};
-  std::shared_ptr<CaloCellGeometry> cell ( nullptr ) ;
+  std::shared_ptr<const CaloCellGeometry> cell ( nullptr ) ;
   if (m_hbCellVec.size() > din) {
-    cell = std::shared_ptr<CaloCellGeometry>(&m_hbCellVec[din],do_not_delete);
-//  cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_hbCellVec[din])) ;
+    cell = std::shared_ptr<const CaloCellGeometry>(&m_hbCellVec[din],do_not_delete);
   } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
     const unsigned int ind (din - m_hbCellVec.size() ) ;
-    cell = std::shared_ptr<CaloCellGeometry>(&m_heCellVec[ind],do_not_delete);
-//  cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_heCellVec[ind]));
+    cell = std::shared_ptr<const CaloCellGeometry>(&m_heCellVec[ind],do_not_delete);
   } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
     const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size());
-    cell = std::shared_ptr<CaloCellGeometry>(&m_hoCellVec[ind],do_not_delete);
-//  cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_hoCellVec[ind]));
+    cell = std::shared_ptr<const CaloCellGeometry>(&m_hoCellVec[ind],do_not_delete);
   } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size()+
 	     m_hfCellVec.size() > din) {
     const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size() -
 			    m_hoCellVec.size() ) ;
-    cell = std::shared_ptr<CaloCellGeometry>(&m_hfCellVec[ind],do_not_delete);
-//  cell = std::shared_ptr<CaloCellGeometry>(new IdealZPrism(m_hfCellVec[ind]));
+    cell = std::shared_ptr<const CaloCellGeometry>(&m_hfCellVec[ind],do_not_delete);
   }
   
   return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;

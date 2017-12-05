@@ -66,7 +66,7 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 	auto energy = erh.energy();
 	auto time = erh.time();
 
-	std::shared_ptr<CaloCellGeometry> thisCell= hcalGeo->getGeometry(detid);
+	std::shared_ptr<const CaloCellGeometry> thisCell= hcalGeo->getGeometry(detid);
 	auto zp = dynamic_cast<IdealZPrism const*>(thisCell.get());
 	assert(zp);
 	thisCell = zp->forPF();

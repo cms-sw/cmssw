@@ -60,7 +60,7 @@ public:
 	       const DetId&       detId) override;
   
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  const std::shared_ptr<CaloCellGeometry> getGeometry(const DetId& id) override;
+  std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) override;
 
   void getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 		  CaloSubdetectorGeometry::IVec&   iVector,
@@ -103,13 +103,13 @@ protected:
   unsigned int sizeForDenseIndex() const;
   
   // const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
-  const std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) override;
   
   void addValidID(const DetId& id);
   
 private:
 
-  const std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p);
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p);
 
   const FastTimeTopology& m_topology;
   

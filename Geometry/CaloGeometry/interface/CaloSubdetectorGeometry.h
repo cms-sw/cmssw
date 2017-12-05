@@ -25,7 +25,7 @@ Base class for a geometry container for a specific calorimetry subdetector.
 class CaloSubdetectorGeometry {
 
 public:
-  typedef std::vector<std::shared_ptr<CaloCellGeometry> > CellSet;
+  typedef std::vector<std::shared_ptr<const CaloCellGeometry> > CellSet;
   typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
   typedef std::set<DetId>       DetIdSet;
@@ -59,7 +59,7 @@ public:
 
   /// Get the cell geometry of a given detector id.  Should return false if not found.
   //virtual const CaloCellGeometry* getGeometry( const DetId& id ) const ;
-  virtual const std::shared_ptr<CaloCellGeometry> getGeometry( const DetId& id );
+  virtual std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id );
 
   /** \brief Get a list of valid detector ids (for the given subdetector)
       \note The implementation in this class is relevant for SubdetectorGeometries which handle only
@@ -114,7 +114,7 @@ protected:
   virtual unsigned int sizeForDenseIndex(const DetId& id) const;
 
   //virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const = 0 ;
-  virtual const std::shared_ptr<CaloCellGeometry> cellGeomPtr( uint32_t index ) = 0 ;
+  virtual std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) = 0 ;
 
   ParVecVec m_parVecVec ;
 

@@ -856,7 +856,7 @@ PFCTRecHitProducer::createHcalRecHit( const DetId& detid,
 					const CaloSubdetectorGeometry* geom,
 					const CaloTowerDetId& newDetId ) {
   
-  std::shared_ptr<CaloCellGeometry> thisCell = ((CaloSubdetectorGeometry*)(geom))->getGeometry(detid);
+  std::shared_ptr<const CaloCellGeometry> thisCell = ((CaloSubdetectorGeometry*)(geom))->getGeometry(detid);
   if(!thisCell) {
     edm::LogError("PFRecHitProducerHCAL")
       <<"warning detid "<<detid.rawId()<<" not found in layer "

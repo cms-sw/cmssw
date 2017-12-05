@@ -77,15 +77,15 @@ CaloGeometry::getPosition( const DetId& id ) {
   }
 }
 
-const std::shared_ptr<CaloCellGeometry>
+std::shared_ptr<const CaloCellGeometry>
 CaloGeometry::getGeometry( const DetId& id ) 
 {
   CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)(getSubdetectorGeometry(id)) ;
   if (geom) {
-    const auto cell = (geom->getGeometry(id));
+    auto cell = (geom->getGeometry(id));
     return cell;
   } else {
-    return std::shared_ptr<CaloCellGeometry>();
+    return std::shared_ptr<const CaloCellGeometry>();
   }
 }
 

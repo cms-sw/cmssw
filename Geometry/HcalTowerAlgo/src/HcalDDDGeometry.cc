@@ -219,26 +219,22 @@ HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
   m_validIds.emplace_back(detId);
 }
 
-const std::shared_ptr<CaloCellGeometry> HcalDDDGeometry::cellGeomPtr( unsigned int din ) {
+std::shared_ptr<const CaloCellGeometry> HcalDDDGeometry::cellGeomPtr( unsigned int din ) {
   static const auto do_not_delete = [](const void*){};
-  std::shared_ptr<CaloCellGeometry> cell ( nullptr ) ;
+  std::shared_ptr<const CaloCellGeometry> cell ( nullptr ) ;
   if (m_hbCellVec.size() > din) {
-    cell = std::shared_ptr<CaloCellGeometry>(&m_hbCellVec[din],do_not_delete);
-//  cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_hbCellVec[din])) ;
+    cell = std::shared_ptr<const CaloCellGeometry>(&m_hbCellVec[din],do_not_delete);
   } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
     const unsigned int ind (din - m_hbCellVec.size() ) ;
-    cell = std::shared_ptr<CaloCellGeometry>(&m_heCellVec[ind],do_not_delete);
-//    cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_heCellVec[ind]));
+    cell = std::shared_ptr<const CaloCellGeometry>(&m_heCellVec[ind],do_not_delete);
   } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
     const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size());
-    cell = std::shared_ptr<CaloCellGeometry>(&m_hoCellVec[ind],do_not_delete);
-//  cell = std::shared_ptr<CaloCellGeometry>(new IdealObliquePrism(m_hoCellVec[ind]));
+    cell = std::shared_ptr<const CaloCellGeometry>(&m_hoCellVec[ind],do_not_delete);
   } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size()+
 	     m_hfCellVec.size() > din) {
     const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size() -
 			    m_hoCellVec.size() ) ;
-    cell = std::shared_ptr<CaloCellGeometry>(&m_hfCellVec[ind],do_not_delete);
-//  cell = std::shared_ptr<CaloCellGeometry>(new IdealZPrism(m_hfCellVec[index]));
+    cell = std::shared_ptr<const CaloCellGeometry>(&m_hfCellVec[ind],do_not_delete);
   }
   
   return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;

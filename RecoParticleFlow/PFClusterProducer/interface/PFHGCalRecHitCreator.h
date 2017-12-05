@@ -71,7 +71,7 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
 	double energy = hgrh.energy();
 	double time = hgrh.time();	
 	
-	const std::shared_ptr<CaloCellGeometry> thisCell = ((CaloSubdetectorGeometry*)(geom->getSubdetectorGeometry(detid.det(),detid.subdetId())))->getGeometry(detid);
+	std::shared_ptr<const CaloCellGeometry> thisCell = ((CaloSubdetectorGeometry*)(geom->getSubdetectorGeometry(detid.det(),detid.subdetId())))->getGeometry(detid);
 	if( detid.det() != DetId::Hcal ) {
 	  HGCalGeometry* hg = (HGCalGeometry*)(geom->getSubdetectorGeometry(detid.det(),detid.subdetId()));
 	  caloCells_.push_back(new CaloCellGeometryHGCALAdapter(((FlatTrd*)(hg->getGeometry(detid).get())),
