@@ -333,6 +333,12 @@ def miniAOD_customizeCommon(process):
     # add DetIdAssociatorRecords to EventSetup (for isolatedTracks)
     process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
 
+    # EGamma objects from HGCal are not yet in GED
+    # so add companion collections for Phase-II MiniAOD production
+    from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+    process.load("RecoEgamma.EgammaTools.slimmedEgammaFromMultiCl_cff")
+    phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaFromMultiClTask))
+
 
 def miniAOD_customizeMC(process):
     task = getPatAlgosToolsTask(process)
