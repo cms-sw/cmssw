@@ -19,7 +19,6 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <cstdio>
-#include <sys/file.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/fstream.hpp>
 
@@ -32,17 +31,6 @@ namespace evf {
 
   //for enum MergeType
   const std::vector<std::string> EvFDaqDirector::MergeTypeNames_ = {"","DAT","PB","JSNDATA"};
-
-  namespace {
-    struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
-    {
-#ifdef __APPLE__
-      return {start, len, pid, type, whence};
-#else
-      return {type, whence, start, len, pid};
-#endif
-    }
-  }
 
   EvFDaqDirector::EvFDaqDirector(const edm::ParameterSet &pset,
 				 edm::ActivityRegistry& reg) :
@@ -81,10 +69,6 @@ namespace evf {
     bu_r_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, 0 )),
     fu_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
     fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
-    //fulocal_rw_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    //fulocal_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
-    //fulocal_rw_flk2( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    //fulocal_rw_fulk2( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
 
     reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
@@ -998,4 +982,14 @@ namespace evf {
     close(proc_flag_fd);
   }
 
+  struct flock EvFDaqDirector::make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
+  {
+#ifdef __APPLE__
+      return {start, len, pid, type, whence};
+#else
+      return {type, whence, start, len, pid};
+#endif
+  }
+
 }
+
