@@ -119,6 +119,7 @@ Stage2L1HardwareValidationForValidationEvents = cms.Sequence(
 from DQM.L1TMonitor.L1TdeStage2CaloLayer1_cfi import *
 
 # CaloLayer2
+from DQM.L1TMonitor.L1TdeStage2CaloLayer2_cfi import *
 from DQM.L1TMonitor.L1TStage2CaloLayer2_cfi import *
 from DQM.L1TMonitor.L1TStage2CaloLayer2Emul_cfi import *
 
@@ -150,6 +151,7 @@ l1tStage2EmulatorOnlineDQMValidationEvents = cms.Sequence(
     l1tdeStage2CaloLayer1 +
     # We process both layer2 and layer2emu in same sourceclient
     # to be able to divide them in the MonitorClient
+    l1tdeStage2CaloLayer2 +
     l1tStage2CaloLayer2 + l1tStage2CaloLayer2Emul +
     l1tdeStage2Bmtf +
     l1tdeStage2Omtf +
