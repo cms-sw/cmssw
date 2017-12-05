@@ -11,6 +11,7 @@
 
 // system include files
 #include <string>
+#include <memory>
 
 // user include files
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
@@ -38,21 +39,21 @@ public:
 		    const edm::ParameterSet& p,
 		    const SimTrackManager* man,
 		    SimActivityRegistry& reg,
-		    SensitiveTkDetector* oTK,
-		    SensitiveCaloDetector* oCalo) const =0;
+		    std::auto_ptr<SensitiveTkDetector>& oTK,
+		    std::auto_ptr<SensitiveCaloDetector>& oCalo) const =0;
       
 protected:
   //used to identify which type of Sensitive Detector we have
   void convertTo( SensitiveTkDetector* iFrom, 
-		  SensitiveTkDetector* oTo,
-		  SensitiveCaloDetector*) const{
-    oTo = iFrom;
+		  std::auto_ptr<SensitiveTkDetector>& oTo,
+		  std::auto_ptr<SensitiveCaloDetector>) const{
+    oTo = std::auto_ptr<SensitiveTkDetector>(iFrom);
   }
 
   void convertTo( SensitiveCaloDetector* iFrom,
-		  SensitiveTkDetector*,
-		  SensitiveCaloDetector* oTo) const{
-    oTo = iFrom;
+		  std::auto_ptr<SensitiveTkDetector>,
+		  std::auto_ptr<SensitiveCaloDetector>& oTo) const{
+    oTo = std::auto_ptr<SensitiveCaloDetector>(iFrom);
   }
 
 private:
