@@ -203,9 +203,9 @@ def getFullTrackVPSet():
         )
         ret.append(hltFullTrack)
 
-    thresholds3 = [85,105,135,155]
+    thresholds3 = [85,100,130,155]
     for t in thresholds3:
-        partialPathName = "HLT_FullTracks_Multiplicity"+str(t)+"_v"
+        partialPathName = "HLT_FullTrack_Multiplicity"+str(t)+"_v"
         hltFullTrackMult =  cms.PSet(
             triggerSelection = cms.string(partialPathName+"*"),
             handlerType = cms.string("FromHLT"),
