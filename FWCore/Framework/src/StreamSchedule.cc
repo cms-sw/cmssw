@@ -256,7 +256,7 @@ namespace edm {
     initializeBranchToReadingWorker(opts,preg,branchToReadingWorker);
     
     //If no delete early items have been specified we don't have to do anything
-    if(branchToReadingWorker.size()==0) {
+    if(branchToReadingWorker.empty()) {
       return;
     }
     const std::vector<std::string> kEmpty;
@@ -269,7 +269,7 @@ namespace edm {
     modReg.forAllModuleHolders([this, &branchToReadingWorker,&nUniqueBranchesToDelete](maker::ModuleHolder* iHolder){
       auto comm = iHolder->createOutputModuleCommunicator();
       if (comm) {
-        if(branchToReadingWorker.size()>0) {
+        if(!branchToReadingWorker.empty()) {
           //If an OutputModule needs a product, we can't delete it early
           // so we should remove it from our list
           SelectedProductsForBranchType const& kept = comm->keptProducts();
@@ -285,14 +285,14 @@ namespace edm {
       }
     });
     
-    if(branchToReadingWorker.size()==0) {
+    if(branchToReadingWorker.empty()) {
       return;
     }
     
     for (auto w :allWorkers()) {
       //determine if this module could read a branch we want to delete early
       auto pset = pset::Registry::instance()->getMapped(w->description().parameterSetID());
-      if(0!=pset) {
+      if(nullptr!=pset) {
         auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet",kEmpty);
         if(not branches.empty()) {
           ++upperLimitOnReadingWorker;
@@ -334,7 +334,7 @@ namespace edm {
         }
       }
     }  
-    if(0!=branchToReadingWorker.size()) {
+    if(!branchToReadingWorker.empty()) {
       earlyDeleteHelpers_.reserve(upperLimitOnReadingWorker);
       earlyDeleteHelperToBranchIndicies_.resize(upperLimitOnIndicies,0);
       earlyDeleteBranchToCount_.reserve(nUniqueBranchesToDelete);
@@ -422,7 +422,7 @@ namespace edm {
 
       bool isTracked;
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
-      if (modpset == 0) {
+      if (modpset == nullptr) {
         std::string pathType("endpath");
         if (!search_all(endPathNames, pathName)) {
           pathType = std::string("path");
@@ -571,8 +571,25 @@ namespace edm {
     
     ++total_events_;
     auto serviceToken = ServiceRegistry::instance().presentToken();
+    
+    auto allPathsDone = make_waiting_task(tbb::task::allocate_root(),
+                                          [iTask,this,serviceToken](std::exception_ptr const* iPtr) mutable
+                                          {
+                                            ServiceRegistry::Operate operate(serviceToken);
+                                            
+                                            std::exception_ptr ptr;
+                                            if(iPtr) {
+                                              ptr = *iPtr;
+                                            }
+                                            iTask.doneWaiting(finishProcessOneEvent(ptr));
+                                          });
+    //The holder guarantees that if the paths finish before the loop ends
+    // that we do not start too soon. It also guarantees that the task will
+    // run under that condition.
+    WaitingTaskHolder allPathsHolder(allPathsDone);
+
     auto pathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                          [iTask,&ep, &es, this,serviceToken](std::exception_ptr const* iPtr) mutable
+                                          [allPathsHolder,&ep, &es, this,serviceToken](std::exception_ptr const* iPtr) mutable
                                           {
                                             ServiceRegistry::Operate operate(serviceToken);
 
@@ -580,13 +597,19 @@ namespace edm {
                                             if(iPtr) {
                                               ptr = *iPtr;
                                             }
-                                            finishedPaths(ptr, std::move(iTask), ep, es);
+                                            finishedPaths(ptr, std::move(allPathsHolder), ep, es);
                                           });
     
     //The holder guarantees that if the paths finish before the loop ends
     // that we do not start too soon. It also guarantees that the task will
     // run under that condition.
     WaitingTaskHolder taskHolder(pathsDone);
+
+    //start end paths first so on single threaded the paths will run first
+    for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
+        it != itEnd; ++it) {
+      it->processOneOccurrenceAsync(allPathsDone,ep, es, streamID_, &streamContext_);
+    }
 
     for(auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend();
         it != itEnd; ++ it) {
@@ -623,51 +646,32 @@ namespace edm {
       ++total_passed_;
     }
 
-    if((not iExcept) and (nullptr != results_inserter_.get())) {
+    if(nullptr != results_inserter_.get()) {
       try {
+        //Even if there was an exception, we need to allow results inserter
+        // to run since some module may be waiting on its results.
         ParentContext parentContext(&streamContext_);
         using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
 
         results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
       }
       catch (cms::Exception & ex) {
-        if(ex.context().empty()) {
-          std::ostringstream ost;
-          ost << "Processing Event " << ep.id();
-          ex.addContext(ost.str());
+        if (not iExcept) {
+          if(ex.context().empty()) {
+            std::ostringstream ost;
+            ost << "Processing Event " << ep.id();
+            ex.addContext(ost.str());
+          }
+          iExcept = std::current_exception();
         }
-        iExcept = std::current_exception();
       }
       catch(...) {
-        iExcept = std::current_exception();
+        if (not iExcept) {
+          iExcept = std::current_exception();
+        }
       }
     }
-    if(end_paths_.empty() or iExcept or (not endpathsAreActive_)) {
-      iExcept = finishProcessOneEvent(iExcept);
-      iWait.doneWaiting(iExcept);
-    } else {
-      auto serviceToken = ServiceRegistry::instance().presentToken();
-
-      auto endPathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                            [iWait,this,serviceToken](std::exception_ptr const* iPtr) mutable
-                                            {
-                                              ServiceRegistry::Operate operate(serviceToken);
-
-                                              std::exception_ptr ptr;
-                                              if(iPtr) {
-                                                ptr = *iPtr;
-                                              }
-                                              iWait.doneWaiting(finishProcessOneEvent(ptr));
-                                            });
-      //The holder guarantees that if the paths finish before the loop ends
-      // that we do not start too soon. It also guarantees that the task will
-      // run under that condition.
-      WaitingTaskHolder taskHolder(endPathsDone);
-      for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
-          it != itEnd; ++it) {
-        it->processOneOccurrenceAsync(endPathsDone,ep, es, streamID_, &streamContext_);
-      }
-    }
+    iWait.doneWaiting(iExcept);
   }
 
   
@@ -824,7 +828,7 @@ namespace edm {
     sum.timesExcept += path.timesExcept();
     
     Path::size_type sz = path.size();
-    if(sum.moduleInPathSummaries.size()==0) {
+    if(sum.moduleInPathSummaries.empty()) {
       std::vector<ModuleInPathSummary> temp(sz);
       for (size_t i = 0; i != sz; ++i) {
         fillModuleInPathSummary(path, i, temp[i]);

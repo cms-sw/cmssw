@@ -111,5 +111,5 @@ bool HLTCATopTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iS
 
  
 
-//define this as a plug-in
+// declare this class as a framework plugin
 DEFINE_FWK_MODULE(HLTCATopTagFilter);

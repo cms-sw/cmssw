@@ -73,11 +73,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
     )
 
-process.DQMStore = cms.Service("DQMStore")
-
-#needed to produce tkHistoMap
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
+# load TrackerTopology (needed for TkDetMap and TkHistoMap)
+process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

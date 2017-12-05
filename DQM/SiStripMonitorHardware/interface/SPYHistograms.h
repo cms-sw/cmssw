@@ -64,7 +64,7 @@ class SPYHistograms: public HistogramBase {
 		  ) override;
 
   //book the top level histograms
-  void bookTopLevelHistograms(DQMStore::IBooker &);
+  void bookTopLevelHistograms(DQMStore::IBooker &, const TkDetMap*);
 
   //book individual FED histograms or book all FED level histograms at once
   void bookFEDHistograms(DQMStore::IBooker & , const unsigned int fedId,

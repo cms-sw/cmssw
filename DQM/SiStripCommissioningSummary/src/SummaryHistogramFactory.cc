@@ -15,7 +15,7 @@ SummaryHistogramFactory<T>::SummaryHistogramFactory() :
   view_(sistrip::UNKNOWN_VIEW),
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
-  generator_(0) 
+  generator_(nullptr) 
 {
   LogTrace(mlSummaryPlots_) 
     << "[SummaryHistogramFactory::" << __func__ << "]";
@@ -47,7 +47,7 @@ void SummaryHistogramFactory<T>::init( const sistrip::Monitorable& mon,
   // Retrieve utility class used to generate summary histograms
   if ( generator_ ) { 
     delete generator_;
-    generator_ = 0;
+    generator_ = nullptr;
     generator_ = SummaryGenerator::instance( view );
   }
   

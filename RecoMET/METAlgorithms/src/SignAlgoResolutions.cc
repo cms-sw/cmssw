@@ -23,7 +23,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 
 
-#include <math.h>
+#include <cmath>
 
 #include <cstdlib>
 #include <iostream>
@@ -33,8 +33,8 @@
 
 metsig::SignAlgoResolutions::SignAlgoResolutions(const edm::ParameterSet &iConfig):
     functionmap_(),
-    ptResol_(0),
-    phiResol_(0)
+    ptResol_(nullptr),
+    phiResol_(nullptr)
 {
   addResolutions(iConfig);
 }
@@ -338,7 +338,7 @@ double metsig::SignAlgoResolutions::EtFunction( const functionPars &x, const fun
 {
   if(par.size()<3)
     return 0.;
-  if(x.size()<1)
+  if(x.empty())
     return 0.;
   double et=x[0];
   if(et<=0.)
@@ -384,7 +384,7 @@ metsig::SignAlgoResolutions::initializeJetResolutions( const edm::ParameterSet &
   using namespace std;
   
   // only reinitialize the resolutsion if the pointers are zero
-  if ( ptResol_ == 0 ) {
+  if ( ptResol_ == nullptr ) {
     string resolutionsAlgo  = iConfig.getParameter<std::string>("resolutionsAlgo");     
     string resolutionsEra   = iConfig.getParameter<std::string>("resolutionsEra");     
 
@@ -398,8 +398,8 @@ metsig::SignAlgoResolutions::initializeJetResolutions( const edm::ParameterSet &
     if (stat(path.c_str(),&st)!=0) {
       cerr<<"ERROR: tried to set path but failed, abort."<<endl;
     }    
-    string era(resolutionsEra);
-    string alg(resolutionsAlgo);
+    const string& era(resolutionsEra);
+    const string& alg(resolutionsAlgo);
     string ptFileName  = path + "/" + era + "_PtResolution_" +alg+".txt";
     string phiFileName = path + "/" + era + "_PhiResolution_"+alg+".txt";
     

@@ -32,6 +32,17 @@ trackingPhase2PU140.toReplaceWith(detachedQuadStepTrackingRegions, _globalTracki
     nSigmaZ = 5.0
 )))
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(detachedQuadStepTrackingRegions, 
+                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+            fixedError = 3.75,
+            ptMin = 0.8,
+            originRadius = 1.5
+            )
+                                                                      )
+)
+
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 detachedQuadStepHitDoublets = _hitPairEDProducer.clone(
@@ -122,6 +133,7 @@ trackingPhase2PU140.toModify(detachedQuadStepTrajectoryFilter,
     filters = detachedQuadStepTrajectoryFilter.filters.value()+[cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
 )
 
+pp_on_XeXe_2017.toModify(detachedQuadStepTrajectoryFilterBase, minPt=0.9)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 detachedQuadStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -291,18 +303,19 @@ trackingPhase2PU140.toReplaceWith(detachedQuadStep, RecoTracker.FinalTrackSelect
     )
 )
 
-DetachedQuadStep = cms.Sequence(detachedQuadStepClusters*
-                                detachedQuadStepSeedLayers*
-                                detachedQuadStepTrackingRegions*
-                                detachedQuadStepHitDoublets*
-                                detachedQuadStepHitQuadruplets*
-                                detachedQuadStepSeeds*
-                                detachedQuadStepTrackCandidates*
-                                detachedQuadStepTracks*
+DetachedQuadStepTask = cms.Task(detachedQuadStepClusters,
+                                detachedQuadStepSeedLayers,
+                                detachedQuadStepTrackingRegions,
+                                detachedQuadStepHitDoublets,
+                                detachedQuadStepHitQuadruplets,
+                                detachedQuadStepSeeds,
+                                detachedQuadStepTrackCandidates,
+                                detachedQuadStepTracks,
                                 detachedQuadStep)
-_DetachedQuadStep_Phase1Prop = DetachedQuadStep.copy()
-_DetachedQuadStep_Phase1Prop.replace(detachedQuadStepHitDoublets, detachedQuadStepHitDoublets+detachedQuadStepHitTriplets)
-trackingPhase1QuadProp.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase1Prop)
-_DetachedQuadStep_Phase2PU140 = DetachedQuadStep.copy()
-_DetachedQuadStep_Phase2PU140.replace(detachedQuadStep, detachedQuadStepSelector+detachedQuadStep)
-trackingPhase2PU140.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase2PU140)
+DetachedQuadStep = cms.Sequence(DetachedQuadStepTask)
+_DetachedQuadStepTask_Phase1Prop = DetachedQuadStepTask.copy()
+_DetachedQuadStepTask_Phase1Prop.replace(detachedQuadStepHitDoublets, cms.Task(detachedQuadStepHitDoublets,detachedQuadStepHitTriplets))
+trackingPhase1QuadProp.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_Phase1Prop)
+_DetachedQuadStepTask_Phase2PU140 = DetachedQuadStepTask.copy()
+_DetachedQuadStepTask_Phase2PU140.replace(detachedQuadStep, cms.Task(detachedQuadStepSelector,detachedQuadStep))
+trackingPhase2PU140.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_Phase2PU140)

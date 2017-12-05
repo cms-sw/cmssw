@@ -17,12 +17,12 @@ using namespace sistrip;
 // 
 SamplingAlgorithm::SamplingAlgorithm( const edm::ParameterSet & pset, SamplingAnalysis* const anal, uint32_t latencyCode ) 
   : CommissioningAlgorithm(anal),
-    histo_(0,""),
-    deconv_fitter_(0),
-    peak_fitterA_(0),
-    peak_fitterB_(0),
+    histo_(nullptr,""),
+    deconv_fitter_(nullptr),
+    peak_fitterA_(nullptr),
+    peak_fitterB_(nullptr),
     latencyCode_(latencyCode),
-    samp_(0)
+    samp_(nullptr)
 {
    peak_fitterA_ = new TF1("peak_fitterA",fpeak_convoluted,-4800,0,5);
    peak_fitterA_->SetNpx(2000);

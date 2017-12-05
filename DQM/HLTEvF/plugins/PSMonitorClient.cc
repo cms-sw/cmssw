@@ -29,7 +29,7 @@ struct MEPSet {
 class PSMonitorClient : public DQMEDHarvester {
 public:
   explicit PSMonitorClient(edm::ParameterSet const &);
-  ~PSMonitorClient() = default;
+  ~PSMonitorClient() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillMePSetDescription(edm::ParameterSetDescription & pset);

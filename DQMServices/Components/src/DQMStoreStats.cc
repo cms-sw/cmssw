@@ -72,7 +72,7 @@ DQMStoreStats::DQMStoreStats( const edm::ParameterSet& ps )
   runineventloop_ = ps.getUntrackedParameter<bool>( "runInEventLoop", false );
   dumpToFWJR_     = ps.getUntrackedParameter<bool>( "dumpToFWJR", false );
 
-  startingTime_ = time( 0 );
+  startingTime_ = time( nullptr );
 }
 
 DQMStoreStats::~DQMStoreStats(){
@@ -193,7 +193,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
 
     subfolderStringBegin = 0;
     Folder * curr = &dbeFolder;
-    while(1)
+    while(true)
     {
       subfolderStringEnd = path.find( '/', subfolderStringBegin );
       if( std::string::npos == subfolderStringEnd )
@@ -206,7 +206,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
     }
     
     // protection against ghost ME with empty paths
-    if( 0 == path.size() ) continue;
+    if( path.empty() ) continue;
 
     subsysStringEnd = path.find( '/', 0 );
     if( std::string::npos == subsysStringEnd ) subsysStringEnd = path.size(); // no subfolder
@@ -557,7 +557,7 @@ void DQMStoreStats::dumpMemoryProfile( void ) {
   }
 
   std::cout << "Approx. maximum total virtual memory size of job: ";
-  if( isOpenProcFileSuccessful_ && memoryHistoryVector_.size() ) {
+  if( isOpenProcFileSuccessful_ && !memoryHistoryVector_.empty() ) {
     std::cout << maxItem.second / 1000.
               << " MB (reached " << maxItem.first - startingTime_ << " sec. after constructor called)," << std::endl;
     std::cout << " memory history written to: " << rootOutputFileName.str() << " (" << memoryHistoryVector_.size() << " samples)" << std::endl;
@@ -612,7 +612,7 @@ std::pair<unsigned int, unsigned int> DQMStoreStats::readMemoryEntry( void ) con
     }
 
     procFile.close();
-    return std::pair<time_t, unsigned int>( time( 0 ), memSize );
+    return std::pair<time_t, unsigned int>( time( nullptr ), memSize );
   }
 
   return std::pair<time_t, unsigned int>( 0, 0 );

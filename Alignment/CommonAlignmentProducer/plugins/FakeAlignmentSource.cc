@@ -47,7 +47,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 class FakeAlignmentSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
 public:
   FakeAlignmentSource(const edm::ParameterSet&);
-  ~FakeAlignmentSource() {}
+  ~FakeAlignmentSource() override {}
 
   /// Tracker and its APE
   std::unique_ptr<Alignments> produceTkAli(const TrackerAlignmentRcd&) {
@@ -86,7 +86,7 @@ public:
 
  protected:
   /// provide (dummy) IOV
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey& /*dummy*/,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey& /*dummy*/,
 			       const edm::IOVSyncValue& ioSyncVal, edm::ValidityInterval& iov) override;
 
  private:

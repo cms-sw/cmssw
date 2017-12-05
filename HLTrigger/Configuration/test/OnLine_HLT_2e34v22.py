@@ -1,4 +1,4 @@
-# hltGetConfiguration --full --offline --data /frozen/2017/2e34/v2.2/HLT --type 2e34v22 --unprescale --process HLT2e34v22 --globaltag auto:run2_hlt_2e34v22 --input file:RelVal_Raw_2e34v22_DATA.root
+# hltGetConfiguration --full --data /frozen/2017/2e34/v2.2/HLT --type 2e34v22 --unprescale --process HLT2e34v22 --globaltag auto:run2_hlt_2e34v22 --input file:RelVal_Raw_2e34v22_DATA.root
 
 # /frozen/2017/2e34/v2.2/HLT/V1 (CMSSW_9_2_7)
 
@@ -4920,14 +4920,6 @@ process.hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleaner
   ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
   MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( False )
-)
-process.hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedSeeds" ),
-  fractionShared = cms.double( 0.5 ),
-  ValidHitBonus = cms.double( 100.0 ),
-  ComponentType = cms.string( "TrajectoryCleanerBySharedSeeds" ),
-  MissingHitPenalty = cms.double( 0.0 ),
-  allowSharedFirstHit = cms.bool( True )
 )
 process.hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
   appendToDataLabel = cms.string( "" ),

@@ -54,16 +54,16 @@
 FWRPZViewGeometry::FWRPZViewGeometry(const fireworks::Context& context):
    FWViewGeometryList(context),
 
-   m_rhoPhiGeo(0),
-   m_rhoZGeo(0),
+   m_rhoPhiGeo(nullptr),
+   m_rhoZGeo(nullptr),
 
-   m_pixelBarrelElements(0),
-   m_pixelEndcapElements(0),
-   m_trackerBarrelElements(0),
-   m_trackerEndcapElements(0),
-   m_rpcEndcapElements(0),
-   m_GEMElements(0),
-   m_ME0Elements(0)
+   m_pixelBarrelElements(nullptr),
+   m_pixelEndcapElements(nullptr),
+   m_trackerBarrelElements(nullptr),
+   m_trackerEndcapElements(nullptr),
+   m_rpcEndcapElements(nullptr),
+   m_GEMElements(nullptr),
+   m_ME0Elements(nullptr)
 {
    SetElementName("RPZGeomShared");
 }
@@ -84,7 +84,7 @@ FWRPZViewGeometry::~FWRPZViewGeometry()
 void
 FWRPZViewGeometry::initStdGeoElements(const FWViewType::EType type)
 {
-   assert(m_geom != 0);
+   assert(m_geom != nullptr);
 
    if (type == FWViewType::kRhoZ)
    {

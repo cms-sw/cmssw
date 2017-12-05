@@ -16,7 +16,7 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <fstream> 
 #include <iostream> 
 #include <cmath>

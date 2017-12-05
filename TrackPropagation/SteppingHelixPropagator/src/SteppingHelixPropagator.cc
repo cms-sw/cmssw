@@ -60,7 +60,7 @@ SteppingHelixPropagator::~SteppingHelixPropagator() {}
 SteppingHelixPropagator::SteppingHelixPropagator() :
   Propagator(anyDirection)
 {
-  field_ = 0;
+  field_ = nullptr;
 }
 
 SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field, 
@@ -184,13 +184,13 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   }
 
   const Plane* pDest = dynamic_cast<const Plane*>(&sDest);
-  if (pDest != 0) {
+  if (pDest != nullptr) {
     propagate(sStart, *pDest, out);
     return;
   }
 
   const Cylinder* cDest = dynamic_cast<const Cylinder*>(&sDest);
-  if (cDest != 0) {
+  if (cDest != nullptr) {
     propagate(sStart, *cDest, out);
     return;
   }
@@ -722,14 +722,14 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
       }
     } else {
       edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Failed to cast into VolumeBasedMagneticField: fall back to the default behavior"<<std::endl;
-      svCurrent.magVol = 0;
+      svCurrent.magVol = nullptr;
     }
     if (debug_){
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Got volume at "<<svCurrent.magVol<<std::endl;
     }
   }
   
-  if (useMagVolumes_ && svCurrent.magVol != 0 && ! useInTeslaFromMagField_){
+  if (useMagVolumes_ && svCurrent.magVol != nullptr && ! useInTeslaFromMagField_){
     bf = svCurrent.magVol->inTesla(gPointNorZ);
     if (debug_){
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded bfield float: "<<bf
@@ -799,7 +799,7 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   GlobalVector bf(0,0,0); 
 
   if (useMagVolumes_){
-    if (vbField_ != 0){
+    if (vbField_ != nullptr){
       svNext.magVol = vbField_->findVolume(gPointNorZ);
       if (useIsYokeFlag_){
 	double curRad = svNext.r3.perp();
@@ -811,14 +811,14 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
       }
     } else {
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Failed to cast into VolumeBasedMagneticField"<<std::endl;
-      svNext.magVol = 0;
+      svNext.magVol = nullptr;
     }
     if (debug_){
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Got volume at "<<svNext.magVol<<std::endl;
     }
   }
 
-  if (useMagVolumes_ && svNext.magVol != 0 && ! useInTeslaFromMagField_){
+  if (useMagVolumes_ && svNext.magVol != nullptr && ! useInTeslaFromMagField_){
     bf = svNext.magVol->inTesla(gPointNorZ);
     svNext.bf.set(bf.x(), bf.y(), bf.z());
   } else {
@@ -952,7 +952,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     drVec += svCurrent.r3;
     GlobalVector bfGV(0,0,0);
     Vector bf(0,0,0); 
-    if (useMagVolumes_ && svCurrent.magVol != 0 && ! useInTeslaFromMagField_){
+    if (useMagVolumes_ && svCurrent.magVol != nullptr && ! useInTeslaFromMagField_){
       bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), drVec.z()));
       bf.set(bfGV.x(), bfGV.y(), bfGV.z());
     } else {
@@ -1059,7 +1059,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 	//	Vector p1 = tau;
 	//	Vector p2 = tauNext;
 	Point xStart = svCurrent.r3;
-	Vector dx = drVec;
+	const Vector& dx = drVec;
 	//GlobalVector h  = MagneticField::inInverseGeV(xStart);
 	// Martijn: field is now given as parameter.. GlobalVector h  = globalParameters.magneticFieldInInverseGeV(xStart);
 
@@ -1077,7 +1077,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 	//AlgebraicMatrix a(5,5,1);
 	// define average magnetic field and gradient 
 	// at initial point - inlike TRPRFN
-	Vector hn = bHat;
+	const Vector& hn = bHat;
 	//	double qp = -2.99792458e-3*b0;
 	//   double q = -h.mag()*qbp;
 
@@ -1560,7 +1560,7 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
       if (lR < 850){
 	bool isIron = false;
 	//sanity check in addition to flags
-	if (useIsYokeFlag_ && useMagVolumes_ && sv.magVol != 0){
+	if (useIsYokeFlag_ && useMagVolumes_ && sv.magVol != nullptr){
 	  isIron = sv.isYokeVol;
 	} else {
 	  double bMag = sv.bf.mag();
@@ -1942,7 +1942,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   Result result = SteppingHelixStateInfo::NOT_IMPLEMENTED;
   const MagVolume* cVol = sv.magVol;
 
-  if (cVol == 0) return result;
+  if (cVol == nullptr) return result;
   const std::vector<VolumeSide>& cVolFaces(cVol->faces());
 
   double distToFace[6] = {0,0,0,0,0,0};
@@ -1974,9 +1974,9 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 //     const Plane* cPlane = dynamic_cast<const Plane*>(&cVolFaces[iFace].surface());
 //     const Cylinder* cCyl = dynamic_cast<const Cylinder*>(&cVolFaces[iFace].surface());
 //     const Cone* cCone = dynamic_cast<const Cone*>(&cVolFaces[iFace].surface());
-    const Surface* cPlane = 0; //only need to know the loc->glob transform
-    const Cylinder* cCyl = 0;
-    const Cone* cCone = 0;
+    const Surface* cPlane = nullptr; //only need to know the loc->glob transform
+    const Cylinder* cCyl = nullptr;
+    const Cone* cCone = nullptr;
     if (typeid(cVolFaces[iFace].surface()) == typeid(const Plane&)){
       cPlane = &cVolFaces[iFace].surface();
     } else if (typeid(cVolFaces[iFace].surface()) == typeid(const Cylinder&)){
@@ -1988,13 +1988,13 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     }
     
     if (debug_){
-      if (cPlane!=0) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The face is a plane at "<<cPlane<<std::endl;
-      if (cCyl!=0) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The face is a cylinder at "<<cCyl<<std::endl;
+      if (cPlane!=nullptr) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The face is a plane at "<<cPlane<<std::endl;
+      if (cCyl!=nullptr) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The face is a cylinder at "<<cCyl<<std::endl;
     }
 
     double pars[6] = {0,0,0,0,0,0};
     DestType dType = UNDEFINED_DT;
-    if (cPlane != 0){
+    if (cPlane != nullptr){
       Point rPlane(cPlane->position().x(),cPlane->position().y(),cPlane->position().z());
       // = cPlane->toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
       Vector nPlane(cPlane->rotation().zx(), cPlane->rotation().zy(), cPlane->rotation().zz()); nPlane /= nPlane.mag();
@@ -2002,7 +2002,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       pars[0] = rPlane.x(); pars[1] = rPlane.y(); pars[2] = rPlane.z();
       pars[3] = nPlane.x(); pars[4] = nPlane.y(); pars[5] = nPlane.z();
       dType = PLANE_DT;
-    } else if (cCyl != 0){
+    } else if (cCyl != nullptr){
       if (debug_){
 	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Cylinder at "<<cCyl->position()
 			 <<" rorated by "<<cCyl->rotation()
@@ -2010,7 +2010,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       }
       pars[RADIUS_P] = cCyl->radius();
       dType = RADIUS_DT;
-    } else if (cCone != 0){
+    } else if (cCone != nullptr){
       if (debug_){
 	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Cone at "<<cCone->position()
 			 <<" rorated by "<<cCone->rotation()
@@ -2278,7 +2278,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
 
 bool SteppingHelixPropagator::isYokeVolume(const MagVolume* vol) const {
   static const std::string metname = "SteppingHelixPropagator";
-  if (vol == 0) return false;
+  if (vol == nullptr) return false;
   /*
   const MFGrid* mGrid = reinterpret_cast<const MFGrid*>(vol->provider());
   std::vector<int> dims(mGrid->dimensions());

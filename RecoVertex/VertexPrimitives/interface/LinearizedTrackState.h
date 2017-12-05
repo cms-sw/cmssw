@@ -3,9 +3,7 @@
 
 //#include "CommonReco/CommonVertex/interface/ImpactPointMeasurement.h"
 
-//#include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -50,7 +48,7 @@ public:
 
   typedef ReferenceCountingPointer<RefittedTrackState<N> > RefCountedRefittedTrackState;
 
-  virtual ~LinearizedTrackState(){}
+  ~LinearizedTrackState() override{}
 
   /**
    * Returns a new linearized state with respect to a new linearization point.

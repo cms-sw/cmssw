@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -58,12 +58,12 @@ namespace popcon
 
 		public:
                         EcalIntercalibHandler(edm::ParameterSet const & );
-			~EcalIntercalibHandler(); 
+			~EcalIntercalibHandler() override; 
 			
-			void getNewObjects();
+			void getNewObjects() override;
 			void readXML(const std::string& filename, EcalFloatCondObjectContainer& record);
 
-			std::string id() const { return m_name;}
+			std::string id() const override { return m_name;}
 			EcalCondDBInterface* econn;
 
 

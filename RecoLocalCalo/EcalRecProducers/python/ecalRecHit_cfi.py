@@ -83,3 +83,9 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
 
     )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+# no flags for bad channels in FastSim
+fastSim.toModify(ecalRecHit, 
+                 killDeadChannels = False,
+                 recoverEBFE = False,
+                 recoverEEFE = False)

@@ -56,7 +56,7 @@ namespace edm {
     typedef OutputModule ModuleType;
 
     explicit OutputModule(ParameterSet const& pset);
-    virtual ~OutputModule();
+    ~OutputModule() override;
 
     OutputModule(OutputModule const&) = delete; // Disallow copying and moving
     OutputModule& operator=(OutputModule const&) = delete; // Disallow copying and moving
@@ -80,6 +80,11 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
     static void prevalidate(ConfigurationDescriptions& );
+
+    static bool wantsGlobalRuns() {return true;}
+    static bool wantsGlobalLuminosityBlocks() {return true;}
+    static bool wantsStreamRuns() {return false;}
+    static bool wantsStreamLuminosityBlocks() {return false;};
 
     bool wantAllEvents() const {return wantAllEvents_;}
 
@@ -201,6 +206,8 @@ namespace edm {
 
     void registerProductsAndCallbacks(OutputModule const*, ProductRegistry const*) {}
     
+    bool needToRunSelection() const;
+    std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const;
     bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
 
     /// Ask the OutputModule if we should end the current file.

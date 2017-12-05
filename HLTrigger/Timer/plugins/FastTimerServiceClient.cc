@@ -51,7 +51,7 @@ private:
   void fillPathSummaryPlots(    DQMStore::IBooker & booker, DQMStore::IGetter & getter, double events, std::string const & path);
   void fillPlotsVsLumi(DQMStore::IBooker & booker, DQMStore::IGetter & getter, std::string const & current_path, std::string const & suffix, MEPSet pset);
 
-  static MEPSet getHistoPSet  (edm::ParameterSet pset);
+  static MEPSet getHistoPSet(const edm::ParameterSet& pset);
 
   bool doPlotsVsScalLumi_;
   bool doPlotsVsPixelLumi_;
@@ -75,9 +75,7 @@ FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const & config)
 {
 }
 
-FastTimerServiceClient::~FastTimerServiceClient()
-{
-}
+FastTimerServiceClient::~FastTimerServiceClient() = default;
 
 void
 FastTimerServiceClient::dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter & getter)
@@ -372,7 +370,7 @@ FastTimerServiceClient::fillPlotsVsLumi(DQMStore::IBooker & booker, DQMStore::IG
   // get all MEs in the current_path
   getter.setCurrentFolder(current_path);
   std::vector<std::string> allmenames = getter.getMEs();
-  for ( const auto & m : allmenames ) {
+  for (auto const & m : allmenames) {
     // get only MEs vs LS
     if (boost::regex_match(m, byls))
       menames.push_back(m);
@@ -404,8 +402,8 @@ FastTimerServiceClient::fillPlotsVsLumi(DQMStore::IBooker & booker, DQMStore::IG
   std::vector<double> lumi;
   std::vector<int> LS;
   for ( size_t ibin=1; ibin <= size; ++ibin ) {
-    //    // avoid to store points w/ no info
-    //    if ( lumiVsLS->getTProfile()->GetBinContent(ibin) == 0. ) continue;
+    // avoid to store points w/ no info
+    if ( lumiVsLS->getTProfile()->GetBinContent(ibin) == 0. ) continue;
 
     lumi.push_back( lumiVsLS->getTProfile()->GetBinContent(ibin) );
     LS.push_back  ( lumiVsLS->getTProfile()->GetXaxis()->GetBinCenter(ibin) );
@@ -413,13 +411,13 @@ FastTimerServiceClient::fillPlotsVsLumi(DQMStore::IBooker & booker, DQMStore::IG
 
   booker.setCurrentFolder(current_path);
   getter.setCurrentFolder(current_path);
-  for ( auto m : menames ) {
+  for (auto const& m : menames) {
     std::string label = m;
     label.erase(label.find("_byls"));
 
     MonitorElement* me = getter.get(current_path + "/" + m);
-    double ymin        = me->getTProfile()->GetMinimum();
-    double ymax        = me->getTProfile()->GetMaximum();
+    float ymin        = 0.;
+    float ymax        = std::numeric_limits<float>::max();
     std::string ytitle = me->getTProfile()->GetYaxis()->GetTitle();
 
     MonitorElement* meVsLumi = getter.get( current_path + "/" + label + "_" + suffix );
@@ -464,7 +462,7 @@ FastTimerServiceClient::fillPUMePSetDescription(edm::ParameterSetDescription & p
 }
 
 
-MEPSet FastTimerServiceClient::getHistoPSet(edm::ParameterSet pset)
+MEPSet FastTimerServiceClient::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEPSet{
     pset.getParameter<std::string>("folder"),
@@ -500,6 +498,6 @@ FastTimerServiceClient::fillDescriptions(edm::ConfigurationDescriptions & descri
   descriptions.add("fastTimerServiceClient", desc);
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(FastTimerServiceClient);

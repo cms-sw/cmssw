@@ -6,6 +6,7 @@
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
 #include "SimG4Core/Application/interface/CustomUIsession.h"
+#include "SimG4Core/Application/interface/ExceptionHandler.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
@@ -77,7 +78,15 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
   m_UIsession.reset(new CustomUIsession());
   m_physicsList.reset(nullptr);
   m_world.reset(nullptr);
+
+  m_runInterface.reset(nullptr);
+  m_prodCuts.reset(nullptr);
+  m_chordFinderSetter.reset(nullptr);
+  m_userRunAction = nullptr;
+  m_currentRun = nullptr;
+
   m_kernel = new G4MTRunManagerKernel();
+  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");

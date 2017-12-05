@@ -48,13 +48,14 @@ private:
 
   TH1D                  *iniE,  *iEta,  *iPhi;
   TH1D                  *edepS, *edecS, *edhcS;
-  TH1D                  *edepN, *edecN, *edhcN;
+  TH1D                  *edepN, *edecN, *edhcN, *emhcN;
   TH2D                  *edehS;
   TTree                 *tree_;
   double                 eBeam_, etaBeam_, phiBeam_;
   double                 edepEC_, edepHB_, edepHO_;
   double                 noiseEC_, noiseHB_, noiseHO_;
   double                 edepS1_, edepS2_, edepS3_, edepS4_, edepVC_, edepS7_, edepS8_;
+  double                 mip_;
 };
  
 #endif

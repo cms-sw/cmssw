@@ -19,5 +19,13 @@ tevMuons = cms.EDProducer("TevMuonProducer",
     )
 )
 
+# FastSim has no template fit on tracker hits
+# FastSim doesn't use Runge Kute for propagation
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(tevMuons,
+                 RefitterParameters = dict(TrackerRecHitBuilder = 'WithoutRefit',
+                                           Propagator = "SmartPropagatorAny")
+                 )
+
 
 

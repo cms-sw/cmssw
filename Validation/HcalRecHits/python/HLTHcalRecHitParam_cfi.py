@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Validation.HcalRecHits.HcalRecHitParam_cfi import *
 
 hltHCALRecoAnalyzer = hcalRecoAnalyzer.clone()
-hltHCALRecoAnalyzer.TopFolderName             = cms.string('HLT/RecHits/Simulation')
+hltHCALRecoAnalyzer.TopFolderName             = cms.string('HLT/HCAL/RecHits/Simulation')
 hltHCALRecoAnalyzer.outputFile                = cms.untracked.string('')
 hltHCALRecoAnalyzer.HBHERecHitCollectionLabel = cms.untracked.InputTag("hltHbhereco")
 hltHCALRecoAnalyzer.HFRecHitCollectionLabel   = cms.untracked.InputTag("hltHfreco")

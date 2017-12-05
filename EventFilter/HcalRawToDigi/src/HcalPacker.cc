@@ -7,18 +7,18 @@
 #include "FWCore/Utilities/interface/CRC16.h"
 
 HcalPacker::Collections::Collections() {
-  hbhe=0;
-  hoCont=0;
-  hfCont=0;
-  tpCont=0;
-  zdcCont=0;
-  calibCont=0;
+  hbhe=nullptr;
+  hoCont=nullptr;
+  hfCont=nullptr;
+  tpCont=nullptr;
+  zdcCont=nullptr;
+  calibCont=nullptr;
 }
 
 template <class Coll, class DetIdClass> 
 int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples,bool& isUS, bool& isMP) {
   isUS=false; isMP=false;
-  if (pt==0) { return 0; }
+  if (pt==nullptr) { return 0; }
   int size=0;
   typename Coll::const_iterator i=pt->find(DetIdClass(did));
   if (i!=pt->end()) {
@@ -34,7 +34,7 @@ int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presa
 }
 
 static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const HcalTrigTowerDetId& tid, unsigned short* buffer) {
-  if (pt==0) { return 0; }
+  if (pt==nullptr) { return 0; }
   int size=0;
   HcalTrigPrimDigiCollection::const_iterator i=pt->find(tid);
   bool any_nonzero=false;
@@ -146,7 +146,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
     for (int slb=1; slb<=6; slb++) {
       for (int slbchan=0; slbchan<=3; slbchan++) {
 	int linear=(slb-1)*4+slbchan;
-	HcalTriggerPrimitiveSample idCvt(0,0,slb,slbchan);
+	HcalTriggerPrimitiveSample idCvt(0,false,slb,slbchan);
 	unsigned short chanid=idCvt.raw()&0xF800;
 	triglen[linear]=0;
 

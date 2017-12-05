@@ -26,6 +26,16 @@ from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU
 trackingPhase1QuadProp.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.2))
 trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.35,originRadius = 0.025))
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(lowPtQuadStepTrackingRegions, 
+                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+            fixedError = 0.5,
+            ptMin = 0.25,
+            originRadius = 0.02
+            )
+                                                                      )
+)
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
@@ -102,6 +112,8 @@ lowPtQuadStepTrajectoryFilterBase = _lowPtQuadStepTrajectoryFilterBase.clone(
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
 trackingPhase2PU140.toReplaceWith(lowPtQuadStepTrajectoryFilterBase, _lowPtQuadStepTrajectoryFilterBase)
+
+pp_on_XeXe_2017.toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.3)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
@@ -233,18 +245,21 @@ lowPtQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
 
 
 # Final sequence
-LowPtQuadStep = cms.Sequence(lowPtQuadStepClusters*
-                             lowPtQuadStepSeedLayers*
-                             lowPtQuadStepTrackingRegions*
-                             lowPtQuadStepHitDoublets*
-                             lowPtQuadStepHitQuadruplets*
-                             lowPtQuadStepSeeds*
-                             lowPtQuadStepTrackCandidates*
-                             lowPtQuadStepTracks*
+LowPtQuadStepTask = cms.Task(lowPtQuadStepClusters,
+                             lowPtQuadStepSeedLayers,
+                             lowPtQuadStepTrackingRegions,
+                             lowPtQuadStepHitDoublets,
+                             lowPtQuadStepHitQuadruplets,
+                             lowPtQuadStepSeeds,
+                             lowPtQuadStepTrackCandidates,
+                             lowPtQuadStepTracks,
                              lowPtQuadStep)
-_LowPtQuadStep_Phase1Prop = LowPtQuadStep.copy()
-_LowPtQuadStep_Phase1Prop.replace(lowPtQuadStepHitDoublets, lowPtQuadStepHitDoublets+lowPtQuadStepHitTriplets)
-trackingPhase1QuadProp.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase1Prop)
-_LowPtQuadStep_Phase2PU140 = LowPtQuadStep.copy()
-_LowPtQuadStep_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)
-trackingPhase2PU140.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase2PU140)
+LowPtQuadStep = cms.Sequence(LowPtQuadStepTask)
+
+_LowPtQuadStepTask_Phase1Prop = LowPtQuadStepTask.copy()
+_LowPtQuadStepTask_Phase1Prop.replace(lowPtQuadStepHitDoublets, cms.Task(lowPtQuadStepHitDoublets,lowPtQuadStepHitTriplets))
+trackingPhase1QuadProp.toReplaceWith(LowPtQuadStepTask, _LowPtQuadStepTask_Phase1Prop)
+
+_LowPtQuadStepTask_Phase2PU140 = LowPtQuadStepTask.copy()
+_LowPtQuadStepTask_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)
+trackingPhase2PU140.toReplaceWith(LowPtQuadStepTask, _LowPtQuadStepTask_Phase2PU140)

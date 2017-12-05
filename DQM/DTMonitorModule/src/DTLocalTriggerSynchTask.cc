@@ -170,7 +170,7 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
   for (chambIdIt = segments4D->id_begin(); chambIdIt != segments4D->id_end(); ++chambIdIt){
 
     DTRecSegment4DCollection::range  range = segments4D->get(*chambIdIt);
-    const DTRecSegment4D* best=0;
+    const DTRecSegment4D* best=nullptr;
     int hitsBest = 0;
     int hits = 0;
 

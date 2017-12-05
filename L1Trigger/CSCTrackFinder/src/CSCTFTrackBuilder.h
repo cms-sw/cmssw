@@ -7,7 +7,7 @@
 #include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
-#include <string.h>
+#include <cstring>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 

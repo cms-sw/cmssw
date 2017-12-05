@@ -112,8 +112,8 @@ CalibratedElectronProducer::CalibratedElectronProducer( const edm::ParameterSet 
     
     theEnCorrector = new ElectronEnergyCalibrator
       (
-       edm::FileInPath(scaleCorrectionsInputPath.c_str()).fullPath().c_str(),
-       edm::FileInPath(linCorrectionsInputPath.c_str()).fullPath().c_str(),
+       edm::FileInPath(scaleCorrectionsInputPath.c_str()).fullPath(),
+       edm::FileInPath(linCorrectionsInputPath.c_str()).fullPath(),
        dataset,
        correctionsType,
        applyLinearityCorrection,
@@ -133,7 +133,7 @@ CalibratedElectronProducer::CalibratedElectronProducer( const edm::ParameterSet 
     myEpCombinationTool = new EpCombinationTool();
     myEpCombinationTool->init
       (
-       edm::FileInPath(combinationRegressionInputPath.c_str()).fullPath().c_str(),
+       edm::FileInPath(combinationRegressionInputPath.c_str()).fullPath(),
        "CombinationWeight"
        );
     
@@ -218,7 +218,7 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
 	  regressionErrorValues.push_back(regressionEnergyError);
 	  
 	  //    r9
-	  const EcalRecHitCollection * recHits=0;
+	  const EcalRecHitCollection * recHits=nullptr;
 	  if( ele.isEB() )
             {
 	      recHits = pEBRecHits.product();

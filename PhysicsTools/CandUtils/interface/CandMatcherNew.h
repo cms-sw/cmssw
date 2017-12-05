@@ -59,7 +59,7 @@ namespace reco {
     template<typename C>
     typename CandMatcher<C>::reference_type CandMatcher<C>::operator[](const reco::Candidate & c) const {
       if (c.hasMasterClone()) {
-      	CandidateBaseRef master = c.masterClone();
+      	const CandidateBaseRef& master = c.masterClone();
 	return master->numberOfDaughters() == 0 ? map_[master] : (*this)[*master];
       }
       size_t nDau = c.numberOfDaughters();
@@ -74,8 +74,8 @@ namespace reco {
 	  m = m->motherRef();
 	  momIdx.insert(m.key());
 	} 
-	if(momIdx.size() == 0) return reference_type();
-	if (common.size() == 0) common = momIdx;
+	if(momIdx.empty()) return reference_type();
+	if (common.empty()) common = momIdx;
 	else {
 	  tmp.clear();
 	  set_intersection(common.begin(), common.end(),
@@ -83,7 +83,7 @@ namespace reco {
 			   inserter(tmp, tmp.begin()));
 	  swap(common, tmp);
 	}
-	if (common.size() == 0) return reference_type();
+	if (common.empty()) return reference_type();
       }
       size_t idx = * max_element(common.begin(), common.end());
       return reference_type(map_.ref(), idx);

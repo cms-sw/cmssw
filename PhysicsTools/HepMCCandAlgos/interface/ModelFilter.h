@@ -23,16 +23,16 @@ namespace edm {
   {
   public:
 	explicit ModelFilter(const edm::ParameterSet&);
-	~ModelFilter();
+	~ModelFilter() override;
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	std::vector<std::string> split(std::string fstring, std::string splitter);
 	typedef std::vector<std::string>::const_iterator comments_const_iterator;
 
   private:
-	virtual void beginJob() override ;
-	virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-	virtual void endJob() override ;
+	void beginJob() override ;
+	bool filter(edm::Event&, const edm::EventSetup&) override;
+	void endJob() override ;
 
 	edm::EDGetTokenT<LHEEventProduct> tokenSource_;
 	std::string modelTag_;

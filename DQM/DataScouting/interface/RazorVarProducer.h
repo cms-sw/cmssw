@@ -9,13 +9,14 @@
 
 #include "TLorentzVector.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include <vector>
 
 class RazorVarProducer : public edm::EDProducer {
  public: 
   explicit RazorVarProducer(const edm::ParameterSet&);
-  ~RazorVarProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  ~RazorVarProducer() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   double CalcMR(TLorentzVector ja,TLorentzVector jb);
   double CalcR(double MR, const TLorentzVector& ja, const TLorentzVector& jb, edm::Handle<reco::CaloMETCollection> met, const std::vector<math::XYZTLorentzVector>& muons);

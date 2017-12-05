@@ -4,6 +4,10 @@
 //
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+#include "CondFormats/Common/interface/Time.h"
+#include "CondCore/CondDB/interface/Types.h"
+#include "CondCore/CondDB/interface/Binary.h"
+
 namespace cond {
 
   namespace persistency {

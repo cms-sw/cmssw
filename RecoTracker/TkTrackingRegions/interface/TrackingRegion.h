@@ -18,7 +18,6 @@
 
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 #include <utility>
@@ -45,7 +44,6 @@ public:
   typedef PixelRecoRange<float> Range;
   typedef SeedingLayerSetsHits::ConstRecHitPointer Hit;
   typedef SeedingLayerSetsHits::Hits Hits;
-  using   ctfHits = ctfseeding::SeedingLayer::Hits;
 
 public:
 
@@ -91,7 +89,7 @@ public:
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const Hit &  outerHit,
 				       const edm::EventSetup& iSetup,
-				       const DetLayer* outerlayer=0, 
+				       const DetLayer* outerlayer=nullptr, 
 				       float lr=0, float gz=0, float dr=0, float dz=0) const = 0;
 
 

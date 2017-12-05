@@ -1,18 +1,15 @@
-//
-//
-
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-
-#include <boost/algorithm/string.hpp>
 #include <tbb/concurrent_unordered_map.h>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include <boost/algorithm/string.hpp>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/PatCandidates/interface/libminifloat.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 using namespace pat;
 
@@ -393,7 +390,7 @@ namespace {
           }
        };
   typedef tbb::concurrent_unordered_map<edm::ParameterSetID, std::vector<std::string>, key_hash> AllLabelsMap;
-  [[cms::thread_safe]] AllLabelsMap allLabelsMap;
+  CMS_THREAD_SAFE AllLabelsMap allLabelsMap;
 }
 
 std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::ParameterSetID const& psetid, const edm::EventBase &event,const edm::TriggerResults &res) const {
@@ -406,7 +403,7 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
          return &iter->second;
       }
 
-      auto   triggerNames= event.triggerNames(res); 
+      const auto&   triggerNames= event.triggerNames(res); 
       edm::ParameterSet const* pset=nullptr;
       //getting the ParameterSet from the event ensures that the registry is filled
       if (nullptr!=(pset=event.parameterSet(psetid ))) {
@@ -425,7 +422,7 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
 		    auto moduleStrip=module.front()!='-' ? module : module.substr(1);
  
 		    if (pset->exists(moduleStrip)) {
-			auto modulePSet= pset->getParameterSet(moduleStrip);
+			const auto& modulePSet= pset->getParameterSet(moduleStrip);
 			if (modulePSet.existsAs<bool>("saveTags",true) and 
 			    modulePSet.getParameter<bool>("saveTags") ) {
 			    saveTags.insert(moduleStrip);
@@ -439,6 +436,6 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
                allLabelsMap.insert(std::pair<edm::ParameterSetID, std::vector<std::string> >(psetid, allModules));
          return &(ret.first->second);
       }
-      return 0;
+      return nullptr;
    }
 

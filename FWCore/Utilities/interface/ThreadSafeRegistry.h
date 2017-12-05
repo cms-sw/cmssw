@@ -85,10 +85,10 @@ namespace edm {
       ~ThreadSafeRegistry();
 
       // The following two are not implemented.
-      ThreadSafeRegistry(ThreadSafeRegistry<KEY,T> const&); 
+      ThreadSafeRegistry(ThreadSafeRegistry<KEY,T> const&) = delete; 
     
       ThreadSafeRegistry<KEY,T>& 
-      operator= (ThreadSafeRegistry<KEY,T> const&);
+      operator= (ThreadSafeRegistry<KEY,T> const&) = delete;
 
       mutable std::mutex mutex_;
       collection_type data_;

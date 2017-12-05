@@ -37,10 +37,10 @@ class SETMuonSeedProducer : public edm::stream::EDProducer<> {
   SETMuonSeedProducer (const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~SETMuonSeedProducer();
+  ~SETMuonSeedProducer() override;
   
   // Operations
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  protected:
 

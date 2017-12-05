@@ -28,7 +28,7 @@ class GenParticles2HepMCConverter : public edm::stream::EDProducer<>
 {
 public:
   explicit GenParticles2HepMCConverter(const edm::ParameterSet& pset);
-  ~GenParticles2HepMCConverter() {};
+  ~GenParticles2HepMCConverter() override {};
 
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
@@ -93,7 +93,9 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   // Prepare list of HepMC::GenParticles
   std::map<const reco::Candidate*, HepMC::GenParticle*> genCandToHepMCMap;
+  HepMC::GenParticle* hepmc_parton1 = nullptr, * hepmc_parton2 = nullptr;
   std::vector<HepMC::GenParticle*> hepmc_particles;
+  const reco::Candidate* parton1 = nullptr, * parton2 = nullptr;
   for ( unsigned int i=0, n=genParticlesHandle->size(); i<n; ++i )
   {
     const reco::Candidate* p = &genParticlesHandle->at(i);
@@ -109,27 +111,38 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
     hepmc_particles.push_back(hepmc_particle);
     genCandToHepMCMap[p] = hepmc_particle;
+
+    // Find incident proton pair
+    if ( p->mother() == nullptr and std::abs(p->eta()) > 5 and std::abs(p->pz()) > 1000 ) {
+      if ( !parton1 and p->pz() > 0 ) {
+        parton1 = p;
+        hepmc_parton1 = hepmc_particle;
+      }
+      else if ( !parton2 and p->pz() < 0 ) {
+        parton2 = p;
+        hepmc_parton2 = hepmc_particle;
+      }
+    }
   }
 
   // Put incident beam particles : proton -> parton vertex
-  const reco::Candidate* parton1 = genParticlesHandle->at(0).daughter(0);
-  const reco::Candidate* parton2 = genParticlesHandle->at(1).daughter(0);
   HepMC::GenVertex* vertex1 = new HepMC::GenVertex(FourVector(parton1->vertex()));
   HepMC::GenVertex* vertex2 = new HepMC::GenVertex(FourVector(parton2->vertex()));
   hepmc_event->add_vertex(vertex1);
   hepmc_event->add_vertex(vertex2);
-  vertex1->add_particle_in(hepmc_particles[0]);
-  vertex2->add_particle_in(hepmc_particles[1]);
-  hepmc_event->set_beam_particles(hepmc_particles[0], hepmc_particles[1]);
+  vertex1->add_particle_in(hepmc_parton1);
+  vertex2->add_particle_in(hepmc_parton2);
+  //hepmc_event->set_beam_particles(hepmc_parton1, hepmc_parton2);
 
   // Prepare vertex list
   typedef std::map<const reco::Candidate*, HepMC::GenVertex*> ParticleToVertexMap;
   ParticleToVertexMap particleToVertexMap;
   particleToVertexMap[parton1] = vertex1;
   particleToVertexMap[parton2] = vertex2;
-  for ( unsigned int i=2, n=genParticlesHandle->size(); i<n; ++i )
+  for ( unsigned int i=0, n=genParticlesHandle->size(); i<n; ++i )
   {
     const reco::Candidate* p = &genParticlesHandle->at(i);
+    if ( p == parton1 or p == parton2 ) continue;
 
     // Connect mother-daughters for the other cases
     for ( unsigned int j=0, nMothers=p->numberOfMothers(); j<nMothers; ++j )

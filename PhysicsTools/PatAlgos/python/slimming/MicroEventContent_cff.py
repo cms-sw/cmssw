@@ -91,6 +91,7 @@ MicroEventContentGEN = cms.PSet(
         'keep *_slimmedGenJetsFlavourInfos_*_*',
         'keep *_slimmedGenJets__*',
         'keep *_slimmedGenJetsAK8__*',
+        'keep *_slimmedGenJetsAK8SoftDropSubJets__*',
         'keep *_genMetTrue_*_*',
         # RUN
         'keep LHERunInfoProduct_*_*_*',
@@ -125,3 +126,8 @@ cms.untracked.PSet(branch = cms.untracked.string("recoGenJets_slimmedGenJets__*"
 cms.untracked.PSet(branch = cms.untracked.string("patJets_slimmedJetsPuppi__*"),splitLevel=cms.untracked.int32(99)),
 cms.untracked.PSet(branch = cms.untracked.string("EcalRecHitsSorted_reducedEgamma_reducedESRecHits_*"),splitLevel=cms.untracked.int32(99)),
 ])
+
+
+_phase2_hgc_extraCommands = ["keep *_slimmedElectronsFromMultiCl_*_*", "keep *_slimmedPhotonsFromMultiCl_*_*"]
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _phase2_hgc_extraCommands)

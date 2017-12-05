@@ -118,15 +118,15 @@ namespace edm {
                      ObjectWithDict const& iObject,
                      std::string const& iIndent,
                      std::string const& iIndentDelta) {
-       std::string printName = iName;
-       ObjectWithDict objectToPrint = iObject;
+       const std::string& printName = iName;
+       const ObjectWithDict& objectToPrint = iObject;
        std::string indent(iIndent);
        if(iObject.typeOf().isPointer()) {
          LogAbsolute("EventContent") << iIndent << iName << kNameValueSep << formatClassName(iObject.typeOf().name()) << std::hex << iObject.address() << std::dec;// << "\n";
           TypeWithDict pointedType = iObject.typeOf().toType(); // for Pointers, I get the real type this way
           if(TypeWithDict::byName("void") == pointedType ||
              pointedType.isPointer() ||
-             iObject.address() == 0) {
+             iObject.address() == nullptr) {
              return;
           }
           return;
@@ -200,7 +200,7 @@ namespace edm {
           // memory for a ref (which should just be a pointer to the object and not the object itself)
           //So we will create memory on the stack which can be used to hold a reference
           bool const isRef = atReturnType.isReference();
-          void* refMemoryBuffer = 0;
+          void* refMemoryBuffer = nullptr;
           size_t index = 0;
           //The argument to the 'at' function is the index. Since the argument list holds pointers to the arguments
           // we only need to create it once and then when the value of index changes the pointer already
@@ -262,10 +262,10 @@ namespace edm {
   class EventContentAnalyzer : public EDAnalyzer {
   public:
      explicit EventContentAnalyzer(ParameterSet const&);
-     ~EventContentAnalyzer();
+     ~EventContentAnalyzer() override;
 
-     virtual void analyze(Event const&, EventSetup const&) override;
-     virtual void endJob() override;
+     void analyze(Event const&, EventSetup const&) override;
+     void endJob() override;
 
      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -290,9 +290,9 @@ namespace edm {
     indentation_(iConfig.getUntrackedParameter("indentation", std::string("++"))),
     verboseIndentation_(iConfig.getUntrackedParameter("verboseIndentation", std::string("  "))),
     moduleLabels_(iConfig.getUntrackedParameter("verboseForModuleLabels", std::vector<std::string>())),
-    verbose_(iConfig.getUntrackedParameter("verbose", false) || moduleLabels_.size()>0),
+    verbose_(iConfig.getUntrackedParameter("verbose", false) || !moduleLabels_.empty()),
     getModuleLabels_(iConfig.getUntrackedParameter("getDataForModuleLabels", std::vector<std::string>())),
-    getData_(iConfig.getUntrackedParameter("getData", false) || getModuleLabels_.size()>0),
+    getData_(iConfig.getUntrackedParameter("getData", false) || !getModuleLabels_.empty()),
     evno_(1),
     listContent_(iConfig.getUntrackedParameter("listContent", true))
   {

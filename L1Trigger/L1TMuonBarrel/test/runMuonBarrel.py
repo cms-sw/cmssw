@@ -40,7 +40,7 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 
 
 ####BMTF Emulator
-process.load('L1Trigger.L1TMuonBarrel.simTwinMuxDigis_cfi')
+process.load('L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi')
 process.load('L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi')
 process.simBmtfDigis.Debug = cms.untracked.int32(0)
 

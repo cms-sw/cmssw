@@ -16,9 +16,9 @@ class CosmicMuonProducer : public edm::stream::EDProducer<> {
 public:
   explicit CosmicMuonProducer(const edm::ParameterSet&);
 
-   ~CosmicMuonProducer();
+   ~CosmicMuonProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   MuonTrackFinder* theTrackFinder;

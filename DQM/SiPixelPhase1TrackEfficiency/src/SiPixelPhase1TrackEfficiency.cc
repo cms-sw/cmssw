@@ -31,6 +31,7 @@ SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency(const edm::ParameterS
 }
 
 void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if( !checktrigger(iEvent,iSetup,DCS) ) return;
 
   // get geometry
   edm::ESHandle<TrackerGeometry> tracker;
@@ -45,7 +46,7 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
 
   histo[VERTICES].fill(vertices->size(),DetId(0),&iEvent);
 
-  if (applyVertexCut_ &&  vertices->size() == 0) return;
+  if (applyVertexCut_ &&  vertices->empty()) return;
 
   // should be used for weird cuts
   //const auto primaryVertex = vertices->at(0); 

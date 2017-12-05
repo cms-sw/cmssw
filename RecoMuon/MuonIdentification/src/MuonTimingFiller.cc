@@ -94,11 +94,33 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon,
   if ( !(muon.combinedMuon().isNull()) ) {
     theDTTimingExtractor_->fillTiming(dtTmSeq, muon.combinedMuon(), iEvent, iSetup);
     theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.combinedMuon(), iEvent, iSetup);
-  } else
+  } else {
     if ( !(muon.standAloneMuon().isNull()) ) {
       theDTTimingExtractor_->fillTiming(dtTmSeq, muon.standAloneMuon(), iEvent, iSetup);
       theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.standAloneMuon(), iEvent, iSetup);
+    } else {
+      if ( muon.isTrackerMuon() ) {
+	std::vector<const DTRecSegment4D*> dtSegments;
+	std::vector<const CSCSegment*> cscSegments;
+	for( auto& chamber: muon.matches() ){
+	  for ( auto& segment : chamber.segmentMatches ){
+	    // Use only the segments that passed arbitration to avoid mixing
+	    // segments from in-time and out-of-time muons that may bias the result
+	    // SegmentAndTrackArbitration
+            if(segment.isMask(reco::MuonSegmentMatch::BestInStationByDR) &&
+	       segment.isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)){
+	      if ( !(segment.dtSegmentRef.isNull()))
+		dtSegments.push_back(segment.dtSegmentRef.get());
+	      if ( !(segment.cscSegmentRef.isNull()))
+		cscSegments.push_back(segment.cscSegmentRef.get());
+	    }
+	  }
+	}
+	theDTTimingExtractor_->fillTiming(dtTmSeq, dtSegments, muon.innerTrack(), iEvent, iSetup);
+	theCSCTimingExtractor_->fillTiming(cscTmSeq, cscSegments, muon.innerTrack(), iEvent, iSetup);
+      }
     }
+  }
   
   // Fill DT-specific timing information block     
   fillTimeFromMeasurements(dtTmSeq, dtTime);
@@ -131,9 +153,9 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon,
 void 
 MuonTimingFiller::fillTimeFromMeasurements( const TimeMeasurementSequence& tmSeq, reco::MuonTimeExtra &muTime ) {
   std::vector <double> x,y;
-  double invbeta=0, invbetaerr=0;
-  double vertexTime=0, vertexTimeErr=0, vertexTimeR=0, vertexTimeRErr=0;    
-  double freeBeta, freeBetaErr, freeTime, freeTimeErr;
+  double invbeta(0), invbetaerr(0);
+  double vertexTime(0), vertexTimeErr(0), vertexTimeR(0), vertexTimeRErr(0);    
+  double freeBeta(0), freeBetaErr(0), freeTime(0), freeTimeErr(0);
 
   if (tmSeq.dstnc.size()<=1) return;
 
@@ -269,15 +291,20 @@ MuonTimingFiller::addEcalTime( const reco::Muon& muon,
 
 
 void 
-MuonTimingFiller::rawFit(double &a, double &da, double &b, double &db, const std::vector<double>& hitsx, const std::vector<double>& hitsy) {
+MuonTimingFiller::rawFit(double &freeBeta, double &freeBetaErr, double &freeTime, double &freeTimeErr, 
+			 const std::vector<double>& hitsx, const std::vector<double>& hitsy) {
 
   double s=0,sx=0,sy=0,x,y;
   double sxx=0,sxy=0;
 
-  a=b=0;
-  if (hitsx.size()==0) return;
+  freeBeta = 0;
+  freeBetaErr = 0;
+  freeTime = 0;
+  freeTimeErr = 0;
+
+  if (hitsx.empty()) return;
   if (hitsx.size()==1) {
-    b=hitsy[0];
+    freeTime=hitsy[0];
   } else {
     for (unsigned int i = 0; i != hitsx.size(); i++) {
       x=hitsx[i];
@@ -290,10 +317,10 @@ MuonTimingFiller::rawFit(double &a, double &da, double &b, double &db, const std
     }
 
     double d = s*sxx - sx*sx;
-    b = (sxx*sy- sx*sxy)/ d;
-    a = (s*sxy - sx*sy) / d;
-    da = sqrt(sxx/d);
-    db = sqrt(s/d);
+    freeTime = (sxx*sy- sx*sxy)/ d;
+    freeBeta = (s*sxy - sx*sy) / d;
+    freeBetaErr = sqrt(sxx/d);
+    freeTimeErr = sqrt(s/d);
   }
 }
 

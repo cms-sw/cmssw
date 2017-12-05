@@ -46,7 +46,6 @@
 #include "Validation/MuonGEMDigis/plugins/MuonGEMDigisHarvestor.h"
 #include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 
-using namespace GEMDetLabel;
 MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& ps)
 {
   dbe_path_ = ps.getParameter<std::string>("dbePath");
@@ -120,7 +119,7 @@ void MuonGEMDigisHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore
 void 
 MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig)
 {
-  ig.setCurrentFolder(dbe_path_.c_str());
+  ig.setCurrentFolder(dbe_path_);
   TH1F* gem_trk_eta[3];
   TH1F* gem_trk_phi[3][2];  
 
@@ -162,8 +161,10 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
   }
   */
 
+  using namespace GEMDetLabel;
+
   // detailPlots
-  for( int i = 0 ; i < 3 ; i++) {
+  for( unsigned int i = 0 ; i < s_suffix.size() ; i++) {
     TString eta_label = TString(dbe_path_)+"track_eta"+s_suffix[i];
     TString phi_label;
     if ( ig.get(eta_label.Data()) != nullptr ) {
@@ -171,7 +172,7 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
       gem_trk_eta[i]->Sumw2();
     }
     else LogDebug("MuonGEMDigisHarvestor")<<"Can not found track_eta";
-    for ( int k=0 ; k <3 ; k++) {
+    for ( unsigned int k=0 ; k < c_suffix.size() ; k++) {
       phi_label = TString(dbe_path_.c_str())+"track_phi"+s_suffix[i]+c_suffix[k];
       if ( ig.get(phi_label.Data()) !=nullptr ) {
         gem_trk_phi[i][k] = (TH1F*)ig.get(phi_label.Data())->getTH1F()->Clone();
@@ -181,7 +182,7 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
     }
 
     if ( ig.get(eta_label.Data()) != nullptr && ig.get(phi_label.Data()) !=nullptr ) {
-      for( int j = 0; j < 4 ; j++) { 
+      for( unsigned int j = 0; j < l_suffix.size() ; j++) { 
         TString suffix = TString( s_suffix[i] )+TString( l_suffix[j]);
         TString eta_label = TString(dbe_path_)+"dg_sh_eta"+suffix;
         if( ig.get(eta_label.Data()) !=nullptr ) {
@@ -192,7 +193,7 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
         ProcessBooking( ibooker, ig, "dg_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
         ProcessBooking( ibooker, ig, "pad_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
         ProcessBooking( ibooker, ig, "copad_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
-        for ( int k= 0 ; k< 3 ; k++) {
+        for ( unsigned int k = 0 ; k < c_suffix.size() ; k++) {
           suffix = TString( s_suffix[i])+TString( l_suffix[j]) +TString(c_suffix[k]);
           TString phi_label = TString(dbe_path_)+"dg_sh_phi"+suffix;
           if( ig.get(phi_label.Data()) !=nullptr ) {

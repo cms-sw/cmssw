@@ -20,10 +20,10 @@ using namespace std;
 
 class L1MenuReader : public edm::EDAnalyzer {
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1MenuReader(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    virtual ~L1MenuReader(void){}
+    ~L1MenuReader(void) override{}
 };
 
 void L1MenuReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

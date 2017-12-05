@@ -29,9 +29,9 @@ class L1RPCHsbConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCHsbConfigRc
 							   L1RPCHsbConfig > {
    public:
       L1RPCHsbConfigOnlineProd(const edm::ParameterSet&);
-      ~L1RPCHsbConfigOnlineProd();
+      ~L1RPCHsbConfigOnlineProd() override;
 
-  virtual std::shared_ptr< L1RPCHsbConfig > newObject(
+  std::shared_ptr< L1RPCHsbConfig > newObject(
     const std::string& objectKey ) override ;
 
    private:

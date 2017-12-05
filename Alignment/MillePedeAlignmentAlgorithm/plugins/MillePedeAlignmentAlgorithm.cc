@@ -216,12 +216,12 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
                                                            RunRangeSelectionVPSet);
 
   std::string labelerPlugin = "PedeLabeler";
-  if (RunRangeSelectionVPSet.size()>0) {
+  if (!RunRangeSelectionVPSet.empty()) {
     labelerPlugin = "RunRangeDependentPedeLabeler";
     if (pedeLabelerCfg.exists("plugin")) {
       std::string labelerPluginCfg = pedeLabelerCfg.getParameter<std::string>("plugin");
       if ((labelerPluginCfg!="PedeLabeler" && labelerPluginCfg!="RunRangeDependentPedeLabeler") ||
-          pedeLabelerCfg.getUntrackedParameter<edm::VParameterSet>("parameterInstances").size()>0) {
+          !pedeLabelerCfg.getUntrackedParameter<edm::VParameterSet>("parameterInstances").empty()) {
         throw cms::Exception("BadConfig")
           << "MillePedeAlignmentAlgorithm::initialize"
           << "both RunRangeSelection and generic labeler specified in config file. "
@@ -294,7 +294,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
         << "modes running mille.";
     }
     const std::string moniFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
-    if (moniFile.size()) theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str());
+    if (!moniFile.empty()) theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str());
 
     // Get trajectory factory. In case nothing found, FrameWork will throw...
     const edm::ParameterSet fctCfg(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"));
@@ -454,7 +454,7 @@ void MillePedeAlignmentAlgorithm::terminate()
 std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(const std::vector<std::string>& plainFiles, const std::string& theDir) {
   std::vector<std::string> files;
   for (const auto& plainFile: plainFiles) {
-    std::string theInputFileName = plainFile;
+    const std::string& theInputFileName = plainFile;
     int theNumber = 0;
     while (true) {
       // Create a formatted version of the filename, with growing numbers
@@ -482,7 +482,7 @@ std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(
       }
     }
     // warning if unformatted (-> theNumber stays at 0) does not exist
-    if (theNumber == 0 && (files.size() == 0 || files.back() != plainFile)) {
+    if (theNumber == 0 && (files.empty() || files.back() != plainFile)) {
       edm::LogWarning("Alignment")
         << "The input file '" << plainFile << "' does not exist.";
     }
@@ -539,7 +539,7 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup
 
 
     // GblTrajectory?
-    if (refTrajPtr->gblInput().size() > 0) {
+    if (!refTrajPtr->gblInput().empty()) {
       // by construction: number of GblPoints == number of recHits or == zero !!!
       unsigned int iHit = 0;
       unsigned int numPointsWithMeas = 0;
@@ -622,7 +622,7 @@ MillePedeAlignmentAlgorithm::addHitCount(const std::vector<AlignmentParameters*>
   // Loop on all hit information in the input arrays and count valid y-hits:
   unsigned int nHitY = 0;
   for (unsigned int iHit = 0; iHit < validHitVecY.size(); ++iHit) {
-    Alignable *ali = (parVec[iHit] ? parVec[iHit]->alignable() : 0);
+    Alignable *ali = (parVec[iHit] ? parVec[iHit]->alignable() : nullptr);
     // Loop upwards on hierarchy of alignables to add hits to all levels
     // that are currently aligned. If only a non-selected alignable was hit,
     // (i.e. flagXY == 0 in addReferenceTrajectory(..)), there is no loop at all...
@@ -773,7 +773,7 @@ int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup
                                                     unsigned int iHit,
                                                     AlignmentParameters *&params)
 {
-  params = 0;
+  params = nullptr;
   theFloatBufferX.clear();
   theFloatBufferY.clear();
   theIntBuffer.clear();
@@ -810,7 +810,7 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, con
                                                     const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
                                                     unsigned int iHit, GblPoint &gblPoint)
 {
-  AlignmentParameters* params = 0;
+  AlignmentParameters* params = nullptr;
   std::vector<double> theDoubleBufferX, theDoubleBufferY;
   theDoubleBufferX.clear();
   theDoubleBufferY.clear();
@@ -1081,7 +1081,7 @@ bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespse
   if (okRead && allEmpty) {
     if (numMatch) { // as many alignables with result as trying to align
       edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
-    } else if (alis.size()) { // dead module do not get hits and no pede result
+    } else if (!alis.empty()) { // dead module do not get hits and no pede result
       edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
     } else { // serious problem: no result read - and not all modules can be dead...
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
@@ -1263,7 +1263,7 @@ bool MillePedeAlignmentAlgorithm::addHits(const std::vector<Alignable*> &alis,
        iAli != alis.end() && iUser != mpVars.end(); ++iAli, ++iUser) {
     MillePedeVariables *mpVarNew = dynamic_cast<MillePedeVariables*>(*iUser);
     AlignmentParameters *ps = (*iAli)->alignmentParameters();
-    MillePedeVariables *mpVarOld = (ps ? dynamic_cast<MillePedeVariables*>(ps->userVariables()) : 0);
+    MillePedeVariables *mpVarOld = (ps ? dynamic_cast<MillePedeVariables*>(ps->userVariables()) : nullptr);
     if (!mpVarNew || !mpVarOld || mpVarOld->size() != mpVarNew->size()) {
       allOk = false;
       continue; // FIXME error etc.?
@@ -1602,7 +1602,7 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const EventInfo &eventInfo,
                                              const TkFittedLasBeam &lasBeam,
                                              const std::vector<TrajectoryStateOnSurface> &tsoses)
 {
-  AlignmentParameters *dummyPtr = 0; // for globalDerivativesHierarchy()
+  AlignmentParameters *dummyPtr = nullptr; // for globalDerivativesHierarchy()
   std::vector<float> lasLocalDerivsX; // buffer for local derivatives
   const unsigned int beamLabel = thePedeLabels->lasBeamLabel(lasBeam.getBeamId());// for global par
 

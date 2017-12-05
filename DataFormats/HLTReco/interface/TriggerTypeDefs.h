@@ -11,7 +11,7 @@
  */
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 namespace trigger
 {
@@ -48,6 +48,7 @@ namespace trigger
     TriggerL1EG           = -98, // stage2
     TriggerL1Jet          = -99, // stage2
     TriggerL1Tau          =-100, // stage2
+    TriggerL1ETMHF        =-101,
 
     /// HLT
 

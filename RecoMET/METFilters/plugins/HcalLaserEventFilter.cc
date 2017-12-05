@@ -50,12 +50,12 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 class HcalLaserEventFilter : public edm::global::EDFilter<> {
    public:
       explicit HcalLaserEventFilter(const edm::ParameterSet&);
-      ~HcalLaserEventFilter();
+      ~HcalLaserEventFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   std::vector<int>  GetCMSSWVersion(std::string const&) const;
   bool IsGreaterThanMinCMSSWVersion(std::vector<int> const&) const;
@@ -69,6 +69,9 @@ class HcalLaserEventFilter : public edm::global::EDFilter<> {
   // Filter option 2:  veto events by HBHE occupancy
   const bool vetoByHBHEOccupancy_;
   const unsigned int minOccupiedHBHE_;
+
+  const bool vetoByLaserMonitor_;
+  const double minLaserMonitorCharge_;
 
   // Allow for debugging information to be printed
   const bool debug_;
@@ -109,6 +112,8 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
   : vetoByRunEventNumber_ (iConfig.getUntrackedParameter<bool>("vetoByRunEventNumber",true))
   , vetoByHBHEOccupancy_  (iConfig.getUntrackedParameter<bool>("vetoByHBHEOccupancy",false))
   , minOccupiedHBHE_            (iConfig.getUntrackedParameter<unsigned int>("minOccupiedHBHE",5000))
+  , vetoByLaserMonitor_         (iConfig.getUntrackedParameter<bool>("vetoByLaserMonitor",false))
+  , minLaserMonitorCharge_      (iConfig.getUntrackedParameter<double>("minLaserMonitorCharge_",1000.))
   , debug_                      (iConfig.getUntrackedParameter<bool>("debug",false))
   , reverseFilter_              (iConfig.getUntrackedParameter<bool>("reverseFilter",false))
   , hbheInputLabel_             (iConfig.getUntrackedParameter<edm::InputTag>("hbheInputLabel",edm::InputTag("hbhereco")))
@@ -243,6 +248,28 @@ HcalLaserEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
 	     }
 	 }
      }// if (vetoByHBHEOccupancy_)
+   if( vetoByLaserMonitor_ ) 
+     {
+     //////////////////////////////////////////////////////////
+     //
+     //  Apply Filtering based on laser monitor information in HcalNoiseSummary object
+     //
+     ////////////////////////////////////////////////////////////
+       Handle<HcalNoiseSummary> hSummary;
+       if (iEvent.getByToken(hcalNoiseSummaryToken_,hSummary)) // get by label, usually with label 'hcalnoise'
+         {
+           if (debug_)  edm::LogInfo("HcalLaserEventFilter") << " LASERMON CHARGE (from HcalNoiseSummary) = "<<hSummary->GetLaserMonitorCharge()<<"  threshold = "<<minLaserMonitorCharge_;
+           if( hSummary->GetLaserMonitorCharge() > minLaserMonitorCharge_ ) 
+             {
+               if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter>  Filtering because of large Laser monitor charge in HcalNoiseSummary; "<<hSummary->GetLaserMonitorCharge()<<" charge is greater than or equal to the allowed maximum of "<<minLaserMonitorCharge_;
+               filterDecision=false;
+             }
+         }
+       else 
+         {
+           if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter::Error> No valid HcalNoiseSummary with label '"<<hcalNoiseSummaryLabel_<<"' found";
+         }
+     }
 
    // Reverse decision, if specified by user
    if (reverseFilter_)

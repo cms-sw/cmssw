@@ -42,7 +42,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
@@ -1399,8 +1398,8 @@ void SiStripGainFromCalibTree::qualityMonitor() {
             if(FitMPV>0.) Gains->Fill(Gain);
 
             MPVs->Fill(FitMPV);
-            if(Thickness<0.04) MPVs320->Fill(Phi,FitMPV);
-            if(Thickness>0.04) MPVs500->Fill(Phi,FitMPV);
+            if(Thickness<0.04) MPVs320->Fill(FitMPV);
+            if(Thickness>0.04) MPVs500->Fill(FitMPV);
 
             MPVError->Fill(FitMPVErr);
             MPVErrorVsMPV->Fill(FitMPV,FitMPVErr);

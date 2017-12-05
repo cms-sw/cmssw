@@ -31,28 +31,28 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps):
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
-  meEBDigiOccupancy_ = 0;
+  meEBDigiOccupancy_ = nullptr;
 
-  meEBDigiMultiplicity_ = 0;
+  meEBDigiMultiplicity_ = nullptr;
 
-  meEBDigiADCGlobal_ = 0;
+  meEBDigiADCGlobal_ = nullptr;
 
   for (int i = 0; i < 10 ; i++ ) {
-    meEBDigiADCAnalog_[i] = 0;
-    meEBDigiADCgS_[i]  = 0;
-    meEBDigiADCg1_[i]  = 0;
-    meEBDigiADCg6_[i]  = 0;
-    meEBDigiADCg12_[i] = 0;
-    meEBDigiGain_[i] = 0;
+    meEBDigiADCAnalog_[i] = nullptr;
+    meEBDigiADCgS_[i]  = nullptr;
+    meEBDigiADCg1_[i]  = nullptr;
+    meEBDigiADCg6_[i]  = nullptr;
+    meEBDigiADCg12_[i] = nullptr;
+    meEBDigiGain_[i] = nullptr;
   }
 
-  meEBPedestal_ = 0;
+  meEBPedestal_ = nullptr;
                                  
-  meEBMaximumgt100ADC_ = 0; 
+  meEBMaximumgt100ADC_ = nullptr; 
                                  
-  meEBMaximumgt10ADC_ = 0; 
+  meEBMaximumgt10ADC_ = nullptr; 
 
-  meEBnADCafterSwitch_ = 0;
+  meEBnADCafterSwitch_ = nullptr;
  
 }
 

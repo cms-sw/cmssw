@@ -6,10 +6,10 @@ class L1TGlobalPrescalesVetosObjectKeysOnlineProd : public L1ObjectKeysOnlinePro
 private:
 
 public:
-    virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
     L1TGlobalPrescalesVetosObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TGlobalPrescalesVetosObjectKeysOnlineProd(void){}
+    ~L1TGlobalPrescalesVetosObjectKeysOnlineProd(void) override{}
 };
 
 L1TGlobalPrescalesVetosObjectKeysOnlineProd::L1TGlobalPrescalesVetosObjectKeysOnlineProd(const edm::ParameterSet& iConfig)

@@ -91,7 +91,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 
    edm::Handle<reco::TrackCollection> theTrackHandle;
    iEvent.getByToken(token_tracks, theTrackHandle);
-   if (!theTrackHandle->size()) return;
+   if (theTrackHandle->empty()) return;
    const reco::TrackCollection* theTrackCollection = theTrackHandle.product();   
 
    edm::Handle<reco::BeamSpot> theBeamSpotHandle;
@@ -154,9 +154,14 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       }
 
       // measure distance between tracks at their closest approach
-      if (!posTransTkPtr->impactPointTSCP().isValid() || !negTransTkPtr->impactPointTSCP().isValid()) continue;
-      FreeTrajectoryState const & posState = posTransTkPtr->impactPointTSCP().theState();
-      FreeTrajectoryState const & negState = negTransTkPtr->impactPointTSCP().theState();
+
+      //these two variables are needed to 'pin' the temporary value returned to the stack
+      // in order to keep posState and negState from pointing to destructed objects
+      auto const& posImpact = posTransTkPtr->impactPointTSCP();
+      auto const& negImpact = negTransTkPtr->impactPointTSCP();
+      if (!posImpact.isValid() || !negImpact.isValid()) continue;
+      FreeTrajectoryState const & posState = posImpact.theState();
+      FreeTrajectoryState const & negState = negImpact.theState();
       ClosestApproachInRPhi cApp;
       cApp.calculate(posState, negState);
       if (!cApp.status()) continue;
@@ -240,8 +245,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       }
 
       if (useRefTracks_ && theRefTracks.size() > 1) {
-         reco::TransientTrack* thePositiveRefTrack = 0;
-         reco::TransientTrack* theNegativeRefTrack = 0;
+         reco::TransientTrack* thePositiveRefTrack = nullptr;
+         reco::TransientTrack* theNegativeRefTrack = nullptr;
          for (std::vector<reco::TransientTrack>::iterator iTrack = theRefTracks.begin(); iTrack != theRefTracks.end(); ++iTrack) {
             if (iTrack->track().charge() > 0.) {
                thePositiveRefTrack = &*iTrack;
@@ -249,7 +254,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
                theNegativeRefTrack = &*iTrack;
             }
          }
-         if (thePositiveRefTrack == 0 || theNegativeRefTrack == 0) continue;
+         if (thePositiveRefTrack == nullptr || theNegativeRefTrack == nullptr) continue;
          trajPlus.reset(new TrajectoryStateClosestToPoint(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos)));
          trajMins.reset(new TrajectoryStateClosestToPoint(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos)));
       } else {
@@ -257,7 +262,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
          trajMins.reset(new TrajectoryStateClosestToPoint(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
       }
 
-      if (trajPlus.get() == 0 || trajMins.get() == 0 || !trajPlus->isValid() || !trajMins->isValid()) continue;
+      if (trajPlus.get() == nullptr || trajMins.get() == nullptr || !trajPlus->isValid() || !trajMins->isValid()) continue;
 
       GlobalVector positiveP(trajPlus->momentum());
       GlobalVector negativeP(trajMins->momentum());

@@ -33,3 +33,10 @@ hiCentrality = cms.EDProducer("CentralityProducer",
                            lowGainZDC = cms.bool(True),
 
                             )
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toModify(hiCentrality,
+                         producePixelTracks = False,
+                         srcTracks = cms.InputTag("generalTracks"),
+                         srcVertex = cms.InputTag("offlinePrimaryVertices")
+                         )

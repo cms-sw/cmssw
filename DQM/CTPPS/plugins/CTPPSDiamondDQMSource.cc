@@ -943,7 +943,9 @@ CTPPSDiamondDQMSource::endLuminosityBlock( const edm::LuminosityBlock&, const ed
   }
     
   for ( auto& plot : potPlots_ ) {
-    double HundredOverHitCounterPot = 100. / plot.second.HitCounter;
+    double HundredOverHitCounterPot = 0.;
+    if ( plot.second.HitCounter !=0 )
+      HundredOverHitCounterPot = 100. / plot.second.HitCounter;
     plot.second.HPTDCErrorFlags_cumulative->setBinContent( 16, HundredOverHitCounterPot * plot.second.MHCounter );
     plot.second.leadingWithoutTrailingCumulativePot->setBinContent(1, HundredOverHitCounterPot * plot.second.LeadingOnlyCounter ); 
     plot.second.leadingWithoutTrailingCumulativePot->setBinContent(2, HundredOverHitCounterPot * plot.second.TrailingOnlyCounter ); 

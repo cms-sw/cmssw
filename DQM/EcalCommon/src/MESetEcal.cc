@@ -11,9 +11,9 @@ namespace ecaldqm
   MESetEcal::MESetEcal(std::string const& _fullPath, binning::ObjectType _otype, binning::BinningType _btype, MonitorElement::Kind _kind, unsigned _logicalDimensions, binning::AxisSpecs const* _xaxis/* = 0*/, binning::AxisSpecs const* _yaxis/* = 0*/, binning::AxisSpecs const* _zaxis/* = 0*/) :
     MESet(_fullPath, _otype, _btype, _kind),
     logicalDimensions_(_logicalDimensions),
-    xaxis_(_xaxis ? new binning::AxisSpecs(*_xaxis) : 0),
-    yaxis_(_yaxis ? new binning::AxisSpecs(*_yaxis) : 0),
-    zaxis_(_zaxis ? new binning::AxisSpecs(*_zaxis) : 0)
+    xaxis_(_xaxis ? new binning::AxisSpecs(*_xaxis) : nullptr),
+    yaxis_(_yaxis ? new binning::AxisSpecs(*_yaxis) : nullptr),
+    zaxis_(_zaxis ? new binning::AxisSpecs(*_zaxis) : nullptr)
   {
     if(btype_ == binning::kUser && ((logicalDimensions_ > 0 && !xaxis_) || (logicalDimensions_ > 1 && !yaxis_)))
       throw_("Need axis specifications");
@@ -22,9 +22,9 @@ namespace ecaldqm
   MESetEcal::MESetEcal(MESetEcal const& _orig) :
     MESet(_orig),
     logicalDimensions_(_orig.logicalDimensions_),
-    xaxis_(_orig.xaxis_ ? new binning::AxisSpecs(*_orig.xaxis_) : 0),
-    yaxis_(_orig.yaxis_ ? new binning::AxisSpecs(*_orig.yaxis_) : 0),
-    zaxis_(_orig.zaxis_ ? new binning::AxisSpecs(*_orig.zaxis_) : 0)
+    xaxis_(_orig.xaxis_ ? new binning::AxisSpecs(*_orig.xaxis_) : nullptr),
+    yaxis_(_orig.yaxis_ ? new binning::AxisSpecs(*_orig.yaxis_) : nullptr),
+    zaxis_(_orig.zaxis_ ? new binning::AxisSpecs(*_orig.zaxis_) : nullptr)
   {
   }
 
@@ -41,9 +41,9 @@ namespace ecaldqm
     delete xaxis_;
     delete yaxis_;
     delete zaxis_;
-    xaxis_ = 0;
-    yaxis_ = 0;
-    zaxis_ = 0;
+    xaxis_ = nullptr;
+    yaxis_ = nullptr;
+    zaxis_ = nullptr;
 
     MESetEcal const* pRhs(dynamic_cast<MESetEcal const*>(&_rhs));
     if(pRhs){
@@ -136,7 +136,7 @@ namespace ecaldqm
       _ibooker.cd();
       _ibooker.setCurrentFolder(path.substr(0, slashPos));
 
-      MonitorElement* me(0);
+      MonitorElement* me(nullptr);
 
       switch(kind_) {
       case MonitorElement::DQM_KIND_REAL :
@@ -220,11 +220,17 @@ namespace ecaldqm
             me->setBinLabel(iBin, zaxis.labels[iBin - 1], 3);
         }
 
+        /* FIX: In ROOT 6.0.12 bit 20 is used by ROOT (bit 19 was already in use in 6.0.x). Talking with the ROOT team, users
+           should never use SetBit for their own purpose since those bits are reserved for ROOT internally.
+           See https://github.com/cms-sw/cmssw/issues/21423 for some alternative ways of attaching
+           additional information to a TH1
+
         // For plot tagging in RenderPlugin; default values are 1 for both
         // bits 19 - 23 are free in TH1::fBits
         // can only pack object + logical dimensions into 5 bits (4 bits for object, 1 bit for dim (1 -> dim >= 2))
         me->getTH1()->SetBit(uint32_t(actualObject + 1) << 20);
         if(isMap) me->getTH1()->SetBit(0x1 << 19);
+        */
       }
 
       if(lumiFlag_) me->setLumiFlag();
@@ -241,7 +247,7 @@ namespace ecaldqm
     clear();
 
     std::vector<std::string> mePaths(generatePaths());
-    if(mePaths.size() == 0){
+    if(mePaths.empty()){
       if(_failedPath) _failedPath->clear();
       return false;
     }

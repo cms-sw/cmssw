@@ -20,6 +20,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 #include "DQM/SiStripCommon/interface/TkHistoMap.h" 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
@@ -30,15 +32,15 @@
 class TkVoltageMapCreator : public edm::EDAnalyzer {
  public:
     explicit TkVoltageMapCreator(const edm::ParameterSet&);
-    ~TkVoltageMapCreator();
+    ~TkVoltageMapCreator() override;
 
 
    private:
-      virtual void beginJob() override ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+      void endRun(const edm::Run&, const edm::EventSetup&) override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -93,12 +95,16 @@ TkVoltageMapCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 void 
-TkVoltageMapCreator::beginRun(const edm::Run& iRun, const edm::EventSetup&)
+TkVoltageMapCreator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  const TkDetMap* tkDetMap = tkDetMapHandle.product();
+
   TrackerMap lvmap,hvmap;
 
-  TkHistoMap lvhisto("LV_Status","LV_Status",-1);
-  TkHistoMap hvhisto("HV_Status","HV_Status",-1);
+  TkHistoMap lvhisto(tkDetMap, "LV_Status","LV_Status",-1);
+  TkHistoMap hvhisto(tkDetMap, "HV_Status","HV_Status",-1);
   
   std::ifstream lvdata(_lvfile.c_str());
   std::ifstream hvdata(_hvfile.c_str());

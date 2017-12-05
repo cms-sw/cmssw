@@ -38,13 +38,13 @@ class EEBadScFilter : public edm::global::EDFilter<> {
   public:
 
     explicit EEBadScFilter(const edm::ParameterSet & iConfig);
-    ~EEBadScFilter() {}
+    ~EEBadScFilter() override {}
 
   private:
 
   // main filter function
 
-  virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+  bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
   // function to calculate 5x5 energy and check rechit flags
 
@@ -165,9 +165,6 @@ bool EEBadScFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventS
   DetId det;
 
   int ix,iy,iz;
-
-  ix=0,iy=0,iz=0;
-
 
   // loop over the list of bad SCs (defined in the python file)
 

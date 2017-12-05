@@ -25,7 +25,6 @@
 #include <vector>
 
 using namespace pixeltrackfitting;
-using namespace ctfseeding;
 using edm::ParameterSet;
 
 PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,

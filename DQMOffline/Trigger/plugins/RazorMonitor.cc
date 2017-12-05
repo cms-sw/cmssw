@@ -103,7 +103,7 @@ void RazorMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   // 1D hist, MR
   histname = "MR"; histtitle = "PF MR";
@@ -162,14 +162,14 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
     return;
   }
 
-  if(hemispheres->size() ==0){  // the Hemisphere Maker will produce an empty collection of hemispheres if # of jets is too high
+  if(hemispheres->empty()){  // the Hemisphere Maker will produce an empty collection of hemispheres if # of jets is too high
     edm::LogError("DQM_HLT_Razor") << "Cannot calculate M_R and R^2 because there are too many jets! (trigger passed automatically without forming the hemispheres)" << endl;
     return;
   }
 
   // should always have 2 hemispheres -- no muons included (c. 2017), if not return invalid hemisphere collection
   // retaining check for hemisphere size 5 or 10 which correspond to the one or two muon case for possible future use
-  if(hemispheres->size() != 0 && hemispheres->size() != 2 && hemispheres->size() != 5 && hemispheres->size() != 10){
+  if(!hemispheres->empty() && hemispheres->size() != 2 && hemispheres->size() != 5 && hemispheres->size() != 10){
     edm::LogError("DQM_HLT_Razor") << "Invalid hemisphere collection!  hemispheres->size() = " << hemispheres->size() << endl;
     return;
   }

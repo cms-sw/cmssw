@@ -55,15 +55,15 @@ hbherecoPedestal = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hb
 hbherecoPedestal.algorithm.firstSample = 0
 hbherecoPedestal.algorithm.samplesToAdd = 4
 
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
-hfrecoPedestal = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
+import RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi
+hfrecoPedestal = RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi.hfsimplereco.clone()
 hfrecoPedestal.digiLabel = cms.InputTag('hcalDigiAlCaPedestal')
 hfrecoPedestal.firstSample = cms.int32(0)
 hfrecoPedestal.samplesToAdd = cms.int32(2)
 hfrecoPedestal.dropZSmarkedPassed = cms.bool(False)
 
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
-horecoPedestal = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
+import RecoLocalCalo.HcalRecProducers.hosimplereco_cfi
+horecoPedestal = RecoLocalCalo.HcalRecProducers.hosimplereco_cfi.hosimplereco.clone()
 horecoPedestal.digiLabel = cms.InputTag('hcalDigiAlCaPedestal')
 horecoPedestal.firstSample = cms.int32(0)
 horecoPedestal.samplesToAdd = cms.int32(4)

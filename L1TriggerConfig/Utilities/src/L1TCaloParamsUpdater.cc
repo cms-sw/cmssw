@@ -18,10 +18,10 @@
 
 class L1TCaloParamsUpdater : public edm::EDAnalyzer {
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1TCaloParamsUpdater(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    virtual ~L1TCaloParamsUpdater(void){}
+    ~L1TCaloParamsUpdater(void) override{}
 };
 
 void L1TCaloParamsUpdater::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

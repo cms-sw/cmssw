@@ -59,6 +59,7 @@ if __name__ == '__main__':
                      136.7611, #2016E JetHT reMINIAOD from 80X legacy
                      136.788, #2017B Photon data
                      140.53, #2011 HI data
+                     1325.7, #test NanoAOD from existing MINI
                      1330, #Run2 MC Zmm
                      135.4, #Run 2 Zee ttbar
                      10042.0, #2017 ZMM
@@ -67,6 +68,7 @@ if __name__ == '__main__':
                      11624.0, #2019 ttbar
                      20034.0, #2023D17 ttbar (TDR baseline Muon/Barrel)
                      20434.0, #2023D19 to exercise timing layer
+                     21234.0, #2023D21 ttbar (Inner Tracker with lower radii than in TDR)
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
@@ -231,7 +233,7 @@ if __name__ == '__main__':
                       action='store_true')
 
     parser.add_option('--das-options',
-                      help='Options to be passed to das_client.py.',
+                      help='Options to be passed to dasgoclient.',
                       dest='dasOptions',
                       default="--limit 0",
                       action='store')

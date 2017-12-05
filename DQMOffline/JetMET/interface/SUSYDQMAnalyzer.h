@@ -16,19 +16,23 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+
 #include <string>
 
 
 class SUSYDQMAnalyzer: public DQMEDAnalyzer {
  public:
   explicit SUSYDQMAnalyzer(const edm::ParameterSet&);
-  ~SUSYDQMAnalyzer();
+  ~SUSYDQMAnalyzer() override;
  
  private:
   edm::ParameterSet iConfig;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event& , const edm::EventSetup&) override;
+  void analyze(const edm::Event& , const edm::EventSetup&) override;
 
   edm::EDGetTokenT<reco::PFMETCollection> thePFMETCollectionToken;
   edm::EDGetTokenT<std::vector<reco::PFJet> > thePFJetCollectionToken;

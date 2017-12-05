@@ -38,11 +38,11 @@ int main(int argc, char** argv) {
   histo1.process( connectionString, tag, runTimeType, start, start );
   std::cout <<histo1.data()<<std::endl;
 
-  SiStripApvGainsRatioWithPreviousIOVTrackerMap histo2;
+  SiStripApvGainsAvgDeviationRatio1sigmaTrackerMap histo2;
   histo2.process( connectionString, tag, runTimeType, end, end );
   std::cout <<histo2.data()<<std::endl;
 
-  SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMap histo3;
+  SiStripApvGainsMaxDeviationRatio1sigmaTrackerMap histo3;
   histo3.process( connectionString, tag, runTimeType, end, end );
   std::cout <<histo3.data()<<std::endl;
 

@@ -44,6 +44,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/MuonGEMRecHits/plugins/MuonGEMRecHitsHarvestor.h"
+#include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 
 
 MuonGEMRecHitsHarvestor::MuonGEMRecHitsHarvestor(const edm::ParameterSet& ps)
@@ -115,19 +116,17 @@ void MuonGEMRecHitsHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMSto
 void 
 MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig)
 {
-  ig.setCurrentFolder(dbe_path_.c_str());
+  ig.setCurrentFolder(dbe_path_);
+
+  using namespace GEMDetLabel;
  
-  const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-  const char* s_suffix[2] = {"_st1","_st2"};   
-  const char* c_suffix[3] = {"_even","_odd","_all"};   
+  TH1F* gem_trk_eta[s_suffix.size()];
+  TH1F* gem_trk_phi[s_suffix.size()][c_suffix.size()];  
 
-  TH1F* gem_trk_eta[2];
-  TH1F* gem_trk_phi[2][2];  
-
-  TH1F* sh_eta[2][4];
-  TH1F* sh_phi[2][4][3];
+  TH1F* sh_eta[s_suffix.size()][l_suffix.size()];
+  TH1F* sh_phi[s_suffix.size()][l_suffix.size()][c_suffix.size()];
   
-  for( int i = 0 ; i < 2 ; i++) {
+  for( unsigned int i = 0 ; i < s_suffix.size() ; i++) {
     TString eta_label = TString(dbe_path_)+"track_eta"+s_suffix[i];
     TString phi_label;
     if ( ig.get(eta_label.Data()) != nullptr ) {
@@ -135,7 +134,7 @@ MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
       gem_trk_eta[i]->Sumw2();
     }
     else std::cout<<"Can not found track_eta"<<std::endl;
-    for ( int k=0 ; k <3 ; k++) {
+    for ( unsigned int k=0 ; k < c_suffix.size() ; k++) {
       phi_label = TString(dbe_path_.c_str())+"track_phi"+s_suffix[i]+c_suffix[k];
       if ( ig.get(phi_label.Data()) !=nullptr ) {
         gem_trk_phi[i][k] = (TH1F*)ig.get(phi_label.Data())->getTH1F()->Clone();
@@ -145,7 +144,7 @@ MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
     }
     
     if ( ig.get(eta_label.Data()) != nullptr && ig.get(phi_label.Data()) !=nullptr ) {
-      for( int j = 0; j < 4 ; j++) { 
+      for( unsigned int j = 0; j < l_suffix.size() ; j++) { 
         TString suffix = TString( s_suffix[i] )+TString( l_suffix[j]);
         TString eta_label = TString(dbe_path_)+"rh_sh_eta"+suffix;
         if( ig.get(eta_label.Data()) !=nullptr ) {
@@ -154,7 +153,7 @@ MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
         }
         else std::cout<<"Can not found eta histogram : "<<eta_label<<std::endl;
         ProcessBooking( ibooker, ig, "rh_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
-        for ( int k= 0 ; k< 3 ; k++) {
+        for ( unsigned int k= 0 ; k < c_suffix.size() ; k++) {
           suffix = TString( s_suffix[i])+TString( l_suffix[j]) +TString(c_suffix[k]);
           TString phi_label = TString(dbe_path_)+"rh_sh_phi"+suffix;
           if( ig.get(phi_label.Data()) !=nullptr ) {

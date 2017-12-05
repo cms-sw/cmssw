@@ -25,17 +25,17 @@ private:
     std::string hash(void *buf, size_t len) const ;
     void printLUT(l1t::LUT* lut, const char *name) const ;
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 //    string hash(void *buf, size_t len) const ;
 
     explicit L1TMuonGlobalParamsViewer(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
 //       printLayerMap   = pset.getUntrackedParameter<bool>("printLayerMap",  false);
     }
-    virtual ~L1TMuonGlobalParamsViewer(void){}
+    ~L1TMuonGlobalParamsViewer(void) override{}
 };
 
 #include <openssl/sha.h>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 using namespace std;
 

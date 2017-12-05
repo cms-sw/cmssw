@@ -12,10 +12,10 @@ class RunTPGConfigDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   RunTPGConfigDat();
-  ~RunTPGConfigDat();
+  ~RunTPGConfigDat() override;
 
   // User data methods
-  inline std::string getTable() { return "RUN_TPGCONFIG_DAT"; }
+  inline std::string getTable() override { return "RUN_TPGCONFIG_DAT"; }
 
   inline std::string getConfigTag() const { return m_config; }
   inline void setConfigTag(std::string x) { m_config = x; }
@@ -24,7 +24,7 @@ class RunTPGConfigDat : public IDataItem {
 
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* item, RunIOV* iov ) noexcept(false);
 

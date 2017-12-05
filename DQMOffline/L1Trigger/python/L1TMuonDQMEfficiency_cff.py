@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi import muonEfficiencyThresholds
+from DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi import muonEfficiencyThresholds, muonEfficiencyThresholds_HI
 
 plots = ["EffvsPt", "EffvsEta", "EffvsPhi",
         "EffvsPt_OPEN", "EffvsEta_OPEN", "EffvsPhi_OPEN",
@@ -12,6 +12,12 @@ for plot in plots:
     for threshold in muonEfficiencyThresholds:
         plotName = '{0}_{1}'.format(plot, threshold)
         allEfficiencyPlots.append(plotName)
+
+allEfficiencyPlots_HI = []
+for plot in plots:
+    for threshold in muonEfficiencyThresholds_HI:
+        plotName = '{0}_{1}'.format(plot, threshold)
+        allEfficiencyPlots_HI.append(plotName)
 
 from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import l1tEfficiencyHarvesting
 l1tMuonDQMEfficiency = l1tEfficiencyHarvesting.clone(
@@ -25,3 +31,10 @@ l1tMuonDQMEfficiency = l1tEfficiencyHarvesting.clone(
         )
     )
 )
+
+# modifications for the pp reference run
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+ppRef_2017.toModify(l1tMuonDQMEfficiency,
+    plotCfgs = {0:dict(plots = allEfficiencyPlots_HI)}
+)
+

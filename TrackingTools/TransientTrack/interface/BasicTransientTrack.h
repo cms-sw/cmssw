@@ -5,9 +5,7 @@
  * Abstract Base class for reference counted TransientTrack
  */
 
-#include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
-#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
+#include "TrackingTools/TrajectoryState/interface/ProxyBase11.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -21,17 +19,12 @@
 
 namespace reco {
 
-  class BasicTransientTrack : public ReferenceCountedInEvent {
+  class BasicTransientTrack {
   public:
 
-    typedef BasicTransientTrack                              BTT;
-    typedef ProxyBase< BTT, CopyUsingClone<BTT> >        Proxy;
-    typedef ReferenceCountingPointer<BasicTransientTrack>    RCPtr;
+    using BTT=BasicTransientTrack;
+    using Proxy=ProxyBase11<BTT>;
 
-  private:
-    friend class ProxyBase< BTT, CopyUsingClone<BTT> >;
-    friend class ReferenceCountingPointer<BasicTransientTrack>;
-    
   public:
 
     virtual ~BasicTransientTrack() {}

@@ -19,7 +19,7 @@ MuonTrackDT13ChamberResidual::MuonTrackDT13ChamberResidual(edm::ESHandle<GlobalT
 void MuonTrackDT13ChamberResidual::setSegmentResidual(const reco::MuonChamberMatch *trk, const reco::MuonSegmentMatch *seg)
 {
   DTRecSegment4DRef segmentDT = seg->dtSegmentRef;
-  if (segmentDT.get() != 0)
+  if (segmentDT.get() != nullptr)
   {
     const DTRecSegment4D* segment = segmentDT.get();
     assert(segment->hasPhi());

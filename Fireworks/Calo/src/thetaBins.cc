@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <math.h>
+#include <cmath>
 
 // user include files
 #include "Fireworks/Calo/interface/thetaBins.h"

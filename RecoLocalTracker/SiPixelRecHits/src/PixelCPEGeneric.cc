@@ -31,8 +31,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
                                  const TrackerTopology& ttopo,
                                  const SiPixelLorentzAngle * lorentzAngle,
                                  const SiPixelGenErrorDBObject * genErrorDBObject,
-                                 const SiPixelLorentzAngle * lorentzAngleWidth=0)
-: PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, 0,lorentzAngleWidth,0) {
+                                 const SiPixelLorentzAngle * lorentzAngleWidth=nullptr)
+: PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr,lorentzAngleWidth,0) {
    
    if (theVerboseLevel > 0)
       LogDebug("PixelCPEGeneric")

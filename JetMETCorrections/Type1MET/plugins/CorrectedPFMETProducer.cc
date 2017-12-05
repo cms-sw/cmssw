@@ -42,7 +42,7 @@ public:
     produces<METCollection>("");
   }
 
-  ~CorrectedPFMETProducer() { }
+  ~CorrectedPFMETProducer() override { }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

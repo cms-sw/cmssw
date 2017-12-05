@@ -1,7 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData2007.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <string.h> // for bzero
+#include <cstring> // for bzero
 #include<iostream>
 
 CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header)

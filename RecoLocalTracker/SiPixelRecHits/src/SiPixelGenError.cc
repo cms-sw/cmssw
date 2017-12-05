@@ -11,7 +11,7 @@
 //#include <stdlib.h>
 //#include <stdio.h>
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include <math.h>
+#include <cmath>
 #else
 #include <math.h>
 #endif
@@ -679,7 +679,6 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    
    
-   ilow = ihigh = 0;
    auto xxratio = 0.f;
    
    {

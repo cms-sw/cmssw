@@ -1,75 +1,64 @@
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "Calibration/Tools/interface/calibXMLwriter.h"
+#include <TBranch.h>
+#include <TCanvas.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TProfile.h>
+#include <TRandom.h>
+#include <TTree.h>
 
-#include "Calibration/Tools/interface/CalibrationCluster.h"
-#include "Calibration/Tools/interface/HouseholderDecomposition.h"
-#include "Calibration/Tools/interface/MinL3Algorithm.h"
-#include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
-#include "Calibration/Tools/interface/EcalIndexingTools.h"
+#include <CLHEP/Vector/LorentzVector.h>
 
-#include "CLHEP/Vector/LorentzVector.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-#include "Calibration/EcalCalibAlgos/interface/ZeeCalibration.h"
-#include "Calibration/EcalCalibAlgos/interface/ZeeKinematicTools.h"
-
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
-#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
-
+#include "Calibration/EcalCalibAlgos/interface/ZeeCalibration.h"
+#include "Calibration/EcalCalibAlgos/interface/ZeeKinematicTools.h"
+#include "Calibration/Tools/interface/CalibrationCluster.h"
+#include "Calibration/Tools/interface/EcalIndexingTools.h"
+#include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
+#include "Calibration/Tools/interface/HouseholderDecomposition.h"
+#include "Calibration/Tools/interface/MinL3Algorithm.h"
+#include "Calibration/Tools/interface/calibXMLwriter.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-
-#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-
-/////////
-#include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-
-#include "TTree.h"
-#include "TBranch.h"
-#include "TCanvas.h"
-#include "TFile.h"
-#include "TProfile.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TF1.h"
-#include "TGraph.h"
-#include "TGraphErrors.h"
-#include "TRandom.h"
-
-#include <iostream>
-#include <string>
-#include <stdexcept>
-#include <vector>
-#include <utility>
-#include <map>
-#include <fstream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #define MZ 91.1876
 
@@ -141,7 +130,7 @@ ZeeCalibration::ZeeCalibration(const edm::ParameterSet& iConfig)
   hlTriggerResults_ = iConfig.getParameter<edm::InputTag> ("HLTriggerResults");
 
   theParameterSet=iConfig;
-  EcalIndexingTools* myIndexTool=0;
+  EcalIndexingTools* myIndexTool=nullptr;
 
   
   myIndexTool = EcalIndexingTools::getInstance();
@@ -682,7 +671,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     loopFlag_ = 0;
 
     //Read miscalibration map if requested
-    CaloMiscalibMapEcal* miscalibMap=0;
+    CaloMiscalibMapEcal* miscalibMap=nullptr;
     if (!barrelfile_.empty() || !barrelfile_.empty())
       {
 	miscalibMap=new CaloMiscalibMapEcal();
@@ -862,7 +851,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
       //DUMP GENERATED Z MASS - BEGIN
       Handle< HepMCProduct > hepProd ;
       //   iEvent.getByLabel( "source", hepProd ) ;
-      iEvent.getByLabel( mcProducer_.c_str(), hepProd ) ;
+      iEvent.getByLabel( mcProducer_, hepProd ) ;
                                                                                                                              
       const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
       
@@ -998,7 +987,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     return kContinue;
   }
   
-  if (hits->size() == 0 && ehits->size() == 0){
+  if (hits->empty() && ehits->empty()){
     std::cout << "hits->size() == 0" << std::endl;   
     return kContinue;
   }  
@@ -1008,7 +997,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     return kContinue;
   }
   
-  if (electronCollection->size() == 0){
+  if (electronCollection->empty()){
     std::cout << "electronCollection->size() == 0" << std::endl;
     return kContinue;
   }
@@ -1105,7 +1094,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   //
   h1_ZCandMult_->Fill(zeeCandidates.size());
   
-  if(zeeCandidates.size()==0 || myBestZ==-1 )
+  if(zeeCandidates.empty() || myBestZ==-1 )
     return kContinue;
       
   if (loopFlag_ == 0)
@@ -2032,7 +2021,7 @@ void ZeeCalibration::fillMCmap(const std::vector<const reco::GsfElectron*>* elec
   for (unsigned int i=0;i<mcEle.size();i++)
     {
       float minDR=0.1;
-      const reco::GsfElectron* myMatchEle=0;
+      const reco::GsfElectron* myMatchEle=nullptr;
       for (unsigned int j=0;j<electronCollection->size();j++)
         {
           float dr=EvalDR(mcEle[i]->momentum().pseudoRapidity(),(*(*electronCollection)[j]).eta(),mcEle[i]->momentum().phi(),(*(*electronCollection)[j]).phi());
@@ -2092,7 +2081,7 @@ void ZeeCalibration::fillEleInfo( std::vector<HepMC::GenParticle*>& mcEle, std::
 	  h1_elePhiResol_->Fill( myEle->phi() - mcEle[i]->momentum().phi() );
 
           const reco::SuperCluster* mySC=&(*(myEle->superCluster()));
-	  if (/*fabs(mySC->position().eta()) < 2.4*/1)
+	  if (/*fabs(mySC->position().eta()) < 2.4*/true)
 	    {
 	      //      if(myEle->classification()>=100)std::cout<<"mySC->preshowerEnergy()"<<mySC->preshowerEnergy()<<std::endl;
 
@@ -2179,7 +2168,7 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(const std::vector<std::
   
 
   double maxEnergy = -9999.;
-  const EcalRecHit* hottestRecHit=0;
+  const EcalRecHit* hottestRecHit=nullptr;
   
   std::pair<DetId, double> myPair (DetId(0), -9999.);
 

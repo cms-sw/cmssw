@@ -18,7 +18,7 @@
 #include <sstream>
 #include <sys/time.h>
 #include <unistd.h>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/file.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -66,12 +66,12 @@ namespace evf {
     fulocal_rwlock_fd_(-1),
     fulocal_rwlock_fd2_(-1),
 
-    bu_w_lock_stream(0),
-    bu_r_lock_stream(0),
-    fu_rw_lock_stream(0),
+    bu_w_lock_stream(nullptr),
+    bu_r_lock_stream(nullptr),
+    fu_rw_lock_stream(nullptr),
     //bu_w_monitor_stream(0),
     //bu_t_monitor_stream(0),
-    data_rw_stream(0),
+    data_rw_stream(nullptr),
 
     dirManager_(base_dir_),
 
@@ -200,7 +200,7 @@ namespace evf {
 	  edm::LogInfo("EvFDaqDirector") << "creating filedesc for buwritelock -: "
 					 << bu_writelock_fd_;
 	bu_w_lock_stream = fdopen(bu_writelock_fd_, "w");
-	if (bu_w_lock_stream == 0)
+	if (bu_w_lock_stream == nullptr)
 	  edm::LogWarning("EvFDaqDirector")<< "Error creating write lock stream -: " << strerror(errno);
 
 	// BU INITIALIZES LOCK FILE
@@ -210,7 +210,7 @@ namespace evf {
 	fflush(fu_rw_lock_stream);
 	close(fu_readwritelock_fd_);
 
-        if (hltSourceDirectory_.size())
+        if (!hltSourceDirectory_.empty())
 	{
 	  struct stat buf;
 	  if (stat(hltSourceDirectory_.c_str(),&buf)==0) {
@@ -248,7 +248,7 @@ namespace evf {
 	openFULockfileStream(fulockfile, false);
       }
 
-    pthread_mutex_init(&init_lock_,NULL);
+    pthread_mutex_init(&init_lock_,nullptr);
 
     stopFilePath_ = run_dir_+"/CMSSW_STOP";
     std::stringstream sstp;
@@ -499,7 +499,7 @@ namespace evf {
       stop_ls_override_ = 0;
 
     timeval ts_lockbegin;
-    gettimeofday(&ts_lockbegin,0);
+    gettimeofday(&ts_lockbegin,nullptr);
 
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
@@ -528,7 +528,7 @@ namespace evf {
     }
 
     timeval ts_lockend;
-    gettimeofday(&ts_lockend,0);
+    gettimeofday(&ts_lockend,nullptr);
     long deltat = (ts_lockend.tv_usec-ts_lockbegin.tv_usec) + (ts_lockend.tv_sec-ts_lockbegin.tv_sec)*1000000;
     if (deltat>0.) lockWaitTime=deltat;
 
@@ -542,7 +542,7 @@ namespace evf {
 #endif
 
     // if the stream is readable
-    if (fu_rw_lock_stream != 0) {
+    if (fu_rw_lock_stream != nullptr) {
       unsigned int readLs, readIndex;
       int check = 0;
       // rewind the stream
@@ -671,8 +671,8 @@ namespace evf {
     if (readEolsDefinition_) {
       //std::string def = boost::algorithm::trim(dp.getDefinition());
       std::string def = dp.getDefinition();
-      if (!def.size()) readEolsDefinition_=false;
-      while (def.size()) {
+      if (def.empty()) readEolsDefinition_=false;
+      while (!def.empty()) {
         std::string fullpath;
         if (def.find('/')==0)
           fullpath = def;
@@ -683,7 +683,7 @@ namespace evf {
           DataPointDefinition eolsDpd;
           std::string defLabel = "legend";
           DataPointDefinition::getDataPointDefinitionFor(fullpath, &eolsDpd,&defLabel);
-          if (eolsDpd.getNames().size()==0) {
+          if (eolsDpd.getNames().empty()) {
              //try with "data" label if "legend" format is not used
              eolsDpd = DataPointDefinition();
              defLabel="data";
@@ -792,7 +792,7 @@ namespace evf {
   }
 
   void EvFDaqDirector::tryInitializeFuLockFile() {
-    if (fu_rw_lock_stream == 0)
+    if (fu_rw_lock_stream == nullptr)
       edm::LogError("EvFDaqDirector") << "Error creating fu read/write lock stream "
 				      << strerror(errno);
     else {
@@ -931,7 +931,7 @@ namespace evf {
 
             Json::Value sDestsValue(Json::arrayValue);
 
-            if (!streamDestinations.size())
+            if (streamDestinations.empty())
               throw cms::Exception("EvFDaqDirector") << " Missing transter system destination(s) for -: "<< psKeyItr->first << ", mode:" << mode;
 
             for (auto & sdest:streamDestinations) {
@@ -1005,7 +1005,7 @@ namespace evf {
   void EvFDaqDirector::checkMergeTypePSet(edm::ProcessContext const& pc)
   {
     if (mergeTypePset_.empty()) return;
-    if(mergeTypeMap_.size()) return;
+    if(!mergeTypeMap_.empty()) return;
     edm::ParameterSet const& topPset = edm::getParameterSet(pc.parameterSetID());
     if (topPset.existsAs<edm::ParameterSet>(mergeTypePset_,true))
     {
@@ -1019,7 +1019,7 @@ namespace evf {
  
   std::string EvFDaqDirector::getStreamMergeType(std::string const& stream, MergeType defaultType)
   {
-    auto mergeTypeItr = mergeTypeMap_.find(stream.c_str());
+    auto mergeTypeItr = mergeTypeMap_.find(stream);
     if (mergeTypeItr == mergeTypeMap_.end()) {
            edm::LogInfo("EvFDaqDirector") << " No merging type specified for stream " << stream << ". Using default value";
            assert(defaultType<MergeTypeNames_.size());

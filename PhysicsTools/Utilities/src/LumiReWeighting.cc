@@ -157,25 +157,11 @@ double LumiReWeighting::weight( float npv ) {
 
 double LumiReWeighting::weight( const edm::EventBase &e ) {
 
-  // find provenance of event objects, just to check at the job beginning if there might be an issue  
-
   if(FirstWarning_) {
-
-    edm::ProcessHistory PHist = e.processHistory();
-    edm::ProcessHistory::const_iterator PHist_iter = PHist.begin();
-
-    for(; PHist_iter<PHist.end() ;++PHist_iter) {
-      edm::ProcessConfiguration PConf = *(PHist_iter);
-      edm::ReleaseVersion Release =  PConf.releaseVersion() ;
-      const std::string Process =  PConf.processName();
-
-    }
+    e.processHistory();
     //    SetFirstFalse();
     FirstWarning_ = false;
   }
-
-  // get pileup summary information
-
   Handle<std::vector< PileupSummaryInfo > >  PupInfo;
   e.getByLabel(pileupSumInfoTag_, PupInfo);
 
@@ -208,23 +194,12 @@ double LumiReWeighting::weightOOT( const edm::EventBase &e ) {
 
   //int Run = e.run();
   int LumiSection = e.luminosityBlock();
-  
   // do some caching here, attempt to catch file boundaries
 
-  if(LumiSection != OldLumiSection_) {
-
-    edm::ProcessHistory PHist = e.processHistory();
-    edm::ProcessHistory::const_iterator PHist_iter = PHist.begin();
-
-    for(; PHist_iter<PHist.end() ;++PHist_iter) {
-      edm::ProcessConfiguration PConf = *(PHist_iter);
-      edm::ReleaseVersion Release =  PConf.releaseVersion() ;
-      const std::string Process =  PConf.processName();
-
-    }
+  if(LumiSection != OldLumiSection_){
+    e.processHistory(); // keep the function call
     OldLumiSection_ = LumiSection;
   }
-
   // find the pileup summary information
 
   Handle<std::vector< PileupSummaryInfo > >  PupInfo;

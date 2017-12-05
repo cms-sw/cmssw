@@ -11,6 +11,7 @@
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 
@@ -25,9 +26,9 @@ class EgammaHLTCaloTowerProducer : public edm::global::EDProducer<> {
  public:
 
   EgammaHLTCaloTowerProducer( const edm::ParameterSet & );
-  ~EgammaHLTCaloTowerProducer() {};
+  ~EgammaHLTCaloTowerProducer() override {};
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const override final;
+  void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const final;
 
   const edm::EDGetTokenT<CaloTowerCollection> towers_;
   const double cone_;

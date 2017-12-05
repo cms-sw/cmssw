@@ -30,18 +30,18 @@ class DigiTask : public hcaldqm::DQTask
 {
 	public:
 		DigiTask(edm::ParameterSet const&);
-		virtual ~DigiTask() {}
+		~DigiTask() override {}
 
-		virtual void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&);
-		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
+		void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&) override;
+		void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
+		void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
 
 	protected:
-		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		void _process(edm::Event const&, edm::EventSetup const&) override;
+		void _resetMonitors(hcaldqm::UpdateFreq) override;
 
 		edm::InputTag		_tagHBHE;
 		edm::InputTag		_tagHEP17;
@@ -163,6 +163,16 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cLETDCvsADC_SubdetPM;
 		hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
 		hcaldqm::Container1D _cLETDCTime_SubdetPM;
+
+		// Bad TDC histograms
+		hcaldqm::Container1D _cBadTDCValues_SubdetPM_HF;
+		hcaldqm::Container1D _cBadTDCvsBX_SubdetPM_HF;
+		hcaldqm::Container1D _cBadTDCvsLS_SubdetPM_HF;
+		hcaldqm::Container2D _cBadTDCCount_depth;
+
+		hcaldqm::Container1D _cBadTDCValues_SubdetPM_HEP17;
+		hcaldqm::Container1D _cBadTDCvsBX_SubdetPM_HEP17;
+		hcaldqm::Container1D _cBadTDCvsLS_SubdetPM_HEP17;
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting

@@ -54,7 +54,7 @@ namespace edm {
 
       
       EDAnalyzerBase();
-      virtual ~EDAnalyzerBase();
+      ~EDAnalyzerBase() override;
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
@@ -62,6 +62,11 @@ namespace edm {
 
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
+
+      virtual bool wantsGlobalRuns() const =0;
+      virtual bool wantsGlobalLuminosityBlocks() const =0;
+      bool wantsStreamRuns() const {return false;}
+      bool wantsStreamLuminosityBlocks() const {return false;};
 
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 

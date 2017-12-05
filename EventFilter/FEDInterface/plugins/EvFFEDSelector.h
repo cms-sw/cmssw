@@ -19,9 +19,9 @@ namespace evf {
   public:
 
     explicit EvFFEDSelector(edm::ParameterSet const &);
-    ~EvFFEDSelector() { }
+    ~EvFFEDSelector() override { }
 
-    void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const override final;
+    void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const final;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:

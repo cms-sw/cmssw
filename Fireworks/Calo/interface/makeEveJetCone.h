@@ -23,6 +23,7 @@
 // user include files
 
 // forward declarations
+class TEveJetCone;
 
 namespace reco {
    class Jet;

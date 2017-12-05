@@ -1,8 +1,8 @@
+#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
-
-#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <algorithm>
 #include <cassert>
@@ -80,9 +80,9 @@ namespace  {
 
 }
 
-[[cms::thread_safe]] static std::atomic<bool> errorSummaryIsBeingKept{false};
+CMS_THREAD_SAFE static std::atomic<bool> errorSummaryIsBeingKept{false};
 //Each item in the vector is reserved for a different Stream
-[[cms::thread_safe]] static std::vector<tbb::concurrent_unordered_map<ErrorSummaryMapKey, AtomicUnsignedInt,ErrorSummaryMapKey::key_hash>> errorSummaryMaps;
+CMS_THREAD_SAFE static std::vector<tbb::concurrent_unordered_map<ErrorSummaryMapKey, AtomicUnsignedInt,ErrorSummaryMapKey::key_hash>> errorSummaryMaps;
 
 MessageSender::MessageSender( ELseverityLevel const & sev, 
 			      ELstring const & id,
@@ -97,7 +97,7 @@ MessageSender::MessageSender( ELseverityLevel const & sev,
 // boost::thread_resoruce_error is thrown at static destruction time,
 // if the MessageLogger library is loaded -- even if it is not used.
 void MessageSender::ErrorObjDeleter::operator()(ErrorObj * errorObjPtr) {
-  if (errorObjPtr == 0) {
+  if (errorObjPtr == nullptr) {
     return;
   }
   try 
@@ -170,7 +170,7 @@ namespace edm {
   
   bool FreshErrorsExist(unsigned int iStreamID) {
     assert(iStreamID<errorSummaryMaps.size());
-    return  errorSummaryMaps[iStreamID].size()>0;
+    return  !errorSummaryMaps[iStreamID].empty();
   }
   
   std::vector<ErrorSummaryEntry> LoggedErrorsSummary(unsigned int iStreamID) {

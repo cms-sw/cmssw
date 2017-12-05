@@ -25,13 +25,13 @@ class PolyFit2DParametrizedMagneticField : public MagneticField {
   PolyFit2DParametrizedMagneticField(const edm::ParameterSet& parameters);
 
   /// Destructor
-  virtual ~PolyFit2DParametrizedMagneticField();
+  ~PolyFit2DParametrizedMagneticField() override;
   
-  GlobalVector inTesla (const GlobalPoint& gp) const;
+  GlobalVector inTesla (const GlobalPoint& gp) const override;
 
-  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
+  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const override;
 
-  bool isDefined(const GlobalPoint& gp) const;
+  bool isDefined(const GlobalPoint& gp) const override;
 
  private:
   magfieldparam::BFit* theParam;

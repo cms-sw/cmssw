@@ -21,12 +21,12 @@
 class HepMCEventWriter : public edm::EDAnalyzer {
 public:
   explicit HepMCEventWriter(const edm::ParameterSet &params);
-  virtual ~HepMCEventWriter();
+  ~HepMCEventWriter() override;
   
 protected:
-  virtual void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
-  virtual void endRun(const edm::Run &run, const edm::EventSetup &es) override;
-  virtual void analyze(const edm::Event &event, const edm::EventSetup &es) override;
+  void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
+  void endRun(const edm::Run &run, const edm::EventSetup &es) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &es) override;
   
 private:
   edm::propagate_const<HepMC::IO_GenEvent*> _output;

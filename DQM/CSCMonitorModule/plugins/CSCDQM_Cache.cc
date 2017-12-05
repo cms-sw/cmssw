@@ -184,7 +184,7 @@ namespace cscdqm {
 
       if (fedPointer == fedData.end()) {
         MonitorObject** mos = new MonitorObject*[h::namesSize];
-        for (unsigned int i = 0; i < h::namesSize; i++) mos[i] = 0;
+        for (unsigned int i = 0; i < h::namesSize; i++) mos[i] = nullptr;
         fedPointer = fedData.insert(fedData.end(), std::make_pair(fedId, mos));
       }
     
@@ -204,7 +204,7 @@ namespace cscdqm {
 
       if (dduPointer == dduData.end()) {
         MonitorObject** mos = new MonitorObject*[h::namesSize];
-        for (unsigned int i = 0; i < h::namesSize; i++) mos[i] = 0;
+        for (unsigned int i = 0; i < h::namesSize; i++) mos[i] = nullptr;
         dduPointer = dduData.insert(dduData.end(), std::make_pair(dduId, mos));
       }
 

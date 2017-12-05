@@ -114,7 +114,7 @@ void FWEveTextGL::DirectDraw(TGLRnrCtx & rnrCtx) const
    glEnd();
  
    TGLUtil::Color(fM->GetMainColor());
-   if (1) {
+   if (true) {
       glPolygonOffset(0, 0 );
       glBegin(GL_LINE_LOOP);
       glVertex2d(xm, ym);

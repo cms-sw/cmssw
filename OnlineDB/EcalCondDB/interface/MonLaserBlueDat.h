@@ -13,10 +13,10 @@ class MonLaserBlueDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonLaserBlueDat();
-  ~MonLaserBlueDat();
+  ~MonLaserBlueDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_LASER_BLUE_DAT"; }
+  inline std::string getTable() override { return "MON_LASER_BLUE_DAT"; }
 
   inline void setAPDMean(float mean) { m_apdMean = mean; }
   inline float getAPDMean() const { return m_apdMean; }
@@ -36,7 +36,7 @@ class MonLaserBlueDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonLaserBlueDat* item, MonRunIOV* iov)
     noexcept(false);

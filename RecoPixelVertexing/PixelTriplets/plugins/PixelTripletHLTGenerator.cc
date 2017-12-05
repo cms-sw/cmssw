@@ -32,7 +32,6 @@ using pixelrecoutilities::LongitudinalBendingCorrection;
 using Range=PixelRecoRange<float>;
 
 using namespace std;
-using namespace ctfseeding;
 
 
 PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
@@ -93,7 +92,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region, Ordered
 
     int size = thirdLayers.size();
     const RecHitsSortedInPhi * thirdHitMap[size];
-    vector<const DetLayer *> thirdLayerDetLayer(size,0);
+    vector<const DetLayer *> thirdLayerDetLayer(size,nullptr);
     for (int il=0; il<size; ++il) 
     {
 	thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);

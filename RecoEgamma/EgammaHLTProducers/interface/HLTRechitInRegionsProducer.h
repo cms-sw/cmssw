@@ -16,6 +16,9 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 // Geometry and topology
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -40,7 +43,7 @@ class HLTRechitInRegionsProducer : public edm::stream::EDProducer<> {
  public:
   
   HLTRechitInRegionsProducer(const edm::ParameterSet& ps);
-  ~HLTRechitInRegionsProducer();
+  ~HLTRechitInRegionsProducer() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

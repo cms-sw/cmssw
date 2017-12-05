@@ -89,7 +89,7 @@ void CMHistograms::fillHistograms(const std::vector<CMvalues>& aVec, float aTime
 }
 
 
-void CMHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker)
+void CMHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker, const TkDetMap* tkDetMap)
 {
   //book FED level histograms
   //get FED IDs
@@ -147,10 +147,10 @@ void CMHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker)
     
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled){
-    tkmapCM_[0] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV",0.,true);
-    tkmapCM_[1] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV",0.,true);
-    tkmapCM_[2] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV0minusAPV1",-500.,true);
-    tkmapCM_[3] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV0minusAPV1",-500.,true);
+    tkmapCM_[0] = std::make_unique<TkHistoMap>(tkDetMap, "SiStrip/TkHisto","TkHMap_MeanCMAPV",0.,true);
+    tkmapCM_[1] = std::make_unique<TkHistoMap>(tkDetMap, "SiStrip/TkHisto","TkHMap_RmsCMAPV",0.,true);
+    tkmapCM_[2] = std::make_unique<TkHistoMap>(tkDetMap, "SiStrip/TkHisto","TkHMap_MeanCMAPV0minusAPV1",-500.,true);
+    tkmapCM_[3] = std::make_unique<TkHistoMap>(tkDetMap, "SiStrip/TkHisto","TkHMap_RmsCMAPV0minusAPV1",-500.,true);
   }
   else {
     tkmapCM_[0] = nullptr;
@@ -251,5 +251,5 @@ bool CMHistograms::tkHistoMapEnabled(unsigned int aIndex){
 
 TkHistoMap * CMHistograms::tkHistoMapPointer(unsigned int aIndex){
   assert(aIndex < 4);
-  return tkmapCM_[aIndex];
+  return tkmapCM_[aIndex].get();
 }

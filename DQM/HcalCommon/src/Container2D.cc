@@ -9,7 +9,7 @@ namespace hcaldqm
 	using namespace mapper;
 
 	Container2D::Container2D():
-		_qz(NULL)
+		_qz(nullptr)
 	{}
 
 	Container2D::Container2D(std::string const& folder,
@@ -24,9 +24,9 @@ namespace hcaldqm
 
 	Container2D::~Container2D()
 	{
-		if (_qz!=NULL)
+		if (_qz!=nullptr)
 			delete _qz;
-		_qz = NULL;
+		_qz = nullptr;
 	}
 	
 	/* virtual */ void Container2D::initialize(std::string const& folder, 

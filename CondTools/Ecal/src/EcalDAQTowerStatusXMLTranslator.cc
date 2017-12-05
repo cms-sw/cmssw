@@ -92,15 +92,15 @@ EcalDAQTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& header,const Ecal
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
 
-  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
   DOMDocument* doc = 
-    impl->createDocument( 0, cms::xerces::uStr( DAQTowerStatus_tag.c_str()).ptr(), doctype );
+    impl->createDocument( nullptr, cms::xerces::uStr( DAQTowerStatus_tag.c_str()).ptr(), doctype );
 
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root,header);
   std::cout << " barrel size " << record.barrelItems().size() << std::endl;
-  if (!record.barrelItems().size()) return std::string();
+  if (record.barrelItems().empty()) return std::string();
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEBTotalTowers;
       ++cellid) {
@@ -112,7 +112,7 @@ EcalDAQTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& header,const Ecal
   } 
 
   std::cout << " endcap size " << record.endcapItems().size() << std::endl;
-  if (!record.endcapItems().size()) return std::string();
+  if (record.endcapItems().empty()) return std::string();
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEETotalTowers;
       ++cellid) {
@@ -137,7 +137,7 @@ void EcalDAQTowerStatusXMLTranslator::plot(std::string fn, const EcalDAQTowerSta
   std::ofstream fout(fn.c_str());
   int valEB[34][72];
   std::cout << " barrel size " << record.barrelItems().size() << std::endl;
-  if (!record.barrelItems().size()) return;
+  if (record.barrelItems().empty()) return;
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEBTotalTowers;
       ++cellid) {
@@ -157,7 +157,7 @@ void EcalDAQTowerStatusXMLTranslator::plot(std::string fn, const EcalDAQTowerSta
   }
 
   std::cout << " endcap size " << record.endcapItems().size() << std::endl;
-  if (!record.endcapItems().size()) return;
+  if (record.endcapItems().empty()) return;
   int valEE[2][20][20];
   for(int k = 0 ; k < 2; k++ ) 
     for(int ix = 0 ; ix < 20; ix++) 

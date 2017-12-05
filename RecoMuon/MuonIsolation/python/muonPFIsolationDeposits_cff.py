@@ -10,10 +10,11 @@ muPFIsoDepositNeutral=isoDepositReplace('muons1stStep','pfAllNeutralHadrons')
 muPFIsoDepositGamma=isoDepositReplace('muons1stStep','pfAllPhotons')
 muPFIsoDepositPU=isoDepositReplace('muons1stStep','pfPileUpAllChargedParticles')
 
-muonPFIsolationDepositsSequence = cms.Sequence(
-    muPFIsoDepositCharged+
-    muPFIsoDepositChargedAll+
-    muPFIsoDepositGamma+
-    muPFIsoDepositNeutral+
+muonPFIsolationDepositsTask = cms.Task(
+    muPFIsoDepositCharged,
+    muPFIsoDepositChargedAll,
+    muPFIsoDepositGamma,
+    muPFIsoDepositNeutral,
     muPFIsoDepositPU
     )
+muonPFIsolationDepositsSequence = cms.Sequence(muonPFIsolationDepositsTask)

@@ -45,7 +45,6 @@ template <class T> T sqr( T t) {return t*t;}
 
 using namespace PixelRecoUtilities;
 using namespace std;
-using namespace ctfseeding; 
 
 RectangularEtaPhiTrackingRegion::UseMeasurementTracker RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(const std::string& name) {
   std::string tmp = name;
@@ -220,7 +219,7 @@ RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const ed
   // r prediction, skip if not intersection
   HitRCheck rPrediction(rzConstraint());
   Range hitRWindow = rPrediction.range(zLayer).intersection(detRWindow);
-  if (hitRWindow.empty()) return 0;
+  if (hitRWindow.empty()) return nullptr;
 
   // phi prediction
   OuterHitPhiPrediction phiPrediction = phiWindow(iSetup);

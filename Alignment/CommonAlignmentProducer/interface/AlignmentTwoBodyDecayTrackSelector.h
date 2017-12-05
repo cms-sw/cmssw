@@ -12,6 +12,8 @@
 #include <DataFormats/TrackReco/interface/TrackFwd.h>
 #include <DataFormats/METReco/interface/CaloMETFwd.h>
 
+namespace edm { class Event; class EventSetup; }
+
 class AlignmentTwoBodyDecayTrackSelector
 {
  public:
@@ -34,7 +36,7 @@ class AlignmentTwoBodyDecayTrackSelector
   ///checks if the mass of the mother is in the mass region adding missing E_T
   Tracks checkMETMass(const Tracks& cands,const edm::Event& iEvent)const;
   ///checks if the mother has charge = [theCharge]
-  bool checkCharge(const reco::Track* trk1,const reco::Track* trk2 = 0)const;
+  bool checkCharge(const reco::Track* trk1,const reco::Track* trk2 = nullptr)const;
   ///checks if the [cands] are acoplanar (returns empty set if not)
   bool checkAcoplanarity(const reco::Track* trk1,const reco::Track* trk2)const;
   ///checks if [cands] contains a acoplanar track w.r.t missing ET (returns empty set if not)

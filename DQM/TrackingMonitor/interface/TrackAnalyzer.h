@@ -27,7 +27,7 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 
-class DQMStore;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class BeamSpot;
 namespace dqm {
@@ -63,11 +63,11 @@ class TrackAnalyzer
 	void bookHistosForLScertification(DQMStore::IBooker & ibooker);
 	void bookHistosForBeamSpot(DQMStore::IBooker & ibooker);
         void bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker);
-        void bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker, const edm::EventSetup & iSetup, const std::string suffix);
+        void bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker, const edm::EventSetup & iSetup, const std::string suffix, bool useInac);
         void fillHistosForHitProperties(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
 	void fillHistosForLScertification(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
         void fillHistosForTrackerSpecific(const reco::Track & track);
-        void fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const float monitoring);
+        void fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const float monitoring,bool useInac);
 
         // ----------member data ---------------------------
 	std::string TopFolder_;
@@ -333,7 +333,7 @@ class TrackAnalyzer
 	MonitorElement* NumberOfLayersPerTrackVsTheta;
 	MonitorElement* NumberOfLayersPerTrackVsEta;
 
-	MonitorElement* NumberOfLayersVsPhiVsEtaPerTrack[4]= {nullptr,nullptr,nullptr,nullptr};
+	MonitorElement* NumberOfLayersVsPhiVsEtaPerTrack[5]= {nullptr,nullptr,nullptr,nullptr,nullptr};
 
 
 	MonitorElement* Chi2;
@@ -354,7 +354,9 @@ class TrackAnalyzer
 	MonitorElement* DistanceOfClosestApproachToBS;
 	MonitorElement* AbsDistanceOfClosestApproachToBS;
 	MonitorElement* DistanceOfClosestApproachToPV;
+        MonitorElement* DistanceOfClosestApproachToPVZoom;
 	MonitorElement* DeltaZToPV;
+        MonitorElement* DeltaZToPVZoom;
 	MonitorElement* DistanceOfClosestApproachVsTheta;
 	MonitorElement* DistanceOfClosestApproachVsPhi;
 	MonitorElement* DistanceOfClosestApproachToBSVsPhi;

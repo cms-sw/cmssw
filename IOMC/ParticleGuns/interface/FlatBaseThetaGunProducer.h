@@ -25,7 +25,7 @@ class FlatBaseThetaGunProducer : public one::EDProducer<one::WatchRuns,
   public:
     
     FlatBaseThetaGunProducer(const ParameterSet &);
-    virtual ~FlatBaseThetaGunProducer();
+    ~FlatBaseThetaGunProducer() override;
     void beginRun(const edm::Run&, const edm::EventSetup&) override;
     void endRun(const edm::Run& r, const edm::EventSetup&) override;
     void endRunProduce(edm::Run& r, const edm::EventSetup&) override;

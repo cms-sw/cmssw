@@ -1,4 +1,4 @@
-#include "SteppingHelixPropagatorESProducer.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
@@ -12,6 +12,21 @@
 
 #include <string>
 #include <memory>
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
+class  SteppingHelixPropagatorESProducer: public edm::ESProducer{
+ public:
+  SteppingHelixPropagatorESProducer(const edm::ParameterSet & p);
+  ~SteppingHelixPropagatorESProducer() override;
+  std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
+ private:
+  std::shared_ptr<Propagator> _propagator;
+  edm::ParameterSet pset_;
+};
+
+
 
 using namespace edm;
 
@@ -51,7 +66,7 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
   // Force "useInTeslaFromMagField=true" for a B=0 VBF map.
   if (useMagVolumes==true && !useInTeslaFromMagField && !setVBFPointer && magfield->nominalValue() == 0) {
     const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*magfield));
-    if (vbfCPtr ==0 ){
+    if (vbfCPtr ==nullptr ){
       edm::LogWarning("SteppingHelixPropagator") << "Config specifies useMagVolumes==True but no VBF field available: SHP has no access to yoke material properties. Use setVBFPointer=true and VBFName cards to set a VBF field, otherwise set useMagVolumes==False." << std::endl;
     } else {
       edm::LogInfo("SteppingHelixPropagator") << "Config specifies useMagVolumes==true and VBF field available: Forcing useInTeslaFromMagField = True." <<std::endl;
@@ -109,3 +124,8 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
   _propagator  = std::shared_ptr<Propagator>(shProp);
   return _propagator;
 }
+
+#include "FWCore/Utilities/interface/typelookup.h"
+
+DEFINE_FWK_EVENTSETUP_MODULE(SteppingHelixPropagatorESProducer);
+

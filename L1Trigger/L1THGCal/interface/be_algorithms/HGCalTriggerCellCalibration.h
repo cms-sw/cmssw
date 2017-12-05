@@ -1,7 +1,7 @@
 #ifndef __L1Trigger_L1THGCal_HGCalTriggerCellCalibration_h__
 #define __L1Trigger_L1THGCal_HGCalTriggerCellCalibration_h__
 
-#include <stdint.h>
+#include <cstdint>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
