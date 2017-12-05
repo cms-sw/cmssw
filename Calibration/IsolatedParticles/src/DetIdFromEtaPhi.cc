@@ -53,7 +53,7 @@ namespace spr{
     double rcyl = radius*std::sin(theta);
     double z    = radius*std::cos(theta);
     GlobalPoint  point (rcyl*std::cos(phi),rcyl*std::sin(phi),z);
-    const DetId cell = ((CaloSubdetectorGeometry*)(geo))->getClosestCell(point);
+    const DetId cell = geo->getClosestCell(point);
 #ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "findDetIdCalo: rcyl " << rcyl << " z " << z << " Point " << point << " DetId ";

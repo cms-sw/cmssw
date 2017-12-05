@@ -46,7 +46,7 @@ namespace spr{
 
 	if (info2.isGoodEcal ) {
 	  if (std::abs(point2.eta())<spr::etaBEEcal) {
-	    const DetId anyCell = ((CaloSubdetectorGeometry*)(gEB))->getClosestCell(point2);
+	    const DetId anyCell = gEB->getClosestCell(point2);
 #ifdef EDM_ML_DEBUG
 	    if (debug) std::cout << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 #endif
@@ -54,7 +54,7 @@ namespace spr{
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  } else {
-	    const DetId anyCell = ((CaloSubdetectorGeometry*)(gEE))->getClosestCell(point2);
+	    const DetId anyCell = gEE->getClosestCell(point2);
 #ifdef EDM_ML_DEBUG
 	    if (debug) std::cout << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 #endif
@@ -97,8 +97,8 @@ namespace spr{
 
   double chargeIsolationEcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, const DetId& coreDet, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const CaloGeometry* geo, const CaloTopology* caloTopology, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
   
-    CaloSubdetectorGeometry *barrelGeom = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-    CaloSubdetectorGeometry *endcapGeom = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
 
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
 #ifdef EDM_ML_DEBUG
@@ -183,7 +183,7 @@ namespace spr{
 	}
 #endif
 	if (info2.isGoodHcal ) {
-	  const DetId anyCell = ((CaloSubdetectorGeometry*)(gHB))->getClosestCell(point2);
+	  const DetId anyCell = gHB->getClosestCell(point2);
 #ifdef EDM_ML_DEBUG
 	  if (debug) std::cout << "chargeIsolation:: HCAL cell " << (HcalDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 #endif

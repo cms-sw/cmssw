@@ -672,7 +672,7 @@ namespace spr{
 	if (EBDetId::MAX_IETA == ietaAbs && (!ignoreTransition) && endcapGeom) {
 	  // get ee nbrs for for end of barrel crystals
 	  const EcalBarrelGeometry::OrderedListOfEEDetId&
-	    ol( * ((EcalBarrelGeometry*)(barrelGeom))->getClosestEndcapCells(detId) ) ;
+	    ol( * barrelGeom->getClosestEndcapCells(detId) ) ;
 	  // take closest neighbour on the other side, that is in the endcap
 	  cell = *(ol.begin() );
 	  neighbours = endcapTopo->getNeighbours(cell,dir);
@@ -696,7 +696,7 @@ namespace spr{
 	if (iphi != 0 && (!ignoreTransition)) {
 	  // get eb nbrs for for end of endcap crystals
 	  const EcalEndcapGeometry::OrderedListOfEBDetId&
-	    ol( * ((EcalEndcapGeometry*)(endcapGeom))->getClosestBarrelCells(detId) ) ;
+	    ol( * endcapGeom->getClosestBarrelCells(detId) ) ;
 	  // take closest neighbour on the other side, that is in the barrel.
 	  cell = *(ol.begin() );
 	  neighbours = barrelTopo->getNeighbours(cell,dir);
@@ -748,7 +748,7 @@ namespace spr{
 	  int ieta = zsid*(etaC+eta);
 	  if (EBDetId::validDetId(ieta,iphi)) {
 	    id = EBDetId(ieta,iphi);
-	    if (((EcalBarrelGeometry*)(barrelGeom))->present(id)) {
+	    if (barrelGeom->present(id)) {
 	      if (std::count(dets.begin(),dets.end(),(DetId)id) == 0) {
 		cells.push_back((DetId)id);
 	      }
@@ -772,7 +772,7 @@ namespace spr{
 	  int iy = iyC+ky;
 	  if (EEDetId::validDetId(ix,iy,zsid)) {
 	    id = EEDetId(ix,iy,zsid);
-	    if (((EcalEndcapGeometry*)(endcapGeom))->present(id)) {
+	    if (endcapGeom->present(id)) {
 	      if (std::count(dets.begin(),dets.end(),(DetId)id) == 0) {
 		cells.push_back((DetId)id);
 	      }

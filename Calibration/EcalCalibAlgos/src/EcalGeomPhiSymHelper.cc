@@ -97,10 +97,10 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
     cellArea_[ix][iy] = fabs(cellArea_[ix][iy])/2.;
 /*
     const double deltaPhi =
-      ((EcalEndcapGeometry*)(endcapGeometry))->deltaPhi(ee);
+      (dynamic_cast<const EcalEndcapGeometry*>(endcapGeometry))->deltaPhi(ee);
 
     const double deltaEta =
-      ((EcalEndcapGeometry*)(endcapGeometry))->deltaEta(ee) ;
+      (dynamic_cast<const EcalEndcapGeometry*>(endcapGeometry))->deltaEta(ee) ;
 
     cellArea_[ix][iy] = deltaEta*deltaPhi;
 */
