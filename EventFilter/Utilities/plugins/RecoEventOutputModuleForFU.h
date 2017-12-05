@@ -222,11 +222,10 @@ namespace evf {
       readInput+=toRead;
     }
     fclose(src);
-    //free output buffer if micromerge is not done by the module
-    if (edm::Service<evf::EvFDaqDirector>()->microMergeDisabled()) {
-      delete [] outBuf_;
-      outBuf_=nullptr;
-    }
+    //free output buffer needed only for the INI file
+    delete [] outBuf_;
+    outBuf_=nullptr;
+
     uint32_t adler32c = (adlerb << 16) | adlera;
     if (adler32c != c_->get_adler32_ini()) {
       throw cms::Exception("RecoEventOutputModuleForFU") << "Checksum mismatch of ini file -: " << openIniFileName
@@ -303,71 +302,11 @@ namespace evf {
 
       //lock
       struct stat istat;
-      if (!edm::Service<evf::EvFDaqDirector>()->microMergeDisabled()) {
-        FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
-
-        std::string deschecksum = edm::Service<evf::EvFDaqDirector>()->getMergedDatChecksumFilePath(ls.luminosityBlock(), stream_label_);
-
-        struct stat istat;
-        FILE * cf = nullptr;
-        uint32_t mergedAdler32=1;
-        //get adler32 accumulated checksum for the merged file
-        if (!stat(deschecksum.c_str(), &istat)) {
-          if (istat.st_size) {
-            cf = fopen(deschecksum.c_str(),"r");
-            if (!cf) throw cms::Exception("RecoEventOutputModuleForFU") << "Unable to open checksum file -: " << deschecksum.c_str();
-            fscanf(cf,"%u",&mergedAdler32);
-            fclose(cf);
-          }
-          else edm::LogWarning("RecoEventOutputModuleForFU") << "Checksum file size is empty -: "<< deschecksum.c_str();
-        }
-
-        FILE *src = fopen(openDatFilePath_.string().c_str(),"r");
-
-        stat(openDatFilePath_.string().c_str(), &istat);
-        off_t readInput=0;
-        uint32_t adlera=1;
-        uint32_t adlerb=0;
-        while (readInput<istat.st_size) {
-          size_t toRead=  readInput+1024*1024 < istat.st_size ? 1024*1024 : istat.st_size-readInput;
-          fread(outBuf_,toRead,1,src);
-          fwrite(outBuf_,toRead,1,des);
-          if (readAdler32Check_)
-            cms::Adler32((const char*)outBuf_,toRead,adlera,adlerb);
-          readInput+=toRead;
-          filesize+=toRead;
-        }
-
-        //write new string representation of the checksum value
-        cf = fopen(deschecksum.c_str(),"w");
-        if (!cf) throw cms::Exception("RecoEventOutputModuleForFU") << "Unable to open or rewind checksum file for writing -:" << deschecksum.c_str();
-
-        //write adler32 combine to checksum file 
-        mergedAdler32 = adler32_combine(mergedAdler32,fileAdler32_.value(),filesize);
-
-        fprintf(cf,"%u",mergedAdler32);
-        fclose(cf);
-
-        edm::Service<evf::EvFDaqDirector>()->unlockAndCloseMergeStream();
-        fclose(src);
-
-        if (readAdler32Check_ && ((adlerb << 16) | adlera) != fileAdler32_.value()) {
-
-          throw cms::Exception("RecoEventOutputModuleForFU") << "Adler32 checksum mismatch after reading file -: " 
-                                                           << openDatFilePath_.string() <<" in LS " << ls.luminosityBlock() << std::endl;
-        }
-      }
-      else  { //no micromerge by HLT
-        stat(openDatFilePath_.string().c_str(), &istat);
-        filesize = istat.st_size;
-        boost::filesystem::rename(openDatFilePath_.string().c_str(), edm::Service<evf::EvFDaqDirector>()->getDatFilePath(ls.luminosityBlock(),stream_label_));
-      }
+      stat(openDatFilePath_.string().c_str(), &istat);
+      filesize = istat.st_size;
+      boost::filesystem::rename(openDatFilePath_.string().c_str(), edm::Service<evf::EvFDaqDirector>()->getDatFilePath(ls.luminosityBlock(),stream_label_));
     } else {
       //return if not in empty lumisection mode
-      if (!edm::Service<evf::EvFDaqDirector>()->emptyLumisectionMode()) {
-        remove(openDatFilePath_.string().c_str());
-        return;
-      }
       filelist_ = "";
       fileAdler32_.value()=-1;
     }

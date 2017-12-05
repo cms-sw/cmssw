@@ -104,8 +104,6 @@ namespace evf{
       FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
       void tryInitializeFuLockFile();
       unsigned int getRunNumber() const { return run_; }
-      FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
-      void unlockAndCloseMergeStream();
       void lockInitLock();
       void unlockInitLock();
       void setFMS(evf::FastMonitoringService* fms) {fms_=fms;}
@@ -125,8 +123,6 @@ namespace evf{
       void checkMergeTypePSet(edm::ProcessContext const& pc);
       std::string getStreamDestinations(std::string const& stream) const;
       std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
-      bool emptyLumisectionMode() const {return emptyLumisectionMode_;}
-      bool microMergeDisabled() const {return microMergeDisabled_;}
 
 
     private:
@@ -151,8 +147,6 @@ namespace evf{
       std::string selectedTransferMode_;
       std::string hltSourceDirectory_;
       unsigned int fuLockPollInterval_;
-      bool emptyLumisectionMode_;
-      bool microMergeDisabled_;
       std::string mergeTypePset_;
 
       std::string hostname_;
@@ -185,8 +179,6 @@ namespace evf{
       struct flock bu_r_fulk;
       struct flock fu_rw_flk;
       struct flock fu_rw_fulk;
-      struct flock data_rw_flk;
-      struct flock data_rw_fulk;
       //struct flock fulocal_rw_flk;
       //struct flock fulocal_rw_fulk;
       //struct flock fulocal_rw_flk2;

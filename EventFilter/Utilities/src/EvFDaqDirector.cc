@@ -55,8 +55,6 @@ namespace evf {
     selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode","")),
     hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
     fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval",2000)),
-    emptyLumisectionMode_(pset.getUntrackedParameter<bool>("emptyLumisectionMode",true)),
-    microMergeDisabled_(pset.getUntrackedParameter<bool>("microMergeDisabled",true)),
     mergeTypePset_(pset.getUntrackedParameter<std::string>("mergeTypePset","")),
     hostname_(""),
     bu_readlock_fd_(-1),
@@ -82,9 +80,7 @@ namespace evf {
     bu_w_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, 0 )),
     bu_r_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, 0 )),
     fu_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
-    data_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
+    fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
     //fulocal_rw_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
     //fulocal_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
     //fulocal_rw_flk2( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
@@ -113,17 +109,6 @@ namespace evf {
       }
     }
 
-    char * emptyLumiModePtr = getenv("FFF_EMPTYLSMODE");
-    if (emptyLumiModePtr) {
-        emptyLumisectionMode_ = true;
-        edm::LogInfo("EvFDaqDirector") << "Setting empty lumisection mode";
-    }
-
-    char * microMergeDisabledPtr = getenv("FFF_MICROMERGEDISABLED");
-    if (microMergeDisabledPtr) {
-        microMergeDisabled_ = true;
-        edm::LogInfo("EvFDaqDirector") << "Disabling dat file micro-merge by the HLT process (delegated to the hlt daemon)";
-    }
   }
 
   void EvFDaqDirector::initRun()
@@ -290,8 +275,6 @@ namespace evf {
     desc.addUntracked<bool>("requireTransfersPSet",false)->setComment("Require complete transferSystem PSet in the process configuration");
     desc.addUntracked<std::string>("selectedTransferMode","")->setComment("Selected transfer mode (choice in Lvl0 propagated as Python parameter");
     desc.addUntracked<unsigned int>("fuLockPollInterval",2000)->setComment("Lock polling interval in microseconds for the input directory file lock");
-    desc.addUntracked<bool>("emptyLumisectionMode",true)->setComment("Enables writing stream output metadata even when no events are processed in a lumisection");
-    desc.addUntracked<bool>("microMergeDisabled",true)->setComment("Disabled micro-merging by the Output Module, so it is later done by hltd service");
     desc.addUntracked<std::string>("mergingPset","")->setComment("Name of merging PSet to look for merging type definitions for streams");
     desc.setAllowAnything();
     descriptions.add("EvFDaqDirector", desc);
@@ -818,27 +801,6 @@ namespace evf {
 		<< fu_readwritelock_fd_;
 
     fu_rw_lock_stream = fdopen(fu_readwritelock_fd_, "r+");
-  }
-
-  //create if does not exist then lock the merge destination file
-  FILE *EvFDaqDirector::maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream) {
-    data_rw_stream = fopen(getMergedDatFilePath(ls,stream).c_str(), "a"); //open stream for appending
-    data_readwrite_fd_ = fileno(data_rw_stream);
-    if (data_readwrite_fd_ == -1)
-      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for datamerge "
-		<< strerror(errno);
-    else
-      LogDebug("EvFDaqDirector") << "creating filedesc for datamerge -: "
-		<< data_readwrite_fd_;
-    fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_flk);
-
-    return data_rw_stream;
-  }
-
-  void EvFDaqDirector::unlockAndCloseMergeStream() {
-    fflush(data_rw_stream);
-    fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_fulk);
-    fclose(data_rw_stream);
   }
 
   void EvFDaqDirector::lockInitLock() {
