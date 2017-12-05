@@ -17,6 +17,7 @@ ecalTrigPrimClient = cms.untracked.PSet(
         TTFlags4 = ecalTrigPrimTask.MEs.TTFlags4,
         TTMaskMapAll = ecalTrigPrimTask.MEs.TTMaskMapAll,
         TTFMismatch = ecalTrigPrimTask.MEs.TTFMismatch,
+        LHCStatusByLumi = ecalTrigPrimTask.MEs.LHCStatusByLumi,
         TPDigiThrAll = ecalOccupancyTask.MEs.TPDigiThrAll
     ),
     MEs = cms.untracked.PSet(

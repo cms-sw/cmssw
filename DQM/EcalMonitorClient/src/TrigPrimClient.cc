@@ -1,6 +1,7 @@
 #include "../interface/TrigPrimClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "DQM/EcalCommon/interface/MESetNonObject.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
 
@@ -35,11 +36,15 @@ namespace ecaldqm
     MESet const& sEtEmulError(sources_.at("EtEmulError"));
     MESet const& sMatchedIndex(sources_.at("MatchedIndex"));
     MESet const& sTPDigiThrAll(sources_.at("TPDigiThrAll"));
+    MESetNonObject const& sLHCStatusByLumi(static_cast<MESetNonObject&>(sources_.at("LHCStatusByLumi")));
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
     // Store # of entries for Occupancy analysis
     std::vector<float> Nentries(nDCC,0.);
+
+    double currentLHCStatus = sLHCStatusByLumi.getFloatValue();
+    bool statsCheckEnabled = ((currentLHCStatus > 10.5 && currentLHCStatus < 11.5) || currentLHCStatus < 0); // currentLHCStatus = -1 is the default when no beam info is available
 
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++){
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
@@ -158,7 +163,7 @@ namespace ecaldqm
         rmsFED  = rmsFEDEE;
       }
       float threshold( meanFED < nRMS*rmsFED ? minEntries_ : meanFED - nRMS*rmsFED );
-      if ( meanFED > 100. && Nentries[iDCC] < threshold )
+      if ( (meanFED > 100. && Nentries[iDCC] < threshold) && statsCheckEnabled )
         meEmulQualitySummary.setBinContent( ttid, meEmulQualitySummary.maskMatches(ttid, mask, statusManager_) ? kMBad : kBad );
     }
 
