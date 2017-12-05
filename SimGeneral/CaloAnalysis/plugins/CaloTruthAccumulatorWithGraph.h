@@ -52,10 +52,9 @@ using namespace boost;
 
    Each edge has a property (edge_weight_t) that holds a const pointer to the
    SimTrack that connects the 2 vertices of the edge, the number of simHits
-   associated to that simTrack, the overall energy deposited in the
-   associated simHits and the cumulative number of simHits of itself and of all
-   its children. Only simHits within the selected detectors are taken into
-   account.
+   associated to that simTrack and the cumulative number of simHits of itself
+   and of all its children. Only simHits within the selected detectors are
+   taken into account.
 
    Each vertex has a property (vertex_name_t) that holds a const pointer to the
    SimTrack that originated that vertex and the cumulative number of simHits of
@@ -66,12 +65,11 @@ using namespace boost;
    to ghost vertices with an offset starting from the highest generated vertex.
 */
 struct EdgeProperty {
-  EdgeProperty(const SimTrack* t, int h, int c, float e)
-      : simTrack(t), simHits(h), cumulative_simHits(c), energy(e) {}
+  EdgeProperty(const SimTrack* t, int h, int c)
+      : simTrack(t), simHits(h), cumulative_simHits(c) {}
   const SimTrack* simTrack;
   int simHits;
   int cumulative_simHits;
-  float energy;
 };
 
 struct VertexProperty {
