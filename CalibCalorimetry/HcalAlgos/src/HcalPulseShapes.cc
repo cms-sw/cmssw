@@ -726,14 +726,18 @@ void HcalPulseShapes::computeSiPMShapeHE206()
 
   //skip first bin, always 0
   double norm = 0.;
-  for (int j = 1; j <= nBinsSiPM_; ++j) {
-    ((j-shift)>=0) ? (norm += (nt[j-shift]>0) ? nt[j-shift] : 0.) : 0;
+  for (unsigned int j = std::max(1,-1*shift); j<=nBinsSiPM_; j++) {
+    norm += std::max(0., nt[j-shift]);
   }
-
-  for (int j = 1; j <= nBinsSiPM_; ++j) {
-    nt[j-shift] /= norm;
-    if((j-shift)>=0) siPMShapeMC2018_.setShapeBin(j,nt[j-shift]);
-    else siPMShapeMC2018_.setShapeBin(j,0);
+  double normInv=1./norm;
+  for ( int j = 1; j<=nBinsSiPM_; j++) {
+    if ( j-shift>=0 ) {
+      nt[j-shift]*=normInv;
+      siPMShapeMC2018_.setShapeBin(j,nt[j-shift]);
+    }
+    else{
+      siPMShapeMC2018_.setShapeBin(j,0);
+    }
   }
 }
 
@@ -856,7 +860,7 @@ double HcalPulseShapes::generatePhotonTime206(CLHEP::HepRandomEngine* engine) {
 
 //Original scintillator+Y11 fit from Vasken's 2001 measurement
 double HcalPulseShapes::Y11203(double t) {
-  return exp(-0.0635-0.1518*t)*pow(t, 2.528)/2485.9;
+  return exp(-0.0635-0.1518*t + log(t)*2.528)/2485.9;
 }
 
 //New scintillator+Y11 model from Vasken's 2017 measurement plus a Landau correction term
