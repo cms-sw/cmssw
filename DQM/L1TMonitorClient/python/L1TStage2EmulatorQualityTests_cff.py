@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # L1 systems quality tests
 
 # Stage 2 L1 Emulator Quality tests
+from DQM.L1TMonitorClient.L1TStage2CaloLayer1DEQualityTests_cfi import *
 from DQM.L1TMonitorClient.L1TStage2uGMTDEQualityTests_cfi import *
 from DQM.L1TMonitorClient.L1TStage2BMTFDEQualityTests_cfi import *
 from DQM.L1TMonitorClient.L1TStage2OMTFDEQualityTests_cfi import *
@@ -14,6 +15,7 @@ from DQM.L1TMonitorClient.L1TStage2EMTFDEQualityTests_cfi import *
 
 # sequence for L1 systems
 l1TEmulatorSystemQualityTests = cms.Sequence(
+                                  l1TStage2CaloLayer1DEQualityTests +
                                   l1TStage2uGMTDEQualityTests +
                                   l1TStage2BMTFDEQualityTests +
                                   l1TStage2OMTFDEQualityTests +
