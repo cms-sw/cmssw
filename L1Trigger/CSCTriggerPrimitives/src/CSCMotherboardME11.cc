@@ -134,7 +134,7 @@ void CSCMotherboardME11::clear()
 {
   CSCMotherboard::clear();
   if (clct1a) clct1a->clear();
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_BINS; bx++)
   {
     //firstLCT1a[bx].clear();
     //secondLCT1a[bx].clear();
@@ -187,7 +187,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     used_alct_mask[b] = used_alct_mask_1a[b] = used_clct_mask[b] = used_clct_mask_1a[b] = 0;
 
   // CLCT-centric CLCT-to-ALCT matching
-  if (clct_to_alct) for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS; bx_clct++)
+  if (clct_to_alct) for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_BINS; bx_clct++)
   {
     // matching in ME1b
     if (clct->bestCLCT[bx_clct].isValid())
@@ -196,7 +196,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       int bx_alct_stop  = bx_clct + match_trig_window_size/2;
       for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++)
       {
-        if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS) continue;
+        if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_BINS) continue;
         if (drop_used_alcts && used_alct_mask[bx_alct]) continue;
         if (alct->bestALCT[bx_alct].isValid())
         {
@@ -224,7 +224,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       int bx_alct_stop  = bx_clct + match_trig_window_size/2;
       for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++)
       {
-        if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS) continue;
+        if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_BINS) continue;
         if (drop_used_alcts && used_alct_mask_1a[bx_alct]) continue;
         if (alct->bestALCT[bx_alct].isValid())
         {
@@ -249,7 +249,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   } // end of CLCT-centric matching
 
   // ALCT-centric ALCT-to-CLCT matching
-  else for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
+  else for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_BINS; bx_alct++)
   {
     if (alct->bestALCT[bx_alct].isValid())
     {
@@ -259,7 +259,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       // matching in ME1b
       for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
       {
-        if (bx_clct < 0 || bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+        if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_BINS) continue;
         if (drop_used_clcts && used_clct_mask[bx_clct]) continue;
         if (clct->bestCLCT[bx_clct].isValid())
         {
@@ -282,7 +282,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       // matching in ME1a
       for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
       {
-        if (bx_clct < 0 || bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+        if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_BINS) continue;
         if (drop_used_clcts && used_clct_mask_1a[bx_clct]) continue;
         if (clct1a->bestCLCT[bx_clct].isValid())
         {
@@ -305,7 +305,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   } // end of ALCT-centric matching
 
   // reduction of nLCTs per each BX
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_BINS; bx++)
   {
     // counting
     unsigned int n1a=0, n1b=0;
@@ -458,7 +458,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1b()
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_BINS; bx++)
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
       for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
         if (allLCTs1b[bx][mbx][i].isValid()) tmpV.push_back(allLCTs1b[bx][mbx][i]);
@@ -474,7 +474,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a()
   if (mpc_block_me1a || disableME1a) return tmpV;
 
   // Report all LCTs found.
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_BINS; bx++)
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
       for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
         if (allLCTs1a[bx][mbx][i].isValid())  tmpV.push_back(allLCTs1a[bx][mbx][i]);

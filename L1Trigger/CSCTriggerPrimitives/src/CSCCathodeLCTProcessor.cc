@@ -535,7 +535,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
 
 void CSCCathodeLCTProcessor::clear() {
   thePreTriggerBXs.clear();
-  for (int bx = 0; bx < MAX_CLCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_CLCT_BINS; bx++) {
     bestCLCT[bx].clear();
     secondCLCT[bx].clear();
   }
@@ -713,10 +713,10 @@ void CSCCathodeLCTProcessor::run(
   for (std::vector<CSCCLCTDigi>::const_iterator plct = LCTlist.begin();
        plct != LCTlist.end(); plct++) {
     int bx = plct->getBX();
-    if (bx >= MAX_CLCT_BINS) {
+    if (bx >= CSCConstants::MAX_CLCT_BINS) {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeCLCT")
 	<< "+++ Bx of CLCT candidate, " << bx << ", exceeds max allowed, "
-	<< MAX_CLCT_BINS-1 << "; skipping it... +++\n";
+	<< CSCConstants::MAX_CLCT_BINS-1 << "; skipping it... +++\n";
       continue;
     }
 
@@ -731,7 +731,7 @@ void CSCCathodeLCTProcessor::run(
     }
   }
 
-  for (int bx = 0; bx < MAX_CLCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_CLCT_BINS; bx++) {
     if (bestCLCT[bx].isValid()) {
       bestCLCT[bx].setTrknmb(1);
       if (infoV > 0) LogDebug("CSCCathodeLCTProcessor")
@@ -2514,9 +2514,9 @@ CSCCathodeLCTProcessor::findLCTsSLHC(const std::vector<int> halfstrip[CSCConstan
   enum { max_lcts = 2 };
 
   // keeps dead-time zones around key halfstrips of triggered CLCTs
-  bool busyMap[CSCConstants::NUM_HALF_STRIPS_7CFEBS][MAX_CLCT_BINS];
+  bool busyMap[CSCConstants::NUM_HALF_STRIPS_7CFEBS][CSCConstants::MAX_CLCT_BINS];
   for (int i = 0; i < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i++)
-    for (int j = 0; j < MAX_CLCT_BINS; j++)
+    for (int j = 0; j < CSCConstants::MAX_CLCT_BINS; j++)
       busyMap[i][j] = false;
 
   std::vector<CSCCLCTDigi> lctListBX;
@@ -2865,12 +2865,12 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() {
 	<< "; in-time CLCTs are not getting read-out!!! +++" << "\n";
     }
 
-    if (late_tbins > MAX_CLCT_BINS-1) {
+    if (late_tbins > CSCConstants::MAX_CLCT_BINS-1) {
       if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
 	<< "+++ Allowed range of time bins, [0-" << late_tbins
-	<< "] exceeds max allowed, " << MAX_CLCT_BINS-1 << " +++\n"
+	<< "] exceeds max allowed, " << CSCConstants::MAX_CLCT_BINS-1 << " +++\n"
 	<< "+++ Set late_tbins to max allowed +++\n";
-      late_tbins = MAX_CLCT_BINS-1;
+      late_tbins = CSCConstants::MAX_CLCT_BINS-1;
     }
     ifois = 1;
   }
@@ -2919,7 +2919,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() {
 // Returns vector of all found CLCTs, if any.  Used for ALCT-CLCT matching.
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() {
   std::vector<CSCCLCTDigi> tmpV;
-  for (int bx = 0; bx < MAX_CLCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_CLCT_BINS; bx++) {
     if (bestCLCT[bx].isValid())   tmpV.push_back(bestCLCT[bx]);
     if (secondCLCT[bx].isValid()) tmpV.push_back(secondCLCT[bx]);
   }
