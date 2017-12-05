@@ -209,7 +209,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   bool clustertkhistomapon;
   bool clusterchtkhistomapon;
   bool createTrendMEs;
-  bool trendVsLs_;
+  bool trendVs10Ls_;
   bool globalswitchnclusvscycletimeprof2don;
   bool clusterWidth_vs_amplitude_on;
 
