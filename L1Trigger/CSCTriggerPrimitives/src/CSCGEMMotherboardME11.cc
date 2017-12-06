@@ -539,7 +539,6 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     }
   }// reduction per bx
 
-  bool first = true;
   unsigned int n1b=0, n1a=0;
   LogTrace("CSCGEMCMotherboardME11") << "========================================================================" << std::endl
                                      << "Counting the final LCTs" << std::endl
@@ -704,14 +703,14 @@ bool CSCGEMMotherboardME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLC
     if ( !gangedME1a )
     {
       // wrap around ME11 HS number for -z endcap
-      if (theEndcap==2) key_hs = 95 - key_hs;
+      if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1A_UNGANGED - key_hs;
       if ( key_hs >= (tmbLUT_->get_lut_wg_vs_hs(CSCPart::ME1A))[key_wg][0] and
 	   key_hs <= (tmbLUT_->get_lut_wg_vs_hs(CSCPart::ME1A))[key_wg][1]    ) return true;
       return false;
     }
     else
     {
-      if (theEndcap==2) key_hs = 31 - key_hs;
+      if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1A_GANGED - key_hs;
       if ( key_hs >= (tmbLUT_->get_lut_wg_vs_hs(CSCPart::ME1Ag))[key_wg][0] and
 	   key_hs <= (tmbLUT_->get_lut_wg_vs_hs(CSCPart::ME1Ag))[key_wg][1]    ) return true;
       return false;
@@ -719,7 +718,7 @@ bool CSCGEMMotherboardME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLC
   }
   if ( me == ME1B)
   {
-    if (theEndcap==2) key_hs = 127 - key_hs;
+    if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1B - key_hs;
     if ( key_hs >= (tmbLUT_->get_lut_wg_vs_hs(CSCPart::ME1B))[key_wg][0] and
          key_hs <= (tmbLUT_->get_lut_wg_vs_hs(CSCPart::ME1B))[key_wg][1]      ) return true;
   }

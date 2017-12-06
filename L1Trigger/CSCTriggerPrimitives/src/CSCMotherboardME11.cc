@@ -492,14 +492,14 @@ bool CSCMotherboardME11::doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int m
     if ( !gangedME1a )
     {
       // wrap around ME11 HS number for -z endcap
-      if (theEndcap==2) key_hs = 95 - key_hs;
+      if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1A_UNGANGED - key_hs;
       if ( key_hs >= lut_wg_vs_hs_me1a[key_wg][0] &&
            key_hs <= lut_wg_vs_hs_me1a[key_wg][1]    ) return true;
       return false;
     }
     else
     {
-      if (theEndcap==2) key_hs = 31 - key_hs;
+      if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1A_GANGED - key_hs;
       if ( key_hs >= lut_wg_vs_hs_me1ag[key_wg][0] &&
            key_hs <= lut_wg_vs_hs_me1ag[key_wg][1]    ) return true;
       return false;
@@ -507,7 +507,7 @@ bool CSCMotherboardME11::doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int m
   }
   if ( me == ME1B)
   {
-    if (theEndcap==2) key_hs = 127 - key_hs;
+    if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1B - key_hs;
     if ( key_hs >= lut_wg_vs_hs_me1b[key_wg][0] &&
          key_hs <= lut_wg_vs_hs_me1b[key_wg][1]      ) return true;
   }
