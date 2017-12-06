@@ -424,6 +424,7 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
       // this makes an actual and a single copy with Clone()'ed th1
       MonitorElement actual_global_me(*i);
       actual_global_me.globalize();
+      actual_global_me.markToDelete();
       gme = data_.insert(std::move(actual_global_me));
       assert(gme.second);
     }
@@ -495,6 +496,7 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
       MonitorElement actual_global_me(*i);
       actual_global_me.globalize();
       actual_global_me.setLumi(lumi);
+      actual_global_me.markToDelete();
       gme = data_.insert(std::move(actual_global_me));
       assert(gme.second);
     }
@@ -2173,9 +2175,10 @@ DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
       break;
     if (i->data_.run != run)
       break;
-
-    auto temp = i;
-    ++i;
+    if (not i->markedToDelete()) {
+      ++i;
+      continue;
+    }
 
     if (verbose_ > 1) {
       std::cout << "DQMStore::deleteUnusedLumiHistograms: deleted monitor element '"
@@ -2183,7 +2186,7 @@ DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
                 << "flags " << i->data_.flags << "\n";
     }
 
-    data_.erase(temp);
+    i = data_.erase(i);
   }
 }
 
