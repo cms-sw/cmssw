@@ -53,7 +53,6 @@ void SensitiveDetector::AssignSD(const std::string & vname)
     {
       if (vname == lv->GetName()) { 
 	lv->SetSensitiveDetector(this); 
-        break;
       }
     }
 }
