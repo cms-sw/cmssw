@@ -29,17 +29,19 @@ class HGCalTriggerNtupleHGCPanels : public HGCalTriggerNtupleBase
     std::vector<int> panel_layer_;
     std::vector<int> panel_sector_;
     std::vector<int> panel_number_;
-    std::vector<uint32_t> panel_mod_n_;
-    std::vector<std::vector<uint32_t> > panel_mod_id_;
-    std::vector<std::vector<float> > panel_mod_mipPt_;
-    std::vector<uint32_t> panel_third_n_;
-    std::vector<std::vector<uint32_t> > panel_third_id_;
-    std::vector<std::vector<float> > panel_third_mipPt_;
+    // std::vector<uint32_t> panel_mod_n_;
+    // std::vector<std::vector<uint32_t> > panel_mod_id_;
+    // std::vector<std::vector<float> > panel_mod_mipPt_;
+    // std::vector<uint32_t> panel_third_n_;
+    // std::vector<std::vector<uint32_t> > panel_third_id_;
+    // std::vector<std::vector<float> > panel_third_mipPt_;
     std::vector<unsigned> panel_tc_n_;
     std::vector<std::vector<uint32_t> > panel_tc_id_;
     std::vector<std::vector<uint32_t> > panel_tc_mod_;
     std::vector<std::vector<uint32_t> > panel_tc_third_;
+    std::vector<std::vector<uint32_t> > panel_tc_cell_;
     std::vector<std::vector<float> > panel_tc_mipPt_;
+    std::vector<std::vector<float> > panel_tc_pt_;
 
 };
 
@@ -65,17 +67,19 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("panel_layer", &panel_layer_);
   tree.Branch("panel_sector", &panel_sector_);
   tree.Branch("panel_number", &panel_number_);
-  tree.Branch("panel_mod_n", &panel_mod_n_);         
-  tree.Branch("panel_mod_id", &panel_mod_id_); 
-  tree.Branch("panel_mod_mipPt", &panel_mod_mipPt_); 
-  tree.Branch("panel_third_n", &panel_third_n_);         
-  tree.Branch("panel_third_id", &panel_third_id_); 
-  tree.Branch("panel_third_mipPt", &panel_third_mipPt_); 
+  // tree.Branch("panel_mod_n", &panel_mod_n_);         
+  // tree.Branch("panel_mod_id", &panel_mod_id_); 
+  // tree.Branch("panel_mod_mipPt", &panel_mod_mipPt_); 
+  // tree.Branch("panel_third_n", &panel_third_n_);         
+  // tree.Branch("panel_third_id", &panel_third_id_); 
+  // tree.Branch("panel_third_mipPt", &panel_third_mipPt_); 
   tree.Branch("panel_tc_n", &panel_tc_n_);         
   tree.Branch("panel_tc_id", &panel_tc_id_); 
   tree.Branch("panel_tc_mod", &panel_tc_mod_); 
   tree.Branch("panel_tc_third", &panel_tc_third_); 
+  tree.Branch("panel_tc_cell", &panel_tc_cell_); 
   tree.Branch("panel_tc_mipPt", &panel_tc_mipPt_); 
+  tree.Branch("panel_tc_pt", &panel_tc_pt_); 
 
 }
 
@@ -111,6 +115,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   unsigned sector_mask = 0x7;
   unsigned third_offset = 4;
   unsigned third_mask = 0x3;
+  unsigned cell_mask = 0xF;
 
   for (const auto& panelid_tcs : panelids_tcs)
   {
@@ -128,7 +133,9 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     panel_tc_id_.emplace_back();
     panel_tc_mod_.emplace_back();
     panel_tc_third_.emplace_back();
+    panel_tc_cell_.emplace_back();
     panel_tc_mipPt_.emplace_back();
+    panel_tc_pt_.emplace_back();
 
     std::unordered_map<uint32_t, float> modules_mipPt;
     std::unordered_map<uint32_t, float> thirds_mipPt;
@@ -136,42 +143,33 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     {
       panel_tc_id_.back().push_back(tc->detId());
       panel_tc_mipPt_.back().push_back(tc->mipPt());
+      panel_tc_pt_.back().push_back(tc->pt());
       HGCalDetId tc_detid(tc->detId());
-      unsigned third = (tc_detid.cell()>>third_offset) & third_mask;
-      third = third << third_offset;
-      HGCalDetId module_id((ForwardSubdetector)tc_detid.subdetId(),
-          tc_detid.zside(),
-          tc_detid.layer(),
-          1,
-          tc_detid.wafer(),
-          0);
-      HGCalDetId third_id((ForwardSubdetector)tc_detid.subdetId(),
-          tc_detid.zside(),
-          tc_detid.layer(),
-          1,
-          tc_detid.wafer(),
-          third);
+      unsigned module_id = tc_detid.wafer();
+      unsigned third_id = (tc_detid.cell()>>third_offset) & third_mask;
+      unsigned cell_id = tc_detid.cell() & cell_mask;
       panel_tc_mod_.back().push_back(module_id);
       panel_tc_third_.back().push_back(third_id);
+      panel_tc_cell_.back().push_back(cell_id);
       modules_mipPt[module_id] += tc->mipPt();
       thirds_mipPt[third_id] += tc->mipPt();
     }
-    panel_mod_n_.emplace_back(modules_mipPt.size());
-    panel_mod_id_.emplace_back();
-    panel_mod_mipPt_.emplace_back();
-    for(const auto& id_mipPt : modules_mipPt)
-    {
-      panel_mod_id_.back().push_back(id_mipPt.first);
-      panel_mod_mipPt_.back().push_back(id_mipPt.second);
-    }
-    panel_third_n_.emplace_back(thirds_mipPt.size());
-    panel_third_id_.emplace_back();
-    panel_third_mipPt_.emplace_back();
-    for(const auto& id_mipPt : thirds_mipPt)
-    {
-      panel_third_id_.back().push_back(id_mipPt.first);
-      panel_third_mipPt_.back().push_back(id_mipPt.second);
-    }
+    // panel_mod_n_.emplace_back(modules_mipPt.size());
+    // panel_mod_id_.emplace_back();
+    // panel_mod_mipPt_.emplace_back();
+    // for(const auto& id_mipPt : modules_mipPt)
+    // {
+      // panel_mod_id_.back().push_back(id_mipPt.first);
+      // panel_mod_mipPt_.back().push_back(id_mipPt.second);
+    // }
+    // panel_third_n_.emplace_back(thirds_mipPt.size());
+    // panel_third_id_.emplace_back();
+    // panel_third_mipPt_.emplace_back();
+    // for(const auto& id_mipPt : thirds_mipPt)
+    // {
+      // panel_third_id_.back().push_back(id_mipPt.first);
+      // panel_third_mipPt_.back().push_back(id_mipPt.second);
+    // }
   }
 }
 
@@ -186,17 +184,19 @@ clear()
   panel_layer_.clear();
   panel_sector_.clear();
   panel_number_.clear();
-  panel_mod_n_.clear();
-  panel_mod_id_.clear();
-  panel_mod_mipPt_.clear();
-  panel_third_n_.clear();
-  panel_third_id_.clear();
-  panel_third_mipPt_.clear();
+  // panel_mod_n_.clear();
+  // panel_mod_id_.clear();
+  // panel_mod_mipPt_.clear();
+  // panel_third_n_.clear();
+  // panel_third_id_.clear();
+  // panel_third_mipPt_.clear();
   panel_tc_n_.clear();
   panel_tc_id_.clear();
   panel_tc_mod_.clear();
   panel_tc_third_.clear();
+  panel_tc_cell_.clear();
   panel_tc_mipPt_.clear();
+  panel_tc_pt_.clear();
 }
 
 
