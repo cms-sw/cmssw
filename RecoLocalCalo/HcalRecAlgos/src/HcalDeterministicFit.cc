@@ -59,8 +59,8 @@ void HcalDeterministicFit::get205Frac(float tStart, float tEnd, float &sum) cons
 constexpr float HcalDeterministicFit::siPM206Frac[];
 void HcalDeterministicFit::get206Frac(float tStart, float tEnd, float &sum) const{
 
-  if (std::abs(tStart-tEnd-tsWidth)<0.1) {
-    sum=0;
+  if (std::abs(tStart-tEnd-tsWidth)<0.1f) {
+    sum=0.f;
     return;
   }
   sum= siPM206Frac[int(ceil(tStart+tsWidth))];
@@ -71,8 +71,8 @@ void HcalDeterministicFit::get206Frac(float tStart, float tEnd, float &sum) cons
 constexpr float HcalDeterministicFit::siPM207Frac[];
 void HcalDeterministicFit::get207Frac(float tStart, float tEnd, float &sum) const{
 
-  if (std::abs(tStart-tEnd-tsWidth)<0.1) {
-    sum=0;
+  if (std::abs(tStart-tEnd-tsWidth)<0.1f) {
+    sum=0.f;
     return;
   }
   sum= siPM207Frac[int(ceil(tStart+tsWidth))];
@@ -184,16 +184,6 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
       if (ratio < 5 && ratio > 0.5) {
         double invG = invGpar[0]+invGpar[1]*std::sqrt(2*std::log(invGpar[2]/ratio));
         float iG=0.f;
-
-	//if(channelData.hasTimeInfo() && channelData.recoShape()==205) {
-        //  get205Frac(-invG,-invG+tsWidth,iG);
-        //} else if(channelData.hasTimeInfo() && channelData.recoShape()==206) {
-	//  get206Frac(-invG,-invG+tsWidth,iG);
-	//}else if(channelData.hasTimeInfo() && channelData.recoShape()==207) {
-	//  get207Frac(-invG,-invG+tsWidth,iG);
-	//}else {
-	//  getLandauFrac(-invG,-invG+tsWidth,iG);
-	//}
 	getFrac(-invG,-invG+tsWidth,iG,fType);
 	if (iG != 0 ) {
 	  ch4=(corrCharge[soi]-ch3*n3)/(iG);
