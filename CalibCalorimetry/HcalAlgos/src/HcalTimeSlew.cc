@@ -12,13 +12,14 @@ void HcalTimeSlew::addM3ParameterSet(double cap, double tspar0, double tspar1, d
 
 // used by M2
 double HcalTimeSlew::delay(double fC, BiasSetting bias) const {
+  std::cout<<"M2 delay: bias = "<<bias<<std::endl;
   double rawDelay = parametersM2_[bias].tzero + parametersM2_[bias].slope*log(fC);
   return (rawDelay < 0)?(0):((rawDelay > parametersM2_[bias].tmax)?(parametersM2_[bias].tmax):(rawDelay));
 }
 
 // used by M3
 double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias, double par0, double par1, double par2, bool isHPD) const {
-
+  std::cout<<"M3 delay: bias = "<<bias<<std::endl;
   if (source==TestStand) {
     return HcalTimeSlew::delay(fC, bias);
   }

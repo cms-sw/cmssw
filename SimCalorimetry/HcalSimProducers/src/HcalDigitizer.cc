@@ -544,7 +544,7 @@ void HcalDigitizer::beginRun(const edm::EventSetup & es) {
   }
 
   edm::ESHandle<HcalTimeSlew> delay;
-  es.get<HcalTimeSlewRecord>().get("", delay);
+  es.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
 }
 
