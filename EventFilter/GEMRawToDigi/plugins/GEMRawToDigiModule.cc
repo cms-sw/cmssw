@@ -152,8 +152,10 @@ void GEMRawToDigiModule::produce(edm::StreamID, edm::Event & e, const edm::Event
 	  }
 
           if (unpackStatusDigis_){
-	    GEMVfatStatusDigi vfatStatus(b1010, b1100, vfatData->Flag(), b1110, vfatData->lsData(),
-					 vfatData->msData(), crc, vfatData->crc_calc(), vfatData->isBlockGood());
+	    GEMVfatStatusDigi vfatStatus(vfatData->lsData(), vfatData->msData(),
+					 crc, vfatData->crc_calc(),
+					 b1010, b1100, b1110, vfatData->Flag(),
+					 vfatData->isBlockGood());
             outVfatStatus.get()->insertDigi(gemId,vfatStatus);
 	  }
 	  
@@ -162,12 +164,12 @@ void GEMRawToDigiModule::produce(edm::StreamID, edm::Event & e, const edm::Event
 	gebData->setChamberTrailer(*(++word));
         if (unpackStatusDigis_){
           GEMGEBStatusDigi gebStatus(gebData->ZeroSup(),
-                                     gebData->InputID(),
                                      gebData->Vwh(),
                                      gebData->ErrorC(),
                                      gebData->OHCRC(),
                                      gebData->Vwt(),
                                      gebData->InFu(),
+                                     gebData->InputID(),				     
                                      gebData->Stuckd(),
                                      gebData->GEBflag());
           outGEBStatus.get()->insertDigi(gemId.chamberId(),gebStatus); 
