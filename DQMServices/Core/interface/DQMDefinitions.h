@@ -21,7 +21,7 @@ namespace dqm
 
   namespace me_util
   {
-    typedef DQMChannel Channel;
+    using Channel = DQMChannel;
   }
 }
 

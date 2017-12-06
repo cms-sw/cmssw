@@ -18,7 +18,7 @@ raiseDQMError(const char *context, const char *fmt, ...)
   va_end(args);
 
 #if WITHOUT_CMS_FRAMEWORK
-  char *final = 0;
+  char *final = nullptr;
   asprintf(&final, "%s: %s", context, message ? message : FAILED);
   std::runtime_error err(final ? final : FAILED);
   free(final);

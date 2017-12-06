@@ -48,10 +48,7 @@ MEtoMEComparitor::MEtoMEComparitor(const edm::ParameterSet& iConfig)
 }
 
 
-MEtoMEComparitor::~MEtoMEComparitor()
-{
-
-}
+MEtoMEComparitor::~MEtoMEComparitor() = default;
 
 void 
 MEtoMEComparitor::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup&)
@@ -69,7 +66,7 @@ MEtoMEComparitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     {
       const edm::ProcessHistory& iHistory=iRun.processHistory();
 
-      edm::ProcessHistory::const_reverse_iterator hi=iHistory.rbegin();
+      auto hi=iHistory.rbegin();
       _process_new=hi->processName();
       hi++;
       _process_ref=hi->processName();
@@ -106,7 +103,7 @@ void MEtoMEComparitor::keepBadHistograms(const std::string & directory, const T 
   
   std::string d_n(h_new->GetName());
   d_n+="_diff";
-  T * difference = new T(d_n.c_str(),
+  auto * difference = new T(d_n.c_str(),
 			 h_new->GetTitle(),
 			 h_new->GetNbinsX(),
 			 h_new->GetXaxis()->GetXmin(),
@@ -143,7 +140,7 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
     return;
   }
 
-  typedef typename MEtoEDM<T>::MEtoEDMObject MEtoEDMObject; 
+  using MEtoEDMObject = typename MEtoEDM<T>::MEtoEDMObject;
   
   const std::vector<MEtoEDMObject> & metoedmobject_ref = metoedm_ref->getMEtoEdmObject();
   const std::vector<MEtoEDMObject> & metoedmobject_new = metoedm_new->getMEtoEdmObject();
@@ -166,7 +163,7 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
   }
   for (unsigned int i_ref=0; i_ref!= metoedmobject_ref.size() ; ++i_ref){
     const std::string & pathname = metoedmobject_ref[i_ref].name;
-    Mapping_iterator there = mapping.find(pathname);
+    auto there = mapping.find(pathname);
     if (there != mapping.end()){
       there->second.second = &metoedmobject_ref[i_ref];
     }
@@ -186,7 +183,7 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
   typedef std::map<std::string, std::pair<unsigned int,unsigned int> > Subs;
   Subs subSystems;
 
-  for (Mapping_iterator it = mapping.begin();
+  for (auto it = mapping.begin();
        it!=mapping.end(); 
        ++it){
     if (!it->second.second){
@@ -268,10 +265,9 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
 	   <<"\n bad diff : "<<nBadDiff
 	   <<"\n godd diff : "<<nGoodDiff;
     bool tell=false;
-    for (Subs::iterator iSub=subSystems.begin();
-	 iSub!=subSystems.end();++iSub){
-      double fraction = 1-(iSub->second.second / (double)iSub->second.first);
-      summary<<std::endl<<"Subsytem: "<<iSub->first<<" has "<< fraction*100<<" % goodness";
+    for (auto & subSystem : subSystems){
+      double fraction = 1-(subSystem.second.second / (double)subSystem.second.first);
+      summary<<std::endl<<"Subsytem: "<<subSystem.first<<" has "<< fraction*100<<" % goodness";
       if (fraction < _overallgoodness)
 	tell=true;
     }

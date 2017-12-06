@@ -63,7 +63,7 @@ class DQMFileSaverBase
 
   // these method (and only these) should be overriden
   // so we need to call all file savers
-  virtual void initRun(void) const {};
+  virtual void initRun() const {};
   virtual void saveLumi(const FileParameters& fp) const {};
   virtual void saveRun(const FileParameters& fp) const {};
 

@@ -5,9 +5,7 @@ DQMDaqInfo::DQMDaqInfo(const edm::ParameterSet& iConfig)
 {   
 }
 
-DQMDaqInfo::~DQMDaqInfo()
-{  
-}
+DQMDaqInfo::~DQMDaqInfo() = default;
 
 void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
   
@@ -24,9 +22,7 @@ void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
 
     float  FedCount[9]={0., 0., 0., 0., 0., 0., 0., 0., 0.};
     
-    for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
-      int fedID=FedsInIds[fedItr];     
-
+    for(int fedID : FedsInIds) {
       if(fedID>=PixelRange.first             &&  fedID<=PixelRange.second)        ++FedCount[Pixel];
       if(fedID>=TrackerRange.first           &&  fedID<=TrackerRange.second)      ++FedCount[SiStrip];
       if(fedID>=CSCRange.first               &&  fedID<=CSCRange.second)          ++FedCount[CSC];
@@ -46,7 +42,7 @@ void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
 
   }else{    
   
-    for(int detIndex=0; detIndex<9; ++detIndex)  DaqFraction[detIndex]->Fill(-1);               
+    for(auto & detIndex : DaqFraction)  detIndex->Fill(-1);               
     return; 
   }
   

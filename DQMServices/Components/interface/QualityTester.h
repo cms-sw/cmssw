@@ -54,7 +54,7 @@ protected:
 private:
 
 
-  void performTests(void);
+  void performTests();
   
   int nEvents;
   int prescaleFactor;

@@ -31,7 +31,7 @@ public:
      sources or collectors); if flag=true, client will accept downstream connections
   */
   
-  DQMOldReceiver(void) DQM_DEPRECATED;
+  DQMOldReceiver() DQM_DEPRECATED;
  
   /// Connect with monitoring server (DQM Collector) at <hostname> and <port_no>
   /// using <client_name>;
@@ -40,12 +40,12 @@ public:
 	       int unusedReconnectDelaySecs = -1,
 	       bool unusedActAsServer = false) DQM_DEPRECATED;
 
-  ~DQMOldReceiver(void) DQM_DEPRECATED;
+  ~DQMOldReceiver() DQM_DEPRECATED;
 
   /// get pointer to back-end interface
-  DQMStore *getStore(void) DQM_DEPRECATED
+  DQMStore *getStore() DQM_DEPRECATED
     { return store_; }
-  DQMStore *getBEInterface(void) DQM_DEPRECATED
+  DQMStore *getBEInterface() DQM_DEPRECATED
     { return store_; }
 
   /** this is the "main" loop where we receive monitoring or
@@ -53,9 +53,9 @@ public:
       if client acts as server, method runQTests is also sending monitoring & 
       test results to clients downstream;
       returns success flag */
-  bool update(void) DQM_DEPRECATED;
-  bool doMonitoring(void) DQM_DEPRECATED;
-  int getNumUpdates(void) const DQM_DEPRECATED { return 0; }
+  bool update() DQM_DEPRECATED;
+  bool doMonitoring() DQM_DEPRECATED;
+  int getNumUpdates() const DQM_DEPRECATED { return 0; }
 
 private:
   /// use to get hold of structure with monitoring elements that class owns

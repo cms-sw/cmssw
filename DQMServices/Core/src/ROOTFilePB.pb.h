@@ -301,7 +301,7 @@ class ROOTFilePB : public ::google::protobuf::Message /* @@protoc_insertion_poin
 
   // nested types ----------------------------------------------------
 
-  typedef ROOTFilePB_Histo Histo;
+  using Histo = dqmstorepb::ROOTFilePB_Histo;
 
   // accessors -------------------------------------------------------
 

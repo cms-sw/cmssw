@@ -5,8 +5,8 @@
 class DQMScope
 {
 public:
-  DQMScope(void);
-  ~DQMScope(void);
+  DQMScope();
+  ~DQMScope();
 };
 
 #endif // DQMSERVICES_CORE_DQM_SCOPE_H

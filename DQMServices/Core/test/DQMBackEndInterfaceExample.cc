@@ -41,11 +41,11 @@ const int NBINS = 50;
 class DQMStoreExample : public edm::EDAnalyzer {
 public:
   explicit DQMStoreExample( const edm::ParameterSet& );
-  ~DQMStoreExample();
+  ~DQMStoreExample() override;
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
-  virtual void endJob(void);
+  void endJob() override;
 
 private:
   // ----------member data ---------------------------
@@ -229,7 +229,7 @@ DQMStoreExample::~DQMStoreExample()
   dbe->rmdir("B1");
 }
 
-void DQMStoreExample::endJob(void)
+void DQMStoreExample::endJob()
 {
   // rounding error
   float epsilon = 0.0001;

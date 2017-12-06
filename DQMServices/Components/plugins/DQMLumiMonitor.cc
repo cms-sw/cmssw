@@ -36,9 +36,7 @@ DQMLumiMonitor::DQMLumiMonitor( const edm::ParameterSet& ps ) : parameters_(ps) 
   corrIntLumiAndClusVsLSME_ = nullptr;
 }
 
-DQMLumiMonitor::~DQMLumiMonitor() {
-
-}
+DQMLumiMonitor::~DQMLumiMonitor() = default;
 
 void DQMLumiMonitor::bookHistograms() {
     
