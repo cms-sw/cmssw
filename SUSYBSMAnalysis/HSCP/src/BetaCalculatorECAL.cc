@@ -323,8 +323,8 @@ void BetaCalculatorECAL::addStepToXtal(std::map<int,GlobalPoint>& trackExitPosit
     const CaloSubdetectorGeometry* theSubdetGeometry)
 {
 
-  const CaloCellGeometry *cell_p = (theSubdetGeometry->getGeometry(aDetId)).get();
-  GlobalPoint p = (dynamic_cast <const TruncatedPyramid *> (cell_p))->getPosition(23);
+  auto   cell_p = (theSubdetGeometry->getGeometry(aDetId));
+  GlobalPoint p = cell_p->getPosition(23);
   GlobalPoint diff(point.x()-p.x(),point.y()-p.y(),point.z()-p.z());
 
   std::map<int,GlobalPoint>::iterator xtal = trackExitPositionMap.find(aDetId.rawId());

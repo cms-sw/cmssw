@@ -266,9 +266,8 @@ std::shared_ptr<const CaloCellGeometry> HGCalGeometry::cellGeomPtr(uint32_t inde
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return nullptr;
   if (pos == GlobalPoint()) return cellGeomPtr(index);
-  FlatTrd* newcell = new FlatTrd(m_cellVec[index]);
-  newcell->setPosition(pos);
-  auto cell = (std::shared_ptr<const CaloCellGeometry>)(newcell);
+  auto cell = std::make_shared<FlatTrd>(m_cellVec[index]);
+  cell->setPosition(pos);
 #ifdef EDM_ML_DEBUG
 //std::cout << "cellGeomPtr " << newcell << ":" << cell << std::endl;
 #endif

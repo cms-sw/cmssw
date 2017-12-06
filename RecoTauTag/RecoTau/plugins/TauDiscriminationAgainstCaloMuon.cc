@@ -237,7 +237,7 @@ double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits,
   for ( HBHERecHitCollection::const_iterator hcalRecHit = hcalRecHits.begin();
 	hcalRecHit != hcalRecHits.end(); ++hcalRecHit ) {
 
-    const GlobalPoint cellPosition = (dynamic_cast<const HcalGeometry*>(hcGeometry))->getPosition(hcalRecHit->detid());
+    const GlobalPoint cellPosition = hcGeometry->getPosition(hcalRecHit->detid());
 
 //--- CV: speed up computation by requiring eta-phi distance
 //        between cell position and track direction to be dR < 0.5

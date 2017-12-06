@@ -32,7 +32,7 @@ class CaloGeometry
 			      const CaloSubdetectorGeometry* geom    ) ;
     
       /// Get the position of a given detector id
-      const GlobalPoint& getPosition( const DetId& id ) const;
+      GlobalPoint getPosition( const DetId& id ) const;
 
       /// Get the cell geometry of a given detector id
       std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const;

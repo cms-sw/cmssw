@@ -65,12 +65,12 @@ CaloGeometry::getSubdetectorGeometry( DetId::Detector det    ,
 
 static const GlobalPoint notFound(0,0,0);
 
-const GlobalPoint& 
+GlobalPoint
 CaloGeometry::getPosition( const DetId& id ) const {
   const CaloSubdetectorGeometry* geom = getSubdetectorGeometry( id ) ;
   if (geom) {
-    const auto cell = (geom->getGeometry(id));
-    return (cell->getPosition());
+    GlobalPoint pos = geom->getGeometry(id)->getPosition();
+    return pos;
   } else {
     return notFound;
   }

@@ -160,9 +160,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       if( rh_energy > 0.0 ) 
 	weight = rh_energy/cluster.energy();
 
-      const CaloCellGeometry* cell = ecal_geom->getGeometry(refhit->detId()).get();
-      const float depth = maxDepth + maxToFront - cell->getPosition().mag();    
-      const GlobalPoint pos = static_cast<const TruncatedPyramid*>(cell)->getPosition(depth);
+      auto cell = ecal_geom->getGeometry(refhit->detId());
+      const float depth = maxDepth + maxToFront - cell->getPosition().mag();
+      const GlobalPoint pos = cell->getPosition(depth);
       
       x += weight*pos.x() ;
       y += weight*pos.y() ;
