@@ -6,6 +6,7 @@
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 namespace edm {
   namespace {
@@ -389,7 +390,6 @@ private:
       convertException::wrap([&]()
       {
         this->implDoAcquire(ep, es, &moduleCallingContext_, holder);
-        ranAcquireWithoutException_ = true;
       });
     } catch(cms::Exception& ex) {
       exceptionContext(ex, &moduleCallingContext_);
@@ -406,6 +406,7 @@ private:
                                             EventSetup const& es,
                                             ParentContext const& parentContext,
                                             WaitingTaskWithArenaHolder holder) {
+    ranAcquireWithoutException_ = false;
     std::exception_ptr exceptionPtr;
     if(iEPtr) {
       assert(*iEPtr);
@@ -417,10 +418,53 @@ private:
     } else {
       try {
         runAcquire(ep, es, parentContext, holder);
+        ranAcquireWithoutException_ = true;
       } catch(...) {
         exceptionPtr = std::current_exception();
       }
     }
+    // It is important this is after runAcquire completely finishes
     holder.doneWaiting(exceptionPtr);
+  }
+
+  std::exception_ptr Worker::handleExternalWorkException(std::exception_ptr const* iEPtr,
+                                                         ParentContext const& parentContext) {
+    if (ranAcquireWithoutException_) {
+      try {
+        convertException::wrap([iEPtr]() {
+          std::rethrow_exception(*iEPtr);
+        });
+      } catch(cms::Exception &ex) {
+        ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+        exceptionContext(ex, &moduleCallingContext_);
+        return std::current_exception();
+      }
+    }
+    return *iEPtr;
+  }
+
+  Worker::HandleExternalWorkExceptionTask::
+  HandleExternalWorkExceptionTask(Worker* worker,
+                                  WaitingTask* runModuleTask,
+                                  ParentContext const& parentContext) :
+    m_worker(worker),
+    m_runModuleTask(runModuleTask),
+    m_parentContext(parentContext) {
+  }
+
+  tbb::task*
+  Worker::HandleExternalWorkExceptionTask::execute() {
+
+    auto excptr = exceptionPtr();
+    if (excptr) {
+      // increment the ref count so the holder will not spawn it
+      m_runModuleTask->set_ref_count(1);
+      WaitingTaskHolder holder(m_runModuleTask);
+      holder.doneWaiting(m_worker->handleExternalWorkException(excptr,
+                                                               m_parentContext));
+    }
+    m_runModuleTask->set_ref_count(0);
+    // Depend on TBB Scheduler Bypass to run the next task
+    return m_runModuleTask;
   }
 }

@@ -28,6 +28,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
+#include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -70,8 +71,6 @@ namespace edm {
   class StreamContext;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
-  class WaitingTaskWithArenaHolder;
 
   namespace workerhelper {
     template< typename O> class CallImpl;
@@ -175,7 +174,6 @@ namespace edm {
       state_ = Ready;
       waitingTasks_.reset();
       workStarted_ = false;
-      ranAcquireWithoutException_ = false;
       numberOfPathsLeftToRun_ = numberOfPathsOn_;
     }
 
@@ -275,11 +273,6 @@ namespace edm {
                 ParentContext const& parentContext,
                 typename T::Context const* context);
 
-    void runAcquire(EventPrincipal const& ep,
-                    EventSetup const& es,
-                    ParentContext const& parentContext,
-                    WaitingTaskWithArenaHolder& holder);
-
     virtual void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
     virtual void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
 
@@ -376,11 +369,19 @@ namespace edm {
                                                    ParentContext const& parentContext,
                                                    typename T::Context const* context);
 
+    void runAcquire(EventPrincipal const& ep,
+                    EventSetup const& es,
+                    ParentContext const& parentContext,
+                    WaitingTaskWithArenaHolder& holder);
+
     void runAcquireAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
                                       EventPrincipal const& ep,
                                       EventSetup const& es,
                                       ParentContext const& parentContext,
                                       WaitingTaskWithArenaHolder holder);
+
+    std::exception_ptr handleExternalWorkException(std::exception_ptr const* iEPtr,
+                                                   ParentContext const& parentContext);
 
     template< typename T>
     class RunModuleTask : public WaitingTask {
@@ -547,6 +548,24 @@ namespace edm {
       ParentContext const m_parentContext;
       WaitingTaskWithArenaHolder m_holder;
       ServiceToken m_serviceToken;
+    };
+
+    // This class does nothing unless there is an exception originating
+    // in an "External Worker". In that case, it handles converting the
+    // exception to a CMS exception and adding context to the exception.
+    class HandleExternalWorkExceptionTask : public WaitingTask {
+    public:
+
+      HandleExternalWorkExceptionTask(Worker* worker,
+                                      WaitingTask* runModuleTask,
+                                      ParentContext const& parentContext);
+
+      tbb::task* execute() override;
+
+    private:
+      Worker* m_worker;
+      WaitingTask* m_runModuleTask;
+      ParentContext const m_parentContext;
     };
 
     std::atomic<int> timesRun_;
@@ -830,13 +849,14 @@ namespace edm {
         });
         prePrefetchSelectionAsync(selectionTask,streamID, &ep);
       } else {
-        WaitingTask* moduleTask = nullptr;
-        if (!T::isEvent_ || !hasAcquire()) {
-          moduleTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
-            this, ep, es, streamID, parentContext, context);
-        } else {
-          WaitingTaskWithArenaHolder runTaskHolder(new (tbb::task::allocate_root()) RunModuleTask<T>(
-            this, ep, es, streamID, parentContext, context));
+        WaitingTask* moduleTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
+          this, ep, es, streamID, parentContext, context);
+        if (T::isEvent_ && hasAcquire()) {
+          WaitingTaskWithArenaHolder runTaskHolder(
+            new (tbb::task::allocate_root())
+              HandleExternalWorkExceptionTask(this,
+                                              moduleTask,
+                                              parentContext));
           moduleTask = new (tbb::task::allocate_root()) AcquireTask<T>(
             this, ep, es, parentContext, std::move(runTaskHolder));
         }
@@ -857,22 +877,7 @@ namespace edm {
       assert(*iEPtr);
       TransitionIDValue<typename T::MyPrincipal> idValue(ep);
       if(shouldRethrowException(*iEPtr, parentContext, T::isEvent_, idValue)) {
-        if (ranAcquireWithoutException_) {
-          // The following is here to deal with exceptions thrown during ExternalWork
-          // which could be on a separate non-TBB thread. In other cases, the
-          // conversion to cms::Exception and addition of context is done elsewhere.
-          try {
-            convertException::wrap([&]() {
-              std::rethrow_exception(*iEPtr);
-            });
-          } catch(cms::Exception &ex) {
-            ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-            exceptionContext(ex, &moduleCallingContext_);
-            exceptionPtr = std::current_exception();
-          }
-        } else {
-          exceptionPtr = *iEPtr;
-        }
+        exceptionPtr = *iEPtr;
         setException<T::isEvent_>(exceptionPtr);
       } else {
         setPassed<T::isEvent_>();
