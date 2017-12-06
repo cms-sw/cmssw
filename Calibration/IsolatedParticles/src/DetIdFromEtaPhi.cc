@@ -29,7 +29,7 @@ namespace spr{
     return spr::findDetIdCalo (gECAL, theta, phi, radius, debug);
   }
 
-  const DetId findDetIdHCAL(const CaloGeometry* geo, double eta, double phi, bool debug) {
+  const DetId findDetIdHCAL( const CaloGeometry* geo, double eta, double phi, bool debug) {
     double radius=0;
     double theta=2.0*std::atan(exp(-eta));
     if (std::abs(eta) > spr::etaBEHcal) 
@@ -43,8 +43,8 @@ namespace spr{
     return spr::findDetIdCalo (gHCAL, theta, phi, radius, debug);
   }
 
-  const DetId findDetIdCalo(const CaloSubdetectorGeometry* geo, double theta,
-			    double phi, double radius, bool 
+  const DetId findDetIdCalo( const CaloSubdetectorGeometry* geo, double theta,
+			     double phi, double radius, bool 
 #ifdef EDM_ML_DEBUG
 			     debug
 #endif

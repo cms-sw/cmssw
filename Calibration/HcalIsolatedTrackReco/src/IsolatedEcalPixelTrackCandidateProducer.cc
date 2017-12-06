@@ -56,7 +56,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event&
 #endif
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = (pG.product());
+  const CaloGeometry* geo = pG.product();
 
   edm::Handle<EcalRecHitCollection> ecalEB;
   iEvent.getByToken(tok_eb,ecalEB);

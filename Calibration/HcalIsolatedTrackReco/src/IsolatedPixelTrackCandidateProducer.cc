@@ -73,8 +73,8 @@ void IsolatedPixelTrackCandidateProducer::beginRun(const edm::Run &run, const ed
   edm::ESHandle<CaloGeometry> pG;
   theEventSetup.get<CaloGeometryRecord>().get(pG);   
   
-  const double rad (dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel))->avgRadiusXYFrontFaceCenter()) ;
-  const double zz  (dynamic_cast<const EcalEndcapGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap))->avgAbsZFrontFaceCenter()) ;
+  const double rad (dynamic_cast<const EcalBarrelGeometry*>( pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel ))->avgRadiusXYFrontFaceCenter() ) ;
+  const double zz  (dynamic_cast<const EcalEndcapGeometry*>( pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap ))->avgAbsZFrontFaceCenter() ) ;
 
   rEB_ = rad;
   zEE_ = zz;

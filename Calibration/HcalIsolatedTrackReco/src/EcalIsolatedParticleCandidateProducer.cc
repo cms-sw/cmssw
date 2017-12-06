@@ -77,7 +77,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::StreamID, edm::Event& iEvent
 
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = (pG.product());
+  const CaloGeometry* geo = pG.product();
 
 //  std::cout<<" get ec rechit"<<std::endl;
 

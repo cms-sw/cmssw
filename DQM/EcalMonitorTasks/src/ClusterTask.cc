@@ -247,7 +247,7 @@ namespace ecaldqm
       DetId id(bcItr->seed());
       if(id.null()){
         GlobalPoint gp(position.x(), position.y(), position.z());
-        const CaloSubdetectorGeometry* subgeom = (getGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
+        CaloSubdetectorGeometry const* subgeom(getGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
 
         id = subgeom->getClosestCell(gp);
       }
@@ -397,7 +397,7 @@ namespace ecaldqm
 
 	GlobalPoint gp(position.x(), position.y(), position.z());
 
-	const CaloSubdetectorGeometry* subgeom = (getGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
+	CaloSubdetectorGeometry const* subgeom(getGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
 
 	seedId = subgeom->getClosestCell(gp);
       }
