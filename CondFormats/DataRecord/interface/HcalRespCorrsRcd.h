@@ -22,7 +22,8 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 
-class HcalRespCorrsRcd : public edm::eventsetup::DependentRecordImplementation<HcalRespCorrsRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord,HBHEDarkeningRecord> > {};
+class HcalRespCorrsRcd : public edm::eventsetup::DependentRecordImplementation<HcalRespCorrsRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord,HBHEDarkeningRecord,HcalTimeSlewRecord> > {};
 
 #endif
