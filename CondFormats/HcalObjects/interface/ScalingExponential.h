@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "boost/cstdint.hpp"
+#include "boost/serialization/access.hpp"
 #include "boost/serialization/version.hpp"
 
 class ScalingExponential
