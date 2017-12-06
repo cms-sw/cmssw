@@ -16,8 +16,15 @@ class CSCConstants
     MAX_CFEBS = 5,
   };
 
+  enum FPGA_Latency{
+    CLCT_FPGA_LATENCY = 3,
+    ALCT_FPGA_LATENCY = 6
+  };
+
+  // Note: WIRE means actually "wiregroup" here
   enum WG_and_Strip {
     MAX_NUM_WIRES = 119,
+    MAX_NUM_WIRES_ME11 = 48,
     MAX_NUM_STRIPS = 80,
     MAX_NUM_STRIPS_7CFEBS = 112,
     NUM_DI_STRIPS = 40+1, // Add 1 to allow for staggering of strips
