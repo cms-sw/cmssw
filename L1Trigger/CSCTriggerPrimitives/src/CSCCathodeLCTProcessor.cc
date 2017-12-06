@@ -1334,7 +1334,7 @@ void CSCCathodeLCTProcessor::getKeyStripData(const std::vector<int> strip[CSCCon
   bool nullPattern;
 
   for (key_strip = 0; key_strip < nStrips; key_strip++)
-    for (int i = 0; i < CSCConstants::CLCT_NUM_QUANTITIES; i++)
+    for (int i = 0; i < CLCT_NUM_QUANTITIES; i++)
       keystrip_data[key_strip][i] = 0;
 
   // Now we need to look at all the keystrips and take the best pattern
@@ -1754,7 +1754,7 @@ void CSCCathodeLCTProcessor::priorityEncode(
 
   // initialize arrays
   for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
-    for (int j = 0; j < CSCConstants::CLCT_NUM_QUANTITIES; j++) keystrip_data[ilct][j] = -1;
+    for (int j = 0; j < CLCT_NUM_QUANTITIES; j++) keystrip_data[ilct][j] = -1;
     ihits[ilct] = 0;
     cfebs[ilct] = -1;
   }
