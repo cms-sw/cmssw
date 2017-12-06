@@ -308,8 +308,7 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 
   // separate handle for early time bins
   early_tbins = ctmb.getParameter<int>("tmbEarlyTbins");
-  const int fpga_latency = 3;
-  if (early_tbins<0) early_tbins  = fifo_pretrig - fpga_latency;
+  if (early_tbins<0) early_tbins  = fifo_pretrig - CSCConstants::CLCT_FPGA_LATENCY;
 
   // wether to readout only the earliest two LCTs in readout window
   readout_earliest_2 = ctmb.getParameter<bool>("tmbReadoutEarliest2");
@@ -1173,7 +1172,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
   const unsigned int ptrn_thrsh[2] = {nplanes_hit_pattern, nplanes_hit_pattern};
   int highest_quality = 0;
 
-  int keystrip_data[CSCConstants::NUM_HALF_STRIPS_7CFEBS][7];
+  int keystrip_data[CSCConstants::NUM_HALF_STRIPS_7CFEBS][CLCT_NUM_QUANTITIES];
   int final_lcts[CSCConstants::MAX_CLCTS_PER_PROCESSOR];
 
   std::vector <CSCCLCTDigi> lctList;
@@ -1325,7 +1324,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const std::vector<int> strip[CSCConstant
 
 // Idealized version for MC studies.
 void CSCCathodeLCTProcessor::getKeyStripData(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-        int keystrip_data[CSCConstants::NUM_HALF_STRIPS_7CFEBS][7],
+        int keystrip_data[CSCConstants::NUM_HALF_STRIPS_7CFEBS][CLCT_NUM_QUANTITIES],
         int nStrips, int first_bx, int& best_strip, int stripType) {
   int lct_pattern[CSCConstants::NUM_PATTERN_STRIPS];
   int key_strip, this_layer, this_strip;
@@ -1335,7 +1334,7 @@ void CSCCathodeLCTProcessor::getKeyStripData(const std::vector<int> strip[CSCCon
   bool nullPattern;
 
   for (key_strip = 0; key_strip < nStrips; key_strip++)
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < CSCConstants::CLCT_NUM_QUANTITIES; i++)
       keystrip_data[key_strip][i] = 0;
 
   // Now we need to look at all the keystrips and take the best pattern
@@ -1477,7 +1476,7 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
   unsigned int h_nhits[CSCConstants::MAX_CFEBS]; // number of hits in envelope for each key
   int d_keyStrip[CSCConstants::MAX_CFEBS];       // one key per CFEB
   unsigned int d_nhits[CSCConstants::MAX_CFEBS]; // number of hits in envelope for each key
-  int keystrip_data[2][7];    // 2 possible LCTs per CSC x 7 LCT quantities
+  int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][CLCT_NUM_QUANTITIES];    // 2 possible LCTs per CSC x 7 LCT quantities
   unsigned int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]; // simulate digital one-shot
   unsigned int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]; // simulate digital one-shot
   bool pre_trig[2] = {false, false};
@@ -1744,18 +1743,18 @@ void CSCCathodeLCTProcessor::latchLCTs(
 void CSCCathodeLCTProcessor::priorityEncode(
         const int h_keyStrip[CSCConstants::MAX_CFEBS], const unsigned int h_nhits[CSCConstants::MAX_CFEBS],
 	const int d_keyStrip[CSCConstants::MAX_CFEBS], const unsigned int d_nhits[CSCConstants::MAX_CFEBS],
-	int keystrip_data[2][7]) {
+	int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][CLCT_NUM_QUANTITIES]) {
   static const unsigned int hs_thresh = nplanes_hit_pretrig;
   //static const unsigned int ds_thresh = nplanes_hit_pretrig;
 
-  int ihits[2]; // hold hits for sorting
-  int cfebs[2]; // holds CFEB numbers corresponding to highest hits
-  const int nlcts = 2;
+  int ihits[CSCConstants::MAX_CLCTS_PER_PROCESSOR]; // hold hits for sorting
+  int cfebs[CSCConstants::MAX_CLCTS_PER_PROCESSOR]; // holds CFEB numbers corresponding to highest hits
+
   int key_strip[CSCConstants::MAX_CFEBS], key_phits[CSCConstants::MAX_CFEBS], strip_type[CSCConstants::MAX_CFEBS];
 
   // initialize arrays
-  for (int ilct = 0; ilct < nlcts; ilct++) {
-    for (int j = 0; j < 7; j++) keystrip_data[ilct][j] = -1;
+  for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
+    for (int j = 0; j < CSCConstants::CLCT_NUM_QUANTITIES; j++) keystrip_data[ilct][j] = -1;
     ihits[ilct] = 0;
     cfebs[ilct] = -1;
   }
@@ -1897,7 +1896,7 @@ void CSCCathodeLCTProcessor::priorityEncode(
 
   // fill lct data array key strip with 2 highest hit lcts (if they exist)
   int jlct = 0;
-  for (int ilct = 0; ilct < nlcts; ilct++) {
+  for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
     if (cfebs[ilct] != -1) {
       keystrip_data[jlct][CLCT_CFEB]       = cfebs[ilct];
       keystrip_data[jlct][CLCT_STRIP]      = key_strip[cfebs[ilct]];
@@ -1915,7 +1914,7 @@ void CSCCathodeLCTProcessor::priorityEncode(
 void CSCCathodeLCTProcessor::getKeyStripData(
 		const unsigned int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
 		const unsigned int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-		int keystrip_data[2][7], const int first_bx) {
+		int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][CLCT_NUM_QUANTITIES], const int first_bx) {
 
   int lct_pattern[CSCConstants::NUM_PATTERN_STRIPS];
   int this_layer, this_strip;
@@ -2075,7 +2074,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
   if (infoV > 1) dumpDigis(halfstrip, 1, maxHalfStrips);
 
   // 2 possible LCTs per CSC x 7 LCT quantities
-  int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][7] = {{0}};
+  int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][CLCT_NUM_QUANTITIES] = {{0}};
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS];
 
   // Fire half-strip one-shots for hit_persist bx's (4 bx's by default).
@@ -2568,7 +2567,7 @@ CSCCathodeLCTProcessor::findLCTsSLHC(const std::vector<int> halfstrip[CSCConstan
       start_bx = first_bx + 1;
 
       // 2 possible LCTs per CSC x 7 LCT quantities per BX
-      int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][7] = {{0}};
+      int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][CLCT_NUM_QUANTITIES] = {{0}};
 
       // Quality for sorting.
       int quality[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
@@ -2842,9 +2841,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() {
   // sure how.  For now, just choose it such that the window is
   // centered at bx=7.  This may need further tweaking if the value of
   // tmb_l1a_window_size changes.
-  // static int fpga_latency = 3;
-  // static int early_tbins  = fifo_pretrig - fpga_latency;
-  // static int early_tbins = 4;
 
   // The number of CLCT bins in the read-out is given by the
   // tmb_l1a_window_size parameter, but made even by setting the LSB

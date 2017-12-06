@@ -108,8 +108,14 @@ class CSCCathodeLCTProcessor
 
   // we use these next ones to address the various bits inside the array that's
   // used to make the cathode LCTs.
-  enum CLCT_INDICES {CLCT_PATTERN, CLCT_BEND, CLCT_STRIP, CLCT_BX,
-		     CLCT_STRIP_TYPE, CLCT_QUALITY, CLCT_CFEB};
+  enum CLCT_INDICES {CLCT_PATTERN,
+                     CLCT_BEND,
+                     CLCT_STRIP,
+                     CLCT_BX,
+                     CLCT_STRIP_TYPE,
+                     CLCT_QUALITY,
+                     CLCT_CFEB,
+                     CLCT_NUM_QUANTITIES= 7};
 
  private:
   /** Verbosity level: 0: no print (default).

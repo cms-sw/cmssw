@@ -224,8 +224,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
 
   // separate handle for early time bins
   early_tbins = conf.getParameter<int>("alctEarlyTbins");
-  int fpga_latency = 6;
-  if (early_tbins<0) early_tbins  = fifo_pretrig - fpga_latency;
+  if (early_tbins<0) early_tbins  = fifo_pretrig - CSCConstants::ALCT_FPGA_LATENCY;
 
   // delta BX time depth for ghostCancellationLogic
   ghost_cancellation_bx_depth = conf.getParameter<int>("alctGhostCancellationBxDepth");

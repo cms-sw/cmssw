@@ -19,7 +19,7 @@
 // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
 // 1st index: WG number
 // 2nd index: inclusive HS range
-const int CSCMotherboardME11::lut_wg_vs_hs_me1a[48][2] = {
+const int CSCMotherboardME11::lut_wg_vs_hs_me1a[CSCConstants::MAX_NUM_WIRES_ME11][2] = {
 {0, 95},{0, 95},{0, 95},{0, 95},{0, 95},
 {0, 95},{0, 95},{0, 95},{0, 95},{0, 95},
 {0, 95},{0, 95},{0, 77},{0, 61},{0, 39},
@@ -31,7 +31,7 @@ const int CSCMotherboardME11::lut_wg_vs_hs_me1a[48][2] = {
 {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
 {-1,-1},{-1,-1},{-1,-1} };
 // a modified LUT for ganged ME1a
-const int CSCMotherboardME11::lut_wg_vs_hs_me1ag[48][2] = {
+const int CSCMotherboardME11::lut_wg_vs_hs_me1ag[CSCConstants::MAX_NUM_WIRES_ME11][2] = {
 {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
 {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
 {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
@@ -46,7 +46,7 @@ const int CSCMotherboardME11::lut_wg_vs_hs_me1ag[48][2] = {
 // LUT for which ME1/1 wire group can cross which ME1/b halfstrip
 // 1st index: WG number
 // 2nd index: inclusive HS range
-const int CSCMotherboardME11::lut_wg_vs_hs_me1b[48][2] = {
+const int CSCMotherboardME11::lut_wg_vs_hs_me1b[CSCConstants::MAX_NUM_WIRES_ME11][2] = {
 {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
 {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
 {100, 127},{73, 127},{47, 127},{22, 127},{0, 127},
