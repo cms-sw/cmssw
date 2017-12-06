@@ -301,7 +301,7 @@ namespace evf {
       struct stat istat;
       stat(openDatFilePath_.string().c_str(), &istat);
       filesize = istat.st_size;
-      boost::filesystem::rename(openDatFilePath_.string().c_str(), edm::Service<evf::EvFDaqDirector>()->getDatFilePath(ls.luminosityBlock(),stream_label_));
+      boost::filesystem::rename(openDatFilePath_.string().c_str(), edm::Service<evf::EvFDaqDirector>()->getDatFilePath(ls.luminosityBlock(),streamLabel_));
     } else {
       filelist_ = "";
       fileAdler32_.value()=-1;
