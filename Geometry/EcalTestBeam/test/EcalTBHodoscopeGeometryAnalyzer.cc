@@ -97,7 +97,7 @@ EcalTBHodoscopeGeometryAnalyzer::~EcalTBHodoscopeGeometryAnalyzer()
 
 
 void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, int subdetn) {
-  CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)(cg.getSubdetectorGeometry(det,subdetn));
+  const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det,subdetn));
   
   int n=0;
   const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);

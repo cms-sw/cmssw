@@ -176,7 +176,7 @@ std::shared_ptr<const CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t i
   newcell->setPosition(pos);
   auto cell = (std::shared_ptr<const CaloCellGeometry>)(newcell);
 #ifdef EDM_ML_DEBUG
-  std::cout << "cellGeomPtr " << newcell << ":" << cell << std::endl;
+//std::cout << "cellGeomPtr " << newcell << ":" << cell << std::endl;
 #endif
   if (nullptr == cell->param()) return nullptr;
   return cell;

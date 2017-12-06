@@ -54,7 +54,7 @@ EcalHitResponse::shape() const
    return m_shape ;
 }
 
-CaloSubdetectorGeometry*
+const CaloSubdetectorGeometry*
 EcalHitResponse::geometry() const
 {
    assert( nullptr != m_geometry ) ;
@@ -72,7 +72,7 @@ EcalHitResponse::setBunchRange( int minBunch ,
 void 
 EcalHitResponse::setGeometry( const CaloSubdetectorGeometry* geometry )
 {
-  m_geometry = (CaloSubdetectorGeometry*)(geometry) ;
+  m_geometry = geometry ;
 }
 
 void 

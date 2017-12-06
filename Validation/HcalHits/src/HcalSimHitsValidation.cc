@@ -310,7 +310,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     if (testNumber_) cell = HcalHitRelabeller::relabel(SimHits->id(),hcons);
     else cell = HcalDetId(SimHits->id());
 
-    auto cellGeometry = ((CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(cell)))->getGeometry(cell);
+    auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry(cell);
     double etaS = cellGeometry->getPosition().eta () ;
     double phiS = cellGeometry->getPosition().phi () ;
     double en   = SimHits->energy();    
@@ -395,7 +395,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
     EBDetId EBid = EBDetId(SimHits->id());
 
-    auto cellGeometry = ((CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(EBid)))->getGeometry(EBid);
+    auto cellGeometry = geometry->getSubdetectorGeometry(EBid)->getGeometry(EBid);
     double etaS = cellGeometry->getPosition().eta () ;
     double phiS = cellGeometry->getPosition().phi () ;
     double en   = SimHits->energy();    
@@ -416,7 +416,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
     EEDetId EEid = EEDetId(SimHits->id());
 
-    auto cellGeometry = ((CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(EEid)))->getGeometry(EEid) ;
+    auto cellGeometry = geometry->getSubdetectorGeometry(EEid)->getGeometry(EEid) ;
     double etaS = cellGeometry->getPosition().eta () ;
     double phiS = cellGeometry->getPosition().phi () ;
     double en   = SimHits->energy();    

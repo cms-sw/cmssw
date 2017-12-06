@@ -137,7 +137,7 @@ EcalTimeMapDigitizer::findSignal( const DetId& detId )
 void 
 EcalTimeMapDigitizer::setGeometry( const CaloSubdetectorGeometry* geometry )
 {
-  m_geometry = (CaloSubdetectorGeometry*)(geometry) ;
+  m_geometry = geometry ;
 }
 
 

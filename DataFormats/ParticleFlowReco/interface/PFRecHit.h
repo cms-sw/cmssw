@@ -56,7 +56,7 @@ namespace reco {
 
   PFRecHit(std::shared_ptr<const CaloCellGeometry> caloCell, 
 	   unsigned int detId, PFLayer::Layer layer,
-	   float energy) : caloCell_(caloCell),  detId_(detId),
+	   float energy) : caloCell_(std::move(caloCell)),  detId_(detId),
       layer_(layer), energy_(energy){}
 
 

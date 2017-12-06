@@ -60,7 +60,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
 	double energy = it->energy();
 	if (energy < threshold) continue; // need to check to see if this line is useful!
 
-	auto thisCell = ((CaloSubdetectorGeometry*)(geometry_p))->getGeometry(it->id());
+	auto thisCell = geometry_p->getGeometry(it->id());
 	auto const &  position = thisCell->getPosition();
 
 	// Require that RecHit is within clustering region in case
@@ -271,7 +271,7 @@ void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
   reco::CaloID caloID;
 
   Point position;
-  position = posCalculator_.Calculate_Location(current_v,hits,((CaloSubdetectorGeometry*)(geometry)),((CaloSubdetectorGeometry*)(geometryES)));
+  position = posCalculator_.Calculate_Location(current_v,hits,geometry,geometryES);
   
   std::vector< std::pair<DetId, float> >::iterator it;
   for (it = current_v.begin(); it != current_v.end(); it++)

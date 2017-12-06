@@ -606,8 +606,6 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	
 	const HcalGeometry* cellGeometry = 
 	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-//	const CaloCellGeometry* cellGeometry =
-//	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition(cell).eta () ;
 	double fPhi = cellGeometry->getPosition(cell).phi () ;
 	if ( (jhbhe->energy()) > maxHBEnergy ) {
@@ -623,8 +621,6 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	
 	const HcalGeometry* cellGeometry = 
 	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-//	const CaloCellGeometry* cellGeometry =
-//	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition(cell).eta () ;
 	double fPhi = cellGeometry->getPosition(cell).phi () ;
 	if ( (jhbhe->energy()) > maxHEEnergy ) {
@@ -646,8 +642,6 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	const HcalGeometry* cellGeometry = 
 	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-//	const CaloCellGeometry* cellGeometry =
-//	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition(cell).eta () ;
 	double fPhi = cellGeometry->getPosition(cell).phi () ;
 
@@ -668,8 +662,6 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	const HcalGeometry* cellGeometry = 
 	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-//	const CaloCellGeometry* cellGeometry =
-//	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition(cell).eta () ;
 	double fPhi = cellGeometry->getPosition(cell).phi () ;
 
@@ -720,8 +712,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
       
       if (cell.subdet() == sdHcalFwd) {
 	
-	auto cellGeometry = ((CaloSubdetectorGeometry*)
-			     (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition().eta () ;
 	double fPhi = cellGeometry->getPosition().phi () ;
 	if ( (jhf->energy()) > maxHFEnergy ) {
@@ -741,8 +732,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	++iHF;
 
-	auto cellGeometry = ((CaloSubdetectorGeometry*)
-			     (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition().eta () ;
 	double fPhi = cellGeometry->getPosition().phi () ;
 
@@ -788,8 +778,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	++iHO;
 
-	auto cellGeometry = ((CaloSubdetectorGeometry*)
-			     (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition().eta () ;
 	double fPhi = cellGeometry->getPosition().phi () ;
 

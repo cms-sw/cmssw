@@ -88,7 +88,7 @@ CrystalCenterDump::~CrystalCenterDump()
 
 void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name) {
   std::fstream f(name,std::ios_base::out);
-  CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)(cg.getSubdetectorGeometry(det,subdetn));
+  const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det,subdetn));
 
   int n=0;
   const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);

@@ -18,12 +18,12 @@ std::string TrackDetMatchInfo::dumpGeometry( const DetId& id )
 {
    if ( ! caloGeometry || 
 	! caloGeometry->getSubdetectorGeometry(id) ||
-	! ((CaloSubdetectorGeometry*)(caloGeometry->getSubdetectorGeometry(id)))->getGeometry(id)) {
+	! caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)) {
       throw cms::Exception("FatalError")  << "Failed to access geometry for DetId: " << id.rawId();
    }
    std::ostringstream oss;
 
-   const CaloCellGeometry::CornersVec& points = ((CaloSubdetectorGeometry*)(caloGeometry->getSubdetectorGeometry(id)))->getGeometry(id)->getCorners();
+   const CaloCellGeometry::CornersVec& points = caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)->getCorners();
    for( CaloCellGeometry::CornersVec::const_iterator point = points.begin();
        point != points.end(); ++point)
      oss << "(" << point->z() << ", " << point->perp() << ", " << point->eta() << ", " << point->phi() << "), \t";
@@ -36,11 +36,11 @@ GlobalPoint TrackDetMatchInfo::getPosition( const DetId& id)
    // this part might be slow
    if ( ! caloGeometry || 
 	! caloGeometry->getSubdetectorGeometry(id) ||
-	! ((CaloSubdetectorGeometry*)(caloGeometry->getSubdetectorGeometry(id)))->getGeometry(id) ) {
+	! caloGeometry->getSubdetectorGeometry(id)->getGeometry(id) ) {
       throw cms::Exception("FatalError") << "Failed to access geometry for DetId: " << id.rawId();
       return GlobalPoint(0,0,0);
    }
-   return ((CaloSubdetectorGeometry*)(caloGeometry->getSubdetectorGeometry(id)))->getGeometry(id)->getPosition();
+   return caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
 }
 
 

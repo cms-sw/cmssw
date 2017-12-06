@@ -57,7 +57,7 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
     const CaloSubdetectorGeometry *gTmp = 
       geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 
-    EcalBarrelGeometry *ecalGeo = (EcalBarrelGeometry*)(gTmp);
+    const EcalBarrelGeometry *ecalGeo = dynamic_cast<const EcalBarrelGeometry*>(gTmp);
 
     iEvent.getByToken(recHitToken_,recHitHandle);
     for(const auto& erh : *recHitHandle ) {      

@@ -53,7 +53,7 @@ void HGCalGeometryTester::analyze(const edm::Event& ,
 
   edm::ESHandle<HGCalGeometry> geomH;
   iSetup.get<IdealGeometryRecord>().get(name,geomH);
-  const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(geomH.product());
+  const HGCalGeometry* geom = (geomH.product());
 
   if (geomH.isValid()) doTest(geom, subdet);
   else                 std::cout << "Cannot get valid HGCalGeometry Object for "

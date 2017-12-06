@@ -457,15 +457,15 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
   //ecal geometry:
 //  static const CaloSubdetectorGeometry* eeGeometry = 0;
 //  static const CaloSubdetectorGeometry* ebGeometry = 0;
-  CaloSubdetectorGeometry* eeGeometry = nullptr;
-  CaloSubdetectorGeometry* ebGeometry = nullptr;
+  const CaloSubdetectorGeometry* eeGeometry = nullptr;
+  const CaloSubdetectorGeometry* ebGeometry = nullptr;
 //  if(eeGeometry==0 || ebGeometry==0){
     edm::ESHandle<CaloGeometry> geoHandle;
     es.get<CaloGeometryRecord>().get(geoHandle);
     eeGeometry
-      = (CaloSubdetectorGeometry*)((*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
+      = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     ebGeometry
-      = (CaloSubdetectorGeometry*)((*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
+      = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 //  }
 
   //init trigPrim array:

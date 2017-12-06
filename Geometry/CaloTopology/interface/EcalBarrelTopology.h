@@ -22,7 +22,7 @@ public:
 
   /// create a new Topology from geometry
   EcalBarrelTopology(edm::ESHandle<CaloGeometry> theGeom) {
-    theGeom_ = (CaloSubdetectorGeometry*)((theGeom.product())->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+    theGeom_ = ((theGeom.product())->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
   }
   
  /// move the Topology north (increment iphi)
@@ -106,7 +106,7 @@ public:
   /// move the nagivator to smaller iphi (wraps around the barrel)
   EBDetId decrementIphi(const EBDetId&) const;
 
-  CaloSubdetectorGeometry* theGeom_;
+  const CaloSubdetectorGeometry* theGeom_;
 };
 
 #endif

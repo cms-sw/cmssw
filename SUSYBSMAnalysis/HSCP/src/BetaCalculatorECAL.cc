@@ -244,13 +244,13 @@ int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>&
      GlobalPoint probe_gp = (*itr).position();
      std::vector<DetId> surroundingMatrix;
 
-     EBDetId closestBarrelDetIdToProbe = ((((CaloSubdetectorGeometry*)(theBarrelSubdetGeometry)) -> getClosestCell(probe_gp)).rawId());
-     EEDetId closestEndcapDetIdToProbe = ((((CaloSubdetectorGeometry*)(theEndcapSubdetGeometry)) -> getClosestCell(probe_gp)).rawId());
+     EBDetId closestBarrelDetIdToProbe = ((theBarrelSubdetGeometry -> getClosestCell(probe_gp)).rawId());
+     EEDetId closestEndcapDetIdToProbe = ((theEndcapSubdetGeometry -> getClosestCell(probe_gp)).rawId());
 
      // check if the probe is inside the xtal
      if( (closestEndcapDetIdToProbe) && 
-	 ((CaloSubdetectorGeometry*)(theGeometry)->getSubdetectorGeometry(closestEndcapDetIdToProbe))->
-	 getGeometry(closestEndcapDetIdToProbe)->inside(probe_gp) ) 
+	 (theGeometry->getSubdetectorGeometry(closestEndcapDetIdToProbe)->
+	  getGeometry(closestEndcapDetIdToProbe)->inside(probe_gp)) ) 
      {
        double step = ((*itr).position() - (*(itr-1)).position()).mag();
        GlobalPoint point = itr->position();
@@ -267,7 +267,7 @@ int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>&
      }
 
      if( (closestBarrelDetIdToProbe) && 
-	 (((CaloSubdetectorGeometry*)(theGeometry->getSubdetectorGeometry(closestBarrelDetIdToProbe)))->
+	 (theGeometry->getSubdetectorGeometry(closestBarrelDetIdToProbe)->
 	  getGeometry(closestBarrelDetIdToProbe)->inside(probe_gp)) )
      {
        double step = ((*itr).position() - (*(itr-1)).position()).mag();
@@ -289,7 +289,7 @@ int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>&
        surroundingMatrix = theTopology->getSubdetectorTopology(closestBarrelDetIdToProbe)->getWindow(closestBarrelDetIdToProbe,3,3);
 
        for( unsigned int k=0; k<surroundingMatrix.size(); ++k ) {
-         if(((CaloSubdetectorGeometry*)(theGeometry->getSubdetectorGeometry(surroundingMatrix.at(k))))->getGeometry(surroundingMatrix.at(k))->inside(probe_gp))
+         if(theGeometry->getSubdetectorGeometry(surroundingMatrix.at(k))->getGeometry(surroundingMatrix.at(k))->inside(probe_gp))
          {
            double step = ((*itr).position() - (*(itr-1)).position()).mag();
            GlobalPoint point = itr->position();
@@ -323,7 +323,7 @@ void BetaCalculatorECAL::addStepToXtal(std::map<int,GlobalPoint>& trackExitPosit
     const CaloSubdetectorGeometry* theSubdetGeometry)
 {
 
-  const CaloCellGeometry *cell_p = (((CaloSubdetectorGeometry*)(theSubdetGeometry))->getGeometry(aDetId)).get();
+  const CaloCellGeometry *cell_p = (theSubdetGeometry->getGeometry(aDetId)).get();
   GlobalPoint p = (dynamic_cast <const TruncatedPyramid *> (cell_p))->getPosition(23);
   GlobalPoint diff(point.x()-p.x(),point.y()-p.y(),point.z()-p.z());
 

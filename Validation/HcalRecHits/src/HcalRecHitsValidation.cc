@@ -273,8 +273,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       for (; RecHit != RecHitEnd ; ++RecHit) {
 	EBDetId EBid = EBDetId(RecHit->id());
        
-	auto cellGeometry = ((CaloSubdetectorGeometry*)
-			     (geometry->getSubdetectorGeometry(EBid)))->getGeometry (EBid) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(EBid)->getGeometry (EBid) ;
 	double eta = cellGeometry->getPosition ().eta () ;
 	double phi = cellGeometry->getPosition ().phi () ;
 	double en  = RecHit->energy();
@@ -300,8 +299,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       for (; RecHit != RecHitEnd ; ++RecHit) {
 	EEDetId EEid = EEDetId(RecHit->id());
 	
-	auto cellGeometry = ((CaloSubdetectorGeometry*)
-			     (geometry->getSubdetectorGeometry(EEid)))->getGeometry (EEid) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(EEid)->getGeometry (EEid) ;
 	double eta = cellGeometry->getPosition ().eta () ;
 	double phi = cellGeometry->getPosition ().phi () ;	
 	double en   = RecHit->energy();
@@ -449,8 +447,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	
 	const HcalGeometry* cellGeometry = 
 	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-	//auto cellGeometry = ((CaloSubdetectorGeometry*)
-	//(geometry->getSubdetectorGeometry(cell)))->getGeometry (cell);
 	double etaS = cellGeometry->getPosition(cell).eta () ;
 	double phiS = cellGeometry->getPosition(cell).phi () ;
 	double en   = SimHits->energy();    
@@ -530,8 +526,6 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	HcalDetId cell(j->id());
 	const HcalGeometry* cellGeometry = 
 	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-	//      const CaloCellGeometry* cellGeometry =
-	//	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double eta  = cellGeometry->getPosition(cell).eta () ;
 	double phi  = cellGeometry->getPosition(cell).phi () ;
 	double zc   = cellGeometry->getPosition(cell).z ();
@@ -569,8 +563,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
 	
 	HcalDetId cell(j->id());
-	auto cellGeometry = ((CaloSubdetectorGeometry*)
-			     (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry (cell) ;
 	
 	double eta   = cellGeometry->getPosition().eta () ;
 	double phi   = cellGeometry->getPosition().phi () ;
@@ -608,8 +601,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
 	
 	HcalDetId cell(j->id());
-	auto cellGeometry = ((CaloSubdetectorGeometry*)
-			     (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry (cell) ;
 	
 	double eta   = cellGeometry->getPosition().eta () ;
 	double phi   = cellGeometry->getPosition().phi () ;

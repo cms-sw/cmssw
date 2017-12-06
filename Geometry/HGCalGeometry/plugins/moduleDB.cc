@@ -20,7 +20,7 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBReader>::produceAligned( const typ
     edm::ESHandle<HGCalGeometry> geomHandle;
     iRecord.getRecord<IdealGeometryRecord>().get( name, geomHandle );
      
-    const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(geomHandle.product());
+    const HGCalGeometry* geom = (geomHandle.product());
     geom->getSummary( tvec, ivec, dvec, dins ) ;
 
     CaloGeometryDBReader::writeIndexed( tvec, dvec, ivec, dins, HGCalGeometry::dbString() ) ;

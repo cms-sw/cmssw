@@ -201,7 +201,7 @@ double CaloHitResponse::timeOfFlight(const DetId & detId) const {
     edm::LogWarning("CaloHitResponse") << "No Calo Geometry set, so no time of flight correction";
   } 
   else {
-    auto cellGeometry = ((CaloSubdetectorGeometry*)(theGeometry->getSubdetectorGeometry(detId)))->getGeometry(detId);
+    auto cellGeometry = theGeometry->getSubdetectorGeometry(detId)->getGeometry(detId);
     if(cellGeometry == nullptr) {
        edm::LogWarning("CaloHitResponse") << "No Calo cell found for ID"
          << detId.rawId() << " so no time-of-flight subtraction will be done";

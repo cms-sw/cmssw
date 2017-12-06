@@ -75,8 +75,7 @@ WEA::convert( const edm::EventSetup& eS ,
    edm::ESHandle<CaloGeometry>       pG   ;
    eS.get<CaloGeometryRecord>().get( pG ) ;
 
-   CaloSubdetectorGeometry* geom = (CaloSubdetectorGeometry*)( 
-      pG->getSubdetectorGeometry( DetId::Ecal, EcalPreshower ) ) ;
+   const CaloSubdetectorGeometry* geom(pG->getSubdetectorGeometry( DetId::Ecal, EcalPreshower) ) ;
 
    edm::ESHandle<Alignments>  pA ;
    eS.get<ESAlignmentRcd>().get( pA ) ;

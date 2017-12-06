@@ -142,8 +142,8 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
   iSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
   iSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
 
-  CaloSubdetectorGeometry* theEndcapGeometry = (CaloSubdetectorGeometry*)(theEndcapGeometry_handle.product());
-  CaloSubdetectorGeometry* theBarrelGeometry = (CaloSubdetectorGeometry*)(theBarrelGeometry_handle.product());
+  const CaloSubdetectorGeometry* theEndcapGeometry = (theEndcapGeometry_handle.product());
+  const CaloSubdetectorGeometry* theBarrelGeometry = (theBarrelGeometry_handle.product());
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
   iSetup.get<IdealGeometryRecord>().get(eTTmap_);
 

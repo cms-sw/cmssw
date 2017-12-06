@@ -341,7 +341,7 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry* cg      ,
       fOvr << "Barrel Neighbors of Endcap id = " << id << std::endl ;
       const EcalEndcapGeometry* eeG (dynamic_cast<const EcalEndcapGeometry*>( geom ) );
       auto cell ( geom->getGeometry(id) ) ;
-      CaloSubdetectorGeometry* bar = (CaloSubdetectorGeometry*)(cg->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
+      const CaloSubdetectorGeometry* bar(cg->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
       const EcalEndcapGeometry::OrderedListOfEBDetId* ol ( eeG->getClosestBarrelCells( id ) ) ;
       assert ( nullptr != ol ) ;
       for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
@@ -369,7 +369,7 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry* cg      ,
    {
       const EcalBarrelGeometry* ebG ( dynamic_cast<const EcalBarrelGeometry*>( geom ) );
       auto cell ( geom->getGeometry(id) ) ;
-      CaloSubdetectorGeometry* ecap = (CaloSubdetectorGeometry*)(cg->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
+      const CaloSubdetectorGeometry* ecap(cg->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
       fOvr << "Endcap Neighbors of Barrel id = " << id << std::endl ;
       const EcalBarrelGeometry::OrderedListOfEEDetId* ol ( ebG->getClosestEndcapCells( id ) ) ;
       assert ( nullptr != ol ) ;
@@ -596,7 +596,7 @@ CaloGeometryAnalyzer::buildHcal( const CaloGeometry*       cg      ,
     std::fstream fOvr(fnameOvr.c_str() ,std::ios_base::out);
     std::fstream f   (fnameRoot.c_str(),std::ios_base::out);
 
-    CaloSubdetectorGeometry* geom = (CaloSubdetectorGeometry*)(cg->getSubdetectorGeometry(det,subdetn));
+    const CaloSubdetectorGeometry* geom(cg->getSubdetectorGeometry(det,subdetn));
 
     f << "{" << std::endl;
     f << "  TGeoManager* geoManager = new TGeoManager(\"ROOT\", \"" << name << "\");" << std::endl;
@@ -745,7 +745,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry* cg      ,
    std::fstream fOvr(fnameOvr.c_str() ,std::ios_base::out);
    std::fstream f   (fnameRoot.c_str(),std::ios_base::out);
 
-   CaloSubdetectorGeometry* geom = (CaloSubdetectorGeometry*)(cg->getSubdetectorGeometry(det,subdetn));
+   const CaloSubdetectorGeometry* geom(cg->getSubdetectorGeometry(det,subdetn));
 
    f << "{" << std::endl;
    f << "  TGeoManager* geoManager = new TGeoManager(\"ROOT\", \"" << name << "\");" << std::endl;

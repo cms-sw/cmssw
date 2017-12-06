@@ -49,7 +49,7 @@ void FastTimeGeometryTester::analyze(const edm::Event& ,
 
   edm::ESHandle<FastTimeGeometry> geomH;
   iSetup.get<IdealGeometryRecord>().get(name_,geomH);
-  const FastTimeGeometry* geom = dynamic_cast<const FastTimeGeometry*>(geomH.product());
+  const FastTimeGeometry* geom = (geomH.product());
 
   if (geomH.isValid()) doTest(geom, subdet);
   else                 std::cout << "Cannot get valid FastTimeGeometry Object "

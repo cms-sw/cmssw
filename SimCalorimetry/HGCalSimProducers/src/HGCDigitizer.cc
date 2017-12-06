@@ -30,11 +30,11 @@ namespace {
 
 
   float getPositionDistance(const HGCalGeometry* geom, const DetId& id) {
-    return ((HGCalGeometry*)(geom))->getPosition(id).mag();
+    return geom->getPosition(id).mag();
   }
 
   float getPositionDistance(const HcalGeometry* geom, const DetId& id) {
-    return ((HcalGeometry*)(geom))->getGeometry(id)->getPosition().mag();
+    return geom->getGeometry(id)->getPosition().mag();
   }
 
   int getCellThickness(const HGCalGeometry* geom, const DetId& detid ) {
@@ -205,8 +205,8 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
   hitRefs_bx0.clear();
   
   const CaloSubdetectorGeometry* theGeom = (nullptr == gHGCal_ ? 
-					    ((const CaloSubdetectorGeometry*)(gHcal_)) : 
-					    ((const CaloSubdetectorGeometry*)(gHGCal_)) );
+					    static_cast<const CaloSubdetectorGeometry*>(gHcal_) :
+					    static_cast<const CaloSubdetectorGeometry*>(gHGCal_) );
   
   ++nEvents_;
   unsigned idx = std::numeric_limits<unsigned>::max();

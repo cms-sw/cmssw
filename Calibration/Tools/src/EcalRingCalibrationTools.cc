@@ -222,7 +222,7 @@ void EcalRingCalibrationTools::initializeFromGeometry(CaloGeometry const* geomet
       endcapRingIndex_[ix][iy]=-9;
     }
   
-  CaloSubdetectorGeometry* endcapGeometry = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
+  CaloSubdetectorGeometry const* endcapGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   if (not endcapGeometry)
     throw std::logic_error("EcalRingCalibrationTools::initializeFromGeometry Ecal Endcap geometry not found");
 

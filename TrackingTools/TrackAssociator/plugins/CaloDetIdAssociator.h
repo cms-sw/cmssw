@@ -56,7 +56,7 @@ class CaloDetIdAssociator: public DetIdAssociator{
    std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const override;
 
    bool insideElement(const GlobalPoint& point, const DetId& id) const override{
-     return  ((CaloSubdetectorGeometry*)(geometry_->getSubdetectorGeometry(id)))->getGeometry(id)->inside(point);
+     return  geometry_->getSubdetectorGeometry(id)->getGeometry(id)->inside(point);
    };
 
    bool crossedElement(const GlobalPoint&, 

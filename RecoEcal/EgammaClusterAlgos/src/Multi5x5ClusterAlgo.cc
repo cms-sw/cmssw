@@ -92,7 +92,7 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
             double energy = it->energy();
             if (energy < threshold) continue; // need to check to see if this line is useful!
 
-            auto thisCell = ((CaloSubdetectorGeometry*)(geometry_p))->getGeometry(it->id());
+            auto thisCell = geometry_p->getGeometry(it->id());
             // Require that RecHit is within clustering region in case
             // of regional reconstruction
             bool withinRegion = false;
@@ -223,7 +223,7 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
     for(size_t clusNr=0;clusNr<protoClusters_.size();clusNr++){
       const ProtoBasicCluster& protoCluster= protoClusters_[clusNr];
       Point position;
-      position = posCalculator_.Calculate_Location(protoCluster.hits(), hits,((CaloSubdetectorGeometry*)(geometry_p)), ((CaloSubdetectorGeometry*)(geometryES_p)));
+      position = posCalculator_.Calculate_Location(protoCluster.hits(), hits, geometry_p, geometryES_p);
       clusters_v.push_back(reco::BasicCluster(protoCluster.energy(), position, reco::CaloID(detector_), protoCluster.hits(),
 					      reco::CaloCluster::multi5x5, protoCluster.seed().id()));
     }
@@ -243,7 +243,7 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
     //double chi2   = 0;
     reco::CaloID caloID;
     Point position;
-    position = posCalculator_.Calculate_Location(current_v, hits,((CaloSubdetectorGeometry*)(geometry)), ((CaloSubdetectorGeometry*)(geometryES)));
+    position = posCalculator_.Calculate_Location(current_v, hits, geometry, geometryES);
 
     std::vector<std::pair<DetId, float> >::iterator it;
     for (it = current_v.begin(); it != current_v.end(); it++)

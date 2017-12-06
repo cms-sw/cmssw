@@ -198,7 +198,7 @@ void CaloDetIdAssociator::check_setup() const
 }
    
 GlobalPoint CaloDetIdAssociator::getPosition(const DetId& id) const {
-  return ((CaloSubdetectorGeometry*)(geometry_->getSubdetectorGeometry(id)))->getGeometry(id)->getPosition();
+  return geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
 }
    
 void CaloDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vector<DetId>& detIds) const 
@@ -210,7 +210,7 @@ void CaloDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
 std::pair<DetIdAssociator::const_iterator, DetIdAssociator::const_iterator> 
 CaloDetIdAssociator::getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const 
 {
-  CaloSubdetectorGeometry* subDetGeom = (CaloSubdetectorGeometry*)(geometry_->getSubdetectorGeometry(id));
+  const CaloSubdetectorGeometry* subDetGeom = geometry_->getSubdetectorGeometry(id);
   if(! subDetGeom){
     LogDebug("TrackAssociator") << "Cannot find sub-detector geometry for " << id.rawId() <<"\n";
     return std::pair<const_iterator,const_iterator>(dummy_.end(),dummy_.end());

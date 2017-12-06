@@ -21,7 +21,7 @@ public:
   
   /// create a new Topology from geometry
   EcalEndcapTopology(edm::ESHandle<CaloGeometry> theGeom) {
-    theGeom_ = (CaloSubdetectorGeometry*)((theGeom.product())->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+    theGeom_ = ((theGeom.product())->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
   }
 
   /// move the Topology north (increment iy)  
@@ -104,7 +104,7 @@ public:
   /// move the nagivator to smaller iy
   EEDetId decrementIy(const EEDetId& id) const;
 
-  CaloSubdetectorGeometry* theGeom_;
+  const CaloSubdetectorGeometry* theGeom_;
 };
 
 #endif
