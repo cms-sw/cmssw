@@ -26,7 +26,15 @@ class CSCConstants
     // each CFEB reads out 8 distrips, 16 strips or 32 halfstrips
     NUM_DISTRIPS_PER_CFEB = 8,
     NUM_STRIPS_PER_CFEB = 16,
-    NUM_HALF_STRIPS_PER_CFEB = 32};
+    NUM_HALF_STRIPS_PER_CFEB = 32,
+    // max halfstrip number in ME1/1 chambers
+    // All ME1A readout by 1 CFEB -> 32 -1
+    MAX_HALF_STRIP_ME1A_GANGED = 31,
+    // All ME1A readout by 3 CFEBs -> 3*32 -1
+    MAX_HALF_STRIP_ME1A_UNGANGED = 95,
+    // All ME1B readout by 4 CFEBs -> 4*32 -1
+    MAX_HALF_STRIP_ME1B = 127
+  };
 
   // CSCs have 6 layers. The key (refernce) layer is the third layer
   enum Layer_Info {
