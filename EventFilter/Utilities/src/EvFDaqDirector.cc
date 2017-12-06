@@ -958,22 +958,29 @@ namespace evf {
       const edm::ParameterSet& tsPset(topPset.getParameterSet(mergeTypePset_));
       for (std::string pname : tsPset.getParameterNames()) {
           std::string streamType = tsPset.getParameter<std::string>(pname); 
-          mergeTypeMap_[pname]=streamType;
+          tbb::concurrent_hash_map<std::string,std::string>::accessor ac;
+          mergeTypeMap_.insert(ac,pname);
+          ac->second = streamType;
+          ac.release();
       }
     }
   }
  
   std::string EvFDaqDirector::getStreamMergeType(std::string const& stream, MergeType defaultType)
   {
-    auto mergeTypeItr = mergeTypeMap_.find(stream);
-    if (mergeTypeItr == mergeTypeMap_.end()) {
-           edm::LogInfo("EvFDaqDirector") << " No merging type specified for stream " << stream << ". Using default value";
-           assert(defaultType<MergeTypeNames_.size());
-           std::string defaultName = MergeTypeNames_[defaultType];
-           mergeTypeMap_[stream] =  defaultName;
-           return defaultName;
-    }
-    return mergeTypeItr->second;
+    tbb::concurrent_hash_map<std::string,std::string>::const_accessor search_ac;
+    //auto mergeTypeItr = mergeTypeMap_.find(stream);
+    if (mergeTypeMap_.find(search_ac,stream))
+      return search_ac->second;
+
+    edm::LogInfo("EvFDaqDirector") << " No merging type specified for stream " << stream << ". Using default value";
+    assert(defaultType<MergeTypeNames_.size());
+    std::string defaultName = MergeTypeNames_[defaultType];
+    tbb::concurrent_hash_map<std::string,std::string>::accessor ac;
+    mergeTypeMap_.insert(ac,stream);
+    ac->second = defaultName;
+    ac.release();
+    return defaultName;
   }
 
   void EvFDaqDirector::createProcessingNotificationMaybe() const {

@@ -25,6 +25,8 @@
 #include <cstring>
 #include <cstdio>
 
+#include <tbb/concurrent_hash_map.h>
+
 class SystemBounds;
 class GlobalContext;
 class StreamID;
@@ -197,7 +199,7 @@ namespace evf{
       unsigned int stop_ls_override_ = 0;
 
       std::shared_ptr<Json::Value> transferSystemJson_;
-      std::map<std::string,std::string> mergeTypeMap_;
+      tbb::concurrent_hash_map<std::string,std::string> mergeTypeMap_;
 
       //values initialized in .cc file
       static const std::vector<std::string> MergeTypeNames_;
