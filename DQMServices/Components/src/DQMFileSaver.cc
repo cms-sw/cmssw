@@ -742,9 +742,6 @@ DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock & iLS, const e
           << "Internal error, can save files"
           << " only in ROOT format.";
     }
-
-    // after saving per LS, delete the old LS global histograms.
-    dbe_->deleteUnusedLumiHistograms(enableMultiThread_ ? irun : 0, ilumi);
   }
 }
 

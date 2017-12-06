@@ -277,7 +277,7 @@ void DQMStore::IBooker::cd(const std::string &dir) {
 
 void DQMStore::IBooker::setCurrentFolder(const std::string &fullpath) {
   owner_->setCurrentFolder(fullpath);
-} 
+}
 
 void DQMStore::IBooker::goUp() {
   owner_->goUp();
@@ -285,7 +285,7 @@ void DQMStore::IBooker::goUp() {
 
 const std::string & DQMStore::IBooker::pwd() {
   return owner_->pwd();
-} 
+}
 
 void DQMStore::IBooker::tag(MonitorElement *me, unsigned int tag) {
   owner_->tag(me, tag);
@@ -312,7 +312,7 @@ MonitorElement * DQMStore::IGetter::getElement(const std::string &path) {
     if (ptr == nullptr) {
       std::stringstream msg;
       msg << "DQM object not found";
-        
+
       msg << ": " << path;
 
       // can't use cms::Exception inside DQMStore
@@ -527,18 +527,19 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     igetter_ = new DQMStore::IGetter(this);
   initializeFrom(pset);
 
-  if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
-    ar.watchPostSourceRun(this,&DQMStore::forceReset);
-  }
   ar.preallocateSignal_.connect([this](edm::service::SystemBounds const& iBounds) {
       if(iBounds.maxNumberOfStreams() > 1 ) {
 	enableMultiThread_ = true;
       }
     });
+  if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
+    ar.watchPostSourceRun(this,&DQMStore::forceReset);
+  }
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginLumi",false) && enableMultiThread_ == false) {
     forceResetOnBeginLumi_ = true;
     ar.watchPostSourceLumi(this,&DQMStore::forceReset);
   }
+  ar.watchPostGlobalEndLumi(this,&DQMStore::deleteUnusedLumiHistogramsAfterEndLumi);
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
@@ -601,7 +602,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   LSbasedMode_ = pset.getUntrackedParameter<bool>("LSbasedMode", false);
    if (LSbasedMode_)
      std::cout << "DQMStore: LSbasedMode option is enabled\n";
-   
+
   std::string ref = pset.getUntrackedParameter<std::string>("referenceFileName", "");
   if (! ref.empty())
   {
@@ -645,7 +646,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   // a lock (see bookTransaction).
   if (!stream_)
     stream_ = new std::ofstream("histogramBookingBT.log");
-  
+
   void *array[10];
   size_t size;
   char **strings;
@@ -657,7 +658,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   strings = backtrace_symbols (array, size);
 
   size_t level = 1;
-  char * demangled = nullptr; 
+  char * demangled = nullptr;
   for (; level < size; level++) {
     if (!s_rxtrace.match(strings[level], 0, 0, &m)) continue;
     demangled = abi::__cxa_demangle(m.matchString(strings[level], 2).c_str(), nullptr, nullptr, &r);
@@ -872,11 +873,11 @@ DQMStore::book(const std::string &dir, const std::string &name,
     refdir += s_referenceDirName;
     refdir += '/';
     refdir += dir;
-    MonitorElement* referenceME = findObject(refdir, name); 
+    MonitorElement* referenceME = findObject(refdir, name);
     if (referenceME) {
       // We have booked a new MonitorElement with a specific dir and name.
       // Then, if we can find the corresponding MonitorElement in the reference
-      // dir we assign the object_ of the reference MonitorElement to the 
+      // dir we assign the object_ of the reference MonitorElement to the
       // reference_ property of our new MonitorElement.
       me->data_.flags |= DQMNet::DQM_PROP_HAS_REFERENCE;
       me->reference_ = referenceME->object_;
@@ -2145,20 +2146,20 @@ DQMStore::forceReset()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-/** Delete *global* histograms which are no longer in used.
+/** Delete *global* histograms which are no longer in use.
  * Such histograms are created at the end of each lumi and should be
- * deleted after last globalEndLuminosityBlock.
+ * deleted after the last globalEndLuminosityBlock.
  */
 void
 DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
 {
   if (!enableMultiThread_)
     return;
-  
+
   std::lock_guard<std::mutex> guard(book_mutex_);
 
   std::string null_str("");
-  MonitorElement proto(&null_str, null_str, run, 0, 0);  
+  MonitorElement proto(&null_str, null_str, run, 0, 0);
   proto.setLumi(lumi);
 
   auto e = data_.end();
@@ -2172,7 +2173,7 @@ DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
       break;
     if (i->data_.run != run)
       break;
-    
+
     auto temp = i;
     ++i;
 
@@ -2180,10 +2181,17 @@ DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
       std::cout << "DQMStore::deleteUnusedLumiHistograms: deleted monitor element '"
                 << *i->data_.dirname << "/" << i->data_.objname << "'"
                 << "flags " << i->data_.flags << "\n";
-    } 
+    }
 
     data_.erase(temp);
   }
+}
+
+void
+DQMStore::deleteUnusedLumiHistogramsAfterEndLumi(const edm::GlobalContext &gc)
+{
+  auto const& lumiblock = gc.luminosityBlockID();
+  deleteUnusedLumiHistograms(lumiblock.run(), lumiblock.luminosityBlock());
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2756,7 +2764,7 @@ DQMStore::save(const std::string &filename,
 	  std::cout << "DQMStore::save: isn't a direct child. Skipping" << std::endl;
         continue;
       }
-      
+
       // Keep backward compatibility with the old way of
       // booking/handlind MonitorElements into the DQMStore. If run is
       // 0 it means that a booking happened w/ the old non-threadsafe
