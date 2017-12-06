@@ -25,9 +25,7 @@ DQMDcsInfoClient::DQMDcsInfoClient( const edm::ParameterSet& ps ) {
 }
 
 
-DQMDcsInfoClient::~DQMDcsInfoClient() {
-
-}
+DQMDcsInfoClient::~DQMDcsInfoClient() = default;
 
 void 
 DQMDcsInfoClient::beginRun(const edm::Run& r, const edm::EventSetup& c) 

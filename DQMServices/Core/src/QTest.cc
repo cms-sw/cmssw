@@ -14,7 +14,7 @@ const float QCriterion::WARNING_PROB_THRESHOLD = 0.90;
 
 // initialize values
 void
-QCriterion::init(void)
+QCriterion::init()
 {
   errorProb_ = ERROR_PROB_THRESHOLD;
   warningProb_ = WARNING_PROB_THRESHOLD;
@@ -1413,7 +1413,7 @@ float CompareToMedian::runTest(const MonitorElement *me){
     // Fill vector
     for (int binY = 1; binY <= nBinsY; binY++){
       int bin = h->GetBin(binX, binY);
-      double content = (double)h->GetBinContent(bin);
+      auto content = (double)h->GetBinContent(bin);
       if ( content == 0 && !_emptyBins)
 	continue;
       binValues.push_back(content);
@@ -1437,7 +1437,7 @@ float CompareToMedian::runTest(const MonitorElement *me){
       }
       for(int  binY = 1; binY <= nBinsY; binY++){
         int bin = h->GetBin(binX, binY);
-        double content = (double)h->GetBinContent(bin);
+        auto content = (double)h->GetBinContent(bin);
 	entries = me->getTProfile2D()->GetBinEntries(bin);
 	if ( entries == 0 )
           continue;
@@ -1458,7 +1458,7 @@ float CompareToMedian::runTest(const MonitorElement *me){
     if(median > _maxMed || median < _minMed){
       for(int  binY = 1; binY <= nBinsY; binY++){
         int bin = h->GetBin(binX, binY);
-        double content = (double)h->GetBinContent(bin);
+        auto content = (double)h->GetBinContent(bin);
 	entries = me->getTProfile2D()->GetBinEntries(bin);
          if ( entries == 0 )
           continue;
@@ -1474,7 +1474,7 @@ float CompareToMedian::runTest(const MonitorElement *me){
     float maxCut = median*_max;
     for(int  binY = 1; binY <= nBinsY; binY++){
         int bin = h->GetBin(binX, binY);
-        double content = (double)h->GetBinContent(bin);
+        auto content = (double)h->GetBinContent(bin);
 	entries = me->getTProfile2D()->GetBinEntries(bin);
         if ( entries == 0 )
           continue;

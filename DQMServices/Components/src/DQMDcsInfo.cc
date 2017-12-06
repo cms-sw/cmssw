@@ -24,11 +24,10 @@ DQMDcsInfo::DQMDcsInfo(const edm::ParameterSet& ps)
   dcsStatusCollection_ = consumes<DcsStatusCollection>(parameters_.getUntrackedParameter<std::string>("dcsStatusCollection","scalersRawToDigi"));
 
   // initialize
-  for (int i=0;i<25;i++) dcs[i]=true;
+  for (bool & dc : dcs) dc=true;
 }
 
-DQMDcsInfo::~DQMDcsInfo(){
-}
+DQMDcsInfo::~DQMDcsInfo() = default;
 
 void DQMDcsInfo::bookHistograms(DQMStore::IBooker & ibooker,
                                 edm::Run const & /* iRun */,
@@ -51,7 +50,7 @@ void DQMDcsInfo::bookHistograms(DQMStore::IBooker & ibooker,
   DCSbyLS_->setLumiFlag();
 
   // initialize
-  for (int i=0;i<25;i++) dcs[i]=true;
+  for (bool & dc : dcs) dc=true;
 }
 
 void DQMDcsInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
@@ -101,33 +100,32 @@ DQMDcsInfo::makeDcsInfo(const edm::Event& e)
     return;
   }
 
-  for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin();
-                            dcsStatusItr != dcsStatus->end(); ++dcsStatusItr)
+  for (auto const & dcsStatusItr : *dcsStatus)
   {
-      if (!dcsStatusItr->ready(DcsStatus::CSCp))   dcs[0]=false;
-      if (!dcsStatusItr->ready(DcsStatus::CSCm))   dcs[1]=false;
-      if (!dcsStatusItr->ready(DcsStatus::DT0))    dcs[2]=false;
-      if (!dcsStatusItr->ready(DcsStatus::DTp))    dcs[3]=false;
-      if (!dcsStatusItr->ready(DcsStatus::DTm))    dcs[4]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EBp))    dcs[5]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EBm))    dcs[6]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EEp))    dcs[7]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EEm))    dcs[8]=false;
-      if (!dcsStatusItr->ready(DcsStatus::ESp))    dcs[9]=false;
-      if (!dcsStatusItr->ready(DcsStatus::ESm))    dcs[10]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HBHEa))  dcs[11]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HBHEb))  dcs[12]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HBHEc))  dcs[13]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HF))     dcs[14]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs[15]=false;
-      if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcs[16]=false;
-      if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcs[17]=false;
-      if (!dcsStatusItr->ready(DcsStatus::RPC))    dcs[18]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcs[19]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TOB))    dcs[20]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECp))   dcs[21]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECm))   dcs[22]=false;
-      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs[23]=false;
+      if (!dcsStatusItr.ready(DcsStatus::CSCp))   dcs[0]=false;
+      if (!dcsStatusItr.ready(DcsStatus::CSCm))   dcs[1]=false;
+      if (!dcsStatusItr.ready(DcsStatus::DT0))    dcs[2]=false;
+      if (!dcsStatusItr.ready(DcsStatus::DTp))    dcs[3]=false;
+      if (!dcsStatusItr.ready(DcsStatus::DTm))    dcs[4]=false;
+      if (!dcsStatusItr.ready(DcsStatus::EBp))    dcs[5]=false;
+      if (!dcsStatusItr.ready(DcsStatus::EBm))    dcs[6]=false;
+      if (!dcsStatusItr.ready(DcsStatus::EEp))    dcs[7]=false;
+      if (!dcsStatusItr.ready(DcsStatus::EEm))    dcs[8]=false;
+      if (!dcsStatusItr.ready(DcsStatus::ESp))    dcs[9]=false;
+      if (!dcsStatusItr.ready(DcsStatus::ESm))    dcs[10]=false;
+      if (!dcsStatusItr.ready(DcsStatus::HBHEa))  dcs[11]=false;
+      if (!dcsStatusItr.ready(DcsStatus::HBHEb))  dcs[12]=false;
+      if (!dcsStatusItr.ready(DcsStatus::HBHEc))  dcs[13]=false;
+      if (!dcsStatusItr.ready(DcsStatus::HF))     dcs[14]=false;
+      if (!dcsStatusItr.ready(DcsStatus::HO))     dcs[15]=false;
+      if (!dcsStatusItr.ready(DcsStatus::BPIX))   dcs[16]=false;
+      if (!dcsStatusItr.ready(DcsStatus::FPIX))   dcs[17]=false;
+      if (!dcsStatusItr.ready(DcsStatus::RPC))    dcs[18]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TIBTID)) dcs[19]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TOB))    dcs[20]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TECp))   dcs[21]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TECm))   dcs[22]=false;
+      if (!dcsStatusItr.ready(DcsStatus::CASTOR)) dcs[23]=false;
   }
 
   return ;

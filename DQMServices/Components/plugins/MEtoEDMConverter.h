@@ -68,7 +68,7 @@ public:
   template <class T>
       void putData(T& iPutTo, bool iLumiOnly, uint32_t run, uint32_t lumi);
 
-  typedef std::vector<uint32_t> TagList;
+  using TagList = std::vector<uint32_t>;
 
 private:
   std::string fName;

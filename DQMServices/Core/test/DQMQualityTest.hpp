@@ -221,7 +221,7 @@ class DQMQualityTest
       std::cout << " Channels that failed test " << qc->algoName() 
 		<< ":\n";
     
-    std::vector<dqm::me_util::Channel>::iterator it = badChannels.begin();
+    auto it = badChannels.begin();
     while(it != badChannels.end())
       {
 	std::cout << " Channel ("

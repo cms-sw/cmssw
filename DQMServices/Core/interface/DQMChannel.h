@@ -9,12 +9,12 @@ struct DQMChannel
   float content; //< bin content
   float RMS;     //< RMS of bin content
 
-  int getBin(void)        { return getBinX(); }
-  int getBinX(void)       { return binx; }
-  int getBinY(void)       { return biny; }
-  int getBinZ(void)       { return binz; }
-  float getContents(void) { return content; }
-  float getRMS(void)      { return RMS; }
+  int getBin()        { return getBinX(); }
+  int getBinX()       { return binx; }
+  int getBinY()       { return biny; }
+  int getBinZ()       { return binz; }
+  float getContents() { return content; }
+  float getRMS()      { return RMS; }
 
   DQMChannel(int bx, int by, int bz, float data, float rms)
     {
@@ -25,7 +25,7 @@ struct DQMChannel
       RMS = rms;
     }
 
-  DQMChannel(void)
+  DQMChannel()
     {
       binx = 0;
       biny = 0;
