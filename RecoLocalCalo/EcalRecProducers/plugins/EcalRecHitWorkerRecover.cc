@@ -186,7 +186,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                 
                                 for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
 				        if (alreadyInserted(*dit)) continue;
-				        float theta = ((CaloSubdetectorGeometry*)(ebGeom_))->getGeometry(*dit)->getPosition().theta();
+				        float theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
                                         float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
                                         if(checkChannelStatus(*dit, dbStatusToBeExcludedEB_)){
 						EcalRecHit hit( *dit, tpEt /((float)vid.size()) / sin(theta), 0.);
