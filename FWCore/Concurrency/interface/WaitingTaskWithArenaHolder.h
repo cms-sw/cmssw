@@ -10,87 +10,55 @@
  Description: This holds a WaitingTask and can be passed to something
  the WaitingTask is waiting for. That allows that something to call
  doneWaiting to let the WaitingTask know it can run. The use of the
- arena allows one to call doneWaiting from a thread external to arena
- where the task should run. The external thread might be a non-TBB
+ arena allows one to call doneWaiting from a thread external to the
+ arena where the task should run. The external thread might be a non-TBB
  thread.
-
- Usage:
-
 */
 //
 // Original Author:  W. David Dagenhart
 //         Created:  9 November 2017
 //
 
+#include <exception>
 #include <memory>
 
-#include "tbb/task_arena.h"
-
-#include "FWCore/Concurrency/interface/WaitingTask.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+namespace tbb {
+  class task_arena;
+}
 
 namespace edm {
+
+  class WaitingTask;
+  class WaitingTaskHolder;
 
   class WaitingTaskWithArenaHolder {
   public:
 
-    WaitingTaskWithArenaHolder() : m_task(nullptr) {}
+    WaitingTaskWithArenaHolder();
 
-    // Note that the arena is to be the one containing the thread
+    // Note that the arena will be the one containing the thread
     // that runs this constructor. This is the arena where you
     // eventually intend for the task to be spawned.
-    explicit WaitingTaskWithArenaHolder(edm::WaitingTask* iTask) :
-      m_task(iTask),
-      m_arena(std::make_shared<tbb::task_arena>(tbb::task_arena::attach())) {
+    explicit WaitingTaskWithArenaHolder(WaitingTask* iTask);
 
-      m_task->increment_ref_count();
-    }
+    ~WaitingTaskWithArenaHolder();
 
-    ~WaitingTaskWithArenaHolder() {
-      if(m_task) {
-        doneWaiting(std::exception_ptr{});
-      }
-    }
+    WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder const& iHolder);
 
-    WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder const& iHolder) :
-      m_task(iHolder.m_task),
-      m_arena(iHolder.m_arena) {
+    WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder&& iOther);
 
-      m_task->increment_ref_count();
-    }
+    WaitingTaskWithArenaHolder& operator=(const WaitingTaskWithArenaHolder& iRHS);
 
-    WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder&& iOther) :
-      m_task(iOther.m_task),
-      m_arena(std::move(iOther.m_arena)) {
-
-      iOther.m_task = nullptr;
-    }
-
-    WaitingTaskWithArenaHolder& operator=(const WaitingTaskWithArenaHolder& iRHS) {
-      WaitingTaskWithArenaHolder tmp(iRHS);
-      std::swap(m_task, tmp.m_task);
-      std::swap(m_arena, tmp.m_arena);
-      return *this;
-    }
+    WaitingTaskWithArenaHolder& operator=(WaitingTaskWithArenaHolder&& iRHS);
 
     // This spawns the task. The arena is needed to get the task spawned
     // into the correct arena of threads. Use of the arena allows doneWaiting
     // to be called from a thread outside the arena of threads that will manage
     // the task. doneWaiting can be called from a non-TBB thread.
-    void doneWaiting(std::exception_ptr iExcept) {
-      if(iExcept) {
-        m_task->dependentTaskFailed(iExcept);
-      }
-      if(0 == m_task->decrement_ref_count()) {
-        // The enqueue call will cause a worker thread to be created in
-        // the arena if there is not one already.
-        m_arena->enqueue( [m_task = m_task](){ tbb::task::spawn(*m_task); });
-      }
-      m_task = nullptr;
-    }
+    void doneWaiting(std::exception_ptr iExcept);
 
     // This next function is useful if you know from the context that
-    // m_arena (which is set when the  constructor was executes) is the
+    // m_arena (which is set when the constructor was executes) is the
     // same arena in which you want to execute the doneWaiting function.
     // It allows an optimization which avoids the enqueue step in the
     // doneWaiting function.
@@ -100,13 +68,7 @@ namespace edm {
     // arena with its own extra TBB worker threads if this function is used
     // in an inappropriate context (and silently such that you might not notice
     // the problem quickly).
-
-    WaitingTaskHolder makeWaitingTaskHolderAndRelease() {
-      WaitingTaskHolder holder(m_task);
-      m_task->decrement_ref_count();
-      m_task = nullptr;
-      return holder;
-    }
+    WaitingTaskHolder makeWaitingTaskHolderAndRelease();
 
   private:
 
