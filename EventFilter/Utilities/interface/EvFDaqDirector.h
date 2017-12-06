@@ -123,6 +123,7 @@ namespace evf{
       void checkMergeTypePSet(edm::ProcessContext const& pc);
       std::string getStreamDestinations(std::string const& stream) const;
       std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
+      struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
 
     private:
       //bool bulock();
