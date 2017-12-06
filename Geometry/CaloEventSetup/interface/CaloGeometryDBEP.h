@@ -89,7 +89,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    edm::ESHandle<CaloSubdetectorGeometry> pG ;
 	    iRecord.get( T::producerTag() + std::string("_master"), pG ) ; 
 
-	    const CaloSubdetectorGeometry* pGptr = ( pG.product() ) ;
+	    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
 
 	    pGptr->getSummary( tvec, ivec, dvec, dins ) ;
 
