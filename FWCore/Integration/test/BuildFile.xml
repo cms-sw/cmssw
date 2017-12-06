@@ -199,6 +199,7 @@
   <library   file="WaitingService.cc" name="FWCoreIntegrationWaitingService">
     <flags   EDM_PLUGIN="1"/>
     <lib   name="FWCoreIntegrationWaitingServer"/>
+    <use   name="FWCore/Concurrency"/>
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/ServiceRegistry"/>
   </library>
