@@ -23,7 +23,7 @@
 
 #include "DQMServices/Core/interface/DQMDefinitions.h"
 
-namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
+namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry; class GlobalContext; }
 namespace lat { class Regexp; }
 namespace dqmstorepb {class ROOTFilePB; class ROOTFilePB_Histo;}
 
@@ -641,6 +641,8 @@ class DQMStore
 					      uint32_t moduleId);
 
   void deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi);
+  void deleteUnusedLumiHistogramsAfterEndLumi(const edm::GlobalContext&);
+
  private:
 
   // ---------------- Miscellaneous -----------------------------
