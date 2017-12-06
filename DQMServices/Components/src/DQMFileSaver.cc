@@ -391,8 +391,7 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
              lumi,
              (DQMStore::SaveReferenceTag) saveReference_,
              saveReferenceQMin_,
-             fileUpdate_ ? "UPDATE" : "RECREATE",
-             true);
+             fileUpdate_ ? "UPDATE" : "RECREATE");
     }
     else if (fileFormat == PB)
     {
@@ -400,8 +399,7 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
       dbe_->savePB(openHistoFilePathName,
         filterName_,
         enableMultiThread_ ? run : 0,
-        lumi,
-        true);
+        lumi);
     }
     else
       throw cms::Exception("DQMFileSaver")

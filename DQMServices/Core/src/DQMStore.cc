@@ -541,6 +541,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     forceResetOnBeginLumi_ = true;
     ar.watchPostSourceLumi(this,&DQMStore::forceReset);
   }
+  ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
   ar.watchPostGlobalEndLumi(this,&DQMStore::deleteUnusedLumiHistogramsAfterEndLumi);
 }
 
@@ -2145,6 +2146,38 @@ DQMStore::forceReset()
   reset_ = true;
 }
 
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/** Called after all globalBeginLuminosityBlock.
+ * Reset global per-lumi MEs (or all MEs if LSbasedMode) so that
+ * they can be reused.
+ */
+void
+DQMStore::postGlobalBeginLumi(const edm::GlobalContext &gc)
+{
+  static const std::string null_str("");
+
+  auto const& lumiblock = gc.luminosityBlockID();
+  uint32_t run = lumiblock.run();
+
+  // find the range of non-legacy global MEs for the current run:
+  // run != 0, lumi == 0 (implicit), stream id == 0, module id == 0
+  const MonitorElement begin(&null_str, null_str, run, 0, 0);
+  const MonitorElement end(&null_str, null_str, run, 0, 1);
+  auto i = data_.lower_bound(begin);
+  const auto e = data_.lower_bound(end);
+  while (i != e) {
+    auto& me = const_cast<MonitorElement&>(*i++);
+    // skip per-run MEs
+    if (not LSbasedMode_ and not me.getLumiFlag())
+      continue;
+    me.Reset();
+    me.resetUpdate();
+  }
+}
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -2549,8 +2582,7 @@ DQMStore::cdInto(const std::string &path) const
 void DQMStore::savePB(const std::string &filename,
                       const std::string &path /* = "" */,
 		      const uint32_t run /* = 0 */,
-		      const uint32_t lumi /* = 0 */,
-		      const bool resetMEsAfterWriting /* = false */)
+		      const uint32_t lumi /* = 0 */)
 {
   using google::protobuf::io::FileOutputStream;
   using google::protobuf::io::GzipOutputStream;
@@ -2638,10 +2670,6 @@ void DQMStore::savePB(const std::string &filename,
       if (deleteObject) {
         delete toWrite;
       }
-
-      //reset the ME just written to make it available for the next LS (online)
-      if (resetMEsAfterWriting)
-	const_cast<MonitorElement*>(&*mi)->Reset();
     }
   }
 
@@ -2684,8 +2712,7 @@ DQMStore::save(const std::string &filename,
                const uint32_t lumi /* = 0 */,
                SaveReferenceTag ref /* = SaveWithReference */,
                int minStatus /* = dqm::qstatus::STATUS_OK */,
-               const std::string &fileupdate /* = RECREATE */,
-	       const bool resetMEsAfterWriting /* = false */)
+               const std::string &fileupdate /* = RECREATE */)
 {
   std::lock_guard<std::mutex> guard(book_mutex_);
 
@@ -2859,10 +2886,6 @@ DQMStore::save(const std::string &filename,
       // Save tag if any
       if (mi->data_.flags & DQMNet::DQM_PROP_TAGGED)
         TObjString(mi->tagLabelString().c_str()).Write();
-
-      //reset the ME just written to make it available for the next LS (online)
-      if (resetMEsAfterWriting)
-	const_cast<MonitorElement*>(&*mi)->Reset();
     }
   }
 

@@ -88,9 +88,7 @@ void DQMFileSaverOnline::makeSnapshot(const FileParameters& fp,
               0,                                /* lumi          */
               fp.saveReference_,                /* ref           */
               fp.saveReferenceQMin_,            /* ref minStatus */
-              "RECREATE",                       /* fileupdate    */
-              false                             /* resetMEs      */
-              );
+              "RECREATE");                      /* fileupdate    */
 
   // write metadata
   // format.origin: md5:d566a34b27f48d507150a332b189398b 294835
