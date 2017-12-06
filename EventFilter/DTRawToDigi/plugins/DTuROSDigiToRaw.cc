@@ -104,7 +104,7 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
       if ( ! mapping->geometryToReadOut(wheelId, stationId, sectorId, slId, layerId, cellId,
 					dduId, rosId, robId, tdcId, tdcChannel)) {
 
-	int crate = theCRT(dduId);
+	int crate = theCRT(dduId, rosId);
 
 	if (crate != DTuROSFED) continue;
 
@@ -315,8 +315,10 @@ void DTuROSDigiToRaw::clear() {
 }
 
 
-int DTuROSDigiToRaw::theCRT(int ddu) {
+int DTuROSDigiToRaw::theCRT(int ddu, int ros) {
 
+  if (ros > 6) ddu = ddu - 5;
+  
   if (ddu == 770) return 1368;
   else if (ddu == 771) return 1368;
   else if (ddu == 772) return 1369;
@@ -325,6 +327,8 @@ int DTuROSDigiToRaw::theCRT(int ddu) {
 
 
 int DTuROSDigiToRaw::theSLT(int ddu, int ros, int rob) {
+
+  if (ros > 6) ddu = ddu - 5;
 
   int slot = ((ros-1)/3)+1;
   if (rob == 23) slot = 5;

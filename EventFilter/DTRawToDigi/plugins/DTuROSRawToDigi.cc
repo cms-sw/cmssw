@@ -408,17 +408,28 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 
 int DTuROSRawToDigi::theDDU(int crate, int slot, int link) {
 
+  int ros = theROS(crate,slot,link); 
+  
+  int ddu = 772;
+
   if (crate == 1368) {
-    if (slot < 7) return 770;
-    return 771;
+    if (slot < 7) 
+      ddu = 770;
+    else 
+      ddu = 771;
   }
 
   if (crate == 1370) {
-    if (slot > 6) return 773;
-    return 774;
+    if (slot > 6) 
+      ddu = 773;
+    else 
+      ddu = 774;
   }
 
-  return 772;
+  if (ros > 6)
+    ddu += 5;
+
+  return ddu;
 }
 
 
