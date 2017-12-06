@@ -79,6 +79,12 @@ namespace edm
     void watchPostSourceLumi(void*, T) {}
 
     template <typename T>
+    void watchPostGlobalBeginRun(void*, T) {}
+
+    template <typename T>
+    void watchPostGlobalBeginLumi(void*, T) {}
+
+    template <typename T>
     void watchPostGlobalEndRun(void*, T) {}
 
     template <typename T>

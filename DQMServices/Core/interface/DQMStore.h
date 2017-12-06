@@ -544,8 +544,7 @@ class DQMStore
   void                          savePB(const std::string &filename,
                                        const std::string &path = "",
 				       const uint32_t run = 0,
-				       const uint32_t lumi = 0,
-				       const bool resetMEsAfterWriting = false);
+				       const uint32_t lumi = 0);
   void                          save(const std::string &filename,
                                      const std::string &path = "",
                                      const std::string &pattern = "",
@@ -554,8 +553,7 @@ class DQMStore
                                      const uint32_t lumi = 0,
                                      SaveReferenceTag ref = SaveWithReference,
                                      int minStatus = dqm::qstatus::STATUS_OK,
-                                     const std::string &fileupdate = "RECREATE",
-				     const bool resetMEsAfterWriting = false);
+                                     const std::string &fileupdate = "RECREATE");
   bool                          open(const std::string &filename,
                                      bool overwrite = false,
                                      const std::string &path ="",
@@ -649,6 +647,7 @@ class DQMStore
   void        initializeFrom(const edm::ParameterSet&);
   void        reset();
   void        forceReset();
+  void        postGlobalBeginLumi(const edm::GlobalContext&);
 
   bool        extract(TObject *obj, const std::string &dir, bool overwrite, bool collateHistograms);
   TObject *   extractNextObject(TBufferFile&) const;
