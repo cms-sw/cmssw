@@ -44,7 +44,7 @@ public:
   ~FlatTrd() override ;
   
   const GlobalPoint& getPosition() const override { return m_global; }
-  const GlobalPoint getPosition( const Pt3D& local ) const override;
+  GlobalPoint getPosition( const Pt3D& local ) const override;
   virtual float etaPos() const { return m_global.eta(); }
   virtual float phiPos() const { return m_global.phi(); }
   Pt3D getLocal( const GlobalPoint& global ) const;
@@ -81,7 +81,7 @@ private:
   
   GlobalVector makeAxis( void );
   
-  const GlobalPoint backCtr( void ) const;    
+  GlobalPoint backCtr( void ) const;    
   GlobalVector m_axis;
   Pt3D         m_corOne, m_local;
   GlobalPoint  m_global;

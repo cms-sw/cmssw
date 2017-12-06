@@ -45,8 +45,7 @@ FlatTrd& FlatTrd::operator=( const FlatTrd& tr ) {
   return *this ; 
 }
 
-FlatTrd::FlatTrd( 
-CornersMgr*  cMgr ,
+FlatTrd::FlatTrd( CornersMgr*  cMgr ,
 		  const GlobalPoint& fCtr ,
 		  const GlobalPoint& bCtr ,
 		  const GlobalPoint& cor1 ,
@@ -95,7 +94,7 @@ FlatTrd::FlatTrd( const FlatTrd& tr, const Pt3D & local ) :
 
 FlatTrd::~FlatTrd() {}
 
-const GlobalPoint FlatTrd::getPosition(const Pt3D& local ) const {
+GlobalPoint FlatTrd::getPosition(const Pt3D& local ) const {
   Pt3D glb = m_tr*local;
 #ifdef DebugLog
   std::cout << "FlatTrd::Local " << local.x() << ":" << local.y() << ":" 
@@ -255,7 +254,7 @@ GlobalVector FlatTrd::makeAxis() {
   return GlobalVector( backCtr() - getPosition() ).unit() ;
 }
 
-const GlobalPoint FlatTrd::backCtr() const {
+GlobalPoint FlatTrd::backCtr() const {
   float dz = (getCorners()[4].z() > getCorners()[0].z()) ? 
     param()[0] : -param()[0];
   Pt3D local_b(m_local.x(),m_local.y(),m_local.z()+dz);

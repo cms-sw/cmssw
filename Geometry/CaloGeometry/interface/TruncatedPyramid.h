@@ -41,7 +41,7 @@ public:
   
   ~TruncatedPyramid() override ;
   
-  const GlobalPoint getPosition( CCGFloat depth ) const override ;
+  GlobalPoint getPosition( CCGFloat depth ) const override ;
   
   // Return thetaAxis polar angle of axis of the crystal
   CCGFloat getThetaAxis() const ;

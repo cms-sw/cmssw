@@ -82,8 +82,8 @@ public:
   
   /// Returns the position of reference for this cell 
   virtual const GlobalPoint& getPosition()            const {return m_refPoint;}
-  virtual const GlobalPoint getPosition( CCGFloat)    const {return m_refPoint;}
-  virtual const GlobalPoint getPosition( const Pt3D&) const {return m_refPoint;}
+  virtual       GlobalPoint getPosition( CCGFloat)    const {return m_refPoint;}
+  virtual       GlobalPoint getPosition( const Pt3D&) const {return m_refPoint;}
 
   const GlobalPoint& getBackPoint() const {return m_backPoint;} 
 
