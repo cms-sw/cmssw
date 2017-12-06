@@ -155,7 +155,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	  EcalUncalibratedRecHitCollection::const_iterator it;
 	  
 	  for (it = uncalibRecHits->begin(); it != uncalibRecHits->end(); it++){
-	    auto this_cell = ((CaloSubdetectorGeometry*)(geometry_p))->getGeometry(it->id());
+	    auto this_cell = geometry_p->getGeometry(it->id());
 	    
 	    std::vector<EcalEtaPhiRegion>::const_iterator region;
 	    for (region=regions.begin(); region!=regions.end(); region++) {
@@ -199,7 +199,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	if(!regions.empty()) {
 	  EcalRecHitCollection::const_iterator it;	
 	  for (it = recHits->begin(); it != recHits->end(); it++){
-	    auto this_cell = ((CaloSubdetectorGeometry*)(geometry_p))->getGeometry(it->id());
+	    auto this_cell = geometry_p->getGeometry(it->id());
 	    
 	    std::vector<EcalEtaPhiRegion>::const_iterator region;
 	    for (region=regions.begin(); region!=regions.end(); region++) {

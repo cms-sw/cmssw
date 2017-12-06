@@ -93,7 +93,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
   geo_  = (pGeo.product());
-  hgeo_ = static_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
+  hgeo_ = dynamic_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
 
   //}
   bool trkmuunvetoisdefault = false; //Pb with low pt tracker muons that veto good csc segments/halo triggers. 

@@ -52,8 +52,7 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
       // get the ecal geometry
-      CaloSubdetectorGeometry *hcalGeo = ((CaloSubdetectorGeometry*)
-					  (geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalForward)));
+      const CaloSubdetectorGeometry *hcalGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalForward);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      

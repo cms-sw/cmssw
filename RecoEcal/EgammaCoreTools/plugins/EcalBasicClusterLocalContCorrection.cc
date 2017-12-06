@@ -48,7 +48,7 @@ float EcalBasicClusterLocalContCorrection::getValue( const reco::BasicCluster & 
   //--------------if barrel calculate local position wrt xtal center -------------------
   edm::ESHandle<CaloGeometry> caloGeometry;
   es_->get<CaloGeometryRecord>().get(caloGeometry); 
-  CaloSubdetectorGeometry* geom = (CaloSubdetectorGeometry*)(caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));//EcalBarrel = 1
+  const CaloSubdetectorGeometry* geom = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
   
 
   const math::XYZPoint& position_ = basicCluster.position(); 

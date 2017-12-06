@@ -220,7 +220,7 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
     auto filteredRecHits = std::make_unique<RecHitCollectionType>();
       
     if(!recHits->empty()){
-      CaloSubdetectorGeometry* subDetGeom=((CaloSubdetectorGeometry*)(caloGeomHandle->getSubdetectorGeometry(recHits->front().id())));
+      const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(recHits->front().id());
       if(!regions.empty()){
       
 	for(const RecHitType& recHit : *recHits){

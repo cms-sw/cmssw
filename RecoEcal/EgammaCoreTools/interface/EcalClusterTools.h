@@ -644,7 +644,7 @@ std::vector<typename EcalClusterToolsT<noZS>::EcalClusterEnergyDeposition> EcalC
                 else LogDebug("ClusterShapeAlgo") << "===> got crystal. Energy = " << clEdep.deposited_energy << " GeV. ";
             }
             DetId id_ = (*posCurrent).first;
-	    CaloSubdetectorGeometry* geo = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(id_));
+	    const CaloSubdetectorGeometry* geo = geometry->getSubdetectorGeometry(id_);
             auto this_cell = geo->getGeometry(id_);
             const GlobalPoint& cellPos = this_cell->getPosition();
             CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?
@@ -738,7 +738,7 @@ math::XYZVector EcalClusterToolsT<noZS>::meanClusterPosition( const reco::BasicC
     for( const std::pair<DetId,float>& hitAndFrac : hsAndFs ) {
       for( std::vector<DetId>::const_iterator it = v_id.begin(); it != v_id.end(); ++it ) {
 	if( hitAndFrac.first != *it && !noZS) continue;
-	CaloSubdetectorGeometry* geo = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(*it));
+	const CaloSubdetectorGeometry* geo = geometry->getSubdetectorGeometry(*it);
 	GlobalPoint positionGP = geo->getGeometry( *it )->getPosition();
 	math::XYZVector position(positionGP.x(),positionGP.y(),positionGP.z());
 	meanPosition = meanPosition + recHitEnergy( *it, recHits ) * position * hitAndFrac.second;
@@ -842,7 +842,7 @@ std::vector<float> EcalClusterToolsT<noZS>::covariances(const reco::BasicCluster
 
                 if ( energy <= 0 ) continue;
 
-		CaloSubdetectorGeometry* geo = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(*cursor));
+		const CaloSubdetectorGeometry* geo = geometry->getSubdetectorGeometry(*cursor);
                 GlobalPoint position = geo->getGeometry(*cursor)->getPosition();
 
                 double dPhi = position.phi() - meanPosition.phi();

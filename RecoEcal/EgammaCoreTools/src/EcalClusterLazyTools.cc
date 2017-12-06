@@ -313,10 +313,9 @@ std::vector<float> EcalClusterLazyToolsBase::getESHits(double X, double Y, doubl
 
   const GlobalPoint point(X,Y,Z);
 
-  CaloSubdetectorGeometry *geometry_p ;
-  geometry_p = (CaloSubdetectorGeometry *)(geometry->getSubdetectorGeometry (DetId::Ecal,EcalPreshower));
+  const CaloSubdetectorGeometry *geometry_p = geometry->getSubdetectorGeometry (DetId::Ecal,EcalPreshower);
 
-  DetId esId = ((EcalPreshowerGeometry*)(geometry_p))->getClosestCellInPlane(point, plane);
+  DetId esId = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, plane);
   ESDetId esDetId = (esId == DetId(0)) ? ESDetId(0) : ESDetId(esId);
 
   std::map<DetId, EcalRecHit>::iterator it;

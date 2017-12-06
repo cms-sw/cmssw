@@ -173,7 +173,7 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
                                     bool barrel) const {
 
   GlobalPoint caloPosition(sc->position().x(), sc->position().y() , sc->position().z());
-  CaloSubdetectorGeometry::DetIdSet chosen = ((CaloSubdetectorGeometry*)(subdet))->getCells(caloPosition,extRadius_);
+  CaloSubdetectorGeometry::DetIdSet chosen = subdet->getCells(caloPosition,extRadius_);
   EcalRecHitCollection::const_iterator j=hits.end();
   double caloeta=caloPosition.eta();
   double calophi=caloPosition.phi();
@@ -185,7 +185,7 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
   for (CaloSubdetectorGeometry::DetIdSet::const_iterator i = chosen.begin(), end = chosen.end() ; i != end;  ++i)  {
     j = hits.find(*i);
     if (j != hits.end()) {
-      const  GlobalPoint & position = ((CaloGeometry*)(caloGeom))->getPosition(*i);
+      const  GlobalPoint & position = caloGeom->getPosition(*i);
       double eta = position.eta();
       double phi = position.phi();
       double energy = j->energy();

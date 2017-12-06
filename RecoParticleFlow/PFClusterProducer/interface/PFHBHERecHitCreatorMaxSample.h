@@ -56,10 +56,8 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
       iSetup.get<HcalDbRecord > ().get(conditions);
   
       // get the ecal geometry
-      CaloSubdetectorGeometry *hcalBarrelGeo = ((CaloSubdetectorGeometry*)
-						(geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel)));
-      CaloSubdetectorGeometry *hcalEndcapGeo = ((CaloSubdetectorGeometry*)
-						(geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap)));
+     const  CaloSubdetectorGeometry *hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+      const CaloSubdetectorGeometry *hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      

@@ -42,8 +42,7 @@ class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
       // get the ecal geometry
-      CaloSubdetectorGeometry *psGeometry = ((CaloSubdetectorGeometry*)
-					     (geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower)));
+      const CaloSubdetectorGeometry *psGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
@@ -67,7 +66,7 @@ class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
  
 
 	
-	std::shared_ptr<const CaloCellGeometry> thisCell= psGeometry->getGeometry(detid);
+	auto thisCell= psGeometry->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {

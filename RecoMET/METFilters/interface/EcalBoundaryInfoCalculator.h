@@ -337,7 +337,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     boundaryEnergy += hit->energy();
     EcalDetId hitdetid = (EcalDetId) hit->id();
     boundaryDetIds.push_back(hitdetid);
-    CaloSubdetectorGeometry* subGeom = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(hitdetid));
+    const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry(hitdetid);
     auto cellGeom = subGeom->getGeometry(hitdetid);
     double eta = cellGeom->getPosition().eta();
     boundaryET += hit->energy() / cosh(eta);
@@ -527,7 +527,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     gapEnergy += hit->energy();
     EcalDetId hitdetid = (EcalDetId) hit->id();
     gapDetIds.push_back(hitdetid);
-    CaloSubdetectorGeometry* subGeom = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(hitdetid));
+    const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry(hitdetid);
     auto cellGeom = subGeom->getGeometry(hitdetid);
     double eta = cellGeom->getPosition().eta();
     gapET += hit->energy() / cosh(eta);

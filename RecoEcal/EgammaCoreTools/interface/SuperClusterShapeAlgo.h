@@ -39,7 +39,7 @@ class SuperClusterShapeAlgo
  private:
 
   const EcalRecHitCollection* recHits_;
-  CaloSubdetectorGeometry* geometry_;
+  const CaloSubdetectorGeometry* geometry_;
 
   double etaWidth_, phiWidth_;
   

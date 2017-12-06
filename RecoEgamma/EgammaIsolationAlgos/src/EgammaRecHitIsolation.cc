@@ -58,8 +58,8 @@ EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
 {
     //set up the geometry and selector
     const CaloGeometry* caloGeom = theCaloGeom_.product();
-    subdet_[0] = (CaloSubdetectorGeometry*)(caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-    subdet_[1] = (CaloSubdetectorGeometry*)(caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+    subdet_[0] = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+    subdet_[1] = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 
 }
 

@@ -47,7 +47,7 @@ void reco::writeSpecific(reco::CaloJet & jet,
   // Get geometry
   edm::ESHandle<CaloGeometry> geometry;
   c.get<CaloGeometryRecord>().get(geometry);
-  CaloSubdetectorGeometry* towerGeometry = (CaloSubdetectorGeometry*)
+  const CaloSubdetectorGeometry* towerGeometry = 
     (geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId));
 
   edm::ESHandle<HcalTopology> topology;
@@ -133,7 +133,7 @@ void reco::writeSpecific(reco::PFClusterJet & jet,
 
 //______________________________________________________________________________
 bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
-			CaloSubdetectorGeometry* towerGeometry,
+			const CaloSubdetectorGeometry* towerGeometry,
 			CaloJet::Specific* caloJetSpecific,
 			const HcalTopology &topology)
 {

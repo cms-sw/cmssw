@@ -1020,7 +1020,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       // FIXME  : move to simple cartesian algebra
     case 0 :
       {  // Simple 4-momentum assignment
-	GlobalPoint p=((CaloSubdetectorGeometry*)(theTowerGeometry))->getGeometry(id)->getPosition();
+	GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
 	towerP4 = p.basicVector().unit();
 	towerP4[3] = 1.f;  // energy
 	towerP4 *=E;
@@ -1069,7 +1069,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 	  }
 	}
 	else {  // forward detector: use the CaloTower position 
-	  GlobalPoint p=((CaloSubdetectorGeometry*)(theTowerGeometry))->getGeometry(id)->getPosition();
+	  GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
 	  towerP4 = p.basicVector().unit();
 	  towerP4[3] = 1.f;  // energy
 	  towerP4 *=E;
@@ -1085,7 +1085,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       {   // use ECAL position for the tower (when E_cal>0), else default CaloTower position (massless tower)
 	if (id.ietaAbs()<theTowerTopology->firstHFRing()) {
 	  if (E_em>0)  emPoint = emShwrLogWeightPos(metaContains, momEmDepth, E_em);
-	  else emPoint = ((CaloSubdetectorGeometry*)(theTowerGeometry))->getGeometry(id)->getPosition();
+	  else emPoint = theTowerGeometry->getGeometry(id)->getPosition();
 	  towerP4 = emPoint.basicVector().unit();
 	  towerP4[3] = 1.f;  // energy
 	  towerP4 *=E;
@@ -1096,7 +1096,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 	  hadPoint = emPoint;
 	}
 	else {  // forward detector: use the CaloTower position 
-	  GlobalPoint p=((CaloSubdetectorGeometry*)(theTowerGeometry))->getGeometry(id)->getPosition();
+	  GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
 	  towerP4 = p.basicVector().unit();
 	  towerP4[3] = 1.f;  // energy
 	  towerP4 *=E;

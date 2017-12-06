@@ -7,7 +7,7 @@ TBPositionCalc::TBPositionCalc(const std::map<std::string,double>& providedParam
   // barrel geometry initialization
   if(passedGeometry == nullptr)
     throw(std::runtime_error("\n\n TBPositionCalc: wrong initialization.\n\n"));
-  theGeometry_ = (CaloSubdetectorGeometry*)(passedGeometry);
+  theGeometry_ = passedGeometry;
   
   // parameters initialization
   param_LogWeighted_ = providedParameters.find("LogWeighted")->second;

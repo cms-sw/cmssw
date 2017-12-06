@@ -63,7 +63,7 @@ float EcalClusterLocalContCorrection::getValue( const reco::SuperCluster & super
   edm::ESHandle<CaloGeometry> pG;
   es_->get<CaloGeometryRecord>().get(pG); 
   
-  CaloSubdetectorGeometry* geom=(CaloSubdetectorGeometry*)(pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));//EcalBarrel = 1
+  const CaloSubdetectorGeometry* geom=pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
   
   const math::XYZPoint position_ = seedbclus->position(); 
   double Theta = -position_.theta()+0.5*TMath::Pi();

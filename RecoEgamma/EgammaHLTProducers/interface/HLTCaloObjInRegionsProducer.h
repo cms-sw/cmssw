@@ -222,7 +222,7 @@ makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
   
   auto outputColl = std::make_unique<CaloObjCollType>();
   if(!inputColl->empty()){
-    CaloSubdetectorGeometry* subDetGeom=((CaloSubdetectorGeometry*)(caloGeomHandle->getSubdetectorGeometry(inputColl->begin()->id())));
+    const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(inputColl->begin()->id());
     if(!regions.empty()){
       for(const CaloObjType& obj : *inputColl){
 	auto objGeom = subDetGeom->getGeometry(obj.id());

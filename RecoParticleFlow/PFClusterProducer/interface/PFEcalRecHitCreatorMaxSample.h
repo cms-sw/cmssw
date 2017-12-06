@@ -46,7 +46,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       const CaloSubdetectorGeometry *gTmp = 
 	geoHandle->getSubdetectorGeometry(DetId::Ecal, Detector);
 
-      Geometry *ecalGeo = (Geometry*)(gTmp);
+      const Geometry *ecalGeo = dynamic_cast<const Geometry*>(gTmp);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for(const auto& erh : *recHitHandle ) {      

@@ -48,7 +48,7 @@ class TBPositionCalc
 
   EcalTBCrystalMap * theTestMap;
 
-  CaloSubdetectorGeometry *theGeometry_;
+  const CaloSubdetectorGeometry *theGeometry_;
 };
   
 #endif

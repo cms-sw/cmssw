@@ -23,11 +23,11 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
 }
 
 const GlobalPoint& RecHitTools::getPosition(const DetId& id) const {
-  return ((FastTimeGeometry*)(geom_))->getGeometry(id)->getPosition();
+  return geom_->getGeometry(id)->getPosition();
 }
 
 const FlatTrd::CornersVec& RecHitTools::getCorners(const DetId& id) const {
-  return ((FastTimeGeometry*)(geom_))->getGeometry(id)->getCorners();
+  return geom_->getGeometry(id)->getCorners();
 }
 
 RecHitTools::HitType RecHitTools::getHitType(const DetId& id) const {

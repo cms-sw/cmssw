@@ -315,7 +315,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
          }
 
          // RecHit is at EE boundary and should be processed
-         CaloSubdetectorGeometry* subGeom = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(currDetId));
+         const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry(currDetId);
          auto cellGeom = subGeom->getGeometry(currDetId);
          double eta = cellGeom->getPosition().eta();
 

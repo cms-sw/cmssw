@@ -13,7 +13,7 @@
 
 SuperClusterShapeAlgo::SuperClusterShapeAlgo(const EcalRecHitCollection* hits,
 					     const CaloSubdetectorGeometry* geo) : 
-  recHits_(hits) { geometry_ = (CaloSubdetectorGeometry*)(geo); }
+  recHits_(hits), geometry_(geo) { }
 
 void SuperClusterShapeAlgo::Calculate_Covariances(const reco::SuperCluster &passedCluster)
 {
