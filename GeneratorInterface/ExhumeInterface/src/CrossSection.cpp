@@ -725,14 +725,14 @@ void Exhume::CrossSection::LumiInit(){
   _CfAs_2PIRg = (double*) calloc(LumNSimps, sizeof(double));
   _NcAs_2PI = (double*) calloc(LumNSimps, sizeof(double));
 
-  if(LumSimpsFunc==NULL||
-     _Qt==NULL||
-     _Qt2==NULL||
-     _KtLow==NULL||
-     _KtHigh==NULL||
-     _AlphaS==NULL||
-     _CfAs_2PIRg==NULL||
-     _NcAs_2PI==NULL){
+  if(LumSimpsFunc==nullptr||
+     _Qt==nullptr||
+     _Qt2==nullptr||
+     _KtLow==nullptr||
+     _KtHigh==nullptr||
+     _AlphaS==nullptr||
+     _CfAs_2PIRg==nullptr||
+     _NcAs_2PI==nullptr){
     NoMem(); 
   }
 
@@ -758,7 +758,7 @@ void Exhume::CrossSection::LumiInit(){
   Tn_1 = Tn - 1;
   TFunc = (double*) calloc(Tn, sizeof(double));
 
-  if(TFunc == NULL){
+  if(TFunc == nullptr){
     NoMem();
   }
 
