@@ -83,12 +83,11 @@ class CSCAnodeLCTProcessor
   void setRing(unsigned r) {theRing = r;}
 
   /** Pre-defined patterns. */
-  enum {NUM_PATTERN_WIRES = 14};
-  static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int time_weights[NUM_PATTERN_WIRES];
+  static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES];
+  static const int pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES];
+  static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES];
+  static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES];
+  static const int time_weights[CSCConstants::NUM_PATTERN_WIRES];
 
  private:
   /** Verbosity level: 0: no print (default).
@@ -178,7 +177,7 @@ class CSCAnodeLCTProcessor
   static const unsigned int def_l1a_window_width;
 
   /** Chosen pattern mask. */
-  int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
+  int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES];
 
   /** Load pattern mask defined by configuration into pattern_mask */
   void loadPatternMask();

@@ -40,7 +40,7 @@
    patterns A and B.
    pattern_envelope[0][i]=layer;
    pattern_envelope[1+MEposition][i]=key_wire offset. */
-const int CSCAnodeLCTProcessor::pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
+const int CSCAnodeLCTProcessor::pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES] = {
   //Layer
   { 0,  0,  0,
         1,  1,
@@ -67,7 +67,7 @@ const int CSCAnodeLCTProcessor::pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS
 };
 
 // time averaging weights for pattern (used for SLHC version)
-const int CSCAnodeLCTProcessor::time_weights[NUM_PATTERN_WIRES] =
+const int CSCAnodeLCTProcessor::time_weights[CSCConstants::NUM_PATTERN_WIRES] =
   //Layer
   { 0,  1,  1,
         1,  2,
@@ -81,7 +81,7 @@ const int CSCAnodeLCTProcessor::time_weights[NUM_PATTERN_WIRES] =
 // and collision patterns A and B.  These masks were meant to be the default
 // ones in early 200X, but were never implemented because of limited FPGA
 // resources.
-const int CSCAnodeLCTProcessor::pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
+const int CSCAnodeLCTProcessor::pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES] = {
   // Accelerator pattern
   {0,  0,  1,
        0,  1,
@@ -109,7 +109,7 @@ const int CSCAnodeLCTProcessor::pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERN
 
 // Since the test beams in 2003, both collision patterns are "completely
 // open".  This is our current default.
-const int CSCAnodeLCTProcessor::pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
+const int CSCAnodeLCTProcessor::pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES] = {
   // Accelerator pattern
   {0,  0,  1,
        0,  1,
@@ -136,7 +136,7 @@ const int CSCAnodeLCTProcessor::pattern_mask_open[CSCConstants::NUM_ALCT_PATTERN
 };
 
 // Special option for narrow pattern for ring 1 stations
-const int CSCAnodeLCTProcessor::pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
+const int CSCAnodeLCTProcessor::pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES] = {
   // Accelerator pattern
   {0,  0,  1,
        0,  1,
@@ -319,7 +319,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
 void CSCAnodeLCTProcessor::loadPatternMask() {
   // Load appropriate pattern mask.
   for (int i_patt = 0; i_patt < CSCConstants::NUM_ALCT_PATTERNS; i_patt++) {
-    for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++) {
+    for (int i_wire = 0; i_wire < CSCConstants::NUM_PATTERN_WIRES; i_wire++) {
       if (isMTCC || isTMB07) {
         pattern_mask[i_patt][i_wire] = pattern_mask_open[i_patt][i_wire];
         if (narrow_mask_r1 && (theRing == 1 || theRing == 4))
@@ -491,8 +491,6 @@ std::vector<CSCALCTDigi>
 CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   // This is the main routine for normal running.  It gets wire times
   // from the wire digis and then passes them on to another run() function.
-
-  // clear(); // redundant; called by L1MuCSCMotherboard.
 
   static std::atomic<bool> config_dumped{false};
   if ((infoV > 0 || isSLHC) && !config_dumped) {
@@ -833,7 +831,7 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
         hit_layer[i_layer] = false;
       layers_hit = 0;
 
-      for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++){
+      for (int i_wire = 0; i_wire < CSCConstants::NUM_PATTERN_WIRES; i_wire++){
         if (pattern_mask[i_pattern][i_wire] != 0){
           this_layer = pattern_envelope[0][i_wire];
           this_wire  = pattern_envelope[1+MESelection][i_wire]+key_wire;
@@ -896,7 +894,7 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
     std::multiset<int> mset_for_median;
     mset_for_median.clear();
 
-    for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++){
+    for (int i_wire = 0; i_wire < CSCConstants::NUM_PATTERN_WIRES; i_wire++){
       if (pattern_mask[i_pattern][i_wire] != 0){
         this_layer = pattern_envelope[0][i_wire];
         delta_wire = pattern_envelope[1+MESelection][i_wire];
@@ -1713,7 +1711,7 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
       strstrm_header << ((32-i)%10);
     }
     LogTrace("CSCAnodeLCTProcessor") << strstrm_header.str();
-    for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++) {
+    for (int i_wire = 0; i_wire < CSCConstants::NUM_PATTERN_WIRES; i_wire++) {
       if (pattern_mask[i_pattern][i_wire] != 0) {
         std::ostringstream strstrm_pulse;
         int this_layer = pattern_envelope[0][i_wire];

@@ -100,16 +100,11 @@ class CSCCathodeLCTProcessor
   void setRing(unsigned r) {theRing = r;}
 
   /** Pre-defined patterns. */
-  enum {NUM_PATTERN_STRIPS = 26};
-  static const int pre_hit_pattern[2][NUM_PATTERN_STRIPS];
-  static const int pattern[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07][NUM_PATTERN_STRIPS+1];
+  static const int pre_hit_pattern[2][CSCConstants::NUM_PATTERN_STRIPS];
+  static const int pattern[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07][CSCConstants::NUM_PATTERN_STRIPS+1];
 
-  enum {NUM_PATTERN_HALFSTRIPS = 42};
-  static const int pattern2007_offset[NUM_PATTERN_HALFSTRIPS];
-  static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][NUM_PATTERN_HALFSTRIPS+2];
-
-  /** Maximum number of cathode front-end boards (move to CSCConstants?). */
-  enum {MAX_CFEBS = 5};
+  static const int pattern2007_offset[CSCConstants::NUM_PATTERN_HALFSTRIPS];
+  static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::NUM_PATTERN_HALFSTRIPS+2];
 
   // we use these next ones to address the various bits inside the array that's
   // used to make the cathode LCTs.
@@ -219,7 +214,7 @@ class CSCCathodeLCTProcessor
      const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
      int keystrip_data[CSCConstants::NUM_HALF_STRIPS_7CFEBS][7],
      int nStrips, int first_bx, int& best_strip, int stripType);
-  void getPattern(int pattern_num, int strip_value[NUM_PATTERN_STRIPS],
+  void getPattern(int pattern_num, int strip_value[CSCConstants::NUM_PATTERN_STRIPS],
 		  int bx_time, int &quality, int &bend);
   bool hitIsGood(int hitTime, int BX);
 
@@ -236,18 +231,18 @@ class CSCCathodeLCTProcessor
 		     const int stripType, const int nStrips,
 		     const unsigned int bx_time);
   void latchLCTs(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-		 int keyStrip[MAX_CFEBS], unsigned int nhits[MAX_CFEBS],
+		 int keyStrip[CSCConstants::MAX_CFEBS], unsigned int nhits[CSCConstants::MAX_CFEBS],
 		 const int stripType, const int nStrips, const int bx_time);
-  void priorityEncode(const int h_keyStrip[MAX_CFEBS],
-		      const unsigned int h_nhits[MAX_CFEBS],
-		      const int d_keyStrip[MAX_CFEBS],
-		      const unsigned int d_nhits[MAX_CFEBS],
+  void priorityEncode(const int h_keyStrip[CSCConstants::MAX_CFEBS],
+		      const unsigned int h_nhits[CSCConstants::MAX_CFEBS],
+		      const int d_keyStrip[CSCConstants::MAX_CFEBS],
+		      const unsigned int d_nhits[CSCConstants::MAX_CFEBS],
 		      int keystrip_data[2][7]);
   void getKeyStripData(const unsigned int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
 		       const unsigned int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
 		       int keystrip_data[2][7], const int first_bx);
   void getPattern(unsigned int pattern_num,
-		  const int strip_value[NUM_PATTERN_STRIPS],
+		  const int strip_value[CSCConstants::NUM_PATTERN_STRIPS],
 		  unsigned int& quality, unsigned int& bend);
 
   //--------------- Functions for 2007 version of the firmware ----------------
