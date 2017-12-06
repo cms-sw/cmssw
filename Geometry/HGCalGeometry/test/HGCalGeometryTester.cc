@@ -29,7 +29,7 @@ public:
   void endJob() override {}
   
 private:
-  void doTest(HGCalGeometry* geom, ForwardSubdetector subdet);
+  void doTest(const HGCalGeometry* geom, ForwardSubdetector subdet);
   
   std::string    name;
   bool           squareCell;
@@ -53,14 +53,14 @@ void HGCalGeometryTester::analyze(const edm::Event& ,
 
   edm::ESHandle<HGCalGeometry> geomH;
   iSetup.get<IdealGeometryRecord>().get(name,geomH);
-  HGCalGeometry* geom = (HGCalGeometry*)(geomH.product());
+  const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(geomH.product());
 
   if (geomH.isValid()) doTest(geom, subdet);
   else                 std::cout << "Cannot get valid HGCalGeometry Object for "
 				 << name << std::endl;
 }
 
-void HGCalGeometryTester::doTest(HGCalGeometry* geom, 
+void HGCalGeometryTester::doTest(const HGCalGeometry* geom, 
 				 ForwardSubdetector subdet) {
   
   const std::vector<DetId>& ids = geom->getValidDetIds();

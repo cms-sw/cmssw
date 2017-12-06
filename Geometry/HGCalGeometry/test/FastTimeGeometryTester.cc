@@ -28,7 +28,7 @@ public:
   void endJob() override {}
   
 private:
-  void doTest(FastTimeGeometry* geom, ForwardSubdetector subdet);
+  void doTest(const FastTimeGeometry* geom, ForwardSubdetector subdet);
   
   std::string    name_;
   int            type_;
@@ -49,14 +49,14 @@ void FastTimeGeometryTester::analyze(const edm::Event& ,
 
   edm::ESHandle<FastTimeGeometry> geomH;
   iSetup.get<IdealGeometryRecord>().get(name_,geomH);
-  FastTimeGeometry* geom = (FastTimeGeometry*)(geomH.product());
+  const FastTimeGeometry* geom = dynamic_cast<const FastTimeGeometry*>(geomH.product());
 
   if (geomH.isValid()) doTest(geom, subdet);
   else                 std::cout << "Cannot get valid FastTimeGeometry Object "
 				 << "for " << name_ << std::endl;
 }
 
-void FastTimeGeometryTester::doTest(FastTimeGeometry* geom, 
+void FastTimeGeometryTester::doTest(const FastTimeGeometry* geom, 
 				    ForwardSubdetector subdet) {
   
   const std::vector<DetId>& ids = geom->getValidDetIds();

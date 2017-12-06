@@ -990,8 +990,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       
       for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
 	HcalDetId cell(j->id());
-	auto cellGeometry = ((CaloSubdetectorGeometry*)
-			     (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
+	auto cellGeometry = (geometry->getSubdetectorGeometry(cell))->getGeometry (cell) ;
 	double eta   = cellGeometry->getPosition().eta () ;
 	double phi   = cellGeometry->getPosition().phi () ;
 	double zc    = cellGeometry->getPosition().z ();
@@ -1041,8 +1040,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       
       for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
 	HcalDetId cell(j->id());
-	auto cellGeometry = ((CaloSubdetectorGeometry*)
-			     (geometry->getSubdetectorGeometry(cell)))->getGeometry (cell) ;
+	auto cellGeometry = (geometry->getSubdetectorGeometry(cell))->getGeometry (cell) ;
 	double eta   = cellGeometry->getPosition().eta () ;
 	double phi   = cellGeometry->getPosition().phi () ;
 	double zc    = cellGeometry->getPosition().z ();

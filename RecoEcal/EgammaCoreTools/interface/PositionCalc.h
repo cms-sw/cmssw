@@ -46,8 +46,8 @@ class PositionCalc
   template<typename HitType>
   math::XYZPoint Calculate_Location( const HitsAndFractions&      iDetIds  ,
 				     const edm::SortedCollection<HitType>*    iRecHits ,
-				     CaloSubdetectorGeometry* iSubGeom ,
-				     CaloSubdetectorGeometry* iESGeom = nullptr ) ;
+				     const CaloSubdetectorGeometry* iSubGeom ,
+				     const CaloSubdetectorGeometry* iESGeom = nullptr ) ;
 
  private:
   bool    param_LogWeighted_;
@@ -57,7 +57,7 @@ class PositionCalc
   double  param_W0_;
   double  param_X0_;
 
-  CaloSubdetectorGeometry* m_esGeom ;
+  const CaloSubdetectorGeometry* m_esGeom ;
   bool m_esPlus ;
   bool m_esMinus ;
 
@@ -67,8 +67,8 @@ template<typename HitType>
 math::XYZPoint 
 PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds  ,
 				  const edm::SortedCollection<HitType>* iRecHits ,
-				  CaloSubdetectorGeometry* iSubGeom ,
-				  CaloSubdetectorGeometry* iESGeom   ) {
+				  const CaloSubdetectorGeometry* iSubGeom ,
+				  const CaloSubdetectorGeometry* iESGeom   ) {
   typedef edm::SortedCollection<HitType> HitTypeCollection;
   math::XYZPoint returnValue ( 0, 0, 0 ) ;
   

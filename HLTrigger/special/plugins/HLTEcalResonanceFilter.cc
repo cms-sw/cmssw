@@ -924,8 +924,8 @@ void HLTEcalResonanceFilter::makeClusterES(float x, float y, float z,const CaloS
   
   ///get assosicated ES clusters of this endcap cluster
   const GlobalPoint point(x,y,z);
-  DetId tmp1 = ((EcalPreshowerGeometry*)(geometry_es))->getClosestCellInPlane(point, 1);
-  DetId tmp2 = ((EcalPreshowerGeometry*)(geometry_es))->getClosestCellInPlane(point, 2);
+  DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
+  DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 2);
   ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
   ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
   

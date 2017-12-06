@@ -42,15 +42,15 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
   iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
   const HcalTopology topology = (*topologyHandle);
   //  HcalGeometry* geom(nullptr);
-  CaloSubdetectorGeometry* geom(nullptr);
+  const CaloSubdetectorGeometry* geom(nullptr);
   if (geomES_) {
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
     const CaloGeometry* geo = pG.product();
-    geom = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    geom = (geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   } else {
     HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
-    geom = (CaloSubdetectorGeometry*)(m_loader.load(topology, hcons));
+    geom = (m_loader.load(topology, hcons));
   }
   //  geom  = (HcalGeometry*)(geom0);
 
@@ -64,10 +64,10 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
     if (topology.valid(*itr)) {
       ++nall;
       HcalDetId idnew = hcons.mergedDepthDetId(*itr);
-      GlobalPoint pt1 = ((HcalGeometry*)(geom))->getGeometryBase(*itr)->getPosition();
+      GlobalPoint pt1 = (dynamic_cast<const HcalGeometry*>(geom))->getGeometryBase(*itr)->getPosition();
       auto        ptr = geom->getGeometry(idnew);
       GlobalPoint pt2 = ptr->getPosition();
-      GlobalPoint pt0 = ((HcalGeometry*)(geom))->getPosition(idnew);
+      GlobalPoint pt0 = (dynamic_cast<const HcalGeometry*>(geom))->getPosition(idnew);
       double     deta = std::abs(pt1.eta() - pt2.eta());
       double     dphi = std::abs(pt1.phi() - pt2.phi());
       if (dphi > M_PI) dphi -= (2*M_PI);

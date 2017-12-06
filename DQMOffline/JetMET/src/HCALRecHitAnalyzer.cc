@@ -252,10 +252,10 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   // Retrieve!
   // ==========================================================
 
-  HcalGeometry* HBgeom;
-  HcalGeometry* HEgeom;
-  CaloSubdetectorGeometry* HOgeom;
-  CaloSubdetectorGeometry* HFgeom;
+  const HcalGeometry* HBgeom;
+  const HcalGeometry* HEgeom;
+  const CaloSubdetectorGeometry* HOgeom;
+  const CaloSubdetectorGeometry* HFgeom;
 
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
@@ -269,10 +269,10 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   
   const CaloGeometry cG = *pG;
   
-  HBgeom = (HcalGeometry*)(cG.getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
-  HEgeom = (HcalGeometry*)(cG.getSubdetectorGeometry(DetId::Hcal,HcalEndcap));
-  HOgeom = (CaloSubdetectorGeometry*)(cG.getSubdetectorGeometry(DetId::Hcal,HcalOuter));
-  HFgeom = (CaloSubdetectorGeometry*)(cG.getSubdetectorGeometry(DetId::Hcal,HcalForward));
+  HBgeom = dynamic_cast<const HcalGeometry*>(cG.getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+  HEgeom = dynamic_cast<const HcalGeometry*>(cG.getSubdetectorGeometry(DetId::Hcal,HcalEndcap));
+  HOgeom = (cG.getSubdetectorGeometry(DetId::Hcal,HcalOuter));
+  HFgeom = (cG.getSubdetectorGeometry(DetId::Hcal,HcalForward));
     
   
   // ==========================================================

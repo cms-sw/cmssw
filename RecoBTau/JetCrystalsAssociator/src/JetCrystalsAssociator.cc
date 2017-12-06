@@ -123,8 +123,8 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   ESHandle<CaloGeometry> geometry;
   iSetup.get<CaloGeometryRecord>().get(geometry);
   
-  CaloSubdetectorGeometry* EB = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-  CaloSubdetectorGeometry* EE = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+  const CaloSubdetectorGeometry* EB = (geometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+  const CaloSubdetectorGeometry* EE = (geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
    // end 
    
    Handle<CaloJetCollection> jets;

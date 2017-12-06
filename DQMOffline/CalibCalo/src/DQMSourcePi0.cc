@@ -378,9 +378,9 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);     
-  CaloSubdetectorGeometry* geometry_p   = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-  CaloSubdetectorGeometry* geometryEE_p = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-  CaloSubdetectorGeometry* geometryES_p = (CaloSubdetectorGeometry*)(geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
+  const CaloSubdetectorGeometry* geometry_p   = (geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+  const CaloSubdetectorGeometry* geometryEE_p = (geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+  const CaloSubdetectorGeometry* geometryES_p = (geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
 
   const CaloSubdetectorTopology* topology_p  = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
   const CaloSubdetectorTopology* topology_ee = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);

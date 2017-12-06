@@ -122,10 +122,10 @@ CaloTowerConstituentsMapBuilder::parseTextMap( const std::string& filename, Calo
 //algorithm to assign EE cells to HE towers if no text map is provided
 void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology * cttopo){
   //get EE and HE geometries
-  CaloSubdetectorGeometry* geomEE = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
+  const CaloSubdetectorGeometry* geomEE = (geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
   if(geomEE==nullptr) return; // if no EE is defined don't know where it is used  
 
-  CaloSubdetectorGeometry* geomHE = (CaloSubdetectorGeometry*)(geometry->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+  const CaloSubdetectorGeometry* geomHE = (geometry->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
   
   //get list of EE detids
   const std::vector<DetId>& vec(geomEE->getValidDetIds());

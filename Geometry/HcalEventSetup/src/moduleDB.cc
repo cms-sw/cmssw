@@ -34,7 +34,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
     edm::ESHandle<CaloSubdetectorGeometry> pG ;
     iRecord.get( HcalGeometry::producerTag() + std::string("_master"), pG ) ; 
 
-    CaloSubdetectorGeometry* pGptr = (CaloSubdetectorGeometry*)(pG.product());
+    const CaloSubdetectorGeometry* pGptr = (pG.product());
 
     pGptr->getSummary( tvec, ivec, dvec, dins ) ;
 
@@ -189,7 +189,7 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBReader>::produceAligned( const
     edm::ESHandle<CaloSubdetectorGeometry> pG ;
     iRecord.get( CaloTowerGeometry::producerTag() + std::string("_master"), pG ) ; 
 
-    CaloSubdetectorGeometry* pGptr = (CaloSubdetectorGeometry*)(pG.product());
+    const CaloSubdetectorGeometry* pGptr = (pG.product());
 
     pGptr->getSummary( tvec, ivec, dvec, dins ) ;
     

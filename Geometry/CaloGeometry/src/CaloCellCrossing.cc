@@ -5,7 +5,7 @@
 CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 				    const GlobalVector&             gv ,
 				    const CaloCellCrossing::DetIds* di ,
-				    CaloSubdetectorGeometry*        sg ,
+				    const CaloSubdetectorGeometry*  sg ,
 				    DetId::Detector                 det ,
 				    int                             subdet,
 				    double                          small,

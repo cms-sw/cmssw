@@ -54,7 +54,7 @@ void MinBias::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
 }
 
 void MinBias::endJob() {
-  HcalGeometry* hgeo = (HcalGeometry*)(geo_->getSubdetectorGeometry(DetId::Hcal,1));
+  const HcalGeometry* hgeo = dynamic_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal,1));
   const std::vector<DetId>& did =  hgeo->getValidDetIds() ;
   int i=0;
   for (const auto& id : did) {

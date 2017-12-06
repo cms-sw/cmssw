@@ -46,10 +46,10 @@ void CaloGeometryHelper::initialize(double bField)
     
   if(preshowerPresent_)
     {
-      ESDetId cps1(((EcalPreshowerGeometry*)(getEcalPreshowerGeometry()))->getClosestCellInPlane(GlobalPoint(80.,80.,303.),1));
-      psLayer1Z_ = ((EcalPreshowerGeometry*)(getEcalPreshowerGeometry()))->getGeometry(cps1)->getPosition().z();
-      ESDetId cps2(((EcalPreshowerGeometry*)(getEcalPreshowerGeometry()))->getClosestCellInPlane(GlobalPoint(80.,80.,307.),2));
-      psLayer2Z_ = ((EcalPreshowerGeometry*)(getEcalPreshowerGeometry()))->getGeometry(cps2)->getPosition().z();
+      ESDetId cps1(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,303.),1));
+      psLayer1Z_ = getEcalPreshowerGeometry()->getGeometry(cps1)->getPosition().z();
+      ESDetId cps2(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,307.),2));
+      psLayer2Z_ = getEcalPreshowerGeometry()->getGeometry(cps2)->getPosition().z();
       LogDebug("CaloGeometryTools")  << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
     }
   else
@@ -71,11 +71,11 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
       if(central)
 	{
 	  //	  std::cout << "EcalBarrelGeometry_" << " " << EcalBarrelGeometry_ << std::endl;
-	  result = ((EcalBarrelGeometry*)(EcalBarrelGeometry_))->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
+	  result = EcalBarrelGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
 #ifdef DEBUGGCC
 	  if(result.null()) return result;
 	  GlobalPoint ip=GlobalPoint(point.X(),point.Y(),point.Z());
-	  GlobalPoint cc=((EcalBarrelGeometry*)(EcalBarrelGeometry_))->getGeometry(result)->getPosition();
+	  GlobalPoint cc=EcalBarrelGeometry_->getGeometry(result)->getPosition();
 	  float deltaeta2 = ip.eta()-cc.eta();
 	  deltaeta2 *= deltaeta2;
 	  float deltaphi2 = acos(cos(ip.phi()-cc.phi()));
@@ -85,21 +85,21 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
 	}
       else
 	{
-	  result = ((EcalEndcapGeometry*)(EcalEndcapGeometry_))->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
+	  result = EcalEndcapGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
 #ifdef DEBUGGCC
 	  if(result.null()) 
 	    {
 	      return result;
 	    }
 	  GlobalPoint ip=GlobalPoint(point.X(),point.Y(),point.Z());
-	  GlobalPoint cc=((EcalEndcapGeometry*)(EcalEndcapGeometry_))->getGeometry(result)->getPosition();
+	  GlobalPoint cc=EcalEndcapGeometry_->getGeometry(result)->getPosition();
 	  Histos::instance()->fill("h110",point.eta(),(ip-cc).perp());
 #endif
 	}
     }
   else
     {
-      result=((HcalGeometry*)(HcalGeometry_))->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
+      result=HcalGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
       HcalDetId myDetId(result);
 
       // special patch for HF
@@ -147,7 +147,7 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
 	  return result;
 	}
       GlobalPoint ip=GlobalPoint(point.x(),point.y(),point.z());
-      GlobalPoint cc=((HcalGeometry*)(HcalGeometry_))->getPosition(result);
+      GlobalPoint cc=HcalGeometry_->getPosition(result);
       float deltaeta2 = ip.eta()-cc.eta();
       deltaeta2 *= deltaeta2;
       float deltaphi2 = acos(cos(ip.phi()-cc.phi()));
@@ -463,7 +463,7 @@ void CaloGeometryHelper::buildCrystalArray()
   for(unsigned ic=0; ic<size; ++ic) 
     {
       unsigned hashedindex=EBDetId(vec[ic]).hashedIndex();
-      auto geom = ((EcalBarrelGeometry*)(EcalBarrelGeometry_))->getGeometry(vec[ic]);
+      auto geom = EcalBarrelGeometry_->getGeometry(vec[ic]);
       BaseCrystal xtal(vec[ic]);
       xtal.setCorners(geom->getCorners(),geom->getPosition());
       barrelCrystals_[hashedindex]=xtal;
@@ -483,7 +483,7 @@ void CaloGeometryHelper::buildCrystalArray()
   for(unsigned ic=0; ic<size; ++ic) 
     {
       unsigned hashedindex=EEDetId(vece[ic]).hashedIndex();
-      auto geom = ((EcalEndcapGeometry*)(EcalEndcapGeometry_))->getGeometry(vece[ic]);
+      auto geom = EcalEndcapGeometry_->getGeometry(vece[ic]);
       BaseCrystal xtal(vece[ic]);
       xtal.setCorners(geom->getCorners(),geom->getPosition());
       endcapCrystals_[hashedindex]=xtal;

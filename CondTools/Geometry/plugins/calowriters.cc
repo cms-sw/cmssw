@@ -42,7 +42,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
       edm::ESHandle<CaloSubdetectorGeometry> pG;
       iRecord.get( HcalGeometry::producerTag() + std::string("_master"), pG ); 
 
-      CaloSubdetectorGeometry* pGptr = (CaloSubdetectorGeometry*)(pG.product());
+      const CaloSubdetectorGeometry* pGptr = (pG.product());
       
       pGptr->getSummary( tvec, ivec, dvec, dins );
 	
@@ -196,7 +196,7 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBWriter>::produceAligned( const
     edm::ESHandle<CaloSubdetectorGeometry> pG ;
     iRecord.get( CaloTowerGeometry::producerTag() + std::string("_master"), pG ) ; 
 
-    CaloSubdetectorGeometry* pGptr = (CaloSubdetectorGeometry*)(pG.product());
+    const CaloSubdetectorGeometry* pGptr = (pG.product());
 
     pGptr->getSummary( tvec, ivec, dvec, dins ) ;
     
@@ -337,7 +337,7 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBWriter>::produceAligned( const typ
   {
     edm::ESHandle<HGCalGeometry> geomH;
     iRecord.getRecord<IdealGeometryRecord>().get( name, geomH );
-    HGCalGeometry* geom = (HGCalGeometry*)(geomH.product());
+    const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(geomH.product());
     
     geom->getSummary( tvec, ivec, dvec, dins ) ;
 	
