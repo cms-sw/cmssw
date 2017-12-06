@@ -33,7 +33,7 @@ void HcalTimeSlewEP::fillDescriptions( edm::ConfigurationDescriptions & descript
   desc_M2.add<double>("slope");
   desc_M2.add<double>("tmax");
   std::vector<edm::ParameterSet> default_M2(1);
-  desc.addVPSet("delay_M2",desc_M2,default_M2);  
+  desc.addVPSet("timeSlewParametersM2",desc_M2,default_M2);  
 
   edm::ParameterSetDescription desc_M3;
   desc_M3.add<double>("cap"); 
@@ -44,7 +44,7 @@ void HcalTimeSlewEP::fillDescriptions( edm::ConfigurationDescriptions & descript
   desc_M3.add<double>("tspar1_siPM");
   desc_M3.add<double>("tspar2_siPM");
   std::vector<edm::ParameterSet> default_M3(1);
-  desc.addVPSet("delay_M3",desc_M3,default_M3);  
+  desc.addVPSet("timeSlewParametersM3",desc_M3,default_M3);  
 
   descriptions.addDefault(desc);
 
