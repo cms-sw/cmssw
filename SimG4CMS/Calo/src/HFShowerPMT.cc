@@ -19,7 +19,7 @@
 
 //#define DebugLog
 
-HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
+HFShowerPMT::HFShowerPMT(const std::string & name, const DDCompactView & cpv,
 			 edm::ParameterSet const & p) : cherenkov(nullptr) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShowerPMT");
@@ -85,7 +85,7 @@ void HFShowerPMT::initRun(G4ParticleTable *, HcalDDDSimConstants* hcons) {
                              << rTable[ig]/cm << " cm";
 }
 
-double HFShowerPMT::getHits(G4Step * aStep) {
+double HFShowerPMT::getHits(const G4Step * aStep) {
 
   indexR = indexF = -1;
 

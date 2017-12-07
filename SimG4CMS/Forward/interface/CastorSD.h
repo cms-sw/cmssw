@@ -31,12 +31,12 @@ class CastorSD : public CaloSD {
 
 public:    
 
-  CastorSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog & clg,
+  CastorSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog & clg,
 	   edm::ParameterSet const &, const SimTrackManager*);
   ~CastorSD() override;
   double   getEnergyDeposit(G4Step* ) override;
-  uint32_t setDetUnitId(G4Step* step) override;
-  void             setNumberingScheme(CastorNumberingScheme* scheme);
+  uint32_t setDetUnitId(const G4Step* step) override;
+  void     setNumberingScheme(CastorNumberingScheme* scheme);
 
 private:
 

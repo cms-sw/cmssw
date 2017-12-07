@@ -19,7 +19,7 @@
 
 //#define DebugLog
 
-HFShowerFibreBundle::HFShowerFibreBundle(std::string & name, 
+HFShowerFibreBundle::HFShowerFibreBundle(const std::string & name, 
 					 const DDCompactView & cpv,
 					 edm::ParameterSet const & p) {
 
@@ -93,11 +93,11 @@ void HFShowerFibreBundle::initRun(G4ParticleTable *, HcalDDDSimConstants* hcons)
                              << rTable[ig]/cm << " cm";
 }
 
-double HFShowerFibreBundle::getHits(G4Step * aStep, bool type) {
+double HFShowerFibreBundle::getHits(const G4Step * aStep, bool type) {
 
   indexR = indexF = -1;
 
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch   = preStepPoint->GetTouchable();
   int                 boxNo   = touch->GetReplicaNumber(1);
   int                 pmtNo   = touch->GetReplicaNumber(0);
@@ -118,8 +118,8 @@ double HFShowerFibreBundle::getHits(G4Step * aStep, bool type) {
 
   double photons = 0;
   if (indexR >= 0 && indexF > 0) {
-    G4Track *aTrack = aStep->GetTrack();
-    G4ParticleDefinition *particleDef = aTrack->GetDefinition();
+    const G4Track *aTrack = aStep->GetTrack();
+    const G4ParticleDefinition *particleDef = aTrack->GetDefinition();
     double stepl = aStep->GetStepLength();
     double beta  = preStepPoint->GetBeta();
     G4ThreeVector pDir = aTrack->GetDynamicParticle()->GetMomentumDirection();

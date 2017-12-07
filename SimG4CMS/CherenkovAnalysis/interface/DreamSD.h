@@ -20,11 +20,11 @@ class DreamSD : public CaloSD {
 
 public:    
 
-  DreamSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
+  DreamSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
   ~DreamSD() override {}
   bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
-  uint32_t setDetUnitId(G4Step*) override;
+  uint32_t setDetUnitId(const G4Step*) override;
 
 protected:
 
@@ -36,24 +36,24 @@ private:
   typedef std::pair<double,double> Doubles;
   typedef std::map<G4LogicalVolume*,Doubles> DimensionMap;
 
-  void           initMap(G4String, const DDCompactView &);
-  double         curve_LY(G4Step*, int); 
+  void           initMap(const std::string&, const DDCompactView &);
+  double         curve_LY(const G4Step*, int); 
   const double   crystalLength(G4LogicalVolume*) const;
   const double   crystalWidth(G4LogicalVolume*) const;
 
   /// Returns the total energy due to Cherenkov radiation
-  double         cherenkovDeposit_( G4Step* aStep );
+  double         cherenkovDeposit_(const G4Step* aStep );
   /// Returns average number of photons created by track
   double getAverageNumberOfPhotons_(const double charge,
 				    const double beta,
 				    const G4Material* aMaterial,
-				    G4MaterialPropertyVector* rIndex );
+				    const G4MaterialPropertyVector* rIndex );
   /// Returns energy deposit for a given photon
   double getPhotonEnergyDeposit_( const G4ParticleMomentum& p, 
 				  const G4ThreeVector& x,
 				  const G4Step* aStep );
   /// Sets material properties at run-time...
-  bool setPbWO2MaterialProperties_( G4Material* aMaterial );
+  bool setPbWO2MaterialProperties_(G4Material* aMaterial );
 
   bool         useBirk, doCherenkov_, readBothSide_;
   double       birk1, birk2, birk3;
@@ -63,8 +63,8 @@ private:
   int          side;
 
   /// Table of Cherenkov angle integrals vs photon momentum
-  std::auto_ptr<G4PhysicsOrderedFreeVector> chAngleIntegrals_;
-  G4MaterialPropertiesTable*                materialPropertiesTable;
+  std::unique_ptr<G4PhysicsOrderedFreeVector> chAngleIntegrals_;
+  G4MaterialPropertiesTable* materialPropertiesTable;
   // Histogramming
   TTree* ntuple_;
   int nphotons_;
