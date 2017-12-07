@@ -15,7 +15,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 live=True
 # uncomment for running on lxplus
-live=False
+#live=False
 offlineTesting=not live
 #print "live: "+str(live)+" ==> offlineTesting: "+str(offlineTesting)
 
