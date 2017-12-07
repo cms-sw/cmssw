@@ -1018,6 +1018,12 @@ void FedRawDataInputSource::readSupervisor()
 	break;
       }
 
+      //error from filelocking function
+      if (status == evf::EvFDaqDirector::runAbort) {
+	fileQueue_.push(new InputFile(evf::EvFDaqDirector::runAbort, 0));
+        stop=true;
+        break;
+      }
       //queue new lumisection
       if( getLSFromFilename_ && ls > currentLumiSection) {
         //fms_->setInStateSup(evf::FastMonitoringThread::inSupNewLumi);
