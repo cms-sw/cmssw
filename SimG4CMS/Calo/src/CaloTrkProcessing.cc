@@ -23,7 +23,7 @@
 
 //#define DebugLog
 
-CaloTrkProcessing::CaloTrkProcessing(G4String name, 
+CaloTrkProcessing::CaloTrkProcessing(const std::string& name, 
 				     const DDCompactView & cpv,
 				     const SensitiveDetectorCatalog & clg,
 				     edm::ParameterSet const & p,

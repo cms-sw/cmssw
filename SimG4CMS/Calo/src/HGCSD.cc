@@ -33,7 +33,7 @@
 
 //#define EDM_ML_DEBUG
 
-HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
+HGCSD::HGCSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg, 
 	     edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager,
@@ -52,7 +52,7 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   mouseBiteCut_    = waferSize*tan(30.0*CLHEP::deg) - mouseBite;
 
   //this is defined in the hgcsens.xml
-  G4String myName(this->nameOfSD());
+  G4String myName = name;
   myFwdSubdet_= ForwardSubdetector::ForwardEmpty;
   nameX = "HGCal";
   if (myName.find("HitsEE")!=std::string::npos) {
@@ -131,9 +131,9 @@ double HGCSD::getEnergyDeposit(G4Step* aStep) {
   return destep;
 }
 
-uint32_t HGCSD::setDetUnitId(G4Step * aStep) { 
+uint32_t HGCSD::setDetUnitId(const G4Step * aStep) { 
 
-  G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
 
   //determine the exact position in global coordinates in the mass geometry 
@@ -243,8 +243,8 @@ uint32_t HGCSD::setDetUnitId (ForwardSubdetector &subdet, int layer, int module,
   return id;
 }
 
-int HGCSD::setTrackID (G4Step* aStep) {
-  theTrack     = aStep->GetTrack();
+int HGCSD::setTrackID (const G4Step* aStep) {
+  const G4Track* theTrack    = aStep->GetTrack();
 
   double etrack = preStepPoint->GetKineticEnergy();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
