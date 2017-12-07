@@ -26,6 +26,7 @@ HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterM
   shapeMap.emplace(HcalShapes::ZECOTEK,HcalShapes::ZECOTEK);
   shapeMap.emplace(HcalShapes::HAMAMATSU,HcalShapes::HAMAMATSU);
   shapeMap.emplace(HcalShapes::HE2017,HcalShapes::HE2017);
+  shapeMap.emplace(HcalShapes::HE2018,HcalShapes::HE2018);
 }
 
 HcalSiPMHitResponse::~HcalSiPMHitResponse() {}
@@ -138,8 +139,9 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
       LogDebug("HcalSiPMHitResponse") << " corrected tzero: " << tzero_bin << '\n';
       double t_pe(0.);
       int t_bin(0);
+      unsigned signalShape = pars.signalShape(id);
       for (unsigned int pe(0); pe<photons; ++pe) {
-        t_pe = HcalPulseShapes::generatePhotonTime(engine);
+        t_pe = HcalPulseShapes::generatePhotonTime(engine,signalShape);
         t_bin = int(t_pe*invdt + tzero_bin + 0.5);
         LogDebug("HcalSiPMHitResponse") << "t_pe: " << t_pe << " t_pe + tzero: " << (t_pe+tzero_bin*dt)
                   << " t_bin: " << t_bin << '\n';
