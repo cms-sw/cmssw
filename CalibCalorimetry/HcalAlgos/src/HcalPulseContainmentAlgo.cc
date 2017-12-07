@@ -67,6 +67,7 @@ HcalPulseContainmentAlgo::init(int num_samples)
 std::pair<double,double> 
 HcalPulseContainmentAlgo::calcpair(double truefc)
 {
+  std::cout<<"delay: HcalPulseContainmentAlgo.cc"<<std::endl;
   double timeslew_ns = hcalTimeSlew_delay_->delay(std::max(0.0,(double)truefc), HcalTimeSlew::HBHE2018);
 
   double shift_ns  = fixedphasens_ - time0shiftns_ + timeslew_ns;
