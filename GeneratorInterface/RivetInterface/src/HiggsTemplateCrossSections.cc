@@ -10,6 +10,8 @@
 //#include "HiggsTemplateCrossSections.h"
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 
+#include <atomic>
+
 namespace Rivet {
   
   /// @class HiggsTemplateCrossSections 
@@ -87,7 +89,7 @@ namespace Rivet {
       ++m_errorCount[err];
 
       // Print warning message to the screen/log
-      static int Nwarnings = 0;
+      static std::atomic<int> Nwarnings{0};
       if ( msg!="" && ++Nwarnings < NmaxWarnings )
 	  MSG_WARNING(msg);
 
