@@ -75,28 +75,15 @@ vertexAnalysisSequenceTrackingOnly = cms.Sequence(
     + vertexAnalysisTrackingOnly
 )
 
-from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation as _trackingParticleRecoTrackAsssociation
-trackingParticlePixelTrackAsssociation = _trackingParticleRecoTrackAsssociation.clone(
-    label_tr = "pixelTracks"
-)
-from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import VertexAssociatorByPositionAndTracks as _VertexAssociatorByPositionAndTracks
-PixelVertexAssociatorByPositionAndTracks = _VertexAssociatorByPositionAndTracks.clone(
-    trackAssociation = "trackingParticlePixelTrackAsssociation"
-)
-
 _vertexAnalysisSequenceTrackingOnly_trackingLowPU = vertexAnalysisSequenceTrackingOnly.copy()
 _vertexAnalysisSequenceTrackingOnly_trackingLowPU += (
-    trackingParticlePixelTrackAsssociation
-    + PixelVertexAssociatorByPositionAndTracks
-    + selectedPixelVertices
+    selectedPixelVertices
     + pixelVertexAnalysisTrackingOnly
 )
 trackingLowPU.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
 
 vertexAnalysisSequencePixelTrackingOnly = cms.Sequence(
-    trackingParticlePixelTrackAsssociation
-    + PixelVertexAssociatorByPositionAndTracks
-    + selectedPixelVertices
+    selectedPixelVertices
     + pixelVertexAnalysisPixelTrackingOnly
 )
 
