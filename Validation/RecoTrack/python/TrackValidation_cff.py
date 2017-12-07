@@ -705,6 +705,9 @@ tracksValidationTrackingOnly = cms.Sequence(
 )
 
 
+### Pixel tracking only mode (placeholder for now)
+tracksValidationPixelTrackingOnly = cms.Sequence()
+
 
 ### Lite mode (only generalTracks and HP)
 trackValidatorLite = trackValidator.clone(
