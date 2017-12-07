@@ -104,8 +104,10 @@ std::float_t RecHitTools::getSiThickness(const DetId& id) const {
   auto geom = geom_->getSubdetectorGeometry(id);
   check_geom(geom);
   if( id.det() != DetId::Forward ) {
-    LogDebug("getSiThickness::InvalidSiliconDetid")
-      << "det id: " << id.rawId() << " is not HGCal silicon!";
+    edm::LogWarning("getSiThickness::InvalidSiliconDetid")
+      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << id.det() << " is not HGCal silicon!";
+    return 0.37;
   }
   const HGCalDetId hid(id);
   auto ddd = get_ddd(geom,hid);
@@ -119,7 +121,8 @@ std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
   check_geom(geom);
   if( id.det() != DetId::Forward ) {
     edm::LogError("getRadiusToSide::InvalidSiliconDetid")
-      << "det id: " << id.rawId() << " is not HGCal silicon!";
+      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << id.det() << " is not HGCal silicon!";
     return std::numeric_limits<std::float_t>::max();
   }
   const HGCalDetId hid(id);
@@ -186,7 +189,8 @@ unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
 unsigned int RecHitTools::getWafer(const DetId& id) const {
   if( id.det() != DetId::Forward ) {
     edm::LogError("getWafer::InvalidSiliconDetid")
-      << "det id: " << id.rawId() << " is not HGCal silicon!";
+      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << id.det() << " is not HGCal silicon!";
     return std::numeric_limits<unsigned int>::max();
   }
   const HGCalDetId hid(id);
@@ -197,7 +201,8 @@ unsigned int RecHitTools::getWafer(const DetId& id) const {
 unsigned int RecHitTools::getCell(const DetId& id) const {
   if( id.det() != DetId::Forward ) {
     edm::LogError("getCell::InvalidSiliconDetid")
-      << "det id: " << id.rawId() << " is not HGCal silicon!";
+      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << id.det() << " is not HGCal silicon!";
     return std::numeric_limits<unsigned int>::max();
   }
   const HGCalDetId hid(id);

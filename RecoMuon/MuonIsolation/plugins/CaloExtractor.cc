@@ -41,9 +41,8 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
   Handle<CaloTowerCollection> towers;
   event.getByToken(theCaloTowerCollectionToken,towers);
 
-  edm::ESHandle<CaloGeometry> caloGeomH;
-  eventSetup.get<CaloGeometryRecord>().get(caloGeomH);
-  const CaloGeometry* caloGeom = (caloGeomH.product());
+  edm::ESHandle<CaloGeometry> caloGeom;
+  eventSetup.get<CaloGeometryRecord>().get(caloGeom);
 
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);
@@ -73,7 +72,7 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
             if ((!doEcal) && (!doHcal)) continue;
 
             DetId calId = cal->id();
-            const GlobalPoint & endpos = caloGeom->getPosition(calId);
+            GlobalPoint endpos = caloGeom->getPosition(calId);
             GlobalPoint muatcal = MuonAtCaloPosition(*mu,bz,endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
             double deltar = reco::deltaR(muatcal,endpos);
 
@@ -98,9 +97,8 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
   Handle<CaloTowerCollection> towers;
   event.getByToken(theCaloTowerCollectionToken,towers);
 
-  edm::ESHandle<CaloGeometry> caloGeomH;
-  eventSetup.get<CaloGeometryRecord>().get(caloGeomH);
-  const CaloGeometry* caloGeom = (caloGeomH.product());
+  edm::ESHandle<CaloGeometry> caloGeom;
+  eventSetup.get<CaloGeometryRecord>().get(caloGeom);
 
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);
@@ -125,7 +123,7 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
       if ((!doEcal) && (!doHcal)) continue;
 
       DetId calId = cal->id();
-      const GlobalPoint & endpos = caloGeom->getPosition(calId);
+      GlobalPoint endpos = caloGeom->getPosition(calId);
       GlobalPoint muatcal = MuonAtCaloPosition(muon,bz,endpos,vertexConstraintFlag_XY, vertexConstraintFlag_Z);
       double deltar = reco::deltaR(muatcal,endpos);
 

@@ -92,7 +92,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
-  geo_  = (pGeo.product());
+  geo_  = pGeo.product();
   hgeo_ = dynamic_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
 
   //}

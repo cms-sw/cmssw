@@ -403,7 +403,7 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
     if (doDigis_ || doRecHits_) {
       edm::ESHandle<HGCalGeometry> geom;
       iSetup.get<IdealGeometryRecord>().get(detectorEE_, geom);
-      hgeom_[0] = (geom.product());
+      hgeom_[0] = geom.product();
     } else {
       hgeom_[0] = nullptr;
     }
@@ -435,7 +435,7 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
     if (doDigis_ || doRecHits_) {
       edm::ESHandle<HGCalGeometry> geom;
       iSetup.get<IdealGeometryRecord>().get(detectorFH_, geom);
-      hgeom_[1] = (geom.product());
+      hgeom_[1] = geom.product();
     } else {
       hgeom_[1] = nullptr;
     }

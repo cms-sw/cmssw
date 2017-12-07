@@ -260,7 +260,7 @@ bool stdsimplemove(DetId& cell,
 	
 	// yes we are
 	const EcalBarrelGeometry::OrderedListOfEEDetId& 
-	  ol( * (barrelGeom.getClosestEndcapCells(ebDetId)) ) ;
+	  ol( * barrelGeom.getClosestEndcapCells( ebDetId ) ) ;
 	
 	// take closest neighbour on the other side, that is in the barrel.
 	cell = *(ol.begin() );
@@ -289,7 +289,7 @@ bool stdsimplemove(DetId& cell,
       if( iphi!= 0) {
 	// yes we are
 	const EcalEndcapGeometry::OrderedListOfEBDetId& 
-	  ol( *(endcapGeom.getClosestBarrelCells(eeDetId)) ) ;
+	  ol( * endcapGeom.getClosestBarrelCells( eeDetId ) ) ;
 	
 	// take closest neighbour on the other side, that is in the barrel.
 	cell = *(ol.begin() );

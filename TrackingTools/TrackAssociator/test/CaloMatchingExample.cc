@@ -262,9 +262,9 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       if ( geometry->getSubdetectorGeometry(centerId) &&
 	   geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId) ) 
 	{
-	  GlobalPoint position = geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId)->getPosition();
-	  ecalMaxPos_[nTracks_][0] = position.eta();
-	  ecalMaxPos_[nTracks_][1] = position.phi();
+	   GlobalPoint position = geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId)->getPosition();
+	   ecalMaxPos_[nTracks_][0] = position.eta();
+	   ecalMaxPos_[nTracks_][1] = position.phi();
 	}
       else
 	{
@@ -291,9 +291,9 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       if ( geometry->getSubdetectorGeometry(centerId) &&
 	   geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId) ) 
 	{
-	  GlobalPoint position = geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId)->getPosition();
-	  hcalMaxPos_[nTracks_][0] = position.eta();
-	  hcalMaxPos_[nTracks_][1] = position.phi();
+	   GlobalPoint position = geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId)->getPosition();
+	   hcalMaxPos_[nTracks_][0] = position.eta();
+	   hcalMaxPos_[nTracks_][1] = position.phi();
 	}
       else
 	{

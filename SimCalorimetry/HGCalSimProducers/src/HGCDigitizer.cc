@@ -204,9 +204,9 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
 {
   hitRefs_bx0.clear();
   
-  const CaloSubdetectorGeometry* theGeom = (nullptr == gHGCal_ ? 
-					    static_cast<const CaloSubdetectorGeometry*>(gHcal_) :
-					    static_cast<const CaloSubdetectorGeometry*>(gHGCal_) );
+  const CaloSubdetectorGeometry* theGeom = ( nullptr == gHGCal_ ? 
+					     static_cast<const CaloSubdetectorGeometry*>(gHcal_) : 
+					     static_cast<const CaloSubdetectorGeometry*>(gHGCal_)  );
   
   ++nEvents_;
   unsigned idx = std::numeric_limits<unsigned>::max();
