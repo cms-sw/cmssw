@@ -13,7 +13,7 @@
 
 
 static std::unique_ptr<PulseShapeFitOOTPileupCorrection>
-parseHBHEMethod2Description(const edm::ParameterSet& conf)
+parseHBHEMethod2Description(const edm::ParameterSet& conf, const HcalTimeSlew* hcalTimeSlew_delay)
 {
     const bool iPedestalConstraint = conf.getParameter<bool>  ("applyPedConstraint");
     const bool iTimeConstraint =     conf.getParameter<bool>  ("applyTimeConstraint");
@@ -37,7 +37,7 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     //Sorry for this
     //-C.Madrid
     ////////////////////
-    HcalTimeSlew* hcalTimeSlew_delay = nullptr; 
+    //HcalTimeSlew* hcalTimeSlew_delay = nullptr; 
 
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> corr =
       std::make_unique<PulseShapeFitOOTPileupCorrection>(hcalTimeSlew_delay);
@@ -54,7 +54,7 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
 
 
 static std::unique_ptr<HcalDeterministicFit>
-parseHBHEMethod3Description(const edm::ParameterSet& conf)
+parseHBHEMethod3Description(const edm::ParameterSet& conf, const HcalTimeSlew* hcalTimeSlew_delay)
 {
     const bool iApplyTimeSlew  =  conf.getParameter<bool>  ("applyTimeSlewM3");
     const float iPedSubThreshold =  conf.getParameter<double>("pedestalUpperLimit");
@@ -70,7 +70,7 @@ parseHBHEMethod3Description(const edm::ParameterSet& conf)
     //C. Madrid
     //Need to fix this
     //
-    HcalTimeSlew* hcalTimeSlew_delay = nullptr;
+    //HcalTimeSlew* hcalTimeSlew_delay = nullptr;
 
     std::unique_ptr<HcalDeterministicFit> fit = std::make_unique<HcalDeterministicFit>(hcalTimeSlew_delay);
     fit->init( (HcalTimeSlew::ParaSource)iTimeSlewParsType,
@@ -81,7 +81,7 @@ parseHBHEMethod3Description(const edm::ParameterSet& conf)
 
 
 std::unique_ptr<AbsHBHEPhase1Algo>
-parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
+parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps, const HcalTimeSlew* hcalTimeSlew_delay_)
 {
     std::unique_ptr<AbsHBHEPhase1Algo> algo;
 
@@ -91,11 +91,11 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
     {
         std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2;
         if (ps.getParameter<bool>("useM2"))
-            m2 = parseHBHEMethod2Description(ps);
+	  m2 = parseHBHEMethod2Description(ps,hcalTimeSlew_delay_);
 
         std::unique_ptr<HcalDeterministicFit> detFit;
         if (ps.getParameter<bool>("useM3"))
-            detFit = parseHBHEMethod3Description(ps);
+	  detFit = parseHBHEMethod3Description(ps,hcalTimeSlew_delay_);
 
         algo = std::unique_ptr<AbsHBHEPhase1Algo>(
             new SimpleHBHEPhase1Algo(ps.getParameter<int>   ("firstSampleShift"),
