@@ -66,7 +66,9 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::TPChannelParametersCallback &
 			  &HcalDbProducer::TPParametersCallback &
 			  &HcalDbProducer::lutMetadataCallback &
-			  &HcalDbProducer::MCParamsCallback
+			  &HcalDbProducer::MCParamsCallback &
+              &HcalDbProducer::effectivePedestalsCallback &
+              &HcalDbProducer::effectivePedestalWidthsCallback
 			  )
 		   );
 
@@ -118,6 +120,25 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
   }
 }
 
+void HcalDbProducer::effectivePedestalsCallback (const HcalPedestalsRcd& fRecord) {
+  edm::ESTransientHandle <HcalPedestals> item;
+  fRecord.get ("effective",item);
+
+  mEffectivePedestals.reset( new HcalPedestals(*item) );
+  
+  edm::ESHandle<HcalTopology> htopo;
+  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  mEffectivePedestals->setTopo(topo);
+  
+
+  mService->setData (mEffectivePedestals.get(),true);
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("EffectivePedestals")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL EffectivePedestals set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mEffectivePedestals));
+  }
+}
+
 std::shared_ptr<HcalChannelQuality> HcalDbProducer::produceChannelQualityWithTopo(const HcalChannelQualityRcd& fRecord)
 {
   edm::ESHandle <HcalChannelQuality> item;
@@ -148,6 +169,24 @@ void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecor
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL PedestalWidths set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(mPedestalWidths));
+  }
+}
+
+void HcalDbProducer::effectivePedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
+  edm::ESTransientHandle <HcalPedestalWidths> item;
+  fRecord.get ("effective",item);
+
+  mEffectivePedestalWidths.reset( new HcalPedestalWidths(*item));
+
+  edm::ESHandle<HcalTopology> htopo;
+  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  mEffectivePedestalWidths->setTopo(topo);
+
+  mService->setData (mEffectivePedestalWidths.get(),true);
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("EffectivePedestalWidths")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL EffectivePedestalWidths set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mEffectivePedestalWidths));
   }
 }
 
