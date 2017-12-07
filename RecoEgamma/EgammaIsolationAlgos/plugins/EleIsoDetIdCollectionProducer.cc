@@ -122,7 +122,7 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
                 return;  //dont fill if below E noise value
 
               double et = recIt.energy() * 
-                caloGeom->getPosition(recIt.detid()).perp()/
+                caloGeom->getPosition(recIt.detid()).perp() / 
                 caloGeom->getPosition(recIt.detid()).mag();
 
               bool isBarrel = false;

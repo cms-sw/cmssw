@@ -190,7 +190,8 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt, const edm::Ev
     topology_p.reset(new EcalEndcapTopology(geoHandle)); 
   }
   
-  const CaloSubdetectorGeometry *geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  const CaloSubdetectorGeometry *geometryES_p;
+  geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
     
 
   

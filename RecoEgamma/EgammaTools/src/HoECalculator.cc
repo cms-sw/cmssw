@@ -65,7 +65,8 @@ double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Even
 
   double HoE=0.;
   const CaloGeometry& geometry = *theCaloGeom_ ;
-  const CaloSubdetectorGeometry *geometry_p = geometry.getSubdetectorGeometry(DetId::Hcal,4);
+  const CaloSubdetectorGeometry *geometry_p ; 
+  geometry_p = geometry.getSubdetectorGeometry (DetId::Hcal,4) ;
   DetId hcalDetId ;
   hcalDetId = geometry_p->getClosestCell(pclu) ;
   double hcalEnergy = 0 ;

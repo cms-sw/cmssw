@@ -140,7 +140,7 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
     iSetup.get<CaloGeometryRecord>().get(geom);
     if (!geom.isValid()) 
       edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    const CaloGeometry* geom0 = (geom.product());
+    const CaloGeometry* geom0 = geom.product();
 
     if (ifHCAL_) {
       edm::Handle<HBHERecHitCollection> hbhecoll;
@@ -184,7 +184,7 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
     edm::ESHandle<HGCalGeometry> geom;
     iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
     if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    const HGCalGeometry* geom0 = (geom.product());
+    const HGCalGeometry* geom0 = geom.product();
 
     edm::Handle<HGCRecHitCollection> theRecHitContainers;
     iEvent.getByToken(recHitSource_, theRecHitContainers);

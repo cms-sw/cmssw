@@ -220,7 +220,7 @@ void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun,
       iSetup.get<CaloGeometryRecord>().get(caloG);
       if (caloG.isValid()) {
 	const CaloGeometry* geo = caloG.product();
-	hcGeometry_ = (geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+	hcGeometry_ = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
 	hgcGeometry_.push_back(nullptr);
       } else {
         edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for "
@@ -236,9 +236,9 @@ void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun,
                                       << geometrySource_[i] << std::endl;
       }
       edm::ESHandle<HGCalGeometry> hgcGeom;
-      iSetup.get<IdealGeometryRecord>().get(geometrySource_[i],hgcGeom);
+      iSetup.get<IdealGeometryRecord>().get(geometrySource_[i],hgcGeom);	
       if(hgcGeom.isValid()) {
-	hgcGeometry_.push_back(hgcGeom.product());
+	hgcGeometry_.push_back(hgcGeom.product());	
       } else {
 	edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for "
 				      << geometrySource_[i] << std::endl;

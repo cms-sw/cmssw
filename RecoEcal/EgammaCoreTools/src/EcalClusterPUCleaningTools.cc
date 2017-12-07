@@ -29,7 +29,7 @@ void EcalClusterPUCleaningTools::getGeometry( const edm::EventSetup &es )
 {
   edm::ESHandle<CaloGeometry> pGeometry;
   es.get<CaloGeometryRecord>().get(pGeometry);
-  geometry_ = (pGeometry.product());
+  geometry_ = pGeometry.product();
 }
 
 void EcalClusterPUCleaningTools::getEBRecHits( const edm::Event &ev, const edm::InputTag& redEBRecHits )
