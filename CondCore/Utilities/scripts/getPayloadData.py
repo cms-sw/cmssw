@@ -82,9 +82,9 @@ def deserialize_iovs(db, plugin_name, plot_name, tag, time_type, iovs):
     output('plot object: ', plot)
 
     if db == "Prod":
-        db_name = 'oracle://cms_orcon_adg/CMS_CONDITIONS'
+        db_name = 'frontier://FrontierProd/CMS_CONDITIONS'
     elif db == 'Prep' :
-        db_name = 'oracle://cms_orcoff_prep/CMS_CONDITIONS'
+        db_name = 'frontier://FrontierPrep/CMS_CONDITIONS'
     else:
         db_name = db
     output('full DB name: ', db_name)
