@@ -1,0 +1,5 @@
+<use name="CondCore/ESSources"/>
+<use   name="CondFormats/GEMObjects"/>
+<use name="CondFormats/DataRecord"/>
+
+<flags EDM_PLUGIN="1"/>
