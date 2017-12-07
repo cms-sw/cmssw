@@ -22,6 +22,7 @@
 #include <classlib/utils/Regexp.h>
 
 #include "DQMServices/Core/interface/DQMDefinitions.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry; class GlobalContext; }
 namespace lat { class Regexp; }
@@ -191,6 +192,109 @@ class DQMStore
     DQMStore * owner_;
   };  // IBooker
 
+  class ConcurrentBooker : public IBooker
+  {
+  public:
+    friend class DQMStore;
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookString
+    template <typename... Args>
+    ConcurrentMonitorElement bookString(Args && ... args) {
+      MonitorElement* me = IBooker::bookString(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookInt
+    template <typename... Args>
+    ConcurrentMonitorElement bookInt(Args && ... args) {
+      MonitorElement* me = IBooker::bookInt(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookFloat
+    template <typename... Args>
+    ConcurrentMonitorElement bookFloat(Args && ... args) {
+      MonitorElement* me = IBooker::bookFloat(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1D
+    template <typename... Args>
+    ConcurrentMonitorElement book1D(Args && ... args) {
+      MonitorElement* me = IBooker::book1D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1S
+    template <typename... Args>
+    ConcurrentMonitorElement book1S(Args && ... args) {
+      MonitorElement* me = IBooker::book1S(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1DD
+    template <typename... Args>
+    ConcurrentMonitorElement book1DD(Args && ... args) {
+      MonitorElement* me = IBooker::book1DD(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2D
+    template <typename... Args>
+    ConcurrentMonitorElement book2D(Args && ... args) {
+      MonitorElement* me = IBooker::book2D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2S
+    template <typename... Args>
+    ConcurrentMonitorElement book2S(Args && ... args) {
+      MonitorElement* me = IBooker::book2S(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2DD
+    template <typename... Args>
+    ConcurrentMonitorElement book2DD(Args && ... args) {
+      MonitorElement* me = IBooker::book2DD(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book3D
+    template <typename... Args>
+    ConcurrentMonitorElement book3D(Args && ... args) {
+      MonitorElement* me = IBooker::book3D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookProfile
+    template <typename... Args>
+    ConcurrentMonitorElement bookProfile(Args && ... args) {
+      MonitorElement* me = IBooker::bookProfile(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookProfile2D
+    template <typename... Args>
+    ConcurrentMonitorElement bookProfile2D(Args && ... args) {
+      MonitorElement* me = IBooker::bookProfile2D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+  private:
+    explicit ConcurrentBooker(DQMStore * store) :
+      IBooker(store)
+    { }
+
+    ConcurrentBooker() = delete;
+    ConcurrentBooker(ConcurrentBooker const&) = delete;
+    ConcurrentBooker(ConcurrentBooker &&) = delete;
+    ConcurrentBooker& operator= (ConcurrentBooker const&) = delete;
+    ConcurrentBooker& operator= (ConcurrentBooker &&) = delete;
+
+    ~ConcurrentBooker() = default;
+  };
+
   class IGetter
   {
    public:
@@ -272,6 +376,27 @@ class DQMStore
       moduleId_ = 0;
     }
   }
+
+  // Similar function used to book "global" histograms via the
+  // ConcurrentMonitorElement interface.
+  template <typename iFunc>
+  void bookConcurrentTransaction(iFunc f, uint32_t run) {
+    std::lock_guard<std::mutex> guard(book_mutex_);
+    /* Even if enableMultiThread_ is enabled, keep the streamId_
+       and moduleId_ to 0, since we want to book global histograms. */
+    if (enableMultiThread_) {
+      run_ = run;
+    }
+    ConcurrentBooker booker(this);
+    f(booker);
+
+    /* Set back to 0 the run_ in case we run in mixed conditions
+       with DQMEDAnalyzers and legacy modules */
+    if (enableMultiThread_) {
+      run_ = 0;
+    }
+  }
+
   // Signature needed in the harvesting where the booking is done
   // in the endJob. No handles to the run there. Two arguments ensure
   // the capability of booking and getting. The method relies on the
