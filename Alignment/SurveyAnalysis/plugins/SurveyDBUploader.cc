@@ -43,7 +43,7 @@ void SurveyDBUploader::endJob()
 
 void SurveyDBUploader::getSurveyInfo(const Alignable* ali)
 {
-  const std::vector<Alignable*>& comp = ali->components();
+  const auto& comp = ali->components();
 
   unsigned int nComp = comp.size();
 
