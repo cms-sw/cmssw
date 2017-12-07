@@ -467,6 +467,7 @@ namespace evf {
 
     timeval ts_lockbegin;
     gettimeofday(&ts_lockbegin,nullptr);
+    long total_lock_attempts = 0;
 
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
@@ -474,6 +475,7 @@ namespace evf {
       else continue;
 
       lock_attempts+=fuLockPollInterval_;
+      total_lock_attempts+=fuLockPollInterval_;
       if (lock_attempts>5000000 ||  errno==116) {
         if (errno==116)
           edm::LogWarning("EvFDaqDirector") << "Stale lock file handle. Checking if run directory and fu.lock file are present" << std::endl;
@@ -491,6 +493,10 @@ namespace evf {
         if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
         if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
         lock_attempts=0;
+      }
+      if (total_lock_attempts>5*60000000) {
+        edm::LogError("EvFDaqDirector") << "Unable to obtain a lock for 5 minutes. Stopping polling activity.";
+        return runAbort;
       }
     }
 
