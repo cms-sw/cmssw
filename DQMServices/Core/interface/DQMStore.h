@@ -1,25 +1,27 @@
-#ifndef DQMSERVICES_CORE_DQM_STORE_H
-# define DQMSERVICES_CORE_DQM_STORE_H
+#ifndef DQMServices_Core_DQMStore_h
+#define DQMServices_Core_DQMStore_h
 
-# if __GNUC__ && ! defined DQM_DEPRECATED
-#  define DQM_DEPRECATED __attribute__((deprecated))
-# endif
+#if __GNUC__ && ! defined DQM_DEPRECATED
+#define DQM_DEPRECATED __attribute__((deprecated))
+#endif
 
-# include "DQMServices/Core/interface/DQMDefinitions.h"
-# include "classlib/utils/Regexp.h"
-# include <vector>
-# include <string>
-# include <list>
-# include <map>
-# include <set>
-# include <cassert>
-# include <mutex>
-# include <thread>
-# include <execinfo.h>
-# include <cstdio>
-# include <cstdlib>
-# include <cxxabi.h>
-# include <iosfwd>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <iosfwd>
+#include <list>
+#include <map>
+#include <mutex>
+#include <set>
+#include <string>
+#include <thread>
+#include <vector>
+#include <cxxabi.h>
+#include <execinfo.h>
+
+#include <classlib/utils/Regexp.h>
+
+#include "DQMServices/Core/interface/DQMDefinitions.h"
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
@@ -244,7 +246,7 @@ class DQMStore
   // is passed the instance of the IBooker class (owned by the *only*
   // DQMStore instance), that is capable of booking MonitorElements
   // into the DQMStore via a public API. The central mutex is acquired
-  // *before* invoking fand automatically released upon returns.
+  // *before* invoking and automatically released upon returns.
   template <typename iFunc>
   void bookTransaction(iFunc f,
 		       uint32_t run,
@@ -279,6 +281,7 @@ class DQMStore
   void meBookerGetter(iFunc f) {
     f(*ibooker_, *igetter_);
   }
+
   // Signature needed in the harvesting where it might be needed to get
   // the LS based histograms. Handle to the Lumi and to the iSetup are available.
   // No need to book anything there. The method relies on the
@@ -694,11 +697,11 @@ class DQMStore
 
   //-------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------
-  typedef std::pair<fastmatch *, QCriterion *>                  QTestSpec;
-  using QTestSpecs = std::list<QTestSpec>;
-  using MEMap = std::set<MonitorElement>;
-  typedef std::map<std::string, QCriterion *>                           QCMap;
-  typedef std::map<std::string, QCriterion *(*)(const std::string &)>   QAMap;
+  using QTestSpec             = std::pair<fastmatch *, QCriterion *>;
+  using QTestSpecs            = std::list<QTestSpec>;
+  using MEMap                 = std::set<MonitorElement>;
+  using QCMap                 = std::map<std::string, QCriterion *>;
+  using QAMap                 = std::map<std::string, QCriterion *(*)(const std::string &)>;
 
   unsigned                      verbose_;
   unsigned                      verboseQT_;
@@ -737,4 +740,4 @@ class DQMStore
   friend class MEtoEDMConverter;
 };
 
-#endif // DQMSERVICES_CORE_DQM_STORE_H
+#endif // DQMServices_Core_DQMStore_h
