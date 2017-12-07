@@ -26,8 +26,9 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
   theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theAmplifier(nullptr), theCoderFactory(nullptr), theElectronicsSim(nullptr), 
-  theTimeSlewSim(nullptr), theHBHEDigitizer(nullptr), theHODigitizer(nullptr), theHBHEHits(),
-  theHOHits(), thisPhaseShift(0) {
+  theTimeSlewSim(nullptr), theHBHEDigitizer(nullptr), theHODigitizer(nullptr), 
+  theHBHEHits(), theHOHits(), thisPhaseShift(0) 
+{
   std::string const instance("simHcalDigis");
   mixMod.produces<HBHEDigiCollection>(instance);
   mixMod.produces<HODigiCollection>(instance);
@@ -43,20 +44,22 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
   bool doNoise = ps.getParameter<bool>("doNoise");
   bool dummy1 = false; 
   bool dummy2 = false;  // extra arguments for premixing
-  theAmplifier = new HcalAmplifier(theParameterMap, doNoise, dummy1, dummy2);
+  hcalTimeSlew_delay_ = nullptr;
+  theAmplifier = new HcalAmplifier(theParameterMap, doNoise, dummy1, dummy2, hcalTimeSlew_delay_);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
   theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory, dummy1);
 
   double minFCToDelay= ps.getParameter<double>("minFCToDelay");
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
+  
   if(doTimeSlew) {
     // no time slewing for HF
     //////////////////////////
     //Sorry for this
     //C.Madrid
     //////////////////////////
-    const HcalTimeSlew* hcalTimeSlew_delay = new HcalTimeSlew();
-    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay,hcalTimeSlew_delay);
+    //const HcalTimeSlew* hcalTimeSlew_delay_ = new HcalTimeSlew();
+    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay,hcalTimeSlew_delay_);
     theAmplifier->setTimeSlewSim(theTimeSlewSim);
   }
 
@@ -114,6 +117,11 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const& e, edm::EventSetup co
     DetId detIdHO(DetId::Hcal, 3);
     setPhaseShift(detIdHO);
   }
+
+  edm::ESHandle<HcalTimeSlew> delay;
+  eventSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
+  hcalTimeSlew_delay_ = &*delay;
+  std::cout<<"HcalTBDigiProducer.cc"<<std::endl;
 
   theHBHEDigitizer->initializeHits();
   theHODigitizer->initializeHits();

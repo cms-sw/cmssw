@@ -121,12 +121,13 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   }
 
   // need to make copies, because they might get different noise generators
-  theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
-  theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
-  theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
-  theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
-  theHFQIE10Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
-  theHBHEQIE11Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  hcalTimeSlew_delay_ = nullptr;
+  theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
+  theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
+  theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
+  theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
+  theHFQIE10Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
+  theHBHEQIE11Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
 
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
 
@@ -161,7 +162,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theTimeSlewSim = nullptr;
   if(doTimeSlew) {
     // no time slewing for HF
-    hcalTimeSlew_delay_ = nullptr;
+    //hcalTimeSlew_delay_ = nullptr;
     theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay,hcalTimeSlew_delay_);
     theHBHEAmplifier->setTimeSlewSim(theTimeSlewSim);
     theHBHEQIE11Amplifier->setTimeSlewSim(theTimeSlewSim);
