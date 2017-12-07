@@ -20,18 +20,18 @@ class HGCalTB16SD01 : public CaloSD {
 
 public:    
 
-  HGCalTB16SD01(G4String , const DDCompactView &, 
+  HGCalTB16SD01(const std::string& , const DDCompactView &, 
 		const SensitiveDetectorCatalog &, edm::ParameterSet const &, 
 		const SimTrackManager*);
   ~HGCalTB16SD01() override;
   double   getEnergyDeposit(G4Step* ) override;
-  uint32_t setDetUnitId(G4Step* step) override;
+  uint32_t setDetUnitId(const G4Step* step) override;
   static uint32_t  packIndex(int det, int lay, int x, int y);
   static void      unpackIndex(const uint32_t & idx, int& det, int& lay,
 			       int& x, int& y);
 
 private:    
-  void             initialize(G4StepPoint* point);
+  void             initialize(const G4StepPoint* point);
 
   std::string      matName_;
   bool             useBirk_;

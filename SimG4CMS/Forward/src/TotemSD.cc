@@ -45,41 +45,21 @@
 //
 // constructors and destructor
 //
-TotemSD::TotemSD(std::string name, const DDCompactView & cpv,
+TotemSD::TotemSD(const std::string& name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), name(name),
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), 
   hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
   currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
   postStepPoint(nullptr), eventno(0){
-
-  //Add Totem Sentitive Detector Names
-  collectionName.insert(name);
 
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("TotemSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
  
   SetVerboseLevel(verbn);
-  LogDebug("ForwardSim") 
-    << "*******************************************************\n"
-    << "*                                                     *\n"
-    << "* Constructing a TotemSD  with name " << name << "\n"
-    << "*                                                     *\n"
-    << "*******************************************************";
 
   slave  = new TrackingSlaveSD(name);
-
-  //
-  // Now attach the right detectors (LogicalVolumes) to me
-  //
-  const std::vector<std::string>& lvNames = clg.logicalNames(name);
-  this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++) {
-    this->AssignSD(*it);
-    edm::LogInfo("ForwardSim") << "TotemSD : Assigns SD to LV " << (*it);
-  }
 
   if      (name == "TotemHitsT1") {
     numberingScheme = dynamic_cast<TotemVDetectorOrganization*>(new TotemT1NumberingScheme(1));
@@ -92,13 +72,11 @@ TotemSD::TotemSD(std::string name, const DDCompactView & cpv,
   } else {
     edm::LogWarning("ForwardSim") << "TotemSD: ReadoutName not supported\n";
   }
-  
-  edm::LogInfo("ForwardSim") << "TotemSD: Instantiation completed";
 } 
 
 TotemSD::~TotemSD() { 
-  if (slave)           delete slave; 
-  if (numberingScheme) delete numberingScheme;
+  delete slave; 
+  delete numberingScheme;
 }
 
 bool TotemSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
@@ -120,16 +98,16 @@ bool TotemSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   return true;
 }
 
-uint32_t TotemSD::setDetUnitId(G4Step * aStep) { 
+uint32_t TotemSD::setDetUnitId(const G4Step * aStep) { 
 
   return (numberingScheme == nullptr ? 0 : numberingScheme->GetUnitID(aStep));
 }
 
 void TotemSD::Initialize(G4HCofThisEvent * HCE) { 
 
-  LogDebug("ForwardSim") << "TotemSD : Initialize called for " << name;
+  LogDebug("ForwardSim") << "TotemSD : Initialize called for " << GetName();
 
-  theHC = new TotemG4HitCollection(name, collectionName[0]);
+  theHC = new TotemG4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
@@ -176,8 +154,8 @@ void TotemSD::PrintAll() {
   theHC->PrintAllHits();
 } 
 
-void TotemSD::fillHits(edm::PSimHitContainer& c, std::string n) {
-  if (slave->name() == n) c=slave->hits();
+void TotemSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
+  if (slave->name() == hname) { cc=slave->hits(); }
 }
 
 void TotemSD::update (const BeginOfEvent * i) {
