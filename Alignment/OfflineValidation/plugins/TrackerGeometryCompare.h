@@ -50,7 +50,6 @@ class TrackerGeometryCompare: public edm::EDAnalyzer {
 public:
 	typedef AlignTransform SurveyValue;
 	typedef Alignments SurveyValues;
-	typedef std::vector<Alignable*> Alignables;
 		
   /// Do nothing. Required by framework.
   TrackerGeometryCompare(

@@ -65,7 +65,7 @@ public:
   virtual void addComponent( Alignable* ) = 0;
 
   /// Return vector of all direct components
-  virtual Alignables components() const = 0;
+  virtual const Alignables& components() const = 0;
 
   /// Return number of direct components
   int size() const { return components().size(); }
@@ -270,7 +270,5 @@ private:
   const SurveyDet* theSurvey; // Pointer to survey info; owned by class
 
 };
-
-typedef std::vector<Alignable*> Alignables;
 
 #endif
