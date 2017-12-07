@@ -280,7 +280,10 @@ namespace HcalSimpleRecAlgoImpl {
 		     const HcalTimeSlew::BiasSetting slewFlavor,
                      const int runnum, const bool useLeak,
                      const AbsOOTPileupCorrection* pileupCorrection,
-                     const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr, HcalDeterministicFit * hltOOTpuCorr, PedestalSub * hltPedSub /* whatever don't know what to do with the pointer...*/)// const on end
+                     const BunchXParameter* bxInfo, const unsigned lenInfo, 
+		     const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr,
+		     HcalDeterministicFit * hltOOTpuCorr, PedestalSub * hltPedSub, /* whatever don't know what to do with the pointer...*/
+		     const HcalTimeSlew* hcalTimeSlew_delay_)
   {
     double fc_ampl =0, ampl =0, uncorr_ampl =0, m3_ampl =0, maxA = -1.e300;
     int nRead = 0, maxI = -1;
@@ -310,13 +313,8 @@ namespace HcalSimpleRecAlgoImpl {
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
 
-      //------------
-      //C.Madrid
-      //Need to fix this
-      //------------
-      //HcalTimeSlew* hcalTimeSlew_delay_ = nullptr;
       std::cout<<"delay: HcalSimpleRecAlgo.cc"<<std::endl;
-      if (slewCorrect) time-=0;//hcalTimeSlew_delay_->delay(std::max(1.0,fc_ampl),slewFlavor);
+      if (slewCorrect) time-=hcalTimeSlew_delay_->delay(std::max(1.0,fc_ampl),slewFlavor);
 	  
       time=time-calibs.timecorr(); // time calibration
     }
@@ -341,7 +339,9 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 							   pulseCorr_->get(digi.id(), toadd, phaseNS_),
 							   HcalTimeSlew::Slow,
                                                            runnum_, false, hoPileupCorr_.get(),
-                                                           bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get());
+                                                           bunchCrossingInfo_, lenBunchCrossingInfo_, 
+							   puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get(),
+							   hcalTimeSlew_delay_);
 }
 
 
@@ -351,7 +351,9 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
 									 pulseCorr_->get(digi.id(), toadd, phaseNS_),
 									 HcalTimeSlew::Fast,
                                                                          runnum_, false, nullptr,
-                                                                         bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get());
+                                                                         bunchCrossingInfo_, lenBunchCrossingInfo_, 
+									 puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get(),
+									 hcalTimeSlew_delay_);
 }
 
 
