@@ -1,5 +1,5 @@
-#ifndef DataRecord_GEMMaskedStripsRcd_h
-#define DataRecord_GEMMaskedStripsRcd_h
+#ifndef CondFormats_DataRecord_GEMMaskedStripsRcd_h
+#define CondFormats_DataRecord_GEMMaskedStripsRcd_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
