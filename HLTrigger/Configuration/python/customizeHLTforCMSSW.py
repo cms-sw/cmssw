@@ -17,6 +17,13 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+# Add mahi to HCAL local reconstruction 
+def customiseForXXXXX(process):
+    from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.useMahi = hbheprereco.algorithm.useMahi
+    return process
+
 # Add new parameters to RecoTrackRefSelector
 def customiseFor19029(process):
     for producer in producers_by_type(process, "RecoTrackRefSelector"):

@@ -9,6 +9,35 @@
 // Phase 1 HBHE reco algorithm headers
 #include "RecoLocalCalo/HcalRecAlgos/interface/SimpleHBHEPhase1Algo.h"
 
+static std::unique_ptr<DoMahiAlgo>
+parseHBHEMahiDescription(const edm::ParameterSet& conf)
+{
+
+  const double iTS4Thresh     = conf.getParameter<double> ("ts4Thresh");
+  const double chiSqSwitch    = conf.getParameter<double> ("chiSqSwitch");
+
+  const bool iApplyTimeSlew   = conf.getParameter<bool>   ("applyTimeSlew");
+
+  const double iMeanTime      = conf.getParameter<double> ("meanTime");
+  const double iTimeSigmaHPD  = conf.getParameter<double> ("timeSigmaHPD");
+  const double iTimeSigmaSiPM = conf.getParameter<double> ("timeSigmaSiPM");
+
+  const std::vector<int> iActiveBXs  = conf.getParameter<std::vector<int>> ("activeBXs");
+  const int iNMaxItersMin     = conf.getParameter<int>    ("nMaxItersMin");
+  const int iNMaxItersNNLS    = conf.getParameter<int>    ("nMaxItersNNLS");
+  const double iDeltaChiSqThresh = conf.getParameter<double> ("deltaChiSqThresh");
+  const double iNnlsThresh = conf.getParameter<double> ("nnlsThresh");
+
+  std::unique_ptr<DoMahiAlgo> corr = std::make_unique<DoMahiAlgo>();
+
+  corr->setParameters(iTS4Thresh, chiSqSwitch, iApplyTimeSlew, HcalTimeSlew::Medium,
+		      iMeanTime, iTimeSigmaHPD, iTimeSigmaSiPM,
+		      iActiveBXs, iNMaxItersMin, iNMaxItersNNLS,
+		      iDeltaChiSqThresh, iNnlsThresh);
+
+  return corr;
+}
+
 
 static std::unique_ptr<PulseShapeFitOOTPileupCorrection>
 parseHBHEMethod2Description(const edm::ParameterSet& conf)
@@ -84,13 +113,17 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
         if (ps.getParameter<bool>("useM3"))
             detFit = parseHBHEMethod3Description(ps);
 
+	std::unique_ptr<DoMahiAlgo> mahi;
+	if (ps.getParameter<bool>("useMahi"))
+	  mahi = parseHBHEMahiDescription(ps);
+
         algo = std::unique_ptr<AbsHBHEPhase1Algo>(
             new SimpleHBHEPhase1Algo(ps.getParameter<int>   ("firstSampleShift"),
                                      ps.getParameter<int>   ("samplesToAdd"),
                                      ps.getParameter<double>("correctionPhaseNS"),
                                      ps.getParameter<double>("tdcTimeShift"),
                                      ps.getParameter<bool>  ("correctForPhaseContainment"),
-                                     std::move(m2), std::move(detFit))
+                                     std::move(m2), std::move(detFit), std::move(mahi))
             );
     }
 
