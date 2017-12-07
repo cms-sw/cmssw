@@ -1,5 +1,5 @@
-#ifndef GEMMaskedStrips_h
-#define GEMMaskedStrips_h
+#ifndef CondFormats_GEMObjects_GEMMaskedStrips_h
+#define CondFormats_GEMObjects_GEMMaskedStrips_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <vector>
