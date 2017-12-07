@@ -87,6 +87,7 @@ private:
 
   int puCorrMethod_;
 
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 
   std::unique_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
   
