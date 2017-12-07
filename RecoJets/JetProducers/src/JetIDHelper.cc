@@ -283,7 +283,6 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
 
   std::vector<bool> isMergedDepth = computeGeom(setup);
 
-
   for( int iTower = 0; iTower <nTowers ; iTower++ ) {
 
     CaloTowerPtr& tower = towers[iTower];
@@ -353,14 +352,10 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
 			   <<", depth: "<<depth<<", iPhi: "<<theRecHit->id().iphi()
 			   <<" -> "<<region;
 
-
-
-
-	  //fixme
 	  int absIEta = TMath::Abs( theRecHit->id().ieta() );
-	  if( depth == 3 && (absIEta == 28 || absIEta == 29) ) {
+	  if( (absIEta == 28 || absIEta == 29) && isMergedDepth[depth-1] )
 	    hitE /= 2; // Depth 3 at the HE forward edge is split over tower 28 & 29, and jet reco. assigns half each
-	  }
+	  
 	  int iHPD = 100 * region;
 	  int iRBX = 100 * region + ((hitIPhi + 1) % 72) / 4; // 71,72,1,2 are in the same RBX module
 	  
