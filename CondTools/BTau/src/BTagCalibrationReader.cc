@@ -136,7 +136,7 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval(
   for (unsigned i=0; i<entries.size(); ++i) {
     const auto &e = entries.at(i);
     if (
-      e.etaMin <= eta && eta < e.etaMax                   // find eta
+      e.etaMin <= eta && eta <= e.etaMax                   // find eta
       && e.ptMin < pt && pt <= e.ptMax                    // check pt
     ){
       if (use_discr) {                                    // discr. reshaping?
@@ -220,7 +220,7 @@ std::pair<float, float> BTagCalibrationReader::BTagCalibrationReaderImpl::min_ma
   float min_pt = -1., max_pt = -1.;
   for (const auto & e: entries) {
     if (
-      e.etaMin <= eta && eta < e.etaMax                   // find eta
+      e.etaMin <= eta && eta <=e.etaMax                   // find eta
     ){
       if (min_pt < 0.) {                                  // init
         min_pt = e.ptMin;
