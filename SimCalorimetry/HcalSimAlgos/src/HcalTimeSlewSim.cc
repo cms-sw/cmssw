@@ -82,7 +82,7 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) co
       //Fix this 
       //--C. Madrid
       //--------------------------------------------------
-      tshift += 0;//hcalTimeSlew_delay_->delay(totalCharge, biasSetting);      
+      tshift += hcalTimeSlew_delay_->delay(totalCharge, biasSetting);      
       if(tshift <= 0.) tshift = eps;
 	  
       if ( cut > -999. ) { //preserve compatibility

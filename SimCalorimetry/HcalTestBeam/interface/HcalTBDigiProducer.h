@@ -55,6 +55,8 @@ private:
   void setPhaseShift(const DetId & detId);
 
   CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
+  
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 
 private:
 
