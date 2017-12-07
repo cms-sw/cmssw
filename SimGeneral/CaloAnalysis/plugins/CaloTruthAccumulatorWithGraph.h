@@ -3,9 +3,14 @@
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 // BOOST GRAPH LIBRARY
+// boost optional (used by boost graph) results in some false positives with -Wmaybe-uninitialized
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/graphviz.hpp>
+#pragma GCC diagnostic pop
 
 #include <memory>  // required for std::auto_ptr
 #include <unordered_map>
@@ -42,7 +47,16 @@ class PCaloHit;
 class SimTrack;
 class SimVertex;
 
-using namespace boost;
+using boost::property;
+using boost::edge;
+using boost::edge_weight_t;
+using boost::vertex;
+using boost::vertex_name_t;
+using boost::adjacency_list;
+using boost::directedS;
+using boost::listS;
+using boost::vecS;
+using boost::add_edge;
 
 /* GRAPH DEFINITIONS
 
@@ -111,28 +125,12 @@ class CaloTruthAccumulatorWithGraph : public DigiAccumulatorMixMod {
    * required */
   template <class T>
   void fillSimHits(std::vector<std::pair<DetId, const PCaloHit*> >& returnValue,
-                   std::map<int, std::map<int, float> >& simTrackDetIdEnergyMap, const T& event,
+                   std::unordered_map<int, std::map<int, float> >& simTrackDetIdEnergyMap, const T& event,
                    const edm::EventSetup& setup);
 
   const std::string
       messageCategory_;  ///< The message category used to send messages to MessageLogger
 
-  struct calo_particles {
-    std::vector<uint32_t> sc_start_;
-    std::vector<uint32_t> sc_stop_;
-
-    void swap(calo_particles& oth) {
-      sc_start_.swap(oth.sc_start_);
-      sc_stop_.swap(oth.sc_stop_);
-    }
-
-    void clear() {
-      sc_start_.clear();
-      sc_stop_.clear();
-    }
-  };
-
-  calo_particles m_caloParticles;
   double caloStartZ;
 
   std::unordered_map<Index_t, float> m_detIdToTotalSimEnergy;  // keep track of cell normalizations
@@ -189,16 +187,30 @@ class CaloTruthAccumulatorWithGraph : public DigiAccumulatorMixMod {
   struct OutputCollections {
     std::unique_ptr<SimClusterCollection> pSimClusters;
     std::unique_ptr<CaloParticleCollection> pCaloParticles;
-    //		std::auto_ptr<TrackingVertexCollection> pTrackingVertices;
-    //		TrackingParticleRefProd refTrackingParticles;
-    //		TrackingVertexRefProd refTrackingVertexes;
   };
+
+  struct calo_particles {
+    std::vector<uint32_t> sc_start_;
+    std::vector<uint32_t> sc_stop_;
+
+    void swap(calo_particles& oth) {
+      sc_start_.swap(oth.sc_start_);
+      sc_stop_.swap(oth.sc_stop_);
+    }
+
+    void clear() {
+      sc_start_.clear();
+      sc_stop_.clear();
+    }
+  };
+
 
  private:
   const HGCalTopology* hgtopo_[2];
   const HGCalDDDConstants* hgddd_[2];
   const HcalDDDRecConstants* hcddd_;
   OutputCollections output_;
+  calo_particles m_caloParticles;
 };
 
 #endif  // end of "#ifndef CaloAnalysis_CaloTruthAccumulatorWithGraph_h"
