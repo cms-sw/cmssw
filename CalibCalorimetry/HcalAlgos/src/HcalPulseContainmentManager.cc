@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
+#include <iostream>
 
 HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror ) 
 : entries_(),
@@ -16,6 +17,7 @@ void HcalPulseContainmentManager::beginRun(edm::EventSetup const & es)
   edm::ESHandle<HcalTimeSlew> delay;
   es.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
+  std::cout<<"HcalPulseContainmentManager.cc"<<std::endl;
 
   shapes_.beginRun(es);
 }
