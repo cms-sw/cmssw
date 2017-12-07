@@ -1,5 +1,5 @@
-#ifndef ME0ROmap_h
-#define ME0ROmap_h
+#ifndef CondFormats_GEMObjects_ME0ROmap_h
+#define CondFormats_GEMObjects_ME0ROmap_h
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include <map>
 

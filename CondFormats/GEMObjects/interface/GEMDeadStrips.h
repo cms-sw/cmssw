@@ -1,5 +1,5 @@
-#ifndef GEMDeadStrips_h
-#define GEMDeadStrips_h
+#ifndef CondFormats_GEMObjects_GEMDeadStrips_h
+#define CondFormats_GEMObjects_GEMDeadStrips_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <vector>

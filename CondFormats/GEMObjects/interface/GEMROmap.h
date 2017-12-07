@@ -1,5 +1,5 @@
-#ifndef GEMROmap_h
-#define GEMROmap_h
+#ifndef CondFormats_GEMObjects_GEMROmap_h
+#define CondFormats_GEMObjects_GEMROmap_h
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include <map>
 
