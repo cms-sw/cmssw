@@ -21,7 +21,7 @@ siPixelDigis.CablingMapLabel = cms.string("")
 
 siPixelDigisGPU = EventFilter.SiPixelRawToDigi.siPixelRawToDigiGPU_cfi.siPixelRawToDigiGPU.clone()
 siPixelDigisGPU.Timing = cms.untracked.bool(False)
-siPixelDigisGPU.IncludeErrors = cms.bool(False)
+siPixelDigisGPU.IncludeErrors = cms.bool(True)
 siPixelDigisGPU.InputLabel = cms.InputTag("rawDataCollector")
 siPixelDigisGPU.UseQualityInfo = cms.bool(False)
 ## ErrorList: list of error codes used by tracking to invalidate modules
