@@ -421,7 +421,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       currentFileIndex_++;
     }
     else
-      assert(0);
+      assert(false);
   }
   if (fms_) fms_->setInState(evf::FastMonitoringThread::inProcessingFile);
 
