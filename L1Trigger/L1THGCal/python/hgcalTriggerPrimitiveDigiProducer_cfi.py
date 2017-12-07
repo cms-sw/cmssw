@@ -15,7 +15,8 @@ adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 # Reco calibration parameters
 fCPerMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP
 fCPerMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP
-layerWeights = recocalibparam.HGCalRecHit.layerWeights
+#  layerWeights = recocalibparam.HGCalRecHit.layerWeights
+layerWeights = layercalibparam.TrgLayer_dEdX_weights
 thicknessCorrection = recocalibparam.HGCalRecHit.thicknessCorrection
 
 # Parameters used in several places
