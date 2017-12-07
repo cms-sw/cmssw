@@ -99,7 +99,7 @@ namespace reco {
 	HFneg, HEneg, HBneg, HBpos, HEpos, HFpos };
       
       int HBHE_oddness( int iEta, int depth );
-      Region HBHE_region( int iEta, int depth );
+      Region HBHE_region( uint32_t );
       // tower-based. -1 means can't figure it out
       int HBHE_oddness( int iEta );
       Region region( int iEta );

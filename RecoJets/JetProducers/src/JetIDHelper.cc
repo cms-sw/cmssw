@@ -11,6 +11,7 @@
 
 
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 // JetIDHelper needs a much more detailed description that the one in HcalTopology, 
 // so to be consistent, all needed constants are hardwired in JetIDHelper.cc itself
 // #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -341,7 +342,7 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
 	  hitE = theRecHit->energy();
 	  int iEta = theRecHit->id().ieta();
 	  int depth = theRecHit->id().depth();
-	  Region region = HBHE_region( iEta, depth );
+	  Region region = HBHE_region( theRecHit->id().rawId() );
 	  int hitIPhi = theRecHit->id().iphi();
 	  if( iDbg>3 ) cout<<"hit #"<<iCell<<" is HBHE, E: "<<hitE<<" iEta: "<<iEta
 			   <<", depth: "<<depth<<", iPhi: "<<theRecHit->id().iphi()
@@ -597,13 +598,16 @@ int reco::helper::JetIDHelper::HBHE_oddness( int iEta, int depth )
  return ae & 0x1;
 }
 
-reco::helper::JetIDHelper::Region reco::helper::JetIDHelper::HBHE_region( int iEta, int depth )
+reco::helper::JetIDHelper::Region reco::helper::JetIDHelper::HBHE_region( uint32_t rawid )
 {
-  // no error checking for HO indices (depth 2 & |ieta|<=14 or depth 3 & |ieta|=15)
-  if( iEta <= -17 || ( depth == 3 && iEta == -16 ) ) return HEneg;
-  if( iEta >=  17 || ( depth == 3 && iEta ==  16 ) ) return HEpos;
-  if( iEta < 0 ) return HBneg;
-  return HBpos;
+  HcalDetId id(rawid);
+  if( id.subdet() == HcalEndcap)
+    {
+      if( id.ieta() < 0 ) return HEneg;
+      else return HEpos;
+    }
+  if( id.subdet() == HcalBarrel && id.ieta() < 0) return HBneg;
+  return HBpos;  
 }
 
 int reco::helper::JetIDHelper::HBHE_oddness( int iEta )
