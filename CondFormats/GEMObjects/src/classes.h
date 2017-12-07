@@ -1,7 +1,6 @@
-#include "CondFormats/GEMObjects/interface/GEMEMap.h"
-#include "CondFormats/GEMObjects/interface/ME0EMap.h"
+#include "CondFormats/GEMObjects/src/headers.h"
 
-namespace{
+namespace CondFormats_GEMObjects {
   struct dictionary {
 
   };

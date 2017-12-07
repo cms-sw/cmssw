@@ -1,7 +1,7 @@
-#ifndef GEMRawToDigi_GEMROMAO_H
-#define GEMRawToDigi_GEMROMAO_H
+#ifndef CondFormats_GEMObjects_GEMROmap_h
+#define CondFormats_GEMObjects_GEMROmap_h
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include <map>
-#include <DataFormats/MuonDetId/interface/GEMDetId.h>
 
 class GEMROmap{
  public:

@@ -1,8 +1,7 @@
-#ifndef GEMMapItem_h
-#define GEMMapItem_h
+#ifndef CondFormats_GEMObjects_GEMMapItem_h
+#define CondFormats_GEMObjects_GEMMapItem_h
 // based on CSCMapItem
 #include "CondFormats/Serialization/interface/Serializable.h"
-
 #include <string>
 
 class GEMMapItem{

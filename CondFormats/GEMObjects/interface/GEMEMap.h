@@ -1,5 +1,6 @@
-#ifndef GEMEMap_H
-#define GEMEMap_H
+#ifndef CondFormats_GEMObjects_GEMEMap_h
+#define CondFormats_GEMObjects_GEMEMap_h
+
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <string>
 #include <vector>

@@ -1,10 +1,9 @@
-#ifndef GEMMaskedStrips_h
-#define GEMMaskedStrips_h
+#ifndef CondFormats_GEMObjects_GEMMaskedStrips_h
+#define CondFormats_GEMObjects_GEMMaskedStrips_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-#include<vector>
-#include<iostream>
-#include<boost/cstdint.hpp>
+#include <vector>
+#include <iostream>
 
 class GEMMaskedStrips {
 
@@ -18,8 +17,10 @@ class GEMMaskedStrips {
   GEMMaskedStrips(){}
   ~GEMMaskedStrips(){}
 
-  std::vector<MaskItem> const & getMaskVec() const {return MaskVec;}
-  std::vector<MaskItem> MaskVec;
+  std::vector<MaskItem> const & getMaskVec() const {return maskVec_;}
+
+ private:
+  std::vector<MaskItem> maskVec_;
 
   COND_SERIALIZABLE;
 };
