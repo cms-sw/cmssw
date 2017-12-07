@@ -19,3 +19,8 @@ vertexValidationTrackingOnly = cms.Sequence(
     + v0Validator
     + vertexAnalysisSequenceTrackingOnly
 )
+
+vertexValidationPixelTrackingOnly = cms.Sequence(
+    tracksValidationTruth
+    + vertexAnalysisSequencePixelTrackingOnly
+)

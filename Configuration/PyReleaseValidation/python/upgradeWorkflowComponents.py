@@ -94,6 +94,17 @@ upgradeSteps['trackingOnly'] = {
     'suffix' : '_trackingOnly',
     'offset' : 0.1,
 }
+upgradeSteps['pixelTrackingOnly'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_pixelTrackingOnly',
+    'offset' : 0.4,
+}
 upgradeSteps['Timing'] = {
     'steps' : upgradeSteps['baseline']['steps'],
     'PU' : upgradeSteps['baseline']['PU'],

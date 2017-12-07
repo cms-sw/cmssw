@@ -170,6 +170,12 @@ reconstruction.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInRecon
 logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
 
 reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking)
+reconstruction_pixelTrackingOnly = cms.Sequence(
+    pixeltrackerlocalreco*
+    offlineBeamSpot*
+    siPixelClusterShapeCachePreSplitting*
+    recopixelvertexing
+)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
