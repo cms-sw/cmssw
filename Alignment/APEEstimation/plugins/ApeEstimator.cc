@@ -155,7 +155,7 @@ class ApeEstimator : public edm::one::EDAnalyzer<> {
       bool checkModuleBools(const bool, const std::vector<unsigned int>&)const;
       bool checkModuleDirections(const int, const std::vector<int>&)const;
       bool checkModulePositions(const float, const std::vector<double>&)const;
-      void statistics(const TrackerSectorStruct&, const Int_t)const;
+      void statistics(const TrackerSectorStruct&, const int)const;
       
       void residualErrorBinning();
       
@@ -265,11 +265,11 @@ ApeEstimator::sectorBuilder(){
     edm::LogError("SectorBuilder")<<"TrackerTree not found in file";
     return;
   }
-  UInt_t rawId(999), subdetId(999), layer(999), side(999), half(999), rod(999), ring(999), petal(999),
+  unsigned int rawId(999), subdetId(999), layer(999), side(999), half(999), rod(999), ring(999), petal(999),
          blade(999), panel(999), outerInner(999), module(999), nStrips(999);
-  Bool_t isDoubleSide(false), isRPhi(false), isStereo(false);
-  Int_t uDirection(999), vDirection(999), wDirection(999);
-  Float_t posR(999.F), posPhi(999.F), posEta(999.F), posX(999.F), posY(999.F), posZ(999.F); 
+  bool isDoubleSide(false), isRPhi(false), isStereo(false);
+  int uDirection(999), vDirection(999), wDirection(999);
+  float posR(999.F), posPhi(999.F), posEta(999.F), posX(999.F), posY(999.F), posZ(999.F); 
   tkTree->SetBranchAddress("RawId", &rawId);
   tkTree->SetBranchAddress("SubdetId", &subdetId);
   tkTree->SetBranchAddress("Layer", &layer);
@@ -296,16 +296,16 @@ ApeEstimator::sectorBuilder(){
   tkTree->SetBranchAddress("PosY", &posY);
   tkTree->SetBranchAddress("PosZ", &posZ);
   
-  Int_t nModules(tkTree->GetEntries());
+  int nModules(tkTree->GetEntries());
   TrackerSectorStruct allSectors;
   
   //Loop over all Sectors
-  unsigned int sectorCounter(1);
+  unsigned int sectorCounter(0);
   std::vector<edm::ParameterSet> v_sectorDef(parameterSet_.getParameter<std::vector<edm::ParameterSet> >("Sectors"));
   edm::LogInfo("SectorBuilder")<<"There are "<<v_sectorDef.size()<<" Sectors definded";
   std::vector<edm::ParameterSet>::const_iterator i_parSet;
-  for(i_parSet = v_sectorDef.begin(); i_parSet != v_sectorDef.end();++i_parSet, ++sectorCounter){
-    const edm::ParameterSet& parSet = *i_parSet;
+  for(auto const & parSet : v_sectorDef){
+    ++sectorCounter;
     const std::string& sectorName(parSet.getParameter<std::string>("name"));
     std::vector<unsigned int> v_rawId(parSet.getParameter<std::vector<unsigned int> >("rawId")),
                               v_subdetId(parSet.getParameter<std::vector<unsigned int> >("subdetId")),
@@ -344,7 +344,7 @@ ApeEstimator::sectorBuilder(){
     ReducedTrackerTreeVariables tkTreeVar;
     
     //Loop over all Modules
-    for(Int_t module = 0; module < nModules; ++module){
+    for(int module = 0; module < nModules; ++module){
       tkTree->GetEntry(module);
       
       if(sectorCounter==1){
@@ -384,22 +384,20 @@ ApeEstimator::sectorBuilder(){
       
       tkSector.v_rawId.push_back(rawId);
       bool moduleSelected(false);
-      for(std::vector<unsigned int>::const_iterator i_rawId = allSectors.v_rawId.begin();
-          i_rawId != allSectors.v_rawId.end(); ++i_rawId){
-        if(rawId == *i_rawId)moduleSelected = true;
+      for(auto const & i_rawId : allSectors.v_rawId){
+        if(rawId == i_rawId)moduleSelected = true;
       }
       if(!moduleSelected)allSectors.v_rawId.push_back(rawId);
     }
     
     bool isPixel(false);
     bool isStrip(false);
-    for(std::vector<unsigned int>::const_iterator i_rawId = tkSector.v_rawId.begin();
-        i_rawId != tkSector.v_rawId.end(); ++i_rawId){
-      if(m_tkTreeVar_[*i_rawId].subdetId==PixelSubdetector::PixelBarrel || m_tkTreeVar_[*i_rawId].subdetId==PixelSubdetector::PixelEndcap){
+    for(auto const & i_rawId : tkSector.v_rawId){
+      if(m_tkTreeVar_[i_rawId].subdetId==PixelSubdetector::PixelBarrel || m_tkTreeVar_[i_rawId].subdetId==PixelSubdetector::PixelEndcap){
         isPixel = true;
       }
-      if(m_tkTreeVar_[*i_rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[*i_rawId].subdetId==StripSubdetector::TOB ||
-         m_tkTreeVar_[*i_rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[*i_rawId].subdetId==StripSubdetector::TEC){
+      if(m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TOB ||
+         m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TEC){
         isStrip = true;
       }
     }
@@ -484,7 +482,7 @@ ApeEstimator::checkModulePositions(const float id, const std::vector<double>& v_
 }
 
 void
-ApeEstimator::statistics(const TrackerSectorStruct& allSectors, const Int_t nModules)const{
+ApeEstimator::statistics(const TrackerSectorStruct& allSectors, const int nModules)const{
   bool commonModules(false);
   for(std::map<unsigned int,TrackerSectorStruct>::const_iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
     std::map<unsigned int,TrackerSectorStruct>::const_iterator i_sector2(i_sector);
@@ -1358,7 +1356,7 @@ ApeEstimator::positionAndError2(const LocalPoint& localPoint, const LocalError& 
   
   const DetId& detId(hit.geographicalId());
   const uint32_t& rawId(detId.rawId());
-  const UInt_t& subdetId(m_tkTreeVar_[rawId].subdetId);
+  const unsigned int& subdetId(m_tkTreeVar_[rawId].subdetId);
   
   if(localError.xx()<0. || localError.yy()<0.){
     // Do not print error message by default

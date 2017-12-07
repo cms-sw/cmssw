@@ -194,7 +194,7 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
        resultsDir->GetObject("rawIdTree", rawIdTree);
        unsigned int rawId(0);
        rawIdTree->SetBranchAddress("RawId", &rawId);
-       for(Int_t entry=0; entry<rawIdTree->GetEntries(); ++entry){
+       for(int entry=0; entry<rawIdTree->GetEntries(); ++entry){
          rawIdTree->GetEntry(entry);
          // command "hadd" adds entries in TTree, so rawId are existing as often as number of files are added
          bool alreadyAdded(false);
