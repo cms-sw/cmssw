@@ -14,6 +14,7 @@ options.register ("tau"         , 10.,    VarParsing.multiplicity.singleton, Var
 options.register ("dt"          , 0.5,    VarParsing.multiplicity.singleton, VarParsing.varType.float)
 options.register ("nPreciseBins", 500,    VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register ("fitname"     , "pol2", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register ("signalShape" , 203,    VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.parseArguments()
 
 process = cms.Process("demo")
@@ -42,10 +43,11 @@ process.ana = cms.EDAnalyzer("SiPMNonlinearityAnalyzer",
     dt           = cms.double(options.dt          ),
     nPreciseBins = cms.uint32(options.nPreciseBins),
     fitname      = cms.string(options.fitname     ),
+    signalShape  = cms.uint32(options.signalShape ),
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("nonlin_pixels"+str(options.pixels)+"_npeMin"+str(options.npeMin)+"_npeMax"+str(options.npeMax)+"_npeStep"+str(options.npeStep)+"_nReps"+str(options.nReps)+"_tau"+str(options.tau)+"_"+options.fitname+".root")
+    fileName = cms.string("nonlin_pixels"+str(options.pixels)+"_npeMin"+str(options.npeMin)+"_npeMax"+str(options.npeMax)+"_npeStep"+str(options.npeStep)+"_nReps"+str(options.nReps)+"_tau"+str(options.tau)+"_"+options.fitname+"_shape"+str(options.signalShape)+".root")
 )
 
 process.p1 = cms.Path(process.ana)
