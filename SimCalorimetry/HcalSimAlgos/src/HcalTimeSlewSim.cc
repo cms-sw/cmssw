@@ -77,7 +77,12 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) co
 
       // until we get more precise/reliable QIE8 simulation...  
       if(totalCharge <= 0.) totalCharge = eps; // protecion against negaive v.
-      tshift += hcalTimeSlew_delay_->delay(totalCharge, biasSetting);      
+      std::cout<<"delay: HcalTimeSlewSim.cc"<<std::endl;
+      //--------------------------------------------------
+      //Fix this 
+      //--C. Madrid
+      //--------------------------------------------------
+      tshift += 0;//hcalTimeSlew_delay_->delay(totalCharge, biasSetting);      
       if(tshift <= 0.) tshift = eps;
 	  
       if ( cut > -999. ) { //preserve compatibility

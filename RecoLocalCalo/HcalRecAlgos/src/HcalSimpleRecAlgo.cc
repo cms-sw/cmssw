@@ -36,6 +36,7 @@ void HcalSimpleRecAlgo::beginRun(edm::EventSetup const & es)
   edm::ESHandle<HcalTimeSlew> delay;
   es.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
+  std::cout<<"HcalSimpleRecAlgo.cc"<<std::endl;
 
   pulseCorr_->beginRun(es);
 }
@@ -313,8 +314,9 @@ namespace HcalSimpleRecAlgoImpl {
       //C.Madrid
       //Need to fix this
       //------------
-      HcalTimeSlew* hcalTimeSlew_delay_ = nullptr;
-      if (slewCorrect) time-=hcalTimeSlew_delay_->delay(std::max(1.0,fc_ampl),slewFlavor);
+      //HcalTimeSlew* hcalTimeSlew_delay_ = nullptr;
+      std::cout<<"delay: HcalSimpleRecAlgo.cc"<<std::endl;
+      if (slewCorrect) time-=0;//hcalTimeSlew_delay_->delay(std::max(1.0,fc_ampl),slewFlavor);
 	  
       time=time-calibs.timecorr(); // time calibration
     }
