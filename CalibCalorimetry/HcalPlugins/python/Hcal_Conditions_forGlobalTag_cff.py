@@ -168,6 +168,8 @@ _toGet = [
     'Gains',
     'Pedestals',
     'PedestalWidths',
+    'EffectivePedestals',
+    'EffectivePedestalWidths',
     'ChannelQuality',
     'ZSThresholds',
     'TimeCorrs',
