@@ -22,9 +22,7 @@
 #include <exception>
 #include <memory>
 
-namespace tbb {
-  class task_arena;
-}
+#include "tbb/task_arena.h"
 
 namespace edm {
 

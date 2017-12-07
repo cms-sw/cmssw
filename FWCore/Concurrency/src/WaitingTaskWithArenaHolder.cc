@@ -6,8 +6,6 @@
 // Original Author:  W. David Dagenhart
 //         Created:  6 December 2017
 
-#include "tbb/task_arena.h"
-
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
