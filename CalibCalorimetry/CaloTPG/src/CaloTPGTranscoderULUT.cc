@@ -268,6 +268,8 @@ CaloTPGTranscoderULUT::isOnlyQIE11(const HcalTrigTowerDetId& id) const
          if (id.ietaAbs() <= theTopology->lastHBRing())
             return false;
          return true;
+      case HcalTopologyMode::TriggerMode_2019:
+         return true;
       default:
          throw cms::Exception("CaloTPGTranscoderULUT")
             << "Unknown trigger mode used by the topology!";
