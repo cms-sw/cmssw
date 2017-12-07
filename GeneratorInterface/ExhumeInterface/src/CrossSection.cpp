@@ -11,6 +11,7 @@
 //#include "CLHEP/HepMC/CBhepevt.h"
 #include <cstdio>
 #include <memory>
+#include <cmath>
 
 // External Fortran routines to link to:
 double dsimps_(double*, double*, double*, int*);
@@ -146,7 +147,7 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset)
   s = root_s * root_s;
   Invs = 1.0/s;
 
-  gw = sqrt(4.0*PI*AlphaEw/
+  gw = sqrt(4.0*M_PI*AlphaEw/
 	     (1.0 - WMass*WMass/
 	      (ZMass*ZMass)));
   
@@ -585,7 +586,7 @@ void Exhume::CrossSection::Hadronise(){
 /////////////////////////////////////////////////////////////////////////////
 void Exhume::CrossSection::AlphaSInit(){
 
-  ASConst = 12.0 * PI/22.0/2.0;
+  ASConst = 12.0 * M_PI/22.0/2.0;
   LambdaQCD = 0.001 * LambdaQCD;
   ASFreeze = ASConst / (log(Freeze/LambdaQCD));
 
@@ -705,9 +706,9 @@ void Exhume::CrossSection::LumiInit(){
   LumAccuracy = 100;
   LumNSimps = 51;
   LumNSimps_1 = LumNSimps - 1;
-  TConst = -0.25/PI;
+  TConst = -0.25/M_PI;
   
-  Inv2PI = 0.5 / PI;
+  Inv2PI = 0.5 / M_PI;
   Nc_2PI = 3.0 * Inv2PI;
   
   Inv3 = 1.0/3.0;
@@ -724,14 +725,14 @@ void Exhume::CrossSection::LumiInit(){
   _CfAs_2PIRg = (double*) calloc(LumNSimps, sizeof(double));
   _NcAs_2PI = (double*) calloc(LumNSimps, sizeof(double));
 
-  if(LumSimpsFunc==NULL||
-     _Qt==NULL||
-     _Qt2==NULL||
-     _KtLow==NULL||
-     _KtHigh==NULL||
-     _AlphaS==NULL||
-     _CfAs_2PIRg==NULL||
-     _NcAs_2PI==NULL){
+  if(LumSimpsFunc==nullptr||
+     _Qt==nullptr||
+     _Qt2==nullptr||
+     _KtLow==nullptr||
+     _KtHigh==nullptr||
+     _AlphaS==nullptr||
+     _CfAs_2PIRg==nullptr||
+     _NcAs_2PI==nullptr){
     NoMem(); 
   }
 
@@ -751,13 +752,13 @@ void Exhume::CrossSection::LumiInit(){
   }
 
   //LumConst = 0.015625 * Survive * Rg * Rg * Rg * Rg * PI * PI;
-  LumConst = 0.015625 * Survive * PI * PI;
+  LumConst = 0.015625 * Survive * M_PI * M_PI;
 
   Tn = 81;
   Tn_1 = Tn - 1;
   TFunc = (double*) calloc(Tn, sizeof(double));
 
-  if(TFunc == NULL){
+  if(TFunc == nullptr){
     NoMem();
   }
 
@@ -1155,7 +1156,8 @@ std::complex<double> Exhume::CrossSection::f(const double &Tau_){
         std::complex<double> SqrtTau = sqrt(Tau_),
             SqrtTau_1 = sqrt(Tau_-1.0);
         Sqrtf = log((SqrtTau + SqrtTau_1)/
-                    (SqrtTau - SqrtTau_1)) - I*PI;
+                    (SqrtTau - SqrtTau_1)) - I*M_PI
+	  ;
         f = -0.25 * Sqrtf * Sqrtf;
     }
     return(f);
