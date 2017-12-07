@@ -36,7 +36,7 @@
 #include <iterator>
 #include <numeric>  // for std::accumulate
 
-#define DEBUG false
+#define DEBUG true
 
 /* Graph utility functions */
 
@@ -63,6 +63,28 @@ void print_vertex(Vertex& u, const Graph& g) {
         << "(" << vertex_property.simTrack->trackId() << ")";
   IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << std::endl;
 }
+
+// Graphviz output functions will only be generated in DEBUG mode
+#if DEBUG
+std::string graphviz_vertex(const VertexProperty & v) {
+  std::ostringstream oss;
+  oss << "{id: " << (v.simTrack ? v.simTrack->trackId() : 0)
+    << ", type: " << (v.simTrack ? v.simTrack->type() : 0)
+    << ", chits: " << v.cumulative_simHits
+    << "}";
+  return oss.str();
+}
+
+std::string graphviz_edge(const EdgeProperty & e) {
+  std::ostringstream oss;
+  oss << "[" << (e.simTrack ? e.simTrack->trackId() : 0)
+    << "," << (e.simTrack ? e.simTrack->type() : 0)
+    << "," << e.simHits
+    << "]";
+  return oss.str();
+}
+#endif
+
 class SimHitsAccumulator_dfs_visitor : public boost::default_dfs_visitor {
  public:
   int total_simHits = 0;
@@ -96,16 +118,27 @@ class SimHitsAccumulator_dfs_visitor : public boost::default_dfs_visitor {
         << get(vertex_name, g, trg).cumulative_simHits << std::endl;
   }
 };
+
+typedef std::function<bool(EdgeProperty&)> Selector;
+
 class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
  public:
   CaloParticle_dfs_visitor(CaloTruthAccumulatorWithGraph::OutputCollections& output,
+                           CaloTruthAccumulatorWithGraph::calo_particles & caloParticles,
                            std::unordered_multimap<Barcode_t, Index_t>& simHitBarcodeToIndex,
-                           std::map<int, std::map<int, float> >& simTrackDetIdEnergyMap)
+                           std::unordered_map<int, std::map<int, float> >& simTrackDetIdEnergyMap,
+                           Selector selector)
       : output_(output),
+        caloParticles_(caloParticles),
         simHitBarcodeToIndex_(simHitBarcodeToIndex),
-        simTrackDetIdEnergyMap_(simTrackDetIdEnergyMap) {}
+        simTrackDetIdEnergyMap_(simTrackDetIdEnergyMap),
+        selector_(selector) {}
   template <typename Vertex, typename Graph>
   void discover_vertex(Vertex u, const Graph& g) {
+    // If we reach the vertex 0, it means that we are backtracking with respect
+    // to the first generation of stable particles: simply return;
+    if (u == 0)
+      return;
     print_vertex(u, g);
     auto const vertex_property = get(vertex_name, g, u);
     if (!vertex_property.simTrack) return;
@@ -117,21 +150,41 @@ class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
       auto& simcluster = output_.pSimClusters->back();
       std::unordered_map<uint32_t, float> acc_energy;
       for (const auto& hit_and_energy : simTrackDetIdEnergyMap_[trackIdx]) {
-        const uint32_t id = hit_and_energy.first;
-        if (acc_energy.count(id))
-          acc_energy[id] += hit_and_energy.second;
-        else
-          acc_energy[id] = hit_and_energy.second;
+        acc_energy[hit_and_energy.first] += hit_and_energy.second;
       }
       for (const auto& hit_and_energy : acc_energy) {
         simcluster.addRecHitAndFraction(hit_and_energy.first, hit_and_energy.second);
       }
     }
   }
+  template <typename Edge, typename Graph>
+  void examine_edge(Edge e, const Graph &g) {
+    auto src = source(e, g);
+    if (src == 0) {
+      auto edge_property = get(edge_weight, g, e);
+      if (selector_(edge_property)) {
+        output_.pCaloParticles->emplace_back(*(edge_property.simTrack));
+        caloParticles_.sc_start_.push_back(output_.pSimClusters->size());
+      }
+    }
+  }
+
+  template <typename Edge, typename Graph>
+  void finish_edge(Edge e, const Graph & g) {
+    auto src = source(e, g);
+    if (src == 0) {
+      auto edge_property = get(edge_weight, g, e);
+      if (selector_(edge_property)) {
+        caloParticles_.sc_stop_.push_back(output_.pSimClusters->size());
+      }
+    }
+  }
  private:
   CaloTruthAccumulatorWithGraph::OutputCollections& output_;
+  CaloTruthAccumulatorWithGraph::calo_particles & caloParticles_;
   std::unordered_multimap<Barcode_t, Index_t>& simHitBarcodeToIndex_;
-  std::map<int, std::map<int, float> >& simTrackDetIdEnergyMap_;
+  std::unordered_map<int, std::map<int, float> >& simTrackDetIdEnergyMap_;
+  Selector selector_;
 };
 }
 
@@ -308,7 +361,7 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
   event.getByLabel(genParticleLabel_, hGenParticleIndices);
 
   std::vector<std::pair<DetId, const PCaloHit*> > simHitPointers;
-  std::map<int, std::map<int, float> > simTrackDetIdEnergyMap;
+  std::unordered_map<int, std::map<int, float> > simTrackDetIdEnergyMap;
   fillSimHits(simHitPointers, simTrackDetIdEnergyMap, event, setup);
 
   // Clear maps from previous event fill them for this one
@@ -319,7 +372,7 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
 
   const auto& tracks = *hSimTracks;
   const auto& vertices = *hSimVertices;
-  std::map<int, int> trackid_to_track_index;
+  std::unordered_map<int, int> trackid_to_track_index;
   DecayChain decay;
   int idx = 0;
 
@@ -338,18 +391,24 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
   // a-posteriori, the ones not used, associating a ghost vertex (starting from
   // the highest simulated vertex number +1), in order to build the edge and
   // identify them immediately as stable (i.e. not decayed).
- idx = 0;
-  std::vector<bool> used_sim_tracks(tracks.size(), false);
+  idx = 0;
+  std::vector<int> used_sim_tracks(tracks.size(), 0);
   IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " VERTICES" << std::endl;
   for (auto const& v : vertices) {
     IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " " << idx++ << "\t" << v << std::endl;
     if (v.parentIndex() != -1) {
-      add_edge(tracks.at(trackid_to_track_index[v.parentIndex()]).vertIndex(), v.vertexId(),
+      // TODO(rovere): for multi-bremh do not continue the chain but collapse
+      // the multi-vertices in 1 unique vertex
+      auto trk_idx = trackid_to_track_index[v.parentIndex()];
+      auto origin_vtx = tracks[trk_idx].vertIndex();
+      if (used_sim_tracks[trk_idx])
+        origin_vtx = used_sim_tracks[trk_idx];
+      add_edge(origin_vtx, v.vertexId(),
                EdgeProperty(
-                   &tracks.at(trackid_to_track_index[v.parentIndex()]),
-                   simTrackDetIdEnergyMap[trackid_to_track_index[v.parentIndex()]].size(), 0),
+                   &tracks[trk_idx],
+                   simTrackDetIdEnergyMap[v.parentIndex()].size(), 0),
                decay);
-      used_sim_tracks[trackid_to_track_index[v.parentIndex()]] = true;
+      used_sim_tracks[trk_idx] = v.vertexId();
     }
   }
   // Assign the motherParticle property to each vertex
@@ -359,51 +418,53 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
   int offset = vertices.size() + 1;
   for (size_t i = 0; i < tracks.size(); ++i) {
     if (!used_sim_tracks[i]) {
-      add_edge(tracks.at(i).vertIndex(), offset,
+      add_edge(tracks[i].vertIndex(), offset,
                EdgeProperty(
-                   &tracks.at(i), simTrackDetIdEnergyMap[tracks.at(i).trackId()].size(), 0),
+                   &tracks[i], simTrackDetIdEnergyMap[tracks[i].trackId()].size(), 0),
                decay);
       // The properties for "fake" vertices associated to stable particles have
       // to be set inside this loop, since they do not belong to the vertices
       // collection and would be skipped by that loop (coming next)
-      put(vertexMothersProp, offset, VertexProperty(&tracks.at(i), 0));
+      put(vertexMothersProp, offset, VertexProperty(&tracks[i], 0));
       offset++;
     }
   }
   for (auto const& v : vertices) {
     if (v.parentIndex() != -1) {
       put(vertexMothersProp, v.vertexId(),
-          VertexProperty(&tracks.at(trackid_to_track_index[v.parentIndex()]), 0));
+          VertexProperty(&tracks[trackid_to_track_index[v.parentIndex()]], 0));
     }
   }
   SimHitsAccumulator_dfs_visitor vis;
   depth_first_search(decay, visitor(vis));
-  auto const first_generation = out_edges(0, decay);
-  for (auto edge = first_generation.first; edge != first_generation.second; ++edge) {
-    auto const edge_property = get(edge_weight, decay, *edge);
-    // Apply selection on SimTracks in order to promote them to be CaloParticles.
-    if (edge_property.cumulative_simHits == 0 or edge_property.simTrack->noGenpart() or
-        edge_property.simTrack->momentum().E() < minEnergy_ or
-        std::abs(edge_property.simTrack->momentum().Eta()) >= maxPseudoRapidity_)
-      continue;
-    output_.pCaloParticles->emplace_back(*(edge_property.simTrack));
-    m_caloParticles.sc_start_.push_back(output_.pSimClusters->size());
-    CaloParticle_dfs_visitor caloParticleCreator(output_, m_simHitBarcodeToIndex,
-                                                 simTrackDetIdEnergyMap);
-    depth_first_search(decay, visitor(caloParticleCreator).root_vertex(target(*edge, decay)));
-    m_caloParticles.sc_stop_.push_back(output_.pSimClusters->size());
-    IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph")
-        << " Creating CaloParticle particle: " << edge_property.simTrack->type() << "("
-        << edge_property.simTrack->trackId() << ")"
-        << " with total SimClusters: " << edge_property.cumulative_simHits
-        << std::endl;
-  }
+  CaloParticle_dfs_visitor caloParticleCreator(output_,
+      m_caloParticles,
+      m_simHitBarcodeToIndex,
+      simTrackDetIdEnergyMap,
+      [&](EdgeProperty & edge_property) -> bool {
+     // Apply selection on SimTracks in order to promote them to be CaloParticles.
+     // The function returns TRUE if the particle satisfies the selection, FALSE otherwise.
+     // Therefore the correct logic to select the particle is to ask for TRUE as return value.
+      return (edge_property.cumulative_simHits != 0
+        and ! edge_property.simTrack->noGenpart()
+        and edge_property.simTrack->momentum().E() > minEnergy_
+        and std::abs(edge_property.simTrack->momentum().Eta()) < maxPseudoRapidity_);
+      });
+  depth_first_search(decay, visitor(caloParticleCreator));
+
+#if DEBUG
+  boost::write_graphviz(std::cout, decay,
+      make_label_writer(
+        make_transform_value_property_map(&graphviz_vertex, get(vertex_name, decay))),
+      make_label_writer(
+        make_transform_value_property_map(&graphviz_edge, get(edge_weight, decay))));
+#endif
 }
 
 template <class T>
 void CaloTruthAccumulatorWithGraph::fillSimHits(
     std::vector<std::pair<DetId, const PCaloHit*> >& returnValue,
-    std::map<int, std::map<int, float> >& simTrackDetIdEnergyMap, const T& event,
+    std::unordered_map<int, std::map<int, float> >& simTrackDetIdEnergyMap, const T& event,
     const edm::EventSetup& setup) {
   // loop over the collections
   for (const auto& collectionTag : collectionTags_) {
@@ -433,16 +494,9 @@ void CaloTruthAccumulatorWithGraph::fillSimHits(
 
       uint32_t detId = id.rawId();
       returnValue.emplace_back(id, &simHit);
-      if (simTrackDetIdEnergyMap.count(simHit.geantTrackId()) &&
-          simTrackDetIdEnergyMap[simHit.geantTrackId()].count(id.rawId()))
-        simTrackDetIdEnergyMap[simHit.geantTrackId()][id.rawId()] += simHit.energy();
-      else
-        simTrackDetIdEnergyMap[simHit.geantTrackId()][id.rawId()] = simHit.energy();
+      simTrackDetIdEnergyMap[simHit.geantTrackId()][id.rawId()] += simHit.energy();
 
-      if (m_detIdToTotalSimEnergy.count(detId))
-        m_detIdToTotalSimEnergy[detId] += simHit.energy();
-      else
-        m_detIdToTotalSimEnergy[detId] = simHit.energy();
+      m_detIdToTotalSimEnergy[detId] += simHit.energy();
     }
   }  // end of loop over InputTags
 }
