@@ -4,7 +4,7 @@
 // Package:    DefaultApeTree
 // Class:      DefaultApeTree
 // 
-/**\class DefaultApeTree DefaultApeTree.cc Alignment/APEEstimation/src/createDefaultApeTree.cc
+/**\class ApeTreeCreateDefault ApeTreeCreateDefault.cc Alignment/APEEstimation/src/ApeTreeCreateDefault.cc
 
  Description: [one line class summary]
 
@@ -62,10 +62,10 @@
 // class declaration
 //
 
-class DefaultApeTree : public edm::one::EDAnalyzer<> {
+class ApeTreeCreateDefault : public edm::one::EDAnalyzer<> {
   public:
-    explicit DefaultApeTree(const edm::ParameterSet&);
-    ~DefaultApeTree() override;
+    explicit ApeTreeCreateDefault(const edm::ParameterSet&);
+    ~ApeTreeCreateDefault() override;
   
   
   private:
@@ -85,6 +85,7 @@ class DefaultApeTree : public edm::one::EDAnalyzer<> {
     
     std::map<unsigned int, TrackerSectorStruct> m_tkSector_;
     std::map<unsigned int, ReducedTrackerTreeVariables> m_tkTreeVar_;
+    unsigned int noSectors;
 };              
 
 //
@@ -98,13 +99,13 @@ class DefaultApeTree : public edm::one::EDAnalyzer<> {
 //
 // constructors and destructor
 //
-DefaultApeTree::DefaultApeTree(const edm::ParameterSet& iConfig):
+ApeTreeCreateDefault::ApeTreeCreateDefault(const edm::ParameterSet& iConfig):
 parameterSet_(iConfig)
 {
 }
 
 
-DefaultApeTree::~DefaultApeTree()
+ApeTreeCreateDefault::~ApeTreeCreateDefault()
 {
 }
 
@@ -113,7 +114,7 @@ DefaultApeTree::~DefaultApeTree()
 // member functions
 //
 void
-DefaultApeTree::sectorBuilder()
+ApeTreeCreateDefault::sectorBuilder()
 {
   // Same procedure as in ApeEstimator.cc
   TFile* tkTreeFile(TFile::Open((parameterSet_.getParameter<std::string>("TrackerTreeFile")).c_str()));
@@ -131,11 +132,11 @@ DefaultApeTree::sectorBuilder()
     edm::LogError("SectorBuilder")<<"TrackerTree not found in file";
     return;
   }
-  UInt_t rawId(999), subdetId(999), layer(999), side(999), half(999), rod(999), ring(999), petal(999),
+  unsigned int rawId(999), subdetId(999), layer(999), side(999), half(999), rod(999), ring(999), petal(999),
          blade(999), panel(999), outerInner(999), module(999), nStrips(999);
-  Bool_t isDoubleSide(false), isRPhi(false), isStereo(false);
-  Int_t uDirection(999), vDirection(999), wDirection(999);
-  Float_t posR(999.F), posPhi(999.F), posEta(999.F), posX(999.F), posY(999.F), posZ(999.F); 
+  bool isDoubleSide(false), isRPhi(false), isStereo(false);
+  int uDirection(999), vDirection(999), wDirection(999);
+  float posR(999.F), posPhi(999.F), posEta(999.F), posX(999.F), posY(999.F), posZ(999.F); 
   tkTree->SetBranchAddress("RawId", &rawId);
   tkTree->SetBranchAddress("SubdetId", &subdetId);
   tkTree->SetBranchAddress("Layer", &layer);
@@ -162,16 +163,16 @@ DefaultApeTree::sectorBuilder()
   tkTree->SetBranchAddress("PosY", &posY);
   tkTree->SetBranchAddress("PosZ", &posZ);
   
-  Int_t nModules(tkTree->GetEntries());
+  int nModules(tkTree->GetEntries());
   TrackerSectorStruct allSectors;
   
   //Loop over all Sectors
-  unsigned int sectorCounter(1);
+  unsigned int sectorCounter(0);
   std::vector<edm::ParameterSet> v_sectorDef(parameterSet_.getParameter<std::vector<edm::ParameterSet> >("Sectors"));
   edm::LogInfo("SectorBuilder")<<"There are "<<v_sectorDef.size()<<" Sectors defined";
-  std::vector<edm::ParameterSet>::const_iterator i_parSet;
-  for(i_parSet = v_sectorDef.begin(); i_parSet != v_sectorDef.end();++i_parSet, ++sectorCounter){
-    const edm::ParameterSet& parSet = *i_parSet;
+
+  for(auto const & parSet : v_sectorDef){
+    ++sectorCounter;
     const std::string& sectorName(parSet.getParameter<std::string>("name"));
     std::vector<unsigned int> v_rawId(parSet.getParameter<std::vector<unsigned int> >("rawId")),
             v_subdetId(parSet.getParameter<std::vector<unsigned int> >("subdetId")),
@@ -212,7 +213,7 @@ DefaultApeTree::sectorBuilder()
     ReducedTrackerTreeVariables tkTreeVar;
     
     //Loop over all Modules
-    for(Int_t module = 0; module < nModules; ++module){
+    for(int module = 0; module < nModules; ++module){
       tkTree->GetEntry(module);
       
       if(sectorCounter==1){
@@ -252,9 +253,8 @@ DefaultApeTree::sectorBuilder()
       
       tkSector.v_rawId.push_back(rawId);
       bool moduleSelected(false);
-      for(std::vector<unsigned int>::const_iterator i_rawId = allSectors.v_rawId.begin();
-          i_rawId != allSectors.v_rawId.end(); ++i_rawId){
-        if(rawId == *i_rawId)moduleSelected = true;
+      for(auto const & i_rawId : allSectors.v_rawId){
+        if(rawId == i_rawId)moduleSelected = true;
       }
       if(!moduleSelected)allSectors.v_rawId.push_back(rawId);
     }
@@ -262,12 +262,12 @@ DefaultApeTree::sectorBuilder()
     // Stops you from combining pixel and strip detector into one sector
     bool isPixel(false);
     bool isStrip(false);
-    for(std::vector<unsigned int>::const_iterator i_rawId = tkSector.v_rawId.begin(); i_rawId != tkSector.v_rawId.end(); ++i_rawId){
-      if(m_tkTreeVar_[*i_rawId].subdetId==PixelSubdetector::PixelBarrel || m_tkTreeVar_[*i_rawId].subdetId==PixelSubdetector::PixelEndcap){
+    for(auto const & i_rawId : tkSector.v_rawId){
+      if(m_tkTreeVar_[i_rawId].subdetId==PixelSubdetector::PixelBarrel || m_tkTreeVar_[i_rawId].subdetId==PixelSubdetector::PixelEndcap){
         isPixel = true;
       }
-      if(m_tkTreeVar_[*i_rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[*i_rawId].subdetId==StripSubdetector::TOB ||
-         m_tkTreeVar_[*i_rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[*i_rawId].subdetId==StripSubdetector::TEC){
+      if(m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TOB ||
+         m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TEC){
         isStrip = true;
       }
     }
@@ -282,13 +282,14 @@ DefaultApeTree::sectorBuilder()
     m_tkSector_[sectorCounter] = tkSector;
     edm::LogInfo("SectorBuilder")<<"There are "<<tkSector.v_rawId.size()<<" Modules in Sector "<<sectorCounter;
   }
+  noSectors = sectorCounter;
   return;
 }
 
 
 // Checking methods copied from ApeEstimator.cc
 bool
-DefaultApeTree::checkIntervalsForSectors(const unsigned int sectorCounter, const std::vector<double>& v_id)const
+ApeTreeCreateDefault::checkIntervalsForSectors(const unsigned int sectorCounter, const std::vector<double>& v_id)const
 {
     
   if(v_id.empty())return true;
@@ -311,7 +312,7 @@ DefaultApeTree::checkIntervalsForSectors(const unsigned int sectorCounter, const
 }
 
 bool
-DefaultApeTree::checkModuleIds(const unsigned int id, const std::vector<unsigned int>& v_id)const
+ApeTreeCreateDefault::checkModuleIds(const unsigned int id, const std::vector<unsigned int>& v_id)const
 {
     
   if(v_id.empty())return true;
@@ -322,7 +323,7 @@ DefaultApeTree::checkModuleIds(const unsigned int id, const std::vector<unsigned
 }
 
 bool
-DefaultApeTree::checkModuleBools(const bool id, const std::vector<unsigned int>& v_id)const
+ApeTreeCreateDefault::checkModuleBools(const bool id, const std::vector<unsigned int>& v_id)const
 {
     
   if(v_id.empty())return true;
@@ -334,7 +335,7 @@ DefaultApeTree::checkModuleBools(const bool id, const std::vector<unsigned int>&
 }
 
 bool
-DefaultApeTree::checkModuleDirections(const int id, const std::vector<int>& v_id)const
+ApeTreeCreateDefault::checkModuleDirections(const int id, const std::vector<int>& v_id)const
 {
     
   if(v_id.empty())return true;
@@ -345,7 +346,7 @@ DefaultApeTree::checkModuleDirections(const int id, const std::vector<int>& v_id
 }
 
 bool
-DefaultApeTree::checkModulePositions(const float id, const std::vector<double>& v_id)const
+ApeTreeCreateDefault::checkModulePositions(const float id, const std::vector<double>& v_id)const
 {
     
   if(v_id.empty())return true;
@@ -361,7 +362,7 @@ DefaultApeTree::checkModulePositions(const float id, const std::vector<double>& 
 
 // ------------ method called to for each event  ------------
 void
-DefaultApeTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+ApeTreeCreateDefault::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Same procedure as in ApeEstimatorSummary.cc minus reading of baseline tree
   
@@ -389,35 +390,32 @@ DefaultApeTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
     
   // Assign the information stored in the trees to arrays
-  double a_defaultSectorX[16589];
-  double a_defaultSectorY[16589];
+  std::vector<double*> a_defaultSectorX;
+  std::vector<double*> a_defaultSectorY;
   
-  std::string* a_sectorName[16589];
+  std::vector<std::string*> a_sectorName;
   std::map<unsigned int, TrackerSectorStruct>::const_iterator i_sector;
   for(i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
     const unsigned int iSector(i_sector->first);
     const bool pixelSector(i_sector->second.isPixel);
     
-    a_defaultSectorX[iSector] = -99.;
-    a_defaultSectorY[iSector] = -99.;
+    a_defaultSectorX.push_back(new double(-99.));
+    a_defaultSectorY.push_back(new double(-99.));
+    a_sectorName.push_back(new std::string(i_sector->second.name));
     
-    a_sectorName[iSector] = nullptr;
     std::stringstream ss_sector;
     std::stringstream ss_sectorSuffixed;
     ss_sector << "Ape_Sector_" << iSector;
   
     ss_sectorSuffixed << ss_sector.str() << "/D";
-    defaultTreeX->Branch(ss_sector.str().c_str(), &a_defaultSectorX[iSector], ss_sectorSuffixed.str().c_str());
+    defaultTreeX->Branch(ss_sector.str().c_str(), &(*a_defaultSectorX[iSector-1]), ss_sectorSuffixed.str().c_str());
+    
     if(pixelSector){
-      defaultTreeY->Branch(ss_sector.str().c_str(), &a_defaultSectorY[iSector], ss_sectorSuffixed.str().c_str());
+      defaultTreeY->Branch(ss_sector.str().c_str(), &(*a_defaultSectorY[iSector-1]), ss_sectorSuffixed.str().c_str());
     }
-    sectorNameTree->Branch(ss_sector.str().c_str(), &a_sectorName[iSector], 32000, 00);  
+    sectorNameTree->Branch(ss_sector.str().c_str(), &(*a_sectorName[iSector-1]), 32000, 00);  
   }
-  
-  for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-    const std::string& name(i_sector->second.name);      
-    a_sectorName[(*i_sector).first] = new std::string(name);
-  }
+
   
   // Loop over sectors for getting default APE
   
@@ -438,10 +436,11 @@ DefaultApeTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
       }
   }
-  a_defaultSectorX[(*i_sector).first] = defaultApeX/nModules;
-  a_defaultSectorY[(*i_sector).first] = defaultApeY/nModules;
-  
+  *a_defaultSectorX[(*i_sector).first-1] = defaultApeX/nModules;
+  *a_defaultSectorY[(*i_sector).first-1] = defaultApeY/nModules;
   }
+  
+  
   sectorNameTree->Fill();
   sectorNameTree->Write("nameTree");
   defaultTreeX->Fill();
@@ -457,7 +456,7 @@ DefaultApeTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-DefaultApeTree::beginJob()
+ApeTreeCreateDefault::beginJob()
 {
     
   this->sectorBuilder();
@@ -465,10 +464,10 @@ DefaultApeTree::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-DefaultApeTree::endJob() 
+ApeTreeCreateDefault::endJob() 
 {
      
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DefaultApeTree);
+DEFINE_FWK_MODULE(ApeTreeCreateDefault);
