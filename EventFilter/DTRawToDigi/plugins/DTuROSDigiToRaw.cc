@@ -317,7 +317,7 @@ void DTuROSDigiToRaw::clear() {
 
 int DTuROSDigiToRaw::theCRT(int ddu, int ros) {
 
-  if (ros > 6) ddu = ddu - 5;
+  if (ros > 6 && ddu > 774) ddu = ddu - 5;
   
   if (ddu == 770) return 1368;
   else if (ddu == 771) return 1368;
@@ -328,7 +328,7 @@ int DTuROSDigiToRaw::theCRT(int ddu, int ros) {
 
 int DTuROSDigiToRaw::theSLT(int ddu, int ros, int rob) {
 
-  if (ros > 6) ddu = ddu - 5;
+  if (ros > 6 && ddu > 774) ddu = ddu - 5;
 
   int slot = ((ros-1)/3)+1;
   if (rob == 23) slot = 5;

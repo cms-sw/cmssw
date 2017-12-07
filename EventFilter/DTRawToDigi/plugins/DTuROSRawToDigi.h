@@ -79,7 +79,7 @@ private:
     ++lines;
   }
 
-  int theDDU(int crate, int slot, int link);
+  int theDDU(int crate, int slot, int link, bool tenDDU);
 
   int theROS(int crate, int slot, int link);
 
