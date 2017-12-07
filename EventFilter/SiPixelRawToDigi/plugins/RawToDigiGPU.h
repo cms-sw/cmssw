@@ -34,6 +34,7 @@ const uint LINK_bits1   = 6;
 const uint ROC_bits1    = 5;
 const uint COL_bits1_l1 = 6;
 const uint ROW_bits1_l1 = 7;
+const uint OMIT_ERR_bits = 1;
 
 const uint maxROCIndex  = 8;
 const uint numRowsInRoc = 80;
@@ -55,6 +56,7 @@ const uint numColsInRoc = 52;
 // special for layer 1 ROC
  const uint ROW_shift = ADC_shift + ADC_bits;
  const uint COL_shift = ROW_shift + ROW_bits1_l1;
+ const uint OMIT_ERR_shift = 20;
 
  const uint LINK_mask = ~(~uint(0) << LINK_bits1);
  const uint ROC_mask  = ~(~uint(0) << ROC_bits1);
@@ -62,7 +64,9 @@ const uint numColsInRoc = 52;
  const uint ROW_mask  = ~(~uint(0) << ROW_bits1_l1);
  const uint DCOL_mask = ~(~uint(0) << DCOL_bits);
  const uint PXID_mask = ~(~uint(0) << PXID_bits);
- const uint ADC_mask  = ~(~uint(0) << ADC_bits); 
+ const uint ADC_mask  = ~(~uint(0) << ADC_bits);
+ const uint ERROR_mask = ~(~uint(0) << ROC_bits1);
+ const uint OMIT_ERR_mask = ~(~uint(0) << OMIT_ERR_bits);
 
 struct DetIdGPU {
   uint RawId;
@@ -75,10 +79,10 @@ struct Pixel {
  uint col;
 };
 
- //CablingMap *Map;
  //GPU specific
  uint *word_d, *fedIndex_d, *eventIndex_d;       // Device copy of input data
  uint *xx_d, *yy_d,*xx_adc, *yy_adc, *moduleId_d, *adc_d, *layer_d, *rawIdArr_d;  // Device copy
+ uint *errType_d, *errWord_d, *errFedID_d, *errRawID_d;  // Device copy
  // store the start and end index for each module (total 1856 modules-phase 1)
  cudaStream_t stream[NSTREAM];
  int *mIndexStart_d, *mIndexEnd_d; 

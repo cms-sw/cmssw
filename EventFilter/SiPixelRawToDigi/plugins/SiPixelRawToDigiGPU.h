@@ -73,6 +73,7 @@ private:
   // to store the output
   // uint *word_h, *fedIndex_h, *eventIndex_h;       // host copy of input data
   uint *xx_h, *yy_h, *adc_h, *rawIdArr_h;  // host copy of output
+  uint *errType_h, *errWord_h, *errFedID_h, *errRawID_h;  // host copy of output
   // store the start and end index for each module (total 1856 modules-phase 1)
   int *mIndexStart_h, *mIndexEnd_h; 
   CablingMap *cablingMapGPU;

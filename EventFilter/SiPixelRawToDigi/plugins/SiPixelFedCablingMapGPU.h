@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CablingMapGPU.h"
 
 
@@ -12,7 +13,7 @@ class SiPixelFedCablingMapGPU {
 public:
 	SiPixelFedCablingMapGPU(edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap);
 	~ SiPixelFedCablingMapGPU() {}
-	void process(CablingMap* &cablingMapGPU) ;
+	void process(CablingMap* &cablingMapGPU, const SiPixelQuality* badPixelInfo, std::set<unsigned int> modules);
 
 private:
 	edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
