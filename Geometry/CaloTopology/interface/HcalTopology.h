@@ -104,6 +104,9 @@ public:
   void depthBinInformation(HcalSubdetector subdet, int etaRing,
 			   int iphi, int zside, int & nDepthBins,
 			   int & startingBin) const;
+  std::vector<int> mergedDepthList29(HcalDetId id) const {
+    return hcons_->mergedDepthList29(id.ieta(), id.iphi());
+  }
 
   /// how many phi segments in this ring
   int nPhiBins(int etaRing) const;
