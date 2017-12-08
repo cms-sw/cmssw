@@ -43,7 +43,13 @@ namespace l1t {
          // Get the BX blocks and unpack them
          auto bxBlocks = block.getBxBlocks(nWords_, bxZsEnabled);
          for (const auto& bxBlock : bxBlocks) {
-            unpackBx(bxBlock.header().getBx(), bxBlock.payload());
+            // Protect against corrupted BX headers with out of range BX numbers
+            const auto bx = bxBlock.header().getBx();
+            if (bx < firstBX || bx > lastBX) {
+               edm::LogError("L1T") << "Corrupt RAW data from FED " << fed_ << ", AMC " << block.amc().getAMCNumber() << ". BX number " << bx << " in BX header is outside of the BX range [" << firstBX << "," << lastBX << "] defined in the block header. Skip unpacking of this BX block.";
+               continue;
+            }
+            unpackBx(bx, bxBlock.payload());
          }
          return true;
       }
