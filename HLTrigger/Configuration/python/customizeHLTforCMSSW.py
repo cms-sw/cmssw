@@ -18,7 +18,7 @@ from HLTrigger.Configuration.common import *
 #     return process
 
 # Add mahi to HCAL local reconstruction 
-def customiseForXXXXX(process):
+def customiseFor21664(process):
     from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
     for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
         producer.algorithm.useMahi = hbheprereco.algorithm.useMahi
@@ -80,5 +80,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor19989(process)
         process = customiseFor20429(process)
         process = customiseFor21437(process)
+        process = customiseFor21664(process)
 
     return process
