@@ -21,7 +21,14 @@ from HLTrigger.Configuration.common import *
 def customiseFor21664(process):
     from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
     for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.algorithm.useMahi = hbheprereco.algorithm.useMahi
+        producer.algorithm.useMahi     = hbheprereco.algorithm.useMahi
+        producer.algorithm.ts4Thresh    = hbheprereco.algorithm.ts4Thresh
+        producer.algorithm.chiSqSwitch  = hbheprereco.algorithm.chiSqSwitch
+        producer.algorithm.activeBXs    = hbheprereco.algorithm.activeBXs
+        producer.algorithm.nMaxItersMin = hbheprereco.algorithm.nMaxItersMin
+        producer.algorithm.nMaxItersNNLS = hbheprereco.algorithm.nMaxItersNNLS
+        producer.algorithm.deltaChiSqThresh = hbheprereco.algorithm.deltaChiSqThresh
+        producer.algorithm.nnlsThresh   = hbheprereco.algorithm.nnlsThresh
     return process
 
 # Add new parameters to RecoTrackRefSelector
