@@ -141,7 +141,7 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
 	    << "====================" << std::endl;
   for (int eta=topology.lastHERing()-2; eta<=topology.lastHERing(); ++eta) {
     for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
-      for (int depth = 1; depth <  maxDepthHE; depth++) {
+      for (int depth = 1; depth <=  maxDepthHE; depth++) {
 	HcalDetId cell (HcalEndcap, eta, phi, depth);
 	if (topology.valid(cell)) {
 	  std::vector<int> depths = topology.mergedDepthList29(cell);

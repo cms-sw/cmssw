@@ -618,10 +618,11 @@ std::vector<int> HcalDDDRecConstants::mergedDepthList29(int ieta, int iphi) cons
   std::vector<int> depths;
   int eta   = (ieta > 0) ? ieta : -ieta;
   int zside = (ieta > 0) ? 1 : -1;
-  if ((eta >= (iEtaMax[1]-hcons.getDepthEta29(iphi,zside,1))) &&
-      (eta <= iEtaMax[1])) {
-    unsigned int depthMax = (unsigned int)(hcons.getDepthEta29(iphi,zside,0));
-    for (unsigned int depth=layerGroup(eta,0); depth <= depthMax; ++depth)
+  int etamin= iEtaMax[1]-hcons.getDepthEta29(iphi,zside,1);
+  if ((eta >= etamin) && (eta <= iEtaMax[1])) {
+    int depthMax = getMaxDepth(1, etamin, iphi, zside);
+    int depthMin = hcons.getDepthEta29(iphi,zside,0) + 1;
+    for (int depth=depthMin; depth <= depthMax; ++depth)
       depths.emplace_back(depth);
   }
   return depths;
