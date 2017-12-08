@@ -36,7 +36,7 @@
 #include <iterator>
 #include <numeric>  // for std::accumulate
 
-#define DEBUG true
+#define DEBUG false
 
 /* Graph utility functions */
 
@@ -391,18 +391,39 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
   // a-posteriori, the ones not used, associating a ghost vertex (starting from
   // the highest simulated vertex number +1), in order to build the edge and
   // identify them immediately as stable (i.e. not decayed).
+  // To take into account the multi-bremsstrahlung effects in which a single
+  // particle is emitting photons in different vertices **keeping the same
+  // track index**, we also collapsed those vertices into 1 unique vertex. The
+  // other approach of fully representing the decay chain keeping the same
+  // track index would have the problem of over-counting the contributions of
+  // that track, especially in terms of hits.
+  // The 2 vectors are structured as follow:
+  // 1. used_sim_tracks is a vector that has the same size as the overall
+  //    number of simulated tracks. The associated integer is the vertexId of
+  //    the **decaying vertex for that track**.
+  // 2. collapsed_vertices is a vector that has the same size as the overall
+  //    number of simulated vertices. The vector's index is the vertexId
+  //    itself, the associated value is the vertexId of the vertex on which
+  //    this should collapse.
   idx = 0;
   std::vector<int> used_sim_tracks(tracks.size(), 0);
+  std::vector<int> collapsed_vertices(vertices.size(), 0);
   IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " VERTICES" << std::endl;
   for (auto const& v : vertices) {
     IfLogDebug(DEBUG, "CaloTruthAccumulatorWithGraph") << " " << idx++ << "\t" << v << std::endl;
     if (v.parentIndex() != -1) {
-      // TODO(rovere): for multi-bremh do not continue the chain but collapse
-      // the multi-vertices in 1 unique vertex
       auto trk_idx = trackid_to_track_index[v.parentIndex()];
       auto origin_vtx = tracks[trk_idx].vertIndex();
-      if (used_sim_tracks[trk_idx])
-        origin_vtx = used_sim_tracks[trk_idx];
+      if (used_sim_tracks[trk_idx]) {
+        // collapse the vertex into the original first vertex we saw associated
+        // to this track. Omit adding the edge in order to avoid double
+        // counting of the very same particles  and its associated hits.
+        collapsed_vertices[v.vertexId()] = used_sim_tracks[trk_idx];
+        continue;
+      }
+      // Perform the actual vertex collapsing, if needed.
+      if (collapsed_vertices[origin_vtx])
+        origin_vtx = collapsed_vertices[origin_vtx];
       add_edge(origin_vtx, v.vertexId(),
                EdgeProperty(
                    &tracks[trk_idx],
@@ -411,14 +432,18 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
       used_sim_tracks[trk_idx] = v.vertexId();
     }
   }
-  // Assign the motherParticle property to each vertex
+  // Build the motherParticle property to each vertex
   auto const& vertexMothersProp = get(vertex_name, decay);
   // Now recover the particles that did not decay. Append them with an index
   // bigger than the size of the generated vertices.
   int offset = vertices.size() + 1;
   for (size_t i = 0; i < tracks.size(); ++i) {
     if (!used_sim_tracks[i]) {
-      add_edge(tracks[i].vertIndex(), offset,
+      auto origin_vtx = tracks[i].vertIndex();
+      // Perform the actual vertex collapsing, if needed.
+      if (collapsed_vertices[origin_vtx])
+        origin_vtx = collapsed_vertices[origin_vtx];
+      add_edge(origin_vtx, offset,
                EdgeProperty(
                    &tracks[i], simTrackDetIdEnergyMap[tracks[i].trackId()].size(), 0),
                decay);
@@ -431,6 +456,9 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
   }
   for (auto const& v : vertices) {
     if (v.parentIndex() != -1) {
+      // Skip collapsed_vertices
+      if (collapsed_vertices[v.vertexId()])
+        continue;
       put(vertexMothersProp, v.vertexId(),
           VertexProperty(&tracks[trackid_to_track_index[v.parentIndex()]], 0));
     }
