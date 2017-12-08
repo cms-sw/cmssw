@@ -11,7 +11,7 @@ DoMahiAlgo::DoMahiAlgo() :
 {}
 
 void DoMahiAlgo::setParameters(double iTS4Thresh, double chiSqSwitch, bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
-			       double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM, //bool iUseConfigBXs,
+			       double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM, 
 			       const std::vector <int> &iActiveBXs, int iNMaxItersMin, int iNMaxItersNNLS,
 			       double iDeltaChiSqThresh, double iNnlsThresh) {
 
@@ -64,12 +64,10 @@ void DoMahiAlgo::phase1Apply(const HBHEChannelInfo& channelData,
 			  channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)+
 			  channelData.tsPedestalWidth(3)*channelData.tsPedestalWidth(3) );
 
-  if (channelData.hasTimeInfo()) pedConstraint_+= darkCurrent_*darkCurrent_;
-
   std::vector<float> reconstructedVals;
   SampleVector charges;
   
-  double tsTOT = 0, tstrig = 0; // in fC
+  double tsTOT = 0, tstrig = 0; // in GeV
   for(unsigned int iTS=0; iTS<TSSize_; ++iTS){
     double charge = channelData.tsRawCharge(iTS);
     double ped = channelData.tsPedestal(iTS);
@@ -81,7 +79,7 @@ void DoMahiAlgo::phase1Apply(const HBHEChannelInfo& channelData,
 
     //Dark current (for SiPMs)
     double noiseDC=0;
-    if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(iTS)) {
+    if(channelData.hasTimeInfo() && !channelData.hasEffectivePedestals() && (charge-ped)>channelData.tsPedestalWidth(iTS)) {
       noiseDC = darkCurrent_;
     }
 
