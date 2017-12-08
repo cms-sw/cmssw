@@ -28,8 +28,7 @@ public:
                       double distXY) const;
 
     void clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
-                       l1t::HGCalClusterBxCollection & clusters,
-                       bool storeClusters=true
+                       l1t::HGCalClusterBxCollection & clusters
         );
 
     /* NN-algorithms */    
@@ -52,7 +51,7 @@ public:
                          const HGCalTriggerGeometryBase & triggerGeometry
         );
 
-
+    
 
 private:
     
@@ -67,6 +66,10 @@ private:
 
     HGCalTriggerTools triggerTools_;
     bool areTCneighbour_( uint32_t detIDa, uint32_t detIDb, const HGCalTriggerGeometryBase & triggerGeometry );
+    
+    void removeUnconnectedTCinCluster_( l1t::HGCalCluster* cluster,
+                                        const HGCalTriggerGeometryBase & triggerGeometry
+        );
 
 };
 

@@ -48,11 +48,11 @@ namespace l1t
       
         ~HGCalClusterT() {};
       
-        const edm::PtrVector<C>& constituents() const {return constituents_;}        
-        const_iterator constituents_begin() const {return constituents_.begin();}
-        const_iterator constituents_end() const {return constituents_.end();}
+        const edm::PtrVector<C>& constituents() const { return constituents_; }  
+        const_iterator constituents_begin() const { return constituents_.begin(); }
+        const_iterator constituents_end() const { return constituents_.end(); }
         unsigned size() const { return constituents_.size(); }
-
+        
         void addConstituent( const edm::Ptr<C>& c, bool updateCentre=true, float fraction=1. )
         {
             
@@ -102,6 +102,7 @@ namespace l1t
         setP4( updatedP4 );
 
         constituents_.push_back( c );
+        constituentsV_.push_back( c );
         constituentsFraction_.push_back( fraction );
 
       }
@@ -110,26 +111,29 @@ namespace l1t
           
           /* remove the pointer to c from the edm::PtrVector */
           double fraction=0;
-          for( int i=0; i<constituents_.size(); i++ )
+          for( unsigned i=0; i<constituentsV_.size(); i++ )
           {
-              if( constituents_.at(i) == c )
+              if( constituentsV_[i] == c )
               {
                   // remove constituent and get its fraction in the cluster
-                  constituents_.erase( constituents_.begin()+i );
+                  constituentsV_.erase( constituentsV_.begin()+i );
                   fraction = constituentsFraction_.at(i);
+                  constituentsFraction_.erase( constituentsFraction_.begin()+i );
                   break;
               }
           }
-
-          double cMipt = c->mipPt();
+          
+          /* rebuilding the constituents_ persistent vector */
+          this->fillPersistentPtrVector_(); 
 
           /* update cluster positions (IF requested) */
+          double cMipt = c->mipPt()*fraction;
           if( updateCentre ){
               Basic3DVector<float> constituentCentre( c->position() );
               Basic3DVector<float> clusterCentre( centre_ );
               
               clusterCentre = clusterCentre*mipPt_ - constituentCentre*c->mipPt();
-              if( (mipPt_ + cMipt ) > 0 ) 
+              if( (mipPt_ - cMipt ) > 0 ) 
               {
                   clusterCentre /= ( mipPt_ - cMipt ) ;
               }
@@ -154,19 +158,16 @@ namespace l1t
 
       }
 
-      bool valid() const        { return valid_; }
+      bool valid() const { return valid_; }
       void setValid(bool valid) { valid_ = valid; }
       
-      double mipPt() const      { return mipPt_; }
-      double seedMipPt() const  { return seedMipPt_; }
-      uint32_t detId() const    { return detId_.rawId(); }
+      double mipPt() const { return mipPt_; }
+      double seedMipPt() const { return seedMipPt_; }
+      uint32_t detId() const { return detId_.rawId(); }
 
 
       /* distance in 'cm' */
-      double distance( const l1t::HGCalTriggerCell &tc ) const 
-      {
-        return ( tc.position() - centre_ ).mag();
-      }
+      double distance( const l1t::HGCalTriggerCell &tc ) const { return ( tc.position() - centre_ ).mag(); }
 
       const GlobalPoint& position() const { return centre_; } 
       const GlobalPoint& centre() const { return centre_; }
@@ -177,30 +178,30 @@ namespace l1t
       ClusterShapes& shapes() {return shapes_;}
       double hOverE() const
       {
-        double pt_em = 0.;
-        double pt_had = 0.;
-        double hOe = 0.;
+          double pt_em = 0.;
+          double pt_had = 0.;
+          double hOe = 0.;
 
-        for(const auto& constituent : constituents())
-        {
-          switch( constituent->subdetId() )
+          for(const auto& constituent : constituents())
           {
-            case HGCEE:
-              pt_em += constituent->pt();
-              break;
-            case HGCHEF:
-              pt_had += constituent->pt();
-              break;
-            case HGCHEB:
-              pt_had += constituent->pt();
-              break;
-            default:
-              break;
+              switch( constituent->subdetId() )
+              {
+              case HGCEE:
+                  pt_em += constituent->pt();
+                  break;
+              case HGCHEF:
+                  pt_had += constituent->pt();
+                  break;
+              case HGCHEB:
+                  pt_had += constituent->pt();
+                  break;
+              default:
+                  break;
+              }
           }
-        }
-        if(pt_em>0) hOe = pt_had / pt_em ;
-        else hOe = -1.;
-        return hOe;
+          if(pt_em>0) hOe = pt_had / pt_em ;
+          else hOe = -1.;
+          return hOe;
       }
 
       uint32_t subdetId() const {return detId_.subdetId();} 
@@ -245,13 +246,21 @@ namespace l1t
       bool operator>=(const HGCalClusterT<C>& cl) const { return !(cl<*this); }
 
 
-    private:
+  private:
         
       bool valid_;
       HGCalDetId detId_;     
       
-      edm::PtrVector<C> constituents_;            /* ???? possibly change this in something like       */
+      edm::PtrVector<C> constituents_;          /* ???? possibly change this in something like       */
+      std::vector<edm::Ptr<C>> constituentsV_;          /*      vector<pair<edm::Ptr<C>,float>>        ????  */
       std::vector<double> constituentsFraction_;  /*      vector<pair<edm::Ptr<C>,float>>        ????  */
+
+      void fillPersistentPtrVector_() {
+          constituents_.clear();
+          for( unsigned iclu=0; iclu<constituentsV_.size(); iclu++ ) { 
+              constituents_.push_back( constituentsV_[iclu] );
+          }
+      }
 
       GlobalPoint centre_;
       GlobalPoint centreProj_; // centre projected onto the first HGCal layer
