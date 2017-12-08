@@ -92,3 +92,6 @@ workflows[10024.2] = [ workflows[10024.0][0], _trackingRun2(workflows[10024.0][1
 workflows[10024.3] = [ workflows[10024.1][0], _trackingRun2(workflows[10024.1][1]) ]
 workflows[10024.4] = [ workflows[10024.0][0], _trackingLowPU(workflows[10024.0][1]) ]
 workflows[10024.5] = [ workflows[10024.0][0], _pixelTrackingOnly(workflows[10024.0][1]) ]
+# for 2018 as well, use the same numbering
+workflows[10824.1] = [ workflows[10824.0][0], _trackingOnly(workflows[10024.0][1]) ]
+workflows[10824.5] = [ workflows[10824.0][0], _pixelTrackingOnly(workflows[10024.0][1]) ]
