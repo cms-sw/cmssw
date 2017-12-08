@@ -38,7 +38,7 @@ class Stub : public TTStubRef {
 
 public:
   // Fill useful info about stub.
-  Stub(const TTStubRef& ttStubRef, unsigned int index_in_vStubs, const Settings* settings, const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<DetId, DetId>* geoDetIdMap);
+  Stub(const TTStubRef& ttStubRef, unsigned int index_in_vStubs, const Settings* settings, const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<DetId, DetId>& geoDetIdMap);
   ~Stub(){}
 
   // Fill truth info with association from stub to tracking particles.

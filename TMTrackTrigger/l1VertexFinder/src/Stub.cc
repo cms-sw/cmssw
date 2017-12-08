@@ -17,30 +17,14 @@ namespace l1tVertexFinder {
 //=== Store useful info about this stub.
 
 Stub::Stub(const TTStubRef& ttStubRef, unsigned int index_in_vStubs, const Settings* settings, 
-           const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<DetId, DetId>* geoDetIdMap) :
+           const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<DetId, DetId>& geoDetIdMap) :
   TTStubRef(ttStubRef),
   settings_(settings)
 {
   // Get coordinates of stub.
   const TTStub<Ref_Phase2TrackerDigi_> *ttStubP = ttStubRef.get(); 
 
-  DetId geoDetId = ttStubRef->getDetId();
-
-  if (geoDetIdMap == NULL) {
-    for (auto gd=trackerGeometry->dets().begin(); gd != trackerGeometry->dets().end(); gd++)
-    {
-      DetId detid = (*gd)->geographicalId();
-      if(detid.subdetId()!=StripSubdetector::TOB && detid.subdetId()!=StripSubdetector::TID ) continue; // only run on OT
-      if(!trackerTopology->isLower(detid) ) continue; // loop on the stacks: choose the lower arbitrarily
-      DetId stackDetid = trackerTopology->stack(detid); // Stub module detid
-
-      if ( ttStubRef->getDetId() != stackDetid ) continue;
-      geoDetId = detid;
-      break;
-    }
-  }
-  else
-    geoDetId = geoDetIdMap->find(ttStubRef->getDetId())->second;
+  DetId geoDetId = geoDetIdMap.find(ttStubRef->getDetId())->second;
 
   const GeomDetUnit* det0 = trackerGeometry->idToDetUnit( geoDetId );
   // To get other module, can do this

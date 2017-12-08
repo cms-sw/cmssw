@@ -132,7 +132,6 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
     }
   }
 
-  std::map<DetId, DetId> lStubGeoDetIdMap;
   for (auto gd=trackerGeometry->dets().begin(); gd != trackerGeometry->dets().end(); gd++)
   {
     DetId detid = (*gd)->geographicalId();
@@ -143,18 +142,18 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
     DetId stackDetid = trackerTopology->stack(detid); // Stub module detid
 
     if ( lStubDetIds.count(stackDetid) > 0 ) {
-      assert (lStubGeoDetIdMap.count(stackDetid) == 0);
-      lStubGeoDetIdMap[stackDetid] = detid;
+      assert (stubGeoDetIdMap_.count(stackDetid) == 0);
+      stubGeoDetIdMap_[stackDetid] = detid;
     }
   }
-  assert (lStubDetIds.size() == lStubGeoDetIdMap.size());
+  assert (lStubDetIds.size() == stubGeoDetIdMap_.size());
 
   unsigned int stubCount = 0;
   for (DetSetVec::const_iterator p_module = ttStubHandle->begin(); p_module != ttStubHandle->end(); p_module++) {
     for (DetSet::const_iterator p_ttstub = p_module->begin(); p_ttstub != p_module->end(); p_ttstub++) {
       TTStubRef ttStubRef = edmNew::makeRefTo(ttStubHandle, p_ttstub );
       // Store the Stub info, using class Stub to provide easy access to the most useful info.
-      Stub stub(ttStubRef, stubCount, settings, trackerGeometry, trackerTopology, &lStubGeoDetIdMap );
+      Stub stub(ttStubRef, stubCount, settings, trackerGeometry, trackerTopology, stubGeoDetIdMap_ );
       // Also fill truth associating stubs to tracking particles.
       //      stub.fillTruth(vTPs_, mcTruthTTStubHandle, mcTruthTTClusterHandle); 
       stub.fillTruth(translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle); 

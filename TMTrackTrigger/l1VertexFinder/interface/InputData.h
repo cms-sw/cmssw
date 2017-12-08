@@ -48,6 +48,9 @@ public:
   const std::vector<Vertex>& getPileUpVertices()      const {return vertices_;}
   /// Get reconstructable pile-up vertices information
   const std::vector<Vertex>& getRecoPileUpVertices()      const {return recoVertices_;}
+
+  const std::map<DetId, DetId>& getStubGeoDetIdMap() const {return stubGeoDetIdMap_;}
+
   /// Generated MET
   const float                GenMET()          const { return genMET_;}
   const float                GenMET_PU()          const { return genMET_PU_;}
@@ -76,6 +79,7 @@ private:
   //--- of minor importance ...
 
   std::vector<Stub> vAllStubs_; // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure the efficiency of these cuts).
+  std::map<DetId, DetId> stubGeoDetIdMap_;
   float genMET_;
   float genMET_PU_;
   float genPt_;

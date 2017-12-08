@@ -30,7 +30,7 @@ typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_>        TTClusterAssMap;
 //! Simple wrapper class for TTTrack, to avoid changing other areas of packages immediately
 class L1fittedTrack {
 public:
-  L1fittedTrack(const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>&, const Settings& , const TrackerGeometry* , const TrackerTopology*, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle);
+  L1fittedTrack(const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>&, const Settings& , const TrackerGeometry* , const TrackerTopology*, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle, const std::map<DetId, DetId>& geoDetIdMap);
   ~L1fittedTrack();
 
   float eta() const;

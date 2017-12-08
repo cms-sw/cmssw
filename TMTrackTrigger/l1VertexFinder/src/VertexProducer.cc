@@ -99,7 +99,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle );
 
     for(const auto& track : l1TracksHandle->ptrs())
-      l1Tracks.push_back(L1fittedTrack(track, *settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle));
+      l1Tracks.push_back(L1fittedTrack(track, *settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle, inputData.getStubGeoDetIdMap()));
   }
 
   std::vector<const L1fittedTrack*> l1TrackPtrs;
