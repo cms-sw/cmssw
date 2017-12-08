@@ -245,7 +245,7 @@ namespace edm {
       virtual void openFile(FileBlock const&) {}
       virtual bool isFileOpen() const { return true; }
       
-      virtual void preallocStreams(PreallocationConfiguration const&){}
+      virtual void preallocStreams(unsigned int){}
       virtual void preallocate(PreallocationConfiguration const&){}
       virtual void doBeginStream_(StreamID){}
       virtual void doEndStream_(StreamID){}
