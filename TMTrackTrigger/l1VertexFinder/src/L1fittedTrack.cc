@@ -14,7 +14,7 @@ L1fittedTrack::L1fittedTrack(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& aT
 {
   std::vector<Stub*> stubs;
   for(const auto& stubRef : aTrack->getStubRefs()) {
-    stubs.push_back(new Stub(stubRef, 0, &aSettings, trackerGeometry, trackerTopology) );
+    stubs.push_back(new Stub(stubRef, 0, &aSettings, trackerGeometry, trackerTopology, NULL) );
     stubs.back()->fillTruth(translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle);
   }
   matchedTP_ = utility::matchingTP(&aSettings, stubs, nMatchedLayers_, matchedStubs_);

@@ -125,12 +125,36 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
   iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle );
 
 
+  std::set<DetId> lStubDetIds;
+  for (DetSetVec::const_iterator p_module = ttStubHandle->begin(); p_module != ttStubHandle->end(); p_module++) {
+    for (DetSet::const_iterator p_ttstub = p_module->begin(); p_ttstub != p_module->end(); p_ttstub++) {
+      lStubDetIds.insert(p_ttstub->getDetId());
+    }
+  }
+
+  std::map<DetId, DetId> lStubGeoDetIdMap;
+  for (auto gd=trackerGeometry->dets().begin(); gd != trackerGeometry->dets().end(); gd++)
+  {
+    DetId detid = (*gd)->geographicalId();
+    if(detid.subdetId()!=StripSubdetector::TOB && detid.subdetId()!=StripSubdetector::TID )
+      continue; // only run on OT
+    if(!trackerTopology->isLower(detid) )
+      continue; // loop on the stacks: choose the lower arbitrarily
+    DetId stackDetid = trackerTopology->stack(detid); // Stub module detid
+
+    if ( lStubDetIds.count(stackDetid) > 0 ) {
+      assert (lStubGeoDetIdMap.count(stackDetid) == 0);
+      lStubGeoDetIdMap[stackDetid] = detid;
+    }
+  }
+  assert (lStubDetIds.size() == lStubGeoDetIdMap.size());
+
   unsigned int stubCount = 0;
   for (DetSetVec::const_iterator p_module = ttStubHandle->begin(); p_module != ttStubHandle->end(); p_module++) {
     for (DetSet::const_iterator p_ttstub = p_module->begin(); p_ttstub != p_module->end(); p_ttstub++) {
       TTStubRef ttStubRef = edmNew::makeRefTo(ttStubHandle, p_ttstub );
       // Store the Stub info, using class Stub to provide easy access to the most useful info.
-      Stub stub(ttStubRef, stubCount, settings, trackerGeometry, trackerTopology );
+      Stub stub(ttStubRef, stubCount, settings, trackerGeometry, trackerTopology, &lStubGeoDetIdMap );
       // Also fill truth associating stubs to tracking particles.
       //      stub.fillTruth(vTPs_, mcTruthTTStubHandle, mcTruthTTClusterHandle); 
       stub.fillTruth(translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle); 
