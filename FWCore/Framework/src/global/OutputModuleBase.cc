@@ -197,7 +197,7 @@ namespace edm {
           seenFirst = true;
         }
       }
-      preallocStreams(iPC);
+      preallocStreams(nstreams);
       preallocate(iPC);
     }
 
