@@ -52,14 +52,21 @@ namespace edm {
   }
 
   void
-  Event::setProducer(ProducerBase const* iProd,
-                     std::vector<BranchID>* previousParentage,
-                     std::vector<BranchID>* gotBranchIDsFromAcquire) {
+  Event::setProducerCommon(ProducerBase const* iProd,
+                           std::vector<BranchID>* previousParentage) {
+
     provRecorder_.setProducer(iProd);
     //set appropriate size
     putProducts_.resize(
                         provRecorder_.putTokenIndexToProductResolverIndex().size());
     previousBranchIDs_ =previousParentage;
+  }
+
+  void
+  Event::setProducer(ProducerBase const* iProd,
+                     std::vector<BranchID>* previousParentage,
+                     std::vector<BranchID>* gotBranchIDsFromAcquire) {
+    setProducerCommon(iProd, previousParentage);
     if(previousParentage) {
       //are we supposed to record parentage for at least one item?
       bool record_parents = false;
@@ -76,16 +83,16 @@ namespace edm {
           addToGotBranchIDs(branchID);
         }
       }
-    } else if (gotBranchIDsFromAcquire) {
-      // If we get to this point, we are preparing an Event for
-      // a module that is special because it runs external work
-      // and has an acquire function. At this point we are just
-      // before calling the acquire function. We need to tell
-      // the event where to store BranchIDs for any products we
-      // get and clear out any that are in there from a prior event.
-      gotBranchIDsFromAcquire_ = gotBranchIDsFromAcquire;
-      gotBranchIDsFromAcquire_->clear();
     }
+  }
+
+  void
+  Event::setProducerForAcquire(ProducerBase const* iProd,
+                               std::vector<BranchID>* previousParentage,
+                               std::vector<BranchID>& gotBranchIDsFromAcquire) {
+    setProducerCommon(iProd, previousParentage);
+    gotBranchIDsFromAcquire_ = &gotBranchIDsFromAcquire;
+    gotBranchIDsFromAcquire_->clear();
   }
 
   EventPrincipal const&

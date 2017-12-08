@@ -75,9 +75,9 @@ namespace edm {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();
-      e.setProducer(this,
-                    nullptr,
-                    &gotBranchIDsFromAcquire_[streamIndex]);
+      e.setProducerForAcquire(this,
+                              nullptr,
+                              gotBranchIDsFromAcquire_[streamIndex]);
       EventAcquireSignalsSentry sentry(act,mcc);
       this->doAcquire_(e.streamID(), e, c, holder);
     }
