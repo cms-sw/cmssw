@@ -363,7 +363,7 @@ G4DecayTable*  CustomParticleFactory::getAntiDecayTable(int pdgId,  G4DecayTable
 	  <<"CustomParticleFactory: antiparticle with PDG code"<<id <<" not found!"; 
 	continue;
       }
-      name[i] = part->GetParticleName();
+      name[j] = part->GetParticleName();
     }
     G4PhaseSpaceDecayChannel *aDecayChannel = 
       new G4PhaseSpaceDecayChannel(parentName, 
