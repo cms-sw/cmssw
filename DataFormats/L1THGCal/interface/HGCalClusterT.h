@@ -132,7 +132,7 @@ namespace l1t
               Basic3DVector<float> constituentCentre( c->position() );
               Basic3DVector<float> clusterCentre( centre_ );
               
-              clusterCentre = clusterCentre*mipPt_ - constituentCentre*c->mipPt();
+              clusterCentre = clusterCentre*mipPt_ - constituentCentre*cMipt;
               if( (mipPt_ - cMipt ) > 0 ) 
               {
                   clusterCentre /= ( mipPt_ - cMipt ) ;
