@@ -642,10 +642,10 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 			// both local and global
 			diff = align::diffAlignables(refAli, curAli, _weightBy, _weightById, _weightByIdVector);
 			
-			CLHEP::Hep3Vector dR(-diff[0],-diff[1],-diff[2]);
-			CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
-			CLHEP::Hep3Vector dRLocal(-diff[6],-diff[7],-diff[8]);
-			CLHEP::Hep3Vector dWLocal(diff[9],diff[10],diff[11]);
+			CLHEP::Hep3Vector dR(-diff[0],-diff[1],-diff[2]);  // 'diffAlignables' returns 'refAli - curAli' for translations
+			CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);  // 'diffAlignables' returns 'curAli - refAli' for rotations
+			CLHEP::Hep3Vector dRLocal(-diff[6],-diff[7],-diff[8]);  // 'diffAlignables' returns 'refAli - curAli' for translations
+			CLHEP::Hep3Vector dWLocal(diff[9],diff[10],diff[11]);  // 'diffAlignables' returns 'curAli - refAli' for rotations
 			
 			// Translations
 			Rtotal+=dR;
