@@ -24,6 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -54,8 +55,8 @@ namespace edm {
       protected:
         C * streamCache(edm::StreamID iID) const { return caches_[iID.value()]; }
       private:
-        void preallocStreams(unsigned int iNStreams) final {
-          caches_.resize(iNStreams,static_cast<C*>(nullptr));
+        void preallocStreams(PreallocationConfiguration const& iPrealloc) final {
+          caches_.resize(iPrealloc.numberOfStreams(),static_cast<C*>(nullptr));
         }
         void doBeginStream_(StreamID id) final {
           caches_[id.value()] = beginStream(id).release();

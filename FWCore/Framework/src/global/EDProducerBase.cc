@@ -91,8 +91,8 @@ namespace edm {
         gotBranchIDsFromAcquire_.reset(new std::vector<BranchID>[nStreams]);
       }
       previousParentageIds_.reset( new ParentageID[nStreams]);
-      preallocStreams(nStreams);
-      preallocate(nStreams);
+      preallocStreams(iPrealloc);
+      preallocate(iPrealloc);
     }
     
     void
@@ -218,8 +218,8 @@ namespace edm {
       //respondToCloseInputFile(fb);
     }
     
-    void EDProducerBase::preallocStreams(unsigned int) {}
-    void EDProducerBase::preallocate(unsigned int) {}
+    void EDProducerBase::preallocStreams(PreallocationConfiguration const&) {}
+    void EDProducerBase::preallocate(PreallocationConfiguration const&) {}
     void EDProducerBase::doBeginStream_(StreamID id){}
     void EDProducerBase::doEndStream_(StreamID id) {}
     void EDProducerBase::doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c) {}

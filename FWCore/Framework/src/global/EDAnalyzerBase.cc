@@ -63,8 +63,8 @@ namespace edm {
     
     void
     EDAnalyzerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
-      preallocStreams(iPrealloc.numberOfStreams());
-      preallocate(iPrealloc.numberOfStreams());
+      preallocStreams(iPrealloc);
+      preallocate(iPrealloc);
     }
 
     void
@@ -179,8 +179,8 @@ namespace edm {
       //respondToCloseInputFile(fb);
     }
     
-    void EDAnalyzerBase::preallocStreams(unsigned int) {}
-    void EDAnalyzerBase::preallocate(unsigned int) {}
+    void EDAnalyzerBase::preallocStreams(PreallocationConfiguration const&) {}
+    void EDAnalyzerBase::preallocate(PreallocationConfiguration const&) {}
     void EDAnalyzerBase::doBeginStream_(StreamID id){}
     void EDAnalyzerBase::doEndStream_(StreamID id) {}
     void EDAnalyzerBase::doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c) {}
