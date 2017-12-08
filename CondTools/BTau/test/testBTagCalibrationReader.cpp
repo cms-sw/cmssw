@@ -68,7 +68,9 @@ int main()
   assert (eq(bcr3.eval_auto_bounds("central", BTagEntry::FLAV_C, 2.5, 100.), 1., 1e-3));   // eta out of bounds
   assert (eq(bcr3.eval_auto_bounds("up",      BTagEntry::FLAV_C, 2.5, 100.), 1., 1e-3));   // eta out of bounds
   assert (eq(bcr3.eval_auto_bounds("down",    BTagEntry::FLAV_C, 2.5, 100.), 1., 1e-3));   // eta out of bounds
-
+  assert (eq(bcr3.eval_auto_bounds("central", BTagEntry::FLAV_C, -2.5, 100.), 1., 1e-3));   // eta out of bounds
+  assert (eq(bcr3.eval_auto_bounds("up",      BTagEntry::FLAV_C, -2.5, 100.), 1., 1e-3));   // eta out of bounds
+  assert (eq(bcr3.eval_auto_bounds("down",    BTagEntry::FLAV_C, -2.5, 100.), 1., 1e-3));   // eta out of bounds
 
  
  return 0.;
