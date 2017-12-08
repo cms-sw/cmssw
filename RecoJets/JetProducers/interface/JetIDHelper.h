@@ -105,7 +105,6 @@ namespace reco {
       // tower-based. -1 means can't figure it out
       int HBHE_oddness( int iEta );
       Region region( int iEta );
-      std::vector<bool> computeGeom( const edm::EventSetup& setup );
 
       double fHPD_;
       double fRBX_;

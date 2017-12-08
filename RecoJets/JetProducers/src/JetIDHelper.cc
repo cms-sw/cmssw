@@ -260,6 +260,9 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
   HPD_energies.clear(); RBX_energies.clear();
   LS_bad_energy = HF_OOT_energy = 0.;
   
+  edm::ESHandle<HcalTopology> theHcalTopology;
+  setup.get<HcalRecNumberingRecord>().get( theHcalTopology );
+
   std::map< int, double > HPD_energy_map, RBX_energy_map;
   vector< double > EB_energies, EE_energies, HB_energies, HE_energies, short_energies, long_energies;
   edm::Handle<HBHERecHitCollection> HBHERecHits;
@@ -280,8 +283,6 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
   vector< CaloTowerPtr > towers = jet.getCaloConstituents ();
   int nTowers = towers.size();
   if( iDbg > 9 ) cout<<"In classifyJetComponents. # of towers found: "<<nTowers<<endl;
-
-  std::vector<bool> isMergedDepth = computeGeom(setup);
 
   for( int iTower = 0; iTower <nTowers ; iTower++ ) {
 
@@ -352,9 +353,10 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
 			   <<", depth: "<<depth<<", iPhi: "<<theRecHit->id().iphi()
 			   <<" -> "<<region;
 
+	  std::vector<int> isMergedDepth = theHcalTopology->mergedDepthList29(theRecHit->id());
 	  int absIEta = TMath::Abs( theRecHit->id().ieta() );
-	  if( (absIEta == 28 || absIEta == 29) && isMergedDepth[depth-1] )
-	    hitE /= 2; // Depth 3 at the HE forward edge is split over tower 28 & 29, and jet reco. assigns half each
+	  if( (absIEta == 28 || absIEta == 29) &&  std::find(isMergedDepth.begin(), isMergedDepth.end(), depth) != isMergedDepth.end() )
+	    hitE /= 2;  // Depth 3 at the HE forward edge is split over tower 28 & 29, and jet reco. assigns half each
 	  
 	  int iHPD = 100 * region;
 	  int iRBX = 100 * region + ((hitIPhi + 1) % 72) / 4; // 71,72,1,2 are in the same RBX module
@@ -632,29 +634,4 @@ reco::helper::JetIDHelper::Region reco::helper::JetIDHelper::region( int iEta )
   if( iEta >=  17 ) return HEpos;
   if( iEta < 0 ) return HBneg;
   return HBpos;
-}
-
-std::vector<bool> reco::helper::JetIDHelper::computeGeom( const edm::EventSetup& setup)
-{
-  edm::ESHandle<HcalTopology> theHcalTopology;
-  setup.get<HcalRecNumberingRecord>().get( theHcalTopology );
-
-  //which depths of tower 28/29 are merged?
-  //the merging starts at layer 5 in phase 0 or phase 1 configurations
-  std::vector<int> tower28depths;
-  int ndepths, startdepth;
-  std::vector<std::pair<int,int>> phizOne;
-  int subdetOne = theHcalTopology->getPhiZOne(phizOne);
-  int zside = (subdetOne > 0) ? -phizOne[0].second : 1;
-  int iphi  = (subdetOne > 0) ? phizOne[0].first : 1;
-  theHcalTopology->getDepthSegmentation(theHcalTopology->lastHERing()-1,tower28depths,false);
-  theHcalTopology->depthBinInformation(HcalEndcap,theHcalTopology->lastHERing()-1,iphi,zside,ndepths,startdepth);
-  
-  //keep track of which depths are merged
-  //layer 5 = index 6 (layers start at -1)
-  std::vector<bool> isMergedDepth(ndepths,true);
-  for(int i = 0; i < std::min(6,(int)(tower28depths.size())); i++){
-    isMergedDepth[tower28depths[i]-startdepth] = false;
-  }
-  return isMergedDepth;
 }
