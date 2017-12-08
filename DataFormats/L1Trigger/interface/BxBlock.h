@@ -1,6 +1,7 @@
 #ifndef DataFormats_L1Trigger_BxBlock_h
 #define DataFormats_L1Trigger_BxBlock_h
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 #include <cmath>
