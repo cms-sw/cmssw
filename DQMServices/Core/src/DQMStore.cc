@@ -2798,6 +2798,16 @@ DQMStore::save(const std::string &filename,
       auto end   = data_.lower_bound(proto);
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     }
+
+    // In LSbasedMode, loop also over the (run, 0, 0, 0) global histograms;
+    // these could be the merged global histrograms of their per-stream
+    // counterparts after the streamEndRun transition - but they are not
+    // produced in LSbasedMode.
+    if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
+      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 0));
+      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 1));
+      saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
+    }
   }
 
   f.Close();
@@ -2943,6 +2953,16 @@ DQMStore::savePB(const std::string &filename,
       auto begin = data_.lower_bound(proto);
       proto.setLumi(lumi+1);
       auto end   = data_.lower_bound(proto);
+      saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
+    }
+
+    // In LSbasedMode, loop also over the (run, 0, 0, 0) global histograms;
+    // these could be the merged global histrograms of their per-stream
+    // counterparts after the streamEndRun transition - but they are not
+    // produced in LSbasedMode.
+    if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
+      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 0));
+      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 1));
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     }
   }
