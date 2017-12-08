@@ -137,7 +137,7 @@ namespace {
     os << std::left << iPlugin << "  " << pluginInfo.name_ << "  (" << baseType << ")  " << pluginInfo.loadable_.leaf() << "\n";
     os.flags(oldFlags);
 
-    edm::ConfigurationDescriptions descriptions(filler->baseType());
+    edm::ConfigurationDescriptions descriptions(filler->baseType(), pluginInfo.name_);
 
     try {
       filler->fill(descriptions);
