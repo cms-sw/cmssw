@@ -11,9 +11,11 @@
 
 
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 // JetIDHelper needs a much more detailed description that the one in HcalTopology, 
 // so to be consistent, all needed constants are hardwired in JetIDHelper.cc itself
-// #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "TMath.h"
 #include <vector>
@@ -95,7 +97,7 @@ void reco::helper::JetIDHelper::fillDescription(edm::ParameterSetDescription& iD
 }
 
 
-void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::CaloJet &jet, const int iDbg )
+void reco::helper::JetIDHelper::calculate( const edm::Event& event, const edm::EventSetup& setup, const reco::CaloJet &jet, const int iDbg )
 {
   initValues();
 
@@ -167,7 +169,7 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
   if( useRecHits_ ) {
     vector<double> energies, subdet_energies, Ecal_energies, Hcal_energies, HO_energies;
     double LS_bad_energy, HF_OOT_energy;
-    classifyJetComponents( event, jet, 
+    classifyJetComponents( event, setup, jet, 
 			   energies, subdet_energies, Ecal_energies, Hcal_energies, HO_energies, 
 			   HPD_energies, RBX_energies, LS_bad_energy, HF_OOT_energy, iDbg );
 
@@ -243,7 +245,8 @@ unsigned int reco::helper::JetIDHelper::hitsInNCarrying( double fraction, const 
   return NH;
 }
 
-void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, const reco::CaloJet &jet, 
+void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, const edm::EventSetup& setup,
+						       const reco::CaloJet &jet, 
 						       vector< double > &energies,      
 						       vector< double > &subdet_energies,      
 						       vector< double > &Ecal_energies, 
@@ -277,6 +280,8 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
   vector< CaloTowerPtr > towers = jet.getCaloConstituents ();
   int nTowers = towers.size();
   if( iDbg > 9 ) cout<<"In classifyJetComponents. # of towers found: "<<nTowers<<endl;
+
+  std::vector<bool> isMergedDepth = computeGeom(setup);
 
   for( int iTower = 0; iTower <nTowers ; iTower++ ) {
 
@@ -341,15 +346,16 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
 	  hitE = theRecHit->energy();
 	  int iEta = theRecHit->id().ieta();
 	  int depth = theRecHit->id().depth();
-	  Region region = HBHE_region( iEta, depth );
+	  Region region = HBHE_region( theRecHit->id().rawId() );
 	  int hitIPhi = theRecHit->id().iphi();
 	  if( iDbg>3 ) cout<<"hit #"<<iCell<<" is HBHE, E: "<<hitE<<" iEta: "<<iEta
 			   <<", depth: "<<depth<<", iPhi: "<<theRecHit->id().iphi()
 			   <<" -> "<<region;
+
 	  int absIEta = TMath::Abs( theRecHit->id().ieta() );
-	  if( depth == 3 && (absIEta == 28 || absIEta == 29) ) {
+	  if( (absIEta == 28 || absIEta == 29) && isMergedDepth[depth-1] )
 	    hitE /= 2; // Depth 3 at the HE forward edge is split over tower 28 & 29, and jet reco. assigns half each
-	  }
+	  
 	  int iHPD = 100 * region;
 	  int iRBX = 100 * region + ((hitIPhi + 1) % 72) / 4; // 71,72,1,2 are in the same RBX module
 	  
@@ -597,13 +603,16 @@ int reco::helper::JetIDHelper::HBHE_oddness( int iEta, int depth )
  return ae & 0x1;
 }
 
-reco::helper::JetIDHelper::Region reco::helper::JetIDHelper::HBHE_region( int iEta, int depth )
+reco::helper::JetIDHelper::Region reco::helper::JetIDHelper::HBHE_region( uint32_t rawid )
 {
-  // no error checking for HO indices (depth 2 & |ieta|<=14 or depth 3 & |ieta|=15)
-  if( iEta <= -17 || ( depth == 3 && iEta == -16 ) ) return HEneg;
-  if( iEta >=  17 || ( depth == 3 && iEta ==  16 ) ) return HEpos;
-  if( iEta < 0 ) return HBneg;
-  return HBpos;
+  HcalDetId id(rawid);
+  if( id.subdet() == HcalEndcap)
+    {
+      if( id.ieta() < 0 ) return HEneg;
+      else return HEpos;
+    }
+  if( id.subdet() == HcalBarrel && id.ieta() < 0) return HBneg;
+  return HBpos;  
 }
 
 int reco::helper::JetIDHelper::HBHE_oddness( int iEta )
@@ -623,4 +632,29 @@ reco::helper::JetIDHelper::Region reco::helper::JetIDHelper::region( int iEta )
   if( iEta >=  17 ) return HEpos;
   if( iEta < 0 ) return HBneg;
   return HBpos;
+}
+
+std::vector<bool> reco::helper::JetIDHelper::computeGeom( const edm::EventSetup& setup)
+{
+  edm::ESHandle<HcalTopology> theHcalTopology;
+  setup.get<HcalRecNumberingRecord>().get( theHcalTopology );
+
+  //which depths of tower 28/29 are merged?
+  //the merging starts at layer 5 in phase 0 or phase 1 configurations
+  std::vector<int> tower28depths;
+  int ndepths, startdepth;
+  std::vector<std::pair<int,int>> phizOne;
+  int subdetOne = theHcalTopology->getPhiZOne(phizOne);
+  int zside = (subdetOne > 0) ? -phizOne[0].second : 1;
+  int iphi  = (subdetOne > 0) ? phizOne[0].first : 1;
+  theHcalTopology->getDepthSegmentation(theHcalTopology->lastHERing()-1,tower28depths,false);
+  theHcalTopology->depthBinInformation(HcalEndcap,theHcalTopology->lastHERing()-1,iphi,zside,ndepths,startdepth);
+  
+  //keep track of which depths are merged
+  //layer 5 = index 6 (layers start at -1)
+  std::vector<bool> isMergedDepth(ndepths,true);
+  for(int i = 0; i < std::min(6,(int)(tower28depths.size())); i++){
+    isMergedDepth[tower28depths[i]-startdepth] = false;
+  }
+  return isMergedDepth;
 }
