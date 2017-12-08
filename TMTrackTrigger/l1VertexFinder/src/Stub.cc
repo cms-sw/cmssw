@@ -16,7 +16,7 @@ namespace l1tVertexFinder {
 
 //=== Store useful info about this stub.
 
-Stub::Stub(TTStubRef ttStubRef, unsigned int index_in_vStubs, const Settings* settings, 
+Stub::Stub(const TTStubRef& ttStubRef, unsigned int index_in_vStubs, const Settings* settings, 
            const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<DetId, DetId>* geoDetIdMap) :
   TTStubRef(ttStubRef),
   settings_(settings)
@@ -70,7 +70,7 @@ Stub::Stub(TTStubRef ttStubRef, unsigned int index_in_vStubs, const Settings* se
 
 void Stub::fillTruth(const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle){
 
-  TTStubRef ttStubRef(*this); // Cast to base class
+  const TTStubRef& ttStubRef(*this); // Cast to base class
 
   //--- Fill assocTP_ info. If both clusters in this stub were produced by the same single tracking particle, find out which one it was.
 
@@ -103,11 +103,11 @@ void Stub::fillTruth(const std::map<edm::Ptr< TrackingParticle >, const TP* >& t
       // Now identify all TP's contributing to either cluster in stub.
       std::vector< edm::Ptr< TrackingParticle > > vecTpPtr = mcTruthTTClusterHandle->findTrackingParticlePtrs(ttClusterRef);
 
-      for (edm::Ptr< TrackingParticle> tpPtr : vecTpPtr) {
-  if (translateTP.find(tpPtr) != translateTP.end()) {
-    assocTPs_.insert( translateTP.at(tpPtr) );
-    // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
-  }
+      for (const edm::Ptr< TrackingParticle>& tpPtr : vecTpPtr) {
+        if (translateTP.find(tpPtr) != translateTP.end()) {
+          assocTPs_.insert( translateTP.at(tpPtr) );
+          // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
+        }
       }
     }
   }
@@ -125,8 +125,8 @@ void Stub::fillTruth(const std::map<edm::Ptr< TrackingParticle >, const TP* >& t
       edm::Ptr< TrackingParticle > tpPtr = mcTruthTTClusterHandle->findTrackingParticlePtr(ttClusterRef);
 
       if (translateTP.find(tpPtr) != translateTP.end()) {
-  assocTPofCluster_[iClus] = translateTP.at(tpPtr);
-  // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
+        assocTPofCluster_[iClus] = translateTP.at(tpPtr);
+        // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
       }
     }
   }

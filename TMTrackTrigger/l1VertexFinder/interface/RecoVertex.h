@@ -20,9 +20,9 @@ public:
   ~RecoVertex(){}
 
   /// Tracking Particles in vertex    
-  std::vector<const L1fittedTrack*> tracks()    const { return    tracks_;    }
+  const std::vector<const L1fittedTrack*>& tracks()    const { return    tracks_;    }
   /// Tracking Particles in vertex    
-  std::set< const TP* > trueTracks()    const { return    trueTracks_;    }
+  const std::set< const TP* >& trueTracks()    const { return    trueTracks_;    }
   /// Number of tracks originating from this vertex
   unsigned int      numTracks() const { return  tracks_.size();}
   /// Number of true particles assigned to this vertex

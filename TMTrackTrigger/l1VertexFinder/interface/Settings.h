@@ -25,7 +25,7 @@ public:
   double               genMaxAbsEta()            const   {return genMaxAbsEta_;}
   double               genMaxVertR()             const   {return genMaxVertR_;}
   double               genMaxVertZ()             const   {return genMaxVertZ_;}
-  std::vector<int>          genPdgIds()               const   {return genPdgIds_;}
+  const std::vector<int>&   genPdgIds()               const   {return genPdgIds_;}
   // Additional cut on MC truth tracks for algorithmic tracking efficiency measurements.
   unsigned int         genMinStubLayers()        const   {return genMinStubLayers_;} // Min. number of layers TP made stub in.
 

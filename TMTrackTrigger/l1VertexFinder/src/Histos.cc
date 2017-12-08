@@ -233,16 +233,15 @@ void Histos::bookVertexReconstruction(){
 
 }
 
+
 void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFinder& vf){
   cout << "Input Tracks to L1 Correlator " << vf.numInputTracks() << endl;
 
-
-
   // noEvents++;
-  const Vertex     TruePrimaryVertex = inputData.getPrimaryVertex();
+  const Vertex&     TruePrimaryVertex = inputData.getPrimaryVertex();
   // Associate true primary vertex with the closest reconstructed vertex
-  const RecoVertex RecoPrimaryVertex = vf.PrimaryVertex();
-  const RecoVertex TDRVertex         = vf.TDRPrimaryVertex();
+  const RecoVertex& RecoPrimaryVertex = vf.PrimaryVertex();
+  const RecoVertex& TDRVertex         = vf.TDRPrimaryVertex();
 
   hisGenVertexPt_->Fill(inputData.GenPt());
   hisGenTkVertexPt_->Fill(TruePrimaryVertex.pT());
@@ -250,14 +249,14 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
   hisGenTkVertexMET_->Fill(TruePrimaryVertex.met());
   hisGenVertexNumTracks_->Fill(TruePrimaryVertex.numTracks());
 
-  for(TP tp : TruePrimaryVertex.tracks()){
+  for(const TP& tp : TruePrimaryVertex.tracks()){
     hisGenVertexTrackPt_->Fill(tp.pt());
   }
 
-  for(Vertex vertex : inputData.getPileUpVertices()){
+  for(const Vertex& vertex : inputData.getPileUpVertices()){
     hisPUVertexPt_->Fill(vertex.pT());
     hisPUVertexNumTracks_->Fill(vertex.numTracks());
-    for(TP tp : vertex.tracks()){
+    for(const TP& tp : vertex.tracks()){
       hisPUVertexTrackPt_->Fill(tp.pt());
     }
   }
@@ -501,7 +500,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
 
 
   if(settings_->debug() == 7) cout << "*** Misassigned primary vertex tracks ***"<< endl;
-  for(TP tp : TruePrimaryVertex.tracks()){
+  for(const TP& tp : TruePrimaryVertex.tracks()){
     bool found = false;
     // cout << tp.index() << " "<< endl;
     for(const L1fittedTrack* l1track : RecoPrimaryVertex.tracks()){
