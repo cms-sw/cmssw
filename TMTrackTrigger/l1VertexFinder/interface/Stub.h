@@ -69,7 +69,7 @@ public:
   //--- Truth info
 
   // Association of stub to tracking particles
-  std::set<const TP*>               assocTPs() const { return        assocTPs_; } // Return TPs associated to this stub. (Whether only TPs contributing to both clusters are returned is determined by "StubMatchStrict" config param.)
+  const std::set<const TP*>&         assocTPs() const { return        assocTPs_; } // Return TPs associated to this stub. (Whether only TPs contributing to both clusters are returned is determined by "StubMatchStrict" config param.)
   const TP*                          assocTP() const { return         assocTP_; } // If only one TP contributed to both clusters, this tells you which TP it is. Returns nullptr if none.
 
 private:
