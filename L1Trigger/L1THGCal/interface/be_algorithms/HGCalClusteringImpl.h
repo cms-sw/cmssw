@@ -10,6 +10,10 @@
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
+bool distanceSorter (pair<int,float> i,pair<int,float> j) { return (i.second<j.second); }
+
+
 class HGCalClusteringImpl{
 
 private:
