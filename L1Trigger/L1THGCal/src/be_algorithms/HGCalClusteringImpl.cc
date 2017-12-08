@@ -100,8 +100,6 @@ void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCe
         }
     }
 
-    std::cout << "vito: There are " << clustersTmp.size() << " Clusters. " << std::endl;
-
     /* store clusters in the persistent collection */
     clusters.resize(0, clustersTmp.size());
     for( unsigned i(0); i<clustersTmp.size(); ++i ){
@@ -286,15 +284,11 @@ void HGCalClusteringImpl::clusterizeDRNN( const edm::PtrVector<l1t::HGCalTrigger
                                         const HGCalTriggerGeometryBase & triggerGeometry
     ){
 
-    std::cout << "vito: Calling HGCalClusteringImpl::clusterizeDRNN" << std::endl;
-
     bool isSeed[triggerCellsPtrs.size()];
     std::vector<unsigned> seedPositions;
     seedPositions.reserve( triggerCellsPtrs.size() );
 
     /* search for cluster seeds */
-    std::cout << "vito: HGCalClusteringImpl::clusterizeDRNN >> search for cluster seeds" << std::endl;
-
     int itc(0);
     for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
         
@@ -303,21 +297,21 @@ void HGCalClusteringImpl::clusterizeDRNN( const edm::PtrVector<l1t::HGCalTrigger
         /* decide if is a seed, if yes store the position into of triggerCellsPtrs */
         isSeed[itc]       = ( (*tc)->mipPt() > seedThreshold) ? true : false;
         if( isSeed[itc] ) seedPositions.push_back( itc );
-        
+
         /* remove tc from the seed vector if is a NN of an other seed*/
-        for( unsigned ipos=0; ipos<seedPositions.size(); ipos++ ){
-            if( this->areTCneighbour_( (*tc)->detId(), triggerCellsPtrs[seedPositions.at(ipos)]->detId(), triggerGeometry ) )
-            {
-                isSeed[itc] = false;
-                seedPositions.pop_back();
+        for( auto pos : seedPositions ){
+            if( ( (*tc)->position() - triggerCellsPtrs[pos]->position() ).mag()  < dr_ ){
+                if( this->areTCneighbour_( (*tc)->detId(), triggerCellsPtrs[pos]->detId(), triggerGeometry ) )
+                {
+                    isSeed[itc] = false;
+                    seedPositions.pop_back();
+                }
             }
         } 
 
     }
     
     /* clustering the TCs */
-    std::cout << "vito: HGCalClusteringImpl::clusterizeDRNN >> clustering the TCs" << std::endl;
-
     std::vector<l1t::HGCalCluster> clustersTmp;
 
     // every seed generates a cluster
@@ -325,11 +319,10 @@ void HGCalClusteringImpl::clusterizeDRNN( const edm::PtrVector<l1t::HGCalTrigger
         clustersTmp.emplace_back( triggerCellsPtrs[pos] );
     }
 
-    std::cout << "vito: There are " << clustersTmp.size() << " Clusters. " << std::endl;
-
     /* add the tc to the clusters */
     itc=0;
     for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
+      
         /* get the correct threshold for the different part of the detector */ 
         double threshold = ((*tc)->subdetId()==HGCHEB ? scintillatorTriggerCellThreshold_ : siliconTriggerCellThreshold_);
         
@@ -339,13 +332,14 @@ void HGCalClusteringImpl::clusterizeDRNN( const edm::PtrVector<l1t::HGCalTrigger
         /* searching for TC near the centre of the cluster  */
         std::vector<unsigned> tcPertinentClusters; 
         unsigned iclu(0);
+        
         for ( const auto& clu : clustersTmp ) {
             if( this->isPertinent(**tc, clu, dr_) ){
                 tcPertinentClusters.push_back( iclu );
             }
             ++iclu;
         }   
-        
+
         if ( tcPertinentClusters.size() == 0 ) {
             continue;
         }
@@ -418,7 +412,7 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster_( l1t::HGCalCluster* clus
             }
         }        
     }
-    
+
     /* checking if the tc is connected to the seed */
     bool toRemove[constituents.size()];
     toRemove[0] = false; // this is the seed
@@ -433,18 +427,17 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster_( l1t::HGCalCluster* clus
             if( !toRemove[itc_ref] ) {
                 if( areTCneighbour_( tcToStudy->detId(), constituents[distances.at( itc_ref ).first]->detId(), triggerGeometry ) ) {
                     toRemove[itc] = false;
+                    break;
                 }
             }
         }
         
     }
 
+
     /* remove the unconnected TCs */
-    for( unsigned i=0; i<constituents.size(); i++){
-        
-        if( toRemove[i] ) cluster->removeConstituent( constituents[distances.at( i ).first] );
-    
+    for( unsigned i=0; i<distances.size(); i++){
+        if( toRemove[i] ) cluster->removeConstituent( constituents[distances.at( i ).first] );    
     }
-    
     
 }
