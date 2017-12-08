@@ -76,10 +76,17 @@ namespace edm {
     void setConsumer(EDConsumerBase const* iConsumer);
 
     void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
-    
+
+    void setProducerCommon(ProducerBase const* iProd,
+                           std::vector<BranchID>* previousParentage);
+
     void setProducer(ProducerBase const* iProd,
                      std::vector<BranchID>* previousParentage,
                      std::vector<BranchID>* gotBranchIDsFromAcquire = nullptr);
+
+    void setProducerForAcquire(ProducerBase const* iProd,
+                               std::vector<BranchID>* previousParentage,
+                               std::vector<BranchID>& gotBranchIDsFromAcquire);
 
     // AUX functions are defined in EventBase
     EventAuxiliary const& eventAuxiliary() const override {return aux_;}

@@ -72,9 +72,9 @@ namespace edm {
       auto mod = m_streamModules[ep.streamID()];
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
-      e.setProducer(mod,
-                    nullptr,
-                    &mod->gotBranchIDsFromAcquire_);
+      e.setProducerForAcquire(mod,
+                              nullptr,
+                              mod->gotBranchIDsFromAcquire_);
       EventAcquireSignalsSentry sentry(act,mcc);
       mod->doAcquire_(e, c, holder);
     }
