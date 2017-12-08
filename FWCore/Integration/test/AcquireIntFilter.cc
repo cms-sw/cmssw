@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Integration/test/WaitingServer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -36,7 +37,7 @@ namespace edmtest {
 
   private:
 
-    void preallocate(unsigned int) override;
+    void preallocate(edm::PreallocationConfiguration const&) override;
 
     std::vector<edm::EDGetTokenT<IntProduct>> m_tokens;
     edm::EDGetTokenT<IntProduct> m_tokenForProduce;
@@ -62,9 +63,9 @@ namespace edmtest {
     }
   }
 
-  void AcquireIntFilter::preallocate(unsigned int iNStreams) {
+  void AcquireIntFilter::preallocate(edm::PreallocationConfiguration const& iPrealloc) {
 
-    m_server = std::make_unique<test_acquire::WaitingServer>(iNStreams,
+    m_server = std::make_unique<test_acquire::WaitingServer>(iPrealloc.numberOfStreams(),
                                                              m_numberOfStreamsToAccumulate,
                                                              m_secondsToWaitForWork);
     m_server->start();

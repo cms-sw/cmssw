@@ -197,8 +197,8 @@ namespace edm {
           seenFirst = true;
         }
       }
-      preallocStreams(nstreams);
-      preallocate(nstreams);
+      preallocStreams(iPC);
+      preallocate(iPC);
     }
 
     void OutputModuleBase::doBeginJob() {
