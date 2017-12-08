@@ -74,7 +74,7 @@ hbheprereco = cms.EDProducer(
         useM3 = cms.bool(True),
 
         # Use Mahi?
-        useMahi = cms.bool(False)
+        useMahi = cms.bool(True)
     ),
 
     # Reconstruction algorithm configuration data to fetch from DB, if any
