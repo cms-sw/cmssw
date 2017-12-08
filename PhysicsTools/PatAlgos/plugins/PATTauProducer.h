@@ -1,14 +1,14 @@
 //
 //
 
-#ifndef PhysicsTools_PatAlgos_PATTauProducer_h
-#define PhysicsTools_PatAlgos_PATTauProducer_h
+#ifndef PhysicsTools_PatAlgos_PATTauGenericProducer_h
+#define PhysicsTools_PatAlgos_PATTauGenericProducer_h
 
 /**
-  \class    pat::PATTauProducer PATTauProducer.h "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
+  \class    pat::PATTauGenericProducer PATTauGenericProducer.h "PhysicsTools/PatAlgos/interface/PATTauGenericProducer.h"
   \brief    Produces pat::Tau's
 
-   The PATTauProducer produces analysis-level pat::Tau's starting from
+   The PATTauGenericProducer produces analysis-level pat::Tau's starting from
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
@@ -42,24 +42,25 @@
 
 typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > PFTauTIPAssociationByRef;
 namespace pat {
-
-  class PATTauProducer : public edm::stream::EDProducer<> {
+  template<class TauType>
+  class PATTauGenericProducer : public edm::stream::EDProducer<> {
 
     public:
 
-      explicit PATTauProducer(const edm::ParameterSet & iConfig);
-      ~PATTauProducer();
+      explicit PATTauGenericProducer(const edm::ParameterSet & iConfig);
+      ~PATTauGenericProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
-      
+      bool firstOccurence_; // used to print LogWarnings only at first occurnece in the event loop
+
       // configurables
       edm::EDGetTokenT<edm::View<reco::BaseTau> > baseTauToken_;
-      edm::EDGetTokenT<PFTauTIPAssociationByRef> tauTransverseImpactParameterToken_;
-      edm::EDGetTokenT<reco::PFTauCollection> pfTauToken_;
+      edm::EDGetTokenT<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> >> tauTransverseImpactParameterToken_;
+      edm::EDGetTokenT<std::vector<TauType> > pfTauToken_;
       edm::EDGetTokenT<reco::CaloTauCollection> caloTauToken_;
       edm::InputTag tauTransverseImpactParameterSrc_;
       bool embedIsolationTracks_;
@@ -92,7 +93,8 @@ namespace pat {
       typedef std::pair<std::string, edm::InputTag> NameTag;
       std::vector<NameTag> tauIDSrcs_;
       std::vector<edm::EDGetTokenT<reco::CaloTauDiscriminator> > caloTauIDTokens_;
-      std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > pfTauIDTokens_;
+      std::vector<edm::EDGetTokenT<typename TauType::TauDiscriminator> > pfTauIDTokens_;
+      bool          skipMissingTauID_;
 
       // tools
       GreaterByPt<Tau>       pTTauComparator_;

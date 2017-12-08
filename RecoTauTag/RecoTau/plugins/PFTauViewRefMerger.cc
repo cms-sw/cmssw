@@ -9,6 +9,7 @@
  */
 #include <boost/foreach.hpp>
 
+#include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 

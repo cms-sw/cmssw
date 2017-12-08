@@ -6,7 +6,6 @@ PFTauPrimaryVertexProducer = cms.EDProducer("PFTauPrimaryVertexProducer",
                                             MuonTag = cms.InputTag("MyMuons"),
                                             PVTag = cms.InputTag("offlinePrimaryVertices"),
                                             beamSpot = cms.InputTag("offlineBeamSpot"),
-                                            TrackCollectionTag = cms.InputTag("generalTracks"),
                                             #Algorithm: 0 - use tau-jet vertex, 1 - use vertex[0]
                                             Algorithm = cms.int32(0),
                                             qualityCuts = PFTauQualityCuts,

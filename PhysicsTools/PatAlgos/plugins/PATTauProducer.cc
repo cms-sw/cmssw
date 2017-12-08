@@ -10,6 +10,9 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
+#include "DataFormats/TauReco/interface/PFBaseTauDiscriminator.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -28,15 +31,17 @@
 
 using namespace pat;
 
-PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
+template<class TauType>
+PATTauGenericProducer<TauType>::PATTauGenericProducer(const edm::ParameterSet & iConfig):
   isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false) ,
   useUserData_(iConfig.exists("userData"))
 {
+  firstOccurence_=true;
   // initialize the configurables
   baseTauToken_ = consumes<edm::View<reco::BaseTau> >(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   tauTransverseImpactParameterSrc_ = iConfig.getParameter<edm::InputTag>( "tauTransverseImpactParameterSource" );
-  tauTransverseImpactParameterToken_ = consumes<PFTauTIPAssociationByRef>( tauTransverseImpactParameterSrc_);
-  pfTauToken_ = consumes<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>( "tauSource" ));
+  tauTransverseImpactParameterToken_ = consumes<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> >>( tauTransverseImpactParameterSrc_);
+  pfTauToken_ = consumes<std::vector<TauType> >(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   caloTauToken_ = mayConsume<reco::CaloTauCollection>(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   embedIsolationTracks_ = iConfig.getParameter<bool>( "embedIsolationTracks" );
   embedLeadTrack_ = iConfig.getParameter<bool>( "embedLeadTrack" );
@@ -80,13 +85,14 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
     }
     // but in any case at least once
     if (tauIDSrcs_.empty()) throw cms::Exception("Configuration") <<
-      "PATTauProducer: id addTauID is true, you must specify either:\n" <<
+      "PATTauGenericProducer: id addTauID is true, you must specify either:\n" <<
       "\tPSet tauIDSources = { \n" <<
       "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
       "\t}\n";
   }
   caloTauIDTokens_ = edm::vector_transform(tauIDSrcs_, [this](NameTag const & tag){return mayConsume<reco::CaloTauDiscriminator>(tag.second);});
-  pfTauIDTokens_   = edm::vector_transform(tauIDSrcs_, [this](NameTag const & tag){return mayConsume<reco::PFTauDiscriminator>(tag.second);});
+  pfTauIDTokens_   = edm::vector_transform(tauIDSrcs_, [this](NameTag const & tag){return mayConsume<typename TauType::TauDiscriminator>(tag.second);});
+  skipMissingTauID_ = iConfig.getParameter<bool>( "skipMissingTauID" );
   // IsoDeposit configurables
   if (iConfig.exists("isoDeposits")) {
     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
@@ -126,11 +132,13 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   produces<std::vector<Tau> >();
 }
 
-PATTauProducer::~PATTauProducer()
+template<class TauType>
+PATTauGenericProducer<TauType>::~PATTauGenericProducer()
 {
 }
 
-void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
+template<class TauType>
+void PATTauGenericProducer<TauType>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
   // switch off embedding (in unschedules mode)
   if (iEvent.isRealData()){
@@ -305,16 +313,24 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // prepare ID extraction
     if ( addTauID_ ) {
+      std::string missingDiscriminators;
       std::vector<pat::Tau::IdPair> ids(tauIDSrcs_.size());
       for ( size_t i = 0; i < tauIDSrcs_.size(); ++i ) {
-	if ( typeid(*tausRef) == typeid(reco::PFTau) ) {
+	if ( typeid(*tausRef) == typeid(TauType) ) {
 	  //std::cout << "filling PFTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
-	  edm::Handle<reco::PFTauCollection> pfTauCollection;
+	  edm::Handle<std::vector<TauType> > pfTauCollection;
 	  iEvent.getByToken(pfTauToken_, pfTauCollection);
 
-	  edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
+	  edm::Handle<typename TauType::TauDiscriminator> pfTauIdDiscr;
 	  iEvent.getByToken(pfTauIDTokens_[i], pfTauIdDiscr);
 
+	  if(skipMissingTauID_ && !pfTauIdDiscr.isValid()){
+	    if(!missingDiscriminators.empty()){
+	      missingDiscriminators+=", ";
+	    }
+	    missingDiscriminators+=tauIDSrcs_[i].first;
+	    continue;
+	  }
 	  ids[i].first = tauIDSrcs_[i].first;
 	  ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
 	} else if ( typeid(*tausRef) == typeid(reco::CaloTau) ) {
@@ -325,32 +341,45 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  edm::Handle<reco::CaloTauDiscriminator> caloTauIdDiscr;
 	  iEvent.getByToken(caloTauIDTokens_[i], caloTauIdDiscr);
 
+	  if(skipMissingTauID_ && !caloTauIdDiscr.isValid()){
+	    if(!missingDiscriminators.empty()){
+	      missingDiscriminators+=", ";
+	    }
+	    missingDiscriminators+=tauIDSrcs_[i].first;
+	    continue;
+	  }
 	  ids[i].first = tauIDSrcs_[i].first;
 	  ids[i].second = getTauIdDiscriminator(caloTauCollection, idx, caloTauIdDiscr);
 	} else {
 	  throw cms::Exception("Type Mismatch") <<
-	    "PATTauProducer: unsupported datatype '" << typeid(*tausRef).name() << "' for tauSource\n";
+	    "PATTauGenericProducer: unsupported datatype '" << typeid(*tausRef).name() << "' for tauSource\n";
 	}
       }
-
+      if(!missingDiscriminators.empty() && firstOccurence_){
+	edm::LogWarning("DataSource") << "The following tau discriminators have not been found in the event:\n"
+				      << missingDiscriminators <<"\n"
+				      << "They will not be embedded into the pat::Tau object.\n"
+				      << "Note: this message will be printed only at first occurence.";
+	firstOccurence_=false;
+      }
       aTau.setTauIDs(ids);
     }
 
     // extraction of reconstructed tau decay mode
     // (only available for PFTaus)
-    if ( aTau.isPFTau() ) {
-      edm::Handle<reco::PFTauCollection> pfTaus;
+    if ( aTau.isAnyPFTau() ) {
+      edm::Handle<std::vector<TauType>> pfTaus;
       iEvent.getByToken(pfTauToken_, pfTaus);
-      reco::PFTauRef pfTauRef(pfTaus, idx);
+      edm::Ref<std::vector<TauType> > pfTauRef(pfTaus, idx);
 
       aTau.setDecayMode(pfTauRef->decayMode());
     }
 
     // extraction of variables needed to rerun MVA isolation and anti-electron discriminator on MiniAOD
-    if( aTau.isPFTau() ) {
-      edm::Handle<reco::PFTauCollection> pfTaus;
+    if( aTau.isAnyPFTau() ) {
+      edm::Handle<std::vector<TauType>> pfTaus;
       iEvent.getByToken(pfTauToken_, pfTaus);
-      reco::PFTauRef pfTauRef(pfTaus, idx);
+      edm::Ref<std::vector<TauType> > pfTauRef(pfTaus, idx);
       pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
       float ecalEnergy = 0;
       float hcalEnergy = 0;
@@ -359,38 +388,58 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       float sumEnergy = 0.;
       float leadChargedCandPt = -99;
       float leadChargedCandEtaAtEcalEntrance = -99;	
-      const std::vector<reco::PFCandidatePtr>& signalCands = pfTauRef->signalPFCands();
-      for(std::vector<reco::PFCandidatePtr>::const_iterator it = signalCands.begin(); it != signalCands.end(); ++it) {
-        const reco::PFCandidatePtr& icand = *it;
-        ecalEnergy += icand->ecalEnergy();
-        hcalEnergy += icand->hcalEnergy();
-	sumPhiTimesEnergy += icand->positionAtECALEntrance().phi()*icand->energy();		
-	sumEtaTimesEnergy += icand->positionAtECALEntrance().eta()*icand->energy();
-        sumEnergy += icand->energy();	 
-	const reco::Track* track = 0;
-     	if ( icand->trackRef().isNonnull() ) track = icand->trackRef().get();
-     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->innerTrack().isNonnull()  ) track = icand->muonRef()->innerTrack().get();
-     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->globalTrack().isNonnull() ) track = icand->muonRef()->globalTrack().get();
-     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->outerTrack().isNonnull()  ) track = icand->muonRef()->outerTrack().get();
-     	else if ( icand->gsfTrackRef().isNonnull() ) track = icand->gsfTrackRef().get();
-     	if( track ) {
-     	  if( track->pt() > leadChargedCandPt ) {
-     	    leadChargedCandEtaAtEcalEntrance = icand->positionAtECALEntrance().eta();
-     	    leadChargedCandPt = track->pt();
-     	  }
-        } 		
+      const auto& signalCands = pfTauRef->signalPFCands();
+      for(const auto& it : signalCands) {
+	const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(it.get());
+	if(pfCandPtr != nullptr) {
+	  ecalEnergy += pfCandPtr->ecalEnergy();
+	  hcalEnergy += pfCandPtr->hcalEnergy();
+	  sumPhiTimesEnergy += pfCandPtr->positionAtECALEntrance().phi()*pfCandPtr->energy();		
+	  sumEtaTimesEnergy += pfCandPtr->positionAtECALEntrance().eta()*pfCandPtr->energy();
+	  sumEnergy += pfCandPtr->energy();	 
+	  const reco::Track* track = nullptr;
+	  if ( pfCandPtr->trackRef().isNonnull() ) track = pfCandPtr->trackRef().get();
+	  else if ( pfCandPtr->muonRef().isNonnull() && pfCandPtr->muonRef()->innerTrack().isNonnull()  ) track = pfCandPtr->muonRef()->innerTrack().get();
+	  else if ( pfCandPtr->muonRef().isNonnull() && pfCandPtr->muonRef()->globalTrack().isNonnull() ) track = pfCandPtr->muonRef()->globalTrack().get();
+	  else if ( pfCandPtr->muonRef().isNonnull() && pfCandPtr->muonRef()->outerTrack().isNonnull()  ) track = pfCandPtr->muonRef()->outerTrack().get();
+	  else if ( pfCandPtr->gsfTrackRef().isNonnull() ) track = pfCandPtr->gsfTrackRef().get();
+	  if( track != nullptr ) {
+	    if( track->pt() > leadChargedCandPt ) {
+	      leadChargedCandEtaAtEcalEntrance = pfCandPtr->positionAtECALEntrance().eta();
+	      leadChargedCandPt = track->pt();
+	    }
+	  }
+	}
+	else{
+	  const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(it.get());
+	  if(packedCandPtr != nullptr) {
+	    //potition at ECAL entrance can be recomputed, but individual ECAL and HCAL energies not
+	    //ecalEnergy += packedCandPtr->ecalEnergy();
+	    //hcalEnergy += packedCandPtr->hcalEnergy();
+	    //sumPhiTimesEnergy += packedCandPtr->positionAtECALEntrance().phi()*packedCandPtr->energy();		
+	    //sumEtaTimesEnergy += packedCandPtr->positionAtECALEntrance().eta()*packedCandPtr->energy();
+	    sumEnergy += packedCandPtr->energy();
+	    const reco::Track* track = packedCandPtr->hasTrackDetails() ? &packedCandPtr->pseudoTrack() : nullptr;
+	    if( track != nullptr ) {
+	      if( track->pt() > leadChargedCandPt ) {
+		//leadChargedCandEtaAtEcalEntrance = packedCandPtr->positionAtECALEntrance().eta();
+		leadChargedCandPt = track->pt();
+	      }
+	    }
+	  }
+	}
       }
       aTauPFEssential.ecalEnergy_ = ecalEnergy;
       aTauPFEssential.hcalEnergy_ = hcalEnergy;
       aTauPFEssential.ptLeadChargedCand_ = leadChargedCandPt;      
       aTauPFEssential.etaAtEcalEntranceLeadChargedCand_ = leadChargedCandEtaAtEcalEntrance;
-      if (sumEnergy != 0.) {
-        aTauPFEssential.phiAtEcalEntrance_ = sumPhiTimesEnergy/sumEnergy;
-        aTauPFEssential.etaAtEcalEntrance_ = sumEtaTimesEnergy/sumEnergy;
+      if (sumEnergy > 0.) {
+	aTauPFEssential.phiAtEcalEntrance_ = sumPhiTimesEnergy/sumEnergy;
+	aTauPFEssential.etaAtEcalEntrance_ = sumEtaTimesEnergy/sumEnergy;
       }
       else {
-        aTauPFEssential.phiAtEcalEntrance_ = -99.;
-        aTauPFEssential.etaAtEcalEntrance_ = -99.;
+	aTauPFEssential.phiAtEcalEntrance_ = -99.;
+	aTauPFEssential.etaAtEcalEntrance_ = -99.;
       }	
       float leadingTrackNormChi2 = 0;
       float ecalEnergyLeadChargedHadrCand = -99.;
@@ -398,25 +447,66 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       float emFraction = -1.;
       float myHCALenergy = 0.;
       float myECALenergy = 0.;	
-      const reco::PFCandidatePtr& leadingPFCharged = pfTauRef->leadPFChargedHadrCand();
+      const auto& leadingPFCharged = pfTauRef->leadPFChargedHadrCand();
       if(leadingPFCharged.isNonnull()) {
-	ecalEnergyLeadChargedHadrCand = leadingPFCharged->ecalEnergy();
-        hcalEnergyLeadChargedHadrCand = leadingPFCharged->hcalEnergy(); 
-        reco::TrackRef trackRef = leadingPFCharged->trackRef();
-        if( trackRef.isNonnull() ) {
-          leadingTrackNormChi2 = trackRef->normalizedChi2();			
-	  for( std::vector<reco::PFCandidatePtr>::const_iterator tauIt = pfTauRef->isolationPFCands().begin(); tauIt!=pfTauRef->isolationPFCands().end(); ++tauIt ){
-	    myHCALenergy += (*tauIt)->hcalEnergy();
-	    myECALenergy += (*tauIt)->ecalEnergy();
+	const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(leadingPFCharged.get());
+	if(pfCandPtr != nullptr) {
+	  ecalEnergyLeadChargedHadrCand = pfCandPtr->ecalEnergy();
+	  hcalEnergyLeadChargedHadrCand = pfCandPtr->hcalEnergy(); 
+	  reco::TrackRef trackRef = pfCandPtr->trackRef();
+	  if( trackRef.isNonnull() ) {
+	    leadingTrackNormChi2 = trackRef->normalizedChi2();			
+	    for(const auto& tauIt : pfTauRef->isolationPFCands()){
+	      const reco::PFCandidate* pfPtr = dynamic_cast<const reco::PFCandidate*>(tauIt.get());
+	      if(pfPtr != nullptr) {
+		myHCALenergy += pfPtr->hcalEnergy();
+		myECALenergy += pfPtr->ecalEnergy();
+	      }
+	    }
+	    for(const auto& tauIt : pfTauRef->signalPFCands() ){
+	      const reco::PFCandidate* pfPtr = dynamic_cast<const reco::PFCandidate*>(tauIt.get());
+	      if(pfPtr != nullptr) {
+		myHCALenergy += pfPtr->hcalEnergy();
+		myECALenergy += pfPtr->ecalEnergy();
+	      }
+	    }
+	    if( myHCALenergy + myECALenergy > 0. ) {
+	      emFraction = myECALenergy/( myHCALenergy + myECALenergy);    
+	    }
 	  }
-	  for( std::vector<reco::PFCandidatePtr>::const_iterator tauIt = pfTauRef->signalPFCands().begin(); tauIt!=pfTauRef->signalPFCands().end(); ++tauIt ){
-	    myHCALenergy += (*tauIt)->hcalEnergy();
-	    myECALenergy += (*tauIt)->ecalEnergy();
-	  }	  
-	  if( myHCALenergy + myECALenergy != 0. ) {
-            emFraction = myECALenergy/( myHCALenergy + myECALenergy);    
+	}
+	else {
+	  const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(leadingPFCharged.get());
+	  if(packedCandPtr != nullptr) {
+	    //individual ECAL and HCAL energies not available with packedCandPtridates
+	    //ecalEnergyLeadChargedHadrCand = packedCandPtr->ecalEnergy();
+	    //hcalEnergyLeadChargedHadrCand = packedCandPtr->hcalEnergy(); 
+	    const reco::Track* track = packedCandPtr->hasTrackDetails() ? &packedCandPtr->pseudoTrack() : nullptr;
+	    if( track != nullptr ) {
+	      leadingTrackNormChi2 = track->normalizedChi2();			
+	      //individual ECAL and HCAL energies not available with packedCandidates
+	      /*
+	      for(const auto& tauIt : pfTauRef->isolationPFCands()){
+		const pat::PackedCandidate* packedPtr = dynamic_cast<const pat::PackedCandidate*>(tauIt.get());
+		if(packedPtr != nullptr) {
+		  myHCALenergy += packedPtr->hcalEnergy();
+		  myECALenergy += packedPtr->ecalEnergy();
+		}
+	      }
+	      for(const auto& tauIt : pfTauRef->signalPFCands()){
+		const pat::PackedCandidate* packedPtr = dynamic_cast<const pat::PackedCandidate*>(tauIt.get());
+		if(packedPtr != nullptr) {
+		  myHCALenergy += packedPtr->hcalEnergy();
+		  myECALenergy += packedPtr->ecalEnergy();
+		}
+	      }
+	      if( myHCALenergy + myECALenergy > 0. ) {
+		emFraction = myECALenergy/( myHCALenergy + myECALenergy);    
+	      }
+	      */
+	    }
 	  }
-        }
+	}
       }
       aTauPFEssential.emFraction_ = emFraction;
       aTauPFEssential.leadingTrackNormChi2_ = leadingTrackNormChi2;
@@ -424,18 +514,18 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       aTauPFEssential.hcalEnergyLeadChargedHadrCand_ = hcalEnergyLeadChargedHadrCand; 	
       // extraction of tau lifetime information
       if( tauTransverseImpactParameterSrc_.label() != "" ) {
-        edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
-        iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
-        const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];
-        pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
-        aTauPFEssential.dxy_PCA_ = tauLifetimeInfo.dxy_PCA();
-        aTauPFEssential.dxy_ = tauLifetimeInfo.dxy();
-        aTauPFEssential.dxy_error_ = tauLifetimeInfo.dxy_error();
-        aTauPFEssential.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
-        aTauPFEssential.flightLength_ = tauLifetimeInfo.flightLength();
-        aTauPFEssential.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
-        aTauPFEssential.ip3d_ = tauLifetimeInfo.ip3d();
-        aTauPFEssential.ip3d_error_ = tauLifetimeInfo.ip3d_error();
+	edm::Handle<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> >> tauLifetimeInfos;
+	iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
+	const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];
+	pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
+	aTauPFEssential.dxy_PCA_ = tauLifetimeInfo.dxy_PCA();
+	aTauPFEssential.dxy_ = tauLifetimeInfo.dxy();
+	aTauPFEssential.dxy_error_ = tauLifetimeInfo.dxy_error();
+	aTauPFEssential.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
+	aTauPFEssential.flightLength_ = tauLifetimeInfo.flightLength();
+	aTauPFEssential.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
+	aTauPFEssential.ip3d_ = tauLifetimeInfo.ip3d();
+	aTauPFEssential.ip3d_error_ = tauLifetimeInfo.ip3d_error();
       }
     }
 
@@ -479,15 +569,17 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if (isolator_.enabled()) isolator_.endEvent();
 }
 
-template <typename TauCollectionType, typename TauDiscrType>
-float PATTauProducer::getTauIdDiscriminator(const edm::Handle<TauCollectionType>& tauCollection, size_t tauIdx, const edm::Handle<TauDiscrType>& tauIdDiscr)
+template <class TauType>
+template<typename TauCollectionType, typename TauDiscrType>
+float PATTauGenericProducer<TauType>::getTauIdDiscriminator(const edm::Handle<TauCollectionType>& tauCollection, size_t tauIdx, const edm::Handle<TauDiscrType>& tauIdDiscr)
 {
   edm::Ref<TauCollectionType> tauRef(tauCollection, tauIdx);
   return (*tauIdDiscr)[tauRef];
 }
 
 // ParameterSet description for module
-void PATTauProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+template<class TauType>
+void PATTauGenericProducer<TauType>::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription iDesc;
   iDesc.setComment("PAT tau producer module");
@@ -523,6 +615,8 @@ void PATTauProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("tauIDSource", edm::InputTag(), true) xor
                  edm::ParameterDescription<edm::ParameterSetDescription>("tauIDSources", tauIDSourcesPSet, true)
                )->setComment("input with electron ID variables");
+  // (Dis)allow to skip missing tauId sources
+  iDesc.add<bool>("skipMissingTauID", false)->setComment("allow to skip a tau ID variable when not present in the event");
 
   // IsoDeposit configurables
   edm::ParameterSetDescription isoDepositsPSet;
@@ -553,8 +647,14 @@ void PATTauProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
 }
 
+template class PATTauGenericProducer<reco::PFTau>;
+typedef PATTauGenericProducer<reco::PFTau> PATTauProducer;
+template class PATTauGenericProducer<reco::PFBaseTau>;
+typedef PATTauGenericProducer<reco::PFBaseTau> PATTauBaseProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(PATTauProducer);
+DEFINE_FWK_MODULE(PATTauBaseProducer);
 
 

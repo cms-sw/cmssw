@@ -22,7 +22,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
@@ -31,15 +30,13 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
+#include "DataFormats/TauReco/interface/PFBaseTauFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
 
@@ -54,58 +51,78 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-class PFTauTransverseImpactParameters : public edm::stream::EDProducer<> {
+template<class TauType>
+class PFTauGenericTransverseImpactParameters : public edm::stream::EDProducer<> {
  public:
-  enum Alg{useInputPV=0, useFont};
   enum CMSSWPerigee{aCurv=0,aTheta,aPhi,aTip,aLip};
-  explicit PFTauTransverseImpactParameters(const edm::ParameterSet& iConfig);
-  ~PFTauTransverseImpactParameters() override;
+  explicit PFTauGenericTransverseImpactParameters(const edm::ParameterSet& iConfig);
+  ~PFTauGenericTransverseImpactParameters() override;
   void produce(edm::Event&,const edm::EventSetup&) override;
  private:
-  edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
-  edm::EDGetTokenT<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > > PFTauPVAToken_;
-  edm::EDGetTokenT<edm::AssociationVector<PFTauRefProd,std::vector<std::vector<reco::VertexRef> > > > PFTauSVAToken_;
+  edm::EDGetTokenT<std::vector<TauType> > PFTauToken_;
+  edm::EDGetTokenT<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::VertexRef> > > PFTauPVAToken_;
+  edm::EDGetTokenT<edm::AssociationVector<edm::RefProd<std::vector<TauType> >,std::vector<std::vector<reco::VertexRef> > > > PFTauSVAToken_;
   bool useFullCalculation_;
 };
 
-PFTauTransverseImpactParameters::PFTauTransverseImpactParameters(const edm::ParameterSet& iConfig):
-  PFTauToken_(consumes<std::vector<reco::PFTau> >(iConfig.getParameter<edm::InputTag>("PFTauTag"))),
-  PFTauPVAToken_(consumes<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > >(iConfig.getParameter<edm::InputTag>("PFTauPVATag"))),
-  PFTauSVAToken_(consumes<edm::AssociationVector<PFTauRefProd,std::vector<std::vector<reco::VertexRef> > > >(iConfig.getParameter<edm::InputTag>("PFTauSVATag"))),
+template<class TauType>
+PFTauGenericTransverseImpactParameters<TauType>::PFTauGenericTransverseImpactParameters(const edm::ParameterSet& iConfig):
+  PFTauToken_(consumes<std::vector<TauType> >(iConfig.getParameter<edm::InputTag>("PFTauTag"))),
+  PFTauPVAToken_(consumes<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::VertexRef> > >(iConfig.getParameter<edm::InputTag>("PFTauPVATag"))),
+  PFTauSVAToken_(consumes<edm::AssociationVector<edm::RefProd<std::vector<TauType> >,std::vector<std::vector<reco::VertexRef> > > >(iConfig.getParameter<edm::InputTag>("PFTauSVATag"))),
   useFullCalculation_(iConfig.getParameter<bool>("useFullCalculation"))
 {
-  produces<edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > >(); 
+  produces<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> > >(); 
   produces<PFTauTransverseImpactParameterCollection>("PFTauTIP");
 }
 
-PFTauTransverseImpactParameters::~PFTauTransverseImpactParameters(){
+template<class TauType>
+PFTauGenericTransverseImpactParameters<TauType>::~PFTauGenericTransverseImpactParameters(){
 
 }
 
-void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
+namespace {
+  inline const reco::Track* getTrack(const Candidate& cand)
+  {
+    const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
+    if (pfCandPtr != nullptr) {
+      if      ( pfCandPtr->trackRef().isNonnull()    ) return pfCandPtr->trackRef().get();
+      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return pfCandPtr->gsfTrackRef().get(); //MB comment out to keep backward compability with the non-template version (not recommended)
+      else return nullptr;
+    }
+    const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    if (packedCand != nullptr && packedCand->hasTrackDetails())
+        return &packedCand->pseudoTrack();
+
+   return nullptr;
+  }
+}
+
+template<class TauType>
+void PFTauGenericTransverseImpactParameters<TauType>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
   // Obtain Collections
   edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
   
-  edm::Handle<std::vector<reco::PFTau> > Tau;
+  edm::Handle<std::vector<TauType> > Tau;
   iEvent.getByToken(PFTauToken_,Tau);
 
-  edm::Handle<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > > PFTauPVA;
+  edm::Handle<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::VertexRef> > > PFTauPVA;
   iEvent.getByToken(PFTauPVAToken_,PFTauPVA);
 
-  edm::Handle<edm::AssociationVector<PFTauRefProd,std::vector<std::vector<reco::VertexRef> > > > PFTauSVA;
+  edm::Handle<edm::AssociationVector<edm::RefProd<std::vector<TauType> >,std::vector<std::vector<reco::VertexRef> > > > PFTauSVA;
   iEvent.getByToken(PFTauSVAToken_,PFTauSVA);
 
   // Set Association Map
-  auto AVPFTauTIP = std::make_unique< edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>(PFTauRefProd(Tau));
+  auto AVPFTauTIP = std::make_unique< edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef>>>(edm::RefProd<std::vector<TauType> >(Tau));
   auto TIPCollection_out = std::make_unique<PFTauTransverseImpactParameterCollection>();
   reco::PFTauTransverseImpactParameterRefProd TIPRefProd_out = iEvent.getRefBeforePut<reco::PFTauTransverseImpactParameterCollection>("PFTauTIP");
 
 
   // For each Tau Run Algorithim
   if(Tau.isValid()) {
-    for(reco::PFTauCollection::size_type iPFTau = 0; iPFTau < Tau->size(); iPFTau++) {
-      reco::PFTauRef RefPFTau(Tau, iPFTau);
+    for(size_t iPFTau = 0; iPFTau < Tau->size(); iPFTau++) {
+      edm::Ref<std::vector<TauType> > RefPFTau(Tau, iPFTau);
       const reco::VertexRef PV=PFTauPVA->value(RefPFTau.key());
       const std::vector<reco::VertexRef> SV=PFTauSVA->value(RefPFTau.key());
       double dxy(-999), dxy_err(-999);
@@ -113,9 +130,10 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
       double ip3d(-999), ip3d_err(-999);
       reco::Vertex::Point ip3d_poca(0,0,0);
       if(RefPFTau->leadPFChargedHadrCand().isNonnull()){
-	if(RefPFTau->leadPFChargedHadrCand()->trackRef().isNonnull()){
+	const reco::Track* track = getTrack(*RefPFTau->leadPFChargedHadrCand());
+	if(track != nullptr){
 	  if(useFullCalculation_){
-	    reco::TransientTrack transTrk=transTrackBuilder->build(RefPFTau->leadPFChargedHadrCand()->trackRef());
+	    reco::TransientTrack transTrk=transTrackBuilder->build(*track);
 	    GlobalVector direction(RefPFTau->p4().px(), RefPFTau->p4().py(), RefPFTau->p4().pz()); //To compute sign of IP
 	    std::pair<bool,Measurement1D> signed_IP2D = IPTools::signedTransverseImpactParameter(transTrk, direction, (*PV));
 	    dxy=signed_IP2D.second.value();
@@ -131,10 +149,10 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
 	    ip3d_poca=reco::Vertex::Point(pos3d.x(),pos3d.y(),pos3d.z());
 	  }
 	  else{
-	    dxy_err=RefPFTau->leadPFChargedHadrCand()->trackRef()->d0Error();
-	    dxy=RefPFTau->leadPFChargedHadrCand()->trackRef()->dxy(PV->position());
-	    ip3d_err=RefPFTau->leadPFChargedHadrCand()->trackRef()->dzError(); //store dz, ip3d not available
-	    ip3d=RefPFTau->leadPFChargedHadrCand()->trackRef()->dz(PV->position()); //store dz, ip3d not available 
+	    dxy_err=track->d0Error();
+	    dxy=track->dxy(PV->position());
+	    ip3d_err=track->dzError(); //store dz, ip3d not available
+	    ip3d=track->dz(PV->position()); //store dz, ip3d not available 
 	  }
 	}
       }
@@ -165,4 +183,10 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
   iEvent.put(std::move(AVPFTauTIP));
 }
 
+template class PFTauGenericTransverseImpactParameters<reco::PFTau>;
+typedef PFTauGenericTransverseImpactParameters<reco::PFTau> PFTauTransverseImpactParameters;
 DEFINE_FWK_MODULE(PFTauTransverseImpactParameters);
+
+template class PFTauGenericTransverseImpactParameters<reco::PFBaseTau>;
+typedef PFTauGenericTransverseImpactParameters<reco::PFBaseTau> PFBaseTauTransverseImpactParameters;
+DEFINE_FWK_MODULE(PFBaseTauTransverseImpactParameters);

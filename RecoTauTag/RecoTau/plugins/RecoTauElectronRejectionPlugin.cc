@@ -21,7 +21,7 @@
 
 namespace reco { namespace tau {
 
-class RecoTauElectronRejectionPlugin : public RecoTauModifierPlugin {
+class RecoTauElectronRejectionPlugin : public RecoTauModifierPlugin<reco::PFTau> {
   public:
   explicit RecoTauElectronRejectionPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
     ~RecoTauElectronRejectionPlugin() override {}
@@ -37,7 +37,7 @@ class RecoTauElectronRejectionPlugin : public RecoTauModifierPlugin {
 };
 
 RecoTauElectronRejectionPlugin::RecoTauElectronRejectionPlugin(
-  const edm::ParameterSet& pset, edm::ConsumesCollector && iC):RecoTauModifierPlugin(pset,std::move(iC)) {
+  const edm::ParameterSet& pset, edm::ConsumesCollector && iC):RecoTauModifierPlugin<reco::PFTau>(pset,std::move(iC)) {
   // Load parameters
   ElecPreIDLeadTkMatch_maxDR_ =
     pset.getParameter<double>("ElecPreIDLeadTkMatch_maxDR");

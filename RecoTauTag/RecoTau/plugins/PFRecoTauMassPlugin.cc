@@ -16,18 +16,20 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
 
 #include <TMath.h>
 
 namespace reco { namespace tau {
 
-class PFRecoTauMassPlugin : public RecoTauModifierPlugin
+template<typename TauType>
+class PFRecoTauGenericMassPlugin : public RecoTauModifierPlugin<TauType>
 {
  public:
 
-  explicit PFRecoTauMassPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-  ~PFRecoTauMassPlugin() override;
-  void operator()(PFTau&) const override;
+  explicit PFRecoTauGenericMassPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
+  ~PFRecoTauGenericMassPlugin() override;
+  void operator()(TauType&) const override;
   void beginEvent() override;
   void endEvent() override;
 
@@ -36,27 +38,31 @@ class PFRecoTauMassPlugin : public RecoTauModifierPlugin
   int verbosity_;
 };
 
-  PFRecoTauMassPlugin::PFRecoTauMassPlugin(const edm::ParameterSet& cfg, edm::ConsumesCollector &&iC)
-    : RecoTauModifierPlugin(cfg, std::move(iC))
+template<typename TauType>
+PFRecoTauGenericMassPlugin<TauType>::PFRecoTauGenericMassPlugin(const edm::ParameterSet& cfg, edm::ConsumesCollector &&iC)
+    : RecoTauModifierPlugin<TauType>(cfg, std::move(iC))
 {
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
 }
 
-PFRecoTauMassPlugin::~PFRecoTauMassPlugin()
+template<typename TauType>
+PFRecoTauGenericMassPlugin<TauType>::~PFRecoTauGenericMassPlugin()
 {}
 
-void PFRecoTauMassPlugin::beginEvent()
+template<typename TauType>
+void PFRecoTauGenericMassPlugin<TauType>::beginEvent()
 {}
 
-void PFRecoTauMassPlugin::operator()(PFTau& tau) const
+template<typename TauType>
+void PFRecoTauGenericMassPlugin<TauType>::operator()(TauType& tau) const
 {
   if ( verbosity_ ) {
-    std::cout << "<PFRecoTauMassPlugin::operator()>:" << std::endl;
+    std::cout << "<PFRecoTauGenericMassPlugin::operator()>:" << std::endl;
     std::cout << "tau: Pt = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << ", mass = " << tau.mass() << " (decayMode = " << tau.decayMode() << ")" << std::endl;
   }
 
-  if ( tau.decayMode() == reco::PFTau::kOneProng0PiZero ) {
+  if ( tau.decayMode() == TauType::kOneProng0PiZero ) {
     double tauEn = tau.energy();
     const double chargedPionMass = 0.13957; // GeV
     if ( tauEn < chargedPionMass ) tauEn = chargedPionMass;
@@ -72,11 +78,19 @@ void PFRecoTauMassPlugin::operator()(PFTau& tau) const
   }
 }
 
-void PFRecoTauMassPlugin::endEvent()
+template<typename TauType>
+void PFRecoTauGenericMassPlugin<TauType>::endEvent()
 {}
+
+template class PFRecoTauGenericMassPlugin<reco::PFTau>;
+typedef PFRecoTauGenericMassPlugin<reco::PFTau> PFRecoTauMassPlugin;
+
+template class PFRecoTauGenericMassPlugin<reco::PFBaseTau>;
+typedef PFRecoTauGenericMassPlugin<reco::PFBaseTau> PFRecoBaseTauMassPlugin;
 
 }} // end namespace reco::tau
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_EDM_PLUGIN(RecoTauModifierPluginFactory, reco::tau::PFRecoTauMassPlugin, "PFRecoTauMassPlugin");
+DEFINE_EDM_PLUGIN(RecoBaseTauModifierPluginFactory, reco::tau::PFRecoBaseTauMassPlugin, "PFRecoBaseTauMassPlugin");

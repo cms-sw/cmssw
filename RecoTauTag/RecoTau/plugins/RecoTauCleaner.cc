@@ -37,13 +37,14 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-template<typename Prod>
+template<typename Prod, typename TauType>
 class RecoTauCleanerImpl : public edm::stream::EDProducer<>
-{
-  typedef reco::tau::RecoTauCleanerPlugin Cleaner;
+{ 
+  template<typename T>
+  using Cleaner = reco::tau::RecoTauCleanerPlugin<T>;
   struct CleanerEntryType
   {
-    std::shared_ptr<Cleaner> plugin_;
+    std::shared_ptr<Cleaner<TauType> > plugin_;
     float tolerance_;
   };
   typedef std::vector<std::unique_ptr<CleanerEntryType> > CleanerList;
@@ -54,7 +55,7 @@ class RecoTauCleanerImpl : public edm::stream::EDProducer<>
   class RemoveDuplicateJets 
   {
    public:
-    bool operator()(const reco::PFTauRef& a, const reco::PFTauRef& b) const { return (a->jetRef() == b->jetRef()); }
+    bool operator()(const edm::Ref<std::vector<TauType> >& a, const edm::Ref<std::vector<TauType> >& b) const { return (a->jetRef() == b->jetRef()); }
   };
 
  public:
@@ -66,16 +67,16 @@ class RecoTauCleanerImpl : public edm::stream::EDProducer<>
   edm::InputTag tauSrc_;
   CleanerList cleaners_;
   // Optional selection on the output of the taus
-  std::unique_ptr<const StringCutObjectSelector<reco::PFTau> > outputSelector_;
-  edm::EDGetTokenT<reco::PFTauCollection> tau_token;
+  std::unique_ptr<const StringCutObjectSelector<TauType> > outputSelector_;
+  edm::EDGetTokenT<std::vector<TauType> > tau_token;
   int verbosity_;
 };
 
-template<typename Prod>
-RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) 
+template<typename Prod, typename TauType>
+RecoTauCleanerImpl<Prod, TauType>::RecoTauCleanerImpl(const edm::ParameterSet& pset) 
 {
   tauSrc_ = pset.getParameter<edm::InputTag>("src");
-  tau_token=consumes<reco::PFTauCollection>(tauSrc_);
+  tau_token=consumes<std::vector<TauType> >(tauSrc_);
   // Build our list of quality plugins
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
@@ -86,7 +87,7 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset)
     // Get plugin name
     const std::string& pluginType = cleanerPSet->getParameter<std::string>("plugin");
     // Build the plugin
-    cleanerEntry->plugin_.reset(RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector()));
+    cleanerEntry->plugin_.reset(edmplugin::PluginFactory<reco::tau::RecoTauCleanerPlugin<TauType>*(const edm::ParameterSet&, edm::ConsumesCollector &&iC)>::get()->create(pluginType, *cleanerPSet, consumesCollector()));
     cleanerEntry->tolerance_ = ( cleanerPSet->exists("tolerance") ) ?
     cleanerPSet->getParameter<double>("tolerance") : 0.;
     cleaners_.emplace_back(cleanerEntry);
@@ -96,7 +97,7 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset)
   if ( pset.exists("outputSelection") ) {
     std::string selection = pset.getParameter<std::string>("outputSelection");
     if ( selection != "" ) {
-      outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
+      outputSelector_.reset(new StringCutObjectSelector<TauType>(selection));
     }
   }
 
@@ -108,25 +109,31 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset)
   produces<Prod>();
 }
 
-template<typename Prod>
-RecoTauCleanerImpl<Prod>::~RecoTauCleanerImpl() 
+template<typename Prod, typename TauType>
+RecoTauCleanerImpl<Prod, TauType>::~RecoTauCleanerImpl() 
 {  
 }
 
 namespace {
 // Template to convert a ref to desired output type
-template<typename T> const T convert(const reco::PFTauRef &tau);
+template<typename T, typename TauType> const T convert(const edm::Ref<std::vector<TauType> > &tau);
 
   //template<> const edm::RefToBase<reco::PFTau>
   //convert<edm::RefToBase<reco::PFTau> >(const reco::PFTauRef &tau) {
   // return edm::RefToBase<reco::PFTau>(tau);
   //}
 
-template<> const reco::PFTauRef
-convert<reco::PFTauRef>(const reco::PFTauRef &tau) { return tau; }
+template<> const edm::Ref<std::vector<reco::PFTau> >
+convert<edm::Ref<std::vector<reco::PFTau> >>(const edm::Ref<std::vector<reco::PFTau> > &tau) { return tau; }
 
 template<> const reco::PFTau
-convert<reco::PFTau>(const reco::PFTauRef &tau) { return *tau; }
+convert<reco::PFTau>(const edm::Ref<std::vector<reco::PFTau> > &tau) { return *tau; }
+
+template<> const edm::Ref<std::vector<reco::PFBaseTau> >
+convert<edm::Ref<std::vector<reco::PFBaseTau> >>(const edm::Ref<std::vector<reco::PFBaseTau> > &tau) { return tau; }
+
+template<> const reco::PFBaseTau
+convert<reco::PFBaseTau>(const edm::Ref<std::vector<reco::PFBaseTau> > &tau) { return *tau; }
 }
 
 namespace
@@ -145,9 +152,10 @@ namespace
     return os.str();
   }
 
+  template<typename TauType>
   struct PFTauRankType
   {
-    PFTauRankType(const reco::PFTauRef& tauRef)
+    PFTauRankType(const edm::Ref<std::vector<TauType> >& tauRef)
       : idx_(tauRef.key()),
 	tauRef_(tauRef)
     {}
@@ -179,25 +187,25 @@ namespace
 	const reco::RecoTauPiZero& piZero = signalPiZeroCandidates.at(iPiZero);
 	std::cout << " piZero #" << iPiZero << ": Pt = " << piZero.pt() << ", eta = " << piZero.eta() << ", phi = " << piZero.phi() << ", mass = " << piZero.mass() << std::endl;
       }
-      const std::vector<reco::PFCandidatePtr>& isolationPFCands = tauRef_->isolationPFCands();
+      const auto& isolationPFCands = tauRef_->isolationPFCands();
       size_t numPFCands = isolationPFCands.size();
       std::cout << "isolationPFCands = " << numPFCands << std::endl;
-      for ( size_t iPFCand = 0; iPFCand < numPFCands; ++iPFCand ) {
-	const reco::PFCandidatePtr& pfCand = isolationPFCands.at(iPFCand);
-	std::cout << " pfCand #" << iPFCand << " (" << pfCand.id() << ":" << pfCand.key() << "):" 
+      for (const auto& pfCand : isolationPFCands) {
+	std::cout << " pfCand (" << pfCand.id() << ":" << pfCand.key() << "):" 
 		  << " Pt = " << pfCand->pt() << ", eta = " << pfCand->eta() << ", phi = " << pfCand->phi() << std::endl;
       }
       std::cout << " ranks = " << format_vT(ranks_) << std::endl;
       std::cout << " tolerances = " << format_vT(tolerances_) << std::endl;
     }
     size_t idx_;
-    reco::PFTauRef tauRef_;
+    edm::Ref<std::vector<TauType> > tauRef_;
     size_t N_;
     std::vector<float> ranks_;
     std::vector<float> tolerances_;
   };
-    
-  bool isHigherRank(const PFTauRankType* tau1, const PFTauRankType* tau2)
+  
+  template<typename TauType>
+  bool isHigherRank(const PFTauRankType<TauType>* tau1, const PFTauRankType<TauType>* tau2)
   {
     //std::cout << "<isHigherRank>:" << std::endl;
     //std::cout << "tau1 @ " << tau1;
@@ -219,8 +227,8 @@ namespace
   }
 }
 
-template<typename Prod>
-void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& es) 
+template<typename Prod, typename TauType>
+void RecoTauCleanerImpl<Prod, TauType>::produce(edm::Event& evt, const edm::EventSetup& es) 
 {
   if ( verbosity_ ) {
     std::cout << "<RecoTauCleanerImpl::produce>:" << std::endl;
@@ -233,15 +241,15 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
   }
 
   // Get the input collection of all taus. Some are from the same PFJet. We must clean them.
-  edm::Handle<reco::PFTauCollection> inputTaus;
+  edm::Handle<std::vector<TauType> > inputTaus;
   evt.getByToken(tau_token, inputTaus);
 
   // Sort the input tau refs according to our predicate
-  std::list<PFTauRankType*> rankedTaus;
+  std::list<PFTauRankType<TauType>*> rankedTaus;
   size_t N = inputTaus->size();
   for ( size_t idx = 0; idx < N; ++idx ) {
-    reco::PFTauRef inputRef(inputTaus, idx);
-    PFTauRankType* rankedTau = new PFTauRankType(inputRef);    
+    edm::Ref<std::vector<TauType> > inputRef(inputTaus, idx);
+    PFTauRankType<TauType>* rankedTau = new PFTauRankType<TauType>(inputRef);    
     rankedTau->N_ = cleaners_.size();
     rankedTau->ranks_.reserve(rankedTau->N_);
     rankedTau->tolerances_.reserve(rankedTau->N_);
@@ -257,13 +265,13 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
     }
     rankedTaus.push_back(rankedTau);
   }
-  rankedTaus.sort(isHigherRank);
+  rankedTaus.sort(isHigherRank<TauType>);
 
   // Make an STL algorithm friendly vector of refs
-  typedef std::vector<reco::PFTauRef> PFTauRefs;
+  typedef std::vector<edm::Ref<std::vector<TauType> >> PFTauRefs;
   PFTauRefs dirty(inputTaus->size());
   size_t idx_sorted = 0;
-  for ( std::list<PFTauRankType*>::const_iterator rankedTau = rankedTaus.begin();
+  for ( typename std::list<PFTauRankType<TauType>*>::const_iterator rankedTau = rankedTaus.begin();
 	rankedTau != rankedTaus.end(); ++rankedTau ) {
     dirty[idx_sorted] = (*rankedTau)->tauRef_;
     if ( verbosity_ ) {
@@ -281,7 +289,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
   //output->reserve(cleanTaus.size());
 
   // Copy clean refs into output
-  for ( PFTauRefs::const_iterator tau = cleanTaus.begin();
+  for ( typename PFTauRefs::const_iterator tau = cleanTaus.begin();
 	tau != cleanTaus.end(); ++tau ) {
     // If we are applying an output selection, check if it passes
     bool selected = true;
@@ -295,11 +303,15 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
   evt.put(std::move(output));
 }
 
-typedef RecoTauCleanerImpl<reco::PFTauCollection> RecoTauCleaner;
-typedef RecoTauCleanerImpl<reco::PFTauRefVector> RecoTauRefCleaner;
+typedef RecoTauCleanerImpl<reco::PFTauCollection, reco::PFTau> RecoTauCleaner;
+typedef RecoTauCleanerImpl<reco::PFTauRefVector, reco::PFTau> RecoTauRefCleaner;
+
+typedef RecoTauCleanerImpl<reco::PFBaseTauCollection, reco::PFBaseTau> RecoBaseTauCleaner;
+typedef RecoTauCleanerImpl<reco::PFBaseTauRefVector, reco::PFBaseTau> RecoBaseTauRefCleaner;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(RecoTauCleaner);
 DEFINE_FWK_MODULE(RecoTauRefCleaner);
-
+DEFINE_FWK_MODULE(RecoBaseTauCleaner);
+DEFINE_FWK_MODULE(RecoBaseTauRefCleaner);
