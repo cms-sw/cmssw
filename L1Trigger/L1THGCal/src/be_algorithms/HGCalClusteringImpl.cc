@@ -404,14 +404,8 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster_( l1t::HGCalCluster* clus
 
     /* sorting (needed in order to be sure that we are skipping any tc) */
     /* FIXME: better sorting needed!!! */
-    for( unsigned i=0; i<distances.size(); i++ ){
-        for( unsigned j=0; j<(distances.size()-1); j++ ){
-            if( distances[j].second > distances[j+1].second )
-            {
-                iter_swap( distances.begin() + j, distances.begin() + (j+1) );
-            }
-        }        
-    }
+    std::sort( distances.begin(), distances.end(), distanceSorter );
+
 
     /* checking if the tc is connected to the seed */
     bool toRemove[constituents.size()];
