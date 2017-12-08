@@ -5,7 +5,6 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
-<<<<<<< HEAD
 PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection(const HcalTimeSlew* hcalTimeSlew_delay) : cntsetPulseShape(0),
 								       psfPtr_(nullptr), spfunctor_(nullptr), dpfunctor_(nullptr), tpfunctor_(nullptr),
 								       TSMin_(0), TSMax_(0), vts4Chi2_(0), pedestalConstraint_(false),
