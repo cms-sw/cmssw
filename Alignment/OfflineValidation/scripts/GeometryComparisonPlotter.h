@@ -69,6 +69,7 @@ class GeometryComparisonPlotter
                           double y1,
                           double x2,  
                           double y2,
+                          int nPlottedSublevels,
                           const TString title = "");
 
 public:
