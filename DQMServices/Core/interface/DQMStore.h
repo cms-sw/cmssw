@@ -208,8 +208,8 @@ class DQMStore
     }
 
     std::vector<MonitorElement*>  getAllContents(const std::string &path,
-						 uint32_t runNumber = 0,
-						 uint32_t lumi = 0);
+                                                 uint32_t runNumber = 0,
+                                                 uint32_t lumi = 0);
     MonitorElement * get(const std::string &path);
 
     // same as get, throws an exception if histogram not found
@@ -249,9 +249,9 @@ class DQMStore
   // *before* invoking and automatically released upon returns.
   template <typename iFunc>
   void bookTransaction(iFunc f,
-		       uint32_t run,
-		       uint32_t streamId,
-		       uint32_t moduleId) {
+                       uint32_t run,
+                       uint32_t streamId,
+                       uint32_t moduleId) {
     std::lock_guard<std::mutex> guard(book_mutex_);
     /* If enableMultiThread is not enabled we do not set run_,
        streamId_ and moduleId_ to 0, since we rely on their default
@@ -539,12 +539,8 @@ class DQMStore
   void                          removeElement(const std::string &name);
   void                          removeElement(const std::string &dir, const std::string &name, bool warning = true);
 
-  //-------------------------------------------------------------------------
+  // ------------------------------------------------------------------------
   // ---------------------- public I/O --------------------------------------
-  void                          savePB(const std::string &filename,
-                                       const std::string &path = "",
-				       const uint32_t run = 0,
-				       const uint32_t lumi = 0);
   void                          save(const std::string &filename,
                                      const std::string &path = "",
                                      const std::string &pattern = "",
@@ -554,6 +550,10 @@ class DQMStore
                                      SaveReferenceTag ref = SaveWithReference,
                                      int minStatus = dqm::qstatus::STATUS_OK,
                                      const std::string &fileupdate = "RECREATE");
+  void                          savePB(const std::string &filename,
+                                       const std::string &path = "",
+                                       const uint32_t run = 0,
+                                       const uint32_t lumi = 0);
   bool                          open(const std::string &filename,
                                      bool overwrite = false,
                                      const std::string &path ="",
@@ -565,14 +565,16 @@ class DQMStore
                                      bool fileMustExist = true);
   bool                          mtEnabled() { return enableMultiThread_; };
 
-  //-------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
   // ---------------------- Public print methods -----------------------------
+ public:
   void                          showDirStructure() const;
 
   // ---------------------- Public check options -----------------------------
-  bool                         isCollate() const;
+  bool                          isCollate() const;
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // ---------------------- Quality Test methods -----------------------------
   QCriterion *                  getQCriterion(const std::string &qtname) const;
   QCriterion *                  createQTest(const std::string &algoname, const std::string &qtname);
@@ -631,12 +633,12 @@ class DQMStore
 
   // Multithread SummaryCache manipulations
   void mergeAndResetMEsRunSummaryCache(uint32_t run,
-				       uint32_t streamId,
-				       uint32_t moduleId);
+                                       uint32_t streamId,
+                                       uint32_t moduleId);
   void mergeAndResetMEsLuminositySummaryCache(uint32_t run,
-					      uint32_t lumi,
-					      uint32_t streamId,
-					      uint32_t moduleId);
+                                              uint32_t lumi,
+                                              uint32_t streamId,
+                                              uint32_t moduleId);
 
   void deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi);
   void deleteUnusedLumiHistogramsAfterEndLumi(const edm::GlobalContext&);
@@ -703,6 +705,32 @@ class DQMStore
   using MEMap                 = std::set<MonitorElement>;
   using QCMap                 = std::map<std::string, QCriterion *>;
   using QAMap                 = std::map<std::string, QCriterion *(*)(const std::string &)>;
+
+
+  // ------------------------ private I/O helpers ------------------------------
+  void                          saveMonitorElementToPB(
+                                    MonitorElement const& me,
+                                    dqmstorepb::ROOTFilePB & file);
+  void                          saveMonitorElementRangeToPB(
+                                    std::string const& dir,
+                                    unsigned int run,
+                                    MEMap::const_iterator begin,
+                                    MEMap::const_iterator end,
+                                    dqmstorepb::ROOTFilePB & file,
+                                    unsigned int & counter);
+  void                          saveMonitorElementToROOT(
+                                    MonitorElement const& me,
+                                    TFile & file);
+  void                          saveMonitorElementRangeToROOT(
+                                    std::string const& dir,
+                                    std::string const& refpath,
+                                    SaveReferenceTag ref,
+                                    int minStatus,
+                                    unsigned int run,
+                                    MEMap::const_iterator begin,
+                                    MEMap::const_iterator end,
+                                    TFile & file,
+                                    unsigned int & counter);
 
   unsigned                      verbose_;
   unsigned                      verboseQT_;
