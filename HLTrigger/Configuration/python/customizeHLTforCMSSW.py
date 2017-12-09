@@ -58,6 +58,7 @@ def customiseFor20429(process):
 def customiseFor21437(process):
     if hasattr(process,"hltESPTrajectoryCleanerBySharedSeeds"):
         delattr(process,"hltESPTrajectoryCleanerBySharedSeeds")
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
