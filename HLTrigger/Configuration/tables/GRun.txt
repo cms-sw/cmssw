@@ -619,9 +619,9 @@ PhysicsCommissioningOutput
 PhysicsEGammaOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
-PhysicsMinimumBias0Output                 # CMSHLT-1027
-PhysicsMinimumBias1Output                 # CMSHLT-1027
-PhysicsMinimumBias2Output                 # CMSHLT-1027
+#PhysicsMinimumBias0Output                 # CMSHLT-1027
+#PhysicsMinimumBias1Output                 # CMSHLT-1027
+#PhysicsMinimumBias2Output                 # CMSHLT-1027
 #PhysicsCirculating                       # CMSHLT-1006
 ParkingOutput                             # CMSHLT-487, CMSHLT-603
 ParkingHLTPhysicsOutput
