@@ -44,13 +44,9 @@ TP::TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const Settings* se
 
 //=== Fill truth info with association from tracking particle to stubs.
 
-void TP::fillTruth(const std::vector<Stub>& vStubs) {
+void TP::setMatchingStubs(const std::vector<const Stub*>& vMatchingStubs) {
 
-  for (const Stub& s : vStubs) {
-    for (const TP* tp_i : s.assocTPs()) {
-      if (tp_i -> index() == this->index()) assocStubs_.push_back(&s);
-    }
-  }
+  assocStubs_ = vMatchingStubs;
 
   this->fillUseForAlgEff(); // Fill useForAlgEff_ flag.
   this->fillUseForVertexReco();

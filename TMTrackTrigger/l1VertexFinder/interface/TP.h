@@ -25,7 +25,7 @@ public:
   ~TP(){}
 
   // Fill truth info with association from tracking particle to stubs.
-  void fillTruth(const std::vector<Stub>& vStubs);
+  void setMatchingStubs(const std::vector<const Stub*>& vMatchingStubs);
 
   // == Functions for returning info about tracking particles ===
 

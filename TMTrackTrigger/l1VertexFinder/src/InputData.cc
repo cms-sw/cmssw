@@ -156,9 +156,18 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
       Stub stub(ttStubRef, stubCount, settings, trackerGeometry, trackerTopology, stubGeoDetIdMap_ );
       // Also fill truth associating stubs to tracking particles.
       //      stub.fillTruth(vTPs_, mcTruthTTStubHandle, mcTruthTTClusterHandle); 
-      stub.fillTruth(translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle); 
+      stub.fillTruth(translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle);
       vAllStubs_.push_back( stub );
       stubCount++;
+    }
+  }
+
+  std::map<const TP*, std::vector<const Stub*> > tpStubMap;
+  for (const TP& tp : vTPs_)
+    tpStubMap[&tp] = std::vector<const Stub*>();
+  for (const Stub& stub : vAllStubs_) {
+    for (const TP* tp : stub.assocTPs()) {
+      tpStubMap[tp].push_back(&stub);
     }
   }
   // std::cout << "Number of stubs read in : " << stubCount << std::endl;
@@ -180,7 +189,8 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
   // measured will be reduced if the tightened frontend electronics cuts, specified in section StubCuts
   // of Analyze_Defaults_cfi.py, are not 100% efficient).
   for (unsigned int j = 0; j < vTPs_.size(); j++) {
-    vTPs_[j].fillTruth(vAllStubs_);
+    assert (tpStubMap.count(&vTPs_.at(j)) == 1);
+    vTPs_[j].setMatchingStubs(tpStubMap.find(&vTPs_.at(j))->second);
     if(vTPs_[j].useForAlgEff()) {
       
       vertex_.insert(vTPs_[j]);
