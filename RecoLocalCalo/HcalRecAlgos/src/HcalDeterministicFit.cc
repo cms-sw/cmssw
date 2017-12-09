@@ -156,6 +156,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
     //Fix this (seg faults)
     //C. Madrid
     //-----------------------------------------------------
+    //tsShift3=hcalTimeSlew_delay_->delay(3.0,HcalTimeSlew::HBHE2018);
     tsShift3=0;//hcalTimeSlew_delay_->delay(inputCharge[soi-1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
     tsShift4=0;//hcalTimeSlew_delay_->delay(inputCharge[soi], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
     tsShift5=0;//hcalTimeSlew_delay_->delay(inputCharge[soi+1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
