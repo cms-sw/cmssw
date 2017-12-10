@@ -61,7 +61,7 @@ void DTBlockedROChannelsTest::fillChamberMap( DQMStore::IGetter & igetter, const
 
   // fill the map of the robs per chamber 
   // //FIXME: monitoring only real used FEDs
-  for(int dduId = FEDNumbering::MINDTFEDID; dduId<=774; ++dduId) { //loop over DDUs
+  for(int dduId = FEDNumbering::MINDTFEDID; dduId<=FEDNumbering::MAXDTFEDID; ++dduId) { //loop over DDUs
     for(int ros = 1; ros != 13; ++ros) { // loop over ROSs
       for(int rob = 1; rob != 26; ++rob) { // loop over ROBs	
         int wheel = 0;

@@ -58,6 +58,8 @@ private:
   // prescale on the # of LS to update the test
   int prescaleFactor;
 
+  // to use in 2018 with uROS
+  bool checkUros;
 
   //Counter between 0 and nTimeBin
   int counter;
