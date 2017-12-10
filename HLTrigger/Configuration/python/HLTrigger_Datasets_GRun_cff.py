@@ -1,4 +1,4 @@
-# /dev/CMSSW_9_2_0/GRun
+# /dev/CMSSW_10_0_0/GRun
 
 import FWCore.ParameterSet.Config as cms
 
@@ -62,24 +62,14 @@ streamPhysicsCommissioning_datasetHcalNZS_selector.triggerConditions = cms.vstri
     'HLT_HcalPhiSym_v14'
 )
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetHighPtLowerPhotons_selector
-streamPhysicsCommissioning_datasetHighPtLowerPhotons_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsCommissioning_datasetHighPtLowerPhotons_selector.l1tResults = cms.InputTag('')
-streamPhysicsCommissioning_datasetHighPtLowerPhotons_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetHighPtLowerPhotons_selector.triggerConditions = cms.vstring(
-    'HLT_SinglePhoton10_Eta3p1ForPPRef_v8', 
-    'HLT_SinglePhoton20_Eta3p1ForPPRef_v8'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector
-streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector.l1tResults = cms.InputTag('')
-streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetHighPtPhoton30AndZ_selector.triggerConditions = cms.vstring(
-    'HLT_SinglePhoton30_Eta3p1ForPPRef_v8', 
-    'HLT_SinglePhoton40_Eta3p1ForPPRef_v8', 
-    'HLT_SinglePhoton50_Eta3p1ForPPRef_v8', 
-    'HLT_SinglePhoton60_Eta3p1ForPPRef_v8'
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetHighEGJet_selector
+streamPhysicsCommissioning_datasetHighEGJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsCommissioning_datasetHighEGJet_selector.l1tResults = cms.InputTag('')
+streamPhysicsCommissioning_datasetHighEGJet_selector.throw      = cms.bool(False)
+streamPhysicsCommissioning_datasetHighEGJet_selector.triggerConditions = cms.vstring(
+    'HLT_HISinglePhoton40_Eta3p1ForPPRef_v8', 
+    'HLT_HISinglePhoton50_Eta3p1ForPPRef_v8', 
+    'HLT_HISinglePhoton60_Eta3p1ForPPRef_v8'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetIsolatedBunch_selector
@@ -87,6 +77,16 @@ streamPhysicsCommissioning_datasetIsolatedBunch_selector.hltResults = cms.InputT
 streamPhysicsCommissioning_datasetIsolatedBunch_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetIsolatedBunch_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetIsolatedBunch_selector.triggerConditions = cms.vstring('HLT_HcalIsolatedbunch_v4')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetLowEGJet_selector
+streamPhysicsCommissioning_datasetLowEGJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsCommissioning_datasetLowEGJet_selector.l1tResults = cms.InputTag('')
+streamPhysicsCommissioning_datasetLowEGJet_selector.throw      = cms.bool(False)
+streamPhysicsCommissioning_datasetLowEGJet_selector.triggerConditions = cms.vstring(
+    'HLT_HISinglePhoton10_Eta3p1ForPPRef_v8', 
+    'HLT_HISinglePhoton20_Eta3p1ForPPRef_v8', 
+    'HLT_HISinglePhoton30_Eta3p1ForPPRef_v8'
+)
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetMonteCarlo_selector
 streamPhysicsCommissioning_datasetMonteCarlo_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
