@@ -139,7 +139,7 @@ void CSCMotherboardME11::clear()
     //firstLCT1a[bx].clear();
     //secondLCT1a[bx].clear();
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<2;i++)
+      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
       {
         allLCTs1b[bx][mbx][i].clear();
         allLCTs1a[bx][mbx][i].clear();
@@ -168,6 +168,10 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
+
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+  clct1a->setCSCGeometry(csc_g);
 
   alctV = alct->run(wiredc); // run anodeLCT
   clctV1b = clct->run(compdc); // run cathodeLCT in ME1/b
@@ -306,7 +310,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     // counting
     unsigned int n1a=0, n1b=0;
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<2;i++)
+      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
       {
         int cbx = bx + mbx - match_trig_window_size/2;
         if (allLCTs1b[bx][mbx][i].isValid())
@@ -327,7 +331,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     {
       n1a=0, n1b=0;
       for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-        for (int i=0;i<2;i++)
+        for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
         {
           if (allLCTs1b[bx][pref[mbx]][i].isValid())
           {
@@ -344,7 +348,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       if (infoV > 0) LogDebug("CSCMotherboard") <<"After x-bx sorting:";
       n1a=0, n1b=0;
       for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-        for (int i=0;i<2;i++)
+        for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
         {
           int cbx = bx + mbx - match_trig_window_size/2;
           if (allLCTs1b[bx][mbx][i].isValid())
@@ -370,7 +374,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       n1a=0;
       // right now nLCT<=2; cut 1a if necessary
       for (unsigned int mbx=0; mbx<match_trig_window_size; mbx++)
-        for (int i=0;i<2;i++)
+        for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
           if (allLCTs1a[bx][mbx][i].isValid()) {
             nLCT++;
             if (nLCT>max_me11_lcts) allLCTs1a[bx][mbx][i].clear();
@@ -456,7 +460,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1b()
 
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<2;i++)
+      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
         if (allLCTs1b[bx][mbx][i].isValid()) tmpV.push_back(allLCTs1b[bx][mbx][i]);
   return tmpV;
 }
@@ -472,7 +476,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a()
   // Report all LCTs found.
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<2;i++)
+      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
         if (allLCTs1a[bx][mbx][i].isValid())  tmpV.push_back(allLCTs1a[bx][mbx][i]);
   return tmpV;
 }

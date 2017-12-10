@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 siStripBadModuleConfigurableFakeESSource = cms.ESSource("SiStripBadModuleConfigurableFakeESSource",
         appendToDataLabel = cms.string(''),
         printDebug = cms.untracked.bool(False),
-        file = cms.untracked.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
+        file = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
         BadComponentList = cms.untracked.VPSet(
                 cms.PSet(
                 SubDet = cms.string('TIB'),  

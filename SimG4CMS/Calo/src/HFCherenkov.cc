@@ -79,7 +79,7 @@ int HFCherenkov::computeNPhTrapped(double pBeta,
   return n_photons;
 }
 
-int HFCherenkov::computeNPE(G4Step * aStep, G4ParticleDefinition* pDef,
+int HFCherenkov::computeNPE(const G4Step * aStep, const G4ParticleDefinition* pDef,
 			    double pBeta, double u, double v, double w,
 			    double step_length, double zFiber,
 			    double dose, int npe_Dose) {
@@ -226,7 +226,7 @@ int HFCherenkov::computeNPE(G4Step * aStep, G4ParticleDefinition* pDef,
   return npe;
 }
 
-int HFCherenkov::computeNPEinPMT(G4ParticleDefinition* pDef, double pBeta, 
+int HFCherenkov::computeNPEinPMT(const G4ParticleDefinition* pDef, double pBeta, 
                                  double u, double v, double w, 
                                  double step_length){
   clearVectors();

@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <iostream>
 
@@ -16,7 +17,7 @@ namespace edm {
 
 
   PresenceFactory* PresenceFactory::get() {
-    [[cms::thread_safe]] static PresenceFactory singleInstance_;
+    CMS_THREAD_SAFE static PresenceFactory singleInstance_;
     return &singleInstance_;
   }
 

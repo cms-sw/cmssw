@@ -576,7 +576,7 @@ void StudyHLT::beginJob() {
   h_numberPV    = fs_->make<TH1I>("h_numberPV", "Number of Primary Vertex", 100, 0, 100);
   h_goodPV      = fs_->make<TH1I>("h_goodPV", "Number of good Primary Vertex", 100, 0, 100);
   h_goodRun     = fs_->make<TH1I>("h_goodRun","Number of accepted events for Run", 4000, 190000, 1940000);
-  char hname[50], htit[200];
+  char hname[60], htit[200];
   std::string CollectionNames[2] = {"Reco", "Propagated"};
   for (unsigned int i=0; i<2; i++) {
     sprintf(hname, "h_nTrk_%s", CollectionNames[i].c_str());

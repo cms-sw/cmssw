@@ -17,10 +17,11 @@ quickTrackAssociatorByHits = cms.EDProducer("QuickTrackAssociatorByHitsProducer"
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    quickTrackAssociatorByHits.associateStrip = False
-    quickTrackAssociatorByHits.associatePixel = False
-    quickTrackAssociatorByHits.useClusterTPAssociation = False
+fastSim.toModify(quickTrackAssociatorByHits,
+    associateStrip = False,
+    associatePixel = False,
+    useClusterTPAssociation = False
+)
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify( 

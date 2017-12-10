@@ -43,6 +43,8 @@ class HcalDbProducer : public edm::ESProducer {
   // callbacks
   void pedestalsCallback (const HcalPedestalsRcd& fRecord);
   void pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord);
+  void effectivePedestalsCallback (const HcalPedestalsRcd& fRecord);
+  void effectivePedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord);
   void gainsCallback (const HcalGainsRcd& fRecord);
   void gainWidthsCallback (const HcalGainWidthsRcd& fRecord);
   void QIEDataCallback (const HcalQIEDataRcd& fRecord);
@@ -71,6 +73,8 @@ private:
 
   std::unique_ptr<HcalPedestals> mPedestals;
   std::unique_ptr<HcalPedestalWidths> mPedestalWidths;
+  std::unique_ptr<HcalPedestals> mEffectivePedestals;
+  std::unique_ptr<HcalPedestalWidths> mEffectivePedestalWidths;
   std::unique_ptr<HcalGains> mGains;
   std::unique_ptr<HcalGainWidths> mGainWidths;
   std::unique_ptr<HcalQIEData> mQIEData;

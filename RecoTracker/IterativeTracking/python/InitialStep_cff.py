@@ -372,39 +372,43 @@ trackingPhase2PU140.toModify(initialStepSelector,
 
 
 # Final sequence
-InitialStep = cms.Sequence(initialStepSeedLayers*
-                           initialStepTrackingRegions*
-                           initialStepHitDoublets*
-                           initialStepHitTriplets*
-                           initialStepSeeds*
-                           initialStepTrackCandidates*
-                           initialStepTracks*
-                           firstStepPrimaryVerticesUnsorted*
-                           initialStepTrackRefsForJets*
-                           caloJetsForTrk*
-                           firstStepPrimaryVertices*
-                           initialStepClassifier1*initialStepClassifier2*initialStepClassifier3*
-                           initialStep)
-_InitialStep_LowPU = InitialStep.copyAndExclude([firstStepPrimaryVerticesUnsorted, initialStepTrackRefsForJets, caloJetsForTrk, firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
-_InitialStep_LowPU.replace(initialStep, initialStepSelector)
-trackingLowPU.toReplaceWith(InitialStep, _InitialStep_LowPU)
-_InitialStep_Phase1QuadProp = InitialStep.copyAndExclude([initialStepClassifier2, initialStepClassifier3])
-_InitialStep_Phase1QuadProp.replace(initialStepHitTriplets, initialStepHitTriplets+initialStepHitQuadruplets)
-trackingPhase1QuadProp.toReplaceWith(InitialStep, _InitialStep_Phase1QuadProp)
-_InitialStep_Phase1 = _InitialStep_Phase1QuadProp.copyAndExclude([initialStepHitTriplets])
-trackingPhase1.toReplaceWith(InitialStep, _InitialStep_Phase1)
-_InitialStep_trackingPhase2 = InitialStep.copyAndExclude([initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
-_InitialStep_trackingPhase2.replace(initialStepHitTriplets, initialStepHitQuadruplets)
-_InitialStep_trackingPhase2.replace(initialStep, initialStepSelector)
-trackingPhase2PU140.toReplaceWith(InitialStep, _InitialStep_trackingPhase2)
+InitialStepTask = cms.Task(initialStepSeedLayers,
+                           initialStepTrackingRegions,
+                           initialStepHitDoublets,
+                           initialStepHitTriplets,
+                           initialStepSeeds,
+                           initialStepTrackCandidates,
+                           initialStepTracks,
+                           firstStepPrimaryVerticesUnsorted,
+                           initialStepTrackRefsForJets,
+                           firstStepPrimaryVertices,
+                           initialStepClassifier1,initialStepClassifier2,initialStepClassifier3,
+                           initialStep,caloJetsForTrkTask)
+InitialStep = cms.Sequence(InitialStepTask)
+
+_InitialStepTask_LowPU = InitialStepTask.copyAndExclude([firstStepPrimaryVerticesUnsorted, initialStepTrackRefsForJets, caloJetsForTrkTask, firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
+_InitialStepTask_LowPU.replace(initialStep, initialStepSelector)
+trackingLowPU.toReplaceWith(InitialStepTask, _InitialStepTask_LowPU)
+
+_InitialStepTask_Phase1QuadProp = InitialStepTask.copyAndExclude([initialStepClassifier2, initialStepClassifier3])
+_InitialStepTask_Phase1QuadProp.replace(initialStepHitTriplets, cms.Task(initialStepHitTriplets,initialStepHitQuadruplets))
+trackingPhase1QuadProp.toReplaceWith(InitialStepTask, _InitialStepTask_Phase1QuadProp)
+
+_InitialStepTask_Phase1 = _InitialStepTask_Phase1QuadProp.copyAndExclude([initialStepHitTriplets])
+trackingPhase1.toReplaceWith(InitialStepTask, _InitialStepTask_Phase1)
+
+_InitialStepTask_trackingPhase2 = InitialStepTask.copyAndExclude([initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
+_InitialStepTask_trackingPhase2.replace(initialStepHitTriplets, initialStepHitQuadruplets)
+_InitialStepTask_trackingPhase2.replace(initialStep, initialStepSelector)
+trackingPhase2PU140.toReplaceWith(InitialStepTask, _InitialStepTask_trackingPhase2)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-_InitialStep_fastSim = cms.Sequence(initialStepTrackingRegions
-                           +initialStepSeeds
-                           +initialStepTrackCandidates
-                           +initialStepTracks                                    
-                           +firstStepPrimaryVerticesBeforeMixing
-                           +initialStepClassifier1*initialStepClassifier2*initialStepClassifier3
-                           +initialStep
+_InitialStepTask_fastSim = cms.Task(initialStepTrackingRegions
+                           ,initialStepSeeds
+                           ,initialStepTrackCandidates
+                           ,initialStepTracks
+                           ,firstStepPrimaryVerticesBeforeMixing
+                           ,initialStepClassifier1,initialStepClassifier2,initialStepClassifier3
+                           ,initialStep
                            )
-fastSim.toReplaceWith(InitialStep, _InitialStep_fastSim)
+fastSim.toReplaceWith(InitialStepTask, _InitialStepTask_fastSim)

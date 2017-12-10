@@ -64,7 +64,6 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
    process.onia2MuMuPATCounter = cms.EDFilter('CandViewCountFilter',
       src = cms.InputTag('onia2MuMuPAT'),
       minNumber = cms.uint32(1),
-      filter = cms.bool(True)
    )
 
    # reduce MC genParticles a la miniAOD

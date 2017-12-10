@@ -461,7 +461,13 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
 void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & eSetup)
 {
   ibooker.setCurrentFolder(folderName_);
-  fedHists_.bookTopLevelHistograms(ibooker);
+
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  const TkDetMap* tkDetMap = tkDetMapHandle.product();
+
+  fedHists_.bookTopLevelHistograms(ibooker, tkDetMap);
+
   if (fillAllDetailedHistograms_) fedHists_.bookAllFEDHistograms(ibooker , fullDebugMode_ );
 }
 

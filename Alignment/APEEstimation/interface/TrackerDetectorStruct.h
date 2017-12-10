@@ -2,7 +2,9 @@
 #define Alignment_APEEstimation_TrackerDetectorStruct_h
 
 
-//#include "TH1.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
 
 struct TrackerDetectorStruct{
   

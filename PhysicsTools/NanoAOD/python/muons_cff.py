@@ -11,8 +11,10 @@ slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
     computeMiniIso = cms.bool(False),
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
     miniIsoParams = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.miniIsoParams, # so they're in sync
+    recomputeMuonBasicSelectors = cms.bool(False),
 )
-run2_miniAOD_80XLegacy.toModify( slimmedMuonsUpdated, computeMiniIso = True )
+run2_nanoAOD_92X.toModify( slimmedMuonsUpdated, recomputeMuonBasicSelectors = True )
+run2_miniAOD_80XLegacy.toModify( slimmedMuonsUpdated, computeMiniIso = True, recomputeMuonBasicSelectors = True )
 
 isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     src = cms.InputTag("slimmedMuons"),
@@ -100,18 +102,15 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         pfRelIso04_all = Var("(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt",float,doc="PF relative isolation dR=0.4, total (deltaBeta corrections)"),
         tightCharge = Var("?(muonBestTrack().ptError()/muonBestTrack().pt() < 0.2)?2:0",int,doc="Tight charge criterion using pterr/pt of muonBestTrack (0:fail, 2:pass)"),
         isPFcand = Var("isPFMuon",bool,doc="muon is PF candidate"),
+        mediumId = Var("passed('CutBasedIdMedium')",bool,doc="cut-based ID, medium WP"),
+        tightId = Var("passed('CutBasedIdTight')",bool,doc="cut-based ID, tight WP"),
+        softId = Var("passed('SoftCutBasedId')",bool,doc="soft cut-based ID"),
+        highPtId = Var("?passed('CutBasedIdGlobalHighPt')?2:passed('CutBasedIdTrkHighPt')","uint8",doc="high-pT cut-based ID (1 = tracker high pT, 2 = global high pT, which includes tracker high pT)"),
     ),
     externalVariables = cms.PSet(
         mvaTTH = ExtVar(cms.InputTag("muonMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
     ),
 )
-
-muonIDTable = cms.EDProducer("MuonIDTableProducer",
-    name = muonTable.name,
-    muons = muonTable.src,  # final reco collection
-    vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
-)
-
 
 muonsMCMatchForTable = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = muonTable.src,                         # final reco collection
@@ -136,7 +135,7 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 muonSequence = cms.Sequence(isoForMu + ptRatioRelForMu + slimmedMuonsWithUserData + finalMuons)
 muonMC = cms.Sequence(muonsMCMatchForTable + muonMCTable)
-muonTables = cms.Sequence(muonMVATTH + muonTable + muonIDTable)
+muonTables = cms.Sequence(muonMVATTH + muonTable)
 
 _withUpdate_sequence = muonSequence.copy()
 _withUpdate_sequence.replace(isoForMu, slimmedMuonsUpdated+isoForMu)

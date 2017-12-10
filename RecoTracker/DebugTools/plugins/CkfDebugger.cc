@@ -1,4 +1,4 @@
-#include "RecoTracker/DebugTools/interface/CkfDebugger.h"
+#include "CkfDebugger.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -9,13 +9,13 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "RecoTracker/DebugTools/interface/TSOSFromSimHitFactory.h"
+#include "TSOSFromSimHitFactory.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
-#include "RecoTracker/DebugTools/interface/GluedDetFromDetUnit.h"
+#include "GluedDetFromDetUnit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

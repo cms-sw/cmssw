@@ -33,24 +33,12 @@
 
 #include "G4SystemOfUnits.hh"
 
-
-#include <string>
 #include <vector>
 #include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define FAKEFRAMEROTATION
-//#define DUMPPROCESSES
-
-#ifdef DUMPPROCESSES
-#include "G4VProcess.hh"
-#endif
-
-using std::cout;
-using std::endl;
-using std::vector;
-using std::string;
 
 static 
 TrackerG4SimHitNumberingScheme&
@@ -60,13 +48,12 @@ numberingScheme(const DDCompactView& cpv, const GeometricDet& det)
    return s_scheme;
 }
 
-
-TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name, 
+TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::string& name, 
 								 const DDCompactView & cpv,
 								 const SensitiveDetectorCatalog & clg,
 								 edm::ParameterSet const & p,
 								 const SimTrackManager* manager) : 
-  SensitiveTkDetector(name, cpv, clg, p), myName(name), myRotation(nullptr),  mySimHit(nullptr),theManager(manager),
+  SensitiveTkDetector(name, cpv, clg, p), myRotation(nullptr),  mySimHit(nullptr),theManager(manager),
    oldVolume(nullptr), lastId(0), lastTrack(0), eventno(0) ,rTracker(1200.*mm),zTracker(3000.*mm),
    numberingScheme_(nullptr)
 {
@@ -79,21 +66,24 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
   energyCut           = m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV")*GeV; //default must be 0.5
   energyHistoryCut    = m_TrackerSD.getParameter<double>("EnergyThresholdForHistoryInGeV")*GeV;//default must be 0.05
 
-  edm::LogInfo("TrackerSimInfo") <<"Criteria for Saving Tracker SimTracks:  ";
-  edm::LogInfo("TrackerSimInfo")<<" History: "<<energyHistoryCut<< " MeV ; Persistency: "<< energyCut<<" MeV ";
-  edm::LogInfo("TrackerSimInfo")<<" Constructing a TkAccumulatingSensitiveDetector with ";
+  edm::LogInfo("TrackerSimInfo")<<" TkAccumulatingSensitiveDetector: " 
+                                <<" Criteria for Saving Tracker SimTracks: \n"
+                                <<" History: "<<energyHistoryCut<< " MeV ; Persistency: "
+                                << energyCut<<" MeV ";
 
 #ifndef FAKEFRAMEROTATION
   // No Rotation given in input, automagically choose one based upon the name
-  if (name.find("TrackerHits") != string::npos) 
+  if (name.find("TrackerHits") != std::string::npos) 
     {
-      edm::LogInfo("TrackerSimInfo")<<" TkAccumulatingSensitiveDetector: using TrackerFrameRotation for "<<myName;
+      edm::LogInfo("TrackerSimInfo")
+	<<" TkAccumulatingSensitiveDetector: using TrackerFrameRotation for "<<name;
       myRotation = new TrackerFrameRotation;
     }
   // Just in case (test beam etc)
   if (myRotation == nullptr) 
     {
-      edm::LogInfo("TrackerSimInfo")<<" TkAccumulatingSensitiveDetector: using StandardFrameRotation for "<<myName;
+      edm::LogInfo("TrackerSimInfo")
+	<<" TkAccumulatingSensitiveDetector: using StandardFrameRotation for "<<name;
       myRotation = new StandardFrameRotation;
     }
 #else
@@ -101,20 +91,16 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
   edm::LogWarning("TrackerSimInfo")<< " WARNING - Using FakeFrameRotation in TkAccumulatingSensitiveDetector;";  
 #endif
 
-    slaveLowTof  = new TrackingSlaveSD(name+"LowTof");
-    slaveHighTof = new TrackingSlaveSD(name+"HighTof");
+  slaveLowTof  = new TrackingSlaveSD(name+"LowTof");
+  slaveHighTof = new TrackingSlaveSD(name+"HighTof");
   
-    // Now attach the right detectors (LogicalVolumes) to me
-    const vector<string>&  lvNames = clg.logicalNames(name);
-    this->Register();
-    for (vector<string>::const_iterator it = lvNames.begin();  it != lvNames.end(); it++)
-    {
-      edm::LogInfo("TrackerSimInfo")<< name << " attaching LV " << *it;
-	this->AssignSD(*it);
-    }
+  std::vector<std::string> temp;
+  temp.push_back(slaveLowTof->name());
+  temp.push_back(slaveHighTof->name());
+  setNames(temp);  
 
-    theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
-    myG4TrackToParticleID = new G4TrackToParticleID;
+  theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
+  myG4TrackToParticleID = new G4TrackToParticleID;
 }
 
 TkAccumulatingSensitiveDetector::~TkAccumulatingSensitiveDetector() 
@@ -149,19 +135,14 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHis
     return false;
 }
 
-uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(G4Step * s)
+uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(const G4Step * step)
 { 
- unsigned int detId = numberingScheme_->g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
-
- LogDebug("TrackerSimDebug")<< " DetID = "<<detId; 
-
- return detId;
+  return numberingScheme_->g4ToNumberingScheme(step->GetPreStepPoint()->GetTouchable());
 }
 
 
 int TkAccumulatingSensitiveDetector::tofBin(float tof)
 {
-
     float threshold = 3. * theSigma;
     if (tof < threshold) return 1;
     return 2;
@@ -217,12 +198,9 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
       //LogDebug("TrackerSimDebug")<<" POINTER "<<info;
       //LogDebug("TrackerSimDebug")<<" track inside the tracker selected for HISTORY";
       //LogDebug("TrackerSimDebug")<<"Track ID (history track) = "<<gTrack->GetTrackID();
-    }
-    
+    }    
   }
 }
-
-
 
 void TkAccumulatingSensitiveDetector::sendHit()
 {  
@@ -233,7 +211,7 @@ void TkAccumulatingSensitiveDetector::sendHit()
     if (printHits)
     {
 	TkSimHitPrinter thePrinter("TkHitPositionOSCAR.dat");
-	thePrinter.startNewSimHit(myName,oldVolume->GetLogicalVolume()->GetName(),
+	thePrinter.startNewSimHit(GetName(),oldVolume->GetLogicalVolume()->GetName(),
 				  mySimHit->detUnitId(),mySimHit->trackId(),eventno);
 	thePrinter.printLocal(mySimHit->entryPoint(),mySimHit->exitPoint());
 	thePrinter.printGlobal(globalEntryPoint,globalExitPoint);
@@ -413,10 +391,9 @@ bool TkAccumulatingSensitiveDetector::closeHit(G4Step * aStep)
 void TkAccumulatingSensitiveDetector::EndOfEvent(G4HCofThisEvent *)
 {
 
-  LogDebug("TrackerSimDebug")<< " Saving the last hit in a ROU " << myName;
+  LogDebug("TrackerSimDebug")<< " Saving the last hit in a ROU " << GetName();
 
-    if (mySimHit == nullptr) return;
-      sendHit();
+  if (mySimHit != nullptr) sendHit();
 }
 
 void TkAccumulatingSensitiveDetector::update(const BeginOfEvent * i)
@@ -474,19 +451,8 @@ TrackInformation* TkAccumulatingSensitiveDetector::getOrCreateTrackInformation( 
   }
 }
 
-void TkAccumulatingSensitiveDetector::fillHits(edm::PSimHitContainer& c, std::string n){
-  //
-  // do it once for low, once for High
-  //
+void TkAccumulatingSensitiveDetector::fillHits(edm::PSimHitContainer& cc, const std::string& hname){
 
-  if (slaveLowTof->name() == n)  c=slaveLowTof->hits();
-  if (slaveHighTof->name() == n) c=slaveHighTof->hits();
-
-}
-
-std::vector<string> TkAccumulatingSensitiveDetector::getNames(){
-  std::vector<string> temp;
-  temp.push_back(slaveLowTof->name());
-  temp.push_back(slaveHighTof->name());
-  return temp;
+  if (slaveLowTof->name()  == hname)      { cc=slaveLowTof->hits(); }
+  else if (slaveHighTof->name() == hname) { cc=slaveHighTof->hits();}
 }

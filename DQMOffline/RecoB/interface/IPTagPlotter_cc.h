@@ -1,3 +1,6 @@
+#ifndef DQMOffline_RecoB_IPTagPlotter_cc_h
+#define DQMOffline_RecoB_IPTagPlotter_cc_h
+
 #include <cstddef>
 #include <string>
 
@@ -676,3 +679,5 @@ reco::TrackBase::TrackQuality IPTagPlotter<Container, Base>::highestTrackQual(co
 
   return reco::TrackBase::undefQuality;
 }
+
+#endif // DQMOffline_RecoB_IPTagPlotter_cc_h

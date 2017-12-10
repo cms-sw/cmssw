@@ -74,8 +74,8 @@ class HcalDbHardcode {
     const HcalHardcodeParameters& getParameters(HcalGenericDetId fId);
     const int getGainIndex(HcalGenericDetId fId);
     const bool killHE() const { return killHE_; }
-    HcalPedestal makePedestal (HcalGenericDetId fId, bool fSmear = false);
-    HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId);
+    HcalPedestal makePedestal (HcalGenericDetId fId, bool fSmear, bool eff, const HcalTopology* topo, double intlumi);
+    HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId, bool eff, const HcalTopology* topo, double intlumi);
     HcalGain makeGain (HcalGenericDetId fId, bool fSmear = false);
     HcalGainWidth makeGainWidth (HcalGenericDetId fId);
     HcalQIECoder makeQIECoder (HcalGenericDetId fId);
