@@ -22,13 +22,14 @@ ME0RawToDigiModule::ME0RawToDigiModule(const edm::ParameterSet & pset)
   produces<ME0DigiCollection>(); 
 }
 
-void ME0RawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+void ME0RawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector")); 
   desc.add<bool>("useDBEMap", false); 
 }
 
-void ME0RawToDigiModule::doBeginRun_(edm::Run const& rp, edm::EventSetup const& iSetup)
+void ME0RawToDigiModule::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
   if (useDBEMap_){
     edm::ESHandle<ME0EMap> me0EMap;
@@ -43,7 +44,7 @@ void ME0RawToDigiModule::doBeginRun_(edm::Run const& rp, edm::EventSetup const& 
   }
 }
 
-void ME0RawToDigiModule::produce(edm::StreamID, edm::Event & e, const edm::EventSetup & iSetup) const
+void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 {
   auto outME0Digis = std::make_unique<ME0DigiCollection>();
 
