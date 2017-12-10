@@ -27,7 +27,7 @@
 //#define plotDebug
 //#define mkdebug
 
-HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
+HFShowerParam::HFShowerParam(const std::string & name, const DDCompactView & cpv,
                              edm::ParameterSet const & p) : showerLibrary(nullptr), 
                                                             fibre(nullptr), gflash(nullptr),
                                                             fillHisto(false) { 
@@ -116,7 +116,7 @@ void HFShowerParam::initRun(G4ParticleTable * theParticleTable,
 
 std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep, 
 						       double weight) {
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4Track *     track    = aStep->GetTrack();   
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4int         particleCode = track->GetDefinition()->GetPDGEncoding();

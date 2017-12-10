@@ -1,6 +1,8 @@
 #ifndef ESCrcKchipFast_H
 #define ESCrcKchipFast_H
 
+#include <cstdint>
+
 class ESCrcKchipFast {
 
    private :

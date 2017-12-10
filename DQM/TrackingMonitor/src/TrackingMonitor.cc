@@ -596,7 +596,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      double regionMin = conf->getParameter<double>("RegionSizeMin");
      double regionMax = conf->getParameter<double>("RegionSizeMax");
 
-     histname = "NumberOfTrackingRegions_"+ seedProducer.label() + "_"+ CategoryName;
+     histname = "TrackingRegionsNumberOf_"+ seedProducer.label() + "_"+ CategoryName;
      NumberOfTrackingRegions = ibooker.book1D(histname, histname, regionBin, regionMin, regionMax);
      NumberOfTrackingRegions->setAxisTitle("Number of TrackingRegions per Event", 1);
      NumberOfTrackingRegions->setAxisTitle("Number of Events", 2);

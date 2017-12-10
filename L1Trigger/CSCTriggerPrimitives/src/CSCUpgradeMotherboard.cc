@@ -1,7 +1,20 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
-void CSCUpgradeMotherboard::LCTContainer::getTimeMatched(const int bx, std::vector<CSCCorrelatedLCTDigi>& lcts) const 
+CSCUpgradeMotherboard::LCTContainer::LCTContainer(unsigned int trig_window_size)
+  : match_trig_window_size(trig_window_size)
+{
+}
+
+CSCCorrelatedLCTDigi&
+CSCUpgradeMotherboard::LCTContainer::operator()(int bx, int match_bx, int lct)
+{
+  return data[bx][match_bx][lct];
+}
+
+void
+CSCUpgradeMotherboard::LCTContainer::getTimeMatched(const int bx,
+						    std::vector<CSCCorrelatedLCTDigi>& lcts) const
 {
   for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
     for (int i=0;i<2;i++)
@@ -9,7 +22,8 @@ void CSCUpgradeMotherboard::LCTContainer::getTimeMatched(const int bx, std::vect
         lcts.push_back(data[bx][mbx][i]);
 }
 
-void CSCUpgradeMotherboard::LCTContainer::getMatched(std::vector<CSCCorrelatedLCTDigi>& lcts) const 
+void
+CSCUpgradeMotherboard::LCTContainer::getMatched(std::vector<CSCCorrelatedLCTDigi>& lcts) const
 {
   for (int bx = 0; bx < MAX_LCT_BINS; bx++){
     std::vector<CSCCorrelatedLCTDigi> temp_lcts;
@@ -34,8 +48,7 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,
   commonParams_ = conf.getParameter<edm::ParameterSet>("commonParam");
   if (theStation==1) tmbParams_ = conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM");
   else if (theStation==2) tmbParams_ = conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM");
-  else if (theStation==3 or theStation==4) tmbParams_ = conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC");
-  
+
   generator_.reset(new CSCUpgradeMotherboardLUTGenerator());
 
   match_earliest_alct_only = tmbParams_.getParameter<bool>("matchEarliestAlctOnly");
@@ -75,16 +88,18 @@ void CSCUpgradeMotherboard::debugLUTs()
 }
 
 bool CSCUpgradeMotherboard::sortLCTsByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2)
-{ 
+{
   return lct1.getQuality() > lct2.getQuality();
 }
 
-bool CSCUpgradeMotherboard::sortLCTsByGEMDphi(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
-{ 
+bool CSCUpgradeMotherboard::sortLCTsByGEMDphi(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2)
+{
   return true;
 }
 
-void CSCUpgradeMotherboard::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts, bool (*sorter)(const CSCCorrelatedLCTDigi&,const CSCCorrelatedLCTDigi&)){
+void CSCUpgradeMotherboard::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts,
+				     bool (*sorter)(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&)) const
+{
   std::sort(lcts.begin(), lcts.end(), *sorter);
   if (lcts.size() > max_lcts) lcts.erase(lcts.begin()+max_lcts, lcts.end());
 }

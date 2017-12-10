@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -10,7 +10,7 @@
 #include <vector>
 
 
-class IsolatedTrackCleaner : public edm::global::EDProducer<> {
+class IsolatedTrackCleaner : public edm::stream::EDProducer<> {
     public:
         IsolatedTrackCleaner( edm::ParameterSet const & params ) :
             tracks_(consumes<std::vector<pat::IsolatedTrack>>(params.getParameter<edm::InputTag>("tracks"))),
@@ -24,7 +24,7 @@ class IsolatedTrackCleaner : public edm::global::EDProducer<> {
 
         ~IsolatedTrackCleaner() override {}
 
-        void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
+        void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
             auto out  = std::make_unique<std::vector<pat::IsolatedTrack>>();
 
             std::vector<reco::CandidatePtr> leptonPfCands;

@@ -84,9 +84,11 @@ RecoEcalAOD = cms.PSet(
         )
 )
 
-_phase2_hgcal_scCommands = ['keep *_particleFlowSuperClusterHGCal_*_*']
+_phase2_hgcal_scCommands = ['keep *_particleFlowSuperClusterHGCal_*_*', 'keep *_particleFlowSuperClusterHGCalFromMultiCl_*_*']
 _phase2_hgcal_scCommandsAOD = ['keep recoSuperClusters_particleFlowSuperClusterHGCal__*',
-                               'keep recoCaloClusters_particleFlowSuperClusterHGCal__*']
+                               'keep recoCaloClusters_particleFlowSuperClusterHGCal__*',
+                               'keep recoSuperClusters_particleFlowSuperClusterHGCalFromMultiCl__*',
+                               'keep recoCaloClusters_particleFlowSuperClusterHGCalFromMultiCl__*']
 _phase2_hgcal_RecoEcalFEVT = RecoEcalFEVT.clone()
 _phase2_hgcal_RecoEcalFEVT.outputCommands += _phase2_hgcal_scCommands
 _phase2_hgcal_RecoEcalRECO = RecoEcalRECO.clone()
@@ -104,6 +106,11 @@ from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 #HI-specific products needed in pp scenario special configurations
 for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017, ppRef_2017]:
+    for ec in [RecoEcalAOD.outputCommands, RecoEcalRECO.outputCommands, RecoEcalFEVT.outputCommands]:
+        e.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoSuperClusters_correctedIslandBarrelSuperClusters_*_*',
+                                                                           'keep recoSuperClusters_correctedIslandEndcapSuperClusters_*_*'
+                                                                           ])
+                    )
     for ec in [RecoEcalRECO.outputCommands, RecoEcalFEVT.outputCommands]:
         e.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoCaloClusters_islandBasicClusters_*_*'])
                     )

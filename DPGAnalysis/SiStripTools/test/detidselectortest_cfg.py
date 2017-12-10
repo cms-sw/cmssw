@@ -63,9 +63,7 @@ process.detidselectortest = cms.EDAnalyzer("DetIdSelectorTest",
 #process.detidselectortest.selections.extend(OccupancyPlotsStripWantedSubDets)
 #process.detidselectortest.selections.extend(OccupancyPlotsPixelWantedSubDets)
 
-process.DQMStore = cms.Service("DQMStore")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 #process.Timing = cms.Service("Timing")
 

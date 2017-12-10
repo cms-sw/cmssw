@@ -152,7 +152,7 @@ void MuonAlignmentSummary::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGett
 
     LogTrace(metname)<<"[MuonAlignmentSummary] Saving the histos";
 
-    char binLabel[15];
+    char binLabel[40];
 
     for (int station = -4; station < 5; station++) {
         if (doDT) {

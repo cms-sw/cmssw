@@ -422,41 +422,42 @@ trackingLowPU.toReplaceWith(mixedTripletStep, _trackListMergerBase)
 
 
 
-MixedTripletStep = cms.Sequence(chargeCut2069Clusters*mixedTripletStepClusters*
-                                mixedTripletStepSeedLayersA*
-                                mixedTripletStepTrackingRegionsA*
-                                mixedTripletStepHitDoubletsA*
-                                mixedTripletStepHitTripletsA*
-                                mixedTripletStepSeedsA*
-                                mixedTripletStepSeedLayersB*
-                                mixedTripletStepTrackingRegionsB*
-                                mixedTripletStepHitDoubletsB*
-                                mixedTripletStepHitTripletsB*
-                                mixedTripletStepSeedsB*
-                                mixedTripletStepSeeds*
-                                mixedTripletStepTrackCandidates*
-                                mixedTripletStepTracks*
-                                mixedTripletStepClassifier1*mixedTripletStepClassifier2*
+MixedTripletStepTask = cms.Task(chargeCut2069Clusters,mixedTripletStepClusters,
+                                mixedTripletStepSeedLayersA,
+                                mixedTripletStepTrackingRegionsA,
+                                mixedTripletStepHitDoubletsA,
+                                mixedTripletStepHitTripletsA,
+                                mixedTripletStepSeedsA,
+                                mixedTripletStepSeedLayersB,
+                                mixedTripletStepTrackingRegionsB,
+                                mixedTripletStepHitDoubletsB,
+                                mixedTripletStepHitTripletsB,
+                                mixedTripletStepSeedsB,
+                                mixedTripletStepSeeds,
+                                mixedTripletStepTrackCandidates,
+                                mixedTripletStepTracks,
+                                mixedTripletStepClassifier1,mixedTripletStepClassifier2,
                                 mixedTripletStep)
-_MixedTripletStep_LowPU = MixedTripletStep.copyAndExclude([chargeCut2069Clusters, mixedTripletStepClassifier1])
-_MixedTripletStep_LowPU.replace(mixedTripletStepClassifier2, mixedTripletStepSelector)
-trackingLowPU.toReplaceWith(MixedTripletStep, _MixedTripletStep_LowPU)
+MixedTripletStep = cms.Sequence(MixedTripletStepTask)
+_MixedTripletStepTask_LowPU = MixedTripletStepTask.copyAndExclude([chargeCut2069Clusters, mixedTripletStepClassifier1])
+_MixedTripletStepTask_LowPU.replace(mixedTripletStepClassifier2, mixedTripletStepSelector)
+trackingLowPU.toReplaceWith(MixedTripletStepTask, _MixedTripletStepTask_LowPU)
 
 #fastsim
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
 mixedTripletStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(mixedTripletStepClusters)
 mixedTripletStepMasks.oldHitRemovalInfo = cms.InputTag("pixelPairStepMasks")
 
-fastSim.toReplaceWith(MixedTripletStep,
-                      cms.Sequence(mixedTripletStepMasks
-                                   +mixedTripletStepTrackingRegionsA
-                                   +mixedTripletStepSeedsA
-                                   +mixedTripletStepTrackingRegionsB
-                                   +mixedTripletStepSeedsB
-                                   +mixedTripletStepSeeds
-                                   +mixedTripletStepTrackCandidates
-                                   +mixedTripletStepTracks
-                                   +mixedTripletStepClassifier1*mixedTripletStepClassifier2
-                                   +mixedTripletStep                                 
+fastSim.toReplaceWith(MixedTripletStepTask,
+                      cms.Task(mixedTripletStepMasks
+                                   ,mixedTripletStepTrackingRegionsA
+                                   ,mixedTripletStepSeedsA
+                                   ,mixedTripletStepTrackingRegionsB
+                                   ,mixedTripletStepSeedsB
+                                   ,mixedTripletStepSeeds
+                                   ,mixedTripletStepTrackCandidates
+                                   ,mixedTripletStepTracks
+                                   ,mixedTripletStepClassifier1,mixedTripletStepClassifier2
+                                   ,mixedTripletStep                                 
                                    )
 )

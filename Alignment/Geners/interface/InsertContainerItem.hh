@@ -1,6 +1,8 @@
 #ifndef GENERS_INSERTCONTAINERITEM_HH_
 #define GENERS_INSERTCONTAINERITEM_HH_
 
+#include <cstddef>
+
 namespace gs {
     template <typename T>
     struct InsertContainerItem

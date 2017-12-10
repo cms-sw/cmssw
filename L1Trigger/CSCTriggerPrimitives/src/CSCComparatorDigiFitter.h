@@ -5,11 +5,13 @@
  * class CSCComparatorDigiFitter
  *
  * Fits a straight line to the comparator digis beloning to a stub
- * 
- * This is a helper class, to be used in the first prototype 
- * implementation of the displaced muon trigger. In due time, 
+ *
+ * This is a helper class, to be used in the first prototype
+ * implementation of the displaced muon trigger. In due time,
  * the fitting procedure will be integrated in the
  * CSCCathodeLCTProcessor.
+ *
+ * authors: Sven Dildick (TAMU), Tao Huang (TAMU)
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -48,34 +50,43 @@ class CSCComparatorDigiFitter
 
   /* use key layer radius */
   void useKeyRadius(bool useKeyRadius) {useKeyRadius_ = useKeyRadius;}
-  
+
   /* fit a straight line to the digis */
   void fit(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi&,
 	   const CSCComparatorDigiCollection&,
 	   std::vector<float>& fit_phi_layers,
 	   std::vector<float>& fit_z_layers, float& keyRadius);
-  
+
  private:
-  
-  /* collect the comparator digis that match the pattern */
-  void matchingComparatorDigisLCT(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi&, const CSCComparatorDigiCollection&);
-  
+
+  /* collect the comparator digis that match the LCT pattern
+     from the comparator digi collection */
+  void matchingComparatorDigisLCT(const CSCDetId& ch_id,
+				  const CSCCorrelatedLCTDigi&,
+				  const CSCComparatorDigiCollection&);
+
   /* collect the coordinates of comparators */
-  void getComparatorDigiCoordinates(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi& stub);
-  
+  void getComparatorDigiCoordinates(const CSCDetId& ch_id,
+				    const CSCCorrelatedLCTDigi& stub);
+
   /* is this comparator in the LCT pattern? */
   bool comparatorInLCTPattern(int keyStrip, int pattern, int layer, int halfStrip) const;
 
   // calculate slope and intercept of fit
   void calculateSlopeIntercept(float& alpha, float& beta);
-  
+
   /* width of the CSC half strips in this detId  */
   float cscHalfStripWidth(const CSCDetId& id) const;
 
+  /* pointer to the CSC geometry */
   const CSCGeometry* cscGeometry_;
+
+  /* number of bits allocated to the strip number after fit */
   int nStripBits_;
 
   CSCComparatorDigiContainerIds compDigisIds_;
+
+  /* coordinates of the comparators */
   std::vector<float> phis_;
   std::vector<float> zs_;
   std::vector<float> ephis_;

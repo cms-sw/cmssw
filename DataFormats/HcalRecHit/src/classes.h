@@ -7,7 +7,7 @@
 #include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h" 
+#include "DataFormats/HcalRecHit/interface/HcalRecHitDefs.h" 
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h" 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"

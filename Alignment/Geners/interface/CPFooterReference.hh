@@ -1,6 +1,7 @@
 #ifndef GENERS_CPFOOTERREFERENCE_HH_
 #define GENERS_CPFOOTERREFERENCE_HH_
 
+#include "Alignment/Geners/interface/AbsArchive.hh"
 #include "Alignment/Geners/interface/AbsReference.hh"
 #include "Alignment/Geners/interface/GenericIO.hh"
 

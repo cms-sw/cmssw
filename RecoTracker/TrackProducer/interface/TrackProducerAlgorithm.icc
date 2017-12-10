@@ -14,8 +14,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
-//#include "RecoTracker/TrackProducer/interface/HitSplitter.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -124,8 +122,8 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 			    if (stripId.partnerDetId() == (*next)->geographicalId().rawId()){
 			      //yes they are parterns in a glued geometry.
 			      DetId gluedId = stripId.glued();
-			      const SiStripRecHit2D *mono=0;
-			      const SiStripRecHit2D *stereo=0;
+			      const SiStripRecHit2D *mono=nullptr;
+			      const SiStripRecHit2D *stereo=nullptr;
 			      if (stripId.stereo()==0){
 				mono=dynamic_cast<const SiStripRecHit2D *>(&**i);
 				stereo=dynamic_cast<const SiStripRecHit2D *>(&**next);

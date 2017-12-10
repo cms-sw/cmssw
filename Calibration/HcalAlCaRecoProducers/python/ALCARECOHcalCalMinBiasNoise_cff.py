@@ -41,8 +41,8 @@ hbherecoNoise = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbhep
 hbherecoNoise.algorithm.firstSample = 0
 hbherecoNoise.algorithm.samplesToAdd = 4
 
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
-horecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
+import RecoLocalCalo.HcalRecProducers.hosimplereco_cfi
+horecoNoise = RecoLocalCalo.HcalRecProducers.hosimplereco_cfi.hosimplereco.clone()
 
 horecoNoise.firstSample = 0
 horecoNoise.samplesToAdd = 4
@@ -50,8 +50,8 @@ horecoNoise.digiLabel = 'hcalDigiAlCaMB'
 horecoNoise.tsFromDB = cms.bool(False)
 horecoNoise.dropZSmarkedPassed = cms.bool(False)
 
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
-hfrecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
+import RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi
+hfrecoNoise = RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi.hfsimplereco.clone()
 
 hfrecoNoise.firstSample = 0
 hfrecoNoise.samplesToAdd = 2

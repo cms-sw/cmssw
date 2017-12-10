@@ -1,3 +1,12 @@
+#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
+#include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
+#include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
+#include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include"G4ParticleTable.hh" 
 #include "Randomize.hh"
 
@@ -5,18 +14,11 @@
 #include<fstream>
 #include <string>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
-#include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
-#include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
-#include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
-
 using namespace CLHEP;
 
-G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
+G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p, 
+                                 CustomParticleFactory* ptr) {
+  fParticleFactory = ptr;
 
   particleTable = G4ParticleTable::GetParticleTable();
 
@@ -95,7 +97,7 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
 
   process_stream.close();
 
-  for(auto part : CustomParticleFactory::GetCustomParticles()) {
+  for(auto part : fParticleFactory->GetCustomParticles()) {
     CustomParticle* particle = dynamic_cast<CustomParticle*>(part);
     if(particle) {
       edm::LogInfo("SimG4CoreCustomPhysics")
@@ -104,6 +106,9 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
 	<<" isStable: "<<particle->GetPDGStable();
     }
   }
+}
+
+G4ProcessHelper::~G4ProcessHelper(){
 }
 
 G4bool G4ProcessHelper::ApplicabilityTester(const G4ParticleDefinition& aPart){

@@ -61,7 +61,7 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSIncludeAlignments::CTPPSIncludeAlignments(const edm::ParameterSet &pSet) :
-  verbosity(pSet.getUntrackedParameter<unsigned int>("verbosity", 1))
+  verbosity(pSet.getUntrackedParameter<unsigned int>("verbosity", 0))
 {
   std::vector<std::string> realFiles;
   for (auto rFile: pSet.getParameter< vector<string> >("RealFiles"))

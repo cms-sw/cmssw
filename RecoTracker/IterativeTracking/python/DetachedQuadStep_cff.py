@@ -303,18 +303,19 @@ trackingPhase2PU140.toReplaceWith(detachedQuadStep, RecoTracker.FinalTrackSelect
     )
 )
 
-DetachedQuadStep = cms.Sequence(detachedQuadStepClusters*
-                                detachedQuadStepSeedLayers*
-                                detachedQuadStepTrackingRegions*
-                                detachedQuadStepHitDoublets*
-                                detachedQuadStepHitQuadruplets*
-                                detachedQuadStepSeeds*
-                                detachedQuadStepTrackCandidates*
-                                detachedQuadStepTracks*
+DetachedQuadStepTask = cms.Task(detachedQuadStepClusters,
+                                detachedQuadStepSeedLayers,
+                                detachedQuadStepTrackingRegions,
+                                detachedQuadStepHitDoublets,
+                                detachedQuadStepHitQuadruplets,
+                                detachedQuadStepSeeds,
+                                detachedQuadStepTrackCandidates,
+                                detachedQuadStepTracks,
                                 detachedQuadStep)
-_DetachedQuadStep_Phase1Prop = DetachedQuadStep.copy()
-_DetachedQuadStep_Phase1Prop.replace(detachedQuadStepHitDoublets, detachedQuadStepHitDoublets+detachedQuadStepHitTriplets)
-trackingPhase1QuadProp.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase1Prop)
-_DetachedQuadStep_Phase2PU140 = DetachedQuadStep.copy()
-_DetachedQuadStep_Phase2PU140.replace(detachedQuadStep, detachedQuadStepSelector+detachedQuadStep)
-trackingPhase2PU140.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase2PU140)
+DetachedQuadStep = cms.Sequence(DetachedQuadStepTask)
+_DetachedQuadStepTask_Phase1Prop = DetachedQuadStepTask.copy()
+_DetachedQuadStepTask_Phase1Prop.replace(detachedQuadStepHitDoublets, cms.Task(detachedQuadStepHitDoublets,detachedQuadStepHitTriplets))
+trackingPhase1QuadProp.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_Phase1Prop)
+_DetachedQuadStepTask_Phase2PU140 = DetachedQuadStepTask.copy()
+_DetachedQuadStepTask_Phase2PU140.replace(detachedQuadStep, cms.Task(detachedQuadStepSelector,detachedQuadStep))
+trackingPhase2PU140.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_Phase2PU140)

@@ -14,6 +14,7 @@
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactoryManager.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edmplugin{
 //
@@ -83,7 +84,7 @@ PluginFactoryManager::end() const
 PluginFactoryManager*
 PluginFactoryManager::get()
 {
-   [[cms::thread_safe]] static PluginFactoryManager s_instance;
+   CMS_THREAD_SAFE static PluginFactoryManager s_instance;
    return &s_instance;
 }
 }

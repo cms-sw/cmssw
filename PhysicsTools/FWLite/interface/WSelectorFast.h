@@ -1,3 +1,5 @@
+#ifndef PhysicsTools_FWLite_WSelectorFast_h
+#define PhysicsTools_FWLite_WSelectorFast_h
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "PhysicsTools/SelectorUtils/interface/EventSelector.h"
@@ -85,3 +87,4 @@ protected:
   /// index for MET cut
   index_type metIndex_;
 };
+#endif // PhysicsTools_FWLite_WSelectorFast_h

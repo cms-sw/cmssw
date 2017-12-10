@@ -23,7 +23,12 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
+ * Updates for high pileup running by Vadim Khotilovich (TAMU), December 2012
  *
+ * Updates for integrated local trigger with GEMs and RPCs by 
+ * Sven Dildick (TAMU) and Tao Huang (TAMU), April 2015
+ *
+ * Removing usage of outdated class CSCTriggerGeometry by Sven Dildick (TAMU)
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,6 +38,8 @@
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 
 #include <vector>
+
+class CSCGeometry;
 
 class CSCCathodeLCTProcessor
 {
@@ -52,6 +59,8 @@ class CSCCathodeLCTProcessor
 
   /** Clears the LCT containers. */
   void clear();
+
+  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
 
   /** Runs the LCT processor code. Called in normal running -- gets info from
       a collection of comparator digis. */
@@ -123,6 +132,8 @@ class CSCCathodeLCTProcessor
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
+  
+  const CSCGeometry* csc_g;
   
   // holders for easy access:
   unsigned int theRing;
