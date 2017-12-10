@@ -1,9 +1,7 @@
-#ifndef GEM_GEBdata
-#define GEM_GEBdata
-
+#ifndef EventFilter_GEMRawToDigi_GEBdata_h
+#define EventFilter_GEMRawToDigi_GEBdata_h
 #include <vector>
 #include "VFATdata.h"
-
 //!A class for GEB data
 /**
    The number after the ":" indicates how many bits a certain item consists of. 
