@@ -76,7 +76,7 @@ private:
   // utilities
   void clear();
 
-  int theCRT(int ddu);
+  int theCRT(int ddu, int ros);
 
   int theSLT(int ddu, int ros, int rob);
 
