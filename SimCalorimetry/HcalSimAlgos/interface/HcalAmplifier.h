@@ -19,6 +19,8 @@ namespace CLHEP {
 
 class HcalAmplifier {
 public:
+  HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2);
+  
   HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2, const HcalTimeSlew* hcalTimeSlew_delay);
 
   virtual ~HcalAmplifier() {}

@@ -21,12 +21,24 @@
 #include <cmath>
 #include <cmath>
 
+HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2) :
+  theDbService(nullptr),
+  theParameterMap(parameters),
+  theNoiseSignalGenerator(nullptr),
+  theIonFeedbackSim(nullptr),
+  theTimeSlewSim(nullptr),
+  theStartingCapId(0),
+  addNoise_(addNoise),
+  preMixDigi_(PreMix1),
+  preMixAdd_(PreMix2)
+{ }
+
 HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2, const HcalTimeSlew* hcalTimeSlew_delay) :
   theDbService(nullptr),
   theParameterMap(parameters),
   theNoiseSignalGenerator(nullptr),
   theIonFeedbackSim(nullptr),
-  //theTimeSlewSim(nullptr),
+  theTimeSlewSim(nullptr),
   theStartingCapId(0),
   addNoise_(addNoise),
   preMixDigi_(PreMix1),
@@ -36,6 +48,7 @@ HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNo
   //Fix this
   //C. Madrid
   //-------------------------
+  //not used??
   double min = 0.0;
   HcalTimeSlewSim theTimeSlewSim(parameters,min,hcalTimeSlew_delay);
 }
