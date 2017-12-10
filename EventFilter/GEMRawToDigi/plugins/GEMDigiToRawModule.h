@@ -1,5 +1,5 @@
-#ifndef EventFilter_GEMDigiToRawModule_h
-#define EventFilter_GEMDigiToRawModule_h
+#ifndef EventFilter_GEMRawToDigi_GEMDigiToRawModule_h
+#define EventFilter_GEMRawToDigi_GEMDigiToRawModule_h
 
 /** \class GEMDigiToRawModule
  *  \based on CSCDigiToRawModule
@@ -7,7 +7,7 @@
  */
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -24,18 +24,15 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class GEMDigiToRawModule : public edm::global::EDProducer<> {
+class GEMDigiToRawModule : public edm::stream::EDProducer<> {
  public:
   
   /// Constructor
   GEMDigiToRawModule(const edm::ParameterSet & pset);
 
-  void doBeginRun_(edm::Run const& rp, edm::EventSetup const& c) override;
-  
-  //  void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override;
-
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   // Operations
-  void produce( edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
+  void produce(edm::Event&, edm::EventSetup const&) override;
 
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);

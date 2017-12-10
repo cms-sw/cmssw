@@ -1,9 +1,7 @@
-#ifndef GEM_AMCdata
-#define GEM_AMCdata
-
+#ifndef EventFilter_GEMRawToDigi_AMCdata_h
+#define EventFilter_GEMRawToDigi_AMCdata_h
 #include <vector>
 #include "GEBdata.h"
-
 //!A class for AMC data
 /**
    The number after the ":" indicates how many bits a certain item consists of.
