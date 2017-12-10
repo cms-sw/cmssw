@@ -306,8 +306,13 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 	  int tdcId      = ( dataWord >> 51 ) & 0x3;    // positions  51 -> 52
 	  int link       = ( dataWord >> 53 ) & 0x7F;   // positions  53 -> 59
 
+	  int dummy = 0;
+	  
+	  bool tenDDU = ! mapping->readOutToGeometry(779, 7, 1, 1, 1,
+						     dummy, dummy, dummy, 
+						     dummy, dummy, dummy);
 
-	  int dduId = theDDU(crate, slot, link);
+	  int dduId = theDDU(crate, slot, link, tenDDU);
 	  int rosId = theROS(crate, slot, link);
 	  int robId = theROB(crate, slot, link);
 
@@ -353,8 +358,13 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 
 	  if (tdcTime == 16383) continue;
 
+	  int dummy = 0;
 
-	  int dduId = theDDU(crate, slot, link);
+	  bool tenDDU = ! mapping->readOutToGeometry(779, 7, 1, 1, 1,
+						     dummy, dummy, dummy, 
+						     dummy, dummy, dummy);
+
+	  int dduId = theDDU(crate, slot, link, tenDDU);
 	  int rosId = theROS(crate, slot, link);
 	  int robId = theROB(crate, slot, link);
 
@@ -406,19 +416,30 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 }
 
 
-int DTuROSRawToDigi::theDDU(int crate, int slot, int link) {
+int DTuROSRawToDigi::theDDU(int crate, int slot, int link, bool tenDDU) {
+
+  int ros = theROS(crate,slot,link); 
+  
+  int ddu = 772;
 
   if (crate == 1368) {
-    if (slot < 7) return 770;
-    return 771;
+    if (slot < 7) 
+      ddu = 770;
+    else 
+      ddu = 771;
   }
 
   if (crate == 1370) {
-    if (slot > 6) return 773;
-    return 774;
+    if (slot > 6) 
+      ddu = 773;
+    else 
+      ddu = 774;
   }
 
-  return 772;
+  if (ros > 6 && tenDDU)
+    ddu += 5;
+
+  return ddu;
 }
 
 
