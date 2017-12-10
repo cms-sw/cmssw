@@ -88,7 +88,7 @@ void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseSh
 
 constexpr char const* varNames[] = {"time", "energy","time1","energy1","time2","energy2", "ped"};
 
-int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * noiseArrSq, unsigned int soi )  const {
+int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * noiseArrSq, unsigned int soi ,const HcalTimeSlew* hcalTimeSlew_delay)  const {
    double tsMAX=0;
    double tmpx[HcalConst::maxSamples], tmpy[HcalConst::maxSamples], tmperry[HcalConst::maxSamples],tmperry2[HcalConst::maxSamples],tmpslew[HcalConst::maxSamples];
    double tstrig = 0; // in fC
@@ -102,7 +102,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       //Fix this
       //C. Madrid
       //--------------------------------------------
-      if(applyTimeSlew_) tmpslew[i] = 0;//hcalTimeSlew_delay_->delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
+      if(applyTimeSlew_) tmpslew[i] = hcalTimeSlew_delay->delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
       // add the noise components
       tmperry2[i]=noiseArrSq[i];
 
@@ -240,7 +240,8 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 						   float& reconstructedEnergy,
 						   float& reconstructedTime,
 						   bool& useTriple,
-						   float& chi2) const
+						   float& chi2,
+						   const HcalTimeSlew* hcalTimeSlew_delay) const
 {
 
   psfPtr_->setDefaultcntNANinfit();
@@ -318,7 +319,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
   std::vector<float> fitParsVec;
   if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
-    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec, noiseArrSq, channelData.soi() );
+    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec, noiseArrSq, channelData.soi(), hcalTimeSlew_delay);
   } else {
     fitParsVec.clear();
     fitParsVec.push_back(0.); //charge
