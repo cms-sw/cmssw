@@ -27,12 +27,13 @@ GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet & pset)
   produces<FEDRawDataCollection>();
 }
 
-void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("gemDigi", edm::InputTag("simMuonGEMDigis"));
 }
 
-void GEMDigiToRawModule::doBeginRun_(edm::Run const& rp, edm::EventSetup const& iSetup)
+void GEMDigiToRawModule::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
   if (useDBEMap_){
     edm::ESHandle<GEMEMap> gemEMap;
@@ -47,7 +48,7 @@ void GEMDigiToRawModule::doBeginRun_(edm::Run const& rp, edm::EventSetup const& 
   }
 }
 
-void GEMDigiToRawModule::produce(edm::StreamID, edm::Event & e, const edm::EventSetup & iSetup) const
+void GEMDigiToRawModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 {
   auto fedRawDataCol = std::make_unique<FEDRawDataCollection>();
 

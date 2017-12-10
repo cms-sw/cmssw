@@ -1,6 +1,5 @@
-#ifndef GEM_VFATdata
-#define GEM_VFATdata
-
+#ifndef EventFilter_GEMRawToDigi_VFATdata_h
+#define EventFilter_GEMRawToDigi_VFATdata_h
 #include <vector>
 
 namespace gem {
