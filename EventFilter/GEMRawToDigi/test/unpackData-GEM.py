@@ -93,8 +93,9 @@ process.load('Configuration.StandardSequences.RecoSim_cff')
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.Geometry.GeometryDB_cff')
+#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+#process.load('Configuration.Geometry.GeometryDB_cff')
+process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -168,7 +169,7 @@ process.dumpRaw = cms.EDAnalyzer(
 process.load('EventFilter.GEMRawToDigi.gemUnpacker_cfi')
 process.load('EventFilter.GEMRawToDigi.GEMSQLiteCabling_cfi')
 process.muonGEMDigis.InputLabel = cms.InputTag('rawDataCollector')
-
+process.muonGEMDigis.useDBEMap = True
 if (options.debug):
     process.muonGEMDigis.debug = cms.untracked.bool(True)
 
