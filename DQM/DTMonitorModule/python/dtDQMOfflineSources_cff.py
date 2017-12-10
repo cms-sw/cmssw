@@ -19,7 +19,7 @@ dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
     inputLabel = cms.InputTag('rawDataCollector'),
     fedbyType = cms.bool(False),
-    useStandardFEDid = cms.bool(True),
+    useStandardFEDid = cms.bool(False),
     dqmOnly = cms.bool(True),                       
     readOutParameters = cms.PSet(
         debug = cms.untracked.bool(False),
@@ -38,9 +38,6 @@ dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
 
 
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
-DTDataIntegrityTask.FEDIDmin  = cms.untracked.int32(770)
-DTDataIntegrityTask.FEDIDmax  = cms.untracked.int32(774)
-DTDataIntegrityTask.checkUros  = cms.untracked.bool(False)
 DTDataIntegrityTask.processingMode = "Offline"
 
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *

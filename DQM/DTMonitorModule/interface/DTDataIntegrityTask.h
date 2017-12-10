@@ -125,9 +125,11 @@ private:
   MonitorElement* hTTSSummary;
 
   //time histos for DDU/ROS
-  std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > dduTimeHistos;
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > fedTimeHistos;
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > rosTimeHistos;
+  // <histoType, <fed , index, histo> >
+  std::map<std::string, std::map<int, std::map< int, DTTimeEvolutionHisto*> > > urosTimeHistos;
+  
 
   int nEventsLS;
 
