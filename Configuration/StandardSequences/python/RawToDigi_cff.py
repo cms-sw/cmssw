@@ -27,6 +27,12 @@ muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 
+import EventFilter.GEMRawToDigi.gemUnpacker_cfi
+muonGEMDigis = EventFilter.GEMRawToDigi.gemUnpacker_cfi.muonGEMDigis.clone()
+
+import EventFilter.GEMRawToDigi.me0Unpacker_cfi
+muonME0Digis = EventFilter.GEMRawToDigi.me0Unpacker_cfi.muonME0Digis.clone()
+
 from EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
 castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692, 693,722) )
 
@@ -94,3 +100,16 @@ ctpps_2016.toReplaceWith(RawToDigi, _ctpps_2016_RawToDigi)
 _ctpps_2016_RawToDigi_noTk = RawToDigi_noTk.copy()
 _ctpps_2016_RawToDigi_noTk += ctppsRawToDigi
 ctpps_2016.toReplaceWith(RawToDigi_noTk, _ctpps_2016_RawToDigi_noTk)
+
+# GEM settings
+_run2_GEM_2017_RawToDigi = RawToDigi.copy()
+_run2_GEM_2017_RawToDigi.insert(1,muonGEMDigis)
+
+_run3_RawToDigi = _run2_GEM_2017_RawToDigi.copy()
+#_run3_RawToDigi.insert(1,muonME0Digis) # to be done once proper ME0 digitiser is done
+
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toReplaceWith(RawToDigi, _run2_GEM_2017_RawToDigi)
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toReplaceWith(RawToDigi, _run3_RawToDigi)
