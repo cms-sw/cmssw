@@ -22,18 +22,19 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet & pset)
   produces<GEMDigiCollection>(); 
   unpackStatusDigis_ = pset.getParameter<bool>("UnpackStatusDigis");
   if (unpackStatusDigis_){
-    produces<GEMVfatStatusDigiCollection>("vfatStatus"); 
-    produces<GEMGEBStatusDigiCollection>("GEBStatus"); 
+    produces<GEMVfatStatusDigiCollection>("vfatStatus");
+    produces<GEMGEBStatusDigiCollection>("GEBStatus");
   }
 }
 
-void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector")); 
   desc.add<bool>("useDBEMap", false); 
 }
 
-void GEMRawToDigiModule::doBeginRun_(edm::Run const& rp, edm::EventSetup const& iSetup)
+void GEMRawToDigiModule::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
   if (useDBEMap_){
     edm::ESHandle<GEMEMap> gemEMap;
@@ -48,7 +49,7 @@ void GEMRawToDigiModule::doBeginRun_(edm::Run const& rp, edm::EventSetup const& 
   }
 }
 
-void GEMRawToDigiModule::produce(edm::StreamID, edm::Event & e, const edm::EventSetup & iSetup) const
+void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 {
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
   auto outVfatStatus = std::make_unique<GEMVfatStatusDigiCollection>();
@@ -61,7 +62,6 @@ void GEMRawToDigiModule::produce(edm::StreamID, edm::Event & e, const edm::Event
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
-    //std::cout <<"GEMRawToDigiModule words "<< nWords<<std::endl;
     
     if (nWords<5) continue;
     const unsigned char * data = fedData.data();
