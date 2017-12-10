@@ -126,7 +126,7 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	    edm::LogWarning("GEMRawToDigiModule") << "InValid ChipID :"<<ec.vfatId;
 	    continue;
 	  }
-	   
+	  
 	  for (int chan = 0; chan < 128; ++chan) {
 	    uint8_t chan0xf = 0;
 	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
@@ -135,18 +135,18 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	    // no hits
 	    if(chan0xf==0) continue;
 
-	    ec.channelId = chan;
+	    ec.channelId = chan;// need to check
 	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
 	    int bx = bc-25;
 	    gemId = dc.gemDetId;
 	    GEMDigi digi(dc.stripId,bx);
 
 	    // std::cout <<"GEMRawToDigiModule vfatId "<<ec.vfatId
-	    // 	      <<" gemDetId "<< gemId
-	    // 	      <<" chan "<< ec.channelId
-	    // 	      <<" strip "<< dc.stripId
-	    // 	      <<" bx "<< digi.bx()
-	    // 	      <<std::endl;
+	    //  	      <<" gemDetId "<< gemId
+	    //  	      <<" chan "<< ec.channelId
+	    //  	      <<" strip "<< dc.stripId
+	    //  	      <<" bx "<< digi.bx()
+	    //  	      <<std::endl;
 	    
 	    outGEMDigis.get()->insertDigi(gemId,digi);	    
 	  }
