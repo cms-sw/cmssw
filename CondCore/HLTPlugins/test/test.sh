@@ -15,7 +15,7 @@ mkdir -p $W_DIR/plots
 ####################
 # Test display 
 ####################
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginAlCaRecoTriggerBits_PayloadInspector \
     --plot plot_AlCaRecoTriggerBits_Display \
     --tag AlCaRecoHLTpaths8e29_1e31_v7_hlt \
@@ -29,7 +29,7 @@ mv *.png $W_DIR/plots/AlCaRecoTriggerBits_Display.png
 ####################
 # Test compare
 ####################
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginAlCaRecoTriggerBits_PayloadInspector \
     --plot plot_AlCaRecoTriggerBits_Compare \
     --tag AlCaRecoHLTpaths8e29_1e31_v7_hlt \
