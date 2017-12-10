@@ -92,7 +92,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
                                                !info.hasTimeInfo(),info.nSamples());
         // "phase1Apply" call below sets m2E, m2t, useTriple, and chi2.
         // These parameters are pased by non-const reference.
-        method2->phase1Apply(info, m2E, m2t, useTriple, chi2);
+        method2->phase1Apply(info, m2E, m2t, useTriple, chi2, hcalTimeSlew_delay_);
         m2E *= hbminusCorrectionFactor(channelId, m2E, isData);
     }
 
