@@ -17,14 +17,14 @@ class CSCConstants
   };
 
   enum FPGA_Latency{
-    CLCT_FPGA_LATENCY = 3,
-    ALCT_FPGA_LATENCY = 6
+    CLCT_EMUL_TIME_OFFSET = 3,
+    ALCT_EMUL_TIME_OFFSET = 6
   };
 
   // Note: WIRE means actually "wiregroup" here
   enum WG_and_Strip {
     MAX_NUM_WIRES = 119,
-    MAX_NUM_WIRES_ME11 = 48,
+    MAX_WIRES_ME11 = 48,
     MAX_NUM_STRIPS = 80,
     MAX_NUM_STRIPS_7CFEBS = 112,
     NUM_DI_STRIPS = 40+1, // Add 1 to allow for staggering of strips
@@ -56,11 +56,11 @@ class CSCConstants
     NUM_CLCT_PATTERNS = 11,
     NUM_CLCT_PATTERNS_PRE_TMB07 = 8,
     // Max number of wires participating in a pattern
-    NUM_PATTERN_WIRES = 14,
+    MAX_WIRES_IN_PATTERN = 14,
     // Max number of strips participating in a pattern
-    NUM_PATTERN_STRIPS = 26,
+    MAX_STRIPS_IN_PATTERN = 26,
     // Max number of halfstrips participating in a pattern
-    NUM_PATTERN_HALFSTRIPS = 42};
+    MAX_HALFSTRIPS_IN_PATTERN = 42};
 
   enum Digis_Info {
     MAX_DIGIS_PER_ALCT = 10,
@@ -68,9 +68,9 @@ class CSCConstants
 
   enum LCT_stubs{
     // CSC local trigger considers 4-bit BX window (16 numbers) in the readout
-    MAX_CLCT_BINS = 16,
-    MAX_ALCT_BINS = 16,
-    MAX_LCT_BINS = 16,
+    MAX_CLCT_TBINS = 16,
+    MAX_ALCT_TBINS = 16,
+    MAX_LCT_TBINS = 16,
     // Each CLCT processor can snd up to 2 CLCTs to TMB
     MAX_CLCTS_PER_PROCESSOR = 2,
     // Each ALCT processor can snd up to 2 ALCTs to TMB

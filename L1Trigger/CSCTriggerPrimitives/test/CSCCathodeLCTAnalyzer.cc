@@ -147,10 +147,10 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
     // Loop over all the strips in a pattern.
     int max_pattern_strips, layer, strip;
     if (!isTMB07) {
-      max_pattern_strips = CSCConstants::NUM_PATTERN_STRIPS;
+      max_pattern_strips = CSCConstants::MAX_STRIPS_IN_PATTERN;
     }
     else {
-      max_pattern_strips = CSCConstants::NUM_PATTERN_HALFSTRIPS;
+      max_pattern_strips = CSCConstants::MAX_HALFSTRIPS_IN_PATTERN;
     }
     for (int i_strip = 0; i_strip < max_pattern_strips; i_strip++) {
       if (!isTMB07) {

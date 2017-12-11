@@ -76,10 +76,10 @@ class CSCCathodeLCTProcessor
   void getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id);
 
   /** Best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_BINS];
+  CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   /** Second best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_BINS];
+  CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   /** Returns vector of CLCTs in the read-out time window, if any. */
   std::vector<CSCCLCTDigi> readoutCLCTs();
@@ -100,11 +100,11 @@ class CSCCathodeLCTProcessor
   void setRing(unsigned r) {theRing = r;}
 
   /** Pre-defined patterns. */
-  static const int pre_hit_pattern[2][CSCConstants::NUM_PATTERN_STRIPS];
-  static const int pattern[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07][CSCConstants::NUM_PATTERN_STRIPS+1];
+  static const int pre_hit_pattern[2][CSCConstants::MAX_STRIPS_IN_PATTERN];
+  static const int pattern[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07][CSCConstants::MAX_STRIPS_IN_PATTERN+1];
 
-  static const int pattern2007_offset[CSCConstants::NUM_PATTERN_HALFSTRIPS];
-  static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::NUM_PATTERN_HALFSTRIPS+2];
+  static const int pattern2007_offset[CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
+  static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN+2];
 
   // we use these next ones to address the various bits inside the array that's
   // used to make the cathode LCTs.
@@ -220,7 +220,7 @@ class CSCCathodeLCTProcessor
      const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
      int keystrip_data[CSCConstants::NUM_HALF_STRIPS_7CFEBS][7],
      int nStrips, int first_bx, int& best_strip, int stripType);
-  void getPattern(int pattern_num, int strip_value[CSCConstants::NUM_PATTERN_STRIPS],
+  void getPattern(int pattern_num, int strip_value[CSCConstants::MAX_STRIPS_IN_PATTERN],
 		  int bx_time, int &quality, int &bend);
   bool hitIsGood(int hitTime, int BX);
 
@@ -248,7 +248,7 @@ class CSCCathodeLCTProcessor
 		       const unsigned int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
 		       int keystrip_data[2][7], const int first_bx);
   void getPattern(unsigned int pattern_num,
-		  const int strip_value[CSCConstants::NUM_PATTERN_STRIPS],
+		  const int strip_value[CSCConstants::MAX_STRIPS_IN_PATTERN],
 		  unsigned int& quality, unsigned int& bend);
 
   //--------------- Functions for 2007 version of the firmware ----------------
