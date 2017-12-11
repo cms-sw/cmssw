@@ -77,7 +77,7 @@ namespace edm {
       /**\return true if the queue is paused
        * \sa pause(), resume()
        */
-      bool isPaused() const { return m_pauseCount.load()==0;}
+      bool isPaused() const { return m_pauseCount.load()!=0;}
       
       // ---------- member functions ---------------------------
       /// Pauses processing of additional tasks from the queue.
