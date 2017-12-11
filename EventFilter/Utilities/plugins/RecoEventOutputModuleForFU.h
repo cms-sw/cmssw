@@ -230,7 +230,7 @@ namespace evf {
                            << " expected:" << c_->get_adler32_ini() << " obtained:" << adler32c;
     }
     else {
-      edm::LogWarning("RecoEventOutputModuleForFU") << "Ini file checksum -: "<< streamLabel_ << " " << adler32c;
+      LogDebug("RecoEventOutputModuleForFU") << "Ini file checksum -: "<< stream_label_ << " " << adler32c;
       boost::filesystem::rename(openIniFileName,edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
     }
   }

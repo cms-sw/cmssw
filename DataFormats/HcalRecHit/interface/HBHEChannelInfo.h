@@ -21,12 +21,13 @@ public:
     inline HBHEChannelInfo()
       : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
         gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
-        dFcPerADC_{0.f}, hasTimeInfo_(false) {clear();}
+        dFcPerADC_{0.f}, hasTimeInfo_(false), hasEffectivePedestals_(false) {clear();}
 
-    inline explicit HBHEChannelInfo(const bool hasTimeFromTDC)
+    inline explicit HBHEChannelInfo(const bool hasTimeFromTDC, const bool hasEffectivePed)
       : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
         gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
-        dFcPerADC_{0.f}, hasTimeInfo_(hasTimeFromTDC) {clear();}
+        dFcPerADC_{0.f}, hasTimeInfo_(hasTimeFromTDC), 
+        hasEffectivePedestals_(hasEffectivePed) {clear();}
 
     inline void clear()
     {
@@ -92,6 +93,7 @@ public:
     inline unsigned soi() const {return soi_;}
     inline int capid() const {return capid_;}
     inline bool hasTimeInfo() const {return hasTimeInfo_;}
+    inline bool hasEffectivePedestals() const {return hasEffectivePedestals_;}
     inline double darkCurrent() const {return darkCurrent_;}
     inline double fcByPE() const {return fcByPE_;}
     inline double lambda() const {return lambda_;}
@@ -246,6 +248,9 @@ private:
 
     // Flag indicating presence of the time info from TDC (QIE11)
     bool hasTimeInfo_;
+
+    // Flag indicating use of effective pedestals
+    bool hasEffectivePedestals_;
 
     // Flag indicating that this channel should be dropped
     // (typically, tagged bad from DB or zero-suppressed)

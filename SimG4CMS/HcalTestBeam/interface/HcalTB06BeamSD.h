@@ -21,17 +21,17 @@ class HcalTB06BeamSD : public CaloSD {
 
 public:    
 
-  HcalTB06BeamSD(const G4String&, const DDCompactView &, 
+  HcalTB06BeamSD(const std::string&, const DDCompactView &, 
                  const SensitiveDetectorCatalog &,
 		 edm::ParameterSet const &, const SimTrackManager*);
   ~HcalTB06BeamSD() override;
   double getEnergyDeposit(G4Step* ) override;
-  uint32_t setDetUnitId(G4Step* step) override;
+  uint32_t setDetUnitId(const G4Step* step) override;
 
 private:    
 
   std::vector<G4String> getNames(DDFilteredView&);
-  bool                  isItWireChamber(G4String);
+  bool                  isItWireChamber(const G4String&);
 
   bool                  useBirk;
   double                birk1, birk2, birk3;

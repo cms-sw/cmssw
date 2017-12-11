@@ -87,7 +87,7 @@ namespace {
 
     std::string baseType = filler->baseType();
 
-    edm::ConfigurationDescriptions descriptions(filler->baseType());
+    edm::ConfigurationDescriptions descriptions(filler->baseType(), pluginName);
 
     try {
       edm::convertException::wrap([&]() {
@@ -103,7 +103,7 @@ namespace {
 
     try {
       edm::convertException::wrap([&]() {
-        descriptions.writeCfis(baseType, pluginName, usedCfiFileNames);
+        descriptions.writeCfis(usedCfiFileNames);
       });
     }
     catch(cms::Exception& e) {

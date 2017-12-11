@@ -187,7 +187,7 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
   
   for (auto & tracker : sTk) {
 
-    std::vector<std::string> v = tracker->getNames();
+    const std::vector<std::string>& v = tracker->getNames();
     for (auto & name : v) {
 
       std::unique_ptr<edm::PSimHitContainer>
@@ -198,7 +198,7 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
   }
   for (auto & calo : sCalo) {
 
-    std::vector<std::string> v = calo->getNames();
+    const std::vector<std::string>& v = calo->getNames();
 
     for (auto & name : v) {
 
