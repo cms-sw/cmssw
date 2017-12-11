@@ -2,6 +2,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/EvFOutputModule.h"
 #include "EventFilter/Utilities/plugins/ExceptionGenerator.h"
 #include "EventFilter/Utilities/plugins/EvFBuildingThrottle.h"
 #include "EventFilter/Utilities/plugins/EvFFEDSelector.h"
@@ -20,10 +21,9 @@ using namespace evf;
 typedef edm::serviceregistry::AllArgsMaker<MicroStateService, FastMonitoringService> FastMonitoringServiceMaker;
 
 typedef RawEventOutputModuleForBU<RawEventFileWriterForBU> RawStreamFileWriterForBU;
-typedef RecoEventOutputModuleForFU<RecoEventWriterForFU> EvFOutputModule;
+typedef RecoEventOutputModuleForFU<RecoEventWriterForFU> ShmStreamConsumer;
 
 //legacy name for ConfDB compatibility
-typedef EvFOutputModule ShmStreamConsumer;
 
 //DEFINE_FWK_SERVICE_MAKER(MicroStateService, MicroStateServiceMaker);
 
