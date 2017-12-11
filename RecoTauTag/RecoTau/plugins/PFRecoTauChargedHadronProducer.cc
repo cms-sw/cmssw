@@ -94,10 +94,9 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
 {
   srcJets_ = cfg.getParameter<edm::InputTag>("jetSrc");
   Jets_token = consumes<reco::CandidateView>(srcJets_);
-  minJetPt_ = ( cfg.exists("minJetPt") ) ? cfg.getParameter<double>("minJetPt") : -1.0;
-  maxJetAbsEta_ = ( cfg.exists("maxJetAbsEta") ) ? cfg.getParameter<double>("maxJetAbsEta") : 99.0;
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
+  minJetPt_ = cfg.getParameter<double>("minJetPt");
+  maxJetAbsEta_ = cfg.getParameter<double>("maxJetAbsEta");
+  verbosity_ = cfg.getParameter<int>("verbosity");
   
   // get set of ChargedHadron builder plugins
   edm::VParameterSet psets_builders = cfg.getParameter<edm::VParameterSet>("builders");
@@ -123,11 +122,9 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
   predicate_ = std::auto_ptr<ChargedHadronPredicate>(new ChargedHadronPredicate(rankers_));
   
   // check if we want to apply a final output selection
-  if ( cfg.exists("outputSelection") ) {
-    std::string selection = cfg.getParameter<std::string>("outputSelection");
-    if ( !selection.empty() ) {
-      outputSelector_.reset(new StringCutObjectSelector<reco::PFRecoTauChargedHadron>(selection));
-    }
+  std::string selection = cfg.getParameter<std::string>("outputSelection");
+  if ( !selection.empty() ) {
+    outputSelector_.reset(new StringCutObjectSelector<reco::PFRecoTauChargedHadron>(selection));
   }
 
   produces<reco::PFJetChargedHadronAssociation>();

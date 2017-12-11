@@ -145,19 +145,14 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
   key_ = cfg.getParameter<edm::InputTag>("key");
   key_token = consumes<reco::PFTauDiscriminator>(key_);
 
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
+  verbosity_ = cfg.getParameter<int>("verbosity");
 
-  loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
+  loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
   if ( !loadMVAfromDB_ ) {
-    if(cfg.exists("inputFileName")){
       inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
-    }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
   }
   if(verbosity_)  std::cout << moduleLabel_ << " loadMVA = " << loadMVAfromDB_ << std::endl;
-  if ( cfg.exists("mvaOutput_normalization") ) {
-    mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization"); 
-  }
+  mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization"); 
 
   // Setup our cut map
   typedef std::vector<edm::ParameterSet> VPSet;
@@ -181,6 +176,7 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
     cuts_[category] = std::move(cut);
   }
 
+  verbosity_ = cfg.getParameter<int>("verbosity");
   if(verbosity_) std::cout << "constructed " << moduleLabel_ << std::endl;
 }
 

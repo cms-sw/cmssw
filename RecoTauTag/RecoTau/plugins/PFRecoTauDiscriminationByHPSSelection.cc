@@ -71,34 +71,17 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(con
   for(auto const& decayMode : decayModes ) {
     // The mass window(s)
     DecayModeCuts cuts;
-    if ( decayMode.exists("nTracksMin") ) {
-      cuts.nTracksMin_ = decayMode.getParameter<unsigned>("nTracksMin");
-    } else {
-      cuts.nTracksMin_ = 0;
-    }
-    if ( decayMode.exists("nChargedPFCandsMin") ) {
-      cuts.nChargedPFCandsMin_ = decayMode.getParameter<unsigned>("nChargedPFCandsMin");
-    } else {
-      cuts.nChargedPFCandsMin_ = 0;
-    }
+    cuts.nTracksMin_ = decayMode.getParameter<unsigned>("nTracksMin");
+    cuts.nChargedPFCandsMin_ = decayMode.getParameter<unsigned>("nChargedPFCandsMin");
     cuts.minMass_ = decayMode.getParameter<double>("minMass");
     cuts.maxMass_ = new TauFunc(decayMode.getParameter<std::string>("maxMass"));
     edm::ParameterSet applyBendCorrection = decayMode.getParameter<edm::ParameterSet>("applyBendCorrection");
     cuts.applyBendCorrection_eta_ = applyBendCorrection.getParameter<bool>("eta");
     cuts.applyBendCorrection_phi_ = applyBendCorrection.getParameter<bool>("phi");
     cuts.applyBendCorrection_mass_ = applyBendCorrection.getParameter<bool>("mass");
-    if ( decayMode.exists("minPi0Mass") ) {
-      cuts.minPi0Mass_ = decayMode.getParameter<double>("minPi0Mass");
-      cuts.maxPi0Mass_ = decayMode.getParameter<double>("maxPi0Mass");
-    } else {
-      cuts.minPi0Mass_ = -1.e3;
-      cuts.maxPi0Mass_ = 1.e9;
-    }
-    if ( decayMode.exists("assumeStripMass") ) {
-      cuts.assumeStripMass_ = decayMode.getParameter<double>("assumeStripMass");
-    } else {
-      cuts.assumeStripMass_ = -1.0;
-    }
+    cuts.minPi0Mass_ = decayMode.getParameter<double>("minPi0Mass");
+    cuts.maxPi0Mass_ = decayMode.getParameter<double>("maxPi0Mass");
+    cuts.assumeStripMass_ = decayMode.getParameter<double>("assumeStripMass");
     decayModeCuts_.insert(std::make_pair(
             // The decay mode as a key
             std::make_pair(
@@ -109,8 +92,7 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(con
   }
   requireTauChargedHadronsToBeChargedPFCands_ = pset.getParameter<bool>("requireTauChargedHadronsToBeChargedPFCands");
   minPixelHits_ = pset.getParameter<int>("minPixelHits");
-  verbosity_ = pset.exists("verbosity") ?
-    pset.getParameter<int>("verbosity") : 0;
+  verbosity_ = pset.getParameter<int>("verbosity");
   
 
 }

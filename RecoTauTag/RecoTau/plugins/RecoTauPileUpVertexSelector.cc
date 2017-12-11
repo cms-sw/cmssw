@@ -35,7 +35,7 @@ RecoTauPileUpVertexSelector::RecoTauPileUpVertexSelector(
       pset.getParameter<double>("minTrackSumPt")) {
   src_ = pset.getParameter<edm::InputTag>("src");
   token = consumes<reco::VertexCollection>(src_);
-  filter_ = pset.exists("filter") ? pset.getParameter<bool>("filter") : false;
+  filter_ = pset.getParameter<bool>("filter");
   produces<reco::VertexCollection>();
 }
 

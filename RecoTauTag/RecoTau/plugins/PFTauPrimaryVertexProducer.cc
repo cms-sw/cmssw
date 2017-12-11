@@ -124,8 +124,8 @@ PFTauPrimaryVertexProducer::PFTauPrimaryVertexProducer(const edm::ParameterSet& 
     else newCut->cut_ = pset.getParameter<double>("selectionCut");
     discriminators_.push_back(newCut);
   }
-  // Build a string cut if desired
-  if (iConfig.exists("cut")) cut_.reset(new StringCutObjectSelector<reco::PFTau>(iConfig.getParameter<std::string>( "cut" )));
+  // Build a string cut
+  cut_.reset(new StringCutObjectSelector<reco::PFTau>(iConfig.getParameter<std::string>( "cut" )));
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   produces<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > >();
   produces<VertexCollection>("PFTauPrimaryVertices"); 

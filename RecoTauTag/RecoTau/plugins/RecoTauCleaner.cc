@@ -87,22 +87,18 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset)
     const std::string& pluginType = cleanerPSet->getParameter<std::string>("plugin");
     // Build the plugin
     cleanerEntry->plugin_ = std::unique_ptr<Cleaner>{RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector())};
-    cleanerEntry->tolerance_ = ( cleanerPSet->exists("tolerance") ) ?
-    cleanerPSet->getParameter<double>("tolerance") : 0.;
+    cleanerEntry->tolerance_ = cleanerPSet->getParameter<double>("tolerance");
     cleaners_.emplace_back(std::move(cleanerEntry));
   }
 
   // Check if we want to apply a final output selection
-  if ( pset.exists("outputSelection") ) {
-    std::string selection = pset.getParameter<std::string>("outputSelection");
-    if ( !selection.empty() ) {
-      outputSelector_ = std::make_unique<StringCutObjectSelector<reco::PFTau>>(selection);
-    }
+  std::string selection = pset.getParameter<std::string>("outputSelection");
+  if ( !selection.empty() ) {
+    outputSelector_ = std::make_unique<StringCutObjectSelector<reco::PFTau>>(selection);
   }
 
   // Enable/disable debug output
-  verbosity_ = ( pset.exists("verbosity") ) ?
-    pset.getParameter<int>("verbosity") : 0;
+  verbosity_ = pset.getParameter<int>("verbosity");
 
   // Build the predicate that ranks our taus.  
   produces<Prod>();

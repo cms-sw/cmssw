@@ -70,11 +70,10 @@ RecoTauJetRegionProducer::RecoTauJetRegionProducer(const edm::ParameterSet& cfg)
   
   double deltaR = cfg.getParameter<double>("deltaR"); 
   deltaR2_ = deltaR*deltaR;
-  minJetPt_ = ( cfg.exists("minJetPt") ) ? cfg.getParameter<double>("minJetPt") : -1.0;
-  maxJetAbsEta_ = ( cfg.exists("maxJetAbsEta") ) ? cfg.getParameter<double>("maxJetAbsEta") : 99.0;
+  minJetPt_ = cfg.getParameter<double>("minJetPt");
+  maxJetAbsEta_ = cfg.getParameter<double>("maxJetAbsEta");
   
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
+  verbosity_ = cfg.getParameter<int>("verbosity");
   
   produces<reco::PFJetCollection>("jets");
   produces<PFJetMatchMap>();
@@ -108,10 +107,10 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   size_t nJets = jets.size();
 
   // Get the association map matching jets to PFCandidates
-  // (needed for recinstruction of boosted taus)
+  // (needed for reconstruction of boosted taus)
   edm::Handle<JetToPFCandidateAssociation> jetToPFCandMap;
   std::vector<std::unordered_set<unsigned> > fastJetToPFCandMap;
-  if ( pfCandAssocMapSrc_.label() != "" ) {
+  if ( !pfCandAssocMapSrc_.label().empty() ) {
     evt.getByToken(pfCandAssocMap_token, jetToPFCandMap);
     fastJetToPFCandMap.resize(nJets);
     for ( size_t ijet = 0; ijet < nJets; ++ijet ) {

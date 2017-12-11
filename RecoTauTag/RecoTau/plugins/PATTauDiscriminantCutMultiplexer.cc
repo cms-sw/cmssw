@@ -147,19 +147,13 @@ PATTauDiscriminantCutMultiplexer::PATTauDiscriminantCutMultiplexer(const edm::Pa
   key_ = cfg.getParameter<edm::InputTag>("key");
   key_token = consumes<pat::PATTauDiscriminator>(key_);
 
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
-
-  loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
+  verbosity_ = cfg.getParameter<int>("verbosity");
+  loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
   if ( !loadMVAfromDB_ ) {
-    if(cfg.exists("inputFileName")){
       inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
-    }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
   }
   if(verbosity_)  std::cout << moduleLabel_ << " loadMVA = " << loadMVAfromDB_ << std::endl;
-  if ( cfg.exists("mvaOutput_normalization") ) {
-    mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization"); 
-  }
+  mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization");  // default value is "" which should just overwrite existing value with same empty string
 
   // Setup our cut map
   typedef std::vector<edm::ParameterSet> VPSet;
@@ -182,7 +176,7 @@ PATTauDiscriminantCutMultiplexer::PATTauDiscriminantCutMultiplexer(const edm::Pa
     }
     cuts_[category] = std::move(cut);
   }
-
+  verbosity_ = cfg.getParameter<int>("verbosity");
   if(verbosity_) std::cout << "constructed " << moduleLabel_ << std::endl;
 }
 
