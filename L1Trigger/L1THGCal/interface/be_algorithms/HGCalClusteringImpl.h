@@ -69,9 +69,9 @@ private:
                                  std::array<std::vector<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>, kNSides_> & reshuffledTriggerCells );
 
     HGCalTriggerTools triggerTools_;
-    bool areTCneighbour_( uint32_t detIDa, uint32_t detIDb, const HGCalTriggerGeometryBase & triggerGeometry );
+    bool areTCneighbour( uint32_t detIDa, uint32_t detIDb, const HGCalTriggerGeometryBase & triggerGeometry );
     
-    void removeUnconnectedTCinCluster_( l1t::HGCalCluster* cluster,
+    void removeUnconnectedTCinCluster( l1t::HGCalCluster & cluster,
                                         const HGCalTriggerGeometryBase & triggerGeometry
         );
 

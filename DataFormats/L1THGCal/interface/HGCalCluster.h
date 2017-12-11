@@ -7,7 +7,6 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalClusterT.h"
-//#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 
 namespace l1t {
@@ -26,8 +25,6 @@ namespace l1t {
       HGCalCluster( const edm::Ptr<l1t::HGCalTriggerCell> &tc );
       
       ~HGCalCluster();
-
-//      void removeUnconnectedConstituents( const HGCalTriggerGeometryBase & triggerGeometry );
 
       void setModule(uint32_t module) {module_ = module;}
       uint32_t module() const {return module_;}
