@@ -436,7 +436,7 @@ void CaloTruthAccumulatorWithGraph::accumulateEvent(
   auto const& vertexMothersProp = get(vertex_name, decay);
   // Now recover the particles that did not decay. Append them with an index
   // bigger than the size of the generated vertices.
-  int offset = vertices.size() + 1;
+  int offset = vertices.size();
   for (size_t i = 0; i < tracks.size(); ++i) {
     if (!used_sim_tracks[i]) {
       auto origin_vtx = tracks[i].vertIndex();
