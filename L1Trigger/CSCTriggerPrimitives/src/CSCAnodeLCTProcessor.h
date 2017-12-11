@@ -68,10 +68,10 @@ class CSCAnodeLCTProcessor
       had been reported.
       In the ALCT-2006 algorithms, up to two best ALCTs PER EVERY TIME BIN in
       Level-1 accept window are reported. */
-  CSCALCTDigi bestALCT[CSCConstants::MAX_ALCT_BINS];
+  CSCALCTDigi bestALCT[CSCConstants::MAX_ALCT_TBINS];
 
   /** Second best LCTs in this chamber, as found by the processor. */
-  CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_BINS];
+  CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
 
   /** Returns vector of ALCTs in the read-out time window, if any. */
   std::vector<CSCALCTDigi> readoutALCTs();
@@ -83,11 +83,11 @@ class CSCAnodeLCTProcessor
   void setRing(unsigned r) {theRing = r;}
 
   /** Pre-defined patterns. */
-  static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES];
-  static const int pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES];
-  static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES];
-  static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES];
-  static const int time_weights[CSCConstants::NUM_PATTERN_WIRES];
+  static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  static const int pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  static const int time_weights[CSCConstants::MAX_WIRES_IN_PATTERN];
 
  private:
   /** Verbosity level: 0: no print (default).
@@ -177,7 +177,7 @@ class CSCAnodeLCTProcessor
   static const unsigned int def_l1a_window_width;
 
   /** Chosen pattern mask. */
-  int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::NUM_PATTERN_WIRES];
+  int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
 
   /** Load pattern mask defined by configuration into pattern_mask */
   void loadPatternMask();

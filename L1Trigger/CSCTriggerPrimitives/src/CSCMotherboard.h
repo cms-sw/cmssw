@@ -134,10 +134,10 @@ class CSCMotherboard
   static const unsigned int def_tmb_l1a_window_size;
 
   /** Container for first correlated LCT. */
-  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_BINS];
+  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_TBINS];
 
   /** Container for second correlated LCT. */
-  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_BINS];
+  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
 
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
