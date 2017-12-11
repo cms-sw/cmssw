@@ -1,6 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
+ *  $Date: 2012/03/21 13:48:46 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
