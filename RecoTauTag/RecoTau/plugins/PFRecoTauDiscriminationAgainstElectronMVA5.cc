@@ -39,8 +39,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA5 : public PFTauDiscriminationPro
     srcGsfElectrons_ = cfg.getParameter<edm::InputTag>("srcGsfElectrons");
     GsfElectrons_token = consumes<reco::GsfElectronCollection>(srcGsfElectrons_);
 
-    verbosity_ = ( cfg.exists("verbosity") ) ?
-      cfg.getParameter<int>("verbosity") : 0;
+    verbosity_ = cfg.getParameter<int>("verbosity");
 
     // add category index
     produces<PFTauDiscriminator>("category");

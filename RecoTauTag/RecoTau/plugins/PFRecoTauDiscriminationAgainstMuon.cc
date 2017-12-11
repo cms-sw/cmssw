@@ -28,8 +28,8 @@ class PFRecoTauDiscriminationAgainstMuon : public PFTauDiscriminationProducerBas
     a  = iConfig.getParameter<double>("a");  
     b  = iConfig.getParameter<double>("b");  
     c  = iConfig.getParameter<double>("c");  	 
-    maxNumberOfMatches_ = iConfig.exists("maxNumberOfMatches") ? iConfig.getParameter<int>("maxNumberOfMatches") : 0;
-    checkNumMatches_ = iConfig.exists("checkNumMatches") ? iConfig.getParameter<bool>("checkNumMatches") : false;
+    maxNumberOfMatches_ = iConfig.getParameter<int>("maxNumberOfMatches");
+    checkNumMatches_ = iConfig.getParameter<bool>("checkNumMatches");
   }
 
   ~PFRecoTauDiscriminationAgainstMuon() override {} 

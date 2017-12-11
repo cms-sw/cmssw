@@ -58,8 +58,7 @@ public:
 
     etaCracks_string_ = iConfig.getParameter<std::vector<std::string>>("etaCracks");
     
-    verbosity_ = ( iConfig.exists("verbosity") ) ?
-      iConfig.getParameter<int>("verbosity") : 0;
+    verbosity_ = iConfig.getParameter<int>("verbosity");
 
     cuts2_ = new AntiElectronIDCut2();
   }

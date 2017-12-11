@@ -82,12 +82,10 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
 	category_output_()
     {
        mvaName_ = cfg.getParameter<std::string>("mvaName");
-       loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
+       loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
        if ( !loadMVAfromDB_ ) {
-         if(cfg.exists("inputFileName")){
 	   inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
-	 }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
-       }    
+       }
        std::string mvaOpt_string = cfg.getParameter<std::string>("mvaOpt");
        if      ( mvaOpt_string == "oldDMwoLT" ) mvaOpt_ = kOldDMwoLT;
        else if ( mvaOpt_string == "oldDMwLT"  ) mvaOpt_ = kOldDMwLT;
@@ -115,8 +113,7 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
        photonPtSumOutsideSignalCone_ = cfg.getParameter<std::string>("srcPhotonPtSumOutsideSignalCone");
        footprintCorrection_ = cfg.getParameter<std::string>("srcFootprintCorrection");
 		  
-       verbosity_ = ( cfg.exists("verbosity") ) ?
-         cfg.getParameter<int>("verbosity") : 0;
+       verbosity_ = cfg.getParameter<int>("verbosity");
 
        produces<pat::PATTauDiscriminator>("category");
     }  

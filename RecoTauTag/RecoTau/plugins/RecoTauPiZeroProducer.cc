@@ -77,8 +77,8 @@ class RecoTauPiZeroProducer : public edm::stream::EDProducer<> {
 RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) 
 {
   cand_token = consumes<reco::CandidateView>( pset.getParameter<edm::InputTag>("jetSrc"));
-  minJetPt_ = ( pset.exists("minJetPt") ) ? pset.getParameter<double>("minJetPt") : -1.0;
-  maxJetAbsEta_ = ( pset.exists("maxJetAbsEta") ) ? pset.getParameter<double>("maxJetAbsEta") : 99.0;
+  minJetPt_ = pset.getParameter<double>("minJetPt");
+  maxJetAbsEta_ = pset.getParameter<double>("maxJetAbsEta");
 
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get the mass hypothesis for the pizeros
@@ -110,17 +110,14 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset)
   // Build the sorting predicate
   predicate_ = std::auto_ptr<PiZeroPredicate>(new PiZeroPredicate(rankers_));
 
-  // Check if we want to apply a final output selection
-  if (pset.exists("outputSelection")) {
-    std::string selection = pset.getParameter<std::string>("outputSelection");
-    if (!selection.empty()) {
-      outputSelector_.reset(
-          new StringCutObjectSelector<reco::RecoTauPiZero>(selection));
-    }
+  // now all producers apply a final output selection
+  std::string selection = pset.getParameter<std::string>("outputSelection");
+  if (!selection.empty()) {
+    outputSelector_.reset(
+        new StringCutObjectSelector<reco::RecoTauPiZero>(selection));
   }
 
-  verbosity_ = ( pset.exists("verbosity") ) ?
-    pset.getParameter<int>("verbosity") : 0;
+  verbosity_ = pset.getParameter<int>("verbosity");
 
   produces<reco::JetPiZeroAssociation>();
 }

@@ -34,8 +34,7 @@ class PATTauDiscriminationAgainstElectronMVA6 : public PATTauDiscriminationProdu
     srcElectrons = cfg.getParameter<edm::InputTag>("srcElectrons");
     electronToken = consumes<pat::ElectronCollection>(srcElectrons);
     vetoEcalCracks_ = cfg.getParameter<bool>("vetoEcalCracks");
-    verbosity_ = ( cfg.exists("verbosity") ) ?
-      cfg.getParameter<int>("verbosity") : 0;
+    verbosity_ = cfg.getParameter<int>("verbosity");
 
     // add category index
     produces<PATTauDiscriminator>("category");

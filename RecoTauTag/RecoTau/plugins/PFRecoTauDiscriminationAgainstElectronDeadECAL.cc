@@ -43,8 +43,7 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
     minStatus_ = cfg.getParameter<uint32_t>("minStatus");
     dR_ = cfg.getParameter<double>("dR");
 
-    verbosity_ = ( cfg.exists("verbosity") ) ?
-      cfg.getParameter<int>("verbosity") : 0;
+    verbosity_ = cfg.getParameter<int>("verbosity");
   }
   ~PFRecoTauDiscriminationAgainstElectronDeadECAL() override {}
 

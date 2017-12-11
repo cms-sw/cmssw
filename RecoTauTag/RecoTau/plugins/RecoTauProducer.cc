@@ -84,8 +84,8 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   chargedHadronSrc_ = pset.getParameter<edm::InputTag>("chargedHadronSrc");
   piZeroSrc_ = pset.getParameter<edm::InputTag>("piZeroSrc");
   
-  minJetPt_ = ( pset.exists("minJetPt") ) ? pset.getParameter<double>("minJetPt") : -1.0;
-  maxJetAbsEta_ = ( pset.exists("maxJetAbsEta") ) ? pset.getParameter<double>("maxJetAbsEta") : 99.0;
+  minJetPt_ = pset.getParameter<double>("minJetPt");
+  maxJetAbsEta_ = pset.getParameter<double>("maxJetAbsEta");
   //consumes definition
   jet_token=consumes<reco::CandidateView>(jetSrc_);
   jetRegion_token = consumes<edm::Association<reco::PFJetCollection> >(jetRegionSrc_);
@@ -113,11 +113,9 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   }
 
   // Check if we want to apply a final output selection
-  if ( pset.exists("outputSelection") ) {
-    std::string selection = pset.getParameter<std::string>("outputSelection");
-    if ( !selection.empty() ) {
-      outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
-    }
+  std::string selection = pset.getParameter<std::string>("outputSelection");
+  if ( !selection.empty() ) {
+    outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
   }
   buildNullTaus_ = pset.getParameter<bool>("buildNullTaus");
 

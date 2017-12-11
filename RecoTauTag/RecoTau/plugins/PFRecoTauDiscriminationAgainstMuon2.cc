@@ -43,16 +43,14 @@ class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProd
     else throw edm::Exception(edm::errors::UnimplementedFeature) 
       << " Invalid Configuration parameter 'discriminatorOption' = " << discriminatorOption_string << " !!\n";
     hop_ = cfg.getParameter<double>("HoPMin"); 
-    maxNumberOfMatches_ = cfg.exists("maxNumberOfMatches") ? cfg.getParameter<int>("maxNumberOfMatches"): 0;
-    doCaloMuonVeto_ = cfg.exists("doCaloMuonVeto") ? cfg.getParameter<bool>("doCaloMuonVeto"): false;
-    maxNumberOfHitsLast2Stations_ = cfg.exists("maxNumberOfHitsLast2Stations") ? cfg.getParameter<int>("maxNumberOfHitsLast2Stations"): 0;
-    if ( cfg.exists("srcMuons") ) {
+    maxNumberOfMatches_ = cfg.getParameter<int>("maxNumberOfMatches");
+    doCaloMuonVeto_     = cfg.getParameter<bool>("doCaloMuonVeto");
+    maxNumberOfHitsLast2Stations_ = cfg.getParameter<int>("maxNumberOfHitsLast2Stations");
       srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
       Muons_token = consumes<reco::MuonCollection>(srcMuons_);
       dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
       dRmuonMatchLimitedToJetArea_ = cfg.getParameter<bool>("dRmuonMatchLimitedToJetArea");
       minPtMatchedMuon_ = cfg.getParameter<double>("minPtMatchedMuon");
-    }
     typedef std::vector<int> vint;
     maskMatchesDT_  = cfg.getParameter<vint>("maskMatchesDT");
     maskMatchesCSC_ = cfg.getParameter<vint>("maskMatchesCSC");
@@ -62,7 +60,7 @@ class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProd
     maskHitsRPC_    = cfg.getParameter<vint>("maskHitsRPC");
     numWarnings_ = 0;
     maxWarnings_ = 3;
-    verbosity_ = cfg.exists("verbosity") ? cfg.getParameter<int>("verbosity") : 0;
+    verbosity_ = cfg.getParameter<int>("verbosity");
    }
   ~PFRecoTauDiscriminationAgainstMuon2() override {} 
 
@@ -96,7 +94,7 @@ class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProd
 
 void PFRecoTauDiscriminationAgainstMuon2::beginEvent(const edm::Event& evt, const edm::EventSetup& es) 
 {
-  if ( srcMuons_.label() != "" ) {
+  if ( !srcMuons_.label().empty() ) {
     evt.getByToken(Muons_token, muons_);
   }
 }
@@ -184,7 +182,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
     }
   }
   
-  if ( srcMuons_.label() != "" ) {
+  if ( !srcMuons_.label().empty() ) {
     size_t numMuons = muons_->size();
     for ( size_t idxMuon = 0; idxMuon < numMuons; ++idxMuon ) {
       reco::MuonRef muon(muons_, idxMuon);
