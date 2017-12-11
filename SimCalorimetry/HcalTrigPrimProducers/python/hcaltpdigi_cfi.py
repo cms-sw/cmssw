@@ -62,3 +62,4 @@ run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis,
 )
 run2_HF_2017.toModify(TPScales.HF, NCTShift=cms.int32(2))
 run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=cms.bool(True))
+run3_HB.toModify(TPScales.HBHE, LSBQIE11Overlap=cms.double(1/16.))
