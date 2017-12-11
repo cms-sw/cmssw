@@ -54,11 +54,6 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
   
   if(doTimeSlew) {
     // no time slewing for HF
-    //////////////////////////
-    //Sorry for this
-    //C.Madrid
-    //////////////////////////
-    //const HcalTimeSlew* hcalTimeSlew_delay_ = new HcalTimeSlew();
     theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay,hcalTimeSlew_delay_);
     theAmplifier->setTimeSlewSim(theTimeSlewSim);
   }
