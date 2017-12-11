@@ -2,22 +2,34 @@
 
 CSCDBL1TPParametersExtended::CSCDBL1TPParametersExtended()
 {
-  params_.resize(paramNames_.size());
-
+  paramsInt_.resize(paramNamesInt_.size());
+  paramsBool_.resize(paramNamesBool_.size());
 }
 
 CSCDBL1TPParametersExtended::~CSCDBL1TPParametersExtended()
 {
 }
 
-S CSCDBL1TPParametersExtended::getValue(const std::string& s) const
+int CSCDBL1TPParametersExtended::getValueInt(const std::string& s) const
 {
-  const int index = find(paramNames_.begin(), paramNames_.end(), s) - paramNames_.begin();
-  return params_[index];
+  const int index = find(paramNamesInt_.begin(), paramNamesInt_.end(), s) - paramNamesInt_.begin();
+  return paramsInt_[index];
 }
 
-void CSCDBL1TPParametersExtended::setValue(const std::string& s, const S& v)
+bool CSCDBL1TPParametersExtended::getValueBool(const std::string& s) const
 {
-  const int index = find(paramNames_.begin(), paramNames_.end(), s) - paramNames_.begin();
-  params_[index] = v;
+  const int index = find(paramNamesBool_.begin(), paramNamesBool_.end(), s) - paramNamesBool_.begin();
+  return paramsBool_[index];
+}
+
+void CSCDBL1TPParametersExtended::setValue(const std::string& s, int v)
+{
+  const int index = find(paramNamesInt_.begin(), paramNamesInt_.end(), s) - paramNamesInt_.begin();
+  paramsInt_[index] = v;
+}
+
+void CSCDBL1TPParametersExtended::setValue(const std::string& s, bool v)
+{
+  const int index = find(paramNamesBool_.begin(), paramNamesBool_.end(), s) - paramNamesBool_.begin();
+  paramsBool_[index] = v;
 }
