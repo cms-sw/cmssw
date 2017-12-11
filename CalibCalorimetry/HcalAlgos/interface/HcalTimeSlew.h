@@ -14,7 +14,7 @@
   * Not to be used for HF at this time (unlikely to have much effect)
   *
   * \original author        J. Mans   - Minnesota
-  * \corrected 2017         C. Madrid - Baylor
+  * \upgraded 2017          C. Madrid - Baylor
   */
 class HcalTimeSlew {
  public:
