@@ -59,11 +59,12 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const double iTMax =             conf.getParameter<double>("timeMax");
     const std::vector<double> its4Chi2 =           conf.getParameter<std::vector<double>>("ts4chi2");
     const int iFitTimes =            conf.getParameter<int>   ("fitTimes");
+
     if (iTimeConstraint) assert(iTimeSigHPD);
     if (iTimeConstraint) assert(iTimeSigSiPM);
 
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> corr =
-      std::make_unique<PulseShapeFitOOTPileupCorrection>();
+        std::make_unique<PulseShapeFitOOTPileupCorrection>();
 
     corr->setPUParams(iPedestalConstraint, iTimeConstraint, iAddPulseJitter,
                       iApplyTimeSlew, iTS4Min, iTS4Max,

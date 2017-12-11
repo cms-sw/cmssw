@@ -1,4 +1,3 @@
-
 #ifndef RecoLocalCalo_HcalRecAlgos_HcalDeterministicFit_h
 #define RecoLocalCalo_HcalRecAlgos_HcalDeterministicFit_h
 
