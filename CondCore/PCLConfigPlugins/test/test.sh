@@ -13,7 +13,7 @@ cd $W_DIR;
 ####################
 # Test Gains
 ####################
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginAlignPCLThresholds_PayloadInspector \
     --plot plot_AlignPCLThresholds_Display \
     --tag SiPixelAliThresholds_offline_v0 \

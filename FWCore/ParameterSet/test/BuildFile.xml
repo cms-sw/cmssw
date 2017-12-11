@@ -13,4 +13,8 @@
   <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/ParameterSet/test runPythonTests.sh"/>
   <use name="FWCore/Utilities"/>
 </bin>
+<bin name="testDefaultModuleLabel" file="defaultModuleLabel_t.cc">
+  <use   name="cppunit"/>
+  <use   name="FWCore/ParameterSet"/>
+</bin>
 

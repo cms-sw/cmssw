@@ -150,7 +150,7 @@ namespace edm {
 
       std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
         ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
-      ConfigurationDescriptions descriptions(filler->baseType());
+      ConfigurationDescriptions descriptions(filler->baseType(), modtype);
       filler->fill(descriptions);
       try {
         edm::convertException::wrap([&]() {

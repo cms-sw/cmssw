@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 namespace PFTrackAlgoTools {
@@ -248,7 +249,6 @@ bool step5(const reco::TrackBase::TrackAlgorithm& algo){
   return (algo==reco::TrackBase::tobTecStep||algo==reco::TrackBase::pixelLessStep);
 }
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 bool goodPtResolution(const reco::TrackRef& trackref, 
 		      const std::vector<double>& DPtovPtCut,
 		      const std::vector<unsigned>& NHitCut,

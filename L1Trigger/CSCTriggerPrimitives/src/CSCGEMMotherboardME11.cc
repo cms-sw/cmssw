@@ -585,10 +585,9 @@ std::vector<CSCCorrelatedLCTDigi> CSCGEMMotherboardME11::readoutLCTs(enum CSCPar
   //static int early_tbins = 4;
   // The number of LCT bins in the read-out is given by the
   // tmb_l1a_window_size parameter, forced to be odd
-  static int lct_bins   =
+  const int lct_bins   =
     (tmb_l1a_window_size % 2 == 0) ? tmb_l1a_window_size + 1 : tmb_l1a_window_size;
-  static int late_tbins = early_tbins + lct_bins;
-
+  const int late_tbins = early_tbins + lct_bins;
 
   // Start from the vector of all found correlated LCTs and select
   // those within the LCT*L1A coincidence window.
