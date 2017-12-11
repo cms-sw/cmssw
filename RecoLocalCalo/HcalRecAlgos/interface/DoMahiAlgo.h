@@ -43,6 +43,9 @@ class DoMahiAlgo
   double CalculateChiSq();
   bool NNLS();
 
+  void NNLSUnconstrainParameter(Index idxp);
+  void NNLSConstrainParameter(Index minratioidx);
+
   double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda);
 
   //hard coded in initializer
@@ -94,6 +97,8 @@ class DoMahiAlgo
   int cntsetPulseShape_;
   std::unique_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
   std::unique_ptr<ROOT::Math::Functor> pfunctor_;
+
+  unsigned int nPulseTot_;
 
   //holds data samples
   SampleVector amplitudes_;
