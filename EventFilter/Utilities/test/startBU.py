@@ -16,12 +16,24 @@ options.register ('runNumber',
                   "Run Number")
 
 options.register ('buBaseDir',
-                  '/fff/BU0/ramdisk/', # default value
+                  'ramdisk/', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "BU base directory")
 
+options.register ('fffBaseDir',
+                  '.', # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "FFF base directory")
+
 options.parseArguments()
+
+#try to create 'ramdisk' directory
+try:
+    os.makedirs(options.fffBaseDir+"/"+options.buBaseDir)
+except:pass
+
 
 cmsswbase = os.path.expandvars("$CMSSW_BASE/")
 
@@ -49,14 +61,14 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("EmptySource",
      firstRun= cms.untracked.uint32(options.runNumber),
-     numberEventsInLuminosityBlock = cms.untracked.uint32(200),
+     numberEventsInLuminosityBlock = cms.untracked.uint32(5),
      numberEventsInRun       = cms.untracked.uint32(0)    
 )
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     runNumber = cms.untracked.uint32(options.runNumber),
-    baseDir = cms.untracked.string(options.buBaseDir),
-    buBaseDir = cms.untracked.string(options.buBaseDir),
+    baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
+    buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
     directorIsBu = cms.untracked.bool(True),
     copyRunDir = cms.untracked.bool(False))
     #obsolete:
