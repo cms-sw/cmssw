@@ -290,7 +290,6 @@ private:
     void endRun(edm::Run const&, edm::EventSetup const&) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
 
-  
     // Configuration parameters
     std::string algoConfigClass_;
     bool processQIE8_;
@@ -416,7 +415,6 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
 
     if (makeRecHits_)
         produces<HBHERecHitCollection>();
-    
 }
 
 

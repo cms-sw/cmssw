@@ -28,11 +28,12 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const double iTMax =             conf.getParameter<double>("timeMax");
     const std::vector<double> its4Chi2 =           conf.getParameter<std::vector<double>>("ts4chi2");
     const int iFitTimes =            conf.getParameter<int>   ("fitTimes");
+
     if (iTimeConstraint) assert(iTimeSigHPD);
     if (iTimeConstraint) assert(iTimeSigSiPM);
 
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> corr =
-      std::make_unique<PulseShapeFitOOTPileupCorrection>();
+        std::make_unique<PulseShapeFitOOTPileupCorrection>();
 
     corr->setPUParams(iPedestalConstraint, iTimeConstraint, iAddPulseJitter,
                       iApplyTimeSlew, iTS4Min, iTS4Max,
@@ -77,11 +78,11 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
     {
         std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2;
         if (ps.getParameter<bool>("useM2"))
-	  m2 = parseHBHEMethod2Description(ps);
+            m2 = parseHBHEMethod2Description(ps);
 
         std::unique_ptr<HcalDeterministicFit> detFit;
         if (ps.getParameter<bool>("useM3"))
-	  detFit = parseHBHEMethod3Description(ps);
+            detFit = parseHBHEMethod3Description(ps);
 
         algo = std::unique_ptr<AbsHBHEPhase1Algo>(
             new SimpleHBHEPhase1Algo(ps.getParameter<int>   ("firstSampleShift"),
