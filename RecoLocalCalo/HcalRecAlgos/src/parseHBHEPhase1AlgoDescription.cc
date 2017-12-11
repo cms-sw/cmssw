@@ -7,8 +7,6 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalDeterministicFit.h"
 
-#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
-
 // Phase 1 HBHE reco algorithm headers
 #include "RecoLocalCalo/HcalRecAlgos/interface/SimpleHBHEPhase1Algo.h"
 
@@ -44,7 +42,7 @@ parseHBHEMahiDescription(const edm::ParameterSet& conf)
 
 
 static std::unique_ptr<PulseShapeFitOOTPileupCorrection>
-parseHBHEMethod2Description(const edm::ParameterSet& conf, const HcalTimeSlew* hcalTimeSlew_delay)
+parseHBHEMethod2Description(const edm::ParameterSet& conf)
 {
     const bool iPedestalConstraint = conf.getParameter<bool>  ("applyPedConstraint");
     const bool iTimeConstraint =     conf.getParameter<bool>  ("applyTimeConstraint");
@@ -64,14 +62,8 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf, const HcalTimeSlew* h
     if (iTimeConstraint) assert(iTimeSigHPD);
     if (iTimeConstraint) assert(iTimeSigSiPM);
 
-    /////////////////////
-    //Sorry for this
-    //-C.Madrid
-    ////////////////////
-    //HcalTimeSlew* hcalTimeSlew_delay = nullptr; 
-
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> corr =
-      std::make_unique<PulseShapeFitOOTPileupCorrection>(hcalTimeSlew_delay);
+      std::make_unique<PulseShapeFitOOTPileupCorrection>();
 
     corr->setPUParams(iPedestalConstraint, iTimeConstraint, iAddPulseJitter,
                       iApplyTimeSlew, iTS4Min, iTS4Max,
@@ -85,7 +77,7 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf, const HcalTimeSlew* h
 
 
 static std::unique_ptr<HcalDeterministicFit>
-parseHBHEMethod3Description(const edm::ParameterSet& conf, const HcalTimeSlew* hcalTimeSlew_delay)
+parseHBHEMethod3Description(const edm::ParameterSet& conf)
 {
     const bool iApplyTimeSlew  =  conf.getParameter<bool>  ("applyTimeSlewM3");
     const float iPedSubThreshold =  conf.getParameter<double>("pedestalUpperLimit");
@@ -97,13 +89,7 @@ parseHBHEMethod3Description(const edm::ParameterSet& conf, const HcalTimeSlew* h
     PedestalSub pedSubFxn;
     pedSubFxn.init(0, iPedSubThreshold, 0.0);
 
-    //-----------------
-    //C. Madrid
-    //Need to fix this
-    //
-    //HcalTimeSlew* hcalTimeSlew_delay = nullptr;
-
-    std::unique_ptr<HcalDeterministicFit> fit = std::make_unique<HcalDeterministicFit>(hcalTimeSlew_delay);
+    std::unique_ptr<HcalDeterministicFit> fit = std::make_unique<HcalDeterministicFit>();
     fit->init( (HcalTimeSlew::ParaSource)iTimeSlewParsType,
 	       HcalTimeSlew::Medium, iApplyTimeSlew,
 	       pedSubFxn, iTimeSlewPars, irespCorrM3);
@@ -112,7 +98,7 @@ parseHBHEMethod3Description(const edm::ParameterSet& conf, const HcalTimeSlew* h
 
 
 std::unique_ptr<AbsHBHEPhase1Algo>
-parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps, const HcalTimeSlew* hcalTimeSlew_delay_)
+parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
 {
     std::unique_ptr<AbsHBHEPhase1Algo> algo;
 
@@ -120,7 +106,6 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps, const HcalTimeSlew* 
 
     if (className == "SimpleHBHEPhase1Algo")
     {
-<<<<<<< HEAD
 	std::unique_ptr<MahiFit> mahi;
 	std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2;
         std::unique_ptr<HcalDeterministicFit> detFit;
@@ -133,9 +118,9 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps, const HcalTimeSlew* 
 	if (ps.getParameter<bool>("useMahi"))
 	  mahi = parseHBHEMahiDescription(ps);
 	if (ps.getParameter<bool>("useM2"))
-	  m2 = parseHBHEMethod2Description(ps,hcalTimeSlew_delay_);
+	  m2 = parseHBHEMethod2Description(ps);
 	if (ps.getParameter<bool>("useM3"))
-	  detFit = parseHBHEMethod3Description(ps,hcalTimeSlew_delay_);
+	  detFit = parseHBHEMethod3Description(ps);
 
         algo = std::unique_ptr<AbsHBHEPhase1Algo>(
             new SimpleHBHEPhase1Algo(ps.getParameter<int>   ("firstSampleShift"),

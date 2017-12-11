@@ -11,8 +11,7 @@ constexpr float HcalDeterministicFit::rCorrSiPM[2];
 
 using namespace std;
 
-HcalDeterministicFit::HcalDeterministicFit(const HcalTimeSlew* hcalTimeSlew_delay) : hcalTimeSlew_delay_(hcalTimeSlew_delay) 
-{
+HcalDeterministicFit::HcalDeterministicFit() {
 }
 
 HcalDeterministicFit::~HcalDeterministicFit() { 
@@ -91,7 +90,8 @@ void HcalDeterministicFit::getFrac(float tStart, float tEnd, float &sum, FType f
 
 void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 				       float& reconstructedEnergy,
-				       float& reconstructedTime) const
+				       float& reconstructedTime,
+				       const HcalTimeSlew* hcalTimeSlew_delay) const
 {
 
 
@@ -122,24 +122,20 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   const HcalDetId& cell = channelData.id();
 
-  //-----------------------------------------------------
-  //Fix this (seg faults)
-  //C. Madrid
-  //-----------------------------------------------------
-  //double fpar0, fpar1, fpar2;
-  //if(std::abs(cell.ieta())<HcalRegion[0]){
-  //  fpar0 = fpars[0];
-  //  fpar1 = fpars[1];
-  //  fpar2 = fpars[2];
-  //}else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]){
-  //  fpar0 = fpars[3];
-  //  fpar1 = fpars[4];
-  //  fpar2 = fpars[5];
-  //}else{
-  //  fpar0 = fpars[6];
-  //  fpar1 = fpars[7];
-  //  fpar2 = fpars[8];
-  //}
+  double fpar0, fpar1, fpar2;
+  if(std::abs(cell.ieta())<HcalRegion[0]){
+    fpar0 = fpars[0];
+    fpar1 = fpars[1];
+    fpar2 = fpars[2];
+  }else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]){
+    fpar0 = fpars[3];
+    fpar1 = fpars[4];
+    fpar2 = fpars[5];
+  }else{
+    fpar0 = fpars[6];
+    fpar1 = fpars[7];
+    fpar2 = fpars[8];
+  }
 
   if (fTimeSlew==0)respCorr=1.0;
   else if (fTimeSlew==1) channelData.hasTimeInfo()?respCorr=rCorrSiPM[0]:respCorr=rCorr[0];
@@ -152,14 +148,9 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   if(applyTimeSlew_) {
 
     std::cout<<"delay:  HcalDeterministicFit.cc"<<std::endl; 
-    //-----------------------------------------------------
-    //Fix this (seg faults)
-    //C. Madrid
-    //-----------------------------------------------------
-    //tsShift3=hcalTimeSlew_delay_->delay(3.0,HcalTimeSlew::HBHE2018);
-    tsShift3=0;//hcalTimeSlew_delay_->delay(inputCharge[soi-1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift4=0;//hcalTimeSlew_delay_->delay(inputCharge[soi], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift5=0;//hcalTimeSlew_delay_->delay(inputCharge[soi+1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift3=hcalTimeSlew_delay->delay(inputCharge[soi-1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift4=hcalTimeSlew_delay->delay(inputCharge[soi], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift5=hcalTimeSlew_delay->delay(inputCharge[soi+1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
 
   }
 
