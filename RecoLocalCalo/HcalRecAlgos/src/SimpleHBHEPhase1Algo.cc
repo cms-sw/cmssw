@@ -102,7 +102,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     if (method3)
     {
         // "phase1Apply" sets m3E and m3t (pased by non-const reference)
-        method3->phase1Apply(info, m3E, m3t);
+      method3->phase1Apply(info, m3E, m3t, hcalTimeSlew_delay_);
         m3E *= hbminusCorrectionFactor(channelId, m3E, isData);
     }
 
