@@ -5,11 +5,11 @@
 
 /** \class HcalTimeSlew
   * 
-  * Provides pulse delay as a function of amplitude for four choices
-  * of QIE bias setting. The "HBHE2018" setting is used in HB and HE,  
-  * The "Medium" setting is used in HB and HE Legacy,while the "Slow" 
-  * (and lower noise) setting is used in HO. All data taken from bench 
-  * measurements of the QIE.
+  * Provides pulse delay as a function of amplitude for three choices
+  * of QIE bias setting.  The "Medium" setting is used in HB and HE,
+  * while the "Slow" (and lower noise) setting is used in HO.  All
+  * data taken from bench measurements of the QIE and plotted in
+  * Physics TDR Vol 1.
   * 
   * Not to be used for HF at this time (unlikely to have much effect)
   *
@@ -49,13 +49,13 @@ class HcalTimeSlew {
   void addM3ParameterSet(double cap, double tspar0, double tspar1, double tspar2, double tspar0_siPM, double tspar1_siPM, double tspar2_siPM);
 
   enum ParaSource { TestStand=0, Data=1, MC=2, InputPars=3 };
-  enum BiasSetting { Slow=0, Medium=1, Fast=2, HBHE2018=3 };
+  enum BiasSetting { Slow=0, Medium=1, Fast=2 };
   static constexpr double tspar[3] = {12.2999, -2.19142, 0};
   /** \brief Returns the amount (ns) by which a pulse of the given
    number of fC will be delayed by the timeslew effect, for the
    specified bias setting. */
-  double delay(double fC, BiasSetting bias=HBHE2018) const; 
-  double delay(double fC, ParaSource source=InputPars, BiasSetting bias=HBHE2018, double par0=tspar[0], double par1=tspar[1], double par2=tspar[2], bool isHPD=true) const;
+  double delay(double fC, BiasSetting bias=Medium) const; 
+  double delay(double fC, ParaSource source=InputPars, BiasSetting bias=Medium, double par0=tspar[0], double par1=tspar[1], double par2=tspar[2], bool isHPD=true) const;
   
  private:
   std::vector<HcalTimeSlewM2Parameters> parametersM2_;

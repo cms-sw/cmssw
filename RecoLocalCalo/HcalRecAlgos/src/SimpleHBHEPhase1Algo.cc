@@ -235,7 +235,7 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
 
             // Legacy QIE8 timing correction
 	    std::cout<<"delay: SimpleHBHEPhase1Algo.cc"<<std::endl;
-            time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::HBHE2018);
+            time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
             // Time calibration
             time -= calibs.timecorr();
         }

@@ -9,9 +9,7 @@ HcalTimeSlewEP = cms.ESSource("HcalTimeSlewEP",
         cms.PSet(#Medium
             tzero = cms.double(13.307784), slope = cms.double(-1.556668), tmax = cms.double(10.00)),
         cms.PSet(#Fast
-            tzero = cms.double(9.109694),  slope = cms.double(-1.075824), tmax = cms.double(6.25)),
-        cms.PSet(#HBHE2018
-            tzero = cms.double(11.977461), slope = cms.double(-1.5610227),tmax = cms.double(10.00))
+            tzero = cms.double(9.109694),  slope = cms.double(-1.075824), tmax = cms.double(6.25))
     ),
     # For method3                          
     timeSlewParametersM3 = cms.VPSet(
@@ -20,5 +18,6 @@ HcalTimeSlewEP = cms.ESSource("HcalTimeSlewEP",
     )
 )
 
-
-
+from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+#HBHE2018  -  Medium
+run2_HE_2017.toModify(HcalTimeSlewEP, timeSlewParametersM2 = {1: dict(tzero = cms.double(11.977461), slope = cms.double(-1.5610227),tmax = cms.double(10.00))})
