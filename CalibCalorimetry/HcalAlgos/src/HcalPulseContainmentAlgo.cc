@@ -68,7 +68,7 @@ std::pair<double,double>
 HcalPulseContainmentAlgo::calcpair(double truefc)
 {
   std::cout<<"delay: HcalPulseContainmentAlgo.cc"<<std::endl;
-  double timeslew_ns = hcalTimeSlew_delay_->delay(std::max(0.0,(double)truefc), HcalTimeSlew::HBHE2018);
+  double timeslew_ns = hcalTimeSlew_delay_->delay(std::max(0.0,(double)truefc), HcalTimeSlew::Medium);
 
   double shift_ns  = fixedphasens_ - time0shiftns_ + timeslew_ns;
   //std::cout << "SHIFT " << fixedphasens_ << " " << time0shiftns_ << " " << timeslew_ns << std::endl;

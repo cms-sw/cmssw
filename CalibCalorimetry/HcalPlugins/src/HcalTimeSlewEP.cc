@@ -20,15 +20,13 @@ HcalTimeSlewEP::~HcalTimeSlewEP()
 {}
 
 void HcalTimeSlewEP::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval) {
-  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); //infinite
+  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
 void HcalTimeSlewEP::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
-  //Ask Kevin What goes here??????
   edm::ParameterSetDescription desc;
 
   edm::ParameterSetDescription desc_M2;
-  //KH desc_M2.add<std::string>("bias");
   desc_M2.add<double>("tzero");
   desc_M2.add<double>("slope");
   desc_M2.add<double>("tmax");

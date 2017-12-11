@@ -41,7 +41,7 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) co
 
   if(hcalDetId.subdet() == HcalBarrel || hcalDetId.subdet() == HcalEndcap || hcalDetId.subdet() == HcalOuter ) {
 
-    HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ? HcalTimeSlew::Slow : HcalTimeSlew::HBHE2018;
+    HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ? HcalTimeSlew::Slow : HcalTimeSlew::Medium;
 
     // double totalCharge = charge(cs); // old TS... 
 
