@@ -9,6 +9,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 // Framework
 #include "FWCore/Utilities/interface/Exception.h"
@@ -127,6 +128,7 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet)
   errorRotation.push_back(errorphix); errorRotation.push_back(errorphiy); errorRotation.push_back(errorphiz);
  
   int index[5][4][14];
+  std::fill_n(index[0][0], 5*4*14, -1); // initialize to -1
   int counter = 0;
   //Create and index for the chambers in the Alignable vector
   for(const auto& iter: DTchambers) {
@@ -190,6 +192,8 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
   
   int index[2][4][4][36];
   int sector_index[2][4][4][36];
+  std::fill_n(index[0][0][0],        2*4*4*36, -1); // initialize to -1
+  std::fill_n(sector_index[0][0][0], 2*4*4*36, -1); // initialize to -1
   int counter = 0;
   //Create an index for the chambers in the alignable vector
   for(const auto& iter: CSCchambers) {
