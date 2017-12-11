@@ -56,7 +56,7 @@ namespace edm {
       e.setConsumer(mod);
       e.setProducer(mod,
                     &mod->previousParentage_,
-                    hasAcquire() ? &mod->gotBranchIDsFromAcquire_ : nullptr);
+                    &mod->gotBranchIDsFromAcquire_);
       EventSignalsSentry sentry(act,mcc);
       mod->produce(e, c);
       commit(e, &mod->previousParentageId_);
