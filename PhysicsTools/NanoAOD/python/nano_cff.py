@@ -6,6 +6,7 @@ from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.NanoAOD.electrons_cff import *
 from PhysicsTools.NanoAOD.photons_cff import *
 from PhysicsTools.NanoAOD.globals_cff import *
+from PhysicsTools.NanoAOD.ttbarCategorization_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
 from PhysicsTools.NanoAOD.vertices_cff import *
@@ -13,6 +14,7 @@ from PhysicsTools.NanoAOD.met_cff import *
 from PhysicsTools.NanoAOD.triggerObjects_cff import *
 from PhysicsTools.NanoAOD.isotracks_cff import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
+
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -69,7 +71,7 @@ nanoSequence = cms.Sequence(
         jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + triggerObjectTables + isoTrackTables +
 	l1bits)
 
-nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + globalTablesMC + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable)
+nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
 
 def nanoAOD_customizeCommon(process):
@@ -100,9 +102,7 @@ _80x_sequence.insert(1,qgtagger80x)
 
 _80x_sequenceMC = nanoSequenceMC.copy()
 _80x_sequenceMC.remove(genSubJetAK8Table)
-_80x_sequenceMC.remove(genJetFlavourTable)
-_80x_sequenceMC.insert(-1,genJetFlavourAssociation)
-_80x_sequenceMC.insert(-1,genJetFlavourTable)
+_80x_sequenceMC.insert(_80x_sequenceMC.index(genJetFlavourTable),genJetFlavourAssociation)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceMC, _80x_sequenceMC)
 
@@ -114,8 +114,6 @@ from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 _92x_sequence = nanoSequence.copy()
 _92x_sequenceMC = nanoSequenceMC.copy()
 _92x_sequenceMC.remove(genSubJetAK8Table)
-_92x_sequenceMC.remove(genJetFlavourTable)
-_92x_sequenceMC.insert(-1,genJetFlavourAssociation)
-_92x_sequenceMC.insert(-1,genJetFlavourTable)
+_92x_sequenceMC.insert(_92x_sequenceMC.index(genJetFlavourTable),genJetFlavourAssociation)
 run2_nanoAOD_92X.toReplaceWith( nanoSequence, _92x_sequence)
 run2_nanoAOD_92X.toReplaceWith( nanoSequenceMC, _92x_sequenceMC)
