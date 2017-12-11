@@ -102,7 +102,7 @@ _80x_sequence.insert(1,qgtagger80x)
 
 _80x_sequenceMC = nanoSequenceMC.copy()
 _80x_sequenceMC.remove(genSubJetAK8Table)
-_80x_sequenceMC.insert(_80x_sequenceMC.index(genJetFlavourTable)-1,genJetFlavourAssociation)
+_80x_sequenceMC.insert(_80x_sequenceMC.index(genJetFlavourTable),genJetFlavourAssociation)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceMC, _80x_sequenceMC)
 
