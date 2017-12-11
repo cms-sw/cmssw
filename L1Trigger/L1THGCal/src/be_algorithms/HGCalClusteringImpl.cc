@@ -295,19 +295,22 @@ void HGCalClusteringImpl::clusterizeDRNN( const edm::PtrVector<l1t::HGCalTrigger
         double seedThreshold = ((*tc)->subdetId()==HGCHEB ? scintillatorSeedThreshold_ : siliconSeedThreshold_);
 
         /* decide if is a seed, if yes store the position into of triggerCellsPtrs */
-        isSeed[itc]       = ( (*tc)->mipPt() > seedThreshold) ? true : false;
-        if( isSeed[itc] ) seedPositions.push_back( itc );
+        isSeed[itc] = ( (*tc)->mipPt() > seedThreshold) ? true : false;
+        if( isSeed[itc] ) {
 
-        /* remove tc from the seed vector if is a NN of an other seed*/
-        for( auto pos : seedPositions ){
-            if( ( (*tc)->position() - triggerCellsPtrs[pos]->position() ).mag()  < dr_ ){
-                if( this->areTCneighbour_( (*tc)->detId(), triggerCellsPtrs[pos]->detId(), triggerGeometry ) )
-                {
-                    isSeed[itc] = false;
-                    seedPositions.pop_back();
+            seedPositions.push_back( itc );
+
+            /* remove tc from the seed vector if is a NN of an other seed*/
+            for( auto pos : seedPositions ){
+                if( ( (*tc)->position() - triggerCellsPtrs[pos]->position() ).mag()  < dr_ ){
+                    if( this->areTCneighbour( (*tc)->detId(), triggerCellsPtrs[pos]->detId(), triggerGeometry ) )
+                    {
+                        isSeed[itc] = false;
+                        seedPositions.pop_back();
+                    }
                 }
-            }
-        } 
+            } 
+        }
 
     }
     
@@ -351,11 +354,11 @@ void HGCalClusteringImpl::clusterizeDRNN( const edm::PtrVector<l1t::HGCalTrigger
             /* calculate the fractions */
             double totMipt = 0;
             for( auto clu : tcPertinentClusters ){
-                totMipt += clustersTmp.at( clu ).constituents()[0]->mipPt();
+                totMipt += clustersTmp.at( clu ).seedMipPt();
             }
 
             for( auto clu : tcPertinentClusters ){
-                double seedMipt = clustersTmp.at( clu ).constituents()[0]->mipPt();
+                double seedMipt = clustersTmp.at( clu ).seedMipPt();
                 clustersTmp.at( clu ).addConstituent( *tc, true, seedMipt/totMipt );
             }
         }
@@ -364,33 +367,29 @@ void HGCalClusteringImpl::clusterizeDRNN( const edm::PtrVector<l1t::HGCalTrigger
     /* store clusters in the persistent collection */
     clusters.resize(0, clustersTmp.size());
     for( unsigned i(0); i<clustersTmp.size(); ++i ){
-        this->removeUnconnectedTCinCluster_( &clustersTmp.at(i), triggerGeometry );
+        this->removeUnconnectedTCinCluster( clustersTmp.at(i), triggerGeometry );
         clusters.set( 0, i, clustersTmp.at(i) );
     }
 
 }
 
 
-bool HGCalClusteringImpl::areTCneighbour_(uint32_t detIDa, uint32_t detIDb, const HGCalTriggerGeometryBase & triggerGeometry
+bool HGCalClusteringImpl::areTCneighbour(uint32_t detIDa, uint32_t detIDb, const HGCalTriggerGeometryBase & triggerGeometry
     ){
 
     const auto neighbors = triggerGeometry.getNeighborsFromTriggerCell( detIDa );
-    for( const auto neighbor : neighbors )
-    {
-        if( neighbor == detIDb ){ 
-            return true;
-        }
-    }
     
+    if( neighbors.find( detIDb ) != neighbors.end() ) return true;
+
     return false;
     
 }
 
 
-void HGCalClusteringImpl::removeUnconnectedTCinCluster_( l1t::HGCalCluster* cluster, const HGCalTriggerGeometryBase & triggerGeometry ) {
+void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & cluster, const HGCalTriggerGeometryBase & triggerGeometry ) {
 
     /* get the constituents and the centre of the seed tc (considered as the first of the constituents) */
-    const edm::PtrVector<l1t::HGCalTriggerCell>& constituents = cluster->constituents(); 
+    const edm::PtrVector<l1t::HGCalTriggerCell>& constituents = cluster.constituents(); 
     Basic3DVector<float> seedCentre( constituents[0]->position() );
     
     /* distances from the seed */
@@ -414,12 +413,12 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster_( l1t::HGCalCluster* clus
     
         /* get the tc under study */
         toRemove[itc] = true;
-        edm::Ptr<l1t::HGCalTriggerCell> tcToStudy = constituents[itc];
+        const edm::Ptr<l1t::HGCalTriggerCell>& tcToStudy = constituents[itc];
         
         /* compare with the tc in the cluster */
         for( unsigned itc_ref=1; itc_ref<itc; itc_ref++ ){
             if( !toRemove[itc_ref] ) {
-                if( areTCneighbour_( tcToStudy->detId(), constituents[distances.at( itc_ref ).first]->detId(), triggerGeometry ) ) {
+                if( areTCneighbour( tcToStudy->detId(), constituents[distances.at( itc_ref ).first]->detId(), triggerGeometry ) ) {
                     toRemove[itc] = false;
                     break;
                 }
@@ -431,7 +430,7 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster_( l1t::HGCalCluster* clus
 
     /* remove the unconnected TCs */
     for( unsigned i=0; i<distances.size(); i++){
-        if( toRemove[i] ) cluster->removeConstituent( constituents[distances.at( i ).first] );    
+        if( toRemove[i] ) cluster.removeConstituent( constituents[distances.at( i ).first] );    
     }
     
 }
