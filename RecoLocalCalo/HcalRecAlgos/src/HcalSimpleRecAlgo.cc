@@ -27,7 +27,7 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPul
   hcalTimeSlew_delay_ = nullptr;
   pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError);
   pedSubFxn_ = std::make_unique<PedestalSub>();
-  hltOOTpuCorr_ = std::make_unique<HcalDeterministicFit>(hcalTimeSlew_delay_);
+  hltOOTpuCorr_ = std::make_unique<HcalDeterministicFit>();
 }
 
 

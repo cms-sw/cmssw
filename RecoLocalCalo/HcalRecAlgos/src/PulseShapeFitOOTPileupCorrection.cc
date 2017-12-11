@@ -5,12 +5,12 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
-PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection(const HcalTimeSlew* hcalTimeSlew_delay) : cntsetPulseShape(0),
+PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0),
 								       psfPtr_(nullptr), spfunctor_(nullptr), dpfunctor_(nullptr), tpfunctor_(nullptr),
 								       TSMin_(0), TSMax_(0), vts4Chi2_(0), pedestalConstraint_(false),
 								       timeConstraint_(false), addPulseJitter_(false), applyTimeSlew_(false),
 								       ts4Min_(0), vts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
-								       noise_(0),hcalTimeSlew_delay_(hcalTimeSlew_delay) {
+								       noise_(0) {
 
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
    iniTimesArr = { {-100,-75,-50,-25,0,25,50,75,100,125} };

@@ -1,3 +1,4 @@
+
 #ifndef RecoLocalCalo_HcalRecAlgos_HcalDeterministicFit_h
 #define RecoLocalCalo_HcalRecAlgos_HcalDeterministicFit_h
 
@@ -15,7 +16,7 @@
 
 class HcalDeterministicFit {
  public:
-  HcalDeterministicFit(const HcalTimeSlew* hcalTimeSlew_delay);
+  HcalDeterministicFit();
   ~HcalDeterministicFit();
 
   enum FType {shapeLandau, shape205, shape206, shape207};
@@ -23,7 +24,8 @@ class HcalDeterministicFit {
 
   void phase1Apply(const HBHEChannelInfo& channelData,
 		   float& reconstructedEnergy,
-		   float& reconstructedTime) const;
+		   float& reconstructedTime,
+		   const HcalTimeSlew* hcalTimeSlew_delay) const;
 
   // This is the CMSSW Implementation of the apply function
   void getLandauFrac(float tStart, float tEnd, float &sum) const;
@@ -37,8 +39,6 @@ class HcalDeterministicFit {
   HcalTimeSlew::BiasSetting fTimeSlewBias;
   PedestalSub fPedestalSubFxn_;
   bool applyTimeSlew_;
-
-  const HcalTimeSlew* hcalTimeSlew_delay_;
 
   double fpars[9];
   double frespCorr;

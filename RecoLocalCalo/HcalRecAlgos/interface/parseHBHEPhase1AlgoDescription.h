@@ -4,9 +4,6 @@
 #include <memory>
 #include "RecoLocalCalo/HcalRecAlgos/interface/AbsHBHEPhase1Algo.h"
 
-class HcalTimeSlew;
-const HcalTimeSlew* hcalTimeSlew_delay_;
-
 namespace edm {
     class ParameterSet;
 }
@@ -19,6 +16,6 @@ namespace edm {
 // to add a new algorithm to HBHEPhase1Reconstructor.
 //
 std::unique_ptr<AbsHBHEPhase1Algo>
-parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps, const HcalTimeSlew* hcalTimeSlew_delay);
+parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps);
 
 #endif // RecoLocalCalo_HcalRecAlgos_parseHBHEPhase1AlgoDescription_h
