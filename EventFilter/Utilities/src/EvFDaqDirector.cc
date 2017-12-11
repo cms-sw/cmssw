@@ -980,7 +980,6 @@ namespace evf {
       return search_ac->second;
 
     edm::LogInfo("EvFDaqDirector") << " No merging type specified for stream " << stream << ". Using default value";
-    assert(defaultType<MergeTypeNames_.size());
     std::string defaultName = MergeTypeNames_[defaultType];
     tbb::concurrent_hash_map<std::string,std::string>::accessor ac;
     mergeTypeMap_.insert(ac,stream);
