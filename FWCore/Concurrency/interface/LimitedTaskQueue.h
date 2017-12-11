@@ -98,7 +98,9 @@ namespace edm {
          
          bool resume() {
             if(m_queue) {
-               return m_queue->resume();
+               auto q = m_queue;
+               m_queue = nullptr;
+               return q->resume();
             }
             return false;
          }
