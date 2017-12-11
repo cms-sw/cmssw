@@ -24,12 +24,37 @@ class CSCDBL1TPParametersExtended
   CSCDBL1TPParametersExtended();
   ~CSCDBL1TPParametersExtended();
 
-  S getValue(const std::string&) const;
-  void setValue(const std::string&, const S&);
+  int getValueInt(const std::string&) const;
+  bool getValueBool(const std::string&) const;
+
+  void setValue(const std::string&, int);
+  void setValue(const std::string&, bool);
 
  private:
-  std::vector<S> params_;
-  std::vector<std::string> paramNames_{
+  std::vector<int> paramsInt_;
+  std::vector<int> paramsBool_;
+
+  std::vector<std::string> paramNamesBool_{
+      /* ME11 ALCT Phase-1 Upgrade Parameters */
+      "me11_phase1_alctNarrowMaskForR1a",
+      "me11_phase1_alctGhostCancellationSideQuality",
+      "me11_phase1_alctUseCorrectedBx",
+
+      /* ME11 CLCT Phase-1 Upgrade Parameters */
+      "me11_phase1_useDeadTimeZoning",
+      "me11_phase1_useDynamicStateMachineZone",
+      "me11_phase1_clctUseCorrectedBx",
+
+      /* ME11 TMB Phase-1 Upgrade Parameters */
+      "me11_phase1_tmbReadoutEarliest2",
+      "me11_phase1_tmbDropUsedAlcts",
+      "me11_phase1_clctToAlct",
+      "me11_phase1_tmbDropUsedClcts",
+      "me11_phase1_matchEarliestAlctME11Only",
+      "me11_phase1_matchEarliestClctME11Only",
+    };
+
+  std::vector<std::string> paramNamesInt_{
       /* Parameters %for 2007 version of ALCT firmware */
       "alctFifoTbins",
       "alctFifoPretrig",
@@ -73,12 +98,9 @@ class CSCDBL1TPParametersExtended
       "me11_phase1_alctAccelMode",
       "me11_phase1_alctL1aWindowWidth",
       "me11_phase1_alctEarlyTbins",
-      "me11_phase1_alctNarrowMaskForR1a",
       "me11_phase1_alctHitPersist",
       "me11_phase1_alctGhostCancellationBxDepth",
-      "me11_phase1_alctGhostCancellationSideQuality",
       "me11_phase1_alctPretrigDeadtime",
-      "me11_phase1_alctUseCorrectedBx",
 
       /* ME11 CLCT Phase-1 Upgrade Parameters */
       "me11_phase1_clctFifoTbins",
@@ -90,11 +112,8 @@ class CSCDBL1TPParametersExtended
       "me11_phase1_clctPidThreshPretrig",
       "me11_phase1_clctMinSeparation",
       "me11_phase1_clctStartBxShift",
-      "me11_phase1_useDeadTimeZoning",
       "me11_phase1_clctStateMachineZone",
-      "me11_phase1_useDynamicStateMachineZone",
       "me11_phase1_clctPretriggerTriggerZone",
-      "me11_phase1_clctUseCorrectedBx",
 
       /* ME11 TMB Phase-1 Upgrade Parameters */
       "me11_phase1_tmbMpcBlockMe1a",
@@ -104,12 +123,6 @@ class CSCDBL1TPParametersExtended
       "me11_phase1_tmbMatchTrigWindowSize",
       "me11_phase1_tmbTmbL1aWindowSize",
       "me11_phase1_tmbEarlyTbins",
-      "me11_phase1_tmbReadoutEarliest2",
-      "me11_phase1_tmbDropUsedAlcts",
-      "me11_phase1_clctToAlct",
-      "me11_phase1_tmbDropUsedClcts",
-      "me11_phase1_matchEarliestAlctME11Only",
-      "me11_phase1_matchEarliestClctME11Only",
       "me11_phase1_tmbCrossBxAlgorithm",
       "me11_phase1_maxME11LCTs",
     };
