@@ -40,7 +40,7 @@ public:
 		   bool correctForContainment, float fixedPhaseNs, int recoMethod, int lowGainOffset, double lowGainFrac);
   /** Simple constructor for PMT-based detectors */
   ZdcSimpleRecAlgo(int recoMethod);
-  void initPulseCorr(int toadd); 
+  void initPulseCorr(int toadd, const HcalTimeSlew* hcalTimeSlew_delay); 
   ZDCRecHit reconstruct(const ZDCDataFrame& digi, const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi, const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 private:
@@ -48,7 +48,6 @@ private:
   bool correctForTimeslew_;
   bool correctForPulse_;
   float phaseNS_;
-  const HcalTimeSlew* hcaltimeslew_delay_;
   // new lowGainEnergy variables
   int lowGainOffset_;
   double lowGainFrac_;

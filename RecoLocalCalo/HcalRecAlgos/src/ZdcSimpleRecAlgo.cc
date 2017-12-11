@@ -24,15 +24,9 @@ ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int recoMethod) :
   correctForTimeslew_(false) {
 }
 
-void ZdcSimpleRecAlgo::initPulseCorr(int toadd) {
+void ZdcSimpleRecAlgo::initPulseCorr(int toadd, const HcalTimeSlew* hcalTimeSlew_delay) {
   if (correctForPulse_) {    
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //SORRY, BIG HACK HERE FOR TIMESLEW
-    //SHOULD BE FIXED
-    //--C.Madrid and J.Pastika--
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    hcaltimeslew_delay_ = new HcalTimeSlew();  
-    pulseCorr_ = std::make_unique<HcalPulseContainmentCorrection>(toadd,phaseNS_,MaximumFractionalError, hcaltimeslew_delay_);
+    pulseCorr_ = std::make_unique<HcalPulseContainmentCorrection>(toadd,phaseNS_,MaximumFractionalError, hcalTimeSlew_delay);
   }
 }
 //static float timeshift_ns_zdc(float wpksamp);
