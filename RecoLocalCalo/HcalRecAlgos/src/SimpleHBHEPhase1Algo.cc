@@ -46,7 +46,7 @@ void SimpleHBHEPhase1Algo::beginRun(const edm::Run& r,
     edm::ESHandle<HcalTimeSlew> delay;
     es.get<HcalTimeSlewRecord>().get("HBHE", delay);
     hcalTimeSlew_delay_ = &*delay;
-    std::cout<<"SimpleHBHEPhase1Algo.cc"<<std::endl;
+    //std::cout<<"SimpleHBHEPhase1Algo.cc"<<std::endl;
   
     runnum_ = r.run();
     pulseCorr_.beginRun(es);
@@ -234,7 +234,7 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
             time = (maxI - soi)*25.f + timeshift_ns_hbheho(wpksamp);
 
             // Legacy QIE8 timing correction
-	    std::cout<<"delay: SimpleHBHEPhase1Algo.cc"<<std::endl;
+	    //std::cout<<"delay: SimpleHBHEPhase1Algo.cc"<<std::endl;
             time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
             // Time calibration
             time -= calibs.timecorr();

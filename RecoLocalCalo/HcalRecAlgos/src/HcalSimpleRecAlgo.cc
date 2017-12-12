@@ -36,7 +36,7 @@ void HcalSimpleRecAlgo::beginRun(edm::EventSetup const & es)
   edm::ESHandle<HcalTimeSlew> delay;
   es.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
-  std::cout<<"HcalSimpleRecAlgo.cc"<<std::endl;
+  //std::cout<<"HcalSimpleRecAlgo.cc"<<std::endl;
 
   pulseCorr_->beginRun(es);
 }
@@ -313,7 +313,7 @@ namespace HcalSimpleRecAlgoImpl {
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
 
-      std::cout<<"delay: HcalSimpleRecAlgo.cc"<<std::endl;
+      //std::cout<<"delay: HcalSimpleRecAlgo.cc"<<std::endl;
       if (slewCorrect) time-=hcalTimeSlew_delay_->delay(std::max(1.0,fc_ampl),slewFlavor);
 	  
       time=time-calibs.timecorr(); // time calibration
