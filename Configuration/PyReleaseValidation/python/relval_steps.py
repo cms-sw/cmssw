@@ -755,7 +755,7 @@ U80by1={'--relval': '80,1'}
 hiAlca2011 = {'--conditions':'auto:run1_mc_hi'}
 hiAlca2015 = {'--conditions':'auto:run2_mc_hi', '--era':'Run2_HI'}
 hiAlca2017 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017_pp_on_XeXe'}
-hiAlca2018 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017'}
+hiAlca2018 = {'--conditions':'auto:phase1_2018_realistic', '--era':'Run2_2018'}
 
 
 hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2}])
@@ -2330,6 +2330,4 @@ for step in upgradeStepDict.keys():
 # 2017 tracking specific eras
 steps['RecoFull_trackingRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_2017']])
 steps['RecoFull_trackingOnlyRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_trackingOnly_2017']])
-steps['RecoFull_trackingPhase1QuadProp_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1QuadProp'}, steps['RecoFull_2017']])
-steps['RecoFull_trackingOnlyPhase1QuadProp_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1QuadProp'}, steps['RecoFull_trackingOnly_2017']])
 steps['RecoFull_trackingLowPU_2017'] = merge([{'--era': 'Run2_2017_trackingLowPU'}, steps['RecoFull_2017']])

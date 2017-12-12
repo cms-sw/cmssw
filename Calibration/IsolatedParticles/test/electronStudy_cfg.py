@@ -5,7 +5,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
-process.load("Calibration.IsolatedParticles.electronStudy_cfi")
+process.load("Calibration.IsolatedParticles.ElectronStudy_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
@@ -24,5 +24,5 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.electronStudy.Verbosity = 0
-process.p1 = cms.Path(process.electronStudy)
+process.p1 = cms.Path(process.ElectronStudy)
 

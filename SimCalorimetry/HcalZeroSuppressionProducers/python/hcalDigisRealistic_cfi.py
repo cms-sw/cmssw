@@ -31,3 +31,14 @@ from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 run2_HF_2017.toModify( simHcalDigis,
                              HFregion = cms.vint32(1,2)
 )
+
+from Configuration.Eras.Modifier_run2_HB_2018_cff import run2_HB_2018
+run2_HB_2018.toModify( simHcalDigis,
+                             HBregion = cms.vint32(2,5)
+)
+
+from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
+run2_HE_2018.toModify( simHcalDigis,
+                             HEregion = cms.vint32(2,5)
+)
+
