@@ -48,21 +48,13 @@ namespace evf {
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
     fu_readwritelock_fd_(-1),
-    data_readwrite_fd_(-1),
     fulocal_rwlock_fd_(-1),
     fulocal_rwlock_fd2_(-1),
-
     bu_w_lock_stream(nullptr),
     bu_r_lock_stream(nullptr),
     fu_rw_lock_stream(nullptr),
-    //bu_w_monitor_stream(0),
-    //bu_t_monitor_stream(0),
-    data_rw_stream(nullptr),
-
     dirManager_(base_dir_),
-
     previousFileSize_(0),
-
     bu_w_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, 0 )),
     bu_r_flk( make_flock( F_RDLCK, SEEK_SET, 0, 0, 0 )),
     bu_w_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, 0 )),
@@ -975,7 +967,6 @@ namespace evf {
   std::string EvFDaqDirector::getStreamMergeType(std::string const& stream, MergeType defaultType)
   {
     tbb::concurrent_hash_map<std::string,std::string>::const_accessor search_ac;
-    //auto mergeTypeItr = mergeTypeMap_.find(stream);
     if (mergeTypeMap_.find(search_ac,stream))
       return search_ac->second;
 
