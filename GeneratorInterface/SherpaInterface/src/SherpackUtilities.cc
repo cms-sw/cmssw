@@ -157,12 +157,10 @@ int Unzip(std::string infile, std::string outfile)
     /////////////////////////////////////////////
     /////////////// BUG FIX FOR MPI /////////////
     /////////////////////////////////////////////
-    std::string user = getenv("USER");
-    std::string tmpdir = "/tmp/"+user;
-    std::string command = "mkdir -p "+tmpdir;
-    system(command.c_str());
-    setenv("TMPDIR",tmpdir.c_str(), true);
-    tmpdir = getenv("TMPDIR");
+    const char *tmpdir = getenv("TMPDIR");
+    if (tmpdir && (strlen(tmpdir) > 50)) {
+        setenv("TMPDIR", "/tmp", true);
+    }
     /////////////////////////////////////////////
     /////////////////////////////////////////////
     /////////////////////////////////////////////
