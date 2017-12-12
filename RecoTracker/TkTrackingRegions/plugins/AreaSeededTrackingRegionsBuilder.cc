@@ -153,7 +153,7 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
     // phi
     {
       // For phi we construct the tangent lines of (origin,
-      // originRadius) that go though eahc of the 4 points (in xy
+      // originRadius) that go though each of the 4 points (in xy
       // plane) of the area. Easiest is to make a vector orthogonal to
       // origin->point vector which has a length of
       //
@@ -164,11 +164,14 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
       // definitions of sin/cos of one of the angles of the
       // right-angled triangle.
 
-      // but we start with a "reference phi" so that we can easily
+      // But we start with a "reference phi" so that we can easily
       // decide which phi is the largest/smallest without having too
-      // much of headache with the wrapping
-      const auto phi_ref = std::atan2(0.5f*(y_rmin_phimin + y_rmin_phimax),
-                                      0.5f*(x_rmin_phimin + y_rmin_phimax));
+      // much of headache with the wrapping. The reference is in
+      // principle defined by the averages of y&x phimin/phimax at
+      // rmin, but the '0.5f*' factor is omitted here to reduce
+      // computations.
+      const auto phi_ref = std::atan2(y_rmin_phimin + y_rmin_phimax,
+                                      x_rmin_phimin + x_rmin_phimax);
 
       // for maximum phi we need the orthogonal vector to the left
       const auto tan_rmin_phimax = tangentVec(p_rmin_phimax, +1);
