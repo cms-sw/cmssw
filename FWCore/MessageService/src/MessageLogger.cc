@@ -266,7 +266,10 @@ namespace edm {
       
       iRegistry.watchPreModuleEvent(this,&MessageLogger::preModuleEvent);
       iRegistry.watchPostModuleEvent(this,&MessageLogger::postModuleEvent);
-      
+
+      iRegistry.watchPreModuleEventAcquire(this,&MessageLogger::preModuleEventAcquire);
+      iRegistry.watchPostModuleEventAcquire(this,&MessageLogger::postModuleEventAcquire);
+
       iRegistry.watchPreSourceEvent(this,&MessageLogger::preSourceEvent);
       iRegistry.watchPostSourceEvent(this,&MessageLogger::postSourceEvent);
       // change log 14:
@@ -604,7 +607,19 @@ namespace edm {
     {
       unEstablishModule(mod,"PostModuleEvent");
     }
-    
+
+    void
+    MessageLogger::preModuleEventAcquire(StreamContext const& stream, ModuleCallingContext const& mod)
+    {
+      establishModule (stream.streamID().value(),mod,
+                       s_streamTransitionNames[static_cast<int>(StreamContext::Transition::kEvent)]);
+    }
+
+    void MessageLogger::postModuleEventAcquire(StreamContext const& stream, ModuleCallingContext const& mod)
+    {
+      unEstablishModule(mod,"PostModuleEventAcquire");
+    }
+
     void
     MessageLogger::preModuleStreamEndLumi(StreamContext const& stream, ModuleCallingContext const& mod)
     {

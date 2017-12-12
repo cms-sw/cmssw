@@ -69,7 +69,10 @@ namespace edm {
         T::HasAbility::kBeginLuminosityBlockProducer or
         T::HasAbility::kEndLuminosityBlockProducer;}
 
-      
+      bool hasAcquire() const final {
+        return T::HasAbility::kExternalWork;
+      }
+
     private:
       typedef CallGlobal<T> MyGlobal;
       typedef CallGlobalRun<T> MyGlobalRun;

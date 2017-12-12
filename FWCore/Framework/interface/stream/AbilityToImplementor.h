@@ -73,6 +73,11 @@ namespace edm {
     struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
       typedef edm::stream::impl::EndLuminosityBlockProducer Type;
     };
+
+    template<>
+    struct AbilityToImplementor<edm::ExternalWork> {
+      typedef edm::stream::impl::ExternalWork Type;
+    };
   }
 }
 

@@ -76,6 +76,11 @@ namespace edm {
         typedef edm::global::impl::EndLuminosityBlockProducer<edm::global::EDProducerBase> Type;
       };
       
+      template<>
+      struct AbilityToImplementor<edm::ExternalWork> {
+        typedef edm::global::impl::ExternalWork<edm::global::EDProducerBase> Type;
+      };
+
       template<bool,bool,typename T> struct SpecializeAbilityToImplementor {
         typedef typename AbilityToImplementor<T>::Type Type;
       };
