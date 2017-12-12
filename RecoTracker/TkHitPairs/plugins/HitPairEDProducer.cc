@@ -459,7 +459,7 @@ void HitPairEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("produceSeedingHitSets", false);
   desc.add<bool>("produceIntermediateHitDoublets", false);
   desc.add<unsigned int>("maxElement", 1000000);
-  desc.add<std::vector<unsigned> >("layerPairs", std::vector<unsigned>{{0}})->setComment("Indices to the pairs of consecutive layers, i.e. 0 means (0,1), 1 (1,2) etc.");
+  desc.add<std::vector<unsigned> >("layerPairs", std::vector<unsigned>{0})->setComment("Indices to the pairs of consecutive layers, i.e. 0 means (0,1), 1 (1,2) etc.");
 
   descriptions.add("hitPairEDProducerDefault", desc);
 }

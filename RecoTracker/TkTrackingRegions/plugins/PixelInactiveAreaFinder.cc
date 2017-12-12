@@ -480,7 +480,7 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
       auto found = std::find(inactiveLayerSetIndices_.cbegin(), inactiveLayerSetIndices_.cend(), std::make_pair(innerInd, outerInd));
       if(found == inactiveLayerSetIndices_.end()) {
         inactiveLayerSetIndices_.emplace_back(innerInd, outerInd);
-        layerSetIndexInactiveToActive_.push_back(std::vector<LayerSetIndex>{{i}});
+        layerSetIndexInactiveToActive_.push_back(std::vector<LayerSetIndex>{i});
       }
       else {
         layerSetIndexInactiveToActive_.at(std::distance(inactiveLayerSetIndices_.cbegin(), found)).push_back(i); // TODO: move to operator[] once finished
