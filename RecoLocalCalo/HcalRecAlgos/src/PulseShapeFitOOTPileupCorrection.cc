@@ -239,6 +239,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   psfPtr_->setDefaultcntNANinfit();
 
   const unsigned cssize = channelData.nSamples();
+  const unsigned int soi = channelData.soi();
 
   // initialize arrays to be zero
   double chargeArr[HcalConst::maxSamples]={}, pedArr[HcalConst::maxSamples]={}, gainArr[HcalConst::maxSamples]={};
@@ -249,6 +250,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   double noisePHArr[HcalConst::maxSamples]={};
   double tsTOT = 0, tstrig = 0; // in fC
   double tsTOTen = 0; // in GeV
+
 
   // go over the time slices
   for(unsigned int ip=0; ip<cssize; ++ip){
@@ -288,7 +290,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
     tsTOT += charge - ped;
     tsTOTen += energy - peden;
-    if( ip ==4 || ip==5 ){
+    if( ip == soi || ip == soi+1 ){
       tstrig += charge - ped;
     }
   }
