@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/VecArray.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -18,6 +19,8 @@ public:
 
   class Area {
   public:
+    Area() {}
+
     // phimin and phimax, and hence xmin+xmax and ymin+ymax are
     // ordered by which way one goes around the unit circle, so it may
     // happen that actually phimax < phimin
@@ -78,8 +81,12 @@ public:
 
     std::vector<std::unique_ptr<TrackingRegion> > regions(const Origins& origins, const std::vector<Area>& areas) const;
     std::unique_ptr<TrackingRegion> region(const Origin& origin, const std::vector<Area>& areas) const;
+    std::unique_ptr<TrackingRegion> region(const Origin& origin, const edm::VecArray<Area, 2>& areas) const;
 
   private:
+    template <typename T>
+    std::unique_ptr<TrackingRegion> regionImpl(const Origin& origin, const T& areas) const;
+
     const AreaSeededTrackingRegionsBuilder *m_conf = nullptr;
     const MeasurementTrackerEvent *m_measurementTracker = nullptr;
   };
