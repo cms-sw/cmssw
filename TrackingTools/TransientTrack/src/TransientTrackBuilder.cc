@@ -4,10 +4,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTS.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 using namespace reco;
 using namespace std;
@@ -34,18 +30,11 @@ TransientTrack TransientTrackBuilder::build (const GsfTrack & t) const {
 }
 
 TransientTrack TransientTrackBuilder::build (const CandidatePtr * t) const {
-  reco::PFCandidatePtr tryPF(*t);
-  edm::Ptr<pat::PackedCandidate> tryPacked(*t);
-  if( tryPF.get() != nullptr && tryPF->isTimeValid() ) {
-    return TransientTrack(*t, tryPF->time(), tryPF->timeError(), theField, theTrackingGeometry);
-  } else if ( tryPacked.get() != nullptr && tryPacked->timeError() > 0.f ) {
-    return TransientTrack(*t, (double)tryPacked->time(), (double)tryPacked->timeError(), theField, theTrackingGeometry);
-  }
   return TransientTrack(*t, theField, theTrackingGeometry);
 }
 
 TransientTrack TransientTrackBuilder::build (const CandidatePtr & t) const {
-  return this->build(&t);  
+  return TransientTrack(t, theField, theTrackingGeometry);
 }
 
 TransientTrack TransientTrackBuilder::build (const TrackRef * t) const {

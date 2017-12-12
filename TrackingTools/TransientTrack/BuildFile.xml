@@ -13,8 +13,6 @@
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/ParticleFlowCandidate"/>
-<use   name="DataFormats/PatCandidates"/>
 <export>
   <lib   name="1"/>
 </export>
