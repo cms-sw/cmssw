@@ -68,7 +68,6 @@ namespace evf{
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
       void preGlobalEndLumi(edm::GlobalContext const& globalContext);
-      //std::string &baseDir(){return base_dir_;}
       void overrideRunNumber(unsigned int run) {run_=run;}
       std::string &baseRunDir(){return run_dir_;}
       std::string &buBaseRunDir(){return bu_run_dir_;}
@@ -125,11 +124,9 @@ namespace evf{
       void checkMergeTypePSet(edm::ProcessContext const& pc);
       std::string getStreamDestinations(std::string const& stream) const;
       std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
-      struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
+      static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
 
     private:
-      //bool bulock();
-      //bool fulock();
       bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS);
       void openFULockfileStream(std::string& fuLockFilePath, bool create);
       std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
@@ -160,7 +157,6 @@ namespace evf{
       int bu_readlock_fd_;
       int bu_writelock_fd_;
       int fu_readwritelock_fd_;
-      int data_readwrite_fd_;
       int fulocal_rwlock_fd_;
       int fulocal_rwlock_fd2_;
 
@@ -169,7 +165,6 @@ namespace evf{
       FILE * fu_rw_lock_stream;
       FILE * bu_w_monitor_stream;
       FILE * bu_t_monitor_stream;
-      FILE * data_rw_stream;
 
       DirManager dirManager_;
 
