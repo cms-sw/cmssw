@@ -72,6 +72,14 @@ std::vector<std::unique_ptr<TrackingRegion> > AreaSeededTrackingRegionsBuilder::
 }
 
 std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::region(const Origin& origin, const std::vector<Area>& areas) const {
+  return regionImpl(origin, areas);
+}
+std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::region(const Origin& origin, const edm::VecArray<Area, 2>& areas) const {
+  return regionImpl(origin, areas);
+}
+
+template <typename T>
+std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regionImpl(const Origin& origin, const T& areas) const {
   float minEta=std::numeric_limits<float>::max(), maxEta=std::numeric_limits<float>::lowest();
   float minPhi=std::numeric_limits<float>::max(), maxPhi=std::numeric_limits<float>::lowest();
 

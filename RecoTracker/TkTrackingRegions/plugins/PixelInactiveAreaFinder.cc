@@ -348,16 +348,16 @@ namespace {
   }
 }
 
-std::vector<std::pair<std::vector<PixelInactiveAreaFinder::Area>, std::vector<PixelInactiveAreaFinder::LayerSetIndex> > >
+std::vector<std::pair<edm::VecArray<PixelInactiveAreaFinder::Area, 2>, std::vector<PixelInactiveAreaFinder::LayerSetIndex> > >
 PixelInactiveAreaFinder::InactiveAreas::areasAndLayerSets(const GlobalPoint& point, float zwidth) const {
   auto spansLayerSets = spansAndLayerSets(point, zwidth);
 
   // TODO: try to remove this conversion...
-  std::vector<std::pair<std::vector<Area>, std::vector<LayerSetIndex> > > ret;
+  std::vector<std::pair<VecArray2<Area>, std::vector<LayerSetIndex> > > ret;
   for(auto& item: spansLayerSets) {
     auto& innerSpan = item.first[0];
     auto& outerSpan = item.first[1];
-    std::vector<Area> areas;
+    VecArray2<Area> areas;
     areas.emplace_back(innerSpan.rSpan.first, innerSpan.rSpan.second,
                        innerSpan.phiSpan.first, innerSpan.phiSpan.second,
                        innerSpan.zSpan.first, innerSpan.zSpan.second);
@@ -370,13 +370,13 @@ PixelInactiveAreaFinder::InactiveAreas::areasAndLayerSets(const GlobalPoint& poi
   return ret;
 }
 
-std::vector<std::pair<std::vector<PixelInactiveAreaFinder::DetGroupSpan>, std::vector<PixelInactiveAreaFinder::LayerSetIndex> > >
+std::vector<std::pair<edm::VecArray<PixelInactiveAreaFinder::DetGroupSpan, 2>, std::vector<PixelInactiveAreaFinder::LayerSetIndex> > >
 PixelInactiveAreaFinder::InactiveAreas::spansAndLayerSets(const GlobalPoint& point, float zwidth) const {
   // TODO: in the future use 2D-r for the origin for the phi overlap check
   const float zmin = point.z()-zwidth;
   const float zmax = point.z()+zwidth;
 
-  std::vector<std::pair<std::vector<DetGroupSpan>, std::vector<LayerSetIndex> > > ret;
+  std::vector<std::pair<VecArray2<DetGroupSpan>, std::vector<LayerSetIndex> > > ret;
 
   LogDebug("PixelInactiveAreaFinder") << "Origin at " << point.x() << "," << point.y() << "," << point.z() << " z half width " << zwidth;
 
@@ -419,7 +419,10 @@ PixelInactiveAreaFinder::InactiveAreas::spansAndLayerSets(const GlobalPoint& poi
             detGroupSpanInfo(outerSpan, ss);
             LogTrace("PixelInactiveAreaFinder") << " adding areas for active layer sets " << ss.str();
 #endif
-            ret.emplace_back(std::vector<DetGroupSpan>{{innerSpan, outerSpan}}, (*layerSetIndexInactiveToActive_)[i]);
+            VecArray2<DetGroupSpan> vec;
+            vec.emplace_back(innerSpan);
+            vec.emplace_back(outerSpan);
+            ret.emplace_back(std::move(vec), (*layerSetIndexInactiveToActive_)[i]);
           }
         }
       }

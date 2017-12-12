@@ -7,6 +7,7 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/VecArray.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "AreaSeededTrackingRegionsBuilder.h"
@@ -52,8 +53,10 @@ public:
       layerSetIndexInactiveToActive_(layerSetIndexInactiveToActive)
     {}
 
-    std::vector<std::pair<std::vector<Area>, std::vector<LayerSetIndex> > > areasAndLayerSets(const GlobalPoint& point, float zwidth) const;
-    std::vector<std::pair<std::vector<DetGroupSpan>, std::vector<LayerSetIndex> > > spansAndLayerSets(const GlobalPoint& point, float zwidth) const;
+    template <typename T>
+    using VecArray2 = edm::VecArray<T, 2>; // 2 inactive layers (using VecArray for possible extension to 1 inactive layer, i.e. triplet mitigation)
+    std::vector<std::pair<VecArray2<Area>, std::vector<LayerSetIndex> > > areasAndLayerSets(const GlobalPoint& point, float zwidth) const;
+    std::vector<std::pair<VecArray2<DetGroupSpan>, std::vector<LayerSetIndex> > > spansAndLayerSets(const GlobalPoint& point, float zwidth) const;
 
   private:
     const std::vector<SeedingLayerId> *inactiveLayers_;   // pointer to PixelInactiveAreaFinder::layers_
