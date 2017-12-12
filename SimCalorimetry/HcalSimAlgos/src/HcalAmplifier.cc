@@ -21,18 +21,6 @@
 #include <cmath>
 #include <cmath>
 
-HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2) :
-  theDbService(nullptr),
-  theParameterMap(parameters),
-  theNoiseSignalGenerator(nullptr),
-  theIonFeedbackSim(nullptr),
-  theTimeSlewSim(nullptr),
-  theStartingCapId(0),
-  addNoise_(addNoise),
-  preMixDigi_(PreMix1),
-  preMixAdd_(PreMix2)
-{ }
-
 HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2, const HcalTimeSlew* hcalTimeSlew_delay) :
   theDbService(nullptr),
   theParameterMap(parameters),
@@ -42,16 +30,9 @@ HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNo
   theStartingCapId(0),
   addNoise_(addNoise),
   preMixDigi_(PreMix1),
-  preMixAdd_(PreMix2)
-{ 
-  //-------------------------
-  //Fix this
-  //C. Madrid
-  //-------------------------
-  //not used??
-  double min = 0.0;
-  HcalTimeSlewSim theTimeSlewSim(parameters,min,hcalTimeSlew_delay);
-}
+  preMixAdd_(PreMix2),
+  hcalTimeSlew_delay_(hcalTimeSlew_delay)
+{ }
 
 
 void HcalAmplifier::setDbService(const HcalDbService * service) {
@@ -69,7 +50,7 @@ void HcalAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engine)
   // don't bother for blank signals
   if(theTimeSlewSim && frame.size()>4 && frame[4] > 1.e-6)
   {
-    theTimeSlewSim->delay(frame, engine);
+    theTimeSlewSim->delay(frame, engine, hcalTimeSlew_delay_);
   }
 
   // if we are combining pre-mixed digis, we need noise and peds
