@@ -12,4 +12,8 @@ DTDataIntegrityTask = cms.EDAnalyzer("DTDataIntegrityTask",
 				     dtFEDlabel         =  cms.InputTag("dtDataIntegrityUnpacker")
 )
 
+from Configuration.Eras.Modifier_run2_DT_2018_cff import run2_DT_2018
+run2_DT_2018.toModify(DTDataIntegrityTask,FEDIDmin=cms.untracked.int32(1368))
+run2_DT_2018.toModify(DTDataIntegrityTask,FEDIDmax=cms.untracked.int32(1370))
+run2_DT_2018.toModify(DTDataIntegrityTask,checkUros=cms.untracked.bool(True))
 
