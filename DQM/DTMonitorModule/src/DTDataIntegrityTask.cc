@@ -160,6 +160,8 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const int fedM
   int nFED = (fedMax - fedMin)+1;
 
   hFEDEntry = ibooker.book1D("FEDEntries","# entries per DT FED",nFED,fedMin,fedMax+1);
+
+  if(!checkUros){
   hFEDFatal = ibooker.book1D("FEDFatal","# fatal errors DT FED",nFED,fedMin,fedMax+1);
   hFEDNonFatal = ibooker.book1D("FEDNonFatal","# NON fatal errors DT FED",nFED,fedMin,fedMax+1);
 
@@ -179,7 +181,6 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const int fedM
   hTTSSummary->setBinLabel(9,"DDU Logic Err.",2);
 
   // bookkeeping of the
-
   hCorruptionSummary =  ibooker.book2D("DataCorruptionSummary", "Data Corruption Sources",
 				   nFED,fedMin,fedMax+1, 8, 1, 9);
   hCorruptionSummary->setAxisTitle("FED",1);
@@ -191,7 +192,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const int fedM
   hCorruptionSummary->setBinLabel(6,"FCRC bit",2);
   hCorruptionSummary->setBinLabel(7,"Header check",2);
   hCorruptionSummary->setBinLabel(8,"Trailer Check",2);
-
+  } //checkUros
 }
 
 // ******************uROS******************** //
@@ -224,7 +225,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
  
     histoType = "uROSStatus";
     histoName = "FED" + fed_s.str() + "_" + histoType;
-    (fedHistos[histoType])[fed] = ibooker.book2D(histoName,histoName,12,0,12,12,0,12);
+    (fedHistos[histoType])[fed] = ibooker.book2D(histoName,histoName,12,0,12,12,0,13);
     histo = (fedHistos[histoType])[fed];
     // only placeholders for the moment
     histo->setBinLabel(1,"Error G 1",1);
@@ -286,7 +287,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histoTitle = "# of uROS in the FED payload (FED" + fed_s.str() + ")";
     (fedHistos[histoType])[fed] = ibooker.book1D(histoName,histoTitle,13,0,13);
 
-    histoType = "FIFOStatus";
+/*    histoType = "FIFOStatus";
     histoName = "FED" + fed_s.str() + "_" + histoType;
     (fedHistos[histoType])[fed] = ibooker.book2D(histoName,histoName,7,0,7,3,0,3);
     histo = (fedHistos[histoType])[fed];
@@ -300,7 +301,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histo->setBinLabel(1,"Full",2);
     histo->setBinLabel(2,"Almost Full",2);
     histo->setBinLabel(3,"Not Full",2);
-
+*/
     histoType = "BXID";
     histoName = "FED" + fed_s.str() + "_BXID";
     histoTitle = "Distrib. BX ID (FED" + fed_s.str() + ")";
@@ -855,8 +856,8 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
       for (unsigned int flag = 1; flag<6; ++flag){
 	if((data.getokxflag(link)>>flag) & 0x1) { // Undefined Flag 1-4 64bits word for each MTP (12 channels)
 	        if(link<24) uROSError0->Fill(flag,link+1); //bins start at 1 despite labeling
-	        else if(link<48) uROSError1->Fill(flag,link+1-24);
-        	else uROSError2->Fill(flag,link+1-48);
+	        else if(link<48) uROSError1->Fill(flag,link-23+1);
+        	else uROSError2->Fill(flag,link-47+1);
 		if (flag==5) sumOKs+=1; // Not OK flag
 	}
       }
@@ -898,7 +899,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
         << " Internal fatal Error 4000 in TDC " << error << endl;
 
       tdcError_ROSSummary = 14;
-      tdcError_ROSError   = 9;
+      tdcError_ROSError   = 6;
       tdcError_TDCHisto   = 0;
 
     } else if ( error & 0x0249 ) {
@@ -907,7 +908,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
         << " TDC FIFO overflow in TDC " << error << endl;
 
       tdcError_ROSSummary = 15;
-      tdcError_ROSError   = 10;
+      tdcError_ROSError   = 7;
       tdcError_TDCHisto   = 1;
 
     } else if ( error & 0x0492 ) {
@@ -916,7 +917,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
         << " TDC L1 buffer overflow in TDC " << error << endl;
 
       tdcError_ROSSummary = 16;
-      tdcError_ROSError   = 11;
+      tdcError_ROSError   = 8;
       tdcError_TDCHisto   = 2;
 
     } else if ( error & 0x2000 ) {
@@ -925,7 +926,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
         << " TDC L1A FIFO overflow in TDC " << error << endl;
 
       tdcError_ROSSummary = 17;
-      tdcError_ROSError   = 12;
+      tdcError_ROSError   = 9;
       tdcError_TDCHisto   = 3;
 
     } else if ( error & 0x0924 ) {
@@ -934,7 +935,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
         << " TDC hit error in TDC " << error << endl;
 
       tdcError_ROSSummary = 18;
-      tdcError_ROSError   = 13;
+      tdcError_ROSError   = 10;
       tdcError_TDCHisto   = 4;
 
     } else if ( error & 0x1000 ) {
@@ -943,7 +944,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
         << " TDC hit rejected in TDC " << error << endl;
 
       tdcError_ROSSummary = 19;
-      tdcError_ROSError   = 14;
+      tdcError_ROSError   = 11;
       tdcError_TDCHisto   = 5;
 
     } else {
@@ -958,13 +959,13 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
 
    if(mode<=2){
      if (link<24)  	uROSError0->Fill(tdcError_ROSError,link+1);
-     else if (link<48)  uROSError1->Fill(tdcError_ROSError,link-24+1);
-     else 		uROSError2->Fill(tdcError_ROSError,link-48+1);
+     else if (link<48)  uROSError1->Fill(tdcError_ROSError,link-23+1);
+     else 		uROSError2->Fill(tdcError_ROSError,link-47+1);
      
      if(mode<=1){
-	if(link<24) urosHistos["TDCError0"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link+1);
-	else if(link<48) urosHistos["TDCError1"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link-24+1);
-	else urosHistos["TDCError2"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link-48+1);
+	if(link<24) urosHistos["TDCError0"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1)+1,link+1);
+	else if(link<48) urosHistos["TDCError1"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1)+1,link-23+1);
+	else urosHistos["TDCError2"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1)+1,link-47+1);
      }
    }	
   } //loop on errors
@@ -1859,6 +1860,8 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
       // FIXME: passing id variable is not needed anymore - change processFED interface for next release!
       FEDHeader header = dduData.getDDUHeader();
       int id = header.sourceID();
+      if (id>FEDIDmax || id<FEDIDmin) continue; //SIM uses extra FEDs not monitored
+
       processFED(dduData, ros25Data, id);
 	//cout<<"ROS25datasize: "<<ros25Data.size()<<endl;
       for(unsigned int j=0; j < ros25Data.size(); ++j) {
