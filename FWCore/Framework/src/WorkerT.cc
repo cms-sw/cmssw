@@ -158,6 +158,50 @@ namespace edm{
 
   template<typename T>
   inline
+  void
+  WorkerT<T>::implDoAcquire(EventPrincipal const&, EventSetup const&,
+                            ModuleCallingContext const*,
+                            WaitingTaskWithArenaHolder&) {
+  }
+
+  template<>
+  inline
+  void
+  WorkerT<global::EDProducerBase>::implDoAcquire(EventPrincipal const& ep, EventSetup const& c,
+                                                 ModuleCallingContext const* mcc,
+                                                 WaitingTaskWithArenaHolder& holder) {
+    module_->doAcquire(ep, c, activityRegistry(), mcc, holder);
+  }
+
+  template<>
+  inline
+  void
+  WorkerT<global::EDFilterBase>::implDoAcquire(EventPrincipal const& ep, EventSetup const& c,
+                                               ModuleCallingContext const* mcc,
+                                               WaitingTaskWithArenaHolder& holder) {
+    module_->doAcquire(ep, c, activityRegistry(), mcc, holder);
+  }
+
+  template<>
+  inline
+  void
+  WorkerT<stream::EDProducerAdaptorBase>::implDoAcquire(EventPrincipal const& ep, EventSetup const& c,
+                                                        ModuleCallingContext const* mcc,
+                                                        WaitingTaskWithArenaHolder& holder) {
+    module_->doAcquire(ep, c, activityRegistry(), mcc, holder);
+  }
+
+  template<>
+  inline
+  void
+  WorkerT<stream::EDFilterAdaptorBase>::implDoAcquire(EventPrincipal const& ep, EventSetup const& c,
+                                                      ModuleCallingContext const* mcc,
+                                                      WaitingTaskWithArenaHolder& holder) {
+    module_->doAcquire(ep, c, activityRegistry(), mcc, holder);
+  }
+
+  template<typename T>
+  inline
   bool
   WorkerT<T>::implNeedToRunSelection() const { return false;}
 
