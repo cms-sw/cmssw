@@ -226,6 +226,8 @@ namespace edm {
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
 
+    bool hasAcquire() const { return false; }
+
     virtual bool isFileOpen() const { return true; }
 
     void keepThisBranch(BranchDescription const& desc,

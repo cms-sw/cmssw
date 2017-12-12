@@ -52,12 +52,21 @@ namespace edm {
   }
 
   void
-  Event::setProducer( ProducerBase const* iProd, std::vector<BranchID>* previousParentage) {
+  Event::setProducerCommon(ProducerBase const* iProd,
+                           std::vector<BranchID>* previousParentage) {
+
     provRecorder_.setProducer(iProd);
     //set appropriate size
     putProducts_.resize(
                         provRecorder_.putTokenIndexToProductResolverIndex().size());
     previousBranchIDs_ =previousParentage;
+  }
+
+  void
+  Event::setProducer(ProducerBase const* iProd,
+                     std::vector<BranchID>* previousParentage,
+                     std::vector<BranchID>* gotBranchIDsFromAcquire) {
+    setProducerCommon(iProd, previousParentage);
     if(previousParentage) {
       //are we supposed to record parentage for at least one item?
       bool record_parents = false;
@@ -69,7 +78,21 @@ namespace edm {
         return;
       }
       gotBranchIDsFromPrevious_.resize(previousParentage->size(),false);
+      if (gotBranchIDsFromAcquire) {
+        for (auto const& branchID : *gotBranchIDsFromAcquire) {
+          addToGotBranchIDs(branchID);
+        }
+      }
     }
+  }
+
+  void
+  Event::setProducerForAcquire(ProducerBase const* iProd,
+                               std::vector<BranchID>* previousParentage,
+                               std::vector<BranchID>& gotBranchIDsFromAcquire) {
+    setProducerCommon(iProd, previousParentage);
+    gotBranchIDsFromAcquire_ = &gotBranchIDsFromAcquire;
+    gotBranchIDsFromAcquire_->clear();
   }
 
   EventPrincipal const&
@@ -229,14 +252,20 @@ namespace edm {
 
   void
   Event::addToGotBranchIDs(Provenance const& prov) const {
+    addToGotBranchIDs(prov.originalBranchID());
+  }
+
+  void
+  Event::addToGotBranchIDs(BranchID const& branchID) const {
     if(previousBranchIDs_) {
-      auto id = prov.originalBranchID();
-      auto range = std::equal_range(previousBranchIDs_->begin(), previousBranchIDs_->end(),id);
+      auto range = std::equal_range(previousBranchIDs_->begin(), previousBranchIDs_->end(), branchID);
       if(range.first ==range.second) {
-        gotBranchIDs_.insert(id.id());
+        gotBranchIDs_.insert(branchID.id());
       } else {
         gotBranchIDsFromPrevious_[range.first - previousBranchIDs_->begin()] = true;
       }
+    } else if (gotBranchIDsFromAcquire_) {
+      gotBranchIDsFromAcquire_->push_back(branchID);
     }
   }
 
