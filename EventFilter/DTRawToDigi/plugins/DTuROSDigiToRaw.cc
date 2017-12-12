@@ -12,9 +12,9 @@
 //
 //--------------------------------------------------
 
-#include "EventFilter/DTRawToDigi/plugins/DTuROSDigiToRaw.h
+#include "EventFilter/DTRawToDigi/plugins/DTuROSDigiToRaw.h"
 
-///////////////e/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 
