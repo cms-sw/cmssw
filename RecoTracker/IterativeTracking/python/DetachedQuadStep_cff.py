@@ -82,34 +82,6 @@ detachedQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProduc
 )
 
 
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(detachedQuadStepHitDoublets, layerPairs = [0])
-detachedQuadStepHitTriplets = _pixelTripletLargeTipEDProducer.clone(
-    doublets = "detachedQuadStepHitDoublets",
-    produceIntermediateHitTriplets = True,
-)
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletEDProducer_cfi import pixelQuadrupletEDProducer as _pixelQuadrupletEDProducer
-_detachedQuadStepHitQuadruplets_propagation = _pixelQuadrupletEDProducer.clone(
-    triplets = "detachedQuadStepHitTriplets",
-    extraHitRZtolerance = detachedQuadStepHitTriplets.extraHitRZtolerance,
-    extraHitRPhitolerance = detachedQuadStepHitTriplets.extraHitRPhitolerance,
-    maxChi2 = dict(
-        pt1    = 0.8, pt2    = 2,
-        value1 = 500, value2 = 100,
-        enabled = True,
-    ),
-    extraPhiTolerance = dict(
-        pt1    = 0.4, pt2    = 1,
-        value1 = 0.2, value2 = 0.05,
-        enabled = True,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-)
-trackingPhase1QuadProp.toReplaceWith(detachedQuadStepHitQuadruplets, _detachedQuadStepHitQuadruplets_propagation)
-
-
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff
 _detachedQuadStepTrajectoryFilterBase = _TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
@@ -313,9 +285,6 @@ DetachedQuadStepTask = cms.Task(detachedQuadStepClusters,
                                 detachedQuadStepTracks,
                                 detachedQuadStep)
 DetachedQuadStep = cms.Sequence(DetachedQuadStepTask)
-_DetachedQuadStepTask_Phase1Prop = DetachedQuadStepTask.copy()
-_DetachedQuadStepTask_Phase1Prop.replace(detachedQuadStepHitDoublets, cms.Task(detachedQuadStepHitDoublets,detachedQuadStepHitTriplets))
-trackingPhase1QuadProp.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_Phase1Prop)
 _DetachedQuadStepTask_Phase2PU140 = DetachedQuadStepTask.copy()
 _DetachedQuadStepTask_Phase2PU140.replace(detachedQuadStep, cms.Task(detachedQuadStepSelector,detachedQuadStep))
 trackingPhase2PU140.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_Phase2PU140)
