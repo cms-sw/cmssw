@@ -227,6 +227,9 @@ public:
   /// Set survey info
   void setSurvey( const SurveyDet* );
 
+  /// Recenter surface object without moving possible components
+  virtual void recenterSurface();
+
 protected:
   template<class T>
   using Cache = std::map<align::RunNumber, T>;
