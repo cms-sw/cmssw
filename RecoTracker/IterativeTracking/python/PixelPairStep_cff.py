@@ -34,9 +34,7 @@ _layerListForPhase1 = [
     'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
 ]
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1.toModify(pixelPairStepSeedLayers, layerList = _layerListForPhase1)
-trackingPhase1QuadProp.toModify(pixelPairStepSeedLayers, layerList = _layerListForPhase1)
 
 # only layers covering the region not covered by quadruplets
 # (so it is just acting as backup of triplets)
@@ -78,7 +76,6 @@ _region_Phase1 = dict(
     maxNVertices = 5,
 )
 trackingPhase1.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
-trackingPhase1QuadProp.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
 trackingPhase2PU140.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
 fastSim.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(VertexCollection = "firstStepPrimaryVerticesBeforeMixing"))
 
@@ -154,7 +151,6 @@ _pixelPairStepSeedsMerged = _globalCombinedSeeds.clone(
     seedCollections = ["pixelPairStepSeedsA", "pixelPairStepSeedsB"],
 )
 trackingPhase1.toReplaceWith(pixelPairStepSeeds, _pixelPairStepSeedsMerged)
-trackingPhase1QuadProp.toReplaceWith(pixelPairStepSeeds, _pixelPairStepSeedsMerged)
 
 
 
@@ -173,7 +169,6 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 _tracker_apv_vfp30_2016.toModify(pixelPairStepTrajectoryFilterBase, maxCCCLostHits = 2)
 trackingLowPU.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase)
 trackingPhase1.toModify(pixelPairStepTrajectoryFilterBase, minimumNumberOfHits = 4)
-trackingPhase1QuadProp.toModify(pixelPairStepTrajectoryFilterBase, minimumNumberOfHits = 4)
 trackingPhase2PU140.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 4,
     maxLostHitsFraction = 1./10.,
@@ -235,7 +230,6 @@ _seedExtension = dict(
     useSameTrajFilter = False,
 )
 trackingPhase1.toModify(pixelPairStepTrajectoryBuilder, **_seedExtension)
-trackingPhase1QuadProp.toModify(pixelPairStepTrajectoryBuilder, **_seedExtension)
 trackingPhase2PU140.toModify(pixelPairStepTrajectoryBuilder, **_seedExtension)
 
 
@@ -291,7 +285,6 @@ pixelPairStep.mva.GBRForestLabel = 'MVASelectorIter2_13TeV'
 pixelPairStep.qualityCuts = [-0.2,0.0,0.3]
 
 trackingPhase1.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
-trackingPhase1QuadProp.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
 fastSim.toModify(pixelPairStep, vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # For LowPU and Phase2PU140
@@ -385,7 +378,6 @@ _PixelPairStepTask_Phase1.replace(pixelPairStepSeeds,cms.Task(
                               pixelPairStepSeedLayersB,pixelPairStepTrackingRegionsB,pixelPairStepHitDoubletsB,pixelPairStepSeedsB,
                               pixelPairStepSeeds))
 trackingPhase1.toReplaceWith(PixelPairStepTask, _PixelPairStepTask_Phase1)
-trackingPhase1QuadProp.toReplaceWith(PixelPairStepTask, _PixelPairStepTask_Phase1)
 
 #fastSim
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
