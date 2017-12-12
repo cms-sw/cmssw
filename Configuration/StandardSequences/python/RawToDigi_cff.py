@@ -105,10 +105,10 @@ ctpps_2016.toReplaceWith(RawToDigi_noTk, _ctpps_2016_RawToDigi_noTk)
 
 # GEM settings
 _run2_GEM_2017_RawToDigi = RawToDigi.copy()
-_run2_GEM_2017_RawToDigi.insert(1,muonGEMDigis)
+_run2_GEM_2017_RawToDigi.insert(-1,muonGEMDigis)
 
 _run3_RawToDigi = _run2_GEM_2017_RawToDigi.copy()
-#_run3_RawToDigi.insert(1,muonME0Digis) # to be done once proper ME0 digitiser is done
+_run3_RawToDigi.insert(-1,muonME0Digis)
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith(RawToDigi, _run2_GEM_2017_RawToDigi)
