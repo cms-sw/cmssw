@@ -42,7 +42,7 @@ bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu,
 
 void HGCalMulticlusteringImpl::findNeighbor( const std::vector<std::pair<unsigned int,double>>&  rankedList,
                                              unsigned int searchInd,
-                                             const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
+                                             const std::vector<edm::Ptr<l1t::HGCalCluster>>& clustersPtrs, 
                                              std::vector<unsigned int>& neighbors
                                             ){
   
@@ -72,7 +72,7 @@ void HGCalMulticlusteringImpl::findNeighbor( const std::vector<std::pair<unsigne
 }
 
 
-void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
+void HGCalMulticlusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs, 
                                            l1t::HGCalMulticlusterBxCollection & multiclusters,
                                            const HGCalTriggerGeometryBase & triggerGeometry)
 {
@@ -80,7 +80,7 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
     std::vector<l1t::HGCalMulticluster> multiclustersTmp;
 
     int iclu = 0;
-    for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
+    for(std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
         
         int imclu=0;
         vector<int> tcPertinentMulticlusters;
@@ -114,8 +114,8 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
 
         double calibPt=0.;
         if(applyLayerWeights_){
-            const edm::PtrVector<l1t::HGCalCluster> &pertinentClu = multiclustersTmp.at(i).constituents();
-            for( edm::PtrVector<l1t::HGCalCluster>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++){
+            const std::vector<edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
+            for( std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++){
                 int layerN = -1; 
                 if( (*it_clu)->subdetId()==HGCEE ){
                     layerN = (*it_clu)->layer();
@@ -164,7 +164,7 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
     }
     
 }
-void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
+void HGCalMulticlusteringImpl::clusterizeDBSCAN( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs, 
                                                  l1t::HGCalMulticlusterBxCollection & multiclusters,
                                                  const HGCalTriggerGeometryBase & triggerGeometry)
 {
@@ -181,7 +181,7 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
   int iclu = 0, imclu = 0, neighNo;
   double dist = 0.;
 
-  for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
+  for(std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
     dist = (*clu)->centreProj().mag()*HGCalDetId((*clu)->detId()).zside();
     rankedList.push_back(std::make_pair(iclu,dist));
   }  

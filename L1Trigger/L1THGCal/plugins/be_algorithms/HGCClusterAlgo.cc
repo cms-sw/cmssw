@@ -158,7 +158,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     triggerCellsHandle = evt.put( std::move( trgcell_product_ ), "calibratedTriggerCells");
 
     /* create a persistent vector of pointers to the trigger-cells */
-    edm::PtrVector<l1t::HGCalTriggerCell> triggerCellsPtrs;
+    std::vector<edm::Ptr<l1t::HGCalTriggerCell>> triggerCellsPtrs;
     for( unsigned i = 0; i < triggerCellsHandle->size(); ++i ) {
         edm::Ptr<l1t::HGCalTriggerCell> ptr(triggerCellsHandle,i);
         triggerCellsPtrs.push_back(ptr);
@@ -184,7 +184,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     clustersHandle = evt.put( std::move( cluster_product_ ), "cluster2D");
 
     /* create a persistent vector of pointers to the trigger-cells */
-    edm::PtrVector<l1t::HGCalCluster> clustersPtrs;
+    std::vector<edm::Ptr<l1t::HGCalCluster>> clustersPtrs;
     for( unsigned i = 0; i < clustersHandle->size(); ++i ) {
         edm::Ptr<l1t::HGCalCluster> ptr(clustersHandle,i);
         clustersPtrs.push_back(ptr);
