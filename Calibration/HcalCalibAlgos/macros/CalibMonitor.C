@@ -11,7 +11,7 @@
 //        This will prepare a set of histograms which can be used for a
 //        quick fit and display using the methods in CalibFitPlots.C
 //
-//  GetEntries g1(fname, dirname, bool ifOld);
+//  GetEntries g1(fname, dirname, bit1, bit2);
 //  g1.Loop();
 //
 //         This looks into the tree *EventInfo* and can provide a set
@@ -70,6 +70,9 @@
 //                               in append/output mode
 //   all (bool)                = true/false if all histograms to be saved or
 //                               not (def false)
+//
+//   bitX (unsigned int)       = bit number of the HLT used in the selection
+//        (X = 1, 2)             for example the bits of HLT_IsoTrackHB(HE)
 //////////////////////////////////////////////////////////////////////////////
 
 #include <TROOT.h>
@@ -1190,6 +1193,7 @@ public :
   Int_t                      t_TracksSaved;
   Int_t                      t_TracksLoose;
   Int_t                      t_TracksTight;
+  Int_t                      t_allvertex;
   Bool_t                     t_TrigPass;
   Bool_t                     t_TrigPassSel;
   Bool_t                     t_L1Bit;
@@ -1204,6 +1208,7 @@ public :
   TBranch                   *b_t_TracksSaved;   //!
   TBranch                   *b_t_TracksLoose;   //!
   TBranch                   *b_t_TracksTight;   //!
+  TBranch                   *b_t_allvertex;     //!
   TBranch                   *b_t_TrigPass;      //!
   TBranch                   *b_t_TrigPassSel;   //!
   TBranch                   *b_t_L1Bit;         //!
@@ -1225,7 +1230,7 @@ public :
 
 private:
   unsigned int     bit_[2];
-  TH1I            *h_tk[3], *h_eta[4];
+  TH1I            *h_tk[3], *h_eta[4], *h_pvx[3];
   TH1D            *h_eff[3];
 };
 
@@ -1291,6 +1296,7 @@ void GetEntries::Init(TTree *tree) {
   fChain->SetBranchAddress("t_TracksSaved", &t_TracksSaved, &b_t_TracksSaved);
   fChain->SetBranchAddress("t_TracksLoose", &t_TracksLoose, &b_t_TracksLoose);
   fChain->SetBranchAddress("t_TracksTight", &t_TracksTight, &b_t_TracksTight);
+  fChain->SetBranchAddress("t_allvertex",   &t_allvertex,   &b_t_allvertex);
   fChain->SetBranchAddress("t_TrigPass",    &t_TrigPass,    &b_t_TrigPass);
   fChain->SetBranchAddress("t_TrigPassSel", &t_TrigPassSel, &b_t_TrigPassSel);
   fChain->SetBranchAddress("t_L1Bit",       &t_L1Bit,       &b_t_L1Bit);
@@ -1309,7 +1315,10 @@ void GetEntries::Init(TTree *tree) {
   h_eta[3] = new TH1I("Eta3", "i#eta (Tight Isolated Tracks)",60, -30, 30);
   h_eff[0] = new TH1D("Eff0", "i#eta (Selection Efficiency)", 60, -30, 30);
   h_eff[1] = new TH1D("Eff1", "i#eta (Loose Isolation Efficiency)", 60,-30,30);
-  h_eff[2] = new TH1D("Eta2", "i#eta (Tight Isolation Efficiency)", 60,-30,30);
+  h_eff[2] = new TH1D("Eff2", "i#eta (Tight Isolation Efficiency)", 60,-30,30);
+  h_pvx[0] = new TH1I("Pvx0", "Number of Good Vertex (All)",   100, 0, 100);
+  h_pvx[1] = new TH1I("Pvx1", "Number of Good Vertex (Loose)", 100, 0, 100);
+  h_pvx[2] = new TH1I("Pvx2", "Number of Good Vertex (Tight)", 100, 0, 100);
 }
 
 Bool_t GetEntries::Notify() {
@@ -1377,6 +1386,9 @@ void GetEntries::Loop() {
     h_tk[0]->Fill(t_Tracks);
     h_tk[1]->Fill(t_TracksProp);
     h_tk[2]->Fill(t_TracksSaved);
+    h_pvx[0]->Fill(t_allvertex);
+    if (t_TracksLoose > 0) h_pvx[1]->Fill(t_allvertex);
+    if (t_TracksTight > 0) h_pvx[2]->Fill(t_allvertex);
     if (t_L1Bit) {
       ++l1;
       if (t_TracksLoose > 0) ++loose;
@@ -1591,4 +1603,42 @@ void GetEntries::Loop() {
   pad3->Update();
   legend3->Draw("same");
   pad3->Update();
+
+  std::string titl4[3] = {"All events", "Events with Loose Isolation", 
+			  "Events with Tight Isolation"};
+  TLegend *legend4 = new TLegend(0.11, 0.785, 0.50, 0.89);
+  TCanvas *pad4 = new TCanvas("c_nvx", "c_nvx", 500, 500);
+  pad4->SetRightMargin(0.10);
+  pad4->SetTopMargin(0.10);
+  pad4->SetFillColor(kWhite);
+  pad4->SetLogy();
+  for (int k=0; k<3; ++k) {
+    h_pvx[k]->SetStats(1110);
+    h_pvx[k]->SetMarkerStyle(20);
+    h_pvx[k]->SetLineColor(color[k]);
+    h_pvx[k]->SetMarkerColor(color[k]);
+    h_pvx[k]->GetXaxis()->SetTitle("N_{PV}");
+    h_pvx[k]->GetYaxis()->SetTitle("Events");
+    h_pvx[k]->GetYaxis()->SetLabelOffset(0.005);
+    h_pvx[k]->GetYaxis()->SetTitleOffset(1.20);
+    if (k == 0) h_pvx[k]->Draw("");
+    else        h_pvx[k]->Draw("sames");
+    legend4->AddEntry(h_pvx[k],titl4[k].c_str(),"l");
+  }
+  pad4->Update();
+  ymax = 0.90;
+  for (int k=0; k<3; ++k) {
+    TPaveStats* st1 = (TPaveStats*)h_pvx[k]->GetListOfFunctions()->FindObject("stats");
+    if (st1 != NULL) {
+      st1->SetLineColor(color[k]);
+      st1->SetTextColor(color[k]);
+      st1->SetY1NDC(ymax-0.09); st1->SetY2NDC(ymax);
+      st1->SetX1NDC(0.55); st1->SetX2NDC(0.90);
+      ymax -= 0.09;
+    }
+  }
+  pad4->Modified();
+  pad4->Update();
+  legend4->Draw("same");
+  pad4->Update();
 }
