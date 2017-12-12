@@ -15,7 +15,7 @@
  *
  * Updates for high pileup running by Vadim Khotilovich (TAMU), December 2012
  *
- * Updates for integrated local trigger with GEMs and RPCs by 
+ * Updates for integrated local trigger with GEMs by
  * Sven Dildick (TAMU) and Tao Huang (TAMU), April 2015
  *
  * Removing usage of outdated class CSCTriggerGeometry by Sven Dildick (TAMU)
@@ -152,7 +152,7 @@ class CSCAnodeLCTProcessor
   /** SLHC: delta BX time depth for ghostCancellationLogic */
   int ghost_cancellation_bx_depth;
 
-  /** SLHC: whether to consider ALCT candidates' qualities 
+  /** SLHC: whether to consider ALCT candidates' qualities
       while doing ghostCancellationLogic on +-1 wire groups */
   bool ghost_cancellation_side_quality;
 

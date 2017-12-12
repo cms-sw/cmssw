@@ -25,7 +25,7 @@
  *
  * Updates for high pileup running by Vadim Khotilovich (TAMU), December 2012
  *
- * Updates for integrated local trigger with GEMs and RPCs by 
+ * Updates for integrated local trigger with GEMs by
  * Sven Dildick (TAMU) and Tao Huang (TAMU), April 2015
  *
  * Removing usage of outdated class CSCTriggerGeometry by Sven Dildick (TAMU)
@@ -70,7 +70,7 @@ class CSCCathodeLCTProcessor
       finding. */
   void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
 	   const std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
- 
+
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
   void getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id);
@@ -132,14 +132,14 @@ class CSCCathodeLCTProcessor
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
-  
+
   const CSCGeometry* csc_g;
-  
+
   // holders for easy access:
   unsigned int theRing;
   unsigned int theChamber;
   bool isME11;
-  
+
   int numStrips;
   int stagger[CSCConstants::NUM_LAYERS];
 
@@ -147,7 +147,7 @@ class CSCCathodeLCTProcessor
   std::vector<int> thePreTriggerBXs;
 
   /** Flag for "real" - not idealized - version of the algorithm. */
-  bool isMTCC; 
+  bool isMTCC;
 
   /** Flag for 2007 firmware version. */
   bool isTMB07;
