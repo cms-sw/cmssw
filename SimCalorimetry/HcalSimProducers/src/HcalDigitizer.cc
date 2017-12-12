@@ -162,8 +162,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theTimeSlewSim = nullptr;
   if(doTimeSlew) {
     // no time slewing for HF
-    //hcalTimeSlew_delay_ = nullptr;
-    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay,hcalTimeSlew_delay_);
+    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay);
     theHBHEAmplifier->setTimeSlewSim(theTimeSlewSim);
     theHBHEQIE11Amplifier->setTimeSlewSim(theTimeSlewSim);
     theHOAmplifier->setTimeSlewSim(theTimeSlewSim);

@@ -10,10 +10,9 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-HcalTimeSlewSim::HcalTimeSlewSim(const CaloVSimParameterMap* parameterMap, double minFCToDelay, const HcalTimeSlew* hcalTimeSlew_delay)
+HcalTimeSlewSim::HcalTimeSlewSim(const CaloVSimParameterMap* parameterMap, double minFCToDelay)
   : theParameterMap(parameterMap),
-    minFCToDelay_(minFCToDelay),
-    hcalTimeSlew_delay_(hcalTimeSlew_delay)
+    minFCToDelay_(minFCToDelay)
 {
 }
 
@@ -30,7 +29,7 @@ double HcalTimeSlewSim::charge(const CaloSamples & samples) const
   return totalCharge;
 }
 
-void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) const
+void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine, const HcalTimeSlew* hcalTimeSlew_delay) const
 {
   // HO goes slow, HF shouldn't be used at all
   //ZDC not used for the moment
@@ -82,7 +81,7 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) co
       //Fix this 
       //--C. Madrid
       //--------------------------------------------------
-      tshift += 0.0;//hcalTimeSlew_delay_->delay(totalCharge, biasSetting);      
+      tshift += hcalTimeSlew_delay->delay(totalCharge, biasSetting);      
       if(tshift <= 0.) tshift = eps;
 	  
       if ( cut > -999. ) { //preserve compatibility
