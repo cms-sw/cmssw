@@ -47,10 +47,6 @@ from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(mixedTripletStepSeedClusterMask,
     oldClusterRemovalInfo = "detachedTripletStepSeedClusterMask"
 )
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(mixedTripletStepSeedClusterMask,
-    oldClusterRemovalInfo = "detachedTripletStepSeedClusterMask"
-)
 pixelLessStepSeedClusterMask = seedClusterRemover.clone(
     trajectories = cms.InputTag("pixelLessStepSeeds"),
     oldClusterRemovalInfo = cms.InputTag("mixedTripletStepSeedClusterMask")
@@ -85,7 +81,6 @@ _layerListForPhase1 = [
     'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'
 ]
 trackingPhase1.toModify(tripletElectronSeedLayers, layerList = _layerListForPhase1)
-trackingPhase1QuadProp.toModify(tripletElectronSeedLayers, layerList = _layerListForPhase1)
 trackingPhase2PU140.toModify(tripletElectronSeedLayers,
     layerList = _layerListForPhase1,
     BPix = dict(skipClusters = 'pixelPairStepSeedClusterMask'),
@@ -160,7 +155,6 @@ _layerListForPhase1 = [
         'FPix2_pos+FPix3_pos', 'FPix2_neg+FPix3_neg' 
     ]
 trackingPhase1.toModify(pixelPairElectronSeedLayers, layerList = _layerListForPhase1)
-trackingPhase1QuadProp.toModify(pixelPairElectronSeedLayers, layerList = _layerListForPhase1)
 
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
 pixelPairElectronTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet = dict(
@@ -254,7 +248,6 @@ _seedCollections_Phase1 = [
     'pixelPairStepSeeds'
 ]
 trackingPhase1.toModify(newCombinedSeeds, seedCollections = _seedCollections_Phase1)
-trackingPhase1QuadProp.toModify(newCombinedSeeds, seedCollections = _seedCollections_Phase1)
 trackingPhase2PU140.toModify(newCombinedSeeds, seedCollections = [
     'initialStepSeeds',
     'highPtTripletStepSeeds',
@@ -288,7 +281,6 @@ electronSeedsSeq = cms.Sequence(electronSeedsSeqTask)
 _electronSeedsSeqTask_Phase1 = electronSeedsSeqTask.copy()
 _electronSeedsSeqTask_Phase1.replace(pixelPairStepSeedClusterMask, detachedTripletStepSeedClusterMask)
 trackingPhase1.toReplaceWith(electronSeedsSeqTask, _electronSeedsSeqTask_Phase1 )
-trackingPhase1QuadProp.toReplaceWith(electronSeedsSeqTask,_electronSeedsSeqTask_Phase1 )
 trackingPhase2PU140.toReplaceWith(electronSeedsSeqTask, cms.Task(
     initialStepSeedClusterMask,
     highPtTripletStepSeedClusterMask,

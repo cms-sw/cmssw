@@ -63,30 +63,24 @@ def _filterForNtuple(lst):
     return ret
 _seedProducers = _filterForNtuple(_TrackValidation_cff._seedProducers)
 _seedProducers_trackingPhase1 = _filterForNtuple(_TrackValidation_cff._seedProducers_trackingPhase1)
-_seedProducers_trackingPhase1QuadProp = _filterForNtuple(_TrackValidation_cff._seedProducers_trackingPhase1QuadProp)
 _seedProducers_trackingPhase2PU140  = _filterForNtuple(_TrackValidation_cff._seedProducers_trackingPhase2PU140)
 
 (_seedSelectors, trackingNtupleSeedSelectors) = _TrackValidation_cff._addSeedToTrackProducers(_seedProducers, globals())
 (_seedSelectors_trackingPhase1, _trackingNtupleSeedSelectors_trackingPhase1) = _TrackValidation_cff._addSeedToTrackProducers(_seedProducers_trackingPhase1, globals())
-(_seedSelectors_trackingPhase1QuadProp, _trackingNtupleSeedSelectors_trackingPhase1QuadProp) = _TrackValidation_cff._addSeedToTrackProducers(_seedProducers_trackingPhase1QuadProp, globals())
 (_seedSelectors_trackingPhase2PU140, _trackingNtupleSeedSelectors_trackingPhase2PU140) = _TrackValidation_cff._addSeedToTrackProducers(_seedProducers_trackingPhase2PU140, globals())
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase1.toReplaceWith(trackingNtupleSeedSelectors, _trackingNtupleSeedSelectors_trackingPhase1)
-trackingPhase1QuadProp.toReplaceWith(trackingNtupleSeedSelectors, _trackingNtupleSeedSelectors_trackingPhase1QuadProp)
 trackingPhase2PU140.toReplaceWith(trackingNtupleSeedSelectors, _trackingNtupleSeedSelectors_trackingPhase2PU140)
 
 trackingNtuple.seedTracks = _seedSelectors
 trackingPhase1.toModify(trackingNtuple, seedTracks = _seedSelectors_trackingPhase1)
-trackingPhase1QuadProp.toModify(trackingNtuple, seedTracks = _seedSelectors_trackingPhase1)
 trackingPhase2PU140.toModify(trackingNtuple, seedTracks = _seedSelectors_trackingPhase2PU140)
 
 def _seedProdToTrackCands(name):
     return name.replace("seedTracks", "").replace("Seeds", "TrackCandidates")
 trackingNtuple.trackCandidates = map(_seedProdToTrackCands, _seedProducers)
 trackingPhase1.toModify(trackingNtuple, trackCandidates=map(_seedProdToTrackCands, _seedProducers_trackingPhase1))
-trackingPhase1QuadProp.toModify(trackingNtuple, trackCandidates=map(_seedProdToTrackCands, _seedProducers_trackingPhase1QuadProp))
 trackingPhase2PU140.toModify(trackingNtuple, trackCandidates=map(_seedProdToTrackCands, _seedProducers_trackingPhase2PU140))
 
 trackingNtupleSequence = cms.Sequence()
