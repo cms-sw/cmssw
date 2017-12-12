@@ -36,7 +36,7 @@ HerwigUIProvider::HerwigUIProvider(const edm::ParameterSet &pset, std::string in
     resume_(false), tics_(true), tag_(),
     inputfile_(inputFileName), repository_(), setupfile_(),
     integrationList_(),
-    N_(-1), seed_(0), jobs_(1),
+    nEvents_(-1), seed_(0), jobs_(1),
     jobsize_(0), maxjobs_(0)
 {
 
@@ -66,7 +66,7 @@ HerwigUIProvider::HerwigUIProvider(const edm::ParameterSet &pset, std::string in
 
   // Number of events
   if ( pset.getUntrackedParameter<int>("numberEvents", -1) != -1 )
-    N_ = pset.getUntrackedParameter<int>("numberEvents", 1);
+    nEvents_ = pset.getUntrackedParameter<int>("numberEvents", 1);
 
 
   // run name tag (default given in ggo file)
@@ -108,10 +108,9 @@ HerwigUIProvider::HerwigUIProvider(const edm::ParameterSet &pset, std::string in
   // Directories from which Herwig reads filesystem
   std::vector<std::string> aReadDirectories = pset.getUntrackedParameter<std::vector<std::string> >("appendReadDirectories", std::vector<std::string>() );
   std::vector<std::string> pReadDirectories = pset.getUntrackedParameter<std::vector<std::string> >("prependReadDirectories", std::vector<std::string>() );
-  for ( size_t i = 0; i < aReadDirectories.size(); ++i )
-    appendReadDirectories_.push_back( aReadDirectories[i] );
-  for ( size_t i = 0; i < pReadDirectories.size(); ++i )
-    prependReadDirectories_.push_back( pReadDirectories[i] );
+  appendReadDirectories_.insert(appendReadDirectories_.end(), aReadDirectories.begin(), aReadDirectories.end());
+  prependReadDirectories_.insert(prependReadDirectories_.end(), pReadDirectories.begin(), pReadDirectories.end());
+
   // Library search path for dlopen()
   std::vector<std::string> aPath = pset.getUntrackedParameter<std::vector<std::string> >("appendPath", std::vector<std::string>() );
   std::vector<std::string> pPath = pset.getUntrackedParameter<std::vector<std::string> >("prependPath", std::vector<std::string>() );

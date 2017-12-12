@@ -54,7 +54,7 @@ public:
   const std::vector<std::string> & 
   appendReadDirectories() const { return appendReadDirectories_; }
 
-  long N() const { return N_; }
+  long N() const { return  nEvents_; }
   int seed() const { return seed_; }
   int jobs() const { return jobs_; }
   unsigned int jobSize() const { return jobsize_; }
@@ -99,7 +99,7 @@ private:
   std::vector<std::string> prependReadDirectories_;
   std::vector<std::string> appendReadDirectories_;
 
-  long N_;
+  long nEvents_;
   int seed_;
   int jobs_;
   unsigned int jobsize_;
