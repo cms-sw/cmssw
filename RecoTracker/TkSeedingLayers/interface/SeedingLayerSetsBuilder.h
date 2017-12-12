@@ -40,7 +40,6 @@ public:
 
   const std::vector<SeedingLayerSetsHits::LayerSetIndex>& layerSetIndices() const { return theLayerSetIndices; }
 
-  std::vector<std::vector<SeedingLayerId> > layerSets() const; // please call at most once per job per client
   std::unique_ptr<SeedingLayerSetsHits> hits(const edm::Event& ev, const edm::EventSetup& es);
 
   static SeedingLayerId nameToEnumId(const std::string& name);
