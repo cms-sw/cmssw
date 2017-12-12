@@ -18,7 +18,7 @@ namespace l1t
     {
 
     public:
-        typedef typename edm::PtrVector<C>::const_iterator const_iterator;
+        typedef typename std::vector<edm::Ptr<C>>::const_iterator const_iterator;
 
     public:
         HGCalClusterT(){}
@@ -48,7 +48,7 @@ namespace l1t
       
         ~HGCalClusterT() {};
       
-        const edm::PtrVector<C>& constituents() const { return constituents_; }  
+        const std::vector<edm::Ptr<C>>& constituents() const { return constituents_; }  
         const_iterator constituents_begin() const { return constituents_.begin(); }
         const_iterator constituents_end() const { return constituents_.end(); }
         unsigned size() const { return constituents_.size(); }
@@ -101,22 +101,21 @@ namespace l1t
             setP4( updatedP4 );
 
             constituents_.push_back( c );
-            constituentsV_.push_back( c );
             constituentsFraction_.push_back( fraction );
 
         }
       
         void removeConstituent( const edm::Ptr<C>& c, bool updateCentre=true ){
           
-            /* remove the pointer to c from the edm::PtrVector */
+            /* remove the pointer to c from the std::vector */
             double fraction=0;
             bool constituentRemoved=false;
-            for( unsigned i=0; i<constituentsV_.size(); i++ )
+            for( unsigned i=0; i<constituents_.size(); i++ )
             {
-                if( constituentsV_[i] == c )
+                if( constituents_[i] == c )
                 {
                     // remove constituent and get its fraction in the cluster
-                    constituentsV_.erase( constituentsV_.begin()+i );
+                    constituents_.erase( constituents_.begin()+i );
                     fraction = constituentsFraction_.at(i);
                     constituentsFraction_.erase( constituentsFraction_.begin()+i );
                     constituentRemoved=true;
@@ -126,9 +125,6 @@ namespace l1t
           
             /* if a constituent has been removed update cluster info */
             if( constituentRemoved ) { 
-
-                /* rebuilding the constituents_ persistent vector */
-                this->fillPersistentPtrVector_(); 
 
                 /* update cluster positions (IF requested) */
                 double cMipt = c->mipPt()*fraction;
@@ -257,16 +253,8 @@ namespace l1t
         bool valid_;
         HGCalDetId detId_;     
       
-        edm::PtrVector<C> constituents_;          /* ???? possibly change this in something like       */
-        std::vector<edm::Ptr<C>> constituentsV_;          /*      vector<pair<edm::Ptr<C>,float>>        ????  */
+        std::vector<edm::Ptr<C>> constituents_;    /* ???? possibly change this in something like       */
         std::vector<double> constituentsFraction_;  /*      vector<pair<edm::Ptr<C>,float>>        ????  */
-
-        void fillPersistentPtrVector_() {
-            constituents_.clear();
-            for( unsigned iclu=0; iclu<constituentsV_.size(); iclu++ ) { 
-                constituents_.push_back( constituentsV_[iclu] );
-            }
-        }
 
         GlobalPoint centre_;
         GlobalPoint centreProj_; // centre projected onto the first HGCal layer

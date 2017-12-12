@@ -43,7 +43,7 @@ bool HGCalClusteringImpl::isPertinent( const l1t::HGCalTriggerCell & tc,
 }
 
 
-void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+void HGCalClusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs, 
                                         l1t::HGCalClusterBxCollection & clusters
     ){
 
@@ -51,7 +51,7 @@ void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCe
     
     /* search for cluster seeds */
     int itc(0);
-    for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
+    for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
         double seedThreshold = ((*tc)->subdetId()==HGCHEB ? scintillatorSeedThreshold_ : siliconSeedThreshold_);
         isSeed[itc] = ( (*tc)->mipPt() > seedThreshold) ? true : false;
     }
@@ -60,7 +60,7 @@ void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCe
     std::vector<l1t::HGCalCluster> clustersTmp;
 
     itc=0;
-    for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
+    for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
         double threshold = ((*tc)->subdetId()==HGCHEB ? scintillatorTriggerCellThreshold_ : siliconTriggerCellThreshold_);
         if( (*tc)->mipPt() < threshold ){
             continue;
@@ -115,7 +115,7 @@ void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCe
 /* NN-algorithms */
 
 /* storing trigger cells into vector per layer and per endcap */
-void HGCalClusteringImpl::triggerCellReshuffling( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+                                        void HGCalClusteringImpl::triggerCellReshuffling( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs, 
                                                   std::array< std::array<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>, kLayers_>,kNSides_> & reshuffledTriggerCells 
     ){
 
@@ -147,9 +147,9 @@ void HGCalClusteringImpl::mergeClusters( l1t::HGCalCluster & main_cluster,
                                          const l1t::HGCalCluster & secondary_cluster ) const
 {
 
-    const edm::PtrVector<l1t::HGCalTriggerCell>& pertinentTC = secondary_cluster.constituents();
+    const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& pertinentTC = secondary_cluster.constituents();
     
-    for( edm::PtrVector<l1t::HGCalTriggerCell>::iterator tc = pertinentTC.begin(); tc != pertinentTC.end(); ++tc ){
+    for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = pertinentTC.begin(); tc != pertinentTC.end(); ++tc ){
         main_cluster.addConstituent(*tc);
     }
 
@@ -260,7 +260,7 @@ void HGCalClusteringImpl::NNKernel( const std::vector<edm::Ptr<l1t::HGCalTrigger
 }
 
 
-void HGCalClusteringImpl::clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+                                        void HGCalClusteringImpl::clusterizeNN( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs, 
                                       l1t::HGCalClusterBxCollection & clusters,
                                       const HGCalTriggerGeometryBase & triggerGeometry
     ){
@@ -279,7 +279,7 @@ void HGCalClusteringImpl::clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCe
 
 
 /*** FW-algorithms ***/
-void HGCalClusteringImpl::clusterizeDRNN( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+void HGCalClusteringImpl::clusterizeDRNN( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs, 
                                         l1t::HGCalClusterBxCollection & clusters,
                                         const HGCalTriggerGeometryBase & triggerGeometry
     ){
@@ -290,7 +290,7 @@ void HGCalClusteringImpl::clusterizeDRNN( const edm::PtrVector<l1t::HGCalTrigger
 
     /* search for cluster seeds */
     int itc(0);
-    for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
+    for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
         
         double seedThreshold = ((*tc)->subdetId()==HGCHEB ? scintillatorSeedThreshold_ : siliconSeedThreshold_);
 
@@ -324,7 +324,7 @@ void HGCalClusteringImpl::clusterizeDRNN( const edm::PtrVector<l1t::HGCalTrigger
 
     /* add the tc to the clusters */
     itc=0;
-    for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
+    for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
       
         /* get the correct threshold for the different part of the detector */ 
         double threshold = ((*tc)->subdetId()==HGCHEB ? scintillatorTriggerCellThreshold_ : siliconTriggerCellThreshold_);
@@ -389,7 +389,7 @@ bool HGCalClusteringImpl::areTCneighbour(uint32_t detIDa, uint32_t detIDb, const
 void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & cluster, const HGCalTriggerGeometryBase & triggerGeometry ) {
 
     /* get the constituents and the centre of the seed tc (considered as the first of the constituents) */
-    const edm::PtrVector<l1t::HGCalTriggerCell>& constituents = cluster.constituents(); 
+    const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& constituents = cluster.constituents(); 
     Basic3DVector<float> seedCentre( constituents[0]->position() );
     
     /* distances from the seed */
