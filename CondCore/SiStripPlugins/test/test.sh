@@ -13,7 +13,7 @@ cd $W_DIR;
 ####################
 # Test Gains
 ####################
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
     --plot plot_SiStripApvGainsByRegion \
     --tag SiStripApvGain_FromParticles_GR10_v1_express \
@@ -25,7 +25,7 @@ cd $W_DIR;
 ######################
 # Test Lorentz Angle
 ######################
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginSiStripLorentzAngle_PayloadInspector \
     --plot plot_SiStripLorentzAngleByRegion \
     --tag  SiStripLorentzAngleDeco_GR10_v1_prompt \
@@ -37,7 +37,7 @@ cd $W_DIR;
 ######################
 # Test Backplane correction
 ######################
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginSiStripBackPlaneCorrection_PayloadInspector \
     --plot plot_SiStripBackPlaneCorrectionByRegion \
     --tag SiStripBackPlaneCorrection_deco_GR10_v1_express \
@@ -49,7 +49,7 @@ cd $W_DIR;
 ######################
 # Test Bad components
 ######################
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginSiStripBadStrip_PayloadInspector \
     --plot plot_SiStripBadStripQualityAnalysis \
     --tag  SiStripBadComponents_startupMC_for2017_v1_mc\

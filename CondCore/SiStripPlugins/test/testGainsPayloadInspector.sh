@@ -19,7 +19,7 @@ mkdir $W_DIR/plots
 ####################
 # Test Gains
 ####################
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
     --plot plot_SiStripApvGainsValuesComparator \
     --tag SiStripApvGainAfterAbortGap_PCL_v0_prompt \
@@ -30,7 +30,7 @@ mkdir $W_DIR/plots
 
 mv *.png $W_DIR/plots/G2_Value_update.png
 
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
     --plot plot_SiStripApvGainsMaxDeviationRatio2sigmaTrackerMap \
     --tag SiStripApvGainAfterAbortGap_PCL_v0_prompt \
@@ -41,7 +41,7 @@ mv *.png $W_DIR/plots/G2_Value_update.png
 
 mv *.png $W_DIR/plots/G2_MaxDeviatonRatio_update.png
 
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
     --plot plot_SiStripApvGainsRatioComparatorByRegion \
     --tag SiStripApvGainAfterAbortGap_PCL_v0_prompt \
@@ -52,7 +52,7 @@ mv *.png $W_DIR/plots/G2_MaxDeviatonRatio_update.png
 
 mv *.png $W_DIR/plots/G2_Ratio_update.png
 
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
     --plot plot_SiStripApvGainsValuesComparator \
     --tag SiStripApvGain_GR10_v1_hlt \

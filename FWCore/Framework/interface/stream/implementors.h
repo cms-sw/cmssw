@@ -29,6 +29,8 @@
 
 // forward declarations
 namespace edm {
+
+  class WaitingTaskWithArenaHolder;
   
   namespace stream {
     namespace impl {
@@ -143,6 +145,18 @@ namespace edm {
       private:
         ///requires the following be defined in the inheriting class
         ///static void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, LuminosityBlockContext const*)
+      };
+
+      class ExternalWork {
+      public:
+        ExternalWork() = default;
+        ExternalWork(ExternalWork const&) = delete;
+        ExternalWork& operator=(ExternalWork const&) = delete;
+        ~ExternalWork() noexcept(false) {};
+
+        virtual void acquire(Event const&,
+                             edm::EventSetup const&,
+                             WaitingTaskWithArenaHolder) = 0;
       };
     }
   }
