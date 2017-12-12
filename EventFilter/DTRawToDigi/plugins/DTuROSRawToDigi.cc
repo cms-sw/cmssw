@@ -13,7 +13,7 @@
 //
 //--------------------------------------------------
 
-#include "DTuROSRawToDigi.h"
+#include "EventFilter/DTRawToDigi/plugins/DTuROSRawToDigi.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
@@ -30,7 +30,6 @@
 DTuROSRawToDigi::DTuROSRawToDigi(const edm::ParameterSet& pset) {
 
   produces<DTDigiCollection>();
-//  produces<std::vector<DTuROSFEDData>>("DTuROSWords");
   produces<std::vector<DTuROSFEDData>>();
 
   DTuROSInputTag_ = pset.getParameter<edm::InputTag>("inputLabel");
