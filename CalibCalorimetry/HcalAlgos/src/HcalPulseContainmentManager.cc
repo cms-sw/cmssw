@@ -17,7 +17,7 @@ void HcalPulseContainmentManager::beginRun(edm::EventSetup const & es)
   edm::ESHandle<HcalTimeSlew> delay;
   es.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
-  std::cout<<"HcalPulseContainmentManager.cc"<<std::endl;
+  //std::cout<<"HcalPulseContainmentManager.cc"<<std::endl;
 
   shapes_.beginRun(es);
 }

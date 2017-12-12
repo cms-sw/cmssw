@@ -142,7 +142,7 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   edm::ESHandle<HcalTimeSlew> delay;
   iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
-  std::cout<<"HcalDigitizerTest.cc"<<std::endl;
+  //std::cout<<"HcalDigitizerTest.cc"<<std::endl;
 
   std::string hitsName = "HcalHits";
   std::vector<std::string> caloDets;
@@ -235,10 +235,11 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   bool addNoise = false;
   bool PM1 = false;
   bool PM2 = false;
-  HcalAmplifier amplifier(&parameterMap, addNoise, PM1, PM2, hcalTimeSlew_delay_);
+  HcalAmplifier amplifier(&parameterMap, addNoise, PM1, PM2);
   HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
   HcalElectronicsSim electronicsSim(&amplifier, &coderFactory, PM1);
   amplifier.setDbService(&calibratorHandle);
+  amplifier.setTimeSlew(hcalTimeSlew_delay_);
   parameterMap.setDbService(&calibratorHandle);
   siPMParameterMap.setDbService(&calibratorHandle);
 

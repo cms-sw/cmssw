@@ -144,7 +144,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   if(applyTimeSlew_) {
 
-    std::cout<<"delay:  HcalDeterministicFit.cc"<<std::endl; 
+    //std::cout<<"delay:  HcalDeterministicFit.cc"<<std::endl; 
     tsShift3=hcalTimeSlew_delay->delay(inputCharge[soi-1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
     tsShift4=hcalTimeSlew_delay->delay(inputCharge[soi], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
     tsShift5=hcalTimeSlew_delay->delay(inputCharge[soi+1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());

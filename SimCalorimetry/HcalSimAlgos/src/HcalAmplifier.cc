@@ -21,7 +21,7 @@
 #include <cmath>
 #include <cmath>
 
-HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2, const HcalTimeSlew* hcalTimeSlew_delay) :
+HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2) :
   theDbService(nullptr),
   theParameterMap(parameters),
   theNoiseSignalGenerator(nullptr),
@@ -30,8 +30,7 @@ HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNo
   theStartingCapId(0),
   addNoise_(addNoise),
   preMixDigi_(PreMix1),
-  preMixAdd_(PreMix2),
-  hcalTimeSlew_delay_(hcalTimeSlew_delay)
+  preMixAdd_(PreMix2)
 { }
 
 
@@ -50,7 +49,7 @@ void HcalAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engine)
   // don't bother for blank signals
   if(theTimeSlewSim && frame.size()>4 && frame[4] > 1.e-6)
   {
-    theTimeSlewSim->delay(frame, engine, hcalTimeSlew_delay_);
+    theTimeSlewSim->delay(frame, engine, theTimeSlew);
   }
 
   // if we are combining pre-mixed digis, we need noise and peds
