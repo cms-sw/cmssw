@@ -48,13 +48,14 @@ void HcalDigisClient::runClient(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
                 hcalMEs = ig.getContents(fullSubPathHLTFolders[j]);
                 ig.setCurrentFolder("HcalDigisV/HcalDigiTask");
                 if (!HcalDigisEndjob(hcalMEs, "HB", ib)) 
-		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HB"; 
+                    edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HB"; 
                 if (!HcalDigisEndjob(hcalMEs, "HE", ib)) 
-		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HE"; 
+                    edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HE"; 
                 if (!HcalDigisEndjob(hcalMEs, "HO", ib)) 
-		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HO"; 
+                    edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HO"; 
                 if (!HcalDigisEndjob(hcalMEs, "HF", ib)) 
-		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HF";             }
+                    edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HF";             
+            }
         }
     }
 }
@@ -84,7 +85,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
             &&(hcalMEs[ih]->getName().find(subdet_) != std::string::npos) ){
 
                     ieta_iphi_occupancy_maps.push_back(hcalMEs[ih]);
-	
+
                     std::string start = "depth";
                     std::string end = "_H";
 
@@ -178,10 +179,10 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
         }
     
         //zero the sumphi vector at the start of each ieta ring
-	for(int depth = 1; depth <= depths; depth++) {
-	sumphi[depth-1] = 0;
-	sumphie[depth-1] = 0;
-	}
+    for(int depth = 1; depth <= depths; depth++) {
+    sumphi[depth-1] = 0;
+    sumphie[depth-1] = 0;
+    }
 
         for (int iphi = 1; iphi <= 72; iphi++) {
             for(int depth = 1; depth <= depths; depth++){
@@ -189,10 +190,10 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
                 int binIphi = ieta_iphi_occupancy_maps[depth-1]->getTH2F()->GetYaxis()->FindBin(iphi);
                 
                 float content = ieta_iphi_occupancy_maps[depth-1]->getBinContent(binIeta,binIphi);
-		float econtent = ieta_iphi_occupancy_maps[depth-1]->getBinError(binIeta,binIphi);
+                float econtent = ieta_iphi_occupancy_maps[depth-1]->getBinError(binIeta,binIphi);
 
                 sumphi[depth-1] += content;
-		sumphie[depth-1] += econtent*econtent;
+                sumphie[depth-1] += econtent*econtent;
 
             }//for loop over depths
         }//for loop over phi
@@ -201,17 +202,17 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
 
         // occupancies vs ieta
         for(int depth = 1; depth <= depths; depth++){
-	   strtmp = "HcalDigiTask_occupancy_vs_ieta_depth" + depthID[depth-1] + "_" + subdet_;
-	   MonitorElement* ME = msm_->find(strtmp)->second;
-	   int ietabin = ME->getTH1F()->GetXaxis()->FindBin(float(ieta));
+            strtmp = "HcalDigiTask_occupancy_vs_ieta_depth" + depthID[depth-1] + "_" + subdet_;
+            MonitorElement* ME = msm_->find(strtmp)->second;
+            int ietabin = ME->getTH1F()->GetXaxis()->FindBin(float(ieta));
 
-	   if (sumphi[depth-1]>1.e-30){
-           	cnorm = sumphi[depth-1] / phi_factor;
-	   	enorm = sqrt(sumphie[depth-1]) / phi_factor;
-	   	ME->setBinContent(ietabin,cnorm);
-	   	ME->setBinError(ietabin,enorm);
-	   	}
-	   }
+            if (sumphi[depth-1]>1.e-30){
+                cnorm = sumphi[depth-1] / phi_factor;
+                enorm = sqrt(sumphie[depth-1]) / phi_factor;
+                ME->setBinContent(ietabin,cnorm);
+                ME->setBinError(ietabin,enorm);
+                }
+            }
     } // end of i-loop
 
   return 1;
@@ -250,7 +251,7 @@ void HcalDigisClient::scaleMETH2D(MonitorElement* ME, double s) {
             content = ME->getBinContent(i, j);
             error = ME->getBinError(i, j);
             content *= s;
-	    error *= s;
+            error *= s;
             ME->setBinContent(i, j, content);
             ME->setBinError(i, j, error);
         }
