@@ -37,7 +37,7 @@ class Herwig7Interface {
 
         void setPEGRandomEngine(CLHEP::HepRandomEngine*);
 
-	mutable ThePEG::EGPtr				eg_;
+	ThePEG::EGPtr				eg_;
 
 
 

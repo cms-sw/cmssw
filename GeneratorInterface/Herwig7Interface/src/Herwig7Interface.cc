@@ -87,16 +87,26 @@ void Herwig7Interface::setPEGRandomEngine(CLHEP::HepRandomEngine* v) {
 void Herwig7Interface::initRepository(const edm::ParameterSet &pset)
 {
 	std::string runModeTemp = pset.getUntrackedParameter<string>("runModeList","read,run");
+
+    std::cout << "runModeTemp = " << runModeTemp << std::endl;
 	// To Lower
 	std::transform(runModeTemp.begin(), runModeTemp.end(), runModeTemp.begin(), ::tolower);
+
+
 
 	while(!runModeTemp.empty())
 	{
 		// Split first part of List
 		std::string choice;
 		size_t pos = runModeTemp.find(",");
-		choice = runModeTemp.substr(0, pos);
+        std::cout << "pos = " << pos << std::endl;
+        if (-1 == pos)
+            choice=runModeTemp;
+        else
+		    choice = runModeTemp.substr(0, pos);
+        std::cout << "choice = " << choice << std::endl;
 		runModeTemp.erase(0, pos+1);
+        std::cout << "runModeTemp = " << runModeTemp << std::endl;
 		if (pos == std::string::npos)
 			runModeTemp.erase();
 
@@ -291,11 +301,11 @@ void Herwig7Interface::createInputFile(const edm::ParameterSet &pset)
 	// Read Herwig config files as input
 	vector<string> configFiles = pset.getParameter<vector<string> >("configFiles");
 	// Loop over the config files
-	for(vector<string>::iterator iter = configFiles.begin(); iter != configFiles.end(); ++iter) {
+	for ( const auto & iter : configFiles ) {
 		// Open external config file
-		ifstream externalConfigFile (*iter);
+		ifstream externalConfigFile (iter);
 		if (externalConfigFile.is_open()) {
-			edm::LogInfo("Herwig7Interface") << "Reading config file (" << *iter << ")" << endl;
+			edm::LogInfo("Herwig7Interface") << "Reading config file (" << iter << ")" << endl;
 			stringstream configFileStream;
 			configFileStream << externalConfigFile.rdbuf();
 			string configFileContent = configFileStream.str();
@@ -303,14 +313,14 @@ void Herwig7Interface::createInputFile(const edm::ParameterSet &pset)
 			// Comment out occurence of saverun in config file since it is set later considering run and generator option
 			string searchKeyword("saverun");
    			if(configFileContent.find(searchKeyword) !=std::string::npos) {
-				edm::LogInfo("Herwig7Interface") << "Commented out saverun command in external input config file(" << *iter << ")" << endl;
+				edm::LogInfo("Herwig7Interface") << "Commented out saverun command in external input config file(" << iter << ")" << endl;
 				configFileContent.insert(configFileContent.find(searchKeyword),"#");
 			}
 			herwiginputconfig << "# Begin Config file input" << endl  << configFileContent << endl << "# End Config file input";
-			edm::LogInfo("Herwig7Interface") << "Finished reading config file (" << *iter << ")" << endl;
+			edm::LogInfo("Herwig7Interface") << "Finished reading config file (" << iter << ")" << endl;
 		}
 		else {
-			edm::LogWarning("Herwig7Interface") << "Could not read config file (" << *iter << ")" << endl;
+			edm::LogWarning("Herwig7Interface") << "Could not read config file (" << iter << ")" << endl;
 		}
 	}
 
