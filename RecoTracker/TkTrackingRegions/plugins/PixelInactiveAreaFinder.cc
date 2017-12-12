@@ -130,7 +130,7 @@ namespace {
         ss << std::endl;
       }
     }
-    edm::LogPrint("") << ss.str();
+    edm::LogPrint("PixelInactiveAreaFinder") << ss.str();
   }
 
   // Functions for finding bad detGroups
@@ -226,11 +226,13 @@ namespace {
         cspanFurther = cspanB;
         cspanNearer = cspanA;
       }else {
-        //edm::LogPrint("") << "No overlap, same disk propably. Spans:";
-        //Stream ss;
-        //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
-        //edm::LogPrint("") << ss.str();ss.str(std::string());
-        //edm::LogPrint("") << "**";
+#ifdef EDM_ML_DEBUG
+        LogTrace("PixelInactiveAreaFinder") << "No overlap, same disk propably. Spans:";
+        Stream ss;
+        detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
+        LogTrace("PixelInactiveAreaFinder") << ss.str();ss.str(std::string());
+        LogTrace("PixelInactiveAreaFinder") << "**";
+#endif
         return false;
       }
       if(cspanFurther.rSpan.second > cspanNearer.rSpan.first){
@@ -245,11 +247,13 @@ namespace {
           upper = std::numeric_limits<float>::infinity();
         }
       }else{
-        //edm::LogPrint("") << "No overlap, further detGroup is lower. Spans:";
-        //Stream ss;
-        //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
-        //edm::LogPrint("") << ss.str();ss.str(std::string());
-        //edm::LogPrint("") << "**";
+#ifdef EDM_ML_DEBUG
+        LogTrace("PixelInactiveAreaFinder") << "No overlap, further detGroup is lower. Spans:";
+        Stream ss;
+        detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
+        LogTrace("PixelInactiveAreaFinder") << ss.str();ss.str(std::string());
+        LogTrace("PixelInactiveAreaFinder") << "**";
+#endif
         return false;
       }
     }else if(cspanA.zSpan.first > 0 && cspanB.zSpan.first > 0){
@@ -260,11 +264,13 @@ namespace {
         cspanFurther = cspanB;
         cspanNearer = cspanA;
       }else{
-        //edm::LogPrint("") << "No overlap, same disk propably. Spans:";
-        //Stream ss;
-        //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
-        //edm::LogPrint("") << ss.str();ss.str(std::string());
-        //edm::LogPrint("") << "**";
+#ifdef EDM_ML_DEBUG
+        LogTrace("PixelInactiveAreaFinder") << "No overlap, same disk propably. Spans:";
+        Stream ss;
+        detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
+        LogTrace("PixelInactiveAreaFinder") << ss.str();ss.str(std::string());
+        LogTrace("PixelInactiveAreaFinder") << "**";
+#endif
         return false;
       }
       if(cspanFurther.rSpan.second > cspanNearer.rSpan.first){
@@ -279,19 +285,23 @@ namespace {
           lower = -std::numeric_limits<float>::infinity();
         }
       }else{
-        //edm::LogPrint("") << "No overlap, further detGroup lower. Spans:";
-        //Stream ss;
-        //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
-        //edm::LogPrint("") << ss.str();ss.str(std::string());
-        //edm::LogPrint("") << "**";
+#ifdef EDM_ML_DEBUG
+        LogTrace("PixelInactiveAreaFinder") << "No overlap, further detGroup lower. Spans:";
+        Stream ss;
+        detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
+        LogTrace("PixelInactiveAreaFinder") << ss.str();ss.str(std::string());
+        LogTrace("PixelInactiveAreaFinder") << "**";
+#endif
         return false;
       }
     }else{
-      //edm::LogPrint("") << "No overlap, different sides of z axis. Spans:";
-      //Stream ss;
-      //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
-      //edm::LogPrint("") << ss.str();ss.str(std::string());
-      //edm::LogPrint("") << "**";
+#ifdef EDM_ML_DEBUG
+      LogTrace("PixelInactiveAreaFinder") << "No overlap, different sides of z axis. Spans:";
+      Stream ss;
+      detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
+      LogTrace("PixelInactiveAreaFinder") << ss.str();ss.str(std::string());
+      LogTrace("PixelInactiveAreaFinder") << "**";
+#endif
       return false;
     }
     range = std::pair<float,float>(lower,upper);
@@ -712,29 +722,29 @@ void PixelInactiveAreaFinder::detInfo(const det_t & det, Stream & ss){
 
 }
 void PixelInactiveAreaFinder::printPixelDets(){
-  edm::LogPrint("") << "Barrel detectors:";
+  edm::LogPrint("PixelInactiveAreaFinder") << "Barrel detectors:";
   Stream ss;
   for(auto const & det : pixelDetsBarrel_){
     detInfo(det,ss);
-    edm::LogPrint("") << ss.str();ss.str(std::string());
+    edm::LogPrint("PixelInactiveAreaFinder") << ss.str();ss.str(std::string());
   }
-  edm::LogPrint("") << "Endcap detectors;";
+  edm::LogPrint("PixelInactiveAreaFinder") << "Endcap detectors;";
   for(auto const & det : pixelDetsEndcap_){
     detInfo(det,ss);
-    edm::LogPrint("") << ss.str();ss.str(std::string());
+    edm::LogPrint("PixelInactiveAreaFinder") << ss.str();ss.str(std::string());
   }
 }
 void PixelInactiveAreaFinder::printBadPixelDets(){
-  edm::LogPrint("") << "Bad barrel detectors:";
+  edm::LogPrint("PixelInactiveAreaFinder") << "Bad barrel detectors:";
   Stream ss;
   for(auto const & det : badPixelDetsBarrel_){
     detInfo(det,ss);
-    edm::LogPrint("") << ss.str();ss.str(std::string());
+    edm::LogPrint("PixelInactiveAreaFinder") << ss.str();ss.str(std::string());
   }
-  edm::LogPrint("") << "Endcap detectors;";
+  edm::LogPrint("PixelInactiveAreaFinder") << "Endcap detectors;";
   for(auto const & det : badPixelDetsEndcap_){
     detInfo(det,ss);
-    edm::LogPrint("") << ss.str();ss.str(std::string());
+    edm::LogPrint("PixelInactiveAreaFinder") << ss.str();ss.str(std::string());
   }
 }
 void PixelInactiveAreaFinder::printBadDetGroups(){
@@ -767,7 +777,7 @@ void PixelInactiveAreaFinder::printBadDetGroups(){
     }
     ss << std::endl;
   }
-  edm::LogPrint("")<<ss.str();
+  edm::LogPrint("PixelInactiveAreaFinder")<<ss.str();
 }
 void PixelInactiveAreaFinder::printBadDetGroupSpans(){
   DetGroupSpanContainerPair cspans = detGroupSpans();
@@ -778,7 +788,7 @@ void PixelInactiveAreaFinder::printBadDetGroupSpans(){
   for(auto const & cspan : cspans.second){
     detGroupSpanInfo(cspan,ss);ss<<std::endl;
   }
-  edm::LogPrint("") << ss.str();
+  edm::LogPrint("PixelInactiveAreaFinder") << ss.str();
 }
 void PixelInactiveAreaFinder::createPlottingFiles(){
   // All detectors to file DETECTORS
@@ -788,7 +798,7 @@ void PixelInactiveAreaFinder::createPlottingFiles(){
     detInfo(det,ss);
     ss << std::endl;
   }
-  edm::LogPrint("") << "Endcap detectors;";
+  edm::LogPrint("PixelInactiveAreaFinder") << "Endcap detectors;";
   for(auto const & det : pixelDetsEndcap_){
     detInfo(det,ss);
     ss << std::endl;
