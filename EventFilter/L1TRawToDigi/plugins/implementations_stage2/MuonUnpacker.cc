@@ -1,5 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+
 
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 
@@ -43,11 +45,10 @@ namespace l1t {
          // Get the BX blocks and unpack them
          auto bxBlocks = block.getBxBlocks(nWords_, bxZsEnabled);
          for (const auto& bxBlock : bxBlocks) {
-            // Protect against corrupted BX headers with out of range BX numbers
+            // Throw an exception if finding a corrupt BX header with out of range BX numbers
             const auto bx = bxBlock.header().getBx();
             if (bx < firstBX || bx > lastBX) {
-               edm::LogError("L1T") << "Corrupt RAW data from FED " << fed_ << ", AMC " << block.amc().getAMCNumber() << ". BX number " << bx << " in BX header is outside of the BX range [" << firstBX << "," << lastBX << "] defined in the block header. Skip unpacking of this BX block.";
-               continue;
+               throw cms::Exception("CorruptData") << "Corrupt RAW data from FED " << fed_ << ", AMC " << block.amc().getAMCNumber() << ". BX number " << bx << " in BX header is outside of the BX range [" << firstBX << "," << lastBX << "] defined in the block header.";
             }
             unpackBx(bx, bxBlock.payload());
          }
