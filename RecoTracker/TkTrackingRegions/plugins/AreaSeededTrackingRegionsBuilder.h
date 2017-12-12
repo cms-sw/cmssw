@@ -21,7 +21,7 @@ public:
     // phimin and phimax, and hence xmin+xmax and ymin+ymax are
     // ordered by which way one goes around the unit circle, so it may
     // happen that actually phimax < phimin
-    Area(double rmin, double rmax, double phimin, double phimax, double zmin, double zmax):
+    Area(float rmin, float rmax, float phimin, float phimax, float zmin, float zmax):
       m_zmin(zmin), m_zmax(zmax)
     {
       auto cosphimin = std::cos(phimin);
