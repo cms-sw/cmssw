@@ -141,7 +141,6 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
 
     for(int ros = 1; ros <= 12; ++ros) {// loop over all ROS
       code.setROS(ros);
-      //cout<<"BookingID: "<<code.getROSID()<<endl;
       bookHistosROS25(ibooker, code);
     }
    }
@@ -849,10 +848,6 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
   // uROS errors
    int sumOKs =0 ;
    for (unsigned int link = 0; link<72; ++link){
-//    int okflag = data.getokflag(link);
-//    run number < 307000 Commisioning
-//   cout<<" OK flag in uROS " << uRos
-//   << " Link " << link << "OK flag " << okflag <<endl;
       for (unsigned int flag = 1; flag<6; ++flag){
 	if((data.getokxflag(link)>>flag) & 0x1) { // Undefined Flag 1-4 64bits word for each MTP (12 channels)
 	        if(link<24) uROSError0->Fill(flag,link+1); //bins start at 1 despite labeling
@@ -865,7 +860,6 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
    
 
 // Fill the ROSSummary (1 per FED) histo
-//    cout<<"SumOKs = "<<sumOKs<<endl;
     if(sumOKs!=0) uROSSummary->Fill(13, uRos); //bins start at 1 despite labeling
 // Need to fill bin 13 Ev ID Mismatch?
 
@@ -878,17 +872,10 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
    }
 
   // ROS error
-//  cout<<"Errors: "<<data.geterrors().size()<<endl; 
   for (unsigned int icounter = 0; icounter<data.geterrors().size(); ++icounter){
    int link = data.geterrorROBID(icounter);
    int tdc = data.geterrorTDCID(icounter);
    int error =  data.geterror(icounter);
-/*   cout<<" Error in uROS " << uRos
-   << " Link " << link << " Error type " << error <<endl;
-   cout<<"geterrorROBID "<<data.geterrorROBID(icounter)<<endl;
-   cout<<"geterrorTDCID "<<data.geterrorTDCID(icounter)<<endl;
-   cout<<"geterrorFlag " <<data.geterrorFlag(icounter)<<endl;
-*/
     int tdcError_ROSSummary = 0;
     int tdcError_ROSError = 0;
     int tdcError_TDCHisto = 0;
@@ -952,9 +939,6 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
         << " TDC error code not known " << error << endl;
     }
 
-/*   cout<<"tdcError_TDCHisto "<<tdcError_TDCHisto<<endl;
-   cout<<"tdcError_ROSSummary "<<tdcError_ROSSummary<<endl;
-   cout<<"tdcError_ROSError "<<tdcError_ROSError <<endl;*/
    uROSSummary->Fill(tdcError_ROSSummary,uRos); 
 
    if(mode<=2){
@@ -973,12 +957,8 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
 
   // 1D histograms for TTS values per uROS
   int ttsCodeValue = -1;
-  //cout<<"data.getuserWord() & 0xF"<<(data.getuserWord() & 0xF)<<endl;
-  //cout<<"data.getuserWord() hex"<<hex <<data.getuserWord()<<endl;
-  //cout<<"data.getuserWord() " <<data.getuserWord()<<endl;
 
   int value = (data.getuserWord() & 0xF);
-  //cout<<"Value: "<<value<<endl;  
   switch(value) { 
   case 0:{ //disconnected
     ttsCodeValue = 0;
@@ -1012,7 +992,6 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
     LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       <<"[DTDataIntegrityTask] FED User control: wrong TTS value "<< value << " in FED " << fed << " uROS "<< uRos<< endl; //FIXME
     ttsCodeValue = 7;
-	//cout<<"data.getuserWord():"<< hex<< data.getuserWord() <<endl;
   }
   }
   if(mode < 1) {
@@ -1808,21 +1787,12 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
     fedData = fedCol->at(j);
     int fed = fedData.getfed(); //argument should be void
 
-//std::cout<<"FED" << fed << std::endl;
     processFED(fedData, fed);
-//std::cout<<"FEDslots "<<fedData.getnslots()<< std::endl;
 
-//std::cout<<"EvtLeght "<<fedData.getevtlgth()<< std::endl;
-       // std::cout<<"Trailer "<<fedData.gettrailer()<< std::endl;
     for(int slot=1; slot<fedData.getnslots(); ++slot)
     {
         urosData = fedData.getuROS(slot);
 	if(fedData.getslotsize(slot)==0 || urosData.getslot()==-1) continue;
-	//std::cout<<"SlotSize "<<fedData.getslotsize(slot)<< std::endl;
-	//if(urosData.geterrors().size()>0) cout<<"Errors size"<<urosData.geterrors().size()<< std::endl;
-	//cout<<"Slot"<<urosData.getslot()<< std::endl;
-	//cout<<"OKflags1 "<<urosData.getokword1()<< std::endl;
-        //cout<<"OKflags2  "<<urosData.getokword2()<< std::endl;
         processuROS(urosData,fed,slot);
       }
     }
@@ -1851,7 +1821,6 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
 
   DTDDUData dduData;
   std::vector<DTROS25Data> ros25Data;
-  //cout<<"ddu valid? "<<dduProduct.isValid()<< " "<<ros25Product.isValid()<<endl;
   if(dduProduct.isValid() && ros25Product.isValid()) {
     for(unsigned int i=0; i<dduProduct->size(); ++i)
     {
@@ -1863,10 +1832,8 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
       if (id>FEDIDmax || id<FEDIDmin) continue; //SIM uses extra FEDs not monitored
 
       processFED(dduData, ros25Data, id);
-	//cout<<"ROS25datasize: "<<ros25Data.size()<<endl;
       for(unsigned int j=0; j < ros25Data.size(); ++j) {
         int rosid = j+1;
-	//cout<<"DDU: "<<id<<" ROS:"<<rosid<<endl;
         processROS25(ros25Data[j],id,rosid);
       }
     }
