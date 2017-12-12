@@ -44,14 +44,14 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
   bool doNoise = ps.getParameter<bool>("doNoise");
   bool dummy1 = false; 
   bool dummy2 = false;  // extra arguments for premixing
-  hcalTimeSlew_delay_ = nullptr;
-  theAmplifier = new HcalAmplifier(theParameterMap, doNoise, dummy1, dummy2, hcalTimeSlew_delay_);
+  theAmplifier = new HcalAmplifier(theParameterMap, doNoise, dummy1, dummy2);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
   theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory, dummy1);
 
   double minFCToDelay= ps.getParameter<double>("minFCToDelay");
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
-  
+
+  hcalTimeSlew_delay_ = nullptr;  
   if(doTimeSlew) {
     // no time slewing for HF
     theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay);
@@ -116,7 +116,8 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const& e, edm::EventSetup co
   edm::ESHandle<HcalTimeSlew> delay;
   eventSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
-  std::cout<<"HcalTBDigiProducer.cc"<<std::endl;
+  //std::cout<<"HcalTBDigiProducer.cc"<<std::endl;
+  theAmplifier->setTimeSlew(hcalTimeSlew_delay_);
 
   theHBHEDigitizer->initializeHits();
   theHODigitizer->initializeHits();

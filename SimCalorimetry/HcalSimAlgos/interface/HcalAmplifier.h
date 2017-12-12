@@ -19,7 +19,7 @@ namespace CLHEP {
 
 class HcalAmplifier {
 public:
-  HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2, const HcalTimeSlew* hcalTimeSlew_delay);
+  HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2);
 
   virtual ~HcalAmplifier() {}
 
@@ -34,6 +34,11 @@ public:
   }
   void setTimeSlewSim(HcalTimeSlewSim * timeSlewSim) {
     theTimeSlewSim = timeSlewSim;
+  }
+
+  const HcalTimeSlew* theTimeSlew = nullptr;
+  void setTimeSlew(const HcalTimeSlew* timeSlew) {
+    theTimeSlew = timeSlew;
   }
 
   virtual void amplify(CaloSamples & linearFrame, CLHEP::HepRandomEngine*) const;
@@ -56,7 +61,6 @@ private:
   bool preMixDigi_;
   bool preMixAdd_;
 
-  const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
 #endif

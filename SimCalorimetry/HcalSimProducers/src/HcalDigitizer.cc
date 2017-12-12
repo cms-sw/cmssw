@@ -121,13 +121,12 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   }
 
   // need to make copies, because they might get different noise generators
-  hcalTimeSlew_delay_ = nullptr;
-  theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
-  theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
-  theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
-  theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
-  theHFQIE10Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
-  theHBHEQIE11Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2, hcalTimeSlew_delay_);
+  theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theHFQIE10Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theHBHEQIE11Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
 
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
 
@@ -159,6 +158,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
 
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
   //initialize: they won't be called later if flag is set
+  hcalTimeSlew_delay_ = nullptr;
   theTimeSlewSim = nullptr;
   if(doTimeSlew) {
     // no time slewing for HF
@@ -546,7 +546,12 @@ void HcalDigitizer::beginRun(const edm::EventSetup & es) {
   edm::ESHandle<HcalTimeSlew> delay;
   es.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
-  std::cout<<"HcalDigitizer.cc"<<std::endl;
+  //std::cout<<"HcalDigitizer.cc"<<std::endl;
+
+  theHBHEAmplifier->setTimeSlew(hcalTimeSlew_delay_);
+  theHBHEQIE11Amplifier->setTimeSlew(hcalTimeSlew_delay_);
+  theHOAmplifier->setTimeSlew(hcalTimeSlew_delay_);
+  theZDCAmplifier->setTimeSlew(hcalTimeSlew_delay_);  
 }
 
 
