@@ -266,7 +266,7 @@ m_ep()
   m_actReg.reset(new edm::ActivityRegistry);
 
   //For each transition, bind a lambda which will call the proper method of the Worker
-  m_transToFunc[Trans::kGlobalOpenInputFile] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
+  m_transToFunc[Trans::kGlobalOpenInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     edm::FileBlock fb;
     iBase->respondToOpenInputFile(fb);
   };
@@ -303,7 +303,7 @@ m_ep()
     iComm->writeRun(*m_rp, nullptr);
   };
   
-  m_transToFunc[Trans::kGlobalCloseInputFile] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
+  m_transToFunc[Trans::kGlobalCloseInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     edm::FileBlock fb;
     iBase->respondToCloseInputFile(fb);
   };

@@ -191,7 +191,7 @@ void LimitedTaskQueue_test::testPause()
       edm::LimitedTaskQueue::Resumer resumer;
       std::atomic<bool> resumerSet{false};
       std::exception_ptr e1;
-      queue.pushAndPause([&resumer,&resumerSet,&count,&queue,pWaitTask,&e1](edm::LimitedTaskQueue::Resumer iResumer){
+      queue.pushAndPause([&resumer,&resumerSet,&count,pWaitTask,&e1](edm::LimitedTaskQueue::Resumer iResumer){
         resumer = std::move(iResumer);
         resumerSet = true;
         try {
@@ -203,7 +203,7 @@ void LimitedTaskQueue_test::testPause()
       });
 
       std::exception_ptr e2;
-      queue.push([&count,&queue,pWaitTask,&e2]{
+      queue.push([&count,pWaitTask,&e2]{
         try{
           CPPUNIT_ASSERT(++count == 2);
         } catch(...) {
@@ -213,7 +213,7 @@ void LimitedTaskQueue_test::testPause()
       });
       
       std::exception_ptr e3;
-      queue.push([&count,&queue,pWaitTask,&e3]{
+      queue.push([&count,pWaitTask,&e3]{
         try {
           CPPUNIT_ASSERT(++count == 3);
         }catch(...){
@@ -260,7 +260,7 @@ void LimitedTaskQueue_test::stressTest()
                    iTask->decrement_ref_count();}};
                   for(unsigned int i = 0; i<nTasks;++i) {
                      pWaitTask->increment_ref_count();
-                     queue.push([i,&count,pWaitTask,&nRunningTasks] {
+                     queue.push([&count,pWaitTask,&nRunningTasks] {
                        std::shared_ptr<tbb::task> guard{pWaitTask,[](tbb::task*iTask) {
                          iTask->decrement_ref_count();}};
                        auto nrt = nRunningTasks++;
@@ -278,7 +278,7 @@ void LimitedTaskQueue_test::stressTest()
          waitToStart=false;
          for(unsigned int i=0; i<nTasks;++i) {
             pWaitTask->increment_ref_count();
-            queue.push([i,&count,pWaitTask,&nRunningTasks] {
+            queue.push([&count,pWaitTask,&nRunningTasks] {
               std::shared_ptr<tbb::task> guard{pWaitTask,[](tbb::task*iTask) {
                 iTask->decrement_ref_count();}};
               auto nrt = nRunningTasks++;
