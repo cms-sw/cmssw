@@ -31,7 +31,7 @@ public:
                       const l1t::HGCalCluster & clu, 
                       double distXY) const;
 
-    void clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
+    void clusterizeDR( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
                        l1t::HGCalClusterBxCollection & clusters
         );
 
@@ -44,13 +44,13 @@ public:
                    const HGCalTriggerGeometryBase & triggerGeometry
         );
         
-    void clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
+    void clusterizeNN( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
                      l1t::HGCalClusterBxCollection & clusters,
                      const HGCalTriggerGeometryBase & triggerGeometry 
         );
 
     /* FW-algorithms */
-    void clusterizeDRNN( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
+    void clusterizeDRNN( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
                          l1t::HGCalClusterBxCollection & clusters,
                          const HGCalTriggerGeometryBase & triggerGeometry
         );
@@ -65,7 +65,7 @@ private:
     double scintillatorTriggerCellThreshold_;
     double dr_;
     std::string clusteringAlgorithmType_;
-    void triggerCellReshuffling( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+    void triggerCellReshuffling( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs, 
                                  std::array<std::vector<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>, kNSides_> & reshuffledTriggerCells );
 
     HGCalTriggerTools triggerTools_;
