@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -29,6 +30,9 @@
 // constants, enums and typedefs
 //
 namespace edm {
+
+  class WaitingTaskWithArenaHolder;
+
   namespace global {
     //
     // static data member definitions
@@ -41,6 +45,7 @@ namespace edm {
     ProducerBase(),
     moduleDescription_(),
     previousParentages_(),
+    gotBranchIDsFromAcquire_(),
     previousParentageIds_() { }
     
     EDProducerBase::~EDProducerBase()
@@ -54,7 +59,9 @@ namespace edm {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();
-      e.setProducer(this, &previousParentages_[streamIndex]);
+      e.setProducer(this,
+                    &previousParentages_[streamIndex],
+                    hasAcquire() ? &gotBranchIDsFromAcquire_[streamIndex] : nullptr);
       EventSignalsSentry sentry(act,mcc);
       this->produce(e.streamID(), e, c);
       commit_(e, &previousParentageIds_[streamIndex]);
@@ -62,11 +69,30 @@ namespace edm {
     }
 
     void
+    EDProducerBase::doAcquire(EventPrincipal const& ep, EventSetup const& c,
+                              ActivityRegistry* act,
+                              ModuleCallingContext const* mcc,
+                              WaitingTaskWithArenaHolder& holder) {
+      Event e(ep, moduleDescription_, mcc);
+      e.setConsumer(this);
+      const auto streamIndex = e.streamID().value();
+      e.setProducerForAcquire(this,
+                              nullptr,
+                              gotBranchIDsFromAcquire_[streamIndex]);
+      EventAcquireSignalsSentry sentry(act,mcc);
+      this->doAcquire_(e.streamID(), e, c, holder);
+    }
+
+    void
     EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nStreams = iPrealloc.numberOfStreams();
       previousParentages_.reset(new std::vector<BranchID>[nStreams]);
+      if (hasAcquire()) {
+        gotBranchIDsFromAcquire_.reset(new std::vector<BranchID>[nStreams]);
+      }
       previousParentageIds_.reset( new ParentageID[nStreams]);
       preallocStreams(nStreams);
+      preallocate(iPrealloc);
     }
     
     void
@@ -193,6 +219,7 @@ namespace edm {
     }
     
     void EDProducerBase::preallocStreams(unsigned int) {}
+    void EDProducerBase::preallocate(PreallocationConfiguration const&) {}
     void EDProducerBase::doBeginStream_(StreamID id){}
     void EDProducerBase::doEndStream_(StreamID id) {}
     void EDProducerBase::doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c) {}
@@ -217,7 +244,9 @@ namespace edm {
     void EDProducerBase::doEndRunProduce_(Run& rp, EventSetup const& c) {}
     void EDProducerBase::doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
     void EDProducerBase::doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
-    
+
+    void EDProducerBase::doAcquire_(StreamID, Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) {}
+
     void
     EDProducerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;

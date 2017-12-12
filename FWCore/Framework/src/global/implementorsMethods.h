@@ -22,6 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/global/implementors.h"
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 
 // forward declarations
 
@@ -46,6 +47,11 @@ namespace edm {
       template< typename T>
       void EndLuminosityBlockProducer<T>::doEndLuminosityBlockProduce_(LuminosityBlock& rp, EventSetup const& c) {
         this->globalEndLuminosityBlockProduce(rp,c);
+      }
+
+      template< typename T>
+      void ExternalWork<T>::doAcquire_(StreamID s, Event const& ev, edm::EventSetup const& es, WaitingTaskWithArenaHolder& holder) {
+        this->acquire(s, ev, es, holder);
       }
     }
   }
