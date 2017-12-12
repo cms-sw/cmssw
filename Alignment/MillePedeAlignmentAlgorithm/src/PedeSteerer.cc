@@ -91,8 +91,8 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
     // - but the addComponent(..) method is so cute that it calculates position from 
     //   daughters' deepComponents()
     // - so we want to move it back to (0,0,0), but ali->move(..) would move daughters as well
-    //   => cheat with a const_cast and move only the surface back
-    // - this hacked master object does not have a label for its parameters
+    //   => move only the surface back
+    // - this master object does not have a label for its parameters
     //   => some warnings if debug output selected in pedeSteer files
     // - we must not delete our new master (little mem. leak...) since that would delete
     //   the daughters as well!
@@ -112,9 +112,7 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
       for (const auto& it: allExtras ) theCoordMaster->addComponent(it);
     }
 
-    const Alignable::PositionType &tmpPos = theCoordMaster->globalPosition();
-    AlignableSurface & masterSurf = const_cast<AlignableSurface&>(theCoordMaster->surface());
-    masterSurf.move(align::GlobalVector(-tmpPos.x(),-tmpPos.y(),-tmpPos.z()));
+    theCoordMaster->recenterSurface();
 
     if (this->isCorrectToRefSystem(theCoordDefiners)) { // defined by 's' (MC): 'correct' misalignment
       this->correctToReferenceSystem(); // really before 'defineCoordinates'?

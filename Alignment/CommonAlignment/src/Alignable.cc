@@ -370,3 +370,12 @@ void Alignable::updateMother(const GlobalVector& shift) {
     break;
   }
 }
+
+//______________________________________________________________________________
+void Alignable::recenterSurface()
+{
+  const auto& currentPosition = this->globalPosition();
+  theSurface.move(align::GlobalVector{-currentPosition.x(),
+                                      -currentPosition.y(),
+                                      -currentPosition.z()});
+}
