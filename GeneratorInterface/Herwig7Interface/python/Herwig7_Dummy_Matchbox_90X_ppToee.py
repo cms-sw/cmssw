@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process.generator = cms.EDFilter("Herwig7GeneratorFilter",
+
+generator = cms.EDFilter("Herwig7GeneratorFilter",
     hwpp_cmsDefaults = cms.vstring('+hwpp_basicSetup', 
         '+hwpp_setParticlesStableForDetector'),
     run = cms.string('InterfaceMatchboxTest'),
@@ -71,4 +72,4 @@ process.generator = cms.EDFilter("Herwig7GeneratorFilter",
 )
 
 
-process.ProductionFilterSequence = cms.Sequence(process.generator)
+ProductionFilterSequence = cms.Sequence(generator)

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process.generator = cms.EDFilter("Herwig7GeneratorFilter",
+generator = cms.EDFilter("Herwig7GeneratorFilter",
     run = cms.string('InterfaceMatchboxTest'),
     repository = cms.string('${HERWIGPATH}/HerwigDefaults.rpo'),
     dataLocation = cms.string('${HERWIGPATH:-6}'),
@@ -15,4 +15,4 @@ process.generator = cms.EDFilter("Herwig7GeneratorFilter",
         )
 )
 
-process.ProductionFilterSequence = cms.Sequence(process.generator)
+ProductionFilterSequence = cms.Sequence(generator)
