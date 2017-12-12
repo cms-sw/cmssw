@@ -16,16 +16,6 @@ from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(initialStepSeedLayers,
     layerList = RecoTracker.TkSeedingLayers.PixelLayerQuadruplets_cfi.PixelLayerQuadruplets.layerList.value()
 )
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(initialStepSeedLayers,
-    layerList = [
-        'BPix1+BPix2+BPix3',
-        'BPix1+BPix2+FPix1_pos',
-        'BPix1+BPix2+FPix1_neg',
-        'BPix1+FPix1_pos+FPix2_pos',
-        'BPix1+FPix1_neg+FPix2_neg'
-    ]
-)
 trackingPhase2PU140.toModify(initialStepSeedLayers,
     layerList = RecoTracker.TkSeedingLayers.PixelLayerQuadruplets_cfi.PixelLayerQuadruplets.layerList.value()
 )
@@ -79,27 +69,6 @@ _initialStepCAHitQuadruplets = _caHitQuadrupletEDProducer.clone(
 initialStepHitQuadruplets = _initialStepCAHitQuadruplets.clone()
 trackingPhase1.toModify(initialStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
 
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletEDProducer_cfi import pixelQuadrupletEDProducer as _pixelQuadrupletEDProducer
-trackingPhase1QuadProp.toReplaceWith(initialStepHitQuadruplets, _pixelQuadrupletEDProducer.clone(
-    triplets = "initialStepHitTriplets",
-    extraHitRZtolerance = initialStepHitTriplets.extraHitRZtolerance,
-    extraHitRPhitolerance = initialStepHitTriplets.extraHitRPhitolerance,
-    maxChi2 = dict(
-        pt1    = 0.8, pt2    = 2,
-        value1 = 200, value2 = 100,
-        enabled = True,
-    ),
-    extraPhiTolerance = dict(
-        pt1    = 0.6, pt2    = 1,
-        value1 = 0.15, value2 = 0.1,
-        enabled = True,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-    SeedComparitorPSet = initialStepHitTriplets.SeedComparitorPSet
-))
-
 trackingPhase2PU140.toModify(initialStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
 trackingPhase2PU140.toModify(initialStepHitQuadruplets,
     CAThetaCut = 0.0010,
@@ -118,7 +87,6 @@ _initialStepSeedsConsecutiveHitsTripletOnly = _seedCreatorFromRegionConsecutiveH
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
     ),
 )
-trackingPhase1QuadProp.toReplaceWith(initialStepSeeds, _initialStepSeedsConsecutiveHitsTripletOnly)
 trackingPhase1.toReplaceWith(initialStepSeeds, _initialStepSeedsConsecutiveHitsTripletOnly.clone(
         seedingHitSets = "initialStepHitQuadruplets"
 ))
@@ -207,13 +175,6 @@ trackingPhase1.toModify(initialStepTrajectoryBuilder,
     minNrOfHitsForRebuild = 1,
     keepOriginalIfRebuildFails = True,
 )
-trackingPhase1QuadProp.toModify(initialStepTrajectoryBuilder,
-    minNrOfHitsForRebuild = 1,
-    keepOriginalIfRebuildFails = True,
-    inOutTrajectoryFilter = dict(refToPSet_ = "initialStepTrajectoryFilterInOut"),
-    useSameTrajFilter = False
-)
-
 trackingPhase2PU140.toModify(initialStepTrajectoryBuilder,
     minNrOfHitsForRebuild = 1,
     keepOriginalIfRebuildFails = True,
@@ -296,10 +257,6 @@ initialStep = ClassifierMerger.clone()
 initialStep.inputClassifiers=['initialStepClassifier1','initialStepClassifier2','initialStepClassifier3']
 
 trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
-        mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1'),
-        qualityCuts = [-0.95,-0.85,-0.75],
-))
-trackingPhase1QuadProp.toReplaceWith(initialStep, initialStepClassifier1.clone(
         mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1'),
         qualityCuts = [-0.95,-0.85,-0.75],
 ))
@@ -390,11 +347,8 @@ _InitialStepTask_LowPU = InitialStepTask.copyAndExclude([firstStepPrimaryVertice
 _InitialStepTask_LowPU.replace(initialStep, initialStepSelector)
 trackingLowPU.toReplaceWith(InitialStepTask, _InitialStepTask_LowPU)
 
-_InitialStepTask_Phase1QuadProp = InitialStepTask.copyAndExclude([initialStepClassifier2, initialStepClassifier3])
-_InitialStepTask_Phase1QuadProp.replace(initialStepHitTriplets, cms.Task(initialStepHitTriplets,initialStepHitQuadruplets))
-trackingPhase1QuadProp.toReplaceWith(InitialStepTask, _InitialStepTask_Phase1QuadProp)
-
-_InitialStepTask_Phase1 = _InitialStepTask_Phase1QuadProp.copyAndExclude([initialStepHitTriplets])
+_InitialStepTask_Phase1 = InitialStepTask.copyAndExclude([initialStepClassifier2, initialStepClassifier3])
+_InitialStepTask_Phase1.replace(initialStepHitTriplets, initialStepHitQuadruplets)
 trackingPhase1.toReplaceWith(InitialStepTask, _InitialStepTask_Phase1)
 
 _InitialStepTask_trackingPhase2 = InitialStepTask.copyAndExclude([initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
