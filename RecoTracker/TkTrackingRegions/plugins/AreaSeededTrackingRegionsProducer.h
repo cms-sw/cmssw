@@ -80,16 +80,6 @@ public:
     descAreas.add<double>("phimin", 0.0);
     descAreas.add<double>("phimax", 0.0);
     std::vector<edm::ParameterSet> vDefaults;
-    /*
-    edm::ParameterSet vDefaults1;
-    vDefaults1.addParameter<double>("rmin", 0.0);
-    vDefaults1.addParameter<double>("rmax", 0.0);
-    vDefaults1.addParameter<double>("zmin", 0.0);
-    vDefaults1.addParameter<double>("zmax", 0.0);
-    vDefaults1.addParameter<double>("phimin", 0.0);
-    vDefaults1.addParameter<double>("phimax", 0.0);
-    vDefaults.push_back(vDefaults1);
-    */
     desc.addVPSet("areas", descAreas, vDefaults);
 
     VertexBeamspotOrigins::fillDescriptions(desc);
