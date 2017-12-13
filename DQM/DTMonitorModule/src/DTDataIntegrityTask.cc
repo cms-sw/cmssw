@@ -994,7 +994,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   }
 
   //1D HISTOS: EVENT LENGHT from trailer
-  int fedEvtLenght = trailer.eventSize()*8;
+  int fedEvtLenght = trailer.fragmentLength()*8;
   //   if(fedEvtLenght > 16000) fedEvtLenght = 16000; // overflow bin
   dduHistos["EventLenght"][code.getDDUID()]->Fill(fedEvtLenght);
 

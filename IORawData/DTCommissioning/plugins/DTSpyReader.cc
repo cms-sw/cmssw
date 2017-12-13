@@ -193,7 +193,7 @@ bool DTSpyReader::isTrailer(uint64_t word, bool dataTag, unsigned int wordCount)
   FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
   if ( candidate.check() ) {
     //  if ( candidate.check() && !dataTag) {
-    if ( wordCount == candidate.eventSize())
+    if ( wordCount == candidate.fragmentLength())
       it_is = true;
   }
   return it_is;

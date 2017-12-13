@@ -70,8 +70,8 @@ bool RPixErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, unsigned int
       <<"fedTrailer.check failed, Fed: " << fedId << ", errorType = 33";
     return false; 
   } 
-  if ( fedTrailer.eventSize()!= nWords) {
-    LogError("FedTrailerEventSize")<< "fedTrailer.eventSize()!= nWords !! Fed: " << fedId << ", errorType = 34";
+  if ( fedTrailer.fragmentLength()!= nWords) {
+    LogError("FedTrailerLenght")<< "fedTrailer.fragmentLength()!= nWords !! Fed: " << fedId << ", errorType = 34";
     errorsInEvent = true;
  
   }

@@ -761,7 +761,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
     assert(eventSize>=FEDTrailer::length);
     eventSize -= FEDTrailer::length;
     const FEDTrailer fedTrailer(event + eventSize);
-    const uint32_t fedSize = fedTrailer.eventSize() << 3; //trailer length counts in 8 bytes
+    const uint32_t fedSize = fedTrailer.fragmentLength() << 3; //trailer length counts in 8 bytes
     assert(eventSize>=fedSize - FEDHeader::length);
     eventSize -= (fedSize - FEDHeader::length);
     const FEDHeader fedHeader(event + eventSize);
