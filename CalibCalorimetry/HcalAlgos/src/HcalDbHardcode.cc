@@ -15,7 +15,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
 HcalDbHardcode::HcalDbHardcode()
-: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105,0.0,{0.0}), //"generic" set of conditions
+: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105,0.0,{0.0}), //"generic" set of conditions
   setHB_(false), setHE_(false), setHF_(false), setHO_(false), 
   setHBUpgrade_(false), setHEUpgrade_(false), setHFUpgrade_(false), 
   useHBUpgrade_(false), useHEUpgrade_(false), useHOUpgrade_(true),
@@ -132,6 +132,12 @@ HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) { // GeV/f
 HcalGainWidth HcalDbHardcode::makeGainWidth (HcalGenericDetId fId) { // GeV/fC
   float value = getParameters(fId).gainWidth(getGainIndex(fId));
   HcalGainWidth result (fId.rawId (), value, value, value, value);
+  return result;
+}
+
+HcalZSThreshold HcalDbHardcode::makeZSThreshold (HcalGenericDetId fId) {
+  int value = getParameters(fId).zsThreshold();
+  HcalZSThreshold result(fId.rawId (), value);
   return result;
 }
 

@@ -1,12 +1,13 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalHardcodeParameters.h"
 
-HcalHardcodeParameters::HcalHardcodeParameters(double pedestal, double pedestalWidth, std::vector<double> gain, std::vector<double> gainWidth, 
+HcalHardcodeParameters::HcalHardcodeParameters(double pedestal, double pedestalWidth, std::vector<double> gain, std::vector<double> gainWidth, int zsThreshold,
 											   int qieType, std::vector<double> qieOffset, std::vector<double> qieSlope, int mcShape, int recoShape,
 											   double photoelectronsToAnalog, std::vector<double> darkCurrent)
 :	pedestal_(pedestal),
 	pedestalWidth_(pedestalWidth),
 	gain_(gain),
 	gainWidth_(gainWidth),
+	zsThreshold_(zsThreshold),
 	qieType_(qieType),
 	qieOffset_(qieOffset),
 	qieSlope_(qieSlope),
@@ -23,6 +24,7 @@ HcalHardcodeParameters::HcalHardcodeParameters(const edm::ParameterSet & p)
 	pedestalWidth_(p.getParameter<double>("pedestalWidth")),
 	gain_(p.getParameter<std::vector<double>>("gain")),
 	gainWidth_(p.getParameter<std::vector<double>>("gainWidth")),
+	zsThreshold_(p.getParameter<int>("zsThreshold")),
 	qieType_(p.getParameter<int>("qieType")),
 	qieOffset_(p.getParameter<std::vector<double>>("qieOffset")),
 	qieSlope_(p.getParameter<std::vector<double>>("qieSlope")),

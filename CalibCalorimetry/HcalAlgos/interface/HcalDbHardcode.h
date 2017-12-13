@@ -11,6 +11,7 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
+#include "CondFormats/HcalObjects/interface/HcalZSThreshold.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEType.h"
@@ -78,6 +79,7 @@ class HcalDbHardcode {
     HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId, bool eff, const HcalTopology* topo, double intlumi);
     HcalGain makeGain (HcalGenericDetId fId, bool fSmear = false);
     HcalGainWidth makeGainWidth (HcalGenericDetId fId);
+    HcalZSThreshold makeZSThreshold (HcalGenericDetId fId);
     HcalQIECoder makeQIECoder (HcalGenericDetId fId);
     HcalCalibrationQIECoder makeCalibrationQIECoder (HcalGenericDetId fId);
     HcalQIEShape makeQIEShape ();
