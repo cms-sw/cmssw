@@ -21,12 +21,6 @@ simHcalDigis = cms.EDProducer("HcalRealisticZS",
     useConfigZSvalues = cms.int32(0)
 )
 
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify( simHcalDigis,
-                             useConfigZSvalues = cms.int32(1),
-                             HElevel = cms.int32(3)
-)
-
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 run2_HF_2017.toModify( simHcalDigis,
                              HFregion = cms.vint32(1,2)
