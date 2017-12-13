@@ -72,13 +72,13 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
     //Histograms drawn for single pion scan
     if(subdet_ != 0 && imc != 0) { // just not for noise  
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
-      meEnConeEtaProfile = ib.bookProfile(histo, histo, 82, -41., 41., -100., 2000., " ");  
+      meEnConeEtaProfile = ib.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
-      meEnConeEtaProfile_E = ib.bookProfile(histo, histo, 82, -41., 41., -100., 2000., " ");  
+      meEnConeEtaProfile_E = ib.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
-      meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, 82, -41., 41., -100., 2000., " ");  
+      meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");  
     }
 
     // ************** HB **********************************
@@ -538,7 +538,6 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	int sub     = cell.subdet();
 	int depth   = cell.depth();
 	int inteta  = cell.ieta();
-	if(inteta > 0) inteta -= 1;
 	int intphi  = cell.iphi()-1;
 	double en   = j->energy();
 	double t    = j->time();
