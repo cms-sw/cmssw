@@ -104,14 +104,17 @@ _ctpps_2016_RawToDigi_noTk += ctppsRawToDigi
 ctpps_2016.toReplaceWith(RawToDigi_noTk, _ctpps_2016_RawToDigi_noTk)
 
 # GEM settings
-_run2_GEM_2017_RawToDigi = RawToDigi.copy()
-_run2_GEM_2017_RawToDigi.insert(-1,muonGEMDigis)
+_gem_RawToDigi = RawToDigi.copy()
+_gem_RawToDigi.insert(-1,muonGEMDigis)
 
-_run3_RawToDigi = _run2_GEM_2017_RawToDigi.copy()
-_run3_RawToDigi.insert(-1,muonME0Digis)
+_me0_RawToDigi = _gem_RawToDigi.copy()
+_me0_RawToDigi.insert(-1,muonME0Digis)
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-run2_GEM_2017.toReplaceWith(RawToDigi, _run2_GEM_2017_RawToDigi)
+run2_GEM_2017.toReplaceWith(RawToDigi, _gem_RawToDigi)
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toReplaceWith(RawToDigi, _run3_RawToDigi)
+run3_GEM.toReplaceWith(RawToDigi, _gem_RawToDigi)
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith(RawToDigi, _me0_RawToDigi)

@@ -38,17 +38,20 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData])) # FIXME
 
 # GEM settings
-_run2_GEM_2017_DigiToRaw = DigiToRaw.copy()
-_run2_GEM_2017_DigiToRaw.insert(-1,gempacker)
+_gem_DigiToRaw = DigiToRaw.copy()
+_gem_DigiToRaw.insert(-1,gempacker)
 
-_run3_DigiToRaw = _run2_GEM_2017_DigiToRaw.copy()
-_run3_DigiToRaw.insert(-1,me0packer)
+_me0_DigiToRaw = _gem_DigiToRaw.copy()
+_me0_DigiToRaw.insert(-1,me0packer)
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-run2_GEM_2017.toReplaceWith(DigiToRaw, _run2_GEM_2017_DigiToRaw)
+run2_GEM_2017.toReplaceWith(DigiToRaw, _gem_DigiToRaw)
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toReplaceWith(DigiToRaw, _run3_DigiToRaw)
+run3_GEM.toReplaceWith(DigiToRaw, _gem_DigiToRaw)
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith(DigiToRaw, _me0_DigiToRaw)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData,SiStripDigiToRaw,castorRawData]))
