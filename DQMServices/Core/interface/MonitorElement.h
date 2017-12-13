@@ -241,9 +241,10 @@ public:
   double getMeanError(int axis = 1) const;
   double getRMS(int axis = 1) const;
   double getRMSError(int axis = 1) const;
-  int getNbinsX() const;
-  int getNbinsY() const;
-  int getNbinsZ() const;
+  int getNbinsX(void) const;
+  int getNbinsY(void) const;
+  int getNbinsZ(void) const;
+  double getBinCenter(int binx) const;
   double getBinContent(int binx) const;
   double getBinContent(int binx, int biny) const;
   double getBinContent(int binx, int biny, int binz) const;

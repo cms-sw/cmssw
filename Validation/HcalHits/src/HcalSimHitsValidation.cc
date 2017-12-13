@@ -214,7 +214,6 @@ void HcalSimHitsValidation::endJob() {
   for (int i = 1; i <= occupancy_vs_ieta_HB[0]->getNbinsX(); i++){
 
     int ieta = i - 42;        // -41 -1, 0 40 
-    if(ieta >=0 ) ieta +=1;   // -41 -1, 1 41  - to make it detector-like
 
     float phi_factor;
 
