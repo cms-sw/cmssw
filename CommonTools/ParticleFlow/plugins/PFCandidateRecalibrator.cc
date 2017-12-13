@@ -4,6 +4,7 @@
 //  Produce:
 //    - a new PFCandidate collection containing the recalibrated PFCandidates in HF and where the neutral had pointing to problematic cells are removed
 //    - a second PFCandidate collection with just those discarded hadrons
+//    - a ValueMap<reco::PFCandidateRef> that maps the old to the new, and vice-versa
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -44,6 +45,7 @@ PFCandidateRecalibrator::PFCandidateRecalibrator(const edm::ParameterSet &iConfi
 {
     produces<std::vector<reco::PFCandidate>>();
     produces<std::vector<reco::PFCandidate>>("discarded");
+    produces<edm::ValueMap<reco::PFCandidateRef>>();
 }
 
 void PFCandidateRecalibrator::produce(edm::StreamID iID, edm::Event &iEvent, const edm::EventSetup &iSetup) const
@@ -75,56 +77,106 @@ void PFCandidateRecalibrator::produce(edm::StreamID iID, edm::Event &iEvent, con
     int n = pfcandidates->size();
     std::unique_ptr<std::vector<reco::PFCandidate>> copy(new std::vector<reco::PFCandidate>());
     std::unique_ptr<std::vector<reco::PFCandidate>> discarded(new std::vector<reco::PFCandidate>());
-    copy->reserve(n); 
+    copy->reserve(n);
+    std::vector<int> oldToNew(n), newToOld, badToOld; 
+    newToOld.reserve(n);
 
+
+    int i = -1;
     for (const reco::PFCandidate &pf : *pfcandidates) 
       {
+	++i;
 	math::XYZPointF ecalPoint = pf.positionAtECALEntrance();
 	GlobalPoint ecalGPoint(ecalPoint.X(),ecalPoint.Y(),ecalPoint.Z());
 	DetId closestDetId(hgeom->getClosestCell(ecalGPoint));
 	
-	//make sure we are in hcal
-	if(closestDetId.det() != 4)
-	  continue;
-
 	//make sure we are in HE or HF
-        HcalDetId hDetId(closestDetId.rawId());
-	if(hDetId.subdet() != 2 && hDetId.subdet() != 4)
-	  continue;
-	
-	//access the calib values
-	const HcalRespCorr* GTrespcorr = GTCond->getHcalRespCorr(hDetId);
-	float currentRespCorr = GTrespcorr->getValue();
-	float buggedRespCorr = buggedRespCorrs->getValues(hDetId)->getValue();
-	float scalingFactor = currentRespCorr/buggedRespCorr;
-
-	//if same calib then don't do anything
-	if (scalingFactor == 1)
+	HcalDetId hDetId(closestDetId.rawId());
+	if(hDetId.subdet() == 2 || hDetId.subdet() == 4)
 	  {
+	    //access the calib values
+	    const HcalRespCorr* GTrespcorr = GTCond->getHcalRespCorr(hDetId);
+	    float currentRespCorr = GTrespcorr->getValue();
+	    float buggedRespCorr = buggedRespCorrs->getValues(hDetId)->getValue();
+	    float scalingFactor = currentRespCorr/buggedRespCorr;
+	    
+	    //if same calib then don't do anything
+	    if (scalingFactor != 1)
+	      {	    
+		//kill pfCandidate if neutral and HE
+		if (hDetId.subdet() == 2 && pf.particleId() == 5)
+		  {
+		    discarded->push_back(pf);
+		    oldToNew[i] = (-discarded->size());
+		    badToOld.push_back(i);
+		  }
+		//recalibrate pfCandidate if HF
+		else if (hDetId.subdet() == 4)
+		  {
+		    copy->push_back(pf);
+		    oldToNew[i] = (copy->size());
+		    newToOld.push_back(i);
+		    copy->back().setHcalEnergy(pf.rawHcalEnergy() * scalingFactor,
+					       pf.hcalEnergy() * scalingFactor);
+		    copy->back().setEcalEnergy(pf.rawEcalEnergy() * scalingFactor,
+					       pf.ecalEnergy() * scalingFactor);
+		  }
+		else
+		  {
+		    copy->push_back(pf);
+		    oldToNew[i] = (copy->size());
+		    newToOld.push_back(i);
+		  }
+	      }
+	    else
+	      {
+		copy->push_back(pf);
+		oldToNew[i] = (copy->size());
+		newToOld.push_back(i);
+	      }
+	  }
+	else
+	{
 	    copy->push_back(pf);
-	    continue;
-	  }
-
-	//kill pfCandidate if neutral and HE
-	else if (hDetId.subdet() == 2 && pf.particleId() == 5)
-	  {
-	    discarded->push_back(pf);
-	    continue;
-	  }
-
-	//recalibrate pfCandidate if HF
-	else if (hDetId.subdet() == 4)
-	  {
-	    reco::PFCandidate recalibCand(pf);
-	    recalibCand.setHcalEnergy(pf.rawHcalEnergy() * scalingFactor,
-				      pf.hcalEnergy() * scalingFactor);
-	    copy->push_back(pf);
-	  }
+	    oldToNew[i] = (copy->size());
+	    newToOld.push_back(i);
+	}
       }
-
+	
+	
     // Now we put things in the event
     edm::OrphanHandle<std::vector<reco::PFCandidate>> newpf = iEvent.put(std::move(copy));
     edm::OrphanHandle<std::vector<reco::PFCandidate>> badpf = iEvent.put(std::move(discarded), "discarded");
+
+    std::unique_ptr<edm::ValueMap<reco::PFCandidateRef>> pf2pf(new edm::ValueMap<reco::PFCandidateRef>());
+    edm::ValueMap<reco::PFCandidateRef>::Filler filler(*pf2pf);
+    std::vector<reco::PFCandidateRef> refs; refs.reserve(n);
+
+    // old to new
+    for (i = 0; i < n; ++i) {
+      if (oldToNew[i] > 0) {
+	refs.push_back(reco::PFCandidateRef(newpf, oldToNew[i]-1));
+      } else {
+	refs.push_back(reco::PFCandidateRef(badpf,-oldToNew[i]-1));
+      }
+    }
+    filler.insert(pfcandidates, refs.begin(), refs.end());
+    // new good to old
+    refs.clear();
+    for (int i : newToOld) {
+      refs.push_back(reco::PFCandidateRef(pfcandidates,i));
+    }
+    filler.insert(newpf, refs.begin(), refs.end());
+    // new bad to old
+    refs.clear();
+    for (int i : badToOld) {
+      refs.push_back(reco::PFCandidateRef(pfcandidates,i));
+    }
+    filler.insert(badpf, refs.begin(), refs.end());
+    // done
+    filler.fill();
+    iEvent.put(std::move(pf2pf));
 }
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFCandidateRecalibrator);
