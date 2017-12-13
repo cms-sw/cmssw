@@ -12,7 +12,67 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFunctor.h"
 
-#include "Math/Functor.h"
+#include <Math/Functor.h>
+
+struct nnlsWorkspace {
+
+  unsigned int nPulseTot;
+  //unsigned int bxSize;
+  int bxOffset;
+
+  //holds active bunch crossings
+  BXVector bxs;  
+
+  //holds data samples
+  SampleVector amplitudes;
+
+  //holds inverse covariance matrix
+  SampleMatrix invCovMat;
+
+  //holds diagonal noise terms
+  SampleVector noiseTerms;
+  
+  //holds full covariance matrix for a pulse shape 
+  //varied in time
+  std::array<FullSampleMatrix, MaxPVSize> pulseCovArray;
+
+  //holds full pulse shape template
+  std::array<FullSampleVector, MaxPVSize> pulseShapeArray;
+
+  //holds full pulse shape derivatives
+  std::array<FullSampleVector, MaxPVSize> pulseDerivArray;
+
+  //holders for calculating pulse shape & covariance matrices
+  std::array<double, MaxSVSize> pulseN;
+  std::array<double, MaxSVSize> pulseM;
+  std::array<double, MaxSVSize> pulseP;
+
+  //holds matrix of pulse shape templates for each BX
+  SamplePulseMatrix pulseMat;
+
+  //holds matrix of pulse shape derivatives for each BX
+  SamplePulseMatrix pulseDerivMat;
+
+  //holds residual vector
+  PulseVector residuals;
+
+  //for FNNLS algorithm
+  PulseVector ampVec;
+
+  PulseVector errVec;
+  PulseVector ampvecpermtest;
+
+  SamplePulseMatrix invcovp;
+  PulseMatrix aTaMat; // A-transpose A (matrix)
+  PulseVector aTbVec; // A-transpose b (vector)
+  PulseVector updateWork; // w (vector)
+
+  SampleDecompLLT covDecomp;
+  SampleMatrix covDecompLinv;
+  PulseMatrix topleft_work;
+  PulseDecompLDLT pulseDecomp;
+
+};
 
 class MahiFit
 {
@@ -51,6 +111,7 @@ class MahiFit
   double calculateArrivalTime();
   double calculateChiSq();
   void nnls();
+  void resetWorkspace();
 
   void nnlsUnconstrainParameter(Index idxp);
   void nnlsConstrainParameter(Index minratioidx);
@@ -58,6 +119,8 @@ class MahiFit
   void eigenSolveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP);
 
   double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda);
+  
+  mutable nnlsWorkspace nnlsWork_;
 
   //hard coded in initializer
   const unsigned int fullTSSize_;
@@ -83,8 +146,8 @@ class MahiFit
   float deltaChiSqThresh_; 
   float nnlsThresh_; 
 
-  unsigned int bxSize_;
-  int bxOffset_;
+  //unsigned int bxSize_;
+  //int bxOffset_;
   unsigned int bxSizeConf_;
   int bxOffsetConf_;
 
@@ -93,14 +156,16 @@ class MahiFit
   float darkCurrent_;
   float fcByPe_;
 
+  //holds constant pedestal constraint
+  double pedConstraint_;
+
   unsigned int tsSize_;
   unsigned int tsOffset_;
 
   unsigned int fullTSOffset_;
 
-  //holds active bunch crossings
-  BXVector bxs_;  
 
+  PulseVector ampVecMin_;
   BXVector bxsMin_;
   unsigned int nP_;
   double chiSq_;
@@ -109,7 +174,7 @@ class MahiFit
   int cntsetPulseShape_;
   std::unique_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
   std::unique_ptr<ROOT::Math::Functor> pfunctor_;
-
+  /*
   unsigned int nPulseTot_;
 
   //holds data samples
@@ -163,6 +228,6 @@ class MahiFit
   SampleMatrix covDecompLinv_;
   PulseMatrix topleft_work_;
   PulseDecompLDLT pulseDecomp_;
-
+  */
 }; 
 #endif
