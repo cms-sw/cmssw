@@ -82,18 +82,13 @@ parseHBHEMethod3Description(const edm::ParameterSet& conf)
 {
     const bool iApplyTimeSlew  =  conf.getParameter<bool>  ("applyTimeSlewM3");
     const float iPedSubThreshold =  conf.getParameter<double>("pedestalUpperLimit");
-    const int iTimeSlewParsType  =  conf.getParameter<int>   ("timeSlewParsType");
     const double irespCorrM3 =     conf.getParameter<double>("respCorrM3");
-    const std::vector<double>& iTimeSlewPars =
-                     conf.getParameter<std::vector<double> >("timeSlewPars");
 
     PedestalSub pedSubFxn;
     pedSubFxn.init(0, iPedSubThreshold, 0.0);
 
     std::unique_ptr<HcalDeterministicFit> fit = std::make_unique<HcalDeterministicFit>();
-    fit->init( (HcalTimeSlew::ParaSource)iTimeSlewParsType,
-	       HcalTimeSlew::Medium, iApplyTimeSlew,
-	       pedSubFxn, iTimeSlewPars, irespCorrM3);
+    fit->init( iApplyTimeSlew, pedSubFxn, irespCorrM3);
     return fit;
 }
 
