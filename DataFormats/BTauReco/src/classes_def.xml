@@ -346,6 +346,8 @@
   <class name="edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::ShallowTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::DeepFlavourTagInfoRef>" />
+  <class name="edm::reftobase::RefHolder<reco::DeepFlavourTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>" />
@@ -379,6 +381,8 @@
   <class name="edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::ShallowTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::DeepFlavourTagInfoFwdRef>" />
+  <class name="edm::reftobase::RefHolder<reco::DeepFlavourTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::CombinedTauTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoFwdRef>" />
