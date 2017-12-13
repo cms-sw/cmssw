@@ -137,8 +137,8 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
     std::vector<float> sumphi;
     std::vector<float> sumphie;
     for(int depth = 1; depth <= depths; depth++) {
-    sumphi.push_back(0.);
-    sumphie.push_back(0.);
+        sumphi.push_back(0.);
+        sumphie.push_back(0.);
     }
 
     float phi_factor;
@@ -180,8 +180,8 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
     
         //zero the sumphi vector at the start of each ieta ring
     for(int depth = 1; depth <= depths; depth++) {
-    sumphi[depth-1] = 0;
-    sumphie[depth-1] = 0;
+        sumphi[depth-1] = 0;
+        sumphie[depth-1] = 0;
     }
 
         for (int iphi = 1; iphi <= 72; iphi++) {
@@ -211,8 +211,8 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
                 enorm = sqrt(sumphie[depth-1]) / phi_factor;
                 ME->setBinContent(ietabin,cnorm);
                 ME->setBinError(ietabin,enorm);
-                }
             }
+        }
     } // end of i-loop
 
   return 1;
