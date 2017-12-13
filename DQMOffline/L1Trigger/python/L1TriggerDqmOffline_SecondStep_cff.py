@@ -14,10 +14,13 @@ from DQMOffline.L1Trigger.L1TMuonDQMEfficiency_cff import *
 # l1tStage2CaloLayer2Efficiency
 DQMHarvestL1Trigger = cms.Sequence(
     l1tStage2CaloLayer2Efficiency *
+    # l1tStage2CaloLayer2EmuEfficiency *
     # l1tStage2CaloLayer2EmuDiff *
     l1tEGammaEfficiency *
+    # l1tEGammaEmuEfficiency *
     # l1tEGammaEmuDiff *
     l1tTauEfficiency *
+    # l1tTauEfficiency *
     # l1tTauEmuDiff *
     l1tMuonDQMEfficiency
 )
