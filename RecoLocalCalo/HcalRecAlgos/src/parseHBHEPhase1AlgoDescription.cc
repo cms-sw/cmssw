@@ -9,7 +9,7 @@
 // Phase 1 HBHE reco algorithm headers
 #include "RecoLocalCalo/HcalRecAlgos/interface/SimpleHBHEPhase1Algo.h"
 
-static std::unique_ptr<DoMahiAlgo>
+static std::unique_ptr<MahiFit>
 parseHBHEMahiDescription(const edm::ParameterSet& conf)
 {
 
@@ -28,7 +28,7 @@ parseHBHEMahiDescription(const edm::ParameterSet& conf)
   const double iDeltaChiSqThresh = conf.getParameter<double> ("deltaChiSqThresh");
   const double iNnlsThresh = conf.getParameter<double> ("nnlsThresh");
 
-  std::unique_ptr<DoMahiAlgo> corr = std::make_unique<DoMahiAlgo>();
+  std::unique_ptr<MahiFit> corr = std::make_unique<MahiFit>();
 
   corr->setParameters(iTS4Thresh, chiSqSwitch, iApplyTimeSlew, HcalTimeSlew::Medium,
 		      iMeanTime, iTimeSigmaHPD, iTimeSigmaSiPM,
@@ -113,7 +113,7 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
         if (ps.getParameter<bool>("useM3"))
             detFit = parseHBHEMethod3Description(ps);
 
-	std::unique_ptr<DoMahiAlgo> mahi;
+	std::unique_ptr<MahiFit> mahi;
 	if (ps.getParameter<bool>("useMahi"))
 	  mahi = parseHBHEMahiDescription(ps);
 

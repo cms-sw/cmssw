@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HcalRecAlgos_DoMahiAlgo_HH
-#define RecoLocalCalo_HcalRecAlgos_DoMahiAlgo_HH
+#ifndef RecoLocalCalo_HcalRecAlgos_MahiFit_HH
+#define RecoLocalCalo_HcalRecAlgos_MahiFit_HH
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -14,14 +14,14 @@
 
 #include "Math/Functor.h"
 
-class DoMahiAlgo
+class MahiFit
 {
  public:
-  DoMahiAlgo();
-  ~DoMahiAlgo() { };
+  MahiFit();
+  ~MahiFit() { };
 
   void phase1Apply(const HBHEChannelInfo& channelData, float& reconstructedEnergy, float& reconstructedTime, float& chi2);  
-  bool DoFit(SampleVector amplitudes, std::vector<float> &correctedOutput, int nbx);
+  bool doFit(SampleVector amplitudes, std::vector<float> &correctedOutput, int nbx);
 
   void setParameters(double iTS4Thresh, double chiSqSwitch, bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
 		     double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM, 
@@ -36,62 +36,64 @@ class DoMahiAlgo
 
  private:
 
-  bool Minimize();
-  bool OnePulseMinimize();
-  bool UpdateCov();
-  bool UpdatePulseShape(double itQ, FullSampleVector &pulseShape, 
+  bool minimize();
+  bool onePulseMinimize();
+  bool updateCov();
+  bool updatePulseShape(double itQ, FullSampleVector &pulseShape, 
 			FullSampleVector &pulseDeriv,
 			FullSampleMatrix &pulseCov);
-  double CalculateArrivalTime();
-  double CalculateChiSq();
-  bool NNLS();
+  double calculateArrivalTime();
+  double calculateChiSq();
+  bool nnls();
 
-  void NNLSUnconstrainParameter(Index idxp);
-  void NNLSConstrainParameter(Index minratioidx);
+  void nnlsUnconstrainParameter(Index idxp);
+  void nnlsConstrainParameter(Index minratioidx);
+
+  void eigenSolveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP);
 
   double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda);
 
   //hard coded in initializer
-  const unsigned int FullTSSize_;
-  const unsigned int FullTSofInterest_;
+  const unsigned int fullTSSize_;
+  const unsigned int fullTSofInterest_;
 
   // Python-configurables
-  float TS4Thresh_; //0
-  float chiSqSwitch_; //10
+  float ts4Thresh_; 
+  float chiSqSwitch_; 
 
-  bool applyTimeSlew_; //true
-  HcalTimeSlew::BiasSetting slewFlavor_; //medium
+  bool applyTimeSlew_; 
+  HcalTimeSlew::BiasSetting slewFlavor_;
 
-  float meanTime_; // 0
-  float timeSigmaHPD_; // 5.0
-  float timeSigmaSiPM_; //2.5
+  float meanTime_;
+  float timeSigmaHPD_; 
+  float timeSigmaSiPM_;
 
   std::vector <int> activeBXs_;
 
-  int nMaxItersMin_; //500 
-  int nMaxItersNNLS_; //500
+  int nMaxItersMin_; 
+  int nMaxItersNNLS_; 
 
-  float deltaChiSqThresh_; //1e-3
-  float nnlsThresh_; //1e-11
+  float deltaChiSqThresh_; 
+  float nnlsThresh_; 
 
-  unsigned int BXSize_;
-  int BXOffset_;
-//  std::vector <int> activeBXs_;
-  unsigned int BXSizeConf_;
-  int BXOffsetConf_;
+  unsigned int bxSize_;
+  int bxOffset_;
+  unsigned int bxSizeConf_;
+  int bxOffsetConf_;
 
   //from channelData
   float dt_;
   float darkCurrent_;
   float fcByPe_;
 
-  unsigned int TSSize_;
-  unsigned int TSOffset_;
+  unsigned int tsSize_;
+  unsigned int tsOffset_;
 
-  unsigned int FullTSOffset_;
+  unsigned int fullTSOffset_;
 
   //holds active bunch crossings
   BXVector bxs_;  
+
   BXVector bxsMin_;
   unsigned int nP_;
   double chiSq_;
@@ -105,6 +107,7 @@ class DoMahiAlgo
 
   //holds data samples
   SampleVector amplitudes_;
+
   //holds inverse covariance matrix
   SampleMatrix invCovMat_;
 

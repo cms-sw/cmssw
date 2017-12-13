@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# Configuration parameters for MAHI
+# Configuration parameters for Mahi
 mahiParameters = cms.PSet(
 
     ts4Thresh        = cms.double(0.0),
