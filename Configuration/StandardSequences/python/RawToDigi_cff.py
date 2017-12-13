@@ -107,8 +107,8 @@ ctpps_2016.toReplaceWith(RawToDigi_noTk, _ctpps_2016_RawToDigi_noTk)
 _gem_RawToDigi = RawToDigi.copy()
 _gem_RawToDigi.insert(-1,muonGEMDigis)
 
-_me0_RawToDigi = _gem_RawToDigi.copy()
-_me0_RawToDigi.insert(-1,muonME0Digis)
+_me0_RawToDigi = RawToDigi.copy()
+_me0_RawToDigi.insert(-1,muonGEMDigis*muonME0Digis)
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith(RawToDigi, _gem_RawToDigi)

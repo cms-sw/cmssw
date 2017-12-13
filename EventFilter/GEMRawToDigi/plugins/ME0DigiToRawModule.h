@@ -31,6 +31,7 @@ class ME0DigiToRawModule : public edm::stream::EDProducer<> {
   ME0DigiToRawModule(const edm::ParameterSet & pset);
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   // Operations
   void produce(edm::Event&, edm::EventSetup const&) override;
 
@@ -44,7 +45,7 @@ class ME0DigiToRawModule : public edm::stream::EDProducer<> {
   bool useDBEMap_;
 
   const ME0EMap* m_me0EMap;
-  ME0ROmap* m_me0ROMap;
+  const ME0ROmap* m_me0ROMap;
   
 };
 DEFINE_FWK_MODULE(ME0DigiToRawModule);

@@ -26,11 +26,11 @@ namespace edm {
 
 class GEMDigiToRawModule : public edm::stream::EDProducer<> {
  public:
-  
   /// Constructor
   GEMDigiToRawModule(const edm::ParameterSet & pset);
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   // Operations
   void produce(edm::Event&, edm::EventSetup const&) override;
 
@@ -44,7 +44,7 @@ class GEMDigiToRawModule : public edm::stream::EDProducer<> {
   bool useDBEMap_;
 
   const GEMEMap* m_gemEMap;
-  GEMROmap* m_gemROMap;
+  const GEMROmap* m_gemROMap;
   
 };
 DEFINE_FWK_MODULE(GEMDigiToRawModule);
