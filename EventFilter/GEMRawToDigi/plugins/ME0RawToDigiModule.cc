@@ -44,6 +44,12 @@ void ME0RawToDigiModule::beginRun(edm::Run const&, edm::EventSetup const& iSetup
   }
 }
 
+void ME0RawToDigiModule::endRun(edm::Run const&, edm::EventSetup const& iSetup)
+{
+  delete m_me0EMap;
+  delete m_me0ROMap;
+}
+
 void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 {
   auto outME0Digis = std::make_unique<ME0DigiCollection>();
@@ -56,7 +62,7 @@ void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
-    //std::cout <<"ME0RawToDigiModule words "<< nWords<<std::endl;
+    LogDebug("ME0RawToDigiModule") <<" words " << nWords;
     
     if (nWords<5) continue;
     const unsigned char * data = fedData.data();
@@ -78,30 +84,28 @@ void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
       amcData->setAMCheader1(*(++word));      
       amcData->setAMCheader2(*(++word));
       amcData->setGEMeventHeader(*(++word));
-      uint16_t amcId = amcData->BID();
+      uint16_t amcId = amcData->boardId();
 
       // Fill GEB
-      for (unsigned short j = 0; j < amcData->GDcount(); ++j){
+      for (unsigned short j = 0; j < amcData->gdCount(); ++j){
 	auto gebData = std::make_unique<GEBdata>();
 	gebData->setChamberHeader(*(++word));
 	
-	unsigned int m_nvb = gebData->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
-	uint16_t gebId = gebData->InputID();
+	unsigned int m_nvb = gebData->vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
+	uint16_t gebId = gebData->inputID();
 	
 	for (unsigned short k = 0; k < m_nvb; k++){
 	  auto vfatData = std::make_unique<VFATdata>();
 	  vfatData->read_fw(*(++word));
 	  vfatData->read_sw(*(++word));
 	  vfatData->read_tw(*(++word));
-	  gebData->v_add(*vfatData);
+	  gebData->addVFAT(*vfatData);
 	  
-	  uint16_t bc=vfatData->BC();
-	  //uint8_t ec=vfatData->EC();
+	  uint16_t bc=vfatData->bc();
 	  uint8_t b1010=vfatData->b1010();
 	  uint8_t b1100=vfatData->b1100();
 	  uint8_t b1110=vfatData->b1110();
-	  uint16_t ChipID=vfatData->ChipID();
-	  //int slot=vfatData->SlotNumber(); 
+	  uint16_t ChipID=vfatData->chipID();
 	  uint16_t crc = vfatData->crc();
 	  uint16_t crc_check = vfatData->checkCRC();
 	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check);
@@ -136,19 +140,18 @@ void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	    ME0DetId me0Id(dc.me0DetId);
 	    ME0Digi digi(dc.stripId,bx);
 
-	    // std::cout <<"ME0RawToDigiModule vfatId "<<ec.vfatId
-	    // 	      <<" me0DetId "<< me0Id
-	    // 	      <<" chan "<< ec.channelId
-	    // 	      <<" strip "<< dc.stripId
-	    // 	      <<" bx "<< digi.bx()
-	    // 	      <<std::endl;
-	    
+	    LogDebug("ME0RawToDigiModule") <<" vfatId "<<ec.vfatId
+					   <<" me0DetId "<< me0Id
+					   <<" chan "<< ec.channelId
+					   <<" strip "<< dc.stripId
+					   <<" bx "<< digi.bx();
+	    	    
 	    outME0Digis.get()->insertDigi(me0Id,digi);	    
 	  }
 	}
 		  	
 	gebData->setChamberTrailer(*(++word));
-	amcData->g_add(*gebData);
+	amcData->addGEB(*gebData);
       }
       
       amcData->setGEMeventTrailer(*(++word));

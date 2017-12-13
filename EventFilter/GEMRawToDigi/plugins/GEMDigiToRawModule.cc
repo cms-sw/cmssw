@@ -48,6 +48,12 @@ void GEMDigiToRawModule::beginRun(edm::Run const&, edm::EventSetup const& iSetup
   }
 }
 
+void GEMDigiToRawModule::endRun(edm::Run const&, edm::EventSetup const& iSetup)
+{
+  delete m_gemEMap;
+  delete m_gemROMap;
+}
+
 void GEMDigiToRawModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 {
   auto fedRawDataCol = std::make_unique<FEDRawDataCollection>();
@@ -62,11 +68,11 @@ void GEMDigiToRawModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
   {
     AMC13Event * amc13Event = new AMC13Event();
     
-    for (auto amc : m_gemROMap->getAMCs()){	
+    for (const auto & amc : m_gemROMap->getAMCs()){	
       AMCdata * amcData = new AMCdata();
       uint16_t amcId = amc;
 
-      for (auto geb : m_gemROMap->getAMC2GEBs(amcId)){
+      for (const auto & geb : m_gemROMap->getAMC2GEBs(amcId)){
 	
 	uint16_t gebId = geb;
 	uint32_t chamberId = (amcId << 5) | gebId;
@@ -82,7 +88,7 @@ void GEMDigiToRawModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	  std::map<int, std::vector<int> > vFatToStripMap;
 	  bool hasDigi = false;
 	
-	  for (int roll = 1; roll<=8; ++roll){
+	  for (int roll = 1; roll<=GEMDetId::maxRollId; ++roll){
 	  
 	    GEMDetId gemId(chamDetId.region(), 1, chamDetId.station(), chamDetId.layer(), chamDetId.chamber(), roll);
 	  
@@ -103,12 +109,11 @@ void GEMDigiToRawModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	      vFatToStripMap[vFatID].push_back(channelId);	
 	      hasDigi = true;
 
-	      // std::cout <<"GEMDigiToRawModule vfatId "<<ec.vfatId
-	      // 		<<" gemDetId "<< gemId
-	      // 		<<" chan "<< ec.channelId
-	      // 		<<" strip "<< dc.stripId
-	      // 		<<" bx "<< digi.bx()
-	      // 		<<std::endl;
+	      LogDebug("GEMDigiToRawModule") <<" vfatId "<<ec.vfatId
+					     <<" gemDetId "<< gemId
+					     <<" chan "<< ec.channelId
+					     <<" strip "<< dc.stripId
+					     <<" bx "<< digi.bx();
 	    }
 	  }
 	  
@@ -121,43 +126,38 @@ void GEMDigiToRawModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	    if (vFatStrIt->second.empty()) continue;
       
 	    uint8_t  b1010      =0xA;           ///<1010:4 Control bits, shoud be 1010
-	    uint16_t BC         =bc;             ///<Bunch Crossing number, 12 bits
+	    uint16_t BC         =bc;            ///<Bunch Crossing number, 12 bits
 	    uint8_t  b1100      =0xC;           ///<1100:4, Control bits, shoud be 1100
 	    uint8_t  EC         =0;             ///<Event Counter, 8 bits
 	    uint8_t  Flag       =0;             ///<Control Flags: 4 bits, Hamming Error/AFULL/SEUlogic/SUEI2C
 	    uint8_t  b1110      =0xE;           ///<1110:4 Control bits, shoud be 1110
-	    uint16_t crc        =0;             ///<Check Sum value, 16 bits
-	    uint16_t crc_calc   =0;             ///<Check Sum value recalculated, 16 bits
 	    int      SlotNumber =0;             ///<Calculated chip position
 	    bool     isBlockGood=false;         ///<Shows if block is good (control bits, chip ID and CRC checks)
-
 	    uint16_t ChipID = 0xFFF & vFatStrIt->first; ///<Chip ID, 12 bits
 	    uint64_t lsData     =0;             ///<channels from 1to64 
 	    uint64_t msData     =0;             ///<channels from 65to128
+	    uint16_t crc        =0;             ///<Check Sum value, 16 bits
+	    uint16_t crc_calc   =0;             ///<Check Sum value recalculated, 16 bits
 	  
-	    for (auto chan : vFatStrIt->second){
+	    for (const auto & chan : vFatStrIt->second){
 	      uint64_t oneBit = 0x1;
 	      if (chan < 64) lsData = lsData | (oneBit << chan);
 	      else msData = msData | (oneBit << (chan-64));
 	    }
-
-	    // uint16_t crc = checkCRC(b1010, BC, b1100,
-	    // 			    EC, Flag, b1110,
-	    // 			    ChipID, msData, lsData);
 	    
 	    VFATdata * vfatData =
 	      new VFATdata(b1010, BC, b1100, EC, Flag, b1110, ChipID, lsData, msData,
 			   crc, crc_calc, SlotNumber, isBlockGood);
 	  
-	    gebData->v_add(*vfatData);
+	    gebData->addVFAT(*vfatData);
 	    delete vfatData;
 	  }
 	}
 	
-	if (!gebData->vfats().empty()){
+	if (!gebData->vFATs().empty()){
 	  gebData->setInputID(gebId);
-	  gebData->setVwh(gebData->vfats().size()*3);
-	  amcData->g_add(*gebData);
+	  gebData->setVwh(gebData->vFATs().size()*3);
+	  amcData->addGEB(*gebData);
 	}
 	delete gebData;	
       }
@@ -209,28 +209,28 @@ void GEMDigiToRawModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 
   
   // read out amc13Events into fedRawData
-  for (auto amc13It : amc13Events){
+  for (const auto & amc13It : amc13Events){
     AMC13Event * amc13Event = amc13It;
     std::vector<uint64_t> words;    
     words.push_back(amc13Event->getCDFHeader());
     words.push_back(amc13Event->getAMC13header());    
 
-    for (auto w: amc13Event->getAMCheader())
+    for (const auto & w: amc13Event->getAMCheader())
       words.push_back(w);    
 
-    for (auto amc : amc13Event->getAMCpayload()){
-      AMCdata * amcData = &amc;
+    for (const auto & amc : amc13Event->getAMCpayload()){
+      const AMCdata * amcData = &amc;
       
       words.push_back(amcData->getAMCheader1());      
       words.push_back(amcData->getAMCheader2());
       words.push_back(amcData->getGEMeventHeader());
 
-      for (auto geb: amcData->gebs()){
-	GEBdata * gebData = &geb;
+      for (const auto & geb: amcData->gebs()){
+	const GEBdata * gebData = &geb;
 	words.push_back(gebData->getChamberHeader());
 
-	for (auto vfat: gebData->vfats()){
-	  VFATdata * vfatData = &vfat;
+	for (const auto & vfat: gebData->vFATs()){
+	  const VFATdata * vfatData = &vfat;
 	  words.push_back(vfatData->get_fw());
 	  words.push_back(vfatData->get_sw());
 	  words.push_back(vfatData->get_tw());
@@ -246,15 +246,15 @@ void GEMDigiToRawModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
     words.push_back(amc13Event->getAMC13trailer());
     words.push_back(amc13Event->getCDFTrailer());
 
-    FEDRawData & fedRawData = fedRawDataCol->FEDData(amc13Event->Source_id());
+    FEDRawData & fedRawData = fedRawDataCol->FEDData(amc13Event->source_id());
     
     int dataSize = (words.size()) * sizeof(uint64_t);
     fedRawData.resize(dataSize);
     
     uint64_t * w = reinterpret_cast<uint64_t* >(fedRawData.data());  
-    for (auto word: words) *(w++) = word;
-        
-    //    std::cout << "GEMDigiToRawModule words " <<std::dec << words.size() << std::endl;
+    for (const auto & word: words) *(w++) = word;
+    
+    LogDebug("GEMDigiToRawModule") <<" words " << words.size();
     delete amc13Event;
   }
 
