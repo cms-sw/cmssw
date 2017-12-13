@@ -54,6 +54,11 @@ l1tEGammaEfficiency = l1tEfficiencyHarvesting.clone(
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots)
         ),
+    )
+)
+
+l1tEGammaEmuEfficiency = l1tEfficiencyHarvesting.clone(
+    plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
             numeratorDir=cms.untracked.string(
                 "L1TEMU/L1TEGamma/efficiency_raw"),
@@ -94,6 +99,10 @@ from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(l1tEGammaEfficiency,
     plotCfgs = {
         0:dict(plots = allEfficiencyPlots_HI),
-        1:dict(plots = allEfficiencyPlots_HI)
+    }
+)
+ppRef_2017.toModify(l1tEGammaEmuEfficiency,
+    plotCfgs = {
+        0:dict(plots = allEfficiencyPlots_HI),
     }
 )
