@@ -3,7 +3,7 @@
 
 using namespace gem;
 
-uint64_t AMC13Event::getCDFHeader()
+uint64_t AMC13Event::getCDFHeader() const
 {
   return (static_cast<uint64_t>(m_cb5 & 0x0f) << 60) |
     (static_cast<uint64_t>(m_Evt_ty & 0x0f) << 56) |
@@ -30,7 +30,7 @@ void AMC13Event::setCDFHeader(uint64_t word)
   m_Source_id = 0x0fff & (word >> 8);
 }
 
-uint64_t AMC13Event::getAMC13header()
+uint64_t AMC13Event::getAMC13header() const
 {
   return (static_cast<uint64_t>(m_CalTyp & 0x0f) << 56) |
     (static_cast<uint64_t>(m_nAMC & 0x0f) << 52) |
@@ -54,7 +54,7 @@ void AMC13Event::setAMC13header(uint64_t word)
   m_cb0 = 0x0f & word;
 }
 
-std::vector<uint64_t> AMC13Event::getAMCheader()
+std::vector<uint64_t> AMC13Event::getAMCheader() const
 {
   std::vector<uint64_t> amcHeaders;
   for (unsigned int i = 0; i < m_AMC_size.size(); ++i){
@@ -84,7 +84,7 @@ void AMC13Event::addAMCheader(uint64_t word)
   m_BoardID.push_back(0xffff&word);
 }
 
-uint64_t AMC13Event::getAMC13trailer()
+uint64_t AMC13Event::getAMC13trailer() const
 {
   return (static_cast<uint64_t>(m_CRC_amc13) << 32) |
     (static_cast<uint64_t>(m_Blk_NoT & 0xff) << 20) |
@@ -108,7 +108,7 @@ void AMC13Event::setAMC13trailer(uint64_t word)
   m_BX_idT = 0x0fff & word;
 }
 
-uint64_t AMC13Event::getCDFTrailer()
+uint64_t AMC13Event::getCDFTrailer() const
 {
   return (static_cast<uint64_t>(m_cbA & 0x0f) << 60) |
     (static_cast<uint64_t>(m_EvtLength & 0x00ffffff) << 32) |

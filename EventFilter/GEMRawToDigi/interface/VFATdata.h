@@ -21,87 +21,88 @@ namespace gem {
 	   const uint16_t &crc_calc_,
 	   const int &SlotNumber_,
 	   const bool &isBlockGood_) : 
-    fb1010(b1010_),
-      fBC(BC_),
-      fb1100(b1100_),
-      fEC(EC_),
-      fFlag(Flag_),
-      fb1110(b1110_),
-      fChipID(ChipID_),
-      flsData(lsData_),
-      fmsData(msData_),
-      fcrc(crc_),
-      fcrc_calc(crc_calc_),
-      fSlotNumber(SlotNumber_),
-      fisBlockGood(isBlockGood_){
-	fcrc = this->checkCRC();
+    m_b1010(b1010_),
+      m_BC(BC_),
+      m_b1100(b1100_),
+      m_EC(EC_),
+      m_Flag(Flag_),
+      m_b1110(b1110_),
+      m_ChipID(ChipID_),
+      m_lsData(lsData_),
+      m_msData(msData_),
+      m_crc(crc_),
+      m_crc_calc(crc_calc_),
+      m_SlotNumber(SlotNumber_),
+      m_isBlockGood(isBlockGood_){
+	if (m_crc == 0)
+	  m_crc = this->checkCRC();
       }
 
     //!Read first word from the block.
     void read_fw(uint64_t word)
     {
-      fb1010 = 0x0f & (word >> 60);
-      fBC = 0x0fff & (word >> 48);
-      fb1100 = 0x0f & (word >> 44);
-      fEC = word >> 36;
-      fFlag = 0x0f & (word >> 32);
-      fb1110 = 0x0f & (word >> 28);
-      fChipID = 0x0fff & (word >> 16);
-      fmsData = 0xffff000000000000 & (word << 48);
+      m_b1010 = 0x0f & (word >> 60);
+      m_BC = 0x0fff & (word >> 48);
+      m_b1100 = 0x0f & (word >> 44);
+      m_EC = word >> 36;
+      m_Flag = 0x0f & (word >> 32);
+      m_b1110 = 0x0f & (word >> 28);
+      m_ChipID = 0x0fff & (word >> 16);
+      m_msData = 0xffff000000000000 & (word << 48);
     }
-    uint64_t get_fw()
+    uint64_t get_fw() const
     {
       return
-	(static_cast<uint64_t>(fb1010 & 0x0f) <<  60) |
-	(static_cast<uint64_t>(fBC & 0x0fff) <<  48) |
-	(static_cast<uint64_t>(fb1100 & 0x0f) <<  44) |
-	(static_cast<uint64_t>(fEC) <<  36) |
-	(static_cast<uint64_t>(fFlag & 0x0f) <<  32) |
-	(static_cast<uint64_t>(fb1110 & 0x0f) <<  28) |
-	(static_cast<uint64_t>(fChipID & 0x0fff) <<  16) |
-	(static_cast<uint64_t>(fmsData & 0xffff000000000000) >> 48);
+	(static_cast<uint64_t>(m_b1010 & 0x0f) <<  60) |
+	(static_cast<uint64_t>(m_BC & 0x0fff) <<  48) |
+	(static_cast<uint64_t>(m_b1100 & 0x0f) <<  44) |
+	(static_cast<uint64_t>(m_EC) <<  36) |
+	(static_cast<uint64_t>(m_Flag & 0x0f) <<  32) |
+	(static_cast<uint64_t>(m_b1110 & 0x0f) <<  28) |
+	(static_cast<uint64_t>(m_ChipID & 0x0fff) <<  16) |
+	(static_cast<uint64_t>(m_msData & 0xffff000000000000) >> 48);
     }
 
     //!Read second word from the block.
     void read_sw(uint64_t word)
     {
-      fmsData = fmsData | (0x0000ffffffffffff & word >> 16);
-      flsData = 0xffff000000000000 & (word << 48);
+      m_msData = m_msData | (0x0000ffffffffffff & word >> 16);
+      m_lsData = 0xffff000000000000 & (word << 48);
     }
-    uint64_t get_sw()
+    uint64_t get_sw() const
     {
       return
-	(static_cast<uint64_t>(fmsData & 0x0000ffffffffffff) <<  16) |
-	(static_cast<uint64_t>(flsData & 0xffff000000000000) >>  48);
+	(static_cast<uint64_t>(m_msData & 0x0000ffffffffffff) <<  16) |
+	(static_cast<uint64_t>(m_lsData & 0xffff000000000000) >>  48);
     }
     
     //!Read third word from the block.
     void read_tw(uint64_t word)
     {
-      flsData = flsData | (0x0000ffffffffffff & word >> 16);
-      fcrc = word;
+      m_lsData = m_lsData | (0x0000ffffffffffff & word >> 16);
+      m_crc = word;
     }
     // make write_word function
-    uint64_t get_tw()
+    uint64_t get_tw() const
     {
       return
-	(static_cast<uint64_t>(flsData & 0x0000ffffffffffff) <<  16) |
-	(static_cast<uint64_t>(fcrc));
+	(static_cast<uint64_t>(m_lsData & 0x0000ffffffffffff) <<  16) |
+	(static_cast<uint64_t>(m_crc));
     }
         
-    uint8_t   b1010      (){ return fb1010;      }
-    uint16_t  BC         (){ return fBC;         }
-    uint8_t   b1100      (){ return fb1100;      }
-    uint8_t   EC         (){ return fEC;         }
-    uint8_t   Flag       (){ return fFlag;       }
-    uint8_t   b1110      (){ return fb1110;      }
-    uint16_t  ChipID     (){ return fChipID;     }
-    uint64_t  lsData     (){ return flsData;     }
-    uint64_t  msData     (){ return fmsData;     }
-    uint16_t  crc        (){ return fcrc;        }
-    uint16_t  crc_calc   (){ return fcrc_calc;   }
-    int       SlotNumber (){ return fSlotNumber; }
-    bool      isBlockGood(){ return fisBlockGood;}
+    uint8_t   b1010      () const { return m_b1010;      }
+    uint16_t  bc         () const { return m_BC;         }
+    uint8_t   b1100      () const { return m_b1100;      }
+    uint8_t   ec         () const { return m_EC;         }
+    uint8_t   flag       () const { return m_Flag;       }
+    uint8_t   b1110      () const { return m_b1110;      }
+    uint16_t  chipID     () const { return m_ChipID;     }
+    uint64_t  lsData     () const { return m_lsData;     }
+    uint64_t  msData     () const { return m_msData;     }
+    uint16_t  crc        () const { return m_crc;        }
+    uint16_t  crc_calc   () const { return m_crc_calc;   }
+    int       slotNumber () const { return m_SlotNumber; }
+    bool      isBlockGood() const { return m_isBlockGood;}
 
     uint16_t crc_cal(uint16_t crc_in, uint16_t dato)
     {
@@ -123,22 +124,22 @@ namespace gem {
     uint16_t checkCRC()
     {
       uint16_t vfatBlockWords[12];
-      vfatBlockWords[11] = ((0x000f & fb1010)<<12) | fBC;
-      vfatBlockWords[10] = ((0x000f & fb1100)<<12) | ((0x00ff & fEC) <<4) | (0x000f & fFlag);
-      vfatBlockWords[9]  = ((0x000f & fb1110)<<12) | fChipID;
-      vfatBlockWords[8]  = (0xffff000000000000 & fmsData) >> 48;
-      vfatBlockWords[7]  = (0x0000ffff00000000 & fmsData) >> 32;
-      vfatBlockWords[6]  = (0x00000000ffff0000 & fmsData) >> 16;
-      vfatBlockWords[5]  = (0x000000000000ffff & fmsData);
-      vfatBlockWords[4]  = (0xffff000000000000 & flsData) >> 48;
-      vfatBlockWords[3]  = (0x0000ffff00000000 & flsData) >> 32;
-      vfatBlockWords[2]  = (0x00000000ffff0000 & flsData) >> 16;
-      vfatBlockWords[1]  = (0x000000000000ffff & flsData);
+      vfatBlockWords[11] = ((0x000f & m_b1010)<<12) | m_BC;
+      vfatBlockWords[10] = ((0x000f & m_b1100)<<12) | ((0x00ff & m_EC) <<4) | (0x000f & m_Flag);
+      vfatBlockWords[9]  = ((0x000f & m_b1110)<<12) | m_ChipID;
+      vfatBlockWords[8]  = (0xffff000000000000 & m_msData) >> 48;
+      vfatBlockWords[7]  = (0x0000ffff00000000 & m_msData) >> 32;
+      vfatBlockWords[6]  = (0x00000000ffff0000 & m_msData) >> 16;
+      vfatBlockWords[5]  = (0x000000000000ffff & m_msData);
+      vfatBlockWords[4]  = (0xffff000000000000 & m_lsData) >> 48;
+      vfatBlockWords[3]  = (0x0000ffff00000000 & m_lsData) >> 32;
+      vfatBlockWords[2]  = (0x00000000ffff0000 & m_lsData) >> 16;
+      vfatBlockWords[1]  = (0x000000000000ffff & m_lsData);
 
       uint16_t crc_fin = 0xffff;
       for (int i = 11; i >= 1; i--){
 	crc_fin = this->crc_cal(crc_fin, vfatBlockWords[i]);
-      }  
+      }
       return(crc_fin);
     }
     
@@ -169,9 +170,9 @@ namespace gem {
     uint16_t checkCRC(VFATdata * vfatData)
     {
       uint16_t vfatBlockWords[12]; 
-      vfatBlockWords[11] = ((0x000f & vfatData->b1010())<<12) | vfatData->BC();
-      vfatBlockWords[10] = ((0x000f & vfatData->b1100())<<12) | ((0x00ff & vfatData->EC()) <<4) | (0x000f & vfatData->Flag());
-      vfatBlockWords[9]  = ((0x000f & vfatData->b1110())<<12) | vfatData->ChipID();
+      vfatBlockWords[11] = ((0x000f & vfatData->b1010())<<12) | vfatData->bc();
+      vfatBlockWords[10] = ((0x000f & vfatData->b1100())<<12) | ((0x00ff & vfatData->ec()) <<4) | (0x000f & vfatData->flag());
+      vfatBlockWords[9]  = ((0x000f & vfatData->b1110())<<12) | vfatData->chipID();
       vfatBlockWords[8]  = (0xffff000000000000 & vfatData->msData()) >> 48;
       vfatBlockWords[7]  = (0x0000ffff00000000 & vfatData->msData()) >> 32;
       vfatBlockWords[6]  = (0x00000000ffff0000 & vfatData->msData()) >> 16;
@@ -190,19 +191,19 @@ namespace gem {
     
   private:
     
-    uint8_t  fb1010;                   ///<1010:4 Control bits, shoud be 1010
-    uint16_t fBC;                      ///<Bunch Crossing number, 12 bits
-    uint8_t  fb1100;                   ///<1100:4, Control bits, shoud be 1100
-    uint8_t  fEC;                      ///<Event Counter, 8 bits
-    uint8_t  fFlag;                    ///<Control Flags: 4 bits, Hamming Error/AFULL/SEUlogic/SUEI2C
-    uint8_t  fb1110;                   ///<1110:4 Control bits, shoud be 1110
-    uint16_t fChipID;                  ///<Chip ID, 12 bits
-    uint64_t flsData;                  ///<channels from 1to64 
-    uint64_t fmsData;                  ///<channels from 65to128
-    uint16_t fcrc;                     ///<Check Sum value, 16 bits
-    uint16_t fcrc_calc;                ///<Check Sum value recalculated, 16 bits
-    int      fSlotNumber;              ///<Calculated chip position
-    bool     fisBlockGood;             ///<Shows if block is good (control bits, chip ID and CRC checks)
+    uint8_t  m_b1010;                   ///<1010:4 Control bits, shoud be 1010
+    uint16_t m_BC;                      ///<Bunch Crossing number, 12 bits
+    uint8_t  m_b1100;                   ///<1100:4, Control bits, shoud be 1100
+    uint8_t  m_EC;                      ///<Event Counter, 8 bits
+    uint8_t  m_Flag;                    ///<Control Flags: 4 bits, Hamming Error/AFULL/SEUlogic/SUEI2C
+    uint8_t  m_b1110;                   ///<1110:4 Control bits, shoud be 1110
+    uint16_t m_ChipID;                  ///<Chip ID, 12 bits
+    uint64_t m_lsData;                  ///<channels from 1to64 
+    uint64_t m_msData;                  ///<channels from 65to128
+    uint16_t m_crc;                     ///<Check Sum value, 16 bits
+    uint16_t m_crc_calc;                ///<Check Sum value recalculated, 16 bits
+    int      m_SlotNumber;              ///<Calculated chip position
+    bool     m_isBlockGood;             ///<Shows if block is good (control bits, chip ID and CRC checks)
   
   };
 }

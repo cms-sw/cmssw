@@ -42,10 +42,10 @@ namespace gem {
       m_ErrorC = 0b0001111111111111 & (word);    /*!<Thirteen Flags*/
       for(int i=0; i<13; ++i)
 	{
-	  v_GEBflags.push_back(0x01 & (m_ErrorC >> i));
+	  m_GEBflags.push_back(0x01 & (m_ErrorC >> i));
 	}
     }
-    uint64_t getChamberHeader()
+    uint64_t getChamberHeader() const
     {
       return
 	(static_cast<uint64_t>(m_ZeroSup & 0x00ffffff) <<  40) |
@@ -62,13 +62,13 @@ namespace gem {
        6->L1AFIFO near full    5->Event size warn   4->No VFAT marker    3->OOS GLIB VFAT   2->OOS GLIB OH 
        1->BX mismatch GLIB VFAT    0->BX mismatch GLIB OH
     */
-    uint8_t GEBflag(int c)
+    uint8_t getGEBflag(int c) const
     {
-      return v_GEBflags[c];
+      return m_GEBflags.at(c);
     }
-    std::vector<uint8_t> GEBflag()
+    std::vector<uint8_t> getGEBflag() const
     {
-      return v_GEBflags;
+      return m_GEBflags;
     }    
     // need to include all the flags
     //!Reads the word for GEM Chamber Trailer
@@ -82,7 +82,7 @@ namespace gem {
       m_InFu = 0x0f & (word >> 35);   /*!<InFIFO underflow*/
       m_Stuckd = 0x01 & (word >> 34); /*!<Stuck data*/
     }
-    uint64_t getChamberTrailer()
+    uint64_t getChamberTrailer() const
     {
       return
 	(static_cast<uint64_t>(m_OHCRC) <<  48) |
@@ -94,24 +94,24 @@ namespace gem {
     void setVwh(uint16_t n){m_Vwh = n;}       ///<Returns VFAT word count (size of VFAT payload)
     void setInputID(uint8_t n){m_InputID = n;}///<Returns GLIB input ID
 
-    uint32_t ZeroSup()  {return m_ZeroSup;}   ///<Returns Zero Suppression flags
-    uint8_t  InputID()  {return m_InputID;}   ///<Returns GLIB input ID
-    uint16_t Vwh()      {return m_Vwh;}       ///<Returns VFAT word count (size of VFAT payload)
-    uint16_t ErrorC()   {return m_ErrorC;}    ///<Returns thirteen flags in GEM Chamber Header
-
-    uint16_t OHCRC()    {return m_OHCRC;}     ///<Returns OH CRC 
-    uint16_t Vwt()      {return m_Vwt;}       ///<Returns VFAT word count
-    uint8_t  InFu()     {return m_InFu;}      ///<Returns InFIFO underflow flag
-    uint8_t  Stuckd()   {return m_Stuckd;}    ///<Returns Stuck data flag
+    uint32_t zeroSup()  const {return m_ZeroSup;}   ///<Returns Zero Suppression flags
+    uint8_t  inputID()  const {return m_InputID;}   ///<Returns GLIB input ID
+    uint16_t vwh()      const {return m_Vwh;}       ///<Returns VFAT word count (size of VFAT payload)
+    uint16_t errorC()   const {return m_ErrorC;}    ///<Returns thirteen flags in GEM Chamber Header
+    
+    uint16_t ohCRC()    const {return m_OHCRC;}     ///<Returns OH CRC 
+    uint16_t vwt()      const {return m_Vwt;}       ///<Returns VFAT word count
+    uint8_t  inFu()     const {return m_InFu;}      ///<Returns InFIFO underflow flag
+    uint8_t  stuckd()   const {return m_Stuckd;}    ///<Returns Stuck data flag
 
     //!Adds VFAT data to the vector
-    void v_add(VFATdata v){vfatd.push_back(v);}
+    void addVFAT(VFATdata v){m_vfatd.push_back(v);}
     //!Returns the vector of FVAT data
-    std::vector<VFATdata> vfats(){return vfatd;}  
+    std::vector<VFATdata> vFATs() const {return m_vfatd;}  
     
   private:
-    std::vector<VFATdata> vfatd;     ///<Vector of VFAT data
-    std::vector<uint8_t> v_GEBflags; ///<Vector for thirteen flags in GEM Chamber Header
+    std::vector<VFATdata> m_vfatd;     ///<Vector of VFAT data
+    std::vector<uint8_t> m_GEBflags; ///<Vector for thirteen flags in GEM Chamber Header
 
     //GEM chamber header
 
