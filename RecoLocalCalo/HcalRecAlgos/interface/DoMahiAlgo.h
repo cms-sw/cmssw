@@ -39,7 +39,10 @@ class DoMahiAlgo
   bool Minimize();
   bool OnePulseMinimize();
   bool UpdateCov();
-  bool UpdatePulseShape(double itQ, FullSampleVector &pulseShape, FullSampleMatrix &pulseCov);
+  bool UpdatePulseShape(double itQ, FullSampleVector &pulseShape, 
+			FullSampleVector &pulseDeriv,
+			FullSampleMatrix &pulseCov);
+  double CalculateArrivalTime();
   double CalculateChiSq();
   bool NNLS();
 
@@ -117,6 +120,9 @@ class DoMahiAlgo
   //holds full pulse shape template
   std::array<FullSampleVector, MaxPVSize> pulseShapeArray_;
 
+  //holds full pulse shape derivatives
+  std::array<FullSampleVector, MaxPVSize> pulseDerivArray_;
+
   //holders for calculating pulse shape & covariance matrices
   std::array<double, HcalConst::maxSamples> pulseN_;
   std::array<double, HcalConst::maxSamples> pulseM_;
@@ -124,6 +130,12 @@ class DoMahiAlgo
 
   //holds matrix of pulse shape templates for each BX
   SamplePulseMatrix pulseMat_;
+
+  //holds matrix of pulse shape derivatives for each BX
+  SamplePulseMatrix pulseDerivMat_;
+
+  //holds residual vector
+  PulseVector residuals_;
 
   //for FNNLS algorithm
   PulseVector ampVec_;

@@ -118,11 +118,12 @@ void DoMahiAlgo::phase1Apply(const HBHEChannelInfo& channelData,
     reconstructedVals.clear();
     reconstructedVals.push_back(0.);
     reconstructedVals.push_back(888.);
+    reconstructedVals.push_back(888.);
   }
   
   reconstructedEnergy = reconstructedVals[0]*channelData.tsGain(0);
-  reconstructedTime = 0;
-  chi2 = reconstructedVals[1];
+  reconstructedTime = reconstructedVals[1];
+  chi2 = reconstructedVals[2];
 
 }
 
@@ -168,6 +169,7 @@ bool DoMahiAlgo::DoFit(SampleVector amplitudes, std::vector<float> &correctedOut
     offset=bxs_.coeff(iBX);
 
     pulseShapeArray_[iBX] = FullSampleVector::Zero(MaxFSVSize);
+    pulseDerivArray_[iBX] = FullSampleVector::Zero(MaxFSVSize);
     pulseCovArray_[iBX]   = FullSampleMatrix::Constant(0);
 
     if (offset==100) {
@@ -176,6 +178,7 @@ bool DoMahiAlgo::DoFit(SampleVector amplitudes, std::vector<float> &correctedOut
     else {
       status = UpdatePulseShape(amplitudes_.coeff(TSOffset_ + offset), 
 				pulseShapeArray_[iBX], 
+				pulseDerivArray_[iBX],
 				pulseCovArray_[iBX]);
 
       if (offset==0) {
@@ -201,6 +204,9 @@ bool DoMahiAlgo::DoFit(SampleVector amplitudes, std::vector<float> &correctedOut
   status = Minimize(); 
   ampVecMin_ = ampVec_;
   bxsMin_ = bxs_;
+  residuals_ = pulseMat_*ampVec_ - amplitudes_;
+
+  double arrivalTime = CalculateArrivalTime();
 
   if (!status) return status;
 
@@ -217,6 +223,7 @@ bool DoMahiAlgo::DoFit(SampleVector amplitudes, std::vector<float> &correctedOut
 
   correctedOutput.clear();
   correctedOutput.push_back(ampVec_.coeff(ipulseintime)); //charge
+  correctedOutput.push_back(arrivalTime); //time
   correctedOutput.push_back(chiSq_); //chi2
   
   
@@ -264,7 +271,8 @@ bool DoMahiAlgo::Minimize() {
   return status;
 }
 
-bool DoMahiAlgo::UpdatePulseShape(double itQ, FullSampleVector &pulseShape, FullSampleMatrix &pulseCov) {
+bool DoMahiAlgo::UpdatePulseShape(double itQ, FullSampleVector &pulseShape, FullSampleVector &pulseDeriv,
+				  FullSampleMatrix &pulseCov) {
 
   float t0=meanTime_;
   if (applyTimeSlew_) 
@@ -289,6 +297,7 @@ bool DoMahiAlgo::UpdatePulseShape(double itQ, FullSampleVector &pulseShape, Full
 
   for (unsigned int iTS=FullTSOffset_; iTS<FullTSOffset_ + TSSize_; iTS++) {
     pulseShape.coeffRef(iTS) = pulseN_[iTS-FullTSOffset_];
+    pulseDeriv.coeffRef(iTS) = 0.5*(pulseM_[iTS-FullTSOffset_]+pulseP_[iTS-FullTSOffset_])/(2*dt_);
 
     pulseM_[iTS-FullTSOffset_] -= pulseN_[iTS-FullTSOffset_];
     pulseP_[iTS-FullTSOffset_] -= pulseN_[iTS-FullTSOffset_];
@@ -332,6 +341,32 @@ bool DoMahiAlgo::UpdateCov() {
   
   return status;
 }
+
+double DoMahiAlgo::CalculateArrivalTime() {
+
+  pulseDerivMat_.resize(TSSize_,nPulseTot_);
+
+  int itIndex=0;
+
+  for (unsigned int iBX=0; iBX<nPulseTot_; iBX++) {
+    int offset=bxs_.coeff(iBX);
+    if (offset==0) itIndex=iBX;
+
+    if (offset==100) {
+      pulseDerivMat_.col(iBX) = SampleVector::Zero(TSSize_);
+    }
+    else {
+      pulseDerivMat_.col(iBX) = pulseDerivArray_.at(offset+BXOffset_).segment(FullTSOffset_-offset, TSSize_);
+    }
+  }
+
+  //PulseVector solution;
+  PulseVector solution = pulseDerivMat_.colPivHouseholderQr().solve(residuals_);
+
+  return solution.coeff(itIndex)/ampVec_.coeff(itIndex);
+
+}
+  
 
 bool DoMahiAlgo::NNLS() {
   const unsigned int npulse = nPulseTot_;
