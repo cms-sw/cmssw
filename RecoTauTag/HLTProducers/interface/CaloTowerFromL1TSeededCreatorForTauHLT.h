@@ -37,19 +37,19 @@ class CaloTowerFromL1TSeededCreatorForTauHLT : public edm::global::EDProducer<> 
   void produce( edm::StreamID sid, edm::Event& evt, const edm::EventSetup& stp ) const override;
 
   /// verbosity
-  const int mVerbose;
+  const int m_verbose;
   /// label of source collection
-  const edm::EDGetTokenT<CaloTowerCollection> mtowers_token;
+  const edm::EDGetTokenT<CaloTowerCollection> m_towers_token;
   /// use only towers in cone mCone around L1 candidate for regional jet reco
-  const double mCone;
+  const double m_cone;
   /// label of tau trigger type analysis
-  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> mTauTrigger_token;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_tauTrigger_token;
   /// imitator of L1 seeds
   //edm::InputTag ml1seeds;
   /// ET threshold
-  const double mEtThreshold;
+  const double m_EtThreshold;
   /// E threshold
-  const double mEThreshold;
+  const double m_EThreshold;
 
 };
 

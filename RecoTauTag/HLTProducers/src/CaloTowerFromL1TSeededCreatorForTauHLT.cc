@@ -19,40 +19,39 @@ using namespace std ;
 
 CaloTowerFromL1TSeededCreatorForTauHLT::CaloTowerFromL1TSeededCreatorForTauHLT( const ParameterSet & p ) 
   :
-  mVerbose                                            (p.getUntrackedParameter<int> ("verbose"        , 0) ),
-  mtowers_token     (consumes<CaloTowerCollection>    (p.getParameter<InputTag>     ("towers"            ))),
-  mCone                                               (p.getParameter<double>       ("UseTowersInCone"   ) ),
-  mTauTrigger_token (consumes<trigger::TriggerFilterObjectWithRefs>   (p.getParameter<InputTag>     ("TauTrigger"        ))),
-  mEtThreshold                                        (p.getParameter<double>       ("minimumEt"         ) ),
-  mEThreshold                                         (p.getParameter<double>       ("minimumE"          ) )
+  m_verbose                                            (p.getUntrackedParameter<int> ("verbose"        , 0) ),
+  m_towers_token     (consumes<CaloTowerCollection>    (p.getParameter<InputTag>     ("towers"            ))),
+  m_cone                                               (p.getParameter<double>       ("UseTowersInCone"   ) ),
+  m_tauTrigger_token (consumes<trigger::TriggerFilterObjectWithRefs>   (p.getParameter<InputTag>     ("TauTrigger"        ))),
+  m_EtThreshold                                        (p.getParameter<double>       ("minimumEt"         ) ),
+  m_EThreshold                                         (p.getParameter<double>       ("minimumE"          ) )
 {
   produces<CaloTowerCollection>();
 }
 
-CaloTowerFromL1TSeededCreatorForTauHLT::~CaloTowerFromL1TSeededCreatorForTauHLT() {
-}
+CaloTowerFromL1TSeededCreatorForTauHLT::~CaloTowerFromL1TSeededCreatorForTauHLT() = default;
 
 void CaloTowerFromL1TSeededCreatorForTauHLT::produce( StreamID sid, Event& evt, const EventSetup& stp ) const {
   edm::Handle<CaloTowerCollection> caloTowers;
-  evt.getByToken( mtowers_token, caloTowers );
+  evt.getByToken( m_towers_token, caloTowers );
 
   // L1 seeds
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
-  evt.getByToken( mTauTrigger_token, l1TriggeredTaus );
+  evt.getByToken( m_tauTrigger_token, l1TriggeredTaus );
 
-  std::unique_ptr<CaloTowerCollection> cands( new CaloTowerCollection );
+  auto cands = std::make_unique<CaloTowerCollection>();
   cands->reserve( caloTowers->size() );
 
   l1t::TauVectorRef tauCandRefVec;
   l1TriggeredTaus->getObjects( trigger::TriggerL1Tau,tauCandRefVec);
 
-  for(unsigned int iL1Tau = 0; iL1Tau < tauCandRefVec.size(); iL1Tau++){  
+  for(auto const& tauCandRef: tauCandRefVec){
 
     unsigned idx   = 0 ;
     for (; idx < caloTowers->size(); idx++) {
       const CaloTower* cal = &((*caloTowers) [idx]);
       bool isAccepted = false;
-      if (mVerbose == 2) {
+      if (m_verbose == 2) {
 	edm::LogInfo("JetDebugInfo") << "CaloTowerFromL1TSeededCreatorForTauHLT::produce-> " << idx 
 				     << " tower et/eta/phi/e: "                        << cal->et()  << '/' 
 				     << cal->eta() << '/' 
@@ -60,15 +59,15 @@ void CaloTowerFromL1TSeededCreatorForTauHLT::produce( StreamID sid, Event& evt, 
 				     << cal->energy() 
 				     << " is...";
       }
-      if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold ) {
+      if (cal->et() >= m_EtThreshold && cal->energy() >= m_EThreshold ) {
 	math::PtEtaPhiELorentzVector p( cal->et(), cal->eta(), cal->phi(), cal->energy() );
-	double delta  = ROOT::Math::VectorUtil::DeltaR((tauCandRefVec[iL1Tau]->p4()).Vect(), p);
-	if(delta < mCone) {
+	double delta  = ROOT::Math::VectorUtil::DeltaR((tauCandRef->p4()).Vect(), p);
+	if(delta < m_cone) {
 	  isAccepted = true;
 	  cands->push_back( *cal );
 	}
       }
-      if (mVerbose == 2){
+      if (m_verbose == 2){
 	if (isAccepted) edm::LogInfo("JetDebugInfo") << "accepted \n";
 	else edm::LogInfo("JetDebugInfo") << "rejected \n";
       }
