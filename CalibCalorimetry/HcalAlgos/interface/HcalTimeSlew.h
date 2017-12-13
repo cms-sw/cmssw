@@ -48,14 +48,13 @@ class HcalTimeSlew {
   void addM2ParameterSet(double tzero, double slope, double tmax);
   void addM3ParameterSet(double cap, double tspar0, double tspar1, double tspar2, double tspar0_siPM, double tspar1_siPM, double tspar2_siPM);
 
-  enum ParaSource { TestStand=0, Data=1, MC=2, InputPars=3 };
+  enum ParaSource { HB=0, BE=1, HE=2 };
   enum BiasSetting { Slow=0, Medium=1, Fast=2 };
-  static constexpr double tspar[3] = {12.2999, -2.19142, 0};
   /** \brief Returns the amount (ns) by which a pulse of the given
    number of fC will be delayed by the timeslew effect, for the
    specified bias setting. */
   double delay(double fC, BiasSetting bias=Medium) const; 
-  double delay(double fC, ParaSource source=InputPars, BiasSetting bias=Medium, double par0=tspar[0], double par1=tspar[1], double par2=tspar[2], bool isHPD=true) const;
+  double delay(double fC, ParaSource source=HE, bool isHPD=true) const;
   
  private:
   std::vector<HcalTimeSlewM2Parameters> parametersM2_;
