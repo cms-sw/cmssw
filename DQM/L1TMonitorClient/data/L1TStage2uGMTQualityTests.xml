@@ -335,21 +335,6 @@
 
   <!-- uGMT Mismatch Summary QTest -->
 
-  <!-- uGMT Output vs uGT Input -->
-
-  <QTEST name="uGMTvsuGT_MismatchRatioMax0">
-    <TYPE>ContentsYRange</TYPE>	
-    <PARAM name="ymin">0.00</PARAM>
-    <PARAM name="ymax">0.00</PARAM>
-    <PARAM name="error">0.95</PARAM>
-    <PARAM name="warning">0.99</PARAM>
-    <PARAM name="useEmptyBins">1</PARAM>
-  </QTEST>
-  
-  <LINK name="*/L1TStage2uGMT/uGMToutput_vs_uGTinput/mismatchRatio">
-      <TestName activate="true">uGMTvsuGT_MismatchRatioMax0</TestName>
-  </LINK>
-
   <!-- BMTF Output vs uGMT Input -->
 
   <QTEST name="BMTFvsuGMT_MismatchRatioMax0">
