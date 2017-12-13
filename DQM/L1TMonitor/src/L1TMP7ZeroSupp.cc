@@ -201,7 +201,7 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     FEDTrailer trailer(data + (l1tRcd.size() - slinkTrailerSize_));
 
     if (trailer.check()) {
-      edm::LogInfo("L1TDQM") << "Found SLink trailer:" << " Length " << trailer.eventSize() << " CRC " << trailer.crc() << " Status " << trailer.evtStatus() << " Throttling bits " << trailer.ttsBits();
+      edm::LogInfo("L1TDQM") << "Found SLink trailer:" << " Length " << trailer.fragmentLength() << " CRC " << trailer.crc() << " Status " << trailer.evtStatus() << " Throttling bits " << trailer.ttsBits();
     } else {
       edm::LogWarning("L1TDQM") << "Did not find a SLink trailer!";
     }

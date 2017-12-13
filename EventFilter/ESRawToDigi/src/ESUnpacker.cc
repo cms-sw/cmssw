@@ -106,13 +106,13 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
       if (debug_) edm::LogWarning("Invalid Data")<<"ES : Failed trailer check !";
       return;
     } 
-    if ( ESTrailer.eventSize() != nWords) {
+    if ( ESTrailer.fragmentLength() != nWords) {
       if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
       ESDCCHeader.setDCCErrors(2);
       dccs.push_back(ESDCCHeader);
       return;
     }
-    if ( ESTrailer.eventSize() < 8) {
+    if ( ESTrailer.fragmentLength() < 8) {
       if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
       ESDCCHeader.setDCCErrors(3);
       dccs.push_back(ESDCCHeader);
@@ -122,7 +122,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     if (debug_)  {
       LogDebug("ESUnpacker")<<"[ESUnpacker]: FED Trailer candidate. Is trailer? "<<ESTrailer.check();
       if (ESTrailer.check())
-	LogDebug("ESUnpacker")<<". Length of the ES event: "<<ESTrailer.eventSize();
+	LogDebug("ESUnpacker")<<". Length of the ES event: "<<ESTrailer.fragmentLength();
       else LogDebug("ESUnpacker")<<" WARNING!, this is not a ES Trailer";
     }
 

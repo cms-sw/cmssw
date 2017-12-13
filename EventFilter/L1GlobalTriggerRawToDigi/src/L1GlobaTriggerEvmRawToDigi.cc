@@ -758,9 +758,9 @@ void L1GlobalTriggerEvmRawToDigi::unpackTrailer(const unsigned char* trlPtr, FED
                 << std::setw(16) << payload[iWord] << std::dec << std::setfill(' ') << "\n"
                 << std::endl;
 
-        myCoutStream << "  Event_size:    " << std::hex << " hex: " << "" << std::setw(6)
-                << std::setfill('0') << cmsTrailer.eventSize() << std::setfill(' ') << std::dec
-                << " dec: " << cmsTrailer.eventSize() << std::endl;
+        myCoutStream << "  Event_length:  " << std::hex << " hex: " << "" << std::setw(6)
+                << std::setfill('0') << cmsTrailer.fragmentLength() << std::setfill(' ') << std::dec
+                << " dec: " << cmsTrailer.fragmentLength() << std::endl;
 
         myCoutStream << "  CRC:           " << std::hex << " hex: " << "  " << std::setw(4)
                 << std::setfill('0') << cmsTrailer.crc() << std::setfill(' ') << std::dec

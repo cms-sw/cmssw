@@ -14,7 +14,7 @@ FEDTrailer::FEDTrailer(const unsigned char* trailer) :
 FEDTrailer::~FEDTrailer() {}
 
 
-uint32_t FEDTrailer::eventSize() const {
+uint32_t FEDTrailer::fragmentLength() const {
   return FED_EVSZ_EXTRACT(theTrailer->eventsize);
 }
 

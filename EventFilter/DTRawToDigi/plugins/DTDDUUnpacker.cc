@@ -67,7 +67,7 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 
   if (dduTrailer.check()) {
     if(debug) cout << "[DTDDUUnpacker] FED Trailer. Length of the DT event: "
-		   << dduTrailer.eventSize() << endl;
+		   << dduTrailer.fragmentLength() << endl;
   } else {
     LogWarning("DTRawToDigi|DTDDUUnpacker") << "[DTDDUUnpacker] WARNING!, this is not a DDU Trailer, FED ID: "
 					    << dduID << endl;

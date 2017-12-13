@@ -20,7 +20,7 @@ public:
   virtual ~FEDTrailer();
 
   /// The length of the event fragment counted in 64-bit words including header and trailer
-  uint32_t eventSize() const;
+  uint32_t fragmentLength() const;
 
   /// Cyclic Redundancy Code of the event fragment including header and trailer
   uint16_t crc() const;

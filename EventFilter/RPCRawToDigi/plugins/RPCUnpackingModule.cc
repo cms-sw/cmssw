@@ -148,16 +148,16 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
         if (debug) LogTrace("") <<" ** PROBLEM **, trailer.check() failed, break";
         break;
       }
-      if ( fedTrailer.eventSize()!= nWords) {
+      if ( fedTrailer.fragmentLength()!= nWords) {
         producedRawDataCounts->addReadoutError(fedId, ReadoutError(ReadoutError::InconsistentDataSize)); 
-        if (debug) LogTrace("")<<" ** PROBLEM **, fedTrailer.eventSize()!= nWords, break";
+        if (debug) LogTrace("")<<" ** PROBLEM **, fedTrailer.fragmentLength()!= nWords, break";
         break;
       }
       moreTrailers = fedTrailer.moreTrailers();
       if (debug) {
         ostringstream str;
         str <<" trailer: "<<  *reinterpret_cast<const bitset<64>*> (trailer) << endl; 
-        str <<"  trailer eventSize: "<<fedTrailer.eventSize()<<endl;
+        str <<"  trailer lenght:    "<<fedTrailer.fragmentLength()<<endl;
         str <<"  trailer crc:       "<<fedTrailer.crc()<<endl;
         str <<"  trailer evtStatus: "<<fedTrailer.evtStatus()<<endl;
         str <<"  trailer ttsBits:   "<<fedTrailer.ttsBits()<<endl;

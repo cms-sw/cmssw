@@ -129,7 +129,7 @@ void RctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollectio
   
   if (trailer.check()) {
     LogDebug("L1T") << "Found SLink trailer:"
-		    << " Event size " << trailer.eventSize()
+		    << " Length " << trailer.fragmentLength()
 		    << " CRC " << trailer.crc()
 		    << " Status " << trailer.evtStatus()
 		    << " Throttling bits " << trailer.ttsBits();
