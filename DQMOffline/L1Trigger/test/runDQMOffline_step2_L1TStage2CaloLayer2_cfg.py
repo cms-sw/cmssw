@@ -58,9 +58,15 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')  # for MC
 # Path and EndPath definitions
 process.myHarvesting = cms.Path(process.DQMExampleStep2)
 process.myEff = cms.Path(
-    process.l1tStage2CaloLayer2Efficiency * process.l1tStage2CaloLayer2EmuDiff +
-    process. l1tEGammaEfficiency * process.l1tEGammaEmuDiff +
-    process. l1tTauEfficiency * process.l1tTauEmuDiff
+    process.l1tStage2CaloLayer2Efficiency *
+    process.l1tStage2CaloLayer2EmuEfficiency *
+    process.l1tStage2CaloLayer2EmuDiff +
+    process.l1tEGammaEfficiency *
+    process.l1tEGammaEmuEfficiency *
+    process.l1tEGammaEmuDiff +
+    process.l1tTauEfficiency *
+    process.l1tTauEmuEfficiency * 
+    process.l1tTauEmuDiff
 )
 process.myTest = cms.Path(process.DQMExample_qTester)
 process.dqmsave_step = cms.Path(process.dqmSaver)

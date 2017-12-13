@@ -37,6 +37,11 @@ l1tStage2CaloLayer2Efficiency = l1tEfficiencyHarvesting.clone(
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots)
         ),
+    )
+)
+
+l1tStage2CaloLayer2EmuEfficiency = l1tEfficiencyHarvesting.clone(
+    plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
             numeratorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2/efficiency_raw"),
             outputDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
