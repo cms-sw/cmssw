@@ -17,8 +17,11 @@
 struct nnlsWorkspace {
 
   unsigned int nPulseTot;
-  //unsigned int bxSize;
+  unsigned int tsSize;
+  unsigned int tsOffset;
+  unsigned int fullTSOffset;
   int bxOffset;
+  double dt;
 
   //holds active bunch crossings
   BXVector bxs;  
@@ -31,6 +34,9 @@ struct nnlsWorkspace {
 
   //holds diagonal noise terms
   SampleVector noiseTerms;
+
+  //holds flat pedestal uncertainty
+  SampleMatrix pedConstraint;
   
   //holds full covariance matrix for a pulse shape 
   //varied in time
@@ -57,6 +63,7 @@ struct nnlsWorkspace {
   PulseVector residuals;
 
   //for FNNLS algorithm
+  unsigned int nP;
   PulseVector ampVec;
 
   PulseVector errVec;
@@ -90,9 +97,9 @@ class MahiFit
 		   float& reconstructedEnergy, 
 		   float& reconstructedTime, 
 		   bool& useTriple,
-		   float& chi2);
+		   float& chi2) const;
 
-  void doFit(SampleVector amplitudes, std::vector<float> &correctedOutput, int nbx);
+  void doFit(std::vector<float> &correctedOutput, int nbx) const;
 
   void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps);
   void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
@@ -102,23 +109,23 @@ class MahiFit
 
  private:
 
-  void minimize();
-  void onePulseMinimize();
-  void updateCov();
+  double minimize() const;
+  void onePulseMinimize() const;
+  void updateCov() const;
   void updatePulseShape(double itQ, FullSampleVector &pulseShape, 
 			FullSampleVector &pulseDeriv,
-			FullSampleMatrix &pulseCov);
-  double calculateArrivalTime();
-  double calculateChiSq();
-  void nnls();
-  void resetWorkspace();
+			FullSampleMatrix &pulseCov) const;
+  double calculateArrivalTime() const;
+  double calculateChiSq() const;
+  void nnls() const;
+  void resetWorkspace() const;
 
-  void nnlsUnconstrainParameter(Index idxp);
-  void nnlsConstrainParameter(Index minratioidx);
+  void nnlsUnconstrainParameter(Index idxp) const;
+  void nnlsConstrainParameter(Index minratioidx) const;
 
-  void eigenSolveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP);
+  void eigenSolveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP) const;
 
-  double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda);
+  double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const;
   
   mutable nnlsWorkspace nnlsWork_;
 
@@ -146,88 +153,13 @@ class MahiFit
   float deltaChiSqThresh_; 
   float nnlsThresh_; 
 
-  //unsigned int bxSize_;
-  //int bxOffset_;
   unsigned int bxSizeConf_;
   int bxOffsetConf_;
-
-  //from channelData
-  float dt_;
-  float darkCurrent_;
-  float fcByPe_;
-
-  //holds constant pedestal constraint
-  double pedConstraint_;
-
-  unsigned int tsSize_;
-  unsigned int tsOffset_;
-
-  unsigned int fullTSOffset_;
-
-
-  PulseVector ampVecMin_;
-  BXVector bxsMin_;
-  unsigned int nP_;
-  double chiSq_;
 
   //for pulse shapes
   int cntsetPulseShape_;
   std::unique_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
   std::unique_ptr<ROOT::Math::Functor> pfunctor_;
-  /*
-  unsigned int nPulseTot_;
 
-  //holds data samples
-  SampleVector amplitudes_;
-
-  //holds inverse covariance matrix
-  SampleMatrix invCovMat_;
-
-  //holds diagonal noise terms
-  SampleVector noiseTerms_;
-  //holds constant pedestal constraint
-  double pedConstraint_;
-  
-  //holds full covariance matrix for a pulse shape 
-  //varied in time
-  std::array<FullSampleMatrix, MaxPVSize> pulseCovArray_;
-
-  //holds full pulse shape template
-  std::array<FullSampleVector, MaxPVSize> pulseShapeArray_;
-
-  //holds full pulse shape derivatives
-  std::array<FullSampleVector, MaxPVSize> pulseDerivArray_;
-
-  //holders for calculating pulse shape & covariance matrices
-  std::array<double, HcalConst::maxSamples> pulseN_;
-  std::array<double, HcalConst::maxSamples> pulseM_;
-  std::array<double, HcalConst::maxSamples> pulseP_;
-
-  //holds matrix of pulse shape templates for each BX
-  SamplePulseMatrix pulseMat_;
-
-  //holds matrix of pulse shape derivatives for each BX
-  SamplePulseMatrix pulseDerivMat_;
-
-  //holds residual vector
-  PulseVector residuals_;
-
-  //for FNNLS algorithm
-  PulseVector ampVec_;
-  PulseVector ampVecMin_;
-  PulseVector errVec_;
-  PulseVector ampvecpermtest_;
-
-  SamplePulseMatrix invcovp_;
-  PulseMatrix aTaMat_; // A-transpose A (matrix)
-  PulseVector aTbVec_; // A-transpose b (vector)
-  PulseVector wVec_; // w (vector)
-  PulseVector updateWork_; // w (vector)
-
-  SampleDecompLLT covDecomp_;
-  SampleMatrix covDecompLinv_;
-  PulseMatrix topleft_work_;
-  PulseDecompLDLT pulseDecomp_;
-  */
 }; 
 #endif
