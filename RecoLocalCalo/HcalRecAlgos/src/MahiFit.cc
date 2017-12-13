@@ -1,21 +1,24 @@
-#include "RecoLocalCalo/HcalRecAlgos/interface/DoMahiAlgo.h" 
+#include "RecoLocalCalo/HcalRecAlgos/interface/MahiFit.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <fstream> 
 
-void eigen_solve_submatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP);
-
-DoMahiAlgo::DoMahiAlgo() :
-  FullTSSize_(19), //19
-  FullTSofInterest_(8) //8
+MahiFit::MahiFit() :
+  fullTSSize_(19), 
+  fullTSofInterest_(8)
 {}
 
-void DoMahiAlgo::setParameters(double iTS4Thresh, double chiSqSwitch, bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
+double MahiFit::getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) {
+  double mu = darkCurrent * 25 / fcByPE;
+  return sqrt(mu/pow(1-lambda,3)) * fcByPE;
+}
+
+void MahiFit::setParameters(double iTS4Thresh, double chiSqSwitch, bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
 			       double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM, 
 			       const std::vector <int> &iActiveBXs, int iNMaxItersMin, int iNMaxItersNNLS,
 			       double iDeltaChiSqThresh, double iNnlsThresh) {
 
-  TS4Thresh_     = iTS4Thresh;
+  ts4Thresh_     = iTS4Thresh;
   chiSqSwitch_   = chiSqSwitch;
 
   applyTimeSlew_ = iApplyTimeSlew;
@@ -33,18 +36,18 @@ void DoMahiAlgo::setParameters(double iTS4Thresh, double chiSqSwitch, bool iAppl
   deltaChiSqThresh_ = iDeltaChiSqThresh;
   nnlsThresh_    = iNnlsThresh;
 
-  BXOffsetConf_ = -(*std::min_element(activeBXs_.begin(), activeBXs_.end()));
-  BXSizeConf_   = activeBXs_.size();
+  bxOffsetConf_ = -(*std::min_element(activeBXs_.begin(), activeBXs_.end()));
+  bxSizeConf_   = activeBXs_.size();
 }
 
-void DoMahiAlgo::phase1Apply(const HBHEChannelInfo& channelData,
+void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 			     float& reconstructedEnergy,
 			     float& reconstructedTime,
 			     float& chi2) {
 
-  TSSize_ = channelData.nSamples();
-  TSOffset_ = channelData.soi();
-  FullTSOffset_ = FullTSofInterest_ - TSOffset_;
+  tsSize_ = channelData.nSamples();
+  tsOffset_ = channelData.soi();
+  fullTSOffset_ = fullTSofInterest_ - tsOffset_;
 
   // 1 sigma time constraint
   if (channelData.hasTimeInfo()) dt_=timeSigmaSiPM_;
@@ -68,7 +71,7 @@ void DoMahiAlgo::phase1Apply(const HBHEChannelInfo& channelData,
   SampleVector charges;
   
   double tsTOT = 0, tstrig = 0; // in GeV
-  for(unsigned int iTS=0; iTS<TSSize_; ++iTS){
+  for(unsigned int iTS=0; iTS<tsSize_; ++iTS){
     double charge = channelData.tsRawCharge(iTS);
     double ped = channelData.tsPedestal(iTS);
 
@@ -96,21 +99,21 @@ void DoMahiAlgo::phase1Apply(const HBHEChannelInfo& channelData,
     noiseTerms_.coeffRef(iTS) = noiseADC*noiseADC + noiseDC*noiseDC + noisePhoto*noisePhoto + pedWidth*pedWidth;
 
     tsTOT += charge - ped;
-    if( iTS==TSOffset_ ){
+    if( iTS==tsOffset_ ){
       tstrig += (charge - ped)*channelData.tsGain(0);
     }
   }
 
   bool status =false;
-  if(tstrig >= TS4Thresh_) {
+  if(tstrig >= ts4Thresh_) {
     if (chiSqSwitch_>0) {
-      status = DoFit(charges,reconstructedVals,1);
+      status = doFit(charges,reconstructedVals,1);
       if (reconstructedVals[1]>chiSqSwitch_) {
-	status = DoFit(charges,reconstructedVals,0);
+	status = doFit(charges,reconstructedVals,0);
       }
     }
     else {
-      status = DoFit(charges,reconstructedVals,0);
+      status = doFit(charges,reconstructedVals,0);
     }
   }
   
@@ -127,29 +130,29 @@ void DoMahiAlgo::phase1Apply(const HBHEChannelInfo& channelData,
 
 }
 
-bool DoMahiAlgo::DoFit(SampleVector amplitudes, std::vector<float> &correctedOutput, int nbx) {
+bool MahiFit::doFit(SampleVector amplitudes, std::vector<float> &correctedOutput, int nbx) {
 
   if (nbx==1) {
-    BXSize_ = 1;
-    BXOffset_ = 0;
+    bxSize_ = 1;
+    bxOffset_ = 0;
   }
   else {
-    BXSize_ = BXSizeConf_;
-    BXOffset_ = BXOffsetConf_;
+    bxSize_ = bxSizeConf_;
+    bxOffset_ = bxOffsetConf_;
   }
 
-  bxs_.resize(BXSize_);
+  bxs_.resize(bxSize_);
 
   if (nbx==1) {
     bxs_.coeffRef(0) = 0;
   }
   else {
-    for (unsigned int iBX=0; iBX<BXSize_; iBX++) {
+    for (unsigned int iBX=0; iBX<bxSize_; iBX++) {
       bxs_.coeffRef(iBX) = activeBXs_[iBX];
     }
   }
 
-  nPulseTot_ = BXSize_;
+  nPulseTot_ = bxSize_;
   nPulseTot_++;
   bxs_.resize(nPulseTot_);
   bxs_[nPulseTot_-1] = 100;
@@ -158,7 +161,7 @@ bool DoMahiAlgo::DoFit(SampleVector amplitudes, std::vector<float> &correctedOut
 
   nP_ = 0;
   
-  pulseMat_.resize(TSSize_,nPulseTot_);
+  pulseMat_.resize(tsSize_,nPulseTot_);
   ampVec_ = PulseVector::Zero(nPulseTot_);
   errVec_ = PulseVector::Zero(nPulseTot_);
 
@@ -176,19 +179,19 @@ bool DoMahiAlgo::DoFit(SampleVector amplitudes, std::vector<float> &correctedOut
       ampVec_.coeffRef(iBX) = sqrt(pedConstraint_);
     }
     else {
-      status = UpdatePulseShape(amplitudes_.coeff(TSOffset_ + offset), 
+      status = updatePulseShape(amplitudes_.coeff(tsOffset_ + offset), 
 				pulseShapeArray_[iBX], 
 				pulseDerivArray_[iBX],
 				pulseCovArray_[iBX]);
-
+      
       if (offset==0) {
-	ampVec_.coeffRef(iBX)= amplitudes_.coeff(TSOffset_ + offset)/double(pulseShapeArray_[iBX].coeff(FullTSofInterest_));
+      	ampVec_.coeffRef(iBX)= amplitudes_.coeff(tsOffset_ + offset)/double(pulseShapeArray_[iBX].coeff(fullTSofInterest_));
       }
       else {
 	ampVec_.coeffRef(iBX)=0;
       }
 
-      pulseMat_.col(iBX) = pulseShapeArray_[iBX].segment(FullTSOffset_ - offset, TSSize_);
+      pulseMat_.col(iBX) = pulseShapeArray_[iBX].segment(fullTSOffset_ - offset, tsSize_);
 
     }
   }
@@ -201,12 +204,12 @@ bool DoMahiAlgo::DoFit(SampleVector amplitudes, std::vector<float> &correctedOut
   aTaMat_.resize(nPulseTot_, nPulseTot_);
   aTbVec_.resize(nPulseTot_);
 
-  status = Minimize(); 
+  status = minimize(); 
   ampVecMin_ = ampVec_;
   bxsMin_ = bxs_;
   residuals_ = pulseMat_*ampVec_ - amplitudes_;
 
-  double arrivalTime = CalculateArrivalTime();
+  double arrivalTime = calculateArrivalTime();
 
   if (!status) return status;
 
@@ -230,7 +233,7 @@ bool DoMahiAlgo::DoFit(SampleVector amplitudes, std::vector<float> &correctedOut
   return status;
 }
 
-bool DoMahiAlgo::Minimize() {
+bool MahiFit::minimize() {
 
   int iter = 0;
   bool status = false;
@@ -242,18 +245,18 @@ bool DoMahiAlgo::Minimize() {
       break;
     }
     
-    status=UpdateCov();
+    status=updateCov();
     if (!status) break;
 
     if (nPulseTot_>1) {
-      status = NNLS();
+      status = nnls();
     }
     else {
-      status = OnePulseMinimize();
+      status = onePulseMinimize();
     }
     if (!status) break;
     
-    double newChiSq=CalculateChiSq();
+    double newChiSq=calculateChiSq();
     double deltaChiSq = newChiSq - chiSq_;
 
     if (newChiSq==oldChiSq && newChiSq<chiSq_) {
@@ -271,7 +274,7 @@ bool DoMahiAlgo::Minimize() {
   return status;
 }
 
-bool DoMahiAlgo::UpdatePulseShape(double itQ, FullSampleVector &pulseShape, FullSampleVector &pulseDeriv,
+bool MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSampleVector &pulseDeriv,
 				  FullSampleMatrix &pulseCov) {
 
   float t0=meanTime_;
@@ -295,19 +298,19 @@ bool DoMahiAlgo::UpdatePulseShape(double itQ, FullSampleVector &pulseShape, Full
   (*pfunctor_)(&xxp[0]);
   psfPtr_->getPulseShape(pulseP_);
 
-  for (unsigned int iTS=FullTSOffset_; iTS<FullTSOffset_ + TSSize_; iTS++) {
-    pulseShape.coeffRef(iTS) = pulseN_[iTS-FullTSOffset_];
-    pulseDeriv.coeffRef(iTS) = 0.5*(pulseM_[iTS-FullTSOffset_]+pulseP_[iTS-FullTSOffset_])/(2*dt_);
+  for (unsigned int iTS=fullTSOffset_; iTS<fullTSOffset_ + tsSize_; iTS++) {
+    pulseShape.coeffRef(iTS) = pulseN_[iTS-fullTSOffset_];
+    pulseDeriv.coeffRef(iTS) = 0.5*(pulseM_[iTS-fullTSOffset_]+pulseP_[iTS-fullTSOffset_])/(2*dt_);
 
-    pulseM_[iTS-FullTSOffset_] -= pulseN_[iTS-FullTSOffset_];
-    pulseP_[iTS-FullTSOffset_] -= pulseN_[iTS-FullTSOffset_];
+    pulseM_[iTS-fullTSOffset_] -= pulseN_[iTS-fullTSOffset_];
+    pulseP_[iTS-fullTSOffset_] -= pulseN_[iTS-fullTSOffset_];
   }
 
-  for (unsigned int iTS=FullTSOffset_; iTS<FullTSOffset_+TSSize_; iTS++) {
-    for (unsigned int jTS=FullTSOffset_; jTS<iTS+1; jTS++) {
+  for (unsigned int iTS=fullTSOffset_; iTS<fullTSOffset_+tsSize_; iTS++) {
+    for (unsigned int jTS=fullTSOffset_; jTS<iTS+1; jTS++) {
       
-      double tmp=0.5*( pulseP_[iTS-FullTSOffset_]*pulseP_[jTS-FullTSOffset_] +
-		       pulseM_[iTS-FullTSOffset_]*pulseM_[jTS-FullTSOffset_] );
+      double tmp=0.5*( pulseP_[iTS-fullTSOffset_]*pulseP_[jTS-fullTSOffset_] +
+		       pulseM_[iTS-fullTSOffset_]*pulseM_[jTS-fullTSOffset_] );
       
       pulseCov(iTS,jTS) += tmp;
       pulseCov(jTS,iTS) += tmp;
@@ -318,7 +321,7 @@ bool DoMahiAlgo::UpdatePulseShape(double itQ, FullSampleVector &pulseShape, Full
   return true;  
 }
 
-bool DoMahiAlgo::UpdateCov() {
+bool MahiFit::updateCov() {
   
   bool status=true;
   
@@ -333,7 +336,7 @@ bool DoMahiAlgo::UpdateCov() {
     if (offset==100) continue;		       
     else { 
       invCovMat_ += ampVec_.coeff(iBX)*ampVec_.coeff(iBX)
-	*pulseCovArray_.at(offset+BXOffset_).block(FullTSOffset_-offset, FullTSOffset_-offset, TSSize_, TSSize_);
+	*pulseCovArray_.at(offset+bxOffset_).block(fullTSOffset_-offset, fullTSOffset_-offset, tsSize_, tsSize_);
     }
   }
   
@@ -342,9 +345,9 @@ bool DoMahiAlgo::UpdateCov() {
   return status;
 }
 
-double DoMahiAlgo::CalculateArrivalTime() {
+double MahiFit::calculateArrivalTime() {
 
-  pulseDerivMat_.resize(TSSize_,nPulseTot_);
+  pulseDerivMat_.resize(tsSize_,nPulseTot_);
 
   int itIndex=0;
 
@@ -353,22 +356,20 @@ double DoMahiAlgo::CalculateArrivalTime() {
     if (offset==0) itIndex=iBX;
 
     if (offset==100) {
-      pulseDerivMat_.col(iBX) = SampleVector::Zero(TSSize_);
+      pulseDerivMat_.col(iBX) = SampleVector::Zero(tsSize_);
     }
     else {
-      pulseDerivMat_.col(iBX) = pulseDerivArray_.at(offset+BXOffset_).segment(FullTSOffset_-offset, TSSize_);
+      pulseDerivMat_.col(iBX) = pulseDerivArray_.at(offset+bxOffset_).segment(fullTSOffset_-offset, tsSize_);
     }
   }
 
-  //PulseVector solution;
   PulseVector solution = pulseDerivMat_.colPivHouseholderQr().solve(residuals_);
-
   return solution.coeff(itIndex)/ampVec_.coeff(itIndex);
 
 }
   
 
-bool DoMahiAlgo::NNLS() {
+bool MahiFit::nnls() {
   const unsigned int npulse = nPulseTot_;
   
   for (unsigned int iBX=0; iBX<npulse; iBX++) {
@@ -377,7 +378,7 @@ bool DoMahiAlgo::NNLS() {
       pulseMat_.col(iBX) = SampleVector::Ones();
     }
     else {
-      pulseMat_.col(iBX) = pulseShapeArray_.at(offset+BXOffset_).segment(FullTSOffset_-offset, TSSize_);
+      pulseMat_.col(iBX) = pulseShapeArray_.at(offset+bxOffset_).segment(fullTSOffset_-offset, tsSize_);
     }
   }
 
@@ -392,7 +393,7 @@ bool DoMahiAlgo::NNLS() {
   
   while (true) {    
     if (iter>0 || nP_==0) {
-      if ( nP_==std::min(npulse, TSSize_)) break;
+      if ( nP_==std::min(npulse, tsSize_)) break;
       
       const unsigned int nActive = npulse - nP_;
       updateWork_ = aTbVec_ - aTaMat_*ampVec_;
@@ -411,7 +412,7 @@ bool DoMahiAlgo::NNLS() {
 
       //unconstrain parameter
       Index idxp = nP_ + idxwmax;
-      NNLSUnconstrainParameter(idxp);
+      nnlsUnconstrainParameter(idxp);
 
     }
 
@@ -420,7 +421,7 @@ bool DoMahiAlgo::NNLS() {
 
       ampvecpermtest_ = ampVec_;
       
-      eigen_solve_submatrix(aTaMat_,aTbVec_,ampvecpermtest_,nP_);
+      eigenSolveSubmatrix(aTaMat_,aTbVec_,ampvecpermtest_,nP_);
 
       //check solution
       bool positive = true;
@@ -451,7 +452,7 @@ bool DoMahiAlgo::NNLS() {
       //avoid numerical problems with later ==0. check
       ampVec_.coeffRef(minratioidx) = 0.;
       
-      NNLSConstrainParameter(minratioidx);
+      nnlsConstrainParameter(minratioidx);
     }
    
     ++iter;
@@ -468,7 +469,7 @@ bool DoMahiAlgo::NNLS() {
   return true;
 }
 
-bool DoMahiAlgo::OnePulseMinimize() {
+bool MahiFit::onePulseMinimize() {
 
   invcovp_ = covDecomp_.matrixL().solve(pulseMat_);
 
@@ -481,12 +482,12 @@ bool DoMahiAlgo::OnePulseMinimize() {
 
 }
 
-double DoMahiAlgo::CalculateChiSq() {
+double MahiFit::calculateChiSq() {
 
   return (covDecomp_.matrixL().solve(pulseMat_*ampVec_ - amplitudes_)).squaredNorm();
 }
 
-void DoMahiAlgo::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
+void MahiFit::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
 
   if (!(&ps == currentPulseShape_ ))
     {
@@ -495,19 +496,18 @@ void DoMahiAlgo::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
     }
 }
 
-double DoMahiAlgo::getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) {
-  double mu = darkCurrent * 25 / fcByPE;
-  return sqrt(mu/pow(1-lambda,3)) * fcByPE;
-}
-
-void DoMahiAlgo::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) { 
+void MahiFit::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) { 
   ++ cntsetPulseShape_;
-  psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,false,false,false,false,1,0,2.5,0,0.00065,1,10));
+
+  // only the pulse shape itself from PulseShapeFunctor is used for Mahi
+  // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
+  psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,false,false,false,false,
+						   1,0,2.5,0,0.00065,1,10));
   pfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3) );
 
 }
 
-void DoMahiAlgo::NNLSUnconstrainParameter(Index idxp) {
+void MahiFit::nnlsUnconstrainParameter(Index idxp) {
   aTaMat_.col(nP_).swap(aTaMat_.col(idxp));
   aTaMat_.row(nP_).swap(aTaMat_.row(idxp));
   pulseMat_.col(nP_).swap(pulseMat_.col(idxp));
@@ -517,7 +517,7 @@ void DoMahiAlgo::NNLSUnconstrainParameter(Index idxp) {
   ++nP_;
 }
 
-void DoMahiAlgo::NNLSConstrainParameter(Index minratioidx) {
+void MahiFit::nnlsConstrainParameter(Index minratioidx) {
   aTaMat_.col(nP_-1).swap(aTaMat_.col(minratioidx));
   aTaMat_.row(nP_-1).swap(aTaMat_.row(minratioidx));
   pulseMat_.col(nP_-1).swap(pulseMat_.col(minratioidx));
@@ -528,7 +528,7 @@ void DoMahiAlgo::NNLSConstrainParameter(Index minratioidx) {
 
 }
 
-void eigen_solve_submatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP) {
+void MahiFit::eigenSolveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP) {
   using namespace Eigen;
   switch( NP ) { // pulse matrix is always square.
   case 10:
@@ -592,7 +592,7 @@ void eigen_solve_submatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& ou
     }
     break;
   default:
-    throw cms::Exception("MultFitWeirdState");
-    //std::cout << "Weird number of pulses encountered in multifit, module is configured incorrectly!" << std::endl;
+    throw cms::Exception("HcalMahiWeirdState") 
+      << "Weird number of pulses encountered in Mahi, module is configured incorrectly!";
   }
 }
