@@ -58,7 +58,7 @@ namespace gem {
       m_BX = 0x0fff & (word >> 20);       /*!<BX ID */
       m_Dlength = 0x000fffff & word;      /*!<Data Length */
     }
-    uint64_t getAMCheader1()
+    uint64_t getAMCheader1() const
     {
       return
 	(static_cast<uint64_t>(m_AMCnum & 0x0f) <<  56) |
@@ -79,7 +79,7 @@ namespace gem {
       m_Onum = word >> 16;            /*!<Orbit Number */
       m_BID = word;                   /*!Board ID */
     }
-    uint64_t getAMCheader2()
+    uint64_t getAMCheader2() const
     {
       return
 	(static_cast<uint64_t>(m_FV & 0x0f) <<  60) |
@@ -100,7 +100,7 @@ namespace gem {
       m_GDcount = 0b00011111 & (word >> 11);  /*!<GEM DAV count*/
       m_Tstate = 0b00000111 & word;           /*!<TTS state*/
     }
-    uint64_t getGEMeventHeader()
+    uint64_t getGEMeventHeader() const
     {
       return
 	(static_cast<uint64_t>(m_GEMDAV & 0x00ffffff) << 40) |
@@ -116,7 +116,7 @@ namespace gem {
       m_ChamT = 0x00ffffff & (word >> 40);  /*!<Chamber Timeout*/
       m_OOSG = 0b00000001 & (word >> 39);   /*!<OOS GLIB*/
     }
-    uint64_t getGEMeventTrailer()
+    uint64_t getGEMeventTrailer() const
     {
       return
 	(static_cast<uint64_t>(m_ChamT & 0x00ffffff) << 40) |
@@ -130,7 +130,7 @@ namespace gem {
       m_L1AT = word >> 24;
       m_DlengthT = 0x000fffff & word;
     }
-    uint64_t getAMCTrailer()
+    uint64_t getAMCTrailer() const
     {
       return
 	(static_cast<uint64_t>(m_CRC) << 32) |
@@ -138,30 +138,30 @@ namespace gem {
 	(static_cast<uint64_t>(m_DlengthT & 0x000fffff));
     }
 
-    uint8_t  AMCnum()  {return m_AMCnum;}   ///<Returns AMC number
-    uint32_t L1A()     {return m_L1A;}      ///<Returns L1A number
-    uint16_t BX()      {return m_BX;}       ///<Returns Bunch Crossing ID
-    uint32_t Dlength() {return m_Dlength;}  ///<Returns Data Length (Overall size of FED event fragment)
+    uint8_t  amcNum()   const {return m_AMCnum;}   ///<Returns AMC number
+    uint32_t l1A()      const {return m_L1A;}      ///<Returns L1A number
+    uint16_t bx()       const {return m_BX;}       ///<Returns Bunch Crossing ID
+    uint32_t dlength()  const {return m_Dlength;}  ///<Returns Data Length (Overall size of FED event fragment)
+		         
+    uint8_t  fv()       const {return m_FV;}       ///<Returns Format Version
+    uint8_t  runType()  const {return m_Rtype;}    ///<Returns Run Type
+    uint8_t  param1()   const {return m_Param1;}   
+    uint8_t  param2()   const {return m_Param2;}
+    uint8_t  param3()   const {return m_Param3;}
+    uint16_t orbitNum() const {return m_Onum;}     ///<Returns Orbit number
+    uint16_t boardId() const {return m_BID;}      ///<Returns Board ID
 
-    uint8_t  FV()      {return m_FV;}       ///<Returns Format Version
-    uint8_t  Rtype()   {return m_Rtype;}    ///<Returns Run Type
-    uint8_t  Param1()  {return m_Param1;}   
-    uint8_t  Param2()  {return m_Param2;}
-    uint8_t  Param3()  {return m_Param3;}
-    uint16_t Onum()    {return m_Onum;}     ///<Returns Orbit number
-    uint16_t BID()     {return m_BID;}      ///<Returns Board ID
+    uint32_t gemDAV ()  const {return m_GEMDAV;}        ///<Returns GEM DAV list (which chambers have data)
+    uint64_t bStatus()  const {return m_Bstatus;}       ///<Returns Buffer status
+    int      gdCount()  const {return unsigned(m_GDcount);} ///<Returns GEM DAV count (number of chamber blocks)
+    uint8_t  ttsState() const {return m_Tstate;}        ///<Returns TTS state
+		         
+    uint32_t chamberTimeOut() const {return m_ChamT;}   ///<Return Chamber Timeout 
+    uint8_t  oosGLIB()  const {return m_OOSG;}    ///<Return OOS GLIB (if GLIB is out of sync)
 
-    uint32_t GEMDAV () {return m_GEMDAV;}        ///<Returns GEM DAV list (which chambers have data)
-    uint64_t Bstatus() {return m_Bstatus;}       ///<Returns Buffer status
-    int  GDcount()     {return unsigned(m_GDcount);} ///<Returns GEM DAV count (number of chamber blocks)
-    uint8_t  Tstate()  {return m_Tstate;}        ///<Returns TTS state
-
-    uint32_t ChamT()   {return m_ChamT;}   ///<Return Chamber Timeout 
-    uint8_t  OOSG()    {return m_OOSG;}    ///<Return OOS GLIB (if GLIB is out of sync)
-
-    uint32_t CRC()     {return m_CRC;}
-    uint8_t L1AT()     {return m_L1AT;}
-    uint32_t DlengthT(){return m_DlengthT;}
+    uint32_t crc()      const {return m_CRC;}
+    uint8_t  l1AT()     const {return m_L1AT;}
+    uint32_t dlengthT() const {return m_DlengthT;}
 
     // set Values
     void setAMCnum(uint8_t n)   {m_AMCnum = n;}   ///<Returns AMC number
@@ -188,9 +188,9 @@ namespace gem {
     void setDlengthT(uint32_t n){m_DlengthT = n;}
     
     //!Adds GEB data to vector
-    void g_add(GEBdata g){gebd.push_back(g);}
+    void addGEB(GEBdata g){gebd.push_back(g);}
     //!Returns a vector of GEB data
-    std::vector<GEBdata> gebs(){return gebd;}
+    std::vector<GEBdata> gebs() const {return gebd;}
   
   private:
     std::vector<GEBdata> gebd;    ///<Vector of GEB data
