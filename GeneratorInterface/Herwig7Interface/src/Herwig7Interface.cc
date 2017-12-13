@@ -99,16 +99,18 @@ void Herwig7Interface::initRepository(const edm::ParameterSet &pset)
 		// Split first part of List
 		std::string choice;
 		size_t pos = runModeTemp.find(",");
-        std::cout << "pos = " << pos << std::endl;
-        if (-1 == pos)
+        std::cout << "pos = " << pos << " , end of string " << std::string::npos << std::endl;
+        if (std::string::npos == pos)
             choice=runModeTemp;
         else
 		    choice = runModeTemp.substr(0, pos);
         std::cout << "choice = " << choice << std::endl;
-		runModeTemp.erase(0, pos+1);
-        std::cout << "runModeTemp = " << runModeTemp << std::endl;
+        
 		if (pos == std::string::npos)
 			runModeTemp.erase();
+        else
+            runModeTemp.erase(0, pos+1);
+        std::cout << "runModeTemp = " << runModeTemp << std::endl;
 
 		// construct HerwigUIProvider object and return it as global object
 		HwUI_ = new Herwig::HerwigUIProvider(pset, dumpConfig_, Herwig::RunMode::READ);
