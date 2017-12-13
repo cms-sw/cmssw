@@ -314,6 +314,8 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoRef>                  rbh_bdsv;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoRef>           rb_dnn;
     edm::reftobase::RefHolder<reco::ShallowTagInfoRef>                           rbh_dnn;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::DeepFlavourTagInfoRef>       rb_df;
+    edm::reftobase::RefHolder<reco::DeepFlavourTagInfoRef>                       rbh_df;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>      rb_ct;
     edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>                      rbh_ct;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>      rb_it;
@@ -347,6 +349,8 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoFwdRef>                  rbh_bdsvf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoFwdRef>          rb_dnnf;
     edm::reftobase::RefHolder<reco::ShallowTagInfoFwdRef>                          rbh_dnnf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::DeepFlavourTagInfoFwdRef>      rb_dff;
+    edm::reftobase::RefHolder<reco::DeepFlavourTagInfoFwdRef>                      rbh_dff;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoFwdRef>      rb_ctf;
     edm::reftobase::RefHolder<reco::CombinedTauTagInfoFwdRef>                      rbh_ctf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoFwdRef>      rb_itf;
