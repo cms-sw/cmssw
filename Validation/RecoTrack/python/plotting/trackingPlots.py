@@ -32,6 +32,8 @@ _maxLayers = [5, 10, 25]
 _maxPixelLayers = 8
 _min3DLayers = [0, 5, 10]
 _max3DLayers = [5, 10, 20]
+_minZ = [-60, -40, -20, -10, -5]
+_maxZ = [5, 10, 20, 40, 60]
 _minPU = [0, 10, 20, 50, 100, 150]
 _maxPU = [20, 50, 65, 80, 100, 150, 200, 250]
 _minMaxTracks = [0, 200, 500, 1000, 1500, 2000]
@@ -204,13 +206,18 @@ _effandfakeHitsLayers = PlotGroup("effandfakeHitsLayers",
                                   legendDy=_legendDy_4rows
 )
 _common = {"ymin": 0, "ymax": _maxEff}
-_effandfakePosDeltaRPU = PlotGroup("effandfakePosDeltaRPU",
-                                   _makeEffFakeDupPlots("vertpos", "vert r", "cm", fakeopts=dict(xtitle="track ref. point r (cm)", ytitle="fake+duplicates vs. r"), common=dict(xlog=True)) +
-                                   _makeEffFakeDupPlots("zpos"   , "vert z", "cm", fakeopts=dict(xtitle="track ref. point z (cm)", ytitle="fake+duplicates vs. z")) +
-                                   _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
-                                   _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
-                                   legendDy=_legendDy_4rows
+_effandfakePos = PlotGroup("effandfakePos",
+                           _makeEffFakeDupPlots("vertpos", "vert r", "cm", fakeopts=dict(xtitle="track ref. point r (cm)", ytitle="fake+duplicates vs. r"), common=dict(xlog=True)) +
+                           _makeEffFakeDupPlots("zpos"   , "vert z", "cm", fakeopts=dict(xtitle="track ref. point z (cm)", ytitle="fake+duplicates vs. z")) +
+                           _makeEffFakeDupPlots("simpvz" , "Sim. PV z", "cm", common=dict(xtitle="Sim. PV z (cm)", xmin=_minZ, xmax=_maxZ))
 )
+_effandfakeDeltaRPU = PlotGroup("effandfakeDeltaRPU",
+                                _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
+                                _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
+                                legendDy=_legendDy_2rows
+)
+
+
 _algos_common = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d")
 _duplicateAlgo = PlotOnSideGroup("duplicateAlgo", Plot("duplicates_oriAlgo_vs_oriAlgo", drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_algos_common))
 
@@ -243,12 +250,16 @@ _dupandfakeHitsLayers = PlotGroup("dupandfakeHitsLayers",
                                   _makeFakeDupPileupPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
                                   ncols=3, legendDy=_legendDy_4rows
 )
-_dupandfakePosDeltaRPU = PlotGroup("dupandfakePosDeltaRPU",
-                                   _makeFakeDupPileupPlots("vertpos", "r", "cm", xquantity="ref. point r (cm)", common=dict(xlog=True)) +
-                                   _makeFakeDupPileupPlots("zpos"   , "z", "cm", xquantity="ref. point z (cm)") +
-                                   _makeFakeDupPileupPlots("dr"     , "#DeltaR", xquantity="min #DeltaR", common=dict(xlog=True)) +
-                                   _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
-                                   ncols=3, legendDy=_legendDy_4rows
+_dupandfakePos = PlotGroup("dupandfakePos",
+                           _makeFakeDupPileupPlots("vertpos", "r", "cm", xquantity="ref. point r (cm)", common=dict(xlog=True)) +
+                           _makeFakeDupPileupPlots("zpos"   , "z", "cm", xquantity="ref. point z (cm)") +
+                           _makeFakeDupPileupPlots("simpvz" , "Sim. PV z", xtitle="Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)),
+                           ncols=3,
+)
+_dupandfakeDeltaRPU = PlotGroup("dupandfakeDeltaRPU",
+                                _makeFakeDupPileupPlots("dr"     , "#DeltaR", xquantity="min #DeltaR", common=dict(xlog=True)) +
+                                _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
+                                ncols=3, legendDy=_legendDy_2rows_3cols
 )
 _seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xbinlabeloption="d", adjustMarginRight=0.1)
 _dupandfakeSeedingPlots = _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common)
@@ -411,8 +422,9 @@ _extDistHitsLayers = PlotGroup("distHitsLayers",
 _extDistPosDeltaR = PlotGroup("distPosDeltaR",
                               _makeDistPlots("vertpos", "ref. point r (cm)", common=dict(xlog=True)) +
                               _makeDistPlots("zpos"   , "ref. point z (cm)") +
+                              _makeDistPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)) +
                               _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
-                              ncols=4
+                              ncols=4, legendDy=_legendDy_4rows,
 )
 _extDistSeedingPlots = _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common))
 _extDistChi2Seeding = PlotGroup("distChi2Seeding",
@@ -477,8 +489,9 @@ _extDistSimHitsLayers = PlotGroup("distsimHitsLayers",
 _extDistSimPosDeltaR = PlotGroup("distsimPosDeltaR",
                                  _makeDistSimPlots("vertpos", "vert r (cm)", common=dict(xlog=True)) +
                                  _makeDistSimPlots("zpos"   , "vert z (cm)") +
+                                 _makeDistSimPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)) +
                                  _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
-                                 ncols=2
+                                 ncols=2, legendDy=_legendDy_4rows,
 )
 
 ########################################
@@ -1166,7 +1179,8 @@ _simBasedPlots = [
     _effandfakeDxyDzBS,
     _effandfakeDxyDzPV,
     _effandfakeHitsLayers,
-    _effandfakePosDeltaRPU,
+    _effandfakePos,
+    _effandfakeDeltaRPU,
     _duplicateAlgo,
 ]
 _recoBasedPlots = [
@@ -1174,7 +1188,8 @@ _recoBasedPlots = [
     _dupandfakeDxyDzBS,
     _dupandfakeDxyDzPV,
     _dupandfakeHitsLayers,
-    _dupandfakePosDeltaRPU,
+    _dupandfakePos,
+    _dupandfakeDeltaRPU,
     _dupandfakeChi2Seeding,
     _dupandfakeSeedingTable,
     _pvassociation1,
@@ -1193,7 +1208,8 @@ _seedingBuildingPlots = _simBasedPlots + [
     _dupandfakeDxyDzBS,
     _dupandfakeDxyDzPV,
     _dupandfakeHitsLayers,
-    _dupandfakePosDeltaRPU,
+    _dupandfakePos,
+    _dupandfakeDeltaRPU,
     _dupandfakeChi2Seeding,
     _dupandfakeSeedingTable,
     _hitsAndPt,
