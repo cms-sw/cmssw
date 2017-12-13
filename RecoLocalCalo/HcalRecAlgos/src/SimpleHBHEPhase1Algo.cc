@@ -99,13 +99,15 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     }
 
     // Run Mahi
-    float m10E = 0.f, chi2_mahi = -1.f;
+    float m10E = 0.f, m10chi2 = -1.f;
     float m10T = 0.f;
+    bool m10UseTriple=false;
 
     MahiFit* mahi = mahiOOTpuCorr_.get();
+
     if (mahi) {
       mahi->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()));
-      mahi->phase1Apply(info,m10E,m10T,chi2_mahi);
+      mahi->phase1Apply(info,m10E,m10T,m10UseTriple,m10chi2);
       m10E *= hbminusCorrectionFactor(channelId, m10E, isData);
     }
 
@@ -117,7 +119,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     {
       rhE = m10E;
       rht = m10T;
-      rhX = chi2_mahi;
+      rhX = m10chi2;
     }
     else if (method2)
     {
@@ -141,8 +143,8 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     // Set rechit aux words
     HBHERecHitAuxSetter::setAux(info, &rh);
 
-    // Set some rechit flags (here, for Method 2)
-    if (useTriple)
+    // Set some rechit flags (here, for Method 2/Mahi)
+    if (useTriple || m10UseTriple)
        rh.setFlagField(1, HcalPhase1FlagLabels::HBHEPulseFitBit);
 
     return rh;

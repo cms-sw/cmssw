@@ -1,3 +1,6 @@
+#ifndef RecoLocalCalo_HcalRecAlgos_EigenMatrixTypes_h
+#define RecoLocalCalo_HcalRecAlgos_EigenMatrixTypes_h
+
 #include <Eigen/Dense>
 
 constexpr int MaxSVSize=10;
@@ -18,3 +21,5 @@ typedef Eigen::LDLT<PulseMatrix> PulseDecompLDLT;
 
 typedef Eigen::Matrix<double,1,1> SingleMatrix;
 typedef Eigen::Matrix<double,1,1> SingleVector;
+
+#endif
