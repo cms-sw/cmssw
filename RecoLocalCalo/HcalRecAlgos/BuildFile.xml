@@ -13,7 +13,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="vdt_headers"/>
-<use   name="root"/> 
 <use   name="rootminuit2"/> 
 <export>
   <lib   name="1"/>

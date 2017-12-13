@@ -20,13 +20,19 @@ class MahiFit
   MahiFit();
   ~MahiFit() { };
 
-  void phase1Apply(const HBHEChannelInfo& channelData, float& reconstructedEnergy, float& reconstructedTime, float& chi2);  
-  bool doFit(SampleVector amplitudes, std::vector<float> &correctedOutput, int nbx);
-
-  void setParameters(double iTS4Thresh, double chiSqSwitch, bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
+  void setParameters(bool iDynamicPed, double iTS4Thresh, double chiSqSwitch, 
+		     bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
 		     double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM, 
 		     const std::vector <int> &iActiveBXs, int iNMaxItersMin, int iNMaxItersNNLS,
 		     double iDeltaChiSqThresh, double iNnlsThresh);
+
+  void phase1Apply(const HBHEChannelInfo& channelData, 
+		   float& reconstructedEnergy, 
+		   float& reconstructedTime, 
+		   bool& useTriple,
+		   float& chi2);
+
+  void doFit(SampleVector amplitudes, std::vector<float> &correctedOutput, int nbx);
 
   void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps);
   void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
@@ -36,15 +42,15 @@ class MahiFit
 
  private:
 
-  bool minimize();
-  bool onePulseMinimize();
-  bool updateCov();
-  bool updatePulseShape(double itQ, FullSampleVector &pulseShape, 
+  void minimize();
+  void onePulseMinimize();
+  void updateCov();
+  void updatePulseShape(double itQ, FullSampleVector &pulseShape, 
 			FullSampleVector &pulseDeriv,
 			FullSampleMatrix &pulseCov);
   double calculateArrivalTime();
   double calculateChiSq();
-  bool nnls();
+  void nnls();
 
   void nnlsUnconstrainParameter(Index idxp);
   void nnlsConstrainParameter(Index minratioidx);
@@ -58,6 +64,7 @@ class MahiFit
   const unsigned int fullTSofInterest_;
 
   // Python-configurables
+  bool dynamicPed_;
   float ts4Thresh_; 
   float chiSqSwitch_; 
 

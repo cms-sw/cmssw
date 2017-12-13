@@ -13,11 +13,13 @@ double MahiFit::getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lam
   return sqrt(mu/pow(1-lambda,3)) * fcByPE;
 }
 
-void MahiFit::setParameters(double iTS4Thresh, double chiSqSwitch, bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
-			       double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM, 
-			       const std::vector <int> &iActiveBXs, int iNMaxItersMin, int iNMaxItersNNLS,
-			       double iDeltaChiSqThresh, double iNnlsThresh) {
+void MahiFit::setParameters(bool iDynamicPed, double iTS4Thresh, double chiSqSwitch, 
+			    bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
+			    double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM, 
+			    const std::vector <int> &iActiveBXs, int iNMaxItersMin, int iNMaxItersNNLS,
+			    double iDeltaChiSqThresh, double iNnlsThresh) {
 
+  dynamicPed_    = iDynamicPed;
   ts4Thresh_     = iTS4Thresh;
   chiSqSwitch_   = chiSqSwitch;
 
@@ -41,9 +43,10 @@ void MahiFit::setParameters(double iTS4Thresh, double chiSqSwitch, bool iApplyTi
 }
 
 void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
-			     float& reconstructedEnergy,
-			     float& reconstructedTime,
-			     float& chi2) {
+			  float& reconstructedEnergy,
+			  float& reconstructedTime,
+			  bool& useTriple, 
+			  float& chi2) {
 
   tsSize_ = channelData.nSamples();
   tsOffset_ = channelData.soi();
@@ -104,20 +107,23 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     }
   }
 
-  bool status =false;
   if(tstrig >= ts4Thresh_) {
+
+    useTriple=false;
+
     if (chiSqSwitch_>0) {
-      status = doFit(charges,reconstructedVals,1);
+      doFit(charges,reconstructedVals,1);
       if (reconstructedVals[1]>chiSqSwitch_) {
-	status = doFit(charges,reconstructedVals,0);
+	doFit(charges,reconstructedVals,0);
+	useTriple=true;
       }
     }
     else {
-      status = doFit(charges,reconstructedVals,0);
+      doFit(charges,reconstructedVals,0);
+      useTriple=true;
     }
   }
-  
-  if (!status) {
+  else{
     reconstructedVals.clear();
     reconstructedVals.push_back(0.);
     reconstructedVals.push_back(888.);
@@ -130,7 +136,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 
 }
 
-bool MahiFit::doFit(SampleVector amplitudes, std::vector<float> &correctedOutput, int nbx) {
+void MahiFit::doFit(SampleVector amplitudes, std::vector<float> &correctedOutput, int nbx) {
 
   if (nbx==1) {
     bxSize_ = 1;
@@ -153,9 +159,12 @@ bool MahiFit::doFit(SampleVector amplitudes, std::vector<float> &correctedOutput
   }
 
   nPulseTot_ = bxSize_;
-  nPulseTot_++;
-  bxs_.resize(nPulseTot_);
-  bxs_[nPulseTot_-1] = 100;
+
+  if (dynamicPed_) {
+    nPulseTot_++;
+    bxs_.resize(nPulseTot_);
+    bxs_[nPulseTot_-1] = 100;
+  }
 
   amplitudes_ = amplitudes;
 
@@ -164,8 +173,6 @@ bool MahiFit::doFit(SampleVector amplitudes, std::vector<float> &correctedOutput
   pulseMat_.resize(tsSize_,nPulseTot_);
   ampVec_ = PulseVector::Zero(nPulseTot_);
   errVec_ = PulseVector::Zero(nPulseTot_);
-
-  bool status = true;
 
   int offset=0;
   for (unsigned int iBX=0; iBX<nPulseTot_; iBX++) {
@@ -179,10 +186,10 @@ bool MahiFit::doFit(SampleVector amplitudes, std::vector<float> &correctedOutput
       ampVec_.coeffRef(iBX) = sqrt(pedConstraint_);
     }
     else {
-      status = updatePulseShape(amplitudes_.coeff(tsOffset_ + offset), 
-				pulseShapeArray_[iBX], 
-				pulseDerivArray_[iBX],
-				pulseCovArray_[iBX]);
+      updatePulseShape(amplitudes_.coeff(tsOffset_ + offset), 
+		       pulseShapeArray_[iBX], 
+		       pulseDerivArray_[iBX],
+		       pulseCovArray_[iBX]);
       
       if (offset==0) {
       	ampVec_.coeffRef(iBX)= amplitudes_.coeff(tsOffset_ + offset)/double(pulseShapeArray_[iBX].coeff(fullTSofInterest_));
@@ -204,14 +211,11 @@ bool MahiFit::doFit(SampleVector amplitudes, std::vector<float> &correctedOutput
   aTaMat_.resize(nPulseTot_, nPulseTot_);
   aTbVec_.resize(nPulseTot_);
 
-  status = minimize(); 
+  minimize(); 
   ampVecMin_ = ampVec_;
   bxsMin_ = bxs_;
   residuals_ = pulseMat_*ampVec_ - amplitudes_;
 
-  double arrivalTime = calculateArrivalTime();
-
-  if (!status) return status;
 
   bool foundintime = false;
   unsigned int ipulseintime = 0;
@@ -222,22 +226,20 @@ bool MahiFit::doFit(SampleVector amplitudes, std::vector<float> &correctedOutput
       foundintime = true;
     }
   }
-  if (!foundintime) return status;
 
   correctedOutput.clear();
-  correctedOutput.push_back(ampVec_.coeff(ipulseintime)); //charge
-  correctedOutput.push_back(arrivalTime); //time
-  correctedOutput.push_back(chiSq_); //chi2
+  if (foundintime) {
+    correctedOutput.push_back(ampVec_.coeff(ipulseintime)); //charge
+    double arrivalTime = calculateArrivalTime();
+    correctedOutput.push_back(arrivalTime); //time
+    correctedOutput.push_back(chiSq_); //chi2
+  }
   
-  
-  return status;
 }
 
-bool MahiFit::minimize() {
+void MahiFit::minimize() {
 
   int iter = 0;
-  bool status = false;
-
   double oldChiSq=chiSq_;
 
   while (true) {
@@ -245,16 +247,14 @@ bool MahiFit::minimize() {
       break;
     }
     
-    status=updateCov();
-    if (!status) break;
+    updateCov();
 
     if (nPulseTot_>1) {
-      status = nnls();
+      nnls();
     }
     else {
-      status = onePulseMinimize();
+      onePulseMinimize();
     }
-    if (!status) break;
     
     double newChiSq=calculateChiSq();
     double deltaChiSq = newChiSq - chiSq_;
@@ -271,12 +271,11 @@ bool MahiFit::minimize() {
     
   }
 
-  return status;
 }
 
-bool MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSampleVector &pulseDeriv,
-				  FullSampleMatrix &pulseCov) {
-
+void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSampleVector &pulseDeriv,
+			       FullSampleMatrix &pulseCov) {
+  
   float t0=meanTime_;
   if (applyTimeSlew_) 
     t0=HcalTimeSlew::delay(std::max(1.0, itQ), slewFlavor_);
@@ -318,12 +317,9 @@ bool MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
     }
   }
   
-  return true;  
 }
 
-bool MahiFit::updateCov() {
-  
-  bool status=true;
+void MahiFit::updateCov() {
   
   invCovMat_ = noiseTerms_.asDiagonal();
   invCovMat_ +=SampleMatrix::Constant(pedConstraint_);
@@ -341,8 +337,7 @@ bool MahiFit::updateCov() {
   }
   
   covDecomp_.compute(invCovMat_);
-  
-  return status;
+
 }
 
 double MahiFit::calculateArrivalTime() {
@@ -369,7 +364,7 @@ double MahiFit::calculateArrivalTime() {
 }
   
 
-bool MahiFit::nnls() {
+void MahiFit::nnls() {
   const unsigned int npulse = nPulseTot_;
   
   for (unsigned int iBX=0; iBX<npulse; iBX++) {
@@ -463,13 +458,11 @@ bool MahiFit::nnls() {
       threshold *= 10.;
     }
     
-    break;
   }
   
-  return true;
 }
 
-bool MahiFit::onePulseMinimize() {
+void MahiFit::onePulseMinimize() {
 
   invcovp_ = covDecomp_.matrixL().solve(pulseMat_);
 
@@ -478,7 +471,6 @@ bool MahiFit::onePulseMinimize() {
 
   ampVec_.coeffRef(0) = std::max(0., aTbvecval.coeff(0)/aTamatval.coeff(0));
 
-  return true;
 
 }
 
@@ -503,7 +495,7 @@ void MahiFit::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
   // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
   psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,false,false,false,false,
 						   1,0,2.5,0,0.00065,1,10));
-  pfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3) );
+  pfunctor_ = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3) );
 
 }
 

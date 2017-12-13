@@ -13,6 +13,7 @@ static std::unique_ptr<MahiFit>
 parseHBHEMahiDescription(const edm::ParameterSet& conf)
 {
 
+  const bool iDynamicPed      = conf.getParameter<bool>   ("dynamicPed");
   const double iTS4Thresh     = conf.getParameter<double> ("ts4Thresh");
   const double chiSqSwitch    = conf.getParameter<double> ("chiSqSwitch");
 
@@ -30,7 +31,7 @@ parseHBHEMahiDescription(const edm::ParameterSet& conf)
 
   std::unique_ptr<MahiFit> corr = std::make_unique<MahiFit>();
 
-  corr->setParameters(iTS4Thresh, chiSqSwitch, iApplyTimeSlew, HcalTimeSlew::Medium,
+  corr->setParameters(iDynamicPed, iTS4Thresh, chiSqSwitch, iApplyTimeSlew, HcalTimeSlew::Medium,
 		      iMeanTime, iTimeSigmaHPD, iTimeSigmaSiPM,
 		      iActiveBXs, iNMaxItersMin, iNMaxItersNNLS,
 		      iDeltaChiSqThresh, iNnlsThresh);
@@ -105,17 +106,20 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
 
     if (className == "SimpleHBHEPhase1Algo")
     {
-        std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2;
-        if (ps.getParameter<bool>("useM2"))
-            m2 = parseHBHEMethod2Description(ps);
-
-        std::unique_ptr<HcalDeterministicFit> detFit;
-        if (ps.getParameter<bool>("useM3"))
-            detFit = parseHBHEMethod3Description(ps);
-
 	std::unique_ptr<MahiFit> mahi;
+	std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2;
+        std::unique_ptr<HcalDeterministicFit> detFit;
+
+	// only run Mahi OR (Method 2 & Method 3) but not both
 	if (ps.getParameter<bool>("useMahi"))
 	  mahi = parseHBHEMahiDescription(ps);
+	else {
+	  if (ps.getParameter<bool>("useM2"))
+	    m2 = parseHBHEMethod2Description(ps);
+	  if (ps.getParameter<bool>("useM3"))
+	    detFit = parseHBHEMethod3Description(ps);
+	}
+
 
         algo = std::unique_ptr<AbsHBHEPhase1Algo>(
             new SimpleHBHEPhase1Algo(ps.getParameter<int>   ("firstSampleShift"),
