@@ -17,6 +17,8 @@
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+
 HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
   theParameterMap(new HcalTBSimParameterMap(ps)), 
   theHcalShape(new HcalShape()),
@@ -24,8 +26,9 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
   theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theAmplifier(nullptr), theCoderFactory(nullptr), theElectronicsSim(nullptr), 
-  theTimeSlewSim(nullptr), theHBHEDigitizer(nullptr), theHODigitizer(nullptr), theHBHEHits(),
-  theHOHits(), thisPhaseShift(0) {
+  theTimeSlewSim(nullptr), theHBHEDigitizer(nullptr), theHODigitizer(nullptr), 
+  theHBHEHits(), theHOHits(), thisPhaseShift(0) 
+{
   std::string const instance("simHcalDigis");
   mixMod.produces<HBHEDigiCollection>(instance);
   mixMod.produces<HODigiCollection>(instance);
@@ -47,6 +50,8 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
 
   double minFCToDelay= ps.getParameter<double>("minFCToDelay");
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
+
+  hcalTimeSlew_delay_ = nullptr;  
   if(doTimeSlew) {
     // no time slewing for HF
     theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay);
@@ -107,6 +112,12 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const& e, edm::EventSetup co
     DetId detIdHO(DetId::Hcal, 3);
     setPhaseShift(detIdHO);
   }
+
+  edm::ESHandle<HcalTimeSlew> delay;
+  eventSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
+  hcalTimeSlew_delay_ = &*delay;
+  //std::cout<<"HcalTBDigiProducer.cc"<<std::endl;
+  theAmplifier->setTimeSlew(hcalTimeSlew_delay_);
 
   theHBHEDigitizer->initializeHits();
   theHODigitizer->initializeHits();

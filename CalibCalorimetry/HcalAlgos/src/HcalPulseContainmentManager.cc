@@ -1,25 +1,31 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
+#include <iostream>
 
 HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror ) 
 : entries_(),
   shapes_(),
   max_fracerror_(max_fracerror)
 {
+  hcalTimeSlew_delay_ = nullptr;
 }
-
 
 void HcalPulseContainmentManager::beginRun(edm::EventSetup const & es)
 {
+  edm::ESHandle<HcalTimeSlew> delay;
+  es.get<HcalTimeSlewRecord>().get("HBHE", delay);
+  hcalTimeSlew_delay_ = &*delay;
+  //std::cout<<"HcalPulseContainmentManager.cc"<<std::endl;
 
   shapes_.beginRun(es);
 }
-
 
 void HcalPulseContainmentManager::endRun()
 {
   shapes_.endRun();
 }
-
 
 double HcalPulseContainmentManager::correction(const HcalDetId & detId, 
                                                int toAdd, float fixedphase_ns, double fc_ampl)
@@ -42,7 +48,6 @@ double HcalPulseContainmentManager::correction(const HcalDetId & detId,
 
   return get(detId, toAdd, fixedphase_ns)->getCorrection(fc_ampl);
 }
-
 
 const HcalPulseContainmentCorrection * 
 HcalPulseContainmentManager::get(const HcalDetId & detId, int toAdd, float fixedphase_ns)
@@ -72,9 +77,7 @@ HcalPulseContainmentManager::get(const HcalDetId & detId, int toAdd, float fixed
   */
 
   // didn't find it.  Make one.
-  HcalPulseContainmentEntry entry(toAdd, fixedphase_ns, shape,
-    HcalPulseContainmentCorrection(shape, toAdd, fixedphase_ns, max_fracerror_));
+  HcalPulseContainmentEntry entry(toAdd, fixedphase_ns, shape, HcalPulseContainmentCorrection(shape, toAdd, fixedphase_ns, max_fracerror_, hcalTimeSlew_delay_));
   entries_.push_back(entry);
   return &(entries_.back().correction_);
-} 
-
+}

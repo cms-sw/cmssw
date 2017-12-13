@@ -11,6 +11,7 @@ class CaloVNoiseSignalGenerator;
 class HcalDbService;
 class HPDIonFeedbackSim;
 class HcalTimeSlewSim;
+class HcalTimeSlew;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -35,6 +36,11 @@ public:
     theTimeSlewSim = timeSlewSim;
   }
 
+  const HcalTimeSlew* theTimeSlew = nullptr;
+  void setTimeSlew(const HcalTimeSlew* timeSlew) {
+    theTimeSlew = timeSlew;
+  }
+
   virtual void amplify(CaloSamples & linearFrame, CLHEP::HepRandomEngine*) const;
 
   void setStartingCapId(int capId) {theStartingCapId = capId;}
@@ -54,6 +60,7 @@ private:
   bool addNoise_;
   bool preMixDigi_;
   bool preMixAdd_;
+
 };
 
 #endif

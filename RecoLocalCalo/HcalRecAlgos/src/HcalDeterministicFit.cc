@@ -90,7 +90,8 @@ void HcalDeterministicFit::getFrac(float tStart, float tEnd, float &sum, FType f
 
 void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 				       float& reconstructedEnergy,
-				       float& reconstructedTime) const
+				       float& reconstructedTime,
+				       const HcalTimeSlew* hcalTimeSlew_delay) const
 {
 
 
@@ -143,9 +144,10 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   if(applyTimeSlew_) {
 
-    tsShift3=HcalTimeSlew::delay(inputCharge[soi-1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift4=HcalTimeSlew::delay(inputCharge[soi], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift5=HcalTimeSlew::delay(inputCharge[soi+1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    //std::cout<<"delay:  HcalDeterministicFit.cc"<<std::endl; 
+    tsShift3=hcalTimeSlew_delay->delay(inputCharge[soi-1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift4=hcalTimeSlew_delay->delay(inputCharge[soi], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift5=hcalTimeSlew_delay->delay(inputCharge[soi+1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
 
   }
 

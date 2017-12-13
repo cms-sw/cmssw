@@ -4,6 +4,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 class HcalPulseContainmentManager {
 public:
@@ -29,6 +30,8 @@ private:
   HcalPulseShapes shapes_;
   float fixedphase_ns_;
   float max_fracerror_;
+
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
 #endif

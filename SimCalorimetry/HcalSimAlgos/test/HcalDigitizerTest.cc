@@ -21,6 +21,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
@@ -42,6 +43,8 @@
 #include<iostream>
 #include<iterator>
 
+class HcalTimeSlew;
+
 class HcalDigitizerTest : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:
@@ -58,9 +61,12 @@ private:
   std::vector<PCaloHit>  hits;
   std::vector<DetId>     hcalDetIds, hoDetIds, hfDetIds, hzdcDetIds, allDetIds;
   std::vector<HcalDetId> outerHcalDetIds;
+
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
-HcalDigitizerTest::HcalDigitizerTest(const edm::ParameterSet& iConfig) { 
+HcalDigitizerTest::HcalDigitizerTest(const edm::ParameterSet& iConfig) 
+{ 
   //DB helper preparation
   dbHardcode.setHB(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hb")));
   dbHardcode.setHE(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("he")));
@@ -73,6 +79,8 @@ HcalDigitizerTest::HcalDigitizerTest(const edm::ParameterSet& iConfig) {
   dbHardcode.useHEUpgrade(iConfig.getParameter<bool>("useHEUpgrade"));
   dbHardcode.useHFUpgrade(iConfig.getParameter<bool>("useHFUpgrade"));
   dbHardcode.testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"));
+
+  hcalTimeSlew_delay_ = nullptr;
 }
 
 HcalDigitizerTest::~HcalDigitizerTest() { } 
@@ -131,6 +139,10 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   iSetup.get<HcalRecNumberingRecord>().get(htopo);
   HcalTopology topology = (*htopo);
 
+  edm::ESHandle<HcalTimeSlew> delay;
+  iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
+  hcalTimeSlew_delay_ = &*delay;
+  //std::cout<<"HcalDigitizerTest.cc"<<std::endl;
 
   std::string hitsName = "HcalHits";
   std::vector<std::string> caloDets;
@@ -227,6 +239,7 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
   HcalElectronicsSim electronicsSim(&amplifier, &coderFactory, PM1);
   amplifier.setDbService(&calibratorHandle);
+  amplifier.setTimeSlew(hcalTimeSlew_delay_);
   parameterMap.setDbService(&calibratorHandle);
   siPMParameterMap.setDbService(&calibratorHandle);
 
