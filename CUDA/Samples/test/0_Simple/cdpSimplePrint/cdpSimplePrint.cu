@@ -108,49 +108,16 @@ int main(int argc, char **argv)
     }
 
     // Find/set the device.
-    int device_count = 0, device = -1;
-    
-    if(checkCmdLineFlag(argc, (const char **)argv, "device"))
-    {
-        device = getCmdLineArgumentInt(argc, (const char **)argv, "device");
+    int device = -1;
+    cudaDeviceProp deviceProp;
+    device = findCudaDevice(argc, (const char **)argv);
+    checkCudaErrors(cudaGetDeviceProperties(&deviceProp, device));
 
-        cudaDeviceProp properties;
-        checkCudaErrors(cudaGetDeviceProperties(&properties, device));
-        
-        if (properties.major > 3 || (properties.major == 3 && properties.minor >= 5))
-        {
-            std::cout << "Running on GPU " << device << " (" << properties.name << ")" << std::endl;
-        }
-        else
-        {
-            std::cout << "ERROR: cdpsimplePrint requires GPU devices with compute SM 3.5 or higher."<< std::endl;
-            std::cout << "Current GPU device has compute SM" << properties.major <<"."<< properties.minor <<". Exiting..." << std::endl;
-            exit(EXIT_FAILURE);
-        }
-
-    }
-    else
+    if (!(deviceProp.major > 3 || (deviceProp.major == 3 && deviceProp.minor >= 5)))
     {
-        checkCudaErrors(cudaGetDeviceCount(&device_count));
-        for (int i = 0 ; i < device_count ; ++i)
-        {
-            cudaDeviceProp properties;
-            checkCudaErrors(cudaGetDeviceProperties(&properties, i));
-            if (properties.major > 3 || (properties.major == 3 && properties.minor >= 5))
-            {
-                device = i;
-                std::cout << "Running on GPU " << i << " (" << properties.name << ")" << std::endl;
-                break;
-            }
-            std::cout << "GPU " << i << " (" << properties.name << ") does not support CUDA Dynamic Parallelism" << std::endl;
-        }
+        printf("GPU %d - %s  does not support CUDA Dynamic Parallelism\n Exiting.", device, deviceProp.name);
+        exit(EXIT_WAIVED);
     }
-    if (device == -1)
-    {
-              std::cerr << "cdpSimplePrint requires GPU devices with compute SM 3.5 or higher.  Exiting..." << std::endl;
-              exit(EXIT_WAIVED);
-     }
-    cudaSetDevice(device);
 
     // Print a message describing what the sample does.
     printf("***************************************************************************\n");

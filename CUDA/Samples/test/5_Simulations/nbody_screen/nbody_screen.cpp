@@ -546,6 +546,7 @@ void initGL(int *argc, char **argv)
         EGL_SAMPLE_BUFFERS, 0,
         EGL_SAMPLES,        0,
         EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+        EGL_ALPHA_SIZE,     1,
         EGL_NONE
     };
 

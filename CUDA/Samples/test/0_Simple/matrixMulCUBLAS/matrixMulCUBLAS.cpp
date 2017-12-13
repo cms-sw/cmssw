@@ -146,27 +146,7 @@ void initializeCUDA(int argc, char **argv, int &devID, int &iSizeMultiple, sMatr
     cudaError_t error;
     devID = 0;
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "device"))
-    {
-        devID = getCmdLineArgumentInt(argc, (const char **)argv, "device");
-        error = cudaSetDevice(devID);
-
-        if (error != cudaSuccess)
-        {
-            printf("cudaSetDevice returned error code %d, line(%d)\n", error, __LINE__);
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    // get number of SMs on this GPU
-    error = cudaGetDevice(&devID);
-
-    if (error != cudaSuccess)
-    {
-        printf("cudaGetDevice returned error code %d, line(%d)\n", error, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-
+    devID = findCudaDevice(argc, (const char **)argv);
 
     if (checkCmdLineFlag(argc, (const char **)argv, "sizemult"))
     {

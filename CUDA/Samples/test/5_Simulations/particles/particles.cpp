@@ -644,11 +644,9 @@ void initParams()
         collideDamping = 0.0f;
         collideShear = 0.0f;
         collideAttraction = 0.0f;
-
     }
     else
     {
-
         // create a new parameter list
         params = new ParamListGL("misc");
         params->AddParam(new Param<float>("time step", timestep, 0.0f, 1.0f, 0.01f, &timestep));
@@ -733,7 +731,7 @@ main(int argc, char **argv)
         numIterations = getCmdLineArgumentInt(argc, (const char **) argv, "i");
     }
 
-    if (g_refFile)
+    if (benchmark || g_refFile)
     {
         cudaInit(argc, argv);
     }
@@ -753,13 +751,8 @@ main(int argc, char **argv)
         cudaGLInit(argc, argv);
     }
 
-    initParticleSystem(numParticles, gridSize, g_refFile==NULL);
+    initParticleSystem(numParticles, gridSize, !benchmark && g_refFile==NULL);
     initParams();
-
-    if (!g_refFile)
-    {
-        initMenus();
-    }
 
     if (benchmark || g_refFile)
     {
@@ -772,6 +765,11 @@ main(int argc, char **argv)
     }
     else
     {
+        if (!g_refFile)
+        {
+            initMenus();
+        }
+
         glutDisplayFunc(display);
         glutReshapeFunc(reshape);
         glutMouseFunc(mouse);

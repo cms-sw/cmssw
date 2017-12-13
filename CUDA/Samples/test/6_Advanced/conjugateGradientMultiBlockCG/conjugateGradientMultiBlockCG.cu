@@ -500,6 +500,7 @@ int main(int argc, char **argv)
     checkCudaErrors(cudaFree(r));
     checkCudaErrors(cudaFree(p));
     checkCudaErrors(cudaFree(Ax));
+    checkCudaErrors(cudaFree(dot_result));
     checkCudaErrors(cudaEventDestroy(start));
     checkCudaErrors(cudaEventDestroy(stop));
 

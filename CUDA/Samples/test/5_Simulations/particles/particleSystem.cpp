@@ -389,6 +389,10 @@ ParticleSystem::setArray(ParticleArray array, const float *data, int start, int 
                     glBindBuffer(GL_ARRAY_BUFFER, 0);
                     registerGLBufferObject(m_posVbo, &m_cuda_posvbo_resource);
                 }
+                else
+                {
+                    copyArrayToDevice(m_cudaPosVBO, data, start*4*sizeof(float), count*4*sizeof(float));
+                }
             }
             break;
 

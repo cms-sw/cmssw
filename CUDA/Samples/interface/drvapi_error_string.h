@@ -189,10 +189,31 @@ static s_CudaErrorStr sCudaDrvErrorString[] =
     { "CUDA_ERROR_CONTEXT_ALREADY_IN_USE", 216 },
 
     /**
+     * This indicates that peer access is not supported across the given
+     * devices.
+     */
+    { "CUDA_ERROR_PEER_ACCESS_UNSUPPORTED", 217 },
+
+    /**
+     * This indicates that a PTX JIT compilation failed.
+     */
+    { "CUDA_ERROR_INVALID_PTX", 218 },
+
+    /**
+     * This indicates an error with OpenGL or DirectX context.
+     */
+    { "CUDA_ERROR_INVALID_GRAPHICS_CONTEXT", 219 },
+
+    /**
     * This indicates that an uncorrectable NVLink error was detected during the
     * execution.
     */
     { "CUDA_ERROR_NVLINK_UNCORRECTABLE", 220 },
+
+    /**
+     * This indicates that the PTX JIT compiler library was not found.
+     */
+    { "CUDA_ERROR_JIT_COMPILER_NOT_FOUND", 221 },
 
     /**
      * This indicates that the device kernel source is invalid.
@@ -244,14 +265,13 @@ static s_CudaErrorStr sCudaDrvErrorString[] =
 
 
     /**
-     * An exception occurred on the device while executing a kernel. Common
-     * causes include dereferencing an invalid device pointer and accessing
-     * out of bounds shared memory. The context cannot be used }, so it must
-     * be destroyed (and a new one should be created). All existing device
-     * memory allocations from this context are invalid and must be
-     * reconstructed if the program is to continue using CUDA.
+     * While executing a kernel, the device encountered a
+     * load or store instruction on an invalid memory address.
+     * This leaves the process in an inconsistent state and any further CUDA work
+     * will return the same error. To continue using CUDA, the process must be terminated
+     * and relaunched.
      */
-    { "CUDA_ERROR_LAUNCH_FAILED", 700 },
+    { "CUDA_ERROR_ILLEGAL_ADDRESS", 700 },
 
     /**
      * This indicates that a launch did not occur because it did not have
@@ -315,6 +335,102 @@ static s_CudaErrorStr sCudaDrvErrorString[] =
      * reconstructed if the program is to continue using CUDA.
      */
     { "CUDA_ERROR_ASSERT", 710 },
+
+    /**
+     * This error indicates that the hardware resources required to enable
+     * peer access have been exhausted for one or more of the devices
+     * passed to ::cuCtxEnablePeerAccess().
+     */
+    { "CUDA_ERROR_TOO_MANY_PEERS", 711 },
+
+    /**
+     * This error indicates that the memory range passed to ::cuMemHostRegister()
+     * has already been registered.
+     */
+    { "CUDA_ERROR_HOST_MEMORY_ALREADY_REGISTERED", 712 },
+
+    /**
+     * This error indicates that the pointer passed to ::cuMemHostUnregister()
+     * does not correspond to any currently registered memory region.
+     */
+    { "CUDA_ERROR_HOST_MEMORY_NOT_REGISTERED", 713 },
+
+    /**
+     * While executing a kernel, the device encountered a stack error.
+     * This can be due to stack corruption or exceeding the stack size limit.
+     * This leaves the process in an inconsistent state and any further CUDA work
+     * will return the same error. To continue using CUDA, the process must be terminated
+     * and relaunched.
+     */
+    { "CUDA_ERROR_HARDWARE_STACK_ERROR", 714 },
+
+    /**
+     * While executing a kernel, the device encountered an illegal instruction.
+     * This leaves the process in an inconsistent state and any further CUDA work
+     * will return the same error. To continue using CUDA, the process must be terminated
+     * and relaunched.
+     */
+    { "CUDA_ERROR_ILLEGAL_INSTRUCTION", 715 },
+
+    /**
+     * While executing a kernel, the device encountered a load or store instruction
+     * on a memory address which is not aligned.
+     * This leaves the process in an inconsistent state and any further CUDA work
+     * will return the same error. To continue using CUDA, the process must be terminated
+     * and relaunched.
+     */
+    { "CUDA_ERROR_MISALIGNED_ADDRESS", 716 },
+
+    /**
+     * While executing a kernel, the device encountered an instruction
+     * which can only operate on memory locations in certain address spaces
+     * (global, shared, or local), but was supplied a memory address not
+     * belonging to an allowed address space.
+     * This leaves the process in an inconsistent state and any further CUDA work
+     * will return the same error. To continue using CUDA, the process must be terminated
+     * and relaunched.
+     */
+    { "CUDA_ERROR_INVALID_ADDRESS_SPACE", 717 },
+
+    /**
+     * While executing a kernel, the device program counter wrapped its address space.
+     * This leaves the process in an inconsistent state and any further CUDA work
+     * will return the same error. To continue using CUDA, the process must be terminated
+     * and relaunched.
+     */
+    { "CUDA_ERROR_INVALID_PC", 718 },
+
+    /**
+     * An exception occurred on the device while executing a kernel. Common
+     * causes include dereferencing an invalid device pointer and accessing
+     * out of bounds shared memory. The context cannot be used }, so it must
+     * be destroyed (and a new one should be created). All existing device
+     * memory allocations from this context are invalid and must be
+     * reconstructed if the program is to continue using CUDA.
+     */
+    { "CUDA_ERROR_LAUNCH_FAILED", 719 },
+
+    /**
+     * This error indicates that the number of blocks launched per grid for a kernel that was
+     * launched via either ::cuLaunchCooperativeKernel or ::cuLaunchCooperativeKernelMultiDevice
+     * exceeds the maximum number of blocks as allowed by ::cuOccupancyMaxActiveBlocksPerMultiprocessor
+     * or ::cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags times the number of multiprocessors
+     * as specified by the device attribute ::CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT.
+     */
+    { "CUDA_ERROR_COOPERATIVE_LAUNCH_TOO_LARGE", 720 },
+
+
+    /**
+     * This error indicates that the attempted operation is not permitted.
+     */
+    { "CUDA_ERROR_NOT_PERMITTED", 800 },
+
+    /**
+     * This error indicates that the attempted operation is not supported
+     * on the current system or device.
+     */
+    { "CUDA_ERROR_NOT_SUPPORTED", 801 },
+
 
     /**
      * This indicates that an unknown internal error has occurred.

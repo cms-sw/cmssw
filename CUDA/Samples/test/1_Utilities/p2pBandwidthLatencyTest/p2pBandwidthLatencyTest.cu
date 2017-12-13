@@ -58,6 +58,7 @@ void outputBandwidthMatrix(int numGPUs, bool p2p)
     int numElems=10000000;
     int repeat=5;
     vector<int *> buffers(numGPUs);
+    vector<int *> buffersD2D(numGPUs); // buffer for D2D, that is, intra-GPU copy
     vector<cudaEvent_t> start(numGPUs);
     vector<cudaEvent_t> stop(numGPUs);
 
@@ -65,6 +66,7 @@ void outputBandwidthMatrix(int numGPUs, bool p2p)
     {
         cudaSetDevice(d);
         cudaMalloc(&buffers[d],numElems*sizeof(int));
+        cudaMalloc(&buffersD2D[d],numElems*sizeof(int));
         cudaCheckError();
         cudaEventCreate(&start[d]);
         cudaCheckError();
@@ -87,6 +89,10 @@ void outputBandwidthMatrix(int numGPUs, bool p2p)
                 {
                     cudaDeviceEnablePeerAccess(j,0 );
                     cudaCheckError();
+                    cudaSetDevice(j);
+                    cudaDeviceEnablePeerAccess(i,0 );
+                    cudaSetDevice(i);
+                    cudaCheckError();
                 }
             }
 
@@ -95,9 +101,20 @@ void outputBandwidthMatrix(int numGPUs, bool p2p)
             delay<<<1,1>>>((int *)NULL);
             cudaEventRecord(start[i]);
 
-            for (int r=0; r<repeat; r++)
+            if (i==j)
             {
-                cudaMemcpyPeerAsync(buffers[i],i,buffers[j],j,sizeof(int)*numElems);
+                // Perform intra-GPU, D2D copies
+                for (int r=0; r<repeat; r++)
+                {
+                    cudaMemcpyPeerAsync(buffers[i],i,buffersD2D[i],i,sizeof(int)*numElems);
+                }
+            }
+            else
+            {
+                for (int r=0; r<repeat; r++)
+                {
+                    cudaMemcpyPeerAsync(buffers[i],i,buffers[j],j,sizeof(int)*numElems);
+                }
             }
 
             cudaEventRecord(stop[i]);
@@ -114,6 +131,9 @@ void outputBandwidthMatrix(int numGPUs, bool p2p)
             if (p2p && access)
             {
                 cudaDeviceDisablePeerAccess(j);
+                cudaSetDevice(j);
+                cudaDeviceDisablePeerAccess(i);
+                cudaSetDevice(i);
                 cudaCheckError();
             }
         }
@@ -144,6 +164,7 @@ void outputBandwidthMatrix(int numGPUs, bool p2p)
     {
         cudaSetDevice(d);
         cudaFree(buffers[d]);
+        cudaFree(buffersD2D[d]);
         cudaCheckError();
         cudaEventDestroy(start[d]);
         cudaCheckError();
@@ -157,6 +178,7 @@ void outputBidirectionalBandwidthMatrix(int numGPUs, bool p2p)
     int numElems=10000000;
     int repeat=5;
     vector<int *> buffers(numGPUs);
+    vector<int *> buffersD2D(numGPUs);
     vector<cudaEvent_t> start(numGPUs);
     vector<cudaEvent_t> stop(numGPUs);
     vector<cudaStream_t> stream0(numGPUs);
@@ -166,6 +188,7 @@ void outputBidirectionalBandwidthMatrix(int numGPUs, bool p2p)
     {
         cudaSetDevice(d);
         cudaMalloc(&buffers[d],numElems*sizeof(int));
+        cudaMalloc(&buffersD2D[d],numElems*sizeof(int));
         cudaCheckError();
         cudaEventCreate(&start[d]);
         cudaCheckError();
@@ -205,10 +228,22 @@ void outputBidirectionalBandwidthMatrix(int numGPUs, bool p2p)
             delay<<<1,1>>>((int *)NULL);
             cudaEventRecord(start[i]);
 
-            for (int r=0; r<repeat; r++)
+            if (i==j)
             {
-                cudaMemcpyPeerAsync(buffers[i],i,buffers[j],j,sizeof(int)*numElems,stream0[i]);
-                cudaMemcpyPeerAsync(buffers[j],j,buffers[i],i,sizeof(int)*numElems,stream1[i]);
+                // For intra-GPU perform 2 memcopies buffersD2D <-> buffers
+                for (int r=0; r<repeat; r++)
+                {
+                    cudaMemcpyPeerAsync(buffers[i], i, buffersD2D[i],i,sizeof(int)*numElems,stream0[i]);
+                    cudaMemcpyPeerAsync(buffersD2D[i], i, buffers[i],i,sizeof(int)*numElems,stream1[i]);
+                }
+            }
+            else
+            {
+                for (int r=0; r<repeat; r++)
+                {
+                    cudaMemcpyPeerAsync(buffers[i],i,buffers[j],j,sizeof(int)*numElems,stream0[i]);
+                    cudaMemcpyPeerAsync(buffers[j],j,buffers[i],i,sizeof(int)*numElems,stream1[i]);
+                }
             }
 
             cudaEventRecord(stop[i]);
@@ -257,6 +292,7 @@ void outputBidirectionalBandwidthMatrix(int numGPUs, bool p2p)
     {
         cudaSetDevice(d);
         cudaFree(buffers[d]);
+        cudaFree(buffersD2D[d]);
         cudaCheckError();
         cudaEventDestroy(start[d]);
         cudaCheckError();
@@ -273,6 +309,7 @@ void outputLatencyMatrix(int numGPUs, bool p2p)
 {
     int repeat=10000;
     vector<int *> buffers(numGPUs);
+    vector<int *> buffersD2D(numGPUs);  // buffer for D2D, that is, intra-GPU copy
     vector<cudaEvent_t> start(numGPUs);
     vector<cudaEvent_t> stop(numGPUs);
 
@@ -280,6 +317,7 @@ void outputLatencyMatrix(int numGPUs, bool p2p)
     {
         cudaSetDevice(d);
         cudaMalloc(&buffers[d],1);
+        cudaMalloc(&buffersD2D[d],1);
         cudaCheckError();
         cudaEventCreate(&start[d]);
         cudaCheckError();
@@ -302,6 +340,10 @@ void outputLatencyMatrix(int numGPUs, bool p2p)
                 {
                     cudaDeviceEnablePeerAccess(j,0);
                     cudaCheckError();
+                    cudaSetDevice(j);
+                    cudaDeviceEnablePeerAccess(i,0 );
+                    cudaSetDevice(i);
+                    cudaCheckError();
                 }
             }
             cudaDeviceSynchronize();
@@ -309,9 +351,20 @@ void outputLatencyMatrix(int numGPUs, bool p2p)
             delay<<<1,1>>>((int *)NULL);
             cudaEventRecord(start[i]);
 
-            for (int r=0; r<repeat; r++)
+            if (i==j)
             {
-                cudaMemcpyPeerAsync(buffers[i],i,buffers[j],j,1);
+                // Perform intra-GPU, D2D copies
+                for (int r=0; r<repeat; r++)
+                {
+                    cudaMemcpyPeerAsync(buffers[i],i,buffersD2D[i],i,1);
+                }
+            }
+            else
+            {
+                for (int r=0; r<repeat; r++)
+                {
+                    cudaMemcpyPeerAsync(buffers[j],j,buffers[i],i,1); // Peform P2P writes
+                }
             }
 
             cudaEventRecord(stop[i]);
@@ -325,6 +378,10 @@ void outputLatencyMatrix(int numGPUs, bool p2p)
             if(p2p && access)
             {
                 cudaDeviceDisablePeerAccess(j);
+                cudaSetDevice(j);
+                cudaDeviceDisablePeerAccess(i);
+                cudaSetDevice(i);
+                cudaCheckError();
             }
         }
     }
@@ -354,6 +411,7 @@ void outputLatencyMatrix(int numGPUs, bool p2p)
     {
         cudaSetDevice(d);
         cudaFree(buffers[d]);
+        cudaFree(buffersD2D[d]);
         cudaCheckError();
         cudaEventDestroy(start[d]);
         cudaCheckError();

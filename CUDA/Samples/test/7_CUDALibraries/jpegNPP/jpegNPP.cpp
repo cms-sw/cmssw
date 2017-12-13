@@ -40,7 +40,7 @@
 
 #include "Endianess.h"
 #include <math.h>
-
+#include <cmath>
 #include <string.h>
 #include <fstream>
 #include <iostream>
@@ -84,6 +84,16 @@ struct HuffmanTable
     unsigned char aTable[256];
 };
 
+enum teComponentSampling
+{
+	YCbCr_444,
+	YCbCr_440,
+	YCbCr_422,
+	YCbCr_420,
+	YCbCr_411,
+	YCbCr_410,
+	YCbCr_UNKNOWN
+};
 
 int DivUp(int x, int d)
 {
@@ -457,7 +467,9 @@ int main(int argc, char **argv)
     memset(aHuffmanTables,0, 4 * sizeof(HuffmanTable));
     int nMCUBlocksH = 0;
     int nMCUBlocksV = 0;
-
+	NppiSize aSrcActualSize[3];
+	teComponentSampling eComponentSampling = YCbCr_UNKNOWN;
+	
     int nRestartInterval = -1;
 
     NppiSize aSrcSize[3];
@@ -512,23 +524,26 @@ int main(int argc, char **argv)
             }
 
             // Compute channel sizes as stored in the JPEG (8x8 blocks & MCU block layout)
-            for (int i=0; i < oFrameHeader.nComponents; ++i)
+            for (int i = 0; i < oFrameHeader.nComponents; ++ i)
             {
                 nMCUBlocksV = max(nMCUBlocksV, oFrameHeader.aSamplingFactors[i] & 0x0f );
                 nMCUBlocksH = max(nMCUBlocksH, oFrameHeader.aSamplingFactors[i] >> 4 );
             }
 
-            for (int i=0; i < oFrameHeader.nComponents; ++i)
+            for (int i = 0; i < oFrameHeader.nComponents; ++ i)
             {
                 NppiSize oBlocks;
-                NppiSize oBlocksPerMCU = { oFrameHeader.aSamplingFactors[i]  >> 4, oFrameHeader.aSamplingFactors[i] & 0x0f};
+                NppiSize oBlocksPerMCU = {oFrameHeader.aSamplingFactors[i] >> 4, oFrameHeader.aSamplingFactors[i] & 0x0f};
 
-                oBlocks.width = (int)ceil((oFrameHeader.nWidth + 7)/8  *
-                                          static_cast<float>(oBlocksPerMCU.width)/nMCUBlocksH);
+				aSrcActualSize[i].width = DivUp(oFrameHeader.nWidth * oBlocksPerMCU.width, nMCUBlocksH);
+				aSrcActualSize[i].height = DivUp(oFrameHeader.nHeight * oBlocksPerMCU.height, nMCUBlocksV);
+				
+                oBlocks.width = (int)ceil((oFrameHeader.nWidth + 7) / 8  *
+                                          static_cast<float>(oBlocksPerMCU.width) / nMCUBlocksH);
                 oBlocks.width = DivUp(oBlocks.width, oBlocksPerMCU.width) * oBlocksPerMCU.width;
 
-                oBlocks.height = (int)ceil((oFrameHeader.nHeight+7)/8 *
-                                           static_cast<float>(oBlocksPerMCU.height)/nMCUBlocksV);
+                oBlocks.height = (int)ceil((oFrameHeader.nHeight + 7) / 8 *
+                                           static_cast<float>(oBlocksPerMCU.height) / nMCUBlocksV);
                 oBlocks.height = DivUp(oBlocks.height, oBlocksPerMCU.height) * oBlocksPerMCU.height;
 
                 aSrcSize[i].width = oBlocks.width * 8;
@@ -576,27 +591,27 @@ int main(int argc, char **argv)
                 }
             }
 
-            NppiDecodeHuffmanSpec *apHuffmanDCTable[3];
-            NppiDecodeHuffmanSpec *apHuffmanACTable[3];
+            NppiDecodeHuffmanSpec *apDecHuffmanDCTable[3];
+            NppiDecodeHuffmanSpec *apDecHuffmanACTable[3];
 
             for (int i = 0; i < 3; ++i)
             {
-                nppiDecodeHuffmanSpecInitAllocHost_JPEG(pHuffmanDCTables[(oScanHeader.aHuffmanTablesSelector[i] >> 4)].aCodes, nppiDCTable, &apHuffmanDCTable[i]);
-                nppiDecodeHuffmanSpecInitAllocHost_JPEG(pHuffmanACTables[(oScanHeader.aHuffmanTablesSelector[i] & 0x0f)].aCodes, nppiACTable, &apHuffmanACTable[i]);
+                nppiDecodeHuffmanSpecInitAllocHost_JPEG(pHuffmanDCTables[(oScanHeader.aHuffmanTablesSelector[i] >> 4)].aCodes, nppiDCTable, &apDecHuffmanDCTable[i]);
+                nppiDecodeHuffmanSpecInitAllocHost_JPEG(pHuffmanACTables[(oScanHeader.aHuffmanTablesSelector[i] & 0x0f)].aCodes, nppiACTable, &apDecHuffmanACTable[i]);
             }
 
             NPP_CHECK_NPP(nppiDecodeHuffmanScanHost_JPEG_8u16s_P3R(pJpegData + nPos, nAfterNextMarkerPos - nPos - 2,
                                                                    nRestartInterval, oScanHeader.nSs, oScanHeader.nSe, 
                                                                    oScanHeader.nA >> 4, oScanHeader.nA & 0x0f,
-                                                                   aphDCT,  aDCTStep,
-                                                                   apHuffmanDCTable,
-                                                                   apHuffmanACTable,
+                                                                   aphDCT, aDCTStep,
+                                                                   apDecHuffmanDCTable,
+                                                                   apDecHuffmanACTable,
                                                                    aSrcSize));
 
             for (int i = 0; i < 3; ++i)
             {
-                nppiDecodeHuffmanSpecFreeHost_JPEG(apHuffmanDCTable[i]);
-                nppiDecodeHuffmanSpecFreeHost_JPEG(apHuffmanACTable[i]);
+                nppiDecodeHuffmanSpecFreeHost_JPEG(apDecHuffmanDCTable[i]);
+                nppiDecodeHuffmanSpecFreeHost_JPEG(apDecHuffmanACTable[i]);
             }
         }
 
@@ -619,25 +634,22 @@ int main(int argc, char **argv)
     {
         Npp8u temp[64];
 
-        for( int k = 0 ; k < 32 ; ++k )
+        for(int k = 0 ; k < 32 ; ++ k)
         {
             temp[2 * k + 0] = aQuantizationTables[i].aTable[aZigzag[k +  0]];
             temp[2 * k + 1] = aQuantizationTables[i].aTable[aZigzag[k + 32]];
         }
-
-        NPP_CHECK_CUDA(cudaMemcpyAsync((unsigned char *)pdQuantizationTables + i * 64, temp, 64, cudaMemcpyHostToDevice));
-
-           
+        NPP_CHECK_CUDA(cudaMemcpyAsync((unsigned char *)pdQuantizationTables + i * 64, temp, 64, cudaMemcpyHostToDevice));          
     }
         
 
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 3; ++ i)
     {
         NPP_CHECK_CUDA(cudaMemcpyAsync(apdDCT[i], aphDCT[i], aDCTStep[i] * aSrcSize[i].height / 8, cudaMemcpyHostToDevice));
     }
 
     // Inverse DCT
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 3; ++ i)
     {
         NPP_CHECK_NPP(nppiDCTQuantInv8x8LS_JPEG_16s8u_C1R_NEW(apdDCT[i], aDCTStep[i],
                                                               apSrcImage[i], aSrcImageStep[i],
@@ -652,7 +664,95 @@ int main(int argc, char **argv)
     *   Processing
     *
     ***************************/
+	if(aSrcActualSize[0].width == aSrcActualSize[1].width)
+	{
+		if (aSrcActualSize[0].height == aSrcActualSize[1].height)
+		{
+			eComponentSampling = YCbCr_444;
+		}
+		else if (abs(static_cast<float>(aSrcActualSize[0].height - 2 * aSrcActualSize[1].height)) < 3) 
+		{
+			eComponentSampling = YCbCr_440;
+		}
+	} 
+	else if (abs(static_cast<float>(aSrcActualSize[0].width - 2 * aSrcActualSize[1].width)) < 3) 
+	{ 
+		if (aSrcActualSize[0].height == aSrcActualSize[1].height)
+		{
+			eComponentSampling = YCbCr_422;
+		}
+		else if (abs(static_cast<float>(aSrcActualSize[0].height - 2 * aSrcActualSize[1].height)) < 3) 
+		{
+			eComponentSampling = YCbCr_420;
+		}
+	} 
+	else if (abs(static_cast<float>(aSrcActualSize[0].width - 4 * aSrcActualSize[1].width)) < 3)   
+	{
+		if (aSrcActualSize[0].height == aSrcActualSize[1].height)
+		{
+			eComponentSampling = YCbCr_411;
+		}
+		else if (abs(static_cast<float>(aSrcActualSize[0].height - 2 * aSrcActualSize[1].height)) < 3) 
+		{
+			eComponentSampling = YCbCr_410;
+		}
+	}   
+	if (eComponentSampling == YCbCr_UNKNOWN)
+	{
+		cout << "invalid image - Y:" << aSrcActualSize[0].width << "x" << aSrcActualSize[0].height 
+			 << "  Cb:"<< aSrcActualSize[1].width << "x" << aSrcActualSize[1].height 
+			 << "  Cr:"<< aSrcActualSize[2].width << "x" << aSrcActualSize[2].height;
+		return EXIT_FAILURE;
+	}
 
+	// Set sampling factor for destination image.
+    oFrameHeader.aSamplingFactors[1] = (1 << 4) | (oFrameHeader.aSamplingFactors[1] & 0x0f);
+    oFrameHeader.aSamplingFactors[1] = (oFrameHeader.aSamplingFactors[1] & 0xf0) | 1;
+    oFrameHeader.aSamplingFactors[2] = (1 << 4) | (oFrameHeader.aSamplingFactors[2] & 0x0f);
+    oFrameHeader.aSamplingFactors[2] = (oFrameHeader.aSamplingFactors[2] & 0xf0) | 1;
+    
+    switch( eComponentSampling ) {
+        case YCbCr_444 : {
+            // Y
+            oFrameHeader.aSamplingFactors[0] = (1 << 4) | (oFrameHeader.aSamplingFactors[0] & 0x0f);
+			oFrameHeader.aSamplingFactors[0] = (oFrameHeader.aSamplingFactors[0] & 0xf0) | 1;
+            break;
+        }
+        case YCbCr_440 : {
+            // Y
+            oFrameHeader.aSamplingFactors[0] = (1 << 4) | (oFrameHeader.aSamplingFactors[0] & 0x0f);
+			oFrameHeader.aSamplingFactors[0] = (oFrameHeader.aSamplingFactors[0] & 0xf0) | 2;
+            break;
+        }
+        case YCbCr_422 : {
+            // Y
+            oFrameHeader.aSamplingFactors[0] = (2 << 4) | (oFrameHeader.aSamplingFactors[0] & 0x0f);
+			oFrameHeader.aSamplingFactors[0] = (oFrameHeader.aSamplingFactors[0] & 0xf0) | 1;
+            break;
+        }
+        case YCbCr_420 : {
+            // Y
+            oFrameHeader.aSamplingFactors[0] = (2 << 4) | (oFrameHeader.aSamplingFactors[0] & 0x0f);
+			oFrameHeader.aSamplingFactors[0] = (oFrameHeader.aSamplingFactors[0] & 0xf0) | 2;
+            break;
+        }
+        case YCbCr_411 : {
+            // Y
+            oFrameHeader.aSamplingFactors[0] = (4 << 4) | (oFrameHeader.aSamplingFactors[0] & 0x0f);
+			oFrameHeader.aSamplingFactors[0] = (oFrameHeader.aSamplingFactors[0] & 0xf0) | 1;
+            break;
+        }            
+        case YCbCr_410 : {
+            // Y
+            oFrameHeader.aSamplingFactors[0] = (4 << 4) | (oFrameHeader.aSamplingFactors[0] & 0x0f);
+			oFrameHeader.aSamplingFactors[0] = (oFrameHeader.aSamplingFactors[0] & 0xf0) | 2;
+            break;
+        }            
+        default:
+            return EXIT_FAILURE; 
+
+    };
+    
     // Compute channel sizes as stored in the output JPEG (8x8 blocks & MCU block layout)
     NppiSize oDstImageSize;
     float frameWidth = floor((float)oFrameHeader.nWidth * (float)nScaleFactor);
@@ -663,22 +763,30 @@ int main(int argc, char **argv)
 
     cout << "Output Size: " << oDstImageSize.width << "x" << oDstImageSize.height << "x" << static_cast<int>(oFrameHeader.nComponents) << endl;
 
+	nMCUBlocksH = 0; 
+	nMCUBlocksV = 0;
+	for (int i=0; i < oFrameHeader.nComponents; ++i)
+	{
+		nMCUBlocksV = max(nMCUBlocksV, oFrameHeader.aSamplingFactors[i] & 0x0f );
+		nMCUBlocksH = max(nMCUBlocksH, oFrameHeader.aSamplingFactors[i] >> 4 );
+	}
+	
     for (int i=0; i < oFrameHeader.nComponents; ++i)
     {
         NppiSize oBlocks;
-        NppiSize oBlocksPerMCU = { oFrameHeader.aSamplingFactors[i] & 0x0f, oFrameHeader.aSamplingFactors[i] >> 4};
-
-        oBlocks.width = (int)ceil((oDstImageSize.width + 7)/8  *
-                                  static_cast<float>(oBlocksPerMCU.width)/nMCUBlocksH);
+        NppiSize oBlocksPerMCU = {oFrameHeader.aSamplingFactors[i] >> 4, oFrameHeader.aSamplingFactors[i] & 0x0f};
+        
+        oBlocks.width = (int)ceil((oDstImageSize.width + 7) / 8 *
+                                  static_cast<float>(oBlocksPerMCU.width) / nMCUBlocksH);
         oBlocks.width = DivUp(oBlocks.width, oBlocksPerMCU.width) * oBlocksPerMCU.width;
 
-        oBlocks.height = (int)ceil((oDstImageSize.height+7)/8 *
-                                   static_cast<float>(oBlocksPerMCU.height)/nMCUBlocksV);
+        oBlocks.height = (int)ceil((oDstImageSize.height + 7) / 8 *
+                                   static_cast<float>(oBlocksPerMCU.height) / nMCUBlocksV);
         oBlocks.height = DivUp(oBlocks.height, oBlocksPerMCU.height) * oBlocksPerMCU.height;
 
         aDstSize[i].width = oBlocks.width * 8;
         aDstSize[i].height = oBlocks.height * 8;
-
+        
         // Allocate Memory
         size_t nPitch;
         NPP_CHECK_CUDA(cudaMallocPitch(&apDstImage[i], &nPitch, aDstSize[i].width, aDstSize[i].height));
@@ -686,18 +794,16 @@ int main(int argc, char **argv)
     }
 
     // Scale to target image size
-    // Assume we only deal with 420 images.
-    int aSampleFactor[3] = {1, 2, 2};
     for (int i = 0; i < 3; ++i)
     {
-        NppiSize oBlocksPerMCU = { oFrameHeader.aSamplingFactors[i] >> 4, oFrameHeader.aSamplingFactors[i] & 0x0f};
-        NppiSize oSrcImageSize = {(oFrameHeader.nWidth * oBlocksPerMCU.width) / nMCUBlocksH, (oFrameHeader.nHeight * oBlocksPerMCU.height)/nMCUBlocksV};
-        NppiRect oSrcImageROI = {0,0,oSrcImageSize.width, oSrcImageSize.height};
+        NppiSize oBlocksPerMCU = {oFrameHeader.aSamplingFactors[i] >> 4, oFrameHeader.aSamplingFactors[i] & 0x0f};
+        NppiSize oSrcImageSize = {aSrcActualSize[i].width, aSrcActualSize[i].height};
+        NppiRect oSrcImageROI = {0, 0, oSrcImageSize.width, oSrcImageSize.height};
         NppiRect oDstImageROI;
         oDstImageROI.x = 0;
         oDstImageROI.y = 0;
-        oDstImageROI.width = oDstImageSize.width / aSampleFactor[i];
-        oDstImageROI.height = oDstImageSize.height / aSampleFactor[i];
+        oDstImageROI.width = DivUp(oDstImageSize.width * oBlocksPerMCU.width, nMCUBlocksH);
+        oDstImageROI.height = DivUp(oDstImageSize.height * oBlocksPerMCU.height, nMCUBlocksV);
         
         NppiInterpolationMode eInterploationMode = NPPI_INTER_SUPER;
         
@@ -713,8 +819,6 @@ int main(int argc, char **argv)
     *   Output
     *
     ***************************/
-
-
     // Forward DCT
     for (int i = 0; i < 3; ++i)
     {
@@ -822,3 +926,4 @@ int main(int argc, char **argv)
 
     return EXIT_SUCCESS;
 }
+

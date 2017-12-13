@@ -527,6 +527,7 @@ int runSingleTest(char *ref_file, char *exec_path)
 
     free(hResult);
     checkCudaErrors(cudaFree(dResult));
+    freeTextures();
 
     return nTotalErrors;
 }
