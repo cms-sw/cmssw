@@ -6,12 +6,18 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   testNumber_ = conf.getUntrackedParameter<bool>("TestNumber",false);
+  auxPlots_ = conf.getUntrackedParameter<bool>("auxiliaryPlots",false);
 
   // register for data access
+  g4Label_  = conf.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
+  hcalHits_ = conf.getUntrackedParameter<std::string>("HcalHitCollection","HcalHits");
+  ebHits_ = conf.getUntrackedParameter<std::string>("EBHitCollection","EcalHitsEB");
+  eeHits_ = conf.getUntrackedParameter<std::string>("EEHitCollection","EcalHitsEE");
+
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
-  tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
-  tok_ecalEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEB"));
-  tok_ecalEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEE"));
+  tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,hcalHits_));
+  tok_ecalEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,ebHits_));
+  tok_ecalEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,eeHits_));
   
   if ( !outputFile_.empty() ) {    edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
@@ -20,7 +26,6 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   
   nevtot = 0;
   
-
 }
 
 
@@ -86,8 +91,10 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 
   Char_t histo[200];
 
-    ib.setCurrentFolder("HcalSimHitsV/HcalSimHitTask");
+    ib.setCurrentFolder("HcalHitsV/HcalSimHitTask");
 
+    if (auxPlots_) {
+    
     // General counters
     for(int depth = 0; depth <= maxDepthHB_; depth++){
        if(depth == 0){ sprintf  (histo, "N_HB" ); }
@@ -184,6 +191,8 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
        meSimHitsEnergyHF.push_back( ib.book1D(histo, histo, 1010 , -5. , 500.) );
     }
 
+    } // auxPlots_
+
     //Energy in Cone
     sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths");
     meEnConeEtaProfile = ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF, 210, -10., 200.);  
@@ -199,19 +208,8 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 
 
 void HcalSimHitsValidation::endJob() { 
-  //before check that histos are there....
 
-  // let's see if this breaks anything
-  // check if ME still there (and not killed by MEtoEDM for memory saving)
-  /*if( dbe_ )
-    {
-      // check existence of first histo in the list
-      if (! dbe_->get("HcalSimHitsV/HcalSimHitTask/N_HB")) return;
-    }
-  else
-    return;*/
-  
-  //======================================
+  if (auxPlots_){
 
   for (int i = 1; i <= occupancy_vs_ieta_HB[0]->getNbinsX(); i++){
 
@@ -246,6 +244,7 @@ void HcalSimHitsValidation::endJob() {
 
   }
 
+  }
 
   // let's see if this breaks anything
   //if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
@@ -336,6 +335,8 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       else if (sub == 4 && (depth == 2 || depth == 4)) HcalCone += en*calib_HF2;
     }
     
+    if (auxPlots_) {
+
     //HB
     if (sub == 1){
       meSimHitsEnergyHB[0]->Fill(en);
@@ -377,14 +378,18 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       occupancy_vs_ieta_HF[0]->Fill(double(ieta));
       occupancy_vs_ieta_HF[depth]->Fill(double(ieta));
     }
+    
+    } // auxPlots_
+
   } //Loop over SimHits
 
   //Ecal EB SimHits
+  double EcalCone = 0;
+
+  if (!ebHits_.empty()){
   edm::Handle<PCaloHitContainer> ecalEBHits;
   ev.getByToken(tok_ecalEB_,ecalEBHits);
   const PCaloHitContainer * SimHitResultEB = ecalEBHits.product () ;
-
-  double EcalCone = 0;
 
   for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEB->begin () ; SimHits != SimHitResultEB->end(); ++SimHits) {
 
@@ -399,8 +404,10 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
     if (r < partR) EcalCone += en;   
   }
+  } // ebHits_
 
   //Ecal EE SimHits
+  if (!eeHits_.empty()){
   edm::Handle<PCaloHitContainer> ecalEEHits;
   ev.getByToken(tok_ecalEE_,ecalEEHits);
   const PCaloHitContainer * SimHitResultEE = ecalEEHits.product () ;
@@ -418,6 +425,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
     if (r < partR) EcalCone += en;   
   }
+  } // eeHits_
 
   if (ietaMax != 0){            //If ietaMax == 0, there were no good HCAL SimHits 
     if (ietaMax > 0) ietaMax--; //Account for lack of ieta = 0
