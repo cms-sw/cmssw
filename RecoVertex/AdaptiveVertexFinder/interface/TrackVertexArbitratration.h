@@ -2,7 +2,7 @@
 #define TrackVertexArbitration_H
 #include <memory>
 #include <set>
-#include <unordered_map>
+
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/CandidatePtrTransientTrack.h"
@@ -37,22 +37,10 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "RecoVertex/AdaptiveVertexFinder/interface/SVTimeHelpers.h"
-
-#include "FWCore/Utilities/interface/isFinite.h"
 //#include "DataFormats/Math/interface/deltaR.h"
 
 //#define VTXDEBUG
-
-namespace svhelper {
-  inline double cov33(const reco::Vertex & sv) { return sv.covariance(3,3); }
-  inline double cov33(const reco::VertexCompositePtrCandidate & sv) { return sv.vertexCovariance(3,3); }
-}
-
-
 
 template <class VTX>
 class TrackVertexArbitration{
@@ -84,8 +72,7 @@ class TrackVertexArbitration{
 	double 					fitterRatio;//    = 0.25;
 	int 					trackMinLayers;
 	double					trackMinPt;
-	int					trackMinPixels;  
-	double                                  maxTimeSignificance;
+	int					trackMinPixels;   
 };
 
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
@@ -104,8 +91,7 @@ TrackVertexArbitration<VTX>::TrackVertexArbitration(const edm::ParameterSet &par
 	fitterRatio               (params.getParameter<double>("fitterRatio")),
 	trackMinLayers            (params.getParameter<int32_t>("trackMinLayers")),
 	trackMinPt                (params.getParameter<double>("trackMinPt")),
-	trackMinPixels            (params.getParameter<int32_t>("trackMinPixels")),
-	maxTimeSignificance       (params.getParameter<double>("maxTimeSignificance"))
+	trackMinPixels            (params.getParameter<int32_t>("trackMinPixels"))
 {
 	dRCut*=dRCut;
 }
@@ -170,13 +156,10 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
         VertexDistance3D vdist;
         GlobalPoint ppv(pv.position().x(),pv.position().y(),pv.position().z());
 
-        std::unordered_map<unsigned int, Measurement1D> cachedIP;  
+        std::map<unsigned int, Measurement1D> cachedIP;  
         for(typename std::vector<VTX>::const_iterator sv = secondaryVertices.begin();
 	    sv != secondaryVertices.end(); ++sv) {
 
-	  const double svTime(sv->t()), svTimeCov(svhelper::cov33(*sv));
-          const bool svHasTime = svTimeCov > 0.;
-	    
 	    GlobalPoint ssv(sv->position().x(),sv->position().y(),sv->position().z());
             GlobalVector flightDir = ssv-ppv;
 //            std::cout << "Vertex : " << sv-secondaryVertices->begin() << " " << sv->position() << std::endl;
@@ -188,14 +171,14 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
                 tt.setBeamSpot(*beamSpot);
 	        float w = trackWeight(*sv,tt);
  	        Measurement1D ipv;
-		if( cachedIP.count(itrack) ) {
-		  ipv=cachedIP[itrack];
+		if(cachedIP.find(itrack)!=cachedIP.end()) {
+				ipv=cachedIP[itrack];
 		} else {
-		  std::pair<bool,Measurement1D> ipvp = IPTools::absoluteImpactParameter3D(tt,pv);
-		  cachedIP[itrack]=ipvp.second;
-		  ipv=ipvp.second;
+	 	                std::pair<bool,Measurement1D> ipvp = IPTools::absoluteImpactParameter3D(tt,pv);
+				cachedIP[itrack]=ipvp.second;
+				ipv=ipvp.second;
 		}
-		
+
 		AnalyticalImpactPointExtrapolator extrapolator(tt.field());
 		TrajectoryStateOnSurface tsos = extrapolator.extrapolate(tt.impactPointState(), RecoVertex::convertPos(sv->position()));
 		if(! tsos.isValid()) continue;
@@ -204,18 +187,12 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
 		Measurement1D isv = dist.distance(VertexState(RecoVertex::convertPos(sv->position()),RecoVertex::convertError(sv->error())),VertexState(refPoint, refPointErr));	   
 
 		float dR = Geom::deltaR2(flightDir,tt.track()); //.eta(), flightDir.phi(), tt.track().eta(), tt.track().phi());
-		
-		double timeSig = 0.;
-		if( svHasTime && edm::isFinite(tt.timeExt()) ) {
-		  double tError = std::sqrt( std::pow( tt.dtErrorExt(), 2 ) + svTimeCov );
-		  timeSig = std::abs(tt.timeExt() - svTime)/tError;
-		}
 
-                if( w > 0 || ( isv.significance() < sigCut && isv.value() < distCut && isv.value() < dlen.value()*dLenFraction && timeSig < maxTimeSignificance) )
+                if( w > 0 || ( isv.significance() < sigCut && isv.value() < distCut && isv.value() < dlen.value()*dLenFraction ) )
                 {
 
                   if(( isv.value() < ipv.value()  ) && isv.value() < distCut && isv.value() < dlen.value()*dLenFraction 
-                  && dR < dRCut && timeSig < maxTimeSignificance ) 
+                  && dR < dRCut  ) 
                   {
 #ifdef VTXDEBUG
                      if(w > 0.5) std::cout << " = ";
@@ -229,7 +206,7 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
                   else std::cout << "   ";
 #endif
                      //add also the tracks used in previous fitting that are still closer to Sv than Pv 
-                     if(w > 0.5 && isv.value() <= ipv.value() && dR < dRCut && timeSig < maxTimeSignificance) {  
+                     if(w > 0.5 && isv.value() <= ipv.value() && dR < dRCut) {  
                        selTracks.push_back(tt);
 #ifdef VTXDEBUG
                        std::cout << " = ";
@@ -269,11 +246,7 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
               { 
              	 TransientVertex singleFitVertex;
              	 singleFitVertex = theAdaptiveFitter.vertex(selTracks,ssv);
-		 
-              	if(singleFitVertex.isValid())  { 
-		  svhelper::updateVertexTime(singleFitVertex);
-		  recoVertices.push_back(VTX(singleFitVertex));
-		  
+              	if(singleFitVertex.isValid())  { recoVertices.push_back(VTX(singleFitVertex));
 
 #ifdef VTXDEBUG
                 const VTX & extVertex = recoVertices.back();
