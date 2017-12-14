@@ -10,7 +10,7 @@
 namespace l1tVertexFinder {
 
 L1fittedTrack::L1fittedTrack(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& aTrack, const Settings& aSettings, const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle, const std::map<DetId, DetId>& geoDetIdMap) :
-  track_(aTrack)
+  L1fittedTrackBase(aTrack)
 {
   std::vector<Stub*> stubs;
   for(const auto& stubRef : aTrack->getStubRefs()) {
@@ -28,40 +28,9 @@ L1fittedTrack::~L1fittedTrack()
 {
 }
 
-float L1fittedTrack::eta() const
-{
-  return track_->getMomentum().eta();
-}
-
-float L1fittedTrack::phi0() const
-{
-  return track_->getMomentum().phi();
-}
-
-float L1fittedTrack::pt() const
-{
-  return track_->getMomentum().transverse();
-}
-
-float L1fittedTrack::z0() const
-{
-  return track_->getPOCA().z();
-}
-
-float L1fittedTrack::chi2dof() const
-{
-  // FIXME: Double check nPar=4 is correct
-  return track_->getChi2Red();
-}
-
 const TP* L1fittedTrack::getMatchedTP() const
 {
   return matchedTP_;
-}
-
-const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>& L1fittedTrack::getTTTrackPtr() const
-{
-  return track_;
 }
 
 } // end ns l1tVertexFinder

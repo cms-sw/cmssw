@@ -12,8 +12,7 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
-
-
+#include "TMTrackTrigger/l1VertexFinder/interface/L1fittedTrackBase.h"
 
 class TrackerGeometry;
 class TrackerTopology;
@@ -28,23 +27,14 @@ typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_>           TTStubAssMap;
 typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_>        TTClusterAssMap;
 
 //! Simple wrapper class for TTTrack, to avoid changing other areas of packages immediately
-class L1fittedTrack {
+class L1fittedTrack : public L1fittedTrackBase {
 public:
   L1fittedTrack(const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>&, const Settings& , const TrackerGeometry* , const TrackerTopology*, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle, const std::map<DetId, DetId>& geoDetIdMap);
   ~L1fittedTrack();
-
-  float eta() const;
-  float phi0() const;
-  float pt() const;
-  float z0() const;
-
-  float chi2dof() const;
   unsigned int getNumStubs()  const  {return numStubs;}
 
   // Get best matching tracking particle (=nullptr if none).
   const TP* getMatchedTP() const;
-
-  const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>& getTTTrackPtr() const;
 
 private:
   edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >> track_;
