@@ -6,6 +6,7 @@
 #include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 #include "CLHEP/Random/RandomEngine.h"
+#include "Randomize.hh"
 
 RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& streamID) :
   engine_(nullptr),
@@ -19,9 +20,8 @@ RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& st
   }
   engine_ = &rng->getEngine(streamID);
 
-  // Get the TRandom3 egine, to benefit from Root functional random generation
-  if ( engine_->name() == "TRandom3" )
-    rootEngine_ = ( (edm::TRandomAdaptor*) engine_ )->getRootEngine();
+  // define Geant4 engine per thread
+  G4Random::setTheEngine(engine_);
 }
 
 RandomEngineAndDistribution::RandomEngineAndDistribution(edm::LuminosityBlockIndex const& luminosityBlockIndex) :
@@ -36,9 +36,8 @@ RandomEngineAndDistribution::RandomEngineAndDistribution(edm::LuminosityBlockInd
   }
   engine_ = &rng->getEngine(luminosityBlockIndex);
 
-  // Get the TRandom3 egine, to benefit from Root functional random generation
-  if ( engine_->name() == "TRandom3" )
-    rootEngine_ = ( (edm::TRandomAdaptor*) engine_ )->getRootEngine();
+  // define Geant4 engine per thread
+  G4Random::setTheEngine(engine_);
 }
 
 RandomEngineAndDistribution::~RandomEngineAndDistribution() {
