@@ -145,7 +145,9 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
 	HcalDetId cell (HcalEndcap, eta, phi, depth);
 	if (topology.valid(cell)) {
 	  std::vector<int> depths = topology.mergedDepthList29(cell);
-	  std::cout << cell << " has " << depths.size() << " merged depths:";
+	  std::cout << cell << " is with merge depth flag " 
+		    << topology.mergedDepth29(cell) << " having " << depths.size()
+		    << " merged depths:";
 	  for (unsigned int k=0; k<depths.size(); ++k) 
 	    std::cout << " [" << k << "]:" << depths[k];
 	  std::cout << std::endl;
