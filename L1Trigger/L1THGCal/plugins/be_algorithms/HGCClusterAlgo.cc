@@ -28,6 +28,10 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
             dRC2d,
             NNC2d
         };
+        enum MulticlusterType{
+            dRC3d,
+            DBSCANC3d
+        };
     
     public:
 
@@ -38,10 +42,10 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         multicluster_product_( new l1t::HGCalMulticlusterBxCollection ),
         calibration_( conf.getParameterSet("calib_parameters") ),
         clustering_( conf.getParameterSet("C2d_parameters") ),
-        multiclustering_( conf.getParameterSet("C3d_parameters" ) )
+        multiclustering_( conf.getParameterSet("C3d_parameters" ) ),
+        triggercell_threshold_silicon_( conf.getParameter<double>("triggercell_threshold_silicon") ),
+        triggercell_threshold_scintillator_( conf.getParameter<double>("triggercell_threshold_scintillator") )
         {
-            clustering_threshold_silicon_ = conf.getParameterSet("C2d_parameters").getParameter<double>("clustering_threshold_silicon");
-            clustering_threshold_scintillator_ = conf.getParameterSet("C2d_parameters").getParameter<double>("clustering_threshold_scintillator");
             std::string type(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
             if(type=="dRC2d"){
                 clusteringAlgorithmType_ = dRC2d;
@@ -51,6 +55,16 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
                 edm::LogWarning("ParameterError") << "Unknown clustering type '" << type
                     << "'. Using nearest neighbor NNC2d instead.\n";
                 clusteringAlgorithmType_ = NNC2d;
+            }
+            std::string typeMulticluster(conf.getParameterSet("C3d_parameters").getParameter<std::string>("type_multicluster"));
+            if(typeMulticluster=="dRC3d"){
+                multiclusteringAlgoType_ = dRC3d;
+            }else if(typeMulticluster=="DBSCANC3d"){
+                multiclusteringAlgoType_ = DBSCANC3d;
+            }else {
+                edm::LogWarning("ParameterError") << "Unknown Multiclustering type '" << typeMulticluster
+                    << "'. Using Cone Algorithm instead.\n";
+                multiclusteringAlgoType_ = dRC3d;
             }
 
         }
@@ -95,8 +109,9 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
 
         /* algorithm type */
         ClusterType clusteringAlgorithmType_;
-        double clustering_threshold_silicon_;
-        double clustering_threshold_scintillator_;
+        double triggercell_threshold_silicon_;
+        double triggercell_threshold_scintillator_;
+        MulticlusterType multiclusteringAlgoType_;
 };
 
 
@@ -122,8 +137,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
             {
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
                 calibration_.calibrateInGeV( calibratedtriggercell); 
-                double clustering_threshold = (triggercell.subdetId()==HGCHEB ? clustering_threshold_scintillator_ : clustering_threshold_silicon_);
-                if(calibratedtriggercell.mipPt()<clustering_threshold) continue;
+                double triggercell_threshold = (triggercell.subdetId()==HGCHEB ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
+                if(calibratedtriggercell.mipPt()<triggercell_threshold) continue;
                 trgcell_product_->push_back( 0, calibratedtriggercell );
             }           
         
@@ -169,11 +184,23 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
         clustersPtrs.push_back(ptr);
     }
     
-    /* call to multiclustering */
-    multiclustering_.clusterize( clustersPtrs, *multicluster_product_ );
+    /* call to multiclustering and compute shower shape*/
+    switch(multiclusteringAlgoType_){
+    case dRC3d : 
+      multiclustering_.clusterizeDR( clustersPtrs, *multicluster_product_, *triggerGeometry_);
+      break;
+    case DBSCANC3d:
+      multiclustering_.clusterizeDBSCAN( clustersPtrs, *multicluster_product_, *triggerGeometry_);
+      break;
+    default:
+      // Should not happen, clustering type checked in constructor
+      break;
+    }
 
     /* retrieve the orphan handle to the multiclusters collection and put the collection in the event */
     multiclustersHandle = evt.put( std::move( multicluster_product_ ), "cluster3D");
+
+
 
 }
 
