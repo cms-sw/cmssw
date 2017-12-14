@@ -249,9 +249,9 @@ void HGCalClusteringImpl::NNKernel( const std::vector<edm::Ptr<l1t::HGCalTrigger
 }
 
 
-                                        void HGCalClusteringImpl::clusterizeNN( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs, 
-                                      l1t::HGCalClusterBxCollection & clusters,
-                                      const HGCalTriggerGeometryBase & triggerGeometry
+void HGCalClusteringImpl::clusterizeNN( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs, 
+                                        l1t::HGCalClusterBxCollection & clusters,
+                                        const HGCalTriggerGeometryBase & triggerGeometry
     ){
 
     std::array< std::vector< std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>,kNSides_> reshuffledTriggerCells; 
@@ -387,12 +387,12 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & clus
     Basic3DVector<float> seedCentre( constituents[0]->position() );
     
     /* distances from the seed */
-    vector<pair<int,float>> distances;
+    vector<pair<unsigned,float>> distances;
     for( unsigned itc=1; itc<constituents.size(); itc++ )
     {
         Basic3DVector<float> tcCentre( constituents[itc]->position() );
         float distance = ( seedCentre - tcCentre ).mag();
-        distances.push_back( pair<int,float>( itc-1, distance ) );
+        distances.push_back( pair<unsigned,float>( itc-1, distance ) );
     }
 
     /* sorting (needed in order to be sure that we are skipping any tc) */
