@@ -1111,7 +1111,8 @@ void HcalDDDSimConstants::printTileHB(const int& eta,   const int& phi,
 			       << layL << ":" << layH-1;
   for (int lay=layL; lay<layH; ++lay) {
     std::vector<double> area(2,0);
-    int kk=0;
+    int    kk(0);
+    double mean(0);
     for (unsigned int k=0; k<hpar->layHB.size(); ++k) {
       if (lay == hpar->layHB[k]) {
 	double zmin = hpar->rhoxHB[k]*std::cos(thetaL)/std::sin(thetaL);
@@ -1119,17 +1120,21 @@ void HcalDDDSimConstants::printTileHB(const int& eta,   const int& phi,
 	double dz   = (std::min(zmax,hpar->dxHB[k]) - zmin);
 	if (dz > 0) {
 	  area[kk] = dz*hpar->dyHB[k];
+	  mean    += area[kk];
 	  kk++;
 	}
       }
     }
-    if (area[0] > 0) 
+    if (area[0] > 0) {
+      mean /= (kk*100);
       edm::LogVerbatim("HcalGeom") << std::setw(2) << lay << " Area " 
 				   << std::setw(8) << area[0] << " " 
-				   << std::setw(8) << area[1];
+				   << std::setw(8) << area[1] << " Mean " 
+				   << mean;
+    }
   }
 }
-
+  
 void HcalDDDSimConstants::printTileHE(const int& eta,   const int& phi,
 				      const int& zside, const int& depth) const {
 
@@ -1148,7 +1153,8 @@ void HcalDDDSimConstants::printTileHE(const int& eta,   const int& phi,
 			       << layL << ":" << layH-1 << " phi " << nphi;
   for (int lay=layL; lay<layH; ++lay) {
     std::vector<double> area(4,0);
-    int kk=0;
+    int    kk(0);
+    double mean(0);
     for (unsigned int k=0; k<hpar->layHE.size(); ++k) {
       if (lay == hpar->layHE[k]) {
 	double rmin = hpar->zxHE[k]*std::tan(thetaH);
@@ -1165,9 +1171,11 @@ void HcalDDDSimConstants::printTileHE(const int& eta,   const int& phi,
 	  double ar1=0, ar2=0;
 	  if (nphi == 1) {
 	    ar1 = 0.5*(rmax-rmin)*(dx1+dx2-4.*hpar->dx1HE[k]);
+	    mean += ar1;
 	  } else {
 	    ar1 = 0.5*(rmax-rmin)*(dx1+dx2-2.*hpar->dx1HE[k]);
 	    ar2 = 0.5*(rmax-rmin)*((rmax+rmin)*tan(10.*CLHEP::deg)-4*hpar->dx1HE[k])-ar1;
+	    mean += (ar1+ar2);
 	  }
 	  area[kk]   = ar1;
 	  area[kk+2] = ar2;
@@ -1179,15 +1187,19 @@ void HcalDDDSimConstants::printTileHE(const int& eta,   const int& phi,
       int lay0 = lay-1;
       if (eta == 18) lay0++;
       if (nphi == 1) {
+	mean /= (kk*100);
 	edm::LogVerbatim("HcalGeom") << std::setw(2) << lay0 << " Area " 
 				     << std::setw(8) << area[0] << " " 
-				     << std::setw(8) << area[1];
+				     << std::setw(8) << area[1] << " Mean "
+				     << mean;
       } else {
+	mean /= (kk*200);
 	edm::LogVerbatim("HcalGeom") << std::setw(2) << lay0 << " Area " 
 				     << std::setw(8) << area[0] << " " 
 				     << std::setw(8) << area[1] << ":" 
 				     << std::setw(8) << area[2] << " " 
-				     << std::setw(8) << area[3];
+				     << std::setw(8) << area[3] << " Mean "
+				     << mean;
       }
     }
   }
