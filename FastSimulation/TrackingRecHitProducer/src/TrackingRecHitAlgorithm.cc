@@ -69,12 +69,13 @@ const RandomEngineAndDistribution& TrackingRecHitAlgorithm::getRandomEngine() co
     {
         throw cms::Exception("TrackingRecHitAlgorithm ") << _name <<": RandomEngineAndDistribution not defined";
     }
-    return *_randomEngine;
+    return _randomEngine.get();
+    //return *_randomEngine;
 }
 
-void TrackingRecHitAlgorithm::beginStream(const edm::StreamID& id)
+void TrackingRecHitAlgorithm::beginStream(const edm::StreamID& /*id*/)
 {
-    _randomEngine = std::make_shared<RandomEngineAndDistribution>(id);
+  //    _randomEngine = std::make_shared<RandomEngineAndDistribution>(id);
 }
 
 void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup)
@@ -90,6 +91,9 @@ void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetu
     _trackerTopology = trackerTopologyHandle.product();
     _trackerGeometry = trackerGeometryHandle.product();
     _misalignedTrackerGeometry = misalignedGeometryHandle.product();
+
+    _randomEngine.reset(new RandomEngineAndDistribution(event.streamID()));
+
 }
 
 TrackingRecHitProductPtr TrackingRecHitAlgorithm::process(TrackingRecHitProductPtr product) const
@@ -107,7 +111,7 @@ void TrackingRecHitAlgorithm::endEvent(edm::Event& event, const edm::EventSetup&
 
 void TrackingRecHitAlgorithm::endStream()
 {
-    _randomEngine.reset();
+  //_randomEngine.reset();
 }
 
 TrackingRecHitAlgorithm::~TrackingRecHitAlgorithm()

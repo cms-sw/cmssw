@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -23,6 +24,7 @@
 
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenEvent.h"
+#include "Randomize.hh"
 
 #include <iostream>
 #include <memory>
@@ -52,7 +54,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
 }
 
 FamosProducer::~FamosProducer() 
-{ if ( famosManager_ ) delete famosManager_; }
+{ delete famosManager_; }
 
 void
 FamosProducer::beginRun(edm::Run const& run, const edm::EventSetup & es) {
@@ -65,6 +67,9 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    using namespace edm;
 
    RandomEngineAndDistribution random(iEvent.streamID());
+   // define Geant4 engine per thread
+   G4Random::setTheEngine(&random.theEngine());
+   //edm::LogWarning("FamosProducer::produce") << "Begin of event " << G4UniformRand();
 
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHand;
@@ -117,7 +122,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    iEvent.put(std::move(p5),"EcalHitsEE");
    iEvent.put(std::move(p6),"EcalHitsES");
    iEvent.put(std::move(p7),"HcalHits");
-
+   //edm::LogWarning("FamosProducer::produce") << "End of event " << G4UniformRand();
 }
 
 DEFINE_FWK_MODULE(FamosProducer);
