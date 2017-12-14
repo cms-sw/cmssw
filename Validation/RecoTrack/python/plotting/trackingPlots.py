@@ -1465,6 +1465,7 @@ _iterations = [
                        "pixelPairStepTrackingRegions",
                        "pixelPairStepTrackingRegionsB",
                        "pixelPairStepTrackingRegionsC",
+                       "pixelPairStepTrackingRegionsSeedLayersB",
                        "pixelPairStepHitDoublets",
                        "pixelPairStepHitDoubletsB",
                        "pixelPairStepHitDoubletsC",

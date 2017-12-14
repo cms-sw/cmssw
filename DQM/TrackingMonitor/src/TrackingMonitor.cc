@@ -137,9 +137,26 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   }
 
   doRegionPlots = iConfig.getParameter<bool>("doRegionPlots");
+  doRegionCandidatePlots = iConfig.getParameter<bool>("doRegionCandidatePlots");
   if(doRegionPlots) {
-    regionToken_ = consumes<edm::OwnVector<TrackingRegion> >(iConfig.getParameter<edm::InputTag>("RegionProducer"));
-    regionCandidateToken_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("RegionCandidates"));
+    const auto& regionTag = iConfig.getParameter<edm::InputTag>("RegionProducer");
+    if(!regionTag.label().empty()) {
+      regionToken_ = consumes<edm::OwnVector<TrackingRegion> >(regionTag);
+    }
+    const auto& regionLayersTag = iConfig.getParameter<edm::InputTag>("RegionSeedingLayersProducer");
+    if(!regionLayersTag.label().empty()) {
+      if(!regionToken_.isUninitialized()) {
+        throw cms::Exception("Configuration") << "Only one of 'RegionProducer' and 'RegionSeedingLayersProducer' can be non-empty, now both are.";
+      }
+      regionLayerSetsToken_ = consumes<TrackingRegionsSeedingLayerSets>(regionLayersTag);
+    }
+    else if(regionToken_.isUninitialized()) {
+      throw cms::Exception("Configuration") << "With doRegionPlots=True either 'RegionProducer' or 'RegionSeedingLayersProducer' must be non-empty, now both are empty.";
+    }
+
+    if(doRegionCandidatePlots) {
+      regionCandidateToken_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("RegionCandidates"));
+    }
   }
 
   edm::InputTag stripClusterInputTag_ = iConfig.getParameter<edm::InputTag>("stripCluster");
@@ -963,13 +980,28 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       // plots for tracking regions
       if (doRegionPlots) {
-        edm::Handle<edm::OwnVector<TrackingRegion> > hregions;
-        iEvent.getByToken(regionToken_, hregions);
-        NumberOfTrackingRegions->Fill(hregions->size());
+        if(!regionToken_.isUninitialized()) {
+          edm::Handle<edm::OwnVector<TrackingRegion> > hregions;
+          iEvent.getByToken(regionToken_, hregions);
+          const auto& regions = *hregions;
+          NumberOfTrackingRegions->Fill(regions.size());
 
-        edm::Handle<reco::CandidateView> hcandidates;
-        iEvent.getByToken(regionCandidateToken_, hcandidates);
-        theTrackBuildingAnalyzer->analyze(*hcandidates);
+          theTrackBuildingAnalyzer->analyze(regions);
+        }
+        else if(!regionLayerSetsToken_.isUninitialized()) {
+          edm::Handle<TrackingRegionsSeedingLayerSets> hregions;
+          iEvent.getByToken(regionLayerSetsToken_, hregions);
+          const auto& regions = *hregions;
+          NumberOfTrackingRegions->Fill(regions.regionsSize());
+
+          theTrackBuildingAnalyzer->analyze(regions);
+        }
+
+        if (doRegionCandidatePlots) {
+          edm::Handle<reco::CandidateView> hcandidates;
+          iEvent.getByToken(regionCandidateToken_, hcandidates);
+          theTrackBuildingAnalyzer->analyze(*hcandidates);
+        }
       }
       
       if (doTrackerSpecific_ || doAllPlots) {
