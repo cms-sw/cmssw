@@ -22,4 +22,5 @@
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="FastSimDataFormats/NuclearInteractions"/>
 <use   name="SimGeneral/HepPDTRecord"/>
+<use   name="geant4core"/>
 <flags   EDM_PLUGIN="1"/>
