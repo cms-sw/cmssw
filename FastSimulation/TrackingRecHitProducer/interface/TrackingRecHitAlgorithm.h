@@ -30,7 +30,8 @@ class TrackingRecHitAlgorithm
         const TrackerTopology* _trackerTopology;
         const TrackerGeometry* _trackerGeometry;
         const TrackerGeometry* _misalignedTrackerGeometry;
-        std::shared_ptr<RandomEngineAndDistribution> _randomEngine;
+        //std::shared_ptr<RandomEngineAndDistribution> _randomEngine;
+        std::unique_ptr<RandomEngineAndDistribution> _randomEngine;
 
     public:
         TrackingRecHitAlgorithm(const std::string& name,

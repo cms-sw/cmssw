@@ -6,7 +6,6 @@
 #include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 #include "CLHEP/Random/RandomEngine.h"
-#include "Randomize.hh"
 
 RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& streamID) :
   engine_(nullptr) {
@@ -18,9 +17,6 @@ RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& st
       "or remove the module that requires it.";
   }
   engine_ = &rng->getEngine(streamID);
-
-  // define Geant4 engine per thread
-  G4Random::setTheEngine(engine_);
 }
 
 RandomEngineAndDistribution::RandomEngineAndDistribution(edm::LuminosityBlockIndex const& luminosityBlockIndex) :
@@ -33,9 +29,6 @@ RandomEngineAndDistribution::RandomEngineAndDistribution(edm::LuminosityBlockInd
       "or remove the module that requires it.";
   }
   engine_ = &rng->getEngine(luminosityBlockIndex);
-
-  // define Geant4 engine per thread
-  G4Random::setTheEngine(engine_);
 }
 
 RandomEngineAndDistribution::~RandomEngineAndDistribution() {
