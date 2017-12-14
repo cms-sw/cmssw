@@ -20,6 +20,7 @@ void MahiFit::setParameters(bool iDynamicPed, double iTS4Thresh, double chiSqSwi
 			    double iDeltaChiSqThresh, double iNnlsThresh) {
 
   dynamicPed_    = iDynamicPed;
+
   ts4Thresh_     = iTS4Thresh;
   chiSqSwitch_   = chiSqSwitch;
 
@@ -192,12 +193,12 @@ void MahiFit::doFit(std::vector<float> &correctedOutput, int nbx) const {
 		       nnlsWork_.pulseDerivArray[iBX],
 		       nnlsWork_.pulseCovArray[iBX]);
       
-      if (offset==0) {
-      	nnlsWork_.ampVec.coeffRef(iBX)= nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset + offset)/double(nnlsWork_.pulseShapeArray[iBX].coeff(fullTSofInterest_));
-      }
-      else {
-	nnlsWork_.ampVec.coeffRef(iBX)=0;
-      }
+      //if (offset==0) {
+      //nnlsWork_.ampVec.coeffRef(iBX)= nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset + offset)/double(nnlsWork_.pulseShapeArray[iBX].coeff(fullTSofInterest_));
+      //}
+      //else {
+      nnlsWork_.ampVec.coeffRef(iBX)=0;
+      //}
 
       nnlsWork_.pulseMat.col(iBX) = nnlsWork_.pulseShapeArray[iBX].segment(nnlsWork_.fullTSOffset - offset, nnlsWork_.tsSize);
 
@@ -277,7 +278,7 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   
   float t0=meanTime_;
   if (applyTimeSlew_) 
-    t0=HcalTimeSlew::delay(std::max(1.0, itQ), slewFlavor_);
+    t0+=HcalTimeSlew::delay(std::max(1.0, itQ), slewFlavor_);
   
   nnlsWork_.pulseN.fill(0);
   nnlsWork_.pulseM.fill(0);
