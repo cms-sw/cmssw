@@ -1,7 +1,7 @@
 #ifndef RecoBTag_DeepFlavour_SVConverter_h
 #define RecoBTag_DeepFlavour_SVConverter_h
 
-#include "deep_helpers.h"
+#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexFeatures.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"

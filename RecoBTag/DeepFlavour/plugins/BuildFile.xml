@@ -3,10 +3,11 @@
 <library file="*.cc" name="RecoBTagDeepFlavourPlugins">
   <use   name="DataFormats/BTauReco"/>
   <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/Candidate"/>
   <use   name="RecoBTag/Combined"/>
   <use   name="RecoBTag/DeepFlavour"/>
   <use   name="DataFormats/PatCandidates"/>
-  <use name="CommonTools/UtilAlgos"/>
+  <use   name="CommonTools/UtilAlgos"/>
   <use   name="TrackingTools/IPTools"/>
   <use   name="PhysicsTools/TensorFlow" />
   <flags   EDM_PLUGIN="1"/>

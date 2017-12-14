@@ -1,7 +1,7 @@
 #ifndef RecoSV_DeepFlavour_NeutralCandidateConverter_h
 #define RecoSV_DeepFlavour_NeutralCandidateConverter_h
 
-#include "deep_helpers.h"
+#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
 #include "DataFormats/BTauReco/interface/NeutralCandidateFeatures.h"
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"

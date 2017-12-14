@@ -1,8 +1,4 @@
-#ifndef RecoBTag_DeepFlavour_tensor_fillers_h
-#define RecoBTag_DeepFlavour_tensor_fillers_h
-
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
+#include "RecoBTag/DeepFlavour/interface/tensor_fillers.h"
 
 namespace btagbtvdeep {
 
@@ -40,6 +36,44 @@ namespace btagbtvdeep {
     *(++ptr) = tag_info_features.jetNSelectedTracks;
     *(++ptr) = tag_info_features.jetNTracksEtaRel;
 
+  }
+
+  void db_tensor_filler(tensorflow::Tensor & tensor,
+                         std::size_t jet_n,
+                         const btagbtvdeep::DeepDoubleBFeatures & features) {
+
+    float* ptr = &tensor.matrix<float>()(jet_n, 0);
+
+    // number of elements in different collections
+    *ptr = features.c_pf_features.size();
+    *(++ptr) = features.sv_features.size();
+    // variables from BoostedDoubleSVTagInfo
+    const auto & tag_info_features = features.tag_info_features;
+    *(++ptr) = tag_info_features.trackSip3dSig_0; 
+    *(++ptr) = tag_info_features.trackSip3dSig_1; 
+    *(++ptr) = tag_info_features.trackSip3dSig_2; 
+    *(++ptr) = tag_info_features.trackSip3dSig_3; 
+    *(++ptr) = tag_info_features.tau1_trackSip3dSig_0; 
+    *(++ptr) = tag_info_features.tau1_trackSip3dSig_1; 
+    *(++ptr) = tag_info_features.tau2_trackSip3dSig_0; 
+    *(++ptr) = tag_info_features.tau2_trackSip3dSig_1; 
+    *(++ptr) = tag_info_features.trackSip2dSigAboveBottom_0;
+    *(++ptr) = tag_info_features.trackSip2dSigAboveBottom_1;
+    *(++ptr) = tag_info_features.tau1_trackEtaRel_0; 
+    *(++ptr) = tag_info_features.tau1_trackEtaRel_1; 
+    *(++ptr) = tag_info_features.tau1_trackEtaRel_2; 
+    *(++ptr) = tag_info_features.tau2_trackEtaRel_0; 
+    *(++ptr) = tag_info_features.tau2_trackEtaRel_1; 
+    *(++ptr) = tag_info_features.tau2_trackEtaRel_2; 
+    *(++ptr) = tag_info_features.tau1_vertexMass; 
+    *(++ptr) = tag_info_features.tau1_vertexEnergyRatio; 
+    *(++ptr) = tag_info_features.tau1_flightDistance2dSig; 
+    *(++ptr) = tag_info_features.tau1_vertexDeltaR; 
+    *(++ptr) = tag_info_features.tau2_vertexMass; 
+    *(++ptr) = tag_info_features.tau2_vertexEnergyRatio; 
+    *(++ptr) = tag_info_features.tau2_flightDistance2dSig; 
+    *(++ptr) = tag_info_features.tau2_vertexDeltaR; 
+    *(++ptr) = tag_info_features.z_ratio; 
   }
 
   void c_pf_tensor_filler(tensorflow::Tensor & tensor,
@@ -108,4 +142,3 @@ namespace btagbtvdeep {
 
 }
 
-#endif
