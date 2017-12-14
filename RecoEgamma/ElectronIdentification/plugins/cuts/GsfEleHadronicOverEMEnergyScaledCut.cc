@@ -18,14 +18,14 @@ public:
     
   }
   
-  result_type operator()(const reco::GsfElectronPtr&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const final;
 
-  void setConsumes(edm::ConsumesCollector&) override final;
-  void getEventContent(const edm::EventBase&) override final;
+  void setConsumes(edm::ConsumesCollector&) final;
+  void getEventContent(const edm::EventBase&) final;
 
-  double value(const reco::CandidatePtr& cand) const override final;
+  double value(const reco::CandidatePtr& cand) const final;
 
-  CandidateType candidateType() const override final { 
+  CandidateType candidateType() const final { 
     return ELECTRON; 
   }
 
@@ -49,17 +49,12 @@ void GsfEleHadronicOverEMEnergyScaledCut::getEventContent(const edm::EventBase& 
 
 
 CutApplicatorBase::result_type GsfEleHadronicOverEMEnergyScaledCut::operator()(const reco::GsfElectronPtr& cand) const { 
-  std::cout<<"here1"<<std::endl;
+
   const double rho = rhoHandle_.isValid() ? (float)(*rhoHandle_) : 0;
-  std::cout<<"here2"<<std::endl;
   const float energy = cand->superCluster()->energy();
-  std::cout<<"here3"<<std::endl;
   const float C0 = (std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? _barrelC0 : _endcapC0);
-  std::cout<<"here4"<<std::endl;
   const float CE = (std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? _barrelCE : _endcapCE);
-  std::cout<<"here5"<<std::endl;
   const float Cr = (std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? _barrelCr : _endcapCr);
-  std::cout<<"here6"<<std::endl;
   return cand->hadronicOverEm() < C0 + CE/energy + Cr*rho/energy;
 }
 
