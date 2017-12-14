@@ -1,8 +1,6 @@
 #ifndef DataFormats_L1Trigger_HGCalCluster_h
 #define DataFormats_L1Trigger_HGCalCluster_h
 
-#include <utility>
-
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
