@@ -6,16 +6,20 @@ import sys
 #----------------------------------------------
 def printHelp():
     s = '''
-To Use: Add the Tracer Service to the cmsRun job you want to check for
-  stream stalls.  Make sure to use the 'printTimstamps' option
-    cms.Service("Tracer", printTimestamps = cms.untracked.bool(True))
-  After running the job, execute this script and pass the name of the
-  log file to the script as the only command line argument.
+To Use: Add the StallMonitor Service to the cmsRun job you want to check for
+  stream stalls. Use something like this in the configuration:
 
-To Read: The script will then print an 'ASCII art' stall graph which
-  consists of the name of the module which either started or stopped
-  running on a stream, and the number of modules running on each
-  stream at that the moment in time. If the module just started, you
+  process.add_(cms.Service("StallMonitor", fileName = cms.untracked.string("stallMonitor.log")))
+
+  After running the job, execute this script and pass the name of the
+  StallMonitor log file to the script.
+
+  By default, the script will then print an 'ASCII art' stall graph
+  which consists of a line of text for each time a module or the
+  source stops or starts. Each line contains the name of the module
+  which either started or stopped running, and the number of modules
+  running on each stream at that moment in time. After that will be
+  the time and stream number. Then if a module just started, you
   will also see the amount of time the module spent between finishing
   its prefetching and starting.  The state of a module is represented
   by a symbol:
@@ -24,17 +28,24 @@ To Read: The script will then print an 'ASCII art' stall graph which
     minus ("-") the stream just finished running a module
 
   If a module had to wait more than 0.1 seconds, the end of the line
-  will have "STALLED".  Once the first 4 events have finished
-  processing, the program prints "FINISH INIT".  This is useful if one
-  wants to ignore stalled caused by startup actions, e.g. reading
-  conditions.
+  will have "STALLED". Startup actions, e.g. reading conditions,
+  may affect results for the first few events.
+
+  Using the command line arguments described above you can make the
+  program create a PDF file with actual graphs instead of the 'ASCII art'
+  output.
 
   Once the graph is completed, the program outputs the list of modules
   which had the greatest total stall times. The list is sorted by
   total stall time and written in descending order. In addition, the
-  list of all stall times for the module is given.'''
-    return s
+  list of all stall times for the module is given.
 
+  There is an inferior alternative (an old obsolete way).
+  Instead of using the StallMonitor Service, you can use the
+  Tracer Service.  Make sure to use the 'printTimestamps' option
+  cms.Service("Tracer", printTimestamps = cms.untracked.bool(True))
+  There are problems associated with this and it is not recommended.'''
+    return s
 
 kStallThreshold=100 #in milliseconds
 kTracerInput=False
@@ -64,6 +75,10 @@ def parseStallMonitorOutput(f):
             continue
         (step,payload) = tuple(l.split(None,1))
         payload=payload.split()
+
+        # Ignore these
+        if step == 'E' or step == 'e':
+            continue
 
         # Payload format is:
         #  <stream id> <..other fields..> <time since begin job>
@@ -105,13 +120,14 @@ def parseStallMonitorOutput(f):
                     trans = kFinished
                 name = kSourceDelayedRead
 
-            maxNameSize = max(maxNameSize, len(name))
-            processingSteps.append((name,trans,stream,time))
+        maxNameSize = max(maxNameSize, len(name))
+        processingSteps.append((name,trans,stream,time))
 
     f.close()
     return (processingSteps,numStreams,maxNameSize)
 
 #----------------------------------------------
+# Utility to get time out of Tracer output text format
 def getTime(line):
     time = line.split(" ")[1]
     time = time.split(":")
@@ -120,12 +136,40 @@ def getTime(line):
     return time
 
 #----------------------------------------------
+# The next function parses the Tracer output.
+# Here are some differences to consider if you use Tracer output
+# instead of the StallMonitor output.
+# - The time in the text of the Tracer output is not as precise
+# as the StallMonitor (.01 s vs .001 s)
+# - The MessageLogger bases the time on when the message printed
+# and not when it was initially queued up to print which smears
+# the accuracy of the times.
+# - Both of the previous things can produce some strange effects
+# in the output plots.
+# - The file size of the Tracer text file is much larger.
+# - The CPU work needed to parse the Tracer files is larger.
+# - The Tracer log file is expected to have "++" in the first line.
+# If there are extraneous lines at the beginning you have
+# to remove them.
+# - The ascii printout out will have one extraneous line
+# near the end for the SourceFindEvent start.
+# - The only advantage I can see is that you have only
+# one output file to handle instead of two, the regular
+# log file and the StallMonitor output.
+# We might should just delete the Tracer option because it is
+# clearly inferior ...
 def parseTracerOutput(f):
     processingSteps = []
     numStreams = 0
     maxNameSize = 0
     startTime = 0
+    streamsThatSawFirstEvent = set()
     for l in f:
+        # We estimate the start and stop of the source
+        # by the end of the previous event and start of
+        # the event. This is historical, probably because
+        # the Tracer output for the begin and end of the
+        # source event does not include the stream number.
         if l.find("processing event :") != -1:
             time = getTime(l)
             if startTime == 0:
@@ -134,10 +178,16 @@ def parseTracerOutput(f):
             streamIndex = l.find("stream = ")
             stream = int(l[streamIndex+9:l.find(" ",streamIndex+10)])
             name = kSourceFindEvent
-            trans = kFinished
-            #the start of an event is the end of the framework part
+            trans = kStarted
+            # the end of the source is estimated using the start of the event
             if l.find("starting:") != -1:
-                trans = kStarted
+                trans = kFinished
+                if not stream in streamsThatSawFirstEvent:
+                    # This is wrong but there is no way to estimate the time better
+                    # because there is no previous event for the first event.
+                    processingSteps.append((name,kStarted,stream,time))
+                    streamsThatSawFirstEvent.add(stream)
+            maxNameSize = max(maxNameSize, len(name))
             processingSteps.append((name,trans,stream,time))
             numStreams = max(numStreams, stream+1)
         if l.find("processing event for module") != -1:
@@ -207,14 +257,15 @@ def readLogFile(inputFile):
     return parseInput(inputFile)
 
 #----------------------------------------------
-# Patterns:
 #
-# source: The source just records how long it was spent doing work,
-#   not how long it was stalled. We can get a lower bound on the stall
-#   time by measuring the time the stream was doing no work up till
-#   the source was run.
 # modules: The time between prefetch finished and 'start processing' is
-#   the time it took to acquire any resources
+#   the time it took to acquire any resources which is by definition the
+#   stall time.
+#
+# source: The source just records how long it spent doing work,
+#   not how long it was stalled. We can get a lower bound on the stall
+#   time for delayed reads by measuring the time the stream was doing
+#   no work up till the start of the source delayed read.
 #
 def findStalledModules(processingSteps, numStreams):
     streamTime = [0]*numStreams
@@ -277,10 +328,11 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
                 states +="* "
             else:
                 states +=str(state)+" "
+        states += " -- " + str(time/1000.) + " " + str(s) + " "
         if waitTime is not None:
             states += " %.2f"% (waitTime/1000.)
             if waitTime > kStallThreshold:
-                states += " STALLED "+str(time/1000.)+" "+str(s)
+                states += " STALLED"
 
         print states
     return stalledModules
@@ -422,22 +474,18 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     stalledModuleNames = set([x for x in stalledModuleInfo.iterkeys()])
     streamInfo = [[] for x in xrange(numStreams)]
     modulesActiveOnStreams = [{} for x in xrange(numStreams)]
-    streamLastEventEndTimes = [None]*numStreams
+    streamSourceStartTime = [None]*numStreams
     streamRunningTimes = [[] for x in xrange(numStreams)]
     maxNumberOfConcurrentModulesOnAStream = 1
     streamInvertedMessageFromModule = [set() for x in xrange(numStreams)]
 
     for n,trans,s,time in processingSteps:
         startTime = None
-        if streamLastEventEndTimes[s] is None:
-            streamLastEventEndTimes[s]=time
+        if streamSourceStartTime[s] is None:
+            streamSourceStartTime[s]=time
         if trans == kStarted:
             if n == kSourceFindEvent:
-                # We assume the time from the end of the last event
-                # for a stream until the start of a new event for that
-                # stream is taken up by the source.
-                startTime = streamLastEventEndTimes[s]
-                moduleNames = set(n)
+                streamSourceStartTime[s]=time
             else:
                 activeModules = modulesActiveOnStreams[s]
                 moduleNames = set(activeModules.iterkeys())
@@ -458,7 +506,8 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
 
         if trans == kFinished:
             if n == kSourceFindEvent:
-                streamLastEventEndTimes[s]=time
+                startTime = streamSourceStartTime[s]
+                moduleNames = set(n)
             else:
                 activeModules = modulesActiveOnStreams[s]
                 if n not in activeModules and kTracerInput:
@@ -579,12 +628,12 @@ if __name__=="__main__":
     import sys
 
     # Program options
-    parser = argparse.ArgumentParser(description='Convert a cmsRun log with Tracer info into a stream stall graph.',
+    parser = argparse.ArgumentParser(description='Convert a text file created by cmsRun into a stream stall graph.',
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog=printHelp())
     parser.add_argument('filename',
                         type=argparse.FileType('r'), # open file
-                        help='log file to process')
+                        help='file to process')
     parser.add_argument('-g', '--graph',
                         nargs='?',
                         metavar="'stall.pdf'",
