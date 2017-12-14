@@ -35,12 +35,12 @@ process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            maxd0            = cms.double(10.0)
                                            )
 
-process.load("Calibration.IsolatedParticles.isolatedGenParticles_cfi")
-process.isolatedGenParticles.GenSrc            = "Dummy"
-process.isolatedGenParticles.UseHepMC          = False
-#process.isolatedGenParticles.PTMin             = 0.0
-process.isolatedGenParticles.Verbosity         = 0
-#process.isolatedGenParticles.MaxChargedHadronEta = 3.5
+process.load("Calibration.IsolatedParticles.IsolatedGenParticles_cfi")
+process.IsolatedGenParticles.GenSrc            = "Dummy"
+process.IsolatedGenParticles.UseHepMC          = False
+#process.IsolatedGenParticles.PTMin             = 0.0
+process.IsolatedGenParticles.Verbosity         = 0
+#process.IsolatedGenParticles.MaxChargedHadronEta = 3.5
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('IsolatedTracksGenParticles.root')
@@ -59,5 +59,5 @@ process.l1GtTrigReport.L1GtRecordInputTag = 'gtDigis'
 process.l1GtTrigReport.PrintVerbosity = 0
 #=============================================================================
 
-process.p1 = cms.Path(process.primaryVertexFilter*process.isolatedGenParticles)
+process.p1 = cms.Path(process.primaryVertexFilter*process.IsolatedGenParticles)
 #process.p1 = cms.Path( process.isotracksGen )
