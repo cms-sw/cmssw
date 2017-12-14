@@ -74,7 +74,6 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   nnlsWork_.pedConstraint = SampleMatrix::Constant(pedVal);
 
   std::vector<float> reconstructedVals;
-  //SampleVector charges;
   
   double tsTOT = 0, tstrig = 0; // in GeV
   for(unsigned int iTS=0; iTS<nnlsWork_.tsSize; ++iTS){
@@ -114,10 +113,11 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 
     useTriple=false;
 
+    // only do pre-fit with 1 pulse if chiSq threshold is positive
     if (chiSqSwitch_>0) {
       doFit(reconstructedVals,1);
       if (reconstructedVals[1]>chiSqSwitch_) {
-	doFit(reconstructedVals,0);
+	doFit(reconstructedVals,0); //nbx=0 means use configured BXs
 	useTriple=true;
       }
     }
@@ -170,8 +170,6 @@ void MahiFit::doFit(std::vector<float> &correctedOutput, int nbx) const {
     nnlsWork_.bxs[nnlsWork_.nPulseTot-1] = 100;
   }
 
-  //nnlsWork_.amplitudes = amplitudes;
-
   nnlsWork_.pulseMat.resize(nnlsWork_.tsSize,nnlsWork_.nPulseTot);
   nnlsWork_.ampVec = PulseVector::Zero(nnlsWork_.nPulseTot);
   nnlsWork_.errVec = PulseVector::Zero(nnlsWork_.nPulseTot);
@@ -193,12 +191,7 @@ void MahiFit::doFit(std::vector<float> &correctedOutput, int nbx) const {
 		       nnlsWork_.pulseDerivArray[iBX],
 		       nnlsWork_.pulseCovArray[iBX]);
       
-      //if (offset==0) {
-      //nnlsWork_.ampVec.coeffRef(iBX)= nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset + offset)/double(nnlsWork_.pulseShapeArray[iBX].coeff(fullTSofInterest_));
-      //}
-      //else {
       nnlsWork_.ampVec.coeffRef(iBX)=0;
-      //}
 
       nnlsWork_.pulseMat.col(iBX) = nnlsWork_.pulseShapeArray[iBX].segment(nnlsWork_.fullTSOffset - offset, nnlsWork_.tsSize);
 
@@ -622,10 +615,8 @@ void MahiFit::resetWorkspace() const {
   nnlsWork_.aTaMat.setZero();
   nnlsWork_.aTbVec.setZero();
   nnlsWork_.updateWork.setZero();
-  //nnlsWork_.covDecomp.setZero();
   nnlsWork_.covDecompLinv.setZero();
   nnlsWork_.topleft_work.setZero();
-  //nnlsWork_.pulseDecomp.setZero();
 
 
 
