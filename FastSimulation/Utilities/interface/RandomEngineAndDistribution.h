@@ -31,11 +31,11 @@ class RandomEngineAndDistribution {
   }
 
   inline double gaussShoot(double mean=0.0, double sigma=1.0) const {
-    return CLHEP::RandGauss(engine_, mean, sigma);
+    return CLHEP::RandGauss::shoot(engine_, mean, sigma);
   }
 
   inline unsigned int poissonShoot(double mean) const{
-    return CLHEP::PoissonQ(engine_, mean);
+    return CLHEP::RandPoissonQ::shoot(engine_, mean);
   }
 
  private:
