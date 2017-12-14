@@ -1,11 +1,4 @@
-#ifndef RecoBTag_DeepFlavour_deep_helpers_h
-#define RecoBTag_DeepFlavour_deep_helpers_h
-
-#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
-
-
+#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
 
 namespace btagbtvdeep {
 
@@ -27,8 +20,8 @@ namespace btagbtvdeep {
                                           const float replace_value,
                                           const float lowerbound,
                                           const float upperbound,
-                                          const float offset=0.,
-                                          const bool use_offsets = true){
+                                          const float offset,
+                                          const bool use_offsets){
         float withoutinfs=catch_infs(in,replace_value);
         if(withoutinfs+offset<lowerbound) return lowerbound;
         if(withoutinfs+offset>upperbound) return upperbound;
@@ -92,7 +85,7 @@ namespace btagbtvdeep {
 
   // compute minimum dr between SVs and a candidate (from DeepNTuples, now polymorphic)
   float mindrsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> & svs, 
-                      const reco::Candidate* cand, float mindr=0.4) {
+                      const reco::Candidate* cand, float mindr) {
 
     for (unsigned int i0=0; i0<svs.size(); ++i0) {
 
@@ -106,5 +99,3 @@ namespace btagbtvdeep {
 
 
 }
-
-#endif //RecoBTag_DeepFlavour_deep_helpers_h

@@ -1,7 +1,7 @@
 #ifndef RecoBTag_DeepFlavour_BTagConverter_h
 #define RecoBTag_DeepFlavour_BTagConverter_h
 
-#include "deep_helpers.h"
+#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
 #include "DataFormats/BTauReco/interface/ShallowTagInfoFeatures.h"
 
 #include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
