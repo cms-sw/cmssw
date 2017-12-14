@@ -9,8 +9,7 @@
 #include "Randomize.hh"
 
 RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& streamID) :
-  engine_(nullptr),
-  rootEngine_(nullptr) {
+  engine_(nullptr) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration") <<
@@ -25,8 +24,7 @@ RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& st
 }
 
 RandomEngineAndDistribution::RandomEngineAndDistribution(edm::LuminosityBlockIndex const& luminosityBlockIndex) :
-  engine_(nullptr),
-  rootEngine_(nullptr) {
+  engine_(nullptr) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration") <<
