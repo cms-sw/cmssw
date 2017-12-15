@@ -89,7 +89,6 @@
 #include <iostream>
 #include <iomanip>
 #include <list>
-#include <memory>
 #include <vector>
 
 namespace{
@@ -136,9 +135,9 @@ private:
   void   clearTreeVectors();
   int    particleCode(int);
 
-  static const int     NPBins_   = 3;
-  static const int     NEtaBins_ = 4;
-  static const int     PBins_=32, EtaBins_=60, Particles=12;
+  static constexpr int NPBins_   = 3;
+  static constexpr int NEtaBins_ = 4;
+  static constexpr int PBins_=32, EtaBins_=60, Particles=12;
   int                  nEventProc;
   double               genPartPBins_[NPBins_+1], genPartEtaBins_[NEtaBins_+1];
   double               ptMin_, etaMax_, pCutIsolate_;
@@ -322,22 +321,22 @@ private:
 
 };
 
-IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
+IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) :
+  ptMin_(iConfig.getUntrackedParameter<double>("PTMin", 1.0)),
+  etaMax_(iConfig.getUntrackedParameter<double>("MaxChargedHadronEta", 2.5)),
+  pCutIsolate_(iConfig.getUntrackedParameter<double>("PMaxIsolation",20.0)),
+  a_Isolation_(iConfig.getUntrackedParameter<bool>("UseConeIsolation",false)),
+  genSrc_(iConfig.getUntrackedParameter("GenSrc",std::string("generatorSmeared"))),
+  useHepMC_(iConfig.getUntrackedParameter<bool>("UseHepMC", false)),
+  a_coneR_(iConfig.getUntrackedParameter<double>("ConeRadius",34.98)),
+  a_mipR_(iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0)),
+  debugL1Info_(iConfig.getUntrackedParameter<bool>("DebugL1Info",false)),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)) {
 
-  usesResource("TFileService");
+  usesResource(TFileService::kSharedResource);
 
-  genSrc_     = iConfig.getUntrackedParameter("GenSrc",std::string("generatorSmeared"));
-  useHepMC_   = iConfig.getUntrackedParameter<bool>("UseHepMC", false );
-  ptMin_      = iConfig.getUntrackedParameter<double>("PTMin", 1.0);
-  etaMax_     = iConfig.getUntrackedParameter<double>("MaxChargedHadronEta", 2.5);
-  a_coneR_    = iConfig.getUntrackedParameter<double>("ConeRadius",34.98);
   a_charIsoR_ = a_coneR_ + 28.9;
   a_neutIsoR_ = a_charIsoR_*0.726;
-  a_mipR_     = iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0);
-  a_Isolation_= iConfig.getUntrackedParameter<bool>("UseConeIsolation",false);
-  pCutIsolate_= iConfig.getUntrackedParameter<double>("PMaxIsolation",20.0);
-  verbosity_  = iConfig.getUntrackedParameter<int>("Verbosity", 0);
-  debugL1Info_= iConfig.getUntrackedParameter<bool>( "DebugL1Info", false );
 
   tok_hepmc_        = consumes<edm::HepMCProduct>(edm::InputTag(genSrc_));
   tok_genParticles_ = consumes<reco::GenParticleCollection>(edm::InputTag(genSrc_));

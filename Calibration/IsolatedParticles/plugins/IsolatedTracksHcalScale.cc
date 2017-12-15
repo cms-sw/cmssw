@@ -1,5 +1,4 @@
 // system include files
-#include <memory>
 #include <cmath>
 #include <string>
 #include <map>
@@ -157,14 +156,19 @@ private:
   std::vector<int>    *t_nSimHits;
 };
 
-IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfig) : trackerHitAssociatorConfig_(consumesCollector()) {
-
-  usesResource("TFileService");
+IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfig) : 
+  doMC_(iConfig.getUntrackedParameter<bool>("DoMC",false)), 
+  myverbose_(iConfig.getUntrackedParameter<int>("Verbosity",5)),
+  theTrackQuality_(iConfig.getUntrackedParameter<std::string>("TrackQuality","highPurity")),
+  a_mipR_(iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0)),
+  a_coneR_(iConfig.getUntrackedParameter<double>("ConeRadius",34.98)),
+  tMinE_(iConfig.getUntrackedParameter<double>("TimeMinCutECAL",-500.)),
+  tMaxE_(iConfig.getUntrackedParameter<double>("TimeMaxCutECAL",500.)),
+  trackerHitAssociatorConfig_(consumesCollector()) {
+  
+  usesResource(TFileService::kSharedResource);
 
   //now do what ever initialization is needed
-  doMC_                                = iConfig.getUntrackedParameter<bool>("DoMC", false); 
-  myverbose_                           = iConfig.getUntrackedParameter<int>("Verbosity", 5          );
-  theTrackQuality_                     = iConfig.getUntrackedParameter<std::string>("TrackQuality","highPurity");
   reco::TrackBase::TrackQuality trackQuality=reco::TrackBase::qualityByName(theTrackQuality_);
   selectionParameters_.minPt           = iConfig.getUntrackedParameter<double>("MinTrackPt", 10.0);
   selectionParameters_.minQuality      = trackQuality;
@@ -176,12 +180,8 @@ IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfi
   selectionParameters_.minLayerCrossed = iConfig.getUntrackedParameter<int>("MinLayerCrossed", 8);
   selectionParameters_.maxInMiss       = iConfig.getUntrackedParameter<int>("MaxInMiss", 0);
   selectionParameters_.maxOutMiss      = iConfig.getUntrackedParameter<int>("MaxOutMiss", 0);
-  a_coneR_                             = iConfig.getUntrackedParameter<double>("ConeRadius",34.98);
   a_charIsoR_                          = a_coneR_ + 28.9;
   a_neutIsoR_                          = a_charIsoR_*0.726;
-  a_mipR_                              = iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0);
-  tMinE_                               = iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.);
-  tMaxE_                               = iConfig.getUntrackedParameter<double>("TimeMaxCutECAL",  500.);
   
   tok_genTrack_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
   tok_recVtx_   = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
