@@ -34,10 +34,13 @@ protected:
 
   virtual void initEvent(const edm::EventSetup& es) = 0;
 
+  // Ideally this function should be const, but that would mean the
+  // LWTNN classifier would need to allocate map<string, double> for
+  // each track... Try to see if things could be refactored somehow.
   virtual void computeMVA(reco::TrackCollection const & tracks,
 			  reco::BeamSpot const & beamSpot,
 			  reco::VertexCollection const & vertices,
-			  MVACollection & mvas) const = 0;
+			  MVACollection & mvas) = 0;
 
 private:
   void produce(edm::Event& evt, const edm::EventSetup& es ) final;
@@ -85,7 +88,7 @@ private:
     void computeMVA(reco::TrackCollection const & tracks,
 		    reco::BeamSpot const & beamSpot,
 		    reco::VertexCollection const & vertices,
-		    MVACollection & mvas) const final {
+		    MVACollection & mvas) final {
 
       size_t current = 0;
       for (auto const & trk : tracks) {

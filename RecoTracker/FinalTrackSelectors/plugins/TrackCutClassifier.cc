@@ -180,7 +180,7 @@ namespace {
     
     float operator()(reco::Track const & trk,
 		     reco::BeamSpot const & beamSpot,
-		     reco::VertexCollection const & vertices) const {
+		     reco::VertexCollection const & vertices) {
       
       float ret = 1.f;
       // minimum number of hits for by-passing the other checks

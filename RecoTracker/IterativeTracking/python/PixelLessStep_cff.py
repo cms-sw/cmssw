@@ -287,8 +287,12 @@ pixelLessStep = ClassifierMerger.clone()
 pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassifier2']
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
+
+#LWTNN selector
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+trackingPhase1.toReplaceWith(pixelLessStep, TrackLwtnnClassifier.clone(
+     src = 'pixelLessStepTracks',
      qualityCuts = [-0.4,0.0,0.4],
 ))
 pp_on_AA_2018.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])

@@ -203,11 +203,11 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
 fastSim.toModify(detachedQuadStepTracks,TTRHBuilder = 'WithoutRefit')
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
-from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
-detachedQuadStep = TrackMVAClassifierDetached.clone(
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+detachedQuadStep = TrackLwtnnClassifier.clone(
     src = 'detachedQuadStepTracks',
-    mva = dict(GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1'),
-    qualityCuts = [-0.5,0.0,0.5],
+    qualityCuts = [-0.6,0.1,0.85],
 )
 fastSim.toModify(detachedQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 highBetaStar_2018.toModify(detachedQuadStep,qualityCuts = [-0.7,0.0,0.5])
