@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-## Time Slew Event Producer
+## Time Slew Parameters
 from CalibCalorimetry.HcalPlugins.HcalTimeSlew_cff import *
 
 ## Recalibration Parameters

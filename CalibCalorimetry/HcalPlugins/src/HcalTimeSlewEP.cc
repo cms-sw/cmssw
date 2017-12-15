@@ -52,7 +52,7 @@ void HcalTimeSlewEP::fillDescriptions( edm::ConfigurationDescriptions & descript
 HcalTimeSlewEP::ReturnType
 HcalTimeSlewEP::produce(const HcalTimeSlewRecord& iRecord){
 
-  //Two pset sets for M2 and M3
+  //Two pset sets for M2/Simulation and M3
   std::vector<edm::ParameterSet> p_TimeSlewM2 = pset_.getParameter<std::vector<edm::ParameterSet>>("timeSlewParametersM2");
   std::vector<edm::ParameterSet> p_TimeSlewM3 = pset_.getParameter<std::vector<edm::ParameterSet>>("timeSlewParametersM3");
 

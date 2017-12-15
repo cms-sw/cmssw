@@ -40,7 +40,9 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine, co
 
   if(hcalDetId.subdet() == HcalBarrel || hcalDetId.subdet() == HcalEndcap || hcalDetId.subdet() == HcalOuter ) {
 
-    HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ? HcalTimeSlew::Slow : HcalTimeSlew::Medium;
+    HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ? 
+      HcalTimeSlew::Slow : 
+      HcalTimeSlew::Medium;
 
     // double totalCharge = charge(cs); // old TS... 
 
@@ -76,7 +78,6 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine, co
 
       // until we get more precise/reliable QIE8 simulation...  
       if(totalCharge <= 0.) totalCharge = eps; // protecion against negaive v.
-      //std::cout<<"delay: HcalTimeSlewSim.cc"<<std::endl;
       tshift += hcalTimeSlew_delay->delay(totalCharge, biasSetting);      
       if(tshift <= 0.) tshift = eps;
 	  
