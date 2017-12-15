@@ -31,7 +31,7 @@ double PedestalSub::getCorrection(const std::vector<double> & inputCharge, const
 
     for (auto i=0; i<nTS; i++) {
       if (i==soi||i==soi+1) continue;
-      if ( (inputCharge[i]-inputPedestal[i])<fThreshold) {
+      if ( (inputCharge[i]-inputPedestal[i])<3*inputNoise[i]) {
 	baseline+=(inputCharge[i]-inputPedestal[i]);
       }
       else {
