@@ -262,7 +262,7 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
 
 } // end constructor
 
-EDMtoMEConverter::~EDMtoMEConverter() {}
+EDMtoMEConverter::~EDMtoMEConverter() = default;
 
 void EDMtoMEConverter::beginJob()
 {
@@ -381,8 +381,8 @@ EDMtoMEConverter::getData(T& iGetFrom)
   if (verbosity > 0) {
     std::vector<std::string> stags;
     dbe->getAllTags(stags);
-    for (unsigned int i = 0; i < stags.size(); ++i) {
-      std::cout << "Tags: " << stags[i] << std::endl;
+    for (auto const & stag : stags) {
+      std::cout << "Tags: " << stag << std::endl;
     }
   }
 }
