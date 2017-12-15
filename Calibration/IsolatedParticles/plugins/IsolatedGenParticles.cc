@@ -394,7 +394,7 @@ void IsolatedGenParticles::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.addUntracked<edm::InputTag>("L1extraNonIsoEmSource", edm::InputTag("l1extraParticles","NonIsolated"));
   desc.addUntracked<edm::InputTag>("L1GTReadoutRcdSource",  edm::InputTag("gtDigis"));
   desc.addUntracked<edm::InputTag>("L1GTObjectMapRcdSource",edm::InputTag("hltL1GtObjectMap"));
-  descriptions.add("IsolatedGenParticles",desc);
+  descriptions.add("isolatedGenParticles",desc);
 }
 
 void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
