@@ -39,7 +39,7 @@ private:
     double dr_;
     double ptC3dThreshold_;
     double calibSF_;
-    string multiclusterAlgoType_;
+    std::string multiclusterAlgoType_;
     double distDbscan_ = 0.005;
     unsigned minNDbscan_ = 3;
     std::vector<double> layerWeights_;

@@ -1,5 +1,5 @@
-#ifndef __L1Trigger_L1THGCal_HGCALSHOWERSHAPE_h__
-#define __L1Trigger_L1THGCal_HGCALSHOWERSHAPE_h__
+#ifndef __L1Trigger_L1THGCal_HGCalShowerShape_h__
+#define __L1Trigger_L1THGCal_HGCalShowerShape_h__
 #include <vector>
 #include <cmath>
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
