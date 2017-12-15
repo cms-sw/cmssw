@@ -100,7 +100,7 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
         unsigned int toadd = mySignalTS.size();    
         if(toaddMem != toadd) {
 	  reco_.initPulseCorr(toadd, hcalTimeSlew_delay_);
-          toaddMem = toadd;
+	  toaddMem = toadd;
 	}   
       const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
       const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);

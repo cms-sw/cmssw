@@ -101,7 +101,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     if (method3)
     {
         // "phase1Apply" sets m3E and m3t (pased by non-const reference)
-      method3->phase1Apply(info, m3E, m3t, hcalTimeSlew_delay_);
+        method3->phase1Apply(info, m3E, m3t, hcalTimeSlew_delay_);
         m3E *= hbminusCorrectionFactor(channelId, m3E, isData);
     }
 
@@ -233,7 +233,6 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
             time = (maxI - soi)*25.f + timeshift_ns_hbheho(wpksamp);
 
             // Legacy QIE8 timing correction
-	    //std::cout<<"delay: SimpleHBHEPhase1Algo.cc"<<std::endl;
             time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
             // Time calibration
             time -= calibs.timecorr();
