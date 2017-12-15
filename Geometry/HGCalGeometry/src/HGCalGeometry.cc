@@ -72,7 +72,7 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
   }
   const uint32_t cellIndex (topology().detId2denseGeomId(detId));
 
-  m_cellVec.at( cellIndex ) = FlatTrd( cornersMgr(), f1, f2, f3, parm ) ;
+  m_cellVec.at( cellIndex ) = HGCellGeometry(&m_topology, cornersMgr(), f1, f2, f3, parm ) ;
   m_validGeomIds.at( cellIndex ) = geomId ;
 
 #ifdef EDM_ML_DEBUG
@@ -146,47 +146,24 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& id) const {
   unsigned int cellIndex =  indexFor(id);
   GlobalPoint glob;
   if (cellIndex <  m_cellVec.size()) {
-    HGCalTopology::DecodedDetId id_ = topology().decode(id);
-    std::pair<float,float> xy;
-    if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
-      xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
-    } else {
-      xy = topology().dddConstants().locateCellHex(id_.iCell,id_.iSec,true);
-    }
-    const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
-    glob = m_cellVec[cellIndex].getPosition(lcoord);
+    glob = (m_cellVec[cellIndex]).getPosition(id);
 #ifdef EDM_ML_DEBUG
-    std::cout << "getPosition:: index " << cellIndex << " Local " << lcoord.x()
-	      << ":" << lcoord.y() << " ID " << id_.iCell << ":" << id_.iLay 
-	      << " Global " << glob << std::endl;
+    std::cout << "getPosition:: index " << cellIndex << " Global " << glob 
+	      << std::endl;
 #endif
   } 
   return glob;
 }
 
-HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& id) const {
+std::vector<GlobalPoint> HGCalGeometry::getCorners(const DetId& id) const {
 
-  HGCalGeometry::CornersVec co (8, GlobalPoint(0,0,0));
   unsigned int cellIndex =  indexFor(id);
   if (cellIndex <  m_cellVec.size()) {
-    HGCalTopology::DecodedDetId id_ = topology().decode(id);
-    std::pair<float,float> xy;
-    if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
-      xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
-    } else {
-      xy = topology().dddConstants().locateCellHex(id_.iCell,id_.iSec,true);
-    }
-    float dz = m_cellVec[cellIndex].param()[0];
-    float dx = 0.5*m_cellVec[cellIndex].param()[11];
-    static const int signx[] = {-1,-1,1,1,-1,-1,1,1};
-    static const int signy[] = {-1,1,1,-1,-1,1,1,-1};
-    static const int signz[] = {-1,-1,-1,-1,1,1,1,1};
-    for (unsigned int i = 0; i != 8; ++i) {
-      const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dx,signz[i]*dz);
-      co[i] = m_cellVec[cellIndex].getPosition(lcoord);
-    }
+    return (m_cellVec[cellIndex]).getCorners(id);
+  } else {
+    std::vector<GlobalPoint> co (8, GlobalPoint(0,0,0));
+    return co;
   }
-  return co;
 }
 
 DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
@@ -286,13 +263,13 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
     float dphi = phip-m_cellVec[k].phiPos();
     while (dphi >   M_PI) dphi -= 2*M_PI;
     while (dphi <= -M_PI) dphi += 2*M_PI;
-    if (fabs(dphi) < dphi10) {
-      float dz = fabs(zp - m_cellVec[k].getPosition().z());
+    if (std::abs(dphi) < dphi10) {
+      float dz = std::abs(zp - ((FlatTrd)(m_cellVec[k])).getPosition().z());
       if (dz < (dzmin+0.001)) {
 	dzmin     = dz;
-	if (fabs(dphi) < (dphimin+0.01)) {
+	if (std::abs(dphi) < (dphimin+0.01)) {
 	  cellIndex = k;
-	  dphimin   = fabs(dphi);
+	  dphimin   = std::abs(dphi);
 	} else {
 	  if (cellIndex >= m_cellVec.size()) cellIndex = k;
 	}
@@ -303,9 +280,9 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
   std::cout << "getClosestCellIndex::Input " << zp << ":" << phip << " Index "
 	    << cellIndex;
   if (cellIndex < m_cellVec.size()) 
-    std::cout << " Cell z " << m_cellVec[cellIndex].getPosition().z() << ":"
-	      << dzmin << " phi " << m_cellVec[cellIndex].phiPos() << ":"
-	      << dphimin;
+    std::cout << " Cell z " << ((FlatTrd)(m_cellVec[cellIndex])).getPosition().z() 
+	      << ":" << dzmin << " phi " << ((FlatTrd)(m_cellVec[cellIndex])).phiPos() 
+	      << ":" << dphimin;
   std::cout << std::endl;
 
 #endif

@@ -2,6 +2,7 @@
 #define GEOMETRY_CALOGEOMETRY_CALOCELLGEOMETRY_H 1
 
 #include "Geometry/CaloGeometry/interface/EZArrayFL.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <CLHEP/Geometry/Point3D.h>
@@ -76,13 +77,16 @@ public:
   virtual ~CaloCellGeometry() ;
       
   /// Returns the corner points of this cell's volume.
-  CornersVec const & getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
-  RepCorners const & getCornersREP() const {  return m_repCorners;}
-
+  const CornersVec& getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
+  const RepCorners& getCornersREP() const {  return m_repCorners;}
+  virtual const std::vector<GlobalPoint> getCorners(const DetId&) const;
+  virtual const RepCorners getCornersREP(const DetId&) const {return getCornersREP();}
   
   /// Returns the position of reference for this cell 
   virtual const GlobalPoint& getPosition() const {return m_refPoint;}
-  const GlobalPoint& getBackPoint() const {return m_backPoint;} 
+  virtual const GlobalPoint& getBackPoint() const {return m_backPoint;} 
+  virtual const GlobalPoint  getPosition(const DetId&) const {return getPosition();}
+  virtual const GlobalPoint  getBackPoint(const DetId&) const {return getBackPoint();}
 
   RhoEtaPhi const & repPos() const { return m_rep;}
   float rhoPos() const { return m_rep.rho();}

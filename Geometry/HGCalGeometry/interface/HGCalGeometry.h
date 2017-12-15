@@ -14,32 +14,29 @@
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/FlatTrd.h"
+#include "Geometry/HGCalGeometry/interface/HGCellGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/Records/interface/HGCalGeometryRecord.h"
 #include <vector>
 
-class FlatTrd;
-
 class HGCalGeometry final: public CaloSubdetectorGeometry {
 
 public:
   
-  typedef std::vector<FlatTrd> CellVec ;
+  typedef std::vector<HGCellGeometry> CellVec ;
   
   typedef CaloCellGeometry::CCGFloat CCGFloat ;
   typedef CaloCellGeometry::Pt3D     Pt3D     ;
   typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
   typedef std::set<DetId>            DetIdSet;
-  typedef std::vector<GlobalPoint>   CornersVec ;
 
   typedef HGCalGeometryRecord        AlignedRecord   ; // NOTE: not aligned yet
   typedef PHGCalRcd                  PGeometryRecord ;
 
-  enum { k_NumberOfParametersPerShape = 12 } ; // FlatTrd
+  enum { k_NumberOfParametersPerShape = 12 } ; // FlatTrd in HGCellGeometry
   enum { k_NumberOfShapes = 50 } ; 
 
   static std::string dbString() { return "PHGCalRcd" ; }
@@ -54,23 +51,23 @@ public:
 		     Pt3D&           ref   ) ;
   
   void newCell( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm ,
-			const DetId&       detId ) override;
+		const GlobalPoint& f2 ,
+		const GlobalPoint& f3 ,
+		const CCGFloat*    parm ,
+		const DetId&       detId ) override;
   
   /// Get the cell geometry of a given detector id.  Should return false if not found.
   const CaloCellGeometry* getGeometry( const DetId& id ) const override;
 
   void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
-			   CaloSubdetectorGeometry::IVec&   iVector,
-			   CaloSubdetectorGeometry::DimVec& dimVector,
-			   CaloSubdetectorGeometry::IVec& dinsVector ) const override;
+		   CaloSubdetectorGeometry::IVec&   iVector,
+		   CaloSubdetectorGeometry::DimVec& dimVector,
+		   CaloSubdetectorGeometry::IVec& dinsVector ) const override;
   
   GlobalPoint getPosition( const DetId& id ) const;
       
   /// Returns the corner points of this cell's volume.
-  CornersVec getCorners( const DetId& id ) const; 
+  std::vector<GlobalPoint> getCorners( const DetId& id ) const; 
 
   // avoid sorting set in base class  
   const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
