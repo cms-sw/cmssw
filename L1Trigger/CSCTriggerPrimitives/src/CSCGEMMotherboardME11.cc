@@ -539,7 +539,6 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     }
   }// reduction per bx
 
-  bool first = true;
   unsigned int n1b=0, n1a=0;
   LogTrace("CSCGEMCMotherboardME11") << "========================================================================" << std::endl
                                      << "Counting the final LCTs" << std::endl
