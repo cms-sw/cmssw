@@ -13,7 +13,6 @@
 #endif
 
 #include <iterator>
-#include <memory>   // required for std::auto_ptr
 #include <numeric>  // for std::accumulate
 #include <unordered_map>
 
@@ -121,8 +120,8 @@ using DecayChain = adjacency_list<listS, vecS, directedS, VertexMotherParticlePr
 class CaloTruthAccumulator : public DigiAccumulatorMixMod {
  public:
   explicit CaloTruthAccumulator(const edm::ParameterSet& config,
-                                         edm::stream::EDProducerBase& mixMod,
-                                         edm::ConsumesCollector& iC);
+      edm::stream::EDProducerBase& mixMod,
+      edm::ConsumesCollector& iC);
 
  private:
   void initializeEvent(const edm::Event& event, const edm::EventSetup& setup) override;
@@ -270,7 +269,7 @@ class SimHitsAccumulator_dfs_visitor : public boost::default_dfs_visitor {
         EdgeProperty(edge_property.simTrack, edge_property.simHits, cumulative));
     IfLogDebug(DEBUG, messageCategory_)
         << " Finished edge: " << e << " Track id: " << get(edge_weight, g, e).simTrack->trackId()
-        << " has cumulated " << cumulative << " hits" << std::endl;
+        << " has accumulated " << cumulative << " hits" << std::endl;
     IfLogDebug(DEBUG, messageCategory_)
         << " SrcVtx: " << src << "\t" << get(vertex_name, g, src).simTrack << "\t"
         << get(vertex_name, g, src).cumulative_simHits << std::endl;
