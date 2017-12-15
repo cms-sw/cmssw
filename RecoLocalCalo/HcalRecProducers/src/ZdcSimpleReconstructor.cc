@@ -51,7 +51,6 @@ void ZdcSimpleReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & 
    edm::ESHandle<HcalTimeSlew> delay;
    es.get<HcalTimeSlewRecord>().get("HBHE", delay);
    hcalTimeSlew_delay_ = &*delay;
-   //std::cout<<"ZdcSimpleReconstructor.cc"<<std::endl;
 }
 
 void ZdcSimpleReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){

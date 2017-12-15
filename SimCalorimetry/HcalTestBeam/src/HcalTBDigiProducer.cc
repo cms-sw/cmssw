@@ -116,7 +116,7 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const& e, edm::EventSetup co
   edm::ESHandle<HcalTimeSlew> delay;
   eventSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
-  //std::cout<<"HcalTBDigiProducer.cc"<<std::endl;
+
   theAmplifier->setTimeSlew(hcalTimeSlew_delay_);
 
   theHBHEDigitizer->initializeHits();

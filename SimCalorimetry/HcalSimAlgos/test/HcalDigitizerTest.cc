@@ -142,7 +142,6 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   edm::ESHandle<HcalTimeSlew> delay;
   iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
-  //std::cout<<"HcalDigitizerTest.cc"<<std::endl;
 
   std::string hitsName = "HcalHits";
   std::vector<std::string> caloDets;

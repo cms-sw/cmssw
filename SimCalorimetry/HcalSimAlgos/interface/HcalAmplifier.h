@@ -60,7 +60,6 @@ private:
   bool addNoise_;
   bool preMixDigi_;
   bool preMixAdd_;
-
 };
 
 #endif

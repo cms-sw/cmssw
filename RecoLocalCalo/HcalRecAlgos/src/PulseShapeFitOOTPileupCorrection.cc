@@ -11,7 +11,6 @@ PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPul
 								       timeConstraint_(false), addPulseJitter_(false), applyTimeSlew_(false),
 								       ts4Min_(0), vts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
 								       noise_(0) {
-
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
    iniTimesArr = { {-100,-75,-50,-25,0,25,50,75,100,125} };
 }
@@ -97,7 +96,6 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       tmpy[i]=energyArr[i]-pedenArr[i];
       //Add Time Slew !!! does this need to be pedestal subtracted
       tmpslew[i] = 0;
-      //std::cout<<"delay: PulseShapeFitOOTPileupCorrection.cc"<<std::endl;
       if(applyTimeSlew_) tmpslew[i] = hcalTimeSlew_delay->delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
       // add the noise components
       tmperry2[i]=noiseArrSq[i];
