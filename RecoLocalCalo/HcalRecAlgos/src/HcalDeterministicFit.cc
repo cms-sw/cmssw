@@ -99,6 +99,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   std::vector<double> corrCharge;
   std::vector<double> inputCharge;
   std::vector<double> inputPedestal;
+  std::vector<double> inputNoise;
   double gainCorr = 0;
   double respCorr = 0;
 
@@ -106,15 +107,17 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
     double charge = channelData.tsRawCharge(ip);
     double ped = channelData.tsPedestal(ip); 
+    double noise = channelData.tsPedestalWidth(ip);
     double gain = channelData.tsGain(ip);
 
     gainCorr = gain;
     inputCharge.push_back(charge);
     inputPedestal.push_back(ped);
+    inputNoise.push_back(noise);
 
   }
 
-  fPedestalSubFxn_.calculate(inputCharge, inputPedestal, corrCharge);
+  fPedestalSubFxn_.calculate(inputCharge, inputPedestal, inputNoise, corrCharge, soi, channelData.nSamples());
 
   const HcalDetId& cell = channelData.id();
 
