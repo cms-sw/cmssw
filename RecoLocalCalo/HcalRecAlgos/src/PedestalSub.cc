@@ -17,20 +17,20 @@ void PedestalSub::init(int runCond=0, float threshold=0.0, float quantile=0.0) {
   fCondition=runCond;
 }
 
-void PedestalSub::calculate(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal, std::vector<double> & corrCharge) const {
+void PedestalSub::calculate(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal, const std::vector<double> & inputNoise, std::vector<double> & corrCharge, int soi, int nTS) const {
 
-  double bseCorr=PedestalSub::getCorrection(inputCharge, inputPedestal);
-  for (auto i=0; i<10; i++) {
-      corrCharge.push_back(inputCharge[i]-inputPedestal[i]-bseCorr);
+  double bseCorr=PedestalSub::getCorrection(inputCharge, inputPedestal, inputNoise, soi, nTS);
+  for (auto i=0; i<nTS; i++) {
+    corrCharge.push_back(inputCharge[i]-inputPedestal[i]-bseCorr);
   }
 }
 
-double PedestalSub::getCorrection(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal) const {
+double PedestalSub::getCorrection(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal, const std::vector<double> & inputNoise, int soi, int nTS) const {
 
   double baseline=0;
 
-    for (auto i=0; i<10; i++) {
-      if (i==4||i==5) continue;
+    for (auto i=0; i<nTS; i++) {
+      if (i==soi||i==soi+1) continue;
       if ( (inputCharge[i]-inputPedestal[i])<fThreshold) {
 	baseline+=(inputCharge[i]-inputPedestal[i]);
       }
@@ -38,7 +38,7 @@ double PedestalSub::getCorrection(const std::vector<double> & inputCharge, const
 	baseline+=fThreshold;
       }
     }
-    baseline/=8;
+    baseline/=(nTS-2);
   return baseline;
   
 } 
