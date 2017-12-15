@@ -56,7 +56,6 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   nnlsWork_.fullTSOffset = fullTSofInterest_ - nnlsWork_.tsOffset;
 
   // 1 sigma time constraint
-  //float dt=0;
   if (channelData.hasTimeInfo()) nnlsWork_.dt=timeSigmaSiPM_;
   else nnlsWork_.dt=timeSigmaHPD_;
 
@@ -71,7 +70,9 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 			channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)+
 			channelData.tsPedestalWidth(3)*channelData.tsPedestalWidth(3) );
 
-  nnlsWork_.pedConstraint = SampleMatrix::Constant(pedVal);
+  nnlsWork_.pedConstraint = pedVal*SampleMatrix::Ones(nnlsWork_.tsSize, nnlsWork_.tsSize);
+  nnlsWork_.amplitudes.resize(nnlsWork_.tsSize);
+  nnlsWork_.noiseTerms.resize(nnlsWork_.tsSize);
 
   std::vector<float> reconstructedVals;
   
@@ -198,7 +199,7 @@ void MahiFit::doFit(std::vector<float> &correctedOutput, int nbx) const {
     }
   }
 
-  nnlsWork_.pulseMat.col(nnlsWork_.nPulseTot-1) = SampleVector::Ones();
+  nnlsWork_.pulseMat.col(nnlsWork_.nPulseTot-1) = SampleVector::Ones(nnlsWork_.tsSize);
 
   nnlsWork_.aTaMat.resize(nnlsWork_.nPulseTot, nnlsWork_.nPulseTot);
   nnlsWork_.aTbVec.resize(nnlsWork_.nPulseTot);
@@ -223,6 +224,7 @@ void MahiFit::doFit(std::vector<float> &correctedOutput, int nbx) const {
     double arrivalTime = calculateArrivalTime();
     correctedOutput.push_back(arrivalTime); //time
     correctedOutput.push_back(chiSq); //chi2
+
   }
   
 }
@@ -237,7 +239,7 @@ double MahiFit::minimize() const {
     if (iter>=nMaxItersMin_) {
       break;
     }
-    
+
     updateCov();
 
     if (nnlsWork_.nPulseTot>1) {
@@ -246,7 +248,7 @@ double MahiFit::minimize() const {
     else {
       onePulseMinimize();
     }
-    
+
     double newChiSq=calculateChiSq();
     double deltaChiSq = newChiSq - chiSq;
 
@@ -313,7 +315,9 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
 }
 
 void MahiFit::updateCov() const {
-  
+
+  nnlsWork_.invCovMat.resize(nnlsWork_.tsSize, nnlsWork_.tsSize);
+
   nnlsWork_.invCovMat = nnlsWork_.noiseTerms.asDiagonal();
   nnlsWork_.invCovMat +=nnlsWork_.pedConstraint;
 
@@ -362,7 +366,7 @@ void MahiFit::nnls() const {
   for (unsigned int iBX=0; iBX<npulse; iBX++) {
     int offset=nnlsWork_.bxs.coeff(iBX);
     if (offset==100) {
-      nnlsWork_.pulseMat.col(iBX) = SampleVector::Ones();
+      nnlsWork_.pulseMat.col(iBX) = SampleVector::Ones(nnlsWork_.tsSize);
     }
     else {
       nnlsWork_.pulseMat.col(iBX) = nnlsWork_.pulseShapeArray.at(offset+nnlsWork_.bxOffset).segment(nnlsWork_.fullTSOffset-offset, nnlsWork_.tsSize);
