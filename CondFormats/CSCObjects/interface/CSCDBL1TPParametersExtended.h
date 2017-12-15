@@ -34,7 +34,7 @@ class CSCDBL1TPParametersExtended
   std::vector<int> paramsInt_;
   std::vector<int> paramsBool_;
 
-  std::vector<std::string> paramNamesBool_{
+  const std::vector<std::string> paramNamesBool_{
       /* ME11 ALCT Phase-1 Upgrade Parameters */
       "me11_phase1_alctNarrowMaskForR1a",
       "me11_phase1_alctGhostCancellationSideQuality",
@@ -54,7 +54,7 @@ class CSCDBL1TPParametersExtended
       "me11_phase1_matchEarliestClctME11Only",
     };
 
-  std::vector<std::string> paramNamesInt_{
+  const std::vector<std::string> paramNamesInt_{
       /* Parameters %for 2007 version of ALCT firmware */
       "alctFifoTbins",
       "alctFifoPretrig",
