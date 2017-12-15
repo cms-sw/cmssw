@@ -37,7 +37,7 @@ HcalDbHardcode::HcalDbHardcode() :
 {
 }
 
-const HcalHardcodeParameters& HcalDbHardcode::getParameters(HcalGenericDetId fId){
+const HcalHardcodeParameters& HcalDbHardcode::getParameters(HcalGenericDetId fId) const {
   if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel){
     if(useHBUpgrade_ && setHBUpgrade_) return theHBUpgradeParameters_;
     else if(!useHBUpgrade_ && setHB_) return theHBParameters_;
@@ -68,7 +68,7 @@ const HcalHardcodeParameters& HcalDbHardcode::getParameters(HcalGenericDetId fId
   else return theDefaultParameters_;
 }
 
-const int HcalDbHardcode::getGainIndex(HcalGenericDetId fId){
+const int HcalDbHardcode::getGainIndex(HcalGenericDetId fId) const {
   int index = 0;
   if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
     HcalDetId hid(fId);
@@ -129,7 +129,7 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId, bool 
   return result;
 }
 
-HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) { // GeV/fC
+HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) const { // GeV/fC
   HcalGainWidth width = makeGainWidth (fId);
   float value0 = getParameters(fId).gain(getGainIndex(fId));
   float value [4] = {value0, value0, value0, value0};
@@ -143,19 +143,19 @@ HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) { // GeV/f
   return result;
 }
 
-HcalGainWidth HcalDbHardcode::makeGainWidth (HcalGenericDetId fId) { // GeV/fC
+HcalGainWidth HcalDbHardcode::makeGainWidth (HcalGenericDetId fId) const { // GeV/fC
   float value = getParameters(fId).gainWidth(getGainIndex(fId));
   HcalGainWidth result (fId.rawId (), value, value, value, value);
   return result;
 }
 
-HcalZSThreshold HcalDbHardcode::makeZSThreshold (HcalGenericDetId fId) {
+HcalZSThreshold HcalDbHardcode::makeZSThreshold (HcalGenericDetId fId) const {
   int value = getParameters(fId).zsThreshold();
   HcalZSThreshold result(fId.rawId (), value);
   return result;
 }
 
-HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
+HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) const {
   HcalQIECoder result (fId.rawId ());
   // slope in ADC/fC
   const HcalHardcodeParameters& param(getParameters(fId));
@@ -169,13 +169,13 @@ HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
   return result;
 }
 
-HcalQIEType HcalDbHardcode::makeQIEType (HcalGenericDetId fId) {
+HcalQIEType HcalDbHardcode::makeQIEType (HcalGenericDetId fId) const {
   HcalQIENum qieType = (HcalQIENum)(getParameters(fId).qieType());
   HcalQIEType result(fId.rawId(),qieType);
   return result;
 }
 
-HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalGenericDetId fId) {
+HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalGenericDetId fId) const {
   HcalCalibrationQIECoder result (fId.rawId ());
   float lowEdges [64];
   for (int i = 0; i < 64; i++) { lowEdges[i] = -1.5 + i; }
@@ -183,15 +183,12 @@ HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalGenericDetI
   return result;
 }
 
-HcalQIEShape HcalDbHardcode::makeQIEShape () {
-
-  //  std::cout << " !!! HcalDbHardcode::makeQIEShape " << std::endl; 
-
+HcalQIEShape HcalDbHardcode::makeQIEShape () const {
   return HcalQIEShape ();
 }
 
 
-HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
+HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) const {
 
   int r1bit[5];
                            r1bit[0] = 9;     //  [0,9]
@@ -289,7 +286,7 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
 
 }
 
-HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
+HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) const {
 
   // Mostly comes from S.Kunori's macro 
   int p1bit[6];
@@ -434,7 +431,7 @@ HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
   return result;
 }
 
-HcalTimingParam HcalDbHardcode::makeTimingParam (HcalGenericDetId fId) {
+HcalTimingParam HcalDbHardcode::makeTimingParam (HcalGenericDetId fId) const {
   int nhits = 0;
   float phase = 0.0;
   float rms = 0.0;
@@ -458,7 +455,7 @@ HcalTimingParam HcalDbHardcode::makeTimingParam (HcalGenericDetId fId) {
 #define EMAP_NHTRSHO 4
 #define EMAP_NHSETSHO 3
 
-std::unique_ptr<HcalDcsMap> HcalDbHardcode::makeHardcodeDcsMap() {
+std::unique_ptr<HcalDcsMap> HcalDbHardcode::makeHardcodeDcsMap() const {
   HcalDcsMapAddons::Helper dcs_map_helper;
   dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalBarrel, -16, 1, 1), 
 			  HcalDcsDetId(HcalDcsBarrel, -1, 1, HcalDcsDetId::HV, 2));
@@ -475,7 +472,7 @@ std::unique_ptr<HcalDcsMap> HcalDbHardcode::makeHardcodeDcsMap() {
   return std::make_unique<HcalDcsMap>(dcs_map_helper);
 }
 
-std::unique_ptr<HcalElectronicsMap> HcalDbHardcode::makeHardcodeMap(const std::vector<HcalGenericDetId>& cells) {
+std::unique_ptr<HcalElectronicsMap> HcalDbHardcode::makeHardcodeMap(const std::vector<HcalGenericDetId>& cells) const {
   static const int kUTCAMask = 0x4000000; //set bit 26 for uTCA version
   static const int kLinearIndexMax = 0x7FFFF; //19 bits
   static const int kTriggerBitMask = 0x02000000; //2^25
@@ -508,7 +505,7 @@ std::unique_ptr<HcalElectronicsMap> HcalDbHardcode::makeHardcodeMap(const std::v
   return std::make_unique<HcalElectronicsMap>(emapHelper);
 }
 
-std::unique_ptr<HcalFrontEndMap> HcalDbHardcode::makeHardcodeFrontEndMap(const std::vector<HcalGenericDetId>& cells) {
+std::unique_ptr<HcalFrontEndMap> HcalDbHardcode::makeHardcodeFrontEndMap(const std::vector<HcalGenericDetId>& cells) const {
   HcalFrontEndMapAddons::Helper emapHelper;
   std::stringstream mystream;
   std::string detector[5] = {"XX","HB","HE","HO","HF"};
@@ -595,7 +592,7 @@ int HcalDbHardcode::getLayersInDepth(int ieta, int depth, const HcalTopology* to
     }
 }
 
-bool HcalDbHardcode::isHEPlan1(HcalGenericDetId fId){
+bool HcalDbHardcode::isHEPlan1(HcalGenericDetId fId) const {
   if(fId.isHcalDetId()){
     HcalDetId hid(fId);
     //special mixed case for HE 2017
@@ -648,7 +645,7 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fI
   return HcalSiPMParameter(fId.rawId(), theType, thePe2fC, theDC, 0, 0);
 }
 
-std::unique_ptr<HcalSiPMCharacteristics> HcalDbHardcode::makeHardcodeSiPMCharacteristics () {
+std::unique_ptr<HcalSiPMCharacteristics> HcalDbHardcode::makeHardcodeSiPMCharacteristics () const {
   // SiPMCharacteristics are constants for each type of SiPM:
   // Type, # of pixels, 3 parameters for non-linearity, cross talk parameter, ..
   // Obtained from data sheet and measurements
@@ -668,7 +665,7 @@ std::unique_ptr<HcalSiPMCharacteristics> HcalDbHardcode::makeHardcodeSiPMCharact
   return std::make_unique<HcalSiPMCharacteristics>(sipmHelper);
 }
 
-HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGenericDetId fId) {
+HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGenericDetId fId) const {
   // For each detId parameters for trigger primitive
   // mask for channel validity and self trigger information, fine grain
   // bit information and auxiliary words
@@ -676,7 +673,7 @@ HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGener
   return HcalTPChannelParameter(fId.rawId(), 0, bitInfo, 0, 0);
 }
 
-void HcalDbHardcode::makeHardcodeTPParameters (HcalTPParameters& tppar) {
+void HcalDbHardcode::makeHardcodeTPParameters (HcalTPParameters& tppar) const {
   // Parameters for a given TP algorithm:
   // FineGrain Algorithm Version for HBHE, ADC threshold fof TDC mask of HF,
   // TDC mask for HF, Self Trigger bits, auxiliary words
