@@ -66,7 +66,7 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   template <class T>
   void getData(T& iGetFrom);
 
-  typedef std::vector<uint32_t> TagList;
+  using TagList = std::vector<uint32_t>;
 
  private:
   
@@ -89,7 +89,7 @@ class EDMtoMEConverter : public edm::EDAnalyzer
     using type = T;
     using Product = MEtoEDM<T>;
 
-    Tokens() {}
+    Tokens() = default;
 
     void set(const edm::InputTag& runInputTag, const edm::InputTag& lumiInputTag, edm::ConsumesCollector& iC);
 

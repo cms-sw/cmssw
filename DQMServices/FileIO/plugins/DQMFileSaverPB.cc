@@ -33,7 +33,7 @@ DQMFileSaverPB::DQMFileSaverPB(const edm::ParameterSet &ps)
   mergeType_ = "";
 }
 
-DQMFileSaverPB::~DQMFileSaverPB() {}
+DQMFileSaverPB::~DQMFileSaverPB() = default;
 
 void DQMFileSaverPB::initRun() const {
   if (!fakeFilterUnitMode_) {
@@ -98,7 +98,7 @@ void DQMFileSaverPB::saveRun(const FileParameters& fp) const {
 }
 
 boost::property_tree::ptree
-DQMFileSaverPB::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string transferDestinationStr, const std::string mergeTypeStr, evf::FastMonitoringService *fms)
+DQMFileSaverPB::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string& transferDestinationStr, const std::string& mergeTypeStr, evf::FastMonitoringService *fms)
 {
   namespace bpt = boost::property_tree;
   namespace bfs = boost::filesystem;

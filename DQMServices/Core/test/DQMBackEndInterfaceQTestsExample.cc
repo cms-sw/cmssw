@@ -46,11 +46,11 @@ const int sample_int_value = 5;
 class DQMStoreQTestsExample : public edm::EDAnalyzer {
 public:
   explicit DQMStoreQTestsExample( const edm::ParameterSet& );
-  ~DQMStoreQTestsExample();
+  ~DQMStoreQTestsExample() override;
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
-  virtual void endJob(void);
+  void endJob() override;
 
 private:
   // ----------member data ---------------------------
@@ -90,7 +90,7 @@ private:
   // run quality tests; expected_status: test status that is expected
   // (see Core/interface/QTestStatus.h)
   // test_type: info message on what kind of tests are run
-  void runTests(int expected_status, string test_type);
+  void runTests(int expected_status, const string& test_type);
   // called by runTests; return status
   int checkTest(QCriterion *qc);
   // show channels that failed test
@@ -206,9 +206,9 @@ DQMStoreQTestsExample::~DQMStoreQTestsExample()
 
 }
 
-void DQMStoreQTestsExample::endJob(void)
+void DQMStoreQTestsExample::endJob()
 {
-  setReference(0);
+  setReference(nullptr);
   
   // attempt to run tests w/o a reference histogram
   runTests(dqm::qstatus::INVALID, "tests w/o reference");
@@ -265,7 +265,7 @@ void DQMStoreQTestsExample::endJob(void)
 // (see Core/interface/QTestStatus.h)
 // test_type: info message on what kind of tests are run
 void DQMStoreQTestsExample::runTests(int expected_status, 
-					    string test_type)
+					    const string& test_type)
 {
   cout << " ========================================================== " << endl;
   cout << " Results of attempt to run " << test_type << ", expected status " << expected_status << endl;
@@ -458,7 +458,7 @@ void DQMStoreQTestsExample::showBadChannels(QCriterion *qc)
   if(!badChannels.empty())
     cout << " Channels that failed test " << qc->algoName() << ":\n";
   
-  vector<dqm::me_util::Channel>::iterator it = badChannels.begin();
+  auto it = badChannels.begin();
   while(it != badChannels.end())
     {
       cout << " Channel ("
