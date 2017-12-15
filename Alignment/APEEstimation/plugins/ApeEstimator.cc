@@ -135,11 +135,11 @@ class ApeEstimator : public edm::one::EDAnalyzer<> {
    private:
       struct PositionAndError2{
         PositionAndError2(): posX(-999.F), posY(-999.F), errX2(-999.F), errY2(-999.F) {};
-  PositionAndError2(float x, float y, float eX, float eY): posX(x), posY(y), errX2(eX), errY2(eY) {};
-  float posX;
-  float posY;
-  float errX2;
-  float errY2;
+        PositionAndError2(float x, float y, float eX, float eY): posX(x), posY(y), errX2(eX), errY2(eY) {};
+        float posX;
+        float posY;
+        float errX2;
+        float errY2;
       };
       typedef std::pair<TrackStruct::HitState,PositionAndError2> StatePositionAndError2;
       
@@ -224,13 +224,13 @@ class ApeEstimator : public edm::one::EDAnalyzer<> {
 // constructors and destructor
 //
 ApeEstimator::ApeEstimator(const edm::ParameterSet& iConfig):
-parameterSet_(iConfig),
-tjTagToken_(consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
-offlinebeamSpot_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
-trackCut_(false), maxTracksPerEvent_(parameterSet_.getParameter<unsigned int>("maxTracksPerEvent")),
-minGoodHitsPerTrack_(parameterSet_.getParameter<unsigned int>("minGoodHitsPerTrack")),
-analyzerMode_(parameterSet_.getParameter<bool>("analyzerMode")),
-calculateApe_(parameterSet_.getParameter<bool>("calculateApe"))
+  parameterSet_(iConfig),
+  tjTagToken_(consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
+  offlinebeamSpot_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
+  trackCut_(false), maxTracksPerEvent_(parameterSet_.getParameter<unsigned int>("maxTracksPerEvent")),
+  minGoodHitsPerTrack_(parameterSet_.getParameter<unsigned int>("minGoodHitsPerTrack")),
+  analyzerMode_(parameterSet_.getParameter<bool>("analyzerMode")),
+  calculateApe_(parameterSet_.getParameter<bool>("calculateApe"))
 {
    counter1 = counter2 = counter3 = counter4 = counter5 = counter6 = 0;
 }
@@ -252,24 +252,25 @@ ApeEstimator::sectorBuilder(){
   
   TFile* tkTreeFile(TFile::Open((parameterSet_.getParameter<std::string>("TrackerTreeFile")).c_str()));
   if(tkTreeFile){
-    edm::LogInfo("SectorBuilder")<<"TrackerTreeFile OK";
+      edm::LogInfo("SectorBuilder")<<"TrackerTreeFile OK";
   }else{
-    edm::LogError("SectorBuilder")<<"TrackerTreeFile not found";
-    return;
+      edm::LogError("SectorBuilder")<<"TrackerTreeFile not found";
+      return;
   }
   TTree* tkTree(nullptr);
   tkTreeFile->GetObject("TrackerTreeGenerator/TrackerTree/TrackerTree",tkTree);
   if(tkTree){
-    edm::LogInfo("SectorBuilder")<<"TrackerTree OK";
+      edm::LogInfo("SectorBuilder")<<"TrackerTree OK";
   }else{
-    edm::LogError("SectorBuilder")<<"TrackerTree not found in file";
-    return;
+      edm::LogError("SectorBuilder")<<"TrackerTree not found in file";
+      return;
   }
   unsigned int rawId(999), subdetId(999), layer(999), side(999), half(999), rod(999), ring(999), petal(999),
          blade(999), panel(999), outerInner(999), module(999), nStrips(999);
   bool isDoubleSide(false), isRPhi(false), isStereo(false);
   int uDirection(999), vDirection(999), wDirection(999);
   float posR(999.F), posPhi(999.F), posEta(999.F), posX(999.F), posY(999.F), posZ(999.F); 
+  
   tkTree->SetBranchAddress("RawId", &rawId);
   tkTree->SetBranchAddress("SubdetId", &subdetId);
   tkTree->SetBranchAddress("Layer", &layer);
@@ -305,112 +306,112 @@ ApeEstimator::sectorBuilder(){
   edm::LogInfo("SectorBuilder")<<"There are "<<v_sectorDef.size()<<" Sectors definded";
   std::vector<edm::ParameterSet>::const_iterator i_parSet;
   for(auto const & parSet : v_sectorDef){
-    ++sectorCounter;
-    const std::string& sectorName(parSet.getParameter<std::string>("name"));
-    std::vector<unsigned int> v_rawId(parSet.getParameter<std::vector<unsigned int> >("rawId")),
-                              v_subdetId(parSet.getParameter<std::vector<unsigned int> >("subdetId")),
-            v_layer(parSet.getParameter<std::vector<unsigned int> >("layer")),
-            v_side(parSet.getParameter<std::vector<unsigned int> >("side")),
-            v_half(parSet.getParameter<std::vector<unsigned int> >("half")),
-            v_rod(parSet.getParameter<std::vector<unsigned int> >("rod")),
-            v_ring(parSet.getParameter<std::vector<unsigned int> >("ring")),
-            v_petal(parSet.getParameter<std::vector<unsigned int> >("petal")),
-                              v_blade(parSet.getParameter<std::vector<unsigned int> >("blade")),
-            v_panel(parSet.getParameter<std::vector<unsigned int> >("panel")),
-            v_outerInner(parSet.getParameter<std::vector<unsigned int> >("outerInner")),
-            v_module(parSet.getParameter<std::vector<unsigned int> >("module")),
-            v_nStrips(parSet.getParameter<std::vector<unsigned int> >("nStrips")),
-            v_isDoubleSide(parSet.getParameter<std::vector<unsigned int> >("isDoubleSide")),
-            v_isRPhi(parSet.getParameter<std::vector<unsigned int> >("isRPhi")),
-            v_isStereo(parSet.getParameter<std::vector<unsigned int> >("isStereo"));
-    std::vector<int> v_uDirection(parSet.getParameter<std::vector<int> >("uDirection")),
-                     v_vDirection(parSet.getParameter<std::vector<int> >("vDirection")),
-         v_wDirection(parSet.getParameter<std::vector<int> >("wDirection"));
-    std::vector<double> v_posR(parSet.getParameter<std::vector<double> >("posR")),
-                        v_posPhi(parSet.getParameter<std::vector<double> >("posPhi")),
-      v_posEta(parSet.getParameter<std::vector<double> >("posEta")),
-      v_posX(parSet.getParameter<std::vector<double> >("posX")),
-      v_posY(parSet.getParameter<std::vector<double> >("posY")),
-      v_posZ(parSet.getParameter<std::vector<double> >("posZ"));
+      ++sectorCounter;
+      const std::string& sectorName(parSet.getParameter<std::string>("name"));
+      std::vector<unsigned int> v_rawId(parSet.getParameter<std::vector<unsigned int> >("rawId")),
+                                v_subdetId(parSet.getParameter<std::vector<unsigned int> >("subdetId")),
+                                v_layer(parSet.getParameter<std::vector<unsigned int> >("layer")),
+                                v_side(parSet.getParameter<std::vector<unsigned int> >("side")),
+                                v_half(parSet.getParameter<std::vector<unsigned int> >("half")),
+                                v_rod(parSet.getParameter<std::vector<unsigned int> >("rod")),
+                                v_ring(parSet.getParameter<std::vector<unsigned int> >("ring")),
+                                v_petal(parSet.getParameter<std::vector<unsigned int> >("petal")),
+                                v_blade(parSet.getParameter<std::vector<unsigned int> >("blade")),
+                                v_panel(parSet.getParameter<std::vector<unsigned int> >("panel")),
+                                v_outerInner(parSet.getParameter<std::vector<unsigned int> >("outerInner")),
+                                v_module(parSet.getParameter<std::vector<unsigned int> >("module")),
+                                v_nStrips(parSet.getParameter<std::vector<unsigned int> >("nStrips")),
+                                v_isDoubleSide(parSet.getParameter<std::vector<unsigned int> >("isDoubleSide")),
+                                v_isRPhi(parSet.getParameter<std::vector<unsigned int> >("isRPhi")),
+                                v_isStereo(parSet.getParameter<std::vector<unsigned int> >("isStereo"));
+      std::vector<int>  v_uDirection(parSet.getParameter<std::vector<int> >("uDirection")),
+                        v_vDirection(parSet.getParameter<std::vector<int> >("vDirection")),
+                        v_wDirection(parSet.getParameter<std::vector<int> >("wDirection"));
+      std::vector<double> v_posR(parSet.getParameter<std::vector<double> >("posR")),
+                          v_posPhi(parSet.getParameter<std::vector<double> >("posPhi")),
+                          v_posEta(parSet.getParameter<std::vector<double> >("posEta")),
+                          v_posX(parSet.getParameter<std::vector<double> >("posX")),
+                          v_posY(parSet.getParameter<std::vector<double> >("posY")),
+                          v_posZ(parSet.getParameter<std::vector<double> >("posZ"));
     
-    if(!this->checkIntervalsForSectors(sectorCounter,v_posR) || !this->checkIntervalsForSectors(sectorCounter,v_posPhi) ||
-       !this->checkIntervalsForSectors(sectorCounter,v_posEta) || !this->checkIntervalsForSectors(sectorCounter,v_posX) ||
-       !this->checkIntervalsForSectors(sectorCounter,v_posY)   || !this->checkIntervalsForSectors(sectorCounter,v_posZ))continue;
+      if(!this->checkIntervalsForSectors(sectorCounter,v_posR) || !this->checkIntervalsForSectors(sectorCounter,v_posPhi) ||
+        !this->checkIntervalsForSectors(sectorCounter,v_posEta) || !this->checkIntervalsForSectors(sectorCounter,v_posX) ||
+        !this->checkIntervalsForSectors(sectorCounter,v_posY)   || !this->checkIntervalsForSectors(sectorCounter,v_posZ))continue;
     
     
-    TrackerSectorStruct tkSector;
-    tkSector.name = sectorName;
-    
-    ReducedTrackerTreeVariables tkTreeVar;
-    
-    //Loop over all Modules
-    for(int module = 0; module < nModules; ++module){
-      tkTree->GetEntry(module);
+      TrackerSectorStruct tkSector;
+      tkSector.name = sectorName;
       
-      if(sectorCounter==1){
-        tkTreeVar.subdetId = subdetId;
-        tkTreeVar.nStrips = nStrips;
-  tkTreeVar.uDirection = uDirection;
-        tkTreeVar.vDirection = vDirection;
-        tkTreeVar.wDirection = wDirection;
-  m_tkTreeVar_[rawId] = tkTreeVar;
-      }
-      
-      if(!this->checkModuleIds(rawId,v_rawId))continue;
-      if(!this->checkModuleIds(subdetId,v_subdetId))continue;
-      if(!this->checkModuleIds(layer,v_layer))continue;
-      if(!this->checkModuleIds(side,v_side))continue;
-      if(!this->checkModuleIds(half,v_half))continue;
-      if(!this->checkModuleIds(rod,v_rod))continue;
-      if(!this->checkModuleIds(ring,v_ring))continue;
-      if(!this->checkModuleIds(petal,v_petal))continue;
-      if(!this->checkModuleIds(blade,v_blade))continue;
-      if(!this->checkModuleIds(panel,v_panel))continue;
-      if(!this->checkModuleIds(outerInner,v_outerInner))continue;
-      if(!this->checkModuleIds(module,v_module))continue;
-      if(!this->checkModuleIds(nStrips,v_nStrips))continue;
-      if(!this->checkModuleBools(isDoubleSide,v_isDoubleSide))continue;
-      if(!this->checkModuleBools(isRPhi,v_isRPhi))continue;
-      if(!this->checkModuleBools(isStereo,v_isStereo))continue;
-      if(!this->checkModuleDirections(uDirection,v_uDirection))continue;
-      if(!this->checkModuleDirections(vDirection,v_vDirection))continue;
-      if(!this->checkModuleDirections(wDirection,v_wDirection))continue;
-      if(!this->checkModulePositions(posR,v_posR))continue;
-      if(!this->checkModulePositions(posPhi,v_posPhi))continue;
-      if(!this->checkModulePositions(posEta,v_posEta))continue;
-      if(!this->checkModulePositions(posX,v_posX))continue;
-      if(!this->checkModulePositions(posY,v_posY))continue;
-      if(!this->checkModulePositions(posZ,v_posZ))continue;
-      
-      tkSector.v_rawId.push_back(rawId);
-      bool moduleSelected(false);
-      for(auto const & i_rawId : allSectors.v_rawId){
-        if(rawId == i_rawId)moduleSelected = true;
-      }
-      if(!moduleSelected)allSectors.v_rawId.push_back(rawId);
-    }
+      ReducedTrackerTreeVariables tkTreeVar;
     
-    bool isPixel(false);
-    bool isStrip(false);
-    for(auto const & i_rawId : tkSector.v_rawId){
-      if(m_tkTreeVar_[i_rawId].subdetId==PixelSubdetector::PixelBarrel || m_tkTreeVar_[i_rawId].subdetId==PixelSubdetector::PixelEndcap){
-        isPixel = true;
+      //Loop over all Modules
+      for(int module = 0; module < nModules; ++module){
+          tkTree->GetEntry(module);
+          
+          if(sectorCounter==1){
+            tkTreeVar.subdetId = subdetId;
+            tkTreeVar.nStrips = nStrips;
+            tkTreeVar.uDirection = uDirection;
+            tkTreeVar.vDirection = vDirection;
+            tkTreeVar.wDirection = wDirection;
+            m_tkTreeVar_[rawId] = tkTreeVar;
+          }
+      
+          if(!this->checkModuleIds(rawId,v_rawId))continue;
+          if(!this->checkModuleIds(subdetId,v_subdetId))continue;
+          if(!this->checkModuleIds(layer,v_layer))continue;
+          if(!this->checkModuleIds(side,v_side))continue;
+          if(!this->checkModuleIds(half,v_half))continue;
+          if(!this->checkModuleIds(rod,v_rod))continue;
+          if(!this->checkModuleIds(ring,v_ring))continue;
+          if(!this->checkModuleIds(petal,v_petal))continue;
+          if(!this->checkModuleIds(blade,v_blade))continue;
+          if(!this->checkModuleIds(panel,v_panel))continue;
+          if(!this->checkModuleIds(outerInner,v_outerInner))continue;
+          if(!this->checkModuleIds(module,v_module))continue;
+          if(!this->checkModuleIds(nStrips,v_nStrips))continue;
+          if(!this->checkModuleBools(isDoubleSide,v_isDoubleSide))continue;
+          if(!this->checkModuleBools(isRPhi,v_isRPhi))continue;
+          if(!this->checkModuleBools(isStereo,v_isStereo))continue;
+          if(!this->checkModuleDirections(uDirection,v_uDirection))continue;
+          if(!this->checkModuleDirections(vDirection,v_vDirection))continue;
+          if(!this->checkModuleDirections(wDirection,v_wDirection))continue;
+          if(!this->checkModulePositions(posR,v_posR))continue;
+          if(!this->checkModulePositions(posPhi,v_posPhi))continue;
+          if(!this->checkModulePositions(posEta,v_posEta))continue;
+          if(!this->checkModulePositions(posX,v_posX))continue;
+          if(!this->checkModulePositions(posY,v_posY))continue;
+          if(!this->checkModulePositions(posZ,v_posZ))continue;
+          
+          tkSector.v_rawId.push_back(rawId);
+          bool moduleSelected(false);
+          for(auto const & i_rawId : allSectors.v_rawId){
+            if(rawId == i_rawId)moduleSelected = true;
+          }
+          if(!moduleSelected)allSectors.v_rawId.push_back(rawId);
       }
-      if(m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TOB ||
-         m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TEC){
-        isStrip = true;
+    
+      bool isPixel(false);
+      bool isStrip(false);
+      for(auto const & i_rawId : tkSector.v_rawId){
+        if(m_tkTreeVar_[i_rawId].subdetId==PixelSubdetector::PixelBarrel || m_tkTreeVar_[i_rawId].subdetId==PixelSubdetector::PixelEndcap){
+          isPixel = true;
+        }
+        if(m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TOB ||
+          m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TEC){
+          isStrip = true;
+        }
       }
-    }
 
-    if(isPixel && isStrip){
-      edm::LogError("SectorBuilder")<<"Incorrect Sector Definition: there are pixel and strip modules within one sector"
+      if(isPixel && isStrip){
+        edm::LogError("SectorBuilder")<<"Incorrect Sector Definition: there are pixel and strip modules within one sector"
                                      <<"\n... sector selection is not applied, sector "<<sectorCounter<<" is not built";
-      continue;
-    }
-    tkSector.isPixel = isPixel;
+        continue;
+      }
+      tkSector.isPixel = isPixel;
     
-    m_tkSector_[sectorCounter] = tkSector;
-    edm::LogInfo("SectorBuilder")<<"There are "<<tkSector.v_rawId.size()<<" Modules in Sector "<<sectorCounter;
+      m_tkSector_[sectorCounter] = tkSector;
+      edm::LogInfo("SectorBuilder")<<"There are "<<tkSector.v_rawId.size()<<" Modules in Sector "<<sectorCounter;
   }
   this->statistics(allSectors, nModules);
   return;
@@ -528,18 +529,21 @@ ApeEstimator::residualErrorBinning(){
    double xMin(0.), xMax(0.);
    unsigned int binCounter(0);
    for(std::vector<double>::const_iterator i_binning = v_residualErrorBinning.begin(); i_binning != v_residualErrorBinning.end(); ++i_binning, ++binCounter){
-     if(binCounter == 0){xMin = *i_binning;continue;}
-     xMax = *i_binning;
-     if(xMax<=xMin){
-       edm::LogError("ResidualErrorBinning")<<"Incorrect selection of Residual Error Bins (used for APE calculation): \t"
-                                            <<xMin<<" is bigger than "<<xMax<<" but is expected to be smaller"
-              <<"\n... delete whole bin selection";
-       m_resErrBins_.clear();
-       return;
-     }
-     m_resErrBins_[binCounter].first = xMin;
-     m_resErrBins_[binCounter].second = xMax;
-     xMin = xMax;
+      if(binCounter == 0){
+         xMin = *i_binning;
+         continue;
+      }
+      xMax = *i_binning;
+      if(xMax<=xMin){
+        edm::LogError("ResidualErrorBinning")<<"Incorrect selection of Residual Error Bins (used for APE calculation): \t"
+                                              <<xMin<<" is bigger than "<<xMax<<" but is expected to be smaller"
+                <<"\n... delete whole bin selection";
+        m_resErrBins_.clear();
+        return;
+      }
+      m_resErrBins_[binCounter].first = xMin;
+      m_resErrBins_[binCounter].second = xMax;
+      xMin = xMax;
    }
    edm::LogInfo("ResidualErrorBinning")<<m_resErrBins_.size()<<" Intervals of residual errors used for separate APE calculation sucessfully set";
 }
@@ -552,7 +556,6 @@ ApeEstimator::residualErrorBinning(){
 
 void
 ApeEstimator::bookSectorHistsForAnalyzerMode(){
-  
   std::vector<unsigned int> v_errHists(parameterSet_.getParameter<std::vector<unsigned int> >("vErrHists"));
   for(std::vector<unsigned int>::iterator i_errHists = v_errHists.begin(); i_errHists != v_errHists.end(); ++i_errHists){
     for(std::vector<unsigned int>::iterator i_errHists2 = i_errHists; i_errHists2 != v_errHists.end();){
@@ -620,54 +623,54 @@ ApeEstimator::bookSectorHistsForAnalyzerMode(){
     (*i_sector).second.m_correlationHistsX["BaryStripX"] = (*i_sector).second.bookCorrHistsX("BaryStripX","barycenter of cluster charge","b_{cl,x}","[# channels]",800,100,-10.,790.,"nph");
     
     if(pixelSector){
-    (*i_sector).second.m_correlationHistsY["WidthY"] = (*i_sector).second.bookCorrHistsY("WidthY","cluster width","w_{cl,y}","[# channels]",static_cast<int>(widthMax),static_cast<int>(widthMax),0.,widthMax,"nph");
-    (*i_sector).second.m_correlationHistsY["BaryStripY"] = (*i_sector).second.bookCorrHistsY("BaryStripY","barycenter of cluster charge","b_{cl,y}","[# channels]",800,100,-10.,790.,"nph");
-    
-    (*i_sector).second.m_correlationHistsX["ChargePixel"] = (*i_sector).second.bookCorrHistsX("ChargePixel","cluster charge","c_{cl}","[e]",100,50,0.,chargePixelMax,"nph");
-    (*i_sector).second.m_correlationHistsX["ClusterProbXY"] = (*i_sector).second.bookCorrHistsX("ClusterProbXY","cluster probability xy","prob_{cl,xy}","",100,50,0.,1.,"nph");
-    (*i_sector).second.m_correlationHistsX["ClusterProbQ"] = (*i_sector).second.bookCorrHistsX("ClusterProbQ","cluster probability q","prob_{cl,q}","",100,50,0.,1.,"nph");
-    (*i_sector).second.m_correlationHistsX["ClusterProbXYQ"] = (*i_sector).second.bookCorrHistsX("ClusterProbXYQ","cluster probability xyq","prob_{cl,xyq}","",100,50,0.,1.,"nph");
-    (*i_sector).second.m_correlationHistsX["LogClusterProb"] = (*i_sector).second.bookCorrHistsX("LogClusterProb","cluster probability xy","log(prob_{cl,xy})","",60,30,logClusterProbMin,0.,"nph");
-    (*i_sector).second.m_correlationHistsX["IsOnEdge"] = (*i_sector).second.bookCorrHistsX("IsOnEdge","IsOnEdge","isOnEdge","",2,2,0,2,"nph");
-    (*i_sector).second.m_correlationHistsX["HasBadPixels"] = (*i_sector).second.bookCorrHistsX("HasBadPixels","HasBadPixels","hasBadPixels","",2,2,0,2,"nph");
-    (*i_sector).second.m_correlationHistsX["SpansTwoRoc"] = (*i_sector).second.bookCorrHistsX("SpansTwoRoc","SpansTwoRoc","spansTwoRoc","",2,2,0,2,"nph");
-    (*i_sector).second.m_correlationHistsX["QBin"] = (*i_sector).second.bookCorrHistsX("QBin","q bin","q bin","",8,8,0,8,"nph");
-    
-    (*i_sector).second.m_correlationHistsY["ChargePixel"] = (*i_sector).second.bookCorrHistsY("ChargePixel","cluster charge","c_{cl}","[e]",100,50,0.,chargePixelMax,"nph");
-    (*i_sector).second.m_correlationHistsY["ClusterProbXY"] = (*i_sector).second.bookCorrHistsY("ClusterProbXY","cluster probability xy","prob_{cl,xy}","",100,50,0.,1.,"nph");
-    (*i_sector).second.m_correlationHistsY["ClusterProbQ"] = (*i_sector).second.bookCorrHistsY("ClusterProbQ","cluster probability q","prob_{cl,q}","",100,50,0.,1.,"nph");
-    (*i_sector).second.m_correlationHistsY["ClusterProbXYQ"] = (*i_sector).second.bookCorrHistsY("ClusterProbXYQ","cluster probability xyq","prob_{cl,xyq}","",100,50,0.,1.,"nph");
-    (*i_sector).second.m_correlationHistsY["LogClusterProb"] = (*i_sector).second.bookCorrHistsY("LogClusterProb","cluster probability xy","log(prob_{cl,xy})","",60,30,logClusterProbMin,0.,"nph");
-    (*i_sector).second.m_correlationHistsY["IsOnEdge"] = (*i_sector).second.bookCorrHistsY("IsOnEdge","IsOnEdge","isOnEdge","",2,2,0,2,"nph");
-    (*i_sector).second.m_correlationHistsY["HasBadPixels"] = (*i_sector).second.bookCorrHistsY("HasBadPixels","HasBadPixels","hasBadPixels","",2,2,0,2,"nph");
-    (*i_sector).second.m_correlationHistsY["SpansTwoRoc"] = (*i_sector).second.bookCorrHistsY("SpansTwoRoc","SpansTwoRoc","spansTwoRoc","",2,2,0,2,"nph");
-    (*i_sector).second.m_correlationHistsY["QBin"] = (*i_sector).second.bookCorrHistsY("QBin","q bin","q bin","",8,8,0,8,"nph");
+      (*i_sector).second.m_correlationHistsY["WidthY"] = (*i_sector).second.bookCorrHistsY("WidthY","cluster width","w_{cl,y}","[# channels]",static_cast<int>(widthMax),static_cast<int>(widthMax),0.,widthMax,"nph");
+      (*i_sector).second.m_correlationHistsY["BaryStripY"] = (*i_sector).second.bookCorrHistsY("BaryStripY","barycenter of cluster charge","b_{cl,y}","[# channels]",800,100,-10.,790.,"nph");
+      
+      (*i_sector).second.m_correlationHistsX["ChargePixel"] = (*i_sector).second.bookCorrHistsX("ChargePixel","cluster charge","c_{cl}","[e]",100,50,0.,chargePixelMax,"nph");
+      (*i_sector).second.m_correlationHistsX["ClusterProbXY"] = (*i_sector).second.bookCorrHistsX("ClusterProbXY","cluster probability xy","prob_{cl,xy}","",100,50,0.,1.,"nph");
+      (*i_sector).second.m_correlationHistsX["ClusterProbQ"] = (*i_sector).second.bookCorrHistsX("ClusterProbQ","cluster probability q","prob_{cl,q}","",100,50,0.,1.,"nph");
+      (*i_sector).second.m_correlationHistsX["ClusterProbXYQ"] = (*i_sector).second.bookCorrHistsX("ClusterProbXYQ","cluster probability xyq","prob_{cl,xyq}","",100,50,0.,1.,"nph");
+      (*i_sector).second.m_correlationHistsX["LogClusterProb"] = (*i_sector).second.bookCorrHistsX("LogClusterProb","cluster probability xy","log(prob_{cl,xy})","",60,30,logClusterProbMin,0.,"nph");
+      (*i_sector).second.m_correlationHistsX["IsOnEdge"] = (*i_sector).second.bookCorrHistsX("IsOnEdge","IsOnEdge","isOnEdge","",2,2,0,2,"nph");
+      (*i_sector).second.m_correlationHistsX["HasBadPixels"] = (*i_sector).second.bookCorrHistsX("HasBadPixels","HasBadPixels","hasBadPixels","",2,2,0,2,"nph");
+      (*i_sector).second.m_correlationHistsX["SpansTwoRoc"] = (*i_sector).second.bookCorrHistsX("SpansTwoRoc","SpansTwoRoc","spansTwoRoc","",2,2,0,2,"nph");
+      (*i_sector).second.m_correlationHistsX["QBin"] = (*i_sector).second.bookCorrHistsX("QBin","q bin","q bin","",8,8,0,8,"nph");
+      
+      (*i_sector).second.m_correlationHistsY["ChargePixel"] = (*i_sector).second.bookCorrHistsY("ChargePixel","cluster charge","c_{cl}","[e]",100,50,0.,chargePixelMax,"nph");
+      (*i_sector).second.m_correlationHistsY["ClusterProbXY"] = (*i_sector).second.bookCorrHistsY("ClusterProbXY","cluster probability xy","prob_{cl,xy}","",100,50,0.,1.,"nph");
+      (*i_sector).second.m_correlationHistsY["ClusterProbQ"] = (*i_sector).second.bookCorrHistsY("ClusterProbQ","cluster probability q","prob_{cl,q}","",100,50,0.,1.,"nph");
+      (*i_sector).second.m_correlationHistsY["ClusterProbXYQ"] = (*i_sector).second.bookCorrHistsY("ClusterProbXYQ","cluster probability xyq","prob_{cl,xyq}","",100,50,0.,1.,"nph");
+      (*i_sector).second.m_correlationHistsY["LogClusterProb"] = (*i_sector).second.bookCorrHistsY("LogClusterProb","cluster probability xy","log(prob_{cl,xy})","",60,30,logClusterProbMin,0.,"nph");
+      (*i_sector).second.m_correlationHistsY["IsOnEdge"] = (*i_sector).second.bookCorrHistsY("IsOnEdge","IsOnEdge","isOnEdge","",2,2,0,2,"nph");
+      (*i_sector).second.m_correlationHistsY["HasBadPixels"] = (*i_sector).second.bookCorrHistsY("HasBadPixels","HasBadPixels","hasBadPixels","",2,2,0,2,"nph");
+      (*i_sector).second.m_correlationHistsY["SpansTwoRoc"] = (*i_sector).second.bookCorrHistsY("SpansTwoRoc","SpansTwoRoc","spansTwoRoc","",2,2,0,2,"nph");
+      (*i_sector).second.m_correlationHistsY["QBin"] = (*i_sector).second.bookCorrHistsY("QBin","q bin","q bin","",8,8,0,8,"nph");
     }
     
     else{
-    (*i_sector).second.m_correlationHistsX["ChargeStrip"] = (*i_sector).second.bookCorrHistsX("ChargeStrip","cluster charge","c_{cl}","[APV counts]",100,50,0.,chargeStripMax,"nph");
-    (*i_sector).second.m_correlationHistsX["MaxStrip"] = (*i_sector).second.bookCorrHistsX("MaxStrip","strip with max. charge","n_{cl,max}","[# strips]",800,800,-10.,790.,"npht");
-    (*i_sector).second.m_correlationHistsX["MaxCharge"] = (*i_sector).second.bookCorrHistsX("MaxCharge","charge of strip with max. charge","c_{cl,max}","[APV counts]",300,75,-10.,290.,"nph");
-    (*i_sector).second.m_correlationHistsX["MaxIndex"] = (*i_sector).second.bookCorrHistsX("MaxIndex","cluster-index of strip with max. charge","i_{cl,max}","[# strips]",10,10,0.,10.,"nph");
-    (*i_sector).second.m_correlationHistsX["ChargeOnEdges"] = (*i_sector).second.bookCorrHistsX("ChargeOnEdges","fraction of charge on edge strips","(c_{st,L}+c_{st,R})/c_{cl}","",60,60,-0.1,1.1,"nph");
-    (*i_sector).second.m_correlationHistsX["ChargeAsymmetry"] = (*i_sector).second.bookCorrHistsX("ChargeAsymmetry","asymmetry of charge on edge strips","(c_{st,L}-c_{st,R})/c_{cl}","",110,55,-1.1,1.1,"nph");
-    (*i_sector).second.m_correlationHistsX["ChargeLRplus"] = (*i_sector).second.bookCorrHistsX("ChargeLRplus","fraction of charge not on maxStrip","(c_{cl,L}+c_{cl,R})/c_{cl}","",60,60,-0.1,1.1,"nph");
-    (*i_sector).second.m_correlationHistsX["ChargeLRminus"] = (*i_sector).second.bookCorrHistsX("ChargeLRminus","asymmetry of charge L and R of maxStrip","(c_{cl,L}-c_{cl,R})/c_{cl}","",110,55,-1.1,1.1,"nph");
-    (*i_sector).second.m_correlationHistsX["SOverN"] = (*i_sector).second.bookCorrHistsX("SOverN","signal over noise","s/N","",100,50,0,sOverNMax,"nph");
-    (*i_sector).second.m_correlationHistsX["WidthProj"] = (*i_sector).second.bookCorrHistsX("WidthProj","projected width","w_{p}","[# strips]",200,20,0.,widthMax,"nph");
-    (*i_sector).second.m_correlationHistsX["WidthDiff"] = (*i_sector).second.bookCorrHistsX("WidthDiff","width difference","w_{p} - w_{cl}","[# strips]",200,20,-widthMax/2.,widthMax/2.,"nph");
-    
-    (*i_sector).second.WidthVsWidthProjected = secDir.make<TH2F>("h2_widthVsWidthProj","w_{cl} vs. w_{p};w_{p}  [# strips];w_{cl}  [# strips]",static_cast<int>(widthMax),0,widthMax,static_cast<int>(widthMax),0,widthMax);
-    (*i_sector).second.PWidthVsWidthProjected = secDir.make<TProfile>("p_widthVsWidthProj","w_{cl} vs. w_{p};w_{p}  [# strips];w_{cl}  [# strips]",static_cast<int>(widthMax),0,widthMax);
-    
-    (*i_sector).second.WidthDiffVsMaxStrip = secDir.make<TH2F>("h2_widthDiffVsMaxStrip","(w_{p} - w_{cl}) vs. n_{cl,max};n_{cl,max};w_{p} - w_{cl}  [# strips]",800,-10.,790.,static_cast<int>(widthMax),-widthMax/2.,widthMax/2.);
-    (*i_sector).second.PWidthDiffVsMaxStrip = secDir.make<TProfile>("p_widthDiffVsMaxStrip","(w_{p} - w_{cl}) vs. n_{cl,max};n_{cl,max};w_{p} - w_{cl}  [# strips]",800,-10.,790.);
-    
-    (*i_sector).second.WidthDiffVsSigmaXHit = secDir.make<TH2F>("h2_widthDiffVsSigmaXHit","(w_{p} - w_{cl}) vs. #sigma_{hit,x};#sigma_{hit,x}  [cm];w_{p} - w_{cl}  [# strips]",100,0.,sigmaXMax,100,-10.,10.);
-    (*i_sector).second.PWidthDiffVsSigmaXHit = secDir.make<TProfile>("p_widthDiffVsSigmaXHit","(w_{p} - w_{cl}) vs. #sigma_{hit,x};#sigma_{hit,x}  [cm];w_{p} - w_{cl}  [# strips]",100,0.,sigmaXMax);
-    
-    (*i_sector).second.WidthVsPhiSensX = secDir.make<TH2F>("h2_widthVsPhiSensX","w_{cl} vs. #phi_{module,x};#phi_{module,x}  [ ^{o}];w_{cl}  [# strips]",93,-93,93,static_cast<int>(widthMax),0,widthMax);
-    (*i_sector).second.PWidthVsPhiSensX = secDir.make<TProfile>("p_widthVsPhiSensX","w_{cl} vs. #phi_{module,x};#phi_{module,x}  [ ^{o}];w_{cl}  [# strips]",93,-93,93);
+      (*i_sector).second.m_correlationHistsX["ChargeStrip"] = (*i_sector).second.bookCorrHistsX("ChargeStrip","cluster charge","c_{cl}","[APV counts]",100,50,0.,chargeStripMax,"nph");
+      (*i_sector).second.m_correlationHistsX["MaxStrip"] = (*i_sector).second.bookCorrHistsX("MaxStrip","strip with max. charge","n_{cl,max}","[# strips]",800,800,-10.,790.,"npht");
+      (*i_sector).second.m_correlationHistsX["MaxCharge"] = (*i_sector).second.bookCorrHistsX("MaxCharge","charge of strip with max. charge","c_{cl,max}","[APV counts]",300,75,-10.,290.,"nph");
+      (*i_sector).second.m_correlationHistsX["MaxIndex"] = (*i_sector).second.bookCorrHistsX("MaxIndex","cluster-index of strip with max. charge","i_{cl,max}","[# strips]",10,10,0.,10.,"nph");
+      (*i_sector).second.m_correlationHistsX["ChargeOnEdges"] = (*i_sector).second.bookCorrHistsX("ChargeOnEdges","fraction of charge on edge strips","(c_{st,L}+c_{st,R})/c_{cl}","",60,60,-0.1,1.1,"nph");
+      (*i_sector).second.m_correlationHistsX["ChargeAsymmetry"] = (*i_sector).second.bookCorrHistsX("ChargeAsymmetry","asymmetry of charge on edge strips","(c_{st,L}-c_{st,R})/c_{cl}","",110,55,-1.1,1.1,"nph");
+      (*i_sector).second.m_correlationHistsX["ChargeLRplus"] = (*i_sector).second.bookCorrHistsX("ChargeLRplus","fraction of charge not on maxStrip","(c_{cl,L}+c_{cl,R})/c_{cl}","",60,60,-0.1,1.1,"nph");
+      (*i_sector).second.m_correlationHistsX["ChargeLRminus"] = (*i_sector).second.bookCorrHistsX("ChargeLRminus","asymmetry of charge L and R of maxStrip","(c_{cl,L}-c_{cl,R})/c_{cl}","",110,55,-1.1,1.1,"nph");
+      (*i_sector).second.m_correlationHistsX["SOverN"] = (*i_sector).second.bookCorrHistsX("SOverN","signal over noise","s/N","",100,50,0,sOverNMax,"nph");
+      (*i_sector).second.m_correlationHistsX["WidthProj"] = (*i_sector).second.bookCorrHistsX("WidthProj","projected width","w_{p}","[# strips]",200,20,0.,widthMax,"nph");
+      (*i_sector).second.m_correlationHistsX["WidthDiff"] = (*i_sector).second.bookCorrHistsX("WidthDiff","width difference","w_{p} - w_{cl}","[# strips]",200,20,-widthMax/2.,widthMax/2.,"nph");
+      
+      (*i_sector).second.WidthVsWidthProjected = secDir.make<TH2F>("h2_widthVsWidthProj","w_{cl} vs. w_{p};w_{p}  [# strips];w_{cl}  [# strips]",static_cast<int>(widthMax),0,widthMax,static_cast<int>(widthMax),0,widthMax);
+      (*i_sector).second.PWidthVsWidthProjected = secDir.make<TProfile>("p_widthVsWidthProj","w_{cl} vs. w_{p};w_{p}  [# strips];w_{cl}  [# strips]",static_cast<int>(widthMax),0,widthMax);
+      
+      (*i_sector).second.WidthDiffVsMaxStrip = secDir.make<TH2F>("h2_widthDiffVsMaxStrip","(w_{p} - w_{cl}) vs. n_{cl,max};n_{cl,max};w_{p} - w_{cl}  [# strips]",800,-10.,790.,static_cast<int>(widthMax),-widthMax/2.,widthMax/2.);
+      (*i_sector).second.PWidthDiffVsMaxStrip = secDir.make<TProfile>("p_widthDiffVsMaxStrip","(w_{p} - w_{cl}) vs. n_{cl,max};n_{cl,max};w_{p} - w_{cl}  [# strips]",800,-10.,790.);
+      
+      (*i_sector).second.WidthDiffVsSigmaXHit = secDir.make<TH2F>("h2_widthDiffVsSigmaXHit","(w_{p} - w_{cl}) vs. #sigma_{hit,x};#sigma_{hit,x}  [cm];w_{p} - w_{cl}  [# strips]",100,0.,sigmaXMax,100,-10.,10.);
+      (*i_sector).second.PWidthDiffVsSigmaXHit = secDir.make<TProfile>("p_widthDiffVsSigmaXHit","(w_{p} - w_{cl}) vs. #sigma_{hit,x};#sigma_{hit,x}  [cm];w_{p} - w_{cl}  [# strips]",100,0.,sigmaXMax);
+      
+      (*i_sector).second.WidthVsPhiSensX = secDir.make<TH2F>("h2_widthVsPhiSensX","w_{cl} vs. #phi_{module,x};#phi_{module,x}  [ ^{o}];w_{cl}  [# strips]",93,-93,93,static_cast<int>(widthMax),0,widthMax);
+      (*i_sector).second.PWidthVsPhiSensX = secDir.make<TProfile>("p_widthVsPhiSensX","w_{cl} vs. #phi_{module,x};#phi_{module,x}  [ ^{o}];w_{cl}  [# strips]",93,-93,93);
     }
     
     
@@ -690,22 +693,22 @@ ApeEstimator::bookSectorHistsForAnalyzerMode(){
     (*i_sector).second.PPhiSensXVsBarycentreX = secDir.make<TProfile>("p_phiSensXVsBarycentreX","#phi_{module,x} vs. b_{cl,x};b_{cl,x}  [# channels];#phi_{module,x}  [ ^{o}]",200,-10.,790.);
     
     if(pixelSector){
-    (*i_sector).second.m_correlationHistsY["SigmaYHit"] = (*i_sector).second.bookCorrHistsY("SigmaYHit","hit error","#sigma_{hit,y}","[#mum]",105,20,sigmaXMin*10000.,sigmaXMax*10000.,"np");
-    (*i_sector).second.m_correlationHistsY["SigmaYTrk"] = (*i_sector).second.bookCorrHistsY("SigmaYTrk","track error","#sigma_{trk,y}","[#mum]",105,20,sigmaXMin*10000.,sigmaXMax*10000.,"np");
-    (*i_sector).second.m_correlationHistsY["SigmaY"]    = (*i_sector).second.bookCorrHistsY("SigmaY","residual error","#sigma_{r,y}","[#mum]",105,20,sigmaXMin*10000.,sigmaXMax*10000.,"np");
-    (*i_sector).second.m_correlationHistsY["PhiSens"]   = (*i_sector).second.bookCorrHistsY("PhiSens","track angle on sensor","#phi_{module}","[ ^{o}]",96,48,-3,93,"nphtr");
-    (*i_sector).second.m_correlationHistsY["PhiSensX"]  = (*i_sector).second.bookCorrHistsY("PhiSensX","track angle on sensor","#phi_{module,x}","[ ^{o}]",186,93,-phiSensXMax,phiSensXMax,"nphtr");
-    (*i_sector).second.m_correlationHistsY["PhiSensY"]  = (*i_sector).second.bookCorrHistsY("PhiSensY","track angle on sensor","#phi_{module,y}","[ ^{o}]",186,93,-93,93,"nphtr");
-    
-    (*i_sector).second.YHit    = secDir.make<TH1F>("h_YHit"," hit measurement y_{hit};y_{hit}  [cm];# hits",100,-20,20);
-    (*i_sector).second.YTrk    = secDir.make<TH1F>("h_YTrk","track prediction y_{trk};y_{trk}  [cm];# hits",100,-20,20);
-    (*i_sector).second.SigmaY2 = secDir.make<TH1F>("h_SigmaY2","squared residual error #sigma_{r,y}^{2};#sigma_{r,y}^{2}  [#mum^{2}];# hits",105,sigmaXMin*10000.,sigmaX2Max*10000.*10000.); //no mistake !
-    (*i_sector).second.ResY    = secDir.make<TH1F>("h_ResY","residual r_{y};y_{trk}-y_{hit}  [#mum];# hits",100,-resXAbsMax*10000.,resXAbsMax*10000.);
-    (*i_sector).second.NorResY = secDir.make<TH1F>("h_NorResY","normalized residual r_{y}/#sigma_{r,y};(y_{trk}-y_{hit})/#sigma_{r,y};# hits",100,-norResXAbsMax,norResXAbsMax);
-    (*i_sector).second.ProbY   = secDir.make<TH1F>("h_ProbY","residual probability;prob(r_{y}^{2}/#sigma_{r,y}^{2},1);# hits",60,probXMin,probXMax);
-    
-    (*i_sector).second.PhiSensYVsBarycentreY = secDir.make<TH2F>("h2_phiSensYVsBarycentreY","#phi_{module,y} vs. b_{cl,y};b_{cl,y}  [# channels];#phi_{module,y}  [ ^{o}]",200,-10.,790.,93,-93,93);
-    (*i_sector).second.PPhiSensYVsBarycentreY = secDir.make<TProfile>("p_phiSensYVsBarycentreY","#phi_{module,y} vs. b_{cl,y};b_{cl,y}  [# channels];#phi_{module,y}  [ ^{o}]",200,-10.,790.);
+      (*i_sector).second.m_correlationHistsY["SigmaYHit"] = (*i_sector).second.bookCorrHistsY("SigmaYHit","hit error","#sigma_{hit,y}","[#mum]",105,20,sigmaXMin*10000.,sigmaXMax*10000.,"np");
+      (*i_sector).second.m_correlationHistsY["SigmaYTrk"] = (*i_sector).second.bookCorrHistsY("SigmaYTrk","track error","#sigma_{trk,y}","[#mum]",105,20,sigmaXMin*10000.,sigmaXMax*10000.,"np");
+      (*i_sector).second.m_correlationHistsY["SigmaY"]    = (*i_sector).second.bookCorrHistsY("SigmaY","residual error","#sigma_{r,y}","[#mum]",105,20,sigmaXMin*10000.,sigmaXMax*10000.,"np");
+      (*i_sector).second.m_correlationHistsY["PhiSens"]   = (*i_sector).second.bookCorrHistsY("PhiSens","track angle on sensor","#phi_{module}","[ ^{o}]",96,48,-3,93,"nphtr");
+      (*i_sector).second.m_correlationHistsY["PhiSensX"]  = (*i_sector).second.bookCorrHistsY("PhiSensX","track angle on sensor","#phi_{module,x}","[ ^{o}]",186,93,-phiSensXMax,phiSensXMax,"nphtr");
+      (*i_sector).second.m_correlationHistsY["PhiSensY"]  = (*i_sector).second.bookCorrHistsY("PhiSensY","track angle on sensor","#phi_{module,y}","[ ^{o}]",186,93,-93,93,"nphtr");
+      
+      (*i_sector).second.YHit    = secDir.make<TH1F>("h_YHit"," hit measurement y_{hit};y_{hit}  [cm];# hits",100,-20,20);
+      (*i_sector).second.YTrk    = secDir.make<TH1F>("h_YTrk","track prediction y_{trk};y_{trk}  [cm];# hits",100,-20,20);
+      (*i_sector).second.SigmaY2 = secDir.make<TH1F>("h_SigmaY2","squared residual error #sigma_{r,y}^{2};#sigma_{r,y}^{2}  [#mum^{2}];# hits",105,sigmaXMin*10000.,sigmaX2Max*10000.*10000.); //no mistake !
+      (*i_sector).second.ResY    = secDir.make<TH1F>("h_ResY","residual r_{y};y_{trk}-y_{hit}  [#mum];# hits",100,-resXAbsMax*10000.,resXAbsMax*10000.);
+      (*i_sector).second.NorResY = secDir.make<TH1F>("h_NorResY","normalized residual r_{y}/#sigma_{r,y};(y_{trk}-y_{hit})/#sigma_{r,y};# hits",100,-norResXAbsMax,norResXAbsMax);
+      (*i_sector).second.ProbY   = secDir.make<TH1F>("h_ProbY","residual probability;prob(r_{y}^{2}/#sigma_{r,y}^{2},1);# hits",60,probXMin,probXMax);
+      
+      (*i_sector).second.PhiSensYVsBarycentreY = secDir.make<TH2F>("h2_phiSensYVsBarycentreY","#phi_{module,y} vs. b_{cl,y};b_{cl,y}  [# channels];#phi_{module,y}  [ ^{o}]",200,-10.,790.,93,-93,93);
+      (*i_sector).second.PPhiSensYVsBarycentreY = secDir.make<TProfile>("p_phiSensYVsBarycentreY","#phi_{module,y} vs. b_{cl,y};b_{cl,y}  [# channels];#phi_{module,y}  [ ^{o}]",200,-10.,790.);
     }
     
     
@@ -729,22 +732,22 @@ ApeEstimator::bookSectorHistsForAnalyzerMode(){
     //(*i_sector).second.m_correlationHistsX[""] = (*i_sector).second.bookCorrHistsX("","","",,,,"nphtr");
     
     if(pixelSector){
-    (*i_sector).second.m_correlationHistsY["HitsValid"] = (*i_sector).second.bookCorrHistsY("HitsValid","# hits","[valid]",50,0,50,"npt");
-    (*i_sector).second.m_correlationHistsY["HitsInvalid"] = (*i_sector).second.bookCorrHistsY("HitsInvalid","# hits","[invalid]",20,0,20,"npt");
-    (*i_sector).second.m_correlationHistsY["Hits2D"] = (*i_sector).second.bookCorrHistsY("Hits2D","# hits","[2D]",20,0,20,"npt");
-    (*i_sector).second.m_correlationHistsY["LayersMissed"] = (*i_sector).second.bookCorrHistsY("LayersMissed","# layers","[missed]",10,0,10,"npt");
-    (*i_sector).second.m_correlationHistsY["HitsPixel"] = (*i_sector).second.bookCorrHistsY("HitsPixel","# hits","[pixel]",10,0,10,"npt");
-    (*i_sector).second.m_correlationHistsY["HitsStrip"] = (*i_sector).second.bookCorrHistsY("HitsStrip","# hits","[strip]",40,0,40,"npt");
-    (*i_sector).second.m_correlationHistsY["HitsGood"] = (*i_sector).second.bookCorrHistsY("HitsGood","# hits","[good]",50,0,50,"npt");
-    (*i_sector).second.m_correlationHistsY["NorChi2"] = (*i_sector).second.bookCorrHistsY("NorChi2","#chi^{2}/f","",50,0,norChi2Max,"npr");
-    (*i_sector).second.m_correlationHistsY["Theta"] = (*i_sector).second.bookCorrHistsY("Theta","#theta","[ ^{o}]",40,-10,190,"npt");
-    (*i_sector).second.m_correlationHistsY["Phi"] = (*i_sector).second.bookCorrHistsY("Phi","#phi","[ ^{o}]",76,-190,190,"npt");
-    (*i_sector).second.m_correlationHistsY["D0Beamspot"] = (*i_sector).second.bookCorrHistsY("D0Beamspot","d_{0, BS}","[cm]",40,-d0Max,d0Max,"npt");
-    (*i_sector).second.m_correlationHistsY["Dz"] = (*i_sector).second.bookCorrHistsY("Dz","d_{z}","[cm]",40,-dzMax,dzMax,"npt");
-    (*i_sector).second.m_correlationHistsY["Pt"] = (*i_sector).second.bookCorrHistsY("Pt","p_{t}","[GeV]",50,0,pMax,"npt");
-    (*i_sector).second.m_correlationHistsY["P"] = (*i_sector).second.bookCorrHistsY("P","|p|","[GeV]",50,0,pMax,"npt");
-    (*i_sector).second.m_correlationHistsY["InvP"] = (*i_sector).second.bookCorrHistsY("InvP","1/|p|","[GeV^{-1}]",25,0,invPMax,"t");
-    (*i_sector).second.m_correlationHistsY["MeanAngle"] = (*i_sector).second.bookCorrHistsY("MeanAngle","<#phi_{module}>","[ ^{o}]",25,-5,95,"npt");
+      (*i_sector).second.m_correlationHistsY["HitsValid"] = (*i_sector).second.bookCorrHistsY("HitsValid","# hits","[valid]",50,0,50,"npt");
+      (*i_sector).second.m_correlationHistsY["HitsInvalid"] = (*i_sector).second.bookCorrHistsY("HitsInvalid","# hits","[invalid]",20,0,20,"npt");
+      (*i_sector).second.m_correlationHistsY["Hits2D"] = (*i_sector).second.bookCorrHistsY("Hits2D","# hits","[2D]",20,0,20,"npt");
+      (*i_sector).second.m_correlationHistsY["LayersMissed"] = (*i_sector).second.bookCorrHistsY("LayersMissed","# layers","[missed]",10,0,10,"npt");
+      (*i_sector).second.m_correlationHistsY["HitsPixel"] = (*i_sector).second.bookCorrHistsY("HitsPixel","# hits","[pixel]",10,0,10,"npt");
+      (*i_sector).second.m_correlationHistsY["HitsStrip"] = (*i_sector).second.bookCorrHistsY("HitsStrip","# hits","[strip]",40,0,40,"npt");
+      (*i_sector).second.m_correlationHistsY["HitsGood"] = (*i_sector).second.bookCorrHistsY("HitsGood","# hits","[good]",50,0,50,"npt");
+      (*i_sector).second.m_correlationHistsY["NorChi2"] = (*i_sector).second.bookCorrHistsY("NorChi2","#chi^{2}/f","",50,0,norChi2Max,"npr");
+      (*i_sector).second.m_correlationHistsY["Theta"] = (*i_sector).second.bookCorrHistsY("Theta","#theta","[ ^{o}]",40,-10,190,"npt");
+      (*i_sector).second.m_correlationHistsY["Phi"] = (*i_sector).second.bookCorrHistsY("Phi","#phi","[ ^{o}]",76,-190,190,"npt");
+      (*i_sector).second.m_correlationHistsY["D0Beamspot"] = (*i_sector).second.bookCorrHistsY("D0Beamspot","d_{0, BS}","[cm]",40,-d0Max,d0Max,"npt");
+      (*i_sector).second.m_correlationHistsY["Dz"] = (*i_sector).second.bookCorrHistsY("Dz","d_{z}","[cm]",40,-dzMax,dzMax,"npt");
+      (*i_sector).second.m_correlationHistsY["Pt"] = (*i_sector).second.bookCorrHistsY("Pt","p_{t}","[GeV]",50,0,pMax,"npt");
+      (*i_sector).second.m_correlationHistsY["P"] = (*i_sector).second.bookCorrHistsY("P","|p|","[GeV]",50,0,pMax,"npt");
+      (*i_sector).second.m_correlationHistsY["InvP"] = (*i_sector).second.bookCorrHistsY("InvP","1/|p|","[GeV^{-1}]",25,0,invPMax,"t");
+      (*i_sector).second.m_correlationHistsY["MeanAngle"] = (*i_sector).second.bookCorrHistsY("MeanAngle","<#phi_{module}>","[ ^{o}]",25,-5,95,"npt");
     }
     
     
@@ -759,13 +762,13 @@ ApeEstimator::bookSectorHistsForAnalyzerMode(){
       (*i_sector).second.m_sigmaX["sigmaXTrk"].push_back(secDir.make<TH1F>(sigmaXTrk.str().c_str(),"track error #sigma_{trk,x};#sigma_{trk,x}  [#mum];# hits",100,xMin*10000.,xMax*10000.));
       (*i_sector).second.m_sigmaX["sigmaX"   ].push_back(secDir.make<TH1F>(sigmaX.str().c_str(),"residual error #sigma_{r,x};#sigma_{r,x}  [#mum];# hits",100,xMin*10000.,xMax*10000.));
       if(pixelSector){
-      std::stringstream sigmaYHit, sigmaYTrk, sigmaY;
-      sigmaYHit << "h_sigmaYHit_" << *i_errHists;
-      sigmaYTrk << "h_sigmaYTrk_" << *i_errHists;
-      sigmaY    << "h_sigmaY_"    << *i_errHists;
-      (*i_sector).second.m_sigmaY["sigmaYHit"].push_back(secDir.make<TH1F>(sigmaYHit.str().c_str(),"hit error #sigma_{hit,y};#sigma_{hit,y}  [#mum];# hits",100,xMin*10000.,xMax*10000.));
-      (*i_sector).second.m_sigmaY["sigmaYTrk"].push_back(secDir.make<TH1F>(sigmaYTrk.str().c_str(),"track error #sigma_{trk,y};#sigma_{trk,y}  [#mum];# hits",100,xMin*10000.,xMax*10000.));
-      (*i_sector).second.m_sigmaY["sigmaY"   ].push_back(secDir.make<TH1F>(sigmaY.str().c_str(),"residual error #sigma_{r,y};#sigma_{r,y}  [#mum];# hits",100,xMin*10000.,xMax*10000.));
+        std::stringstream sigmaYHit, sigmaYTrk, sigmaY;
+        sigmaYHit << "h_sigmaYHit_" << *i_errHists;
+        sigmaYTrk << "h_sigmaYTrk_" << *i_errHists;
+        sigmaY    << "h_sigmaY_"    << *i_errHists;
+        (*i_sector).second.m_sigmaY["sigmaYHit"].push_back(secDir.make<TH1F>(sigmaYHit.str().c_str(),"hit error #sigma_{hit,y};#sigma_{hit,y}  [#mum];# hits",100,xMin*10000.,xMax*10000.));
+        (*i_sector).second.m_sigmaY["sigmaYTrk"].push_back(secDir.make<TH1F>(sigmaYTrk.str().c_str(),"track error #sigma_{trk,y};#sigma_{trk,y}  [#mum];# hits",100,xMin*10000.,xMax*10000.));
+        (*i_sector).second.m_sigmaY["sigmaY"   ].push_back(secDir.make<TH1F>(sigmaY.str().c_str(),"residual error #sigma_{r,y};#sigma_{r,y}  [#mum];# hits",100,xMin*10000.,xMax*10000.));
       }
     }
     
@@ -776,7 +779,6 @@ ApeEstimator::bookSectorHistsForAnalyzerMode(){
 
 void
 ApeEstimator::bookSectorHistsForApeCalculation(){
-  
   std::vector<unsigned int> v_errHists(parameterSet_.getParameter<std::vector<unsigned int> >("vErrHists"));
   for(std::vector<unsigned int>::iterator i_errHists = v_errHists.begin(); i_errHists != v_errHists.end(); ++i_errHists){
     for(std::vector<unsigned int>::iterator i_errHists2 = i_errHists; i_errHists2 != v_errHists.end();){
@@ -789,7 +791,6 @@ ApeEstimator::bookSectorHistsForApeCalculation(){
   }
   
   for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-    
     edm::Service<TFileService> fileService;
     if(!fileService){
       throw edm::Exception( edm::errors::Configuration,
@@ -809,9 +810,11 @@ ApeEstimator::bookSectorHistsForApeCalculation(){
     
     
     // Distributions in each interval (stay in [cm], to have all calculations in [cm])
-    if(m_resErrBins_.empty()){m_resErrBins_[1].first = 0.;m_resErrBins_[1].second = 0.01;} // default if no selection taken into account: calculate APE with one bin with residual error 0-100um
-    for(std::map<unsigned int,std::pair<double,double> >::const_iterator i_errBins = m_resErrBins_.begin();
-         i_errBins != m_resErrBins_.end(); ++i_errBins){
+    if(m_resErrBins_.empty()){ // default if no selection taken into account: calculate APE with one bin with residual error 0-100um
+      m_resErrBins_[1].first = 0.;
+      m_resErrBins_[1].second = 0.01;
+    } 
+    for(std::map<unsigned int,std::pair<double,double> >::const_iterator i_errBins = m_resErrBins_.begin(); i_errBins != m_resErrBins_.end(); ++i_errBins){
       std::stringstream interval; interval << "Interval_" << (*i_errBins).first;
       TFileDirectory intDir = secDir.mkdir(interval.str());
       (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaX"]  = intDir.make<TH1F>("h_sigmaX","residual resolution #sigma_{x};#sigma_{x}  [cm];# hits",100,0.,0.01);
@@ -861,7 +864,6 @@ ApeEstimator::bookSectorHistsForApeCalculation(){
 
 void
 ApeEstimator::bookTrackHists(){
-  
   bool zoomHists(parameterSet_.getParameter<bool>("zoomHists"));
   
   int trackSizeBins = zoomHists ? 6 : 201;
@@ -936,7 +938,6 @@ ApeEstimator::bookTrackHists(){
 
 TrackStruct::TrackParameterStruct
 ApeEstimator::fillTrackVariables(const reco::Track& track, const Trajectory& traj, const reco::BeamSpot& beamSpot){
-  
   const math::XYZPoint beamPoint(beamSpot.x0(),beamSpot.y0(), beamSpot.z0());
   double d0BeamspotErr = std::sqrt( track.d0Error()*track.d0Error() + 0.5*beamSpot.BeamWidthX()*beamSpot.BeamWidthX() + 0.5*beamSpot.BeamWidthY()*beamSpot.BeamWidthY() );
   
@@ -980,7 +981,7 @@ ApeEstimator::fillTrackVariables(const reco::Track& track, const Trajectory& tra
     const TrajectoryMeasurement& meas = *i_meas;
     const TransientTrackingRecHit& hit = *meas.recHit();
     const TrackingRecHit& recHit = *hit.hit();
-    if(this->isHit2D(recHit))++count2D;
+    if(this->isHit2D(recHit)) ++count2D;
     
     TrajectoryStateOnSurface tsos = tsoscomb(meas.forwardPredictedState(),meas.backwardPredictedState());
     const align::LocalVector mom(tsos.localDirection());
@@ -1010,8 +1011,6 @@ ApeEstimator::fillTrackVariables(const reco::Track& track, const Trajectory& tra
 
 TrackStruct::HitParameterStruct
 ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::EventSetup& iSetup){
-
-  
   TrackStruct::HitParameterStruct hitParams;
   
   const static TrajectoryStateCombiner tsoscomb;
@@ -1043,54 +1042,59 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
   hitParams.phiSensX = (xMomentum==zMomentum ? phiSensX : -phiSensX );
   hitParams.phiSensY = (yMomentum==zMomentum ? phiSensY : -phiSensY );
   
-  if(!hit.isValid()){hitParams.hitState = TrackStruct::invalid; return hitParams;}
-  
+  if(!hit.isValid()){
+    hitParams.hitState = TrackStruct::invalid; 
+    return hitParams;
+  }
   
   // Get local positions and errors of hit and track
-  
   const LocalPoint& lPHit = hit.localPosition();
   const LocalPoint& lPTrk = tsos.localPosition();
   
   // use APE also for the hit error, while APE is automatically included in tsos error
   //
   //  no need to add  APE to hitError anymore by Ajay 27 Oct 2014
-  
- 
   const LocalError& errHitApe = hit.localPositionError();  // now sum of CPE+APE as said by MARCO?
   LocalError errorWithoutAPE;
   
   bool Pixel(false);
   bool Strip(false);
 
-  if(m_tkTreeVar_[rawId].subdetId==PixelSubdetector::PixelBarrel || m_tkTreeVar_[rawId].subdetId==PixelSubdetector::PixelEndcap){
-        Pixel = true;
+  if(       m_tkTreeVar_[rawId].subdetId==PixelSubdetector::PixelBarrel || m_tkTreeVar_[rawId].subdetId==PixelSubdetector::PixelEndcap){
+    Pixel = true;
+  }else if( m_tkTreeVar_[rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TOB ||
+            m_tkTreeVar_[rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TEC){
+    Strip = true;
+  }else{ 
+    edm::LogWarning("FillHitVariables")<<"cant identify wether hit is from pixel or strip";
+    hitParams.hitState = TrackStruct::invalid; return hitParams;
   }
-  else if(m_tkTreeVar_[rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TOB ||
-          m_tkTreeVar_[rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TEC){
-        Strip = true;
-  }
-  else { edm::LogWarning("FillHitVariables")<<"cant identify wether hit is from pixel or strip";
-        hitParams.hitState = TrackStruct::invalid; return hitParams;}
 
+  if(!hit.detUnit()){
+    hitParams.hitState = TrackStruct::invalid; 
+    return hitParams;
+  } // is it a single physical module?
+  const GeomDetUnit& detUnit = *hit.detUnit();
 
-   if(!hit.detUnit()){hitParams.hitState = TrackStruct::invalid; return hitParams;} // is it a single physical module?
-    const GeomDetUnit& detUnit = *hit.detUnit();
-
-  
-         if(Pixel){
-    if(!dynamic_cast<const PixelTopology*>(&detUnit.type().topology())){hitParams.hitState = TrackStruct::invalid; return hitParams;}
+  if(Pixel){
+    if(!dynamic_cast<const PixelTopology*>(&detUnit.type().topology())){
+      hitParams.hitState = TrackStruct::invalid; 
+      return hitParams;
+    }
     const PixelGeomDetUnit * pixelDet = (const PixelGeomDetUnit*)(&detUnit);
-     const LocalError& lape = pixelDet->localAlignmentError();
-           if (lape.valid())
-              { errorWithoutAPE = LocalError(errHitApe.xx() -lape.xx(), errHitApe.xy()- lape.xy(), errHitApe.yy()-lape.yy());
-
-               }
-   }
+    const LocalError& lape = pixelDet->localAlignmentError();
+    if (lape.valid()){ 
+      errorWithoutAPE = LocalError(errHitApe.xx() -lape.xx(), errHitApe.xy()- lape.xy(), errHitApe.yy()-lape.yy());
+    }
+  }
   if(Strip){
-    if(!dynamic_cast<const StripTopology*>(&detUnit.type().topology())){hitParams.hitState = TrackStruct::invalid; return hitParams;}
-     const StripGeomDetUnit * stripDet = (const StripGeomDetUnit*)(&detUnit);
-     const LocalError& lape = stripDet->localAlignmentError();
-           if (lape.valid())
+    if(!dynamic_cast<const StripTopology*>(&detUnit.type().topology())){
+      hitParams.hitState = TrackStruct::invalid; 
+      return hitParams;
+    }
+    const StripGeomDetUnit * stripDet = (const StripGeomDetUnit*)(&detUnit);
+    const LocalError& lape = stripDet->localAlignmentError();
+    if (lape.valid())
               { errorWithoutAPE = LocalError(errHitApe.xx() -lape.xx(), errHitApe.xy()- lape.xy(), errHitApe.yy()-lape.yy());
     }
   }
@@ -1112,8 +1116,7 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
   if(stateHit==TrackStruct::invalid || stateHitWoApe==TrackStruct::invalid || stateTrk==TrackStruct::invalid){
     hitParams.hitState = TrackStruct::invalid;
     return hitParams;
-  }
-  else if(stateHit==TrackStruct::negativeError || stateHitWoApe==TrackStruct::negativeError || stateTrk==TrackStruct::negativeError){
+  }else if(stateHit==TrackStruct::negativeError || stateHitWoApe==TrackStruct::negativeError || stateTrk==TrackStruct::negativeError){
     ++counter1;
     // Do not print error message by default
     //std::stringstream ss_error;
@@ -1165,12 +1168,28 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
   // Take global orientation into account for residuals (sign is not important for errors)
   
   float resXprime(999.F), resYprime(999.F), norResXprime(999.F), norResYprime(999.F);
-  if(m_tkTreeVar_[rawId].uDirection == 1){resXprime = resX; norResXprime = norResX;}
-  else if(m_tkTreeVar_[rawId].uDirection == -1){resXprime = -resX; norResXprime = -norResX;}
-  else {edm::LogError("FillHitVariables")<<"Incorrect value of uDirection, which gives global module orientation"; hitParams.hitState = TrackStruct::invalid; return hitParams;}
-  if(m_tkTreeVar_[rawId].vDirection == 1){resYprime = resY; norResYprime = norResY;}
-  else if(m_tkTreeVar_[rawId].vDirection == -1){resYprime = -resY; norResYprime = -norResY;}
-  else {edm::LogError("FillHitVariables")<<"Incorrect value of vDirection, which gives global module orientation"; hitParams.hitState = TrackStruct::invalid; return hitParams;}
+  if(m_tkTreeVar_[rawId].uDirection == 1){
+    resXprime = resX; 
+    norResXprime = norResX;
+  }else if(m_tkTreeVar_[rawId].uDirection == -1){
+    resXprime = -resX; 
+    norResXprime = -norResX;
+  }else{
+    edm::LogError("FillHitVariables")<<"Incorrect value of uDirection, which gives global module orientation"; 
+    hitParams.hitState = TrackStruct::invalid; 
+    return hitParams;
+  }
+  if(m_tkTreeVar_[rawId].vDirection == 1){
+    resYprime = resY; 
+    norResYprime = norResY;
+  }else if(m_tkTreeVar_[rawId].vDirection == -1){
+    resYprime = -resY; 
+    norResYprime = -norResY;
+  }else{
+    edm::LogError("FillHitVariables")<<"Incorrect value of vDirection, which gives global module orientation"; 
+    hitParams.hitState = TrackStruct::invalid; 
+    return hitParams;
+  }
   
   hitParams.xHit = xHit;
   hitParams.xTrk = xTrk;
@@ -1231,26 +1250,23 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
     hitParams.qBin = pixelHit.qBin();
     
     hitParams.isPixelHit = true;
-  }
-  else if(m_tkTreeVar_[rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TOB ||
-          m_tkTreeVar_[rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TEC){
+  }else if( m_tkTreeVar_[rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TOB ||
+            m_tkTreeVar_[rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TEC){
     if(!(dynamic_cast<const SiStripRecHit2D*>(&recHit) || dynamic_cast<const SiStripRecHit1D*>(&recHit))){
       edm::LogError("FillHitVariables")<<"RecHit in Strip is 'Matched' or 'Projected', but here all should be monohits per module";
       hitParams.hitState = TrackStruct::invalid; return hitParams;
     }
     const SiStripCluster* clusterPtr(nullptr);
-    if(m_tkTreeVar_[rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TOB){
+    if( m_tkTreeVar_[rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TOB){
       if(dynamic_cast<const SiStripRecHit1D*>(&recHit)){
         const SiStripRecHit1D& stripHit = dynamic_cast<const SiStripRecHit1D&>(recHit);
-  clusterPtr = &(*stripHit.cluster());
-      }
-      else if(dynamic_cast<const SiStripRecHit2D*>(&recHit)){
+        clusterPtr = &(*stripHit.cluster());
+      }else if(dynamic_cast<const SiStripRecHit2D*>(&recHit)){
         edm::LogWarning("FillHitVariables")<<"Data has TIB/TOB hits as SiStripRecHit2D and not 1D. Probably data is processed with CMSSW<34X. Nevertheless everything should work fine";
-  const SiStripRecHit2D& stripHit = dynamic_cast<const SiStripRecHit2D&>(recHit);
-  clusterPtr = &(*stripHit.cluster());
+        const SiStripRecHit2D& stripHit = dynamic_cast<const SiStripRecHit2D&>(recHit);
+        clusterPtr = &(*stripHit.cluster());
       }
-    }
-    else if(m_tkTreeVar_[rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TEC){
+    }else if( m_tkTreeVar_[rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TEC){
        const SiStripRecHit2D& stripHit = dynamic_cast<const SiStripRecHit2D&>(recHit);
        clusterPtr = &(*stripHit.cluster());
     }
@@ -1282,9 +1298,15 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
 
 
     // Calculate projection length corrected by drift
-    if(!hit.detUnit()){hitParams.hitState = TrackStruct::invalid; return hitParams;} // is it a single physical module?
+    if(!hit.detUnit()){
+      hitParams.hitState = TrackStruct::invalid; 
+      return hitParams;
+    } // is it a single physical module?
     const GeomDetUnit& detUnit = *hit.detUnit();
-    if(!dynamic_cast<const StripTopology*>(&detUnit.type().topology())){hitParams.hitState = TrackStruct::invalid; return hitParams;}
+    if(!dynamic_cast<const StripTopology*>(&detUnit.type().topology())){
+      hitParams.hitState = TrackStruct::invalid; 
+      return hitParams;
+    }
     
     
     edm::ESHandle<MagneticField> magFieldHandle;
@@ -1340,9 +1362,15 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
   }
   
   
-  if(!hitParams.isModuleUsable){hitParams.hitState = TrackStruct::invalid; return hitParams;}
+  if(!hitParams.isModuleUsable){
+    hitParams.hitState = TrackStruct::invalid; 
+    return hitParams;
+  }
   
-  if(hitParams.v_sector.empty()){hitParams.hitState = TrackStruct::notAssignedToSectors; return hitParams;}
+  if(hitParams.v_sector.empty()){
+    hitParams.hitState = TrackStruct::notAssignedToSectors; 
+    return hitParams;
+  }
   
   return hitParams;
 //}  
@@ -1396,8 +1424,7 @@ ApeEstimator::positionAndError2(const LocalPoint& localPoint, const LocalError& 
       return vPE2;
     }
     vPE2 = std::make_pair(TrackStruct::ok, this->radialPositionAndError2(localPoint, localError, topol));
-  }
-  else{
+  }else{
     edm::LogError("FillHitVariables")<<"Incorrect subdetector ID, hit not associated to tracker";
   }
   
@@ -1408,7 +1435,6 @@ ApeEstimator::positionAndError2(const LocalPoint& localPoint, const LocalError& 
 
 ApeEstimator::PositionAndError2
 ApeEstimator::rectangularPositionAndError2(const LocalPoint& lP, const LocalError& lE){
-  
   const float x(lP.x());
   const float y(lP.y());
   const float errX2(lE.xx());
@@ -1421,7 +1447,6 @@ ApeEstimator::rectangularPositionAndError2(const LocalPoint& lP, const LocalErro
 
 ApeEstimator::PositionAndError2
 ApeEstimator::radialPositionAndError2(const LocalPoint& lP, const LocalError& lE, const RadialStripTopology& topol){
-  
   MeasurementPoint measPos = topol.measurementPosition(lP);
   MeasurementError measErr = topol.measurementError(lP,lE);
   
@@ -1477,7 +1502,6 @@ ApeEstimator::hitSelection(){
   this->setHitSelectionMapUInt("widthX");
   this->setHitSelectionMapUInt("widthY");
   
-  
   this->setHitSelectionMap("baryStripX");
   this->setHitSelectionMap("baryStripY");
   this->setHitSelectionMap("clusterProbabilityXY");
@@ -1488,8 +1512,6 @@ ApeEstimator::hitSelection(){
   this->setHitSelectionMapUInt("hasBadPixels");
   this->setHitSelectionMapUInt("spansTwoRoc");
   this->setHitSelectionMapUInt("qBin");
-  
-  
   
   this->setHitSelectionMap("phiSens");
   this->setHitSelectionMap("phiSensX");
@@ -1516,17 +1538,18 @@ ApeEstimator::hitSelection(){
     if(!(*i_hitSelection).second.empty()){
       int entry(1); double intervalBegin(999.);
       for(std::vector<double>::iterator i_hitInterval = (*i_hitSelection).second.begin(); i_hitInterval != (*i_hitSelection).second.end(); ++entry){
-        if(entry%2==1){intervalBegin = *i_hitInterval; ++i_hitInterval;}
-  else{
-    if(intervalBegin > *i_hitInterval){
-      edm::LogError("HitSelector")<<"INVALID Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<" > "<<(*i_hitInterval)
+        if(entry%2==1){
+          intervalBegin = *i_hitInterval; ++i_hitInterval;
+        }else{
+          if(intervalBegin > *i_hitInterval){
+            edm::LogError("HitSelector")<<"INVALID Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<" > "<<(*i_hitInterval)
                                   <<"\n ... delete Selection for "<<(*i_hitSelection).first;
-      (*i_hitSelection).second.clear(); i_hitInterval = (*i_hitSelection).second.begin(); //emptyMap = true; i_hitSelection = m_hitSelection_.begin();
-    }else{
-      edm::LogInfo("HitSelector")<<"Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<", "<<(*i_hitInterval);
+            (*i_hitSelection).second.clear(); i_hitInterval = (*i_hitSelection).second.begin(); //emptyMap = true; i_hitSelection = m_hitSelection_.begin();
+          }else{
+            edm::LogInfo("HitSelector")<<"Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<", "<<(*i_hitInterval);
             ++i_hitInterval;
-    }
-  }
+          }
+        }
       }
       if(!(*i_hitSelection).second.empty())emptyMap = false;
     }
@@ -1538,17 +1561,19 @@ ApeEstimator::hitSelection(){
     if(!(*i_hitSelection).second.empty()){
       int entry(1); unsigned int intervalBegin(999);
       for(std::vector<unsigned int>::iterator i_hitInterval = (*i_hitSelection).second.begin(); i_hitInterval != (*i_hitSelection).second.end(); ++entry){
-        if(entry%2==1){intervalBegin = *i_hitInterval; ++i_hitInterval;}
-  else{
-    if(intervalBegin > *i_hitInterval){
-      edm::LogError("HitSelector")<<"INVALID Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<" > "<<(*i_hitInterval)
+        if(entry%2==1){
+          intervalBegin = *i_hitInterval; 
+          ++i_hitInterval;
+        }else{
+          if(intervalBegin > *i_hitInterval){
+            edm::LogError("HitSelector")<<"INVALID Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<" > "<<(*i_hitInterval)
                                   <<"\n ... delete Selection for "<<(*i_hitSelection).first;
-      (*i_hitSelection).second.clear(); i_hitInterval = (*i_hitSelection).second.begin(); //emptyMap = true; i_hitSelection = m_hitSelection_.begin();
-    }else{
-      edm::LogInfo("HitSelector")<<"Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<", "<<(*i_hitInterval);
+            (*i_hitSelection).second.clear(); i_hitInterval = (*i_hitSelection).second.begin(); //emptyMap = true; i_hitSelection = m_hitSelection_.begin();
+          }else{
+            edm::LogInfo("HitSelector")<<"Interval selected for  "<<(*i_hitSelection).first<<":\t"<<intervalBegin<<", "<<(*i_hitInterval);
             ++i_hitInterval;
-    }
-  }
+          }
+        }
       }
       if(!(*i_hitSelection).second.empty())emptyMapUInt = false;
     }
@@ -1628,37 +1653,34 @@ ApeEstimator::hitSelected(TrackStruct::HitParameterStruct& hitParams)const{
     
     // For pixel only
     if(hitParams.isPixelHit){
-    if     (hitSelection == "chargePixel")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargePixel))isGoodHit = false;}
-    else if(hitSelection == "clusterProbabilityXY") {if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityXY))isGoodHit = false;}
-    else if(hitSelection == "clusterProbabilityQ")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityQ))isGoodHit = false;}
-    else if(hitSelection == "clusterProbabilityXYQ"){if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityXYQ))isGoodHit = false;}
-    else if(hitSelection == "logClusterProbability"){if(!this->inDoubleInterval(v_hitSelection, hitParams.logClusterProbability))isGoodHit = false;}
-    
-    else if(hitSelection == "baryStripX")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.baryStripX))isGoodHitX = false;}
-    else if(hitSelection == "baryStripY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.baryStripY))isGoodHitY = false;}
-    
-    
-    
-    else if(hitSelection == "resY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.resY))isGoodHitY = false;}
-    else if(hitSelection == "norResY")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.norResY))isGoodHitY = false;}
-    else if(hitSelection == "probY")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.probY))isGoodHitY = false;}
-    else if(hitSelection == "errYHit")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errYHit))isGoodHitY = false;}
-    else if(hitSelection == "errYTrk")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errYTrk))isGoodHitY = false;}
-    else if(hitSelection == "errY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.errY))isGoodHitY = false;}
-    else if(hitSelection == "errY2")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.errY2))isGoodHitY = false;}
-    }
-    
-    // For strip only
-    else{
-    if     (hitSelection == "widthProj")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.projWidth))isGoodHit = false;}
-    else if(hitSelection == "widthDiff")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.projWidth-static_cast<float>(hitParams.widthX)))isGoodHit = false;}
-    else if(hitSelection == "charge")         {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeStrip))isGoodHit = false;}
-    else if(hitSelection == "maxCharge")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.maxCharge))isGoodHit = false;}
-    else if(hitSelection == "chargeOnEdges")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeOnEdges))isGoodHit = false;}
-    else if(hitSelection == "chargeAsymmetry"){if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeAsymmetry))isGoodHit = false;}
-    else if(hitSelection == "chargeLRplus")   {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeLRplus))isGoodHit = false;}
-    else if(hitSelection == "chargeLRminus")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeLRminus))isGoodHit = false;}
-    else if(hitSelection == "sOverN")         {if(!this->inDoubleInterval(v_hitSelection, hitParams.sOverN))isGoodHit = false;}
+      if     (hitSelection == "chargePixel")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargePixel))isGoodHit = false;}
+      else if(hitSelection == "clusterProbabilityXY") {if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityXY))isGoodHit = false;}
+      else if(hitSelection == "clusterProbabilityQ")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityQ))isGoodHit = false;}
+      else if(hitSelection == "clusterProbabilityXYQ"){if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityXYQ))isGoodHit = false;}
+      else if(hitSelection == "logClusterProbability"){if(!this->inDoubleInterval(v_hitSelection, hitParams.logClusterProbability))isGoodHit = false;}
+      
+      else if(hitSelection == "baryStripX")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.baryStripX))isGoodHitX = false;}
+      else if(hitSelection == "baryStripY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.baryStripY))isGoodHitY = false;}
+      
+      
+      
+      else if(hitSelection == "resY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.resY))isGoodHitY = false;}
+      else if(hitSelection == "norResY")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.norResY))isGoodHitY = false;}
+      else if(hitSelection == "probY")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.probY))isGoodHitY = false;}
+      else if(hitSelection == "errYHit")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errYHit))isGoodHitY = false;}
+      else if(hitSelection == "errYTrk")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errYTrk))isGoodHitY = false;}
+      else if(hitSelection == "errY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.errY))isGoodHitY = false;}
+      else if(hitSelection == "errY2")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.errY2))isGoodHitY = false;}
+    }else{ // For strip only
+      if     (hitSelection == "widthProj")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.projWidth))isGoodHit = false;}
+      else if(hitSelection == "widthDiff")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.projWidth-static_cast<float>(hitParams.widthX)))isGoodHit = false;}
+      else if(hitSelection == "charge")         {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeStrip))isGoodHit = false;}
+      else if(hitSelection == "maxCharge")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.maxCharge))isGoodHit = false;}
+      else if(hitSelection == "chargeOnEdges")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeOnEdges))isGoodHit = false;}
+      else if(hitSelection == "chargeAsymmetry"){if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeAsymmetry))isGoodHit = false;}
+      else if(hitSelection == "chargeLRplus")   {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeLRplus))isGoodHit = false;}
+      else if(hitSelection == "chargeLRminus")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeLRminus))isGoodHit = false;}
+      else if(hitSelection == "sOverN")         {if(!this->inDoubleInterval(v_hitSelection, hitParams.sOverN))isGoodHit = false;}
     }
   }
   
@@ -1671,28 +1693,24 @@ ApeEstimator::hitSelected(TrackStruct::HitParameterStruct& hitParams)const{
     
     // For pixel only
     if(hitParams.isPixelHit){
-    if(hitSelection == "isOnEdge")         {if(!this->inUintInterval(v_hitSelection, hitParams.isOnEdge))isGoodHit = false;}
-    else if(hitSelection == "hasBadPixels"){if(!this->inUintInterval(v_hitSelection, hitParams.hasBadPixels))isGoodHit = false;}
-    else if(hitSelection == "spansTwoRoc") {if(!this->inUintInterval(v_hitSelection, hitParams.spansTwoRoc))isGoodHit = false;}
-    else if(hitSelection == "qBin")        {if(!this->inUintInterval(v_hitSelection, hitParams.qBin))isGoodHit = false;}
-    
-    else if(hitSelection == "widthX")   {if(!this->inUintInterval(v_hitSelection, hitParams.widthX))isGoodHitX = false;}
-    else if(hitSelection == "widthY")    {if(!this->inUintInterval(v_hitSelection, hitParams.widthY))isGoodHitY = false;}
-    }
-    
-    // For strip only
-    else{
-    if     (hitSelection == "width")     {if(!this->inUintInterval(v_hitSelection, hitParams.widthX))isGoodHit = false;}
-    else if(hitSelection == "edgeStrips"){if(!this->inUintInterval(v_hitSelection, hitParams.maxStrip, hitParams.maxStripInv))isGoodHit = false;}
-    else if(hitSelection == "maxIndex")  {if(!this->inUintInterval(v_hitSelection, hitParams.maxIndex))isGoodHit = false;}
+      if(hitSelection == "isOnEdge")          {if(!this->inUintInterval(v_hitSelection, hitParams.isOnEdge))isGoodHit = false;}
+      else if(hitSelection == "hasBadPixels") {if(!this->inUintInterval(v_hitSelection, hitParams.hasBadPixels))isGoodHit = false;}
+      else if(hitSelection == "spansTwoRoc")  {if(!this->inUintInterval(v_hitSelection, hitParams.spansTwoRoc))isGoodHit = false;}
+      else if(hitSelection == "qBin")         {if(!this->inUintInterval(v_hitSelection, hitParams.qBin))isGoodHit = false;}
+      
+      else if(hitSelection == "widthX")       {if(!this->inUintInterval(v_hitSelection, hitParams.widthX))isGoodHitX = false;}
+      else if(hitSelection == "widthY")       {if(!this->inUintInterval(v_hitSelection, hitParams.widthY))isGoodHitY = false;}
+    }else{ // For strip only
+      if     (hitSelection == "width")     {if(!this->inUintInterval(v_hitSelection, hitParams.widthX))isGoodHit = false;}
+      else if(hitSelection == "edgeStrips"){if(!this->inUintInterval(v_hitSelection, hitParams.maxStrip, hitParams.maxStripInv))isGoodHit = false;}
+      else if(hitSelection == "maxIndex")  {if(!this->inUintInterval(v_hitSelection, hitParams.maxIndex))isGoodHit = false;}
     }
   }
   
   if(hitParams.isPixelHit){
     hitParams.goodXMeasurement = isGoodHit && isGoodHitX;
     hitParams.goodYMeasurement = isGoodHit && isGoodHitY;
-  }
-  else{
+  }else{
     hitParams.goodXMeasurement = isGoodHit && isGoodHitX;
     hitParams.goodYMeasurement = false;
   }
@@ -1733,8 +1751,7 @@ ApeEstimator::inUintInterval(const std::vector<unsigned int>& v_hitSelection, co
 
 
 void
-ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
-  
+ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){ 
   unsigned int goodHitsPerTrack(trackStruct.v_hitParams.size());
   tkDetector_.HitsGood->Fill(goodHitsPerTrack);
   tkDetector_.HitsGoodVsHitsValid->Fill(trackStruct.trkParams.hitsValid,goodHitsPerTrack);
@@ -1793,8 +1810,7 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
   tkDetector_.PPtVsTheta       ->Fill(trackStruct.trkParams.theta*180./M_PI,trackStruct.trkParams.pt);
   
   
-  for(std::vector<TrackStruct::HitParameterStruct>::const_iterator i_hit = trackStruct.v_hitParams.begin();
-      i_hit != trackStruct.v_hitParams.end(); ++i_hit){
+  for(std::vector<TrackStruct::HitParameterStruct>::const_iterator i_hit = trackStruct.v_hitParams.begin(); i_hit != trackStruct.v_hitParams.end(); ++i_hit){
     const TrackStruct::HitParameterStruct& hit(*i_hit);
     //Put here from earlier method
     if(hit.hitState == TrackStruct::notAssignedToSectors)continue;
@@ -1802,7 +1818,10 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
     for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
       bool moduleInSector(false);
       for(std::vector<unsigned int>::const_iterator i_hitSector = hit.v_sector.begin(); i_hitSector != hit.v_sector.end(); ++i_hitSector){
-  if((*i_sector).first == *i_hitSector){moduleInSector = true; break;}
+        if((*i_sector).first == *i_hitSector){
+          moduleInSector = true; 
+          break;
+        }
       }
       if(!moduleInSector)continue;
       TrackerSectorStruct& sector((*i_sector).second);
@@ -1810,11 +1829,11 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
       if(hit.goodXMeasurement){
         std::map<std::string,TrackerSectorStruct::CorrelationHists>& m_corrHists(sector.m_correlationHistsX);
   
-  // Cluster and Hit Parameters
-  this->fillHitHistsXForAnalyzerMode(hit, sector);
-  
-  // Track Parameters
-  m_corrHists["HitsValid"].fillCorrHistsX(hit,trackStruct.trkParams.hitsValid);
+        // Cluster and Hit Parameters
+        this->fillHitHistsXForAnalyzerMode(hit, sector);
+        
+        // Track Parameters
+        m_corrHists["HitsValid"].fillCorrHistsX(hit,trackStruct.trkParams.hitsValid);
         m_corrHists["HitsGood"].fillCorrHistsX(hit,goodHitsPerTrack);
         m_corrHists["HitsInvalid"].fillCorrHistsX(hit,trackStruct.trkParams.hitsInvalid);
         m_corrHists["Hits2D"].fillCorrHistsX(hit,trackStruct.trkParams.hits2D);
@@ -1830,14 +1849,13 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
         m_corrHists["P"].fillCorrHistsX(hit,trackStruct.trkParams.p);
         m_corrHists["InvP"].fillCorrHistsX(hit,1./trackStruct.trkParams.p);
         m_corrHists["MeanAngle"].fillCorrHistsX(hit,trackStruct.trkParams.meanPhiSensToNorm*180./M_PI);
-        //m_corrHists[""].fillCorrHistsX(hit, hit.);
       }
-      
+            
       if(hit.goodYMeasurement){
         std::map<std::string,TrackerSectorStruct::CorrelationHists>& m_corrHists(sector.m_correlationHistsY);
   
-  // Cluster and Hit Parameters
-  this->fillHitHistsYForAnalyzerMode(hit, sector);
+        // Cluster and Hit Parameters
+        this->fillHitHistsYForAnalyzerMode(hit, sector);
   
         // Track Parameters
         m_corrHists["HitsValid"].fillCorrHistsY(hit,trackStruct.trkParams.hitsValid);
@@ -1861,17 +1879,17 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
       // Special Histograms 
       for(std::map<std::string,std::vector<TH1*> >::iterator i_sigmaX = sector.m_sigmaX.begin(); i_sigmaX != sector.m_sigmaX.end(); ++i_sigmaX){
         for(std::vector<TH1*>::iterator iHist = (*i_sigmaX).second.begin(); iHist != (*i_sigmaX).second.end(); ++iHist){
-    if     ((*i_sigmaX).first=="sigmaXHit")(*iHist)->Fill(hit.errXHit*10000.);
-    else if((*i_sigmaX).first=="sigmaXTrk")(*iHist)->Fill(hit.errXTrk*10000.);
-    else if((*i_sigmaX).first=="sigmaX")   (*iHist)->Fill(hit.errX*10000.);
-  }
+          if     ((*i_sigmaX).first=="sigmaXHit")(*iHist)->Fill(hit.errXHit*10000.);
+          else if((*i_sigmaX).first=="sigmaXTrk")(*iHist)->Fill(hit.errXTrk*10000.);
+          else if((*i_sigmaX).first=="sigmaX")   (*iHist)->Fill(hit.errX*10000.);
+        }
       }
       for(std::map<std::string,std::vector<TH1*> >::iterator i_sigmaY = sector.m_sigmaY.begin(); i_sigmaY != sector.m_sigmaY.end(); ++i_sigmaY){
         for(std::vector<TH1*>::iterator iHist = (*i_sigmaY).second.begin(); iHist != (*i_sigmaY).second.end(); ++iHist){
-    if     ((*i_sigmaY).first=="sigmaYHit")(*iHist)->Fill(hit.errYHit*10000.);
-    else if((*i_sigmaY).first=="sigmaYTrk")(*iHist)->Fill(hit.errYTrk*10000.);
-    else if((*i_sigmaY).first=="sigmaY")   (*iHist)->Fill(hit.errY*10000.);
-  }
+          if     ((*i_sigmaY).first=="sigmaYHit")(*iHist)->Fill(hit.errYHit*10000.);
+          else if((*i_sigmaY).first=="sigmaYTrk")(*iHist)->Fill(hit.errYTrk*10000.);
+          else if((*i_sigmaY).first=="sigmaY")   (*iHist)->Fill(hit.errY*10000.);
+        }
       }
     }
   }
@@ -1898,8 +1916,7 @@ ApeEstimator::fillHitHistsXForAnalyzerMode(const TrackStruct::HitParameterStruct
     m_corrHists["SpansTwoRoc"].fillCorrHistsX(hit, hit.spansTwoRoc);
     m_corrHists["QBin"].fillCorrHistsX(hit, hit.qBin);
     
-  }
-  else{
+  }else{
     m_corrHists["ChargeStrip"].fillCorrHistsX(hit, hit.chargeStrip);
     m_corrHists["MaxStrip"].fillCorrHistsX(hit, hit.maxStrip);
     m_corrHists["MaxCharge"].fillCorrHistsX(hit, hit.maxCharge);
@@ -1995,16 +2012,14 @@ ApeEstimator::fillHitHistsYForAnalyzerMode(const TrackStruct::HitParameterStruct
 
 void
 ApeEstimator::fillHistsForApeCalculation(const TrackStruct& trackStruct){
-  
   unsigned int goodHitsPerTrack(trackStruct.v_hitParams.size());
   
   if(parameterSet_.getParameter<bool>("applyTrackCuts")){
     // which tracks to take? need min. nr. of selected hits?
     if(goodHitsPerTrack < minGoodHitsPerTrack_)return;
   }
-   
-  for(std::vector<TrackStruct::HitParameterStruct>::const_iterator i_hit = trackStruct.v_hitParams.begin();
-      i_hit != trackStruct.v_hitParams.end(); ++i_hit){
+  
+  for(std::vector<TrackStruct::HitParameterStruct>::const_iterator i_hit = trackStruct.v_hitParams.begin(); i_hit != trackStruct.v_hitParams.end(); ++i_hit){
     // Put here from earlier method
     if(i_hit->hitState == TrackStruct::notAssignedToSectors)continue;
     
@@ -2012,44 +2027,45 @@ ApeEstimator::fillHistsForApeCalculation(const TrackStruct& trackStruct){
       
       bool moduleInSector(false);
       for(std::vector<unsigned int>::const_iterator i_hitSector = (*i_hit).v_sector.begin(); i_hitSector != (*i_hit).v_sector.end(); ++i_hitSector){
-  if((*i_sector).first == *i_hitSector){moduleInSector = true; break;}
+        if((*i_sector).first == *i_hitSector){
+          moduleInSector = true; 
+          break;
+        }
       }
       if(!moduleInSector)continue;      
       
       if(!calculateApe_)continue;
       
       if((*i_hit).goodXMeasurement){
-        for(std::map<unsigned int,std::pair<double,double> >::const_iterator i_errBins = m_resErrBins_.begin();
-            i_errBins != m_resErrBins_.end(); ++i_errBins){
-    // Separate the bins for residual resolution w/o APE, to be consistent within iterations where APE will change (have same hit always in same bin)
-    // So also fill this value in the histogram sigmaX
-    // But of course use the normalized residual regarding the APE to have its influence in its width
-    if((*i_hit).errXWoApe < (*i_errBins).second.first || (*i_hit).errXWoApe >= (*i_errBins).second.second){
-      continue;
-    }
-    (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaX"] ->Fill((*i_hit).errXWoApe);
-    (*i_sector).second.m_binnedHists[(*i_errBins).first]["norResX"]->Fill((*i_hit).norResX);
-    break;
+        for(std::map<unsigned int,std::pair<double,double> >::const_iterator i_errBins = m_resErrBins_.begin(); i_errBins != m_resErrBins_.end(); ++i_errBins){
+          // Separate the bins for residual resolution w/o APE, to be consistent within iterations where APE will change (have same hit always in same bin)
+          // So also fill this value in the histogram sigmaX
+          // But of course use the normalized residual regarding the APE to have its influence in its width
+          if((*i_hit).errXWoApe < (*i_errBins).second.first || (*i_hit).errXWoApe >= (*i_errBins).second.second){
+            continue;
+          }
+          (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaX"] ->Fill((*i_hit).errXWoApe);
+          (*i_sector).second.m_binnedHists[(*i_errBins).first]["norResX"]->Fill((*i_hit).norResX);
+          break;
         }
-  (*i_sector).second.ResX->Fill((*i_hit).resX*10000.);
-  (*i_sector).second.NorResX->Fill((*i_hit).norResX);
+        (*i_sector).second.ResX->Fill((*i_hit).resX*10000.);
+        (*i_sector).second.NorResX->Fill((*i_hit).norResX);
       }
       
       if((*i_hit).goodYMeasurement){
-        for(std::map<unsigned int,std::pair<double,double> >::const_iterator i_errBins = m_resErrBins_.begin();
-            i_errBins != m_resErrBins_.end(); ++i_errBins){
-    // Separate the bins for residual resolution w/o APE, to be consistent within iterations where APE will change (have same hit always in same bin)
-    // So also fill this value in the histogram sigmaY
-    // But of course use the normalized residual regarding the APE to have its influence in its width
-    if((*i_hit).errYWoApe < (*i_errBins).second.first || (*i_hit).errYWoApe >= (*i_errBins).second.second){
-      continue;
-    }
-    (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaY"] ->Fill((*i_hit).errYWoApe);
-    (*i_sector).second.m_binnedHists[(*i_errBins).first]["norResY"]->Fill((*i_hit).norResY);
-    break;
+        for(std::map<unsigned int,std::pair<double,double> >::const_iterator i_errBins = m_resErrBins_.begin(); i_errBins != m_resErrBins_.end(); ++i_errBins){
+            // Separate the bins for residual resolution w/o APE, to be consistent within iterations where APE will change (have same hit always in same bin)
+            // So also fill this value in the histogram sigmaY
+            // But of course use the normalized residual regarding the APE to have its influence in its width
+            if((*i_hit).errYWoApe < (*i_errBins).second.first || (*i_hit).errYWoApe >= (*i_errBins).second.second){
+              continue;
+            }
+            (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaY"] ->Fill((*i_hit).errYWoApe);
+            (*i_sector).second.m_binnedHists[(*i_errBins).first]["norResY"]->Fill((*i_hit).norResY);
+            break;
         }
-  (*i_sector).second.ResY->Fill((*i_hit).resY*10000.);
-  (*i_sector).second.NorResY->Fill((*i_hit).norResY);
+        (*i_sector).second.ResY->Fill((*i_hit).resY*10000.);
+        (*i_sector).second.NorResY->Fill((*i_hit).norResY);
       }
     }
   }
@@ -2064,24 +2080,24 @@ ApeEstimator::fillHistsForApeCalculation(const TrackStruct& trackStruct){
 
 void
 ApeEstimator::calculateAPE(){
-   // Loop over sectors for calculating APE
-   for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){    
+  // Loop over sectors for calculating APE
+  for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){    
      
      // Loop over residual error bins to calculate APE for every bin
-     for(std::map<unsigned int, std::map<std::string,TH1*> >::const_iterator i_errBins = (*i_sector).second.m_binnedHists.begin();
-         i_errBins != (*i_sector).second.m_binnedHists.end(); ++i_errBins){
-       std::map<std::string,TH1*> m_Hists = (*i_errBins).second;
+    for(std::map<unsigned int, std::map<std::string,TH1*> >::const_iterator i_errBins = (*i_sector).second.m_binnedHists.begin();
+      i_errBins != (*i_sector).second.m_binnedHists.end(); ++i_errBins){
+      std::map<std::string,TH1*> m_Hists = (*i_errBins).second;
        
        // Fitting Parameters
-       double integralX = m_Hists["norResX"]->Integral();
-       (*i_sector).second.EntriesX->SetBinContent((*i_errBins).first, integralX);
-       
-       if((*i_sector).second.isPixel){
-         double integralY = m_Hists["norResY"]->Integral();
-         (*i_sector).second.EntriesY->SetBinContent((*i_errBins).first, integralY);
-       }
-     }
-   }
+      double integralX = m_Hists["norResX"]->Integral();
+      (*i_sector).second.EntriesX->SetBinContent((*i_errBins).first, integralX);
+      
+      if((*i_sector).second.isPixel){
+        double integralY = m_Hists["norResY"]->Integral();
+        (*i_sector).second.EntriesY->SetBinContent((*i_errBins).first, integralY);
+      }
+    }
+  }
 }
 
 
@@ -2096,32 +2112,30 @@ ApeEstimator::isHit2D(const TrackingRecHit &hit) const
   // we count SiStrip stereo modules as 2D if selected via countStereoHitAs2D_
   // (since they provide theta information)
   // --- NO, here it is always set to true ---
-  if (!hit.isValid() ||
-      (hit.dimension() < 2 && !dynamic_cast<const SiStripRecHit1D*>(&hit))){
+  if(!hit.isValid() || (hit.dimension() < 2 && !dynamic_cast<const SiStripRecHit1D*>(&hit))){
     return false; // real RecHit1D - but SiStripRecHit1D depends on countStereoHitAs2D_
-  } else {
+  }else{
     const DetId detId(hit.geographicalId());
-    if (detId.det() == DetId::Tracker) {
-      if (detId.subdetId() == PixelSubdetector::PixelBarrel || detId.subdetId() == PixelSubdetector::PixelEndcap) {
+    if(detId.det() == DetId::Tracker) {
+      if(detId.subdetId() == PixelSubdetector::PixelBarrel || detId.subdetId() == PixelSubdetector::PixelEndcap) {
         return true; // pixel is always 2D
-      } else { // should be SiStrip now
-  const SiStripDetId stripId(detId);
-  if (stripId.stereo()) return true; // stereo modules
-        else if (dynamic_cast<const SiStripRecHit1D*>(&hit)
-     || dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // rphi modules hit
-  //the following two are not used any more since ages... 
+      }else{ // should be SiStrip now
+        const SiStripDetId stripId(detId);
+        if (stripId.stereo()) return true; // stereo modules
+        else if (dynamic_cast<const SiStripRecHit1D*>(&hit) || dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // rphi modules hit
+        //the following two are not used any more since ages... 
         else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) return true; // matched is 2D
         else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
-    const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
-    return (this->isHit2D(pH->originalHit())); // depends on original...
-  } else {
+          const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
+          return (this->isHit2D(pH->originalHit())); // depends on original...
+        }else{
           edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
                                       << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
         }
       }
-    } else { // not tracker??
+    }else{ // not tracker??
       edm::LogWarning("DetectorMismatch") << "@SUB=AlignmentTrackSelector::isHit2D"
                                           << "Hit not in tracker with 'official' dimension >=2.";
       return true; // dimension() >= 2 so accept that...
@@ -2138,16 +2152,13 @@ ApeEstimator::isHit2D(const TrackingRecHit &hit) const
 void
 ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   
    reco::BeamSpot beamSpot;
    edm::Handle<reco::BeamSpot> beamSpotHandle;
    iEvent.getByToken(offlinebeamSpot_, beamSpotHandle);
    
    if (beamSpotHandle.isValid()){
      beamSpot = *beamSpotHandle;
-   }
-   else
-   {
+   }else{
      edm::LogError("ApeEstimator")<<"No beam spot available from EventSetup"
                                   <<"\n...skip event";
      return;
@@ -2204,7 +2215,6 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ------------ method called once each job just before starting event loop  ------------
 void 
 ApeEstimator::beginJob(){
-   
    this->hitSelection();
    
    this->sectorBuilder();
@@ -2223,7 +2233,6 @@ ApeEstimator::beginJob(){
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ApeEstimator::endJob() {
-   
    if(calculateApe_)this->calculateAPE();
    
    edm::LogInfo("HitSelector")<<"\nThere are "<<counter1<< " negative Errors calculated\n";
