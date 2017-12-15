@@ -20,8 +20,8 @@ class DQMFileSaverPB : public DQMFileSaverBase {
   // used by the JsonWritingTimedPoolOutputModule,
   // fms will be nullptr in such case
   static boost::property_tree::ptree fillJson(
-      int run, int lumi, const std::string &dataFilePathName, const std::string transferDestinationStr,
-      const std::string mergeTypeStr, evf::FastMonitoringService *fms);
+      int run, int lumi, const std::string &dataFilePathName, const std::string& transferDestinationStr,
+      const std::string& mergeTypeStr, evf::FastMonitoringService *fms);
 
  protected:
   void initRun() const override;

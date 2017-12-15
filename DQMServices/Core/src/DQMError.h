@@ -4,9 +4,9 @@
 # include <stdexcept>
 # if !WITHOUT_CMS_FRAMEWORK
 #  include "FWCore/Utilities/interface/EDMException.h"
-typedef cms::Exception DQMError;
+using DQMError = cms::Exception;
 # else
-typedef std::runtime_error DQMError;
+using DQMError = std::runtime_error;
 # endif
 
 void raiseDQMError(const char *context, const char *fmt, ...);

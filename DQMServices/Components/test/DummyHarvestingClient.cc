@@ -36,6 +36,8 @@
 
 // system include files
 #include <memory>
+#include <utility>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -70,7 +72,7 @@ class TH1FCumulator : public CumulatorBase {
                 std::string folder,
                 bool iSetLumiFlag)
       :store_(&iStore),
-       folder_(folder) {
+       folder_(std::move(std::move(folder))) {
     std::string extension;
     if (iSetLumiFlag) {
       extension = "_lumi";
@@ -78,10 +80,10 @@ class TH1FCumulator : public CumulatorBase {
     name_ = iPSet.getUntrackedParameter<std::string>("name") + extension;
   }
 
-  virtual ~TH1FCumulator() {}
+  ~TH1FCumulator() override = default;
 
-  void cumulate(int ls) {
-    MonitorElement *tmp = NULL;
+  void cumulate(int ls) override {
+    MonitorElement *tmp = nullptr;
     if (!(tmp = store_->get(folder_ + name_)))
       throw cms::Exception("MissingHistogram") << name_ << std::endl;
 
@@ -92,12 +94,12 @@ class TH1FCumulator : public CumulatorBase {
                 << " in LS: " << ls << std::endl;
   }
 
-  void finalizeCumulate() {
+  void finalizeCumulate() override {
     if (DEBUG)
       std::cout << "TH1FCumulator::finalizaCumulate()" << std::endl;
 
-    std::map<int, int>::iterator it = entries_per_LS_.begin();
-    std::map<int, int>::iterator ite = entries_per_LS_.end();
+    auto it = entries_per_LS_.begin();
+    auto ite = entries_per_LS_.end();
     std::string extension("_cumulative");
     store_->setCurrentFolder(folder_);
     MonitorElement *tmp = store_->book1D(name_ + extension,
@@ -134,7 +136,7 @@ class TH2FCumulator : public CumulatorBase {
                 std::string folder,
                 bool iSetLumiFlag)
       :store_(&iStore),
-       folder_(folder) {
+       folder_(std::move(std::move(folder))) {
     std::string extension;
     if (iSetLumiFlag) {
       extension = "_lumi";
@@ -142,19 +144,19 @@ class TH2FCumulator : public CumulatorBase {
     name_ = iPSet.getUntrackedParameter<std::string>("name")+extension;
   }
 
-  virtual ~TH2FCumulator() {}
+  ~TH2FCumulator() override = default;
 
-  void cumulate(int ls) {
-    MonitorElement *tmp = NULL;
+  void cumulate(int ls) override {
+    MonitorElement *tmp = nullptr;
     if (!(tmp = store_->get(folder_ + name_)))
       throw cms::Exception("MissingHistogram") << name_ << std::endl;
 
     entries_per_LS_[ls] = tmp->getTH2F()->GetEntries();
   };
 
-  void finalizeCumulate() {
-    std::map<int, int>::iterator it = entries_per_LS_.begin();
-    std::map<int, int>::iterator ite = entries_per_LS_.end();
+  void finalizeCumulate() override {
+    auto it = entries_per_LS_.begin();
+    auto ite = entries_per_LS_.end();
     std::string extension("_cumulative");
     store_->setCurrentFolder(folder_);
     MonitorElement *tmp = store_->book1D(name_ + extension,
@@ -184,23 +186,23 @@ class TH2FCumulator : public CumulatorBase {
 
 class DummyHarvestingClient : public edm::EDAnalyzer {
  public:
-  typedef std::vector<edm::ParameterSet> PSets;
+  using PSets = std::vector<edm::ParameterSet>;
   explicit DummyHarvestingClient(const edm::ParameterSet&);
-  ~DummyHarvestingClient();
+  ~DummyHarvestingClient() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&,
+                                    edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&,
+                                  edm::EventSetup const&) override;
 
   void bookHistograms();
   // ----------member data ---------------------------
@@ -240,8 +242,8 @@ DummyHarvestingClient::DummyHarvestingClient(const edm::ParameterSet& iConfig)
   std::string folder = iConfig.getUntrackedParameter<std::string>("folder", "/TestFolder/");
   if (m_cumulateLumis) {
     m_lumiCumulators.reserve(elements_.size());
-    PSets::const_iterator it = elements_.begin();
-    PSets::const_iterator ite = elements_.end();
+    auto it = elements_.begin();
+    auto ite = elements_.end();
     for (; it != ite; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
@@ -261,8 +263,7 @@ void DummyHarvestingClient::bookHistograms() {
 }
 
 
-DummyHarvestingClient::~DummyHarvestingClient() {
-}
+DummyHarvestingClient::~DummyHarvestingClient() = default;
 
 
 //
@@ -298,8 +299,8 @@ DummyHarvestingClient::beginRun(edm::Run const&, edm::EventSetup const&) {
 // ------------ method called when ending the processing of a run  ------------
 void
 DummyHarvestingClient::endRun(edm::Run const&, edm::EventSetup const&) {
-  std::vector<boost::shared_ptr<CumulatorBase> >::iterator it = m_lumiCumulators.begin();
-  std::vector<boost::shared_ptr<CumulatorBase> >::iterator ite = m_lumiCumulators.end();
+  auto it = m_lumiCumulators.begin();
+  auto ite = m_lumiCumulators.end();
   for (; it != ite; ++it)
     (*it)->finalizeCumulate();
 }
@@ -314,8 +315,8 @@ DummyHarvestingClient::beginLuminosityBlock(edm::LuminosityBlock const&,
 void
 DummyHarvestingClient::endLuminosityBlock(edm::LuminosityBlock const& iLumi,
                                           edm::EventSetup const&) {
-  std::vector<boost::shared_ptr<CumulatorBase> >::iterator it = m_lumiCumulators.begin();
-  std::vector<boost::shared_ptr<CumulatorBase> >::iterator ite = m_lumiCumulators.end();
+  auto it = m_lumiCumulators.begin();
+  auto ite = m_lumiCumulators.end();
   for (; it != ite; ++it)
     (*it)->cumulate(iLumi.id().luminosityBlock());
 }
