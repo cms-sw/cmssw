@@ -20,7 +20,6 @@
 
 
 // system include files
-#include <memory>
 #include <fstream>
 #include <sstream>
 
@@ -81,7 +80,9 @@ class ApeTreeCreateDefault : public edm::one::EDAnalyzer<> {
     bool checkModulePositions(const float, const std::vector<double>&)const;
     
     // ----------member data ---------------------------
-    const edm::ParameterSet parameterSet_;
+    const std::string resultFile_;
+    const std::string trackerTreeFile_;
+    const std::vector<edm::ParameterSet> sectors_;
     
     std::map<unsigned int, TrackerSectorStruct> m_tkSector_;
     std::map<unsigned int, ReducedTrackerTreeVariables> m_tkTreeVar_;
@@ -100,7 +101,9 @@ class ApeTreeCreateDefault : public edm::one::EDAnalyzer<> {
 // constructors and destructor
 //
 ApeTreeCreateDefault::ApeTreeCreateDefault(const edm::ParameterSet& iConfig):
-parameterSet_(iConfig)
+  resultFile_(iConfig.getParameter<std::string>("resultFile")),
+  trackerTreeFile_(iConfig.getParameter<std::string>("trackerTreeFile")),
+  sectors_(iConfig.getParameter<std::vector<edm::ParameterSet> >("sectors"))
 {
 }
 
@@ -117,7 +120,7 @@ void
 ApeTreeCreateDefault::sectorBuilder()
 {
   // Same procedure as in ApeEstimator.cc
-  TFile* tkTreeFile(TFile::Open((parameterSet_.getParameter<std::string>("TrackerTreeFile")).c_str()));
+  TFile* tkTreeFile(TFile::Open(trackerTreeFile_.c_str()));
   if(tkTreeFile){
     edm::LogInfo("SectorBuilder")<<"TrackerTreeFile OK";
   }else{
@@ -132,11 +135,13 @@ ApeTreeCreateDefault::sectorBuilder()
     edm::LogError("SectorBuilder")<<"TrackerTree not found in file";
     return;
   }
+  
   unsigned int rawId(999), subdetId(999), layer(999), side(999), half(999), rod(999), ring(999), petal(999),
          blade(999), panel(999), outerInner(999), module(999), nStrips(999);
   bool isDoubleSide(false), isRPhi(false), isStereo(false);
   int uDirection(999), vDirection(999), wDirection(999);
   float posR(999.F), posPhi(999.F), posEta(999.F), posX(999.F), posY(999.F), posZ(999.F); 
+  
   tkTree->SetBranchAddress("RawId", &rawId);
   tkTree->SetBranchAddress("SubdetId", &subdetId);
   tkTree->SetBranchAddress("Layer", &layer);
@@ -168,44 +173,43 @@ ApeTreeCreateDefault::sectorBuilder()
   
   //Loop over all Sectors
   unsigned int sectorCounter(0);
-  std::vector<edm::ParameterSet> v_sectorDef(parameterSet_.getParameter<std::vector<edm::ParameterSet> >("Sectors"));
+  std::vector<edm::ParameterSet> v_sectorDef(sectors_);
   edm::LogInfo("SectorBuilder")<<"There are "<<v_sectorDef.size()<<" Sectors defined";
 
   for(auto const & parSet : v_sectorDef){
     ++sectorCounter;
     const std::string& sectorName(parSet.getParameter<std::string>("name"));
     std::vector<unsigned int> v_rawId(parSet.getParameter<std::vector<unsigned int> >("rawId")),
-            v_subdetId(parSet.getParameter<std::vector<unsigned int> >("subdetId")),
-            v_layer(parSet.getParameter<std::vector<unsigned int> >("layer")),
-            v_side(parSet.getParameter<std::vector<unsigned int> >("side")),
-            v_half(parSet.getParameter<std::vector<unsigned int> >("half")),
-            v_rod(parSet.getParameter<std::vector<unsigned int> >("rod")),
-            v_ring(parSet.getParameter<std::vector<unsigned int> >("ring")),
-            v_petal(parSet.getParameter<std::vector<unsigned int> >("petal")),
-            v_blade(parSet.getParameter<std::vector<unsigned int> >("blade")),
-            v_panel(parSet.getParameter<std::vector<unsigned int> >("panel")),
-            v_outerInner(parSet.getParameter<std::vector<unsigned int> >("outerInner")),
-            v_module(parSet.getParameter<std::vector<unsigned int> >("module")),
-            v_nStrips(parSet.getParameter<std::vector<unsigned int> >("nStrips")),
-            v_isDoubleSide(parSet.getParameter<std::vector<unsigned int> >("isDoubleSide")),
-            v_isRPhi(parSet.getParameter<std::vector<unsigned int> >("isRPhi")),
-            v_isStereo(parSet.getParameter<std::vector<unsigned int> >("isStereo"));
+                              v_subdetId(parSet.getParameter<std::vector<unsigned int> >("subdetId")),
+                              v_layer(parSet.getParameter<std::vector<unsigned int> >("layer")),
+                              v_side(parSet.getParameter<std::vector<unsigned int> >("side")),
+                              v_half(parSet.getParameter<std::vector<unsigned int> >("half")),
+                              v_rod(parSet.getParameter<std::vector<unsigned int> >("rod")),
+                              v_ring(parSet.getParameter<std::vector<unsigned int> >("ring")),
+                              v_petal(parSet.getParameter<std::vector<unsigned int> >("petal")),
+                              v_blade(parSet.getParameter<std::vector<unsigned int> >("blade")),
+                              v_panel(parSet.getParameter<std::vector<unsigned int> >("panel")),
+                              v_outerInner(parSet.getParameter<std::vector<unsigned int> >("outerInner")),
+                              v_module(parSet.getParameter<std::vector<unsigned int> >("module")),
+                              v_nStrips(parSet.getParameter<std::vector<unsigned int> >("nStrips")),
+                              v_isDoubleSide(parSet.getParameter<std::vector<unsigned int> >("isDoubleSide")),
+                              v_isRPhi(parSet.getParameter<std::vector<unsigned int> >("isRPhi")),
+                              v_isStereo(parSet.getParameter<std::vector<unsigned int> >("isStereo"));
     std::vector<int>  v_uDirection(parSet.getParameter<std::vector<int> >("uDirection")),
-            v_vDirection(parSet.getParameter<std::vector<int> >("vDirection")),
-            v_wDirection(parSet.getParameter<std::vector<int> >("wDirection"));
+                      v_vDirection(parSet.getParameter<std::vector<int> >("vDirection")),
+                      v_wDirection(parSet.getParameter<std::vector<int> >("wDirection"));
     std::vector<double> v_posR(parSet.getParameter<std::vector<double> >("posR")),
-            v_posPhi(parSet.getParameter<std::vector<double> >("posPhi")),
-            v_posEta(parSet.getParameter<std::vector<double> >("posEta")),
-            v_posX(parSet.getParameter<std::vector<double> >("posX")),
-            v_posY(parSet.getParameter<std::vector<double> >("posY")),
-            v_posZ(parSet.getParameter<std::vector<double> >("posZ"));
+                        v_posPhi(parSet.getParameter<std::vector<double> >("posPhi")),
+                        v_posEta(parSet.getParameter<std::vector<double> >("posEta")),
+                        v_posX(parSet.getParameter<std::vector<double> >("posX")),
+                        v_posY(parSet.getParameter<std::vector<double> >("posY")),
+                        v_posZ(parSet.getParameter<std::vector<double> >("posZ"));
     
     if(!this->checkIntervalsForSectors(sectorCounter,v_posR) || !this->checkIntervalsForSectors(sectorCounter,v_posPhi) ||
        !this->checkIntervalsForSectors(sectorCounter,v_posEta) || !this->checkIntervalsForSectors(sectorCounter,v_posX) ||
        !this->checkIntervalsForSectors(sectorCounter,v_posY)   || !this->checkIntervalsForSectors(sectorCounter,v_posZ)){
       continue;
     }
-    
     
     TrackerSectorStruct tkSector;
     tkSector.name = sectorName;
@@ -371,7 +375,7 @@ ApeTreeCreateDefault::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);  
   
   // Set up root file for default APE values
-  const std::string defaultFileName(parameterSet_.getParameter<std::string>("resultFile"));
+  const std::string defaultFileName(resultFile_);
   TFile* defaultFile = new TFile(defaultFileName.c_str(),"RECREATE");
   
   // Naming in the root files has to be iterTreeX to be consistent for the plotting tool
@@ -457,16 +461,14 @@ ApeTreeCreateDefault::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 // ------------ method called once each job just before starting event loop  ------------
 void 
 ApeTreeCreateDefault::beginJob()
-{
-    
+{  
   this->sectorBuilder();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ApeTreeCreateDefault::endJob() 
-{
-     
+{   
 }
 
 //define this as a plug-in

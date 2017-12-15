@@ -112,10 +112,10 @@ process.ApeTreeCreateDefaultSequence = cms.Sequence()
 
 process.ApeTreeCreateDefault = cms.EDAnalyzer('ApeTreeCreateDefault',
     resultFile = cms.string(theOutputFile),
-    TrackerTreeFile = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/TrackerAlignment/hists/TrackerTree.root'),
-    Sectors = theSectors,
+    trackerTreeFile = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/TrackerAlignment/hists/TrackerTree.root'),
+    sectors = theSectors,
 )
-                                                                
+                                                              
 
 process.ApeTreeCreateDefaultSequence *= process.ApeTreeCreateDefault
 
