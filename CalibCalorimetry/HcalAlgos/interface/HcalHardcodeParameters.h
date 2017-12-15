@@ -11,9 +11,9 @@ class HcalHardcodeParameters {
 		//default constructor
 		HcalHardcodeParameters() {}
 		//construct from values
-		HcalHardcodeParameters(double pedestal, double pedestalWidth, std::vector<double> gain, std::vector<double> gainWidth, int zsThreshold,
-							   int qieType, std::vector<double> qieOffset, std::vector<double> qieSlope, int mcShape, int recoShape,
-							   double photoelectronsToAnalog, std::vector<double> darkCurrent);
+		HcalHardcodeParameters(double pedestal, double pedestalWidth, const std::vector<double>& gain, const std::vector<double>& gainWidth, int zsThreshold,
+							   int qieType, const std::vector<double>& qieOffset, const std::vector<double>& qieSlope, int mcShape, int recoShape,
+							   double photoelectronsToAnalog, const std::vector<double>& darkCurrent);
 		//construct from pset
 		HcalHardcodeParameters(const edm::ParameterSet & p);
 		
