@@ -307,12 +307,13 @@ ApeTreeCreateDefault::checkIntervalsForSectors(const unsigned int sectorCounter,
                                      <<"\n... sector selection is not applied, sector "<<sectorCounter<<" is not built";
     return false;
   }
-  int entry(1); double intervalBegin(999.);
-  for(std::vector<double>::const_iterator i_id = v_id.begin(); i_id != v_id.end(); ++i_id, ++entry){
-    if(entry%2==1)intervalBegin = *i_id;
-    if(entry%2==0 && intervalBegin>*i_id){
+  int entry(0); double intervalBegin(999.);
+  for(auto const & i_id : v_id){
+    ++entry;
+    if(entry%2==1) intervalBegin = i_id;
+    if(entry%2==0 && intervalBegin > i_id){
       edm::LogError("SectorBuilder")<<"Incorrect Sector Definition (Position Vector Intervals): \t"
-                                    <<intervalBegin<<" is bigger than "<<*i_id<<" but is expected to be smaller"
+                                    <<intervalBegin<<" is bigger than "<<i_id<<" but is expected to be smaller"
                                     <<"\n... sector selection is not applied, sector "<<sectorCounter<<" is not built";
       return false;
     }
@@ -325,8 +326,8 @@ ApeTreeCreateDefault::checkModuleIds(const unsigned int id, const std::vector<un
 {
     
   if(v_id.empty())return true;
-  for(std::vector<unsigned int>::const_iterator i_id = v_id.begin(); i_id != v_id.end(); ++i_id){
-    if(id==*i_id)return true;
+  for(auto const & i_id : v_id){
+    if(id==i_id)return true;
   }
   return false;
 }
@@ -336,9 +337,9 @@ ApeTreeCreateDefault::checkModuleBools(const bool id, const std::vector<unsigned
 {
     
   if(v_id.empty())return true;
-  for(std::vector<unsigned int>::const_iterator i_id = v_id.begin(); i_id != v_id.end(); ++i_id){
-    if(1==*i_id && id)return true;
-    if(2==*i_id && !id)return true;
+  for(auto const & i_id : v_id){
+    if(1==i_id && id)return true;
+    if(2==i_id && !id)return true;
   }
   return false;
 }
@@ -348,8 +349,8 @@ ApeTreeCreateDefault::checkModuleDirections(const int id, const std::vector<int>
 {
     
   if(v_id.empty())return true;
-  for(std::vector<int>::const_iterator i_id = v_id.begin(); i_id != v_id.end(); ++i_id){
-    if(id==*i_id)return true;
+  for(auto const & i_id : v_id){
+    if(id==i_id)return true;
   }
   return false;
 }
@@ -359,10 +360,11 @@ ApeTreeCreateDefault::checkModulePositions(const float id, const std::vector<dou
 {
     
   if(v_id.empty())return true;
-  int entry(1); double intervalBegin(999.);
-  for(std::vector<double>::const_iterator i_id = v_id.begin(); i_id != v_id.end(); ++i_id, ++entry){
-    if(entry%2==1)intervalBegin = *i_id;
-    if(entry%2==0 && id>=intervalBegin && id<*i_id)return true;
+  int entry(0); double intervalBegin(999.);
+  for(auto const & i_id : v_id){
+    ++entry;
+    if(entry%2==1)intervalBegin = i_id;
+    if(entry%2==0 && id>=intervalBegin && id<i_id)return true;
   }
   return false;
 }
@@ -403,14 +405,13 @@ ApeTreeCreateDefault::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   std::vector<double*> a_defaultSectorY;
   
   std::vector<std::string*> a_sectorName;
-  std::map<unsigned int, TrackerSectorStruct>::const_iterator i_sector;
-  for(i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-    const unsigned int iSector(i_sector->first);
-    const bool pixelSector(i_sector->second.isPixel);
+  for(auto const & i_sector : m_tkSector_){
+    const unsigned int iSector(i_sector.first);
+    const bool pixelSector(i_sector.second.isPixel);
     
     a_defaultSectorX.push_back(new double(-99.));
     a_defaultSectorY.push_back(new double(-99.));
-    a_sectorName.push_back(new std::string(i_sector->second.name));
+    a_sectorName.push_back(new std::string(i_sector.second.name));
     
     std::stringstream ss_sector;
     std::stringstream ss_sectorSuffixed;
@@ -428,25 +429,24 @@ ApeTreeCreateDefault::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   // Loop over sectors for getting default APE
   
-  for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
+  for(auto & i_sector : m_tkSector_){
     
     double defaultApeX(0.);
     double defaultApeY(0.);
     unsigned int nModules(0);
-    std::vector<unsigned int>::const_iterator i_rawId;
-    for(i_rawId = (*i_sector).second.v_rawId.begin(); i_rawId != (*i_sector).second.v_rawId.end(); ++i_rawId){
+    for(auto const & i_rawId : i_sector.second.v_rawId){
       std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
-      for(std::vector<AlignTransformErrorExtended>::const_iterator i_alignError = alignErrors.begin(); i_alignError != alignErrors.end(); ++i_alignError){
-        if(*i_rawId ==  i_alignError->rawId()){
-          CLHEP::HepSymMatrix errMatrix = i_alignError->matrix();
+      for(auto const & i_alignError : alignErrors){
+        if(i_rawId ==  i_alignError.rawId()){
+          CLHEP::HepSymMatrix errMatrix = i_alignError.matrix();
           defaultApeX += errMatrix[0][0];
           defaultApeY += errMatrix[1][1];
           nModules++;
         }
       }
   }
-  *a_defaultSectorX[(*i_sector).first-1] = defaultApeX/nModules;
-  *a_defaultSectorY[(*i_sector).first-1] = defaultApeY/nModules;
+  *a_defaultSectorX[i_sector.first-1] = defaultApeX/nModules;
+  *a_defaultSectorY[i_sector.first-1] = defaultApeY/nModules;
   }
   
   
@@ -458,6 +458,8 @@ ApeTreeCreateDefault::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   defaultTreeY->Write("iterTreeY");
   
   defaultFile->Close(); 
+  delete defaultFile;
+  
 }
   
 
