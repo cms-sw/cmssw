@@ -267,12 +267,17 @@ ApeTreeCreateDefault::sectorBuilder()
     bool isPixel(false);
     bool isStrip(false);
     for(auto const & i_rawId : tkSector.v_rawId){
-      if(m_tkTreeVar_[i_rawId].subdetId==PixelSubdetector::PixelBarrel || m_tkTreeVar_[i_rawId].subdetId==PixelSubdetector::PixelEndcap){
-        isPixel = true;
-      }
-      if(m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TOB ||
-         m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TID || m_tkTreeVar_[i_rawId].subdetId==StripSubdetector::TEC){
-        isStrip = true;
+      switch (m_tkTreeVar_[i_rawId].subdetId) {
+        case PixelSubdetector::PixelBarrel:
+        case PixelSubdetector::PixelEndcap:
+          isPixel = true;
+          break;
+        case StripSubdetector::TIB:
+        case StripSubdetector::TOB:
+        case StripSubdetector::TID:
+        case StripSubdetector::TEC:
+          isStrip = true;
+          break;
       }
     }
 
