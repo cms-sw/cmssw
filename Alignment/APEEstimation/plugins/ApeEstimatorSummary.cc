@@ -196,8 +196,8 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
           rawIdTree->GetEntry(entry);
           // command "hadd" adds entries in TTree, so rawId are existing as often as number of files are added
           bool alreadyAdded(false);
-          for(std::vector<unsigned int>::const_iterator i_rawId = tkSector.v_rawId.begin(); i_rawId != tkSector.v_rawId.end(); ++i_rawId){
-            if(rawId==*i_rawId)alreadyAdded = true;
+          for(auto const & i_rawId : tkSector.v_rawId){
+            if(rawId==i_rawId)alreadyAdded = true;
           }
           if(alreadyAdded)break;
           tkSector.v_rawId.push_back(rawId);
@@ -216,27 +216,27 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
 void
 ApeEstimatorSummary::bookHists(){
   const std::vector<double> v_binX(this->residualErrorBinning());
-  for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector=m_tkSector_.begin(); i_sector!=m_tkSector_.end(); ++i_sector){
-    (*i_sector).second.WeightX         = new TH1F("h_weightX","relative weight w_{x}/w_{tot,x};#sigma_{x}  [#mum];w_{x}/w_{tot,x}",v_binX.size()-1,&(v_binX[0]));
-    (*i_sector).second.MeanX           = new TH1F("h_meanX","residual mean <r_{x}/#sigma_{r,x}>;#sigma_{x}  [#mum];<r_{x}/#sigma_{r,x}>",v_binX.size()-1,&(v_binX[0]));
-    (*i_sector).second.RmsX            = new TH1F("h_rmsX","residual rms RMS(r_{x}/#sigma_{r,x});#sigma_{x}  [#mum];RMS(r_{x}/#sigma_{r,x})",v_binX.size()-1,&(v_binX[0]));
-    (*i_sector).second.FitMeanX1       = new TH1F("h_fitMeanX1","fitted residual mean #mu_{x};#sigma_{x}  [#mum];#mu_{x}",v_binX.size()-1,&(v_binX[0]));
-    (*i_sector).second.ResidualWidthX1 = new TH1F("h_residualWidthX1","residual width #Delta_{x};#sigma_{x}  [#mum];#Delta_{x}",v_binX.size()-1,&(v_binX[0]));
-    (*i_sector).second.CorrectionX1    = new TH1F("h_correctionX1","correction to APE_{x};#sigma_{x}  [#mum];#Delta#sigma_{align,x}  [#mum]",v_binX.size()-1,&(v_binX[0]));
-    (*i_sector).second.FitMeanX2       = new TH1F("h_fitMeanX2","fitted residual mean #mu_{x};#sigma_{x}  [#mum];#mu_{x}",v_binX.size()-1,&(v_binX[0]));
-    (*i_sector).second.ResidualWidthX2 = new TH1F("h_residualWidthX2","residual width #Delta_{x};#sigma_{x}  [#mum];#Delta_{x}",v_binX.size()-1,&(v_binX[0]));
-    (*i_sector).second.CorrectionX2    = new TH1F("h_correctionX2","correction to APE_{x};#sigma_{x}  [#mum];#Delta#sigma_{align,x}  [#mum]",v_binX.size()-1,&(v_binX[0]));
+  for(auto & i_sector : m_tkSector_){
+    i_sector.second.WeightX         = new TH1F("h_weightX","relative weight w_{x}/w_{tot,x};#sigma_{x}  [#mum];w_{x}/w_{tot,x}",v_binX.size()-1,&(v_binX[0]));
+    i_sector.second.MeanX           = new TH1F("h_meanX","residual mean <r_{x}/#sigma_{r,x}>;#sigma_{x}  [#mum];<r_{x}/#sigma_{r,x}>",v_binX.size()-1,&(v_binX[0]));
+    i_sector.second.RmsX            = new TH1F("h_rmsX","residual rms RMS(r_{x}/#sigma_{r,x});#sigma_{x}  [#mum];RMS(r_{x}/#sigma_{r,x})",v_binX.size()-1,&(v_binX[0]));
+    i_sector.second.FitMeanX1       = new TH1F("h_fitMeanX1","fitted residual mean #mu_{x};#sigma_{x}  [#mum];#mu_{x}",v_binX.size()-1,&(v_binX[0]));
+    i_sector.second.ResidualWidthX1 = new TH1F("h_residualWidthX1","residual width #Delta_{x};#sigma_{x}  [#mum];#Delta_{x}",v_binX.size()-1,&(v_binX[0]));
+    i_sector.second.CorrectionX1    = new TH1F("h_correctionX1","correction to APE_{x};#sigma_{x}  [#mum];#Delta#sigma_{align,x}  [#mum]",v_binX.size()-1,&(v_binX[0]));
+    i_sector.second.FitMeanX2       = new TH1F("h_fitMeanX2","fitted residual mean #mu_{x};#sigma_{x}  [#mum];#mu_{x}",v_binX.size()-1,&(v_binX[0]));
+    i_sector.second.ResidualWidthX2 = new TH1F("h_residualWidthX2","residual width #Delta_{x};#sigma_{x}  [#mum];#Delta_{x}",v_binX.size()-1,&(v_binX[0]));
+    i_sector.second.CorrectionX2    = new TH1F("h_correctionX2","correction to APE_{x};#sigma_{x}  [#mum];#Delta#sigma_{align,x}  [#mum]",v_binX.size()-1,&(v_binX[0]));
   
-    if((*i_sector).second.isPixel){
-      (*i_sector).second.WeightY         = new TH1F("h_weightY","relative weight w_{y}/w_{tot,y};#sigma_{y}  [#mum];w_{y}/w_{tot,y}",v_binX.size()-1,&(v_binX[0]));
-      (*i_sector).second.MeanY           = new TH1F("h_meanY","residual mean <r_{y}/#sigma_{r,y}>;#sigma_{y}  [#mum];<r_{y}/#sigma_{r,y}>",v_binX.size()-1,&(v_binX[0]));
-      (*i_sector).second.RmsY            = new TH1F("h_rmsY","residual rms RMS(r_{y}/#sigma_{r,y});#sigma_{y}  [#mum];RMS(r_{y}/#sigma_{r,y})",v_binX.size()-1,&(v_binX[0]));
-      (*i_sector).second.FitMeanY1       = new TH1F("h_fitMeanY1","fitted residual mean #mu_{y};#sigma_{y}  [#mum];#mu_{y}",v_binX.size()-1,&(v_binX[0]));
-      (*i_sector).second.ResidualWidthY1 = new TH1F("h_residualWidthY1","residual width #Delta_{y};#sigma_{y}  [#mum];#Delta_{y}",v_binX.size()-1,&(v_binX[0]));
-      (*i_sector).second.CorrectionY1    = new TH1F("h_correctionY1","correction to APE_{y};#sigma_{y}  [#mum];#Delta#sigma_{align,y}  [#mum]",v_binX.size()-1,&(v_binX[0]));
-      (*i_sector).second.FitMeanY2       = new TH1F("h_fitMeanY2","fitted residual mean #mu_{y};#sigma_{y}  [#mum];#mu_{y}",v_binX.size()-1,&(v_binX[0]));
-      (*i_sector).second.ResidualWidthY2 = new TH1F("h_residualWidthY2","residual width #Delta_{y};#sigma_{y}  [#mum];#Delta_{y}",v_binX.size()-1,&(v_binX[0]));
-      (*i_sector).second.CorrectionY2    = new TH1F("h_correctionY2","correction to APE_{y};#sigma_{y}  [#mum];#Delta#sigma_{align,y}  [#mum]",v_binX.size()-1,&(v_binX[0]));
+    if(i_sector.second.isPixel){
+      i_sector.second.WeightY         = new TH1F("h_weightY","relative weight w_{y}/w_{tot,y};#sigma_{y}  [#mum];w_{y}/w_{tot,y}",v_binX.size()-1,&(v_binX[0]));
+      i_sector.second.MeanY           = new TH1F("h_meanY","residual mean <r_{y}/#sigma_{r,y}>;#sigma_{y}  [#mum];<r_{y}/#sigma_{r,y}>",v_binX.size()-1,&(v_binX[0]));
+      i_sector.second.RmsY            = new TH1F("h_rmsY","residual rms RMS(r_{y}/#sigma_{r,y});#sigma_{y}  [#mum];RMS(r_{y}/#sigma_{r,y})",v_binX.size()-1,&(v_binX[0]));
+      i_sector.second.FitMeanY1       = new TH1F("h_fitMeanY1","fitted residual mean #mu_{y};#sigma_{y}  [#mum];#mu_{y}",v_binX.size()-1,&(v_binX[0]));
+      i_sector.second.ResidualWidthY1 = new TH1F("h_residualWidthY1","residual width #Delta_{y};#sigma_{y}  [#mum];#Delta_{y}",v_binX.size()-1,&(v_binX[0]));
+      i_sector.second.CorrectionY1    = new TH1F("h_correctionY1","correction to APE_{y};#sigma_{y}  [#mum];#Delta#sigma_{align,y}  [#mum]",v_binX.size()-1,&(v_binX[0]));
+      i_sector.second.FitMeanY2       = new TH1F("h_fitMeanY2","fitted residual mean #mu_{y};#sigma_{y}  [#mum];#mu_{y}",v_binX.size()-1,&(v_binX[0]));
+      i_sector.second.ResidualWidthY2 = new TH1F("h_residualWidthY2","residual width #Delta_{y};#sigma_{y}  [#mum];#Delta_{y}",v_binX.size()-1,&(v_binX[0]));
+      i_sector.second.CorrectionY2    = new TH1F("h_correctionY2","correction to APE_{y};#sigma_{y}  [#mum];#Delta#sigma_{align,y}  [#mum]",v_binX.size()-1,&(v_binX[0]));
     }
   }
 }
@@ -258,34 +258,34 @@ void
 ApeEstimatorSummary::writeHists(){
   TFile* resultsFile = new TFile(parameterSet_.getParameter<std::string>("ResultsFile").c_str(), "RECREATE");
   TDirectory* baseDir = resultsFile->mkdir("ApeEstimatorSummary");
-  for(std::map<unsigned int,TrackerSectorStruct>::const_iterator i_sector=m_tkSector_.begin(); i_sector!=m_tkSector_.end(); ++i_sector){
+  for(auto const & i_sector : m_tkSector_){
     std::stringstream dirName;
-    dirName<<"Sector_" << (*i_sector).first;
+    dirName<<"Sector_" << i_sector.first;
     TDirectory* dir = baseDir->mkdir(dirName.str().c_str());
     dir->cd();
     
-    (*i_sector).second.Name->Write();
+    i_sector.second.Name->Write();
     
-    (*i_sector).second.WeightX->Write();
-    (*i_sector).second.MeanX->Write();
-    (*i_sector).second.RmsX->Write();        
-    (*i_sector).second.FitMeanX1->Write();          
-    (*i_sector).second.ResidualWidthX1 ->Write();
-    (*i_sector).second.CorrectionX1->Write();   
-    (*i_sector).second.FitMeanX2->Write();          
-    (*i_sector).second.ResidualWidthX2->Write();
-    (*i_sector).second.CorrectionX2->Write();
+    i_sector.second.WeightX->Write();
+    i_sector.second.MeanX->Write();
+    i_sector.second.RmsX->Write();        
+    i_sector.second.FitMeanX1->Write();          
+    i_sector.second.ResidualWidthX1 ->Write();
+    i_sector.second.CorrectionX1->Write();   
+    i_sector.second.FitMeanX2->Write();          
+    i_sector.second.ResidualWidthX2->Write();
+    i_sector.second.CorrectionX2->Write();
     
-    if((*i_sector).second.isPixel){
-      (*i_sector).second.WeightY->Write();
-      (*i_sector).second.MeanY->Write();
-      (*i_sector).second.RmsY->Write();      
-      (*i_sector).second.FitMeanY1->Write();        
-      (*i_sector).second.ResidualWidthY1 ->Write();
-      (*i_sector).second.CorrectionY1->Write();   
-      (*i_sector).second.FitMeanY2->Write();        
-      (*i_sector).second.ResidualWidthY2->Write();
-      (*i_sector).second.CorrectionY2->Write();
+    if(i_sector.second.isPixel){
+      i_sector.second.WeightY->Write();
+      i_sector.second.MeanY->Write();
+      i_sector.second.RmsY->Write();      
+      i_sector.second.FitMeanY1->Write();        
+      i_sector.second.ResidualWidthY1 ->Write();
+      i_sector.second.CorrectionY1->Write();   
+      i_sector.second.FitMeanY2->Write();        
+      i_sector.second.ResidualWidthY2->Write();
+      i_sector.second.CorrectionY2->Write();
     }
   }
   resultsFile->Close();
@@ -366,10 +366,9 @@ ApeEstimatorSummary::calculateApe(){
   
   std::string* a_sectorName[16589];
   std::string* a_sectorBaselineName[16589];
-  std::map<unsigned int, TrackerSectorStruct>::const_iterator i_sector;
-  for(i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-    const unsigned int iSector(i_sector->first);
-    const bool pixelSector(i_sector->second.isPixel);
+  for(auto const & i_sector : m_tkSector_){
+    const unsigned int iSector(i_sector.first);
+    const bool pixelSector(i_sector.second.isPixel);
     a_apeSectorX[iSector] = 99.;
     a_apeSectorY[iSector] = 99.;
     a_baselineSectorX[iSector] = -99.;
@@ -414,23 +413,23 @@ ApeEstimatorSummary::calculateApe(){
    
    
   // Check whether sector definitions are identical with the ones of previous iterations and with the ones in baseline file
-  for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-    const std::string& name(i_sector->second.name);
+  for(auto & i_sector : m_tkSector_){
+    const std::string& name(i_sector.second.name);
     if(!firstIter){
-      const std::string& nameLastIter(*a_sectorName[(*i_sector).first]);
+      const std::string& nameLastIter(*a_sectorName[i_sector.first]);
       if(name!=nameLastIter){
-        edm::LogError("CalculateAPE")<<"Inconsistent sector definition in iterationFile for sector "<<i_sector->first<<",\n"
+        edm::LogError("CalculateAPE")<<"Inconsistent sector definition in iterationFile for sector "<<i_sector.first<<",\n"
                                     <<"Recent iteration has name \""<<name<<"\", while previous had \""<<nameLastIter<<"\"\n"
                                 <<"...APE calculation stopped. Please check sector definitions in config!\n";
         return;
       }
     }else{ 
-      a_sectorName[(*i_sector).first] = new std::string(name);
+      a_sectorName[i_sector.first] = new std::string(name);
     }
     if(!setBaseline && baselineFile){
-      const std::string& nameBaseline(*a_sectorBaselineName[(*i_sector).first]);
+      const std::string& nameBaseline(*a_sectorBaselineName[i_sector.first]);
       if(name!=nameBaseline){
-        edm::LogError("CalculateAPE")<<"Inconsistent sector definition in baselineFile for sector "<<i_sector->first<<",\n"
+        edm::LogError("CalculateAPE")<<"Inconsistent sector definition in baselineFile for sector "<<i_sector.first<<",\n"
                                     <<"Recent iteration has name \""<<name<<"\", while baseline had \""<<nameBaseline<<"\"\n"
                                 <<"...APE calculation stopped. Please check sector definitions in config!\n";
         return;
@@ -477,18 +476,18 @@ ApeEstimatorSummary::calculateApe(){
                             <<"\n...APE calculation stopped.";
     return;
   }
-  for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
+  for(auto & i_sector : m_tkSector_){
     typedef std::pair<double,double> Error2AndResidualWidth2PerBin;
     typedef std::pair<double,Error2AndResidualWidth2PerBin> WeightAndResultsPerBin;
     std::vector<WeightAndResultsPerBin> v_weightAndResultsPerBinX;
     std::vector<WeightAndResultsPerBin> v_weightAndResultsPerBinY;
     
-    double baselineWidthX2(a_baselineSectorX[(*i_sector).first]);
-    double baselineWidthY2(a_baselineSectorY[(*i_sector).first]);
+    double baselineWidthX2(a_baselineSectorX[i_sector.first]);
+    double baselineWidthY2(a_baselineSectorY[i_sector.first]);
     
     // Loop over residual error bins to calculate APE for every bin
-    for(std::map<unsigned int, std::map<std::string,TH1*> >::const_iterator i_errBins = (*i_sector).second.m_binnedHists.begin(); i_errBins != (*i_sector).second.m_binnedHists.end(); ++i_errBins){
-      std::map<std::string,TH1*> mHists = (*i_errBins).second;
+    for(auto const & i_errBins : i_sector.second.m_binnedHists){
+      std::map<std::string,TH1*> mHists = i_errBins.second;
       
       double entriesX = mHists["sigmaX"]->GetEntries();
       double meanSigmaX = mHists["sigmaX"]->GetMean(); 
@@ -512,8 +511,8 @@ ApeEstimatorSummary::calculateApe(){
         }
         LogDebug("CalculateAPE")<<"FitResultX1\t"<<mHists["norResX"]->Fit(&funcX_1, fitOpt)<<"\n";
       }
-      Double_t meanX_1  = funcX_1.GetParameter(1);
-      Double_t sigmaX_1 = funcX_1.GetParameter(2);
+      double meanX_1  = funcX_1.GetParameter(1);
+      double sigmaX_1 = funcX_1.GetParameter(2);
       
       // Second gaus fit
       TF1 funcX_2("mygausX2","gaus",meanX_1 - sigmaFactorFit*TMath::Abs(sigmaX_1), meanX_1 + sigmaFactorFit*TMath::Abs(sigmaX_1));
@@ -525,24 +524,24 @@ ApeEstimatorSummary::calculateApe(){
         }
         LogDebug("CalculateAPE")<<"FitResultX2\t"<<mHists["norResX"]->Fit(&funcX_2, fitOpt)<<"\n";
       }
-      Double_t meanX_2  = funcX_2.GetParameter(1);
-      Double_t sigmaX_2 = funcX_2.GetParameter(2);
+      double meanX_2  = funcX_2.GetParameter(1);
+      double sigmaX_2 = funcX_2.GetParameter(2);
   
       // Now the same for y coordinate
       double entriesY(0.);
       double meanSigmaY(0.);
-      if((*i_sector).second.isPixel){
+      if(i_sector.second.isPixel){
         entriesY = mHists["sigmaY"]->GetEntries();
         meanSigmaY = mHists["sigmaY"]->GetMean();
       }
       
-      Double_t meanY_1(0.);
-      Double_t sigmaY_1(0.);
-      Double_t meanY_2(0.);
-      Double_t sigmaY_2(0.);
+      double meanY_1(0.);
+      double sigmaY_1(0.);
+      double meanY_2(0.);
+      double sigmaY_2(0.);
       double meanY(0.);
       double rmsY(0.);
-      if((*i_sector).second.isPixel){
+      if(i_sector.second.isPixel){
         // Fitting Parameters
         double yMin = mHists["norResY"]->GetXaxis()->GetXmin();
         double yMax = mHists["norResY"]->GetXaxis()->GetXmax();
@@ -588,7 +587,7 @@ ApeEstimatorSummary::calculateApe(){
       double correctionY2_1(-0.0010), correctionY2_2(-0.0010);
       correctionX2_1 = meanSigmaX*meanSigmaX*(residualWidthX_1*residualWidthX_1 -baselineWidthX2);
       correctionX2_2 = meanSigmaX*meanSigmaX*(residualWidthX_2*residualWidthX_2 -baselineWidthX2);
-      if((*i_sector).second.isPixel){
+      if(i_sector.second.isPixel){
         correctionY2_1 = meanSigmaY*meanSigmaY*(residualWidthY_1*residualWidthY_1 -baselineWidthY2);
         correctionY2_2 = meanSigmaY*meanSigmaY*(residualWidthY_2*residualWidthY_2 -baselineWidthY2);
       }
@@ -615,28 +614,28 @@ ApeEstimatorSummary::calculateApe(){
         fitMeanY_2 = 0.; correctionY_2 = residualWidthY_2 = -0.0010;
       }
       
-      (*i_sector).second.MeanX         ->SetBinContent((*i_errBins).first,meanX);
-      (*i_sector).second.RmsX          ->SetBinContent((*i_errBins).first,rmsX);
+      i_sector.second.MeanX         ->SetBinContent(i_errBins.first,meanX);
+      i_sector.second.RmsX          ->SetBinContent(i_errBins.first,rmsX);
       
-      (*i_sector).second.FitMeanX1      ->SetBinContent((*i_errBins).first,fitMeanX_1);
-      (*i_sector).second.ResidualWidthX1->SetBinContent((*i_errBins).first,residualWidthX_1);
-      (*i_sector).second.CorrectionX1   ->SetBinContent((*i_errBins).first,correctionX_1*10000.);
+      i_sector.second.FitMeanX1      ->SetBinContent(i_errBins.first,fitMeanX_1);
+      i_sector.second.ResidualWidthX1->SetBinContent(i_errBins.first,residualWidthX_1);
+      i_sector.second.CorrectionX1   ->SetBinContent(i_errBins.first,correctionX_1*10000.);
       
-      (*i_sector).second.FitMeanX2      ->SetBinContent((*i_errBins).first,fitMeanX_2);
-      (*i_sector).second.ResidualWidthX2->SetBinContent((*i_errBins).first,residualWidthX_2);
-      (*i_sector).second.CorrectionX2   ->SetBinContent((*i_errBins).first,correctionX_2*10000.);
+      i_sector.second.FitMeanX2      ->SetBinContent(i_errBins.first,fitMeanX_2);
+      i_sector.second.ResidualWidthX2->SetBinContent(i_errBins.first,residualWidthX_2);
+      i_sector.second.CorrectionX2   ->SetBinContent(i_errBins.first,correctionX_2*10000.);
       
-      if((*i_sector).second.isPixel){
-        (*i_sector).second.MeanY         ->SetBinContent((*i_errBins).first,meanY);
-        (*i_sector).second.RmsY          ->SetBinContent((*i_errBins).first,rmsY);
+      if(i_sector.second.isPixel){
+        i_sector.second.MeanY         ->SetBinContent(i_errBins.first,meanY);
+        i_sector.second.RmsY          ->SetBinContent(i_errBins.first,rmsY);
         
-        (*i_sector).second.FitMeanY1      ->SetBinContent((*i_errBins).first,fitMeanY_1);
-        (*i_sector).second.ResidualWidthY1->SetBinContent((*i_errBins).first,residualWidthY_1);
-        (*i_sector).second.CorrectionY1   ->SetBinContent((*i_errBins).first,correctionY_1*10000.);
+        i_sector.second.FitMeanY1      ->SetBinContent(i_errBins.first,fitMeanY_1);
+        i_sector.second.ResidualWidthY1->SetBinContent(i_errBins.first,residualWidthY_1);
+        i_sector.second.CorrectionY1   ->SetBinContent(i_errBins.first,correctionY_1*10000.);
         
-        (*i_sector).second.FitMeanY2      ->SetBinContent((*i_errBins).first,fitMeanY_2);
-        (*i_sector).second.ResidualWidthY2->SetBinContent((*i_errBins).first,residualWidthY_2);
-        (*i_sector).second.CorrectionY2   ->SetBinContent((*i_errBins).first,correctionY_2*10000.);
+        i_sector.second.FitMeanY2      ->SetBinContent(i_errBins.first,fitMeanY_2);
+        i_sector.second.ResidualWidthY2->SetBinContent(i_errBins.first,residualWidthY_2);
+        i_sector.second.CorrectionY2   ->SetBinContent(i_errBins.first,correctionY_2*10000.);
       }
       
       
@@ -660,7 +659,7 @@ ApeEstimatorSummary::calculateApe(){
       const WeightAndResultsPerBin weightAndResultsPerBinX(weightX, error2AndResidualWidth2PerBinX);
       if(!(entriesX<minHitsPerInterval)){
         //Fill absolute weights
-        (*i_sector).second.WeightX->SetBinContent((*i_errBins).first,weightX);
+        i_sector.second.WeightX->SetBinContent(i_errBins.first,weightX);
         v_weightAndResultsPerBinX.push_back(weightAndResultsPerBinX);
       }
       
@@ -668,7 +667,7 @@ ApeEstimatorSummary::calculateApe(){
       const WeightAndResultsPerBin weightAndResultsPerBinY(weightY, error2AndResidualWidth2PerBinY);
       if(!(entriesY<minHitsPerInterval)){
         //Fill absolute weights
-        (*i_sector).second.WeightY->SetBinContent((*i_errBins).first,weightY);
+        i_sector.second.WeightY->SetBinContent(i_errBins.first,weightY);
         v_weightAndResultsPerBinY.push_back(weightAndResultsPerBinY);
       }
     }
@@ -677,12 +676,12 @@ ApeEstimatorSummary::calculateApe(){
     // Do the final calculations
     
     if(v_weightAndResultsPerBinX.empty()){
-      edm::LogError("CalculateAPE")<<"NO error interval of sector "<<(*i_sector).first<<" has a valid x APE calculated,\n...so cannot set APE";
+      edm::LogError("CalculateAPE")<<"NO error interval of sector "<<i_sector.first<<" has a valid x APE calculated,\n...so cannot set APE";
       continue;
     }
     
-    if((*i_sector).second.isPixel && v_weightAndResultsPerBinY.empty()){
-      edm::LogError("CalculateAPE")<<"NO error interval of sector "<<(*i_sector).first<<" has a valid y APE calculated,\n...so cannot set APE";
+    if(i_sector.second.isPixel && v_weightAndResultsPerBinY.empty()){
+      edm::LogError("CalculateAPE")<<"NO error interval of sector "<<i_sector.first<<" has a valid y APE calculated,\n...so cannot set APE";
       continue;
     }
     
@@ -691,61 +690,57 @@ ApeEstimatorSummary::calculateApe(){
     
     // Get sum of all weights
     double weightSumX(0.);
-    std::vector<WeightAndResultsPerBin>::const_iterator i_apeBin;
-    for(i_apeBin=v_weightAndResultsPerBinX.begin(); i_apeBin!=v_weightAndResultsPerBinX.end(); ++i_apeBin){
-      weightSumX += i_apeBin->first;
+    for(auto const & i_apeBin : v_weightAndResultsPerBinX){
+      weightSumX += i_apeBin.first;
     }
-    (*i_sector).second.WeightX->Scale(1/weightSumX);
+    i_sector.second.WeightX->Scale(1/weightSumX);
     double weightSumY(0.);
-    if((*i_sector).second.isPixel){
-      std::vector<WeightAndResultsPerBin>::const_iterator i_apeBin;
-      for(i_apeBin=v_weightAndResultsPerBinY.begin(); i_apeBin!=v_weightAndResultsPerBinY.end(); ++i_apeBin){
-        weightSumY += i_apeBin->first;
+    if(i_sector.second.isPixel){
+      for(auto const & i_apeBin : v_weightAndResultsPerBinY){
+        weightSumY += i_apeBin.first;
       }
-      (*i_sector).second.WeightY->Scale(1/weightSumY);
+      i_sector.second.WeightY->Scale(1/weightSumY);
     }
     
     if(!setBaseline){
       // Calculate weighted mean
       bool firstIntervalX(true);
-      for(i_apeBin=v_weightAndResultsPerBinX.begin(); i_apeBin!=v_weightAndResultsPerBinX.end(); ++i_apeBin){
+      for(auto const & i_apeBin : v_weightAndResultsPerBinX){
         if(firstIntervalX){
-          correctionX2 = i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthX2);
+          correctionX2 = i_apeBin.first*i_apeBin.second.first*(i_apeBin.second.second - baselineWidthX2);
           firstIntervalX = false;
         }else{
-          correctionX2 += i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthX2);
+          correctionX2 += i_apeBin.first*i_apeBin.second.first*(i_apeBin.second.second - baselineWidthX2);
         }
       }
       correctionX2 = correctionX2/weightSumX;
     }else{
       double numeratorX(0.), denominatorX(0.);
-      std::vector<WeightAndResultsPerBin>::const_iterator i_apeBin;
-      for(i_apeBin=v_weightAndResultsPerBinX.begin(); i_apeBin!=v_weightAndResultsPerBinX.end(); ++i_apeBin){
-        numeratorX += i_apeBin->first*i_apeBin->second.first*i_apeBin->second.second;
-        denominatorX += i_apeBin->first*i_apeBin->second.first;
+      for(auto const & i_apeBin : v_weightAndResultsPerBinX){
+        numeratorX += i_apeBin.first*i_apeBin.second.first*i_apeBin.second.second;
+        denominatorX += i_apeBin.first*i_apeBin.second.first;
       }
       correctionX2 = numeratorX/denominatorX;
     }
     
-    if((*i_sector).second.isPixel){
+    if(i_sector.second.isPixel){
       if(!setBaseline){
         // Calculate weighted mean
         bool firstIntervalY(true);
-        for(i_apeBin=v_weightAndResultsPerBinY.begin(); i_apeBin!=v_weightAndResultsPerBinY.end(); ++i_apeBin){
+        for(auto const & i_apeBin : v_weightAndResultsPerBinY){
           if(firstIntervalY){
-            correctionY2 = i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthY2);
+            correctionY2 = i_apeBin.first*i_apeBin.second.first*(i_apeBin.second.second - baselineWidthY2);
             firstIntervalY = false;
           }else{
-            correctionY2 += i_apeBin->first*i_apeBin->second.first*(i_apeBin->second.second - baselineWidthY2);
+            correctionY2 += i_apeBin.first*i_apeBin.second.first*(i_apeBin.second.second - baselineWidthY2);
           }
         }
         correctionY2 = correctionY2/weightSumY;
       }else{
         double numeratorY(0.), denominatorY(0.);
-        std::vector<WeightAndResultsPerBin>::const_iterator i_apeBin;
-        for(i_apeBin=v_weightAndResultsPerBinY.begin(); i_apeBin!=v_weightAndResultsPerBinY.end(); ++i_apeBin){
-          numeratorY += i_apeBin->first*i_apeBin->second.first*i_apeBin->second.second;
-          denominatorY += i_apeBin->first*i_apeBin->second.first;
+        for(auto const & i_apeBin : v_weightAndResultsPerBinY){
+          numeratorY += i_apeBin.first*i_apeBin.second.first*i_apeBin.second.second;
+          denominatorY += i_apeBin.first*i_apeBin.second.first;
         }
         correctionY2 = numeratorY/denominatorY;
       }
@@ -762,17 +757,17 @@ ApeEstimatorSummary::calculateApe(){
         apeY2 = 0.;
       }
       else{
-        apeX2 = a_apeSectorX[(*i_sector).first];
-        apeY2 = a_apeSectorY[(*i_sector).first];
+        apeX2 = a_apeSectorX[i_sector.first];
+        apeY2 = a_apeSectorY[i_sector.first];
       }
       const double apeX2old = apeX2;
       const double apeY2old = apeY2;
       
       // scale APE Correction with value given in cfg (not if smoothed iteration is used)
-      edm::LogInfo("CalculateAPE")<<"Unscaled correction x for sector "<<(*i_sector).first<<" is "<<(correctionX2>0. ? +1. : -1.)*std::sqrt(std::fabs(correctionX2));
+      edm::LogInfo("CalculateAPE")<<"Unscaled correction x for sector "<<i_sector.first<<" is "<<(correctionX2>0. ? +1. : -1.)*std::sqrt(std::fabs(correctionX2));
       if(!smoothIteration || firstIter)correctionX2 = correctionX2*correctionScaling*correctionScaling;
-      if((*i_sector).second.isPixel){
-        edm::LogInfo("CalculateAPE")<<"Unscaled correction y for sector "<<(*i_sector).first<<" is "<<(correctionY2>0. ? +1. : -1.)*std::sqrt(std::fabs(correctionY2));
+      if(i_sector.second.isPixel){
+        edm::LogInfo("CalculateAPE")<<"Unscaled correction y for sector "<<i_sector.first<<" is "<<(correctionY2>0. ? +1. : -1.)*std::sqrt(std::fabs(correctionY2));
         if(!smoothIteration || firstIter)correctionY2 = correctionY2*correctionScaling*correctionScaling;
       }
       
@@ -792,24 +787,23 @@ ApeEstimatorSummary::calculateApe(){
         apeY2 = apeYtmp*apeYtmp;
       }
       if(apeX2<0. || apeY2<0.)edm::LogError("CalculateAPE")<<"\n\n\tBad APE, but why???\n\n\n";
-      a_apeSectorX[(*i_sector).first] = apeX2;
-      a_apeSectorY[(*i_sector).first] = apeY2;
+      a_apeSectorX[i_sector.first] = apeX2;
+      a_apeSectorY[i_sector.first] = apeY2;
       
       // Set the calculated APE spherical for all modules of strip sectors
       const double apeX(std::sqrt(apeX2));
       const double apeY(std::sqrt(apeY2));
       const double apeZ(std::sqrt(0.5*(apeX2+apeY2)));
-      std::vector<unsigned int>::const_iterator i_rawId;
-      for(i_rawId = (*i_sector).second.v_rawId.begin(); i_rawId != (*i_sector).second.v_rawId.end(); ++i_rawId){
-        if((*i_sector).second.isPixel){
-          apeOutputFile<<*i_rawId<<" "<<std::fixed<<std::setprecision(5)<<apeX<<" "<<apeY<<" "<<apeZ<<"\n";
+      for(auto const & i_rawId : i_sector.second.v_rawId){
+        if(i_sector.second.isPixel){
+          apeOutputFile<<i_rawId<<" "<<std::fixed<<std::setprecision(5)<<apeX<<" "<<apeY<<" "<<apeZ<<"\n";
         }else{
-          apeOutputFile<<*i_rawId<<" "<<std::fixed<<std::setprecision(5)<<apeX<<" "<<apeX<<" "<<apeX<<"\n";
+          apeOutputFile<<i_rawId<<" "<<std::fixed<<std::setprecision(5)<<apeX<<" "<<apeX<<" "<<apeX<<"\n";
         }
       }
     }else{ // In setBaseline mode, just fill estimated mean value of residual width
-      a_apeSectorX[(*i_sector).first] = correctionX2;
-      a_apeSectorY[(*i_sector).first] = correctionY2;
+      a_apeSectorX[i_sector.first] = correctionX2;
+      a_apeSectorY[i_sector.first] = correctionY2;
     }
   }
   if(!setBaseline)apeOutputFile.close();
@@ -893,10 +887,9 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     std::string* a_sectorName[16589];
     std::string* a_sectorBaselineName[16589];
-    std::map<unsigned int, TrackerSectorStruct>::const_iterator i_sector;
-    for(i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-      const unsigned int iSector(i_sector->first);
-      const bool pixelSector(i_sector->second.isPixel);
+    for(auto const & i_sector : m_tkSector_){
+      const unsigned int iSector(i_sector.first);
+      const bool pixelSector(i_sector.second.isPixel);
       
       a_defaultSectorX[iSector] = -99.;
       a_defaultSectorY[iSector] = -99.;
@@ -931,22 +924,22 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     
     // Check whether sector definitions are identical with the ones of previous iterations and with the ones in baseline file
-    for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-      const std::string& name(i_sector->second.name);
+    for(auto & i_sector : m_tkSector_){
+      const std::string& name(i_sector.second.name);
       if(!firstIter){
-        const std::string& nameLastIter(*a_sectorName[(*i_sector).first]);
+        const std::string& nameLastIter(*a_sectorName[i_sector.first]);
         if(name!=nameLastIter){
-          edm::LogError("CalculateAPE")<<"Inconsistent sector definition in iterationFile for sector "<<i_sector->first<<",\n"
+          edm::LogError("CalculateAPE")<<"Inconsistent sector definition in iterationFile for sector "<<i_sector.first<<",\n"
                                         <<"Recent iteration has name \""<<name<<"\", while previous had \""<<nameLastIter<<"\"\n"
                                     <<"...APE calculation stopped. Please check sector definitions in config!\n";
           return;
         }
       }
-      else a_sectorName[(*i_sector).first] = new std::string(name);
+      else a_sectorName[i_sector.first] = new std::string(name);
       if(!setBaseline && baselineFile){
-        const std::string& nameBaseline(*a_sectorBaselineName[(*i_sector).first]);
+        const std::string& nameBaseline(*a_sectorBaselineName[i_sector.first]);
         if(name!=nameBaseline){
-          edm::LogError("CalculateAPE")<<"Inconsistent sector definition in baselineFile for sector "<<i_sector->first<<",\n"
+          edm::LogError("CalculateAPE")<<"Inconsistent sector definition in baselineFile for sector "<<i_sector.first<<",\n"
                                         <<"Recent iteration has name \""<<name<<"\", while baseline had \""<<nameBaseline<<"\"\n"
                                     <<"...APE calculation stopped. Please check sector definitions in config!\n";
           return;
@@ -955,15 +948,14 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     
     // Loop over sectors for calculating getting default APE
-    for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
+    for(auto & i_sector : m_tkSector_){
       double defaultApeX(0.);
       double defaultApeY(0.);
       unsigned int nModules(0);
-      std::vector<unsigned int>::const_iterator i_rawId;
-      for(i_rawId = (*i_sector).second.v_rawId.begin(); i_rawId != (*i_sector).second.v_rawId.end(); ++i_rawId){
+      for(auto const & i_rawId : i_sector.second.v_rawId){
         std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
         for(std::vector<AlignTransformErrorExtended>::const_iterator i_alignError = alignErrors.begin(); i_alignError != alignErrors.end(); ++i_alignError){
-          if(*i_rawId ==  i_alignError->rawId()){
+          if(i_rawId ==  i_alignError->rawId()){
             CLHEP::HepSymMatrix errMatrix = i_alignError->matrix();
             defaultApeX += errMatrix[0][0];
             defaultApeY += errMatrix[1][1];
@@ -971,8 +963,8 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           }
         }
       }
-      a_defaultSectorX[(*i_sector).first] = defaultApeX/nModules;
-      a_defaultSectorY[(*i_sector).first] = defaultApeY/nModules;
+      a_defaultSectorX[i_sector.first] = defaultApeX/nModules;
+      a_defaultSectorY[i_sector.first] = defaultApeY/nModules;
     }
     sectorNameTree->Fill();
     sectorNameTree->Write("nameTree");
