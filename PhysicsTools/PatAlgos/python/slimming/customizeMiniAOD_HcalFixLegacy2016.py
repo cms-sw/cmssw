@@ -10,10 +10,15 @@ def loadJetMETBTag(process):
     import RecoJets.Configuration.RecoPFJets_cff
     process.ak4PFJetsCHS = RecoJets.Configuration.RecoPFJets_cff.ak4PFJetsCHS.clone()
     task.add(process.ak4PFJetsCHS)
+    # need also the non-CHS ones as they are used to seed taus
+    process.ak4PFJets = RecoJets.Configuration.RecoPFJets_cff.ak4PFJets.clone()
+    task.add(process.ak4PFJets)
     process.ak8PFJetsCHS = RecoJets.Configuration.RecoPFJets_cff.ak8PFJetsCHS.clone()
     task.add(process.ak8PFJetsCHS)
     process.load("RecoMET.METProducers.PFMET_cfi")
     task.add(process.pfMet)
+    process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
+    task.add(process.ak4JetTracksAssociatorAtVertexPF)
     process.load("RecoBTag.ImpactParameter.impactParameter_cff")
     task.add(process.impactParameterTask)
     process.load("RecoBTag.SecondaryVertex.secondaryVertex_cff")
@@ -22,8 +27,6 @@ def loadJetMETBTag(process):
     task.add(process.softLeptonTask)
     process.load("RecoBTag.Combined.combinedMVA_cff")
     task.add(process.combinedMVATask)
-    process.load("RecoBTag.Combined.deepFlavour_cff")
-    task.add(process.pfDeepFlavourTask)
     process.load("RecoBTag.CTagging.cTagging_cff")
     task.add(process.cTaggingTask)
     process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
@@ -57,9 +60,27 @@ def cleanPfCandidates(process, verbose=False):
     process.GlobalTag.toGet.append(cms.PSet(
         record = cms.string("HcalRespCorrsRcd"),
         label = cms.untracked.string("bugged"),
-        tag = cms.string("HcalRespCorrs_v1.02_express") #to be replaced with proper tag name once available
+        tag = cms.string("HcalRespCorrs_v6.3_offline") #to be replaced with proper bugged tag
         )
     )
+
+
+    #=== TMP FOR TESTING ONLY
+    #process.load("CondCore.DBCommon.CondDBSetup_cfi")
+    #process.es_pool = cms.ESSource("PoolDBESSource",
+    #                               process.CondDBSetup,
+    #                               timetype = cms.string('runnumber'),
+    #                               toGet = cms.VPSet(
+    #                                            cms.PSet(record = cms.string("HcalRespCorrsRcd"),
+    #                                            tag = cms.string("HcalRespCorrs_2016legacy_fixBadCalib")
+    #                                                     )
+    #                                            ),
+    #                               connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+    #                               authenticationMethod = cms.untracked.uint32(0)
+    #                               )
+    #process.es_prefer_es_pool = cms.ESPrefer( "PoolDBESSource", "es_pool" )
+    #=== END - TMP FOR TESTING ONLY
+
 
 def addDiscardedPFCandidates(process, inputCollection, verbose=False):
 
@@ -91,7 +112,7 @@ def addDiscardedPFCandidates(process, inputCollection, verbose=False):
     task.add(process.oldPFCandToPackedOrDiscarded)
 
 
-def customizeAll(process, verbose=True): #change to false by default
+def customizeAll(process, verbose=False):
 
     if verbose:
         print "===>>> customizing the process for legacy rereco 2016"
