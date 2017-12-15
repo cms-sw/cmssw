@@ -817,8 +817,12 @@ ApeEstimatorSummary::calculateApe(){
     sectorNameTree->Write("nameTree");
   }
   iterationFile->Close();
+  delete iterationFile;
   
-  if(baselineFile)baselineFile->Close();
+  if(baselineFile){
+    baselineFile->Close();
+    delete baselineFile;
+  }
 }
 
 
@@ -974,7 +978,11 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     defaultTreeY->Write("iterTreeY");
     
     defaultFile->Close();
-    if(baselineFile)baselineFile->Close();
+    delete defaultFile;
+    if(baselineFile){
+      baselineFile->Close();
+      delete baselineFile;
+    }
     
     firstEvent = false;   
   }

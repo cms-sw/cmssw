@@ -459,7 +459,11 @@ ApeTreeCreateDefault::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   defaultFile->Close(); 
   delete defaultFile;
-  
+  for(int i = 0; i < a_defaultSectorX.size(); i++){
+    delete a_defaultSectorX[i];
+    delete a_defaultSectorY[i];
+    delete a_sectorName[i];
+  }
 }
   
 
