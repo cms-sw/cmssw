@@ -27,8 +27,6 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.demo = cms.EDAnalyzer('Debugging'
-)
+process.load("SimGeneral.Debugging.caloParticleDebugger_cfi")
 
-
-process.p = cms.Path(process.demo)
+process.p = cms.Path(process.caloParticleDebugger)
