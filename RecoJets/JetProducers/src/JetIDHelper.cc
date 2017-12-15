@@ -353,9 +353,7 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
 			   <<", depth: "<<depth<<", iPhi: "<<theRecHit->id().iphi()
 			   <<" -> "<<region;
 
-	  std::vector<int> isMergedDepth = theHcalTopology->mergedDepthList29(theRecHit->id());
-	  int absIEta = TMath::Abs( theRecHit->id().ieta() );
-	  if( (absIEta == 28 || absIEta == 29) &&  std::find(isMergedDepth.begin(), isMergedDepth.end(), depth) != isMergedDepth.end() )
+	  if(theHcalTopology->mergedDepth29(theRecHit->id()))
 	    hitE /= 2;  // Depth 3 at the HE forward edge is split over tower 28 & 29, and jet reco. assigns half each
 	  
 	  int iHPD = 100 * region;
