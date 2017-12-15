@@ -195,11 +195,11 @@ fastSim.toModify(lowPtQuadStepTracks,TTRHBuilder = 'WithoutRefit')
 
 
 # Final selection
-from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
-lowPtQuadStep =  TrackMVAClassifierPrompt.clone(
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+lowPtQuadStep = TrackLwtnnClassifier.clone(
     src = 'lowPtQuadStepTracks',
-    mva = dict(GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1'),
-    qualityCuts = [-0.7,-0.35,-0.15],
+    qualityCuts = [-0.2,0.2,0.4],
 )
 fastSim.toModify(lowPtQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 highBetaStar_2018.toModify(lowPtQuadStep,qualityCuts = [-0.9,-0.35,-0.15])

@@ -285,6 +285,13 @@ pp_on_AA_2018.toModify(lowPtTripletStep,
         qualityCuts = [-0.8, -0.4, 0.5],
 )
 
+#LWTNN selector
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+trackingPhase1.toReplaceWith(lowPtTripletStep, TrackLwtnnClassifier.clone(
+     src = 'lowPtTripletStepTracks',
+     qualityCuts = [-0.2,0.1,0.3],
+))
 
 # For LowPU and Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
