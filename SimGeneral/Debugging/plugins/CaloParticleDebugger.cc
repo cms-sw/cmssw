@@ -44,10 +44,10 @@
 // class declaration
 //
 
-class Debugging : public edm::one::EDAnalyzer<>  {
+class CaloParticleDebugger : public edm::one::EDAnalyzer<>  {
    public:
-      explicit Debugging(const edm::ParameterSet&);
-      ~Debugging() override;
+      explicit CaloParticleDebugger(const edm::ParameterSet&);
+      ~CaloParticleDebugger() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -84,7 +84,7 @@ class Debugging : public edm::one::EDAnalyzer<>  {
 //
 // constructors and destructor
 //
-Debugging::Debugging(const edm::ParameterSet& iConfig)
+CaloParticleDebugger::CaloParticleDebugger(const edm::ParameterSet& iConfig)
   : simTracks_(iConfig.getParameter<edm::InputTag>("simTracks")),
   genParticles_(iConfig.getParameter<edm::InputTag>("genParticles")),
   simVertices_(iConfig.getParameter<edm::InputTag>("simVertices")),
@@ -102,7 +102,7 @@ Debugging::Debugging(const edm::ParameterSet& iConfig)
   }
 }
 
-Debugging::~Debugging() {}
+CaloParticleDebugger::~CaloParticleDebugger() {}
 
 
 //
@@ -111,7 +111,7 @@ Debugging::~Debugging() {}
 
 // ------------ method called for each event  ------------
 void
-Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   edm::Handle<std::vector<SimTrack> > simTracksH;
@@ -192,13 +192,13 @@ Debugging::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-Debugging::beginJob() {}
+CaloParticleDebugger::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-Debugging::endJob() {}
+CaloParticleDebugger::endJob() {}
 
-void Debugging::fillSimHits(
+void CaloParticleDebugger::fillSimHits(
     std::map<int, float> & detIdToTotalSimEnergy,
     const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
   // Taken needed quantities from the EventSetup
@@ -210,9 +210,9 @@ void Debugging::fillSimHits(
   const HGCalTopology*     hgtopo[2];
   const HcalDDDRecConstants* hcddd;
 
-  eegeom = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
-  fhgeom = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
-  bhgeom = dynamic_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+  eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
+  fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
+  bhgeom = static_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
 
   hgtopo[0] = &(eegeom->topology());
   hgtopo[1] = &(fhgeom->topology());
@@ -257,9 +257,7 @@ void Debugging::fillSimHits(
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-Debugging::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+CaloParticleDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("simTracks", edm::InputTag("g4SimHits"));
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
@@ -270,8 +268,8 @@ Debugging::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       { edm::InputTag("g4SimHits", "HGCHitsEE"),
         edm::InputTag("g4SimHits", "HGCHitsHEfront"),
         edm::InputTag("g4SimHits", "HcalHits")});
-  descriptions.addDefault(desc);
+  descriptions.add("caloParticleDebugger", desc);
 }
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(Debugging);
+DEFINE_FWK_MODULE(CaloParticleDebugger);
