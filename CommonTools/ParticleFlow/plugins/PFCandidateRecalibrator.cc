@@ -61,8 +61,8 @@ void PFCandidateRecalibrator::produce(edm::StreamID iID, edm::Event &iEvent, con
     
     edm::ESHandle<HcalRespCorrs> buggedCond;
     iSetup.get<HcalRespCorrsRcd>().get("bugged", buggedCond);
-    HcalRespCorrs* buggedRespCorrs = new HcalRespCorrs(*buggedCond.product());
-    buggedRespCorrs->setTopo(theHBHETopology);
+    HcalRespCorrs buggedRespCorrs(*buggedCond.product());
+    buggedRespCorrs.setTopo(theHBHETopology);
 
     //access calogeometry
     edm::ESHandle<CaloGeometry> calogeom;
@@ -88,38 +88,45 @@ void PFCandidateRecalibrator::produce(edm::StreamID iID, edm::Event &iEvent, con
 	++i;
 	math::XYZPointF ecalPoint = pf.positionAtECALEntrance();
 	GlobalPoint ecalGPoint(ecalPoint.X(),ecalPoint.Y(),ecalPoint.Z());
-	DetId closestDetId(hgeom->getClosestCell(ecalGPoint));
-	
+	HcalDetId closestDetId(hgeom->getClosestCell(ecalGPoint));
+
 	//make sure we are in HE or HF
-	HcalDetId hDetId(closestDetId.rawId());
-	if(hDetId.subdet() == 2 || hDetId.subdet() == 4)
+	if( (closestDetId.subdet() == 2 || closestDetId.subdet() == 4) && fabs(closestDetId.ieta()) > 17 )
 	  {
-	    //access the calib values
-	    const HcalRespCorr* GTrespcorr = GTCond->getHcalRespCorr(hDetId);
-	    float currentRespCorr = GTrespcorr->getValue();
-	    float buggedRespCorr = buggedRespCorrs->getValues(hDetId)->getValue();
-	    float scalingFactor = currentRespCorr/buggedRespCorr;
-	    
+	    HcalDetId hDetId_d1(closestDetId.subdet(),closestDetId.ieta(),closestDetId.iphi(),1); //depth1
+	    HcalDetId hDetId_d2(closestDetId.subdet(),closestDetId.ieta(),closestDetId.iphi(),2); //depth2
+
+	    //access the calib values for both depths
+	    float currentRespCorr = GTCond->getHcalRespCorr(hDetId_d1)->getValue();
+	    float buggedRespCorr = buggedRespCorrs.getValues(hDetId_d1)->getValue();
+	    float scalingFactor_d1 = currentRespCorr/buggedRespCorr;
+
+	    currentRespCorr = GTCond->getHcalRespCorr(hDetId_d2)->getValue();
+	    buggedRespCorr = buggedRespCorrs.getValues(hDetId_d2)->getValue();
+	    float scalingFactor_d2 = currentRespCorr/buggedRespCorr;
+
+
 	    //if same calib then don't do anything
-	    if (scalingFactor != 1)
-	      {	    
+	    if (scalingFactor_d1 != 1 || scalingFactor_d2 != 1)
+	      {
 		//kill pfCandidate if neutral and HE
-		if (hDetId.subdet() == 2 && pf.particleId() == 5)
+		if (hDetId_d1.subdet() == 2 && pf.particleId() == 5)
 		  {
 		    discarded->push_back(pf);
 		    oldToNew[i] = (-discarded->size());
 		    badToOld.push_back(i);
 		  }
 		//recalibrate pfCandidate if HF
-		else if (hDetId.subdet() == 4)
+		else if (hDetId_d1.subdet() == 4)
 		  {
 		    copy->push_back(pf);
 		    oldToNew[i] = (copy->size());
 		    newToOld.push_back(i);
-		    copy->back().setHcalEnergy(pf.rawHcalEnergy() * scalingFactor,
-					       pf.hcalEnergy() * scalingFactor);
-		    copy->back().setEcalEnergy(pf.rawEcalEnergy() * scalingFactor,
-					       pf.ecalEnergy() * scalingFactor);
+		    copy->back().setHcalEnergy(pf.rawHcalEnergy() * scalingFactor_d2,
+					       pf.hcalEnergy() * scalingFactor_d2);
+		    copy->back().setEcalEnergy(pf.rawEcalEnergy() * scalingFactor_d1,
+					       pf.ecalEnergy() * scalingFactor_d1);
+
 		  }
 		else
 		  {
