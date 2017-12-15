@@ -14,8 +14,22 @@
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
-HcalDbHardcode::HcalDbHardcode()
-: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105,0.0,{0.0}), //"generic" set of conditions
+HcalDbHardcode::HcalDbHardcode() :
+  //"generic" set of conditions
+  theDefaultParameters_(
+    3.0,               //pedestal
+    0.5,               //pedestal width
+    {0.2,0.2},         //gains
+    {0.0,0.0},         //gain widths
+    0,                 //ZS threshold
+    0,                 //QIE type
+    {0.0,0.0,0.0,0.0}, //QIE offsets
+    {0.9,0.9,0.9,0.9}, //QIE slopes
+    125,               //MC shape
+    105,               //Reco shape
+    0.0,               //photoelectronsToAnalog
+    {0.0}              //dark current
+  ),
   setHB_(false), setHE_(false), setHF_(false), setHO_(false), 
   setHBUpgrade_(false), setHEUpgrade_(false), setHFUpgrade_(false), 
   useHBUpgrade_(false), useHEUpgrade_(false), useHOUpgrade_(true),
