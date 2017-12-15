@@ -238,7 +238,7 @@ void IsolatedTracksHcalScale::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.addUntracked<double>("ConeRadiusMIP",     14.0);
   desc.addUntracked<double>("TimeMinCutECAL",   -500.0);
   desc.addUntracked<double>("TimeMaxCutECAL",    500.0);
-  descriptions.add("IsolatedTracksHcalScale",desc);
+  descriptions.add("isolatedTracksHcalScale",desc);
 }
 
 void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

@@ -31,10 +31,10 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run1_mc']
 
-process.load('Calibration.IsolatedParticles.IsolatedTracksHcalScale_cfi')
-process.IsolatedTracksHcalScale.MaxDxyPV  = 10.
-process.IsolatedTracksHcalScale.MaxDzPV   = 10.
-process.IsolatedTracksHcalScale.Verbosity = 1
+process.load('Calibration.IsolatedParticles.isolatedTracksHcalScale_cfi')
+process.isolatedTracksHcalScale.MaxDxyPV  = 10.
+process.isolatedTracksHcalScale.MaxDzPV   = 10.
+process.isolatedTracksHcalScale.Verbosity = 1
 
 process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            vertexCollection = cms.InputTag('offlinePrimaryVertices'),
@@ -49,4 +49,4 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 #process.p1 = cms.Path(process.primaryVertexFilter*process.IsolatedTracksHcalScale)
-process.p1 = cms.Path( process.IsolatedTracksHcalScale )
+process.p1 = cms.Path( process.isolatedTracksHcalScale )
