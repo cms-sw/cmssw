@@ -69,7 +69,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    RandomEngineAndDistribution random(iEvent.streamID());
    // define Geant4 engine per thread
    G4Random::setTheEngine(&random.theEngine());
-   //edm::LogWarning("FamosProducer::produce") << "Begin of event " << G4UniformRand();
+   LogDebug("FamosProducer::produce") << "Begin of event " << G4UniformRand() << "  " << &random.theEngine();
 
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHand;
@@ -122,7 +122,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    iEvent.put(std::move(p5),"EcalHitsEE");
    iEvent.put(std::move(p6),"EcalHitsES");
    iEvent.put(std::move(p7),"HcalHits");
-   //edm::LogWarning("FamosProducer::produce") << "End of event " << G4UniformRand();
 }
 
 DEFINE_FWK_MODULE(FamosProducer);
