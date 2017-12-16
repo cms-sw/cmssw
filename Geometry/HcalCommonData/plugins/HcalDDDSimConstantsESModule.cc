@@ -83,9 +83,6 @@ void HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants(const HcalParame
 #ifdef EDM_ML_DEBUG
   std::cout << "in HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants" << std::endl;
 #endif
-  if ( hcalDDDConst_ != nullptr ) {
-    delete hcalDDDConst_;
-  }
   const HcalParameters* hpar = &(*parHandle);
 #ifdef EDM_ML_DEBUG
   std::cout << "about to make my new hcalDDDConst_ with " << hpar << std::endl;
