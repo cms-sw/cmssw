@@ -224,7 +224,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
                 if(itr!=simhits_fh.end())
                 {
                   HGCalDetId detid(c_id);
-                  int thickness = geometry_->eeTopology().dddConstants().waferTypeL(detid.wafer())-1;
+                  int thickness = geometry_->fhTopology().dddConstants().waferTypeL(detid.wafer())-1;
                   int layer = detid.layer();
                   float fcPerMip = fcPerMip_[thickness];
                   double thicknessCorrection = thicknessCorrections_[thickness];
