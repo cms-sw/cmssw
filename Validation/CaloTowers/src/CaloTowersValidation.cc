@@ -16,7 +16,6 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
 
   mc_           = conf.getUntrackedParameter<std::string>("mc", "yes");
   useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
-  std::cout << "!!!!!!!!!!I'm in the Validation Validation.cc!" << std::endl;
 
   etaMin[0] = 0.;
   etaMax[0] = 1.4;
@@ -31,7 +30,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
   if(hcalselector_ == "HF") isub = 3;
 
   imc = 1;
-  //if(mc_ == "no") imc = 0;
+  if(mc_ == "no") imc = 0;
   
   if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
@@ -69,7 +68,7 @@ void CaloTowersValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 	//These the single pion scan histos
 	//-------------------------------------------------------------------------------------------
 	//The first three are not used
-	if (true){
+	if (useAllHistos_){
 		sprintf  (histo, "emean_vs_ieta_E" );
 		emean_vs_ieta_E = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, 2100, -100., 2000., "s");
 		sprintf  (histo, "emean_vs_ieta_H" );
@@ -490,7 +489,6 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 	for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
 
 		double eE     = cal->emEnergy();
-        std::cout << "!X!eE: " << eE << std::endl;
 		double eH     = cal->hadEnergy();
 		double eHO    = cal->outerEnergy();
 		double etaT   = cal->eta();
@@ -543,12 +541,11 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 			numRcvCellsEcal_EE->Fill(numRcvEcalCells);
 			numPrbCellsEcal_EE->Fill(numPrbEcalCells);
 		} 
-       // std::cout << "!!!!!!!!!!Vearlytest: " << imc << std::endl;
 
 		if (imc != 0){
 			double r    = dR(eta_MC, phi_MC, etaT, phiT);
 
-			if(r < partR){
+			if( r < partR ){
 				Econe += eE; 
 				Hcone += eH;
 
@@ -737,10 +734,6 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 	//Map histos are not used except the last one in EndJob
 	if (useAllHistos_){
 		mapEnergy_E -> Fill(double(ieta_MC), double(iphi_MC), Ee1);
-        std::cout << "!X!Ee1: " << Ee1 << std::endl;
-        std::cout << "!X!Eieta_MC: " << ieta_MC << std::endl;
-        std::cout << "!X!Eiphi_MC: " << iphi_MC << std::endl;
-        mapEnergy_E -> getTH2F() -> Dump();
 		mapEnergy_H -> Fill(double(ieta_MC), double(iphi_MC), Eh1); 
 		mapEnergy_EH -> Fill(double(ieta_MC), double(iphi_MC), Ee1+Eh1);
 	} 

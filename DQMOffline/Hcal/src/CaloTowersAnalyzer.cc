@@ -14,6 +14,7 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
 
   useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
 }
+
 void CaloTowersAnalyzer::dqmBeginRun(const edm::Run& run, const edm::EventSetup& es){
   
     edm::ESHandle<HcalDDDRecConstants> pHRNDC;
