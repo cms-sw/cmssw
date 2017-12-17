@@ -34,20 +34,14 @@ void ME0RawToDigiModule::beginRun(edm::Run const&, edm::EventSetup const& iSetup
   if (useDBEMap_){
     edm::ESHandle<ME0EMap> me0EMap;
     iSetup.get<ME0EMapRcd>().get(me0EMap);
-    m_me0EMap = me0EMap.product();
-    m_me0ROMap = m_me0EMap->convert();
+    m_me0EMap = std::make_unique<ME0EMap>(*(me0EMap.product()));
+    m_me0ROMap = std::make_unique<ME0ROmap>(*(m_me0EMap->convert()));
   }
   else {
     // no eMap, using dummy
-    m_me0EMap = new ME0EMap();
-    m_me0ROMap = m_me0EMap->convertDummy();
+    m_me0EMap = std::make_unique<ME0EMap>();
+    m_me0ROMap = std::make_unique<ME0ROmap>(*(m_me0EMap->convertDummy()));
   }
-}
-
-void ME0RawToDigiModule::endRun(edm::Run const&, edm::EventSetup const& iSetup)
-{
-  delete m_me0EMap;
-  delete m_me0ROMap;
 }
 
 void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
