@@ -25,54 +25,51 @@ void TouchableToHistory::buildAll(){
 
   std::vector<const GeometricDet*> allSensitiveDets;
   myGeomDet->deepComponents(allSensitiveDets);
-  edm::LogInfo("TrackerSimInfoNumbering")<<" TouchableTo History: got "<<allSensitiveDets.size()<<" sensitive detectors from TrackerMapDDDtoID.";
+  edm::LogInfo("TrackerSimInfoNumbering")
+    <<" TouchableTo History: got "<<allSensitiveDets.size()
+    <<" sensitive detectors from TrackerMapDDDtoID.";
 
-  for ( std::vector<const GeometricDet*>::const_iterator it = allSensitiveDets.begin(); 
-	it != allSensitiveDets.end(); 
-	++it)
+  for ( auto & theSD : allSensitiveDets) 
     {
-      DDTranslation const & t = (*it)->translation(); 
+      DDTranslation const & t = theSD->translation(); 
       theNavigator.LocateGlobalPointAndSetup(G4ThreeVector(t.x(),t.y(),t.z()));
       G4TouchableHistory * hist = theNavigator.CreateTouchableHistory(); 
       TouchableToHistory::Nav_Story st =  touchableToNavStory(hist);
 
 #ifdef DEBUG    
-    u_int32_t oldsize = myDirectMap.size();
+      u_int32_t oldsize = myDirectMap.size();
 #endif
 
-    myMap[st] = nav_type((*it)->navType().begin(),(*it)->navType().end());
-    myDirectMap[st] = (*it)->geographicalID();
+      myMap[st] = nav_type(theSD->navType().begin(),theSD->navType().end());
+      myDirectMap[st] = theSD->geographicalID();
 
     /*
 #ifdef DEBUG    
-    LogDebug("TrackerSimDebugNumbering")<< " INSERTING "<<view.logicalPart().name()<<" "<<t<<" "<<hist->GetVolume()->GetLogicalVolume()->GetName();
-    LogDebug("TrackerSimDebugNumbering")<<" Sensitive: "<<hist->GetVolume()->GetLogicalVolume()->GetSensitiveDetector()<<std::endl;
-    LogDebug("TrackerSimDebugNumbering")<<"Now size is "<<myDirectMap.size()<<std::endl;
-    if (oldsize == myDirectMap.size())
-      edm::LogError("TrackerSimInfoNumbering")<< "Touchable to History Error!!!!";
-    dumpG4VPV(hist);
+    LogDebug("TrackerSimDebugNumbering")<< " INSERTING "<<view.logicalPart().name()<<" "
+    <<t<<" "<<hist->GetVolume()->GetLogicalVolume()->GetName()
+    <<"\n Sensitive: "<<hist->GetVolume()->GetLogicalVolume()->GetSensitiveDetector()
+    <<" Now size is "<<myDirectMap.size();
 #endif
     */
-    delete hist;
-
+      delete hist;
   }
-  edm::LogInfo("TrackerSimInfoNumbering")<<" TouchableToHistory: mapped "<<myDirectMap.size()<<" detectors to G4.";
+  edm::LogInfo("TrackerSimInfoNumbering")
+    <<" TouchableToHistory: mapped "<<myDirectMap.size()<<" detectors to Geant4.";
 
   if (myDirectMap.size() != allSensitiveDets.size()){
-    edm::LogError("TrackerSimInfoNumbering")<<" ERROR: DDD sensitive detectors do not match Geant4 ones.";
-    //FIXME use throw
-    abort();
+    edm::LogError("TrackerSimInfoNumbering")
+      <<" ERROR: DDD sensitive detectors do not match Geant4 ones.";
+    throw cms::Exception("TouchableToHistory::buildAll")
+      << " cannot resolve structure of tracking sensitive detectors";
   }
-
-
 }
 
 DDFilteredView& TouchableToHistory::getFilteredView(const G4VTouchable& t, DDFilteredView& f){
-  if (alreadySet == false) 
-    buildAll();
+  if (alreadySet == false) { buildAll(); }
   f.goTo(myMap[touchableToNavStory(&t)]);
   return f;
 }
+
 TouchableToHistory::nav_type TouchableToHistory::getNavType(const G4VTouchable& t){
   if (alreadySet == false) 
     edm::LogError("TrackerSimInfoNumbering")<<" NOT READY ";
@@ -80,7 +77,9 @@ TouchableToHistory::nav_type TouchableToHistory::getNavType(const G4VTouchable& 
 }
 
 TouchableToHistory::Nav_Story TouchableToHistory::getNavStory(DDFilteredView& i){
-  if (alreadySet == false) buildAll();
+  if (alreadySet == false) 
+    buildAll();
+
   const DDTranslation& t = i.translation();
 
   G4Navigator* theStdNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
@@ -91,7 +90,7 @@ TouchableToHistory::Nav_Story TouchableToHistory::getNavStory(DDFilteredView& i)
   G4TouchableHistory* hist = theNavigator.CreateTouchableHistory(); 
   TouchableToHistory::Nav_Story temp = touchableToNavStory(hist);
   delete hist;
-  return (temp);
+  return temp;
 }
 
 TouchableToHistory::Nav_Story TouchableToHistory::touchableToNavStory(const G4VTouchable *v) {
@@ -102,7 +101,7 @@ TouchableToHistory::Nav_Story TouchableToHistory::touchableToNavStory(const G4VT
 #endif
   int levels = v->GetHistoryDepth();
   
-  for (int k=0; k<=levels; k++){
+  for (int k=0; k<=levels; ++k){
     if (v->GetVolume(k)->GetLogicalVolume()->GetName() != "TOBInactive") {
       temp.push_back(
 		     std::pair<int,std::string>
@@ -136,7 +135,7 @@ int TouchableToHistory::touchableToInt(const G4VTouchable* v) {
 
   dumpG4VPV(v);
 
-  LogDebug("TrackerSimDebugNumbering")<<" Returning: "<< myDirectMap[touchableToNavStory(v)]<<std::endl;
+  LogDebug("TrackerSimDebugNumbering")<<" Returning: "<< myDirectMap[touchableToNavStory(v)];
 
   return   myDirectMap[touchableToNavStory(v)];
 }
