@@ -1,4 +1,5 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -219,9 +220,30 @@ HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
   m_validIds.emplace_back(detId);
 }
 
+const CaloCellGeometry* HcalDDDGeometry::getGeometryRawPtr (const DetId& id) const {
+  const unsigned int din = CaloGenericDetId(id).denseIndex();
+  const CaloCellGeometry* cell(nullptr);
+  if (m_hbCellVec.size() > din) {
+    cell = (&m_hbCellVec[din]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() ) ;
+    cell = (&m_heCellVec[ind]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size());
+    cell = (&m_hoCellVec[ind]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size()+
+	     m_hfCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size() -
+			    m_hoCellVec.size() ) ;
+    cell = (&m_hfCellVec[ind]);
+  }
+  
+  return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;
+}
+
 std::shared_ptr<const CaloCellGeometry> HcalDDDGeometry::cellGeomPtr( unsigned int din ) const {
   static const auto do_not_delete = [](const void*){};
-  std::shared_ptr<const CaloCellGeometry> cell ( nullptr ) ;
+  std::shared_ptr<const CaloCellGeometry> cell (nullptr) ;
   if (m_hbCellVec.size() > din) {
     cell = std::shared_ptr<const CaloCellGeometry>(&m_hbCellVec[din],do_not_delete);
   } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {

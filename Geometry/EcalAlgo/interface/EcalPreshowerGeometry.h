@@ -52,10 +52,11 @@ public:
 		   CCGFloat z2minus,
 		   CCGFloat z1plus, 
 		   CCGFloat z2plus ) ;
+
+  const CaloCellGeometry* getGeometryRawPtr (const DetId& id) const override;
   
   // Get closest cell
   DetId getClosestCell( const GlobalPoint& r ) const override;
-
 
   // Get closest cell in arbitrary plane (1 or 2)
   virtual DetId getClosestCellInPlane( const GlobalPoint& r     ,

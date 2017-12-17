@@ -72,7 +72,10 @@ class EcalBarrelGeometry final : public CaloSubdetectorGeometry
 
       const OrderedListOfEEDetId* getClosestEndcapCells( EBDetId id ) const ;
 
+      const CaloCellGeometry* getGeometryRawPtr (const DetId& id) const override;
+
       // Get closest cell, etc...
+
       DetId getClosestCell( const GlobalPoint& r ) const override ;
 
       CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,

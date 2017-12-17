@@ -45,6 +45,8 @@ class CastorGeometry : public CaloSubdetectorGeometry
       explicit CastorGeometry(const CastorTopology * topology);
       ~CastorGeometry() override;
 
+      const CaloCellGeometry* getGeometryRawPtr (const DetId& id) const override;
+
       DetId getClosestCell(const GlobalPoint& r) const override ;
 
       static std::string producerTag() { return "CASTOR" ; }

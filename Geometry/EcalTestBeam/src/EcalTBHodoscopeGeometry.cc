@@ -1,5 +1,5 @@
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
-
 #include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
@@ -372,6 +372,13 @@ EcalTBHodoscopeGeometry::getFiredFibresInPlane( float xtr,
 	  ( xtr <= fibrePos_[plane][i].rp )     ) firedFibres.emplace_back(i);
    }
    return firedFibres ;
+}
+
+const CaloCellGeometry* EcalTBHodoscopeGeometry::getGeometryRawPtr (const DetId& id) const {
+  uint32_t index = CaloGenericDetId(id).denseIndex();
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
 }
 
 std::shared_ptr<const CaloCellGeometry>

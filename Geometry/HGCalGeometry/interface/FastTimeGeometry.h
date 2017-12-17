@@ -58,9 +58,13 @@ public:
 	       const GlobalPoint& f3 ,
 	       const CCGFloat*    parm ,
 	       const DetId&       detId) override;
+
+  const CaloCellGeometry* getGeometryRawPtr (const DetId& id) const override;
   
   /// Get the cell geometry of a given detector id.  Should return false if not found.
   std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) const override;
+
+  bool present (const DetId& id) const override;
 
   void getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 		  CaloSubdetectorGeometry::IVec&   iVector,

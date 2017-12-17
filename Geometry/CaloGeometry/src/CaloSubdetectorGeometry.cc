@@ -4,6 +4,8 @@
 #include <Math/Transform3D.h>
 #include <Math/EulerAngles.h>
 
+#include <algorithm> 
+
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef CaloCellGeometry::Tr3D     Tr3D     ;
@@ -47,9 +49,8 @@ CaloSubdetectorGeometry::getGeometry( const DetId& id ) const
 }
 
 bool 
-CaloSubdetectorGeometry::present( const DetId& id ) const
-{
-   return ( nullptr != getGeometry( id ) ) ;
+CaloSubdetectorGeometry::present( const DetId& id ) const {
+  return !(std::find(m_validIds.begin(),m_validIds.end(),id)==m_validIds.end());
 }
 
 DetId 

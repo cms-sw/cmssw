@@ -70,6 +70,13 @@ CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
    m_dins.emplace_back( di );
 }
 
+const CaloCellGeometry* CaloTowerGeometry::getGeometryRawPtr (const DetId& id) const {
+  uint32_t index = cttopo->denseIndex(id);
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
+}
+
 std::shared_ptr<const CaloCellGeometry> 
 CaloTowerGeometry::cellGeomPtr( uint32_t index ) const {
   if (m_cellVec.size() < index) return nullptr;

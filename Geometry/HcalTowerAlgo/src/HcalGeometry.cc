@@ -1,4 +1,5 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include <algorithm>
 #include <iostream>
@@ -457,15 +458,36 @@ void HcalGeometry::newCell(const GlobalPoint& f1 ,
 }
 
 void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
-               const GlobalPoint& f2 ,
-               const GlobalPoint& f3 ,
-               const CCGFloat*    parm ,
-               const DetId&       detId) {
+			       const GlobalPoint& f2 ,
+			       const GlobalPoint& f3 ,
+			       const CCGFloat*    parm ,
+			       const DetId&       detId) {
 
   unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
 
   m_validIds.emplace_back( detId ) ;
   m_dins.emplace_back( din );
+}
+
+const CaloCellGeometry* HcalGeometry::getGeometryRawPtr (const DetId& id) const {
+  const unsigned int din = CaloGenericDetId(id).denseIndex();
+  const CaloCellGeometry* cell(nullptr);
+  if (m_hbCellVec.size() > din) {
+    cell = (&m_hbCellVec[din]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() ) ;
+    cell = (&m_heCellVec[ind]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size());
+    cell = (&m_hoCellVec[ind]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size()+
+	     m_hfCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size() -
+			    m_hoCellVec.size() ) ;
+    cell = (&m_hfCellVec[ind]);
+  }
+  
+  return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;
 }
 
 std::shared_ptr<const CaloCellGeometry> HcalGeometry::cellGeomPtr( unsigned int din ) const {

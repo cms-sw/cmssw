@@ -90,6 +90,13 @@ ZdcGeometry::newCell( const GlobalPoint& f1 ,
    addValidID( detId ) ;
 }
 
+const CaloCellGeometry* ZdcGeometry::getGeometryRawPtr (const DetId& id) const {
+  uint32_t index = CaloGenericDetId(id).denseIndex();
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
+}
+
 std::shared_ptr<const CaloCellGeometry>
 ZdcGeometry::cellGeomPtr( uint32_t index ) const {
   if (m_cellVec.size() < index) return nullptr;

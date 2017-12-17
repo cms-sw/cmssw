@@ -36,6 +36,8 @@ class EcalTBHodoscopeGeometry : public CaloSubdetectorGeometry
       
       static int getNFibres() ;
 
+      const CaloCellGeometry* getGeometryRawPtr (const DetId& id) const override;
+
    protected:
 
        std::shared_ptr<const CaloCellGeometry> cellGeomPtr(uint32_t index) const override;

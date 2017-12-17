@@ -48,7 +48,6 @@ CastorGeometry::getClosestCell(const GlobalPoint& r) const
 }
 
 
-
 unsigned int
 CastorGeometry::alignmentTransformIndexLocal( const DetId& id )
 {
@@ -89,6 +88,13 @@ CastorGeometry::newCell( const GlobalPoint& f1 ,
 
    m_cellVec[ di ] = IdealCastorTrapezoid( f1, cornersMgr(), parm ) ;
    addValidID( detId ) ;
+}
+
+const CaloCellGeometry* CastorGeometry::getGeometryRawPtr (const DetId& id) const {
+  uint32_t index = CaloGenericDetId(id).denseIndex();
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
 }
 
 std::shared_ptr<const CaloCellGeometry>

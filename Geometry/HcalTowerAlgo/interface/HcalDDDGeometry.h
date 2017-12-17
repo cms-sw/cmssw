@@ -32,6 +32,8 @@ public:
   const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ) , 
 						    int             subdet = 0   ) const override;
 
+  const CaloCellGeometry* getGeometryRawPtr (const DetId& id) const override;
+
   DetId getClosestCell(const GlobalPoint& r) const override ;
 
   int insertCell (std::vector<HcalCellType> const & );
