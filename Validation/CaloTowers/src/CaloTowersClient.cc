@@ -130,32 +130,34 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalM
 
          // Emean
          cnorm   = mapEnergy_N -> getBinContent(i,j);
-	 //Phi histos are not used in the macros
+         //Phi histos are not used in the macros
          if(cnorm > 0.000001 && useAllHistos) {
 
             cont = mapEnergy_E -> getBinContent(i,j) / cnorm ;
-	    econt = mapEnergy_E -> getBinError(i,j);
+            econt = mapEnergy_E -> getBinError(i,j) / cnorm;
             mapEnergy_E -> setBinContent(i,j,cont);
-	    mapEnergy_E -> setBinError(i,j,econt);
+            mapEnergy_E -> setBinError(i,j,econt);
+
 
             cont = mapEnergy_H -> getBinContent(i,j) / cnorm ;
-	    econt = mapEnergy_H -> getBinError(i,j);
+            econt = mapEnergy_H -> getBinError(i,j) / cnorm;
             mapEnergy_H -> setBinContent(i,j,cont);
-	    mapEnergy_H -> setBinError(i,j,econt);
+            mapEnergy_H -> setBinError(i,j,econt);
 
             cont = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
-	    econt = mapEnergy_EH -> getBinError(i,j);
+            econt = mapEnergy_EH -> getBinError(i,j) / cnorm;
             mapEnergy_EH -> setBinContent(i,j,cont);
-	    mapEnergy_EH -> setBinError(i,j,econt);
+            mapEnergy_EH -> setBinError(i,j,econt);
          }
+
 
          // Occupancy (needed for occupancy vs ieta)
          cnorm   = occupancy_map -> getBinContent(i,j) / fev;
-	 enorm   = occupancy_map -> getBinError(i,j) / fev;
+         enorm   = occupancy_map -> getBinError(i,j) / fev;
          if(cnorm > 1.e-30) occupancy_map -> setBinContent(i,j,cnorm);
 
          sumphi += cnorm;
-	 sumphie += enorm*enorm;
+         sumphie += enorm*enorm;
 
       } // end of iphy cycle (j)
 
