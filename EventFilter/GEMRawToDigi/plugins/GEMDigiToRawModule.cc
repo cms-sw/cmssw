@@ -38,20 +38,14 @@ void GEMDigiToRawModule::beginRun(edm::Run const&, edm::EventSetup const& iSetup
   if (useDBEMap_){
     edm::ESHandle<GEMEMap> gemEMap;
     iSetup.get<GEMEMapRcd>().get(gemEMap);
-    m_gemEMap = gemEMap.product();
-    m_gemROMap = m_gemEMap->convert();
+    m_gemEMap = std::make_unique<GEMEMap>(*(gemEMap.product()));
+    m_gemROMap = std::make_unique<GEMROmap>(*(m_gemEMap->convert()));
   }
   else {
     // no eMap, using dummy
-    m_gemEMap = new GEMEMap();
-    m_gemROMap = m_gemEMap->convertDummy();
+    m_gemEMap = std::make_unique<GEMEMap>();
+    m_gemROMap = std::make_unique<GEMROmap>(*(m_gemEMap->convertDummy()));
   }
-}
-
-void GEMDigiToRawModule::endRun(edm::Run const&, edm::EventSetup const& iSetup)
-{
-  delete m_gemEMap;
-  delete m_gemROMap;
 }
 
 void GEMDigiToRawModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
