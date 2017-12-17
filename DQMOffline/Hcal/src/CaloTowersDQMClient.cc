@@ -78,14 +78,14 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
    // mean number of towers per ieta
    int nx = Ntowers_vs_ieta->getNbinsX();
    float cont;
-   float rcont;
+   float conte;
    float fev = float(nevent);
 
    for (int i = 1; i <= nx; i++) {
       cont  = Ntowers_vs_ieta -> getBinContent(i) / fev ;
-      rcont = pow(Ntowers_vs_ieta -> getBinContent(i),0.5) / fev ;
+      conte = pow(Ntowers_vs_ieta -> getBinContent(i),0.5) / fev ;
       Ntowers_vs_ieta -> setBinContent(i,cont);
-      Ntowers_vs_ieta -> setBinError(i,rcont);
+      Ntowers_vs_ieta -> setBinError(i,conte);
    }
 
    // mean energies & occupancies evaluation
@@ -107,27 +107,27 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
          if(cnorm > 0.000001 && useAllHistos) {
 
             cont  = mapEnergy_E -> getBinContent(i,j) / cnorm ;
-            rcont = mapEnergy_E -> getBinError(i,j) / cnorm ;
+            conte = mapEnergy_E -> getBinError(i,j) / cnorm ;
             mapEnergy_E -> setBinContent(i,j,cont);
-            mapEnergy_E -> setBinError(i,j,rcont);
+            mapEnergy_E -> setBinError(i,j,conte);
 
             cont  = mapEnergy_H -> getBinContent(i,j) / cnorm ;
-            rcont = mapEnergy_H -> getBinError(i,j) / cnorm ;
+            conte = mapEnergy_H -> getBinError(i,j) / cnorm ;
             mapEnergy_H -> setBinContent(i,j,cont);
-            mapEnergy_H -> setBinError(i,j,rcont);
+            mapEnergy_H -> setBinError(i,j,conte);
 
             cont  = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
-            rcont = mapEnergy_EH -> getBinError(i,j) / cnorm ;
+            conte = mapEnergy_EH -> getBinError(i,j) / cnorm ;
             mapEnergy_EH -> setBinContent(i,j,cont);
-            mapEnergy_EH -> setBinError(i,j,rcont);
+            mapEnergy_EH -> setBinError(i,j,conte);
          }
 
          // Occupancy (needed for occupancy vs ieta)
          cont   = occupancy_map -> getBinContent(i,j);
-         rcont  = occupancy_map -> getBinError(i,j);
+         conte  = occupancy_map -> getBinError(i,j);
          if(fev>0. && cnorm>1.e-30){
          occupancy_map -> setBinContent(i,j,cont/fev);
-         occupancy_map -> setBinError(i,j,rcont/fev);
+         occupancy_map -> setBinError(i,j,conte/fev);
          }
 
          sumphi += cont;
