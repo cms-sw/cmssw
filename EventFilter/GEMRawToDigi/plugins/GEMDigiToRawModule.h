@@ -30,7 +30,6 @@ class GEMDigiToRawModule : public edm::stream::EDProducer<> {
   GEMDigiToRawModule(const edm::ParameterSet & pset);
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
   // Operations
   void produce(edm::Event&, edm::EventSetup const&) override;
 
@@ -43,8 +42,8 @@ class GEMDigiToRawModule : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<GEMDigiCollection> digi_token;
   bool useDBEMap_;
 
-  const GEMEMap* m_gemEMap;
-  const GEMROmap* m_gemROMap;
+  std::unique_ptr<GEMEMap>  m_gemEMap;
+  std::unique_ptr<GEMROmap> m_gemROMap;
   
 };
 DEFINE_FWK_MODULE(GEMDigiToRawModule);

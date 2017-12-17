@@ -153,7 +153,7 @@ namespace gem {
 
     uint32_t gemDAV ()  const {return m_GEMDAV;}        ///<Returns GEM DAV list (which chambers have data)
     uint64_t bStatus()  const {return m_Bstatus;}       ///<Returns Buffer status
-    int      gdCount()  const {return unsigned(m_GDcount);} ///<Returns GEM DAV count (number of chamber blocks)
+    uint8_t  gdCount()  const {return m_GDcount;} ///<Returns GEM DAV count (number of chamber blocks)
     uint8_t  ttsState() const {return m_Tstate;}        ///<Returns TTS state
 		         
     uint32_t chamberTimeOut() const {return m_ChamT;}   ///<Return Chamber Timeout 
