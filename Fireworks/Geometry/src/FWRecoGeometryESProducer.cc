@@ -527,7 +527,7 @@ FWRecoGeometryESProducer::addTECGeometry( void )
 void
 FWRecoGeometryESProducer::addCaloGeometry( void )
 {
-  std::vector<DetId> vid = std::move(m_caloGeom->getValidDetIds()); // Calo
+  std::vector<DetId> vid = m_caloGeom->getValidDetIds(); // Calo
   for( std::vector<DetId>::const_iterator it = vid.begin(),
 	 end = vid.end();
        it != end; ++it ) {
