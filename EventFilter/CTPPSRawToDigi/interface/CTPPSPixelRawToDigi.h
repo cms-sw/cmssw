@@ -28,6 +28,8 @@ public:
 
   virtual ~CTPPSPixelRawToDigi();
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   /// get data, convert to digis attach againe to Event
   virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
@@ -42,5 +44,7 @@ private:
   edm::InputTag label_;
  
   std::string mappingLabel_;
+
+  bool includeErrors_;
 };
 #endif

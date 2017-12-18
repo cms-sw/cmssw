@@ -66,8 +66,8 @@
   <class name="edm::Wrapper<CTPPSPixelDigiCollection>" splitLevel="0"/>
 
 
-  <class name="CTPPSPixelDataError" ClassVersion="2">
-    <version ClassVersion="2" checksum="1502652374"/>
+  <class name="CTPPSPixelDataError" ClassVersion="3">
+    <version ClassVersion="3" checksum="2056812911"/>
   </class>
   <class name="std::vector<CTPPSPixelDataError>"/>
   <class name="std::map<int, std::vector<CTPPSPixelDataError> >"/>
