@@ -63,9 +63,9 @@ C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
                           clustering_threshold_silicon = cms.double(2), # MipT
                           clustering_threshold_scintillator = cms.double(2), # MipT
                           dR_cluster = cms.double(6.), # in cm
-#                          clusterType = cms.string('NNC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering
-#                          clusterType = cms.string('dRC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering
-                          clusterType = cms.string('dRNNC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering
+                          clusterType = cms.string('NNC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering; dRNNC2d-->Limited Nearest Neighbors clustering
+#                          clusterType = cms.string('dRC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering; dRNNC2d-->Limited Nearest Neighbors clustering
+#                          clusterType = cms.string('dRNNC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering; dRNNC2d-->Limited Nearest Neighbors clustering
                           )
 
 C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized plane used to clusterize C2d
