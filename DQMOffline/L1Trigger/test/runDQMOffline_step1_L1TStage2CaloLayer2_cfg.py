@@ -109,6 +109,11 @@ process.dqmoffline_step = cms.Path(
     process.l1tTauOfflineDQM +
     process.l1tTauOfflineDQMEmu
 )
+if options.sample != 'TTJet':
+    process.dqmoffline_step.remove(process.l1tStage2CaloLayer2OfflineDQMEmu)
+    process.dqmoffline_step.remove(process.l1tEGammaOfflineDQMEmu)
+    process.dqmoffline_step.remove(process.l1tTauOfflineDQMEmu)
+
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(

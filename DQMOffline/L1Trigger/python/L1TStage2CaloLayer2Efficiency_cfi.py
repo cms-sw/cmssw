@@ -37,6 +37,11 @@ l1tStage2CaloLayer2Efficiency = l1tEfficiencyHarvesting.clone(
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots)
         ),
+    )
+)
+
+l1tStage2CaloLayer2EmuEfficiency = l1tEfficiencyHarvesting.clone(
+    plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
             numeratorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2/efficiency_raw"),
             outputDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
@@ -63,7 +68,10 @@ from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(l1tStage2CaloLayer2Efficiency,
     plotCfgs = {
         0:dict(plots = allEfficiencyPlots_HI),
-        1:dict(plots = allEfficiencyPlots_HI)
     }
 )
-
+ppRef_2017.toModify(l1tStage2CaloLayer2EmuEfficiency,
+    plotCfgs = {
+        0:dict(plots = allEfficiencyPlots_HI),
+    }
+)
