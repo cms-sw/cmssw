@@ -15,6 +15,9 @@ public:
   void beginRun(edm::EventSetup const & es);
   void endRun();
 
+  void setTimeSlew(const HcalTimeSlew* timeSlew) {
+    hcalTimeSlew_delay_ = timeSlew;
+  }
 private:
 
   struct HcalPulseContainmentEntry {
