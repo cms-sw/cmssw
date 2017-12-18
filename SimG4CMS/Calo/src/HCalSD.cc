@@ -41,14 +41,15 @@
 //#define EDM_ML_DEBUG
 //#define plotDebug
 
-HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
+HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
                const SensitiveDetectorCatalog & clg,
                edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HCalSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
-  hcalConstants(nullptr), numberingFromDDD(nullptr), numberingScheme(nullptr), showerLibrary(nullptr), 
-  hfshower(nullptr), showerParam(nullptr), showerPMT(nullptr), showerBundle(nullptr), m_HBDarkening(nullptr), m_HEDarkening(nullptr),
+  hcalConstants(nullptr), numberingFromDDD(nullptr), numberingScheme(nullptr), 
+  showerLibrary(nullptr), hfshower(nullptr), showerParam(nullptr), showerPMT(nullptr), 
+  showerBundle(nullptr), m_HBDarkening(nullptr), m_HEDarkening(nullptr),
   m_HFDarkening(nullptr), hcalTestNS_(nullptr), depth_(1) {
 
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
@@ -127,7 +128,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
-  G4LogicalVolume* lv;
+  const G4LogicalVolume* lv;
   std::string attribute, value;
   if (useHF) {
     if (useParam) {
@@ -276,7 +277,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
       if (notIn) {
         namx = log.material().name().name();
         matNames.push_back(namx);
-        G4Material* mat = nullptr;
+        const G4Material* mat = nullptr;
         for (matite = matTab->begin(); matite != matTab->end(); ++matite) {
           if ((*matite)->GetName() == namx) {
             mat = (*matite);
@@ -362,7 +363,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     return true;
   } else {
     depth_ = (aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(0))%10;
-    G4LogicalVolume* lv =
+    const G4LogicalVolume* lv =
       aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
     G4String nameVolume = lv->GetName();
     if (isItHF(aStep)) {
@@ -462,7 +463,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 double HCalSD::getEnergyDeposit(G4Step* aStep) {
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;
-  G4Track* theTrack = aStep->GetTrack();
+  theTrack = aStep->GetTrack();
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint32_t detid = setDetUnitId(aStep);
@@ -532,7 +533,7 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   double weight0 = weight;
 #endif
   if (useBirk) {
-    G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
+    const G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
     if (isItScintillator(mat)) weight *= getAttenuation(aStep, birk1, birk2, birk3);
   }
   double wt1 = getResponseWt(theTrack);
@@ -547,11 +548,11 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   return edep;
 }
 
-uint32_t HCalSD::setDetUnitId(G4Step * aStep) { 
+uint32_t HCalSD::setDetUnitId(const G4Step * aStep) { 
 
-  G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
-  const G4VTouchable* touch = preStepPoint->GetTouchable();
-  const G4ThreeVector& hitPoint    = preStepPoint->GetPosition();
+  const G4StepPoint* prePoint   = aStep->GetPreStepPoint(); 
+  const G4VTouchable* touch     = prePoint->GetTouchable();
+  const G4ThreeVector& hitPoint = prePoint->GetPosition();
 
   int depth = (touch->GetReplicaNumber(0))%10 + 1;
   int lay   = (touch->GetReplicaNumber(0)/10)%100 + 1;
@@ -710,61 +711,61 @@ std::vector<G4String> HCalSD::getNames(DDFilteredView& fv) {
   return tmp;
 }
 
-bool HCalSD::isItHF(G4Step * aStep) {
+bool HCalSD::isItHF(const G4Step * aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   int levels = (touch->GetHistoryDepth()) + 1;
   for (unsigned int it=0; it < hfNames.size(); ++it) {
     if (levels >= hfLevels[it]) {
-      G4LogicalVolume* lv = touch->GetVolume(levels-hfLevels[it])->GetLogicalVolume();
+      const G4LogicalVolume* lv = touch->GetVolume(levels-hfLevels[it])->GetLogicalVolume();
       if (lv == hfLV[it]) return true;
     }
   }
   return false;
 }
 
-bool HCalSD::isItHF (G4String name) {
+bool HCalSD::isItHF (const G4String& name) {
   std::vector<G4String>::const_iterator it = hfNames.begin();
   for (; it != hfNames.end(); ++it) if (name == *it) return true;
   return false;
 }
 
-bool HCalSD::isItFibre (G4LogicalVolume* lv) {
-  std::vector<G4LogicalVolume*>::const_iterator ite = fibreLV.begin();
+bool HCalSD::isItFibre (const G4LogicalVolume* lv) {
+  std::vector<const G4LogicalVolume*>::const_iterator ite = fibreLV.begin();
   for (; ite != fibreLV.end(); ++ite) if (lv == *ite) return true;
   return false;
 }
 
-bool HCalSD::isItFibre (G4String name) {
+bool HCalSD::isItFibre (const G4String& name) {
   std::vector<G4String>::const_iterator it = fibreNames.begin();
   for (; it != fibreNames.end(); ++it) if (name == *it) return true;
   return false;
 }
 
-bool HCalSD::isItPMT (G4LogicalVolume* lv) {
-  std::vector<G4LogicalVolume*>::const_iterator ite = pmtLV.begin();
+bool HCalSD::isItPMT (const G4LogicalVolume* lv) {
+  std::vector<const G4LogicalVolume*>::const_iterator ite = pmtLV.begin();
   for (; ite != pmtLV.end(); ++ite) if (lv == *ite) return true;
   return false;
 }
 
-bool HCalSD::isItStraightBundle (G4LogicalVolume* lv) {
-  std::vector<G4LogicalVolume*>::const_iterator ite = fibre1LV.begin();
+bool HCalSD::isItStraightBundle (const G4LogicalVolume* lv) {
+  std::vector<const G4LogicalVolume*>::const_iterator ite = fibre1LV.begin();
   for (; ite != fibre1LV.end(); ++ite) if (lv == *ite) return true;
   return false;
 }
 
-bool HCalSD::isItConicalBundle (G4LogicalVolume* lv) {
-  std::vector<G4LogicalVolume*>::const_iterator ite = fibre2LV.begin();
+bool HCalSD::isItConicalBundle (const G4LogicalVolume* lv) {
+  std::vector<const G4LogicalVolume*>::const_iterator ite = fibre2LV.begin();
   for (; ite != fibre2LV.end(); ++ite) if (lv == *ite) return true;
   return false;
 }
 
-bool HCalSD::isItScintillator (G4Material* mat) {
-  std::vector<G4Material*>::const_iterator ite = materials.begin();
+bool HCalSD::isItScintillator (const G4Material* mat) {
+  std::vector<const G4Material*>::const_iterator ite = materials.begin();
   for (; ite != materials.end(); ++ite) if (mat == *ite) return true;
   return false;
 }
 
-bool HCalSD::isItinFidVolume (G4ThreeVector& hitPoint) {
+bool HCalSD::isItinFidVolume (const G4ThreeVector& hitPoint) {
   bool flag = true;
   if (applyFidCut) {
     int npmt = HFFibreFiducial:: PMTNumber(hitPoint);
@@ -783,7 +784,7 @@ bool HCalSD::isItinFidVolume (G4ThreeVector& hitPoint) {
 
 void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
   preStepPoint  = aStep->GetPreStepPoint(); 
-  theTrack      = aStep->GetTrack();   
+  theTrack = aStep->GetTrack();   
   int det       = 5;
   bool ok;
 
@@ -844,10 +845,10 @@ void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
   }
 }
 
-void HCalSD::hitForFibre (G4Step* aStep, double weight) { // if not ParamShower
+void HCalSD::hitForFibre (const G4Step* aStep, double weight) { // if not ParamShower
 
-  preStepPoint  = aStep->GetPreStepPoint();
-  theTrack      = aStep->GetTrack();
+  const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint();
+  const G4Track*     theTrack      = aStep->GetTrack();
   int primaryID = setTrackID(aStep);
 
   int det   = 5;
@@ -901,7 +902,7 @@ void HCalSD::getFromParam (G4Step* aStep, double weight) {
   int nHit = static_cast<int>(hits.size());
 
   if (nHit > 0) {
-    preStepPoint  = aStep->GetPreStepPoint();
+    const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint();
     int primaryID = setTrackID(aStep);
    
     int det   = 5;
@@ -935,10 +936,10 @@ void HCalSD::getFromParam (G4Step* aStep, double weight) {
   }
 }
 
-void HCalSD::getHitPMT (G4Step * aStep) {
+void HCalSD::getHitPMT (const G4Step * aStep) {
 
-  preStepPoint = aStep->GetPreStepPoint();
-  theTrack     = aStep->GetTrack();
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+  const G4Track*     theTrack     = aStep->GetTrack();
   double edep  = showerPMT->getHits(aStep);
 
   if (edep >= 0) {
@@ -956,7 +957,7 @@ void HCalSD::getHitPMT (G4Step * aStep) {
 
     //
     int    det      = static_cast<int>(HcalForward);
-    G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+    const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
     double rr       = (hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
     double phi      = (rr == 0. ? 0. :atan2(hitPoint.y(),hitPoint.x()));
     double etaR     = showerPMT->getRadius();
@@ -1002,9 +1003,9 @@ void HCalSD::getHitPMT (G4Step * aStep) {
   }
 }
 
-void HCalSD::getHitFibreBundle (G4Step* aStep, bool type) {
-  preStepPoint = aStep->GetPreStepPoint();
-  theTrack     = aStep->GetTrack();
+void HCalSD::getHitFibreBundle (const G4Step* aStep, bool type) {
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+  const G4Track*     theTrack     = aStep->GetTrack();
   double edep  = showerBundle->getHits(aStep, type);
 
   if (edep >= 0) {
@@ -1022,7 +1023,7 @@ void HCalSD::getHitFibreBundle (G4Step* aStep, bool type) {
 
     //
     int    det      = static_cast<int>(HcalForward);
-    G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+    const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
     double rr       = (hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
     double phi      = (rr == 0. ? 0. :atan2(hitPoint.y(),hitPoint.x()));
     double etaR     = showerBundle->getRadius();
@@ -1065,8 +1066,9 @@ void HCalSD::getHitFibreBundle (G4Step* aStep, bool type) {
   } // non-zero energy deposit
 }
 
-int HCalSD::setTrackID (G4Step* aStep) {
-  theTrack     = aStep->GetTrack();
+int HCalSD::setTrackID (const G4Step* aStep) {
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+  const G4Track* theTrack         = aStep->GetTrack();
 
   double etrack = preStepPoint->GetKineticEnergy();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
@@ -1085,7 +1087,7 @@ int HCalSD::setTrackID (G4Step* aStep) {
   return primaryID;
 }
 
-void HCalSD::readWeightFromFile(std::string fName) {
+void HCalSD::readWeightFromFile(const std::string& fName) {
 
   std::ifstream infile;
   int entry=0;
@@ -1133,7 +1135,7 @@ double HCalSD::layerWeight(int det, const G4ThreeVector& pos, int depth, int lay
   return wt;
 }
 
-void HCalSD::plotProfile(G4Step* aStep,const G4ThreeVector& global, double edep,
+void HCalSD::plotProfile(const G4Step* aStep,const G4ThreeVector& global, double edep,
                          double time, int id) { 
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
@@ -1180,7 +1182,7 @@ void HCalSD::plotProfile(G4Step* aStep,const G4ThreeVector& global, double edep,
   }
 }
 
-void HCalSD::plotHF(G4ThreeVector& hitPoint, bool emType) {
+void HCalSD::plotHF(const G4ThreeVector& hitPoint, bool emType) {
   double zv  = std::abs(hitPoint.z()) - gpar[4];
   if (emType) {
     if (hzvem  != nullptr) hzvem->Fill(zv);

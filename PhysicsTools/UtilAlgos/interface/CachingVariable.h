@@ -10,7 +10,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
+#include "CommonTools/UtilAlgos/interface/InputTagDistributor.h"
 
 namespace edm {
   class EventSetup;

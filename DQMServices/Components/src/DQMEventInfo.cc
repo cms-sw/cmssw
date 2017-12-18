@@ -44,8 +44,7 @@ DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps){
 
 }
 
-DQMEventInfo::~DQMEventInfo(){
-}
+DQMEventInfo::~DQMEventInfo() = default;
 
 void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
                                   edm::Run const & iRun,

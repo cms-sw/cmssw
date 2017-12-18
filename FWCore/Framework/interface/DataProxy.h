@@ -23,6 +23,7 @@
 #include <atomic>
 
 // user include files
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
@@ -88,7 +89,7 @@ namespace edm {
          DataProxy const& operator=(DataProxy const&) = delete; // stop default
 
          // ---------- member data --------------------------------
-         [[cms::thread_safe]] mutable void const* cache_; //protected by a global mutex
+         CMS_THREAD_SAFE mutable void const* cache_; //protected by a global mutex
          mutable std::atomic<bool> cacheIsValid_;
          mutable std::atomic<bool> nonTransientAccessRequested_;
          ComponentDescription const* description_;

@@ -7,7 +7,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DQMEDAnalyzer::DQMEDAnalyzer() {}
+DQMEDAnalyzer::DQMEDAnalyzer() = default;
 
 void DQMEDAnalyzer::beginStream(edm::StreamID id)
 {
@@ -93,7 +93,7 @@ void DQMEDAnalyzer::globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
 //############################## ONLY NEEDED IN THE TRANSITION PERIOD ################################
 //here the thread_unsafe (simplified) carbon copy of the DQMEDAnalyzer
 
-thread_unsafe::DQMEDAnalyzer::DQMEDAnalyzer() {}
+thread_unsafe::DQMEDAnalyzer::DQMEDAnalyzer() = default;
 
 void thread_unsafe::DQMEDAnalyzer::beginRun(edm::Run const &iRun,
 					    edm::EventSetup const &iSetup) {

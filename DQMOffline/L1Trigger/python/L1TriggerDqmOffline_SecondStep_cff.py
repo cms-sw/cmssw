@@ -10,21 +10,23 @@ from DQMOffline.L1Trigger.L1TTauEfficiency_cfi import *
 from DQMOffline.L1Trigger.L1TTauDiff_cfi import *
 from DQMOffline.L1Trigger.L1TMuonDQMEfficiency_cff import *
 
+# harvesting sequence for electron dataset
+DQMHarvestL1TEg = cms.Sequence(
+    l1tEGammaEfficiency
+    #* l1tEGammaEmuEfficiency
+    #* l1tEGammaEmuDiff
+)
+
 # l1tStage2CaloLayer2EmuDiff uses plots produced by
 # l1tStage2CaloLayer2Efficiency
 
-# harvesting sequence for electron dataset
-DQMHarvestL1TEg = cms.Sequence(
-    l1tEGammaEfficiency *
-    l1tEGammaEmuDiff
-)
-
 # harvesting sequence for muon dataset
 DQMHarvestL1TMuon = cms.Sequence(
-    l1tStage2CaloLayer2Efficiency *
-    l1tStage2CaloLayer2EmuDiff *
-    l1tTauEfficiency *
-    l1tTauEmuDiff *
-    l1tMuonDQMEfficiency
+    l1tStage2CaloLayer2Efficiency
+    #* l1tStage2CaloLayer2EmuEfficiency
+    #* l1tStage2CaloLayer2EmuDiff
+    * l1tTauEfficiency
+    #* l1tTauEmuDiff
+    * l1tMuonDQMEfficiency
 )
 

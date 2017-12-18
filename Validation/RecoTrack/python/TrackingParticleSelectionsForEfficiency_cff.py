@@ -18,8 +18,7 @@ generalTpSelectorBlock = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    generalTpSelectorBlock.stableOnly = True
+fastSim.toModify(generalTpSelectorBlock, stableOnly = True)
 
 TpSelectorForEfficiencyVsEtaBlock = generalTpSelectorBlock.clone()
 TpSelectorForEfficiencyVsPhiBlock = generalTpSelectorBlock.clone()

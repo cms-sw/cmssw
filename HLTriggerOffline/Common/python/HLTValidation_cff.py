@@ -75,11 +75,12 @@ hltvalidation = cms.Sequence(
 # remove the dependent modules for now
 # probably it would be rather easy to add or fake these collections
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    hltassociation.remove(hltMultiTrackValidation)
-    hltassociation.remove(hltMultiPVValidation)
-    hltassociation.remove(hltMultiTrackValidationGsfTracks)
-    hltassociation.remove(hltMultiTrackValidationMuonTracks)
+fastSim.toReplaceWith(hltassociation, hltassociation.copyAndExclude([
+    hltMultiTrackValidation,
+    hltMultiPVValidation,
+    hltMultiTrackValidationGsfTracks,
+    hltMultiTrackValidationMuonTracks,
+]))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 pp_on_XeXe_2017.toReplaceWith(hltvalidation, hltvalidation.copyAndExclude([HiggsValidationSequence]))

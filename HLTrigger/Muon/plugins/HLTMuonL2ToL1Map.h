@@ -19,6 +19,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
+#include "FWCore/Framework/interface/Event.h"
+
 typedef edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>, std::vector<L2MuonTrajectorySeed> > > SeedMap;
 
 class HLTMuonL2ToL1Map{

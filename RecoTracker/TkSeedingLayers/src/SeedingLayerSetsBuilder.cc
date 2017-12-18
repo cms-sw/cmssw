@@ -352,6 +352,15 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
   }
 }
 
+std::vector<SeedingLayerSetsBuilder::SeedingLayerId> SeedingLayerSetsBuilder::layers() const {
+  std::vector<SeedingLayerId> ret;
+  ret.reserve(numberOfLayers());
+  for(const auto& layer: theLayers) {
+    ret.emplace_back(layer.subdet, layer.side, layer.idLayer);
+  }
+  return ret;
+}
+
 std::unique_ptr<SeedingLayerSetsHits> SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es) {
   updateEventSetup(es);
 

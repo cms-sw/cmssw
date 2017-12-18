@@ -42,15 +42,6 @@ def customiseFor19989(process):
         process.GlobalParameters = GlobalParameters
     return process
 
-# new parameter for HCAL method 2 reconstruction
-def customiseFor20422(process):
-    from RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi import m2Parameters
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.algorithm.applyDCConstraint = m2Parameters.applyDCConstraint
-    for producer in producers_by_type(process, "HcalHitReconstructor"):
-        producer.applyDCConstraint = m2Parameters.applyDCConstraint
-    return process
-
 # Refactor track MVA classifiers
 def customiseFor20429(process):
     for producer in producers_by_type(process, "TrackMVAClassifierDetached", "TrackMVAClassifierPrompt"):
@@ -63,16 +54,24 @@ def customiseFor20429(process):
         del producer.GBRForestFileName
     return process
 
+# Removal of TrajectoryCleanerESProducer
+def customiseFor21437(process):
+    if hasattr(process,"hltESPTrajectoryCleanerBySharedSeeds"):
+        delattr(process,"hltESPTrajectoryCleanerBySharedSeeds")
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customiseFor19029(process)
-    process = customiseFor20269(process)
-    process = customiseFor19989(process)
-    process = customiseFor20422(process)
-    process = customiseFor20429(process)
+    if menuType in ("2e34v22","2e34v31","2e34v40"):
+        # frozen menus are 92X!
+        process = customiseFor19029(process)
+        process = customiseFor20269(process)
+        process = customiseFor19989(process)
+        process = customiseFor20429(process)
+        process = customiseFor21437(process)
 
     return process

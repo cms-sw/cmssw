@@ -700,6 +700,22 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostModuleEvent)
 
+      /// signal is emitted before the module starts the acquire method for the Event
+      typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleEventAcquire;
+      PreModuleEventAcquire preModuleEventAcquireSignal_;
+      void watchPreModuleEventAcquire(PreModuleEventAcquire::slot_type const& iSlot) {
+         preModuleEventAcquireSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPreModuleEventAcquire)
+
+      /// signal is emitted after the module finishes the acquire method for the Event
+      typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PostModuleEventAcquire;
+      PostModuleEventAcquire postModuleEventAcquireSignal_;
+      void watchPostModuleEventAcquire(PostModuleEventAcquire::slot_type const& iSlot) {
+         postModuleEventAcquireSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPostModuleEventAcquire)
+
       /// signal is emitted after the module starts processing the Event and before a delayed get has started
       typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleEventDelayedGet;
       PreModuleEventDelayedGet preModuleEventDelayedGetSignal_;

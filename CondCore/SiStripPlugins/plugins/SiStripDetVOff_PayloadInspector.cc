@@ -70,12 +70,12 @@ namespace {
 
       for (const auto & d : detid) {
 	if(payload->IsModuleVOff(d)){
-	  tmap->fill(d,1);
+	  tmap->fill(d,1.);
 	}
       } // loop over detIds
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+      tmap->save(true,0.99,1.01,fileName);
 
       return true;
     }
@@ -104,12 +104,12 @@ namespace {
 
       for (const auto & d : detid) {
 	if(payload->IsModuleHVOff(d)){
-	  tmap->fill(d,1);
+	  tmap->fill(d,1.);
 	}
       } // loop over detIds
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+      tmap->save(true,0.99,1.01,fileName);
 
       return true;
     }
@@ -138,12 +138,12 @@ namespace {
 
       for (const auto & d : detid) {
 	if(payload->IsModuleLVOff(d)){
-	  tmap->fill(d,1);
+	  tmap->fill(d,1.);
 	}
       } // loop over detIds
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+      tmap->save(true,0.99,1.01,fileName);
 
       return true;
     }

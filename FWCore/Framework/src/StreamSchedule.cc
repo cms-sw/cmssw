@@ -266,7 +266,7 @@ namespace edm {
     unsigned int nUniqueBranchesToDelete=branchToReadingWorker.size();
     
     //talk with output modules first
-    modReg.forAllModuleHolders([this, &branchToReadingWorker,&nUniqueBranchesToDelete](maker::ModuleHolder* iHolder){
+    modReg.forAllModuleHolders([&branchToReadingWorker,&nUniqueBranchesToDelete](maker::ModuleHolder* iHolder){
       auto comm = iHolder->createOutputModuleCommunicator();
       if (comm) {
         if(!branchToReadingWorker.empty()) {

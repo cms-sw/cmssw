@@ -16,7 +16,7 @@
 
 namespace edm
 {
-  std::string getReleaseVersion(void)
+  std::string getReleaseVersion()
   { return "CMSSW_STANDALONE"; }
 
   class ParameterSet
@@ -47,14 +47,14 @@ namespace edm
   class  Service
   {
   public:
-    bool isAvailable(void) { return false; }
-    T *operator->(void)
+    bool isAvailable() { return false; }
+    T *operator->()
     {
       static char buf[sizeof(T)]; static T *x;
       if (! x) x = new (buf) T(ParameterSet());
       return x;
     }
-    T &operator*(void) { return * operator->(); }
+    T &operator*() { return * operator->(); }
   };
 
   namespace service {
