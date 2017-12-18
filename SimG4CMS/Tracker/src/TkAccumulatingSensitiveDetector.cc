@@ -8,7 +8,6 @@
 
 #include "SimG4CMS/Tracker/interface/TkAccumulatingSensitiveDetector.h"
 #include "SimG4CMS/Tracker/interface/FakeFrameRotation.h"
-#include "SimG4CMS/Tracker/interface/StandardFrameRotation.h"
 #include "SimG4CMS/Tracker/interface/TrackerFrameRotation.h"
 #include "SimG4CMS/Tracker/interface/TkSimHitPrinter.h"
 #include "SimG4CMS/Tracker/interface/TrackerG4SimHitNumberingScheme.h"
@@ -51,8 +50,8 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
 								 const SensitiveDetectorCatalog & clg,
 								 edm::ParameterSet const & p,
 								 const SimTrackManager* manager) : 
-  SensitiveTkDetector(name, cpv, clg, p), myRotation(nullptr),theManager(manager),
-  numberingScheme_(nullptr),rTracker(1200.*CLHEP::mm),zTracker(3000.*CLHEP::mm),mySimHit(nullptr), 
+  SensitiveTkDetector(name, cpv, clg, p),theManager(manager),
+  rTracker(1200.*CLHEP::mm),zTracker(3000.*CLHEP::mm),mySimHit(nullptr), 
   lastId(0),lastTrack(0),oldVolume(nullptr),px(0.0f),py(0.0f),pz(0.0f),eventno(0),pname("")
 {
   edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("TrackerSD");
@@ -66,17 +65,11 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
 
   // No Rotation given in input, automagically choose one based upon the name
   std::string rotType;
-  if (name.find("TrackerHits") != std::string::npos) {
-    myRotation = new TrackerFrameRotation();
-    rotType = "TrackerFrameRotation";
-  } else {
-    // Just in case (test beam etc)
-    myRotation = new StandardFrameRotation();
-    rotType = "StandardFrameRotation";
-  }
+  theRotation.reset(new TrackerFrameRotation());
+  rotType = "TrackerFrameRotation";
+
 #ifdef FAKEFRAMEROTATION
-  delete myRotation;
-  myRotation = new FakeFrameRotation();
+  theRotation.reset(new FakeFrameRotation());
   rotType = "FakeFrameRotation";
 #endif
 
@@ -91,25 +84,21 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
 				<<" neverAccumulate: " << neverAccumulate
 				<<" printHits: " << printHits;
 
-  slaveLowTof  = new TrackingSlaveSD(name+"LowTof");
-  slaveHighTof = new TrackingSlaveSD(name+"HighTof");
+  slaveLowTof.reset(new TrackingSlaveSD(name+"LowTof"));
+  slaveHighTof.reset(new TrackingSlaveSD(name+"HighTof"));
   
   std::vector<std::string> temp;
-  temp.push_back(slaveLowTof->name());
-  temp.push_back(slaveHighTof->name());
+  temp.push_back(slaveLowTof.get()->name());
+  temp.push_back(slaveHighTof.get()->name());
   setNames(temp);  
 
-  theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
-  myG4TrackToParticleID = new G4TrackToParticleID;
+  theG4ProcTypeEnumerator.reset(new G4ProcessTypeEnumerator);
+  theG4TrackToParticleID.reset(new G4TrackToParticleID);
+  theNumberingScheme.reset(nullptr);
 }
 
 TkAccumulatingSensitiveDetector::~TkAccumulatingSensitiveDetector() 
-{ 
-  delete slaveLowTof;
-  delete slaveHighTof;
-  delete theG4ProcessTypeEnumerator;
-  delete myG4TrackToParticleID;
-}
+{}
 
 bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory *)
 {
@@ -138,21 +127,23 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHis
 
 uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(const G4Step * step)
 { 
-  return numberingScheme_->g4ToNumberingScheme(step->GetPreStepPoint()->GetTouchable());
+  return theNumberingScheme.get()->g4ToNumberingScheme(step->GetPreStepPoint()->GetTouchable());
 }
 
 Local3DPoint TkAccumulatingSensitiveDetector::toOrcaRef(const Local3DPoint& in)
 {
-  return myRotation->transformPoint(in);
+  return theRotation->transformPoint(in);
 }
 
 void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
   const G4Track* gTrack = (*bot)();
+
 #ifdef DUMPPROCESSES
-  edm::LogInfo("TrackerSimInfo") <<" -> process creator pointer "<<gTrack->GetCreatorProcess();
   if (gTrack->GetCreatorProcess()) {
     edm::LogInfo("TrackerSimInfo")<<" -> PROCESS CREATOR : "
 				  <<gTrack->GetCreatorProcess()->GetProcessName();
+  } else {
+    edm::LogInfo("TrackerSimInfo") <<" -> No Creator process";
   }
 #endif
 
@@ -160,8 +151,11 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
   //Position
   //
   const G4ThreeVector& pos = gTrack->GetPosition();
-  //LogDebug("TrackerSimDebug")<<" ENERGY MeV "<<gTrack->GetKineticEnergy()<<" Energy Cut" << energyCut;
-  // <<"\n TOTAL ENERGY "<<gTrack->GetTotalEnergy() <<" WEIGHT "<<gTrack->GetWeight();
+  LogDebug("TrackerSimDebug")
+    << " update(..) of " << gTrack->GetDefinition()->GetParticleName()
+    << " trackID= " << gTrack->GetTrackID()
+    <<" E(MeV)= "<<gTrack->GetKineticEnergy() <<" Ecut= " << energyCut
+    << " R(mm)= " << pos.perp() << " Z(mm)= " << pos.z(); 
 
   //
   // Check if in Tracker Volume
@@ -170,8 +164,6 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
     //
     // inside the Tracker
     //
-    LogDebug("TrackerSimDebug")<<" INSIDE TRACKER";
-
     if (gTrack->GetKineticEnergy() > energyCut){
       TrackInformation* info = getTrackInformation(gTrack);
       info->storeTrack(true);
@@ -196,22 +188,21 @@ void TkAccumulatingSensitiveDetector::sendHit()
     {
 	TkSimHitPrinter thePrinter("TkHitPositionOSCAR.dat");
 	thePrinter.startNewSimHit(GetName(),oldVolume->GetLogicalVolume()->GetName(),
-				  mySimHit->detUnitId(),mySimHit->trackId(),eventno);
+				  mySimHit->detUnitId(),mySimHit->trackId(),lastTrack,eventno);
 	thePrinter.printLocal(mySimHit->entryPoint(),mySimHit->exitPoint());
 	thePrinter.printGlobal(globalEntryPoint,globalExitPoint);
-	thePrinter.printHitData(mySimHit->energyLoss(),mySimHit->timeOfFlight());
-	thePrinter.printMomentumOfTrack(mySimHit->pabs(),pname,
-					thePrinter.getPropagationSign(globalEntryPoint,globalExitPoint));
+	thePrinter.printHitData(pname,mySimHit->pabs(),mySimHit->energyLoss(),mySimHit->timeOfFlight());
 	thePrinter.printGlobalMomentum(px,py,pz);
 	LogDebug("TrackerSimDebug")<< " Storing PSimHit: " << mySimHit->detUnitId() 
 				   << " " << mySimHit->trackId() << " " << mySimHit->energyLoss() 
 				   << " " << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
     }
     
-    if (mySimHit->timeOfFlight() < theTofLimit)
-	slaveLowTof->processHits(*mySimHit);  // implicit conversion (slicing) to PSimHit!!!
-    else
-	slaveHighTof->processHits(*mySimHit); // implicit conversion (slicing) to PSimHit!!!
+    if (mySimHit->timeOfFlight() < theTofLimit) {
+      slaveLowTof.get()->processHits(*mySimHit);  // implicit conversion (slicing) to PSimHit!!!
+    } else {
+      slaveHighTof.get()->processHits(*mySimHit); // implicit conversion (slicing) to PSimHit!!!
+    }
     //
     // clean up
     delete mySimHit;
@@ -246,9 +237,9 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step * aStep)
     float thePabs             = preStepPoint->GetMomentum().mag()/GeV;
     float theTof              = preStepPoint->GetGlobalTime()/nanosecond;
     float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
-    int theParticleType       = myG4TrackToParticleID->particleID(theTrack);
+    int theParticleType       = theG4TrackToParticleID.get()->particleID(theTrack);
     uint32_t theDetUnitId     = setDetUnitId(aStep);
-    unsigned int theTrackID   = theTrack->GetTrackID();
+    int theTrackID            = theTrack->GetTrackID();
     if (theDetUnitId == 0)
     {
       edm::LogError("TkAccumulatingSensitiveDetector::createHit") 
@@ -260,7 +251,7 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step * aStep)
     // To whom assign the Hit?
     // First iteration: if the track is to be stored, use the current number;
     // otherwise, get to the mother
-    unsigned  int theTrackIDInsideTheSimHit=theTrackID;
+    unsigned int theTrackIDInsideTheSimHit=theTrackID;
     
     G4VUserTrackInformation * info = theTrack->GetUserInformation();
     if (info == nullptr) {
@@ -303,14 +294,16 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step * aStep)
     mySimHit = new UpdatablePSimHit(theEntryPoint,theExitPoint,thePabs,theTof,
 				    theEnergyLoss,theParticleType,theDetUnitId,
 				    theTrackIDInsideTheSimHit,theThetaAtEntry,thePhiAtEntry,
-				    theG4ProcessTypeEnumerator->processId(theTrack->GetCreatorProcess()));  
+				    theG4ProcTypeEnumerator.get()->processId(theTrack->GetCreatorProcess()));  
     lastId = theDetUnitId;
     lastTrack = theTrackID;
 
     // only for debugging
     if (printHits) {
-      globalEntryPoint = toOrcaRef(ConvertToLocal3DPoint(preStepPoint->GetPosition()));
-      globalExitPoint  = toOrcaRef(ConvertToLocal3DPoint(aStep->GetPostStepPoint()->GetPosition()));
+      // point on Geant4 unit (mm)
+      globalEntryPoint = ConvertToLocal3DPoint(preStepPoint->GetPosition());
+      globalExitPoint  = ConvertToLocal3DPoint(aStep->GetPostStepPoint()->GetPosition());
+      // in CMS unit (GeV)
       px  = preStepPoint->GetMomentum().x()/GeV;
       py  = preStepPoint->GetMomentum().y()/GeV;
       pz  = preStepPoint->GetMomentum().z()/GeV;
@@ -318,6 +311,8 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step * aStep)
       pname = theTrack->GetDefinition()->GetParticleName();
       LogDebug("TrackerSimDebug")<< " Created PSimHit: " << pname
 				 << " " << mySimHit->detUnitId() << " " << mySimHit->trackId()
+				 << " " << theTrackID
+				 << " p= " << aStep->GetPreStepPoint()->GetMomentum().mag()
 				 << " " << mySimHit->energyLoss() << " " << mySimHit->entryPoint() 
 				 << " " << mySimHit->exitPoint();
     }
@@ -333,12 +328,11 @@ void TkAccumulatingSensitiveDetector::updateHit(const G4Step * aStep)
     mySimHit->setExitPoint(theExitPoint);
     mySimHit->addEnergyLoss(theEnergyLoss);
     if (printHits) {
-      globalExitPoint = toOrcaRef(ConvertToLocal3DPoint(aStep->GetPostStepPoint()->GetPosition()));
+      globalExitPoint = ConvertToLocal3DPoint(aStep->GetPostStepPoint()->GetPosition());
     }
     LogDebug("TrackerSimDebug")
-      << " updateHit: Eloss= " << mySimHit->energyLoss()
-      << " new exitpoint of " << aStep->GetTrack()->GetDefinition()->GetParticleName() 
-      << " " << theExitPoint << " deltaEloss= " << theEnergyLoss
+      << " updateHit: for " << aStep->GetTrack()->GetDefinition()->GetParticleName()
+      << " trackID= " << aStep->GetTrack()->GetTrackID() << " deltaEloss= " << theEnergyLoss
       << "\n Updated PSimHit: " << mySimHit->detUnitId() << " " << mySimHit->trackId()
       << " " << mySimHit->energyLoss() << " " << mySimHit->entryPoint() 
       << " " << mySimHit->exitPoint();
@@ -352,22 +346,24 @@ bool TkAccumulatingSensitiveDetector::newHit(const G4Step * aStep)
     if(0.0 == theTrack->GetDefinition()->GetPDGCharge()) return true;
 
     uint32_t theDetUnitId = setDetUnitId(aStep);
-    unsigned int theTrackID = theTrack->GetTrackID();
+    int theTrackID = theTrack->GetTrackID();
 
-    LogDebug("TrackerSimDebug")<< " OLD(detID,trID) = (" << lastId << "," << lastTrack 
+    LogDebug("TrackerSimDebug")<< "newHit: OLD(detID,trID) = (" << lastId << "," << lastTrack 
 			       << "), NEW = (" << theDetUnitId << "," << theTrackID 
-			       << ") Step length(mm)= " << aStep->GetStepLength() << " return "
-			       << ((theTrackID == lastTrack) && (lastId == theDetUnitId));
-
+			       << ") Step length(mm)= " << aStep->GetStepLength() 
+			       << " Edep= " << aStep->GetTotalEnergyDeposit()
+			       << " p= " << aStep->GetPreStepPoint()->GetMomentum().mag();
     return ((theTrackID == lastTrack) && (lastId == theDetUnitId) && closeHit(aStep)) 
       ? false : true;
 }
 
 bool TkAccumulatingSensitiveDetector::closeHit(const G4Step * aStep)
 {
-    const float tolerance2 = 2.5f-5; // (50 micron)^2 are allowed between entry and exit 
+    const float tolerance2 = 0.0025f; // (0.5 mm)^2 are allowed between entry and exit 
     Local3DPoint theEntryPoint = toOrcaRef(LocalPreStepPosition(aStep));  
-    LogDebug("TrackerSimDebug")<< " closeHit: distance = " << (mySimHit->exitPoint()-theEntryPoint).mag(); 
+    LogDebug("TrackerSimDebug")<< " closeHit: distance = " 
+			       << (mySimHit->exitPoint()-theEntryPoint).mag();
+			       
     return ((mySimHit->exitPoint()-theEntryPoint).mag2() < tolerance2) ? true : false;
 }
 
@@ -394,13 +390,13 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfJob * i)
     edm::ESTransientHandle<DDCompactView> pView;
     es->get<IdealGeometryRecord>().get(pView);
 
-    numberingScheme_=&(numberingScheme(*pView,*pDD));
+    theNumberingScheme.reset(&(numberingScheme(*pView,*pDD)));
 }
 
 void TkAccumulatingSensitiveDetector::clearHits()
 {
-    slaveLowTof->Initialize();
-    slaveHighTof->Initialize();
+  slaveLowTof.get()->Initialize();
+  slaveHighTof.get()->Initialize();
 }
 
 TrackInformation* TkAccumulatingSensitiveDetector::getTrackInformation(const G4Track* gTrack){
@@ -429,6 +425,6 @@ TrackInformation* TkAccumulatingSensitiveDetector::getTrackInformation(const G4T
 
 void TkAccumulatingSensitiveDetector::fillHits(edm::PSimHitContainer& cc, const std::string& hname){
 
-  if (slaveLowTof->name()  == hname)      { cc=slaveLowTof->hits(); }
-  else if (slaveHighTof->name() == hname) { cc=slaveHighTof->hits();}
+  if (slaveLowTof.get()->name()  == hname)      { cc=slaveLowTof.get()->hits(); }
+  else if (slaveHighTof.get()->name() == hname) { cc=slaveHighTof.get()->hits();}
 }

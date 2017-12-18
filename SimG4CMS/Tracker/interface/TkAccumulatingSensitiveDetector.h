@@ -61,13 +61,13 @@ private:
     TrackInformation* getTrackInformation(const G4Track *);
 
     // data members initialised before run
-    TrackingSlaveSD * slaveLowTof;
-    TrackingSlaveSD * slaveHighTof;
-    FrameRotation * myRotation;
     const SimTrackManager* theManager;
-    const G4ProcessTypeEnumerator * theG4ProcessTypeEnumerator;
-    const G4TrackToParticleID * myG4TrackToParticleID;
-    TrackerG4SimHitNumberingScheme* numberingScheme_;
+    std::unique_ptr<TrackingSlaveSD> slaveLowTof;
+    std::unique_ptr<TrackingSlaveSD> slaveHighTof;
+    std::unique_ptr<FrameRotation>   theRotation;
+    std::unique_ptr<const G4ProcessTypeEnumerator> theG4ProcTypeEnumerator;
+    std::unique_ptr<const G4TrackToParticleID> theG4TrackToParticleID;
+    std::unique_ptr<TrackerG4SimHitNumberingScheme> theNumberingScheme;
     bool allowZeroEnergyLoss;
     bool printHits;
     bool neverAccumulate;
@@ -81,7 +81,7 @@ private:
     // run time cache
     UpdatablePSimHit * mySimHit;
     uint32_t lastId;
-    unsigned int lastTrack;
+    int lastTrack;
 
     // cache stuff for debugging and printout
     Local3DPoint globalEntryPoint;
@@ -93,5 +93,3 @@ private:
 };
 
 #endif
-
-
