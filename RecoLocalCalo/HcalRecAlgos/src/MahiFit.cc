@@ -187,6 +187,7 @@ void MahiFit::doFit(std::vector<float> &correctedOutput, int nbx) const {
       nnlsWork_.ampVec.coeffRef(iBX) = sqrt(nnlsWork_.pedConstraint.coeff(0));
     }
     else {
+
       updatePulseShape(nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset + offset), 
 		       nnlsWork_.pulseShapeArray[iBX], 
 		       nnlsWork_.pulseDerivArray[iBX],
@@ -274,7 +275,7 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   float t0=meanTime_;
   if (applyTimeSlew_) 
     t0+=HcalTimeSlew::delay(std::max(1.0, itQ), slewFlavor_);
-  
+
   nnlsWork_.pulseN.fill(0);
   nnlsWork_.pulseM.fill(0);
   nnlsWork_.pulseP.fill(0);
@@ -291,11 +292,14 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   
   (*pfunctor_)(&xxp[0]);
   psfPtr_->getPulseShape(nnlsWork_.pulseP);
-
   for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset + nnlsWork_.tsSize; iTS++) {
-    pulseShape.coeffRef(iTS) = nnlsWork_.pulseN[iTS-nnlsWork_.fullTSOffset];
-    pulseDeriv.coeffRef(iTS) = 0.5*(nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset]+nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset])/(2*nnlsWork_.dt);
-
+    if (nnlsWork_.tsSize==8) {
+      pulseShape.coeffRef(iTS) = nnlsWork_.pulseN[iTS-nnlsWork_.fullTSOffset+1];
+      pulseDeriv.coeffRef(iTS) = 0.5*(nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset+1]+nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset+1])/(2*nnlsWork_.dt);
+    } else {
+      pulseShape.coeffRef(iTS) = nnlsWork_.pulseN[iTS-nnlsWork_.fullTSOffset];
+      pulseDeriv.coeffRef(iTS) = 0.5*(nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset]+nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset])/(2*nnlsWork_.dt);
+    }
     nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset] -= nnlsWork_.pulseN[iTS-nnlsWork_.fullTSOffset];
     nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset] -= nnlsWork_.pulseN[iTS-nnlsWork_.fullTSOffset];
   }
@@ -303,8 +307,14 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset+nnlsWork_.tsSize; iTS++) {
     for (unsigned int jTS=nnlsWork_.fullTSOffset; jTS<iTS+1; jTS++) {
       
-      double tmp=0.5*( nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset]*nnlsWork_.pulseP[jTS-nnlsWork_.fullTSOffset] +
-		       nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset]*nnlsWork_.pulseM[jTS-nnlsWork_.fullTSOffset] );
+      double tmp=0;
+      if (nnlsWork_.tsSize==8) {
+	tmp = 0.5*( nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset+1]*nnlsWork_.pulseP[jTS-nnlsWork_.fullTSOffset+1] +
+		    nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset+1]*nnlsWork_.pulseM[jTS-nnlsWork_.fullTSOffset+1] );
+      } else {
+	tmp = 0.5*( nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset]*nnlsWork_.pulseP[jTS-nnlsWork_.fullTSOffset] +
+		    nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset]*nnlsWork_.pulseM[jTS-nnlsWork_.fullTSOffset] );
+      }
       
       pulseCov(iTS,jTS) += tmp;
       pulseCov(jTS,iTS) += tmp;
