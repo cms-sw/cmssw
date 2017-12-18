@@ -76,18 +76,18 @@ public:
   virtual ~CaloCellGeometry() ;
       
   /// Returns the corner points of this cell's volume.
-  CornersVec const & getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
-  RepCorners const & getCornersREP() const {  return m_repCorners;}
+  CornersVec getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
+  RepCorners getCornersREP() const {  return m_repCorners;}
 
   
   /// Returns the position of reference for this cell 
-  virtual const GlobalPoint& getPosition()            const {return m_refPoint;}
+  virtual       GlobalPoint getPosition()             const {return m_refPoint;}
   virtual       GlobalPoint getPosition( CCGFloat)    const {return m_refPoint;}
   virtual       GlobalPoint getPosition( const Pt3D&) const {return m_refPoint;}
 
-  const GlobalPoint& getBackPoint() const {return m_backPoint;} 
+  GlobalPoint getBackPoint() const {return m_backPoint;} 
 
-  RhoEtaPhi const & repPos() const { return m_rep;}
+  RhoEtaPhi repPos() const { return m_rep;}
   float rhoPos() const { return m_rep.rho();}
   float etaPos() const { return m_rep.eta();}
   float phiPos() const { return m_rep.phi();}
@@ -145,13 +145,16 @@ protected:
 
   void setRefPoint  (const GlobalPoint& pos) {m_refPoint  = pos;}
   void setBackPoint (const GlobalPoint& pos) {m_backPoint = pos;}
-  void setCornerVec (const CornersVec&  cor) {m_corners   = cor;} 
+  void setCornerVec (const std::vector<GlobalPoint>&  cor) {
+    for (unsigned int k=0; k<cor.size(); ++k) 
+      m_corners[k] = cor[k];
+  }
 
 private:
 
  void initBack() {
-    // from CaloTower code
-    CornersVec const & cv = getCorners();
+   // from CaloTower code
+   CornersVec const & cv = getCorners();
     m_backPoint = GlobalPoint(0.25 * (cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x()),
                               0.25 * (cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y()),
                               0.25 * (cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z()));   

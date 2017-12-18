@@ -43,7 +43,7 @@ public:
 
   ~FlatTrd() override ;
   
-  const GlobalPoint& getPosition() const override { return m_global; }
+  GlobalPoint getPosition() const override { return m_global; }
   GlobalPoint getPosition( const Pt3D& local ) const override;
   virtual float etaPos() const { return m_global.eta(); }
   virtual float phiPos() const { return m_global.phi(); }
@@ -73,7 +73,6 @@ public:
 
   void setPosition ( const GlobalPoint& p ) { m_global = p;  setRefPoint(p); }
   void setBackPoint( const GlobalPoint& p ) { setBackPoint(p); }
-  void setCorners  ( const CornersVec& cor ) { setCornerVec(cor); }
 
 private:
 

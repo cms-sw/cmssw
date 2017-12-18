@@ -237,7 +237,7 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
   return DetId();
 }
 
-HGCalGeometry::DetIdSet HGCalGeometry::getCells( const GlobalPoint& r, double dR )  const {
+HGCalGeometry::DetIdSet HGCalGeometry::getCells(const GlobalPoint& r, double dR)  const {
    HGCalGeometry::DetIdSet dss;
    return dss;
 }
