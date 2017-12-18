@@ -337,7 +337,7 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBWriter>::produceAligned( const typ
   {
     edm::ESHandle<HGCalGeometry> geomH;
     iRecord.getRecord<IdealGeometryRecord>().get( name, geomH );
-    const HGCalGeometry* geom = (geomH.product());
+    const HGCalGeometry* geom = geomH.product();
     
     geom->getSummary( tvec, ivec, dvec, dins ) ;
 	
