@@ -14,12 +14,10 @@
 #ifndef DTDigi_DTuROSControlData_h
 #define DTDigi_DTuROSControlData_h
 
-#define DOCESLOTS 12
-#define SEISXOK 12
-
-
 #include <vector>
 
+static const int DOCESLOTS = 12;
+static const int SEISXOK = 12;
 
 class DTuROSROSData {
 
@@ -99,7 +97,7 @@ private:
   std::vector<long> exword_;
 
   std::vector<int> error_;
-
+  
 };
 
 

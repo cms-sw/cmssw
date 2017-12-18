@@ -144,6 +144,8 @@ private:
   int FEDIDmin;
   int FEDIDmax;
 
+  // Number of ROS/uROS per FED
+  const int NuROS = 12;
 
   //Event counter for the graphs VS time
   int myPrevEv;
