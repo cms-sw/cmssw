@@ -51,13 +51,6 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
       const CaloGeometry* geom = geoHandle.product();
 
-      // Get rid of the content of the previous event
-      for (auto c : caloCells_)
-        delete c;
-
-      caloCells_.clear();
-      caloCells_.reserve(rechits.size());
-
       unsigned skipped_rechits = 0;
       for (const auto & hgrh : rechits) {
 		const DET detid(hgrh.detid());
@@ -72,11 +65,6 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
 	double time = hgrh.time();	
 	
 	auto thisCell = geom->getSubdetectorGeometry(detid.det(),detid.subdetId())->getGeometry(detid);
-	if( detid.det() != DetId::Hcal ) {
-	  const HGCalGeometry* hg = dynamic_cast<HGCalGeometry const*>(geom->getSubdetectorGeometry(detid.det(),detid.subdetId()));
-	  caloCells_.push_back(new CaloCellGeometryHGCALAdapter(((FlatTrd*)(hg->getGeometry(detid).get())),
-								recHitTools_.getPosition(detid)));
-	}
 
 	// find rechit geometry
 	if(!thisCell) {
@@ -86,12 +74,9 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
 	  ++skipped_rechits;
 	  continue;
 	}
-  
 
 	reco::PFRecHit rh(thisCell, detid.rawId(),Layer,
 			   energy); 
-	//  rh.setOriginalRecHit(edm::Ref<HGCRecHitCollection>(recHitHandle,i));
-
 	
 	bool rcleaned = false;
 	bool keep=true;
@@ -124,7 +109,6 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
   std::string geometryInstance_;
  private:
   hgcal::RecHitTools recHitTools_;
-  std::vector<const CaloCellGeometryHGCALAdapter*> caloCells_;
 };
 
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
