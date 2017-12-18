@@ -65,7 +65,7 @@ class StudyHLT : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::Share
 
 public:
   explicit StudyHLT(const edm::ParameterSet&);
-  ~StudyHLT() override;
+  ~StudyHLT() override { }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -214,12 +214,7 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) : nRun(0) {
   changed_    = false;
 }
 
-StudyHLT::~StudyHLT() {}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void StudyHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   std::vector<std::string> trig;
   std::vector<double>      weights;
   std::vector<std::string> newNames = {"HLT", "PixelTracks_Multiplicity",
@@ -249,7 +244,7 @@ void StudyHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.addUntracked<bool>("IsItAOD",          false);
   desc.addUntracked<bool>("DoTree",           false);
   desc.addUntracked<std::vector<double> >("PUWeights", weights);
-  descriptions.add("StudyHLT",desc);
+  descriptions.add("studyHLT",desc);
 }
 
 void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
