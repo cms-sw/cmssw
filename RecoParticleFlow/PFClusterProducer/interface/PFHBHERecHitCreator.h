@@ -51,12 +51,12 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
 	switch(esd) {
 	case HcalBarrel:
-	  thisCell = (hcalBarrelGeo->getGeometry(detid));
+	  thisCell = hcalBarrelGeo->getGeometry(detid);
 	  layer    = PFLayer::HCAL_BARREL1;
 	  break;
 
 	case HcalEndcap:
-	  thisCell = (hcalEndcapGeo->getGeometry(detid));
+	  thisCell = hcalEndcapGeo->getGeometry(detid);
 	  layer    = PFLayer::HCAL_ENDCAP;
 	  break;
 	default:

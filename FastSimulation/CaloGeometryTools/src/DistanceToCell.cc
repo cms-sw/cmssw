@@ -16,15 +16,15 @@ DistanceToCell::DistanceToCell(const DistanceToCell& dist)
 DistanceToCell::DistanceToCell(const CaloSubdetectorGeometry * det,const  DetId& cell):det_(det),pivot_(cell)
 {
   pivotPosition_ = (cell.det() == DetId::Hcal) ? 
-    (dynamic_cast<const HcalGeometry*>(det_))->getPosition(cell) : 
+    (static_cast<const HcalGeometry*>(det_))->getPosition(cell) : 
     det_->getGeometry(pivot_)->getPosition();
 }
 
 bool DistanceToCell::operator() (const DetId & c1, const DetId & c2)
 {
   bool ok = (c1.det() == DetId::Hcal) ?
-    (((dynamic_cast<const HcalGeometry*>(det_))->getPosition(c1)-pivotPosition_).mag2()<
-     ((dynamic_cast<const HcalGeometry*>(det_))->getPosition(c2)-pivotPosition_).mag2()) :
+    (((static_cast<const HcalGeometry*>(det_))->getPosition(c1)-pivotPosition_).mag2()<
+     ((static_cast<const HcalGeometry*>(det_))->getPosition(c2)-pivotPosition_).mag2()) :
     ((det_->getGeometry(c1)->getPosition()-pivotPosition_).mag2()<
      (det_->getGeometry(c2)->getPosition()-pivotPosition_).mag2());
   return ok;

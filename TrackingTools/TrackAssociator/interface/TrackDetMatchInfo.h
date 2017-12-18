@@ -109,7 +109,7 @@ class TrackDetMatchInfo {
    int numberOfSegmentsInStation(int station, int detector) const;
    int numberOfSegmentsInDetector(int detector) const;
    
-   void setCaloGeometry( edm::ESHandle<CaloGeometry> geometry ) { caloGeometry = (geometry.product()); }
+   void setCaloGeometry( edm::ESHandle<CaloGeometry> geometry ) { caloGeometry = geometry.product(); }
    GlobalPoint getPosition( const DetId& );
    std::string dumpGeometry( const DetId& );
  private:

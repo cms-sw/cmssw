@@ -236,8 +236,8 @@ int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>&
    bool firstPoint = false;
    trackCrossedXtalMap.clear();
 
-   const CaloSubdetectorGeometry* theBarrelSubdetGeometry = (theGeometry->getSubdetectorGeometry(DetId::Ecal,1));
-   const CaloSubdetectorGeometry* theEndcapSubdetGeometry = (theGeometry->getSubdetectorGeometry(DetId::Ecal,2));
+   const CaloSubdetectorGeometry* theBarrelSubdetGeometry = theGeometry->getSubdetectorGeometry(DetId::Ecal,1);
+   const CaloSubdetectorGeometry* theEndcapSubdetGeometry = theGeometry->getSubdetectorGeometry(DetId::Ecal,2);
 
    for(std::vector<SteppingHelixStateInfo>::const_iterator itr = (neckLace.begin() + 1); itr != neckLace.end(); ++itr)
    {
@@ -323,7 +323,7 @@ void BetaCalculatorECAL::addStepToXtal(std::map<int,GlobalPoint>& trackExitPosit
     const CaloSubdetectorGeometry* theSubdetGeometry)
 {
 
-  auto   cell_p = (theSubdetGeometry->getGeometry(aDetId));
+  auto   cell_p = theSubdetGeometry->getGeometry(aDetId);
   GlobalPoint p = cell_p->getPosition(23);
   GlobalPoint diff(point.x()-p.x(),point.y()-p.y(),point.z()-p.z());
 

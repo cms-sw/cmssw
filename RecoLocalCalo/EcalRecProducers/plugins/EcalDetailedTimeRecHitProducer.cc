@@ -83,7 +83,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 	edm::ESHandle<CaloGeometry>               hGeometry   ;
 	es.get<CaloGeometryRecord>().get( hGeometry ) ;
 	
-	m_geometry = (hGeometry.product());
+	m_geometry = hGeometry.product();
 
         Handle< EBRecHitCollection > pEBRecHits;
         Handle< EERecHitCollection > pEERecHits;

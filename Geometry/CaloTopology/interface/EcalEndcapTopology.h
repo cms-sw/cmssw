@@ -21,7 +21,7 @@ public:
   
   /// create a new Topology from geometry
   EcalEndcapTopology(edm::ESHandle<CaloGeometry> theGeom) {
-    theGeom_ = ((theGeom.product())->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+    theGeom_ = theGeom.product()->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
   }
 
   /// move the Topology north (increment iy)  

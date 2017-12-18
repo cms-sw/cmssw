@@ -62,7 +62,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       DetId id = DetId(hit->id()); 
 
       // Get EB geometry 
-      const CaloSubdetectorGeometry* TheSubGeometry = (TheCaloGeometry.getSubdetectorGeometry(DetId::Ecal, 1));                                                         
+      const CaloSubdetectorGeometry* TheSubGeometry = TheCaloGeometry.getSubdetectorGeometry(DetId::Ecal, 1);
       EBDetId EcalID(id.rawId());
       auto cell = (TheSubGeometry) ? (TheSubGeometry->getGeometry(id)) : nullptr;
   
@@ -191,7 +191,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
-  geo = (pGeo.product());
+  geo = pGeo.product();
   
   //Halo cluster building:
   //Various clusters are built, depending on the subdetector.

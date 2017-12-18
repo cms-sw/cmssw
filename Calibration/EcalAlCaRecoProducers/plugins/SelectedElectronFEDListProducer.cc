@@ -472,7 +472,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	      HBHERecHitCollection::const_iterator itHcalRecHit = hcalRecHitCollection->begin();
 	      for( ; itHcalRecHit != hcalRecHitCollection->end() ; ++itHcalRecHit) {
 		HcalDetId recHitId(itHcalRecHit->id());
-		const HcalGeometry* cellGeometry = dynamic_cast<const HcalGeometry*>(GeometryCalo_->getSubdetectorGeometry(recHitId));
+		const HcalGeometry* cellGeometry = static_cast<const HcalGeometry*>(GeometryCalo_->getSubdetectorGeometry(recHitId));
 		float dR = reco::deltaR(scRef->eta(),scRef->phi(),cellGeometry->getPosition(recHitId).eta(),cellGeometry->getPosition(recHitId).phi());
 		if(dR <= dRHcalRegion_) {
 		  const HcalElectronicsId electronicId = HcalReadoutMap_->lookup(recHitId);

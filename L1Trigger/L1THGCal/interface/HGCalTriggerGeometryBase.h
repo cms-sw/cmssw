@@ -32,9 +32,9 @@ class HGCalTriggerGeometryBase
         const std::string& name() const { return name_; } 
 
         const edm::ESHandle<CaloGeometry>& caloGeometry() const {return calo_geometry_;}
-        const HGCalGeometry* eeGeometry() const {return (dynamic_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCEE)));}
-        const HGCalGeometry* fhGeometry() const {return (dynamic_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCHEF)));}
-        const HcalGeometry* bhGeometry()  const {return (dynamic_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap)));}
+        const HGCalGeometry* eeGeometry() const {return (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCEE)));}
+        const HGCalGeometry* fhGeometry() const {return (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCHEF)));}
+        const HcalGeometry* bhGeometry()  const {return (static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap)));}
         const HGCalTopology& eeTopology() const {return eeGeometry()->topology();}
         const HGCalTopology& fhTopology() const {return fhGeometry()->topology();}
         const HcalTopology& bhTopology() const {return bhGeometry()->topology();}

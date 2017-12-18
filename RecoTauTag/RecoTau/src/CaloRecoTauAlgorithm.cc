@@ -96,7 +96,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
 	double myleadTrackHCAL3x3hitsEtSum=0.;
 	edm::ESHandle<CaloGeometry> myCaloGeometry;
 	iSetup.get<CaloGeometryRecord>().get(myCaloGeometry);
-	const CaloSubdetectorGeometry* myCaloSubdetectorGeometry=(myCaloGeometry->getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId));
+	const CaloSubdetectorGeometry* myCaloSubdetectorGeometry=myCaloGeometry->getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
 	edm::ESHandle<CaloTowerTopology> caloTowerTopology;
 	iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
 	CaloTowerDetId mypropagleadTrack_closestCaloTowerId(myCaloSubdetectorGeometry->getClosestCell(GlobalPoint(mypropagleadTrackECALSurfContactPoint.x(),

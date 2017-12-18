@@ -39,7 +39,7 @@ bool PhotonFixCMS::initialise(const edm::EventSetup &iSetup, const std::string &
   const CaloGeometry& geometry = *geoHandle;
   
   // EB
-  const CaloSubdetectorGeometry *barrelGeometry = (geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
+  const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   
   double bc[170][360][2];
   for(int iz(0);iz<2;iz++) {
@@ -88,7 +88,7 @@ bool PhotonFixCMS::initialise(const edm::EventSetup &iSetup, const std::string &
   }
   
   // EE
-  const CaloSubdetectorGeometry *endcapGeometry = (geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
+  const CaloSubdetectorGeometry *endcapGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   
   double ec[2][100][100][2];
   bool valid[100][100];

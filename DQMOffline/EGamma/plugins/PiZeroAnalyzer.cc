@@ -117,8 +117,8 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es, const edm::Handle<Eca
   es.get<CaloTopologyRecord>().get(theCaloTopology);
 
   const CaloSubdetectorTopology *topology_p;
-  const CaloSubdetectorGeometry* geometry_p   = (geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-  const CaloSubdetectorGeometry* geometryES_p = (geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
+  const CaloSubdetectorGeometry* geometry_p   = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+  const CaloSubdetectorGeometry* geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   // Parameters for the position calculation:
   PositionCalc posCalculator_ = PositionCalc(posCalcParameters_);

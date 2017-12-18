@@ -92,7 +92,7 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::E
   // Calo Geometry - needed for computing E_t
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = (pG.product());
+  const CaloGeometry* geo = pG.product();
   
   // by default the event is OK
   bool pass = true;

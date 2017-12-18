@@ -51,7 +51,7 @@ namespace spr{
 				   bool debug) {
  
     HcalDetId   hcdet = HcalDetId(det);
-    GlobalPoint core  = (dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(hcdet)))->getPosition(hcdet);
+    GlobalPoint core  = (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(hcdet)))->getPosition(hcdet);
     std::vector<DetId> dets, vdetx;
     dets.push_back(det);
     int ietaphi = (int)(dR/15.0)+1;
@@ -59,7 +59,7 @@ namespace spr{
 						  ietaphi, includeHO, debug);
     for (unsigned int i=0; i<vdets.size(); ++i) {
       HcalDetId   hcdet  = HcalDetId(vdets[i]);
-      GlobalPoint rpoint = (dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(hcdet)))->getPosition(hcdet);
+      GlobalPoint rpoint = (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(hcdet)))->getPosition(hcdet);
       if (spr::getDistInPlaneTrackDir(core, trackMom, rpoint) < dR) {
 	vdetx.push_back(vdets[i]);
       }

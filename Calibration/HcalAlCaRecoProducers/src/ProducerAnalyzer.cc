@@ -15,9 +15,6 @@
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 
-#include <map>
-
-using namespace std;
 using namespace reco;
 
 namespace cms
@@ -87,7 +84,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = (pG.product());
+  const CaloGeometry* geo = pG.product();
    
 
   std::vector<StableProvenance const*> theProvenance;
@@ -166,15 +163,15 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    for (; hite != (ecal.product())->end (); hite++) {
 
-//           cout<<" Energy ECAL "<<(*hite).energy()<<endl;
+//           std::cout<<" Energy ECAL "<<(*hite).energy()<<std::endl;
      
 
-//	   " eta "<<(*hite).detid()<<" phi "<<(*hite).detid().getPosition().phi()<<endl;
+//	   " eta "<<(*hite).detid()<<" phi "<<(*hite).detid().getPosition().phi()<<std::endl;
 
      const GlobalPoint& posE = geo->getPosition((*hite).detid());
        
-     cout<<" Energy ECAL "<<(*hite).energy()<<
-       " eta "<<posE.eta()<<" phi "<<posE.phi()<<endl;
+     std::cout<<" Energy ECAL "<<(*hite).energy()<<
+       " eta "<<posE.eta()<<" phi "<<posE.phi()<<std::endl;
 
      energyECAL = energyECAL + (*hite).energy();
        
@@ -188,7 +185,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    for (; hith != (hbhe.product())->end (); hith++)  {
 
-     GlobalPoint posH = (dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry((*hith).detid())))->getPosition((*hith).detid());
+     GlobalPoint posH = (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry((*hith).detid())))->getPosition((*hith).detid());
      
      std::cout<<" Energy HCAL "<<(*hith).energy()
 	      <<" eta "<<posH.eta()<<" phi "<<posH.phi()<<std::endl;
@@ -207,8 +204,8 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
           for (; hito != (ho.product())->end (); hito++)
          {
-//           cout<<" Energy HO    "<<(*hito).energy()<<endl;
-//	   " eta "<<(*hite).eta()<<" phi "<<(*hite).phi()<<endl;
+//           std::cout<<" Energy HO    "<<(*hito).energy()<<std::endl;
+//	   " eta "<<(*hite).eta()<<" phi "<<(*hite).phi()<<std::endl;
          }
 
    }
@@ -216,7 +213,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
    if(nameProd_ == "GammaJetProd" || nameProd_ == "DiJProd")
    {
-    cout<<" we are in GammaJetProd area "<<endl;
+    std::cout<<" we are in GammaJetProd area "<<std::endl;
    edm::Handle<EcalRecHitCollection> ecal;
    iEvent.getByToken(tok_ecal_, ecal);
    std::cout<<" Size of ECAL "<<(*ecal).size()<<std::endl;
@@ -227,7 +224,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    reco::CaloJetCollection::const_iterator jet = jets->begin ();
           for (; jet != jets->end (); jet++)
          {
-           cout<<" Et jet "<<(*jet).et()<<" eta "<<(*jet).eta()<<" phi "<<(*jet).phi()<<endl;
+           std::cout<<" Et jet "<<(*jet).et()<<" eta "<<(*jet).eta()<<" phi "<<(*jet).phi()<<std::endl;
          }  
 
    edm::Handle<reco::TrackCollection> tracks;
@@ -242,7 +239,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       reco::SuperClusterCollection::const_iterator iclus = eclus->begin ();
           for (; iclus != eclus->end (); iclus++)
          {
-           cout<<" Et gamma "<<(*iclus).energy()/cosh((*iclus).eta())<<" eta "<<(*iclus).eta()<<" phi "<<(*iclus).phi()<<endl;
+           std::cout<<" Et gamma "<<(*iclus).energy()/cosh((*iclus).eta())<<" eta "<<(*iclus).eta()<<" phi "<<(*iclus).phi()<<std::endl;
          }
    }
 

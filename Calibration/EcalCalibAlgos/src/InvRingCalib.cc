@@ -280,7 +280,7 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
   const EcalRecHitCollection* barrelHitsCollection = nullptr;
   edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
   iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
-  barrelHitsCollection = barrelRecHitsHandle.product () ;
+  barrelHitsCollection = barrelRecHitsHandle.product() ;
 
  if (!barrelRecHitsHandle.isValid ()) {
      edm::LogError ("IML") << "[EcalEleCalibLooper] barrel rec hits not found" ;
@@ -290,7 +290,7 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
   const EcalRecHitCollection* endcapHitsCollection = nullptr;
   edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
   iEvent.getByLabel (m_endcapAlCa, endcapRecHitsHandle) ;
-  endcapHitsCollection = endcapRecHitsHandle.product () ;
+  endcapHitsCollection = endcapRecHitsHandle.product() ;
 
  if (!endcapRecHitsHandle.isValid ()) {  
      edm::LogError ("IML") << "[EcalEleCalibLooper] endcap rec hits not found" ; 
@@ -458,7 +458,7 @@ void InvRingCalib::EERingDef(const edm::EventSetup& iSetup)
  edm::ESHandle<CaloGeometry> geoHandle;
  iSetup.get<CaloGeometryRecord>().get(geoHandle);
  //Gets the geometry of the endcap
- const CaloGeometry* geometry = (geoHandle.product());
+ const CaloGeometry* geometry = geoHandle.product();
  const CaloSubdetectorGeometry *endcapGeometry = (geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
 // const CaloSubdetectorGeometry *barrelGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
  //for every xtal gets the position Vector and the phi position
