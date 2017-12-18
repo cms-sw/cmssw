@@ -64,9 +64,6 @@ private:
   
    std::string monitorDir_; // histogram folder for L1 uGT plots
 
-   /////////Configurable Parameters///////////////////
-   /////////Algorithm trigger bits from L1 Menu///////////////////
-   //int algoTrigBits_;  //Dimitris: This is mine!
    
    bool verbose_; // verbosity switch
 
