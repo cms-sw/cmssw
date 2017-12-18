@@ -120,7 +120,7 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
 
     bookHistos(ibooker, string("CRATE"), fed);
 
-    for(int uRos = 1; uRos <= 12; ++uRos) {// loop over all ROS
+    for(int uRos = 1; uRos <= NuROS; ++uRos) {// loop over all ROS
       bookHistosuROS(ibooker,fed,uRos);
     }
    }
@@ -139,7 +139,7 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
 
     bookHistos(ibooker, string("DDU"), code);
 
-    for(int ros = 1; ros <= 12; ++ros) {// loop over all ROS
+    for(int ros = 1; ros <= NuROS; ++ros) {// loop over all ROS
       code.setROS(ros);
       bookHistosROS25(ibooker, code);
     }
@@ -197,10 +197,10 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const int fedM
 // ******************uROS******************** //
 void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder, const int fed){
 
-  string wheel = "0";
+  string wheel = "ZERO";
   if (fed ==1368) wheel="NEG";
   else if(fed==1370) wheel="POS";
-  stringstream fed_s ; fed_s <<fed;
+  string fed_s = to_string(fed);
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     << " Booking histos for FED: " << fed_s
     << " folder: " << folder << endl;
@@ -213,17 +213,17 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   // Crate (old DDU) Histograms
   if (folder == "CRATE") {
 
-    ibooker.setCurrentFolder(topFolder(false) + "FED" + fed_s.str());
+    ibooker.setCurrentFolder(topFolder(false) + "FED" + fed_s);
 
     histoType = "EventLenght";
-    histoName = "FED" + fed_s.str() + "_" + histoType;
-    histoTitle = "Event Lenght (Bytes) FED " +  fed_s.str();
+    histoName = "FED" + fed_s + "_" + histoType;
+    histoTitle = "Event Lenght (Bytes) FED " +  fed_s;
     (fedHistos[histoType])[fed] = ibooker.book1D(histoName,histoTitle,501,0,30000);
 
     if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
  
     histoType = "uROSStatus";
-    histoName = "FED" + fed_s.str() + "_" + histoType;
+    histoName = "FED" + fed_s + "_" + histoType;
     (fedHistos[histoType])[fed] = ibooker.book2D(histoName,histoName,12,0,12,12,1,13);
     histo = (fedHistos[histoType])[fed];
     // only placeholders for the moment
@@ -256,12 +256,12 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     if(mode > 0) return; //Info for Online only
 
     histoType = "FEDAvgEvLenghtvsLumi";
-    histoName = "FED" + fed_s.str() + "_" + histoType;
-    histoTitle = "Avg Event Lenght (Bytes) vs LumiSec FED " +  fed_s.str();
+    histoName = "FED" + fed_s + "_" + histoType;
+    histoTitle = "Avg Event Lenght (Bytes) vs LumiSec FED " +  fed_s;
     (fedTimeHistos[histoType])[fed] = new DTTimeEvolutionHisto(ibooker,histoName,histoTitle,200,10,true,0);
     
     histoType = "TTSValues";
-    histoName = "FED" + fed_s.str() + "_" + histoType;
+    histoName = "FED" + fed_s + "_" + histoType;
     (fedHistos[histoType])[fed] = ibooker.book1D(histoName,histoName,8,0,8);
     histo = (fedHistos[histoType])[fed];
     histo->setBinLabel(1,"Disconnected",1);
@@ -274,13 +274,13 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histo->setBinLabel(8,"Unknown",1);
 
     histoType = "uROSList";
-    histoName = "FED" + fed_s.str() + "_" + histoType;
-    histoTitle = "# of uROS in the FED payload (FED" + fed_s.str() + ")";
+    histoName = "FED" + fed_s + "_" + histoType;
+    histoTitle = "# of uROS in the FED payload (FED" + fed_s + ")";
     (fedHistos[histoType])[fed] = ibooker.book1D(histoName,histoTitle,13,0,13);
 
     histoType = "BXID";
-    histoName = "FED" + fed_s.str() + "_BXID";
-    histoTitle = "Distrib. BX ID (FED" + fed_s.str() + ")";
+    histoName = "FED" + fed_s + "_BXID";
+    histoTitle = "Distrib. BX ID (FED" + fed_s + ")";
     (fedHistos[histoType])[fed] = ibooker.book1D(histoName,histoTitle,3600,0,3600);
     
   }
@@ -292,8 +292,8 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
     histoType = "uROSSummary";
-    histoName = "FED" + fed_s.str() + "_uROSSummary";
-    string histoTitle = "Summary Wheel" + wheel + " (FED " + fed_s.str() + ")";
+    histoName = "FED" + fed_s + "_uROSSummary";
+    string histoTitle = "Summary Wheel" + wheel + " (FED " + fed_s + ")";
 
     ((summaryHistos[histoType])[fed]) = ibooker.book2D(histoName,histoTitle,19,0,19,12,1,13);
     MonitorElement *histo = ((summaryHistos[histoType])[fed]);
@@ -340,11 +340,11 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
 
 void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder, DTROChainCoding code) {
 
-  stringstream dduID_s; dduID_s << code.getDDU();
-  stringstream rosID_s; rosID_s << code.getROS();
-  stringstream robID_s; robID_s << code.getROB();
+  string dduID_s = to_string(code.getDDU());
+  string rosID_s = to_string(code.getROS());
+  string robID_s = to_string(code.getROB());
   int wheel = (code.getDDUID() - 770)%5 - 2;
-  stringstream wheel_s; wheel_s << wheel;
+  string wheel_s = to_string(wheel);
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     << " Booking histos for FED: " << code.getDDU() << " ROS: " << code.getROS()
@@ -358,17 +358,17 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   // DDU Histograms
   if (folder == "DDU") {
 
-    ibooker.setCurrentFolder(topFolder(false) + "FED" + dduID_s.str());
+    ibooker.setCurrentFolder(topFolder(false) + "FED" + dduID_s);
 
     histoType = "EventLenght";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
-    histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str();
+    histoName = "FED" + dduID_s + "_" + histoType;
+    histoTitle = "Event Lenght (Bytes) FED " +  dduID_s;
     (fedHistos[histoType])[code.getDDUID()] = ibooker.book1D(histoName,histoTitle,501,0,16032);
 
     if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
     histoType = "ROSStatus";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoName = "FED" + dduID_s + "_" + histoType;
     (fedHistos[histoType])[code.getDDUID()] = ibooker.book2D(histoName,histoName,12,0,12,12,0,12);
     histo = (fedHistos[histoType])[code.getDDUID()];
     histo->setBinLabel(1,"ch.enabled",1);
@@ -400,12 +400,12 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     if(mode > 0) return;  //Info for Online only
 
     histoType = "FEDAvgEvLenghtvsLumi";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
-    histoTitle = "Avg Event Lenght (Bytes) vs LumiSec FED " +  dduID_s.str();
+    histoName = "FED" + dduID_s + "_" + histoType;
+    histoTitle = "Avg Event Lenght (Bytes) vs LumiSec FED " +  dduID_s;
     fedTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(ibooker,histoName,histoTitle,200,10,true,0);
 
     histoType = "TTSValues";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoName = "FED" + dduID_s + "_" + histoType;
     (fedHistos[histoType])[code.getDDUID()] = ibooker.book1D(histoName,histoName,8,0,8);
     histo = (fedHistos[histoType])[code.getDDUID()];
     histo->setBinLabel(1,"disconnected",1);
@@ -418,19 +418,19 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histo->setBinLabel(8,"unknown",1);
 
     histoType = "EventType";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoName = "FED" + dduID_s + "_" + histoType;
     (fedHistos[histoType])[code.getDDUID()] = ibooker.book1D(histoName,histoName,2,1,3);
     histo = (fedHistos[histoType])[code.getDDUID()];
     histo->setBinLabel(1,"physics",1);
     histo->setBinLabel(2,"calibration",1);
 
     histoType = "ROSList";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
-    histoTitle = "# of ROS in the FED payload (FED" + dduID_s.str() + ")";
+    histoName = "FED" + dduID_s + "_" + histoType;
+    histoTitle = "# of ROS in the FED payload (FED" + dduID_s + ")";
     (fedHistos[histoType])[code.getDDUID()] = ibooker.book1D(histoName,histoTitle,13,0,13);
 
     histoType = "FIFOStatus";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoName = "FED" + dduID_s + "_" + histoType;
     (fedHistos[histoType])[code.getDDUID()] = ibooker.book2D(histoName,histoName,7,0,7,3,0,3);
     histo = (fedHistos[histoType])[code.getDDUID()];
     histo->setBinLabel(1,"Input ch1-4",1);
@@ -445,8 +445,8 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histo->setBinLabel(3,"Not Full",2);
 
     histoType = "BXID";
-    histoName = "FED" + dduID_s.str() + "_BXID";
-    histoTitle = "Distrib. BX ID (FED" + dduID_s.str() + ")";
+    histoName = "FED" + dduID_s + "_BXID";
+    histoTitle = "Distrib. BX ID (FED" + dduID_s + ")";
     (fedHistos[histoType])[code.getDDUID()] = ibooker.book1D(histoName,histoTitle,3600,0,3600);
 
   }
@@ -458,8 +458,8 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
     histoType = "ROSSummary";
-    histoName = "FED" + dduID_s.str() + "_ROSSummary";
-    string histoTitle = "Summary Wheel" + wheel_s.str() + " (FED " + dduID_s.str() + ")";
+    histoName = "FED" + dduID_s + "_ROSSummary";
+    string histoTitle = "Summary Wheel" + wheel_s + " (FED " + dduID_s + ")";
 
     ((summaryHistos[histoType])[code.getDDUID()]) = ibooker.book2D(histoName,histoTitle,20,0,20,12,1,13);
     MonitorElement *histo = ((summaryHistos[histoType])[code.getDDUID()]);
@@ -501,12 +501,12 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   }
 
   if ( folder == "ROS" ) {
-    ibooker.setCurrentFolder(topFolder(false) + "FED" + dduID_s.str() + "/" + folder + rosID_s.str());
+    ibooker.setCurrentFolder(topFolder(false) + "FED" + dduID_s + "/" + folder + rosID_s);
 
     if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
     histoType = "ROSError";
-    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSError";
+    histoName = "FED" + dduID_s + "_" + folder + rosID_s + "_ROSError";
     histoTitle = histoName + " (ROBID error summary)";
     if(mode < 1) //Online only
       (rosHistos[histoType])[code.getROSID()] = ibooker.book2D(histoName,histoTitle,17,0,17,26,0,26);
@@ -565,17 +565,17 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     if(mode > 1) return;
 
     histoType = "ROSEventLenght";
-    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSEventLenght";
-    histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str() + " ROS " + rosID_s.str();
+    histoName = "FED" + dduID_s + "_" + folder + rosID_s + "_ROSEventLenght";
+    histoTitle = "Event Lenght (Bytes) FED " +  dduID_s + " ROS " + rosID_s;
     (rosHistos[histoType])[code.getROSID()] = ibooker.book1D(histoName,histoTitle,101,0,1616);
 
     histoType = "ROSAvgEventLenghtvsLumi";
-    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + histoType;
-    histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str() + " ROS " + rosID_s.str();
+    histoName = "FED" + dduID_s + "_" + folder + rosID_s + histoType;
+    histoTitle = "Event Lenght (Bytes) FED " +  dduID_s + " ROS " + rosID_s;
     rosTimeHistos[histoType][code.getROSID()] = new DTTimeEvolutionHisto(ibooker,histoName,histoTitle,200,10,true,0);
 
     histoType = "TDCError";
-    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_TDCError";
+    histoName = "FED" + dduID_s + "_" + folder + rosID_s + "_TDCError";
     histoTitle = histoName + " (ROBID error summary)";
     (rosHistos[histoType])[code.getROSID()] = ibooker.book2D(histoName,histoTitle,24,0,24,25,0,25);
     histo = (rosHistos[histoType])[code.getROSID()];
@@ -632,8 +632,8 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histo->setBinLabel(25,"ROB24",2);
 
     histoType = "ROB_mean";
-    histoName = "FED" + dduID_s.str() + "_" + "ROS" + rosID_s.str() + "_ROB_mean";
-    string fullName = topFolder(false) + "FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;
+    histoName = "FED" + dduID_s + "_" + "ROS" + rosID_s + "_ROB_mean";
+    string fullName = topFolder(false) + "FED" + dduID_s + "/" + folder + rosID_s+ "/" + histoName;
     names.insert (pair<std::string,std::string> (histoType,string(fullName)));
     (rosHistos[histoType])[code.getROSID()] = ibooker.book2D(histoName,histoName,25,0,25,100,0,100);
     (rosHistos[histoType])[code.getROSID()]->setAxisTitle("ROB #",1);
@@ -644,13 +644,13 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   // SC Histograms
   if ( folder == "SC" ) {
     // The plots are per wheel
-    ibooker.setCurrentFolder(topFolder(false) + "FED" + dduID_s.str());
+    ibooker.setCurrentFolder(topFolder(false) + "FED" + dduID_s);
     if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
     // SC data Size
     histoType = "SCSizeVsROSSize";
-    histoName = "FED" + dduID_s.str() + "_SCSizeVsROSSize";
-    histoTitle = "SC size vs SC (FED " + dduID_s.str() + ")";
+    histoName = "FED" + dduID_s + "_SCSizeVsROSSize";
+    histoTitle = "SC size vs SC (FED " + dduID_s + ")";
     rosHistos[histoType][code.getSCID()] = ibooker.book2D(histoName,histoTitle,12,1,13,51,-1,50);
     rosHistos[histoType][code.getSCID()]->setAxisTitle("SC",1);
 
@@ -669,17 +669,17 @@ void DTDataIntegrityTask::bookHistosROS25(DQMStore::IBooker & ibooker, DTROChain
 
 // ******************uROS******************** //
 void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int fed, const int uRos){
-  stringstream fed_s; fed_s << fed;
-  stringstream uRos_s; uRos_s << uRos;
-  ibooker.setCurrentFolder(topFolder(false) + "FED" + fed_s.str() + "/uROS" + uRos_s.str());
+  string fed_s = to_string(fed);
+  string uRos_s = to_string(uRos);
+  ibooker.setCurrentFolder(topFolder(false) + "FED" + fed_s + "/uROS" + uRos_s);
 
   for (int counter=0; counter<3; counter++){
-	stringstream counter_s; counter_s << counter;
-  	string histoType = "uROSError"+counter_s.str();
-	int linkDown = counter*24; stringstream linkDown_s; linkDown_s << linkDown;
-	int linkUp = linkDown+23;  stringstream linkUp_s; linkUp_s << linkUp;
-  	string histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_"+histoType;
-  	string histoTitle = histoName + " (Link " + linkDown_s.str() +"-"+ linkUp_s.str() + " error summary)";
+	string counter_s = to_string(counter);
+  	string histoType = "uROSError"+counter_s;
+	int linkDown = counter*24; string linkDown_s = to_string(linkDown);
+	int linkUp = linkDown+23;  string linkUp_s = to_string(linkUp);
+  	string histoName = "FED" + fed_s + "_" + "uROS" + uRos_s + "_"+histoType;
+  	string histoTitle = histoName + " (Link " + linkDown_s +"-"+ linkUp_s + " error summary)";
 
 	if(mode < 1) // Online only
     		((urosHistos[histoType])[fed])[uRos] = ibooker.book2D(histoName,histoTitle,11,0,11,24,0,24);
@@ -704,8 +704,8 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int 
       	histo->setBinLabel(11,"TDC hit rej.",1);
     	}
    	for (int link=linkDown; link < (linkUp+1); ++link){
-    		stringstream link_s; link_s<<link;
-    		histo->setBinLabel(link-linkDown+1,"Link"+link_s.str(),2);
+    		string link_s = to_string(link);
+    		histo->setBinLabel(link-linkDown+1,"Link"+link_s,2);
    	}
   }
 
@@ -713,22 +713,22 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int 
   if(mode > 1) return;
 
   string histoType = "uROSEventLenght";
-  string histoName = "FED" + fed_s.str() + "_uROS" +  uRos_s.str() + "_" + "EventLenght";
-  string histoTitle = "Event Lenght (Bytes) FED " +  fed_s.str() + " uROS" + uRos_s.str();
- (urosHistos[histoType])[fed][uRos] = ibooker.book1D(histoName,histoTitle,101,0,5000);
+  string histoName = "FED" + fed_s + "_uROS" +  uRos_s + "_" + "EventLenght";
+  string histoTitle = "Event Lenght (Bytes) FED " +  fed_s + " uROS" + uRos_s;
+  (urosHistos[histoType])[fed][uRos] = ibooker.book1D(histoName,histoTitle,101,0,5000);
 
   histoType = "uROSAvgEventLenghtvsLumi";
-  histoName = "FED" + fed_s.str() + "_uROS" +  uRos_s.str() + "AvgEventLenghtvsLumi";
-  histoTitle = "Event Lenght (Bytes) FED " +  fed_s.str() + " uROS" + uRos_s.str();
+  histoName = "FED" + fed_s + "_uROS" +  uRos_s + "AvgEventLenghtvsLumi";
+  histoTitle = "Event Lenght (Bytes) FED " +  fed_s + " uROS" + uRos_s;
   urosTimeHistos[histoType][fed][uRos] = new DTTimeEvolutionHisto(ibooker,histoName,histoTitle,200,10,true,0);
 
   for (int counter=0; counter<3; counter++){
-        stringstream counter_s; counter_s << counter;
-        string histoType = "TDCError"+counter_s.str();
-        int linkDown = counter*24; stringstream linkDown_s; linkDown_s << linkDown;
-        int linkUp = linkDown+23;  stringstream linkUp_s; linkUp_s << linkUp;
-        string histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_"+histoType;
-        string histoTitle = histoName + " (Link " + linkDown_s.str() +"-"+ linkUp_s.str() + " error summary)";
+        string counter_s = to_string(counter);
+        string histoType = "TDCError"+counter_s;
+        int linkDown = counter*24; string linkDown_s = to_string(linkDown);
+        int linkUp = linkDown+23;  string linkUp_s = to_string(linkUp);
+        string histoName = "FED" + fed_s + "_" + "uROS" + uRos_s + "_"+histoType;
+        string histoTitle = histoName + " (Link " + linkDown_s +"-"+ linkUp_s + " error summary)";
   
     	(urosHistos[histoType])[fed][uRos] = ibooker.book2D(histoName,histoTitle,24,0,24,24,0,24);
     	MonitorElement* histo = (urosHistos[histoType])[fed][uRos];
@@ -759,15 +759,13 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int 
     	histo->setBinLabel(24,"hit rej.",1);
 
         for (int link=linkDown; link < (linkUp+1); ++link){
-                stringstream link_s; link_s<<link;
-                histo->setBinLabel(link-linkDown+1,"Link"+link_s.str(),2);
+                string link_s = to_string(link);
+                histo->setBinLabel(link-linkDown+1,"Link"+link_s,2);
         }
   }
 
-
-
     histoType = "TTSValues";
-    histoName = "FED" + fed_s.str() + "_" + "uROS" + uRos_s.str() + "_" + histoType;
+    histoName = "FED" + fed_s + "_" + "uROS" + uRos_s + "_" + histoType;
     (urosHistos[histoType])[fed][uRos] = ibooker.book1D(histoName,histoName,8,0,8);
     MonitorElement* histo = (urosHistos[histoType])[fed][uRos];
     histo->setBinLabel(1,"Disconnected",1);
@@ -830,9 +828,9 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
 		if (flag==0) {sumOKs+=1; // Not OK flag
 				flag=5; //move it to the 5th bin
 			}
-	        if(link<24) uROSError0->Fill(flag-1,link); //bins start at 1 despite labeling
-	        else if(link<48) uROSError1->Fill(flag-1,link-23);
-        	else uROSError2->Fill(flag-1,link-47);
+	        if (link<24) uROSError0->Fill(flag-1,link); //bins start at 1 despite labeling
+	        else if (link<48) uROSError1->Fill(flag-1,link-23);
+        	else if (link<72) uROSError2->Fill(flag-1,link-47);
 	}
       }
    }
@@ -852,9 +850,9 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
 
   // ROS error
   for (unsigned int icounter = 0; icounter<data.geterrors().size(); ++icounter){
-   int link = data.geterrorROBID(icounter);
-   int tdc = data.geterrorTDCID(icounter);
-   int error =  data.geterror(icounter);
+    int link = data.geterrorROBID(icounter);
+    int tdc = data.geterrorTDCID(icounter);
+    int error = data.geterror(icounter);
     int tdcError_ROSSummary = 0;
     int tdcError_ROSError = 0;
     int tdcError_TDCHisto = 0;
@@ -923,12 +921,12 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
    if(mode<=2){
      if (link<24)  	uROSError0->Fill(tdcError_ROSError,link);
      else if (link<48)  uROSError1->Fill(tdcError_ROSError,link-23);
-     else 		uROSError2->Fill(tdcError_ROSError,link-47);
+     else if (link<72)  uROSError2->Fill(tdcError_ROSError,link-47);
      
      if(mode<=1){
-	if(link<24) urosHistos["TDCError0"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1)+1,link);
-	else if(link<48) urosHistos["TDCError1"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1)+1,link-23);
-	else urosHistos["TDCError2"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1)+1,link-47);
+	if (link<24) urosHistos["TDCError0"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link);
+	else if (link<48) urosHistos["TDCError1"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link-23);
+	else if (link<72) urosHistos["TDCError2"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link-47);
      }
    }	
   } //loop on errors
