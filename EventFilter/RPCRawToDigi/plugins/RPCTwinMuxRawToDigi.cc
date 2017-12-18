@@ -193,7 +193,7 @@ bool RPCTwinMuxRawToDigi::processCDFTrailers(int fed, unsigned int nwords
     for (--word_end ; word_end > word && more_trailers ; --word_end) {
         FEDTrailer trailer(reinterpret_cast<unsigned char const *>(word_end));
         LogDebug("RPCTwinMuxRawToDigi") << "CDF Trailer " << std::hex << *word_end << std::dec
-                                        << ", length " << trailer.lenght();
+                                        << ", length " << trailer.fragmentLength();
         if (!trailer.check()) {
             if (fill_counters_) {
                 counters.add(RPCAMCLinkCounters::fed_trailer_check_fail_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
@@ -202,11 +202,11 @@ bool RPCTwinMuxRawToDigi::processCDFTrailers(int fed, unsigned int nwords
             --word_end;
             break;
         }
-        if (trailer.lenght() != (int)nwords) {
+        if (trailer.fragmentLength() != nwords) {
             if (fill_counters_) {
                 counters.add(RPCAMCLinkCounters::fed_trailer_length_mismatch_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
             }
-            edm::LogWarning("RPCTwinMuxRawToDigi") << "FED Trailer length " << trailer.lenght()
+            edm::LogWarning("RPCTwinMuxRawToDigi") << "FED Trailer length " << trailer.fragmentLength()
                                                    << " does not match actual data size " << nwords
                                                    << " for FED id " << fed;
             --word_end;
