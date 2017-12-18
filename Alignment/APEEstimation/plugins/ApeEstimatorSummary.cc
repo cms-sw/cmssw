@@ -89,6 +89,7 @@ class ApeEstimatorSummary : public edm::one::EDAnalyzer<> {
       TFile* inputFile_;
       
       std::map<unsigned int, TrackerSectorStruct> m_tkSector_;
+      unsigned int noSectors_;
 };
 
 //
@@ -149,7 +150,8 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
   pluginName += "/";
   TDirectory *sectorDir(nullptr), *intervalDir(nullptr);
   bool sectorBool(true);
-  for(unsigned int iSector(1);sectorBool;++iSector){
+  unsigned int iSector(1);
+  for(;sectorBool;++iSector){
     std::stringstream sectorName, fullSectorName;
     sectorName << "Sector_" << iSector << "/";
     fullSectorName << pluginName << sectorName.str();
@@ -209,6 +211,9 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
       edm::LogInfo("CalculateAPE")<<"There are "<<iSector-1<<" sectors defined in input file";
     }
   }
+  noSectors_ = iSector+1;
+  
+  
 }
 
 
@@ -359,13 +364,13 @@ ApeEstimatorSummary::calculateApe(){
    
    
   // Assign the information stored in the trees to arrays
-  double a_apeSectorX[16589];
-  double a_apeSectorY[16589];
-  double a_baselineSectorX[16589];
-  double a_baselineSectorY[16589];
+  double a_apeSectorX[noSectors_];
+  double a_apeSectorY[noSectors_];
+  double a_baselineSectorX[noSectors_];
+  double a_baselineSectorY[noSectors_];
   
-  std::string* a_sectorName[16589];
-  std::string* a_sectorBaselineName[16589];
+  std::string* a_sectorName[noSectors_];
+  std::string* a_sectorBaselineName[noSectors_];
   for(auto const & i_sector : m_tkSector_){
     const unsigned int iSector(i_sector.first);
     const bool pixelSector(i_sector.second.isPixel);
@@ -822,7 +827,7 @@ ApeEstimatorSummary::calculateApe(){
   if(baselineFile){
     baselineFile->Close();
     delete baselineFile;
-  }
+  }  
 }
 
 
@@ -886,11 +891,11 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
       
     // Assign the information stored in the trees to arrays
-    double a_defaultSectorX[16589];
-    double a_defaultSectorY[16589];
+    double a_defaultSectorX[noSectors_];
+    double a_defaultSectorY[noSectors_];
     
-    std::string* a_sectorName[16589];
-    std::string* a_sectorBaselineName[16589];
+    std::string* a_sectorName[noSectors_];
+    std::string* a_sectorBaselineName[noSectors_];
     for(auto const & i_sector : m_tkSector_){
       const unsigned int iSector(i_sector.first);
       const bool pixelSector(i_sector.second.isPixel);
@@ -979,6 +984,7 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     defaultFile->Close();
     delete defaultFile;
+    
     if(baselineFile){
       baselineFile->Close();
       delete baselineFile;
@@ -986,7 +992,6 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     firstEvent = false;   
   }
-  
 }
 
 
