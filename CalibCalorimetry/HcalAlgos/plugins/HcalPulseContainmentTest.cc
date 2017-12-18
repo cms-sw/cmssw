@@ -18,6 +18,8 @@
 #include <iostream>
 #include <iterator>
 
+class HcalTimeSlew;
+
 class HcalPulseContainmentTest : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:

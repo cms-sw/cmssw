@@ -2,13 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Test")
 
-#process.load("Configuration.Geometry.GeometryExtendedReco_cff")
-#process.load("Configuration.StandardSequences.MagneticField_cff")
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Services_cff")
-
-#from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.source = cms.Source("EmptySource")
 
