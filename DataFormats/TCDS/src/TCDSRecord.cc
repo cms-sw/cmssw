@@ -1,5 +1,6 @@
 #include <iomanip>
 
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
@@ -27,7 +28,8 @@ TCDSRecord::TCDSRecord() :
 TCDSRecord::TCDSRecord(const unsigned char* rawData)
 {
   tcds::Raw_v1 const* tcdsRaw =
-    reinterpret_cast<tcds::Raw_v1 const*>(rawData);
+    reinterpret_cast<tcds::Raw_v1 const*>(rawData + FEDHeader::length);
+  const FEDHeader fedHeader(rawData);
 
   orbitNr_ = (tcdsRaw->header.orbitHigh << 16) | tcdsRaw->header.orbitLow;
   triggerCount_ = tcdsRaw->header.triggerCount;
@@ -41,7 +43,7 @@ TCDSRecord::TCDSRecord(const unsigned char* rawData)
   nibble_ = tcdsRaw->header.nibble;
   lumiSection_ = tcdsRaw->header.lumiSection;
   nibblesPerLumiSection_ = tcdsRaw->header.nibblesPerLumiSection;
-  eventType_ = FED_EVTY_EXTRACT(tcdsRaw->fedHeader.eventid);
+  eventType_ = fedHeader.triggerType();
   triggerTypeFlags_ = tcdsRaw->header.triggerTypeFlags;
   inputs_ = tcdsRaw->header.inputs;
   bxid_ = tcdsRaw->header.bxid;

@@ -38,7 +38,7 @@ class DTDDUFileReader : public edm::EDProducer {
   bool isHeader(uint64_t word, bool dataTag);
 
   /// check for a 64 bits word to be a DDU trailer
-  bool isTrailer(uint64_t word, bool dataTag, int wordCount);
+  bool isTrailer(uint64_t word, bool dataTag, unsigned int wordCount);
 
   /// pre-unpack the data if read via DMA
   //  std::pair<uint64_t,bool> dmaUnpack();
