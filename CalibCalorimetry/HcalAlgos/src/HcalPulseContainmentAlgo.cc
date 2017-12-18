@@ -67,10 +67,6 @@ HcalPulseContainmentAlgo::init(int num_samples)
 std::pair<double,double> 
 HcalPulseContainmentAlgo::calcpair(double truefc)
 {
-  if(hcalTimeSlew_delay_ == nullptr) {
-    std::cout<<"Using the default HcalTimeSlew class: should come from an event setup"<<std::endl;
-    hcalTimeSlew_delay_ = new HcalTimeSlew();
-  }
   double timeslew_ns = hcalTimeSlew_delay_->delay(std::max(0.0,(double)truefc), HcalTimeSlew::Medium);
 
   double shift_ns  = fixedphasens_ - time0shiftns_ + timeslew_ns;

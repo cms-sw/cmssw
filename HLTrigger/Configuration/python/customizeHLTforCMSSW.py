@@ -34,10 +34,10 @@ def customiseFor21664_forMahiOnM2only(process):
 
 # Removal of old Hcal time slew parameters
 def customiseFor21733(process):
-    if hasattr(process,"timeSlewParsType"):
-        delattr(process,"timeSlewParsType")
-    if hasattr(process,"timeSlewPars"):
-        delattr(process,"timeSlewPars")
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        if hasattr(producer, "timeSlewParsType"):
+            delattr(producer,"timeSlewParsType")
+            delattr(producer,"timeSlewPars")
     return process
 
 # CMSSW version specific customizations
