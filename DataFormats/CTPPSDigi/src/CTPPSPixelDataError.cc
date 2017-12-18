@@ -3,7 +3,7 @@
 
 CTPPSPixelDataError::CTPPSPixelDataError() {}
 
-CTPPSPixelDataError::CTPPSPixelDataError(cms_uint32_t errorWord32, const int errorType, int fedId) : 
+CTPPSPixelDataError::CTPPSPixelDataError(uint32_t errorWord32, const int errorType, int fedId) : 
   errorWord32_(errorWord32),
   errorType_(errorType),
   fedId_(fedId)
@@ -11,7 +11,7 @@ CTPPSPixelDataError::CTPPSPixelDataError(cms_uint32_t errorWord32, const int err
     setMessage();
   }
 
-CTPPSPixelDataError::CTPPSPixelDataError(cms_uint64_t errorWord64, const int errorType, int fedId) : 
+CTPPSPixelDataError::CTPPSPixelDataError(uint64_t errorWord64, const int errorType, int fedId) : 
   errorWord64_(errorWord64),
   errorType_(errorType),
   fedId_(fedId)
@@ -25,11 +25,11 @@ CTPPSPixelDataError::~CTPPSPixelDataError() {}
 
 
 
-void CTPPSPixelDataError::setWord32(cms_uint32_t errorWord32) {
+void CTPPSPixelDataError::setWord32(uint32_t errorWord32) {
   errorWord32_ = errorWord32;
 }
 
-void CTPPSPixelDataError::setWord64(cms_uint64_t errorWord64) {
+void CTPPSPixelDataError::setWord64(uint64_t errorWord64) {
   errorWord64_ = errorWord64;
 }
 
