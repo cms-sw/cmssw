@@ -60,7 +60,7 @@ bool RPixErrorChecker::checkHeader(bool& errorsInEvent, int fedId, const Word64*
   return fedHeader.moreHeaders();
 }
 
-bool RPixErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, int nWords, const Word64* trailer) const
+bool RPixErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer) const
 {
   FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
   if ( !fedTrailer.check()) { 
@@ -70,8 +70,8 @@ bool RPixErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, int nWords, 
       <<"fedTrailer.check failed, Fed: " << fedId << ", errorType = 33";
     return false; 
   } 
-  if ( fedTrailer.lenght()!= nWords) {
-    LogError("FedTrailerLenght")<< "fedTrailer.lenght()!= nWords !! Fed: " << fedId << ", errorType = 34";
+  if ( fedTrailer.fragmentLength()!= nWords) {
+    LogError("FedTrailerLenght")<< "fedTrailer.fragmentLength()!= nWords !! Fed: " << fedId << ", errorType = 34";
     errorsInEvent = true;
  
   }
