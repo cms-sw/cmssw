@@ -242,7 +242,7 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step * aStep)
     int theTrackID            = theTrack->GetTrackID();
     if (theDetUnitId == 0)
     {
-      edm::LogError("TkAccumulatingSensitiveDetector::createHit") 
+      edm::LogWarning("TkAccumulatingSensitiveDetector::createHit") 
 	<< " theDetUnitId is not valid for " << GetName();
       throw cms::Exception("TkAccumulatingSensitiveDetector::createHit")
 	<< "cannot get theDetUnitId for G4Track " << theTrackID;
@@ -255,14 +255,14 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step * aStep)
     
     G4VUserTrackInformation * info = theTrack->GetUserInformation();
     if (info == nullptr) {
-      edm::LogError("TkAccumulatingSensitiveDetector::createHit") 
+      edm::LogWarning("TkAccumulatingSensitiveDetector::createHit") 
 	<< " no UserTrackInformation available for trackID= " << theTrackID;
       throw cms::Exception("TkAccumulatingSensitiveDetector::createHit")
 	<< " cannot handle hits for tracking in " << GetName();
     } else {
       TrackInformation * temp = dynamic_cast<TrackInformation* >(info);
       if (temp ==nullptr) {
-	edm::LogError("TkAccumulatingSensitiveDetector::createHit") 
+	edm::LogWarning("TkAccumulatingSensitiveDetector::createHit") 
 	  << " G4VUserTrackInformation is not a TrackInformation for trackID= " 
 	  << theTrackID;
 	throw cms::Exception("TkAccumulatingSensitiveDetector::createHit")
@@ -403,7 +403,7 @@ TrackInformation* TkAccumulatingSensitiveDetector::getTrackInformation(const G4T
   TrackInformation* info = nullptr;
   G4VUserTrackInformation* temp = gTrack->GetUserInformation();
   if (temp == nullptr){
-    edm::LogError("TkAccumulatingSensitiveDetector::getTrackInformation") 
+    edm::LogWarning("TkAccumulatingSensitiveDetector::getTrackInformation") 
       <<" ERROR: no G4VUserTrackInformation available for track " 
       << gTrack->GetTrackID() << " Ekin(MeV)= " << gTrack->GetKineticEnergy()
       << "  " << gTrack->GetDefinition()->GetParticleName();
@@ -412,7 +412,7 @@ TrackInformation* TkAccumulatingSensitiveDetector::getTrackInformation(const G4T
   }else{
     info = dynamic_cast<TrackInformation*>(temp);
     if (info == nullptr){
-      edm::LogError("TkAccumulatingSensitiveDetector::getTrackInformation") 
+      edm::LogWarning("TkAccumulatingSensitiveDetector::getTrackInformation") 
 	<< " G4VUserTrackInformation is not a TrackInformation for " 
 	<<"TrackID= " << gTrack->GetTrackID() << " Ekin(MeV)= " << gTrack->GetKineticEnergy()
 	<< "  " << gTrack->GetDefinition()->GetParticleName();
