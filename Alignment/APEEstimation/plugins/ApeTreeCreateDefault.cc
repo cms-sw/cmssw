@@ -32,6 +32,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -65,7 +67,8 @@ class ApeTreeCreateDefault : public edm::one::EDAnalyzer<> {
   public:
     explicit ApeTreeCreateDefault(const edm::ParameterSet&);
     ~ApeTreeCreateDefault() override;
-  
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
   private:
     void beginJob() override ;
@@ -459,7 +462,7 @@ ApeTreeCreateDefault::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   defaultFile->Close(); 
   delete defaultFile;
-  for(int i = 0; i < a_defaultSectorX.size(); i++){
+  for(unsigned int i = 0; i < a_defaultSectorX.size(); i++){
     delete a_defaultSectorX[i];
     delete a_defaultSectorY[i];
     delete a_sectorName[i];
@@ -480,6 +483,49 @@ ApeTreeCreateDefault::beginJob()
 void 
 ApeTreeCreateDefault::endJob() 
 {   
+}
+
+void
+ApeTreeCreateDefault::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
+  edm::ParameterSetDescription desc;
+  edm::ParameterSetDescription sector;
+  
+  std::vector<unsigned> emptyUnsignedIntVector;
+  std::vector<int> emptyIntVector;
+  std::vector<double> emptyDoubleVector;
+  sector.add<std::string>("name", "default");
+  sector.add<std::vector<unsigned>>("rawId", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("subdetId", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("layer", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("side", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("half", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("rod", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("ring", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("petal", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("blade", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("panel", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("outerInner", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("module", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("nStrips", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("isDoubleSide", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("isRPhi", emptyUnsignedIntVector);
+  sector.add<std::vector<unsigned>>("isStereo", emptyUnsignedIntVector);
+  sector.add<std::vector<int>>("uDirection", emptyIntVector);
+  sector.add<std::vector<int>>("vDirection", emptyIntVector);
+  sector.add<std::vector<int>>("wDirection", emptyIntVector);
+  sector.add<std::vector<double>>("posR", emptyDoubleVector);
+  sector.add<std::vector<double>>("posPhi", emptyDoubleVector);
+  sector.add<std::vector<double>>("posEta", emptyDoubleVector);
+  sector.add<std::vector<double>>("posX", emptyDoubleVector);
+  sector.add<std::vector<double>>("posY", emptyDoubleVector);
+  sector.add<std::vector<double>>("posZ", emptyDoubleVector);
+
+  desc.add<std::string>("resultFile", "defaultAPE.root");
+  desc.add<std::string>("trackerTreeFile");
+  desc.addVPSet("sectors", sector);
+ 
+  descriptions.add("apeTreeCreateDefault", desc);
 }
 
 //define this as a plug-in
