@@ -2,6 +2,8 @@
 #define MYCLUSTER_H
 #include "CLHEP/Vector/LorentzVector.h"
 
+#include <vector>
+
 enum {ClusterEm=0,ClusterHd=1,ClusterEmHd=2,ClusterTower=3,RecHitEm=4,RecHitHd=5,CaloTowerEm=6,CaloTowerHd=7};
 
 struct MatchParam{

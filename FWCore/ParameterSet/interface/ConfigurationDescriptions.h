@@ -33,7 +33,7 @@ namespace edm {
     //NOTE: This does not take ownership of the PreValidatorBase instance so
     // this instance must remain valid for as long as the ConfigurationDescriptions
     // is being modified
-    ConfigurationDescriptions(std::string const& baseType);
+    ConfigurationDescriptions(std::string const& baseType, std::string const& pluginName);
 
     ~ConfigurationDescriptions();
 
@@ -48,6 +48,7 @@ namespace edm {
 
     void add(std::string const& label, ParameterSetDescription const& psetDescription);
     void add(char const* label, ParameterSetDescription const& psetDescription);
+    void addWithDefaultLabel(ParameterSetDescription const& psetDescription);
 
     void addDefault(ParameterSetDescription const& psetDescription);
 
@@ -62,9 +63,7 @@ namespace edm {
 
     void validate(ParameterSet & pset, std::string const& moduleLabel) const;
 
-    void writeCfis(std::string const& baseType,
-                   std::string const& pluginName,
-                   std::set<std::string>& usedCfiFileNames) const;
+    void writeCfis(std::set<std::string>& usedCfiFileNames) const;
 
     void print(std::ostream & os,
                std::string const& moduleLabel,
@@ -110,6 +109,7 @@ namespace edm {
                        DescriptionCounter & counter) const;
 
     std::string baseType_;
+    std::string pluginName_;
 
     std::vector<std::pair<std::string, ParameterSetDescription> > descriptions_;
 

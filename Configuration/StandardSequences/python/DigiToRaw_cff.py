@@ -39,6 +39,4 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([rpcpacker]))
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen() :
-    for _entry in [siPixelRawData,SiStripDigiToRaw,castorRawData]:
-        DigiToRaw.remove(_entry)
+fastSim.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData,SiStripDigiToRaw,castorRawData]))

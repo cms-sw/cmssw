@@ -1,7 +1,8 @@
 #ifndef DataFormats_EventHypothesis_interface_EventHypothesisLooper_h
 #define DataFormats_EventHypothesis_interface_EventHypothesisLooper_h
 
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include <algorithm>
 
 namespace pat { namespace eventhypothesis {

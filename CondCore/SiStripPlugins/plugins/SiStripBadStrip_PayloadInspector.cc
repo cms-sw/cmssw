@@ -114,13 +114,13 @@ namespace {
       payload->getDetIds(detid);
       
       for (const auto & d : detid) {
-	tmap->fill(d,1);
+	tmap->fill(d,1.);
       } // loop over detIds
       
       //=========================
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+      tmap->save(true,0,1.,fileName);
 
       return true;
     }
@@ -165,8 +165,16 @@ namespace {
       
       //=========================
       
+      std::pair<float,float> extrema = tmap->getAutomaticRange(); 	
+
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+
+      // protect against uniform values across the map (bad components fractions are defined positive)
+      if (extrema.first!=extrema.second){
+	tmap->save(true,0,0,fileName);
+      } else {
+	tmap->save(true,extrema.first*0.95,extrema.first*1.05,fileName);
+      }
 
       delete reader;
       return true;

@@ -107,11 +107,10 @@ from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 from FastSimulation.Configuration.EventContent_cff import FASTPUEventContent
 import FastSimulation.Configuration.EventContent_cff as fastSimEC
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    RecoLocalTrackerRECO.outputCommands = fastSimEC.RecoLocalTracker.outputCommands
-    RecoLocalTrackerFEVT.outputCommands = fastSimEC.RecoLocalTracker.outputCommands
-    SimG4CoreRAW = fastSimEC.SimRAW
-    SimG4CoreRECO = fastSimEC.SimRECO
+fastSim.toModify(RecoLocalTrackerRECO, outputCommands = fastSimEC.RecoLocalTracker.outputCommands)
+fastSim.toModify(RecoLocalTrackerFEVT, outputCommands = fastSimEC.RecoLocalTracker.outputCommands)
+fastSim.toReplaceWith(SimG4CoreRAW, fastSimEC.SimRAW)
+fastSim.toReplaceWith(SimG4CoreRECO, fastSimEC.SimRECO)
 
 #
 #
@@ -526,8 +525,7 @@ PREMIXEventContent.outputCommands.append('keep PixelDigiSimLinkedmDetSetVector_s
 PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simMuonCSCDigis_*_*')
 PREMIXEventContent.outputCommands.append('keep RPCDigiSimLinkedmDetSetVector_*_*_*')
 PREMIXEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
-if fastSim.isChosen():
-    PREMIXEventContent.outputCommands.extend(fastSimEC.extraPremixContent)
+fastSim.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+fastSimEC.extraPremixContent)
 
 from Configuration.Eras.Modifier_hcalSkipPacker_cff import hcalSkipPacker
 hcalSkipPacker.toModify(PREMIXEventContent.outputCommands,
@@ -544,8 +542,7 @@ PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCStripDigiSimLinks_*
 PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCWireDigiSimLinks_*')
 PREMIXRAWEventContent.outputCommands.append('keep *_*_RPCDigiSimLink_*')
 PREMIXRAWEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
-if fastSim.isChosen():
-    PREMIXEventContent.outputCommands.extend(fastSimEC.extraPremixContent)
+fastSim.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+fastSimEC.extraPremixContent)
 
 REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
@@ -841,11 +838,10 @@ RAWAODSIMEventContent.outputCommands.extend(SimG4CoreHLTAODSIM.outputCommands)
 
 # in fastsim, normal digis are edaliases of simdigis
 # drop the simdigis to avoid complaints from the outputmodule related to duplicated branches
-if fastSim.isChosen():
-    for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventContent,AODSIMEventContent,RAWAODSIMEventContent]:
-        fastSimEC.dropSimDigis(_entry.outputCommands)
-    for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
-        fastSimEC.dropPatTrigger(_entry.outputCommands)
+for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventContent,AODSIMEventContent,RAWAODSIMEventContent]:
+    fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropSimDigis)
+for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
+    fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
 
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

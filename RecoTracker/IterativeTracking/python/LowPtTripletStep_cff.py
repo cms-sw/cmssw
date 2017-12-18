@@ -27,9 +27,7 @@ _layerListForPhase1 = [
     'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'
 ]
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
-trackingPhase1QuadProp.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
 
 # combination with gap removed as only source of fakes in current geometry (kept for doc,=)
 _layerListForPhase2 = ['BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
@@ -57,7 +55,6 @@ lowPtTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(Region
     nSigmaZ = 4.0
 ))
 trackingPhase1.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.2))
-trackingPhase1QuadProp.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.35)) # FIXME: Phase1PU70 value, let's see if we can lower it to Run2 value (0.2)
 trackingPhase2PU140.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.40))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
@@ -253,10 +250,6 @@ lowPtTripletStep.mva.GBRForestLabel = 'MVASelectorIter1_13TeV'
 lowPtTripletStep.qualityCuts = [-0.6,-0.3,-0.1]
 
 trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1'),
-     qualityCuts = [-0.4,0.0,0.3],
-))
-trackingPhase1QuadProp.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
      mva = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1'),
      qualityCuts = [-0.4,0.0,0.3],
 ))

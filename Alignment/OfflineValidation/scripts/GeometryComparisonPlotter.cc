@@ -235,9 +235,11 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
 #endif
 
     /// 1) declare TGraphs and Histograms for profile plots if these are to be plotted
-    // the idea is to produce at the end a table of 7 TMultiGraphs and histograms:
+    // the idea is to produce at the end a table of 8 TMultiGraphs and histograms:
     // - 0=Tracker, with color code for the different sublevels
     // - 1..6=different sublevels, with color code for z < or > 0
+    // - 7=only pixel with color code for BPIX and FPIX
+    
     // (convention: the six first (resp. last) correspond to z>0 (resp. z<0))
     // Modules with bad quality and in a list of modules that is given
     // by the user (e.g. list of bad/untouched modules, default: empty list) 
@@ -260,9 +262,9 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     TGraph * graphs[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_MODULE_QUALITY];
     long int ipoint[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_MODULE_QUALITY];
     
-    TMultiGraph * mgraphs[x.size()][y.size()][1+NB_SUBLEVELS]; // the 0th is for global plots, the 1..6th for sublevel plots
-    TCanvas * c[x.size()][y.size()][1+NB_SUBLEVELS],
-            * c_global[1+NB_SUBLEVELS];
+    TMultiGraph * mgraphs[x.size()][y.size()][2+NB_SUBLEVELS]; // the 0th is for global plots, the 1..6th for sublevel plots, 7th for pixel only
+    TCanvas * c[x.size()][y.size()][2+NB_SUBLEVELS],
+            * c_global[2+NB_SUBLEVELS];
     canvas_index++; // this static index is a safety used in case the MakePlots method is used several times to avoid overloading
     
 	// histograms for profile plots, 
@@ -273,26 +275,26 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     TH1F * histosYValues[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES]; // Used to calculate the mean and RMS for each x-bin of the 2D-hist
     TH1F * histosTracker[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES]; // for the tracker plots all histos are copied to avoid using the same hists in different canvas
     
-    TCanvas * c_hist[x.size()][y.size()][1+NB_SUBLEVELS], * c_global_hist[1+NB_SUBLEVELS];
+    TCanvas * c_hist[x.size()][y.size()][2+NB_SUBLEVELS], * c_global_hist[2+NB_SUBLEVELS];
     
     unsigned int nXBins; // Sensible number of x-bins differs depending on the variable
  
    
     
     
-    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS ; ic++)
+    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS+1 ; ic++)
     {
-        c_global[ic] = new TCanvas (TString::Format("global_%s_%d", ic==0?"tracker":_sublevel_names[ic-1].Data(),
+        c_global[ic] = new TCanvas (TString::Format("global_%s_%d", ic==0 ? "tracker" : ( ic==7 ? "pixel" : _sublevel_names[ic-1].Data() ),
                                                                     canvas_index),
-                                    TString::Format("Global overview of the %s variables", ic==0?"tracker":_sublevel_names[ic-1].Data()),
+                                    TString::Format("Global overview of the %s variables", ic==0 ? "tracker" : ( ic==7 ? "pixel" : _sublevel_names[ic-1].Data() ) ),
                                    _window_width,
                                    _window_height);
         c_global[ic]->Divide(x.size(),y.size());
         
         if (_make_profile_plots) {
-			c_global_hist[ic] = new TCanvas (TString::Format("global_profile_plots_%s_%d", ic==0?"tracker":_sublevel_names[ic-1].Data(),
+			c_global_hist[ic] = new TCanvas (TString::Format("global_profile_plots_%s_%d", ic==0 ? "tracker" : ( ic==7 ? "pixel" : _sublevel_names[ic-1].Data() ),
 																							canvas_index),
-											TString::Format("Global overview profile plots of the %s variables", ic==0?"tracker":_sublevel_names[ic-1].Data()),
+											TString::Format("Global overview profile plots of the %s variables", ic==0 ? "tracker" : ( ic==7 ? "pixel" : _sublevel_names[ic-1].Data() ) ),
 											_window_width,
 											_window_height);
 			c_global_hist[ic]->Divide(x.size(),y.size());
@@ -512,7 +514,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     // declaring TMultiGraphs and TCanvas
     // Usually more y variables than x variables
     // creating TLegend
-    TLegend * legend = MakeLegend(.1,.92,.9,1.);
+    TLegend * legend = MakeLegend(.1,.92,.9,1.,NB_SUBLEVELS);
     if (_write) legend->Write();
     
     // check which modules are supposed to be plotted 
@@ -552,8 +554,15 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
                                                   //LateXstyle(x[ix]) + TString(" vs. ") + LateXstyle(y[iy]) + TString(" for Tracker") // graph title
                                                     TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]                     // x axis title
                                                   + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);                   // y axis title
+                                                  
+            mgraphs[ix][iy][7] = new TMultiGraph (TString::Format("mgr_%s_vs_%s_pixel_%d", x[ix].Data(),
+                                                                                             y[iy].Data(),
+                                                                                             canvas_index),        // name
+                                                  //LateXstyle(x[ix]) + TString(" vs. ") + LateXstyle(y[iy]) + TString(" for Tracker") // graph title
+                                                    TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]                     // x axis title
+                                                  + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);                   // y axis title
 
-            /// TRACKER
+            /// TRACKER and PIXEL
             // fixing ranges and filling TMultiGraph
             // for (unsigned short int jgraph = NB_SUBLEVELS*NB_Z_SLICES-1 ; jgraph >= 0 ; --jgraph)
             for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES*n_module_types ; jgraph++)
@@ -583,6 +592,8 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
                 // color
                 gr->SetMarkerColor(COLOR_CODE(igraph%NB_SUBLEVELS));
                 mgraphs[ix][iy][0]->Add(gr, "P");//, (mgraphs[ix][iy][0]->GetListOfGraphs()==0?"AP":"P"));
+                
+                if (igraph%NB_SUBLEVELS == 0 || igraph%NB_SUBLEVELS == 1) mgraphs[ix][iy][7]->Add(gr, "P"); // Add BPIX (0) and FPIX (1) to pixel plot
    
             }
             
@@ -632,9 +643,9 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
             }
             
 
-            // fixing ranges, saving, and drawing of TMultiGraph (tracker AND sublevels, i.e. 1+NB_SUBLEVELS objects)
+            // fixing ranges, saving, and drawing of TMultiGraph (tracker AND sublevels AND pixel, i.e. 2+NB_SUBLEVELS objects)
             // the individual canvases are saved, but the global are just drawn and will be saved later
-            for (unsigned short int imgr = 0 ; imgr <= NB_SUBLEVELS ; imgr++)
+            for (unsigned short int imgr = 0 ; imgr <= NB_SUBLEVELS+1 ; imgr++)
             {
 #ifdef DEBUG
                 cout << __FILE__ << ":" << __LINE__ << ":Info: treating individual canvases." << endl;
@@ -642,15 +653,14 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
                 // drawing into individual canvas and printing it (including a legend for the tracker canvas)
                 c[ix][iy][imgr] = new TCanvas (TString::Format("c_%s_vs_%s_%s_%d", x[ix].Data(),
                                                                                    y[iy].Data(),
-                                                                                   imgr==0?"tracker":_sublevel_names[imgr-1].Data(),
+                                                                                   imgr==0 ? "tracker" : ( imgr==7 ? "pixel" : _sublevel_names[imgr-1].Data() ),
                                                                                    canvas_index),
                                                TString::Format("%s vs. %s at %s level", x[ix].Data(),
                                                                                         y[iy].Data(),
-                                                                                        imgr==0?"tracker":_sublevel_names[imgr-1].Data()),
+                                                                                        imgr==0 ? "tracker" : ( imgr==7 ? "pixel" : _sublevel_names[imgr-1].Data() ) ),
                                                _window_width,
                                                _window_height);
                 c[ix][iy][imgr]->SetGrid(_grid_x,_grid_y); // grid
-                
                 
                 if (mgraphs[ix][iy][imgr]->GetListOfGraphs() != 0) {
 	                if (dyMin[iy] != -99999) {
@@ -690,7 +700,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     // CUSTOMISATION
     gStyle->SetOptTitle(0); // otherwise, the title is repeated in every pad of the global canvases
                             // -> instead, we will write it in the upper part in a TPaveText or in a TLegend
-    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS ; ic++)
+    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS+1 ; ic++)
     {
         c_global[ic]->Draw();
 
@@ -716,7 +726,18 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
         p_up->cd();
         if (ic == 0) // tracker
         {
-            TLegend * global_legend = MakeLegend(.05,.1,.7,.8);//, "brNDC");
+            TLegend * global_legend = MakeLegend(.05,.1,.7,.8,NB_SUBLEVELS);//, "brNDC");
+            global_legend->Draw();
+            TPaveText * pt_geom = new TPaveText(.75,.1,.95,.8, "NB");
+            pt_geom->SetFillColor(0);
+            pt_geom->SetTextSize(0.25);
+            pt_geom->AddText(TString("x: ")+_reference_name);
+            pt_geom->AddText(TString("y: ")+_alignment_name+TString(" - ")+_reference_name);
+            pt_geom->Draw();
+        }
+        else if (ic == 7) // pixel
+        {
+            TLegend * global_legend = MakeLegend(.05,.1,.7,.8,2);//, "brNDC");
             global_legend->Draw();
             TPaveText * pt_geom = new TPaveText(.75,.1,.95,.8, "NB");
             pt_geom->SetFillColor(0);
@@ -863,6 +884,66 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
 	                unsigned short int igraph = NB_SUBLEVELS*NB_Z_SLICES - jgraph - 1; // reverse counting for humane readability (one of the sublevel takes much more place than the others)
 	                histosTracker[ix][iy][igraph]->Draw("same pe0");
 				}
+	            
+	            /// PIXEL
+	            // fixing ranges and draw profile plot histos
+	            
+	            c_hist[ix][iy][7] = new TCanvas (TString::Format("c_hist_%s_vs_%s_pixel_%d", x[ix].Data(),
+																							   y[iy].Data(),
+																							   canvas_index),
+												TString::Format("Profile plot %s vs. %s at pixel level", x[ix].Data(),
+																										   y[iy].Data()),
+																										   _window_width,
+																										   _window_height);
+				c_hist[ix][iy][7]->SetGrid(_grid_x,_grid_y); // grid
+				// Draw the frame that will contain the histograms
+				// One needs to specify the binning and title
+				c_hist[ix][iy][7]->GetPad(0)->DrawFrame(_min[x[ix]],
+														dyMin[iy] != -99999 ? dyMin[iy] : _min[y[iy]],
+														_max[x[ix]],
+														dyMax[iy] != -99999 ? dyMax[iy] : _max[y[iy]],
+														TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
+														+ TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
+				if (_legend) legend->Draw("same"); 
+	                
+	            for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES ; jgraph++)
+	            {
+	                unsigned short int igraph = NB_SUBLEVELS*NB_Z_SLICES - jgraph - 1; // reverse counting for humane readability (one of the sublevel takes much more place than the others)
+	                
+	                if (igraph%NB_SUBLEVELS == 0 || igraph%NB_SUBLEVELS == 1) //Only BPIX and FPIX
+	                {
+		                // clone to prevent any injure on the graph
+		                histosTracker[ix][iy][igraph] = (TH1F *) histos[ix][iy][igraph]->Clone();
+		                // color
+		                histosTracker[ix][iy][igraph]->SetMarkerColor(COLOR_CODE(igraph%NB_SUBLEVELS));
+			            histosTracker[ix][iy][igraph]->SetLineColor(COLOR_CODE(igraph%NB_SUBLEVELS));
+			            histosTracker[ix][iy][igraph]->SetMarkerStyle(6);
+			            histosTracker[ix][iy][igraph]->Draw("same pe0");
+					}
+	   
+	            }
+	            
+	            if (_print && !_print_only_global) c_hist[ix][iy][7]->Print(_output_directory 
+															+ TString::Format("Profile_plot_%s_vs_%s_pixel_%d", x[ix].Data(), y[iy].Data(), canvas_index)
+															+ ExtensionFromPrintOption(_print_option),
+															_print_option);
+	
+	            //Draw into profile hists global tracker canvas
+	            c_global_hist[7]->cd(INDEX_IN_GLOBAL_CANVAS(ix,iy)); 
+				c_global_hist[7]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetFillStyle(4000); //  make the pad transparent
+				c_global_hist[7]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetGrid(_grid_x,_grid_y); // grid
+				c_global_hist[7]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->DrawFrame(_min[x[ix]],
+														dyMin[iy] != -99999 ? dyMin[iy] : _min[y[iy]],
+														_max[x[ix]],
+														dyMax[iy] != -99999 ? dyMax[iy] : _max[y[iy]],
+														TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
+														+ TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
+				
+				for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES ; jgraph++)
+	            {
+	                unsigned short int igraph = NB_SUBLEVELS*NB_Z_SLICES - jgraph - 1; // reverse counting for humane readability (one of the sublevel takes much more place than the others)
+	                histosTracker[ix][iy][igraph]->Draw("same pe0");
+				}
 				// printing will be performed after customisation (e.g. legend or title) just after the loops on ix and iy
 	            /// SUBLEVELS (1..6)
 	            for (unsigned int isublevel = 1 ; isublevel <= NB_SUBLEVELS ; isublevel++)
@@ -952,7 +1033,18 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
 	        p_up->cd();
 	        if (ic == 0) // tracker
 	        {
-	            TLegend * global_legend = MakeLegend(.05,.1,.7,.8);//, "brNDC");
+	            TLegend * global_legend = MakeLegend(.05,.1,.7,.8,NB_SUBLEVELS);//, "brNDC");
+	            global_legend->Draw();
+	            TPaveText * pt_geom = new TPaveText(.75,.1,.95,.8, "NB");
+	            pt_geom->SetFillColor(0);
+	            pt_geom->SetTextSize(0.25);
+	            pt_geom->AddText(TString("x: ")+_reference_name);
+	            pt_geom->AddText(TString("y: ")+_alignment_name+TString(" - ")+_reference_name);
+	            pt_geom->Draw();
+	        }
+	        else if (ic == 7) // pixel
+	        {
+	            TLegend * global_legend = MakeLegend(.05,.1,.7,.8,2);//, "brNDC");
 	            global_legend->Draw();
 	            TPaveText * pt_geom = new TPaveText(.75,.1,.95,.8, "NB");
 	            pt_geom->SetFillColor(0);
@@ -1354,14 +1446,15 @@ TLegend * GeometryComparisonPlotter::MakeLegend (double x1,
                                                  double y1,
                                                  double x2,
                                                  double y2,
+                                                 int nPlottedSublevels,
                                                  const TString title)
 {
     TLegend * legend = new TLegend (x1, y1, x2, y2, title.Data(), "NBNDC");
-    legend->SetNColumns(NB_SUBLEVELS);
+    legend->SetNColumns(nPlottedSublevels);
     legend->SetFillColor(0);
     legend->SetLineColor(0); // redundant with option
     legend->SetLineWidth(0); // redundant with option
-    for (unsigned int isublevel = 0 ; isublevel < NB_SUBLEVELS ; isublevel++)
+    for (int isublevel = 0 ; isublevel < nPlottedSublevels ; isublevel++) // nPlottedSublevels is either NB_SUBLEVELS for the tracker or 2 for the pixel
     {
         TGraph * g = new TGraph (0);
         g->SetMarkerColor(COLOR_CODE(isublevel));

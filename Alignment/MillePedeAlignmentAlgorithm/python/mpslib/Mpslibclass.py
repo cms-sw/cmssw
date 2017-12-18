@@ -35,7 +35,7 @@
 #       JOBSP1      - spare
 #       JOBSP2      - possible weight for pede
 #       JOBSP3      - possible name as given to mps_setup.pl -N <name> ...
-#       JOBID       - what is this?
+#       JOBID       - ID of the LSF/HTCondor job
 
 import datetime
 import time
@@ -100,7 +100,7 @@ class jobdatabase:
             parts = line.split(":")                 #read each line and split into parts list
             self.JOBNUMBER.append(int(parts[0]))
             self.JOBDIR.append(parts[1].strip())
-            self.JOBID.append(int(parts[2]))
+            self.JOBID.append(parts[2])
             self.JOBSTATUS.append(parts[3].strip())
             self.JOBNTRY.append(int(parts[4]))
             self.JOBRUNTIME.append(int(parts[5]))   #int float?
@@ -145,7 +145,7 @@ class jobdatabase:
         print '###     dir      jobid    stat  try  rtime      nevt  remark   weight  name'
         print "------------------------------------------------------------------------------"
         for i in xrange(self.nJobs):
-            print '%03d  %6s  %9d  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
+            print '%03d  %6s  %9s  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
                 self.JOBNUMBER[i],
                 self.JOBDIR[i],
                 self.JOBID[i],
@@ -160,7 +160,7 @@ class jobdatabase:
         #print merge Jobs if merge mode
         if self.driver == 'merge':
             for i in xrange(self.nJobs,len(self.JOBDIR)):
-                print '%s  %6s  %9d  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
+                print '%s  %6s  %9s  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
                     'MMM',
                     self.JOBDIR[i],
                     self.JOBID[i],
@@ -216,7 +216,7 @@ class jobdatabase:
 
         #write mps.db jobinfo
         for i in xrange(len(self.JOBID)):
-            DBFILE.write('%03d:%s:%05d:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n' %
+            DBFILE.write('%03d:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n' %
                          (i+1,
                           self.JOBDIR[i],
                           self.JOBID[i],

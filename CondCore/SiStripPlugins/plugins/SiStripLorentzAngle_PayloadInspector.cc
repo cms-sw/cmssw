@@ -86,8 +86,16 @@ namespace {
 	tmap->fill(element.first,element.second);
       } // loop over the LA MAP
       
+      std::pair<float,float> extrema = tmap->getAutomaticRange(); 	
+
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+
+      // protect against uniform values (LA values are defined positive)
+      if (extrema.first!=extrema.second){
+	tmap->save(true,0,0,fileName);
+      } else {
+	tmap->save(true,extrema.first*0.95,extrema.first*1.05,fileName);
+      }
 
       return true;
     }

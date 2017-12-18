@@ -33,7 +33,7 @@
 // constructors and destructor
 //
 
-HcalTB02SD::HcalTB02SD(G4String name, const DDCompactView & cpv,
+HcalTB02SD::HcalTB02SD(const std::string& name, const DDCompactView & cpv,
 		       const SensitiveDetectorCatalog & clg,
 		       edm::ParameterSet const & p, 
 		       const SimTrackManager* manager) : 
@@ -104,7 +104,7 @@ double HcalTB02SD::getEnergyDeposit(G4Step * aStep) {
   } 
 }
 
-uint32_t HcalTB02SD::setDetUnitId(G4Step * aStep) { 
+uint32_t HcalTB02SD::setDetUnitId(const G4Step * aStep) { 
   return (numberingScheme == nullptr ? 0 : (uint32_t)(numberingScheme->getUnitID(aStep)));
 }
 
@@ -117,7 +117,7 @@ void HcalTB02SD::setNumberingScheme(HcalTB02NumberingScheme* scheme) {
   }
 }
 
-void HcalTB02SD::initMap(G4String sd, const DDCompactView & cpv) {
+void HcalTB02SD::initMap(const std::string& sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};

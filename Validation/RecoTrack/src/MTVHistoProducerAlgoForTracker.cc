@@ -571,6 +571,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook, bo
 
   h_reco_simpvz.push_back( ibook.book1D("num_reco_simpvz", "N of reco track vs. sim PV z", nintPVz, minPVz, maxPVz) );
   h_assoc2_simpvz.push_back( ibook.book1D("num_assoc(recoToSim)_simpvz", "N of associated tracks (recoToSim) vs. sim PV z", nintPVz, minPVz, maxPVz) );
+  h_looper_simpvz.push_back( ibook.book1D("num_duplicate_simpvz", "N of associated (recoToSim) looper tracks vs. sim PV z", nintPVz, minPVz, maxPVz) );
   h_pileup_simpvz.push_back( ibook.book1D("num_pileup_simpvz", "N of associated (recoToSim) pileup tracks vs. sim PV z", nintPVz, minPVz, maxPVz) );
 
   h_recochi2.push_back( ibook.book1D("num_reco_chi2","N of reco track vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
@@ -1242,6 +1243,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
           fillPlotNoFlow(h_looperdzpv[count], dzpv);
           fillPlotNoFlow(h_looperdxypvzoomed[count], dxypv);
           fillPlotNoFlow(h_looperdzpvzoomed[count], dzpv);
+        }
+        if(simPVPosition) {
+          h_looper_simpvz[count]->Fill(simpvz);
         }
       }
       fillPlotNoFlow(h_looperhit[count], nhits);

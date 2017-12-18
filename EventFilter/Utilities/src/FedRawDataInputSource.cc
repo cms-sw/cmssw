@@ -18,6 +18,8 @@
 
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
@@ -29,9 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
-#include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
-#include "EventFilter/FEDInterface/interface/fed_header.h"
-#include "EventFilter/FEDInterface/interface/fed_trailer.h"
+#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 
 #include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 
@@ -690,10 +690,12 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
     makeEvent(eventPrincipal, aux);
   }
   else{
-    tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(tcds_pointer_);
+    const FEDHeader fedHeader(tcds_pointer_);
+    tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(tcds_pointer_ + FEDHeader::length);
     edm::EventAuxiliary aux = evf::evtn::makeEventAuxiliary(tcds,
 						 eventRunNumber_,currentLumiSection_,
-                                                 processGUID(),!fileListLoopMode_);
+						 static_cast<edm::EventAuxiliary::ExperimentType>(fedHeader.triggerType()),
+						 processGUID(),!fileListLoopMode_);
     aux.setProcessHistoryID(processHistoryID_);
     makeEvent(eventPrincipal, aux);
   }
@@ -752,39 +754,39 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
   edm::Timestamp tstamp(time);
 
   uint32_t eventSize = event_->eventSize();
-  char* event = (char*)event_->payload();
+  unsigned char* event = (unsigned char*)event_->payload();
   GTPEventID_=0;
   tcds_pointer_ = nullptr;
   while (eventSize > 0) {
-    assert(eventSize>=sizeof(fedt_t));
-    eventSize -= sizeof(fedt_t);
-    const fedt_t* fedTrailer = (fedt_t*) (event + eventSize);
-    const uint32_t fedSize = FED_EVSZ_EXTRACT(fedTrailer->eventsize) << 3; //trailer length counts in 8 bytes
-    assert(eventSize>=fedSize - sizeof(fedt_t));
-    eventSize -= (fedSize - sizeof(fedt_t));
-    const fedh_t* fedHeader = (fedh_t *) (event + eventSize);
-    const uint16_t fedId = FED_SOID_EXTRACT(fedHeader->sourceid);
+    assert(eventSize>=FEDTrailer::length);
+    eventSize -= FEDTrailer::length;
+    const FEDTrailer fedTrailer(event + eventSize);
+    const uint32_t fedSize = fedTrailer.fragmentLength() << 3; //trailer length counts in 8 bytes
+    assert(eventSize>=fedSize - FEDHeader::length);
+    eventSize -= (fedSize - FEDHeader::length);
+    const FEDHeader fedHeader(event + eventSize);
+    const uint16_t fedId = fedHeader.sourceID();
     if(fedId>FEDNumbering::MAXFEDID)
     {
       throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Out of range FED ID : " << fedId;
     }
     if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
-      tcds_pointer_ = (unsigned char *)(event + eventSize );
+      tcds_pointer_ = event + eventSize;
     }
     if (fedId == FEDNumbering::MINTriggerGTPFEDID) {
-      if (evf::evtn::evm_board_sense((unsigned char*) fedHeader,fedSize))
-          GTPEventID_ = evf::evtn::get((unsigned char*) fedHeader,true);
+      if (evf::evtn::evm_board_sense(event + eventSize,fedSize))
+          GTPEventID_ = evf::evtn::get(event + eventSize,true);
       else
-          GTPEventID_ = evf::evtn::get((unsigned char*) fedHeader,false);
+          GTPEventID_ = evf::evtn::get(event + eventSize,false);
       //evf::evtn::evm_board_setformat(fedSize);
-      const uint64_t gpsl = evf::evtn::getgpslow((unsigned char*) fedHeader);
-      const uint64_t gpsh = evf::evtn::getgpshigh((unsigned char*) fedHeader);
+      const uint64_t gpsl = evf::evtn::getgpslow(event + eventSize);
+      const uint64_t gpsh = evf::evtn::getgpshigh(event + eventSize);
       tstamp = edm::Timestamp(static_cast<edm::TimeValue_t> ((gpsh << 32) + gpsl));
     }
     //take event ID from GTPE FED
     if (fedId == FEDNumbering::MINTriggerEGTPFEDID && GTPEventID_==0) {
-      if (evf::evtn::gtpe_board_sense((unsigned char*)fedHeader)) {
-        GTPEventID_ = evf::evtn::gtpe_get((unsigned char*) fedHeader);
+      if (evf::evtn::gtpe_board_sense(event + eventSize)) {
+        GTPEventID_ = evf::evtn::gtpe_get(event + eventSize);
       }
     }
     FEDRawData& fedData = rawData.FEDData(fedId);

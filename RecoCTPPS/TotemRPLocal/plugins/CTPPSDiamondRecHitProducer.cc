@@ -41,7 +41,7 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
   private:
     void produce( edm::Event&, const edm::EventSetup& ) override;
 
-    edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
+    edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
 
     /// A watcher to detect geometry changes.
     //edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
@@ -50,10 +50,10 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 };
 
 CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer( const edm::ParameterSet& iConfig ) :
-  digiToken_( consumes< edm::DetSetVector<CTPPSDiamondDigi> >( iConfig.getParameter<edm::InputTag>( "digiTag" ) ) ),
+  digiToken_( consumes<edm::DetSetVector<CTPPSDiamondDigi> >( iConfig.getParameter<edm::InputTag>( "digiTag" ) ) ),
   algo_( iConfig )
 {
-  produces< edm::DetSetVector<CTPPSDiamondRecHit> >();
+  produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
 }
 
 CTPPSDiamondRecHitProducer::~CTPPSDiamondRecHitProducer()
@@ -62,10 +62,10 @@ CTPPSDiamondRecHitProducer::~CTPPSDiamondRecHitProducer()
 void
 CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr< edm::DetSetVector<CTPPSDiamondRecHit> > pOut( new edm::DetSetVector<CTPPSDiamondRecHit> );
+  std::unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit> > pOut( new edm::DetSetVector<CTPPSDiamondRecHit> );
 
   // get the digi collection
-  edm::Handle< edm::DetSetVector<CTPPSDiamondDigi> > digis;
+  edm::Handle<edm::DetSetVector<CTPPSDiamondDigi> > digis;
   iEvent.getByToken( digiToken_, digis );
 
   // get the geometry

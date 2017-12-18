@@ -21,7 +21,7 @@
 
 //#define EDM_ML_DEBUG
 
-HGCalTB16SD01::HGCalTB16SD01(G4String name, const DDCompactView & cpv,
+HGCalTB16SD01::HGCalTB16SD01(const std::string& name, const DDCompactView & cpv,
 			     const SensitiveDetectorCatalog & clg,
 			     edm::ParameterSet const & p, 
 			     const SimTrackManager* manager) : 
@@ -63,7 +63,7 @@ double HGCalTB16SD01::getEnergyDeposit(G4Step* aStep) {
   return weight*destep;
 }
 
-uint32_t HGCalTB16SD01::setDetUnitId(G4Step * aStep) { 
+uint32_t HGCalTB16SD01::setDetUnitId(const G4Step * aStep) { 
 
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
@@ -106,7 +106,7 @@ void HGCalTB16SD01::unpackIndex(const uint32_t & idx, int& det, int& lay,
 
 }
 
-void HGCalTB16SD01::initialize(G4StepPoint* point) {
+void HGCalTB16SD01::initialize(const G4StepPoint* point) {
   if (matName_ == point->GetMaterial()->GetName()) {
     matScin_    =  point->GetMaterial();
     initialize_ = false;

@@ -152,7 +152,7 @@ l1TriggerEmulatorOnline = cms.Sequence(
                                 )
 
 l1TriggerEmulatorOffline = cms.Sequence(
-    l1TriggerEmulatorOnline 
+    l1TriggerEmulatorOnline
 )
 #
 
@@ -265,11 +265,10 @@ l1EmulatorMonitorClient.remove(l1EmulatorErrorFlagClient)
 #l1EmulatorMonitorClient.remove(l1EmulatorEventInfoClient)
 
 
-
-
 ##############################################################################
-#stage2 
+#stage2
 ##############################################################################
+
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 
 #from L1Trigger.L1TGlobal.hackConditions_cff import *
@@ -300,7 +299,7 @@ from DQM.L1TMonitorClient.L1TStage2MonitorClient_cff import *
 # L1T monitor client sequence (system clients and quality tests)
 l1TStage2EmulatorClients = cms.Sequence(
                         l1tStage2CaloLayer2DEClient
-                        # l1tStage2EmulatorEventInfoClient 
+                        # l1tStage2EmulatorEventInfoClient
                         )
 
 l1tStage2EmulatorMonitorClient = cms.Sequence(
@@ -320,7 +319,7 @@ Stage2l1TriggerOnline = cms.Sequence(
                                )
 # Do not include the uGT online DQM module in the offline sequence
 # since the large 2D histograms cause crashes at the T0.
-l1tStage2OnlineDQM.remove(l1tStage2uGt)
+l1tStage2OnlineDQM.remove(l1tStage2uGT)
 
 # sequence to run for all datasets
 Stage2l1TriggerOffline = cms.Sequence(
@@ -359,13 +358,13 @@ Stage2l1TriggerEmulatorOffline = cms.Sequence(
 
 # sequence to run only for modules requiring an electron dataset
 Stage2l1tEgEmulatorOffline = cms.Sequence(
-                                l1tEGammaOfflineDQMEmu
+                                #l1tEGammaOfflineDQMEmu
                                 )
 
 # sequence to run only for modules requiring a muon dataset
 Stage2l1tMuonEmulatorOffline = cms.Sequence(
-                                l1tStage2CaloLayer2OfflineDQMEmu +
-                                l1tTauOfflineDQMEmu
+                                #l1tStage2CaloLayer2OfflineDQMEmu +
+                                #l1tTauOfflineDQMEmu
                                 )
 
 ##############################################################################

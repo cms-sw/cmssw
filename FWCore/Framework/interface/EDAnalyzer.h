@@ -88,6 +88,8 @@ namespace edm {
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
 
+    bool hasAcquire() const { return false; }
+
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }

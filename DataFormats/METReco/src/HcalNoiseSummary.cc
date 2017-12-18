@@ -324,6 +324,11 @@ double HcalNoiseSummary::GetTotalCalibCharge(void) const
    return calibCharge_;
 }
 
+double HcalNoiseSummary::GetLaserMonitorCharge(void) const
+{
+   return lasmonCharge_;
+}
+
 bool HcalNoiseSummary::HasBadRBXTS4TS5(void) const
 {
    return hasBadRBXTS4TS5_;
