@@ -55,7 +55,8 @@ set NNPRRD = 20
 set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
 set EraRun2pp2016  = " --era=Run2_2016 "
-set EraRun2pp      = " --era=Run2_2017 "
+set EraRun2pp2017  = " --era=Run2_2017 "
+set EraRun2pp2018  = " --era=Run2_2018 "
 set EraRun2HImc    = " --era=Run2_HI "
 set EraRun2HIrd    = " --era=Run2_2016,Run2_HI "
  
@@ -137,8 +138,8 @@ foreach gtag ( MC DATA )
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp
+      set InputLHCRaw = $InputLHCRawGRun3
+      set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == Fake ) then
@@ -186,7 +187,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
       set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2017
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == 2e34v31 ) then
@@ -198,7 +199,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
       set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2017
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == 2e34v40 ) then
@@ -210,7 +211,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
       set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2017
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == GRun ) then
@@ -222,7 +223,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
       set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == HIon ) then
@@ -246,7 +247,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimPIon3
       set InputLHCRaw = $InputLHCRawPIon3
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == PRef ) then
@@ -258,7 +259,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimPRef3
       set InputLHCRaw = $InputLHCRawPRef3
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else
