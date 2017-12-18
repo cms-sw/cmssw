@@ -458,7 +458,7 @@ namespace edm {
                                                      sContext);
             };
             //keep another global transition from running if necessary
-            auto gQueue = workerhelper::CallImpl<T>::pauseGlobalQueue(worker);
+            auto gQueue = workerhelper::CallImpl<T>::pauseGlobalQueue(m_worker);
             if(gQueue) {
               gQueue->push( [queue,gQueue, f]() mutable {
                 gQueue->pause();
