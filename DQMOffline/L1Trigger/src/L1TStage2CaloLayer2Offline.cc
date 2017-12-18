@@ -94,7 +94,7 @@ void L1TStage2CaloLayer2Offline::analyze(edm::Event const& e, edm::EventSetup co
   edm::Handle<reco::VertexCollection> vertexHandle;
   e.getByToken(thePVCollection_, vertexHandle);
   if (!vertexHandle.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: vertex " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: vertex " << std::endl;
     return;
   }
 
@@ -121,19 +121,19 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   e.getByToken(thecaloETMHFCollection_, caloETMHFs);
 
   if (!caloJets.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
     return;
   }
   if (!caloMETs.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} " << std::endl;
     return;
   }
   if (!caloETMHFs.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} (HF) " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} (HF) " << std::endl;
     return;
   }
   if (!l1EtSums.isValid()) {
-    //edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: L1 ET sums " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: L1 ET sums " << std::endl;
     return;
   }
 
@@ -290,11 +290,11 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   e.getByToken(theCaloJetCollection_, caloJets);
 
   if (!caloJets.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
     return;
   }
   if (!l1Jets.isValid()) {
-    //edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: L1 jets " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: L1 jets " << std::endl;
     return;
   }
 
@@ -331,7 +331,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
 //	}
 
   if (!foundMatch) {
-    edm::LogWarning("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
+    LogDebug("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
     return;
   }
 
