@@ -164,11 +164,19 @@ l1TriggerDqmOffline = cms.Sequence(
                                 * l1TriggerEmulatorOffline
                                 )
 
+# Dummy sequences where a stage 2 equivalent exists
+l1TriggerEgDqmOffline = cms.Sequence()
+l1TriggerMuonDqmOffline = cms.Sequence()
+
 # DQM Offline Step 2 sequence
 l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tMonitorStage1Client
                                 * l1EmulatorMonitorClient
                                 )
+
+# Dummy sequences where a stage 2 equivalent exists
+l1TriggerEgDqmOfflineClient = cms.Sequence()
+l1TriggerMuonDqmOfflineClient = cms.Sequence()
 
 
 #
@@ -303,6 +311,9 @@ l1tStage2EmulatorMonitorClient = cms.Sequence(
 #
 # define sequences
 #
+
+##############################################################################
+# Unpacked data sequences
 Stage2l1TriggerOnline = cms.Sequence(
                                 l1tStage2OnlineDQM
                                 * dqmEnvL1T
@@ -311,15 +322,26 @@ Stage2l1TriggerOnline = cms.Sequence(
 # since the large 2D histograms cause crashes at the T0.
 l1tStage2OnlineDQM.remove(l1tStage2uGt)
 
+# sequence to run for all datasets
 Stage2l1TriggerOffline = cms.Sequence(
                                 Stage2l1TriggerOnline *
-                                dqmEnvL1TriggerReco *
+                                dqmEnvL1TriggerReco
+                                )
+
+# sequence to run only for modules requiring an electron dataset
+Stage2l1tEgOffline = cms.Sequence(
+                                l1tEGammaOfflineDQM
+                                )
+
+# sequence to run only for modules requiring a muon dataset
+Stage2l1tMuonOffline = cms.Sequence(
                                 l1tStage2CaloLayer2OfflineDQM *
-                                l1tEGammaOfflineDQM *
                                 l1tTauOfflineDQM *
                                 l1tMuonDQMOffline
                                 )
 
+##############################################################################
+# Emulator sequences
 Stage2l1TriggerEmulatorOnline = cms.Sequence(
                                  valHcalTriggerPrimitiveDigis +
                                  Stage2L1HardwareValidation +
@@ -330,25 +352,60 @@ Stage2l1TriggerEmulatorOnline = cms.Sequence(
 # sequence since the large 2D histograms cause crashes at the T0.
 l1tStage2EmulatorOnlineDQM.remove(l1tStage2uGtEmul)
 
+# sequence to run for all datasets
 Stage2l1TriggerEmulatorOffline = cms.Sequence(
-                                Stage2l1TriggerEmulatorOnline +
+                                Stage2l1TriggerEmulatorOnline
+                                )
+
+# sequence to run only for modules requiring an electron dataset
+Stage2l1tEgEmulatorOffline = cms.Sequence(
+                                l1tEGammaOfflineDQMEmu
+                                )
+
+# sequence to run only for modules requiring a muon dataset
+Stage2l1tMuonEmulatorOffline = cms.Sequence(
                                 l1tStage2CaloLayer2OfflineDQMEmu +
-                                l1tEGammaOfflineDQMEmu +
                                 l1tTauOfflineDQMEmu
                                 )
 
+##############################################################################
+# DQM sequences for step 1
 
-# DQM Offline Step 1 sequence
+# DQM Offline sequence
 Stage2l1TriggerDqmOffline = cms.Sequence(
                                 Stage2l1TriggerOffline
                                 * Stage2l1TriggerEmulatorOffline
                                 )
 
-# DQM Offline Step 2 sequence                                 
+# DQM Offline sequence for modules requiring an electron dataset
+Stage2l1tEgDqmOffline = cms.Sequence(
+                                Stage2l1tEgOffline
+                                * Stage2l1tEgEmulatorOffline
+                                )
+
+# DQM Offline sequence for modules requiring a muon dataset
+Stage2l1tMuonDqmOffline = cms.Sequence(
+                                Stage2l1tMuonOffline
+                                * Stage2l1tMuonEmulatorOffline
+                                )
+
+##############################################################################
+# DQM sequences for step 2
+
+# DQM Offline sequence
 Stage2l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tStage2EmulatorMonitorClient *
-                                l1tStage2MonitorClient *
-                                DQMHarvestL1Trigger
+                                l1tStage2MonitorClient
+                                )
+
+# DQM Offline sequence for modules requiring an electron dataset
+Stage2l1tEgDqmOfflineClient = cms.Sequence(
+                                DQMHarvestL1TEg
+                                )
+
+# DQM Offline sequence for modules requiring a muon dataset
+Stage2l1tMuonDqmOfflineClient = cms.Sequence(
+                                DQMHarvestL1TMuon
                                 )
 
 
@@ -358,5 +415,9 @@ stage2L1Trigger.toReplaceWith(l1TriggerOffline, Stage2l1TriggerOffline)
 stage2L1Trigger.toReplaceWith(l1TriggerEmulatorOnline, Stage2l1TriggerEmulatorOnline)
 stage2L1Trigger.toReplaceWith(l1TriggerEmulatorOffline, Stage2l1TriggerEmulatorOffline)
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOffline, Stage2l1TriggerDqmOffline)
+stage2L1Trigger.toReplaceWith(l1TriggerEgDqmOffline, Stage2l1tEgDqmOffline)
+stage2L1Trigger.toReplaceWith(l1TriggerMuonDqmOffline, Stage2l1tMuonDqmOffline)
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineClient, Stage2l1TriggerDqmOfflineClient)
+stage2L1Trigger.toReplaceWith(l1TriggerEgDqmOfflineClient, Stage2l1tEgDqmOfflineClient)
+stage2L1Trigger.toReplaceWith(l1TriggerMuonDqmOfflineClient, Stage2l1tMuonDqmOfflineClient)
 stage2L1Trigger.toReplaceWith(l1EmulatorMonitorClient,l1tStage2EmulatorMonitorClient)

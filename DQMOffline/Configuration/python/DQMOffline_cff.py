@@ -20,7 +20,6 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
 
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
-                                 l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                  ecal_dqm_source_offline *
                                  hcalOfflineSourceSequence *
                                  SiStripDQMTier0 *
@@ -124,7 +123,6 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  SiStripDQMTier0Common *
                                  siPixelOfflineDQM_source *
                                  DQMOfflineTracking *
-                                 l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
@@ -137,7 +135,6 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  SiStripDQMTier0MinBias *
                                  TrackingDQMSourceTier0MinBias *               
                                  siPixelOfflineDQM_source *
-                                 l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
@@ -186,4 +183,11 @@ phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndE
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM
 DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 #PostDQMOfflineNanoAOD = cms.Sequence(nanoDQM)
+
+# L1 trigger sequences
+DQMOfflineL1TMonitoring = cms.Sequence( l1TriggerDqmOffline ) # L1 emulator is run within this sequence for real data
+
+DQMOfflineL1TEgamma = cms.Sequence( l1TriggerEgDqmOffline )
+
+DQMOfflineL1TMuon = cms.Sequence( l1TriggerMuonDqmOffline )
 
