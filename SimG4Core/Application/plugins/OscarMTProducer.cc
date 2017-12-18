@@ -167,6 +167,9 @@ OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
 void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
   StaticRandomEngineSetUnset random(e.streamID());
+  edm::LogInfo("SimG4CoreApplication") 
+    << "Produce event " << e.id() << " stream " << e.streamID() 
+    << " rand= " << G4UniformRand();
 
   std::vector<SensitiveTkDetector*>& sTk =
     m_runManagerWorker->sensTkDetectors();
@@ -223,6 +226,9 @@ void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
   for(auto & prod :  m_producers) {
     prod.get()->produce(e,es);
   }
+  edm::LogInfo("SimG4CoreApplication") 
+    << "Event is produced " << e.id() << " stream " << e.streamID() 
+    << " rand= " << G4UniformRand();
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
