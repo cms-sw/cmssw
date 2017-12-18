@@ -55,13 +55,11 @@ print '\t Max events:', process.maxEvents.input.value()
 
 if runSignal:
 	readFiles.extend( [
-			'root://cms-xrd-global.cern.ch///store/relval/CMSSW_9_4_0_pre3/RelValZTT_13/MINIAODSIM/PU25ns_94X_mc2017_realistic_v4-v1/10000/0A99A363-65BB-E711-A1CF-003048FFD72C.root',
-			'root://cms-xrd-global.cern.ch///store/relval/CMSSW_9_4_0_pre3/RelValZTT_13/MINIAODSIM/PU25ns_94X_mc2017_realistic_v4-v1/10000/28E2B54E-65BB-E711-ABDD-0025905A606A.root',
+			'file:patMiniAOD_standard.root',
 	] )
 else:
 	readFiles.extend( [
-			'root://cms-xrd-global.cern.ch///store/relval/CMSSW_9_4_0_pre3/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/PU25ns_94X_mc2017_realistic_v4-v1/10000/E89C4CD3-CEBB-E711-BF4F-0025905B856C.root',
-			'root://cms-xrd-global.cern.ch///store/relval/CMSSW_9_4_0_pre3/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/PU25ns_94X_mc2017_realistic_v4-v1/10000/EE4BC1EA-CEBB-E711-984B-0CC47A78A418.root',
+			'file:patMiniAOD_standard.root',
 	] )
 
 #####
