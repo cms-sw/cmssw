@@ -32,10 +32,20 @@ def customiseFor21664_forMahiOnM2only(process):
         producer.algorithm.useM3     = cms.bool(False)
     return process
 
+# Removal of old Hcal time slew parameters
+def customiseFor21733(process):
+    if hasattr(process,"timeSlewParsType"):
+        delattr(process,"timeSlewParsType")
+    if hasattr(process,"timeSlewPars"):
+        delattr(process,"timeSlewPars")
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+        
+    process = customiseFor21733(process)
 
     return process
