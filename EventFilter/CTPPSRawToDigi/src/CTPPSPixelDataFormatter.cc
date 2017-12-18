@@ -26,6 +26,8 @@ namespace {
   constexpr int max_Dcol = 25;
   constexpr int min_Pixid = 2;
   constexpr int max_Pixid = 161;
+  constexpr int maxRocIndex = 3;
+  constexpr int maxLinkIndex = 13;
 }
 
 CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const &mapping)  :  theWordCounter(0), mapping_(mapping)
@@ -42,6 +44,7 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
       <<", send exception" ;
   }
 
+  includeErrors = false;
 
   m_ADC_shift  = 0;
   m_PXID_shift = m_ADC_shift + m_ADC_bits;
@@ -53,15 +56,22 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
   m_LINK_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_LINK_bits);
   m_ROC_mask  = ~(~CTPPSPixelDataFormatter::Word32(0) << m_ROC_bits);    
 
-  maxROCIndex=3; 
-
   m_DCOL_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_DCOL_bits);
   m_PXID_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_PXID_bits);
   m_ADC_mask  = ~(~CTPPSPixelDataFormatter::Word32(0) << m_ADC_bits);
 
 }
 
-void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection & digis)
+
+void CTPPSPixelDataFormatter::setErrorStatus(bool ErrorStatus)
+{
+  includeErrors = ErrorStatus;
+  errorcheck.setErrorStatus(includeErrors);
+}
+
+
+void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId, const FEDRawData& rawData, 
+						 Collection & digis, Errors & errors)
 {
 
   int nWords = rawData.size()/sizeof(Word64);
@@ -69,7 +79,7 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
 /// check CRC bit
   const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);  
-  if(!errorcheck.checkCRC(errorsInEvent, fedId, trailer)) return;
+  if(!errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors)) return;
 
 /// check headers
   const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
@@ -77,7 +87,7 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
   while (moreHeaders) {
     header++;
     LogTrace("")<<"HEADER:  " <<  print(*header);
-    bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header);
+    bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors);
     moreHeaders = headerStatus;
   }
 
@@ -87,7 +97,7 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
   while (moreTrailers) {
     trailer--;
     LogTrace("")<<"TRAILER: " <<  print(*trailer);
-    bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer);
+    bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
     moreTrailers = trailerStatus;
   }
 
@@ -114,29 +124,32 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
     int nroc  = (ww >> m_ROC_shift) & m_ROC_mask;
 
     int FMC = 0;
-
+    uint32_t iD = RPixErrorChecker::dummyDetId;//0xFFFFFFFF; //dummyDetId
     int convroc = nroc-1;
     CTPPSPixelFramePosition fPos(fedId, FMC, nlink, convroc);
     std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo>::const_iterator mit;
     mit = mapping_.find(fPos);
 
     if (mit == mapping_.end()){      
-      if((nroc-1)>=maxROCIndex){
-	errorcheck.checkROC(errorsInEvent, fedId,  ww); // check kind of error
+      if(nlink >= maxLinkIndex){
+	errorcheck.conversionError(fedId, iD, 1, ww, errors);
+      }
+      else if((nroc-1)>=maxRocIndex){
+	errorcheck.conversionError(fedId, iD, 2, ww, errors);
       }else{
-	edm::LogError("")<< " CTPPS Pixel DAQ map error " ;
+	errorcheck.conversionError(fedId, iD, 5, ww, errors);
       }
       continue; //skip word
     }
 
     CTPPSPixelROCInfo rocInfo = (*mit).second;
-
-    CTPPSPixelROC rocp(rocInfo.iD, rocInfo.roc, convroc);
+    iD = rocInfo.iD;
+    CTPPSPixelROC rocp(iD, rocInfo.roc, convroc);
 
     if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
       link = nlink; roc=nroc;
 
-      skipROC = likely((roc-1)<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId,  ww); 
+      skipROC = likely((roc-1)<maxRocIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, iD,  ww, errors); 
       if (skipROC) continue;
 
       auto rawId = rocp.rawId();
@@ -148,13 +161,15 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
   
     int adc  = (ww >> m_ADC_shift) & m_ADC_mask;
  
-
     int dcol = (ww >> m_DCOL_shift) & m_DCOL_mask;
     int pxid = (ww >> m_PXID_shift) & m_PXID_mask;
 
     if(dcol<min_Dcol || dcol>max_Dcol || pxid<min_Pixid || pxid>max_Pixid){
       edm::LogError("CTPPSPixelDataFormatter")<< " unphysical dcol and/or pxid "  << " nllink=" << nlink 
 					      << " nroc="<< nroc << " adc=" << adc << " dcol=" << dcol << " pxid=" << pxid;
+
+      errorcheck.conversionError(fedId, iD, 3, ww, errors);
+
       continue;
     }
 
