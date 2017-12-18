@@ -32,12 +32,9 @@ def customiseFor21664_forMahiOnM2only(process):
         producer.algorithm.useM3     = cms.bool(False)
     return process
 
-# Removal of old Hcal time slew parameters
+# Needs the ESProducer for HcalTimeSlewRecord
 def customiseFor21733(process):
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        if hasattr(producer, "timeSlewParsType"):
-            delattr(producer,"timeSlewParsType")
-            delattr(producer,"timeSlewPars")
+    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     return process
 
 # CMSSW version specific customizations

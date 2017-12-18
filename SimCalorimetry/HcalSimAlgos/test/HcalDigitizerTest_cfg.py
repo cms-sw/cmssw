@@ -6,18 +6,19 @@ process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 process.load("Configuration.Geometry.GeometryExtendedReco_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
+
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
 
 process.source = cms.Source("EmptySource")
 
-from CalibCalorimetry.HcalPlugins.HcalConditions_forGlobalTag_cff import es_hardcode as ref_hardcode
+from CalibCalorimetry.HcalPlugins.Hcal_Conditions_forGlobalTag_cff import es_hardcode as ref_hardcode
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.hcalDigitizerTest = cms.EDAnalyzer("HcalDigitizerTest".,
+process.hcalDigitizerTest = cms.EDAnalyzer("HcalDigitizerTest",
     useHBUpgrade = ref_hardcode.useHBUpgrade,
     useHEUpgrade = ref_hardcode.useHEUpgrade,
     useHFUpgrade = ref_hardcode.useHFUpgrade,
