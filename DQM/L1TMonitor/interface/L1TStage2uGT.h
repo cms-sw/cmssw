@@ -95,6 +95,11 @@ private:
    // Prescale factor index 
    MonitorElement* prescaleFactorSet_;
 
+   // Pre- Post- firing timing dedicated plots
+   MonitorElement* first_collision_run_;
+   MonitorElement* isolated_collision_run_;
+   MonitorElement* last_collision_run_; 
+
 };
 
 #endif

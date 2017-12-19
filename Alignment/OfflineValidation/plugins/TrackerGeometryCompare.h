@@ -36,7 +36,6 @@
 
 //******** Single include for the TkMap *************
 #include "CommonTools/TrackerMap/interface/TrackerMap.h" 
-#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
 //***************************************************
 
 #include <algorithm>

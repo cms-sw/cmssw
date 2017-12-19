@@ -77,6 +77,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   pfCandidateMultiMapToken_(usePfCandidateMultiMap_ ? consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>( "pfCandidateMultiMap" )) : edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>>()),
   embedPFCandidate_(iConfig.getParameter<bool>( "embedPFCandidate" )),
   // mva input variables
+  addMVAVariables_(iConfig.getParameter<bool>("addMVAVariables")),
   reducedBarrelRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection")),
   reducedBarrelRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_)),
   reducedEndcapRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")),
@@ -433,9 +434,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	    anElectron.setElectronIDs(ids);
 	  }
 
-          // add missing mva variables
-          std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
-          anElectron.setMvaVariables(vCov[1], ip3d);
+          if (addMVAVariables_) {
+            // add missing mva variables
+            std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
+            anElectron.setMvaVariables(vCov[1], ip3d);
+          }
 	  // PFClusterIso
 	  if (addPFClusterIso_) {
 	    // Get PFCluster Isolation
@@ -667,9 +670,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	}
       }
 
-      // add mva variables
-      std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
-      anElectron.setMvaVariables(vCov[1], ip3d);
+      if (addMVAVariables_) {
+        // add mva variables
+        std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
+        anElectron.setMvaVariables(vCov[1], ip3d);
+      }
       // PFCluster Isolation
       if (addPFClusterIso_) {
 	// Get PFCluster Isolation
@@ -1110,7 +1115,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
 
 
   // electron shapes
-  iDesc.add<bool>("addElectronShapes", true);
+  iDesc.add<bool>("addMVAVariables", true)->setComment("embed extra variables in pat::Electron : sip3d, sigmaIEtaIPhi");
   iDesc.add<edm::InputTag>("reducedBarrelRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
   iDesc.add<edm::InputTag>("reducedEndcapRecHitCollection", edm::InputTag("reducedEcalRecHitsEE"));
 

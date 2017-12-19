@@ -12,8 +12,11 @@ SiStripThresholdDQM::SiStripThresholdDQM(const edm::EventSetup & eSetup,
 
   // Build the Histo_TkMap:
   if(HistoMaps_On_ ){
-    if(WhichThreshold=="Low") Tk_HM_L = new TkHistoMap("SiStrip/Histo_Map","LowThresh_TkMap",0.);
-    if(WhichThreshold=="High") Tk_HM_H = new TkHistoMap("SiStrip/Histo_Map","HighThresh_TkMap",0.);
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    const TkDetMap* tkDetMap = tkDetMapHandle.product();
+    if(WhichThreshold=="Low") Tk_HM_L = std::make_unique<TkHistoMap>(tkDetMap, "SiStrip/Histo_Map","LowThresh_TkMap",0.);
+    if(WhichThreshold=="High") Tk_HM_H = std::make_unique<TkHistoMap>(tkDetMap, "SiStrip/Histo_Map","HighThresh_TkMap",0.);
   }
 }
 

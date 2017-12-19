@@ -4,17 +4,12 @@
 /*
  * Determine if a track has hits in front of its assumed production point.
  * Also determine if it misses hits between its assumed production point and its innermost hit.
+ *
+ * FIXME: as it stands it is pretty inefficient for numerous reasons
+ *        if used seriously it needs to be optimized and used properly... 
  */
 
-// standard EDAnalyser include files
-#include <memory>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
@@ -27,6 +22,7 @@ class DetId;
 
 class TrackerTopology;
 
+
 class CheckHitPattern {
 
 public:
@@ -38,25 +34,17 @@ public:
     unsigned int missHitsAfterVert;
   };
 
-  CheckHitPattern() : geomInitDone_(false) {}
-  
-  ~CheckHitPattern() {}
-
   // Check if hit pattern of this track is consistent with it being produced
   // at given vertex. See comments above for "Result" struct for details of returned information.
-  // N.B. If FixHitPattern = true, then Result.missHitsAfterVert will be calculated after rederiving
-  // the missing hit pattern. This rederivation is sometimes a good idea, since otherwise the
-  // number of missing hits can be substantially underestimated. See comments in FixTrackHitPattern.h
-  // for details.
-  Result analyze(const edm::EventSetup& iSetup, 
-                 const reco::Track& track, const VertexState& vert, bool fixHitPattern=true);
+  Result operator()(const reco::Track& track, const VertexState& vert) const;
 
   // Print hit pattern on track
-  void print(const reco::Track& track) const;
+  static void print(const reco::Track& track);
 
-private:
+
   // Create map indicating r/z values of all layers/disks.
   void init (const edm::EventSetup& iSetup);
+
 
   // Return a pair<uint32, uint32> consisting of the numbers used by HitPattern to 
   // identify subdetector and layer number respectively.
@@ -66,16 +54,16 @@ private:
   // Return a bool indicating if a given subdetector is in the barrel.
   static bool barrel(uint32_t subDet);
 
-  void print(const reco::HitPattern::HitCategory category, const reco::HitPattern& hp) const;
+  static void print(const reco::HitPattern::HitCategory category, const reco::HitPattern& hp);
 
 private:
   // Note if geometry info is already initialized.
-  bool geomInitDone_;
+  bool geomInitDone_=false;
 
   // For a given subdetector & layer number, this stores the minimum and maximum
   // r (or z) values if it is barrel (or endcap) respectively.
   typedef std::map< DetInfo, std::pair< double, double> > RZrangeMap;
-  static RZrangeMap rangeRorZ_;
+  RZrangeMap rangeRorZ_;
 
  // Makes TransientTracks needed for vertex fitting.
   edm::ESHandle<TransientTrackBuilder> trkTool_;

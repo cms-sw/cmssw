@@ -148,6 +148,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_p(iConfig)
 {
   initializeTLS();
+  m_simEvent.reset(nullptr);
   m_sVerbose.reset(nullptr);
   std::vector<edm::ParameterSet> watchers = 
     iConfig.getParameter<std::vector<edm::ParameterSet> >("Watchers");

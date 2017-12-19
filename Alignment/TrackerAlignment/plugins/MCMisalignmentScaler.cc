@@ -73,6 +73,7 @@ private:
   // ----------member data ---------------------------
   const ScalerMap scalers_;
   const bool pullBadModulesToIdeal_;
+  const double outlierPullToIdealCut_;
   bool firstEvent_{true};
 };
 
@@ -81,7 +82,8 @@ private:
 //
 MCMisalignmentScaler::MCMisalignmentScaler(const edm::ParameterSet& iConfig) :
   scalers_{decodeSubDetectors(iConfig.getParameter<edm::VParameterSet>("scalers"))},
-  pullBadModulesToIdeal_{iConfig.getUntrackedParameter<bool>("pullBadModulesToIdeal")}
+  pullBadModulesToIdeal_{iConfig.getUntrackedParameter<bool>("pullBadModulesToIdeal")},
+  outlierPullToIdealCut_{iConfig.getUntrackedParameter<double>("outlierPullToIdealCut")}
 {
 }
 
@@ -133,6 +135,7 @@ MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 
   Alignments rescaledAlignments{};
   {
+    auto outlierCounter{0};
     auto ideal = dets.cbegin();
     const auto& ideal_end = dets.cend();
     auto misaligned = alignments->m_align.cbegin();
@@ -159,23 +162,72 @@ MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSetup)
         default: break;
         }
       }
-      const auto& scaleFactor = (pullBadModulesToIdeal_ &&
-                                 (pixelModules->IsModuleBad(misaligned->rawId()) ||
-                                  stripModules->IsModuleBad(misaligned->rawId())) ?
-                                 0.0 :
-                                 scalers_.find(subDetId)->second.find(side)->second);
+      auto scaleFactor = scalers_.find(subDetId)->second.find(side)->second;
+
+      if (pullBadModulesToIdeal_ &&
+          (pixelModules->IsModuleBad(misaligned->rawId()) ||
+           stripModules->IsModuleBad(misaligned->rawId()))) {
+        scaleFactor = 0.0;
+      }
 
       auto x_diff = misaligned->translation().x() - (*ideal)->position().x();
       auto y_diff = misaligned->translation().y() - (*ideal)->position().y();
       auto z_diff = misaligned->translation().z() - (*ideal)->position().z();
+
+      auto xx_diff = misaligned->rotation().xx() - (*ideal)->rotation().xx();
+      auto xy_diff = misaligned->rotation().xy() - (*ideal)->rotation().xy();
+      auto xz_diff = misaligned->rotation().xz() - (*ideal)->rotation().xz();
+      auto yx_diff = misaligned->rotation().yx() - (*ideal)->rotation().yx();
+      auto yy_diff = misaligned->rotation().yy() - (*ideal)->rotation().yy();
+      auto yz_diff = misaligned->rotation().yz() - (*ideal)->rotation().yz();
+      auto zx_diff = misaligned->rotation().zx() - (*ideal)->rotation().zx();
+      auto zy_diff = misaligned->rotation().zy() - (*ideal)->rotation().zy();
+      auto zz_diff = misaligned->rotation().zz() - (*ideal)->rotation().zz();
+
+      if (outlierPullToIdealCut_ > 0.0 &&
+          (x_diff*x_diff + y_diff*y_diff + z_diff*z_diff)
+          > outlierPullToIdealCut_*outlierPullToIdealCut_) {
+        ++outlierCounter;
+        edm::LogInfo("Alignment")
+          << outlierCounter << ") Outlier found in subdetector " << subDetId
+          << ":  delta x: " << x_diff
+          << ",  delta y: " << y_diff
+          << ",  delta z: " << z_diff
+          << ",  delta xx: " << xx_diff
+          << ",  delta xy: " << xy_diff
+          << ",  delta xz: " << xz_diff
+          << ",  delta yx: " << yx_diff
+          << ",  delta yx: " << yy_diff
+          << ",  delta yy: " << yz_diff
+          << ",  delta zz: " << zx_diff
+          << ",  delta zy: " << zy_diff
+          << ",  delta zz: " << zz_diff
+          << "\n";
+        scaleFactor = 0.0;
+      }
+
       const AlignTransform::Translation rescaledTranslation{
         (*ideal)->position().x() + scaleFactor*x_diff,
         (*ideal)->position().y() + scaleFactor*y_diff,
         (*ideal)->position().z() + scaleFactor*z_diff
           };
 
+      const AlignTransform::Rotation rescaledRotation{
+        CLHEP::HepRep3x3{
+            (*ideal)->rotation().xx() + scaleFactor*xx_diff,
+            (*ideal)->rotation().xy() + scaleFactor*xy_diff,
+            (*ideal)->rotation().xz() + scaleFactor*xz_diff,
+            (*ideal)->rotation().yx() + scaleFactor*yx_diff,
+            (*ideal)->rotation().yy() + scaleFactor*yy_diff,
+            (*ideal)->rotation().yz() + scaleFactor*yz_diff,
+            (*ideal)->rotation().zx() + scaleFactor*zx_diff,
+            (*ideal)->rotation().zy() + scaleFactor*zy_diff,
+            (*ideal)->rotation().zz() + scaleFactor*zz_diff
+            }
+          };
+
       const AlignTransform rescaledTransform{rescaledTranslation,
-                                             misaligned->rotation(),
+                                             rescaledRotation,
                                              misaligned->rawId()};
       rescaledAlignments.m_align.emplace_back(std::move(rescaledTransform));
     }
@@ -277,6 +329,7 @@ MCMisalignmentScaler::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descScaler.addUntracked<double>("factor", 1.0);
   desc.addVPSet("scalers", descScaler, std::vector<edm::ParameterSet>(1));
   desc.addUntracked<bool>("pullBadModulesToIdeal", false);
+  desc.addUntracked<double>("outlierPullToIdealCut", -1.0);
   descriptions.add("mcMisalignmentScaler", desc);
 }
 

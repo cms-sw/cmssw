@@ -51,7 +51,7 @@ int main(int argc, char** argv)
   
   
   for(int i=0; i<kNThreads; ++i) {
-    threads.emplace_back([i,&canStart]() {
+    threads.emplace_back([&canStart]() {
         static thread_local TThread guard;
         --canStart;
         while( canStart > 0 ) {}

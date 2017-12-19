@@ -86,8 +86,16 @@ namespace {
 	tmap->fill(element.first,element.second);
       } // loop over the BP MAP
       
+      std::pair<float,float> extrema = tmap->getAutomaticRange(); 	
+
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+
+      // protect against uniform values across the map (BP corrections are defined positive)
+      if (extrema.first!=extrema.second){
+	tmap->save(true,0,0,fileName);
+      } else {
+	tmap->save(true,extrema.first*0.95,extrema.first*1.05,fileName);
+      }
 
       return true;
     }
@@ -97,9 +105,9 @@ namespace {
     Plot SiStrip BackPlane Correction averages by partition 
   *************************************************/
 
-  class SiStripBackPlaneCorrectionByPartition : public cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection> {
+  class SiStripBackPlaneCorrectionByRegion : public cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection> {
   public:
-    SiStripBackPlaneCorrectionByPartition() : cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection>( "SiStripBackPlaneCorrection By Partition" ),
+    SiStripBackPlaneCorrectionByRegion() : cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection>( "SiStripBackPlaneCorrection By Region" ),
       m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
@@ -122,7 +130,7 @@ namespace {
       
       TCanvas canvas("Partion summary","partition summary",1200,1000); 
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(new TH1F("byPartition","SiStrip Backplane correction average by partition;; average SiStrip BackPlane Correction",map.size(),0.,map.size()));
+      auto h1 = std::unique_ptr<TH1F>(new TH1F("byRegion","SiStrip Backplane correction average by partition;; average SiStrip BackPlane Correction",map.size(),0.,map.size()));
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.17);
@@ -159,7 +167,7 @@ namespace {
 	  }
 
 	h1->SetBinContent(iBin,mean);
-	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h1->GetXaxis()->LabelsOption("v");
 	
 	if(detector!=currentDetector) {
@@ -207,5 +215,5 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE( SiStripBackPlaneCorrection ){
   PAYLOAD_INSPECTOR_CLASS( SiStripBackPlaneCorrectionValue );
   PAYLOAD_INSPECTOR_CLASS( SiStripBackPlaneCorrection_TrackerMap );
-  PAYLOAD_INSPECTOR_CLASS( SiStripBackPlaneCorrectionByPartition );
+  PAYLOAD_INSPECTOR_CLASS( SiStripBackPlaneCorrectionByRegion );
 }

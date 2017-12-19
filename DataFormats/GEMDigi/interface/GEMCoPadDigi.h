@@ -21,6 +21,7 @@ public:
 
   bool operator==(const GEMCoPadDigi& digi) const;
   bool operator!=(const GEMCoPadDigi& digi) const;
+  bool isValid() const;
 
   int roll() const {return roll_;}
   int pad(int l) const;

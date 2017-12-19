@@ -117,9 +117,7 @@ process.siStripQualityESProducer.UseEmptyRunInfo = cms.bool(False)
 #-------------------------------------------------
 # Services for the TkHistoMap
 #-------------------------------------------------
-process.load("DQMServices.Core.DQMStore_cfg")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 #-------------------------------------------------
 
 # be sure that the dataLabel parameter matches with the label of the SiStripQuality object you want to explore

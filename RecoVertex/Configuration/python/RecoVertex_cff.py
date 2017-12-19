@@ -22,15 +22,16 @@ trackWithVertexRefSelectorBeforeSorting.ptErrorCut=9e99
 trackRefsForJetsBeforeSorting = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting")
 
 
-vertexreco = cms.Sequence(unsortedOfflinePrimaryVertices*
-                          trackWithVertexRefSelectorBeforeSorting*
-                          trackRefsForJetsBeforeSorting*
-                          caloJetsForTrk * 
-                          offlinePrimaryVertices*
-                          offlinePrimaryVerticesWithBS*
-                          generalV0Candidates*
-                          inclusiveVertexing
+vertexrecoTask = cms.Task(unsortedOfflinePrimaryVertices,
+                          trackWithVertexRefSelectorBeforeSorting,
+                          trackRefsForJetsBeforeSorting,
+                          offlinePrimaryVertices,
+                          offlinePrimaryVerticesWithBS,
+                          generalV0Candidates,
+                          caloJetsForTrkTask,
+                          inclusiveVertexingTask
                           )
+vertexreco = cms.Sequence(vertexrecoTask)
 
 #timing
 from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA2D_vectParameters
@@ -51,16 +52,17 @@ trackRefsForJetsBeforeSorting4D = trackRefsForJets.clone(src="trackWithVertexRef
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import quickTrackAssociatorByHits
 from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeValueMapProducer
-_phase2_tktiming_vertexreco = cms.Sequence( vertexreco.copy() *
-                                            tpClusterProducer *
-                                            quickTrackAssociatorByHits *
-                                            trackTimeValueMapProducer *
-                                            trackWithVertexRefSelectorBeforeSorting4D *
-                                            trackRefsForJetsBeforeSorting4D *
-                                            unsortedOfflinePrimaryVertices4D *
-                                            offlinePrimaryVertices4D *
+_phase2_tktiming_vertexrecoTask = cms.Task( vertexrecoTask.copy() ,
+                                            tpClusterProducer ,
+                                            quickTrackAssociatorByHits ,
+                                            trackTimeValueMapProducer ,
+                                            trackWithVertexRefSelectorBeforeSorting4D ,
+                                            trackRefsForJetsBeforeSorting4D ,
+                                            unsortedOfflinePrimaryVertices4D ,
+                                            offlinePrimaryVertices4D ,
                                             offlinePrimaryVertices4DWithBS 
                                             )
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toReplaceWith(vertexreco, _phase2_tktiming_vertexreco)
+phase2_timing.toReplaceWith(vertexrecoTask, _phase2_tktiming_vertexrecoTask)
+

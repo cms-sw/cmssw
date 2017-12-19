@@ -45,7 +45,6 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     )
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 _layerListForPhase1 = [
         'BPix1+BPix2', 'BPix1+BPix3', 'BPix1+BPix4',
         'BPix2+BPix3', 'BPix2+BPix4',
@@ -59,7 +58,6 @@ _layerListForPhase1 = [
         'BPix4+TIB1','BPix4+TIB2'
     ]
 trackingPhase1.toModify(jetCoreRegionalStepSeedLayers, layerList = _layerListForPhase1)
-trackingPhase1QuadProp.toModify(jetCoreRegionalStepSeedLayers, layerList = _layerListForPhase1)
 
 # TrackingRegion
 from RecoTauTag.HLTProducers.tauRegionalPixelSeedTrackingRegions_cfi import tauRegionalPixelSeedTrackingRegions as _tauRegionalPixelSeedTrackingRegions
@@ -191,25 +189,21 @@ trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone
      mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
      qualityCuts = [-0.2,0.0,0.4],
 ))
-trackingPhase1QuadProp.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
-     src = 'jetCoreRegionalStepTracks',
-     mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
-     qualityCuts = [-0.2,0.0,0.4],
-))
 fastSim.toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(cms.ignore(jetsForCoreTracking)*
-                                   cms.ignore(firstStepGoodPrimaryVertices)*
-                                   #jetCoreRegionalStepClusters*
-                                   jetCoreRegionalStepSeedLayers*
-                                   jetCoreRegionalStepTrackingRegions*
-                                   jetCoreRegionalStepHitDoublets*
-                                   jetCoreRegionalStepSeeds*
-                                   jetCoreRegionalStepTrackCandidates*
-                                   jetCoreRegionalStepTracks*
-#                                   jetCoreRegionalStepClassifier1*jetCoreRegionalStepClassifier2*
+JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,
+                                   firstStepGoodPrimaryVertices,
+                                   #jetCoreRegionalStepClusters,
+                                   jetCoreRegionalStepSeedLayers,
+                                   jetCoreRegionalStepTrackingRegions,
+                                   jetCoreRegionalStepHitDoublets,
+                                   jetCoreRegionalStepSeeds,
+                                   jetCoreRegionalStepTrackCandidates,
+                                   jetCoreRegionalStepTracks,
+#                                   jetCoreRegionalStepClassifier1,jetCoreRegionalStepClassifier2,
                                    jetCoreRegionalStep)
-fastSim.toReplaceWith(JetCoreRegionalStep, 
-                      cms.Sequence(jetCoreRegionalStepTracks*
+JetCoreRegionalStep = cms.Sequence(JetCoreRegionalStepTask)
+fastSim.toReplaceWith(JetCoreRegionalStepTask, 
+                      cms.Task(jetCoreRegionalStepTracks,
                                    jetCoreRegionalStep))

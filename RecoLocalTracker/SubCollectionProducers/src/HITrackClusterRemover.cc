@@ -161,6 +161,9 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet& iConfig):
   if (doStrip_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiStripCluster> >();
   if (clusterWasteSolution_) produces< ClusterRemovalInfo >();
 
+  assert(!clusterWasteSolution_);
+
+
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
     if (doPixel_) {

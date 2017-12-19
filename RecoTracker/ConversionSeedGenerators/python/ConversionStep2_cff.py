@@ -286,9 +286,10 @@ conv2StepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multi
         ) #end of vpset
     ) #end of clone
 
-Conv2Step = cms.Sequence( conv2Clusters 
-                         + conv2LayerPairs
-                         + photonConvTrajSeedFromQuadruplets 
-                         + conv2TrackCandidates
-                         + conv2StepTracks
-                         + conv2StepSelector)
+Conv2StepTask = cms.Task( conv2Clusters 
+                         , conv2LayerPairs
+                         , photonConvTrajSeedFromQuadruplets 
+                         , conv2TrackCandidates
+                         , conv2StepTracks
+                         , conv2StepSelector)
+Conv2Step = cms.Sequence( Conv2StepTask )

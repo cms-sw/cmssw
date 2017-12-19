@@ -15,6 +15,12 @@
 // (but the Phase DLL is locked). If either of the DLLs on the chip are
 // unlocked, this takes precedence over any TDC data that might be present,
 // and the appropriate DLL no-lock condition is reported.
+//
+// (end of Zimmerman's special code explanation).
+//
+// In addition, during normal operation, codes above 49 are not supposed
+// to happen. If, due to jitter or something, the upcrossing would happen
+// at TDC=50, it would be reported as TDC=0 in the next BX.
 
 namespace HcalSpecialTimes
 {
@@ -39,6 +45,11 @@ namespace HcalSpecialTimes
     // Special value which indicates a possible bug in the dataframe
     constexpr float UNKNOWN_T_INVALID_RANGE = -125.f;
 
+    // Special value for invalid codes 50-57. I don't know the
+    // exact explanation why they occur, but they do. Their origin
+    // is likely to be just a bit-flip.
+    constexpr float UNKNOWN_T_50TO57 = -130.f;
+
     // Check if the given time represents one of the special values
     inline bool isSpecial(const float t)
     {
@@ -50,21 +61,29 @@ namespace HcalSpecialTimes
         constexpr float tdc_to_ns = 0.5f;
 
         constexpr int six_bits_mask = 0x3f;
+        constexpr int tdc_code_largestnormal = 49;
+        constexpr int tdc_code_invalid = 58;
         constexpr int tdc_code_overshoot = 62;
         constexpr int tdc_code_undershoot = 63;
-        constexpr int tdc_code_invalid = 58;
 
         float t = tdc_to_ns*tdc;
         if (tdc > six_bits_mask || tdc < 0)
             t = UNKNOWN_T_INVALID_RANGE;
-        else if (tdc == tdc_code_overshoot)
-            t = UNKNOWN_T_OVERSHOOT;
-        else if (tdc == tdc_code_undershoot)
-            t = UNKNOWN_T_UNDERSHOOT;
-        else if (tdc == tdc_code_invalid)
-            t = UNKNOWN_T_INVALID_CODE;
-        else if (tdc > tdc_code_invalid)
-            t = UNKNOWN_T_DLL_FAILURE;
+        else if (tdc > tdc_code_largestnormal)
+        {
+            // The undershoot code happens by far more often
+            // than any other special code. So check for it first.
+            if (tdc == tdc_code_undershoot)
+                t = UNKNOWN_T_UNDERSHOOT;
+            else if (tdc == tdc_code_overshoot)
+                t = UNKNOWN_T_OVERSHOOT;
+            else if (tdc == tdc_code_invalid)
+                t = UNKNOWN_T_INVALID_CODE;
+            else if (tdc < tdc_code_invalid)
+                t = UNKNOWN_T_50TO57;
+            else
+                t = UNKNOWN_T_DLL_FAILURE;
+        }
 
         return t;
     }

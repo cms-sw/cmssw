@@ -1,6 +1,8 @@
 #ifndef TopObjetcResolutionsElectron_h
 #define TopObjetcResolutionsElectron_h
 
+#include <cmath>
+
 namespace res{
   class HelperElectron {
 

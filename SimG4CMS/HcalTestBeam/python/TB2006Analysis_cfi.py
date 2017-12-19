@@ -72,6 +72,7 @@ def testbeam2006(process):
             HcalWidth  = cms.double(0.640),
             EcalFactor = cms.double(1.),
             HcalFactor = cms.double(100.),
+            MIP        = cms.double(0.8),
             MakeTree   = cms.untracked.bool(False)
         )
     )

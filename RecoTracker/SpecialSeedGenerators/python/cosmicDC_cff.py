@@ -34,4 +34,5 @@ cosmicDCTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWith
 )
 
 # Final Sequence
-cosmicDCTracksSeq = cms.Sequence( cosmicDCSeeds * cosmicDCCkfTrackCandidates * cosmicDCTracks )
+cosmicDCTracksSeqTask = cms.Task( cosmicDCSeeds , cosmicDCCkfTrackCandidates , cosmicDCTracks )
+cosmicDCTracksSeq = cms.Sequence(cosmicDCTracksSeqTask)

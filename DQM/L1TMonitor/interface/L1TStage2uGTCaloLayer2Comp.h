@@ -192,11 +192,11 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
     JETBADETA,      // no. jets with bad eta
     JETBADPHI,      // no. jets with bad phi
     EGBADET,        // no. egs with bad Et
-    EGBADPHI,       // no. egs with bad eta
     EGBADETA,       // no. egs with bad phi
+    EGBADPHI,       // no. egs with bad eta
     TAUBADET,       // no. tau with bad Et
-    TAUBADPHI,      // no. tau with bad phi
     TAUBADETA,      // no. tau with bad eta
+    TAUBADPHI,      // no. tau with bad phi
     BADSUM          // no. sums with any disagreement
   };
 

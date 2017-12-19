@@ -16,36 +16,16 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
-HFChamberSD::HFChamberSD(std::string name, const DDCompactView & cpv,
+HFChamberSD::HFChamberSD(const std::string& name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :
-  SensitiveCaloDetector(name, cpv, clg, p), theName(name),
+  SensitiveCaloDetector(name, cpv, clg, p), 
   m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {
 
-  collectionName.insert(name);
-  LogDebug("FiberSim") << "***************************************************"
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "* Constructing a HFChamberSD  with name " << GetName()
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "***************************************************";
-  //
-  // Now attach the right detectors (LogicalVolumes) to me
-  //
-  const std::vector<std::string>& lvNames = clg.logicalNames(name);
-  this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++){
-    this->AssignSD(*it);
-    LogDebug("FiberSim") << "HFChamberSD : Assigns SD to LV " << (*it);
-  }
 }
 
 HFChamberSD::~HFChamberSD() {
-  if (theHC)    delete theHC;
+  delete theHC;
 }
 
 void HFChamberSD::Initialize(G4HCofThisEvent * HCE) {
@@ -111,9 +91,9 @@ void HFChamberSD::PrintAll() {}
 
 void HFChamberSD::clearHits() {}
 
-uint32_t HFChamberSD::setDetUnitId(G4Step* aStep) {
+uint32_t HFChamberSD::setDetUnitId(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   return (touch->GetReplicaNumber(0));
 }
 
-void HFChamberSD::fillHits(edm::PCaloHitContainer&, std::string) {}
+void HFChamberSD::fillHits(edm::PCaloHitContainer&, const std::string&) {}

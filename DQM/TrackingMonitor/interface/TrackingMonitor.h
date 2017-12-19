@@ -16,6 +16,7 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,12 +24,16 @@ Monitoring source for general quantities related to tracks.
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h" 
+
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -39,6 +44,7 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSets.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -95,6 +101,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
 	edm::EDGetTokenT<std::vector<SeedStopInfo> > seedStopInfoToken_;
 	edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
+	edm::EDGetTokenT<TrackingRegionsSeedingLayerSets> regionLayerSetsToken_;
 	edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
 	edm::EDGetTokenT<LumiScalersCollection>  lumiscalersToken_;	
@@ -199,6 +206,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	bool doTkCandPlots;
 	bool doMVAPlots;
 	bool doRegionPlots;
+	bool doRegionCandidatePlots;
 	bool doSeedNumberPlot;
 	bool doSeedLumiAnalysis_;
 	bool doSeedVsClusterPlot;

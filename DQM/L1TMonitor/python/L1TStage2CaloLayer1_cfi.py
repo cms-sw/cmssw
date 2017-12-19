@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 l1tStage2CaloLayer1 = cms.EDAnalyzer("L1TStage2CaloLayer1",
-    ecalTPSourceRecd = cms.InputTag("l1tCaloLayer1Digis"),
-    hcalTPSourceRecd = cms.InputTag("l1tCaloLayer1Digis"),
+    ecalTPSourceRecd = cms.InputTag("caloLayer1Digis"),
+    hcalTPSourceRecd = cms.InputTag("caloLayer1Digis"),
     ecalTPSourceSent = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
     hcalTPSourceSent = cms.InputTag("hcalDigis"),
     fedRawDataLabel  = cms.InputTag("rawDataCollector"),

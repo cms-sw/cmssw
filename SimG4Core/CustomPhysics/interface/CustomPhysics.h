@@ -1,5 +1,5 @@
-#ifndef SimG4Core_CustomPhysics_H
-#define SimG4Core_CustomPhysics_H
+#ifndef SimG4Core_CustomPhysics_CustomPhysics_H
+#define SimG4Core_CustomPhysics_CustomPhysics_H
  
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

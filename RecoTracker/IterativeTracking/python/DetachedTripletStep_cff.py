@@ -38,8 +38,6 @@ _phase1LayerList = [
     ]
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(detachedTripletStepSeedLayers, layerList=_phase1LayerList)
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(detachedTripletStepSeedLayers, layerList=_phase1LayerList)
 
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpotFixedZ_cfi import globalTrackingRegionFromBeamSpotFixedZ as _globalTrackingRegionFromBeamSpotFixedZ
@@ -238,10 +236,6 @@ trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1
      mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1'),
      qualityCuts = [-0.2,0.3,0.8],
 ))
-trackingPhase1QuadProp.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1'),
-     qualityCuts = [-0.2,0.3,0.8],
-))
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -341,29 +335,30 @@ trackingLowPU.toReplaceWith(detachedTripletStep, RecoTracker.FinalTrackSelectors
     writeOnlyTrkQuals =True
 ))
 
-DetachedTripletStep = cms.Sequence(detachedTripletStepClusters*
-                                   detachedTripletStepSeedLayers*
-                                   detachedTripletStepTrackingRegions*
-                                   detachedTripletStepHitDoublets*
-                                   detachedTripletStepHitTriplets*
-                                   detachedTripletStepSeeds*
-                                   detachedTripletStepTrackCandidates*
-                                   detachedTripletStepTracks*
-                                   detachedTripletStepClassifier1*detachedTripletStepClassifier2*
+DetachedTripletStepTask = cms.Task(detachedTripletStepClusters,
+                                   detachedTripletStepSeedLayers,
+                                   detachedTripletStepTrackingRegions,
+                                   detachedTripletStepHitDoublets,
+                                   detachedTripletStepHitTriplets,
+                                   detachedTripletStepSeeds,
+                                   detachedTripletStepTrackCandidates,
+                                   detachedTripletStepTracks,
+                                   detachedTripletStepClassifier1,detachedTripletStepClassifier2,
                                    detachedTripletStep)
-_DetachedTripletStep_LowPU = DetachedTripletStep.copyAndExclude([detachedTripletStepClassifier2])
-_DetachedTripletStep_LowPU.replace(detachedTripletStepClassifier1, detachedTripletStepSelector)
-trackingLowPU.toReplaceWith(DetachedTripletStep, _DetachedTripletStep_LowPU)
+DetachedTripletStep = cms.Sequence(DetachedTripletStepTask)
+_DetachedTripletStepTask_LowPU = DetachedTripletStepTask.copyAndExclude([detachedTripletStepClassifier2])
+_DetachedTripletStepTask_LowPU.replace(detachedTripletStepClassifier1, detachedTripletStepSelector)
+trackingLowPU.toReplaceWith(DetachedTripletStepTask, _DetachedTripletStepTask_LowPU)
 
 # fast tracking mask producer
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
 detachedTripletStepMasks = maskProducerFromClusterRemover(detachedTripletStepClusters)
-fastSim.toReplaceWith(DetachedTripletStep,
-                      cms.Sequence(detachedTripletStepMasks
-                                   +detachedTripletStepTrackingRegions
-                                   +detachedTripletStepSeeds
-                                   +detachedTripletStepTrackCandidates
-                                   +detachedTripletStepTracks
-                                   +detachedTripletStepClassifier1*detachedTripletStepClassifier2
-                                   +detachedTripletStep
+fastSim.toReplaceWith(DetachedTripletStepTask,
+                      cms.Task(detachedTripletStepMasks
+                                   ,detachedTripletStepTrackingRegions
+                                   ,detachedTripletStepSeeds
+                                   ,detachedTripletStepTrackCandidates
+                                   ,detachedTripletStepTracks
+                                   ,detachedTripletStepClassifier1,detachedTripletStepClassifier2
+                                   ,detachedTripletStep
                                    ) )

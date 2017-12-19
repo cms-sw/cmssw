@@ -35,7 +35,7 @@ public:
 
   bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors);
 
-  bool checkTrailer(bool& errorsInEvent, int fedId, int nWords, const Word64* trailer, Errors& errors);
+  bool checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors);
 
   bool checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameConverter* converter, 
 		const SiPixelFedCabling* theCablingTree,

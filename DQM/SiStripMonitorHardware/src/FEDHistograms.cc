@@ -370,7 +370,7 @@ MonitorElement * FEDHistograms::getFedvsAPVpointer()
   return fedIdVsApvId_.monitorEle;
 }
 
-void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::string topFolderName)
+void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker, const TkDetMap* tkDetMap, std::string topFolderName)
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
@@ -807,7 +807,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
 
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled){
-    tkmapFED_ = new TkHistoMap(topFolderName,"TkHMap_FractionOfBadChannels",0.,true);
+    tkmapFED_ = std::make_unique<TkHistoMap>(tkDetMap, topFolderName,"TkHMap_FractionOfBadChannels",0.,true);
   }
   else tkmapFED_ = nullptr;
 
@@ -904,5 +904,5 @@ bool FEDHistograms::tkHistoMapEnabled(unsigned int aIndex){
 }
 
 TkHistoMap * FEDHistograms::tkHistoMapPointer(unsigned int aIndex){
-  return tkmapFED_;
+  return tkmapFED_.get();
 }

@@ -82,11 +82,16 @@ TMVA::IMethod* reco::details::loadTMVAWeights(TMVA::Reader* reader, const std::s
     std::string weight_file_name(tmpFilename);
     weight_file_name += ".xml";
     FILE *theActualFile = fopen(weight_file_name.c_str(), "w");
-    // write xml
-    fputs(c, theActualFile);
-    fputs("\n", theActualFile);
-    fclose(theActualFile);
-    close(fdToUselessFile);
+    if (theActualFile != nullptr) {
+      // write xml
+      fputs(c, theActualFile);
+      fputs("\n", theActualFile);
+      fclose(theActualFile);
+      close(fdToUselessFile);
+    } else {
+      throw cms::Exception("CannotWriteFile")
+        << "Error while writing file = " << weight_file_name << " !!\n";
+    }
     if (verbose)
       std::cout << "Booking MvA" << std::endl;
     ptr = reader->BookMVA(method, weight_file_name);

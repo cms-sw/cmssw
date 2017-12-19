@@ -238,5 +238,5 @@ void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions& des
     descriptions.add("hltScoutingPFProducer", desc);
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 DEFINE_FWK_MODULE(HLTScoutingPFProducer);

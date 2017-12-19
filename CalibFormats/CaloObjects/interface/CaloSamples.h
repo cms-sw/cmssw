@@ -52,7 +52,9 @@ public:
 
   void setDetId( DetId detId ) { id_ = detId ; }
 
-  void setSize( unsigned int size ) { size_ = size ; }
+  void setSize( unsigned int size ) { size_ = size ; data_.resize(size,0.); }
+
+  void setPreciseSize( unsigned int size ) { preciseSize_ = size ; preciseData_.resize(preciseSize_,0.); }
 
   bool isBlank() const ; // are the samples blank (zero?)
 

@@ -86,9 +86,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
 
 }
 
-MEtoEDMConverter::~MEtoEDMConverter()
-{
-}
+MEtoEDMConverter::~MEtoEDMConverter() = default;
 
 void
 MEtoEDMConverter::beginJob()
@@ -98,7 +96,7 @@ MEtoEDMConverter::beginJob()
 }
 
 void
-MEtoEDMConverter::endJob(void)
+MEtoEDMConverter::endJob()
 {
   std::string MsgLoggerCat = "MEtoEDMConverter_endJob";
 

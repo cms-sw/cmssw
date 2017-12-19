@@ -3,6 +3,7 @@
 
 #include "Utilities/BinningTools/interface/BaseBinFinder.h"
 
+#include <algorithm>
 #include <cmath>
 
 /** Periodic Bin Finder around a circle for (almost) equidistant bins.

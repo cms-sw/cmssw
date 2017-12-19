@@ -220,11 +220,17 @@ namespace ecaldqm
             me->setBinLabel(iBin, zaxis.labels[iBin - 1], 3);
         }
 
+        /* FIX: In ROOT 6.0.12 bit 20 is used by ROOT (bit 19 was already in use in 6.0.x). Talking with the ROOT team, users
+           should never use SetBit for their own purpose since those bits are reserved for ROOT internally.
+           See https://github.com/cms-sw/cmssw/issues/21423 for some alternative ways of attaching
+           additional information to a TH1
+
         // For plot tagging in RenderPlugin; default values are 1 for both
         // bits 19 - 23 are free in TH1::fBits
         // can only pack object + logical dimensions into 5 bits (4 bits for object, 1 bit for dim (1 -> dim >= 2))
         me->getTH1()->SetBit(uint32_t(actualObject + 1) << 20);
         if(isMap) me->getTH1()->SetBit(0x1 << 19);
+        */
       }
 
       if(lumiFlag_) me->setLumiFlag();

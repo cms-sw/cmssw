@@ -25,9 +25,9 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         engineName = cms.untracked.string('HepJamesRandom'),
         initialSeed = cms.untracked.uint32(204)
     ),
-    t5 = cms.PSet(
+    t6 = cms.PSet(
         initialSeed = cms.untracked.uint32(205),
-        engineName = cms.untracked.string('TRandom3')
+        engineName = cms.untracked.string('MixMaxRng')
     ),
     enableChecking = cms.untracked.bool(True),
     verbose = cms.untracked.bool(False)
@@ -73,6 +73,13 @@ process.t4 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
                             maxEvents = cms.untracked.uint32(5),
                             nStreams = cms.untracked.uint32(1)
 )
+process.t6 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('MixMaxRng'),
+                            seeds = cms.untracked.vuint32(205),
+                            offset = cms.untracked.uint32(0),
+                            maxEvents = cms.untracked.uint32(5),
+                            nStreams = cms.untracked.uint32(1)
+)
 
 process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
@@ -80,5 +87,5 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testRandomService2.root')
 )
 
-process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.randomEngineStateProducer)
+process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.t6+process.randomEngineStateProducer)
 process.o = cms.EndPath(process.out)

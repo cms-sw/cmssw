@@ -1,5 +1,5 @@
-#ifndef SimG4Core_RHStopTracer_H
-#define SimG4Core_RHStopTracer_H
+#ifndef SimG4Core_CustomPhysics_RHStopTracer_H
+#define SimG4Core_CustomPhysics_RHStopTracer_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

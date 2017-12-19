@@ -10,6 +10,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 namespace pat {
   
@@ -29,6 +30,8 @@ namespace pat {
                 readMiniIsoParams(iConfig);
                 pcToken_ = consumes<pat::PackedCandidateCollection >(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
             }
+	    recomputeMuonBasicSelectors_ = false;
+            if (typeid(T) == typeid(pat::Muon)) recomputeMuonBasicSelectors_ = iConfig.getParameter<bool>("recomputeMuonBasicSelectors");
             produces<std::vector<T>>();
         }
 
@@ -43,6 +46,7 @@ namespace pat {
           desc.add<bool>("computeMiniIso", false)->setComment("Recompute miniIsolation");
           desc.addOptional<edm::InputTag>("pfCandsForMiniIso", edm::InputTag("packedPFCandidates"))->setComment("PackedCandidate collection used for miniIso");
           if (typeid(T) == typeid(pat::Muon)) {
+            desc.add<bool>("recomputeMuonBasicSelectors",false)->setComment("Recompute basic cut-based muon selector flags");
             desc.addOptional<std::vector<double>>("miniIsoParams")->setComment("Parameters used for miniIso (as in PATMuonProducer)");
             descriptions.add("muonsUpdated", desc);
           } else if (typeid(T) == typeid(pat::Electron)) {
@@ -60,11 +64,14 @@ namespace pat {
       }
       const std::vector<double> & miniIsoParams(const T &lep) const { return miniIsoParams_[0]; }
 
+      void recomputeMuonBasicSelectors(T &, const reco::Vertex &, const bool) const;
+
     private:
       // configurables
       edm::EDGetTokenT<std::vector<T>> src_;
       edm::EDGetTokenT<std::vector<reco::Vertex>> vertices_;
       bool computeMiniIso_;
+      bool recomputeMuonBasicSelectors_;
       std::vector<double> miniIsoParams_[2];
       edm::EDGetTokenT<pat::PackedCandidateCollection> pcToken_;
   };
@@ -95,6 +102,14 @@ namespace pat {
       return miniIsoParams_[lep.isEE()]; 
   }
 
+  template<typename T>
+  void LeptonUpdater<T>::recomputeMuonBasicSelectors(T & lep, const reco::Vertex & pv, const bool do_hip_mitigation_2016) const {}
+
+  template<>
+  void LeptonUpdater<pat::Muon>::recomputeMuonBasicSelectors(pat::Muon & lep, const reco::Vertex & pv, const bool do_hip_mitigation_2016) const {
+    muon::setCutBasedSelectorFlags(lep, &pv, do_hip_mitigation_2016);
+  }
+
 } // namespace
 
 template<typename T>
@@ -111,6 +126,8 @@ void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event& iEvent, edm::Even
 
     std::unique_ptr<std::vector<T>> out(new std::vector<T>(*src));
 
+    const bool do_hip_mitigation_2016 = recomputeMuonBasicSelectors_ && (272728 <= iEvent.run() && iEvent.run() <= 278808);
+
     for (unsigned int i = 0, n = src->size(); i < n; ++i) {
         T & lep = (*out)[i];
         setDZ(lep, pv);
@@ -122,6 +139,7 @@ void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event& iEvent, edm::Even
                                                                params[6], params[7], params[8]);
             lep.setMiniPFIsolation(miniiso);
         }
+	if (recomputeMuonBasicSelectors_) recomputeMuonBasicSelectors(lep,pv,do_hip_mitigation_2016);
     }
 
     iEvent.put(std::move(out));

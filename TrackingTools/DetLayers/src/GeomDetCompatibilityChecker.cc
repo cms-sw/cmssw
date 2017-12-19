@@ -1,14 +1,14 @@
-#include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
-
-#include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 // #define STAT_TSB
 
 #ifdef STAT_TSB
-#include<iostream>
+#include <iostream>
 #endif
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
+#include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 
 namespace{
 
@@ -45,7 +45,7 @@ namespace{
 #endif
   };
 
-  [[cms::thread_safe]] Stat stat; // for production purpose it is thread safe
+  CMS_THREAD_SAFE Stat stat; // for production purpose it is thread safe
 
 }
 

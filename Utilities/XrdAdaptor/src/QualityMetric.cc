@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "QualityMetric.h"
 
@@ -153,7 +154,7 @@ QualityMetric::get()
 }
 
 
-[[cms::thread_safe]] QualityMetricFactory QualityMetricFactory::m_instance;
+CMS_THREAD_SAFE QualityMetricFactory QualityMetricFactory::m_instance;
 
 
 std::unique_ptr<QualityMetricSource>

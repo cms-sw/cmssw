@@ -17,7 +17,7 @@ Exhume::GG::GG(const edm::ParameterSet& pset):
   Partons[1].Colour=102;
   Partons[1].AntiColour=101;
 
-  EighteenPI = 18.0 * PI;
+  EighteenPI = 18.0 * M_PI;
 
   Name = "di-gluon";
 
@@ -29,7 +29,7 @@ double Exhume::GG::SubProcess(){
   double AlphaS_ = AlphaS(0.5 * SqrtsHat);
   double InvSinTheta2 = InvSinTheta*InvSinTheta;
   return(EighteenPI*AlphaS_ * AlphaS_ * InvsHat
-	 *InvSinTheta2 * InvSinTheta2 * Gev2fb / (2*PI));
+	 *InvSinTheta2 * InvSinTheta2 * Gev2fb / (2*M_PI));
 
 }
 void Exhume::GG::LIPS2Amp(){
@@ -71,7 +71,7 @@ double Exhume::GG::SubParameterWeight(){
 //////////////////////////////////////////////////////////////////////////////
 void Exhume::GG::SetPartons(){
   E = 0.5*SqrtsHat;
-  Phi = 2*PI*double(rand())/RAND_MAX;
+  Phi = 2*M_PI*double(rand())/RAND_MAX;
   Px = E*SinTheta*cos(Phi);
   Py = E*SinTheta*sin(Phi);
   Pz = E*CosTheta;
@@ -96,7 +96,7 @@ void Exhume::GG::SetPartons(){
 ///////////////////////////////////////////////////////////////////////////// 
 void Exhume::GG::SetThetaMin(const double& ThetaMin_){
   ThetaMin = ThetaMin_;
-  ThetaMax = PI - ThetaMin_;
+  ThetaMax = M_PI - ThetaMin_;
   // SinThetaMin = sin(ThetaMin);
   CosThetaMin = cos(ThetaMax);
   CosThetaMax = cos(ThetaMin); 

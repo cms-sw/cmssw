@@ -32,9 +32,9 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run1_mc']
 
 process.load('Calibration.IsolatedParticles.isolatedTracksHcalScale_cfi')
-process.isolatedTracksHcal.MaxDxyPV  = 10.
-process.isolatedTracksHcal.MaxDzPV   = 10.
-process.isolatedTracksHcal.Verbosity = 1
+process.isolatedTracksHcalScale.MaxDxyPV  = 10.
+process.isolatedTracksHcalScale.MaxDzPV   = 10.
+process.isolatedTracksHcalScale.Verbosity = 1
 
 process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            vertexCollection = cms.InputTag('offlinePrimaryVertices'),
@@ -48,17 +48,5 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('IsolatedTracksHcalScale.root')
                                    )
 
-# define an EndPath to analyze all other path results
-process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
-      #HLTriggerResults = cms.InputTag( 'TriggerResults','','REDIGI36X')
-      HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT') 
-)
-
-process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
-#process.l1GtTrigReport.L1GtRecordInputTag = 'simGtDigis'
-process.l1GtTrigReport.L1GtRecordInputTag = 'gtDigis'
-process.l1GtTrigReport.PrintVerbosity = 0
-#=============================================================================
-
-#process.p1 = cms.Path(process.primaryVertexFilter*process.isolatedTracksHcal)
-process.p1 = cms.Path( process.isolatedTracksHcal )
+#process.p1 = cms.Path(process.primaryVertexFilter*process.IsolatedTracksHcalScale)
+process.p1 = cms.Path( process.isolatedTracksHcalScale )

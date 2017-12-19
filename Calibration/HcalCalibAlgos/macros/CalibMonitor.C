@@ -11,7 +11,7 @@
 //        This will prepare a set of histograms which can be used for a
 //        quick fit and display using the methods in CalibFitPlots.C
 //
-//  GetEntries g1(fname, dirname, bool ifOld);
+//  GetEntries g1(fname, dirname, bit1, bit2);
 //  g1.Loop();
 //
 //         This looks into the tree *EventInfo* and can provide a set
@@ -70,6 +70,9 @@
 //                               in append/output mode
 //   all (bool)                = true/false if all histograms to be saved or
 //                               not (def false)
+//
+//   bitX (unsigned int)       = bit number of the HLT used in the selection
+//        (X = 1, 2)             for example the bits of HLT_IsoTrackHB(HE)
 //////////////////////////////////////////////////////////////////////////////
 
 #include <TROOT.h>
@@ -1190,12 +1193,14 @@ public :
   Int_t                      t_TracksSaved;
   Int_t                      t_TracksLoose;
   Int_t                      t_TracksTight;
+  Int_t                      t_allvertex;
   Bool_t                     t_TrigPass;
   Bool_t                     t_TrigPassSel;
   Bool_t                     t_L1Bit;
   std::vector<Bool_t>       *t_hltbits;
   std::vector<int>          *t_ietaAll;
   std::vector<int>          *t_ietaGood;
+  std::vector<int>          *t_trackType;
 
   // List of branches
   TBranch                   *b_t_Tracks;        //!
@@ -1203,14 +1208,17 @@ public :
   TBranch                   *b_t_TracksSaved;   //!
   TBranch                   *b_t_TracksLoose;   //!
   TBranch                   *b_t_TracksTight;   //!
+  TBranch                   *b_t_allvertex;     //!
   TBranch                   *b_t_TrigPass;      //!
   TBranch                   *b_t_TrigPassSel;   //!
   TBranch                   *b_t_L1Bit;         //!
   TBranch                   *b_t_hltbits;       //!
   TBranch                   *b_t_ietaAll;       //!
   TBranch                   *b_t_ietaGood;      //!
+  TBranch                   *b_t_trackType;     //!
 
-  GetEntries(const std::string& fname, const std::string& dirname);
+  GetEntries(const std::string& fname, const std::string& dirname, 
+	     const unsigned int bit1, const unsigned int bit2);
   virtual ~GetEntries();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -1221,17 +1229,20 @@ public :
   virtual void     Show(Long64_t entry = -1);
 
 private:
-  TH1I            *h_tk[3], *h_eta[2];
-  TH1D            *h_eff;
+  unsigned int     bit_[2];
+  TH1I            *h_tk[3], *h_eta[4], *h_pvx[3];
+  TH1D            *h_eff[3];
 };
 
-GetEntries::GetEntries(const std::string& fname, const std::string& dirnm) {
+GetEntries::GetEntries(const std::string& fname, const std::string& dirnm,
+		       const unsigned int bit1, const unsigned int bit2) {
 
   TFile      *file = new TFile(fname.c_str());
   TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
   std::cout << fname << " file " << file << " " << dirnm << " " << dir << std::endl;
   TTree      *tree = (TTree*)dir->Get("EventInfo");
   std::cout << "CalibTree " << tree << std::endl;
+  bit_[0] = bit1; bit_[1] = bit2;
   Init(tree);
 }
 
@@ -1274,6 +1285,7 @@ void GetEntries::Init(TTree *tree) {
   t_hltbits      = 0;
   t_ietaAll      = 0;
   t_ietaGood     = 0;
+  t_trackType    = 0;
   t_L1Bit        = false;
   fChain         = tree;
   fCurrent       = -1;
@@ -1284,12 +1296,14 @@ void GetEntries::Init(TTree *tree) {
   fChain->SetBranchAddress("t_TracksSaved", &t_TracksSaved, &b_t_TracksSaved);
   fChain->SetBranchAddress("t_TracksLoose", &t_TracksLoose, &b_t_TracksLoose);
   fChain->SetBranchAddress("t_TracksTight", &t_TracksTight, &b_t_TracksTight);
+  fChain->SetBranchAddress("t_allvertex",   &t_allvertex,   &b_t_allvertex);
   fChain->SetBranchAddress("t_TrigPass",    &t_TrigPass,    &b_t_TrigPass);
   fChain->SetBranchAddress("t_TrigPassSel", &t_TrigPassSel, &b_t_TrigPassSel);
   fChain->SetBranchAddress("t_L1Bit",       &t_L1Bit,       &b_t_L1Bit);
   fChain->SetBranchAddress("t_hltbits",     &t_hltbits,     &b_t_hltbits);
   fChain->SetBranchAddress("t_ietaAll",     &t_ietaAll,     &b_t_ietaAll);
   fChain->SetBranchAddress("t_ietaGood",    &t_ietaGood,    &b_t_ietaGood);
+  fChain->SetBranchAddress("t_trackType",   &t_trackType,   &b_t_trackType);
   Notify();
 
   h_tk[0] = new TH1I("Track0", "# of tracks produced",      2000, 0, 2000);
@@ -1297,7 +1311,14 @@ void GetEntries::Init(TTree *tree) {
   h_tk[2] = new TH1I("Track2", "# of tracks saved in tree", 2000, 0, 2000);
   h_eta[0] = new TH1I("Eta0", "i#eta (All Tracks)",           60, -30, 30);
   h_eta[1] = new TH1I("Eta1", "i#eta (Good Tracks)",          60, -30, 30);
-  h_eff    = new TH1D("Eta2", "i#eta (Selection Efficiency)", 60, -30, 30);
+  h_eta[2] = new TH1I("Eta2", "i#eta (Loose Isolated Tracks)",60, -30, 30);
+  h_eta[3] = new TH1I("Eta3", "i#eta (Tight Isolated Tracks)",60, -30, 30);
+  h_eff[0] = new TH1D("Eff0", "i#eta (Selection Efficiency)", 60, -30, 30);
+  h_eff[1] = new TH1D("Eff1", "i#eta (Loose Isolation Efficiency)", 60,-30,30);
+  h_eff[2] = new TH1D("Eff2", "i#eta (Tight Isolation Efficiency)", 60,-30,30);
+  h_pvx[0] = new TH1I("Pvx0", "Number of Good Vertex (All)",   100, 0, 100);
+  h_pvx[1] = new TH1I("Pvx1", "Number of Good Vertex (Loose)", 100, 0, 100);
+  h_pvx[2] = new TH1I("Pvx2", "Number of Good Vertex (Tight)", 100, 0, 100);
 }
 
 Bool_t GetEntries::Notify() {
@@ -1354,6 +1375,9 @@ void GetEntries::Loop() {
   Long64_t nbytes = 0, nb = 0;
   int      kount(0), selected(0);
   int      l1(0), hlt(0), loose(0), tight(0);
+  int      allHLT[3] = {0,0,0};
+  int      looseHLT[3] = {0,0,0};
+  int       tightHLT[3] = {0, 0, 0};
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -1362,6 +1386,9 @@ void GetEntries::Loop() {
     h_tk[0]->Fill(t_Tracks);
     h_tk[1]->Fill(t_TracksProp);
     h_tk[2]->Fill(t_TracksSaved);
+    h_pvx[0]->Fill(t_allvertex);
+    if (t_TracksLoose > 0) h_pvx[1]->Fill(t_allvertex);
+    if (t_TracksTight > 0) h_pvx[2]->Fill(t_allvertex);
     if (t_L1Bit) {
       ++l1;
       if (t_TracksLoose > 0) ++loose;
@@ -1372,13 +1399,37 @@ void GetEntries::Loop() {
       ++kount;
       if (t_TrigPassSel) ++selected;
     }
+    bool passt[2]={false,false}, pass(false);
+    for (unsigned k=0; k<t_hltbits->size(); ++k) {
+      if ((*t_hltbits)[k] > 0) {
+	pass = true;
+	for (int i=0; i<2; ++i) if (k == bit_[i]) passt[i] = true;
+      }
+    }
+    if (pass) {
+      ++allHLT[0];
+      for (int i=0; i<2; ++i) if (passt[i]) ++allHLT[i+1];
+      if (t_TracksLoose > 0) {
+	++looseHLT[0];
+	for (int i=0; i<2; ++i) if (passt[i]) ++looseHLT[i+1];
+      }
+      if (t_TracksTight > 0) {
+	++tightHLT[0];
+	for (int i=0; i<2; ++i) if (passt[i]) ++tightHLT[i+1];
+      }
+    }      
     for (unsigned int k=0; k<t_ietaAll->size(); ++k)
       h_eta[0]->Fill((*t_ietaAll)[k]);
-    for (unsigned int k=0; k<t_ietaGood->size(); ++k)
+    for (unsigned int k=0; k<t_ietaGood->size(); ++k) {
       h_eta[1]->Fill((*t_ietaGood)[k]);
+      if (t_trackType->size() > 0) {
+	if ((*t_trackType)[k] > 0)  h_eta[2]->Fill((*t_ietaGood)[k]);
+	if ((*t_trackType)[k] > 1)  h_eta[3]->Fill((*t_ietaGood)[k]);
+      }
+    }
   }
   double ymaxk(0);
-  for (int i=1; i<=h_eff->GetNbinsX(); ++i) {
+  for (int i=1; i<=h_eff[0]->GetNbinsX(); ++i) {
     double rat(0), drat(0);
     if (h_eta[0]->GetBinContent(i) > ymaxk) ymaxk = h_eta[0]->GetBinContent(i);
     if ((h_eta[1]->GetBinContent(i) > 0)&&(h_eta[0]->GetBinContent(i) > 0)) {
@@ -1386,8 +1437,26 @@ void GetEntries::Loop() {
       drat= rat*std::sqrt(pow((h_eta[1]->GetBinError(i)/h_eta[1]->GetBinContent(i)),2) +
 			  pow((h_eta[0]->GetBinError(i)/h_eta[0]->GetBinContent(i)),2));
     }
-    h_eff->SetBinContent(i,rat);
-    h_eff->SetBinError(i,drat);
+    h_eff[0]->SetBinContent(i,rat);
+    h_eff[0]->SetBinError(i,drat);
+    if ((h_eta[1]->GetBinContent(i) > 0)&&(h_eta[2]->GetBinContent(i) > 0)) {
+      rat = h_eta[2]->GetBinContent(i)/h_eta[1]->GetBinContent(i);
+      drat= rat*std::sqrt(pow((h_eta[2]->GetBinError(i)/h_eta[2]->GetBinContent(i)),2) +
+			  pow((h_eta[1]->GetBinError(i)/h_eta[1]->GetBinContent(i)),2));
+    } else {
+      rat = drat = 0;
+    }
+    h_eff[1]->SetBinContent(i,rat);
+    h_eff[1]->SetBinError(i,drat);
+    if ((h_eta[1]->GetBinContent(i) > 0)&&(h_eta[3]->GetBinContent(i) > 0)) {
+      rat = h_eta[3]->GetBinContent(i)/h_eta[1]->GetBinContent(i);
+      drat= rat*std::sqrt(pow((h_eta[3]->GetBinError(i)/h_eta[3]->GetBinContent(i)),2) +
+			  pow((h_eta[1]->GetBinError(i)/h_eta[1]->GetBinContent(i)),2));
+    } else {
+      rat = drat = 0;
+    }
+    h_eff[1]->SetBinContent(i,rat);
+    h_eff[1]->SetBinError(i,drat);
   }
   std::cout << "===== " << kount << " events passed trigger of which " 
 	    << selected << " events get selected =====\n" << std::endl;
@@ -1395,11 +1464,20 @@ void GetEntries::Loop() {
 	    << " events passed HLT and " << loose << ":" << tight
 	    << " events have at least 1 track candidate with loose:tight"
 	    << " isolation cut =====\n" << std::endl;
+  for (int i=0; i<3; ++i) {
+    char tbit[20];
+    if (i == 0) sprintf (tbit, "Any");
+    else        sprintf (tbit, "%3d", bit_[i-1]);
+    std::cout << "Satisfying HLT trigger bit " << tbit << " Kount " 
+	      << allHLT[i] << " Loose " << looseHLT[i] << " Tight "
+	      << tightHLT[i] << std::endl;
+  }
+
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptStat(1110);       gStyle->SetOptTitle(0);
-  int color[3] = {kBlack, kRed, kBlue};
-  int lines[3] = {1, 2, 3};
+  int color[5] = {kBlack, kRed, kBlue, kMagenta, kCyan};
+  int lines[5] = {1, 2, 3, 4, 5};
   TCanvas *pad1 = new TCanvas("c_track", "c_track", 500, 500);
   pad1->SetRightMargin(0.10);
   pad1->SetTopMargin(0.10);
@@ -1464,12 +1542,13 @@ void GetEntries::Loop() {
   pad2->SetTopMargin(0.10);
   pad2->SetFillColor(kWhite);
   pad2->SetLogy();
-  std::string titl2[2] = {"All Tracks", "Selected Tracks"};
-  TLegend  *legend2 = new TLegend(0.11, 0.82, 0.50, 0.89);
+  std::string titl2[4] = {"All Tracks", "Selected Tracks", "Loose Isolation",
+			  "Tight Isolation"};
+  TLegend  *legend2 = new TLegend(0.11, 0.75, 0.50, 0.89);
   legend2->SetFillColor(kWhite);
   i2    = (int)(0.001*ymaxk) + 1;
   ymax  = 1000.0*i2;
-  for (int k=0; k<2; ++k) {
+  for (int k=0; k<4; ++k) {
     h_eta[k]->GetYaxis()->SetRangeUser(1,ymax);
     h_eta[k]->SetLineColor(color[k]);
     h_eta[k]->SetMarkerColor(color[k]);
@@ -1485,7 +1564,7 @@ void GetEntries::Loop() {
   pad2->Update();
   ymax = 0.90;
 //double ymin = 0.10;
-  for (int k=0; k<2; ++k) {
+  for (int k=0; k<4; ++k) {
     TPaveStats* st1 = (TPaveStats*)h_eta[k]->GetListOfFunctions()->FindObject("stats");
     if (st1 != NULL) {
       st1->SetLineColor(color[k]);
@@ -1500,18 +1579,66 @@ void GetEntries::Loop() {
   legend2->Draw("same");
   pad2->Update();
 
+  std::string titl3[3] = {"Selection", "Loose Isolation", "Tight Isolation"};
   TCanvas *pad3 = new TCanvas("c_effi", "c_effi", 500, 500);
+  TLegend *legend3 = new TLegend(0.11, 0.785, 0.50, 0.89);
   pad3->SetRightMargin(0.10);
   pad3->SetTopMargin(0.10);
   pad3->SetFillColor(kWhite);
   pad3->SetLogy();
-  h_eff->SetStats(0);
-  h_eff->SetMarkerStyle(20);
-  h_eff->GetXaxis()->SetTitle("i#eta");
-  h_eff->GetYaxis()->SetTitle("Efficiency");
-  h_eff->GetYaxis()->SetLabelOffset(0.005);
-  h_eff->GetYaxis()->SetTitleOffset(1.20);
-  h_eff->Draw();
+  for (int k=0; k<3; ++k) {
+    h_eff[k]->SetStats(0);
+    h_eff[k]->SetMarkerStyle(20);
+    h_eff[k]->SetLineColor(color[k]);
+    h_eff[k]->SetMarkerColor(color[k]);
+    h_eff[k]->GetXaxis()->SetTitle("i#eta");
+    h_eff[k]->GetYaxis()->SetTitle("Efficiency");
+    h_eff[k]->GetYaxis()->SetLabelOffset(0.005);
+    h_eff[k]->GetYaxis()->SetTitleOffset(1.20);
+    if (k == 0) h_eff[k]->Draw("");
+    else        h_eff[k]->Draw("same");
+    legend3->AddEntry(h_eff[k],titl3[k].c_str(),"l");
+  }
   pad3->Modified();
   pad3->Update();
+  legend3->Draw("same");
+  pad3->Update();
+
+  std::string titl4[3] = {"All events", "Events with Loose Isolation", 
+			  "Events with Tight Isolation"};
+  TLegend *legend4 = new TLegend(0.11, 0.785, 0.50, 0.89);
+  TCanvas *pad4 = new TCanvas("c_nvx", "c_nvx", 500, 500);
+  pad4->SetRightMargin(0.10);
+  pad4->SetTopMargin(0.10);
+  pad4->SetFillColor(kWhite);
+  pad4->SetLogy();
+  for (int k=0; k<3; ++k) {
+    h_pvx[k]->SetStats(1110);
+    h_pvx[k]->SetMarkerStyle(20);
+    h_pvx[k]->SetLineColor(color[k]);
+    h_pvx[k]->SetMarkerColor(color[k]);
+    h_pvx[k]->GetXaxis()->SetTitle("N_{PV}");
+    h_pvx[k]->GetYaxis()->SetTitle("Events");
+    h_pvx[k]->GetYaxis()->SetLabelOffset(0.005);
+    h_pvx[k]->GetYaxis()->SetTitleOffset(1.20);
+    if (k == 0) h_pvx[k]->Draw("");
+    else        h_pvx[k]->Draw("sames");
+    legend4->AddEntry(h_pvx[k],titl4[k].c_str(),"l");
+  }
+  pad4->Update();
+  ymax = 0.90;
+  for (int k=0; k<3; ++k) {
+    TPaveStats* st1 = (TPaveStats*)h_pvx[k]->GetListOfFunctions()->FindObject("stats");
+    if (st1 != NULL) {
+      st1->SetLineColor(color[k]);
+      st1->SetTextColor(color[k]);
+      st1->SetY1NDC(ymax-0.09); st1->SetY2NDC(ymax);
+      st1->SetX1NDC(0.55); st1->SetX2NDC(0.90);
+      ymax -= 0.09;
+    }
+  }
+  pad4->Modified();
+  pad4->Update();
+  legend4->Draw("same");
+  pad4->Update();
 }

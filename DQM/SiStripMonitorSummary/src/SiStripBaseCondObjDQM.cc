@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripBaseCondObjDQM.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
 #include "TCanvas.h"
 
@@ -63,7 +64,11 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   else
     activeDetIds=reader->getAllDetIds();
 
-  selectModules(activeDetIds);
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup_.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* tTopo = tTopoHandle.product();
+
+  selectModules(activeDetIds, tTopo);
 
   if(Mod_On_ )                                            { fillModMEs    (activeDetIds, eSetup_); }
   if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds, eSetup_); }
@@ -94,20 +99,22 @@ void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_,
    
   std::vector<uint32_t> requestedDetIds_;
   requestedDetIds_.clear();
-  
-  SiStripSubStructure substructure_;
-  
+
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup_.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* tTopo = tTopoHandle.product();
+
   if(requestedSubDetector=="TIB"){ 
-      substructure_.getTIBDetectors( activeDetIds, requestedDetIds_, requestedLayer,0,0,0);
+      SiStripSubStructure::getTIBDetectors( activeDetIds, requestedDetIds_, tTopo, requestedLayer,0,0,0);
   }
   else if(requestedSubDetector=="TID"){ 
-      substructure_.getTIDDetectors( activeDetIds, requestedDetIds_, requestedSide,requestedLayer,0,0);
+      SiStripSubStructure::getTIDDetectors( activeDetIds, requestedDetIds_, tTopo, requestedSide,requestedLayer,0,0);
   }
   else if(requestedSubDetector=="TOB"){  
-      substructure_.getTOBDetectors( activeDetIds, requestedDetIds_, requestedLayer,0,0);
+      SiStripSubStructure::getTOBDetectors( activeDetIds, requestedDetIds_, tTopo, requestedLayer,0,0);
   }
   else if(requestedSubDetector=="TEC"){  
-      substructure_.getTECDetectors( activeDetIds, requestedDetIds_, requestedSide,requestedLayer,0,0,0,0);
+      SiStripSubStructure::getTECDetectors( activeDetIds, requestedDetIds_, tTopo, requestedSide,requestedLayer,0,0,0,0);
   } 
 
   analysisOnDemand(eSetup_,requestedDetIds_);
@@ -166,7 +173,7 @@ std::vector<uint32_t> SiStripBaseCondObjDQM::getCabledModules() {
 
 //#FIXME : very long method. please factorize it
  
-void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
+void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_, const TrackerTopology* tTopo){
   
   edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] input detIds_: " << detIds_.size() << std::endl;
   
@@ -257,16 +264,14 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
       
       std::vector<uint32_t> tmp;
       
-      SiStripSubStructure substructure_;
-      
       for( std::vector<std::string>::const_iterator modIter_  = SubDetectorsToBeExcluded_.begin(); 
 	   modIter_ != SubDetectorsToBeExcluded_.end(); modIter_++){
 	tmp.clear();
 	
-	if (*modIter_=="TIB")     { substructure_.getTIBDetectors(detIds_, tmp, 0,0,0,0);}
-	else if (*modIter_=="TOB") { substructure_.getTOBDetectors(detIds_, tmp, 0,0,0);}
-	else if (*modIter_=="TID") { substructure_.getTIDDetectors(detIds_, tmp, 0,0,0,0);}
-	else if (*modIter_=="TEC") { substructure_.getTECDetectors(detIds_, tmp, 0,0,0,0,0,0);}
+	if (*modIter_=="TIB")     { SiStripSubStructure::getTIBDetectors(detIds_, tmp, tTopo, 0,0,0,0);}
+	else if (*modIter_=="TOB") { SiStripSubStructure::getTOBDetectors(detIds_, tmp, tTopo, 0,0,0);}
+	else if (*modIter_=="TID") { SiStripSubStructure::getTIDDetectors(detIds_, tmp, tTopo, 0,0,0,0);}
+	else if (*modIter_=="TEC") { SiStripSubStructure::getTECDetectors(detIds_, tmp, tTopo, 0,0,0,0,0,0);}
 	else {
 	  edm::LogWarning("SiStripBaseCondObjDQM") 
 	    << "[SiStripBaseCondObjDQM::selectModules] PLEASE CHECK : no correct (name) subdetector to be excluded in your cfg"
@@ -300,30 +305,28 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     std::vector<uint32_t> tmp;
     std::vector<uint32_t> layerDetIds;
     
-    SiStripSubStructure substructure_;
-    
     for(unsigned int i=1; i<5 ; i++){
       tmp.clear();
-      substructure_.getTIBDetectors(detIds_, tmp, i,0,0,0);
+      SiStripSubStructure::getTIBDetectors(detIds_, tmp, tTopo, i,0,0,0);
       if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
     }
     for(unsigned int i=1; i<7 ; i++){
       tmp.clear();
-      substructure_.getTOBDetectors(detIds_, tmp, i,0,0);
+      SiStripSubStructure::getTOBDetectors(detIds_, tmp, tTopo, i,0,0);
       if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
     }
     for(unsigned int i=1; i<4 ; i++){
       tmp.clear();
-      substructure_.getTIDDetectors(detIds_, tmp, 1,i,0,0);
+      SiStripSubStructure::getTIDDetectors(detIds_, tmp, tTopo, 1,i,0,0);
       if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
-      substructure_.getTIDDetectors(detIds_, tmp, 2,i,0,0);
+      SiStripSubStructure::getTIDDetectors(detIds_, tmp, tTopo, 2,i,0,0);
       if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
     }  
     for(unsigned int i=1; i<10 ; i++){
       tmp.clear();
-      substructure_.getTECDetectors(detIds_, tmp, 1,i,0,0,0,0);
+      SiStripSubStructure::getTECDetectors(detIds_, tmp, tTopo, 1,i,0,0,0,0);
       if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
-      substructure_.getTECDetectors(detIds_, tmp, 2,i,0,0,0,0);
+      SiStripSubStructure::getTECDetectors(detIds_, tmp, tTopo, 2,i,0,0,0,0);
       if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
     }
     
@@ -587,23 +590,22 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
 
     // -----
     // get detIds belonging to same layer to fill X-axis with detId-number
-  					   
-    uint32_t subDetId_ =  ((detId_>>25)&0x7);
-    SiStripSubStructure substructure_;
-  
+
     sameLayerDetIds_.clear();
-  
-    if(subDetId_==3){  //  TIB
-      substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_,tTopo->tibLayer(detId_),0,0,tTopo->tibString(detId_));  
-    }
-    else if(subDetId_==4){  // TID
-      substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_,0,0,0,0);
-    }
-    else if(subDetId_==5){  // TOB
-      substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tobLayer(detId_),0,0);
-    }
-    else if(subDetId_==6){  // TEC
-      substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
+
+    switch ( DetId(detId_).subdetId() ) {
+      case StripSubdetector::TIB:
+        SiStripSubStructure::getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tibLayer(detId_),0,0,tTopo->tibString(detId_));
+        break;
+      case StripSubdetector::TID:
+        SiStripSubStructure::getTIDDetectors(activeDetIds, sameLayerDetIds_, tTopo, 0,0,0,0);
+        break;
+      case StripSubdetector::TOB:
+        SiStripSubStructure::getTOBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tobLayer(detId_),0,0);
+        break;
+      case StripSubdetector::TEC:
+        SiStripSubStructure::getTECDetectors(activeDetIds, sameLayerDetIds_, tTopo, 0,0,0,0,0,0);
+        break;
     }
 
     hSummaryOfProfile_NchX           = sameLayerDetIds_.size(); 
@@ -615,28 +617,26 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
 
     // -----
     // get detIds belonging to same string to fill X-axis with detId-number
-  					   
-    uint32_t subDetId_ =  ((detId_>>25)&0x7);
-    SiStripSubStructure substructure_;
-    
+
     sameLayerDetIds_.clear(); 
     
-    if(subDetId_==3){  //  TIB    
-      if(tTopo->tibIsInternalString(detId_)){
-      	substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tibLayer(detId_),0,1,tTopo->tibString(detId_)); }
-      else if(tTopo->tibIsExternalString(detId_)){
-	substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tibLayer(detId_),0,2,tTopo->tibString(detId_)); }
+    switch ( DetId(detId_).subdetId() ) {
+      case StripSubdetector::TIB:
+        if(tTopo->tibIsInternalString(detId_)){
+          SiStripSubStructure::getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tibLayer(detId_),0,1,tTopo->tibString(detId_)); }
+        else if(tTopo->tibIsExternalString(detId_)){
+          SiStripSubStructure::getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tibLayer(detId_),0,2,tTopo->tibString(detId_)); }
+        break;
+      case StripSubdetector::TID:
+        SiStripSubStructure::getTIDDetectors(activeDetIds, sameLayerDetIds_, tTopo, 0,0,0,0);
+        break;
+      case StripSubdetector::TOB:
+        SiStripSubStructure::getTOBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tobLayer(detId_),0,tTopo->tobRod(detId_));
+        break;
+      case StripSubdetector::TEC:
+        SiStripSubStructure::getTECDetectors(activeDetIds, sameLayerDetIds_, tTopo, 0,0,0,0,0,0);
+        break;
     }
-    else if(subDetId_==4){  // TID
-      substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0);
-    }
-    else if(subDetId_==5){  // TOB
-      substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tobLayer(detId_),0,tTopo->tobRod(detId_));
-    }
-    else if(subDetId_==6){  // TEC
-      substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
-    }
-
 
     hSummaryOfProfile_NchX           = sameLayerDetIds_.size(); 
     hSummaryOfProfile_LowX           = 0.5;
@@ -1162,25 +1162,22 @@ std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(const std::vector
   std::vector<uint32_t> sameLayerDetIds;
   sameLayerDetIds.clear();
 
-  SiStripSubStructure substructure_;
-  
-  uint32_t subselDetId_ =  ((selDetId>>25)&0x7);
-
-  if(subselDetId_==3){  //  TIB
-    substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds, tTopo->tibLayer(selDetId),0,0,0);  
-  }
-  else if(subselDetId_==4){  // TID
-    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds, tTopo->tidSide(selDetId),tTopo->tidWheel(selDetId),0,0);
-  }
-  else if(subselDetId_==5){  // TOB
-    substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds, tTopo->tobLayer(selDetId),0,0);
-  }
-  else if(subselDetId_==6){  // TEC
-    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds, tTopo->tecSide(selDetId),tTopo->tecWheel(selDetId),0,0,0,0);
+  switch ( DetId(selDetId).subdetId() ) {
+    case StripSubdetector::TIB:
+      SiStripSubStructure::getTIBDetectors(activeDetIds, sameLayerDetIds, tTopo, tTopo->tibLayer(selDetId),0,0,0);
+      break;
+    case StripSubdetector::TID:
+      SiStripSubStructure::getTIDDetectors(activeDetIds, sameLayerDetIds, tTopo, tTopo->tidSide(selDetId),tTopo->tidWheel(selDetId),0,0);
+      break;
+    case StripSubdetector::TOB:
+      SiStripSubStructure::getTOBDetectors(activeDetIds, sameLayerDetIds, tTopo, tTopo->tobLayer(selDetId),0,0);
+      break;
+    case StripSubdetector::TEC:
+      SiStripSubStructure::getTECDetectors(activeDetIds, sameLayerDetIds, tTopo, tTopo->tecSide(selDetId),tTopo->tecWheel(selDetId),0,0,0,0);
+      break;
   }
 
   return sameLayerDetIds;
-  
 }
 
 

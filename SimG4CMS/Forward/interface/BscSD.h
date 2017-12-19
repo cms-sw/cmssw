@@ -10,37 +10,18 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
-// last
-//#include "SimG4Core/Application/interface/SimTrackManager.h"
-//#include "SimG4CMS/Calo/interface/CaloSD.h"
-
-
-//#include "SimG4Core/Notification/interface/TrackWithHistory.h"
-//#include "SimG4Core/Notification/interface/TrackContainer.h"
-
 #include "SimG4CMS/Forward/interface/BscG4Hit.h"
 #include "SimG4CMS/Forward/interface/BscG4HitCollection.h"
 #include "SimG4CMS/Forward/interface/BscNumberingScheme.h"
-
   
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4Track.hh"
 #include "G4VPhysicalVolume.hh"
 
-//#include <CLHEP/Vector/ThreeVector.h>
-//#include <iostream>
-//#include <fstream>
-//#include <vector>
-//#include <map>
 #include <string>
- 
-
 
 class TrackingSlaveSD;
-//AZ:
-class BscSD;
-
 class TrackInformation;
 class SimTrackManager;
 class TrackingSlaveSD;
@@ -58,14 +39,13 @@ class BscSD : public SensitiveTkDetector,
 
 public:
   
-  BscSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
-  	  edm::ParameterSet const &, const SimTrackManager* );
-
+  BscSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
+	edm::ParameterSet const &, const SimTrackManager* );
 
   ~BscSD() override;
   
   bool ProcessHits(G4Step *,G4TouchableHistory *) override;
-  uint32_t  setDetUnitId(G4Step*) override;
+  uint32_t  setDetUnitId(const G4Step*) override;
 
   void Initialize(G4HCofThisEvent * HCE) override;
   void EndOfEvent(G4HCofThisEvent * eventHC) override;
@@ -73,25 +53,14 @@ public:
   void DrawAll() override;
   void PrintAll() override;
 
-  virtual double getEnergyDeposit(G4Step* step);
-  //protected:
-  //    Collection       hits_;
-    void fillHits(edm::PSimHitContainer&, std::string use) override;
-  
-  std::vector<std::string> getNames() override;
+  double getEnergyDeposit(const G4Step* step);
+  void fillHits(edm::PSimHitContainer&, const std::string&) override;
+  void clearHits() override;
   
  private:
   void           update(const BeginOfRun *) override;
   void           update(const BeginOfEvent *) override;
   void           update(const ::EndOfEvent *) override;
-  void   clearHits() override;
-  
-  //void SetNumberingScheme(BscNumberingScheme* scheme);
-  
-  
-  
-  //  int eventno;
- private:
   
   G4ThreeVector SetToLocal(const G4ThreeVector& global);
   G4ThreeVector SetToLocalExit(const G4ThreeVector& globalPoint);
@@ -102,7 +71,6 @@ public:
   void          StoreHit(BscG4Hit*);
   void          ResetForNewPrimary();
   void          Summarize();
-  
   
  private:
   
@@ -116,9 +84,7 @@ public:
   
   float                incidentEnergy;
   G4int                primID  ; 
-  
-  //  G4String             name;
-  std::string             name;
+
   G4int                    hcID;
   BscG4HitCollection*       theHC; 
   const SimTrackManager*      theManager;
@@ -127,7 +93,6 @@ public:
   BscG4Hit*               currentHit;
   G4Track*                 theTrack;
   G4VPhysicalVolume*         currentPV;
-  // unsigned int         unitID, previousUnitID;
   uint32_t             unitID, previousUnitID;
   G4int                primaryID, tSliceID;  
   G4double             tSlice;
@@ -137,7 +102,6 @@ public:
   float                edeposit;
   
   G4ThreeVector        hitPoint;
-  //  G4ThreeVector    Position;
   G4ThreeVector        hitPointExit;
   G4ThreeVector        hitPointLocal;
   G4ThreeVector        hitPointLocalExit;
@@ -152,8 +116,6 @@ public:
   int ParentId;
   float Vx,Vy,Vz;
   float X,Y,Z;
-  
-  
   //
   // Hist
   //
@@ -161,7 +123,7 @@ public:
   
  protected:
   
-  float                edepositEM, edepositHAD;
+  float edepositEM, edepositHAD;
   G4int emPDG;
   G4int epPDG;
   G4int gammaPDG;

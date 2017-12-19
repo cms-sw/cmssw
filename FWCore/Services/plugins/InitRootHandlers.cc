@@ -795,7 +795,7 @@ namespace edm {
         });
       }
 
-      iReg.watchPreallocate([this](edm::service::SystemBounds const& iBounds){
+      iReg.watchPreallocate([](edm::service::SystemBounds const& iBounds){
         if (iBounds.maxNumberOfThreads() > moduleListBuffers_.size()) {
           moduleListBuffers_.resize(iBounds.maxNumberOfThreads());
         }
@@ -832,7 +832,9 @@ namespace edm {
 
       // Enable Root implicit multi-threading
       bool imt = pset.getUntrackedParameter<bool>("EnableIMT");
-      if (imt) ROOT::EnableImplicitMT();
+      if (imt && not ROOT::IsImplicitMTEnabled()) {
+        ROOT::EnableImplicitMT();
+      }
     }
 
     InitRootHandlers::~InitRootHandlers () {
@@ -872,7 +874,7 @@ namespace edm {
           ->setComment("If True, enables automatic loading of data dictionaries.");
       desc.addUntracked<bool>("LoadAllDictionaries",false)
           ->setComment("If True, loads all ROOT dictionaries.");
-      desc.addUntracked<bool>("EnableIMT",false)
+      desc.addUntracked<bool>("EnableIMT",true)
           ->setComment("If True, calls ROOT::EnableImplicitMT().");
       desc.addUntracked<bool>("AbortOnSignal",true)
           ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");

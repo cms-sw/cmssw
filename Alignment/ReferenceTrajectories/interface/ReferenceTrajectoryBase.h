@@ -98,6 +98,8 @@
 
 #include <vector>
 
+#include <Eigen/Dense>
+
 #include "GblTrajectory.h"
 
 

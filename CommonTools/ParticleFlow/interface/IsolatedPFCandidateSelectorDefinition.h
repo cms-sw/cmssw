@@ -1,7 +1,9 @@
 #ifndef CommonTools_ParticleFlow_IsolatedPFCandidateSelectorDefinition
 #define CommonTools_ParticleFlow_IsolatedPFCandidateSelectorDefinition
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "CommonTools/ParticleFlow/interface/PFCandidateSelectorDefinition.h"

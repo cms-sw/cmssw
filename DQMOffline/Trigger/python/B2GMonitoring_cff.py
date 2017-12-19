@@ -5,6 +5,8 @@ from DQMOffline.Trigger.HTMonitor_cfi import hltHTmonitoring
 from DQMOffline.Trigger.MjjMonitor_cfi import hltMjjmonitoring
 from DQMOffline.Trigger.SoftdropMonitor_cfi import hltSoftdropmonitoring
 from DQMOffline.Trigger.B2GTnPMonitor_cfi import B2GegmGsfElectronIDsForDQM,B2GegHLTDQMOfflineTnPSource
+from DQMOffline.Trigger.topDiLeptonHLTEventDQM_cfi import topDiLeptonHLTOfflineDQM
+
 
 # B2G triggers:
 # HLT_PFHT1050_v*
@@ -139,6 +141,23 @@ AK8PFJet420_TrimMass30_PromptMonitoring.FolderName = cms.string('HLT/B2G/AK8PFJe
 AK8PFJet420_TrimMass30_PromptMonitoring.ptcut = cms.double(420)
 AK8PFJet420_TrimMass30_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet420_TrimMass30_v*")
 
+
+b2gDileptonHLTOfflineDQM = topDiLeptonHLTOfflineDQM.clone()
+b2gDileptonHLTOfflineDQM.setup.directory = cms.string('HLT/B2GHLTOffline/Dileptonic/CrossTriggers')
+b2gDileptonHLTOfflineDQM.setup.triggerExtras.pathsELECMU = cms.vstring(['HLT_Mu37_Ele27_CaloIdL_MW_v','HLT_Mu27_Ele37_CaloIdL_MW_v'])
+b2gDileptonHLTOfflineDQM.setup.triggerExtras.pathsDIMUON = cms.vstring([''])
+b2gDileptonHLTOfflineDQM.setup.triggerExtras.pathsDIELEC = cms.vstring([''])
+b2gDileptonHLTOfflineDQM.preselection.trigger.select = cms.vstring(['HLT_Mu37_Ele27_CaloIdL_MW_v','HLT_Mu27_Ele37_CaloIdL_MW_v'])
+
+b2gDimuonHLTOfflineDQM = topDiLeptonHLTOfflineDQM.clone()
+b2gDimuonHLTOfflineDQM.setup.directory = cms.string('HLT/B2GHLTOffline/Dileptonic/Dimuon')
+b2gDimuonHLTOfflineDQM.setup.triggerExtras.pathsELECMU = cms.vstring([''])
+b2gDimuonHLTOfflineDQM.setup.triggerExtras.pathsDIMUON = cms.vstring(['HLT_Mu37_TkMu27_v'])
+b2gDimuonHLTOfflineDQM.setup.triggerExtras.pathsDIELEC = cms.vstring([''])
+b2gDimuonHLTOfflineDQM.preselection.trigger.select = cms.vstring(['HLT_Mu37_TkMu27'])
+
+
+
 b2gMonitorHLT = cms.Sequence(
 )
 
@@ -171,6 +190,10 @@ b2gHLTDQMSourceExtra = cms.Sequence(
     AK8PFJet400_TrimMass30_PromptMonitoring +
     AK8PFJet420_TrimMass30_PromptMonitoring +
 
-    B2GegmGsfElectronIDsForDQM*
-    B2GegHLTDQMOfflineTnPSource
+    B2GegHLTDQMOfflineTnPSource*
+    b2gDileptonHLTOfflineDQM*
+    b2gDimuonHLTOfflineDQM,
+
+    cms.Task(B2GegmGsfElectronIDsForDQM)
+
 )

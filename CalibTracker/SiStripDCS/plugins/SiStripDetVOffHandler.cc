@@ -72,13 +72,10 @@ void SiStripDetVOffHandler::analyze(const edm::Event& evt, const edm::EventSetup
   }
   condDbSession.transaction().commit();
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  evtSetup.get<TrackerTopologyRcd>().get(tTopo);
-
   // build the object!
   newPayloads.clear();
   modHVBuilder->setLastSiStripDetVOff( lastPayload.get(), lastIov );
-  modHVBuilder->BuildDetVOffObj(tTopo.product());
+  modHVBuilder->BuildDetVOffObj();
   newPayloads = modHVBuilder->getModulesVOff();
   edm::LogInfo("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::" << __func__ << "] "
       << "Finished building " << newPayloads.size() << " new payloads.";

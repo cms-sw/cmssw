@@ -17,7 +17,7 @@
 #include <iomanip>
 //#define EDM_ML_DEBUG
 
-AHCalSD::AHCalSD(G4String name, const DDCompactView & cpv,
+AHCalSD::AHCalSD(const std::string& name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager,
@@ -57,7 +57,7 @@ double AHCalSD::getEnergyDeposit(G4Step* aStep) {
   return edep;
 }
 
-uint32_t AHCalSD::setDetUnitId(G4Step * aStep) { 
+uint32_t AHCalSD::setDetUnitId(const G4Step * aStep) { 
 
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();

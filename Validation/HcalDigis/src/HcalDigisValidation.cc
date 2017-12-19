@@ -40,6 +40,8 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     dirName_ = iConfig.getUntrackedParameter<std::string > ("dirName", "HcalDigisV/HcalDigiTask");
     testNumber_= iConfig.getParameter<bool>("TestNumber");
     hep17_     = iConfig.getParameter<bool>("hep17");
+    HEPhase1_  = iConfig.getParameter<bool>("HEPhase1");
+    HBPhase1_  = iConfig.getParameter<bool>("HBPhase1");
 
     // register for data access
     if (iConfig.exists("simHits"))
@@ -257,7 +259,8 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 
         // just 1D of all cells' amplitudes
         sprintf(histo, "HcalDigiTask_sum_all_amplitudes_%s", sub);
-        book1D(ib, histo, sumAmp);
+        if ((HBPhase1_ && bsubdet=="HB") || (HEPhase1_ && bsubdet=="HE")) book1D(ib, histo, digiAmpWide);
+	else book1D(ib, histo, digiAmp);
 
         sprintf(histo, "HcalDigiTask_number_of_amplitudes_above_10fC_%s", sub);
         book1D(ib, histo, ndigis);
@@ -273,7 +276,8 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         }
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_%s", sub);
-        book1D(ib, histo, digiAmp);
+        if ((HBPhase1_ && bsubdet=="HB") || (HEPhase1_ && bsubdet=="HE")) book1D(ib, histo, digiAmpWide);
+	else book1D(ib, histo, digiAmp);
 
         if(hep17_ && bsubdet=="HE"){
            sprintf(histo, "HcalDigiTask_signal_amplitude_HEP17");
@@ -282,7 +286,8 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 	//
 	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
 	  sprintf(histo, "HcalDigiTask_signal_amplitude_depth%d_%s", depth, sub);
-	  book1D(ib, histo, digiAmp);
+	  if ((HBPhase1_ && bsubdet=="HB") || (HEPhase1_ && bsubdet=="HE")) book1D(ib, histo, digiAmpWide);
+	  else book1D(ib, histo, digiAmp);
            if(hep17_ && bsubdet=="HE"){
               sprintf(histo, "HcalDigiTask_signal_amplitude_depth%d_HEP17", depth);
 	      book1D(ib, histo, digiAmpWide);
@@ -290,7 +295,8 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         }
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_%s", sub);
-        book2D(ib, histo, nbin, digiAmp);
+        if ((HBPhase1_ && bsubdet=="HB") || (HEPhase1_ && bsubdet=="HE")) book2D(ib, histo, nbin, digiAmpWide);
+	else book2D(ib, histo, nbin, digiAmp);
         if(hep17_ && bsubdet=="HE"){
            sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_HEP17");
            book2D(ib, histo, nbin, digiAmpWide);
