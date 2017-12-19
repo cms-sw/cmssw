@@ -1451,6 +1451,11 @@ step3_trackingOnly = {
     '--datatier':'GEN-SIM-RECO,DQMIO',
     '--eventcontent':'RECOSIM,DQM',
 }
+step3_pixelTrackingOnly = {
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+}
 step3_trackingLowPU = {
     '--era': 'Run2_2016_trackingLowPU'
 }
@@ -2278,6 +2283,11 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         stepName = step + upgradeSteps['trackingOnly']['suffix']
         if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_trackingOnly, upgradeStepDict[step][k]])
         elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict[step][k]])
+
+    for step in upgradeSteps['pixelTrackingOnly']['steps']:
+        stepName = step + upgradeSteps['pixelTrackingOnly']['suffix']
+        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_pixelTrackingOnly, upgradeStepDict[step][k]])
+        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation'}, upgradeStepDict[step][k]])
 
     for step in upgradeSteps['Timing']['steps']:
         stepName = step + upgradeSteps['Timing']['suffix']

@@ -128,7 +128,13 @@ globalPrevalidationTrackingOnly = cms.Sequence(
     + vertexValidationTrackingOnly
 )
 globalValidationTrackingOnly = cms.Sequence()
-
+# Pixel tracking only validation
+globalPrevalidationPixelTrackingOnly = cms.Sequence(
+      simHitTPAssocProducer
+    + tracksValidationPixelTrackingOnly
+    + vertexValidationPixelTrackingOnly
+)
+globalValidationPixelTrackingOnly = cms.Sequence()
 
 globalValidationJetMETonly = cms.Sequence(
                                    JetValidation 
