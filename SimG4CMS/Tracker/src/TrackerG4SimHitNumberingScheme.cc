@@ -42,7 +42,8 @@ void TrackerG4SimHitNumberingScheme::buildAll(){
       DDTranslation const & t = theSD->translation(); 
       theNavigator.LocateGlobalPointAndSetup(G4ThreeVector(t.x(),t.y(),t.z()));
       G4TouchableHistory * hist = theNavigator.CreateTouchableHistory(); 
-      TrackerG4SimHitNumberingScheme::Nav_Story st = touchableToNavStory(hist);
+      TrackerG4SimHitNumberingScheme::Nav_Story st; 
+      touchToNavStory(hist, st);
 
       myMap[st] = Nav_type(theSD->navType().begin(),theSD->navType().end());
       myDirectMap[st] = theSD->geographicalID();
@@ -64,44 +65,48 @@ void TrackerG4SimHitNumberingScheme::buildAll(){
   }
 }
 
-DDFilteredView& TrackerG4SimHitNumberingScheme::getFilteredView(const G4VTouchable& t, DDFilteredView& f){
+const DDFilteredView& 
+TrackerG4SimHitNumberingScheme::getFilteredView(const G4VTouchable& t, DDFilteredView& f){
   if (alreadySet == false) { 
     buildAll(); 
   }
-  f.goTo(myMap[touchableToNavStory(&t)]);
+  TrackerG4SimHitNumberingScheme::Nav_Story st;
+  touchToNavStory(&t, st); 
+  f.goTo(myMap[st]);
   return f;
 }
 
-TrackerG4SimHitNumberingScheme::Nav_type 
+TrackerG4SimHitNumberingScheme::Nav_type&
 TrackerG4SimHitNumberingScheme::getNavType(const G4VTouchable& t){
   if (alreadySet == false) {
     buildAll(); 
   }
-  return myMap[touchableToNavStory(&t)];
+  TrackerG4SimHitNumberingScheme::Nav_Story st;
+  touchToNavStory(&t, st); 
+  return myMap[st];
 }
 
-TrackerG4SimHitNumberingScheme::Nav_Story 
-TrackerG4SimHitNumberingScheme::getNavStory(DDFilteredView& i){
+void TrackerG4SimHitNumberingScheme::getNavStory(DDFilteredView& i, 
+						 TrackerG4SimHitNumberingScheme::Nav_Story& st){
   if (alreadySet == false) { 
     buildAll(); 
   }
 
   const DDTranslation& t = i.translation();
 
-  G4Navigator* theStdNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+  G4Navigator* theStdNavigator = 
+    G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
   G4Navigator  theNavigator;
   theNavigator.SetWorldVolume(theStdNavigator->GetWorldVolume());
 
   theNavigator.LocateGlobalPointAndSetup(G4ThreeVector(t.x(),t.y(),t.z()));
   G4TouchableHistory* hist = theNavigator.CreateTouchableHistory(); 
-  TrackerG4SimHitNumberingScheme::Nav_Story temp = touchableToNavStory(hist);
+  touchToNavStory(hist, st);
   delete hist;
-  return temp;
 }
-
-TrackerG4SimHitNumberingScheme::Nav_Story 
-TrackerG4SimHitNumberingScheme::touchableToNavStory(const G4VTouchable *v) {
-  Nav_Story temp;
+ 
+void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable *v,
+						     TrackerG4SimHitNumberingScheme::Nav_Story& st) {
 #ifdef DEBUG    
   std::vector<int> debugint;
   std::vector<std::string> debugstring;
@@ -110,10 +115,9 @@ TrackerG4SimHitNumberingScheme::touchableToNavStory(const G4VTouchable *v) {
   
   for (int k=0; k<=levels; ++k){
     if (v->GetVolume(k)->GetLogicalVolume()->GetName() != "TOBInactive") {
-      temp.push_back(
-		     std::pair<int,std::string>
-		     (v->GetVolume(k)->GetCopyNo(),
-		      v->GetVolume(k)->GetLogicalVolume()->GetName()));
+      st.push_back(std::pair<int,std::string>
+		   (v->GetVolume(k)->GetCopyNo(),
+		    v->GetVolume(k)->GetLogicalVolume()->GetName()));
 #ifdef DEBUG    
       debugint.push_back(v->GetVolume(k)->GetCopyNo());
       debugstring.push_back(v->GetVolume(k)->GetLogicalVolume()->GetName());
@@ -124,30 +128,34 @@ TrackerG4SimHitNumberingScheme::touchableToNavStory(const G4VTouchable *v) {
   LogDebug("TrackerSimDebugNumbering")<<" G4 TrackerG4SimHitNumberingScheme "<< debugint;
   for(u_int32_t jj=0;jj<debugstring.size();jj++)LogDebug("TrackerSimDebugNumbering")<<" "<<debugstring[jj];
 #endif
-  return temp;
 }
 
-TrackerG4SimHitNumberingScheme::Nav_type 
+TrackerG4SimHitNumberingScheme::Nav_type&
 TrackerG4SimHitNumberingScheme::touchableToNavType(const G4VTouchable* v) {
   if (alreadySet == false) { 
     buildAll(); 
   }
+#ifdef DEBUG    
   dumpG4VPV(v);
-  return myMap[touchableToNavStory(v)];
+#endif
+  TrackerG4SimHitNumberingScheme::Nav_Story st; 
+  touchToNavStory(v, st);
+  return myMap[st];
 }
 
 unsigned int TrackerG4SimHitNumberingScheme::g4ToNumberingScheme(const G4VTouchable* v) {
   if (alreadySet == false) {
     buildAll();
   }
+  TrackerG4SimHitNumberingScheme::Nav_Story st;
+  touchToNavStory(v, st); 
 
 #ifdef DEBUG    
   dumpG4VPV(v);
+  LogDebug("TrackerSimDebugNumbering")<<" Returning: "<< myDirectMap[st];
 #endif
 
-  LogDebug("TrackerSimDebugNumbering")<<" Returning: "<< myDirectMap[touchableToNavStory(v)];
-
-  return myDirectMap[touchableToNavStory(v)];
+  return myDirectMap[st];
 }
 
 void TrackerG4SimHitNumberingScheme::dumpG4VPV(const G4VTouchable* v){

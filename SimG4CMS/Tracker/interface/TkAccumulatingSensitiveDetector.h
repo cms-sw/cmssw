@@ -52,12 +52,11 @@ private:
     bool newHit   (const G4Step *);
     bool closeHit (const G4Step *);
 
-    void checkExitPoint(const Local3DPoint&);
     void update(const BeginOfEvent *) override;
     void update(const BeginOfTrack *) override;
     void update(const BeginOfJob *) override;
 
-    Local3DPoint toOrcaRef(const Local3DPoint&);
+    Local3DPoint RotateAndScale(const Local3DPoint&);
     TrackInformation* getTrackInformation(const G4Track *);
 
     // data members initialised before run
