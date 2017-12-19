@@ -21,7 +21,7 @@ class OnlineLuminosityRecord
 public:
 
   OnlineLuminosityRecord();
-  OnlineLuminosityRecord(const onlineMetaData::Luminosity_v1&);
+  OnlineLuminosityRecord(const online::Luminosity_v1&);
   virtual ~OnlineLuminosityRecord();
 
   /// Return the time when the lumi was recorded

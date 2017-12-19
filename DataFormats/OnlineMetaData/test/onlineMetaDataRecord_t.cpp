@@ -34,7 +34,7 @@ public:
 private:
   const std::string dumpFileName = "dump_run000001_event00057185_fed1022.txt";
   std::vector<uint32_t> data;
-  onlineMetaData::Data_v1 const* onlineMetaData;
+  online::Data_v1 const* onlineMetaData;
 };
 
 ///registration of the test so that the runner can find it
@@ -69,7 +69,7 @@ void TestOnlineMetaDataRecord::setUp() {
 
     CPPUNIT_ASSERT_EQUAL( static_cast<size_t>(34),data.size() );
 
-    onlineMetaData = reinterpret_cast<onlineMetaData::Data_v1 const*>(data.data());
+    onlineMetaData = reinterpret_cast<online::Data_v1 const*>(data.data());
   }
 }
 

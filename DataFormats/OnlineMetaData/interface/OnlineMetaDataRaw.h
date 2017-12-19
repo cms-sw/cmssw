@@ -11,7 +11,7 @@
 #include <cstdint>
 
 
-namespace onlineMetaData {
+namespace online {
 
   struct Luminosity_v1
   {

@@ -21,7 +21,7 @@ class OnlineBeamSpotRecord
 public:
 
   OnlineBeamSpotRecord();
-  OnlineBeamSpotRecord(const onlineMetaData::BeamSpot_v1&);
+  OnlineBeamSpotRecord(const online::BeamSpot_v1&);
   virtual ~OnlineBeamSpotRecord();
 
   /// Return the time when the beamspot was published
