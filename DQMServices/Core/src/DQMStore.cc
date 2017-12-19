@@ -19,6 +19,7 @@
 #include <iterator>
 #include <cerrno>
 #include <boost/algorithm/string.hpp>
+#include <boost/range/iterator_range_core.hpp>
 
 #include <fstream>
 #include <sstream>
@@ -277,7 +278,7 @@ void DQMStore::IBooker::cd(const std::string &dir) {
 
 void DQMStore::IBooker::setCurrentFolder(const std::string &fullpath) {
   owner_->setCurrentFolder(fullpath);
-} 
+}
 
 void DQMStore::IBooker::goUp() {
   owner_->goUp();
@@ -285,7 +286,7 @@ void DQMStore::IBooker::goUp() {
 
 const std::string & DQMStore::IBooker::pwd() {
   return owner_->pwd();
-} 
+}
 
 void DQMStore::IBooker::tag(MonitorElement *me, unsigned int tag) {
   owner_->tag(me, tag);
@@ -312,7 +313,7 @@ MonitorElement * DQMStore::IGetter::getElement(const std::string &path) {
     if (ptr == nullptr) {
       std::stringstream msg;
       msg << "DQM object not found";
-        
+
       msg << ": " << path;
 
       // can't use cms::Exception inside DQMStore
@@ -424,6 +425,7 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
       // this makes an actual and a single copy with Clone()'ed th1
       MonitorElement actual_global_me(*i);
       actual_global_me.globalize();
+      actual_global_me.markToDelete();
       gme = data_.insert(std::move(actual_global_me));
       assert(gme.second);
     }
@@ -495,6 +497,7 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
       MonitorElement actual_global_me(*i);
       actual_global_me.globalize();
       actual_global_me.setLumi(lumi);
+      actual_global_me.markToDelete();
       gme = data_.insert(std::move(actual_global_me));
       assert(gme.second);
     }
@@ -527,18 +530,20 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     igetter_ = new DQMStore::IGetter(this);
   initializeFrom(pset);
 
-  if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
-    ar.watchPostSourceRun(this,&DQMStore::forceReset);
-  }
   ar.preallocateSignal_.connect([this](edm::service::SystemBounds const& iBounds) {
       if(iBounds.maxNumberOfStreams() > 1 ) {
 	enableMultiThread_ = true;
       }
     });
+  if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
+    ar.watchPostSourceRun(this,&DQMStore::forceReset);
+  }
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginLumi",false) && enableMultiThread_ == false) {
     forceResetOnBeginLumi_ = true;
     ar.watchPostSourceLumi(this,&DQMStore::forceReset);
   }
+  ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
+  ar.watchPostGlobalEndLumi(this,&DQMStore::deleteUnusedLumiHistogramsAfterEndLumi);
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
@@ -601,7 +606,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   LSbasedMode_ = pset.getUntrackedParameter<bool>("LSbasedMode", false);
    if (LSbasedMode_)
      std::cout << "DQMStore: LSbasedMode option is enabled\n";
-   
+
   std::string ref = pset.getUntrackedParameter<std::string>("referenceFileName", "");
   if (! ref.empty())
   {
@@ -645,7 +650,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   // a lock (see bookTransaction).
   if (!stream_)
     stream_ = new std::ofstream("histogramBookingBT.log");
-  
+
   void *array[10];
   size_t size;
   char **strings;
@@ -657,7 +662,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   strings = backtrace_symbols (array, size);
 
   size_t level = 1;
-  char * demangled = nullptr; 
+  char * demangled = nullptr;
   for (; level < size; level++) {
     if (!s_rxtrace.match(strings[level], 0, 0, &m)) continue;
     demangled = abi::__cxa_demangle(m.matchString(strings[level], 2).c_str(), nullptr, nullptr, &r);
@@ -872,11 +877,11 @@ DQMStore::book(const std::string &dir, const std::string &name,
     refdir += s_referenceDirName;
     refdir += '/';
     refdir += dir;
-    MonitorElement* referenceME = findObject(refdir, name); 
+    MonitorElement* referenceME = findObject(refdir, name);
     if (referenceME) {
       // We have booked a new MonitorElement with a specific dir and name.
       // Then, if we can find the corresponding MonitorElement in the reference
-      // dir we assign the object_ of the reference MonitorElement to the 
+      // dir we assign the object_ of the reference MonitorElement to the
       // reference_ property of our new MonitorElement.
       me->data_.flags |= DQMNet::DQM_PROP_HAS_REFERENCE;
       me->reference_ = referenceME->object_;
@@ -2142,23 +2147,55 @@ DQMStore::forceReset()
   reset_ = true;
 }
 
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-/** Delete *global* histograms which are no longer in used.
+/** Called after all globalBeginLuminosityBlock.
+ * Reset global per-lumi MEs (or all MEs if LSbasedMode) so that
+ * they can be reused.
+ */
+void
+DQMStore::postGlobalBeginLumi(const edm::GlobalContext &gc)
+{
+  static const std::string null_str("");
+
+  auto const& lumiblock = gc.luminosityBlockID();
+  uint32_t run = lumiblock.run();
+
+  // find the range of non-legacy global MEs for the current run:
+  // run != 0, lumi == 0 (implicit), stream id == 0, module id == 0
+  const MonitorElement begin(&null_str, null_str, run, 0, 0);
+  const MonitorElement end(&null_str, null_str, run, 0, 1);
+  auto i = data_.lower_bound(begin);
+  const auto e = data_.lower_bound(end);
+  while (i != e) {
+    auto& me = const_cast<MonitorElement&>(*i++);
+    // skip per-run MEs
+    if (not LSbasedMode_ and not me.getLumiFlag())
+      continue;
+    me.Reset();
+    me.resetUpdate();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/** Delete *global* histograms which are no longer in use.
  * Such histograms are created at the end of each lumi and should be
- * deleted after last globalEndLuminosityBlock.
+ * deleted after the last globalEndLuminosityBlock.
  */
 void
 DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
 {
   if (!enableMultiThread_)
     return;
-  
+
   std::lock_guard<std::mutex> guard(book_mutex_);
 
   std::string null_str("");
-  MonitorElement proto(&null_str, null_str, run, 0, 0);  
+  MonitorElement proto(&null_str, null_str, run, 0, 0);
   proto.setLumi(lumi);
 
   auto e = data_.end();
@@ -2172,18 +2209,26 @@ DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
       break;
     if (i->data_.run != run)
       break;
-    
-    auto temp = i;
-    ++i;
+    if (not i->markedToDelete()) {
+      ++i;
+      continue;
+    }
 
     if (verbose_ > 1) {
       std::cout << "DQMStore::deleteUnusedLumiHistograms: deleted monitor element '"
                 << *i->data_.dirname << "/" << i->data_.objname << "'"
                 << "flags " << i->data_.flags << "\n";
-    } 
+    }
 
-    data_.erase(temp);
+    i = data_.erase(i);
   }
+}
+
+void
+DQMStore::deleteUnusedLumiHistogramsAfterEndLumi(const edm::GlobalContext &gc)
+{
+  auto const& lumiblock = gc.luminosityBlockID();
+  deleteUnusedLumiHistograms(lumiblock.run(), lumiblock.luminosityBlock());
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2535,134 +2580,131 @@ DQMStore::cdInto(const std::string &path) const
   return true;
 }
 
-void DQMStore::savePB(const std::string &filename,
-                      const std::string &path /* = "" */,
-		      const uint32_t run /* = 0 */,
-		      const uint32_t lumi /* = 0 */,
-		      const bool resetMEsAfterWriting /* = false */)
+void
+DQMStore::saveMonitorElementToROOT(
+    MonitorElement const& me,
+    TFile & file)
 {
-  using google::protobuf::io::FileOutputStream;
-  using google::protobuf::io::GzipOutputStream;
-  using google::protobuf::io::StringOutputStream;
+  // Save the object.
+  if (me.kind() < MonitorElement::DQM_KIND_TH1F) {
+    TObjString(me.tagString().c_str()).Write();
+  } else {
+    me.object_->Write();
+  }
 
-  std::lock_guard<std::mutex> guard(book_mutex_);
-
-  std::set<std::string>::iterator di, de;
-  MEMap::iterator mi, me = data_.end();
-  dqmstorepb::ROOTFilePB dqmstore_message;
-  int nme = 0;
-
-  if (verbose_)
-    std::cout << "\n DQMStore: Opening PBFile '"
-              << filename << "'"<< std::endl;
-
-  // Loop over the directory structure.
-  for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
+  // Save quality reports if this is not in reference section.
+  if (not isSubdirectory(s_referenceDirName, *me.data_.dirname))
   {
-    // Check if we should process this directory.  We process the
-    // requested part of the object tree, including references.
-    if (! path.empty()
-	&& ! isSubdirectory(path, *di))
-      continue;
-
-    // Loop over monitor elements in this directory.
-    MonitorElement proto(&*di, std::string(), run, 0, 0);
-    if (enableMultiThread_)
-      proto.setLumi(lumi);
-
-    mi = data_.lower_bound(proto);
-    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname); ++mi)
-    {
-      if (verbose_ > 1)
-        std::cout << "Run: " << (*mi).run()
-                  << " Lumi: " << (*mi).lumi()
-                  << " LumiFlag: " << (*mi).getLumiFlag()
-                  << " streamId: " << (*mi).streamId()
-                  << " moduleId: " << (*mi).moduleId()
-                  << " fullpathname: " << (*mi).getFullname() << std::endl;
-
-      // Upper bound in the loop over the MEs
-      if (enableMultiThread_ && ((*mi).lumi() != lumi))
-	break;
-
-      // Skip if it isn't a direct child.
-      if (*di != *mi->data_.dirname)
-        continue;
-
-      // Keep backward compatibility with the old way of
-      // booking/handlind MonitorElements into the DQMStore. If run is
-      // 0 it means that a booking happened w/ the old non-threadsafe
-      // style, and we have to ignore the streamId and moduleId as a
-      // consequence.
-
-      if (run != 0 && (mi->data_.streamId !=0 || mi->data_.moduleId !=0))
-        continue;
-
-      if (verbose_ > 1)
-        std::cout << "DQMStore::savePB: saving monitor element '"
-        << *mi->data_.dirname << "/" << mi->data_.objname << "'"
-        << "flags " << mi->data_.flags << "\n";
-
-      nme++;
-      dqmstorepb::ROOTFilePB::Histo* me = dqmstore_message.add_histo();
-      me->set_full_pathname((*mi->data_.dirname) + '/' + mi->data_.objname);
-      me->set_flags(mi->data_.flags);
-
-      TObject *toWrite = nullptr;
-      bool deleteObject = false;
-
-      if (mi->kind() < MonitorElement::DQM_KIND_TH1F) {
-        toWrite = new TObjString(mi->tagString().c_str());
-        deleteObject = true;
-      } else {
-        toWrite = mi->object_;
-      }
-
-      TBufferFile buffer(TBufferFile::kWrite);
-      buffer.WriteObject(toWrite);
-      me->set_size(buffer.Length());
-      me->set_streamed_histo((const void*)buffer.Buffer(),
-                             buffer.Length());
-
-      if (deleteObject) {
-        delete toWrite;
-      }
-
-      //reset the ME just written to make it available for the next LS (online)
-      if (resetMEsAfterWriting)
-	const_cast<MonitorElement*>(&*mi)->Reset();
+    for (auto const& report: me.data_.qreports) {
+      TObjString(me.qualityTagString(report).c_str()).Write();
     }
   }
 
-  int filedescriptor = ::open(filename.c_str(),
-                              O_WRONLY | O_CREAT | O_TRUNC,
-                              S_IRUSR | S_IWUSR |
-                              S_IRGRP | S_IWGRP |
-                              S_IROTH);
-  FileOutputStream file_stream(filedescriptor);
-  GzipOutputStream::Options options;
-  options.format = GzipOutputStream::GZIP;
-  options.compression_level = 1;
-  GzipOutputStream gzip_stream(&file_stream,
-                               options);
-  dqmstore_message.SerializeToZeroCopyStream(&gzip_stream);
+  // Save efficiency tag, if any.
+  if (me.data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT) {
+    TObjString(me.effLabelString().c_str()).Write();
+  }
 
-  // we need to flush it before we close the fd
-  gzip_stream.Close();
-  file_stream.Close();
-  ::close(filedescriptor);
-
-  // Maybe make some noise.
-  if (verbose_)
-    std::cout << "DQMStore::savePB: successfully wrote " << nme
-              << " objects from path '" << path
-	      << "' into DQM file '" << filename << "'\n";
+  // Save tag if any.
+  if (me.data_.flags & DQMNet::DQM_PROP_TAGGED) {
+    TObjString(me.tagLabelString().c_str()).Write();
+  }
 }
 
+void
+DQMStore::saveMonitorElementRangeToROOT(
+    std::string const& dir,
+    std::string const& refpath,
+    SaveReferenceTag ref,
+    int minStatus,
+    unsigned int run,
+    MEMap::const_iterator begin,
+    MEMap::const_iterator end,
+    TFile & file,
+    unsigned int & counter)
+{
+  for (auto const& me: boost::make_iterator_range(begin, end))
+  {
+    if (not isSubdirectory(dir, *me.data_.dirname))
+      break;
 
-/// save directory with monitoring objects into root file <filename>;
-/// include quality test results with status >= minimum_status
-/// (defined in Core/interface/QTestStatus.h);
+    if (verbose_ > 1)
+      std::cout << "DQMStore::save:"
+                << " run: " << me.run()
+                << " lumi: " << me.lumi()
+                << " lumiFlag: " << me.getLumiFlag()
+                << " streamId: " << me.streamId()
+                << " moduleId: " << me.moduleId()
+                << " fullpathname: " << me.getFullname()
+                << " flags: " << std::hex << me.data_.flags
+                << std::endl;
+
+    // Skip MonitorElements in a subdirectory of the current one.
+    if (dir != *me.data_.dirname) {
+      if (verbose_ > 1) {
+        std::cout << "DQMStore::save: skipping monitor element in a subfolder of " << dir << "/" << std::endl;
+      }
+      continue;
+    }
+
+    // For MonitorElements booked with the thread-safe approach, identified
+    // by having run != 0, ignore the per-stream ones.
+    if (run != 0 and (me.data_.streamId != 0 or me.data_.moduleId != 0)) {
+      if (verbose_ > 1) {
+        std::cout << "DQMStore::save: skipping per-stream monitor element" << std::endl;
+      }
+      continue;
+    }
+
+    // Handle reference histograms, with three distinct cases:
+    // 1) Skip all references entirely on saving.
+    // 2) Blanket saving of all references.
+    // 3) Save only references for monitor elements with qtests.
+    // The latter two are affected by "path" sub-tree selection,
+    // i.e. references are saved only in the selected tree part.
+    if (isSubdirectory(refpath, *me.data_.dirname))
+    {
+      if (ref == SaveWithoutReference)
+        // Skip the reference entirely.
+        continue;
+      else if (ref == SaveWithReference)
+        // Save all references regardless of qtests.
+        ;
+      else if (ref == SaveWithReferenceForQTest)
+      {
+        // Save only references for monitor elements with qtests
+        // with an optional cut on minimum quality test result.
+        int status = -1;
+        std::string mname(me.getFullname(), s_referenceDirName.size()+1, std::string::npos);
+        MonitorElement *master = get(mname);
+        if (master)
+          for (size_t i = 0, e = master->data_.qreports.size(); i != e; ++i)
+            status = std::max(status, master->data_.qreports[i].code);
+
+        if (not master or status < minStatus)
+        {
+          if (verbose_ > 1)
+            std::cout << "DQMStore::save: skipping monitor element '"
+                      << me.data_.objname << "' while saving, status is "
+                      << status << ", required minimum status is "
+                      << minStatus << std::endl;
+          continue;
+        }
+      }
+    }
+
+    if (verbose_ > 1) {
+      std::cout << "DQMStore::save: saving monitor element" << std::endl;
+    }
+
+    saveMonitorElementToROOT(me, file);
+
+    // Count saved histograms
+    ++counter;
+  }
+}
+
+/// save directory with monitoring objects into protobuf file <filename>;
 /// if directory="", save full monitoring structure
 void
 DQMStore::save(const std::string &filename,
@@ -2673,16 +2715,8 @@ DQMStore::save(const std::string &filename,
                const uint32_t lumi /* = 0 */,
                SaveReferenceTag ref /* = SaveWithReference */,
                int minStatus /* = dqm::qstatus::STATUS_OK */,
-               const std::string &fileupdate /* = RECREATE */,
-	       const bool resetMEsAfterWriting /* = false */)
+               const std::string &fileupdate /* = RECREATE */)
 {
-  std::lock_guard<std::mutex> guard(book_mutex_);
-
-  std::set<std::string>::iterator di, de;
-  MEMap::iterator mi, me = data_.end();
-  DQMNet::QReports::const_iterator qi, qe;
-  int nme=0;
-
   // TFile flushes to disk with fsync() on every TDirectory written to
   // the file.  This makes DQM file saving painfully slow, and
   // ironically makes it _more_ likely the file saving gets
@@ -2695,10 +2729,16 @@ DQMStore::save(const std::string &filename,
     Int_t SysSync(Int_t) override { return 0; }
   };
 
+  std::lock_guard<std::mutex> guard(book_mutex_);
+
+  unsigned int nme = 0;
+
   // open output file, on 1st save recreate, later update
-  if (verbose_)
-    std::cout << "\n DQMStore: Opening TFile '" << filename
-              << "' with option '" << fileupdate <<"'\n";
+  if (verbose_) {
+    std::cout << "DQMStore::save: Opening TFile '" << filename
+              << "' with option '" << fileupdate << "'"
+              << std::endl;
+  }
 
   TFileNoSync f(filename.c_str(), fileupdate.c_str()); // open file
   if(f.IsZombie())
@@ -2707,162 +2747,251 @@ DQMStore::save(const std::string &filename,
 
   // Construct a regular expression from the pattern string.
   std::unique_ptr<lat::Regexp> rxpat;
-  if (! pattern.empty())
+  if (not pattern.empty())
     rxpat = std::make_unique<lat::Regexp>(pattern);
 
   // Prepare a path for the reference object selection.
   std::string refpath;
   refpath.reserve(s_referenceDirName.size() + path.size() + 2);
   refpath += s_referenceDirName;
-  if (! path.empty())
+  if (not path.empty())
   {
     refpath += '/';
     refpath += path;
   }
 
   // Loop over the directory structure.
-  for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
+  for (auto const& dir: dirs_)
   {
     // Check if we should process this directory.  We process the
     // requested part of the object tree, including references.
-    if (! path.empty()
-        && ! isSubdirectory(path, *di)
-        && ! isSubdirectory(refpath, *di))
+    if (not path.empty()
+        and not isSubdirectory(refpath, dir)
+        and not isSubdirectory(path, dir))
       continue;
 
+    if (verbose_ > 1) {
+      std::cout << "DQMStore::save: DQM folder " << dir << "/" << std::endl;
+    }
+
+    // Create the directory.
+    gDirectory->cd("/");
+    if (dir.empty())
+      cdInto(s_monitorDirName);
+    else if (rxpat.get())
+      cdInto(s_monitorDirName + '/' + lat::StringOps::replace(dir, *rxpat, rewrite));
+    else
+      cdInto(s_monitorDirName + '/' + dir);
+
     // Loop over monitor elements in this directory.
-    MonitorElement proto(&*di, std::string(), run, 0, 0);
-    if (enableMultiThread_)
+    if (not enableMultiThread_) {
+      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      auto begin = data_.lower_bound(proto);
+      auto end   = data_.end();
+      saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
+    } else {
+      // Restrict the loop to the monitor elements for the current lumisection
+      MonitorElement proto(&dir, std::string(), run, 0, 0);
       proto.setLumi(lumi);
+      auto begin = data_.lower_bound(proto);
+      proto.setLumi(lumi+1);
+      auto end   = data_.lower_bound(proto);
+      saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
+    }
 
-    mi = data_.lower_bound(proto);
-    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname); ++mi)
-    {
-      if (verbose_ > 1)
-        std::cout << "DQMStore::save: Run: " << (*mi).run()
-                  << " Lumi: " << (*mi).lumi()
-                  << " LumiFlag: " << (*mi).getLumiFlag()
-                  << " streamId: " << (*mi).streamId()
-                  << " moduleId: " << (*mi).moduleId()
-                  << " fullpathname: " << (*mi).getFullname() << std::endl;
-
-      // Upper bound in the loop over the MEs
-      if (enableMultiThread_ && ((*mi).lumi() != lumi))
-        break;
-
-      // Skip if it isn't a direct child.
-      if (*di != *mi->data_.dirname) {
-	if (verbose_ > 1)
-	  std::cout << "DQMStore::save: isn't a direct child. Skipping" << std::endl;
-        continue;
-      }
-      
-      // Keep backward compatibility with the old way of
-      // booking/handlind MonitorElements into the DQMStore. If run is
-      // 0 it means that a booking happened w/ the old non-threadsafe
-      // style, and we have to ignore the streamId and moduleId as a
-      // consequence.
-
-      if (run != 0 && (mi->data_.streamId !=0 || mi->data_.moduleId !=0)) {
-        continue;
-      }
-
-      // Handle reference histograms, with three distinct cases:
-      // 1) Skip all references entirely on saving.
-      // 2) Blanket saving of all references.
-      // 3) Save only references for monitor elements with qtests.
-      // The latter two are affected by "path" sub-tree selection,
-      // i.e. references are saved only in the selected tree part.
-      if (isSubdirectory(refpath, *mi->data_.dirname))
-      {
-        if (ref == SaveWithoutReference)
-          // Skip the reference entirely.
-          continue;
-        else if (ref == SaveWithReference)
-          // Save all references regardless of qtests.
-          ;
-        else if (ref == SaveWithReferenceForQTest)
-        {
-          // Save only references for monitor elements with qtests
-          // with an optional cut on minimum quality test result.
-          int status = -1;
-          std::string mname(mi->getFullname(), s_referenceDirName.size()+1, std::string::npos);
-          MonitorElement *master = get(mname);
-          if (master)
-            for (size_t i = 0, e = master->data_.qreports.size(); i != e; ++i)
-              status = std::max(status, master->data_.qreports[i].code);
-
-          if (! master || status < minStatus)
-          {
-            if (verbose_ > 1)
-              std::cout << "DQMStore::save: skipping monitor element '"
-                        << mi->data_.objname << "' while saving, status is "
-                        << status << ", required minimum status is "
-                        << minStatus << std::endl;
-            continue;
-          }
-        }
-      }
-
-      if (verbose_ > 1)
-        std::cout << "DQMStore::save: saving monitor element '"
-                  << mi->data_.objname << "'\n";
-      nme++; // count saved histograms
-
-      // Create the directory.
-      gDirectory->cd("/");
-      if (di->empty())
-        cdInto(s_monitorDirName);
-      else if (rxpat.get())
-        cdInto(s_monitorDirName + '/' + lat::StringOps::replace(*di, *rxpat, rewrite));
-      else
-        cdInto(s_monitorDirName + '/' + *di);
-
-      // Save the object.
-      switch (mi->kind())
-      {
-      case MonitorElement::DQM_KIND_INT:
-      case MonitorElement::DQM_KIND_REAL:
-      case MonitorElement::DQM_KIND_STRING:
-        TObjString(mi->tagString().c_str()).Write();
-        break;
-
-      default:
-        mi->object_->Write();
-        break;
-      }
-
-      // Save quality reports if this is not in reference section.
-      if (! isSubdirectory(s_referenceDirName, *mi->data_.dirname))
-      {
-        qi = mi->data_.qreports.begin();
-        qe = mi->data_.qreports.end();
-        for ( ; qi != qe; ++qi)
-          TObjString(mi->qualityTagString(*qi).c_str()).Write();
-      }
-
-      // Save efficiency tag, if any
-      if (mi->data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT)
-        TObjString(mi->effLabelString().c_str()).Write();
-
-      // Save tag if any
-      if (mi->data_.flags & DQMNet::DQM_PROP_TAGGED)
-        TObjString(mi->tagLabelString().c_str()).Write();
-
-      //reset the ME just written to make it available for the next LS (online)
-      if (resetMEsAfterWriting)
-	const_cast<MonitorElement*>(&*mi)->Reset();
+    // In LSbasedMode, loop also over the (run, 0, 0, 0) global histograms;
+    // these could be the merged global histrograms of their per-stream
+    // counterparts after the streamEndRun transition - but they are not
+    // produced in LSbasedMode.
+    if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
+      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 0));
+      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 1));
+      saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     }
   }
 
   f.Close();
 
   // Maybe make some noise.
-  if (verbose_)
+  if (verbose_) {
     std::cout << "DQMStore::save: successfully wrote " << nme
-              << " objects from path '" << path
+              << " objects from path '" << path << "/"
               << "' into DQM file '" << filename << "'\n";
+  }
 }
+
+void
+DQMStore::saveMonitorElementToPB(
+    MonitorElement const& me,
+    dqmstorepb::ROOTFilePB & file)
+{
+  // Save the object.
+  TBufferFile buffer(TBufferFile::kWrite);
+  if (me.kind() < MonitorElement::DQM_KIND_TH1F) {
+    TObjString object(me.tagString().c_str());
+    buffer.WriteObject(&object);
+  } else {
+    buffer.WriteObject(me.object_);
+  }
+  dqmstorepb::ROOTFilePB::Histo & histo = * file.add_histo();
+  histo.set_full_pathname(*me.data_.dirname + '/' + me.data_.objname);
+  histo.set_flags(me.data_.flags);
+  histo.set_size(buffer.Length());
+  histo.set_streamed_histo((const void*)buffer.Buffer(), buffer.Length());
+
+  // Save quality reports if this is not in reference section.
+  // XXX not supported by protobuf files.
+
+  // Save efficiency tag, if any.
+  // XXX not supported by protobuf files.
+
+  // Save tag if any.
+  // XXX not supported by protobuf files.
+}
+
+void
+DQMStore::saveMonitorElementRangeToPB(
+    std::string const& dir,
+    unsigned int run,
+    MEMap::const_iterator begin,
+    MEMap::const_iterator end,
+    dqmstorepb::ROOTFilePB & file,
+    unsigned int & counter)
+{
+  for (auto const& me: boost::make_iterator_range(begin, end))
+  {
+    if (not isSubdirectory(dir, *me.data_.dirname))
+      break;
+
+    if (verbose_ > 1)
+      std::cout << "DQMStore::savePB:"
+                << " run: " << me.run()
+                << " lumi: " << me.lumi()
+                << " lumiFlag: " << me.getLumiFlag()
+                << " streamId: " << me.streamId()
+                << " moduleId: " << me.moduleId()
+                << " fullpathname: " << me.getFullname()
+                << " flags: " << std::hex << me.data_.flags
+                << std::endl;
+
+    // Skip MonitorElements in a subdirectory of the current one.
+    if (dir != *me.data_.dirname) {
+      if (verbose_ > 1) {
+        std::cout << "DQMStore::savePB: skipping monitor element in a subfolder of " << dir << "/" << std::endl;
+      }
+      continue;
+    }
+
+    // For MonitorElements booked with the thread-safe approach, identified
+    // by having run != 0, ignore the per-stream ones.
+    if (run != 0 and (me.data_.streamId != 0 or me.data_.moduleId != 0)) {
+      if (verbose_ > 1) {
+        std::cout << "DQMStore::savePB: skipping per-stream monitor element" << std::endl;
+      }
+      continue;
+    }
+
+    // Handle reference histograms, with three distinct cases:
+    // XXX not supported by protobuf files.
+
+    if (verbose_ > 1) {
+      std::cout << "DQMStore::savePB: saving monitor element" << std::endl;
+    }
+
+    saveMonitorElementToPB(me, file);
+
+    // Count saved histograms
+    ++counter;
+  }
+}
+
+/// save directory with monitoring objects into protobuf file <filename>;
+/// if directory="", save full monitoring structure
+void
+DQMStore::savePB(const std::string &filename,
+                 const std::string &path /* = "" */,
+                 const uint32_t run /* = 0 */,
+                 const uint32_t lumi /* = 0 */)
+{
+  using google::protobuf::io::FileOutputStream;
+  using google::protobuf::io::GzipOutputStream;
+  using google::protobuf::io::StringOutputStream;
+
+  std::lock_guard<std::mutex> guard(book_mutex_);
+
+  unsigned int nme = 0;
+
+  if (verbose_) {
+    std::cout << "DQMStore::savePB: Opening PBFile '" << filename << "'"
+              << std::endl;
+  }
+  dqmstorepb::ROOTFilePB dqmstore_message;
+
+  // Loop over the directory structure.
+  for (auto const& dir: dirs_)
+  {
+    // Check if we should process this directory.  We process the
+    // requested part of the object tree, including references.
+    if (not path.empty()
+        and not isSubdirectory(path, dir))
+      continue;
+
+    if (verbose_ > 1) {
+      std::cout << "DQMStore::savePB: DQM folder " << dir << "/" << std::endl;
+    }
+
+    // Loop over monitor elements in this directory.
+    if (not enableMultiThread_) {
+      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      auto begin = data_.lower_bound(proto);
+      auto end   = data_.end();
+      saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
+    } else {
+      // Restrict the loop to the monitor elements for the current lumisection
+      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      proto.setLumi(lumi);
+      auto begin = data_.lower_bound(proto);
+      proto.setLumi(lumi+1);
+      auto end   = data_.lower_bound(proto);
+      saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
+    }
+
+    // In LSbasedMode, loop also over the (run, 0, 0, 0) global histograms;
+    // these could be the merged global histrograms of their per-stream
+    // counterparts after the streamEndRun transition - but they are not
+    // produced in LSbasedMode.
+    if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
+      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 0));
+      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 1));
+      saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
+    }
+  }
+
+  int filedescriptor = ::open(filename.c_str(),
+                              O_WRONLY | O_CREAT | O_TRUNC,
+                              S_IRUSR | S_IWUSR |
+                              S_IRGRP | S_IWGRP |
+                              S_IROTH);
+  FileOutputStream file_stream(filedescriptor);
+  GzipOutputStream::Options options;
+  options.format = GzipOutputStream::GZIP;
+  options.compression_level = 1;
+  GzipOutputStream gzip_stream(&file_stream, options);
+  dqmstore_message.SerializeToZeroCopyStream(&gzip_stream);
+
+  // Flush the internal streams before closing the fd.
+  gzip_stream.Close();
+  file_stream.Close();
+  ::close(filedescriptor);
+
+  // Maybe make some noise.
+  if (verbose_) {
+    std::cout << "DQMStore::savePB: successfully wrote " << nme
+              << " objects from path '" << path << "/"
+              << "' into DQM file '" << filename << "'\n";
+  }
+}
+
 
 /// read ROOT objects from file <file> in directory <onlypath>;
 /// return total # of ROOT objects read
