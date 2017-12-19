@@ -1,6 +1,6 @@
 autoDQM = { 'common' : ['DQMOfflineCommon+@L1TMon',
                         'PostDQMOffline',
-                        'DQMHarvestCommon+DQMCertCommon+L1TMon'],
+                        'DQMHarvestCommon+DQMCertCommon+@L1TMon'],
             'commonSiStripZeroBias' : ['DQMOfflineCommonSiStripZeroBias',
                                        'PostDQMOffline',
                                        'DQMHarvestCommonSiStripZeroBias+DQMCertCommon'],
