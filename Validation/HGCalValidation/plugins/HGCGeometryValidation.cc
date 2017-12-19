@@ -86,8 +86,6 @@ HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg) : hco
 HGCGeometryValidation::~HGCGeometryValidation() { }
 
 void HGCGeometryValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
@@ -333,9 +331,6 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent,
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HGCGeometryValidation);
-
-
-
 
 
 
