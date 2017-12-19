@@ -14,7 +14,7 @@
 
 #include <Math/Functor.h>
 
-struct nnlsWorkspace {
+struct MahiNnlsWorkspace {
 
   unsigned int nPulseTot;
   unsigned int tsSize;
@@ -127,7 +127,7 @@ class MahiFit
 
   double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const;
   
-  mutable nnlsWorkspace nnlsWork_;
+  mutable MahiNnlsWorkspace nnlsWork_;
 
   //hard coded in initializer
   const unsigned int fullTSSize_;
