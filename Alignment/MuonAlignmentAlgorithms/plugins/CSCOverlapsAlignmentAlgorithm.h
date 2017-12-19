@@ -139,7 +139,7 @@ private:
   bool m_doAlignment;
 
   AlignmentParameterStore* m_alignmentParameterStore;
-  std::vector<Alignable*> m_alignables;
+  align::Alignables m_alignables;
   AlignableNavigator *m_alignableNavigator;
   std::vector<CSCChamberFitter> m_fitters;
   std::vector<CSCPairResidualsConstraint*> m_residualsConstraints;
