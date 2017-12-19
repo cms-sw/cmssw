@@ -184,3 +184,6 @@ void AlignableBeamSpot::reset()
   theAlignmentPositionError = nullptr;
   theInitializedFlag = false;
 }
+
+//______________________________________________________________________________
+const align::Alignables AlignableBeamSpot::emptyComponents_{};

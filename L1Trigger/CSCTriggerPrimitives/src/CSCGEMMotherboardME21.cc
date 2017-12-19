@@ -36,7 +36,7 @@ void CSCGEMMotherboardME21::clear()
   CSCMotherboard::clear();
   CSCGEMMotherboard::clear();
 
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
       for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++) {
 	allLCTs(bx,mbx,i).clear();
@@ -96,7 +96,7 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   const bool hasCoPads(!coPads_.empty());
 
   // ALCT centric matching
-  for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
+  for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++)
   {
     if (alct->bestALCT[bx_alct].isValid())
     {
@@ -125,7 +125,7 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
       int nSuccessFulMatches = 0;
       for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
       {
-        if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+        if (bx_clct < 0 or bx_clct >= CSCConstants::MAX_CLCT_TBINS) continue;
         if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
         if (clct->bestCLCT[bx_clct].isValid())
         {
@@ -258,7 +258,7 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
         int nSuccessFulMatches = 0;
         for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
           {
-            if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+            if (bx_clct < 0 or bx_clct >= CSCConstants::MAX_CLCT_TBINS) continue;
             if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
             if (clct->bestCLCT[bx_clct].isValid())
               {
@@ -292,7 +292,7 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
     }
   }
   // reduction of nLCTs per each BX
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++)
     {
       // counting
       unsigned int n=0;
