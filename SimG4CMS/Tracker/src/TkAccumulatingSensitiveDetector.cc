@@ -130,11 +130,6 @@ uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(const G4Step * step)
   return theNumberingScheme.get()->g4ToNumberingScheme(step->GetPreStepPoint()->GetTouchable());
 }
 
-Local3DPoint TkAccumulatingSensitiveDetector::toOrcaRef(const Local3DPoint& in)
-{
-  return theRotation->transformPoint(in);
-}
-
 void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
   const G4Track* gTrack = (*bot)();
 
@@ -218,7 +213,7 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step * aStep)
     //     this is not needed, because call to senstive detector happens 
     //     only inside the volume
     const G4Track * theTrack  = aStep->GetTrack(); 
-    Local3DPoint theExitPoint = toOrcaRef(LocalPostStepPosition(aStep)); 
+    Local3DPoint theExitPoint = theRotation.get()->transformPoint(LocalPostStepPosition(aStep)); 
     Local3DPoint theEntryPoint;
     //
     //  Check particle type - for gamma and neutral hadrons energy deposition
@@ -227,7 +222,7 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step * aStep)
     if(0.0 == theTrack->GetDefinition()->GetPDGCharge()) {
       theEntryPoint = theExitPoint; 
     } else {
-      theEntryPoint = toOrcaRef(LocalPreStepPosition(aStep));
+      theEntryPoint = theRotation.get()->transformPoint(LocalPreStepPosition(aStep));
     }
 
     //
@@ -287,7 +282,7 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step * aStep)
     // convert it to local frame
     G4ThreeVector lmd = ((G4TouchableHistory *)(preStepPoint->GetTouchable()))->GetHistory()
       ->GetTopTransform().TransformAxis(gmd);
-    Local3DPoint lnmd = toOrcaRef(ConvertToLocal3DPoint(lmd));
+    Local3DPoint lnmd = theRotation.get()->transformPoint(ConvertToLocal3DPoint(lmd));
     float theThetaAtEntry = lnmd.theta();
     float thePhiAtEntry = lnmd.phi();
     
@@ -323,7 +318,7 @@ void TkAccumulatingSensitiveDetector::updateHit(const G4Step * aStep)
     // VI: in past here was a check if a hit is inside a sensitive detector,
     //     this is not needed, because call to senstive detector happens 
     //     only inside the volume
-    Local3DPoint theExitPoint = toOrcaRef(LocalPostStepPosition(aStep)); 
+  Local3DPoint theExitPoint = theRotation.get()->transformPoint(LocalPostStepPosition(aStep)); 
     float theEnergyLoss = aStep->GetTotalEnergyDeposit()/GeV;
     mySimHit->setExitPoint(theExitPoint);
     mySimHit->addEnergyLoss(theEnergyLoss);
@@ -360,7 +355,7 @@ bool TkAccumulatingSensitiveDetector::newHit(const G4Step * aStep)
 bool TkAccumulatingSensitiveDetector::closeHit(const G4Step * aStep)
 {
     const float tolerance2 = 0.0025f; // (0.5 mm)^2 are allowed between entry and exit 
-    Local3DPoint theEntryPoint = toOrcaRef(LocalPreStepPosition(aStep));  
+    Local3DPoint theEntryPoint = theRotation.get()->transformPoint(LocalPreStepPosition(aStep));  
     LogDebug("TrackerSimDebug")<< " closeHit: distance = " 
 			       << (mySimHit->exitPoint()-theEntryPoint).mag();
 			       
