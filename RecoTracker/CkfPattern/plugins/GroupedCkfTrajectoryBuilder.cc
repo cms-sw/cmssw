@@ -1,6 +1,8 @@
+#include <algorithm>
+#include <array>
+
 #include "GroupedCkfTrajectoryBuilder.h"
 #include "TrajectorySegmentBuilder.h"
-
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
@@ -27,16 +29,15 @@
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-
 
 // only included for RecHit comparison operator:
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 
 #include "TrackingTools/TrajectoryCleaning/interface/FastTrajectoryCleaner.h"
-
 
 // for looper reconstruction
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
@@ -44,9 +45,6 @@
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
-
-#include <algorithm>
-#include <array>
 
 // #define STAT_TSB
 
@@ -85,7 +83,7 @@ namespace {
     void rebuilt(long long) {}
     void invalid() {}
   };
-  [[cms::thread_safe]] StatCount statCount;
+  CMS_THREAD_SAFE StatCount statCount;
 #endif
 
 

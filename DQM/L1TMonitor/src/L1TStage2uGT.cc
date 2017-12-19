@@ -77,6 +77,18 @@ void L1TStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, e
    algoBits_before_prescale_bx_global_->setAxisTitle("Global Bunch Crossing Number", 1); 
    algoBits_before_prescale_bx_global_->setAxisTitle("Algorithm Trigger Bits (before prescale)", 2);
    
+   first_collision_run_ = ibooker.book2D("first_bunch_in_train", "uGT: Algorithm Trigger Bits (fisrt bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   first_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
+   first_collision_run_->setAxisTitle("Algorithm Trigger Bits (fisrt bunch in train)", 2);
+   
+   last_collision_run_ = ibooker.book2D("last_bunch_in_train", "uGT: Algorithm Trigger Bits (last bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   last_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
+   last_collision_run_->setAxisTitle("Algorithm Trigger Bits (last bunch in train)", 2);
+
+   isolated_collision_run_ = ibooker.book2D("isolated_bunch", "uGT: Algorithm Trigger Bits (Isolated bunch) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   isolated_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
+   isolated_collision_run_->setAxisTitle("Algorithm Trigger Bits (Isolated bunch)", 2);
+
    algoBits_after_prescale_bx_global_ = ibooker.book2D("algoBits_after_prescale_bx_global", "uGT: Algorithm Trigger Bits (after prescale) vs. Global BX Number", numBx, 0.5, numBx_d + 0.5, numAlgs, -0.5, numAlgs_d-0.5);
    algoBits_after_prescale_bx_global_->setAxisTitle("Global Bunch Crossing Number", 1); 
    algoBits_after_prescale_bx_global_->setAxisTitle("Algorithm Trigger Bits (after prescale)", 2);
@@ -136,7 +148,8 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
    
    // Get uGT algo bit statistics
    else {
-      //algoBits_->Fill(-1.); // fill underflow to normalize // FIXME: needed? 
+
+     //algoBits_->Fill(-1.); // fill underflow to normalize // FIXME: needed? 
       for (int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
          for (auto itr = uGtAlgs->begin(ibx); itr != uGtAlgs->end(ibx); ++itr) { // FIXME: redundant loop?
             
@@ -152,7 +165,7 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
                   algoBits_before_bxmask_lumi_->Fill(lumi, algoBit);
                   algoBits_before_bxmask_bx_inEvt_->Fill(ibx, algoBit); // FIXME: or itr->getbxInEventNr()/getbxNr()?
                   algoBits_before_bxmask_bx_global_->Fill(bx + ibx, algoBit);
-                  
+ 
                   for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
                      if(itr->getAlgoDecisionInitial(algoBit2)) {
                         algoBits_before_bxmask_corr_->Fill(algoBit, algoBit2);
@@ -166,7 +179,7 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
                   algoBits_before_prescale_lumi_->Fill(lumi, algoBit);
                   algoBits_before_prescale_bx_inEvt_->Fill(ibx, algoBit);
                   algoBits_before_prescale_bx_global_->Fill(bx + ibx, algoBit);
-                  
+
                   for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
                      if(itr->getAlgoDecisionInterm(algoBit2)) {
                         algoBits_before_prescale_corr_->Fill(algoBit, algoBit2);
@@ -190,9 +203,56 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
             }
          }
       }
-   }
-}
 
+  for(auto itr = uGtAlgs->begin(0); itr != uGtAlgs->end(0); ++itr) { 
+//  This loop is only called once since the size of uGTAlgs seems to be always 1
+     if(itr->getAlgoDecisionInitial(488)) {
+//  Algo bit for the first bunch in train trigger (should be made configurable or, better, taken from conditions if possible)
+//  The first BX in train trigger has fired. Now check all other triggers around this.
+        for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
+           for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
+//  This loop is probably only called once since the size of uGtAlgs seems to be always 1
+              auto algoBits = itr2->getAlgoDecisionInitial(); 
+//  get a vector with all algo bits for this BX
+              for(size_t algo = 0; algo < algoBits.size(); ++algo) { 
+//  check all algos
+                 if(algoBits.at(algo)) {
+//  fill if the algo fired 
+                    first_collision_run_->Fill(ibx, algo);
+                 } //end of fired algo
+              } // end of all algo trigger bits
+           } // end of uGtAlgs
+        } // end of BX
+     } // selecting FirstCollisionInTrain
+     if(itr->getAlgoDecisionInitial(488) && itr->getAlgoDecisionInitial(487)) {
+        for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
+           for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
+              auto algoBits = itr2->getAlgoDecisionInitial();
+              for(size_t algo = 0; algo < algoBits.size(); ++algo) {
+                 if(algoBits.at(algo)) {
+                    isolated_collision_run_->Fill(ibx, algo);
+                 } //end of fired algo
+              } // end of all algo trigger bits
+           } // end of uGtAlgs
+        } // end of BX
+     } // selecting FirstCollisionInTrain && LastCollisionInTrain
+     if(itr->getAlgoDecisionInitial(487)) {
+        for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
+           for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
+              auto algoBits = itr2->getAlgoDecisionInitial();
+              for(size_t algo = 0; algo < algoBits.size(); ++algo) {
+                 if(algoBits.at(algo)) {
+                    last_collision_run_->Fill(ibx, algo);
+                 } //end of fired algo
+              } // end of all algo trigger bits
+           } // end of uGtAlgs
+        } // end of BX
+     } // selecting LastCollisionInTrain
+  } // end of uGTAlgs = 1
+
+ }
+}
+      
 // End section
 void L1TStage2uGT::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evtSetup) {
    // empty

@@ -60,19 +60,6 @@ def _trackingRun2(stepList):
             continue
         res.append(s)
     return res
-def _trackingPhase1QuadProp(stepList):
-    res = []
-    for step in stepList:
-        s = step
-        if 'RecoFull' in step:
-            if 'trackingOnly' in step:
-                s = s.replace('Only', 'OnlyPhase1QuadProp')
-            else:
-                s = s.replace('Full', 'Full_trackingPhase1QuadProp')
-        if 'ALCA' in s:
-            continue
-        res.append(s)
-    return res
 def _trackingLowPU(stepList):
     res = []
     for step in stepList:
@@ -93,6 +80,4 @@ def _trackingLowPU(stepList):
 workflows[10024.1] = [ workflows[10024.0][0], _trackingOnly(workflows[10024.0][1]) ]
 workflows[10024.2] = [ workflows[10024.0][0], _trackingRun2(workflows[10024.0][1]) ]
 workflows[10024.3] = [ workflows[10024.1][0], _trackingRun2(workflows[10024.1][1]) ]
-workflows[10024.4] = [ workflows[10024.0][0], _trackingPhase1QuadProp(workflows[10024.0][1]) ]
-workflows[10024.5] = [ workflows[10024.1][0], _trackingPhase1QuadProp(workflows[10024.1][1]) ]
-workflows[10024.6] = [ workflows[10024.0][0], _trackingLowPU(workflows[10024.0][1]) ]
+workflows[10024.4] = [ workflows[10024.0][0], _trackingLowPU(workflows[10024.0][1]) ]

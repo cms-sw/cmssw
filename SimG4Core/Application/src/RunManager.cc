@@ -145,6 +145,10 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
   m_kernel = new G4RunManagerKernel();
   G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
 
+  m_physicsList.reset(nullptr);
+  m_prodCuts.reset(nullptr);
+  m_attach = nullptr;
+
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
   m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField","");

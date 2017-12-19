@@ -157,8 +157,8 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   edm::ParameterSet Parameters;
 
   // TkHistoMap added
-  TkHistoMap* tkmapcluster;
-  TkHistoMap* tkmapclusterch;
+  std::unique_ptr<TkHistoMap> tkmapcluster;
+  std::unique_ptr<TkHistoMap> tkmapclusterch;
 
   int runNb, eventNb;
   int firstEvent;

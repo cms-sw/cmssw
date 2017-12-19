@@ -283,12 +283,7 @@ pixelLessStep = ClassifierMerger.clone()
 pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassifier2']
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
-     qualityCuts = [-0.4,0.0,0.4],
-))
-trackingPhase1QuadProp.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
      qualityCuts = [-0.4,0.0,0.4],
 ))
@@ -342,30 +337,31 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
     vertices = cms.InputTag("pixelVertices")#end of vpset
 ) #end of clone
 
-PixelLessStep = cms.Sequence(pixelLessStepClusters*
-                             pixelLessStepSeedLayers*
-                             pixelLessStepTrackingRegions*
-                             pixelLessStepHitDoublets*
-                             pixelLessStepHitTriplets*
-                             pixelLessStepSeeds*
-                             pixelLessStepTrackCandidates*
-                             pixelLessStepTracks*
-                             pixelLessStepClassifier1*pixelLessStepClassifier2*
+PixelLessStepTask = cms.Task(pixelLessStepClusters,
+                             pixelLessStepSeedLayers,
+                             pixelLessStepTrackingRegions,
+                             pixelLessStepHitDoublets,
+                             pixelLessStepHitTriplets,
+                             pixelLessStepSeeds,
+                             pixelLessStepTrackCandidates,
+                             pixelLessStepTracks,
+                             pixelLessStepClassifier1,pixelLessStepClassifier2,
                              pixelLessStep)
-_PixelLessStep_LowPU = PixelLessStep.copyAndExclude([pixelLessStepHitTriplets, pixelLessStepClassifier1, pixelLessStepClassifier2])
-_PixelLessStep_LowPU.replace(pixelLessStep, pixelLessStepSelector)
-trackingLowPU.toReplaceWith(PixelLessStep, _PixelLessStep_LowPU)
+PixelLessStep = cms.Sequence(PixelLessStepTask)
 
+_PixelLessStepTask_LowPU = PixelLessStepTask.copyAndExclude([pixelLessStepHitTriplets, pixelLessStepClassifier1, pixelLessStepClassifier2])
+_PixelLessStepTask_LowPU.replace(pixelLessStep, pixelLessStepSelector)
+trackingLowPU.toReplaceWith(PixelLessStepTask, _PixelLessStepTask_LowPU)
 #fastsim
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
 pixelLessStepMasks = maskProducerFromClusterRemover(pixelLessStepClusters)
-fastSim.toReplaceWith(PixelLessStep,
-                      cms.Sequence(pixelLessStepMasks
-                                   +pixelLessStepTrackingRegions
-                                   +pixelLessStepSeeds
-                                   +pixelLessStepTrackCandidates
-                                   +pixelLessStepTracks
-                                   +pixelLessStepClassifier1*pixelLessStepClassifier2
-                                   +pixelLessStep                             
+fastSim.toReplaceWith(PixelLessStepTask,
+                      cms.Task(pixelLessStepMasks
+                                   ,pixelLessStepTrackingRegions
+                                   ,pixelLessStepSeeds
+                                   ,pixelLessStepTrackCandidates
+                                   ,pixelLessStepTracks
+                                   ,pixelLessStepClassifier1,pixelLessStepClassifier2
+                                   ,pixelLessStep                             
                                    )
 )

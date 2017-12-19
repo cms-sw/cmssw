@@ -356,12 +356,7 @@ tobTecStep = ClassifierMerger.clone()
 tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1'),
-     qualityCuts = [-0.6,-0.45,-0.3],
-))
-trackingPhase1QuadProp.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1'),
      qualityCuts = [-0.6,-0.45,-0.3],
 ))
@@ -415,22 +410,22 @@ trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTra
 
 
 
-TobTecStep = cms.Sequence(tobTecStepClusters*
-                          tobTecStepSeedLayersTripl*
-                          tobTecStepTrackingRegionsTripl*
-                          tobTecStepHitDoubletsTripl*
-                          tobTecStepHitTripletsTripl*
-                          tobTecStepSeedsTripl*
-                          tobTecStepSeedLayersPair*
-                          tobTecStepTrackingRegionsPair*
-                          tobTecStepHitDoubletsPair*
-                          tobTecStepSeedsPair*
-                          tobTecStepSeeds*
-                          tobTecStepTrackCandidates*
-                          tobTecStepTracks*
-                          tobTecStepClassifier1*tobTecStepClassifier2*
+TobTecStepTask = cms.Task(tobTecStepClusters,
+                          tobTecStepSeedLayersTripl,
+                          tobTecStepTrackingRegionsTripl,
+                          tobTecStepHitDoubletsTripl,
+                          tobTecStepHitTripletsTripl,
+                          tobTecStepSeedsTripl,
+                          tobTecStepSeedLayersPair,
+                          tobTecStepTrackingRegionsPair,
+                          tobTecStepHitDoubletsPair,
+                          tobTecStepSeedsPair,
+                          tobTecStepSeeds,
+                          tobTecStepTrackCandidates,
+                          tobTecStepTracks,
+                          tobTecStepClassifier1,tobTecStepClassifier2,
                           tobTecStep)
-
+TobTecStep = cms.Sequence(TobTecStepTask)
 
 
 ### Following are specific for LowPU, they're collected here to
@@ -461,29 +456,32 @@ tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     )
 )
 
-trackingLowPU.toReplaceWith(TobTecStep, cms.Sequence(
-    tobTecStepClusters*
-    tobTecStepSeedLayers*
-    tobTecStepTrackingRegionsPair*
-    tobTecStepHitDoubletsPair*
-    tobTecStepSeeds*
-    tobTecStepTrackCandidates*
-    tobTecStepTracks*
+trackingLowPU.toReplaceWith(TobTecStepTask, 
+    cms.Task(
+    tobTecStepClusters,
+    tobTecStepSeedLayers,
+    tobTecStepTrackingRegionsPair,
+    tobTecStepHitDoubletsPair,
+    tobTecStepSeeds,
+    tobTecStepTrackCandidates,
+    tobTecStepTracks,
     tobTecStep
-))
+    )
+)
 
 #fastsim
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
 tobTecStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(tobTecStepClusters)
-fastSim.toReplaceWith(TobTecStep,
-                      cms.Sequence(tobTecStepMasks
-                                   +tobTecStepTrackingRegionsTripl
-                                   +tobTecStepSeedsTripl
-                                   +tobTecStepTrackingRegionsPair
-                                   +tobTecStepSeedsPair
-                                   +tobTecStepSeeds
-                                   +tobTecStepTrackCandidates
-                                   +tobTecStepTracks
-                                   +tobTecStepClassifier1*tobTecStepClassifier2                           +tobTecStep
+fastSim.toReplaceWith(TobTecStepTask,
+                      cms.Task(tobTecStepMasks
+                                   ,tobTecStepTrackingRegionsTripl
+                                   ,tobTecStepSeedsTripl
+                                   ,tobTecStepTrackingRegionsPair
+                                   ,tobTecStepSeedsPair
+                                   ,tobTecStepSeeds
+                                   ,tobTecStepTrackCandidates
+                                   ,tobTecStepTracks
+                                   ,tobTecStepClassifier1,tobTecStepClassifier2
+                                   ,tobTecStep
                                    )
 )

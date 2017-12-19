@@ -1,6 +1,8 @@
 #ifndef EcalRecHitComparison_H
 #define EcalRecHitComparison_H
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+
 //ordering capability mandatory for lazy getter framework
 // Comparison operators
 inline bool operator<( const EcalRecHit& one, const EcalRecHit& other) {

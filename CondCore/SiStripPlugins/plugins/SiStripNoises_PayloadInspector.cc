@@ -205,7 +205,7 @@ namespace {
 	tmap->fill(item.first,item.second);
       }
 
-      auto range = SiStripPI::getTheRange(info_per_detid);
+      auto range = SiStripPI::getTheRange(info_per_detid,2);
       
       //=========================
       
@@ -229,9 +229,9 @@ namespace {
   SiStrip Noise Tracker Summaries 
   *************************************************/
   
-   template<SiStripPI::estimator est> class SiStripNoiseByPartition : public cond::payloadInspector::PlotImage<SiStripNoises> {
+   template<SiStripPI::estimator est> class SiStripNoiseByRegion : public cond::payloadInspector::PlotImage<SiStripNoises> {
   public:
-     SiStripNoiseByPartition() : cond::payloadInspector::PlotImage<SiStripNoises>( "SiStrip Noise "+estimatorType(est)+" by Partition" ),
+     SiStripNoiseByRegion() : cond::payloadInspector::PlotImage<SiStripNoises>( "SiStrip Noise "+estimatorType(est)+" by Region" ),
       m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
@@ -295,7 +295,7 @@ namespace {
       
       TCanvas canvas("Partion summary","partition summary",1200,1000); 
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(new TH1F("byPartition",Form("Average by partition of %s SiStrip Noise per module;;average SiStrip Noise %s [ADC counts]",estimatorType(est).c_str(),estimatorType(est).c_str()),map.size(),0.,map.size()));
+      auto h1 = std::unique_ptr<TH1F>(new TH1F("byRegion",Form("Average by partition of %s SiStrip Noise per module;;average SiStrip Noise %s [ADC counts]",estimatorType(est).c_str(),estimatorType(est).c_str()),map.size(),0.,map.size()));
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.17);
@@ -338,7 +338,7 @@ namespace {
 	  }
 
 	h1->SetBinContent(iBin,mean);
-	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h1->GetXaxis()->LabelsOption("v");
 	
 	if(detector!=currentDetector) {
@@ -381,10 +381,10 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
-  typedef SiStripNoiseByPartition<SiStripPI::mean> SiStripNoiseMeanByPartition;
-  typedef SiStripNoiseByPartition<SiStripPI::min>  SiStripNoiseMinByPartition;
-  typedef SiStripNoiseByPartition<SiStripPI::max>  SiStripNoiseMaxByPartition;
-  typedef SiStripNoiseByPartition<SiStripPI::rms>  SiStripNoiseRMSByPartition;
+  typedef SiStripNoiseByRegion<SiStripPI::mean> SiStripNoiseMeanByRegion;
+  typedef SiStripNoiseByRegion<SiStripPI::min>  SiStripNoiseMinByRegion;
+  typedef SiStripNoiseByRegion<SiStripPI::max>  SiStripNoiseMaxByRegion;
+  typedef SiStripNoiseByRegion<SiStripPI::rms>  SiStripNoiseRMSByRegion;
 
   /************************************************
     Noise linearity
@@ -638,10 +638,10 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRMS_TrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMeanByPartition);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMinByPartition);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMaxByPartition);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRMSByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMeanByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMinByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMaxByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRMSByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseLinearity);
   PAYLOAD_INSPECTOR_CLASS(TIBNoiseHistory);
   PAYLOAD_INSPECTOR_CLASS(TOBNoiseHistory);

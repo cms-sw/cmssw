@@ -77,16 +77,12 @@ process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
 process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
 process.siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3)
 
-process.load("DQMServices.Core.DQMStore_cfg")
-
 process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
     TkMapFileName = cms.untracked.string('MergedBadComponentsTkMap.png'),
     dataLabel = cms.untracked.string('')
 )
 #### Add these lines to produce a tracker map
-process.load("DQMServices.Core.DQMStore_cfg")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 
 process.p = cms.Path(process.stat)

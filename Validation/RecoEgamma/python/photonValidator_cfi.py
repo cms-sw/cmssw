@@ -140,6 +140,5 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    photonValidation.fastSim = True
+fastSim.toModify(photonValidation, fastSim = True)
 

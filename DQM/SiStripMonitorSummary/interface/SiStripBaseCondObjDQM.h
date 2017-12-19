@@ -14,7 +14,6 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
@@ -64,7 +63,7 @@ class SiStripBaseCondObjDQM {
   
 
     std::vector<uint32_t> getCabledModules();
-    void selectModules(std::vector<uint32_t> & detIds_);
+    void selectModules(std::vector<uint32_t> & detIds_, const TrackerTopology* tTopo);
   
     //    virtual void fillTopSummaryMEs()=0;
  
@@ -131,9 +130,9 @@ class SiStripBaseCondObjDQM {
     unsigned long long cacheID_memory;
     unsigned long long cacheID_current;
 
-    TkHistoMap* Tk_HM_;
-    TkHistoMap* Tk_HM_H;
-    TkHistoMap* Tk_HM_L;
+    std::unique_ptr<TkHistoMap> Tk_HM_;
+    std::unique_ptr<TkHistoMap> Tk_HM_H;
+    std::unique_ptr<TkHistoMap> Tk_HM_L;
     TrackerMap * tkMap;
   
  private:

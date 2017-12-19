@@ -34,7 +34,7 @@ DQMFileSaverOnline::DQMFileSaverOnline(const edm::ParameterSet& ps)
   keepBackupLumi_ = ps.getUntrackedParameter<bool>("keepBackupLumi", false);
 }
 
-DQMFileSaverOnline::~DQMFileSaverOnline() {}
+DQMFileSaverOnline::~DQMFileSaverOnline() = default;
 
 void DQMFileSaverOnline::saveLumi(const FileParameters& fp) const {
   if (backupLumiCount_ > 0) {
@@ -137,7 +137,7 @@ void DQMFileSaverOnline::appendSnapshot(SnapshotFiles f) const {
   }
 }
 
-void DQMFileSaverOnline::checkError(const char* msg, const std::string file,
+void DQMFileSaverOnline::checkError(const char* msg, const std::string& file,
                                     int status) const {
   if (status != 0) {
     std::string actual_msg = msg;
@@ -147,7 +147,7 @@ void DQMFileSaverOnline::checkError(const char* msg, const std::string file,
 }
 
 const std::string DQMFileSaverOnline::fillOrigin(
-    const std::string filename, const std::string final_filename) {
+    const std::string& filename, const std::string& final_filename) {
   // format.origin (one line):
   //   md5:d566a34b27f48d507150a332b189398b 294835 final_filename.root
 
@@ -158,8 +158,8 @@ const std::string DQMFileSaverOnline::fillOrigin(
   MD5((unsigned char*)fp.data(), fp.size(), md5);
 
   std::ostringstream hash;
-  for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
-    hash << std::hex << std::setfill('0') << std::setw(2) << (int)(md5[i]);
+  for (unsigned char & i : md5) {
+    hash << std::hex << std::setfill('0') << std::setw(2) << (int)i;
   }
 
   std::ostringstream out;

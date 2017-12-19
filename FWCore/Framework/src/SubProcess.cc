@@ -374,7 +374,7 @@ namespace edm {
     propagateProducts(InEvent, principal, ep);
     
     WaitingTaskHolder finalizeEventTask( make_waiting_task(tbb::task::allocate_root(),
-                                                           [this,&ep,iHolder](std::exception_ptr const* iPtr) mutable
+                                                           [&ep,iHolder](std::exception_ptr const* iPtr) mutable
       {
         ep.clearEventPrincipal();
         if(iPtr) {

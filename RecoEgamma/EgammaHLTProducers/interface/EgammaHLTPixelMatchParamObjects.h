@@ -29,6 +29,9 @@
 //    with this
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TF1.h"
 #include "TF2.h"

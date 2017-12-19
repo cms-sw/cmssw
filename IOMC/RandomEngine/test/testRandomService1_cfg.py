@@ -57,9 +57,9 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         engineName = cms.untracked.string('HepJamesRandom'),
         initialSeed = cms.untracked.uint32(84)
     ),
-    t5 = cms.PSet(
-        initialSeed = cms.untracked.uint32(191),
-        engineName = cms.untracked.string('TRandom3')
+    t6 = cms.PSet(
+        initialSeed = cms.untracked.uint32(85),
+        engineName = cms.untracked.string('MixMaxRng')
     ),
     enableChecking = cms.untracked.bool(True),
     verbose = cms.untracked.bool(True)
@@ -86,6 +86,7 @@ process.t1 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
                             seeds = cms.untracked.vuint32(81),
                             offset = cms.untracked.uint32(0),
                             maxEvents = cms.untracked.uint32(5),
+                            dump = cms.untracked.bool(True),
                             nStreams = cms.untracked.uint32(1)
 )
 process.t2 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
@@ -93,6 +94,7 @@ process.t2 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
                             seeds = cms.untracked.vuint32(1, 2),
                             offset = cms.untracked.uint32(0),
                             maxEvents = cms.untracked.uint32(5),
+                            dump = cms.untracked.bool(True),
                             nStreams = cms.untracked.uint32(1)
 )
 process.t3 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
@@ -111,6 +113,16 @@ process.t4 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
                             seeds = cms.untracked.vuint32(84),
                             offset = cms.untracked.uint32(0),
                             maxEvents = cms.untracked.uint32(5),
+                            dump = cms.untracked.bool(True),
+                            nStreams = cms.untracked.uint32(1)
+)
+
+process.t6 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('MixMaxRng'),
+                            seeds = cms.untracked.vuint32(85),
+                            offset = cms.untracked.uint32(0),
+                            maxEvents = cms.untracked.uint32(5),
+                            dump = cms.untracked.bool(True),
                             nStreams = cms.untracked.uint32(1)
 )
 
@@ -126,5 +138,5 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testRandomService1.root')
 )
 
-process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.randomEngineStateProducer)
+process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.t6+process.randomEngineStateProducer)
 process.o = cms.EndPath(process.out)

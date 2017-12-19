@@ -9,7 +9,6 @@
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 
 #include "SimG4CMS/Forward/interface/CastorSD.h"
-//#include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SDManager.hh"
@@ -28,7 +27,7 @@
 
 //#define debugLog
 
-CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
+CastorSD::CastorSD(const std::string& name, const DDCompactView & cpv,
 		   const SensitiveDetectorCatalog & clg,
 		   edm::ParameterSet const & p, 
 		   const SimTrackManager* manager) : 
@@ -96,11 +95,8 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   
   double NCherPhot = 0.;
 
-  if (aStep == nullptr) 
-    return 0;
-
   // Get theTrack 
-  G4Track*        theTrack = aStep->GetTrack();
+  G4Track* theTrack = aStep->GetTrack();
 
   // preStepPoint information *********************************************
   
@@ -530,7 +526,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 
 //=======================================================================================
 
-uint32_t CastorSD::setDetUnitId(G4Step* aStep) {
+uint32_t CastorSD::setDetUnitId(const G4Step* aStep) {
   return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 

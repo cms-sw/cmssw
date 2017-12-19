@@ -429,7 +429,6 @@ hpsPFTauPrimaryVertexProducer = PFTauPrimaryVertexProducer.clone(
     MuonTag = cms.InputTag(""),
     PVTag = cms.InputTag("offlinePrimaryVertices"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-    TrackCollectionTag = cms.InputTag("generalTracks"),
     Algorithm = cms.int32(0),
     useBeamSpot = cms.bool(True),
     RemoveMuonTracks = cms.bool(False),

@@ -127,7 +127,9 @@ void TrackAnalyzer::initHistos()
   DistanceOfClosestApproachToBS = nullptr;
   AbsDistanceOfClosestApproachToBS = nullptr;
   DistanceOfClosestApproachToPV = nullptr;
+  DistanceOfClosestApproachToPVZoom = nullptr;
   DeltaZToPV = nullptr;
+  DeltaZToPVZoom = nullptr;
   DistanceOfClosestApproachVsTheta = nullptr;
   DistanceOfClosestApproachVsPhi = nullptr;  
   DistanceOfClosestApproachToBSVsPhi = nullptr;
@@ -480,7 +482,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       NumberOfMORecHitsPerTrackVsPt->setAxisTitle("Track p_{T} [GeV]", 1);
       NumberOfMORecHitsPerTrackVsPt->setAxisTitle("Average Number of Lost RecHits per Track", 2);
 
-      std::string layerTypeName[4] = {"","Off","3D","Missing"};
+      std::string layerTypeName[5] = {"","Off","3D","Missing","Pixel"};
       for (int i=0; i<4; ++i) {
         histname = "NumberOf"+ layerTypeName[i] + "LayersPerTrack_";
         NumberOfLayersPerTrack[i] = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKLayBin, TKLayMin, TKLayMax);
@@ -488,7 +490,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
         NumberOfLayersPerTrack[i]->setAxisTitle("Number of Tracks", 2);
       }
       if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ )
-	for (int i=0; i<4; ++i) {
+	for (int i=0; i<5; ++i) {
           histname = "NumberOf"+ layerTypeName[i] + "LayersVsPhiVsEtaPerTrack_";
 	  NumberOfLayersVsPhiVsEtaPerTrack[i] = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
 								    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 40., "");
@@ -823,10 +825,22 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       DistanceOfClosestApproachToPV->setAxisTitle("Track d_{xy} w.r.t. PV (cm)",1);
       DistanceOfClosestApproachToPV->setAxisTitle("Number of Tracks",2);
       
+      histname = "DistanceOfClosestApproachToPVZoom_";
+      DistanceOfClosestApproachToPVZoom = ibooker.book1D(histname+CategoryName,histname+CategoryName,100,-0.08,0.08);
+      DistanceOfClosestApproachToPVZoom->setAxisTitle("Track d_{xy} w.r.t. PV (cm)",1);
+      DistanceOfClosestApproachToPVZoom->setAxisTitle("Number of Tracks",2);
+
+
       histname = "DeltaZToPV_";
       DeltaZToPV = ibooker.book1D(histname+CategoryName,histname+CategoryName,Z0Bin,Z0Min,Z0Max);
       DeltaZToPV->setAxisTitle("Track d_{z} w.r.t. PV (cm)",1);
       DeltaZToPV->setAxisTitle("Number of Tracks",2);
+
+      histname = "DeltaZToPVZoom_";
+      DeltaZToPVZoom = ibooker.book1D(histname+CategoryName,histname+CategoryName,100,-0.15,0.15);
+      DeltaZToPVZoom->setAxisTitle("Track d_{z} w.r.t. PV (cm)",1);
+      DeltaZToPVZoom->setAxisTitle("Number of Tracks",2);
+
       
       histname = "DistanceOfClosestApproachToPVVsPhi_";
       DistanceOfClosestApproachToPVVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
@@ -1081,10 +1095,11 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     NumberOfMIRecHitsPerTrackVsPt->Fill(pt,nLostIn);
     NumberOfMORecHitsPerTrackVsPt->Fill(pt,nLostOut);
 
-    int nLayers[4]   = { track.hitPattern().trackerLayersWithMeasurement(),
+    int nLayers[5]   = { track.hitPattern().trackerLayersWithMeasurement(),
                          track.hitPattern().trackerLayersTotallyOffOrBad(),
                          track.hitPattern().numberOfValidStripLayersWithMonoAndStereo() +  track.hitPattern().pixelLayersWithMeasurement(),
-                         track.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS)
+                         track.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS),
+                         track.hitPattern().pixelLayersWithMeasurement()
                        };
 
     // layers
@@ -1092,7 +1107,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     // 2D plots    
     if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ )
-      for (int i=0;i<4;++i) NumberOfLayersVsPhiVsEtaPerTrack[i]->Fill(etaIn,phiIn,nLayers[i]);
+      for (int i=0;i<5;++i) NumberOfLayersVsPhiVsEtaPerTrack[i]->Fill(etaIn,phiIn,nLayers[i]);
 
   }
 
@@ -1209,6 +1224,8 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       zPointOfClosestApproachToPV->Fill(track.dz(pv.position()));
       DistanceOfClosestApproachToPV      -> Fill(track.dxy(pv.position()));
       DeltaZToPV                         -> Fill(track.dz (pv.position()));
+      DistanceOfClosestApproachToPVZoom  -> Fill(track.dxy(pv.position()));
+      DeltaZToPVZoom                     -> Fill(track.dz (pv.position()));
       DistanceOfClosestApproachToPVVsPhi -> Fill(track.phi(), track.dxy(pv.position()));
       xPointOfClosestApproachVsZ0wrtPV   -> Fill(track.dz(pv.position()),(track.vx()-pv.position().x()));
       yPointOfClosestApproachVsZ0wrtPV   -> Fill(track.dz(pv.position()),(track.vy()-pv.position().y()));

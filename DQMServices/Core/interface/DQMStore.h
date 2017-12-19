@@ -54,7 +54,7 @@ class fastmatch
   enum MatchingHeuristicEnum { UseFull, OneStarStart, OneStarEnd, TwoStar };
 
  public:
-  fastmatch (std::string const& _fastString);
+  fastmatch (std::string  _fastString);
   ~fastmatch();
 
   bool match (std::string const& s) const;
@@ -164,11 +164,11 @@ class DQMStore
       return owner_->bookProfile2D(std::forward<Args>(args)...);
     }
 
-    void cd(void);
+    void cd();
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);
-    void goUp(void);
-    const std::string & pwd(void);
+    void goUp();
+    const std::string & pwd();
     void tag(MonitorElement *, unsigned int);
     void tagContents(const std::string &, unsigned int);
 
@@ -178,9 +178,11 @@ class DQMStore
       owner_ = store;
     }
 
-    IBooker();
-    IBooker(const IBooker&);
+   public:
+    IBooker() = delete;
+    IBooker(const IBooker&) = delete;
 
+   private:
     // Embedded classes do not natively own a pointer to the embedding
     // class. We therefore need to store a pointer to the main
     // DQMStore instance (owner_).
@@ -211,11 +213,11 @@ class DQMStore
     // same as get, throws an exception if histogram not found
     MonitorElement * getElement(const std::string &path);
 
-    std::vector<std::string> getSubdirs(void);
-    std::vector<std::string> getMEs(void);
+    std::vector<std::string> getSubdirs();
+    std::vector<std::string> getMEs();
     bool containsAnyMonitorable(const std::string &path);
     bool dirExists(const std::string &path);
-    void cd(void);
+    void cd();
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);
 
@@ -225,9 +227,11 @@ class DQMStore
       owner_ = store;
     }
 
-    IGetter();
-    IGetter(const IGetter&);
+   public:
+    IGetter() = delete;
+    IGetter(const IGetter&) = delete;
 
+   private:
     // Embedded classes do not natively own a pointer to the embedding
     // class. We therefore need to store a pointer to the main
     // DQMStore instance (owner_).
@@ -289,17 +293,17 @@ class DQMStore
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry&);
   DQMStore(const edm::ParameterSet &pset);
-  ~DQMStore(void);
+  ~DQMStore();
 
   //-------------------------------------------------------------------------
   void                          setVerbose(unsigned level);
 
   // ---------------------- public navigation -------------------------------
-  const std::string &           pwd(void) const;
-  void                          cd(void);
+  const std::string &           pwd() const;
+  void                          cd();
   void                          cd(const std::string &subdir);
   void                          setCurrentFolder(const std::string &fullpath);
-  void                          goUp(void);
+  void                          goUp();
 
   bool                          dirExists(const std::string &path) const;
 
@@ -511,8 +515,8 @@ class DQMStore
 
   //-------------------------------------------------------------------------
   // ---------------------- public ME getters -------------------------------
-  std::vector<std::string>      getSubdirs(void) const;
-  std::vector<std::string>      getMEs(void) const;
+  std::vector<std::string>      getSubdirs() const;
+  std::vector<std::string>      getMEs() const;
   bool                          containsAnyMonitorable(const std::string &path) const;
 
   MonitorElement *              get(const std::string &path) const;
@@ -527,7 +531,7 @@ class DQMStore
 
   // ---------------------- Public deleting ---------------------------------
   void                          rmdir(const std::string &fullpath);
-  void                          removeContents(void);
+  void                          removeContents();
   void                          removeContents(const std::string &dir);
   void                          removeElement(const std::string &name);
   void                          removeElement(const std::string &dir, const std::string &name, bool warning = true);
@@ -562,10 +566,10 @@ class DQMStore
 
   //-------------------------------------------------------------------------
   // ---------------------- Public print methods -----------------------------
-  void                          showDirStructure(void) const;
+  void                          showDirStructure() const;
 
   // ---------------------- Public check options -----------------------------
-  bool                         isCollate(void) const;
+  bool                         isCollate() const;
 
   //-------------------------------------------------------------------------
   // ---------------------- Quality Test methods -----------------------------
@@ -573,9 +577,9 @@ class DQMStore
   QCriterion *                  createQTest(const std::string &algoname, const std::string &qtname);
   void                          useQTest(const std::string &dir, const std::string &qtname);
   int                           useQTestByMatch(const std::string &pattern, const std::string &qtname);
-  void                          runQTests(void);
+  void                          runQTests();
   int                           getStatus(const std::string &path = "") const;
-  void                          scaleElements(void);
+  void                          scaleElements();
 
  private:
   // ---------------- Navigation -----------------------
@@ -638,9 +642,9 @@ class DQMStore
 
   // ---------------- Miscellaneous -----------------------------
   void        initializeFrom(const edm::ParameterSet&);
-  void        reset(void);
-  void        forceReset(void);
-  
+  void        reset();
+  void        forceReset();
+
   bool        extract(TObject *obj, const std::string &dir, bool overwrite, bool collateHistograms);
   TObject *   extractNextObject(TBufferFile&) const;
 
@@ -691,8 +695,8 @@ class DQMStore
   //-------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------
   typedef std::pair<fastmatch *, QCriterion *>                  QTestSpec;
-  typedef std::list<QTestSpec>                                          QTestSpecs;
-  typedef std::set<MonitorElement>                                      MEMap;
+  using QTestSpecs = std::list<QTestSpec>;
+  using MEMap = std::set<MonitorElement>;
   typedef std::map<std::string, QCriterion *>                           QCMap;
   typedef std::map<std::string, QCriterion *(*)(const std::string &)>   QAMap;
 

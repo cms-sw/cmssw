@@ -79,9 +79,7 @@ process.onlineSiStripQualityProducer = cms.ESProducer("SiStripQualityESProducer"
 #-------------------------------------------------
 # Services for the TkHistoMap
 #-------------------------------------------------
-process.load("DQMServices.Core.DQMStore_cfg")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
                               dataLabel = cms.untracked.string(""),

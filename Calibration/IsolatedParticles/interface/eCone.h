@@ -13,6 +13,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 namespace spr{

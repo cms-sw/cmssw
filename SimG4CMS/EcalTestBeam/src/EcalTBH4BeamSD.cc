@@ -19,7 +19,7 @@
 
 #include "G4SystemOfUnits.hh"
 
-EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
+EcalTBH4BeamSD::EcalTBH4BeamSD(const std::string& name, const DDCompactView & cpv,
 			       const SensitiveDetectorCatalog & clg,
 			       edm::ParameterSet const & p, 
 			       const SimTrackManager* manager) : 
@@ -69,7 +69,7 @@ double EcalTBH4BeamSD::getEnergyDeposit(G4Step * aStep) {
   } 
 }
 
-uint32_t EcalTBH4BeamSD::setDetUnitId(G4Step * aStep) { 
+uint32_t EcalTBH4BeamSD::setDetUnitId(const G4Step * aStep) { 
   getBaseNumber(aStep);
   return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(theBaseNumber));
 }

@@ -57,11 +57,12 @@ photonHcalPFClusterIsolationProducer = cms.EDProducer('PhotonHcalPFClusterIsolat
 ootPhotonHcalPFClusterIsolationProducer = photonHcalPFClusterIsolationProducer.clone()
 ootPhotonHcalPFClusterIsolationProducer.candidateProducer = cms.InputTag('ootPhotons')
 
-pfClusterIsolationSequence = cms.Sequence(
-    electronEcalPFClusterIsolationProducer *
-    photonEcalPFClusterIsolationProducer *
-    ootPhotonEcalPFClusterIsolationProducer *
-    electronHcalPFClusterIsolationProducer *
-    photonHcalPFClusterIsolationProducer *
+pfClusterIsolationTask = cms.Task(
+    electronEcalPFClusterIsolationProducer ,
+    photonEcalPFClusterIsolationProducer ,
+    ootPhotonEcalPFClusterIsolationProducer ,
+    electronHcalPFClusterIsolationProducer ,
+    photonHcalPFClusterIsolationProducer ,
     ootPhotonHcalPFClusterIsolationProducer 
 )
+pfClusterIsolationSequence = cms.Sequence(pfClusterIsolationTask)

@@ -4,6 +4,7 @@
 #include <memory>
 #include <array>
 
+#include "boost/array.hpp"
 #include "boost/serialization/access.hpp"
 #include "boost/serialization/version.hpp"
 #include "boost/serialization/shared_ptr.hpp"

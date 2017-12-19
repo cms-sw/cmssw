@@ -5,12 +5,10 @@
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
-#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibDataFrame.h"
-#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
@@ -51,14 +49,10 @@ public:
   // set RecoParams channel-by-channel.
   void setRecoParams(bool correctForTimeslew, bool correctForPulse, bool setLeakCorrection, int pileupCleaningID, float phaseNS);
 
-  // ugly hack related to HB- e-dependent corrections
-  void setForData (int runnum);
-
   // usage of leak correction 
   void setLeakCorrection();
 
   // set OOT pileup corrections
-  void setHBHEPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
   void setHFPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
   void setHOPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
 
@@ -67,29 +61,12 @@ public:
   void setBXInfo(const BunchXParameter* info, unsigned lenInfo);
 
 
-  HBHERecHit reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-
   HFRecHit reconstruct(const HFDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HFRecHit reconstructQIE10(const QIE10DataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
   HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
-  void setpuCorrMethod(int method){ 
-    puCorrMethod_ = method;
-    if( puCorrMethod_ == 2 )
-        psFitOOTpuCorr_ = std::make_unique<PulseShapeFitOOTPileupCorrection>();
-  }
-
-  void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
-		       double iTS4Min, const std::vector<double> & iTS4Max, double iPulseJitter,
-		       double iTimeMean,double iTimeSig,double iTimeSigSiPM,
-		       double iPedMean,double iPedSig, double iPedSigSiPM,
-		       double iNoise,double iNoiseSiPM,
-		       double iTMin, double iTMax,
-		       const std::vector<double> & its4Chi2, int iFitTimes);
-  void setMeth3Params(bool iApplyTimeSlew, float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3);
-               
 private:
   bool correctForTimeslew_;
   bool correctForPulse_;

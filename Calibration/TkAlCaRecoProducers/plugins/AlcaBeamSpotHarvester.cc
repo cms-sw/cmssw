@@ -28,6 +28,7 @@
 // #include "FWCore/MessageLogger/interface/JobReport.h"
 
 #include <iostream> 
+#include <cstring>
 
 using namespace edm;
 using namespace reco;
@@ -127,14 +128,8 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 
 	std::time_t lumi_t_begin = thisIOV; // to fix: meaningless value
 	std::time_t lumi_t_end   = thisIOV; // to fix: meaningless value
-	char ts[] = "yyyy.mn.dd hh:mm:ss zzz ";
-	char* fbeginTime = ts;
-	strftime(fbeginTime, sizeof(ts), "%Y.%m.%d %H:%M:%S GMT", gmtime(&lumi_t_begin));
-	std::copy(fbeginTime, fbeginTime+32, currentBS.beginTimeOfFit);
-
-	char* fendTime = ts;
-	strftime(fendTime, sizeof(ts), "%Y.%m.%d %H:%M:%S GMT", gmtime(&lumi_t_end));
-	std::copy(fendTime, fendTime+32, currentBS.endTimeOfFit);
+	strftime(currentBS.beginTimeOfFit, sizeof currentBS.beginTimeOfFit, "%Y.%m.%d %H:%M:%S GMT", gmtime(&lumi_t_begin));
+	strftime(currentBS.endTimeOfFit, sizeof currentBS.endTimeOfFit, "%Y.%m.%d %H:%M:%S GMT", gmtime(&lumi_t_end));
 
 	currentBS.reftime[0] = lumi_t_begin;
 	currentBS.reftime[1] = lumi_t_end;

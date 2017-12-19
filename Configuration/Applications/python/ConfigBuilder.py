@@ -614,7 +614,13 @@ class ConfigBuilder(object):
 		if streamType=='': continue
 		if streamType == 'ALCARECO' and not 'ALCAPRODUCER' in self._options.step: continue
 		if streamType=='DQMIO': streamType='DQM'
-                theEventContent = getattr(self.process, streamType+"EventContent")
+		eventContent=streamType
+                ## override streamType to eventContent in case NANOEDM
+		if streamType == "NANOEDMAOD" :
+			eventContent = "NANOAOD"
+		elif streamType == "NANOEDMAODSIM" :
+			eventContent = "NANOAODSIM"
+                theEventContent = getattr(self.process, eventContent+"EventContent")
                 if i==0:
                         theFileName=self._options.outfile_name
                         theFilterName=self._options.filtername
@@ -625,7 +631,7 @@ class ConfigBuilder(object):
 		if self._options.timeoutOutput:
 			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
-		if "NANOAOD" in streamType and 'NANOAOD' in tier : CppType='NanoAODOutputModule'
+		if "NANOAOD" in streamType : CppType='NanoAODOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
@@ -658,7 +664,10 @@ class ConfigBuilder(object):
 				self.executeAndRemember("process.%s.outputCommands.append('%s')"%(outputModuleName,evct.strip()))
 				
                 if not self._options.inlineEventContent:
-                        def doNotInlineEventContent(instance,label = "process."+streamType+"EventContent.outputCommands"):
+			tmpstreamType=streamType
+			if "NANOEDM" in tmpstreamType :
+				tmpstreamType=tmpstreamType.replace("NANOEDM","NANO")
+			def doNotInlineEventContent(instance,label = "process."+tmpstreamType+"EventContent.outputCommands"):
                                 return label
                         outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
 

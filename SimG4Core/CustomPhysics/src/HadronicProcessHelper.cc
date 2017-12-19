@@ -6,7 +6,7 @@
 #include <string>
 
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
-#include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.hh"
+#include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"

@@ -47,7 +47,6 @@ namespace edm {
   class ProcessDesc;
   class SubProcess;
   class WaitingTaskHolder;
-  class WaitingTask;
   
   namespace eventsetup {
     class EventSetupProvider;
@@ -238,7 +237,7 @@ namespace edm {
     bool readNextEventForStream(unsigned int iStreamIndex,
                                      std::atomic<bool>* finishedProcessingEvents);
 
-    void handleNextEventForStreamAsync(WaitingTask* iTask,
+    void handleNextEventForStreamAsync(WaitingTaskHolder iTask,
                                        unsigned int iStreamIndex,
                                      std::atomic<bool>* finishedProcessingEvents);
 
@@ -312,7 +311,7 @@ namespace edm {
     PreallocationConfiguration                    preallocations_;
     
     bool                                          asyncStopRequestedWhileProcessingEvents_;
-    InputSource::ItemType                         nextItemTypeFromProcessingEvents_;
+    std::atomic<InputSource::ItemType>            nextItemTypeFromProcessingEvents_;
     StatusCode                                    asyncStopStatusCodeFromProcessingEvents_;
     bool firstEventInBlock_=true;
     

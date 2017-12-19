@@ -12,6 +12,8 @@
 *   A longer explanation will be placed here later
 */
 
+#include "CalibFormats/SiPixelObjects/interface/PixelConfigKey.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>

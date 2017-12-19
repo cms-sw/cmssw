@@ -78,6 +78,13 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
   m_UIsession.reset(new CustomUIsession());
   m_physicsList.reset(nullptr);
   m_world.reset(nullptr);
+
+  m_runInterface.reset(nullptr);
+  m_prodCuts.reset(nullptr);
+  m_chordFinderSetter.reset(nullptr);
+  m_userRunAction = nullptr;
+  m_currentRun = nullptr;
+
   m_kernel = new G4MTRunManagerKernel();
   G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
 

@@ -273,7 +273,7 @@ bool MuonTCMETValueMapProducer::isGoodCaloMuon( const reco::Muon* muon, const un
 //____________________________________________________________________________||
 bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
 {
-  double d0    = -999;
+  double d0;
 
   const reco::TrackRef siTrack = muon->innerTrack();
   if (!siTrack.isNonnull())
@@ -286,8 +286,6 @@ bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
       const Point pvtx = Point(vertices_->begin()->x(),
 			       vertices_->begin()->y(), 
 			       vertices_->begin()->z());
-            
-      d0 = -1 * siTrack->dxy( pvtx );
             
       double dz = siTrack->dz( pvtx );
             

@@ -23,5 +23,5 @@ phase1Pixel.toModify(TrackingParticleSelectionForEfficiency, _modifyForPhase1)
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(TrackingParticleSelectionForEfficiency, minRapidityTP = -4.5, maxRapidityTP = 4.5)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    TrackingParticleSelectionForEfficiency.stableOnlyTP = True
+fastSim.toModify(TrackingParticleSelectionForEfficiency, stableOnlyTP = True)
+    

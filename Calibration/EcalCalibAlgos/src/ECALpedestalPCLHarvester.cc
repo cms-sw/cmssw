@@ -154,7 +154,7 @@ void ECALpedestalPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const
 
     edm::ESHandle<EcalPedestals> g6g1peds;
     isetup.get<EcalPedestalsRcd>().get(labelG6G1_,g6g1peds);
-    g6g1Pedestals_=peds.product();
+    g6g1Pedestals_=g6g1peds.product();
 
 }
 

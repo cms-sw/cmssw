@@ -3,6 +3,7 @@
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
 
 

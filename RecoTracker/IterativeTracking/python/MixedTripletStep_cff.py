@@ -22,9 +22,6 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
 trackingPhase1.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
-trackingPhase1QuadProp.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
 
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
@@ -154,7 +151,6 @@ trackingLowPU.toModify(mixedTripletStepSeedLayersB,
     TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
 )
 trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
-trackingPhase1QuadProp.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
 
 # TrackingRegion
 mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsCommon.clone(RegionPSet = dict(ptMin=0.6, originHalfLength=10.0))
@@ -315,10 +311,6 @@ trackingPhase1.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone
      mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
      qualityCuts = [-0.5,0.0,0.5],
 ))
-trackingPhase1QuadProp.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
-     qualityCuts = [-0.5,0.0,0.5],
-))
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -422,41 +414,42 @@ trackingLowPU.toReplaceWith(mixedTripletStep, _trackListMergerBase)
 
 
 
-MixedTripletStep = cms.Sequence(chargeCut2069Clusters*mixedTripletStepClusters*
-                                mixedTripletStepSeedLayersA*
-                                mixedTripletStepTrackingRegionsA*
-                                mixedTripletStepHitDoubletsA*
-                                mixedTripletStepHitTripletsA*
-                                mixedTripletStepSeedsA*
-                                mixedTripletStepSeedLayersB*
-                                mixedTripletStepTrackingRegionsB*
-                                mixedTripletStepHitDoubletsB*
-                                mixedTripletStepHitTripletsB*
-                                mixedTripletStepSeedsB*
-                                mixedTripletStepSeeds*
-                                mixedTripletStepTrackCandidates*
-                                mixedTripletStepTracks*
-                                mixedTripletStepClassifier1*mixedTripletStepClassifier2*
+MixedTripletStepTask = cms.Task(chargeCut2069Clusters,mixedTripletStepClusters,
+                                mixedTripletStepSeedLayersA,
+                                mixedTripletStepTrackingRegionsA,
+                                mixedTripletStepHitDoubletsA,
+                                mixedTripletStepHitTripletsA,
+                                mixedTripletStepSeedsA,
+                                mixedTripletStepSeedLayersB,
+                                mixedTripletStepTrackingRegionsB,
+                                mixedTripletStepHitDoubletsB,
+                                mixedTripletStepHitTripletsB,
+                                mixedTripletStepSeedsB,
+                                mixedTripletStepSeeds,
+                                mixedTripletStepTrackCandidates,
+                                mixedTripletStepTracks,
+                                mixedTripletStepClassifier1,mixedTripletStepClassifier2,
                                 mixedTripletStep)
-_MixedTripletStep_LowPU = MixedTripletStep.copyAndExclude([chargeCut2069Clusters, mixedTripletStepClassifier1])
-_MixedTripletStep_LowPU.replace(mixedTripletStepClassifier2, mixedTripletStepSelector)
-trackingLowPU.toReplaceWith(MixedTripletStep, _MixedTripletStep_LowPU)
+MixedTripletStep = cms.Sequence(MixedTripletStepTask)
+_MixedTripletStepTask_LowPU = MixedTripletStepTask.copyAndExclude([chargeCut2069Clusters, mixedTripletStepClassifier1])
+_MixedTripletStepTask_LowPU.replace(mixedTripletStepClassifier2, mixedTripletStepSelector)
+trackingLowPU.toReplaceWith(MixedTripletStepTask, _MixedTripletStepTask_LowPU)
 
 #fastsim
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
 mixedTripletStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(mixedTripletStepClusters)
 mixedTripletStepMasks.oldHitRemovalInfo = cms.InputTag("pixelPairStepMasks")
 
-fastSim.toReplaceWith(MixedTripletStep,
-                      cms.Sequence(mixedTripletStepMasks
-                                   +mixedTripletStepTrackingRegionsA
-                                   +mixedTripletStepSeedsA
-                                   +mixedTripletStepTrackingRegionsB
-                                   +mixedTripletStepSeedsB
-                                   +mixedTripletStepSeeds
-                                   +mixedTripletStepTrackCandidates
-                                   +mixedTripletStepTracks
-                                   +mixedTripletStepClassifier1*mixedTripletStepClassifier2
-                                   +mixedTripletStep                                 
+fastSim.toReplaceWith(MixedTripletStepTask,
+                      cms.Task(mixedTripletStepMasks
+                                   ,mixedTripletStepTrackingRegionsA
+                                   ,mixedTripletStepSeedsA
+                                   ,mixedTripletStepTrackingRegionsB
+                                   ,mixedTripletStepSeedsB
+                                   ,mixedTripletStepSeeds
+                                   ,mixedTripletStepTrackCandidates
+                                   ,mixedTripletStepTracks
+                                   ,mixedTripletStepClassifier1,mixedTripletStepClassifier2
+                                   ,mixedTripletStep                                 
                                    )
 )

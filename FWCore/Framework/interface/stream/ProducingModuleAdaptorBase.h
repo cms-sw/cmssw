@@ -75,6 +75,7 @@ namespace edm {
       
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
+      virtual bool hasAcquire() const = 0;
       bool wantsStreamRuns() const {return true;}
       bool wantsStreamLuminosityBlocks() const {return true;}
 

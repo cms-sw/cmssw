@@ -4,7 +4,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,7 +18,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 
-class TriggerObjectTableProducer : public edm::global::EDProducer<> {
+class TriggerObjectTableProducer : public edm::stream::EDProducer<> {
     public:
         explicit TriggerObjectTableProducer(const edm::ParameterSet &iConfig) :
             name_(iConfig.getParameter<std::string>("name")),
@@ -45,7 +45,7 @@ class TriggerObjectTableProducer : public edm::global::EDProducer<> {
         ~TriggerObjectTableProducer() override {}
 
     private:
-        void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override ;
+        void produce(edm::Event&, edm::EventSetup const&) override ;
 
         std::string name_;
         edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> src_;
@@ -89,7 +89,7 @@ class TriggerObjectTableProducer : public edm::global::EDProducer<> {
 
 // ------------ method called to produce the data  ------------
 void
-TriggerObjectTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const 
+TriggerObjectTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
 
     edm::Handle<std::vector<pat::TriggerObjectStandAlone>> src;
@@ -121,7 +121,7 @@ TriggerObjectTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
             for (const auto & seed : *src) {
                 float dr2 = deltaR2(seed, obj);
                 if (dr2 < best && sel.l1cut(seed)) {
-                    l2pt[i] = seed.pt();
+                    l1pt[i] = seed.pt();
                 }
             }
         }

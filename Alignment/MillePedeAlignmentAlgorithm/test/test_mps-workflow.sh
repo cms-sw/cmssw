@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MPS_TEST_DIR=/tmp/$(date '+%G-%m-%d_%H.%M.%S.%N')_${RANDOM}
+MPS_TEST_DIR=${LOCALTOP}/tmp/$(date '+%G-%m-%d_%H.%M.%S.%N')_${RANDOM}
 MPprod_dir=${MPS_TEST_DIR}/MPproduction
 
 check_for_success() {

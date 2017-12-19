@@ -3,17 +3,18 @@
 
 //#define debug_TkHistoMap
 
-TkHistoMap::TkHistoMap():
+TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap):
   HistoNumber(35){
   cached_detid=0;
   cached_layer=0;
   
   LogTrace("TkHistoMap") <<"TkHistoMap::constructor without parameters"; 
   loadServices();
+  tkdetmap_ = tkDetMap;
 }
 
 
-TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline, bool mechanicalView): 
+TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName,float baseline, bool mechanicalView):
   HistoNumber(35),
   MapName_(MapName)
 {
@@ -21,10 +22,11 @@ TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline, boo
   cached_layer=0;
   LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters"; 
   loadServices();
+  tkdetmap_ = tkDetMap;
   createTkHistoMap(path,MapName_, baseline, mechanicalView);
 }
 
-TkHistoMap::TkHistoMap(DQMStore::IBooker & ibooker , std::string path, std::string MapName,float baseline, bool mechanicalView): 
+TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap, DQMStore::IBooker & ibooker, const std::string& path, const std::string& MapName,float baseline, bool mechanicalView):
   HistoNumber(35),
   MapName_(MapName)
 {
@@ -32,6 +34,7 @@ TkHistoMap::TkHistoMap(DQMStore::IBooker & ibooker , std::string path, std::stri
   cached_layer=0;
   LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters"; 
   loadServices();
+  tkdetmap_ = tkDetMap;
   createTkHistoMap(ibooker , path,MapName_, baseline, mechanicalView);
 }
 
@@ -44,21 +47,13 @@ void TkHistoMap::loadServices(){
       "\n------------------------------------------";
   }
   dqmStore_=edm::Service<DQMStore>().operator->();
-  if(!edm::Service<TkDetMap>().isAvailable()){
-    edm::LogError("TkHistoMap") << 
-      "\n------------------------------------------"
-      "\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like"
-      "\n\tprocess.TkDetMap = cms.Service(\"TkDetMap\")"
-      "\n------------------------------------------";
-  }
-  tkdetmap_=edm::Service<TkDetMap>().operator->();
 }
 
-void TkHistoMap::save(std::string filename){
+void TkHistoMap::save(const std::string& filename){
   dqmStore_->save(filename);
 }
 
-void TkHistoMap::loadTkHistoMap(std::string path, std::string MapName, bool mechanicalView){
+void TkHistoMap::loadTkHistoMap(const std::string& path, const std::string& MapName, bool mechanicalView){
   MapName_=MapName;
   std::string fullName, folder;
   tkHistoMap_.resize(HistoNumber);    
@@ -77,7 +72,7 @@ void TkHistoMap::loadTkHistoMap(std::string path, std::string MapName, bool mech
   }
 }
 
-void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float& baseline, bool mechanicalView){
+void TkHistoMap::createTkHistoMap(const std::string& path, const std::string& MapName, float baseline, bool mechanicalView){
   
   int nchX;
   int nchY;
@@ -108,7 +103,7 @@ void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float
   }
 }
 
-void TkHistoMap::createTkHistoMap(DQMStore::IBooker & ibooker , std::string& path, std::string& MapName, float& baseline, bool mechanicalView){
+void TkHistoMap::createTkHistoMap(DQMStore::IBooker & ibooker , const std::string& path, const std::string& MapName, float baseline, bool mechanicalView){
   
   int nchX;
   int nchY;
@@ -139,22 +134,21 @@ void TkHistoMap::createTkHistoMap(DQMStore::IBooker & ibooker , std::string& pat
   }
 }
 
-std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName, int layer , bool mechanicalView,std::string& fullName ){
+std::string TkHistoMap::folderDefinition(std::string folder, const std::string& MapName, int layer , bool mechanicalView,std::string& fullName ){
   
-  std::string folder=path;
-  std::string name=MapName+std::string("_");
-  fullName=name+tkdetmap_->getLayerName(layer);
+  std::string name = MapName+std::string("_");
+  fullName=name+TkDetMap::getLayerName(layer);
   //  std::cout << "[TkHistoMap::folderDefinition] fullName: " << fullName << std::endl;
 
   if(mechanicalView){
     std::stringstream ss;
 
     SiStripFolderOrganizer folderOrg;
-    folderOrg.setSiStripFolderName(path);
+    folderOrg.setSiStripFolderName(folder);
 
     SiStripDetId::SubDetector subDet;
     uint32_t subdetlayer = 0, side = 0;
-    tkdetmap_->getSubDetLayerSide(layer,subDet,subdetlayer,side);
+    TkDetMap::getSubDetLayerSide(layer,subDet,subdetlayer,side);
     folderOrg.getSubDetLayerFolderName(ss,subDet,subdetlayer,side);
     
     folder = ss.str();
@@ -165,7 +159,7 @@ std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName
 }
 
 #include <iostream>
-void TkHistoMap::fillFromAscii(std::string filename){
+void TkHistoMap::fillFromAscii(const std::string& filename){
   std::ifstream file;
   file.open(filename.c_str());
   float value;
@@ -177,11 +171,11 @@ void TkHistoMap::fillFromAscii(std::string filename){
   file.close();
 }
 
-void TkHistoMap::fill(uint32_t& detid,float value){
-  int16_t layer=tkdetmap_->FindLayer(detid , cached_detid , cached_layer , cached_XYbin);
+void TkHistoMap::fill(DetId detid,float value){
+  int16_t layer=tkdetmap_->findLayer(detid , cached_detid , cached_layer , cached_XYbin);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid , cached_detid , cached_layer , cached_XYbin);
 #ifdef debug_TkHistoMap
-  LogTrace("TkHistoMap") << "[TkHistoMap::fill] Fill detid " << detid << " Layer " << layer << " value " << value << " ix,iy "  << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y << " " << tkHistoMap_[layer]->getTProfile2D()->GetName();
+  LogTrace("TkHistoMap") << "[TkHistoMap::fill] Fill detid " << detid.rawId() << " Layer " << layer << " value " << value << " ix,iy "  << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y << " " << tkHistoMap_[layer]->getTProfile2D()->GetName();
 #endif
   tkHistoMap_[layer]->getTProfile2D()->Fill(xybin.x,xybin.y,value);
 
@@ -193,14 +187,14 @@ void TkHistoMap::fill(uint32_t& detid,float value){
 #endif
 }
 
-void TkHistoMap::setBinContent(uint32_t& detid,float value){
-  int16_t layer=tkdetmap_->FindLayer(detid , cached_detid , cached_layer , cached_XYbin);
+void TkHistoMap::setBinContent(DetId detid,float value){
+  int16_t layer=tkdetmap_->findLayer(detid , cached_detid , cached_layer , cached_XYbin);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid , cached_detid , cached_layer , cached_XYbin);
   tkHistoMap_[layer]->getTProfile2D()->SetBinEntries(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy),1);
   tkHistoMap_[layer]->getTProfile2D()->SetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy),value);
 
 #ifdef debug_TkHistoMap
-  LogTrace("TkHistoMap") << "[TkHistoMap::setbincontent]  setBinContent detid " << detid << " Layer " << layer << " value " << value << " ix,iy "  << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y << " " << tkHistoMap_[layer]->getTProfile2D()->GetName() << " bin " << tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy);
+  LogTrace("TkHistoMap") << "[TkHistoMap::setbincontent]  setBinContent detid " << detid.rawId() << " Layer " << layer << " value " << value << " ix,iy "  << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y << " " << tkHistoMap_[layer]->getTProfile2D()->GetName() << " bin " << tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy);
 
   LogTrace("TkHistoMap") << "[TkHistoMap::setbincontent] " << tkHistoMap_[layer]->getTProfile2D()->GetBinContent(xybin.ix,xybin.iy);
   for(size_t ii=0;ii<4;ii++)
@@ -210,31 +204,30 @@ void TkHistoMap::setBinContent(uint32_t& detid,float value){
 #endif
 }
 
-void TkHistoMap::add(uint32_t& detid,float value){
+void TkHistoMap::add(DetId detid,float value){
 #ifdef debug_TkHistoMap
   LogTrace("TkHistoMap") << "[TkHistoMap::add]";
 #endif
-  int16_t layer=tkdetmap_->FindLayer(detid , cached_detid , cached_layer , cached_XYbin);
+  int16_t layer=tkdetmap_->findLayer(detid , cached_detid , cached_layer , cached_XYbin);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid , cached_detid , cached_layer , cached_XYbin);
   setBinContent(detid,tkHistoMap_[layer]->getTProfile2D()->GetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy))+value);
   
 }
 
-float TkHistoMap::getValue(uint32_t& detid){
-  int16_t layer=tkdetmap_->FindLayer(detid , cached_detid , cached_layer , cached_XYbin);
+float TkHistoMap::getValue(DetId detid){
+  int16_t layer=tkdetmap_->findLayer(detid , cached_detid , cached_layer , cached_XYbin);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid , cached_detid , cached_layer , cached_XYbin);
   return tkHistoMap_[layer]->getTProfile2D()->GetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy));
 }
-float TkHistoMap::getEntries(uint32_t& detid){
-  int16_t layer=tkdetmap_->FindLayer(detid , cached_detid , cached_layer , cached_XYbin);
+float TkHistoMap::getEntries(DetId detid){
+  int16_t layer=tkdetmap_->findLayer(detid , cached_detid , cached_layer , cached_XYbin);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid , cached_detid , cached_layer , cached_XYbin);
   return tkHistoMap_[layer]->getTProfile2D()->GetBinEntries(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy));
 }
 
 void TkHistoMap::dumpInTkMap(TrackerMap* tkmap,bool dumpEntries){
   for(int layer=1;layer<HistoNumber;++layer){
-    std::vector<uint32_t> dets;
-    tkdetmap_->getDetsForLayer(layer,dets);
+    std::vector<DetId> dets = tkdetmap_->getDetsForLayer(layer);
     for(size_t i=0;i<dets.size();++i){
       if(dets[i]>0){
 	if(getEntries(dets[i])>0) {
@@ -249,7 +242,7 @@ void TkHistoMap::dumpInTkMap(TrackerMap* tkmap,bool dumpEntries){
 
 #include "TCanvas.h"
 #include "TFile.h"
-void TkHistoMap::saveAsCanvas(std::string filename,std::string options,std::string mode){
+void TkHistoMap::saveAsCanvas(const std::string& filename, const std::string& options, const std::string& mode){
   //  TCanvas C(MapName_,MapName_,200,10,900,700);
   TCanvas* CTIB=new TCanvas(std::string("Canvas_"+MapName_+"TIB").c_str(),std::string("Canvas_"+MapName_+"TIB").c_str());
   TCanvas* CTOB=new TCanvas(std::string("Canvas_"+MapName_+"TOB").c_str(),std::string("Canvas_"+MapName_+"TOB").c_str());

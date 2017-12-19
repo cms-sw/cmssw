@@ -76,4 +76,5 @@ dedxDiscrimSmi.estimator = cms.string('smirnovDiscrim')
 dedxDiscrimASmi         = dedxHarmonic2.clone()
 dedxDiscrimASmi.estimator = cms.string('asmirnovDiscrim')
 
-doAlldEdXEstimators = cms.Sequence(dedxTruncated40 + dedxHarmonic2 + dedxPixelHarmonic2 + dedxPixelAndStripHarmonic2T085 + dedxHitInfo)
+doAlldEdXEstimatorsTask = cms.Task(dedxTruncated40 , dedxHarmonic2 , dedxPixelHarmonic2 , dedxPixelAndStripHarmonic2T085 , dedxHitInfo)
+doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)

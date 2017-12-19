@@ -4,6 +4,7 @@
 <use   name="SimG4Core/Physics"/>
 <use   name="SimG4Core/PhysicsLists"/>
 <use   name="SimGeneral/GFlash"/>
+<use   name="SimG4Core/Application"/>
 <use   name="geant4core"/>
 <use   name="clhep"/>
 <use   name="boost"/>

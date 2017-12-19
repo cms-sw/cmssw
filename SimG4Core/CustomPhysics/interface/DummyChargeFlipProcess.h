@@ -1,6 +1,5 @@
-
-#ifndef DummyChargeFlipProcess_h
-#define DummyChargeFlipProcess_h 1
+#ifndef SimG4Core_CustomPhysics_DummyChargeFlipProcess_h
+#define SimG4Core_CustomPhysics_DummyChargeFlipProcess_h 1
  
 #include "globals.hh"
 #include "G4HadronicProcess.hh"

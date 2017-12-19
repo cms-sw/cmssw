@@ -211,9 +211,9 @@ namespace {
     Tracker Map of SiStrip Pedestals Summaries
   *************************************************/
 
-  template<SiStripPI::estimator est> class SiStripPedestalsByPartition : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  template<SiStripPI::estimator est> class SiStripPedestalsByRegion : public cond::payloadInspector::PlotImage<SiStripPedestals> {
   public:
-     SiStripPedestalsByPartition() : cond::payloadInspector::PlotImage<SiStripPedestals>( "SiStrip Pedestals "+estimatorType(est)+" by Partition" ),
+     SiStripPedestalsByRegion() : cond::payloadInspector::PlotImage<SiStripPedestals>( "SiStrip Pedestals "+estimatorType(est)+" by Region" ),
       m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
@@ -271,7 +271,7 @@ namespace {
       
       TCanvas canvas("Partion summary","partition summary",1200,1000); 
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(new TH1F("byPartition",Form("Average by partition of %s SiStrip Pedestals per module;;average SiStrip Pedestals %s [ADC counts]",estimatorType(est).c_str(),estimatorType(est).c_str()),map.size(),0.,map.size()));
+      auto h1 = std::unique_ptr<TH1F>(new TH1F("byRegion",Form("Average by partition of %s SiStrip Pedestals per module;;average SiStrip Pedestals %s [ADC counts]",estimatorType(est).c_str(),estimatorType(est).c_str()),map.size(),0.,map.size()));
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.17);
@@ -314,7 +314,7 @@ namespace {
 	  }
 
 	h1->SetBinContent(iBin,mean);
-	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h1->GetXaxis()->LabelsOption("v");
 	
 	if(detector!=currentDetector) {
@@ -358,10 +358,10 @@ namespace {
   };
 
 
-  typedef SiStripPedestalsByPartition<SiStripPI::mean> SiStripPedestalsMeanByPartition;
-  typedef SiStripPedestalsByPartition<SiStripPI::min>  SiStripPedestalsMinByPartition;
-  typedef SiStripPedestalsByPartition<SiStripPI::max>  SiStripPedestalsMaxByPartition;
-  typedef SiStripPedestalsByPartition<SiStripPI::rms>  SiStripPedestalsRMSByPartition;
+  typedef SiStripPedestalsByRegion<SiStripPI::mean> SiStripPedestalsMeanByRegion;
+  typedef SiStripPedestalsByRegion<SiStripPI::min>  SiStripPedestalsMinByRegion;
+  typedef SiStripPedestalsByRegion<SiStripPI::max>  SiStripPedestalsMaxByRegion;
+  typedef SiStripPedestalsByRegion<SiStripPI::rms>  SiStripPedestalsRMSByRegion;
 
 } // close namespace
 
@@ -372,8 +372,8 @@ PAYLOAD_INSPECTOR_MODULE(SiStripPedestals){
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMax_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMean_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsRMS_TrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMeanByPartition);
-  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMinByPartition);
-  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMaxByPartition);
-  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsRMSByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMeanByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMinByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMaxByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsRMSByRegion);
 }

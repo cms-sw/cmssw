@@ -48,9 +48,9 @@ public:
 
   /** Access methods
    */
-  BasicSingleVertexState* clone() const override
+  pointer clone() const override
   {
-    return new BasicSingleVertexState(*this);
+    return build<BasicSingleVertexState>(*this);
   }
 
   GlobalPoint position() const override;

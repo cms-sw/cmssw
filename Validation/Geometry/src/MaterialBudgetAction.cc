@@ -157,7 +157,6 @@ void MaterialBudgetAction::update(const BeginOfRun* )
     int siz = partTable->size();
     for (int ii= 0; ii < siz; ii++) {
       G4ParticleDefinition * particle = partTable->GetParticle(ii);
-      const std::string& particleName = particle->GetParticleName();
       
       //--- All processes of this particle 
       G4ProcessManager * pmanager = particle->GetProcessManager();

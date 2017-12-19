@@ -6,10 +6,7 @@ process = cms.Process("CONDOBJMON")
 #-------------------------------------------------
 ###process.load("DQM.SiStripMonitorSummary.Tags21X_cff")
 
-process.load("DQM.SiStripCommon.TkHistoMap_cfi")
-
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 
 #-------------------------------------------------

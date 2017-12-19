@@ -68,9 +68,15 @@ const int HcalDbHardcode::getGainIndex(HcalGenericDetId fId){
   return index;
 }
 
-HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
-  HcalPedestalWidth width = makePedestalWidth (fId);
+HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear, bool eff, const HcalTopology* topo, double intlumi) {
+  HcalPedestalWidth width = makePedestalWidth (fId,eff,topo,intlumi);
   float value0 = getParameters(fId).pedestal();
+  if(eff){
+    //account for dark current + crosstalk
+    auto sipmpar = makeHardcodeSiPMParameter(fId,topo,intlumi);
+    auto sipmchar = makeHardcodeSiPMCharacteristics();
+    value0 += sipmpar.getDarkCurrent() * 25. / (1. - sipmchar->getCrossTalk(sipmpar.getType()));
+  }
   float value [4] = {value0,value0,value0,value0};
   if (fSmear) {
     for (int i = 0; i < 4; i++) {
@@ -86,12 +92,20 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
   return result;
 }
 
-HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId) {
+HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId, bool eff, const HcalTopology* topo, double intlumi) {
   float value = getParameters(fId).pedestalWidth();
+  float width2 = value*value;
   // everything in fC
 
+  if(eff){
+    //account for dark current + crosstalk
+    auto sipmpar = makeHardcodeSiPMParameter(fId,topo,intlumi);
+    auto sipmchar = makeHardcodeSiPMCharacteristics();
+    //add in quadrature
+    width2 += sipmpar.getDarkCurrent() * 25. / std::pow(1 - sipmchar->getCrossTalk(sipmpar.getType()), 3) * sipmpar.getFCByPE();
+  }
+
   HcalPedestalWidth result (fId.rawId ());
-  float width2 = value*value;
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
       result.setSigma (i, j, 0.0);

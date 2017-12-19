@@ -5,9 +5,6 @@
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
  
-//#include "Geometry/Vector/interface/LocalPoint.h"
-//#include "Geometry/Vector/interface/LocalVector.h"
-
 #include "SimG4Core/SensitiveDetector/interface/FrameRotation.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
@@ -43,39 +40,16 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#ifdef DUMPPROCESSES
-#include "G4VProcess.hh"
-#endif
-
-using std::cout;
-using std::endl;
-using std::vector;
-using std::string;
 
 //#define debug
 //-------------------------------------------------------------------
-FP420SD::FP420SD(std::string name, const DDCompactView & cpv,
+FP420SD::FP420SD(const std::string& name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), name(name),
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), 
   hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
   currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
   postStepPoint(nullptr), eventno(0){
-//-------------------------------------------------------------------
-/*
-FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
-		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  CaloSD(name, cpv, p, manager), numberingScheme(0), name(name),hcID(-1),
-  theHC(0), currentHit(0), theTrack(0), currentPV(0), 
-  unitID(0),  previousUnitID(0), preStepPoint(0), postStepPoint(0), eventno(0){
-*/
-//-------------------------------------------------------------------
-
-
-    
-    //Add FP420 Sentitive Detector Name
-    collectionName.insert(name);
-    
     
     //Parameters
       edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("FP420SD");
@@ -83,54 +57,22 @@ FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
     //int verbn = 1;
     
     SetVerboseLevel(verbn);
-    LogDebug("FP420Sim") 
-      << "*******************************************************\n"
-      << "*                                                     *\n"
-      << "* Constructing a FP420SD  with name " << name << "\n"
-      << "*                                                     *\n"
-      << "*******************************************************";
-    
     
     slave  = new TrackingSlaveSD(name);
-    
-    //
-    // attach detectors (LogicalVolumes)
-    //
-    const std::vector<std::string>& lvNames = clg.logicalNames(name);
-
-    this->Register();
-
-    for (std::vector<std::string>::const_iterator it=lvNames.begin();
-	 it !=lvNames.end(); it++) {
-      this->AssignSD(*it);
-      edm::LogInfo("FP420Sim") << "FP420SD : Assigns SD to LV " << (*it);
-    }
-    
+        
     if      (name == "FP420SI") {
       if (verbn > 0) {
-      edm::LogInfo("FP420Sim") << "name = FP420SI and  new FP420NumberingSchem";
-    std::cout << "name = FP420SI and  new FP420NumberingSchem"<< std::endl;
+	edm::LogInfo("FP420Sim") << "name = FP420SI and  new FP420NumberingSchem";
       }
       numberingScheme = new FP420NumberingScheme() ;
     } else {
       edm::LogWarning("FP420Sim") << "FP420SD: ReadoutName not supported\n";
-    std::cout << "FP420SD: ReadoutName not supported"<< std::endl;
     }
-    
-    edm::LogInfo("FP420Sim") << "FP420SD: Instantiation completed";
-    std::cout << "FP420SD: Instantiation completed"<< std::endl;
-  }
-
-
-
+}
 
 FP420SD::~FP420SD() { 
-  //AZ:
-  if (slave) delete slave; 
-
-  if (numberingScheme)
-    delete numberingScheme;
-
+  delete slave; 
+  delete numberingScheme;
 }
 
 double FP420SD::getEnergyDeposit(G4Step* aStep) {
@@ -142,7 +84,7 @@ void FP420SD::Initialize(G4HCofThisEvent * HCE) {
     LogDebug("FP420Sim") << "FP420SD : Initialize called for " << name << std::endl;
 #endif
 
-  theHC = new FP420G4HitCollection(name, collectionName[0]);
+    theHC = new FP420G4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
@@ -223,11 +165,10 @@ void FP420SD::GetStepInfo(G4Step* aStep) {
   Z  = hitPoint.z();
 }
 
-uint32_t FP420SD::setDetUnitId(G4Step * aStep) { 
+uint32_t FP420SD::setDetUnitId(const G4Step * aStep) { 
 
   return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
-
 
 G4bool FP420SD::HitExists() {
   if (primaryID<1) {
@@ -506,11 +447,8 @@ void FP420SD::PrintAll() {
 //
 //}
 
-void FP420SD::fillHits(edm::PSimHitContainer& c, std::string n) {
-  if (slave->name() == n) {
-    c=slave->hits();
-    std::cout << "FP420SD: fillHits to PSimHitContainer for name= " <<  name << std::endl;
-  }
+void FP420SD::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
+  if (slave->name() == hname) { cc=slave->hits(); }
 }
 
 void FP420SD::update (const BeginOfEvent * i) {
@@ -536,11 +474,5 @@ void FP420SD::update (const ::EndOfEvent*) {
 void FP420SD::clearHits(){
   //AZ:
     slave->Initialize();
-}
-
-std::vector<std::string> FP420SD::getNames(){
-  std::vector<std::string> temp;
-  temp.push_back(slave->name());
-  return temp;
 }
 

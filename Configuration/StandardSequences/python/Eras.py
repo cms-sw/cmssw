@@ -21,7 +21,6 @@ class Eras (object):
                  'Run2_2016_pA',
                  'Run2_2017',
                  'Run2_2017_trackingRun2',
-                 'Run2_2017_trackingPhase1QuadProp',
                  'Run2_2017_trackingLowPU',
                  'Run2_2017_pp_on_XeXe',
                  'Run2_2017_ppRef',
@@ -36,13 +35,14 @@ class Eras (object):
                            'stage1L1Trigger', 'fastSim',
                            'peripheralPbPb', 'pA_2016',
                            'run2_HE_2017', 'stage2L1Trigger', 'stage2L1Trigger_2017',
-                           'run2_HF_2017', 'run2_HCAL_2017', 'run2_HEPlan1_2017',
+                           'run2_HF_2017', 'run2_HCAL_2017', 'run2_HEPlan1_2017', 'run2_HB_2018','run2_HE_2018', 
                            'run3_HB', 'run3_common',
                            'phase1Pixel', 'run3_GEM', 'run2_GEM_2017', 'run2_GEM_2017_MCTest',
+                           'run2_CSC_2018',
                            'phase2_common', 'phase2_tracker',
                            'phase2_hgcal', 'phase2_muon', 'phase2_timing',
                            'phase2_timing_layer','phase2_hcal',
-                           'trackingLowPU', 'trackingPhase1', 'trackingPhase1QuadProp', 'ctpps_2016', 'trackingPhase2PU140',
+                           'trackingLowPU', 'trackingPhase1', 'ctpps_2016', 'trackingPhase2PU140',
                            'tracker_apv_vfp30_2016', 'run2_miniAOD_80XLegacy', 'run2_nanoAOD_92X',
                            'hcalHardcodeConditions', 'hcalSkipPacker']
         internalUseModChains = ['run2_2017_noTrackingModifier']
@@ -76,7 +76,7 @@ class Eras (object):
             if type(value)==Modifier:
                 nmod=nmod+1
                 if details: self.inspectModifier(value,details)
-        print '   ',nmod,'modifiers defined' 
+        print '   ',nmod,'modifiers defined'
 
     def inspect(self,name=None,onlyChosen=False,details=True):
         if name==None:
@@ -94,9 +94,9 @@ class Eras (object):
             if name is not None and name==e:
                 self.inspectEra(e,details)
             if name is None:
-                if not onlyChosen or getattr(self,e).isChosen(): 
+                if not onlyChosen or getattr(self,e).isChosen():
                     self.inspectEra(e,details)
-        
+
 eras=Eras()
 
 
