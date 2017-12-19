@@ -59,6 +59,12 @@ updateJetCollection(
       'pfDeepFlavourJetTags:probc',
       'pfDeepFlavourJetTags:probuds',
       'pfDeepFlavourJetTags:probg',
+      'pfNegativeDeepFlavourJetTags:probb',
+      'pfNegativeDeepFlavourJetTags:probbb',
+      'pfNegativeDeepFlavourJetTags:problepb',
+      'pfNegativeDeepFlavourJetTags:probc',
+      'pfNegativeDeepFlavourJetTags:probuds',
+      'pfNegativeDeepFlavourJetTags:probg',
       ]
    )
 
