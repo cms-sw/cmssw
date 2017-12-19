@@ -33,7 +33,7 @@ namespace {
 
     float operator()(reco::Track const & trk,
                      reco::BeamSpot const & beamSpot,
-                     reco::VertexCollection const & vertices) {
+                     reco::VertexCollection const & vertices) const {
 
       Point bestVertex = getBestVertex(trk,vertices);
 
@@ -72,7 +72,12 @@ namespace {
 
     std::string lwtnnLabel_;
     const lwt::LightweightNeuralNetwork *neuralNetwork_;
-    lwt::ValueMap inputs_; //typedef of map<string, double>
+    // inputs_ is mutable in order to avoid constructing
+    // map<string,double> for each track while keeping the operator()
+    // interface const. Thread safety is in practice achieved by
+    // TrackMVAClassifierBase (and inheriting classes) being a stream
+    // module.
+    mutable lwt::ValueMap inputs_; //typedef of map<string, double>
   };
 
   using TrackLwtnnClassifier = TrackMVAClassifier<lwtnn>;
