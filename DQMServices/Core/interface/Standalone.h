@@ -1,13 +1,14 @@
 #ifndef DQMSERVICES_CORE_STANDALONE_H
 # define DQMSERVICES_CORE_STANDALONE_H
 # if !WITHOUT_CMS_FRAMEWORK
-#  include "FWCore/ServiceRegistry/interface/SystemBounds.h"
-#  include "FWCore/ParameterSet/interface/ParameterSet.h"
-#  include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#  include "FWCore/ServiceRegistry/interface/Service.h"
 #  include "FWCore/MessageLogger/interface/JobReport.h"
-#  include "FWCore/Version/interface/GetReleaseVersion.h"
+#  include "FWCore/ParameterSet/interface/ParameterSet.h"
 #  include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#  include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#  include "FWCore/ServiceRegistry/interface/Service.h"
+#  include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#  include "FWCore/ServiceRegistry/interface/SystemBounds.h"
+#  include "FWCore/Version/interface/GetReleaseVersion.h"
 # else
 #  include <memory>
 #  include <string>
@@ -77,10 +78,34 @@ namespace edm
     template <typename T>
     void watchPostSourceLumi(void*, T) {}
 
+    template <typename T>
+    void watchPostGlobalBeginRun(void*, T) {}
+
+    template <typename T>
+    void watchPostGlobalBeginLumi(void*, T) {}
+
+    template <typename T>
+    void watchPostGlobalEndRun(void*, T) {}
+
+    template <typename T>
+    void watchPostGlobalEndLumi(void*, T) {}
+
     PreallocationSignal preallocateSignal_;
   };
-  
-  
+
+  class LuminosityBlockID
+  {
+  public:
+    unsigned int run() const { return 0; }
+    unsigned int luminosityBlock() const { return 0; }
+  };
+
+  class GlobalContext
+  {
+  public:
+    LuminosityBlockID luminosityBlockID() const { return LuminosityBlockID(); }
+  };
+
   class JobReport
   {
   public:
