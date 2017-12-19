@@ -1,5 +1,6 @@
 
 #include "Alignment/LaserAlignment/interface/LASGeometryUpdater.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 
 ///
@@ -129,7 +130,7 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
 
   // re-arrange to match the structure in LASBarrelAlignmentParameterSet and simplify the loop
   // 2 (TIB+), 3 (TIB-), 4 (TOB+), 5 (TOB-)
-  std::vector<Alignable*> theHalfBarrels( 6 );
+  align::Alignables theHalfBarrels( 6 );
   theHalfBarrels.at( 0 ) = theEndcaps.at( 0 ); // TEC+
   theHalfBarrels.at( 1 ) = theEndcaps.at( 1 ); // TEC-
   theHalfBarrels.at( 2 ) = theInnerHalfBarrels.at( 1 ); // TIB+

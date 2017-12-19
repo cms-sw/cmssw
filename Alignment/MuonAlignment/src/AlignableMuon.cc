@@ -425,16 +425,13 @@ align::Alignables AlignableMuon::CSCEndcaps()
 //__________________________________________________________________________________________________
 void AlignableMuon::recursiveSetMothers( Alignable* alignable )
 {
-  
-  align::Alignables components = alignable->components();
-  for ( align::Alignables::iterator iter = components.begin();
-		iter != components.end(); iter++ )
-	{
-	  (*iter)->setMother( alignable );
-	  recursiveSetMothers( *iter );
-	}
-
+  for (const auto& iter: alignable->components()) {
+    iter->setMother(alignable);
+    recursiveSetMothers(iter);
+  }
 }
+
+
 //__________________________________________________________________________________________________
 Alignments* AlignableMuon::alignments( void ) const
 {

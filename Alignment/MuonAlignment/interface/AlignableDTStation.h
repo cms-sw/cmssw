@@ -10,7 +10,7 @@
  */
 
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
@@ -32,17 +32,6 @@ class AlignableDTStation : public AlignableComposite
  public:
 
   AlignableDTStation( const std::vector<AlignableDTChamber*>& dtChambers );
-
-  ~AlignableDTStation() override;
-  
-  std::vector<Alignable*> components() const override 
-  {
-
-        std::vector<Alignable*> result;
-        result.insert( result.end(), theDTChambers.begin(), theDTChambers.end() );
-        return result;
-
-  }
   
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;

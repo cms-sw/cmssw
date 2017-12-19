@@ -87,7 +87,7 @@ unsigned int AlignableCompositeBuilder
   // This vector is used indicate if a parent already exists. It is initialized
   // with 'naked' Alignables-pointers; if the pointer is not naked (!= nullptr)
   // for one of the child-IDs, its parent was already built before.
-  Alignables tmpParents(maxNumParents, nullptr);
+  align::Alignables tmpParents(maxNumParents, nullptr);
 
   for (auto* child: children) {
     // get the number of the child-Alignable ...

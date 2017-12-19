@@ -133,20 +133,17 @@ class CSCMotherboard
   static const unsigned int def_match_trig_enable, def_match_trig_window_size;
   static const unsigned int def_tmb_l1a_window_size;
 
-  /** Maximum number of time bins. */
-  enum {MAX_LCT_BINS = 16};
-
   /** Container for first correlated LCT. */
-  CSCCorrelatedLCTDigi firstLCT[MAX_LCT_BINS];
+  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_TBINS];
 
   /** Container for second correlated LCT. */
-  CSCCorrelatedLCTDigi secondLCT[MAX_LCT_BINS];
+  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
 
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
-  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-                     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT);
+  void correlateLCTs(CSCALCTDigi& bestALCT, CSCALCTDigi& secondALCT,
+                     CSCCLCTDigi& bestCLCT, CSCCLCTDigi& secondCLCT);
   CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT,
                                      const CSCCLCTDigi& cLCT,
                                      int type) const;

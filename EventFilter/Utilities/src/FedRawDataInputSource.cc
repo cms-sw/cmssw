@@ -248,7 +248,7 @@ bool FedRawDataInputSource::checkNextEvent()
     startupCv_.wait(lk);
   }
   //signal hltd to start event accounting
-  if (!currentLumiSection_ && daqDirector_->emptyLumisectionMode())
+  if (!currentLumiSection_)
     daqDirector_->createProcessingNotificationMaybe();
   if (fms_) fms_->setInState(evf::FastMonitoringThread::inWaitInput);
   switch (nextEvent() ) {
@@ -421,7 +421,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       currentFileIndex_++;
     }
     else
-      assert(0);
+      assert(false);
   }
   if (fms_) fms_->setInState(evf::FastMonitoringThread::inProcessingFile);
 
@@ -1020,6 +1020,12 @@ void FedRawDataInputSource::readSupervisor()
 	break;
       }
 
+      //error from filelocking function
+      if (status == evf::EvFDaqDirector::runAbort) {
+	fileQueue_.push(new InputFile(evf::EvFDaqDirector::runAbort, 0));
+        stop=true;
+        break;
+      }
       //queue new lumisection
       if( getLSFromFilename_ && ls > currentLumiSection) {
         //fms_->setInStateSup(evf::FastMonitoringThread::inSupNewLumi);

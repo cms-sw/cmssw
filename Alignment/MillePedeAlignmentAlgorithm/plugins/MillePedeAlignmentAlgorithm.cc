@@ -1064,7 +1064,7 @@ bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespse
   bool allEmpty = this->areEmptyParams(theAlignables);
 
   PedeReader reader(mprespset, *thePedeSteer, *thePedeLabels, runrange);
-  std::vector<Alignable*> alis;
+  align::Alignables alis;
   bool okRead = reader.read(alis, setUserVars); // also may set params of IntegratedCalibration's
   bool numMatch = true;
 
@@ -1095,12 +1095,11 @@ bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespse
 }
 
 //__________________________________________________________________________________________________
-bool MillePedeAlignmentAlgorithm::areEmptyParams(const std::vector<Alignable*> &alignables) const
+bool MillePedeAlignmentAlgorithm::areEmptyParams(const align::Alignables& alignables) const
 {
 
-  for (std::vector<Alignable*>::const_iterator iAli = alignables.begin();
-       iAli != alignables.end(); ++iAli) {
-    const AlignmentParameters *params = (*iAli)->alignmentParameters();
+  for (const auto& iAli: alignables) {
+    const AlignmentParameters *params = iAli->alignmentParameters();
     if (params) {
       const auto& parVec(params->parameters());
       const auto& parCov(params->covariance());
@@ -1177,7 +1176,7 @@ unsigned int MillePedeAlignmentAlgorithm::doIO(int loop) const
 }
 
 //__________________________________________________________________________________________________
-void MillePedeAlignmentAlgorithm::buildUserVariables(const std::vector<Alignable*> &alis) const
+void MillePedeAlignmentAlgorithm::buildUserVariables(const align::Alignables& alis) const
 {
   for (const auto& iAli: alis) {
     AlignmentParameters *params = iAli->alignmentParameters();
@@ -1254,13 +1253,12 @@ bool MillePedeAlignmentAlgorithm::addHitStatistics(int fromIov, const std::strin
 }
 
 //__________________________________________________________________________________________________
-bool MillePedeAlignmentAlgorithm::addHits(const std::vector<Alignable*> &alis,
+bool MillePedeAlignmentAlgorithm::addHits(const align::Alignables& alis,
                                           const std::vector<AlignmentUserVariables*> &mpVars) const
 {
   bool allOk = (mpVars.size() == alis.size());
   std::vector<AlignmentUserVariables*>::const_iterator iUser = mpVars.begin();
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin();
-       iAli != alis.end() && iUser != mpVars.end(); ++iAli, ++iUser) {
+  for (auto iAli = alis.cbegin(); iAli != alis.cend() && iUser != mpVars.end(); ++iAli, ++iUser) {
     MillePedeVariables *mpVarNew = dynamic_cast<MillePedeVariables*>(*iUser);
     AlignmentParameters *ps = (*iAli)->alignmentParameters();
     MillePedeVariables *mpVarOld = (ps ? dynamic_cast<MillePedeVariables*>(ps->userVariables()) : nullptr);

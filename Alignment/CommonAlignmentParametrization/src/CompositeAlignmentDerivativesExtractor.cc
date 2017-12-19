@@ -9,7 +9,7 @@
 
 //--------------------------------------------------------------------------------------
 CompositeAlignmentDerivativesExtractor::
-CompositeAlignmentDerivativesExtractor( const std::vector< Alignable* > & alignables,
+CompositeAlignmentDerivativesExtractor( const align::Alignables & alignables,
                                         const std::vector< AlignableDet* > & alignableDets,
                                         const std::vector< TrajectoryStateOnSurface > & tsos )
 {
@@ -25,7 +25,7 @@ CompositeAlignmentDerivativesExtractor( const std::vector< Alignable* > & aligna
 
 //--------------------------------------------------------------------------------------
 CompositeAlignmentDerivativesExtractor::
-CompositeAlignmentDerivativesExtractor( const std::vector< Alignable* > & alignables,
+CompositeAlignmentDerivativesExtractor( const align::Alignables & alignables,
                                         const std::vector< AlignableDetOrUnitPtr > & alignableDets,
                                         const std::vector< TrajectoryStateOnSurface > & tsos )
 {
@@ -35,7 +35,7 @@ CompositeAlignmentDerivativesExtractor( const std::vector< Alignable* > & aligna
 //--------------------------------------------------------------------------------------
 
 void CompositeAlignmentDerivativesExtractor::
-extractCurrentAlignment( const std::vector< Alignable* > & alignables,
+extractCurrentAlignment( const align::Alignables & alignables,
                          const std::vector< AlignableDetOrUnitPtr > & alignableDets,
                          const std::vector< TrajectoryStateOnSurface > & tsos )
 {
@@ -57,7 +57,7 @@ extractCurrentAlignment( const std::vector< Alignable* > & alignables,
 	  return;
 	}
 
-  std::vector< Alignable* >::const_iterator itAlignable = alignables.begin();
+  align::Alignables::const_iterator itAlignable = alignables.begin();
   std::vector< AlignableDetOrUnitPtr >::const_iterator itAlignableDet = alignableDets.begin();
   std::vector< TrajectoryStateOnSurface >::const_iterator itTsos = tsos.begin();
 
@@ -143,16 +143,16 @@ extractWithoutMultipleHits( const std::vector< AlgebraicVector > & subCorrection
 //--------------------------------------------------------------------------------------
 
 void CompositeAlignmentDerivativesExtractor::
-extractWithMultipleHits( const std::vector< AlgebraicVector > & subCorrectionTerm,
-						 const std::vector< AlgebraicMatrix > & subDerivatives,
-						 const std::vector< Alignable* > & alignables )
+extractWithMultipleHits(const std::vector<AlgebraicVector>& subCorrectionTerm,
+                        const std::vector<AlgebraicMatrix>& subDerivatives,
+                        const align::Alignables& alignables)
 {
 
   std::vector< AlgebraicVector >::const_iterator itSubCorrectionTerm = subCorrectionTerm.begin();
   std::vector< AlgebraicMatrix >::const_iterator itSubDerivatives = subDerivatives.begin();
-  std::vector< Alignable* >::const_iterator itAlignables = alignables.begin();
-  std::vector< Alignable* >::const_iterator itPosition;
-  std::vector< Alignable* >::const_iterator itLastPosition;
+  align::Alignables::const_iterator itAlignables = alignables.begin();
+  align::Alignables::const_iterator itPosition;
+  align::Alignables::const_iterator itLastPosition;
 
   int iRow = 1;
 
