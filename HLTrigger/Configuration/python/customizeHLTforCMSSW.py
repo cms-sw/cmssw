@@ -34,7 +34,7 @@ def customiseFor21664_forMahiOnM2only(process):
 
 # Needs the ESProducer for HcalTimeSlewRecord
 def customiseFor21733(process):
-    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+    process.load('CalibCalorimetry.HcalPlugins.HcalTimeSlew_cff')
     return process
 
 # CMSSW version specific customizations
