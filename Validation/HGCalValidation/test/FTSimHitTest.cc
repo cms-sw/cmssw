@@ -31,13 +31,11 @@
 #include "TH1.h"
 #include "TH2.h"
 
-//#define EDM_ML_DEBUG
-
 class FTSimHitTest: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
   explicit FTSimHitTest(const edm::ParameterSet& ps);
-  ~FTSimHitTest();
+  ~FTSimHitTest() override { }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -59,31 +57,28 @@ private:
 };
 
 
-FTSimHitTest::FTSimHitTest(const edm::ParameterSet& ps) : ftcons_(0) {
+FTSimHitTest::FTSimHitTest(const edm::ParameterSet& ps) : 
+  g4Label_(ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits")),
+  barrelHit_(ps.getUntrackedParameter<std::string>("HitCollection","FastTimerHitsBarrel")),
+  endcapHit_(ps.getUntrackedParameter<std::string>("HitCollection","FastTimerHitsEndcap")),
+  ftcons_(0) {
 
-  usesResource("TFileService");
-
-  g4Label_   = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
-  barrelHit_ = ps.getUntrackedParameter<std::string>("HitCollection","FastTimerHitsBarrel");
-  endcapHit_ = ps.getUntrackedParameter<std::string>("HitCollection","FastTimerHitsEndcap");
+  usesResource(TFileService::kSharedResource);
 
   tok_hitBarrel_ = consumes<edm::PSimHitContainer>(edm::InputTag(g4Label_,barrelHit_));
   tok_hitEndcap_ = consumes<edm::PSimHitContainer>(edm::InputTag(g4Label_,endcapHit_));
-#ifdef EDM_ML_DEBUG
-  std::cout << "FTSimHitTest::Input for SimHit for Barrel: " 
-	    << edm::InputTag(g4Label_,barrelHit_) << " and Endcap: " 
-	    << edm::InputTag(g4Label_,endcapHit_) << std::endl;
-#endif
+  edm::LogVerbatim("HGCalValidation") << "FTSimHitTest::i/p for Barrel SimHit:"
+				      << edm::InputTag(g4Label_,barrelHit_) 
+				      << " and Endcap:" 
+				      << edm::InputTag(g4Label_,endcapHit_);
 }
 
-FTSimHitTest::~FTSimHitTest() {}
-
 void FTSimHitTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<std::string>("ModuleLabel","g4SimHits");
+  desc.addUntracked<std::string>("HitBarrelLabel","FastTimerHitsBarrel");
+  desc.addUntracked<std::string>("HitEndcapLabel","FastTimerHitsEndcap");
+  descriptions.add("ftSimHitTest",desc);
 }
 
 void FTSimHitTest::beginRun(edm::Run const&, edm::EventSetup const& es) {
@@ -116,46 +111,36 @@ void FTSimHitTest::beginRun(edm::Run const&, edm::EventSetup const& es) {
 
 void FTSimHitTest::analyze(const edm::Event& e, const edm::EventSetup& ) {
   
-#ifdef EDM_ML_DEBUG  
-  std::cout << "FTSimHitTest:Run = " << e.id().run() << " Event = "
-	    << e.id().event();
-#endif
+  edm::LogVerbatim("HGCalValidation") << "FTSimHitTest:Run = " << e.id().run() 
+				      << " Event = " << e.id().event();
 
   //Barrel
   edm::Handle<edm::PSimHitContainer> hits;
   e.getByToken(tok_hitBarrel_,hits); 
-#ifdef EDM_ML_DEBUG  
-  std::cout << "FTSimHitTest.: PSimHitContainer for Barrel obtained with flag "
-	    << hits.isValid() << std::endl;
-#endif
+  edm::LogVerbatim("HGCalValidation") << "FTSimHitTest.: PSimHitContainer for "
+				      << "Barrel obtained with flag "
+				      << hits.isValid();
   if (hits.isValid()) {
-#ifdef EDM_ML_DEBUG 
-    std::cout << "FTSimHitTest: PSimHit buffer for Barrel " << hits->size()
-	      << std::endl;
-#endif
+    edm::LogVerbatim("HGCalValidation") << "FTSimHitTest: PSimHit buffer for "
+					<< "Barrel " << hits->size();
     plotHits(hits,0);
   }
 
   //Endcap
   e.getByToken(tok_hitEndcap_,hits); 
-#ifdef EDM_ML_DEBUG  
-  std::cout << "FTSimHitTest.: PSimHitContainer for Endcap obtained with flag "
-	    << hits.isValid() << std::endl;
-#endif
+  edm::LogVerbatim("HGCalValidation") << "FTSimHitTest.: PSimHitContainer for "
+				      << "Endcap obtained with flag "
+				      << hits.isValid();
   if (hits.isValid()) {
-#ifdef EDM_ML_DEBUG 
-    std::cout << "FTSimHitTest: PSimHit buffer for Endcap " << hits->size()
-	      << std::endl;
-#endif
+    edm::LogVerbatim("HGCalValidation") << "FTSimHitTest: PSimHit buffer for "
+					<< "Endcap " << hits->size();
     plotHits(hits,1);
   }
 }
 
 void FTSimHitTest::plotHits(const edm::Handle<edm::PSimHitContainer>& hits,
 			    const int indx) {
-#ifdef EDM_ML_DEBUG
   unsigned kount(0);
-#endif
   std::vector<unsigned int> ids;
   for (edm::PSimHitContainer::const_iterator it = hits->begin();
        it != hits->end(); ++it) {
@@ -170,18 +155,15 @@ void FTSimHitTest::plotHits(const edm::Handle<edm::PSimHitContainer>& hits,
     if (zside > 0) hsimP_[indx]->Fill(etaz,phi);
     else           hsimM_[indx]->Fill(etaz,phi);
     if (std::find(ids.begin(),ids.end(),id) == ids.end()) ids.push_back(id);
-#ifdef EDM_ML_DEBUG
     ++kount;
-    std::cout << "FTSimHitTest[" << kount << "] ID " << std::hex << " " << id 
-	      << std::dec << " " << FastTimeDetId(id) << " E " << energy
-	      << " time " << time << std::endl;
-#endif
+    edm::LogVerbatim("HGCalValidation") << "FTSimHitTest[" << kount << "] ID "
+					<< std::hex << " " << id << std::dec
+					<< " " << FastTimeDetId(id) << " E " 
+					<< energy << " time " << time;
   }
   hcell_[indx]->Fill(double(ids.size()));
-#ifdef EDM_ML_DEBUG
-  std::cout << "FTSimHitTest: " << ids.size() << " cells fired for type "
-	    << indx << std::endl;
-#endif
+  edm::LogVerbatim("HGCalValidation") << "FTSimHitTest: " << ids.size() 
+				      << " cells fired for type " << indx;
 }
 
 DEFINE_FWK_MODULE(FTSimHitTest);

@@ -34,13 +34,11 @@
 #include "TH1.h"
 #include "TH2.h"
 
-//#define EDM_ML_DEBUG
-
 class HGCalBHValidation: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
   explicit HGCalBHValidation(const edm::ParameterSet& ps);
-  ~HGCalBHValidation();
+  ~HGCalBHValidation() override { }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -71,7 +69,7 @@ private:
 
 HGCalBHValidation::HGCalBHValidation(const edm::ParameterSet& ps) {
 
-  usesResource("TFileService");
+  usesResource(TFileService::kSharedResource);
 
   g4Label_  = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hcalHits_ = ps.getUntrackedParameter<std::string>("HitCollection","HcalHits");
@@ -85,22 +83,22 @@ HGCalBHValidation::HGCalBHValidation(const edm::ParameterSet& ps) {
     tok_hbhe_ = consumes<QIE11DigiCollection>(hcalDigis_);
   else
     tok_hbhe_ = consumes<HGCBHDigiCollection>(hcalDigis_);
-#ifdef EDM_ML_DEBUG
-  std::cout << "HGCalBHValidation::Input for SimHit: " 
-	    << edm::InputTag(g4Label_,hcalHits_) << "  Digits: " 
-	    << hcalDigis_ << "  Sample: " << iSample_ << "  Threshold "
-	    << threshold_ << std::endl;
-#endif
+  edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation::Input for SimHit:"
+				      << edm::InputTag(g4Label_,hcalHits_) 
+				      << "  Digits:" << hcalDigis_ 
+				      << "  Sample: " << iSample_ 
+				      << "  Threshold " << threshold_;
 }
 
-HGCalBHValidation::~HGCalBHValidation() {}
-
 void HGCalBHValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<std::string>("ModuleLabel","g4SimHits");
+  desc.addUntracked<std::string>("HitCollection","HcalHits");
+  desc.addUntracked<edm::InputTag>("DigiCollection",edm::InputTag("mix","HGCDigisHEback"));
+  desc.addUntracked<int>("Sample",5);
+  desc.addUntracked<double>("Threshold",15.0);
+  desc.addUntracked<bool>("ifHCAL",false);
+  descriptions.add("hgcalBHValidation",desc);
 }
 
 void HGCalBHValidation::beginRun(edm::Run const&, edm::EventSetup const& es) {
@@ -111,10 +109,9 @@ void HGCalBHValidation::beginRun(edm::Run const&, edm::EventSetup const& es) {
   const HcalParameters* hpar = &(*parHandle);
   const std::vector<int> etaM = hpar->etaMax;
   etaMax_ = etaM[1];
-#ifdef EDM_ML_DEBUG
-  std::cout << "HGCalBHValidation::Maximum Number of eta sectors:"<< etaMax_
-	    << "\nHitsValidationHcal::Booking the Histograms" << std::endl;
-#endif  
+  edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation::Maximum Number of"
+				      << " eta sectors:" << etaMax_
+				      << "\nHitsValidationHcal::Booking the Histograms";
 
   //Histograms for Sim Hits
   hsimE1_ = fs_->make<TH1D>("SimHitEn1",   "Sim Hit Energy",1000,0.0,1.0);
@@ -134,24 +131,20 @@ void HGCalBHValidation::beginRun(edm::Run const&, edm::EventSetup const& es) {
 
 void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
   
-#ifdef EDM_ML_DEBUG  
-  std::cout << "HGCalBHValidation:Run = " << e.id().run() << " Event = "
-	    << e.id().event();
-#endif
+  edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation:Run = " 
+				      << e.id().run() << " Event = "
+				      << e.id().event();
 
   //SimHits
   edm::Handle<edm::PCaloHitContainer> hitsHcal;
   e.getByToken(tok_hits_,hitsHcal); 
-#ifdef EDM_ML_DEBUG  
-  std::cout << "HGCalBHValidation.: PCaloHitContainer obtained with flag "
-	    << hitsHcal.isValid() << std::endl;
-#endif
+  edm::LogVerbatim("HGCalValidation") <<"HGCalBHValidation.: PCaloHitContainer"
+				      <<" obtained with flag "
+				      << hitsHcal.isValid();
   if (hitsHcal.isValid()) {
-#ifdef EDM_ML_DEBUG 
-    std::cout << "HGCalBHValidation: PCaloHit buffer " << hitsHcal->size()
-	      << std::endl;
+    edm::LogVerbatim("HGCalValidation") <<"HGCalBHValidation: PCaloHit buffer "
+					<< hitsHcal->size();
     unsigned i(0);
-#endif
     std::map<unsigned int,double> map_try;
     for (edm::PCaloHitContainer::const_iterator it = hitsHcal->begin();
 	 it != hitsHcal->end(); ++it) {
@@ -174,13 +167,14 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
 	if (map_try.count(id) != 0) ensum =  map_try[id];
 	ensum += energy;
 	map_try[id] = ensum;
-#ifdef EDM_ML_DEBUG
 	++i;
-	std::cout << "HGCalBHHit[" << i << "] ID " << std::hex << " " << id 
-		  << std::dec << " SubDet " << subdet << " depth " << depth
-		  << " Eta " << eta << " Phi " << phi << " layer " << lay 
-		  << " E " << energy << " time " << time << std::endl;
-#endif
+	edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << i << "] ID " 
+					    << std::hex << " " << id 
+					    << std::dec << " SubDet " << subdet
+					    << " depth " << depth << " Eta " 
+					    << eta << " Phi " << phi 
+					    << " layer " << lay << " E " 
+					    << energy << " time " << time;
       }
     }
     for (std::map<unsigned int,double>::iterator itr=map_try.begin();
@@ -194,15 +188,12 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
   if (ifHCAL_) {
     edm::Handle<QIE11DigiCollection> hbhecoll;
     e.getByToken(tok_hbhe_, hbhecoll);
-#ifdef EDM_ML_DEBUG  
-    std::cout << "HGCalBHValidation.: HBHEQIE11DigiCollection obtained with"
-	      << " flag " << hbhecoll.isValid() << std::endl;
-#endif
+    edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation.: "
+					<< "HBHEQIE11DigiCollection obtained "
+					<< "with flag " << hbhecoll.isValid();
     if (hbhecoll.isValid()) {
-#ifdef EDM_ML_DEBUG 
-      std::cout << "HGCalBHValidation: HBHEDigit buffer " << hbhecoll->size()
-		<< std::endl;
-#endif
+      edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation: HBHEDigit "
+					  << "buffer " << hbhecoll->size();
       for (QIE11DigiCollection::const_iterator it=hbhecoll->begin(); 
 	   it != hbhecoll->end(); ++it) {
 	QIE11DataFrame df(*it);
@@ -214,15 +205,12 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
   } else {
     edm::Handle<HGCBHDigiCollection> hbhecoll;
     e.getByToken(tok_hbhe_, hbhecoll);
-#ifdef EDM_ML_DEBUG  
-    std::cout << "HGCalBHValidation.: HGCBHDigiCollection obtained with"
-	      << " flag " << hbhecoll.isValid() << std::endl;
-#endif
+    edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation.: "
+					<< "HGCBHDigiCollection obtained with"
+					<< " flag " << hbhecoll.isValid();
     if (hbhecoll.isValid()) {
-#ifdef EDM_ML_DEBUG 
-      std::cout << "HGCalBHValidation: HGCBHDigit buffer " << hbhecoll->size()
-		<< std::endl;
-#endif
+      edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation: HGCBHDigit "
+					  << "buffer " << hbhecoll->size();
       for (HGCBHDigiCollection::const_iterator it=hbhecoll->begin(); 
 	   it != hbhecoll->end(); ++it) {
 	HGCBHDataFrame df(*it);
@@ -234,7 +222,7 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
   }
 }
 
-void HGCalBHValidation::analyzeDigi(HcalDetId const& cell, double const& energy,
+void HGCalBHValidation::analyzeDigi(HcalDetId const& cell,double const& energy,
 				    unsigned int &kount) {
   if (energy > threshold_) {
     int    eta    = cell.ieta();
@@ -248,10 +236,9 @@ void HGCalBHValidation::analyzeDigi(HcalDetId const& cell, double const& energy,
       hdigLn_->Fill(depth);
       hdi3Oc_->Fill((eta+0.1),depth);
       ++kount;
-#ifdef EDM_ML_DEBUG
-      std::cout << "HGCalBHDigit[" << kount << "] ID " << cell << " E " 
-		<< energy << ":" << (energy > threshold_) << std::endl;
-#endif
+      edm::LogVerbatim("HGCalValidation") << "HGCalBHDigit[" << kount <<"] ID "
+					  << cell << " E " << energy << ":" 
+					  << (energy > threshold_);
     }
   }
 }
