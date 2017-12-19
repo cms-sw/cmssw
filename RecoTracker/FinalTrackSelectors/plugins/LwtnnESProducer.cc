@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 //from lwtnn
 #include "lwtnn/LightweightNeuralNetwork.hh"
@@ -16,12 +16,12 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  // TODO: Use of CkfComponentsRecord is as inadequate as the
+  // TODO: Use of TrackingComponentsRecord is as inadequate as the
   // placement of this ESProducer in RecoTracker/FinalTrackSelectors
   // (but it works, I tried to create a new record but for some reason
   // did not get it to work). Especially if this producer gets used
   // wider we should figure out a better record and package.
-  std::unique_ptr<lwt::LightweightNeuralNetwork> produce(const CkfComponentsRecord& iRecord);
+  std::unique_ptr<lwt::LightweightNeuralNetwork> produce(const TrackingComponentsRecord& iRecord);
 
 private:
   edm::FileInPath fileName_;
@@ -41,7 +41,7 @@ void LwtnnESProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.add("lwtnnESProducer", desc);
 }
 
-std::unique_ptr<lwt::LightweightNeuralNetwork> LwtnnESProducer::produce(const CkfComponentsRecord& iRecord) {
+std::unique_ptr<lwt::LightweightNeuralNetwork> LwtnnESProducer::produce(const TrackingComponentsRecord& iRecord) {
   std::ifstream jsonfile(fileName_.fullPath().c_str());
   auto config = lwt::parse_json(jsonfile);
   return std::make_unique<lwt::LightweightNeuralNetwork>(config.inputs, config.layers, config.outputs);
