@@ -159,29 +159,11 @@ namespace edm {
     return * handle.product();
   }
 
-  template <typename R, typename T>
-  T const& get(EventSetup const& setup, const char* label) {
+  template <typename R, typename T, typename L>
+  T const& get(EventSetup const& setup, L && label) {
     ESHandle<T> handle;
     // throw if the record is not available
-    setup.get<R>().get(label, handle);
-    // throw if the handle is not valid
-    return * handle.product();
-  }
-
-  template <typename R, typename T>
-  T const& get(EventSetup const& setup, std::string const& label) {
-    ESHandle<T> handle;
-    // throw if the record is not available
-    setup.get<R>().get(label, handle);
-    // throw if the handle is not valid
-    return * handle.product();
-  }
-
-  template <typename R, typename T>
-  T const& get(EventSetup const& setup, ESInputTag const& tag) {
-    ESHandle<T> handle;
-    // throw if the record is not available
-    setup.get<R>().get(tag, handle);
+    setup.get<R>().get(std::forward(label), handle);
     // throw if the handle is not valid
     return * handle.product();
   }
