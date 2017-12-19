@@ -40,6 +40,7 @@ supportedBtagInfos = [
   , 'caTopTagInfos'
     # DeepFlavour tag infos
   , 'pfDeepFlavourTagInfos'
+  , 'pfNegativeDeepFlavourTagInfos'
   ]
 # extend for "internal use" in PAT/MINIAOD (renaming)
 supportedBtagInfos.append( 'caTopTagInfosPAT' )
@@ -178,6 +179,12 @@ supportedBtagDiscr = {
   , 'pfDeepFlavourJetTags:probc'                            : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfDeepFlavourJetTags:probuds'                          : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfDeepFlavourJetTags:probg'                            : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfNegativeDeepFlavourJetTags:probb'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
+  , 'pfNegativeDeepFlavourJetTags:probbb'                           : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
+  , 'pfNegativeDeepFlavourJetTags:problepb'                         : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
+  , 'pfNegativeDeepFlavourJetTags:probc'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
+  , 'pfNegativeDeepFlavourJetTags:probuds'                          : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
+  , 'pfNegativeDeepFlavourJetTags:probg'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
 }
 
 #meta-taggers are simple arithmetic on top of other taggers, they are stored here
