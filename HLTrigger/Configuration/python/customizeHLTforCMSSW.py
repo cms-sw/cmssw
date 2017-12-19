@@ -21,6 +21,8 @@ from HLTrigger.Configuration.common import *
 def customiseFor21664(process):
     from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
     for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.useM2     = hbheprereco.algorithm.useM2
+        producer.algorithm.useM3     = hbheprereco.algorithm.useM3
         producer.algorithm.useMahi     = hbheprereco.algorithm.useMahi
         producer.algorithm.dynamicPed   = hbheprereco.algorithm.dynamicPed
         producer.algorithm.ts4Thresh    = hbheprereco.algorithm.ts4Thresh
