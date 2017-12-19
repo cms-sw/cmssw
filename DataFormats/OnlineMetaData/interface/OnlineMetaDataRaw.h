@@ -9,8 +9,7 @@
 //---------------------------------------------------------------------------
 
 #include <cstdint>
-#include "EventFilter/FEDInterface/interface/fed_header.h"
-#include "EventFilter/FEDInterface/interface/fed_trailer.h"
+
 
 namespace onlineMetaData {
 
@@ -53,12 +52,10 @@ namespace onlineMetaData {
 
   struct Data_v1
   {
-    const fedh_t fedHeader;
     const uint8_t version;
     const Luminosity_v1 luminosity;
     const BeamSpot_v1 beamSpot;
     const DCS_v1 dcs;
-    const fedt_t fedTrailer;
   };
 
 }
