@@ -2,7 +2,7 @@
 
 
 L1TObjectsTiming::L1TObjectsTiming(const edm::ParameterSet& ps)
-    : ugmtMuonToken(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonProducer"))),
+    : ugmtMuonToken_(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonProducer"))),
       stage2CaloLayer2JetToken_(consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2JetProducer"))),
       stage2CaloLayer2EGammaToken_(consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaProducer"))),
       stage2CaloLayer2TauToken_(consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2TauProducer"))),
@@ -61,16 +61,16 @@ L1TObjectsTiming::~L1TObjectsTiming() {}
 
 void L1TObjectsTiming::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("muonProducer")->setComment("uGMT output muons.");;
-  desc.add<edm::InputTag>("stage2CaloLayer2JetProducer")->setComment("stage2 output jet");
-  desc.add<edm::InputTag>("stage2CaloLayer2EGammaProducer")->setComment("stage2 output egamma");
-  desc.add<edm::InputTag>("stage2CaloLayer2TauProducer")->setComment("stage2 output tau");
-  desc.add<edm::InputTag>("stage2CaloLayer2EtSumProducer")->setComment("stage2 output etsum");
+  desc.add<edm::InputTag>("muonProducer")->setComment("L1T muons");;
+  desc.add<edm::InputTag>("stage2CaloLayer2JetProducer")->setComment("L1T jets");
+  desc.add<edm::InputTag>("stage2CaloLayer2EGammaProducer")->setComment("L1T egamma");
+  desc.add<edm::InputTag>("stage2CaloLayer2TauProducer")->setComment("L1T taus");
+  desc.add<edm::InputTag>("stage2CaloLayer2EtSumProducer")->setComment("L1T etsums");
   desc.add<edm::InputTag>("ugtProducer")->setComment("uGT output");
   desc.addUntracked<std::string>("monitorDir", "")->setComment("Target directory in the DQM file. Will be created if not existing.");
   desc.addUntracked<bool>("verbose", false);
-  desc.addUntracked<std::string>("firstBXInTrainAlgo","")->setComment("Pick the right algo trigger bit for  L1 First Collision In Train");
-  desc.addUntracked<std::string>("lastBXInTrainAlgo","")->setComment("Pick the right algo trigger bit for  L1 Last Collision In Train");
+  desc.addUntracked<std::string>("firstBXInTrainAlgo","")->setComment("Pick the right algo name for  L1 First Collision In Train");
+  desc.addUntracked<std::string>("lastBXInTrainAlgo","")->setComment("Pick the right algo name for  L1 Last Collision In Train");
   descriptions.add("l1tObjectsTiming", desc);
 }
 
@@ -136,7 +136,7 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
     etsum_eta_phi_MHTHF.at(i)->setAxisTitle("#phi", 1);
   }
 
-
+if(algoBitFirstBxInTrain_ > -1 && algoBitLastBxInTrain_ > -1) {
   ibooker.setCurrentFolder(monitorDir+"/L1TMuon"+"/timing"+"/Isolated_bunch");  
   for(unsigned int i=0; i<bxrange; ++i) {
     muons_eta_phi_isolated.push_back(ibooker.book2D("muons_eta_phi_bx_isolated_"+bx_obj[i],"L1T Muon #eta vs #phi for isolated bunch BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
@@ -176,8 +176,9 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
     etsum_eta_phi_MHTHF_isolated.push_back(ibooker.book1D("etsum_phi_bx_MHTHF_isolated_"+bx_obj[i],"L1T MHTHF #phi for isolated bunch BX="+bx_obj[i],25, -3.2, 3.2));
     etsum_eta_phi_MHTHF_isolated.at(i)->setAxisTitle("#phi", 1);
   }
-
-  
+}
+ 
+if(algoBitFirstBxInTrain_ > -1) {
   ibooker.setCurrentFolder(monitorDir+"/L1TMuon"+"/timing"+"/First_bunch");
   for(unsigned int i=0; i<bxrange-2; ++i) {
     muons_eta_phi_firstbunch.push_back(ibooker.book2D("muons_eta_phi_bx_firstbunch_"+bx_obj[i],"L1T Muon #eta vs #phi for first bunch BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
@@ -217,8 +218,9 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
     etsum_eta_phi_MHTHF_firstbunch.push_back(ibooker.book1D("etsum_phi_bx_MHTHF_firstbunch_"+bx_obj[i],"L1T MHTHF #phi for firstbunch bunch BX="+bx_obj[i],25, -3.2, 3.2));
     etsum_eta_phi_MHTHF_firstbunch.at(i)->setAxisTitle("#phi", 1);
   }
-
+} 
   
+if(algoBitLastBxInTrain_ > -1) {
   ibooker.setCurrentFolder(monitorDir+"/L1TMuon"+"/timing"+"/Last_bunch");
   for(unsigned int i=0; i<bxrange-2; ++i) {
     muons_eta_phi_lastbunch.push_back(ibooker.book2D("muons_eta_phi_bx_lastbunch_"+bx_obj[i+2],"L1T Muon #eta vs #phi for last bunch BX="+bx_obj[i+2],25, -2.5, 2.5, 25, -3.2, 3.2));
@@ -257,7 +259,8 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
     etsum_eta_phi_MHT_lastbunch.at(i)->setAxisTitle("#phi", 1);
     etsum_eta_phi_MHTHF_lastbunch.push_back(ibooker.book1D("etsum_phi_bx_MHTHF_lastbunch_"+bx_obj[i+2],"L1T MHTHF #phi for lastbunch bunch BX="+bx_obj[i+2],25, -3.2, 3.2));
     etsum_eta_phi_MHTHF_lastbunch.at(i)->setAxisTitle("#phi", 1);
-  } 
+  }
+} 
 
 }
 
@@ -270,7 +273,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   // Muon Collection
   edm::Handle<l1t::MuonBxCollection> MuonBxCollection;
-  e.getByToken(ugmtMuonToken, MuonBxCollection);
+  e.getByToken(ugmtMuonToken_, MuonBxCollection);
   // Jet Collection
   edm::Handle<l1t::JetBxCollection> JetBxCollection;
   e.getByToken(stage2CaloLayer2JetToken_, JetBxCollection);
@@ -341,7 +344,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
 
     for(GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(0); itr != uGtAlgs->end(0); ++itr) {
-      if(algoBitFirstBxInTrain_ != -1 && algoBitLastBxInTrain_ != -1) {  
+      if((algoBitFirstBxInTrain_ != -1 && algoBitLastBxInTrain_ != -1) && (itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_) && itr->getAlgoDecisionInitial(algoBitLastBxInTrain_))) {  
 //    for(GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(0); itr != uGtAlgs->end(0); ++itr) 
         for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
           for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX); ++muon) { // Starting with Muons
@@ -387,7 +390,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
       }
       
       //if(itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_))
-      if(algoBitFirstBxInTrain_ != -1) { // Filling eta-phi map for all objects for first bunch each BX
+      if(algoBitFirstBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_)) { // Filling eta-phi map for all objects for first bunch each BX
         for (int itBX = MuonBxCollection->getFirstBX(); itBX <= 0 ; ++itBX) {
           for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX); ++muon) { // Starting with Muons
             int index = itBX - std::min(0, 1 - (int)bxrange%2 - (int)std::floor(bxrange/2.)); // the correlation from itBX to respective index of the vector 
@@ -431,7 +434,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
         } 
       }
       //if(itr->getAlgoDecisionInitial(algoBitLastBxInTrain_))
-      if(algoBitLastBxInTrain_ != -1) { // Filling eta-phi map for all objects for last bunch each BX
+      if(algoBitLastBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitLastBxInTrain_)) { // Filling eta-phi map for all objects for last bunch each BX
         for (int itBX = 0; itBX <= MuonBxCollection->getLastBX(); ++itBX) {
           for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX); ++muon) { // Starting with Muons
             int index = itBX - std::min(0, 1 - (int)bxrange%2 + (int)std::floor(bxrange/2.)); // the correlation from itBX to respective index of the vector
