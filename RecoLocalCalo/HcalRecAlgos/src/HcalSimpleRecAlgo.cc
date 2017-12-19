@@ -16,8 +16,6 @@
 // #include<iostream>
 
 constexpr double MaximumFractionalError = 0.002; // 0.2% error allowed from this source
-constexpr int HPDShapev3DataNum = 105;
-constexpr int HPDShapev3MCNum = 105;
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   correctForTimeslew_(correctForTimeslew),
