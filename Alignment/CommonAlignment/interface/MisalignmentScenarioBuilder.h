@@ -15,6 +15,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 /// Base class to build a scenario from configuration and apply to either tracker or muon.
 
@@ -35,10 +36,10 @@ public:
 protected: // Methods
 
   /// Decode movements defined in given parameter set for given set of alignables
-  void decodeMovements_(const edm::ParameterSet &pSet, const std::vector<Alignable*> &alignables);
+  void decodeMovements_(const edm::ParameterSet&, const align::Alignables&);
   
   /// Decode movements defined in given parameter set for given set of alignables tagged by given name
-  void decodeMovements_(const edm::ParameterSet& pSet, const std::vector<Alignable*> &alignables,
+  void decodeMovements_(const edm::ParameterSet&, const align::Alignables&,
 			const std::string &levelName);
 
   /// Apply movements given by parameter set to given alignable

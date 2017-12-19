@@ -157,14 +157,13 @@ unsigned int AlignmentParameters::hierarchyLevel() const
     return 0;
   }
 
-  std::vector<Alignable*> comps;
+  align::Alignables comps;
   theAlignable->firstCompsWithParams(comps);
   if (comps.empty()) return 0;
 
   unsigned int maxLevelOfComp = 0;
-  for (std::vector<Alignable*>::const_iterator iAli = comps.begin(), iAliEnd = comps.end();
-       iAli != iAliEnd; ++iAli) {// firstCompsWithParams guaranties that alignmentParameters() != 0:
-    const unsigned int compResult = (*iAli)->alignmentParameters()->hierarchyLevel();
+  for (const auto& iAli: comps) {// firstCompsWithParams guaranties that alignmentParameters() != 0:
+    const unsigned int compResult = iAli->alignmentParameters()->hierarchyLevel();
     // levels might be different for components, get largest:
     if (maxLevelOfComp < compResult) maxLevelOfComp = compResult;
   }
