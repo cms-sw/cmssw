@@ -75,7 +75,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   nnlsWork_.amplitudes.resize(nnlsWork_.tsSize);
   nnlsWork_.noiseTerms.resize(nnlsWork_.tsSize);
 
-  std::vector<float> reconstructedVals;
+  std::array<float,3> reconstructedVals;
   
   double tsTOT = 0, tstrig = 0; // in GeV
   for(unsigned int iTS=0; iTS<nnlsWork_.tsSize; ++iTS){
@@ -105,7 +105,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     //Total uncertainty from all sources
     nnlsWork_.noiseTerms.coeffRef(iTS) = noiseADC*noiseADC + noiseDC*noiseDC + noisePhoto*noisePhoto + pedWidth*pedWidth;
 
-    tsTOT += charge - ped;
+    tsTOT += (charge - ped)*channelData.tsGain(0);
     if( iTS==nnlsWork_.tsOffset ){
       tstrig += (charge - ped)*channelData.tsGain(0);
     }
@@ -129,10 +129,9 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     }
   }
   else{
-    reconstructedVals.clear();
-    reconstructedVals.push_back(0.); //energy
-    reconstructedVals.push_back(-9999.); //time
-    reconstructedVals.push_back(-9999.); //chi2
+    reconstructedVals.at(0) = 0.; //energy
+    reconstructedVals.at(1) = -9999.; //time
+    reconstructedVals.at(2) = -9999.; //chi2
   }
   
   reconstructedEnergy = reconstructedVals[0]*channelData.tsGain(0);
@@ -141,7 +140,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 
 }
 
-void MahiFit::doFit(std::vector<float> &correctedOutput, int nbx) const {
+void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
 
   unsigned int bxSize=1;
 
@@ -220,12 +219,11 @@ void MahiFit::doFit(std::vector<float> &correctedOutput, int nbx) const {
     }
   }
 
-  correctedOutput.clear();
   if (foundintime) {
-    correctedOutput.push_back(nnlsWork_.ampVec.coeff(ipulseintime)); //charge
+    correctedOutput.at(0) = nnlsWork_.ampVec.coeff(ipulseintime); //charge
     double arrivalTime = calculateArrivalTime();
-    correctedOutput.push_back(arrivalTime); //time
-    correctedOutput.push_back(chiSq); //chi2
+    correctedOutput.at(1) = arrivalTime; //time
+    correctedOutput.at(1) = chiSq; //chi2
 
   }
   
@@ -294,6 +292,7 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   (*pfunctor_)(&xxp[0]);
   psfPtr_->getPulseShape(nnlsWork_.pulseP);
 
+  //in the 8 TS case for 2018+, add an extra offset to align with 10 TS returned from psfPtr_->getPulseShape()
   int delta =nnlsWork_. tsSize == 8 ? 1 : 0;
 
   for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset + nnlsWork_.tsSize; iTS++) {
@@ -419,7 +418,7 @@ void MahiFit::nnls() const {
 
       nnlsWork_.ampvecpermtest = nnlsWork_.ampVec;
       
-      eigenSolveSubmatrix(nnlsWork_.aTaMat,nnlsWork_.aTbVec,nnlsWork_.ampvecpermtest,nnlsWork_.nP);
+      solveSubmatrix(nnlsWork_.aTaMat,nnlsWork_.aTbVec,nnlsWork_.ampvecpermtest,nnlsWork_.nP);
 
       //check solution
       bool positive = true;
@@ -523,7 +522,7 @@ void MahiFit::nnlsConstrainParameter(Index minratioidx) const {
 
 }
 
-void MahiFit::eigenSolveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned nP) const {
+void MahiFit::solveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned nP) const {
   using namespace Eigen;
   switch( nP ) { // pulse matrix is always square.
   case 10:

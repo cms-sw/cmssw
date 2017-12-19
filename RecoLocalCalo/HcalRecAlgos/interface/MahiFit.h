@@ -99,7 +99,7 @@ class MahiFit
 		   bool& useTriple,
 		   float& chi2) const;
 
-  void doFit(std::vector<float> &correctedOutput, int nbx) const;
+  void doFit(std::array<float,3> &correctedOutput, int nbx) const;
 
   void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps);
   void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
@@ -123,7 +123,7 @@ class MahiFit
   void nnlsUnconstrainParameter(Index idxp) const;
   void nnlsConstrainParameter(Index minratioidx) const;
 
-  void eigenSolveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP) const;
+  void solveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned nP) const;
 
   double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const;
   
