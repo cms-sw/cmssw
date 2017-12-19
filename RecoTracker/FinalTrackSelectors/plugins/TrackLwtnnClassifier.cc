@@ -9,7 +9,7 @@
 #include "getBestVertex.h"
 
 //from lwtnn
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "lwtnn/LightweightNeuralNetwork.hh"
 
 namespace {
@@ -27,7 +27,7 @@ namespace {
     void beginStream() {}
     void initEvent(const edm::EventSetup& es) {
       edm::ESHandle<lwt::LightweightNeuralNetwork> lwtnnHandle;
-      es.get<CkfComponentsRecord>().get(lwtnnLabel_, lwtnnHandle);
+      es.get<TrackingComponentsRecord>().get(lwtnnLabel_, lwtnnHandle);
       neuralNetwork_ = lwtnnHandle.product();
     }
 
