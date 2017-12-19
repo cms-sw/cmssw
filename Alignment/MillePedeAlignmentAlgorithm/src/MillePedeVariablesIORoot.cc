@@ -35,7 +35,7 @@ MillePedeVariablesIORoot::MillePedeVariablesIORoot() :
 
 // -------------------------------------------------------------------------------------------------
 void MillePedeVariablesIORoot::writeMillePedeVariables
-(const std::vector<Alignable*> &alivec, const char *filename, int iter, bool validCheck, int &ierr)
+(const align::Alignables& alivec, const char *filename, int iter, bool validCheck, int &ierr)
 {
   ierr = 0;
 
@@ -60,7 +60,7 @@ void MillePedeVariablesIORoot::writeMillePedeVariables
 
 // -------------------------------------------------------------------------------------------------
 std::vector<AlignmentUserVariables*> MillePedeVariablesIORoot::readMillePedeVariables
-(const std::vector<Alignable*> &alivec, const char *filename, int iter, int &ierr)
+(const align::Alignables& alivec, const char *filename, int iter, int &ierr)
 {
   std::vector<AlignmentUserVariables*> result;
   ierr = 0;

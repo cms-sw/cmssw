@@ -38,7 +38,7 @@ def mergeProcess(*inputFiles, **options):
     outputLFN = options.get("output_lfn", None)
     dropDQM = options.get("drop_dqm", False)
     newDQMIO = options.get("newDQMIO", False)
-    
+    mergeNANO = options.get("mergeNANO", False)
     #  //
     # // build process
     #//
@@ -63,8 +63,11 @@ def mergeProcess(*inputFiles, **options):
     #//
     if newDQMIO:
         outMod = OutputModule("DQMRootOutputModule")
+    elif mergeNANO:
+        outMod = OutputModule("NanoAODOutputModule")
     else:
         outMod = OutputModule("PoolOutputModule")
+
     outMod.fileName = CfgTypes.untracked.string(outputFilename)
     if outputLFN != None:
         outMod.logicalFileName = CfgTypes.untracked.string(outputLFN)
