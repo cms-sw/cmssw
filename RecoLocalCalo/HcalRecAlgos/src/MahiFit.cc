@@ -1,7 +1,5 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/MahiFit.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
-#include <fstream> 
 
 MahiFit::MahiFit() :
   fullTSSize_(19), 

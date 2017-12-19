@@ -2,6 +2,7 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHBHEPhase1AlgoDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalDeterministicFit.h"
@@ -111,6 +112,10 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
         std::unique_ptr<HcalDeterministicFit> detFit;
 
 	// only run Mahi OR (Method 2 & Method 3) but not both
+	if (ps.getParameter<bool>("useMahi") && (ps.getParameter<bool>("useM3") || ps.getParameter<bool>("useM2"))) {
+          throw cms::Exception("ConfigurationError") <<
+            "SimpleHBHEPhase1Algo does not allow both Mahi and Method 2 to be turned on together.";
+        }
 	if (ps.getParameter<bool>("useMahi"))
 	  mahi = parseHBHEMahiDescription(ps);
 	else {
