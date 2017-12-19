@@ -243,7 +243,9 @@ std::string graphviz_vertex(const VertexProperty& v) {
 std::string graphviz_edge(const EdgeProperty& e) {
   std::ostringstream oss;
   oss << "[" << (e.simTrack ? e.simTrack->trackId() : 0) << ","
-      << (e.simTrack ? e.simTrack->type() : 0) << "," << e.simHits << "]";
+      << (e.simTrack ? e.simTrack->type() : 0)
+      << "," << e.simHits
+      << "," << e.cumulative_simHits << "]";
   return oss.str();
 }
 #endif
