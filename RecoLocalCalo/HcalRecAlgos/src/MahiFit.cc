@@ -40,7 +40,6 @@ void MahiFit::setParameters(bool iDynamicPed, double iTS4Thresh, double chiSqSwi
   bxOffsetConf_ = -(*std::min_element(activeBXs_.begin(), activeBXs_.end()));
   bxSizeConf_   = activeBXs_.size();
 
-  //pedestalBX_ = 100;
 }
 
 void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
