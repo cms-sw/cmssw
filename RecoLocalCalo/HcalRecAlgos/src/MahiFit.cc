@@ -131,9 +131,9 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   }
   else{
     reconstructedVals.clear();
-    reconstructedVals.push_back(0.);
-    reconstructedVals.push_back(888.);
-    reconstructedVals.push_back(888.);
+    reconstructedVals.push_back(0.); //energy
+    reconstructedVals.push_back(-9999.); //time
+    reconstructedVals.push_back(-9999.); //chi2
   }
   
   reconstructedEnergy = reconstructedVals[0]*channelData.tsGain(0);
@@ -235,7 +235,7 @@ void MahiFit::doFit(std::vector<float> &correctedOutput, int nbx) const {
 double MahiFit::minimize() const {
 
   int iter = 0;
-  double oldChiSq=999;
+  double oldChiSq=9999;
   double chiSq=oldChiSq;
 
   while (true) {
