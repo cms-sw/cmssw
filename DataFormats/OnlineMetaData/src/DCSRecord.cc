@@ -7,7 +7,6 @@
 
 DCSRecord::DCSRecord() :
   timestamp_(edm::Timestamp::invalidTimestamp()),
-  highVoltageReady_(0),
   magnetCurrent_(-1)
 {}
 
