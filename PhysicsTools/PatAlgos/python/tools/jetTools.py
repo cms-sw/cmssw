@@ -547,7 +547,13 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource),
                                     process, task)
 
-            if btagInfo == 'pfDeepFlavourTagInfos':
+            if 'DeepFlavourTagInfos'in btagInfo:
+
+                if btagInfo == 'pfNegativeDeepFlavourTagInfos':
+                    deep_csv_tag_infos = 'pfDeepCSVNegativeTagInfos' 
+                else:
+                    deep_csv_tag_infos = 'pfDeepCSVTagInfos' 
+
                 # use right input tags when running with RECO PF candidates, which actually
                 # depens of wether jets were slimmed or not (check for s/S-limmed in name)
                 if not ('limmed' in jetSource.value()):
@@ -561,7 +567,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       jets = jetSource,
                                       vertices=pvSource,
                                       secondary_vertices=svSource,
-                                      shallow_tag_infos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix),
+                                      shallow_tag_infos = cms.InputTag(btagPrefix+deep_csv_tag_infos+labelName+postfix),
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
                                       ),
