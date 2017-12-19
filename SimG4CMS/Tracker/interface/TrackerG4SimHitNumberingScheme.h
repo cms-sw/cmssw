@@ -27,15 +27,15 @@ public:
 
   unsigned int g4ToNumberingScheme(const G4VTouchable*);
 
-  G4VPhysicalVolume& getTouchable(DDFilteredView&);
-  DDFilteredView& getFilteredView(const G4VTouchable&, DDFilteredView&);
+  const G4VPhysicalVolume& getTouchable(DDFilteredView&);
+  const DDFilteredView& getFilteredView(const G4VTouchable&, DDFilteredView&);
 
 private:
 
-  Nav_Story getNavStory(DDFilteredView&);
-  Nav_type getNavType(const G4VTouchable&);
-  Nav_Story touchableToNavStory(const G4VTouchable*);
-  Nav_type touchableToNavType(const G4VTouchable*);
+  Nav_type& getNavType(const G4VTouchable&);
+  Nav_type& touchableToNavType(const G4VTouchable*);
+  void getNavStory(DDFilteredView&, Nav_Story&);
+  void touchToNavStory(const G4VTouchable*, Nav_Story&);
   void dumpG4VPV(const G4VTouchable*);
 
   void buildAll();
