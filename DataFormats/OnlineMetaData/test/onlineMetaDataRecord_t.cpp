@@ -89,7 +89,6 @@ void TestOnlineMetaDataRecord::testDCSRecord() {
   // DIP timestamp is in milliseconds
   const uint64_t ts = dcs.timestamp().unixTime() * 1000UL + dcs.timestamp().microsecondOffset()/1000;
   CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x160036025f6),ts );
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint32_t>(0x0180018f),dcs.highVoltageReady() );
   CPPUNIT_ASSERT( dcs.highVoltageReady(DCSRecord::Partition::HF) );
   CPPUNIT_ASSERT( ! dcs.highVoltageReady(DCSRecord::Partition::CASTOR) );
   CPPUNIT_ASSERT( dcs.highVoltageReady(DCSRecord::Partition::ESm) );

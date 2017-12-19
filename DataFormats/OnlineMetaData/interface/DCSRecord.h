@@ -10,6 +10,7 @@
 
 
 #include <array>
+#include <bitset>
 #include <cstdint>
 #include <ostream>
 #include <string>
@@ -30,7 +31,7 @@ public:
   };
 
   DCSRecord();
-  DCSRecord(const online::DCS_v1&);
+  explicit DCSRecord(const online::DCS_v1&);
   virtual ~DCSRecord();
 
   /// Return the time of the last change
@@ -40,14 +41,11 @@ public:
   typedef std::array<std::string,Last> ParitionNames;
   const ParitionNames& paritionNames() const { return partitionNames_; }
 
-  /// Return the bit field indicating which parition is ready
-  uint32_t highVoltageReady() const { return highVoltageReady_; }
-
   /// Return the name of the high voltage of the given parition
   const std::string& partitionName(uint8_t partitionNumber) const { return partitionNames_.at(partitionNumber); }
 
   /// Return true if the high voltage of the given parition is ready
-  bool highVoltageReady(uint8_t partitionNumber) const { return (highVoltageReady_ & (1 << partitionNumber)); }
+  bool highVoltageReady(uint8_t partitionNumber) const { return highVoltageReady_.test(partitionNumber); }
 
   /// Return the current of the CMS magnet in A
   float magnetCurrent() const { return magnetCurrent_; }
@@ -56,7 +54,7 @@ public:
 private:
 
   edm::Timestamp timestamp_;
-  uint32_t highVoltageReady_;
+  std::bitset<Partition::Last> highVoltageReady_;
   float magnetCurrent_;
 
   ParitionNames partitionNames_ = {{
