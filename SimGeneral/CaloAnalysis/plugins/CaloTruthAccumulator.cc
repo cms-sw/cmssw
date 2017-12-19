@@ -1,14 +1,17 @@
-// BOOST GRAPH LIBRARY
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/breadth_first_search.hpp>
-#include <boost/graph/depth_first_search.hpp>
 #define DEBUG false
-
 #if DEBUG
 // boost optional (used by boost graph) results in some false positives with -Wmaybe-uninitialized
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
+// BOOST GRAPH LIBRARY
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/graphviz.hpp>
+
+#if DEBUG
 #pragma GCC diagnostic pop
 #endif
 
@@ -232,7 +235,7 @@ void print_vertex(Vertex& u, const Graph& g) {
 std::string graphviz_vertex(const VertexProperty& v) {
   std::ostringstream oss;
   oss << "{id: " << (v.simTrack ? v.simTrack->trackId() : 0)
-      << ",\ntype: " << (v.simTrack ? v.simTrack->type() : 0) << ",\nchits: " << v.cumulative_simHits
+      << ",\\ntype: " << (v.simTrack ? v.simTrack->type() : 0) << ",\\nchits: " << v.cumulative_simHits
       << "}";
   return oss.str();
 }
