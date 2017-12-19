@@ -112,7 +112,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     }
   }
 
-  if(tstrig >= ts4Thresh_) {
+  if(tstrig >= ts4Thresh_ && tsTOT > 0) {
 
     useTriple=false;
 
