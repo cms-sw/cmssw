@@ -26,7 +26,7 @@ OnlineBeamSpotRecord::OnlineBeamSpotRecord() :
 {}
 
 
-OnlineBeamSpotRecord::OnlineBeamSpotRecord(const onlineMetaData::BeamSpot_v1& beamSpot)
+OnlineBeamSpotRecord::OnlineBeamSpotRecord(const online::BeamSpot_v1& beamSpot)
 {
   // DIP timestamp is in milliseconds
   const uint64_t seconds = beamSpot.timestamp / 1000;

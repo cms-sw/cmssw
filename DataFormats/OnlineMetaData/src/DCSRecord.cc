@@ -12,7 +12,7 @@ DCSRecord::DCSRecord() :
 {}
 
 
-DCSRecord::DCSRecord(const onlineMetaData::DCS_v1& dcs)
+DCSRecord::DCSRecord(const online::DCS_v1& dcs)
 {
   // DIP timestamp is in milliseconds
   const uint64_t seconds = dcs.timestamp / 1000;

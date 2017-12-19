@@ -14,7 +14,7 @@ OnlineLuminosityRecord::OnlineLuminosityRecord() :
 {}
 
 
-OnlineLuminosityRecord::OnlineLuminosityRecord(const onlineMetaData::Luminosity_v1& lumi)
+OnlineLuminosityRecord::OnlineLuminosityRecord(const online::Luminosity_v1& lumi)
 {
   // DIP timestamp is in milliseconds
   const uint64_t seconds = lumi.timestamp / 1000;

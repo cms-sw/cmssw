@@ -30,7 +30,7 @@ public:
   };
 
   DCSRecord();
-  DCSRecord(const onlineMetaData::DCS_v1&);
+  DCSRecord(const online::DCS_v1&);
   virtual ~DCSRecord();
 
   /// Return the time of the last change
