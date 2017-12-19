@@ -133,7 +133,7 @@ class MahiFit
   const unsigned int fullTSSize_;
   const unsigned int fullTSofInterest_;
 
-  int pedestalBX_;
+  static constexpr int pedestalBX_ = 100;
 
   // Python-configurables
   bool dynamicPed_;
