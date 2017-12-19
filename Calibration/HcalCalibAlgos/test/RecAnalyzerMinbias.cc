@@ -33,12 +33,13 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "TH1D.h"
+#include "TH2D.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TMath.h"
 #include "TF1.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 // class declaration
 class RecAnalyzerMinbias : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
@@ -70,6 +71,8 @@ private:
   std::vector<unsigned int>  hcalID_;
   TTree                     *myTree_, *myTree1_;
   TH1D                      *h_[4];
+  TH2D                      *hbhe_, *hf_;
+  TH1D                      *hbherun_, *hfrun_;
   std::vector<TH1D*>         histo_;
   std::map<HcalDetId,TH1D*>  histHC_;
   std::vector<int>           trigbit_;
@@ -186,6 +189,10 @@ void RecAnalyzerMinbias::beginJob() {
 
   std::string hc[5] = {"Empty", "HB", "HE", "HO", "HF"};
   char        name[700], title[700];
+  hbhe_ = fs_->make<TH2D>("hbhe","Noise",61,-30.5,30.5,72,0.5,72.5);
+  hf_   = fs_->make<TH2D>("hf","Noise",82,-41.5,41.5,72,0.5,72.5);
+  hbherun_ = fs_->make<TH1D>("hbherun","run# vs fraction of channel with E>2",1384,303441.5,304825.5);
+  hfrun_   = fs_->make<TH1D>("hfrun","run# vs fraction of channel with E>2",1384,303441.5,304825.5);
   for(int idet=1; idet<=4; idet++){
     sprintf(name, "%s", hc[idet].c_str());
     sprintf (title, "Noise distribution for %s", hc[idet].c_str());
@@ -234,7 +241,7 @@ void RecAnalyzerMinbias::endJob() {
     cells = 0;
     for (std::map<std::pair<int,HcalDetId>,myInfo>::const_iterator itr=myMap_.begin(); itr != myMap_.end(); ++itr) {
       edm::LogInfo("AnalyzerMB") << "Fired trigger bit number "<<itr->first.first;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
       std::cout << "Fired trigger bit number "<<itr->first.first << std::endl;
 #endif
       myInfo info = itr->second;
@@ -255,7 +262,7 @@ void RecAnalyzerMinbias::endJob() {
 				   << mom0_MB << " mom1 " << mom1_MB << " mom2 "
 				   << mom2_MB << " mom3 " << mom3_MB << " mom4 "
 				   << mom4_MB;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	std::cout << " Result=  " << trigbit << " " << mysubd 
 		  << " " << ieta << " " << iphi << " mom0  " 
 		  << mom0_MB << " mom1 " << mom1_MB << " mom2 " 
@@ -267,11 +274,11 @@ void RecAnalyzerMinbias::endJob() {
       }
     }
     edm::LogInfo("AnalyzerMB") << "cells" << " " << cells;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "cells" << " " << cells << std::endl;
 #endif
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "Exiting from RecAnalyzerMinbias::endjob" << std::endl;
 #endif
 }
@@ -410,7 +417,11 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::Handle<GenEventInfoProduct> genEventInfo;
   iEvent.getByToken(tok_ew_, genEventInfo);
   if (genEventInfo.isValid()) eventWeight = genEventInfo->weight();  
-
+#ifdef EDM_ML_DEBUG
+  std::cout << "Test HB " << HBHEsize << " HF " << HFsize << " Trigger "
+	    << trigbit_.size() << ":" << select << ":" << ignoreL1_ 
+	    << " Wt " << eventWeight << std::endl;
+#endif
   if (ignoreL1_ || ((trigbit_.size() > 0) && select)) {
     analyzeHcal(HithbheMB, HithfMB, 1, true, eventWeight);
   } else if ((!ignoreL1_) && (trigbit_.size() == 0)) {
@@ -439,6 +450,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
 				     const HFRecHitCollection & HithfMB,
 				     int algoBit, bool fill, double weight) {
   // Signal part for HB HE
+  int count(0);
   for (HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); 
        hbheItr!=HithbheMB.end(); hbheItr++) {
     // Recalibration of energy
@@ -466,6 +478,10 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
 	if (itr1 != histHC_.end()) itr1->second->Fill(energyhit);
       }
       h_[hid.subdet()-1]->Fill(energyhit);
+      if(energyhit >2) {
+	hbhe_->Fill(hid.ieta(),hid.iphi(),energyhit);
+	++count;
+      }
     }
     if (!fillHist_) {
       if (Noise_ || runNZS_ || (energyhit >= eLow && energyhit <= eHigh)) {
@@ -484,7 +500,13 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
       }
     }
   } // HBHE_MB
- 
+  if (fill && count) hbherun_->Fill(rnnum_ ,count*1.0/HithbheMB.size());
+#ifdef EDM_ML_DEBUG
+  if (count) 
+    std::cout << count << "\t" << HithbheMB.size() << "\t" 
+	      << count*1.0/HithbheMB.size() << std::endl;
+#endif
+  count = 0;
   // Signal part for HF
   for (HFRecHitCollection::const_iterator hfItr=HithfMB.begin(); 
        hfItr!=HithfMB.end(); hfItr++) {
@@ -512,6 +534,10 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
 	if (itr1 != histHC_.end()) itr1->second->Fill(energyhit);
       }
       h_[hid.subdet()-1]->Fill(energyhit);
+      if(energyhit >2) {
+	hf_->Fill(hid.ieta(),hid.iphi(),energyhit);
+	++count;
+      }
     }
 
     //
@@ -535,6 +561,12 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
       }
     }
   }
+  hfrun_->Fill(rnnum_ ,count*1.0/HithfMB.size());
+#ifdef EDM_ML_DEBUG
+  if (count) 
+    std::cout << count << "\t" << HithfMB.size() << "\t" 
+	      << count*1.0/HithfMB.size() << std::endl;
+#endif
 }
 
 //define this as a plug-in                                                      
