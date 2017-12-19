@@ -1,6 +1,7 @@
 <lcgdict>
   <class name="DCSRecord" ClassVersion="3">
-    <version ClassVersion="3" checksum="2851988978"/>
+    <version ClassVersion="3" checksum="1984404858"/>
+    <field name="partitionNames_" transient="true"/>
   </class>
   <class name="OnlineBeamSpotRecord" ClassVersion="3">
     <version ClassVersion="3" checksum="1614588742"/>
