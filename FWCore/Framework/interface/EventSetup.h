@@ -150,7 +150,7 @@ namespace edm {
   // Free functions to retrieve an object from the EventSetup.
   // Will throw an exception if the record or  object are not found.
 
-  template <typename R, typename T>
+  template <typename T, typename R = typename eventsetup::data_default_record_trait<typename T::value_type>::type>
   T const& get(EventSetup const& setup) {
     ESHandle<T> handle;
     // throw if the record is not available
@@ -159,7 +159,7 @@ namespace edm {
     return * handle.product();
   }
 
-  template <typename R, typename T, typename L>
+  template <typename T, typename R = typename eventsetup::data_default_record_trait<typename T::value_type>::type, typename L>
   T const& get(EventSetup const& setup, L && label) {
     ESHandle<T> handle;
     // throw if the record is not available
