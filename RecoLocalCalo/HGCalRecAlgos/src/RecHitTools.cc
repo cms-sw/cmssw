@@ -104,7 +104,7 @@ std::float_t RecHitTools::getSiThickness(const DetId& id) const {
   auto geom = geom_->getSubdetectorGeometry(id);
   check_geom(geom);
   if( id.det() != DetId::Forward ) {
-    edm::LogWarning("getSiThickness::InvalidSiliconDetid")
+    LogDebug("getSiThickness::InvalidSiliconDetid")
       << "det id: " << std::hex << id.rawId() << std::dec << ":" 
       << id.det() << " is not HGCal silicon!";
     return 0.37;
