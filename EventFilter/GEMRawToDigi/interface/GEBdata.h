@@ -11,23 +11,7 @@ namespace gem {
   {
   public:
     GEBdata(){};
-    /* GEBdata(const uint32_t &ZeroSup_,  */
-    /* 	  const uint8_t &InputID_,  */
-    /* 	  const uint16_t &Vwh_,  */
-    /* 	  const uint16_t &ErrorC_,  */
-    /* 	  const uint16_t &OHCRC_,  */
-    /* 	  const uint16_t &Vwt_, */
-    /* 	  const uint8_t &InFu_, */
-    /* 	  const uint8_t &Stuckd_) :  */
-    /*   m_ZeroSup(ZeroSup_),                                 */
-    /*     m_InputID(InputID_), */
-    /*     m_Vwh(Vwh_),                                   */
-    /*     m_ErrorC(ErrorC_), */
-    /*     m_OHCRC(OHCRC_),                                     */
-    /*     m_Vwt(Vwt_),                              */
-    /*     m_InFu(InFu_),                                    */
-    /*     m_Stuckd(Stuckd_){}          */
-    /*   ~GEBdata(){vfatd.clear();} */
+    ~GEBdata(){m_vfatd.clear();}
 
     // need to include all the flags
     //!Reads the word for the GEM Chamber Header. Puts the thirteen flags in a vector.
@@ -108,6 +92,8 @@ namespace gem {
     void addVFAT(VFATdata v){m_vfatd.push_back(v);}
     //!Returns the vector of FVAT data
     std::vector<VFATdata> vFATs() const {return m_vfatd;}  
+
+    static const int sizeGebID = 5;
     
   private:
     std::vector<VFATdata> m_vfatd;     ///<Vector of VFAT data
