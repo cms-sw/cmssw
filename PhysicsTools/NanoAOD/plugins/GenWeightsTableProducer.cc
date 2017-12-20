@@ -371,7 +371,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                     // ----- SCALE VARIATIONS -----
                     std::sort(scaleVariationIDs.begin(), scaleVariationIDs.end());
                     if (lheDebug) std::cout << "Found " << scaleVariationIDs.size() << " scale variations: " << std::endl;
-                    std::stringstream scaleDoc("LHE scale variation weights (w_var / w_nominal); ");
+                    std::stringstream scaleDoc; scaleDoc << "LHE scale variation weights (w_var / w_nominal); ";
                     for (unsigned int isw = 0, nsw = scaleVariationIDs.size(); isw < nsw; ++isw) {
                         const auto & sw = scaleVariationIDs[isw];
                         if (isw) scaleDoc << "; ";
@@ -387,7 +387,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                         for (const auto & pw : pdfSetWeightIDs) printf("lhaIDs %6d - %6d (%3lu weights: %s, ... )\n", pw.lhaIDs.first, pw.lhaIDs.second, pw.wids.size(), pw.wids.front().c_str());
                     }
                     
-                    std::stringstream pdfDoc("LHE pdf variation weights (w_var / w_nominal) for LHA IDs ");
+                    std::stringstream pdfDoc; pdfDoc << "LHE pdf variation weights (w_var / w_nominal) for LHA IDs ";
                     bool found = false;
                     for (uint32_t lhaid : preferredPDFLHAIDs_) {
                         for (const auto & pw : pdfSetWeightIDs) {
