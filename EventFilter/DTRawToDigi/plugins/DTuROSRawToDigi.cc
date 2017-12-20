@@ -164,7 +164,6 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 
     int slot = ( dataWord >> posSlotFED ) & 0xF; 
 
-
     if ( (slot < 1) || (slot > 12) ) {
       if ( debug_ ) edm::LogWarning("dturos_unpacker") << "AMCnumber " << std::dec << slot << " out of range (1-12)";
         return;
@@ -276,7 +275,8 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 
 
     rwords.setheader2(dataWord);
-
+    int slotMap = dataWord & 0xF;
+    if (slotMap == 0) slotMap=slot;
     const int posSel1 = 60 ; // positions 60 -> 6
     const int posSel2 = 28 ; // position  28 
     const int posTDCTime = 32 ; // positions  32 -> 45
@@ -295,7 +295,6 @@ void DTuROSRawToDigi::process(int DTuROSFED,
       dataWord  = (*DTuROSiterator);
       int selector  = ( dataWord >> posSel1 ) & 0xF;
       int selector2 = ( dataWord >> posSel2 ) & 0x1; 
-
 
       if ( selector == 4 ) { // OK word 
 
@@ -328,9 +327,9 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 						     dummy, dummy, dummy, 
 						     dummy, dummy, dummy);
 
-	  int dduId = theDDU(crate, slot, link, tenDDU);
-	  int rosId = theROS(crate, slot, link);
-	  int robId = theROB(crate, slot, link);
+	  int dduId = theDDU(crate, slotMap, link, tenDDU);
+	  int rosId = theROS(crate, slotMap, link);
+	  int robId = theROB(crate, slotMap, link);
 
 
 	  DTROChainCoding channelIndex(dduId, rosId, robId, tdcId, tdcChannel);
@@ -380,9 +379,9 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 						     dummy, dummy, dummy, 
 						     dummy, dummy, dummy);
 
-	  int dduId = theDDU(crate, slot, link, tenDDU);
-	  int rosId = theROS(crate, slot, link);
-	  int robId = theROB(crate, slot, link);
+	  int dduId = theDDU(crate, slotMap, link, tenDDU);
+	  int rosId = theROS(crate, slotMap, link);
+	  int robId = theROB(crate, slotMap, link);
 
 
 	  DTROChainCoding channelIndex(dduId, rosId, robId, tdcId, tdcChannel);
@@ -438,21 +437,25 @@ int DTuROSRawToDigi::theDDU(int crate, int slot, int link, bool tenDDU) {
   
   int ddu = 772;
 
-  if (crate == 1368) {
+  if (crate == 1368) { ddu = 775; }
+
+  if (crate == 1369) {
     if (slot < 7) 
       ddu = 770;
     else 
       ddu = 771;
   }
 
-  if (crate == 1370) {
-    if (slot > 6) 
+  if (crate == 1370) { ddu = 772; }
+ 
+  if (crate == 1371) {
+    if (slot < 7) 
       ddu = 773;
     else 
       ddu = 774;
   }
 
-  if (ros > 6 && tenDDU)
+  if (ros > 6 && tenDDU && ddu < 775)
     ddu += 5;
 
   return ddu;
