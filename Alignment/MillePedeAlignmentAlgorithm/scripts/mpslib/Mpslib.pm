@@ -95,7 +95,7 @@ sub write_db() {
   printf DBFILE "%s\n",$spare3;
   my $i;
   for ($i = 0; $i < @JOBID; ++$i) {
-    printf DBFILE "%03d:%s:%05d:%s:%d:%d:%d:%s:%d:%s:%s:%s:%s\n",
+    printf DBFILE "%03d:%s:%s:%s:%d:%d:%d:%s:%d:%s:%s:%s:%s\n",
     $i+1,@JOBDIR[$i],@JOBID[$i],@JOBSTATUS[$i],@JOBNTRY[$i],@JOBRUNTIME[$i],@JOBNEVT[$i],@JOBHOST[$i],
     @JOBINCR[$i],@JOBREMARK[$i],@JOBSP1[$i],@JOBSP2[$i],@JOBSP3[$i];
   }
@@ -188,7 +188,7 @@ sub print_memdb() {
     if (@JOBRUNTIME[$i]>0 and @JOBNEVT[$i]>0) {
       $cpuPerEvt = $thisCpu / @JOBNEVT[$i];
     }
-    printf "%03d %6s %09d %6s %3d %5d %8d %6.3f %8s %s\n",
+    printf "%03d %6s %9s %6s %3d %5d %8d %6.3f %8s %s\n",
     $i+1,@JOBDIR[$i],@JOBID[$i],@JOBSTATUS[$i],@JOBNTRY[$i],
       $thisCpu,@JOBNEVT[$i],$cpuPerEvt,@JOBHOST[$i],$JOBSP3[$i];
     if (@JOBNEVT[$i] > 0) {
@@ -203,7 +203,7 @@ sub print_memdb() {
       while ($i < @JOBID) {
         $cpuFactor = get_cpufactor(@JOBHOST[$i]);
         $thisCpu = @JOBRUNTIME[$i] * $cpuFactor;
-        printf "%3s %6s %09d %6s %3d %5d %8d %6.3f %8s\n",
+        printf "%3s %6s %9s %6s %3d %5d %8d %6.3f %8s\n",
         "MMM",@JOBDIR[$i],@JOBID[$i],@JOBSTATUS[$i],@JOBNTRY[$i],
         $thisCpu,@JOBNEVT[$i],0,@JOBHOST[$i];
 	++$i;
