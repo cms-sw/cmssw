@@ -134,12 +134,9 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
         book1D(ib,strtmp, ietaLim);
     }
 
-    std::vector<float> sumphi;
-    std::vector<float> sumphie;
-    for(int depth = 1; depth <= depths; depth++) {
-        sumphi.push_back(0.);
-        sumphie.push_back(0.);
-    }
+    std::vector<float> sumphi(depths,0);
+    std::vector<float> sumphie(depths,0);
+
 
     float phi_factor;
     float cnorm;
@@ -170,19 +167,17 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
         if (ieta >= 0) ieta += 1; // -41 -1, 1 41  - to make it detector-like
 
         if (ieta >= -20 && ieta <= 20) {
-          phi_factor = 72.; 
+            phi_factor = 72.; 
         } else {
-          if (ieta >= 40 || ieta <= -40) 
-              phi_factor = 18.; 
-           else 
-              phi_factor = 36.; 
+            if (ieta >= 40 || ieta <= -40) 
+                phi_factor = 18.; 
+            else 
+                phi_factor = 36.; 
         }
     
-        //zero the sumphi vector at the start of each ieta ring
-    for(int depth = 1; depth <= depths; depth++) {
-        sumphi[depth-1] = 0;
-        sumphie[depth-1] = 0;
-    }
+        //zero the sumphi and sumphie vector at the start of each ieta ring
+        sumphi.assign(depths,0);
+        sumphie.assign(depths,0);
 
         for (int iphi = 1; iphi <= 72; iphi++) {
             for(int depth = 1; depth <= depths; depth++){
