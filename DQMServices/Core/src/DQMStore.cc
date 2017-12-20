@@ -543,7 +543,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     ar.watchPostSourceLumi(this,&DQMStore::forceReset);
   }
   ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
-  ar.watchPostGlobalEndLumi(this,&DQMStore::deleteUnusedLumiHistogramsAfterEndLumi);
+  ar.watchPreGlobalBeginLumi(this, &DQMStore::deleteUnusedLumiHistogramsAfterEndLumi);
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)

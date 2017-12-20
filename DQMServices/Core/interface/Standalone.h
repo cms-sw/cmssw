@@ -88,7 +88,7 @@ namespace edm
     void watchPostGlobalEndRun(void*, T) {}
 
     template <typename T>
-    void watchPostGlobalEndLumi(void*, T) {}
+    void watchPreGlobalBeginLumi(void*, T) {}
 
     PreallocationSignal preallocateSignal_;
   };
