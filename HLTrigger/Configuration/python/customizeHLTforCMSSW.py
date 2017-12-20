@@ -32,6 +32,14 @@ def customiseFor21664(process):
         producer.algorithm.nnlsThresh   = hbheprereco.algorithm.nnlsThresh
     return process
 
+def customiseFor21664_forMahiOn(process):
+    from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.useMahi     = cms.bool(True)
+        producer.algorithm.useM2     = cms.bool(False)
+        producer.algorithm.useM3     = cms.bool(False)
+    return process
+
 # Add new parameters to RecoTrackRefSelector
 def customiseFor19029(process):
     for producer in producers_by_type(process, "RecoTrackRefSelector"):
