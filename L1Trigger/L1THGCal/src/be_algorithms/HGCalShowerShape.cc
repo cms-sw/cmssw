@@ -1,15 +1,9 @@
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalShowerShape.h"
-#include "TMath.h"
-#include <cmath>
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <string>
 #include <unordered_map>
 
 
@@ -32,51 +26,6 @@ float HGCalShowerShape::meanX(const std::vector<pair<float,float> >& energy_X_tc
   return X_mean;
 
 }
-
-//Compute energy-weighted RMS of any variable X in the cluster
-
-float HGCalShowerShape::sigmaXX(const std::vector<pair<float,float> >& energy_X_tc, const float X_cluster) const {
-
-  float Etot = 0;
-  float deltaX2_sum = 0;
-
-  for(const auto& energy_X : energy_X_tc){
-
-    deltaX2_sum += energy_X.first * pow(energy_X.second - X_cluster,2);
-    Etot += energy_X.first;
-
-  }
-
-  float X_MSE = 0;
-  if (Etot>0) X_MSE=deltaX2_sum/Etot;
-  float X_RMS=sqrt(X_MSE);
-  return X_RMS;
-
-}
-
-
-//Compute energy-weighted RMS of any variable X in the cluster
-//Extra care needed because of deltaPhi
-
-float HGCalShowerShape::sigmaPhiPhi(const std::vector<pair<float,float> >& energy_phi_tc, const float phi_cluster) const {
-
-  float Etot = 0;
-  float deltaphi2_sum = 0;
-
-  for(const auto& energy_phi : energy_phi_tc){
-
-    deltaphi2_sum += energy_phi.first * pow(deltaPhi(energy_phi.second,phi_cluster),2);
-    Etot += energy_phi.first;
-
-  }
-
-  float phi_MSE = 0;
-  if (Etot>0) phi_MSE=deltaphi2_sum/Etot;
-  float Spp=sqrt(phi_MSE);
-  return Spp;
-
-}
-
 
 
 int HGCalShowerShape::firstLayer(const l1t::HGCalMulticluster& c3d) const {
