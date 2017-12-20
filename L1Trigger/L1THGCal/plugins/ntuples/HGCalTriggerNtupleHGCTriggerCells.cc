@@ -64,10 +64,10 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
 
 
 HGCalTriggerNtupleHGCTriggerCells::
-HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf):HGCalTriggerNtupleBase(conf)
+HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf):HGCalTriggerNtupleBase(conf),
+  fill_simenergy_(conf.getParameter<bool>("FillSimEnergy")),
+  filter_cells_in_multiclusters_(conf.getParameter<bool>("FilterCellsInMulticlusters"))
 {
-  fill_simenergy_ = conf.getParameter<bool>("FillSimEnergy");
-  filter_cells_in_multiclusters_ = conf.getParameter<bool>("FilterCellsInMulticlusters");
 }
 
 void

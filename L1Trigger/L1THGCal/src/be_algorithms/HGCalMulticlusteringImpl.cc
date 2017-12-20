@@ -181,7 +181,7 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
             return left.second < right.second;
             });
 
-    for(auto cluRanked: rankedList){
+    for(const auto& cluRanked: rankedList){
         std::vector<unsigned int> neighbors;      
 
         if(!visited.at(iclu)){
