@@ -766,8 +766,6 @@ class DQMStore
                                               uint32_t moduleId);
 
   void deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi);
-  void deleteUnusedLumiHistogramsAfterEndLumi(const edm::GlobalContext&);
-
  private:
 
   // ---------------- Miscellaneous -----------------------------
