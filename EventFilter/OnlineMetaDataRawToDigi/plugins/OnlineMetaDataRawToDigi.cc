@@ -28,12 +28,13 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 
 #include "DataFormats/OnlineMetaData/interface/DCSRecord.h"
-#include "DataFormats/OnlineMetaData/interface/OnlineBeamSpotRecord.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineMetaDataRaw.h"
 
@@ -52,9 +53,9 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
+  reco::BeamSpot getBeamSpot(const online::BeamSpot_v1&) const;
 
   edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
-
 };
 
 OnlineMetaDataRawToDigi::OnlineMetaDataRawToDigi(const edm::ParameterSet& iConfig)
@@ -63,8 +64,8 @@ OnlineMetaDataRawToDigi::OnlineMetaDataRawToDigi(const edm::ParameterSet& iConfi
   dataToken_=consumes<FEDRawDataCollection>(dataLabel);
 
   produces<DCSRecord>("dcsRecord");
-  produces<OnlineBeamSpotRecord>("onlineBeamSpotRecord");
   produces<OnlineLuminosityRecord>("onlineLuminosityRecord");
+  produces<reco::BeamSpot>("onlineBeamSpot");
 }
 
 
@@ -84,8 +85,8 @@ void OnlineMetaDataRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(dataToken_,rawdata);
 
   DCSRecord dcsRecord;
-  OnlineBeamSpotRecord onlineBeamSpotRecord;
   OnlineLuminosityRecord onlineLuminosityRecord;
+  reco::BeamSpot onlineBeamSpot;
 
   if( rawdata.isValid() ) {
     const FEDRawData& onlineMetaDataRaw = rawdata->FEDData(FEDNumbering::MINMetaDataSoftFEDID);
@@ -94,14 +95,42 @@ void OnlineMetaDataRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup&
       online::Data_v1 const* onlineMetaData =
         reinterpret_cast<online::Data_v1 const*>(onlineMetaDataRaw.data() + FEDHeader::length);
       dcsRecord = DCSRecord(onlineMetaData->dcs);
-      onlineBeamSpotRecord = OnlineBeamSpotRecord(onlineMetaData->beamSpot);
       onlineLuminosityRecord = OnlineLuminosityRecord(onlineMetaData->luminosity);
+      onlineBeamSpot = getBeamSpot(onlineMetaData->beamSpot);
     }
   }
 
   iEvent.put(std::make_unique<DCSRecord>(dcsRecord), "dcsRecord");
-  iEvent.put(std::make_unique<OnlineBeamSpotRecord>(onlineBeamSpotRecord), "onlineBeamSpotRecord");
   iEvent.put(std::make_unique<OnlineLuminosityRecord>(onlineLuminosityRecord), "onlineLuminosityRecord");
+  iEvent.put(std::make_unique<reco::BeamSpot>(onlineBeamSpot), "onlineBeamSpot");
+}
+
+
+reco::BeamSpot OnlineMetaDataRawToDigi::getBeamSpot(const online::BeamSpot_v1& beamSpot) const
+{
+  reco::BeamSpot::Point point(beamSpot.x,beamSpot.y,beamSpot.z);
+
+  reco::BeamSpot::CovarianceMatrix matrix;
+  matrix(0,0) = beamSpot.errX*beamSpot.errX;
+  matrix(1,1) = beamSpot.errY*beamSpot.errY;
+  matrix(2,2) = beamSpot.errZ*beamSpot.errZ;
+  matrix(3,3) = beamSpot.errSigmaZ*beamSpot.errSigmaZ;
+  matrix(4,4) = beamSpot.errDxdz*beamSpot.errDxdz;
+  matrix(5,5) = beamSpot.errDydz*beamSpot.errDydz;
+  matrix(6,6) = beamSpot.errWidthX*beamSpot.errWidthX;
+  // Note: errWidthY is not part of the CovarianceMatrix
+
+  reco::BeamSpot bs(point,
+                    beamSpot.sigmaZ,
+                    beamSpot.dxdz,
+                    beamSpot.dydz,
+                    beamSpot.widthX,
+                    matrix,
+                    reco::BeamSpot::BeamType::LHC);
+
+  bs.setBeamWidthY(beamSpot.widthY);
+
+  return bs;
 }
 
 
