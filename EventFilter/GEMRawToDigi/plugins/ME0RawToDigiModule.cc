@@ -3,6 +3,7 @@
  */
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -15,10 +16,10 @@
 
 using namespace gem;
 
-ME0RawToDigiModule::ME0RawToDigiModule(const edm::ParameterSet & pset)
+ME0RawToDigiModule::ME0RawToDigiModule(const edm::ParameterSet & pset) :
+  fed_token(consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("InputLabel") )),
+  useDBEMap_(pset.getParameter<bool>("useDBEMap"))
 {
-  fed_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("InputLabel") );  
-  useDBEMap_ = pset.getParameter<bool>("useDBEMap");
   produces<ME0DigiCollection>(); 
 }
 
@@ -26,31 +27,33 @@ void ME0RawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descr
 {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector")); 
-  desc.add<bool>("useDBEMap", false); 
+  desc.add<bool>("useDBEMap", false);
+  descriptions.add("muonME0Digis", desc);  
 }
 
-void ME0RawToDigiModule::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
+std::shared_ptr<ME0ROmap> ME0RawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const
 {
   if (useDBEMap_){
-    edm::ESHandle<ME0EMap> me0EMap;
-    iSetup.get<ME0EMapRcd>().get(me0EMap);
-    m_me0EMap = std::make_unique<ME0EMap>(*(me0EMap.product()));
-    m_me0ROMap = std::make_unique<ME0ROmap>(*(m_me0EMap->convert()));
+    edm::ESHandle<ME0EMap> me0EMapRcd;
+    iSetup.get<ME0EMapRcd>().get(me0EMapRcd);
+    auto me0EMap = std::make_unique<ME0EMap>(*(me0EMapRcd.product()));
+    return std::make_shared<ME0ROmap>(*(me0EMap->convert()));
   }
   else {
     // no eMap, using dummy
-    m_me0EMap = std::make_unique<ME0EMap>();
-    m_me0ROMap = std::make_unique<ME0ROmap>(*(m_me0EMap->convertDummy()));
+    auto me0EMap = std::make_unique<ME0EMap>();
+    return std::make_shared<ME0ROmap>(*(me0EMap->convertDummy()));
   }
 }
 
-void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
+void ME0RawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::EventSetup const&) const
 {
   auto outME0Digis = std::make_unique<ME0DigiCollection>();
-
   // Take raw from the event
   edm::Handle<FEDRawDataCollection> fed_buffers;
-  e.getByToken( fed_token, fed_buffers );
+  iEvent.getByToken( fed_token, fed_buffers );
+
+  auto me0ROMap = runCache(iEvent.getRun().index());
   
   for (unsigned int id=FEDNumbering::MINME0FEDID; id<=FEDNumbering::MINME0FEDID; ++id){ 
     const FEDRawData& fedData = fed_buffers->FEDData(id);
@@ -71,7 +74,7 @@ void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
     // Readout out AMC headers
     for (unsigned short i = 0; i < amc13Event->nAMC(); ++i)
       amc13Event->addAMCheader(*(++word));
-
+    
     // Readout out AMC payloads
     for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
       auto amcData = std::make_unique<AMCdata>();
@@ -87,7 +90,6 @@ void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	
 	unsigned int m_nvb = gebData->vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
 	uint16_t gebId = gebData->inputID();
-	
 	for (unsigned short k = 0; k < m_nvb; k++){
 	  auto vfatData = std::make_unique<VFATdata>();
 	  vfatData->read_fw(*(++word));
@@ -106,8 +108,8 @@ void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 
 	  if (crc!=crc_check) edm::LogWarning("ME0RawToDigiModule") << "DIFFERENT CRC :"<<crc<<"   "<<crc_check;
 	  if (!Quality) edm::LogWarning("ME0RawToDigiModule") << "Quality "<< Quality;
-	  
-	  uint32_t vfatId = (amcId << 17) | (gebId << 12) | ChipID;
+	  	  
+	  uint32_t vfatId = (amcId << (VFATdata::sizeChipID+GEBdata::sizeGebID)) | (gebId << VFATdata::sizeChipID) | ChipID;
 	  //need to add gebId to DB
 	  if (useDBEMap_) vfatId = ChipID;
 	    
@@ -115,12 +117,12 @@ void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	  ME0ROmap::eCoord ec;
 	  ec.vfatId = vfatId;
 	  ec.channelId = 1;
-	  if (!m_me0ROMap->isValidChipID(ec)){
+	  if (!me0ROMap->isValidChipID(ec)){
 	    edm::LogWarning("ME0RawToDigiModule") << "InValid ChipID :"<<ec.vfatId;
 	    continue;
 	  }
 	  
-	  for (int chan = 0; chan < 128; ++chan) {
+	  for (int chan = 0; chan < VFATdata::nChannels; ++chan) {
 	    uint8_t chan0xf = 0;
 	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
 	    else chan0xf = ((vfatData->msData() >> (chan-64)) & 0x1);
@@ -128,10 +130,10 @@ void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	    // no hits
 	    if(chan0xf==0) continue;
 
-	    ec.channelId = chan;
-	    ME0ROmap::dCoord dc = m_me0ROMap->hitPosition(ec);
+	    ec.channelId = chan;// need to check
+	    ME0ROmap::dCoord dc = me0ROMap->hitPosition(ec);
 	    int bx = bc-25;
-	    ME0DetId me0Id(dc.me0DetId);
+	    ME0DetId me0Id = dc.me0DetId;
 	    ME0Digi digi(dc.stripId,bx);
 
 	    LogDebug("ME0RawToDigiModule") <<" vfatId "<<ec.vfatId
@@ -139,12 +141,12 @@ void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 					   <<" chan "<< ec.channelId
 					   <<" strip "<< dc.stripId
 					   <<" bx "<< digi.bx();
-	    	    
+
 	    outME0Digis.get()->insertDigi(me0Id,digi);	    
 	  }
 	}
-		  	
-	gebData->setChamberTrailer(*(++word));
+	
+	gebData->setChamberTrailer(*(++word));		  	
 	amcData->addGEB(*gebData);
       }
       
@@ -156,6 +158,6 @@ void ME0RawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
     amc13Event->setAMC13trailer(*(++word));
     amc13Event->setCDFTrailer(*(++word));
   }
-    
-  e.put(std::move(outME0Digis));
+  
+  iEvent.put(std::move(outME0Digis));
 }

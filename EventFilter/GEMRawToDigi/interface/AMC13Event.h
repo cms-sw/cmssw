@@ -11,6 +11,7 @@ namespace gem {
     ~AMC13Event(){m_AMC_size.clear(); m_Blk_No.clear(); m_AMC_No.clear(); m_BoardID.clear(); m_amcs.clear();}
 
     int nAMC() const {return unsigned(m_nAMC);}
+    int bx_id() const {return unsigned(m_BX_id);}
     int lv1_id() const {return unsigned(m_LV1_id);}
     int source_id() const {return unsigned(m_Source_id);}
     std::vector<AMCdata> amcs() const {return m_amcs;}

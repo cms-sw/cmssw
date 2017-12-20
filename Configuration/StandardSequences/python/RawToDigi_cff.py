@@ -27,11 +27,11 @@ muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 
-import EventFilter.GEMRawToDigi.gemUnpacker_cfi
-muonGEMDigis = EventFilter.GEMRawToDigi.gemUnpacker_cfi.muonGEMDigis.clone()
+import EventFilter.GEMRawToDigi.muonGEMDigis_cfi
+muonGEMDigis = EventFilter.GEMRawToDigi.muonGEMDigis_cfi.muonGEMDigis.clone()
 
-import EventFilter.GEMRawToDigi.me0Unpacker_cfi
-muonME0Digis = EventFilter.GEMRawToDigi.me0Unpacker_cfi.muonME0Digis.clone()
+import EventFilter.GEMRawToDigi.muonME0Digis_cfi
+muonME0Digis = EventFilter.GEMRawToDigi.muonME0Digis_cfi.muonME0Digis.clone()
 
 from EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
 castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692, 693,722) )

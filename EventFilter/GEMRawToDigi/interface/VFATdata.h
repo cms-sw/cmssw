@@ -10,13 +10,13 @@ namespace gem {
     ~VFATdata(){}
   VFATdata(const uint8_t &b1010_, 
 	   const uint16_t &BC_,
-	   const uint8_t &b1100_, 
+	   const uint8_t &b1100_,
 	   const uint8_t &EC_,
-	   const uint8_t &Flag_, 
-	   const uint8_t &b1110_, 
-	   const uint16_t &ChipID_, 
-	   const uint64_t &lsData_, 
-	   const uint64_t &msData_, 
+	   const uint8_t &Flag_,
+	   const uint8_t &b1110_,
+	   const uint16_t &ChipID_,
+	   const uint64_t &lsData_,
+	   const uint64_t &msData_,
 	   const uint16_t &crc_,
 	   const uint16_t &crc_calc_,
 	   const int &SlotNumber_,
@@ -188,6 +188,9 @@ namespace gem {
       }
       return(crc_fin);
     }    
+
+    static const int nChannels = 128;
+    static const int sizeChipID = 12;
     
   private:
     
