@@ -71,7 +71,7 @@ hbheprereco = cms.EDProducer(
         useM2 = cms.bool(False),
 
         # Use "Method 3"?
-        useM3 = cms.bool(False),
+        useM3 = cms.bool(True),
 
         # Use Mahi?
         useMahi = cms.bool(True)
