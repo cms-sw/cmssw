@@ -24,7 +24,6 @@
 
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenEvent.h"
-#include "Randomize.hh"
 
 #include <iostream>
 #include <memory>
@@ -67,9 +66,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    using namespace edm;
 
    RandomEngineAndDistribution random(iEvent.streamID());
-   // define Geant4 engine per thread
-   G4Random::setTheEngine(&random.theEngine());
-   LogDebug("FamosProducer::produce") << "Begin of event " << G4UniformRand() << "  " << &random.theEngine();
 
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHand;
