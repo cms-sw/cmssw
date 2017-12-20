@@ -1,4 +1,3 @@
-
 <use name="oracleocci"/>
 <library name="cms_occi" file="cms_occi_hack.cc">
 </library>
