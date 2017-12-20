@@ -39,10 +39,10 @@ phase2_tracker.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData
 
 # GEM settings
 _gem_DigiToRaw = DigiToRaw.copy()
-_gem_DigiToRaw.insert(-1,gempacker)
+_gem_DigiToRaw.insert(-1,gemPacker)
 
 _me0_DigiToRaw = DigiToRaw.copy()
-_me0_DigiToRaw.insert(-1,gempacker*me0packer)
+_me0_DigiToRaw.insert(-1,gemPacker*me0Packer)
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith(DigiToRaw, _gem_DigiToRaw)

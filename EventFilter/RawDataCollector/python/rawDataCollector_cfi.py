@@ -30,8 +30,11 @@ run2_HCAL_2017.toModify( rawDataCollector.RawCollectionList, func = lambda list:
 
 # GEM settings
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-run2_GEM_2017.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gempacker")) )
+run2_GEM_2017.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gemPacker")) )
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gempacker")) )
-# me0packer to added done once proper ME0 digitiser is done
+run3_GEM.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gemPacker")) )
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gemPacker")) )
+phase2_muon.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("me0Packer")) )
