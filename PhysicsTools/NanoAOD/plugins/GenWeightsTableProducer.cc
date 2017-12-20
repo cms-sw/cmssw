@@ -391,7 +391,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                     bool found = false;
                     for (uint32_t lhaid : preferredPDFLHAIDs_) {
                         for (const auto & pw : pdfSetWeightIDs) {
-                            if (pw.lhaIDs.first != lhaid) continue;
+                            if (pw.lhaIDs.first != lhaid && pw.lhaIDs.first != (lhaid+1)) continue; // sometimes the first weight is not saved if that PDF is the nominal one for the sample
                             if (pw.wids.size() == 1) continue; // only consider error sets
                             pdfDoc << pw.lhaIDs.first << " - " << pw.lhaIDs.second;
                             weightChoice->pdfWeightIDs = pw.wids;
