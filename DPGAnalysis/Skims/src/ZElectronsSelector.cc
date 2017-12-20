@@ -25,7 +25,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -129,69 +128,43 @@ void  ZElectronsSelector::newEvent(const edm::Event& ev, const edm::EventSetup& 
 
 bool ZElectronsSelector::operator()(const reco::GsfElectron& el) const{
 
-  bool keepEle = false; 
   float pt_e = el.pt();
-
-  auto etrack  = el.gsfTrack().get(); 
+  unsigned int ind=0;
+  auto etrack  = el.gsfTrack(); 
+  float abseta = fabs((el.superCluster().get())->position().eta());
 
   if (el.isEB()){
-    if (etrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)>missHits[0]) return keepEle; 
-    if (el.full5x5_sigmaIetaIeta() >  sigmaIEtaIEtaCut[0]) return keepEle; 
-    if (fabs(el.deltaPhiSuperClusterTrackAtVtx())> dPhiInCut[0]) return keepEle; 
-    if (fabs(el.deltaEtaSeedClusterTrackAtVtx())> dEtaInSeedCut[0]) return keepEle; 
-    if (el.hadronicOverEm()>hOverECut[0]) return keepEle;
-    float abseta = fabs((el.superCluster().get())->position().eta());
-    if (abseta> 1.479) return keepEle; // check if it is really needed
-    const float  eA = getEffectiveArea( abseta );
-    const float rho = _rhoHandle.isValid() ? (float)(*_rhoHandle.product()) : 0; 
-    if (( el.pfIsolationVariables().sumChargedHadronPt + 
-	  std::max(float(0.0), el.pfIsolationVariables().sumNeutralHadronEt +  
-		   el.pfIsolationVariables().sumPhotonEt -  eA*rho )
-	  ) > relCombIso[0]*pt_e) return keepEle; 
-    const float ecal_energy_inverse = 1.0/el.ecalEnergy();
-    const float eSCoverP = el.eSuperClusterOverP();
-    if ( std::abs(1.0 - eSCoverP)*ecal_energy_inverse > EInvMinusPInv[0]) return keepEle; 
-    keepEle=true;
-    
-  }else if (el.isEE()){
-    if (etrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)>missHits[1]) return keepEle; 
-    if (el.full5x5_sigmaIetaIeta() >  sigmaIEtaIEtaCut[1]) return keepEle; 
-    if (fabs(el.deltaPhiSuperClusterTrackAtVtx())> dPhiInCut[1]) return keepEle; 
-    if (fabs(el.deltaEtaSeedClusterTrackAtVtx())> dEtaInSeedCut[1]) return keepEle; 
-    if (el.hadronicOverEm()>hOverECut[1]) return keepEle;
-    float abseta = fabs((el.superCluster())->position().eta());
-    if (abseta< 1.479) return keepEle; // check if it is really needed
-    if (abseta>=2.5  ) return keepEle; // check if it is really needed
-    
-    const float  eA = getEffectiveArea( abseta );
-    const float rho = _rhoHandle.isValid() ? (float)(*_rhoHandle) : 0; 
-    if ((el.pfIsolationVariables().sumChargedHadronPt + 
-	 std::max(float(0.0), el.pfIsolationVariables().sumNeutralHadronEt + 
-		 el.pfIsolationVariables().sumPhotonEt - eA*rho)
-	 ) >relCombIso[1]*pt_e) return keepEle; 
-    const float ecal_energy_inverse = 1.0/el.ecalEnergy();
-    const float eSCoverP = el.eSuperClusterOverP();
-    if ( std::abs(1.0 - eSCoverP)*ecal_energy_inverse > EInvMinusPInv[1]) return keepEle; 
+    if (abseta> 1.479) return false; // check if it is really needed
+  }
+  if (el.isEE()){
+    ind=1; 
+    if (abseta< 1.479) return false; // check if it is really needed
+    if (abseta>=2.5  ) return false; // check if it is really needed
+  }
+  
+  if (etrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)>missHits[ind]) return false; 
+  if (el.full5x5_sigmaIetaIeta() >  sigmaIEtaIEtaCut[ind]) return false; 
+  if (fabs(el.deltaPhiSuperClusterTrackAtVtx())> dPhiInCut[ind]) return false; 
+  if (fabs(el.deltaEtaSeedClusterTrackAtVtx())> dEtaInSeedCut[ind]) return false; 
+  if (el.hadronicOverEm()>hOverECut[ind]) return false;
+  const float  eA = getEffectiveArea( abseta );
+  const float rho = _rhoHandle.isValid() ? (float)(*_rhoHandle.product()) : 0; 
+  if (( el.pfIsolationVariables().sumChargedHadronPt + 
+	std::max(float(0.0), el.pfIsolationVariables().sumNeutralHadronEt +  
+		 el.pfIsolationVariables().sumPhotonEt -  eA*rho )
+	) > relCombIso[ind]*pt_e) return false; 
+  const float ecal_energy_inverse = 1.0/el.ecalEnergy();
+  const float eSCoverP = el.eSuperClusterOverP();
+  if ( std::abs(1.0 - eSCoverP)*ecal_energy_inverse > EInvMinusPInv[ind]) return false; 
 
-    keepEle=true;
-	
-  }//isEE
-  return keepEle;
-
+  return true; 
 }
 
 EVENTSETUP_STD_INIT(ZElectronsSelector);
-#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "CommonTools/UtilAlgos/interface/AndSelector.h"
-#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
 
 typedef SingleObjectSelector<
   edm::View<reco::GsfElectron>,
   ZElectronsSelector
 > ZElectronsSelectorAndSkim;
-
-
-
 
 DEFINE_FWK_MODULE( ZElectronsSelectorAndSkim );
