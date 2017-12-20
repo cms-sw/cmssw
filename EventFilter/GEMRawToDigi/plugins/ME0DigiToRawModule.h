@@ -7,7 +7,7 @@
  */
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -24,15 +24,16 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class ME0DigiToRawModule : public edm::stream::EDProducer<> {
+class ME0DigiToRawModule : public edm::global::EDProducer<edm::RunCache<ME0ROmap> > {
  public:
   
   /// Constructor
   ME0DigiToRawModule(const edm::ParameterSet & pset);
 
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  // Operations
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  // global::EDProducer
+  std::shared_ptr<ME0ROmap> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;  
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {};
 
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
@@ -42,10 +43,6 @@ class ME0DigiToRawModule : public edm::stream::EDProducer<> {
   int event_type_;
   edm::EDGetTokenT<ME0DigiCollection> digi_token;
   bool useDBEMap_;
-
-  std::unique_ptr<ME0EMap>  m_me0EMap;
-  std::unique_ptr<ME0ROmap> m_me0ROMap;
-  
 };
 DEFINE_FWK_MODULE(ME0DigiToRawModule);
 #endif
