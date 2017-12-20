@@ -43,11 +43,11 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 
     // Compute compression LUT
     for (unsigned int i=0; i < OUTPUT_LUT_SIZE; i++) {
-	analyticalLUT[i] = min((unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5), TPGMAX - 1);
-	linearQIE8LUT[i] = min((unsigned int)((i+.5)/lin8_factor_), TPGMAX - 1);
-	linearQIE11LUT[i] = min((unsigned int)((i+.5)/lin11_factor_), TPGMAX - 1);
-	linearRctLUT[i] = min((unsigned int)((i+.5)/rct_factor_), TPGMAX - 1);
-	linearNctLUT[i] = min((unsigned int)((i+.5)/nct_factor_), TPGMAX - 1);
+       analyticalLUT[i] = min(static_cast<unsigned int>(sqrt(14.94 * log(1. + i / 14.94) * i) + 0.5), TPGMAX - 1);
+       linearQIE8LUT[i] = min(static_cast<unsigned int>((i + .5) / lin8_factor_), TPGMAX - 1);
+       linearQIE11LUT[i] = min(static_cast<unsigned int>((i + .5) / lin11_factor_), TPGMAX - 1);
+       linearRctLUT[i] = min(static_cast<unsigned int>((i + .5) / rct_factor_), TPGMAX - 1);
+       linearNctLUT[i] = min(static_cast<unsigned int>((i + .5) / nct_factor_), TPGMAX - 1);
     }
  
     std::vector<DetId> allChannels = lutMetadata.getAllChannels();
@@ -101,7 +101,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
            if (allLinear_) {
               LUT tpg = outputLUT_[index][0];
               hcaluncomp_[index][tpg] = 0;
-              for (unsigned int i = 0; i < getOutputLUTSize(id); ++i){
+              for (unsigned int i = 0; i < lutsize; ++i){
                  if (outputLUT_[index][i] != tpg){
                     tpg = outputLUT_[index][i];
                     hcaluncomp_[index][tpg] = lsb_factor_ * i / (isOnlyQIE11(id) ? lin11_factor_ : lin8_factor_);
@@ -111,7 +111,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
               double factor = nominal_gain_ / cosh_ieta * granularity;
               LUT tpg = outputLUT_[index][0];
               int low = 0;
-              for (unsigned int i = 0; i < getOutputLUTSize(id); ++i){
+              for (unsigned int i = 0; i < lutsize; ++i){
                  if (outputLUT_[index][i] != tpg){
                     unsigned int mid = (low + i)/2; 
                     hcaluncomp_[index][tpg] = (tpg == 0 ? low : factor * mid);
@@ -125,7 +125,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 	else{
 	    LUT tpg = outputLUT_[index][0];
 	    hcaluncomp_[index][tpg]=0;
-	    for (unsigned int i = 0; i < getOutputLUTSize(id); ++i){
+	    for (unsigned int i = 0; i < lutsize; ++i){
 		if (outputLUT_[index][i] != tpg){
 		   tpg = outputLUT_[index][i];
 		   hcaluncomp_[index][tpg] = lsb_factor_ * i / (version==0?rct_factor_:nct_factor_);
