@@ -307,16 +307,16 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	    return fC/4;
 	};
 
-	int QIEtype =conditions.getHcalQIEType(cell)->getValue();
-     
-	const size_t SIZE = QIEtype==0 ? INPUT_LUT_SIZE : UPGRADE_LUT_SIZE;
-	const int MASK = QIEtype==0 ? QIE8_LUT_BITMASK : 
-			 QIEtype==1 ? QIE10_LUT_BITMASK : QIE11_LUT_BITMASK;  
-   double linearLSB = linearLSB_QIE8_;
-   if (QIEtype == 2 and cell.ietaAbs() == topo_->lastHBRing())
-      linearLSB = linearLSB_QIE11Overlap_;
-   else if (QIEtype == 2)
-      linearLSB = linearLSB_QIE11_;
+	int qieType =conditions.getHcalQIEType(cell)->getValue();
+
+	const size_t SIZE = qieType==QIE8 ? INPUT_LUT_SIZE : UPGRADE_LUT_SIZE;
+	const int MASK = qieType==QIE8 ? QIE8_LUT_BITMASK :
+                         qieType==QIE10 ? QIE10_LUT_BITMASK : QIE11_LUT_BITMASK;
+        double linearLSB = linearLSB_QIE8_;
+        if (qieType == QIE11 and cell.ietaAbs() == topo_->lastHBRing())
+           linearLSB = linearLSB_QIE11Overlap_;
+        else if (qieType == QIE11)
+           linearLSB = linearLSB_QIE11_;
 
 	lut.resize(SIZE, 0);
 
@@ -329,7 +329,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		if (isMasked) lut[adc] = 0;
 		else {
 		    double nonlinearityCorrection = 1.0;
-		    if(QIEtype==QIE11) {
+		    if(qieType==QIE11) {
 		      const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
 		      HcalSiPMnonlinearity corr(conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
 		      const double fcByPE = siPMParameter.getFCByPE();
@@ -341,7 +341,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
                     else
                        lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / nominalgain_ / granularity)), MASK);
 
-		    if(QIEtype==QIE11){
+		    if(qieType==QIE11){
 			if (adc >= mipMin and adc < mipMax) lut[adc] |= QIE11_LUT_MSB0;
 			else if (adc >= mipMax) lut[adc] |= QIE11_LUT_MSB1;
 		    }
