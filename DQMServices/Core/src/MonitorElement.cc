@@ -742,12 +742,6 @@ MonitorElement::getNbinsZ() const
 { return accessRootObject(__PRETTY_FUNCTION__, 3)
     ->GetNbinsZ(); }
 
-/// get center of bin (1-D)
-double
-MonitorElement::getBinCenter(int binx) const
-{ return accessRootObject(__PRETTY_FUNCTION__, 1)
-    ->GetBinCenter(binx); }
-
 /// get content of bin (1-D)
 double
 MonitorElement::getBinContent(int binx) const
