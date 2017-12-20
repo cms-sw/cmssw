@@ -110,10 +110,14 @@ private:
   std::map<std::string, std::map<int, MonitorElement*> > summaryHistos;
   // <histoType, <index , histo> >
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
-  // <histoType, <fed , index, histo> >
-  std::map<std::string, std::map<int, std::map< int, MonitorElement*> > > urosHistos;
+  // <key , histo> >
+  std::map<unsigned int, MonitorElement*> urosHistos;
   // <histoType, <tdcID, histo> >
   std::map<std::string, std::map<int, MonitorElement*> > robHistos;
+
+  //enum histoTypes for reduced map of MEs urosHistos
+  // key = stringEnum*1000 + (fed-minFED)#*100 + (uROS-minuROS)#
+  enum histoTypes {uROSEventLenght=0, uROSError=1, TDCError=4, TTSValues=7}; 
 
   // standard ME for monitoring of FED integrity
   MonitorElement* hFEDEntry;
@@ -127,9 +131,9 @@ private:
   //time histos for DDU/ROS
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > fedTimeHistos;
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > rosTimeHistos;
-  // <histoType, <fed , index, histo> >
-  std::map<std::string, std::map<int, std::map< int, DTTimeEvolutionHisto*> > > urosTimeHistos;
-  
+  // <key, histo> >
+  std::map<unsigned int, DTTimeEvolutionHisto*> urosTimeHistos;
+  //key =  (fed-minFED)#*100 + (uROS-minuROS)#
 
   int nEventsLS;
 

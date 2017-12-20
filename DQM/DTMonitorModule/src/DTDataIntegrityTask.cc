@@ -680,13 +680,13 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int 
 	int linkUp = linkDown+23;  string linkUp_s = to_string(linkUp);
   	string histoName = "FED" + fed_s + "_" + "uROS" + uRos_s + "_"+histoType;
   	string histoTitle = histoName + " (Link " + linkDown_s +"-"+ linkUp_s + " error summary)";
-
+	unsigned int keyHisto = (uROSError + counter)*1000 + (fed-FEDIDmin)*100 + (uRos-1);
 	if(mode < 1) // Online only
-    		((urosHistos[histoType])[fed])[uRos] = ibooker.book2D(histoName,histoTitle,11,0,11,24,0,24);
+    		urosHistos[keyHisto] = ibooker.book2D(histoName,histoTitle,11,0,11,24,0,24);
   	else
-    		((urosHistos[histoType]))[fed][uRos] = ibooker.book2D(histoName,histoTitle,5,0,5,24,0,24);
+    		urosHistos[keyHisto] = ibooker.book2D(histoName,histoTitle,5,0,5,24,0,24);
 
-  	MonitorElement* histo = ((urosHistos[histoType])[fed])[uRos];
+  	MonitorElement* histo = urosHistos[keyHisto];
   	// uROS error bins
   	// Placeholders for the moment
     	histo->setBinLabel(1,"Error 1",1);
@@ -715,12 +715,14 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int 
   string histoType = "uROSEventLenght";
   string histoName = "FED" + fed_s + "_uROS" +  uRos_s + "_" + "EventLenght";
   string histoTitle = "Event Lenght (Bytes) FED " +  fed_s + " uROS" + uRos_s;
-  (urosHistos[histoType])[fed][uRos] = ibooker.book1D(histoName,histoTitle,101,0,5000);
+  unsigned int keyHisto = (uROSEventLenght)*1000 + (fed-FEDIDmin)*100 + (uRos-1);
+  urosHistos[keyHisto] = ibooker.book1D(histoName,histoTitle,101,0,5000);
 
   histoType = "uROSAvgEventLenghtvsLumi";
   histoName = "FED" + fed_s + "_uROS" +  uRos_s + "AvgEventLenghtvsLumi";
   histoTitle = "Event Lenght (Bytes) FED " +  fed_s + " uROS" + uRos_s;
-  urosTimeHistos[histoType][fed][uRos] = new DTTimeEvolutionHisto(ibooker,histoName,histoTitle,200,10,true,0);
+  keyHisto = (fed-FEDIDmin)*100 + (uRos-1);
+  urosTimeHistos[keyHisto] = new DTTimeEvolutionHisto(ibooker,histoName,histoTitle,200,10,true,0);
 
   for (int counter=0; counter<3; counter++){
         string counter_s = to_string(counter);
@@ -729,9 +731,9 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int 
         int linkUp = linkDown+23;  string linkUp_s = to_string(linkUp);
         string histoName = "FED" + fed_s + "_" + "uROS" + uRos_s + "_"+histoType;
         string histoTitle = histoName + " (Link " + linkDown_s +"-"+ linkUp_s + " error summary)";
-  
-    	(urosHistos[histoType])[fed][uRos] = ibooker.book2D(histoName,histoTitle,24,0,24,24,0,24);
-    	MonitorElement* histo = (urosHistos[histoType])[fed][uRos];
+ 	keyHisto = (TDCError+counter)*1000 + (fed-FEDIDmin)*100 + (uRos-1); 
+    	urosHistos[keyHisto] = ibooker.book2D(histoName,histoTitle,24,0,24,24,0,24);
+    	MonitorElement* histo = urosHistos[keyHisto];
 	// TDC error bins
     	histo->setBinLabel(1,"Fatal",1);
     	histo->setBinLabel(2,"RO FIFO ov.",1);
@@ -766,8 +768,9 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker & ibooker, const int 
 
     histoType = "TTSValues";
     histoName = "FED" + fed_s + "_" + "uROS" + uRos_s + "_" + histoType;
-    (urosHistos[histoType])[fed][uRos] = ibooker.book1D(histoName,histoName,8,0,8);
-    MonitorElement* histo = (urosHistos[histoType])[fed][uRos];
+    keyHisto = TTSValues*1000 + (fed-FEDIDmin)*100 + (uRos-1);
+    urosHistos[keyHisto] = ibooker.book1D(histoName,histoName,8,0,8);
+    MonitorElement* histo = urosHistos[keyHisto];
     histo->setBinLabel(1,"Disconnected",1);
     histo->setBinLabel(2,"Overflow Warning ",1);
     histo->setBinLabel(3,"Out of synch",1);
@@ -808,13 +811,13 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
   MonitorElement* uROSError1 = nullptr;
   MonitorElement* uROSError2 = nullptr;
   if(mode <= 2){
-    uROSError0 = urosHistos["uROSError0"][fed][uRos];
-    uROSError1 = urosHistos["uROSError1"][fed][uRos];
-    uROSError2 = urosHistos["uROSError2"][fed][uRos];
+    uROSError0 = urosHistos[(uROSError+0)*1000 + (fed-FEDIDmin)*100 + (uRos-1)];
+    uROSError1 = urosHistos[(uROSError+1)*1000 + (fed-FEDIDmin)*100 + (uRos-1)];
+    uROSError2 = urosHistos[(uROSError+2)*1000 + (fed-FEDIDmin)*100 + (uRos-1)];
 
     if ((!uROSError2) || (!uROSError1) || (!uROSError0) ) {
       LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") <<
-        "Trying to access non existing ME at uROS " << uRos  <<
+        "Trying to access non existing ME at uROS " << uRos  << 
         std::endl;
      return;
     }
@@ -924,9 +927,9 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
      else if (link<72)  uROSError2->Fill(tdcError_ROSError,link-47);
      
      if(mode<=1){
-	if (link<24) urosHistos["TDCError0"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link);
-	else if (link<48) urosHistos["TDCError1"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link-23);
-	else if (link<72) urosHistos["TDCError2"][fed][uRos]->Fill(tdcError_TDCHisto+6*(tdc-1),link-47);
+	if (link<24) urosHistos[(TDCError+0)*1000 + (fed-FEDIDmin)*100 + (uRos-1)]->Fill(tdcError_TDCHisto+6*(tdc-1),link);
+	else if (link<48) urosHistos[(TDCError+1)*1000 + (fed-FEDIDmin)*100 + (uRos-1)]->Fill(tdcError_TDCHisto+6*(tdc-1),link-23);
+	else if (link<72) urosHistos[(TDCError+2)*1000 + (fed-FEDIDmin)*100 + (uRos-1)]->Fill(tdcError_TDCHisto+6*(tdc-1),link-47);
      }
    }	
   } //loop on errors
@@ -972,14 +975,14 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData & data, int fed, int uRos){
   }
   }
   if(mode < 1) {
-	urosHistos["TTSValues"][fed][uRos]->Fill(ttsCodeValue);
+	urosHistos[TTSValues*1000 + (fed-FEDIDmin)*100 + (uRos-1)]->Fill(ttsCodeValue);
 
      // Plot the event lenght //NOHLT
         int uRosEventLenght = (data.gettrailer() & 0xFFFFF)*8;
-              urosTimeHistos["uROSAvgEventLenghtvsLumi"][fed][uRos]->accumulateValueTimeSlot(uRosEventLenght);
+              urosTimeHistos[(fed-FEDIDmin)*100 + (uRos-1)]->accumulateValueTimeSlot(uRosEventLenght);
      
               if(uRosEventLenght > 5000) uRosEventLenght = 5000;
-              urosHistos["uROSEventLenght"][fed][uRos]->Fill(uRosEventLenght);
+              urosHistos[uROSEventLenght*1000 + (fed-FEDIDmin)*100 + (uRos-1)]->Fill(uRosEventLenght);
   }                      
 
 }
@@ -1699,18 +1702,10 @@ void DTDataIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock& ls, con
     }
   }
 
-  map<string, map<int, map< int, DTTimeEvolutionHisto*> > >::iterator urosIt  = urosTimeHistos.begin();
-  map<string, map<int, map< int, DTTimeEvolutionHisto*> > >::iterator urosEnd = urosTimeHistos.end();
+  map<unsigned int, DTTimeEvolutionHisto*>::iterator urosIt  = urosTimeHistos.begin();
+  map<unsigned int, DTTimeEvolutionHisto*>::iterator urosEnd = urosTimeHistos.end();
   for(; urosIt!=urosEnd; ++urosIt) {
-    map<int, map< int, DTTimeEvolutionHisto*> >::iterator fedIt  = urosIt->second.begin();
-    map<int, map< int, DTTimeEvolutionHisto*> >::iterator fedEnd = urosIt->second.end();
-    for(; fedIt!=fedEnd; ++fedIt){
-      map<int, DTTimeEvolutionHisto*>::iterator histoIt  = fedIt->second.begin();
-      map<int, DTTimeEvolutionHisto*>::iterator histoEnd = fedIt->second.end();
-      for(; histoIt!=histoEnd; ++histoIt) {
-        histoIt->second->updateTimeSlot(lumiBlock,nEventsLS);
-      }
-    }
+        urosIt->second->updateTimeSlot(lumiBlock,nEventsLS);
   }
 
   }//uROS starting on 2018
