@@ -291,7 +291,7 @@ float HGCalShowerShape::sigmaRRMax(const l1t::HGCalMulticluster& c3d) const {
 
     for(const auto& tc : triggerCells){
 
-      float r = std::sqrt( pow(tc->position().x(),2) + pow(tc->position().y(),2) )/std::abs(tc->position().z());
+      float r = (tc->position().z()!=0. ? std::sqrt( pow(tc->position().x(),2) + pow(tc->position().y(),2) )/std::abs(tc->position().z()) : 0.);
       tc_layer_energy_r[layer].emplace_back( std::make_pair(tc->energy(),r) );
 
     }
@@ -343,7 +343,7 @@ float HGCalShowerShape::sigmaRRMean(const l1t::HGCalMulticluster& c3d, float rad
       double dy = tc->position().y() - max_tc->position().y();
       double distance_to_max = std::sqrt(dx*dx+dy*dy);
       if(distance_to_max<radius){
-        float r = std::sqrt(tc->position().x()*tc->position().x() + tc->position().y()*tc->position().y())/std::abs(tc->position().z());
+        float r = (tc->position().z()!=0. ? std::sqrt(tc->position().x()*tc->position().x() + tc->position().y()*tc->position().y())/std::abs(tc->position().z()) : 0.);
         tc_layers_energy_r[layer].emplace_back( std::make_pair(tc->energy(), r));
       }
     }
