@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 # run on MIONAOD
-RUN_ON_MINIAOD = False
+RUN_ON_MINIAOD = True
 print "ZEE SKIM. RUN ON MINIAOD = ",RUN_ON_MINIAOD
 
 # cuts
