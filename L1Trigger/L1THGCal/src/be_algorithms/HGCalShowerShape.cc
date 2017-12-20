@@ -171,7 +171,7 @@ float HGCalShowerShape::sigmaRRTot(const l1t::HGCalMulticluster& c3d) const {
     
     for(const auto& tc : triggerCells){
            
-      float r = std::sqrt( pow(tc->position().x(),2) + pow(tc->position().y(),2) )/std::abs(tc->position().z());
+      float r = (tc->position().z()!=0. ? std::sqrt( pow(tc->position().x(),2) + pow(tc->position().y(),2) )/std::abs(tc->position().z()) : 0.);
       tc_energy_r.emplace_back( std::make_pair(tc->energy(),r) );
 
     }
@@ -475,7 +475,7 @@ float HGCalShowerShape::sigmaRRTot(const l1t::HGCalCluster& c2d) const {
   
   for(const auto& cell : cellsPtrs){
     
-    float r = std::sqrt( pow(cell->position().x(),2) + pow(cell->position().y(),2) )/std::abs(cell->position().z());    
+    float r = (cell->position().z()!=0. ? std::sqrt( pow(cell->position().x(),2) + pow(cell->position().y(),2) )/std::abs(cell->position().z()) : 0.);
     tc_energy_r.emplace_back( std::make_pair(cell->energy(),r) ); 
     
   }
