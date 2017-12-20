@@ -75,7 +75,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   nnlsWork_.amplitudes.resize(nnlsWork_.tsSize);
   nnlsWork_.noiseTerms.resize(nnlsWork_.tsSize);
 
-  std::array<float,3> reconstructedVals;
+  std::array<float,3> reconstructedVals {{ 0.0, -9999, -9999 }};
   
   double tsTOT = 0, tstrig = 0; // in GeV
   for(unsigned int iTS=0; iTS<nnlsWork_.tsSize; ++iTS){
@@ -118,7 +118,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     // only do pre-fit with 1 pulse if chiSq threshold is positive
     if (chiSqSwitch_>0) {
       doFit(reconstructedVals,1);
-      if (reconstructedVals[1]>chiSqSwitch_) {
+      if (reconstructedVals[2]>chiSqSwitch_) {
 	doFit(reconstructedVals,0); //nbx=0 means use configured BXs
 	useTriple=true;
       }
