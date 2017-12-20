@@ -38,26 +38,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-// helper functions
-template <typename T>
-static
-const T & get(const edm::Event & event, const edm::EDGetTokenT<T> & token) {
-  edm::Handle<T> handle;
-  event.getByToken(token, handle);
-  if (not handle.isValid())
-    throw * handle.whyFailed();
-  return * handle.product();
-}
-
-template <typename R, typename T>
-static
-const T & get(const edm::EventSetup & setup) {
-  edm::ESHandle<T> handle;
-  setup.get<R>().get(handle);
-  return * handle.product();
-}
-
-
 class TriggerRatesMonitor : public DQMEDAnalyzer {
 public:
   explicit TriggerRatesMonitor(edm::ParameterSet const &);
@@ -197,7 +177,7 @@ void TriggerRatesMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup cons
   m_tcds_counts.resize(sizeof(s_tcds_trigger_types)/sizeof(const char *), nullptr);
 
   // cache the L1 trigger menu
-  m_l1tMenu = & get<L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu>(setup);
+  m_l1tMenu = & edm::get<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>(setup);
   if (m_l1tMenu) {
     m_l1t_counts.clear();
     m_l1t_counts.resize(GlobalAlgBlk::maxPhysicsTriggers, nullptr);
@@ -339,7 +319,7 @@ void TriggerRatesMonitor::analyze(edm::Event const & event, edm::EventSetup cons
 
   // monitor the L1 triggers rates
   if (m_l1tMenu) {
-    auto const & bxvector = get<GlobalAlgBlkBxCollection>(event, m_l1t_results);
+    auto const & bxvector = edm::get(event, m_l1t_results);
     if (not bxvector.isEmpty(0)) {
       auto const & results = bxvector.at(0, 0);
       for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
@@ -351,7 +331,7 @@ void TriggerRatesMonitor::analyze(edm::Event const & event, edm::EventSetup cons
 
   // monitor the HLT triggers and datsets rates
   if (m_hltConfig.inited()) {
-    edm::TriggerResults const & hltResults = get<edm::TriggerResults>(event, m_hlt_results);
+    edm::TriggerResults const & hltResults = edm::get(event, m_hlt_results);
     if (hltResults.size() == m_hltIndices.size()) {
     } else {
       edm::LogWarning("TriggerRatesMonitor") << "This should never happen: the number of HLT paths has changed since the beginning of the run";
