@@ -1,6 +1,6 @@
 #include <cppunit/extensions/HelperMacros.h>
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/OnlineMetaData/interface/DCSRecord.h"
-#include "DataFormats/OnlineMetaData/interface/OnlineBeamSpotRecord.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineMetaDataRaw.h"
 
@@ -18,7 +18,6 @@ class TestOnlineMetaDataRecord: public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE(TestOnlineMetaDataRecord);
   CPPUNIT_TEST(testDCSRecord);
-  CPPUNIT_TEST(testOnlineBeamSpotRecord);
   CPPUNIT_TEST(testOnlineLuminosityRecord);
   CPPUNIT_TEST_SUITE_END();
 
@@ -28,7 +27,6 @@ public:
   void tearDown() override {}
 
   void testDCSRecord();
-  void testOnlineBeamSpotRecord();
   void testOnlineLuminosityRecord();
 
 private:
@@ -69,7 +67,8 @@ void TestOnlineMetaDataRecord::setUp() {
 
     CPPUNIT_ASSERT_EQUAL( static_cast<size_t>(34),data.size() );
 
-    onlineMetaData = reinterpret_cast<online::Data_v1 const*>(data.data());
+    const unsigned char* payload = reinterpret_cast<unsigned char*>(data.data());
+    onlineMetaData = reinterpret_cast<online::Data_v1 const*>(payload + FEDHeader::length);
   }
 }
 
@@ -93,33 +92,6 @@ void TestOnlineMetaDataRecord::testDCSRecord() {
   CPPUNIT_ASSERT( ! dcs.highVoltageReady(DCSRecord::Partition::CASTOR) );
   CPPUNIT_ASSERT( dcs.highVoltageReady(DCSRecord::Partition::ESm) );
   CPPUNIT_ASSERT_EQUAL( castToFloat(0x468de7eb),dcs.magnetCurrent() );
-}
-
-
-void TestOnlineMetaDataRecord::testOnlineBeamSpotRecord() {
-
-  OnlineBeamSpotRecord beamSpot(onlineMetaData->beamSpot);
-  std::cout << beamSpot << std::endl;
-
-  // DIP timestamp is in milliseconds
-  const uint64_t ts = beamSpot.timestamp().unixTime() * 1000UL + beamSpot.timestamp().microsecondOffset()/1000;
-  CPPUNIT_ASSERT_EQUAL( static_cast<uint64_t>(0x15ff7e03190),ts );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3da6a162),beamSpot.x() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0xbcf2b488),beamSpot.y() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3edb7ed4),beamSpot.z() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x38bc750c),beamSpot.dxdz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0xb84079b1),beamSpot.dydz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3d6fb475),beamSpot.errX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3866b990),beamSpot.errY() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x00000000),beamSpot.errZ() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x37841abe),beamSpot.errDxdz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x37814f2b),beamSpot.errDydz() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3ae1af07),beamSpot.widthX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3ada5b00),beamSpot.widthY() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x405c8049),beamSpot.sigmaZ() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x387463de),beamSpot.errWidthX() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x387463de),beamSpot.errWidthY() );
-  CPPUNIT_ASSERT_EQUAL( castToFloat(0x3d29804d),beamSpot.errSigmaZ() );
 }
 
 
