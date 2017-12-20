@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TPScales = cms.PSet(
+tpScales = cms.PSet(
     HF=cms.PSet(
         NCTShift=cms.int32(1),
         RCTShift=cms.int32(3),
@@ -24,5 +24,5 @@ CaloTPGTranscoder = cms.ESProducer("CaloTPGTranscoderULUTs",
     linearLUTs = cms.bool(False),
     nominal_gain = cms.double(0.177),
     RCTLSB = cms.double(0.25),
-    TPScales = TPScales,
+    tpScales = tpScales,
 )

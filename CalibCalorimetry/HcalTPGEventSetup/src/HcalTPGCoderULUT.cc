@@ -81,7 +81,7 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
     setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
     LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
     linearLUTs_ = iConfig.getParameter<bool>("linearLUTs");
-    auto scales = iConfig.getParameter<edm::ParameterSet>("TPScales").getParameter<edm::ParameterSet>("HBHE");
+    auto scales = iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HBHE");
     linearLSB_QIE8_ = scales.getParameter<double>("LSBQIE8");
     linearLSB_QIE11_ = scales.getParameter<double>("LSBQIE11");
     linearLSB_QIE11Overlap_ = scales.getParameter<double>("LSBQIE11Overlap");
