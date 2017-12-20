@@ -33,26 +33,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-// helper functions
-template <typename T>
-static
-const T & get(const edm::Event & event, const edm::EDGetTokenT<T> & token) {
-  edm::Handle<T> handle;
-  event.getByToken(token, handle);
-  if (not handle.isValid())
-    throw * handle.whyFailed();
-  return * handle.product();
-}
-
-template <typename R, typename T>
-static
-const T & get(const edm::EventSetup & setup) {
-  edm::ESHandle<T> handle;
-  setup.get<R>().get(handle);
-  return * handle.product();
-}
-
-
 class TriggerBxMonitor : public DQMEDAnalyzer {
 public:
   explicit TriggerBxMonitor(edm::ParameterSet const &);
@@ -171,7 +151,7 @@ void TriggerBxMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup const &
   }
 
   // cache the L1 trigger menu
-  m_l1tMenu = & get<L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu>(setup);
+  m_l1tMenu = & edm::get<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>(setup);
   if (m_l1tMenu) {
     if (m_make_1d_plots) {
       m_l1t_bx.clear();
@@ -295,7 +275,7 @@ void TriggerBxMonitor::analyze(edm::Event const & event, edm::EventSetup const &
 
   // monitor the bx distribution for the L1 triggers
   if (m_l1tMenu) {
-    auto const & bxvector = get<GlobalAlgBlkBxCollection>(event, m_l1t_results);
+    auto const & bxvector = edm::get(event, m_l1t_results);
     if (not bxvector.isEmpty(0)) {
       auto const & results = bxvector.at(0, 0);
       for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
@@ -311,7 +291,7 @@ void TriggerBxMonitor::analyze(edm::Event const & event, edm::EventSetup const &
 
   // monitor the bx distribution for the HLT triggers
   if (m_hltConfig.inited()) {
-    auto const & hltResults = get<edm::TriggerResults>(event, m_hlt_results);
+    auto const & hltResults = edm::get(event, m_hlt_results);
     for (unsigned int i = 0; i < hltResults.size(); ++i) {
       if (hltResults.at(i).accept()) {
         if (m_make_1d_plots and m_hlt_bx.at(i))

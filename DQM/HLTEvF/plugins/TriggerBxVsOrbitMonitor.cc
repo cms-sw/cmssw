@@ -2,11 +2,6 @@
 #include <string>
 #include <cstring>
 
-// boost headers
-#include <boost/regex.hpp>
-#include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-
 // Root headers
 #include <TH1F.h>
 
@@ -33,26 +28,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-// helper functions
-template <typename T>
-static
-const T & get(const edm::Event & event, const edm::EDGetTokenT<T> & token) {
-  edm::Handle<T> handle;
-  event.getByToken(token, handle);
-  if (not handle.isValid())
-    throw * handle.whyFailed();
-  return * handle.product();
-}
-
-template <typename R, typename T>
-static
-const T & get(const edm::EventSetup & setup) {
-  edm::ESHandle<T> handle;
-  setup.get<R>().get(handle);
-  return * handle.product();
-}
-
 
 class TriggerBxVsOrbitMonitor : public DQMEDAnalyzer {
 public:
@@ -202,7 +177,6 @@ void TriggerBxVsOrbitMonitor::analyze(edm::Event const & event, edm::EventSetup 
   int iLS = ls-m_minLS;
   if (iLS >= 0 && iLS < int(m_orbit_bx_all_byLS.size()))
     m_orbit_bx_all_byLS.at(iLS)->Fill(bx,orbit_in_ls);
- 
 
   // monitor the bx distribution for the TCDS trigger types
   size_t size = sizeof(s_tcds_trigger_types) / sizeof(const char *);
