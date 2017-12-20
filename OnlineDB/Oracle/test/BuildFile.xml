@@ -1,0 +1,19 @@
+
+<use name="oracleocci"/>
+<library name="cms_occi" file="cms_occi_hack.cc">
+</library>
+<architecture name="_amd64_">
+  <bin name="test_occi_with_cmshack" file="test.cpp">
+    <lib name="cms_occi"/>
+    <flags TEST_RUNNER_ARGS="12154"/>
+  </bin>
+  <bin name="test_occi_wo_cmshack" file="test.cpp">
+    <architecture name="_gcc7">
+      <flags TEST_RUNNER_ARGS="12154"/>
+    </architecture>
+    <architecture name="_gcc6">
+      <flags TEST_RUNNER_ARGS="24960"/>
+    </architecture>  
+  </bin>
+</architecture>
+
