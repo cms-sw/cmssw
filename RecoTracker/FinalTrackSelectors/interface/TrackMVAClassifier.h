@@ -24,14 +24,14 @@ class TrackMVAClassifierBase : public edm::stream::EDProducer<> {
 public:
   explicit TrackMVAClassifierBase( const edm::ParameterSet & cfg );
   ~TrackMVAClassifierBase() override;
+
+  using MVACollection = std::vector<float>;
+  using QualityMaskCollection = std::vector<unsigned char>;
 protected:
 
   static void fill( edm::ParameterSetDescription& desc);
  
   
-  using MVACollection = std::vector<float>;
-  using QualityMaskCollection = std::vector<unsigned char>;
-
   virtual void initEvent(const edm::EventSetup& es) = 0;
 
   virtual void computeMVA(reco::TrackCollection const & tracks,
@@ -56,7 +56,43 @@ private:
   
 };
 
-template<typename MVA>
+namespace trackMVAClassifierImpl {
+  template<typename EventCache>
+  struct ComputeMVA {
+    template <typename MVA>
+    void operator()(MVA const & mva,
+                    reco::TrackCollection const & tracks,
+                    reco::BeamSpot const & beamSpot,
+                    reco::VertexCollection const & vertices,
+                    TrackMVAClassifierBase::MVACollection & mvas) {
+
+      EventCache cache;
+
+      size_t current = 0;
+      for (auto const & trk : tracks) {
+        mvas[current++]= mva(trk,beamSpot,vertices,cache);
+      }
+    }
+  };
+
+  template <>
+  struct ComputeMVA<void> {
+    template <typename MVA>
+    void operator()(MVA const & mva,
+                    reco::TrackCollection const & tracks,
+                    reco::BeamSpot const & beamSpot,
+                    reco::VertexCollection const & vertices,
+                    TrackMVAClassifierBase::MVACollection & mvas) {
+
+      size_t current = 0;
+      for (auto const & trk : tracks) {
+        mvas[current++]= mva(trk,beamSpot,vertices);
+      }
+    }
+  };
+}
+
+template<typename MVA, typename EventCache=void>
 class TrackMVAClassifier : public TrackMVAClassifierBase {
 public:
   explicit TrackMVAClassifier( const edm::ParameterSet & cfg ) :
@@ -87,10 +123,8 @@ private:
 		    reco::VertexCollection const & vertices,
 		    MVACollection & mvas) const final {
 
-      size_t current = 0;
-      for (auto const & trk : tracks) {
-	mvas[current++]= mva(trk,beamSpot,vertices);
-      }
+      trackMVAClassifierImpl::ComputeMVA<EventCache> computer;
+      computer(mva, tracks, beamSpot, vertices, mvas);
     }
 
   MVA mva;

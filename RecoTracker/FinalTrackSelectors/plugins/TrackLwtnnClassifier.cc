@@ -33,34 +33,39 @@ namespace {
 
     float operator()(reco::Track const & trk,
                      reco::BeamSpot const & beamSpot,
-                     reco::VertexCollection const & vertices) const {
+                     reco::VertexCollection const & vertices,
+                     lwt::ValueMap & inputs) const {
+      // lwt::ValueMap is typedef for std::map<std::string, double>
+      //
+      // It is cached per event to avoid constructing the map for each
+      // track while keeping the operator() interface const.
 
       Point bestVertex = getBestVertex(trk,vertices);
 
-      inputs_["trk_pt"] = trk.pt();
-      inputs_["trk_eta"] = trk.eta();
-      inputs_["trk_lambda"] = trk.lambda();
-      inputs_["trk_dxy"] = trk.dxy(beamSpot.position()); // is the training with abs() or not?
-      inputs_["trk_dz"] = trk.dz(beamSpot.position()); // is the training with abs() or not?
-      inputs_["trk_dxyClosestPV"] = trk.dxy(bestVertex); // is the training with abs() or not?
-      inputs_["trk_dzClosestPV"] = trk.dz(bestVertex); // is the training with abs() or not?
-      inputs_["trk_ptErr"] = trk.ptError();
-      inputs_["trk_etaErr"] = trk.etaError();
-      inputs_["trk_lambdaErr"] = trk.lambdaError();
-      inputs_["trk_dxyErr"] = trk.dxyError();
-      inputs_["trk_dzErr"] = trk.dzError();
-      inputs_["trk_nChi2"] = trk.normalizedChi2();
-      inputs_["trk_ndof"] = trk.ndof();
-      inputs_["trk_nInvalid"] = trk.hitPattern().numberOfLostHits(reco::HitPattern::TRACK_HITS);
-      inputs_["trk_nPixel"] = trk.hitPattern().numberOfValidPixelHits();
-      inputs_["trk_nStrip"] = trk.hitPattern().numberOfValidStripHits();
-      inputs_["trk_nPixelLay"] = trk.hitPattern().pixelLayersWithMeasurement();
-      inputs_["trk_nStripLay"] = trk.hitPattern().stripLayersWithMeasurement();
-      inputs_["trk_n3DLay"] = (trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()+trk.hitPattern().pixelLayersWithMeasurement());
-      inputs_["trk_nLostLay"] = trk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
-      inputs_["trk_algo"] = trk.algo(); // eventually move to originalAlgo
+      inputs["trk_pt"] = trk.pt();
+      inputs["trk_eta"] = trk.eta();
+      inputs["trk_lambda"] = trk.lambda();
+      inputs["trk_dxy"] = trk.dxy(beamSpot.position()); // is the training with abs() or not?
+      inputs["trk_dz"] = trk.dz(beamSpot.position()); // is the training with abs() or not?
+      inputs["trk_dxyClosestPV"] = trk.dxy(bestVertex); // is the training with abs() or not?
+      inputs["trk_dzClosestPV"] = trk.dz(bestVertex); // is the training with abs() or not?
+      inputs["trk_ptErr"] = trk.ptError();
+      inputs["trk_etaErr"] = trk.etaError();
+      inputs["trk_lambdaErr"] = trk.lambdaError();
+      inputs["trk_dxyErr"] = trk.dxyError();
+      inputs["trk_dzErr"] = trk.dzError();
+      inputs["trk_nChi2"] = trk.normalizedChi2();
+      inputs["trk_ndof"] = trk.ndof();
+      inputs["trk_nInvalid"] = trk.hitPattern().numberOfLostHits(reco::HitPattern::TRACK_HITS);
+      inputs["trk_nPixel"] = trk.hitPattern().numberOfValidPixelHits();
+      inputs["trk_nStrip"] = trk.hitPattern().numberOfValidStripHits();
+      inputs["trk_nPixelLay"] = trk.hitPattern().pixelLayersWithMeasurement();
+      inputs["trk_nStripLay"] = trk.hitPattern().stripLayersWithMeasurement();
+      inputs["trk_n3DLay"] = (trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()+trk.hitPattern().pixelLayersWithMeasurement());
+      inputs["trk_nLostLay"] = trk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
+      inputs["trk_algo"] = trk.algo(); // eventually move to originalAlgo
 
-      auto out = neuralNetwork_->compute(inputs_);
+      auto out = neuralNetwork_->compute(inputs);
       // there should only one output
       if(out.size() != 1) throw cms::Exception("LogicError") << "Expecting exactly one output from NN, got " << out.size();
 
@@ -72,15 +77,9 @@ namespace {
 
     std::string lwtnnLabel_;
     const lwt::LightweightNeuralNetwork *neuralNetwork_;
-    // inputs_ is mutable in order to avoid constructing
-    // map<string,double> for each track while keeping the operator()
-    // interface const. Thread safety is in practice achieved by
-    // TrackMVAClassifierBase (and inheriting classes) being a stream
-    // module.
-    mutable lwt::ValueMap inputs_; //typedef of map<string, double>
   };
 
-  using TrackLwtnnClassifier = TrackMVAClassifier<lwtnn>;
+  using TrackLwtnnClassifier = TrackMVAClassifier<lwtnn, lwt::ValueMap>;
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
