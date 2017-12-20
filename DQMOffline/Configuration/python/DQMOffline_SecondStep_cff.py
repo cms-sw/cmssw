@@ -30,7 +30,8 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              es_dqm_client_offline *
                                              hcalOfflineHarvesting *
                                              HcalDQMOfflinePostProcessor * 
-                                             dqmFEDIntegrityClient )
+                                             dqmFEDIntegrityClient *
+                                             l1TriggerDqmOfflineClient )
 
 DQMOffline_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PreDPG *
