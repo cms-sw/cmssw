@@ -92,10 +92,10 @@ CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig)
    linearLUTs_(iConfig.getParameter<bool>("linearLUTs")),
    nominal_gain(iConfig.getParameter<double>("nominal_gain")),
    RCTLSB(iConfig.getParameter<double>("RCTLSB")),
-   NCTScaleShift(iConfig.getParameter<edm::ParameterSet>("TPScales").getParameter<edm::ParameterSet>("HF").getParameter<int>("NCTShift")),
-   RCTScaleShift(iConfig.getParameter<edm::ParameterSet>("TPScales").getParameter<edm::ParameterSet>("HF").getParameter<int>("RCTShift")),
-   lsbQIE8(iConfig.getParameter<edm::ParameterSet>("TPScales").getParameter<edm::ParameterSet>("HBHE").getParameter<double>("LSBQIE8")),
-   lsbQIE11(iConfig.getParameter<edm::ParameterSet>("TPScales").getParameter<edm::ParameterSet>("HBHE").getParameter<double>("LSBQIE11"))
+   NCTScaleShift(iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HF").getParameter<int>("NCTShift")),
+   RCTScaleShift(iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HF").getParameter<int>("RCTShift")),
+   lsbQIE8(iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HBHE").getParameter<double>("LSBQIE8")),
+   lsbQIE11(iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HBHE").getParameter<double>("LSBQIE11"))
 {
    setWhatProduced(this);
 }
