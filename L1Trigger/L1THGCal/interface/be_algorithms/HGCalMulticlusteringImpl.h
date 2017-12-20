@@ -8,12 +8,19 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalShowerShape.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 class HGCalMulticlusteringImpl{
 
 public:
 
     HGCalMulticlusteringImpl( const edm::ParameterSet &conf);    
+
+    void eventSetup(const edm::EventSetup& es) 
+    {
+        triggerTools_.eventSetup(es);
+        shape_.eventSetup(es);
+    }
 
     bool isPertinent( const l1t::HGCalCluster & clu, 
                       const l1t::HGCalMulticluster & mclu, 
@@ -46,10 +53,7 @@ private:
     bool applyLayerWeights_;
 
     HGCalShowerShape shape_;
-
-    static const int kLayersEE_=28;
-    static const int kLayersFH_=12;
-    static const int kLayersBH_=12;
+    HGCalTriggerTools triggerTools_;
 
 };
 
