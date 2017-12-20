@@ -615,21 +615,20 @@ HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
 }
 
 bool HcalDDDRecConstants::mergedDepthList29(int ieta, int iphi, int depth) const {
-  bool merge(false);
-  int eta   = (ieta > 0) ? ieta : -ieta;
+  int eta   = std::abs(ieta);
   int zside = (ieta > 0) ? 1 : -1;
   int etamin= iEtaMax[1]-hcons.getDepthEta29(iphi,zside,1);
   if ((eta >= etamin) && (eta <= iEtaMax[1])) {
     int depthMax = getMaxDepth(1, etamin, iphi, zside);
     int depthMin = hcons.getDepthEta29(iphi,zside,0) + 1;
-    if (depth >= depthMin && depth <= depthMax) merge = true;
+    if (depth >= depthMin && depth <= depthMax) return true;
   }
-  return merge;
+  return false;
 }
 
 std::vector<int> HcalDDDRecConstants::mergedDepthList29(int ieta, int iphi) const {
   std::vector<int> depths;
-  int eta   = (ieta > 0) ? ieta : -ieta;
+  int eta   = std::abs(ieta);
   int zside = (ieta > 0) ? 1 : -1;
   int etamin= iEtaMax[1]-hcons.getDepthEta29(iphi,zside,1);
   if ((eta >= etamin) && (eta <= iEtaMax[1])) {
