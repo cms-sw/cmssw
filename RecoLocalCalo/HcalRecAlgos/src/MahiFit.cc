@@ -223,7 +223,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
     correctedOutput.at(0) = nnlsWork_.ampVec.coeff(ipulseintime); //charge
     double arrivalTime = calculateArrivalTime();
     correctedOutput.at(1) = arrivalTime; //time
-    correctedOutput.at(1) = chiSq; //chi2
+    correctedOutput.at(2) = chiSq; //chi2
 
   }
   
