@@ -1,11 +1,13 @@
 #ifndef __L1Trigger_L1THGCal_HGCalShowerShape_h__
 #define __L1Trigger_L1THGCal_HGCalShowerShape_h__
 #include <vector>
+#include <functional>
 #include <cmath>
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 class HGCalShowerShape{
 
@@ -45,8 +47,33 @@ class HGCalShowerShape{
     private: 
     
     float meanX(const std::vector<pair<float,float> >& energy_X_tc) const;
-    float sigmaXX(const std::vector<pair<float,float> >& energy_X_tc, const float X_cluster) const;
-    float sigmaPhiPhi(const std::vector<pair<float,float> >& energy_phi_tc, const float phi_cluster) const;
+    // Compute energy-weighted RMS of any variable X in the cluster
+    // Delta(a,b) functor as template argument. Default is (a-b)
+    template<typename Delta=std::minus<float>> float sigmaXX(
+            const std::vector<pair<float,float> >& energy_X_tc,
+            const float X_cluster) const {
+
+        Delta delta;
+        float Etot = 0;
+        float deltaX2_sum = 0;
+        for(const auto& energy_X : energy_X_tc){
+            deltaX2_sum += energy_X.first * pow(delta(energy_X.second, X_cluster),2);
+            Etot += energy_X.first;
+        }
+        float X_MSE = 0;
+        if (Etot>0) X_MSE=deltaX2_sum/Etot;
+        float X_RMS=sqrt(X_MSE);
+        return X_RMS;
+    }
+    // Special case of delta for phi
+    template <class T> struct DeltaPhi {
+        T operator() (const T& x, const T& y) const {return deltaPhi(x,y);}
+    };
+    float sigmaPhiPhi(
+            const std::vector<pair<float,float> >& energy_phi_tc,
+            const float phi_cluster) const {
+        return sigmaXX<DeltaPhi<float>>(energy_phi_tc,phi_cluster);
+    }
 
     HGCalTriggerTools triggerTools_;
 
