@@ -543,7 +543,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     ar.watchPostSourceLumi(this,&DQMStore::forceReset);
   }
   ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
-  ar.watchPostGlobalEndLumi(this,&DQMStore::deleteUnusedLumiHistogramsAfterEndLumi);
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
@@ -2222,13 +2221,6 @@ DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
 
     i = data_.erase(i);
   }
-}
-
-void
-DQMStore::deleteUnusedLumiHistogramsAfterEndLumi(const edm::GlobalContext &gc)
-{
-  auto const& lumiblock = gc.luminosityBlockID();
-  deleteUnusedLumiHistograms(lumiblock.run(), lumiblock.luminosityBlock());
 }
 
 //////////////////////////////////////////////////////////////////////
