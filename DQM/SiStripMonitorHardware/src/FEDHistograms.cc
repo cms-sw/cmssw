@@ -252,9 +252,7 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
   }
 
   double numChannelLevelErrors = 0;
-	std::cout << "Global switch = " << fedErrorsVsIdVsLumi_.globalswitchon << std::endl;
   if(fedErrorsVsIdVsLumi_.globalswitchon){
-		std::cout << "Lumi Section = " << aLumiSection << " lFedId = " << lFedId << " channel level errors = " << lChVec.size() << std::endl;
 		numChannelLevelErrors = double(lChVec.size());
 		fillHistogram2D(fedErrorsVsIdVsLumi_,aLumiSection,lFedId,numChannelLevelErrors);
   }
