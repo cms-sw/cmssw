@@ -5,6 +5,7 @@
 
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,6 +36,8 @@ void CaloTowerFromL1TSeededCreatorForTauHLT::produce( StreamID sid, Event& evt, 
   edm::Handle<CaloTowerCollection> caloTowers;
   evt.getByToken( m_towers_token, caloTowers );
 
+  double m_cone2 = m_cone*m_cone;
+
   // L1 seeds
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
   evt.getByToken( m_tauTrigger_token, l1TriggeredTaus );
@@ -47,26 +50,26 @@ void CaloTowerFromL1TSeededCreatorForTauHLT::produce( StreamID sid, Event& evt, 
 
   for(auto const& tauCandRef: tauCandRefVec){
 
-    unsigned idx   = 0 ;
-    for (; idx < caloTowers->size(); idx++) {
-      const CaloTower* cal = &((*caloTowers) [idx]);
+    for(auto const& cal: *caloTowers ){
+
       bool isAccepted = false;
       if (m_verbose == 2) {
-	edm::LogInfo("JetDebugInfo") << "CaloTowerFromL1TSeededCreatorForTauHLT::produce-> " << idx 
-				     << " tower et/eta/phi/e: "                        << cal->et()  << '/' 
-				     << cal->eta() << '/' 
-				     << cal->phi() << '/' 
-				     << cal->energy() 
+	edm::LogInfo("JetDebugInfo") << "CaloTowerFromL1TSeededCreatorForTauHLT::produce->  tower et/eta/phi/e: "
+				     << cal.et()  << '/'
+				     << cal.eta() << '/'
+				     << cal.phi() << '/'
+				     << cal.energy()
 				     << " is...";
       }
-      if (cal->et() >= m_EtThreshold && cal->energy() >= m_EThreshold ) {
-	math::PtEtaPhiELorentzVector p( cal->et(), cal->eta(), cal->phi(), cal->energy() );
-	double delta  = ROOT::Math::VectorUtil::DeltaR((tauCandRef->p4()).Vect(), p);
-	if(delta < m_cone) {
+      if (cal.et() >= m_EtThreshold && cal.energy() >= m_EThreshold ) {
+	math::PtEtaPhiELorentzVector p( cal.et(), cal.eta(), cal.phi(), cal.energy() );
+	double delta2  = deltaR2((tauCandRef->p4()).Vect(), p);
+	if(delta2 < m_cone2) {
 	  isAccepted = true;
-	  cands->push_back( *cal );
+	  cands->push_back( cal );
 	}
       }
+
       if (m_verbose == 2){
 	if (isAccepted) edm::LogInfo("JetDebugInfo") << "accepted \n";
 	else edm::LogInfo("JetDebugInfo") << "rejected \n";
