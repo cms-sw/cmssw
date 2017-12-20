@@ -13,7 +13,7 @@
 
 namespace tautools {
 
-class RecoTauDistanceFromTruthPlugin : public reco::tau::RecoTauCleanerPlugin {
+  class RecoTauDistanceFromTruthPlugin : public reco::tau::RecoTauCleanerPlugin<reco::PFTau> {
   public:
   RecoTauDistanceFromTruthPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     ~RecoTauDistanceFromTruthPlugin() override {}
@@ -23,10 +23,10 @@ class RecoTauDistanceFromTruthPlugin : public reco::tau::RecoTauCleanerPlugin {
     edm::InputTag matchingSrc_;
     typedef edm::Association<reco::GenJetCollection> GenJetAssociation;
     edm::Handle<GenJetAssociation> genTauMatch_;
-};
+  };
 
 RecoTauDistanceFromTruthPlugin::RecoTauDistanceFromTruthPlugin(
-							       const edm::ParameterSet& pset, edm::ConsumesCollector &&iC): reco::tau::RecoTauCleanerPlugin(pset,std::move(iC)) {
+							       const edm::ParameterSet& pset, edm::ConsumesCollector &&iC): reco::tau::RecoTauCleanerPlugin<reco::PFTau>(pset,std::move(iC)) {
   matchingSrc_ = pset.getParameter<edm::InputTag>("matching");
 }
 

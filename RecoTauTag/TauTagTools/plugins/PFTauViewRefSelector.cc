@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
 #include "FWCore/Framework/interface/EDFilter.h"

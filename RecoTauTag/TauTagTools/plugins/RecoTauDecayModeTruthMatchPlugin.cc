@@ -26,7 +26,7 @@
 
 namespace tautools {
 
-class RecoTauDecayModeTruthMatchPlugin : public reco::tau::RecoTauCleanerPlugin
+  class RecoTauDecayModeTruthMatchPlugin : public reco::tau::RecoTauCleanerPlugin<reco::PFTau>
 {
   public:
   explicit RecoTauDecayModeTruthMatchPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);

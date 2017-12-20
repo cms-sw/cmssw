@@ -53,7 +53,7 @@ unsigned int nGammas(const PFTau& tau) {
 }
 
 template<typename T>
-class RecoTauObjectEmbedder : public RecoTauModifierPlugin {
+class RecoTauObjectEmbedder : public RecoTauModifierPlugin<reco::PFTau> {
   public:
   explicit RecoTauObjectEmbedder(const edm::ParameterSet &pset, edm::ConsumesCollector &&iC)
     :RecoTauModifierPlugin(pset,std::move(iC)),
