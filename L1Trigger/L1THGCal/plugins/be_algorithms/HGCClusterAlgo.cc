@@ -121,6 +121,9 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
                                        edm::Event & evt ) 
 {
     es.get<CaloGeometryRecord>().get("", triggerGeometry_);
+    calibration_.eventSetup(es);
+    clustering_.eventSetup(es);
+    multiclustering_.eventSetup(es);
 
     for( const auto& digi : coll ){
         

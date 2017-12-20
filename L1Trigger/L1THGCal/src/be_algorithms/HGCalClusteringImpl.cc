@@ -110,24 +110,13 @@ void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCe
 
 /* storing trigger cells into vector per layer and per endcap */
 void HGCalClusteringImpl::triggerCellReshuffling( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
-                                                  std::array< std::array<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>, kLayers_>,kNSides_> & reshuffledTriggerCells 
+                                                  std::array< std::vector<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>,kNSides_> & reshuffledTriggerCells 
     ){
 
     for( const auto& tc : triggerCellsPtrs ){
         int endcap = tc->zside() == -1 ? 0 : 1 ;
         HGCalDetId tcDetId( tc->detId() );
-        int subdet = tcDetId.subdetId();
-        int layer = -1;
-        
-        if( subdet == HGCEE ){ 
-            layer = tc->layer();
-        }
-        else if( subdet == HGCHEF ){
-            layer = tc->layer() + kLayersEE_;
-        }
-        else if( subdet == HGCHEB ){
-            layer = tc->layer() + kLayersEE_ + kLayersFH_;
-        }
+        unsigned layer = triggerTools_.layerWithOffset(tc->detId());
         
         reshuffledTriggerCells[endcap][layer-1].emplace_back(tc);
         
@@ -259,11 +248,16 @@ void HGCalClusteringImpl::clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCe
                                       const HGCalTriggerGeometryBase & triggerGeometry
     ){
 
-    std::array< std::array< std::vector<edm::Ptr<l1t::HGCalTriggerCell> >,kLayers_>,kNSides_> reshuffledTriggerCells; 
+    std::array< std::vector< std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>,kNSides_> reshuffledTriggerCells; 
+    unsigned layers = triggerTools_.layers(ForwardSubdetector::ForwardEmpty);
+    for(unsigned side=0; side<kNSides_; side++)
+    {
+        reshuffledTriggerCells[side].resize(layers);
+    }
     triggerCellReshuffling( triggerCellsPtrs, reshuffledTriggerCells );
 
     for(unsigned iec=0; iec<kNSides_; ++iec){
-        for(unsigned il=0; il<kLayers_; ++il){
+        for(unsigned il=0; il<layers; ++il){
             NNKernel( reshuffledTriggerCells[iec][il], clusters, triggerGeometry );
         }
     }

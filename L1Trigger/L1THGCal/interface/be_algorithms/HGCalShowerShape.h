@@ -5,6 +5,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 class HGCalShowerShape{
 
@@ -14,6 +15,8 @@ class HGCalShowerShape{
     HGCalShowerShape(){}
 
     ~HGCalShowerShape(){}
+
+    void eventSetup(const edm::EventSetup& es) {triggerTools_.eventSetup(es);}
 
     int firstLayer(const l1t::HGCalMulticluster& c3d) const;
     int lastLayer(const l1t::HGCalMulticluster& c3d) const;
@@ -45,11 +48,7 @@ class HGCalShowerShape{
     float sigmaXX(const std::vector<pair<float,float> >& energy_X_tc, const float X_cluster) const;
     float sigmaPhiPhi(const std::vector<pair<float,float> >& energy_phi_tc, const float phi_cluster) const;
 
-    static const int kLayersEE_=28;
-    static const int kLayersFH_=12;
-    static const int kLayersBH_=12;
-    int HGC_layer(const uint32_t subdet, const uint32_t layer) const;
-
+    HGCalTriggerTools triggerTools_;
 
 };
 

@@ -158,19 +158,19 @@ namespace l1t
       float sigmaRRMax() const { return sigmaRRMax_; }
       float sigmaRRMean() const { return sigmaRRMean_; }
 
-      void set_showerLength(int showerLength) { showerLength_ = showerLength;}
-      void set_coreShowerLength(int coreShowerLength) { coreShowerLength_ = coreShowerLength;}
-      void set_firstLayer(int firstLayer) { firstLayer_ = firstLayer;}
-      void set_maxLayer(int maxLayer) { maxLayer_ = maxLayer;}
-      void set_eMax(float eMax) { eMax_ = eMax;}
-      void set_sigmaEtaEtaMax(float sigmaEtaEtaMax) { sigmaEtaEtaMax_ = sigmaEtaEtaMax;}
-      void set_sigmaEtaEtaTot(float sigmaEtaEtaTot) { sigmaEtaEtaTot_ = sigmaEtaEtaTot;}
-      void set_sigmaPhiPhiMax(float sigmaPhiPhiMax) { sigmaPhiPhiMax_ = sigmaPhiPhiMax;}
-      void set_sigmaPhiPhiTot(float sigmaPhiPhiTot) { sigmaPhiPhiTot_ = sigmaPhiPhiTot;}
-      void set_sigmaRRMax(float sigmaRRMax) { sigmaRRMax_ = sigmaRRMax;}
-      void set_sigmaRRTot(float sigmaRRTot) { sigmaRRTot_ = sigmaRRTot;}
-      void set_sigmaRRMean(float sigmaRRMean) { sigmaRRMean_ = sigmaRRMean;}
-      void set_sigmaZZ(float sigmaZZ) { sigmaZZ_ = sigmaZZ;}
+      void showerLength(int showerLength) { showerLength_ = showerLength;}
+      void coreShowerLength(int coreShowerLength) { coreShowerLength_ = coreShowerLength;}
+      void firstLayer(int firstLayer) { firstLayer_ = firstLayer;}
+      void maxLayer(int maxLayer) { maxLayer_ = maxLayer;}
+      void eMax(float eMax) { eMax_ = eMax;}
+      void sigmaEtaEtaMax(float sigmaEtaEtaMax) { sigmaEtaEtaMax_ = sigmaEtaEtaMax;}
+      void sigmaEtaEtaTot(float sigmaEtaEtaTot) { sigmaEtaEtaTot_ = sigmaEtaEtaTot;}
+      void sigmaPhiPhiMax(float sigmaPhiPhiMax) { sigmaPhiPhiMax_ = sigmaPhiPhiMax;}
+      void sigmaPhiPhiTot(float sigmaPhiPhiTot) { sigmaPhiPhiTot_ = sigmaPhiPhiTot;}
+      void sigmaRRMax(float sigmaRRMax) { sigmaRRMax_ = sigmaRRMax;}
+      void sigmaRRTot(float sigmaRRTot) { sigmaRRTot_ = sigmaRRTot;}
+      void sigmaRRMean(float sigmaRRMean) { sigmaRRMean_ = sigmaRRMean;}
+      void sigmaZZ(float sigmaZZ) { sigmaZZ_ = sigmaZZ;}
       
       /* operators */
       bool operator<(const HGCalClusterT<C>& cl) const {return mipPt() < cl.mipPt();}

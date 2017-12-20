@@ -13,17 +13,6 @@
 #include <unordered_map>
 
 
-int HGCalShowerShape::HGC_layer(const uint32_t subdet, const uint32_t layer)    const {
-
-  int hgclayer = -1;
-  if(subdet==HGCEE) hgclayer=layer;//EE
-  else if(subdet==HGCHEF) hgclayer=layer+kLayersEE_;//FH
-  else if(subdet==HGCHEB) hgclayer=layer+kLayersEE_+kLayersFH_;//BH
-
-  return hgclayer;
-
-}
-
 //Compute energy-weighted mean of any variable X in the cluster
 
 float HGCalShowerShape::meanX(const std::vector<pair<float,float> >& energy_X_tc) const {
@@ -98,7 +87,7 @@ int HGCalShowerShape::firstLayer(const l1t::HGCalMulticluster& c3d) const {
   
   for(const auto& clu : clustersPtrs){
     
-    int layer = HGC_layer(clu->subdetId(),clu->layer());     
+    int layer = triggerTools_.layerWithOffset(clu->detId());
     if(layer<firstLayer) firstLayer=layer;
     
   }
@@ -115,7 +104,7 @@ int HGCalShowerShape::maxLayer(const l1t::HGCalMulticluster& c3d) const {
   float max_pt = 0.;
   int max_layer = 0;
   for(const auto& cluster_ptr : clustersPtrs){
-    int layer = HGC_layer(cluster_ptr->subdetId(),cluster_ptr->layer());     
+    unsigned layer = triggerTools_.layerWithOffset(cluster_ptr->detId());
     auto itr_insert = layers_pt.emplace(layer, 0.);
     itr_insert.first->second += cluster_ptr->pt();
     if(itr_insert.first->second>max_pt){
@@ -135,7 +124,7 @@ int HGCalShowerShape::lastLayer(const l1t::HGCalMulticluster& c3d) const {
   
   for(const auto& clu : clustersPtrs){
     
-    int layer = HGC_layer(clu->subdetId(),clu->layer());     
+    int layer = triggerTools_.layerWithOffset(clu->detId());
     if(layer>lastLayer) lastLayer=layer;
     
   }
@@ -147,7 +136,8 @@ int HGCalShowerShape::lastLayer(const l1t::HGCalMulticluster& c3d) const {
 int HGCalShowerShape::coreShowerLength(const l1t::HGCalMulticluster& c3d, const HGCalTriggerGeometryBase& triggerGeometry) const
 {
   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
-  std::vector<bool> layers(kLayersEE_+kLayersFH_+kLayersBH_);
+  unsigned nlayers = triggerTools_.layers(ForwardSubdetector::ForwardEmpty);
+  std::vector<bool> layers(nlayers);
   for(const auto& cluster_ptr : clustersPtrs)
   {
     int layer = triggerGeometry.triggerLayer(cluster_ptr->detId());
@@ -259,7 +249,7 @@ float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const 
 
   for(const auto& clu : clustersPtrs){
     
-    int layer = HGC_layer(clu->subdetId(),clu->layer());    
+    unsigned layer = triggerTools_.layerWithOffset(clu->detId());
     
     layer_LV[layer] += clu->p4();
 
@@ -303,7 +293,7 @@ float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const 
 
   for(const auto& clu : clustersPtrs){
     
-    int layer = HGC_layer(clu->subdetId(),clu->layer());    
+    unsigned layer = triggerTools_.layerWithOffset(clu->detId());
     
     layer_LV[layer] += clu->p4();
 
@@ -346,7 +336,7 @@ float HGCalShowerShape::sigmaRRMax(const l1t::HGCalMulticluster& c3d) const {
 
   for(const auto& clu : clustersPtrs){
     
-    int layer = HGC_layer(clu->subdetId(),clu->layer());        
+    unsigned layer = triggerTools_.layerWithOffset(clu->detId());
 
     const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
 
@@ -384,7 +374,7 @@ float HGCalShowerShape::sigmaRRMean(const l1t::HGCalMulticluster& c3d, float rad
   // group trigger cells by layer
   std::unordered_map<int, std::vector<edm::Ptr<l1t::HGCalTriggerCell>> > layers_tcs;
   for(const auto& clu : clustersPtrs){
-    int layer = HGC_layer(clu->subdetId(),clu->layer());
+    unsigned layer = triggerTools_.layerWithOffset(clu->detId());
     const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
     for(const auto& tc : triggerCells){
       layers_tcs[layer].emplace_back(tc);
@@ -437,7 +427,7 @@ float HGCalShowerShape::eMax(const l1t::HGCalMulticluster& c3d) const {
   
   for(const auto& clu : clustersPtrs){
     
-    int layer = HGC_layer(clu->subdetId(),clu->layer());        
+    unsigned layer = triggerTools_.layerWithOffset(clu->detId());
     layer_energy[layer] += clu->energy();
 
   }
