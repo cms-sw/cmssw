@@ -47,7 +47,7 @@ public:
   /// Number of reconstructed vertices
   unsigned int numVertices()                const {return vertices_.size();}
   /// Reconstructed Primary Vertex
-  RecoVertex  PrimaryVertex()               const {if(pv_index_ < vertices_.size()) return vertices_[pv_index_]; else{ std::cout << "No Primary Vertex has been found."; return RecoVertex();} }
+  RecoVertex  PrimaryVertex()               const {if(pv_index_ < vertices_.size()) return vertices_[pv_index_]; else{ std::cout << "No Primary Vertex has been found." << std::endl; return RecoVertex();} }
   /// Reconstructed Primary Vertex as in TDR
   const RecoVertex& TDRPrimaryVertex()      const {return tdr_vertex_;}
   /// Reconstructed Primary Vertex Id
@@ -78,7 +78,7 @@ public:
   void DBSCAN();
   /// Principal Vertex Reconstructor algorithm
   void PVR();
-  /// Adaptive Vertex Reconstruction algorithm 
+  /// Adaptive Vertex Reconstruction algorithm
   void AdaptiveVertexReconstruction();
   /// High PT Vertex Algorithm
   void HPV();
