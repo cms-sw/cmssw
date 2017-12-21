@@ -90,7 +90,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    double tsMAX=0;
    double tmpx[HcalConst::maxSamples], tmpy[HcalConst::maxSamples], tmperry[HcalConst::maxSamples],tmperry2[HcalConst::maxSamples],tmpslew[HcalConst::maxSamples];
    double tstrig = 0; // in fC
-   for(int i=0;i<HcalConst::maxSamples;++i){
+   for(unsigned int i=0;i<HcalConst::maxSamples;++i){
       tmpx[i]=i;
       tmpy[i]=energyArr[i]-pedenArr[i];
       //Add Time Slew !!! does this need to be pedestal subtracted
@@ -104,7 +104,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       tmperry [i]=sqrt(tmperry2[i]);
 
       if(std::abs(energyArr[i])>tsMAX) tsMAX=std::abs(tmpy[i]);
-      if( i ==4 || i ==5 ){
+      if( i ==soi || i ==(soi+1) ){
          tstrig += chargeArr[i] - pedArr[i];
       }
    }

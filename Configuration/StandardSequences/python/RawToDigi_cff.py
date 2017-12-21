@@ -64,7 +64,9 @@ RawToDigi_noTk = cms.Sequence(L1TRawToDigi
                               +scalersRawToDigi
                               +tcdsDigis
                               )
-    
+
+RawToDigi_pixelOnly = cms.Sequence(siPixelDigis)
+
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
 #false by default anyways ecalDigis.DoRegional = False

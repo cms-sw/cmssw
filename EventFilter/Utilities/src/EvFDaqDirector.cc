@@ -19,7 +19,6 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <cstdio>
-#include <sys/file.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/fstream.hpp>
 
@@ -33,17 +32,6 @@ namespace evf {
   //for enum MergeType
   const std::vector<std::string> EvFDaqDirector::MergeTypeNames_ = {"","DAT","PB","JSNDATA"};
 
-  namespace {
-    struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
-    {
-#ifdef __APPLE__
-      return {start, len, pid, type, whence};
-#else
-      return {type, whence, start, len, pid};
-#endif
-    }
-  }
-
   EvFDaqDirector::EvFDaqDirector(const edm::ParameterSet &pset,
 				 edm::ActivityRegistry& reg) :
     base_dir_(pset.getUntrackedParameter<std::string> ("baseDir", ".")),
@@ -55,40 +43,24 @@ namespace evf {
     selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode","")),
     hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
     fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval",2000)),
-    emptyLumisectionMode_(pset.getUntrackedParameter<bool>("emptyLumisectionMode",true)),
-    microMergeDisabled_(pset.getUntrackedParameter<bool>("microMergeDisabled",true)),
     mergeTypePset_(pset.getUntrackedParameter<std::string>("mergeTypePset","")),
     hostname_(""),
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
     fu_readwritelock_fd_(-1),
-    data_readwrite_fd_(-1),
     fulocal_rwlock_fd_(-1),
     fulocal_rwlock_fd2_(-1),
-
     bu_w_lock_stream(nullptr),
     bu_r_lock_stream(nullptr),
     fu_rw_lock_stream(nullptr),
-    //bu_w_monitor_stream(0),
-    //bu_t_monitor_stream(0),
-    data_rw_stream(nullptr),
-
     dirManager_(base_dir_),
-
     previousFileSize_(0),
-
     bu_w_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, 0 )),
     bu_r_flk( make_flock( F_RDLCK, SEEK_SET, 0, 0, 0 )),
     bu_w_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, 0 )),
     bu_r_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, 0 )),
     fu_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
-    data_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
-    //fulocal_rw_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    //fulocal_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
-    //fulocal_rw_flk2( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    //fulocal_rw_fulk2( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
+    fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
 
     reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
@@ -113,17 +85,6 @@ namespace evf {
       }
     }
 
-    char * emptyLumiModePtr = getenv("FFF_EMPTYLSMODE");
-    if (emptyLumiModePtr) {
-        emptyLumisectionMode_ = true;
-        edm::LogInfo("EvFDaqDirector") << "Setting empty lumisection mode";
-    }
-
-    char * microMergeDisabledPtr = getenv("FFF_MICROMERGEDISABLED");
-    if (microMergeDisabledPtr) {
-        microMergeDisabled_ = true;
-        edm::LogInfo("EvFDaqDirector") << "Disabling dat file micro-merge by the HLT process (delegated to the hlt daemon)";
-    }
   }
 
   void EvFDaqDirector::initRun()
@@ -290,8 +251,6 @@ namespace evf {
     desc.addUntracked<bool>("requireTransfersPSet",false)->setComment("Require complete transferSystem PSet in the process configuration");
     desc.addUntracked<std::string>("selectedTransferMode","")->setComment("Selected transfer mode (choice in Lvl0 propagated as Python parameter");
     desc.addUntracked<unsigned int>("fuLockPollInterval",2000)->setComment("Lock polling interval in microseconds for the input directory file lock");
-    desc.addUntracked<bool>("emptyLumisectionMode",true)->setComment("Enables writing stream output metadata even when no events are processed in a lumisection");
-    desc.addUntracked<bool>("microMergeDisabled",true)->setComment("Disabled micro-merging by the Output Module, so it is later done by hltd service");
     desc.addUntracked<std::string>("mergingPset","")->setComment("Name of merging PSet to look for merging type definitions for streams");
     desc.setAllowAnything();
     descriptions.add("EvFDaqDirector", desc);
@@ -500,6 +459,7 @@ namespace evf {
 
     timeval ts_lockbegin;
     gettimeofday(&ts_lockbegin,nullptr);
+    long total_lock_attempts = 0;
 
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
@@ -507,6 +467,7 @@ namespace evf {
       else continue;
 
       lock_attempts+=fuLockPollInterval_;
+      total_lock_attempts+=fuLockPollInterval_;
       if (lock_attempts>5000000 ||  errno==116) {
         if (errno==116)
           edm::LogWarning("EvFDaqDirector") << "Stale lock file handle. Checking if run directory and fu.lock file are present" << std::endl;
@@ -524,6 +485,10 @@ namespace evf {
         if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
         if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
         lock_attempts=0;
+      }
+      if (total_lock_attempts>5*60000000) {
+        edm::LogError("EvFDaqDirector") << "Unable to obtain a lock for 5 minutes. Stopping polling activity.";
+        return runAbort;
       }
     }
 
@@ -820,27 +785,6 @@ namespace evf {
     fu_rw_lock_stream = fdopen(fu_readwritelock_fd_, "r+");
   }
 
-  //create if does not exist then lock the merge destination file
-  FILE *EvFDaqDirector::maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream) {
-    data_rw_stream = fopen(getMergedDatFilePath(ls,stream).c_str(), "a"); //open stream for appending
-    data_readwrite_fd_ = fileno(data_rw_stream);
-    if (data_readwrite_fd_ == -1)
-      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for datamerge "
-		<< strerror(errno);
-    else
-      LogDebug("EvFDaqDirector") << "creating filedesc for datamerge -: "
-		<< data_readwrite_fd_;
-    fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_flk);
-
-    return data_rw_stream;
-  }
-
-  void EvFDaqDirector::unlockAndCloseMergeStream() {
-    fflush(data_rw_stream);
-    fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_fulk);
-    fclose(data_rw_stream);
-  }
-
   void EvFDaqDirector::lockInitLock() {
     pthread_mutex_lock(&init_lock_);
   }
@@ -1012,22 +956,27 @@ namespace evf {
       const edm::ParameterSet& tsPset(topPset.getParameterSet(mergeTypePset_));
       for (std::string pname : tsPset.getParameterNames()) {
           std::string streamType = tsPset.getParameter<std::string>(pname); 
-          mergeTypeMap_[pname]=streamType;
+          tbb::concurrent_hash_map<std::string,std::string>::accessor ac;
+          mergeTypeMap_.insert(ac,pname);
+          ac->second = streamType;
+          ac.release();
       }
     }
   }
  
   std::string EvFDaqDirector::getStreamMergeType(std::string const& stream, MergeType defaultType)
   {
-    auto mergeTypeItr = mergeTypeMap_.find(stream);
-    if (mergeTypeItr == mergeTypeMap_.end()) {
-           edm::LogInfo("EvFDaqDirector") << " No merging type specified for stream " << stream << ". Using default value";
-           assert(defaultType<MergeTypeNames_.size());
-           std::string defaultName = MergeTypeNames_[defaultType];
-           mergeTypeMap_[stream] =  defaultName;
-           return defaultName;
-    }
-    return mergeTypeItr->second;
+    tbb::concurrent_hash_map<std::string,std::string>::const_accessor search_ac;
+    if (mergeTypeMap_.find(search_ac,stream))
+      return search_ac->second;
+
+    edm::LogInfo("EvFDaqDirector") << " No merging type specified for stream " << stream << ". Using default value";
+    std::string defaultName = MergeTypeNames_[defaultType];
+    tbb::concurrent_hash_map<std::string,std::string>::accessor ac;
+    mergeTypeMap_.insert(ac,stream);
+    ac->second = defaultName;
+    ac.release();
+    return defaultName;
   }
 
   void EvFDaqDirector::createProcessingNotificationMaybe() const {
@@ -1036,4 +985,14 @@ namespace evf {
     close(proc_flag_fd);
   }
 
+  struct flock EvFDaqDirector::make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
+  {
+#ifdef __APPLE__
+      return {start, len, pid, type, whence};
+#else
+      return {type, whence, start, len, pid};
+#endif
+  }
+
 }
+

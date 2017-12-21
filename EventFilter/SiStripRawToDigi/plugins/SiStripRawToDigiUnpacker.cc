@@ -3,8 +3,8 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/src/fed_header.h"
-#include "DataFormats/FEDRawData/src/fed_trailer.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -875,10 +875,10 @@ namespace sistrip {
 	const FEDRawData& trigger_fed = buffers.FEDData( ifed );
 	if ( trigger_fed.data() && trigger_fed.size() ) {
 	  uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
-	  data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
-	  size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
-	  fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
-	  if ( fed_trailer->conscheck == 0xDEADFACE ) { 
+	  data_u32 = reinterpret_cast<uint32_t*>( temp ) + FEDHeader::length/sizeof(uint32_t) + 1;
+	  size_u32 = trigger_fed.size()/sizeof(uint32_t) - FEDHeader::length/sizeof(uint32_t) - 1;
+	  const FEDTrailer fedTrailer( temp + trigger_fed.size() - FEDTrailer::length );
+	  if ( fedTrailer.conscheck() == 0xDEADFACE ) {
 	    triggerFedId_ = ifed; 
 	    if ( edm::isDebugEnabled() ) {
 	      std::stringstream ss;
@@ -909,10 +909,10 @@ namespace sistrip {
       const FEDRawData& trigger_fed = buffers.FEDData( triggerFedId_ );
       if ( trigger_fed.data() && trigger_fed.size() ) {
 	uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
-	data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
-	size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
-	fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
-	if ( fed_trailer->conscheck != 0xDEADFACE ) { 
+	data_u32 = reinterpret_cast<uint32_t*>( temp ) + FEDHeader::length/sizeof(uint32_t) + 1;
+	size_u32 = trigger_fed.size()/sizeof(uint32_t) - FEDHeader::length/sizeof(uint32_t) - 1;
+	const FEDTrailer fedTrailer( temp + trigger_fed.size() - FEDTrailer::length );
+	if ( fedTrailer.conscheck() != 0xDEADFACE ) {
 	  if ( edm::isDebugEnabled() ) {
 	    edm::LogWarning(sistrip::mlRawToDigi_) 
 	      << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"

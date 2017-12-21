@@ -150,7 +150,7 @@ void ElectronStudy::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<std::string>("EBCollection","EcalHitsEB");
   desc.addUntracked<std::string>("EECollection","EcalHitsEE");
   desc.addUntracked<int>("Verbosity",0);
-  descriptions.add("ElectronStudy",desc);
+  descriptions.add("electronStudy",desc);
 }
 
 void ElectronStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

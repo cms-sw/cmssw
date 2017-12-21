@@ -6,13 +6,13 @@
 
 
 //_____________________________________________________________________________
-Alignables& AlignableMap::get(const std::string& name)
+align::Alignables& AlignableMap::get(const std::string& name)
 {
   return theStore[name];
 }
 
 //_____________________________________________________________________________
-Alignables& AlignableMap::find(const std::string& name)
+align::Alignables& AlignableMap::find(const std::string& name)
 {
   typename Container::iterator o = theStore.find(name);
 

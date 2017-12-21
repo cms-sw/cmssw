@@ -45,7 +45,7 @@ DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps) {
 }
 
 // Destructor
-DQMProvInfo::~DQMProvInfo() {}
+DQMProvInfo::~DQMProvInfo() = default;
 
 void DQMProvInfo::dqmBeginRun(const edm::Run& iRun,
                               const edm::EventSetup& iEventSetup) {
@@ -273,8 +273,7 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
   event.getByToken(dcsStatusCollection_, dcsStatus);
   // Loop over the DCSStatus entries in the DcsStatusCollection
   // (Typically there is only one)
-  for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin();
-       dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
+  for (auto const & dcsStatusItr : *dcsStatus) {
     // By default all the bits are false. We put all the bits on true only
     // for the first DCSStatus that we encounter:
     if (!foundFirstDcsBits_) {
@@ -291,34 +290,34 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
     }
 
     // The DCS on lumi level is considered ON if the bit is set in EVERY event
-    dcsBits_[VBIN_CSC_P] &= dcsStatusItr->ready(DcsStatus::CSCp);
-    dcsBits_[VBIN_CSC_M] &= dcsStatusItr->ready(DcsStatus::CSCm);
-    dcsBits_[VBIN_DT_0] &= dcsStatusItr->ready(DcsStatus::DT0);
-    dcsBits_[VBIN_DT_P] &= dcsStatusItr->ready(DcsStatus::DTp);
-    dcsBits_[VBIN_DT_M] &= dcsStatusItr->ready(DcsStatus::DTm);
-    dcsBits_[VBIN_EB_P] &= dcsStatusItr->ready(DcsStatus::EBp);
-    dcsBits_[VBIN_EB_M] &= dcsStatusItr->ready(DcsStatus::EBm);
-    dcsBits_[VBIN_EE_P] &= dcsStatusItr->ready(DcsStatus::EEp);
-    dcsBits_[VBIN_EE_M] &= dcsStatusItr->ready(DcsStatus::EEm);
-    dcsBits_[VBIN_ES_P] &= dcsStatusItr->ready(DcsStatus::ESp);
-    dcsBits_[VBIN_ES_M] &= dcsStatusItr->ready(DcsStatus::ESm);
-    dcsBits_[VBIN_HBHE_A] &= dcsStatusItr->ready(DcsStatus::HBHEa);
-    dcsBits_[VBIN_HBHE_B] &= dcsStatusItr->ready(DcsStatus::HBHEb);
-    dcsBits_[VBIN_HBHE_C] &= dcsStatusItr->ready(DcsStatus::HBHEc);
-    dcsBits_[VBIN_HF] &= dcsStatusItr->ready(DcsStatus::HF);
-    dcsBits_[VBIN_HO] &= dcsStatusItr->ready(DcsStatus::HO);
-    dcsBits_[VBIN_BPIX] &= dcsStatusItr->ready(DcsStatus::BPIX);
-    dcsBits_[VBIN_FPIX] &= dcsStatusItr->ready(DcsStatus::FPIX);
-    dcsBits_[VBIN_RPC] &= dcsStatusItr->ready(DcsStatus::RPC);
-    dcsBits_[VBIN_TIBTID] &= dcsStatusItr->ready(DcsStatus::TIBTID);
-    dcsBits_[VBIN_TOB] &= dcsStatusItr->ready(DcsStatus::TOB);
-    dcsBits_[VBIN_TEC_P] &= dcsStatusItr->ready(DcsStatus::TECp);
-    dcsBits_[VBIN_TE_M] &= dcsStatusItr->ready(DcsStatus::TECm);
-    dcsBits_[VBIN_CASTOR] &= dcsStatusItr->ready(DcsStatus::CASTOR);
-    dcsBits_[VBIN_ZDC] &= dcsStatusItr->ready(DcsStatus::ZDC);
+    dcsBits_[VBIN_CSC_P] &= dcsStatusItr.ready(DcsStatus::CSCp);
+    dcsBits_[VBIN_CSC_M] &= dcsStatusItr.ready(DcsStatus::CSCm);
+    dcsBits_[VBIN_DT_0] &= dcsStatusItr.ready(DcsStatus::DT0);
+    dcsBits_[VBIN_DT_P] &= dcsStatusItr.ready(DcsStatus::DTp);
+    dcsBits_[VBIN_DT_M] &= dcsStatusItr.ready(DcsStatus::DTm);
+    dcsBits_[VBIN_EB_P] &= dcsStatusItr.ready(DcsStatus::EBp);
+    dcsBits_[VBIN_EB_M] &= dcsStatusItr.ready(DcsStatus::EBm);
+    dcsBits_[VBIN_EE_P] &= dcsStatusItr.ready(DcsStatus::EEp);
+    dcsBits_[VBIN_EE_M] &= dcsStatusItr.ready(DcsStatus::EEm);
+    dcsBits_[VBIN_ES_P] &= dcsStatusItr.ready(DcsStatus::ESp);
+    dcsBits_[VBIN_ES_M] &= dcsStatusItr.ready(DcsStatus::ESm);
+    dcsBits_[VBIN_HBHE_A] &= dcsStatusItr.ready(DcsStatus::HBHEa);
+    dcsBits_[VBIN_HBHE_B] &= dcsStatusItr.ready(DcsStatus::HBHEb);
+    dcsBits_[VBIN_HBHE_C] &= dcsStatusItr.ready(DcsStatus::HBHEc);
+    dcsBits_[VBIN_HF] &= dcsStatusItr.ready(DcsStatus::HF);
+    dcsBits_[VBIN_HO] &= dcsStatusItr.ready(DcsStatus::HO);
+    dcsBits_[VBIN_BPIX] &= dcsStatusItr.ready(DcsStatus::BPIX);
+    dcsBits_[VBIN_FPIX] &= dcsStatusItr.ready(DcsStatus::FPIX);
+    dcsBits_[VBIN_RPC] &= dcsStatusItr.ready(DcsStatus::RPC);
+    dcsBits_[VBIN_TIBTID] &= dcsStatusItr.ready(DcsStatus::TIBTID);
+    dcsBits_[VBIN_TOB] &= dcsStatusItr.ready(DcsStatus::TOB);
+    dcsBits_[VBIN_TEC_P] &= dcsStatusItr.ready(DcsStatus::TECp);
+    dcsBits_[VBIN_TE_M] &= dcsStatusItr.ready(DcsStatus::TECm);
+    dcsBits_[VBIN_CASTOR] &= dcsStatusItr.ready(DcsStatus::CASTOR);
+    dcsBits_[VBIN_ZDC] &= dcsStatusItr.ready(DcsStatus::ZDC);
     // Some info-level logging
     edm::LogInfo("DQMProvInfo") << "DCS status: 0x" << std::hex
-                                << dcsStatusItr->ready() << std::dec
+                                << dcsStatusItr.ready() << std::dec
                                 << std::endl;
   }
 

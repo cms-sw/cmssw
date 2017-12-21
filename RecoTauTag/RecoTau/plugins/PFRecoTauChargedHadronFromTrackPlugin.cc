@@ -202,7 +202,7 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     if ( trackPropagator.getSuccess() != 0 ) { 
       chargedHadron->positionAtECALEntrance_ = trackPropagator.vertex();
     } else {
-      if ( chargedPionP4.pt() > 2. ) {
+      if ( chargedPionP4.pt() > 2. and std::abs(chargedPionP4.eta()) < 3. ) {
 	edm::LogWarning("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
 	  << "Failed to propagate track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() << " to ECAL entrance !!" << std::endl;
       }

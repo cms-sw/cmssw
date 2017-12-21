@@ -71,7 +71,7 @@ void L1TDiffHarvesting::L1TDiffPlotHandler::loadHistograms(DQMStore::IGetter &ig
   h2_ = igetter.get(h2Name);
 
   if (!h1_ || !h2_) {
-    edm::LogError("L1TDiffHarvesting::L1TDiffPlotHandler::loadHistograms")
+    edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::loadHistograms")
         << (!h1_ && !h2_ ? h1Name + " && " + h2Name : !h1_ ? h1Name : h2Name) << " not gettable. Quitting booking"
         << std::endl;
 
@@ -86,12 +86,12 @@ void L1TDiffHarvesting::L1TDiffPlotHandler::loadHistograms(DQMStore::IGetter &ig
 bool L1TDiffHarvesting::L1TDiffPlotHandler::isValid() const
 {
   if (histType1_ == MonitorElement::DQM_KIND_INVALID) {
-    edm::LogError("L1TDiffHarvesting::L1TDiffPlotHandler::isValid") << " Could not find a supported histogram type"
+    edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::isValid") << " Could not find a supported histogram type"
         << std::endl;
     return false;
   }
   if (histType1_ != histType2_) {
-    edm::LogError("L1TDiffHarvesting::L1TDiffPlotHandler::isValid")
+    edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::isValid")
         << " Histogram 1 and 2 have different histogram types" << std::endl;
     return false;
   }

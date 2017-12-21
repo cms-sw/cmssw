@@ -178,7 +178,6 @@ public:
   std::pair<float, float> min_max_pt(BTagEntry::JetFlavor jf,
                                      float eta,
                                      float discr=0.) const;
-
 protected:
   std::shared_ptr<BTagCalibrationReaderImpl> pimpl;
 };

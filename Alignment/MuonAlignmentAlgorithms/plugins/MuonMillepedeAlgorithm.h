@@ -55,7 +55,7 @@ class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase
   void printM(const AlgebraicMatrix& ); 
   
   AlignmentParameterStore* theAlignmentParameterStore;
-  std::vector<Alignable*> theAlignables;
+  align::Alignables theAlignables;
   AlignableNavigator* theAlignableDetAccessor;
 
   // verbosity flag
