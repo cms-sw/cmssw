@@ -40,7 +40,7 @@ AHCalSD::AHCalSD(const std::string& name, const DDCompactView & cpv,
 
 AHCalSD::~AHCalSD() { }
 
-double AHCalSD::getEnergyDeposit(G4Step* aStep) {
+double AHCalSD::getEnergyDeposit(const G4Step* aStep, bool&) {
 
   double destep = aStep->GetTotalEnergyDeposit();
   double wt2    = aStep->GetTrack()->GetWeight();
@@ -59,7 +59,7 @@ double AHCalSD::getEnergyDeposit(G4Step* aStep) {
 
 uint32_t AHCalSD::setDetUnitId(const G4Step * aStep) { 
 
-  G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
 
   int depth = (touch->GetReplicaNumber(1));

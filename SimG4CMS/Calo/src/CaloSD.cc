@@ -6,6 +6,7 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Application/interface/EventAction.h"
 
 #include "G4EventManager.hh"
@@ -26,7 +27,7 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
         edm::ParameterSet const & p, const SimTrackManager* manager,
         float timeSliceUnit, bool ignoreTkID) : 
   SensitiveCaloDetector(name, cpv, clg, p),
-  G4VGFlashSensitiveDetector(), theTrack(nullptr), preStepPoint(nullptr), eminHit(0), 
+  G4VGFlashSensitiveDetector(), eminHit(0), 
   eminHitD(0), m_trackManager(manager), currentHit(nullptr), runInit(false),
   timeSlice(timeSliceUnit), ignoreTrackID(ignoreTkID), hcID(-1), theHC(nullptr), 
   meanResponse(nullptr) {
@@ -53,7 +54,7 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
 
   SetVerboseLevel(verbn);
   for (unsigned int k=0; k<hcn.size(); ++k) {
-    if (name == (G4String)(hcn[k])) {
+    if (name == hcn[k]) {
       if (k < eminHits.size()) eminHit = eminHits[k]*MeV;
       if (k < eminHitX.size()) eminHitD= eminHitX[k]*MeV;
       if (k < tmaxHits.size()) tmaxHit = tmaxHits[k]*ns;
@@ -64,6 +65,7 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
   slave      = new CaloSlaveSD(name);
   currentID  = CaloHitID(timeSlice, ignoreTrackID);
   previousID = CaloHitID(timeSlice, ignoreTrackID);
+  isParameterized = false;
   
   primAncestor = 0;
   cleanIndex = 0;
@@ -90,91 +92,96 @@ CaloSD::~CaloSD() {
   delete meanResponse;
 }
 
-bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
+G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   
-  NaNTrap( aStep ) ;
-  
-  if (aStep == nullptr) {
-    return true;
-  } else {
-    if (getStepInfo(aStep)) {
-      if (hitExists() == false && edepositEM+edepositHAD>0.) 
-        currentHit = createNewHit();
+  NaNTrap( aStep );
+
+  // ignore steps without energy deposit
+  if(!isParameterized && aStep->GetTotalEnergyDeposit() == 0.0) 
+    { return false; }
+
+  bool isKilled = false;  
+  if (getStepInfo(aStep, isKilled)) {
+    if (hitExists(aStep)) {
+      currentHit = createNewHit(aStep);
     }
+    // for parameterized showers the primary track should be killed
+    if(isKilled) { 
+      aStep->GetTrack()->SetTrackStatus(fStopAndKill); 
+      auto tv  = aStep->GetSecondary();
+      auto vol = aStep->GetPreStepPoint()->GetPhysicalVolume();
+      for(auto & tk : *tv) {
+	if (tk->GetVolume() == vol) {
+	  tk->SetTrackStatus(fStopAndKill);
+	}
+      }
+    }
+    return true;
   }
-  return true;
+  return false;
 } 
 
-bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) { 
+bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory * ) { 
 
   if (aSpot != nullptr) {   
-    theTrack = const_cast<G4Track *>(aSpot->GetOriginatorTrack()->GetPrimaryTrack());
-    G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-    
-    if (particleCode == emPDG ||
-        particleCode == epPDG ||
-        particleCode == gammaPDG ) {
-      edepositEM  = aSpot->GetEnergySpot()->GetEnergy();
-      edepositHAD = 0.;
-    } else {
-      edepositEM  = 0.;
-      edepositHAD = 0.;
-    }
- 
-    if (edepositEM>0.) {
-      G4Step *      fFakeStep          = new G4Step();
-      preStepPoint                     = fFakeStep->GetPreStepPoint();
-      G4StepPoint * fFakePostStepPoint = fFakeStep->GetPostStepPoint();
-      preStepPoint->SetPosition(aSpot->GetPosition());
-      fFakePostStepPoint->SetPosition(aSpot->GetPosition());
-      
-      G4TouchableHandle fTouchableHandle   = aSpot->GetTouchableHandle();
-      preStepPoint->SetTouchableHandle(fTouchableHandle);
-      fFakeStep->SetTotalEnergyDeposit(aSpot->GetEnergySpot()->GetEnergy());
-      
-      double       time   = 0;
-      unsigned int unitID = setDetUnitId(fFakeStep);
-      int          primaryID = getTrackID(theTrack);
-      uint16_t     depth = getDepth(fFakeStep);
 
-      if (unitID > 0) {
-        currentID.setID(unitID, time, primaryID, depth);
-#ifdef DebugLog
-        LogDebug("CaloSim") << "CaloSD:: GetSpotInfo for"
-                            << " Unit 0x" << std::hex << currentID.unitID() 
-                            << std::dec << " Edeposit = " << edepositEM << " " 
-                            << edepositHAD;
-#endif
-        // Update if in the same detector, time-slice and for same track   
-        if (currentID == previousID) {
-	  updateHit(currentHit);
-        } else {
-          posGlobal = aSpot->GetEnergySpot()->GetPosition();
-          // Reset entry point for new primary
-          if (currentID.trackID() != previousID.trackID()) {
-            entrancePoint  = aSpot->GetPosition();
-            entranceLocal  = aSpot->GetTouchableHandle()->GetHistory()->
-                                      GetTopTransform().TransformPoint(entrancePoint);
-            incidentEnergy = theTrack->GetKineticEnergy();
-#ifdef DebugLog
-            LogDebug("CaloSim") << "CaloSD: Incident energy " 
-                                << incidentEnergy/GeV << " GeV and" 
-                                << " entrance point " << entrancePoint 
-                                << " (Global) " << entranceLocal << " (Local)";
-#endif
-          }
+    edepositEM = edepositHAD = 0.f;
+    const G4Track* track = aSpot->GetOriginatorTrack()->GetPrimaryTrack();
+    if(G4TrackToParticleID::isGammaElectronPositron(track)) {
+      edepositEM = aSpot->GetEnergySpot()->GetEnergy();
+      if (edepositEM > 0.f) {
+	G4Step fFakeStep;
+        G4StepPoint * fFakePreStepPoint  = fFakeStep.GetPreStepPoint();
+	G4StepPoint * fFakePostStepPoint = fFakeStep.GetPostStepPoint();
+	fFakePreStepPoint->SetPosition(aSpot->GetPosition());
+	fFakePostStepPoint->SetPosition(aSpot->GetPosition());
+      
+	G4TouchableHandle fTouchableHandle = aSpot->GetTouchableHandle();
+	fFakePreStepPoint->SetTouchableHandle(fTouchableHandle);
+	fFakeStep.SetTotalEnergyDeposit(aSpot->GetEnergySpot()->GetEnergy());
+      
+	unsigned int unitID = setDetUnitId(&fFakeStep);
 
-          if (checkHit() == false) currentHit = createNewHit();
-        }
+	if (unitID > 0) {
+	  double time   = 0;
+	  int primaryID = getTrackID(track);
+	  uint16_t depth = getDepth(&fFakeStep);
+	  currentID.setID(unitID, time, primaryID, depth);
+#ifdef DebugLog
+	  LogDebug("CaloSim") << "CaloSD:: GetSpotInfo for"
+			      << " Unit 0x" << std::hex << currentID.unitID() 
+			      << std::dec << " Edeposit = " << edepositEM << " " 
+			      << edepositHAD;
+#endif
+	  // Update if in the same detector, time-slice and for same track   
+	  if (currentID == previousID) {
+	    updateHit(currentHit);
+	  } else {
+	    posGlobal = aSpot->GetEnergySpot()->GetPosition();
+	    // Reset entry point for new primary
+	    if (currentID.trackID() != previousID.trackID()) {
+	      entrancePoint = aSpot->GetPosition();
+	      entranceLocal = aSpot->GetTouchableHandle()->GetHistory()->
+		GetTopTransform().TransformPoint(entrancePoint);
+	      incidentEnergy = track->GetKineticEnergy();
+#ifdef DebugLog
+	      LogDebug("CaloSim") << "CaloSD: Incident energy " 
+				  << incidentEnergy/GeV << " GeV and" 
+				  << " entrance point " << entrancePoint 
+				  << " (Global) " << entranceLocal << " (Local)";
+#endif
+	    }
+	    if (checkHit() == false) currentHit = createNewHit(&fFakeStep);
+	  }
+	}
       }
-      delete  fFakeStep;
+      return true;
     }
-    return true;
-  } 
+  }
   return false;
 }                                   
 
-double CaloSD::getEnergyDeposit(G4Step* aStep) {
+double CaloSD::getEnergyDeposit(const G4Step* aStep, bool&) {
   return aStep->GetTotalEnergyDeposit();
 }
 
@@ -221,67 +228,49 @@ void CaloSD::fillHits(edm::PCaloHitContainer& cc, const std::string& hname) {
   slave->Clean();
 }
 
-bool CaloSD::getStepInfo(G4Step* aStep) {  
+bool CaloSD::getStepInfo(const G4Step* aStep, bool& isKilled) {  
 
-  preStepPoint = aStep->GetPreStepPoint(); 
-  theTrack     = aStep->GetTrack();   
-  
-  double       time  = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
-  unsigned int unitID= setDetUnitId(aStep);
-  uint16_t     depth = getDepth(aStep);
-  int          primaryID = getTrackID(theTrack);
-  
-  bool flag = (unitID > 0);
-  if (flag) {
+  edepositEM = edepositHAD = 0.f;
+  unsigned int unitID = setDetUnitId(aStep);
+  const G4Track* track = aStep->GetTrack();   
+  uint16_t depth = getDepth(aStep);
+    
+  if (unitID > 0) {
+    double   time  = track->GetGlobalTime()/nanosecond;
+    int      primaryID = getTrackID(track);
     currentID.setID(unitID, time, primaryID, depth);
+  }
+  double energy = getEnergyDeposit(aStep, isKilled);
+  if(energy > 0.0) {
+    if(G4TrackToParticleID::isGammaElectronPositron(track)) {
+      edepositEM  = energy;
+    } else {
+      edepositHAD = energy;
+    }
 #ifdef DebugLog
-    G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
+    G4TouchableHistory* touch =(G4TouchableHistory*)(track->GetTouchable());
     edm::LogInfo("CaloSim") << "CaloSD:: GetStepInfo for"
-			    << " PV "     << touch->GetVolume(0)->GetName()
-			    << " PVid = " << touch->GetReplicaNumber(0)
-			    << " MVid = " << touch->GetReplicaNumber(1)
-			    << " Unit   " << currentID.unitID() 
-			    << " Edeposit = " << edepositEM << " " << edepositHAD;
-  } else {
-    G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
-    edm::LogInfo("CaloSim") << "CaloSD:: GetStepInfo for"
-			    << " PV "     << touch->GetVolume(0)->GetName()
-			    << " PVid = " << touch->GetReplicaNumber(0)
-			    << " MVid = " << touch->GetReplicaNumber(1)
-			    << " Unit   " << std::hex << unitID << std::dec 
-			    << " Edeposit = " << edepositEM << " " << edepositHAD;
+			    << " PV: "     << touch->GetVolume(0)->GetName()
+			    << " PVid= " << touch->GetReplicaNumber(0)
+			    << " MVid= " << touch->GetReplicaNumber(1)
+			    << " Unit: " << std::hex << unitID << std::dec 
+			    << " Edeposit= " << energy 
+			    << "  " << track->GetDefinition()->GetParticleName();
 #endif
+    return true;
   }
-  
-  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-  if (particleCode == emPDG ||
-      particleCode == epPDG ||
-      particleCode == gammaPDG ) {
-    edepositEM  = getEnergyDeposit(aStep);
-    edepositHAD = 0.;
-  } else {
-    edepositEM  = 0.;
-    edepositHAD = getEnergyDeposit(aStep);
-  }
-
-  return flag;
+  return false;
 }
 
-G4ThreeVector CaloSD::setToLocal(const G4ThreeVector& global, const G4VTouchable* touch) {
-
-  G4ThreeVector localPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
-  
-  return localPoint;  
+G4ThreeVector CaloSD::setToLocal(const G4ThreeVector& global, const G4VTouchable* touch) const {
+  return touch->GetHistory()->GetTopTransform().TransformPoint(global);
 }
 
-G4ThreeVector CaloSD::setToGlobal(const G4ThreeVector& local, const G4VTouchable* touch) {
-
-  G4ThreeVector globalPoint = touch->GetHistory()->GetTopTransform().Inverse().TransformPoint(local);
-  
-  return globalPoint;  
+G4ThreeVector CaloSD::setToGlobal(const G4ThreeVector& local, const G4VTouchable* touch) const {
+  return touch->GetHistory()->GetTopTransform().Inverse().TransformPoint(local);
 }
 
-G4bool CaloSD::hitExists() {
+G4bool CaloSD::hitExists(const G4Step* aStep) {
 #ifdef DebugLog
   if (currentID.trackID()<1)
     edm::LogWarning("CaloSim") << "***** CaloSD error: primaryID = " 
@@ -295,9 +284,8 @@ G4bool CaloSD::hitExists() {
   }
   
   // Reset entry point for new primary
-  posGlobal = preStepPoint->GetPosition();
   if (currentID.trackID() != previousID.trackID()) { 
-    resetForNewPrimary(posGlobal, preStepPoint->GetKineticEnergy());
+    resetForNewPrimary(aStep);
   }
   return checkHit();
 }
@@ -334,13 +322,15 @@ G4bool CaloSD::checkHit() {
 
 int CaloSD::getNumberOfHits() { return theHC->entries(); }
 
-CaloG4Hit* CaloSD::createNewHit() {
+CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
+
+  const G4Track* theTrack = aStep->GetTrack();
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD::CreateNewHit for"
 			  << " Unit " << currentID.unitID() 
 			  << " " << currentID.depth()
-			  << " Edeposit = " << edepositEM << " " << edepositHAD;
-  edm::LogInfo("CaloSim") << " primary "    << currentID.trackID()
+			  << " Edeposit = " << edepositEM << " " << edepositHAD
+			  << "\n primary "    << currentID.trackID()
 			  << " time slice " << currentID.timeSliceID()
 			  << " For Track  " << theTrack->GetTrackID()
 			  << " which is a " <<theTrack->GetDefinition()->GetParticleName()
@@ -349,7 +339,7 @@ CaloG4Hit* CaloSD::createNewHit() {
 			  << " daughter of part. " << theTrack->GetParentID()
 			  << " and created by " ;
   
-  if (theTrack->GetCreatorProcess()!=NULL)
+  if (theTrack->GetCreatorProcess())
     edm::LogInfo("CaloSim") << theTrack->GetCreatorProcess()->GetProcessName();
   else 
     edm::LogInfo("CaloSim") << "NO process";
@@ -358,8 +348,8 @@ CaloG4Hit* CaloSD::createNewHit() {
   CaloG4Hit* aHit;
   if (!reusehit.empty()) {
     aHit = reusehit[0];
-    aHit->setEM(0.);
-    aHit->setHadr(0.);
+    aHit->setEM(0.f);
+    aHit->setHadr(0.f);
     reusehit.erase(reusehit.begin());
   } else {
     aHit = new CaloG4Hit;
@@ -407,12 +397,12 @@ CaloG4Hit* CaloSD::createNewHit() {
     }
   }
   primIDSaved = currentID.trackID();
-  if (useMap) totalHits++;
+  if (useMap) ++totalHits;
   return aHit;
 }  
 
 void CaloSD::updateHit(CaloG4Hit* aHit) {
-  if (edepositEM+edepositHAD != 0) {
+  if (edepositEM+edepositHAD > 0.f) {
     aHit->addEnergyDeposit(edepositEM,edepositHAD);
 #ifdef DebugLog
     edm::LogInfo("CaloSim") << "CaloSD: Add energy deposit in " << currentID 
@@ -425,10 +415,11 @@ void CaloSD::updateHit(CaloG4Hit* aHit) {
   previousID = currentID;
 }
 
-void CaloSD::resetForNewPrimary(const G4ThreeVector& point, double energy) { 
-  entrancePoint  = point;
+void CaloSD::resetForNewPrimary(const G4Step* aStep) { 
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+  entrancePoint  = preStepPoint->GetPosition();
   entranceLocal  = setToLocal(entrancePoint, preStepPoint->GetTouchable());
-  incidentEnergy = energy;
+  incidentEnergy = preStepPoint->GetKineticEnergy();
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: Incident energy " << incidentEnergy/GeV 
 			  << " GeV and" << " entrance point " << entrancePoint 
@@ -436,14 +427,14 @@ void CaloSD::resetForNewPrimary(const G4ThreeVector& point, double energy) {
 #endif
 }
 
-double CaloSD::getAttenuation(const G4Step* aStep, double birk1, double birk2, double birk3) {
+double CaloSD::getAttenuation(const G4Step* aStep, double birk1, double birk2, double birk3) const {
   double weight = 1.;
   double charge = aStep->GetPreStepPoint()->GetCharge();
+  double length = aStep->GetStepLength();
 
-  if (charge != 0. && aStep->GetStepLength() > 0) {
-    G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
-    double density = mat->GetDensity();
-    double dedx    = aStep->GetTotalEnergyDeposit()/aStep->GetStepLength();
+  if (charge != 0. && length > 0.) {
+    double density = aStep->GetPreStepPoint()->GetMaterial()->GetDensity();
+    double dedx    = aStep->GetTotalEnergyDeposit()/length;
     double rkb     = birk1/density;
     double c       = birk2*rkb*rkb;
     if (std::abs(charge) >= 2.) rkb /= birk3; // based on alpha particle data
@@ -535,12 +526,10 @@ void CaloSD::clearHits() {
   previousID.reset();
   primIDSaved = -99;
 #ifdef DebugLog
-  edm::LogInfo("CaloSim") << "CaloSD: Clears hit vector for " << GetName() << " " << slave;
+  edm::LogInfo("CaloSim") << "CaloSD: Clears hit vector for " << GetName() 
+			  << " and initialise slave: " << slave;
 #endif
   slave->Initialize();
-#ifdef DebugLog
-  edm::LogInfo("CaloSim") << "CaloSD: Initialises slave SD for " << GetName();
-#endif
 }
 
 void CaloSD::initRun() {}
@@ -583,7 +572,7 @@ double CaloSD::getResponseWt(const G4Track* aTrack) {
     TrackInformation * trkInfo = (TrackInformation *)(aTrack->GetUserInformation());
     return meanResponse->getWeight(trkInfo->genParticlePID(), trkInfo->genParticleP());
   } else {
-    return 1;
+    return 1.0;
   }
 }
 

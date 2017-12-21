@@ -28,7 +28,7 @@ public:
 
 protected:
 
-  G4bool getStepInfo(G4Step* aStep) override;
+  G4bool getStepInfo(const G4Step* aStep, bool&) override;
   void   initRun() override;
 
 private:    

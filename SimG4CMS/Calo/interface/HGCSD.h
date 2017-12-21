@@ -31,7 +31,7 @@ public:
 	edm::ParameterSet const &, const SimTrackManager*);
   ~HGCSD() override;
   bool                    ProcessHits(G4Step * , G4TouchableHistory * ) override;
-  double                  getEnergyDeposit(G4Step* ) override;
+  double                  getEnergyDeposit(const G4Step*, bool& ) override;
   uint32_t                setDetUnitId(const G4Step* step) override;
 
 protected:

@@ -16,12 +16,12 @@ public:
   AHCalSD(const std::string& , const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
   ~AHCalSD() override;
-  double                getEnergyDeposit(G4Step* ) override;
   uint32_t              setDetUnitId(const G4Step* step) override;
   bool                  unpackIndex(const uint32_t & idx, int & row, 
 				    int& col, int& depth);
 protected:
 
+  double                getEnergyDeposit(const G4Step*, bool& ) override;
   bool                  filterHit(CaloG4Hit*, double) override;
 
 private:    
