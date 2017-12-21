@@ -22,7 +22,8 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
     const float timeShift,
     const bool correctForPhaseContainment,
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
-    std::unique_ptr<HcalDeterministicFit> detFit)
+    std::unique_ptr<HcalDeterministicFit> detFit,
+    std::unique_ptr<MahiFit> mahi)
     : pulseCorr_(PulseContainmentFractionalError),
       firstSampleShift_(firstSampleShift),
       samplesToAdd_(samplesToAdd),
@@ -31,7 +32,8 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
       runnum_(0),
       corrFPC_(correctForPhaseContainment),
       psFitOOTpuCorr_(std::move(m2)),
-      hltOOTpuCorr_(std::move(detFit))
+      hltOOTpuCorr_(std::move(detFit)),
+      mahiOOTpuCorr_(std::move(mahi))
 {
 }
 
@@ -96,13 +98,34 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
         m3E *= hbminusCorrectionFactor(channelId, m3E, isData);
     }
 
+    // Run Mahi
+    float m4E = 0.f, m4chi2 = -1.f;
+    float m4T = 0.f;
+    bool m4UseTriple=false;
+
+    const MahiFit* mahi = mahiOOTpuCorr_.get();
+
+    if (mahi) {
+      mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()));
+      mahi->phase1Apply(info,m4E,m4T,m4UseTriple,m4chi2);
+      m4E *= hbminusCorrectionFactor(channelId, m4E, isData);
+    }
+
     // Finally, construct the rechit
     float rhE = m0E;
     float rht = m0t;
-    if (method2)
+    float rhX = -1.f;
+    if (mahi) 
+    {
+      rhE = m4E;
+      rht = m4T;
+      rhX = m4chi2;
+    }
+    else if (method2)
     {
         rhE = m2E;
         rht = m2t;
+	rhX = chi2;
     }
     else if (method3)
     {
@@ -115,13 +138,13 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     rh = HBHERecHit(channelId, rhE, rht, tdcTime);
     rh.setRawEnergy(m0E);
     rh.setAuxEnergy(m3E);
-    rh.setChiSquared(chi2);
+    rh.setChiSquared(rhX);
 
     // Set rechit aux words
     HBHERecHitAuxSetter::setAux(info, &rh);
 
-    // Set some rechit flags (here, for Method 2)
-    if (useTriple)
+    // Set some rechit flags (here, for Method 2/Mahi)
+    if (useTriple || m4UseTriple)
        rh.setFlagField(1, HcalPhase1FlagLabels::HBHEPulseFitBit);
 
     return rh;
