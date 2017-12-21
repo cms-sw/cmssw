@@ -380,6 +380,8 @@ namespace edm {
         } else {
           //Since this is static we don't want it deleted
           inputProcessHistory = std::shared_ptr<ProcessHistory const>(&s_emptyProcessHistory,[](void const*){});
+          //no need to do any ordering since it is empty
+          orderProcessHistoryID_ = hist;
         }
         processHistoryID_ = hist;
         processHistoryPtr_ = inputProcessHistory;
