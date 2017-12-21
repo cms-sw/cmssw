@@ -328,8 +328,8 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 						     dummy, dummy, dummy);
 
 	  int dduId = theDDU(crate, slotMap, link, tenDDU);
-	  int rosId = theROS(crate, slotMap, link);
-	  int robId = theROB(crate, slotMap, link);
+	  int rosId = theROS(slotMap, link);
+	  int robId = theROB(slotMap, link);
 
 
 	  DTROChainCoding channelIndex(dduId, rosId, robId, tdcId, tdcChannel);
@@ -380,8 +380,8 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 						     dummy, dummy, dummy);
 
 	  int dduId = theDDU(crate, slotMap, link, tenDDU);
-	  int rosId = theROS(crate, slotMap, link);
-	  int robId = theROB(crate, slotMap, link);
+	  int rosId = theROS(slotMap, link);
+	  int robId = theROB(slotMap, link);
 
 
 	  DTROChainCoding channelIndex(dduId, rosId, robId, tdcId, tdcChannel);
@@ -433,7 +433,7 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 
 int DTuROSRawToDigi::theDDU(int crate, int slot, int link, bool tenDDU) {
 
-  int ros = theROS(crate,slot,link); 
+  int ros = theROS(slot,link); 
   
   int ddu = 772;
 
@@ -462,7 +462,7 @@ int DTuROSRawToDigi::theDDU(int crate, int slot, int link, bool tenDDU) {
 }
 
 
-int DTuROSRawToDigi::theROS(int crate, int slot, int link) {
+int DTuROSRawToDigi::theROS(int slot, int link) {
 
   if (slot%6 == 5) return link+1;
 
@@ -471,7 +471,7 @@ int DTuROSRawToDigi::theROS(int crate, int slot, int link) {
 }
 
 
-int DTuROSRawToDigi::theROB(int crate, int slot, int link) {
+int DTuROSRawToDigi::theROB(int slot, int link) {
 
   if (slot%6 == 5) return 23;
  

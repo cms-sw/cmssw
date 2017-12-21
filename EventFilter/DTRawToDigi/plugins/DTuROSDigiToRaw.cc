@@ -13,7 +13,6 @@
 //--------------------------------------------------
 
 #include "EventFilter/DTRawToDigi/plugins/DTuROSDigiToRaw.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
@@ -319,10 +318,10 @@ int DTuROSDigiToRaw::theCRT(int ddu, int ros) {
 
   if (ros > 6 && ddu > 774) ddu = ddu - 5;
   
-  if (ddu == 770) return 1369;
-  else if (ddu == 771) return 1369;
-  else if (ddu == 772) return 1370;
-  return 1371;
+  if (ddu == 770) return FEDNumbering::MINDTUROSFEDID;
+  else if (ddu == 771) return FEDNumbering::MINDTUROSFEDID;
+  else if (ddu == 772) return FEDNumbering::MINDTUROSFEDID+1;
+  return FEDNumbering::MAXDTUROSFEDID;
 }
 
 

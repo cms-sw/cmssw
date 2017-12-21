@@ -198,8 +198,8 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const int fedM
 void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder, const int fed){
 
   string wheel = "ZERO";
-  if (fed ==FEDIDMIN) wheel="NEG";
-  else if(fed==FEDIDMAX) wheel="POS";
+  if (fed ==FEDIDmin) wheel="NEG";
+  else if(fed==FEDIDmax) wheel="POS";
   string fed_s = to_string(fed);
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     << " Booking histos for FED: " << fed_s
