@@ -50,6 +50,7 @@ public:
   void setLUTGenerationMode(bool gen){ LUTGenerationMode_ = gen; };
   void setFGHFthreshold(unsigned int fgthreshold){ FG_HF_threshold_ = fgthreshold; };
   void setMaskBit(int bit){ bitToMask_ = bit; };
+  void setAllLinear(bool linear, double lsb8, double lsb11, double lsb11overlap) { allLinear_ = linear; linearLSB_QIE8_ = lsb8; linearLSB_QIE11_ = lsb11; linearLSB_QIE11Overlap_ = lsb11overlap; };
   void lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb) const;
   void lookupMSB(const QIE10DataFrame& df, std::vector<bool>& msb) const;
   void lookupMSB(const QIE11DataFrame& df, std::vector<std::bitset<2>>& msb) const;
@@ -88,6 +89,8 @@ private:
   std::vector< Lut > inputLUT_;
   std::vector<float> gain_;
   std::vector<float> ped_;
+  bool allLinear_;
+  double linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_;
 };
 
 #endif
