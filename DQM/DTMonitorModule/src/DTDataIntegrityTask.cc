@@ -90,7 +90,7 @@ DTDataIntegrityTask::~DTDataIntegrityTask() {
   with the chosen granularity (simply change the histo name)
  
   uROS (starting 2018):
-  - 3 uROS Summary plots: WheelNEG (FED1368), Wheel0 (FED1369), WheelPOS (FED1370)
+  - 3 uROS Summary plots: WheelNEG (FED1369), Wheel0 (FED1370), WheelPOS (FED1371)
   - One folder for each FED
   - Inside each FED folder the uROSStatus histos, FED histos and the uROSn folders
   = Inside each uROS folder the TDC and uROS errors histos, 12 Links/plot
@@ -198,8 +198,8 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const int fedM
 void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder, const int fed){
 
   string wheel = "ZERO";
-  if (fed ==1368) wheel="NEG";
-  else if(fed==1370) wheel="POS";
+  if (fed ==1369) wheel="NEG";
+  else if(fed==1371) wheel="POS";
   string fed_s = to_string(fed);
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     << " Booking histos for FED: " << fed_s
