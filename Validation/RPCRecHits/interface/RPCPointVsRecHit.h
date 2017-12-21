@@ -20,7 +20,7 @@ class RPCPointVsRecHit : public DQMEDAnalyzer
 {
 public:
   RPCPointVsRecHit(const edm::ParameterSet& pset);
-  ~RPCPointVsRecHit() {};
+  ~RPCPointVsRecHit() override {};
 
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

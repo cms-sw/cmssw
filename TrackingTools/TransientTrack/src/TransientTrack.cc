@@ -46,6 +46,11 @@ TransientTrack::TransientTrack( const CandidatePtr & tk , const MagneticField* f
 				const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   Base( new CTT(tk, field, tg)) {}
 
+TransientTrack::TransientTrack( const CandidatePtr & tk, const double time, 
+				const double dtime, 
+				const MagneticField* field,  
+				const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  Base( new CTT(tk, time, dtime, field, tg) ) {}
 
 // TransientTrack::TransientTrack( const TransientTrack & tt ) :
 //   Base( new TTT(tt)) {}

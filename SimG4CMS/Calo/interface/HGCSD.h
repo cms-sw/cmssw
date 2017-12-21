@@ -27,12 +27,12 @@ class HGCSD : public CaloSD, public Observer<const BeginOfJob *> {
 
 public:    
 
-  HGCSD(G4String , const DDCompactView &, const SensitiveDetectorCatalog &,
+  HGCSD(const std::string& , const DDCompactView &, const SensitiveDetectorCatalog &,
 	edm::ParameterSet const &, const SimTrackManager*);
   ~HGCSD() override;
   bool                    ProcessHits(G4Step * , G4TouchableHistory * ) override;
   double                  getEnergyDeposit(G4Step* ) override;
-  uint32_t                setDetUnitId(G4Step* step) override;
+  uint32_t                setDetUnitId(const G4Step* step) override;
 
 protected:
 
@@ -44,8 +44,8 @@ private:
 
   uint32_t                        setDetUnitId(ForwardSubdetector&, int, int, 
 					       int, int, G4ThreeVector &);
-  bool                            isItinFidVolume (G4ThreeVector&) {return true;}
-  int                             setTrackID(G4Step * step);
+  bool                            isItinFidVolume (const G4ThreeVector&) {return true;}
+  int                             setTrackID(const G4Step * step);
 
   std::string                     nameX;
 

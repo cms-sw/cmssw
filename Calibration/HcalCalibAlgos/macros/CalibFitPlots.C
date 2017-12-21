@@ -175,7 +175,7 @@ TFitResultPtr functionFit(TH1D *hist, double *fitrange, double *startvalues,
   TF1 *ffitold = (TF1*)gROOT->GetListOfFunctions()->FindObject(FunName);
   if (ffitold) delete ffitold;
 
-  int npar=6;
+  int npar(6);
   TF1 *ffit = new TF1(FunName,doubleGauss,fitrange[0],fitrange[1],npar);
   ffit->SetParameters(startvalues);
   ffit->SetLineColor(kBlue);
@@ -187,8 +187,8 @@ TFitResultPtr functionFit(TH1D *hist, double *fitrange, double *startvalues,
 }
 
 std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
-  double mean = hist->GetMean(), rms = hist->GetRMS();
-  double LowEdge = mean - 1.0*rms;
+  double mean  = hist->GetMean(), rms = hist->GetRMS();
+  double LowEdge  = mean - 1.0*rms;
   double HighEdge = mean + 1.0*rms;
   if (LowEdge < 0.15) LowEdge = 0.15;
   std::string option = (hist->GetEntries() > 100) ? "QRS" : "QRWLS";
@@ -233,8 +233,8 @@ std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
 std::pair<double,double> fitOneGauss (TH1D* hist, bool debug) {
   double mean     = hist->GetMean();
   double rms      = hist->GetRMS();
-  double LowEdge  = ((mean-1.8*rms)<0.15) ? 0.15 : (mean-1.8*rms);
-  double HighEdge = (hist->GetEntries()>25) ? (mean+1.8*rms) : (mean+1.5*rms);
+  double LowEdge  = ((mean-1.4*rms)<0.15) ? 0.15 : (mean-1.4*rms);
+  double HighEdge = (hist->GetEntries()>25) ? (mean+1.4*rms) : (mean+1.2*rms);
   std::string option = (hist->GetEntries()>100) ? "QRS" : "QRWLS";
   TFitResultPtr Fit = hist->Fit("gaus",option.c_str(),"",LowEdge,HighEdge);
   double value = Fit->Value(1);
@@ -365,7 +365,7 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
 	    if (debug) std::cout << "Fit to Pol0: " << Fit->Value(0) << " +- "
 				 << Fit->FitResult::Error(0) << std::endl;
 	    histo->GetXaxis()->SetTitle(xname[m1].c_str());
-	    histo->GetYaxis()->SetTitle("<E_{HCAL}/(p-E_{ECAL})>");
+	    histo->GetYaxis()->SetTitle("MPV(E_{HCAL}/(p-E_{ECAL}))");
 	    histo->GetYaxis()->SetRangeUser(0.4,1.6);
 	  }
 	  hists.push_back(histo);
@@ -485,7 +485,7 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 			       << nv1 << ":" << xbins[nv1] << ":" << nv2 << ":" 
 			       << xbins[nv2] << std::endl;
 	  histo->GetXaxis()->SetTitle("i#eta");
-	  histo->GetYaxis()->SetTitle("<E_{HCAL}/(p-E_{ECAL})>");
+	  histo->GetYaxis()->SetTitle("MPV(E_{HCAL}/(p-E_{ECAL}))");
 	  histo->GetYaxis()->SetRangeUser(0.4,1.6);
 	}
 	hists.push_back(histo);
@@ -579,7 +579,7 @@ void FitHistRBX(const char* infile, const char* outfile,std::string prefix,
       histo->SetBinError(j+1, error);
     }
     histo->GetXaxis()->SetTitle("RBX #");
-    histo->GetYaxis()->SetTitle("<E_{HCAL}/(p-E_{ECAL})>");
+    histo->GetYaxis()->SetTitle("MPV(E_{HCAL}/(p-E_{ECAL}))");
     histo->GetYaxis()->SetRangeUser(0.75,1.20);
     hists.push_back(histo);
  
@@ -622,9 +622,9 @@ void PlotHist(const char* infile, std::string prefix, std::string text,
 			   "Tracks with p = 40:60 GeV (Endcap)"};
   std::string xtitl[5] = {"E_{HCAL}/(p-E_{ECAL})","i#eta","d_{L1}","# Vertex",
 			  "E_{HCAL}/(p-E_{ECAL})"};
-  std::string ytitl[5] = {"Tracks","<E_{HCAL}/(p-E_{ECAL})>",
-			  "<E_{HCAL}/(p-E_{ECAL})>","<E_{HCAL}/(p-E_{ECAL})>",
-			  "Tracks"};
+  std::string ytitl[5] = {"Tracks","MPV(E_{HCAL}/(p-E_{ECAL}))",
+			  "MPV(E_{HCAL}/(p-E_{ECAL}))",
+			  "MPV(E_{HCAL}/(p-E_{ECAL}))","Tracks"};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
@@ -730,7 +730,7 @@ void PlotHists(std::string infile, std::string prefix, std::string text,
   std::string types[6] = {"B", "C", "D", "E", "F", "G"};
   std::string names[2] = {"ratio20", "Z2"};
   std::string xtitl[2] = {"E_{HCAL}/(p-E_{ECAL})","i#eta"};
-  std::string ytitl[2] = {"Tracks","<E_{HCAL}/(p-E_{ECAL})>"};
+  std::string ytitl[2] = {"Tracks","MPV(E_{HCAL}/(p-E_{ECAL}))"};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
@@ -837,10 +837,10 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
   int         numb[2]   = {3,1};
   std::string names1[3] = {"ratio20", "ratio20One", "Z2"};
   std::string xtitl1[3] = {"E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})","i#eta"};
-  std::string ytitl1[3] = {"Tracks","Tracks","<E_{HCAL}/(p-E_{ECAL})>"};
+  std::string ytitl1[3] = {"Tracks","Tracks","MPV(E_{HCAL}/(p-E_{ECAL}))"};
   std::string names2[1] = {"R2"};
   std::string xtitl2[1] = {"RBX #"};
-  std::string ytitl2[1] = {"<E_{HCAL}/(p-E_{ECAL})>"};
+  std::string ytitl2[1] = {"MPV(E_{HCAL}/(p-E_{ECAL}))"};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);

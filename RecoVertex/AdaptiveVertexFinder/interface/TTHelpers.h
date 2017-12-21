@@ -1,6 +1,8 @@
 #ifndef TTHelper_s
 #define TTHelper_s
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 

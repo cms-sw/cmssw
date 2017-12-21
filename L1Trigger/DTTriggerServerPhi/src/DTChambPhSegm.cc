@@ -73,7 +73,7 @@ DTChambPhSegm::operator=(const DTChambPhSegm& seg){
 
 void 
 DTChambPhSegm::clear() { 
-  m_tracotrig = 0;
+  m_tracotrig = nullptr;
   m_isFirst = 0;
 }
 

@@ -30,13 +30,13 @@ class SimHitsValidationHcal: public DQMEDAnalyzer {
 public:
 
   SimHitsValidationHcal(const edm::ParameterSet& ps);
-  ~SimHitsValidationHcal();
+  ~SimHitsValidationHcal() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 protected:
 
-  void analyze  (const edm::Event& e, const edm::EventSetup& c);
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void analyze  (const edm::Event& e, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   void analyzeHits  (std::vector<PCaloHit> &);
 

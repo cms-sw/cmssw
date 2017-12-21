@@ -8,9 +8,9 @@ class HadronDecayGenEvtSelector : public BaseHiGenEvtSelector
 {
  public:
   HadronDecayGenEvtSelector(const edm::ParameterSet& pset);
-  virtual ~HadronDecayGenEvtSelector(){;}
+  ~HadronDecayGenEvtSelector() override{;}
   
-  bool filter(HepMC::GenEvent *);
+  bool filter(HepMC::GenEvent *) override;
   bool selectParticle(HepMC::GenParticle* par, int status, int pdg /*Absolute*/, double etaMax, double etaMin, double pMin, double ptMax, double ptMin){
     return (par->status() == status &&
 	    abs(par->pdg_id()) == pdg &&

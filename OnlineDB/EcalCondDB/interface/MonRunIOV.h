@@ -16,7 +16,7 @@ class MonRunIOV : public IIOV {
   friend class EcalCondDBInterface;
 
   MonRunIOV();
-  ~MonRunIOV();
+  ~MonRunIOV() override;
 
   void setID(int id);
   int getID(){ return m_ID;} ;
@@ -34,8 +34,8 @@ class MonRunIOV : public IIOV {
   Tm getSubRunEnd() const;
 
   // Methods from IUniqueDBObject
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   // Operators
   inline bool operator==(const MonRunIOV &m) const

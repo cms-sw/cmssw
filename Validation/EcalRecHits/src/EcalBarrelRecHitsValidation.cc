@@ -24,24 +24,24 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
     
   // ----------------------   
-  meEBUncalibRecHitsOccupancy_             = 0;
-  meEBUncalibRecHitsAmplitude_             = 0;
-  meEBUncalibRecHitsPedestal_              = 0;
-  meEBUncalibRecHitsJitter_                = 0;
-  meEBUncalibRecHitsChi2_                  = 0;
-  meEBUncalibRecHitMaxSampleRatio_         = 0;
-  meEBUncalibRecHitsOccupancyGt100adc_     = 0;
-  meEBUncalibRecHitsAmplitudeGt100adc_     = 0;
-  meEBUncalibRecHitsPedestalGt100adc_      = 0;
-  meEBUncalibRecHitsJitterGt100adc_        = 0;
-  meEBUncalibRecHitsChi2Gt100adc_          = 0;
-  meEBUncalibRecHitMaxSampleRatioGt100adc_ = 0;
-  meEBUncalibRecHitsAmpFullMap_            = 0;
-  meEBUncalibRecHitsPedFullMap_            = 0;
+  meEBUncalibRecHitsOccupancy_             = nullptr;
+  meEBUncalibRecHitsAmplitude_             = nullptr;
+  meEBUncalibRecHitsPedestal_              = nullptr;
+  meEBUncalibRecHitsJitter_                = nullptr;
+  meEBUncalibRecHitsChi2_                  = nullptr;
+  meEBUncalibRecHitMaxSampleRatio_         = nullptr;
+  meEBUncalibRecHitsOccupancyGt100adc_     = nullptr;
+  meEBUncalibRecHitsAmplitudeGt100adc_     = nullptr;
+  meEBUncalibRecHitsPedestalGt100adc_      = nullptr;
+  meEBUncalibRecHitsJitterGt100adc_        = nullptr;
+  meEBUncalibRecHitsChi2Gt100adc_          = nullptr;
+  meEBUncalibRecHitMaxSampleRatioGt100adc_ = nullptr;
+  meEBUncalibRecHitsAmpFullMap_            = nullptr;
+  meEBUncalibRecHitsPedFullMap_            = nullptr;
   for (int i=0; i<36 ; i++) 
     {
-      meEBUncalibRecHitAmplMap_[i] = 0;
-      meEBUncalibRecHitPedMap_[i]  = 0;
+      meEBUncalibRecHitAmplMap_[i] = nullptr;
+      meEBUncalibRecHitPedMap_[i]  = nullptr;
     }
 }
 
@@ -109,7 +109,7 @@ void EcalBarrelRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm
 void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   
-  const EBUncalibratedRecHitCollection *EBUncalibRecHit = 0;
+  const EBUncalibratedRecHitCollection *EBUncalibRecHit = nullptr;
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
   e.getByToken( EBuncalibrechitCollection_token_, EcalUncalibRecHitEB);
   if (EcalUncalibRecHitEB.isValid()) {
@@ -119,7 +119,7 @@ void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   }
 
   bool skipDigis = false;
-  const EBDigiCollection *EBDigi = 0;
+  const EBDigiCollection *EBDigi = nullptr;
   Handle< EBDigiCollection > EcalDigiEB;
   e.getByToken( EBdigiCollection_token_, EcalDigiEB);
   if (EcalDigiEB.isValid()) {

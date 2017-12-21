@@ -69,14 +69,14 @@ class RPCTechnicalTrigger : public edm::EDProducer {
 public:
 
   explicit RPCTechnicalTrigger(const edm::ParameterSet&);
-  ~RPCTechnicalTrigger();
+  ~RPCTechnicalTrigger() override;
   
 private:
   
   //virtual void beginJob() ;
-  virtual void beginRun(edm::Run const&, const edm::EventSetup&) override final;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginRun(edm::Run const&, const edm::EventSetup&) final;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   //...........................................................................
   

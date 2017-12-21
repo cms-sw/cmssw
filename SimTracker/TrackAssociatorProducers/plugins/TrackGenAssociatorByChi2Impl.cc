@@ -3,7 +3,7 @@
 
 #include "DataFormats/GeometrySurface/interface/Line.h"
 
-#include "getChi2.h"
+#include "SimTracker/TrackAssociation/interface/trackAssociationChi2.h"
 
 using namespace edm;
 using namespace reco;
@@ -15,7 +15,7 @@ double TrackGenAssociatorByChi2Impl::getChi2(const TrackBase::ParameterVector& r
                                          const Basic3DVector<double>& vert,
                                          int charge,
                                          const reco::BeamSpot& bs) const{
-  return track_associator::getChi2(rParameters, recoTrackCovMatrix,momAtVtx, vert, charge, *theMF, bs);
+  return track_associator::trackAssociationChi2(rParameters, recoTrackCovMatrix,momAtVtx, vert, charge, *theMF, bs);
 }
 
 RecoToGenCollection TrackGenAssociatorByChi2Impl::associateRecoToGen(const edm::RefToBaseVector<reco::Track>& tC, 

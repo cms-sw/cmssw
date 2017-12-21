@@ -92,7 +92,7 @@ TString RunInputHYDJETstr;
 
 // definition of the static member fLastIndex
 int Particle::fLastIndex;
-bool ev=0;
+bool ev=false;
 namespace {
   int convertStatusForComponents(int sta, int typ){
 
@@ -160,7 +160,7 @@ Hydjet2Hadronizer::Hydjet2Hadronizer(const edm::ParameterSet& pset):
 
   embedding_(pset.getParameter<bool>("embeddingMode")),
   rotate_(pset.getParameter<bool>("rotateEventPlane")),
-  evt(0),
+  evt(nullptr),
   nsub_(0),
   nhard_(0), 
   nsoft_(0),
@@ -227,7 +227,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
 
     if(fSqrtS < 2.24){
       LogError("Hydjet2Hadronizer|sqrtS") << "SqrtS<2.24 not allowed with fTMuType>0";
-      return 0;
+      return false;
     }
     
     //sqrt(s) = 2.24 ==> T_kin = 0.8 GeV
@@ -249,7 +249,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
     //if user choose fYlmax larger then allowed by kinematics at the specified beam energy sqrt(s)     
     if(fYlmax > TMath::Log(fSqrtS/0.94)){
       LogError("Hydjet2Hadronizer|Ylmax") << "fYlmax more then TMath::Log(fSqrtS vs 0.94)!!! ";
-      return 0;
+      return false;
     }
       
     if(fCorrS <= 0.) {
@@ -1060,7 +1060,7 @@ double Hydjet2Hadronizer::CharmEnhancementFactor(double Ncc, double Ndth, double
 void Hydjet2Hadronizer::rotateEvtPlane()
 {
   const double pi = 3.14159265358979;
-  phi0_ = 2.*pi*gen::pyr_(0) - pi;
+  phi0_ = 2.*pi*gen::pyr_(nullptr) - pi;
   sinphi0_ = sin(phi0_);
   cosphi0_ = cos(phi0_);
 }
@@ -1131,7 +1131,7 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt )
           prod_vertex = prods[i];
           prod_vertex->add_particle_in(mother);
           evt->add_vertex(prod_vertex);
-          prods[i]=0; // mark to protect deletion
+          prods[i]=nullptr; // mark to protect deletion
         }
 
         prod_vertex->add_particle_out(part);

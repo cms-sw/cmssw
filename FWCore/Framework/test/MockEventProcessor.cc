@@ -205,22 +205,26 @@ namespace edm {
     output_ << "\tdoErrorStuff\n";
   }
 
-  void MockEventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run) {
+  void MockEventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalTransitionSucceeded) {
     output_ << "\tbeginRun " << run << "\n";
     throwIfNeeded();
+    globalTransitionSucceeded = true;
   }
 
-  void MockEventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool /*cleaningUpAfterException*/ ) {
-    output_ << "\tendRun " << run << "\n";
+  void MockEventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTransitionSucceeded, bool /*cleaningUpAfterException*/ ) {
+    auto postfix = globalTransitionSucceeded? "\n" : " global failed\n";
+    output_ << "\tendRun " << run << postfix;
   }
 
-  void MockEventProcessor::beginLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi) {
+  void MockEventProcessor::beginLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi, bool& globalTransitionSucceeded) {
     output_ << "\tbeginLumi " << run << "/" << lumi << "\n";
     throwIfNeeded();
+    globalTransitionSucceeded = true;
   }
 
-  void MockEventProcessor::endLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi, bool /*cleaningUpAfterException*/) {
-    output_ << "\tendLumi " << run << "/" << lumi << "\n";
+  void MockEventProcessor::endLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi, bool globalTransitionSucceeded , bool /*cleaningUpAfterException*/) {
+    auto postfix = globalTransitionSucceeded? "\n" : " global failed\n";
+    output_ << "\tendLumi " << run << "/" << lumi << postfix;
   }
 
   std::pair<ProcessHistoryID,RunNumber_t> MockEventProcessor::readRun() {

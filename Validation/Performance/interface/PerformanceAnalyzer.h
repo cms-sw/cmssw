@@ -14,9 +14,9 @@ class PerformanceAnalyzer : public DQMEDAnalyzer
 
 public:
   explicit PerformanceAnalyzer(const edm::ParameterSet&);
-  ~PerformanceAnalyzer();
+  ~PerformanceAnalyzer() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::EDGetTokenT<edm::EventTime> eventTime_Token_;

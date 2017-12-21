@@ -164,7 +164,7 @@ void TrackMerger::addSecondTrackHits(std::vector<const TrackingRecHit *>& hits,
             }
             if (hit2->isValid() && !valid) { 
                 PRINT << "        replacing old invalid hit on detid " << id2() << std::endl;
-                hit2 = hit; shared = true; break; 
+                hit = hit2; shared = true; break; 
             }
             PRINT << "        discared as additional hit on layer that already contains hit with detid " << id() << std::endl;
             shared = true; break;

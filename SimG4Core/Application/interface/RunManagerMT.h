@@ -13,10 +13,6 @@
 
 #include <memory>
 
-namespace CLHEP {
-  class HepJamesRandom;
-}
-
 namespace sim {
   class ChordFinderSetter;
 }

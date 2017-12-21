@@ -19,13 +19,13 @@ public:
   /// Standard constructor
   TTUSectorORLogic( ); 
 
-  virtual ~TTUSectorORLogic( ); ///< Destructor
+  ~TTUSectorORLogic( ) override; ///< Destructor
 
   //... from TTULogic interface:
   
-  bool process( const TTUInput & );
+  bool process( const TTUInput & ) override;
   
-  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
+  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & ) override;
 
   //...
       

@@ -49,11 +49,11 @@
 class TauSpinnerCMS : public edm::one::EDProducer<edm::one::SharedResources>{
 public:
   explicit TauSpinnerCMS( const edm::ParameterSet& ) ;
-  virtual ~TauSpinnerCMS(){}; // no need to delete ROOT stuff
+  ~TauSpinnerCMS() override{}; // no need to delete ROOT stuff
 
-  virtual void produce( edm::Event&, const edm::EventSetup&) override final;
-  virtual void beginJob() override final;
-  virtual void endJob() override final;
+  void produce( edm::Event&, const edm::EventSetup&) final;
+  void beginJob() final;
+  void endJob() final;
   static double flat();
   void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
   virtual void initialize();

@@ -4,7 +4,7 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 process = cms.Process("StudyHLT")
 
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
-process.load("Calibration.IsolatedParticles.studyHLT_cfi")
+process.load("Calibration.IsolatedParticles.StudyHLT_cfi")
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')

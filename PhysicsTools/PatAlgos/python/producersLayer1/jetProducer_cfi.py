@@ -54,12 +54,6 @@ _patJets = cms.EDProducer("PATJetProducer",
         cms.InputTag('pfDeepCSVJetTags:probc'),
         cms.InputTag('pfDeepCSVJetTags:probudsg'),
         cms.InputTag('pfDeepCSVJetTags:probbb'),
-        # DeepCMVA
-        # cms.InputTag('pfDeepCMVAJetTags:probb'),
-        # cms.InputTag('pfDeepCMVAJetTags:probc'),
-        # cms.InputTag('pfDeepCMVAJetTags:probudsg'),
-        # cms.InputTag('pfDeepCMVAJetTags:probbb'),
-        # cms.InputTag('pfDeepCMVAJetTags:probcc'),
     ),
     # clone tag infos ATTENTION: these take lots of space!
     # usually the discriminators from the default algos

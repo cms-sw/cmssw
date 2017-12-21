@@ -38,8 +38,8 @@ LMFCorrCoefDat::~LMFCorrCoefDat() {
 void LMFCorrCoefDat::init() {
   m_data.clear();
   m_subiov.clear();
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   nodebug();
 }
 
@@ -101,7 +101,7 @@ LMFCorrCoefDatComponent* LMFCorrCoefDat::find(const LMFLmrSubIOV &iov) {
   } else {
     LMFCorrCoefDatComponent *c = new LMFCorrCoefDatComponent();
     LMFLmrSubIOV *subiov = new LMFLmrSubIOV();
-    if (m_conn != NULL) {
+    if (m_conn != nullptr) {
       c->setConnection(m_env, m_conn);
       subiov->setConnection(m_env, m_conn);
     }
@@ -154,7 +154,7 @@ void LMFCorrCoefDat::nodebug() {
 
 RunIOV LMFCorrCoefDat::fetchLastInsertedRun() {
   RunIOV iov;
-  if (m_conn == NULL) {
+  if (m_conn == nullptr) {
     throw std::runtime_error("[LMFCorrCoefDat::fetchLastInsertedRun] ERROR:  "
                              "Connection not set");
   }
@@ -367,7 +367,7 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
   // 
   // For fixed-time IOV's sequence ID's are always 0. In that case
   // use the LMR_SUB_IOV_ID as a key
-  if (m_conn == NULL) {
+  if (m_conn == nullptr) {
     throw std::runtime_error("[LMFCorrCoefDat::getCorrections] ERROR:  "
 			     "Connection not set");
   }
@@ -471,7 +471,7 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
 	}
 	theMap[logic_id] = s;
 	// verify that the sequence of time is correct
-	if (ret.size() > 0) {
+	if (!ret.empty()) {
 	  checkTriplets(logic_id, s, ret[previousSeqId]); 
 	}
 	c++;

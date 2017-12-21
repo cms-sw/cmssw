@@ -14,13 +14,13 @@ class PFJetFilter: public edm::EDFilter {
  public:
 
   explicit PFJetFilter(const edm::ParameterSet&);
-  ~PFJetFilter();
+  ~PFJetFilter() override;
 
  private:
 
-  virtual void beginJob() ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   double resolution(double, bool);
   double response(double, bool);

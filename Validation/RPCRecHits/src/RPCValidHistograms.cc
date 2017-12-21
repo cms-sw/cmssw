@@ -169,22 +169,22 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
   pull_station_pull->getTH2F()->SetContour(10);
   pull_ring_pull   ->getTH2F()->SetContour(10);
  
-  refHitOccupancyBarrel_wheel_station->getTH2F()->SetStats(0);
-  refHitOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(0);
-  recHitOccupancyBarrel_wheel_station->getTH2F()->SetStats(0);
-  recHitOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(0);
-  matchOccupancyBarrel_wheel_station ->getTH2F()->SetStats(0);
-  matchOccupancyEndcap_disk_ring     ->getTH2F()->SetStats(0);
+  refHitOccupancyBarrel_wheel_station->getTH2F()->SetStats(false);
+  refHitOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(false);
+  recHitOccupancyBarrel_wheel_station->getTH2F()->SetStats(false);
+  recHitOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(false);
+  matchOccupancyBarrel_wheel_station ->getTH2F()->SetStats(false);
+  matchOccupancyEndcap_disk_ring     ->getTH2F()->SetStats(false);
 
-  res_wheel_res  ->getTH2F()->SetStats(0);
-  res_disk_res   ->getTH2F()->SetStats(0);
-  res_station_res->getTH2F()->SetStats(0);
-  res_ring_res   ->getTH2F()->SetStats(0);
+  res_wheel_res  ->getTH2F()->SetStats(false);
+  res_disk_res   ->getTH2F()->SetStats(false);
+  res_station_res->getTH2F()->SetStats(false);
+  res_ring_res   ->getTH2F()->SetStats(false);
 
-  pull_wheel_pull  ->getTH2F()->SetStats(0);
-  pull_disk_pull   ->getTH2F()->SetStats(0);
-  pull_station_pull->getTH2F()->SetStats(0);
-  pull_ring_pull   ->getTH2F()->SetStats(0);
+  pull_wheel_pull  ->getTH2F()->SetStats(false);
+  pull_disk_pull   ->getTH2F()->SetStats(false);
+  pull_station_pull->getTH2F()->SetStats(false);
+  pull_ring_pull   ->getTH2F()->SetStats(false);
  
   // Set bin labels
   for ( int i=1; i<=5; ++i )

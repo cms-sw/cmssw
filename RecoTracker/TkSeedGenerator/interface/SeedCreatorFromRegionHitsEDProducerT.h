@@ -1,6 +1,7 @@
 #ifndef RecoTracker_TkSeedGenerator_SeedCreatorFromRegionHitsEDProducerT_H
 #define RecoTracker_TkSeedGenerator_SeedCreatorFromRegionHitsEDProducerT_H
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

@@ -198,7 +198,7 @@ namespace edm {
 
     size_type key = 0;
     for(const_iterator i=begin(), e=end(); i!=e; ++i, ++key) {
-      member_type const* address = i->isNull() ? 0 : &**i;
+      member_type const* address = i->isNull() ? nullptr : &**i;
       pointers.push_back(address);
       helpers.emplace_back(i->id(),i->key());
     }

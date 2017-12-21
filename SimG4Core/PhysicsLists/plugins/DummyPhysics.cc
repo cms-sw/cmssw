@@ -1,4 +1,4 @@
-#include "DummyPhysics.hh"
+#include "DummyPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/DummyEMPhysics.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -30,9 +30,9 @@
 class XtoFFbarFilter : public edm::EDFilter {
 public:
   XtoFFbarFilter(const edm::ParameterSet&);
-  ~XtoFFbarFilter() {}
+  ~XtoFFbarFilter() override {}
   
-  virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   
 private:
   
@@ -46,7 +46,7 @@ private:
                      const std::vector<int>& idMotherX,
 		     const std::vector<int>& idDaughterF);
 
-  virtual void endJob();
+  void endJob() override;
 
 private:
 

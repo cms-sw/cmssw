@@ -20,11 +20,11 @@ class PFTester: public edm::EDAnalyzer {
 public:
 
   explicit PFTester(const edm::ParameterSet&);
-  virtual ~PFTester();
+  ~PFTester() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override ;
+  void endJob() override ;
 
  private:
 

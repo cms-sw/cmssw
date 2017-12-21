@@ -6,7 +6,7 @@
 #ifndef USE_WINDOWS_FILE
 
 #ifndef UNDER_CE
-#include <errno.h>
+#include <cerrno>
 #endif
 
 #else
@@ -30,7 +30,7 @@ void File_Construct(CSzFile *p)
   #ifdef USE_WINDOWS_FILE
   p->handle = INVALID_HANDLE_VALUE;
   #else
-  p->file = NULL;
+  p->file = nullptr;
   #endif
 }
 
@@ -46,7 +46,7 @@ static WRes File_Open(CSzFile *p, const char *name, int writeMode)
   return (p->handle != INVALID_HANDLE_VALUE) ? 0 : GetLastError();
   #else
   p->file = fopen(name, writeMode ? "wb+" : "rb");
-  return (p->file != 0) ? 0 :
+  return (p->file != nullptr) ? 0 :
     #ifdef UNDER_CE
     2; /* ENOENT */
     #else
@@ -83,12 +83,12 @@ WRes File_Close(CSzFile *p)
     p->handle = INVALID_HANDLE_VALUE;
   }
   #else
-  if (p->file != NULL)
+  if (p->file != nullptr)
   {
     int res = fclose(p->file);
     if (res != 0)
       return res;
-    p->file = NULL;
+    p->file = nullptr;
   }
   #endif
   return 0;

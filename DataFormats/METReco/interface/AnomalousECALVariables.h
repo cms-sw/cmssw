@@ -94,7 +94,7 @@ class AnomalousECALVariables {
                }
             }
 
-            if (passChannelLimitation || limitDeadCellToChannelStatusEB.size() == 0) {
+            if (passChannelLimitation || limitDeadCellToChannelStatusEB.empty()) {
 
                if (bInfo.boundaryEnergy > highestEnergyDepositAroundDeadCell) {
                   highestEnergyDepositAroundDeadCell = bInfo.boundaryET;
@@ -122,7 +122,7 @@ class AnomalousECALVariables {
                }
             }
 
-            if (passChannelLimitation || limitDeadCellToChannelStatusEE.size() == 0) {
+            if (passChannelLimitation || limitDeadCellToChannelStatusEE.empty()) {
 
                if (bInfo.boundaryEnergy > highestEnergyDepositAroundDeadCell){
                   highestEnergyDepositAroundDeadCell = bInfo.boundaryET;

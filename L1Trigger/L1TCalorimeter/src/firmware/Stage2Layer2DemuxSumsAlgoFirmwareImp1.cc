@@ -34,7 +34,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   unsigned int mbp0(0), mbm0(0), mbp1(0), mbm1(0);
   unsigned int ntow(0);
 
-  bool metSat(0), metHFSat(0), mhtSat(0), mhtHFSat(0);
+  bool metSat(false), metHFSat(false), mhtSat(false), mhtHFSat(false);
 
   // Add up the x, y and scalar components
   for (auto&& eSum : inputSums)

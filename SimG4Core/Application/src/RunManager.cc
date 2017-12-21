@@ -11,6 +11,8 @@
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
 #include "SimG4Core/Application/interface/G4RegionReporter.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
+#include "SimG4Core/Application/interface/ExceptionHandler.h"
+
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
@@ -141,6 +143,11 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
 {    
   m_UIsession.reset(new CustomUIsession());
   m_kernel = new G4RunManagerKernel();
+  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
+
+  m_physicsList.reset(nullptr);
+  m_prodCuts.reset(nullptr);
+  m_attach = nullptr;
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");

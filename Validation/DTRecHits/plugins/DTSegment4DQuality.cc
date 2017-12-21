@@ -71,7 +71,7 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
 void DTSegment4DQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
 
   // get hold of back-end interface 
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = Service<DQMStore>().operator->();
   if ( dbe_ ) {
     if (debug) {
@@ -252,7 +252,7 @@ void DTSegment4DQuality::endJob() {
         // RecHits must have delta alpha and delta position within 5 sigma of
         // the residual distribution (we are looking for residuals of segments
         // usefull to the track fit) for efficency purpose
-        const DTRecSegment4D* bestRecHit = 0;
+        const DTRecSegment4D* bestRecHit = nullptr;
         double deltaAlpha = 99999;
         double deltaBeta  = 99999;
 
@@ -279,7 +279,7 @@ void DTSegment4DQuality::endJob() {
 		 << "             position : " << (*segment4D).localPosition() << endl
 		 << "             alpha    : " << recSegAlpha << endl
 		 << "             beta     : " << recSegBeta << endl
-		 << "             nhits    : " << (*segment4D).phiSegment()->recHits().size() << " " << (((*segment4D).zSegment()!=0)?(*segment4D).zSegment()->recHits().size():0)
+		 << "             nhits    : " << (*segment4D).phiSegment()->recHits().size() << " " << (((*segment4D).zSegment()!=nullptr)?(*segment4D).zSegment()->recHits().size():0)
 		 << endl;
 
 
@@ -396,7 +396,7 @@ void DTSegment4DQuality::endJob() {
 	  }
 	  
           // Fill Residual histos
-          HRes4DHit *histo=0;
+          HRes4DHit *histo=nullptr;
 
           if(wheel == 0)
             histo = h4DHit_W0;
@@ -484,7 +484,7 @@ void DTSegment4DQuality::endJob() {
 
       // Fill Efficiency plot
       if(doall){
-	HEff4DHit *heff = 0;
+	HEff4DHit *heff = nullptr;
 	
 	if(wheel == 0)
 	  heff = hEff_W0;

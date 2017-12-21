@@ -34,12 +34,12 @@ namespace edm {
 class PythiaFilterEMJetHeep : public edm::EDFilter {
    public:
       explicit PythiaFilterEMJetHeep(const edm::ParameterSet&);
-      ~PythiaFilterEMJetHeep();
+      ~PythiaFilterEMJetHeep() override;
 
       double deltaR(double eta0, double phi0, double eta, double phi);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void beginJob();
-      virtual void endJob();
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override;
+      void endJob() override;
 
 
    private:

@@ -48,17 +48,17 @@ METTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
 void METTesterPostProcessor::FillMETRes(std::string metdir, DQMStore::IGetter & iget)
 {
 
-  mMETDifference_GenMETTrue_MET0to20=0;
-  mMETDifference_GenMETTrue_MET20to40=0;
-  mMETDifference_GenMETTrue_MET40to60=0;
-  mMETDifference_GenMETTrue_MET60to80=0;
-  mMETDifference_GenMETTrue_MET80to100=0;
-  mMETDifference_GenMETTrue_MET100to150=0;
-  mMETDifference_GenMETTrue_MET150to200=0;
-  mMETDifference_GenMETTrue_MET200to300=0;
-  mMETDifference_GenMETTrue_MET300to400=0;
-  mMETDifference_GenMETTrue_MET400to500=0;
-  mMETDifference_GenMETTrue_MET500=0;
+  mMETDifference_GenMETTrue_MET0to20=nullptr;
+  mMETDifference_GenMETTrue_MET20to40=nullptr;
+  mMETDifference_GenMETTrue_MET40to60=nullptr;
+  mMETDifference_GenMETTrue_MET60to80=nullptr;
+  mMETDifference_GenMETTrue_MET80to100=nullptr;
+  mMETDifference_GenMETTrue_MET100to150=nullptr;
+  mMETDifference_GenMETTrue_MET150to200=nullptr;
+  mMETDifference_GenMETTrue_MET200to300=nullptr;
+  mMETDifference_GenMETTrue_MET300to400=nullptr;
+  mMETDifference_GenMETTrue_MET400to500=nullptr;
+  mMETDifference_GenMETTrue_MET500=nullptr;
 
   mMETDifference_GenMETTrue_MET0to20 = iget.get(metdir+"/METResolution_GenMETTrue_MET0to20");
   mMETDifference_GenMETTrue_MET20to40 = iget.get(metdir+"/METResolution_GenMETTrue_MET20to40");

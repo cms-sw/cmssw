@@ -37,10 +37,10 @@
 class BasicGenParticleValidation : public DQMEDAnalyzer{
     public:
 	explicit BasicGenParticleValidation(const edm::ParameterSet&);
-	virtual ~BasicGenParticleValidation();
+	~BasicGenParticleValidation() override;
 
-	virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-	virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+	void analyze(const edm::Event&, const edm::EventSetup&) override;
+	void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
 
     bool matchParticles(const HepMC::GenParticle*&, const reco::GenParticle*&); 
 

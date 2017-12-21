@@ -88,27 +88,6 @@ class TrackAssociatorByChi2Impl : public reco::TrackToTrackingParticleAssociator
   }  
 
  private:
-
-  /// propagate the track parameters of TrackinParticle from production vertex to the point of closest approach to the beam line. 
-  std::pair<bool,reco::TrackBase::ParameterVector> parametersAtClosestApproach(const Basic3DVector<double>&,// vertex
-									       const Basic3DVector<double>&,// momAtVtx
-									       float,// charge
-									       const reco::BeamSpot&) const;//beam spot
-
-  /// compare reco::TrackCollection and edm::SimTrackContainer iterators: returns the chi2
-  double compareTracksParam(reco::TrackCollection::const_iterator, 
-			    edm::SimTrackContainer::const_iterator, 
-			    const math::XYZTLorentzVectorD&, 
-			    const GlobalVector&,
-			    const reco::TrackBase::CovarianceMatrix&,
-			    const reco::BeamSpot&) const;
-
-  /// compare collections reco to sim
-  RecoToSimPairAssociation compareTracksParam(const reco::TrackCollection&, 
-					      const edm::SimTrackContainer&, 
-					      const edm::SimVertexContainer&,
-					      const reco::BeamSpot&) const;
-
   /// basic method where chi2 is computed
   double getChi2(const reco::TrackBase::ParameterVector& rParameters,
 		 const reco::TrackBase::CovarianceMatrix& recoTrackCovMatrix,
@@ -116,12 +95,6 @@ class TrackAssociatorByChi2Impl : public reco::TrackToTrackingParticleAssociator
 		 const Basic3DVector<double>& vert,
 		 int charge,
 		 const reco::BeamSpot&) const;
-
-  /// compare reco::TrackCollection and TrackingParticleCollection iterators: returns the chi2
-  double associateRecoToSim(reco::TrackCollection::const_iterator,
-			    TrackingParticleCollection::const_iterator,
-			    const reco::BeamSpot&) const;
-
 
   const MagneticField* theMF;
   const reco::BeamSpot* theBeamSpot;

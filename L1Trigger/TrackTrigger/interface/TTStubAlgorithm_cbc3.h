@@ -44,13 +44,13 @@ class TTStubAlgorithm_cbc3 : public TTStubAlgorithm< T >
     }
 
     /// Destructor
-    ~TTStubAlgorithm_cbc3(){}
+    ~TTStubAlgorithm_cbc3() override{}
 
     /// Matching operations
     void PatternHitCorrelation( bool &aConfirmation,
                                 int &aDisplacement,
                                 int &anOffset,
-                                const TTStub< T > &aTTStub ) const;
+                                const TTStub< T > &aTTStub ) const override;
 
 }; /// Close class
 
@@ -95,7 +95,7 @@ class ES_TTStubAlgorithm_cbc3 : public edm::ESProducer
     }
 
     /// Destructor
-    virtual ~ES_TTStubAlgorithm_cbc3(){}
+    ~ES_TTStubAlgorithm_cbc3() override{}
 
     /// Implement the producer
     std::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )

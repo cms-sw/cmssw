@@ -32,6 +32,31 @@ RPCtoDTTranslator::RPCtoDTTranslator(RPCDigiCollection inrpcDigis){
 
 }
 
+namespace {
+  constexpr int max_rpc_bx = 2; 
+  constexpr int min_rpc_bx = -2;
+
+  //Need to shift the index so that index 0
+  // corresponds to min_rpc_bx
+  class BxToHit {
+  public:
+    BxToHit(): m_hits{} {} //zero initializes
+
+    static bool outOfRange(int iBX) {
+      return (iBX > max_rpc_bx  or iBX < min_rpc_bx);
+    }
+
+    int& operator[](int iBX) {
+      return m_hits[iBX-min_rpc_bx];
+    }
+
+    size_t size() const { return m_hits.size(); }
+  private:
+    std::array<int,max_rpc_bx-min_rpc_bx+1> m_hits;
+  };
+}
+
+
 void RPCtoDTTranslator::run(const edm::EventSetup& c) {
 
   std::vector<L1MuDTChambPhDigi> l1ttma_out;
@@ -39,14 +64,12 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
 
   std::vector<rpc_hit> vrpc_hit_layer1, vrpc_hit_layer2, vrpc_hit_st3, vrpc_hit_st4;
 
-  int max_rpc_bx = 2; int min_rpc_bx = -2;
-
     ///Init structues
   for( auto chamber = m_rpcDigis.begin(); chamber != m_rpcDigis.end(); ++chamber ) {
      RPCDetId detid = (*chamber).first;
      for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
         if(detid.region()!=0 ) continue; //Region = 0 Barrel
-        if(digi->bx()>max_rpc_bx || digi->bx()<min_rpc_bx) continue;
+        if(BxToHit::outOfRange(digi->bx())) continue;
         if(detid.layer()==1) vrpc_hit_layer1.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
         if(detid.station()==3) vrpc_hit_st3.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
         if(detid.layer()==2) vrpc_hit_layer2.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
@@ -167,9 +190,7 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
             
            }
 ///Use ts2tag variable to store N rpchits for the same st/wheel/sec
-          int const bx_range = (max_rpc_bx - min_rpc_bx) + 1 ;
-          int hit[bx_range];
-          for (int n=0; n<bx_range; n++) hit[n] = 0;
+          BxToHit hit;
           itr1=0;
           for(unsigned int l1=0; l1<vrpc_hit_layer1.size(); l1++){
            if(vrpc_hit_layer1[l1].station!=st || st>2 || vrpc_hit_layer1[l1].sector!=sec || vrpc_hit_layer1[l1].wheel!=wh) continue;
@@ -188,8 +209,8 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
               phi2 /= 2;
               }
                         
-            l1ttma_hits_out.emplace_back(vrpc_hit_layer1[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer1[l1].bx+2], 0, 2);
-            hit[vrpc_hit_layer1[l1].bx+2]++;
+            l1ttma_hits_out.emplace_back(vrpc_hit_layer1[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer1[l1].bx], 0, 2);
+            hit[vrpc_hit_layer1[l1].bx]++;
             }
             itr1 = 0;
             for(unsigned int l2=0; l2<vrpc_hit_layer2.size(); l2++){
@@ -208,8 +229,8 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
                 phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2-1].detid, c, vrpc_hit_layer2[l2-1].strip)<<2);
                 phi2 /= 2;
                }
-               l1ttma_hits_out.emplace_back( vrpc_hit_layer2[l2].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer2[l2].bx+2] , 0, 2);
-             hit[vrpc_hit_layer2[l2].bx+2]++;
+               l1ttma_hits_out.emplace_back( vrpc_hit_layer2[l2].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_layer2[l2].bx] , 0, 2);
+             hit[vrpc_hit_layer2[l2].bx]++;
             
             }
             itr1 = 0;
@@ -230,8 +251,8 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
                 phi2 = phi2 + (radialAngle(vrpc_hit_st3[l1-1].detid, c, vrpc_hit_st3[l1-1].strip)<<2);
                 phi2 /= 2;
                 }
-               l1ttma_hits_out.emplace_back( vrpc_hit_st3[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_st3[l1].bx+2], 0, 2);
-              hit[vrpc_hit_st3[l1].bx+2]++;
+               l1ttma_hits_out.emplace_back( vrpc_hit_st3[l1].bx, wh, sec-1, st, phi2, 0, 3, hit[vrpc_hit_st3[l1].bx], 0, 2);
+              hit[vrpc_hit_st3[l1].bx]++;
               
             }
             itr1 = 0;

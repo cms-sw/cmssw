@@ -74,8 +74,8 @@ private:
   void beginJob() override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) { }
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) { }
 
   void clear();
   void fillTrack(int, double, double, double, double);
@@ -92,7 +92,7 @@ private:
   edm::Service<TFileService> fs_;
   int                        verbosity_;
   spr::trackSelectionParameters selectionParameters_;
-  std::vector<std::string>   trigNames_, HLTNames_;
+  std::vector<std::string>   trigNames_, newNames_, HLTNames_;
   std::string                theTrackQuality_;
   std::vector<double>        puWeights_;
   double                     minTrackP_, maxTrackEta_;
@@ -115,8 +115,8 @@ private:
   TH1I                      *h_goodPV, *h_goodRun;
   TH2I                      *h_nHLTvsRN;
   std::vector<TH1I*>         h_HLTAccepts;
-  TH1D                      *h_p[nGen+1], *h_pt[nGen+1];
-  TH1D                      *h_eta[nGen+1], *h_phi[nGen+1];
+  TH1D                      *h_p[nGen+2],   *h_pt[nGen+2];
+  TH1D                      *h_eta[nGen+2], *h_phi[nGen+2];
   TH1I                      *h_ntrk[2];
   TH1D                      *h_maxNearP[2], *h_ene1[2], *h_ene2[2], *h_ediff[2];
   TH1D                      *h_energy[nPVBin+8][nPBin][nEtaBin][6];
@@ -140,6 +140,7 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) : nRun(0) {
 
   verbosity_                          = iConfig.getUntrackedParameter<int>("Verbosity",0);
   trigNames_                          = iConfig.getUntrackedParameter<std::vector<std::string> >("Triggers");
+  newNames_                           = iConfig.getUntrackedParameter<std::vector<std::string> >("NewNames");
   theTrackQuality_                    = iConfig.getUntrackedParameter<std::string>("TrackQuality","highPurity");
   reco::TrackBase::TrackQuality trackQuality=reco::TrackBase::qualityByName(theTrackQuality_);
   selectionParameters_.minPt          = iConfig.getUntrackedParameter<double>("MinTrackPt", 10.0);
@@ -219,9 +220,36 @@ StudyHLT::~StudyHLT() {}
 void StudyHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
+  std::vector<std::string> trig;
+  std::vector<double>      weights;
+  std::vector<std::string> newNames = {"HLT", "PixelTracks_Multiplicity",
+				       "HLT_Physics_","HLT_JetE",
+				       "HLT_ZeroBias"};
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("ParticleSource",edm::InputTag("genParticles"));
+  desc.addUntracked<int>("Verbosity",         0);
+  desc.addUntracked<std::vector<std::string> >("Triggers",trig);
+  desc.addUntracked<std::vector<std::string> >("NewNames",newNames);
+  desc.addUntracked<std::string>("TrackQuality","highPurity");
+  desc.addUntracked<double>("MinTrackPt",     1.0);
+  desc.addUntracked<double>("MaxDxyPV",       0.02);
+  desc.addUntracked<double>("MaxDzPV",        0.02);
+  desc.addUntracked<double>("MaxChi2",        5.0);
+  desc.addUntracked<double>("MaxDpOverP",     0.1);
+  desc.addUntracked<int>("MinOuterHit",       4);
+  desc.addUntracked<int>("MinLayerCrossed",   8);
+  desc.addUntracked<int>("MaxInMiss",         0);
+  desc.addUntracked<int>("MaxOutMiss",        0);
+  desc.addUntracked<double>("minTrackP",      1.0);
+  desc.addUntracked<double>("maxTrackEta",    2.6);
+  desc.addUntracked<double>("TimeMinCutECAL",-500.0);
+  desc.addUntracked<double>("TimeMaxCutECAL", 500.0);
+  desc.addUntracked<double>("TimeMinCutHCAL",-500.0);
+  desc.addUntracked<double>("TimeMaxCutHCAL", 500.0);
+  desc.addUntracked<bool>("IsItAOD",          false);
+  desc.addUntracked<bool>("DoTree",           false);
+  desc.addUntracked<std::vector<double> >("PUWeights", weights);
+  descriptions.add("StudyHLT",desc);
 }
 
 void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -233,9 +261,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
   int Lumi  = iEvent.luminosityBlock();
   int Bunch = iEvent.bunchCrossing();
   
-  std::string newNames[5]={"HLT","PixelTracks_Multiplicity","HLT_Physics_","HLT_JetE","HLT_ZeroBias"};
-  int         newAccept[5];
-  for (int i=0; i<5; ++i) newAccept[i] = 0;
+  std::vector<int>  newAccept(newNames_.size()+1,0);
   float mybxlumi=-1;
   /*
   edm::Handle<LumiDetails> Lumid;
@@ -300,7 +326,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	  ok = true;
 	} else {
 	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	    if (newtriggerName.find(trigNames_[i])!=std::string::npos) {
+	    if (newtriggerName.find(trigNames_[i]) != std::string::npos) {
 	      if (verbosity_%10 > 0)  
 		edm::LogInfo("IsoTrack") << newtriggerName;
 	      if (hlt > 0) {
@@ -309,10 +335,10 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	      }
 	    }
 	  }
-	  for (int i=0; i<5; ++i) {
-	    if (newtriggerName.find(newNames[i])!=std::string::npos) {
+	  for (unsigned int i=0; i<newNames_.size(); ++i) {
+	    if (newtriggerName.find(newNames_[i]) != std::string::npos) {
 	      if (verbosity_%10 > 0)
-		edm::LogInfo("IsoTrack") << "[" << i << "] " << newNames[i] 
+		edm::LogInfo("IsoTrack") << "[" << i << "] " << newNames_[i] 
 					 << " : " << newtriggerName;
 	      if (hlt > 0) newAccept[i] = 1;
 	    }
@@ -320,7 +346,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	}
       }
       int iflg(0), indx(1);
-      for (int i=0; i<5; ++i) {
+      for (unsigned int i=0; i<newNames_.size(); ++i) {
 	iflg += (indx*newAccept[i]); indx *= 2;
       }
       h_HLTCorr->Fill(iflg);
@@ -386,6 +412,9 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	tr_eventWeight  = 0;
     }
 
+    edm::Handle<reco::TrackCollection> trkCollection;
+    iEvent.getByToken(tok_genTrack_, trkCollection);
+
     //=== genParticle information
     edm::Handle<reco::GenParticleCollection> genParticles;
     iEvent.getByToken(tok_parts_, genParticles);
@@ -396,11 +425,26 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	double eta1        = p.momentum().Eta();
 	double phi1        = p.momentum().Phi();
 	fillTrack(nGen, pt1,p1,eta1,phi1);
+	bool match(false);
+	double phi2(phi1);
+	if (phi2 < 0) phi2 += 2.0*M_PI;
+	for (const auto& trk : (reco::TrackCollection)(*trkCollection)) {
+	  bool quality = trk.quality(selectionParameters_.minQuality);
+	  if (quality) {
+	    double dEta = trk.eta() - eta1;
+	    double phi0 = trk.phi();
+	    if (phi0 < 0) phi0 += 2.0*M_PI;
+	    double dPhi = phi0-phi2;
+	    if (dPhi > M_PI)       dPhi -= 2.*M_PI;
+	    else if (dPhi < -M_PI) dPhi += 2.*M_PI;
+	    double dR   = sqrt(dEta*dEta+dPhi*dPhi);
+	    if (dR < 0.01) { match = true; break;}
+	  }
+	}
+	if (match) fillTrack(nGen+1, pt1,p1,eta1,phi1);
       }
     }
 
-    edm::Handle<reco::TrackCollection> trkCollection;
-    iEvent.getByToken(tok_genTrack_, trkCollection);
     reco::TrackCollection::const_iterator trkItr;
     for (trkItr=trkCollection->begin(); trkItr != trkCollection->end(); ++trkItr,++ntrk) {
       const reco::Track* pTrack = &(*trkItr);
@@ -532,7 +576,7 @@ void StudyHLT::beginJob() {
   h_numberPV    = fs_->make<TH1I>("h_numberPV", "Number of Primary Vertex", 100, 0, 100);
   h_goodPV      = fs_->make<TH1I>("h_goodPV", "Number of good Primary Vertex", 100, 0, 100);
   h_goodRun     = fs_->make<TH1I>("h_goodRun","Number of accepted events for Run", 4000, 190000, 1940000);
-  char hname[50], htit[200];
+  char hname[60], htit[200];
   std::string CollectionNames[2] = {"Reco", "Propagated"};
   for (unsigned int i=0; i<2; i++) {
     sprintf(hname, "h_nTrk_%s", CollectionNames[i].c_str());
@@ -541,15 +585,15 @@ void StudyHLT::beginJob() {
   }
   std::string TrkNames[8]       = {"All", "Quality", "NoIso", "okEcal", "EcalCharIso", "HcalCharIso", "EcalNeutIso", "HcalNeutIso"};
   std::string particle[4]       = {"Electron", "Pion", "Kaon", "Proton"};
-  for (unsigned int i=0; i<=nGen; i++) {
+  for (unsigned int i=0; i<=nGen+1; i++) {
     if (i < 8) {
       sprintf(hname, "h_pt_%s", TrkNames[i].c_str());
       sprintf(htit, "p_{T} of %s tracks", TrkNames[i].c_str());
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_pt_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "p_{T} of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
-    } else if (i == nGen) {
-      sprintf(hname, "h_pt_%s_1", TrkNames[0].c_str());
+    } else if (i >= nGen) {
+      sprintf(hname, "h_pt_%s_%d", TrkNames[0].c_str(), i-nGen);
       sprintf(htit, "p_{T} of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_pt_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -564,8 +608,8 @@ void StudyHLT::beginJob() {
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_p_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Momentum of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
-    } else if (i == nGen) {
-      sprintf(hname, "h_p_%s_1", TrkNames[0].c_str());
+    } else if (i >= nGen) {
+      sprintf(hname, "h_p_%s_%d", TrkNames[0].c_str(), i-nGen);
       sprintf(htit, "Momentum of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_p_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -580,8 +624,8 @@ void StudyHLT::beginJob() {
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_eta_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Eta of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
-    } else if (i == nGen) {
-      sprintf(hname, "h_eta_%s_1", TrkNames[0].c_str());
+    } else if (i >= nGen) {
+      sprintf(hname, "h_eta_%s_%d", TrkNames[0].c_str(), i-nGen);
       sprintf(htit, "Eta of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_eta_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -596,8 +640,8 @@ void StudyHLT::beginJob() {
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_phi_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Phi of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
-    } else if (i == nGen) {
-      sprintf(hname, "h_phi_%s_1", TrkNames[0].c_str());
+    } else if (i >= nGen) {
+      sprintf(hname, "h_phi_%s_%d", TrkNames[0].c_str(), i-nGen);
       sprintf(htit, "Phi of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_phi_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -704,11 +748,6 @@ void StudyHLT::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   nRun++;
   edm::LogInfo("IsoTrack") << "endrun[" << nRun << "] " << iRun.run();
 }
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void StudyHLT::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-// ------------ method called when ending the processing of a luminosity block  ------------
-void StudyHLT::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
 void StudyHLT::clear() {
   tr_TrigName.clear();

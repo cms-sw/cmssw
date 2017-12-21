@@ -50,12 +50,12 @@
 class RctInputTextToDigi : public edm::EDProducer {
 public:
   explicit RctInputTextToDigi(const edm::ParameterSet&);
-  ~RctInputTextToDigi();
+  ~RctInputTextToDigi() override;
 
 private:
-  virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
       
   // ----------member data ---------------------------
   

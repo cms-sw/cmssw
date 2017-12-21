@@ -26,7 +26,7 @@ void SimG4HcalHitJetFinder::setInput(std::vector<CaloHit>* hhit) {
 
 std::vector<SimG4HcalHitCluster>* SimG4HcalHitJetFinder::getClusters(bool hcal_only){
   clusvector.erase(clusvector.begin(),clusvector.end()); 
-  if (input.size() == 0) { 
+  if (input.empty()) { 
     return &clusvector;
   }
 

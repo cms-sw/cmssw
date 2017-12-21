@@ -20,7 +20,8 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p )
   fMaxX = p.getParameter<double>("MaxX")*cm;
   fMaxY = p.getParameter<double>("MaxY")*cm;
   fMaxZ = p.getParameter<double>("MaxZ")*cm;     
-  fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light;
+  fMinT = p.getParameter<double>("MinT")*ns*c_light;
+  fMaxT = p.getParameter<double>("MaxT")*ns*c_light;
   
   if (fMinX > fMaxX) {
     throw cms::Exception("Configuration")
@@ -37,6 +38,11 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p )
       << "Error in FlatEvtVtxGenerator: "
       << "MinZ is greater than MaxZ";
   }
+  if (fMinT > fMaxT) {
+    throw cms::Exception("Configuration")
+      << "Error in FlatEvtVtxGenerator: "
+      << "MinT is greater than MaxT";
+  }
 }
 
 FlatEvtVtxGenerator::~FlatEvtVtxGenerator()
@@ -49,9 +55,9 @@ HepMC::FourVector FlatEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine)
   aX = CLHEP::RandFlat::shoot(engine, fMinX, fMaxX);
   aY = CLHEP::RandFlat::shoot(engine, fMinY, fMaxY);
   aZ = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
-  aT = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
+  aT = CLHEP::RandFlat::shoot(engine, fMinT, fMaxT);
 
-  return HepMC::FourVector(aX,aY,aZ,aT+fTimeOffset);
+  return HepMC::FourVector(aX,aY,aZ,aT);
 }
 
 void FlatEvtVtxGenerator::minX(double min) 

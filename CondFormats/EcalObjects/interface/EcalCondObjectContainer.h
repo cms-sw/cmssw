@@ -79,6 +79,7 @@ class EcalCondObjectContainer {
                                         // FIXME (add throw)
                                         return ee_.end();
                         }
+                        return ee_.end();
                 }
 
                 inline

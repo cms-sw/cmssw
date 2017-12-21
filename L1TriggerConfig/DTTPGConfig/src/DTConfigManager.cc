@@ -69,7 +69,7 @@ const DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
 	      << "," << chambid.sector()
 	      << "," << chambid.station() 
 	      << ") not found, return 0" << std::endl;
-    return 0;
+    return nullptr;
   }
   
   innerBtiMap::const_iterator biter2 = (*biter1).second.find(btiid);
@@ -80,7 +80,7 @@ const DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
 	      << "," << btiid.superlayer()
 	      << "," << btiid.bti()
 	      << ") not found, return 0" << std::endl;
-    return 0;
+    return nullptr;
   }
   return &(*biter2).second;
 
@@ -109,7 +109,7 @@ const DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const 
 	      << "," << chambid.sector()
 	      << "," << chambid.station() 
 	      << ") not found, return 0" << std::endl;
-    return 0;
+    return nullptr;
   }
   
   innerTracoMap::const_iterator titer2 = (*titer1).second.find(tracoid);
@@ -119,7 +119,7 @@ const DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const 
 	      << "," << tracoid.station()
 	      << "," << tracoid.traco()
 	      << ") not found, return a reference to the end of the map" << std::endl;
-    return 0;
+    return nullptr;
   }
   return &(*titer2).second;
 
@@ -147,7 +147,7 @@ const DTConfigTSTheta* DTConfigManager::getDTConfigTSTheta(DTChamberId chambid) 
 	      << "," << chambid.sector()
 	      << "," << chambid.station() 
 	      << ") not found, return 0" << std::endl;
-    return 0;
+    return nullptr;
   }
   
   return &(*thiter).second;
@@ -162,7 +162,7 @@ const DTConfigTSPhi* DTConfigManager::getDTConfigTSPhi(DTChamberId chambid) cons
 	      << "," << chambid.sector()
 	      << "," << chambid.station() 
 	      << ") not found, return 0" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   return &(*phiter).second;
@@ -177,7 +177,7 @@ const DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid
  	      << "," << chambid.sector()
  	      << "," << chambid.station() 
  	      << ") not found, return 0" << std::endl;
-     return 0;
+     return nullptr;
    }
 
    return &(*tuiter).second;
@@ -192,7 +192,7 @@ const DTConfigLUTs* DTConfigManager::getDTConfigLUTs(DTChamberId chambid) const 
  	      << "," << chambid.sector()
  	      << "," << chambid.station() 
  	      << ") not found, return 0" << std::endl;
-     return 0;
+     return nullptr;
    }
 
    return &(*lutiter).second;
@@ -206,7 +206,7 @@ const DTConfigSectColl* DTConfigManager::getDTConfigSectColl(DTSectCollId scid) 
     std::cout << "DTConfigManager::getConfigSectColl : SectorCollector (" << scid.wheel()
 	      << "," << scid.sector() 
 	      << ") not found, return 0" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   return &(*sciter).second;

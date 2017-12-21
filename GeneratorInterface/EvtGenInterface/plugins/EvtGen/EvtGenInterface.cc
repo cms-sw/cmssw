@@ -305,7 +305,7 @@ void EvtGenInterface::init(){
   //Setup evtGen following instructions on http://evtgen.warwick.ac.uk/docs/external/ 
   bool convertPythiaCodes=fPSet->getUntrackedParameter<bool>("convertPythiaCodes",true); // Specify if we want to use Pythia 6 physics codes for decays
   std::string pythiaDir = getenv ("PYTHIA8DATA"); // Specify the pythia xml data directory to use the default PYTHIA8DATA location
-  if(pythiaDir==nullptr){ 
+  if(pythiaDir.empty()){
     edm::LogError("EvtGenInterface::~EvtGenInterface") << "EvtGenInterface::init() PYTHIA8DATA not defined. Terminating program "; 
     exit(0);
   }

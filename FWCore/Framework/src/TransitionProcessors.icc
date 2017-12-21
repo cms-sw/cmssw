@@ -42,11 +42,10 @@ struct RunResources {
   
   ~RunResources() noexcept {
     try {
+      //If we skip empty runs, this would be called conditionally
+      ep_.endRun(processHistoryID(), run(), globalTransitionSucceeded_, cleaningUpAfterException_);
+      
       if(success_) {
-        //If we skip empty runs, this would be called conditionally
-        ep_.endRun(processHistoryID(), run(), cleaningUpAfterException_);
-      
-      
         ep_.writeRun(processHistoryID(), run());
       }
       ep_.deleteRunFromCache(processHistoryID(), run());
@@ -81,6 +80,7 @@ struct RunResources {
   edm::RunNumber_t run_;
   bool cleaningUpAfterException_ = true;
   bool success_ = false;
+  bool globalTransitionSucceeded_ = false;
 };
 
 struct LumiResources {
@@ -90,12 +90,10 @@ struct LumiResources {
   
   ~LumiResources() noexcept {
     try {
+      //If we skip empty lumis, this would be called conditionally
+      run_->ep_.endLumi(processHistoryID(), run(), lumi(), globalTransitionSucceeded_, cleaningUpAfterException_);
+      
       if (success_) {
-      
-        //If we skip empty lumis, this would be called conditionally
-        run_->ep_.endLumi(processHistoryID(), run(), lumi(), cleaningUpAfterException_);
-      
-      
         run_->ep_.writeLumi(processHistoryID(), run(), lumi());
       }
 
@@ -132,6 +130,7 @@ struct LumiResources {
   edm::LuminosityBlockNumber_t lumi_;
   bool cleaningUpAfterException_ = true;
   bool success_ = false;
+  bool globalTransitionSucceeded_ = false;
 };
 
 struct EventResources {
@@ -208,8 +207,8 @@ private:
       currentLumi_ = std::make_shared<LumiResources>(iRun,lumiID);
       auto id = iEP.readLuminosityBlock();
       assert((id >= 0) and (static_cast<unsigned int>(id) == lumiID));
-      iEP.beginLumi(currentLumi_->processHistoryID(), currentLumi_->run(), currentLumi_->lumi());
-      //only if we succeed at beginLumi should we run endLumi
+      iEP.beginLumi(currentLumi_->processHistoryID(), currentLumi_->run(), currentLumi_->lumi(), currentLumi_->globalTransitionSucceeded_);
+      //only if we succeed at beginLumi should we run writeLumi
       currentLumi_->succeeded();
     } else {
       //merge
@@ -269,8 +268,8 @@ private:
       }
       currentRun_ = std::make_shared<RunResources>(iEP,runID.first,runID.second);
       iEP.readRun();
-      iEP.beginRun(runID.first,runID.second);
-      //only if we succeed at beginRun should we run endRun
+      iEP.beginRun(runID.first,runID.second, currentRun_->globalTransitionSucceeded_);
+      //only if we succeed at beginRun should we run writeRun
       currentRun_->succeeded();
     } else {
       //merge

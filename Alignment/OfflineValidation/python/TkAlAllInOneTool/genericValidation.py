@@ -281,9 +281,12 @@ class GenericValidationData(GenericValidation):
 
         # if maxevents is not specified, cannot calculate number of events for
         # each parallel job, and therefore running only a single job
-        if int( self.general["maxevents"] ) == -1 and self.NJobs > 1:
+        if int( self.general["maxevents"] ) < 0 and self.NJobs > 1:
             msg = ("Maximum number of events (maxevents) not specified: "
                    "cannot use parallel jobs.")
+            raise AllInOneError(msg)
+        if int( self.general["maxevents"] ) / self.NJobs != float( self.general["maxevents"] ) / self.NJobs:
+            msg = ("maxevents has to be divisible by parallelJobs")
             raise AllInOneError(msg)
 
         tryPredefinedFirst = (not self.jobmode.split( ',' )[0] == "crab" and self.general["JSON"]    == ""
@@ -519,6 +522,7 @@ class GenericValidationData_CTSR(GenericValidationData):
             "istracksplitting": str(isinstance(self, TrackSplittingValidation)),
             "cosmics0T": str(self.cosmics0T),
             "use_d0cut": str(self.use_d0cut),
+            "ispvvalidation": str(self.isPVValidation) 
         })
 
         commands = []
@@ -534,6 +538,9 @@ class GenericValidationData_CTSR(GenericValidationData):
     @property
     def use_d0cut(self):
         return "Cosmics" not in self.general["trackcollection"]  #use it for collisions only
+    @property
+    def isPVValidation(self):
+        return False  # only for PV Validation sequence
     @property
     def TrackSelectionRefitting(self):
         return configTemplates.CommonTrackSelectionRefitting

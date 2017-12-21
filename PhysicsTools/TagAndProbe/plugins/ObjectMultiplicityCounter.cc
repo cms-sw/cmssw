@@ -27,9 +27,9 @@ template<typename T>
 class ObjectMultiplicityCounter : public edm::EDProducer {
     public:
         explicit ObjectMultiplicityCounter(const edm::ParameterSet & iConfig);
-        virtual ~ObjectMultiplicityCounter() ;
+        ~ObjectMultiplicityCounter() override ;
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+        void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
         edm::EDGetTokenT<edm::View<reco::Candidate> > probesToken_;

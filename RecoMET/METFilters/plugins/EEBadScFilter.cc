@@ -166,9 +166,6 @@ bool EEBadScFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventS
 
   int ix,iy,iz;
 
-  ix=0,iy=0,iz=0;
-
-
   // loop over the list of bad SCs (defined in the python file)
 
   for (std::vector<int>::const_iterator scit = badsc_.begin(); scit != badsc_.end(); ++ scit) {

@@ -50,7 +50,7 @@ compareTotalEnergySums<T>::~compareTotalEnergySums() {
 template<class T>
 bool compareTotalEnergySums<T>::doCompare(TH1I *errorFlag_hist_) {
   
-  bool errorFlag=0;
+  bool errorFlag=false;
 
   for(unsigned int i=0; i < data_->size(); i++) {
     //check the GCTTrigBx is the one being considered
@@ -80,7 +80,7 @@ bool compareTotalEnergySums<T>::doCompare(TH1I *errorFlag_hist_) {
 
       //otherwise, it's a fail
       errorFlag_hist_->Fill(1);
-      errorFlag=1;
+      errorFlag=true;
       return errorFlag;
     }
   }

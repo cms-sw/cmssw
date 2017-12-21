@@ -16,6 +16,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 
 #include "TStyle.h"
@@ -51,6 +52,10 @@ void SiPixelBadModuleReader::analyze( const edm::Event& e, const edm::EventSetup
   edm::LogInfo("SiPixelBadModuleReader") << "[SiPixelBadModuleReader::analyze] End Reading SiPixelBadModule" << std::endl;
   edm::ESHandle<TrackerGeometry> geom;
   iSetup.get<TrackerDigiGeometryRecord>().get(geom);
+
+  edm::ESHandle<TrackerTopology> httopo;
+  iSetup.get<TrackerTopologyRcd>().get(httopo);
+  const TrackerTopology& ttopo = *httopo;
 
 
    edm::Service<TFileService> fs;
@@ -100,6 +105,11 @@ void SiPixelBadModuleReader::analyze( const edm::Event& e, const edm::EventSetup
  	    debugout << n <<", ";
 	 }
 	debugout << std::endl;
+	debugout << ttopo.print(badmodule.DetID) << std::endl;
+	const auto& plane = geom->idToDet(badmodule.DetID)->surface();
+	debugout << "phiSpan " << plane.phiSpan().first << "," << plane.phiSpan().second << std::endl;
+	debugout << "rSpan " << plane.rSpan().first << "," << plane.rSpan().second << std::endl;
+	debugout << "zSpan " << plane.zSpan().first << "," << plane.zSpan().second << std::endl;
 	debugout <<" "<<std::endl;
 	debugout <<" "<<std::endl;  //to make the reading easier
              

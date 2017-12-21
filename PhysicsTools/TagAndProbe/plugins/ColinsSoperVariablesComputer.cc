@@ -27,9 +27,9 @@
 class ColinsSoperVariablesComputer : public edm::EDProducer {
     public:
         explicit ColinsSoperVariablesComputer(const edm::ParameterSet & iConfig);
-        virtual ~ColinsSoperVariablesComputer() ;
+        ~ColinsSoperVariablesComputer() override ;
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+        void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
         edm::EDGetTokenT<edm::View<reco::Candidate> > parentBosonToken_;
@@ -67,8 +67,8 @@ ColinsSoperVariablesComputer::produce(edm::Event & iEvent, const edm::EventSetup
     double sin2theta = -10.0;
     double tanphi = -10.0;
 
-    const reco::Candidate* daughter1=NULL;
-    const reco::Candidate* daughter2=NULL;
+    const reco::Candidate* daughter1=nullptr;
+    const reco::Candidate* daughter2=nullptr;
     TLorentzVector mu (0., 0., 0., 0.);
     TLorentzVector mubar (0., 0., 0., 0.);
     bool isOS  = false;
@@ -82,7 +82,7 @@ ColinsSoperVariablesComputer::produce(edm::Event & iEvent, const edm::EventSetup
       daughter1 = boson->daughter(0);
       daughter2 = boson->daughter(1);
 
-      if( !(0==daughter1 || 0==daughter2) ) {
+      if( !(nullptr==daughter1 || nullptr==daughter2) ) {
 	isOS = false;
 	charge1 = daughter1->charge();
 	charge2 = daughter2->charge();

@@ -12,10 +12,10 @@ class FEConfigFgrGroupDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   FEConfigFgrGroupDat();
-  ~FEConfigFgrGroupDat();
+  ~FEConfigFgrGroupDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_FGR_PER_GROUP_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_FGR_PER_GROUP_DAT"; }
 
   inline void setFgrGroupId(int x) { m_group_id = x; }
   inline int getFgrGroupId() const { return m_group_id; }
@@ -32,7 +32,7 @@ class FEConfigFgrGroupDat : public IDataItem {
   inline int getLUTValue() const { return m_lut; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigFgrGroupDat* item, FEConfigFgrInfo* iconf) noexcept(false);
 

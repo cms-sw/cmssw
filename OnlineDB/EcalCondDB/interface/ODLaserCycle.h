@@ -14,9 +14,9 @@ class ODLaserCycle :  public IODConfig  {
   friend class ODEcalCycle;
 
   ODLaserCycle();
-  ~ODLaserCycle();
+  ~ODLaserCycle() override;
 
-  inline std::string getTable() { return "ECAL_Laser_CYCLE"; }
+  inline std::string getTable() override { return "ECAL_Laser_CYCLE"; }
 
   inline void setId(int id){m_ID=id;}
   inline int getId()const{ return m_ID;} ;
@@ -34,7 +34,7 @@ class ODLaserCycle :  public IODConfig  {
   int m_ID;
   int  m_laser_config_id;
   void writeDB() noexcept(false);
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void clear();
   void fetchData(ODLaserCycle * result) noexcept(false);
   void insertConfig() noexcept(false);

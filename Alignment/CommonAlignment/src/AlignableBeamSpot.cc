@@ -20,7 +20,7 @@
 //__________________________________________________________________________________________________
 AlignableBeamSpot::AlignableBeamSpot() : 
   Alignable( AlignableBeamSpot::detId().rawId(), AlignableSurface() ), 
-  theAlignmentPositionError(0),
+  theAlignmentPositionError(nullptr),
   theInitializedFlag(false)
 {
 

@@ -673,11 +673,47 @@ Dimuon0_addTrackTrack_Jpsi.denGenericTriggerEventPSet.hltPaths = cms.vstring("HL
 Dimuon0_addTrackTrack_Jpsi.muoSelection_ref = cms.string("pt>5 && abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
 Dimuon0_addTrackTrack_Jpsi.DMSelection_ref = cms.string("abs(Eta)<2.4")
 
+DM2_Jpsi_addTrackTrack_Phi = hltBPHmonitoring.clone()
+DM2_Jpsi_addTrackTrack_Phi.FolderName = cms.string('HLT/BPH/DM2_Jpsi_addTrackTrack_Phi/')
+DM2_Jpsi_addTrackTrack_Phi.tnp = cms.bool(False)
+DM2_Jpsi_addTrackTrack_Phi.enum = cms.int32(11)
+DM2_Jpsi_addTrackTrack_Phi.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleMu2_Jpsi_DoubleTrk1_Phi_v*")
+DM2_Jpsi_addTrackTrack_Phi.PrescaleTriggerEventPSet.prescaleWeightHltPaths = cms.vstring("HLT_DoubleMu2_Jpsi_DoubleTrk1_Phi_v*")
+#DM2_Jpsi_addTrackTrack_Phi.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_DoubleMu4_SQ_OS_dR_Max1p2 OR L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4")
+DM2_Jpsi_addTrackTrack_Phi.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon0_Jpsi_NoVertexing_v*")
+#DM2_Jpsi_addTrackTrack_Phi.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_DoubleMu4_SQ_OS_dR_Max1p2 OR L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4")
+#DM2_Jpsi_addTrackTrack_Phi.muoSelection = cms.string("pt>2 && abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+DM2_Jpsi_addTrackTrack_Phi.muoSelection_ref = cms.string("pt>2 && abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+DM2_Jpsi_addTrackTrack_Phi.DMSelection_ref = cms.string("M<3.3 & M>2.9")
+DM2_Jpsi_addTrackTrack_Phi.minprob = cms.double(0.1)
+DM2_Jpsi_addTrackTrack_Phi.mincos = cms.double(0.)
+DM2_Jpsi_addTrackTrack_Phi.minDS = cms.double(0.)
+DM2_Jpsi_addTrackTrack_Phi.trOrMu = cms.int32(True)
+DM2_Jpsi_addTrackTrack_Phi.trSelection_ref = cms.string("pt>1")
+DM2_Jpsi_addTrackTrack_Phi.minmassTkTk = cms.double(0.920)
+DM2_Jpsi_addTrackTrack_Phi.maxmassTkTk = cms.double(1.120)
+DM2_Jpsi_addTrackTrack_Phi.minmassJpsiTk = cms.double(0.)
+DM2_Jpsi_addTrackTrack_Phi.maxmassJpsiTk = cms.double(99.)
+DM2_Jpsi_addTrackTrack_Phi.histoPSet.ptPSet = cms.PSet(
+    edges = cms.vdouble(-0.5, 0, 0.5, 1, 1.5, 2, 4, 8, 10, 12, 14, 16, 18, 20),
+)
+DM2_Jpsi_addTrackTrack_Phi.histoPSet.phiPSet = cms.PSet(
+  nbins = cms.int32 ( 32 ),
+  xmin  = cms.double(-3.2),
+  xmax  = cms.double( 3.2),
+)
+
+DM2_Jpsi_addTkMuTkMu_Phi = DM2_Jpsi_addTrackTrack_Phi.clone()
+DM2_Jpsi_addTkMuTkMu_Phi.FolderName = cms.string('HLT/BPH/DM2_Jpsi_addTkMuTkMu_Phi/')
+DM2_Jpsi_addTkMuTkMu_Phi.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleMu2_Jpsi_DoubleTkMu0_Phi_v*")
+DM2_Jpsi_addTkMuTkMu_Phi.PrescaleTriggerEventPSet.prescaleWeightHltPaths = cms.vstring("HLT_DoubleMu2_Jpsi_DoubleTkMu0_Phi_v*")
+DM2_Jpsi_addTkMuTkMu_Phi.trSelection_ref = cms.string("")
+
 Dimuon0_addTrackMu_Phi = hltBPHmonitoring.clone()
 Dimuon0_addTrackMu_Phi.FolderName = cms.string('HLT/BPH/DiMu0_L1_addTrackMu_Phi/')
 Dimuon0_addTrackMu_Phi.tnp = cms.bool(False)
-Dimuon0_addTrackMu_Phi.minmassJpsiTk= cms.double(0.920)
-Dimuon0_addTrackMu_Phi.maxmassJpsiTk= cms.double(1.120)
+Dimuon0_addTrackMu_Phi.minmassJpsiTk = cms.double(0.920)
+Dimuon0_addTrackMu_Phi.maxmassJpsiTk = cms.double(1.120)
 Dimuon0_addTrackMu_Phi.enum = cms.int32(10)
 Dimuon0_addTrackMu_Phi.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu20_TkMu0_Phi_v*")
 Dimuon0_addTrackMu_Phi.PrescaleTriggerEventPSet.prescaleWeightHltPaths = cms.vstring("HLT_Mu20_TkMu0_Phi_v*")
@@ -692,8 +728,8 @@ Dimuon0_addTrackMu_Phi.trOrMu = cms.int32(True)
 Dimuon0_addTrackMu_Onia = hltBPHmonitoring.clone()
 Dimuon0_addTrackMu_Onia.FolderName = cms.string('HLT/BPH/DiMu0_L1_addTrackMu_Onia/')
 Dimuon0_addTrackMu_Onia.tnp = cms.bool(False)
-Dimuon0_addTrackMu_Onia.minmassJpsiTk= cms.double(3)
-Dimuon0_addTrackMu_Onia.maxmassJpsiTk= cms.double(3.2)
+Dimuon0_addTrackMu_Onia.minmassJpsiTk = cms.double(3)
+Dimuon0_addTrackMu_Onia.maxmassJpsiTk = cms.double(3.2)
 Dimuon0_addTrackMu_Onia.enum = cms.int32(10)
 Dimuon0_addTrackMu_Onia.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu30_TkMu0_Onia_v*")
 Dimuon0_addTrackMu_Onia.PrescaleTriggerEventPSet.prescaleWeightHltPaths = cms.vstring("HLT_Mu30_TkMu0_Onia_v*")
@@ -707,8 +743,8 @@ Dimuon0_addTrackMu_Onia.trOrMu = cms.int32(True)
 Dimuon0_addTrackMu_Phi1 = hltBPHmonitoring.clone()
 Dimuon0_addTrackMu_Phi1.FolderName = cms.string('HLT/BPH/DiMu0_L1_addTrackMu_Phi1/')
 Dimuon0_addTrackMu_Phi.tnp = cms.bool(False)
-Dimuon0_addTrackMu_Phi1.minmassJpsiTk= cms.double(0.920)
-Dimuon0_addTrackMu_Phi1.maxmassJpsiTk= cms.double(1.120)
+Dimuon0_addTrackMu_Phi1.minmassJpsiTk = cms.double(0.920)
+Dimuon0_addTrackMu_Phi1.maxmassJpsiTk = cms.double(1.120)
 Dimuon0_addTrackMu_Phi1.enum = cms.int32(10)
 Dimuon0_addTrackMu_Phi1.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu25_TkMu0_Phi_v*")
 Dimuon0_addTrackMu_Phi1.PrescaleTriggerEventPSet.prescaleWeightHltPaths = cms.vstring("HLT_Mu25_TkMu0_Phi_v*")
@@ -723,8 +759,8 @@ Dimuon0_addTrackMu_Phi1.trOrMu = cms.int32(True)
 Dimuon0_addTrackMu_Onia1 = hltBPHmonitoring.clone()
 Dimuon0_addTrackMu_Onia1.FolderName = cms.string('HLT/BPH/DiMu0_L1_addTrackMu_Onia1/')
 Dimuon0_addTrackMu_Onia1.tnp = cms.bool(False)
-Dimuon0_addTrackMu_Onia1.minmassJpsiTk= cms.double(3)
-Dimuon0_addTrackMu_Onia1.maxmassJpsiTk= cms.double(3.2)
+Dimuon0_addTrackMu_Onia1.minmassJpsiTk = cms.double(3)
+Dimuon0_addTrackMu_Onia1.maxmassJpsiTk = cms.double(3.2)
 Dimuon0_addTrackMu_Onia1.enum = cms.int32(10)
 Dimuon0_addTrackMu_Onia1.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu25_TkMu0_Onia_v*")
 Dimuon0_addTrackMu_Onia1.PrescaleTriggerEventPSet.prescaleWeightHltPaths = cms.vstring("HLT_Mu25_TkMu0_Onia_v*")
@@ -799,6 +835,8 @@ bphHLTmonitoring = cms.Sequence(
     + Dimuon0_tightVtx_Jpsi
     + Dimuon0_addTrack_Jpsi
     + Dimuon0_addTrackTrack_Jpsi
+    + DM2_Jpsi_addTrackTrack_Phi
+    + DM2_Jpsi_addTkMuTkMu_Phi
     + Dimuon0_addTrackMu_Onia
     + Dimuon0_addTrackMu_Phi
     + Dimuon0_addTrackMu_Onia1

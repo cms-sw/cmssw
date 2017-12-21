@@ -47,7 +47,7 @@ class DTSectCollThSegm : public DTTrigData {
     DTSectCollThSegm(const DTSectCollThSegm& seg);
   
     /// Destructor 
-    ~DTSectCollThSegm();
+    ~DTSectCollThSegm() override;
 
     /// Assignment operator
     DTSectCollThSegm& operator=(const DTSectCollThSegm& seg);
@@ -62,10 +62,10 @@ class DTSectCollThSegm : public DTTrigData {
     DTSectCollId SCId() const { return m_sectcollid; }
 
     /// Identifier of the associated chamber
-    DTChamberId ChamberId() const { return m_tsthetatrig->ChamberId(); }
+    DTChamberId ChamberId() const override { return m_tsthetatrig->ChamberId(); }
 
     /// Print
-    void print() const;
+    void print() const override;
 
     /// Return the code for a given set of 7 BTI
     inline int code(const int i) const { return m_tsthetatrig->code(i); } ;

@@ -51,9 +51,9 @@ class BasicOverlapTest : public OverlapTest {
             pairCut_(iConfig.getParameter<std::string>("pairCut")) {}
         // implementation of mother methods
         /// Read input, apply preselection cut
-        virtual void readInput(const edm::Event & iEvent, const edm::EventSetup &iSetup) ;
+        void readInput(const edm::Event & iEvent, const edm::EventSetup &iSetup) override ;
         /// Check for overlaps
-        virtual bool fillOverlapsForItem(const reco::Candidate &item, reco::CandidatePtrVector &overlapsToFill) const ;
+        bool fillOverlapsForItem(const reco::Candidate &item, reco::CandidatePtrVector &overlapsToFill) const override ;
     protected:
         // ---- configurables ----
         /// A generic preselection cut that can work on any Candidate, but has access also to methods of PAT specific objects
@@ -76,11 +76,11 @@ class OverlapBySuperClusterSeed : public OverlapTest {
         // constructor: nothing except initialize the base class
         OverlapBySuperClusterSeed(const std::string &name, const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC) : OverlapTest(name, iConfig, iC) {}
         // every event: nothing except read the input list
-        virtual void readInput(const edm::Event & iEvent, const edm::EventSetup &iSetup) {
+        void readInput(const edm::Event & iEvent, const edm::EventSetup &iSetup) override {
             iEvent.getByToken(srcToken_, others_);
         }
          /// Check for overlaps
-        virtual bool fillOverlapsForItem(const reco::Candidate &item, reco::CandidatePtrVector &overlapsToFill) const ;
+        bool fillOverlapsForItem(const reco::Candidate &item, reco::CandidatePtrVector &overlapsToFill) const override ;
     protected:
 //         edm::Handle<edm::View<reco::RecoCandidate> > others_;
         edm::Handle<reco::CandidateView> others_;

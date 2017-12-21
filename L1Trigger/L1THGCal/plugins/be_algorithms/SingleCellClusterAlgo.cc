@@ -24,14 +24,14 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
 
         typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
 
-        virtual void setProduces(edm::stream::EDProducer<>& prod) const override final 
+        void setProduces(edm::stream::EDProducer<>& prod) const final 
         {
             prod.produces<l1t::HGCalTriggerCellBxCollection>(name());
         }
     
-        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es,
+        void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es,
 		         edm::Event&evt
-			) override final
+			) final
         {
             
             for( const auto& digi : coll ) 
@@ -54,12 +54,12 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
             }
         }
  
-        virtual void putInEvent(edm::Event& evt) override final 
+        void putInEvent(edm::Event& evt) final 
         {
             evt.put(std::move(cluster_product_),name());
         }
 
-        virtual void reset() override final 
+        void reset() final 
         {
             cluster_product_.reset( new l1t::HGCalTriggerCellBxCollection );
         }

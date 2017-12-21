@@ -38,10 +38,10 @@ class DQMHistNormalizer : public edm::EDAnalyzer
 
  public:
   explicit DQMHistNormalizer(const edm::ParameterSet&);
-  virtual ~DQMHistNormalizer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override{}
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  ~DQMHistNormalizer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override{}
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   lat::Regexp* buildRegex(const string & expr);
@@ -68,7 +68,7 @@ void DQMHistNormalizer::analyze(const edm::Event&, const edm::EventSetup&)
 
 lat::Regexp* DQMHistNormalizer::buildRegex(const string & expr)
 {
-  lat::Regexp* rx = 0;
+  lat::Regexp* rx = nullptr;
   try
   {
     rx = new lat::Regexp(expr, 0, lat::Regexp::Wildcard);

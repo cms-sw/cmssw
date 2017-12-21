@@ -51,18 +51,19 @@ void SiPixelPhase1TrackingParticleV::analyze(const edm::Event& iEvent, const edm
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer;
   iEvent.getByToken( vec_TrackingParticle_Token_, TruthTrackContainer );
   const TrackingParticleCollection *tPC   = TruthTrackContainer.product();
+  std::vector<std::pair<unsigned int, const PSimHit *>> trackIdToHitPtr;
 
   // A multimap linking SimTrack::trackId() to a pointer to PSimHit
   // Similar to TrackingTruthAccumulator
   for(const auto& simHitToken: simHitTokens_) {
     edm::Handle<std::vector<PSimHit> > hsimhits;
     iEvent.getByToken(simHitToken, hsimhits);
-    trackIdToHitPtr_.reserve(trackIdToHitPtr_.size()+hsimhits->size());
+    trackIdToHitPtr.reserve(trackIdToHitPtr.size()+hsimhits->size());
     for(const auto& simHit: *hsimhits) {
-      trackIdToHitPtr_.emplace_back(simHit.trackId(), &simHit);
+      trackIdToHitPtr.emplace_back(simHit.trackId(), &simHit);
     }
   }
-  std::stable_sort(trackIdToHitPtr_.begin(), trackIdToHitPtr_.end(), trackIdHitPairLessSort);
+  std::stable_sort(trackIdToHitPtr.begin(), trackIdToHitPtr.end(), trackIdHitPairLessSort);
 
 
   // Loop over TrackingParticle's
@@ -75,7 +76,7 @@ void SiPixelPhase1TrackingParticleV::analyze(const edm::Event& iEvent, const edm
 
     for(const SimTrack& simTrack: t->g4Tracks()) {
       // Logic is from TrackingTruthAccumulator
-      auto range = std::equal_range(trackIdToHitPtr_.begin(), trackIdToHitPtr_.end(), std::pair<unsigned int, const PSimHit *>(simTrack.trackId(), nullptr), trackIdHitPairLess);
+      auto range = std::equal_range(trackIdToHitPtr.begin(), trackIdToHitPtr.end(), std::pair<unsigned int, const PSimHit *>(simTrack.trackId(), nullptr), trackIdHitPairLess);
       if(range.first == range.second) continue;
 
       auto iHitPtr = range.first;

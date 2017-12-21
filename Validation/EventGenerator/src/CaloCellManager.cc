@@ -176,7 +176,7 @@ unsigned int CaloCellManager::getCellIndexFromAngle(double eta, double phi){
 CaloCellId* CaloCellManager::getCellFromIndex(unsigned int id){
 
   if ( id < theCellCollection.size() ) { return theCellCollection[id]; }
-  return NULL; 
+  return nullptr; 
 
 }
 

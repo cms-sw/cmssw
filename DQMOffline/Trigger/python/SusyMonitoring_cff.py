@@ -172,6 +172,22 @@ triple_muon_mupt.invMassCutInAllMuPairs=cms.bool(True)
 triple_muon_mupt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_TripleMu_5_3_3_Mass3p8to60_DZ_v*')
 triple_muon_mupt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Trimuon5_3p5_2_Upsilon_Muon_v*')
 
+#triplemu dca
+triple_muon_dca_mupt = hltTOPmonitoring.clone()
+triple_muon_dca_mupt.FolderName   = cms.string('HLT/SUSY/SOS/TrileMu/DCA/Muon')
+# Selections
+triple_muon_dca_mupt.nmuons           = cms.uint32(3)
+triple_muon_dca_mupt.muoSelection     =cms.string('isGlobalMuon() ')
+triple_muon_dca_mupt.invMassUppercut       = cms.double(50)
+triple_muon_dca_mupt.invMassLowercut       = cms.double(10)
+triple_muon_dca_mupt.invMassCutInAllMuPairs=cms.bool(True)
+# Binning
+
+# Triggers
+triple_muon_dca_mupt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_TripleMu_5_3_3_Mass3p8to60_DCA_v*')
+triple_muon_dca_mupt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Trimuon5_3p5_2_Upsilon_Muon_v*')
+
+
 
 susyMuEGMonitoring = hltTOPmonitoring.clone()
 susyMuEGMonitoring.FolderName = cms.string('HLT/SUSY/MuonEG/')
@@ -226,7 +242,10 @@ double_soft_muon_dca_metpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HL
 
 susyMonitorHLT = cms.Sequence(
     susyHLTRazorMonitoring
-  + susyHLTVBFMonitoring
+)
+
+susHLTDQMSourceExtra = cms.Sequence(
+  susyHLTVBFMonitoring
   + LepHTMonitor
   + susyHLTEleCaloJets
   + double_soft_muon_muonpt
@@ -240,7 +259,4 @@ susyMonitorHLT = cms.Sequence(
   + susyMuEGMonitoring 
   +double_soft_muon_dca_muonpt
   +double_soft_muon_dca_metpt
-)
-
-susHLTDQMSourceExtra = cms.Sequence(
 )

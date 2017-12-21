@@ -44,11 +44,11 @@ class ShiftedPFCandidateProducerForNoPileUpPFMEt : public edm::stream::EDProduce
  public:
 
   explicit ShiftedPFCandidateProducerForNoPileUpPFMEt(const edm::ParameterSet&);
-  ~ShiftedPFCandidateProducerForNoPileUpPFMEt();
+  ~ShiftedPFCandidateProducerForNoPileUpPFMEt() override;
 
  private:
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidatesToken_;
   edm::EDGetTokenT<reco::PFJetCollection>       srcJetsToken_;

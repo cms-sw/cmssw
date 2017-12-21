@@ -129,7 +129,7 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
     lepJet.setPdgId(lepton.pdgId());
     lepJet.setCharge(lepton.charge());
     
-    const auto cl = lepton.constituentLepton();
+    const auto& cl = lepton.constituentLepton();
     consts->push_back(reco::GenParticle(cl.charge(), p4(cl), genVertex_, cl.pdgId(), 1, true));
     lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, ++iConstituent)));
     

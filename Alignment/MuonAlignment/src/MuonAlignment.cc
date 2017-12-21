@@ -151,12 +151,12 @@ void MuonAlignment::copyAlignmentToSurvey(double shiftErr, double angleErr) {
    for (std::vector<AlignTransformErrorExtended>::const_iterator alignmentError = alignmentErrors.begin();
 	alignmentError != alignmentErrors.end();
 	++alignmentError) {
-      align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
-      CLHEP::HepSymMatrix matrix6x6new = alignmentError->matrix();
+      align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity(); // start from (0, 0)
+      CLHEP::HepSymMatrix matrix6x6new = alignmentError->matrix();  // start from (1, 1)
 
       for (int i = 0;  i < 6;  i++) {
 	 for (int j = 0;  j < 6;  j++) {
-	    matrix6x6(i, j) = matrix6x6new(i, j);
+	    matrix6x6(i, j) = matrix6x6new(i + 1, j + 1);
 	 }
       }
       //matrix6x6(3,3) = angleErr;

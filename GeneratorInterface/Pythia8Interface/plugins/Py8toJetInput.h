@@ -20,8 +20,8 @@ class Py8toJetInput
       virtual ~Py8toJetInput() {}
       
       virtual const std::vector<fastjet::PseudoJet> fillJetAlgoInput( const Event&, const Event&, 
-                                                                      const lhef::LHEEvent* lhee=0,
-                                                                      const std::vector<int>* partonList=0 );
+                                                                      const lhef::LHEEvent* lhee=nullptr,
+                                                                      const std::vector<int>* partonList=nullptr );
       void setJetEtaMax( double max ) { fJetEtaMax=max; return; }
       
    protected:
@@ -41,11 +41,11 @@ class Py8toJetInputHEPEVT : public Py8toJetInput
    public:
    
       Py8toJetInputHEPEVT() {}
-      virtual ~Py8toJetInputHEPEVT() {}
+      ~Py8toJetInputHEPEVT() override {}
       
       const std::vector<fastjet::PseudoJet> fillJetAlgoInput( const Event&, const Event&, 
                                                               const lhef::LHEEvent*,
-                                                              const std::vector<int>* partonList=0 ); 
+                                                              const std::vector<int>* partonList=nullptr ) override; 
 };
 
 #endif

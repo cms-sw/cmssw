@@ -23,6 +23,8 @@ options.parseArguments()
 allconds = [
     'Pedestals',
     'PedestalWidths',
+    'EffectivePedestals',
+    'EffectivePedestalWidths',
     'Gains',
     'QIEData',
     'QIETypes',
@@ -59,7 +61,7 @@ if options.info:
     print allconds
     print "dbfile format: sqlite_file:foo.db"
     print "frontierloc possibilities: frontier://FrontierProd/CMS_CONDITIONS (default), frontier://FrontierDev/CMS_COND_HCAL, etc."
-    print "dblist/frontierlist entry format: HcalPedestalsRcd:hcal_pedestals_fC_v6_mc"
+    print "dblist/frontierlist entry format: HcalPedestalsRcd:hcal_pedestals_fC_v6_mc or HcalPedestalsRcd:effective:HcalPedestals_2018_v2.0_mc_effective for labeled records"
     print "asciilist entry format: Pedestals:CondFormats/HcalObjects/data/hcal_pedestals_fC_v5.txt"
     print "command can be used to execute extra settings, newline separated, e.g.: process.es_hardcode.useHEUpgrade=cms.bool(True)\\nprocess.es_hardcode.useHFUpgrade=cms.bool(True)"
     print "dump will do the equivalent of edmConfigDump: use with python instead of cmsRun"
@@ -142,8 +144,8 @@ if options.dbfile and options.dblist:
     )
     for rcd in options.dblist:
         rcds = rcd.split(':')
-        if len(rcds) != 2: continue
-        process.es_dbfile.toGet.append(cms.PSet(record = cms.string(rcds[0]), tag = cms.string(rcds[1])))
+        if len(rcds) == 2: process.es_dbfile.toGet.append(cms.PSet(record = cms.string(rcds[0]), tag = cms.string(rcds[1])))
+        elif len(rcds) == 3: process.es_dbfile.toGet.append(cms.PSet(record = cms.string(rcds[0]), label = cms.untracked.string(rcds[1]), tag = cms.string(rcds[2])))
     process.es_prefer_dbfile = cms.ESPrefer('PoolDBESSource','es_dbfile')
 
 if options.frontierloc and options.frontierlist:
@@ -156,8 +158,8 @@ if options.frontierloc and options.frontierlist:
     )
     for rcd in options.frontierlist:
         rcds = rcd.split(':')
-        if len(rcds) != 2: continue
-        process.es_frontier.toGet.append(cms.PSet(record = cms.string(rcds[0]), tag = cms.string(rcds[1])))
+        if len(rcds) == 2: process.es_frontier.toGet.append(cms.PSet(record = cms.string(rcds[0]), tag = cms.string(rcds[1])))
+        elif len(rcds) == 3: process.es_frontier.toGet.append(cms.PSet(record = cms.string(rcds[0]), label = cms.untracked.string(rcds[1]), tag = cms.string(rcds[2])))
     process.es_prefer_frontier = cms.ESPrefer('PoolDBESSource','es_frontier')
 
 if options.asciilist:
@@ -177,7 +179,7 @@ if options.usehardcode:
     process.es_hardcode.toGet.append('GainWidths')
 
 if options.command:
-    cmds = options.command.split('\n')
+    cmds = options.command.split('\\n')
     for cmd in cmds:
         exec(cmd)
 

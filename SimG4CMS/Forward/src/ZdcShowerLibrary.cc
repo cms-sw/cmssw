@@ -16,7 +16,7 @@
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-ZdcShowerLibrary::ZdcShowerLibrary(std::string & name, const DDCompactView & cpv,
+ZdcShowerLibrary::ZdcShowerLibrary(const std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) {
   edm::ParameterSet m_HS   = p.getParameter<edm::ParameterSet>("ZdcShowerLibrary");
   verbose                  = m_HS.getUntrackedParameter<int>("Verbosity",0);

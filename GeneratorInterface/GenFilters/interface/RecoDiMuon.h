@@ -26,10 +26,10 @@
 class RecoDiMuon : public edm::EDFilter {
     public:
        explicit RecoDiMuon(const edm::ParameterSet&);
-       ~RecoDiMuon();
-       virtual void endJob() ;
+       ~RecoDiMuon() override;
+       void endJob() override ;
 
-       virtual bool filter(edm::Event&, const edm::EventSetup&);
+       bool filter(edm::Event&, const edm::EventSetup&) override;
 
    private:
       edm::InputTag muonLabel_;

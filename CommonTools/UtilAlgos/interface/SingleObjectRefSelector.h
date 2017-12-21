@@ -25,7 +25,7 @@ public:
   explicit SingleObjectRefSelector(const edm::ParameterSet & cfg) :
     ObjectSelector<SingleElementCollectionRefSelector<InputType, Selector, OutputCollection, StoreContainer, RefAdder>,
                    OutputCollection, NonNullNumberSelector, PostProcessor>( cfg ) { }
-  virtual ~SingleObjectRefSelector() { }
+  ~SingleObjectRefSelector() override { }
 };
 
 #endif

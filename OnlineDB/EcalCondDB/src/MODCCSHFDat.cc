@@ -2,7 +2,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -16,10 +16,10 @@ using namespace oracle::occi;
 
 MODCCSHFDat::MODCCSHFDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   //  m_clob = 0;
   m_size=0;

@@ -51,15 +51,15 @@ namespace edm
     // Hadronizer object.
     explicit GeneratorFilter(ParameterSet const& ps);
 
-    virtual ~GeneratorFilter();
+    ~GeneratorFilter() override;
 
-    virtual bool filter(Event& e, EventSetup const& es) override;
-    virtual void endRunProduce(Run &, EventSetup const&) override;
-    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void beginLuminosityBlockProduce(LuminosityBlock&, EventSetup const&) override;
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
-    virtual void preallocThreads(unsigned int iThreads) override;
+    bool filter(Event& e, EventSetup const& es) override;
+    void endRunProduce(Run &, EventSetup const&) override;
+    void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    void beginLuminosityBlockProduce(LuminosityBlock&, EventSetup const&) override;
+    void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
+    void preallocThreads(unsigned int iThreads) override;
 
   private:
     Hadronizer            hadronizer_;
@@ -77,7 +77,7 @@ namespace edm
   GeneratorFilter<HAD,DEC>::GeneratorFilter(ParameterSet const& ps) :
     EDFilter(),
     hadronizer_(ps),
-    decayer_(0),
+    decayer_(nullptr),
     nEventsInLumiBlock_(0)
   {
     // TODO:
@@ -293,7 +293,7 @@ namespace edm
 
     GenRunInfoProduct genRunInfo = GenRunInfoProduct(hadronizer_.getGenRunInfo());
     std::vector<GenLumiInfoProduct::ProcessInfo> GenLumiProcess;
-    GenRunInfoProduct::XSec xsec = genRunInfo.internalXSec();
+    const GenRunInfoProduct::XSec& xsec = genRunInfo.internalXSec();
     GenLumiInfoProduct::ProcessInfo temp;      
     temp.setProcess(0);
     temp.setLheXSec(xsec.value(), xsec.error()); // Pythia gives error of -1

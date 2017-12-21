@@ -108,9 +108,7 @@ process.FrameHeader2Events = cms.EDFilter('EventWithHistoryEDFilter',
                                           )
 
 
-process.DQMStore=cms.Service("DQMStore")
-process.TkDetMap=cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 process.p0 = cms.Path(
    process.siStripDigis + process.siStripZeroSuppression +

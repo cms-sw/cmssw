@@ -12,7 +12,7 @@ using namespace oracle::occi;
 
 MonRunIOV::MonRunIOV()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
   m_ID = 0;
   m_monRunTag = MonRunTag();
   m_runIOV = RunIOV();

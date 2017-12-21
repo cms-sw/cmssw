@@ -29,16 +29,16 @@
 class HcalTB02SD : public CaloSD {
 
 public:
-  HcalTB02SD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
+  HcalTB02SD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	     edm::ParameterSet const &, const SimTrackManager*);
   ~HcalTB02SD() override;
   double getEnergyDeposit(G4Step*) override;
-  uint32_t setDetUnitId(G4Step* step) override;
+  uint32_t setDetUnitId(const G4Step* step) override;
   void setNumberingScheme(HcalTB02NumberingScheme* scheme);
 
 private:    
 
-  void   initMap(G4String, const DDCompactView &);
+  void   initMap(const std::string&, const DDCompactView &);
   double curve_LY(G4String& , G4StepPoint* ); 
   double crystalLength(G4String);
 

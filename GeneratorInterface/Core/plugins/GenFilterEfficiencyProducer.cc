@@ -58,14 +58,14 @@ class GenFilterEfficiencyProducer : public edm::global::EDProducer<edm::EndLumin
                                                                    edm::LuminosityBlockCache<Sums>> {
 public:
   explicit GenFilterEfficiencyProducer(const edm::ParameterSet&);
-  ~GenFilterEfficiencyProducer();
+  ~GenFilterEfficiencyProducer() override;
   
   
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
-  virtual void globalEndLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup &) const override;
+  void globalEndLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup &) const override;
 
   std::shared_ptr<Sums> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
   // ----------member data ---------------------------
@@ -92,7 +92,7 @@ GenFilterEfficiencyProducer::GenFilterEfficiencyProducer(const edm::ParameterSet
   if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
     // get tns pointer
     tns_ = edm::Service<edm::service::TriggerNamesService>().operator->();
-    if (tns_!=0) {
+    if (tns_!=nullptr) {
       thisProcess = tns_->getProcessName();
       std::vector<std::string> theNames = tns_->getTrigPaths();
       for ( unsigned int i = 0; i < theNames.size(); i++ ) {

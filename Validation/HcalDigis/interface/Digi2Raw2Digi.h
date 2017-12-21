@@ -15,11 +15,11 @@
 class Digi2Raw2Digi : public DQMEDAnalyzer {
 public:
   explicit Digi2Raw2Digi(const edm::ParameterSet&);
-  ~Digi2Raw2Digi();
+  ~Digi2Raw2Digi() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const & );
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const & ) override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   template<class Digi>  void compare(const edm::Event&, const edm::EventSetup&, const edm::EDGetTokenT<edm::SortedCollection<Digi> >& tok1, const edm::EDGetTokenT<edm::SortedCollection<Digi> >& tok2);  
 

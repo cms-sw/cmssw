@@ -57,14 +57,14 @@
   <Constant name="downstreamDzby2" value="100.0*cm"/>
   <Constant name="downstreamZ" value="900.0*cm"/>
   <Constant name="chamb4Z" value="840.8*cm"/>
-  <Constant name="chamb5Z" value="965.5*cm"/>
+  <Constant name="chamb5Z" value="966.8*cm"/>
   <Constant name="mcDxby2" value="40.0*cm"/>
   <Constant name="mcDzby2" value="20.0*mm"/>
-  <Constant name="mc1Z" value="873.5*cm"/>
-  <Constant name="mc2Z" value="985.5*cm"/>
+  <Constant name="mc1Z" value="892.8*cm"/>
+  <Constant name="mc2Z" value="984.8*cm"/>
   <Constant name="s5Dxby2" value="9.5*cm"/>
   <Constant name="s5Dzby2" value="2.0*cm"/>
-  <Constant name="s5Z"     value="([cms:zCaloFront]-[s5Dzby2])"/>
+  <Constant name="s5Z"     value="([hgcal:zCaloFront]-[s5Dzby2])"/>
 </ConstantsSection>
 
 <SolidSection label="hgcalBeam.xml">

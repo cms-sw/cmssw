@@ -40,7 +40,7 @@ public:
     produces<METCollection>("");
   }
 
-  ~CorrectedPATMETProducer() { }
+  ~CorrectedPATMETProducer() override { }
 
 private:
 

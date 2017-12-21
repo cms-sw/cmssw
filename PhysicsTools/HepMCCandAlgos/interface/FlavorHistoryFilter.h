@@ -79,11 +79,11 @@ class FlavorHistoryFilter : public edm::EDFilter {
      typedef std::vector<int>              flavor_vector;
 
       explicit FlavorHistoryFilter(const edm::ParameterSet&);
-      ~FlavorHistoryFilter();
+      ~FlavorHistoryFilter() override;
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
       edm::EDGetTokenT<reco::FlavorHistoryEvent>   bsrcToken_;           // Input b flavor history collection name

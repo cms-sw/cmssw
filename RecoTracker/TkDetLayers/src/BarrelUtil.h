@@ -4,6 +4,7 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"

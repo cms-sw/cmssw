@@ -44,7 +44,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include <math.h>
+#include <cmath>
 
 SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
   : trackerHitAssociatorConfig_(ps, consumesCollector())

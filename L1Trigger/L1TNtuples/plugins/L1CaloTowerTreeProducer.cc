@@ -64,13 +64,13 @@ Implementation:
 class L1CaloTowerTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1CaloTowerTreeProducer(const edm::ParameterSet&);
-  ~L1CaloTowerTreeProducer();
+  ~L1CaloTowerTreeProducer() override;
   
   
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 public:
   

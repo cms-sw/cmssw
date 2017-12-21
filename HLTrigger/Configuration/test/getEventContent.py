@@ -40,6 +40,15 @@ def makePSet(statements):
   block.outputCommands.extend( statements )
   return block
 
+def makePSetNoDrop(statements):
+  statements = list(statements)
+  statements.sort()
+  block = cms.PSet(
+    outputCommands = cms.untracked.vstring()
+  )
+  block.outputCommands.extend( statements )
+  return block
+
 
 def buildPSet(blocks):
   statements = set()
@@ -47,6 +56,11 @@ def buildPSet(blocks):
     statements.update( statement for statement in block if statement.find('drop') != 0 )
   return makePSet(statements)
 
+def buildPSetNoDrop(blocks):
+  statements = set()
+  for block in blocks:
+    statements.update( statement for statement in block if statement.find('drop') != 0 )
+  return makePSetNoDrop(statements)
 
 def buildPSetWithoutRAWs(blocks):
   statements = set()
@@ -135,7 +149,7 @@ hltScoutingOutputBlocks = (
   hltScouting_cff.block_hltOutputScoutingPF.outputCommands,
   hltScouting_cff.block_hltOutputScoutingCaloMuon.outputCommands,
 )
-hltScoutingOutputContent = buildPSet(hltScoutingOutputBlocks)
+hltScoutingOutputContent = buildPSetNoDrop(hltScoutingOutputBlocks)
 
 
 # hltDefaultOutput
@@ -156,18 +170,21 @@ HLTriggerRAW = cms.PSet(
     outputCommands = cms.vstring()
 )
 HLTriggerRAW.outputCommands.extend(hltDefaultOutputWithFEDsContent.outputCommands)
+HLTriggerRAW.outputCommands.extend(hltScoutingOutputContent.outputCommands)
 
 # RECO event content
 HLTriggerRECO = cms.PSet(
     outputCommands = cms.vstring()
 )
 HLTriggerRECO.outputCommands.extend(hltDefaultOutputContent.outputCommands)
+HLTriggerRECO.outputCommands.extend(hltScoutingOutputContent.outputCommands)
 
 # AOD event content
 HLTriggerAOD = cms.PSet(
     outputCommands = cms.vstring()
 )
 HLTriggerAOD.outputCommands.extend(hltDefaultOutputContent.outputCommands)
+HLTriggerAOD.outputCommands.extend(hltScoutingOutputContent.outputCommands)
 dropL1GlobalTriggerObjectMapRecord(HLTriggerAOD)
 
 # HLTDEBUG RAW event content
@@ -175,12 +192,14 @@ HLTDebugRAW = cms.PSet(
     outputCommands = cms.vstring()
 )
 HLTDebugRAW.outputCommands.extend(hltDebugWithAlCaOutputContent.outputCommands)
+HLTDebugRAW.outputCommands.extend(hltScoutingOutputContent.outputCommands)
 
 # HLTDEBUG FEVT event content
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring()
 )
 HLTDebugFEVT.outputCommands.extend(hltDebugWithAlCaOutputContent.outputCommands)
+HLTDebugFEVT.outputCommands.extend(hltScoutingOutputContent.outputCommands)
 
 # Scouting event content
 HLTScouting = cms.PSet(
@@ -194,9 +213,10 @@ dump.write('''import FWCore.ParameterSet.Config as cms
 
 # EventContent for HLT related products.
 
-# This file exports the following five EventContent blocks:
+# This file exports the following EventContent blocks:
 #   HLTriggerRAW  HLTriggerRECO  HLTriggerAOD (without DEBUG products)
 #   HLTDebugRAW   HLTDebugFEVT                (with    DEBUG products)
+#   HLTScouting                               (with Scouting products)
 #
 # as these are used in Configuration/EventContent
 #
@@ -206,5 +226,5 @@ dump.write('HLTriggerRECO = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\
 dump.write('HLTriggerAOD  = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTriggerAOD.outputCommands))
 dump.write('HLTDebugRAW   = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTDebugRAW.outputCommands))
 dump.write('HLTDebugFEVT  = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTDebugFEVT.outputCommands))
-dump.write('HLTScouting  = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTScouting.outputCommands))
+dump.write('HLTScouting   = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTScouting.outputCommands))
 dump.close()

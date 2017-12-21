@@ -42,7 +42,7 @@ public:
     L1GtTriggerMaskVetoTechTrigTrivialProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtTriggerMaskVetoTechTrigTrivialProducer();
+    ~L1GtTriggerMaskVetoTechTrigTrivialProducer() override;
 
 
     /// public methods

@@ -34,9 +34,9 @@ encode(const HGCalTriggerCellBestChoiceCodecImpl::data_type& data, const HGCalTr
     // First nCellsInModule_ bits are encoding the map of selected trigger cells
     // Followed by nData_ words of dataLength_ bits, corresponding to energy/transverse energy of
     // the selected trigger cells
-    std::vector<bool> result(nCellsInModule_ + dataLength_*nData_, 0);
+    std::vector<bool> result(nCellsInModule_ + dataLength_*nData_, false);
     // No data: return vector of 0
-    if(data.payload.size()==0) return result;
+    if(data.payload.empty()) return result;
     // All trigger cells are in the same module
     // Retrieve once the ordered list of trigger cells in this module
     uint32_t module = geometry.getModuleFromTriggerCell(data.payload.begin()->detId());
@@ -77,7 +77,7 @@ encode(const HGCalTriggerCellBestChoiceCodecImpl::data_type& data, const HGCalTr
                     << "      : Number of energy values = "<<nData_<<"\n";
             }
             // Set map bit to 1
-            result[index] =  1;
+            result[index] =  true;
             // Saturate and truncate energy values
             if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_)-1;
             for(size_t i=0; i<dataLength_; i++)
@@ -180,7 +180,7 @@ void
 HGCalTriggerCellBestChoiceCodecImpl::
 triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes, data_type& data)
 {
-    if(linearized_dataframes.size()==0) return;
+    if(linearized_dataframes.empty()) return;
     std::map<HGCalDetId, uint32_t> payload;
     // sum energies in trigger cells
     for(const auto& frame : linearized_dataframes)

@@ -35,10 +35,10 @@
 class L1MuTriggerScalesOnlineProducer : public L1ConfigOnlineProdBase<L1MuTriggerScalesRcd, L1MuTriggerScales> {
 public:
   L1MuTriggerScalesOnlineProducer(const edm::ParameterSet&);
-  ~L1MuTriggerScalesOnlineProducer();
+  ~L1MuTriggerScalesOnlineProducer() override;
 
-  virtual std::shared_ptr<L1MuTriggerScales> newObject(
-	const std::string& objectKey ) ;
+  std::shared_ptr<L1MuTriggerScales> newObject(
+	const std::string& objectKey ) override ;
 
 private:
   // ----------member data ---------------------------

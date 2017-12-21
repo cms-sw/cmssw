@@ -29,7 +29,7 @@ class TemplatedSimpleSecondaryVertexComputer : public JetTagComputer {
 		    minVertices_    = parameters.existsAs<unsigned int>("minVertices") ?  parameters.getParameter<unsigned int>("minVertices") : 1 ;
 		  }
 
-	float discriminator(const TagInfoHelper &tagInfos) const
+	float discriminator(const TagInfoHelper &tagInfos) const override
 	{
 		const TagInfo &info =
 				tagInfos.get<TagInfo>();

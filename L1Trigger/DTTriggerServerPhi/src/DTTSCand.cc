@@ -79,7 +79,7 @@ DTTSCand::operator=(const DTTSCand& tscand) {
 
 void
 DTTSCand::clear()  { 
-  _tctrig=0; 
+  _tctrig=nullptr; 
   _dataword.one();
 
   _isCarry=0;

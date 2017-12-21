@@ -84,7 +84,7 @@ namespace cms{
    double ptmax = -100.;
 
    VertexCollection::const_iterator vert = vertexes->begin ();
-   if(vertexes->size() > 0 )   {
+   if(!vertexes->empty() )   {
         for (; vert != vertexes->end (); vert++) {
 
                 SIGNAL_V_Z = vert->z();
@@ -108,7 +108,7 @@ namespace cms{
 
    CaloJetCollection::const_iterator jet = jets->begin ();
 
-   if(jets->size() > 0 )   {
+   if(!jets->empty() )   {
         for (; jet != jets->end (); jet++) {
 	     result = m_algo.Main(*jet, tracks, SIGNAL_V_Z, SIGNAL_V_Z_ERROR);
              result1->push_back(result.first);

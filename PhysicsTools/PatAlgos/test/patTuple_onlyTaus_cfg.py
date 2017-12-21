@@ -6,6 +6,8 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## load tau sequences up to selectedPatTaus
 process.load("PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff")
 patAlgosToolsTask.add(process.makePatTausTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
 process.load("PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi")
 patAlgosToolsTask.add(process.selectedPatTaus)
 

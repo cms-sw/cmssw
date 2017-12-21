@@ -14,7 +14,7 @@ class MonRunOutcomeDef : public IDef {
   friend class EcalCondDBInterface;
   
   MonRunOutcomeDef();
-  virtual ~MonRunOutcomeDef();
+  ~MonRunOutcomeDef() override;
 
   // Methods for user data
   std::string getShortDesc() const;
@@ -23,8 +23,8 @@ class MonRunOutcomeDef : public IDef {
   std::string getLongDesc() const;
 
   // Methods from IUniqueDBObject
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   // Operators
   inline bool operator==(const MonRunOutcomeDef &d) const { return m_shortDesc == d.m_shortDesc; }

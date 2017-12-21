@@ -102,6 +102,12 @@ namespace edm {
         return moduleDescription_;
       }
       
+      //Output modules always need writeRun and writeLumi to be called
+      bool wantsGlobalRuns() const {return true;}
+      bool wantsGlobalLuminosityBlocks() const {return true;}
+      virtual bool wantsStreamRuns() const =0;
+      virtual bool wantsStreamLuminosityBlocks() const =0;
+
       unsigned int concurrencyLimit() const { return queue_.concurrencyLimit(); }
 
       LimitedTaskQueue& queue() {
@@ -225,6 +231,8 @@ namespace edm {
       
       void registerProductsAndCallbacks(OutputModuleBase const*, ProductRegistry const*) {}
 
+      bool needToRunSelection() const;
+      std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const;
       bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
       
       // Do the end-of-file tasks; this is only called internally, after

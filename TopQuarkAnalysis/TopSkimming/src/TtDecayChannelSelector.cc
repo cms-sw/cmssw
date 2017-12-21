@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "TopQuarkAnalysis/TopSkimming/interface/TtDecayChannelSelector.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 // static const string for status check in  
 // TtDecayChannelSelector::search functions

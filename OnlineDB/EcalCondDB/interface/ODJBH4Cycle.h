@@ -14,9 +14,9 @@ class ODJBH4Cycle :  public IODConfig  {
   friend class ODEcalCycle;
 
   ODJBH4Cycle();
-  ~ODJBH4Cycle();
+  ~ODJBH4Cycle() override;
 
-  inline std::string getTable() { return "ECAL_JBH4_CYCLE"; }
+  inline std::string getTable() override { return "ECAL_JBH4_CYCLE"; }
 
   inline void setId(int id){m_ID=id;}
   inline int getId()const{ return m_ID;} ;
@@ -34,7 +34,7 @@ class ODJBH4Cycle :  public IODConfig  {
   int m_ID;
   int  m_jbh4_config_id;
   void writeDB() noexcept(false);
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void clear();
   void fetchData(ODJBH4Cycle * result) noexcept(false);
   void insertConfig() noexcept(false);

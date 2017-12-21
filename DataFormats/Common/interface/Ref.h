@@ -216,7 +216,7 @@ namespace edm {
     { }
 
     Ref(ProductID const& iProductID, T const* item, key_type itemKey, bool transient) :
-      product_(iProductID, item, 0, transient), index_(itemKey)
+      product_(iProductID, item, nullptr, transient), index_(itemKey)
     { }
 
     /// Constructor that creates an invalid ("null") Ref that is
@@ -243,7 +243,7 @@ namespace edm {
 
     /// Returns C++ pointer to the item
     T const* get() const {
-      return isNull() ? 0 : this->operator->();
+      return isNull() ? nullptr : this->operator->();
     }
 
     /// Checks for null

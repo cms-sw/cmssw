@@ -22,6 +22,7 @@
 #define EVTSLBARYONAMP_HH
 
 #include "EvtGenBase/EvtSemiLeptonicAmp.hh"
+#include "EvtGenBase/EvtComplex.hh"
 
 class EvtParticle;
 class EvtAmp;

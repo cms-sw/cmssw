@@ -50,7 +50,7 @@ public:
     L1GtMuonCondition(const L1GtMuonCondition&);
 
     // destructor
-    virtual ~L1GtMuonCondition();
+    ~L1GtMuonCondition() override;
 
     // assign operator
     L1GtMuonCondition& operator=(const L1GtMuonCondition&);
@@ -58,10 +58,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition() const;
+    const bool evaluateCondition() const override;
 
     /// print condition
-    void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
 public:
 

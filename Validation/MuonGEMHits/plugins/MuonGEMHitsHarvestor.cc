@@ -104,7 +104,7 @@ void MuonGEMHitsHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore:
 void 
 MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &ig )
 {
-  ig.setCurrentFolder(dbe_path_.c_str());
+  ig.setCurrentFolder(dbe_path_);
   TH1F* track_eta[3];
   TH1F* track_phi[3][3];
 
@@ -118,7 +118,7 @@ MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &
   for (unsigned int i = 0; i < s_suffix.size(); i++) {
     string suffix = s_suffix[i];
     string track_eta_name = dbe_path_+"track_eta"+suffix;
-    if ( ig.get(track_eta_name.c_str()) != nullptr) track_eta[i] = (TH1F*)ig.get(track_eta_name.c_str())->getTH1F()->Clone();
+    if ( ig.get(track_eta_name) != nullptr) track_eta[i] = (TH1F*)ig.get(track_eta_name)->getTH1F()->Clone();
     for (unsigned int j = 0; j < l_suffix.size(); j++) {
       suffix = s_suffix[i]+l_suffix[j];
       ProcessBooking( ibooker, ig, "sh_eta"+suffix,track_eta[i]);
@@ -128,7 +128,7 @@ MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &
     for (unsigned int j = 0 ; j < c_suffix.size(); j++) {
       string suffix = s_suffix[i]+c_suffix[j];
       string track_phi_name = dbe_path_+"track_phi"+suffix;
-      if ( ig.get(track_phi_name.c_str()) != nullptr) track_phi[i][j] = (TH1F*)ig.get(track_phi_name.c_str())->getTH1F()->Clone();
+      if ( ig.get(track_phi_name) != nullptr) track_phi[i][j] = (TH1F*)ig.get(track_phi_name)->getTH1F()->Clone();
       for (unsigned int k = 0; k < l_suffix.size(); k++) {
         suffix = s_suffix[i]+l_suffix[k]+c_suffix[j];
         ProcessBooking( ibooker, ig, "sh_phi"+suffix,track_phi[i][j]);

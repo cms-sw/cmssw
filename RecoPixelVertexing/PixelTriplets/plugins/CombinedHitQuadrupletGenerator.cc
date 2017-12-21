@@ -12,7 +12,6 @@
 
 
 using namespace std;
-using namespace ctfseeding;
 
 CombinedHitQuadrupletGenerator::CombinedHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
   theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers")))

@@ -32,7 +32,7 @@ extern "C"
 {
   float gen::ranart_(int *idummy)
   {
-    if(0) idummy = idummy; 
+    if(false) idummy = idummy; 
     float rannum = amptRandomEngine->flat();
     return rannum;
   }
@@ -42,14 +42,14 @@ extern "C"
 {
   float gen::ran1_(int *idummy)
   {
-    if(0) idummy = idummy;
+    if(false) idummy = idummy;
     return amptRandomEngine->flat();
   }
 }
 
 AMPTHadronizer::AMPTHadronizer(const ParameterSet &pset) :
     BaseHadronizer(pset),
-    evt(0), 
+    evt(nullptr), 
     pset_(pset),
     bmax_(pset.getParameter<double>("bMax")),
     bmin_(pset.getParameter<double>("bMin")),
@@ -235,7 +235,7 @@ bool AMPTHadronizer::get_particles(HepMC::GenEvent *evt )
                prod_vertex = prods[ipart];
                prod_vertex->add_particle_in(mother);
                evt->add_vertex(prod_vertex);
-               prods[ipart]=0; // mark to protect deletion                                                                                                   
+               prods[ipart]=nullptr; // mark to protect deletion                                                                                                   
 
             }
             prod_vertex->add_particle_out(part);

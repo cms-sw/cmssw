@@ -633,8 +633,10 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 	    } // end if
 	    //Make a new Digi:
 
-	    SPD.push_back( PixelDigi(i->first, i->second) );     
-
+	    // Don't put in digis that have been killed:
+	    if(i->second > 0.) {
+	      SPD.push_back( PixelDigi(i->first, i->second) );     
+	    }
 	  } // end pixel loop
 	  // push back vector here of one detID
 	  

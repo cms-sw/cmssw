@@ -85,7 +85,7 @@ L1MuDTExtrapolationUnit::~L1MuDTExtrapolationUnit() {
 
   for ( SEUmap::iterator iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++ ) {
     delete (*iter).second;
-    (*iter).second = 0;
+    (*iter).second = nullptr;
   }
   m_SEUs.clear();
 
@@ -109,12 +109,12 @@ void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
     pair<int,int> ext_pair = which_ext(((*iter).second)->ext());
     int start = ext_pair.first;
 
-    const L1MuDTTrackSegPhi* ts = 0;
+    const L1MuDTTrackSegPhi* ts = nullptr;
 
     //get start track segment
     ts = m_sp.data()->getTSphi(start, ((*iter).second)->tsId() );
 
-    if ( ts != 0 && !ts->empty() ) {
+    if ( ts != nullptr && !ts->empty() ) {
       ((*iter).second)->load(ts);
       ((*iter).second)->run(c);
     }

@@ -134,7 +134,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
   edm::Handle<reco::VertexCollection> primaryVertex ;
   iEvent.getByToken(PrimaryVertexColl_,primaryVertex);
 
-  bool pvFound = (primaryVertex->size() != 0);
+  bool pvFound = (!primaryVertex->empty());
   if ( pvFound ) {
     pv = &(*primaryVertex->begin());
   }
@@ -155,7 +155,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
     unsigned int flav = abs(jet->hadronFlavour());
 
     //std::cout << "patJet collection has pfImpactParameterTagInfo?: " << jet->hasTagInfo("pfImpactParameter") << std::endl;
-    const CandIPTagInfo *trackIpTagInfo = jet->tagInfoCandIP(ipTagInfos_.c_str());
+    const CandIPTagInfo *trackIpTagInfo = jet->tagInfoCandIP(ipTagInfos_);
     const std::vector<edm::Ptr<reco::Candidate> > & selectedTracks( trackIpTagInfo->selectedTracks() );
 
 
@@ -225,7 +225,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
             TrkTruthEta = tpr->eta();
             TrkTruthPhi = tpr->phi();
         
-            TrackingParticle::Point vertex_pv = pv->position();
+            const TrackingParticle::Point& vertex_pv = pv->position();
             TrackingParticle::Point vertex_tpr = tpr->vertex();
             TrackingParticle::Vector momentum_tpr = tpr->momentum();
             TrkTruthDxy = (-(vertex_tpr.x()-vertex_pv.x())*momentum_tpr.y()+(vertex_tpr.y()-vertex_pv.y())*momentum_tpr.x())/tpr->pt();

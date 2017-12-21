@@ -20,8 +20,8 @@ std::atomic<bool> SiStripConfigDb::allowCalibUpload_{ false };
 // 
 SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
 				  const edm::ActivityRegistry& activity ) :
-  factory_(0), 
-  dbCache_(0), 
+  factory_(nullptr), 
+  dbCache_(nullptr), 
   dbParams_(),
   // Local cache
   connections_(), 
@@ -158,12 +158,12 @@ void SiStripConfigDb::closeDbConnection() {
   try { 
     if ( factory_ ) { delete factory_; }
   } catch (...) { handleException( __func__, "Attempting to delete DeviceFactory object..." ); }
-  factory_ = 0; 
+  factory_ = nullptr; 
 
   try { 
     if ( dbCache_ ) { delete dbCache_; }
   } catch (...) { handleException( __func__, "Attempting to delete DbClient object..." ); }
-  dbCache_ = 0; 
+  dbCache_ = nullptr; 
   
   LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
@@ -202,7 +202,7 @@ DeviceFactory* const SiStripConfigDb::deviceFactory( std::string method_name ) c
 	 << " method SiStripConfigDb::" << method_name << "()!";
       edm::LogWarning(mlConfigDb_) << ss.str();
     }
-    return 0;
+    return nullptr;
   }
 }
 
@@ -218,7 +218,7 @@ DbClient* const SiStripConfigDb::databaseCache( std::string method_name ) const 
 	 << " method SiStripConfigDb::" << method_name << "()!";
       edm::LogWarning(mlConfigDb_) << ss.str();
     }
-    return 0;
+    return nullptr;
   }
 }
 
@@ -279,7 +279,7 @@ void SiStripConfigDb::usingDatabase() {
   // Check TNS_ADMIN environmental variable
   std::string pattern = "TNS_ADMIN";
   std::string tns_admin = "/afs/cern.ch/project/oracle/admin";
-  if ( getenv( pattern.c_str() ) != NULL ) { 
+  if ( getenv( pattern.c_str() ) != nullptr ) { 
     tns_admin = getenv( pattern.c_str() ); 
     edm::LogVerbatim(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
@@ -399,7 +399,7 @@ void SiStripConfigDb::usingDatabase() {
   
   // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and override .cfg value
   std::string partition = "ENV_CMS_TK_PARTITION";
-  if ( getenv(partition.c_str()) != NULL ) { 
+  if ( getenv(partition.c_str()) != nullptr ) { 
     
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"

@@ -36,9 +36,9 @@ namespace pat {
     public:
 
       explicit PATJetUpdater(const edm::ParameterSet & iConfig);
-      ~PATJetUpdater();
+      ~PATJetUpdater() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

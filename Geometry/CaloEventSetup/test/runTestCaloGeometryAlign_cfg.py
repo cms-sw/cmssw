@@ -3,12 +3,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
 
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-
-process.load('Configuration/StandardSequences/GeometryDB_cff')
-
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_R_38X_V4::All' 
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('CondCore.CondDB.CondDB_cfi')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -25,10 +24,6 @@ process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
                              )
 
 process.mfa = cms.EDAnalyzer("testMagneticField")
-
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
-
 
 process.Timing = cms.Service("Timing")
 

@@ -38,45 +38,45 @@ _convLayerPairsStripOnlyLayers = ['TIB1+TID1_pos',
                                  'TIB1+TID2_pos', 
                                  'TIB1+TID2_neg',
                                  'TIB1+TIB2',
-                                 'TIB1+TIB3',
+                                 'TIB1+MTIB3',
                                  
                                  'TIB2+TID1_pos', 
                                  'TIB2+TID1_neg', 
                                  'TIB2+TID2_pos', 
                                  'TIB2+TID2_neg', 
-                                 'TIB2+TIB3',
-                                 'TIB2+TIB4', 
+                                 'TIB2+MTIB3',
+                                 'TIB2+MTIB4',
                                  
-                                 'TIB3+TIB4', 
-                                 'TIB3+TOB1', 
-                                 'TIB3+TID1_pos', 
-                                 'TIB3+TID1_neg', 
+                                 'MTIB3+MTIB4',
+                                 'MTIB3+TOB1',
+                                 'MTIB3+TID1_pos',
+                                 'MTIB3+TID1_neg',
                                  
-                                 'TIB4+TOB1',
-                                 'TIB4+TOB2',
+                                 'MTIB4+TOB1',
+                                 'MTIB4+TOB2',
                                  
-                                 'TOB1+TOB2', 
-                                 'TOB1+TOB3', 
-                                 'TOB1+TEC1_pos', 
-                                 'TOB1+TEC1_neg', 
+                                 'TOB1+TOB2',
+                                 'TOB1+MTOB3',
+                                 'TOB1+TEC1_pos',
+                                 'TOB1+TEC1_neg',
 
-                                 'TOB2+TOB3',  
-                                 'TOB2+TOB4',
-                                 'TOB2+TEC1_pos', 
-                                 'TOB2+TEC1_neg', 
+                                 'TOB2+MTOB3',
+                                 'TOB2+MTOB4',
+                                 'TOB2+TEC1_pos',
+                                 'TOB2+TEC1_neg',
                                  
                                  #NB: re-introduce these combinations when large displaced
                                  #    tracks, reconstructed only in TOB will be available
                                  #    For instance think at the OutIn Ecal Seeded tracks
-                                 #'TOB3+TOB4', 
-                                 #'TOB3+TOB5',
-                                 #'TOB3+TEC1_pos', 
-                                 #'TOB3+TEC1_neg', 
+                                 #'MTOB3+MTOB4',
+                                 #'MTOB3+MTOB5',
+                                 #'MTOB3+TEC1_pos',
+                                 #'MTOB3+TEC1_neg',
                                  #
-                                 #'TOB4+TOB5',
-                                 #'TOB4+TOB6',
+                                 #'MTOB4+MTOB5',
+                                 #'MTOB4+MTOB6',
                                  #
-                                 #'TOB5+TOB6',
+                                 #'MTOB5+MTOB6',
                                  
                                  'TID1_pos+TID2_pos', 
                                  'TID2_pos+TID3_pos', 
@@ -132,45 +132,17 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     HitProducer = cms.string('siPixelRecHits'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TIB1 = cms.PSet(
+                                TIB = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TIB2 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TIB3 = cms.PSet(
+                                MTIB = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TIB4 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TID1 = cms.PSet(
-                                    useSimpleRphiHitsCleaner = cms.bool(False),
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                    useRingSlector = cms.bool(True),
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    maxRing = cms.int32(2),
-                                    minRing = cms.int32(1),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TID2 = cms.PSet(
-                                    useSimpleRphiHitsCleaner = cms.bool(False),
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                    useRingSlector = cms.bool(True),
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    maxRing = cms.int32(2),
-                                    minRing = cms.int32(1),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TID3 = cms.PSet(
+                                TID = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
@@ -190,36 +162,16 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TOB1 = cms.PSet(
+                                TOB = cms.PSet(
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TOB2 = cms.PSet(
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TOB3 = cms.PSet(
+                                MTOB = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TOB4 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TOB5 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TOB6 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    )
                                 )
 
 #this was done by Sam Harper (Aug 2017) and is a best guess (and I do guess wrong sometimes)
@@ -422,14 +374,15 @@ convStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiT
         ) #end of vpset
     ) #end of clone
 
-ConvStep = cms.Sequence( convClusters 
-                         + convLayerPairs
-                         + photonConvTrajSeedFromSingleLeg 
-                         + convTrackCandidates
-                         + convStepTracks
-                         + convStepSelector
+ConvStepTask = cms.Task( convClusters 
+                         , convLayerPairs
+                         , photonConvTrajSeedFromSingleLeg 
+                         , convTrackCandidates
+                         , convStepTracks
+                         , convStepSelector
                          #+ Conv2Step #full quad-seeding sequence
                          )
+ConvStep = cms.Sequence( ConvStepTask ) 
 
 
 ### Quad-seeding sequence disabled (#+ Conv2Step)

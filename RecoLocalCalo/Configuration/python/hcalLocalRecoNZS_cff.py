@@ -18,11 +18,11 @@ hbherecoMB = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbheprer
     setLegacyFlagsQIE11 = cms.bool(False),
 )
 
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
-hfrecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
+import RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi
+hfrecoMB = RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi.hfsimplereco.clone()
 
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
-horecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
+import RecoLocalCalo.HcalRecProducers.hosimplereco_cfi
+horecoMB = RecoLocalCalo.HcalRecProducers.hosimplereco_cfi.hosimplereco.clone()
 
 # switch off "Hcal ZS in reco":
 hfrecoMB.dropZSmarkedPassed = cms.bool(False)

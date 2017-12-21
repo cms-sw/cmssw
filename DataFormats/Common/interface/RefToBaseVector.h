@@ -240,7 +240,7 @@ namespace edm {
     helpers.reserve(this->size());
     for (const_iterator i=begin(), e=end(); i!=e; ++i) {
       RefToBase<T> ref = * i;
-      member_type const * address = ref.isNull() ? 0 : & * ref;
+      member_type const * address = ref.isNull() ? nullptr : & * ref;
       pointers.push_back(address);
       helpers.push_back(FillViewHelperVector::value_type(ref.id(),ref.key()));
     }

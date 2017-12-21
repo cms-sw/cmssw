@@ -32,10 +32,10 @@ class TauDQMHistEffProducer : public edm::EDAnalyzer
 
  public:
   explicit TauDQMHistEffProducer(const edm::ParameterSet&);
-  virtual ~TauDQMHistEffProducer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(){}
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& c);
+  ~TauDQMHistEffProducer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override{}
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   std::vector<cfgEntryPlot> cfgEntryPlot_;

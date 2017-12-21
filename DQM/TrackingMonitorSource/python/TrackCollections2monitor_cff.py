@@ -192,6 +192,42 @@ doEffFromHitPatternVsBX             ['highPurityPt1'] = cms.bool(True)
 doEffFromHitPatternVsLumi           ['highPurityPt1'] = cms.bool(True)
 doStopSource                        ['highPurityPt1'] = cms.bool(True)
 
+###### forward-only monitored track collections
+highPurityPt1Eta2p5to3p0 = trackSelector.clone()
+highPurityPt1Eta2p5to3p0.cut = cms.string("quality('highPurity') & pt >= 1 & abs(eta) > 2.5")
+
+sequenceName    ['highPurityPt1Eta2p5to3p0'] = highPurityPt1Eta2p5to3p0
+allTrackProducer['highPurityPt1Eta2p5to3p0'] = 'generalTracks'
+mainfolderName  ['highPurityPt1Eta2p5to3p0'] = 'Tracking/TrackParameters/highPurityTracks/pt_1_Eta_2p5'
+vertexfolderName['highPurityPt1Eta2p5to3p0'] = 'Tracking/PrimaryVertices/highPurityTracks/pt_1_Eta_2p5'
+trackPtN        ['highPurityPt1Eta2p5to3p0'] = cms.int32(100)
+trackPtMin	['highPurityPt1Eta2p5to3p0'] = cms.double(0.)
+trackPtMax	['highPurityPt1Eta2p5to3p0'] = cms.double(100.)
+doPlotsPCA	['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+numCutString    ['highPurityPt1Eta2p5to3p0'] = cms.string(" pt >= 1 & abs(eta) > 2.5 & quality('highPurity')") # num := den + quality('highPurity') [it is the same as the main selection, but just to be sure ...]
+denCutString    ['highPurityPt1Eta2p5to3p0'] = cms.string(" pt >= 1 & abs(eta) > 2.5") # den := kinematics cut
+doGoodTracksPlots                   ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doTrackerSpecific                   ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doHitPropertiesPlots                ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doGeneralPropertiesPlots            ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doBeamSpotPlots                     ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doSeedParameterHistos               ['highPurityPt1Eta2p5to3p0'] = cms.bool(False)
+doRecHitVsPhiVsEtaPerTrack          ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doRecHitVsPtVsEtaPerTrack           ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doGoodTrackRecHitVsPhiVsEtaPerTrack ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doLayersVsPhiVsEtaPerTrack          ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doGoodTrackLayersVsPhiVsEtaPerTrack ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doPUmonitoring                      ['highPurityPt1Eta2p5to3p0'] = cms.bool(False)
+doPlotsVsBXlumi                     ['highPurityPt1Eta2p5to3p0'] = cms.bool(False)
+doPlotsVsGoodPVtx                   ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doEffFromHitPatternVsPU             ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+doEffFromHitPatternVsBX             ['highPurityPt1Eta2p5to3p0'] = cms.bool(False)
+doEffFromHitPatternVsLumi           ['highPurityPt1Eta2p5to3p0'] = cms.bool(False)
+doStopSource                        ['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
+
+
+
+
 ###### all tracks (no pt cut) associated to the PV
 ###### association is dz<1mm 
 from CommonTools.RecoAlgos.TrackWithVertexSelector_cfi import *
@@ -275,7 +311,10 @@ selectedTracks.extend( ['generalTracks'] )
 selectedTracks.extend( ['highPurityPt1'] )
 selectedTracks.extend( ['highPurityPtRange0to1'] )
 selectedTracks.extend( ['highPurityPV0p1'] )
-selectedTracks.extend( ['highPurityPV0p1'] )
+
+# not by default
+#selectedTracks.extend( ['highPurityPt1Eta2p5to3p0'] )
+
 
 #selectedTracks2runSequence=cms.Sequence()
 #for tracks in selectedTracks :

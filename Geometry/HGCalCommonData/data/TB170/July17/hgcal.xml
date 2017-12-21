@@ -4,6 +4,7 @@
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="rmin"       value="0.0*fm"/>
   <Constant name="rmax"       value="50.0*cm"/>
+  <Constant name="zCaloFront" value="1069.8*cm"/>
   <Constant name="rminEE"     value="0.0*fm"/>
   <Constant name="rmaxEE"     value="8.0*cm"/>
   <Constant name="rmaxEEF"    value="9.5*cm"/>
@@ -22,7 +23,7 @@
   <Constant name="zgapFHBH"   value="3.0*cm"/>
   <Constant name="zCalor"     value="([zmaxEE]+[zgapEEFH]+[zmaxHE]+[zgapFHBH]+
 				     [zmaxAH])/2.0"/>
-  <Constant name="zposCalo"   value="([cms:zCaloFront]+[zCalor])"/>
+  <Constant name="zposCalo"   value="([zCaloFront]+[zCalor])"/>
   <Constant name="zposEE"     value="-[zCalor]"/>
   <Constant name="zposHE"     value="[zposEE]+[zmaxEE]+[zgapEEFH]"/>
   <Constant name="zposAH"     value="[zposHE]+[zmaxHE]+[zgapFHBH]"/>

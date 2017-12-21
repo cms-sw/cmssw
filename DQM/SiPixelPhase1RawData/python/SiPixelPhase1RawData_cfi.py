@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
-
+import DQM.SiPixelPhase1Common.TriggerEventFlag_cfi as trigger
 
 SiPixelPhase1RawDataNErrors = DefaultHisto.clone(
 topFolderName = DefaultHisto.topFolderName.value() +"/FED",
@@ -95,7 +95,8 @@ SiPixelPhase1RawDataConf = cms.VPSet(
 SiPixelPhase1RawDataAnalyzer = cms.EDAnalyzer("SiPixelPhase1RawData",
         src = cms.InputTag("siPixelDigis"),
         histograms = SiPixelPhase1RawDataConf,
-        geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry,
+        triggerflags = trigger.SiPixelPhase1Triggers
 )
 
 SiPixelPhase1RawDataHarvester = DQMEDHarvester("SiPixelPhase1Harvester",

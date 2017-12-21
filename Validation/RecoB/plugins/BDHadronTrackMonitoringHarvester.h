@@ -24,11 +24,11 @@ using namespace RecoBTag;
 class BDHadronTrackMonitoringHarvester : public DQMEDHarvester {
     public:
         explicit BDHadronTrackMonitoringHarvester(const edm::ParameterSet& pSet);
-        ~BDHadronTrackMonitoringHarvester();
+        ~BDHadronTrackMonitoringHarvester() override;
 
     private:
         void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
-        void beginJob();
+        void beginJob() override;
 
 
         // Histograms

@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 DCUCCSDat::DCUCCSDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_m1_vdd1 = 0;
   m_m2_vdd1 = 0;

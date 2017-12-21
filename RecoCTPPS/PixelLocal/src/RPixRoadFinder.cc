@@ -87,7 +87,7 @@ void RPixRoadFinder::findPattern(){
 
 //look for points near wrt each other
 // starting algorithm
-  while( it_gh1 != temp_all_hits.end() && temp_all_hits.size() > minRoadSize_){
+  while( it_gh1 != temp_all_hits.end() && temp_all_hits.size() >= minRoadSize_){
     Road temp_road;
   
     it_gh2 = it_gh1;
@@ -110,7 +110,7 @@ void RPixRoadFinder::findPattern(){
 
     }
 
-    if(temp_road.size() > minRoadSize_ && temp_road.size() < maxRoadSize_ )patternVector_.push_back(temp_road);
+    if(temp_road.size() >= minRoadSize_ && temp_road.size() < maxRoadSize_ )patternVector_.push_back(temp_road);
    
   }
 // end of algorithm

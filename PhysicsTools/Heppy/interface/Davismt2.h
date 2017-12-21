@@ -2,7 +2,7 @@
 #define PhysicsTools_Heppy_Davismt2_h
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "TObject.h"
 
 // using namespace std;

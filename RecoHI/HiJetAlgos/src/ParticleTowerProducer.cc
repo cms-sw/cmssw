@@ -63,7 +63,7 @@
 // constructors and destructor
 //
 ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig):
-   geo_(0)
+   geo_(nullptr)
 {
    //register your products  
   src_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"));

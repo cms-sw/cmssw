@@ -26,7 +26,7 @@ class StatisticalPlot : public TNamed {
     StatisticalPlot(const char* name,const  char* title,bool verbosity=true);
 
     /// Destructor
-    ~StatisticalPlot();
+    ~StatisticalPlot() override;
 
     /// Set the verbosity
     void setVerbosity(bool verbosity);

@@ -22,13 +22,13 @@
 #include "TVirtualMutex.h"
 
 // user include files
-#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/CacheParser.h"
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
 #include "FWCore/PluginManager/interface/PluginFactoryManager.h"
-#include "FWCore/PluginManager/interface/CacheParser.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edmplugin {
 //
@@ -360,13 +360,13 @@ PluginManager::loadingLibraryNamed_()
 {
   //NOTE: pluginLoadMutex() indirectly guards this since this value
   // is only accessible via the Sentry call which us guarded by the mutex
-  [[cms::thread_safe]] static std::string s_name(staticallyLinkedLoadingFileName());
+  CMS_THREAD_SAFE static std::string s_name(staticallyLinkedLoadingFileName());
   return s_name;
 }
 
 PluginManager*& PluginManager::singleton()
 {
-  [[cms::thread_safe]] static PluginManager* s_singleton=nullptr;
+  CMS_THREAD_SAFE static PluginManager* s_singleton=nullptr;
   return s_singleton;
 }
 

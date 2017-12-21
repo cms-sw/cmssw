@@ -39,10 +39,10 @@ public:
     L1GtTriggerMaskVetoTechTrigConfigOnlineProd(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtTriggerMaskVetoTechTrigConfigOnlineProd();
+    ~L1GtTriggerMaskVetoTechTrigConfigOnlineProd() override;
 
     /// public methods
-    virtual std::shared_ptr<L1GtTriggerMask> newObject(const std::string& objectKey);
+    std::shared_ptr<L1GtTriggerMask> newObject(const std::string& objectKey) override;
 
 private:
 

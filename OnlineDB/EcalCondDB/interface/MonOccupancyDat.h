@@ -13,10 +13,10 @@ class MonOccupancyDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonOccupancyDat();
-  ~MonOccupancyDat();
+  ~MonOccupancyDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_OCCUPANCY_DAT"; }
+  inline std::string getTable() override { return "MON_OCCUPANCY_DAT"; }
 
   void setEventsOverLowThreshold(int events) { m_eventsOverLowThreshold = events; }
   int getEventsOverLowThreshold() const { return m_eventsOverLowThreshold; }
@@ -29,7 +29,7 @@ class MonOccupancyDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonOccupancyDat* item, MonRunIOV* iov)
     noexcept(false);

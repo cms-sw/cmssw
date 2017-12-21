@@ -169,6 +169,6 @@ endOfLifeNoises = [2400.0,2250.0,1750.0]
 def HGCal_setEndOfLifeNoise(digitizer):
     if( digitizer.digiCollection != "HGCDigisHEback" ):
         digitizer.digiCfg.noise_fC = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] )
-        digitizer.digiCfg.chargeCollectionEfficiency = cms.double(endOfLifeCCEs)
+        digitizer.digiCfg.chargeCollectionEfficiency = cms.vdouble(endOfLifeCCEs)
     else: #use S/N of 7 for SiPM readout
-        digitizer.digiCfg.noise_MIP = cms.vdouble( 1.0/5.0 )
+        digitizer.digiCfg.noise_MIP = cms.double( 1.0/5.0 )

@@ -20,7 +20,7 @@ class RPCDigiValid: public DQMEDAnalyzer
 public:
 
   RPCDigiValid(const edm::ParameterSet& ps);
-  ~RPCDigiValid();
+  ~RPCDigiValid() override;
 
 protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;

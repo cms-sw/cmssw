@@ -3,6 +3,7 @@
 HLTBTagHarvestingAnalyzer::HLTBTagHarvestingAnalyzer(const edm::ParameterSet& iConfig)
 {
 	//getParameter
+	mainFolder_                     = iConfig.getParameter<std::string>("mainFolder");
 	hltPathNames_			= iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
 	edm::ParameterSet mc	= iConfig.getParameter<edm::ParameterSet>("mcFlavours");
 	m_mcLabels				= mc.getParameterNamesForType<std::vector<unsigned int> >();
@@ -29,9 +30,9 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	//for each hltPath and for each flavour, do the "b-tag efficiency vs jet pt" and "b-tag efficiency vs mistag rate" plots
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) 
 	{
-		dqmFolder_hist = Form("HLT/BTag/Discriminator/%s",hltPathNames_[ind].c_str());
-		std::string effDir = Form("HLT/BTag/Discriminator/%s/efficiency",hltPathNames_[ind].c_str());
-		std::string relationsDir = Form("HLT/BTag/Discriminator/%s/HEP17_HEM17",hltPathNames_[ind].c_str());
+	  dqmFolder_hist = Form("%s/Discriminator/%s",mainFolder_.c_str(),hltPathNames_[ind].c_str());
+	  std::string effDir = Form("%s/Discriminator/%s/efficiency",mainFolder_.c_str(),hltPathNames_[ind].c_str());
+	  std::string relationsDir = Form("%s/Discriminator/%s/HEP17_HEM17",mainFolder_.c_str(),hltPathNames_[ind].c_str());
 		ibooker.setCurrentFolder(effDir);
 		TH1 *den =nullptr;
 		TH1 *num =nullptr; 

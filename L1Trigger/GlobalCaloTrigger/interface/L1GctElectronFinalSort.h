@@ -38,13 +38,13 @@ public:
                                    L1GctEmLeafCard* negEtaCard);
   ///
   /// destructor
-  ~L1GctElectronFinalSort();
+  ~L1GctElectronFinalSort() override;
   ///
   /// get input data from sources
-  virtual void fetchInput();
+  void fetchInput() override;
   ///
   /// process the data, fill output buffers
-  virtual void process();
+  void process() override;
   ///
   /// set input data
   void setInputEmCand(unsigned i, const L1GctEmCand& cand);
@@ -64,11 +64,11 @@ public:
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines();
+  void resetProcessor() override;
+  void resetPipelines() override;
 
   /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects() {}
+  void setupObjects() override {}
 
  private:
   ///

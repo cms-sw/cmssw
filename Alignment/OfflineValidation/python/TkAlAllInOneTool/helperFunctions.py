@@ -1,4 +1,5 @@
 import os
+import re
 import ROOT
 import sys
 from TkAlExceptions import AllInOneError
@@ -226,3 +227,19 @@ def conddb(*args):
     sys.stdout = bkpstdout
 
     return result
+
+
+def clean_name(s):
+    """Transforms a string into a valid variable or method name.
+
+    Arguments:
+    - `s`: input string
+    """
+
+    # Remove invalid characters
+    s = re.sub(r"[^0-9a-zA-Z_]", "", s)
+
+    # Remove leading characters until we find a letter or underscore
+    s = re.sub(r"^[^a-zA-Z_]+", "", s)
+
+    return s

@@ -136,11 +136,11 @@ vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::getList(
                            muPosName ) );
     const reco::Candidate* muNeg = ptr->originalReco( ptr->getDaug(
                            muNegName ) );
-    if ( ( dSel != 0 ) && ( !dSel->accept( *muPos ) ) ) continue;
-    if ( ( dSel != 0 ) && ( !dSel->accept( *muNeg ) ) ) continue;
-    if ( ( mSel != 0 ) && ( !mSel->accept( *ptr   ) ) ) continue;
-    if ( ( vSel != 0 ) && ( !vSel->accept( *ptr   ) ) ) continue;
-    if ( ( kSel != 0 ) && ( !kSel->accept( *ptr   ) ) ) continue;
+    if ( ( dSel != nullptr ) && ( !dSel->accept( *muPos ) ) ) continue;
+    if ( ( dSel != nullptr ) && ( !dSel->accept( *muNeg ) ) ) continue;
+    if ( ( mSel != nullptr ) && ( !mSel->accept( *ptr   ) ) ) continue;
+    if ( ( vSel != nullptr ) && ( !vSel->accept( *ptr   ) ) ) continue;
+    if ( ( kSel != nullptr ) && ( !kSel->accept( *ptr   ) ) ) continue;
     lsub.push_back( list[i] );
   }
   return lsub;
@@ -160,7 +160,7 @@ BPHPlusMinusConstCandPtr BPHOniaToMuMuBuilder::getOriginalCandidate(
     if ( pmc->originalReco( pmc->getDaug( muNegName ) ) != mn ) continue;
     return pmp;
   }
-  return BPHPlusMinusConstCandPtr( 0 );
+  return BPHPlusMinusConstCandPtr( nullptr );
 }
 
 /// set cuts

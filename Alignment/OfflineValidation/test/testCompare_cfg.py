@@ -23,12 +23,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("EmptySource")
 
-process.load("DQM.SiStripCommon.TkHistoMap_cfi")
-#process.TkDetMap = cms.Service("TkDetMap")
-#process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
-process.load("DQMServices.Core.DQMStore_cfg") 
-#process.DQMStore=cms.Service("DQMStore")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

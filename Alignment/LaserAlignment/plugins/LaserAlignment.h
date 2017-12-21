@@ -85,11 +85,11 @@ class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer> {
  public:
 
   explicit LaserAlignment( edm::ParameterSet const& theConf );
-  ~LaserAlignment();
-  virtual void beginJob() override;
-  virtual void produce( edm::Event&, edm::EventSetup const& ) override;
-  virtual void endJob() override;
-  virtual void endRunProduce(edm::Run&, const edm::EventSetup& ) override;
+  ~LaserAlignment() override;
+  void beginJob() override;
+  void produce( edm::Event&, edm::EventSetup const& ) override;
+  void endJob() override;
+  void endRunProduce(edm::Run&, const edm::EventSetup& ) override;
 
   /// for debugging & testing only, will disappear..
   void testRoutine( void );

@@ -13,10 +13,10 @@ class FEConfigTimingInfo : public  IODConfig {
   friend class EcalCondDBInterface;
 
   FEConfigTimingInfo();
-  ~FEConfigTimingInfo();
+  ~FEConfigTimingInfo() override;
 
   // Methods for user data
-  inline std::string getTable() { return "FE_CONFIG_TIME_INFO"; }
+  inline std::string getTable() override { return "FE_CONFIG_TIME_INFO"; }
 
 
   inline void setId(int id) { m_ID = id; }
@@ -49,7 +49,7 @@ class FEConfigTimingInfo : public  IODConfig {
   Tm m_db_time;
   int m_version;
 
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void writeDB() noexcept(false);
   void clear();
   void fetchData(FEConfigTimingInfo * result) noexcept(false);

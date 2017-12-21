@@ -6,7 +6,7 @@ std::map<std::string,std::string> l1t::OnlineDBqueryHelper::fetch(
         const std::string              &key,
         l1t::OMDSReader                &m_omdsReader)
     {
-        if( queryColumns.size() == 0 || table.length() == 0 )
+        if( queryColumns.empty() || table.length() == 0 )
            return std::map<std::string,std::string>();
 
         l1t::OMDSReader::QueryResults queryResult =

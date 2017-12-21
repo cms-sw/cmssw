@@ -42,9 +42,9 @@ namespace pat {
     public:
 
       explicit PATCompositeCandidateProducer(const edm::ParameterSet & iConfig);
-      ~PATCompositeCandidateProducer();
+      ~PATCompositeCandidateProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
 

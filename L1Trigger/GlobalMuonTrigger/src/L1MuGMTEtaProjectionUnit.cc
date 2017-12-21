@@ -48,7 +48,7 @@
 // Constructors --
 //----------------
 L1MuGMTEtaProjectionUnit::L1MuGMTEtaProjectionUnit(const L1MuGMTMipIsoAU& miau, int id) : 
-  m_MIAU(miau), m_id(id), m_mu(0) {
+  m_MIAU(miau), m_id(id), m_mu(nullptr) {
 
 }
 
@@ -94,15 +94,15 @@ void L1MuGMTEtaProjectionUnit::run() {
     if (isFwd) { // forward
       for (int i=0; i<5; i++)
 	if ( (eta_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	  m_eta_select[i] = 1;
+	  m_eta_select[i] = true;
       
       for (int i=5; i<10; i++)
 	if ( (eta_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	  m_eta_select[i+4] = 1;            
+	  m_eta_select[i+4] = true;            
     } else { // barrel
       for (int i=0; i<10; i++)
 	if ( (eta_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	  m_eta_select[i+2] = 1;
+	  m_eta_select[i+2] = true;
     }
     
     //    m_MIAU.GMT().DebugBlockForFill()->SetEtaSelBits( m_id, m_eta_select.read(0,14)) ;
@@ -116,7 +116,7 @@ void L1MuGMTEtaProjectionUnit::run() {
 //
 void L1MuGMTEtaProjectionUnit::reset() {
 
-  m_mu = 0;
+  m_mu = nullptr;
   m_ieta = 0;
   m_feta = 0.;
   m_eta_select = (unsigned int) 0;

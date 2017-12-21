@@ -25,9 +25,9 @@
 class BCToEFilter : public edm::EDFilter {
  public:
   explicit BCToEFilter(const edm::ParameterSet&);
-  ~BCToEFilter();
+  ~BCToEFilter() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
  private:
   std::unique_ptr<BCToEFilterAlgo> BCToEAlgo_;

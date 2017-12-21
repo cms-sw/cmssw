@@ -13,10 +13,10 @@ class FEConfigLUTInfo : public  IODConfig {
   friend class EcalCondDBInterface;
 
   FEConfigLUTInfo();
-  ~FEConfigLUTInfo();
+  ~FEConfigLUTInfo() override;
 
   // Methods for user data
-  inline std::string getTable() { return "FE_CONFIG_LUT_INFO"; }
+  inline std::string getTable() override { return "FE_CONFIG_LUT_INFO"; }
 
 
   inline void setNumberOfGroups(int iov_id){ m_iov_id = iov_id;  }
@@ -53,7 +53,7 @@ class FEConfigLUTInfo : public  IODConfig {
   Tm m_db_time;
   int m_version;
 
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void writeDB() noexcept(false);
   void clear();
   void fetchData(FEConfigLUTInfo * result) noexcept(false);

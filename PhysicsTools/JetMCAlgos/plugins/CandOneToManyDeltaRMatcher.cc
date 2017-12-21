@@ -19,7 +19,7 @@
 class CandOneToManyDeltaRMatcher : public edm::global::EDProducer<> {
  public:
   CandOneToManyDeltaRMatcher( const edm::ParameterSet & );
-  ~CandOneToManyDeltaRMatcher();
+  ~CandOneToManyDeltaRMatcher() override;
  private:
   void produce( edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 
@@ -104,7 +104,7 @@ void CandOneToManyDeltaRMatcher::produce( edm::StreamID, Event& evt, const Event
       double dist = DeltaR( src.p4() , match.p4() );
       v.push_back( make_pair( m, dist ) );
     }
-    if ( v.size() > 0 ) {
+    if ( !v.empty() ) {
       sort( v.begin(), v.end(), reco::helper::SortBySecond() );
       for( size_t m = 0; m != v.size(); ++ m ) {
 	if (printdebug_) cout << "[CandOneToManyDeltaRMatcher]       match (Et,Eta,Phi) =(" << ( * matched )[ v[m].first ].et() << "," <<

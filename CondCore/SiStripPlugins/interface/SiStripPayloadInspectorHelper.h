@@ -6,7 +6,10 @@
 #include <string>
 #include "TH1.h"
 #include "TPaveText.h"
+#include "TStyle.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 
 namespace SiStripPI {
@@ -71,58 +74,58 @@ namespace SiStripPI {
   };
 
   /*--------------------------------------------------------------------*/
-  const char * regionType(int index)
+  std::pair<int,const char *> regionType(int index)
   /*--------------------------------------------------------------------*/
   {
     
     auto region = static_cast<std::underlying_type_t<SiStripPI::TrackerRegion> >(index);
 
     switch(region){
-    case SiStripPI::TIB1r: return "TIB L1 r-#varphi";
-    case SiStripPI::TIB1s: return "TIB L1 stereo";
-    case SiStripPI::TIB2r: return "TIB L2 r-#varphi";
-    case SiStripPI::TIB2s: return "TIB L2 stereo";
-    case SiStripPI::TIB3r: return "TIB L3";
-    case SiStripPI::TIB4r: return "TIB L4";
-    case SiStripPI::TOB1r: return "TOB L1 r-#varphi";
-    case SiStripPI::TOB1s: return "TOB L1 stereo";
-    case SiStripPI::TOB2r: return "TOB L2 r-#varphi";
-    case SiStripPI::TOB2s: return "TOB L2 stereo";
-    case SiStripPI::TOB3r: return "TOB L3 r-#varphi";
-    case SiStripPI::TOB4r: return "TOB L4";
-    case SiStripPI::TOB5r: return "TOB L5";
-    case SiStripPI::TOB6r: return "TOB L6";
-    case SiStripPI::TEC1r: return "TEC D1 r-#varphi";
-    case SiStripPI::TEC1s: return "TEC D1 stereo";
-    case SiStripPI::TEC2r: return "TEC D2 r-#varphi";
-    case SiStripPI::TEC2s: return "TEC D2 stereo";
-    case SiStripPI::TEC3r: return "TEC D3 r-#varphi";
-    case SiStripPI::TEC3s: return "TEC D3 stereo";
-    case SiStripPI::TEC4r: return "TEC D4 r-#varphi";
-    case SiStripPI::TEC4s: return "TEC D4 stereo";
-    case SiStripPI::TEC5r: return "TEC D5 r-#varphi";
-    case SiStripPI::TEC5s: return "TEC D5 stereo";
-    case SiStripPI::TEC6r: return "TEC D6 r-#varphi";
-    case SiStripPI::TEC6s: return "TEC D6 stereo";
-    case SiStripPI::TEC7r: return "TEC D7 r-#varphi";
-    case SiStripPI::TEC7s: return "TEC D7 stereo";
-    case SiStripPI::TEC8r: return "TEC D8 r-#varphi";
-    case SiStripPI::TEC8s: return "TEC D8 stereo";
-    case SiStripPI::TEC9r: return "TEC D9 r-#varphi";
-    case SiStripPI::TEC9s: return "TEC D9 stereo";
-    case SiStripPI::TID1r: return "TID D1 r-#varphi";
-    case SiStripPI::TID1s: return "TID D1 stereo";
-    case SiStripPI::TID2r: return "TID D2 r-#varphi";
-    case SiStripPI::TID2s: return "TID D2 stereo";
-    case SiStripPI::TID3r: return "TID D3 r-#varphi"; 
-    case SiStripPI::TID3s: return "TID D3 stereo";
-    case SiStripPI::END_OF_REGIONS : return "undefined";
-    default : return "should never be here";  
+    case SiStripPI::TIB1r: return std::make_pair(1 ,"TIB L1 r-#varphi");
+    case SiStripPI::TIB1s: return std::make_pair(2 ,"TIB L1 stereo");
+    case SiStripPI::TIB2r: return std::make_pair(3 ,"TIB L2 r-#varphi");
+    case SiStripPI::TIB2s: return std::make_pair(4 ,"TIB L2 stereo");
+    case SiStripPI::TIB3r: return std::make_pair(5 ,"TIB L3");
+    case SiStripPI::TIB4r: return std::make_pair(6 ,"TIB L4");
+    case SiStripPI::TOB1r: return std::make_pair(7 ,"TOB L1 r-#varphi");
+    case SiStripPI::TOB1s: return std::make_pair(8 ,"TOB L1 stereo");
+    case SiStripPI::TOB2r: return std::make_pair(9 ,"TOB L2 r-#varphi");
+    case SiStripPI::TOB2s: return std::make_pair(10,"TOB L2 stereo");
+    case SiStripPI::TOB3r: return std::make_pair(11,"TOB L3 r-#varphi");
+    case SiStripPI::TOB4r: return std::make_pair(12,"TOB L4");
+    case SiStripPI::TOB5r: return std::make_pair(13,"TOB L5");
+    case SiStripPI::TOB6r: return std::make_pair(14,"TOB L6");
+    case SiStripPI::TEC1r: return std::make_pair(15,"TEC D1 r-#varphi");
+    case SiStripPI::TEC1s: return std::make_pair(16,"TEC D1 stereo");
+    case SiStripPI::TEC2r: return std::make_pair(17,"TEC D2 r-#varphi");
+    case SiStripPI::TEC2s: return std::make_pair(18,"TEC D2 stereo");
+    case SiStripPI::TEC3r: return std::make_pair(19,"TEC D3 r-#varphi");
+    case SiStripPI::TEC3s: return std::make_pair(20,"TEC D3 stereo");
+    case SiStripPI::TEC4r: return std::make_pair(21,"TEC D4 r-#varphi");
+    case SiStripPI::TEC4s: return std::make_pair(22,"TEC D4 stereo");
+    case SiStripPI::TEC5r: return std::make_pair(23,"TEC D5 r-#varphi");
+    case SiStripPI::TEC5s: return std::make_pair(24,"TEC D5 stereo");
+    case SiStripPI::TEC6r: return std::make_pair(25,"TEC D6 r-#varphi");
+    case SiStripPI::TEC6s: return std::make_pair(26,"TEC D6 stereo");
+    case SiStripPI::TEC7r: return std::make_pair(27,"TEC D7 r-#varphi");
+    case SiStripPI::TEC7s: return std::make_pair(28,"TEC D7 stereo");
+    case SiStripPI::TEC8r: return std::make_pair(29,"TEC D8 r-#varphi");
+    case SiStripPI::TEC8s: return std::make_pair(30,"TEC D8 stereo");
+    case SiStripPI::TEC9r: return std::make_pair(31,"TEC D9 r-#varphi");
+    case SiStripPI::TEC9s: return std::make_pair(32,"TEC D9 stereo");
+    case SiStripPI::TID1r: return std::make_pair(33,"TID D1 r-#varphi");
+    case SiStripPI::TID1s: return std::make_pair(34,"TID D1 stereo");
+    case SiStripPI::TID2r: return std::make_pair(35,"TID D2 r-#varphi");
+    case SiStripPI::TID2s: return std::make_pair(36,"TID D2 stereo");
+    case SiStripPI::TID3r: return std::make_pair(37,"TID D3 r-#varphi"); 
+    case SiStripPI::TID3s: return std::make_pair(38,"TID D3 stereo");
+    case SiStripPI::END_OF_REGIONS : std::make_pair(-1,"undefined");
+    default : return std::make_pair(999,"should never be here");  
     }
   }
 
   /*--------------------------------------------------------------------*/
-  std::pair<float,float> getTheRange(std::map<uint32_t,float> values)
+  std::pair<float,float> getTheRange(std::map<uint32_t,float> values,const float nsigma)
   /*--------------------------------------------------------------------*/
   {
     float sum = std::accumulate(std::begin(values), 
@@ -143,8 +146,11 @@ namespace SiStripPI {
     
     float stdev = sqrt(accum / (values.size()-1)); 
     
-    return std::make_pair(m-2*stdev,m+2*stdev);
-    
+    if(stdev!=0.){
+      return std::make_pair(m-nsigma*stdev,m+nsigma*stdev);
+    } else {
+      return std::make_pair(m>0.? 0.95*m : 1.05*m, m>0? 1.05*m : 0.95*m);
+    }
   }
   
   /*--------------------------------------------------------------------*/
@@ -251,12 +257,157 @@ namespace SiStripPI {
       int layer  = (element.first)/10 - (element.first)/1000*100;
       int stereo = (element.first) - (layer*10) -(element.first)/1000*1000;
       
-      std::cout<<"key of the map:"<<element.first <<" ( region: "<<regionType(element.first) <<" ) "  
+      std::cout<<"key of the map:"<<element.first <<" ( region: "<<regionType(element.first).second <<" ) "  
 	       << detector<<" layer: "<<layer<<" stereo:"<<stereo
 	       <<"| count:"<<count<<" mean: "<<mean<<" rms: "<<rms<<std::endl;
       
     }
   }
-};
 
+  // code is mutuated from CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics
+
+  /*--------------------------------------------------------------------*/
+  void setBadComponents(int i, int component, SiStripQuality::BadComponent& BC,int NBadComponent[4][19][4])
+  /*--------------------------------------------------------------------*/
+  {
+   
+    if (BC.BadApvs){
+      NBadComponent[i][0][2]+= std::bitset<16>(BC.BadApvs&0x3f).count(); 
+      NBadComponent[i][component][2]+= std::bitset<16>(BC.BadApvs&0x3f).count(); 
+    }
+
+    if (BC.BadFibers){ 
+      NBadComponent[i][0][1]+= std::bitset<4>(BC.BadFibers&0x7).count();
+      NBadComponent[i][component][1]+= std::bitset<4>(BC.BadFibers&0x7).count();
+    }   
+
+    if (BC.BadModule){
+      NBadComponent[i][0][0]++;
+      NBadComponent[i][component][0]++;
+    }
+  }
+  
+  enum palette {HALFGRAY,GRAY,BLUES,REDS,ANTIGRAY,FIRE,ANTIFIRE,LOGREDBLUE,LOGBLUERED,DEFAULT};
+
+  /*--------------------------------------------------------------------*/
+  void setPaletteStyle(SiStripPI::palette palette) 
+  /*--------------------------------------------------------------------*/
+  {
+  
+    TStyle *palettestyle = new TStyle("palettestyle","Style for P-TDR");
+  
+    const int NRGBs = 5;
+    const int NCont = 255;
+    
+    switch(palette){
+
+    case HALFGRAY:
+      {
+	double stops[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double red[NRGBs]   = {1.00, 0.91, 0.80, 0.67, 1.00};
+	double green[NRGBs] = {1.00, 0.91, 0.80, 0.67, 1.00};
+	double blue[NRGBs]  = {1.00, 0.91, 0.80, 0.67, 1.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+      }
+      break;
+
+    case GRAY:
+      {
+	double stops[NRGBs] = {0.00, 0.01, 0.05, 0.09, 0.1};
+	double red[NRGBs]   = {1.00, 0.84, 0.61, 0.34, 0.00};
+	double green[NRGBs] = {1.00, 0.84, 0.61, 0.34, 0.00};
+	double blue[NRGBs]  = {1.00, 0.84, 0.61, 0.34, 0.00};
+      	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+      }
+      break;
+
+    case BLUES:
+      {
+	double stops[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double red[NRGBs]   = {1.00, 0.84, 0.61, 0.34, 0.00};
+	double green[NRGBs] = {1.00, 0.84, 0.61, 0.34, 0.00};
+	double blue[NRGBs]  = {1.00, 1.00, 1.00, 1.00, 1.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+	
+      }
+      break;
+      
+    case REDS:
+	{
+	  double stops[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	  double red[NRGBs]   = {1.00, 1.00, 1.00, 1.00, 1.00};
+	  double green[NRGBs] = {1.00, 0.84, 0.61, 0.34, 0.00};
+	  double blue[NRGBs]  = {1.00, 0.84, 0.61, 0.34, 0.00};
+	  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);	
+	}
+	break;
+      
+    case ANTIGRAY:
+      {
+	double stops[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double red[NRGBs]   = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double green[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double blue[NRGBs]  = {0.00, 0.34, 0.61, 0.84, 1.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);		
+      }      
+      break;
+      
+    case FIRE:
+      {
+	double stops[NRGBs] = {0.00, 0.20, 0.80, 1.00};
+	double red[NRGBs]   = {1.00, 1.00, 1.00, 0.50};
+	double green[NRGBs] = {1.00, 1.00, 0.00, 0.00};
+	double blue[NRGBs]  = {0.20, 0.00, 0.00, 0.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);	
+      }
+      break;
+
+    case ANTIFIRE:
+      {
+	double stops[NRGBs] = {0.00, 0.20, 0.80, 1.00};
+	double red[NRGBs]   = {0.50, 1.00, 1.00, 1.00};
+	double green[NRGBs] = {0.00, 0.00, 1.00, 1.00};
+	double blue[NRGBs]  = {0.00, 0.00, 0.00, 0.20};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);		
+      }
+      break;
+
+    case LOGREDBLUE:
+      {
+	double stops[NRGBs] = {0.0001, 0.0010, 0.0100, 0.1000,  1.0000};
+	double red[NRGBs]   = {1.00,   0.75,   0.50,   0.25,    0.00};
+	double green[NRGBs] = {0.00,   0.00,   0.00,   0.00,    0.00};
+	double blue[NRGBs]  = {0.00,   0.25,   0.50,   0.75,    1.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);		
+      }
+      break;
+      
+    case LOGBLUERED:
+      {
+	double stops[NRGBs] = {0.0001, 0.0010, 0.0100, 0.1000,  1.0000};
+	double red[NRGBs]   = {0.00,   0.25,   0.50,   0.75,    1.00};
+	double green[NRGBs] = {0.00,   0.00,   0.00,   0.00,    0.00};
+	double blue[NRGBs]  = {1.00,   0.75,   0.50,   0.25,    0.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);			
+      } 
+      break;
+    
+    case DEFAULT:
+      {
+	double stops[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double red[NRGBs]   = {0.00, 0.00, 0.87, 1.00, 0.51};
+	double green[NRGBs] = {0.00, 0.81, 1.00, 0.20, 0.00};
+	double blue[NRGBs]  = {0.51, 1.00, 0.12, 0.00, 0.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);	
+      }
+      break;
+    default:
+      std::cout<<"should nevere be here" << std::endl;
+      break;
+    }
+    
+    palettestyle->SetNumberContours(NCont);
+  }
+
+};
 #endif

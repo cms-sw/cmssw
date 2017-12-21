@@ -35,7 +35,7 @@ CandIsoDepositProducer::CandIsoDepositProducer(const ParameterSet& par) :
   theCandCollectionToken(consumes< edm::View<reco::Candidate> >(par.getParameter<edm::InputTag>("src"))),
   theDepositNames(std::vector<std::string>(1,"")),
   theMultipleDepositsFlag(par.getParameter<bool>("MultipleDepositsFlag")),
-  theExtractor(0)
+  theExtractor(nullptr)
   {
   LogDebug("PhysicsTools|MuonIsolation")<<" CandIsoDepositProducer CTOR";
 
@@ -72,13 +72,13 @@ CandIsoDepositProducer::~CandIsoDepositProducer(){
 
 inline const reco::Track * CandIsoDepositProducer::extractTrack(const reco::Candidate &c, reco::Track *dummy) const {
     if (theTrackType == CandidateT) {
-        return 0;
+        return nullptr;
     } else if (theTrackType == FakeT) {
         *dummy = Track(10,10,c.vertex(),c.momentum(),c.charge(), reco::Track::CovarianceMatrix());
         return dummy;
     } else {
         const RecoCandidate *rc = dynamic_cast<const RecoCandidate *>(&c);
-        if (rc == 0) throw cms::Exception("Error") << " Candidate is not RecoCandidate: can't get a real track from it!";
+        if (rc == nullptr) throw cms::Exception("Error") << " Candidate is not RecoCandidate: can't get a real track from it!";
         switch (theTrackType) {
             case FakeT: break; // to avoid warning
             case CandidateT: break; // to avoid warning
@@ -88,7 +88,7 @@ inline const reco::Track * CandIsoDepositProducer::extractTrack(const reco::Cand
             case TrackT: return &*rc->track(); break;
             case GsfT: return static_cast<const Track*>(rc->gsfTrack().get()); break;
         }
-        return 0;
+        return nullptr;
     }
 }
 

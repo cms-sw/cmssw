@@ -6,8 +6,8 @@ using namespace oracle::occi;
 LMFIOV::LMFIOV()
 {
   //standard
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_className = "LMFIOV";
   m_ID = 0;
   // custom

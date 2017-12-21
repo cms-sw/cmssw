@@ -41,10 +41,10 @@ namespace edm {
 class MCDijetResonance : public edm::EDFilter {
    public:
       explicit MCDijetResonance(const edm::ParameterSet&);
-      ~MCDijetResonance();
-      virtual void endJob() ;
+      ~MCDijetResonance() override;
+      void endJob() override ;
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       edm::EDGetTokenT<edm::HepMCProduct> token_;

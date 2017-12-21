@@ -22,12 +22,12 @@ public:
     FsmwClusterizer1D ( double fraction = .05, double n_sigma_in = 3.,
                       const WeightEstimator<T> & est = TrivialWeightEstimator<T>() );
     FsmwClusterizer1D ( const FsmwClusterizer1D & );
-    ~FsmwClusterizer1D();
+    ~FsmwClusterizer1D() override;
 
     std::pair < std::vector < Cluster1D<T> >, std::vector < const T * > >
-    operator() ( const std::vector< Cluster1D<T> > & ) const;
+    operator() ( const std::vector< Cluster1D<T> > & ) const override;
 
-    virtual FsmwClusterizer1D * clone() const;
+    FsmwClusterizer1D * clone() const override;
 
 private:
     WeightEstimator<T> * theEstimator;

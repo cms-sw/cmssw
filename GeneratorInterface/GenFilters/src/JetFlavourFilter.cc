@@ -29,7 +29,7 @@ HepMC::GenParticle * JetFlavourFilter::findParticle(const GenPartVect& genPartVe
     {
       if (requested_id == (*p)->pdg_id()) return *p;
     }
-  return 0;
+  return nullptr;
 }
 
 

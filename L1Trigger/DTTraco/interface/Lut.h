@@ -21,7 +21,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 #define ANGRESOL	512.0	
 #define POSRESOL	4096.0

@@ -55,7 +55,7 @@
 class L1RCTOmdsFedVectorProducer : public edm::ESProducer {
 public:
   L1RCTOmdsFedVectorProducer(const edm::ParameterSet&);
-  ~L1RCTOmdsFedVectorProducer();
+  ~L1RCTOmdsFedVectorProducer() override;
   
   typedef std::shared_ptr<RunInfo> ReturnType;
   

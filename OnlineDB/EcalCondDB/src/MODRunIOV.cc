@@ -11,7 +11,7 @@ using namespace oracle::occi;
 
 MODRunIOV::MODRunIOV()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
   m_ID = 0;
   m_runIOV = RunIOV();
   m_subRunNum = 0;

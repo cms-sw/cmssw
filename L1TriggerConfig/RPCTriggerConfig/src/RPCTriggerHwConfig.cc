@@ -38,7 +38,7 @@
 class RPCTriggerHwConfig : public edm::ESProducer {
    public:
       RPCTriggerHwConfig(const edm::ParameterSet&);
-      ~RPCTriggerHwConfig();
+      ~RPCTriggerHwConfig() override;
 
       typedef std::unique_ptr<L1RPCHwConfig> ReturnType;
 

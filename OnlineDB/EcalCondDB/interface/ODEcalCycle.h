@@ -11,10 +11,10 @@ class ODEcalCycle : public IODConfig {
   friend class EcalCondDBInterface ;
 
   ODEcalCycle();
-  ~ODEcalCycle();
+  ~ODEcalCycle() override;
 
   // User data methods
-  inline std::string getTable() { return "ECAL_CYCLE"; }
+  inline std::string getTable() override { return "ECAL_CYCLE"; }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
@@ -66,7 +66,7 @@ class ODEcalCycle : public IODConfig {
   void printout();
 
  private:
-  void prepareWrite()  noexcept(false);
+  void prepareWrite()  noexcept(false) override;
   void writeDB()       noexcept(false);
   void clear();
   int fetchID()        noexcept(false);

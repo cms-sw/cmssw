@@ -23,7 +23,7 @@
 class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCChamberTimeCorrectionsValues(const edm::ParameterSet&);
-  ~CSCChamberTimeCorrectionsValues();
+  ~CSCChamberTimeCorrectionsValues() override;
   
   inline static CSCChamberTimeCorrections * prefill(bool isMC, float ME11offset, float nonME11offset);
 
@@ -33,7 +33,7 @@ class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::Event
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCChamberTimeCorrections *chamberObj ;
 
   //Flag for determining if this is for setting MC or data corrections

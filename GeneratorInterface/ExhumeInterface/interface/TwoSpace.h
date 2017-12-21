@@ -14,24 +14,24 @@ namespace Exhume{
 
   public:
     TwoSpace(const edm::ParameterSet&);
-    ~TwoSpace();
-    double SubParameterRange();
-    void MaximiseSubParameters();
-    void SetSubParameters();
-    void SetPartons();
+    ~TwoSpace() override;
+    double SubParameterRange() override;
+    void MaximiseSubParameters() override;
+    void SetSubParameters() override;
+    void SetPartons() override;
     void SetMassAtThetaScan(double _M1){
       MassAtThetaScan=_M1;
       return;
     }
-    virtual double SubProcess()=0;
-    double SubParameterWeight();
+    double SubProcess() override =0;
+    double SubParameterWeight() override;
     void SetThetaMin(const double &);
     int GetNumberOfSubParameters();
     //allows user to define an amplitude (Msq) and use all our pre defined funcs
     //virtual double AmplitudeSq()=0;
     virtual void Amp2LIPS()=0;
     virtual void LIPS2Amp()=0;
-    double WeightFunc(const double&);
+    double WeightFunc(const double&) override;
 
     
     

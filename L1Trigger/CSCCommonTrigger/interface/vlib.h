@@ -14,8 +14,8 @@ Verilog++ SP.
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <time.h>
-#include <stdio.h>
+#include <ctime>
+#include <cstdio>
 
 #define MAXARG 2000
 
@@ -186,7 +186,7 @@ protected:
 class memory
 {
 public: 
-	memory (){r = NULL;};
+	memory (){r = nullptr;};
 	~memory ();
 	void reg (int, int, int, int, const char*);
 	void reg (int nup, int ndown, const char* rname) {reg (0, 0, nup, ndown, rname);};

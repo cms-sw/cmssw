@@ -38,14 +38,14 @@ class basic_omemstream : private std::basic_streambuf<Item_t, Traits_t>,
 	bool empty() const { return cur == buffer; }
 
     private:
-	std::streamsize xsputn(char_type const *data, std::streamsize size) {
+	std::streamsize xsputn(char_type const *data, std::streamsize size) override {
 		size_t n = std::min<size_t>(last - cur, size);
 		traits_type::copy(cur, data, n);
 		cur += n;
 		return n;
 	}
 
-	int_type overflow(int_type c)
+	int_type overflow(int_type c) override
 	{
 		if (!traits_type::eq_int_type(c, traits_type::eof())) {
 			char_type t = traits_type::to_char_type(c);
@@ -56,7 +56,7 @@ class basic_omemstream : private std::basic_streambuf<Item_t, Traits_t>,
 		return c;
 	}
 
-	int sync() { return 0; }
+	int sync() override { return 0; }
 
 	char_type	*buffer, *cur, *last;
 };
@@ -80,7 +80,7 @@ class basic_imemstream : private std::basic_streambuf<Item_t, Traits_t>,
 	}
 
     private:
-	int_type underflow()
+	int_type underflow() override
 	{
 		if (this->gptr() && this->gptr() < this->egptr())
 			return traits_type::to_int_type(*this->gptr());

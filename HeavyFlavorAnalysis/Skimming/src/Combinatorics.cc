@@ -188,7 +188,7 @@ Bool_t Combinatorics::next_subset(int n, int k, int *subset)
 // **************************************************************************
 vector < vector <UInt_t> > Combinatorics::GetCombinations()
 {
-  if (m_Permutations.size() == 0) 
+  if (m_Permutations.empty()) 
     {
       LogDebug("Combinatorics") << "Nothing to do." << endl;
       return m_Combinations;
@@ -241,7 +241,7 @@ vector < vector <UInt_t> > Combinatorics::GetCombinations_2_2()
   // combination vector returned
   vector< vector <UInt_t> > FinalCombinations; 
 
-  if (m_Permutations.size() == 0) 
+  if (m_Permutations.empty()) 
     {
       LogDebug("Combinatorics") << "[Combinatorics::GetCombinations_2_2] Nothing to do." << endl;
       return FinalCombinations;
@@ -272,7 +272,7 @@ vector < vector <UInt_t> > Combinatorics::GetCombinations_2_0()
   // combination vector returned
   vector< vector <UInt_t> > FinalCombinations; 
 
-  if (m_Permutations.size() == 0) 
+  if (m_Permutations.empty()) 
     {
       LogDebug("Combinatorics") << "[Combinatorics::GetCombinations_2_0] Nothing to do." << endl;
       return FinalCombinations;
@@ -422,7 +422,7 @@ vector < vector <UInt_t> > Combinatorics::GetCombinations_N_1()
   // combination vector returned
   vector < vector <UInt_t> > FinalCombinations;
 
-  if (m_Combinations.size() == 0) 
+  if (m_Combinations.empty()) 
     {
       LogDebug("Combinatorics") << "[Combinatorics::GetCombinationsThreeByOne] Nothing to do." << endl;
       return FinalCombinations;

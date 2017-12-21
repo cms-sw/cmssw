@@ -26,8 +26,8 @@ class OniaAddV0TracksProducer : public edm::EDProducer {
  
  private:
 
-  virtual void produce(edm::Event& event, const edm::EventSetup& esetup);
-  virtual void endJob() ;
+  void produce(edm::Event& event, const edm::EventSetup& esetup) override;
+  void endJob() override ;
 
   edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> LambdaCollectionToken_;
   edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> KShortCollectionToken_;

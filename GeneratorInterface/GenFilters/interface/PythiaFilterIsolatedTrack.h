@@ -44,14 +44,14 @@ class PythiaFilterIsolatedTrack : public edm::stream::EDFilter<edm::GlobalCache<
 
 public:
   explicit PythiaFilterIsolatedTrack(const edm::ParameterSet&, const PythiaFilterIsoTracks::Counters* count);
-  ~PythiaFilterIsolatedTrack();
+  ~PythiaFilterIsolatedTrack() override;
 
   static std::unique_ptr<PythiaFilterIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& ) {
     return std::unique_ptr<PythiaFilterIsoTracks::Counters>(new PythiaFilterIsoTracks::Counters());
   }
 
-  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
-  virtual void endStream() override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  void endStream() override;
   static  void globalEndJob(const PythiaFilterIsoTracks::Counters* counters);
 
   // helper functions

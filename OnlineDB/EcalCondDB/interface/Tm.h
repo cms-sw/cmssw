@@ -5,9 +5,9 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
-#include <time.h>
-#include <stdint.h>
-#include <limits.h>
+#include <ctime>
+#include <cstdint>
+#include <climits>
 
 // Wrapper class for time.h tm struct
 class Tm {

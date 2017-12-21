@@ -153,7 +153,7 @@ void JetMatchingMGFastJet::updateOrDie(
 JetMatchingMGFastJet::JetMatchingMGFastJet(const edm::ParameterSet &params) :
         JetMatching(params),
         runInitialized(false),
-        fJetFinder(0),
+        fJetFinder(nullptr),
         fIsInit(false)
 {
         std::string mode = params.getParameter<std::string>("mode");

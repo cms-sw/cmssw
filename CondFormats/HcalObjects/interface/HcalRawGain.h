@@ -10,6 +10,7 @@ $Date: 2007/12/10 18:38:20 $
 $Revision: 1.4 $
 */
 #include <boost/cstdint.hpp>
+#include <string>
 
 class HcalRawGain {
  public:

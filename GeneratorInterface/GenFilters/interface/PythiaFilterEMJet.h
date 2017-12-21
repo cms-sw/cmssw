@@ -28,9 +28,9 @@ namespace edm {
 class PythiaFilterEMJet : public edm::EDFilter {
    public:
       explicit PythiaFilterEMJet(const edm::ParameterSet&);
-      ~PythiaFilterEMJet();
+      ~PythiaFilterEMJet() override;
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
    private:
       

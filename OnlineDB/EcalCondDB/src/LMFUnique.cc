@@ -83,7 +83,7 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const
 	if (m_debug) {
 	  o->debug();
 	}
-	if (o != NULL) {
+	if (o != nullptr) {
 	  o->setByID(rset->getInt(1));
 	  if (m_debug) {
 	    o->dump();
@@ -188,7 +188,7 @@ std::string LMFUnique::fetchAllSql(Statement *stmt) const {
 
 LMFUnique* LMFUnique::createObject() const {
   /* this method should return a pointer to a newly created object */
-  return NULL;
+  return nullptr;
 }
 
 std::string LMFUnique::getString(std::string s) const {

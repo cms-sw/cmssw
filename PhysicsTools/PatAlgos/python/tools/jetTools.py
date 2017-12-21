@@ -5,6 +5,7 @@ from FWCore.ParameterSet.SequenceTypes import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.recoLayer0.bTagging_cff import *
 import sys
+from FWCore.ParameterSet.MassReplace import MassSearchReplaceAnyInputTagVisitor
 
 ## dictionary with supported jet clustering algorithms
 supportedJetAlgos = {
@@ -235,6 +236,15 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                   algo, rParam, btagDiscriminators, btagInfos, patJets, labelName, btagPrefix, postfix):
 
     task = getPatAlgosToolsTask(process)
+
+    ## expand the btagDiscriminators to remove the meta taggers and substitute the equivalent sources
+    discriminators = set(btagDiscriminators)
+    present_meta = discriminators.intersection(set(supportedMetaDiscr.keys()))
+    discriminators -= present_meta
+    for meta_tagger in present_meta:
+        for src in supportedMetaDiscr[meta_tagger]:
+            discriminators.add(src)
+    btagDiscriminators = list(discriminators)
 
     ## expand tagInfos to what is explicitly required by user + implicit
     ## requirements that come in from one or the other discriminator
@@ -576,6 +586,32 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             acceptedBtagDiscriminators.append(discriminator_name)
         else:
             print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+    #update meta-taggers, if any
+    for meta_tagger in present_meta:
+        btagDiscr = meta_tagger.split(':')[0] #split input tag to get the producer label
+        #print discriminator_name, '-->', btagDiscr
+        if hasattr(btag,btagDiscr): 
+            newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    getattr(btag, btagDiscr).clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)            
+        else:
+            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+        
     ## replace corresponding tags for pat jet production
     patJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in acceptedTagInfos ] )
     patJets.discriminatorSources = cms.VInputTag(*[ 
@@ -708,7 +744,7 @@ class AddJetCollection(ConfigToolBase):
         and \'type-2\' are not case sensitive.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging, in most cases just the labels of the btag discriminators that \
         you are interested in is all relevant information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. \
-        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=supportedBtagDiscr.keys(),Type=list)
+        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects contain all relevant information from which all discriminators of a certain \
         type have been calculated. You might be interested in keeping this information for low level tests or to re-calculate some discriminators from hand. Note that this information \
         on the one hand can be very space consuming and that it is not necessary to access the pre-calculated btag discriminator information that has been derived from it. Only in very \
@@ -1114,7 +1150,7 @@ class SwitchJetCollection(ConfigToolBase):
         applied. If you are not interested in MET(Type1) corrections to this new patJet collection pass None as third argument of the python tuple.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging in general the btag discriminators is all relevant \
         information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. If this list is empty no btag \
-        discriminator information will be added to your new patJet collection.", allowedValues=supportedBtagDiscr.keys(),Type=list)
+        discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects conatin all relevant information from which all discriminators of a certain \
         type have been calculated. Note that this information on the one hand can be very space consuming and on the other hand is not necessary to access the btag discriminator \
         information that has been derived from it. Only in very special cases the btagInfos might really be needed in your analysis. Add here all btagInfos, that you are interested \
@@ -1326,7 +1362,7 @@ class UpdateJetCollection(ConfigToolBase):
         and \'type-2\' are not case sensitive.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging, in most cases just the labels of the btag discriminators that \
         you are interested in is all relevant information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. \
-        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=supportedBtagDiscr.keys(),Type=list)
+        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects contain all relevant information from which all discriminators of a certain \
         type have been calculated. You might be interested in keeping this information for low level tests or to re-calculate some discriminators from hand. Note that this information \
         on the one hand can be very space consuming and that it is not necessary to access the pre-calculated btag discriminator information that has been derived from it. Only in very \

@@ -34,7 +34,7 @@ namespace edmNew {
     
     
     inline
-    DetSet() : m_id(0), m_data(0), m_offset(-1), m_size(0){}
+    DetSet() : m_id(0), m_data(nullptr), m_offset(-1), m_size(0){}
     inline
     DetSet(id_type i, DataContainer const & idata, size_type ioffset, size_type isize) :
       m_id(i), m_data(&idata), m_offset(ioffset), m_size(isize) {}
@@ -42,7 +42,7 @@ namespace edmNew {
     inline
     DetSet(Container const & icont,
 	   typename Container::Item const & item, bool update) :
-      m_id(0), m_data(0), m_offset(-1), m_size(0){
+      m_id(0), m_data(nullptr), m_offset(-1), m_size(0){
       set(icont,item, update);
     }
 
@@ -106,7 +106,7 @@ namespace edmNew {
    
     data_type const * data() const {
       if(m_offset|m_size) assert(m_data);
-      return m_data ? (&((*m_data)[m_offset])) : 0;
+      return m_data ? (&((*m_data)[m_offset])) : nullptr;
     }
 
    data_type * data() {

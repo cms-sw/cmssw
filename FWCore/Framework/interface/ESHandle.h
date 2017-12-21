@@ -78,7 +78,7 @@ class ESHandle : public ESHandleBase {
       typedef T value_type;
    
       ESHandle() : ESHandleBase() {}
-      ESHandle(T const* iData) : ESHandleBase(iData, 0) {}
+      ESHandle(T const* iData) : ESHandleBase(iData, nullptr) {}
       ESHandle(T const* iData, edm::eventsetup::ComponentDescription const* desc) : ESHandleBase(iData, desc) {}
       ESHandle(std::shared_ptr<ESHandleExceptionFactory> &&);
 

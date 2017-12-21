@@ -52,7 +52,7 @@ std::vector<unsigned> L1GctHfBitCountsLut::getThresholdsGct() const
 
 L1GctHfBitCountsLut L1GctHfBitCountsLut::operator= (const L1GctHfBitCountsLut& lut)
 {
-  L1GctHfBitCountsLut temp(lut);
+  const L1GctHfBitCountsLut& temp(lut);
   return temp;
 }
 

@@ -276,7 +276,7 @@ void L1MuGMTLUT::Load(const char* path) {
 	break;
       }	
 
-      istringstream is(tok1[1].c_str());
+      istringstream is(tok1[1]);
       int newindex; 
       is >> newindex;
       if (newindex != current_index+1)
@@ -295,7 +295,7 @@ void L1MuGMTLUT::Load(const char* path) {
 	  edm::LogWarning("LUTParsingProblem") << "L1MuGMTLUT::Load: warning: LUT file only contains part of LUT contents.";
 	row = 0;
       }
-      istringstream is1(tok[1].c_str());
+      istringstream is1(tok[1]);
       unsigned value;
       if (is1 >> value) {
 	if (current_index!=-1)
@@ -303,7 +303,7 @@ void L1MuGMTLUT::Load(const char* path) {
       }
     }
     else {
-      istringstream is1(line.c_str());
+      istringstream is1(line);
       unsigned value;
       if (is1 >> value) {
 	if (row < maxrows) {
@@ -379,7 +379,7 @@ void L1MuGMTLUT::MakeSubClass(const char* fname, const char* template_file_h,
 
   // substitute in .h file
   string outfn (fname);
-  if (outfn.size() == 0) outfn = string("../interface/L1MuGMT") +  m_name + string("LUT.h");
+  if (outfn.empty()) outfn = string("../interface/L1MuGMT") +  m_name + string("LUT.h");
   ifstream of_check(outfn.c_str());
   if (! of_check.good() ) {
     ofstream of(outfn.c_str());
@@ -409,7 +409,7 @@ void L1MuGMTLUT::MakeSubClass(const char* fname, const char* template_file_h,
 
   // substitute in .cc file
   string outfn_cc (fname);
-  if (outfn_cc.size() == 0) outfn_cc = string("../interface/L1MuGMT") +  m_name + string("LUT.cc");
+  if (outfn_cc.empty()) outfn_cc = string("../interface/L1MuGMT") +  m_name + string("LUT.cc");
 
   ifstream of_cc_check( outfn_cc.c_str() );
   if (! of_cc_check.good() ) {

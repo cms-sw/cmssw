@@ -11,9 +11,9 @@ using namespace oracle::occi;
 
 CaliGainRatioDat::CaliGainRatioDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
 
   m_g1_g12 = 0;
   m_g6_g12 = 0;

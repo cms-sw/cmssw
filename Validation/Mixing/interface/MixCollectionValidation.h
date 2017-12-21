@@ -34,9 +34,9 @@
 class MixCollectionValidation : public DQMEDAnalyzer {
 public:
   explicit MixCollectionValidation(const edm::ParameterSet&);
-  ~MixCollectionValidation();
+  ~MixCollectionValidation() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   

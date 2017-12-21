@@ -3,9 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import os 
 
 # Create a new CMS process
-process = cms.Process('Phase2TrackerRecHitTest')
-
-from Configuration.StandardSequences.Eras import eras  # wtf(2)
+from Configuration.StandardSequences.Eras import eras
 process = cms.Process('assocTest',eras.Phase2)
 
 # Import all the necessary files
@@ -23,7 +21,7 @@ process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted4025_
 
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
-process.load('Configuration.EventContent.EventContent_cff')  # wtf(5)
+process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -56,7 +54,7 @@ process.TFileService = cms.Service('TFileService',
     fileName = cms.string('file:phase2Trk_rechits_validation.root')
 )
 
-process.mix.playback = True  # wtf (3)
+process.mix.playback = True
 process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
 
@@ -117,7 +115,7 @@ phase2_tracker.toModify(process.testassociator,
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 # Number of events (-1 = all)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 # Processes to run
 
@@ -126,4 +124,4 @@ process.rechits_step = cms.Path(process.siPixelRecHits*process.siPhase2Clusters*
 # process.validation_step = cms.Path(process.content*process.testassociator)
 process.validation_step = cms.Path(process.testassociator)
 
-process.schedule = cms.Schedule(process.rechits_step, process.validation_step)  # wtf
+process.schedule = cms.Schedule(process.rechits_step, process.validation_step)

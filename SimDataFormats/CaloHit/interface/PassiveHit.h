@@ -10,9 +10,10 @@ class PassiveHit {
 
 public: 
 
- PassiveHit(std::string vname, unsigned int id, float e=0., float t=0., 
-	    int it=0) : vname_(vname), id_(id), energy_(e), time_(t), it_(it) {}
- PassiveHit() : vname_(""), id_(0), energy_(0), time_(0), it_(0) {}
+ PassiveHit(std::string vname, unsigned int id, float e=0, float etot=0, 
+	    float t=0, int it=0) : vname_(vname), id_(id), energy_(e), 
+    etotal_(etot), time_(t), it_(it) {}
+ PassiveHit() : vname_(""), id_(0), energy_(0), etotal_(0), time_(0), it_(0) {}
   
   //Names
   static const char *name() { return "PassiveHit"; }
@@ -22,7 +23,8 @@ public:
   //Energy deposit of the Hit
   double energy()    const { return energy_; }
   void setEnergy(double e) { energy_ = e; }
-
+  double energyTotal() const { return etotal_; }
+  void setEnergyTotal(double e) { etotal_ = e; }
 
   //Time of the deposit
   double time() const   { return time_; }
@@ -49,6 +51,7 @@ protected:
   std::string  vname_;
   unsigned int id_;
   float        energy_;
+  float        etotal_;
   float        time_;
   int          it_; 
 }; 

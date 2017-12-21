@@ -11,7 +11,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -271,8 +270,8 @@ SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_, const 
        if(FitMPV>0.) Gains->Fill(Gain);
  
        MPVs->Fill(FitMPV);
-       if(Thickness<0.04) MPVs320->Fill(Phi,FitMPV);
-       if(Thickness>0.04) MPVs500->Fill(Phi,FitMPV);
+       if(Thickness<0.04) MPVs320->Fill(FitMPV);
+       if(Thickness>0.04) MPVs500->Fill(FitMPV);
 
        MPVError->Fill(FitMPVErr);
        MPVErrorVsMPV->Fill(FitMPV,FitMPVErr);

@@ -261,38 +261,42 @@ trackingPhase2PU140.toModify(newCombinedSeeds, seedCollections = [
     'tripletElectronSeeds'
 ])
 
-electronSeedsSeq = cms.Sequence( initialStepSeedClusterMask*
-                                 pixelPairStepSeedClusterMask*
-                                 mixedTripletStepSeedClusterMask*
-                                 pixelLessStepSeedClusterMask*
-                                 tripletElectronSeedLayers*
-                                 tripletElectronTrackingRegions*
-                                 tripletElectronHitDoublets*
-                                 tripletElectronHitTriplets*
-                                 tripletElectronSeeds*
-                                 tripletElectronClusterMask*
-                                 pixelPairElectronSeedLayers*
-                                 pixelPairElectronTrackingRegions*
-                                 pixelPairElectronHitDoublets*
-                                 pixelPairElectronSeeds*
-                                 stripPairElectronSeedLayers*
-                                 stripPairElectronTrackingRegions*
-                                 stripPairElectronHitDoublets*
-                                 stripPairElectronSeeds*
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+from FastSimulation.Tracking.ElectronSeeds_cff import _newCombinedSeeds
+fastSim.toReplaceWith(newCombinedSeeds,_newCombinedSeeds.clone())
+
+electronSeedsSeqTask = cms.Task( initialStepSeedClusterMask,
+                                 pixelPairStepSeedClusterMask,
+                                 mixedTripletStepSeedClusterMask,
+                                 pixelLessStepSeedClusterMask,
+                                 tripletElectronSeedLayers,
+                                 tripletElectronTrackingRegions,
+                                 tripletElectronHitDoublets,
+                                 tripletElectronHitTriplets,
+                                 tripletElectronSeeds,
+                                 tripletElectronClusterMask,
+                                 pixelPairElectronSeedLayers,
+                                 pixelPairElectronTrackingRegions,
+                                 pixelPairElectronHitDoublets,
+                                 pixelPairElectronSeeds,
+                                 stripPairElectronSeedLayers,
+                                 stripPairElectronTrackingRegions,
+                                 stripPairElectronHitDoublets,
+                                 stripPairElectronSeeds,
                                  newCombinedSeeds)
-_electronSeedsSeq_Phase1 = electronSeedsSeq.copy()
-_electronSeedsSeq_Phase1.replace(pixelPairStepSeedClusterMask, detachedTripletStepSeedClusterMask)
-trackingPhase1.toReplaceWith(electronSeedsSeq, _electronSeedsSeq_Phase1)
-trackingPhase1QuadProp.toReplaceWith(electronSeedsSeq, _electronSeedsSeq_Phase1)
-trackingPhase2PU140.toReplaceWith(electronSeedsSeq, cms.Sequence(
-    initialStepSeedClusterMask*
-    highPtTripletStepSeedClusterMask*
-    pixelPairStepSeedClusterMask*
-    tripletElectronSeedLayers*
-    tripletElectronTrackingRegions*
-    tripletElectronHitDoublets*
-    tripletElectronHitTriplets*
-    tripletElectronSeeds*
+electronSeedsSeq = cms.Sequence(electronSeedsSeqTask)
+_electronSeedsSeqTask_Phase1 = electronSeedsSeqTask.copy()
+_electronSeedsSeqTask_Phase1.replace(pixelPairStepSeedClusterMask, detachedTripletStepSeedClusterMask)
+trackingPhase1.toReplaceWith(electronSeedsSeqTask, _electronSeedsSeqTask_Phase1 )
+trackingPhase1QuadProp.toReplaceWith(electronSeedsSeqTask,_electronSeedsSeqTask_Phase1 )
+trackingPhase2PU140.toReplaceWith(electronSeedsSeqTask, cms.Task(
+    initialStepSeedClusterMask,
+    highPtTripletStepSeedClusterMask,
+    pixelPairStepSeedClusterMask,
+    tripletElectronSeedLayers,
+    tripletElectronTrackingRegions,
+    tripletElectronHitDoublets,
+    tripletElectronHitTriplets,
+    tripletElectronSeeds,
     newCombinedSeeds
 ))
-

@@ -22,9 +22,9 @@ class CSCTFTrackProducer : public edm::EDProducer
 {
  public:
   CSCTFTrackProducer(const edm::ParameterSet&);
-  virtual ~CSCTFTrackProducer();
-  void produce(edm::Event & e, const edm::EventSetup& c);
-  void beginJob();
+  ~CSCTFTrackProducer() override;
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
+  void beginJob() override;
 
  private:
   CSCTFDTReceiver* my_dtrc;

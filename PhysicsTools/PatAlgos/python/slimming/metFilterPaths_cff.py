@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ## We don't use "import *" because the cff contains some modules for which the C++ class doesn't exist
 ## and this triggers an error under unscheduled mode
 from RecoMET.METFilters.metFilters_cff import HBHENoiseFilterResultProducer, HBHENoiseFilter, HBHENoiseIsoFilter, hcalLaserEventFilter
-from RecoMET.METFilters.metFilters_cff import EcalDeadCellTriggerPrimitiveFilter, eeBadScFilter, ecalLaserCorrFilter, EcalDeadCellBoundaryEnergyFilter
+from RecoMET.METFilters.metFilters_cff import EcalDeadCellTriggerPrimitiveFilter, eeBadScFilter, ecalLaserCorrFilter, EcalDeadCellBoundaryEnergyFilter, ecalBadCalibFilter
 from RecoMET.METFilters.metFilters_cff import primaryVertexFilter, CSCTightHaloFilter, CSCTightHaloTrkMuUnvetoFilter, CSCTightHalo2015Filter, globalTightHalo2016Filter, globalSuperTightHalo2016Filter, HcalStripHaloFilter
 from RecoMET.METFilters.metFilters_cff import goodVertices, trackingFailureFilter, trkPOGFilters, manystripclus53X, toomanystripclus53X, logErrorTooManyClusters
 from RecoMET.METFilters.metFilters_cff import chargedHadronTrackResolutionFilter, muonBadTrackFilter
@@ -23,6 +23,7 @@ Flag_HcalStripHaloFilter = cms.Path(HcalStripHaloFilter)
 Flag_hcalLaserEventFilter = cms.Path(hcalLaserEventFilter)
 Flag_EcalDeadCellTriggerPrimitiveFilter = cms.Path(EcalDeadCellTriggerPrimitiveFilter)
 Flag_EcalDeadCellBoundaryEnergyFilter = cms.Path(EcalDeadCellBoundaryEnergyFilter)
+Flag_ecalBadCalibFilter = cms.Path()
 Flag_goodVertices = cms.Path(primaryVertexFilter)
 Flag_trackingFailureFilter = cms.Path(goodVertices + trackingFailureFilter)
 Flag_eeBadScFilter = cms.Path(eeBadScFilter)
@@ -45,7 +46,7 @@ Flag_trkPOG_logErrorTooManyClusters = cms.Path(~logErrorTooManyClusters)
 Flag_METFilters = cms.Path(metFilters)
 
 #add your new path here!!
-allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','goodVertices','eeBadScFilter',
+allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','ecalBadCalibFilter','goodVertices','eeBadScFilter',
                    'ecalLaserCorrFilter','trkPOGFilters','chargedHadronTrackResolutionFilter','muonBadTrackFilter',
                    'BadChargedCandidateFilter','BadPFMuonFilter','BadChargedCandidateSummer16Filter','BadPFMuonSummer16Filter',
                    'trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters','METFilters']
@@ -64,6 +65,9 @@ phase2_common.toReplaceWith( Flag_trkPOG_manystripclus53X, cms.Path() )
 phase2_common.toReplaceWith( Flag_trkPOG_toomanystripclus53X, cms.Path() )
 phase2_common.toReplaceWith( Flag_trkPOGFilters, cms.Path(~logErrorTooManyClusters) )
 
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toReplaceWith( Flag_ecalBadCalibFilter, cms.Path(ecalBadCalibFilter) )
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( Flag_HBHENoiseFilter, cms.Path() )
 phase2_hgcal.toReplaceWith( Flag_HBHENoiseIsoFilter, cms.Path() )
@@ -78,6 +82,7 @@ metFilterPathsTask = cms.Task(
     eeBadScFilter,
     ecalLaserCorrFilter,
     EcalDeadCellBoundaryEnergyFilter,
+    ecalBadCalibFilter,
     primaryVertexFilter,
     CSCTightHaloFilter,
     CSCTightHaloTrkMuUnvetoFilter,

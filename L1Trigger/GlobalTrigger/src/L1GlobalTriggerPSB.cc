@@ -53,13 +53,13 @@ L1GlobalTriggerPSB::L1GlobalTriggerPSB(const edm::InputTag & m_caloGctInputTag, 
         m_candL1CenJet  ( new std::vector<const L1GctCand*>),
         m_candL1ForJet  ( new std::vector<const L1GctCand*>),
         m_candL1TauJet  ( new std::vector<const L1GctCand*>),
-        m_candETM(0),
-        m_candETT(0),
-        m_candHTT(0),
-        m_candHTM(0),
-        m_candJetCounts(0),
-        m_candHfBitCounts(0),
-        m_candHfRingEtSums(0),
+        m_candETM(nullptr),
+        m_candETT(nullptr),
+        m_candHTT(nullptr),
+        m_candHTM(nullptr),
+        m_candJetCounts(nullptr),
+        m_candHfBitCounts(nullptr),
+        m_candHfRingEtSums(nullptr),
         m_isDebugEnabled(edm::isDebugEnabled())
 
 {
@@ -1434,15 +1434,15 @@ void L1GlobalTriggerPSB::reset() {
     m_candL1TauJet->clear();
 
     // no reset() available...
-    m_candETM = 0;
-    m_candETT = 0;
-    m_candHTT = 0;
-    m_candHTM = 0;
+    m_candETM = nullptr;
+    m_candETT = nullptr;
+    m_candHTT = nullptr;
+    m_candHTM = nullptr;
 
-    m_candJetCounts = 0;
+    m_candJetCounts = nullptr;
 
-    m_candHfBitCounts = 0;
-    m_candHfRingEtSums = 0;
+    m_candHfBitCounts = nullptr;
+    m_candHfRingEtSums = nullptr;
 
 }
 

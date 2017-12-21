@@ -30,7 +30,7 @@ static std::vector<std::string> split(const std::string line, char delim)
 
 		if (!q) {
 			tokens.push_back(std::string(p));
-			p = 0;
+			p = nullptr;
 		} else {
 			tokens.push_back(std::string(p, q - p));
 			p = q + 1;
@@ -41,7 +41,7 @@ static std::vector<std::string> split(const std::string line, char delim)
 }
 
 MLP::MLP(unsigned int nIn, unsigned int nOut, const std::string layout_) :
-	initialized(false), layers(0), layout(0), epoch(0)
+	initialized(false), layers(0), layout(nullptr), epoch(0)
 {
 	if (inUse)
 		throw cms::Exception("MLP")
@@ -49,7 +49,7 @@ MLP::MLP(unsigned int nIn, unsigned int nOut, const std::string layout_) :
 			<< std::endl;
 
 	std::vector<std::string> parsed = split(layout_, ':');
-	if (parsed.size() < 1)
+	if (parsed.empty())
 		throw cms::Exception("MLP")
 			<< "Invalid layout." << std::endl;
 

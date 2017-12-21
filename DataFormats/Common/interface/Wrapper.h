@@ -85,7 +85,7 @@ private:
   template<typename T>
   Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) :
     WrapperBase(),
-    present(ptr.get() != 0),
+    present(ptr.get() != nullptr),
     obj() {
     if (present) {
       // The following will call swap if T has such a function,

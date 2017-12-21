@@ -50,7 +50,7 @@ class LEPBandPlot : public StatisticalPlot {
                 double* sb_vals,
                 double* b_vals,
                 double* b_rms,
-                double* exp_vals=0);
+                double* exp_vals=nullptr);
     /// Constructor
     LEPBandPlot(const char* name,
                 const char* title,
@@ -62,7 +62,7 @@ class LEPBandPlot : public StatisticalPlot {
                 double* b_down_bars1,
                 double* b_up_bars2,
                 double* b_down_bars2,
-                double* exp_vals=0);
+                double* exp_vals=nullptr);
 
     /// Set the title of the x axis
     void setXaxisTitle(const char* title);
@@ -71,16 +71,16 @@ class LEPBandPlot : public StatisticalPlot {
     void setTitle(const char* title);
 
     /// Destructor
-    ~LEPBandPlot();
+    ~LEPBandPlot() override;
 
     /// Draw on canvas
-    void draw (const char* options="");
+    void draw (const char* options="") override;
 
     /// Print the relevant information
-    void print (const char* options="");
+    void print (const char* options="") override;
 
     /// All the objects are written to rootfile
-    void dumpToFile (const char* RootFileName, const char* options);
+    void dumpToFile (const char* RootFileName, const char* options) override;
 
   private:
 
@@ -110,7 +110,7 @@ class LEPBandPlot : public StatisticalPlot {
 
 //For Cint
 // #if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(LEPBandPlot,1)
+ClassDefOverride(LEPBandPlot,1)
 // #endif
  };
 

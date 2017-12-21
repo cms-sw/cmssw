@@ -14,10 +14,10 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const edm::ParameterS
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
                                                                                                                                            
-  meESDigiMultiplicity_=0;
+  meESDigiMultiplicity_=nullptr;
 
   for (int i = 0; i < 3 ; i++ ) {
-    meESDigiADC_[i] = 0;
+    meESDigiADC_[i] = nullptr;
   }
  
 }

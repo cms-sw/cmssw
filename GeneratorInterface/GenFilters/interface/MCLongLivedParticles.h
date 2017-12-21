@@ -40,10 +40,10 @@
 class MCLongLivedParticles : public edm::EDFilter {
 public:
   explicit MCLongLivedParticles(const edm::ParameterSet&);
-  ~MCLongLivedParticles();
+  ~MCLongLivedParticles() override;
   
 
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 private:
   // ----------member data ---------------------------
   

@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 RunMemChErrorsDat::RunMemChErrorsDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_errorBits = 0;
 }
 
@@ -60,7 +60,7 @@ void RunMemChErrorsDat::writeDB(const EcalLogicID* ecid, const RunMemChErrorsDat
   try {
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
-    m_writeStmt->setString(3, ( std::to_string(item->getErrorBits()) ).c_str());
+    m_writeStmt->setString(3, std::to_string(item->getErrorBits()));
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
     throw(std::runtime_error("RunMemChErrorsDat::writeDB():  "+e.getMessage()));

@@ -44,7 +44,7 @@
 class L1ScalesTrivialProducer : public edm::ESProducer {
 public:
   L1ScalesTrivialProducer(const edm::ParameterSet&);
-  ~L1ScalesTrivialProducer();
+  ~L1ScalesTrivialProducer() override;
   
   std::unique_ptr<L1CaloEtScale> produceEmScale(const L1EmEtScaleRcd&);
   std::unique_ptr<L1CaloEtScale> produceJetScale(const L1JetEtScaleRcd&);

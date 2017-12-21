@@ -41,7 +41,9 @@ void MonitorTrackResidualsBase<pixel_or_strip>::bookHistograms(DQMStore::IBooker
   std::string topFolderName_ = "SiStrip";
   SiStripFolderOrganizer folder_organizer;
   folder_organizer.setSiStripFolderName(topFolderName_);
-  tkhisto_ResidualsMean = std::unique_ptr<TkHistoMap>(new TkHistoMap(ibooker , topFolderName_ ,"TkHMap_ResidualsMean", 0.0,true)); 
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  tkhisto_ResidualsMean = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), ibooker , topFolderName_ ,"TkHMap_ResidualsMean", 0.0,true);
 }
 
 template<TrackerType pixel_or_strip>

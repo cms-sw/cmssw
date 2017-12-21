@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 MonPedestalsDat::MonPedestalsDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_pedMeanG1 = 0;
   m_pedMeanG6 = 0;
@@ -21,7 +21,7 @@ MonPedestalsDat::MonPedestalsDat()
   m_pedRMSG1 = 0;
   m_pedRMSG6 = 0;
   m_pedRMSG12 = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

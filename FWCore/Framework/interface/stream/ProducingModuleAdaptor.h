@@ -59,6 +59,16 @@ namespace edm {
         T::prevalidate(descriptions);
       }
 
+      bool wantsGlobalRuns() const final {
+        return T::HasAbility::kRunCache or
+        T::HasAbility::kRunSummaryCache or
+        T::HasAbility::kBeginRunProducer or
+        T::HasAbility::kEndRunProducer; }
+      bool wantsGlobalLuminosityBlocks() const final {return T::HasAbility::kLuminosityBlockCache or
+        T::HasAbility::kLuminosityBlockSummaryCache or
+        T::HasAbility::kBeginLuminosityBlockProducer or
+        T::HasAbility::kEndLuminosityBlockProducer;}
+
       
     private:
       typedef CallGlobal<T> MyGlobal;

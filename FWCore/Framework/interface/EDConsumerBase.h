@@ -63,6 +63,7 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     ProductResolverIndexAndSkipBit indexFrom(EDGetToken, BranchType, TypeID const&) const;
+    ProductResolverIndexAndSkipBit uncheckedIndexFrom(EDGetToken) const;
 
     void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
     void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;

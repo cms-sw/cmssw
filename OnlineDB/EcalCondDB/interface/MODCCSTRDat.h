@@ -12,17 +12,17 @@ class MODCCSTRDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MODCCSTRDat();
-  ~MODCCSTRDat();
+  ~MODCCSTRDat() override;
 
   // User data methods
-  inline std::string getTable() { return "OD_CCS_TR_DAT"; }
+  inline std::string getTable() override { return "OD_CCS_TR_DAT"; }
 
   inline void setWord(int x) { m_word = x; }
   inline int getWord() const { return m_word; }
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MODCCSTRDat* item, MODRunIOV* iov )
     noexcept(false);

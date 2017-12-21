@@ -17,7 +17,7 @@ class TemplatedSecondaryVertex : public SV {
 	                bool withPVError = false) :
 		SV(sv),dist1d_(computeDist1d(pv, sv, direction, withPVError)),dist2d_(computeDist2d(pv, sv, direction, withPVError)),dist3d_(computeDist3d(pv, sv, direction, withPVError)) {}
 
-	~TemplatedSecondaryVertex() {}
+		~TemplatedSecondaryVertex()  {} //NOLINT
         inline Measurement1D dist1d() const { return dist1d_; }
         inline Measurement1D dist2d() const { return dist2d_; }
         inline Measurement1D dist3d() const { return dist3d_; }

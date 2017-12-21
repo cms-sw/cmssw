@@ -6,9 +6,9 @@ class CSCTFConfigOnlineProd : public L1ConfigOnlineProdBase< L1MuCSCTFConfigurat
    public:
       CSCTFConfigOnlineProd(const edm::ParameterSet& iConfig)
          : L1ConfigOnlineProdBase< L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration >( iConfig ) {}
-      ~CSCTFConfigOnlineProd() {}
+      ~CSCTFConfigOnlineProd() override {}
 
-      virtual std::shared_ptr< L1MuCSCTFConfiguration > newObject( const std::string& objectKey ) ;
+      std::shared_ptr< L1MuCSCTFConfiguration > newObject( const std::string& objectKey ) override ;
    private:
 };
 

@@ -20,7 +20,7 @@ class MVAComputerESSourceImpl : public MVAComputerESSourceBase,
 		findingRecord<RecordType>();
 	}
 
-	virtual ~MVAComputerESSourceImpl() {}
+	~MVAComputerESSourceImpl() override {}
 
 	ReturnType produce(const RecordType &record)
 	{ return this->produce(); }
@@ -31,7 +31,7 @@ class MVAComputerESSourceImpl : public MVAComputerESSourceBase,
     private:
 	void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
 	                    const edm::IOVSyncValue &syncValue,
-	                    edm::ValidityInterval &oValidity)
+	                    edm::ValidityInterval &oValidity) override
 	{
 		oValidity = edm::ValidityInterval(
 					edm::IOVSyncValue::beginOfTime(),

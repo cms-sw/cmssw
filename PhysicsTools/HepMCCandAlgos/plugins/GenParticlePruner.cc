@@ -102,13 +102,13 @@ GenParticlePruner::GenParticlePruner(const ParameterSet& cfg) :
 }
 
 void GenParticlePruner::flagDaughters(const reco::GenParticle & gen, int keepOrDrop) {
-  GenParticleRefVector daughters = gen.daughterRefVector();
+  const GenParticleRefVector& daughters = gen.daughterRefVector();
   for(GenParticleRefVector::const_iterator i = daughters.begin(); i != daughters.end(); ++i)
     flags_[i->key()] = keepOrDrop;
 }
 
 void GenParticlePruner::flagMothers(const reco::GenParticle & gen, int keepOrDrop) {
-  GenParticleRefVector mothers = gen.motherRefVector();
+  const GenParticleRefVector& mothers = gen.motherRefVector();
   for(GenParticleRefVector::const_iterator i = mothers.begin(); i != mothers.end(); ++i)
     flags_[i->key()] = keepOrDrop;
 }
@@ -284,7 +284,7 @@ void GenParticlePruner::getDaughterKeys(vector<size_t> & daIndxs, vector<size_t>
         daNewIndxs.push_back( idx );
       } else {
         const GenParticleRefVector & daus = dau->daughterRefVector();
-        if(daus.size()>0)
+        if(!daus.empty())
           getDaughterKeys(daIndxs, daNewIndxs, daus);
       }
     }
@@ -305,7 +305,7 @@ void GenParticlePruner::getMotherKeys(vector<size_t> & moIndxs, vector<size_t> &
         moNewIndxs.push_back( idx );
       } else {
         const GenParticleRefVector & moms = mom->motherRefVector();
-        if(moms.size()>0)
+        if(!moms.empty())
           getMotherKeys(moIndxs, moNewIndxs, moms);
       }
     }

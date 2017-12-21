@@ -30,7 +30,7 @@ namespace gen {
     P8RndmEngine() : randomEngine_(nullptr) { }
 
     // Routine for generating a random number.
-    virtual double flat() override;
+    double flat() override;
 
     void setRandomEngine(CLHEP::HepRandomEngine* v) { randomEngine_ = v; }
 

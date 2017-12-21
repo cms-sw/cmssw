@@ -22,18 +22,18 @@ class L1TMuonOverlapReader: public edm::EDAnalyzer {
 private:
     bool printLayerMap;
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
     string hash(void *buf, size_t len) const ;
 
     explicit L1TMuonOverlapReader(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        printLayerMap   = pset.getUntrackedParameter<bool>("printLayerMap",  false);
     }
-    virtual ~L1TMuonOverlapReader(void){}
+    ~L1TMuonOverlapReader(void) override{}
 };
 
 
 #include <openssl/sha.h>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 using namespace std;
 
@@ -90,7 +90,7 @@ void L1TMuonOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSet
     cout<<endl;
 
     const std::vector<L1TMuonOverlapParams::LayerMapNode> *lm = ptr1->layerMap();
-    if( lm->size() ){
+    if( !lm->empty() ){
         cout<<" layerMap() =              ["<<lm->size()<<"] ";
         L1TMuonOverlapParams::LayerMapNode *lm_ = new L1TMuonOverlapParams::LayerMapNode[ lm->size() ];
         for(unsigned int i=0; i<lm->size(); i++) lm_[i] = (*lm)[i];
@@ -111,7 +111,7 @@ void L1TMuonOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSet
     }
 
     const std::vector<L1TMuonOverlapParams::RefLayerMapNode> *rlm = ptr1->refLayerMap();
-    if( rlm->size() ){
+    if( !rlm->empty() ){
         cout<<" refLayerMap() =           ["<<rlm->size()<<"] ";
         L1TMuonOverlapParams::RefLayerMapNode *rlm_ = new L1TMuonOverlapParams::RefLayerMapNode[ rlm->size() ];
         for(unsigned int i=0; i<rlm->size(); i++) rlm_[i] = (*rlm)[i];
@@ -122,7 +122,7 @@ void L1TMuonOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSet
     }
 
     const std::vector<L1TMuonOverlapParams::RefHitNode> *rhn = ptr1->refHitMap();
-    if( rhn->size() ){
+    if( !rhn->empty() ){
         cout<<" refHitMap() =             ["<<rhn->size()<<"] ";
         L1TMuonOverlapParams::RefHitNode *rhn_ = new L1TMuonOverlapParams::RefHitNode[ rhn->size() ];
         for(unsigned int i=0; i<rhn->size(); i++) rhn_[i] = (*rhn)[i];
@@ -133,7 +133,7 @@ void L1TMuonOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSet
     }
 
     const std::vector<int> *gpsm = ptr1->globalPhiStartMap();
-    if( gpsm->size() ){
+    if( !gpsm->empty() ){
         cout<<" globalPhiStartMap() =     ["<<gpsm->size()<<"] ";
         int gpsm_[gpsm->size()];
         for(unsigned int i=0; i<gpsm->size(); i++) gpsm_[i] = (*gpsm)[i];
@@ -143,7 +143,7 @@ void L1TMuonOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSet
     }
 
     const std::vector<L1TMuonOverlapParams::LayerInputNode> *lim = ptr1->layerInputMap();
-    if( lim->size() ){
+    if( !lim->empty() ){
         cout<<" layerInputMap() =         ["<<lim->size()<<"] ";
         L1TMuonOverlapParams::LayerInputNode *lim_ = new L1TMuonOverlapParams::LayerInputNode[lim->size()];
         for(unsigned int i=0; i<lim->size(); i++) lim_[i] = (*lim)[i];
@@ -154,7 +154,7 @@ void L1TMuonOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSet
     }
 
     const std::vector<int> *css = ptr1->connectedSectorsStart();
-    if( css->size() ){
+    if( !css->empty() ){
         cout<<" connectedSectorsStart() = ["<<css->size()<<"] ";
         int css_[css->size()];
         for(unsigned int i=0; i<css->size(); i++) css_[i] = (*css)[i];
@@ -164,7 +164,7 @@ void L1TMuonOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSet
     }
 
     const std::vector<int> *cse = ptr1->connectedSectorsEnd();
-    if( cse->size() ){
+    if( !cse->empty() ){
         cout<<" connectedSectorsEnd() = ["<<cse->size()<<"] ";
         int cse_[cse->size()];
         for(unsigned int i=0; i<cse->size(); i++) cse_[i] = (*cse)[i];

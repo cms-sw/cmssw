@@ -201,7 +201,7 @@ class conddb_tool(object):
             iovBoostVersion, tagBoostVersion = sm.update_tag_boost_version( tagBoostVersion, minIov, iov[2], iov[0], timetype, self.version_db.boost_run_map )
             if minIov is None or iov[0]<minIov:
                 minIov = iov[0]
-            logging.debug('iov: %s - boost version: %s - streamer: %s' %(iov[0],iovBoostVersion,iov[2]))
+            logging.debug('iov: %s - inserted on %s - streamer: %s' %(iov[0],iov[1],iov[2]))
             logging.debug('current tag boost version: %s minIov: %s' %(tagBoostVersion,minIov))
             if lastBoost is None or lastBoost!=iovBoostVersion:
                 self.versionIovs.append((iov[0],iovBoostVersion))
@@ -296,19 +296,12 @@ class conddb_tool(object):
             if not found:
                 raise Exception('Tag %s does not exists in the database.' %self.args.name )
             tags[self.args.name] = None
-            stmt1 = 'SELECT MIN_SERIALIZATION_V, MIN_SINCE, MODIFICATION_TIME FROM  TAG_METADATA WHERE TAG_NAME = :NAME'
+            stmt1 = 'SELECT MIN_SERIALIZATION_V, MIN_SINCE, CAST(MODIFICATION_TIME AS TIMESTAMP(0)) FROM  TAG_METADATA WHERE TAG_NAME = :NAME'
             cursor.execute(stmt1,wpars);
             rows = cursor.fetchall()
             for r in rows:
                 tags[self.args.name] = (r[0],r[1],r[2])
         else:
-            #stmt = 'SELECT MAX(INSERTION_TIME) FROM IOV WHERE TAG_NAME= :TAG_NAME'
-            #cursor.execute(stmt)
-            #rows = cursor.fetchall()
-            #lastInsertionTime = None
-            #for r in rows:
-            #    lastInsertionTime = r[0]
-            #if lastInsertionTime is None:
             stmt0 = 'SELECT NAME FROM TAG WHERE NAME NOT IN ( SELECT TAG_NAME FROM TAG_METADATA) ORDER BY NAME' 
             nmax = 100
             if self.args.max is not None:
@@ -322,10 +315,10 @@ class conddb_tool(object):
             rows = cursor.fetchall()
             for r in rows:
                 tags[r[0]] = None
-            stmt1 = 'SELECT T.NAME NAME, TM.MIN_SERIALIZATION_V MIN_SERIALIZATION_V, TM.MIN_SINCE MIN_SINCE, TM.MODIFICATION_TIME MODIFICATION_TIME FROM TAG T, TAG_METADATA TM WHERE T.NAME=TM.TAG_NAME AND TM.MODIFICATION_TIME < (SELECT MAX(INSERTION_TIME) FROM IOV WHERE IOV.TAG_NAME=TM.TAG_NAME) ORDER BY NAME' 
+            stmt1 = 'SELECT T.NAME NAME, TM.MIN_SERIALIZATION_V MIN_SERIALIZATION_V, TM.MIN_SINCE MIN_SINCE, CAST(TM.MODIFICATION_TIME AS TIMESTAMP(0)) MODIFICATION_TIME FROM TAG T, TAG_METADATA TM WHERE T.NAME=TM.TAG_NAME AND CAST(TM.MODIFICATION_TIME AS TIMESTAMP(0)) < (SELECT MAX(INSERTION_TIME) FROM IOV WHERE IOV.TAG_NAME=TM.TAG_NAME) ORDER BY NAME' 
             nmax = nmax-len(tags)
             if nmax >=0:
-                stmt1 = 'SELECT NAME, MIN_SERIALIZATION_V, MIN_SINCE, MODIFICATION_TIME FROM (SELECT T.NAME NAME, TM.MIN_SERIALIZATION_V MIN_SERIALIZATION_V, TM.MIN_SINCE MIN_SINCE, TM.MODIFICATION_TIME MODIFICATION_TIME FROM TAG T, TAG_METADATA TM WHERE T.NAME=TM.TAG_NAME AND TM.MODIFICATION_TIME < (SELECT MAX(INSERTION_TIME) FROM IOV WHERE IOV.TAG_NAME=TM.TAG_NAME) ORDER BY NAME) WHERE ROWNUM<= :MAXR'
+                stmt1 = 'SELECT NAME, MIN_SERIALIZATION_V, MIN_SINCE, MODIFICATION_TIME FROM (SELECT T.NAME NAME, TM.MIN_SERIALIZATION_V MIN_SERIALIZATION_V, TM.MIN_SINCE MIN_SINCE, CAST(TM.MODIFICATION_TIME AS TIMESTAMP(0)) MODIFICATION_TIME FROM TAG T, TAG_METADATA TM WHERE T.NAME=TM.TAG_NAME AND CAST(TM.MODIFICATION_TIME AS TIMESTAMP(0)) < (SELECT MAX(INSERTION_TIME) FROM IOV WHERE IOV.TAG_NAME=TM.TAG_NAME) ORDER BY NAME) WHERE ROWNUM<= :MAXR'
                 wpars = (nmax,)
             cursor.execute(stmt1,wpars);
             rows = cursor.fetchall()

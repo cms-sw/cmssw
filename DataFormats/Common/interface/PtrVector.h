@@ -187,7 +187,7 @@ namespace edm {
     pointers.reserve(this->size());
     for (const_iterator i = begin(), e = end(); i != e; ++i) {
       Ptr<T> ref = *i;
-      T const* address = ref.isNull() ? 0 : &*ref;
+      T const* address = ref.isNull() ? nullptr : &*ref;
       pointers.push_back(address);
       helpers.push_back(FillViewHelperVector::value_type(ref.id(),ref.key()));
     }

@@ -20,7 +20,6 @@
 #undef Debug
 
 using namespace std;
-using namespace ctfseeding;
 
 /*****************************************************************************/
 PixelTripletLowPtGenerator::PixelTripletLowPtGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):

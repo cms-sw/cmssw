@@ -30,17 +30,17 @@ class MaterialBudgetForward : public SimWatcher,
 public:
 
   MaterialBudgetForward(const edm::ParameterSet&);
-  virtual ~MaterialBudgetForward();
+  ~MaterialBudgetForward() override;
   
 private:
 
-  MaterialBudgetForward(const MaterialBudgetForward&);          // stop default
-  const MaterialBudgetForward& operator=(const MaterialBudgetForward&); // ...
+  MaterialBudgetForward(const MaterialBudgetForward&) = delete;          // stop default
+  const MaterialBudgetForward& operator=(const MaterialBudgetForward&) = delete; // ...
   
-  void update(const BeginOfRun*);
-  void update(const BeginOfTrack*);
-  void update(const G4Step*);
-  void update(const EndOfTrack*);
+  void update(const BeginOfRun*) override;
+  void update(const BeginOfTrack*) override;
+  void update(const G4Step*) override;
+  void update(const EndOfTrack*) override;
 
   void book(const edm::ParameterSet&);
   bool stopAfter(const G4Step*);

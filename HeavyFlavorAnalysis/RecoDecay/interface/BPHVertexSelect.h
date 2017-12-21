@@ -48,8 +48,8 @@ class BPHVertexSelect {
  private:
 
   // private copy and assigment constructors
-  BPHVertexSelect           ( const BPHVertexSelect& x );
-  BPHVertexSelect& operator=( const BPHVertexSelect& x );
+  BPHVertexSelect           ( const BPHVertexSelect& x ) = delete;
+  BPHVertexSelect& operator=( const BPHVertexSelect& x ) = delete;
 
 };
 

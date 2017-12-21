@@ -15,8 +15,8 @@ class MVATrainerContainer : public Calibration::MVAComputerContainer {
     public:
 	typedef MVATrainerLooper::TrainObject	Value_t;
 
-	virtual const Calibration::MVAComputer &
-	find(const std::string &label) const
+	const Calibration::MVAComputer &
+	find(const std::string &label) const override
 	{
 		Map_t::const_iterator pos = trainCalibs.find(label);
 		if (pos != trainCalibs.end())
@@ -25,8 +25,8 @@ class MVATrainerContainer : public Calibration::MVAComputerContainer {
 		return Calibration::MVAComputerContainer::find(label);
 	}
 
-	virtual bool
-	contains(const std::string &label) const
+	bool
+	contains(const std::string &label) const override
 	{
 		Map_t::const_iterator pos = trainCalibs.find(label);
 		if (pos != trainCalibs.end()) return true;

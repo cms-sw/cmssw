@@ -3,6 +3,8 @@
 
 #include "CommonTools/Clustering1D/interface/Cluster1D.h"
 
+#include <cmath>
+
 /*
  * given a vector<Cluster1D<T> >, erase Cluster1D further away than 
  * ZOffeSet from the average position, then 

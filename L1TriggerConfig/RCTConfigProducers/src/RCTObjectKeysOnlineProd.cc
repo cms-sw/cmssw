@@ -32,9 +32,9 @@
 class RCTObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
       RCTObjectKeysOnlineProd(const edm::ParameterSet&);
-      ~RCTObjectKeysOnlineProd();
+      ~RCTObjectKeysOnlineProd() override;
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
 };

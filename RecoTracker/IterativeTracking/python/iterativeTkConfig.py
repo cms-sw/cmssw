@@ -134,11 +134,11 @@ def allEras():
 def nonDefaultEras():
     return _nonDefaultEras
 
-def createEarlySequence(eraName, postfix, modDict):
-    seq = cms.Sequence()
+def createEarlyTask(eraName, postfix, modDict):
+    task = cms.Task()
     for it in globals()["_iterations"+postfix]:
-        seq += modDict[it]
-    return seq
+        task.add(modDict[it+'Task'])
+    return task
 
 def iterationAlgos(postfix, includeSequenceName=False):
     muonVariable = "_iterations_muonSeeded"+postfix

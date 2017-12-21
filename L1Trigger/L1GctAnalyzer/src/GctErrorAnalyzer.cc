@@ -57,9 +57,9 @@ Implementation:
 class GctErrorAnalyzer : public edm::EDAnalyzer {
 
 private:
-  GctErrorAnalyzer();
-  GctErrorAnalyzer(const GctErrorAnalyzer &);
-  GctErrorAnalyzer operator=(const GctErrorAnalyzer &);
+  GctErrorAnalyzer() = delete;
+  GctErrorAnalyzer(const GctErrorAnalyzer &) = delete;
+  GctErrorAnalyzer operator=(const GctErrorAnalyzer &) = delete;
   void plotRCTRegions(const edm::Handle<L1CaloRegionCollection> &caloRegions);
   void plotIsoEm(const edm::Handle<L1GctEmCandCollection> &data, const edm::Handle<L1GctEmCandCollection> &emu);
   void plotNonIsoEm(const edm::Handle<L1GctEmCandCollection> &data, const edm::Handle<L1GctEmCandCollection> &emu);
@@ -83,12 +83,12 @@ private:
 
 public:
   explicit GctErrorAnalyzer(const edm::ParameterSet&);
-  ~GctErrorAnalyzer();
+  ~GctErrorAnalyzer() override;
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   // ----------member data ---------------------------
   //the following flags select what we'd like to plot and whether or not we want error information
@@ -536,17 +536,17 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet& iConfig) :
   }
 
   //initialise - set all flags to false as they will be set on an event-by-event basis
-  isIsoError=0;
-  isNonIsoError=0;
-  isCenJetError=0; 
-  isTauJetError=0;
-  isForJetError=0;
-  isRingSumError=0;
-  isBitCountError=0;
-  isTotalEError=0;
-  isTotalHError=0;
-  isMissingEError=0;
-  isMissingHError=0;
+  isIsoError=false;
+  isNonIsoError=false;
+  isCenJetError=false; 
+  isTauJetError=false;
+  isForJetError=false;
+  isRingSumError=false;
+  isBitCountError=false;
+  isTotalEError=false;
+  isTotalHError=false;
+  isMissingEError=false;
+  isMissingHError=false;
 
   //fill the struct of MBXinformation. It is easier to pass this information to the respective functions as used below this way
   MBxInfo.RCTTrigBx = RCTTrigBx_;
@@ -643,8 +643,8 @@ GctErrorAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByLabel(dataTag_.label(), "isoEm", isoEgD);
     iEvent.getByLabel(emuTag_.label(), "isoEm", isoEgE);
 
-    isIsoError=0;
-    isNonIsoError=0;
+    isIsoError=false;
+    isNonIsoError=false;
 
     if(checkCollections(isoEgD, GCT_OBJECT_QUANTA, "Iso e/g Data") && checkCollections(isoEgE, GCT_OBJECT_QUANTA, "Iso e/g Emulator")) {
       plotIsoEm(isoEgD, isoEgE);
@@ -676,9 +676,9 @@ GctErrorAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     iEvent.getByLabel(emuTag_.label(), intJetsE); 
 
-    isCenJetError=0;
-    isTauJetError=0;
-    isForJetError=0;
+    isCenJetError=false;
+    isTauJetError=false;
+    isForJetError=false;
 
     //Central Jets
     if(checkCollections(cenJetsD, GCT_OBJECT_QUANTA, "Central Jets Data") && checkCollections(cenJetsE, GCT_OBJECT_QUANTA, "Central Jets Emulator")) {
@@ -716,8 +716,8 @@ GctErrorAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByLabel(dataTag_.label(), hfBitCountsD);
     iEvent.getByLabel(emuTag_.label(), hfBitCountsE);
     
-    isRingSumError=0;
-    isBitCountError=0;
+    isRingSumError=false;
+    isBitCountError=false;
     
     if(checkCollections(hfRingSumsD, GCT_SUMS_QUANTA, "HF Ring Sums Data") && checkCollections(hfRingSumsE, GCT_SUMS_QUANTA, "HF Ring Sums Emulator")) {
       plotHFRingSums(hfRingSumsD, hfRingSumsE);
@@ -743,8 +743,8 @@ GctErrorAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByLabel(dataTag_.label(), totalHtD);
     iEvent.getByLabel(emuTag_.label(), totalHtE);
 
-    isTotalEError=0;
-    isTotalHError=0;
+    isTotalEError=false;
+    isTotalHError=false;
 
     if(checkCollections(totalEtD, GCT_SUMS_QUANTA, "Total Et Data") && checkCollections(totalEtE, GCT_SUMS_QUANTA, "Total Et Emulator")) {
       plotTotalE(totalEtD, totalEtE);   
@@ -772,8 +772,8 @@ GctErrorAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByLabel(dataTag_.label(), missingHtD);
     iEvent.getByLabel(emuTag_.label(), missingHtE);
     
-    isMissingEError=0;
-    isMissingHError=0;
+    isMissingEError=false;
+    isMissingHError=false;
     
     if(checkCollections(missingEtD, GCT_SUMS_QUANTA, "Missing Et Data") && checkCollections(missingEtE, GCT_SUMS_QUANTA, "Missing Et Emulator")) {
       plotMissingEt(missingEtD, missingEtE);
@@ -1116,7 +1116,7 @@ GctErrorAnalyzer::checkCollections(const T &collection, const unsigned int &cons
     edm::LogWarning("DataNotFound") << " Could not find " << label << " label";
     return false;
   }
-  if(collection->size() % constraint != 0 || collection->size() == 0) {
+  if(collection->size() % constraint != 0 || collection->empty()) {
     edm::LogWarning("CollectionSizeError") << " " << label << " collection size is " << collection->size() << ", expected multiple of " << constraint;
     return false;
   }

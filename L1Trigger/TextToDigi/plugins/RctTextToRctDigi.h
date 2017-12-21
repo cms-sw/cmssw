@@ -39,10 +39,10 @@
 class RctTextToRctDigi : public edm::EDProducer {
  public:
   explicit RctTextToRctDigi(const edm::ParameterSet&);
-  ~RctTextToRctDigi();
+  ~RctTextToRctDigi() override;
   
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   /// Create empty digi collection
   void putEmptyDigi(edm::Event&);

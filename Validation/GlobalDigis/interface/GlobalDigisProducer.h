@@ -90,7 +90,7 @@
 //#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -111,10 +111,10 @@ class GlobalDigisProducer : public edm::EDProducer
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
   explicit GlobalDigisProducer(const edm::ParameterSet&);
-  virtual ~GlobalDigisProducer();
-  virtual void beginJob( void );
-  virtual void endJob();  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  ~GlobalDigisProducer() override;
+  void beginJob( void ) override;
+  void endJob() override;  
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

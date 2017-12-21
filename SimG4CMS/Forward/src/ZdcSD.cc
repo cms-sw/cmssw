@@ -20,7 +20,7 @@
 #include "Randomize.hh"
 #include "G4Poisson.hh"
 
-ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
+ZdcSD::ZdcSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg,
 	     edm::ParameterSet const & p,const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
@@ -179,7 +179,7 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
   }
 }
 
-double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
+double ZdcSD::getEnergyDeposit(const G4Step * aStep, edm::ParameterSet const & p ) {
 
   float NCherPhot = 0.;
   //std::cout<<"I go through here"<<std::endl;
@@ -408,11 +408,8 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
   } 
 }
 
-uint32_t ZdcSD::setDetUnitId(G4Step* aStep) {
-  uint32_t returnNumber = 0;
-  if(numberingScheme != nullptr)returnNumber = numberingScheme->getUnitID(aStep);
-  // edm: return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
-  return returnNumber;
+uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) {
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
 void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {

@@ -39,10 +39,10 @@ public:
     L1GtParametersConfigOnlineProd(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtParametersConfigOnlineProd();
+    ~L1GtParametersConfigOnlineProd() override;
 
     /// public methods
-    virtual std::shared_ptr<L1GtParameters> newObject(const std::string& objectKey);
+    std::shared_ptr<L1GtParameters> newObject(const std::string& objectKey) override;
 
 private:
 

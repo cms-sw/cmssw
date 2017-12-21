@@ -176,7 +176,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
             descriptions.addDefault(desc);
         }
 
-        virtual void produce(edm::Event& event, const edm::EventSetup& setup) override {
+        void produce(edm::Event& event, const edm::EventSetup& setup) override {
 
             edm::Handle<JetCollection> jets_collection;
             event.getByToken(m_jets_token, jets_collection);

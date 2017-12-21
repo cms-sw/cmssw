@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/ODFEWeightsInfo.h"
@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 ODFEWeightsInfo::ODFEWeightsInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_ID=0;
   m_version=0;

@@ -55,10 +55,10 @@
 class L1RCTTestAnalyzer : public edm::EDAnalyzer {
 public:
   explicit L1RCTTestAnalyzer(const edm::ParameterSet&);
-  ~L1RCTTestAnalyzer();
+  ~L1RCTTestAnalyzer() override;
   
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 private:
   static bool compareEmCands(const L1CaloEmCand& cand1, const L1CaloEmCand& cand2);
 

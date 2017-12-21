@@ -50,10 +50,10 @@ class FourVector ;
 class MixBoostEvtVtxGenerator : public edm::EDProducer{
 public:
   MixBoostEvtVtxGenerator(const edm::ParameterSet & p);
-  virtual ~MixBoostEvtVtxGenerator();
+  ~MixBoostEvtVtxGenerator() override;
 
   /// return a new event vertex
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
   virtual TMatrixD* GetInvLorentzBoost();
   virtual HepMC::FourVector* getVertex(edm::Event&);
   virtual HepMC::FourVector* getRecVertex(edm::Event&);
@@ -84,9 +84,9 @@ public:
 
 private:
   /** Copy constructor */
-  MixBoostEvtVtxGenerator(const MixBoostEvtVtxGenerator &p);
+  MixBoostEvtVtxGenerator(const MixBoostEvtVtxGenerator &p) = delete;
   /** Copy assignment operator */
-  MixBoostEvtVtxGenerator&  operator = (const MixBoostEvtVtxGenerator & rhs );
+  MixBoostEvtVtxGenerator&  operator = (const MixBoostEvtVtxGenerator & rhs ) = delete;
 
   double alpha_, phi_;
   //TMatrixD boost_;
@@ -110,7 +110,7 @@ private:
 };
 
 MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset ):
-  fVertex(0), boost_(0), fTimeOffset(0),
+  fVertex(nullptr), boost_(nullptr), fTimeOffset(0),
   vtxLabel(mayConsume<reco::VertexCollection>(pset.getParameter<edm::InputTag>("vtxLabel"))),
   signalLabel(consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("signalLabel"))),
   mixLabel(consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"))),
@@ -133,8 +133,8 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset 
 
 MixBoostEvtVtxGenerator::~MixBoostEvtVtxGenerator() 
 {
-  if (fVertex != 0) delete fVertex ;
-  if (boost_ != 0 ) delete boost_;
+  if (fVertex != nullptr) delete fVertex ;
+  if (boost_ != nullptr ) delete boost_;
 }
 
 
@@ -223,7 +223,7 @@ TMatrixD* MixBoostEvtVtxGenerator::GetInvLorentzBoost() {
 
 HepMC::FourVector* MixBoostEvtVtxGenerator::getVertex( Event& evt){
   
-  const HepMC::GenEvent* inev = 0;
+  const HepMC::GenEvent* inev = nullptr;
 
   Handle<CrossingFrame<HepMCProduct> > cf;
   evt.getByToken(mixLabel,cf);

@@ -44,7 +44,7 @@ class DTConfigTrigUnit : public DTConfig {
   DTConfigTrigUnit() {};
 
   //! Destructor
-  ~DTConfigTrigUnit();
+  ~DTConfigTrigUnit() override;
 
   //! Debug flag
   inline bool debug() const { return m_debug; }

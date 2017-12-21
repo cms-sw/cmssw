@@ -239,6 +239,18 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
       return from_coord(coord->signed_blade(iq.sourceModule()));
     }
   );
+  
+  // Flipped and Outer ladders
+  addExtractor(intern("OuterLadder"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->outer(iq.sourceModule()));
+    }
+  );
+  addExtractor(intern("FlippedLadder"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->flipped(iq.sourceModule()));
+    }
+  );
 
   // Pixel Map axis.
   // TODO: automatic range and binning for phase0 are incorrect.
