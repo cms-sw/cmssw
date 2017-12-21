@@ -33,7 +33,7 @@ namespace Rivet {
     //@{
 
     /// Book histograms and initialise projections before the run
-    void init() {
+    void init() override {
       FinalState fs(-2.4, 2.4, 0*GeV);
       addProjection(fs, "FS");
 
@@ -64,7 +64,7 @@ namespace Rivet {
 
 
     /// Perform the per-event analysis
-    void analyze(const Event& event) {
+    void analyze(const Event& event) override {
       const double weight = event.weight();
 
       // Look at events with >= 2 jets
@@ -97,7 +97,7 @@ namespace Rivet {
 
 
     /// Normalise histograms etc., after the run
-    void finalize() {
+    void finalize() override {
       const double normalizationVal = 1000;
       for (size_t i = 0; i < N_PT_BINS_dj; ++i) {
         normalize(_h_ungroomedAvgJetMass_dj[i], normalizationVal);

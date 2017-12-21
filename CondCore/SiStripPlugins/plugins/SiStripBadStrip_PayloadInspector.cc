@@ -6,6 +6,8 @@
   \date $Date: 2017/08/14 14:37:22 $
 */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
@@ -16,6 +18,8 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
+
 // needed for the tracker map
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
@@ -25,6 +29,7 @@
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+
 
 #include <memory>
 #include <sstream>
@@ -109,13 +114,13 @@ namespace {
       payload->getDetIds(detid);
       
       for (const auto & d : detid) {
-	tmap->fill(d,1);
+	tmap->fill(d,1.);
       } // loop over detIds
       
       //=========================
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+      tmap->save(true,0,1.,fileName);
 
       return true;
     }
@@ -160,8 +165,16 @@ namespace {
       
       //=========================
       
+      std::pair<float,float> extrema = tmap->getAutomaticRange(); 	
+
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+
+      // protect against uniform values across the map (bad components fractions are defined positive)
+      if (extrema.first!=extrema.second){
+	tmap->save(true,0,0,fileName);
+      } else {
+	tmap->save(true,extrema.first*0.95,extrema.first*1.05,fileName);
+      }
 
       delete reader;
       return true;
@@ -416,7 +429,7 @@ namespace {
 
       //=========================
       
-      TCanvas canvas("BadStrip Partion summary","SiStripBadStrip region summary",1200,1000); 
+      TCanvas canvas("BadStrip Region summary","SiStripBadStrip region summary",1200,1000); 
       canvas.cd();
       auto h_BadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion","SiStrip Bad Strip summary by region;; n. bad strips",mapBadStrips.size(),0.,mapBadStrips.size()));
       h_BadStrips->SetStats(false);
@@ -455,7 +468,7 @@ namespace {
 	  }
 
 	h_BadStrips->SetBinContent(iBin,countBadStrips);
-	h_BadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h_BadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h_BadStrips->GetXaxis()->LabelsOption("v");
 
 	if(detector!=currentDetector) {
@@ -534,10 +547,9 @@ namespace {
       std::string lastIOVsince  = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
       
+      // last payload
       std::vector<uint32_t> detid;
       last_payload->getDetIds(detid);
-
-      // last payload
 
       SiStripDetSummary summaryLastBadStrips{&m_trackerTopo};
       int totalLastBadStrips =0;
@@ -553,7 +565,10 @@ namespace {
       }
       std::map<unsigned int, SiStripDetSummary::Values> mapLastBadStrips = summaryLastBadStrips.getCounts();
 
-      // first payload
+      // first payload 
+      // needs to be cleared to avoid bias using only detIds of last payload
+      detid.clear();
+      first_payload->getDetIds(detid);
 
       SiStripDetSummary summaryFirstBadStrips{&m_trackerTopo};
       int totalFirstBadStrips =0;
@@ -614,7 +629,7 @@ namespace {
 	  }
 
 	h_LastBadStrips->SetBinContent(iBin,countBadStrips);
-	h_LastBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h_LastBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h_LastBadStrips->GetXaxis()->LabelsOption("v");
 
 	if(detector!=currentDetector) {
@@ -631,7 +646,7 @@ namespace {
 	int countBadStrips = (element.second.mean);
 
 	h_FirstBadStrips->SetBinContent(iBin,countBadStrips);
-	h_FirstBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h_FirstBadStrips->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
 	h_FirstBadStrips->GetXaxis()->LabelsOption("v");
 
       }
@@ -642,20 +657,29 @@ namespace {
       h_LastBadStrips->SetMarkerStyle(21);
       h_LastBadStrips->SetMarkerSize(1);
       h_LastBadStrips->SetLineColor(kBlue);
+      h_LastBadStrips->SetFillColor(kBlue);
       h_LastBadStrips->SetLineStyle(9);
       h_LastBadStrips->SetMarkerColor(kBlue);
       h_LastBadStrips->GetYaxis()->SetRangeUser(0.,h_LastBadStrips->GetMaximum()*1.30);
       h_LastBadStrips->GetYaxis()->SetTitleOffset(1.7);
-      h_LastBadStrips->Draw("HISTsame");
+
+      h_LastBadStrips->SetBarWidth(0.45);
+      h_LastBadStrips->SetBarOffset(0.1);
+      h_LastBadStrips->Draw("bar2");
       h_LastBadStrips->Draw("TEXTsame");
 
       h_FirstBadStrips->SetMarkerStyle(20);
       h_FirstBadStrips->SetMarkerSize(1);
+      h_FirstBadStrips->SetFillColor(kRed);
       h_FirstBadStrips->SetLineColor(kRed);
       h_FirstBadStrips->SetLineStyle(1);
       h_FirstBadStrips->SetMarkerColor(kRed);
       h_FirstBadStrips->GetYaxis()->SetTitleOffset(1.7);
-      h_FirstBadStrips->Draw("HISTsame");
+
+      h_FirstBadStrips->SetBarWidth(0.4);
+      h_FirstBadStrips->SetBarOffset(0.55);
+
+      h_FirstBadStrips->Draw("bar2same");
       h_FirstBadStrips->Draw("TEXT45same");
       
       canvas.Update();
@@ -799,6 +823,260 @@ namespace {
     }
   };
 
+  /************************************************
+    Plot BadStrip Quality analysis 
+  *************************************************/
+
+  class SiStripBadStripQualityAnalysis : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  public:
+    SiStripBadStripQualityAnalysis() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "SiStrip BadStrip Quality Analysis" ),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<SiStripBadStrip> payload = fetchPayload( std::get<1>(iov) );
+
+      SiStripQuality* siStripQuality_ = new SiStripQuality();
+      siStripQuality_->add(payload.get());
+      siStripQuality_->cleanUp();
+      siStripQuality_->fillBadComponents();
+
+      // store global info
+
+      //k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
+      int NTkBadComponent[4] = {0};
+
+      //legend: NBadComponent[i][j][k]= SubSystem i, layer/disk/wheel j, BadModule/Fiber/Apv k
+      //     i: 0=TIB, 1=TID, 2=TOB, 3=TEC
+      //     k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
+      int NBadComponent[4][19][4] = {{{0}}};  
+    
+      std::vector<SiStripQuality::BadComponent> BC = siStripQuality_->getBadComponentList();
+  
+      for (size_t i=0;i<BC.size();++i){
+	
+	//&&&&&&&&&&&&&
+	//Full Tk
+	//&&&&&&&&&&&&&
+	
+	if (BC[i].BadModule) 
+	  NTkBadComponent[0]++;
+	if (BC[i].BadFibers) 
+	  NTkBadComponent[1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
+	if (BC[i].BadApvs)
+	  NTkBadComponent[2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
+	    ( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
+	
+	//&&&&&&&&&&&&&&&&&
+	//Single SubSyste
+	//&&&&&&&&&&&&&&&&&
+	int component;
+	DetId detectorId=DetId(BC[i].detid);
+	int subDet = detectorId.subdetId();
+	if ( subDet == StripSubdetector::TIB ){
+	  //&&&&&&&&&&&&&&&&&
+	  //TIB
+	  //&&&&&&&&&&&&&&&&&
+	  
+	  component=m_trackerTopo.tibLayer(BC[i].detid);
+	  SiStripPI::setBadComponents(0, component, BC[i],NBadComponent);         
+
+	} else if ( subDet == StripSubdetector::TID ) {
+	  //&&&&&&&&&&&&&&&&&
+	  //TID
+	  //&&&&&&&&&&&&&&&&&
+	  
+	  component=m_trackerTopo.tidSide(BC[i].detid)==2?m_trackerTopo.tidWheel(BC[i].detid):m_trackerTopo.tidWheel(BC[i].detid)+3;
+	  SiStripPI::setBadComponents(1, component, BC[i],NBadComponent);         
+	  
+	} else if ( subDet == StripSubdetector::TOB ) {
+	  //&&&&&&&&&&&&&&&&&
+	  //TOB
+	  //&&&&&&&&&&&&&&&&&
+	  
+	  component=m_trackerTopo.tobLayer(BC[i].detid);
+	  SiStripPI::setBadComponents(2, component, BC[i],NBadComponent);         
+
+	} else if ( subDet == StripSubdetector::TEC ) {
+	  //&&&&&&&&&&&&&&&&&
+	  //TEC
+	  //&&&&&&&&&&&&&&&&&
+	  
+	  component=m_trackerTopo.tecSide(BC[i].detid)==2?m_trackerTopo.tecWheel(BC[i].detid):m_trackerTopo.tecWheel(BC[i].detid)+9;
+	  SiStripPI::setBadComponents(3, component, BC[i],NBadComponent);         
+	}    
+      }
+
+      //&&&&&&&&&&&&&&&&&&
+      // Single Strip Info
+      //&&&&&&&&&&&&&&&&&&
+
+      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+
+      float percentage=0;
+      
+      SiStripQuality::RegistryIterator rbegin = siStripQuality_->getRegistryVectorBegin();
+      SiStripQuality::RegistryIterator rend   = siStripQuality_->getRegistryVectorEnd();
+  
+      for (SiStripBadStrip::RegistryIterator rp=rbegin; rp != rend; ++rp) {
+	uint32_t detid=rp->detid;
+	
+	int subdet=-999; int component=-999;
+	DetId detectorId=DetId(detid);
+	int subDet = detectorId.subdetId();
+	if ( subDet == StripSubdetector::TIB ){
+	  subdet=0;
+	  component=m_trackerTopo.tibLayer(detid);
+	} else if ( subDet == StripSubdetector::TID ) {
+	  subdet=1;
+	  component=m_trackerTopo.tidSide(detid)==2?m_trackerTopo.tidWheel(detid):m_trackerTopo.tidWheel(detid)+3;
+	} else if ( subDet == StripSubdetector::TOB ) {
+	  subdet=2;
+	  component=m_trackerTopo.tobLayer(detid);
+	} else if ( subDet == StripSubdetector::TEC ) {
+	  subdet=3;
+	  component=m_trackerTopo.tecSide(detid)==2?m_trackerTopo.tecWheel(detid):m_trackerTopo.tecWheel(detid)+9;
+	} 
+
+	SiStripQuality::Range sqrange = SiStripQuality::Range( siStripQuality_->getDataVectorBegin()+rp->ibegin , siStripQuality_->getDataVectorBegin()+rp->iend );
+        
+	percentage=0;
+	for(int it=0;it<sqrange.second-sqrange.first;it++){
+	  unsigned int range=siStripQuality_->decode( *(sqrange.first+it) ).range;
+	  NTkBadComponent[3]+=range;
+	  NBadComponent[subdet][0][3]+=range;
+	  NBadComponent[subdet][component][3]+=range;
+	  percentage+=range;
+	}
+	if(percentage!=0)
+	  percentage/=128.*reader->getNumberOfApvsAndStripLength(detid).first;
+	if(percentage>1)
+	  edm::LogError("SiStripBadStrip_PayloadInspector") << "PROBLEM detid " << detid << " value " << percentage<< std::endl;
+      }
+       
+      //&&&&&&&&&&&&&&&&&&
+      // printout
+      //&&&&&&&&&&&&&&&&&&
+      
+      std::stringstream ss;
+      ss.str("");
+      ss << "\n-----------------\nGlobal Info\n-----------------";
+      ss << "\nBadComponent \t   Modules \tFibers \tApvs\tStrips\n----------------------------------------------------------------";
+      ss << "\nTracker:\t\t"<<NTkBadComponent[0]<<"\t"<<NTkBadComponent[1]<<"\t"<<NTkBadComponent[2]<<"\t"<<NTkBadComponent[3];
+      ss<< "\n";
+      ss << "\nTIB:\t\t\t"<<NBadComponent[0][0][0]<<"\t"<<NBadComponent[0][0][1]<<"\t"<<NBadComponent[0][0][2]<<"\t"<<NBadComponent[0][0][3];
+      ss << "\nTID:\t\t\t"<<NBadComponent[1][0][0]<<"\t"<<NBadComponent[1][0][1]<<"\t"<<NBadComponent[1][0][2]<<"\t"<<NBadComponent[1][0][3];
+      ss << "\nTOB:\t\t\t"<<NBadComponent[2][0][0]<<"\t"<<NBadComponent[2][0][1]<<"\t"<<NBadComponent[2][0][2]<<"\t"<<NBadComponent[2][0][3];
+      ss << "\nTEC:\t\t\t"<<NBadComponent[3][0][0]<<"\t"<<NBadComponent[3][0][1]<<"\t"<<NBadComponent[3][0][2]<<"\t"<<NBadComponent[3][0][3];
+      ss << "\n";
+      
+      for (int i=1;i<5;++i)
+	ss << "\nTIB Layer " << i   << " :\t\t"<<NBadComponent[0][i][0]<<"\t"<<NBadComponent[0][i][1]<<"\t"<<NBadComponent[0][i][2]<<"\t"<<NBadComponent[0][i][3];
+      ss << "\n";
+      for (int i=1;i<4;++i)
+	ss << "\nTID+ Disk " << i   << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
+      for (int i=4;i<7;++i)
+	ss << "\nTID- Disk " << i-3 << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
+      ss << "\n";
+      for (int i=1;i<7;++i)
+	ss << "\nTOB Layer " << i   << " :\t\t"<<NBadComponent[2][i][0]<<"\t"<<NBadComponent[2][i][1]<<"\t"<<NBadComponent[2][i][2]<<"\t"<<NBadComponent[2][i][3];
+      ss << "\n";
+      for (int i=1;i<10;++i)
+	ss << "\nTEC+ Disk " << i   << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
+      for (int i=10;i<19;++i)
+	ss << "\nTEC- Disk " << i-9 << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
+      ss<< "\n";
+
+      edm::LogInfo("SiStripBadStrip_PayloadInspector") << ss.str() << std::endl;
+      //std::cout<<  ss.str() << std::endl;
+
+      auto masterTable = std::unique_ptr<TH2I>(new TH2I("table","",4,0.,4.,39,0.,39.));
+      
+      std::string labelsX[4]={"Bad Modules","Bad Fibers","Bad APVs","Bad Strips"};
+      std::string labelsY[40]={"Tracker","TIB","TID","TOB","TEC","TIB Layer 1","TIB Layer 2","TIB Layer 3","TIB Layer 4","TID+ Disk 1","TID+ Disk 2","TID+ Disk 3","TID- Disk 1","TID- Disk 2","TID- Disk 3","TOB Layer 1","TOB Layer 2","TOB Layer 3","TOB Layer 4","TOB Layer 5","TOB Layer 6","TEC+ Disk 1","TEC+ Disk 2","TEC+ Disk 3","TEC+ Disk 4","TEC+ Disk 5","TEC+ Disk 6","TEC+ Disk 7","TEC+ Disk 8","TEC+ Disk 9","TEC- Disk 1","TEC- Disk 2","TEC- Disk 3","TEC- Disk 4","TEC- Disk 5","TEC- Disk 6","TEC- Disk 7","TEC- Disk 8","TEC- Disk 9"};
+
+      for(int iX=0;iX<=3;iX++){
+	masterTable->GetXaxis()->SetBinLabel(iX+1,labelsX[iX].c_str());
+      }
+
+      for(int iY=39;iY>=1;iY--){
+	masterTable->GetYaxis()->SetBinLabel(iY,labelsY[39-iY].c_str());
+      }
+                                 
+      //                        0 1 2  3   
+      int layerBoundaries[4] = {4,6,6,18};
+      std::vector<int> boundaries;
+      boundaries.push_back(39); 
+      boundaries.push_back(35);
+ 
+      int cursor=0;
+      int layerIndex=0;
+      for(int iY=39;iY>=1;iY--){
+       	for(int iX=0;iX<=3;iX++){
+       	  if(iY==39){
+	    masterTable->SetBinContent(iX+1,iY,NTkBadComponent[iX]);
+	  } else if (iY>=35){
+	    masterTable->SetBinContent(iX+1,iY,NBadComponent[(39-iY)-1][0][iX]);
+	  } else {
+	    if(iX==0) layerIndex++;
+	    //std::cout<<"iY:"<<iY << " cursor: "  <<cursor << " layerIndex: " << layerIndex << " layer check: "<< layerBoundaries[cursor] <<std::endl;
+	    masterTable->SetBinContent(iX+1,iY,NBadComponent[cursor][layerIndex][iX]);
+	  }
+	}
+	if(layerIndex==layerBoundaries[cursor]){
+	  // bring on the subdet counter and reset the layer count
+	  cursor++;
+	  layerIndex=0;
+	  boundaries.push_back(iY);
+	}
+      }
+      
+      TCanvas canv("canv","canv",800,800);
+      canv.cd();
+
+      canv.SetTopMargin(0.05);
+      canv.SetBottomMargin(0.07);
+      canv.SetLeftMargin(0.18);
+      canv.SetRightMargin(0.05);
+
+      masterTable->SetStats(false);
+      canv.SetGrid();
+     
+      masterTable->Draw("text");
+
+      canv.Update();
+      canv.cd();
+
+      TLine l[boundaries.size()];
+      unsigned int i=0;
+      for (const auto & line : boundaries){
+        l[i] = TLine(canv.cd()->GetUxmin(),masterTable->GetYaxis()->GetBinLowEdge(line),canv.cd()->GetUxmax(),masterTable->GetYaxis()->GetBinLowEdge(line));
+	l[i].SetLineWidth(2);
+	l[i].SetLineStyle(9);
+	l[i].SetLineColor(kMagenta);
+	l[i].Draw("same");
+	i++;
+      }
+
+      canv.cd();
+      TLatex title;
+      title.SetTextSize(0.027);
+      title.SetTextColor(kBlue);
+      title.DrawLatexNDC(0.12,0.97,("IOV: "+std::to_string(std::get<0>(iov))+"| "+std::get<1>(iov)).c_str()); 
+      std::string fileName(m_imageFileName);
+      canv.SaveAs(fileName.c_str());
+
+      delete siStripQuality_;
+      delete reader;
+      return true;
+    }
+  private:
+    TrackerTopology m_trackerTopo;
+  };
 
 } // close namespace
 
@@ -815,4 +1093,5 @@ PAYLOAD_INSPECTOR_MODULE(SiStripBadStrip){
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripByRegionComparison);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionComparisonTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripQualityAnalysis);
 }

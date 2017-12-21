@@ -13,10 +13,10 @@ class FEConfigSlidingInfo : public  IODConfig {
   friend class EcalCondDBInterface;
 
   FEConfigSlidingInfo();
-  ~FEConfigSlidingInfo();
+  ~FEConfigSlidingInfo() override;
 
   // Methods for user data
-  inline std::string getTable() { return "FE_CONFIG_SLIDING_INFO"; }
+  inline std::string getTable() override { return "FE_CONFIG_SLIDING_INFO"; }
 
 
   inline void setIOVId(int iov_id){ m_iov_id = iov_id;  }
@@ -53,7 +53,7 @@ class FEConfigSlidingInfo : public  IODConfig {
   Tm m_db_time;
   int m_version;
 
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void writeDB() noexcept(false);
   void clear();
   void fetchData(FEConfigSlidingInfo * result) noexcept(false);

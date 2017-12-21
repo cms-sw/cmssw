@@ -22,3 +22,16 @@ genericTriggerEventFlag4L1bd = cms.PSet(
    l1BeforeMask  = cms.bool( True ), # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied.
    verbosityLevel = cms.uint32(1)
 )
+
+PixelDCSfilter = cms.PSet(
+    andOr         = cms.bool( False ),
+    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+    dcsPartitions = cms.vint32 ( 28, 29),
+    andOrDcs      = cms.bool( False ),
+    errorReplyDcs = cms.bool( True ),
+)
+
+# must match order in SiPixelPhase1Base.h
+SiPixelPhase1Triggers = cms.untracked.VPSet(
+    PixelDCSfilter
+)

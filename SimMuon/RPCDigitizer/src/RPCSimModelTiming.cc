@@ -57,6 +57,7 @@ RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSim(c
   frate=config.getParameter<double>("Frate");
   do_Y =  config.getParameter<bool>("do_Y_coordinate");
   sigmaY = config.getParameter<double>("sigmaY");
+  eledig = config.getParameter<bool>("digitizeElectrons");
   
   if (rpcdigiprint) {
     edm::LogInfo("RPC digitizer parameters") <<"Average Efficiency        = "<<aveEff;

@@ -17,7 +17,6 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         dataOOTCorrectionCategory = cms.string("Data"),
                         mcOOTCorrectionName = cms.string(""),
                         mcOOTCorrectionCategory = cms.string("MC"),
-                        puCorrMethod = cms.int32(0),
 
                         correctTiming = cms.bool(True),
                         # Set time slice for first digi to be stored in aux word

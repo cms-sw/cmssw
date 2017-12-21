@@ -12,10 +12,10 @@ class FEConfigLUTParamDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   FEConfigLUTParamDat();
-  ~FEConfigLUTParamDat();
+  ~FEConfigLUTParamDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_LUTPARAM_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_LUTPARAM_DAT"; }
 
 
   inline void setETSat(float x) { m_etsat = x; }
@@ -29,7 +29,7 @@ class FEConfigLUTParamDat : public IDataItem {
   inline float getTTThreshhigh() const{ return m_tthreshhigh; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigLUTParamDat* item, FEConfigLUTInfo* iconf) noexcept(false);
 

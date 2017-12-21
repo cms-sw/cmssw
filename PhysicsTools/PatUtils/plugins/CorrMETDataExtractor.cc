@@ -32,7 +32,7 @@ public:
     
   }
 
-  ~CorrMETDataExtractor() { }
+  ~CorrMETDataExtractor() override { }
 
 private:
 

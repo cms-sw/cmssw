@@ -54,7 +54,7 @@ public:
   MuonTrackResidualAnalyzer(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~MuonTrackResidualAnalyzer();
+  ~MuonTrackResidualAnalyzer() override;
   
   // Operations
 
@@ -62,7 +62,7 @@ public:
 
   virtual void beginJob() ;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
 
 protected:
 

@@ -57,7 +57,7 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   /// debug flags and stream
   bool ldebug = false;
-  bool debug_NOTEMPTY[18]={0};
+  bool debug_NOTEMPTY[18]={false};
   for(int i=0; i<18; i++) debug_NOTEMPTY[i]=false;
   std::stringstream dstrm;
 

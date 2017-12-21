@@ -51,12 +51,12 @@ using namespace l1t;
   class L1TExtCondLegacyToStage2 : public stream::EDProducer<> {
   public:
     explicit L1TExtCondLegacyToStage2(const ParameterSet&);
-    ~L1TExtCondLegacyToStage2();
+    ~L1TExtCondLegacyToStage2() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // ----------member data ---------------------------
     //unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.

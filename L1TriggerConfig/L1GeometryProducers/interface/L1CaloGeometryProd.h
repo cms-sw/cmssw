@@ -33,7 +33,7 @@
 class L1CaloGeometryProd : public edm::ESProducer {
    public:
       L1CaloGeometryProd(const edm::ParameterSet&);
-      ~L1CaloGeometryProd();
+      ~L1CaloGeometryProd() override;
 
       typedef std::unique_ptr<L1CaloGeometry> ReturnType;
 

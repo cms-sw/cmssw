@@ -66,15 +66,15 @@
 class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
    public:
       explicit AlignmentMonitorAsAnalyzer(const edm::ParameterSet&);
-      ~AlignmentMonitorAsAnalyzer();
+      ~AlignmentMonitorAsAnalyzer() override;
 
       typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
       typedef std::vector<ConstTrajTrackPair> ConstTrajTrackPairCollection;
 
    private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
 
       // ----------member data ---------------------------
       edm::InputTag m_tjTag;
@@ -103,9 +103,9 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
 AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& iConfig)
    : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag"))
    , m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore"))
-   , m_alignableTracker(NULL)
-   , m_alignableMuon(NULL)
-   , m_alignmentParameterStore(NULL)
+   , m_alignableTracker(nullptr)
+   , m_alignableMuon(nullptr)
+   , m_alignmentParameterStore(nullptr)
 {
    std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string> >( "monitors" );
 

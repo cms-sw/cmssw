@@ -59,7 +59,7 @@ class EventSetup
             const T* value = nullptr;
             eventSetupGetImplementation(*this, value);
             //NOTE: by construction, eventSetupGetImplementation should thrown an exception rather than return a null value
-            assert(0 != value);
+            assert(nullptr != value);
             return *value;
          }
       /** returns the Record of type T.  If no such record available

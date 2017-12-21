@@ -29,9 +29,9 @@ template <typename SiStripPayload>
 class SiStripPayloadHandler : public edm::EDAnalyzer {
 public:
   explicit SiStripPayloadHandler(const edm::ParameterSet& iConfig );
-  virtual ~SiStripPayloadHandler();
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~SiStripPayloadHandler() override;
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
 private:
   std::string makeConfigHash();

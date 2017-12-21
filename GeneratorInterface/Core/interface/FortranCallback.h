@@ -52,24 +52,24 @@ namespace gen {
 
 // --** Implementation **---
 
-FortranCallback* FortranCallback::fInstance = 0;
+FortranCallback* FortranCallback::fInstance = nullptr;
 
 FortranCallback::FortranCallback()
 //   : fPartonLevel(0)
-   : fRunBlock(0), fEventBlock(0), fIterationsPerEvent(0)
+   : fRunBlock(nullptr), fEventBlock(nullptr), fIterationsPerEvent(0)
 {   
 }
 
 FortranCallback* FortranCallback::getInstance()
 {
-   if ( fInstance == 0 ) fInstance = new FortranCallback;
+   if ( fInstance == nullptr ) fInstance = new FortranCallback;
    return fInstance;
 }
 
 void FortranCallback::fillHeader()
 {
    
-   if ( fRunBlock == 0 ) return;
+   if ( fRunBlock == nullptr ) return;
       
    //const lhef::HEPRUP* heprup = &(fRunBlock->heprup());
    const lhef::HEPRUP* heprup = fRunBlock->getHEPRUP();
@@ -86,7 +86,7 @@ void FortranCallback::fillEvent()
    //if ( fPartonLevel == 0 ) return;    
    //const lhef::HEPEUP* hepeup = fPartonLevel->getHEPEUP();
    
-   if ( fEventBlock == 0 ) return;
+   if ( fEventBlock == nullptr ) return;
    
    const lhef::HEPEUP* hepeup = fEventBlock->getHEPEUP(); 
 

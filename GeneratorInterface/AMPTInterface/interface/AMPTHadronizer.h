@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 namespace HepMC {
   class GenEvent;
@@ -33,7 +33,7 @@ namespace gen
   class AMPTHadronizer : public BaseHadronizer {
   public:
     AMPTHadronizer(const edm::ParameterSet &);
-    virtual ~AMPTHadronizer();
+    ~AMPTHadronizer() override;
 
     bool generatePartonsAndHadronize();
     bool hadronize();
@@ -51,7 +51,7 @@ namespace gen
 
   private:
     
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
 
     void					add_heavy_ion_rec(HepMC::GenEvent *evt);
     HepMC::GenParticle*	                        build_ampt( int index, int barcode );	

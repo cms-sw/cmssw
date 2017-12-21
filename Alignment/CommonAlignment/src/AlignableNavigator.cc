@@ -103,7 +103,7 @@ AlignableDetOrUnitPtr AlignableNavigator::alignableFromDetId( const DetId& detid
   throw cms::Exception("BadLogic") 
     << "[AlignableNavigator::alignableDetFromDetId] DetId " << detid.rawId() << " not found";
 
-  return static_cast<AlignableDet*>(0);
+  return static_cast<AlignableDet*>(nullptr);
 }
 
 //_____________________________________________________________________________

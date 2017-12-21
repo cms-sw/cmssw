@@ -58,7 +58,7 @@ public:
         std::list<T> elements;
         std::unique_ptr<char,void(*)(void*)> copy( strdup(scalarOrVector.c_str()), free );
         char *saveptr;
-        for(const char *item = strtok_r(copy.get(),d,&saveptr); item != NULL; item = strtok_r(NULL,d,&saveptr) )
+        for(const char *item = strtok_r(copy.get(),d,&saveptr); item != nullptr; item = strtok_r(nullptr,d,&saveptr) )
             try {
                 elements.push_back( castTo<T>(item) );
             } catch (std::runtime_error &e){

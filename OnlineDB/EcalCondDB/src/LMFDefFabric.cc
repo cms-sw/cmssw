@@ -174,7 +174,7 @@ void LMFDefFabric::initialize()
   _lmfPrimVersions.clear();
   _lmfSeqVersions.clear();
   _lmfCorrVersions.clear();
-  if ((m_env != NULL) && (m_conn != NULL)) {
+  if ((m_env != nullptr) && (m_conn != nullptr)) {
     boost::ptr_list<LMFUnique> listOfObjects;
     boost::ptr_list<LMFUnique>::const_iterator i;
     boost::ptr_list<LMFUnique>::const_iterator e;

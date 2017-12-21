@@ -49,12 +49,12 @@
 class TrackFromSeedProducer : public edm::global::EDProducer<> {
 public:
   explicit TrackFromSeedProducer(const edm::ParameterSet&);
-  ~TrackFromSeedProducer();
+  ~TrackFromSeedProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedsToken;

@@ -5,7 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace gen;
 

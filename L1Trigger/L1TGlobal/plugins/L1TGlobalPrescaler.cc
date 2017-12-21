@@ -140,6 +140,8 @@ private:
     ApplyPrescaleRatios,    // apply prescales equal to ratio between the given values and the ones read from the EventSetup
     ApplyColumnValues,      // apply the prescale values from the EventSetup corresponding to the given column index
     ApplyColumnRatios,      // apply prescales equal to ratio between the values corresponsing to the given column index, and the ones read from the EventSetup
+    ForcePrescaleValues,    // apply the given prescale values, ignoring the prescales and masks already applied
+    ForceColumnValues,      // apply the prescale values from the EventSetup corresponding to the given column index, ignoring the prescales and masks already applied
     Invalid = -1
   };
 
@@ -149,6 +151,8 @@ private:
     { Mode::ApplyPrescaleRatios, "applyPrescaleRatios", "apply prescales equal to ratio between the given values and the ones read from the EventSetup" },
     { Mode::ApplyColumnValues,   "applyColumnValues",   "apply the prescale values from the EventSetup corresponding to the given column index" },
     { Mode::ApplyColumnRatios,   "applyColumnRatios",   "apply prescales equal to ratio between the values corresponsing to the given column index, and the ones read from the EventSetup" },
+    { Mode::ForcePrescaleValues, "forcePrescaleValues", "apply the given prescale values, ignoring the prescales and masks already applied" },
+    { Mode::ForceColumnValues,   "forceColumnValues",   "apply the prescale values from the EventSetup corresponding to the given column index, ignoring the prescales and masks already applied" },
     { Mode::Invalid,             nullptr,               nullptr }
   };
 
@@ -169,23 +173,25 @@ constexpr Entry<L1TGlobalPrescaler::Mode> L1TGlobalPrescaler::s_modes[];
 L1TGlobalPrescaler::L1TGlobalPrescaler(edm::ParameterSet const& config) :
   m_mode( get_enum_value(s_modes, config.getParameter<std::string>("mode").c_str(), Mode::Invalid) ),
   m_l1tResultsToken( consumes<GlobalAlgBlkBxCollection>(config.getParameter<edm::InputTag>("l1tResults")) ),
-  m_l1tPrescales( m_mode == Mode::ApplyPrescaleValues or m_mode == Mode::ApplyPrescaleRatios ?
+  m_l1tPrescales( m_mode == Mode::ApplyPrescaleValues or m_mode == Mode::ApplyPrescaleRatios or m_mode == Mode::ForcePrescaleValues ?
       getParameterArray<double, GlobalAlgBlk::maxPhysicsTriggers>(config, "l1tPrescales") :
       std::array<double, GlobalAlgBlk::maxPhysicsTriggers>() ),
-  m_l1tPrescaleColumn( m_mode == Mode::ApplyColumnValues or m_mode == Mode::ApplyColumnRatios ?
+  m_l1tPrescaleColumn( m_mode == Mode::ApplyColumnValues or m_mode == Mode::ApplyColumnRatios or m_mode == Mode::ForceColumnValues ?
       config.getParameter<uint32_t>("l1tPrescaleColumn") : 0 ),
   m_oldIndex(-1)
 {
   switch (m_mode) {
     // if the mode is "applyPrescaleValues", use the given values
     case Mode::ApplyPrescaleValues:
+    case Mode::ForcePrescaleValues:
       m_prescales = m_l1tPrescales;
       break;
 
     // otherwise we need to read the prescale values from the EventSetup
-    case Mode::ApplyPrescaleRatios:
     case Mode::ApplyColumnValues:
+    case Mode::ApplyPrescaleRatios:
     case Mode::ApplyColumnRatios:
+    case Mode::ForceColumnValues:
       break;
 
     // this should never happen
@@ -247,9 +253,9 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
     m_oldIndex = index;
   }
 
-  // Mode::ApplyColumnValues
+  // Mode::ApplyColumnValues and Mode::ForceColumnValues
   // apply the prescale values from the EventSetup corresponding to the given column index
-  if (m_mode == Mode::ApplyColumnValues and m_oldIndex != m_l1tPrescaleColumn) {
+  if ((m_mode == Mode::ApplyColumnValues or m_mode == Mode::ForceColumnValues) and m_oldIndex != m_l1tPrescaleColumn) {
     edm::ESHandle<L1TGlobalPrescalesVetos> h;
     setup.get<L1TGlobalPrescalesVetosRcd>().get(h);
     auto const & prescaleTable = h->prescale_table_;
@@ -300,20 +306,25 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
   GlobalAlgBlk algoBlock = handle->at(0,0);
 
   bool finalOr = false;
+  std::vector<bool> const& decision = (m_mode == Mode::ForceColumnValues or m_mode == Mode::ForcePrescaleValues) ?
+    algoBlock.getAlgoDecisionInitial() :
+    algoBlock.getAlgoDecisionFinal();
 
   for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i) {
     if (m_prescales[i] == 0) {
       // mask this trigger: reset the bit
       algoBlock.setAlgoDecisionFinal(i, false);
-    } else if (algoBlock.getAlgoDecisionFinal(i)) {
+    } else if (decision[i]) {
       // prescale this trigger
       ++m_counters[i];
-      if (std::fmod(m_counters[i], m_prescales[i]) < 1)
-        // the prescale is successful, keep the bit set
+      if (std::fmod(m_counters[i], m_prescales[i]) < 1) {
+        // the prescale is successful, set the bit
+        algoBlock.setAlgoDecisionFinal(i, true);
         finalOr = true;
-      else
+      } else {
         // the prescale failed, reset the bit
         algoBlock.setAlgoDecisionFinal(i, false);
+      }
     }
   }
 
@@ -324,7 +335,7 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
   algoBlock.setFinalOR(finalOr);
 
   // set the new prescale column
-  if (m_mode == Mode::ApplyColumnValues or m_mode == Mode::ApplyColumnRatios)
+  if (m_mode == Mode::ApplyColumnValues or m_mode == Mode::ApplyColumnRatios or m_mode == Mode::ForceColumnValues)
     algoBlock.setPreScColumn(m_l1tPrescaleColumn);
 
   // create a new GlobalAlgBlkBxCollection, and set the new prescaled decisions for bx 0
@@ -347,23 +358,25 @@ void L1TGlobalPrescaler::fillDescriptions(edm::ConfigurationDescriptions & descr
 
   // target prescale values (for modes "applyPrescaleValues" or "applyPrescaleRatios")
   edm::ParameterDescription<std::vector<double>> l1tPrescales("l1tPrescales", std::vector<double>(GlobalAlgBlk::maxPhysicsTriggers, 1.), true);
-  l1tPrescales.setComment("Target prescale values (for modes \"applyPrescaleValues\" or \"applyPrescaleRatios\")");
+  l1tPrescales.setComment("Target prescale values (for modes \"applyPrescaleValues\", \"applyPrescaleRatios\" or \"forcePrescaleValues\")");
 
   // target prescale column (for modes "applyColumnValues" or "applyColumnRatios")
   edm::ParameterDescription<uint32_t> l1tPrescaleColumn("l1tPrescaleColumn", 0, true);
-  l1tPrescaleColumn.setComment("Target prescale column (for modes \"applyColumnValues\" or \"applyColumnRatios\")");
+  l1tPrescaleColumn.setComment("Target prescale column (for modes \"applyColumnValues\", \"applyColumnRatios\" or \"forceColumnValues\")");
 
   // validaton of all possible configurations and applyPrescaleValues example
   {
     edm::ParameterSetDescription desc;
     desc.addNode(l1tResults);
     desc.ifValue(mode,
-      // if mode is "applyPrescaleValues" or "applyPrescaleRatios", read the target prescales
+      // if mode is "applyPrescaleValues", "applyPrescaleRatios" or "forcePrescaleValues", read the target prescales
       "applyPrescaleValues" >> l1tPrescales or
       "applyPrescaleRatios" >> l1tPrescales or
-      // if mode is "applyColumnValues" or "applyColumnRatios", read the target column
+      "forcePrescaleValues" >> l1tPrescales or
+      // if mode is "applyColumnValues", "applyColumnRatios" or "forceColumnValues", read the target column
       "applyColumnValues"   >> l1tPrescaleColumn or
-      "applyColumnRatios"   >> l1tPrescaleColumn );
+      "applyColumnRatios"   >> l1tPrescaleColumn or
+      "forceColumnValues"   >> l1tPrescaleColumn );
     descriptions.add("l1tGlobalPrescaler", desc);
   }
 

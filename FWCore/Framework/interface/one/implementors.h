@@ -121,7 +121,7 @@ namespace edm {
             BeginLuminosityBlockProducer( BeginLuminosityBlockProducer const&) = delete;
             BeginLuminosityBlockProducer& operator=(BeginLuminosityBlockProducer const&) = delete;
             ~BeginLuminosityBlockProducer() noexcept(false) override {};
-            
+
          private:
             void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) final;
 

@@ -32,12 +32,12 @@
 class ExternalLHEAsciiDumper : public edm::EDAnalyzer {
 public:
   explicit ExternalLHEAsciiDumper(const edm::ParameterSet&);
-  ~ExternalLHEAsciiDumper();
+  ~ExternalLHEAsciiDumper() override;
   
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
 
   edm::InputTag lheProduct_;
   std::string   lheFileName_;

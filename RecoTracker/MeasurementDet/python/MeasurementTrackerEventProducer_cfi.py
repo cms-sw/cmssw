@@ -15,6 +15,16 @@ phase2_tracker.toModify(MeasurementTrackerEvent, # FIXME
     stripClusterProducer = ''
 )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(MeasurementTrackerEvent,
+    pixelClusterProducer = '',
+    stripClusterProducer = '',
+    inactivePixelDetectorLabels = cms.VInputTag(),
+    inactiveStripDetectorLabels = cms.VInputTag(),
+    switchOffPixelsIfEmpty = False
+)
+
+
 MeasurementTrackerEventPreSplitting = MeasurementTrackerEvent.clone(
     pixelClusterProducer = 'siPixelClustersPreSplitting'
     )

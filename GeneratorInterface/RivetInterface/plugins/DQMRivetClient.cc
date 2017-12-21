@@ -153,7 +153,7 @@ void DQMRivetClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 
   
-  theDQM = 0;
+  theDQM = nullptr;
   theDQM = Service<DQMStore>().operator->();
 
   if ( ! theDQM ) {

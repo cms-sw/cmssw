@@ -20,8 +20,7 @@ process.GlobalTag.globaltag = 'GR09_E_V3T::All'
 process.prefer("GlobalTag")
 
 #SiStrip Local Reco
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-process.TkDetMap = cms.Service("TkDetMap")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 process.GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" )
 

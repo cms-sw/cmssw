@@ -25,7 +25,7 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCEEDigiCollection& ee,
     std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
     std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
     // convert ee and fh hit collections into the same object
-    if(ee.size()>0)
+    if(!ee.empty())
     {
         for(const auto& eedata : ee)
         {
@@ -36,7 +36,7 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCEEDigiCollection& ee,
             }
         }
     }
-    else if(fh.size()>0)
+    else if(!fh.empty())
     {
         for(const auto& fhdata : fh)
         {

@@ -47,7 +47,7 @@ function getConfigForCVS() {
   log "  dumping HLT cffs for $NAME from $CONFIG"
 
   # do not use any conditions or L1 override
-  hltGetConfiguration --cff --offline --data $CONFIG --type $NAME > HLT_${NAME}_cff.py
+  hltGetConfiguration --cff --data $CONFIG --type $NAME > HLT_${NAME}_cff.py
 }
 
 function getContentForCVS() {
@@ -55,7 +55,7 @@ function getContentForCVS() {
 
   log "  dumping EventContet"
   $GETCONTENT $CONFIG
-  rm -f hltOutput*_cff.py*
+  rm -f hltOutput*_cff.py* hltScouting_cff.py*
 }
 
 function getDatasetsForCVS() {
@@ -89,9 +89,9 @@ function getConfigForOnline() {
   log "  dumping full HLT for $NAME from $CONFIG"
   # override L1 menus
   if [ "$NAME" == "Fake" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
   fi
 
 }

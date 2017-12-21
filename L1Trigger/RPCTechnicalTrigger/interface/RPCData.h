@@ -4,7 +4,7 @@
 // Include files
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <ios>

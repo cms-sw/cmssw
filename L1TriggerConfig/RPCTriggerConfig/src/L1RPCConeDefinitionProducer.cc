@@ -37,7 +37,7 @@
 class L1RPCConeDefinitionProducer : public edm::ESProducer {
    public:
       L1RPCConeDefinitionProducer(const edm::ParameterSet&);
-      ~L1RPCConeDefinitionProducer();
+      ~L1RPCConeDefinitionProducer() override;
 
       typedef std::shared_ptr<L1RPCConeDefinition> ReturnType;
 

@@ -77,7 +77,7 @@ public:
   bool cmHistosEnabled();
 
    //book the top level histograms
-  void bookTopLevelHistograms(DQMStore::IBooker & , std::string topFolderName = "SiStrip");
+  void bookTopLevelHistograms(DQMStore::IBooker &, const TkDetMap*, std::string topFolderName = "SiStrip");
 
   //book individual FED histograms or book all FED level histograms at once
   void bookFEDHistograms(DQMStore::IBooker & , unsigned int fedId,
@@ -203,7 +203,7 @@ private:
     debugHistosBooked_;
 
   HistogramConfig tkMapConfig_;
-  TkHistoMap *tkmapFED_;
+  std::unique_ptr<TkHistoMap> tkmapFED_;
 
   HistogramConfig lumiErrorFraction_;
 

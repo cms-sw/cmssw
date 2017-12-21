@@ -2,7 +2,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -14,10 +14,10 @@ using namespace oracle::occi;
 
 ODDCCConfig::ODDCCConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_size=0;
    m_config_tag="";
    m_ID=0;
@@ -119,7 +119,7 @@ void ODDCCConfig::setParameters(const std::map<string,string>& my_keys_map){
     if(ci->first==  "TESTPATTERN_FILE_URL")   setTestPatternFileUrl(ci->second );
     if(ci->first==  "N_TESTPATTERNS_TO_LOAD") setNTestPatternsToLoad(atoi(ci->second.c_str() ));
     if(ci->first==  "SM_HALF")                setSMHalf(atoi(ci->second.c_str() ));
-    if(ci->first==  "WEIGHTSMODE")           setDCCWeightsMode(ci->second.c_str() );
+    if(ci->first==  "WEIGHTSMODE")           setDCCWeightsMode(ci->second );
     if(ci->first==  "DCC_CONFIGURATION_URL") {
       std::string fname=ci->second ;
       setDCCConfigurationUrl(fname );

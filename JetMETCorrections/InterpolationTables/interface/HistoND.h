@@ -55,30 +55,30 @@ namespace npstat {
         };
 
         /** Main constructor for arbitrary-dimensional histograms */
-        explicit HistoND(const std::vector<Axis>& axes, const char* title=0,
-                         const char* accumulatedDataLabel=0);
+        explicit HistoND(const std::vector<Axis>& axes, const char* title=nullptr,
+                         const char* accumulatedDataLabel=nullptr);
 
         /** Convenience constructor for 1-d histograms */
-        explicit HistoND(const Axis& xAxis, const char* title=0,
-                         const char* accumulatedDataLabel=0);
+        explicit HistoND(const Axis& xAxis, const char* title=nullptr,
+                         const char* accumulatedDataLabel=nullptr);
 
         /** Convenience constructor for 2-d histograms */
         HistoND(const Axis& xAxis, const Axis& yAxis,
-                const char* title=0, const char* accumulatedDataLabel=0);
+                const char* title=nullptr, const char* accumulatedDataLabel=nullptr);
 
         /** Convenience constructor for 3-d histograms */
         HistoND(const Axis& xAxis, const Axis& yAxis, const Axis& zAxis,
-                const char* title=0, const char* accumulatedDataLabel=0);
+                const char* title=nullptr, const char* accumulatedDataLabel=nullptr);
 
         /** Convenience constructor for 4-d histograms */
         HistoND(const Axis& xAxis, const Axis& yAxis,
                 const Axis& zAxis, const Axis& tAxis,
-                const char* title=0, const char* accumulatedDataLabel=0);
+                const char* title=nullptr, const char* accumulatedDataLabel=nullptr);
 
         /** Convenience constructor for 5-d histograms */
         HistoND(const Axis& xAxis, const Axis& yAxis,
                 const Axis& zAxis, const Axis& tAxis, const Axis& vAxis,
-                const char* title=0, const char* accumulatedDataLabel=0);
+                const char* title=nullptr, const char* accumulatedDataLabel=nullptr);
 
         /**
         // Simple constructor for uniformly binned histograms without
@@ -86,7 +86,7 @@ namespace npstat {
         // both "shape" and "boundingBox" arguments must be the same.
         */
         HistoND(const ArrayShape& shape, const BoxND<double>& boundingBox,
-                const char* title=0, const char* accumulatedDataLabel=0);
+                const char* title=nullptr, const char* accumulatedDataLabel=nullptr);
 
         /**
         // Converting constructor. The functor will be applied to all bins
@@ -96,7 +96,7 @@ namespace npstat {
         */
         template <typename Num2, class Functor>
         HistoND(const HistoND<Num2,Axis>& h, const Functor& f,
-                const char* title=0, const char* accumulatedDataLabel=0);
+                const char* title=nullptr, const char* accumulatedDataLabel=nullptr);
 
         /**
         // A slicing constructor. The new histogram will be created by
@@ -107,7 +107,7 @@ namespace npstat {
         */
         template <typename Num2>
         HistoND(const HistoND<Num2,Axis>& h, const unsigned *indices,
-                unsigned nIndices, const char* title=0);
+                unsigned nIndices, const char* title=nullptr);
 
         /**
         // A constructor that inserts a new axis into a histogram
@@ -120,7 +120,7 @@ namespace npstat {
         */
         template <typename Num2>
         HistoND(const HistoND<Num2,Axis>& h, const Axis& newAxis,
-                unsigned newAxisNumber, const char* title=0);
+                unsigned newAxisNumber, const char* title=nullptr);
 
         /**
         // Create a rebinned histogram with the same axis coverage.
@@ -142,7 +142,7 @@ namespace npstat {
         template <typename Num2>
         HistoND(const HistoND<Num2,Axis>& h, RebinType rType,
                 const unsigned *newBinCounts, unsigned lenNewBinCounts, 
-                const double* shifts=0, const char* title=0);
+                const double* shifts=nullptr, const char* title=nullptr);
 
         /** Copy constructor */
         HistoND(const HistoND&);
@@ -843,7 +843,7 @@ namespace npstat {
         static HistoND* read(const gs::ClassId& id, std::istream& in);
 
     private:
-        HistoND();
+        HistoND() = delete;
 
         // Special constructor which speeds up the "transpose" operation.
         // Does not do full error checking (some of it is done in transpose).

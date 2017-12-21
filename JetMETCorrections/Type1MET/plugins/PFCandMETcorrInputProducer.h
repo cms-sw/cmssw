@@ -32,11 +32,11 @@ class PFCandMETcorrInputProducer : public edm::stream::EDProducer<>
  public:
 
   explicit PFCandMETcorrInputProducer(const edm::ParameterSet&);
-  ~PFCandMETcorrInputProducer();
+  ~PFCandMETcorrInputProducer() override;
     
  private:
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 

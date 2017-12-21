@@ -23,23 +23,23 @@ class ITimingDat : public IDataItem {
 
 ITimingDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_timingMean = 0;
   m_timingRMS = 0;
-  m_taskStatus=0;
+  m_taskStatus=false;
 };
 
 
 
- ~ITimingDat(){};
+ ~ITimingDat() override{};
 
 
   // User data methods
-  inline std::string getTable() { return m_table_name;}
+  inline std::string getTable() override { return m_table_name;}
   inline void setTable(std::string x) { m_table_name=x; }
 
   inline void setTimingMean(float mean) { m_timingMean = mean; }
@@ -53,7 +53,7 @@ ITimingDat()
   
 
  private:
-void prepareWrite() noexcept(false)
+void prepareWrite() noexcept(false) override
 {
   this->checkConnection();
 

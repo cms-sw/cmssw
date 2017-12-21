@@ -160,17 +160,7 @@ public:
    */
   template<typename iter> std::vector< std::pair<SimTrackIdentifiers,double> > getAllSimTrackIdentifiers( const TrackerHitAssociator& hitAssociator, iter begin, iter end ) const;
   
-  // Added by S. Sarkar
-  template<typename iter> std::vector< OmniClusterRef> getMatchedClusters( iter begin, iter end ) const;
-  
-  const TrackingRecHit* getHitFromIter(trackingRecHit_iterator iter) const {
-    return &(**iter);
-  }
-  
-  const TrackingRecHit* getHitFromIter(TrackingRecHitCollection::const_iterator iter) const {
-    return &(*iter);
-  }
-  
+ 
   // The last parameter is used to decide whether we cound hits or clusters
   double weightedNumberOfTrackClusters(const reco::Track& track, const TrackerHitAssociator&) const;
   double weightedNumberOfTrackClusters(const TrajectorySeed& seed, const TrackerHitAssociator&) const;

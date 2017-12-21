@@ -16,8 +16,11 @@ SiStripNoisesDQM::SiStripNoisesDQM(const edm::EventSetup & eSetup,
 
 
   // Build the Histo_TkMap:
-  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","MeanNoise_TkMap",0.);
-
+  if ( HistoMaps_On_ ) {
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SiStrip/Histo_Map","MeanNoise_TkMap",0.);
+  }
 }
 // -----
 

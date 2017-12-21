@@ -76,7 +76,7 @@ void L1GctJetFinderBase::setNeighbourJetFinders(const std::vector<L1GctJetFinder
 	  << " size of input vector should be 2, but is in fact " << neighbours.size() << "\n";
     }
   }
-  if (m_neighbourJetFinders.at(0) == 0) {
+  if (m_neighbourJetFinders.at(0) == nullptr) {
     m_gotNeighbourPointers = false;
     if (m_verbose) {
       edm::LogWarning("L1GctSetupError")
@@ -84,7 +84,7 @@ void L1GctJetFinderBase::setNeighbourJetFinders(const std::vector<L1GctJetFinder
 	  << " first neighbour pointer is set to zero\n";
     }
   }
-  if (m_neighbourJetFinders.at(1) == 0) {
+  if (m_neighbourJetFinders.at(1) == nullptr) {
     m_gotNeighbourPointers = false;
     if (m_verbose) {
       edm::LogWarning("L1GctSetupError")
@@ -121,7 +121,7 @@ void L1GctJetFinderBase::setJetEtCalibrationLuts(const L1GctJetFinderBase::lutPt
 void L1GctJetFinderBase::setEnergySumMasks(const L1GctChannelMask* chmask)
 {
   bool matchCheckEttAndEtm = true;
-  if (chmask != 0) {
+  if (chmask != nullptr) {
     static const unsigned N_ETA = L1GctJetFinderParams::NUMBER_ETA_VALUES;
     for (unsigned ieta=0; ieta<N_ETA; ++ieta) {
       unsigned globalEta = (m_positiveEtaWheel ? N_ETA+ieta : N_ETA - (ieta+1) );

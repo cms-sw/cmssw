@@ -2,7 +2,9 @@
 #define CommonTools_ParticleFlow_GenericPFJetSelectorDefinition
 
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "CommonTools/ParticleFlow/interface/PFJetSelectorDefinition.h"

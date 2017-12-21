@@ -32,12 +32,12 @@ namespace spr{
 #endif
     std::vector<DetId> dets(1,det);
     std::vector<CaloDirection> dirs(1,NORTH);
-    vdets = spr::newECALIdNS(dets, 0, ieta,iphi, dirs, *barrelTopo,*endcapTopo,
-			     *barrelGeom, *endcapGeom, debug, ignoreTransition);
+    vdets = spr::newECALIdNS(dets, 0, ieta,iphi, dirs, barrelTopo, endcapTopo,
+			     barrelGeom, endcapGeom, debug, ignoreTransition);
     dirs[0] = SOUTH;
     std::vector<DetId> vdetS = spr::newECALIdNS(dets, 0, ieta, iphi, dirs,
-						*barrelTopo, *endcapTopo, 
-						*barrelGeom, *endcapGeom,
+						barrelTopo, endcapTopo, 
+						barrelGeom, endcapGeom,
 						debug, ignoreTransition);
     for (unsigned int i1=0; i1<vdetS.size(); i1++) {
       if (std::count(vdets.begin(),vdets.end(),vdetS[i1]) == 0)
@@ -47,7 +47,7 @@ namespace spr{
     if (vdets.size() != ndet) {
       std::vector<DetId> vdetExtra;
       spr::extraIds(det, vdets, ieta, ieta, iphi, iphi, 
-		    *barrelGeom, *endcapGeom, vdetExtra, debug);
+		    barrelGeom, endcapGeom, vdetExtra, debug);
       if (!vdetExtra.empty()) 
 	vdets.insert(vdets.end(), vdetExtra.begin(), vdetExtra.end());
     }
@@ -139,13 +139,13 @@ namespace spr{
     std::vector<int> jetaE(1,ietaE), jetaW(1,ietaW);
     std::vector<int> jphiN(1,iphiN), jphiS(1,iphiS);
     vdets = spr::newECALIdNS(dets, 0, jetaE, jetaW, jphiN, jphiS, dirs, 
-			     *barrelTopo, *endcapTopo, *barrelGeom,
-			     *endcapGeom, debug, ignoreTransition);
+			     barrelTopo, endcapTopo, barrelGeom,
+			     endcapGeom, debug, ignoreTransition);
     dirs[0] = SOUTH;
     std::vector<DetId> vdetS = spr::newECALIdNS(dets, 0, jetaE, jetaW, jphiN,
-						jphiS, dirs, *barrelTopo,
-						*endcapTopo, *barrelGeom,
-						*endcapGeom, debug,
+						jphiS, dirs, barrelTopo,
+						endcapTopo, barrelGeom,
+						endcapGeom, debug,
 						ignoreTransition);
     for (unsigned int i1=0; i1<vdetS.size(); i1++) {
       if (std::count(vdets.begin(),vdets.end(),vdetS[i1]) == 0)
@@ -156,7 +156,7 @@ namespace spr{
     if (vdets.size() != ndet) {
       std::vector<DetId> vdetExtra;
       spr::extraIds(det, vdets, ietaE, ietaW, iphiN, iphiS, 
-		    *barrelGeom, *endcapGeom, vdetExtra, debug);
+		    barrelGeom, endcapGeom, vdetExtra, debug);
       if (!vdetExtra.empty()) 
 	vdets.insert(vdets.end(), vdetExtra.begin(), vdetExtra.end());
     }
@@ -185,10 +185,10 @@ namespace spr{
   std::vector<DetId> newECALIdNS(std::vector<DetId>& dets, unsigned int last,
 				 int ieta, int iphi, 
 				 std::vector<CaloDirection>& dir,
-				 const CaloSubdetectorTopology& barrelTopo,
-				 const CaloSubdetectorTopology& endcapTopo,
-				 const EcalBarrelGeometry& barrelGeom, 
-				 const EcalEndcapGeometry& endcapGeom,
+				 const CaloSubdetectorTopology* barrelTopo,
+				 const CaloSubdetectorTopology* endcapTopo,
+				 const EcalBarrelGeometry* barrelGeom, 
+				 const EcalEndcapGeometry* endcapGeom,
 				 bool debug, bool ignoreTransition) {
 
 #ifdef EDM_ML_DEBUG
@@ -321,10 +321,10 @@ namespace spr{
 				 std::vector<int>& iphiN, 
 				 std::vector<int>& iphiS,
 				 std::vector<CaloDirection>& dir,
-				 const CaloSubdetectorTopology& barrelTopo,
-				 const CaloSubdetectorTopology& endcapTopo,
-				 const EcalBarrelGeometry& barrelGeom, 
-				 const EcalEndcapGeometry& endcapGeom,
+				 const CaloSubdetectorTopology* barrelTopo,
+				 const CaloSubdetectorTopology* endcapTopo,
+				 const EcalBarrelGeometry* barrelGeom, 
+				 const EcalEndcapGeometry* endcapGeom,
 				 bool debug, bool ignoreTransition) {
 
 #ifdef EDM_ML_DEBUG
@@ -498,10 +498,10 @@ namespace spr{
 
   std::vector<DetId> newECALIdEW(std::vector<DetId>& dets, unsigned int last,
 				 int ieta, std::vector<CaloDirection>& dir, 
-				 const CaloSubdetectorTopology& barrelTopo, 
-				 const CaloSubdetectorTopology& endcapTopo, 
-				 const EcalBarrelGeometry& barrelGeom, 
-				 const EcalEndcapGeometry& endcapGeom,
+				 const CaloSubdetectorTopology* barrelTopo, 
+				 const CaloSubdetectorTopology* endcapTopo, 
+				 const EcalBarrelGeometry* barrelGeom, 
+				 const EcalEndcapGeometry* endcapGeom,
 				 bool debug, bool ignoreTransition) {
 
 #ifdef EDM_ML_DEBUG
@@ -566,10 +566,10 @@ namespace spr{
 				 std::vector<int>& ietaE, 
 				 std::vector<int>& ietaW,
 				 std::vector<CaloDirection>& dir, 
-				 const CaloSubdetectorTopology& barrelTopo, 
-				 const CaloSubdetectorTopology& endcapTopo, 
-				 const EcalBarrelGeometry& barrelGeom, 
-				 const EcalEndcapGeometry& endcapGeom,
+				 const CaloSubdetectorTopology* barrelTopo, 
+				 const CaloSubdetectorTopology* endcapTopo, 
+				 const EcalBarrelGeometry* barrelGeom, 
+				 const EcalEndcapGeometry* endcapGeom,
 				 bool debug, bool ignoreTransition) {
 
 #ifdef EDM_ML_DEBUG
@@ -648,10 +648,10 @@ namespace spr{
   }
 
   void simpleMove(DetId& det, const CaloDirection& dir, 
-		  const CaloSubdetectorTopology& barrelTopo, 
-		  const CaloSubdetectorTopology& endcapTopo, 
-		  const EcalBarrelGeometry& barrelGeom, 
-		  const EcalEndcapGeometry& endcapGeom, 
+		  const CaloSubdetectorTopology* barrelTopo, 
+		  const CaloSubdetectorTopology* endcapTopo, 
+		  const EcalBarrelGeometry* barrelGeom, 
+		  const EcalEndcapGeometry* endcapGeom, 
 		  std::vector<DetId>& cells, int& ok, bool
 #ifdef EDM_ML_DEBUG
 		  debug
@@ -662,29 +662,29 @@ namespace spr{
     ok = 0;
     if (det.subdetId() == EcalBarrel) {
       EBDetId detId = det;
-      std::vector<DetId> neighbours = barrelTopo.getNeighbours(detId,dir);
+      std::vector<DetId> neighbours = barrelTopo->getNeighbours(detId,dir);
       if (!neighbours.empty() && !neighbours[0].null()) {
 	cells.push_back(neighbours[0]);
 	cell = neighbours[0];
 	ok   = 1;
       } else {
 	const int ietaAbs ( detId.ietaAbs() ) ; // abs value of ieta
-	if (EBDetId::MAX_IETA == ietaAbs && (!ignoreTransition)) {
+	if (EBDetId::MAX_IETA == ietaAbs && (!ignoreTransition) && endcapGeom) {
 	  // get ee nbrs for for end of barrel crystals
 	  const EcalBarrelGeometry::OrderedListOfEEDetId&
-	    ol( * barrelGeom.getClosestEndcapCells(detId) ) ;
+	    ol( * barrelGeom->getClosestEndcapCells(detId) ) ;
 	  // take closest neighbour on the other side, that is in the endcap
 	  cell = *(ol.begin() );
-	  neighbours = endcapTopo.getNeighbours(cell,dir);
+	  neighbours = endcapTopo->getNeighbours(cell,dir);
 	  if (!neighbours.empty() && !neighbours[0].null()) ok = 1;
 	  else                                              ok =-1;
 	  for (EcalBarrelGeometry::OrderedListOfEEDetId::const_iterator iptr=ol.begin(); iptr != ol.end(); ++iptr)
 	    cells.push_back(*iptr);
 	}
       }
-    } else if (det.subdetId() == EcalEndcap) {
+    } else if (det.subdetId() == EcalEndcap && endcapGeom) {
       EEDetId detId = det;
-      std::vector<DetId> neighbours = endcapTopo.getNeighbours(detId,dir);
+      std::vector<DetId> neighbours = endcapTopo->getNeighbours(detId,dir);
       if (!neighbours.empty() && !neighbours[0].null()) {
 	cells.push_back(neighbours[0]);
 	cell = neighbours[0];
@@ -696,10 +696,10 @@ namespace spr{
 	if (iphi != 0 && (!ignoreTransition)) {
 	  // get eb nbrs for for end of endcap crystals
 	  const EcalEndcapGeometry::OrderedListOfEBDetId&
-	    ol( * endcapGeom.getClosestBarrelCells(detId) ) ;
+	    ol( * endcapGeom->getClosestBarrelCells(detId) ) ;
 	  // take closest neighbour on the other side, that is in the barrel.
 	  cell = *(ol.begin() );
-	  neighbours = barrelTopo.getNeighbours(cell,dir);
+	  neighbours = barrelTopo->getNeighbours(cell,dir);
 	  if (!neighbours.empty() && !neighbours[0].null()) ok = 1;
 	  else                                              ok =-1;
 	  for (EcalEndcapGeometry::OrderedListOfEBDetId::const_iterator iptr=ol.begin(); iptr != ol.end(); ++iptr)
@@ -722,8 +722,8 @@ namespace spr{
 
   void extraIds(const DetId& det, std::vector<DetId>& dets, int ietaE, 
 		int ietaW, int iphiN, int iphiS, 
-		const EcalBarrelGeometry& barrelGeom, 
-		const EcalEndcapGeometry& endcapGeom, 
+		const EcalBarrelGeometry* barrelGeom, 
+		const EcalEndcapGeometry* endcapGeom, 
 		std::vector<DetId>& cells, bool
 #ifdef EDM_ML_DEBUG
 		debug
@@ -748,7 +748,7 @@ namespace spr{
 	  int ieta = zsid*(etaC+eta);
 	  if (EBDetId::validDetId(ieta,iphi)) {
 	    id = EBDetId(ieta,iphi);
-	    if (barrelGeom.present(id)) {
+	    if (barrelGeom->present(id)) {
 	      if (std::count(dets.begin(),dets.end(),(DetId)id) == 0) {
 		cells.push_back((DetId)id);
 	      }
@@ -756,7 +756,7 @@ namespace spr{
 	  }
 	}
       }
-    } else if (det.subdetId() == EcalEndcap) {
+    } else if (det.subdetId() == EcalEndcap && endcapGeom) {
       EEDetId id = det;
 #ifdef EDM_ML_DEBUG
       if (debug) std::cout << "extraIds::Cell " << id << " rows "  << ietaW
@@ -772,7 +772,7 @@ namespace spr{
 	  int iy = iyC+ky;
 	  if (EEDetId::validDetId(ix,iy,zsid)) {
 	    id = EEDetId(ix,iy,zsid);
-	    if (endcapGeom.present(id)) {
+	    if (endcapGeom->present(id)) {
 	      if (std::count(dets.begin(),dets.end(),(DetId)id) == 0) {
 		cells.push_back((DetId)id);
 	      }

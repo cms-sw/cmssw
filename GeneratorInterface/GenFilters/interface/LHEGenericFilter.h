@@ -39,11 +39,11 @@
 class LHEGenericFilter : public edm::EDFilter {
  public:
   explicit LHEGenericFilter(const edm::ParameterSet&);
-  ~LHEGenericFilter();
+  ~LHEGenericFilter() override;
   
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   // ----------member data ---------------------------
   

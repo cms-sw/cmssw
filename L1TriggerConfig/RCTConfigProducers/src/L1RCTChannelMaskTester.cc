@@ -43,9 +43,9 @@ class L1RCTChannelMaskTester: public edm::EDAnalyzer {
 public:
     explicit L1RCTChannelMaskTester(const edm::ParameterSet&) {
     }
-    virtual ~L1RCTChannelMaskTester() {
+    ~L1RCTChannelMaskTester() override {
     }
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 
@@ -63,7 +63,7 @@ void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent,
             edm::eventsetup::EventSetupRecordKey::TypeTag::findType(
                     "L1RCTNoisyChannelMaskRcd"));
 
-    if (evSetup.find(recordKey) == 0) {
+    if (evSetup.find(recordKey) == nullptr) {
         //record not found
         std::cout << "\nRecord \"" << "L1RCTNoisyChannelMaskRcd"
                 << "\" does not exist.\n" << std::endl;

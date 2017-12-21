@@ -52,3 +52,5 @@ hltOfflineDQMClient = cms.Sequence(
     JetMetPromClient
     )
 
+hltOfflineDQMClientExtra = cms.Sequence(
+)

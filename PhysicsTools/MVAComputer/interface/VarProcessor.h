@@ -253,7 +253,7 @@ class VarProcessor :
 				values += *conf - prev;
 				if (loop && conf >= loop) {
 					values += offset;
-					loop = 0;
+					loop = nullptr;
 				}
 			}
 			return *this;
@@ -277,7 +277,7 @@ class VarProcessor :
 			this->values += *this->conf;
 			if (loop && this->conf >= loop) {
 				this->values += offset;
-				this->loop = 0;
+				this->loop = nullptr;
 			}
 		}
 

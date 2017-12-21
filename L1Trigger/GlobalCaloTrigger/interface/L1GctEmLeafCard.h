@@ -26,16 +26,16 @@ class L1GctEmLeafCard : public L1GctProcessor {
   L1GctEmLeafCard(int id);
   ///
   /// destruct
-  ~L1GctEmLeafCard();
+  ~L1GctEmLeafCard() override;
   ///
   /// clear internal trigger data buffers
   void reset();
   ///
   /// fetch input data
-  virtual void fetchInput();
+  void fetchInput() override;
   ///
   /// process the event
-  virtual void process();	
+  void process() override;	
   ///
   /// define the bunch crossing range to process
   void setBxRange(const int firstBx, const int numberOfBx);
@@ -63,11 +63,11 @@ class L1GctEmLeafCard : public L1GctProcessor {
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor() {}
-  virtual void resetPipelines() {}
+  void resetProcessor() override {}
+  void resetPipelines() override {}
 
   /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects() {}
+  void setupObjects() override {}
 
 private:
   /// card ID (0 or 1)

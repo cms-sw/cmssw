@@ -1373,7 +1373,7 @@ void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent,
             m_nameAlgTechTrig, m_condName);
 
     // number of combinations
-    if (comb != 0) {
+    if (comb != nullptr) {
         myCoutStream << "\n  Number of combinations passing ("
                 << m_nameAlgTechTrig << ", " << m_condName << "): "
                 << comb->size() << std::endl;

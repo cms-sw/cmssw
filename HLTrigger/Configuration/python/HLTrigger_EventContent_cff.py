@@ -2,9 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 # EventContent for HLT related products.
 
-# This file exports the following five EventContent blocks:
+# This file exports the following EventContent blocks:
 #   HLTriggerRAW  HLTriggerRECO  HLTriggerAOD (without DEBUG products)
 #   HLTDebugRAW   HLTDebugFEVT                (with    DEBUG products)
+#   HLTScouting                               (with Scouting products)
 #
 # as these are used in Configuration/EventContent
 #
@@ -15,7 +16,16 @@ HLTriggerRAW  = cms.PSet(
         'keep FEDRawDataCollection_source_*_*',
         'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
         'keep edmTriggerResults_*_*_*',
-        'keep triggerTriggerEvent_*_*_*'
+        'keep triggerTriggerEvent_*_*_*',
+        'keep *_hltFEDSelectorL1_*_*',
+        'keep *_hltScoutingCaloPacker_*_*',
+        'keep *_hltScoutingEgammaPacker_*_*',
+        'keep *_hltScoutingMuonPackerCalo_*_*',
+        'keep *_hltScoutingMuonPacker_*_*',
+        'keep *_hltScoutingPFPacker_*_*',
+        'keep *_hltScoutingPrimaryVertexPackerCaloMuon_*_*',
+        'keep *_hltScoutingPrimaryVertexPacker_*_*',
+        'keep edmTriggerResults_*_*_*'
     ) )
 )
 
@@ -24,7 +34,16 @@ HLTriggerRECO = cms.PSet(
         'drop *_hlt*_*_*',
         'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
         'keep edmTriggerResults_*_*_*',
-        'keep triggerTriggerEvent_*_*_*'
+        'keep triggerTriggerEvent_*_*_*',
+        'keep *_hltFEDSelectorL1_*_*',
+        'keep *_hltScoutingCaloPacker_*_*',
+        'keep *_hltScoutingEgammaPacker_*_*',
+        'keep *_hltScoutingMuonPackerCalo_*_*',
+        'keep *_hltScoutingMuonPacker_*_*',
+        'keep *_hltScoutingPFPacker_*_*',
+        'keep *_hltScoutingPrimaryVertexPackerCaloMuon_*_*',
+        'keep *_hltScoutingPrimaryVertexPacker_*_*',
+        'keep edmTriggerResults_*_*_*'
     ) )
 )
 
@@ -33,7 +52,16 @@ HLTriggerAOD  = cms.PSet(
         'drop *_hlt*_*_*',
         'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
         'keep edmTriggerResults_*_*_*',
-        'keep triggerTriggerEvent_*_*_*'
+        'keep triggerTriggerEvent_*_*_*',
+        'keep *_hltFEDSelectorL1_*_*',
+        'keep *_hltScoutingCaloPacker_*_*',
+        'keep *_hltScoutingEgammaPacker_*_*',
+        'keep *_hltScoutingMuonPackerCalo_*_*',
+        'keep *_hltScoutingMuonPacker_*_*',
+        'keep *_hltScoutingPFPacker_*_*',
+        'keep *_hltScoutingPrimaryVertexPackerCaloMuon_*_*',
+        'keep *_hltScoutingPrimaryVertexPacker_*_*',
+        'keep edmTriggerResults_*_*_*'
     ) )
 )
 
@@ -136,6 +164,7 @@ HLTDebugRAW   = cms.PSet(
         'keep *_hltFilterSingleIsoPFTau35Trk20LeadTrackPt20_*_*',
         'keep *_hltFilterSingleIsoPFTau35Trk20MET60LeadTrack20IsolationL1HLTMatched_*_*',
         'keep *_hltFilterSingleIsoPFTau35Trk20MET70LeadTrack20IsolationL1HLTMatched_*_*',
+        'keep *_hltFullIterativeTrackingMergedForRefPP_*_*',
         'keep *_hltGmtStage2Digis_*_*',
         'keep *_hltGoodOnlinePVs_*_*',
         'keep *_hltGtStage2Digis_*_*',
@@ -349,7 +378,16 @@ HLTDebugRAW   = cms.PSet(
         'keep recoTracks_hltHIL3TkTracksFromL2_*_*',
         'keep triggerTriggerEventWithRefs_*_*_*',
         'keep triggerTriggerEvent_*_*_*',
-        'keep triggerTriggerFilterObjectWithRefs_*_*_*'
+        'keep triggerTriggerFilterObjectWithRefs_*_*_*',
+        'keep *_hltFEDSelectorL1_*_*',
+        'keep *_hltScoutingCaloPacker_*_*',
+        'keep *_hltScoutingEgammaPacker_*_*',
+        'keep *_hltScoutingMuonPackerCalo_*_*',
+        'keep *_hltScoutingMuonPacker_*_*',
+        'keep *_hltScoutingPFPacker_*_*',
+        'keep *_hltScoutingPrimaryVertexPackerCaloMuon_*_*',
+        'keep *_hltScoutingPrimaryVertexPacker_*_*',
+        'keep edmTriggerResults_*_*_*'
     ) )
 )
 
@@ -452,6 +490,7 @@ HLTDebugFEVT  = cms.PSet(
         'keep *_hltFilterSingleIsoPFTau35Trk20LeadTrackPt20_*_*',
         'keep *_hltFilterSingleIsoPFTau35Trk20MET60LeadTrack20IsolationL1HLTMatched_*_*',
         'keep *_hltFilterSingleIsoPFTau35Trk20MET70LeadTrack20IsolationL1HLTMatched_*_*',
+        'keep *_hltFullIterativeTrackingMergedForRefPP_*_*',
         'keep *_hltGmtStage2Digis_*_*',
         'keep *_hltGoodOnlinePVs_*_*',
         'keep *_hltGtStage2Digis_*_*',
@@ -665,13 +704,21 @@ HLTDebugFEVT  = cms.PSet(
         'keep recoTracks_hltHIL3TkTracksFromL2_*_*',
         'keep triggerTriggerEventWithRefs_*_*_*',
         'keep triggerTriggerEvent_*_*_*',
-        'keep triggerTriggerFilterObjectWithRefs_*_*_*'
+        'keep triggerTriggerFilterObjectWithRefs_*_*_*',
+        'keep *_hltFEDSelectorL1_*_*',
+        'keep *_hltScoutingCaloPacker_*_*',
+        'keep *_hltScoutingEgammaPacker_*_*',
+        'keep *_hltScoutingMuonPackerCalo_*_*',
+        'keep *_hltScoutingMuonPacker_*_*',
+        'keep *_hltScoutingPFPacker_*_*',
+        'keep *_hltScoutingPrimaryVertexPackerCaloMuon_*_*',
+        'keep *_hltScoutingPrimaryVertexPacker_*_*',
+        'keep edmTriggerResults_*_*_*'
     ) )
 )
 
-HLTScouting  = cms.PSet(
+HLTScouting   = cms.PSet(
     outputCommands = cms.vstring( *(
-        'drop *_hlt*_*_*',
         'keep *_hltFEDSelectorL1_*_*',
         'keep *_hltScoutingCaloPacker_*_*',
         'keep *_hltScoutingEgammaPacker_*_*',

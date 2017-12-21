@@ -19,9 +19,12 @@ import os
 lib = mpslib.jobdatabase()
 lib.read_db()
 
-# create a list of eos ls entries containing files on eos
-command = ' ls -l '+lib.mssDir
-eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).split('\n')
+# create a list of eos ls entries containing files on eos binary store
+command = ["ls", "-l", os.path.join(lib.mssDir, "binaries")]
+try:
+    eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT).split('\n')
+except subprocess.CalledProcessError:
+    eoslsoutput = ""
 
 # loop over FETCH jobs
 for i in xrange(len(lib.JOBID)):
@@ -53,6 +56,7 @@ for i in xrange(len(lib.JOBID)):
     insuffPriv = 0
     quotaspace = 0
 
+    kill_reason = None
     pedeLogErrStr = ""
     pedeLogWrnStr = ""
     remark = ""
@@ -114,6 +118,28 @@ for i in xrange(len(lib.JOBID)):
                 print "mps_check.py cannot find", stdOut, "to test"
             else:
                 raise
+
+        # check HTCondor log file
+        try:
+            log_file = os.path.join("jobData", lib.JOBDIR[i], "HTCJOB")
+            condor_log = subprocess.check_output(["condor_q", lib.JOBID[i],
+                                                  "-userlog", log_file,
+                                                  "-af",
+                                                  "RemoteSysCpu",
+                                                  "JobStatus",
+                                                  "RemoveReason"],
+                                                 stderr = subprocess.STDOUT)
+            condor_log = condor_log.split()
+
+            cputime = int(round(float(condor_log[0])))
+
+            if condor_log[1] == "3": # JobStatus == Removed
+                killed = 1
+                kill_reason = " ".join(condor_log[2:])
+
+        except subprocess.CalledProcessError as e:
+            pass
+
 
         # GF: This file is not produced (anymore...) -> check for existence and read-access added
         eazeLog = 'jobData/'+lib.JOBDIR[i]+'/cmsRun.out'
@@ -251,9 +277,14 @@ for i in xrange(len(lib.JOBID)):
                         msg = ("Warning: {0:.2f} GB of memory for Pede "
                                "requested, but only {1:.1f}% of it has been "
                                "used! Consider to request less memory in order "
-                               "to save resources.").format(lib.pedeMem/1024.0,
-                                                            memoryratio*100)
-                        print msg
+                               "to save resources.")
+                        print msg.format(lib.pedeMem/1024.0, memoryratio*100)
+                    elif memoryratio > 1 :
+                        msg = ("Warning: {0:.2f} GB of memory for Pede "
+                               "requested, but {1:.1f}% of this has been "
+                               "used! Consider to request more memory to avoid "
+                               "premature removal of the job by the admin.")
+                        print msg.format(lib.pedeMem/1024.0, memoryratio*100)
                     else:
                         msg = ("Info: Used {0:.1f}% of {1:.2f} GB of memory "
                                "which has been requested for Pede.")
@@ -352,7 +383,9 @@ for i in xrange(len(lib.JOBID)):
             remark = 'cfg file error'
             okStatus = 'FAIL'
         if killed == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'Job Killed (probably time exceeded)'
+            guess = " (probably time exceeded)" if kill_reason is None else ":"
+            print lib.JOBDIR[i], lib.JOBID[i], "Job killed" + guess
+            if kill_reason is not None: print kill_reason
             remark = "killed";
             okStatus = "FAIL"
         if timel == 1:
@@ -418,7 +451,6 @@ for i in xrange(len(lib.JOBID)):
         # udate Jobstatus
         lib.JOBSTATUS[i] = disabled+okStatus
         # update cputime
-        print cputime
         lib.JOBRUNTIME[i] = cputime
         # update remark
         lib.JOBREMARK[i] = remark

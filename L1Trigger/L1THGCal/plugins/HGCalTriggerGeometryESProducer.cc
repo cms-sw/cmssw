@@ -14,7 +14,7 @@ class HGCalTriggerGeometryESProducer : public edm::ESProducer
 {
     public:
         HGCalTriggerGeometryESProducer(const edm::ParameterSet&);
-        ~HGCalTriggerGeometryESProducer();
+        ~HGCalTriggerGeometryESProducer() override;
 
         typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
 

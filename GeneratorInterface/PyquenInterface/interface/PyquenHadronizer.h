@@ -32,7 +32,7 @@ namespace gen
   public:
 
     PyquenHadronizer(const edm::ParameterSet &);
-    virtual ~PyquenHadronizer();
+    ~PyquenHadronizer() override;
 
     bool generatePartonsAndHadronize();
     bool hadronize();
@@ -43,15 +43,15 @@ namespace gen
     bool initializeForInternalPartons();
     bool declareStableParticles( const std::vector<int>& );
     bool declareSpecialSettings( const std::vector<std::string>& ) { return true; }
-    virtual bool select(HepMC::GenEvent* evtTry) const override { return selector_->filter(evtTry); }
+    bool select(HepMC::GenEvent* evtTry) const override { return selector_->filter(evtTry); }
     void finalizeEvent();
     void statistics();
     const char* classname() const;
 
   private:
 
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-    virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
 
     static const std::vector<std::string> theSharedResources;
 

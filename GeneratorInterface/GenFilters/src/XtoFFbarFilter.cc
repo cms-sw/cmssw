@@ -12,7 +12,7 @@ XtoFFbarFilter::XtoFFbarFilter(const edm::ParameterSet& iConfig) :
   xTotal_(0), xSumPt_(0.), xSumR_(0.), xSumCtau_(0.), totalEvents_(0),rejectedEvents_(0)
 { 
   // Note if if not searching for Y --> g-gbar.
-  requireY_ = (idMotherY_.size() > 0 && idDaughterG_.size() > 0);
+  requireY_ = (!idMotherY_.empty() && !idDaughterG_.empty());
 }
 
 

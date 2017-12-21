@@ -67,9 +67,9 @@ namespace l1t {
   class GtRecordDump : public edm::EDAnalyzer {
   public:
     explicit GtRecordDump(const edm::ParameterSet&);
-    virtual ~GtRecordDump(){};
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);  
-    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+    ~GtRecordDump() override{};
+    void analyze(const edm::Event&, const edm::EventSetup&) override;  
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
 
     InputTag   uGtAlgInputTag;
     InputTag   uGtExtInputTag;

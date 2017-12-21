@@ -171,3 +171,15 @@ supportedBtagDiscr = {
     # ChargeTagging
   , 'pfChargeBJetTags'                                      : [["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]]
   }
+
+
+#meta-taggers are simple arithmetic on top of other taggers, they are stored here
+#such that in case you want them re-run also the parent tagger is re-run as well
+supportedMetaDiscr = {
+   'pfDeepCSVDiscriminatorsJetTags:BvsAll' : ['pfDeepCSVJetTags:probudsg', 'pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probc', 'pfDeepCSVJetTags:probbb'],
+   'pfDeepCSVDiscriminatorsJetTags:CvsB' : ['pfDeepCSVJetTags:probudsg', 'pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probc', 'pfDeepCSVJetTags:probbb'],
+   'pfDeepCSVDiscriminatorsJetTags:CvsL' : ['pfDeepCSVJetTags:probudsg', 'pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probc', 'pfDeepCSVJetTags:probbb'],
+   'pfDeepCMVADiscriminatorsJetTags:BvsAll' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],   
+   'pfDeepCMVADiscriminatorsJetTags:CvsB' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],   
+   'pfDeepCMVADiscriminatorsJetTags:CvsL' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],   
+}

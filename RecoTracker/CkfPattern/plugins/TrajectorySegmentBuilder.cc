@@ -1,3 +1,4 @@
+#include <algorithm> 
 
 #include "TrajectorySegmentBuilder.h"
 
@@ -19,8 +20,7 @@
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <algorithm> 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // #define DBG_TSB
 // #define STAT_TSB
@@ -59,7 +59,7 @@ namespace {
     void truncated() {}
     void invalid() {}
   };
-  [[cms::thread_safe]] StatCount statCount;
+  CMS_THREAD_SAFE StatCount statCount;
 #endif
 
 

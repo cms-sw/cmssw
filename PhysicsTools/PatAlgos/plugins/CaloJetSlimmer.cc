@@ -24,9 +24,9 @@ CaloJetSlimmer( edm::ParameterSet const & params ):
         produces< reco::CaloJetCollection> ();
     }
    
-    virtual ~CaloJetSlimmer() {}
+    ~CaloJetSlimmer() override {}
    
-    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
         
         auto caloJets = std::make_unique<reco::CaloJetCollection>();
         

@@ -21,10 +21,10 @@ class HGCalHitClient : public DQMEDHarvester {
  
 public:
   explicit HGCalHitClient(const edm::ParameterSet& );
-  virtual ~HGCalHitClient();
+  ~HGCalHitClient() override;
   
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c) {}
-  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override {}
+  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
 
 private:
   std::string  subDirectory_;

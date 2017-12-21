@@ -14,7 +14,7 @@ using namespace oracle::occi;
 
 DCSPTMTempList::DCSPTMTempList()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
 }
 
 DCSPTMTempList::~DCSPTMTempList()

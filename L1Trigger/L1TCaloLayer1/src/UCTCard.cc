@@ -1,6 +1,6 @@
 #include <iostream>
-#include <stdlib.h>
-#include <stdint.h>
+#include <cstdlib>
+#include <cstdint>
 
 #include "UCTCard.hh"
 #include "UCTRegion.hh"
@@ -24,14 +24,14 @@ UCTCard::UCTCard(uint32_t crt, uint32_t crd, int fwv) :
 
 UCTCard::~UCTCard() {
   for(uint32_t i = 0; i < regions.size(); i++) {
-    if(regions[i] != 0) delete regions[i];
+    if(regions[i] != nullptr) delete regions[i];
   }
 }
 
 bool UCTCard::process() {
   cardSummary = 0;
   for(uint32_t i = 0; i < regions.size(); i++) {
-    if(regions[i] != 0) regions[i]->process();
+    if(regions[i] != nullptr) regions[i]->process();
     cardSummary += regions[i]->et();
   }
   return true;

@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --offline --data /dev/CMSSW_9_2_0/PIon --type PIon
+# hltGetConfiguration --cff --data /dev/CMSSW_9_2_0/PIon --type PIon
 
-# /dev/CMSSW_9_2_0/PIon/V137 (CMSSW_9_2_10)
+# /dev/CMSSW_9_2_0/PIon/V167 (CMSSW_9_2_14)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/PIon/V137')
+  tableName = cms.string('/dev/CMSSW_9_2_0/PIon/V167')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -2424,39 +2424,12 @@ fragment.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellDead' )
 )
 fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  charmCut = cms.double( 1.5 ),
   recordLabel = cms.string( "HLT" ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  categoryVariableName = cms.string( "vertexCategory" ),
-  trackPseudoSelection = cms.PSet( 
-    maxDistToAxis = cms.double( 0.07 ),
-    totalHitsMin = cms.uint32( 0 ),
-    ptMin = cms.double( 0.0 ),
-    sip2dSigMax = cms.double( 99999.9 ),
-    sip2dValMax = cms.double( 99999.9 ),
-    sip3dSigMax = cms.double( 99999.9 ),
-    sip3dValMax = cms.double( 99999.9 ),
-    maxDecayLen = cms.double( 5.0 ),
-    qualityClass = cms.string( "any" ),
-    jetDeltaRMax = cms.double( 0.3 ),
-    normChi2Max = cms.double( 99999.9 ),
-    pixelHitsMin = cms.uint32( 0 ),
-    sip2dSigMin = cms.double( 2.0 ),
-    sip2dValMin = cms.double( -99999.9 ),
-    sip3dSigMin = cms.double( -99999.9 ),
-    sip3dValMin = cms.double( -99999.9 )
-  ),
-  calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
-    'CombinedSVPseudoVertex',
-    'CombinedSVNoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   correctVertexMass = cms.bool( True ),
-  vertexFlip = cms.bool( False ),
-  minimumTrackWeight = cms.double( 0.5 ),
-  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
-  trackMultiplicityMin = cms.uint32( 3 ),
   trackSelection = cms.PSet( 
     maxDistToAxis = cms.double( 0.07 ),
     totalHitsMin = cms.uint32( 0 ),
@@ -2475,54 +2448,44 @@ fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexES
     sip3dSigMin = cms.double( -99999.9 ),
     sip3dValMin = cms.double( -99999.9 )
   ),
+  calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
+    'CombinedSVPseudoVertex',
+    'CombinedSVNoVertex' ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  charmCut = cms.double( 1.5 ),
+  vertexFlip = cms.bool( False ),
+  minimumTrackWeight = cms.double( 0.5 ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  trackPseudoSelection = cms.PSet( 
+    maxDistToAxis = cms.double( 0.07 ),
+    totalHitsMin = cms.uint32( 0 ),
+    ptMin = cms.double( 0.0 ),
+    sip2dSigMax = cms.double( 99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
+    sip3dValMax = cms.double( 99999.9 ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    normChi2Max = cms.double( 99999.9 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip2dSigMin = cms.double( 2.0 ),
+    sip2dValMin = cms.double( -99999.9 ),
+    sip3dSigMin = cms.double( -99999.9 ),
+    sip3dValMin = cms.double( -99999.9 )
+  ),
   trackSort = cms.string( "sip2dSig" ),
   SoftLeptonFlip = cms.bool( False ),
   trackFlip = cms.bool( False )
 )
 fragment.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  charmCut = cms.double( 1.5 ),
   recordLabel = cms.string( "HLT" ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  categoryVariableName = cms.string( "vertexCategory" ),
-  trackPseudoSelection = cms.PSet( 
-    max_pT_dRcut = cms.double( 0.1 ),
-    b_dR = cms.double( 0.6263 ),
-    min_pT = cms.double( 120.0 ),
-    b_pT = cms.double( 0.3684 ),
-    ptMin = cms.double( 0.0 ),
-    max_pT_trackPTcut = cms.double( 3.0 ),
-    max_pT = cms.double( 500.0 ),
-    useVariableJTA = cms.bool( False ),
-    maxDecayLen = cms.double( 5.0 ),
-    qualityClass = cms.string( "any" ),
-    normChi2Max = cms.double( 99999.9 ),
-    sip2dValMin = cms.double( -99999.9 ),
-    sip3dValMin = cms.double( -99999.9 ),
-    a_dR = cms.double( -0.001053 ),
-    maxDistToAxis = cms.double( 0.07 ),
-    totalHitsMin = cms.uint32( 0 ),
-    a_pT = cms.double( 0.005263 ),
-    sip2dSigMax = cms.double( 99999.9 ),
-    sip2dValMax = cms.double( 99999.9 ),
-    sip3dSigMax = cms.double( 99999.9 ),
-    sip3dValMax = cms.double( 99999.9 ),
-    min_pT_dRcut = cms.double( 0.5 ),
-    jetDeltaRMax = cms.double( 0.3 ),
-    pixelHitsMin = cms.uint32( 0 ),
-    sip3dSigMin = cms.double( -99999.9 ),
-    sip2dSigMin = cms.double( 2.0 )
-  ),
-  calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
-    'CombinedSVIVFV2PseudoVertex',
-    'CombinedSVIVFV2NoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   correctVertexMass = cms.bool( True ),
-  vertexFlip = cms.bool( False ),
-  minimumTrackWeight = cms.double( 0.5 ),
-  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
-  trackMultiplicityMin = cms.uint32( 3 ),
   trackSelection = cms.PSet( 
     max_pT_dRcut = cms.double( 0.1 ),
     b_dR = cms.double( 0.6263 ),
@@ -2550,6 +2513,43 @@ fragment.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertex
     pixelHitsMin = cms.uint32( 0 ),
     sip3dSigMin = cms.double( -99999.9 ),
     sip2dSigMin = cms.double( -99999.9 )
+  ),
+  calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
+    'CombinedSVIVFV2PseudoVertex',
+    'CombinedSVIVFV2NoVertex' ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  charmCut = cms.double( 1.5 ),
+  vertexFlip = cms.bool( False ),
+  minimumTrackWeight = cms.double( 0.5 ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  trackPseudoSelection = cms.PSet( 
+    max_pT_dRcut = cms.double( 0.1 ),
+    b_dR = cms.double( 0.6263 ),
+    min_pT = cms.double( 120.0 ),
+    b_pT = cms.double( 0.3684 ),
+    ptMin = cms.double( 0.0 ),
+    max_pT_trackPTcut = cms.double( 3.0 ),
+    max_pT = cms.double( 500.0 ),
+    useVariableJTA = cms.bool( False ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    normChi2Max = cms.double( 99999.9 ),
+    sip2dValMin = cms.double( -99999.9 ),
+    sip3dValMin = cms.double( -99999.9 ),
+    a_dR = cms.double( -0.001053 ),
+    maxDistToAxis = cms.double( 0.07 ),
+    totalHitsMin = cms.uint32( 0 ),
+    a_pT = cms.double( 0.005263 ),
+    sip2dSigMax = cms.double( 99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
+    sip3dValMax = cms.double( 99999.9 ),
+    min_pT_dRcut = cms.double( 0.5 ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip3dSigMin = cms.double( -99999.9 ),
+    sip2dSigMin = cms.double( 2.0 )
   ),
   trackSort = cms.string( "sip2dSig" ),
   SoftLeptonFlip = cms.bool( False ),
@@ -3624,14 +3624,6 @@ fragment.hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleane
   ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
   MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( False )
-)
-fragment.hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedSeeds" ),
-  fractionShared = cms.double( 0.5 ),
-  ValidHitBonus = cms.double( 100.0 ),
-  ComponentType = cms.string( "TrajectoryCleanerBySharedSeeds" ),
-  MissingHitPenalty = cms.double( 0.0 ),
-  allowSharedFirstHit = cms.bool( True )
 )
 fragment.hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
   appendToDataLabel = cms.string( "" ),

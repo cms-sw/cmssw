@@ -51,7 +51,7 @@ class L1MuGMTLFSortRankEtaPhiLUT : public L1MuGMTLUT {
   } ;
 
   /// destructor
-  virtual ~L1MuGMTLFSortRankEtaPhiLUT() {};
+  ~L1MuGMTLFSortRankEtaPhiLUT() override {};
 
   /// specific lookup function for rank_etaphi
   unsigned SpecificLookup_rank_etaphi (int idx, unsigned eta, unsigned phi) const {
@@ -73,7 +73,7 @@ class L1MuGMTLFSortRankEtaPhiLUT : public L1MuGMTLUT {
 
   /// access to lookup function with packed input and output
 
-  virtual unsigned LookupFunctionPacked (int idx, unsigned address) const {
+  unsigned LookupFunctionPacked (int idx, unsigned address) const override {
     std::vector<unsigned> addr = u2vec(address, m_Inputs);
     return TheLookupFunction(idx ,addr[0] ,addr[1]);
 

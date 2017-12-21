@@ -2,9 +2,8 @@
 #define CSCDMBTrailer2005_h
 
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVDMBTrailerFormat.h"
-
-class CSCDMBHeader;
 
 struct CSCDMBTrailer2005: public CSCVDMBTrailerFormat {
 // public:

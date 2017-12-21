@@ -1,36 +1,30 @@
-#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
+#include <sstream>
 
 #include "DataFormats/Common/interface/OrphanHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TRecHit1DMomConstraint.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
-
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TRecHit1DMomConstraint.h"
-// #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
-#include "DataFormats/TrackReco/interface/TrackBase.h"
-
-#include<sstream>
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 // #define VI_DEBUG
 // #define STAT_TSB
@@ -77,7 +71,7 @@ namespace {
     void gsf(){}
     void algo(int){}
   };
-  [[cms::thread_safe]] StatCount statCount;
+  CMS_THREAD_SAFE StatCount statCount;
 #endif
 
 

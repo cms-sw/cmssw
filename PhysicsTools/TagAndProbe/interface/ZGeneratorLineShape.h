@@ -18,10 +18,10 @@ public:
 		      );
 
   ZGeneratorLineShape(const ZGeneratorLineShape& other, const char* name);
-  inline virtual TObject* clone(const char* newname) const { return new ZGeneratorLineShape(*this,newname);}
-  inline ~ZGeneratorLineShape(){};
-  ClassDef(ZGeneratorLineShape,1)
-    Double_t evaluate() const;  
+  inline TObject* clone(const char* newname) const override { return new ZGeneratorLineShape(*this,newname);}
+  inline ~ZGeneratorLineShape() override{};
+  ClassDefOverride(ZGeneratorLineShape,1)
+    Double_t evaluate() const override;  
  protected:
   RooRealProxy m ;
   RooDataHist* dataHist;

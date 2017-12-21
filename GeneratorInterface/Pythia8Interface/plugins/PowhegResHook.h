@@ -8,11 +8,11 @@ public:
 
   // Constructor and destructor.
   PowhegResHook() {}
-  ~PowhegResHook() {}
+  ~PowhegResHook() override {}
 
-  bool canSetResonanceScale() { return true; }
+  bool canSetResonanceScale() override { return true; }
 
-  double scaleResonance( const int iRes, const Pythia8::Event& event);
+  double scaleResonance( const int iRes, const Pythia8::Event& event) override;
 
 //--------------------------------------------------------------------------
 

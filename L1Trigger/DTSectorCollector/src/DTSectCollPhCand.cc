@@ -60,7 +60,7 @@ DTSectCollPhCand::operator=(const DTSectCollPhCand& tsccand) {
 
 void
 DTSectCollPhCand::clear()  { 
-  _tsmsegm=0; 
+  _tsmsegm=nullptr; 
   _dataword.one();
 //   std::cout << " clear dataword : " << _dataword.print() << std::endl;
 }

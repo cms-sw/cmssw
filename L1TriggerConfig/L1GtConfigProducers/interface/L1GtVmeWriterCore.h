@@ -41,7 +41,7 @@ public:
             const std::string& vmeXmlFile);
 
     /// destructor
-    virtual ~L1GtVmeWriterCore();
+    ~L1GtVmeWriterCore() override;
 
     void writeVME(const std::vector<ConditionMap> &conditionMap,
             const std::map<std::string,int>& cond2intMap, const L1GtVhdlTemplateFile& header,  const int spacesPerLevel=2);

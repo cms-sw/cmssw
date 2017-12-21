@@ -1,7 +1,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <stdexcept>
 #include <string>
 
@@ -14,10 +14,10 @@ using namespace oracle::occi;
 
 ODTTCciConfig::ODTTCciConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_configuration_script="";
   m_configuration_script_params="";

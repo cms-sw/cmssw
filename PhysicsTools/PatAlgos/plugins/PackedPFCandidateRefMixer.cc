@@ -22,9 +22,9 @@ namespace pat {
   class PackedPFCandidateRefMixer : public edm::stream::EDProducer<> {
     public:
       explicit PackedPFCandidateRefMixer(const edm::ParameterSet & iConfig);
-      virtual ~PackedPFCandidateRefMixer() { }
+      ~PackedPFCandidateRefMixer() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
       edm::EDGetTokenT<std::vector<reco::PFCandidate>> pf_;

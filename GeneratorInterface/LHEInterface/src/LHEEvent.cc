@@ -124,7 +124,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup,
                    const LHEEventProduct::PDF *pdf,
                    const std::vector<std::string> &comments) :
-	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : 0),
+	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : nullptr),
 	comments(comments), counted(false), readAttemptCounter(0),
 	npLO_(-99), npNLO_(-99)
 {
@@ -133,7 +133,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct &product) :
 	runInfo(runInfo), hepeup(product.hepeup()),
-	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
+	pdf(product.pdf() ? new PDF(*product.pdf()) : nullptr),
 	weights_(product.weights()),
 	comments(product.comments_begin(), product.comments_end()),
 	counted(false), readAttemptCounter(0),
@@ -449,7 +449,7 @@ const HepMC::GenVertex *LHEEvent::findSignalVertex(
 				const HepMC::GenEvent *event, bool status3)
 {
 	double largestMass2 = -9.0e-30;
-	const HepMC::GenVertex *vertex = 0;
+	const HepMC::GenVertex *vertex = nullptr;
 	for(HepMC::GenEvent::vertex_const_iterator iter = event->vertices_begin();
 	    iter != event->vertices_end(); ++iter) {
 		if ((*iter)->particles_in_size() < 2)

@@ -48,12 +48,12 @@ class TTClusterAlgorithm_official : public TTClusterAlgorithm< T >
     }
 
     /// Destructor
-    ~TTClusterAlgorithm_official(){}
+    ~TTClusterAlgorithm_official() override{}
 
     /// Clustering operations  
     void Cluster( std::vector< std::vector< T > > &output,
                   const std::vector< T > &input,
-                  bool isPS ) const;
+                  bool isPS ) const override;
 
 }; /// Close class
 
@@ -103,7 +103,7 @@ class  ES_TTClusterAlgorithm_official: public edm::ESProducer
     }
 
     /// Destructor
-    virtual ~ES_TTClusterAlgorithm_official(){}
+    ~ES_TTClusterAlgorithm_official() override{}
 
     /// Implement the producer
     std::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )

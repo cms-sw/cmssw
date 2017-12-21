@@ -6,6 +6,8 @@
 
 #include "fftjet/SimpleFunctors.hh"
 #include "fftjet/RecombinedJet.hh"
+#include "fftjet/LinearInterpolator2d.hh"
+#include "fftjet/JetMagnitudeMapper2d.hh"
 
 #include "RecoJets/FFTJetAlgorithms/interface/fftjetTypedefs.h"
 

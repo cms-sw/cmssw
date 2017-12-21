@@ -22,9 +22,9 @@ namespace l1t {
   class Stage2Layer2DemuxTauAlgoFirmwareImp1 : public Stage2Layer2DemuxTauAlgo {
   public:
     Stage2Layer2DemuxTauAlgoFirmwareImp1(CaloParamsHelper* params); //const CaloMainProcessorParams & dbPars);
-    virtual ~Stage2Layer2DemuxTauAlgoFirmwareImp1();
-    virtual void processEvent(const std::vector<Tau> & inputTaus,
-			      std::vector<Tau> & outputTaus);
+    ~Stage2Layer2DemuxTauAlgoFirmwareImp1() override;
+    void processEvent(const std::vector<Tau> & inputTaus,
+			      std::vector<Tau> & outputTaus) override;
 
   private:
 

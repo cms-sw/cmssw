@@ -117,7 +117,7 @@ namespace edm {
     /// Returns C++ pointer to the product
     /// Will attempt to retrieve product
     product_type const* product() const {
-      return isNull() ? 0 : this->operator->();
+      return isNull() ? nullptr : this->operator->();
     }
 
     RefCore const& refCore() const {

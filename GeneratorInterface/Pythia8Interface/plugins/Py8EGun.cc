@@ -15,7 +15,7 @@ class Py8EGun : public Py8GunBase {
    public:
       
       Py8EGun( edm::ParameterSet const& );
-      ~Py8EGun() {}
+      ~Py8EGun() override {}
 	 
       bool generatePartonsAndHadronize() override;
       const char* classname() const override;

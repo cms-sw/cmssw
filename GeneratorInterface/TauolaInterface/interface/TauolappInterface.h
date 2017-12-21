@@ -32,16 +32,16 @@ namespace gen {
       
       // ctor & dtor
      TauolappInterface( const edm::ParameterSet& );
-     ~TauolappInterface();
+     ~TauolappInterface() override;
      
-      void enablePolarization()  { fPolarization = true; return; }
-      void disablePolarization() { fPolarization = false; return; }
-      void init( const edm::EventSetup& );
-      const std::vector<int>& operatesOnParticles() { return fPDGs; }
-      HepMC::GenEvent* decay( HepMC::GenEvent* );
-      void statistics() ;
-      virtual void SetLHE(lhef::LHEEvent *l){lhe=l;}
-      void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
+      void enablePolarization() override  { fPolarization = true; return; }
+      void disablePolarization() override { fPolarization = false; return; }
+      void init( const edm::EventSetup& ) override;
+      const std::vector<int>& operatesOnParticles() override { return fPDGs; }
+      HepMC::GenEvent* decay( HepMC::GenEvent* ) override;
+      void statistics() override ;
+      void SetLHE(lhef::LHEEvent *l) override{lhe=l;}
+      void setRandomEngine(CLHEP::HepRandomEngine* v) override { fRandomEngine = v; }
       static double flat();
 
       private: 

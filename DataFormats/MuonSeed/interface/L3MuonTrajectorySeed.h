@@ -36,7 +36,7 @@ public:
     TrajectorySeed(base), theL2Track(l2Ref){}
 
   /// Destructor
-  virtual ~L3MuonTrajectorySeed(){};
+  ~L3MuonTrajectorySeed() override{};
 
   //accessors
 

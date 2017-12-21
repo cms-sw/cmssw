@@ -37,6 +37,7 @@ Machine parameters:  mode = NOMERGE
 	readLuminosityBlock 1
 	beginLumi 2/1
 	throwing
+	endLumi 2/1 global failed
 	deleteLumiFromCache 2/1
 	endRun 2
 	writeRun 2
@@ -83,6 +84,7 @@ Machine parameters:  mode = FULLMERGE
 	readLuminosityBlock 1
 	beginLumi 2/1
 	throwing
+	endLumi 2/1 global failed
 	deleteLumiFromCache 2/1
 	endRun 2
 	writeRun 2

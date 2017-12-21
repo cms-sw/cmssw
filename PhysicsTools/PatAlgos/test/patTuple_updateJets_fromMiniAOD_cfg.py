@@ -23,7 +23,8 @@ updateJetCollection(
    process,
    jetSource = cms.InputTag('slimmedJets'),
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = ['pfCombinedSecondaryVertexV2BJetTags'] ## to add discriminators
+   btagDiscriminators = ['pfCombinedSecondaryVertexV2BJetTags', 'pfDeepCSVDiscriminatorsJetTags:BvsAll', 'pfDeepCSVDiscriminatorsJetTags:CvsB', 'pfDeepCSVDiscriminatorsJetTags:CvsL'], ## to add discriminators,
+   btagPrefix = 'TEST',
 )
 process.updatedPatJets.userData.userFloats.src += ['oldJetMass']
 
@@ -44,6 +45,24 @@ updateJetCollection(
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
 )
 process.updatedPatJetsReappliedJEC.userData.userFloats.src = []
+
+## An example where the pileup jet id is recomputed
+from RecoJets.JetProducers.PileupJetID_cfi import pileupJetId
+process.pileupJetIdUpdated = pileupJetId.clone(
+  jets=cms.InputTag("slimmedJets"),
+  inputIsCorrected=True,
+  applyJec=True,
+  vertexes=cms.InputTag("offlineSlimmedPrimaryVertices")
+  )
+patAlgosToolsTask.add(process.pileupJetIdUpdated)
+
+updateJetCollection(
+   process,
+   labelName = 'PileupJetID',
+   jetSource = cms.InputTag('slimmedJets'),
+)
+process.updatedPatJetsPileupJetID.userData.userInts.src = ['pileupJetIdUpdated:fullId']
+process.updatedPatJetsPileupJetID.userData.userFloats.src = ['pileupJetIdUpdated:fullDiscriminant']
 
 ## An example where the jet energy corrections are updated to the current GlobalTag
 ## and specified b-tag discriminators are rerun and added to SoftDrop subjets

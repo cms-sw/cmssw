@@ -12,7 +12,7 @@
 MaterialBudgetData::MaterialBudgetData() 
 {
   //instantiate categorizer to assign an ID to volumes and materials
-  myMaterialBudgetCategorizer = 0;
+  myMaterialBudgetCategorizer = nullptr;
   allStepsToTree = false;
   densityConvertionFactor = 6.24E18;
 }
@@ -101,7 +101,7 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
 {
   const G4ThreeVector& dir = aTrack->GetMomentum() ;
   
-  if( myMaterialBudgetCategorizer == 0) myMaterialBudgetCategorizer = new MaterialBudgetCategorizer;
+  if( myMaterialBudgetCategorizer == nullptr) myMaterialBudgetCategorizer = new MaterialBudgetCategorizer;
   
   theStepN=0;
   theTotalMB=0;
@@ -204,7 +204,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 
   // FIXME: Both volume ID and material ID are zeros, so this part is not executed leaving all
   // values as zeros. 
-  if(myMaterialBudgetCategorizer->x0fraction(materialName).size() > 0)
+  if(!myMaterialBudgetCategorizer->x0fraction(materialName).empty())
     {
       theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName).at(0);
       theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(materialName).at(1);
@@ -240,7 +240,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   
   G4VPhysicalVolume*       pv                = aStep->GetPreStepPoint()->GetPhysicalVolume();
   const G4VTouchable*      t                 = aStep->GetPreStepPoint()->GetTouchable();
-  G4ThreeVector            objectTranslation = t->GetTranslation();
+  const G4ThreeVector&            objectTranslation = t->GetTranslation();
   const G4RotationMatrix*  objectRotation    = t->GetRotation();
   const G4VProcess*        interactionPre    = prePoint->GetProcessDefinedStep();
   const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();

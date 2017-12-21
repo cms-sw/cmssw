@@ -45,7 +45,7 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   // DQM ROOT output 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
 
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     LogInfo("OutputInfo") << " Ecal RecHits Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     LogInfo("OutputInfo") << " Ecal RecHits Task histograms will NOT be saved";
@@ -56,57 +56,57 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // ----------------------   
-  meGunEnergy_                 = 0;
-  meGunEta_                    = 0;   
-  meGunPhi_                    = 0;   
-  meEBRecHitSimHitRatio_       = 0;
-  meEERecHitSimHitRatio_       = 0;
-  meESRecHitSimHitRatio_       = 0;
-  meEBRecHitSimHitRatio1011_   = 0;
-  meEERecHitSimHitRatio1011_   = 0;
-  meEBRecHitSimHitRatio12_     = 0;
-  meEERecHitSimHitRatio12_     = 0;
-  meEBRecHitSimHitRatio13_     = 0;
-  meEERecHitSimHitRatio13_     = 0;
-  meEBRecHitSimHitRatioGt35_   = 0;
-  meEERecHitSimHitRatioGt35_   = 0;
-  meEBUnRecHitSimHitRatio_     = 0;
-  meEEUnRecHitSimHitRatio_     = 0;
-  meEBUnRecHitSimHitRatioGt35_ = 0;
-  meEEUnRecHitSimHitRatioGt35_ = 0;
-  meEBe5x5_                    = 0;
-  meEBe5x5OverSimHits_         = 0;
-  meEBe5x5OverGun_             = 0;
-  meEEe5x5_                    = 0;
-  meEEe5x5OverSimHits_         = 0;
-  meEEe5x5OverGun_             = 0;
+  meGunEnergy_                 = nullptr;
+  meGunEta_                    = nullptr;   
+  meGunPhi_                    = nullptr;   
+  meEBRecHitSimHitRatio_       = nullptr;
+  meEERecHitSimHitRatio_       = nullptr;
+  meESRecHitSimHitRatio_       = nullptr;
+  meEBRecHitSimHitRatio1011_   = nullptr;
+  meEERecHitSimHitRatio1011_   = nullptr;
+  meEBRecHitSimHitRatio12_     = nullptr;
+  meEERecHitSimHitRatio12_     = nullptr;
+  meEBRecHitSimHitRatio13_     = nullptr;
+  meEERecHitSimHitRatio13_     = nullptr;
+  meEBRecHitSimHitRatioGt35_   = nullptr;
+  meEERecHitSimHitRatioGt35_   = nullptr;
+  meEBUnRecHitSimHitRatio_     = nullptr;
+  meEEUnRecHitSimHitRatio_     = nullptr;
+  meEBUnRecHitSimHitRatioGt35_ = nullptr;
+  meEEUnRecHitSimHitRatioGt35_ = nullptr;
+  meEBe5x5_                    = nullptr;
+  meEBe5x5OverSimHits_         = nullptr;
+  meEBe5x5OverGun_             = nullptr;
+  meEEe5x5_                    = nullptr;
+  meEEe5x5OverSimHits_         = nullptr;
+  meEEe5x5OverGun_             = nullptr;
   
-  meEBRecHitLog10Energy_         = 0;
-  meEERecHitLog10Energy_         = 0;
-  meESRecHitLog10Energy_         = 0;
-  meEBRecHitLog10EnergyContr_    = 0;
-  meEERecHitLog10EnergyContr_    = 0;
-  meESRecHitLog10EnergyContr_    = 0;
-  meEBRecHitLog10Energy5x5Contr_ = 0;
-  meEERecHitLog10Energy5x5Contr_ = 0;
+  meEBRecHitLog10Energy_         = nullptr;
+  meEERecHitLog10Energy_         = nullptr;
+  meESRecHitLog10Energy_         = nullptr;
+  meEBRecHitLog10EnergyContr_    = nullptr;
+  meEERecHitLog10EnergyContr_    = nullptr;
+  meESRecHitLog10EnergyContr_    = nullptr;
+  meEBRecHitLog10Energy5x5Contr_ = nullptr;
+  meEERecHitLog10Energy5x5Contr_ = nullptr;
 
-  meEBRecHitsOccupancyFlag5_6_      = 0;
-  meEBRecHitsOccupancyFlag8_9_      = 0;
-  meEERecHitsOccupancyPlusFlag5_6_  = 0;
-  meEERecHitsOccupancyMinusFlag5_6_ = 0;
-  meEERecHitsOccupancyPlusFlag8_9_  = 0;
-  meEERecHitsOccupancyMinusFlag8_9_ = 0;
+  meEBRecHitsOccupancyFlag5_6_      = nullptr;
+  meEBRecHitsOccupancyFlag8_9_      = nullptr;
+  meEERecHitsOccupancyPlusFlag5_6_  = nullptr;
+  meEERecHitsOccupancyMinusFlag5_6_ = nullptr;
+  meEERecHitsOccupancyPlusFlag8_9_  = nullptr;
+  meEERecHitsOccupancyMinusFlag8_9_ = nullptr;
   
-  meEBRecHitFlags_                   = 0;
-  meEBRecHitSimHitvsSimHitFlag5_6_   = 0;
-  meEBRecHitSimHitFlag6_             = 0;
-  meEBRecHitSimHitFlag7_             = 0;
-  meEB5x5RecHitSimHitvsSimHitFlag8_  = 0;
+  meEBRecHitFlags_                   = nullptr;
+  meEBRecHitSimHitvsSimHitFlag5_6_   = nullptr;
+  meEBRecHitSimHitFlag6_             = nullptr;
+  meEBRecHitSimHitFlag7_             = nullptr;
+  meEB5x5RecHitSimHitvsSimHitFlag8_  = nullptr;
 
-  meEERecHitFlags_                   = 0;
-  meEERecHitSimHitvsSimHitFlag5_6_   = 0;
-  meEERecHitSimHitFlag6_             = 0;
-  meEERecHitSimHitFlag7_             = 0;
+  meEERecHitFlags_                   = nullptr;
+  meEERecHitSimHitvsSimHitFlag5_6_   = nullptr;
+  meEERecHitSimHitFlag6_             = nullptr;
+  meEERecHitSimHitFlag7_             = nullptr;
 
 }
 
@@ -262,7 +262,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
 
   bool skipBarrel = false;
-  const EBUncalibratedRecHitCollection *EBUncalibRecHit =0;
+  const EBUncalibratedRecHitCollection *EBUncalibRecHit =nullptr;
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
   e.getByToken( EBuncalibrechitCollection_Token_, EcalUncalibRecHitEB);
   if (EcalUncalibRecHitEB.isValid()) {
@@ -272,7 +272,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   }
 
   bool skipEndcap = false;
-  const EEUncalibratedRecHitCollection *EEUncalibRecHit = 0;
+  const EEUncalibratedRecHitCollection *EEUncalibRecHit = nullptr;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
   e.getByToken( EEuncalibrechitCollection_Token_, EcalUncalibRecHitEE);
   if (EcalUncalibRecHitEE.isValid()){ 
@@ -281,7 +281,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     skipEndcap = true;
   }
 
-  const EBRecHitCollection *EBRecHit = 0;
+  const EBRecHitCollection *EBRecHit = nullptr;
   Handle<EBRecHitCollection> EcalRecHitEB;
   e.getByToken( EBrechitCollection_Token_, EcalRecHitEB);
   if (EcalRecHitEB.isValid()){ 
@@ -290,7 +290,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     skipBarrel = true;
   }
 
-  const EERecHitCollection *EERecHit = 0;
+  const EERecHitCollection *EERecHit = nullptr;
   Handle<EERecHitCollection> EcalRecHitEE;
   e.getByToken( EErechitCollection_Token_, EcalRecHitEE);
   if (EcalRecHitEE.isValid()){
@@ -300,7 +300,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   }
 
   bool skipPreshower = false;
-  const ESRecHitCollection *ESRecHit = 0;
+  const ESRecHitCollection *ESRecHit = nullptr;
   Handle<ESRecHitCollection> EcalRecHitES;
   e.getByToken( ESrechitCollection_Token_, EcalRecHitES);
   if (EcalRecHitES.isValid()) {
@@ -399,38 +399,38 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	  uint16_t sc = 0;
 	  edm::ESHandle<EcalChannelStatus> pEcs;
 	  c.get<EcalChannelStatusRcd>().get(pEcs); 
-	  const EcalChannelStatus* ecs = 0;
+	  const EcalChannelStatus* ecs = nullptr;
 	  if( pEcs.isValid() ) ecs = pEcs.product();
-	  if( ecs != 0 ) {
+	  if( ecs != nullptr ) {
 	    EcalChannelStatusMap::const_iterator csmi = ecs->find(EBid.rawId());
 	    EcalChannelStatusCode csc = 0;
 	    if( csmi != ecs->end() ) csc = *csmi;
 	    sc = csc.getStatusCode();
 	  }
 
-	  if( meEBRecHitSimHitRatio1011_ != 0 && 
+	  if( meEBRecHitSimHitRatio1011_ != nullptr && 
 	      ( sc == 10 || sc == 11 ) ) { meEBRecHitSimHitRatio1011_->Fill(myRecHit->energy()/ebSimMap[EBid.rawId()]); }
-	  if( meEBRecHitSimHitRatio12_ != 0 && sc == 12 ) { meEBRecHitSimHitRatio12_->Fill(myRecHit->energy()/ebSimMap[EBid.rawId()]); }
+	  if( meEBRecHitSimHitRatio12_ != nullptr && sc == 12 ) { meEBRecHitSimHitRatio12_->Fill(myRecHit->energy()/ebSimMap[EBid.rawId()]); }
 
 	  edm::ESHandle<EcalTrigTowerConstituentsMap> pttMap;
 	  c.get<IdealGeometryRecord>().get(pttMap);
-	  const EcalTrigTowerConstituentsMap* ttMap = 0;
+	  const EcalTrigTowerConstituentsMap* ttMap = nullptr;
 	  if( pttMap.isValid() ) ttMap = pttMap.product();
 	  double ttSimEnergy = 0;
-	  if( ttMap != 0 ) {
+	  if( ttMap != nullptr ) {
 	    EcalTrigTowerDetId ttDetId = EBid.tower();
 	    std::vector<DetId> vid = ttMap->constituentsOf( ttDetId );
 	    for( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); dit++ ) {
 	      EBDetId ttEBid = EBDetId(*dit);
 	      ttSimEnergy += ebSimMap[ttEBid.rawId()];
 	    }
-	    if( vid.size() != 0 ) ttSimEnergy = ttSimEnergy / vid.size();
+	    if( !vid.empty() ) ttSimEnergy = ttSimEnergy / vid.size();
 	  }
-	  if( meEBRecHitSimHitRatio13_ != 0 && sc == 13 && ttSimEnergy != 0 ) 
+	  if( meEBRecHitSimHitRatio13_ != nullptr && sc == 13 && ttSimEnergy != 0 ) 
 	    meEBRecHitSimHitRatio13_->Fill(myRecHit->energy()/ttSimEnergy); 
 
 	  int flag = myRecHit->recoFlag();
-	  if( meEBRecHitFlags_ != 0 ) meEBRecHitFlags_->Fill( flag );
+	  if( meEBRecHitFlags_ != nullptr ) meEBRecHitFlags_->Fill( flag );
 	  if( meEBRecHitSimHitvsSimHitFlag5_6_  && ( flag == EcalRecHit::kSaturated || flag == EcalRecHit::kLeadingEdgeRecovered ))
 	    meEBRecHitSimHitvsSimHitFlag5_6_->Fill( myRecHit->energy()/ebSimMap[EBid.rawId()], ebSimMap[EBid.rawId()] );
 	  if( meEBRecHitSimHitFlag6_  && ( flag == EcalRecHit::kLeadingEdgeRecovered ))
@@ -548,21 +548,21 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
 	  edm::ESHandle<EcalChannelStatus> pEcs;
 	  c.get<EcalChannelStatusRcd>().get(pEcs);
-	  const EcalChannelStatus* ecs = 0;
+	  const EcalChannelStatus* ecs = nullptr;
 	  if( pEcs.isValid() ) ecs = pEcs.product();
-	  if( ecs != 0 ) {
+	  if( ecs != nullptr ) {
 	    EcalChannelStatusMap::const_iterator csmi = ecs->find(EEid.rawId());
 	    EcalChannelStatusCode csc = 0;
 	    if( csmi != ecs->end() ) csc = *csmi;
 	    uint16_t sc = csc.getStatusCode();
-	    if( meEERecHitSimHitRatio1011_ != 0 && 
+	    if( meEERecHitSimHitRatio1011_ != nullptr && 
 		( sc == 10 || sc == 11 ) ) { meEERecHitSimHitRatio1011_->Fill(myRecHit->energy()/eeSimMap[EEid.rawId()]); }
-	    if( meEERecHitSimHitRatio12_ != 0 && sc == 12 ) { meEERecHitSimHitRatio12_->Fill(myRecHit->energy()/eeSimMap[EEid.rawId()]); }
-	    if( meEERecHitSimHitRatio13_ != 0 && sc == 13 ) { meEERecHitSimHitRatio13_->Fill(myRecHit->energy()/eeSimMap[EEid.rawId()]); }
+	    if( meEERecHitSimHitRatio12_ != nullptr && sc == 12 ) { meEERecHitSimHitRatio12_->Fill(myRecHit->energy()/eeSimMap[EEid.rawId()]); }
+	    if( meEERecHitSimHitRatio13_ != nullptr && sc == 13 ) { meEERecHitSimHitRatio13_->Fill(myRecHit->energy()/eeSimMap[EEid.rawId()]); }
 	  }
 
 	  int flag = myRecHit->recoFlag();
-	  if( meEERecHitFlags_ != 0 ) meEERecHitFlags_->Fill( flag );
+	  if( meEERecHitFlags_ != nullptr ) meEERecHitFlags_->Fill( flag );
 	  if( meEERecHitSimHitvsSimHitFlag5_6_  && ( flag == EcalRecHit::kSaturated || flag == EcalRecHit::kLeadingEdgeRecovered ))
 	    meEERecHitSimHitvsSimHitFlag5_6_->Fill( myRecHit->energy()/eeSimMap[EEid.rawId()], eeSimMap[EEid.rawId()] );
 	  if( meEERecHitSimHitFlag6_  && ( flag == EcalRecHit::kLeadingEdgeRecovered ))

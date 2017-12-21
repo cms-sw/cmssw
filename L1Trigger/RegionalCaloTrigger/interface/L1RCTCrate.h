@@ -107,7 +107,7 @@ class L1RCTCrate {
   int crtNo;
   const L1RCTLookupTables* rctLookupTables_;
 
-  L1RCTCrate();
+  L1RCTCrate() = delete;
 
   //L1RCTJetCaptureCard jetCaptureCard;
 };

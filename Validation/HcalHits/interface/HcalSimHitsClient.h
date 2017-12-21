@@ -48,11 +48,11 @@ private:
 
 public:
   explicit HcalSimHitsClient(const edm::ParameterSet& );
-  virtual ~HcalSimHitsClient();
+  ~HcalSimHitsClient() override;
   
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& c);
+  void beginRun(edm::Run const& run, edm::EventSetup const& c) override;
   virtual void runClient_(DQMStore::IBooker &, DQMStore::IGetter &);   
-  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 };
 

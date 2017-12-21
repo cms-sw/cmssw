@@ -40,11 +40,11 @@ class Propagator;
 class CosmicGenFilterHelix : public edm::EDFilter {
  public:
   explicit CosmicGenFilterHelix(const edm::ParameterSet& config);
-  virtual ~CosmicGenFilterHelix();
+  ~CosmicGenFilterHelix() override;
 
-  virtual void beginJob();
-  virtual bool filter(edm::Event &event, const edm::EventSetup &eventSetup);
-  virtual void endJob();
+  void beginJob() override;
+  bool filter(edm::Event &event, const edm::EventSetup &eventSetup) override;
+  void endJob() override;
 
  private:
   /// actually propagate to the defined cylinder

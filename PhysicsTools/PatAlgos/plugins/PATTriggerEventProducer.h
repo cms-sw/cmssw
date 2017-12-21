@@ -52,13 +52,13 @@ namespace pat {
     public:
 
       explicit PATTriggerEventProducer( const edm::ParameterSet & iConfig );
-      ~PATTriggerEventProducer() {};
+      ~PATTriggerEventProducer() override {};
 
     private:
 
-      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup) override;
-      virtual void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup) override;
+      void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       std::string                  nameProcess_;        // configuration
       bool                         autoProcessName_;

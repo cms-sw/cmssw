@@ -25,7 +25,7 @@ class CaloTrkProcessing : public SensitiveCaloDetector,
 
 public:
 
-  CaloTrkProcessing(G4String aSDname, const DDCompactView & cpv,
+  CaloTrkProcessing(const std::string& aSDname, const DDCompactView & cpv,
 		    const SensitiveDetectorCatalog & clg,
 		    edm::ParameterSet const & p, const SimTrackManager*);
   ~CaloTrkProcessing() override;
@@ -34,9 +34,9 @@ public:
   bool             ProcessHits(G4Step * , G4TouchableHistory * ) override {
     return true;
   }
-  uint32_t         setDetUnitId(G4Step * step) override {return 0;}
+  uint32_t         setDetUnitId(const G4Step * step) override {return 0;}
   void             EndOfEvent(G4HCofThisEvent * ) override {}
-  void                     fillHits(edm::PCaloHitContainer&, std::string ) override {}
+  void             fillHits(edm::PCaloHitContainer&, const std::string& ) override {}
 
 private:
 

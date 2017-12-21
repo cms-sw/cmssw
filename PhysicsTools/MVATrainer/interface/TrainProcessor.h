@@ -42,7 +42,7 @@ class TrainProcessor : public Source,
 	TrainProcessor(const char *name,
 	               const AtomicId *id,
 	               MVATrainer *trainer);
-	virtual ~TrainProcessor();
+	~TrainProcessor() override;
 
 	virtual Variable::Flags getDefaultFlags() const
 	{ return Variable::FLAG_ALL; }
@@ -53,7 +53,7 @@ class TrainProcessor : public Source,
 	virtual void
 	passFlags(const std::vector<Variable::Flags> &flags) {}
 
-	virtual Calibration::VarProcessor *getCalibration() const { return 0; }
+	virtual Calibration::VarProcessor *getCalibration() const { return nullptr; }
 
 	void doTrainBegin();
 	void doTrainData(const std::vector<double> *values,
@@ -78,7 +78,7 @@ class TrainProcessor : public Source,
 	virtual void trainEnd() { trained = true; }
 
 	virtual void *requestObject(const std::string &name) const
-	{ return 0; }
+	{ return nullptr; }
 
 	inline bool exists(const std::string &name)
 	{ return boost::filesystem::exists(name.c_str()); }

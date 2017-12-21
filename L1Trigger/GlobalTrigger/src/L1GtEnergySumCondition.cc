@@ -141,7 +141,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
         case ETT: {
             const L1GctEtTotal* cand1 = m_gtPSB->getCandL1ETT();
 
-            if (cand1 == 0) {
+            if (cand1 == nullptr) {
                 return false;
             }
 
@@ -153,7 +153,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
         case ETM: {
             const L1GctEtMiss* cand2 = m_gtPSB->getCandL1ETM();
 
-            if (cand2 == 0) {
+            if (cand2 == nullptr) {
                 return false;
             }
 
@@ -166,7 +166,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
         case HTT: {
             const L1GctEtHad* cand3 = m_gtPSB->getCandL1HTT();
 
-            if (cand3 == 0) {
+            if (cand3 == nullptr) {
                 return false;
             }
 
@@ -178,7 +178,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
         case HTM: {
             const L1GctHtMiss* cand4 = m_gtPSB->getCandL1HTM();
 
-            if (cand4 == 0) {
+            if (cand4 == nullptr) {
                 return false;
             }
 

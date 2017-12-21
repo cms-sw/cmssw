@@ -35,7 +35,7 @@ namespace npstat {
         // if the minimum parameter is larger than the maximum
         */
         HistoAxis(unsigned nBins, double min, double max,
-                  const char* label=0);
+                  const char* label=nullptr);
 
         //@{
         /** Examine axis properties */

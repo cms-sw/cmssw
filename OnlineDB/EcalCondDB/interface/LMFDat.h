@@ -24,7 +24,7 @@ class LMFDat : public LMFUnique {
   LMFDat(EcalDBConnection *c);
   LMFDat(oracle::occi::Environment* env,
 	 oracle::occi::Connection* conn);
-  ~LMFDat() { }
+  ~LMFDat() override { }
 
   virtual std::string foreignKeyName() const;
 
@@ -121,8 +121,8 @@ class LMFDat : public LMFUnique {
     return l;
   }
   LMFDat& setMaxDataToDump(int n);
-  void dump() const ;
-  void dump(int n) const ;
+  void dump() const override ;
+  void dump(int n) const override ;
   virtual void dump(int n, int max) const ;
   std::map<int, std::vector<float> > fetchData() noexcept(false);
   void fetch() noexcept(false);
@@ -133,12 +133,12 @@ class LMFDat : public LMFUnique {
   void fetch(const EcalLogicID &id, const Tm &tm, int dir) noexcept(false);
   void fetch(const EcalLogicID &id) noexcept(false);
 
-  virtual bool isValid();
+  bool isValid() override;
   void setWhereClause(std::string w);
   void setWhereClause(std::string w, const std::vector<std::string>& p);
  protected:
   void getNeighbour(LMFDat *dat, int which) noexcept(false);
-  int writeDB() noexcept(false);
+  int writeDB() noexcept(false) override;
   bool check();
   void adjustParameters(int n, std::string &sql, Statement *stmt);
   std::string buildInsertSql();

@@ -13,17 +13,17 @@ class DCUIDarkDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   DCUIDarkDat();
-  ~DCUIDarkDat();
+  ~DCUIDarkDat() override;
 
   // User data methods
-  inline std::string getTable() { return "DCU_IDARK_DAT"; }
+  inline std::string getTable() override { return "DCU_IDARK_DAT"; }
 
   inline void setAPDIDark(float i) { m_apdIDark = i; }
   inline float getAPDIDark() const { return m_apdIDark; }
   
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const DCUIDarkDat* item, DCUIOV* iov)
     noexcept(false);

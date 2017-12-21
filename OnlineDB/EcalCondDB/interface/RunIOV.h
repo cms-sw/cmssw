@@ -15,7 +15,7 @@ class RunIOV : public IIOV {
   friend class EcalCondDBInterface;
 
   RunIOV();
-  ~RunIOV();
+  ~RunIOV() override;
 
   // Methods for user data
   void setRunNumber(run_t run);
@@ -35,9 +35,9 @@ class RunIOV : public IIOV {
   // Methods from IUniqueDBObject
   int getID(){ return m_ID;} ;
 
-  int fetchID() noexcept(false);
+  int fetchID() noexcept(false) override;
   int fetchIDByRunAndTag() noexcept(false);
-  void setByID(int id) noexcept(false);
+  void setByID(int id) noexcept(false) override;
 
   // operators
   inline bool operator==(const RunIOV &r) const

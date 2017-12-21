@@ -6,6 +6,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
@@ -23,6 +24,7 @@
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 
@@ -314,8 +316,16 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	    for (unsigned int adc = 0; adc < SIZE; ++adc) {
 		if (isMasked) lut[adc] = 0;
 		else {
-		    lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib / nominalgain_ / granularity)), MASK);
-		    if(QIEtype==2){
+		    double nonlinearityCorrection = 1.0;
+		    if(QIEtype==QIE11) {
+		      const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
+		      HcalSiPMnonlinearity corr(conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
+		      const double fcByPE = siPMParameter.getFCByPE();
+		      const double effectivePixelsFired = adc2fC(adc)/fcByPE;
+		      nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
+		    }
+		    lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / nominalgain_ / granularity)), MASK);
+		    if(QIEtype==QIE11){
 			if (adc >= mipMin and adc < mipMax) lut[adc] |= QIE11_LUT_MSB0;
 			else if (adc >= mipMax) lut[adc] |= QIE11_LUT_MSB1;
 		    }

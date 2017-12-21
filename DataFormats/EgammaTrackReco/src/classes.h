@@ -3,7 +3,6 @@
 #include <boost/cstdint.hpp> 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateSeedAssociation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Rtypes.h" 
 #include "Math/Cartesian3D.h" 

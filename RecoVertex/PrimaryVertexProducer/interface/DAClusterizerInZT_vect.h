@@ -32,7 +32,6 @@ public:
       t.push_back( new_t );
       dz2.push_back( new_dz2 );
       dt2.push_back( new_dt2 );
-      errsum.push_back( 1./(1./new_dz2 + 1./new_dt2) );
       tt.push_back( new_tt );
       
       pi.push_back( new_pi ); // track weight
@@ -51,7 +50,6 @@ public:
       t_ = &t.front();
       dz2_ = &dz2.front();
       dt2_ = &dt2.front();
-      errsum_ = &errsum.front();
       Z_sum_ = &Z_sum.front();
       pi_ = &pi.front();
     }
@@ -62,14 +60,12 @@ public:
 
     double * dz2_; // square of the error of z(pca)
     double * dt2_; // square of the error of t(pca)
-    double * errsum_; // sum of squares of the pca errors    
     double * Z_sum_; // Z[i]   for DA clustering
     
     std::vector<double> z; // z-coordinate at point of closest approach to the beamline
     std::vector<double> t; // t-coordinate at point of closest approach to the beamline
     std::vector<double> dz2; // square of the error of z(pca)
     std::vector<double> dt2; // square of the error of t(pca)
-    std::vector<double> errsum; // sum of squares of the pca errors    
     std::vector<double> Z_sum; // Z[i]   for DA clustering
     std::vector<double> pi; // track weight
     std::vector< const reco::TransientTrack* > tt; // a pointer to the Transient Track
@@ -85,11 +81,14 @@ public:
       
       ei_cache.push_back( 0.0 );
       ei.push_back( 0.0 );
-      sw.push_back( 0.0 );
       swz.push_back( 0.0);
       swt.push_back( 0.0);
       se.push_back( 0.0);
-      swE.push_back( 0.0);
+      nuz.push_back(0.0);
+      nut.push_back(0.0);
+      szz.push_back(0.0);
+      stt.push_back(0.0);
+      szt.push_back(0.0);
       
       extractRaw();
     }
@@ -107,11 +106,15 @@ public:
       pk_ = &pk.front();
       
       ei_ = &ei.front();
-      sw_ = &sw.front();
       swz_ = &swz.front();
       swt_ = &swt.front();
       se_ = &se.front();
-      swE_ = &swE.front();
+      nuz_ = &nuz.front();
+      nut_ = &nut.front();
+      szz_ = &szz.front();
+      stt_ = &stt.front();
+      szt_ = &szt.front();
+
       ei_cache_ = &ei_cache.front();
       
     }
@@ -124,12 +127,15 @@ public:
       
       ei_cache.insert(ei_cache.begin() + i, 0.0 );
       ei.insert( ei.begin()  + i, 0.0 );
-      sw.insert( sw.begin()  + i, 0.0 );
       swz.insert(swz.begin() + i, 0.0 );
       swt.insert(swt.begin() + i, 0.0 );
       se.insert( se.begin()  + i, 0.0 );
-      swE.insert(swE.begin() + i, 0.0 );
-      
+
+      nuz.insert(nuz.begin() +i, 0.0 );
+      nut.insert(nut.begin() +i, 0.0 );
+      szz.insert(szz.begin() + i, 0.0 );
+      stt.insert(stt.begin() + i, 0.0 );
+      szt.insert(szt.begin() + i, 0.0 );
       extractRaw();
     }
     
@@ -141,16 +147,33 @@ public:
       
       ei_cache.erase( ei_cache.begin() + i);
       ei.erase( ei.begin() + i);
-      sw.erase( sw.begin() + i);
       swz.erase( swz.begin() + i);
       swt.erase( swt.begin() + i);
       se.erase(se.begin() + i);
-      swE.erase(swE.begin() + i);
+
+      nuz.erase(nuz.begin() + i);
+      nut.erase(nut.begin() + i);
+      szz.erase(szz.begin() + i);
+      stt.erase(stt.begin() + i);
+      szt.erase(szt.begin() + i);
       
       extractRaw();
     }
     
-    void debugOut()
+ 
+    unsigned int insertOrdered( double z, double t, double pk){
+      // insert a new cluster according to it's z-position, return the index at which it was inserted
+
+      unsigned int k = 0;
+      for( ; k < getSize(); k++){
+	if (z < z_[k]) break;
+      }
+      insertItem(k ,z, t, pk);
+      return k;
+    }
+
+
+   void debugOut()
     {
       std::cout <<  "vertex_t size: " << getSize() << std::endl;
       
@@ -170,20 +193,26 @@ public:
     
     double * ei_cache_;
     double * ei_;
-    double * sw_;
     double * swz_;
     double * swt_;
     double * se_;
-    double * swE_;   
+    double * szz_;
+    double * stt_;
+    double * szt_;
+    double * nuz_;
+    double * nut_;
     
     // --- temporary numbers, used during update
     std::vector<double> ei_cache;
     std::vector<double> ei;
-    std::vector<double> sw;
     std::vector<double> swz;
     std::vector<double> swt;
     std::vector<double> se;
-    std::vector<double> swE;
+    std::vector<double> nuz;
+    std::vector<double> nut;
+    std::vector<double> szz;
+    std::vector<double> stt;
+    std::vector<double> szt;
   };
   
   DAClusterizerInZT_vect(const edm::ParameterSet& conf);  
@@ -202,6 +231,8 @@ public:
 
   void dump(const double beta, const vertex_t & y,
 	    const track_t & tks, const int verbosity = 0) const;
+  void zorder(vertex_t & y)const;
+  bool find_nearest(double z, double t, vertex_t & y, unsigned int & k_min, double dz, double dt)const;
   bool merge(vertex_t & y, double & beta)const;
   bool purge(vertex_t &, track_t &, double &,
 	     const double) const;
@@ -210,6 +241,7 @@ public:
   
   double beta0(const double betamax, track_t const & tks, vertex_t const & y) const;
     
+  double get_Tc(const vertex_t & y, int k) const;
   
 private:
   bool verbose_;

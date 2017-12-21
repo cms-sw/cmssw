@@ -30,9 +30,9 @@ namespace edm {
 class PythiaFilterZJet : public edm::EDFilter {
    public:
       explicit PythiaFilterZJet(const edm::ParameterSet&);
-      ~PythiaFilterZJet();
+      ~PythiaFilterZJet() override;
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
    private:
       

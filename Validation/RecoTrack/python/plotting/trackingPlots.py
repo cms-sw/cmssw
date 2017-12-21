@@ -211,7 +211,7 @@ _effandfakePosDeltaRPU = PlotGroup("effandfakePosDeltaRPU",
                                    _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
                                    legendDy=_legendDy_4rows
 )
-_algos_common = dict(removeEmptyBins=True, xbinlabelsize=10, xinlabeloption="d")
+_algos_common = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d")
 _duplicateAlgo = PlotOnSideGroup("duplicateAlgo", Plot("duplicates_oriAlgo_vs_oriAlgo", drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_algos_common))
 
 _dupandfakePtEtaPhi = PlotGroup("dupandfakePtEtaPhi", [
@@ -250,7 +250,7 @@ _dupandfakePosDeltaRPU = PlotGroup("dupandfakePosDeltaRPU",
                                    _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
                                    ncols=3, legendDy=_legendDy_4rows
 )
-_seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xinlabeloption="d", adjustMarginRight=0.1)
+_seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xbinlabeloption="d", adjustMarginRight=0.1)
 _dupandfakeSeedingPlots = _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common)
 _dupandfakeChi2Seeding = PlotGroup("dupandfakeChi2Seeding",
                                    _makeFakeDupPileupPlots("chi2", "#chi^{2}") +

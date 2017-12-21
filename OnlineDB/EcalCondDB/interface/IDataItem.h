@@ -17,8 +17,8 @@ class IDataItem : public IDBObject {
 
  public:
   IDataItem()
-  : m_writeStmt(0),
-    m_readStmt(0)
+  : m_writeStmt(nullptr),
+    m_readStmt(nullptr)
   {}
 
   virtual std::string getTable() =0;
@@ -30,14 +30,14 @@ class IDataItem : public IDBObject {
 
   inline void checkPrepare() noexcept(false)
     {
-      if (m_writeStmt == NULL) {
+      if (m_writeStmt == nullptr) {
 	throw(std::runtime_error("Write statement not prepared"));
       }
     }
 
   inline void terminateWriteStatement() noexcept(false)
   {
-    if (m_writeStmt != NULL) {
+    if (m_writeStmt != nullptr) {
       m_conn->terminateStatement(m_writeStmt);
     } else {
       std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
@@ -57,7 +57,7 @@ class IDataItem : public IDBObject {
 
   inline void terminateReadStatement() noexcept(false)
   {
-    if (m_readStmt != NULL) {
+    if (m_readStmt != nullptr) {
       m_conn->terminateStatement(m_readStmt);
     } else {
       std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;

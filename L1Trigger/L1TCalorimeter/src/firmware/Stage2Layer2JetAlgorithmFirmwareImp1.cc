@@ -16,7 +16,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 namespace l1t {
   bool operator > ( const l1t::Jet& a, l1t::Jet& b ) {

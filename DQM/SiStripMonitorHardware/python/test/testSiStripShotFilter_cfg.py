@@ -33,9 +33,7 @@ process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 ##########################################################
 #needed to produce tkHistoMap+shot histos.
 #Can comment if commenting apvshotsanalyzer in main path
-process.DQMStore = cms.Service("DQMStore")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 process.load("DPGAnalysis.SiStripTools.apvshotsanalyzer_cfi")
 process.TFileService = cms.Service("TFileService", 
                                    fileName = cms.string("Shot.root"),

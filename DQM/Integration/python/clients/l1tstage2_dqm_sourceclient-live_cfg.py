@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process("L1TStage2DQM", eras.Run2_2016)
+process = cms.Process("L1TStage2DQM", eras.Run2_2017)
 
 #--------------------------------------------------
 # Event Source and Condition
@@ -34,6 +34,21 @@ process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver)
 
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
 
+# remove unneeded unpackers
+process.RawToDigi.remove(process.ecalPreshowerDigis)
+process.RawToDigi.remove(process.muonCSCDigis)
+process.RawToDigi.remove(process.muonDTDigis)
+process.RawToDigi.remove(process.muonRPCDigis)
+process.RawToDigi.remove(process.siPixelDigis)
+process.RawToDigi.remove(process.siStripDigis)
+process.RawToDigi.remove(process.castorDigis)
+process.RawToDigi.remove(process.scalersRawToDigi)
+process.RawToDigi.remove(process.tcdsDigis)
+process.RawToDigi.remove(process.totemTriggerRawToDigi)
+process.RawToDigi.remove(process.totemRPRawToDigi)
+process.RawToDigi.remove(process.ctppsDiamondRawToDigi)
+process.RawToDigi.remove(process.ctppsPixelDigis)
+
 process.rawToDigiPath = cms.Path(process.RawToDigi)
 
 #--------------------------------------------------
@@ -57,7 +72,6 @@ process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
 process.load("DQM.L1TMonitor.L1TStage2_cff")
 
 process.l1tMonitorPath = cms.Path(
-    process.l1tStage2Unpack +
     process.l1tStage2OnlineDQM +
     process.hltFatEventFilter +
 #    process.selfFatEventFilter +
@@ -99,6 +113,37 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 # Heavy-Ion run
 if (process.runType.getRunType() == process.runType.hi_run):
     process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference_hi.root"
+    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
+    process.ctppsPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
+    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
+    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
+    process.tcdsDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataRepacker")
+    process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
+    process.totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
+    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
+    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
+    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
+    process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
+    process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.l1tStage2CaloLayer1.fedRawDataLabel = cms.InputTag("rawDataRepacker")
+    process.l1tStage2uGMTZeroSupp.rawData = cms.InputTag("rawDataRepacker")
+    process.l1tStage2uGMTZeroSuppFatEvts.rawData = cms.InputTag("rawDataRepacker")
+    process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
 
 #--------------------------------------------------
 # L1T Online DQM Schedule

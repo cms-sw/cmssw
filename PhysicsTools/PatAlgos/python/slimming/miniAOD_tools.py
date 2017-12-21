@@ -236,6 +236,15 @@ def miniAOD_customizeCommon(process):
 
     process.patJets.userData.userFloats.src += [ cms.InputTag('QGTagger:qgLikelihood'), ]
 
+    ## DeepCSV meta discriminators (simple arithmethic on output probabilities)
+    process.load('RecoBTag.Combined.deepFlavour_cff')
+    task.add(process.pfDeepCSVDiscriminatorsJetTags)
+    process.patJets.discriminatorSources.extend([
+            cms.InputTag('pfDeepCSVDiscriminatorsJetTags:BvsAll' ),
+            cms.InputTag('pfDeepCSVDiscriminatorsJetTags:CvsB'   ),
+            cms.InputTag('pfDeepCSVDiscriminatorsJetTags:CvsL'   ),
+            ])
+
     ## CaloJets
     process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
          src = process.patJets.jetSource,
@@ -394,6 +403,12 @@ def miniAOD_customizeCommon(process):
 
     # add DetIdAssociatorRecords to EventSetup (for isolatedTracks)
     process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
+
+    # EGamma objects from HGCal are not yet in GED
+    # so add companion collections for Phase-II MiniAOD production
+    from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+    process.load("RecoEgamma.EgammaTools.slimmedEgammaFromMultiCl_cff")
+    phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaFromMultiClTask))
 
 
 def miniAOD_customizeMC(process):

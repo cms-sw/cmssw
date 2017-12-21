@@ -209,12 +209,11 @@ namespace spr{
   }
 
   template<typename T>
-  void energyHCALCell(HcalDetId detID, edm::Handle<T>& hits, std::vector<std::pair<double,int> >& energyCell, int maxDepth, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool useRaw, bool debug) {
+  void energyHCALCell(HcalDetId detID, edm::Handle<T>& hits, std::vector<std::pair<double,int> >& energyCell, int maxDepth, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool useRaw, int depthHE, bool debug) {
     energyCell.clear();
     int    subdet  = detID.subdet();	
     double eThr    = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
     bool   hbhe    = (detID.ietaAbs() == 16);
-    int    depthHE = (maxDepth <= 6) ? 3 : 4;
     if (debug)
       std::cout << "energyHCALCell: input ID " << detID << " MaxDepth " << maxDepth << " Threshold (E) " << eThr << " (T) " << tMin << ":" << tMax << std::endl;
     for (int i=0; i<maxDepth; i++) {
@@ -231,7 +230,7 @@ namespace spr{
       }
       if (debug)
          std::cout << "energyHCALCell:: Cell " << hcid << " E " << energy << " from " << hit.size() << " threshold " << eThr << std::endl;
-      if (energy>eThr && hit.size() > 0) {
+      if (energy>eThr && !(hit.empty())) {
         energyCell.push_back(std::pair<double,int>(energy,i+1));
       }
     }

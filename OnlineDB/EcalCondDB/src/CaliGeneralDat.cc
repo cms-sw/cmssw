@@ -11,9 +11,9 @@ using namespace oracle::occi;
 
 CaliGeneralDat::CaliGeneralDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
   
   m_numEvents = 0;
   m_comments = "none";

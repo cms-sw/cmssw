@@ -29,9 +29,10 @@
 #include "G4Track.hh"
 #include "G4TouchableHistory.hh"
 
-#include <vector>
-#include <string>
+#include <array>
 #include <map>
+#include <string>
+#include <vector>
 
 class HGCPassive : public SimProducer,
 		   public Observer<const BeginOfRun *>, 
@@ -61,7 +62,7 @@ private:
   G4VPhysicalVolume * getTopPV();
   volumeIterator      findLV(G4LogicalVolume * plv);
   void storeInfo(const volumeIterator itr, G4LogicalVolume* plv, 
-		 unsigned int copy, double time, double energy);
+		 unsigned int copy, double time, double energy, bool flag);
 
 private:
 
@@ -74,7 +75,7 @@ private:
   // some private members for ananlysis 
   unsigned int              count_;                  
   bool                      init_;
-  std::map<std::pair<G4LogicalVolume*,unsigned int>,std::pair<double,double>> store_;
+  std::map<std::pair<G4LogicalVolume*,unsigned int>,std::array<double,3>> store_;
 };
 
 

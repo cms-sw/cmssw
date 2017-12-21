@@ -39,10 +39,10 @@ class ProcCategory : public TrainProcessor {
 
 	ProcCategory(const char *name, const AtomicId *id,
 	             MVATrainer *trainer);
-	virtual ~ProcCategory();
+	~ProcCategory() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	typedef Calibration::ProcCategory::BinLimits BinLimits;

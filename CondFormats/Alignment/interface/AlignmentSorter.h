@@ -1,6 +1,8 @@
 #ifndef __CondFormats_Alignment_AlignmentSorter_h
 #define __CondFormats_Alignment_AlignmentSorter_h
 
+#include <functional>
+
 ///
 /// A struct to sort Alignments and AlignmentErrorsExtended by increasing DetId
 ///

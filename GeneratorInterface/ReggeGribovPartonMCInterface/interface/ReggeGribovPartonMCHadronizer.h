@@ -8,7 +8,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 namespace HepMC {
   class GenEvent;
@@ -200,7 +200,7 @@ namespace gen
 
   public:
     ReggeGribovPartonMCHadronizer(const edm::ParameterSet &);
-    virtual ~ReggeGribovPartonMCHadronizer();
+    ~ReggeGribovPartonMCHadronizer() override;
 
     bool generatePartonsAndHadronize();
     bool hadronize();
@@ -219,7 +219,7 @@ namespace gen
 
   private:
 
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
 
     edm::ParameterSet pset_;
     double  m_BeamMomentum;

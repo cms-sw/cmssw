@@ -16,6 +16,10 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+
 #include <string>
 
 

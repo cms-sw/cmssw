@@ -30,10 +30,10 @@ class Interceptor : public VarProcessor {
 	Interceptor(const char *name,
 	            const Calibration::Interceptor *calib,
 	            const MVAComputer *computer);
-	virtual ~Interceptor();
+	~Interceptor() override;
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
 
     private:
 	Calibration::Interceptor	*interceptor;
@@ -47,7 +47,7 @@ Interceptor::Interceptor(const char *name,
                          const MVAComputer *computer) :
 	VarProcessor(name, calib, computer),
 	interceptor(const_cast<Calibration::Interceptor*>(calib)),
-	values(0)
+	values(nullptr)
 {
 }
 

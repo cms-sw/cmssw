@@ -341,14 +341,13 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     // set seed energy
     aPhoton.setSeedEnergy( photonRef->superCluster()->seed()->energy() );
 
+    // set input variables for regression energy correction
+    if (saveRegressionData_) {
     EcalRegressionData ecalRegData;
     ecalRegData.fill(*(photonRef->superCluster()),
 		     recHitsEBHandle.product(),recHitsEEHandle.product(),
 		     ecalGeometry_,ecalTopology_,-1);
     
-
-    // set input variables for regression energy correction
-    if (saveRegressionData_) {
     aPhoton.setEMax( ecalRegData.eMax() );
     aPhoton.setE2nd( ecalRegData.e2nd() );
     aPhoton.setE3x3( ecalRegData.e3x3() );

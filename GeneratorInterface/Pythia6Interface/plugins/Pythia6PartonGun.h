@@ -23,7 +23,7 @@ namespace gen
   public:
 
     Pythia6PartonGun( const edm::ParameterSet& );
-    virtual ~Pythia6PartonGun();
+    ~Pythia6PartonGun() override;
 
   protected:
   

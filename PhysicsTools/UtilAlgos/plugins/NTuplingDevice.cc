@@ -38,12 +38,12 @@
 class NTuplingDevice : public edm::EDProducer {
    public:
       explicit NTuplingDevice(const edm::ParameterSet&);
-      ~NTuplingDevice();
+      ~NTuplingDevice() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
   NTupler * ntupler_;

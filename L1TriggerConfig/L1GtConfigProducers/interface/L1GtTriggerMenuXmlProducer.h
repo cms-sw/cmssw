@@ -43,7 +43,7 @@ public:
     L1GtTriggerMenuXmlProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtTriggerMenuXmlProducer();
+    ~L1GtTriggerMenuXmlProducer() override;
 
 
     /// public methods

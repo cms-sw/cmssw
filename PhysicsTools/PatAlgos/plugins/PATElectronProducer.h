@@ -99,6 +99,7 @@ namespace pat {
       const bool          embedPFCandidate_;
 
       /// mva input variables
+      const bool addMVAVariables_;
       const edm::InputTag reducedBarrelRecHitCollection_;
       const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
       const edm::InputTag reducedEndcapRecHitCollection_;

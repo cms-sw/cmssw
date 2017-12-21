@@ -28,11 +28,11 @@ class HcalDigisClient : public DQMEDHarvester {
 public:
     explicit HcalDigisClient(const edm::ParameterSet&);
 
-    ~HcalDigisClient();
+    ~HcalDigisClient() override;
 
 private:
 
-    virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter & igetter ) {
+    void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter & igetter ) override {
       igetter.setCurrentFolder(dirName_); // This sets the DQMStore (should apply to ibooker as well
       runClient(ibooker, igetter);
     }

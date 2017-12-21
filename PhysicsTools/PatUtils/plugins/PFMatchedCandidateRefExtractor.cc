@@ -16,9 +16,9 @@ class PFMatchedCandidateRefExtractor : public edm::global::EDProducer<> {
 
 public:
   explicit PFMatchedCandidateRefExtractor(const edm::ParameterSet & iConfig);
-  virtual ~PFMatchedCandidateRefExtractor();
+  ~PFMatchedCandidateRefExtractor() override;
 
-  virtual void produce(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+  void produce(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
 private:
 

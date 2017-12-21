@@ -9,6 +9,7 @@
 
 class TrackerGeometry;
 class MagneticField;
+class TransientTrackingRecHitBuilder;
 
 class PixelFitterByConformalMappingAndLine : public PixelFitterBase {
 public:

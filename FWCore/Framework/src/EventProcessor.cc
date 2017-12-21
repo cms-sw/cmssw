@@ -931,7 +931,8 @@ namespace edm {
       << "This likely indicates a bug in an input module or corrupted input or both\n";
   }
   
-  void EventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run) {
+  void EventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded) {
+    globalBeginSucceeded = false;
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -972,6 +973,7 @@ namespace edm {
         std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
       }
     }
+    globalBeginSucceeded = true;
     FDEBUG(1) << "\tbeginRun " << run << "\n";
     if(looper_) {
       looper_->doBeginRun(runPrincipal, es, &processContext_);
@@ -1002,7 +1004,7 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool cleaningUpAfterException) {
+  void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
     runPrincipal.setAtEndTransition(true);
     //We need to reset failed items since they might
@@ -1026,7 +1028,7 @@ namespace edm {
       sentry.completedSuccessfully();
     }
     EventSetup const& es = esp_->eventSetup();
-    {
+    if(globalBeginSucceeded){
       //To wait, the ref count has to be 1+#streams
       auto streamLoopWaitTask = make_empty_waiting_task();
       streamLoopWaitTask->increment_ref_count();
@@ -1074,7 +1076,8 @@ namespace edm {
     }
   }
 
-  void EventProcessor::beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
+  void EventProcessor::beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool& globalBeginSucceeded) {
+    globalBeginSucceeded = false;
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -1113,6 +1116,7 @@ namespace edm {
         std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
       }
     }
+    globalBeginSucceeded=true;
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
       looper_->doBeginLuminosityBlock(lumiPrincipal, es, &processContext_);
@@ -1143,7 +1147,7 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) {
+  void EventProcessor::endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool globalBeginSucceeded, bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
     lumiPrincipal.setAtEndTransition(true);
     //We need to reset failed items since they might
@@ -1168,7 +1172,7 @@ namespace edm {
       sentry.completedSuccessfully();
     }
     EventSetup const& es = esp_->eventSetup();
-    {
+    if(globalBeginSucceeded){
       //To wait, the ref count has to b 1+#streams
       auto streamLoopWaitTask = make_empty_waiting_task();
       streamLoopWaitTask->increment_ref_count();
@@ -1355,42 +1359,40 @@ namespace edm {
     return true;
   }
   
-  void EventProcessor::handleNextEventForStreamAsync(WaitingTask* iTask,
-                                                              unsigned int iStreamIndex,
-                                                              std::atomic<bool>* finishedProcessingEvents)
+  void EventProcessor::handleNextEventForStreamAsync(WaitingTaskHolder iTask,
+                                                     unsigned int iStreamIndex,
+                                                     std::atomic<bool>* finishedProcessingEvents)
   {
-    auto recursionTask = make_waiting_task(tbb::task::allocate_root(), [this,iTask,iStreamIndex,finishedProcessingEvents](std::exception_ptr const* iPtr) {
-      if(iPtr) {
-        bool expected = false;
-        if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
-          deferredExceptionPtr_ = *iPtr;
-          {
-            WaitingTaskHolder h(iTask);
-            h.doneWaiting(*iPtr);
-          }
-        }
-        //the stream will stop now
-        iTask->decrement_ref_count();
-        return;
-      }
-
-      handleNextEventForStreamAsync(iTask, iStreamIndex,finishedProcessingEvents);
-    });
-      
-    sourceResourcesAcquirer_.serialQueueChain().push([this,finishedProcessingEvents,recursionTask,iTask,iStreamIndex]() {
+    sourceResourcesAcquirer_.serialQueueChain().push([this,finishedProcessingEvents,iTask,iStreamIndex]() mutable {
            ServiceRegistry::Operate operate(serviceToken_);
 
            try {
              if(readNextEventForStream(iStreamIndex, finishedProcessingEvents) ) {
+               auto recursionTask = make_waiting_task(tbb::task::allocate_root(), [this,iTask,iStreamIndex,finishedProcessingEvents](std::exception_ptr const* iPtr) mutable {
+                 if(iPtr) {
+                   bool expected = false;
+                   if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
+                     deferredExceptionPtr_ = *iPtr;
+                     iTask.doneWaiting(*iPtr);
+                   }
+                   //the stream will stop now
+                   return;
+                 }
+                 handleNextEventForStreamAsync(iTask, iStreamIndex,finishedProcessingEvents);
+               });
+
                processEventAsync( WaitingTaskHolder(recursionTask), iStreamIndex);
              } else {
                //the stream will stop now
-               tbb::task::destroy(*recursionTask);
-               iTask->decrement_ref_count();
+               iTask.doneWaiting(std::exception_ptr{});
              }
            } catch(...) {
-             WaitingTaskHolder h(recursionTask);
-             h.doneWaiting(std::current_exception());
+             bool expected = false;
+             if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
+               auto e =std::current_exception();
+               deferredExceptionPtr_ = e;
+               iTask.doneWaiting(e);
+             }
            }
     });
   }
@@ -1408,27 +1410,29 @@ namespace edm {
 
     //To wait, the ref count has to b 1+#streams
     auto eventLoopWaitTask = make_empty_waiting_task();
-    auto eventLoopWaitTaskPtr = eventLoopWaitTask.get();
     eventLoopWaitTask->increment_ref_count();
 
     const unsigned int kNumStreams = preallocations_.numberOfStreams();
     unsigned int iStreamIndex = 0;
     for(; iStreamIndex<kNumStreams-1; ++iStreamIndex) {
-      eventLoopWaitTask->increment_ref_count();
-      tbb::task::enqueue( *make_waiting_task(tbb::task::allocate_root(),[this,iStreamIndex,finishedProcessingEventsPtr,eventLoopWaitTaskPtr](std::exception_ptr const*){
-        handleNextEventForStreamAsync(eventLoopWaitTaskPtr,iStreamIndex,finishedProcessingEventsPtr);
+      tbb::task::enqueue( *make_waiting_task(tbb::task::allocate_root(),
+                                             [this,iStreamIndex,finishedProcessingEventsPtr,h=WaitingTaskHolder{eventLoopWaitTask.get()}](std::exception_ptr const*){
+        handleNextEventForStreamAsync(h,iStreamIndex,finishedProcessingEventsPtr);
       }) );
     }
-    eventLoopWaitTask->increment_ref_count();
-    eventLoopWaitTask->spawn_and_wait_for_all( *make_waiting_task(tbb::task::allocate_root(),[this,iStreamIndex,finishedProcessingEventsPtr,eventLoopWaitTaskPtr](std::exception_ptr const*){
-      handleNextEventForStreamAsync(eventLoopWaitTaskPtr,iStreamIndex,finishedProcessingEventsPtr);
-    }));
+    //need a temporary Task so that the temporary WaitingTaskHolder assigned to h will go out of scope
+    // before the call to spawn_and_wait_for_all
+    auto t = make_waiting_task(tbb::task::allocate_root(),
+                               [this,iStreamIndex,finishedProcessingEventsPtr,h=WaitingTaskHolder{eventLoopWaitTask.get()}](std::exception_ptr const*){
+      handleNextEventForStreamAsync(h,iStreamIndex,finishedProcessingEventsPtr);
+    });
+    eventLoopWaitTask->spawn_and_wait_for_all( *t);
 
     //One of the processing threads saw an exception
     if(deferredExceptionPtrIsSet_) {
       std::rethrow_exception(deferredExceptionPtr_);
     }
-    return nextItemTypeFromProcessingEvents_;
+    return nextItemTypeFromProcessingEvents_.load();
   }
 
   void EventProcessor::readEvent(unsigned int iStreamIndex) {

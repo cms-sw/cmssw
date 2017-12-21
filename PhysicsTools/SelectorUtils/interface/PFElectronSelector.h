@@ -98,7 +98,7 @@ class PFElectronSelector : public Selector<pat::Electron> {
   }
 
   // Allow for multiple definitions of the cuts.
-  bool operator()( const pat::Electron & electron, pat::strbitset & ret )
+  bool operator()( const pat::Electron & electron, pat::strbitset & ret ) override
   {
     if (version_ == SPRING11 ) return spring11Cuts(electron, ret);
     else {

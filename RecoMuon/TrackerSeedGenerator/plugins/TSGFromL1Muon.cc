@@ -30,7 +30,6 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
 using namespace reco;
-using namespace ctfseeding;
 using namespace l1extra;
 
 template <class T> T sqr( T t) {return t*t;}

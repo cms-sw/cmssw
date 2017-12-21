@@ -45,7 +45,6 @@ template <class T> T sqr( T t) {return t*t;}
 
 using namespace PixelRecoUtilities;
 using namespace std;
-using namespace ctfseeding; 
 
 RectangularEtaPhiTrackingRegion::UseMeasurementTracker RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(const std::string& name) {
   std::string tmp = name;

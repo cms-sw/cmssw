@@ -19,7 +19,7 @@
 //---------------
 // C++ Headers --
 //---------------
-#include <math.h> 
+#include <cmath> 
 #include <cstring>
 
 //-------------------------------
@@ -124,7 +124,7 @@ DTConfigLUTs::DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f) const
 void
 DTConfigLUTs::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp) const
 {
-  long int *pl=0, lm;
+  long int *pl=nullptr, lm;
   bool sign=false;
 
   DSPmantissa = 0;

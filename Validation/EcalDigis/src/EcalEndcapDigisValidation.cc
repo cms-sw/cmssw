@@ -26,30 +26,30 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
-  meEEDigiOccupancyzp_ = 0;
-  meEEDigiOccupancyzm_ = 0;
+  meEEDigiOccupancyzp_ = nullptr;
+  meEEDigiOccupancyzm_ = nullptr;
  
-  meEEDigiMultiplicityzp_ = 0;
-  meEEDigiMultiplicityzm_ = 0;
+  meEEDigiMultiplicityzp_ = nullptr;
+  meEEDigiMultiplicityzm_ = nullptr;
 
-  meEEDigiADCGlobal_ = 0;
+  meEEDigiADCGlobal_ = nullptr;
 
   for (int i = 0; i < 10 ; i++ ) {
-    meEEDigiADCAnalog_[i] = 0;
-    meEEDigiADCgS_[i]  = 0;
-    meEEDigiADCg1_[i]  = 0;
-    meEEDigiADCg6_[i]  = 0;
-    meEEDigiADCg12_[i] = 0;
-    meEEDigiGain_[i] = 0;
+    meEEDigiADCAnalog_[i] = nullptr;
+    meEEDigiADCgS_[i]  = nullptr;
+    meEEDigiADCg1_[i]  = nullptr;
+    meEEDigiADCg6_[i]  = nullptr;
+    meEEDigiADCg12_[i] = nullptr;
+    meEEDigiGain_[i] = nullptr;
   }
 
-  meEEPedestal_ = 0;
+  meEEPedestal_ = nullptr;
                                  
-  meEEMaximumgt100ADC_ = 0; 
+  meEEMaximumgt100ADC_ = nullptr; 
                                  
-  meEEMaximumgt20ADC_ = 0; 
+  meEEMaximumgt20ADC_ = nullptr; 
 
-  meEEnADCafterSwitch_ = 0;
+  meEEnADCafterSwitch_ = nullptr;
  
 }
 

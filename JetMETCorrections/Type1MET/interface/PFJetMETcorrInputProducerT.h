@@ -80,7 +80,7 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
   explicit PFJetMETcorrInputProducerT(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       offsetCorrLabel_(""),
-      skipMuonSelection_(0)
+      skipMuonSelection_(nullptr)
   {
     token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
 
@@ -127,7 +127,7 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
       produces<CorrMETData>((*type2BinningEntry)->getInstanceLabel_full("offset"));
     }
   }
-  ~PFJetMETcorrInputProducerT()
+  ~PFJetMETcorrInputProducerT() override
   {
     delete skipMuonSelection_;
 
@@ -155,7 +155,7 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
 
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
 
     std::unique_ptr<CorrMETData> type1Correction(new CorrMETData());
@@ -196,8 +196,8 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
 	for ( std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin();
 	      cand != cands.end(); ++cand ) {
           const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate *>(cand->get());
-          const reco::Candidate *mu = (pfcand != 0 ? ( pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : 0) : cand->get());
-	  if ( mu != 0 && (*skipMuonSelection_)(*mu) ) {
+          const reco::Candidate *mu = (pfcand != nullptr ? ( pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : nullptr) : cand->get());
+	  if ( mu != nullptr && (*skipMuonSelection_)(*mu) ) {
 	    reco::Candidate::LorentzVector muonP4 = (*cand)->p4();
 	    rawJetP4 -= muonP4;
 	  }
@@ -291,7 +291,7 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
   {
     type2BinningEntryType()
       : binLabel_(""),
-        binSelection_(0)
+        binSelection_(nullptr)
     {}
     type2BinningEntryType(const edm::ParameterSet& cfg)
       : binLabel_(cfg.getParameter<std::string>("binLabel")),

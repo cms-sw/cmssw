@@ -105,29 +105,29 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
-  meEBDigiMixRatiogt100ADC_ = 0;
-  meEEDigiMixRatiogt100ADC_ = 0;
+  meEBDigiMixRatiogt100ADC_ = nullptr;
+  meEEDigiMixRatiogt100ADC_ = nullptr;
     
-  meEBDigiMixRatioOriggt50pc_ = 0;
-  meEEDigiMixRatioOriggt40pc_ = 0;
+  meEBDigiMixRatioOriggt50pc_ = nullptr;
+  meEEDigiMixRatioOriggt40pc_ = nullptr;
     
-  meEBbunchCrossing_ = 0;
-  meEEbunchCrossing_ = 0;
-  meESbunchCrossing_ = 0;
+  meEBbunchCrossing_ = nullptr;
+  meEEbunchCrossing_ = nullptr;
+  meESbunchCrossing_ = nullptr;
     
   for ( int i = 0 ; i < nBunch ; i++ ) {
-    meEBBunchShape_[i] = 0;
-    meEEBunchShape_[i] = 0;
-    meESBunchShape_[i] = 0;
+    meEBBunchShape_[i] = nullptr;
+    meEEBunchShape_[i] = nullptr;
+    meESBunchShape_[i] = nullptr;
   }
 
-  meEBShape_ = 0;
-  meEEShape_ = 0;
-  meESShape_ = 0;
+  meEBShape_ = nullptr;
+  meEEShape_ = nullptr;
+  meESShape_ = nullptr;
 
-  meEBShapeRatio_ = 0;
-  meEEShapeRatio_ = 0;
-  meESShapeRatio_ = 0;
+  meEBShapeRatio_ = nullptr;
+  meEEShapeRatio_ = nullptr;
+  meESShapeRatio_ = nullptr;
  
 }
 
@@ -303,16 +303,16 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   e.getByToken( HepMCToken_, MCEvt );
   if (!MCEvt.isValid()) { skipMC = true; }
 
-  const EBDigiCollection* EBdigis =0;
-  const EEDigiCollection* EEdigis =0;
-  const ESDigiCollection* ESdigis =0;
+  const EBDigiCollection* EBdigis =nullptr;
+  const EEDigiCollection* EEdigis =nullptr;
+  const ESDigiCollection* ESdigis =nullptr;
 
   bool isBarrel = true;
   e.getByToken( EBdigiCollectionToken_, EcalDigiEB );
   if (EcalDigiEB.isValid()) { 
     EBdigis = EcalDigiEB.product();
     LogDebug("DigiInfo") << "total # EBdigis: " << EBdigis->size() ;
-    if ( EBdigis->size() == 0 ) isBarrel = false;
+    if ( EBdigis->empty() ) isBarrel = false;
   } else {
     isBarrel = false; 
   }
@@ -322,7 +322,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if (EcalDigiEE.isValid()) {
     EEdigis = EcalDigiEE.product();
     LogDebug("DigiInfo") << "total # EEdigis: " << EEdigis->size() ;
-    if ( EEdigis->size() == 0 ) isEndcap = false;
+    if ( EEdigis->empty() ) isEndcap = false;
   } else {
     isEndcap = false; 
   }
@@ -332,7 +332,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if (EcalDigiES.isValid()) {
     ESdigis = EcalDigiES.product();
     LogDebug("DigiInfo") << "total # ESdigis: " << ESdigis->size() ;
-    if ( ESdigis->size() == 0 ) isPreshower = false;
+    if ( ESdigis->empty() ) isPreshower = false;
   } else {
     isPreshower = false; 
   }

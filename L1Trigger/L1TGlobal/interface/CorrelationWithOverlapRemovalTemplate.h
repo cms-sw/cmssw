@@ -56,7 +56,7 @@ public:
     CorrelationWithOverlapRemovalTemplate( const CorrelationWithOverlapRemovalTemplate& );
 
     /// destructor
-    virtual ~CorrelationWithOverlapRemovalTemplate();
+    ~CorrelationWithOverlapRemovalTemplate() override;
 
     /// assign operator
     CorrelationWithOverlapRemovalTemplate& operator= (const CorrelationWithOverlapRemovalTemplate&);
@@ -156,7 +156,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const CorrelationWithOverlapRemovalTemplate&);

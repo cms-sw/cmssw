@@ -10,6 +10,7 @@
 #include "SimG4Core/Application/interface/CustomUIsession.h"
 #include "SimG4Core/Application/interface/CustomUIsessionThreadPrefix.h"
 #include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
+#include "SimG4Core/Application/interface/ExceptionHandler.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -147,6 +148,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_p(iConfig)
 {
   initializeTLS();
+  m_simEvent.reset(nullptr);
   m_sVerbose.reset(nullptr);
   std::vector<edm::ParameterSet> watchers = 
     iConfig.getParameter<std::vector<edm::ParameterSet> >("Watchers");
@@ -214,6 +216,9 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   // Create worker run manager
   m_tls->kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
   if(!m_tls->kernel) { m_tls->kernel = new G4WorkerRunManagerKernel(); }
+
+  // Define G4 exception handler
+  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
 
   // Set the geometry for the worker, share from master
   DDDWorld::WorkerSetAsWorld(runManagerMaster.world().GetWorldVolumeForWorker());

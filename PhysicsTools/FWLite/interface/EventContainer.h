@@ -48,8 +48,8 @@ namespace fwlite
          // Constructors and Destructor //
          /////////////////////////////////
          EventContainer (optutl::CommandLineParser &parser, 
-                         FuncPtr funcPtr = 0);
-         ~EventContainer();
+                         FuncPtr funcPtr = nullptr);
+         ~EventContainer() override;
 
          ////////////////
          // One Liners //
@@ -83,32 +83,32 @@ namespace fwlite
                           const char* iModuleLabel,
                           const char* iProductInstanceLabel,
                           const char* iProcessLabel,
-                          void* oData) const;
+                          void* oData) const override;
 
          const std::string getBranchNameFor (const std::type_info& iInfo,
                                              const char* iModuleLabel,
                                              const char* iProductInstanceLabel,
-                                             const char* iProcessLabel) const;
+                                             const char* iProcessLabel) const override;
 
-         const EventContainer& operator++();
+         const EventContainer& operator++() override;
 
-         const EventContainer& toBegin();
+         const EventContainer& toBegin() override;
 
-         bool atEnd() const;
+         bool atEnd() const override;
       
          
-         edm::TriggerNames const&  triggerNames(edm::TriggerResults const& triggerResults) const
+         edm::TriggerNames const&  triggerNames(edm::TriggerResults const& triggerResults) const override
          { return m_eventBasePtr->triggerNames(triggerResults); }
 
-         edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const
+         edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override
          { return m_eventBasePtr->triggerResultsByName(triggerResults); }
 
-         Long64_t fileIndex()          const 
+         Long64_t fileIndex()          const override 
          { return m_eventBasePtr->fileIndex(); }
-         Long64_t secondaryFileIndex() const 
+         Long64_t secondaryFileIndex() const override 
          { return m_eventBasePtr->secondaryFileIndex(); }
          
-         edm::EventAuxiliary const& eventAuxiliary() const
+         edm::EventAuxiliary const& eventAuxiliary() const override
          { return m_eventBasePtr->eventAuxiliary(); }
 
          template <class T>

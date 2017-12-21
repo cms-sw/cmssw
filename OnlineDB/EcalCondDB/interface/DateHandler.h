@@ -51,7 +51,7 @@ class DateHandler {
   Tm dateToTm(oracle::occi::Date& date) const;
   
  private:
-  DateHandler();  // hide the default constructor
+  DateHandler() = delete;  // hide the default constructor
   oracle::occi::Connection* m_conn;
   oracle::occi::Environment* m_env;
 

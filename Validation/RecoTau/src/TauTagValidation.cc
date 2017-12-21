@@ -61,8 +61,8 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig):
 {
 
   turnOnTrigger_ = iConfig.exists("turnOnTrigger") && iConfig.getParameter<bool>("turnOnTrigger");
-  genericTriggerEventFlag_ = (iConfig.exists("GenericTriggerSelection") && turnOnTrigger_) ? new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection"), consumesCollector(), *this) : NULL;
-  if(genericTriggerEventFlag_ != NULL)  LogDebug(moduleLabel_) <<"--> GenericTriggerSelection parameters found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug
+  genericTriggerEventFlag_ = (iConfig.exists("GenericTriggerSelection") && turnOnTrigger_) ? new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection"), consumesCollector(), *this) : nullptr;
+  if(genericTriggerEventFlag_ != nullptr)  LogDebug(moduleLabel_) <<"--> GenericTriggerSelection parameters found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug
   else LogDebug(moduleLabel_) <<"--> GenericTriggerSelection not found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug to keep track of modules that fail and pass
 
   //InputTag to strings

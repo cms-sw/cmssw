@@ -16,9 +16,9 @@ class CSCTFCandidateProducer : public edm::EDProducer
 
   CSCTFCandidateProducer(const edm::ParameterSet&);
 
-  virtual ~CSCTFCandidateProducer();
+  ~CSCTFCandidateProducer() override;
 
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 
  private:
   edm::EDGetTokenT<L1CSCTrackCollection> input_module;

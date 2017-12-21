@@ -33,7 +33,7 @@ class MultShiftMETcorrInputProducer : public edm::stream::EDProducer<>
  public:
 
   explicit MultShiftMETcorrInputProducer(const edm::ParameterSet&);
-  ~MultShiftMETcorrInputProducer();
+  ~MultShiftMETcorrInputProducer() override;
     
  private:
 

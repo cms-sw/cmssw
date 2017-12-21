@@ -1,8 +1,8 @@
-#include "QBBCCMS.hh"
+#include "QBBCCMS.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4EmStandardPhysics_option1.hh"
+#include "G4EmStandardPhysics.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4StoppingPhysics.hh"
@@ -33,7 +33,7 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new G4EmStandardPhysics_option1(ver));
+    RegisterPhysics( new G4EmStandardPhysics(ver));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);

@@ -56,7 +56,8 @@ set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
 set EraRun2pp2016  = " --era=Run2_2016 "
 set EraRun2pp      = " --era=Run2_2017 "
-set EraRun2HI      = " --era=Run2_2016,Run2_HI "
+set EraRun2HImc    = " --era=Run2_HI "
+set EraRun2HIrd    = " --era=Run2_2016,Run2_HI "
  
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
@@ -91,6 +92,7 @@ foreach gtag ( MC DATA )
     set DATAMC = --data
     set PNAME  = HLT1
     set RNAME  = RECO1
+    set EraRun2HI = $EraRun2HIrd
   else  if ( $gtag == MC ) then
     set BASE1  = $BASE1MC
     set BASE2  = $BASE2MC
@@ -99,6 +101,7 @@ foreach gtag ( MC DATA )
     set DATAMC = --mc
     set PNAME  = HLT
     set RNAME  = RECO
+    set EraRun2HI = $EraRun2HImc
   else
     # unsupported
     continue

@@ -275,7 +275,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         for(auto const& seg : myMapSeg) {//loop over the reconstructed me0 segments
             
             int num_sh_matched = 0;
-            if(seg.second.size() == 0) continue;
+            if(seg.second.empty()) continue;
 
             for(auto const& sh : st.second) {//loop over the me0 simHits left by the signal simTracks
                 

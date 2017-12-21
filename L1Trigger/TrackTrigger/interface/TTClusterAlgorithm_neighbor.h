@@ -44,11 +44,11 @@ class TTClusterAlgorithm_neighbor : public TTClusterAlgorithm< T >
       : TTClusterAlgorithm< T >( __func__ ){}
 
     /// Destructor
-    ~TTClusterAlgorithm_neighbor(){}
+    ~TTClusterAlgorithm_neighbor() override{}
 
     /// Clustering operations  
     void Cluster( std::vector< std::vector< T > > &output,
-                  const std::vector< T > &input) const;
+                  const std::vector< T > &input) const override;
 
     /// Needed for neighbours
     bool isANeighbor( const T& center, const T& mayNeigh) const;
@@ -108,7 +108,7 @@ class ES_TTClusterAlgorithm_neighbor : public edm::ESProducer
     }
 
     /// Destructor
-    virtual ~ES_TTClusterAlgorithm_neighbor(){}
+    ~ES_TTClusterAlgorithm_neighbor() override{}
 
     /// Implement the producer
     std::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )

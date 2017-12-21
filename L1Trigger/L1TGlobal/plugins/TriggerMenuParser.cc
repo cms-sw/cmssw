@@ -517,7 +517,7 @@ bool l1t::TriggerMenuParser::insertConditionIntoMap(GlobalCondition& cond, const
 bool l1t::TriggerMenuParser::insertAlgorithmIntoMap(const GlobalAlgorithm& alg) {
 
     std::string algName = alg.algoName();
-    std::string algAlias = alg.algoAlias();
+    const std::string& algAlias = alg.algoAlias();
     //LogTrace("TriggerMenuParser")
     //<< "    Trying to insert algorithm \"" << algName << "\" in the algorithm map." ;
 
@@ -661,9 +661,9 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     else if (scale.getObjectType() == esObjectType::ETMHF)  scaleParam = &etmHfScales;
     else if (scale.getObjectType() == esObjectType::HTT)    scaleParam = &httScales;
     else if (scale.getObjectType() == esObjectType::HTM)    scaleParam = &htmScales;
-    else scaleParam = 0;
+    else scaleParam = nullptr;
 
-    if(scaleParam != 0) {
+    if(scaleParam != nullptr) {
         switch(scale.getScaleType()) {
 	    case esScaleType::EtScale: {
 	        scaleParam->etMin  = scale.getMinimum();
@@ -671,7 +671,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 		scaleParam->etStep = scale.getStep();
 
 		//Get bin edges
-		const std::vector<esBin> binsV = scale.getBins();
+		const std::vector<esBin>& binsV = scale.getBins();
 		for(unsigned int i=0; i<binsV.size(); i++) {
 		   const esBin& bin = binsV.at(i);
 		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
@@ -702,7 +702,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 		scaleParam->etaStep = scale.getStep();
 
 		//Get bin edges
-		const std::vector<esBin> binsV = scale.getBins();
+		const std::vector<esBin>& binsV = scale.getBins();
 		scaleParam->etaBins.resize(pow(2,scale.getNbits()));
 		for(unsigned int i=0; i<binsV.size(); i++) {
 		   const esBin& bin = binsV.at(i);
@@ -717,7 +717,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 		scaleParam->phiStep = scale.getStep();
 
 		//Get bin edges
-		const std::vector<esBin> binsV = scale.getBins();
+		const std::vector<esBin>& binsV = scale.getBins();
 		scaleParam->phiBins.resize(pow(2,scale.getNbits()));
 		for(unsigned int i=0; i<binsV.size(); i++) {
 		   const esBin& bin = binsV.at(i);
@@ -1038,7 +1038,7 @@ void l1t::TriggerMenuParser::parsePhi_Trig_LUTS(const std::map<std::string, tmev
 	array.at(ii) = step * ii;
       }
 
-    std::string lutName = obj;
+    const std::string& lutName = obj;
     std::vector<long long> lut;
     if ( func == l1t::SIN ) {
       applySin(array, n);
@@ -3377,7 +3377,7 @@ bool l1t::TriggerMenuParser::parseAlgorithm( tmeventsetup::esAlgorithm algorithm
 
     // get alias
     std::string algAlias = algorithm.getName();
-    std::string algName  = algorithm.getName();
+    const std::string& algName  = algorithm.getName();
 
     if (algAlias == "") {
         algAlias = algName;
@@ -3393,7 +3393,7 @@ bool l1t::TriggerMenuParser::parseAlgorithm( tmeventsetup::esAlgorithm algorithm
     }
 
     // get the logical expression
-    std::string logExpression = algorithm.getExpressionInCondition();
+    const std::string& logExpression = algorithm.getExpressionInCondition();
 
     LogDebug("TriggerMenuParser")
       << "      Logical expression: " << logExpression

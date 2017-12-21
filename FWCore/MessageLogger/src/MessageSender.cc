@@ -1,8 +1,8 @@
+#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
-
-#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <algorithm>
 #include <cassert>
@@ -80,9 +80,9 @@ namespace  {
 
 }
 
-[[cms::thread_safe]] static std::atomic<bool> errorSummaryIsBeingKept{false};
+CMS_THREAD_SAFE static std::atomic<bool> errorSummaryIsBeingKept{false};
 //Each item in the vector is reserved for a different Stream
-[[cms::thread_safe]] static std::vector<tbb::concurrent_unordered_map<ErrorSummaryMapKey, AtomicUnsignedInt,ErrorSummaryMapKey::key_hash>> errorSummaryMaps;
+CMS_THREAD_SAFE static std::vector<tbb::concurrent_unordered_map<ErrorSummaryMapKey, AtomicUnsignedInt,ErrorSummaryMapKey::key_hash>> errorSummaryMaps;
 
 MessageSender::MessageSender( ELseverityLevel const & sev, 
 			      ELstring const & id,

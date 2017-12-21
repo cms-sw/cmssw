@@ -31,9 +31,9 @@
 class DTTFTSCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
       DTTFTSCObjectKeysOnlineProd(const edm::ParameterSet&);
-      ~DTTFTSCObjectKeysOnlineProd();
+      ~DTTFTSCObjectKeysOnlineProd() override;
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
 };

@@ -33,16 +33,16 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
   /// Constructor needs the Wheel card Fpgas set up first
   L1GctGlobalHfSumAlgos(const std::vector<L1GctWheelJetFpga*>& WheelJetFpga);
   /// Destructor
-  ~L1GctGlobalHfSumAlgos();
+  ~L1GctGlobalHfSumAlgos() override;
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctGlobalHfSumAlgos& fpga);
 
   /// get input data from sources; this is the standard way to provide input
-  virtual void fetchInput();
+  void fetchInput() override;
 
   /// process the data, fill output buffers
-  virtual void process();
+  void process() override;
 
   /// Access to output quantities
   std::vector<uint16_t> hfSumsOutput(const L1GctHfEtSumsLut::hfLutType type) const;
@@ -68,11 +68,11 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
   
  protected:
   /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines();
+  void resetProcessor() override;
+  void resetPipelines() override;
 
   /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects() {}
+  void setupObjects() override {}
 	
  private:
   // Here are the algorithm types we get our inputs from

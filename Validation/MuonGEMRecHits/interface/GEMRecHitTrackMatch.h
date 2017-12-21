@@ -17,7 +17,7 @@ class GEMRecHitTrackMatch : public GEMTrackMatch
 {
 public:
   explicit GEMRecHitTrackMatch(const edm::ParameterSet& ps);
-  ~GEMRecHitTrackMatch();
+  ~GEMRecHitTrackMatch() override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
  private:

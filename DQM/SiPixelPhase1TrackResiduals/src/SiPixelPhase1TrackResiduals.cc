@@ -30,6 +30,7 @@ SiPixelPhase1TrackResiduals::SiPixelPhase1TrackResiduals(const edm::ParameterSet
 }
 
 void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if( !checktrigger(iEvent,iSetup,DCS) ) return;
 
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);

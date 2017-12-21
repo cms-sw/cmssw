@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimG4CMS.Calo.pythiapdt_cfi")
-#process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
@@ -18,59 +18,9 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_mc']
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('CaloSim', 
-        'EcalGeom', 
-        'EcalSim', 
-        'HCalGeom', 
-        'HcalSim', 
-        'HFShower', 
-        'SimG4CoreApplication', 
-        'G4cout', 
-        'G4cerr', 
-        'HitStudy'),
-#    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        HitStudy = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        SimG4CoreApplication = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    )
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('G4cerr')
+    process.MessageLogger.categories.append('HitStudy')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -113,7 +63,7 @@ process.TFileService = cms.Service("TFileService",
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.caloSimHitStudy)
+process.analysis_step   = cms.Path(process.CaloSimHitStudy)
 process.out_step = cms.EndPath(process.output)
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'

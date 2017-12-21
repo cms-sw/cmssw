@@ -5,7 +5,7 @@
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class SimpleCutsIsolator : public muonisolation::MuIsoBaseIsolator {
  public:

@@ -53,7 +53,7 @@ EmbeddingHepMCFilter::filter(const HepMC::GenEvent* evt)
     for ( HepMC::GenEvent::particle_const_iterator particle = evt->particles_begin(); particle != evt->particles_end(); ++particle )
     {
       int mom_id = 0; // No particle available with PDG ID 0
-      if ((*particle)->production_vertex() != 0){ // search for the mom via the production_vertex
+      if ((*particle)->production_vertex() != nullptr){ // search for the mom via the production_vertex
         if ((*particle)->production_vertex()->particles_in_const_begin() != (*particle)->production_vertex()->particles_in_const_end()){
           mom_id =  (*(*particle)->production_vertex()->particles_in_const_begin())->pdg_id(); // mom was found
         }

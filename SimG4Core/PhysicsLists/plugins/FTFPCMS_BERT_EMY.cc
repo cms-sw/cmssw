@@ -1,4 +1,4 @@
-#include "FTFPCMS_BERT_EMY.hh"
+#include "FTFPCMS_BERT_EMY.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

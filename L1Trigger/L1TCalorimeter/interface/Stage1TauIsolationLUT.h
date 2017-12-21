@@ -11,7 +11,7 @@
 #define LUT_VERSION 1  // bump up the version number is any of the above is changed or if the relative tau iso algo is changed
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 namespace l1t {

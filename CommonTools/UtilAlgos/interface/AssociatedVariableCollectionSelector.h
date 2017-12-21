@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
+#include "CommonTools/UtilAlgos/interface/SelectedOutputCollectionTrait.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "DataFormats/Common/interface/getRef.h"

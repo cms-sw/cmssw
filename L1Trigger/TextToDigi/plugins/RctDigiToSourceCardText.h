@@ -43,10 +43,10 @@
 class RctDigiToSourceCardText : public edm::EDAnalyzer {
  public:
   explicit RctDigiToSourceCardText(const edm::ParameterSet&);
-      ~RctDigiToSourceCardText();
+      ~RctDigiToSourceCardText() override;
       
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
       
   /// Label for RCT digis
   edm::InputTag m_rctInputLabel;

@@ -24,13 +24,13 @@ pdigi.remove(simEcalPreshowerDigis)
 hcalDigiSequence.remove(simHcalTriggerPrimitiveDigis)
 hcalDigiSequence.remove(simHcalTTPDigis)
 
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    # no need for the aliases for usual mixing
-    del generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis
-else:
-#hack - our code is too fast at large scale - lets slow it down and idle for 15 seconds
-    cpuSpender=cms.EDAnalyzer("CPUSpender")
-    cpuSpender.secPerEvent=cms.untracked.int32(20)
-   
-    pdigi.insert(0,cpuSpender)
+# no need for the aliases for usual mixing
+import FastSimulation.Configuration.DigiAliases_cff as _fastSim_DigiAliases_cff
+_fastSim_DigiAliases_cff._enableDigiAliases = False
+#else:
+#no need for this hack running at Nebraska
+##hack - our code is too fast at large scale - lets slow it down and idle for 15 seconds
+#    cpuSpender=cms.EDAnalyzer("CPUSpender")
+#    cpuSpender.secPerEvent=cms.untracked.int32(20)
+#   
+#    pdigi.insert(0,cpuSpender)

@@ -33,6 +33,7 @@ SiPixelPhase1RecHits::SiPixelPhase1RecHits(const edm::ParameterSet& iConfig) :
 }
 
 void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if( !checktrigger(iEvent,iSetup,DCS) ) return;
 
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);

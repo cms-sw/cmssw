@@ -2180,7 +2180,7 @@ GlobalRecHitsProducer::findBestRecHit(const DTLayer* layer,
 				      const std::vector<type>& recHits,
 				      const float simHitDist) {
   float res = 99999;
-  const type* theBestRecHit = 0;
+  const type* theBestRecHit = nullptr;
   // Loop over RecHits within the cell
   for(typename std::vector<type>::const_iterator recHit = recHits.begin();
       recHit != recHits.end();
@@ -2236,7 +2236,7 @@ int GlobalRecHitsProducer::compute(const DTGeometry *dtGeom,
     
     // Look for a mu hit in the cell
     const PSimHit* muSimHit = DTHitQualityUtils::findMuSimHit(simHitsInCell);
-    if (muSimHit==0) {
+    if (muSimHit==nullptr) {
       continue; // Skip this cell
     }
 

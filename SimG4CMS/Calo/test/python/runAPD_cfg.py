@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.EcalTestBeam.APDXML_cfi")
 process.load("Configuration.EventContent.EventContent_cff")
@@ -15,46 +16,11 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run1_mc']
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('CaloSim', 'EcalGeom', 'EcalSim', 
-                                       'SimG4CoreApplication', 'FlatThetaGun',
-                                       'G4cout', 'G4cerr', 'SimTrackManager'),
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        SimTrackManager = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        SimG4CoreApplication = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FlatThetaGun = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    )
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('G4cerr')
+    process.MessageLogger.categories.append('FlatThetaGun')
+    process.MessageLogger.categories.append('EcalGeom')
+    process.MessageLogger.categories.append('EcalSim')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -95,7 +61,7 @@ process.TFileService = cms.Service("TFileService",
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.caloSimHitStudy)
+process.analysis_step   = cms.Path(process.CaloSimHitStudy)
 process.out_step = cms.EndPath(process.output)
 
 process.VtxSmeared.MeanZ = -1.0

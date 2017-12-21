@@ -80,6 +80,8 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   etaOfProbe_(iConfig.getUntrackedParameter<double>("probeEta",2.4)),
   nHitsOfProbe_(iConfig.getUntrackedParameter<double>("probeNHits",0.)),
   nBins_(iConfig.getUntrackedParameter<int>("numberOfBins",24)),
+  minPt_(iConfig.getUntrackedParameter<double>("minPt",1.)),
+  maxPt_(iConfig.getUntrackedParameter<double>("maxPt",20.)),
   debug_(iConfig.getParameter<bool>("Debug")),
   runControl_(iConfig.getUntrackedParameter<bool>("runControl",false))
 {
@@ -141,8 +143,9 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
     }
   }
 
+  edm::LogVerbatim("PrimaryVertexValidation") <<"######################################";
   for (const auto & it : theDetails_.range){
-    edm::LogVerbatim("PrimaryVertexValidation")<<std::setw(10) << std::get<0>(PVValHelper::getTypeString(it.first.first)) << " "<< std::setw(10)<< std::get<0>(PVValHelper::getVarString(it.first.second)) << " (" << std::setw(5)<< it.second.first << ";" <<std::setw(5)<< it.second.second << ")"<<std::endl;
+    edm::LogVerbatim("PrimaryVertexValidation")<< "|" <<std::setw(10) << std::get<0>(PVValHelper::getTypeString(it.first.first)) << "|" << std::setw(10)<< std::get<0>(PVValHelper::getVarString(it.first.second)) << "| (" << std::setw(5)<< it.second.first << ";" <<std::setw(5)<< it.second.second << ") |"<<std::endl;
   }
 
   theDetails_.trendbins[PVValHelper::phi] = PVValHelper::generateBins(nBins_+1,-180.,360.);
@@ -162,6 +165,20 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
     edm::LogVerbatim("PrimaryVertexValidation") << "\n";
   }
   
+  // create the bins of the pT-binned distributions 
+
+  mypT_bins_ = PVValHelper::makeLogBins<float,nPtBins_>(minPt_,maxPt_);
+
+  std::string toOutput="";
+  for (auto ptbin: mypT_bins_){
+    toOutput+=" ";
+    toOutput+=std::to_string(ptbin);
+    toOutput+=",";
+  }
+  
+  edm::LogVerbatim("PrimaryVertexValidation") <<"######################################\n";
+  edm::LogVerbatim("PrimaryVertexValidation") <<"The pT binning is: [" << toOutput << "] \n";
+
 }
    
 // Destructor
@@ -169,6 +186,8 @@ PrimaryVertexValidation::~PrimaryVertexValidation()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+  if (theTrackFilter_) delete theTrackFilter_;
+  if (theTrackClusterizer_) delete theTrackClusterizer_;
 }
 
 
@@ -285,6 +304,9 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     h_etaMax->SetBinContent(1.,etaOfProbe_);
     h_nbins->SetBinContent(1.,nBins_);
     h_nLadders->SetBinContent(1.,nLadders_);
+    h_pTinfo->SetBinContent(1.,mypT_bins_.size());
+    h_pTinfo->SetBinContent(2.,minPt_);
+    h_pTinfo->SetBinContent(3.,maxPt_);
   }
 
   //=======================================================
@@ -792,11 +814,10 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      int L1BPixHitCount = 0;
 
 	      for (trackingRecHit_iterator iHit = theTrack.recHitsBegin(); iHit != theTrack.recHitsEnd(); ++iHit) {
-		TrackingRecHit* hit = (*iHit)->clone();
-		const DetId& detId = hit->geographicalId();
+		const DetId& detId = (*iHit)->geographicalId();
 		unsigned int subid = detId.subdetId();
 		
-		if(hit->isValid() && ( subid == PixelSubdetector::PixelBarrel ) ) {
+		if((*iHit)->isValid() && ( subid == PixelSubdetector::PixelBarrel ) ) {
 		  int layer = tTopo->pxbLayer(detId);
 		  if(layer==1){
 		    L1BPixHitCount+=1;
@@ -863,6 +884,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 		// probe checks
 		h_probePt_->Fill(theTrack.pt());
+		h_probePtRebin_->Fill(theTrack.pt());
 		h_probeP_->Fill(theTrack.p());
 		h_probeEta_->Fill(theTrack.eta());
 		h_probePhi_->Fill(theTrack.phi());
@@ -1229,12 +1251,11 @@ void PrimaryVertexValidation::beginJob()
 
   h_runFromConfig     = EventFeatures.make<TH1I>("h_runFromConfig","run number from config;;run number (from configuration)",
 						 runControlNumbers_.size(),0.,runControlNumbers_.size());
-  for(const auto & r : runControlNumbers_){
-    h_runFromConfig->SetBinContent(r+1,runControlNumbers_[r]);
+  for(const auto r : runControlNumbers_){
+    h_runFromConfig->SetBinContent(r+1, r);
   }
   
   h_runFromEvent      = EventFeatures.make<TH1I>("h_runFromEvent","run number from config;;run number (from event)",1,-0.5,0.5);
-
   h_nTracks           = EventFeatures.make<TH1F>("h_nTracks","number of tracks per event;n_{tracks}/event;n_{events}",300,-0.5,299.5);	     
   h_nClus             = EventFeatures.make<TH1F>("h_nClus","number of track clusters;n_{clusters}/event;n_{events}",50,-0.5,49.5);	     
   h_nOfflineVertices  = EventFeatures.make<TH1F>("h_nOfflineVertices","number of offline reconstructed vertices;n_{vertices}/event;n_{events}",50,-0.5,49.5);  
@@ -1253,6 +1274,11 @@ void PrimaryVertexValidation::beginJob()
   h_BeamWidthY        = EventFeatures.make<TH1F>("h_BeamWidthY","y-coordinate beam width;#sigma_{Y}^{beam};n_{events}",100,0.,0.01);        
 
   h_etaMax            = EventFeatures.make<TH1F>("etaMax","etaMax",1,-0.5,0.5);
+  h_pTinfo            = EventFeatures.make<TH1F>("pTinfo","pTinfo",3,-1.5,1.5);
+  h_pTinfo->GetXaxis()->SetBinLabel(1,"n. bins");
+  h_pTinfo->GetXaxis()->SetBinLabel(2,"pT min");
+  h_pTinfo->GetXaxis()->SetBinLabel(3,"pT max");
+
   h_nbins             = EventFeatures.make<TH1F>("nbins","nbins",1,-0.5,0.5);
   h_nLadders          = EventFeatures.make<TH1F>("nladders","n. ladders",1,-0.5,0.5);
 
@@ -1260,6 +1286,7 @@ void PrimaryVertexValidation::beginJob()
   TFileDirectory ProbeFeatures = fs->mkdir("ProbeTrackFeatures");
 
   h_probePt_         = ProbeFeatures.make<TH1F>("h_probePt","p_{T} of probe track;track p_{T} (GeV); tracks",100,0.,50.);   
+  h_probePtRebin_    = ProbeFeatures.make<TH1F>("h_probePtRebin","p_{T} of probe track;track p_{T} (GeV); tracks",mypT_bins_.size()-1,mypT_bins_.data());   
   h_probeP_          = ProbeFeatures.make<TH1F>("h_probeP","momentum of probe track;track p (GeV); tracks",100,0.,100.);   
   h_probeEta_        = ProbeFeatures.make<TH1F>("h_probeEta","#eta of the probe track;track #eta;tracks",54,-2.8,2.8);  
   h_probePhi_        = ProbeFeatures.make<TH1F>("h_probePhi","#phi of probe track;track #phi (rad);tracks",100,-3.15,3.15);  
@@ -1631,68 +1658,68 @@ void PrimaryVertexValidation::beginJob()
   
   a_dxypTMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pT",
 						"#LT d_{xy} #GT vs pT;p_{T} [GeV];#LT d_{xy} #GT [#mum]",
-						48,mypT_bins_); 
+						mypT_bins_.size()-1,mypT_bins_.data()); 
   
   a_dxypTWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_pT",
 						"#sigma_{d_{xy}} vs pT;p_{T} [GeV];#sigma_{d_{xy}} [#mum]",
-						48,mypT_bins_);
+						mypT_bins_.size()-1,mypT_bins_.data());
   
   a_dzpTMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_pT",
 						"#LT d_{z} #GT vs pT;p_{T} [GeV];#LT d_{z} #GT [#mum]",
-						48,mypT_bins_); 
+						mypT_bins_.size()-1,mypT_bins_.data()); 
   
   a_dzpTWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pT","#sigma_{d_{z}} vs pT;p_{T} [GeV];#sigma_{d_{z}} [#mum]",
-						48,mypT_bins_);
+						mypT_bins_.size()-1,mypT_bins_.data());
   
   
   n_dxypTMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_pT",
 						"#LT d_{xy}/#sigma_{d_{xy}} #GT vs pT;p_{T} [GeV];#LT d_{xy}/#sigma_{d_{xy}} #GT",
-						48,mypT_bins_);
+						mypT_bins_.size()-1,mypT_bins_.data());
   
   n_dxypTWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_pT",
 						"width(d_{xy}/#sigma_{d_{xy}}) vs pT;p_{T} [GeV]; width(d_{xy}/#sigma_{d_{xy}})",
-						48,mypT_bins_);
+						mypT_bins_.size()-1,mypT_bins_.data());
   
   n_dzpTMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_pT",
 						"#LT d_{z}/#sigma_{d_{z}} #GT vs pT;p_{T} [GeV];#LT d_{z}/#sigma_{d_{z}} #GT",
-						48,mypT_bins_); 
+						mypT_bins_.size()-1,mypT_bins_.data()); 
   
   n_dzpTWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_pT",
 						"width(d_{z}/#sigma_{d_{z}}) vs pT;p_{T} [GeV];width(d_{z}/#sigma_{d_{z}})",
-						48,mypT_bins_);
+						mypT_bins_.size()-1,mypT_bins_.data());
 
 
   a_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pTCentral",
 						       "#LT d_{xy} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy} #GT [#mum]",
-						       48,mypT_bins_);
+						       mypT_bins_.size()-1,mypT_bins_.data());
   
   a_dxypTCentralWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_pTCentral",
 						       "#sigma_{d_{xy}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{xy}} [#mum]",
-						       48,mypT_bins_);
+						       mypT_bins_.size()-1,mypT_bins_.data());
   
   a_dzpTCentralMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_pTCentral",
 						       "#LT d_{z} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{z} #GT [#mum]"
-						       ,48,mypT_bins_); 
+						       ,mypT_bins_.size()-1,mypT_bins_.data()); 
   
   a_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pTCentral",
 						       "#sigma_{d_{z}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{z}} [#mum]",
-						       48,mypT_bins_);
+						       mypT_bins_.size()-1,mypT_bins_.data());
   
   n_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_pTCentral",
 						       "#LT d_{xy}/#sigma_{d_{xy}} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy}/#sigma_{d_{z}} #GT",
-						       48,mypT_bins_);
+						       mypT_bins_.size()-1,mypT_bins_.data());
   
   n_dxypTCentralWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_pTCentral",
 						       "width(d_{xy}/#sigma_{d_{xy}}) vs p_{T};p_{T}(|#eta|<1.) [GeV];width(d_{xy}/#sigma_{d_{z}})",
-						       48,mypT_bins_);
+						       mypT_bins_.size()-1,mypT_bins_.data());
   
   n_dzpTCentralMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_pTCentral",
 						       "#LT d_{z}/#sigma_{d_{z}} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{z}/#sigma_{d_{z}} #GT",
-						       48,mypT_bins_);  
+						       mypT_bins_.size()-1,mypT_bins_.data());  
   
   n_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_pTCentral",
 						       "width(d_{z}/#sigma_{d_{z}}) vs p_{T};p_{T}(|#eta|<1.) [GeV];width(d_{z}/#sigma_{d_{z}})",
-						       48,mypT_bins_); 
+						       mypT_bins_.size()-1,mypT_bins_.data()); 
 
   // 2D maps
 

@@ -108,7 +108,7 @@ namespace edmNew {
 #else
         mutable int offset;
 #endif
-        CMS_THREAD_GUARD("offset") mutable size_type size;
+        CMS_THREAD_GUARD(offset) mutable size_type size;
 
         bool uninitialized() const { return (-1)==offset;}
         bool initializing() const { return (-2)==offset;}
@@ -172,7 +172,7 @@ namespace edmNew {
     struct IterHelp {
       typedef DetSet result_type;
       //      IterHelp() : v(0),update(true){}
-      IterHelp() : m_v(0),m_update(false){}
+      IterHelp() : m_v(nullptr),m_update(false){}
       IterHelp(DetSetVector<T> const & iv, bool iup) : m_v(&iv), m_update(iup){}
       
       result_type & operator()(Item const& item) const {
@@ -618,7 +618,7 @@ namespace edmNew {
     // ROOT6 has a problem with this IdContainer typedef
     //IdContainer m_ids;
     std::vector<Trans::Item> m_ids;
-    CMS_THREAD_GUARD("dstvdetails::DetSetVectorTrans::m_filling") mutable DataContainer m_data;
+    CMS_THREAD_GUARD(dstvdetails::DetSetVectorTrans::m_filling) mutable DataContainer m_data;
     
   };
   

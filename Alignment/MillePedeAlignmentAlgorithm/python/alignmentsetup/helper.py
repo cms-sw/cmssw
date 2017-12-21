@@ -22,12 +22,13 @@ def checked_out_MPS():
     return checked_out, git_initialized
 
 
-def set_pede_option(process, option):
+def set_pede_option(process, option, drop = False):
     """Utility function to set or override pede `option` defined in `process`.
 
     Arguments:
     - `process`: cms.Process object
     - `option`: option string
+    - `drop`: if set to 'True' the `option` is dropped completely
     """
 
     existing_options = process.AlignmentProducer.algoConfig.pedeSteerer.options
@@ -37,9 +38,10 @@ def set_pede_option(process, option):
         if existing_options[i].split()[0] == option.split()[0]:
            existing_options[i] = option.strip()
            exists = True
+           if drop: existing_options.pop(i)
            break
 
-    if not exists: existing_options.append(option.strip())
+    if not exists and not drop: existing_options.append(option.strip())
 
 
 def add_filter(process, ed_filter):

@@ -27,6 +27,8 @@
 
 #include <cstring>
 
+namespace edm { class WrapperBase; }
+
 namespace fwlite {
    namespace internal {
       class DataKey {

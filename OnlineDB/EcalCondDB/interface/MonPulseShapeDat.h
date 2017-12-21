@@ -14,10 +14,10 @@ class MonPulseShapeDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonPulseShapeDat();
-  ~MonPulseShapeDat();
+  ~MonPulseShapeDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_PULSE_SHAPE_DAT"; }
+  inline std::string getTable() override { return "MON_PULSE_SHAPE_DAT"; }
 
   inline void setSamples( std::vector<float> &samples, int gain )
     noexcept(false)
@@ -53,7 +53,7 @@ class MonPulseShapeDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonPulseShapeDat* item, MonRunIOV* iov)
     noexcept(false);

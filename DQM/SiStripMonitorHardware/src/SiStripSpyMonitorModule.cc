@@ -207,8 +207,12 @@ void SiStripSpyMonitorModule::bookHistograms(DQMStore::IBooker & ibooker , const
 				     << ibooker.pwd() 
 				     << std::endl;
   
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  const TkDetMap* tkDetMap = tkDetMapHandle.product();
+
   //this propagates dqm_ to the histoclass, must be called !
-  histManager_.bookTopLevelHistograms(ibooker);
+  histManager_.bookTopLevelHistograms(ibooker, tkDetMap);
   
   if (fillAllDetailedHistograms_) histManager_.bookAllFEDHistograms(ibooker);
 

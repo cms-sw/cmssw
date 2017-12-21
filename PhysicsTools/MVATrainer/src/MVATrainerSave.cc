@@ -61,7 +61,7 @@ void MVATrainerSave::endJob()
 
 	dbService->createNewIOV<Calibration::MVAComputer>(
 		calib.release(), dbService->beginOfTime(),
-		dbService->endOfTime(), getRecordName().c_str());
+		dbService->endOfTime(), getRecordName());
 
 	saved = true;
 }

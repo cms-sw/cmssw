@@ -24,8 +24,8 @@ namespace l1t
   {
     public:
       Stage2Layer2EGammaAlgorithmFirmwareImp1(CaloParamsHelper* params); //const CaloMainProcessorParams & dbPars);
-      virtual ~Stage2Layer2EGammaAlgorithmFirmwareImp1();
-      virtual void processEvent(const std::vector<CaloCluster>& clusters, const std::vector<CaloTower>& towers, std::vector<EGamma>& egammas);
+      ~Stage2Layer2EGammaAlgorithmFirmwareImp1() override;
+      void processEvent(const std::vector<CaloCluster>& clusters, const std::vector<CaloTower>& towers, std::vector<EGamma>& egammas) override;
 
     private:
       // trimming

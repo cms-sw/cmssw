@@ -17,6 +17,8 @@
 
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
 
+#include <vector>
+
 class SelectionUserVariables : public AlignmentUserVariables 
 {
  public:

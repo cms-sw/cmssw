@@ -18,14 +18,14 @@ class NumberPerLSFilter : public edm::one::EDFilter<edm::one::WatchLuminosityBlo
 {
    public:
       explicit NumberPerLSFilter(const edm::ParameterSet&);
-      ~NumberPerLSFilter() = default;
+      ~NumberPerLSFilter() override = default;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-      virtual void endLuminosityBlock(edm::LuminosityBlock const& iEvent, edm::EventSetup const&) override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+      void endLuminosityBlock(edm::LuminosityBlock const& iEvent, edm::EventSetup const&) override ;
 
       // ----------member data ---------------------------
    private:

@@ -17,7 +17,7 @@ class DCSPTMTempList  : public IDBObject {
   friend class EcalCondDBInterface;
 
   DCSPTMTempList();
-  ~DCSPTMTempList();
+  ~DCSPTMTempList() override;
 
   // Methods for user data
   

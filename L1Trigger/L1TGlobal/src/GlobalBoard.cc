@@ -632,8 +632,8 @@ void l1t::GlobalBoard::runGTL(
 		    const int cond0Ind = corrTemplate->cond0Index();
 		    const int cond1Ind = corrTemplate->cond1Index();
 
-		    const GlobalCondition* cond0Condition = 0;
-		    const GlobalCondition* cond1Condition = 0;
+		    const GlobalCondition* cond0Condition = nullptr;
+		    const GlobalCondition* cond1Condition = nullptr;
 
 		    // maximum number of objects received for evaluation of l1t::Type1s condition
 		    int cond0NrL1Objects = 0;
@@ -712,9 +712,9 @@ void l1t::GlobalBoard::runGTL(
 		    const int cond1Ind = corrTemplate->cond1Index();
 		    const int cond2Ind = corrTemplate->cond2Index();
 
-		    const GlobalCondition* cond0Condition = 0;
-		    const GlobalCondition* cond1Condition = 0;
-		    const GlobalCondition* cond2Condition = 0;
+		    const GlobalCondition* cond0Condition = nullptr;
+		    const GlobalCondition* cond1Condition = nullptr;
+		    const GlobalCondition* cond2Condition = nullptr;
 
 		    // maximum number of objects received for evaluation of l1t::Type1s condition
 		    int cond0NrL1Objects = 0;
@@ -921,7 +921,7 @@ void l1t::GlobalBoard::runGTL(
                 itCond != itCondOnChip->end(); itCond++) {
 
             delete itCond->second;
-            itCond->second = 0;
+            itCond->second = nullptr;
         }
     }
 

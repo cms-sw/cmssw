@@ -1,7 +1,8 @@
-#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <cstring>
 #include <iostream>
@@ -130,7 +131,7 @@ MessageLoggerQ::~MessageLoggerQ()
 MessageLoggerQ *
   MessageLoggerQ::instance()
 {
-  [[cms::thread_safe]] static MessageLoggerQ queue;
+  CMS_THREAD_SAFE static MessageLoggerQ queue;
   return &queue;
 }  // MessageLoggerQ::instance()
 

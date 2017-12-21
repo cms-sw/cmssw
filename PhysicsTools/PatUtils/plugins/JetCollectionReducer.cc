@@ -15,9 +15,9 @@ class JetCollectionReducerT : public edm::global::EDProducer<> {
 
 public:
   explicit JetCollectionReducerT(const edm::ParameterSet & iConfig);
-  virtual ~JetCollectionReducerT() {}
+  ~JetCollectionReducerT() override {}
 
-  virtual void produce(edm::StreamID id, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+  void produce(edm::StreamID id, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
 private:
 
@@ -57,7 +57,7 @@ JetCollectionReducerT<T>::produce(edm::StreamID id, edm::Event& iEvent, const ed
   for(std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator filter=collections_.begin();
       filter!=collections_.end();filter++) {
     iEvent.getByToken(*filter,tmpCol);
-    if(tmpCol->size()!=0) {
+    if(!tmpCol->empty()) {
       filterDecision=true;
       break;
     }

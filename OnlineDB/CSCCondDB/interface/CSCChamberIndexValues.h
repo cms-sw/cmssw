@@ -22,7 +22,7 @@
 class CSCChamberIndexValues: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCChamberIndexValues(const edm::ParameterSet&);
-  ~CSCChamberIndexValues();
+  ~CSCChamberIndexValues() override;
   
   inline static CSCChamberIndex * fillChamberIndex();
 
@@ -32,7 +32,7 @@ class CSCChamberIndexValues: public edm::ESProducer, public edm::EventSetupRecor
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCChamberIndex *mapObj ;
 
 };

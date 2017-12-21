@@ -15,6 +15,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetZeroBias_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v3', 
-    'HLT_ZeroBias_v6')
+streamPhysicsCommissioning_datasetZeroBias_selector.triggerConditions = cms.vstring(
+    'HLT_Random_v3', 
+    'HLT_ZeroBias_v6'
+)
 

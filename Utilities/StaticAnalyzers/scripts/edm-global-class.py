@@ -2,7 +2,7 @@
 import re
 datacl = re.compile("^class ")
 bfunc = re.compile("^function ")
-mbcl = re.compile("(base|data) class")
+mbcl = re.compile("(base|data|flagged) class")
 farg = re.compile("(.*)\(\w+\)")
 nsep = re.compile("\:\:")
 topfunc = re.compile("::(produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream)\(")
@@ -40,6 +40,14 @@ for line in f:
 		funcname = fields[3]
 		badclasses.add(classname)
 		badfuncs.add(funcname)
+f.close()
+
+f = open('const-checker.txt')
+for line in f:
+	if mbcl.search(line):
+		fields = line.split("'")
+		classname = fields[1]
+		badclasses.add(classname)
 f.close()
 
 

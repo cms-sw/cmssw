@@ -26,7 +26,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 
@@ -41,7 +41,7 @@ class BPHUserData {
   static const T* get( const pat::CompositeCandidate& cand,
                        const string& name ) {
     if ( cand.hasUserData( name ) ) return cand.userData<T>( name );
-    return 0;
+    return nullptr;
   }
   template<class T>
   static const T* getByRef( const pat::CompositeCandidate& cand,
@@ -49,11 +49,11 @@ class BPHUserData {
     if ( cand.hasUserData( name ) ) {
       typedef edm::Ref< std::vector<T> > objRef;
       const objRef* ref = cand.userData<objRef>( name );
-      if ( ref ==      0 ) return 0;
-      if ( ref->isNull() ) return 0;
+      if ( ref ==      nullptr ) return nullptr;
+      if ( ref->isNull() ) return nullptr;
       return ref->get();
     }
-    return 0;
+    return nullptr;
   }
 };
 
@@ -93,7 +93,7 @@ class BPHSoftMuonSelect {
   bool accept( const reco::Candidate& cand,
                const reco::Vertex* pv ) const {
     const pat::Muon* p = reinterpret_cast<const pat::Muon*>( &cand );
-    if ( p == 0 ) return false;
+    if ( p == nullptr ) return false;
     if ( gM &&
         !muon::isGoodMuon( *p, muon::TMOneStationTight ) ) return false;
     if ( p->innerTrack()->hitPattern().trackerLayersWithMeasurement() <= cutTL )
@@ -103,7 +103,7 @@ class BPHSoftMuonSelect {
     if ( hP &&
         !p->innerTrack()->quality( reco::TrackBase::highPurity ) )
          return false;
-    if ( pv == 0 ) return true;
+    if ( pv == nullptr ) return true;
     const reco::Vertex::Point& pos = pv->position();
     if ( fabs( p->innerTrack()->dxy( pos ) ) >= maxXY )
          return false;
@@ -129,18 +129,18 @@ class BPHDaughterSelect: public BPHHistoSpecificDecay::CandidateSelect {
                      float etaMaxLoose,
                      float etaMaxTight,
                      const BPHSoftMuonSelect*
-                           softMuonselector = 0 ): pLMin(  ptMinLoose ),
+                           softMuonselector = nullptr ): pLMin(  ptMinLoose ),
                                                    pTMin(  ptMinTight ),
                                                    eLMax( etaMaxLoose ),
                                                    eTMax( etaMaxTight ),
                                                    sms( softMuonselector ) {
   }
   bool accept( const pat::CompositeCandidate& cand,
-               const reco::Vertex* pv = 0 ) const {
+               const reco::Vertex* pv = nullptr ) const override {
     const reco::Candidate* dptr0 = cand.daughter( 0 );
     const reco::Candidate* dptr1 = cand.daughter( 1 );
-    if ( dptr0 == 0 ) return false;
-    if ( dptr1 == 0 ) return false;
+    if ( dptr0 == nullptr ) return false;
+    if ( dptr1 == nullptr ) return false;
     float pt0 = dptr0->pt();
     float pt1 = dptr1->pt();
     if ( ( pt0 < pLMin ) || ( pt1 < pLMin ) ) return false;
@@ -151,10 +151,10 @@ class BPHDaughterSelect: public BPHHistoSpecificDecay::CandidateSelect {
          ( ( eta0 > eLMax ) || ( eta1 > eLMax ) ) ) return false;
     if (   ( eTMax > 0 ) && 
          ( ( eta0 > eTMax ) && ( eta1 > eTMax ) ) ) return false;
-    if ( sms != 0 ) {
+    if ( sms != nullptr ) {
       const reco::Vertex* pvtx = BPHUserData::getByRef
            <reco::Vertex>( cand, "primaryVertex" );
-      if ( pvtx == 0 ) return false;
+      if ( pvtx == nullptr ) return false;
       if ( !sms->accept( *dptr0, pvtx ) ) return false;
       if ( !sms->accept( *dptr1, pvtx ) ) return false;
     }    
@@ -182,7 +182,7 @@ class BPHCompositeBasicSelect: public BPHHistoSpecificDecay::CandidateSelect {
                                                        yMax( rapidityMax ) {
   }
   bool accept( const pat::CompositeCandidate& cand,
-               const reco::Vertex* pv = 0 ) const {
+               const reco::Vertex* pv = nullptr ) const override {
     if ( ( ( mMin > 0 ) && ( mMax < 0 ) ) ||
          ( ( mMin < 0 ) && ( mMax > 0 ) ) ||
          ( ( mMin > 0 ) && ( mMax > 0 ) && ( mMin < mMax ) ) ) {
@@ -221,7 +221,7 @@ class BPHFittedBasicSelect: public BPHHistoSpecificDecay::CandidateSelect {
                                                     rMax( rapidityMax ) {
   }
   bool accept( const pat::CompositeCandidate& cand,
-               const reco::Vertex* pv = 0 ) const {
+               const reco::Vertex* pv = nullptr ) const override {
     if ( !cand.hasUserFloat( "fitMass"     ) ) return false;
     float mass = cand.userFloat( "fitMass" );
     if ( ( ( mMin > 0 ) && ( mMax < 0 ) ) ||
@@ -233,7 +233,7 @@ class BPHFittedBasicSelect: public BPHHistoSpecificDecay::CandidateSelect {
     }
     const Vector3DBase<float,GlobalTag>* fmom = BPHUserData::get
         < Vector3DBase<float,GlobalTag> >( cand, "fitMomentum" );
-    if ( fmom == 0 ) return false;
+    if ( fmom == nullptr ) return false;
     if ( pMin > 0 ) {
       if ( fmom->transverse() < pMin ) return false;
     }
@@ -269,11 +269,11 @@ class BPHCompositeVertexSelect: public BPHHistoSpecificDecay::CandidateSelect {
                                                     sMin(  sigMin ) {
   }
   bool accept( const pat::CompositeCandidate& cand,
-               const reco::Vertex* pvtx = 0 ) const {
+               const reco::Vertex* pvtx = nullptr ) const override {
     const reco::Vertex* svtx = BPHUserData::get
          <reco::Vertex>( cand, "vertex" );
-    if ( svtx == 0 ) return false;
-    if ( pvtx == 0 ) return false;
+    if ( svtx == nullptr ) return false;
+    if ( pvtx == nullptr ) return false;
     if ( pMin > 0 ) {
       if ( ChiSquaredProbability( svtx->chi2(),
                                   svtx->ndof() ) < pMin ) return false;
@@ -317,10 +317,10 @@ class BPHFittedVertexSelect: public BPHHistoSpecificDecay::CandidateSelect {
                                                  sMin(  sigMin ) {
   }
   bool accept( const pat::CompositeCandidate& cand,
-               const reco::Vertex* pvtx ) const {
+               const reco::Vertex* pvtx ) const override {
     const reco::Vertex* svtx = BPHUserData::get
          <reco::Vertex>( cand, "fitVertex" );
-    if ( svtx == 0 ) return false;
+    if ( svtx == nullptr ) return false;
     if ( pMin > 0 ) {
       if ( ChiSquaredProbability( svtx->chi2(),
                                   svtx->ndof() ) < pMin ) return false;
@@ -331,7 +331,7 @@ class BPHFittedVertexSelect: public BPHHistoSpecificDecay::CandidateSelect {
                      0 );
       const Vector3DBase<float,GlobalTag>* fmom = BPHUserData::get
           < Vector3DBase<float,GlobalTag> >( cand, "fitMomentum" );
-      if ( fmom == 0 ) return false;
+      if ( fmom == nullptr ) return false;
       TVector3 cmom( fmom->x(), fmom->y(), 0 );
       float cosAlpha = disp.Dot( cmom ) / ( disp.Perp() * cmom.Perp() );
       if ( cosAlpha < cMin ) return false;
@@ -632,14 +632,14 @@ void BPHHistoSpecificDecay::analyze( const edm::Event& ev,
          <pat::CompositeCandidate>( cand, "refToJPsi" );
     LogTrace( "DataDump" )
            << "JPsi: " << jPsi;
-    if ( jPsi == 0 ) continue;
+    if ( jPsi == nullptr ) continue;
     if ( !buJPsiBasicSelect   ->accept( *jPsi ) ) continue;
     if ( !buJPsiDaughterSelect->accept( *jPsi ) ) continue;
     if ( !buVertexSelect->accept( cand,
                                   BPHUserData::getByRef<reco::Vertex>( *jPsi,
                                   "primaryVertex" ) ) ) continue;
     const reco::Candidate* kptr = BPHDaughters::get( cand, 0.49, 0.50 ).front();
-    if ( kptr == 0 ) continue;
+    if ( kptr == nullptr ) continue;
     if ( kptr->pt() < buKPtMin ) continue;
     fillHisto( "Bu"    ,  cand );
     fillHisto( "BuJPsi", *jPsi );
@@ -663,12 +663,12 @@ void BPHHistoSpecificDecay::analyze( const edm::Event& ev,
          <pat::CompositeCandidate>( cand, "refToJPsi" );
     LogTrace( "DataDump" )
            << "JPsi: " << jPsi;
-    if ( jPsi == 0 ) continue;
+    if ( jPsi == nullptr ) continue;
     const pat::CompositeCandidate* kx0 = BPHUserData::getByRef
          <pat::CompositeCandidate>( cand, "refToKx0" );
     LogTrace( "DataDump" )
            << "Kx0: " << kx0;
-    if ( kx0 == 0 ) continue;
+    if ( kx0 == nullptr ) continue;
     if ( !bdJPsiBasicSelect   ->accept( *jPsi ) ) continue;
     if ( !bdKx0BasicSelect    ->accept( * kx0 ) ) continue;
     if ( !bdJPsiDaughterSelect->accept( *jPsi ) ) continue;
@@ -698,12 +698,12 @@ void BPHHistoSpecificDecay::analyze( const edm::Event& ev,
          <pat::CompositeCandidate>( cand, "refToJPsi" );
     LogTrace( "DataDump" )
            << "JPsi: " << jPsi;
-    if ( jPsi == 0 ) continue;
+    if ( jPsi == nullptr ) continue;
     const pat::CompositeCandidate* phi = BPHUserData::getByRef
          <pat::CompositeCandidate>( cand, "refToPhi" );
     LogTrace( "DataDump" )
            << "Phi: " << phi;
-    if ( phi == 0 ) continue;
+    if ( phi == nullptr ) continue;
     if ( !bsJPsiBasicSelect   ->accept( *jPsi ) ) continue;
     if ( !bsPhiBasicSelect    ->accept( * phi ) ) continue;
     if ( !bsJPsiDaughterSelect->accept( *jPsi ) ) continue;

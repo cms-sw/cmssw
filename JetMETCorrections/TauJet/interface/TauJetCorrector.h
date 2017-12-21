@@ -15,13 +15,13 @@ class TauJetCorrector: public JetCorrector
 public:  
 
   TauJetCorrector(const edm::ParameterSet& fParameters);
-  virtual ~TauJetCorrector();
-  virtual double  correction (const LorentzVector& fJet) const;
-  virtual double  correction(const reco::Jet&) const;
+  ~TauJetCorrector() override;
+  double  correction (const LorentzVector& fJet) const override;
+  double  correction(const reco::Jet&) const override;
 
   void setParameters(std::string, int);
   /// if correction needs event information
-  virtual bool eventRequired () const {return false;}
+  bool eventRequired () const override {return false;}
    
 private:
 

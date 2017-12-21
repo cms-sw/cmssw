@@ -340,13 +340,20 @@ namespace {
           int ms_remaining = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-std::chrono::steady_clock::now()).count();
           if (ms_remaining > 0)
           {
-            if (poll(&poll_info, 1, ms_remaining) == 0)
+            int rc = poll(&poll_info, 1, ms_remaining);
+            if (rc <= 0)
             {
+              if (rc < 0) {
+                if (errno == EINTR || errno == EAGAIN) { continue; }
+                rc = -errno;
+              } else {
+                rc = -ETIMEDOUT;
+              }
               if ((flags & O_NONBLOCK) != O_NONBLOCK)
               {
                 fcntl(fd, F_SETFL, flags);
               }
-              return -ETIMEDOUT;
+              return rc;
             }
           }
           else if (ms_remaining < 0)
@@ -825,7 +832,9 @@ namespace edm {
 
       // Enable Root implicit multi-threading
       bool imt = pset.getUntrackedParameter<bool>("EnableIMT");
-      if (imt) ROOT::EnableImplicitMT();
+      if (imt && not ROOT::IsImplicitMTEnabled()) {
+        ROOT::EnableImplicitMT();
+      }
     }
 
     InitRootHandlers::~InitRootHandlers () {
@@ -865,7 +874,7 @@ namespace edm {
           ->setComment("If True, enables automatic loading of data dictionaries.");
       desc.addUntracked<bool>("LoadAllDictionaries",false)
           ->setComment("If True, loads all ROOT dictionaries.");
-      desc.addUntracked<bool>("EnableIMT",false)
+      desc.addUntracked<bool>("EnableIMT",true)
           ->setComment("If True, calls ROOT::EnableImplicitMT().");
       desc.addUntracked<bool>("AbortOnSignal",true)
           ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");

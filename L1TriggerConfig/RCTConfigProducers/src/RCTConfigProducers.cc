@@ -40,7 +40,7 @@
 class RCTConfigProducers : public edm::ESProducer {
 public:
   RCTConfigProducers(const edm::ParameterSet&);
-  ~RCTConfigProducers();
+  ~RCTConfigProducers() override;
   
   //typedef std::shared_ptr<L1RCTParameters> ReturnType;
   //typedef edm::ESProducts< std::shared_ptr<L1RCTParameters>, std::shared_ptr<L1RCTChannelMask> > ReturnType;

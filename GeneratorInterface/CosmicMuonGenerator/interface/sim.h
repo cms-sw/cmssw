@@ -158,7 +158,7 @@ public :
    TBranch        *b_cerenkov_ProductionHeight;   //!
    TBranch        *b_cerenkov_Weight;   //!
 
-   sim(TTree *tree=0);
+   sim(TTree *tree=nullptr);
    virtual ~sim();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -176,7 +176,7 @@ sim::sim(TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-   if (tree == 0) {
+   if (tree == nullptr) {
      std::cout << "sim::sim: tree = 0" << std::endl;
      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("protons_150gev.root");
       if (!f) {

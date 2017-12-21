@@ -85,9 +85,6 @@ class PFTauPrimaryVertexProducer final : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<reco::VertexCollection> PVToken_;
   edm::InputTag beamSpotTag_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-  edm::InputTag TrackCollectionTag_;
-  edm::EDGetTokenT<reco::TrackCollection> TrackCollectionToken_;
-  edm::InputTag TracksTag_;
   int Algorithm_;
   edm::ParameterSet qualityCutsPSet_;
   bool useBeamSpot_;
@@ -110,8 +107,6 @@ PFTauPrimaryVertexProducer::PFTauPrimaryVertexProducer(const edm::ParameterSet& 
   PVToken_(consumes<reco::VertexCollection>(PVTag_)),
   beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpot")),
   beamSpotToken_(consumes<reco::BeamSpot>(beamSpotTag_)),
-  TrackCollectionTag_(iConfig.getParameter<edm::InputTag>("TrackCollectionTag")),
-  TrackCollectionToken_(consumes<reco::TrackCollection>(TrackCollectionTag_)),
   Algorithm_(iConfig.getParameter<int>("Algorithm")),
   qualityCutsPSet_(iConfig.getParameter<edm::ParameterSet>("qualityCuts")),
   useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot")),
@@ -160,9 +155,6 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(beamSpotToken_,beamSpot);
-
-  edm::Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByToken(TrackCollectionToken_,trackCollection);
 
   // Set Association Map
   auto AVPFTauPV = std::make_unique<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef>>>(PFTauRefProd(Tau));
@@ -238,21 +230,6 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Get Non-Tau tracks
 	reco::TrackCollection nonTauTracks;
-// 	if (trackCollection.isValid()) {
-// 	  // remove tau tracks and only tracks associated with the vertex
-// 	  unsigned int idx = 0;
-// 	  for (reco::TrackCollection::const_iterator iTrk = trackCollection->begin(); iTrk != trackCollection->end(); ++iTrk, idx++) {
-// 	    reco::TrackRef tmpRef(trackCollection, idx);
-// 	    reco::TrackRef tmpRefForBase=tmpRef;
-// 	    bool isSigTrk = false;
-// 	    bool fromVertex=false;
-// 	    for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {
-// 	      if (reco::TrackBaseRef(tmpRefForBase)==SignalTracks.at(sigTrk)){isSigTrk = true; break;}
-// 	    }
-// 	  if (!isSigTrk) nonSigTracks.push_back(*iTrk);
-// 	  }
-// 	}
-	
 	for(std::vector<reco::TrackBaseRef>::const_iterator vtxTrkRef=thePV.tracks_begin();vtxTrkRef<thePV.tracks_end();vtxTrkRef++){
 	  bool matched = false;
 	  for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {

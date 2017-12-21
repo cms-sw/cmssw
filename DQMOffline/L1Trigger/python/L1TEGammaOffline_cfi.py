@@ -44,14 +44,42 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
     electronEfficiencyThresholds=cms.vdouble(electronEfficiencyThresholds),
     electronEfficiencyBins=cms.vdouble(electronEfficiencyBins),
     probeToL1Offset=cms.double(probeToL1Offset),
-    deepInspectionElectronThresholds=cms.vdouble([48, 50]),
+    deepInspectionElectronThresholds=cms.vdouble(deepInspectionElectronThresholds),
 
     photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds),
     photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
 )
 
+# modifications for the pp reference run
+electronEfficiencyThresholds_HI = [5, 10, 15, 21]
+deepInspectionElectronThresholds_HI = [15]
+
+electronEfficiencyBins_HI = []
+electronEfficiencyBins_HI.extend(list(xrange(1, 26, 1)))
+electronEfficiencyBins_HI.extend(list(xrange(26, 42, 2)))
+electronEfficiencyBins_HI.extend(list(xrange(42, 45, 3)))
+electronEfficiencyBins_HI.extend(list(xrange(45, 50, 5)))
+electronEfficiencyBins_HI.extend(list(xrange(50, 70, 10)))
+electronEfficiencyBins_HI.extend(list(xrange(70, 101, 30)))
+
+photonEfficiencyThresholds_HI = electronEfficiencyThresholds_HI
+photonEfficiencyBins_HI = electronEfficiencyBins_HI
+
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+ppRef_2017.toModify(l1tEGammaOfflineDQM,
+    TriggerFilter=cms.InputTag('hltEle20WPLoose1GsfTrackIsoFilter', '', 'HLT'),
+    TriggerPath=cms.string('HLT_Ele20_WPLoose_Gsf_v4'),
+    electronEfficiencyThresholds=cms.vdouble(electronEfficiencyThresholds_HI),
+    electronEfficiencyBins=cms.vdouble(electronEfficiencyBins_HI),
+    deepInspectionElectronThresholds=cms.vdouble(deepInspectionElectronThresholds_HI),
+    photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds_HI),
+    photonEfficiencyBins=cms.vdouble(photonEfficiencyBins_HI)
+)
+
+# emulator module
 l1tEGammaOfflineDQMEmu = l1tEGammaOfflineDQM.clone(
     stage2CaloLayer2EGammaSource=cms.InputTag("simCaloStage2Digis"),
 
     histFolder=cms.string('L1TEMU/L1TEGamma'),
 )
+

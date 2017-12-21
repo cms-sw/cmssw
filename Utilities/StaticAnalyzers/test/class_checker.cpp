@@ -1,3 +1,4 @@
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // is ok, because const-qualified
 const static int g_staticConst = 23;
@@ -6,7 +7,7 @@ static int const* g_ptr_staticConst = &g_staticConst;
 
 
 // results in a warning by GlobalStaticChecker
-[[cms::thread_safe]] static int g_static;
+CMS_THREAD_SAFE static int g_static;
 static int * g_ptr_static = &g_static;
 
 class ClassTest {
@@ -86,7 +87,7 @@ Thing * getThing() { return T_p; }
 
 class Bar
 {
-[[cms::thread_safe]] static int si_;
+CMS_THREAD_SAFE static int si_;
 static void const modifyStatic(int &x) {si_=x;}
 private:
 Bar(): ci_{0},ipc_{&i_},icp_{&i_},ir_{i_},icr_{ci_} {}
@@ -169,7 +170,7 @@ void method3() const
 // must not produce a warning
 	int const& ira = (int const&)(icr_);
 // will produce a warning by StaticLocalChecker
-        [[cms::thread_safe]] static int evilStaticLocal = 0;
+        CMS_THREAD_SAFE static int evilStaticLocal = 0;
 	static int & intRef = evilStaticLocal;
 	static int * intPtr = & evilStaticLocal;
 // no warnings here

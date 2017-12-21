@@ -56,3 +56,26 @@ l1tEGammaEmuDiff = l1tDiffHarvesting.clone(
         ),
     )
 )
+
+# modifications for the pp reference run
+variables_HI = {
+    'electron': L1TEGammaOffline_cfi.electronEfficiencyThresholds_HI,
+}
+
+allEfficiencyPlots_HI = []
+add_plot = allEfficiencyPlots_HI.append
+for variable, thresholds in variables_HI.iteritems():
+    for plot in plots[variable]:
+        for threshold in thresholds:
+            plotName = '{0}_threshold_{1}'.format(plot, threshold)
+            add_plot(plotName)
+
+allPlots_HI = []
+allPlots_HI.extend(allEfficiencyPlots_HI)
+allPlots_HI.extend(resolution_plots)
+allPlots_HI.extend(plots2D)
+
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+ppRef_2017.toModify(l1tEGammaEmuDiff,
+    plotCfgs = {0:dict(plots = allPlots_HI)}
+)

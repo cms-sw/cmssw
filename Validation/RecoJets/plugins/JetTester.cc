@@ -39,111 +39,111 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   }
   
   // Events variables
-  mNvtx           = 0;
+  mNvtx           = nullptr;
 
   // Jet parameters
-  mEta          = 0;
-  mPhi          = 0;
-  mEnergy       = 0;
-  mP            = 0;
-  mPt           = 0;
-  mMass         = 0;
-  mConstituents = 0;
-  mJetArea      = 0;
+  mEta          = nullptr;
+  mPhi          = nullptr;
+  mEnergy       = nullptr;
+  mP            = nullptr;
+  mPt           = nullptr;
+  mMass         = nullptr;
+  mConstituents = nullptr;
+  mJetArea      = nullptr;
 //  mRho          = 0;
 
   // Corrected jets
-  mCorrJetPt  = 0;
-  mCorrJetEta = 0;
-  mCorrJetPhi = 0;
-  mCorrJetEta_Pt40 = 0;
-  mCorrJetPhi_Pt40 = 0;
+  mCorrJetPt  = nullptr;
+  mCorrJetEta = nullptr;
+  mCorrJetPhi = nullptr;
+  mCorrJetEta_Pt40 = nullptr;
+  mCorrJetPhi_Pt40 = nullptr;
 
   // Corrected jets profiles
-  mPtCorrOverReco_Pt_B                = 0;
-  mPtCorrOverReco_Pt_E                = 0;
-  mPtCorrOverReco_Pt_F                = 0;
-  mPtCorrOverReco_Eta_20_40          = 0;
-  mPtCorrOverReco_Eta_40_200          = 0;
-  mPtCorrOverReco_Eta_200_600         = 0;
-  mPtCorrOverReco_Eta_600_1500        = 0;
-  mPtCorrOverReco_Eta_1500_3500       = 0;
-  mPtCorrOverReco_Eta_3500_5000       = 0;
-  mPtCorrOverReco_Eta_5000_6500       = 0;
-  mPtCorrOverReco_Eta_3500       = 0;
-  mPtCorrOverGen_GenPt_B          = 0;
-  mPtCorrOverGen_GenPt_E          = 0;
-  mPtCorrOverGen_GenPt_F          = 0;
-  mPtCorrOverGen_GenEta_20_40    = 0;
-  mPtCorrOverGen_GenEta_40_200    = 0;
-  mPtCorrOverGen_GenEta_200_600   = 0;
-  mPtCorrOverGen_GenEta_600_1500  = 0;
-  mPtCorrOverGen_GenEta_1500_3500 = 0;
-  mPtCorrOverGen_GenEta_3500_5000 = 0;
-  mPtCorrOverGen_GenEta_5000_6500 = 0;
-  mPtCorrOverGen_GenEta_3500 = 0;
+  mPtCorrOverReco_Pt_B                = nullptr;
+  mPtCorrOverReco_Pt_E                = nullptr;
+  mPtCorrOverReco_Pt_F                = nullptr;
+  mPtCorrOverReco_Eta_20_40          = nullptr;
+  mPtCorrOverReco_Eta_40_200          = nullptr;
+  mPtCorrOverReco_Eta_200_600         = nullptr;
+  mPtCorrOverReco_Eta_600_1500        = nullptr;
+  mPtCorrOverReco_Eta_1500_3500       = nullptr;
+  mPtCorrOverReco_Eta_3500_5000       = nullptr;
+  mPtCorrOverReco_Eta_5000_6500       = nullptr;
+  mPtCorrOverReco_Eta_3500       = nullptr;
+  mPtCorrOverGen_GenPt_B          = nullptr;
+  mPtCorrOverGen_GenPt_E          = nullptr;
+  mPtCorrOverGen_GenPt_F          = nullptr;
+  mPtCorrOverGen_GenEta_20_40    = nullptr;
+  mPtCorrOverGen_GenEta_40_200    = nullptr;
+  mPtCorrOverGen_GenEta_200_600   = nullptr;
+  mPtCorrOverGen_GenEta_600_1500  = nullptr;
+  mPtCorrOverGen_GenEta_1500_3500 = nullptr;
+  mPtCorrOverGen_GenEta_3500_5000 = nullptr;
+  mPtCorrOverGen_GenEta_5000_6500 = nullptr;
+  mPtCorrOverGen_GenEta_3500 = nullptr;
 
   // Generation
-  mGenEta      = 0;
-  mGenPhi      = 0;
-  mGenPt       = 0;
-  mGenEtaFirst = 0;
-  mGenPhiFirst = 0;
-  mPtHat       = 0;
-  mDeltaEta    = 0;
-  mDeltaPhi    = 0;
-  mDeltaPt     = 0;
+  mGenEta      = nullptr;
+  mGenPhi      = nullptr;
+  mGenPt       = nullptr;
+  mGenEtaFirst = nullptr;
+  mGenPhiFirst = nullptr;
+  mPtHat       = nullptr;
+  mDeltaEta    = nullptr;
+  mDeltaPhi    = nullptr;
+  mDeltaPt     = nullptr;
 
-  mPtRecoOverGen_B_20_40    = 0;
-  mPtRecoOverGen_E_20_40    = 0;
-  mPtRecoOverGen_F_20_40    = 0;
-  mPtRecoOverGen_B_40_200    = 0;
-  mPtRecoOverGen_E_40_200    = 0;
-  mPtRecoOverGen_F_40_200    = 0;
-  mPtRecoOverGen_B_200_600   = 0;
-  mPtRecoOverGen_E_200_600   = 0;
-  mPtRecoOverGen_F_200_600   = 0;
-  mPtRecoOverGen_B_600_1500  = 0;
-  mPtRecoOverGen_E_600_1500  = 0;
-  mPtRecoOverGen_F_600_1500  = 0;
-  mPtRecoOverGen_B_1500_3500 = 0;
-  mPtRecoOverGen_E_1500_3500 = 0;
-  mPtRecoOverGen_F_1500_3500 = 0;
-  mPtRecoOverGen_B_3500_5000 = 0;
-  mPtRecoOverGen_E_3500_5000 = 0;
-  mPtRecoOverGen_B_5000_6500 = 0;
-  mPtRecoOverGen_E_5000_6500 = 0;
-  mPtRecoOverGen_B_3500 = 0;
-  mPtRecoOverGen_E_3500 = 0;
-  mPtRecoOverGen_F_3500 = 0;
+  mPtRecoOverGen_B_20_40    = nullptr;
+  mPtRecoOverGen_E_20_40    = nullptr;
+  mPtRecoOverGen_F_20_40    = nullptr;
+  mPtRecoOverGen_B_40_200    = nullptr;
+  mPtRecoOverGen_E_40_200    = nullptr;
+  mPtRecoOverGen_F_40_200    = nullptr;
+  mPtRecoOverGen_B_200_600   = nullptr;
+  mPtRecoOverGen_E_200_600   = nullptr;
+  mPtRecoOverGen_F_200_600   = nullptr;
+  mPtRecoOverGen_B_600_1500  = nullptr;
+  mPtRecoOverGen_E_600_1500  = nullptr;
+  mPtRecoOverGen_F_600_1500  = nullptr;
+  mPtRecoOverGen_B_1500_3500 = nullptr;
+  mPtRecoOverGen_E_1500_3500 = nullptr;
+  mPtRecoOverGen_F_1500_3500 = nullptr;
+  mPtRecoOverGen_B_3500_5000 = nullptr;
+  mPtRecoOverGen_E_3500_5000 = nullptr;
+  mPtRecoOverGen_B_5000_6500 = nullptr;
+  mPtRecoOverGen_E_5000_6500 = nullptr;
+  mPtRecoOverGen_B_3500 = nullptr;
+  mPtRecoOverGen_E_3500 = nullptr;
+  mPtRecoOverGen_F_3500 = nullptr;
 
   // Generation profiles
-  mPtRecoOverGen_GenPt_B          = 0;
-  mPtRecoOverGen_GenPt_E          = 0;
-  mPtRecoOverGen_GenPt_F          = 0;
-  mPtRecoOverGen_GenPhi_B         = 0;
-  mPtRecoOverGen_GenPhi_E         = 0;
-  mPtRecoOverGen_GenPhi_F         = 0;
-  mPtRecoOverGen_GenEta_20_40    = 0;
-  mPtRecoOverGen_GenEta_40_200    = 0;
-  mPtRecoOverGen_GenEta_200_600   = 0;
-  mPtRecoOverGen_GenEta_600_1500  = 0;
-  mPtRecoOverGen_GenEta_1500_3500 = 0;
-  mPtRecoOverGen_GenEta_3500_5000 = 0;
-  mPtRecoOverGen_GenEta_5000_6500 = 0;
-  mPtRecoOverGen_GenEta_3500 = 0;
+  mPtRecoOverGen_GenPt_B          = nullptr;
+  mPtRecoOverGen_GenPt_E          = nullptr;
+  mPtRecoOverGen_GenPt_F          = nullptr;
+  mPtRecoOverGen_GenPhi_B         = nullptr;
+  mPtRecoOverGen_GenPhi_E         = nullptr;
+  mPtRecoOverGen_GenPhi_F         = nullptr;
+  mPtRecoOverGen_GenEta_20_40    = nullptr;
+  mPtRecoOverGen_GenEta_40_200    = nullptr;
+  mPtRecoOverGen_GenEta_200_600   = nullptr;
+  mPtRecoOverGen_GenEta_600_1500  = nullptr;
+  mPtRecoOverGen_GenEta_1500_3500 = nullptr;
+  mPtRecoOverGen_GenEta_3500_5000 = nullptr;
+  mPtRecoOverGen_GenEta_5000_6500 = nullptr;
+  mPtRecoOverGen_GenEta_3500 = nullptr;
 
   // Some jet algebra
-  mEtaFirst   = 0;
-  mPhiFirst   = 0;
-  mPtFirst    = 0;
-  mMjj        = 0;
-  mNJetsEta_B_20_40 = 0;
-  mNJetsEta_E_20_40 = 0;
-  mNJetsEta_B_40 = 0;
-  mNJetsEta_E_40 = 0;
-  mNJets1     = 0;
-  mNJets2     = 0;
+  mEtaFirst   = nullptr;
+  mPhiFirst   = nullptr;
+  mPtFirst    = nullptr;
+  mMjj        = nullptr;
+  mNJetsEta_B_20_40 = nullptr;
+  mNJetsEta_E_20_40 = nullptr;
+  mNJetsEta_B_40 = nullptr;
+  mNJetsEta_E_40 = nullptr;
+  mNJets1     = nullptr;
+  mNJets2     = nullptr;
 
 //  // PFJet specific
 //  mHadEnergyInHF       = 0;
@@ -155,33 +155,33 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 
   // ---- Calo Jet specific information ----
   /// returns the maximum energy deposited in ECAL towers
-  maxEInEmTowers = 0;
+  maxEInEmTowers = nullptr;
   /// returns the maximum energy deposited in HCAL towers
-  maxEInHadTowers = 0;
+  maxEInHadTowers = nullptr;
   /// returns the jet hadronic energy fraction
-  energyFractionHadronic = 0;
+  energyFractionHadronic = nullptr;
   /// returns the jet electromagnetic energy fraction
-  emEnergyFraction = 0;
+  emEnergyFraction = nullptr;
   /// returns the jet hadronic energy in HB
-  hadEnergyInHB = 0;
+  hadEnergyInHB = nullptr;
   /// returns the jet hadronic energy in HO
-  hadEnergyInHO = 0;
+  hadEnergyInHO = nullptr;
   /// returns the jet hadronic energy in HE
-  hadEnergyInHE = 0;
+  hadEnergyInHE = nullptr;
   /// returns the jet hadronic energy in HF
-  hadEnergyInHF = 0;
+  hadEnergyInHF = nullptr;
   /// returns the jet electromagnetic energy in EB
-  emEnergyInEB = 0;
+  emEnergyInEB = nullptr;
   /// returns the jet electromagnetic energy in EE
-  emEnergyInEE = 0;
+  emEnergyInEE = nullptr;
   /// returns the jet electromagnetic energy extracted from HF
-  emEnergyInHF = 0;
+  emEnergyInHF = nullptr;
   /// returns area of contributing towers
-  towersArea = 0;
+  towersArea = nullptr;
   /// returns the number of constituents carrying a 90% of the total Jet energy*/
-  n90 = 0;
+  n90 = nullptr;
   /// returns the number of constituents carrying a 60% of the total Jet energy*/
-  n60 = 0;
+  n60 = nullptr;
 
   // ---- JPT Jet specific information ----
   /// chargedMultiplicity
@@ -189,74 +189,74 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 
   // ---- JPT or PF Jet specific information ----
   /// muonMultiplicity
-  muonMultiplicity = 0;
+  muonMultiplicity = nullptr;
   /// chargedMultiplicity
-  chargedMultiplicity = 0;
+  chargedMultiplicity = nullptr;
   /// chargedEmEnergy
-  chargedEmEnergy = 0;
+  chargedEmEnergy = nullptr;
   /// neutralEmEnergy
-  neutralEmEnergy = 0;
+  neutralEmEnergy = nullptr;
   /// chargedHadronEnergy
-  chargedHadronEnergy = 0;
+  chargedHadronEnergy = nullptr;
   /// neutralHadronEnergy
-  neutralHadronEnergy = 0;
+  neutralHadronEnergy = nullptr;
   /// chargedHadronEnergyFraction (relative to uncorrected jet energy)
-  chargedHadronEnergyFraction = 0;
+  chargedHadronEnergyFraction = nullptr;
   /// neutralHadronEnergyFraction (relative to uncorrected jet energy)
-  neutralHadronEnergyFraction = 0;
+  neutralHadronEnergyFraction = nullptr;
   /// chargedEmEnergyFraction (relative to uncorrected jet energy)
-  chargedEmEnergyFraction = 0;
+  chargedEmEnergyFraction = nullptr;
   /// neutralEmEnergyFraction (relative to uncorrected jet energy)
-  neutralEmEnergyFraction = 0;
+  neutralEmEnergyFraction = nullptr;
 
   // ---- PF Jet specific information ----
   /// photonEnergy
-  photonEnergy = 0;
+  photonEnergy = nullptr;
   /// photonEnergyFraction (relative to corrected jet energy)
-  photonEnergyFraction = 0;
+  photonEnergyFraction = nullptr;
   /// electronEnergy
-  electronEnergy = 0;
+  electronEnergy = nullptr;
   /// electronEnergyFraction (relative to corrected jet energy)
-  electronEnergyFraction = 0;
+  electronEnergyFraction = nullptr;
   /// muonEnergy
-  muonEnergy = 0;
+  muonEnergy = nullptr;
   /// muonEnergyFraction (relative to corrected jet energy)
-  muonEnergyFraction = 0;
+  muonEnergyFraction = nullptr;
   /// HFHadronEnergy
-  HFHadronEnergy = 0;
+  HFHadronEnergy = nullptr;
   /// HFHadronEnergyFraction (relative to corrected jet energy)
-  HFHadronEnergyFraction = 0;
+  HFHadronEnergyFraction = nullptr;
   /// HFEMEnergy
-  HFEMEnergy = 0;
+  HFEMEnergy = nullptr;
   /// HFEMEnergyFraction (relative to corrected jet energy)
-  HFEMEnergyFraction = 0;
+  HFEMEnergyFraction = nullptr;
   /// chargedHadronMultiplicity
-  chargedHadronMultiplicity = 0;
+  chargedHadronMultiplicity = nullptr;
   /// neutralHadronMultiplicity
-  neutralHadronMultiplicity = 0;
+  neutralHadronMultiplicity = nullptr;
   /// photonMultiplicity
-  photonMultiplicity = 0;
+  photonMultiplicity = nullptr;
   /// electronMultiplicity
-  electronMultiplicity = 0;
+  electronMultiplicity = nullptr;
   /// HFHadronMultiplicity
-  HFHadronMultiplicity = 0;
+  HFHadronMultiplicity = nullptr;
   /// HFEMMultiplicity
-  HFEMMultiplicity = 0;
+  HFEMMultiplicity = nullptr;
   /// chargedMuEnergy
-  chargedMuEnergy = 0;
+  chargedMuEnergy = nullptr;
   /// chargedMuEnergyFraction
-  chargedMuEnergyFraction = 0;
+  chargedMuEnergyFraction = nullptr;
   /// neutralMultiplicity
-  neutralMultiplicity = 0;
+  neutralMultiplicity = nullptr;
 
   /// HOEnergy
-  HOEnergy = 0;
+  HOEnergy = nullptr;
   /// HOEnergyFraction (relative to corrected jet energy)
-  HOEnergyFraction = 0;
+  HOEnergyFraction = nullptr;
 
-  hadronFlavor=0;
-  partonFlavor=0;
-  genPartonPDGID=0;
+  hadronFlavor=nullptr;
+  partonFlavor=nullptr;
+  genPartonPDGID=nullptr;
 
 }
 
@@ -831,7 +831,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       if (isMiniAODJet){
 	if(hadronFlavor)hadronFlavor->Fill((*patJets)[ijet].hadronFlavour());
 	if(partonFlavor)partonFlavor->Fill((*patJets)[ijet].partonFlavour());
-	if(genPartonPDGID && (*patJets)[ijet].genParton()!=NULL)genPartonPDGID->Fill((*patJets)[ijet].genParton()->pdgId());
+	if(genPartonPDGID && (*patJets)[ijet].genParton()!=nullptr)genPartonPDGID->Fill((*patJets)[ijet].genParton()->pdgId());
       }
 
       
@@ -910,7 +910,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       for (GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
         if (fabs(gjet->eta()) > 6.) continue;  // Out of the detector 
         if (gjet->pt() < mMatchGenPtThreshold) continue;
-        if (recoJets.size() <= 0) continue;
+        if (recoJets.empty()) continue;
         // pt response
         //------------------------------------------------------------
 	int iMatch    =   -1;

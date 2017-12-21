@@ -71,7 +71,7 @@ void NoiseRatesClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 int NoiseRatesClient::NoiseRatesEndjob(const std::vector<MonitorElement*> &hcalMEs){
 
    int useAllHistos = 0;
-   MonitorElement* hLumiBlockCount =0;
+   MonitorElement* hLumiBlockCount =nullptr;
    for(unsigned int ih=0; ih<hcalMEs.size(); ih++){
       if( strcmp(hcalMEs[ih]->getName().c_str(), "hLumiBlockCount") ==0  ){
          hLumiBlockCount = hcalMEs[ih];

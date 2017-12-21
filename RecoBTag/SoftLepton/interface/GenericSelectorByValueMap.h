@@ -44,7 +44,7 @@ private:
   typedef C selection_type;
   typedef typename details::template CompatibleConfigurationType<selection_type>::type cut_type;
 
-  void produce(edm::Event & event, edm::EventSetup const & setup);
+  void produce(edm::Event & event, edm::EventSetup const & setup) override;
 
   edm::EDGetTokenT<edm::View<candidate_type> >      token_electrons;
   edm::EDGetTokenT<edm::ValueMap<selection_type> >  token_selection;

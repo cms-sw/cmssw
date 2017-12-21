@@ -18,6 +18,10 @@ KFSmootherForMuonTrackLoader = TrackingTools.TrackFitters.KFTrajectorySmoother_c
     Updator = cms.string('KFUpdator'),
     Propagator = cms.string('SmartPropagatorAnyRK')
 )
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+# FastSim doesn't use Runge Kute for propagation
+fastSim.toModify(KFSmootherForMuonTrackLoader,
+                 Propagator = "SmartPropagatorAny")
 
 KFSmootherForMuonTrackLoaderL3 = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
     errorRescaling = cms.double(10.0),

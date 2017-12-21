@@ -1,7 +1,7 @@
 #ifndef LMFRUNDAT_H
 #define LMFRUNDAT_H
 
-#include <math.h>
+#include <cmath>
 
 /*
  Last updated by  Giovanni.Organtini@roma1.infn.it 2010
@@ -18,7 +18,7 @@ class LMFRunDat : public LMFDat {
   LMFRunDat(EcalDBConnection *conn);
   LMFRunDat(oracle::occi::Environment* env,
 	    oracle::occi::Connection* conn);
-  ~LMFRunDat() { }
+  ~LMFRunDat() override { }
 
   int getEvents(const EcalLogicID &id) {
     return (int)rint(LMFDat::getData(id, "NEVENTS"));

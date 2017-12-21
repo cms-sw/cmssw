@@ -43,7 +43,7 @@
 
 #include <iostream>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -67,9 +67,9 @@ class MuonSimHitsValidAnalyzer : public DQMEDAnalyzer
   typedef std::vector<unsigned int>   UnsigIntegerVector;
 
   explicit MuonSimHitsValidAnalyzer(const edm::ParameterSet&);
-  virtual ~MuonSimHitsValidAnalyzer();
+  ~MuonSimHitsValidAnalyzer() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   void fillDT(const edm::Event&, const edm::EventSetup&);

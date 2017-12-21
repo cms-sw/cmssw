@@ -26,14 +26,12 @@ process.GlobalTag.toGet = cms.VPSet(
 #           tag = cms.string("EcalDQMChannelStatus_v1_express"),
 #           tag = cms.string("EcalDQMChannelStatus_v1_offline"),           
 #           connect = cms.untracked.string("sqlite_file:mask-ECAL.db")
-#           connect = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_34X_ECAL")
           ),
   cms.PSet(record = cms.string("EcalDQMTowerStatusRcd"),
 #           tag = cms.string("EcalDQMTowerStatus_v1_hlt"),
 #           tag = cms.string("EcalDQMTowerStatus_v1_express"),
 #           tag = cms.string("EcalDQMTowerStatus_v1_offline"),
 #           connect = cms.untracked.string("sqlite_file:mask-ECAL.db")
-#           connect = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_34X_ECAL")           
           )
 )
 

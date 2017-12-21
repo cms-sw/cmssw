@@ -20,8 +20,8 @@ class L1RCTInputProducer : public edm::EDProducer
 {
  public:
   explicit L1RCTInputProducer(const edm::ParameterSet& ps);
-  virtual ~L1RCTInputProducer();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  ~L1RCTInputProducer() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
  private:
   L1RCTLookupTables* rctLookupTables;
   L1RCT* rct;

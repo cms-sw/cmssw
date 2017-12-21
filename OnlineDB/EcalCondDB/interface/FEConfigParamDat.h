@@ -12,10 +12,10 @@ class FEConfigParamDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   FEConfigParamDat();
-  ~FEConfigParamDat();
+  ~FEConfigParamDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_PARAM_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_PARAM_DAT"; }
 
 
   inline void setETSat(float x) { m_etsat = x; }
@@ -36,7 +36,7 @@ class FEConfigParamDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigParamDat* item, FEConfigLinInfo* iconf)
     noexcept(false);

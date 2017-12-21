@@ -14,9 +14,9 @@ class CSCCLCTDigiValidation : public CSCBaseValidation
 public:
   CSCCLCTDigiValidation(const edm::InputTag & inputTag,
                         edm::ConsumesCollector && iC);
-  ~CSCCLCTDigiValidation();
+  ~CSCCLCTDigiValidation() override;
   void bookHistograms(DQMStore::IBooker &);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::EDGetTokenT<CSCCLCTDigiCollection> clcts_Token_;

@@ -31,28 +31,33 @@ class ECalSD : public CaloSD {
 
 public:    
 
-  ECalSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
+  ECalSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	 edm::ParameterSet const & p, const SimTrackManager*);
   ~ECalSD() override;
   double                    getEnergyDeposit(G4Step*) override;
-  virtual uint16_t                  getRadiationLength(G4Step *);
-  virtual uint16_t                  getLayerIDForTimeSim(G4Step *);
-  uint32_t                  setDetUnitId(G4Step*) override;
-  void                              setNumberingScheme(EcalNumberingScheme*);
-  int                       getTrackID(G4Track*) override;
-  uint16_t                  getDepth(G4Step*) override;
+  virtual uint16_t          getRadiationLength(const G4Step *);
+  virtual uint16_t          getLayerIDForTimeSim(const G4Step *);
+  uint32_t                  setDetUnitId(const G4Step*) override;
+  void                      setNumberingScheme(EcalNumberingScheme*);
+
+protected:
+
+  int                       getTrackID(const G4Track*) override;
+  uint16_t                  getDepth(const G4Step*) override;
 
 private:    
-  void                              initMap(G4String, const DDCompactView &);
-  double                            curve_LY(G4Step*); 
-  double                            crystalLength(G4LogicalVolume*);
-  double                            crystalDepth(G4LogicalVolume*, const G4ThreeVector&);
+
+  void                              initMap(const G4String&, const DDCompactView &);
+  double                            curve_LY(const G4Step*); 
+  double                            crystalLength(const G4LogicalVolume*);
+  double                            crystalDepth(const G4LogicalVolume*, const G4ThreeVector&);
   void                              getBaseNumber(const G4Step*); 
-  double                            getBirkL3(G4Step*);
+  double                            getBirkL3(const G4Step*);
   std::vector<double>               getDDDArray(const std::string&,
 						const DDsvalues_type&);
   std::vector<std::string>          getStringArray(const std::string&,
 						   const DDsvalues_type&);
+
   bool                              isEB;
   bool                              isEE;
   EcalNumberingScheme *             numberingScheme;
@@ -61,8 +66,8 @@ private:
   double                            birk1, birk2, birk3, birkSlope, birkCut;
   double                            slopeLY, scaleRL;
   std::string                       crystalMat, depth1Name, depth2Name;
-  std::map<G4LogicalVolume*,double> xtalLMap;
-  std::vector<G4LogicalVolume*>     useDepth1, useDepth2, noWeight;
+  std::map<const G4LogicalVolume*,double> xtalLMap;
+  std::vector<const G4LogicalVolume*>     useDepth1, useDepth2, noWeight;
   EcalBaseNumber                    theBaseNumber;
   EnergyResolutionVsLumi            ageing;
   bool                              ageingWithSlopeLY;

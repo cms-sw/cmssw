@@ -75,10 +75,10 @@ void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCe
             }
             ++iclu;
         }
-        if( tcPertinentClusters.size() == 0 && isSeed[itc] ){
+        if( tcPertinentClusters.empty() && isSeed[itc] ){
             clustersTmp.emplace_back( *tc );
         }
-        else if ( tcPertinentClusters.size() > 0 ){
+        else if ( !tcPertinentClusters.empty() ){
          
             unsigned minDist(300);
             unsigned targetClu(0);

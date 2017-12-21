@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2EtSumAlgorithmFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
-#include <math.h>
+#include <cmath>
 
 
 l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareImp1(CaloParamsHelper* params) :
@@ -49,7 +49,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     int etem(0);
     unsigned int mb0(0), mb1(0);
 
-    bool ettSat(0), ettHFSat(0), ecalEtSat(0), metSat(0), metHFSat(0);
+    bool ettSat(false), ettHFSat(false), ecalEtSat(false), metSat(false), metHFSat(false);
 
     for (unsigned absieta=1; absieta<=(unsigned int)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
 

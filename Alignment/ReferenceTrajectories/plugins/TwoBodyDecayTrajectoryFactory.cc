@@ -3,7 +3,6 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "DataFormats/Math/interface/Vector.h" 
 #include "DataFormats/Math/interface/Error.h" 
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h" 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 

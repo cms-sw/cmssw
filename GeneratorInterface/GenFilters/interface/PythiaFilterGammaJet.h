@@ -30,9 +30,9 @@ namespace edm {
 class PythiaFilterGammaJet : public edm::EDFilter {
    public:
       explicit PythiaFilterGammaJet(const edm::ParameterSet&);
-      ~PythiaFilterGammaJet();
+      ~PythiaFilterGammaJet() override;
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
    private:
       

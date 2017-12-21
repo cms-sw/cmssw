@@ -118,7 +118,7 @@ public:
     typedef FFTJetCorrectorParametersRcd<CT> ParentRecord;
 
     FFTJetCorrectionESProducer(const edm::ParameterSet&);
-    virtual ~FFTJetCorrectionESProducer() {}
+    ~FFTJetCorrectionESProducer() override {}
 
     ReturnType produce(const MyRecord&);
 

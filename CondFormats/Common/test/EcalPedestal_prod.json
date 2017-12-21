@@ -1,7 +1,8 @@
 {
     "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
     "destinationTags": {
-        "EcalPedestals_PCL_byRun_v0_express": {}
+        "EcalPedestals_prompt": {},
+        "EcalPedestals_express": {}
     }, 
     "inputTag": "EcalPedestals_pcl", 
     "since": null, 

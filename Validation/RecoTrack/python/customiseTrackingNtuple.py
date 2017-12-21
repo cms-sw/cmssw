@@ -26,8 +26,8 @@ def customiseTrackingNtuple(process):
     usePileupSimHits = hasattr(process, "mix") and hasattr(process.mix, "input") and len(process.mix.input.fileNames) > 0
 #    process.eda = cms.EDAnalyzer("EventContentAnalyzer")
 
-    ntuplePath = cms.EndPath(process.trackingNtupleSequence)
-    if process.trackingNtuple.includeAllHits and usePileupSimHits:
+    ntuplePath = cms.Path(process.trackingNtupleSequence)
+    if process.trackingNtuple.includeAllHits and process.trackingNtuple.includeTrackingParticles and usePileupSimHits:
         ntuplePath.insert(0, cms.SequencePlaceholder("mix"))
 
         process.load("Validation.RecoTrack.crossingFramePSimHitToPSimHits_cfi")
@@ -39,10 +39,8 @@ def customiseTrackingNtuple(process):
     # Bit of a hack but works
     modifier = cms.Modifier()
     modifier._setChosen()
-    modifier.toReplaceWith(process.validation_step, ntuplePath)
-
-    if hasattr(process, "prevalidation_step"):
-        modifier.toReplaceWith(process.prevalidation_step, cms.Path())
+    modifier.toReplaceWith(process.prevalidation_step, ntuplePath)
+    modifier.toReplaceWith(process.validation_step, cms.EndPath())
 
     # remove the validation_stepN and prevalidatin_stepN of phase2 validation...    
     for p in [process.paths_(), process.endpaths_()]:    

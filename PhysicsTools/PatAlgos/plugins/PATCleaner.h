@@ -41,9 +41,9 @@ namespace pat {
   class PATCleaner : public edm::stream::EDProducer<> {
     public:
       explicit PATCleaner(const edm::ParameterSet & iConfig);
-      virtual ~PATCleaner() {}
+      ~PATCleaner() override {}
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override final;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) final;
 
     private:
       typedef StringCutObjectSelector<PATObjType> Selector;

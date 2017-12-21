@@ -148,7 +148,6 @@ namespace edm {
       GlobalContext const* context_;
     };
 
-    
     /// returns the action table
     ExceptionToActionTable const& actionTable() const {
       return workerManager_.actionTable();

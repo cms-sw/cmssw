@@ -38,7 +38,7 @@ LEPBandPlot::LEPBandPlot(const char* name,
 
 
     // bkg hypothesis band 1 sigma
-    m_b_band_graph_1sigma = new TGraphErrors(n_points, x_vals, b_vals ,0, b_rms);
+    m_b_band_graph_1sigma = new TGraphErrors(n_points, x_vals, b_vals ,nullptr, b_rms);
     m_b_band_graph_1sigma->SetFillColor(kGreen);
     m_b_band_graph_1sigma->SetLineColor(kGreen);
     m_b_band_graph_1sigma->SetMarkerColor(kGreen);
@@ -49,7 +49,7 @@ LEPBandPlot::LEPBandPlot(const char* name,
         b_2rms[i]=2*b_rms[i];
 
     // bkg hypothesis band 2 sigma
-    m_b_band_graph_2sigma = new TGraphErrors(n_points, x_vals, b_vals ,0, b_2rms);
+    m_b_band_graph_2sigma = new TGraphErrors(n_points, x_vals, b_vals ,nullptr, b_2rms);
     m_b_band_graph_2sigma->SetFillColor(kYellow);
     m_b_band_graph_2sigma->SetFillColor(kYellow);
     m_b_band_graph_2sigma->SetLineColor(kYellow);
@@ -64,13 +64,13 @@ LEPBandPlot::LEPBandPlot(const char* name,
     m_sb_line_graph->SetFillColor(kWhite);
 
     // The points of the data
-    if (exp_vals!=0){
+    if (exp_vals!=nullptr){
         m_data_line_graph = new TGraph(n_points, x_vals, exp_vals);
         m_data_line_graph->SetLineWidth(2);
         m_data_line_graph->SetFillColor(kWhite);
         }
     else
-        m_data_line_graph =NULL;
+        m_data_line_graph =nullptr;
 
 
     // Line for 0
@@ -85,7 +85,7 @@ LEPBandPlot::LEPBandPlot(const char* name,
     m_legend->AddEntry(m_b_band_graph_2sigma,"-2lnQ #pm 2#sigma");
     m_legend->AddEntry(m_b_line_graph,"-2lnQ_{B}");
     m_legend->AddEntry(m_sb_line_graph,"-2lnQ_{SB}");
-    if (m_data_line_graph!=NULL)
+    if (m_data_line_graph!=nullptr)
         m_legend->AddEntry(m_data_line_graph,"-2lnQ_{Obs}");
 
     m_legend->SetFillColor(0);
@@ -120,8 +120,8 @@ LEPBandPlot::LEPBandPlot(const char* name,
     m_b_band_graph_1sigma = new TGraphAsymmErrors(n_points,
                                                   x_vals,
                                                   b_vals,
-                                                  0,
-                                                  0,
+                                                  nullptr,
+                                                  nullptr,
                                                   b_down_bars1,
                                                   b_up_bars1);
     m_b_band_graph_1sigma->SetFillColor(kGreen);
@@ -132,8 +132,8 @@ LEPBandPlot::LEPBandPlot(const char* name,
     m_b_band_graph_2sigma = new TGraphAsymmErrors(n_points,
                                                   x_vals,
                                                   b_vals,
-                                                  0,
-                                                  0,
+                                                  nullptr,
+                                                  nullptr,
                                                   b_down_bars2,
                                                   b_up_bars2);
     m_b_band_graph_2sigma->SetFillColor(kYellow);
@@ -150,13 +150,13 @@ LEPBandPlot::LEPBandPlot(const char* name,
     m_sb_line_graph->SetFillColor(kWhite);
 
     // The points of the data
-    if (exp_vals!=0){
+    if (exp_vals!=nullptr){
         m_data_line_graph = new TGraph(n_points, x_vals, exp_vals);
         m_data_line_graph->SetLineWidth(2);
         m_data_line_graph->SetFillColor(kWhite);
         }
     else
-        m_data_line_graph =0;
+        m_data_line_graph =nullptr;
 
     // Line for 0
     m_zero_line = new TLine(m_b_line_graph->GetXaxis()->GetXmin(),0,
@@ -170,7 +170,7 @@ LEPBandPlot::LEPBandPlot(const char* name,
     m_legend->AddEntry(m_b_band_graph_2sigma,"-2lnQ #pm 2#sigma");
     m_legend->AddEntry(m_b_line_graph,"-2lnQ_{B}");
     m_legend->AddEntry(m_sb_line_graph,"-2lnQ_{SB}");
-    if (m_data_line_graph!=NULL)
+    if (m_data_line_graph!=nullptr)
         m_legend->AddEntry(m_data_line_graph,"-2lnQ_{Obs}");
 
     m_legend->SetFillColor(0);
@@ -186,7 +186,7 @@ LEPBandPlot::~LEPBandPlot(){
     delete m_b_band_graph_1sigma;
     delete m_b_band_graph_2sigma;
 
-    if (m_data_line_graph!=NULL)
+    if (m_data_line_graph!=nullptr)
         delete m_data_line_graph;
 
     delete m_zero_line;
@@ -246,7 +246,7 @@ void LEPBandPlot::draw (const char* options){
         m_sb_line_graph->Draw("C");
     }
 
-    if (m_data_line_graph!=NULL)
+    if (m_data_line_graph!=nullptr)
         m_data_line_graph->Draw("L");
 
     m_zero_line->Draw("Same");

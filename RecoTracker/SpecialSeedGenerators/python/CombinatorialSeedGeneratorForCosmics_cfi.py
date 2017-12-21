@@ -7,35 +7,23 @@ from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 
 layerInfo = cms.PSet(
-    TIB3 = cms.PSet(
+    MTIB = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
             clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
-    TIB2 = cms.PSet(
+    TIB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle'),
             clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    TIB1 = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle'),            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
-    ),
-    TOB6 = cms.PSet(
+    MTOB = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
-    TOB1 = cms.PSet(
+    TOB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle'),            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
-    ),
-    TOB3 = cms.PSet(
-        TTRHBuilder = cms.string('WithTrackAngle'),            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
-    ),
-    TOB2 = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle'),             clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
     ),
     TEC = cms.PSet(
         useSimpleRphiHitsCleaner = cms.bool(True),
@@ -46,21 +34,13 @@ layerInfo = cms.PSet(
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         maxRing = cms.int32(7)
     ),
-    TOB4 = cms.PSet(
-        TTRHBuilder = cms.string('WithTrackAngle'),            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
-    ),
-    TOB5 = cms.PSet(
-        TTRHBuilder = cms.string('WithTrackAngle'),            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
-    )
 )
-combinatorialcosmicseedingtripletsTOB_layerList = cms.vstring('TOB4+TOB5+TOB6',
-    'TOB3+TOB5+TOB6',
-    'TOB3+TOB4+TOB5',
-    'TOB2+TOB4+TOB5',
-    'TOB3+TOB4+TOB6',
-    'TOB2+TOB4+TOB6')
+combinatorialcosmicseedingtripletsTOB_layerList = cms.vstring('MTOB4+MTOB5+MTOB6',
+    'MTOB3+MTOB5+MTOB6',
+    'MTOB3+MTOB4+MTOB5',
+    'TOB2+MTOB4+MTOB5',
+    'MTOB3+MTOB4+MTOB6',
+    'TOB2+MTOB4+MTOB6')
 combinatorialcosmicseedingpairsTECpos_layerList = cms.vstring('TEC1_pos+TEC2_pos',
     'TEC2_pos+TEC3_pos',
     'TEC3_pos+TEC4_pos',
@@ -69,7 +49,7 @@ combinatorialcosmicseedingpairsTECpos_layerList = cms.vstring('TEC1_pos+TEC2_pos
     'TEC6_pos+TEC7_pos',
     'TEC7_pos+TEC8_pos',
     'TEC8_pos+TEC9_pos')
-combinatorialcosmicseedingtripletsTIB_layerList = cms.vstring('TIB1+TIB2+TIB3')
+combinatorialcosmicseedingtripletsTIB_layerList = cms.vstring('TIB1+TIB2+MTIB3')
 combinatorialcosmicseedfinder = cms.EDProducer("CtfSpecialSeedGenerator",
     SeedMomentum = cms.double(5.0), ##initial momentum in GeV !!!set to a lower value for slice test data
 

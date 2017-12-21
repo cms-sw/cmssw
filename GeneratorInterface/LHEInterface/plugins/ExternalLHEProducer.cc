@@ -163,7 +163,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   nextEvent();
   if (!partonLevel) {
-    throw cms::Exception("ExternalLHEProducer") << "No lhe event found in ExternalLHEProducer::produce().  "
+    throw edm::Exception(edm::errors::EventGenerationFailure) << "No lhe event found in ExternalLHEProducer::produce().  "
     << "The likely cause is that the lhe file contains fewer events than were requested, which is possible "
     << "in case of phase space integration or uneweighting efficiency problems.";
   }
@@ -309,7 +309,7 @@ ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
   
   nextEvent();
   if (partonLevel) {
-    throw cms::Exception("ExternalLHEProducer") << "Error in ExternalLHEProducer::endRunProduce().  "
+    throw edm::Exception(edm::errors::EventGenerationFailure) << "Error in ExternalLHEProducer::endRunProduce().  "
     << "Event loop is over, but there are still lhe events to process."
     << "This could happen if lhe file contains more events than requested.  This is never expected to happen.";
   }  

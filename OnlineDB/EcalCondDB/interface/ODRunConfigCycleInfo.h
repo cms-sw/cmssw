@@ -17,9 +17,9 @@ class ODRunConfigCycleInfo : public IODConfig {
   friend class ODEcalCycle;
 
   ODRunConfigCycleInfo();
-  ~ODRunConfigCycleInfo();
+  ~ODRunConfigCycleInfo() override;
 
-  inline std::string getTable() { return "ECAL_CYCLE_DAT"; }
+  inline std::string getTable() override { return "ECAL_CYCLE_DAT"; }
 
   // Methods for user data
   inline void setId(int id) { m_ID = id; }
@@ -54,7 +54,7 @@ int getCycleNumber()const {return m_cycle_num;  }
   std::string m_tag;
   std::string m_description;
 
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void writeDB() noexcept(false);
   void clear();
   void fetchData(ODRunConfigCycleInfo * result) noexcept(false);

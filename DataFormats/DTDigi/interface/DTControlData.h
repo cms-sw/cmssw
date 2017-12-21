@@ -115,8 +115,8 @@ public:
  {}
 
  DTDDUData():
-   theDDUHeader(0),
-   theDDUTrailer(0),
+   theDDUHeader(nullptr),
+   theDDUTrailer(nullptr),
    crcErrorBitSet(false)
  {}
 

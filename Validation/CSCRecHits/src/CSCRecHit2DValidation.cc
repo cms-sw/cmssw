@@ -8,7 +8,7 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(
                                 const edm::InputTag & inputTag,
                                 edm::ConsumesCollector && iC)
 : CSCBaseValidation(inputTag),
-  theNPerEventPlot(0)
+  theNPerEventPlot(nullptr)
 {
   rechits_Token_ = iC.consumes<CSCRecHit2DCollection>(inputTag);
 }

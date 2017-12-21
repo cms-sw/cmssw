@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # TODO: sync with RecoTracker/IterativeTracking/python/ElectronSeeds_cff.py
 
-newCombinedSeeds = cms.EDProducer(
+_newCombinedSeeds = cms.EDProducer(
     "SeedCombiner",
     seedCollections = cms.VInputTag(
         cms.InputTag('initialStepSeeds'),

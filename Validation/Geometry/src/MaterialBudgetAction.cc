@@ -29,7 +29,7 @@
 
 //-------------------------------------------------------------------------
 MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
-  : theHistoMgr(0)
+  : theHistoMgr(nullptr)
 {
   theData = new MaterialBudgetData;
   
@@ -157,7 +157,6 @@ void MaterialBudgetAction::update(const BeginOfRun* )
     int siz = partTable->size();
     for (int ii= 0; ii < siz; ii++) {
       G4ParticleDefinition * particle = partTable->GetParticle(ii);
-      std::string particleName = particle->GetParticleName();
       
       //--- All processes of this particle 
       G4ProcessManager * pmanager = particle->GetProcessManager();
@@ -238,7 +237,7 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
 void MaterialBudgetAction::update(const G4Step* aStep)
 {
   //----- Check it is inside one of the volumes selected
-  if( theVolumeList.size() != 0 ) {
+  if( !theVolumeList.empty() ) {
     if( !CheckTouchableInSelectedVolumes( aStep->GetTrack()->GetTouchable() ) ) return;
   } 
 
@@ -343,7 +342,7 @@ bool MaterialBudgetAction::StopAfterProcess( const G4Step* aStep )
 {
   if( theProcessToStop == "" ) return false;
 
-  if(aStep->GetPostStepPoint()->GetProcessDefinedStep() == NULL) return false;
+  if(aStep->GetPostStepPoint()->GetProcessDefinedStep() == nullptr) return false;
   if( aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == theProcessToStop ) {
     std::cout << " MaterialBudgetAction::StopAfterProcess " << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
     return true;

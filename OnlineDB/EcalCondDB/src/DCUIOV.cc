@@ -11,7 +11,7 @@ using namespace oracle::occi;
 
 DCUIOV::DCUIOV()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
   m_ID = 0;
   m_since = Tm();
   m_till = Tm();

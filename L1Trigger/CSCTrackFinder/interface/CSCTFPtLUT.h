@@ -23,7 +23,7 @@ public:
 	     const L1MuTriggerPtScale* ptScale);
 
   CSCTFPtLUT(const CSCTFPtLUT&);
-  ~CSCTFPtLUT() { if(pt_lut) delete [] pt_lut; pt_lut = NULL; }
+  ~CSCTFPtLUT() { if(pt_lut) delete [] pt_lut; pt_lut = nullptr; }
 
   CSCTFPtLUT& operator=(const CSCTFPtLUT&);
 

@@ -36,9 +36,9 @@ class L1RCTParametersOnlineProd :
   public L1ConfigOnlineProdBase< L1RCTParametersRcd, L1RCTParameters > {
    public:
       L1RCTParametersOnlineProd(const edm::ParameterSet&);
-      ~L1RCTParametersOnlineProd();
+      ~L1RCTParametersOnlineProd() override;
 
-  virtual std::shared_ptr< L1RCTParameters > newObject(
+  std::shared_ptr< L1RCTParameters > newObject(
     const std::string& objectKey ) override ;
 
   void fillScaleFactors(

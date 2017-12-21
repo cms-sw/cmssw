@@ -109,7 +109,7 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e, const ed
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   e.getByToken(m_DTDigiToken,dttrig);
 
-  L1MuDTChambPhDigi const* ts=0;
+  L1MuDTChambPhDigi const* ts=nullptr;
 
   // const int bx_offset = dttrig->correctBX();
   int bx_offset=0;
