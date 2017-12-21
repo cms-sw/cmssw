@@ -21,7 +21,7 @@
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/DTDigi/interface/DTuROSControlData.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
-
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <FWCore/Framework/interface/stream/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>

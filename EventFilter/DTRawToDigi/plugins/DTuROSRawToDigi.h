@@ -81,9 +81,9 @@ private:
 
   int theDDU(int crate, int slot, int link, bool tenDDU);
 
-  int theROS(int crate, int slot, int link);
+  int theROS(int slot, int link);
 
-  int theROB(int crate, int slot, int link);
+  int theROB(int slot, int link);
 
   edm::InputTag getDTuROSInputTag() { return DTuROSInputTag_; }
   
