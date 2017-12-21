@@ -5,7 +5,6 @@
 namespace edm {
 
   LuminosityBlockPrincipal::LuminosityBlockPrincipal(
-      std::shared_ptr<LuminosityBlockAuxiliary> aux,
       std::shared_ptr<ProductRegistry const> reg,
       ProcessConfiguration const& pc,
       HistoryAppender* historyAppender,
@@ -13,7 +12,6 @@ namespace edm {
       bool isForPrimaryProcess) :
     Base(reg, reg->productLookup(InLumi), pc, InLumi, historyAppender, isForPrimaryProcess),
         runPrincipal_(),
-        aux_(aux),
         index_(index),
         complete_(false) {
   }
@@ -25,7 +23,7 @@ namespace edm {
 
     complete_ = false;
 
-    fillPrincipal(aux_->processHistoryID(), processHistoryRegistry, reader);
+    fillPrincipal(aux_.processHistoryID(), processHistoryRegistry, reader);
 
     for(auto& prod : *this) {
       prod->setProcessHistory(processHistory());

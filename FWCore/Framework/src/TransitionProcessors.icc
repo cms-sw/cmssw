@@ -91,13 +91,13 @@ struct LumiResources {
   ~LumiResources() noexcept {
     try {
       //If we skip empty lumis, this would be called conditionally
-      run_->ep_.endLumi(processHistoryID(), run(), lumi(), globalTransitionSucceeded_, cleaningUpAfterException_);
+      run_->ep_.endLumi(status_, globalTransitionSucceeded_, cleaningUpAfterException_);
       
       if (success_) {
-        run_->ep_.writeLumi(processHistoryID(), run(), lumi());
+        run_->ep_.writeLumi(*status_);
       }
 
-      run_->ep_.deleteLumiFromCache(processHistoryID(), run(), lumi());
+      run_->ep_.deleteLumiFromCache(*status_);
       
     } catch(...) {
       if(cleaningUpAfterException_ or not run_->ep_.setDeferredException(std::current_exception())) {
@@ -127,6 +127,7 @@ struct LumiResources {
   }
 
   std::shared_ptr<RunResources> run_;
+  std::shared_ptr<edm::LuminosityBlockProcessingStatus> status_;
   edm::LuminosityBlockNumber_t lumi_;
   bool cleaningUpAfterException_ = true;
   bool success_ = false;
@@ -205,14 +206,12 @@ private:
         currentLumi_->normalEnd();
       }
       currentLumi_ = std::make_shared<LumiResources>(iRun,lumiID);
-      auto id = iEP.readLuminosityBlock();
-      assert((id >= 0) and (static_cast<unsigned int>(id) == lumiID));
-      iEP.beginLumi(currentLumi_->processHistoryID(), currentLumi_->run(), currentLumi_->lumi(), currentLumi_->globalTransitionSucceeded_);
+      iEP.beginLumi(currentLumi_->status_, currentLumi_->globalTransitionSucceeded_);
       //only if we succeed at beginLumi should we run writeLumi
       currentLumi_->succeeded();
     } else {
       //merge
-      auto id = iEP.readAndMergeLumi();
+      auto id = iEP.readAndMergeLumi(*currentLumi_->status_);
       assert((id >= 0) and (static_cast<unsigned int>(id) == lumiID) );
     }
   }

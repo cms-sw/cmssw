@@ -26,8 +26,21 @@ namespace {
   using EventProcessor = edm::MockEventProcessor;
   
   
+  class WaitingTaskHolder;
 #include "FWCore/Framework/src/TransitionProcessors.icc"
 }
+
+namespace edm {
+struct LuminosityBlockPrincipal {
+  LuminosityBlockPrincipal(int iRun,int iLumi): run_(iRun),lumi_(iLumi){}
+  int run_;
+  int lumi_;
+};
+}
+
+#define TEST_NO_FWD_DECL
+#include "FWCore/Framework/src/LuminosityBlockProcessingStatus.h"
+
 namespace edm {
 
   MockEventProcessor::MockEventProcessor(std::string const& mockData,
@@ -216,15 +229,17 @@ namespace edm {
     output_ << "\tendRun " << run << postfix;
   }
 
-  void MockEventProcessor::beginLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi, bool& globalTransitionSucceeded) {
-    output_ << "\tbeginLumi " << run << "/" << lumi << "\n";
+  void MockEventProcessor::beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status, bool& globalTransitionSucceeded) {
+    status = std::make_shared<LuminosityBlockProcessingStatus>(this,1);
+    auto lumi = readLuminosityBlock(*status);
+    output_ << "\tbeginLumi " << run_ << "/" << lumi << "\n";
     throwIfNeeded();
     globalTransitionSucceeded = true;
   }
 
-  void MockEventProcessor::endLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi, bool globalTransitionSucceeded , bool /*cleaningUpAfterException*/) {
+  void MockEventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool globalTransitionSucceeded , bool /*cleaningUpAfterException*/) {
     auto postfix = globalTransitionSucceeded? "\n" : " global failed\n";
-    output_ << "\tendLumi " << run << "/" << lumi << postfix;
+    output_ << "\tendLumi " << status->lumiPrincipal()->run_ << "/" << status->lumiPrincipal()->lumi_ << postfix;
   }
 
   std::pair<ProcessHistoryID,RunNumber_t> MockEventProcessor::readRun() {
@@ -237,12 +252,13 @@ namespace edm {
     return std::make_pair(ProcessHistoryID(), run_);
   }
 
-  int MockEventProcessor::readLuminosityBlock() {
+  int MockEventProcessor::readLuminosityBlock(LuminosityBlockProcessingStatus& iStatus) {
     output_ << "\treadLuminosityBlock " << lumi_ << "\n";
+    iStatus.lumiPrincipal() = std::make_shared<LuminosityBlockPrincipal>(run_,lumi_);
     return lumi_;
   }
 
-  int MockEventProcessor::readAndMergeLumi() {
+  int MockEventProcessor::readAndMergeLumi(LuminosityBlockProcessingStatus& iStatus) {
     output_ << "\treadAndMergeLumi " << lumi_ << "\n";
     return lumi_;
   }
@@ -255,12 +271,12 @@ namespace edm {
     output_ << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void MockEventProcessor::writeLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi) {
-    output_ << "\twriteLumi " << run << "/" << lumi << "\n";
+  void MockEventProcessor::writeLumi(LuminosityBlockProcessingStatus& iStatus) {
+    output_ << "\twriteLumi " << iStatus.lumiPrincipal()->run_ << "/" << iStatus.lumiPrincipal()->lumi_ << "\n";
   }
 
-  void MockEventProcessor::deleteLumiFromCache(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi) {
-    output_ << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
+  void MockEventProcessor::deleteLumiFromCache(LuminosityBlockProcessingStatus& iStatus) {
+    output_ << "\tdeleteLumiFromCache " << iStatus.lumiPrincipal()->run_ << "/" << iStatus.lumiPrincipal()->lumi_ << "\n";
   }
 
   void MockEventProcessor::readAndProcessEvent() {

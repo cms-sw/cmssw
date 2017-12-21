@@ -26,6 +26,8 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
+#include "LuminosityBlockProcessingStatus.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -711,6 +713,17 @@ namespace edm {
     
     return iExcept;
   }
+
+  void
+  StreamSchedule::processOneBeginLumiAsync(WaitingTaskHolder iTask,
+                                           std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus,
+                                           EventSetup const& eventSetup) {
+    lumiStatus_ = std::move(iLumiStatus);
+    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
+    processOneStreamAsync<Traits>(std::move(iTask), *(lumiStatus_->lumiPrincipal()), eventSetup);
+  }
+  void
+  StreamSchedule::processOneEndLumiAsync(WaitingTaskHolder iTask, bool cleaningUpAfterException) {}
 
 
   void
