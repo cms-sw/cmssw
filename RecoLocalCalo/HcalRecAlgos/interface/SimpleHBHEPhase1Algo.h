@@ -12,7 +12,7 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalDeterministicFit.h"
-
+#include "RecoLocalCalo/HcalRecAlgos/interface/MahiFit.h"
 
 class SimpleHBHEPhase1Algo : public AbsHBHEPhase1Algo
 {
@@ -45,7 +45,8 @@ public:
                          float timeShift,
                          bool correctForPhaseContainment,
                          std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
-                         std::unique_ptr<HcalDeterministicFit> detFit);
+                         std::unique_ptr<HcalDeterministicFit> detFit,
+			 std::unique_ptr<MahiFit> mahi);
 
     inline ~SimpleHBHEPhase1Algo() override {}
 
@@ -100,6 +101,9 @@ private:
 
     // "Metod 3" algorithm
     std::unique_ptr<HcalDeterministicFit> hltOOTpuCorr_;
+
+    // Mahi algorithm
+    std::unique_ptr<MahiFit> mahiOOTpuCorr_;
 
     HcalPulseShapes theHcalPulseShapes_;
 };
