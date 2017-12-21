@@ -106,6 +106,7 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                PixelOfflineDQMClientNoDataCertification *
                                                triggerOfflineDQMClient *
                                                hltOfflineDQMClient *
+                                               l1TriggerDqmOfflineClient *
                                                dqmFEDIntegrityClient *
                                                alcaBeamMonitorClient *
                                                runTauEff  *

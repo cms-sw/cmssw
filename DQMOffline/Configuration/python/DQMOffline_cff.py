@@ -136,6 +136,7 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  SiStripDQMTier0MinBias *
                                  TrackingDQMSourceTier0MinBias *               
                                  siPixelOfflineDQM_source *
+                                 l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
