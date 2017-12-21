@@ -146,12 +146,8 @@ namespace l1tVertexFinder {
 	if(k!= i and (fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < settings_->vx_distance() or (fabs(fitTracks_[i]->eta())> 1.5 and fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < 0.5 )) ){ neighbourTrackIds.insert(k); 
 	  if(fitTracks_[k]->pt() > settings_->vx_dbscan_pt()){
 	    numDensityTracks++;
-	    if(settings_->debug() == 7 and fitTracks_[i]->getMatchedTP()!=nullptr and fitTracks_[i]->getMatchedTP()->physicsCollision() == 0){}
 	  }
 	}
-      }
-
-      if(settings_->debug() == 7 and fitTracks_[i]->getMatchedTP()!=nullptr and fitTracks_[i]->getMatchedTP()->physicsCollision() == 0){
       }
 
       if(numDensityTracks < settings_->vx_dbscan_mintracks() ){
@@ -168,7 +164,6 @@ namespace l1tVertexFinder {
 	      iterations_++;
 	      if(fabs(fitTracks_[k]->z0()-fitTracks_[id]->z0()) < settings_->vx_distance() or ( fabs(fitTracks_[id]->eta())> 1.5 and fabs(fitTracks_[k]->z0()-fitTracks_[id]->z0()) < 0.5 )){
 		neighbourTrackIds2.push_back(k);
-		if(settings_->debug() == 7 and fitTracks_[i]->getMatchedTP()!=nullptr and fitTracks_[i]->getMatchedTP()->physicsCollision() == 0){}
 	      }
 	    }
 
