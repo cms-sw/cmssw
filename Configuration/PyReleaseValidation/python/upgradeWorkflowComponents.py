@@ -94,6 +94,17 @@ upgradeSteps['trackingOnly'] = {
     'suffix' : '_trackingOnly',
     'offset' : 0.1,
 }
+upgradeSteps['pixelTrackingOnly'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_pixelTrackingOnly',
+    'offset' : 0.4,
+}
 upgradeSteps['Timing'] = {
     'steps' : upgradeSteps['baseline']['steps'],
     'PU' : upgradeSteps['baseline']['PU'],
@@ -137,14 +148,14 @@ upgradeProperties[2017] = {
     '2018' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2018_realistic',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
     '2018Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2018_design',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],

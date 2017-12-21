@@ -1,13 +1,12 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeomManager.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCFrontRearLUT.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -221,7 +220,7 @@ lclphidat CSCSectorReceiverLUT::localPhi(unsigned address, const bool gangedME1a
 {
   lclphidat result;
   lclphiadd theadd(address);
-  
+
   if(useMiniLUTs && isTMB07)
     {
       result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address, gangedME1a);
@@ -238,7 +237,7 @@ lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address, const bool gangedME1
 
   if(useMiniLUTs && isTMB07)
     {
-      result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address.toint(), gangedME1a); 
+      result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address.toint(), gangedME1a);
     }
   else if(LUTsFromFile) result = me_lcl_phi[address.toint()];
   else result = calcLocalPhi(address);
@@ -273,8 +272,7 @@ double CSCSectorReceiverLUT::getGlobalPhiValue(const CSCLayer* thelayer, const u
 gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 {
   gblphidat result(0);
-  CSCTriggerGeomManager* thegeom = CSCTriggerGeometry::get();
-  CSCChamber* thechamber = nullptr;
+  const CSCChamber* thechamber = nullptr;
   const CSCLayer* thelayer = nullptr;
   const CSCLayerGeometry* layergeom = nullptr;
   int cscid = address.cscid;
@@ -336,7 +334,10 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 
   try
     {
-      thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
+      int ring = CSCTriggerNumbering::ringFromTriggerLabels(_station, cscid);
+      int chid = CSCTriggerNumbering::chamberFromTriggerLabels(_sector, _subsector, _station, cscid);
+      CSCDetId detid(_endcap, _station, ring, chid, 0);
+      thechamber = const_cast<const CSCChamber*>(csc_g->chamber(detid));
       if(thechamber)
 	{
 	  if(isTMB07)
@@ -576,7 +577,7 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(int phi_local,int wire_group, int cs
 
   // comment for now
   //  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address.toint());
-  //else 
+  //else
   if(LUTsFromFile) result = mb_global_phi[address.toint()];
   else result = calcGlobalPhiMB(globalPhiME(address, gangedME1a));
 
@@ -589,7 +590,7 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(unsigned address, const  bool ganged
   gblphiadd theadd(address);
 
   //if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address);
-  //else 
+  //else
   if(LUTsFromFile) result = mb_global_phi[theadd.toint()];
   else result = calcGlobalPhiMB(globalPhiME(address, gangedME1a));
 
@@ -601,7 +602,7 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(gblphiadd address, const  bool gange
   gblphidat result;
 
   //if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address.toint());
-  //else 
+  //else
   if(LUTsFromFile) result = mb_global_phi[address.toint()];
   else result = calcGlobalPhiMB(globalPhiME(address, gangedME1a));
 
@@ -628,7 +629,6 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
       cscid = CSCTriggerNumbering::maxTriggerCscId();
     }
 
-  CSCTriggerGeomManager* thegeom = CSCTriggerGeometry::get();
   CSCLayerGeometry* layerGeom = nullptr;
   const unsigned numBins = 1 << 2; // 4 local phi bins
 
@@ -640,7 +640,10 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
   }
   try
     {
-      const CSCChamber* thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
+      int ring = CSCTriggerNumbering::ringFromTriggerLabels(_station, cscid);
+      int chid = CSCTriggerNumbering::chamberFromTriggerLabels(_sector, _subsector, _station, cscid);
+      CSCDetId detid(_endcap, _station, ring, chid, 0);
+      const CSCChamber* thechamber = const_cast<const CSCChamber*>(csc_g->chamber(detid));
       if(thechamber) {
 	layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_ALCT_LAYER)->geometry());
 	const unsigned nWireGroups = layerGeom->numberOfWireGroups();

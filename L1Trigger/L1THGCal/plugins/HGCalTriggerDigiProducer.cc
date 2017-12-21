@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
-#include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
+#include "DataFormats/L1THGCal/interface/HGCFETriggerDigiDefs.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"

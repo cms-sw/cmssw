@@ -17,6 +17,29 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+# Add mahi to HCAL local reconstruction 
+def customiseFor21664(process):
+    from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.useMahi     = cms.bool(False)
+        producer.algorithm.dynamicPed   = hbheprereco.algorithm.dynamicPed
+        producer.algorithm.ts4Thresh    = hbheprereco.algorithm.ts4Thresh
+        producer.algorithm.chiSqSwitch  = hbheprereco.algorithm.chiSqSwitch
+        producer.algorithm.activeBXs    = hbheprereco.algorithm.activeBXs
+        producer.algorithm.nMaxItersMin = hbheprereco.algorithm.nMaxItersMin
+        producer.algorithm.nMaxItersNNLS = hbheprereco.algorithm.nMaxItersNNLS
+        producer.algorithm.deltaChiSqThresh = hbheprereco.algorithm.deltaChiSqThresh
+        producer.algorithm.nnlsThresh   = hbheprereco.algorithm.nnlsThresh
+    return process
+
+def customiseFor21664_forMahiOn(process):
+    from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.useMahi     = cms.bool(True)
+        producer.algorithm.useM2     = cms.bool(False)
+        producer.algorithm.useM3     = cms.bool(False)
+    return process
+
 # Add new parameters to RecoTrackRefSelector
 def customiseFor19029(process):
     for producer in producers_by_type(process, "RecoTrackRefSelector"):
@@ -72,6 +95,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor20269(process)
         process = customiseFor19989(process)
         process = customiseFor20429(process)
-        process = customiseFor21437(process)
+        process = customiseFor21437(process)        
+        
+    process = customiseFor21664(process)
 
     return process

@@ -191,7 +191,7 @@ void HIPAlignmentAlgorithm::initialize(
     theAPEParameters.clear();
     if (theApplyAPE){
       for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin(); setiter != theAPEParameterSet.end(); ++setiter){
-        std::vector<Alignable*> alignables;
+        align::Alignables alignables;
 
         selector.clear();
         edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
@@ -218,7 +218,7 @@ void HIPAlignmentAlgorithm::initialize(
         else if (function == std::string("step")) apeSPar.push_back(2); // c.f. note in calcAPE
         else throw cms::Exception("BadConfig") << "APE function must be \"linear\", \"exponential\", or \"step\"." << std::endl;
 
-        theAPEParameters.push_back(std::pair<std::vector<Alignable*>, std::vector<double> >(alignables, apeSPar));
+        theAPEParameters.push_back(std::make_pair(alignables, apeSPar));
       }
     }
 
@@ -226,7 +226,7 @@ void HIPAlignmentAlgorithm::initialize(
     theAlignableSpecifics.clear();
     if (theApplyCutsPerComponent){
       for (std::vector<edm::ParameterSet>::const_iterator setiter = theCutsPerComponent.begin(); setiter != theCutsPerComponent.end(); ++setiter){
-        std::vector<Alignable*> alignables;
+        align::Alignables alignables;
 
         selector.clear();
         edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
@@ -290,8 +290,8 @@ void HIPAlignmentAlgorithm::startNewLoop(void){
   edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::startNewLoop" << "Begin";
 
   // iterate over all alignables and attach user variables
-  for (std::vector<Alignable*>::const_iterator it=theAlignables.begin(); it!=theAlignables.end(); it++){
-    AlignmentParameters* ap = (*it)->alignmentParameters();
+  for (const auto& it: theAlignables){
+    AlignmentParameters* ap = it->alignmentParameters();
     int npar=ap->numSelected();
     HIPUserVariables* userpar = new HIPUserVariables(npar);
     ap->setUserVariables(userpar);
@@ -396,8 +396,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
   // now calculate alignment corrections...
   int ialigned=0;
   // iterate over alignment parameters
-  for (std::vector<Alignable*>::const_iterator it=theAlignables.begin(); it!=theAlignables.end(); it++){
-    Alignable* ali=(*it);
+  for (const auto& ali: theAlignables){
     AlignmentParameters* par = ali->alignmentParameters();
 
     if (SetScanDet.at(0)!=0){
@@ -998,9 +997,9 @@ void HIPAlignmentAlgorithm::setAlignmentPositionError(void){
   edm::LogInfo("Alignment") <<"[HIPAlignmentAlgorithm::setAlignmentPositionError] Apply APE!";
 
   double apeSPar[3], apeRPar[3];
-  for (std::vector<std::pair<std::vector<Alignable*>, std::vector<double> > >::const_iterator alipars = theAPEParameters.begin(); alipars != theAPEParameters.end(); ++alipars) {
-    const std::vector<Alignable*> &alignables = alipars->first;
-    const std::vector<double> &pars = alipars->second;
+  for (const auto& alipars: theAPEParameters) {
+    const auto& alignables = alipars.first;
+    const auto& pars = alipars.second;
 
     apeSPar[0] = pars[0];
     apeSPar[1] = pars[1];
@@ -1143,8 +1142,7 @@ void HIPAlignmentAlgorithm::fillAlignablesMonitor(const edm::EventSetup& iSetup)
 
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-  for (std::vector<Alignable*>::const_iterator it=theAlignables.begin(); it!=theAlignables.end(); ++it){
-    Alignable* ali = (*it);
+  for (const auto& ali: theAlignables){
     AlignmentParameters* dap = ali->alignmentParameters();
 
     // consider only those parameters classified as 'valid'
@@ -1333,8 +1331,7 @@ void HIPAlignmentAlgorithm::collector(void){
         continue;
       }
       std::vector<AlignmentUserVariables*>::const_iterator iuvar=uvarvec.begin(); // This vector should have 1-to-1 correspondence with the alignables vector
-      for (std::vector<Alignable*>::const_iterator it=theAlignables.begin(); it!=theAlignables.end(); ++it){
-        Alignable* ali = *it; // Need this pointer for the key of the unordered map
+      for (const auto& ali: theAlignables){
         // No need for the user variables already attached to the alignables
         // Just count from what you read.
         HIPUserVariables* uvar = dynamic_cast<HIPUserVariables*>(*iuvar);
@@ -1378,8 +1375,7 @@ void HIPAlignmentAlgorithm::collector(void){
     // add
     std::vector<AlignmentUserVariables*> uvarvecadd;
     std::vector<AlignmentUserVariables*>::const_iterator iuvarnew=uvarvec.begin();
-    for (std::vector<Alignable*>::const_iterator it=theAlignables.begin(); it!=theAlignables.end(); ++it){
-      Alignable* ali = *it;
+    for (const auto& ali: theAlignables){
       AlignmentParameters* ap = ali->alignmentParameters();
 
       HIPUserVariables* uvarold = dynamic_cast<HIPUserVariables*>(ap->userVariables());

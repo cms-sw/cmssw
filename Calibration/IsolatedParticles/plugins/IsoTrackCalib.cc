@@ -250,7 +250,7 @@ void IsoTrackCalib::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<double>("ConeRadius",   34.98);
   desc.addUntracked<double>("ConeRadiusMIP",14.0);
   desc.addUntracked<bool>("IsItAOD",        false);
-  descriptions.add("IsoTrackCalib",desc);
+  descriptions.add("isoTrackCalib",desc);
 }
 
 void IsoTrackCalib::analyze(const edm::Event& iEvent, 

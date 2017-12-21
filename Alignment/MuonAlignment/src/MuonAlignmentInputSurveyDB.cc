@@ -80,17 +80,17 @@ AlignableMuon *MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetu
    unsigned int theSurveyIndex  = 0;
    const Alignments *theSurveyValues = &*dtSurvey;
    const SurveyErrors *theSurveyErrors = &*dtSurveyError;
-   std::vector<Alignable*> barrels = output->DTBarrel();
-   for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
-      addSurveyInfo_(*iter, &theSurveyIndex, theSurveyValues, theSurveyErrors);
+   const auto& barrels = output->DTBarrel();
+   for (const auto& iter: barrels) {
+      addSurveyInfo_(iter, &theSurveyIndex, theSurveyValues, theSurveyErrors);
    }
 
    theSurveyIndex  = 0;
    theSurveyValues = &*cscSurvey;
    theSurveyErrors = &*cscSurveyError;
-   std::vector<Alignable*> endcaps = output->CSCEndcaps();
-   for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
-      addSurveyInfo_(*iter, &theSurveyIndex, theSurveyValues, theSurveyErrors);
+   const auto& endcaps = output->CSCEndcaps();
+   for (const auto& iter: endcaps) {
+      addSurveyInfo_(iter, &theSurveyIndex, theSurveyValues, theSurveyErrors);
    }
 
    return output;
@@ -104,7 +104,7 @@ void MuonAlignmentInputSurveyDB::addSurveyInfo_(Alignable* ali,
 						unsigned int *theSurveyIndex,
 						const Alignments* theSurveyValues,
 						const SurveyErrors* theSurveyErrors) const {
-  const std::vector<Alignable*>& comp = ali->components();
+  const auto& comp = ali->components();
 
   unsigned int nComp = comp.size();
 

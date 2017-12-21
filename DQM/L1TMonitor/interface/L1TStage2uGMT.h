@@ -139,9 +139,6 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonPhiBmtf;
   MonitorElement* ugmtMuonPhiOmtf;
   MonitorElement* ugmtMuonPhiEmtf;
-  MonitorElement* ugmtMuonPhiAtVtxBmtf;
-  MonitorElement* ugmtMuonPhiAtVtxOmtf;
-  MonitorElement* ugmtMuonPhiAtVtxEmtf;
   MonitorElement* ugmtMuonDEtavsPtBmtf;
   MonitorElement* ugmtMuonDPhivsPtBmtf;
   MonitorElement* ugmtMuonDEtavsPtOmtf;
@@ -152,16 +149,12 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonPtvsEta;
   MonitorElement* ugmtMuonPtvsPhi;
   MonitorElement* ugmtMuonPhivsEta;
-  MonitorElement* ugmtMuonPtvsEtaAtVtx;
-  MonitorElement* ugmtMuonPtvsPhiAtVtx;
   MonitorElement* ugmtMuonPhiAtVtxvsEtaAtVtx;
 
   MonitorElement* ugmtMuonBXvsLink;
   MonitorElement* ugmtMuonBXvshwPt;
   MonitorElement* ugmtMuonBXvshwEta;
   MonitorElement* ugmtMuonBXvshwPhi;
-  MonitorElement* ugmtMuonBXvshwEtaAtVtx;
-  MonitorElement* ugmtMuonBXvshwPhiAtVtx;
   MonitorElement* ugmtMuonBXvshwCharge;
   MonitorElement* ugmtMuonBXvshwChargeValid;
   MonitorElement* ugmtMuonBXvshwQual;

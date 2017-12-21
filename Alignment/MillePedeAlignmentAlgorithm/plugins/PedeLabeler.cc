@@ -23,7 +23,7 @@ PedeLabeler::PedeLabeler(const PedeLabelerBase::TopLevelAlignables& alignables,
 			 const edm::ParameterSet& config)
   :PedeLabelerBase(alignables, config)
 {
-  std::vector<Alignable*> alis;
+  align::Alignables alis;
   alis.push_back(alignables.aliTracker_);
   alis.push_back(alignables.aliMuon_);
 
@@ -150,11 +150,11 @@ unsigned int PedeLabeler::lasBeamIdFromLabel(unsigned int label) const
 }
 
 //_________________________________________________________________________
-unsigned int PedeLabeler::buildMap(const std::vector<Alignable*> &alis)
+unsigned int PedeLabeler::buildMap(const align::Alignables& alis)
 {
   theAlignableToIdMap.clear(); // just in case of re-use...
 
-  std::vector<Alignable*> allComps;
+  align::Alignables allComps;
 
   for (const auto& iAli: alis) {
     if (iAli) {
