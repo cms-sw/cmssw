@@ -106,8 +106,8 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
   int FEDIDmax=FEDNumbering::MAXDTFEDID;
   int FEDIDmin=FEDNumbering::MINDTFEDID;
   if (checkUros){
-	FEDIDmin=1368;
-	FEDIDmax=1370;
+	FEDIDmin=1369;
+	FEDIDmax=1371;
 	}
   for (int dduId=FEDIDmin; dduId<=FEDIDmax; ++dduId){
     LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest")
