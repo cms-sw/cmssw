@@ -2,8 +2,15 @@
 #define RecoBTag_DeepFlavour_deep_helpers_h
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BTauReco/interface/TaggingVariable.h"
+
 #include "TrackingTools/IPTools/interface/IPTools.h"
+
+#include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
+
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+//#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 
 namespace btagbtvdeep {
 

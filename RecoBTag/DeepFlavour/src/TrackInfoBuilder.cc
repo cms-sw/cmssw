@@ -1,21 +1,9 @@
-#ifndef RecoBTag_DeepFlavour_TrackInfoBuilder_h
-#define RecoBTag_DeepFlavour_TrackInfoBuilder_h
-
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
-#include "TVector3.h"
+#include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
 
 namespace btagbtvdeep{
 
 // adapted from DeepNtuples
-class TrackInfoBuilder{
-public:
-    TrackInfoBuilder(edm::ESHandle<TransientTrackBuilder> & build):
+     TrackInfoBuilder::TrackInfoBuilder(edm::ESHandle<TransientTrackBuilder> & build):
         builder_(build),
         trackMomentum_(0),
         trackEta_(0),
@@ -29,15 +17,14 @@ public:
         trackSip2dSig_(0),
         trackSip3dVal_(0),
         trackSip3dSig_(0),
-
         trackJetDistVal_(0),
         trackJetDistSig_(0)
 {
 
-
 }
 
-    void buildTrackInfo(const reco::Candidate * candidate ,const math::XYZVector&  jetDir, GlobalVector refjetdirection, const reco::Vertex & pv){
+
+    void TrackInfoBuilder::buildTrackInfo(const reco::Candidate * candidate ,const math::XYZVector&  jetDir, GlobalVector refjetdirection, const reco::Vertex & pv){
         TVector3 jetDir3(jetDir.x(),jetDir.y(),jetDir.z());
 
 
@@ -103,43 +90,8 @@ public:
 
     }
 
-    const float getTrackDeltaR() const {return trackDeltaR_;}
-    const float getTrackEta() const {return trackEta_;}
-    const float getTrackEtaRel() const {return trackEtaRel_;}
-    const float getTrackJetDistSig() const {return trackJetDistSig_;}
-    const float getTrackJetDistVal() const {return trackJetDistVal_;}
-    const float getTrackMomentum() const {return trackMomentum_;}
-    const float getTrackPPar() const {return trackPPar_;}
-    const float getTrackPParRatio() const {return trackPParRatio_;}
-    const float getTrackPtRatio() const {return trackPtRatio_;}
-    const float getTrackPtRel() const {return trackPtRel_;}
-    const float getTrackSip2dSig() const {return trackSip2dSig_;}
-    const float getTrackSip2dVal() const {return trackSip2dVal_;}
-    const float getTrackSip3dSig() const {return trackSip3dSig_;}
-    const float getTrackSip3dVal() const {return trackSip3dVal_;}
 
-private:
 
-    edm::ESHandle<TransientTrackBuilder> builder_;
-
-    float trackMomentum_;
-    float trackEta_;
-    float trackEtaRel_;
-    float trackPtRel_;
-    float trackPPar_;
-    float trackDeltaR_;
-    float trackPtRatio_;
-    float trackPParRatio_;
-    float trackSip2dVal_;
-    float trackSip2dSig_;
-    float trackSip3dVal_;
-    float trackSip3dSig_;
-
-    float trackJetDistVal_;
-    float trackJetDistSig_;
-
-};
 
 }
 
-#endif //RecoBTag_DeepFlavour_TrackInfoBuilder_h

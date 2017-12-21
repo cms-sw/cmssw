@@ -1,17 +1,7 @@
-#ifndef RecoSV_DeepFlavour_NeutralCandidateConverter_h
-#define RecoSV_DeepFlavour_NeutralCandidateConverter_h
-
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
-#include "DataFormats/BTauReco/interface/NeutralCandidateFeatures.h"
-
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/JetReco/interface/Jet.h"
+#include "RecoBTag/DeepFlavour/interface/NeutralCandidateConverter.h"
 
 namespace btagbtvdeep {
 
-  class NeutralCandidateConverter {
-    public:
 
       template <typename CandidateType>
       static void CommonCandidateToFeatures(const CandidateType * n_pf,
@@ -63,8 +53,6 @@ namespace btagbtvdeep {
     
       } 
 
-  };
 
 }
 
-#endif //RecoSV_DeepFlavour_NeutralCandidateConverter_h
