@@ -114,7 +114,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
 
     if (mahi) {
       mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()));
-      mahi->phase1Apply(info,m4E,m4T,m4UseTriple,m4chi2);
+      mahi->phase1Apply(info,m4E,m4T,m4UseTriple,m4chi2,hcalTimeSlew_delay_);
       m4E *= hbminusCorrectionFactor(channelId, m4E, isData);
     }
 
