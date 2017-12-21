@@ -170,6 +170,9 @@ l1TriggerDqmOfflineClient = cms.Sequence(
                                 * l1EmulatorMonitorClient
                                 )
 
+# Dummy sequences for legacy cosmics
+l1TriggerDqmOfflineCosmics = cms.Sequence()
+l1TriggerDqmOfflineCosmicsClient = cms.Sequence()
 
 #
 #   EMERGENCY   removal of modules or full sequences
@@ -360,3 +363,5 @@ stage2L1Trigger.toReplaceWith(l1TriggerEmulatorOffline, Stage2l1TriggerEmulatorO
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOffline, Stage2l1TriggerDqmOffline)
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineClient, Stage2l1TriggerDqmOfflineClient)
 stage2L1Trigger.toReplaceWith(l1EmulatorMonitorClient,l1tStage2EmulatorMonitorClient)
+stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineCosmics, Stage2l1TriggerDqmOffline)
+stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineCosmicsClient, Stage2l1TriggerDqmOfflineClient)
