@@ -9,6 +9,7 @@
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -35,7 +36,7 @@ const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
 
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0) {
+HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false), linearLSB_QIE8_(1.), linearLSB_QIE11_(1.) {
   firstHBEta_ = topo_->firstHBRing();      
   lastHBEta_  = topo_->lastHBRing();
   nHBEta_     = (lastHBEta_-firstHBEta_+1);
@@ -230,7 +231,13 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     assert(metadata !=nullptr);
     float nominalgain_ = metadata->getNominalGain();
 
+    HcalTrigTowerGeometry triggeo(topo_);
     std::map<int, float> cosh_ieta;
+    for (int i = 1; i <= firstHFEta_; ++i) {
+       double eta_low = 0., eta_high = 0.;
+       triggeo.towerEtaBounds(i, 0, eta_low, eta_high); 
+       cosh_ieta[i] = fabs(cosh((eta_low + eta_high)/2.));
+    }
     for (int i = firstHFEta_; i <= lastHFEta_; ++i){
 	std::pair<double,double> etas = topo_->etaRange(HcalForward,i);
 	double eta1 = etas.first;
@@ -300,11 +307,16 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	    return fC/4;
 	};
 
-	int QIEtype =conditions.getHcalQIEType(cell)->getValue();
-     
-	const size_t SIZE = QIEtype==0 ? INPUT_LUT_SIZE : UPGRADE_LUT_SIZE;
-	const int MASK = QIEtype==0 ? QIE8_LUT_BITMASK : 
-			 QIEtype==1 ? QIE10_LUT_BITMASK : QIE11_LUT_BITMASK;  
+	int qieType =conditions.getHcalQIEType(cell)->getValue();
+
+	const size_t SIZE = qieType==QIE8 ? INPUT_LUT_SIZE : UPGRADE_LUT_SIZE;
+	const int MASK = qieType==QIE8 ? QIE8_LUT_BITMASK :
+                         qieType==QIE10 ? QIE10_LUT_BITMASK : QIE11_LUT_BITMASK;
+        double linearLSB = linearLSB_QIE8_;
+        if (qieType == QIE11 and cell.ietaAbs() == topo_->lastHBRing())
+           linearLSB = linearLSB_QIE11Overlap_;
+        else if (qieType == QIE11)
+           linearLSB = linearLSB_QIE11_;
 
 	lut.resize(SIZE, 0);
 
@@ -317,15 +329,19 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		if (isMasked) lut[adc] = 0;
 		else {
 		    double nonlinearityCorrection = 1.0;
-		    if(QIEtype==QIE11) {
+		    if(qieType==QIE11) {
 		      const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
 		      HcalSiPMnonlinearity corr(conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
 		      const double fcByPE = siPMParameter.getFCByPE();
 		      const double effectivePixelsFired = adc2fC(adc)/fcByPE;
 		      nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
 		    }
-		    lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / nominalgain_ / granularity)), MASK);
-		    if(QIEtype==QIE11){
+                    if (allLinear_)
+                       lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / linearLSB / cosh_ieta[cell.ietaAbs()])), MASK);
+                    else
+                       lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / nominalgain_ / granularity)), MASK);
+
+		    if(qieType==QIE11){
 			if (adc >= mipMin and adc < mipMax) lut[adc] |= QIE11_LUT_MSB0;
 			else if (adc >= mipMax) lut[adc] |= QIE11_LUT_MSB1;
 		    }
