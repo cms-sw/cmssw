@@ -65,6 +65,7 @@
 
 #include "MessageForSource.h"
 #include "MessageForParent.h"
+#include "LuminosityBlockProcessingStatus.h"
 
 #include "boost/range/adaptor/reversed.hpp"
 
@@ -523,7 +524,13 @@ namespace edm {
       // Reusable event principal
       auto ep = std::make_shared<EventPrincipal>(preg(), branchIDListHelper(),
                                                  thinnedAssociationsHelper(), *processConfiguration_, historyAppender_.get(), index);
-      principalCache_.insert(ep);
+      principalCache_.insert(std::move(ep));
+    }
+    
+    for(unsigned int index =0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
+      auto lp = std::make_unique<LuminosityBlockPrincipal>(preg(), *processConfiguration_,
+                                                           historyAppender_.get(), index);
+      principalCache_.insert(std::move(lp));
     }
 
     // fill the subprocesses, if there are any
@@ -1076,9 +1083,13 @@ namespace edm {
     }
   }
 
-  void EventProcessor::beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool& globalBeginSucceeded) {
+  void
+  EventProcessor::beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status, bool& globalBeginSucceeded) {
+    status= std::make_shared<LuminosityBlockProcessingStatus>(this, preallocations_.numberOfStreams()) ;
+    readLuminosityBlock(*status);
+
     globalBeginSucceeded = false;
-    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
+    LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
@@ -1117,7 +1128,6 @@ namespace edm {
       }
     }
     globalBeginSucceeded=true;
-    FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
       looper_->doBeginLuminosityBlock(lumiPrincipal, es, &processContext_);
     }
@@ -1141,14 +1151,19 @@ namespace edm {
       }
     }
     
-    FDEBUG(1) << "\tstreamBeginLumi " << run << "/" << lumi << "\n";
+    //attach this lumi to the event principals
+    for(unsigned int i= 0; i< preallocations_.numberOfStreams(); ++i) {
+      auto& event = principalCache_.eventPrincipal(i);
+      event.setLuminosityBlockPrincipal(status->lumiPrincipal());
+    }
+    
     if(looper_) {
       //looper_->doStreamBeginLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
     }
   }
 
-  void EventProcessor::endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool globalBeginSucceeded, bool cleaningUpAfterException) {
-    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
+  void EventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool globalBeginSucceeded, bool cleaningUpAfterException) {
+    LuminosityBlockPrincipal& lumiPrincipal = *status-> lumiPrincipal();
     lumiPrincipal.setAtEndTransition(true);
     //We need to reset failed items since they might
     // be set this time around
@@ -1192,7 +1207,6 @@ namespace edm {
         std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
-    FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
     if(looper_) {
       //looper_->doStreamEndLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
     }
@@ -1213,7 +1227,6 @@ namespace edm {
         std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
       }
     }
-    FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
     if(looper_) {
       looper_->doEndLuminosityBlock(lumiPrincipal, es, &processContext_);
     }
@@ -1249,36 +1262,35 @@ namespace edm {
     return std::make_pair(runPrincipal->reducedProcessHistoryID(), input_->run());
   }
 
-  int EventProcessor::readLuminosityBlock() {
-    if (principalCache_.hasLumiPrincipal()) {
-      throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readRun\n"
-        << "Illegal attempt to insert lumi into cache\n"
-        << "Contact a Framework Developer\n";
-    }
+  void EventProcessor::readLuminosityBlock(LuminosityBlockProcessingStatus& iStatus) {
     if (!principalCache_.hasRunPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readRun\n"
+        << "EventProcessor::readLuminosityBlock\n"
         << "Illegal attempt to insert lumi into cache\n"
         << "Run is invalid\n"
         << "Contact a Framework Developer\n";
     }
-    auto lbp = std::make_shared<LuminosityBlockPrincipal>(input_->luminosityBlockAuxiliary(), preg(), *processConfiguration_, historyAppender_.get(), 0);
+    auto lbp = principalCache_.getAvailableLumiPrincipalPtr();
+    lbp->setAux(*input_->luminosityBlockAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
       input_->readLuminosityBlock(*lbp, *historyAppender_);
       sentry.completedSuccessfully();
     }
     lbp->setRunPrincipal(principalCache_.runPrincipalPtr());
-    principalCache_.insert(lbp);
-    return input_->luminosityBlock();
+    iStatus.lumiPrincipal() = std::move(lbp);
   }
 
-  int EventProcessor::readAndMergeLumi() {
-    principalCache_.merge(input_->luminosityBlockAuxiliary(), preg());
+  int EventProcessor::readAndMergeLumi(LuminosityBlockProcessingStatus& iStatus) {
+    auto& lumiPrincipal = *iStatus.lumiPrincipal();
+    assert(lumiPrincipal.aux().sameIdentity(*input_->luminosityBlockAuxiliary()) or
+           input_->processHistoryRegistry().reducedProcessHistoryID(lumiPrincipal.aux().processHistoryID()) == input_->processHistoryRegistry().reducedProcessHistoryID(input_->luminosityBlockAuxiliary()->processHistoryID()));
+    bool lumiOK = lumiPrincipal.adjustToNewProductRegistry(*preg());
+    assert(lumiOK);
+    lumiPrincipal.mergeAuxiliary(*input_->luminosityBlockAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
-      input_->readAndMergeLumi(*principalCache_.lumiPrincipalPtr());
+      input_->readAndMergeLumi(*iStatus.lumiPrincipal());
       sentry.completedSuccessfully();
     }
     return input_->luminosityBlock();
@@ -1296,16 +1308,16 @@ namespace edm {
     FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void EventProcessor::writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
-    schedule_->writeLumi(principalCache_.lumiPrincipal(phid, run, lumi), &processContext_);
-    for_all(subProcesses_, [&phid, run, lumi](auto& subProcess){ subProcess.writeLumi(phid, run, lumi); });
-    FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
+  void EventProcessor::writeLumi(LuminosityBlockProcessingStatus& iStatus) {
+    schedule_->writeLumi(*iStatus.lumiPrincipal(), &processContext_);
+    for_all(subProcesses_, [&iStatus](auto& subProcess){ subProcess.writeLumi(*iStatus.lumiPrincipal()); });
+    //FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
-  void EventProcessor::deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
-    principalCache_.deleteLumi(phid, run, lumi);
-    for_all(subProcesses_, [&phid, run, lumi](auto& subProcess){ subProcess.deleteLumiFromCache(phid, run, lumi); });
-    FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
+  void EventProcessor::deleteLumiFromCache(LuminosityBlockProcessingStatus& iStatus) {
+    for(auto& s: subProcesses_) { s.deleteLumiFromCache(*iStatus.lumiPrincipal());}
+    iStatus.lumiPrincipal()->clearPrincipal();
+    //FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
   bool EventProcessor::readNextEventForStream(unsigned int iStreamIndex,
@@ -1457,7 +1469,6 @@ namespace edm {
   void EventProcessor::processEventAsyncImpl(WaitingTaskHolder iHolder,
                                          unsigned int iStreamIndex) {
     auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
-    pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
 
     ServiceRegistry::Operate operate(serviceToken_);
     Service<RandomNumberGenerator> rng;
@@ -1465,9 +1476,6 @@ namespace edm {
       Event ev(*pep, ModuleDescription(), nullptr);
       rng->postEventRead(ev);
     }
-    assert(pep->luminosityBlockPrincipalPtrValid());
-    assert(principalCache_.lumiPrincipalPtr()->run() == pep->run());
-    assert(principalCache_.lumiPrincipalPtr()->luminosityBlock() == pep->luminosityBlock());
     
     WaitingTaskHolder finalizeEventTask( make_waiting_task(
                     tbb::task::allocate_root(),

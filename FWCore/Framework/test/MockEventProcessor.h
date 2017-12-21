@@ -17,6 +17,8 @@ Original Authors: W. David Dagenhart, Marc Paterno
 #include <exception>
 
 namespace edm {
+  class LuminosityBlockProcessingStatus;
+  
   class MockEventProcessor {
   public:
     class TestException : public std::exception {
@@ -54,17 +56,18 @@ namespace edm {
     void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalTransitionSucceeded);
     void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTranstitionSucceeded, bool cleaningUpAfterException);
 
-    void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool& globalTransitionSucceeded);
-    void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool globalTransitionSucceeded, bool cleaningUpAfterException);
+    void beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status,
+                   bool& globalTransitionSucceeded);
+    void endLumi(std::shared_ptr<LuminosityBlockProcessingStatus>, bool globalTransitionSucceeded, bool cleaningUpAfterException);
 
     std::pair<ProcessHistoryID,RunNumber_t> readRun();
     std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
-    int readLuminosityBlock();
-    int readAndMergeLumi();
+    int readLuminosityBlock(LuminosityBlockProcessingStatus& );
+    int readAndMergeLumi(LuminosityBlockProcessingStatus&);
     void writeRun(ProcessHistoryID const& phid, RunNumber_t run);
     void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
-    void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    void writeLumi(LuminosityBlockProcessingStatus&);
+    void deleteLumiFromCache(LuminosityBlockProcessingStatus&);
 
     bool shouldWeStop() const;
 

@@ -426,8 +426,8 @@ void testEvent::setUp() {
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
   auto runAux = std::make_shared<RunAuxiliary>(id.run(), time, time);
   auto rp = std::make_shared<RunPrincipal>(runAux, preg, pc, &historyAppender_,0);
-  auto lumiAux = std::make_shared<LuminosityBlockAuxiliary>(rp->run(), 1, time, time);
-  auto lbp = std::make_shared<LuminosityBlockPrincipal>(lumiAux, preg, pc, &historyAppender_,0);
+  auto lbp = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_,0);
+  lbp->setAux(LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   lbp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
