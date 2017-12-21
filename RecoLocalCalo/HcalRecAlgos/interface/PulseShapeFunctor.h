@@ -39,6 +39,10 @@ namespace FitterFuncs{
      double singlePulseShapeFunc( const double *x );
      double doublePulseShapeFunc( const double *x );
      double triplePulseShapeFunc( const double *x );
+
+     void getPulseShape(std::array<double,HcalConst::maxSamples>& fillPulseShape) { 
+       fillPulseShape = pulse_shape_;
+     }
      
    private:
      std::array<float,HcalConst::maxPSshapeBin> pulse_hist;
