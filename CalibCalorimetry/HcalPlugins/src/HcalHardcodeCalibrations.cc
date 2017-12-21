@@ -663,7 +663,7 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (c
   for (const auto& cell: cells) {
     float rcalib = 1.;
     int granularity = 1;
-    int threshold = 1;
+    int threshold = 0;
 
     if (dbHardcode.useHEUpgrade() or dbHardcode.useHFUpgrade()) {
        // Use values from 2016 as starting conditions for 2017+.  These are
@@ -697,19 +697,15 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (c
 	  HcalTrigTowerDetId id(cell);
 	  if(id.ietaAbs() <= 17) {
 	    granularity = 1;
-	    threshold = 4;
 	  }
 	  else if(id.ietaAbs() >= 18 && id.ietaAbs() <= 26) {
 	    granularity = 2;
-	    threshold = 2;
 	  }
 	  else if(id.ietaAbs() >= 27 && id.ietaAbs() <= 28) {
 	    granularity = 5;
-	    threshold = 1;
 	  }
 	  else {
 	    granularity = 0;
-	    threshold = 0;
 	  }
        }
     }
