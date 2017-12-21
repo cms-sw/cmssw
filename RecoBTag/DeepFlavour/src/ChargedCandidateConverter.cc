@@ -1,30 +1,22 @@
-#ifndef RecoSV_DeepFlavour_ChargedCandidateConverter_h
-#define RecoSV_DeepFlavour_ChargedCandidateConverter_h
+#include "RecoBTag/DeepFlavour/interface/ChargedCandidateConverter.h"
 
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
-#include "TrackInfoBuilder.h"
-#include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
-
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 namespace btagbtvdeep {
 
-  
-  class ChargedCandidateConverter {
-
-    public:
-
-      // conversion map from quality flags used in PV association and miniAOD one
-      constexpr static int qualityMap[8]  = {1,0,1,1,4,4,5,6};
+      constexpr static int qualityMap[8]  = {1,0,1,1,4,4,5,6};      
+      
 
       enum qualityFlagsShiftsAndMasks {
-            assignmentQualityMask = 0x7, assignmentQualityShift = 0,
-            trackHighPurityMask  = 0x8, trackHighPurityShift=3,
-            lostInnerHitsMask = 0x30, lostInnerHitsShift=4,
-            muonFlagsMask = 0x0600, muonFlagsShift=9
+            assignmentQualityMask = 0x7, 
+            assignmentQualityShift = 0,
+            trackHighPurityMask  = 0x8, 
+            trackHighPurityShift=3,
+            lostInnerHitsMask = 0x30, 
+            lostInnerHitsShift=4,
+            muonFlagsMask = 0x0600, 
+            muonFlagsShift=9
       };
-
+ 
       template <typename CandidateType>
       static void CommonCandidateToFeatures(const CandidateType * c_pf,
                                             const reco::Jet & jet,
@@ -116,12 +108,7 @@ namespace btagbtvdeep {
     
       } 
 
-  };
-
-  // static data member (avoid undefined ref)
-  constexpr int ChargedCandidateConverter::qualityMap[8]; 
 
 
 }
 
-#endif //RecoSV_DeepFlavour_ChargedCandidateConverter_h
