@@ -1,6 +1,4 @@
-#ifndef RecoBTag_DeepFlavour_DoubleBTagConverter_h
-#define RecoBTag_DeepFlavour_DoubleBTagConverter_h
-
+#include "RecoBTag/DeepFlavour/interface/DoubleBTagConverter.h"
 #include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
 #include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfoFeatures.h"
 
@@ -9,8 +7,6 @@
 
 namespace btagbtvdeep {
 
-  class DoubleBTagConverter {
-    public:
       static void DoubleBTagToFeatures(const reco::TaggingVariableList & tag_info_vars,
                                  BoostedDoubleSVTagInfoFeatures & tag_info_features) {
     
@@ -41,10 +37,8 @@ namespace btagbtvdeep {
 	tag_info_features.z_ratio = tag_info_vars.get(reco::btau::z_ratio, -999);
     
       } 
-  };
 
 }
 
-#endif //RecoBTag_DeepFlavour_DoubleBTagConverter_h
 
 
