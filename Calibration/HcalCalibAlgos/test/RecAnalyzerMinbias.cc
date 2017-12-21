@@ -1,3 +1,21 @@
+// -*- C++ -*-
+//
+// Package:    HcalCalibAlgos
+// Class:      RecAnalyzerMinbias
+// 
+/**\class RecAnalyzerMinbias RecAnalyzerMinbias.cc Calibration/HcalCalibAlgos/test/RecAnalyzerMinbias.cc
+
+ Description: Performs phi-symmetry studies of HB/HE/HF channels
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Sunanda Banerjee
+//         Created:  Thu Mar  4 18:52:02 CST 2012
+//
+//
+
 // system include files
 #include <memory>
 #include <string>
@@ -65,7 +83,7 @@ private:
   edm::Service<TFileService> fs_;
   bool                       theRecalib_, ignoreL1_, runNZS_, Noise_, fillHist_, init_;
   double                     eLowHB_, eHighHB_, eLowHE_, eHighHE_;
-  double                     eLowHF_, eHighHF_, runMin_, runMax_;
+  double                     eLowHF_, eHighHF_, eMin_, runMin_, runMax_;
   std::map<DetId,double>     corrFactor_;
   std::vector<unsigned int>  hcalID_;
   TTree                     *myTree_, *myTree1_;
@@ -109,6 +127,7 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) :
   eHighHE_              = iConfig.getParameter<double>("EHighHE");
   eLowHF_               = iConfig.getParameter<double>("ELowHF");
   eHighHF_              = iConfig.getParameter<double>("EHighHF");
+  eMin_                 = iConfig.getUntrackedParameter<double>("EMin",2.0);
   runMin_               = iConfig.getUntrackedParameter<double>("RunMin",303441.5);
   runMax_               = iConfig.getUntrackedParameter<double>("RunMax",304825.5);
   trigbit_              = iConfig.getUntrackedParameter<std::vector<int>>("TriggerBits");
@@ -189,6 +208,7 @@ void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("EHighHE", 150);
   desc.add<double>("ELowHF",  10);
   desc.add<double>("EHighHF", 150);
+  desc.addUntracked<double>("EMin",2.0);
   desc.addUntracked<double>("RunMin",303441.5);
   desc.addUntracked<double>("RunMax",304825.5);
   desc.addUntracked<std::vector<int> >("TriggerBits", iarray);
@@ -212,10 +232,14 @@ void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
    he_   = fs_->make<TH2D>("he",  "Noise in HE",61,-30.5,30.5,72,0.5,72.5);
    hf_   = fs_->make<TH2D>("hf",  "Noise in HF",82,-41.5,41.5,72,0.5,72.5);
    int nbin = (int)(runMax_-runMin_+0.2);
-   hbherun_ = fs_->make<TProfile>("hbherun","Fraction of channels in HB/HE with E>2 vs Run number",nbin,runMin_,runMax_,0.0,1.0);
-   hbrun_   = fs_->make<TProfile>("hbrun","Fraction of channels in HB with E>2 vs Run number",nbin,runMin_,runMax_,0.0,1.0);
-   herun_   = fs_->make<TProfile>("herun","Fraction of channels in HE with E>2 vs Run number",nbin,runMin_,runMax_,0.0,1.0);
-   hfrun_   = fs_->make<TProfile>("hfrun","Fraction of channels in HF with E>2 vs Run number",nbin,runMin_,runMax_,0.0,1.0);
+   sprintf (title, "Fraction of channels in HB/HE with E > %4.1f GeV vs Run number", eMin_);
+   hbherun_ = fs_->make<TProfile>("hbherun",title,nbin,runMin_,runMax_,0.0,1.0);
+   sprintf (title, "Fraction of channels in HB with E > %4.1f GeV vs Run number", eMin_);
+   hbrun_   = fs_->make<TProfile>("hbrun",title,nbin,runMin_,runMax_,0.0,1.0);
+   sprintf (title, "Fraction of channels in HE with E > %4.1f GeV vs Run number", eMin_);
+   herun_   = fs_->make<TProfile>("herun",title,nbin,runMin_,runMax_,0.0,1.0);
+   sprintf (title, "Fraction of channels in HF with E > %4.1f GeV vs Run number", eMin_);
+   hfrun_   = fs_->make<TProfile>("hfrun",title,nbin,runMin_,runMax_,0.0,1.0);
    for(int idet=1; idet<=4; idet++){
      sprintf(name, "%s", hc[idet].c_str());
      sprintf (title, "Noise distribution for %s", hc[idet].c_str());
@@ -504,7 +528,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
 	if (itr1 != histHC_.end()) itr1->second->Fill(energyhit);
       }
       h_[hid.subdet()-1]->Fill(energyhit);
-      if(energyhit >2) {
+      if (energyhit > eMin_) {
 	hbhe_->Fill(hid.ieta(),hid.iphi());
 	++count2;
 	if (id.subdetId() == HcalBarrel) {
@@ -574,7 +598,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
 	if (itr1 != histHC_.end()) itr1->second->Fill(energyhit);
       }
       h_[hid.subdet()-1]->Fill(energyhit);
-      if (energyhit >2) {
+      if (energyhit > eMin_) {
 	hf_->Fill(hid.ieta(),hid.iphi());
 	++count2HF;
       }

@@ -1,6 +1,26 @@
+// -*- C++ -*-
+//
+// Package:    IsolatedParticles
+// Class:      IsolatedTracksCone
+// 
+/**\class IsolatedTracksCone IsolatedTracksCone.cc Calibration/IsolatedParticles/plugins/IsolatedTracksCone.cc
+
+ Description: Studies properties of isolated particles in the context of
+              cone algorithm
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author: Jim Hirschauer (adaptation of Seema Sharma's
+//                                  IsolatedTracksNew)
+//         Created:  Thu Nov  6 15:30:40 CST 2008
+//
+//
 // system include files
 #include <cmath>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -117,43 +137,42 @@ private:
 
   static constexpr int nEtaBins_ = 4;
   static constexpr int nPBins_   = 21;
-  double genPartPBins[nPBins_+1], genPartEtaBins[nEtaBins_+1];
+  std::array<double,nPBins_+1> genPartPBins_;
+  std::array<double,nEtaBins_+1> genPartEtaBins;
 
-  int    debugTrks_;
-  bool   printTrkHitPattern_;
-  bool   doMC_;
-  int    myverbose_;
-  bool   useJetTrigger_;
-  double drLeadJetVeto_, ptMinLeadJet_;
+  const bool   doMC_;
+  const int    myverbose_;
+  const bool   useJetTrigger_;
+  const double drLeadJetVeto_, ptMinLeadJet_;
+  const int    debugTrks_;
+  const bool   printTrkHitPattern_;
 
-  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  const TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extTauJet_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extCenJet_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extFwdJet_;
+  const edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extTauJet_;
+  const edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extCenJet_;
+  const edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extFwdJet_;
 
-  edm::EDGetTokenT<EcalRecHitCollection>    tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection>    tok_EE_;
-  edm::EDGetTokenT<HBHERecHitCollection>    tok_hbhe_;
+  const edm::EDGetTokenT<EcalRecHitCollection>    tok_EB_;
+  const edm::EDGetTokenT<EcalRecHitCollection>    tok_EE_;
+  const edm::EDGetTokenT<HBHERecHitCollection>    tok_hbhe_;
 
-  edm::EDGetTokenT<reco::TrackCollection>   tok_genTrack_;
-  edm::EDGetTokenT<edm::SimTrackContainer>  tok_simTk_;
-  edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
+  const edm::EDGetTokenT<reco::TrackCollection>   tok_genTrack_;
+  const edm::EDGetTokenT<edm::SimTrackContainer>  tok_simTk_;
+  const edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
 
-  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloEB_;
-  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloEE_;
-  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloHH_;
-  edm::EDGetTokenT<edm::TriggerResults>     tok_trigger_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloEB_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloEE_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloHH_;
+  const edm::EDGetTokenT<edm::TriggerResults>     tok_trigger_;
 
-  double minTrackP_, maxTrackEta_, maxNearTrackP_;
-  
-  int    debugEcalSimInfo_;
-
-  bool   applyEcalIsolation_;
+  const double minTrackP_, maxTrackEta_, maxNearTrackP_;
+  const int    debugEcalSimInfo_;
+  const bool   applyEcalIsolation_;
 
   // track associator to detector parameters 
   TrackAssociatorParameters parameters_;
-  mutable TrackDetectorAssociator* trackAssociator_;
+  std::unique_ptr<TrackDetectorAssociator> trackAssociator_;
 
   TTree* ntp_;
 
@@ -305,51 +324,91 @@ private:
   std::vector<unsigned int>*          t_irun;
   std::vector<unsigned int>*          t_ievt;
   std::vector<unsigned int>*          t_ilum;
-  
 
 };
 
 IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) :
-   trackerHitAssociatorConfig_(consumesCollector()) {
+  doMC_(iConfig.getUntrackedParameter<bool>("doMC",false)), 
+  myverbose_(iConfig.getUntrackedParameter<int>("verbosity",5)),
+  useJetTrigger_(iConfig.getUntrackedParameter<bool>("useJetTrigger",false)),
+  drLeadJetVeto_(iConfig.getUntrackedParameter<double>("drLeadJetVeto",1.2)),
+  ptMinLeadJet_(iConfig.getUntrackedParameter<double>("ptMinLeadJet",15.0)),
+  debugTrks_(iConfig.getUntrackedParameter<int>("debugTracks")),
+  printTrkHitPattern_(iConfig.getUntrackedParameter<bool>("printTrkHitPattern")),
+  trackerHitAssociatorConfig_(consumesCollector()),
+  tok_L1extTauJet_(consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraTauJetSource"))),
+  tok_L1extCenJet_(consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraCenJetSource"))),
+  tok_L1extFwdJet_(consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraFwdJetSource"))),
+  tok_EB_(consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"))),
+  tok_EE_(consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"))),
+  tok_hbhe_(consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"))),
+  tok_genTrack_(consumes<reco::TrackCollection>(edm::InputTag("generalTracks"))),
+  tok_simTk_(consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"))),
+  tok_simVtx_(consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"))),
+  tok_caloEB_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEB"))),
+  tok_caloEE_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"))),
+  tok_caloHH_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"))),
+  tok_trigger_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","","HLT"))), 
+  minTrackP_(iConfig.getUntrackedParameter<double>("minTrackP",10.0)),
+  maxTrackEta_(iConfig.getUntrackedParameter<double>("maxTrackEta",5.0)),
+  maxNearTrackP_(iConfig.getUntrackedParameter<double>("maxNearTrackP",1.0)),
+  debugEcalSimInfo_(iConfig.getUntrackedParameter<int>("debugEcalSimInfo")),
+  applyEcalIsolation_(iConfig.getUntrackedParameter<bool>("applyEcalIsolation")),
+  t_v_hnNearTRKs(nullptr), t_v_hnLayers_maxNearP(nullptr), 
+  t_v_htrkQual_maxNearP(nullptr), t_v_hmaxNearP_goodTrk(nullptr),
+  t_v_hmaxNearP(nullptr), t_v_cone_hnNearTRKs(nullptr),
+  t_v_cone_hnLayers_maxNearP(nullptr), t_v_cone_htrkQual_maxNearP(nullptr),
+  t_v_cone_hmaxNearP_goodTrk(nullptr), t_v_cone_hmaxNearP(nullptr),
+  t_trkNOuterHits(nullptr), t_trkNLayersCrossed(nullptr),
+  t_dtFromLeadJet(nullptr), t_trkP(nullptr), t_simP(nullptr),
+  t_trkPt(nullptr), t_trkEta(nullptr), t_trkPhi(nullptr), t_e3x3(nullptr),
+  t_v_eDR(nullptr), t_v_eMipDR(nullptr), t_h3x3(nullptr), t_h5x5(nullptr),
+  t_hsim3x3(nullptr), t_hsim5x5(nullptr), t_nRH_h3x3(nullptr), 
+  t_nRH_h5x5(nullptr), t_hsim3x3Matched(nullptr), t_hsim5x5Matched(nullptr),
+  t_hsim3x3Rest(nullptr), t_hsim5x5Rest(nullptr), t_hsim3x3Photon(nullptr),
+  t_hsim5x5Photon(nullptr), t_hsim3x3NeutHad(nullptr), 
+  t_hsim5x5NeutHad(nullptr), t_hsim3x3CharHad(nullptr),
+  t_hsim5x5CharHad(nullptr), t_hsim3x3PdgMatched(nullptr),
+  t_hsim5x5PdgMatched(nullptr), t_hsim3x3Total(nullptr), 
+  t_hsim5x5Total(nullptr), t_hsim3x3NMatched(nullptr),
+  t_hsim3x3NRest(nullptr), t_hsim3x3NPhoton(nullptr),
+  t_hsim3x3NNeutHad(nullptr), t_hsim3x3NCharHad(nullptr),
+  t_hsim3x3NTotal(nullptr), t_hsim5x5NMatched(nullptr),
+  t_hsim5x5NRest(nullptr), t_hsim5x5NPhoton(nullptr),
+  t_hsim5x5NNeutHad(nullptr), t_hsim5x5NCharHad(nullptr),
+  t_hsim5x5NTotal(nullptr), t_distFromHotCell_h3x3(nullptr),
+  t_ietaFromHotCell_h3x3(nullptr), t_iphiFromHotCell_h3x3(nullptr),
+  t_distFromHotCell_h5x5(nullptr), t_ietaFromHotCell_h5x5(nullptr),
+  t_iphiFromHotCell_h5x5(nullptr), t_trkHcalEne(nullptr),
+  t_trkEcalEne(nullptr), t_v_hsimInfoConeMatched(nullptr),
+  t_v_hsimInfoConeRest(nullptr), t_v_hsimInfoConePhoton(nullptr),
+  t_v_hsimInfoConeNeutHad(nullptr), t_v_hsimInfoConeCharHad(nullptr),
+  t_v_hsimInfoConePdgMatched(nullptr), t_v_hsimInfoConeTotal(nullptr),
+  t_v_hsimInfoConeNMatched(nullptr), t_v_hsimInfoConeNRest(nullptr),
+  t_v_hsimInfoConeNPhoton(nullptr), t_v_hsimInfoConeNNeutHad(nullptr),
+  t_v_hsimInfoConeNCharHad(nullptr), t_v_hsimInfoConeNTotal(nullptr),
+  t_v_hsimCone(nullptr), t_v_hCone(nullptr), t_v_nRecHitsCone(nullptr),
+  t_v_nSimHitsCone(nullptr), t_v_distFromHotCell(nullptr),
+  t_v_ietaFromHotCell(nullptr), t_v_iphiFromHotCell(nullptr),
+  t_v_hlTriggers(nullptr), t_hltHB(nullptr), t_hltHE(nullptr),
+  t_hltL1Jet15(nullptr), t_hltJet30(nullptr), t_hltJet50(nullptr),
+  t_hltJet80(nullptr), t_hltJet110(nullptr), t_hltJet140(nullptr),
+  t_hltJet180(nullptr), t_hltL1SingleEG5(nullptr), t_hltZeroBias(nullptr),
+  t_hltMinBiasHcal(nullptr), t_hltMinBiasEcal(nullptr),
+  t_hltMinBiasPixel(nullptr), t_hltSingleIsoTau30_Trk5(nullptr),
+  t_hltDoubleLooseIsoTau15_Trk5(nullptr), t_v_RH_h3x3_ieta(nullptr),
+  t_v_RH_h3x3_iphi(nullptr), t_v_RH_h3x3_ene(nullptr),
+  t_v_RH_h5x5_ieta(nullptr), t_v_RH_h5x5_iphi(nullptr),
+  t_v_RH_h5x5_ene(nullptr), t_v_RH_r26_ieta(nullptr), t_v_RH_r26_iphi(nullptr),
+  t_v_RH_r26_ene(nullptr), t_v_RH_r44_ieta(nullptr), t_v_RH_r44_iphi(nullptr),
+  t_v_RH_r44_ene(nullptr), t_irun(nullptr), t_ievt(nullptr), t_ilum(nullptr) {
 
   //now do what ever initialization is needed
-  doMC_            = iConfig.getUntrackedParameter<bool>  ("DoMC", false); 
-  myverbose_      = iConfig.getUntrackedParameter<int>( "Verbosity", 5);
-  useJetTrigger_  = iConfig.getUntrackedParameter<bool>( "useJetTrigger", false);
-  drLeadJetVeto_  = iConfig.getUntrackedParameter<double>( "drLeadJetVeto",  1.2);
-  ptMinLeadJet_   = iConfig.getUntrackedParameter<double>( "ptMinLeadJet",  15.0);
-
-  debugTrks_          = iConfig.getUntrackedParameter<int>("DebugTracks");
-  printTrkHitPattern_ = iConfig.getUntrackedParameter<bool>("PrintTrkHitPattern");
-  
-  minTrackP_      = iConfig.getUntrackedParameter<double>( "minTrackP", 10.0);
-  maxTrackEta_    = iConfig.getUntrackedParameter<double>( "maxTrackEta", 5.0);
-  maxNearTrackP_  = iConfig.getUntrackedParameter<double>( "maxNearTrackP", 1.0);
-
-  debugEcalSimInfo_   = iConfig.getUntrackedParameter<int>("DebugEcalSimInfo");
-
-  applyEcalIsolation_ = iConfig.getUntrackedParameter<bool>("ApplyEcalIsolation");
-
-  tok_L1extTauJet_ = consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraTauJetSource"));
-  tok_L1extCenJet_ = consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraCenJetSource"));
-  tok_L1extFwdJet_ = consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraFwdJetSource"));
-
-  // hard coded collection access
-  tok_EB_   = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  tok_EE_   = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
-  tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
-  tok_genTrack_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
-  tok_simTk_    = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
-  tok_simVtx_   = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
-  tok_caloEB_   = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
-  tok_caloEE_   = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"));
-  tok_caloHH_   = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
-  tok_trigger_  = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","","HLT"));
 
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   edm::ConsumesCollector iC = consumesCollector();
   parameters_.loadParameters( parameters, iC);
-  trackAssociator_ =  new TrackDetectorAssociator();
+  trackAssociator_ = std::unique_ptr<TrackDetectorAssociator>(new TrackDetectorAssociator());
   trackAssociator_->useDefaultPropagator();
 
   if(myverbose_>=0) {
@@ -363,14 +422,173 @@ IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) :
   }
 }
 
-IsolatedTracksCone::~IsolatedTracksCone() {
-  delete  trackAssociator_;
+IsolatedTracksCone::~IsolatedTracksCone() { 
+  delete t_v_hnNearTRKs; 
+  delete t_v_hnLayers_maxNearP; 
+  delete t_v_htrkQual_maxNearP; 
+  delete t_v_hmaxNearP_goodTrk;
+  delete t_v_hmaxNearP;    
+  delete t_v_cone_hnNearTRKs; 
+  delete t_v_cone_hnLayers_maxNearP; 
+  delete t_v_cone_htrkQual_maxNearP; 
+  delete t_v_cone_hmaxNearP_goodTrk;
+  delete t_v_cone_hmaxNearP;    
+  delete t_trkNOuterHits;
+  delete t_trkNLayersCrossed;
+  delete t_dtFromLeadJet;
+  delete t_trkP;
+  delete t_simP;
+  delete t_trkPt;
+  delete t_trkEta;
+  delete t_trkPhi;
+  delete t_e3x3;
+  delete t_v_eDR;
+  delete t_v_eMipDR;
+  delete t_h3x3;
+  delete t_h5x5;
+  delete t_hsim3x3;
+  delete t_hsim5x5;
+  delete t_nRH_h3x3;
+  delete t_nRH_h5x5;
+  delete t_hsim3x3Matched;
+  delete t_hsim5x5Matched;
+  delete t_hsim3x3Rest;
+  delete t_hsim5x5Rest;
+  delete t_hsim3x3Photon;
+  delete t_hsim5x5Photon;
+  delete t_hsim3x3NeutHad;
+  delete t_hsim5x5NeutHad;
+  delete t_hsim3x3CharHad;
+  delete t_hsim5x5CharHad;
+  delete t_hsim3x3PdgMatched;
+  delete t_hsim5x5PdgMatched;
+  delete t_hsim3x3Total;
+  delete t_hsim5x5Total;
+  delete t_hsim3x3NMatched;
+  delete t_hsim3x3NRest;
+  delete t_hsim3x3NPhoton;
+  delete t_hsim3x3NNeutHad;
+  delete t_hsim3x3NCharHad;
+  delete t_hsim3x3NTotal;
+  delete t_hsim5x5NMatched;
+  delete t_hsim5x5NRest;
+  delete t_hsim5x5NPhoton;
+  delete t_hsim5x5NNeutHad;
+  delete t_hsim5x5NCharHad;
+  delete t_hsim5x5NTotal;
+  delete t_distFromHotCell_h3x3;
+  delete t_ietaFromHotCell_h3x3;
+  delete t_iphiFromHotCell_h3x3;
+  delete t_distFromHotCell_h5x5;
+  delete t_ietaFromHotCell_h5x5;
+  delete t_iphiFromHotCell_h5x5;
+  delete t_trkHcalEne;
+  delete t_trkEcalEne;
+  delete t_v_hsimInfoConeMatched;
+  delete t_v_hsimInfoConeRest;
+  delete t_v_hsimInfoConePhoton;
+  delete t_v_hsimInfoConeNeutHad;
+  delete t_v_hsimInfoConeCharHad;
+  delete t_v_hsimInfoConePdgMatched;
+  delete t_v_hsimInfoConeTotal;
+  delete t_v_hsimInfoConeNMatched;
+  delete t_v_hsimInfoConeNRest;
+  delete t_v_hsimInfoConeNPhoton;
+  delete t_v_hsimInfoConeNNeutHad;
+  delete t_v_hsimInfoConeNCharHad;
+  delete t_v_hsimInfoConeNTotal;
+  delete t_v_hsimCone;
+  delete t_v_hCone;
+  delete t_v_nRecHitsCone;
+  delete t_v_nSimHitsCone;
+  delete t_v_distFromHotCell;
+  delete t_v_ietaFromHotCell;
+  delete t_v_iphiFromHotCell;
+  delete t_v_hlTriggers;
+  delete t_hltHB;
+  delete t_hltHE;
+  delete t_hltL1Jet15;
+  delete t_hltJet30;
+  delete t_hltJet50;
+  delete t_hltJet80;
+  delete t_hltJet110;
+  delete t_hltJet140;
+  delete t_hltJet180;
+  delete t_hltL1SingleEG5;
+  delete t_hltZeroBias;
+  delete t_hltMinBiasHcal;
+  delete t_hltMinBiasEcal;
+  delete t_hltMinBiasPixel;
+  delete t_hltSingleIsoTau30_Trk5;
+  delete t_hltDoubleLooseIsoTau15_Trk5;
+  delete t_v_RH_h3x3_ieta;
+  delete t_v_RH_h3x3_iphi;
+  delete t_v_RH_h3x3_ene ;
+  delete t_v_RH_h5x5_ieta;
+  delete t_v_RH_h5x5_iphi;
+  delete t_v_RH_h5x5_ene ;
+  delete t_v_RH_r26_ieta ;
+  delete t_v_RH_r26_iphi ;
+  delete t_v_RH_r26_ene  ;
+  delete t_v_RH_r44_ieta ;
+  delete t_v_RH_r44_iphi ;
+  delete t_v_RH_r44_ene  ;
+  delete t_irun;
+  delete t_ievt;
+  delete t_ilum;
 }
 
 void IsolatedTracksCone::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<bool>("doMC",               false);
+  desc.addUntracked<int>("verbosity",           1);
+  desc.addUntracked<bool>("useJetTrigger",      false);
+  desc.addUntracked<double>("drLeadJetVeto",    1.2);
+  desc.addUntracked<double>("ptMinLeadJet",     15.0);
+  desc.addUntracked<int>("debugTracks",         0);
+  desc.addUntracked<bool>("printTrkHitPattern", true);
+  desc.addUntracked<double>("minTrackP",        1.0);
+  desc.addUntracked<double>("maxTrackEta",      2.6);
+  desc.addUntracked<double>("maxNearTrackP",    1.0);
+  desc.addUntracked<bool>("debugEcalSimInfo",   false);
+  desc.addUntracked<bool>("applyEcalIsolation", true);
+  desc.addUntracked<bool>("debugL1Info",        false);
+  desc.add<edm::InputTag>("L1extraTauJetSource",edm::InputTag("l1extraParticles","Tau"));
+  desc.add<edm::InputTag>("L1extraCenJetSource",edm::InputTag("l1extraParticles","Central"));
+  desc.add<edm::InputTag>("L1extraFwdJetSource",edm::InputTag("l1extraParticles","Forward"));
+
+  edm::ParameterSetDescription desc_TrackAssoc;
+  desc_TrackAssoc.add<double>("muonMaxDistanceSigmaX",0.0);
+  desc_TrackAssoc.add<double>("muonMaxDistanceSigmaY",0.0);
+  desc_TrackAssoc.add<edm::InputTag>("CSCSegmentCollectionLabel",edm::InputTag("cscSegments"));
+  desc_TrackAssoc.add<double>("dRHcal",9999.0);
+  desc_TrackAssoc.add<double>("dREcal",9999.0);
+  desc_TrackAssoc.add<edm::InputTag>("CaloTowerCollectionLabel",edm::InputTag("towerMaker"));
+  desc_TrackAssoc.add<bool>("useEcal",true);
+  desc_TrackAssoc.add<double>("dREcalPreselection",0.05);
+  desc_TrackAssoc.add<edm::InputTag>("HORecHitCollectionLabel",edm::InputTag("horeco"));
+  desc_TrackAssoc.add<double>("dRMuon",9999.0);
+  desc_TrackAssoc.add<std::string>("crossedEnergyType","SinglePointAlongTrajectory");
+  desc_TrackAssoc.add<double>("muonMaxDistanceX",5.0);
+  desc_TrackAssoc.add<double>("muonMaxDistanceY",5.0);
+  desc_TrackAssoc.add<bool>("useHO",false);
+  desc_TrackAssoc.add<bool>("accountForTrajectoryChangeCalo",false);
+  desc_TrackAssoc.add<edm::InputTag>("DTRecSegment4DCollectionLabel",edm::InputTag("dt4DSegments"));
+  desc_TrackAssoc.add<edm::InputTag>("EERecHitCollectionLabel",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc_TrackAssoc.add<double>("dRHcalPreselection",0.2);
+  desc_TrackAssoc.add<bool>("useMuon",false);
+  desc_TrackAssoc.add<bool>("useCalo",true);
+  desc_TrackAssoc.add<edm::InputTag>("EBRecHitCollectionLabel",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  desc_TrackAssoc.add<double>("dRMuonPreselection",0.2);
+  desc_TrackAssoc.add<bool>("truthMatch",false);
+  desc_TrackAssoc.add<edm::InputTag>("HBHERecHitCollectionLabel",edm::InputTag("hbhereco"));
+  desc_TrackAssoc.add<bool>("useHcal",true);
+  desc_TrackAssoc.add<bool>("usePreshower",false);
+  desc_TrackAssoc.add<double>("dRPreshowerPreselection",0.2);
+  desc_TrackAssoc.add<double>("trajectoryUncertaintyTolerance",1.0);
+  desc.add<edm::ParameterSetDescription>("TrackAssociatorParameters",desc_TrackAssoc);
+  descriptions.add("isolatedTracksCone",desc);
 }
 
 void IsolatedTracksCone::analyze(const edm::Event& iEvent, 
@@ -614,8 +832,8 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
       nFailHighPurityQaul++;
     }
     
-    h_RawPt ->Fill(pt1);
-    h_RawP  ->Fill(p1 );
+    h_RawPt->Fill(pt1);
+    h_RawP->Fill(p1);
     h_RawEta->Fill(eta1);
     h_RawPhi->Fill(phi1);
       
@@ -1207,15 +1425,14 @@ void IsolatedTracksCone::beginJob() {
   nEVT_failL1=0;
   nTRK=0;
   
-  double tempgen_TH[nPBins_+1] = { 0.0,  1.0,  2.0,  3.0,  4.0,  
-				   5.0,  6.0,  7.0,  8.0,  9.0, 
-				   10.0, 12.0, 15.0, 20.0, 25.0, 
-				   30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 100};
-  for(int i=0; i<nPBins_+1; i++)  genPartPBins[i]  = tempgen_TH[i];
+  genPartPBins_ = { { 0.0,  1.0,  2.0,  3.0,  4.0,  
+		      5.0,  6.0,  7.0,  8.0,  9.0, 
+		      10.0, 12.0, 15.0, 20.0, 25.0, 
+		      30.0, 40.0, 50.0, 60.0, 70.0,
+		      80.0, 100.0} };
 
 
-  double tempgen_Eta[nEtaBins_+1] = {0.0, 0.5, 1.1, 1.7, 2.0};
-  for(int i=0; i<nEtaBins_+1; i++) genPartEtaBins[i] = tempgen_Eta[i];
+  genPartEtaBins = { {0.0, 0.5, 1.1, 1.7, 2.0} };
 
   t_v_hnNearTRKs           = new std::vector<std::vector<int> >   (); 
   t_v_hnLayers_maxNearP    = new std::vector<std::vector<int> >   (); 
@@ -1510,8 +1727,8 @@ void IsolatedTracksCone::endJob() {
 void IsolatedTracksCone::buildTree(){
 
   edm::Service<TFileService> fs;
-  h_RawPt  = fs->make<TH1F>("hRawPt ", "hRawPt ",  100,  0.0, 100.0);
-  h_RawP   = fs->make<TH1F>("hRawP  ", "hRawP  ",  100,  0.0, 100.0);
+  h_RawPt  = fs->make<TH1F>("hRawPt",  "hRawPt",   100,  0.0, 100.0);
+  h_RawP   = fs->make<TH1F>("hRawP",   "hRawP",    100,  0.0, 100.0);
   h_RawEta = fs->make<TH1F>("hRawEta", "hRawEta",   15,  0.0,   3.0);
   h_RawPhi = fs->make<TH1F>("hRawPhi", "hRawPhi",  100, -3.2,   3.2);
 

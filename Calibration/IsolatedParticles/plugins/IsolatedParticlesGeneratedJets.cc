@@ -1,3 +1,22 @@
+// -*- C++ -*-
+//
+// Package:    IsolatedParticles
+// Class:      IsolatedParticlesGeneratedJets
+// 
+/**\class IsolatedParticlesGeneratedJets IsolatedParticlesGeneratedJets.cc Calibration/IsolatedParticles/plugins/IsolatedParticlesGeneratedJets.cc
+
+ Description: Studies properties of jets at generator level in context of
+              isolated particles
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Seema Sharma
+//         Created:  Thu Mar  4 18:52:02 CST 2010
+//
+//
+
 // user include files
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -43,11 +62,11 @@ private:
   void bookHistograms();
   void clearTreeVectors();
   
-  bool             debug_;
+  const bool        debug_;
   TTree            *tree_;
 
-  edm::EDGetTokenT<reco::GenJetCollection>      tok_jets_;
-  edm::EDGetTokenT<reco::GenParticleCollection> tok_parts_;
+  const edm::EDGetTokenT<reco::GenJetCollection>      tok_jets_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> tok_parts_;
 
   std::vector<int>    *t_gjetN;
   std::vector<double> *t_gjetE, *t_gjetPt, *t_gjetEta, *t_gjetPhi;
@@ -61,12 +80,12 @@ private:
 };
 
 IsolatedParticlesGeneratedJets::IsolatedParticlesGeneratedJets(const edm::ParameterSet& iConfig) :
-  debug_(iConfig.getUntrackedParameter<bool>("Debug",false)) {
+  debug_(iConfig.getUntrackedParameter<bool>("Debug",false)),
+  tok_jets_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("JetSource"))),
+  tok_parts_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("ParticleSource"))) {
 
   usesResource(TFileService::kSharedResource);
-
-  tok_jets_  = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("JetSource"));
-  tok_parts_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("ParticleSource"));
+  
 }
 
 void IsolatedParticlesGeneratedJets::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
