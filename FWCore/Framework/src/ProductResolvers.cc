@@ -374,7 +374,7 @@ namespace edm {
       //Have to create a new task which will make sure the state for UnscheduledProductResolver
       // is properly set after the module has run
       auto t = make_waiting_task(tbb::task::allocate_root(),
-                                 [this,&principal, skipCurrentProcess,sra,mcc](std::exception_ptr const* iPtr)
+                                 [this](std::exception_ptr const* iPtr)
       {
         //The exception is being rethrown because resolveProductImpl sets the ProductResolver to a failed
         // state for the case where an exception occurs during the call to the function.

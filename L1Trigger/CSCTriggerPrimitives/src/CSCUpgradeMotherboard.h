@@ -57,7 +57,7 @@ public:
     void getMatched(std::vector<CSCCorrelatedLCTDigi>&) const;
 
     // array with stored LCTs
-    CSCCorrelatedLCTDigi data[CSCMotherboard::MAX_LCT_BINS][15][2];
+    CSCCorrelatedLCTDigi data[CSCConstants::MAX_LCT_TBINS][15][2];
 
     // matching trigger window
     const unsigned int match_trig_window_size;
@@ -117,7 +117,7 @@ public:
   std::unique_ptr<CSCUpgradeMotherboardLUTGenerator> generator_;
 
   /** "preferential" index array in matching window for cross-BX sorting */
-  int pref[MAX_LCT_BINS];
+  int pref[CSCConstants::MAX_LCT_TBINS];
 
   bool match_earliest_alct_only;
   bool match_earliest_clct_only;

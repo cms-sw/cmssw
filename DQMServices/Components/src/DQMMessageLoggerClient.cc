@@ -25,9 +25,7 @@ DQMMessageLoggerClient::DQMMessageLoggerClient( const edm::ParameterSet& ps ) {
 }
 
 
-DQMMessageLoggerClient::~DQMMessageLoggerClient() {
-
-}
+DQMMessageLoggerClient::~DQMMessageLoggerClient() = default;
 
 
 
@@ -81,7 +79,7 @@ void DQMMessageLoggerClient::fillHistograms(){
   
   int mel = 0;
   
-  for(vector<string>::const_iterator ent = entries.begin();
+  for(auto ent = entries.begin();
                                       ent != entries.end(); ++ent) {
     mel++;
     //RESET VECTORS
@@ -105,7 +103,7 @@ void DQMMessageLoggerClient::fillHistograms(){
 	if( rootHisto->GetBinContent(bin)>0){ 
 	  nonzeros++;
 	  binContent.push_back(rootHisto->GetBinContent(bin));
-	  binLabel.push_back(rootHisto->GetXaxis()->GetBinLabel(bin));
+	  binLabel.emplace_back(rootHisto->GetXaxis()->GetBinLabel(bin));
 	}
 	
       }

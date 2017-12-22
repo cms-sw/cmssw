@@ -54,6 +54,7 @@
 
 // system include files
 #include <atomic>
+#include <cassert>
 
 #include "tbb/task.h"
 #include "tbb/concurrent_queue.h"
@@ -70,6 +71,13 @@ namespace edm {
       m_pauseCount{0}
       {  }
       
+      SerialTaskQueue(SerialTaskQueue&& iOther):
+        m_tasks(std::move(iOther.m_tasks)),
+        m_taskChosen(iOther.m_taskChosen.exchange(false)),
+        m_pauseCount(iOther.m_pauseCount.exchange(0))
+      {
+        assert(m_tasks.empty() and m_taskChosen == false);
+      }
       ~SerialTaskQueue();
       
       // ---------- const member functions ---------------------

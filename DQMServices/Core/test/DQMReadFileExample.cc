@@ -38,11 +38,11 @@ Implementation:
 class DQMReadFileExample : public edm::EDAnalyzer {
 public:
   explicit DQMReadFileExample( const edm::ParameterSet& );
-  ~DQMReadFileExample();
+  ~DQMReadFileExample() override;
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
-  virtual void endJob(void);
+  void endJob() override;
 
 private:
   // ----------member data ---------------------------
@@ -102,7 +102,7 @@ void DQMReadFileExample::removeAll()
   dbe->rmdir("Summary");
 }
 
-void DQMReadFileExample::endJob(void)
+void DQMReadFileExample::endJob()
 {
   dbe->showDirStructure();
   // dbe->save("test.root");  

@@ -152,7 +152,7 @@ namespace edm {
         ExternalWork() = default;
         ExternalWork(ExternalWork const&) = delete;
         ExternalWork& operator=(ExternalWork const&) = delete;
-        ~ExternalWork() noexcept(false) {};
+        virtual ~ExternalWork() noexcept(false) {};
 
         virtual void acquire(Event const&,
                              edm::EventSetup const&,
