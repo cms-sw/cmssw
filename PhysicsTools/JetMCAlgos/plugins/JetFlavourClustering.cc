@@ -328,7 +328,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      insertGhosts(leptons, ghostRescaling_, false, false, false, true, fjInputs);
 
    // define jet clustering sequence
-   fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( std::move(fjInputs), *fjJetDefinition_ ) );//move, fjInputs are not needed anymore
+   fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs, *fjJetDefinition_ ) );
    // recluster jet constituents and inserted "ghosts"
    std::vector<fastjet::PseudoJet> inclusiveJets = fastjet::sorted_by_pt( fjClusterSeq_->inclusive_jets(jetPtMin_) );
 
