@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 
@@ -12,6 +12,10 @@
 
 #include "ATOOLS/Org/Run_Parameter.H"
 #include "ATOOLS/Org/MyStrStream.H"
+#include "ATOOLS/Org/CXXFLAGS.H"
+#include "ATOOLS/Org/CXXFLAGS_PACKAGES.H"
+#include "ATOOLS/Org/My_MPI.H"
+
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
@@ -46,14 +50,16 @@ public:
   void statistics();
   bool generatePartonsAndHadronize();
   bool decay();
+  bool rearrangeWeights;
   bool residualDecay();
   void finalizeEvent();
+  GenLumiInfoHeader *getGenLumiInfoHeader() const override;
   const char *classname() const { return "SherpaHadronizer"; }
 
 
 private:
 
-  virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+  void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
 
   std::string SherpaProcess;
   std::string SherpaChecksum;
@@ -64,10 +70,10 @@ private:
   edm::ParameterSet  SherpaParameterSet;
   unsigned int maxEventsToPrint;
   std::vector<std::string> arguments;
-  SHERPA::Sherpa Generator;
+  SHERPA::Sherpa *Generator = new SHERPA::Sherpa();
   bool isInitialized;
   bool isRNGinitialized;
-  bool rearrangeWeights;  
+//  bool rearrangeWeights;  
   std::vector<std::string> weightlist;
   std::vector<std::string> variationweightlist;
 };
@@ -185,17 +191,23 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
 
   //create the command line
-  arguments.push_back(shRun.c_str());
-  arguments.push_back(shPath.c_str());
-  arguments.push_back(shPathPiece.c_str());
-  arguments.push_back(shRes.c_str());
-  arguments.push_back(shRng.c_str());
+  arguments.push_back(shRun);
+  arguments.push_back(shPath);
+  arguments.push_back(shPathPiece);
+  arguments.push_back(shRes);
+  arguments.push_back(shRng);
+
   isInitialized=false;
  //initialization of Sherpa moved to initializeForInternalPartons
 }
 
 SherpaHadronizer::~SherpaHadronizer()
 {
+  Generator->~Sherpa();
+  #ifdef USING__MPI
+    MPI::Finalize();
+  #endif
+
 }
 
 bool SherpaHadronizer::initializeForInternalPartons()
@@ -205,58 +217,34 @@ bool SherpaHadronizer::initializeForInternalPartons()
       int argc=arguments.size();
       char* argv[argc];
       for (int l=0; l<argc; l++) argv[l]=(char*)arguments[l].c_str();
-      Generator.InitializeTheRun(argc,argv);
-      Generator.InitializeTheEventHandler();
+      #ifdef USING__MPI
+        MPI::Init();
+      #endif
+      Generator->InitializeTheRun(argc,argv);
+      Generator->InitializeTheEventHandler();
       isInitialized=true;
   }
   return true;
 }
 
-#if 0
-// naive Sherpa HepMC status fixup //FIXME
-static int getStatus(const HepMC::GenParticle *p)
-{
-  return status;
-}
-#endif
-
 //FIXME
 bool SherpaHadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 {
-#if 0
-  for(std::vector<int>::const_iterator iter = pdgIds.begin();
-      iter != pdgIds.end(); ++iter)
-    if (!markStable(*iter))
-      return false;
-
-  return true;
-#else
   return false;
-#endif
 }
 
 
 void SherpaHadronizer::statistics()
 {
   //calculate statistics
-  Generator.SummarizeRun();
+  Generator->SummarizeRun();
 
   //get the xsec & err
-  double xsec_val = Generator.TotalXS();
-  double xsec_err = Generator.TotalErr();
+  double xsec_val = Generator->TotalXS();
+  double xsec_err = Generator->TotalErr();
 
   //set the internal cross section in pb in GenRunInfoProduct
   runInfo().setInternalXSec(GenRunInfoProduct::XSec(xsec_val,xsec_err));
-  
-  if(rearrangeWeights){
-      edm::LogPrint("SherpaHadronizer") << "The order of event weights was changed!" ;
-      for(auto &i: weightlist){
-          edm::LogVerbatim("SherpaHadronizer") << i;
-      }
-      for(auto &i: variationweightlist) {
-          edm::LogVerbatim("SherpaHadronizer") << i;
-      }
-  }
 
 }
 
@@ -269,18 +257,18 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
   bool gen_event = true;
   while((itry < 3) && gen_event){
     try{
-      rc = Generator.GenerateOneEvent();
+      rc = Generator->GenerateOneEvent();
       gen_event = false;
     } catch(...){
       ++itry;
-      std::cerr << "Exception from Generator.GenerateOneEvent() catch. Call # "
+      std::cerr << "Exception from Generator->GenerateOneEvent() catch. Call # "
            << itry << " for this event\n";
     }
   }
   if (rc) {
     //convert it to HepMC2
     HepMC::GenEvent* evt = new HepMC::GenEvent();
-    Generator.FillHepMCEvent(*evt);
+    Generator->FillHepMCEvent(*evt);
 
     // in case of unweighted events sherpa puts the max weight as event weight.
     // this is not optimal, we want 1 for unweighted events, so we check
@@ -355,11 +343,6 @@ bool SherpaHadronizer::residualDecay()
 
 void SherpaHadronizer::finalizeEvent()
 {
-#if 0
-   for(HepMC::GenEvent::particle_iterator iter = event->particles_begin();
-       iter != event->particles_end(); iter++)
-      (*iter)->set_status(getStatus(*iter));
-#endif
    //******** Verbosity *******
    if (maxEventsToPrint > 0) {
       maxEventsToPrint--;
@@ -388,6 +371,24 @@ double CMS_SHERPA_RNG::Get() {
   return randomEngine->flat();
 
 }
+
+GenLumiInfoHeader *SherpaHadronizer::getGenLumiInfoHeader() const {
+  GenLumiInfoHeader *genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
+ 
+  if(rearrangeWeights){
+      edm::LogPrint("SherpaHadronizer") << "The order of event weights was changed!" ;
+      for(auto &i: weightlist){
+          genLumiInfoHeader->weightNames().push_back(i);
+          edm::LogVerbatim("SherpaHadronizer") << i;
+      }
+      for(auto &i: variationweightlist) {
+          genLumiInfoHeader->weightNames().push_back(i);
+          edm::LogVerbatim("SherpaHadronizer") << i;
+      }
+  }
+  return genLumiInfoHeader;
+}
+
 
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
