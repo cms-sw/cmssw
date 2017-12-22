@@ -9,13 +9,10 @@
 
 namespace btagbtvdeep {
 
-  class BTagConverter {
-    public:
 
-      static void BTagToFeatures(const reco::TaggingVariableList & tag_info_vars,
-                                 ShallowTagInfoFeatures & tag_info_features) ;
+      void BTagToFeatures(const reco::TaggingVariableList & tag_info_vars,
+                                 ShallowTagInfoFeatures & tag_info_features);
     
-  };
 
 }
 

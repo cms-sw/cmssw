@@ -447,6 +447,7 @@
     <version ClassVersion="3" checksum="2487956635"/>
   </class>
   <class name="btagbtvdeep::DeepDoubleBFeatures"/>
+  <class name="btagbtvdeep::BoostedDoubleSVTagInfoFeatures"/>
 
 
   <class name="reco::DeepFlavourTagInfo"/>
