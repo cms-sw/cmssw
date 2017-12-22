@@ -105,8 +105,8 @@
 //
 // constants, enums and typedefs
 //
-typedef boost::shared_ptr<fastjet::ClusterSequence>  ClusterSequencePtr;
-typedef boost::shared_ptr<fastjet::JetDefinition>    JetDefPtr;
+typedef std::shared_ptr<fastjet::ClusterSequence>  ClusterSequencePtr;
+typedef std::shared_ptr<fastjet::JetDefinition>    JetDefPtr;
 
 //
 // class declaration
@@ -294,6 +294,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // vector of constituents for reclustering jets and "ghosts"
    std::vector<fastjet::PseudoJet> fjInputs;
+   fjInputs.reserve(jets->size()*128 + bHadrons->size() + cHadrons->size() + partons->size());
    // loop over all input jets and collect all their constituents
    for(edm::View<reco::Jet>::const_iterator it = jets->begin(); it != jets->end(); ++it)
    {
@@ -473,6 +474,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
+   //deallocate only at the end of the event processing
+   fjClusterSeq_.reset();
+  
    // put jet flavour infos in the event
    iEvent.put(std::move(jetFlavourInfos));
    // put subjet flavour infos in the event
