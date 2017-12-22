@@ -82,7 +82,7 @@ ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # ---------- pixels ----------
 
-from EventFilter.CTPPSRawToDigi.ctppsPixelRawToDigi_cfi import ctppsPixelDigis
+from EventFilter.CTPPSRawToDigi.ctppsPixelDigis_cfi import ctppsPixelDigis
 ctppsPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 
 # raw-to-digi sequence
