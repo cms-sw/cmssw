@@ -52,7 +52,7 @@ private:
 
 HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(nullptr) {
 #ifdef EDM_ML_DEBUG
-  std::cout <<"constructing HcalDDDRecConstantsESModule" << std::endl;
+  edm::LogVerbatim("HcalGeom") <<"constructing HcalDDDRecConstantsESModule";
 #endif
   setWhatProduced(this);
 }
@@ -68,7 +68,7 @@ void HcalDDDRecConstantsESModule::fillDescriptions( edm::ConfigurationDescriptio
 HcalDDDRecConstantsESModule::ReturnType
 HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
-  std::cout << "in HcalDDDRecConstantsESModule::produce" << std::endl;
+  edm::LogVerbatim("HcalGeom") << "in HcalDDDRecConstantsESModule::produce";
 #endif
   if (hcalDDDConst_ == nullptr) {
     edm::ESHandle<HcalParameters>         parHandle;
