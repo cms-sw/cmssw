@@ -71,6 +71,7 @@ class TTStub
     float theRealOffset;
     float theHardwareBend;
 
+    static constexpr float dummyBend = 999999; // Dumy value should be away from potential bends
 }; /// Close class
 
 /*! \brief   Implementation of methods
@@ -86,10 +87,10 @@ TTStub< T >::TTStub()
 {
   /// Set default data members
   theDetId = 0;
-  theDisplacement = 999999;
+  theDisplacement = dummyBend;
   theOffset = 0;
   theRealOffset = 0;
-  theHardwareBend = 999999;
+  theHardwareBend = dummyBend;
 }
 
 /// Another Constructor
@@ -100,10 +101,10 @@ TTStub< T >::TTStub( DetId aDetId )
   this->setDetId( aDetId );
 
   /// Set default data members
-  theDisplacement = 999999;
+  theDisplacement = dummyBend;
   theOffset = 0;
   theRealOffset = 0;
-  theHardwareBend = 999999;
+  theHardwareBend = dummyBend;
 }
 
 /// Destructor
@@ -157,7 +158,7 @@ double TTStub< T >::getTriggerPosition() const
 template< typename T >
 double TTStub< T >::getTriggerBend() const
 {
-  if ( theDisplacement == 999999 )
+  if ( theDisplacement == dummyBend )
     return theDisplacement;
 
   return 0.5*( theDisplacement - theOffset );
@@ -166,7 +167,7 @@ double TTStub< T >::getTriggerBend() const
 template< typename T >
 double TTStub< T >::getHardwareBend() const
 {
-  if ( theHardwareBend == 999999 )
+  if ( theHardwareBend == dummyBend )
     return this->getTriggerBend(); // If not set make it transparent
 
   return theHardwareBend;

@@ -165,15 +165,13 @@ bool TTClusterAssociationMap< T >::isGenuine( edm::Ref< edmNew::DetSetVector< TT
 
   std::vector<float> tp_mom;
 
-  tp_mom.clear();
-
   float tp_tot=0;
 
   /// Loop over the TrackingParticles
-  for ( unsigned int itp = 0; itp < theseTrackingParticles.size(); itp++ )
+  for ( const auto& tp : theseTrackingParticles )
   {
     /// Get the TrackingParticle
-    edm::Ptr< TrackingParticle > curTP = theseTrackingParticles.at(itp);
+    edm::Ptr< TrackingParticle > curTP = tp;
 
     /// Count the NULL TrackingParticles
     if ( curTP.isNull() )
@@ -213,17 +211,7 @@ bool TTClusterAssociationMap< T >::isGenuine( edm::Ref< edmNew::DetSetVector< TT
   std::sort( tpAddressVector.begin(), tpAddressVector.end() );
   tpAddressVector.erase( std::unique( tpAddressVector.begin(), tpAddressVector.end() ), tpAddressVector.end() );
   goodDifferentTPs = tpAddressVector.size();
-  /*
-  bool isGenuine=( nullTPs == 0 && goodDifferentTPs == 1 );
 
-  if (!isGenuine)
-  {
-    std::cout << "Into IsGenuineCluster " << theseTrackingParticles.size() << std::endl;
-    std::cout << nullTPs << " / " << goodDifferentTPs << " / " << ( nullTPs == 0 && goodDifferentTPs == 1 ) << std::endl;
-  }
-  */
-  /// GENUINE means no NULLs and only one good TP
-  //return ( nullTPs == 0 && goodDifferentTPs == 1 );
   return ( goodDifferentTPs == 1 );
 }
 

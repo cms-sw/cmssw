@@ -37,9 +37,10 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 
   // Loop over all the tracker elements
 
-  for (auto gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++)
+  //  for (auto gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++)
+  for (const auto& gd : theTrackerGeom->dets())
   {
-    DetId detid = (*gd)->geographicalId();
+    DetId detid = (*gd).geographicalId();
     if(detid.subdetId()!=StripSubdetector::TOB && detid.subdetId()!=StripSubdetector::TID ) continue; // only run on OT
     if(!tTopo->isLower(detid) ) continue; // loop on the stacks: choose the lower arbitrarily
     DetId lowerDetid = detid;
@@ -50,6 +51,10 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
     bool is10G_PS = false;
     
     // Determine if this module is a 10G transmission scheme module
+    //
+    // sviret comment (221217): this info should be made available in conddb at some point
+    // not in TrackerTopology as some modules may switch between 10G and 5G transmission  
+    // schemes during running period
 
     if (detid.subdetId()==StripSubdetector::TOB)
     {
@@ -57,7 +62,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
     }
     else if (detid.subdetId()==StripSubdetector::TID)
     {
-      if (tTopo->tidWheel(detid)<=2 && tTopo->tidRing(detid)<=4) is10G_PS = true;
+      if (tTopo->tidRing(detid)<=high_rate_max_ring[tTopo->tidWheel(detid)-1]) is10G_PS = true;
     }
 
 
@@ -90,12 +95,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
     tempAccepted.clear();
 
     /// Get chip size information
-    //const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( lowerDetid );
-    //    const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
-    //const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
-    //const int chipSize = 2 * top0->rowsperroc(); /// Need to find ASIC size in half-strip units
-    int chipSize = 127; /// SV 21/11/17: previous line is wrong, need to find the right numbers
-
+    int chipSize = 127; /// SV 21/11/17: tracker topology method should be updated, currently provide wrong nums
     if (isPS) chipSize = 120;
 
     /// Loop over pairs of Clusters
@@ -174,9 +174,9 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
         {
 	  bool FEreject = false;
           /// This means that only some of them do
-          /// Put in the temporary output
-          MeasurementPoint mp0 = tempTTStub.getClusterRef(0)->findAverageLocalCoordinates();
-          int seg       = static_cast<int>(mp0.y());
+	  /// Put in the temporary output
+	  MeasurementPoint mp0 = tempTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+	  int seg       = static_cast<int>(mp0.y());
 	  if (isPS) seg = seg/16;
 	  int chip      = 1000*nmod+10*int(tempTTStub.getTriggerPosition()/chipSize)+seg; /// Find out which MPA/CBC ASIC
           int CIC_chip  = 10*nmod+seg; /// Find out which CIC ASIC
@@ -191,7 +191,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 	    if ( moduleStubs_MPA.find( chip ) == moduleStubs_MPA.end() ) /// Already a stub for this ASIC?
 	    {
 	      /// No, so new entry
-	      moduleStubs_MPA.insert( std::pair< int, int >( chip, 1 ) );
+	      moduleStubs_MPA.emplace(chip,1);
 	    }
 	    else
 	    {
@@ -201,20 +201,6 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 	      }
 	      else
 	      {
-		TTStub< Ref_Phase2TrackerDigi_ > tempTTStub2( tempTTStub.getDetId() );
-
-		tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(0)) );
-		tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(1)) );
-
-		// We flag the rejected stub this way, so that the bend will appear correct.
-		tempTTStub2.setTriggerDisplacement( 500+2.*tempTTStub.getTriggerDisplacement() );
-		tempTTStub2.setTriggerOffset( 500+2.*tempTTStub.getTriggerOffset() ); 
-		tempTTStub2.setRealTriggerOffset( 500+2.*tempTTStub.getRealTriggerOffset() );
-		tempTTStub2.setHardwareBend( tempTTStub.getHardwareBend() );
-
-		tempInner.push_back( *(tempTTStub2.getClusterRef(0)) );
-		tempOuter.push_back( *(tempTTStub2.getClusterRef(1)) );
-		tempAccepted.push_back( tempTTStub2 );
 		FEreject = true;
 	      }
 	    }
@@ -224,7 +210,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 	    if ( moduleStubs_CBC.find( chip ) == moduleStubs_CBC.end() ) /// Already a stub for this ASIC?
 	    {
 	      /// No, so new entry
-	      moduleStubs_CBC.insert( std::pair< int, int >( chip, 1 ) );
+	      moduleStubs_CBC.emplace(chip,1);
 	    }
 	    else
 	    {
@@ -234,29 +220,34 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 	      }
 	      else
 	      {
-		TTStub< Ref_Phase2TrackerDigi_ > tempTTStub2( tempTTStub.getDetId() );
-
-		tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(0)) );
-		tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(1)) );
-
-		tempTTStub2.setTriggerDisplacement( 500+2.*tempTTStub.getTriggerDisplacement() ); 
-		tempTTStub2.setTriggerOffset( 500+2.*tempTTStub.getTriggerOffset() ); 
-		tempTTStub2.setRealTriggerOffset( 500+2.*tempTTStub.getRealTriggerOffset() );
-		tempTTStub2.setHardwareBend( tempTTStub.getHardwareBend() );
-
-		tempInner.push_back( *(tempTTStub2.getClusterRef(0)) );
-		tempOuter.push_back( *(tempTTStub2.getClusterRef(1)) );
-		tempAccepted.push_back( tempTTStub2 );
 		FEreject = true;
 	      }
 	    }
 	  }
-
+       
 	  // End of the MPA/CBC loop
 
 	  // If the stub has been already thrown out, there is no reason to include it into the CIC stream
-	  if (FEreject) continue;
-	  
+	  // We keep is in the stub final container tough, but flagged as reject by FE
+
+	  if (FEreject) 
+	  {
+	    TTStub< Ref_Phase2TrackerDigi_ > tempTTStub2( tempTTStub.getDetId() );
+
+	    tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(0)) );
+	    tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(1)) );
+	    
+	    tempTTStub2.setTriggerDisplacement( 500+2.*tempTTStub.getTriggerDisplacement() ); 
+	    tempTTStub2.setTriggerOffset( 500+2.*tempTTStub.getTriggerOffset() ); 
+	    tempTTStub2.setRealTriggerOffset( 500+2.*tempTTStub.getRealTriggerOffset() );
+	    tempTTStub2.setHardwareBend( tempTTStub.getHardwareBend() );
+	    
+	    tempInner.push_back( *(tempTTStub2.getClusterRef(0)) );
+	    tempOuter.push_back( *(tempTTStub2.getClusterRef(1)) );
+	    tempAccepted.push_back( tempTTStub2 );
+	    continue;	  
+	  }
+
 	  (isPS)
 	    ? maxStubs = maxStubs_PS_CIC_5
 	    : maxStubs = maxStubs_2S_CIC_5;
@@ -265,13 +256,12 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 
 	  if ( moduleStubs_CIC.find( CIC_chip ) == moduleStubs_CIC.end() ) /// Already a stub for this ASIC?
           {
-            /// No, so new entry
-            std::vector< TTStub< Ref_Phase2TrackerDigi_ > > tempStubs(1,tempTTStub);
-            moduleStubs_CIC.insert( std::pair< int, std::vector< TTStub< Ref_Phase2TrackerDigi_ > > >( CIC_chip, tempStubs ) );
-
+	    /// No, so new entry
+	    std::vector< TTStub< Ref_Phase2TrackerDigi_ > > tempStubs(1,tempTTStub);
+	    moduleStubs_CIC.emplace(CIC_chip,tempStubs);
 	    tempInner.push_back( *(tempTTStub.getClusterRef(0)) );
-            tempOuter.push_back( *(tempTTStub.getClusterRef(1)) );
-            tempAccepted.push_back( tempTTStub ); // The stub is added
+	    tempOuter.push_back( *(tempTTStub.getClusterRef(1)) );
+	    tempAccepted.push_back( tempTTStub ); // The stub is added
           }
           else
           {
@@ -294,7 +284,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 	    
 	      for ( unsigned int i = 0; i < moduleStubs_CIC[CIC_chip].size(); ++i )
 	      {
-		bendMap.push_back( std::pair< unsigned int, double >( i, moduleStubs_CIC[CIC_chip].at(i).getTriggerBend() ) );
+		bendMap.emplace_back(i,moduleStubs_CIC[CIC_chip].at(i).getTriggerBend());
 	      }
 
 	      std::sort( bendMap.begin(), bendMap.end(), TTStubBuilder< Ref_Phase2TrackerDigi_ >::SortStubBendPairs );
@@ -373,8 +363,6 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
     }
 
   } /// End of loop over detector elements
-
-  //  std::cout << "After DE loop" << std::endl;
 
   /// Put output in the event (1)
   /// Get also the OrphanHandle of the accepted clusters

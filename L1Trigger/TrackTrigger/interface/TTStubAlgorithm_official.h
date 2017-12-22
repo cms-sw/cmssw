@@ -79,7 +79,7 @@ class TTStubAlgorithm_official : public TTStubAlgorithm< T >
                                 const TTStub< T > &aTTStub ) const override;
 
     float degradeBend(bool psModule, int window, int bend) const;
-
+    
 }; /// Close class
 
 /*! \brief   Implementation of methods
