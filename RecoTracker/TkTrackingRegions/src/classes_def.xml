@@ -2,4 +2,7 @@
   <class name="TrackingRegion" persistent="false"/>
   <class name="edm::OwnVector<TrackingRegion>" persistent="false"/>
   <class name="edm::Wrapper<edm::OwnVector<TrackingRegion> >" persistent="false"/>
+
+  <class name="TrackingRegionsSeedingLayerSets" persistent="false"/>
+  <class name="edm::Wrapper<TrackingRegionsSeedingLayerSets>" persistent="false"/>
 </lcgdict>

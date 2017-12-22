@@ -17,6 +17,7 @@
 #include <vector>
 
 #include <Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h>
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 class PedeSteerer;
 class PedeLabelerBase;
@@ -45,7 +46,7 @@ class PedeReader
   /// (if they fit to the run range). If (setUserVars == true) also care about
   /// MillePedeVariables.
   /// Also treats parameters belonging to a IntegratedCalibrationBase.
-  bool read(std::vector<Alignable*> &alignables, bool setUserVars);
+  bool read(align::Alignables& alignables, bool setUserVars);
   /// true if 'outValue' could be read via operator >> from the current line (!) of aStream,
   /// false otherwise
   template<class T>

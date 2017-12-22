@@ -321,5 +321,33 @@ namespace edm {
     return provRecorder_.getManyByType(results, moduleCallingContext_);
   }
 
+  // Free functions to retrieve a collection from the Run.
+  // Will throw an exception if the collection is not available.
+
+  template <typename T>
+  T const& get(Run const& event, InputTag const& tag) {
+    Handle<T> handle;
+    event.getByLabel(tag, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
+  template <typename T>
+  T const& get(Run const& event, EDGetToken const& token) {
+    Handle<T> handle;
+    event.getByToken(token, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
+  template <typename T>
+  T const& get(Run const& event, EDGetTokenT<T> const& token) {
+    Handle<T> handle;
+    event.getByToken(token, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
 }
-#endif
+
+#endif // FWCore_Framework_Run_h

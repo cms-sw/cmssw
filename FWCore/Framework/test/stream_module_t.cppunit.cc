@@ -402,7 +402,7 @@ m_ep()
 
 
   //For each transition, bind a lambda which will call the proper method of the Worker
-  m_transToFunc[Trans::kBeginStream] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kBeginStream] = [](edm::Worker* iBase) {
     edm::StreamContext streamContext(s_streamID0, nullptr);
     iBase->beginStream(s_streamID0, streamContext); };
   
@@ -449,7 +449,7 @@ m_ep()
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, parentContext, nullptr); };
 
-  m_transToFunc[Trans::kEndStream] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kEndStream] = [](edm::Worker* iBase) {
     edm::StreamContext streamContext(s_streamID0, nullptr);
     iBase->endStream(s_streamID0, streamContext); };
 

@@ -224,33 +224,41 @@ import DQM.TrackingMonitor.TrackingMonitorSeed_cfi
 from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
 # Create first modules for all possible iterations, select later which
 # ones to actually use based on era
-for step in seedInputTag.iterkeys():
-    label = 'TrackSeedMon'+str(step)
-    locals()[label] = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
+def _copyIfExists(mod, pset, name):
+    if hasattr(pset, name):
+        setattr(mod, name, getattr(pset, name))
+for _step, _pset in seedMonitoring.iteritems():
+    _mod = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
         doTrackCandHistos = cms.bool(True)
     )
-    locals()[label].TrackProducer = cms.InputTag("generalTracks")
-    locals()[label].FolderName    = cms.string("Tracking/TrackParameters/generalTracks")
-    locals()[label].SeedProducer  = seedInputTag[step]
-    locals()[label].TCProducer    = trackCandInputTag[step]
-    locals()[label].AlgoName      = cms.string( str(step) )
-    locals()[label].TkSeedSizeBin = trackSeedSizeBin[step]
-    locals()[label].TkSeedSizeMin = trackSeedSizeMin[step]
-    locals()[label].TkSeedSizeMax = trackSeedSizeMax[step]
-    locals()[label].ClusterLabels = clusterLabel[step]
-    if clusterLabel[step] == cms.vstring('Pix') :
-        locals()[label].NClusPxBin = clusterBin[step]
-        locals()[label].NClusPxMax = clusterMax[step]
-    elif clusterLabel[step] == cms.vstring('Strip') or clusterLabel[step] == cms.vstring('Tot') :
-        locals()[label].NClusStrBin = clusterBin[step]
-        locals()[label].NClusStrMax = clusterMax[step]
-    if step in regionLabel:
-        locals()[label].doRegionPlots = True
-        locals()[label].RegionProducer = regionLabel[step]
-        locals()[label].RegionCandidates = regionCandidateLabel[step]
-    if step in trajCandPerSeedBin:
-        locals()[label].SeedCandBin = trajCandPerSeedBin[step]
-        locals()[label].SeedCandMax = trajCandPerSeedMax[step]
+    locals()['TrackSeedMon'+str(_step)] = _mod
+    _mod.TrackProducer = cms.InputTag("generalTracks")
+    _mod.FolderName    = cms.string("Tracking/TrackParameters/generalTracks")
+    _mod.SeedProducer  = _pset.seedInputTag
+    _mod.TCProducer    = _pset.trackCandInputTag
+    _mod.AlgoName      = cms.string( str(_step) )
+    _mod.TkSeedSizeBin = _pset.trackSeedSizeBin
+    _mod.TkSeedSizeMin = _pset.trackSeedSizeMin
+    _mod.TkSeedSizeMax = _pset.trackSeedSizeMax
+    _mod.ClusterLabels = _pset.clusterLabel
+    if _pset.clusterLabel == cms.vstring('Pix') :
+        _mod.NClusPxBin = _pset.clusterBin
+        _mod.NClusPxMax = _pset.clusterMax
+    elif _pset.clusterLabel == cms.vstring('Strip') or _pset.clusterLabel == cms.vstring('Tot') :
+        _mod.NClusStrBin = _pset.clusterBin
+        _mod.NClusStrMax = _pset.clusterMax
+    if hasattr(_pset, "RegionProducer") or hasattr(_pset, "RegionSeedingLayersProducer"):
+        _mod.doRegionPlots = True
+        _copyIfExists(_mod, _pset, "RegionProducer")
+        _copyIfExists(_mod, _pset, "RegionSeedingLayersProducer")
+        _copyIfExists(_mod, _pset, "RegionSizeBin")
+        _copyIfExists(_mod, _pset, "RegionSizeMax")
+        if hasattr(_pset, "RegionCandidates"):
+            _mod.doRegionCandidatePlots = True
+            _mod.RegionCandidates = _pset.RegionCandidates
+    if hasattr(_pset, "trajCandPerSeedBin"):
+        _mod.SeedCandBin = _pset.trajCandPerSeedBin
+        _mod.SeedCandMax = _pset.trajCandPerSeedMax
 
 # DQM Services
 dqmInfoTracking = cms.EDAnalyzer("DQMEventInfo",

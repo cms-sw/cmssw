@@ -768,11 +768,22 @@ void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
         // store energy in highest depth for towers 18-27 (for electron,photon ID in endcap)
         // also, store energy in HE part of tower 16 (for JetMET cleanup)
         HcalDetId hcalDetId(detId);
-        if (hcalDetId.subdet()==HcalEndcap && theHcalPhase==0) {
-          if ( (hcalDetId.depth()==2 && hcalDetId.ietaAbs()>=18 && hcalDetId.ietaAbs()<27) ||
-               (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==27) ||
-               (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==16) ) {
-            tower.E_outer += e;
+        if (hcalDetId.subdet()==HcalEndcap){
+          if(theHcalPhase==0) {
+            if ( (hcalDetId.depth()==2 && hcalDetId.ietaAbs()>=18 && hcalDetId.ietaAbs()<27) ||
+                 (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==27) ||
+                 (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==16) ) {
+              tower.E_outer += e;
+            }
+          }
+          //combine depths in phase0-like way
+          else if(theHcalPhase==1) {
+            if ( (hcalDetId.depth()>=3 && hcalDetId.ietaAbs()>=18 && hcalDetId.ietaAbs()<26) ||
+                 (hcalDetId.depth()>=4 && (hcalDetId.ietaAbs()==26 || hcalDetId.ietaAbs()==27)) ||
+                 (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==17) ||
+                 (hcalDetId.depth()==4 && hcalDetId.ietaAbs()==16) ) {
+              tower.E_outer += e;
+            }
           }
         }
 

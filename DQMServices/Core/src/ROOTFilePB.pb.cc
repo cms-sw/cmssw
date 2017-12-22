@@ -224,7 +224,7 @@ const ROOTFilePB_Histo& ROOTFilePB_Histo::default_instance() {
 }
 
 ROOTFilePB_Histo* ROOTFilePB_Histo::New(::google::protobuf::Arena* arena) const {
-  ROOTFilePB_Histo* n = new ROOTFilePB_Histo;
+  auto* n = new ROOTFilePB_Histo;
   if (arena != nullptr) {
     arena->Own(n);
   }
@@ -504,7 +504,7 @@ size_t ROOTFilePB_Histo::ByteSizeLong() const {
 void ROOTFilePB_Histo::MergeFrom(const ::google::protobuf::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:dqmstorepb.ROOTFilePB.Histo)
   GOOGLE_DCHECK_NE(&from, this);
-  const ROOTFilePB_Histo* source =
+  const auto* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const ROOTFilePB_Histo>(
           &from);
   if (source == nullptr) {
@@ -813,7 +813,7 @@ const ROOTFilePB& ROOTFilePB::default_instance() {
 }
 
 ROOTFilePB* ROOTFilePB::New(::google::protobuf::Arena* arena) const {
-  ROOTFilePB* n = new ROOTFilePB;
+  auto* n = new ROOTFilePB;
   if (arena != nullptr) {
     arena->Own(n);
   }
@@ -927,7 +927,7 @@ size_t ROOTFilePB::ByteSizeLong() const {
   }
   // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
   {
-    unsigned int count = static_cast<unsigned int>(this->histo_size());
+    auto count = static_cast<unsigned int>(this->histo_size());
     total_size += 1UL * count;
     for (unsigned int i = 0; i < count; i++) {
       total_size +=
@@ -946,7 +946,7 @@ size_t ROOTFilePB::ByteSizeLong() const {
 void ROOTFilePB::MergeFrom(const ::google::protobuf::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:dqmstorepb.ROOTFilePB)
   GOOGLE_DCHECK_NE(&from, this);
-  const ROOTFilePB* source =
+  const auto* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const ROOTFilePB>(
           &from);
   if (source == nullptr) {
