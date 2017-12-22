@@ -11,6 +11,8 @@
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
 #include "SimG4Core/Application/interface/G4RegionReporter.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
+#include "SimG4Core/Application/interface/ExceptionHandler.h"
+
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
@@ -122,7 +124,7 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
       firstRun(true),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
-      m_currentRun(0), m_currentEvent(0), m_simEvent(0), 
+      m_currentRun(nullptr), m_currentEvent(nullptr), m_simEvent(nullptr), 
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
       m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
@@ -141,6 +143,7 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
 {    
   m_UIsession.reset(new CustomUIsession());
   m_kernel = new G4RunManagerKernel();
+  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
@@ -327,7 +330,7 @@ void RunManager::initG4(const edm::EventSetup & es)
   }
   initializeUserActions();
   
-  if(0 < m_G4Commands.size()) {
+  if(!m_G4Commands.empty()) {
     G4cout << "RunManager: Requested UI commands: " << G4endl;
     for (unsigned it=0; it<m_G4Commands.size(); ++it) {
       G4cout << "    " << m_G4Commands[it] << G4endl;
@@ -370,7 +373,7 @@ void RunManager::produce(edm::Event& inpevt, const edm::EventSetup & es)
   m_simEvent = new G4SimEvent;
   m_simEvent->hepEvent(m_generator->genEvent());
   m_simEvent->weight(m_generator->eventWeight());
-  if (m_generator->genVertex() !=0 ) {
+  if (m_generator->genVertex() !=nullptr ) {
     m_simEvent->collisionPoint(
       math::XYZTLorentzVectorD(m_generator->genVertex()->x()/centimeter,
 			       m_generator->genVertex()->y()/centimeter,
@@ -401,10 +404,10 @@ void RunManager::produce(edm::Event& inpevt, const edm::EventSetup & es)
  
 G4Event * RunManager::generateEvent(edm::Event & inpevt)
 {                       
-  if (m_currentEvent!=0) { delete m_currentEvent; }
-  m_currentEvent = 0;
-  if (m_simEvent!=0) { delete m_simEvent; }
-  m_simEvent = 0;
+  if (m_currentEvent!=nullptr) { delete m_currentEvent; }
+  m_currentEvent = nullptr;
+  if (m_simEvent!=nullptr) { delete m_simEvent; }
+  m_simEvent = nullptr;
 
   // 64 bits event ID in CMSSW converted into Geant4 event ID
   G4int evtid = (G4int)inpevt.id().event();
@@ -522,7 +525,7 @@ void RunManager::abortRun(bool softAbort)
 {
   if(m_runAborted) { return; }
   if (!softAbort) { abortEvent(); }
-  if (m_currentRun!=0) { delete m_currentRun; m_currentRun = 0; }
+  if (m_currentRun!=nullptr) { delete m_currentRun; m_currentRun = nullptr; }
   terminateRun();
   m_runAborted = true;
 }
