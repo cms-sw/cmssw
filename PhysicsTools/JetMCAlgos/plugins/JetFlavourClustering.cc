@@ -294,7 +294,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // vector of constituents for reclustering jets and "ghosts"
    std::vector<fastjet::PseudoJet> fjInputs;
-   fjInputs.reserve(jets->size()*128 + bHadrons->size() + cHadrons->size() + partons->size());
+   unsigned int reserve = jets->size()*128 + bHadrons->size() + cHadrons->size() + partons->size();
+   if (useLeptons_) reserve += leptons->size();
+   fjInputs.reserve(reserve);
    // loop over all input jets and collect all their constituents
    for(edm::View<reco::Jet>::const_iterator it = jets->begin(); it != jets->end(); ++it)
    {
@@ -326,7 +328,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      insertGhosts(leptons, ghostRescaling_, false, false, false, true, fjInputs);
 
    // define jet clustering sequence
-   fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs, *fjJetDefinition_ ) );
+   fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( std::move(fjInputs), *fjJetDefinition_ ) );//move, fjInputs are not needed anymore
    // recluster jet constituents and inserted "ghosts"
    std::vector<fastjet::PseudoJet> inclusiveJets = fastjet::sorted_by_pt( fjClusterSeq_->inclusive_jets(jetPtMin_) );
 
