@@ -460,6 +460,10 @@ me3141tmbSLHC = cms.PSet(
     matchEarliestClctOnly = cms.bool(False),
     tmbCrossBxAlgorithm = cms.uint32(2),
     maxLCTs = cms.uint32(2),
+
+    ## run in debug mode
+    debugLUTs = cms.bool(False),
+    debugMatching = cms.bool(False),
 )
 
 ## unganging in ME1/a
