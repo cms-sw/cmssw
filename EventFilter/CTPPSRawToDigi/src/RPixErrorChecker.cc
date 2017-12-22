@@ -114,11 +114,11 @@ bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, Wor
     break;
   }
   case(26) : {
-  //LogError("")<<"  gap word found (errorType=26)";
+    LogError("")<<"  gap word found (errorType=26)";
     return false;
   }
   case(27) : {
-  //LogError("")<<"  dummy word found (errorType=27)";
+    LogError("")<<"  dummy word found (errorType=27)";
     return false;
   }
   case(28) : {
