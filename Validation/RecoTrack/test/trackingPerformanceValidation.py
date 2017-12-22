@@ -9,10 +9,10 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_9_4_0_pre3_phase1'
+RefRelease='CMSSW_10_0_0_pre2_2018'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_9_4_0_phase1'
+NewRelease='CMSSW_10_0_0_pre3_2018'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples_run1 = [
@@ -47,7 +47,8 @@ startupsamples = common + [
     Sample('RelValSingleMuPt10', midfix="UP15"),
     Sample('RelValSingleMuPt100', midfix="UP15")
 ]
-if "CMSSW_9_1" in NewRelease or "CMSSW_9_2" in NewRelease or "CMSSW_9_3" in NewRelease or "CMSSW_9_4" in NewRelease:
+hasPhase0FullSim = False
+if not hasPhase0FullSim:
     startupsamples = [] # no phase0 in 91X
 #startupsamples = []
 #startupsamples = startupsamples_run1
@@ -67,7 +68,9 @@ pileupstartupsamples = [
 #    Sample('RelValZMM', putype=putype("50ns"), punum=35, midfix="13")
 ]
 #pileupstartupsamples = []
-if "phase1" not in NewRelease and ("CMSSW_9_2" in NewRelease or "CMSSW_9_3" in NewRelease):
+def _isPhase1(release):
+    return "phase1" in release or "2017" in release or "2018" in release
+if not _isPhase1(NewRelease) and not hasPhase0FullSim:
     pileupstartupsamples = []
 
 phase1samples = common + [
@@ -81,16 +84,26 @@ phase1samples_design = [
     # Design
     Sample('RelValMinBias', midfix="13", scenario="Design"),
     Sample("RelValTTbar", midfix="13", scenario="Design"),
-    Sample("RelValSingleMuPt1", scenario="Design"),
-    Sample("RelValSingleMuPt10", scenario="Design"),
-    Sample("RelValSingleMuPt100", scenario="Design"),
-    Sample("RelValTTbar", midfix="13", scenario="Design", putype=putype("25ns"), punum=35),
 ]
-phase1samples.extend(pileupstartupsamples)
+if "phase1" in NewRelease or "2017" in NewRelease:
+    phase1samples.extend(pileupstartupsamples)
+    phase1samples_design.extend([
+            Sample("RelValSingleMuPt1", scenario="Design"),
+            Sample("RelValSingleMuPt10", scenario="Design"),
+            Sample("RelValSingleMuPt100", scenario="Design"),
+            Sample("RelValTTbar", midfix="13", scenario="Design", putype=putype("25ns"), punum=35),
+    ])
 phase1samples.extend([
     Sample('RelValTTbar', putype=putype("25ns"), punum=50, midfix="13"),
 ])
-if "_phase1" in RefRelease:
+if "2018" in NewRelease:
+    phase1samples.extend([
+            Sample('RelValZMM', putype=putype("25ns"), punum=50, midfix="13"),
+    ])
+    phase1samples_design.extend([
+            Sample("RelValTTbar", midfix="13", scenario="Design", putype=putype("25ns"), punum=50),
+    ])
+if _isPhase1(NewRelease):
     phase1samples.extend(phase1samples_design)
 
 phase2samples = [
@@ -155,7 +168,7 @@ if "_extended" in NewRelease:
     doFastVsFull = False
     if not NewRelease in validation._globalTags:
         validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_extended", "")]
-if "_phase1" in NewRelease:
+if _isPhase1(NewRelease):
     startupsamples = phase1samples
     pileupstartupsamples = []
     fastsimstartupsamples = []
