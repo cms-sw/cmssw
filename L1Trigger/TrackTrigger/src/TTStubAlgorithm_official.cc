@@ -13,11 +13,11 @@
 /// Matching operations
 template< >
 void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
-                                                                       int &aDisplacement, 
-                                                                       int &anOffset, 
-								       float &anROffset,
-								       float &anHardBend,
-                                                                       const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
+										int &aDisplacement, 
+										int &anOffset, 
+										float &anROffset,
+										float &anHardBend,
+										const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
 { 
   /// Calculate average coordinates col/row for inner/outer Cluster
   // These are already corrected for being at the center of each pixel
@@ -135,10 +135,8 @@ void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( 
 
 
 //--- Does the actual work of degrading the bend. (based on I.Tomalin's code)
-
 template< >   
-float TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::degradeBend(bool psModule, int window, int bend) const {
- 
+ float TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::degradeBend(bool psModule, int window, int bend) const {
 
   // Number of bits used to encoded bend output by FE electronics.
   const unsigned int bitsPS_ = 3;
@@ -158,7 +156,7 @@ float TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::degradeBend(bool psMod
   unsigned int numAllowed = (psModule)  ?  pow(2, bitsPS_)  :  pow(2, bits2S_);
 
   // Existance of bend = 0 means can only use an odd number of groups.
-  numAllowed -= 1; // 7 or 15
+  numAllowed -= 1; // NumAllowed can be only based on 3 or 4 bits encoded bends, so 7 or 15 possible values
   if (numBends <= numAllowed) 
   { 
     // Can output uncompressed bend info. (So if window is lower or equal than 1.5 in PS, and 3.5 in 2S
@@ -213,7 +211,7 @@ float TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::degradeBend(bool psMod
 	degradedB = 0.5*(iUp + iDown); 
       }
     }
-    if (degradedB == 999) throw cms::Exception("DegradeResolution: Logic error in loop over groups");
+    if (degradedB == 999) throw cms::Exception("DegradeStubResolution: error in the group creation, method has been called with wrong inputs");
   }
 
   // This is degraded bend in full strip units (neglecting bend sign).

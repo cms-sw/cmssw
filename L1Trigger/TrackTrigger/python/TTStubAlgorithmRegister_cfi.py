@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 # https://indico.cern.ch/event/681577/#4-update-of-the-track-trigger
 #
 # This script is adapted to the very last Tilted Tracker geometry to date (tracker T5)
-# This version was tested on CMSSW 10_0_0
+# This version was tested on CMSSW 10_0_0_pre1
 # 
 
 TTStubAlgorithm_official_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_official_Phase2TrackerDigi_",
