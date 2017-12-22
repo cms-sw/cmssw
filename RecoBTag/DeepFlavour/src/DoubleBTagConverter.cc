@@ -7,7 +7,7 @@
 
 namespace btagbtvdeep {
 
-      static void DoubleBTagToFeatures(const reco::TaggingVariableList & tag_info_vars,
+      void DoubleBTagToFeatures(const reco::TaggingVariableList & tag_info_vars,
                                  BoostedDoubleSVTagInfoFeatures & tag_info_features) {
     
 	tag_info_features.trackSip3dSig_0 = tag_info_vars.get(reco::btau::trackSip3dSig_0, -999);

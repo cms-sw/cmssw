@@ -572,6 +572,16 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       vertex_associator = vertex_associator,
                                       ),
                                     process, task)
+                
+            if btagInfo == 'pfDeepDoubleBTagInfos':
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepDoubleBTagInfos.clone(
+                                      jets = jetSource,
+                                      vertices=pvSource,
+                                      secondary_vertices=svSource,
+                                      shallow_tag_infos = cms.InputTag(btagPrefix+'pfBoostedDoubleSVAK8TagInfos'+labelName+postfix)
+                                      ),
+                                    process, task)
 
             acceptedTagInfos.append(btagInfo)
         elif hasattr(toptag, btagInfo) :

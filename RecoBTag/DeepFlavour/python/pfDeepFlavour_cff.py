@@ -4,6 +4,8 @@ from RecoBTag.DeepFlavour.pfDeepFlavourTagInfos_cfi import pfDeepFlavourTagInfos
 from RecoBTag.DeepFlavour.pfDeepFlavourJetTags_cfi import pfDeepFlavourJetTags
 from RecoBTag.DeepFlavour.pfNegativeDeepFlavourTagInfos_cfi import pfNegativeDeepFlavourTagInfos
 from RecoBTag.DeepFlavour.pfNegativeDeepFlavourJetTags_cfi import pfNegativeDeepFlavourJetTags
+from RecoBTag.DeepFlavour.pfDeepDoubleBTagInfos_cfi import pfDeepDoubleBTagInfos
+from RecoBTag.DeepFlavour.pfDeepDoubleBJetTags_cfi import pfDeepDoubleBJetTags
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import primaryVertexAssociation
 

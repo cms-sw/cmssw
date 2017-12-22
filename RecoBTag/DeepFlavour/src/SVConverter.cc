@@ -10,7 +10,7 @@
 namespace btagbtvdeep {
 
 
-      static void SVToFeatures( const reco::VertexCompositePtrCandidate & sv,
+      void SVToFeatures( const reco::VertexCompositePtrCandidate & sv,
                                 const reco::Vertex & pv, const reco::Jet & jet,
                                 SecondaryVertexFeatures & sv_features) {
     
