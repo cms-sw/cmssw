@@ -17,34 +17,7 @@ namespace btagbtvdeep {
             muonFlagsShift=9
       };
  
-      template <typename CandidateType>
-      static void CommonCandidateToFeatures(const CandidateType * c_pf,
-                                            const reco::Jet & jet,
-                                            const TrackInfoBuilder & track_info,
-                                            const float & drminpfcandsv,
-                                            ChargedCandidateFeatures & c_pf_features) {
-
-        c_pf_features.ptrel = catch_infs_and_bound(c_pf->pt()/jet.pt(),
-                                                          0,-1,0,-1);
-        // track_info has to be built before passing as parameter
-        c_pf_features.btagPf_trackEtaRel     =catch_infs_and_bound(track_info.getTrackEtaRel(),  0,-5,15);
-        c_pf_features.btagPf_trackPtRel      =catch_infs_and_bound(track_info.getTrackPtRel(),   0,-1,4);
-        c_pf_features.btagPf_trackPPar       =catch_infs_and_bound(track_info.getTrackPPar(),    0,-1e5,1e5 );
-        c_pf_features.btagPf_trackDeltaR     =catch_infs_and_bound(track_info.getTrackDeltaR(),  0,-5,5 );
-        c_pf_features.btagPf_trackPParRatio  =catch_infs_and_bound(track_info.getTrackPParRatio(),0,-10,100);
-        c_pf_features.btagPf_trackSip3dVal   =catch_infs_and_bound(track_info.getTrackSip3dVal(), 0, -1,1e5 );
-        c_pf_features.btagPf_trackSip3dSig   =catch_infs_and_bound(track_info.getTrackSip3dSig(), 0, -1,4e4 );
-        c_pf_features.btagPf_trackSip2dVal   =catch_infs_and_bound(track_info.getTrackSip2dVal(), 0, -1,70 );
-        c_pf_features.btagPf_trackSip2dSig   =catch_infs_and_bound(track_info.getTrackSip2dSig(), 0, -1,4e4 );
-        c_pf_features.btagPf_trackJetDistVal =catch_infs_and_bound(track_info.getTrackJetDistVal(),0,-20,1 );
-
-
-        c_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv,0,-0.4,0,-0.4);
-
-      }
-
-    
-      static void PackedCandidateToFeatures(const pat::PackedCandidate * c_pf,
+      void PackedCandidateToFeatures(const pat::PackedCandidate * c_pf,
                                             const pat::Jet & jet,
                                             const TrackInfoBuilder & track_info,
                                             const float drminpfcandsv,
@@ -71,7 +44,7 @@ namespace btagbtvdeep {
 
       } 
     
-      static void RecoCandidateToFeatures(const reco::PFCandidate * c_pf,
+      void RecoCandidateToFeatures(const reco::PFCandidate * c_pf,
                                           const reco::Jet & jet,
                                           const TrackInfoBuilder & track_info,
                                           const float drminpfcandsv, const float puppiw,
@@ -107,6 +80,10 @@ namespace btagbtvdeep {
         c_pf_features.quality = quality; 
     
       } 
+
+
+      // instantiate template
+//      template void CommonCandidateToFeatures<reco::PFCandidate>(const reco::PFCandidate, const reco::Jet &, const TrackInfoBuilder &, const float &, ChargedCandidateFeatures &);
 
 
 

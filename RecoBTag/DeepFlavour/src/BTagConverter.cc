@@ -11,7 +11,7 @@ namespace btagbtvdeep {
       static constexpr std::size_t max_jetNSelectedTracks =100;
 
 
-      static void BTagToFeatures(const reco::TaggingVariableList & tag_info_vars,
+      void BTagToFeatures(const reco::TaggingVariableList & tag_info_vars,
                                  ShallowTagInfoFeatures & tag_info_features) {
 
         tag_info_features.trackSumJetEtRatio         = tag_info_vars.get(reco::btau::trackSumJetEtRatio, -999);
