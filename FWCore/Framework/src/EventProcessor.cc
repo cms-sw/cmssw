@@ -1084,11 +1084,10 @@ namespace edm {
   }
 
   void
-  EventProcessor::beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status, bool& globalBeginSucceeded) {
+  EventProcessor::beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status) {
     status= std::make_shared<LuminosityBlockProcessingStatus>(this, preallocations_.numberOfStreams()) ;
     readLuminosityBlock(*status);
 
-    globalBeginSucceeded = false;
     LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -1127,7 +1126,7 @@ namespace edm {
         std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
       }
     }
-    globalBeginSucceeded=true;
+    status->globalBeginDidSucceed();
     if(looper_) {
       looper_->doBeginLuminosityBlock(lumiPrincipal, es, &processContext_);
     }
@@ -1162,7 +1161,7 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool globalBeginSucceeded, bool cleaningUpAfterException) {
+  void EventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lumiPrincipal = *status-> lumiPrincipal();
     lumiPrincipal.setAtEndTransition(true);
     //We need to reset failed items since they might
@@ -1187,7 +1186,7 @@ namespace edm {
       sentry.completedSuccessfully();
     }
     EventSetup const& es = esp_->eventSetup();
-    if(globalBeginSucceeded){
+    if(status->didGlobalBeginSucceed()){
       //To wait, the ref count has to b 1+#streams
       auto streamLoopWaitTask = make_empty_waiting_task();
       streamLoopWaitTask->increment_ref_count();

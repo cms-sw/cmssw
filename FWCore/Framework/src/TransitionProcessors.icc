@@ -91,7 +91,7 @@ struct LumiResources {
   ~LumiResources() noexcept {
     try {
       //If we skip empty lumis, this would be called conditionally
-      run_->ep_.endLumi(status_, globalTransitionSucceeded_, cleaningUpAfterException_);
+      run_->ep_.endLumi(status_, cleaningUpAfterException_);
       
       if (success_) {
         run_->ep_.writeLumi(*status_);
@@ -131,7 +131,6 @@ struct LumiResources {
   edm::LuminosityBlockNumber_t lumi_;
   bool cleaningUpAfterException_ = true;
   bool success_ = false;
-  bool globalTransitionSucceeded_ = false;
 };
 
 struct EventResources {
@@ -206,7 +205,7 @@ private:
         currentLumi_->normalEnd();
       }
       currentLumi_ = std::make_shared<LumiResources>(iRun,lumiID);
-      iEP.beginLumi(currentLumi_->status_, currentLumi_->globalTransitionSucceeded_);
+      iEP.beginLumi(currentLumi_->status_);
       //only if we succeed at beginLumi should we run writeLumi
       currentLumi_->succeeded();
     } else {

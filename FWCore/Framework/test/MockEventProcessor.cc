@@ -229,16 +229,16 @@ namespace edm {
     output_ << "\tendRun " << run << postfix;
   }
 
-  void MockEventProcessor::beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status, bool& globalTransitionSucceeded) {
+  void MockEventProcessor::beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status) {
     status = std::make_shared<LuminosityBlockProcessingStatus>(this,1);
     auto lumi = readLuminosityBlock(*status);
     output_ << "\tbeginLumi " << run_ << "/" << lumi << "\n";
     throwIfNeeded();
-    globalTransitionSucceeded = true;
+    status->globalBeginDidSucceed();
   }
 
-  void MockEventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool globalTransitionSucceeded , bool /*cleaningUpAfterException*/) {
-    auto postfix = globalTransitionSucceeded? "\n" : " global failed\n";
+  void MockEventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool /*cleaningUpAfterException*/) {
+    auto postfix = status->didGlobalBeginSucceed()? "\n" : " global failed\n";
     output_ << "\tendLumi " << status->lumiPrincipal()->run_ << "/" << status->lumiPrincipal()->lumi_ << postfix;
   }
 
