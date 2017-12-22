@@ -32,7 +32,8 @@ DTuROSDigiToRaw::DTuROSDigiToRaw(const edm::ParameterSet& pset) :  eventNum(0) {
 
   debug_ = pset.getUntrackedParameter<bool>("debug", false);
 
-  feds_ = pset.getUntrackedParameter<std::vector<int> >("feds", std::vector<int>());
+  for (int i=FEDNumbering::MINDTUROSFEDID; i<=FEDNumbering::MAXDTUROSFEDID; i++)
+        feds_.push_back(i);
  
   nfeds_ = feds_.size();
 

@@ -36,7 +36,8 @@ DTuROSRawToDigi::DTuROSRawToDigi(const edm::ParameterSet& pset) {
 
   debug_ = pset.getUntrackedParameter<bool>("debug", false);
 
-  feds_ = pset.getUntrackedParameter<std::vector<int> >("feds", std::vector<int>());
+  for (int i=FEDNumbering::MINDTUROSFEDID; i<=FEDNumbering::MAXDTUROSFEDID; i++)
+  	feds_.push_back(i);
  
   nfeds_ = feds_.size();
 
@@ -437,18 +438,18 @@ int DTuROSRawToDigi::theDDU(int crate, int slot, int link, bool tenDDU) {
   
   int ddu = 772;
 
-  if (crate == 1368) { ddu = 775; }
+  if (crate == 1368) { ddu = 775; } //Needed just in case this FED should be used due to fibers lenght
 
-  if (crate == 1369) {
+  if (crate == FEDNumbering::MINDTUROSFEDID) {
     if (slot < 7) 
       ddu = 770;
     else 
       ddu = 771;
   }
 
-  if (crate == 1370) { ddu = 772; }
+  if (crate == (FEDNumbering::MINDTUROSFEDID+1)) { ddu = 772; }
  
-  if (crate == 1371) {
+  if (crate == FEDNumbering::MAXDTUROSFEDID) {
     if (slot < 7) 
       ddu = 773;
     else 
