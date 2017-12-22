@@ -703,7 +703,7 @@ class Validation:
             print "Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl)
             sys.exit(1)
         
-        # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkye.pem -k -O <url> -O <url>
+        # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkey.pem -k -O <url> -O <url>
         cmd = ["curl", "--cert-type", "PEM", "--cert", certfile, "--key", keyfile, "-k"]
         for u in urls:
             cmd.extend(["-O", u])
