@@ -125,7 +125,7 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
      
     // Get the error summary histo
     string fedSummaryName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
-    if (checkUros) fedSummaryName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
+    if (checkUros) fedSummaryName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "_uROSSummary";
     MonitorElement * FED_ROSSummary = igetter.get(fedSummaryName);
 
     // Get the event lenght plot (used to count # of processed evts)

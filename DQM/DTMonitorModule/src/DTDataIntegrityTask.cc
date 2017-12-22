@@ -35,13 +35,16 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
 
   checkUros = ps.getUntrackedParameter<bool>("checkUros",true);
 
-  if (checkUros) fedToken = consumes<DTuROSFEDDataCollection>(ps.getParameter<InputTag>("dtFEDlabel")); 
+  if (checkUros) {
+	fedToken = consumes<DTuROSFEDDataCollection>(ps.getParameter<InputTag>("dtFEDlabel")); 
+	FEDIDmin = FEDNumbering::MINDTUROSFEDID;
+	FEDIDmax = FEDNumbering::MAXDTUROSFEDID;
+	}
   else { dduToken = consumes<DTDDUCollection>(ps.getParameter<InputTag>("dtDDULabel"));
-         ros25Token = consumes<DTROS25Collection>(ps.getParameter<InputTag>("dtROS25Label"));
-  } 
-
-  FEDIDmin = ps.getUntrackedParameter<int>("FEDIDmin",FEDNumbering::MINDTFEDID);
-  FEDIDmax = ps.getUntrackedParameter<int>("FEDIDmax",FEDNumbering::MAXDTFEDID);
+         ros25Token = consumes<DTROS25Collection>(ps.getParameter<InputTag>("dtROS25Label")); 
+  	 FEDIDmin = FEDNumbering::MINDTFEDID;
+  	 FEDIDmax = FEDNumbering::MAXDTFEDID;
+	}
 
   neventsFED = 0;
   neventsuROS = 0;
