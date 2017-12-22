@@ -64,7 +64,6 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
 				   const edm::EventSetup& es) 
 {
 
-
   edm::Handle<FEDRawDataCollection> buffers;
   ev.getByToken(FEDRawDataCollection_, buffers);
 
@@ -88,7 +87,6 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
   if(data_exist){
   es.get<CTPPSPixelDAQMappingRcd>().get( mapping);
 
-
     fedIds_   = mapping->fedIds();
 
     CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
@@ -109,8 +107,6 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
       
       formatter.interpretRawData( errorsInEvent, fedId, fedRawData, *collection, errors);
     
-    
-
       if(includeErrors_) {
 	typedef CTPPSPixelDataFormatter::Errors::iterator IE;
 	for (IE is = errors.begin(); is != errors.end(); is++) {
@@ -119,8 +115,7 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
 	    nodeterrors.insert( nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end() );
 	  } else {
 	    edm::DetSet<CTPPSPixelDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
-	    errorDetSet.data.insert(errorDetSet.data.end(), is->second.begin(), is->second.end());
-	  
+	    errorDetSet.data.insert(errorDetSet.data.end(), is->second.begin(), is->second.end());	  
 	  }
 	}
       }
@@ -131,9 +126,6 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
       errorDetSet.data = nodeterrors;
     }
     if (errorsInEvent) LogDebug("CTPPSPixelRawToDigi") << "Error words were stored in this event";
-
-
-
   }
 ///send digis and errors back to framework 
   ev.put(std::move(collection));
