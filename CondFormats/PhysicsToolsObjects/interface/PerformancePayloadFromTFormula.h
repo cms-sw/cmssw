@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <iostream>
 #include "TFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
@@ -86,7 +86,7 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
   //
   // the transient part
   //
-  std::vector< boost::shared_ptr<TFormula> > compiledFormulas_ COND_TRANSIENT;
+  std::vector< std::shared_ptr<const TFormula> > compiledFormulas_ COND_TRANSIENT;
 
  COND_SERIALIZABLE;
 };
