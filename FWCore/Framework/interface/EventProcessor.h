@@ -204,8 +204,8 @@ namespace edm {
     void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded);
     void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
 
-    void beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status, bool& globalBeginSucceeded);
-    void endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool globalBeginSucceeded, bool cleaningUpAfterException);
+    void beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status);
+    void endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool cleaningUpAfterException);
 
     std::pair<ProcessHistoryID,RunNumber_t> readRun();
     std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
