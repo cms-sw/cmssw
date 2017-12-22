@@ -76,6 +76,9 @@ class TTStubBuilder : public edm::EDProducer
     unsigned int  maxStubs_PS_CIC_5;  // PS 5G chip limit (in stubs/CIC/8BX)
     unsigned int  maxStubs_PS_CIC_10; // PS 10G chip limit (in stubs/CIC/8BX)
 
+    unsigned int  tedd1_maxring;  // PS 10G outermost ring in TEDD1 (default is 3)
+    unsigned int  tedd2_maxring;  // PS 10G outermost ring in TEDD2 (default is 0)
+
     int ievt;
  
     /// Temporary storage for stubs before max check
@@ -84,7 +87,17 @@ class TTStubBuilder : public edm::EDProducer
     std::unordered_map< int, int > moduleStubs_MPA; 
     std::unordered_map< int, int > moduleStubs_CBC; 
 
+    // Which disk rings are in 10G transmission scheme module
+    //
+    // sviret comment (221217): this info should be made available in conddb at some point
+    // not in TrackerTopology as some modules may switch between 10G and 5G transmission  
+    // schemes during running period
+
+    unsigned int high_rate_max_ring[5];
+
 }; /// Close class
+
+
 
 /*! \brief Implementation of methods
 * \details Here, in the header file, the methods which do not depend
@@ -105,9 +118,17 @@ TTStubBuilder< T >::TTStubBuilder( const edm::ParameterSet& iConfig )
   maxStubs_2S_CIC_5   = iConfig.getParameter< uint32_t >( "SS5GCIClimit" );
   maxStubs_PS_CIC_5   = iConfig.getParameter< uint32_t >( "PS5GCIClimit" );
   maxStubs_PS_CIC_10  = iConfig.getParameter< uint32_t >( "PS10GCIClimit" );
+  tedd1_maxring       = iConfig.getParameter< uint32_t >( "TEDD1Max10GRing" );
+  tedd2_maxring       = iConfig.getParameter< uint32_t >( "TEDD2Max10GRing" );
   produces< edmNew::DetSetVector< TTCluster< T > > >( "ClusterAccepted" );
   produces< edmNew::DetSetVector< TTStub< T > > >( "StubAccepted" );
   produces< edmNew::DetSetVector< TTStub< T > > >( "StubRejected" );
+
+  high_rate_max_ring[0] = tedd1_maxring;
+  high_rate_max_ring[1] = tedd1_maxring;
+  high_rate_max_ring[2] = tedd2_maxring;
+  high_rate_max_ring[3] = tedd2_maxring;
+  high_rate_max_ring[4] = tedd2_maxring;
 }
 
 /// Destructor
