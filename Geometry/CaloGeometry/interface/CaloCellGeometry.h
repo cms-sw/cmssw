@@ -14,8 +14,6 @@
 #include <cassert>
 
 
-
-
 /** \class CaloCellGeometry
 
 Abstract base class for an individual cell's geometry.
@@ -76,18 +74,18 @@ public:
   virtual ~CaloCellGeometry() ;
       
   /// Returns the corner points of this cell's volume.
-  CornersVec getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
-  RepCorners getCornersREP() const {  return m_repCorners;}
+  CornersVec const& getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
+  RepCorners const& getCornersREP() const {  return m_repCorners;}
 
   
   /// Returns the position of reference for this cell 
-  virtual       GlobalPoint getPosition()             const {return m_refPoint;}
-  virtual       GlobalPoint getPosition( CCGFloat)    const {return m_refPoint;}
-  virtual       GlobalPoint getPosition( const Pt3D&) const {return m_refPoint;}
+  virtual const GlobalPoint& getPosition()             const {return m_refPoint;}
+  virtual GlobalPoint getPosition( CCGFloat)    const {return m_refPoint;}
+  virtual GlobalPoint getPosition( const Pt3D&) const {return m_refPoint;}
 
-  GlobalPoint getBackPoint() const {return m_backPoint;} 
+  GlobalPoint const& getBackPoint() const {return m_backPoint;} 
 
-  RhoEtaPhi repPos() const { return m_rep;}
+  RhoEtaPhi const& repPos() const { return m_rep;}
   float rhoPos() const { return m_rep.rho();}
   float etaPos() const { return m_rep.eta();}
   float phiPos() const { return m_rep.phi();}

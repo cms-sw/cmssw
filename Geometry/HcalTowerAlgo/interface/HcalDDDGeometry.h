@@ -43,11 +43,6 @@ public:
 			const GlobalPoint& f3 ,
 			const CCGFloat*    parm,
 			const DetId&       detId     ) override ;
-					
-protected:
-
-  //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
-  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) const override ;
 
 private:
 

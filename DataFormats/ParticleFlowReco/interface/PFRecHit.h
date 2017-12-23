@@ -126,14 +126,14 @@ namespace reco {
 
 
     /// rechit cell centre x, y, z
-    PositionType position() const { return caloCell().getPosition().basicVector(); }
+    PositionType const& position() const { return caloCell().getPosition().basicVector(); }
     
-    RhoEtaPhi    positionREP() const { return caloCell().repPos(); }
+    RhoEtaPhi    const& positionREP() const { return caloCell().repPos(); }
 
     /// rechit corners
-    CornersVec  getCornersXYZ() const { return caloCell().getCorners(); }    
+    CornersVec  const& getCornersXYZ() const { return caloCell().getCorners(); }    
 
-    RepCorners  getCornersREP() const { return caloCell().getCornersREP();}
+    RepCorners  const& getCornersREP() const { return caloCell().getCornersREP();}
  
  
     /// comparison >= operator

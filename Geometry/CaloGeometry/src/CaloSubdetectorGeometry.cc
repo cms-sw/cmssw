@@ -298,3 +298,10 @@ CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const {
 unsigned int CaloSubdetectorGeometry::indexFor(const DetId& id) const { return CaloGenericDetId(id).denseIndex(); }
 
 unsigned int CaloSubdetectorGeometry::sizeForDenseIndex(const DetId& id) const { return CaloGenericDetId(id).sizeForDenseIndexing(); }
+
+std::shared_ptr<const CaloCellGeometry> 
+CaloSubdetectorGeometry::cellGeomPtr(uint32_t index) const {
+  auto ptr = getGeometryRawPtr(index);
+  static const auto do_not_delete = [](const void*){};
+  return ptr == nullptr ? nullptr : std::shared_ptr<const CaloCellGeometry>(ptr, do_not_delete);
+}

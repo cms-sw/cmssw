@@ -63,10 +63,6 @@ class ZdcGeometry : public CaloSubdetectorGeometry
 		    const GlobalPoint& f3 ,
 		    const CCGFloat*    parm,
 		    const DetId&       detId     ) override ;
-
-   protected:
-
-      std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) const override;
 					
    private:
 

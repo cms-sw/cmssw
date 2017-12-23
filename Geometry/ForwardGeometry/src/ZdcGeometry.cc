@@ -97,11 +97,3 @@ const CaloCellGeometry* ZdcGeometry::getGeometryRawPtr (const DetId& id) const {
 	  nullptr == cell->param() ? nullptr : cell);
 }
 
-std::shared_ptr<const CaloCellGeometry>
-ZdcGeometry::cellGeomPtr( uint32_t index ) const {
-  if (m_cellVec.size() < index) return nullptr;
-  static const auto do_not_delete = [](const void*){};
-  auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);
-  return ((nullptr == cell->param()) ? nullptr : cell) ;
-}
-

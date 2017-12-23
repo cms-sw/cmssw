@@ -380,11 +380,3 @@ const CaloCellGeometry* EcalTBHodoscopeGeometry::getGeometryRawPtr (const DetId&
   return (m_cellVec.size() < index ||
 	  nullptr == cell->param() ? nullptr : cell);
 }
-
-std::shared_ptr<const CaloCellGeometry>
-EcalTBHodoscopeGeometry::cellGeomPtr( uint32_t index ) const {
-  if (m_cellVec.size() > index) return nullptr;
-  static const auto do_not_delete = [](const void*){};
-  auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);
-  return ((nullptr != cell->param()) ? cell : nullptr) ;
-}

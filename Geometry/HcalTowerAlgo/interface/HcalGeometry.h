@@ -119,9 +119,6 @@ public:
 
 protected:
 
-  //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
-  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( unsigned int index ) const override ;
-
   unsigned int indexFor(const DetId& id) const override { return  m_topology.detId2denseId(id); }
   unsigned int sizeForDenseIndex(const DetId& id) const override { return m_topology.ncells(); }
 

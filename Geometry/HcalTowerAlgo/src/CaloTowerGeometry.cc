@@ -77,14 +77,6 @@ const CaloCellGeometry* CaloTowerGeometry::getGeometryRawPtr (const DetId& id) c
 	  nullptr == cell->param() ? nullptr : cell);
 }
 
-std::shared_ptr<const CaloCellGeometry> 
-CaloTowerGeometry::cellGeomPtr( uint32_t index ) const {
-  if (m_cellVec.size() < index) return nullptr;
-  static const auto do_not_delete = [](const void*){};
-  auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);
-  return ((nullptr == cell->param()) ? nullptr : cell) ;
-}
-
 void
 CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  tVec,
                               CaloSubdetectorGeometry::IVec&   iVec,

@@ -241,27 +241,6 @@ const CaloCellGeometry* HcalDDDGeometry::getGeometryRawPtr (const DetId& id) con
   return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;
 }
 
-std::shared_ptr<const CaloCellGeometry> HcalDDDGeometry::cellGeomPtr( unsigned int din ) const {
-  static const auto do_not_delete = [](const void*){};
-  std::shared_ptr<const CaloCellGeometry> cell (nullptr) ;
-  if (m_hbCellVec.size() > din) {
-    cell = std::shared_ptr<const CaloCellGeometry>(&m_hbCellVec[din],do_not_delete);
-  } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
-    const unsigned int ind (din - m_hbCellVec.size() ) ;
-    cell = std::shared_ptr<const CaloCellGeometry>(&m_heCellVec[ind],do_not_delete);
-  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
-    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size());
-    cell = std::shared_ptr<const CaloCellGeometry>(&m_hoCellVec[ind],do_not_delete);
-  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size()+
-	     m_hfCellVec.size() > din) {
-    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size() -
-			    m_hoCellVec.size() ) ;
-    cell = std::shared_ptr<const CaloCellGeometry>(&m_hfCellVec[ind],do_not_delete);
-  }
-  
-  return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;
-}
-
 void HcalDDDGeometry::increaseReserve(unsigned int extra) {
   m_validIds.reserve(m_validIds.size()+extra);
 }
