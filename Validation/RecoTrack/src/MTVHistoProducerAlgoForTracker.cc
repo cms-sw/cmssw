@@ -92,7 +92,7 @@ namespace {
   }
 }
 
-MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, const bool doSeedPlots, edm::ConsumesCollector & iC):
+MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots):
   doSeedPlots_(doSeedPlots),
   h_ptSIM(nullptr), h_etaSIM(nullptr), h_tracksSIM(nullptr), h_vertposSIM(nullptr), h_bunchxSIM(nullptr)
 {
@@ -219,13 +219,13 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   using namespace edm;
   using namespace reco::modules;
   auto initTPselector = [&](auto& sel, auto& name) {
-    sel = std::make_unique<TrackingParticleSelector>(ParameterAdapter<TrackingParticleSelector>::make(pset.getParameter<ParameterSet>(name), iC));
+    sel = std::make_unique<TrackingParticleSelector>(ParameterAdapter<TrackingParticleSelector>::make(pset.getParameter<ParameterSet>(name)));
   };
   auto initTrackSelector = [&](auto& sel, auto& name) {
-    sel = makeRecoTrackSelectorFromTPSelectorParameters(pset.getParameter<ParameterSet>(name), beamSpotTag, iC);
+    sel = makeRecoTrackSelectorFromTPSelectorParameters(pset.getParameter<ParameterSet>(name));
   };
   auto initGPselector = [&](auto& sel, auto& name) {
-    sel = std::make_unique<GenParticleCustomSelector>(ParameterAdapter<GenParticleCustomSelector>::make(pset.getParameter<ParameterSet>(name), iC));
+    sel = std::make_unique<GenParticleCustomSelector>(ParameterAdapter<GenParticleCustomSelector>::make(pset.getParameter<ParameterSet>(name)));
   };
 
   initTPselector(generalTpSelector,             "generalTpSelector");
@@ -318,7 +318,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
 
 MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker() {}
 
-std::unique_ptr<RecoTrackSelectorBase> MTVHistoProducerAlgoForTracker::makeRecoTrackSelectorFromTPSelectorParameters(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, edm::ConsumesCollector& iC) {
+std::unique_ptr<RecoTrackSelectorBase> MTVHistoProducerAlgoForTracker::makeRecoTrackSelectorFromTPSelectorParameters(const edm::ParameterSet& pset) {
   edm::ParameterSet psetTrack;
   psetTrack.copyForModify(pset);
   psetTrack.eraseSimpleParameter("minHit");
@@ -331,20 +331,12 @@ std::unique_ptr<RecoTrackSelectorBase> MTVHistoProducerAlgoForTracker::makeRecoT
   psetTrack.addParameter("minPixelHit", 0);
   psetTrack.addParameter("minLayer", 0);
   psetTrack.addParameter("min3DLayer", 0);
-  psetTrack.addParameter("usePV", false);
-  psetTrack.addParameter("beamSpot", beamSpotTag);
   psetTrack.addParameter("quality", std::vector<std::string>{});
   psetTrack.addParameter("algorithm", std::vector<std::string>{});
   psetTrack.addParameter("originalAlgorithm", std::vector<std::string>{});
   psetTrack.addParameter("algorithmMaskContains", std::vector<std::string>{});
 
-  return std::make_unique<RecoTrackSelectorBase>(psetTrack, iC);
-}
-
-void MTVHistoProducerAlgoForTracker::init(const edm::Event& event, const edm::EventSetup& setup) {
-  trackSelectorVsEta->init(event, setup);
-  trackSelectorVsPhi->init(event, setup);
-  trackSelectorVsPt->init(event, setup);
+  return std::make_unique<RecoTrackSelectorBase>(psetTrack);
 }
 
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
@@ -1147,10 +1139,10 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     if(simPVPosition) {
       h_reco_simpvz[count]->Fill(simpvz);
     }
-    if((*trackSelectorVsEta)(track)) {
+    if((*trackSelectorVsEta)(track, bsPosition)) {
       fillPlotNoFlow(h_reco2eta[count], eta);
     }
-    if((*trackSelectorVsPt)(track)) {
+    if((*trackSelectorVsPt)(track, bsPosition)) {
       fillPlotNoFlow(h_reco2pT[count], pt);
     }
   }
@@ -1159,7 +1151,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   fillPlotNoFlow(h_recopixellayer[count], nPixelLayers);
   fillPlotNoFlow(h_reco3Dlayer[count], n3DLayers);
   fillPlotNoFlow(h_recopu[count],numVertices);
-  if((*trackSelectorVsPhi)(track)) {
+  if((*trackSelectorVsPhi)(track, bsPosition)) {
     fillPlotNoFlow(h_reco2pu[count], numVertices);
   }
 
