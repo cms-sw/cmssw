@@ -112,7 +112,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   bsSrc = consumes<reco::BeamSpot>(beamSpotTag);
 
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
-  histoProducerAlgo_ = std::make_unique<MTVHistoProducerAlgoForTracker>(psetForHistoProducerAlgo, beamSpotTag, doSeedPlots_, consumesCollector());
+  histoProducerAlgo_ = std::make_unique<MTVHistoProducerAlgoForTracker>(psetForHistoProducerAlgo, doSeedPlots_);
 
   dirName_ = pset.getParameter<std::string>("dirName");
 
@@ -184,7 +184,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
 					  psetVsPhi.getParameter<bool>("stableOnly"),
 					  psetVsPhi.getParameter<std::vector<int> >("pdgId"));
 
-  dRTrackSelector = MTVHistoProducerAlgoForTracker::makeRecoTrackSelectorFromTPSelectorParameters(psetVsPhi, beamSpotTag, consumesCollector());
+  dRTrackSelector = MTVHistoProducerAlgoForTracker::makeRecoTrackSelectorFromTPSelectorParameters(psetVsPhi);
 
   useGsf = pset.getParameter<bool>("useGsf");
 
@@ -545,8 +545,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     parametersDefinerTP->initEvent(simHitsTPAssoc);
     cosmictpSelector.initEvent(simHitsTPAssoc);
   }
-  dRTrackSelector->init(event, setup);
-  histoProducerAlgo_->init(event, setup);
 
   // Find the sim PV and tak its position
   edm::Handle<TrackingVertexCollection> htv;
@@ -914,7 +912,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         auto track = trackCollection.refAt(i);
 	rT++;
         if(trackFromSeedFitFailed(*track)) ++seed_fit_failed;
-        if((*dRTrackSelector)(*track)) ++n_selTrack_dr;
+        if((*dRTrackSelector)(*track, bs.position())) ++n_selTrack_dr;
  
 	bool isSigSimMatched(false);
 	bool isSimMatched(false);

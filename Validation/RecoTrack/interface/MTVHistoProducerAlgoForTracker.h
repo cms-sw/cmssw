@@ -27,19 +27,12 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-namespace edm { class Event; class EventSetup; }
-
 class MTVHistoProducerAlgoForTracker {
  public:
-  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, const bool doSeedPlots, edm::ConsumesCollector && iC) :
-    MTVHistoProducerAlgoForTracker(pset, beamSpotTag, doSeedPlots, iC) {}
-  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, const bool doSeedPlots, edm::ConsumesCollector & iC) ;
+  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots) ;
   ~MTVHistoProducerAlgoForTracker();
 
-  static std::unique_ptr<RecoTrackSelectorBase> makeRecoTrackSelectorFromTPSelectorParameters(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, edm::ConsumesCollector& iC);
-  static std::unique_ptr<RecoTrackSelectorBase> makeRecoTrackSelectorFromTPSelectorParameters(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, edm::ConsumesCollector&& iC) { return makeRecoTrackSelectorFromTPSelectorParameters(pset, beamSpotTag, iC); }
-
-  void init(const edm::Event& event, const edm::EventSetup& setup);
+  static std::unique_ptr<RecoTrackSelectorBase> makeRecoTrackSelectorFromTPSelectorParameters(const edm::ParameterSet& pset);
 
   void bookSimHistos(DQMStore::IBooker& ibook);
   void bookSimTrackHistos(DQMStore::IBooker& ibook, bool doResolutionPlots);
