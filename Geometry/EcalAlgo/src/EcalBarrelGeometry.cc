@@ -493,8 +493,7 @@ EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const
    return m_radius ;
 }
 
-const CaloCellGeometry* EcalBarrelGeometry::getGeometryRawPtr (const DetId& id) const {
-  uint32_t index = CaloGenericDetId(id).denseIndex();
+const CaloCellGeometry* EcalBarrelGeometry::getGeometryRawPtr (uint32_t index) const {
   const CaloCellGeometry* cell(&m_cellVec[index]);
   return (m_cellVec.size() < index ||
 	  nullptr == cell->param() ? nullptr : cell);

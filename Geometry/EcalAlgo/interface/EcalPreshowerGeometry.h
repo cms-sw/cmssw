@@ -53,7 +53,7 @@ public:
 		   CCGFloat z1plus, 
 		   CCGFloat z2plus ) ;
 
-  const CaloCellGeometry* getGeometryRawPtr (const DetId& id) const override;
+  const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
   
   // Get closest cell
   DetId getClosestCell( const GlobalPoint& r ) const override;
@@ -97,11 +97,6 @@ public:
     auto index = CaloGenericDetId( id ).denseIndex();
     return index < m_cellVec.size();
   }
-
-protected:
-
-  /// Get the cell geometry of a given detector id.  Should return nulptr if not found.
-  //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
 
 private:
 

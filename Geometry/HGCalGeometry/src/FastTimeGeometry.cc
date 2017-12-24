@@ -84,15 +84,6 @@ void FastTimeGeometry::newCell( const GlobalPoint& f1 ,
 #endif
 }
 
-const CaloCellGeometry* FastTimeGeometry::getGeometryRawPtr(const DetId& id) const {
-  if (id == DetId()) return nullptr; // nothing to get
-  DetId geoId = (DetId)(FastTimeDetId(id).geometryCell());
-  const uint32_t index (topology().detId2denseGeomId(geoId));
-  const CaloCellGeometry* cell(&m_cellVec[index]);
-  return (m_cellVec.size() < index ||
-	  nullptr == cell->param() ? nullptr : cell);
-}
-
 std::shared_ptr<const CaloCellGeometry> FastTimeGeometry::getGeometry(const DetId& id) const {
 
   if (id == DetId()) return nullptr; // nothing to get
@@ -102,8 +93,17 @@ std::shared_ptr<const CaloCellGeometry> FastTimeGeometry::getGeometry(const DetI
   return cellGeomPtr (cellIndex, pos);
 }
 
+const CaloCellGeometry* FastTimeGeometry::getGeometryRawPtr(uint32_t index) const {
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
+}
+
 bool FastTimeGeometry::present(const DetId& id) const {
-  return (nullptr != getGeometryRawPtr(id)) ;
+  if (id == DetId()) return false;
+  DetId geoId = (DetId)(FastTimeDetId(id).geometryCell());
+  const uint32_t index(topology().detId2denseGeomId(geoId));
+  return (nullptr != getGeometryRawPtr(index)) ;
 }
 
 GlobalPoint FastTimeGeometry::getPosition(const DetId& id) const {

@@ -220,8 +220,7 @@ HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
   m_validIds.emplace_back(detId);
 }
 
-const CaloCellGeometry* HcalDDDGeometry::getGeometryRawPtr (const DetId& id) const {
-  const unsigned int din = CaloGenericDetId(id).denseIndex();
+const CaloCellGeometry* HcalDDDGeometry::getGeometryRawPtr (uint32_t din) const {
   const CaloCellGeometry* cell(nullptr);
   if (m_hbCellVec.size() > din) {
     cell = (&m_hbCellVec[din]);

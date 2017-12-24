@@ -70,8 +70,7 @@ CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
    m_dins.emplace_back( di );
 }
 
-const CaloCellGeometry* CaloTowerGeometry::getGeometryRawPtr (const DetId& id) const {
-  uint32_t index = cttopo->denseIndex(id);
+const CaloCellGeometry* CaloTowerGeometry::getGeometryRawPtr(uint32_t index) const {
   const CaloCellGeometry* cell(&m_cellVec[index]);
   return (m_cellVec.size() < index ||
 	  nullptr == cell->param() ? nullptr : cell);

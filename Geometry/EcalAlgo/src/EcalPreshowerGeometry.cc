@@ -256,8 +256,7 @@ EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
    addValidID( detId ) ;
 }
 
-const CaloCellGeometry* EcalPreshowerGeometry::getGeometryRawPtr (const DetId& id) const {
-  uint32_t index = CaloGenericDetId(id).denseIndex();
+const CaloCellGeometry* EcalPreshowerGeometry::getGeometryRawPtr(uint32_t index) const {
   const CaloCellGeometry* cell(&m_cellVec[index]);
   return (m_cellVec.size() < index ||
 	  nullptr == cell->param() ? nullptr : cell);

@@ -66,7 +66,7 @@ class EcalEndcapGeometry final: public CaloSubdetectorGeometry
 
       const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id ) const;
 
-      const CaloCellGeometry* getGeometryRawPtr (const DetId& id) const override;
+      const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 
       // Get closest cell, etc...
       DetId getClosestCell( const GlobalPoint& r ) const override ;
@@ -100,10 +100,6 @@ class EcalEndcapGeometry final: public CaloSubdetectorGeometry
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm ,
 			    const DetId&       detId   ) override ;
-
-   protected:
-
-      //const CaloCellGeometry*  cellGeomPtr( uint32_t index ) const override ;
 
    private:
 

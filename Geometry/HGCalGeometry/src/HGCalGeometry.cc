@@ -117,22 +117,6 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 #endif
 }
 
-const CaloCellGeometry* HGCalGeometry::getGeometryRawPtr(const DetId& id) const {
-  if (id == DetId()) return nullptr; // nothing to get
-  DetId geoId;
-  if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
-    geoId = (id.subdetId() == HGCEE ? 
-	     (DetId)(HGCEEDetId(id).geometryCell()) : 
-	     (DetId)(HGCHEDetId(id).geometryCell()));
-  } else {
-    geoId = (DetId)(HGCalDetId(id).geometryCell());
-  }
-  const uint32_t index (topology().detId2denseGeomId(geoId));
-  const CaloCellGeometry* cell(&m_cellVec[index]);
-  return (m_cellVec.size() < index ||
-	  nullptr == cell->param() ? nullptr : cell);
-}
-
 std::shared_ptr<const CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& id) const {
   if (id == DetId()) return nullptr; // nothing to get
   DetId geoId;
@@ -149,8 +133,24 @@ std::shared_ptr<const CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& 
 
 }
 
+const CaloCellGeometry* HGCalGeometry::getGeometryRawPtr(uint32_t index) const {
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
+}
+
 bool HGCalGeometry::present(const DetId& id) const {
-  return (nullptr != getGeometryRawPtr(id)) ;
+  if (id == DetId()) return false;
+  DetId geoId;
+  if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
+    geoId = (id.subdetId() == HGCEE ? 
+	     (DetId)(HGCEEDetId(id).geometryCell()) : 
+	     (DetId)(HGCHEDetId(id).geometryCell()));
+  } else {
+    geoId = (DetId)(HGCalDetId(id).geometryCell());
+  }
+  const uint32_t index (topology().detId2denseGeomId(geoId));
+  return (nullptr != getGeometryRawPtr(index)) ;
 }
 
 GlobalPoint HGCalGeometry::getPosition(const DetId& id) const {
