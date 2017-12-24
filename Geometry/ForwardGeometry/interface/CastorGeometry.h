@@ -44,6 +44,7 @@ public:
       explicit CastorGeometry(const CastorTopology * topology);
       ~CastorGeometry() override;
 
+      // Modify the RawPtr class
       const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 
       DetId getClosestCell(const GlobalPoint& r) const override ;

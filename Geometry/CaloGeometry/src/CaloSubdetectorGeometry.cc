@@ -301,6 +301,7 @@ unsigned int CaloSubdetectorGeometry::sizeForDenseIndex(const DetId& id) const {
 
 std::shared_ptr<const CaloCellGeometry> 
 CaloSubdetectorGeometry::cellGeomPtr(uint32_t index) const {
+  // Default version
   auto ptr = getGeometryRawPtr(index);
   static const auto do_not_delete = [](const void*){};
   return ptr == nullptr ? nullptr : std::shared_ptr<const CaloCellGeometry>(ptr, do_not_delete);

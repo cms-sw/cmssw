@@ -113,7 +113,6 @@ protected:
   virtual unsigned int indexFor(const DetId& id) const;
   virtual unsigned int sizeForDenseIndex(const DetId& id) const;
 
-  //virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const = 0 ;
   virtual std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) const;
 
   ParVecVec m_parVecVec ;

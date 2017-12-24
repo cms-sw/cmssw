@@ -94,6 +94,7 @@ std::shared_ptr<const CaloCellGeometry> FastTimeGeometry::getGeometry(const DetI
 }
 
 const CaloCellGeometry* FastTimeGeometry::getGeometryRawPtr(uint32_t index) const {
+  // Modify the RawPtr class
   const CaloCellGeometry* cell(&m_cellVec[index]);
   return (m_cellVec.size() < index ||
 	  nullptr == cell->param() ? nullptr : cell);

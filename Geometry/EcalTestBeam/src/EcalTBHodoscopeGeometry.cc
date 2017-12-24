@@ -374,7 +374,8 @@ EcalTBHodoscopeGeometry::getFiredFibresInPlane( float xtr,
    return firedFibres ;
 }
 
-const CaloCellGeometry* EcalTBHodoscopeGeometry::getGeometryRawPtr (uint32_t index) const {
+const CaloCellGeometry* EcalTBHodoscopeGeometry::getGeometryRawPtr (uint32_t index) const { 
+  // Modify the RawPtr class
   const CaloCellGeometry* cell(&m_cellVec[index]);
   return (m_cellVec.size() < index ||
 	  nullptr == cell->param() ? nullptr : cell);

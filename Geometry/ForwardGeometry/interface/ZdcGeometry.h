@@ -41,6 +41,7 @@ class ZdcGeometry : public CaloSubdetectorGeometry
       explicit ZdcGeometry(const ZdcTopology * topology);
       ~ZdcGeometry() override;
 
+      // Modify the RawPtr class
       const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
   
 //      virtual DetId getClosestCell(const GlobalPoint& r) const ;

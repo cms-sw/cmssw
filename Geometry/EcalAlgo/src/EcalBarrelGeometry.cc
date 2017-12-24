@@ -494,6 +494,7 @@ EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const
 }
 
 const CaloCellGeometry* EcalBarrelGeometry::getGeometryRawPtr (uint32_t index) const {
+  // Modify the RawPtr class
   const CaloCellGeometry* cell(&m_cellVec[index]);
   return (m_cellVec.size() < index ||
 	  nullptr == cell->param() ? nullptr : cell);

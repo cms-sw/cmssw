@@ -470,6 +470,7 @@ void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
 }
 
 const CaloCellGeometry* HcalGeometry::getGeometryRawPtr (uint32_t din) const {
+  // Modify the RawPtr class
   const CaloCellGeometry* cell(nullptr);
   if (m_hbCellVec.size() > din) {
     cell = (&m_hbCellVec[din]);

@@ -32,6 +32,7 @@ public:
   const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ) , 
 						    int             subdet = 0   ) const override;
 
+  // Modify the RawPtr class
   const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 
   DetId getClosestCell(const GlobalPoint& r) const override ;

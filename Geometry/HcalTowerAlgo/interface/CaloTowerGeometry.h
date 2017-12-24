@@ -65,6 +65,7 @@ public:
 		const CCGFloat*    parm,
 		const DetId&       detId     ) override ;
 
+  // Modify the RawPtr class
   const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 				
   std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const override {
