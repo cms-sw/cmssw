@@ -83,9 +83,6 @@ void HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants(const HcalParame
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalGeom") << "in HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants";
 #endif
-  if ( hcalDDDConst_ != nullptr ) {
-    delete hcalDDDConst_;
-  }
   const HcalParameters* hpar = &(*parHandle);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalGeom") << "about to make my new hcalDDDConst_ with " 
