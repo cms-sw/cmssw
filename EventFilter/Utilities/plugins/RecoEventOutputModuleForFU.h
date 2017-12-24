@@ -20,6 +20,7 @@
 
 
 namespace evf {
+
   template<typename Consumer>
   class RecoEventOutputModuleForFU : public edm::StreamerOutputModuleBase {
     
@@ -49,7 +50,7 @@ namespace evf {
 
   private:
     std::auto_ptr<Consumer> c_;
-    std::string stream_label_;
+    std::string streamLabel_;
     boost::filesystem::path openDatFilePath_;
     boost::filesystem::path openDatChecksumFilePath_;
     jsoncollector::IntJ processed_;
@@ -68,7 +69,8 @@ namespace evf {
     jsoncollector::DataPointDefinition outJsonDef_;
     unsigned char* outBuf_=nullptr;
     bool readAdler32Check_=false;
-
+    struct flock dataRwFlk_;
+    struct flock dataRwFulk_;
 
   }; //end-of-class-def
 
@@ -77,7 +79,7 @@ namespace evf {
     edm::one::OutputModuleBase::OutputModuleBase(ps),
     edm::StreamerOutputModuleBase(ps),
     c_(new Consumer(ps)),
-    stream_label_(ps.getParameter<std::string>("@module_label")),
+    streamLabel_(ps.getParameter<std::string>("@module_label")),
     processed_(0),
     accepted_(0),
     errorEvents_(0),
@@ -89,21 +91,24 @@ namespace evf {
     transferDestination_(),
     mergeType_(),
     hltErrorEvents_(0),
-    outBuf_(new unsigned char[1024*1024])
+    outBuf_(new unsigned char[1024*1024]),
+    dataRwFlk_( evf::EvFDaqDirector::make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
+    dataRwFulk_( evf::EvFDaqDirector::make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
+ 
   {
     //replace hltOutoputA with stream if the HLT menu uses this convention
     std::string testPrefix="hltOutput";
-    if (stream_label_.find(testPrefix)==0) 
-      stream_label_=std::string("stream")+stream_label_.substr(testPrefix.size());
+    if (streamLabel_.find(testPrefix)==0) 
+      streamLabel_=std::string("stream")+streamLabel_.substr(testPrefix.size());
 
-    if (stream_label_.find("_")!=std::string::npos) {
+    if (streamLabel_.find("_")!=std::string::npos) {
       throw cms::Exception("RecoEventOutputModuleForFU")
-        << "Underscore character is reserved can not be used for stream names in FFF, but was detected in stream name -: " << stream_label_;
+        << "Underscore character is reserved can not be used for stream names in FFF, but was detected in stream name -: " << streamLabel_;
     }
 
-    std::string stream_label_lo = stream_label_;
-    boost::algorithm::to_lower(stream_label_lo);
-    auto streampos = stream_label_lo.rfind("stream");
+    std::string streamLabelLow = streamLabel_;
+    boost::algorithm::to_lower(streamLabelLow);
+    auto streampos = streamLabelLow.rfind("stream");
     if (streampos !=0 && streampos!=std::string::npos)
       throw cms::Exception("RecoEventOutputModuleForFU")
         << "stream (case-insensitive) sequence was found in stream suffix. This is reserved and can not be used for names in FFF based HLT, but was detected in stream name";
@@ -151,7 +156,7 @@ namespace evf {
     std::string outJsonDefName = ss.str();
 
     edm::Service<evf::EvFDaqDirector>()->lockInitLock();
-    struct stat   fstat;
+    struct stat fstat;
     if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
       LogDebug("RecoEventOutputModuleForFU") << "writing output definition file -: " << outJsonDefName;
       std::string content;
@@ -186,7 +191,7 @@ namespace evf {
   RecoEventOutputModuleForFU<Consumer>::start()
   {
     initRun();
-    const std::string openInitFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(stream_label_);
+    const std::string openInitFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);
     edm::LogInfo("RecoEventOutputModuleForFU") << "start() method, initializing streams. init stream -: "  
 	                                       << openInitFileName;
     c_->setInitMessageFile(openInitFileName);
@@ -207,7 +212,7 @@ namespace evf {
   {
     c_->doOutputHeader(init_message);
 
-    const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(stream_label_);
+    const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);
     struct stat istat;
     stat(openIniFileName.c_str(), &istat);
     //read back file to check integrity of what was written
@@ -233,8 +238,8 @@ namespace evf {
                            << " expected:" << c_->get_adler32_ini() << " obtained:" << adler32c;
     }
     else {
-      edm::LogWarning("RecoEventOutputModuleForFU") << "Ini file checksum -: "<< stream_label_ << " " << adler32c;
-      boost::filesystem::rename(openIniFileName,edm::Service<evf::EvFDaqDirector>()->getInitFilePath(stream_label_));
+      edm::LogWarning("RecoEventOutputModuleForFU") << "Ini file checksum -: "<< streamLabel_ << " " << adler32c;
+      boost::filesystem::rename(openIniFileName,edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
     }
   }
    
@@ -269,8 +274,8 @@ namespace evf {
   void RecoEventOutputModuleForFU<Consumer>::beginJob()
   {
     //get stream transfer destination
-    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(stream_label_);
-    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(stream_label_,evf::MergeTypeDAT);
+    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel_);
+    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel_,evf::MergeTypeDAT);
   }
 
 
@@ -278,8 +283,8 @@ namespace evf {
   void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockForOutput const& ls)
   {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "begin lumi";
-    openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),stream_label_);
-    openDatChecksumFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),stream_label_);
+    openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),streamLabel_);
+    openDatChecksumFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),streamLabel_);
     c_->setOutputFile(openDatFilePath_.string());
     filelist_ = openDatFilePath_.filename().string();
   }
@@ -304,9 +309,27 @@ namespace evf {
       //lock
       struct stat istat;
       if (!edm::Service<evf::EvFDaqDirector>()->microMergeDisabled()) {
-        FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
 
-        std::string deschecksum = edm::Service<evf::EvFDaqDirector>()->getMergedDatChecksumFilePath(ls.luminosityBlock(), stream_label_);
+        //create if does not exist then lock the merge destination file
+        FILE *des = fopen(edm::Service<evf::EvFDaqDirector>()->getMergedDatFilePath(ls.luminosityBlock(),streamLabel_).c_str(), "a"); //open stream for appending
+        int data_readwrite_fd = fileno(des);
+
+        //deleter function: unlock and close file
+        auto finishFile = [des, data_readwrite_fd, this](FILE* f) {
+          fflush(f);
+          fcntl(data_readwrite_fd,F_SETLKW, &dataRwFulk_);
+          fclose(des);
+        };
+
+        std::unique_ptr<FILE,decltype(finishFile)> desGuard{des,finishFile};
+
+        if (data_readwrite_fd == -1)
+          edm::LogError("RecoEventOutputModuleForFU") << "problem with creating filedesc for datamerge " << strerror(errno);
+        else
+          LogDebug("RecoEventOutputModuleForFU") << "creating filedesc for datamerge -: " << data_readwrite_fd;
+        fcntl(data_readwrite_fd, F_SETLKW, &dataRwFlk_);
+
+        std::string deschecksum = edm::Service<evf::EvFDaqDirector>()->getMergedDatChecksumFilePath(ls.luminosityBlock(), streamLabel_);
 
         struct stat istat;
         FILE * cf = nullptr;
@@ -348,7 +371,6 @@ namespace evf {
         fprintf(cf,"%u",mergedAdler32);
         fclose(cf);
 
-        edm::Service<evf::EvFDaqDirector>()->unlockAndCloseMergeStream();
         fclose(src);
 
         if (readAdler32Check_ && ((adlerb << 16) | adlera) != fileAdler32_.value()) {
@@ -360,7 +382,7 @@ namespace evf {
       else  { //no micromerge by HLT
         stat(openDatFilePath_.string().c_str(), &istat);
         filesize = istat.st_size;
-        boost::filesystem::rename(openDatFilePath_.string().c_str(), edm::Service<evf::EvFDaqDirector>()->getDatFilePath(ls.luminosityBlock(),stream_label_));
+        boost::filesystem::rename(openDatFilePath_.string().c_str(), edm::Service<evf::EvFDaqDirector>()->getDatFilePath(ls.luminosityBlock(),streamLabel_));
       }
     } else {
       //return if not in empty lumisection mode
@@ -378,7 +400,7 @@ namespace evf {
 
     jsonMonitor_->snap(ls.luminosityBlock());
     const std::string outputJsonNameStream =
-      edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),stream_label_);
+      edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),streamLabel_);
     jsonMonitor_->outputFullJSON(outputJsonNameStream,ls.luminosityBlock());
 
     // reset monitoring params

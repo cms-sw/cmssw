@@ -18,8 +18,8 @@
 #include <mutex>
 
 //system headers
-//#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <fcntl.h>
 #include <cerrno>
 #include <cstring>
@@ -104,8 +104,6 @@ namespace evf{
       FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
       void tryInitializeFuLockFile();
       unsigned int getRunNumber() const { return run_; }
-      FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
-      void unlockAndCloseMergeStream();
       void lockInitLock();
       void unlockInitLock();
       void setFMS(evf::FastMonitoringService* fms) {fms_=fms;}
@@ -127,7 +125,7 @@ namespace evf{
       std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
       bool emptyLumisectionMode() const {return emptyLumisectionMode_;}
       bool microMergeDisabled() const {return microMergeDisabled_;}
-
+      static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
 
     private:
       //bool bulock();
@@ -164,7 +162,6 @@ namespace evf{
       int bu_readlock_fd_;
       int bu_writelock_fd_;
       int fu_readwritelock_fd_;
-      int data_readwrite_fd_;
       int fulocal_rwlock_fd_;
       int fulocal_rwlock_fd2_;
 
@@ -173,7 +170,6 @@ namespace evf{
       FILE * fu_rw_lock_stream;
       FILE * bu_w_monitor_stream;
       FILE * bu_t_monitor_stream;
-      FILE * data_rw_stream;
 
       DirManager dirManager_;
 
@@ -185,12 +181,6 @@ namespace evf{
       struct flock bu_r_fulk;
       struct flock fu_rw_flk;
       struct flock fu_rw_fulk;
-      struct flock data_rw_flk;
-      struct flock data_rw_fulk;
-      //struct flock fulocal_rw_flk;
-      //struct flock fulocal_rw_fulk;
-      //struct flock fulocal_rw_flk2;
-      //struct flock fulocal_rw_fulk2;
 
       evf::FastMonitoringService * fms_ = nullptr;
 
