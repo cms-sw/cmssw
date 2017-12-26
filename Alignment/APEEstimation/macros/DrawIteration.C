@@ -24,7 +24,7 @@
 
 
 DrawIteration::DrawIteration(unsigned int iterationNumber, const bool overlayMode):
-outpath_(0), file_(0), overlayMode_(overlayMode), yAxisFixed_(false), systematics_(false), cmsText_("")
+outpath_(nullptr), file_(nullptr), overlayMode_(overlayMode), yAxisFixed_(false), systematics_(false), cmsText_("")
 {
   if(!overlayMode_){
     std::stringstream ss_inpath;
@@ -149,24 +149,21 @@ DrawIteration::SectorValues DrawIteration::getSectorValues(TFile* file){
   }
   
   for(std::map<unsigned int, TBranch*>::const_iterator i_branch = m_branchName.begin(); i_branch != m_branchName.end(); ++i_branch){
-    std::string* value(nullptr);
-    i_branch->second->SetAddress(&value);
+    sectorValues.m_sectorName[i_branch->first] = nullptr;
+    i_branch->second->SetAddress( &( sectorValues.m_sectorName[i_branch->first]) );
     i_branch->second->GetEntry(0);
-    sectorValues.m_sectorName[i_branch->first] = value;
   }
   const unsigned int nIter(treeX->GetEntries());
   for(unsigned int iIter = 0; iIter < nIter; ++iIter){
     for(std::map<unsigned int, TBranch*>::const_iterator i_branch = m_branchX.begin(); i_branch != m_branchX.end(); ++i_branch){
-      double value(-999.);
-      (i_branch->second)->SetAddress(&value);
+      sectorValues.m_sectorValueX[i_branch->first].push_back(-999);
+      (i_branch->second)->SetAddress(&(sectorValues.m_sectorValueX[i_branch->first].back()));
       (i_branch->second)->GetEntry(iIter);
-      sectorValues.m_sectorValueX[i_branch->first].push_back(value);
     }
     for(std::map<unsigned int, TBranch*>::const_iterator i_branch = m_branchY.begin(); i_branch != m_branchY.end(); ++i_branch){
-      double value(-999.);
-      (i_branch->second)->SetAddress(&value);
+      sectorValues.m_sectorValueY[i_branch->first].push_back(-999);
+      (i_branch->second)->SetAddress(&(sectorValues.m_sectorValueY[i_branch->first].back()));
       (i_branch->second)->GetEntry(iIter);
-      sectorValues.m_sectorValueY[i_branch->first].push_back(value);
     }
   }
   return sectorValues;
