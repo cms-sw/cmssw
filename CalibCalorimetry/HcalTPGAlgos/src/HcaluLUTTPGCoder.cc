@@ -56,6 +56,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGen
   inputLUT_   = std::vector<HcaluLUTTPGCoder::Lut>(nluts);
   gain_       = std::vector<float>(nluts, 0.);
   ped_        = std::vector<float>(nluts, 0.);
+  make_cosh_ieta_map();
 }
 
 void HcaluLUTTPGCoder::compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const {
@@ -224,6 +225,46 @@ void HcaluLUTTPGCoder::updateXML(const char* filename) {
   XMLProcessor::getInstance()->terminate();
 }
 
+float HcaluLUTTPGCoder::cosh_ieta(int ieta, int depth, HcalSubdetector subdet) {
+  // ieta = 28 and 29 are both associated with trigger tower 28
+  // so special handling is required. HF ieta=29 channels included in TT30
+  // are already handled correctly in cosh_ieta_
+  if (abs(ieta) >= 28 && subdet == HcalEndcap && allLinear_) {
+    if (abs(ieta) == 29) return cosh_ieta_29_HE_;
+    if (abs(ieta) == 28) {
+      if (depth <= 3) return cosh_ieta_28_HE_low_depths_;
+      else return cosh_ieta_28_HE_high_depths_;
+    }
+  }
+
+  return cosh_ieta_[ieta];
+}
+
+void HcaluLUTTPGCoder::make_cosh_ieta_map(void) {
+
+  HcalTrigTowerGeometry triggeo(topo_);
+
+  for (int i = 1; i <= firstHFEta_; ++i) {
+    double eta_low = 0., eta_high = 0.;
+    triggeo.towerEtaBounds(i, 0, eta_low, eta_high);
+    cosh_ieta_[i] = cosh((eta_low + eta_high)/2.);
+  }
+  for (int i = firstHFEta_; i <= lastHFEta_; ++i){
+    std::pair<double,double> etas = topo_->etaRange(HcalForward,i);
+    double eta1 = etas.first;
+    double eta2 = etas.second;
+    cosh_ieta_[i] = cosh((eta1 + eta2)/2.);
+  }
+  // trigger tower 28 in HE has a more complicated geometry
+  std::pair<double, double> eta28 = topo_->etaRange(HcalEndcap, 28);
+  std::pair<double, double> eta29 = topo_->etaRange(HcalEndcap, 29);
+  cosh_ieta_29_HE_ = cosh((eta29.first + eta29.second)/2.);
+  cosh_ieta_28_HE_low_depths_ = cosh((eta28.first + eta28.second)/2.);
+  // for higher depths in ieta = 28, the trigger tower extends past
+  // the ieta = 29 channels
+  cosh_ieta_28_HE_high_depths_ = cosh((eta28.first + eta29.second)/2.);
+}
+
 void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     
     HcalCalibrations calibrations;
@@ -231,19 +272,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     assert(metadata !=nullptr);
     float nominalgain_ = metadata->getNominalGain();
 
-    HcalTrigTowerGeometry triggeo(topo_);
-    std::map<int, float> cosh_ieta;
-    for (int i = 1; i <= firstHFEta_; ++i) {
-       double eta_low = 0., eta_high = 0.;
-       triggeo.towerEtaBounds(i, 0, eta_low, eta_high); 
-       cosh_ieta[i] = fabs(cosh((eta_low + eta_high)/2.));
-    }
-    for (int i = firstHFEta_; i <= lastHFEta_; ++i){
-	std::pair<double,double> etas = topo_->etaRange(HcalForward,i);
-	double eta1 = etas.first;
-	double eta2 = etas.second;
-	cosh_ieta[i] = cosh((eta1 + eta2)/2.);
-    }
+    make_cosh_ieta_map();
 
     for (const auto& id: metadata->getAllChannels()) {
      
@@ -337,7 +366,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		      nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
 		    }
                     if (allLinear_)
-                       lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / linearLSB / cosh_ieta[cell.ietaAbs()])), MASK);
+		      lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / linearLSB / cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))), MASK);
                     else
                        lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / nominalgain_ / granularity)), MASK);
 
@@ -352,7 +381,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	    for (unsigned int adc = 0; adc < SIZE; ++adc) {
 		if (isMasked) lut[adc] = 0;
 		else {
-		    lut[adc] = std::min(std::max(0,int((adc2fC(adc) - ped) * gain * rcalib / lsb_ / cosh_ieta[cell.ietaAbs()] )), MASK);
+		    lut[adc] = std::min(std::max(0,int((adc2fC(adc) - ped) * gain * rcalib / lsb_ / cosh_ieta_[cell.ietaAbs()] )), MASK);
 		    if(adc>FG_HF_threshold_) lut[adc] |= QIE10_LUT_MSB;
 		}
 	    }

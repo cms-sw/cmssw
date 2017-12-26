@@ -44,6 +44,8 @@ public:
   float getLUTGain(HcalDetId id) const override;
   std::vector<unsigned short> getLinearizationLUT(HcalDetId id) const override;
 
+  float cosh_ieta(int ieta, int depth, HcalSubdetector subdet);
+  void make_cosh_ieta_map(void);
   void update(const HcalDbService& conditions);
   void update(const char* filename, bool appendMSB = false);
   void updateXML(const char* filename);
@@ -89,6 +91,9 @@ private:
   std::vector< Lut > inputLUT_;
   std::vector<float> gain_;
   std::vector<float> ped_;
+  std::map<int, double> cosh_ieta_;
+  // edge cases not covered by the cosh_ieta_ map
+  float cosh_ieta_28_HE_low_depths_, cosh_ieta_28_HE_high_depths_, cosh_ieta_29_HE_;
   bool allLinear_;
   double linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_;
 };
