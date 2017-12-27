@@ -27,6 +27,9 @@ configured in the user's main() function, and is set running.
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
+
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <map>
@@ -205,6 +208,7 @@ namespace edm {
     void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
 
     void beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status);
+    void beginLumiAsync(edm::WaitingTaskHolder iHolder, std::shared_ptr<LuminosityBlockProcessingStatus>& oStatus);
     void endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool cleaningUpAfterException);
 
     std::pair<ProcessHistoryID,RunNumber_t> readRun();
@@ -281,11 +285,15 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
+    edm::SerialTaskQueue iovQueue_;
     std::unique_ptr<ExceptionToActionTable const>          act_table_;
     std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
     PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
+    std::vector<edm::SerialTaskQueue> streamQueues_;
+    std::unique_ptr<edm::LimitedTaskQueue> lumiQueue_;
+    
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
