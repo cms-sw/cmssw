@@ -18,11 +18,6 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
 #include "CondFormats/HcalObjects/interface/AbsOOTPileupCorrection.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalDeterministicFit.h"
-
-#include "RecoLocalCalo/HcalRecAlgos/interface/PedestalSub.h"
-
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 /** \class HcalSimpleRecAlgo
@@ -88,13 +83,6 @@ private:
   int puCorrMethod_;
 
   const HcalTimeSlew* hcalTimeSlew_delay_;
-
-  std::unique_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
-  
-  std::unique_ptr<PedestalSub> pedSubFxn_;
-
-  // S.Brandt Feb19 : Add a pointer to the HLT algo
-  std::unique_ptr<HcalDeterministicFit> hltOOTpuCorr_;
 };
 
 #endif
