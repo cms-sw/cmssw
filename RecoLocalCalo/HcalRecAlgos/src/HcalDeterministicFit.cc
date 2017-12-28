@@ -17,11 +17,10 @@ HcalDeterministicFit::HcalDeterministicFit() {
 HcalDeterministicFit::~HcalDeterministicFit() { 
 }
 
-void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn, double respCorr) {
+void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, double respCorr) {
   fTimeSlew_=tsParam;
   fTimeSlewBias_=bias;
   applyTimeSlew_=iApplyTimeSlew;
-  fPedestalSubFxn_=pedSubFxn;
   frespCorr_=respCorr;
 }
 
@@ -130,7 +129,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   }
 
   float ch3,ch4,ch5, i3,n3,nn3, i4,n4,i5,n5;
-  ch3=0.f,ch4=0.f,ch5=0.f,i3=0.f,n3=0.f,nn3=0.f,i4=0.f,n4=0.f,i5=0.f,n5=0.f;
+  ch4=0.f,i3=0.f,n3=0.f,nn3=0.f,i4=0.f,n4=0.f,i5=0.f,n5=0.f;
 
   FType fType;
   if(channelData.hasTimeInfo() && channelData.recoShape()==205) fType = shape205;
