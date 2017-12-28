@@ -1188,6 +1188,8 @@ public :
   Int_t                      fCurrent; //!current Tree number in a TChain
 
   // Declaration of leaf types
+  UInt_t                     t_RunNo;
+  UInt_t                     t_EventNo;
   Int_t                      t_Tracks;
   Int_t                      t_TracksProp;
   Int_t                      t_TracksSaved;
@@ -1203,6 +1205,8 @@ public :
   std::vector<int>          *t_trackType;
 
   // List of branches
+  TBranch                   *b_t_RunNo;         //!
+  TBranch                   *b_t_EventNo;       //!
   TBranch                   *b_t_Tracks;        //!
   TBranch                   *b_t_TracksProp;    //!
   TBranch                   *b_t_TracksSaved;   //!
@@ -1291,6 +1295,8 @@ void GetEntries::Init(TTree *tree) {
   fCurrent       = -1;
   if (!tree) return;
   fChain->SetMakeClass(1);
+  fChain->SetBranchAddress("t_RunNo",       &t_RunNo,       &b_t_RunNo);
+  fChain->SetBranchAddress("t_EventNo",     &t_EventNo,     &b_t_EventNo);
   fChain->SetBranchAddress("t_Tracks",      &t_Tracks,      &b_t_Tracks);
   fChain->SetBranchAddress("t_TracksProp",  &t_TracksProp,  &b_t_TracksProp);
   fChain->SetBranchAddress("t_TracksSaved", &t_TracksSaved, &b_t_TracksSaved);
