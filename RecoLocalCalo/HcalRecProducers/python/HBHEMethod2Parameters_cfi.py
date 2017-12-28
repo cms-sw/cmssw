@@ -8,7 +8,7 @@ m2Parameters = cms.PSet(
     applyPulseJitter      = cms.bool(False),
     applyTimeSlew         = cms.bool(True),           #units
     ts4Min                = cms.double(0.),           #fC
-    ts4Max                = cms.vdouble(100.,45000.), #fC # this is roughly 20 GeV
+    ts4Max                = cms.vdouble(100., 20000., 30000), #fC # this is roughly 20 GeV, HPD, siPMdepth1, siPMdepth>1
     pulseJitter           = cms.double(1.),           #GeV/bin 
     ###
     meanPed               = cms.double(0.),   #GeV
