@@ -248,7 +248,7 @@ from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 highPtTripletStep = TrackLwtnnClassifier.clone(
     src = 'highPtTripletStepTracks',
-    qualityCuts = [0.7,0.8,0.85],
+    qualityCuts = [0.8, 0.825, 0.85],
 )
 fastSim.toModify(highPtTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 highBetaStar_2018.toModify(highPtTripletStep,qualityCuts = [-0.2,0.3,0.4])
