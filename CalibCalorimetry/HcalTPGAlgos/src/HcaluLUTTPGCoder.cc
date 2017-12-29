@@ -26,6 +26,7 @@
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 
@@ -36,7 +37,7 @@ const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
 
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false), linearLSB_QIE8_(1.), linearLSB_QIE11_(1.) {
+HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false), linearLSB_QIE8_(1.), linearLSB_QIE11_(1.), pulseCorr_(std::make_unique<HcalPulseContainmentManager>(0.002f)) {
   firstHBEta_ = topo_->firstHBRing();      
   lastHBEta_  = topo_->lastHBRing();
   nHBEta_     = (lastHBEta_-firstHBEta_+1);
@@ -358,15 +359,21 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		if (isMasked) lut[adc] = 0;
 		else {
 		    double nonlinearityCorrection = 1.0;
+		    double containmentCorrection1TS = pulseCorr_->correction(cell, 1, 6.0, adc2fC(adc));
+		    // Use the 1-TS containment correction to estimate the charge of the pulse
+		    // from the individual samples
+		    double correctedCharge = containmentCorrection1TS*adc2fC(adc);
+		    double containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, 6.0, correctedCharge);
 		    if(qieType==QIE11) {
 		      const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
 		      HcalSiPMnonlinearity corr(conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
 		      const double fcByPE = siPMParameter.getFCByPE();
-		      const double effectivePixelsFired = adc2fC(adc)/fcByPE;
+		      //		      const double effectivePixelsFired = adc2fC(adc)/fcByPE;
+		      const double effectivePixelsFired = correctedCharge/fcByPE;
 		      nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
 		    }
                     if (allLinear_)
-		      lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / linearLSB / cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))), MASK);
+		      lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection * containmentCorrection2TSCorrected / linearLSB / cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))), MASK);
                     else
                        lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / nominalgain_ / granularity)), MASK);
 
@@ -381,7 +388,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	    for (unsigned int adc = 0; adc < SIZE; ++adc) {
 		if (isMasked) lut[adc] = 0;
 		else {
-		    lut[adc] = std::min(std::max(0,int((adc2fC(adc) - ped) * gain * rcalib / lsb_ / cosh_ieta_[cell.ietaAbs()] )), MASK);
+		  lut[adc] = std::min(std::max(0,int((adc2fC(adc) - ped) * gain * rcalib / lsb_ / cosh_ieta_[cell.ietaAbs()])), MASK);
 		    if(adc>FG_HF_threshold_) lut[adc] |= QIE10_LUT_MSB;
 		}
 	    }

@@ -5,6 +5,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
 
 #include <bitset>
 #include <vector>
@@ -96,6 +97,7 @@ private:
   float cosh_ieta_28_HE_low_depths_, cosh_ieta_28_HE_high_depths_, cosh_ieta_29_HE_;
   bool allLinear_;
   double linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_;
+  std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
 };
 
 #endif
