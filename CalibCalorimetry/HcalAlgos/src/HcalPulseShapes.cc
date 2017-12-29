@@ -506,7 +506,7 @@ HcalPulseShapes::shapeForReco(const HcalDetId & detId) const
 const HcalPulseShapes::Shape &
 HcalPulseShapes::defaultShape(const HcalDetId & detId) const
 {
-  edm::LogWarning("HcalPulseShapes") << "Cannot find HCAL MC Params ";
+  //  edm::LogWarning("HcalPulseShapes") << "Cannot find HCAL MC Params ";
   HcalSubdetector subdet = detId.subdet();
   switch(subdet) {
   case HcalBarrel:
