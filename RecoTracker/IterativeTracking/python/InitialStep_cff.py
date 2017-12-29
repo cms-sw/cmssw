@@ -295,7 +295,7 @@ from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackingPhase1.toReplaceWith(initialStep, TrackLwtnnClassifier.clone(
 	src = 'initialStepTracks',
-	qualityCuts = [-0.2,0.2,0.4],
+	qualityCuts = [0.0, 0.3, 0.6],
 ))
 
 pp_on_AA_2018.toModify(initialStep, 

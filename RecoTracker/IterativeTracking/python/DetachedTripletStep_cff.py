@@ -258,7 +258,7 @@ from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackingPhase1.toReplaceWith(detachedTripletStep, TrackLwtnnClassifier.clone(
      src = 'detachedTripletStepTracks',
-     qualityCuts = [-0.4,0.45,0.9],
+     qualityCuts = [0.0, 0.4, 0.8],
 ))
 highBetaStar_2018.toModify(detachedTripletStep,qualityCuts = [-0.5,0.0,0.5])
 pp_on_AA_2018.toModify(detachedTripletStep, 

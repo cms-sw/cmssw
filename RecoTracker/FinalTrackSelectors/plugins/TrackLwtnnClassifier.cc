@@ -12,6 +12,22 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "lwtnn/LightweightNeuralNetwork.hh"
 
+//Used for manually accepting problematic short/detached tracks to general collection
+std::map<int, float> generalCollThresholds = 
+{
+{4,0.0}, 			//initialStep
+{5,0.2},			//lowPtTripletStep
+{6,-0.6}, 			//pixelPairStep
+{7,0.0},			//detachedTripletStep
+{8,-0.8},			//mixedTripletStep
+{9,-0.6},			//pixelLessStep
+{10,-0.4},			//tobTecStep
+{11,0.6},			//jetCoreRegionalStep
+{22,0.8},			//highPtTripletStep
+{23,0.2},			//lowPtQuadStep
+{24,-0.6},			//detachedQuadStep
+};
+
 namespace {
   struct lwtnn {
     lwtnn(const edm::ParameterSet& cfg):
@@ -45,10 +61,10 @@ namespace {
       inputs["trk_pt"] = trk.pt();
       inputs["trk_eta"] = trk.eta();
       inputs["trk_lambda"] = trk.lambda();
-      inputs["trk_dxy"] = trk.dxy(beamSpot.position()); // is the training with abs() or not?
-      inputs["trk_dz"] = trk.dz(beamSpot.position()); // is the training with abs() or not?
-      inputs["trk_dxyClosestPV"] = trk.dxy(bestVertex); // is the training with abs() or not?
-      inputs["trk_dzClosestPV"] = trk.dz(bestVertex); // is the training with abs() or not?
+      inputs["trk_dxy"] = trk.dxy(beamSpot.position()); // Training done without taking absolute value
+      inputs["trk_dz"] = trk.dz(beamSpot.position()); // Training done without taking absolute value
+      inputs["trk_dxyClosestPV"] = trk.dxy(bestVertex); // Training done without taking absolute value
+      inputs["trk_dzClosestPVNorm"] = std::max(-0.2, std::min(trk.dz(bestVertex), 0.2)); // Training done without taking absolute value
       inputs["trk_ptErr"] = trk.ptError();
       inputs["trk_etaErr"] = trk.etaError();
       inputs["trk_lambdaErr"] = trk.lambdaError();
@@ -69,8 +85,28 @@ namespace {
       // there should only one output
       if(out.size() != 1) throw cms::Exception("LogicError") << "Expecting exactly one output from NN, got " << out.size();
 
-
       float output = 2.0*out.begin()->second-1.0;
+
+      //Special clauses for special tracks
+      //T1qqqq
+      if((std::abs(inputs["trk_dxy"])>=0.1) && (inputs["trk_etaErr"]<0.003) && (inputs["trk_dxyErr"]<0.03) &&(inputs["trk_ndof"]>3)){
+        //Set value to just above the threshold
+        if(generalCollThresholds[trk.algo()]){
+                float thres_ = generalCollThresholds[trk.algo()]+0.01;
+                return std::max(thres_,output);
+        }
+      }
+
+      //T5qqqqLL
+      if((inputs["trk_pt"]>100.0)&&(inputs["trk_nChi2"]<4.0)&&(inputs["trk_etaErr"]<0.001)){
+        //Set value to just above the threshold
+        if(generalCollThresholds[trk.algo()]){
+                float thres_ = generalCollThresholds[trk.algo()]+0.01;
+                return std::max(thres_,output);
+        }
+      }
+
+
       return output;
     }
 

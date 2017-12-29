@@ -342,7 +342,7 @@ from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackingPhase1.toReplaceWith(pixelPairStep, TrackLwtnnClassifier.clone(
     src='pixelPairStepTracks',
-    qualityCuts=[-0.8,-0.7,-0.4],
+    qualityCuts=[-0.6, -0.3, -0.0],
 ))
 
 

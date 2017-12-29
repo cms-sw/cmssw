@@ -199,7 +199,7 @@ from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 lowPtQuadStep = TrackLwtnnClassifier.clone(
     src = 'lowPtQuadStepTracks',
-    qualityCuts = [-0.2,0.2,0.4],
+    qualityCuts = [0.2, 0.425, 0.75],
 )
 fastSim.toModify(lowPtQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 highBetaStar_2018.toModify(lowPtQuadStep,qualityCuts = [-0.9,-0.35,-0.15])
