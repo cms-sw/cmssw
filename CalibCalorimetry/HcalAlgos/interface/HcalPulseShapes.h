@@ -29,8 +29,8 @@ public:
   void beginRun(edm::EventSetup const & es);
   void endRun();
 
-  const Shape& hbShape() const { return hpdShape_; }
-  const Shape& heShape() const { return hpdShape_; }
+  const Shape& hbShape() const { return hpdShape_v3; }
+  const Shape& heShape() const { return siPMShapeMC2018_; }
   const Shape& hfShape() const { return hfShape_; }
   const Shape& hoShape(bool sipm=false) const { return sipm ? siPMShapeHO_ : hpdShape_; }
   //  return Shape for given shapeType.
