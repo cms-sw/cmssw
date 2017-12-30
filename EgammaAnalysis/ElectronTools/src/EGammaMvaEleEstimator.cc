@@ -1012,7 +1012,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
   bool validKF= false; 
   reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable());
-  validKF = (myTrackRef.isNonnull());  
+  validKF &= (myTrackRef.isNonnull());  
 
   // Pure tracking variables
   fMVAVar_fbrem           =  ele.fbrem();
@@ -1147,7 +1147,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
   bool validKF= false; 
   reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable());
-  validKF = (myTrackRef.isNonnull());  
+  validKF &= (myTrackRef.isNonnull());  
 
   // Pure tracking variables
   fMVAVar_fbrem           =  ele.fbrem();
@@ -1252,7 +1252,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
   bool validKF= false;
   reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable());
-  validKF = (myTrackRef.isNonnull());
+  validKF &= (myTrackRef.isNonnull());
 
   // Pure tracking variables
   fMVAVar_fbrem           =  ele.fbrem();
@@ -1382,7 +1382,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
   bool validKF= false; 
   reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable());
-  validKF = (myTrackRef.isNonnull());  
+  validKF &= (myTrackRef.isNonnull());  
 
   // Pure tracking variables
   fMVAVar_fbrem           =  ele.fbrem();
@@ -1695,7 +1695,7 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
   bool validKF= false; 
   reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable());
-  validKF = (myTrackRef.isNonnull());  
+  validKF &= (myTrackRef.isNonnull());  
 
   // Pure tracking variables
   fMVAVar_fbrem           =  (ele.fbrem() < -1. ) ? -1. : ele.fbrem();
