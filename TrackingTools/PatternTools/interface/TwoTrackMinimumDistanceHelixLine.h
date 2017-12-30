@@ -45,7 +45,7 @@ public:
   double secondAngle() const;
 
 private:
-  GlobalTrajectoryParameters *theH, *theL, *firstGTP, *secondGTP;
+  const GlobalTrajectoryParameters *theH, *theL, *firstGTP, *secondGTP;
   GlobalVector posDiff;
   GlobalVector theLp;
   double X, Y, Z, px, py, pz, px2, py2, pz2, baseFct, baseDer;

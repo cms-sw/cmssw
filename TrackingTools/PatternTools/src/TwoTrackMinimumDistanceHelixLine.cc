@@ -115,8 +115,8 @@ bool TwoTrackMinimumDistanceHelixLine::calculate(
     const GlobalTrajectoryParameters & theSecondGTP, const float qual )
 {
   pointsUpdated = false;
-  firstGTP  = (GlobalTrajectoryParameters *) &theFirstGTP;
-  secondGTP = (GlobalTrajectoryParameters *) &theSecondGTP;
+  firstGTP  = &theFirstGTP;
+  secondGTP = &theSecondGTP;
 
   if ( updateCoeffs () )
   {
