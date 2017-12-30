@@ -124,7 +124,7 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
   const CaloSubdetectorGeometry* barrelgeom = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   const CaloSubdetectorGeometry* endcapgeom = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 
-  static std::string metname = "EgammaIsolationAlgos|EgammaRecHitExtractor";
+  static const std::string metname = "EgammaIsolationAlgos|EgammaRecHitExtractor";
 
   //Get barrel ECAL RecHits
   edm::Handle<EcalRecHitCollection> barrelEcalRecHitsH;
