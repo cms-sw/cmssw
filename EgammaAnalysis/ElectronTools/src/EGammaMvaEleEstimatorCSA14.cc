@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <zlib.h>
 #include "TMVA/MethodBase.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -282,9 +283,9 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron& ele,
 
   // Pure ECAL -> shower shapes
   std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed())) ;
-  if (!isnan(vCov[0])) fMVAVar_see = sqrt (vCov[0]); //EleSigmaIEtaIEta
+  if (edm::isFinite(vCov[0])) fMVAVar_see = sqrt (vCov[0]); //EleSigmaIEtaIEta
   else fMVAVar_see = 0.;
-  if (!isnan(vCov[2])) fMVAVar_spp = sqrt (vCov[2]);   //EleSigmaIPhiIPhi
+  if (edm::isFinite(vCov[2])) fMVAVar_spp = sqrt (vCov[2]);   //EleSigmaIPhiIPhi
   else fMVAVar_spp = 0.;    
 
   fMVAVar_etawidth        =  ele.superCluster()->etaWidth();
@@ -533,7 +534,11 @@ void EGammaMvaEleEstimatorCSA14::bindVariables() {
   
   
   // Needed for a bug in CMSSW_420, fixed in more recent CMSSW versions
+#ifndef STANDALONE
+  if(edm::isNotFinite(fMVAVar_spp))
+#else
   if(std::isnan(fMVAVar_spp))
+#endif
     fMVAVar_spp = 0.;	
   
   
