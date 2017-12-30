@@ -335,6 +335,7 @@ void EnergyScaleCorrection_class::ReadSmearingFromFile(TString filename)
       
     } else {
       f_in >> category >> rho >> phi;
+      err_rho = err_phi = Emean = err_Emean = 0;
       AddSmearing(category, runMin, runMax, rho,  err_rho, phi, err_phi, Emean, err_Emean);
     }
 #ifdef DEBUG
