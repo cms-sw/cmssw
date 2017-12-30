@@ -442,10 +442,9 @@ correctionCategory_class::correctionCategory_class(TString category_)
   etmin = -1;
   etmax = 99999.;
   
-  size_t p1, p2; // boundary
+  size_t p1, p2;// boundary
   // eta region
   p1 = category.find("absEta_");
-  p2 = p1 + 1;
   if(category.find("absEta_0_1") != std::string::npos) {
     etamin = 0;
     etamax = 1;
@@ -490,7 +489,7 @@ correctionCategory_class::correctionCategory_class(TString category_)
   
   // Et region
   p1 = category.find("-Et_");
-  p2 = p1 + 1;
+  //  p2 = p1 + 1;//this is needed only for the printouts
   //    std::cout << "p1 = " << p1 << "\t" << std::string::npos << "\t" << category.size() << std::endl;
   //std::cout << etmin << "\t" << etmax << "\t" << category.substr(p1+1, p2-p1-1) << "\t" << p1 << "\t" << p2 << std::endl;
   if(p1 != std::string::npos) {
