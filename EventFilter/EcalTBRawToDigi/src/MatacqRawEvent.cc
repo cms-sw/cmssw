@@ -38,10 +38,10 @@ void MatacqTBRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   daqHeader = (const uint32le_t*) pData16;
   const int daqHeaderLen = 16; //in bytes 
   pData16 += daqHeaderLen/sizeof(pData16[0]);
-  matacqHeader = (matacqHeader_t*) pData16;
+  matacqHeader = (const matacqHeader_t*) pData16;
   pData16 += sizeof(matacqHeader_t)/sizeof(pData16[0]);
   if(getMatacqDataFormatVersion()>=2){//trigger position present
-    tTrigPs = *((int32_t*) pData16);
+    tTrigPs = *((const int32_t*)pData16);
     pData16 += 2;
   } else{
     tTrigPs = std::numeric_limits<int>::max();    

@@ -311,7 +311,7 @@ private:
 
   /**Matacq header:
    */
-  matacqHeader_t* matacqHeader;
+  const matacqHeader_t* matacqHeader;
   
   /** MATACQ data format internal version
    */
