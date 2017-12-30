@@ -130,12 +130,15 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
   const G4LogicalVolume* lv;
   std::string attribute, value;
+
   if (useHF) {
     if (useParam) {
       showerParam = new HFShowerParam(name, cpv, p);
+      setParameterized(true);
     }  else {
       if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
       hfshower  = new HFShower(name, cpv, p, 0);
+      setParameterized(true);
     }
 
     // HF volume names
@@ -447,23 +450,26 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                           << aStep->GetTrack()->GetTrackID() << " ("
                           << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
-      if (getStepInfo(aStep)) {
+      bool isKilled(false);
+      if (getStepInfo(aStep, isKilled)) {
 #ifdef plotDebug
         if (edepositEM+edepositHAD > 0)
           plotProfile(aStep, aStep->GetPreStepPoint()->GetPosition(),
                       edepositEM+edepositHAD,aStep->GetPostStepPoint()->GetGlobalTime(),0);
 #endif
-        if (hitExists() == false && edepositEM+edepositHAD>0.) currentHit = createNewHit();
+        if (hitExists(aStep) == false && edepositEM+edepositHAD>0.) {
+	  currentHit = createNewHit(aStep);
+	}
       }
     }
     return true;
   }
 } 
 
-double HCalSD::getEnergyDeposit(G4Step* aStep) {
+double HCalSD::getEnergyDeposit(const G4Step* aStep, bool&) {
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;
-  theTrack = aStep->GetTrack();
+  G4Track* theTrack = aStep->GetTrack();
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint32_t detid = setDetUnitId(aStep);
@@ -564,7 +570,7 @@ uint32_t HCalSD::setDetUnitId(const G4Step * aStep) {
 void HCalSD::setNumberingScheme(HcalNumberingScheme * scheme) {
   if (scheme != nullptr) {
     edm::LogInfo("HcalSim") << "HCalSD: updates numbering scheme for " << GetName();
-    if (numberingScheme) delete numberingScheme;
+    delete numberingScheme;
     numberingScheme = scheme;
   }
 }
@@ -783,19 +789,17 @@ bool HCalSD::isItinFidVolume (const G4ThreeVector& hitPoint) {
 }
 
 void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
-  preStepPoint  = aStep->GetPreStepPoint(); 
-  theTrack = aStep->GetTrack();   
+  const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint(); 
+  G4Track* theTrack = aStep->GetTrack();   
   int det       = 5;
   bool ok;
 
   std::vector<HFShowerLibrary::Hit> hits = showerLibrary->getHits(aStep, ok, weight, false);
 
-  double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = setTrackID(aStep);
 
   // Reset entry point for new primary
-  posGlobal = preStepPoint->GetPosition();
-  resetForNewPrimary(posGlobal, etrack);
+  resetForNewPrimary(aStep);
 
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
   if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG) {
@@ -830,7 +834,7 @@ void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
       if (currentID == previousID) {
 	updateHit(currentHit);
       } else {
-	if (!checkHit()) currentHit = createNewHit();
+	if (!checkHit()) currentHit = createNewHit(aStep);
       }
     }
   }
@@ -847,8 +851,7 @@ void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
 
 void HCalSD::hitForFibre (const G4Step* aStep, double weight) { // if not ParamShower
 
-  const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint();
-  const G4Track*     theTrack      = aStep->GetTrack();
+  const G4Track* theTrack = aStep->GetTrack();
   int primaryID = setTrackID(aStep);
 
   int det   = 5;
@@ -889,8 +892,7 @@ void HCalSD::hitForFibre (const G4Step* aStep, double weight) { // if not ParamS
 	if (currentID == previousID) {
 	  updateHit(currentHit);
 	} else {
-	  posGlobal = preStepPoint->GetPosition();
-	  if (!checkHit()) currentHit = createNewHit();
+	  if (!checkHit()) currentHit = createNewHit(aStep);
 	}
       }
     }
@@ -902,7 +904,6 @@ void HCalSD::getFromParam (G4Step* aStep, double weight) {
   int nHit = static_cast<int>(hits.size());
 
   if (nHit > 0) {
-    const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint();
     int primaryID = setTrackID(aStep);
    
     int det   = 5;
@@ -929,8 +930,7 @@ void HCalSD::getFromParam (G4Step* aStep, double weight) {
       if (currentID == previousID) {
 	updateHit(currentHit);
       } else {
-        posGlobal = preStepPoint->GetPosition();
-        if (!checkHit()) currentHit = createNewHit();
+        if (!checkHit()) currentHit = createNewHit(aStep);
       }
     }
   }
@@ -952,9 +952,7 @@ void HCalSD::getHitPMT (const G4Step * aStep) {
       if (primaryID == 0) primaryID = theTrack->GetTrackID();
     }
     // Reset entry point for new primary
-    posGlobal = preStepPoint->GetPosition();
-    resetForNewPrimary(posGlobal, etrack);
-
+    resetForNewPrimary(aStep);
     //
     int    det      = static_cast<int>(HcalForward);
     const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
@@ -998,7 +996,7 @@ void HCalSD::getHitPMT (const G4Step * aStep) {
     if      (currentID == previousID) {
       updateHit(currentHit);
     } else {
-      if (!checkHit()) currentHit = createNewHit();
+      if (!checkHit()) currentHit = createNewHit(aStep);
     }
   }
 }
@@ -1018,9 +1016,7 @@ void HCalSD::getHitFibreBundle (const G4Step* aStep, bool type) {
       if (primaryID == 0) primaryID = theTrack->GetTrackID();
     }
     // Reset entry point for new primary
-    posGlobal = preStepPoint->GetPosition();
-    resetForNewPrimary(posGlobal, etrack);
-
+    resetForNewPrimary(aStep);
     //
     int    det      = static_cast<int>(HcalForward);
     const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
@@ -1062,15 +1058,14 @@ void HCalSD::getHitFibreBundle (const G4Step* aStep, bool type) {
 #endif
     // check if it is in the same unit and timeslice as the previous one
     if (currentID == previousID) updateHit(currentHit);
-    else if (!checkHit()) currentHit = createNewHit();
+    else if (!checkHit()) currentHit = createNewHit(aStep);
   } // non-zero energy deposit
 }
 
 int HCalSD::setTrackID (const G4Step* aStep) {
-  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+
   const G4Track* theTrack         = aStep->GetTrack();
 
-  double etrack = preStepPoint->GetKineticEnergy();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
@@ -1081,9 +1076,9 @@ int HCalSD::setTrackID (const G4Step* aStep) {
     primaryID = theTrack->GetTrackID();
   }
 
-  if (primaryID != previousID.trackID())
-    resetForNewPrimary(preStepPoint->GetPosition(), etrack);
-
+  if (primaryID != previousID.trackID()) {
+    resetForNewPrimary(aStep);
+  }
   return primaryID;
 }
 

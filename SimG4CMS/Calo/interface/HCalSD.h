@@ -41,12 +41,12 @@ public:
          edm::ParameterSet const &, const SimTrackManager*);
   ~HCalSD() override;
   bool                  ProcessHits(G4Step * , G4TouchableHistory * ) override;
-  double                getEnergyDeposit(G4Step* ) override;
   uint32_t              setDetUnitId(const G4Step* step) override;
   void                  setNumberingScheme(HcalNumberingScheme* );
 
 protected:
 
+  double                getEnergyDeposit(const G4Step*, bool& ) override;
   void                  update(const BeginOfJob *) override;
   void                  initRun() override;
   bool                  filterHit(CaloG4Hit*, double) override;

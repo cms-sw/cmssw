@@ -44,9 +44,9 @@ HGCalTB16SD01::HGCalTB16SD01(const std::string& name, const DDCompactView & cpv,
 
 HGCalTB16SD01::~HGCalTB16SD01() {}
 
-double HGCalTB16SD01::getEnergyDeposit(G4Step* aStep) {
+double HGCalTB16SD01::getEnergyDeposit(const G4Step* aStep, bool&) {
 
-  G4StepPoint* point = aStep->GetPreStepPoint();
+  const G4StepPoint* point = aStep->GetPreStepPoint();
   if (initialize_) initialize(point);
   double destep = aStep->GetTotalEnergyDeposit();
   double wt2    = aStep->GetTrack()->GetWeight();
@@ -65,9 +65,8 @@ double HGCalTB16SD01::getEnergyDeposit(G4Step* aStep) {
 
 uint32_t HGCalTB16SD01::setDetUnitId(const G4Step * aStep) { 
 
-  G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
-  G4String name             = preStepPoint->GetPhysicalVolume()->GetName();
 
   int det(1), x(0), y(0);
   int lay = (touch->GetReplicaNumber(0));

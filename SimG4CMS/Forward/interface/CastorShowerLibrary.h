@@ -40,7 +40,7 @@ public:
 public:
 
   void                initParticleTable(G4ParticleTable *);
-  CastorShowerEvent   getShowerHits(G4Step*, bool&);
+  CastorShowerEvent   getShowerHits(const G4Step*, bool&);
   int                 FindEnergyBin(double);
   int                 FindEtaBin(double);
   int                 FindPhiBin(double);

@@ -41,8 +41,10 @@ CastorSD::CastorSD(const std::string& name, const DDCompactView & cpv,
 	  
   non_compensation_factor = m_CastorSD.getParameter<double>("nonCompensationFactor");
   
-  if (useShowerLibrary) showerLibrary = new CastorShowerLibrary(name, p);
-  
+  if (useShowerLibrary) {
+    showerLibrary = new CastorShowerLibrary(name, p);
+    setParameterized(true);
+  }
   setNumberingScheme(new CastorNumberingScheme());
   
   edm::LogInfo("ForwardSim") 
@@ -91,7 +93,7 @@ void CastorSD::initRun(){
 
 //=============================================================================================
 
-double CastorSD::getEnergyDeposit(G4Step * aStep) {
+double CastorSD::getEnergyDeposit(const G4Step * aStep, bool& isKilled) {
   
   double NCherPhot = 0.;
 
@@ -100,9 +102,9 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 
   // preStepPoint information *********************************************
   
-  G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
-  G4VPhysicalVolume* currentPV    = preStepPoint->GetPhysicalVolume();
-  G4LogicalVolume*   currentLV    = currentPV->GetLogicalVolume();
+  const G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
+  const G4VPhysicalVolume* currentPV    = preStepPoint->GetPhysicalVolume();
+  const G4LogicalVolume*   currentLV    = currentPV->GetLogicalVolume();
 
 #ifdef debugLog
   G4String           name   = currentPV->GetName();
@@ -205,7 +207,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   if (useShowerLibrary && particleWithinShowerLibrary) {
     // Use Castor shower library if energy is above threshold, is not a muon 
     // and is not moving backward 
-    getFromLibrary(aStep);
+    getFromLibrary(aStep, isKilled);
     
 #ifdef debugLog
     LogDebug("ForwardSim") << " Current logical volume is " << nameVolume ;
@@ -252,8 +254,8 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   
 #ifdef debugLog
   // postStepPoint information *********************************************
-  G4StepPoint* postStepPoint= aStep->GetPostStepPoint();   
-  G4VPhysicalVolume* postPV= postStepPoint->GetPhysicalVolume();
+  const G4StepPoint* postStepPoint= aStep->GetPostStepPoint();   
+  const G4VPhysicalVolume* postPV= postStepPoint->GetPhysicalVolume();
   
   G4String           postname   = postPV->GetName();
   std::string        postnameVolume;
@@ -544,9 +546,9 @@ void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
 
 //=======================================================================================
 
-int CastorSD::setTrackID (G4Step* aStep) {
+int CastorSD::setTrackID (const G4Step* aStep) {
 
-  theTrack     = aStep->GetTrack();
+  const G4Track* theTrack = aStep->GetTrack();
 
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID = trkInfo->getIDonCaloSurface();
@@ -559,8 +561,7 @@ int CastorSD::setTrackID (G4Step* aStep) {
   }
 
   if (primaryID != previousID.trackID()) {
-    double etrack = preStepPoint->GetKineticEnergy();
-    resetForNewPrimary(preStepPoint->GetPosition(), etrack);
+    resetForNewPrimary(aStep);
   }
 
   return primaryID;
@@ -568,7 +569,7 @@ int CastorSD::setTrackID (G4Step* aStep) {
 
 //=======================================================================================
 
-uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, const CastorShowerEvent& shower) {
+uint32_t CastorSD::rotateUnitID(uint32_t unitID, const G4Track* track, const CastorShowerEvent& shower) {
 // ==============================================================
 //
 //   o   Exploit Castor phi symmetry to return newUnitID for  
@@ -633,7 +634,7 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, const CastorSho
 
 //=======================================================================================
 
-void CastorSD::getFromLibrary (G4Step* aStep) {
+void CastorSD::getFromLibrary (const G4Step* aStep, bool& isKilled) {
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -646,20 +647,16 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
 //
 /////////////////////////////////////////////////////////////////////
 
-  preStepPoint  = aStep->GetPreStepPoint(); 
-  theTrack      = aStep->GetTrack();   
-  bool ok;
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
+  const G4Track* theTrack = aStep->GetTrack();   
   
   // ****    Call method to retrieve hits from the ShowerLibrary   ****
-  CastorShowerEvent hits = showerLibrary->getShowerHits(aStep, ok);
+  CastorShowerEvent hits = showerLibrary->getShowerHits(aStep, isKilled);
 
-  double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = setTrackID(aStep);
-  // int    primaryID = theTrack->GetTrackID();
 
   // Reset entry point for new primary
-  posGlobal = preStepPoint->GetPosition();
-  resetForNewPrimary(posGlobal, etrack);
+  resetForNewPrimary(aStep);
 
   // Check whether track is EM or HAD
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
@@ -743,35 +740,8 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
     if (currentID == previousID) {
       updateHit(currentHit);
     } else {
-      if (!checkHit()) currentHit = createNewHit();
+      if (!checkHit()) currentHit = createNewHit(aStep);
     }
   }  //  End of loop over hits
-
-  //Now kill the current track
-  if (ok) {
-    theTrack->SetTrackStatus(fStopAndKill);
-#ifdef debugLog
-    LogDebug("ForwardSim") << "CastorSD::getFromLibrary:"
-			   << "\n \"theTrack\" with TrackID() = " 
-			   << theTrack->GetTrackID() 
-			   << " and with energy " 
-			   << theTrack->GetTotalEnergy()
-			   << " has been set to be killed" ;
-#endif
-    G4TrackVector tv = *(aStep->GetSecondary());
-    for (unsigned int kk=0; kk<tv.size(); kk++) {
-      if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume()) {
-	tv[kk]->SetTrackStatus(fStopAndKill);
-#ifdef debugLog
-	LogDebug("ForwardSim") << "CastorSD::getFromLibrary:"
-			       << "\n tv[" << kk << "]->GetTrackID() = " 
-			       << tv[kk]->GetTrackID() 
-			       << " with energy " 
-			       << tv[kk]->GetTotalEnergy()
-			       << " has been set to be killed" ;
-#endif
-      }
-    }
-  }
 }
 

@@ -24,9 +24,12 @@ public:
   EcalTBH4BeamSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 		 edm::ParameterSet const &, const SimTrackManager*);
   ~EcalTBH4BeamSD() override;
-  double getEnergyDeposit(G4Step*) override;
   uint32_t setDetUnitId(const G4Step* step) override;
   void setNumberingScheme(EcalNumberingScheme* scheme);
+
+protected:    
+
+  double getEnergyDeposit(const G4Step*, bool&) override;
 
 private:    
 

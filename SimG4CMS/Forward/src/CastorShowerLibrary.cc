@@ -209,10 +209,10 @@ void CastorShowerLibrary::initParticleTable(G4ParticleTable * theParticleTable) 
 
 //=============================================================================================
 
-CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) {
+CastorShowerEvent CastorShowerLibrary::getShowerHits(const G4Step * aStep, bool & ok) {
 
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  G4Track *     track         = aStep->GetTrack();
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
+  const G4Track *     track         = aStep->GetTrack();
 
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
@@ -221,7 +221,6 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) 
   CastorShowerEvent hit;
   hit.Clear();
   
-  ok = false;
   if (parCode == pi0PDG   || parCode == etaPDG    || parCode == nuePDG  ||
       parCode == numuPDG  || parCode == nutauPDG  || parCode == anuePDG ||
       parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
