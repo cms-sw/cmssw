@@ -10,14 +10,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-CSCTMBMiniScope::CSCTMBMiniScope(unsigned short *buf,int Line6b07,int Line6E07) {
+CSCTMBMiniScope::CSCTMBMiniScope(const uint16_t *buf,int Line6b07,int Line6E07) {
 
   size_ = UnpackMiniScope(buf,Line6b07,Line6E07);
 
 } ///CSCTMBMiniScope
 
 
-int CSCTMBMiniScope::UnpackMiniScope(unsigned short *buf,int Line6b07,int Line6E07) {
+int CSCTMBMiniScope::UnpackMiniScope(const uint16_t *buf,int Line6b07,int Line6E07) {
 
 
   if((Line6E07-Line6b07) != 0) {

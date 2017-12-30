@@ -17,7 +17,7 @@ public:
   
   CSCDMBHeader(uint16_t firmware_version = 2005);
   
-  CSCDMBHeader(unsigned short * buf, uint16_t firmware_version = 2005);
+  CSCDMBHeader(const uint16_t * buf, uint16_t firmware_version = 2005);
 
   CSCDMBHeader(const CSCDMBStatusDigi & digi)
     {

@@ -35,18 +35,18 @@ CSCEventData::CSCEventData(int chamberType, uint16_t format_version) :
 }
 
 
-CSCEventData::CSCEventData(unsigned short * buf, uint16_t format_version): theFormatVersion(format_version)
+CSCEventData::CSCEventData(const uint16_t * buf, uint16_t format_version): theFormatVersion(format_version)
 {
   theFormatVersion = format_version;
   unpack_data(buf);
 }
 
 
-void CSCEventData::unpack_data(unsigned short * buf)
+void CSCEventData::unpack_data(const uint16_t * buf)
 {
   // zero everything
   init();
-  unsigned short * pos = buf;
+  const uint16_t * pos = buf;
   if (debug)
     {
       LogTrace ("CSCEventData|CSCRawToDigi") << "The event data ";
@@ -130,7 +130,7 @@ void CSCEventData::unpack_data(unsigned short * buf)
                   /// Calculate the number of words in the layer
                   int nWG_round_up   = int(nWGs_per_layer/12)+(nWGs_per_layer%3?1:0);
                   //std::cout << " Words per layer: " << nWG_round_up << std::endl; ///to_rm
-                  unsigned short * posZSE = pos;
+                  const uint16_t * posZSE = pos;
                   std::vector<unsigned short> alctZSErecoveredVector;
                   alctZSErecoveredVector.clear();
 
