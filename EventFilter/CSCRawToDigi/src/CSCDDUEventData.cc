@@ -29,7 +29,7 @@ CSCDDUEventData::CSCDDUEventData(const CSCDDUHeader & header)
 }
 
   
-CSCDDUEventData::CSCDDUEventData(uint16_t *buf, CSCDCCExaminer* examiner) 
+CSCDDUEventData::CSCDDUEventData(const uint16_t *buf, CSCDCCExaminer* examiner) 
 {
   unpack_data(buf, examiner);
 }
@@ -157,11 +157,11 @@ void CSCDDUEventData::decodeStatus(int code) const
     }
 }
 
-void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner) 
+void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner) 
 {
   // just to calculate length
-  uint16_t * inputBuf = buf;
-  uint16_t * inputBuf0 = buf; /// To pack trailer 0 
+  const uint16_t * inputBuf = buf;
+  const uint16_t * inputBuf0 = buf; /// To pack trailer 0 
   theData.clear();
   if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << "CSCDDUEventData::unpack_data() is called";
   if (debug) 
