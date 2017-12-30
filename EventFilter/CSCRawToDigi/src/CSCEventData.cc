@@ -448,7 +448,7 @@ std::vector < std::vector<CSCWireDigi> > CSCEventData::wireDigis() const
 }
 
 
-CSCCFEBData* CSCEventData::cfebData(unsigned icfeb) const
+const CSCCFEBData* CSCEventData::cfebData(unsigned icfeb) const
 {
   return theCFEBData[icfeb];
 }

@@ -68,7 +68,7 @@ class CSCEventData {
   
 
   /// unpacked in long mode: has overflow and error bits decoded
-  CSCCFEBData * cfebData(unsigned icfeb) const;
+  const CSCCFEBData * cfebData(unsigned icfeb) const;
 
   /// returns all the strip digis in the chamber, with the comparator information.
   std::vector<CSCStripDigi> stripDigis(const CSCDetId & idlayer) const;
