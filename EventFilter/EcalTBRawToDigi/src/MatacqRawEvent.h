@@ -240,7 +240,7 @@ private:
    * @param spec specification of the data field to read
    * @return content of data field specified by 'spec'
    */
-  int read32(uint32le_t* pData, field32spec_t spec) const;
+  int read32(const uint32le_t* pData, field32spec_t spec) const;
   
   /** Changes the raw data pointer and updates accordingly this object. 
    * @param buffer new pointer to the data buffer. Must be aligned at least
@@ -271,7 +271,7 @@ private:
 
   /** Pointer to the standard CMS DAQ header
    */
-  uint32le_t* daqHeader;
+  const uint32le_t* daqHeader;
 
   /** DCC error field content.
    */

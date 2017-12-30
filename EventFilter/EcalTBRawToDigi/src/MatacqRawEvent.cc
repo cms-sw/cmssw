@@ -33,9 +33,9 @@ const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::h1Marker32        = {3, 
 
 void MatacqTBRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   error = 0;
-  int16le_t* begin16 = (int16le_t*) pData;
-  int16le_t* pData16 = begin16;
-  daqHeader = (uint32le_t*) pData16;
+  const int16le_t* begin16 = (const int16le_t*) pData;
+  const int16le_t* pData16 = begin16;
+  daqHeader = (const uint32le_t*) pData16;
   const int daqHeaderLen = 16; //in bytes 
   pData16 += daqHeaderLen/sizeof(pData16[0]);
   matacqHeader = (matacqHeader_t*) pData16;
@@ -100,7 +100,7 @@ void MatacqTBRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   }
 }
 
-int MatacqTBRawEvent::read32(uint32le_t* pData, field32spec_t spec32) const{
+int MatacqTBRawEvent::read32(const uint32le_t* pData, field32spec_t spec32) const{
   int result =  pData[spec32.offset] & spec32.mask;
   int mask = spec32.mask;
   while((mask&0x1) == 0){
