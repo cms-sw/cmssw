@@ -34,16 +34,16 @@ class CSCCFEBData {
   /// WARNING: these digis have no comparator information.
 
   ///faster way to get to digis
-  void digis(uint32_t idlayer,  std::vector<CSCStripDigi> & result);
+  void digis(uint32_t idlayer,  std::vector<CSCStripDigi> & result) const;
 
-  std::vector<CSCStripDigi> digis(unsigned idlayer);
+  std::vector<CSCStripDigi> digis(unsigned idlayer) const;
   /// deprecated.  Use the above method.
   std::vector<std::vector<CSCStripDigi> > stripDigis();
  
   /// returns one status digi per cfeb
   CSCCFEBStatusDigi statusDigi() const;
 
-  unsigned short * data() {return theData;}
+  uint16_t * data() {return theData;}
   unsigned sizeInWords() const {return theSize;} 
   unsigned boardNumber() const {return boardNumber_;}
   void setBoardNumber(int cfeb) {boardNumber_=cfeb;}
@@ -60,7 +60,9 @@ class CSCCFEBData {
  
  
  private:
-  unsigned short theData[1600];
+  CSCCFEBTimeSlice * timeSlice(unsigned i);
+
+  uint16_t theData[1600];
   /// Shows where in theData the words start.  A bad slice will 
   /// be tagged with a false
   std::vector<std::pair<int,bool> > theSliceStarts;
