@@ -693,7 +693,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
 
 
 	LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
-        recSimCollL = std::move(theAssociator->associateRecoToSim(trackRefs, tPCfake));
+        recSimCollL = theAssociator->associateRecoToSim(trackRefs, tPCfake);
         recSimCollP = &recSimCollL;
 	LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
         // It is necessary to do the association wrt. fake TPs,
@@ -702,7 +702,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
         // be a subset of the set of fake TPs, for efficiency
         // histograms it doesn't matter if the association contains
         // associations of TPs not in the set of efficiency TPs.
-        simRecCollL = std::move(theAssociator->associateSimToReco(trackRefs, tPCfake));
+        simRecCollL = theAssociator->associateSimToReco(trackRefs, tPCfake);
         simRecCollP = &simRecCollL;
       }
       else{
