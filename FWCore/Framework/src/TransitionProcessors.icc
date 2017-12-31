@@ -91,7 +91,7 @@ struct LumiResources {
   ~LumiResources() noexcept {
     try {
       //If we skip empty lumis, this would be called conditionally
-      run_->ep_.endLumi(status_, cleaningUpAfterException_);
+      run_->ep_.endLumi(status_);
       
       if (success_) {
         run_->ep_.writeLumi(*status_);
@@ -100,7 +100,7 @@ struct LumiResources {
       run_->ep_.deleteLumiFromCache(*status_);
       
     } catch(...) {
-      if(cleaningUpAfterException_ or not run_->ep_.setDeferredException(std::current_exception())) {
+      if(status_->cleaningUpAfterException() or not run_->ep_.setDeferredException(std::current_exception())) {
         std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.");
         run_->ep_.setExceptionMessageLumis(message);
       }
@@ -119,7 +119,7 @@ struct LumiResources {
   }
   
   void normalEnd() {
-    cleaningUpAfterException_ = false;
+    status_->noExceptionHappened();
   }
 
   void succeeded() {
@@ -129,7 +129,6 @@ struct LumiResources {
   std::shared_ptr<RunResources> run_;
   std::shared_ptr<edm::LuminosityBlockProcessingStatus> status_;
   edm::LuminosityBlockNumber_t lumi_;
-  bool cleaningUpAfterException_ = true;
   bool success_ = false;
 };
 

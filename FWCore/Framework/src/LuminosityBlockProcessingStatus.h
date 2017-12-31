@@ -72,6 +72,8 @@ class LuminosityBlockProcessingStatus
   bool haveStartedNextLumi() const { return startedNextLumi_;}
   void startNextLumi() { startedNextLumi_ = true;}
   
+  void noExceptionHappened() { cleaningUpAfterException_ = false; }
+  bool cleaningUpAfterException() const { return cleaningUpAfterException_;}
   private:
   // ---------- member data --------------------------------
   std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
@@ -82,6 +84,8 @@ class LuminosityBlockProcessingStatus
   bool lumiEnding_{false}; //read/write in m_sourceQueue NOTE: This is a useful cache instead of recalculating each call
   bool continuingLumi_{false}; //read/write in m_sourceQueue OR from main thread when no tasks running
   bool startedNextLumi_{false}; //read/write in m_sourceQueue
+  bool globalBeginSucceeded_{false};
+  bool cleaningUpAfterException_{true};
 
 
 };

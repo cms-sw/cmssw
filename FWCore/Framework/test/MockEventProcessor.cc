@@ -27,7 +27,6 @@ namespace {
   
   
   class WaitingTaskHolder;
-#include "FWCore/Framework/src/TransitionProcessors.icc"
 }
 
 namespace edm {
@@ -40,6 +39,10 @@ struct LuminosityBlockPrincipal {
 
 #define TEST_NO_FWD_DECL
 #include "FWCore/Framework/src/LuminosityBlockProcessingStatus.h"
+
+namespace {
+#include "FWCore/Framework/src/TransitionProcessors.icc"
+}
 
 namespace edm {
 
@@ -237,7 +240,7 @@ namespace edm {
     status->globalBeginDidSucceed();
   }
 
-  void MockEventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool /*cleaningUpAfterException*/) {
+  void MockEventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status) {
     auto postfix = status->didGlobalBeginSucceed()? "\n" : " global failed\n";
     output_ << "\tendLumi " << status->lumiPrincipal()->run_ << "/" << status->lumiPrincipal()->lumi_ << postfix;
   }
