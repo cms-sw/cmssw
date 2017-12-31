@@ -1198,7 +1198,8 @@ namespace edm {
     });
   }
 
-  void EventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status, bool cleaningUpAfterException) {
+  void EventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status) {
+    bool cleaningUpAfterException = status->cleaningUpAfterException();
     LuminosityBlockPrincipal& lumiPrincipal = *status-> lumiPrincipal();
     lumiPrincipal.setAtEndTransition(true);
     
