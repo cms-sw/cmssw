@@ -56,11 +56,11 @@ private:
 
   int themaxiter;
   bool updateCoeffs();
-  void finalPoints() const;
+  void finalPoints();
   bool oneIteration(double & thePhiH, double & fct, double & derivative ) const;
-  mutable GlobalPoint helixPoint, linePoint;
-  mutable double tL, linePath, helixPath;
-  mutable bool pointsUpdated;
+  GlobalPoint helixPoint, linePoint;
+  double tL, linePath, helixPath;
+  bool pointsUpdated;
 
 };
 #endif
