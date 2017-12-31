@@ -8,7 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
 
-CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf, uint16_t format_version, bool f_dcfeb) 
+CSCCFEBData::CSCCFEBData(unsigned number, const uint16_t * buf, uint16_t format_version, bool f_dcfeb) 
   : theSize(0), boardNumber_(number), theNumberOfSamples(0), theFormatVersion(format_version), fDCFEB(f_dcfeb) {
   // I may be grabbing too many words, but that's OK
   // parse for time slices
@@ -18,8 +18,8 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf, uint16_t format_
   theSliceStarts.reserve(8);
   while(theNumberOfSamples < maxSamples) {
     // first see if it's a bad slice
-    CSCBadCFEBTimeSlice * badSlice
-      = reinterpret_cast<CSCBadCFEBTimeSlice *>(buf+pos);
+    const CSCBadCFEBTimeSlice * badSlice
+      = reinterpret_cast<const CSCBadCFEBTimeSlice *>(buf+pos);
     if(badSlice->check()) {
       //show that a bad slice starts here
       theSliceStarts.push_back(std::pair<int, bool>(pos, false));
@@ -29,8 +29,8 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf, uint16_t format_
     } 
     else {
       // OK.  Maybe it's good.
-      CSCCFEBTimeSlice * goodSlice 
-	= reinterpret_cast<CSCCFEBTimeSlice *>(buf+pos);
+      const CSCCFEBTimeSlice * goodSlice 
+	= reinterpret_cast<const CSCCFEBTimeSlice *>(buf+pos);
       if(goodSlice->check()) {
 	// show that a good slice starts here
 	theSliceStarts.push_back(std::pair<int, bool>(pos, true));

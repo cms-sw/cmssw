@@ -14,7 +14,7 @@ class CSCCFEBStatusDigi;
 class CSCCFEBData {
  public:
  /// read from an existing data stream. 
-  CSCCFEBData(unsigned boardNumber, unsigned short * buf, uint16_t theFormatVersion = 2005, bool fDCFEB = false);
+  CSCCFEBData(unsigned boardNumber, const uint16_t * buf, uint16_t theFormatVersion = 2005, bool fDCFEB = false);
   /// create, 
   CSCCFEBData(unsigned boardNumber, bool sixteenSamples, uint16_t theFormatVersion = 2005, bool fDCFEB = false);
   
