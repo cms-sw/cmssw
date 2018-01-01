@@ -215,7 +215,7 @@ void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner)
 	
     std::map<DDUIdType,std::map<CSCIdType,const uint16_t*> > ddus = examiner->DMB_block();
     std::map<DDUIdType,std::map<CSCIdType,const uint16_t*> >::iterator ddu_itr = ddus.find(dduID);
-    uint16_t* dduBlock = (uint16_t*)((examiner->DDU_block())[dduID]);
+    const uint16_t* dduBlock = (const uint16_t*)((examiner->DDU_block())[dduID]);
     uint32_t dduBufSize = (examiner->DDU_size())[dduID];
 		
     if (ddu_itr != ddus.end() && dduBufSize!=0 && dduBlock==inputBuf) {
@@ -227,7 +227,7 @@ void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner)
 
         if(cscid != -1)
         {
-	  uint16_t* pos = (uint16_t*)csc_itr->second;
+	  const uint16_t* pos = (const uint16_t*)csc_itr->second;
 	
 	
           ExaminerStatusType errors = examiner->errorsForChamber(cscid);
