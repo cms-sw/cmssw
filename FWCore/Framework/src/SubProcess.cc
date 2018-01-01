@@ -448,7 +448,6 @@ namespace edm {
                             IOVSyncValue const& ts,
                             bool cleaningUpAfterException) {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
-    rp.setComplete();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
     rp.setAtEndTransition(true);
@@ -508,7 +507,6 @@ namespace edm {
   SubProcess::doEndLuminosityBlockAsync(WaitingTaskHolder iHolder,LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     
     LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
-    lbp.setComplete();
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
     lbp.setAtEndTransition(true);

@@ -9,8 +9,8 @@ namespace edm {
   std::string const Run::emptyString_;
 
   Run::Run(RunPrincipal const& rp, ModuleDescription const& md,
-           ModuleCallingContext const* moduleCallingContext) :
-        provRecorder_(rp, md),
+           ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+        provRecorder_(rp, md, isAtEnd),
         aux_(rp.aux()),
         moduleCallingContext_(moduleCallingContext)  {
   }

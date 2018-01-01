@@ -101,13 +101,7 @@ namespace edm {
     void put(ProductResolverIndex index,
              std::unique_ptr<WrapperBase> edp) const;
 
-    void setComplete() {
-      complete_ = true;
-    }
-
   private:
-
-    bool isComplete_() const override {return complete_;}
 
     unsigned int transitionIndex_() const override;
 
@@ -116,8 +110,6 @@ namespace edm {
     LuminosityBlockAuxiliary aux_;
 
     LuminosityBlockIndex index_;
-    
-    bool complete_;
   };
 }
 #endif

@@ -10,10 +10,10 @@ namespace edm {
   std::string const LuminosityBlock::emptyString_;
 
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                                   ModuleCallingContext const* moduleCallingContext) :
-        provRecorder_(lbp, md),
+                                   ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+        provRecorder_(lbp, md,isAtEnd),
         aux_(lbp.aux()),
-        run_(new Run(lbp.runPrincipal(), md, moduleCallingContext)),
+        run_(new Run(lbp.runPrincipal(), md, moduleCallingContext,false)),
         moduleCallingContext_(moduleCallingContext) {
   }
 

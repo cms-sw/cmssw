@@ -82,7 +82,7 @@ namespace edm {
     EDAnalyzerBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                                ModuleCallingContext const* mcc) {
       
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
@@ -92,7 +92,7 @@ namespace edm {
     void
     EDAnalyzerBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doEndRunSummary_(r,c);
@@ -102,7 +102,7 @@ namespace edm {
     void
     EDAnalyzerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                            ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doBeginLuminosityBlock_(cnstLb, c);
@@ -112,7 +112,7 @@ namespace edm {
     void
     EDAnalyzerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doEndLuminosityBlockSummary_(cnstLb,c);
@@ -133,7 +133,7 @@ namespace edm {
                                      EventSetup const& c,
                                      ModuleCallingContext const* mcc)
     {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       this->doStreamBeginRun_(id, r, c);
     }
@@ -142,7 +142,7 @@ namespace edm {
                                    RunPrincipal const& rp,
                                    EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       this->doStreamEndRun_(id, r, c);
       this->doStreamEndRunSummary_(id, r, c);
@@ -152,7 +152,7 @@ namespace edm {
                                                  LuminosityBlockPrincipal const& lbp,
                                                  EventSetup const& c,
                                                  ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       this->doStreamBeginLuminosityBlock_(id,lb, c);
     }
@@ -162,7 +162,7 @@ namespace edm {
                                                LuminosityBlockPrincipal const& lbp,
                                                EventSetup const& c,
                                                ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       this->doStreamEndLuminosityBlock_(id,lb, c);
       this->doStreamEndLuminosityBlockSummary_(id,lb, c);
