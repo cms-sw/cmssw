@@ -12,8 +12,8 @@
 
 
 // class CSCDMBHeader;
-class CSCDMBTrailer2005;
-class CSCDMBTrailer2013;
+struct CSCDMBTrailer2005;
+struct CSCDMBTrailer2013;
 
 class CSCDMBTrailer {
 public:

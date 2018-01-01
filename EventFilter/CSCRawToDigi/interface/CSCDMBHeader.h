@@ -9,8 +9,8 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCVDMBHeaderFormat.h"
 #include <boost/shared_ptr.hpp>
 
-class CSCDMBHeader2005;
-class CSCDMBHeader2013;
+struct CSCDMBHeader2005;
+struct CSCDMBHeader2013;
 
 class CSCDMBHeader  {
 public:
