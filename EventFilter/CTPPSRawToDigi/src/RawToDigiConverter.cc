@@ -95,7 +95,7 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
       if (verbosity > 0)
         fes << "    invalid footprint" << endl;
 
-      if ((testFootprint == tfErr))
+      if (testFootprint == tfErr)
       {
         record.status.setFootprintError();
         stopProcessing = true;
