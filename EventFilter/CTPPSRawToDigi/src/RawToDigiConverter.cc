@@ -280,7 +280,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
     if (record.status.isOK())
     {
       const VFATFrame *fr = record.frame;
-      const DiamondVFATFrame *diamondframe = dynamic_cast<const DiamondVFATFrame*>(fr);
+      const DiamondVFATFrame *diamondframe = static_cast<const DiamondVFATFrame*>(fr);
 
       // update Event Counter in status
       record.status.setEC(record.frame->getEC() & 0xFF);
