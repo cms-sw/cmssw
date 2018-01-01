@@ -85,7 +85,7 @@ void DCCTBDataParser::parseFile(std::string fileName, bool singleEvent){
     if( buffer_ ){ delete [] buffer_; }           //delete current vector if any
     buffer_ = new uint32_t[dataVector.size()];       //allocate memory for new data buffer
 
-    uint32_t *myData_ = (uint32_t *) buffer_;         
+    const uint32_t *myData_ = (const uint32_t *) buffer_;         
     
     //fill buffer data with data from file lines
     for(uint32_t i = 1; i <= dataVector.size() ; i++, myData_++ ){
