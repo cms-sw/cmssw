@@ -39,7 +39,7 @@ namespace edm {
   class LuminosityBlockForOutput : public OccurrenceForOutput {
   public:
     LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                    ModuleCallingContext const*);
+                    ModuleCallingContext const*, bool isAtEnd);
     ~LuminosityBlockForOutput() override;
 
     LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const {return aux_;}

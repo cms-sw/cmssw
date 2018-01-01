@@ -8,10 +8,10 @@
 namespace edm {
 
   LuminosityBlockForOutput::LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                                   ModuleCallingContext const* moduleCallingContext) :
-        OccurrenceForOutput(lbp, md, moduleCallingContext),
+                                   ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+        OccurrenceForOutput(lbp, md, moduleCallingContext, isAtEnd),
         aux_(lbp.aux()),
-        run_(new RunForOutput(lbp.runPrincipal(), md, moduleCallingContext)) {
+        run_(new RunForOutput(lbp.runPrincipal(), md, moduleCallingContext, false)) {
   }
 
   LuminosityBlockForOutput::~LuminosityBlockForOutput() {

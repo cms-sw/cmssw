@@ -12,17 +12,13 @@ namespace edm {
       bool isForPrimaryProcess) :
     Base(reg, reg->productLookup(InLumi), pc, InLumi, historyAppender, isForPrimaryProcess),
         runPrincipal_(),
-        index_(index),
-        complete_(false) {
+        index_(index) {
   }
 
   void
   LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(
       ProcessHistoryRegistry const& processHistoryRegistry,
       DelayedReader* reader) {
-
-    complete_ = false;
-
     fillPrincipal(aux_.processHistoryID(), processHistoryRegistry, reader);
 
     for(auto& prod : *this) {

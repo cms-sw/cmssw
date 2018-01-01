@@ -118,7 +118,7 @@ namespace edm {
                       EventSetup const& c,
                       ModuleCallingContext const* mcc) final {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache) {
-          Run r(rp, moduleDescription(), mcc);
+          Run r(rp, moduleDescription(), mcc, false);
           r.setConsumer(consumer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
@@ -133,7 +133,7 @@ namespace edm {
       {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache) {
           
-          Run r(rp, moduleDescription(), mcc);
+          Run r(rp, moduleDescription(), mcc, true);
           r.setConsumer(consumer());
 
           RunIndex ri = rp.index();
@@ -148,7 +148,7 @@ namespace edm {
                                   ModuleCallingContext const* mcc) final
       {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache) {
-          LuminosityBlock lb(lbp, moduleDescription(), mcc);
+          LuminosityBlock lb(lbp, moduleDescription(), mcc, false);
           lb.setConsumer(consumer());
           LuminosityBlock const& cnstLb = lb;
           LuminosityBlockIndex li = lbp.index();
@@ -165,7 +165,7 @@ namespace edm {
                                 ModuleCallingContext const* mcc) final {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache) {
           
-          LuminosityBlock lb(lbp, moduleDescription(), mcc);
+          LuminosityBlock lb(lbp, moduleDescription(), mcc, true);
           lb.setConsumer(consumer());
           
           LuminosityBlockIndex li = lbp.index();

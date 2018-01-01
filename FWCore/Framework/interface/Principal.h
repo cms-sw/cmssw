@@ -197,8 +197,6 @@ namespace edm {
 
     ConstProductResolverPtr getProductResolverByIndex(ProductResolverIndex const& oid) const;
 
-    bool isComplete() const {return isComplete_();}
-
   protected:
 
     // ----- Add a new ProductResolver
@@ -258,8 +256,6 @@ namespace edm {
                                           SharedResourcesAcquirer* sra,
                                           ModuleCallingContext const* mcc) const;
 
-    virtual bool isComplete_() const {return true;}
-    
     void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;
     
     std::shared_ptr<ProcessHistory const> processHistoryPtr_;

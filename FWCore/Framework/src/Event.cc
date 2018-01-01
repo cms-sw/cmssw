@@ -20,9 +20,9 @@ namespace edm {
   std::string const Event::emptyString_;
 
   Event::Event(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
-      provRecorder_(ep, md),
+      provRecorder_(ep, md, true /*always at end*/),
       aux_(ep.aux()),
-      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext) : nullptr),
+      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext,false) : nullptr),
       gotBranchIDs_(),
       gotViews_(),
       streamID_(ep.streamID()),

@@ -284,7 +284,7 @@ namespace edm {
     OutputModuleBase::doBeginRun(RunPrincipal const& rp,
                                  EventSetup const&,
                                  ModuleCallingContext const* mcc) {
-      RunForOutput r(rp, moduleDescription_, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       doBeginRun_(r);
       return true;
@@ -294,7 +294,7 @@ namespace edm {
     OutputModuleBase::doEndRun(RunPrincipal const& rp,
                                EventSetup const&,
                                ModuleCallingContext const* mcc) {
-      RunForOutput r(rp, moduleDescription_, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       doEndRun_(r);
       return true;
@@ -303,7 +303,7 @@ namespace edm {
     void
     OutputModuleBase::doWriteRun(RunPrincipal const& rp,
                                  ModuleCallingContext const* mcc) {
-      RunForOutput r(rp, moduleDescription_, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       writeRun(r);
     }
@@ -312,7 +312,7 @@ namespace edm {
     OutputModuleBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                              EventSetup const&,
                                              ModuleCallingContext const* mcc) {
-      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       doBeginLuminosityBlock_(lb);
       return true;
@@ -322,7 +322,7 @@ namespace edm {
     OutputModuleBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                            EventSetup const&,
                                            ModuleCallingContext const* mcc) {
-      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       doEndLuminosityBlock_(lb);
       return true;
@@ -330,7 +330,7 @@ namespace edm {
     
     void OutputModuleBase::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                                   ModuleCallingContext const* mcc) {
-      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       writeLuminosityBlock(lb);
     }
