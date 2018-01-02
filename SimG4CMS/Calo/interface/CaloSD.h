@@ -21,14 +21,12 @@
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-// To be replaced by something else 
-/* #include "Utilities/Notification/interface/TimerProxy.h" */
  
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
 #include "G4VGFlashSensitiveDetector.hh"
 
+#include <cstdint>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -54,10 +52,9 @@ public:
          edm::ParameterSet const & p, const SimTrackManager*,
 	 float timeSlice=1., bool ignoreTkID=false);
   ~CaloSD() override;
-  bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
-  bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*) override;
+  G4bool   ProcessHits(G4Step * step, G4TouchableHistory *) override;
+  bool     ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) override;
 
-  virtual double getEnergyDeposit(G4Step* step); 
   uint32_t setDetUnitId(const G4Step* step) override =0;
   
   void     Initialize(G4HCofThisEvent * HCE) override;
@@ -71,16 +68,19 @@ public:
 
 protected:
 
-  virtual G4bool   getStepInfo(G4Step* aStep);
-  G4ThreeVector    setToLocal(const G4ThreeVector&, const G4VTouchable*);
-  G4ThreeVector    setToGlobal(const G4ThreeVector&, const G4VTouchable*);
-  G4bool           hitExists();
+  virtual bool   getStepInfo(const G4Step* aStep, bool& isKilled);
+  virtual double getEnergyDeposit(const G4Step* step, bool& isKilled); 
+
+  G4ThreeVector  setToLocal(const G4ThreeVector&, const G4VTouchable*) const; 
+  G4ThreeVector  setToGlobal(const G4ThreeVector&, const G4VTouchable*) const; 
+
+  G4bool           hitExists(const G4Step*);
   G4bool           checkHit();
-  CaloG4Hit*       createNewHit();
+  CaloG4Hit*       createNewHit(const G4Step*);
   void             updateHit(CaloG4Hit*);
-  void             resetForNewPrimary(const G4ThreeVector&, double);
+  void             resetForNewPrimary(const G4Step*);
   double           getAttenuation(const G4Step* aStep, double birk1, double birk2,
-                                  double birk3);
+                                  double birk3) const; 
 
   void     update(const BeginOfRun *) override;
   void     update(const BeginOfEvent *) override;
@@ -90,10 +90,12 @@ protected:
   virtual void     initRun();
   virtual bool     filterHit(CaloG4Hit*, double);
 
-  virtual int      getTrackID(const G4Track*);
+  virtual int      getTrackID(const G4Track*); 
   virtual uint16_t getDepth(const G4Step*);   
   double           getResponseWt(const G4Track*);
   int              getNumberOfHits();
+
+  void setParameterized(bool val) { isParameterized = val; }
 
 private:
 
@@ -109,17 +111,14 @@ protected:
   // One shower is made of several hits which differ by the
   // unit ID (crystal/fibre/scintillator) and the Time slice ID.
 
-  G4ThreeVector                   entrancePoint;
-  G4ThreeVector                   entranceLocal;
-  G4ThreeVector                   posGlobal;
+  G4ThreeVector                   entrancePoint; 
+  G4ThreeVector                   entranceLocal; 
+  G4ThreeVector                   posGlobal;    
   float                           incidentEnergy;
-  int                             primIDSaved; //  ID of the last saved primary
+  float                           edepositEM, edepositHAD;
+  int                             primIDSaved;    //*  ID of the last saved primary
 
   CaloHitID                       currentID, previousID; 
-  G4Track*                        theTrack;
-
-  G4StepPoint*                    preStepPoint; 
-  float                           edepositEM, edepositHAD;
 
   double                          energyCut, tmaxHit, eminHit, eminHitD;
   int                             checkHits;
@@ -134,10 +133,12 @@ protected:
   double                          correctT;
   double                          kmaxIon, kmaxNeutron, kmaxProton;
 
-  G4int                           emPDG, epPDG, gammaPDG;
+  G4int                           emPDG, epPDG, gammaPDG; 
   bool                            forceSave;
 
 private:
+
+  bool                            isParameterized; //*
 
   float                           timeSlice;
   bool                            ignoreTrackID;

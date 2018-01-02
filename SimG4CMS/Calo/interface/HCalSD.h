@@ -41,12 +41,12 @@ public:
          edm::ParameterSet const &, const SimTrackManager*);
   ~HCalSD() override;
   bool                  ProcessHits(G4Step * , G4TouchableHistory * ) override;
-  double                getEnergyDeposit(G4Step* ) override;
   uint32_t              setDetUnitId(const G4Step* step) override;
   void                  setNumberingScheme(HcalNumberingScheme* );
 
 protected:
 
+  double                getEnergyDeposit(const G4Step*, bool& ) override;
   void                  update(const BeginOfJob *) override;
   void                  initRun() override;
   bool                  filterHit(CaloG4Hit*, double) override;
@@ -80,19 +80,21 @@ private:
   void                          plotHF(const G4ThreeVector& pos, bool emType);
   void                          modifyDepth(HcalNumberingFromDDD::HcalID& id);
 
+  std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD;
+  std::unique_ptr<HcalNumberingScheme>  numberingScheme;
+  std::unique_ptr<HFShowerLibrary>      showerLibrary;
+  std::unique_ptr<HFShower>             hfshower;
+  std::unique_ptr<HFShowerParam>        showerParam;
+  std::unique_ptr<HFShowerPMT>          showerPMT;
+  std::unique_ptr<HFShowerFibreBundle>  showerBundle;
+
   HcalDDDSimConstants*          hcalConstants;
-  HcalNumberingFromDDD*         numberingFromDDD;
-  HcalNumberingScheme*          numberingScheme;
-  HFShowerLibrary *             showerLibrary;
-  HFShower *                    hfshower;
-  HFShowerParam *               showerParam;
-  HFShowerPMT *                 showerPMT;
-  HFShowerFibreBundle *         showerBundle;
-  bool                          agingFlagHB, agingFlagHE;
   const HBHEDarkening*          m_HBDarkening;
   const HBHEDarkening*          m_HEDarkening;
   std::unique_ptr<HFDarkening>  m_HFDarkening;
-  HcalTestNS *                  hcalTestNS_;
+  std::unique_ptr<HcalTestNS>   m_HcalTestNS;
+
+  bool                          agingFlagHB, agingFlagHE;
   bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit;
   bool                          testNumber, neutralDensity, testNS_;
   double                        birk1, birk2, birk3, betaThr;

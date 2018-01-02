@@ -82,14 +82,15 @@ bool DreamSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
     return true;
   } else {
     side = 1;
-    if (getStepInfo(aStep)) {
-      if (hitExists() == false && edepositEM+edepositHAD>0.)
-        currentHit = createNewHit();
+    bool isKilled(false);
+    if (getStepInfo(aStep, isKilled)) {
+      if (hitExists(aStep) == false && edepositEM+edepositHAD>0.)
+        currentHit = createNewHit(aStep);
       if (readBothSide_) {
 	side = -1;
-	getStepInfo(aStep);
-	if (hitExists() == false && edepositEM+edepositHAD>0.)
-	  currentHit = createNewHit();
+	getStepInfo(aStep, isKilled);
+	if (hitExists(aStep) == false && edepositEM+edepositHAD>0.)
+	  currentHit = createNewHit(aStep);
       }
     }
   }
@@ -98,10 +99,10 @@ bool DreamSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
 
 
 //________________________________________________________________________________________
-bool DreamSD::getStepInfo(G4Step* aStep) {
+bool DreamSD::getStepInfo(const G4Step* aStep, bool&) {
 
-  preStepPoint = aStep->GetPreStepPoint();
-  theTrack     = aStep->GetTrack();
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+  const G4Track* theTrack     = aStep->GetTrack();
   G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
 
   // take into account light collection curve for crystals

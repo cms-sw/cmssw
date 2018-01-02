@@ -34,15 +34,15 @@ public:
   CastorSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog & clg,
 	   edm::ParameterSet const &, const SimTrackManager*);
   ~CastorSD() override;
-  double   getEnergyDeposit(G4Step* ) override;
+  double   getEnergyDeposit(const G4Step*, bool& ) override;
   uint32_t setDetUnitId(const G4Step* step) override;
   void     setNumberingScheme(CastorNumberingScheme* scheme);
 
 private:
 
-  void                    getFromLibrary(G4Step*);
-  int                     setTrackID(G4Step*);
-  uint32_t                rotateUnitID(uint32_t, G4Track*, const CastorShowerEvent&);
+  void                    getFromLibrary(const G4Step*, bool&);
+  int                     setTrackID(const G4Step*);
+  uint32_t                rotateUnitID(uint32_t, const G4Track*, const CastorShowerEvent&);
   CastorNumberingScheme * numberingScheme;
   CastorShowerLibrary *   showerLibrary;
   G4LogicalVolume         *lvC3EF, *lvC3HF, *lvC4EF, *lvC4HF;

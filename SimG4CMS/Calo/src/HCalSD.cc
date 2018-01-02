@@ -47,10 +47,17 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HCalSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
-  hcalConstants(nullptr), numberingFromDDD(nullptr), numberingScheme(nullptr), 
-  showerLibrary(nullptr), hfshower(nullptr), showerParam(nullptr), showerPMT(nullptr), 
-  showerBundle(nullptr), m_HBDarkening(nullptr), m_HEDarkening(nullptr),
-  m_HFDarkening(nullptr), hcalTestNS_(nullptr), depth_(1) {
+  hcalConstants(nullptr), m_HBDarkening(nullptr), m_HEDarkening(nullptr), depth_(1) {
+
+  numberingFromDDD.reset(nullptr); 
+  numberingScheme.reset(nullptr); 
+  showerLibrary.reset(nullptr); 
+  hfshower.reset(nullptr); 
+  showerParam.reset(nullptr);
+  showerPMT.reset(nullptr); 
+  showerBundle.reset(nullptr);
+  m_HFDarkening.reset(nullptr);
+  m_HcalTestNS.reset(nullptr);
 
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
   //static SimpleConfigurable<double> bk2(0.0568,"HCalSD:BirkC2");
@@ -130,12 +137,15 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
   const G4LogicalVolume* lv;
   std::string attribute, value;
+
   if (useHF) {
     if (useParam) {
-      showerParam = new HFShowerParam(name, cpv, p);
+      showerParam.reset(new HFShowerParam(name, cpv, p));
+      setParameterized(true);
     }  else {
-      if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
-      hfshower  = new HFShower(name, cpv, p, 0);
+      if (useShowerLibrary) showerLibrary.reset(new HFShowerLibrary(name, cpv, p));
+      hfshower.reset(new HFShower(name, cpv, p, 0));
+      setParameterized(true);
     }
 
     // HF volume names
@@ -207,7 +217,7 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
       edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << pmtNames[i]
                               << " LV " << pmtLV[i];
     }
-    if (!pmtNames.empty()) showerPMT = new HFShowerPMT (name, cpv, p);
+    if (!pmtNames.empty()) showerPMT.reset(new HFShowerPMT (name, cpv, p));
   
     // HF Fibre bundles
     value     = "HFFibreBundleStraight";
@@ -251,7 +261,7 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
                               << " LV " << fibre2LV[i];
     }
     if (!fibre1LV.empty() || !fibre2LV.empty()) 
-      showerBundle = new HFShowerFibreBundle (name, cpv, p);
+      showerBundle.reset(new HFShowerFibreBundle(name, cpv, p));
   }
 
   //Material list for HB/HE/HO sensitive detectors
@@ -344,15 +354,6 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
 }
 
 HCalSD::~HCalSD() { 
-
-  if (numberingFromDDD) delete numberingFromDDD;
-  if (numberingScheme)  delete numberingScheme;
-  if (showerLibrary)    delete showerLibrary;
-  if (hfshower)         delete hfshower;
-  if (showerParam)      delete showerParam;
-  if (showerPMT)        delete showerPMT;
-  if (showerBundle)     delete showerBundle;
-  if (hcalTestNS_)      delete hcalTestNS_;
 }
 
 bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
@@ -447,23 +448,26 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                           << aStep->GetTrack()->GetTrackID() << " ("
                           << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
-      if (getStepInfo(aStep)) {
+      bool isKilled(false);
+      if (getStepInfo(aStep, isKilled)) {
 #ifdef plotDebug
         if (edepositEM+edepositHAD > 0)
           plotProfile(aStep, aStep->GetPreStepPoint()->GetPosition(),
                       edepositEM+edepositHAD,aStep->GetPostStepPoint()->GetGlobalTime(),0);
 #endif
-        if (hitExists() == false && edepositEM+edepositHAD>0.) currentHit = createNewHit();
+        if (hitExists(aStep) == false && edepositEM+edepositHAD>0.) {
+	  currentHit = createNewHit(aStep);
+	}
       }
     }
     return true;
   }
 } 
 
-double HCalSD::getEnergyDeposit(G4Step* aStep) {
+double HCalSD::getEnergyDeposit(const G4Step* aStep, bool&) {
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;
-  theTrack = aStep->GetTrack();
+  G4Track* theTrack = aStep->GetTrack();
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint32_t detid = setDetUnitId(aStep);
@@ -564,8 +568,7 @@ uint32_t HCalSD::setDetUnitId(const G4Step * aStep) {
 void HCalSD::setNumberingScheme(HcalNumberingScheme * scheme) {
   if (scheme != nullptr) {
     edm::LogInfo("HcalSim") << "HCalSD: updates numbering scheme for " << GetName();
-    if (numberingScheme) delete numberingScheme;
-    numberingScheme = scheme;
+    numberingScheme.reset(scheme);
   }
 }
 
@@ -581,7 +584,7 @@ void HCalSD::update(const BeginOfJob * job) {
     throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant" << "\n";
   }
 
-  numberingFromDDD = new HcalNumberingFromDDD(hcalConstants);
+  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));
 
   edm::LogInfo("HcalSim") << "Maximum depth for HF " << hcalConstants->getMaxDepth(2);
 
@@ -592,7 +595,7 @@ void HCalSD::update(const BeginOfJob * job) {
     edm::LogInfo("HcalSim") << "HCalSD: gpar[" << ig << "] = "
 			    << gpar[ig]/cm << " cm";
   //Test Hcal Numbering Scheme
-  if (testNS_) hcalTestNS_ = new HcalTestNS(es);
+  if (testNS_) m_HcalTestNS.reset(new HcalTestNS(es));
 
   if (agingFlagHB) {
     edm::ESHandle<HBHEDarkening> hdark;
@@ -615,11 +618,11 @@ void HCalSD::initRun() {
   LogDebug("HcalSim") << "HCalSD: Particle code for mu- = " << mumPDG
 		      << " for mu+ = " << mupPDG;
 #endif
-  if (showerLibrary) showerLibrary->initRun(theParticleTable,hcalConstants);
-  if (showerParam)   showerParam->initRun(theParticleTable,hcalConstants);
-  if (hfshower)      hfshower->initRun(theParticleTable,hcalConstants);
-  if (showerPMT)     showerPMT->initRun(theParticleTable,hcalConstants);
-  if (showerBundle)  showerBundle->initRun(theParticleTable,hcalConstants);
+  if (showerLibrary.get()) showerLibrary.get()->initRun(theParticleTable,hcalConstants);
+  if (showerParam.get())   showerParam.get()->initRun(theParticleTable,hcalConstants);
+  if (hfshower.get())      hfshower.get()->initRun(theParticleTable,hcalConstants);
+  if (showerPMT.get())     showerPMT.get()->initRun(theParticleTable,hcalConstants);
+  if (showerBundle.get())  showerBundle.get()->initRun(theParticleTable,hcalConstants);
 }
 
 bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {
@@ -642,9 +645,9 @@ bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {
 
 uint32_t HCalSD::setDetUnitId (int det, const G4ThreeVector& pos, int depth, int lay=1) { 
   uint32_t id = 0;
-  if (numberingFromDDD) {
+  if (numberingFromDDD.get()) {
     //get the ID's as eta, phi, depth, ... indices
-    HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, pos, depth, lay);
+    HcalNumberingFromDDD::HcalID tmp = numberingFromDDD.get()->unitID(det, pos, depth, lay);
     id = setDetUnitId(tmp);
   }
   return id;
@@ -652,9 +655,9 @@ uint32_t HCalSD::setDetUnitId (int det, const G4ThreeVector& pos, int depth, int
 
 uint32_t HCalSD::setDetUnitId (HcalNumberingFromDDD::HcalID& tmp) { 
   modifyDepth(tmp);
-  uint32_t id = (numberingScheme) ? numberingScheme->getUnitID(tmp) : 0;
-  if ((!testNumber) && hcalTestNS_) {
-    bool ok = hcalTestNS_->compare(tmp,id);
+  uint32_t id = (numberingScheme.get()) ? numberingScheme.get()->getUnitID(tmp) : 0;
+  if ((!testNumber) && m_HcalTestNS.get()) {
+    bool ok = m_HcalTestNS.get()->compare(tmp,id);
     if (!ok)
       edm::LogWarning("HcalSim") << "Det ID from HCalSD " << HcalDetId(id) 
 				 << " " << std::hex << id << std::dec 
@@ -768,7 +771,7 @@ bool HCalSD::isItScintillator (const G4Material* mat) {
 bool HCalSD::isItinFidVolume (const G4ThreeVector& hitPoint) {
   bool flag = true;
   if (applyFidCut) {
-    int npmt = HFFibreFiducial:: PMTNumber(hitPoint);
+    int npmt = HFFibreFiducial::PMTNumber(hitPoint);
 #ifdef EDM_ML_DEBUG
     edm::LogInfo("HcalSim") << "HCalSD::isItinFidVolume:#PMT= " << npmt 
 			    << " for hit point " << hitPoint;
@@ -783,19 +786,17 @@ bool HCalSD::isItinFidVolume (const G4ThreeVector& hitPoint) {
 }
 
 void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
-  preStepPoint  = aStep->GetPreStepPoint(); 
-  theTrack = aStep->GetTrack();   
+  const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint(); 
+  G4Track* theTrack = aStep->GetTrack();   
   int det       = 5;
   bool ok;
 
-  std::vector<HFShowerLibrary::Hit> hits = showerLibrary->getHits(aStep, ok, weight, false);
+  std::vector<HFShowerLibrary::Hit> hits = showerLibrary.get()->getHits(aStep, ok, weight, false);
 
-  double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = setTrackID(aStep);
 
   // Reset entry point for new primary
-  posGlobal = preStepPoint->GetPosition();
-  resetForNewPrimary(posGlobal, etrack);
+  resetForNewPrimary(aStep);
 
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
   if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG) {
@@ -830,7 +831,7 @@ void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
       if (currentID == previousID) {
 	updateHit(currentHit);
       } else {
-	if (!checkHit()) currentHit = createNewHit();
+	if (!checkHit()) currentHit = createNewHit(aStep);
       }
     }
   }
@@ -847,12 +848,11 @@ void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
 
 void HCalSD::hitForFibre (const G4Step* aStep, double weight) { // if not ParamShower
 
-  const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint();
-  const G4Track*     theTrack      = aStep->GetTrack();
+  const G4Track* theTrack = aStep->GetTrack();
   int primaryID = setTrackID(aStep);
 
   int det   = 5;
-  std::vector<HFShower::Hit> hits = hfshower->getHits(aStep, weight);
+  std::vector<HFShower::Hit> hits = hfshower.get()->getHits(aStep, weight);
 
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
   if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG) {
@@ -889,8 +889,7 @@ void HCalSD::hitForFibre (const G4Step* aStep, double weight) { // if not ParamS
 	if (currentID == previousID) {
 	  updateHit(currentHit);
 	} else {
-	  posGlobal = preStepPoint->GetPosition();
-	  if (!checkHit()) currentHit = createNewHit();
+	  if (!checkHit()) currentHit = createNewHit(aStep);
 	}
       }
     }
@@ -898,11 +897,10 @@ void HCalSD::hitForFibre (const G4Step* aStep, double weight) { // if not ParamS
 }
 
 void HCalSD::getFromParam (G4Step* aStep, double weight) {
-  std::vector<HFShowerParam::Hit> hits = showerParam->getHits(aStep, weight);
+  std::vector<HFShowerParam::Hit> hits = showerParam.get()->getHits(aStep, weight);
   int nHit = static_cast<int>(hits.size());
 
   if (nHit > 0) {
-    const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint();
     int primaryID = setTrackID(aStep);
    
     int det   = 5;
@@ -929,8 +927,7 @@ void HCalSD::getFromParam (G4Step* aStep, double weight) {
       if (currentID == previousID) {
 	updateHit(currentHit);
       } else {
-        posGlobal = preStepPoint->GetPosition();
-        if (!checkHit()) currentHit = createNewHit();
+        if (!checkHit()) currentHit = createNewHit(aStep);
       }
     }
   }
@@ -952,9 +949,7 @@ void HCalSD::getHitPMT (const G4Step * aStep) {
       if (primaryID == 0) primaryID = theTrack->GetTrackID();
     }
     // Reset entry point for new primary
-    posGlobal = preStepPoint->GetPosition();
-    resetForNewPrimary(posGlobal, etrack);
-
+    resetForNewPrimary(aStep);
     //
     int    det      = static_cast<int>(HcalForward);
     const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
@@ -974,7 +969,7 @@ void HCalSD::getHitPMT (const G4Step * aStep) {
     double time = (aStep->GetPostStepPoint()->GetGlobalTime());
     uint32_t unitID = 0;
     if (numberingFromDDD) {
-      HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det,etaR,phi,
+      HcalNumberingFromDDD::HcalID tmp = numberingFromDDD.get()->unitID(det,etaR,phi,
 								  depth,1);
       unitID = setDetUnitId(tmp);
     }
@@ -998,7 +993,7 @@ void HCalSD::getHitPMT (const G4Step * aStep) {
     if      (currentID == previousID) {
       updateHit(currentHit);
     } else {
-      if (!checkHit()) currentHit = createNewHit();
+      if (!checkHit()) currentHit = createNewHit(aStep);
     }
   }
 }
@@ -1006,7 +1001,7 @@ void HCalSD::getHitPMT (const G4Step * aStep) {
 void HCalSD::getHitFibreBundle (const G4Step* aStep, bool type) {
   const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   const G4Track*     theTrack     = aStep->GetTrack();
-  double edep  = showerBundle->getHits(aStep, type);
+  double edep  = showerBundle.get()->getHits(aStep, type);
 
   if (edep >= 0) {
     double etrack    = preStepPoint->GetKineticEnergy();
@@ -1018,9 +1013,7 @@ void HCalSD::getHitFibreBundle (const G4Step* aStep, bool type) {
       if (primaryID == 0) primaryID = theTrack->GetTrackID();
     }
     // Reset entry point for new primary
-    posGlobal = preStepPoint->GetPosition();
-    resetForNewPrimary(posGlobal, etrack);
-
+    resetForNewPrimary(aStep);
     //
     int    det      = static_cast<int>(HcalForward);
     const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
@@ -1040,7 +1033,7 @@ void HCalSD::getHitFibreBundle (const G4Step* aStep, bool type) {
     double time = (aStep->GetPostStepPoint()->GetGlobalTime());
     uint32_t unitID = 0;
     if (numberingFromDDD) {
-      HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det,etaR,phi,depth,1);
+      HcalNumberingFromDDD::HcalID tmp = numberingFromDDD.get()->unitID(det,etaR,phi,depth,1);
       unitID = setDetUnitId(tmp);
     }
     if (type) currentID.setID(unitID, time, primaryID, 3);
@@ -1062,15 +1055,14 @@ void HCalSD::getHitFibreBundle (const G4Step* aStep, bool type) {
 #endif
     // check if it is in the same unit and timeslice as the previous one
     if (currentID == previousID) updateHit(currentHit);
-    else if (!checkHit()) currentHit = createNewHit();
+    else if (!checkHit()) currentHit = createNewHit(aStep);
   } // non-zero energy deposit
 }
 
 int HCalSD::setTrackID (const G4Step* aStep) {
-  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+
   const G4Track* theTrack         = aStep->GetTrack();
 
-  double etrack = preStepPoint->GetKineticEnergy();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
@@ -1081,9 +1073,9 @@ int HCalSD::setTrackID (const G4Step* aStep) {
     primaryID = theTrack->GetTrackID();
   }
 
-  if (primaryID != previousID.trackID())
-    resetForNewPrimary(preStepPoint->GetPosition(), etrack);
-
+  if (primaryID != previousID.trackID()) {
+    resetForNewPrimary(aStep);
+  }
   return primaryID;
 }
 
@@ -1118,7 +1110,7 @@ double HCalSD::layerWeight(int det, const G4ThreeVector& pos, int depth, int lay
   double wt = 1.;
   if (numberingFromDDD) {
     //get the ID's as eta, phi, depth, ... indices
-    HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, pos, 
+    HcalNumberingFromDDD::HcalID tmp = numberingFromDDD.get()->unitID(det, pos, 
 								depth, lay);
     modifyDepth(tmp);
     uint32_t id = HcalTestNumbering::packHcalIndex(tmp.subdet, tmp.zside, 1,
