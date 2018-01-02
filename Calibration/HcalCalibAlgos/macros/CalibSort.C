@@ -1,12 +1,16 @@
 //////////////////////////////////////////////////////////////////////////////
 // Usage:
-// .L CalibSort.C+g
+// .L CalibSort.C+g (for the tree "CalibTree")
 //  CalibSort c1(fname, dirname, prefix, flag, mipCut);
 //  c1.Loop();
 //  findDuplicate(infile, outfile, debug)
 //
-//        This will prepare a list of dupliate entries from combined
-//        data sets
+// .L CalibSort.C+g (for the tree "EventInfo")
+//  CalibSortEvent c2(fname, dirname, prefix, append);
+//  c2.Loop();
+//  findDuplicatEvent(infile, outfile, debug)
+//
+//  This will prepare a list of dupliate entries from combined data sets
 //
 //   where:
 // 
@@ -15,11 +19,11 @@
 //                               (default "HcalIsoTrkAnalyzer")
 //   prefix (std::string)      = String to be added to the name
 //                               (usually a 4 character string; default="")
-//   flag (int)                = 2 digit integer (do) with specific control
+//   flag   (int)              = 2 digit integer (do) with specific control
 //                               information (d = 0/1 for debug off/on;
 //                               o = 0/1 for creating the output "events.txt"
 //                               file in append/output mode. Default = 0
-//   mipCut          (double)  = cut off on ECAL energy (default = 2.0)
+//   mipCut  (double)          = cut off on ECAL energy (default = 2.0)
 //
 //   infile  (std::string)     = name of the input file containing run, event,
 //                               information (created by CalibSort)
@@ -27,6 +31,7 @@
 //                               of duplicate events
 //   debug   (bool)            = true/false for getting or not debug printouts
 //                               (default = false)
+//   append  (bool)            = flag used for opening o/p file. Default=false
 //////////////////////////////////////////////////////////////////////////////
 
 #include <TROOT.h>
