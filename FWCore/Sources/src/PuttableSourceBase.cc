@@ -88,7 +88,7 @@ PuttableSourceBase::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext co
 
 void
 PuttableSourceBase::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
-  LuminosityBlock lb(lbp, moduleDescription(), nullptr, false);
+  LuminosityBlock lb(lbp, moduleDescription(), nullptr, true);
   lb.setProducer(this);
   callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling Source::endLuminosityBlock", cleaningUpAfterException );
   commit_(lb);
