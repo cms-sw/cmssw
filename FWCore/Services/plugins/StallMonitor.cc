@@ -105,6 +105,8 @@ namespace {
                            postSourceEvent = 's',
                            preEvent = 'E',
                            postModuleEventPrefetching = 'p',
+                           preModuleEventAcquire = 'A',
+                           postModuleEventAcquire = 'a',
                            preModuleEvent = 'M',
                            preEventReadFromSource = 'R',
                            postEventReadFromSource = 'r',
@@ -144,6 +146,8 @@ namespace edm {
       void preSourceEvent(StreamID);
       void postSourceEvent(StreamID);
       void preEvent(StreamContext const&);
+      void preModuleEventAcquire(StreamContext const&, ModuleCallingContext const&);
+      void postModuleEventAcquire(StreamContext const&, ModuleCallingContext const&);
       void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
       void postModuleEventPrefetching(StreamContext const&, ModuleCallingContext const&);
       void preEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
@@ -163,7 +167,7 @@ namespace edm {
       // for this purpose.
       using StreamID_value = decltype(std::declval<StreamID>().value());
       using ModuleID = decltype(std::declval<ModuleDescription>().id());
-      tbb::concurrent_unordered_map<std::pair<StreamID_value,ModuleID>, decltype(beginTime_)> stallStart_ {};
+      tbb::concurrent_unordered_map<std::pair<StreamID_value,ModuleID>, std::pair<decltype(beginTime_), bool>> stallStart_ {};
 
       std::vector<std::string> moduleLabels_ {};
       std::vector<StallStatistics> moduleStats_ {};
@@ -190,6 +194,7 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPreModuleConstruction(this, &StallMonitor::preModuleConstruction);
   iRegistry.watchPostBeginJob(this, &StallMonitor::postBeginJob);
   iRegistry.watchPostModuleEventPrefetching(this, &StallMonitor::postModuleEventPrefetching);
+  iRegistry.watchPreModuleEventAcquire(this, &StallMonitor::preModuleEventAcquire);
   iRegistry.watchPreModuleEvent(this, &StallMonitor::preModuleEvent);
   iRegistry.watchPostEndJob(this, &StallMonitor::postEndJob);
 
@@ -198,6 +203,7 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
     iRegistry.watchPreSourceEvent(this, &StallMonitor::preSourceEvent);
     iRegistry.watchPostSourceEvent(this, &StallMonitor::postSourceEvent);
     iRegistry.watchPreEvent(this, &StallMonitor::preEvent);
+    iRegistry.watchPostModuleEventAcquire(this, &StallMonitor::postModuleEventAcquire);
     iRegistry.watchPreEventReadFromSource(this, &StallMonitor::preEventReadFromSource);
     iRegistry.watchPostEventReadFromSource(this, &StallMonitor::postEventReadFromSource);
     iRegistry.watchPostModuleEvent(this, &StallMonitor::postModuleEvent);
@@ -210,6 +216,8 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
         << "# postSourceEvent               " << step::postSourceEvent            << "   <Stream ID> <Time since beginJob (ms)>\n"
         << "# preEvent                      " << step::preEvent                   << "   <Stream ID> <Run#> <LumiBlock#> <Event#> <Time since beginJob (ms)>\n"
         << "# postModuleEventPrefetching    " << step::postModuleEventPrefetching << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
+        << "# preModuleEventAcquire         " << step::preModuleEventAcquire      << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
+        << "# postModuleEventAcquire        " << step::postModuleEventAcquire     << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
         << "# preModuleEvent                " << step::preModuleEvent             << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
         << "# preEventReadFromSource        " << step::preEventReadFromSource     << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
         << "# postEventReadFromSource       " << step::postEventReadFromSource    << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
@@ -318,13 +326,41 @@ void StallMonitor::postModuleEventPrefetching(StreamContext const& sc, ModuleCal
 {
   auto const sid = stream_id(sc);
   auto const mid = module_id(mcc);
-  auto start = stallStart_[std::make_pair(sid,mid)] = now();
+  auto start = stallStart_[std::make_pair(sid,mid)] = std::make_pair(now(), false);
 
   if (validFile_) {
-    auto const t = duration_cast<milliseconds>(start-beginTime_).count();
+    auto const t = duration_cast<milliseconds>(start.first - beginTime_).count();
     auto msg = assembleMessage<step::postModuleEventPrefetching>(sid, mid, t);
     file_.write(std::move(msg));
   }
+}
+
+void StallMonitor::preModuleEventAcquire(StreamContext const& sc, ModuleCallingContext const& mcc)
+{
+  auto const preModEventAcquire = now();
+  auto const sid = stream_id(sc);
+  auto const mid = module_id(mcc);
+  auto & start = stallStart_[std::make_pair(sid,mid)];
+  auto startT = start.first.time_since_epoch();
+  start.second = true; // record so the preModuleEvent knows that acquire was called
+  if (validFile_) {
+    auto t = duration_cast<milliseconds>(preModEventAcquire - beginTime_).count();
+    auto msg = assembleMessage<step::preModuleEventAcquire>(sid, mid, t);
+    file_.write(std::move(msg));
+  }
+  // Check for stalls if prefetch was called
+  if( milliseconds::duration::zero() != startT) {
+    auto const preFetch_to_preModEventAcquire = duration_cast<milliseconds>(preModEventAcquire - start.first);
+    if (preFetch_to_preModEventAcquire < stallThreshold_) return;
+    moduleStats_[mid].update(preFetch_to_preModEventAcquire);
+  }
+}
+
+void StallMonitor::postModuleEventAcquire(StreamContext const& sc, ModuleCallingContext const& mcc)
+{
+  auto const postModEventAcquire = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto msg = assembleMessage<step::postModuleEventAcquire>(stream_id(sc), module_id(mcc), postModEventAcquire);
+  file_.write(std::move(msg));
 }
 
 void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
@@ -332,21 +368,16 @@ void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext 
   auto const preModEvent = now();
   auto const sid = stream_id(sc);
   auto const mid = module_id(mcc);
-  auto start = stallStart_[std::make_pair(sid,mid)];
-  auto startT = start.time_since_epoch();
+  auto const& start = stallStart_[std::make_pair(sid,mid)];
+  auto startT = start.first.time_since_epoch();
   if (validFile_) {
     auto t = duration_cast<milliseconds>(preModEvent-beginTime_).count();
-    if(startT == milliseconds::duration::zero()) {
-      //prefetching did not happen
-      auto msg = assembleMessage<step::postModuleEventPrefetching>(sid, mid, t);
-      file_.write(std::move(msg));
-    }
     auto msg = assembleMessage<step::preModuleEvent>(sid, mid, t);
     file_.write(std::move(msg));
   }
-
-  if( milliseconds::duration::zero() != startT) {
-    auto const preFetch_to_preModEvent = duration_cast<milliseconds>(preModEvent-start);
+  // Check for stalls if prefetch was called and we did not already check before acquire
+  if( milliseconds::duration::zero() != startT && !start.second) {
+    auto const preFetch_to_preModEvent = duration_cast<milliseconds>(preModEvent-start.first);
     if (preFetch_to_preModEvent < stallThreshold_) return;
     moduleStats_[mid].update(preFetch_to_preModEvent);
   }
