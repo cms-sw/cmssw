@@ -1,8 +1,8 @@
 // -*- C++ -*-//
-// Package:    HcalTowerAlgo
+// Package:    Hcal
 // Class:      HcalCollapseAnalyzer
 // 
-/**\class HcalCollapseAnalyzer HcalCollapseAnalyzer.cc RecoLocalCalo/HcalRecAlgos/test/HcalCollapseAnalyzer.cc
+/**\class HcalCollapseAnalyzer HcalCollapseAnalyzer.cc DQMOffline/Hcal/src/HcalCollapseAnalyzer.cc
 
  Description: Studies the collapsing of HcalRecHits
 
@@ -23,24 +23,28 @@
 #include "TH1.h"
 
 // user include files
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-class HcalCollapseAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class HcalCollapseAnalyzer : public DQMEDAnalyzer {
 
 public:
   explicit HcalCollapseAnalyzer(const edm::ParameterSet&);
@@ -50,9 +54,10 @@ public:
 
 private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
-  void beginJob() override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   // ----------member data ---------------------------
+  const std::string                      topFolderName_;
   const int                              verbosity_;
   const edm::InputTag                    recHitHBHE_, preRecHitHBHE_;
   const bool                             doHE_, doHB_;
@@ -60,18 +65,17 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<HBHERecHitCollection> tok_prehbhe_;
 
-  TH1I                                  *h_merge, *h_size, *h_depth;
-  TH1D                                  *h_sfrac, *h_frac, *h_balance;
+  MonitorElement                        *h_merge, *h_size, *h_depth;
+  MonitorElement                        *h_sfrac, *h_frac, *h_balance;
 };
 
 HcalCollapseAnalyzer::HcalCollapseAnalyzer(const edm::ParameterSet& iConfig) : 
+  topFolderName_(iConfig.getParameter<std::string>("topFolderName")),
   verbosity_(iConfig.getUntrackedParameter<int>("verbosity",0)),
   recHitHBHE_(iConfig.getUntrackedParameter<edm::InputTag>("recHitHBHE",edm::InputTag("hbhereco"))),
   preRecHitHBHE_(iConfig.getUntrackedParameter<edm::InputTag>("preRecHitHBHE",edm::InputTag("hbheprereco"))),
   doHE_(iConfig.getUntrackedParameter<bool>("doHE", true)),
   doHB_(iConfig.getUntrackedParameter<bool>("doHB", false)) {
-
-  usesResource(TFileService::kSharedResource);
 
   // define tokens for access
   tok_hbhe_    = consumes<HBHERecHitCollection>(recHitHBHE_);
@@ -84,6 +88,7 @@ HcalCollapseAnalyzer::HcalCollapseAnalyzer(const edm::ParameterSet& iConfig) :
 
 void HcalCollapseAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<std::string>("topFolderName",           "HcalCollapse");
   desc.addUntracked<int>("verbosity",              0);
   desc.addUntracked<edm::InputTag>("recHitHBHE",   edm::InputTag("hbhereco"));
   desc.addUntracked<edm::InputTag>("preRecHitHBHE",edm::InputTag("hbheprereco"));
@@ -159,15 +164,17 @@ void HcalCollapseAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
   }
 }
 
-void HcalCollapseAnalyzer::beginJob() {
+void HcalCollapseAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, 
+					  edm::Run const &, 
+					  edm::EventSetup const &) {
   // Book histograms
-  edm::Service<TFileService>             fs;
-  h_merge  = fs->make<TH1I>("h_merge","Number of hits merged",10,0.0,10.0);
-  h_size   = fs->make<TH1I>("h_size","Size of the RecHit collection",100,500.0,1500.0);
-  h_depth  = fs->make<TH1I>("h_depth","Depth of the Id's used",10,0.0,10.0);
-  h_sfrac  = fs->make<TH1D>("h_sfrac","Ratio of sizes of preRecHit and RecHit collections",150,0.0,1.5);
-  h_frac   = fs->make<TH1D>("h_frac", "Fraction of energy before collapse",150,0.0,1.5);
-  h_balance= fs->make<TH1D>("h_balance", "Balance of energy between pre- and post-collapse",100,0.5,1.5);
+  ibooker.setCurrentFolder(topFolderName_);
+  h_merge  = ibooker.book1D("h_merge","Number of hits merged",10,0.0,10.0);
+  h_size   = ibooker.book1D("h_size","Size of the RecHit collection",100,500.0,1500.0);
+  h_depth  = ibooker.book1D("h_depth","Depth of the Id's used",10,0.0,10.0);
+  h_sfrac  = ibooker.book1D("h_sfrac","Ratio of sizes of preRecHit and RecHit collections",150,0.0,1.5);
+  h_frac   = ibooker.book1D("h_frac", "Fraction of energy before collapse",150,0.0,1.5);
+  h_balance= ibooker.book1D("h_balance", "Balance of energy between pre- and post-collapse",100,0.5,1.5);
 }
 
 DEFINE_FWK_MODULE(HcalCollapseAnalyzer);
