@@ -114,8 +114,6 @@ namespace edm {
     
     WaitingTaskHolder h(subs);
     iSchedule.processOneGlobalAsync<Traits>(std::move(h),iPrincipal, iES,cleaningUpAfterException);
-      
-    
   }
 
 };
