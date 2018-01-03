@@ -15,7 +15,13 @@ namespace l1t {
   {
   }
   
-
+  CPPFDigi::CPPFDigi( const RPCDetId& _rpcId, int _bx , int _theta_int , int _phi_int ) : 
+    rpcId(_rpcId), bx(_bx), phi_int(_phi_int), theta_int(), valid(-99), 
+    board(-99), channel(-99), emtf_sector(-99), emtf_link(-99),
+    first_strip(-99), cluster_size(-99), phi_glob(-99), theta_glob(-99)
+  {
+  }
+ 
   CPPFDigi::CPPFDigi( const RPCDetId& _rpcId, int _bx, int _phi_int, int _theta_int, int _valid,
   		      int _board, int _channel, int _emtf_sector, int _emtf_link, 
 		      int _first_strip, int _cluster_size, float _phi_glob, float _theta_glob ) :
@@ -28,11 +34,23 @@ namespace l1t {
   CPPFDigi * CPPFDigi::clone() const {
     return new CPPFDigi(*this);
   }
-  
-  std::ostream & operator<<(std::ostream & o, const CPPFDigi& cppf){
-    o << "Local integer phi: "   << cppf.Phi_int() ;
-    o << "Local integer theta: " << cppf.Theta_int() ;
-    return o;
+
+  bool CPPFDigi::operator<(const CPPFDigi& rhs) const
+  {
+    return (RPCId().rawId() < rhs.RPCId().rawId()
+        || (!(rhs.RPCId().rawId() < RPCId().rawId())
+          && (BX() < rhs.BX()
+            || (!(rhs.BX() < BX())
+              && (Theta_int() < rhs.Theta_int()
+                || (!(rhs.Theta_int() < Theta_int())
+                  && Phi_int() < rhs.Phi_int()))))));
   }
-  
+
 } // End namespace l1t
+
+std::ostream & operator<<(std::ostream & o, const l1t::CPPFDigi& cppf){
+  o << "Local integer phi: "   << cppf.Phi_int() ;
+  o << "Local integer theta: " << cppf.Theta_int() ;
+  return o;
+}
+
