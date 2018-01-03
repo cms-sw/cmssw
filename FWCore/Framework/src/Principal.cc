@@ -204,7 +204,17 @@ namespace edm {
                 //only one choice so use a special resolver
                 productResolvers_.at(productResolverIndex) = std::make_shared<SingleChoiceNoProcessProductResolver>(lastMatchIndex);
               } else {
-                std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous);
+                bool productMadeAtEnd = false;
+                //Need to know if the product from this processes is added at end of transition
+                for(unsigned int i=0; i< matchingHolders.size();++i) {
+                  if( (not ambiguous[i]) and
+                     ProductResolverIndexInvalid != matchingHolders[i] and
+                     productResolvers_[matchingHolders[i]]->branchDescription().availableOnlyAtEndTransition()) {
+                    productMadeAtEnd = true;
+                    break;
+                  }
+                }
+                std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
                 productResolvers_.at(productResolverIndex) = newHolder;
               }
               matchingHolders.assign(lookupProcessNames.size(), ProductResolverIndexInvalid);
@@ -230,7 +240,17 @@ namespace edm {
           }
         }
       }
-      std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous);
+      //Need to know if the product from this processes is added at end of transition
+      bool productMadeAtEnd = false;
+      for(unsigned int i=0; i< matchingHolders.size();++i) {
+        if( (not ambiguous[i]) and
+           ProductResolverIndexInvalid != matchingHolders[i] and
+           productResolvers_[matchingHolders[i]]->branchDescription().availableOnlyAtEndTransition()) {
+          productMadeAtEnd = true;
+          break;
+        }
+      }
+      std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
       productResolvers_.at(productResolverIndex) = newHolder;
     }
   }
@@ -890,13 +910,6 @@ namespace edm {
     
     for(auto & prod : *this) {
       prod->retrieveAndMerge(*this);
-    }
-  }
-  
-  void
-  Principal::resetFailedFromThisProcess() {
-    for( auto & prod : *this) {
-      prod->resetFailedFromThisProcess();
     }
   }
 }

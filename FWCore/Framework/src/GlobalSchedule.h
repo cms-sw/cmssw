@@ -180,13 +180,6 @@ namespace edm {
       T::preScheduleSignal(actReg_.get(), globalContext.get());
     }
     
-    
-    //If we are in an end transition, we need to reset failed items since they might
-    // be set this time around
-    if( not T::begin_) {
-      ep.resetFailedFromThisProcess();
-    }
-    
     auto doneTask = make_waiting_task(tbb::task::allocate_root(),
                                       [this,iHolder, cleaningUpAfterException, globalContext, token](std::exception_ptr const* iPtr) mutable
                                       {

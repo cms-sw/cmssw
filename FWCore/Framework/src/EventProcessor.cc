@@ -1016,10 +1016,6 @@ namespace edm {
 
   void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
-    //We need to reset failed items since they might
-    // be set this time around
-    runPrincipal.resetFailedFromThisProcess();
-
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
@@ -1204,10 +1200,6 @@ namespace edm {
     auto dtr = [](SerialTaskQueue* iQueue) { iQueue->resume();};
     std::unique_ptr<SerialTaskQueue, decltype(dtr)> guard(&iovQueue_, dtr);
     
-    //We need to reset failed items since they might
-    // be set this time around
-    lumiPrincipal.resetFailedFromThisProcess();
-
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 

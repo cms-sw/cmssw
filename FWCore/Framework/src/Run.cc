@@ -101,7 +101,8 @@ namespace edm {
       auto& p = provRecorder_.principal();
       for(auto index: iShouldPut){
         auto resolver = p.getProductResolverByIndex(index);
-        if(not resolver->productResolved()) {
+        if(not resolver->productResolved() and
+           isEndTransition(provRecorder_.transition()) == resolver->branchDescription().availableOnlyAtEndTransition()) {
           resolver->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
