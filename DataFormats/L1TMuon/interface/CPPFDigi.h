@@ -39,9 +39,10 @@ namespace l1t {
     virtual CPPFDigi* clone() const;
     
     CPPFDigi( const RPCDetId& rpcId, int _bx );
+    CPPFDigi( const RPCDetId& rpcId, int _bx , int _theta_int, int _phi_int );
     
     bool operator==(const CPPFDigi& cppf) const;
-    
+    bool operator<(const CPPFDigi& rhs) const;
     
     RPCDetId RPCId()   const { return rpcId; }
     int BX()           const { return bx; }
@@ -80,7 +81,7 @@ namespace l1t {
 
 } // End of namespace l1t
 
-#endif /* #define DataFormats_L1TMuon_CPPFDigi_h */
-
 /// The ostream operator
 std::ostream & operator<<(std::ostream & o, const l1t::CPPFDigi& cppf);
+
+#endif /* #define DataFormats_L1TMuon_CPPFDigi_h */

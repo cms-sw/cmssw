@@ -39,7 +39,9 @@
   <class name="edm::Wrapper<l1t::EMTFTrackCollection>"/>
   <class name="l1t::EMTFPtLUT"/>
 
-  <class name="l1t::CPPFDigi"/>
+  <class name="l1t::CPPFDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="803211472"/>
+  </class>
   <class name="l1t::CPPFDigiCollection"/>
   <class name="edm::Wrapper<l1t::CPPFDigiCollection>"/>
 
