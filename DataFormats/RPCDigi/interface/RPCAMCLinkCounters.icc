@@ -3,9 +3,9 @@
 
 #include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.h"
 
-inline void RPCAMCLinkCounters::add(unsigned int type, RPCAMCLink const & link, unsigned int count)
+inline void RPCAMCLinkCounters::add(unsigned int event, RPCAMCLink const & link, unsigned int count)
 {
-    type_link_count_[std::pair<unsigned int, std::uint32_t>(type, link.getId())] += count;
+    type_link_count_[std::pair<unsigned int, std::uint32_t>(event, link.getId())] += count;
 }
 
 inline void RPCAMCLinkCounters::reset()
@@ -13,41 +13,27 @@ inline void RPCAMCLinkCounters::reset()
     type_link_count_.clear();
 }
 
-inline void RPCAMCLinkCounters::reset(unsigned int type)
+inline void RPCAMCLinkCounters::reset(unsigned int event)
 {
-    iterator first(type_link_count_.lower_bound(std::pair<unsigned int, std::uint32_t>(type, 0)));
+    map_type::iterator first(type_link_count_.lower_bound(std::pair<unsigned int, std::uint32_t>(event, 0)));
     if (first != type_link_count_.end()) {
-        iterator last(type_link_count_.upper_bound(std::pair<unsigned int, std::uint32_t>(type, 0xFFFFFFFF)));
+        map_type::iterator last(type_link_count_.upper_bound(std::pair<unsigned int, std::uint32_t>(event, 0xffffffff)));
         type_link_count_.erase(first, last);
     }
 }
 
-inline void RPCAMCLinkCounters::reset(unsigned int type, RPCAMCLink const & link)
+inline void RPCAMCLinkCounters::reset(unsigned int event, RPCAMCLink const & link)
 {
-    iterator pos(type_link_count_.find(std::pair<unsigned int, std::uint32_t>(type, link.getId())));
+    map_type::iterator pos(type_link_count_.find(std::pair<unsigned int, std::uint32_t>(event, link.getId())));
     if (pos != type_link_count_.end()) {
         type_link_count_.erase(pos);
     }
 }
 
-inline std::pair<RPCAMCLinkCounters::const_iterator, RPCAMCLinkCounters::const_iterator>
+inline RPCAMCLinkCounters::map_type const &
 RPCAMCLinkCounters::getCounters() const
 {
-    return std::pair<const_iterator, const_iterator>(type_link_count_.begin(), type_link_count_.end());
-}
-
-inline std::pair<RPCAMCLinkCounters::const_iterator, RPCAMCLinkCounters::const_iterator>
-RPCAMCLinkCounters::getCounters(unsigned int type) const
-{
-    return std::pair<const_iterator, const_iterator>(type_link_count_.lower_bound(std::pair<unsigned int, std::uint32_t>(type, 0))
-                                                     , type_link_count_.upper_bound(std::pair<unsigned int, std::uint32_t>(type, 0xFFFFFFFF)));
-}
-
-inline std::pair<RPCAMCLinkCounters::const_iterator, RPCAMCLinkCounters::const_iterator>
-RPCAMCLinkCounters::getCounters(unsigned int lower_type, unsigned int upper_type) const
-{
-    return std::pair<const_iterator, const_iterator>(type_link_count_.lower_bound(std::pair<unsigned int, std::uint32_t>(lower_type, 0))
-                                                     , type_link_count_.upper_bound(std::pair<unsigned int, std::uint32_t>(upper_type, 0xFFFFFFFF)));
+    return type_link_count_;
 }
 
 #endif // DataFormats_RPCDigi_RPCAMCLinkCounters_icc
