@@ -84,12 +84,27 @@ void FastTimeGeometry::newCell( const GlobalPoint& f1 ,
 #endif
 }
 
-const CaloCellGeometry* FastTimeGeometry::getGeometry(const DetId& id) const {
+std::shared_ptr<const CaloCellGeometry> FastTimeGeometry::getGeometry(const DetId& id) const {
 
   if (id == DetId()) return nullptr; // nothing to get
   DetId geoId = (DetId)(FastTimeDetId(id).geometryCell());
   const uint32_t cellIndex (topology().detId2denseGeomId(geoId));
-  return cellGeomPtr (cellIndex);
+  const GlobalPoint pos = (id != geoId) ? getPosition(id) : GlobalPoint();
+  return cellGeomPtr (cellIndex, pos);
+}
+
+const CaloCellGeometry* FastTimeGeometry::getGeometryRawPtr(uint32_t index) const {
+  // Modify the RawPtr class
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
+}
+
+bool FastTimeGeometry::present(const DetId& id) const {
+  if (id == DetId()) return false;
+  DetId geoId = (DetId)(FastTimeDetId(id).geometryCell());
+  const uint32_t index(topology().detId2denseGeomId(geoId));
+  return (nullptr != getGeometryRawPtr(index)) ;
 }
 
 GlobalPoint FastTimeGeometry::getPosition(const DetId& id) const {
@@ -158,12 +173,23 @@ unsigned int FastTimeGeometry::sizeForDenseIndex() const {
   return topology().totalGeomModules();
 }
 
-const CaloCellGeometry* FastTimeGeometry::cellGeomPtr(uint32_t index) const {
+std::shared_ptr<const CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t index) const {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return nullptr;
-  const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
+  static const auto do_not_delete = [](const void*){};
+  auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index],do_not_delete);
+  if (nullptr == cell->param()) return nullptr;
+  return cell;
+}
+
+std::shared_ptr<const CaloCellGeometry> FastTimeGeometry::cellGeomPtr(uint32_t index, const GlobalPoint& pos) const {
+  if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
+    return nullptr;
+  if (pos == GlobalPoint()) return cellGeomPtr(index);
+  auto cell = std::make_shared<FlatTrd>(m_cellVec[index]);
+  cell->setPosition(pos);
 #ifdef EDM_ML_DEBUG
-  //  std::cout << "cellGeomPtr " << m_cellVec[index];
+//std::cout << "cellGeomPtr " << newcell << ":" << cell << std::endl;
 #endif
   if (nullptr == cell->param()) return nullptr;
   return cell;
@@ -220,7 +246,7 @@ void FastTimeGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
     iVector.emplace_back(1);
     
     Tr3D tr;
-    const CaloCellGeometry* ptr( cellGeomPtr( i ));
+    auto ptr( cellGeomPtr( i ));
     if ( nullptr != ptr ) {
       ptr->getTransform( tr, ( Pt3DVec* ) nullptr );
 

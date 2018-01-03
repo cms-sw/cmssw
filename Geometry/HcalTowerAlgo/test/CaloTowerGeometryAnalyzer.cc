@@ -74,8 +74,9 @@ CaloTowerGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
   std::fstream fAll( std::string( m_fname + ".all" ).c_str(), std::ios_base::out );
   std::fstream f( std::string( m_fname + ".diff" ).c_str(), std::ios_base::out );
 
-  edm::ESHandle<CaloGeometry> caloGeom;
-  iSetup.get<CaloGeometryRecord>().get( caloGeom );
+  edm::ESHandle<CaloGeometry> caloGeomHandle;
+  iSetup.get<CaloGeometryRecord>().get(caloGeomHandle);
+  const CaloGeometry* caloGeom = (caloGeomHandle.product());
 
   const std::vector<DetId>& dha( caloGeom->getSubdetectorGeometry( DetId::Hcal, 1 )->getValidDetIds());
 
@@ -112,7 +113,7 @@ CaloTowerGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
 	   << std::setw( 4 ) << iz
 	   << std::setw( 6 ) << "-";
       
-      const CaloCellGeometry *cell = caloGeom->getGeometry( id );
+      auto cell = caloGeom->getGeometry( id );
       assert( cell );
       const GlobalPoint& pos = cell->getPosition();
       double eta = pos.eta();
@@ -149,7 +150,7 @@ CaloTowerGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
 	    fAll << std::setw( 4 ) << iter->second.c_str() << ":" << iid;
 	  }
 	  
-	  const CaloCellGeometry *hcell = caloGeom->getGeometry( ii );
+	  auto hcell = caloGeom->getGeometry( ii );
 	  assert( hcell );
 	  const GlobalPoint& hpos = hcell->getPosition();
 	  double heta = hpos.eta();

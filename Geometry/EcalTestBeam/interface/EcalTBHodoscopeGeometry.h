@@ -36,10 +36,9 @@ class EcalTBHodoscopeGeometry : public CaloSubdetectorGeometry
       
       static int getNFibres() ;
 
-   protected:
+      // Modify the RawPtr class
+      const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 
-      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
-      
    private:
       
       struct fibre_pos 

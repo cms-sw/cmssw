@@ -32,6 +32,9 @@ public:
   const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ) , 
 						    int             subdet = 0   ) const override;
 
+  // Modify the RawPtr class
+  const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
+
   DetId getClosestCell(const GlobalPoint& r) const override ;
 
   int insertCell (std::vector<HcalCellType> const & );
@@ -41,25 +44,21 @@ public:
 			const GlobalPoint& f3 ,
 			const CCGFloat*    parm,
 			const DetId&       detId     ) override ;
-					
-protected:
-
-  const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
 
 private:
 
   void newCellImpl( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm,
-			const DetId&       detId     ) ;
+		    const GlobalPoint& f2 ,
+		    const GlobalPoint& f3 ,
+		    const CCGFloat*    parm,
+		    const DetId&       detId     ) ;
 
   //can only be used by friend classes, to ensure sorting is done at the end					
   void newCellFast( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm,
-			const DetId&       detId     ) ;
+		    const GlobalPoint& f2 ,
+		    const GlobalPoint& f3 ,
+		    const CCGFloat*    parm,
+		    const DetId&       detId     ) ;
 
   void increaseReserve(unsigned int extra);
   void sortValidIds();

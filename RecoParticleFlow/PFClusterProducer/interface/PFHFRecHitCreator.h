@@ -52,8 +52,7 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
       // get the ecal geometry
-      const CaloSubdetectorGeometry *hcalGeo = 
-	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalForward);
+      const CaloSubdetectorGeometry *hcalGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalForward);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
@@ -66,8 +65,8 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 	auto energy = erh.energy();
 	auto time = erh.time();
 
-	const CaloCellGeometry * thisCell= hcalGeo->getGeometry(detid);
-	auto zp = dynamic_cast<IdealZPrism const*>(thisCell);
+	std::shared_ptr<const CaloCellGeometry> thisCell= hcalGeo->getGeometry(detid);
+	auto zp = dynamic_cast<IdealZPrism const*>(thisCell.get());
 	assert(zp);
 	thisCell = zp->forPF();
 	

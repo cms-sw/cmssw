@@ -1,4 +1,5 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -83,8 +84,7 @@ HcalDDDGeometry::getValidDetIds(DetId::Detector det,
 }
 
 DetId
-HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const
-{
+HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
   constexpr double twopi = M_PI+M_PI;
   constexpr double deg   = M_PI/180.;
 
@@ -147,7 +147,7 @@ HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const
 }
 
 int
-HcalDDDGeometry::insertCell(std::vector<HcalCellType> const & cells){
+HcalDDDGeometry::insertCell(std::vector<HcalCellType> const & cells) {
 
   hcalCells_.insert(hcalCells_.end(), cells.begin(), cells.end());
   int num = static_cast<int>(hcalCells_.size());
@@ -163,10 +163,10 @@ HcalDDDGeometry::insertCell(std::vector<HcalCellType> const & cells){
 
 void
 HcalDDDGeometry::newCellImpl( const GlobalPoint& f1 ,
-			  const GlobalPoint& f2 ,
-			  const GlobalPoint& f3 ,
-			  const CCGFloat*    parm ,
-			  const DetId&       detId   ) 
+			      const GlobalPoint& f2 ,
+			      const GlobalPoint& f3 ,
+			      const CCGFloat*    parm ,
+			      const DetId&       detId   ) 
 {
 
   assert( detId.det()==DetId::Hcal );
@@ -200,10 +200,10 @@ HcalDDDGeometry::newCellImpl( const GlobalPoint& f1 ,
 
 void
 HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
-              const GlobalPoint& f2 ,
-              const GlobalPoint& f3 ,
-              const CCGFloat*    parm ,
-              const DetId&       detId   )
+			  const GlobalPoint& f2 ,
+			  const GlobalPoint& f3 ,
+			  const CCGFloat*    parm ,
+			  const DetId&       detId   )
 {
   newCellImpl(f1,f2,f3,parm,detId);
   addValidID( detId );
@@ -211,59 +211,34 @@ HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
 
 void
 HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
-              const GlobalPoint& f2 ,
-              const GlobalPoint& f3 ,
-              const CCGFloat*    parm ,
-              const DetId&       detId   )
+			      const GlobalPoint& f2 ,
+			      const GlobalPoint& f3 ,
+			      const CCGFloat*    parm ,
+			      const DetId&       detId   )
 {
   newCellImpl(f1,f2,f3,parm,detId);
   m_validIds.emplace_back(detId);
 }
 
-const CaloCellGeometry* 
-HcalDDDGeometry::cellGeomPtr( uint32_t din ) const
-{
-  const CaloCellGeometry* cell ( nullptr ) ;
-  if( m_hbCellVec.size() > din )
-  {
-    cell = &m_hbCellVec[ din ] ;
+const CaloCellGeometry* HcalDDDGeometry::getGeometryRawPtr (uint32_t din) const {
+  // Modify the RawPtr class
+  const CaloCellGeometry* cell(nullptr);
+  if (m_hbCellVec.size() > din) {
+    cell = (&m_hbCellVec[din]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() ) ;
+    cell = (&m_heCellVec[ind]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size());
+    cell = (&m_hoCellVec[ind]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size()+
+	     m_hfCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size() -
+			    m_hoCellVec.size() ) ;
+    cell = (&m_hfCellVec[ind]);
   }
-  else
-  {
-    if( m_hbCellVec.size() +
-	m_heCellVec.size() > din )
-    {
-      const unsigned int index ( din - m_hbCellVec.size() ) ;
-      cell = &m_heCellVec[ index ] ;
-    }
-    else
-    {
-      if( m_hbCellVec.size() +
-	  m_heCellVec.size() +
-	  m_hoCellVec.size() > din )
-      {
-	const unsigned int index ( din 
-				   - m_hbCellVec.size() 
-				   - m_heCellVec.size() ) ;
-	cell = &m_hoCellVec[ index ] ;
-      }
-      else
-      {
-	if( m_hbCellVec.size() +
-	    m_heCellVec.size() +
-	    m_hoCellVec.size() +
-	    m_hfCellVec.size() > din )
-	{
-	  const unsigned int index ( din 
-				     - m_hbCellVec.size() 
-				     - m_heCellVec.size() 
-				     - m_hoCellVec.size() ) ;
-	  cell = &m_hfCellVec[ index ] ;
-	}
-      }
-    }
-  }
-  return ( nullptr == cell || nullptr == cell->param() ? nullptr : cell ) ;
+  
+  return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;
 }
 
 void HcalDDDGeometry::increaseReserve(unsigned int extra) {
