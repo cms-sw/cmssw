@@ -52,6 +52,7 @@ run3_GEM.toReplaceWith(DigiToRaw, _gem_DigiToRaw)
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith(DigiToRaw, _me0_DigiToRaw)
+phase2_muon.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([rpcpacker]))
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData,SiStripDigiToRaw,castorRawData]))
