@@ -450,7 +450,6 @@ namespace edm {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
-    rp.setAtEndTransition(true);
     endGlobalTransitionAsync<Traits>(std::move(iHolder),
                                      *schedule_,
                                      rp,
@@ -509,7 +508,6 @@ namespace edm {
     LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
-    lbp.setAtEndTransition(true);
     endGlobalTransitionAsync<Traits>(std::move(iHolder),
                                      *schedule_,
                                      lbp,

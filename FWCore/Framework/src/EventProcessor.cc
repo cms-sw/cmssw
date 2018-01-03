@@ -1016,7 +1016,6 @@ namespace edm {
 
   void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
-    runPrincipal.setAtEndTransition(true);
     //We need to reset failed items since they might
     // be set this time around
     runPrincipal.resetFailedFromThisProcess();
@@ -1200,7 +1199,6 @@ namespace edm {
   void EventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status) {
     bool cleaningUpAfterException = status->cleaningUpAfterException();
     LuminosityBlockPrincipal& lumiPrincipal = *status-> lumiPrincipal();
-    lumiPrincipal.setAtEndTransition(true);
     
     //need to release the IOV
     auto dtr = [](SerialTaskQueue* iQueue) { iQueue->resume();};

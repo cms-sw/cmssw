@@ -128,8 +128,7 @@ namespace edm {
     reader_(),
     branchType_(bt),
     historyAppender_(historyAppender),
-    cacheIdentifier_(nextIdentifier()),
-    atEndTransition_(false)
+    cacheIdentifier_(nextIdentifier())
   {
     productResolvers_.resize(reg->getNextIndexValue(bt));
     //Now that these have been set, we can create the list of Branches we need.
@@ -322,11 +321,6 @@ namespace edm {
   }
 
   void
-  Principal::setAtEndTransition(bool iAtEnd) {
-    atEndTransition_ = iAtEnd;
-  }
-  
-  void
   Principal::deleteProduct(BranchID const& id) const {
     auto phb = getExistingProduct(id);
     assert(nullptr != phb);
@@ -348,7 +342,6 @@ namespace edm {
                            DelayedReader* reader) {
     //increment identifier here since clearPrincipal isn't called for Run/Lumi
     cacheIdentifier_=nextIdentifier();
-    atEndTransition_=false;
     if(reader) {
       reader_ = reader;
     }
