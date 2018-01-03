@@ -311,13 +311,13 @@ namespace edm {
       return Transition::Event;
     }
     if(principal().branchType() == InRun) {
-      if(principal().atEndTransition()) {
+      if(isComplete()) {
         return Transition::EndRun;
       } else {
         return Transition::BeginRun;
       }
     }
-    if(principal().atEndTransition()) {
+    if(isComplete()) {
       return Transition::EndLuminosityBlock;
     }
     return Transition::BeginLuminosityBlock;

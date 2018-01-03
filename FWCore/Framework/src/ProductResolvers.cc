@@ -15,6 +15,7 @@
 #include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include <cassert>
 #include <utility>
@@ -258,9 +259,10 @@ namespace edm {
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const {
     if(not skipCurrentProcess) {
-      if(branchDescription().availableOnlyAtEndTransition() and
-         not principal.atEndTransition()) {
-        return;
+      if(branchDescription().availableOnlyAtEndTransition() and mcc ) {
+        if( not mcc->parent().isAtEndTransition() ) {
+          return;
+        }
       }
       m_waitingTasks.add(waitTask);
       
