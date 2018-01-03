@@ -122,7 +122,7 @@ namespace edm {
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const {
-      return workerManager_.allWorkers();
+      return workerManagers_[0].allWorkers();
     }
 
   private:
@@ -150,17 +150,12 @@ namespace edm {
 
     /// returns the action table
     ExceptionToActionTable const& actionTable() const {
-      return workerManager_.actionTable();
+      return workerManagers_[0].actionTable();
     }
     
-    void addToAllWorkers(Worker* w);
-    
-    WorkerManager                         workerManager_;
+    std::vector<WorkerManager>            workerManagers_;
     std::shared_ptr<ActivityRegistry>     actReg_; // We do not use propagate_const because the registry itself is mutable.
-    edm::propagate_const<WorkerPtr>       results_inserter_;
-    std::vector<edm::propagate_const<WorkerPtr>> pathStatusInserterWorkers_;
-    std::vector<edm::propagate_const<WorkerPtr>> endPathStatusInserterWorkers_;
-
+    std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const*                 processContext_;
   };
 
@@ -217,16 +212,17 @@ namespace edm {
                                         iHolder.doneWaiting(excpt);
                                         
                                       });
-    workerManager_.resetAll();
+    workerManagers_[ep.index()].resetAll();
     
     ParentContext parentContext(globalContext.get());
     //make sure the ProductResolvers know about their
     // workers to allow proper data dependency handling
-    workerManager_.setupOnDemandSystem(ep,es);
+    workerManagers_[ep.index()].setupOnDemandSystem(ep,es);
     
     //make sure the task doesn't get run until all workers have beens started
     WaitingTaskHolder holdForLoop(doneTask);
-    for(auto& worker: boost::adaptors::reverse((allWorkers()))) {
+    auto& aw = workerManagers_[ep.index()].allWorkers();
+    for(Worker* worker: boost::adaptors::reverse(aw) ) {
       worker->doWorkAsync<T>(doneTask,ep,es,StreamID::invalidStreamID(),parentContext,globalContext.get());
     }
 
