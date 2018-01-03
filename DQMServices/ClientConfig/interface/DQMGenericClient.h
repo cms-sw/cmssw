@@ -71,6 +71,11 @@ class DQMGenericClient : public DQMEDHarvester
     bool ascending;
   };
 
+  struct NoFlowOption
+  {
+    std::string name;
+  };
+
   void computeEfficiency(DQMStore::IBooker& ibooker,
 			 DQMStore::IGetter& igetter,
 			 const std::string& startDir, 
@@ -101,6 +106,10 @@ class DQMGenericClient : public DQMEDHarvester
 			  const std::string& startDir,
 			  const std::string& cdName,
                           bool ascending=true);
+  void makeNoFlowDist(DQMStore::IBooker& ibooker,
+                      DQMStore::IGetter& igetter,
+                      const std::string& startDir,
+                      const std::string& cdName);
 
   void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
 
@@ -118,6 +127,7 @@ class DQMGenericClient : public DQMEDHarvester
   std::vector<ProfileOption> profileOptions_;
   std::vector<NormOption> normOptions_;
   std::vector<CDOption> cdOptions_;
+  std::vector<NoFlowOption> noFlowOptions_;
 
   void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const EfficType type=EfficType::efficiency);
 
