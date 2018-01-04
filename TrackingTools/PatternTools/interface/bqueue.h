@@ -82,12 +82,12 @@ namespace cmsutils {
     bool operator==(const _bqueue_itr<T> &t2) const  { return t2.it == it; }
     bool operator!=(const _bqueue_itr<T> &t2) const { return t2.it != it; }
     // so that I can assign a const_iterator to a const_iterator
-    const _bqueue_itr<T> & operator=(const _bqueue_itr<T> &t2) const { it = t2.it; return *this; }
+    const _bqueue_itr<T> & operator=(const _bqueue_itr<T> &t2) { it = t2.it; return *this; }
     friend class bqueue<T>;
   private:
     // _bqueue_itr(_bqueue_item<T> *t) : it(t) { }
     _bqueue_itr(const _bqueue_item<T> *t) : it(t) { }
-    mutable _bqueue_item<T> const * it;
+    _bqueue_item<T> const * it;
   };
   
   template<class T>

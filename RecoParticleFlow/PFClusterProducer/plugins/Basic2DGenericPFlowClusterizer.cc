@@ -158,7 +158,7 @@ growPFClusters(const reco::PFCluster& topo,
   }
   // loop over topo cluster and grow current PFCluster hypothesis 
   std::vector<double> dist2, frac;
-  double fractot = 0, fraction = 0;
+  double fractot = 0;
   for( const reco::PFRecHitFraction& rhf : topo.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     int cell_layer = (int)refhit->layer();
@@ -173,7 +173,6 @@ growPFClusters(const reco::PFCluster& topo,
     // add rechits to clusters, calculating fraction based on distance
     for( auto& cluster : clusters ) {      
       const math::XYZPoint& clusterpos_xyz = cluster.position();
-      fraction = 0.0;
       const math::XYZVector deltav = clusterpos_xyz - topocellpos_xyz;
       const double d2 = deltav.Mag2()/_showerSigma2;
       dist2.emplace_back( d2 );
@@ -183,6 +182,7 @@ growPFClusters(const reco::PFCluster& topo,
 	  << d2;
       }
       // fraction assignment logic
+      double fraction;
       if( refhit->detId() == cluster.seed() && _excludeOtherSeeds ) {
 	fraction = 1.0;	
       } else if ( seedable[refhit.key()] && _excludeOtherSeeds ) {

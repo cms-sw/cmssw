@@ -9,7 +9,7 @@ CSCDMBHeader2005::CSCDMBHeader2005()
   bits.newddu_code_1 = bits.newddu_code_2 = bits.newddu_code_3 = bits.newddu_code_4 = 0x9;
 }
 
-CSCDMBHeader2005::CSCDMBHeader2005(unsigned short * buf) 
+CSCDMBHeader2005::CSCDMBHeader2005(const uint16_t * buf) 
 {
   memcpy(data(), buf, sizeInWords()*2);
 }
