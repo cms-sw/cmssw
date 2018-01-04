@@ -14,6 +14,7 @@
 
 namespace l1tVertexFinder {
 
+typedef std::vector<const L1fittedTrackBase*> FitTrackCollectionBase;
 typedef std::vector<const L1fittedTrack*> FitTrackCollection;
 typedef std::vector<RecoVertex> RecoVertexCollection;
 
@@ -21,17 +22,18 @@ class VertexFinder {
 
 public:
   // Copy fitted tracks collection into class
-  VertexFinder(FitTrackCollection fitTracks, Settings* settings){fitTracks_ = fitTracks; settings_ = settings;}
+  VertexFinder(FitTrackCollectionBase fitTracks, Settings* settings){fitTracks_ = fitTracks; settings_ = settings;}
+  VertexFinder(FitTrackCollection fitTracks, Settings* settings){fitTracks_ = (FitTrackCollectionBase)fitTracks; settings_ = settings;}
   ~VertexFinder(){}
 
   struct SortTracksByZ0{
-    inline bool operator() (const L1fittedTrack* track0, const L1fittedTrack* track1){
+    inline bool operator() (const L1fittedTrackBase* track0, const L1fittedTrackBase* track1){
       return(track0->z0() < track1->z0());
     }
   };
 
   struct SortTracksByPt{
-    inline bool operator() (const L1fittedTrack* track0, const L1fittedTrack* track1){
+    inline bool operator() (const L1fittedTrackBase* track0, const L1fittedTrackBase* track1){
       return(fabs(track0->pt()) > fabs(track1->pt()));
     }
   };

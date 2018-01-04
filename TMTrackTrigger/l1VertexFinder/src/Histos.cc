@@ -343,7 +343,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
 
     if(settings_->debug() == 7 and METres > 0.2){
       cout << "** RECO TRACKS in PV**" << endl;
-      for(const L1fittedTrack* track : RecoPrimaryVertex.tracks() ){
+      for(const L1fittedTrack* track : (const std::vector<const L1fittedTrack*>&) RecoPrimaryVertex.tracks() ){
         if(track->getMatchedTP() != nullptr) cout << "matched TP "<< track->getMatchedTP()->index() ;
         cout << " pT "<< track->pt() << " phi0 "<< track->phi0() << " z0 "<< track->z0() << endl;
       }
@@ -427,7 +427,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
   }
 
   if(settings_->debug() == 7){
-    for(const L1fittedTrack* l1track : RecoPrimaryVertex.tracks()){
+    for(const L1fittedTrack* l1track :(const std::vector<const L1fittedTrack*>&) RecoPrimaryVertex.tracks()){
       if(l1track->getMatchedTP() == nullptr){
         cout << "FAKE track assigned to PV. Track z0: "<< l1track->z0() << " track pT "<< l1track->pt() << " chi2/ndof " << l1track->chi2dof() << " numstubs "<< l1track->getNumStubs() << endl;
       } else if(l1track->getMatchedTP()->physicsCollision() == 0){
@@ -503,7 +503,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
   for(const TP& tp : TruePrimaryVertex.tracks()){
     bool found = false;
     // cout << tp.index() << " "<< endl;
-    for(const L1fittedTrack* l1track : RecoPrimaryVertex.tracks()){
+    for(const L1fittedTrack* l1track : (const std::vector<const L1fittedTrack*>&) RecoPrimaryVertex.tracks()){
       if(l1track->getMatchedTP()!= nullptr){
         if(tp.index() == l1track->getMatchedTP()->index() ) {
           found = true;
@@ -513,7 +513,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
     }
     if(!found){
       bool TrackIsReconstructed = false;
-      for(const L1fittedTrack* l1track: vf.FitTracks()){
+      for(const L1fittedTrack* l1track: (const std::vector<const L1fittedTrack*> &) vf.FitTracks()){
         if(l1track->getMatchedTP()!= nullptr){
           if(tp.index() == l1track->getMatchedTP()->index() ){
             TrackIsReconstructed = true;
@@ -524,7 +524,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
             hisUnmatchTrueEta_->Fill(tp.eta());
 
             double mindistance = 999.;
-            for(const L1fittedTrack* vertexTrack : RecoPrimaryVertex.tracks()){
+            for(const L1fittedTrack* vertexTrack :(const std::vector<const L1fittedTrack*>&) RecoPrimaryVertex.tracks()){
               if( fabs(vertexTrack->z0()-l1track->z0()) < mindistance ) mindistance = fabs(vertexTrack->z0()-l1track->z0());
             }
             hisUnmatchZ0MinDistance_->Fill(mindistance);
@@ -548,7 +548,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
     
     found = false;
 
-    for(const L1fittedTrack* l1track : TDRVertex.tracks()){
+    for(const L1fittedTrack* l1track : (const std::vector<const L1fittedTrack*>&) TDRVertex.tracks()){
       if(l1track->getMatchedTP()!= nullptr){
         // cout << l1track->getMatchedTP()->index() << " ";
         if(tp.index() == l1track->getMatchedTP()->index() ) {
@@ -559,7 +559,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
     }
 
     if(!found){
-      for(const L1fittedTrack* l1track: vf.FitTracks()){
+      for(const L1fittedTrack* l1track: (const std::vector<const L1fittedTrack*> &) vf.FitTracks()){
         if(l1track->getMatchedTP()!= nullptr){
           if(tp.index() == l1track->getMatchedTP()->index() ){
             hisTDRUnmatchZ0distance_->Fill(fabs(l1track->z0()-TDRVertex.z0()));
@@ -569,7 +569,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
             hisTDRUnmatchTrueEta_->Fill(tp.eta());
             misassignedTracks_tdr++;
             double mindistance = 999.;
-            for(const L1fittedTrack* vertexTrack : TDRVertex.tracks()){
+            for(const L1fittedTrack* vertexTrack : (const std::vector<const L1fittedTrack*>&) TDRVertex.tracks()){
               if( fabs(vertexTrack->z0()-l1track->z0()) < mindistance ) mindistance = fabs(vertexTrack->z0()-l1track->z0());
             }
             hisTDRUnmatchZ0MinDistance_->Fill(mindistance);
