@@ -305,7 +305,7 @@ std::vector<GEMCSCSegment> GEMCSCSegAlgoRR::buildSegments(const CSCSegment* cscs
   // Extract the GEMRecHits from the TrackingRecHit vector
   for(std::vector<const TrackingRecHit*>::const_iterator trhIt = rechits.begin(); trhIt!=rechits.end(); ++trhIt) 
     {
-      if (DetId((*trhIt)->rawId()).subdetId() == MuonSubdetId::GEM) { gemrechits.push_back( ((GEMRecHit*)*trhIt) ); }
+      if (DetId((*trhIt)->rawId()).subdetId() == MuonSubdetId::GEM) { gemrechits.push_back( ((const GEMRecHit*)*trhIt) ); }
     }
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:

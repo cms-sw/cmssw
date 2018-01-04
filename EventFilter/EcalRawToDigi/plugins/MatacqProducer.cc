@@ -545,9 +545,9 @@ MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId,
   if(openedFileRunNumber_ != 0
      && openedFileRunNumber_ == runNumber){
     uint32_t firstOrb, lastOrb;
-    getOrbitRange(firstOrb, lastOrb);
+    bool goodRange = getOrbitRange(firstOrb, lastOrb);
     //    if(orbitId < firstOrb || orbitId > lastOrb) continue;
-    if(firstOrb <= orbitId && orbitId <= lastOrb){
+    if(goodRange && firstOrb <= orbitId && orbitId <= lastOrb){
       if(fileChange!=nullptr) *fileChange = false;
       return misOpened();
     }
@@ -600,7 +600,7 @@ MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId,
       for(unsigned iglob = 0; iglob < g.gl_pathc; ++iglob){
 	char* thePath = g.gl_pathv[iglob];
 	//FIXME: add sanity check on the path
-	static int nOpenErrors = 0;
+	static std::atomic<int> nOpenErrors {0};
 	const int maxOpenErrors = 50;
 	if(!mopen(thePath) && nOpenErrors < maxOpenErrors){
 	  std::cout << "[Matacq " << now() << "] Failed to open file " << thePath;
@@ -614,9 +614,9 @@ MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId,
 	}
 	uint32_t firstOrb;
 	uint32_t lastOrb;
-	getOrbitRange(firstOrb, lastOrb);
-	if(lastOrb > maxOrb) maxOrb = lastOrb;
-	if(firstOrb <= orbitId && orbitId <= lastOrb){
+	bool goodRange = getOrbitRange(firstOrb, lastOrb);
+	if(goodRange && lastOrb > maxOrb) maxOrb = lastOrb;
+	if(goodRange && firstOrb <= orbitId && orbitId <= lastOrb){
 	  found = true;
 	  //continue;
 	  fname = thePath;
