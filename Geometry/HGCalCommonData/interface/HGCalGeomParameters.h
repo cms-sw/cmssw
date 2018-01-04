@@ -31,13 +31,10 @@ public:
 
   HGCalGeomParameters();
   ~HGCalGeomParameters();
-  void loadGeometrySquare(const DDFilteredView&, HGCalParameters&,
-			  const std::string&);
   void loadGeometryHexagon(const DDFilteredView&, HGCalParameters&,
 			   const std::string&, const DDCompactView*,
 			   const std::string&, const std::string&, 
 			   HGCalGeometryMode::WaferMode);
-  void loadSpecParsSquare(const DDFilteredView&, HGCalParameters&);
   void loadSpecParsHexagon(const DDFilteredView&, HGCalParameters&,
 			   const DDCompactView*, const std::string&, 
 			   const std::string&);

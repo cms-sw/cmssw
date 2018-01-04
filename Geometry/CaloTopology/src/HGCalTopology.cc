@@ -198,6 +198,7 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& id_) const {
 DetId HGCalTopology::changeXY(const DetId& id, int nrStepsX,
 			      int nrStepsY ) const {
 
+  /*
   HGCalTopology::DecodedDetId id_ = decode(id);
   std::pair<int,int> kcell= hdcons_.newCell(id_.iCell,id_.iLay,id_.iSec,
 					    id_.iSubSec,nrStepsX,nrStepsY,
@@ -208,11 +209,14 @@ DetId HGCalTopology::changeXY(const DetId& id, int nrStepsX,
   DetId nextPoint = encode(id_);
   if (valid(nextPoint)) return nextPoint;
   else                  return DetId(0);
+  */
+  return DetId();
 }
 
 
 DetId HGCalTopology::changeZ(const DetId& id, int nrStepsZ) const {
 
+  /*
   HGCalTopology::DecodedDetId id_  = decode(id);
   std::pair<int,int> kcell = hdcons_.newCell(id_.iCell,id_.iLay,
 					     id_.iSubSec,nrStepsZ,half_);
@@ -221,6 +225,8 @@ DetId HGCalTopology::changeZ(const DetId& id, int nrStepsZ) const {
   DetId nextPoint = encode(id_);
   if (valid(nextPoint)) return nextPoint;
   else                  return DetId(0);
+  */
+  return DetId();
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

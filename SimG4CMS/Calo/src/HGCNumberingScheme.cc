@@ -25,26 +25,13 @@ HGCNumberingScheme::~HGCNumberingScheme() {
   edm::LogInfo("HGCSim") << "Deleting HGCNumberingScheme";
 }
 
-//
 uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer, 
 				       int module, int cell, int iz, 
 				       const G4ThreeVector &pos) {
-  // module is the sector # for square cell
-  //           the copy number of the wafer as placed in the layer
-  int      phiSector(0), icell(0), celltyp(0), wafer(0);
+  // module is the copy number of the wafer as placed in the layer
+  int      icell(0), celltyp(0), wafer(0);
   uint32_t index(0);
-  if (hgcons_.geomMode() == HGCalGeometryMode::Square) {
-    std::pair<int,int> phicell = hgcons_.assignCell(pos.x(),pos.y(),layer,0,false);
-    phiSector = phicell.first;
-    icell     = phicell.second;
-  
-    //build the index
-    index = HGCalTestNumbering::packSquareIndex(iz,layer,module,phiSector,icell);
-    //check if it fits
-    if (!hgcons_.isValid(layer,module,icell,false)) {
-      index = 0;
-    }
-  } else if (hgcons_.geomMode() == HGCalGeometryMode::HexagonFull) {
+  if (hgcons_.geomMode() == HGCalGeometryMode::HexagonFull) {
     if (cell >= 0) {
       wafer =  hgcons_.waferFromCopy(module);
       celltyp = cell/1000;
@@ -55,7 +42,7 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
     if (celltyp != 1) celltyp = 0;    
     index   = HGCalTestNumbering::packHexagonIndex((int)subdet,iz,layer,wafer, 
 						   celltyp,icell);    
-  } else {    
+  } else if (hgcons_.geomMode() == HGCalGeometryMode::Hexagon) {
     wafer =  hgcons_.waferFromCopy(module);
     celltyp = cell/1000;
     icell   = cell%1000;
@@ -75,24 +62,18 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
-	      << module << ":" << iz << ":";
-  if (hgcons_.geomMode() == HGCalGeometryMode::Square) 
-    std::cout << pos << " o/p " << phiSector << ":" << icell;
-  else
-    std::cout << wafer << ":" << celltyp << ":" << icell;
-  std::cout << ":" << std::hex << index << std::dec  << std::endl;
+	    << module << ":" << iz << ":" << wafer << ":" << celltyp << ":" 
+	    << icell << ":" << std::hex << index << std::dec  << std::endl;
 #endif
   return index;
 }
 
-//
 int HGCNumberingScheme::assignCell(float x, float y, int layer) {
 
   std::pair<int,int> phicell = hgcons_.assignCell(x,y,layer,0,false);
   return phicell.second;
 }
 
-//
 std::pair<float,float> HGCNumberingScheme::getLocalCoords(int cell, int layer){
 
   return hgcons_.locateCell(cell,layer,0,false);  
