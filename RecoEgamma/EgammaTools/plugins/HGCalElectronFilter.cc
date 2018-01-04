@@ -86,7 +86,6 @@ HGCalElectronFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     for(const auto& electron1 : *electronsH) {
         bool isBest = true;
         if (!cleanBarrel_ && electron1.isEB()) { // keep all barrel electrons
-            isBest = true;
             gsfElectrons_p->push_back(electron1);
             continue;
         } else {

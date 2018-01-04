@@ -76,7 +76,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
   pnAllocated = false;
   
 
-  theParser_->parseBuffer( reinterpret_cast<uint32_t*>(const_cast<unsigned char*>(pData)), static_cast<uint32_t>(length), shit );
+  theParser_->parseBuffer( reinterpret_cast<const uint32_t*>(pData), static_cast<uint32_t>(length), shit );
   
   std::vector< DCCTBEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
 
