@@ -66,7 +66,7 @@ public:
 
 private:
 
-  mutable int theWordCounter;
+  int theWordCounter;
 
   RPixErrorChecker errorcheck;
 

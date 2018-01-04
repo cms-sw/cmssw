@@ -70,12 +70,6 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
     //
     // class decleration
     //
-    using namespace reco   ;
-    using namespace std    ;
-    using namespace edm    ;
-    using namespace trigger;
-    
-    
     template< typename T>
     std::pair<std::vector<T>,std::vector<T>> categorise(const std::vector<T>& pfMatchedJets, double pt1, double pt2, double Mjj)
     {
@@ -133,8 +127,8 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
     }
     template< typename T>
     L1TJetsMatching<T>::L1TJetsMatching(const edm::ParameterSet& iConfig):
-    jetSrc_    ( consumes<std::vector<T>>                     (iConfig.getParameter<InputTag>("JetSrc"      ) ) ),
-    jetTrigger_( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("L1JetTrigger") ) ),
+    jetSrc_    ( consumes<std::vector<T>>                     (iConfig.getParameter<edm::InputTag>("JetSrc"      ) ) ),
+    jetTrigger_( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("L1JetTrigger") ) ),
     pt1Min_   ( iConfig.getParameter<double>("pt1Min")),
     pt2Min_   ( iConfig.getParameter<double>("pt2Min")),
     mjjMin_   ( iConfig.getParameter<double>("mjjMin")),
