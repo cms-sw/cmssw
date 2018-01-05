@@ -147,7 +147,7 @@ uint32_t HGCSD::setDetUnitId(const G4Step * aStep) {
   //get the det unit id with 
   ForwardSubdetector subdet = myFwdSubdet_;
 
-  int layer(0), module(0), cell(0);
+  int layer, module, cell;
   if (touch->GetHistoryDepth() == levelT_) {
     layer  = touch->GetReplicaNumber(0);
     module = -1;
@@ -175,6 +175,7 @@ uint32_t HGCSD::setDetUnitId(const G4Step * aStep) {
 			 << ":" << cell <<" Material " << mat->GetName()<<":"
 			 << aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
 #endif
+  // The following statement should be examined later before elimination
   if (aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() > 100000.) return 0;
   
   uint32_t id = setDetUnitId (subdet, layer, module, cell, iz, localpos);
