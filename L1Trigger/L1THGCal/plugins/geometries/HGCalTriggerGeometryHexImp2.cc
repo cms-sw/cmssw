@@ -471,7 +471,7 @@ getTriggerCellPosition(const unsigned trigger_cell_det_id) const
     for(const auto& cell : cell_ids)
     {
         HGCalDetId cellDetId(cell);
-        triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? eeGeometry().getPosition(cellDetId) :  fhGeometry().getPosition(cellDetId)).basicVector();
+        triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? eeGeometry()->getPosition(cellDetId) :  fhGeometry()->getPosition(cellDetId)).basicVector();
     }
     return GlobalPoint( triggerCellVector/cell_ids.size() );
 
@@ -488,7 +488,7 @@ getModulePosition(const unsigned module_det_id) const
     for(const auto& cell : cell_ids)
     {
         HGCalDetId cellDetId(cell);
-        moduleVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? eeGeometry().getPosition(cellDetId) :  fhGeometry().getPosition(cellDetId)).basicVector();
+        moduleVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? eeGeometry()->getPosition(cellDetId) :  fhGeometry()->getPosition(cellDetId)).basicVector();
     }
     return GlobalPoint( moduleVector/cell_ids.size() );
 }

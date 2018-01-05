@@ -64,8 +64,6 @@ class PFClusterBuilderBase {
   
 };
 
-std::ostream& operator<<(std::ostream& o, const PFClusterBuilderBase& a);
-
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 typedef edmplugin::PluginFactory< PFClusterBuilderBase* (const edm::ParameterSet&) > PFClusterBuilderFactory;
 
