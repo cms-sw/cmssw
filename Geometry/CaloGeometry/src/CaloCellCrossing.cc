@@ -30,11 +30,11 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
    for(auto dId : ids)
    {
       unsigned int found ( 0 ) ;
-      const CaloCellGeometry& cg ( *sg->getGeometry( dId ) ) ;
-      const CaloCellGeometry::CornersVec& gc ( cg.getCorners() ) ;
-      const HepGeom::Point3D<double>  fr ( cg.getPosition().x(),
-			    cg.getPosition().y(),
-			    cg.getPosition().z()  ) ;
+      auto cg = sg->getGeometry( dId );
+      const CaloCellGeometry::CornersVec& gc ( cg->getCorners() ) ;
+      const HepGeom::Point3D<double>  fr ( cg->getPosition().x(),
+					   cg->getPosition().y(),
+					   cg->getPosition().z()  ) ;
       const double bCut2 ( ( gc[0] - gc[6] ).mag2() ) ;
 
       if( ( !onewayonly ||

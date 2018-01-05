@@ -191,14 +191,13 @@ namespace spr {
 
   GlobalPoint getGpos(const CaloGeometry* geo,HBHERecHitCollection::const_iterator hit, bool) {
     DetId detId(hit->id());
-    return ((HcalGeometry*)(geo->getSubdetectorGeometry(detId)))->getPosition(detId);
+    return (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(detId)))->getPosition(detId);
   }
 
   GlobalPoint getGpos(const CaloGeometry* geo,edm::PCaloHitContainer::const_iterator hit, bool) {
     DetId detId(hit->id());
     GlobalPoint point = (detId.det() == DetId::Hcal) ? 
-      ((HcalGeometry*)(geo->getSubdetectorGeometry(detId)))->getPosition(detId) : 
-      geo->getPosition(detId);
+      (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(detId)))->getPosition(detId) : geo->getPosition(detId);
     return point;
   }
 

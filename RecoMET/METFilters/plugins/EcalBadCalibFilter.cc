@@ -92,7 +92,7 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::E
   // Calo Geometry - needed for computing E_t
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
- 
+  const CaloGeometry* geo = pG.product();
   
   // by default the event is OK
   bool pass = true;
@@ -120,7 +120,7 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::E
     ene=ecalhit->energy();
  
     // compute transverse energy
-    GlobalPoint posecal=pG->getPosition(ecaldet);
+    const GlobalPoint & posecal=geo->getPosition(ecaldet);
     float pf = posecal.perp()/posecal.mag();
     et=ene*pf;
     

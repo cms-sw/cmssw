@@ -61,11 +61,11 @@ void HGCalTestRecHitTool::analyze(const edm::Event& ,
 
   if (pG.isValid()) {
     geom_ = pG.product();
-    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+    auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
     layerEE_    = (geomEE->topology().dddConstants()).layers(true);
-    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+    auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
     layerFH_    = (geomFH->topology().dddConstants()).layers(true);
-    auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+    auto geomBH = dynamic_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
     layerBH_    = (geomBH->topology().dddConstants())->getMaxDepth(1);
     edm::LogVerbatim("HGCalGeom") << "Layers " << layerEE_ << ":" << layerFH_ 
 				  << ":" << layerBH_ << std::endl;
@@ -158,8 +158,7 @@ GlobalPoint HGCalTestRecHitTool::getPosition(const DetId& id) const {
   if (id.det() == DetId::Hcal) {
     position = geom->getGeometry(id)->getPosition();
   } else {
-    const auto* hg = static_cast<const HGCalGeometry*>(geom);
-    position = hg->getPosition(id);
+    position = (dynamic_cast<const HGCalGeometry*>(geom))->getPosition(id);
   }
   return position;
 }
@@ -170,7 +169,7 @@ double HGCalTestRecHitTool::getLayerZ(const DetId& id) const {
   if (id.det() == DetId::Hcal) {
     auto geom = geom_->getSubdetectorGeometry(id);
     check_geom(geom);
-    zpos = geom->getGeometry(id)->getPosition().z();
+    zpos = (dynamic_cast<const HcalGeometry*>(geom))->getGeometry(id)->getPosition().z();
   } else {
     const HGCalDDDConstants* ddd = get_ddd(HGCalDetId(id));
     zpos = ddd->waferZ(HGCalDetId(id).layer(),true);
