@@ -42,6 +42,12 @@ public:
   L1TEGammaOffline(const edm::ParameterSet& ps);
   ~L1TEGammaOffline() override;
 
+  enum PlotConfig {
+    nVertex
+  };
+
+  static const std::map<std::string, unsigned int> PlotConfigNames;
+
 protected:
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

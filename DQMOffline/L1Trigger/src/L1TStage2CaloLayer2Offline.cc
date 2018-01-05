@@ -9,6 +9,11 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "TLorentzVector.h"
 
+
+const std::map<std::string, unsigned int> L1TStage2CaloLayer2Offline::PlotConfigNames = {
+  {"nVertex", PlotConfig::nVertex}
+};
+
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
@@ -43,7 +48,7 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
         httEfficiencyBins_(ps.getParameter < std::vector<double> > ("httEfficiencyBins")),
         recoHTTMaxEta_(ps.getParameter <double>("recoHTTMaxEta")),
         recoMHTMaxEta_(ps.getParameter <double>("recoMHTMaxEta")),
-        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"))),
+        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
         h_controlPlots_()
 {
   edm::LogInfo("L1TStage2CaloLayer2Offline") << "Constructor "
@@ -455,7 +460,7 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
 
-  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_["nVertex"];
+  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
   h_nVertex_ = ibooker.book1D(
     nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
   );

@@ -1,4 +1,6 @@
 #include "DQMOffline/L1Trigger/interface/HistDefinition.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <algorithm>
 
 namespace dqmoffline {
 namespace l1t {
@@ -19,7 +21,6 @@ HistDefinition::HistDefinition():
 
 }
 
-
 HistDefinition::HistDefinition(const edm::ParameterSet &ps):
   name(ps.getUntrackedParameter<std::string>("name")),
   title(ps.getUntrackedParameter<std::string>("title")),
@@ -34,19 +35,35 @@ HistDefinition::HistDefinition(const edm::ParameterSet &ps):
 
 }
 
-HistDefinition::~HistDefinition(){
+HistDefinition::~HistDefinition() {
 
 }
 
-HistDefinitions readHistDefinitions(const edm::ParameterSet &ps) {
+HistDefinitions
+readHistDefinitions(const edm::ParameterSet &ps,
+                    const std::map<std::string, unsigned int> &mapping) {
   HistDefinitions definitions;
   std::vector<std::string> names = ps.getParameterNames();
-  for(auto name: names){
-    const edm::ParameterSet &hd(ps.getParameter<edm::ParameterSet>(name));
-    definitions[name] = HistDefinition(hd);
+  std::vector<unsigned int> map_values;
+
+  for (auto const &imap : mapping) {
+    map_values.push_back(imap.second);
+  }
+  unsigned int max_size = *std::max_element(map_values.begin(), map_values.end());
+  max_size = std::max(max_size, (unsigned int) mapping.size());
+  definitions.resize(max_size);
+
+  for (auto name : names) {
+    if (mapping.find(name) != mapping.end()) {
+      const edm::ParameterSet &hd(ps.getParameter<edm::ParameterSet>(name));
+      definitions[mapping.at(name)] = HistDefinition(hd);
+    } else {
+      edm::LogError("HistDefinition::readHistDefinitions")
+          << "Could not find histogram definition for '" << name << "'"
+          << std::endl;
+    }
   }
   return definitions;
 }
-
 }
 }
