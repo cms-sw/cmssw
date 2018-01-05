@@ -80,6 +80,12 @@ public:
 
   typedef std::map<L1TStage2CaloLayer2Offline::ControlPlots, MonitorElement*> ControlPlotMap;
 
+  enum PlotConfig {
+    nVertex
+  };
+
+  static const std::map<std::string, unsigned int> PlotConfigNames;
+
 protected:
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

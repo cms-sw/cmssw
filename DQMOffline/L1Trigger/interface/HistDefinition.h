@@ -1,17 +1,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <string>
+#include <vector>
 
 namespace dqmoffline {
 namespace l1t {
 
 class HistDefinition;
-typedef std::map<std::string, HistDefinition> HistDefinitions;
+typedef std::vector<HistDefinition> HistDefinitions;
 
 class HistDefinition {
 public:
   HistDefinition();
   HistDefinition(const edm::ParameterSet &ps);
   ~HistDefinition();
-  static HistDefinitions readHistDefinitions(const edm::ParameterSet &ps);
+  // static HistDefinitions readHistDefinitions(const edm::ParameterSet &ps,
+  // std::map<std::string, unsigned int>);
 
   std::string name;
   std::string title;
@@ -25,8 +28,9 @@ public:
   std::vector<double> binsY;
 };
 
-HistDefinitions readHistDefinitions(const edm::ParameterSet &ps);
+HistDefinitions
+readHistDefinitions(const edm::ParameterSet &ps,
+                    const std::map<std::string, unsigned int> &mapping);
 
-
-} //end l1t
-} //end dqmoffline
+} // end l1t
+} // end dqmoffline

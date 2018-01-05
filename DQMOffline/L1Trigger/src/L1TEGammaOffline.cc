@@ -17,6 +17,11 @@
 #include <cmath>
 #include <algorithm>
 
+
+const std::map<std::string, unsigned int> L1TEGammaOffline::PlotConfigNames = {
+  {"nVertex", PlotConfig::nVertex}
+};
+
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
@@ -44,7 +49,7 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
         tagElectron_(),
         probeElectron_(),
         tagAndProbleInvariantMass_(-1.),
-        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions")))
+        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames))
 {
   edm::LogInfo("L1TEGammaOffline") << "Constructor " << "L1TEGammaOffline::L1TEGammaOffline " << std::endl;
 }
@@ -512,7 +517,7 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
 
-  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_["nVertex"];
+  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
   h_nVertex_ = ibooker.book1D(
     nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
   );

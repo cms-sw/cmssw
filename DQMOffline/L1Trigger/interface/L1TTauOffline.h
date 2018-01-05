@@ -86,6 +86,12 @@ public:
   L1TTauOffline(const edm::ParameterSet& ps);
   ~L1TTauOffline() override;
 
+  enum PlotConfig {
+    nVertex
+  };
+
+  static const std::map<std::string, unsigned int> PlotConfigNames;
+
 protected:
 
   void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;

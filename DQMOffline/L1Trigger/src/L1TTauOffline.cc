@@ -41,6 +41,9 @@ double TauL1TPair::dR() {
   return deltaR(m_regTau->eta(),m_regTau->phi(),eta(),phi());
 }
 
+const std::map<std::string, unsigned int> L1TTauOffline::PlotConfigNames = {
+  {"nVertex", PlotConfig::nVertex}
+};
 
 //
 // -------------------------------------- Constructor --------------------------------------------
@@ -64,7 +67,7 @@ L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps) :
         stage2CaloLayer2TauToken_(consumes < l1t::TauBxCollection > (ps.getUntrackedParameter < edm::InputTag > ("l1tInputTag"))),
         tauEfficiencyThresholds_(ps.getParameter < std::vector<int> > ("tauEfficiencyThresholds")),
         tauEfficiencyBins_(ps.getParameter < std::vector<double> > ("tauEfficiencyBins")),
-  histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions")))
+  histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames))
 {
   edm::LogInfo("L1TTauOffline") << "Constructor " << "L1TTauOffline::L1TTauOffline " << std::endl;
 }
@@ -316,7 +319,7 @@ void L1TTauOffline::bookTauHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
-  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_["nVertex"];
+  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
   h_nVertex_ = ibooker.book1D(
     nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
   );
