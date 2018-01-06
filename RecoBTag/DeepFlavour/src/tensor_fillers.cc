@@ -42,13 +42,12 @@ namespace btagbtvdeep {
                          std::size_t jet_n,
                          const btagbtvdeep::DeepDoubleBFeatures & features) {
 
-    float* ptr = &tensor.matrix<float>()(jet_n, 0);
+    float* ptr = &tensor.tensor<float, 3>()(jet_n, 0, 0);
 
-    // number of elements in different collections
-    *ptr = features.c_pf_features.size();
-    *(++ptr) = features.sv_features.size();
     // variables from BoostedDoubleSVTagInfo
     const auto & tag_info_features = features.tag_info_features;
+    *ptr = tag_info_features.jetNTracks;
+    *(++ptr) = tag_info_features.jetNSecondaryVertices;
     *(++ptr) = tag_info_features.trackSip3dSig_0; 
     *(++ptr) = tag_info_features.trackSip3dSig_1; 
     *(++ptr) = tag_info_features.trackSip3dSig_2; 
@@ -73,7 +72,8 @@ namespace btagbtvdeep {
     *(++ptr) = tag_info_features.tau2_vertexEnergyRatio; 
     *(++ptr) = tag_info_features.tau2_flightDistance2dSig; 
     *(++ptr) = tag_info_features.tau2_vertexDeltaR; 
-    *(++ptr) = tag_info_features.z_ratio; 
+    *(++ptr) = tag_info_features.z_ratio;
+    std::cout << "jetNTracks = " << tag_info_features.jetNTracks << ", jetNSecondaryVertices = " << tag_info_features.jetNSecondaryVertices << std::endl;
   }
 
   void c_pf_tensor_filler(tensorflow::Tensor & tensor,
@@ -101,6 +101,25 @@ namespace btagbtvdeep {
     *(++ptr) = c_pf_features.quality;
 
   }
+  
+  void c_pf_reduced_tensor_filler(tensorflow::Tensor & tensor,
+                          std::size_t jet_n,
+                          std::size_t c_pf_n,
+                          const btagbtvdeep::ChargedCandidateFeatures & c_pf_features) {
+
+    float* ptr = &tensor.tensor<float, 3>()(jet_n, c_pf_n, 0);
+
+    *ptr     = c_pf_features.btagPf_trackEtaRel;
+    *(++ptr) = c_pf_features.btagPf_trackPtRel;
+    *(++ptr) = c_pf_features.btagPf_trackPParRatio;
+    *(++ptr) = c_pf_features.btagPf_trackSip2dVal;
+    *(++ptr) = c_pf_features.btagPf_trackSip2dSig;
+    *(++ptr) = c_pf_features.btagPf_trackSip3dVal;
+    *(++ptr) = c_pf_features.btagPf_trackSip3dSig;
+    *(++ptr) = c_pf_features.btagPf_trackJetDistVal;
+
+  }
+
 
   void n_pf_tensor_filler(tensorflow::Tensor & tensor,
                           std::size_t jet_n,
@@ -117,7 +136,8 @@ namespace btagbtvdeep {
     *(++ptr) = n_pf_features.puppiw;
 
   }
-
+  
+  
   void sv_tensor_filler(tensorflow::Tensor & tensor,
                           std::size_t jet_n,
                           std::size_t sv_n,
@@ -137,6 +157,19 @@ namespace btagbtvdeep {
     *(++ptr) = sv_features.d3dsig;
     *(++ptr) = sv_features.costhetasvpv;
     *(++ptr) = sv_features.enratio;
+
+  }
+
+  
+  void sv_reduced_tensor_filler(tensorflow::Tensor & tensor,
+                          std::size_t jet_n,
+                          std::size_t sv_n,
+                          const btagbtvdeep::SecondaryVertexFeatures & sv_features) {
+
+    float* ptr = &tensor.tensor<float, 3>()(jet_n, sv_n, 0);
+
+    *ptr     = sv_features.d3d;
+    *(++ptr) = sv_features.d3dsig;
 
   }
 
