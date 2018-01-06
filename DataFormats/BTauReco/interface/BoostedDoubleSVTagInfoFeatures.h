@@ -6,7 +6,8 @@ namespace btagbtvdeep {
 class BoostedDoubleSVTagInfoFeatures {
 
   public:
-
+    float jetNTracks; // tracks associated to jet
+    float jetNSecondaryVertices; // number of reconstructed possible secondary vertices in jet
     float trackSip3dSig_0; // 1st largest track 3D signed impact parameter significance
     float trackSip3dSig_1; // 2nd largest track 3D signed impact parameter significance
     float trackSip3dSig_2; // 3rd largest track 3D signed impact parameter significance

@@ -10,6 +10,8 @@ namespace btagbtvdeep {
       void DoubleBTagToFeatures(const reco::TaggingVariableList & tag_info_vars,
                                  BoostedDoubleSVTagInfoFeatures & tag_info_features) {
     
+	tag_info_features.jetNTracks = tag_info_vars.get(reco::btau::jetNTracks, -999);
+	tag_info_features.jetNSecondaryVertices = tag_info_vars.get(reco::btau::jetNSecondaryVertices, -999);
 	tag_info_features.trackSip3dSig_0 = tag_info_vars.get(reco::btau::trackSip3dSig_0, -999);
 	tag_info_features.trackSip3dSig_1 = tag_info_vars.get(reco::btau::trackSip3dSig_1, -999);
 	tag_info_features.trackSip3dSig_2 = tag_info_vars.get(reco::btau::trackSip3dSig_2, -999);
