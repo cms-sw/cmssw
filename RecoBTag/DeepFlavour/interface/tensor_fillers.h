@@ -31,6 +31,12 @@ namespace btagbtvdeep {
                           std::size_t c_pf_n,
                           const btagbtvdeep::ChargedCandidateFeatures & c_pf_features);
 
+  
+  void c_pf_reduced_tensor_filler(tensorflow::Tensor & tensor,
+                          std::size_t jet_n,
+                          std::size_t c_pf_n,
+                          const btagbtvdeep::ChargedCandidateFeatures & c_pf_features);
+
 
   void n_pf_tensor_filler(tensorflow::Tensor & tensor,
                           std::size_t jet_n,
@@ -43,6 +49,11 @@ namespace btagbtvdeep {
                           std::size_t sv_n,
                           const btagbtvdeep::SecondaryVertexFeatures & sv_features) ;
 
+  
+  void sv_reduced_tensor_filler(tensorflow::Tensor & tensor,
+                          std::size_t jet_n,
+                          std::size_t sv_n,
+                          const btagbtvdeep::SecondaryVertexFeatures & sv_features) ;
 
 }
 

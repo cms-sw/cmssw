@@ -135,7 +135,7 @@ void DeepDoubleBTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::FileInPath>("graph_path",
     edm::FileInPath("RecoBTag/Combined/data/DeepDoubleBV00/constant_graph.pb"));
   desc.add<std::vector<std::string>>("lp_names",
-    { "globals_input_batchnorm/keras_learning_phase" });
+    { "db_input_batchnorm/keras_learning_phase" });
   desc.add<std::vector<std::string>>("output_names",
     { "ID_pred/Softmax" });
   {
@@ -157,7 +157,8 @@ std::unique_ptr<DeepDoubleBTFCache> DeepDoubleBTFJetTagsProducer::initializeGlob
   const edm::ParameterSet& iConfig)
 {
   // set the tensorflow log level to error
-  tensorflow::setLogging("3");
+  //tensorflow::setLogging("3");
+  tensorflow::setLogging("0");
 
   // get the pb file
   std::string pbFile = iConfig.getParameter<edm::FileInPath>("graph_path").fullPath();
@@ -199,7 +200,7 @@ void DeepDoubleBTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
   const int64_t n_batch_jets = batch_eval_ ?  n_jets : 1;
 
   std::vector<tensorflow::TensorShape> input_sizes {
-    {n_batch_jets, 27},         // input_1 - global double-b features
+    {n_batch_jets, 1, 27},     // input_1 - global double-b features
     {n_batch_jets, 60, 8},     // input_2 - charged pf
     {n_batch_jets, 5, 2},      // input_3 - vertices 
   };
@@ -239,28 +240,40 @@ void DeepDoubleBTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
       const auto & features = tag_infos->at(jet_n).features();
       db_tensor_filler(input_tensors.at(kGlobal).second, jet_bn, features);
 
+      std::cout << "db tensor" << std::endl;
+      std::cout<< (input_tensors.at(kGlobal).second).tensor<float, (3)>() << std::endl;
+        
       // c_pf candidates
       auto max_c_pf_n = std::min(features.c_pf_features.size(),
         (std::size_t) input_sizes.at(kChargedCandidates).dim_size(1));
       for (std::size_t c_pf_n=0; c_pf_n < max_c_pf_n; c_pf_n++) {
         const auto & c_pf_features = features.c_pf_features.at(c_pf_n);
-        c_pf_tensor_filler(input_tensors.at(kChargedCandidates).second,
+        c_pf_reduced_tensor_filler(input_tensors.at(kChargedCandidates).second,
                            jet_bn, c_pf_n, c_pf_features);
       }
 
+      std::cout << "c_pf tensor" << std::endl;
+      std::cout<< (input_tensors.at(kChargedCandidates).second).tensor<float, (3)>() << std::endl;
+        
       // sv candidates
       auto max_sv_n = std::min(features.sv_features.size(),
         (std::size_t) input_sizes.at(kVertices).dim_size(1));
       for (std::size_t sv_n=0; sv_n < max_sv_n; sv_n++) {
         const auto & sv_features = features.sv_features.at(sv_n);
-        sv_tensor_filler(input_tensors.at(kVertices).second,
+        sv_reduced_tensor_filler(input_tensors.at(kVertices).second,
                          jet_bn, sv_n, sv_features);
       }
     }
+    
+    std::cout << "sv tensor" << std::endl;
+    std::cout<< (input_tensors.at(kVertices).second).tensor<float, (3)>() << std::endl;
 
     // run the session
     std::vector<tensorflow::Tensor> outputs;
     tensorflow::run(session_, input_tensors, output_names_, &outputs);
+    
+    std::cout << "output tensor" << std::endl;
+    std::cout<< outputs.at(kJetFlavour).matrix<float>() << std::endl;
 
     // set output values for flavour probs
     for (std::size_t jet_bn=0; jet_bn < (std::size_t) n_batch_jets; jet_bn++) {
@@ -276,12 +289,15 @@ void DeepDoubleBTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
           o_sum += outputs.at(kJetFlavour).matrix<float>()(jet_bn, ind);
         }
         (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
+        std::cout << "flav_n = " << flav_n << ", o_sum = " << o_sum << std::endl;
       }
     }
   }
 
   for (std::size_t i=0; i < flav_pairs_.size(); i++) {
+    std::cout << "before iEvent.put(), i = " << i << std::endl;
     iEvent.put(std::move(output_tags[i]), flav_pairs_.at(i).first);
+    std::cout << "after iEvent.put(), i = " << i << std::endl;
   }
 
 }
