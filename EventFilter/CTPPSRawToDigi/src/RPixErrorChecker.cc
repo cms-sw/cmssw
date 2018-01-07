@@ -151,11 +151,11 @@ bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, Wor
  if(includeErrors) {
    // check to see if overflow error for type 30, change type to 40 if so
    if(errorType==30) {
-     int StateMach_bits      = 4;
-     int StateMach_shift     = 8;
-     uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
-     int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
-     if( StateMach==4 || StateMach==9 ) errorType = 40;
+     int stateMach_bits      = 4;
+     int stateMach_shift     = 8;
+     uint32_t stateMach_mask = ~(~uint32_t(0) << stateMach_bits);
+     int stateMach = (errorWord >> stateMach_shift) & stateMach_mask;
+     if( stateMach==4 || stateMach==9 ) errorType = 40;
    }
 
    // store error
