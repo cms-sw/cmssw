@@ -31,7 +31,7 @@ public:
   // movable
   ConcurrentMonitorElement(ConcurrentMonitorElement && other)
   {
-    std::lock_guard<std::mutex>(other.lock_);
+    std::lock_guard<std::mutex> guard(other.lock_);
     me_ = other.me_;
     other.me_ = nullptr;
   }
