@@ -50,7 +50,7 @@ CaloSubdetectorGeometry::getGeometry( const DetId& id ) const
 
 bool 
 CaloSubdetectorGeometry::present( const DetId& id ) const {
-  return !(std::find(m_validIds.begin(),m_validIds.end(),id)==m_validIds.end());
+  return std::find(m_validIds.begin(),m_validIds.end(),id)!=m_validIds.end();
 }
 
 DetId 

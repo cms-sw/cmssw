@@ -76,7 +76,7 @@ CaloTowerGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
 
   edm::ESHandle<CaloGeometry> caloGeomHandle;
   iSetup.get<CaloGeometryRecord>().get(caloGeomHandle);
-  const CaloGeometry* caloGeom = (caloGeomHandle.product());
+  const CaloGeometry* caloGeom = caloGeomHandle.product();
 
   const std::vector<DetId>& dha( caloGeom->getSubdetectorGeometry( DetId::Hcal, 1 )->getValidDetIds());
 
