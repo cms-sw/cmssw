@@ -40,6 +40,21 @@ process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver)
 
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
 
+# remove unneeded unpackers
+process.RawToDigi.remove(process.ecalPreshowerDigis)
+process.RawToDigi.remove(process.muonCSCDigis)
+process.RawToDigi.remove(process.muonDTDigis)
+process.RawToDigi.remove(process.muonRPCDigis)
+process.RawToDigi.remove(process.siPixelDigis)
+process.RawToDigi.remove(process.siStripDigis)
+process.RawToDigi.remove(process.castorDigis)
+process.RawToDigi.remove(process.scalersRawToDigi)
+process.RawToDigi.remove(process.tcdsDigis)
+process.RawToDigi.remove(process.totemTriggerRawToDigi)
+process.RawToDigi.remove(process.totemRPRawToDigi)
+process.RawToDigi.remove(process.ctppsDiamondRawToDigi)
+process.RawToDigi.remove(process.ctppsPixelDigis)
+
 process.rawToDigiPath = cms.Path(process.RawToDigi)
 
 #--------------------------------------------------
