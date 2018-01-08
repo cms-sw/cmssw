@@ -1,5 +1,4 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include <algorithm>
 #include <iostream>
