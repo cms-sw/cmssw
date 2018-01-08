@@ -4,22 +4,12 @@ namespace l1tVertexFinder {
 
   RecoVertexWithTP::RecoVertexWithTP(
     RecoVertex & vertex,
-    std::vector<L1fittedTrack> l1Tracks)
+    std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *> trackAssociationMap)
   {
     z0_ = -999.;
     pT_ = -9999.;
     met_ = -999.;
 
-    // create a map for associating fat reco tracks with their underlying
-    // TTTrack pointers
-    // std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, L1fittedTrack> trackAssociationMap;
-    std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *> trackAssociationMap;
-
-    // unsigned int index = 0;
-    // get a list of reconstructed tracks with references to their TPs
-    for (const auto & trackIt: l1Tracks) {
-      trackAssociationMap.insert(std::pair<const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *>(trackIt.getTTTrackPtr(), &trackIt));
-    }
 
     // loop over base fitted tracks in reco vertex and find the corresponding TP
     // track using the TTTrack - L1fittedTrack map from above

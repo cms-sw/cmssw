@@ -239,12 +239,24 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
 
   // noEvents++;
   const Vertex&     TruePrimaryVertex = inputData.getPrimaryVertex();
+
+  // create a map for associating fat reco tracks with their underlying
+  // TTTrack pointers
+  // std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, L1fittedTrack> trackAssociationMap;
+  std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *> trackAssociationMap;
+
+  // unsigned int index = 0;
+  // get a list of reconstructed tracks with references to their TPs
+  for (const auto & trackIt: l1Tracks) {
+    trackAssociationMap.insert(std::pair<const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *>(trackIt.getTTTrackPtr(), &trackIt));
+  }
+
   // Associate true primary vertex with the closest reconstructed vertex
   RecoVertex RecoPrimaryVertexBase = vf.PrimaryVertex();
   RecoVertex TDRVertexBase         = vf.TDRPrimaryVertex();
 
-  const RecoVertexWithTP * RecoPrimaryVertex = new RecoVertexWithTP(RecoPrimaryVertexBase, l1Tracks);
-  const RecoVertexWithTP * TDRVertex = new RecoVertexWithTP(TDRVertexBase, l1Tracks);
+  const RecoVertexWithTP * RecoPrimaryVertex = new RecoVertexWithTP(RecoPrimaryVertexBase, trackAssociationMap);
+  const RecoVertexWithTP * TDRVertex = new RecoVertexWithTP(TDRVertexBase, trackAssociationMap);
 
   hisGenVertexPt_->Fill(inputData.GenPt());
   hisGenTkVertexPt_->Fill(TruePrimaryVertex.pT());
@@ -346,7 +358,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
 
     if(settings_->debug() == 7 and METres > 0.2){
       cout << "** RECO TRACKS in PV**" << endl;
-      for(const L1fittedTrack* track : (const std::vector<const L1fittedTrack*>&) RecoPrimaryVertex->tracks() ){
+      for(const L1fittedTrack* track : RecoPrimaryVertex->tracks() ){
         if(track->getMatchedTP() != nullptr) cout << "matched TP "<< track->getMatchedTP()->index() ;
         cout << " pT "<< track->pt() << " phi0 "<< track->phi0() << " z0 "<< track->z0() << endl;
       }
@@ -430,7 +442,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
   }
 
   if(settings_->debug() == 7){
-    for(const L1fittedTrack* l1track :(const std::vector<const L1fittedTrack*>&) RecoPrimaryVertex->tracks()){
+    for(const L1fittedTrack* l1track : RecoPrimaryVertex->tracks()){
       if(l1track->getMatchedTP() == nullptr){
         cout << "FAKE track assigned to PV. Track z0: "<< l1track->z0() << " track pT "<< l1track->pt() << " chi2/ndof " << l1track->chi2dof() << " numstubs "<< l1track->getNumStubs() << endl;
       } else if(l1track->getMatchedTP()->physicsCollision() == 0){
@@ -506,17 +518,19 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
   for(const TP& tp : TruePrimaryVertex.tracks()){
     bool found = false;
     // cout << tp.index() << " "<< endl;
-    for(const L1fittedTrack* l1track : (const std::vector<const L1fittedTrack*>&) RecoPrimaryVertex->tracks()){
+    for(const L1fittedTrack* l1track : RecoPrimaryVertex->tracks()){
       if(l1track->getMatchedTP()!= nullptr){
         if(tp.index() == l1track->getMatchedTP()->index() ) {
           found = true;
           break;
         }
-      } 
+      }
     }
+
     if(!found){
       bool TrackIsReconstructed = false;
-      for(const L1fittedTrack* l1track: (const std::vector<const L1fittedTrack*> &) vf.FitTracks()){
+      for(const L1fittedTrackBase* l1trackIt: vf.FitTracks()){
+	const L1fittedTrack * l1track = trackAssociationMap[l1trackIt->getTTTrackPtr()];
         if(l1track->getMatchedTP()!= nullptr){
           if(tp.index() == l1track->getMatchedTP()->index() ){
             TrackIsReconstructed = true;
@@ -527,31 +541,30 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
             hisUnmatchTrueEta_->Fill(tp.eta());
 
             double mindistance = 999.;
-            for(const L1fittedTrack* vertexTrack :(const std::vector<const L1fittedTrack*>&) RecoPrimaryVertex->tracks()){
+            for(const L1fittedTrack* vertexTrack : RecoPrimaryVertex->tracks()){
               if( fabs(vertexTrack->z0()-l1track->z0()) < mindistance ) mindistance = fabs(vertexTrack->z0()-l1track->z0());
             }
             hisUnmatchZ0MinDistance_->Fill(mindistance);
-            
+
             if(settings_->debug()>5){
               cout << "PV Track assigned to wrong vertex. Track z0: "<< l1track->z0() << " PV z0: "<< RecoPrimaryVertex->z0() << " tp z0 "<< tp.z0() << " track pT "<< l1track->pt() << " tp pT "<< tp.pt() << " tp d0 "<< tp.d0() << " track eta "<< l1track->eta() << endl;
             }
-            break;  
+            break;
           }
         }
       }
-      
+
       if(!TrackIsReconstructed){
         lostTracks++;
       } else{
         misassignedTracks++;
       }
     }
-    
-    
-    
+
     found = false;
 
-    for(const L1fittedTrack* l1track : (const std::vector<const L1fittedTrack*>&) TDRVertex->tracks()){
+    for(const L1fittedTrackBase* l1trackIt : TDRVertex->tracks()){
+      const L1fittedTrack * l1track = trackAssociationMap[l1trackIt->getTTTrackPtr()];
       if(l1track->getMatchedTP()!= nullptr){
         // cout << l1track->getMatchedTP()->index() << " ";
         if(tp.index() == l1track->getMatchedTP()->index() ) {
@@ -562,7 +575,8 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
     }
 
     if(!found){
-      for(const L1fittedTrack* l1track: (const std::vector<const L1fittedTrack*> &) vf.FitTracks()){
+      for(const L1fittedTrackBase* l1trackIt: vf.FitTracks()){
+	const L1fittedTrack * l1track = trackAssociationMap[l1trackIt->getTTTrackPtr()];
         if(l1track->getMatchedTP()!= nullptr){
           if(tp.index() == l1track->getMatchedTP()->index() ){
             hisTDRUnmatchZ0distance_->Fill(fabs(l1track->z0()-TDRVertex->z0()));
@@ -572,12 +586,12 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
             hisTDRUnmatchTrueEta_->Fill(tp.eta());
             misassignedTracks_tdr++;
             double mindistance = 999.;
-            for(const L1fittedTrack* vertexTrack : (const std::vector<const L1fittedTrack*>&) TDRVertex->tracks()){
+            for(const L1fittedTrackBase* vertexTrack : TDRVertex->tracks()){
               if( fabs(vertexTrack->z0()-l1track->z0()) < mindistance ) mindistance = fabs(vertexTrack->z0()-l1track->z0());
             }
             hisTDRUnmatchZ0MinDistance_->Fill(mindistance);
-            
-            break;  
+
+            break;
           }
         }
       }

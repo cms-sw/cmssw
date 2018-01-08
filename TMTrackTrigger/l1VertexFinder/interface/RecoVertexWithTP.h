@@ -17,7 +17,7 @@ class RecoVertexWithTP {
 
 public:
   // Fill useful info about tracking particle.
-  RecoVertexWithTP(RecoVertex & vertex, std::vector<L1fittedTrack> l1Tracks);
+  RecoVertexWithTP(RecoVertex & vertex, std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *> trackAssociationMap);
   ~RecoVertexWithTP(){}
 
   /// Tracking Particles in vertex    
