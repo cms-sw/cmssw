@@ -114,7 +114,12 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 		kEvent
 	};
 
-        void reset() { headerOk = false; weightsinevent.clear();}
+        void reset() { 
+          headerOk = false; 
+          weightsinevent.clear();
+          gotObject = kNone;
+          mode = kNone;
+        }
 
         const wgt_info& weightInfo() const {return weightsinevent;}
 
@@ -486,6 +491,11 @@ LHEReader::~LHEReader()
   {
     while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.empty() && strName != "" ) ) {
       if (!curDoc.get()) {
+        if(!platform) {
+          //If we read multiple files, the XercesPlatform must live longer than any one
+          // XMLDocument.
+          platform = XMLDocument::platformHandle();
+        }
         if ( !fileURLs.empty() ) {
           logFileAction("  Initiating request to open LHE file ", fileURLs[curIndex]);
           curSource.reset(new FileSource(fileURLs[curIndex]));
