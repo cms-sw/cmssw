@@ -24,7 +24,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theHcalThreshold(-1000.),
    theHBthreshold(-1000.),
    theHESthreshold(-1000.),
+   theHESthreshold1(-1000.),
    theHEDthreshold(-1000.),
+   theHEDthreshold1(-1000.),
    theHOthreshold0(-1000.),  
    theHOthresholdPlus1(-1000.),   
    theHOthresholdMinus1(-1000.),  
@@ -96,7 +98,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 					       bool useSymEETreshold,				    
 
 					       double HcalThreshold,
-					       double HBthreshold, double HESthreshold, double  HEDthreshold,
+					       double HBthreshold, 
+                                               double HESthreshold, double HESthreshold1, 
+                                               double HEDthreshold, double HEDthreshold1,
 					       double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
 					       double HOthresholdPlus2, double HOthresholdMinus2, 
 					       double HF1threshold, double HF2threshold,
@@ -124,7 +128,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theHcalThreshold(HcalThreshold),
     theHBthreshold(HBthreshold),
     theHESthreshold(HESthreshold),
+    theHESthreshold1(HESthreshold1),
     theHEDthreshold(HEDthreshold),
+    theHEDthreshold1(HEDthreshold1),
     theHOthreshold0(HOthreshold0), 
     theHOthresholdPlus1(HOthresholdPlus1),
     theHOthresholdMinus1(HOthresholdMinus1),
@@ -195,7 +201,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
        bool useSymEETreshold,
 
        double HcalThreshold,
-       double HBthreshold, double HESthreshold, double  HEDthreshold,
+       double HBthreshold, 
+       double HESthreshold, double HESthreshold1, 
+       double HEDthreshold, double HEDthreshold1,
        double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
        double HOthresholdPlus2, double HOthresholdMinus2,  
        double HF1threshold, double HF2threshold,
@@ -231,7 +239,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theHcalThreshold(HcalThreshold),
     theHBthreshold(HBthreshold),
     theHESthreshold(HESthreshold),
+    theHESthreshold1(HESthreshold1),
     theHEDthreshold(HEDthreshold),
+    theHEDthreshold1(HEDthreshold1),
     theHOthreshold0(HOthreshold0), 
     theHOthresholdPlus1(HOthresholdPlus1),
     theHOthresholdMinus1(HOthresholdMinus1),
@@ -1218,7 +1228,8 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
   else if(det == DetId::Hcal) {
     HcalDetId hcalDetId(detId);
     HcalSubdetector subdet = hcalDetId.subdet();
-    
+    int depth =  hcalDetId.depth();   
+
     if(subdet == HcalBarrel) {
       threshold = theHBthreshold;
       weight = theHBweight;
@@ -1231,15 +1242,15 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
     else if(subdet == HcalEndcap) {
       // check if it's single or double tower
       if(hcalDetId.ietaAbs() < theHcalTopology->firstHEDoublePhiRing()) {
-        threshold = theHESthreshold;
+        threshold = (depth == 1) ? theHESthreshold1 : theHESthreshold;
         weight = theHESweight;
         if (weight <= 0.) {
           ROOT::Math::Interpolator my(theHESGrid,theHESWeights,ROOT::Math::Interpolation::kAKIMA);
           weight = my.Eval(theHESEScale);
         }
       }
-      else {
-        threshold = theHEDthreshold;
+      else {        
+        threshold = (depth == 1) ? theHEDthreshold1 : theHEDthreshold;
         weight = theHEDweight;
         if (weight <= 0.) {
           ROOT::Math::Interpolator my(theHEDGrid,theHEDWeights,ROOT::Math::Interpolation::kAKIMA);
