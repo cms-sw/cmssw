@@ -77,6 +77,7 @@ private:
   ContentsYRange * yrange_test;  // contents within y-range test
   DeadChannel * deadChan_test;  // check against dead channels
   NoisyChannel * noisyChan_test;  // check against noisy channels
+  ContentSigma * contentSigma_test; // compare using sigma 
   Comp2RefEqualH * equalH_test; // equality test for histograms
   MeanWithinExpected * meanNear_test; // mean-within-expected test
   // MostProbableLandau *poMPLandau_test_;
@@ -168,22 +169,22 @@ DQMStoreQTestsExample::DQMStoreQTestsExample(const edm::ParameterSet& iConfig ) 
   noisyChan_test->setNumNeighbors(2);
   // use RMS of distribution to judge if mean near expected value
 
-    contentSigma_test->setToleranceNoisy(1);
-    contentSigma_test->setToleranceDead(1);
-    // set # of neighboring channels for calculating average (default: 1)
-    contentSigma_test->setNumXblocks(1);
-    contentSigma_test->setNumYblocks(1);
-    contentSigma_test->setNumNeighborsX(1);
-    contentSigma_test->setNumNeighborsY(1);
-    // declare whether to test for noisy or dead bins
-    contentSigma_test->setNoisy(1);
-    contentSigma_test->setDead(1);
-    // specify area of histogram to be analyzed
-    contentSigma_test->setXMin(1);
-    contentSigma_test->setXMax(500);
-    contentSigma_test->setYMin(1);
-    contentSigma_test->setYMax(500); 
-
+  contentSigma_test->setToleranceNoisy(1);
+  contentSigma_test->setToleranceDead(1);
+  // set # of neighboring channels for calculating average (default: 1)
+  contentSigma_test->setNumXblocks(1);
+  contentSigma_test->setNumYblocks(1);
+  contentSigma_test->setNumNeighborsX(1);
+  contentSigma_test->setNumNeighborsY(1);
+  // declare whether to test for noisy or dead bins
+  contentSigma_test->setNoisy(1);
+  contentSigma_test->setDead(1);
+  // specify area of histogram to be analyzed
+  contentSigma_test->setXMin(1);
+  contentSigma_test->setXMax(500);
+  contentSigma_test->setYMin(1);
+  contentSigma_test->setYMax(500); 
+  
   meanNear_test->useRMS();
   // Setup MostProbableLandau
   //poMPLandau_test_->setXMin( 0.1 * XMIN);
