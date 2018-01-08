@@ -20,7 +20,7 @@ CTPPSPixelDataError::CTPPSPixelDataError(uint64_t errorWord64, const int errorTy
   setMessage();
 }
 
-CTPPSPixelDataError::~CTPPSPixelDataError() {}
+CTPPSPixelDataError::~CTPPSPixelDataError() = default;
 
 void CTPPSPixelDataError::setWord32(uint32_t errorWord32) {
   errorWord32_ = errorWord32;
