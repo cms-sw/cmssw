@@ -639,7 +639,7 @@ namespace spr{
 
   std::pair<DetId,bool> propagateIdECAL(const HcalDetId& id, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
 
-    const HcalGeometry* gHB = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    const HcalGeometry* gHB = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
     const GlobalPoint vertex(0,0,0);
     const GlobalPoint hit(gHB->getPosition(id));
     const GlobalVector momentum = GlobalVector(hit.x(),hit.y(),hit.z());
