@@ -3,9 +3,9 @@
 
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/ptr_container/ptr_deque.hpp>
+#include <deque>
 
+#include <boost/shared_ptr.hpp>
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "GeneratorInterface/LHEInterface/plugins/LHEProvenanceHelper.h"
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
@@ -50,14 +50,14 @@ private:
 
   void nextEvent();
 
-  std::auto_ptr<lhef::LHEReader>		reader;
+  std::unique_ptr<lhef::LHEReader>      reader_;
 
-  boost::shared_ptr<lhef::LHERunInfo>	runInfoLast;
-  boost::shared_ptr<lhef::LHERunInfo>	runInfo;
-  boost::shared_ptr<lhef::LHEEvent>	partonLevel;
+  boost::shared_ptr<lhef::LHERunInfo>	runInfoLast_;
+  boost::shared_ptr<lhef::LHERunInfo>	runInfo_;
+  boost::shared_ptr<lhef::LHEEvent>	partonLevel_;
 
-  boost::ptr_deque<LHERunInfoProduct>	runInfoProducts;
-  bool					wasMerged;
+  std::deque<std::unique_ptr<LHERunInfoProduct>>	runInfoProducts_;
+  bool					wasMerged_;
   edm::LHEProvenanceHelper		lheProvenanceHelper_;
   edm::ProcessHistoryID			phid_;
   edm::RunPrincipal*	                runPrincipal_;
