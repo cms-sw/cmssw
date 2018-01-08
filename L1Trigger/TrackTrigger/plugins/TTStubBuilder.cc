@@ -162,6 +162,17 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
         /// Get the stub
         const TTStub< Ref_Phase2TrackerDigi_ >& tempTTStub = tempOutput[iTempStub];
 
+	// A temporary stub, for FE problems
+	TTStub< Ref_Phase2TrackerDigi_ > tempTTStub2( tempTTStub.getDetId() );
+	
+	tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(0)) );
+	tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(1)) );
+	tempTTStub2.setTriggerDisplacement( 2.*tempTTStub.getTriggerDisplacement() ); 
+	tempTTStub2.setTriggerOffset( 2.*tempTTStub.getTriggerOffset() ); 
+	tempTTStub2.setRealTriggerOffset( 2.*tempTTStub.getRealTriggerOffset() );
+	tempTTStub2.setHardwareBend( tempTTStub.getHardwareBend() );
+
+
         /// Put in the output
         if ( !applyFE ) // No dynamic inefficiencies (DEFAULT)
         {
@@ -232,15 +243,9 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 
 	  if (FEreject) 
 	  {
-	    TTStub< Ref_Phase2TrackerDigi_ > tempTTStub2( tempTTStub.getDetId() );
-
-	    tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(0)) );
-	    tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(1)) );
-	    
 	    tempTTStub2.setTriggerDisplacement( 500+2.*tempTTStub.getTriggerDisplacement() ); 
 	    tempTTStub2.setTriggerOffset( 500+2.*tempTTStub.getTriggerOffset() ); 
 	    tempTTStub2.setRealTriggerOffset( 500+2.*tempTTStub.getRealTriggerOffset() );
-	    tempTTStub2.setHardwareBend( tempTTStub.getHardwareBend() );
 	    
 	    tempInner.push_back( *(tempTTStub2.getClusterRef(0)) );
 	    tempOuter.push_back( *(tempTTStub2.getClusterRef(1)) );
@@ -301,17 +306,11 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 	      }
 
 	      if (CIC_reject) // The stub added does not pass the cut
-	      {
-		TTStub< Ref_Phase2TrackerDigi_ > tempTTStub2( tempTTStub.getDetId() );
-	      
-		tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(0)) );
-		tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(1)) );
-	      
+	      {	      
 		tempTTStub2.setTriggerDisplacement( 1000+2.*tempTTStub.getTriggerDisplacement() ); 
 		tempTTStub2.setTriggerOffset( 1000+2.*tempTTStub.getTriggerOffset() ); 
 	     	tempTTStub2.setRealTriggerOffset( 1000+2.*tempTTStub.getRealTriggerOffset() );
-		tempTTStub2.setHardwareBend( tempTTStub.getHardwareBend() );
-
+	
 		tempInner.push_back( *(tempTTStub2.getClusterRef(0)) );
 		tempOuter.push_back( *(tempTTStub2.getClusterRef(1)) );
 		tempAccepted.push_back( tempTTStub2 );
