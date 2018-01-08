@@ -14,16 +14,14 @@
 
 namespace l1tVertexFinder {
 
-typedef std::vector<const L1fittedTrackBase*> FitTrackCollectionBase;
-typedef std::vector<const L1fittedTrack*> FitTrackCollection;
+typedef std::vector<const L1fittedTrackBase*> FitTrackCollection;
 typedef std::vector<RecoVertex> RecoVertexCollection;
 
 class VertexFinder {
 
 public:
   // Copy fitted tracks collection into class
-  VertexFinder(FitTrackCollectionBase fitTracks, Settings* settings){fitTracks_ = fitTracks; settings_ = settings;}
-  VertexFinder(FitTrackCollection fitTracks, Settings* settings){fitTracks_ = (FitTrackCollectionBase)fitTracks; settings_ = settings;}
+  VertexFinder(FitTrackCollection fitTracks, Settings* settings){fitTracks_ = fitTracks; settings_ = settings;}
   ~VertexFinder(){}
 
   struct SortTracksByZ0{
@@ -51,7 +49,7 @@ public:
   /// Reconstructed Primary Vertex
   RecoVertex  PrimaryVertex()               const {if(pv_index_ < vertices_.size()) return vertices_[pv_index_]; else{ std::cout << "No Primary Vertex has been found." << std::endl; return RecoVertex();} }
   /// Reconstructed Primary Vertex as in TDR
-  const RecoVertex& TDRPrimaryVertex()      const {return tdr_vertex_;}
+  RecoVertex TDRPrimaryVertex()      const {return tdr_vertex_;}
   /// Reconstructed Primary Vertex Id
   unsigned int PrimaryVertexId()            const { return pv_index_;}
   /// Storage for tracks out of the L1 Track finder

@@ -1,6 +1,5 @@
 #include <TMTrackTrigger/l1VertexFinder/interface/VertexProducer.h>
 
-
 #include <iostream>
 #include <vector>
 #include <set>
@@ -20,7 +19,7 @@
 #include "TMTrackTrigger/l1VertexFinder/interface/VertexFinder.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/L1fittedTrack.h"
 
-
+#include "TMTrackTrigger/l1VertexFinder/interface/RecoVertexWithTP.h"
 
 using namespace l1tVertexFinder;
 using namespace std;
@@ -56,7 +55,7 @@ void VertexProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
- bool runAnalysis = true;
+  bool runAnalysis = true;
 
   edm::Handle<TTTrackCollectionView> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
@@ -172,7 +171,13 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
 
+    RecoVertex primaryVertex = vf.PrimaryVertex();
+    RecoVertex tdrPrimaryVertex = vf.TDRPrimaryVertex();
 
+    RecoVertexWithTP * primaryVertexTP = new RecoVertexWithTP(primaryVertex, l1Tracks);
+    RecoVertexWithTP * tdrPrimaryVertexTP = new RecoVertexWithTP(tdrPrimaryVertex, l1Tracks);
+
+    /*
     // FIXME: Check with Davide if the tracks should be filtered using the following cuts
     //   fittedTracks[i].second.accepted() and fittedTracks[i].second.chi2dof()< settings_->chi2OverNdfCut()
     VertexFinder vf(l1TrackPtrs, settings_);
@@ -228,7 +233,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
       }
     }
-
+    */
   }
 
 
