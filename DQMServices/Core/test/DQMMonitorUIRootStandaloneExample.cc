@@ -128,6 +128,7 @@ void DQMStandaloneExample::createQualityTests()
   testNames.emplace_back("my_yrange");
   testNames.emplace_back("deadChan");
   testNames.emplace_back("noisyChan");
+  testNames.emplace_back("contentSigma");
   testNames.emplace_back("my_histo_equal");
   testNames.emplace_back("my_int_equal");
   testNames.emplace_back("meanNear");
@@ -162,6 +163,11 @@ void DQMStandaloneExample::createQualityTests()
   ++it;
   noisyChan_test = dynamic_cast<NoisyChannel *>
     (dbe->createQTest(NoisyChannel::getAlgoName(), *it) );
+  dbe->useQTestByMatch("histo_1", *it);
+
+  ++it;
+  contentSigma_test = dynamic_cast<ContentSigma *>
+    (dbe->createQTest(ContentSigma::getAlgoName(), *it) );
   dbe->useQTestByMatch("histo_1", *it);
 
   ++it;
