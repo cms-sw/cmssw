@@ -369,6 +369,7 @@ protected:
   /// get average for bin under consideration
   /// (see description of method setNumNeighbors)
   double getAverage(int bin, const TH1 *h) const;
+  double getAverage2D(int binX, int binY, const TH1 *h) const;
 
   float tolerance_;        /*< tolerance for considering a channel noisy */
   unsigned numNeighbors_;  /*< # of neighboring channels for calculating average to be used
