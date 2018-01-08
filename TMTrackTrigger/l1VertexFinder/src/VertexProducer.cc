@@ -21,6 +21,8 @@
 
 #include "TMTrackTrigger/l1VertexFinder/interface/RecoVertexWithTP.h"
 
+
+
 using namespace l1tVertexFinder;
 using namespace std;
 
@@ -113,6 +115,9 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     cout << "No valid vertex reconstruction algorithm has been selected. Running a gap clustering algorithm "<< endl;
     vf.GapClustering();
   }
+
+  vf.TDRalgorithm();
+  vf.SortVerticesInZ0();
 
   if (runAnalysis) {
 
@@ -217,13 +222,13 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } else{
       vf.AssociatePrimaryVertex(inputData.getPrimaryVertex().z0());
     }
-  
+    */  
     if(settings_->debug()==7 and vf.numVertices() > 0){
       cout << "Num Found Vertices " << vf.numVertices() << endl;
       cout << "Reconstructed Primary Vertex z0 "<<vf.PrimaryVertex().z0() << " pT "<< vf.PrimaryVertex().pT() << endl;
     }
     //=== Fill histograms studying vertex reconstruction performance
-    hists_->fillVertexReconstruction(inputData, vf);    
+    hists_->fillVertexReconstruction(inputData, vf, l1Tracks);
 
     if (printResults_) {
       std::cout << vf.numVertices() << " vertices were found ... " << std::endl;
@@ -233,7 +238,6 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
       }
     }
-    */
   }
 
 

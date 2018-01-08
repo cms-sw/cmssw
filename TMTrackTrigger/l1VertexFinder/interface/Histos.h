@@ -8,8 +8,7 @@
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-
+#include "TMTrackTrigger/l1VertexFinder/interface/RecoVertexWithTP.h"
 
 class TH1F;
 class TH2F;
@@ -38,7 +37,7 @@ public:
   void book();
 
   /// Fill histograms relating to vertex reconstruction performance.
-  void fillVertexReconstruction(const InputData& inputData, const VertexFinder& vf);
+  void fillVertexReconstruction(const InputData& inputData, const VertexFinder& vf, std::vector<L1fittedTrack> l1Track);
   
   void endJobAnalysis();
 
