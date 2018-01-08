@@ -53,7 +53,6 @@ private:
   std::unique_ptr<lhef::LHEReader>      reader_;
 
   boost::shared_ptr<lhef::LHERunInfo>	runInfoLast_;
-  boost::shared_ptr<lhef::LHERunInfo>	runInfo_;
   boost::shared_ptr<lhef::LHEEvent>	partonLevel_;
 
   std::deque<std::unique_ptr<LHERunInfoProduct>>	runInfoProducts_;

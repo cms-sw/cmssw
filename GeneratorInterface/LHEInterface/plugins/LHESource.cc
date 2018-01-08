@@ -42,7 +42,7 @@ LHESource::LHESource(const edm::ParameterSet &params,
   runPrincipal_()
 {
   nextEvent();
-  lheProvenanceHelper_.lheAugment(runInfo_.get());
+  lheProvenanceHelper_.lheAugment(nullptr);
   // Initialize metadata, and save the process history ID for use every event.
   phid_ = lheProvenanceHelper_.lheInit(processHistoryRegistryForUpdate());
 
@@ -78,19 +78,18 @@ void LHESource::nextEvent()
 
   auto runInfoThis = partonLevel_->getRunInfo();
   if (runInfoThis != runInfoLast_) {
-    runInfo_ = runInfoThis;
     runInfoLast_ = runInfoThis;
   }
-  if (runInfo_) {
+  if (runInfoThis) {
     std::unique_ptr<LHERunInfoProduct> product(
-                                             new LHERunInfoProduct(*runInfo_->getHEPRUP()));
-    std::for_each(runInfo_->getHeaders().begin(),
-                  runInfo_->getHeaders().end(),
+                                             new LHERunInfoProduct(*runInfoThis->getHEPRUP()));
+    std::for_each(runInfoThis->getHeaders().begin(),
+                  runInfoThis->getHeaders().end(),
                   boost::bind(
                               &LHERunInfoProduct::addHeader,
                               product.get(), _1));
-    std::for_each(runInfo_->getComments().begin(),
-                  runInfo_->getComments().end(),
+    std::for_each(runInfoThis->getComments().begin(),
+                  runInfoThis->getComments().end(),
                   boost::bind(&LHERunInfoProduct::addComment,
                               product.get(), _1));
 
@@ -103,14 +102,12 @@ void LHESource::nextEvent()
           wasMerged_ = true;
         }
       } else {
-        lheProvenanceHelper_.lheAugment(runInfo_.get());
+        lheProvenanceHelper_.lheAugment(runInfoThis.get());
         // Initialize metadata, and save the process history ID for use every event.
         phid_ = lheProvenanceHelper_.lheInit(processHistoryRegistryForUpdate());
         resetRunAuxiliary();
       }
     }
-
-    runInfo_.reset();
   }
 }
 
@@ -131,17 +128,17 @@ LHESource::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) {
 void LHESource::beginRun(edm::Run&)
 {
   if (runInfoLast_) {
-    runInfo_ = runInfoLast_;
+    auto runInfo = runInfoLast_;
 
     std::unique_ptr<LHERunInfoProduct> product(
-                                               new LHERunInfoProduct(*runInfo_->getHEPRUP()));
-    std::for_each(runInfo_->getHeaders().begin(),
-                  runInfo_->getHeaders().end(),
+                                               new LHERunInfoProduct(*runInfo->getHEPRUP()));
+    std::for_each(runInfo->getHeaders().begin(),
+                  runInfo->getHeaders().end(),
                   boost::bind(
                               &LHERunInfoProduct::addHeader,
                               product.get(), _1));
-    std::for_each(runInfo_->getComments().begin(),
-                  runInfo_->getComments().end(),
+    std::for_each(runInfo->getComments().begin(),
+                  runInfo->getComments().end(),
                   boost::bind(&LHERunInfoProduct::addComment,
                               product.get(), _1));
 
@@ -151,8 +148,6 @@ void LHESource::beginRun(edm::Run&)
 
     std::unique_ptr<edm::WrapperBase> rdp(new edm::Wrapper<LHERunInfoProduct>(std::move(product)));
     runPrincipal_->put(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
-
-    runInfo_.reset();
   }
 }
 
