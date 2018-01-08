@@ -86,7 +86,8 @@ HcalDDDRecConstants::getEtaBins(const int& itype) const {
       } else {
 	phiUse.insert(phiUse.end(),phis.begin(),phis.end());
       }
-      getOneEtaBin(subdet,ieta,zside,phiUse,layers,false,bins);
+      if (!phiUse.empty())
+	getOneEtaBin(subdet,ieta,zside,phiUse,layers,false,bins);
     }
   }
   if (subdetSp == subdet) {
@@ -566,6 +567,18 @@ HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
   } else {
     return hcons.HcalCellTypes(subdet,-1,-1);
   }
+}
+
+bool HcalDDDRecConstants::mergedDepthList29(int ieta, int iphi, int depth) const {
+  int eta   = std::abs(ieta);
+  int zside = (ieta > 0) ? 1 : -1;
+  int etamin= iEtaMax[1]-hcons.getDepthEta29(iphi,zside,1);
+  if ((eta >= etamin) && (eta <= iEtaMax[1])) {
+    int depthMax = getMaxDepth(1, etamin, iphi, zside);
+    int depthMin = hcons.getDepthEta29(iphi,zside,0) + 1;
+    if (depth >= depthMin && depth <= depthMax) return true;
+  }
+  return false;
 }
 
 unsigned int HcalDDDRecConstants::numberOfCells(HcalSubdetector subdet) const {
