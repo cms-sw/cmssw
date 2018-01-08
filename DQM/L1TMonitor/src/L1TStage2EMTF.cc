@@ -62,7 +62,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   //cscOccupancy designed to match the cscDQM plot  
   cscDQMOccupancy = ibooker.book2D("cscDQMOccupancy", "CSC Chamber Occupancy", 42, 1, 43, 20, 0, 20);
-  cscDQMOccupancy->setAxisTitle("10 degree Chamber", 1);
+  cscDQMOccupancy->setAxisTitle("10#circ Chamber (N=neighbor)", 1);
   int count=0;
   for (int xbin=1; xbin < 43; ++xbin) {
   cscDQMOccupancy->setBinLabel(xbin, std::to_string(xbin-count), 1);
@@ -76,6 +76,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     cscDQMOccupancy->setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
     cscDQMOccupancy->setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
   }
+  cscDQMOccupancy->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
 
   mpcLinkErrors = ibooker.book2D("mpcLinkErrors", "MPC Link Errors", 54, 1, 55, 12, -6, 6);
   mpcLinkErrors->setAxisTitle("Sector (CSCID 1-9 Unlabelled)", 1);
@@ -110,13 +111,14 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   }
   
   rpcHitOccupancy = ibooker.book2D("rpcHitOccupancy", "RPC Chamber Occupancy", 42, 1, 43, 12, 0, 12);
-  rpcHitOccupancy->setAxisTitle("Sector", 1);
+  rpcHitOccupancy->setAxisTitle("Sector (N=neighbor)", 1);
   for (int bin = 1; bin < 7; ++bin) {
     rpcHitOccupancy->setBinLabel(bin*7 - 6, std::to_string(bin), 1);
     rpcHitOccupancy->setBinLabel(bin*7, "N", 1);
     rpcHitOccupancy->setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
     rpcHitOccupancy->setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
   }  
+  rpcHitOccupancy->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
 
   // Track Monitor Elements
   emtfnTracks = ibooker.book1D("emtfnTracks", "Number of EMTF Tracks per Event", 11, 0, 11);
@@ -257,10 +259,10 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ibooker.setCurrentFolder(monitorDir + "/Timing");
  
   cscTimingTot = ibooker.book2D("cscTimingTotal", "CSC Total BX ", 42, 1, 43, 20, 0, 20);    
-  cscTimingTot->setAxisTitle("10 degree Chambers", 1);
+  cscTimingTot->setAxisTitle("10#circ Chamber (N=neighbor)", 1);
 
   rpcHitTimingTot = ibooker.book2D("rpcHitTimingTot", "RPC Chamber Occupancy ", 42, 1, 43, 12, 0, 12);
-  rpcHitTimingTot->setAxisTitle("Sector", 1);
+  rpcHitTimingTot->setAxisTitle("Sector (N=neighbor)", 1);
   const std::array<std::string, 5> nameBX{{"BXNeg1","BXPos1","BXNeg2","BXPos2","BX0"}};
   const std::array<std::string, 5> labelBX{{"BX -1","BX +1","BX -2","BX +2","BX 0"}};
 
@@ -268,7 +270,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
     count = 0;
     cscLCTTiming[hist] = ibooker.book2D("cscLCTTiming" + nameBX[hist], "CSC Chamber Occupancy " + labelBX[hist], 42, 1, 43, 20, 0, 20);
-    cscLCTTiming[hist]->setAxisTitle("10 degree Chambers", 1);
+    cscLCTTiming[hist]->setAxisTitle("10#circ Chamber", 1);
 
     for (int xbin=1; xbin < 43; ++xbin) {
       cscLCTTiming[hist]->setBinLabel(xbin, std::to_string(xbin-count), 1);
@@ -287,15 +289,18 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       if (hist==0) cscTimingTot->setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
       if (hist==0) cscTimingTot->setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
     }
+    if (hist==0) cscTimingTot->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
+    cscLCTTiming[hist]->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
       
     rpcHitTiming[hist] = ibooker.book2D("rpcHitTiming" + nameBX[hist], "RPC Chamber Occupancy " + labelBX[hist], 42, 1, 43, 12, 0, 12);
-    rpcHitTiming[hist]->setAxisTitle("Sector", 1);
+    rpcHitTiming[hist]->setAxisTitle("Sector (N=neighbor)", 1);
     for (int bin = 1; bin < 7; ++bin) {
       rpcHitTiming[hist]->setBinLabel(bin*7 - 6, std::to_string(bin), 1);
       rpcHitTiming[hist]->setBinLabel(bin*7, "N", 1);
       rpcHitTiming[hist]->setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
       rpcHitTiming[hist]->setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
     }
+    rpcHitTiming[hist]->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
     if (hist==0) {
       for (int bin = 1; bin < 7; ++bin) {
         rpcHitTimingTot->setBinLabel(bin*7 - 6, std::to_string(bin), 1);
@@ -303,12 +308,13 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
         rpcHitTimingTot->setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
         rpcHitTimingTot->setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
       }
+      rpcHitTimingTot->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
     }
     //if (hist == 4) continue; // Don't book for BX = 0
 
     count = 0;
     cscLCTTimingFrac[hist] = ibooker.book2D("cscLCTTimingFrac" + nameBX[hist], "CSC Chamber Occupancy " + labelBX[hist], 42, 1, 43, 20, 0, 20);
-    cscLCTTimingFrac[hist]->setAxisTitle("10 degree Chambers", 1);
+    cscLCTTimingFrac[hist]->setAxisTitle("10#circ Chambers", 1);
     for (int xbin=1; xbin < 43; ++xbin) {
       cscLCTTimingFrac[hist]->setBinLabel(xbin, std::to_string(xbin-count), 1);
       if (xbin==2 || xbin==9 || xbin==16 || xbin==23 || xbin==30 || xbin==37 ) {
@@ -321,9 +327,10 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       cscLCTTimingFrac[hist]->setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
       cscLCTTimingFrac[hist]->setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
     }  
+    cscLCTTimingFrac[hist]->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
 
     rpcHitTimingFrac[hist] = ibooker.book2D("rpcHitTimingFrac" + nameBX[hist], "RPC Chamber Fraction in " + labelBX[hist], 42, 1, 43, 12, 0, 12);
-    rpcHitTimingFrac[hist]->setAxisTitle("Sector", 1);
+    rpcHitTimingFrac[hist]->setAxisTitle("Sector (N=neighbor)", 1);
     for (int bin = 1; bin < 7; ++bin) {
       rpcHitTimingFrac[hist]->setBinLabel(bin*7 - 6, std::to_string(bin), 1);
       rpcHitTimingFrac[hist]->setBinLabel(bin*7, "N", 1);
@@ -558,6 +565,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfTrackPt->Fill(Track->Pt());
     emtfTrackEta->Fill(eta);
     
+    emtfTrackOccupancy->Fill(eta, phi_glob_rad);
     emtfTrackMode->Fill(mode);
     emtfTrackQuality->Fill(quality);
     emtfTrackQualityVsMode->Fill(mode, quality);
@@ -565,7 +573,6 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     // Only plot if there are <= 1 neighbor hits in the track to avoid spikes at sector boundaries
     if (modeNeighbor < 2 || modeNeighbor == 4 || modeNeighbor == 8) {
       emtfTrackPhi->Fill(phi_glob_rad);
-      emtfTrackOccupancy->Fill(eta, phi_glob_rad);
       if (quality >= 12) {
         emtfTrackPhiHighQuality->Fill(phi_glob_rad);
       }
