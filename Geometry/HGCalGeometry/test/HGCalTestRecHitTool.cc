@@ -61,11 +61,11 @@ void HGCalTestRecHitTool::analyze(const edm::Event& ,
 
   if (pG.isValid()) {
     geom_ = pG.product();
-    auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
     layerEE_    = (geomEE->topology().dddConstants()).layers(true);
-    auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
     layerFH_    = (geomFH->topology().dddConstants()).layers(true);
-    auto geomBH = dynamic_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+    auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
     layerBH_    = (geomBH->topology().dddConstants())->getMaxDepth(1);
     edm::LogVerbatim("HGCalGeom") << "Layers " << layerEE_ << ":" << layerFH_ 
 				  << ":" << layerBH_ << std::endl;
@@ -169,7 +169,7 @@ double HGCalTestRecHitTool::getLayerZ(const DetId& id) const {
   if (id.det() == DetId::Hcal) {
     auto geom = geom_->getSubdetectorGeometry(id);
     check_geom(geom);
-    zpos = (dynamic_cast<const HcalGeometry*>(geom))->getGeometry(id)->getPosition().z();
+    zpos = (static_cast<const HcalGeometry*>(geom))->getGeometry(id)->getPosition().z();
   } else {
     const HGCalDDDConstants* ddd = get_ddd(HGCalDetId(id));
     zpos = ddd->waferZ(HGCalDetId(id).layer(),true);
