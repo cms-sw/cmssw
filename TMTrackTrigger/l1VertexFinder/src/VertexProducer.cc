@@ -21,8 +21,6 @@
 
 #include "TMTrackTrigger/l1VertexFinder/interface/RecoVertexWithTP.h"
 
-
-
 using namespace l1tVertexFinder;
 using namespace std;
 
@@ -56,8 +54,7 @@ void VertexProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 
 void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  bool runAnalysis = true;
+  bool runAnalysis = false;
 
   edm::Handle<TTTrackCollectionView> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
@@ -175,12 +172,6 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  l1TrackPtrs.push_back(&track);
       }
     }
-
-    RecoVertex primaryVertex = vf.PrimaryVertex();
-    RecoVertex tdrPrimaryVertex = vf.TDRPrimaryVertex();
-
-    RecoVertexWithTP * primaryVertexTP = new RecoVertexWithTP(primaryVertex, l1Tracks);
-    RecoVertexWithTP * tdrPrimaryVertexTP = new RecoVertexWithTP(tdrPrimaryVertex, l1Tracks);
 
     /*
     // FIXME: Check with Davide if the tracks should be filtered using the following cuts
