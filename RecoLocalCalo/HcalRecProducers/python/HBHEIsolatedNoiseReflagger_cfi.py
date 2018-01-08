@@ -62,3 +62,6 @@ hbhereco = cms.EDProducer(
 
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 run2_HEPlan1_2017.toModify(hbhereco, hbheInput = cms.InputTag('hbheplan1'))
+
+from Configuration.Eras.Modifier_run2_HECollapse_2018_cff import run2_HECollapse_2018
+run2_HECollapse_2018.toModify(hbhereco, hbheInput = cms.InputTag('hbhecollapse'))

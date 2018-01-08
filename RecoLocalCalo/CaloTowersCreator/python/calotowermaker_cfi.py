@@ -153,3 +153,7 @@ run2_HE_2018.toModify(calotowermaker,
                       HEDThreshold1 = cms.double(0.1),
                       HEDThreshold  = cms.double(0.2)
 )
+
+# needed to handle inner/outer and 28/29 splitting - from real topology, not collapsed
+from Configuration.Eras.Modifier_run2_HECollapse_2018_cff import run2_HECollapse_2018
+run2_HECollapse_2018.toModify(calotowermaker, hbheInput = cms.InputTag("hbheprereco"))

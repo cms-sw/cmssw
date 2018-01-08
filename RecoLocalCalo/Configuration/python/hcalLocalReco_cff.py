@@ -38,6 +38,12 @@ _plan1_hcalLocalRecoSequence += hbheplan1
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 run2_HEPlan1_2017.toReplaceWith(hcalLocalRecoSequence, _plan1_hcalLocalRecoSequence)
 
+hbhecollapse = hbheplan1.clone()
+_collapse_hcalLocalRecoSequence = _phase1_hcalLocalRecoSequence.copy()
+_collapse_hcalLocalRecoSequence += hbhecollapse
+from Configuration.Eras.Modifier_run2_HECollapse_2018_cff import run2_HECollapse_2018
+run2_HECollapse_2018.toReplaceWith(hcalLocalRecoSequence, _collapse_hcalLocalRecoSequence)
+
 _phase2_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
 _phase2_hcalLocalRecoSequence.remove(hbheprereco)
 
