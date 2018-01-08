@@ -76,6 +76,7 @@ private:
   ContentsYRange * yrange_test;  // contents within y-range test
   DeadChannel * deadChan_test;  // check against dead channels
   NoisyChannel * noisyChan_test;  // check against noisy channels
+  ContentSigma * contentSigma_test;  // compare using sigma
   Comp2RefEqualH * equalH_test; // equality test for histograms
   MeanWithinExpected * meanNear_test; // mean-within-expected test
   // names for all quality tests
