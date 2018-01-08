@@ -28,10 +28,6 @@ public:
   typedef PCaloTowerRcd            PGeometryRecord ;
   typedef CaloTowerDetId           DetIdType       ;
 
-  //enum { k_NumberOfCellsForCorners = CaloTowerDetId::kSizeForDenseIndexing } ;
-
-  //enum { k_NumberOfShapes = 41 } ;
-
   enum { k_NumberOfParametersPerShape = 5 } ;
 
   static std::string dbString() { return "PCaloTowerRcd" ; }
@@ -41,17 +37,13 @@ public:
   virtual unsigned int numberOfCellsForCorners() const { return k_NumberOfCellsForCorners ; }
 
 
-  CaloTowerGeometry(const CaloTowerTopology *cttopo_);
+  CaloTowerGeometry(const CaloTowerTopology *cttopo);
   ~CaloTowerGeometry() override;  
 
   static std::string producerTag() { return "TOWER" ; }
 
   static unsigned int numberOfAlignments() { return 0 ; }
-
-  //static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
   unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
-
-  //static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
   unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
   static void localCorners( Pt3DVec&        lc  ,
@@ -66,7 +58,7 @@ public:
 		const DetId&       detId     ) override ;
 				
   std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const override {
-    return cellGeomPtr( cttopo->denseIndex(id) ) ;
+    return cellGeomPtr( m_cttopo->denseIndex(id) ) ;
   }
 
   void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
@@ -76,14 +68,14 @@ public:
 
 protected:
 
-  unsigned int indexFor(const DetId& id) const override { return  cttopo->denseIndex(id); }
-  unsigned int sizeForDenseIndex(const DetId& id) const override { return cttopo->sizeForDenseIndexing(); }
+  unsigned int indexFor(const DetId& id) const override { return  m_cttopo->denseIndex(id); }
+  unsigned int sizeForDenseIndex(const DetId& id) const override { return m_cttopo->sizeForDenseIndexing(); }
 
   // Modify the RawPtr class
   const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 
 private:
-  const CaloTowerTopology* cttopo;
+  const CaloTowerTopology* m_cttopo;
   int k_NumberOfCellsForCorners;
   int k_NumberOfShapes;
   CellVec m_cellVec ;

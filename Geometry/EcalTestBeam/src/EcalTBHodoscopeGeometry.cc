@@ -1,4 +1,3 @@
-#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
 #include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 

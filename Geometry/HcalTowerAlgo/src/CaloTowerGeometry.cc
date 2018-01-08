@@ -9,10 +9,10 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef CaloCellGeometry::Tr3D Tr3D ;
 
-CaloTowerGeometry::CaloTowerGeometry(const CaloTowerTopology *cttopo_) :
-  cttopo(cttopo_), 
-  k_NumberOfCellsForCorners(cttopo->sizeForDenseIndexing()), 
-  k_NumberOfShapes(cttopo->lastHFRing()), 
+CaloTowerGeometry::CaloTowerGeometry(const CaloTowerTopology *cttopo) :
+  m_cttopo(cttopo), 
+  k_NumberOfCellsForCorners(m_cttopo->sizeForDenseIndexing()), 
+  k_NumberOfShapes(m_cttopo->lastHFRing()), 
   m_cellVec ( k_NumberOfCellsForCorners ) 
 {
 }
@@ -34,8 +34,8 @@ CaloTowerGeometry::alignmentTransformIndexLocal( const DetId& id ) {
   const unsigned int offset ( izoff*3*18) ;
 
   return ( offset + ip + 
-	   ( cttopo->firstHFQuadPhiRing() <= iea ? 36 :
-	     ( cttopo->firstHEDoublePhiRing() <= iea ? 18 : 0 ) ) ) ;
+	   ( m_cttopo->firstHFQuadPhiRing() <= iea ? 36 :
+	     ( m_cttopo->firstHEDoublePhiRing() <= iea ? 18 : 0 ) ) ) ;
 }
 
 unsigned int
@@ -63,7 +63,7 @@ CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
    
   const CaloTowerDetId cid ( detId ) ;
 
-  const unsigned int di ( cttopo->denseIndex(cid) ) ;
+  const unsigned int di ( m_cttopo->denseIndex(cid) ) ;
 
    m_cellVec[ di ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
    addValidID( detId ) ;

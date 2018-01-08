@@ -1,5 +1,4 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
