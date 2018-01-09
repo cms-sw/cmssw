@@ -22,7 +22,7 @@ public:
 
   /// create a new Topology from geometry
   EcalBarrelTopology(edm::ESHandle<CaloGeometry> theGeom) {
-    theGeom_ = (theGeom.product())->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+    theGeom_ = theGeom->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   }
   
  /// move the Topology north (increment iphi)

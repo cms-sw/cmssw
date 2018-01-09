@@ -91,7 +91,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
       for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i != chosen.end (); ++i){ //loop selected cells
 	j = caloHits_.find(*i); // find selected cell among rechits
 	if(j != caloHits_.end()) { // add rechit only if available 
-	  auto cell  = (theCaloGeom_.product())->getGeometry(*i);
+	  auto cell  = theCaloGeom_->getGeometry(*i);
 	  float eta = cell->etaPos();
 	  float phi = cell->phiPos();
 	  float etaDiff = eta - etaclus;
