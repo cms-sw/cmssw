@@ -1186,69 +1186,86 @@ namespace edm {
     });
   }
 
+  void EventProcessor::globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus) {
+    auto t = edm::make_waiting_task(tbb::task::allocate_root(), [t = std::move(iTask), status = iLumiStatus, this] (std::exception_ptr const* iPtr) mutable {
+      std::exception_ptr ptr;
+      if(iPtr) {
+        ptr = *iPtr;
+      } else {
+        if(looper_) {
+          auto& lp = *(status->lumiPrincipal());
+          EventSetup const& es = esp_->eventSetup();
+          looper_->doEndLuminosityBlock(lp, es, &processContext_);
+        }
+      }
+      t.doneWaiting(ptr);
+      //release our hold on the IOV
+      iovQueue_.resume();
+      status->resumeGlobalLumiQueue();
+    });
+
+    auto& lp = *(iLumiStatus->lumiPrincipal());
+
+    IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()),
+                    lp.beginTime());
+
+
+    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
+    EventSetup const& es = esp_->eventSetup();
+
+    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(t),
+                                     *schedule_,
+                                     lp,
+                                     ts,
+                                     es,
+                                     subProcesses_,
+                                     iLumiStatus->cleaningUpAfterException());
+  }
+
   void EventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status) {
     bool cleaningUpAfterException = status->cleaningUpAfterException();
     LuminosityBlockPrincipal& lumiPrincipal = *status-> lumiPrincipal();
+    lumiPrincipal.setEndTime(input_->timestamp());
     
-    //need to release the IOV
-    auto dtr = [](SerialTaskQueue* iQueue) { iQueue->resume();};
-    std::unique_ptr<SerialTaskQueue, decltype(dtr)> guard(&iovQueue_, dtr);
+    auto globalWaitTask = make_empty_waiting_task();
+    globalWaitTask->increment_ref_count();
+
+    auto globalEndTask = edm::make_waiting_task(tbb::task::allocate_root(),
+                                                [this,
+                                                 waitTask=WaitingTaskHolder(globalWaitTask.get()),
+                                                 status](std::exception_ptr const* iPtr)
+    {
+      if(iPtr) {
+        WaitingTaskHolder t(waitTask);
+        t.doneWaiting(*iPtr);
+      }
+      globalEndLumiAsync(std::move(waitTask), std::move(status));
+    });
     
     {
-      lumiPrincipal.setEndTime(input_->timestamp());
-    }
-    //NOTE: Using the max event number for the end of a lumi block is a bad idea
-    // lumi blocks know their start and end times why not also start and end events?
-    IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), EventID::maxEventNumber()),
-                    lumiPrincipal.endTime());
-    {
-      SendSourceTerminationSignalIfException sentry(actReg_.get());
-      espController_->eventSetupForInstance(ts);
-      sentry.completedSuccessfully();
-    }
-    EventSetup const& es = esp_->eventSetup();
-    if(status->didGlobalBeginSucceed()){
-      //To wait, the ref count has to b 1+#streams
-      auto streamLoopWaitTask = make_empty_waiting_task();
-      streamLoopWaitTask->increment_ref_count();
+      WaitingTaskHolder globalTaskHolder{globalEndTask};
+    
+      //NOTE: Using the max event number for the end of a lumi block is a bad idea
+      // lumi blocks know their start and end times why not also start and end events?
+      IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), EventID::maxEventNumber()),
+                      lumiPrincipal.endTime());
+      EventSetup const& es = esp_->eventSetup();
+      if(status->didGlobalBeginSucceed()){
+        typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
       
-      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
-      
-      endStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
-                                       *schedule_,
-                                       preallocations_.numberOfStreams(),
-                                       lumiPrincipal,
-                                       ts,
-                                       es,
-                                       subProcesses_,
-                                       cleaningUpAfterException);
-      streamLoopWaitTask->wait_for_all();
-      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
-        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
+        endStreamsTransitionAsync<Traits>(globalEndTask,
+                                          *schedule_,
+                                          preallocations_.numberOfStreams(),
+                                          lumiPrincipal,
+                                          ts,
+                                          es,
+                                          subProcesses_,
+                                          cleaningUpAfterException);
       }
     }
-    if(looper_) {
-      //looper_->doStreamEndLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
-    }
-    {
-      auto globalWaitTask = make_empty_waiting_task();
-      globalWaitTask->increment_ref_count();
-      
-      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
-      endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
-                                       *schedule_,
-                                       lumiPrincipal,
-                                       ts,
-                                       es,
-                                       subProcesses_,
-                                       cleaningUpAfterException);
-      globalWaitTask->wait_for_all();
-      if(globalWaitTask->exceptionPtr() != nullptr) {
-        std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
-      }
-    }
-    if(looper_) {
-      looper_->doEndLuminosityBlock(lumiPrincipal, es, &processContext_);
+    globalWaitTask->wait_for_all();
+    if(globalWaitTask->exceptionPtr() != nullptr) {
+      std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
     }
   }
 
