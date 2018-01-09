@@ -210,6 +210,7 @@ namespace edm {
     void beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status);
     void beginLumiAsync(edm::WaitingTaskHolder iHolder, std::shared_ptr<LuminosityBlockProcessingStatus>& oStatus);
     void endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status);
+    void globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
     
     std::pair<ProcessHistoryID,RunNumber_t> readRun();
     std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
