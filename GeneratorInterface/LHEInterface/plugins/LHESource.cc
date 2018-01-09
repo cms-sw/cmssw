@@ -37,8 +37,7 @@ LHESource::LHESource(const edm::ParameterSet &params,
   ProducerSourceFromFiles(params, desc, false),
   reader_(new LHEReader(fileNames(), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
   lheProvenanceHelper_(edm::TypeID(typeid(LHEEventProduct)), edm::TypeID(typeid(LHERunInfoProduct)), productRegistryUpdate()),
-  phid_(),
-  runPrincipal_(nullptr)
+  phid_()
 {
   nextEvent();
   lheProvenanceHelper_.lheAugment(nullptr);
@@ -69,6 +68,9 @@ void LHESource::nextEvent()
   do {
     newFileOpened = false;
     partonLevel_ = reader_->next(&newFileOpened);
+    if(newFileOpened) {
+      incrementFileIndex();
+    }
   } while (newFileOpened && !partonLevel_);
 
   if (!partonLevel_) {
@@ -83,12 +85,8 @@ void LHESource::nextEvent()
     fillRunInfoProduct(*runInfoThis, *product);
 
     if (runInfoProductLast_) {
-      if (runInfoProductLast_->mergeProduct(*product)) {
-        //can be merged
-        assert(runPrincipal_);
-        std::unique_ptr<edm::WrapperBase> rdp(new edm::Wrapper<LHERunInfoProduct>(std::move(product)));
-        runPrincipal_->put(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
-      } else {
+      if (!runInfoProductLast_->mergeProduct(*product)) {
+        //cannot be merged so must start new Run
         runInfoProductLast_ = std::move(product);
         lheProvenanceHelper_.lheAugment(runInfoThis.get());
         // Initialize metadata, and save the process history ID for use every event.
@@ -116,7 +114,6 @@ void
 LHESource::readRun_(edm::RunPrincipal& runPrincipal) {
   runAuxiliary()->setProcessHistoryID(phid_);
   runPrincipal.fillRunPrincipal(processHistoryRegistryForUpdate());
-  runPrincipal_ = &runPrincipal;
 
   putRunInfoProduct(runPrincipal);
 }

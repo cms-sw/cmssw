@@ -37,6 +37,7 @@ public:
   ~LHESource() override;
 
 private:
+
   void endJob() override;
   bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
   void readRun_(edm::RunPrincipal& runPrincipal) override;
@@ -59,7 +60,6 @@ private:
   std::unique_ptr<LHERunInfoProduct>	runInfoProductLast_;
   edm::LHEProvenanceHelper		lheProvenanceHelper_;
   edm::ProcessHistoryID			phid_;
-  edm::RunPrincipal*                    runPrincipal_;
 };
 
 #endif // GeneratorInterface_LHEInterface_LHESource_h
