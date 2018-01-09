@@ -71,14 +71,6 @@ PuttableSourceBase::doBeginRun(RunPrincipal& rp, ProcessContext const* ) {
 }
 
 void
-PuttableSourceBase::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* ) {
-  Run run(rp, moduleDescription(), nullptr, true);
-  run.setProducer(this);
-  callWithTryCatchAndPrint<void>( [this,&run](){ endRun(run); }, "Calling Source::endRun", cleaningUpAfterException );
-  commit_(run);
-}
-
-void
 PuttableSourceBase::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* ) {
   LuminosityBlock lb(lbp, moduleDescription(), nullptr, false);
   lb.setProducer(this);
@@ -87,27 +79,11 @@ PuttableSourceBase::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext co
 }
 
 void
-PuttableSourceBase::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
-  LuminosityBlock lb(lbp, moduleDescription(), nullptr, true);
-  lb.setProducer(this);
-  callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling Source::endLuminosityBlock", cleaningUpAfterException );
-  commit_(lb);
-}
-
-void
 PuttableSourceBase::beginRun(Run&) {
 }
 
 void
-PuttableSourceBase::endRun(Run&) {
-}
-
-void
 PuttableSourceBase::beginLuminosityBlock(LuminosityBlock&) {
-}
-
-void
-PuttableSourceBase::endLuminosityBlock(LuminosityBlock&) {
 }
 
 

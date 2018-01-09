@@ -1016,13 +1016,7 @@ namespace edm {
 
   void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
-    {
-      SendSourceTerminationSignalIfException sentry(actReg_.get());
-
-      runPrincipal.setEndTime(input_->timestamp());
-      input_->doEndRun(runPrincipal, cleaningUpAfterException, &processContext_);
-      sentry.completedSuccessfully();
-    }
+    runPrincipal.setEndTime(input_->timestamp());
 
     IOVSyncValue ts(EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
                     runPrincipal.endTime());
@@ -1201,11 +1195,7 @@ namespace edm {
     std::unique_ptr<SerialTaskQueue, decltype(dtr)> guard(&iovQueue_, dtr);
     
     {
-      SendSourceTerminationSignalIfException sentry(actReg_.get());
-
       lumiPrincipal.setEndTime(input_->timestamp());
-      input_->doEndLumi(lumiPrincipal, cleaningUpAfterException, &processContext_);
-      sentry.completedSuccessfully();
     }
     //NOTE: Using the max event number for the end of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?

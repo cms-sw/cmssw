@@ -444,15 +444,7 @@ namespace edm {
   }
 
   void
-  InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* ) {
-  }
-
-  void
   InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* ) {
-  }
-
-  void
-  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
   }
 
   bool

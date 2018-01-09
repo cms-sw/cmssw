@@ -217,14 +217,8 @@ namespace edm {
     /// Called by framework at beginning of lumi block
     virtual void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*);
 
-    /// Called by framework at end of lumi block
-    virtual void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*);
-
     /// Called by framework at beginning of run
     virtual void doBeginRun(RunPrincipal& rp, ProcessContext const*);
-
-    /// Called by framework at end of run
-    virtual void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*);
 
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
