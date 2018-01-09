@@ -47,15 +47,11 @@ protected:
   void beginJob() override;
 private:
   void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*) override;
-  void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*) override;
   void doBeginRun(RunPrincipal& rp, ProcessContext const*) override;
-  void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*) override;
   
   
   virtual void beginRun(Run&);
-  virtual void endRun(Run&);
   virtual void beginLuminosityBlock(LuminosityBlock&);
-  virtual void endLuminosityBlock(LuminosityBlock&);
   
   PuttableSourceBase(const PuttableSourceBase&) = delete;
   

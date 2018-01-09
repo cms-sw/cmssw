@@ -10,9 +10,9 @@ namespace edmtest {
     ProducerSourceFromFiles(pset, desc, true), alg_() {
     produces<ThingCollection>();
     produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi");
-    produces<ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi");
+    produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("endLumi");
     produces<ThingCollection, edm::Transition::BeginRun>("beginRun");
-    produces<ThingCollection, edm::Transition::EndRun>("endRun");
+    produces<ThingCollection, edm::Transition::BeginRun>("endRun");
   }
 
   // Virtual destructor needed.
@@ -51,6 +51,8 @@ namespace edmtest {
 
     // Step D: Put outputs into lumi block
     lb.put(std::move(result), "beginLumi");
+    
+    endLuminosityBlock(lb);
   }
 
   void ThingExtSource::endLuminosityBlock(edm::LuminosityBlock& lb) {
@@ -78,6 +80,8 @@ namespace edmtest {
 
     // Step D: Put outputs into event
     r.put(std::move(result), "beginRun");
+    
+    endRun(r);
   }
 
   void ThingExtSource::endRun(edm::Run& r) {
