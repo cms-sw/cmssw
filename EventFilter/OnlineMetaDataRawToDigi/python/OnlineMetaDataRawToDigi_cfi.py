@@ -1,2 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-import EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi

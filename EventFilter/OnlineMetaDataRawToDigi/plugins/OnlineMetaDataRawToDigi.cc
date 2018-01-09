@@ -63,9 +63,9 @@ OnlineMetaDataRawToDigi::OnlineMetaDataRawToDigi(const edm::ParameterSet& iConfi
   edm::InputTag dataLabel = iConfig.getParameter<edm::InputTag>("onlineMetaDataInputLabel");
   dataToken_=consumes<FEDRawDataCollection>(dataLabel);
 
-  produces<DCSRecord>("dcsRecord");
-  produces<OnlineLuminosityRecord>("onlineLuminosityRecord");
-  produces<reco::BeamSpot>("onlineBeamSpot");
+  produces<DCSRecord>();
+  produces<OnlineLuminosityRecord>();
+  produces<reco::BeamSpot>();
 }
 
 
@@ -100,9 +100,9 @@ void OnlineMetaDataRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     }
   }
 
-  iEvent.put(std::make_unique<DCSRecord>(dcsRecord), "dcsRecord");
-  iEvent.put(std::make_unique<OnlineLuminosityRecord>(onlineLuminosityRecord), "onlineLuminosityRecord");
-  iEvent.put(std::make_unique<reco::BeamSpot>(onlineBeamSpot), "onlineBeamSpot");
+  iEvent.put(std::make_unique<DCSRecord>(dcsRecord));
+  iEvent.put(std::make_unique<OnlineLuminosityRecord>(onlineLuminosityRecord));
+  iEvent.put(std::make_unique<reco::BeamSpot>(onlineBeamSpot));
 }
 
 
