@@ -2384,6 +2384,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         else:
             upgradeStepDict[stepName][k]['--customise'] = custNew
 
+    for step in upgradeSteps['heCollapse']['steps']:
+        stepName = step + upgradeSteps['heCollapse']['suffix']
+        upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2018,run2_HECollapse_2018'}, upgradeStepDict[step][k]])
+
     # setup PU
     if k2 in PUDataSets:
         for stepType in upgradeSteps.keys():
