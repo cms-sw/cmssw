@@ -126,6 +126,18 @@ upgradeSteps['Neutron'] = {
     'suffix' : '_Neutron',
     'offset' : 0.3,
 }
+upgradeSteps['heCollapse'] = {
+    'steps' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'PU' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'suffix' : '_heCollapse',
+    'offset' : 0.6,
+}
 
 upgradeProperties = {}
 
