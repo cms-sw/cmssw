@@ -45,3 +45,7 @@ l1tStage2MonitorClient = cms.Sequence(
                         l1TStage2Clients
                         )
 
+# EMTF DQM quality tests
+process.load("DQM.L1TMonitorClient.L1TEMTFMonitorClient_cff")
+process.l1tEMTFClientsPath = cms.Path(process.l1TEMTFClients)
+process.l1tEMTFMonitorClientPath = cms.Path(process.l1tEMTFMonitorClient)

@@ -78,7 +78,6 @@ process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
 process.load("DQM.L1TMonitor.L1TStage2_cff")
 
 process.l1tMonitorPath = cms.Path(
-    process.l1tStage2Unpack +
     process.l1tStage2OnlineDQM +
     process.hltFatEventFilter +
 #    process.selfFatEventFilter +
@@ -97,9 +96,7 @@ process.l1tMonitorPath = cms.Path(
 # Stage2 Quality Tests
 process.load("DQM.L1TMonitorClient.L1TStage2MonitorClient_cff")
 process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
-process.load("DQM.L1TMonitorClient.L1TEMTFMonitorClient_cff")
-process.l1tEMTFClientsPath = cms.Path(process.l1TEMTFClients)
-process.l1tEMTFMonitorClientPath = cms.Path(process.l1tEMTFMonitorClient)
+
 #--------------------------------------------------
 # Legacy DQM EndPath
 # TODO: Is lumi scalers still relevant?
@@ -146,7 +143,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.l1tCaloLayer1Digis.fedRawDataLabel = cms.InputTag("rawDataRepacker")
     process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
@@ -162,8 +158,6 @@ process.schedule = cms.Schedule(
     process.rawToDigiPath,
     process.l1tMonitorPath,
     process.l1tStage2MonitorClientPath,
-    process.l1tEMTFMonitorClientPath,
-    process.l1tEMTFClientsPath,
 #    process.l1tMonitorEndPath,
     process.dqmEndPath
 )
