@@ -10,9 +10,9 @@
 
 
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-#l1tEMTFEventInfoClient = cms.EDAnalyzer("L1TEMTFEventInfoClient",
-l1tEMTFEventInfoClient = cms.EDProducer("L1TEMTFEventInfoClient", #figure out why not EDAnalyzer
+l1tEMTFEventInfoClient = DQMEDHarvester("L1TEMTFEventInfoClient",
     monitorDir = cms.untracked.string("L1T/L1TStage2EMTF"), ## Location of output EventInfo/reportSummaryContents
     histDir = cms.untracked.string("L1T/L1TStage2EMTF"),    ## Location of input histograms for quality tests
     

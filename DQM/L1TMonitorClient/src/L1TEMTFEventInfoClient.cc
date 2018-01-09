@@ -13,33 +13,6 @@
 // this class header
 #include "DQM/L1TMonitorClient/interface/L1TEMTFEventInfoClient.h"
 
-// system include files
-#include <stdio.h>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-
-#include <math.h>
-#include <memory>
-
-#include <vector>
-#include <string>
-
-// user include files
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DQMServices/Core/interface/QReport.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-# include "DQMServices/Core/interface/DQMDefinitions.h"
-
-#include <TH2F.h>
-#include "TROOT.h"
-
 // constructor
 L1TEMTFEventInfoClient::L1TEMTFEventInfoClient(const edm::ParameterSet& parSet) :
             m_verbose(parSet.getUntrackedParameter<bool>("verbose", false)),
@@ -73,10 +46,7 @@ L1TEMTFEventInfoClient::~L1TEMTFEventInfoClient() {
 
 void L1TEMTFEventInfoClient::initialize() {
   
-    if (m_verbose) {
-        std::cout << "\nMonitor directory =             " << m_monitorDir
-                << std::endl;
-    }
+    if (m_verbose) std::cout << "\nMonitor directory =             " << m_monitorDir << std::endl;
 
     // L1 systems
 
@@ -95,28 +65,26 @@ void L1TEMTFEventInfoClient::initialize() {
 
     int totalNrQualityTests = 0;
 
-    for (std::vector<edm::ParameterSet>::const_iterator itTrack =
-            m_trackObjects.begin(); itTrack != m_trackObjects.end(); ++itTrack) {
+    for (const auto & itTrack : m_trackObjects) {
 
-        m_trackLabel.push_back(itTrack->getParameter<std::string>(
+        m_trackLabel.push_back(itTrack.getParameter<std::string>(
                 "SystemLabel"));
 
-        // m_trackLabelExt.push_back(itTrack->getParameter<std::string>(  // Not needed? - AWB 05.12.16
+        // m_trackLabelExt.push_back(itTrack.getParameter<std::string>(  // Not needed? - AWB 05.12.16
         //         "HwValLabel"));
 
-        m_trackDisable.push_back(itTrack->getParameter<unsigned int>(
+        m_trackDisable.push_back(itTrack.getParameter<unsigned int>(
                 "SystemDisable"));
         // check the additional disable flag from m_disableTrackObjects
-        for (std::vector<std::string>::const_iterator itSys =
-                m_disableTrackObjects.begin(); itSys != m_disableTrackObjects.end(); ++itSys) {
+	for (const auto & itSys : m_disableTrackObjects) {
 
-            if (*itSys == m_trackLabel[indexSys]) {
+            if (itSys == m_trackLabel[indexSys]) {
                 m_trackDisable[indexSys] = 1;
 
             }
         }
 
-        std::vector < edm::ParameterSet > qTests = itTrack->getParameter<
+        std::vector < edm::ParameterSet > qTests = itTrack.getParameter<
                 std::vector<edm::ParameterSet> > ("QualityTests");
         size_t qtPerSystem = qTests.size();
 
@@ -129,20 +97,19 @@ void L1TEMTFEventInfoClient::initialize() {
         std::vector<unsigned int> qtSumEnabled;
         qtSumEnabled.reserve(qtPerSystem);
 
-	std::cout << "\nLooping over track quality tests" << std::endl;
-        for (std::vector<edm::ParameterSet>::const_iterator itQT =
-                qTests.begin(); itQT != qTests.end(); ++itQT) {
+	if (m_verbose) std::cout << "\nLooping over track quality tests" << std::endl;
+	for (const auto & itQT : qTests) {
 
             totalNrQualityTests++;
 
             qtNames.push_back(
-                    itQT->getParameter<std::string> ("QualityTestName"));
+                    itQT.getParameter<std::string> ("QualityTestName"));
 
-            // qtFullPathHists.push_back( m_histDir + "/" + itQT->getParameter<std::string> ("QualityTestHist"));
-            qtFullPathHists.push_back( itQT->getParameter<std::string> ("QualityTestHist"));
-	    std::cout << qtFullPathHists.back() << std::endl;
+            // qtFullPathHists.push_back( m_histDir + "/" + itQT.getParameter<std::string> ("QualityTestHist"));
+            qtFullPathHists.push_back( itQT.getParameter<std::string> ("QualityTestHist"));
+	    if (m_verbose) std::cout << qtFullPathHists.back() << std::endl;
 
-            unsigned int qtEnabled = itQT->getParameter<unsigned int> (
+            unsigned int qtEnabled = itQT.getParameter<unsigned int> (
                     "QualityTestSummaryEnabled");
 
             qtSumEnabled.push_back(qtEnabled);
@@ -175,25 +142,23 @@ void L1TEMTFEventInfoClient::initialize() {
 
     int indexObj = 0;
 
-    for (std::vector<edm::ParameterSet>::const_iterator itObject =
-            m_hitObjects.begin(); itObject != m_hitObjects.end(); ++itObject) {
+    for (const auto & itObject : m_hitObjects) {
 
-        m_hitLabel.push_back(itObject->getParameter<std::string>(
+        m_hitLabel.push_back(itObject.getParameter<std::string>(
                 "HitLabel"));
 
-        m_hitDisable.push_back(itObject->getParameter<unsigned int>(
+        m_hitDisable.push_back(itObject.getParameter<unsigned int>(
                 "HitDisable"));
         // check the additional disable flag from m_disableHitObjects
-        for (std::vector<std::string>::const_iterator itObj =
-                m_disableHitObjects.begin(); itObj != m_disableHitObjects.end(); ++itObj) {
+	for (const auto & itObj : m_disableHitObjects) {
 
-            if (*itObj == m_hitLabel[indexObj]) {
+            if (itObj == m_hitLabel[indexObj]) {
                 m_hitDisable[indexObj] = 1;
 
             }
         }
 
-        std::vector < edm::ParameterSet > qTests = itObject->getParameter<
+        std::vector < edm::ParameterSet > qTests = itObject.getParameter<
                 std::vector<edm::ParameterSet> > ("QualityTests");
         size_t qtPerObject = qTests.size();
 
@@ -206,20 +171,19 @@ void L1TEMTFEventInfoClient::initialize() {
         std::vector<unsigned int> qtSumEnabled;
         qtSumEnabled.reserve(qtPerObject);
 
-	std::cout << "\nLooping over hit quality tests" << std::endl;
-        for (std::vector<edm::ParameterSet>::const_iterator itQT =
-                qTests.begin(); itQT != qTests.end(); ++itQT) {
+	if (m_verbose) std::cout << "\nLooping over hit quality tests" << std::endl;
+	for (const auto & itQT : qTests) {
 
             totalNrQualityTests++;
 
             qtNames.push_back(
-                    itQT->getParameter<std::string> ("QualityTestName"));
+                    itQT.getParameter<std::string> ("QualityTestName"));
 
-            // qtFullPathHists.push_back( m_histDir + "/" + itQT->getParameter<std::string> ("QualityTestHist") );
-            qtFullPathHists.push_back( itQT->getParameter<std::string> ("QualityTestHist") );
-	    std::cout << qtFullPathHists.back() << std::endl;
+            // qtFullPathHists.push_back( m_histDir + "/" + itQT.getParameter<std::string> ("QualityTestHist") );
+            qtFullPathHists.push_back( itQT.getParameter<std::string> ("QualityTestHist") );
+	    if (m_verbose) std::cout << qtFullPathHists.back() << std::endl;
 
-            unsigned int qtEnabled = itQT->getParameter<unsigned int> (
+            unsigned int qtEnabled = itQT.getParameter<unsigned int> (
                     "QualityTestSummaryEnabled");
 
             qtSumEnabled.push_back(qtEnabled);
@@ -252,24 +216,22 @@ void L1TEMTFEventInfoClient::initialize() {
 
     int indexNois = 0;
 
-    for (std::vector<edm::ParameterSet>::const_iterator itNoisy =
-            m_noisyStrip.begin(); itNoisy != m_noisyStrip.end(); ++itNoisy) {
+    for (const auto & itNoisy : m_noisyStrip) {
 
-        m_noisyLabel.push_back(itNoisy->getParameter<std::string>(
+        m_noisyLabel.push_back(itNoisy.getParameter<std::string>(
                 "NoisyLabel"));
 
-        m_noisyDisable.push_back(itNoisy->getParameter<unsigned int>(
+        m_noisyDisable.push_back(itNoisy.getParameter<unsigned int>(
                 "NoisyDisable"));
         // check the additional disable flag from m_disableNoisyObjects
-        for (std::vector<std::string>::const_iterator itNois =
-                m_disableNoisyStrip.begin(); itNois != m_disableNoisyStrip.end(); ++itNois) {
+	for (const auto & itNois : m_disableNoisyStrip) {
 
-            if (*itNois == m_noisyLabel[indexNois]) {
+            if (itNois == m_noisyLabel[indexNois]) {
                 m_noisyDisable[indexNois] = 1;
             }
         }
 
-        std::vector < edm::ParameterSet > qTests = itNoisy->getParameter<
+        std::vector < edm::ParameterSet > qTests = itNoisy.getParameter<
                 std::vector<edm::ParameterSet> > ("QualityTests");
         size_t qtPerNoisy = qTests.size();
 
@@ -282,19 +244,18 @@ void L1TEMTFEventInfoClient::initialize() {
         std::vector<unsigned int> qtSumEnabled;
         qtSumEnabled.reserve(qtPerNoisy);
 
-	std::cout << "\nLooping over noisy quality tests" << std::endl;
-        for (std::vector<edm::ParameterSet>::const_iterator itQT =
-                qTests.begin(); itQT != qTests.end(); ++itQT) {
+	if (m_verbose) std::cout << "\nLooping over noisy quality tests" << std::endl;
+	for (const auto & itQT : qTests) {
 
             totalNrQualityTests++;
 
             qtNames.push_back(
-                    itQT->getParameter<std::string> ("QualityTestName"));
+                    itQT.getParameter<std::string> ("QualityTestName"));
 
-            qtFullPathHists.push_back( itQT->getParameter<std::string> ("QualityTestHist"));
-	    std::cout << qtFullPathHists.back() << std::endl;
+            qtFullPathHists.push_back( itQT.getParameter<std::string> ("QualityTestHist"));
+	    if (m_verbose) std::cout << qtFullPathHists.back() << std::endl;
 
-            unsigned int qtEnabled = itQT->getParameter<unsigned int> (
+            unsigned int qtEnabled = itQT.getParameter<unsigned int> (
                     "QualityTestSummaryEnabled");
 
             qtSumEnabled.push_back(qtEnabled);
@@ -325,24 +286,22 @@ void L1TEMTFEventInfoClient::initialize() {
 
     int indexDed = 0;
 
-    for (std::vector<edm::ParameterSet>::const_iterator itDead =
-            m_deadStrip.begin(); itDead != m_deadStrip.end(); ++itDead) {
+    for (const auto & itDead : m_deadStrip) {
 
-        m_deadLabel.push_back(itDead->getParameter<std::string>(
+        m_deadLabel.push_back(itDead.getParameter<std::string>(
                 "DeadLabel"));
 
-        m_deadDisable.push_back(itDead->getParameter<unsigned int>(
+        m_deadDisable.push_back(itDead.getParameter<unsigned int>(
                 "DeadDisable"));
         // check the additional disable flag from m_disableDeadObjects
-        for (std::vector<std::string>::const_iterator itDed =
-                m_disableDeadStrip.begin(); itDed != m_disableDeadStrip.end(); ++itDed) {
+	for (const auto & itDed : m_disableDeadStrip) {
 
-            if (*itDed == m_deadLabel[indexDed]) {
+            if (itDed == m_deadLabel[indexDed]) {
                 m_deadDisable[indexDed] = 1;
             }
         }
 
-        std::vector < edm::ParameterSet > qTests = itDead->getParameter<
+        std::vector < edm::ParameterSet > qTests = itDead.getParameter<
                 std::vector<edm::ParameterSet> > ("QualityTests");
         size_t qtPerDead = qTests.size();
 
@@ -355,19 +314,18 @@ void L1TEMTFEventInfoClient::initialize() {
         std::vector<unsigned int> qtSumEnabled;
         qtSumEnabled.reserve(qtPerDead);
 
-	std::cout << "\nLooping over dead quality tests" << std::endl;
-        for (std::vector<edm::ParameterSet>::const_iterator itQT =
-                qTests.begin(); itQT != qTests.end(); ++itQT) {
+	if (m_verbose) std::cout << "\nLooping over dead quality tests" << std::endl;
+	for (const auto & itQT : qTests) {
 
             totalNrQualityTests++;
 
             qtNames.push_back(
-                    itQT->getParameter<std::string> ("QualityTestName"));
+                    itQT.getParameter<std::string> ("QualityTestName"));
 
-            qtFullPathHists.push_back( itQT->getParameter<std::string> ("QualityTestHist"));
-	    std::cout << qtFullPathHists.back() << std::endl;
+            qtFullPathHists.push_back( itQT.getParameter<std::string> ("QualityTestHist"));
+	    if (m_verbose) std::cout << qtFullPathHists.back() << std::endl;
 
-            unsigned int qtEnabled = itQT->getParameter<unsigned int> (
+            unsigned int qtEnabled = itQT.getParameter<unsigned int> (
                     "QualityTestSummaryEnabled");
 
             qtSumEnabled.push_back(qtEnabled);
@@ -391,17 +349,15 @@ void L1TEMTFEventInfoClient::initialize() {
 
 void L1TEMTFEventInfoClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
 
-  std::cout << "\nInside void L1TEMTFEventInfoClient::dqmEndLuminosityBlock" << std::endl;
+  if (m_verbose) std::cout << "\nInside void L1TEMTFEventInfoClient::dqmEndLuminosityBlock" << std::endl;
   if (m_runInEndLumi) {
     
     book(ibooker, igetter);
     readQtResults(ibooker, igetter);
 
     if (m_verbose) {
-
-        std::cout << "\n  L1TEMTFEventInfoClient::endLuminosityBlock\n"
-                << std::endl;
-        dumpContentMonitorElements(ibooker, igetter);
+      std::cout << "\n  L1TEMTFEventInfoClient::endLuminosityBlock\n" << std::endl;
+      dumpContentMonitorElements(ibooker, igetter);
     }
 
   }
@@ -410,13 +366,12 @@ void L1TEMTFEventInfoClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, D
 
 void L1TEMTFEventInfoClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
 
-  std::cout << "\nInside void L1TEMTFEventInfoClient::dqmEndJob" << std::endl;
+  if (m_verbose) std::cout << "\nInside void L1TEMTFEventInfoClient::dqmEndJob" << std::endl;
   book(ibooker, igetter);
 
   readQtResults(ibooker, igetter);
 
   if (m_verbose) {
-
     std::cout << "\n  L1TEMTFEventInfoClient::endRun\n" << std::endl;
     dumpContentMonitorElements(ibooker, igetter);
   }
@@ -424,31 +379,28 @@ void L1TEMTFEventInfoClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
 
 void L1TEMTFEventInfoClient::dumpContentMonitorElements(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
 
-    std::cout << "\nSummary report " << std::endl;
+    if (m_verbose) std::cout << "\nSummary report " << std::endl;
 
     // summary content
 
     MonitorElement* me = igetter.get(m_meReportSummaryMap->getName());
 
-    std::cout
-            << "\nSummary content per system and object as filled in histogram\n  "
-            << m_meReportSummaryMap->getName() << std::endl;
+    if (m_verbose) std::cout << "\nSummary content per system and object as filled in histogram\n  "
+			     << m_meReportSummaryMap->getName() << std::endl;
 
     if (!me) {
 
-        std::cout << "\nNo histogram " << m_meReportSummaryMap->getName()
-                << "\nNo summary content per system and object as filled in histogram.\n  "
-                << std::endl;
+      if (m_verbose) std::cout << "\nNo histogram " << m_meReportSummaryMap->getName()
+			       << "\nNo summary content per system and object as filled in histogram.\n  " << std::endl;
         return;
-
     }
 
     TH2F* hist = me->getTH2F();
 
     const int nBinsX = hist->GetNbinsX();
     const int nBinsY = hist->GetNbinsY();
-    std::cout << nBinsX << " " << nBinsY;
-
+    if (m_verbose) std::cout << nBinsX << " " << nBinsY;
+    
     std::vector<std::vector<int> > meReportSummaryMap(nBinsX, std::vector<int>(
             nBinsY));
 
@@ -459,51 +411,45 @@ void L1TEMTFEventInfoClient::dumpContentMonitorElements(DQMStore::IBooker &ibook
 //        }
 //    }
 
-    std::cout << "\nL1 systems: " << m_nrTrackObjects << " systems included\n"
-            << "\n Summary content size: " << (m_summaryContent.size())
-            << std::endl;
+    if (m_verbose) std::cout << "\nL1 systems: " << m_nrTrackObjects << " systems included\n"
+			     << "\n Summary content size: " << (m_summaryContent.size()) << std::endl;
 
     for (unsigned int iTrackObj = 0; iTrackObj < m_nrTrackObjects; ++iTrackObj) {
 
-        std::cout << std::setw(10) << m_trackLabel[iTrackObj] << std::setw(10)
-	  // << m_trackLabelExt[iTrackObj] << " \t" << m_trackDisable[iTrackObj]
-                << m_trackDisable[iTrackObj]
-                << " \t" << std::setw(25) << " m_summaryContent["
-                << std::setw(2) << iTrackObj << "] = " << meReportSummaryMap[0][iTrackObj]
-                << std::endl;
+      if (m_verbose) std::cout << std::setw(10) << m_trackLabel[iTrackObj] << std::setw(10)
+		       // << m_trackLabelExt[iTrackObj] << " \t" << m_trackDisable[iTrackObj]
+			       << m_trackDisable[iTrackObj]
+			       << " \t" << std::setw(25) << " m_summaryContent["
+			       << std::setw(2) << iTrackObj << "] = " << meReportSummaryMap[0][iTrackObj] << std::endl;
     }
 
-    std::cout << "\n L1 trigger objects: " << m_nrHitObjects
-            << " objects included\n" << std::endl;
+    if (m_verbose) std::cout << "\n L1 trigger objects: " << m_nrHitObjects
+			     << " objects included\n" << std::endl;
 
     for (unsigned int iMon = m_nrTrackObjects; iMon < m_nrTrackObjects
             + m_nrHitObjects; ++iMon) {
 
-        std::cout << std::setw(20) << m_hitLabel[iMon - m_nrTrackObjects]
-                << " \t" << m_hitDisable[iMon - m_nrTrackObjects] << " \t"
-                << std::setw(25) << " m_summaryContent[" << std::setw(2)
-                << iMon << "] = \t" << m_summaryContent[iMon] << std::endl;
+      if (m_verbose) std::cout << std::setw(20) << m_hitLabel[iMon - m_nrTrackObjects]
+			       << " \t" << m_hitDisable[iMon - m_nrTrackObjects] << " \t"
+			       << std::setw(25) << " m_summaryContent[" << std::setw(2)
+			       << iMon << "] = \t" << m_summaryContent[iMon] << std::endl;
     }
 
-    std::cout << std::endl;
+    if (m_verbose) std::cout << std::endl;
 
     // quality tests
 
-    std::cout << "\nQuality test results as filled in " << "\n  "
-            << m_monitorDir << "/EventInfo/reportSummaryContents\n"
-            << "\n  Total number of quality tests: "
-            << (m_meReportSummaryContent.size()) << "\n" << std::endl;
+    if (m_verbose) std::cout << "\nQuality test results as filled in " << "\n  "
+			     << m_monitorDir << "/EventInfo/reportSummaryContents\n"
+			     << "\n  Total number of quality tests: "
+			     << (m_meReportSummaryContent.size()) << "\n" << std::endl;
 
-    for (std::vector<MonitorElement*>::const_iterator itME =
-            m_meReportSummaryContent.begin(); itME
-            != m_meReportSummaryContent.end(); ++itME) {
-
-        std::cout << std::setw(50) << (*itME)->getName() << " \t"
-                << std::setw(25) << (*itME)->getFloatValue() << std::endl;
-
+    for (const auto itME : m_meReportSummaryContent) {
+      if (m_verbose) std::cout << std::setw(50) << itME->getName() << " \t"
+			       << std::setw(25) << itME->getFloatValue() << std::endl;
     }
 
-    std::cout << std::endl;
+    if (m_verbose) std::cout << std::endl;
 
 }
 
@@ -511,30 +457,30 @@ void L1TEMTFEventInfoClient::dumpContentMonitorElements(DQMStore::IBooker &ibook
 
 void L1TEMTFEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
 
-  std::cout << "\nInside void L1TEMTFEventInfoClient::book" << std::endl;
+  if (m_verbose) std::cout << "\nInside void L1TEMTFEventInfoClient::book" << std::endl;
   std::string dirEventInfo = m_monitorDir + "/EventInfo";
-  std::cout << dirEventInfo << std::endl;
+  if (m_verbose) std::cout << dirEventInfo << std::endl;
 
   ibooker.setCurrentFolder(dirEventInfo);
-  std::cout << "Ran ibooker.setCurrentFolder(dirEventInfo;" << std::endl;
+  if (m_verbose) std::cout << "Ran ibooker.setCurrentFolder(dirEventInfo;" << std::endl;
 
     // remove m_meReportSummary if it exists
     if ((m_meReportSummary = igetter.get(dirEventInfo + "/reportSummary"))) {
-      std::cout << "Removing m_meReportSummary" << std::endl;
+      if (m_verbose) std::cout << "Removing m_meReportSummary" << std::endl;
       igetter.removeElement(m_meReportSummary->getName());
-      std::cout << "Ran igetter.removeElement(m_meReportSummary->getName());" << std::endl;
+      if (m_verbose) std::cout << "Ran igetter.removeElement(m_meReportSummary->getName());" << std::endl;
     }
 
     // ...and book it again
     m_meReportSummary = ibooker.bookFloat("reportSummary");
-    std::cout << "Ran m_meReportSummary = ibooker.bookFloat" << std::endl;
+    if (m_verbose) std::cout << "Ran m_meReportSummary = ibooker.bookFloat" << std::endl;
 
     // initialize reportSummary to 1
 
     if (m_meReportSummary) {
-      std::cout << "Initializing reportSummary to 1" << std::endl;
+      if (m_verbose) std::cout << "Initializing reportSummary to 1" << std::endl;
       m_meReportSummary->Fill(1);
-      std::cout << "Ran m_meReportSummary->Fill(1);" << std::endl;
+      if (m_verbose) std::cout << "Ran m_meReportSummary->Fill(1);" << std::endl;
     }
 
     // define float histograms for reportSummaryContents (one histogram per quality test),
@@ -542,40 +488,39 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter 
     // initialize also m_summaryContent to dqm::qstatus::DISABLED
 
     ibooker.setCurrentFolder(dirEventInfo + "/reportSummaryContents");
-    std::cout << "Ran ibooker.setCurrentFolder(dirEventInfo" << std::endl;
+    if (m_verbose) std::cout << "Ran ibooker.setCurrentFolder(dirEventInfo" << std::endl;
     // general counters:
     //   iAllQTest: all quality tests for all systems and objects
     //   iAllMon:   all monitored systems and objects
     int iAllQTest = 0;
     int iAllMon = 0;
     
-    std::cout << "m_nrTrackObjects = " << m_nrTrackObjects << std::endl;
+    if (m_verbose) std::cout << "m_nrTrackObjects = " << m_nrTrackObjects << std::endl;
     for (unsigned int iMon = 0; iMon < m_nrTrackObjects; ++iMon) {
-      std::cout << "  * iMon = " << iMon << std::endl;
+      if (m_verbose) std::cout << "  * iMon = " << iMon << std::endl;
 
         m_summaryContent.push_back(dqm::qstatus::DISABLED);
-	std::cout << "Ran m_summaryContent.push_back(dqm::qstatus::DISABLED);" << std::endl;
+	if (m_verbose) std::cout << "Ran m_summaryContent.push_back(dqm::qstatus::DISABLED);" << std::endl;
 
         const std::vector<std::string>& trackObjQtName = m_trackQualityTestName[iMon];
-	std::cout << "Ran const std::vector<std::string>& trackObjQtName = m_trackQualityTestName[iMon];" << std::endl;
+	if (m_verbose) std::cout << "Ran const std::vector<std::string>& trackObjQtName = m_trackQualityTestName[iMon];" << std::endl;
 
-        for (std::vector<std::string>::const_iterator itQtName =
-	       trackObjQtName.begin(); itQtName != trackObjQtName.end(); ++itQtName) {
+	for (const auto & itQtName : trackObjQtName) {
 
-	  std::cout << "    - m_monitorDir = " << m_monitorDir << ", m_trackLabel[iMon] = " << m_trackLabel[iMon]
-		    << ", (*itQtName) = " << (*itQtName) << std::endl;
+	  if (m_verbose) std::cout << "    - m_monitorDir = " << m_monitorDir << ", m_trackLabel[iMon] = " << m_trackLabel[iMon]
+				   << ", (itQtName) = " << (itQtName) << std::endl;
 
 	  // Avoid error in ibooker.bookFloat(hStr))
 	  std::string m_mon_mod = m_monitorDir;	  
 	  std::replace( m_mon_mod.begin(), m_mon_mod.end(), '/', '_' );
 
-	  const std::string hStr = m_mon_mod + "_L1Sys_" +m_trackLabel[iMon] + "_" + (*itQtName);
-	    std::cout << "    - " << hStr << std::endl;
+	  const std::string hStr = m_mon_mod + "_L1Sys_" +m_trackLabel[iMon] + "_" + (itQtName);
+	    if (m_verbose) std::cout << "    - " << hStr << std::endl;
 
             m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
-	    std::cout << "    - Ran m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));" << std::endl;
+	    if (m_verbose) std::cout << "    - Ran m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));" << std::endl;
             m_meReportSummaryContent[iAllQTest]->Fill(0.);
-	    std::cout << "    - Ran m_meReportSummaryContent[iAllQTest]->Fill(0.);" << std::endl;
+	    if (m_verbose) std::cout << "    - Ran m_meReportSummaryContent[iAllQTest]->Fill(0.);" << std::endl;
 
             iAllQTest++;
         }
@@ -585,27 +530,26 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter 
 
 
     for (unsigned int iMon = 0; iMon < m_nrHitObjects; ++iMon) {
-      std::cout << "  * iMon = " << iMon << std::endl;
+      if (m_verbose) std::cout << "  * iMon = " << iMon << std::endl;
 
       m_summaryContent.push_back(dqm::qstatus::DISABLED);
 
         const std::vector<std::string>& objQtName =
                 m_hitQualityTestName[iMon];
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                objQtName.begin(); itQtName != objQtName.end(); ++itQtName) {
+	for (const auto & itQtName : objQtName) {
 
 	  // Avoid error in ibooker.bookFloat(hStr))
 	  std::string m_mon_mod = m_monitorDir;	  
 	  std::replace( m_mon_mod.begin(), m_mon_mod.end(), '/', '_' );
 
-            const std::string hStr = m_mon_mod + "_L1Obj_" + m_hitLabel[iMon] + "_" + (*itQtName);
-	    std::cout << "    - " << hStr << std::endl;
+            const std::string hStr = m_mon_mod + "_L1Obj_" + m_hitLabel[iMon] + "_" + (itQtName);
+	    if (m_verbose) std::cout << "    - " << hStr << std::endl;
 
             m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
-	    std::cout << "    - Ran m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));" << std::endl;
+	    if (m_verbose) std::cout << "    - Ran m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));" << std::endl;
             m_meReportSummaryContent[iAllQTest]->Fill(0.);
-	    std::cout << "    - Ran m_meReportSummaryContent[iAllQTest]->Fill(0.);" << std::endl;
+	    if (m_verbose) std::cout << "    - Ran m_meReportSummaryContent[iAllQTest]->Fill(0.);" << std::endl;
 
             iAllQTest++;
         }
@@ -622,15 +566,14 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter 
         const std::vector<std::string>& objQtName =
                 m_noisyQualityTestName[iMon];
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                objQtName.begin(); itQtName != objQtName.end(); ++itQtName) {
+	for (const auto & itQtName : objQtName) {
 
 	  // Avoid error in ibooker.bookFloat(hStr))
 	  std::string m_mon_mod = m_monitorDir;	  
 	  std::replace( m_mon_mod.begin(), m_mon_mod.end(), '/', '_' );
 
-            const std::string hStr = m_mon_mod + "_L1Obj_" + m_noisyLabel[iMon] + "_" + (*itQtName);
-	    std::cout << "    - " << hStr << std::endl;
+            const std::string hStr = m_mon_mod + "_L1Obj_" + m_noisyLabel[iMon] + "_" + (itQtName);
+	    if (m_verbose) std::cout << "    - " << hStr << std::endl;
 
             m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
             m_meReportSummaryContent[iAllQTest]->Fill(0.);
@@ -647,15 +590,14 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter 
         const std::vector<std::string>& objQtName =
                 m_deadQualityTestName[iMon];
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                objQtName.begin(); itQtName != objQtName.end(); ++itQtName) {
+	for (const auto & itQtName : objQtName) {
 
 	  // Avoid error in ibooker.bookFloat(hStr))
 	  std::string m_mon_mod = m_monitorDir;	  
 	  std::replace( m_mon_mod.begin(), m_mon_mod.end(), '/', '_' );
 
-            const std::string hStr = m_mon_mod + "_L1Obj_" + m_deadLabel[iMon] + "_" + (*itQtName);
-	    std::cout << "    - " << hStr << std::endl;
+            const std::string hStr = m_mon_mod + "_L1Obj_" + m_deadLabel[iMon] + "_" + (itQtName);
+	    if (m_verbose) std::cout << "    - " << hStr << std::endl;
 
             m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
             m_meReportSummaryContent[iAllQTest]->Fill(0.);
@@ -665,9 +607,9 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter 
         iAllMon++;
     }
 
-    std::cout << "Setting current folder to " << dirEventInfo << std::endl;
+    if (m_verbose) std::cout << "Setting current folder to " << dirEventInfo << std::endl;
     ibooker.setCurrentFolder(dirEventInfo);
-    std::cout << "Ran ibooker.setCurrentFolder(dirEventInfo);" << std::endl;
+    if (m_verbose) std::cout << "Ran ibooker.setCurrentFolder(dirEventInfo);" << std::endl;
 
     // Should this be a "==" ?  - AWB 03.12.16
     if ((m_meReportSummaryMap = igetter.get(dirEventInfo + "/reportSummaryMap"))) {
@@ -713,8 +655,10 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter 
     m_meReportSummaryMap->setBinLabel(2, "Track BX", 2);
     m_meReportSummaryMap->setBinLabel(3, "Track Phi", 2);
 
-    std::string name;
-		std::vector<std::string> suffix_name = {"-4/2", "-4/1", "-3/2", "-3/1", "-2/2", "-2/1", "-1/3", "-1/2", "-1/1b", "-1/1a", "+1/1a", "+1/1b", "+1/2", "+1/3", "+2/1", "+2/2", "+3/1", "+3/2", "+4/1", "+4/2"};
+    const std::vector<std::string> suffix_name = {"-4/2", "-4/1", "-3/2", "-3/1", "-2/2", "-2/1", 
+						  "-1/3", "-1/2", "-1/1b", "-1/1a", 
+						  "+1/1a", "+1/1b", "+1/2", "+1/3", 
+						  "+2/1", "+2/2", "+3/1", "+3/2", "+4/1", "+4/2"};
     for (int iBin = 0; iBin < nBinsYStrip; ++iBin) {
         m_meReportSummaryMap_chamberStrip->setBinLabel(iBin + 1, "ChamberStrip " + suffix_name[iBin], 2);
     } 
@@ -726,20 +670,17 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
     // initialize summary content, summary sum and ReportSummaryContent float histograms
     // for all L1 systems and L1 objects
 
-  std::cout << "\nInside L1TEMTFEventInfoClient::readQtResults" << std::endl; // Extra printout - AWB 03.12.16
+  if (m_verbose) std::cout << "\nInside L1TEMTFEventInfoClient::readQtResults" << std::endl; // Extra printout - AWB 03.12.16
 
-    for (std::vector<int>::iterator it = m_summaryContent.begin(); it
-            != m_summaryContent.end(); ++it) {
+    for (std::vector<int>::iterator it = m_summaryContent.begin(); 
+	 it != m_summaryContent.end(); ++it) {
         (*it) = dqm::qstatus::DISABLED;
     }
 
     m_summarySum = 0.;
 
-    for (std::vector<MonitorElement*>::iterator itME =
-            m_meReportSummaryContent.begin(); itME
-            != m_meReportSummaryContent.end(); ++itME) {
-
-        (*itME)->Fill(0.);
+    for (const auto & itME : m_meReportSummaryContent) {
+        itME->Fill(0.);
     }
 
     // general counters:
@@ -764,12 +705,11 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
         // pro system counter for quality tests
         int iTrackObjQTest = 0;
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                trackObjQtName.begin(); itQtName != trackObjQtName.end(); ++itQtName) {
+	for (const auto & itQtName : trackObjQtName) {
 
             // get results, status and message
 
-	  std::cout << "  *itQtName = " << (*itQtName) << std::endl; // Extra printout - AWB 03.12.16
+	  if (m_verbose) std::cout << "  itQtName = " << (itQtName) << std::endl; // Extra printout - AWB 03.12.16
 
             MonitorElement* qHist = igetter.get(trackObjQtHist[iTrackObjQTest]);
 
@@ -780,27 +720,26 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
                 // if (m_verbose) {
 		if (true) {  // Force printout - AWB 03.12.16
 
-                    std::cout << "  - Number of quality tests"
-		    // std::cout << "\nNumber of quality tests"
+                    if (m_verbose) std::cout << "  - Number of quality tests"
+		    // if (m_verbose) std::cout << "\nNumber of quality tests"
                             << " for histogram " << trackObjQtHist[iTrackObjQTest]
                             << ": " << qtVec.size() << "\n" << std::endl;
                 }
 
-                const QReport* sysQReport = qHist->getQReport(*itQtName);
+                const QReport* sysQReport = qHist->getQReport(itQtName);
                 if (sysQReport) {
                     const float trackObjQtResult = sysQReport->getQTresult();
                     const int trackObjQtStatus = sysQReport->getStatus();
                     const std::string& trackObjQtMessage = sysQReport->getMessage();
 
-                    // if (m_verbose) {
-		    if (true) {  // Force printout - AWB 03.12.16
-                        std::cout << "\n" << (*itQtName) << " quality test:"
-                                << "\n  result:  " << trackObjQtResult
-                                << "\n  status:  " << trackObjQtStatus
-                                << "\n  message: " << trackObjQtMessage << "\n"
-                                << "\nFilling m_meReportSummaryContent["
-                                << iAllQTest << "] with value "
-                                << trackObjQtResult << "\n" << std::endl;
+		    if (m_verbose) {
+		      std::cout << "\n" << (itQtName) << " quality test:"
+				<< "\n  result:  " << trackObjQtResult
+				<< "\n  status:  " << trackObjQtStatus
+				<< "\n  message: " << trackObjQtMessage << "\n"
+				<< "\nFilling m_meReportSummaryContent["
+				<< iAllQTest << "] with value "
+				<< trackObjQtResult << "\n" << std::endl;
                     }
 
                     m_meReportSummaryContent[iAllQTest]->Fill(trackObjQtResult);
@@ -832,12 +771,9 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
                     }
 
                     m_meReportSummaryContent[iAllQTest]->Fill(0.);
-
-                    if (m_verbose) {
-
-                        std::cout << "\n" << (*itQtName)
-                                << " quality test not found\n" << std::endl;
-                    }
+		    
+		    if (m_verbose) std::cout << "\n" << (itQtName)
+					     << " quality test not found\n" << std::endl;
                 }
 
             } else {
@@ -855,12 +791,8 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
                 m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
-                if (m_verbose) {
-
-                    std::cout << "\nHistogram " << trackObjQtHist[iTrackObjQTest]
-                            << " not found\n" << std::endl;
-                }
-
+		if (m_verbose) std::cout << "\nHistogram " << trackObjQtHist[iTrackObjQTest]
+					 << " not found\n" << std::endl;
             }
 
             // increase counters for quality tests
@@ -889,8 +821,7 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
         // pro object counter for quality tests
         int iHitObjQTest = 0;
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                hitObjQtName.begin(); itQtName != hitObjQtName.end(); ++itQtName) {
+	for (const auto & itQtName : hitObjQtName) {
 
             // get results, status and message
 
@@ -900,21 +831,18 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
                 const std::vector<QReport*> qtVec = qHist->getQReports();
                 const std::string hName = qHist->getName();
 
-                if (m_verbose) {
+		if (m_verbose) std::cout << "\nNumber of quality tests "
+					 << " for histogram " << hitObjQtHist[iHitObjQTest]
+					 << ": " << qtVec.size() << "\n" << std::endl;
 
-                    std::cout << "\nNumber of quality tests "
-                            << " for histogram " << hitObjQtHist[iHitObjQTest]
-                            << ": " << qtVec.size() << "\n" << std::endl;
-                }
-
-                const QReport* objQReport = qHist->getQReport(*itQtName);
+                const QReport* objQReport = qHist->getQReport(itQtName);
                 if (objQReport) {
                     const float hitObjQtResult = objQReport->getQTresult();
                     const int hitObjQtStatus = objQReport->getStatus();
                     const std::string& hitObjQtMessage = objQReport->getMessage();
 
                     if (m_verbose) {
-                        std::cout << "\n" << (*itQtName) << " quality test:"
+                        std::cout << "\n" << (itQtName) << " quality test:"
                                 << "\n  result:  " << hitObjQtResult
                                 << "\n  status:  " << hitObjQtStatus
                                 << "\n  message: " << hitObjQtMessage << "\n"
@@ -952,12 +880,8 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
                     m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
-                    if (m_verbose) {
-
-                        std::cout << "\n" << (*itQtName)
-                                << " quality test not found\n" << std::endl;
-                    }
-
+		    if (m_verbose) std::cout << "\n" << (itQtName)
+					     << " quality test not found\n" << std::endl;
                 }
 
             } else {
@@ -975,10 +899,8 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
                 m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
-                if (m_verbose) {
-                    std::cout << "\nHistogram " << hitObjQtHist[iHitObjQTest]
-                            << " not found\n" << std::endl;
-                }
+		if (m_verbose) std::cout << "\nHistogram " << hitObjQtHist[iHitObjQTest]
+					 << " not found\n" << std::endl;
             }
             // increase counters for quality tests
             iHitObjQTest++;
@@ -1002,8 +924,7 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
         // pro object counter for quality tests
         int iNoisyStrpQTest = 0;
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                noisyStrpQtName.begin(); itQtName != noisyStrpQtName.end(); ++itQtName) {
+	for (const auto & itQtName : noisyStrpQtName) {
 
             // get results, status and message
             MonitorElement* qHist = igetter.get(noisyStrpQtHist[iNoisyStrpQTest]);
@@ -1012,21 +933,18 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
                 const std::vector<QReport*> qtVec = qHist->getQReports();
                 const std::string hName = qHist->getName();
 
-                if (m_verbose) {
+		if (m_verbose) std::cout << "\nNumber of quality tests "
+					 << " for histogram " << noisyStrpQtHist[iNoisyStrpQTest]
+					 << ": " << qtVec.size() << "\n" << std::endl;
 
-                    std::cout << "\nNumber of quality tests "
-                            << " for histogram " << noisyStrpQtHist[iNoisyStrpQTest]
-                            << ": " << qtVec.size() << "\n" << std::endl;
-                }
-
-                const QReport* objQReport = qHist->getQReport(*itQtName);
+                const QReport* objQReport = qHist->getQReport(itQtName);
                 if (objQReport) {
                     const float noisyStrpQtResult = objQReport->getQTresult();
                     const int noisyStrpQtStatus = objQReport->getStatus();
                     const std::string& noisyStrpQtMessage = objQReport->getMessage();
 
                     if (m_verbose) {
-                        std::cout << "\n" << (*itQtName) << " quality test:"
+                        std::cout << "\n" << (itQtName) << " quality test:"
                                 << "\n  result:  " << noisyStrpQtResult
                                 << "\n  status:  " << noisyStrpQtStatus
                                 << "\n  message: " << noisyStrpQtMessage << "\n"
@@ -1063,12 +981,8 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
                     m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
-                    if (m_verbose) {
-
-                        std::cout << "\n" << (*itQtName)
-                                << " quality test not found\n" << std::endl;
-                    }
-
+		    if (m_verbose) std::cout << "\n" << (itQtName)
+					     << " quality test not found\n" << std::endl;
                 }
 
             } else {
@@ -1086,11 +1000,8 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
                 m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
-                if (m_verbose) {
-                    std::cout << "\nHistogram " << noisyStrpQtHist[iNoisyStrpQTest]
-                            << " not found\n" << std::endl;
-                }
-
+		if (m_verbose) std::cout << "\nHistogram " << noisyStrpQtHist[iNoisyStrpQTest]
+					 << " not found\n" << std::endl;
             }
             // increase counters for quality tests
             iNoisyStrpQTest++;
@@ -1113,8 +1024,7 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
         // pro object counter for quality tests
         int iDeadStrpQTest = 0;
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                deadStrpQtName.begin(); itQtName != deadStrpQtName.end(); ++itQtName) {
+	for (const auto & itQtName : deadStrpQtName) {
 
             // get results, status and message
 
@@ -1124,21 +1034,18 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
                 const std::vector<QReport*> qtVec = qHist->getQReports();
                 const std::string hName = qHist->getName();
 
-                if (m_verbose) {
+		if (m_verbose) std::cout << "\nNumber of quality tests "
+					 << " for histogram " << deadStrpQtHist[iDeadStrpQTest]
+					 << ": " << qtVec.size() << "\n" << std::endl;
 
-                    std::cout << "\nNumber of quality tests "
-                            << " for histogram " << deadStrpQtHist[iDeadStrpQTest]
-                            << ": " << qtVec.size() << "\n" << std::endl;
-                }
-
-                const QReport* objQReport = qHist->getQReport(*itQtName);
+                const QReport* objQReport = qHist->getQReport(itQtName);
                 if (objQReport) {
                     const float deadStrpQtResult = objQReport->getQTresult();
                     const int deadStrpQtStatus = objQReport->getStatus();
                     const std::string& deadStrpQtMessage = objQReport->getMessage();
 
                     if (m_verbose) {
-                        std::cout << "\n" << (*itQtName) << " quality test:"
+                        std::cout << "\n" << (itQtName) << " quality test:"
                                 << "\n  result:  " << deadStrpQtResult
                                 << "\n  status:  " << deadStrpQtStatus
                                 << "\n  message: " << deadStrpQtMessage << "\n"
@@ -1175,12 +1082,8 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
                     m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
-                    if (m_verbose) {
-
-                        std::cout << "\n" << (*itQtName)
-                                << " quality test not found\n" << std::endl;
-                    }
-
+		    if (m_verbose) std::cout << "\n" << (itQtName)
+					     << " quality test not found\n" << std::endl;
                 }
 
             } else {
@@ -1198,12 +1101,9 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
                 m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
-                if (m_verbose) {
-                    std::cout << "\nHistogram " << deadStrpQtHist[iDeadStrpQTest]
-                            << " not found\n" << std::endl;
-                }
-
-            }
+		if (m_verbose) std::cout << "\nHistogram " << deadStrpQtHist[iDeadStrpQTest]
+					 << " not found\n" << std::endl;
+	    }
 
             // increase counters for quality tests
             iDeadStrpQTest++;
