@@ -1,16 +1,31 @@
 <LesHouchesEvents version="1.0">  
-<!-- T1 Additional XML structures can go here -->
+<!-- Test1 -->
 <header>
-<!-- T2 Additional XML tags can go here -->
+<samples xmlns="http://mcdb.cern.ch/hepml/0.2/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://mcdb.cern.ch/hepml/0.2/ file:/home/dudko/MCDB/hepml/schemas/0.2/hepml.xsd">
+    <files>
+        <file>
+            <eventsNumber>    914809</eventsNumber>
+            <crossSection unit="pb" errorMinus=" 3.7808E-01" errorPlus=" 3.7808E-01"> 2.2900E+01</crossSection>
+            <fileSize>    813704504</fileSize>
+            <checksum type="md5">01d6f6aa9ccc91837f141239d29d4639</checksum>
+            <comments></comments>
+            <location>
+              <path/>
+            </location>
+        </file>
+    </files>
+</samples>
 </header>
-<!-- T3 Additional XML structures can go here -->
+<!-- Test2 -->
 <init>
     2212   -2212  9.800000E+02  9.800000E+02     0     0     7     7     3     2
   5.220106E+00  5.384128E-01  1.000000E+00    81
   2.602564E-01  1.062492E-01  1.000000E+00    82
  # further comments can go here, but not earlier in this block
 </init>
-<!-- Additional XML structures can go here -->
+<!-- Test3 -->
 <event>
     12    81  1.000000E+00  1.733125E+02  7.819848E-03  1.156692E-01
        2   -1    0    0  101    0  0.0000000000E+00  0.0000000000E+00  1.0838163607E+02  1.0838163607E+02  0.0000000000E+00  0.000000E+00  9.0000E+00
