@@ -38,8 +38,6 @@ public:
 
 private:
   void endJob() override;
-  void beginRun(edm::Run &run) override;
-  void endRun(edm::Run &run) override;
   bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
   void readRun_(edm::RunPrincipal& runPrincipal) override;
   void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) override;
@@ -50,16 +48,18 @@ private:
 
   void nextEvent();
 
+  void putRunInfoProduct(edm::RunPrincipal&);
+  void fillRunInfoProduct(lhef::LHERunInfo const&, LHERunInfoProduct& );
+
   std::unique_ptr<lhef::LHEReader>      reader_;
 
   boost::shared_ptr<lhef::LHERunInfo>	runInfoLast_;
   boost::shared_ptr<lhef::LHEEvent>	partonLevel_;
 
-  std::deque<std::unique_ptr<LHERunInfoProduct>>	runInfoProducts_;
-  bool					wasMerged_;
+  std::unique_ptr<LHERunInfoProduct>	runInfoProductLast_;
   edm::LHEProvenanceHelper		lheProvenanceHelper_;
   edm::ProcessHistoryID			phid_;
-  edm::RunPrincipal*	                runPrincipal_;
+  edm::RunPrincipal*                    runPrincipal_;
 };
 
 #endif // GeneratorInterface_LHEInterface_LHESource_h
