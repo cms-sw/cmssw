@@ -460,8 +460,8 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
     return -1;
   } 
   //-- isInvalid ? - Check consistency in channel edges
-  double diff1 = TMath::Abs(h->GetXaxis()->GetXmin() - ref_->GetXaxis()->GetXmin());
-  double diff2 = TMath::Abs(h->GetXaxis()->GetXmax() - ref_->GetXaxis()->GetXmax());
+  double diff1 = std::abs(h->GetXaxis()->GetXmin() - ref_->GetXaxis()->GetXmin());
+  double diff2 = std::abs(h->GetXaxis()->GetXmax() - ref_->GetXaxis()->GetXmax());
   if (diff1 > difprec || diff2 > difprec)
   {
     if (verbose_>0) 
@@ -559,7 +559,7 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   {
     rsum1 += s1*h->GetBinContent(bin);
     rsum2 += s2*ref_->GetBinContent(bin);
-    dfmax = TMath::Max(dfmax,TMath::Abs(rsum1-rsum2));
+    dfmax = TMath::Max(dfmax,std::abs(rsum1-rsum2));
   }
 
   // Get Kolmogorov probability
@@ -569,12 +569,12 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   else             z = dfmax*TMath::Sqrt(esum1*esum2/(esum1+esum2));
 
   // This numerical error condition should never occur:
-  if (TMath::Abs(rsum1-1) > 0.002)
+  if (std::abs(rsum1-1) > 0.002)
     if (verbose_>0) 
       std::cout << "QTest:Comp2RefKolmogorov" 
                 << " Numerical problems with histogram "
                 << h->GetName() << "\n";
-  if (TMath::Abs(rsum2-1) > 0.002)
+  if (std::abs(rsum2-1) > 0.002)
     if (verbose_>0) 
       std::cout << "QTest:Comp2RefKolmogorov" 
                 << " Numerical problems with histogram "
@@ -942,7 +942,7 @@ float NoisyChannel::runTest(const MonitorElement *me)
       double average = getAverage(bin, h);
       bool failure = false;
       if (average != 0)
-         failure = (((contents-average)/TMath::Abs(average)) > tolerance_);
+         failure = (((contents-average)/std::abs(average)) > tolerance_);
 
       if (failure)
       {
@@ -962,7 +962,7 @@ float NoisyChannel::runTest(const MonitorElement *me)
         double average = getAverage2D(binX, binY, h);
         bool failure = false;
         if (average != 0)
-           failure = (((contents-average)/TMath::Abs(average)) > tolerance_);
+           failure = (((contents-average)/std::abs(average)) > tolerance_);
         if (failure)
         {
           ++fail;
@@ -1573,7 +1573,7 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
 	if (checkMeanTolerance_)
 	{
 	  double mean = h->GetBinContent(h->GetBin(cx, cy));
-          failMeanTolerance = (TMath::Abs(mean - average) > toleranceMean_*TMath::Abs(average));
+          failMeanTolerance = (std::abs(mean - average) > toleranceMean_*std::abs(average));
 	}
 
 	if (failMean || failRMS || failMeanTolerance)
