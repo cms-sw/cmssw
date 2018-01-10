@@ -109,15 +109,15 @@ hiPixelLessStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionP
      useFakeVertices       = False,
      VertexCollection = "hiSelectedPixelVertex",
      useFixedError = True,
-     fixedError = 12.0,
-     ptMin = 0.4,
+     fixedError = 3.0,#12.0
+     ptMin = 0.7, #0.4
      originRadius = 1.0,
      originRScaling4BigEvts = cms.bool(True),
-     halfLengthScaling4BigEvts = cms.bool(True),
+     halfLengthScaling4BigEvts = cms.bool(False),
      ptMinScaling4BigEvts = cms.bool(True),
      minOriginR = 0,
      minHalfLength = 0,
-     maxPtMin = 0.7,
+     maxPtMin = 1.0,#0.7
      scalingStartNPix = 20000,
      scalingEndNPix = 35000     
 ))
@@ -170,7 +170,7 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 _hiPixelLessStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 0,
     minimumNumberOfHits = 5,
-    minPt = 0.4
+    minPt = 0.7 #0.4
     )
 hiPixelLessStepTrajectoryFilter = _hiPixelLessStepTrajectoryFilterBase.clone(
     seedPairPenalty = 1,
