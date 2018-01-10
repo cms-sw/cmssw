@@ -13,8 +13,19 @@ particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
              src  = cms.InputTag("hbhereco",""),
              qualityTests = cms.VPSet(
                   cms.PSet(
-                  name = cms.string("PFRecHitQTestThreshold"),
-                  threshold = cms.double(0.8)
+                  name = cms.string("PFRecHitQTestHCALThresholdVsDepth"),
+                  cuts = cms.VPSet(
+                        cms.PSet(
+                            depth=cms.vint32(1, 2, 3, 4),
+                            threshold = cms.vdouble(0.8, 0.8, 0.8, 0.8),
+                            detectorEnum = cms.int32(1)
+                            ),
+                        cms.PSet(
+                            depth=cms.vint32(1, 2, 3, 4, 5, 6, 7),
+                            threshold = cms.vdouble(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
+                            detectorEnum = cms.int32(2)
+                            )
+                        )
                   ),
                   cms.PSet(
                       name = cms.string("PFRecHitQTestHCALChannel"),
