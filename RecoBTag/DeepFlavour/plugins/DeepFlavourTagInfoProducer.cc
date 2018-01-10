@@ -48,7 +48,7 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 	  void produce(edm::Event&, const edm::EventSetup&) override;
 	  void endStream() override {}
 
-    
+
     const double jet_radius_;
     const double min_candidate_pt_;
 
@@ -62,7 +62,10 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
     bool use_puppi_value_map_;
     bool use_pvasq_value_map_;
-    
+
+    bool fallback_puppi_weight_;
+    bool fallback_vertex_association_;
+
 };
 
 DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& iConfig) :
@@ -73,7 +76,9 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
   sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
   shallow_tag_info_token_(consumes<ShallowTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))),
   use_puppi_value_map_(false),
-  use_pvasq_value_map_(false)
+  use_pvasq_value_map_(false),
+  fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
+  fallback_vertex_association_(iConfig.getParameter<bool>("fallback_vertex_association"))
 {
   produces<DeepFlavourTagInfoCollection>();
 
@@ -109,6 +114,8 @@ void DeepFlavourTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation","original"));
+  desc.add<bool>("fallback_puppi_weight", false);
+  desc.add<bool>("fallback_vertex_association", false);
   descriptions.add("pfDeepFlavourTagInfos", desc);
 }
 
@@ -137,18 +144,18 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   iEvent.getByToken(shallow_tag_info_token_, shallow_tag_infos);
 
   edm::Handle<edm::ValueMap<float>> puppi_value_map;
-  if (use_puppi_value_map_) { 
+  if (use_puppi_value_map_) {
     iEvent.getByToken(puppi_value_map_token_, puppi_value_map);
   }
 
   edm::Handle<edm::ValueMap<int>> pvasq_value_map;
   edm::Handle<edm::Association<VertexCollection>> pvas;
-  if (use_pvasq_value_map_) { 
+  if (use_pvasq_value_map_) {
     iEvent.getByToken(pvasq_value_map_token_, pvasq_value_map);
     iEvent.getByToken(pvas_token_, pvas);
   }
 
-  edm::ESHandle<TransientTrackBuilder> track_builder; 
+  edm::ESHandle<TransientTrackBuilder> track_builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", track_builder);
 
   for (std::size_t jet_n = 0; jet_n <  jets->size(); jet_n++) {
@@ -176,7 +183,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     }
     reco::ShallowTagInfo tag_info;
     if (match.isNonnull()) {
-      tag_info = *match; 
+      tag_info = *match;
     } // will be default values otherwise
 
     // fill basic jet features
@@ -190,7 +197,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     btagbtvdeep::BTagConverter::BTagToFeatures(tag_info_vars, features.tag_info_features);
 
     // copy which will be sorted
-    auto svs_sorted = *svs;     
+    auto svs_sorted = *svs;
     // sort by dxy
     std::sort(svs_sorted.begin(), svs_sorted.end(),
               [&pv](const auto & sva, const auto &svb)
@@ -206,7 +213,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       }
     }
 
-    // stuff required for dealing with pf candidates 
+    // stuff required for dealing with pf candidates
     math::XYZVector jet_dir = jet.momentum().Unit();
     GlobalVector jet_ref_track_dir(jet.px(),
                                    jet.py(),
@@ -218,14 +225,14 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     std::map<unsigned int, btagbtvdeep::TrackInfoBuilder> trackinfos;
 
     // unsorted reference to sv
-    const auto & svs_unsorted = *svs;     
+    const auto & svs_unsorted = *svs;
     // fill collection, from DeepTNtuples plus some styling
     for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
         auto cand = jet.daughter(i);
         if(cand){
           // candidates under 950MeV (configurable) are not considered
           // might change if we use also white-listing
-          if (cand->pt()< min_candidate_pt_) continue; 
+          if (cand->pt()< min_candidate_pt_) continue;
           if (cand->charge() != 0) {
             auto & trackinfo = trackinfos.emplace(i,track_builder).first->second;
             trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
@@ -238,15 +245,15 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         }
     }
 
-    // sort collections (open the black-box if you please) 
+    // sort collections (open the black-box if you please)
     std::sort(c_sorted.begin(),c_sorted.end(),
       btagbtvdeep::SortingClass<std::size_t>::compareByABCInv);
     std::sort(n_sorted.begin(),n_sorted.end(),
       btagbtvdeep::SortingClass<std::size_t>::compareByABCInv);
 
     std::vector<size_t> c_sortedindices,n_sortedindices;
-   
-    // this puts 0 everywhere and the right position in ind 
+
+    // this puts 0 everywhere and the right position in ind
     c_sortedindices=btagbtvdeep::invertSortingVector(c_sorted);
     n_sortedindices=btagbtvdeep::invertSortingVector(n_sorted);
 
@@ -281,13 +288,13 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     float puppiw = 1.0; // fallback value
     if (reco_cand && use_puppi_value_map_) {
       puppiw = (*puppi_value_map)[reco_ptr];
-    } else if (reco_cand) {
-      edm::LogWarning("MissingFeatures") << "PUPPI value map missing. "
-                                         << puppiw << " will be used as default";
-    } 
+    } else if (reco_cand && !fallback_puppi_weight_) {
+      throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing") <<
+        "use fallback_puppi_weight option to use " << puppiw << "as default";
+    }
 
     float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand);
-    
+
     if (cand->charge() != 0) {
       // is charged candidate
       auto entry = c_sortedindices.at(i);
@@ -295,18 +302,19 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       auto & trackinfo = trackinfos.at(i);
       // get_ref to vector element
       auto & c_pf_features = features.c_pf_features.at(entry);
-      // fill feature structure 
+      // fill feature structure
       if (packed_cand) {
-        btagbtvdeep::ChargedCandidateConverter::PackedCandidateToFeatures(packed_cand, jet, trackinfo, 
+        btagbtvdeep::ChargedCandidateConverter::PackedCandidateToFeatures(packed_cand, jet, trackinfo,
                                                                           drminpfcandsv, c_pf_features);
       } else if (reco_cand) {
         // get vertex association quality
         int pv_ass_quality = 0; // fallback value
         if (use_pvasq_value_map_) {
           pv_ass_quality = (*pvasq_value_map)[reco_ptr];
-        } else {
-          edm::LogWarning("MissingFeatures") << "vertex association quality map missing. "
-                                             << pv_ass_quality << " will be used as default";
+        } else if (!fallback_vertex_association_) {
+          throw edm::Exception(edm::errors::InvalidReference, "vertex association missing") <<
+          "use fallback_vertex_association option to use" << pv_ass_quality <<
+          "as default quality and closest dz PV as criteria";
         }
         // getting the PV as PackedCandidatesProducer
         // but using not the slimmed but original vertices
@@ -321,22 +329,20 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         if (use_pvasq_value_map_) {
           const reco::VertexRef & PV_orig = (*pvas)[reco_ptr];
           if(PV_orig.isNonnull()) PV = reco::VertexRef(vtxs, PV_orig.key());
-        } else {
-          edm::LogWarning("MissingFeatures") << "vertex association missing. "
-                                             << "dz closest PV will be used as default";
         }
-        btagbtvdeep::ChargedCandidateConverter::RecoCandidateToFeatures(reco_cand, jet, trackinfo, 
-                                           drminpfcandsv, puppiw,
-                                           pv_ass_quality, PV, c_pf_features);
+        btagbtvdeep::ChargedCandidateConverter::RecoCandidateToFeatures(
+            reco_cand, jet, trackinfo,
+            drminpfcandsv, puppiw, pv_ass_quality,
+            PV, c_pf_features);
       }
     } else {
       // is neutral candidate
       auto entry = n_sortedindices.at(i);
       // get_ref to vector element
       auto & n_pf_features = features.n_pf_features.at(entry);
-      // fill feature structure 
+      // fill feature structure
       if (packed_cand) {
-        btagbtvdeep::NeutralCandidateConverter::PackedCandidateToFeatures(packed_cand, jet, drminpfcandsv, 
+        btagbtvdeep::NeutralCandidateConverter::PackedCandidateToFeatures(packed_cand, jet, drminpfcandsv,
                                                                           n_pf_features);
       } else if (reco_cand) {
         btagbtvdeep::NeutralCandidateConverter::RecoCandidateToFeatures(reco_cand, jet,
@@ -345,10 +351,10 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       }
     }
 
-    
+
   }
 
-    
+
 
   output_tag_infos->emplace_back(features, jet_ref);
   }
