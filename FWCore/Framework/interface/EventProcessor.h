@@ -294,6 +294,7 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
     std::vector<edm::SerialTaskQueue> streamQueues_;
     std::unique_ptr<edm::LimitedTaskQueue> lumiQueue_;
+    std::vector<std::shared_ptr<LuminosityBlockProcessingStatus>> streamLumiStatus_;
     
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
