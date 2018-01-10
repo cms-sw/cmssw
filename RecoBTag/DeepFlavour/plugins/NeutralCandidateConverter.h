@@ -24,7 +24,7 @@ namespace btagbtvdeep {
         n_pf_features.deltaR = catch_infs_and_bound(reco::deltaR(*n_pf,jet),
                                                     0,-0.6,0,-0.6);
         n_pf_features.isGamma = 0;
-        if(fabs(n_pf->pdgId())==22)  n_pf_features.isGamma = 1;
+        if(std::abs(n_pf->pdgId())==22)  n_pf_features.isGamma = 1;
 
     
         n_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv,
