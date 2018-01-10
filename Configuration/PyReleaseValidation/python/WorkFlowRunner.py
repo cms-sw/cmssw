@@ -109,7 +109,10 @@ class WorkFlowRunner(Thread):
                     cmd2 =cmd+cmd2+closeCmd(istep,'lumiRanges')
                     lumiRangeFile='step%d_lumiRanges.log'%(istep,)
                     retStep = self.doCmd(cmd2)
-                cmd+=com.das(self.dasOptions)
+                if (com.dataSetParent):
+                    cmd3=cmd+com.das(self.dasOptions,com.dataSetParent)+closeCmd(istep,'dasparentquery')
+                    retStep = self.doCmd(cmd3)
+                cmd+=com.das(self.dasOptions,com.dataSet)
                 cmd+=closeCmd(istep,'dasquery')
                 retStep = self.doCmd(cmd)
                 #don't use the file list executed, but use the das command of cmsDriver for next step
