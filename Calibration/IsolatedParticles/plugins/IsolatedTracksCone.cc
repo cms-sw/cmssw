@@ -194,136 +194,136 @@ private:
   double leadL1JetEta;
   double leadL1JetPhi;
  
-  std::vector<std::vector<int> >*     t_v_hnNearTRKs; 
-  std::vector<std::vector<int> >*     t_v_hnLayers_maxNearP; 
-  std::vector<std::vector<int> >*     t_v_htrkQual_maxNearP; 
-  std::vector<std::vector<double> >*  t_v_hmaxNearP_goodTrk;
-  std::vector<std::vector<double> >*  t_v_hmaxNearP;    
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_hnNearTRKs; 
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_hnLayers_maxNearP; 
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_htrkQual_maxNearP; 
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hmaxNearP_goodTrk;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hmaxNearP;    
 
-  std::vector<std::vector<int> >*     t_v_cone_hnNearTRKs; 
-  std::vector<std::vector<int> >*     t_v_cone_hnLayers_maxNearP; 
-  std::vector<std::vector<int> >*     t_v_cone_htrkQual_maxNearP; 
-  std::vector<std::vector<double> >*  t_v_cone_hmaxNearP_goodTrk;
-  std::vector<std::vector<double> >*  t_v_cone_hmaxNearP;    
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_cone_hnNearTRKs; 
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_cone_hnLayers_maxNearP; 
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_cone_htrkQual_maxNearP; 
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_cone_hmaxNearP_goodTrk;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_cone_hmaxNearP;    
 
-  std::vector<double>*                t_trkNOuterHits;
-  std::vector<double>*                t_trkNLayersCrossed;
-  std::vector<double>*                t_dtFromLeadJet;
-  std::vector<double>*                t_trkP;
-  std::vector<double>*                t_simP;
-  std::vector<double>*                t_trkPt;
-  std::vector<double>*                t_trkEta;
-  std::vector<double>*                t_trkPhi;
-  std::vector<double>*                t_e3x3;
+  std::unique_ptr<std::vector<double> >                t_trkNOuterHits;
+  std::unique_ptr<std::vector<double> >                t_trkNLayersCrossed;
+  std::unique_ptr<std::vector<double> >                t_dtFromLeadJet;
+  std::unique_ptr<std::vector<double> >                t_trkP;
+  std::unique_ptr<std::vector<double> >                t_simP;
+  std::unique_ptr<std::vector<double> >                t_trkPt;
+  std::unique_ptr<std::vector<double> >                t_trkEta;
+  std::unique_ptr<std::vector<double> >                t_trkPhi;
+  std::unique_ptr<std::vector<double> >                t_e3x3;
 
-  std::vector<std::vector<double> >*  t_v_eDR;
-  std::vector<std::vector<double> >*  t_v_eMipDR;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_eDR;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_eMipDR;
 
-  std::vector<double>*                t_h3x3;
-  std::vector<double>*                t_h5x5;
-  std::vector<double>*                t_hsim3x3;
-  std::vector<double>*                t_hsim5x5;
+  std::unique_ptr<std::vector<double> >                t_h3x3;
+  std::unique_ptr<std::vector<double> >                t_h5x5;
+  std::unique_ptr<std::vector<double> >                t_hsim3x3;
+  std::unique_ptr<std::vector<double> >                t_hsim5x5;
 
-  std::vector<double>*                t_nRH_h3x3;
-  std::vector<double>*                t_nRH_h5x5;
+  std::unique_ptr<std::vector<double> >                t_nRH_h3x3;
+  std::unique_ptr<std::vector<double> >                t_nRH_h5x5;
 
-  std::vector<double>*                t_hsim3x3Matched;
-  std::vector<double>*                t_hsim5x5Matched;
-  std::vector<double>*                t_hsim3x3Rest;
-  std::vector<double>*                t_hsim5x5Rest;
-  std::vector<double>*                t_hsim3x3Photon;
-  std::vector<double>*                t_hsim5x5Photon;
-  std::vector<double>*                t_hsim3x3NeutHad;
-  std::vector<double>*                t_hsim5x5NeutHad;
-  std::vector<double>*                t_hsim3x3CharHad;
-  std::vector<double>*                t_hsim5x5CharHad;
-  std::vector<double>*                t_hsim3x3PdgMatched;
-  std::vector<double>*                t_hsim5x5PdgMatched;
-  std::vector<double>*                t_hsim3x3Total;
-  std::vector<double>*                t_hsim5x5Total;
+  std::unique_ptr<std::vector<double> >                t_hsim3x3Matched;
+  std::unique_ptr<std::vector<double> >                t_hsim5x5Matched;
+  std::unique_ptr<std::vector<double> >                t_hsim3x3Rest;
+  std::unique_ptr<std::vector<double> >                t_hsim5x5Rest;
+  std::unique_ptr<std::vector<double> >                t_hsim3x3Photon;
+  std::unique_ptr<std::vector<double> >                t_hsim5x5Photon;
+  std::unique_ptr<std::vector<double> >                t_hsim3x3NeutHad;
+  std::unique_ptr<std::vector<double> >                t_hsim5x5NeutHad;
+  std::unique_ptr<std::vector<double> >                t_hsim3x3CharHad;
+  std::unique_ptr<std::vector<double> >                t_hsim5x5CharHad;
+  std::unique_ptr<std::vector<double> >                t_hsim3x3PdgMatched;
+  std::unique_ptr<std::vector<double> >                t_hsim5x5PdgMatched;
+  std::unique_ptr<std::vector<double> >                t_hsim3x3Total;
+  std::unique_ptr<std::vector<double> >                t_hsim5x5Total;
 
-  std::vector<int>*                   t_hsim3x3NMatched;
-  std::vector<int>*                   t_hsim3x3NRest;
-  std::vector<int>*                   t_hsim3x3NPhoton;
-  std::vector<int>*                   t_hsim3x3NNeutHad;
-  std::vector<int>*                   t_hsim3x3NCharHad;
-  std::vector<int>*                   t_hsim3x3NTotal;
+  std::unique_ptr<std::vector<int> >                   t_hsim3x3NMatched;
+  std::unique_ptr<std::vector<int> >                   t_hsim3x3NRest;
+  std::unique_ptr<std::vector<int> >                   t_hsim3x3NPhoton;
+  std::unique_ptr<std::vector<int> >                   t_hsim3x3NNeutHad;
+  std::unique_ptr<std::vector<int> >                   t_hsim3x3NCharHad;
+  std::unique_ptr<std::vector<int> >                   t_hsim3x3NTotal;
 
-  std::vector<int>*                   t_hsim5x5NMatched;
-  std::vector<int>*                   t_hsim5x5NRest;
-  std::vector<int>*                   t_hsim5x5NPhoton;
-  std::vector<int>*                   t_hsim5x5NNeutHad;
-  std::vector<int>*                   t_hsim5x5NCharHad;
-  std::vector<int>*                   t_hsim5x5NTotal;
+  std::unique_ptr<std::vector<int> >                   t_hsim5x5NMatched;
+  std::unique_ptr<std::vector<int> >                   t_hsim5x5NRest;
+  std::unique_ptr<std::vector<int> >                   t_hsim5x5NPhoton;
+  std::unique_ptr<std::vector<int> >                   t_hsim5x5NNeutHad;
+  std::unique_ptr<std::vector<int> >                   t_hsim5x5NCharHad;
+  std::unique_ptr<std::vector<int> >                   t_hsim5x5NTotal;
 
-  std::vector<double>*                t_distFromHotCell_h3x3;
-  std::vector<int>*                   t_ietaFromHotCell_h3x3;
-  std::vector<int>*                   t_iphiFromHotCell_h3x3;
-  std::vector<double>*                t_distFromHotCell_h5x5;
-  std::vector<int>*                   t_ietaFromHotCell_h5x5;
-  std::vector<int>*                   t_iphiFromHotCell_h5x5;
+  std::unique_ptr<std::vector<double> >                t_distFromHotCell_h3x3;
+  std::unique_ptr<std::vector<int> >                   t_ietaFromHotCell_h3x3;
+  std::unique_ptr<std::vector<int> >                   t_iphiFromHotCell_h3x3;
+  std::unique_ptr<std::vector<double> >                t_distFromHotCell_h5x5;
+  std::unique_ptr<std::vector<int> >                   t_ietaFromHotCell_h5x5;
+  std::unique_ptr<std::vector<int> >                   t_iphiFromHotCell_h5x5;
 
-  std::vector<double>*                t_trkHcalEne;
-  std::vector<double>*                t_trkEcalEne;
+  std::unique_ptr<std::vector<double> >                t_trkHcalEne;
+  std::unique_ptr<std::vector<double> >                t_trkEcalEne;
   
-  std::vector<std::vector<double> >*  t_v_hsimInfoConeMatched;
-  std::vector<std::vector<double> >*  t_v_hsimInfoConeRest;
-  std::vector<std::vector<double> >*  t_v_hsimInfoConePhoton;
-  std::vector<std::vector<double> >*  t_v_hsimInfoConeNeutHad;
-  std::vector<std::vector<double> >*  t_v_hsimInfoConeCharHad;
-  std::vector<std::vector<double> >*  t_v_hsimInfoConePdgMatched;
-  std::vector<std::vector<double> >*  t_v_hsimInfoConeTotal;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hsimInfoConeMatched;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hsimInfoConeRest;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hsimInfoConePhoton;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hsimInfoConeNeutHad;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hsimInfoConeCharHad;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hsimInfoConePdgMatched;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hsimInfoConeTotal;
 
-  std::vector<std::vector<int> >*     t_v_hsimInfoConeNMatched;
-  std::vector<std::vector<int> >*     t_v_hsimInfoConeNRest;
-  std::vector<std::vector<int> >*     t_v_hsimInfoConeNPhoton;
-  std::vector<std::vector<int> >*     t_v_hsimInfoConeNNeutHad;
-  std::vector<std::vector<int> >*     t_v_hsimInfoConeNCharHad;
-  std::vector<std::vector<int> >*     t_v_hsimInfoConeNTotal;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_hsimInfoConeNMatched;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_hsimInfoConeNRest;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_hsimInfoConeNPhoton;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_hsimInfoConeNNeutHad;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_hsimInfoConeNCharHad;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_hsimInfoConeNTotal;
 
-  std::vector<std::vector<double> >*  t_v_hsimCone;
-  std::vector<std::vector<double> >*  t_v_hCone;
-  std::vector<std::vector<int> >*     t_v_nRecHitsCone;
-  std::vector<std::vector<int> >*     t_v_nSimHitsCone;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hsimCone;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_hCone;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_nRecHitsCone;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_nSimHitsCone;
 
-  std::vector<std::vector<double> >*  t_v_distFromHotCell;
-  std::vector<std::vector<int> >*     t_v_ietaFromHotCell;
-  std::vector<std::vector<int> >*     t_v_iphiFromHotCell;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_distFromHotCell;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_ietaFromHotCell;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_iphiFromHotCell;
 
-  std::vector<std::vector<int> >*     t_v_hlTriggers;
-  std::vector<int>*                   t_hltHB;
-  std::vector<int>*                   t_hltHE;
-  std::vector<int>*                   t_hltL1Jet15;
-  std::vector<int>*                   t_hltJet30;
-  std::vector<int>*                   t_hltJet50;
-  std::vector<int>*                   t_hltJet80;
-  std::vector<int>*                   t_hltJet110;
-  std::vector<int>*                   t_hltJet140;
-  std::vector<int>*                   t_hltJet180;
-  std::vector<int>*                   t_hltL1SingleEG5;
-  std::vector<int>*                   t_hltZeroBias;
-  std::vector<int>*                   t_hltMinBiasHcal;
-  std::vector<int>*                   t_hltMinBiasEcal;
-  std::vector<int>*                   t_hltMinBiasPixel;
-  std::vector<int>*                   t_hltSingleIsoTau30_Trk5;
-  std::vector<int>*                   t_hltDoubleLooseIsoTau15_Trk5;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_hlTriggers;
+  std::unique_ptr<std::vector<int> >                   t_hltHB;
+  std::unique_ptr<std::vector<int> >                   t_hltHE;
+  std::unique_ptr<std::vector<int> >                   t_hltL1Jet15;
+  std::unique_ptr<std::vector<int> >                   t_hltJet30;
+  std::unique_ptr<std::vector<int> >                   t_hltJet50;
+  std::unique_ptr<std::vector<int> >                   t_hltJet80;
+  std::unique_ptr<std::vector<int> >                   t_hltJet110;
+  std::unique_ptr<std::vector<int> >                   t_hltJet140;
+  std::unique_ptr<std::vector<int> >                   t_hltJet180;
+  std::unique_ptr<std::vector<int> >                   t_hltL1SingleEG5;
+  std::unique_ptr<std::vector<int> >                   t_hltZeroBias;
+  std::unique_ptr<std::vector<int> >                   t_hltMinBiasHcal;
+  std::unique_ptr<std::vector<int> >                   t_hltMinBiasEcal;
+  std::unique_ptr<std::vector<int> >                   t_hltMinBiasPixel;
+  std::unique_ptr<std::vector<int> >                   t_hltSingleIsoTau30_Trk5;
+  std::unique_ptr<std::vector<int> >                   t_hltDoubleLooseIsoTau15_Trk5;
 
-  std::vector<std::vector<int> >*     t_v_RH_h3x3_ieta;
-  std::vector<std::vector<int> >*     t_v_RH_h3x3_iphi;
-  std::vector<std::vector<double> >*  t_v_RH_h3x3_ene ;
-  std::vector<std::vector<int> >*     t_v_RH_h5x5_ieta;
-  std::vector<std::vector<int> >*     t_v_RH_h5x5_iphi;
-  std::vector<std::vector<double> >*  t_v_RH_h5x5_ene ;
-  std::vector<std::vector<int> >*     t_v_RH_r26_ieta ;
-  std::vector<std::vector<int> >*     t_v_RH_r26_iphi ;
-  std::vector<std::vector<double> >*  t_v_RH_r26_ene  ;
-  std::vector<std::vector<int> >*     t_v_RH_r44_ieta ;
-  std::vector<std::vector<int> >*     t_v_RH_r44_iphi ;
-  std::vector<std::vector<double> >*  t_v_RH_r44_ene  ;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_RH_h3x3_ieta;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_RH_h3x3_iphi;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_RH_h3x3_ene ;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_RH_h5x5_ieta;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_RH_h5x5_iphi;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_RH_h5x5_ene ;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_RH_r26_ieta ;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_RH_r26_iphi ;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_RH_r26_ene  ;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_RH_r44_ieta ;
+  std::unique_ptr<std::vector<std::vector<int> > >     t_v_RH_r44_iphi ;
+  std::unique_ptr<std::vector<std::vector<double> > >  t_v_RH_r44_ene  ;
 
-  std::vector<unsigned int>*          t_irun;
-  std::vector<unsigned int>*          t_ievt;
-  std::vector<unsigned int>*          t_ilum;
+  std::unique_ptr<std::vector<unsigned int> >          t_irun;
+  std::unique_ptr<std::vector<unsigned int> >          t_ievt;
+  std::unique_ptr<std::vector<unsigned int> >          t_ilum;
 
 };
 
@@ -353,55 +353,7 @@ IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) :
   maxTrackEta_(iConfig.getUntrackedParameter<double>("maxTrackEta",5.0)),
   maxNearTrackP_(iConfig.getUntrackedParameter<double>("maxNearTrackP",1.0)),
   debugEcalSimInfo_(iConfig.getUntrackedParameter<int>("debugEcalSimInfo")),
-  applyEcalIsolation_(iConfig.getUntrackedParameter<bool>("applyEcalIsolation")),
-  t_v_hnNearTRKs(nullptr), t_v_hnLayers_maxNearP(nullptr), 
-  t_v_htrkQual_maxNearP(nullptr), t_v_hmaxNearP_goodTrk(nullptr),
-  t_v_hmaxNearP(nullptr), t_v_cone_hnNearTRKs(nullptr),
-  t_v_cone_hnLayers_maxNearP(nullptr), t_v_cone_htrkQual_maxNearP(nullptr),
-  t_v_cone_hmaxNearP_goodTrk(nullptr), t_v_cone_hmaxNearP(nullptr),
-  t_trkNOuterHits(nullptr), t_trkNLayersCrossed(nullptr),
-  t_dtFromLeadJet(nullptr), t_trkP(nullptr), t_simP(nullptr),
-  t_trkPt(nullptr), t_trkEta(nullptr), t_trkPhi(nullptr), t_e3x3(nullptr),
-  t_v_eDR(nullptr), t_v_eMipDR(nullptr), t_h3x3(nullptr), t_h5x5(nullptr),
-  t_hsim3x3(nullptr), t_hsim5x5(nullptr), t_nRH_h3x3(nullptr), 
-  t_nRH_h5x5(nullptr), t_hsim3x3Matched(nullptr), t_hsim5x5Matched(nullptr),
-  t_hsim3x3Rest(nullptr), t_hsim5x5Rest(nullptr), t_hsim3x3Photon(nullptr),
-  t_hsim5x5Photon(nullptr), t_hsim3x3NeutHad(nullptr), 
-  t_hsim5x5NeutHad(nullptr), t_hsim3x3CharHad(nullptr),
-  t_hsim5x5CharHad(nullptr), t_hsim3x3PdgMatched(nullptr),
-  t_hsim5x5PdgMatched(nullptr), t_hsim3x3Total(nullptr), 
-  t_hsim5x5Total(nullptr), t_hsim3x3NMatched(nullptr),
-  t_hsim3x3NRest(nullptr), t_hsim3x3NPhoton(nullptr),
-  t_hsim3x3NNeutHad(nullptr), t_hsim3x3NCharHad(nullptr),
-  t_hsim3x3NTotal(nullptr), t_hsim5x5NMatched(nullptr),
-  t_hsim5x5NRest(nullptr), t_hsim5x5NPhoton(nullptr),
-  t_hsim5x5NNeutHad(nullptr), t_hsim5x5NCharHad(nullptr),
-  t_hsim5x5NTotal(nullptr), t_distFromHotCell_h3x3(nullptr),
-  t_ietaFromHotCell_h3x3(nullptr), t_iphiFromHotCell_h3x3(nullptr),
-  t_distFromHotCell_h5x5(nullptr), t_ietaFromHotCell_h5x5(nullptr),
-  t_iphiFromHotCell_h5x5(nullptr), t_trkHcalEne(nullptr),
-  t_trkEcalEne(nullptr), t_v_hsimInfoConeMatched(nullptr),
-  t_v_hsimInfoConeRest(nullptr), t_v_hsimInfoConePhoton(nullptr),
-  t_v_hsimInfoConeNeutHad(nullptr), t_v_hsimInfoConeCharHad(nullptr),
-  t_v_hsimInfoConePdgMatched(nullptr), t_v_hsimInfoConeTotal(nullptr),
-  t_v_hsimInfoConeNMatched(nullptr), t_v_hsimInfoConeNRest(nullptr),
-  t_v_hsimInfoConeNPhoton(nullptr), t_v_hsimInfoConeNNeutHad(nullptr),
-  t_v_hsimInfoConeNCharHad(nullptr), t_v_hsimInfoConeNTotal(nullptr),
-  t_v_hsimCone(nullptr), t_v_hCone(nullptr), t_v_nRecHitsCone(nullptr),
-  t_v_nSimHitsCone(nullptr), t_v_distFromHotCell(nullptr),
-  t_v_ietaFromHotCell(nullptr), t_v_iphiFromHotCell(nullptr),
-  t_v_hlTriggers(nullptr), t_hltHB(nullptr), t_hltHE(nullptr),
-  t_hltL1Jet15(nullptr), t_hltJet30(nullptr), t_hltJet50(nullptr),
-  t_hltJet80(nullptr), t_hltJet110(nullptr), t_hltJet140(nullptr),
-  t_hltJet180(nullptr), t_hltL1SingleEG5(nullptr), t_hltZeroBias(nullptr),
-  t_hltMinBiasHcal(nullptr), t_hltMinBiasEcal(nullptr),
-  t_hltMinBiasPixel(nullptr), t_hltSingleIsoTau30_Trk5(nullptr),
-  t_hltDoubleLooseIsoTau15_Trk5(nullptr), t_v_RH_h3x3_ieta(nullptr),
-  t_v_RH_h3x3_iphi(nullptr), t_v_RH_h3x3_ene(nullptr),
-  t_v_RH_h5x5_ieta(nullptr), t_v_RH_h5x5_iphi(nullptr),
-  t_v_RH_h5x5_ene(nullptr), t_v_RH_r26_ieta(nullptr), t_v_RH_r26_iphi(nullptr),
-  t_v_RH_r26_ene(nullptr), t_v_RH_r44_ieta(nullptr), t_v_RH_r44_iphi(nullptr),
-  t_v_RH_r44_ene(nullptr), t_irun(nullptr), t_ievt(nullptr), t_ilum(nullptr) {
+  applyEcalIsolation_(iConfig.getUntrackedParameter<bool>("applyEcalIsolation")) {
 
   //now do what ever initialization is needed
 
@@ -423,119 +375,6 @@ IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) :
 }
 
 IsolatedTracksCone::~IsolatedTracksCone() { 
-  delete t_v_hnNearTRKs; 
-  delete t_v_hnLayers_maxNearP; 
-  delete t_v_htrkQual_maxNearP; 
-  delete t_v_hmaxNearP_goodTrk;
-  delete t_v_hmaxNearP;    
-  delete t_v_cone_hnNearTRKs; 
-  delete t_v_cone_hnLayers_maxNearP; 
-  delete t_v_cone_htrkQual_maxNearP; 
-  delete t_v_cone_hmaxNearP_goodTrk;
-  delete t_v_cone_hmaxNearP;    
-  delete t_trkNOuterHits;
-  delete t_trkNLayersCrossed;
-  delete t_dtFromLeadJet;
-  delete t_trkP;
-  delete t_simP;
-  delete t_trkPt;
-  delete t_trkEta;
-  delete t_trkPhi;
-  delete t_e3x3;
-  delete t_v_eDR;
-  delete t_v_eMipDR;
-  delete t_h3x3;
-  delete t_h5x5;
-  delete t_hsim3x3;
-  delete t_hsim5x5;
-  delete t_nRH_h3x3;
-  delete t_nRH_h5x5;
-  delete t_hsim3x3Matched;
-  delete t_hsim5x5Matched;
-  delete t_hsim3x3Rest;
-  delete t_hsim5x5Rest;
-  delete t_hsim3x3Photon;
-  delete t_hsim5x5Photon;
-  delete t_hsim3x3NeutHad;
-  delete t_hsim5x5NeutHad;
-  delete t_hsim3x3CharHad;
-  delete t_hsim5x5CharHad;
-  delete t_hsim3x3PdgMatched;
-  delete t_hsim5x5PdgMatched;
-  delete t_hsim3x3Total;
-  delete t_hsim5x5Total;
-  delete t_hsim3x3NMatched;
-  delete t_hsim3x3NRest;
-  delete t_hsim3x3NPhoton;
-  delete t_hsim3x3NNeutHad;
-  delete t_hsim3x3NCharHad;
-  delete t_hsim3x3NTotal;
-  delete t_hsim5x5NMatched;
-  delete t_hsim5x5NRest;
-  delete t_hsim5x5NPhoton;
-  delete t_hsim5x5NNeutHad;
-  delete t_hsim5x5NCharHad;
-  delete t_hsim5x5NTotal;
-  delete t_distFromHotCell_h3x3;
-  delete t_ietaFromHotCell_h3x3;
-  delete t_iphiFromHotCell_h3x3;
-  delete t_distFromHotCell_h5x5;
-  delete t_ietaFromHotCell_h5x5;
-  delete t_iphiFromHotCell_h5x5;
-  delete t_trkHcalEne;
-  delete t_trkEcalEne;
-  delete t_v_hsimInfoConeMatched;
-  delete t_v_hsimInfoConeRest;
-  delete t_v_hsimInfoConePhoton;
-  delete t_v_hsimInfoConeNeutHad;
-  delete t_v_hsimInfoConeCharHad;
-  delete t_v_hsimInfoConePdgMatched;
-  delete t_v_hsimInfoConeTotal;
-  delete t_v_hsimInfoConeNMatched;
-  delete t_v_hsimInfoConeNRest;
-  delete t_v_hsimInfoConeNPhoton;
-  delete t_v_hsimInfoConeNNeutHad;
-  delete t_v_hsimInfoConeNCharHad;
-  delete t_v_hsimInfoConeNTotal;
-  delete t_v_hsimCone;
-  delete t_v_hCone;
-  delete t_v_nRecHitsCone;
-  delete t_v_nSimHitsCone;
-  delete t_v_distFromHotCell;
-  delete t_v_ietaFromHotCell;
-  delete t_v_iphiFromHotCell;
-  delete t_v_hlTriggers;
-  delete t_hltHB;
-  delete t_hltHE;
-  delete t_hltL1Jet15;
-  delete t_hltJet30;
-  delete t_hltJet50;
-  delete t_hltJet80;
-  delete t_hltJet110;
-  delete t_hltJet140;
-  delete t_hltJet180;
-  delete t_hltL1SingleEG5;
-  delete t_hltZeroBias;
-  delete t_hltMinBiasHcal;
-  delete t_hltMinBiasEcal;
-  delete t_hltMinBiasPixel;
-  delete t_hltSingleIsoTau30_Trk5;
-  delete t_hltDoubleLooseIsoTau15_Trk5;
-  delete t_v_RH_h3x3_ieta;
-  delete t_v_RH_h3x3_iphi;
-  delete t_v_RH_h3x3_ene ;
-  delete t_v_RH_h5x5_ieta;
-  delete t_v_RH_h5x5_iphi;
-  delete t_v_RH_h5x5_ene ;
-  delete t_v_RH_r26_ieta ;
-  delete t_v_RH_r26_iphi ;
-  delete t_v_RH_r26_ene  ;
-  delete t_v_RH_r44_ieta ;
-  delete t_v_RH_r44_iphi ;
-  delete t_v_RH_r44_ene  ;
-  delete t_irun;
-  delete t_ievt;
-  delete t_ilum;
 }
 
 void IsolatedTracksCone::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -557,7 +396,7 @@ void IsolatedTracksCone::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("L1extraTauJetSource",edm::InputTag("l1extraParticles","Tau"));
   desc.add<edm::InputTag>("L1extraCenJetSource",edm::InputTag("l1extraParticles","Central"));
   desc.add<edm::InputTag>("L1extraFwdJetSource",edm::InputTag("l1extraParticles","Forward"));
-
+  //The following parameters are used as default for track association 
   edm::ParameterSetDescription desc_TrackAssoc;
   desc_TrackAssoc.add<double>("muonMaxDistanceSigmaX",0.0);
   desc_TrackAssoc.add<double>("muonMaxDistanceSigmaY",0.0);
@@ -676,8 +515,6 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology); 
   const CaloTopology *caloTopology = theCaloTopology.product();
-  //  const CaloSubdetectorTopology* theEBTopology   = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-  //  const CaloSubdetectorTopology* theEETopology   = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
   
   edm::ESHandle<HcalTopology> htopo;
   iSetup.get<HcalRecNumberingRecord>().get(htopo);
@@ -1434,146 +1271,146 @@ void IsolatedTracksCone::beginJob() {
 
   genPartEtaBins = { {0.0, 0.5, 1.1, 1.7, 2.0} };
 
-  t_v_hnNearTRKs           = new std::vector<std::vector<int> >   (); 
-  t_v_hnLayers_maxNearP    = new std::vector<std::vector<int> >   (); 
-  t_v_htrkQual_maxNearP    = new std::vector<std::vector<int> >  (); 
-  t_v_hmaxNearP_goodTrk    = new std::vector<std::vector<double> >();
-  t_v_hmaxNearP            = new std::vector<std::vector<double> >();
+  t_v_hnNearTRKs           = std::make_unique<std::vector<std::vector<int> > >(); 
+  t_v_hnLayers_maxNearP    = std::make_unique<std::vector<std::vector<int> > >(); 
+  t_v_htrkQual_maxNearP    = std::make_unique<std::vector<std::vector<int> > >(); 
+  t_v_hmaxNearP_goodTrk    = std::make_unique<std::vector<std::vector<double> > >();
+  t_v_hmaxNearP            = std::make_unique<std::vector<std::vector<double> > >();
 			       				    
-  t_v_cone_hnNearTRKs           = new std::vector<std::vector<int> >   (); 
-  t_v_cone_hnLayers_maxNearP    = new std::vector<std::vector<int> >   (); 
-  t_v_cone_htrkQual_maxNearP    = new std::vector<std::vector<int> >  (); 
-  t_v_cone_hmaxNearP_goodTrk    = new std::vector<std::vector<double> >();
-  t_v_cone_hmaxNearP            = new std::vector<std::vector<double> >();
+  t_v_cone_hnNearTRKs           = std::make_unique<std::vector<std::vector<int> > >(); 
+  t_v_cone_hnLayers_maxNearP    = std::make_unique<std::vector<std::vector<int> > >(); 
+  t_v_cone_htrkQual_maxNearP    = std::make_unique<std::vector<std::vector<int> > > (); 
+  t_v_cone_hmaxNearP_goodTrk    = std::make_unique<std::vector<std::vector<double> > >();
+  t_v_cone_hmaxNearP            = std::make_unique<std::vector<std::vector<double> > >();
 			       				    
-  //  t_hScale             = new std::vector<double>();
-  t_trkNOuterHits      = new std::vector<double>();
-  t_trkNLayersCrossed  = new std::vector<double>();
-  t_dtFromLeadJet      = new std::vector<double>();
-  t_trkP               = new std::vector<double>();
-  t_trkPt              = new std::vector<double>();
-  t_trkEta             = new std::vector<double>();
-  t_trkPhi             = new std::vector<double>();
+  //  t_hScale             = std::make_unique<std::vector<double> >();
+  t_trkNOuterHits      = std::make_unique<std::vector<double> >();
+  t_trkNLayersCrossed  = std::make_unique<std::vector<double> >();
+  t_dtFromLeadJet      = std::make_unique<std::vector<double> >();
+  t_trkP               = std::make_unique<std::vector<double> >();
+  t_trkPt              = std::make_unique<std::vector<double> >();
+  t_trkEta             = std::make_unique<std::vector<double> >();
+  t_trkPhi             = std::make_unique<std::vector<double> >();
 
-  t_e3x3               = new std::vector<double>();
-  t_v_eDR              = new std::vector<std::vector<double> >();
-  t_v_eMipDR           = new std::vector<std::vector<double> >();
+  t_e3x3               = std::make_unique<std::vector<double> >();
+  t_v_eDR              = std::make_unique<std::vector<std::vector<double> > >();
+  t_v_eMipDR           = std::make_unique<std::vector<std::vector<double> > >();
 
-  t_h3x3               = new std::vector<double>();
-  t_h5x5               = new std::vector<double>();
+  t_h3x3               = std::make_unique<std::vector<double> >();
+  t_h5x5               = std::make_unique<std::vector<double> >();
 
-  t_nRH_h3x3           = new std::vector<double>();
-  t_nRH_h5x5           = new std::vector<double>();
+  t_nRH_h3x3           = std::make_unique<std::vector<double> >();
+  t_nRH_h5x5           = std::make_unique<std::vector<double> >();
 
   if (doMC_) {
-    t_simP               = new std::vector<double>();
-    t_hsim3x3            = new std::vector<double>();
-    t_hsim5x5            = new std::vector<double>();
+    t_simP               = std::make_unique<std::vector<double> >();
+    t_hsim3x3            = std::make_unique<std::vector<double> >();
+    t_hsim5x5            = std::make_unique<std::vector<double> >();
 
-    t_hsim3x3Matched     = new std::vector<double>();
-    t_hsim5x5Matched     = new std::vector<double>();
-    t_hsim3x3Rest        = new std::vector<double>();
-    t_hsim5x5Rest        = new std::vector<double>();
-    t_hsim3x3Photon      = new std::vector<double>();
-    t_hsim5x5Photon      = new std::vector<double>();
-    t_hsim3x3NeutHad     = new std::vector<double>();
-    t_hsim5x5NeutHad     = new std::vector<double>();
-    t_hsim3x3CharHad     = new std::vector<double>();
-    t_hsim5x5CharHad     = new std::vector<double>();
-    t_hsim3x3PdgMatched  = new std::vector<double>();
-    t_hsim5x5PdgMatched  = new std::vector<double>();
-    t_hsim3x3Total       = new std::vector<double>();
-    t_hsim5x5Total       = new std::vector<double>();
+    t_hsim3x3Matched     = std::make_unique<std::vector<double> >();
+    t_hsim5x5Matched     = std::make_unique<std::vector<double> >();
+    t_hsim3x3Rest        = std::make_unique<std::vector<double> >();
+    t_hsim5x5Rest        = std::make_unique<std::vector<double> >();
+    t_hsim3x3Photon      = std::make_unique<std::vector<double> >();
+    t_hsim5x5Photon      = std::make_unique<std::vector<double> >();
+    t_hsim3x3NeutHad     = std::make_unique<std::vector<double> >();
+    t_hsim5x5NeutHad     = std::make_unique<std::vector<double> >();
+    t_hsim3x3CharHad     = std::make_unique<std::vector<double> >();
+    t_hsim5x5CharHad     = std::make_unique<std::vector<double> >();
+    t_hsim3x3PdgMatched  = std::make_unique<std::vector<double> >();
+    t_hsim5x5PdgMatched  = std::make_unique<std::vector<double> >();
+    t_hsim3x3Total       = std::make_unique<std::vector<double> >();
+    t_hsim5x5Total       = std::make_unique<std::vector<double> >();
 
-    t_hsim3x3NMatched  = new std::vector<int>();
-    t_hsim3x3NTotal    = new std::vector<int>();
-    t_hsim3x3NNeutHad  = new std::vector<int>();
-    t_hsim3x3NCharHad  = new std::vector<int>();
-    t_hsim3x3NPhoton   = new std::vector<int>();
-    t_hsim3x3NRest     = new std::vector<int>();
+    t_hsim3x3NMatched  = std::make_unique<std::vector<int> >();
+    t_hsim3x3NTotal    = std::make_unique<std::vector<int> >();
+    t_hsim3x3NNeutHad  = std::make_unique<std::vector<int> >();
+    t_hsim3x3NCharHad  = std::make_unique<std::vector<int> >();
+    t_hsim3x3NPhoton   = std::make_unique<std::vector<int> >();
+    t_hsim3x3NRest     = std::make_unique<std::vector<int> >();
 
-    t_hsim5x5NMatched  = new std::vector<int>();
-    t_hsim5x5NTotal    = new std::vector<int>();
-    t_hsim5x5NNeutHad  = new std::vector<int>();
-    t_hsim5x5NCharHad  = new std::vector<int>();
-    t_hsim5x5NPhoton   = new std::vector<int>();
-    t_hsim5x5NRest     = new std::vector<int>();
+    t_hsim5x5NMatched  = std::make_unique<std::vector<int> >();
+    t_hsim5x5NTotal    = std::make_unique<std::vector<int> >();
+    t_hsim5x5NNeutHad  = std::make_unique<std::vector<int> >();
+    t_hsim5x5NCharHad  = std::make_unique<std::vector<int> >();
+    t_hsim5x5NPhoton   = std::make_unique<std::vector<int> >();
+    t_hsim5x5NRest     = std::make_unique<std::vector<int> >();
 
-    t_trkHcalEne         = new std::vector<double>();
-    t_trkEcalEne         = new std::vector<double>();
+    t_trkHcalEne         = std::make_unique<std::vector<double> >();
+    t_trkEcalEne         = std::make_unique<std::vector<double> >();
   }
 
-  t_distFromHotCell_h3x3  = new std::vector<double>();
-  t_ietaFromHotCell_h3x3  = new std::vector<int>();
-  t_iphiFromHotCell_h3x3  = new std::vector<int>();
-  t_distFromHotCell_h5x5  = new std::vector<double>();
-  t_ietaFromHotCell_h5x5  = new std::vector<int>();
-  t_iphiFromHotCell_h5x5  = new std::vector<int>();
+  t_distFromHotCell_h3x3  = std::make_unique<std::vector<double> >();
+  t_ietaFromHotCell_h3x3  = std::make_unique<std::vector<int> >();
+  t_iphiFromHotCell_h3x3  = std::make_unique<std::vector<int> >();
+  t_distFromHotCell_h5x5  = std::make_unique<std::vector<double> >();
+  t_ietaFromHotCell_h5x5  = std::make_unique<std::vector<int> >();
+  t_iphiFromHotCell_h5x5  = std::make_unique<std::vector<int> >();
 
   if (doMC_) {
-    t_v_hsimInfoConeMatched   = new std::vector<std::vector<double> >();
-    t_v_hsimInfoConeRest      = new std::vector<std::vector<double> >();
-    t_v_hsimInfoConePhoton     = new std::vector<std::vector<double> >();
-    t_v_hsimInfoConeNeutHad   = new std::vector<std::vector<double> >();
-    t_v_hsimInfoConeCharHad   = new std::vector<std::vector<double> >();
-    t_v_hsimInfoConePdgMatched= new std::vector<std::vector<double> >();
-    t_v_hsimInfoConeTotal     = new std::vector<std::vector<double> >();
+    t_v_hsimInfoConeMatched   = std::make_unique<std::vector<std::vector<double> > >();
+    t_v_hsimInfoConeRest      = std::make_unique<std::vector<std::vector<double> > >();
+    t_v_hsimInfoConePhoton    = std::make_unique<std::vector<std::vector<double> > >();
+    t_v_hsimInfoConeNeutHad   = std::make_unique<std::vector<std::vector<double> > >();
+    t_v_hsimInfoConeCharHad   = std::make_unique<std::vector<std::vector<double> > >();
+    t_v_hsimInfoConePdgMatched= std::make_unique<std::vector<std::vector<double> > >();
+    t_v_hsimInfoConeTotal     = std::make_unique<std::vector<std::vector<double> > >();
 
-    t_v_hsimInfoConeNMatched  = new std::vector<std::vector<int> >();
-    t_v_hsimInfoConeNTotal    = new std::vector<std::vector<int> >();
-    t_v_hsimInfoConeNNeutHad  = new std::vector<std::vector<int> >();
-    t_v_hsimInfoConeNCharHad  = new std::vector<std::vector<int> >();
-    t_v_hsimInfoConeNPhoton    = new std::vector<std::vector<int> >();
-    t_v_hsimInfoConeNRest     = new std::vector<std::vector<int> >();
+    t_v_hsimInfoConeNMatched  = std::make_unique<std::vector<std::vector<int> > >();
+    t_v_hsimInfoConeNTotal    = std::make_unique<std::vector<std::vector<int> > >();
+    t_v_hsimInfoConeNNeutHad  = std::make_unique<std::vector<std::vector<int> > >();
+    t_v_hsimInfoConeNCharHad  = std::make_unique<std::vector<std::vector<int> > >();
+    t_v_hsimInfoConeNPhoton    = std::make_unique<std::vector<std::vector<int> > >();
+    t_v_hsimInfoConeNRest     = std::make_unique<std::vector<std::vector<int> > >();
 
-    t_v_hsimCone    = new std::vector<std::vector<double> >();
+    t_v_hsimCone    = std::make_unique<std::vector<std::vector<double> > >();
   }
 
-  t_v_hCone       = new std::vector<std::vector<double> >();
-  t_v_nRecHitsCone= new std::vector<std::vector<int> >();
-  t_v_nSimHitsCone= new std::vector<std::vector<int> >();
+  t_v_hCone       = std::make_unique<std::vector<std::vector<double> > >();
+  t_v_nRecHitsCone= std::make_unique<std::vector<std::vector<int> > >();
+  t_v_nSimHitsCone= std::make_unique<std::vector<std::vector<int> > >();
 
-  t_v_distFromHotCell= new std::vector<std::vector<double> >();
-  t_v_ietaFromHotCell= new std::vector<std::vector<int> >();
-  t_v_iphiFromHotCell= new std::vector<std::vector<int> >();
+  t_v_distFromHotCell= std::make_unique<std::vector<std::vector<double> > >();
+  t_v_ietaFromHotCell= std::make_unique<std::vector<std::vector<int> > >();
+  t_v_iphiFromHotCell= std::make_unique<std::vector<std::vector<int> > >();
 
-  t_v_RH_h3x3_ieta = new std::vector<std::vector<int> >();
-  t_v_RH_h3x3_iphi = new std::vector<std::vector<int> >();
-  t_v_RH_h3x3_ene  = new std::vector<std::vector<double> >();
-  t_v_RH_h5x5_ieta = new std::vector<std::vector<int> >();
-  t_v_RH_h5x5_iphi = new std::vector<std::vector<int> >();
-  t_v_RH_h5x5_ene  = new std::vector<std::vector<double> >();
-  t_v_RH_r26_ieta  = new std::vector<std::vector<int> >();
-  t_v_RH_r26_iphi  = new std::vector<std::vector<int> >();
-  t_v_RH_r26_ene   = new std::vector<std::vector<double> >();
-  t_v_RH_r44_ieta  = new std::vector<std::vector<int> >();
-  t_v_RH_r44_iphi  = new std::vector<std::vector<int> >();
-  t_v_RH_r44_ene   = new std::vector<std::vector<double> >();
+  t_v_RH_h3x3_ieta = std::make_unique<std::vector<std::vector<int> > >();
+  t_v_RH_h3x3_iphi = std::make_unique<std::vector<std::vector<int> > >();
+  t_v_RH_h3x3_ene  = std::make_unique<std::vector<std::vector<double> > >();
+  t_v_RH_h5x5_ieta = std::make_unique<std::vector<std::vector<int> > >();
+  t_v_RH_h5x5_iphi = std::make_unique<std::vector<std::vector<int> > >();
+  t_v_RH_h5x5_ene  = std::make_unique<std::vector<std::vector<double> > >();
+  t_v_RH_r26_ieta  = std::make_unique<std::vector<std::vector<int> > >();
+  t_v_RH_r26_iphi  = std::make_unique<std::vector<std::vector<int> > >();
+  t_v_RH_r26_ene   = std::make_unique<std::vector<std::vector<double> > >();
+  t_v_RH_r44_ieta  = std::make_unique<std::vector<std::vector<int> > >();
+  t_v_RH_r44_iphi  = std::make_unique<std::vector<std::vector<int> > >();
+  t_v_RH_r44_ene   = std::make_unique<std::vector<std::vector<double> > >();
 
 
-  t_v_hlTriggers    = new std::vector<std::vector<int> >();
+  t_v_hlTriggers    = std::make_unique<std::vector<std::vector<int> > >();
 
-  t_hltHE                         = new std::vector<int>();
-  t_hltHB                         = new std::vector<int>();
-  t_hltL1Jet15		          = new std::vector<int>();
-  t_hltJet30		          = new std::vector<int>();
-  t_hltJet50		          = new std::vector<int>();
-  t_hltJet80		          = new std::vector<int>();
-  t_hltJet110		          = new std::vector<int>();
-  t_hltJet140		          = new std::vector<int>();
-  t_hltJet180		          = new std::vector<int>();
-  t_hltL1SingleEG5	          = new std::vector<int>();
-  t_hltZeroBias		          = new std::vector<int>();
-  t_hltMinBiasHcal	          = new std::vector<int>();
-  t_hltMinBiasEcal	          = new std::vector<int>();
-  t_hltMinBiasPixel	          = new std::vector<int>();
-  t_hltSingleIsoTau30_Trk5        = new std::vector<int>();
-  t_hltDoubleLooseIsoTau15_Trk5   = new std::vector<int>();
+  t_hltHE                         = std::make_unique<std::vector<int> >();
+  t_hltHB                         = std::make_unique<std::vector<int> >();
+  t_hltL1Jet15		          = std::make_unique<std::vector<int> >();
+  t_hltJet30		          = std::make_unique<std::vector<int> >();
+  t_hltJet50		          = std::make_unique<std::vector<int> >();
+  t_hltJet80		          = std::make_unique<std::vector<int> >();
+  t_hltJet110		          = std::make_unique<std::vector<int> >();
+  t_hltJet140		          = std::make_unique<std::vector<int> >();
+  t_hltJet180		          = std::make_unique<std::vector<int> >();
+  t_hltL1SingleEG5	          = std::make_unique<std::vector<int> >();
+  t_hltZeroBias		          = std::make_unique<std::vector<int> >();
+  t_hltMinBiasHcal	          = std::make_unique<std::vector<int> >();
+  t_hltMinBiasEcal	          = std::make_unique<std::vector<int> >();
+  t_hltMinBiasPixel	          = std::make_unique<std::vector<int> >();
+  t_hltSingleIsoTau30_Trk5        = std::make_unique<std::vector<int> >();
+  t_hltDoubleLooseIsoTau15_Trk5   = std::make_unique<std::vector<int> >();
   
 
-  t_irun = new std::vector<unsigned int>();
-  t_ievt = new std::vector<unsigned int>();
-  t_ilum = new std::vector<unsigned int>();
+  t_irun = std::make_unique<std::vector<unsigned int> >();
+  t_ievt = std::make_unique<std::vector<unsigned int> >();
+  t_ilum = std::make_unique<std::vector<unsigned int> >();
 
   buildTree();
 }
