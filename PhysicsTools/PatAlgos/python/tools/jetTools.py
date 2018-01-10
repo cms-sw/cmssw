@@ -1379,6 +1379,7 @@ class UpdateJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'groomedFatJets', cms.InputTag(''), "Groomed fat jet collection used for secondary vertex clustering", cms.InputTag)
         self.addParameter(self._defaultParameters,'algo', 'AK', "Jet algorithm of the input collection from which the new patJet collection should be created")
         self.addParameter(self._defaultParameters,'rParam', 0.4, "Jet size (distance parameter R used in jet clustering)")
+        self.addParameter(self._defaultParameters,'printWarning', True, "To be use as False in production to reduce log size")
         self.addParameter(self._defaultParameters,'jetCorrections',None, "Add all relevant information about jet energy corrections that you want to be added to your new patJet \
         collection. The format has to be given in a python tuple of type: (\'AK4Calo\',[\'L2Relative\', \'L3Absolute\'], patMet). Here the first argument corresponds to the payload \
         in the CMS Conditions database for the given jet collection; the second argument corresponds to the jet energy correction levels that you want to be embedded into your \
@@ -1411,7 +1412,7 @@ class UpdateJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,labelName=None,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,tightBTagNTkHits=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None):
+    def __call__(self,process,labelName=None,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,tightBTagNTkHits=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,printWarning=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -1470,6 +1471,9 @@ class UpdateJetCollection(ConfigToolBase):
         if rParam is None:
             rParam=self._defaultParameters['rParam'].value
         self.setParameter('rParam', rParam)
+        if printWarning is None:
+            printWarning=self._defaultParameters['printWarning'].value
+        self.setParameter('printWarning', printWarning)
         if jetCorrections is None:
             jetCorrections=self._defaultParameters['jetCorrections'].value
         self.setParameter('jetCorrections', jetCorrections)
@@ -1504,6 +1508,7 @@ class UpdateJetCollection(ConfigToolBase):
         groomedFatJets=self._parameters['groomedFatJets'].value
         algo=self._parameters['algo'].value
         rParam=self._parameters['rParam'].value
+        printWarning=self._parameters['printWarning'].value
         jetCorrections=self._parameters['jetCorrections'].value
         btagDiscriminators=list(self._parameters['btagDiscriminators'].value)
         btagInfos=list(self._parameters['btagInfos'].value)
@@ -1540,7 +1545,8 @@ class UpdateJetCollection(ConfigToolBase):
             _newPatJets.jetSource=jetSource
         else :
             addToProcessAndTask('updatedPatJets'+_labelName+postfix,
-                                updatedPatJets.clone(jetSource=jetSource), process, task)
+                                updatedPatJets.clone(jetSource=jetSource,
+                                printWarning=printWarning), process, task)
             _newPatJets=getattr(process, 'updatedPatJets'+_labelName+postfix)
             knownModules.append('updatedPatJets'+_labelName+postfix)
         ## add new selectedUpdatedPatJets to process
@@ -1556,11 +1562,12 @@ class UpdateJetCollection(ConfigToolBase):
 
         ## run btagging if required by user
         if (bTagging):
-            sys.stderr.write("**************************************************************\n")
-            sys.stderr.write("b tagging needs to be run on uncorrected jets. Hence, the JECs\n")
-            sys.stderr.write("will first be undone for 'updatedPatJets%s' and then applied to\n" % (_labelName+postfix) )
-            sys.stderr.write("'updatedPatJetsTransientCorrected%s'.\n" % (_labelName+postfix) )
-            sys.stderr.write("**************************************************************\n")
+            if printWarning:
+               sys.stderr.write("**************************************************************\n")
+               sys.stderr.write("b tagging needs to be run on uncorrected jets. Hence, the JECs\n")
+               sys.stderr.write("will first be undone for 'updatedPatJets%s' and then applied to\n" % (_labelName+postfix) )
+               sys.stderr.write("'updatedPatJetsTransientCorrected%s'.\n" % (_labelName+postfix) )
+               sys.stderr.write("**************************************************************\n")
             _jetSource = cms.InputTag('updatedPatJets'+_labelName+postfix)
             ## insert new jet collection with jet corrections applied and btag info added
             self(
