@@ -48,7 +48,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(50)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-    '/store/data/Run2017B/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/298/996/00000/4AAA21A6-186A-E711-A5B2-02163E019BD7.root'
+    '/store/data/Run2017F/SingleMuon/RAW-RECO/ZMu-PromptReco-v1/000/306/456/00000/B85A468F-CAC7-E711-B1B0-02163E013250.root',
+    '/store/data/Run2017F/SingleMuon/RAW-RECO/ZMu-PromptReco-v1/000/306/456/00000/2429B42E-D8C7-E711-8550-FA163E9318A5.root'
     )
 )
 
@@ -75,4 +76,4 @@ process.dqmSaver.workflow = '/RelVal/DQMOffline/L1Trigger'
 process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
-process.ppost = cms.EndPath(process.l1tMuonDQMEfficiency + process.dqmSaver)
+process.ppost = cms.EndPath(process.l1tMuonDQMEfficiency + process.l1tMuonDQMEfficiencyGeneric + process.dqmSaver)

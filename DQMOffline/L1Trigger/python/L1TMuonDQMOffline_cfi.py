@@ -27,21 +27,35 @@ effVsEtaBins = [i*(etaMax-etaMin)/nEtaBins + etaMin for i in range(nEtaBins+1)]
 
 l1tMuonDQMOffline = cms.EDAnalyzer("L1TMuonDQMOffline",
     histFolder = cms.untracked.string('L1T/L1TMuon'),
-    gmtPtCuts = cms.untracked.vint32(muonEfficiencyThresholds),
     tagPtCut = cms.untracked.double(30.),
+    recoToL1PtCutFactor = cms.untracked.double(1.25),
+    cuts = cms.untracked.VPSet(
+        cms.untracked.PSet( # singleMu
+            ptCut =  cms.untracked.int32(25),
+            qualCut = cms.untracked.int32(12)
+        ),
+        cms.untracked.PSet( # doubleMu leg1
+            ptCut =  cms.untracked.int32(15),
+            qualCut = cms.untracked.int32(8)
+        ),
+        cms.untracked.PSet( # doubleMu leg2
+            ptCut =  cms.untracked.int32(7),
+            qualCut = cms.untracked.int32(8)
+        ),
+        cms.untracked.PSet( # mu open
+            ptCut =  cms.untracked.int32(3),
+            qualCut = cms.untracked.int32(4)
+        ),
+    ),
+
     muonInputTag = cms.untracked.InputTag("muons"),
     gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis","Muon"),
     vtxInputTag = cms.untracked.InputTag("offlinePrimaryVertices"),
     bsInputTag  = cms.untracked.InputTag("offlineBeamSpot"),
 
     triggerNames = cms.untracked.vstring(
-        "HLT_IsoMu18_v*",
-        "HLT_IsoMu20_v*",
-        "HLT_IsoMu22_v*",
-        "HLT_IsoMu24_v*",
         "HLT_IsoMu27_v*",
-        "HLT_Mu30_v*",
-        "HLT_Mu40_v*"
+        "HLT_IsoMu30_v*"
     ),
     trigInputTag       = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
     trigProcess        = cms.untracked.string("HLT"),
