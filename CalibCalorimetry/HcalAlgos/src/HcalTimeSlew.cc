@@ -17,9 +17,12 @@ double HcalTimeSlew::delay(double fC, BiasSetting bias) const {
 }
 
 // Used by M3
-double HcalTimeSlew::delay(double fC, ParaSource source, bool isHPD) const {
+double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias, bool isHPD) const {
   double rawDelay = 0.0;
-  if(isHPD){
+  if(source == TestStand){
+    return HcalTimeSlew::delay(fC, bias);
+  }
+  else if(isHPD){
     rawDelay = std::fmin( parametersM3_[source].cap, 
 			  parametersM3_[source].tspar0+parametersM3_[source].tspar1*log(fC+parametersM3_[source].tspar2 ));
   }

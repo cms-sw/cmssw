@@ -17,7 +17,9 @@ HcalDeterministicFit::HcalDeterministicFit() {
 HcalDeterministicFit::~HcalDeterministicFit() { 
 }
 
-void HcalDeterministicFit::init(bool iApplyTimeSlew, PedestalSub pedSubFxn, double respCorr) {
+void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn, double respCorr) {
+  fTimeSlew_=tsParam;
+  fTimeSlewBias_=bias;
   applyTimeSlew_=iApplyTimeSlew;
   fPedestalSubFxn_=pedSubFxn;
   frespCorr_=respCorr;
@@ -95,6 +97,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   std::vector<double> inputPedestal;
   std::vector<double> inputNoise;
   double gainCorr = 0;
+  double respCorr = 0;
 
   for(unsigned int ip=0; ip<channelData.nSamples(); ip++){
 
@@ -112,20 +115,18 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   fPedestalSubFxn_.calculate(inputCharge, inputPedestal, inputNoise, corrCharge, soi, channelData.nSamples());
 
-  const HcalDetId& cell = channelData.id();
-
-  HcalTimeSlew::ParaSource subDet=HcalTimeSlew::ParaSource::HE;
-  if(std::abs(cell.ieta())<HcalRegion[0]) subDet=HcalTimeSlew::ParaSource::HB;
-  else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]) subDet=HcalTimeSlew::ParaSource::BE;
-  else subDet=HcalTimeSlew::ParaSource::HE;
+  if      (fTimeSlew_==0) respCorr=1.0;
+  else if (fTimeSlew_==1) channelData.hasTimeInfo()?respCorr=rCorrSiPM[0]:respCorr=rCorr[0];
+  else if (fTimeSlew_==2) channelData.hasTimeInfo()?respCorr=rCorrSiPM[1]:respCorr=rCorr[1];
+  else if (fTimeSlew_==3) respCorr=frespCorr_;
 
   float tsShift3,tsShift4,tsShift5;
   tsShift3=0.f,tsShift4=0.f,tsShift5=0.f;
 
   if(applyTimeSlew_) {
-    tsShift3=hcalTimeSlew_delay->delay(inputCharge[soi-1], subDet, !channelData.hasTimeInfo());
-    tsShift4=hcalTimeSlew_delay->delay(inputCharge[soi],   subDet, !channelData.hasTimeInfo());
-    tsShift5=hcalTimeSlew_delay->delay(inputCharge[soi+1], subDet, !channelData.hasTimeInfo());
+    tsShift3=hcalTimeSlew_delay->delay(inputCharge[soi-1], fTimeSlew_, fTimeSlewBias_, !channelData.hasTimeInfo());
+    tsShift4=hcalTimeSlew_delay->delay(inputCharge[soi],   fTimeSlew_, fTimeSlewBias_, !channelData.hasTimeInfo());
+    tsShift5=hcalTimeSlew_delay->delay(inputCharge[soi+1], fTimeSlew_, fTimeSlewBias_, !channelData.hasTimeInfo());
   }
 
   float ch3,ch4,ch5, i3,n3,nn3, i4,n4,i5,n5;
@@ -176,6 +177,6 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
     ch4=0.f;
   }
 
-  reconstructedEnergy=ch4*gainCorr*frespCorr_;
+  reconstructedEnergy=ch4*gainCorr*respCorr;
   reconstructedTime=tsShift4;
 }
