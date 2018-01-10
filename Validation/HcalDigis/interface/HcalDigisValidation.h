@@ -123,6 +123,7 @@ private:
     bool hep17_;
     bool HEPhase1_;
     bool HBPhase1_;
+    bool Plot_TP_ver_;
 
     edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
     edm::EDGetTokenT< HBHEDigiCollection > tok_hbhe_; 
