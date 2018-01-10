@@ -19,7 +19,7 @@ class HcalDeterministicFit {
   ~HcalDeterministicFit();
 
   enum FType {shapeLandau, shape205, shape206, shape207};
-  void init(bool iApplyTimeSlew, PedestalSub pedSubFxn, double respCorr);
+  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn, double respCorr);
 
   void phase1Apply(const HBHEChannelInfo& channelData,
 		   float& reconstructedEnergy,
@@ -34,7 +34,8 @@ class HcalDeterministicFit {
   void getFrac(float,float,float&,FType) const;
 
  private:
-  HcalTimeSlew::BiasSetting fTimeSlewBias;
+  HcalTimeSlew::ParaSource fTimeSlew_;
+  HcalTimeSlew::BiasSetting fTimeSlewBias_;
   PedestalSub fPedestalSubFxn_;
   bool applyTimeSlew_;
   double frespCorr_;

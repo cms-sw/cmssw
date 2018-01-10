@@ -13,18 +13,14 @@ HcalTimeSlewEP = cms.ESSource("HcalTimeSlewEP",
     ),
     # For method3                          
     timeSlewParametersM3 = cms.VPSet(        
-        cms.PSet(#HB
+        cms.PSet(#TestStand (Parameters not used)
             cap = cms.double(6.0), tspar0 = cms.double(12.2999), tspar1 = cms.double(-2.19142), tspar2 = cms.double(0.0),  tspar0_siPM = cms.double(0.0), tspar1_siPM = cms.double(0.0), tspar2_siPM = cms.double(0.0)),
-        cms.PSet(#BE (ieta 16 and 17)
+        cms.PSet(#Data
+            cap = cms.double(6.0), tspar0 = cms.double(15.5),    tspar1 = cms.double(-3.2),     tspar2 = cms.double(32.0), tspar0_siPM = cms.double(0.0), tspar1_siPM = cms.double(0.0), tspar2_siPM = cms.double(0.0)),
+        cms.PSet(#MC
             cap = cms.double(6.0), tspar0 = cms.double(12.2999), tspar1 = cms.double(-2.19142), tspar2 = cms.double(0.0),  tspar0_siPM = cms.double(0.0), tspar1_siPM = cms.double(0.0), tspar2_siPM = cms.double(0.0)),
-        cms.PSet(#HE
+        cms.PSet(#HBHE
             cap = cms.double(6.0), tspar0 = cms.double(12.2999), tspar1 = cms.double(-2.19142), tspar2 = cms.double(0.0),  tspar0_siPM = cms.double(0.0), tspar1_siPM = cms.double(0.0), tspar2_siPM = cms.double(0.0))
-
-        #Old and unused options
-        #cms.PSet(#Data
-        #    cap = cms.double(6.0), tspar0 = cms.double(15.5),    tspar1 = cms.double(-3.2),     tspar2 = cms.double(32.0), tspar0_siPM = cms.double(0.0), tspar1_siPM = cms.double(0.0), tspar2_siPM = cms.double(0.0)),
-        #cms.PSet(#MC
-        #    cap = cms.double(6.0), tspar0 = cms.double(12.2999), tspar1 = cms.double(-2.19142), tspar2 = cms.double(0.0),  tspar0_siPM = cms.double(0.0), tspar1_siPM = cms.double(0.0), tspar2_siPM = cms.double(0.0)),
     )
 )
 
