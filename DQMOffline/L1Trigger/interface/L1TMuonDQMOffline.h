@@ -54,8 +54,6 @@
 #include <utility>
 #include <vector>
 
-float maxEta = 2.4;
-
 class MuonGmtPair;
 
 //
@@ -64,7 +62,7 @@ class MuonGmtPair;
 
 class L1TMuonDQMOffline : public DQMEDAnalyzer {
     public:
-        enum control {CONTROL_MuonGmtDeltaR, CONTROL_NTightVsAll, CONTROL_NProbesVsTight};
+        enum control {CTRL_TAGPT, CTRL_TAGETA, CTRL_TAGPHI, CTRL_PROBEPT, CTRL_PROBEETA, CTRL_PROBEPHI, CTRL_TAGPROBEDR, CTRL_MUONGMTDELTAR, CTRL_NTIGHTVSALL, CTRL_NPROBESVSTIGHT};
         enum effType {EFF_PT, EFF_PHI, EFF_ETA};
         enum resType {RES_PT, RES_1OVERPT, RES_PHI, RES_ETA, RES_CH};
         enum etaRegion {ETAREGION_ALL, ETAREGION_BMTF, ETAREGION_OMTF, ETAREGION_EMTF, ETAREGION_OUT};
@@ -73,7 +71,6 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         ~L1TMuonDQMOffline() override;
 
     protected:
-   // Luminosity Block
         void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
         virtual void dqmEndLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
         void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
@@ -137,7 +134,9 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
 
         // maps with histogram name bits
         std::map<effType, std::string> m_effStrings;
+        std::map<effType, std::string> m_effLabelStrings;
         std::map<resType, std::string> m_resStrings;
+        std::map<resType, std::string> m_resLabelStrings;
         std::map<etaRegion, std::string> m_etaStrings;
         std::map<qualLevel, std::string> m_qualStrings;
 
@@ -162,11 +161,9 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
 
         std::vector<int> m_trigIndices;
 
-        float m_MaxGmtMuonDR;
-        float m_MaxHltMuonDR;
-
-   // CB ignored at present
-  // float m_MinMuonDR;
+        float m_maxGmtMuonDR;
+        float m_minTagProbeDR;
+        float m_maxHltMuonDR;
 };
 
 //

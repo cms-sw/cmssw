@@ -63,9 +63,9 @@ void MuonGmtPair::propagate(ESHandle<MagneticField> bField,
 }
 
 L1TMuonDQMOffline::etaRegion MuonGmtPair::etaRegion() const {
-    if (std::abs(eta()) < 0.83)   return L1TMuonDQMOffline::ETAREGION_BMTF;
-    if (std::abs(eta()) < 1.24)   return L1TMuonDQMOffline::ETAREGION_OMTF;
-    if (std::abs(eta()) < maxEta) return L1TMuonDQMOffline::ETAREGION_EMTF;
+    if (std::abs(eta()) < 0.83) return L1TMuonDQMOffline::ETAREGION_BMTF;
+    if (std::abs(eta()) < 1.24) return L1TMuonDQMOffline::ETAREGION_OMTF;
+    if (std::abs(eta()) < 2.4)  return L1TMuonDQMOffline::ETAREGION_EMTF;
     return L1TMuonDQMOffline::ETAREGION_OUT; // FIXME
 }
 
@@ -130,7 +130,9 @@ L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
     m_etaRegions({ETAREGION_ALL, ETAREGION_BMTF, ETAREGION_OMTF, ETAREGION_EMTF}),
     m_qualLevelsRes({QUAL_ALL}),
     m_effStrings({ {EFF_PT, "pt"}, {EFF_PHI, "phi"}, {EFF_ETA, "eta"} }),
+    m_effLabelStrings({ {EFF_PT, "p_{T} (GeV)"}, {EFF_PHI, "#phi"}, {EFF_ETA, "#eta"} }),
     m_resStrings({ {RES_PT, "pt"}, {RES_1OVERPT, "1overpt"}, {RES_PHI, "phi"}, {RES_ETA, "eta"}, {RES_CH, "charge"} }),
+    m_resLabelStrings({ {RES_PT, "p_{T}^{L1} - p_{T}^{reco}"}, {RES_1OVERPT, "(p_{T}^{reco} - p_{T}^{L1}) / p_{T}^{L1}"}, {RES_PHI, "#phi_{L1} - #phi_{reco}"}, {RES_ETA, "#eta_{L1} - #eta_{reco}"}, {RES_CH, "charge^{L1} - charge^{reco}"} }),
     m_etaStrings({ {ETAREGION_ALL, "etaMin0_etaMax2p4"}, {ETAREGION_BMTF, "etaMin0_etaMax0p83"}, {ETAREGION_OMTF, "etaMin0p83_etaMax1p24"}, {ETAREGION_EMTF, "etaMin1p24_etaMax2p4"} }),
     m_qualStrings({ {QUAL_ALL, "qualAll"}, {QUAL_OPEN, "qualOpen"}, {QUAL_DOUBLE, "qualDouble"}, {QUAL_SINGLE, "qualSingle"} }),
     m_verbose(ps.getUntrackedParameter<bool>("verbose")),
@@ -148,15 +150,12 @@ L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
     m_trigNames(ps.getUntrackedParameter<vector<string> >("triggerNames")),
     m_effVsPtBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPtBins")),
     m_effVsPhiBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPhiBins")),
-    m_effVsEtaBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsEtaBins"))
+    m_effVsEtaBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsEtaBins")),
+    m_maxGmtMuonDR(0.3),
+    m_minTagProbeDR(0.5),
+    m_maxHltMuonDR(0.3)
 {
     if (m_verbose) cout << "[L1TMuonDQMOffline:] ____________ Storage initialization ____________ " << endl;
-    // CB do we need them from cfi?
-//    m_MaxMuonEta   = 2.4;
-    m_MaxGmtMuonDR = 0.7;
-    m_MaxHltMuonDR = 0.1;
-    // CB ignored at present
-    //m_MinMuonDR    = 1.2;
 
     for (const auto cutsPSet : m_cutsVPSet) {
         const auto qCut = cutsPSet.getUntrackedParameter<int>("qualCut");
@@ -342,31 +341,19 @@ void L1TMuonDQMOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
 
     ibooker.setCurrentFolder(m_HistFolder+"/control_variables");
 
-    string name = "MuonGmtDeltaR";
-    m_ControlHistos[CONTROL_MuonGmtDeltaR] = ibooker.book1D(name.c_str(),name.c_str(),25.,0.,2.5);
+    m_ControlHistos[CTRL_MUONGMTDELTAR] = ibooker.book1D("MuonGmtDeltaR", "MuonGmtDeltaR; #DeltaR", 25., 0., 2.5);
+    m_ControlHistos[CTRL_NTIGHTVSALL] = ibooker.book2D("NTightVsAll", "NTightVsAll; # muons; # tight muons", 20, -0.5, 19.5, 16, -0.5, 15.5);
+    m_ControlHistos[CTRL_NPROBESVSTIGHT] = ibooker.book2D("NProbesVsTight", "NProbesVsTight; # tight muons; # probe muons", 8, -0.5, 7.5, 8, -0.5, 7.5);
 
-    name = "NTightVsAll";
-    m_ControlHistos[CONTROL_NTightVsAll] = ibooker.book2D(name.c_str(),name.c_str(),16,-0.5,15.5,16,-0.5,15.5);
+    m_ControlHistos[CTRL_TAGPT] = ibooker.book1D("TagMuonPt", "TagMuonPt; p_{T}", 50, 0., 100.);
+    m_ControlHistos[CTRL_TAGPHI] = ibooker.book1D("TagMuonPhi", "TagMuonPhi; #phi", 66, -3.3, 3.3);
+    m_ControlHistos[CTRL_TAGETA] = ibooker.book1D("TagMuonEta", "TagMuonEta; #eta", 50, -2.5, 2.5);
 
-    name = "NProbesVsTight";
-    m_ControlHistos[CONTROL_NProbesVsTight] = ibooker.book2D(name.c_str(),name.c_str(),8,-0.5,7.5,8,-0.5,7.5);
+    m_ControlHistos[CTRL_PROBEPT] = ibooker.book1D("ProbeMuonPt", "ProbeMuonPt; p_{T}", 50, 0., 100.);
+    m_ControlHistos[CTRL_PROBEPHI] = ibooker.book1D("ProbeMuonPhi", "ProbeMuonPhi; #phi", 66, -3.3, 3.3);
+    m_ControlHistos[CTRL_PROBEETA] = ibooker.book1D("ProbeMuonEta", "ProbeMuonEta; #eta", 50, -2.5, 2.5);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-    string name3 = "TagMuonPt_Histo";
-    m_EfficiencyHistos[histoInfoEffTagPt] = ibooker.book1D(name3.c_str(),name3.c_str(),50,0.,100.);
-    string name2 = "TagMuonPhi_Histo";
-    m_EfficiencyHistos[histoInfoEffTagPhi] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
-    string name1 = "TagMuonEta_Histo";
-    m_EfficiencyHistos[histoInfoEffTagEta] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
-
-    name3 = "ProbeMuonPt_Histo";
-    m_EfficiencyHistos[histoInfoEffProbePt] = ibooker.book1D(name3.c_str(),name3.c_str(),50,0.,100.);
-    name2 = "ProbeMuonPhi_Histo";
-    m_EfficiencyHistos[histoInfoEffTagPhi] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
-    name1 = "ProbeMuonEta_Histo";
-    m_EfficiencyHistos[histoInfoEffTagEta] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
-*/
+    m_ControlHistos[CTRL_TAGPROBEDR] = ibooker.book1D("TagMuonProbeMuonDeltaR", "TagMuonProbeMuonDeltaR; #DeltaR", 50, 0.,5.0);
 }
 
 //_____________________________________________________________________
@@ -381,23 +368,23 @@ void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker) {
                 const auto gmtPtCut = cut.first;
                 const auto qualLevel = cut.second;
                 std::string name = "effDen_"+m_effStrings[var]+"_"+std::to_string(gmtPtCut);
-                m_EfficiencyDenEtaHistos[gmtPtCut] = ibooker.book1D(name.c_str(),name.c_str(), histBins.size()-1, &histBins[0]);
+                m_EfficiencyDenEtaHistos[gmtPtCut] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
                 name = "effNum_"+m_effStrings[var]+"_"+std::to_string(gmtPtCut)+"_"+m_qualStrings[qualLevel];
                 m_histoKeyEffNumEtaType histoKeyEffNumEta = {gmtPtCut, qualLevel};
-                m_EfficiencyNumEtaHistos[histoKeyEffNumEta] = ibooker.book1D(name.c_str(), name.c_str(), histBins.size()-1, &histBins[0]);
+                m_EfficiencyNumEtaHistos[histoKeyEffNumEta] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
             }
         } else {
             for (const auto etaReg : m_etaRegions) {
                 // denominator histograms for pt variable get a special treatment
                 if (var == EFF_PT) {
                     std::string name = "effDen_"+m_effStrings[var]+"_"+m_etaStrings[etaReg];
-                    m_EfficiencyDenPtHistos[etaReg] = ibooker.book1D(name.c_str(),name.c_str(), histBins.size()-1, &histBins[0]);
+                    m_EfficiencyDenPtHistos[etaReg] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
                 } else {
                     for (const auto cut : m_cuts) {
                         const int gmtPtCut = cut.first;
                         std::string name = "effDen_"+m_effStrings[var]+"_"+std::to_string(gmtPtCut)+"_"+m_etaStrings[etaReg];
                         m_histoKeyEffDenVarType histoKeyEffDenVar = {var, gmtPtCut, etaReg};
-                        m_EfficiencyDenVarHistos[histoKeyEffDenVar] = ibooker.book1D(name.c_str(),name.c_str(), histBins.size()-1, &histBins[0]);
+                        m_EfficiencyDenVarHistos[histoKeyEffDenVar] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
                     }
                 }
                 for (const auto cut : m_cuts) {
@@ -405,7 +392,7 @@ void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker) {
                     const auto qualLevel = cut.second;
                     std::string name = "effNum_"+m_effStrings[var]+"_"+std::to_string(gmtPtCut)+"_"+m_etaStrings[etaReg]+"_"+m_qualStrings[qualLevel];
                     m_histoKeyEffNumVarType histoKeyEffNum = {var, gmtPtCut, etaReg, qualLevel};
-                    m_EfficiencyNumVarHistos[histoKeyEffNum] = ibooker.book1D(name.c_str(), name.c_str(), histBins.size()-1, &histBins[0]);
+                    m_EfficiencyNumVarHistos[histoKeyEffNum] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
                 }
             }
         }
@@ -424,7 +411,7 @@ void L1TMuonDQMOffline::bookResolutionHistos(DQMStore::IBooker &ibooker) {
             for (const auto qualLevel : m_qualLevelsRes) {
                 m_histoKeyResType histoKeyRes = {var, etaReg, qualLevel};
                 std::string name = "resolution_"+m_resStrings[var]+"_"+m_etaStrings[etaReg]+"_"+m_qualStrings[qualLevel];
-                m_ResolutionHistos[histoKeyRes] = ibooker.book1D(name.c_str(), name.c_str(), nbins, xmin, xmax);
+                m_ResolutionHistos[histoKeyRes] = ibooker.book1D(name, name+";"+m_resLabelStrings[var], nbins, xmin, xmax);
             }
         }
     }
@@ -475,7 +462,7 @@ void L1TMuonDQMOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons,
             m_TightMuons.push_back(&(*muonIt));
         }
     }
-    m_ControlHistos[CONTROL_NTightVsAll]->Fill(muons->size(),m_TightMuons.size());
+    m_ControlHistos[CTRL_NTIGHTVSALL]->Fill(muons->size(), m_TightMuons.size());
 }
 
 //_____________________________________________________________________
@@ -484,12 +471,11 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
 
     if (m_verbose) cout << "[L1TMuonDQMOffline:] getting probe muons" << endl;
     m_ProbeMuons.clear();
-    std::vector<const reco::Muon*>  tagMuonsInHist;
+    std::vector<const reco::Muon*> tagMuonsInHist;
 
     tagMuonsInHist.clear();
 
     vector<const reco::Muon*>::const_iterator probeCandIt   = m_TightMuons.begin();
-//    vector<const reco::Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
     vector<const reco::Muon*>::const_iterator tightMuonsEnd = m_TightMuons.end();
 
     for (; probeCandIt!=tightMuonsEnd; ++probeCandIt) {
@@ -507,7 +493,7 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
             float dPhi = phi - (*probeCandIt)->phi();
             deltar = sqrt(dEta*dEta + dPhi*dPhi);
 
-            if ( (*tagCandIt) == (*probeCandIt) || (deltar<0.7) ) continue; // CB has a little bias for closed-by muons     
+            if ( (*tagCandIt) == (*probeCandIt) || deltar<m_minTagProbeDR ) continue; // CB has a little bias for closed-by muons     
             tagHasTrig = matchHlt(trigEvent,(*tagCandIt)) && (pt > m_TagPtCut);
             isProbe |= tagHasTrig;
             if (tagHasTrig) {
@@ -515,16 +501,22 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
                     for (vector<const reco::Muon*>::const_iterator tagMuonsInHistIt = tagMuonsInHist.begin(); tagMuonsInHistIt!=tagMuonsInHist.end(); ++tagMuonsInHistIt) {
                         if ( (*tagCandIt) == (*tagMuonsInHistIt) )  {
                             tagMuonAlreadyInHist = true;
-                           break;
+                            break;
                         }
                     }
                     if (tagMuonAlreadyInHist == false) tagMuonsInHist.push_back((*tagCandIt));
+                }
+                if (tagMuonAlreadyInHist == false) {
+                    m_ControlHistos[CTRL_TAGETA]->Fill(eta);
+                    m_ControlHistos[CTRL_TAGPHI]->Fill(phi);
+                    m_ControlHistos[CTRL_TAGPT]->Fill(pt);
+                    m_ControlHistos[CTRL_TAGPROBEDR]->Fill(deltar);
                 }
             }
         }
         if (isProbe) m_ProbeMuons.push_back((*probeCandIt));
     }
-    m_ControlHistos[CONTROL_NProbesVsTight]->Fill(m_TightMuons.size(),m_ProbeMuons.size());
+    m_ControlHistos[CTRL_NPROBESVSTIGHT]->Fill(m_TightMuons.size(), m_ProbeMuons.size());
 }
 
 //_____________________________________________________________________
@@ -540,7 +532,11 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
     l1t::MuonBxCollection::const_iterator gmtEnd = gmtCands->end();
 
     for (; probeMuIt!=probeMuEnd; ++probeMuIt) {
-        MuonGmtPair pairBestCand((*probeMuIt),nullptr);
+        m_ControlHistos[CTRL_PROBEETA]->Fill((*probeMuIt)->eta());
+        m_ControlHistos[CTRL_PROBEPHI]->Fill((*probeMuIt)->phi());
+        m_ControlHistos[CTRL_PROBEPT]->Fill((*probeMuIt)->pt());
+
+        MuonGmtPair pairBestCand((*probeMuIt), nullptr);
 //      pairBestCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
         gmtIt = gmtCands->begin();
 
@@ -548,13 +544,13 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
             MuonGmtPair pairTmpCand((*probeMuIt),&(*gmtIt));
 //          pairTmpCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);     
 
-            if ( (pairTmpCand.dR() < m_MaxGmtMuonDR) && (pairTmpCand.dR() < pairBestCand.dR() ) ) {
+            if ( (pairTmpCand.dR() < m_maxGmtMuonDR) && (pairTmpCand.dR() < pairBestCand.dR() ) ) {
                 pairBestCand = pairTmpCand;
             }
 
         }
         m_MuonGmtPairs.push_back(pairBestCand);
-        m_ControlHistos[CONTROL_MuonGmtDeltaR]->Fill(pairBestCand.dR());
+        m_ControlHistos[CTRL_MUONGMTDELTAR]->Fill(pairBestCand.dR());
     }
 }
 
@@ -584,7 +580,7 @@ bool L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, cons
             }
         }
     }
-    return (matchDeltaR < m_MaxHltMuonDR);
+    return (matchDeltaR < m_maxHltMuonDR);
 }
 
 std::vector<float> L1TMuonDQMOffline::getHistBinsEff(effType eff) {
