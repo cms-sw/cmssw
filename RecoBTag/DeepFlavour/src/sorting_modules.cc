@@ -11,9 +11,6 @@ std::vector<std::size_t> invertSortingVector(const std::vector<SortingClass<std:
         if(s.get()>max)max=s.get();
     }
 
-    if(max>1e3){
-        throw cms::Exception("sorting vector size more than 1k ");
-    }
     std::vector<std::size_t> out(max+1,0);
     for(std::size_t i=0;i<in.size();i++){
         out.at(in[i].get())=i;
