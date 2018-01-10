@@ -74,12 +74,19 @@ class LuminosityBlockProcessingStatus
   
   void noExceptionHappened() { cleaningUpAfterException_ = false; }
   bool cleaningUpAfterException() const { return cleaningUpAfterException_;}
+
+  //These should only be called while in the InputSource's task queue
+  void updateLastTimestamp( edm::Timestamp const& iTime) {
+    if (iTime> endTime_) { endTime_ = iTime;}
+  }
+  edm::Timestamp const& lastTimestamp() const { return endTime_;}
   private:
   // ---------- member data --------------------------------
   std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
   LimitedTaskQueue::Resumer globalLumiQueueResumer_;
   EventProcessor* eventProcessor_ = nullptr;
   std::atomic<unsigned int> nStreamsStillProcessingLumi_{0}; //read/write as streams finish lumi so must be atomic
+  edm::Timestamp endTime_{};
   bool stopProcessingEvents_{false}; //read/write in m_sourceQueue OR from main thread when no tasks running
   bool lumiEnding_{false}; //read/write in m_sourceQueue NOTE: This is a useful cache instead of recalculating each call
   bool continuingLumi_{false}; //read/write in m_sourceQueue OR from main thread when no tasks running

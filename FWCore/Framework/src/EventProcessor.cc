@@ -496,6 +496,7 @@ namespace edm {
 
     lumiQueue_ = std::make_unique<LimitedTaskQueue>(nConcurrentLumis);
     streamQueues_.resize(nStreams);
+    streamLumiStatus_.resize(nStreams);
     
     // initialize the input source
     input_ = makeInput(*parameterSet,
@@ -1135,6 +1136,7 @@ namespace edm {
             for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
               streamQueues_[i].push([this,i,oStatus,holder,ts,&es] () {
                 auto& event = principalCache_.eventPrincipal(i);
+                streamLumiStatus_[i] = oStatus;
                 auto lp = oStatus->lumiPrincipal();
                 event.setLuminosityBlockPrincipal(lp);
                 beginStreamTransitionAsync<Traits>(holder, *schedule_,i,*lp,ts,es,subProcesses_);
@@ -1224,8 +1226,8 @@ namespace edm {
 
   void EventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status) {
     bool cleaningUpAfterException = status->cleaningUpAfterException();
-    LuminosityBlockPrincipal& lumiPrincipal = *status-> lumiPrincipal();
-    lumiPrincipal.setEndTime(input_->timestamp());
+    LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
+    lumiPrincipal.setEndTime(status->lastTimestamp());
     
     auto globalWaitTask = make_empty_waiting_task();
     globalWaitTask->increment_ref_count();
@@ -1235,6 +1237,7 @@ namespace edm {
                                                  waitTask=WaitingTaskHolder(globalWaitTask.get()),
                                                  status](std::exception_ptr const* iPtr)
     {
+      for(auto & s: streamLumiStatus_) { s.reset();}
       if(iPtr) {
         WaitingTaskHolder t(waitTask);
         t.doneWaiting(*iPtr);
@@ -1252,7 +1255,6 @@ namespace edm {
       EventSetup const& es = esp_->eventSetup();
       if(status->didGlobalBeginSucceed()){
         typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
-      
         endStreamsTransitionAsync<Traits>(globalEndTask,
                                           *schedule_,
                                           preallocations_.numberOfStreams(),
@@ -1491,6 +1493,8 @@ namespace edm {
 
     SendSourceTerminationSignalIfException sentry(actReg_.get());
     input_->readEvent(event, streamContext);
+    
+    streamLumiStatus_[iStreamIndex]->updateLastTimestamp(input_->timestamp());
     sentry.completedSuccessfully();
 
     FDEBUG(1) << "\treadEvent\n";
