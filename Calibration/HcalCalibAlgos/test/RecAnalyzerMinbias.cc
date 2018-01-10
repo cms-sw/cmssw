@@ -83,7 +83,8 @@ private:
   edm::Service<TFileService> fs_;
   bool                       theRecalib_, ignoreL1_, runNZS_, Noise_, fillHist_, init_;
   double                     eLowHB_, eHighHB_, eLowHE_, eHighHE_;
-  double                     eLowHF_, eHighHF_, eMin_, runMin_, runMax_;
+  double                     eLowHF_, eHighHF_, eMin_;
+  int                        runMin_, runMax_;
   std::map<DetId,double>     corrFactor_;
   std::vector<unsigned int>  hcalID_;
   TTree                     *myTree_, *myTree1_;
@@ -119,24 +120,25 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) :
   usesResource("TFileService");
 
   // get name of output file with histogramms
-  runNZS_               = iConfig.getParameter<bool>("RunNZS");
-  Noise_                = iConfig.getParameter<bool>("Noise");
-  eLowHB_               = iConfig.getParameter<double>("ELowHB");
-  eHighHB_              = iConfig.getParameter<double>("EHighHB");
-  eLowHE_               = iConfig.getParameter<double>("ELowHE");
-  eHighHE_              = iConfig.getParameter<double>("EHighHE");
-  eLowHF_               = iConfig.getParameter<double>("ELowHF");
-  eHighHF_              = iConfig.getParameter<double>("EHighHF");
-  eMin_                 = iConfig.getUntrackedParameter<double>("EMin",2.0);
-  runMin_               = iConfig.getUntrackedParameter<double>("RunMin",303441.5);
-  runMax_               = iConfig.getUntrackedParameter<double>("RunMax",304825.5);
-  trigbit_              = iConfig.getUntrackedParameter<std::vector<int>>("TriggerBits");
-  ignoreL1_             = iConfig.getUntrackedParameter<bool>("IgnoreL1",false);
-  std::string      cfile= iConfig.getUntrackedParameter<std::string>("CorrFile");
-  fillHist_             = iConfig.getUntrackedParameter<bool>("FillHisto",false);
-  std::vector<int> ieta = iConfig.getUntrackedParameter<std::vector<int>>("HcalIeta");
-  std::vector<int> iphi = iConfig.getUntrackedParameter<std::vector<int>>("HcalIphi");
-  std::vector<int> depth= iConfig.getUntrackedParameter<std::vector<int>>("HcalDepth");
+  runNZS_               = iConfig.getParameter<bool>("runNZS");
+  Noise_                = iConfig.getParameter<bool>("noise");
+  eLowHB_               = iConfig.getParameter<double>("eLowHB");
+  eHighHB_              = iConfig.getParameter<double>("eHighHB");
+  eLowHE_               = iConfig.getParameter<double>("eLowHE");
+  eHighHE_              = iConfig.getParameter<double>("eHighHE");
+  eLowHF_               = iConfig.getParameter<double>("eLowHF");
+  eHighHF_              = iConfig.getParameter<double>("eHighHF");
+  eMin_                 = iConfig.getUntrackedParameter<double>("eMin",2.0);
+  // The following run range is suited to study 2017 commissioning period
+  runMin_               = iConfig.getUntrackedParameter<int>("RunMin",303442);
+  runMax_               = iConfig.getUntrackedParameter<int>("RunMax",304825);
+  trigbit_              = iConfig.getUntrackedParameter<std::vector<int>>("triggerBits");
+  ignoreL1_             = iConfig.getUntrackedParameter<bool>("ignoreL1",false);
+  std::string      cfile= iConfig.getUntrackedParameter<std::string>("corrFile");
+  fillHist_             = iConfig.getUntrackedParameter<bool>("fillHisto",false);
+  std::vector<int> ieta = iConfig.getUntrackedParameter<std::vector<int>>("hcalIeta");
+  std::vector<int> iphi = iConfig.getUntrackedParameter<std::vector<int>>("hcalIphi");
+  std::vector<int> depth= iConfig.getUntrackedParameter<std::vector<int>>("hcalDepth");
 
   // get token names of modules, producing object collections
   tok_hbherecoMB_   = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"));
@@ -200,24 +202,26 @@ void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
 
   std::vector<int> iarray;
   edm::ParameterSetDescription desc;
-  desc.add<bool>("RunNZS",    true);
-  desc.add<bool>("Noise",     false);
-  desc.add<double>("ELowHB",  4);
-  desc.add<double>("EHighHB", 100);
-  desc.add<double>("ELowHE",  4);
-  desc.add<double>("EHighHE", 150);
-  desc.add<double>("ELowHF",  10);
-  desc.add<double>("EHighHF", 150);
-  desc.addUntracked<double>("EMin",2.0);
-  desc.addUntracked<double>("RunMin",303441.5);
-  desc.addUntracked<double>("RunMax",304825.5);
-  desc.addUntracked<std::vector<int> >("TriggerBits", iarray);
-  desc.addUntracked<bool>("IgnoreL1",        false);
-  desc.addUntracked<std::string>("CorrFile", "CorFactor.txt");
-  desc.addUntracked<bool>("FillHisto",       false);
-  desc.addUntracked<std::vector<int> >("HcalIeta", iarray);
-  desc.addUntracked<std::vector<int> >("HcalIphi", iarray);
-  desc.addUntracked<std::vector<int> >("HcalDepth", iarray);
+  desc.add<bool>("runNZS",    true);
+  desc.add<bool>("noise",     false);
+  desc.add<double>("eLowHB",  4);
+  desc.add<double>("eHighHB", 100);
+  desc.add<double>("eLowHE",  4);
+  desc.add<double>("eHighHE", 150);
+  desc.add<double>("eLowHF",  10);
+  desc.add<double>("eHighHF", 150);
+  // Suitable cutoff to remove fluctuation of pedestal
+  desc.addUntracked<double>("eMin",2.0);
+  // The following run range is suited to study 2017 commissioning period
+  desc.addUntracked<int>("runMin",303442);
+  desc.addUntracked<int>("runMax",304825);
+  desc.addUntracked<std::vector<int> >("triggerBits", iarray);
+  desc.addUntracked<bool>("ignoreL1",  false);
+  desc.addUntracked<std::string>("corrFile", "CorFactor.txt");
+  desc.addUntracked<bool>("fillHisto", false);
+  desc.addUntracked<std::vector<int> >("hcalIeta", iarray);
+  desc.addUntracked<std::vector<int> >("hcalIphi", iarray);
+  desc.addUntracked<std::vector<int> >("hcalDepth", iarray);
   desc.add<edm::InputTag>("hbheInputMB", edm::InputTag("hbherecoMB"));
   desc.add<edm::InputTag>("hfInputMB",   edm::InputTag("hfrecoMB"));
   descriptions.add("recAnalyzerMinbias",desc);
@@ -231,23 +235,23 @@ void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
    hb_   = fs_->make<TH2D>("hb",  "Noise in HB",61,-16.5,16.5,72,0.5,72.5);
    he_   = fs_->make<TH2D>("he",  "Noise in HE",61,-30.5,30.5,72,0.5,72.5);
    hf_   = fs_->make<TH2D>("hf",  "Noise in HF",82,-41.5,41.5,72,0.5,72.5);
-   int nbin = (int)(runMax_-runMin_+0.2);
+   int nbin = (runMax_-runMin_+1);
    sprintf (title, "Fraction of channels in HB/HE with E > %4.1f GeV vs Run number", eMin_);
-   hbherun_ = fs_->make<TProfile>("hbherun",title,nbin,runMin_,runMax_,0.0,1.0);
+   hbherun_ = fs_->make<TProfile>("hbherun",title,nbin,runMin_-0.5,runMax_+0.5,0.0,1.0);
    sprintf (title, "Fraction of channels in HB with E > %4.1f GeV vs Run number", eMin_);
-   hbrun_   = fs_->make<TProfile>("hbrun",title,nbin,runMin_,runMax_,0.0,1.0);
+   hbrun_   = fs_->make<TProfile>("hbrun",title,nbin,runMin_-0.5,runMax_+0.5,0.0,1.0);
    sprintf (title, "Fraction of channels in HE with E > %4.1f GeV vs Run number", eMin_);
-   herun_   = fs_->make<TProfile>("herun",title,nbin,runMin_,runMax_,0.0,1.0);
+   herun_   = fs_->make<TProfile>("herun",title,nbin,runMin_-0.5,runMax_+0.5,0.0,1.0);
    sprintf (title, "Fraction of channels in HF with E > %4.1f GeV vs Run number", eMin_);
-   hfrun_   = fs_->make<TProfile>("hfrun",title,nbin,runMin_,runMax_,0.0,1.0);
+   hfrun_   = fs_->make<TProfile>("hfrun",title,nbin,runMin_-0.5,runMax_+0.5,0.0,1.0);
    for(int idet=1; idet<=4; idet++){
      sprintf(name, "%s", hc[idet].c_str());
      sprintf (title, "Noise distribution for %s", hc[idet].c_str());
      h_[idet-1] = fs_->make<TH1D>(name,title,48,-6., 6.);
    }
 
-   for (unsigned int i=0; i<hcalID_.size(); i++) {
-     HcalDetId id = HcalDetId(hcalID_[i]);
+   for (const auto & hcalid : hcalID_) {
+     HcalDetId id = HcalDetId(hcalid);
      int subdet   = id.subdetId();
      sprintf (name, "%s%d_%d_%d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
      sprintf (title, "Energy Distribution for %s ieta %d iphi %d depth %d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
@@ -280,35 +284,36 @@ void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
    myMap_.clear();
  }
 
- //  EndJob
- //
- void RecAnalyzerMinbias::endJob() {
+//  EndJob
+//
+void RecAnalyzerMinbias::endJob() {
 
-   if (!fillHist_) {
-     cells = 0;
-     for (std::map<std::pair<int,HcalDetId>,myInfo>::const_iterator itr=myMap_.begin(); itr != myMap_.end(); ++itr) {
-       edm::LogInfo("AnalyzerMB") << "Fired trigger bit number "<<itr->first.first;
+  if (!fillHist_) {
+    cells = 0;
+    for (const auto& itr : myMap_) {
+      edm::LogInfo("AnalyzerMB") << "Fired trigger bit number "
+				 << itr.first.first;
  #ifdef EDM_ML_DEBUG
-       std::cout << "Fired trigger bit number "<<itr->first.first << std::endl;
+      std::cout << "Fired trigger bit number "<< itr.first.first << std::endl;
  #endif
-       myInfo info = itr->second;
-       if (info.theMB0 > 0) { 
-	 mom0_MB  = info.theMB0;
+      myInfo info = itr.second;
+      if (info.theMB0 > 0) { 
+	mom0_MB  = info.theMB0;
 	mom1_MB  = info.theMB1;
 	mom2_MB  = info.theMB2;
 	mom3_MB  = info.theMB3;
 	mom4_MB  = info.theMB4;
 	rnnumber = info.runcheck;
-	trigbit  = itr->first.first;
-	mysubd   = itr->first.second.subdet();
-	depth    = itr->first.second.depth();
-	iphi     = itr->first.second.iphi();
-	ieta     = itr->first.second.ieta();
-	edm::LogInfo("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd 
+	trigbit  = itr.first.first;
+	mysubd   = itr.first.second.subdet();
+	depth    = itr.first.second.depth();
+	iphi     = itr.first.second.iphi();
+	ieta     = itr.first.second.ieta();
+	edm::LogInfo("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd
 				   << " " << ieta << " " << iphi << " mom0  " 
-				   << mom0_MB << " mom1 " << mom1_MB << " mom2 "
-				   << mom2_MB << " mom3 " << mom3_MB << " mom4 "
-				   << mom4_MB;
+				   << mom0_MB << " mom1 " << mom1_MB 
+				   << " mom2 " << mom2_MB << " mom3 " 
+				   << mom3_MB << " mom4 " << mom4_MB;
 #ifdef EDM_ML_DEBUG
 	std::cout << " Result=  " << trigbit << " " << mysubd 
 		  << " " << ieta << " " << iphi << " mom0  " 
