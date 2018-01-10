@@ -111,7 +111,6 @@ namespace edm {
   class EndPathStatusInserter;
   class PreallocationConfiguration;
   class WaitingTaskHolder;
-  class LuminosityBlockProcessingStatus;
 
   namespace service {
     class TriggerNamesService;
@@ -187,14 +186,6 @@ namespace edm {
                                typename T::MyPrincipal& principal,
                                EventSetup const& eventSetup,
                                bool cleaningUpAfterException = false);
-
-    //Handle LuminosityBlocks
-    void processOneBeginLumiAsync(WaitingTaskHolder iTask,
-                                  std::shared_ptr<LuminosityBlockProcessingStatus>,
-                                  EventSetup const& eventSetup);
-    void processOneEndLumiAsync(WaitingTaskHolder iTask, bool cleaningUpAfterException);
-
-    std::shared_ptr<LuminosityBlockProcessingStatus> activeLuminosityBlockProcessingStatus() { return lumiStatus_;}
 
     void beginStream();
     void endStream();
@@ -346,8 +337,6 @@ namespace edm {
     WorkerManager            workerManager_;
     std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
     
-    std::shared_ptr<LuminosityBlockProcessingStatus> lumiStatus_;
-
     edm::propagate_const<TrigResPtr> results_;
 
     edm::propagate_const<WorkerPtr> results_inserter_;

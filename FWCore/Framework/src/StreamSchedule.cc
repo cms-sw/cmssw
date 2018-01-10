@@ -715,18 +715,6 @@ namespace edm {
   }
 
   void
-  StreamSchedule::processOneBeginLumiAsync(WaitingTaskHolder iTask,
-                                           std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus,
-                                           EventSetup const& eventSetup) {
-    lumiStatus_ = std::move(iLumiStatus);
-    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
-    processOneStreamAsync<Traits>(std::move(iTask), *(lumiStatus_->lumiPrincipal()), eventSetup);
-  }
-  void
-  StreamSchedule::processOneEndLumiAsync(WaitingTaskHolder iTask, bool cleaningUpAfterException) {}
-
-
-  void
   StreamSchedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
     oLabelsToFill.reserve(trig_paths_.size());
     std::transform(trig_paths_.begin(),
