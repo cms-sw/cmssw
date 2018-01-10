@@ -106,6 +106,9 @@ private:
 			       int nvx, int ipbin);
   void                  unpackID(unsigned int id, int& zside, int& eta, 
 				 int& phi, int& depth, int& nvx, int& ipbin);
+  void                  getBins(int type, int eta, int phi, int depth,
+				int& nbins, double& xmax);
+
 private:
   TTree                *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t                 fCurrent; //!current Tree number in a TChain
@@ -507,6 +510,8 @@ void AnalyzeLepTree::bookHisto() {
 		sprintf (ps, "all p");
 	      };
 	      for (int vbin=0; vbin<nVxBins(); ++vbin) {
+		int    nbin(4000);
+		double xmax(10.0);
 		char vtx[20];
 		if ((mode_/2)%2 == 1) {
 		  sprintf(vtx, "N_{vtx}=%d:%d", npvbin[vbin], npvbin[vbin+1]);
@@ -517,27 +522,33 @@ void AnalyzeLepTree::bookHisto() {
 		char name[100], title[200];
 		sprintf (name,"EdepE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Deposited energy for %s %s %s %s %s (GeV)", etas, phis, deps, ps, vtx);
-		h_Energy_[id] = new TH1D(name,title,4000,0.0,10.0);
+		getBins(0, eta, phi0, depth+1, nbin, xmax);
+		h_Energy_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 		sprintf (name,"EcorE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Active length corrected energy for %s %s %s %s %s (GeV/cm)", etas, phis, deps, ps, vtx);
-		h_Ecorr_[id] = new TH1D(name,title,4000,0.0,10.0);
+		getBins(1, eta, phi0, depth+1, nbin, xmax);
+		h_Ecorr_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 		sprintf (name,"EdepCE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Response Corrected deposited energy for %s %s %s %s %s (GeV)", etas, phis, deps, ps, vtx);
-		h_EnergyC_[id] = new TH1D(name,title,4000,0.0,10.0);
+		getBins(2, eta, phi0, depth+1, nbin, xmax);
+		h_EnergyC_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 		sprintf (name,"EcorCE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Response and active length corrected energy for %s %s %s %s %s (GeV/cm)", etas, phis, deps, ps, vtx);
-		h_EcorrC_[id] = new TH1D(name,title,4000,0.0,10.0);
+		getBins(3, eta, phi0, depth+1, nbin, xmax);
+		h_EcorrC_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 		sprintf (name,"ChrgE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Measured charge for %s %s %s %s %s (cm)", etas, phis, deps, ps, vtx);
-		h_Charge_[id] = new TH1D(name,title,2000,0.0,20.0);
+		getBins(4, eta, phi0, depth+1, nbin, xmax);
+		h_Charge_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 		sprintf (name,"ChcorE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Active length corrected charge for %s %s %s %s %s (cm)", etas, phis, deps, ps, vtx);
-		h_Chcorr_[id] = new TH1D(name,title,2000,0.0,20.0);
+		getBins(5, eta, phi0, depth+1, nbin, xmax);
+		h_Chcorr_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 	      }
 	    }
@@ -875,4 +886,22 @@ void AnalyzeLepTree::unpackID(unsigned int id, int& zside, int& eta, int& phi,
   depth = (id >> 13) & 7;
   ipbin = (id >> 16) & 7;
   nvx   = (id >> 19) & 7;
+}
+
+void AnalyzeLepTree::getBins(int type, int eta, int phi, int depth, int& nbin,
+			     double& xmax) {
+  bool   barrel = (eta < 16) || ((eta == 16) && (depth <= 2));
+  bool   rbx17  = (phi >= 63) && (phi <= 66);
+  nbin = 4000;
+  xmax = 10.0;
+  if (type >= 4) {
+    if ((modeLHC_ == 0) || (((modeLHC_ == 1) || (modeLHC_ == 3)) && barrel) ||
+	((modeLHC_ == 3) && (!rbx17))) {
+      // HPD Channels
+      xmax = 40.0;
+    } else {
+      // SiPM Channels
+      xmax = 5000.0;
+    }
+  }
 }
