@@ -391,7 +391,8 @@ def miniAOD_customizeCommon(process):
           'pfDeepFlavourJetTags:probuds',
           'pfDeepFlavourJetTags:probg',
        ],
-       postfix = 'SlimmedDeepFlavour'
+       postfix = 'SlimmedDeepFlavour',
+       printWarning = False
     )
 
     # slimmedJets with DeepFlavour (remove DeepFlavour-less)
