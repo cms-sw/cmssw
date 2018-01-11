@@ -108,7 +108,6 @@ void testEventsetup::constructTest()
    const IOVSyncValue timestamp(time);
    EventSetup const& eventSetup = provider.eventSetupForInstance(timestamp);
    CPPUNIT_ASSERT(non_null(&eventSetup));
-   CPPUNIT_ASSERT(eventSetup.iovSyncValue() == timestamp);
 }
 
 void testEventsetup::getTest()

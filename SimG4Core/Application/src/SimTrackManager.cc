@@ -87,7 +87,8 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory * trkWHist)
     {
       edm::LogError("SimTrackManager") 
 	<< " SimTrackManager::saveTrackAndItsBranch got 0 pointer ";
-      abort();
+      throw cms::Exception("SimTrackManager::saveTrackAndItsBranch")
+	<< " cannot handle hits for tracking";
     }
   trkH->save();
   unsigned int parent = trkH->parentID();

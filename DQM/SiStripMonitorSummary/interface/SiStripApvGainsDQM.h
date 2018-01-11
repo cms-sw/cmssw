@@ -15,6 +15,7 @@ class SiStripApvGainsDQM : public SiStripBaseCondObjDQM{
   public:
   
   SiStripApvGainsDQM(const edm::EventSetup & eSetup,
+                     edm::RunNumber_t iRun,
                      edm::ParameterSet const& hPSet,
                      edm::ParameterSet const& fPSet);
   

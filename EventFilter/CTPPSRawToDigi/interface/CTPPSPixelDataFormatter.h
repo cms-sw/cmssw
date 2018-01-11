@@ -73,6 +73,7 @@ public:
 
 private:
 
+
   mutable int m_WordCounter;
 
   bool m_IncludeErrors;

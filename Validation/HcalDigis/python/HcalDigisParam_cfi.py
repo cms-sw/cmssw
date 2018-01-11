@@ -15,7 +15,8 @@ hcaldigisAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
     TestNumber  = cms.bool(False),
     hep17       = cms.bool(False),
     HEPhase1  	= cms.bool(False),
-    HBPhase1	= cms.bool(False)
+    HBPhase1	= cms.bool(False),
+    Plot_TP_ver = cms.bool(False)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

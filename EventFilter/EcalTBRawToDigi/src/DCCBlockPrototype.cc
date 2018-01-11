@@ -7,7 +7,7 @@
 #include <sstream>
 
 
-DCCTBBlockPrototype::DCCTBBlockPrototype(DCCTBDataParser * parser, std::string name, uint32_t * buffer, uint32_t numbBytes, uint32_t wordsToEndOfEvent,  uint32_t wordEventOffset ){
+DCCTBBlockPrototype::DCCTBBlockPrototype(DCCTBDataParser * parser, std::string name, const uint32_t * buffer, uint32_t numbBytes, uint32_t wordsToEndOfEvent,  uint32_t wordEventOffset ){
 			
 	blockError_        = false;
 	parser_            = parser;
