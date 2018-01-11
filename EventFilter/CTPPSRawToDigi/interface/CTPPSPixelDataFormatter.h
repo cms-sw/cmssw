@@ -63,7 +63,7 @@ public:
 
   CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const &mapping);
 
-  void setErrorStatus(bool ErrorStatus);
+  void setErrorStatus(bool theErrorStatus);
 
   int nWords() const { return theWordCounter; }
 

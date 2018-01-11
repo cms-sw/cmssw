@@ -13,7 +13,6 @@
 #include <sstream>
 #include <iostream>
 
-using namespace std;
 using namespace edm;
 
 namespace {
@@ -192,7 +191,7 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
 std::string CTPPSPixelDataFormatter::print(const  Word64 & word) const
 {
-  ostringstream str;
-  str  <<"word64:  " << reinterpret_cast<const bitset<64>&> (word);
+  std::ostringstream str;
+  str  <<"word64:  " << reinterpret_cast<const std::bitset<64>&> (word);
   return str.str();
 }
