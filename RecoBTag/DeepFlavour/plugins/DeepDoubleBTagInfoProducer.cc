@@ -19,6 +19,7 @@
 #include "DataFormats/BTauReco/interface/DeepDoubleBTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleBFeatures.h"
 
+#include "RecoBTag/DeepFlavour/interface/JetConverter.h"
 #include "RecoBTag/DeepFlavour/interface/DoubleBTagConverter.h"
 #include "RecoBTag/DeepFlavour/interface/SVConverter.h"
 #include "RecoBTag/DeepFlavour/interface/ChargedCandidateConverter.h"
@@ -59,6 +60,10 @@ class DeepDoubleBTagInfoProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<VertexCollection> vtx_token_;
     edm::EDGetTokenT<SVCollection> sv_token_;
     edm::EDGetTokenT<BoostedDoubleSVTagInfoCollection> shallow_tag_info_token_;
+    edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
+    edm::EDGetTokenT<edm::Association<VertexCollection>> pvas_token_;
+  
+    bool use_pvasq_value_map_;
     
 };
 
@@ -68,9 +73,18 @@ DeepDoubleBTagInfoProducer::DeepDoubleBTagInfoProducer(const edm::ParameterSet& 
   jet_token_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
   vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
-  shallow_tag_info_token_(consumes<BoostedDoubleSVTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos")))
+  shallow_tag_info_token_(consumes<BoostedDoubleSVTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))),
+  use_pvasq_value_map_(false)
 {
   produces<DeepDoubleBTagInfoCollection>();
+   
+  /*const auto & pvas_tag = iConfig.getParameter<edm::InputTag>("vertex_associator");
+  if (!pvas_tag.label().empty()) {
+    pvasq_value_map_token_ = consumes<edm::ValueMap<int>>(pvas_tag);
+    pvas_token_ = consumes<edm::Association<VertexCollection>>(pvas_tag);
+    use_pvasq_value_map_ = true;
+  }
+  */
 }
 
 
@@ -89,6 +103,7 @@ void DeepDoubleBTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak8PFJetsCHS"));
+  desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation","original"));
   descriptions.add("pfDeepDoubleBTagInfos", desc);
 }
 
@@ -116,6 +131,12 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   edm::Handle<BoostedDoubleSVTagInfoCollection> shallow_tag_infos;
   iEvent.getByToken(shallow_tag_info_token_, shallow_tag_infos);
 
+  edm::Handle<edm::ValueMap<int>> pvasq_value_map;
+  edm::Handle<edm::Association<VertexCollection>> pvas;
+  if (use_pvasq_value_map_) { 
+    iEvent.getByToken(pvasq_value_map_token_, pvasq_value_map);
+    iEvent.getByToken(pvas_token_, pvas);
+  }
 
   edm::ESHandle<TransientTrackBuilder> track_builder; 
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", track_builder);
@@ -147,6 +168,12 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     if (match.isNonnull()) {
       tag_info = *match; 
     } // will be default values otherwise
+
+    // fill basic jet features
+    btagbtvdeep::JetConverter::JetToFeatures(jet, features.jet_features);
+
+    // fill number of pv                                                                                                     
+    features.npv = vtxs->size();
 
     // fill features from BoostedDoubleSVTagInfo
     const auto & tag_info_vars = tag_info.taggingVariables();
@@ -193,7 +220,7 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
             auto & trackinfo = trackinfos.emplace(i,track_builder).first->second;
             trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
             c_sorted.emplace_back(i, trackinfo.getTrackSip2dSig(),
-                    -btagbtvdeep::mindrsvpfcand(svs_unsorted,cand), cand->pt()/jet.pt());
+                                  -btagbtvdeep::mindrsvpfcand(svs_unsorted,cand,0.8), cand->pt()/jet.pt());
           }
         }
     }
@@ -210,6 +237,8 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // set right size to vectors
     features.c_pf_features.clear();
     features.c_pf_features.resize(c_sorted.size());
+    std::cout << "c_sorted.size() = " << c_sorted.size() << std::endl;
+    std::cout << "c_sortedindices.size() = " << c_sortedindices.size() << std::endl;
 
 
   for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
@@ -220,7 +249,10 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // candidates under 950MeV are not considered
     // might change if we use also white-listing
     if (cand->pt()<0.95) continue;
-
+    
+    if (cand->charge() != 0) {
+      std::cout << "cand pt = " << cand->pt() << std::endl;
+    }
     auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand);
     auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
 
@@ -231,8 +263,10 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     } else if (pat_jet && reco_cand) {
       reco_ptr = pat_jet->getPFConstituent(i);
     }
+    // get PUPPI weight from value map
+    float puppiw = 1.0; // fallback value
 
-    float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand);
+    float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand, 0.8);
     
     if (cand->charge() != 0) {
       // is charged candidate
@@ -245,9 +279,39 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       if (packed_cand) {
         btagbtvdeep::PackedCandidateToFeatures(packed_cand, jet, trackinfo, 
                                                                           drminpfcandsv, c_pf_features);
-      } 
+      } else if (reco_cand) {
+        // get vertex association quality
+        int pv_ass_quality = 0; // fallback value
+        if (use_pvasq_value_map_) {
+          pv_ass_quality = (*pvasq_value_map)[reco_ptr];
+        } else {
+          edm::LogWarning("MissingFeatures") << "vertex association quality map missing. "
+                                             << pv_ass_quality << " will be used as default";
+        }
+        // getting the PV as PackedCandidatesProducer
+        // but using not the slimmed but original vertices
+        auto ctrack = reco_cand->bestTrack();
+        int pvi=-1;
+        float dist=1e99;
+        for(size_t ii=0;ii<vtxs->size();ii++){
+          float dz = (ctrack) ? std::abs(ctrack->dz(((*vtxs)[ii]).position())) : 0;
+          if(dz<dist) {pvi=ii;dist=dz; }
+        } 
+        auto PV = reco::VertexRef(vtxs, pvi);
+        if (use_pvasq_value_map_) {
+          const reco::VertexRef & PV_orig = (*pvas)[reco_ptr];
+          if(PV_orig.isNonnull()) PV = reco::VertexRef(vtxs, PV_orig.key());
+        } else {
+          edm::LogWarning("MissingFeatures") << "vertex association missing. "
+                                             << "dz closest PV will be used as default";
+        }
+        btagbtvdeep::RecoCandidateToFeatures(reco_cand, jet, trackinfo, 
+                                           drminpfcandsv, puppiw,
+                                           pv_ass_quality, PV, c_pf_features);
+      }
     }     
   }
+  std::cout << "c_pf_features.size() = " << features.c_pf_features.size() << std::endl;
   
     
 

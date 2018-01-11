@@ -335,16 +335,9 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
           const reco::VertexRef & PV_orig = (*pvas)[reco_ptr];
           if(PV_orig.isNonnull()) PV = reco::VertexRef(vtxs, PV_orig.key());
         }
-<<<<<<< HEAD
-        btagbtvdeep::ChargedCandidateConverter::RecoCandidateToFeatures(
-            reco_cand, jet, trackinfo,
-            drminpfcandsv, puppiw, pv_ass_quality,
-            PV, c_pf_features);
-=======
         btagbtvdeep::RecoCandidateToFeatures(reco_cand, jet, trackinfo, 
                                            drminpfcandsv, puppiw,
                                            pv_ass_quality, PV, c_pf_features);
->>>>>>> 5b32b7ece2c... fix stat function and namespace
       }
     } else {
       // is neutral candidate
@@ -353,11 +346,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       auto & n_pf_features = features.n_pf_features.at(entry);
       // fill feature structure
       if (packed_cand) {
-<<<<<<< HEAD
-        btagbtvdeep::NeutralCandidateConverter::PackedCandidateToFeatures(packed_cand, jet, drminpfcandsv,
-=======
         btagbtvdeep::PackedCandidateToFeatures(packed_cand, jet, drminpfcandsv, 
->>>>>>> 5b32b7ece2c... fix stat function and namespace
                                                                           n_pf_features);
       } else if (reco_cand) {
         btagbtvdeep::RecoCandidateToFeatures(reco_cand, jet, drminpfcandsv, puppiw,
