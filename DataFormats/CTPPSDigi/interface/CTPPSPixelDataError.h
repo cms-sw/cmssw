@@ -35,7 +35,7 @@ class CTPPSPixelDataError {
     inline uint64_t getWord64() const {return errorWord64_;} // the 64-bit word that contains the error information
     inline int getType() const {return errorType_;} 	         // the number associated with the error type (26-31 for ROC number errors, 32-33 for calibration errors)
     inline int getFedId() const {return fedId_;} 	         // the fedId where the error occured
-    inline std::string getMessage() const {return errorMessage_;}     // the error message to be displayed with the error	
+    inline const std::string & getMessage() const {return errorMessage_;}     // the error message to be displayed with the error	
 
   private:
 
