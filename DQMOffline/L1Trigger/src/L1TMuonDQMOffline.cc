@@ -126,12 +126,12 @@ FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(TrackRef track)
 
 //__________DQM_base_class_______________________________________________
 L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
-    m_effTypes({EFF_PT, EFF_PHI, EFF_ETA}),
+    m_effTypes({EFF_PT, EFF_PHI, EFF_ETA, EFF_VTX}),
     m_resTypes({RES_PT, RES_1OVERPT, RES_QOVERPT, RES_PHI, RES_ETA}),
     m_etaRegions({ETAREGION_ALL, ETAREGION_BMTF, ETAREGION_OMTF, ETAREGION_EMTF}),
     m_qualLevelsRes({QUAL_ALL}),
-    m_effStrings({ {EFF_PT, "pt"}, {EFF_PHI, "phi"}, {EFF_ETA, "eta"} }),
-    m_effLabelStrings({ {EFF_PT, "p_{T} (GeV)"}, {EFF_PHI, "#phi"}, {EFF_ETA, "#eta"} }),
+    m_effStrings({ {EFF_PT, "pt"}, {EFF_PHI, "phi"}, {EFF_ETA, "eta"}, {EFF_VTX, "vtx"} }),
+    m_effLabelStrings({ {EFF_PT, "p_{T} (GeV)"}, {EFF_PHI, "#phi"}, {EFF_ETA, "#eta"}, {EFF_VTX, "# vertices"} }),
     m_resStrings({ {RES_PT, "pt"}, {RES_1OVERPT, "1overpt"}, {RES_QOVERPT, "qoverpt"}, {RES_PHI, "phi"}, {RES_ETA, "eta"}, {RES_CH, "charge"} }),
     m_resLabelStrings({ {RES_PT, "p_{T}^{L1} - p_{T}^{reco}"}, {RES_1OVERPT, "1/p_{T}^{L1} - 1/p_{T}^{reco}"}, {RES_QOVERPT, "q^{L1}/p_{T}^{L1} - q^{reco}/p_{T}^{reco}"}, {RES_PHI, "#phi_{L1} - #phi_{reco}"}, {RES_ETA, "#eta_{L1} - #eta_{reco}"}, {RES_CH, "charge^{L1} - charge^{reco}"} }),
     m_etaStrings({ {ETAREGION_ALL, "etaMin0_etaMax2p4"}, {ETAREGION_BMTF, "etaMin0_etaMax0p83"}, {ETAREGION_OMTF, "etaMin0p83_etaMax1p24"}, {ETAREGION_EMTF, "etaMin1p24_etaMax2p4"} }),
@@ -152,6 +152,7 @@ L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
     m_effVsPtBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPtBins")),
     m_effVsPhiBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPhiBins")),
     m_effVsEtaBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsEtaBins")),
+    m_effVsVtxBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsVtxBins")),
     m_maxGmtMuonDR(0.3),
     m_minTagProbeDR(0.5),
     m_maxHltMuonDR(0.3)
@@ -237,6 +238,7 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
     eventSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",m_propagatorAlong);
     eventSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",m_propagatorOpposite);
 
+    const auto nVtx = getNVertices(vertex);
     const Vertex primaryVertex = getPrimaryVertex(vertex,beamSpot);
 
     getTightMuons(muons,primaryVertex);
@@ -294,7 +296,12 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
                     if(var != EFF_PT){
                        if (muonGmtPairsIt->pt() < m_recoToL1PtCutFactor * gmtPtCut) break; // efficiency at plateau
                     }
-                    const auto varToFill = muonGmtPairsIt->getVar(var);
+                    double varToFill;
+                    if (var == EFF_VTX) {
+                        varToFill = static_cast<double>(nVtx);
+                    } else {
+                        varToFill = muonGmtPairsIt->getVar(var);
+                    }
                     // Fill denominators
                     if (var == EFF_ETA) {
                         m_EfficiencyDenEtaHistos[gmtPtCut]->Fill(varToFill);
@@ -417,6 +424,20 @@ void L1TMuonDQMOffline::bookResolutionHistos(DQMStore::IBooker &ibooker) {
             }
         }
     }
+}
+
+//_____________________________________________________________________
+const unsigned int L1TMuonDQMOffline::getNVertices(Handle<VertexCollection> & vertex) {
+    unsigned int nVtx = 0;
+
+    if (vertex.isValid()) {
+        for (const auto vertexIt : *vertex) {
+            if (vertexIt.isValid() && !vertexIt.isFake()) {
+                ++nVtx;
+            }
+        }
+    }
+    return nVtx;
 }
 
 //_____________________________________________________________________
@@ -597,6 +618,10 @@ std::vector<float> L1TMuonDQMOffline::getHistBinsEff(effType eff) {
     if (eff == EFF_ETA) {
         std::vector<float> effVsEtaBins(m_effVsEtaBins.begin(), m_effVsEtaBins.end());
         return effVsEtaBins;
+    }
+    if (eff == EFF_VTX) {
+        std::vector<float> effVsVtxBins(m_effVsVtxBins.begin(), m_effVsVtxBins.end());
+        return effVsVtxBins;
     }
     return {0., 1.};
 }

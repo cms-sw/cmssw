@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # generate the efficiency strings for the DQMGenericClient from the pt and quality cuts
 def generateEfficiencyStrings(ptQualCuts):
     numDenDir = "numerators_and_denominators/"
-    varStrings = ['pt', 'eta', 'phi']
+    varStrings = ['pt', 'eta', 'phi', 'vtx']
     etaStrings = ['etaMin0_etaMax0p83', 'etaMin0p83_etaMax1p24', 'etaMin1p24_etaMax2p4', 'etaMin0_etaMax2p4']
     qualStrings = {0:'qualAll', 4:'qualOpen', 8:'qualDouble', 12:'qualSingle'}
 

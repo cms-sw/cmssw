@@ -22,6 +22,9 @@ etaMin = -2.5
 etaMax = 2.5
 effVsEtaBins = [i*(etaMax-etaMin)/nEtaBins + etaMin for i in range(nEtaBins+1)]
 
+# vtx
+effVsVtxBins = range(0, 101)
+
 # A list of pt cut + quality cut pairs for which efficiency plots should be made
 ptQualCuts = [[25, 12], [15, 8], [7, 8], [3, 4]]
 cutsPSets = []
@@ -51,6 +54,7 @@ l1tMuonDQMOffline = cms.EDAnalyzer("L1TMuonDQMOffline",
     efficiencyVsPtBins = cms.untracked.vdouble(effVsPtBins),
     efficiencyVsPhiBins = cms.untracked.vdouble(effVsPhiBins),
     efficiencyVsEtaBins = cms.untracked.vdouble(effVsEtaBins),
+    efficiencyVsVtxBins = cms.untracked.vdouble(effVsVtxBins),
 
     verbose   = cms.untracked.bool(False)
 )
