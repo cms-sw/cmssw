@@ -144,7 +144,7 @@ bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, con
   };
 
  if(includeErrors) {
-   // check to see if overflow error for type 30, change type to 40 if so
+ /// check to see if overflow error for type 30, change type to 40 if so
    if(errorType==30) {
      uint32_t stateMach_bits      = 4;
      uint32_t stateMach_shift     = 8;
@@ -153,7 +153,7 @@ bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, con
      if( stateMach==4 || stateMach==9 ) errorType = 40;
    }
 
-   // store error
+ /// store error
    CTPPSPixelDataError error(errorWord, errorType, fedId);
 
    errors[iD].push_back(error);
@@ -164,35 +164,30 @@ bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, con
 
 void RPixErrorChecker::conversionError(int fedId, uint32_t iD, int status, const Word32& errorWord, Errors& errors) const
 {
+  int errorType = 0;
+  
   switch (status) {
   case(1) : {
     LogDebug("ErrorChecker::conversionError") << " Fed: " << fedId << "  invalid channel Id (errorType=35)";
-    if(includeErrors) {
-      int errorType = 35;
-      CTPPSPixelDataError error(errorWord, errorType, fedId);
-      errors[iD].push_back(error);
-    }
+    errorType = 35;
     break;
   }
   case(2) : {
     LogDebug("ErrorChecker::conversionError")<< " Fed: " << fedId << "  invalid ROC Id (errorType=36)";
-    if(includeErrors) {
-      int errorType = 36;
-      CTPPSPixelDataError error(errorWord, errorType, fedId);
-      errors[iD].push_back(error);
-    }
+    errorType = 36;
     break;
   }
   case(3) : {
     LogDebug("ErrorChecker::conversionError")<< " Fed: " << fedId << "  invalid dcol/pixel value (errorType=37)";
-    if(includeErrors) {
-      int errorType = 37;
-      CTPPSPixelDataError error(errorWord, errorType, fedId);
-      errors[iD].push_back(error);
-    }
+    errorType = 37;
     break;
   }
 
   default: LogDebug("ErrorChecker::conversionError")<<"  cabling check returned unexpected result, status = "<< status;
   };
+
+  if(includeErrors && errorType>0){
+    CTPPSPixelDataError error(errorWord, errorType, fedId);
+    errors[iD].push_back(error); 
+  }
 }
