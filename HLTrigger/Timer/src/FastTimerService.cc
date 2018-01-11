@@ -154,9 +154,6 @@ FastTimerService::AtomicResources::operator+(AtomicResources const& other) const
 
 // ResourcesPerModule
 
-FastTimerService::ResourcesPerModule::ResourcesPerModule()
-  = default;
-
 void
 FastTimerService::ResourcesPerModule::reset() {
   total.reset();
@@ -179,9 +176,6 @@ FastTimerService::ResourcesPerModule::operator+(ResourcesPerModule const& other)
 
 
 // ResourcesPerPath
-
-FastTimerService::ResourcesPerPath::ResourcesPerPath()
-  = default;
 
 void
 FastTimerService::ResourcesPerPath::reset() {
@@ -247,9 +241,6 @@ FastTimerService::ResourcesPerProcess::operator+(ResourcesPerProcess const& othe
 
 
 // ResourcesPerJob
-
-FastTimerService::ResourcesPerJob::ResourcesPerJob()
-  = default;
 
 FastTimerService::ResourcesPerJob::ResourcesPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups) :
   total(),
