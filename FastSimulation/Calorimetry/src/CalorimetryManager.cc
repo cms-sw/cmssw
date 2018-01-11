@@ -172,7 +172,7 @@ CalorimetryManager::~CalorimetryManager()
 
 void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
 {
-  
+  theHFShowerLibrary->SetRandom(random);
   if(!evtsToDebug_.empty())
     {
       std::vector<unsigned int>::const_iterator itcheck=find(evtsToDebug_.begin(),evtsToDebug_.end(),mySimEvent->id().event());
@@ -196,6 +196,8 @@ void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
       initialized_=true;
     }
   clean();
+
+  
   
   LogInfo("FastCalorimetry") << "Reconstructing " << (int) mySimEvent->nTracks() << " tracks." << std::endl;
   for( int fsimi=0; fsimi < (int) mySimEvent->nTracks() ; ++fsimi) {
@@ -555,6 +557,8 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack,
 void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random){//,
   // const edm::ParameterSet& fastCalo){
   
+  theHFShowerLibrary->SetRandom(random);
+
   //  TimeMe t(" FASTEnergyReconstructor::HDShower");
   const XYZTLorentzVector& moment = myTrack.momentum();
   
