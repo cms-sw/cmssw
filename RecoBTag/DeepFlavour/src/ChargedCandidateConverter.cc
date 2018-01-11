@@ -23,6 +23,7 @@ namespace btagbtvdeep {
                                             const float drminpfcandsv,
                                             ChargedCandidateFeatures & c_pf_features) {
 
+        std::cout << "cpf pt = " << c_pf->pt() << std::endl;
         CommonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, c_pf_features);
     
         c_pf_features.vtx_ass = c_pf->pvAssociationQuality();
@@ -36,6 +37,7 @@ namespace btagbtvdeep {
           c_pf_features.chi2 = catch_infs_and_bound(pseudo_track.normalizedChi2(),300,-1,300);
           // this returns the quality enum not a mask.
           c_pf_features.quality = pseudo_track.qualityMask();
+        std::cout << "cpf chi2 = " << pseudo_track.normalizedChi2() << std::endl;
         } else {
           // default negative chi2 and loose track if notTrackDetails
           c_pf_features.chi2 = catch_infs_and_bound(-1,300,-1,300);
@@ -54,6 +56,7 @@ namespace btagbtvdeep {
 
         CommonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, c_pf_features);
     
+	std::cout << "cpf pt = " << c_pf->pt() << std::endl;
         c_pf_features.vtx_ass = (float) pat::PackedCandidate::PVAssociationQuality(qualityMap[pv_ass_quality]);
         if (c_pf->trackRef().isNonnull() && 
             pv->trackWeight(c_pf->trackRef()) > 0.5 &&
@@ -65,7 +68,7 @@ namespace btagbtvdeep {
     
         const auto & pseudo_track =  (c_pf->bestTrack()) ? *c_pf->bestTrack() : reco::Track();
         c_pf_features.chi2 = catch_infs_and_bound(std::floor(pseudo_track.normalizedChi2()),300,-1,300);
-    
+	std::cout << "cpf chi2 = " << pseudo_track.normalizedChi2() << std::endl;
         // conditions from PackedCandidate producer
         bool highPurity = c_pf->trackRef().isNonnull() && pseudo_track.quality(reco::Track::highPurity);
         // do same bit operations than in PackedCandidate

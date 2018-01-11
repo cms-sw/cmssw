@@ -22,6 +22,7 @@ namespace btagbtvdeep {
 	tag_info_features.tau2_trackSip3dSig_1 = tag_info_vars.get(reco::btau::tau2_trackSip3dSig_1, -999);
 	tag_info_features.trackSip2dSigAboveBottom_0 = tag_info_vars.get(reco::btau::trackSip2dSigAboveBottom_0, -999);
 	tag_info_features.trackSip2dSigAboveBottom_1 = tag_info_vars.get(reco::btau::trackSip2dSigAboveBottom_1, -999);
+	tag_info_features.trackSip2dSigAboveCharm = tag_info_vars.get(reco::btau::trackSip2dSigAboveCharm, -999);
 	tag_info_features.tau1_trackEtaRel_0 = tag_info_vars.get(reco::btau::tau1_trackEtaRel_0, -999);
 	tag_info_features.tau1_trackEtaRel_1 = tag_info_vars.get(reco::btau::tau1_trackEtaRel_1, -999);
 	tag_info_features.tau1_trackEtaRel_2 = tag_info_vars.get(reco::btau::tau1_trackEtaRel_2, -999);
@@ -35,7 +36,7 @@ namespace btagbtvdeep {
 	tag_info_features.tau2_vertexMass = tag_info_vars.get(reco::btau::tau2_vertexMass, -999);
 	tag_info_features.tau2_vertexEnergyRatio = tag_info_vars.get(reco::btau::tau2_vertexEnergyRatio, -999);
 	tag_info_features.tau2_flightDistance2dSig = tag_info_vars.get(reco::btau::tau2_flightDistance2dSig, -999);
-	tag_info_features.tau2_vertexDeltaR = tag_info_vars.get(reco::btau::tau2_vertexDeltaR, -999);
+	tag_info_features.tau2_vertexDeltaR = tag_info_vars.get(reco::btau::tau2_vertexDeltaR, -999); // not used
 	tag_info_features.z_ratio = tag_info_vars.get(reco::btau::z_ratio, -999);
     
       } 

@@ -187,8 +187,8 @@ supportedBtagDiscr = {
   , 'pfNegativeDeepFlavourJetTags:probc'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfNegativeDeepFlavourJetTags:probuds'                          : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfNegativeDeepFlavourJetTags:probg'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
-  , 'pfDeepDoubleBJetTags:probQ'                            : [["pfDeepDoubleBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
-  , 'pfDeepDoubleBJetTags:probH'                            : [["pfDeepDoubleBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfDeepDoubleBJetTags:probQ'                            : [["pfDeepDoubleBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleBJetTags:probH'                            : [["pfDeepDoubleBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
 }
 
 #meta-taggers are simple arithmetic on top of other taggers, they are stored here
