@@ -63,7 +63,7 @@ class MuonGmtPair;
 class L1TMuonDQMOffline : public DQMEDAnalyzer {
     public:
         enum control {CTRL_TAGPT, CTRL_TAGETA, CTRL_TAGPHI, CTRL_PROBEPT, CTRL_PROBEETA, CTRL_PROBEPHI, CTRL_TAGPROBEDR, CTRL_MUONGMTDELTAR, CTRL_NTIGHTVSALL, CTRL_NPROBESVSTIGHT};
-        enum effType {EFF_PT, EFF_PHI, EFF_ETA};
+        enum effType {EFF_PT, EFF_PHI, EFF_ETA, EFF_VTX};
         enum resType {RES_PT, RES_1OVERPT, RES_QOVERPT, RES_PHI, RES_ETA, RES_CH};
         enum etaRegion {ETAREGION_ALL, ETAREGION_BMTF, ETAREGION_OMTF, ETAREGION_EMTF, ETAREGION_OUT};
         enum qualLevel {QUAL_ALL, QUAL_OPEN, QUAL_DOUBLE, QUAL_SINGLE};
@@ -82,6 +82,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
 
     private:
         // Helper Functions
+        const unsigned int getNVertices(edm::Handle<reco::VertexCollection> & vertex);
         const reco::Vertex getPrimaryVertex(edm::Handle<reco::VertexCollection> & vertex,edm::Handle<reco::BeamSpot> & beamSpot);
         bool matchHlt(edm::Handle<trigger::TriggerEvent>  & triggerEvent, const reco::Muon * mu);
 
@@ -158,6 +159,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         std::vector<double> m_effVsPtBins;
         std::vector<double> m_effVsPhiBins;
         std::vector<double> m_effVsEtaBins;
+        std::vector<double> m_effVsVtxBins;
 
         std::vector<int> m_trigIndices;
 
