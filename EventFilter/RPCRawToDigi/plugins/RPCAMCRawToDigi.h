@@ -1,14 +1,6 @@
 #ifndef EventFilter_RPCRawToDigi_RPCAMCRawToDigi_h
 #define EventFilter_RPCRawToDigi_RPCAMCRawToDigi_h
 
-#include <cstdint>
-#include <memory>
-#include <set>
-#include <utility>
-#include <vector>
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/CRC16.h"
 

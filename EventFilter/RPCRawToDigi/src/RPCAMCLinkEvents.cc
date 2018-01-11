@@ -1,7 +1,5 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCAMCLinkEvents.h"
 
-#include "EventFilter/RPCRawToDigi/interface/RPCAMCLinkEvent.h"
-
 RPCAMCLinkEvents::RPCAMCLinkEvents()
 {}
 

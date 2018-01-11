@@ -2,7 +2,6 @@
 // Author Alejandro Segura -- Universidad de los Andes
 
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
-
 #include <iostream>
 
 namespace l1t {

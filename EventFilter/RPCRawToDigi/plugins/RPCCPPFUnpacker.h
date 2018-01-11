@@ -2,7 +2,6 @@
 #define EventFilter_RPCRawToDigi_RPCCPPFUnpacker_h
 
 #include <map>
-#include <utility>
 #include <set>
 
 #include "FWCore/Framework/interface/ESHandle.h"
