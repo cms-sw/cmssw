@@ -22,23 +22,6 @@ CTPPSPixelDataError::CTPPSPixelDataError(uint64_t errorWord64, const int errorTy
 
 CTPPSPixelDataError::~CTPPSPixelDataError() = default;
 
-void CTPPSPixelDataError::setWord32(uint32_t errorWord32) {
-  errorWord32_ = errorWord32;
-}
-
-void CTPPSPixelDataError::setWord64(uint64_t errorWord64) {
-  errorWord64_ = errorWord64;
-}
-
-void CTPPSPixelDataError::setType(int errorType) {
-  errorType_ = errorType; 
-  setMessage();
-} 
-
-void CTPPSPixelDataError::setFedId(int fedId) {
-  fedId_ = fedId; 
-} 
-
 void CTPPSPixelDataError::setMessage() {
   switch (errorType_) {
   case(25) : {
