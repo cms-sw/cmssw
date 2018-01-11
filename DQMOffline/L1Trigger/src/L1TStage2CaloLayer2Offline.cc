@@ -132,7 +132,7 @@ void L1TStage2CaloLayer2Offline::analyze(edm::Event const& e, edm::EventSetup co
   dqmoffline::l1t::fillWithinLimits(h_nVertex_, nVertex);
 
   // L1T
-  if(!passesTrigger()){
+  if(!dqmoffline::l1t::passesAnyTriggerFromList(triggerIndices_, triggerResults_)){
     return;
   }
   fillEnergySums(e, nVertex);
@@ -692,13 +692,6 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
   ibooker.cd();
 }
 
-bool L1TStage2CaloLayer2Offline::passesTrigger() const {
-  std::vector<bool> results = dqmoffline::l1t::getTriggerResults(triggerIndices_, triggerResults_);
-  if (std::count(results.begin(), results.end(), true) == 0) {
-    return false;
-  }
-  return true;
-}
 bool L1TStage2CaloLayer2Offline::doesNotOverlapWithHLTObjects(const l1t::Jet & jet) const{
   // get HLT objects of fired triggers
   using namespace dqmoffline::l1t;
