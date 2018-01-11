@@ -131,12 +131,12 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
     if (mit == m_Mapping.end()){      
       if(nlink >= maxLinkIndex){
-	m_ErrorCheck.conversionError(fedId, iD, 1, ww, errors);
+	m_ErrorCheck.conversionError(fedId, iD, InvalidLinkId, ww, errors);
       }
       else if((nroc-1)>=maxRocIndex){
-	m_ErrorCheck.conversionError(fedId, iD, 2, ww, errors);
+	m_ErrorCheck.conversionError(fedId, iD, InvalidROCId, ww, errors);
       }else{
-	m_ErrorCheck.conversionError(fedId, iD, 5, ww, errors);
+	m_ErrorCheck.conversionError(fedId, iD, Unknown, ww, errors);
       }
       continue; //skip word
     }
@@ -167,7 +167,7 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
       edm::LogError("CTPPSPixelDataFormatter")<< " unphysical dcol and/or pxid "  << " nllink=" << nlink 
 					      << " nroc="<< nroc << " adc=" << adc << " dcol=" << dcol << " pxid=" << pxid;
 
-      m_ErrorCheck.conversionError(fedId, iD, 3, ww, errors);
+      m_ErrorCheck.conversionError(fedId, iD, InvalidPixelId, ww, errors);
 
       continue;
     }
