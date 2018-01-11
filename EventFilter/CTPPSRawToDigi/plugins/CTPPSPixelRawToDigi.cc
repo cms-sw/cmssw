@@ -31,10 +31,9 @@ CTPPSPixelRawToDigi::CTPPSPixelRawToDigi( const edm::ParameterSet& conf )
 
   FEDRawDataCollection_ = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("inputLabel"));
 
-// Products
+
   produces< edm::DetSetVector<CTPPSPixelDigi> >();
 
-//CablingMap could have a label //Tav
   includeErrors_ = config_.getParameter<bool> ("includeErrors");
   mappingLabel_ = config_.getParameter<std::string> ("mappingLabel"); 
 
@@ -108,14 +107,14 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
       formatter.interpretRawData( errorsInEvent, fedId, fedRawData, *collection, errors);
     
       if(includeErrors_) {
-	typedef CTPPSPixelDataFormatter::Errors::iterator IE;
-	for (IE is = errors.begin(); is != errors.end(); is++) {
-	  uint32_t errordetid = is->first;
-	  if (errordetid==RPixErrorChecker::dummyDetId) {           // errors given dummy detId must be sorted by Fed
+	for(auto const &is : errors){ 
+	  uint32_t errordetid = is.first;
+	/// errors given dummy detId must be sorted by Fed
+	  if (errordetid==RPixErrorChecker::dummyDetId) {          
 	    nodeterrors.insert( nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end() );
 	  } else {
 	    edm::DetSet<CTPPSPixelDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
-	    errorDetSet.data.insert(errorDetSet.data.end(), is->second.begin(), is->second.end());	  
+	    errorDetSet.data.insert(errorDetSet.data.end(), is.second.begin(), is.second.end());	  
 	  }
 	}
       }
