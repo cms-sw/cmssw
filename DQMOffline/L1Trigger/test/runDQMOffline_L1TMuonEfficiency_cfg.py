@@ -76,4 +76,4 @@ process.dqmSaver.workflow = '/RelVal/DQMOffline/L1Trigger'
 process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
-process.ppost = cms.EndPath(process.l1tMuonDQMEfficiency + process.l1tMuonDQMEfficiencyGeneric + process.dqmSaver)
+process.ppost = cms.EndPath(process.l1tMuonDQMEfficiency + process.dqmSaver)
