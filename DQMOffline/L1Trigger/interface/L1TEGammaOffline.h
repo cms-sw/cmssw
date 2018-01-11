@@ -9,6 +9,7 @@
 //event
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 //DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -64,6 +65,7 @@ private:
   void fillElectrons(edm::Event const& e, const unsigned int nVertex);
   void fillPhotons(edm::Event const& e, const unsigned int nVertex);
   bool findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons);
+  bool matchesAnHLTObject(double eta, double phi) const;
 
   math::XYZPoint PVPoint_;
 
@@ -72,10 +74,10 @@ private:
   edm::EDGetTokenT<std::vector<reco::Photon> > thePhotonCollection_;
   edm::EDGetTokenT<reco::VertexCollection> thePVCollection_;
   edm::EDGetTokenT<reco::BeamSpot> theBSCollection_;
-  edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_;
-  edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-  edm::InputTag triggerFilter_;
-  std::string triggerPath_;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerInputTag_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsInputTag_;
+  std::string triggerProcess_;
+  std::vector<std::string> triggerNames_;
   std::string histFolder_;
   std::string efficiencyFolder_;
 
@@ -92,6 +94,11 @@ private:
   reco::GsfElectron tagElectron_;
   reco::GsfElectron probeElectron_;
   double tagAndProbleInvariantMass_;
+
+  HLTConfigProvider hltConfig_;
+  std::vector<unsigned int> triggerIndices_;
+  edm::TriggerResults triggerResults_;
+  trigger::TriggerEvent triggerEvent_;
 
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms
