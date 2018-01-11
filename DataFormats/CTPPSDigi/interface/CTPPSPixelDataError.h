@@ -36,8 +36,8 @@ class CTPPSPixelDataError {
 
   private:
 
-    uint32_t errorWord32_;
     uint64_t errorWord64_;
+    uint32_t errorWord32_; 
     int errorType_;
     int fedId_;
     std::string errorMessage_;
