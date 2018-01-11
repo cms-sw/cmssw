@@ -29,13 +29,13 @@ CTPPSPixelRawToDigi::CTPPSPixelRawToDigi( const edm::ParameterSet& conf )
 
 {
 
-  FEDRawDataCollection_ = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
+  FEDRawDataCollection_ = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("inputLabel"));
 
 // Products
   produces< edm::DetSetVector<CTPPSPixelDigi> >();
 
 //CablingMap could have a label //Tav
-  includeErrors_ = config_.getParameter<bool> ("IncludeErrors");
+  includeErrors_ = config_.getParameter<bool> ("includeErrors");
   mappingLabel_ = config_.getParameter<std::string> ("mappingLabel"); 
 
   if(includeErrors_){
@@ -53,8 +53,8 @@ CTPPSPixelRawToDigi::~CTPPSPixelRawToDigi() {
 
 void CTPPSPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("IncludeErrors",true);
-  desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+  desc.add<bool>("includeErrors",true);
+  desc.add<edm::InputTag>("inputLabel",edm::InputTag("rawDataCollector"));
   desc.add<std::string>("mappingLabel","RPix");
   descriptions.add("ctppsPixelDigis", desc);
 }
