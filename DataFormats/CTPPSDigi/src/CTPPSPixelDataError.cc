@@ -2,7 +2,11 @@
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h"
 
 
-CTPPSPixelDataError::CTPPSPixelDataError() {}
+CTPPSPixelDataError::CTPPSPixelDataError():
+  errorWord32_(0),
+  errorType_(0),
+  fedId_(0) 
+{}
 
 CTPPSPixelDataError::CTPPSPixelDataError(uint32_t errorWord32, const int errorType, int fedId) : 
   errorWord32_(errorWord32),
