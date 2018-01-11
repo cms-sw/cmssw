@@ -48,7 +48,7 @@ private:
     
 };
 
-// Comparison operators
+/// Comparison operators
 inline bool operator<( const CTPPSPixelDataError& one, const CTPPSPixelDataError& other) {
   return one.fedId() < other.fedId();
 }
