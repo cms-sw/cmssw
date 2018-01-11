@@ -54,9 +54,9 @@ public:
 
   bool checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors) const;
 
-  bool checkROC(bool& errorsInEvent, int fedId, uint32_t iD, Word32& errorWord, Errors& errors) const;
+  bool checkROC(bool& errorsInEvent, int fedId, uint32_t iD, const Word32& errorWord, Errors& errors) const;
 
-  void conversionError(int fedId, uint32_t iD, int status, Word32& errorWord, Errors& errors) const;
+  void conversionError(int fedId, uint32_t iD, int status, const Word32& errorWord, Errors& errors) const;
 
 private:
 
