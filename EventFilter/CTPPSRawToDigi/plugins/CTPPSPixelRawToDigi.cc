@@ -15,7 +15,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/CTPPSPixelDataFormatter.h"
 
@@ -39,8 +38,6 @@ CTPPSPixelRawToDigi::CTPPSPixelRawToDigi( const edm::ParameterSet& conf )
 
   if(includeErrors_){
     produces< edm::DetSetVector<CTPPSPixelDataError> >();
-    produces<DetIdCollection>();
-    produces<DetIdCollection>("UserErrorModules");
   }
 }
 
@@ -80,8 +77,6 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
   auto collection = std::make_unique<edm::DetSetVector<CTPPSPixelDigi>>();
 
   auto errorcollection = std::make_unique<edm::DetSetVector<CTPPSPixelDataError>>();
-  auto tkerror_detidcollection = std::make_unique<DetIdCollection>();
-  auto usererror_detidcollection = std::make_unique<DetIdCollection>();
 
   if(data_exist){
   es.get<CTPPSPixelDAQMappingRcd>().get( mapping);
