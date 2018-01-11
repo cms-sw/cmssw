@@ -44,14 +44,29 @@ Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
     conf.getParameterSetVector("recHitEnergyNorms");
   for( const auto& pset : thresholds ) {
     const std::string& det = pset.getParameter<std::string>("detector");
-    const double& rhE_norm = pset.getParameter<double>("recHitEnergyNorm");    
+
+
+    std::vector<int> depths;
+    std::vector<double> rhE_norm;
+
+    if (det==std::string("HCAL_BARREL1") || det==std::string("HCAL_ENDCAP")) {
+
+      depths= pset.getParameter<std::vector<int> >("depths");
+      rhE_norm = pset.getParameter<std::vector<double> >("recHitEnergyNorm");
+
+    } else {
+
+      rhE_norm.push_back(pset.getParameter<double>("recHitEnergyNorm"));
+
+    }
+
     auto entry = _layerMap.find(det);
     if( entry == _layerMap.end() ) {
       throw cms::Exception("InvalidDetectorLayer")
 	<< "Detector layer : " << det << " is not in the list of recognized"
 	<< " detector layers!";
     }
-    _recHitEnergyNorms.emplace(_layerMap.find(det)->second,rhE_norm);
+    _recHitEnergyNorms.emplace(_layerMap.find(det)->second,std::make_pair(depths,rhE_norm));
   }
   
   _allCellsPosCalc.reset(nullptr);
@@ -166,8 +181,12 @@ growPFClusters(const reco::PFCluster& topo,
 	std::abs(refhit->positionREP().eta()) > 0.34 ) {
       cell_layer *= 100;
     }  
-    const double recHitEnergyNorm = 
-      _recHitEnergyNorms.find(cell_layer)->second; 
+
+    std::pair<std::vector<int>,std::vector<double> > recHitEnergyNormDepthPair = _recHitEnergyNorms.find(cell_layer)->second;
+
+    const std::vector<double> recHitEnergyNormV = recHitEnergyNormDepthPair.second;
+    const std::vector<int> recHitDepthV = recHitEnergyNormDepthPair.first;
+
     math::XYZPoint topocellpos_xyz(refhit->position());
     dist2.clear(); frac.clear(); fractot = 0;
     // add rechits to clusters, calculating fraction based on distance
@@ -181,6 +200,15 @@ growPFClusters(const reco::PFCluster& topo,
 	  << "Warning! :: pfcluster-topocell distance is too large! d= "
 	  << d2;
       }
+
+      double recHitEnergyNorm=0.;
+
+      for (unsigned int j=0; j<recHitEnergyNormV.size(); ++j) {
+	if((cell_layer == PFLayer::HCAL_BARREL1 || cell_layer == PFLayer::HCAL_ENDCAP) && refhit->depth()!=recHitDepthV[j]) continue;
+	recHitEnergyNorm = recHitEnergyNormV[j];
+      }
+
+
       // fraction assignment logic
       double fraction;
       if( refhit->detId() == cluster.seed() && _excludeOtherSeeds ) {

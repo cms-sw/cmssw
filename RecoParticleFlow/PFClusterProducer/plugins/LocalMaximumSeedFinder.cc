@@ -30,17 +30,35 @@ LocalMaximumSeedFinder(const edm::ParameterSet& conf) :
     conf.getParameterSetVector("thresholdsByDetector");
   for( const auto& pset : thresholds ) {
     const std::string& det = pset.getParameter<std::string>("detector");
-    const double& thresh_E = pset.getParameter<double>("seedingThreshold");
-    const double& thresh_pT = pset.getParameter<double>("seedingThresholdPt");
-    const double thresh_pT2 = thresh_pT*thresh_pT;
+
+    std::vector<int> depths;
+    std::vector<double> thresh_E;
+    std::vector<double> thresh_pT ;
+    std::vector<double> thresh_pT2;
+
+    if (det==std::string("HCAL_BARREL1") || det==std::string("HCAL_ENDCAP")) {
+      depths = pset.getParameter<std::vector<int> >("depths");
+      thresh_E = pset.getParameter<std::vector<double> >("seedingThreshold");
+      thresh_pT = pset.getParameter<std::vector<double> >("seedingThresholdPt");
+    } else {
+      depths.push_back(0);
+      thresh_E.push_back(pset.getParameter<double>("seedingThreshold"));
+      thresh_pT.push_back(pset.getParameter<double>("seedingThresholdPt"));
+    }
+
+    for(unsigned int i=0;i < thresh_pT.size();++i){
+      thresh_pT2.push_back(thresh_pT[i]*thresh_pT[i]);
+    }
+
     auto entry = _layerMap.find(det);
     if( entry == _layerMap.end() ) {
       throw cms::Exception("InvalidDetectorLayer")
 	<< "Detector layer : " << det << " is not in the list of recognized"
 	<< " detector layers!";
     }
+
     _thresholds[entry->second+layerOffset]= 
-			std::make_pair(thresh_E,thresh_pT2);
+                       std::make_tuple(depths,thresh_E,thresh_pT2);
   }
 }
 
@@ -68,11 +86,17 @@ findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
       seedlayer = 19;
     }
     auto const & thresholds = _thresholds[seedlayer+layerOffset];
-    if( maybeseed.energy() < thresholds.first ||
-        maybeseed.pt2() < thresholds.second   ) usable[i] = false;
-    if( !usable[i] ) continue;
-    ordered_hits.push(i);
-  }      
+
+    for (unsigned int j=0; j<(std::get<1>(thresholds)).size(); ++j) {
+      if((seedlayer == PFLayer::HCAL_BARREL1 || seedlayer == PFLayer::HCAL_ENDCAP) && (maybeseed.depth()!=std::get<0>(thresholds)[j])) continue;
+
+	if( maybeseed.energy() < std::get<1>(thresholds)[j] ||
+	    maybeseed.pt2() < std::get<2>(thresholds)[j]   ) usable[i] = false;
+	if( !usable[i] ) continue;
+	ordered_hits.push(i);
+
+    }
+  }
 
 
   while(!ordered_hits.empty() ) {
