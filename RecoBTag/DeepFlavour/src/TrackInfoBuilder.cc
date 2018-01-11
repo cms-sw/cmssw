@@ -33,14 +33,18 @@ namespace btagbtvdeep{
         auto packed_candidate = dynamic_cast<const pat::PackedCandidate *>(candidate);
         auto pf_candidate = dynamic_cast<const reco::PFCandidate *>(candidate);
         if (pf_candidate) {
+          std::cout << "pf_candidate" << std::endl;
           track_ptr = pf_candidate->bestTrack(); // trackRef was sometimes null
         } else if (packed_candidate && packed_candidate->hasTrackDetails()) {
+	  std::cout << "packed_candidate" << std::endl;
+          std::cout <<" packed_candidate->hasTrackDetails() = " << packed_candidate->hasTrackDetails() << std::endl;
           // if PackedCandidate does not have TrackDetails this gives an Exception
           // because unpackCovariance might be called for pseudoTrack/bestTrack
           track_ptr = &(packed_candidate->pseudoTrack());
         }
 
         if(!track_ptr) {
+          std::cout << "no track_ptr" << std::endl;
           TVector3 trackMom3(
             candidate->momentum().x(),
             candidate->momentum().y(),
@@ -49,6 +53,7 @@ namespace btagbtvdeep{
           trackMomentum_=candidate->p();
           trackEta_= candidate->eta();
           trackEtaRel_=reco::btau::etaRel(jetDir, candidate->momentum());
+          std::cout <<"trackEtaRel_ = " << trackEtaRel_ << std::endl;
           trackPtRel_=trackMom3.Perp(jetDir3);
           trackPPar_=jetDir.Dot(candidate->momentum());
           trackDeltaR_=reco::deltaR(candidate->momentum(), jetDir);
@@ -70,6 +75,7 @@ namespace btagbtvdeep{
         trackMomentum_=std::sqrt(trackMom.Mag2());
         trackEta_= trackMom.Eta();
         trackEtaRel_=reco::btau::etaRel(jetDir, trackMom);
+        std::cout <<"trackEtaRel_ = " << trackEtaRel_ << std::endl;
         trackPtRel_=trackMom3.Perp(jetDir3);
         trackPPar_=jetDir.Dot(trackMom);
         trackDeltaR_=reco::deltaR(trackMom, jetDir);
