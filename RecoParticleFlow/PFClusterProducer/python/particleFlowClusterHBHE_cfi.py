@@ -10,12 +10,14 @@ particleFlowClusterHBHE = cms.EDProducer(
         algoName = cms.string("LocalMaximumSeedFinder"),
         thresholdsByDetector = cms.VPSet(
               cms.PSet( detector = cms.string("HCAL_BARREL1"),
-                        seedingThreshold = cms.double(1.0),
-                        seedingThresholdPt = cms.double(0.0)
+                        depths = cms.vint32(1, 2, 3, 4),
+                        seedingThreshold = cms.vdouble(1.0, 1.0, 1.0, 1.0),
+                        seedingThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
                         ),
               cms.PSet( detector = cms.string("HCAL_ENDCAP"),
-                        seedingThreshold = cms.double(1.1),
-                        seedingThresholdPt = cms.double(0.0)
+                        depths = cms.vint32(1, 2, 3, 4, 5, 6, 7),
+                        seedingThreshold = cms.vdouble(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1),
+                        seedingThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
                         )
               ),
         nNeighbours = cms.int32(4)
@@ -24,12 +26,14 @@ particleFlowClusterHBHE = cms.EDProducer(
         algoName = cms.string("Basic2DGenericTopoClusterizer"),    
         thresholdsByDetector = cms.VPSet(
         cms.PSet( detector = cms.string("HCAL_BARREL1"),
-                  gatheringThreshold = cms.double(0.8),
-                  gatheringThresholdPt = cms.double(0.0)
+                  depths = cms.vint32(1, 2, 3, 4),
+                  gatheringThreshold = cms.vdouble(0.8, 0.8, 0.8, 0.8),
+                  gatheringThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
                   ),
         cms.PSet( detector = cms.string("HCAL_ENDCAP"),
-                  gatheringThreshold = cms.double(0.8),
-                  gatheringThresholdPt = cms.double(0.0)
+                  depths = cms.vint32(1, 2, 3, 4, 5, 6, 7),
+                  gatheringThreshold = cms.vdouble(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
+                  gatheringThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
                   )
         ),
         useCornerCells = cms.bool(True)
@@ -68,13 +72,15 @@ particleFlowClusterHBHE = cms.EDProducer(
            excludeOtherSeeds = cms.bool(True),
            minFracTot = cms.double(1e-20), ## numerical stabilization
            recHitEnergyNorms = cms.VPSet(
-           cms.PSet( detector = cms.string("HCAL_BARREL1"),
-                     recHitEnergyNorm = cms.double(0.8)
-                     ),
-           cms.PSet( detector = cms.string("HCAL_ENDCAP"),
-                     recHitEnergyNorm = cms.double(0.8)
-                     )
-           )
+            cms.PSet( detector = cms.string("HCAL_BARREL1"),
+                      depths = cms.vint32(1, 2, 3, 4),
+                      recHitEnergyNorm = cms.vdouble(0.8, 0.8, 0.8, 0.8),
+                      ),
+            cms.PSet( detector = cms.string("HCAL_ENDCAP"),
+                      depths = cms.vint32(1, 2, 3, 4, 5, 6, 7),
+                      recHitEnergyNorm = cms.vdouble(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
+                      )
+            )
     ),
     positionReCalc = cms.PSet(),
     energyCorrector = cms.PSet()

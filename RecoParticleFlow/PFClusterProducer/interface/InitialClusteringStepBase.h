@@ -12,6 +12,7 @@
 #include <string>
 #include <iostream>
 #include <unordered_map>
+#include <tuple>
 
 namespace edm {
   class Event;
@@ -43,11 +44,26 @@ class InitialClusteringStepBase {
     conf.getParameterSetVector("thresholdsByDetector");
     for( const auto& pset : thresholds ) {
       const std::string& det = pset.getParameter<std::string>("detector");
-      const double& thresh_E = 
-	pset.getParameter<double>("gatheringThreshold");
-      const double& thresh_pT = 
-	pset.getParameter<double>("gatheringThresholdPt");
-      const double thresh_pT2 = thresh_pT*thresh_pT;
+
+      std::vector<int> depths;
+      std::vector<double> thresh_E;
+      std::vector<double> thresh_pT ;
+      std::vector<double> thresh_pT2;
+
+      if (det==std::string("HCAL_BARREL1") || det==std::string("HCAL_ENDCAP")) {
+	depths = pset.getParameter<std::vector<int> >("depths");
+	thresh_E = pset.getParameter<std::vector<double> >("gatheringThreshold");
+	thresh_pT = pset.getParameter<std::vector<double> >("gatheringThresholdPt");
+      } else {
+	depths.push_back(0);
+	thresh_E.push_back(pset.getParameter<double>("gatheringThreshold"));
+	thresh_pT.push_back(pset.getParameter<double>("gatheringThresholdPt"));
+      }
+
+      for(unsigned int i=0;i < thresh_pT.size();++i){
+	thresh_pT2.push_back(thresh_pT[i]*thresh_pT[i]);
+      }
+
       auto entry = _layerMap.find(det);
       if( entry == _layerMap.end() ) {
 	throw cms::Exception("InvalidDetectorLayer")
@@ -55,7 +71,7 @@ class InitialClusteringStepBase {
 	  << " detector layers!";
       }
       _thresholds.emplace(_layerMap.find(det)->second, 
-			  std::make_pair(thresh_E,thresh_pT2));
+			  std::make_tuple(depths,thresh_E,thresh_pT2));
   }
   }
   virtual ~InitialClusteringStepBase() = default;
@@ -88,8 +104,9 @@ class InitialClusteringStepBase {
   }
   unsigned _nSeeds, _nClustersFound; // basic performance information
   const std::unordered_map<std::string,int> _layerMap;
-  std::unordered_map<int,std::pair<double,double> > 
-    _thresholds;
+
+  typedef std::tuple<std::vector<int> ,std::vector<double> , std::vector<double> > _i3tuple;
+  std::unordered_map<int,_i3tuple > _thresholds;
  
  private:
   const std::string _algoName;

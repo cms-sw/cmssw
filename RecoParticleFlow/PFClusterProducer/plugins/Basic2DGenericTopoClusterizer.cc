@@ -53,15 +53,23 @@ buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>& input,
       std::abs(cell.positionREP().eta()) > 0.34 ) {
       cell_layer *= 100;
     }    
-  const std::pair<double,double>& thresholds =
-      _thresholds.find(cell_layer)->second;
-  if( cell.energy() < thresholds.first || 
-      cell.pt2() < thresholds.second ) {
-    LOGDRESSED("GenericTopoCluster::buildTopoCluster()")
-      << "RecHit " << cell.detId() << " with enegy " 
-      << cell.energy() << " GeV was rejected!." << std::endl;
-    return;
+
+  std::tuple<std::vector<int> ,std::vector<double> , std::vector<double> > thresholds = _thresholds.find(cell_layer)->second;
+
+  for (unsigned int j=0; j<(std::get<1>(thresholds)).size(); ++j) {
+    if((cell_layer == PFLayer::HCAL_BARREL1 || cell_layer == PFLayer::HCAL_ENDCAP) && (cell.depth()!=std::get<0>(thresholds)[j])) continue;
+
+    if( cell.energy() < std::get<1>(thresholds)[j] ||
+	cell.pt2() < std::get<2>(thresholds)[j]  ) {
+      LOGDRESSED("GenericTopoCluster::buildTopoCluster()")
+	<< "RecHit " << cell.detId() << " with enegy "
+	<< cell.energy() << " GeV was rejected!." << std::endl;
+      return;
+    }
+
   }
+
+
   auto k = kcell;
   used[k] = true;
   auto ref = makeRefhit(input,k);

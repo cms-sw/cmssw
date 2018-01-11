@@ -4,6 +4,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
 
 #include <unordered_map>
+#include <tuple>
 
 class LocalMaximumSeedFinder final : public SeedFinderBase {
  public:
@@ -19,7 +20,10 @@ class LocalMaximumSeedFinder final : public SeedFinderBase {
   const int _nNeighbours;
 
   const std::unordered_map<std::string,int> _layerMap;
-  std::array<std::pair<double,double>, 35> _thresholds;
+
+  typedef std::tuple<std::vector<int> ,std::vector<double> , std::vector<double> > _i3tuple;
+
+  std::array<_i3tuple, 35> _thresholds;
   static constexpr int layerOffset = 15;
 };
 
