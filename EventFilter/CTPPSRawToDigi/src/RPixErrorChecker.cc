@@ -162,28 +162,28 @@ bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, con
   return false;
 }
 
-void RPixErrorChecker::conversionError(int fedId, uint32_t iD, int status, const Word32& errorWord, Errors& errors) const
+void RPixErrorChecker::conversionError(int fedId, uint32_t iD, const State& state, const Word32& errorWord, Errors& errors) const
 {
   int errorType = 0;
   
-  switch (status) {
-  case(1) : {
+  switch (state) {
+  case(InvalidLinkId) : {
     LogDebug("ErrorChecker::conversionError") << " Fed: " << fedId << "  invalid channel Id (errorType=35)";
     errorType = 35;
     break;
   }
-  case(2) : {
+  case(InvalidROCId) : {
     LogDebug("ErrorChecker::conversionError")<< " Fed: " << fedId << "  invalid ROC Id (errorType=36)";
     errorType = 36;
     break;
   }
-  case(3) : {
+  case(InvalidPixelId) : {
     LogDebug("ErrorChecker::conversionError")<< " Fed: " << fedId << "  invalid dcol/pixel value (errorType=37)";
     errorType = 37;
     break;
   }
 
-  default: LogDebug("ErrorChecker::conversionError")<<"  cabling check returned unexpected result, status = "<< status;
+  default: LogDebug("ErrorChecker::conversionError")<<"  cabling check returned unexpected result, status = "<< state;
   };
 
   if(includeErrors && errorType>0){

@@ -12,6 +12,8 @@
 
 class FEDRawData;
 
+enum State { InvalidLinkId, InvalidROCId, InvalidPixelId, Unknown};
+
 class RPixErrorChecker {
 
 public:
@@ -56,7 +58,7 @@ public:
 
   bool checkROC(bool& errorsInEvent, int fedId, uint32_t iD, const Word32& errorWord, Errors& errors) const;
 
-  void conversionError(int fedId, uint32_t iD, int status, const Word32& errorWord, Errors& errors) const;
+  void conversionError(int fedId, uint32_t iD, const State& state, const Word32& errorWord, Errors& errors) const;
 
 private:
 
