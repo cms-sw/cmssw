@@ -21,6 +21,7 @@ from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_tools \
 #
 
 # Veto working point Barrel and Endcap
+#V1 of IDs good for Moriond 18
 idName = "cutBasedElectronID-Fall17-94X-V1-Preliminary-veto"
 WP_Veto_EB = EleWorkingPoint_V4(
     idName                         = idName  , # idName
