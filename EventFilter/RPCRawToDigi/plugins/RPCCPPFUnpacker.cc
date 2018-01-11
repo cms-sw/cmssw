@@ -11,14 +11,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CondFormats/DataRecord/interface/RPCLBLinkMapRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCAMCLink.h"
 #include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCAMC13Record.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCAMCLinkEvents.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCAMCRecord.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCMP7Record.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCCPPFRecord.h"
 
 RPCCPPFUnpacker::RPCCPPFUnpacker(edm::stream::EDProducerBase & producer, edm::ParameterSet const & config)
     : RPCAMCUnpacker(producer, config)

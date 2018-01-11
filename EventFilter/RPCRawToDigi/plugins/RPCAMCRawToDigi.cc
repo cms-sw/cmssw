@@ -8,14 +8,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "CondFormats/RPCObjects/interface/RPCAMCLink.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCAMC13Record.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCAMCLinkEvents.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCAMCRecord.h"
 #include "EventFilter/RPCRawToDigi/plugins/RPCAMCUnpacker.h"
@@ -365,7 +361,6 @@ bool RPCAMCRawToDigi::processBlocks(int fed
             word = payload_word_end;
         }
 
-        // rpcamc13::Trailer trailer(*word);
         if (calculate_crc_) {
             compute_crc16_64bit(crc, *word);
         }

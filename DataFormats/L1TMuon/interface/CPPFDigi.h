@@ -5,17 +5,7 @@
 #define DataFormats_L1TMuon_CPPFDigi_h
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
-// For CPPFDigiCollection
-#include "DataFormats/MuonData/interface/MuonDigiCollection.h"
-#include "DataFormats/Common/interface/RangeMap.h"
-#include "DataFormats/Common/interface/ClonePolicy.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-
-#include <iostream>
-#include <cstdint>
-#include <iosfwd>
-#include <stdint.h>
+#include <vector>
 
 namespace l1t {
   
