@@ -1,14 +1,16 @@
 #ifndef FastTimerService_h
 #define FastTimerService_h
 
-// C++ headers
-#include <cmath>
-#include <string>
-#include <map>
-#include <unordered_map>
-#include <chrono>
-#include <mutex>
+// system headers
 #include <unistd.h>
+
+// C++ headers
+#include <chrono>
+#include <cmath>
+#include <map>
+#include <mutex>
+#include <string>
+#include <unordered_map>
 
 // boost headers
 #include <boost/chrono.hpp>
@@ -232,7 +234,6 @@ private:
 
   struct ResourcesPerModule {
   public:
-    ResourcesPerModule();
     void reset();
     ResourcesPerModule & operator+=(ResourcesPerModule const& other);
     ResourcesPerModule operator+(ResourcesPerModule const& other) const;
@@ -262,7 +263,6 @@ private:
 
   struct ResourcesPerPath {
   public:
-    ResourcesPerPath();
     void reset();
     ResourcesPerPath & operator+=(ResourcesPerPath const& other);
     ResourcesPerPath operator+(ResourcesPerPath const& other) const;
@@ -289,7 +289,7 @@ private:
 
   struct ResourcesPerJob {
   public:
-    ResourcesPerJob();
+    ResourcesPerJob() = default;
     ResourcesPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups);
     void reset();
     ResourcesPerJob & operator+=(ResourcesPerJob const& other);
