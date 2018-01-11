@@ -46,40 +46,6 @@ procesing time is divided into
  - event processing, sum of the time spent in all the modules
 */
 
-/*
-Assuming an HLT process with ~2500 modules and ~500 paths, tracking each step (with two calls per step, to start and stop the timer)
-with std::chrono::high_resolution_clock gives a per-event overhead of 1 ms
-
-Detailed informations on different timers can be extracted running $CMSSW_RELEASE_BASE/test/$SCRAM_ARCH/testChrono .
-
-
-Timer per-call overhead on SLC5:
-
-Linux 2.6.18-371.1.2.el5 x86_64
-glibc version: 2.5
-clock source: unknown
-For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test.
-
-Performance of std::chrono::high_resolution_clock
-        Average time per call:      317.0 ns
-        Clock tick period:            1.0 ns
-        Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 199.4 ns) (average: 1007.6 +/- 0.4 ns)
-
-
-Timer per-call overhead on SLC6 (virtualized):
-
-Linux 2.6.32-358.23.2.el6.x86_64 x86_64
-glibc version: 2.12
-clock source: kvm-clock
-For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test.
-
-Performance of std::chrono::high_resolution_clock
-        Average time per call:      351.2 ns
-        Clock tick period:            1.0 ns
-        Measured resolution:          1.0 ns (median: 358.0 ns) (sigma: 30360.8 ns) (average: 685.7 +/- 42.4 ns)
-*/
-
-
 class FastTimerService : public tbb::task_scheduler_observer
 {
 public:
