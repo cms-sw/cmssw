@@ -66,23 +66,24 @@ L1TMuonDQMOffline::etaRegion MuonGmtPair::etaRegion() const {
     if (std::abs(eta()) < 0.83) return L1TMuonDQMOffline::ETAREGION_BMTF;
     if (std::abs(eta()) < 1.24) return L1TMuonDQMOffline::ETAREGION_OMTF;
     if (std::abs(eta()) < 2.4)  return L1TMuonDQMOffline::ETAREGION_EMTF;
-    return L1TMuonDQMOffline::ETAREGION_OUT; // FIXME
+    return L1TMuonDQMOffline::ETAREGION_OUT;
 }
 
 double MuonGmtPair::getDeltaVar(const L1TMuonDQMOffline::resType type) const {
-    if (type == L1TMuonDQMOffline::RES_PT)      return pt() - gmtPt();
-    if (type == L1TMuonDQMOffline::RES_1OVERPT) return 1/pt() - 1/gmtPt();
-    if (type == L1TMuonDQMOffline::RES_PHI)     return phi() - gmtPhi();
-    if (type == L1TMuonDQMOffline::RES_ETA)     return eta() - gmtEta();
-    if (type == L1TMuonDQMOffline::RES_CH)      return charge() - gmtCharge();
-    return -999.; // FIXME
+    if (type == L1TMuonDQMOffline::RES_PT)      return gmtPt() - pt();
+    if (type == L1TMuonDQMOffline::RES_1OVERPT) return 1/gmtPt() - 1/pt();
+    if (type == L1TMuonDQMOffline::RES_QOVERPT) return gmtCharge()/gmtPt() - charge()/pt();
+    if (type == L1TMuonDQMOffline::RES_PHI)     return gmtPhi() - phi();
+    if (type == L1TMuonDQMOffline::RES_ETA)     return gmtEta() - eta();
+    if (type == L1TMuonDQMOffline::RES_CH)      return gmtCharge() - charge();
+    return -999.;
 }
 
 double MuonGmtPair::getVar(const L1TMuonDQMOffline::effType type) const {
     if (type == L1TMuonDQMOffline::EFF_PT)  return pt();
     if (type == L1TMuonDQMOffline::EFF_PHI) return phi();
     if (type == L1TMuonDQMOffline::EFF_ETA) return eta();
-    return -999.; // FIXME
+    return -999.;
 }
 
 TrajectoryStateOnSurface MuonGmtPair::cylExtrapTrkSam(TrackRef track, double rho)
@@ -126,13 +127,13 @@ FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(TrackRef track)
 //__________DQM_base_class_______________________________________________
 L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
     m_effTypes({EFF_PT, EFF_PHI, EFF_ETA}),
-    m_resTypes({RES_PT, RES_1OVERPT, RES_PHI, RES_ETA, RES_CH}),
+    m_resTypes({RES_PT, RES_1OVERPT, RES_QOVERPT, RES_PHI, RES_ETA}),
     m_etaRegions({ETAREGION_ALL, ETAREGION_BMTF, ETAREGION_OMTF, ETAREGION_EMTF}),
     m_qualLevelsRes({QUAL_ALL}),
     m_effStrings({ {EFF_PT, "pt"}, {EFF_PHI, "phi"}, {EFF_ETA, "eta"} }),
     m_effLabelStrings({ {EFF_PT, "p_{T} (GeV)"}, {EFF_PHI, "#phi"}, {EFF_ETA, "#eta"} }),
-    m_resStrings({ {RES_PT, "pt"}, {RES_1OVERPT, "1overpt"}, {RES_PHI, "phi"}, {RES_ETA, "eta"}, {RES_CH, "charge"} }),
-    m_resLabelStrings({ {RES_PT, "p_{T}^{L1} - p_{T}^{reco}"}, {RES_1OVERPT, "(p_{T}^{reco} - p_{T}^{L1}) / p_{T}^{L1}"}, {RES_PHI, "#phi_{L1} - #phi_{reco}"}, {RES_ETA, "#eta_{L1} - #eta_{reco}"}, {RES_CH, "charge^{L1} - charge^{reco}"} }),
+    m_resStrings({ {RES_PT, "pt"}, {RES_1OVERPT, "1overpt"}, {RES_QOVERPT, "qoverpt"}, {RES_PHI, "phi"}, {RES_ETA, "eta"}, {RES_CH, "charge"} }),
+    m_resLabelStrings({ {RES_PT, "p_{T}^{L1} - p_{T}^{reco}"}, {RES_1OVERPT, "1/p_{T}^{L1} - 1/p_{T}^{reco}"}, {RES_QOVERPT, "q^{L1}/p_{T}^{L1} - q^{reco}/p_{T}^{reco}"}, {RES_PHI, "#phi_{L1} - #phi_{reco}"}, {RES_ETA, "#eta_{L1} - #eta_{reco}"}, {RES_CH, "charge^{L1} - charge^{reco}"} }),
     m_etaStrings({ {ETAREGION_ALL, "etaMin0_etaMax2p4"}, {ETAREGION_BMTF, "etaMin0_etaMax0p83"}, {ETAREGION_OMTF, "etaMin0p83_etaMax1p24"}, {ETAREGION_EMTF, "etaMin1p24_etaMax2p4"} }),
     m_qualStrings({ {QUAL_ALL, "qualAll"}, {QUAL_OPEN, "qualOpen"}, {QUAL_DOUBLE, "qualDouble"}, {QUAL_SINGLE, "qualSingle"} }),
     m_verbose(ps.getUntrackedParameter<bool>("verbose")),
@@ -265,6 +266,7 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
                     std::get<1>(histoKeyRes) = regToFill;
                     for (const auto qualLevel : m_qualLevelsRes) {
                         // This assumes that the qualLevel enum has increasing qualities
+                        // HW quality levels can be 0, 4, 8, or 12
                         int qualCut = qualLevel * 4;
                         if (muonGmtPairsIt->gmtQual() >= qualCut) {
                             std::get<2>(histoKeyRes) = qualLevel;
@@ -602,6 +604,7 @@ std::vector<float> L1TMuonDQMOffline::getHistBinsEff(effType eff) {
 std::tuple<int, double, double> L1TMuonDQMOffline::getHistBinsRes(resType res){
     if (res == RES_PT)      return {100, -50., 50.};
     if (res == RES_1OVERPT) return {50, -0.05, 0.05};
+    if (res == RES_QOVERPT) return {50, -0.05, 0.05};
     if (res == RES_PHI)     return {96, -0.2, 0.2};
     if (res == RES_ETA)     return {100, -0.1, 0.1};
     if (res == RES_CH)      return {5, -2, 3};
