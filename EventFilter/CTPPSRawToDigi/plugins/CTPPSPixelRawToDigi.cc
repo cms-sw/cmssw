@@ -121,8 +121,7 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
     }
 
     if(includeErrors_) {
-      edm::DetSet<CTPPSPixelDataError>& errorDetSet = errorcollection->find_or_insert(RPixErrorChecker::dummyDetId);
-      errorDetSet.data = nodeterrors;
+      errorcollection->find_or_insert(RPixErrorChecker::dummyDetId).data = nodeterrors;
     }
     if (errorsInEvent) LogDebug("CTPPSPixelRawToDigi") << "Error words were stored in this event";
   }
