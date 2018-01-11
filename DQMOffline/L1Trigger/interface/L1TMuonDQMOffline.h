@@ -163,6 +163,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
 
         std::vector<int> m_trigIndices;
 
+        bool m_useAtVtxCoord;
         float m_maxGmtMuonDR;
         float m_minTagProbeDR;
         float m_maxHltMuonDR;
@@ -173,10 +174,8 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
 //
 class MuonGmtPair {
     public :
-        MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu) :
-        m_muon(muon), m_regMu(regMu), m_eta(999.), m_phi_bar(999.), m_phi_end(999.) { };
+        MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, bool useAtVtxCoord);
         MuonGmtPair(const MuonGmtPair& muonGmtPair);
-
         ~MuonGmtPair() { };
 
         double dR();
@@ -185,8 +184,8 @@ class MuonGmtPair {
         double phi() const { return m_muon->phi(); };
         int charge() const { return m_muon->charge(); };
         double gmtPt() const { return m_regMu ? m_regMu->pt() : -1.; };
-        double gmtEta() const { return m_regMu ? m_regMu->eta() : -5.; };
-        double gmtPhi() const { return m_regMu ? m_regMu->phi() : -5.; };
+        double gmtEta() const { return m_regMu ? m_gmtEta : -5.; };
+        double gmtPhi() const { return m_regMu ? m_gmtPhi : -5.; };
         int gmtCharge() const {return m_regMu ? m_regMu->charge() : -5; };
         int gmtQual() const { return m_regMu ? m_regMu->hwQual() : -1; };
 
@@ -211,6 +210,11 @@ class MuonGmtPair {
         edm::ESHandle<MagneticField> m_BField;
         edm::ESHandle<Propagator> m_propagatorAlong;
         edm::ESHandle<Propagator> m_propagatorOpposite;
+
+        // L1T muon eta and phi coordinates to be used
+        // Can be the coordinates from the 2nd muon station or from the vertex
+        double m_gmtEta;
+        double m_gmtPhi;
 
         double m_eta;
         double m_phi_bar;

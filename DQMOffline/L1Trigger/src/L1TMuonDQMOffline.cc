@@ -22,9 +22,29 @@ using namespace l1t;
 
 //__________RECO-GMT Muon Pair Helper Class____________________________
 
+MuonGmtPair::MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, bool useAtVtxCoord) :
+        m_muon(muon), m_regMu(regMu), m_eta(999.), m_phi_bar(999.), m_phi_end(999.)
+{
+    if (m_regMu) {
+        if (useAtVtxCoord) {
+            m_gmtEta = m_regMu->etaAtVtx();
+            m_gmtPhi = m_regMu->phiAtVtx();
+        } else {
+            m_gmtEta = m_regMu->eta();
+            m_gmtPhi = m_regMu->phi();
+        }
+    } else {
+        m_gmtEta = -5.;
+        m_gmtPhi = -5.;
+    }
+};
+
 MuonGmtPair::MuonGmtPair(const MuonGmtPair& muonGmtPair) {
     m_muon    = muonGmtPair.m_muon;
-    m_regMu     = muonGmtPair.m_regMu;
+    m_regMu   = muonGmtPair.m_regMu;
+
+    m_gmtEta  = muonGmtPair.m_gmtEta;
+    m_gmtPhi  = muonGmtPair.m_gmtPhi;
 
     m_eta     = muonGmtPair.m_eta;
     m_phi_bar = muonGmtPair.m_phi_bar;
@@ -32,8 +52,8 @@ MuonGmtPair::MuonGmtPair(const MuonGmtPair& muonGmtPair) {
 }
 
 double MuonGmtPair::dR() {
-    float dEta = m_regMu ? (m_regMu->eta() - eta()) : 999.;
-    float dPhi = m_regMu ? (m_regMu->phi() - phi()) : 999.;
+    float dEta = m_regMu ? (m_gmtEta - eta()) : 999.;
+    float dPhi = m_regMu ? (m_gmtPhi - phi()) : 999.;
     return sqrt(dEta*dEta + dPhi*dPhi);
 }
 
@@ -153,6 +173,7 @@ L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
     m_effVsPhiBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPhiBins")),
     m_effVsEtaBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsEtaBins")),
     m_effVsVtxBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsVtxBins")),
+    m_useAtVtxCoord(ps.getUntrackedParameter<bool>("useL1AtVtxCoord")),
     m_maxGmtMuonDR(0.3),
     m_minTagProbeDR(0.5),
     m_maxHltMuonDR(0.3)
@@ -552,19 +573,19 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
     vector<const reco::Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();
 
     l1t::MuonBxCollection::const_iterator gmtIt;
-    l1t::MuonBxCollection::const_iterator gmtEnd = gmtCands->end();
+    l1t::MuonBxCollection::const_iterator gmtEnd = gmtCands->end(0);
 
     for (; probeMuIt!=probeMuEnd; ++probeMuIt) {
         m_ControlHistos[CTRL_PROBEETA]->Fill((*probeMuIt)->eta());
         m_ControlHistos[CTRL_PROBEPHI]->Fill((*probeMuIt)->phi());
         m_ControlHistos[CTRL_PROBEPT]->Fill((*probeMuIt)->pt());
 
-        MuonGmtPair pairBestCand((*probeMuIt), nullptr);
+        MuonGmtPair pairBestCand((*probeMuIt), nullptr, m_useAtVtxCoord);
 //      pairBestCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
-        gmtIt = gmtCands->begin();
+        gmtIt = gmtCands->begin(0); // use only on L1T muons from BX 0
 
         for(; gmtIt!=gmtEnd; ++gmtIt) {
-            MuonGmtPair pairTmpCand((*probeMuIt),&(*gmtIt));
+            MuonGmtPair pairTmpCand((*probeMuIt),&(*gmtIt), m_useAtVtxCoord);
 //          pairTmpCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);     
 
             if ( (pairTmpCand.dR() < m_maxGmtMuonDR) && (pairTmpCand.dR() < pairBestCand.dR() ) ) {
