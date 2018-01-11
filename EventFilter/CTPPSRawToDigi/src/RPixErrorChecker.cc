@@ -5,11 +5,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <bitset>
-#include <sstream>
-#include <iostream>
-
-using namespace std;
 using namespace edm;
 
    constexpr int RPixErrorChecker::CRC_bits ;
@@ -48,7 +43,7 @@ bool RPixErrorChecker::checkCRC(bool& errorsInEvent, int fedId, const Word64* tr
   int CRC_BIT = (*trailer >> CRC_shift) & CRC_mask;
   if (CRC_BIT == 0) return true;
   errorsInEvent = true;
-  LogError("CRCCheck")
+  LogDebug("CRCCheck")
     <<"CRC check failed,  errorType = 39";
   if (includeErrors) {
     int errorType = 39;
@@ -61,9 +56,9 @@ bool RPixErrorChecker::checkCRC(bool& errorsInEvent, int fedId, const Word64* tr
 bool RPixErrorChecker::checkHeader(bool& errorsInEvent, int fedId, const Word64* header,  Errors& errors) const
 {
   FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header));
-  if ( !fedHeader.check() ) return false; // throw exception?
+  if ( !fedHeader.check() ) return false; 
   if ( fedHeader.sourceID() != fedId) { 
-    LogError("CTPPSPixelDataFormatter::interpretRawData, fedHeader.sourceID() != fedId")
+    LogDebug("CTPPSPixelDataFormatter::interpretRawData, fedHeader.sourceID() != fedId")
       <<", sourceID = " <<fedHeader.sourceID()
       <<", fedId = "<<fedId<<", errorType = 32"; 
     errorsInEvent = true;
@@ -86,12 +81,12 @@ bool RPixErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, unsigned int
       errors[dummyDetId].push_back(error);
     }
     errorsInEvent = true;
-    LogError("FedTrailerCheck")
+    LogDebug("FedTrailerCheck")
       <<"fedTrailer.check failed, Fed: " << fedId << ", errorType = 33";
     return false; 
   } 
   if ( fedTrailer.fragmentLength()!= nWords) {
-    LogError("FedTrailerLenght")<< "fedTrailer.fragmentLength()!= nWords !! Fed: " << fedId << ", errorType = 34";
+    LogDebug("FedTrailerLenght")<< "fedTrailer.fragmentLength()!= nWords !! Fed: " << fedId << ", errorType = 34";
     errorsInEvent = true;
     if(includeErrors) {
       int errorType = 34;
@@ -109,39 +104,39 @@ bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, Wor
 
   switch (errorType) {
   case(25) : {
-    LogError("")<<"  invalid ROC=25 found (errorType=25)";
+    LogDebug("")<<"  invalid ROC=25 found (errorType=25)";
     errorsInEvent = true;
     break;
   }
   case(26) : {
-    LogError("")<<"  gap word found (errorType=26)";
+    LogDebug("")<<"  gap word found (errorType=26)";
     return false;
   }
   case(27) : {
-    LogError("")<<"  dummy word found (errorType=27)";
+    LogDebug("")<<"  dummy word found (errorType=27)";
     return false;
   }
   case(28) : {
-    LogError("")<<"  error fifo nearly full (errorType=28)";
+    LogDebug("")<<"  error fifo nearly full (errorType=28)";
     errorsInEvent = true;
     break;
   }
   case(29) : {
-    LogError("")<<"  timeout on a channel (errorType=29)";
+    LogDebug("")<<"  timeout on a channel (errorType=29)";
     errorsInEvent = true;
     if ((errorWord >> OMIT_ERR_shift) & OMIT_ERR_mask) {
-      LogError("")<<"  ...first errorType=29 error, this gets masked out";
+      LogDebug("")<<"  ...first errorType=29 error, this gets masked out";
       return false;
     }
     break;
   }
   case(30) : {
-    LogError("")<<"  TBM error trailer (errorType=30)";
+    LogDebug("")<<"  TBM error trailer (errorType=30)";
     errorsInEvent = true;
     break;
   }
   case(31) : {
-    LogError("")<<"  event number error (errorType=31)";
+    LogDebug("")<<"  event number error (errorType=31)";
     errorsInEvent = true;
     break;
   }
@@ -171,7 +166,7 @@ void RPixErrorChecker::conversionError(int fedId, uint32_t iD, int status, Word3
 {
   switch (status) {
   case(1) : {
-    LogError("ErrorChecker::conversionError") << " Fed: " << fedId << "  invalid channel Id (errorType=35)";
+    LogDebug("ErrorChecker::conversionError") << " Fed: " << fedId << "  invalid channel Id (errorType=35)";
     if(includeErrors) {
       int errorType = 35;
       CTPPSPixelDataError error(errorWord, errorType, fedId);
@@ -180,7 +175,7 @@ void RPixErrorChecker::conversionError(int fedId, uint32_t iD, int status, Word3
     break;
   }
   case(2) : {
-    LogError("ErrorChecker::conversionError")<< " Fed: " << fedId << "  invalid ROC Id (errorType=36)";
+    LogDebug("ErrorChecker::conversionError")<< " Fed: " << fedId << "  invalid ROC Id (errorType=36)";
     if(includeErrors) {
       int errorType = 36;
       CTPPSPixelDataError error(errorWord, errorType, fedId);
@@ -189,7 +184,7 @@ void RPixErrorChecker::conversionError(int fedId, uint32_t iD, int status, Word3
     break;
   }
   case(3) : {
-    LogError("ErrorChecker::conversionError")<< " Fed: " << fedId << "  invalid dcol/pixel value (errorType=37)";
+    LogDebug("ErrorChecker::conversionError")<< " Fed: " << fedId << "  invalid dcol/pixel value (errorType=37)";
     if(includeErrors) {
       int errorType = 37;
       CTPPSPixelDataError error(errorWord, errorType, fedId);
@@ -198,6 +193,6 @@ void RPixErrorChecker::conversionError(int fedId, uint32_t iD, int status, Word3
     break;
   }
 
-  default: LogError("ErrorChecker::conversionError")<<"  cabling check returned unexpected result, status = "<< status;
+  default: LogDebug("ErrorChecker::conversionError")<<"  cabling check returned unexpected result, status = "<< status;
   };
 }
