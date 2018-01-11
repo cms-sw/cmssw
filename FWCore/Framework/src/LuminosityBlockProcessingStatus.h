@@ -24,6 +24,7 @@
 
 // user include files
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 
 // forward declarations
 namespace edm {
@@ -32,16 +33,12 @@ namespace edm {
   class LuminosityBlockPrincipal;
   class WaitingTaskHolder;
   class LuminosityBlockProcessingStatus;
-  void globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
 #endif
 
 class LuminosityBlockProcessingStatus
 {
 
   public:
-  friend void globalEndLumiAsync(WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
-
-  
   LuminosityBlockProcessingStatus(EventProcessor* iEP, unsigned int iNStreams):
   eventProcessor_(iEP), nStreamsStillProcessingLumi_(iNStreams) {}
 
@@ -80,6 +77,9 @@ class LuminosityBlockProcessingStatus
     if (iTime> endTime_) { endTime_ = iTime;}
   }
   edm::Timestamp const& lastTimestamp() const { return endTime_;}
+  
+  //Called once all events in Lumi have been processed
+  void setEndTime();
   private:
   // ---------- member data --------------------------------
   std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
@@ -87,6 +87,7 @@ class LuminosityBlockProcessingStatus
   EventProcessor* eventProcessor_ = nullptr;
   std::atomic<unsigned int> nStreamsStillProcessingLumi_{0}; //read/write as streams finish lumi so must be atomic
   edm::Timestamp endTime_{};
+  std::atomic<char> endTimeSetStatus_{0};
   bool stopProcessingEvents_{false}; //read/write in m_sourceQueue OR from main thread when no tasks running
   bool lumiEnding_{false}; //read/write in m_sourceQueue NOTE: This is a useful cache instead of recalculating each call
   bool continuingLumi_{false}; //read/write in m_sourceQueue OR from main thread when no tasks running
