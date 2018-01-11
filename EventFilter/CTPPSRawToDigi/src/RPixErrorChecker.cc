@@ -97,7 +97,7 @@ bool RPixErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, unsigned int
   return fedTrailer.moreTrailers();
 }
 
-bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, Word32& errorWord,  Errors& errors) const
+bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, const Word32& errorWord,  Errors& errors) const
 {
   int errorType = (errorWord >> ROC_shift) & ERROR_mask;
   if likely(errorType<25) return true;
@@ -162,7 +162,7 @@ bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, Wor
   return false;
 }
 
-void RPixErrorChecker::conversionError(int fedId, uint32_t iD, int status, Word32& errorWord, Errors& errors) const
+void RPixErrorChecker::conversionError(int fedId, uint32_t iD, int status, const Word32& errorWord, Errors& errors) const
 {
   switch (status) {
   case(1) : {
