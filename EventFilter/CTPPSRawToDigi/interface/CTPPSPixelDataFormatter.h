@@ -65,7 +65,7 @@ public:
 
   void setErrorStatus(bool theErrorStatus);
 
-  int nWords() const { return theWordCounter; }
+  int nWords() const { return m_WordCounter; }
 
   void interpretRawData( bool& errorsInEvent, int fedId,  const FEDRawData & data, Collection & digis, Errors & errors);
 
@@ -73,10 +73,10 @@ public:
 
 private:
 
-  mutable int theWordCounter;
+  mutable int m_WordCounter;
 
-  bool includeErrors;
-  RPixErrorChecker errorcheck;
+  bool m_IncludeErrors;
+  RPixErrorChecker m_ErrorCheck;
 
   int m_ADC_shift, m_PXID_shift, m_DCOL_shift, m_ROC_shift, m_LINK_shift;
   Word32 m_LINK_mask, m_ROC_mask, m_DCOL_mask, m_PXID_mask, m_ADC_mask;
@@ -86,7 +86,7 @@ private:
 
   std::string print(const Word64& word) const;
 
-  const std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> &mapping_;
+  const std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> &m_Mapping;
 
 };
 
