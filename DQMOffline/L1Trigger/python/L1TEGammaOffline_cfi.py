@@ -31,11 +31,12 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
     PVCollection=cms.InputTag("offlinePrimaryVerticesWithBS"),
     beamSpotCollection=cms.InputTag("offlineBeamSpot"),
 
-    TriggerEvent=cms.InputTag('hltTriggerSummaryAOD', '', 'HLT'),
-    TriggerResults=cms.InputTag('TriggerResults', '', 'HLT'),
-    # last filter of HLTEle27WP80Sequence
-    TriggerFilter=cms.InputTag('hltEle27WP80TrackIsoFilter', '', 'HLT'),
-    TriggerPath=cms.string('HLT_Ele27_WP80_v13'),
+    triggerInputTag=cms.InputTag('hltTriggerSummaryAOD', '', 'HLT'),
+    triggerProcess=cms.string('HLT'),
+    triggerResults=cms.InputTag('TriggerResults', '', 'HLT'),
+    triggerNames = cms.vstring(
+        'HLT_Ele32_WPTight_Gsf_v*',
+    ),
 
     stage2CaloLayer2EGammaSource=cms.InputTag("caloStage2Digis", "EGamma"),
 
@@ -82,4 +83,3 @@ l1tEGammaOfflineDQMEmu = l1tEGammaOfflineDQM.clone(
 
     histFolder=cms.string('L1TEMU/L1TEGamma'),
 )
-

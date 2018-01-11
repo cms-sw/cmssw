@@ -1,5 +1,6 @@
 #include "DQMOffline/L1Trigger/interface/L1TEGammaOffline.h"
 #include "DQMOffline/L1Trigger/interface/L1TFillWithinLimits.h"
+#include "DQMOffline/L1Trigger/interface/L1TCommon.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,10 +28,10 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
             consumes < std::vector<reco::Photon> > (ps.getParameter < edm::InputTag > ("photonCollection"))),
         thePVCollection_(consumes < reco::VertexCollection > (ps.getParameter < edm::InputTag > ("PVCollection"))),
         theBSCollection_(consumes < reco::BeamSpot > (ps.getParameter < edm::InputTag > ("beamSpotCollection"))),
-        triggerEvent_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("TriggerEvent"))),
-        triggerResults_(consumes < edm::TriggerResults > (ps.getParameter < edm::InputTag > ("TriggerResults"))),
-        triggerFilter_(ps.getParameter < edm::InputTag > ("TriggerFilter")),
-        triggerPath_(ps.getParameter < std::string > ("TriggerPath")),
+        triggerInputTag_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("triggerInputTag"))),
+        triggerResultsInputTag_(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
+        triggerProcess_(ps.getParameter < std::string > ("triggerProcess")),
+        triggerNames_(ps.getParameter < std::vector<std::string> > ("triggerNames")),
         histFolder_(ps.getParameter < std::string > ("histFolder")),
         efficiencyFolder_(histFolder_ + "/efficiency_raw"),
         stage2CaloLayer2EGammaToken_(
@@ -43,7 +44,11 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
         photonEfficiencyBins_(ps.getParameter < std::vector<double> > ("photonEfficiencyBins")),
         tagElectron_(),
         probeElectron_(),
-        tagAndProbleInvariantMass_(-1.)
+        tagAndProbleInvariantMass_(-1.),
+        hltConfig_(),
+        triggerIndices_(),
+        triggerResults_(),
+        triggerEvent_()
 {
   edm::LogInfo("L1TEGammaOffline") << "Constructor " << "L1TEGammaOffline::L1TEGammaOffline " << std::endl;
 }
@@ -59,9 +64,18 @@ L1TEGammaOffline::~L1TEGammaOffline()
 //
 // -------------------------------------- beginRun --------------------------------------------
 //
-void L1TEGammaOffline::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
+void L1TEGammaOffline::dqmBeginRun(edm::Run const & iRun, edm::EventSetup const & iSetup)
 {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::beginRun" << std::endl;
+  bool changed(true);
+  if (!hltConfig_.init(iRun, iSetup, triggerProcess_, changed)) {
+    edm::LogError("L1TStage2CaloLayer2Offline")
+        << " HLT config extraction failure with process name "
+        << triggerProcess_<< std::endl;
+    triggerNames_.clear();
+  } else {
+    triggerIndices_ = dqmoffline::l1t::getTriggerIndices(triggerNames_, hltConfig_.triggerNames());
+  }
 }
 
 //
@@ -90,6 +104,22 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::analyze" << std::endl;
 
+  edm::Handle<edm::TriggerResults> triggerResultHandle;
+  e.getByToken(triggerResultsInputTag_, triggerResultHandle);
+  if (!triggerResultHandle.isValid()) {
+    edm::LogWarning("L1TEGammaOffline") << "invalid edm::TriggerResults handle" << std::endl;
+    return;
+  }
+  triggerResults_ = *triggerResultHandle;
+
+  edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+  e.getByToken(triggerInputTag_, triggerEventHandle);
+  if (!triggerEventHandle.isValid()) {
+    edm::LogWarning("L1TEGammaOffline") << "invalid trigger::TriggerEvent handle" << std::endl;
+    return;
+  }
+  triggerEvent_ = *triggerEventHandle;
+
   edm::Handle < reco::VertexCollection > vertexHandle;
   e.getByToken(thePVCollection_, vertexHandle);
   if (!vertexHandle.isValid()) {
@@ -100,6 +130,9 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
   unsigned int nVertex = vertexHandle->size();
   dqmoffline::l1t::fillWithinLimits(h_nVertex_, nVertex);
 
+  if(!dqmoffline::l1t::passesAnyTriggerFromList(triggerIndices_, triggerResults_)){
+    return;
+  }
   // L1T
   fillElectrons(e, nVertex);
   fillPhotons(e, nVertex);
@@ -287,14 +320,16 @@ bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollecti
       bool tagPassesMediumID = passesMediumEleId(tagElectron) && tagElectron.et() > 30.;
       bool probePassesLooseID = passesLooseEleId(probeElectron);
       bool passesInvariantMass = combined.M() > 60 && combined.M() < 120;
+      bool tagMatchesHLTObject = matchesAnHLTObject(tagElectron.eta(), tagElectron.phi());
 
-      if (passesEta && passesInvariantMass && passesCharge && tagPassesMediumID && probePassesLooseID) {
+      if (passesEta && passesInvariantMass && passesCharge && tagPassesMediumID &&
+          probePassesLooseID && tagMatchesHLTObject) {
         foundBoth = true;
         tagElectron_ = tagElectron;
         probeElectron_ = probeElectron;
         // plot tag & probe invariant mass
         dqmoffline::l1t::fillWithinLimits(h_tagAndProbeMass_, combined.M());
-        break;
+        return foundBoth;
       }
     }
 
@@ -370,6 +405,18 @@ bool L1TEGammaOffline::passesMediumEleId(reco::GsfElectron const& electron) cons
   if (electron.isEE() && electron.hadronicOverEm() > 0.0878)
     return false;
   return true;
+}
+
+bool L1TEGammaOffline::matchesAnHLTObject(double eta, double phi) const{
+  // get HLT objects of fired triggers
+  using namespace dqmoffline::l1t;
+  std::vector<bool> results = getTriggerResults(triggerIndices_, triggerResults_);
+  std::vector<unsigned int> firedTriggers = getFiredTriggerIndices(triggerIndices_, results);
+  std::vector<edm::InputTag> hltFilters = getHLTFilters(firedTriggers, hltConfig_, triggerProcess_);
+  const trigger::TriggerObjectCollection hltObjects = getTriggerObjects(hltFilters, triggerEvent_);
+  const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(eta, phi, 0.3, hltObjects);
+
+  return matchedObjects.size() > 0;
 }
 
 void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVertex)
