@@ -66,6 +66,16 @@ getFiredTriggerIndices(const std::vector<unsigned int> &triggers,
   return results;
 }
 
+bool passesAnyTriggerFromList(const std::vector<unsigned int> &triggers,
+                              const edm::TriggerResults &triggerResults) {
+  std::vector<bool> results =
+      dqmoffline::l1t::getTriggerResults(triggers, triggerResults);
+  if (std::count(results.begin(), results.end(), true) == 0) {
+    return false;
+  }
+  return true;
+}
+
 trigger::TriggerObjectCollection
 getTriggerObjects(const std::vector<edm::InputTag> &hltFilters,
                   const trigger::TriggerEvent &triggerEvent) {

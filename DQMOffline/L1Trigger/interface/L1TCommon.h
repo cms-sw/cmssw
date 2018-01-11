@@ -19,6 +19,9 @@ std::vector<unsigned int>
 getFiredTriggerIndices(const std::vector<unsigned int> &triggers,
                        const std::vector<bool> &triggerResults);
 
+bool passesAnyTriggerFromList(const std::vector<unsigned int> &triggers,
+                              const edm::TriggerResults &triggerResults);
+
 trigger::TriggerObjectCollection
 getTriggerObjects(const std::vector<edm::InputTag> &hltFilters,
                   const trigger::TriggerEvent &triggerEvent);
