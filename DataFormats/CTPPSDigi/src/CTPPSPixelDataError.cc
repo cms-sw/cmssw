@@ -3,8 +3,8 @@
 
 
 CTPPSPixelDataError::CTPPSPixelDataError():
-  errorWord32_(0),
   errorWord64_(0),
+  errorWord32_(0),
   errorType_(0),
   fedId_(0) 
 {}
@@ -19,8 +19,8 @@ CTPPSPixelDataError::CTPPSPixelDataError(uint32_t errorWord32, const int errorTy
 }
 
 CTPPSPixelDataError::CTPPSPixelDataError(uint64_t errorWord64, const int errorType, int fedId) : 
-  errorWord32_(0),
   errorWord64_(errorWord64),
+  errorWord32_(0),
   errorType_(errorType),
   fedId_(fedId)
 {
