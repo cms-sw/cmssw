@@ -29,5 +29,5 @@ double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias, bool 
   else{
     rawDelay = parametersM3_[source].cap+parametersM3_[source].tspar0_siPM;  
   }
-  return (rawDelay < 0)?(0):(rawDelay);
+  return rawDelay;
 }
