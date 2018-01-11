@@ -97,7 +97,7 @@ private:
   void fillJets(edm::Event const& e, const unsigned int nVertex);
 
   bool passesTrigger() const;
-  bool passesTrigger(const l1t::Jet & jet) const;
+  bool doesNotOverlapWithHLTObjects(const l1t::Jet & jet) const;
 
   //private variables
   math::XYZPoint PVPoint_;

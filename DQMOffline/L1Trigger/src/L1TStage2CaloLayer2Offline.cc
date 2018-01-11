@@ -368,7 +368,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     return;
   }
 
-  if(!passesTrigger(closestL1Jet)){
+  if(!doesNotOverlapWithHLTObjects(closestL1Jet)){
     return;
   }
 
@@ -699,7 +699,7 @@ bool L1TStage2CaloLayer2Offline::passesTrigger() const {
   }
   return true;
 }
-bool L1TStage2CaloLayer2Offline::passesTrigger(const l1t::Jet & jet) const{
+bool L1TStage2CaloLayer2Offline::doesNotOverlapWithHLTObjects(const l1t::Jet & jet) const{
   // get HLT objects of fired triggers
   using namespace dqmoffline::l1t;
   std::vector<bool> results = getTriggerResults(triggerIndices_, triggerResults_);
