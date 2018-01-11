@@ -1135,6 +1135,7 @@ namespace edm {
             
             for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
               streamQueues_[i].push([this,i,oStatus,holder,ts,&es] () {
+                streamQueues_[i].pause();
                 auto& event = principalCache_.eventPrincipal(i);
                 streamLumiStatus_[i] = oStatus;
                 auto lp = oStatus->lumiPrincipal();
@@ -1224,45 +1225,55 @@ namespace edm {
                                      iLumiStatus->cleaningUpAfterException());
   }
 
-  void EventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status) {
-    bool cleaningUpAfterException = status->cleaningUpAfterException();
-    LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
-    lumiPrincipal.setEndTime(status->lastTimestamp());
+  void EventProcessor::streamEndLumiAsync(edm::WaitingTaskHolder iTask,
+                                          unsigned int iStreamIndex,
+                                          std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus) {
     
-    auto globalWaitTask = make_empty_waiting_task();
-    globalWaitTask->increment_ref_count();
-
-    auto globalEndTask = edm::make_waiting_task(tbb::task::allocate_root(),
-                                                [this,
-                                                 waitTask=WaitingTaskHolder(globalWaitTask.get()),
-                                                 status](std::exception_ptr const* iPtr)
-    {
-      for(auto & s: streamLumiStatus_) { s.reset();}
+    auto t =edm::make_waiting_task(tbb::task::allocate_root(), [this, iStreamIndex, iTask](std::exception_ptr const* iPtr) mutable {
+      std::exception_ptr ptr;
       if(iPtr) {
-        WaitingTaskHolder t(waitTask);
-        t.doneWaiting(*iPtr);
+        ptr = *iPtr;
       }
-      globalEndLumiAsync(std::move(waitTask), std::move(status));
+      auto status =streamLumiStatus_[iStreamIndex];
+      //reset status before releasing queue else get race condtion
+      streamLumiStatus_[iStreamIndex].reset();
+      streamQueues_[iStreamIndex].resume();
+      
+      //are we the last one?
+      if( status->streamFinishedLumi()) {
+        globalEndLumiAsync(iTask, std::move(status));
+      }
+      iTask.doneWaiting(ptr);
     });
     
-    {
-      WaitingTaskHolder globalTaskHolder{globalEndTask};
+    edm::WaitingTaskHolder lumiDoneTask{t};
     
-      //NOTE: Using the max event number for the end of a lumi block is a bad idea
-      // lumi blocks know their start and end times why not also start and end events?
+    iLumiStatus->setEndTime();
+    
+    if(iLumiStatus->didGlobalBeginSucceed()) {
+      auto & lumiPrincipal = *iLumiStatus->lumiPrincipal();
       IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), EventID::maxEventNumber()),
                       lumiPrincipal.endTime());
       EventSetup const& es = esp_->eventSetup();
-      if(status->didGlobalBeginSucceed()){
-        typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
-        endStreamsTransitionAsync<Traits>(globalEndTask,
-                                          *schedule_,
-                                          preallocations_.numberOfStreams(),
-                                          lumiPrincipal,
-                                          ts,
-                                          es,
-                                          subProcesses_,
-                                          cleaningUpAfterException);
+
+      bool cleaningUpAfterException = iLumiStatus->cleaningUpAfterException();
+      
+      using Traits =  OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
+      endStreamTransitionAsync<Traits>(std::move(lumiDoneTask),
+                                       *schedule_,iStreamIndex,
+                                       lumiPrincipal,ts,es,
+                                       subProcesses_,cleaningUpAfterException);
+    }
+  }
+
+  
+  void EventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status) {
+    auto globalWaitTask = make_empty_waiting_task();
+    globalWaitTask->increment_ref_count();
+    {
+      WaitingTaskHolder globalTaskHolder{globalWaitTask.get()};
+      for(unsigned int i=0; i< preallocations_.numberOfStreams(); ++i) {
+        streamEndLumiAsync(globalTaskHolder, i, status);
       }
     }
     globalWaitTask->wait_for_all();
