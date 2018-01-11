@@ -35,7 +35,7 @@ using edm::LogError;
 
 RctRawToDigi::RctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
-  fedId_(iConfig.getUntrackedParameter<int>("rctFedId", FEDNumbering::MINTriggerUpgradeFEDID)),
+  fedId_(iConfig.getUntrackedParameter<int>("rctFedId", FEDNumbering::MINRCTFEDID)),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false))
 {
   LogDebug("RCT") << "RctRawToDigi will unpack FED Id " << fedId_;

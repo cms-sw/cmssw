@@ -445,7 +445,7 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
 {
 #ifdef EDM_ML_DEBUG
   for(const auto& layer: seedingLayers) {
-    LogTrace("PixelInactiveAreaFinder") << "Input layer subdet " << std::get<0>(layer) << " side " << std::get<1>(layer) << " layer " << std::get<2>(layer);
+    LogTrace("PixelInactiveAreaFinder") << "Input layer subdet " << std::get<0>(layer) << " side " << static_cast<unsigned int>(std::get<1>(layer)) << " layer " << std::get<2>(layer);
   }
 #endif
 

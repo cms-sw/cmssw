@@ -444,7 +444,7 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
     typedef TrajectoryStateOnSurface TSOS;
     
     for (size_t it=0;it<hitTriplets.size();it++){
-      OrderedHitTriplet &trip = const_cast<OrderedHitTriplet &>(hitTriplets[it]);
+      OrderedHitTriplet &trip = hitTriplets.at(it);
       
       GlobalPoint inner = tracker->idToDet((*(trip.inner())).geographicalId())->surface().
 	toGlobal((*(trip.inner())).localPosition());

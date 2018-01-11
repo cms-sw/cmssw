@@ -270,7 +270,7 @@ double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate
 
   const CaloSubdetectorGeometry* ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry* eeGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  const HcalGeometry* hcGeometry = (HcalGeometry*)(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
+  const HcalGeometry* hcGeometry = (const HcalGeometry*)(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   TrackRef leadTrackRef = leadTrackExtractor_.getLeadTrack(*tau);
 

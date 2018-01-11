@@ -14,6 +14,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
+#include <cassert>
+
 class ThirdHitPredictionFromInvLine {
 
 public:
@@ -31,11 +33,11 @@ public:
 
   GlobalPoint crossing(double radius) const;
 
-  double curvature() const { check(); return theCurvatureValue; }
+  double curvature() const { assert(hasParameters); return theCurvatureValue; }
 
-  double errorCurvature() const { check(); return theCurvatureError; }
+  double errorCurvature() const { assert(hasParameters); return theCurvatureError; }
 
-  double chi2() const {  check(); return theChi2; }
+  double chi2() const {  assert(hasParameters); return theChi2; }
 
   void print() const;
 private:
@@ -68,14 +70,14 @@ private:
 private:
   typedef MappedPoint<double> PointUV;
   void add(const ThirdHitPredictionFromInvLine::PointUV & point, double weight);
-  void check() const;
+  void check();
 
 private:
   Rotation theRotation;
   int    nPoints;
   long double theSum, theSumU, theSumUU, theSumV, theSumUV, theSumVV;
-  mutable bool hasParameters;
-  mutable double theCurvatureValue, theCurvatureError, theChi2; 
+  bool hasParameters;
+  double theCurvatureValue, theCurvatureError, theChi2; 
 };
 
 

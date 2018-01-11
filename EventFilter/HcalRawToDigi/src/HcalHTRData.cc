@@ -132,6 +132,7 @@ void HcalHTRData::determineSectionLengths(int& tpWords, int& daqWords, int& head
     tpWords=m_rawConst[5]>>8;
     if (m_rawLength>4) 
       daqWords=m_rawConst[m_rawLength-4]&0x7FF; // zero suppression supported
+    else daqWords = 0;//should there be a warning as well?
     headerWords=8;
     trailerWords=4; // minimum, may be more...
   }

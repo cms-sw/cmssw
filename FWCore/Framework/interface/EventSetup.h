@@ -100,8 +100,6 @@ namespace edm {
            rec.get(iTag,iHolder);
         }
    
-      const IOVSyncValue& iovSyncValue() const { return syncValue_;}
-
       const eventsetup::EventSetupRecord* find(const eventsetup::EventSetupRecordKey&) const;
       
       ///clears the oToFill vector and then fills it with the keys for all available records
@@ -120,7 +118,6 @@ namespace edm {
          }
     protected:
       //Only called by EventSetupProvider
-      void setIOVSyncValue(const IOVSyncValue&);
       void setKnownRecordsSupplier(eventsetup::EventSetupKnownRecordsSupplier const* iSupplier) {
         knownRecords_ = iSupplier;
       }
@@ -140,8 +137,7 @@ namespace edm {
                   const eventsetup::EventSetupRecord*);
 
       // ---------- member data --------------------------------
-      IOVSyncValue syncValue_;
-      
+    
       //NOTE: the records are not owned
       std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *> recordMap_;
       eventsetup::EventSetupKnownRecordsSupplier const* knownRecords_;

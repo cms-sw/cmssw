@@ -144,8 +144,8 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  
 	  
 	  
-	  //std::cout << "detid " << ((EcalRecHit*)(&*j))->detid() << std::endl;
-	  int severityFlag = ecalBarHits_ == nullptr ? -1 : sevLevel_->severityLevel(((const EcalRecHit*)(&*j))->detid(), *ecalBarHits_);
+	  //std::cout << "detid " << j->detid() << std::endl;
+	  int severityFlag = ecalBarHits_ == nullptr ? -1 : sevLevel_->severityLevel(j->detid(), *ecalBarHits_);
 	  std::vector<int>::const_iterator sit = std::find(severitiesexcl_.begin(), 
 							   severitiesexcl_.end(), 
 							   severityFlag);
@@ -156,11 +156,11 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  // new rechit flag checks
 	  //std::vector<int>::const_iterator vit = std::find(flags_.begin(), 
 	  //						   flags_.end(),
-	  //						   ((const EcalRecHit*)(&*j))->recoFlag());
+	  //						   j->recoFlag());
 	  //if (vit != flags_.end()) 
 	  //  continue;
-	  if (!((EcalRecHit*)(&*j))->checkFlag(EcalRecHit::kGood)) {
-	    if (((EcalRecHit*)(&*j))->checkFlags(flags_)) {                
+	  if (!j->checkFlag(EcalRecHit::kGood)) {
+	    if (j->checkFlags(flags_)) {                
 	      continue;
 	    }
 	  }
@@ -258,11 +258,11 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
 	  // new rechit flag checks
 	  //std::vector<int>::const_iterator vit = std::find(flags_.begin(), 
 	  //						   flags_.end(),
-	  //						   ((EcalRecHit*)(&*j))->recoFlag());
+	  //						   j->recoFlag());
 	  //if (vit != flags_.end()) 
 	  //  continue;
-	  if (!((EcalRecHit*)(&*j))->checkFlag(EcalRecHit::kGood)) {
-	    if (((EcalRecHit*)(&*j))->checkFlags(flags_)) {                
+	  if (!j->checkFlag(EcalRecHit::kGood)) {
+	    if (j->checkFlags(flags_)) {                
 	      continue;
 	    }
 	  }

@@ -7,6 +7,7 @@
  */
 
 #include <mutex>
+#include <tbb/spin_mutex.h>
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -14,7 +15,7 @@ class ConcurrentMonitorElement
 {
 private:
   mutable MonitorElement* me_;
-  mutable std::mutex lock_;
+  mutable tbb::spin_mutex lock_;
 
 public:
   ConcurrentMonitorElement(void) :
@@ -31,7 +32,7 @@ public:
   // movable
   ConcurrentMonitorElement(ConcurrentMonitorElement && other)
   {
-    std::lock_guard<std::mutex>(other.lock_);
+    std::lock_guard<tbb::spin_mutex> guard(other.lock_);
     me_ = other.me_;
     other.me_ = nullptr;
   }
@@ -44,8 +45,8 @@ public:
   {
     // FIXME replace with std::scoped_lock once C++17 is available
     std::lock(lock_, other.lock_);
-    std::lock_guard<std::mutex> ours(lock_, std::adopt_lock);
-    std::lock_guard<std::mutex> others(other.lock_, std::adopt_lock);
+    std::lock_guard<tbb::spin_mutex> ours(lock_, std::adopt_lock);
+    std::lock_guard<tbb::spin_mutex> others(other.lock_, std::adopt_lock);
     me_ = other.me_;
     other.me_ = nullptr;
     return *this;
@@ -58,27 +59,27 @@ public:
   template <typename... Args>
   void fill(Args && ... args) const
   {
-    std::lock_guard<std::mutex> guard(lock_);
+    std::lock_guard<tbb::spin_mutex> guard(lock_);
     me_->Fill(std::forward<Args>(args)...);
   }
 
   // expose as a const method to mean that it is concurrent-safe
   void shiftFillLast(double y, double ye = 0., int32_t xscale = 1) const
   {
-    std::lock_guard<std::mutex> guard(lock_);
+    std::lock_guard<tbb::spin_mutex> guard(lock_);
     me_->ShiftFillLast(y, ye, xscale);
   }
 
   // reset the internal pointer
   void reset()
   {
-    std::lock_guard<std::mutex> guard(lock_);
+    std::lock_guard<tbb::spin_mutex> guard(lock_);
     me_ = nullptr;
   }
 
   operator bool() const
   {
-    std::lock_guard<std::mutex> guard(lock_);
+    std::lock_guard<tbb::spin_mutex> guard(lock_);
     return (me_ != nullptr);
   }
 

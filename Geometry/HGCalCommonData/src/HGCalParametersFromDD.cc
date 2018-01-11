@@ -73,7 +73,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     DDsvalues_type sv(fv.mergedSpecifics());
     php.mode_ = getGeometryMode("GeometryMode", sv);
 #ifdef EDM_ML_DEBUG
-    std::cout << "GeometryMode " << php.mode_ <<":" << HGCalGeometryMode::Square
+    std::cout << "GeometryMode " << php.mode_ 
 	      << ":" << HGCalGeometryMode::Hexagon << ":" 
 	      << HGCalGeometryMode::HexagonFull << std::endl;
 #endif
@@ -95,12 +95,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 #endif
       }
     }
-    if (php.mode_ == HGCalGeometryMode::Square) {
-      //Load the SpecPars
-      geom->loadSpecParsSquare(fv, php);
-      //Load the Geometry parameters
-      geom->loadGeometrySquare(fv, php, name);
-    } else if (php.mode_ == HGCalGeometryMode::Hexagon) {
+    if (php.mode_ == HGCalGeometryMode::Hexagon) {
       //Load the SpecPars
       geom->loadSpecParsHexagon(fv, php, cpv, namew, namec);
       //Load the Geometry parameters
