@@ -59,7 +59,9 @@ public:
     bool useSymEBTreshold, bool useSymEETreshold,				    
 
     double HcalThreshold,
-    double HBthreshold, double HESthreshold, double HEDthreshold,
+    double HBthreshold, 
+    double HESthreshold, double HESthreshold1,
+    double HEDthreshold, double HEDthreshold1, 
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2,
     double HF1threshold, double HF2threshold, 
@@ -82,7 +84,9 @@ public:
     bool useSymEBTreshold, bool useSymEETreshold,
 
     double HcalThreshold,
-    double HBthreshold, double HESthreshold, double HEDthreshold,
+    double HBthreshold, 
+    double HESthreshold, double HESthreshold1,
+    double HEDthreshold, double HEDthreshold1,
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2, 
     double HF1threshold, double HF2threshold,
@@ -250,7 +254,9 @@ private:
   
   double  theHcalThreshold;
 
-  double theHBthreshold, theHESthreshold,  theHEDthreshold; 
+  double theHBthreshold;
+  double theHESthreshold, theHESthreshold1; 
+  double theHEDthreshold, theHEDthreshold1; 
   double theHOthreshold0, theHOthresholdPlus1, theHOthresholdMinus1;
   double theHOthresholdPlus2, theHOthresholdMinus2, theHF1threshold, theHF2threshold;
   std::vector<double> theEBGrid, theEBWeights;
