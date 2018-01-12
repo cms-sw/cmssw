@@ -42,6 +42,9 @@ DEFINE_FWK_MODULE(L1TStage2MuonComp);
 #include <DQM/L1TMonitor/interface/L1TStage2RegionalMuonCandComp.h>
 DEFINE_FWK_MODULE(L1TStage2RegionalMuonCandComp);
 
+#include <DQM/L1TMonitor/interface/L1TObjectsTiming.h>
+DEFINE_FWK_MODULE(L1TObjectsTiming);
+
 #include <DQM/L1TMonitor/interface/L1TStage2uGT.h>
 DEFINE_FWK_MODULE(L1TStage2uGT);
 
@@ -107,8 +110,8 @@ DEFINE_FWK_MODULE(L1TRate);
 #include "DQM/L1TMonitor/interface/L1TBPTX.h"
 DEFINE_FWK_MODULE(L1TBPTX);
 
-#include "DQM/L1TMonitor/interface/L1GtHwValidation.h"
-DEFINE_FWK_MODULE( L1GtHwValidation);
+//#include "DQM/L1TMonitor/interface/L1GtHwValidation.h"
+//DEFINE_FWK_MODULE( L1GtHwValidation);
 
 #include "DQM/L1TMonitor/interface/L1ExtraDQM.h"
 DEFINE_FWK_MODULE(L1ExtraDQM);
