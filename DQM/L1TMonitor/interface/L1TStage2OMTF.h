@@ -26,13 +26,32 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
 // dqm requirements
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 
+namespace omtfdqm {
+  struct Histograms {
+    ConcurrentMonitorElement omtf_hwEta;
+    ConcurrentMonitorElement omtf_hwLocalPhi;
+    ConcurrentMonitorElement omtf_hwPt;
+    ConcurrentMonitorElement omtf_hwQual;
+    ConcurrentMonitorElement omtf_proc;
+    ConcurrentMonitorElement omtf_bx;
+
+    ConcurrentMonitorElement omtf_hwEta_hwLocalPhi;
+    ConcurrentMonitorElement omtf_hwPt_hwEta;
+    ConcurrentMonitorElement omtf_hwPt_hwLocalPhi;
+
+    ConcurrentMonitorElement omtf_hwEta_bx;
+    ConcurrentMonitorElement omtf_hwLocalPhi_bx;
+    ConcurrentMonitorElement omtf_hwPt_bx;
+    ConcurrentMonitorElement omtf_hwQual_bx;
+  };
+}
 
 // class decleration
 
-class  L1TStage2OMTF: public DQMEDAnalyzer {
+class  L1TStage2OMTF: public DQMGlobalEDAnalyzer<omtfdqm::Histograms> {
 
 public:
 
@@ -43,10 +62,9 @@ L1TStage2OMTF(const edm::ParameterSet & ps);
 
 // member functions
 protected:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
+  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, omtfdqm::Histograms const&) const override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&, omtfdqm::Histograms&) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker&, const edm::Run&, const edm::EventSetup&, omtfdqm::Histograms&) const override ;
 
 // data members
 private:  
@@ -56,22 +74,6 @@ private:
   bool verbose ;
   edm::EDGetToken omtfToken; 
   float global_phi;
-
-  MonitorElement* omtf_hwEta; 
-  MonitorElement* omtf_hwLocalPhi;
-  MonitorElement* omtf_hwPt;  
-  MonitorElement* omtf_hwQual;
-  MonitorElement* omtf_proc; 
-  MonitorElement* omtf_bx; 
-
-  MonitorElement* omtf_hwEta_hwLocalPhi;
-  MonitorElement* omtf_hwPt_hwEta;
-  MonitorElement* omtf_hwPt_hwLocalPhi;
-
-  MonitorElement* omtf_hwEta_bx;  
-  MonitorElement* omtf_hwLocalPhi_bx;  
-  MonitorElement* omtf_hwPt_bx;   
-  MonitorElement* omtf_hwQual_bx; 
 
 };
 
