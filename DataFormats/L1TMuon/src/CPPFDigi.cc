@@ -6,27 +6,26 @@
 
 namespace l1t {
 
+  CPPFDigi::CPPFDigi( const RPCDetId& rpcId0, int bx0 ) :
+    rpcId_(rpcId0), bx_(bx0), phi_int_(-99), theta_int_(-99), valid_(-99),
+    board_(-99), channel_(-99), emtf_sector_(-99), emtf_link_(-99),
+    first_strip_(-99), cluster_size_(-99), phi_glob_(-99), theta_glob_(-99)
+  {
+  }
 
-  CPPFDigi::CPPFDigi( const RPCDetId& _rpcId, int _bx ) : 
-    rpcId(_rpcId), bx(_bx), phi_int(-99), theta_int(-99), valid(-99), 
-    board(-99), channel(-99), emtf_sector(-99), emtf_link(-99),
-    first_strip(-99), cluster_size(-99), phi_glob(-99), theta_glob(-99)
+  CPPFDigi::CPPFDigi( const RPCDetId& rpcId0, int bx0 , int theta_int0 , int phi_int0 ) :
+    rpcId_(rpcId0), bx_(bx0), phi_int_(phi_int0), theta_int_(theta_int0), valid_(-99),
+    board_(-99), channel_(-99), emtf_sector_(-99), emtf_link_(-99),
+    first_strip_(-99), cluster_size_(-99), phi_glob_(-99), theta_glob_(-99)
   {
   }
-  
-  CPPFDigi::CPPFDigi( const RPCDetId& _rpcId, int _bx , int _theta_int , int _phi_int ) : 
-    rpcId(_rpcId), bx(_bx), phi_int(_phi_int), theta_int(), valid(-99), 
-    board(-99), channel(-99), emtf_sector(-99), emtf_link(-99),
-    first_strip(-99), cluster_size(-99), phi_glob(-99), theta_glob(-99)
-  {
-  }
- 
-  CPPFDigi::CPPFDigi( const RPCDetId& _rpcId, int _bx, int _phi_int, int _theta_int, int _valid,
-  		      int _board, int _channel, int _emtf_sector, int _emtf_link, 
-		      int _first_strip, int _cluster_size, float _phi_glob, float _theta_glob ) :
-    rpcId(_rpcId), bx(_bx), phi_int(_phi_int), theta_int(_theta_int), valid(_valid), 
-    board(_board), channel(_channel), emtf_sector(_emtf_sector), emtf_link(_emtf_link),
-    first_strip(_first_strip), cluster_size(_cluster_size), phi_glob(_phi_glob), theta_glob(_theta_glob)
+
+  CPPFDigi::CPPFDigi( const RPCDetId& rpcId0, int bx0, int phi_int0, int theta_int0, int valid0,
+                      int board0, int channel0, int emtf_sector0, int emtf_link0,
+                      int first_strip0, int cluster_size0, float phi_glob0, float theta_glob0 ) :
+    rpcId_(rpcId0), bx_(bx0), phi_int_(phi_int0), theta_int_(theta_int0), valid_(valid0),
+    board_(board0), channel_(channel0), emtf_sector_(emtf_sector0), emtf_link_(emtf_link0),
+    first_strip_(first_strip0), cluster_size_(cluster_size0), phi_glob_(phi_glob0), theta_glob_(theta_glob0)
   {
   }
 
@@ -36,20 +35,20 @@ namespace l1t {
 
   bool CPPFDigi::operator<(const CPPFDigi& rhs) const
   {
-    return (RPCId().rawId() < rhs.RPCId().rawId()
-        || (!(rhs.RPCId().rawId() < RPCId().rawId())
-          && (BX() < rhs.BX()
-            || (!(rhs.BX() < BX())
-              && (Theta_int() < rhs.Theta_int()
-                || (!(rhs.Theta_int() < Theta_int())
-                  && Phi_int() < rhs.Phi_int()))))));
+    return (rpcId().rawId() < rhs.rpcId().rawId()
+        || (!(rhs.rpcId().rawId() < rpcId().rawId())
+          && (bx() < rhs.bx()
+            || (!(rhs.bx() < bx())
+              && (theta_int() < rhs.theta_int()
+                || (!(rhs.theta_int() < theta_int())
+                  && phi_int() < rhs.phi_int()))))));
   }
 
 } // End namespace l1t
 
 std::ostream & operator<<(std::ostream & o, const l1t::CPPFDigi& cppf){
-  o << "Local integer phi: "   << cppf.Phi_int() ;
-  o << "Local integer theta: " << cppf.Theta_int() ;
+  o << "Local integer phi: "   << cppf.phi_int() ;
+  o << "Local integer theta: " << cppf.theta_int() ;
   return o;
 }
 
