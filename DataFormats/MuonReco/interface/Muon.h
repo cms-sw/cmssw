@@ -234,6 +234,9 @@ namespace reco {
     /// get number of stations with matched segments
     /// just adds the bits returned by stationMask
     int numberOfMatchedStations( ArbitrationType type = SegmentAndTrackArbitration ) const;
+    /// expected number of stations with matching segments based on the absolute 
+    /// distance from the edge of a chamber
+    unsigned int expectedNnumberOfMatchedStations( float minDistanceFromEdge = 10.0 ) const;
     /// get bit map of stations with matched segments
     /// bits 0-1-2-3 = DT stations 1-2-3-4
     /// bits 4-5-6-7 = CSC stations 1-2-3-4

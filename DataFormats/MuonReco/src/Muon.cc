@@ -133,6 +133,26 @@ int Muon::numberOfMatchedStations( ArbitrationType type ) const
    return stations;
 }
 
+unsigned int Muon::expectedNnumberOfMatchedStations( float minDistanceFromEdge ) const 
+{
+  unsigned int stationMask = 0;
+  for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
+       chamberMatch != muMatches_.end(); chamberMatch++ )
+    {
+      if (chamberMatch->detector()!=MuonSubdetId::DT && chamberMatch->detector()!=MuonSubdetId::CSC) continue;
+      float edgeX = chamberMatch->edgeX;
+      float edgeY = chamberMatch->edgeY;
+      // check we if the trajectory is well within the acceptance
+      if(edgeX<0 && fabs(edgeX)>fabs(minDistanceFromEdge) &&
+	 edgeY<0 && fabs(edgeY)>fabs(minDistanceFromEdge))
+	stationMask |= 1<<( (chamberMatch->station()-1)+4*(chamberMatch->detector()-1) );
+    }
+  unsigned int n = 0;
+  for(unsigned int i=0; i<8; ++i)
+    if (stationMask&(1<<i)) n++;
+  return n;
+}
+
 unsigned int Muon::stationMask( ArbitrationType type ) const
 {
    unsigned int totMask(0);
