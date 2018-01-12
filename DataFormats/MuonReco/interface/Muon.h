@@ -207,8 +207,8 @@ namespace reco {
       MiniIsoLoose           = 1UL<<18,  // reliso<0.40
       MiniIsoMedium          = 1UL<<19,  // reliso<0.20
       MiniIsoTight           = 1UL<<20,  // reliso<0.10
-      MiniIsoVeryTight       = 1UL<<21   // reliso<0.05
-
+      MiniIsoVeryTight       = 1UL<<21,  // reliso<0.05
+      TriggerIdLoose         = 1UL<<22   // robust selector for HLT
     };
     
     bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }
