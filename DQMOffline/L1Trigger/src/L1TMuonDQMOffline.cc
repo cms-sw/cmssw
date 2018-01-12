@@ -371,7 +371,7 @@ void L1TMuonDQMOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
 
     ibooker.setCurrentFolder(m_HistFolder+"/control_variables");
 
-    m_ControlHistos[CTRL_MUONGMTDELTAR] = ibooker.book1D("MuonGmtDeltaR", "MuonGmtDeltaR; #DeltaR", 25., 0., 2.5);
+    m_ControlHistos[CTRL_MUONGMTDELTAR] = ibooker.book1D("MuonGmtDeltaR", "MuonGmtDeltaR; #DeltaR", 50, 0., 0.5);
     m_ControlHistos[CTRL_NTIGHTVSALL] = ibooker.book2D("NTightVsAll", "NTightVsAll; # muons; # tight muons", 20, -0.5, 19.5, 16, -0.5, 15.5);
     m_ControlHistos[CTRL_NPROBESVSTIGHT] = ibooker.book2D("NProbesVsTight", "NProbesVsTight; # tight muons; # probe muons", 8, -0.5, 7.5, 8, -0.5, 7.5);
 
