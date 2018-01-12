@@ -93,7 +93,7 @@ namespace edm {
       
       bool wantAllEvents() const {return wantAllEvents_;}
 
-      BranchIDLists const* branchIDLists();
+      BranchIDLists const* branchIDLists() const;
 
       ThinnedAssociationsHelper const* thinnedAssociationsHelper() const;
       
@@ -209,7 +209,9 @@ namespace edm {
       //------------------------------------------------------------------
       // private member functions
       //------------------------------------------------------------------
-      
+
+      void updateBranchIDListsWithKeptAliases();
+
       void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);
