@@ -29,12 +29,6 @@ class HGCalTriggerNtupleHGCPanels : public HGCalTriggerNtupleBase
     std::vector<int> panel_layer_;
     std::vector<int> panel_sector_;
     std::vector<int> panel_number_;
-    // std::vector<uint32_t> panel_mod_n_;
-    // std::vector<std::vector<uint32_t> > panel_mod_id_;
-    // std::vector<std::vector<float> > panel_mod_mipPt_;
-    // std::vector<uint32_t> panel_third_n_;
-    // std::vector<std::vector<uint32_t> > panel_third_id_;
-    // std::vector<std::vector<float> > panel_third_mipPt_;
     std::vector<unsigned> panel_tc_n_;
     std::vector<std::vector<uint32_t> > panel_tc_id_;
     std::vector<std::vector<uint32_t> > panel_tc_mod_;
@@ -42,6 +36,15 @@ class HGCalTriggerNtupleHGCPanels : public HGCalTriggerNtupleBase
     std::vector<std::vector<uint32_t> > panel_tc_cell_;
     std::vector<std::vector<float> > panel_tc_mipPt_;
     std::vector<std::vector<float> > panel_tc_pt_;
+
+  private:
+    static const unsigned kPanel_offset_ = 0;
+    static const unsigned kPanel_mask_ = 0x1F;
+    static const unsigned kSector_offset_ = 5;
+    static const unsigned kSector_mask_ = 0x7;
+    static const unsigned kThird_offset_ = 4;
+    static const unsigned kThird_mask_ = 0x3;
+    static const unsigned kCell_mask_ = 0xF;
 
 };
 
@@ -67,12 +70,6 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("panel_layer", &panel_layer_);
   tree.Branch("panel_sector", &panel_sector_);
   tree.Branch("panel_number", &panel_number_);
-  // tree.Branch("panel_mod_n", &panel_mod_n_);         
-  // tree.Branch("panel_mod_id", &panel_mod_id_); 
-  // tree.Branch("panel_mod_mipPt", &panel_mod_mipPt_); 
-  // tree.Branch("panel_third_n", &panel_third_n_);         
-  // tree.Branch("panel_third_id", &panel_third_id_); 
-  // tree.Branch("panel_third_mipPt", &panel_third_mipPt_); 
   tree.Branch("panel_tc_n", &panel_tc_n_);         
   tree.Branch("panel_tc_id", &panel_tc_id_); 
   tree.Branch("panel_tc_mod", &panel_tc_mod_); 
@@ -109,20 +106,12 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       panelids_tcs[panelid].push_back(tc_itr);
     }
   }
-  unsigned panel_offset = 0;
-  unsigned panel_mask = 0x1F;
-  unsigned sector_offset = 5;
-  unsigned sector_mask = 0x7;
-  unsigned third_offset = 4;
-  unsigned third_mask = 0x3;
-  unsigned cell_mask = 0xF;
-
-  for (const auto& panelid_tcs : panelids_tcs)
+    for (const auto& panelid_tcs : panelids_tcs)
   {
     panel_n_++;
     HGCalDetId panelid(panelid_tcs.first);
-    int panel_sector = (panelid.wafer()>>sector_offset) & sector_mask ;
-    int panel_number = (panelid.wafer()>>panel_offset) & panel_mask ;
+    int panel_sector = (panelid.wafer()>>kSector_offset_) & kSector_mask_ ;
+    int panel_number = (panelid.wafer()>>kPanel_offset_) & kPanel_mask_ ;
     const auto& tcs = panelid_tcs.second;
     panel_id_.emplace_back(panelid);
     panel_zside_.emplace_back(panelid.zside());
@@ -146,30 +135,14 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       panel_tc_pt_.back().push_back(tc->pt());
       HGCalDetId tc_detid(tc->detId());
       unsigned module_id = tc_detid.wafer();
-      unsigned third_id = (tc_detid.cell()>>third_offset) & third_mask;
-      unsigned cell_id = tc_detid.cell() & cell_mask;
+      unsigned third_id = (tc_detid.cell()>>kThird_offset_) & kThird_mask_;
+      unsigned cell_id = tc_detid.cell() & kCell_mask_;
       panel_tc_mod_.back().push_back(module_id);
       panel_tc_third_.back().push_back(third_id);
       panel_tc_cell_.back().push_back(cell_id);
       modules_mipPt[module_id] += tc->mipPt();
       thirds_mipPt[third_id] += tc->mipPt();
     }
-    // panel_mod_n_.emplace_back(modules_mipPt.size());
-    // panel_mod_id_.emplace_back();
-    // panel_mod_mipPt_.emplace_back();
-    // for(const auto& id_mipPt : modules_mipPt)
-    // {
-      // panel_mod_id_.back().push_back(id_mipPt.first);
-      // panel_mod_mipPt_.back().push_back(id_mipPt.second);
-    // }
-    // panel_third_n_.emplace_back(thirds_mipPt.size());
-    // panel_third_id_.emplace_back();
-    // panel_third_mipPt_.emplace_back();
-    // for(const auto& id_mipPt : thirds_mipPt)
-    // {
-      // panel_third_id_.back().push_back(id_mipPt.first);
-      // panel_third_mipPt_.back().push_back(id_mipPt.second);
-    // }
   }
 }
 
@@ -184,12 +157,6 @@ clear()
   panel_layer_.clear();
   panel_sector_.clear();
   panel_number_.clear();
-  // panel_mod_n_.clear();
-  // panel_mod_id_.clear();
-  // panel_mod_mipPt_.clear();
-  // panel_third_n_.clear();
-  // panel_third_id_.clear();
-  // panel_third_mipPt_.clear();
   panel_tc_n_.clear();
   panel_tc_id_.clear();
   panel_tc_mod_.clear();
