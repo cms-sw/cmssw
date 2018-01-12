@@ -8,7 +8,6 @@ import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
 fcPerMip = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP
 keV2fC = digiparam.hgceeDigitizer.digiCfg.keV2fC
-#  layerWeights = recocalibparam.HGCalRecHit.layerWeights
 layerWeights = layercalibparam.TrgLayer_dEdX_weights
 thicknessCorrections = recocalibparam.HGCalRecHit.thicknessCorrection
 

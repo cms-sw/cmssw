@@ -23,6 +23,7 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
     virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
 
   private:
+    double calibrate(double, int, int);
     void simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh, std::unordered_map<uint32_t, double>& simhits_bh);
     virtual void clear() override final;
 
@@ -211,10 +212,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
                   HGCalDetId detid(c_id);
                   int thickness = geometry_->eeTopology().dddConstants().waferTypeL(detid.wafer())-1;
                   int layer = detid.layer();
-                  double fcPerMip = fcPerMip_[thickness];
-                  double thicknessCorrection = thicknessCorrections_[thickness];
-                  double layerWeight = layerWeights_[layer];
-                  energy += itr->second*1.e6*keV2fC_/fcPerMip*layerWeight*1.e-3/thicknessCorrection;
+                  energy += calibrate(itr->second, thickness, layer);
                 }
                 break;
               }
@@ -226,10 +224,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
                   HGCalDetId detid(c_id);
                   int thickness = geometry_->fhTopology().dddConstants().waferTypeL(detid.wafer())-1;
                   int layer = detid.layer();
-                  float fcPerMip = fcPerMip_[thickness];
-                  double thicknessCorrection = thicknessCorrections_[thickness];
-                  float layerWeight = layerWeights_[layer];
-                  energy += itr->second*1.e6*keV2fC_/fcPerMip*layerWeight*1.e-3/thicknessCorrection;
+                  energy += calibrate(itr->second, thickness, layer);
                 }
                 break;
               }
@@ -249,6 +244,16 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   }
 }
 
+double
+HGCalTriggerNtupleHGCTriggerCells::
+calibrate(double energy, int thickness, int layer)
+{
+  double fcPerMip = fcPerMip_[thickness];
+  double thicknessCorrection = thicknessCorrections_[thickness];
+  double layerWeight = layerWeights_[layer];
+  double TeV2GeV = 1.e3;
+  return energy*keV2fC_/fcPerMip*layerWeight*TeV2GeV/thicknessCorrection;
+}
 
 void
 HGCalTriggerNtupleHGCTriggerCells::
