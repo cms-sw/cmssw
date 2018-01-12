@@ -288,6 +288,7 @@ steps['RunMuOnia2017B']={'INPUT':InputInfo(dataSet='/MuOnia/Run2017B-v1/RAW',lab
 steps['RunNoBPTX2017B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2017B-v1/RAW',label='noBptx2017B',events=100000,location='STD', ls=Run2017B)}
 steps['RunHLTPhy2017B_AOD']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017B-PromptReco-v1/AOD',label='hltPhy2017Baod',events=100000,location='STD', ls=Run2017BlowPU)}
 steps['RunHLTPhy2017B_AODextra']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017B-PromptReco-v1/AOD',label='hltPhy2017Baodex',events=100000,location='STD', ls=Run2017BlowPU)}
+steps['RunHLTPhy2017B_RAWAOD']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017B-PromptReco-v1/AOD',dataSetParent='/HLTPhysics/Run2017B-v1/RAW',label='hltPhy2017Brawaod',events=100000,location='STD', ls=Run2017B)}
 
 #### run2 2017C ####
 Run2017C={301998: [[1, 150]]}
@@ -1855,6 +1856,18 @@ steps['DQMHLTonAOD_2017']={
     '--fileout':'DQMHLTonAOD.root',
     }
 steps['DQMHLTonAODextra_2017'] = merge([ {'-s':'DQM:offlineHLTSourceOnAODextra'}, steps['DQMHLTonAOD_2017'] ])
+
+steps['DQMHLTonRAWAOD_2017']={
+    '--process':'reHLT',
+    '-s':'HLT:@relval2017,DQM:offlineHLTSourceOnAOD',
+    '--conditions':'auto:run2_data_promptlike',
+    '--data':'',
+    '--eventcontent':'DQM',
+    '--datatier':'DQMIO',
+    '--era':'Run2_2017',
+    '--secondfilein':'filelist:step1_dasparentquery.log',
+    '--customise_commands':'"process.HLTAnalyzerEndpath.remove(process.hltL1TGlobalSummary)"',
+    }
 
 steps['HARVESTDQMHLTonAOD_2017'] = merge([ {'--filein':'file:DQMHLTonAOD.root','-s':'HARVESTING:hltOfflineDQMClient'}, steps['HARVEST2017'] ]) ### Harvesting step for the DQM-only workflow
 
