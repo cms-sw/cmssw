@@ -18,14 +18,11 @@
 
 // User include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 
 // L1 trigger include files
@@ -35,26 +32,62 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
 // DQM include files
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
+
+namespace ugtdqm {
+  struct Histograms {
+    // Booking of histograms for the module
+
+    // Algorithm bits
+    ConcurrentMonitorElement algoBits_before_bxmask;
+    ConcurrentMonitorElement algoBits_before_prescale;
+    ConcurrentMonitorElement algoBits_after_prescale;
+
+    // Algorithm bits correlation
+    ConcurrentMonitorElement algoBits_before_bxmask_corr;
+    ConcurrentMonitorElement algoBits_before_prescale_corr;
+    ConcurrentMonitorElement algoBits_after_prescale_corr;
+
+    // Algorithm bits vs global BX number
+    ConcurrentMonitorElement algoBits_before_bxmask_bx_global;
+    ConcurrentMonitorElement algoBits_before_prescale_bx_global;
+    ConcurrentMonitorElement algoBits_after_prescale_bx_global;
+
+    // Algorithm bits vs BX number in event
+    ConcurrentMonitorElement algoBits_before_bxmask_bx_inEvt;
+    ConcurrentMonitorElement algoBits_before_prescale_bx_inEvt;
+    ConcurrentMonitorElement algoBits_after_prescale_bx_inEvt;
+
+    // Algorithm bits vs LS
+    ConcurrentMonitorElement algoBits_before_bxmask_lumi;
+    ConcurrentMonitorElement algoBits_before_prescale_lumi;
+    ConcurrentMonitorElement algoBits_after_prescale_lumi;
+
+    // Prescale factor index
+    ConcurrentMonitorElement prescaleFactorSet;
+
+    // Pre- Post- firing timing dedicated plots
+    ConcurrentMonitorElement first_collision_run;
+    ConcurrentMonitorElement isolated_collision_run;
+    ConcurrentMonitorElement last_collision_run;
+  };
+}
 
 //
 // Class declaration
 //
 
-class L1TStage2uGT: public DQMEDAnalyzer {
+class L1TStage2uGT: public DQMGlobalEDAnalyzer<ugtdqm::Histograms> {
 
 public:
    L1TStage2uGT(const edm::ParameterSet& ps); // constructor
    ~L1TStage2uGT() override; // destructor
 
 protected:
-   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-   void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-   void analyze(const edm::Event&, const edm::EventSetup&) override;
-   void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override; // end section
+   void dqmBeginRun(const edm::Run&, const edm::EventSetup&, ugtdqm::Histograms&) const override;
+   void bookHistograms(DQMStore::ConcurrentBooker &booker, edm::Run const&, edm::EventSetup const&, ugtdqm::Histograms&) const override;
+   void dqmAnalyze(const edm::Event&, const edm::EventSetup&, ugtdqm::Histograms const&) const override;
 
 private:
    
@@ -65,41 +98,6 @@ private:
    
    bool verbose_; // verbosity switch
    
-   // Booking of histograms for the module
-   
-   // Algorithm bits
-   MonitorElement* algoBits_before_bxmask_;
-   MonitorElement* algoBits_before_prescale_;
-   MonitorElement* algoBits_after_prescale_;
-  
-   // Algorithm bits correlation
-   MonitorElement* algoBits_before_bxmask_corr_;
-   MonitorElement* algoBits_before_prescale_corr_;
-   MonitorElement* algoBits_after_prescale_corr_;
- 
-   // Algorithm bits vs global BX number
-   MonitorElement* algoBits_before_bxmask_bx_global_;
-   MonitorElement* algoBits_before_prescale_bx_global_;
-   MonitorElement* algoBits_after_prescale_bx_global_;
-  
-   // Algorithm bits vs BX number in event
-   MonitorElement* algoBits_before_bxmask_bx_inEvt_;
-   MonitorElement* algoBits_before_prescale_bx_inEvt_;
-   MonitorElement* algoBits_after_prescale_bx_inEvt_;
-
-   // Algorithm bits vs LS
-   MonitorElement* algoBits_before_bxmask_lumi_;
-   MonitorElement* algoBits_before_prescale_lumi_;
-   MonitorElement* algoBits_after_prescale_lumi_;
- 
-   // Prescale factor index 
-   MonitorElement* prescaleFactorSet_;
-
-   // Pre- Post- firing timing dedicated plots
-   MonitorElement* first_collision_run_;
-   MonitorElement* isolated_collision_run_;
-   MonitorElement* last_collision_run_; 
-
 };
 
 #endif
