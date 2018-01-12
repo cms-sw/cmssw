@@ -9,8 +9,8 @@
 #include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,8 +18,19 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+namespace mp7zsdqm {
+  struct Histograms {
+    std::map<unsigned int, ConcurrentMonitorElement> zeroSuppValMap;
+    std::map<unsigned int, ConcurrentMonitorElement> errorSummaryNumMap;
+    std::map<unsigned int, ConcurrentMonitorElement> errorSummaryDenMap;
+    std::map<unsigned int, ConcurrentMonitorElement> readoutSizeNoZSMap;
+    std::map<unsigned int, ConcurrentMonitorElement> readoutSizeZSMap;
+    std::map<unsigned int, ConcurrentMonitorElement> readoutSizeZSExpectedMap;
+    ConcurrentMonitorElement capIds;
+  };
+}
 
-class L1TMP7ZeroSupp : public DQMEDAnalyzer {
+class L1TMP7ZeroSupp : public DQMGlobalEDAnalyzer<mp7zsdqm::Histograms> {
 
  public:
 
@@ -29,14 +40,13 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
 
  protected:
 
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c, mp7zsdqm::Histograms&) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker&, const edm::Run&, const edm::EventSetup&, mp7zsdqm::Histograms&) const override;
+  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, mp7zsdqm::Histograms const&) const override;
 
  private:
 
-  void bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsigned int& id);
+  void bookCapIdHistograms(DQMStore::ConcurrentBooker& booker, mp7zsdqm::Histograms& histograms, const unsigned int& id) const;
 
   // Add additional bins only before NBINLABELS
   enum binlabels {EVTS=0, EVTSGOOD, EVTSBAD, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG, BXBLOCKS, ZSBXBLKSGOOD, ZSBXBLKSBAD, ZSBXBLKSBADFALSEPOS, ZSBXBLKSBADFALSENEG, NBINLABELS};
@@ -66,14 +76,6 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
   static const unsigned int maxMasks_;
 
   std::vector<unsigned int> definedMaskCapIds_;
-
-  std::map<unsigned int, MonitorElement*> zeroSuppValMap_;
-  std::map<unsigned int, MonitorElement*> errorSummaryNumMap_;
-  std::map<unsigned int, MonitorElement*> errorSummaryDenMap_;
-  std::map<unsigned int, MonitorElement*> readoutSizeNoZSMap_;
-  std::map<unsigned int, MonitorElement*> readoutSizeZSMap_;
-  std::map<unsigned int, MonitorElement*> readoutSizeZSExpectedMap_;
-  MonitorElement* capIds_;
 };
 
 #endif
