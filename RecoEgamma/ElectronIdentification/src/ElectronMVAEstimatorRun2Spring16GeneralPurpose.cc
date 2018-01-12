@@ -79,7 +79,7 @@ float ElectronMVAEstimatorRun2Spring16GeneralPurpose::
 mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
   
   const int iCategory = findCategory( particle );
-  const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );  
+  const std::vector<float> vars = fillMVAVariables( particle, iEvent );
   return mvaValue(iCategory, vars);
 }
 
@@ -90,7 +90,7 @@ mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) con
   iEvent.getByLabel(conversionsLabelAOD_, conversions);
   iEvent.getByLabel(beamSpotLabel_, beamSpot);
   const int iCategory = findCategory( particle );
-  const std::vector<float> vars = std::move( fillMVAVariables( particle, conversions, beamSpot.product() ) );  
+  const std::vector<float> vars = fillMVAVariables( particle, conversions, beamSpot.product() );
   return mvaValue(iCategory, vars);
 }
 
@@ -295,7 +295,7 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr,
   std::vector<float> vars;
 
   if( isEndcapCategory( findCategory( eleRecoPtr ) ) ) {
-    vars = std::move( packMVAVariables(allMVAVars.see,
+    vars = packMVAVariables(allMVAVars.see,
                                        allMVAVars.spp,
                                        allMVAVars.OneMinusE1x5E5x5,
                                        allMVAVars.R9,
@@ -322,10 +322,9 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr,
                                        allMVAVars.pt,
                                        allMVAVars.SCeta,                                       
                                         // Endcap only variables
-                                       allMVAVars.PreShowerOverRaw)
-                      );
+                                       allMVAVars.PreShowerOverRaw);
   } else {
-    vars = std::move( packMVAVariables(allMVAVars.see,
+    vars = packMVAVariables(allMVAVars.see,
                                        allMVAVars.spp,
                                        allMVAVars.OneMinusE1x5E5x5,
                                        allMVAVars.R9,
@@ -349,8 +348,7 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr,
                                        allMVAVars.dphi,
                                        allMVAVars.detacalo,                                       
                                        allMVAVars.pt,
-                                       allMVAVars.SCeta)
-                     );
+                                       allMVAVars.SCeta);
   }
   return vars;
 }

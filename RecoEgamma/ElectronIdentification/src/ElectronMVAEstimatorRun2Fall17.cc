@@ -67,7 +67,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) c
   }
 
   const int iCategory = findCategory( eleRecoPtr.get() );
-  const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );
+  const std::vector<float> vars = fillMVAVariables( particle, iEvent );
   return mvaValue(iCategory, vars);
 }
 
@@ -80,7 +80,7 @@ mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) con
   iEvent.getByLabel(beamSpotLabel_, beamSpot);
   iEvent.getByLabel(rhoLabel_, rho);
   const int iCategory = findCategory( particle );
-  const std::vector<float> vars = std::move( fillMVAVariables( particle, conversions, beamSpot.product(), rho ) );
+  const std::vector<float> vars = fillMVAVariables( particle, conversions, beamSpot.product(), rho );
   return mvaValue(iCategory, vars);
 }
 
