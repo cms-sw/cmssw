@@ -8,7 +8,7 @@
 
 
 namespace l1t {
-    
+
   class HGCalCluster : public HGCalClusterT<l1t::HGCalTriggerCell> {
     
     public:
