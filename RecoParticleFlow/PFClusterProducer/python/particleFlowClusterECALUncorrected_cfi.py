@@ -38,8 +38,8 @@ _localMaxSeeds_ECAL = cms.PSet(
     algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("ECAL_ENDCAP"),
-              seedingThreshold = cms.double(0.6),
-              seedingThresholdPt = cms.double(0.15)
+              seedingThreshold = cms.double(0.50),
+              seedingThresholdPt = cms.double(0.50)
               ),
     cms.PSet( detector = cms.string("ECAL_BARREL"),
               seedingThreshold = cms.double(0.23),
@@ -58,8 +58,8 @@ _topoClusterizer_ECAL = cms.PSet(
               gatheringThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("ECAL_ENDCAP"),
-              gatheringThreshold = cms.double(0.3),
-              gatheringThresholdPt = cms.double(0.0)
+              gatheringThreshold = cms.double(0.50),
+              gatheringThresholdPt = cms.double(0.50)
               )
     ),
     useCornerCells = cms.bool(True)
