@@ -134,6 +134,24 @@ namespace edm {
       thinnedAssociationsHelper_->updateFromParentProcess(thinnedAssociationsHelper, keepAssociation_, droppedBranchIDToKeptBranchID_);
     }
 
+    void OutputModuleBase::updateBranchIDListsWithKeptAliases() {
+      if(!droppedBranchIDToKeptBranchID_.empty()) {
+        // Make a private copy of the BranchIDLists.
+        *branchIDLists_ = *origBranchIDLists_;
+        // Check for branches dropped while an EDAlias was kept.
+        for(BranchIDList& branchIDList : *branchIDLists_) {
+          for(BranchID::value_type& branchID : branchIDList) {
+            // Replace BranchID of each dropped branch with that of the kept
+            // alias, so the alias branch will have the product ID of the original branch.
+            std::map<BranchID::value_type, BranchID::value_type>::const_iterator iter = droppedBranchIDToKeptBranchID_.find(branchID);
+            if(iter != droppedBranchIDToKeptBranchID_.end()) {
+              branchID = iter->second;
+            }
+          }
+        }
+      }
+    }
+
     void OutputModuleBase::keepThisBranch(BranchDescription const& desc,
                         std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
                         std::set<BranchID>& keptProductsInEvent) {
@@ -320,8 +338,9 @@ namespace edm {
     void OutputModuleBase::doOpenFile(FileBlock const& fb) {
       openFile(fb);
     }
-    
+
     void OutputModuleBase::doRespondToOpenInputFile(FileBlock const& fb) {
+      updateBranchIDListsWithKeptAliases();
       doRespondToOpenInputFile_(fb);
     }
     
@@ -339,20 +358,8 @@ namespace edm {
     }
     
     BranchIDLists const*
-    OutputModuleBase::branchIDLists() {
+    OutputModuleBase::branchIDLists() const {
       if(!droppedBranchIDToKeptBranchID_.empty()) {
-        // Make a private copy of the BranchIDLists.
-        *branchIDLists_ = *origBranchIDLists_;
-        // Check for branches dropped while an EDAlias was kept.
-        for(BranchIDList& branchIDList : *branchIDLists_) {
-          for(BranchID::value_type& branchID : branchIDList) {
-            // Replace BranchID of each dropped branch with that of the kept alias, so the alias branch will have the product ID of the original branch.
-            std::map<BranchID::value_type, BranchID::value_type>::const_iterator iter = droppedBranchIDToKeptBranchID_.find(branchID);
-            if(iter != droppedBranchIDToKeptBranchID_.end()) {
-              branchID = iter->second;
-            }
-          }
-        }
         return branchIDLists_.get();
       }
       return origBranchIDLists_;
