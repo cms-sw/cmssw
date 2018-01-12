@@ -42,7 +42,7 @@ float ElectronMVAEstimatorRun2Phys14NonTrig::
 mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& evt) const {
   
   const int iCategory = findCategory( particle );
-  const std::vector<float> vars = std::move( fillMVAVariables( particle, evt ) );  
+  const std::vector<float> vars = fillMVAVariables( particle, evt );
   const float result = _gbrForests.at(iCategory)->GetClassifier(vars.data());
 
   constexpr bool debug = false;
@@ -199,7 +199,7 @@ ElectronMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const edm::Ptr<reco::Can
   std::vector<float> vars;
 
   if( isEndcapCategory( findCategory(particle) ) ) {
-    vars = std::move( packMVAVariables( allMVAVars.kfhits,
+    vars = packMVAVariables( allMVAVars.kfhits,
                                         allMVAVars.see,
                                         allMVAVars.spp,
                                         allMVAVars.OneMinusE1x5E5x5,
@@ -220,10 +220,9 @@ ElectronMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const edm::Ptr<reco::Can
                                         allMVAVars.pt,
                                         allMVAVars.isBarrel,
                                         allMVAVars.isEndcap,
-                                        allMVAVars.SCeta )
-                      );
+                                        allMVAVars.SCeta );
   } else {
-    vars = std::move( packMVAVariables( allMVAVars.kfhits,
+    vars = packMVAVariables( allMVAVars.kfhits,
                                         allMVAVars.see,
                                         allMVAVars.spp,
                                         allMVAVars.OneMinusE1x5E5x5,
@@ -243,8 +242,7 @@ ElectronMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const edm::Ptr<reco::Can
                                         allMVAVars.pt,
                                         allMVAVars.isBarrel,
                                         allMVAVars.isEndcap,
-                                        allMVAVars.SCeta )
-                      );
+                                        allMVAVars.SCeta );
   }
 
   return vars;
