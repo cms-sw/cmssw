@@ -62,11 +62,12 @@ class MuonGmtPair;
 
 class L1TMuonDQMOffline : public DQMEDAnalyzer {
     public:
-        enum control {CTRL_TAGPT, CTRL_TAGETA, CTRL_TAGPHI, CTRL_PROBEPT, CTRL_PROBEETA, CTRL_PROBEPHI, CTRL_TAGPROBEDR, CTRL_MUONGMTDELTAR, CTRL_NTIGHTVSALL, CTRL_NPROBESVSTIGHT};
-        enum effType {EFF_PT, EFF_PHI, EFF_ETA, EFF_VTX};
-        enum resType {RES_PT, RES_1OVERPT, RES_QOVERPT, RES_PHI, RES_ETA, RES_CH};
-        enum etaRegion {ETAREGION_ALL, ETAREGION_BMTF, ETAREGION_OMTF, ETAREGION_EMTF, ETAREGION_OUT};
-        enum qualLevel {QUAL_ALL, QUAL_OPEN, QUAL_DOUBLE, QUAL_SINGLE};
+        enum Control {kCtrlTagPt, kCtrlTagEta, kCtrlTagPhi, kCtrlProbePt, kCtrlProbeEta, kCtrlProbePhi, kCtrlTagProbeDr, kCtrlMuonGmtDeltaR, kCtrlNTightVsAll, kCtrlNProbesVsTight};
+        enum EffType {kEffPt, kEffPhi, kEffEta, kEffVtx};
+        enum ResType {kResPt, kRes1OverPt, kResQOverPt, kResPhi, kResEta, kResCh};
+        enum EtaRegion {kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf, kEtaRegionOut};
+        enum QualLevel {kQualAll, kQualOpen, kQualDouble, kQualSingle};
+
         L1TMuonDQMOffline(const edm::ParameterSet& ps);
         ~L1TMuonDQMOffline() override;
 
@@ -97,23 +98,23 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         edm::ESHandle<Propagator> m_propagatorAlong;
         edm::ESHandle<Propagator> m_propagatorOpposite;
 
-        std::vector<float> getHistBinsEff(effType eff);
-        std::tuple<int, double, double> getHistBinsRes(resType res);
+        std::vector<float> getHistBinsEff(EffType eff);
+        std::tuple<int, double, double> getHistBinsRes(ResType res);
 
         // Keys for histogram maps
-        typedef std::tuple<resType, etaRegion, qualLevel> m_histoKeyResType; // resolution histograms
-        typedef std::tuple<effType, int, etaRegion, qualLevel> m_histoKeyEffNumVarType; // efficiency numerator histograms for all variables except eta
-        typedef std::pair<int, qualLevel> m_histoKeyEffNumEtaType; // efficiency numerator histograms for eta variable
-        typedef std::tuple<effType, int, etaRegion> m_histoKeyEffDenVarType; // efficiency denominator histograms for all variables except eta
+        typedef std::tuple<ResType, EtaRegion, QualLevel> m_histoKeyResType; // resolution histograms
+        typedef std::tuple<EffType, int, EtaRegion, QualLevel> m_histoKeyEffNumVarType; // efficiency numerator histograms for all variables except eta
+        typedef std::pair<int, QualLevel> m_histoKeyEffNumEtaType; // efficiency numerator histograms for eta variable
+        typedef std::tuple<EffType, int, EtaRegion> m_histoKeyEffDenVarType; // efficiency denominator histograms for all variables except eta
 
         // Histograms and histogram containers
-        std::map<std::tuple<effType, int, etaRegion, qualLevel>, MonitorElement*> m_EfficiencyNumVarHistos;
-        std::map<std::pair<int, qualLevel>, MonitorElement*> m_EfficiencyNumEtaHistos;
-        std::map<std::tuple<effType, int, etaRegion>, MonitorElement*> m_EfficiencyDenVarHistos;
-        std::map<etaRegion, MonitorElement*> m_EfficiencyDenPtHistos;
+        std::map<std::tuple<EffType, int, EtaRegion, QualLevel>, MonitorElement*> m_EfficiencyNumVarHistos;
+        std::map<std::pair<int, QualLevel>, MonitorElement*> m_EfficiencyNumEtaHistos;
+        std::map<std::tuple<EffType, int, EtaRegion>, MonitorElement*> m_EfficiencyDenVarHistos;
+        std::map<EtaRegion, MonitorElement*> m_EfficiencyDenPtHistos;
         std::map<int, MonitorElement*> m_EfficiencyDenEtaHistos;
-        std::map<std::tuple<resType, etaRegion, qualLevel>, MonitorElement*> m_ResolutionHistos;
-        std::map<control, MonitorElement*> m_ControlHistos;
+        std::map<std::tuple<ResType, EtaRegion, QualLevel>, MonitorElement*> m_ResolutionHistos;
+        std::map<Control, MonitorElement*> m_ControlHistos;
 
         // helper variables
         std::vector<const reco::Muon*> m_TightMuons;
@@ -125,21 +126,21 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         std::vector<reco::Muon> m_RecoRecoMuons;
         BXVector<l1t::Muon> m_L1tL1tMuons;
 
-        std::vector<std::pair<int, qualLevel>> m_cuts;
+        std::vector<std::pair<int, QualLevel>> m_cuts;
 
         // vectors of enum values to loop over
-        const std::vector<effType> m_effTypes;
-        const std::vector<resType> m_resTypes;
-        const std::vector<etaRegion> m_etaRegions;
-        const std::vector<qualLevel> m_qualLevelsRes;
+        const std::vector<EffType> m_effTypes;
+        const std::vector<ResType> m_resTypes;
+        const std::vector<EtaRegion> m_etaRegions;
+        const std::vector<QualLevel> m_qualLevelsRes;
 
         // maps with histogram name bits
-        std::map<effType, std::string> m_effStrings;
-        std::map<effType, std::string> m_effLabelStrings;
-        std::map<resType, std::string> m_resStrings;
-        std::map<resType, std::string> m_resLabelStrings;
-        std::map<etaRegion, std::string> m_etaStrings;
-        std::map<qualLevel, std::string> m_qualStrings;
+        std::map<EffType, std::string> m_effStrings;
+        std::map<EffType, std::string> m_effLabelStrings;
+        std::map<ResType, std::string> m_resStrings;
+        std::map<ResType, std::string> m_resLabelStrings;
+        std::map<EtaRegion, std::string> m_etaStrings;
+        std::map<QualLevel, std::string> m_qualStrings;
 
         // config params
         bool  m_verbose;
@@ -189,9 +190,9 @@ class MuonGmtPair {
         int gmtCharge() const {return m_regMu ? m_regMu->charge() : -5; };
         int gmtQual() const { return m_regMu ? m_regMu->hwQual() : -1; };
 
-        L1TMuonDQMOffline::etaRegion etaRegion() const;
-        double getDeltaVar(const L1TMuonDQMOffline::resType) const;
-        double getVar(const L1TMuonDQMOffline::effType) const;
+        L1TMuonDQMOffline::EtaRegion etaRegion() const;
+        double getDeltaVar(const L1TMuonDQMOffline::ResType) const;
+        double getVar(const L1TMuonDQMOffline::EffType) const;
 
         void propagate(edm::ESHandle<MagneticField> bField,
         edm::ESHandle<Propagator> propagatorAlong,

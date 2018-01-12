@@ -82,27 +82,27 @@ void MuonGmtPair::propagate(ESHandle<MagneticField> bField,
     }
 }
 
-L1TMuonDQMOffline::etaRegion MuonGmtPair::etaRegion() const {
-    if (std::abs(eta()) < 0.83) return L1TMuonDQMOffline::ETAREGION_BMTF;
-    if (std::abs(eta()) < 1.24) return L1TMuonDQMOffline::ETAREGION_OMTF;
-    if (std::abs(eta()) < 2.4)  return L1TMuonDQMOffline::ETAREGION_EMTF;
-    return L1TMuonDQMOffline::ETAREGION_OUT;
+L1TMuonDQMOffline::EtaRegion MuonGmtPair::etaRegion() const {
+    if (std::abs(eta()) < 0.83) return L1TMuonDQMOffline::kEtaRegionBmtf;
+    if (std::abs(eta()) < 1.24) return L1TMuonDQMOffline::kEtaRegionOmtf;
+    if (std::abs(eta()) < 2.4)  return L1TMuonDQMOffline::kEtaRegionEmtf;
+    return L1TMuonDQMOffline::kEtaRegionOut;
 }
 
-double MuonGmtPair::getDeltaVar(const L1TMuonDQMOffline::resType type) const {
-    if (type == L1TMuonDQMOffline::RES_PT)      return gmtPt() - pt();
-    if (type == L1TMuonDQMOffline::RES_1OVERPT) return 1/gmtPt() - 1/pt();
-    if (type == L1TMuonDQMOffline::RES_QOVERPT) return gmtCharge()/gmtPt() - charge()/pt();
-    if (type == L1TMuonDQMOffline::RES_PHI)     return gmtPhi() - phi();
-    if (type == L1TMuonDQMOffline::RES_ETA)     return gmtEta() - eta();
-    if (type == L1TMuonDQMOffline::RES_CH)      return gmtCharge() - charge();
+double MuonGmtPair::getDeltaVar(const L1TMuonDQMOffline::ResType type) const {
+    if (type == L1TMuonDQMOffline::kResPt)      return gmtPt() - pt();
+    if (type == L1TMuonDQMOffline::kRes1OverPt) return 1/gmtPt() - 1/pt();
+    if (type == L1TMuonDQMOffline::kResQOverPt) return gmtCharge()/gmtPt() - charge()/pt();
+    if (type == L1TMuonDQMOffline::kResPhi)     return gmtPhi() - phi();
+    if (type == L1TMuonDQMOffline::kResEta)     return gmtEta() - eta();
+    if (type == L1TMuonDQMOffline::kResCh)      return gmtCharge() - charge();
     return -999.;
 }
 
-double MuonGmtPair::getVar(const L1TMuonDQMOffline::effType type) const {
-    if (type == L1TMuonDQMOffline::EFF_PT)  return pt();
-    if (type == L1TMuonDQMOffline::EFF_PHI) return phi();
-    if (type == L1TMuonDQMOffline::EFF_ETA) return eta();
+double MuonGmtPair::getVar(const L1TMuonDQMOffline::EffType type) const {
+    if (type == L1TMuonDQMOffline::kEffPt)  return pt();
+    if (type == L1TMuonDQMOffline::kEffPhi) return phi();
+    if (type == L1TMuonDQMOffline::kEffEta) return eta();
     return -999.;
 }
 
@@ -146,16 +146,16 @@ FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(TrackRef track)
 
 //__________DQM_base_class_______________________________________________
 L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
-    m_effTypes({EFF_PT, EFF_PHI, EFF_ETA, EFF_VTX}),
-    m_resTypes({RES_PT, RES_1OVERPT, RES_QOVERPT, RES_PHI, RES_ETA}),
-    m_etaRegions({ETAREGION_ALL, ETAREGION_BMTF, ETAREGION_OMTF, ETAREGION_EMTF}),
-    m_qualLevelsRes({QUAL_ALL}),
-    m_effStrings({ {EFF_PT, "pt"}, {EFF_PHI, "phi"}, {EFF_ETA, "eta"}, {EFF_VTX, "vtx"} }),
-    m_effLabelStrings({ {EFF_PT, "p_{T} (GeV)"}, {EFF_PHI, "#phi"}, {EFF_ETA, "#eta"}, {EFF_VTX, "# vertices"} }),
-    m_resStrings({ {RES_PT, "pt"}, {RES_1OVERPT, "1overpt"}, {RES_QOVERPT, "qoverpt"}, {RES_PHI, "phi"}, {RES_ETA, "eta"}, {RES_CH, "charge"} }),
-    m_resLabelStrings({ {RES_PT, "p_{T}^{L1} - p_{T}^{reco}"}, {RES_1OVERPT, "1/p_{T}^{L1} - 1/p_{T}^{reco}"}, {RES_QOVERPT, "q^{L1}/p_{T}^{L1} - q^{reco}/p_{T}^{reco}"}, {RES_PHI, "#phi_{L1} - #phi_{reco}"}, {RES_ETA, "#eta_{L1} - #eta_{reco}"}, {RES_CH, "charge^{L1} - charge^{reco}"} }),
-    m_etaStrings({ {ETAREGION_ALL, "etaMin0_etaMax2p4"}, {ETAREGION_BMTF, "etaMin0_etaMax0p83"}, {ETAREGION_OMTF, "etaMin0p83_etaMax1p24"}, {ETAREGION_EMTF, "etaMin1p24_etaMax2p4"} }),
-    m_qualStrings({ {QUAL_ALL, "qualAll"}, {QUAL_OPEN, "qualOpen"}, {QUAL_DOUBLE, "qualDouble"}, {QUAL_SINGLE, "qualSingle"} }),
+    m_effTypes({kEffPt, kEffPhi, kEffEta, kEffVtx}),
+    m_resTypes({kResPt, kRes1OverPt, kResQOverPt, kResPhi, kResEta}),
+    m_etaRegions({kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf}),
+    m_qualLevelsRes({kQualAll}),
+    m_effStrings({ {kEffPt, "pt"}, {kEffPhi, "phi"}, {kEffEta, "eta"}, {kEffVtx, "vtx"} }),
+    m_effLabelStrings({ {kEffPt, "p_{T} (GeV)"}, {kEffPhi, "#phi"}, {kEffEta, "#eta"}, {kEffVtx, "# vertices"} }),
+    m_resStrings({ {kResPt, "pt"}, {kRes1OverPt, "1overpt"}, {kResQOverPt, "qoverpt"}, {kResPhi, "phi"}, {kResEta, "eta"}, {kResCh, "charge"} }),
+    m_resLabelStrings({ {kResPt, "p_{T}^{L1} - p_{T}^{reco}"}, {kRes1OverPt, "1/p_{T}^{L1} - 1/p_{T}^{reco}"}, {kResQOverPt, "q^{L1}/p_{T}^{L1} - q^{reco}/p_{T}^{reco}"}, {kResPhi, "#phi_{L1} - #phi_{reco}"}, {kResEta, "#eta_{L1} - #eta_{reco}"}, {kResCh, "charge^{L1} - charge^{reco}"} }),
+    m_etaStrings({ {kEtaRegionAll, "etaMin0_etaMax2p4"}, {kEtaRegionBmtf, "etaMin0_etaMax0p83"}, {kEtaRegionOmtf, "etaMin0p83_etaMax1p24"}, {kEtaRegionEmtf, "etaMin1p24_etaMax2p4"} }),
+    m_qualStrings({ {kQualAll, "qualAll"}, {kQualOpen, "qualOpen"}, {kQualDouble, "qualDouble"}, {kQualSingle, "qualSingle"} }),
     m_verbose(ps.getUntrackedParameter<bool>("verbose")),
     m_HistFolder(ps.getUntrackedParameter<string>("histFolder")),
     m_TagPtCut(ps.getUntrackedParameter<double>("tagPtCut")),
@@ -182,13 +182,13 @@ L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
 
     for (const auto cutsPSet : m_cutsVPSet) {
         const auto qCut = cutsPSet.getUntrackedParameter<int>("qualCut");
-        qualLevel qLevel = QUAL_ALL;
+        QualLevel qLevel = kQualAll;
         if (qCut > 11) {
-            qLevel = QUAL_SINGLE;
+            qLevel = kQualSingle;
         } else if (qCut > 7) {
-            qLevel = QUAL_DOUBLE;
+            qLevel = kQualDouble;
         } else if (qCut > 3) {
-            qLevel = QUAL_OPEN;
+            qLevel = kQualOpen;
         }
         m_cuts.emplace_back(std::make_pair(cutsPSet.getUntrackedParameter<int>("ptCut"), qLevel));
     }
@@ -274,13 +274,13 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
 
     // To fill once for global eta and once for TF eta region of the L1T muon.
     // The second entry is a placeholder and will be replaced by the TF eta region of the L1T muon.
-    std::array<etaRegion, 2> regsToFill { {ETAREGION_ALL, ETAREGION_ALL} };
+    std::array<EtaRegion, 2> regsToFill { {kEtaRegionAll, kEtaRegionAll} };
 
     for(; muonGmtPairsIt!=muonGmtPairsEnd; ++muonGmtPairsIt) {
         // Fill the resolution histograms
-        if( (muonGmtPairsIt->etaRegion() != ETAREGION_OUT) && (muonGmtPairsIt->gmtPt() > 0) ){
+        if( (muonGmtPairsIt->etaRegion() != kEtaRegionOut) && (muonGmtPairsIt->gmtPt() > 0) ){
             regsToFill[1] = muonGmtPairsIt->etaRegion();
-            m_histoKeyResType histoKeyRes = {RES_PT, ETAREGION_ALL, QUAL_ALL};
+            m_histoKeyResType histoKeyRes = {kResPt, kEtaRegionAll, kQualAll};
             for (const auto var : m_resTypes) {
                 const auto varToFill = muonGmtPairsIt->getDeltaVar(var);
                 std::get<0>(histoKeyRes) = var;
@@ -301,7 +301,7 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
         }
 
         // Fill the efficiency numerator and denominator histograms
-        if (muonGmtPairsIt->etaRegion() != ETAREGION_OUT) {
+        if (muonGmtPairsIt->etaRegion() != kEtaRegionOut) {
             unsigned int cutsCounter = 0;
             for (const auto cut : m_cuts) {
                 const auto gmtPtCut = cut.first;
@@ -309,28 +309,28 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
                 const bool gmtAboveCut = (muonGmtPairsIt->gmtPt() > gmtPtCut);
 
                 // default keys
-                m_histoKeyEffDenVarType histoKeyEffDenVar = {EFF_PT, gmtPtCut, ETAREGION_ALL};
-                m_histoKeyEffNumVarType histoKeyEffNumVar = {EFF_PT, gmtPtCut, ETAREGION_ALL, qualLevel};
+                m_histoKeyEffDenVarType histoKeyEffDenVar = {kEffPt, gmtPtCut, kEtaRegionAll};
+                m_histoKeyEffNumVarType histoKeyEffNumVar = {kEffPt, gmtPtCut, kEtaRegionAll, qualLevel};
 
                 regsToFill[1] = muonGmtPairsIt->etaRegion();
                 for(const auto var : m_effTypes) {
-                    if(var != EFF_PT){
+                    if(var != kEffPt){
                        if (muonGmtPairsIt->pt() < m_recoToL1PtCutFactor * gmtPtCut) break; // efficiency at plateau
                     }
                     double varToFill;
-                    if (var == EFF_VTX) {
+                    if (var == kEffVtx) {
                         varToFill = static_cast<double>(nVtx);
                     } else {
                         varToFill = muonGmtPairsIt->getVar(var);
                     }
                     // Fill denominators
-                    if (var == EFF_ETA) {
+                    if (var == kEffEta) {
                         m_EfficiencyDenEtaHistos[gmtPtCut]->Fill(varToFill);
                     } else {
                         std::get<0>(histoKeyEffDenVar) = var;
                         // Fill for the global eta and for TF eta region that the probe muon is in
                         for (const auto regToFill : regsToFill) {
-                            if (var == EFF_PT) {
+                            if (var == kEffPt) {
                                 if (cutsCounter == 0) {
                                     m_EfficiencyDenPtHistos[regToFill]->Fill(varToFill);
                                 }
@@ -344,7 +344,7 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
                     std::get<0>(histoKeyEffNumVar) = var;
                     // This assumes that the qualLevel enum has increasing qualities
                     if (gmtAboveCut && muonGmtPairsIt->gmtQual() >= qualLevel * 4) {
-                        if (var == EFF_ETA) {
+                        if (var == kEffEta) {
                             m_histoKeyEffNumEtaType histoKeyEffNumEta = {gmtPtCut, qualLevel};
                             m_EfficiencyNumEtaHistos[histoKeyEffNumEta]->Fill(varToFill);
                         } else {
@@ -371,19 +371,19 @@ void L1TMuonDQMOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
 
     ibooker.setCurrentFolder(m_HistFolder+"/control_variables");
 
-    m_ControlHistos[CTRL_MUONGMTDELTAR] = ibooker.book1D("MuonGmtDeltaR", "MuonGmtDeltaR; #DeltaR", 50, 0., 0.5);
-    m_ControlHistos[CTRL_NTIGHTVSALL] = ibooker.book2D("NTightVsAll", "NTightVsAll; # muons; # tight muons", 20, -0.5, 19.5, 16, -0.5, 15.5);
-    m_ControlHistos[CTRL_NPROBESVSTIGHT] = ibooker.book2D("NProbesVsTight", "NProbesVsTight; # tight muons; # probe muons", 8, -0.5, 7.5, 8, -0.5, 7.5);
+    m_ControlHistos[kCtrlMuonGmtDeltaR] = ibooker.book1D("MuonGmtDeltaR", "MuonGmtDeltaR; #DeltaR", 50, 0., 0.5);
+    m_ControlHistos[kCtrlNTightVsAll] = ibooker.book2D("NTightVsAll", "NTightVsAll; # muons; # tight muons", 20, -0.5, 19.5, 16, -0.5, 15.5);
+    m_ControlHistos[kCtrlNProbesVsTight] = ibooker.book2D("NProbesVsTight", "NProbesVsTight; # tight muons; # probe muons", 8, -0.5, 7.5, 8, -0.5, 7.5);
 
-    m_ControlHistos[CTRL_TAGPT] = ibooker.book1D("TagMuonPt", "TagMuonPt; p_{T}", 50, 0., 100.);
-    m_ControlHistos[CTRL_TAGPHI] = ibooker.book1D("TagMuonPhi", "TagMuonPhi; #phi", 66, -3.3, 3.3);
-    m_ControlHistos[CTRL_TAGETA] = ibooker.book1D("TagMuonEta", "TagMuonEta; #eta", 50, -2.5, 2.5);
+    m_ControlHistos[kCtrlTagPt] = ibooker.book1D("TagMuonPt", "TagMuonPt; p_{T}", 50, 0., 100.);
+    m_ControlHistos[kCtrlTagPhi] = ibooker.book1D("TagMuonPhi", "TagMuonPhi; #phi", 66, -3.3, 3.3);
+    m_ControlHistos[kCtrlTagEta] = ibooker.book1D("TagMuonEta", "TagMuonEta; #eta", 50, -2.5, 2.5);
 
-    m_ControlHistos[CTRL_PROBEPT] = ibooker.book1D("ProbeMuonPt", "ProbeMuonPt; p_{T}", 50, 0., 100.);
-    m_ControlHistos[CTRL_PROBEPHI] = ibooker.book1D("ProbeMuonPhi", "ProbeMuonPhi; #phi", 66, -3.3, 3.3);
-    m_ControlHistos[CTRL_PROBEETA] = ibooker.book1D("ProbeMuonEta", "ProbeMuonEta; #eta", 50, -2.5, 2.5);
+    m_ControlHistos[kCtrlProbePt] = ibooker.book1D("ProbeMuonPt", "ProbeMuonPt; p_{T}", 50, 0., 100.);
+    m_ControlHistos[kCtrlProbePhi] = ibooker.book1D("ProbeMuonPhi", "ProbeMuonPhi; #phi", 66, -3.3, 3.3);
+    m_ControlHistos[kCtrlProbeEta] = ibooker.book1D("ProbeMuonEta", "ProbeMuonEta; #eta", 50, -2.5, 2.5);
 
-    m_ControlHistos[CTRL_TAGPROBEDR] = ibooker.book1D("TagMuonProbeMuonDeltaR", "TagMuonProbeMuonDeltaR; #DeltaR", 50, 0.,5.0);
+    m_ControlHistos[kCtrlTagProbeDr] = ibooker.book1D("TagMuonProbeMuonDeltaR", "TagMuonProbeMuonDeltaR; #DeltaR", 50, 0.,5.0);
 }
 
 //_____________________________________________________________________
@@ -393,7 +393,7 @@ void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker) {
     for(const auto var : m_effTypes) {
         auto histBins = getHistBinsEff(var);
         // histograms for eta variable get a special treatment
-        if (var == EFF_ETA) {
+        if (var == kEffEta) {
             for (const auto cut : m_cuts) {
                 const auto gmtPtCut = cut.first;
                 const auto qualLevel = cut.second;
@@ -406,7 +406,7 @@ void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker) {
         } else {
             for (const auto etaReg : m_etaRegions) {
                 // denominator histograms for pt variable get a special treatment
-                if (var == EFF_PT) {
+                if (var == kEffPt) {
                     std::string name = "effDen_"+m_effStrings[var]+"_"+m_etaStrings[etaReg];
                     m_EfficiencyDenPtHistos[etaReg] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
                 } else {
@@ -506,7 +506,7 @@ void L1TMuonDQMOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons,
             m_TightMuons.push_back(&(*muonIt));
         }
     }
-    m_ControlHistos[CTRL_NTIGHTVSALL]->Fill(muons->size(), m_TightMuons.size());
+    m_ControlHistos[kCtrlNTightVsAll]->Fill(muons->size(), m_TightMuons.size());
 }
 
 //_____________________________________________________________________
@@ -551,16 +551,16 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
                     if (tagMuonAlreadyInHist == false) tagMuonsInHist.push_back((*tagCandIt));
                 }
                 if (tagMuonAlreadyInHist == false) {
-                    m_ControlHistos[CTRL_TAGETA]->Fill(eta);
-                    m_ControlHistos[CTRL_TAGPHI]->Fill(phi);
-                    m_ControlHistos[CTRL_TAGPT]->Fill(pt);
-                    m_ControlHistos[CTRL_TAGPROBEDR]->Fill(deltar);
+                    m_ControlHistos[kCtrlTagEta]->Fill(eta);
+                    m_ControlHistos[kCtrlTagPhi]->Fill(phi);
+                    m_ControlHistos[kCtrlTagPt]->Fill(pt);
+                    m_ControlHistos[kCtrlTagProbeDr]->Fill(deltar);
                 }
             }
         }
         if (isProbe) m_ProbeMuons.push_back((*probeCandIt));
     }
-    m_ControlHistos[CTRL_NPROBESVSTIGHT]->Fill(m_TightMuons.size(), m_ProbeMuons.size());
+    m_ControlHistos[kCtrlNProbesVsTight]->Fill(m_TightMuons.size(), m_ProbeMuons.size());
 }
 
 //_____________________________________________________________________
@@ -576,9 +576,9 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
     l1t::MuonBxCollection::const_iterator gmtEnd = gmtCands->end(0);
 
     for (; probeMuIt!=probeMuEnd; ++probeMuIt) {
-        m_ControlHistos[CTRL_PROBEETA]->Fill((*probeMuIt)->eta());
-        m_ControlHistos[CTRL_PROBEPHI]->Fill((*probeMuIt)->phi());
-        m_ControlHistos[CTRL_PROBEPT]->Fill((*probeMuIt)->pt());
+        m_ControlHistos[kCtrlProbeEta]->Fill((*probeMuIt)->eta());
+        m_ControlHistos[kCtrlProbePhi]->Fill((*probeMuIt)->phi());
+        m_ControlHistos[kCtrlProbePt]->Fill((*probeMuIt)->pt());
 
         MuonGmtPair pairBestCand((*probeMuIt), nullptr, m_useAtVtxCoord);
 //      pairBestCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
@@ -594,7 +594,7 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
 
         }
         m_MuonGmtPairs.push_back(pairBestCand);
-        m_ControlHistos[CTRL_MUONGMTDELTAR]->Fill(pairBestCand.dR());
+        m_ControlHistos[kCtrlMuonGmtDeltaR]->Fill(pairBestCand.dR());
     }
 }
 
@@ -627,33 +627,33 @@ bool L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, cons
     return (matchDeltaR < m_maxHltMuonDR);
 }
 
-std::vector<float> L1TMuonDQMOffline::getHistBinsEff(effType eff) {
-    if (eff == EFF_PT) {
+std::vector<float> L1TMuonDQMOffline::getHistBinsEff(EffType eff) {
+    if (eff == kEffPt) {
         std::vector<float> effVsPtBins(m_effVsPtBins.begin(), m_effVsPtBins.end());
         return effVsPtBins;
     }
-    if (eff == EFF_PHI) {
+    if (eff == kEffPhi) {
         std::vector<float> effVsPhiBins(m_effVsPhiBins.begin(), m_effVsPhiBins.end());
         return effVsPhiBins;
     }
-    if (eff == EFF_ETA) {
+    if (eff == kEffEta) {
         std::vector<float> effVsEtaBins(m_effVsEtaBins.begin(), m_effVsEtaBins.end());
         return effVsEtaBins;
     }
-    if (eff == EFF_VTX) {
+    if (eff == kEffVtx) {
         std::vector<float> effVsVtxBins(m_effVsVtxBins.begin(), m_effVsVtxBins.end());
         return effVsVtxBins;
     }
     return {0., 1.};
 }
 
-std::tuple<int, double, double> L1TMuonDQMOffline::getHistBinsRes(resType res){
-    if (res == RES_PT)      return {100, -50., 50.};
-    if (res == RES_1OVERPT) return {50, -0.05, 0.05};
-    if (res == RES_QOVERPT) return {50, -0.05, 0.05};
-    if (res == RES_PHI)     return {96, -0.2, 0.2};
-    if (res == RES_ETA)     return {100, -0.1, 0.1};
-    if (res == RES_CH)      return {5, -2, 3};
+std::tuple<int, double, double> L1TMuonDQMOffline::getHistBinsRes(ResType res){
+    if (res == kResPt)      return {100, -50., 50.};
+    if (res == kRes1OverPt) return {50, -0.05, 0.05};
+    if (res == kResQOverPt) return {50, -0.05, 0.05};
+    if (res == kResPhi)     return {96, -0.2, 0.2};
+    if (res == kResEta)     return {100, -0.1, 0.1};
+    if (res == kResCh)      return {5, -2, 3};
     return {1, 0, 1};
 }
 
