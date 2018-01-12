@@ -194,12 +194,6 @@ void Herwig7Interface::callHerwigGenerator()
 	      << what << "\n";
     return;
   }
-  catch ( ... ) {
-    edm::LogError("Herwig7Interface") << ": Unknown exception caught.\n";
-    return;
-  }
-
-
 
 }
 

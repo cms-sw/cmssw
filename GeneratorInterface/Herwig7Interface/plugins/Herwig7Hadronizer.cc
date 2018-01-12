@@ -113,10 +113,7 @@ bool Herwig7Hadronizer::generatePartonsAndHadronize()
         } catch (std::exception& exc) {
                 edm::LogWarning("Generator|Herwig7Hadronizer") << "EGPtr::shoot() thrown an exception, event skipped: " << exc.what();
                 return false;
-        } catch (...) {
-                edm::LogWarning("Generator|Herwig7Hadronizer") << "EGPtr::shoot() thrown an unknown exception, event skipped";
-                return false;
-        }        
+        } 
         
 	if (!thepegEvent) {
 		edm::LogWarning("Generator|Herwig7Hadronizer") << "thepegEvent not initialized";
