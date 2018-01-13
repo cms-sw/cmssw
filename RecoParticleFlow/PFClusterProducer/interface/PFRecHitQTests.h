@@ -262,6 +262,10 @@ public:
         depths_=pset.getParameter<std::vector<int> >("depth");
         thresholds_=pset.getParameter<std::vector<double> >("threshold");
 	detector_=pset.getParameter<int>("detectorEnum");
+        if(thresholds_.size()!=depths_.size()) {
+          throw cms::Exception("InvalidPFRecHitThreshold")
+            << "PFRecHitThreshold mismatch with the numbers of depths";
+        }
       }
     }
 

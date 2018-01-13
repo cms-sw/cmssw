@@ -184,11 +184,18 @@ growPFClusters(const reco::PFCluster& topo,
 
     std::pair<std::vector<int>,std::vector<double> > recHitEnergyNormDepthPair = _recHitEnergyNorms.find(cell_layer)->second;
 
-    const std::vector<double> recHitEnergyNormV = recHitEnergyNormDepthPair.second;
-    const std::vector<int> recHitDepthV = recHitEnergyNormDepthPair.first;
+    const std::vector<double>& recHitEnergyNormV = recHitEnergyNormDepthPair.second;
+    const std::vector<int>& recHitDepthV = recHitEnergyNormDepthPair.first;
 
     math::XYZPoint topocellpos_xyz(refhit->position());
     dist2.clear(); frac.clear(); fractot = 0;
+
+    double recHitEnergyNorm=0.;
+    for (unsigned int j=0; j<recHitEnergyNormV.size(); ++j) {
+      if((cell_layer == PFLayer::HCAL_BARREL1 || cell_layer == PFLayer::HCAL_ENDCAP) && refhit->depth()!=recHitDepthV[j]) continue;
+      recHitEnergyNorm = recHitEnergyNormV[j];
+    }
+
     // add rechits to clusters, calculating fraction based on distance
     for( auto& cluster : clusters ) {      
       const math::XYZPoint& clusterpos_xyz = cluster.position();
@@ -200,14 +207,6 @@ growPFClusters(const reco::PFCluster& topo,
 	  << "Warning! :: pfcluster-topocell distance is too large! d= "
 	  << d2;
       }
-
-      double recHitEnergyNorm=0.;
-
-      for (unsigned int j=0; j<recHitEnergyNormV.size(); ++j) {
-	if((cell_layer == PFLayer::HCAL_BARREL1 || cell_layer == PFLayer::HCAL_ENDCAP) && refhit->depth()!=recHitDepthV[j]) continue;
-	recHitEnergyNorm = recHitEnergyNormV[j];
-      }
-
 
       // fraction assignment logic
       double fraction;
