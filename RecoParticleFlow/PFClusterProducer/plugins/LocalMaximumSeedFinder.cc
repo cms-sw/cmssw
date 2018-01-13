@@ -40,6 +40,10 @@ LocalMaximumSeedFinder(const edm::ParameterSet& conf) :
       depths = pset.getParameter<std::vector<int> >("depths");
       thresh_E = pset.getParameter<std::vector<double> >("seedingThreshold");
       thresh_pT = pset.getParameter<std::vector<double> >("seedingThresholdPt");
+      if(thresh_E.size()!=depths.size() || thresh_pT.size()!=depths.size()) {
+	throw cms::Exception("InvalidGatheringThreshold")
+	  << "gatheringThresholds mismatch with the numbers of depths";
+      }
     } else {
       depths.push_back(0);
       thresh_E.push_back(pset.getParameter<double>("seedingThreshold"));

@@ -54,6 +54,10 @@ class InitialClusteringStepBase {
 	depths = pset.getParameter<std::vector<int> >("depths");
 	thresh_E = pset.getParameter<std::vector<double> >("gatheringThreshold");
 	thresh_pT = pset.getParameter<std::vector<double> >("gatheringThresholdPt");
+	if(thresh_E.size()!=depths.size() || thresh_pT.size()!=depths.size()) {
+	  throw cms::Exception("InvalidGatheringThreshold")
+	    << "gatheringThresholds mismatch with the numbers of depths";
+	}
       } else {
 	depths.push_back(0);
 	thresh_E.push_back(pset.getParameter<double>("gatheringThreshold"));
