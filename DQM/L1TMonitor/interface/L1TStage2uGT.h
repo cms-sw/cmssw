@@ -68,7 +68,7 @@ private:
    bool verbose_; // verbosity switch
 
    // To get the algo bits corresponding to algo names
-   l1t::L1TGlobalUtil* gtUtil_;
+   std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
 
    // For the timing histograms
    int algoBitFirstBxInTrain_;

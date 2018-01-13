@@ -16,22 +16,17 @@ L1TStage2uGT::L1TStage2uGT(const edm::ParameterSet& params):
    l1tStage2uGtSource_(consumes<GlobalAlgBlkBxCollection>(params.getParameter<edm::InputTag>("l1tStage2uGtSource"))),
    monitorDir_(params.getUntrackedParameter<std::string> ("monitorDir", "")),
    verbose_(params.getUntrackedParameter<bool>("verbose", false)),
+   gtUtil_(new l1t::L1TGlobalUtil(params, consumesCollector(), *this, params.getParameter<edm::InputTag>("l1tStage2uGtSource"), params.getParameter<edm::InputTag>("l1tStage2uGtSource"))),
    algoBitFirstBxInTrain_(-1),
    algoBitLastBxInTrain_(-1),
    algoNameFirstBxInTrain_(params.getUntrackedParameter<std::string>("firstBXInTrainAlgo","")),
    algoNameLastBxInTrain_(params.getUntrackedParameter<std::string>("lastBXInTrainAlgo",""))
 {
-   // Get the trigger bits corresponding to the trigger names from the event setup.
-   // Use the same input tag for everything
-   const auto algInputTag = params.getParameter<edm::InputTag>("l1tStage2uGtSource");
-   const auto extInputTag = params.getParameter<edm::InputTag>("l1tStage2uGtSource");
-   gtUtil_ = new l1t::L1TGlobalUtil(params, consumesCollector(), *this, algInputTag, extInputTag);
+
 }
 
 // Destructor
-L1TStage2uGT::~L1TStage2uGT() {
-   delete gtUtil_;
-}
+L1TStage2uGT::~L1TStage2uGT() {}
 
 void L1TStage2uGT::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& evtSetup) {
    // Get the trigger menu information

@@ -54,16 +54,16 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
 
   std::string monitorDir_;
   bool verbose_;
-  const unsigned int bxrange = 5; //this is the out bx range
 
   // To get the algo bits corresponding to algo names
-  l1t::L1TGlobalUtil* gtUtil_;
+  std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
 
   // For the timing histograms
   int algoBitFirstBxInTrain_;
   int algoBitLastBxInTrain_;
   const std::string algoNameFirstBxInTrain_;
   const std::string algoNameLastBxInTrain_;
+  const unsigned int bxrange_; //this is the out bx range
 
   
 //---------Histograms booking---------
