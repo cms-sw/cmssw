@@ -11,7 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-bool distanceSorter (pair<int,float> i,pair<int,float> j) { return (i.second<j.second); }
+bool distanceSorter (pair<edm::Ptr<l1t::HGCalTriggerCell>,float> i,pair<edm::Ptr<l1t::HGCalTriggerCell>,float> j) { return (i.second<j.second); }
 
 
 class HGCalClusteringImpl{
