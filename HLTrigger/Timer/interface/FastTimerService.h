@@ -352,30 +352,28 @@ private:
   class PlotsPerElement {
   public:
     PlotsPerElement();
-    void reset();
-    void book(DQMStore::IBooker &, std::string const& name, std::string const& title, PlotRanges const& ranges, unsigned int lumisections, bool byls);
+    void book(DQMStore::ConcurrentBooker &, std::string const& name, std::string const& title, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(Resources const&, unsigned int lumisection);
     void fill(AtomicResources const&, unsigned int lumisection);
     void fill_fraction(Resources const&, Resources const&, unsigned int lumisection);
 
   private:
     // resources spent in the module
-    TH1F *      time_thread_;
-    TProfile *  time_thread_byls_;
-    TH1F *      time_real_;
-    TProfile *  time_real_byls_;
-    TH1F *      allocated_;
-    TProfile *  allocated_byls_;
-    TH1F *      deallocated_;
-    TProfile *  deallocated_byls_;
+    ConcurrentMonitorElement time_thread_;          // TH1F
+    ConcurrentMonitorElement time_thread_byls_;     // TProfile
+    ConcurrentMonitorElement time_real_;            // TH1F
+    ConcurrentMonitorElement time_real_byls_;       // TProfile
+    ConcurrentMonitorElement allocated_;            // TH1F
+    ConcurrentMonitorElement allocated_byls_;       // TProfile
+    ConcurrentMonitorElement deallocated_;          // TH1F
+    ConcurrentMonitorElement deallocated_byls_;     // TProfile
   };
 
   // plots associated to each path or endpath
   class PlotsPerPath {
   public:
     PlotsPerPath();
-    void reset();
-    void book(DQMStore::IBooker &, std::string const &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, PlotRanges const& ranges, unsigned int lumisections, bool byls);
+    void book(DQMStore::ConcurrentBooker &, std::string const &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(ProcessCallGraph::PathType const&, ResourcesPerJob const&, ResourcesPerPath const&, unsigned int lumisection);
 
   private:
@@ -388,19 +386,18 @@ private:
     //   be better suited than a double, but there is no "TH1L" in ROOT.
 
     // how many times each module and their dependencies has run
-    TH1D * module_counter_;
+    ConcurrentMonitorElement module_counter_;               // TH1D
     // resources spent in each module and their dependencies
-    TH1D * module_time_thread_total_;
-    TH1D * module_time_real_total_;
-    TH1D * module_allocated_total_;
-    TH1D * module_deallocated_total_;
+    ConcurrentMonitorElement module_time_thread_total_;     // TH1D
+    ConcurrentMonitorElement module_time_real_total_;       // TH1D
+    ConcurrentMonitorElement module_allocated_total_;       // TH1D
+    ConcurrentMonitorElement module_deallocated_total_;     // TH1D
   };
 
   class PlotsPerProcess {
   public:
     PlotsPerProcess(ProcessCallGraph::ProcessType const&);
-    void reset();
-    void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::ProcessType const&,
+    void book(DQMStore::ConcurrentBooker &, ProcessCallGraph const&, ProcessCallGraph::ProcessType const&,
         PlotRanges const& event_ranges, PlotRanges const& path_ranges,
         unsigned int lumisections, bool bypath, bool byls);
     void fill(ProcessCallGraph::ProcessType const&, ResourcesPerJob const&, ResourcesPerProcess const&, unsigned int ls);
@@ -416,8 +413,7 @@ private:
   class PlotsPerJob {
   public:
     PlotsPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups);
-    void reset();
-    void book(DQMStore::IBooker &, ProcessCallGraph const&, std::vector<GroupOfModules> const&,
+    void book(DQMStore::ConcurrentBooker &, ProcessCallGraph const&, std::vector<GroupOfModules> const&,
         PlotRanges const&  event_ranges, PlotRanges const&  path_ranges,
         PlotRanges const&  module_ranges, unsigned int lumisections,
         bool bymodule, bool bypath, bool byls);
@@ -442,7 +438,9 @@ private:
 
   // per-stream information
   std::vector<ResourcesPerJob>  streams_;
-  std::vector<PlotsPerJob>      stream_plots_;
+
+  // concurrent histograms and profiles
+  std::unique_ptr<PlotsPerJob>  plots_; 
 
   // summary data
   ResourcesPerJob               job_summary_;                   // whole event time accounting per-job
@@ -455,8 +453,6 @@ private:
 
   // atomic variables to keep track of the completion of each step, process by process
   std::unique_ptr<std::atomic<unsigned int>[]> subprocess_event_check_;
-  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_lumisection_check_;
-  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_run_check_;
   std::unique_ptr<std::atomic<unsigned int>[]> subprocess_global_run_check_;
 
   // retrieve the current thread's per-thread quantities
@@ -508,13 +504,19 @@ private:
   void printEvent(T& out, ResourcesPerJob const&) const;
 
   template <typename T>
-  void printSummaryHeader(T& out, std::string const & label, bool detaile) const;
+  void printSummaryHeader(T& out, std::string const & label, bool detailed) const;
+
+  template <typename T>
+  void printPathSummaryHeader(T& out, std::string const & label) const;
 
   template <typename T>
   void printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const;
 
   template <typename T>
   void printSummaryLine(T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const;
+
+  template <typename T>
+  void printPathSummaryLine(T& out, Resources const& data, Resources const& total, uint64_t events, std::string const& label) const;
 
   template <typename T>
   void printSummary(T& out, ResourcesPerJob const&, std::string const& label) const;
