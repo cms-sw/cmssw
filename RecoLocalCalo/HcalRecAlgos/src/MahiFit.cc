@@ -184,7 +184,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
     nnlsWork_.pulseCovArray[iBX]   = FullSampleMatrix::Constant(0);
 
     if (offset==pedestalBX_) {
-      nnlsWork_.ampVec.coeffRef(iBX) = 0;
+      nnlsWork_.ampVec.coeffRef(iBX) = sqrt(nnlsWork_.pedConstraint.coeff(0));
     }
     else {
 
