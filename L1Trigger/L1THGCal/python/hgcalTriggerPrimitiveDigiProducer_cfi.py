@@ -15,7 +15,7 @@ adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 # Reco calibration parameters
 fCPerMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP
 fCPerMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP
-layerWeights = recocalibparam.HGCalRecHit.layerWeights
+layerWeights = layercalibparam.TrgLayer_dEdX_weights
 thicknessCorrection = recocalibparam.HGCalRecHit.thicknessCorrection
 
 # Parameters used in several places
@@ -37,8 +37,8 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      linnBits = cms.uint32(16),
                      triggerCellTruncationBits = cms.uint32(triggerCellTruncationBits),
                      NData = cms.uint32(999),
-                     TCThreshold_fC = cms.double(1.),
-                     TCThresholdBH_MIP = cms.double(1.),
+                     TCThreshold_fC = cms.double(0.),
+                     TCThresholdBH_MIP = cms.double(0.),
                      #take the following parameters from the digitization config file
                      adcsaturation = adcSaturation_fC,
                      adcnBits = adcNbits,

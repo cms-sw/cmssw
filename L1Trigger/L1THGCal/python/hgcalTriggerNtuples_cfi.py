@@ -1,5 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
+import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
+import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
+import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
+
+
+fcPerMip = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP
+keV2fC = digiparam.hgceeDigitizer.digiCfg.keV2fC
+layerWeights = layercalibparam.TrgLayer_dEdX_weights
+thicknessCorrections = recocalibparam.HGCalRecHit.thicknessCorrection
 
 ntuple_event = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleEvent')
@@ -41,6 +51,10 @@ ntuple_triggercells = cms.PSet(
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
     FillSimEnergy = cms.bool(False),
+    fcPerMip = fcPerMip,
+    keV2fC = keV2fC,
+    layerWeights = layerWeights,
+    thicknessCorrections = thicknessCorrections,
     FilterCellsInMulticlusters = cms.bool(True)
 )
 
@@ -54,6 +68,11 @@ ntuple_clusters = cms.PSet(
 ntuple_multicluster = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCMulticlusters'),
     Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D')
+)
+
+ntuple_panels = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCPanels'),
+    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells')
 )
 
 hgcalTriggerNtuplizer = cms.EDAnalyzer(
