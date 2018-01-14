@@ -1882,6 +1882,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	} else {
 	  (*pfCandidates_)[tmpi].setHcalEnergy(totalHcal, muonHcal);
 	}
+        setHcalDepthInfo((*pfCandidates_)[tmpi], *hclusterref);
 
 	if(letMuonEatCaloEnergy){
 	  muonHCALEnergy += totalHcal;
@@ -2221,6 +2222,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    (*pfCandidates_)[tmpi].setHcalEnergy(max(totalHcal-totalHO,0.0),muonHcal);
 	    (*pfCandidates_)[tmpi].setHoEnergy(hoclusterref->energy(),muonHO);
 	  }
+          setHcalDepthInfo((*pfCandidates_)[tmpi], *hclusterref);
 	  // Remove it from the block
 	  const ::math::XYZPointF& chargedPosition = 
 	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[it->second.first])->positionAtECALEntrance();	  
@@ -2392,6 +2394,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
+      setHcalDepthInfo((*pfCandidates_)[tmpi], *hclusterref);
       std::pair<II,II> myEcals = associatedEcals.equal_range(iTrack);
       for (II ii=myEcals.first; ii!=myEcals.second; ++ii ) { 
 	unsigned iEcal = ii->second.second;
@@ -3314,13 +3317,14 @@ PFAlgo::setHcalDepthInfo(reco::PFCandidate & cand, const reco::PFCluster& cluste
         }
     }
     double sum = std::accumulate(energyPerDepth.begin(), energyPerDepth.end(), 0.);
+    std::array<float,7> depthFractions;
+    std::fill(depthFractions.begin(), depthFractions.end(), 0.f);
     if (sum > 0) {
-        std::array<float,7> depthFractions;
         for (unsigned int i = 0; i < depthFractions.size(); ++i) {
             depthFractions[i] = energyPerDepth[i]/sum;
         }
-        cand.setHcalDepthEnergyFractions(depthFractions);
     }
+    cand.setHcalDepthEnergyFractions(depthFractions);
 }
 
 //GMA need the followign two for HO also
