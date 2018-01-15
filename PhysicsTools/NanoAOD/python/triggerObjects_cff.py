@@ -94,4 +94,27 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
     ),
 )
 
+# ERA-dependent configuration
+# Tune filter and collection names to 2016 HLT menus
+# FIXME: check non-lepton objects and cross check leptons
+selections80X = triggerObjectTable.selections
+for sel in selections80X:
+    if sel.name=='Muon':
+        sel.sel = cms.string("type(83) && pt > 5 && (coll('hlt*L3MuonCandidates') || coll('hlt*TkMuonCands') || coll('hlt*TrkMuonCands'))")
+        sel.qualityBits = cms.string("filter('*RelTrkIso*Filtered0p4') + 2*filter('hltL3cr*IsoFiltered0p09') + 4*filter('*OverlapFilter*IsoMu*PFTau*') + 8*filter('hltL3f*IsoFiltered0p09')")
+        sel.qualityBitsDoc = cms.string("1 = TrkIsoVVL, 2 = Iso, 4 = OverlapFilter PFTau, 8 = IsoTkMu")
+    elif sel.name=='Tau':
+        sel.sel = cms.string("type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseIso*') || filter('*MediumIso*') || filter('*MediumComb*Iso*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilter*IsoMu*') || filter('*OverlapFilter*IsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') )")
+        sel.qualityBits = cms.string("(filter('*LooseIso*')-filter('*VLooseIso*'))+2*filter('*Medium*Iso*')+4*filter('*VLooseIso*')+8*0+16*filter('hltL2TauIsoFilter')+32*filter('*OverlapFilter*IsoMu*')+64*filter('*OverlapFilter*IsoEle*')+128*filter('*L1HLTMatched*')+256*filter('*Dz02*')")
+        sel.qualityBitsDoc = cms.string("1 = LooseIso, 2 = Medium(Comb)Iso, 4 = VLooseIso, 8 = None, 16 = L2p5 pixel iso, 32 = OverlapFilter IsoMu, 64 = OverlapFilter IsoEle, 128 = L1-HLT matched, 256 = Dz")
+    elif sel.name=='Electron (PixelMatched e/gamma)':
+        #sel.sel = cms.string("type(92) && pt > 7 && coll('hltEgammaCandidates') && filter('*PixelMatchFilter')")
+        sel.qualityBits = cms.string("filter('*CaloIdLTrackIdLIsoVL*TrackIso*Filter') + 2*filter('hltEle*WPTight*TrackIsoFilter*') + 4*filter('hltEle*WPLoose*TrackIsoFilter') + 8*filter('*OverlapFilter*IsoEle*PFTau*')")
+        #sel.qualityBitsDoc = cms.string("1 = CaloIdL_TrackIdL_IsoVL, 2 = WPLoose, 4 = WPTight, 8 = OverlapFilter PFTau")
+
+run2_miniAOD_80XLegacy.toModify(
+  triggerObjectTable,
+  selections = selections80X
+)
+
 triggerObjectTables = cms.Sequence( unpackedPatTrigger + triggerObjectTable )
