@@ -231,31 +231,31 @@ recHitEnergyNormsPhase2 = cms.VPSet(
 
 # offline 2018 -- uncollapsed
 from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
-run2_HCAL_2018.toModify(particleFlowClusterHBHE, recHitEnergyNorms = recHitEnergyNorms2018)
+run2_HCAL_2018.toModify(particleFlowClusterHBHE.pfClusterBuilder, recHitEnergyNorms = recHitEnergyNorms2018)
 run2_HCAL_2018.toModify(particleFlowClusterHBHE.seedFinder, thresholdsByDetector = seedFinderThresholdsByDetector2018)
 run2_HCAL_2018.toModify(particleFlowClusterHBHE.initialClusteringStep, thresholdsByDetector = initialClusteringStepThresholdsByDetector2018)
 
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
-run2_HE_2018.toModify(particleFlowClusterHBHE, recHitEnergyNorms = recHitEnergyNorms2018)
+run2_HE_2018.toModify(particleFlowClusterHBHE.pfClusterBuilder, recHitEnergyNorms = recHitEnergyNorms2018)
 run2_HE_2018.toModify(particleFlowClusterHBHE.seedFinder, thresholdsByDetector = seedFinderThresholdsByDetector2018)
 run2_HE_2018.toModify(particleFlowClusterHBHE.initialClusteringStep, thresholdsByDetector = initialClusteringStepThresholdsByDetector2018)
 
 """
 # offline 2018 -- collapsed (this need PR 21842)
 from Configuration.Eras.Modifier_run2_HECollapse_2018_cff import run2_HECollapse_2018
-run2_HECollapse_2018.toModify(particleFlowClusterHBHE, recHitEnergyNorms = recHitEnergyNorms2017)
+run2_HECollapse_2018.toModify(particleFlowClusterHBHE.pfClusterBuilder, recHitEnergyNorms = recHitEnergyNorms2017)
 run2_HCAL_2018.toModify(particleFlowClusterHBHE.seedFinder, thresholdsByDetector = seedFinderThresholdsByDetector2017)
 run2_HCAL_2018.toModify(particleFlowClusterHBHE.initialClusteringStep, thresholdsByDetector = initialClusteringStepThresholdsByDetector2017)
 """
 
 # offline 2019
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-run3_HB.toModify(particleFlowClusterHBHE, recHitEnergyNorms = recHitEnergyNorms2019)
+run3_HB.toModify(particleFlowClusterHBHE.pfClusterBuilder, recHitEnergyNorms = recHitEnergyNorms2019)
 run3_HB.toModify(particleFlowClusterHBHE.seedFinder, thresholdsByDetector = seedFinderThresholdsByDetector2019)
 run3_HB.toModify(particleFlowClusterHBHE.initialClusteringStep, thresholdsByDetector = initialClusteringStepThresholdsByDetector2019)
 
 # offline phase2 restore what has been studied in the TDR
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify(particleFlowClusterHBHE, recHitEnergyNorms = recHitEnergyNormsPhase2)
+phase2_hcal.toModify(particleFlowClusterHBHE.pfClusterBuilder, recHitEnergyNorms = recHitEnergyNormsPhase2)
 phase2_hcal.toModify(particleFlowClusterHBHE.seedFinder, thresholdsByDetector = seedFinderThresholdsByDetectorPhase2)
 phase2_hcal.toModify(particleFlowClusterHBHE.initialClusteringStep, thresholdsByDetector = initialClusteringStepThresholdsByDetectorPhase2)
