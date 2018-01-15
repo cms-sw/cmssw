@@ -331,6 +331,7 @@ void HGCalClusteringImpl::clusterizeDRNN( const std::vector<edm::Ptr<l1t::HGCalT
         
         /* continue if not passing the threshold */
         if( (*tc)->mipPt() < threshold ) continue;
+        if( isSeed[itc] ) continue; //No sharing of seeds between clusters (TBC)
         
         /* searching for TC near the centre of the cluster  */
         std::vector<unsigned> tcPertinentClusters; 
@@ -393,12 +394,12 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & clus
     Basic3DVector<float> seedCentre( constituents[0]->position() );
     
     /* distances from the seed */
-    vector<pair<unsigned,float>> distances;
-    for( unsigned itc=1; itc<constituents.size(); itc++ )
+    vector<pair<edm::Ptr<l1t::HGCalTriggerCell>,float>> distances;
+    for( const auto & tc : constituents )
     {
-        Basic3DVector<float> tcCentre( constituents[itc]->position() );
+        Basic3DVector<float> tcCentre( tc->position() );
         float distance = ( seedCentre - tcCentre ).mag();
-        distances.push_back( pair<unsigned,float>( itc-1, distance ) );
+        distances.push_back( pair<edm::Ptr<l1t::HGCalTriggerCell>,float>( tc, distance ) );
     }
 
     /* sorting (needed in order to be sure that we are skipping any tc) */
@@ -413,12 +414,12 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & clus
     
         /* get the tc under study */
         toRemove[itc] = true;
-        const edm::Ptr<l1t::HGCalTriggerCell>& tcToStudy = constituents[itc];
+        const edm::Ptr<l1t::HGCalTriggerCell>& tcToStudy = distances[itc].first;
         
         /* compare with the tc in the cluster */
         for( unsigned itc_ref=1; itc_ref<itc; itc_ref++ ){
             if( !toRemove[itc_ref] ) {
-                if( areTCneighbour( tcToStudy->detId(), constituents[distances.at( itc_ref ).first]->detId(), triggerGeometry ) ) {
+                if( areTCneighbour( tcToStudy->detId(), distances.at( itc_ref ).first->detId(), triggerGeometry ) ) {
                     toRemove[itc] = false;
                     break;
                 }
@@ -430,7 +431,7 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & clus
 
     /* remove the unconnected TCs */
     for( unsigned i=0; i<distances.size(); i++){
-        if( toRemove[i] ) cluster.removeConstituent( constituents[distances.at( i ).first] );    
+        if( toRemove[i] ) cluster.removeConstituent( distances.at( i ).first );
     }
     
 }
