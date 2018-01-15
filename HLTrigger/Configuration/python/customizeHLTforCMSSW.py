@@ -17,6 +17,17 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+def customiseFor21810(process):
+    from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi.py import calotowermaker
+    for producer in producers_by_type(process, "CaloTowersCreator"):
+        producer.HcalPhase = cms.int32(1),
+        producer.HESThreshold1 = cms.double(0.8),
+        producer.HESThreshold  = cms.double(0.8),
+        producer.HEDThreshold1 = cms.double(0.8),
+        producer.HEDThreshold  = cms.double(0.8)
+    return process
+
+
 # Add mahi to HCAL local reconstruction 
 def customiseFor21664(process):
     from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
@@ -88,6 +99,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    process = customiseFor21810(process)
 
     if menuType in ("2e34v22","2e34v31","2e34v40"):
         # frozen menus are 92X!
