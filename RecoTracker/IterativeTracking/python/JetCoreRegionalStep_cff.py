@@ -6,13 +6,11 @@ import FWCore.ParameterSet.Config as cms
 jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 
 from RecoEgamma.EgammaPhotonProducers.egammaForCoreTracking_cff import particleFlowSuperClusterECALForTrk, egammasForTrk, egammaHoverEForTrk, egammasForCoreTracking, egammaForCoreTrackingTask
-egammaAndJetsForCoreTracking = cms.EDProducer( "CandidateCombiner",
+egammaAndJetsForCoreTracking = cms.EDProducer( "CandMergerCleanOthersByDR",
                                                coll1 = cms.InputTag("egammasForCoreTracking"),
                                                coll2 = cms.InputTag("jetsForCoreTracking"),
                                                maxDRToClean = cms.double(0.05)
 )
-
-#egammaForCoreTrackingSeq = cms.Sequence(egammaCandidates * egammaHoverE * egammasForCoreTracking)
 
 # care only at tracks from main PV
 firstStepGoodPrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
@@ -74,10 +72,7 @@ jetCoreRegionalStepTrackingRegions = _tauRegionalPixelSeedTrackingRegions.clone(
     ptMin = 10,
     deltaPhiRegion = 0.20,
     deltaEtaRegion = 0.20,
-#    JetSrc = "jetsForCoreTracking",
- #   JetSrc = "egammasForCoreTracking",
     JetSrc = "egammaAndJetsForCoreTracking",
-#    JetSrc = "ak5CaloJets",
     vertexSrc = "firstStepGoodPrimaryVertices",
     howToUseMeasurementTracker = "Never"
 ))

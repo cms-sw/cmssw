@@ -1,6 +1,6 @@
 //****************************************************************
 //
-// A simple class to combine to candidate collections into a single
+// A simple class to combine two candidate collections into a single
 // collection of ptrs to the candidates
 // note: it is a std::vector as the candidates are from different 
 // collections
@@ -15,7 +15,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,19 +28,19 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-class CandidateCombiner : public edm::stream::EDProducer<> {
+class CandMergerCleanOthersByDR : public edm::global::EDProducer<> {
 public:
-  explicit CandidateCombiner(const edm::ParameterSet&);
-  ~CandidateCombiner(){}
+  explicit CandMergerCleanOthersByDR(const edm::ParameterSet&);
+  ~CandMergerCleanOthersByDR(){}
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&)const override;
 
 private:  
-  edm::EDGetTokenT<edm::View<reco::Candidate> > coll1Token_;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > coll2Token_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate> > coll1Token_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate> > coll2Token_;
   const float maxDR2ToClean_;
 
 };
@@ -50,7 +50,7 @@ namespace {
   double pow2(double val){return val*val;}
 }
 
-CandidateCombiner::CandidateCombiner(const edm::ParameterSet& iConfig) :
+CandMergerCleanOthersByDR::CandMergerCleanOthersByDR(const edm::ParameterSet& iConfig) :
   coll1Token_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("coll1"))),
   coll2Token_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("coll2"))),
   maxDR2ToClean_(pow2(iConfig.getParameter<double>("maxDRToClean")))
@@ -82,7 +82,7 @@ namespace {
 
 // ------------ method called to produce the data  ------------
 void
-CandidateCombiner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+CandMergerCleanOthersByDR::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup)const
 {
   auto outColl = std::make_unique<std::vector<edm::Ptr<reco::Candidate> > >();
   
@@ -107,14 +107,14 @@ CandidateCombiner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-CandidateCombiner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+CandMergerCleanOthersByDR::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("coll1", edm::InputTag("gedPhotons"));
-  desc.add<edm::InputTag>("coll2", edm::InputTag("gedGsfElectrons"));
+  desc.add<edm::InputTag>("coll1", edm::InputTag("egammasForCoreTracking"));
+  desc.add<edm::InputTag>("coll2", edm::InputTag("jetsForCoreTracking"));
   desc.add<double>("maxDRToClean", 0.05);
-  descriptions.add("candidateCombiner", desc);
+  descriptions.add("candMergerCleanOthersByDR", desc);
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(CandidateCombiner);
+DEFINE_FWK_MODULE(CandMergerCleanOthersByDR);

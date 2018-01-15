@@ -36,20 +36,21 @@ egammaHoverEForTrk = cms.EDProducer( "EgammaHLTBcHcalIsolationProducersRegional"
 )
 
 egammasForCoreTracking = cms.EDProducer( "EgammaHLTFilteredEcalCandPtrProducer",
-                                         cands = cms.InputTag( "egammasForTrk" ),
-                                         cuts = cms.VPSet( 
-        cms.PSet(  endcapCut = cms.PSet( 
+    cands = cms.InputTag( "egammasForTrk" ),
+    cuts = cms.VPSet( 
+        cms.PSet(
+            var = cms.InputTag( "egammaHoverEForTrk" ),
+            barrelCut = cms.PSet( 
                 useEt = cms.bool( False ),
                 cutOverE = cms.double( 0.2 )
-                ),
-                   var = cms.InputTag( "egammaHoverEForTrk" ),
-                   barrelCut = cms.PSet( 
+            ),
+            endcapCut = cms.PSet( 
                 useEt = cms.bool( False ),
                 cutOverE = cms.double( 0.2 )
-                )
-                   )
-        )                    
-)                                         
+            )
+        )     
+    )                                                        
+)                                        
 egammaForCoreTrackingTask = cms.Task(particleFlowSuperClusterECALForTrk, 
                                      egammasForTrk,
                                      egammaHoverEForTrk, 

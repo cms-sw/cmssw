@@ -32,27 +32,6 @@ template <typename OutCollType>
 class EgammaHLTFilteredObjProducer : public edm::stream::EDProducer<>{
 public:  
   class SelectionCut {
-  private:
-    struct CutValues {
-      float cut;
-      float cutOverE;
-      float cutOverE2;
-      bool useEt;
-      std::function<bool(float,float)> compFunc;
-
-      CutValues(const edm::ParameterSet& pset):
-	cut(pset.getParameter<double>("cut")),
-	cutOverE(pset.getParameter<double>("cutOverE")),
-	cutOverE2(pset.getParameter<double>("cutOverE2")),
-	useEt(pset.getParameter<bool>("useEt")),
-	compFunc(std::less<float>()) {}
-    
-      bool operator()(const reco::RecoEcalCandidate& cand,float value)const{
-	float energy = useEt ? cand.et() : cand.energy();
-	return compFunc(value,cut) || compFunc(value/energy,cutOverE) || 
-	  compFunc(value/energy/energy,cutOverE2);
-      }
-    };
   public:
     SelectionCut(const edm::ParameterSet& pset,edm::ConsumesCollector && iC):
       ebCut_(pset.getParameter<edm::ParameterSet>("barrelCut")),
@@ -80,6 +59,30 @@ public:
       event.getByToken(varToken_,varHandle_);
     }
   private:
+    struct CutValues {
+      float cut;
+      float cutOverE;
+      float cutOverE2;
+      bool useEt;
+      std::function<bool(float,float)> compFunc;
+
+      CutValues(const edm::ParameterSet& pset):
+	cut(pset.getParameter<double>("cut")),
+	cutOverE(pset.getParameter<double>("cutOverE")),
+	cutOverE2(pset.getParameter<double>("cutOverE2")),
+	useEt(pset.getParameter<bool>("useEt")),
+	compFunc(std::less<float>()) {}
+    
+      bool operator()(const reco::RecoEcalCandidate& cand,float value)const{
+	if(compFunc(value,cut)) return true;
+	else{
+	  float energyInv = useEt ? 1./cand.et() : 1./cand.energy();
+	  return  compFunc(value*energyInv,cutOverE) || 
+	    compFunc(value*energyInv*energyInv,cutOverE2);
+	}
+      }
+    };
+    
     CutValues ebCut_;
     CutValues eeCut_;
     edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> varToken_;
@@ -98,7 +101,7 @@ private:
   static void addObj(const reco::RecoEcalCandidateRef& cand,OutCollType& output){
     output.push_back(cand);
   }
-private:
+
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> candsToken_;
   std::vector<SelectionCut> cuts_;
 };
