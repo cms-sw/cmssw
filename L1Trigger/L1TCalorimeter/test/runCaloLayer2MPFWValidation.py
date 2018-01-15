@@ -8,11 +8,6 @@ options.register('skipEvents',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Number of events to skip")
-options.register('dump',
-                 False,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool,
-                 "Print RAW data")
 options.register('selMPBx',
                  0,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -33,6 +28,16 @@ options.register('evtDisp',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  'Produce histos for individual events')
+options.register('dumpTowers',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 'Dump all towers in text form when a problem is found')
+options.register('dumpWholeEvent',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 'Dump all event contents in text when a problem is found')
 
 options.parseArguments()
 
@@ -139,6 +144,8 @@ process.l1tCaloStage2HwHistos.mpEtSumToken = cms.InputTag("l1tStage2CaloLayer2Co
 
 # Event by event comparisons
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloLayer2Comp_cfi')
+process.l1tStage2CaloLayer2Comp.dumpTowers = options.dumpTowers
+process.l1tStage2CaloLayer2Comp.dumpWholeEvent = options.dumpWholeEvent
 
 # Path and EndPath definitions
 process.path = cms.Path(
