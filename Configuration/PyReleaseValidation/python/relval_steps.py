@@ -296,6 +296,7 @@ steps['RunHLTPhy2017C']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017C-v1/RAW'
 steps['RunDoubleEG2017C']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2017C-v1/RAW',label='doubEG2017C',events=100000,location='STD', ls=Run2017C)}
 steps['RunDoubleMuon2017C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2017C-v1/RAW',label='doubMu2017C',events=100000,location='STD', ls=Run2017C)}
 steps['RunJetHT2017C']={'INPUT':InputInfo(dataSet='/JetHT/Run2017C-v1/RAW',label='jetHT2017C',events=100000,location='STD', ls=Run2017C)}
+steps['RunDisplacedJet2017C']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2017C-v1/RAW',label='displacedJet2017C',events=100000,location='STD', ls=Run2017C)}
 steps['RunMET2017C']={'INPUT':InputInfo(dataSet='/MET/Run2017C-v1/RAW',label='met2017C',events=100000,location='STD', ls=Run2017C)}
 steps['RunMuonEG2017C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2017C-v1/RAW',label='muEG2017C',events=100000,location='STD', ls=Run2017C)}
 steps['RunSingleEl2017C']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2017C-v1/RAW',label='sigEl2017C',events=100000,location='STD', ls=Run2017C)}
@@ -1571,6 +1572,7 @@ steps['RECODR2_2017reHLT_skimSingleMu']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:
 steps['RECODR2_2017reHLT_skimDoubleEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:ZElectron,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimMuonEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:TopMuEG,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimJetHT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:JetHTJetPlusHOFilter,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
+steps['RECODR2_2017reHLT_skimDisplacedJet']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXODisplacedJet,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimMET']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:HighMET+EXOMONOPOLE,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimSinglePh']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:SinglePhotonJetPlusHOFilter+EXOMONOPOLE,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimMuOnia']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
@@ -1597,6 +1599,7 @@ steps['RECODR2_2016reHLT_Prompt_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT
 steps['RECODR2_2017reHLT_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimDoubleEG_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimDoubleEG']])
 steps['RECODR2_2017reHLT_skimJetHT_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimJetHT']])
+steps['RECODR2_2017reHLT_skimDisplacedJet_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimDisplacedJet']])
 steps['RECODR2_2017reHLT_skimMET_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimMET']])
 steps['RECODR2_2017reHLT_skimMuonEG_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimMuonEG']])
 steps['RECODR2_2017reHLT_skimSingleMu_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimSingleMu']])

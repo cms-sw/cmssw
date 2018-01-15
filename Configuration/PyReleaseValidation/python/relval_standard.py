@@ -254,6 +254,7 @@ workflows[136.800] = ['',['RunSinglePh2017C','HLTDR2_2017','RECODR2_2017reHLT_sk
 workflows[136.801] = ['',['RunZeroBias2017C','HLTDR2_2017','RECODR2_2017reHLT_Prompt','HARVEST2017']]
 workflows[136.802] = ['',['RunMuOnia2017C','HLTDR2_2017','RECODR2_2017reHLT_skimMuOnia_Prompt','HARVEST2017']]
 workflows[136.803] = ['',['RunNoBPTX2017C','HLTDR2_2017','RECODR2_2017reHLTAlCaTkCosmics_Prompt','HARVEST2017']]
+workflows[136.804] = ['',['RunDisplacedJet2017C','HLTDR2_2017','RECODR2_2017reHLT_skimDisplacedJet_Prompt','HARVEST2017']]
 
 
 ### run 2017D ###                                                                                                                                                                                  
