@@ -75,13 +75,20 @@ cutsPhase2 = cms.VPSet(
         depth=cms.vint32(1, 2, 3, 4),
         threshold = cms.vdouble(0.8, 0.8, 0.8, 0.8),
         detectorEnum = cms.int32(1)
+        ),
+    cms.PSet(
+        depth=cms.vint32(1, 2, 3, 4, 5, 6, 7),
+        threshold = cms.vdouble(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
+        detectorEnum = cms.int32(2)
         )
     )
-
 
 # offline 2018 -- uncollapsed
 from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
 run2_HCAL_2018.toModify(particleFlowRecHitHBHE, cuts = cuts2018)
+
+from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
+run2_HE_2018.toModify(particleFlowRecHitHBHE, cuts = cuts2018)
 
 """
 # offline 2018 -- collapsed (this need PR 21842)

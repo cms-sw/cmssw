@@ -90,7 +90,6 @@ particleFlowClusterHBHE = cms.EDProducer(
 
 seedFinderThresholdsByDetector2017 = particleFlowClusterHBHE.seedFinder.thresholdsByDetector
 
-seedFinderThresholdsByDetector2018 = particleFlowClusterHBHE.seedFinder.thresholdsByDetector
 seedFinderThresholdsByDetector2018 = cms.VPSet(
     cms.PSet(
         detector = cms.string("HCAL_BARREL1"),
@@ -106,7 +105,6 @@ seedFinderThresholdsByDetector2018 = cms.VPSet(
         )
 )
 
-seedFinderThresholdsByDetector2019 = particleFlowClusterHBHE.seedFinder.thresholdsByDetector
 seedFinderThresholdsByDetector2019 = cms.VPSet(
     cms.PSet(
         detector = cms.string("HCAL_BARREL1"),
@@ -126,8 +124,14 @@ seedFinderThresholdsByDetectorPhase2 = cms.VPSet(
     cms.PSet(
         detector = cms.string("HCAL_BARREL1"),
         depths = cms.vint32(1, 2, 3, 4),
-        seedingThreshold = cms.vdouble(0.125, 0.25, 0.25, 0.25),
-        gatheringThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
+        seedingThreshold = cms.vdouble(1.0, 1.0, 1.0, 1.0),
+        seedingThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
+        ),
+    cms.PSet(
+        detector = cms.string("HCAL_ENDCAP"),
+        depths = cms.vint32(1, 2, 3, 4, 5, 6, 7),
+        seedingThreshold = cms.vdouble(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1),
+        seedingThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         )
     )
 
@@ -135,7 +139,6 @@ seedFinderThresholdsByDetectorPhase2 = cms.VPSet(
 
 initialClusteringStepThresholdsByDetector2017 = particleFlowClusterHBHE.initialClusteringStep.thresholdsByDetector
 
-initialClusteringStepThresholdsByDetector2018 = particleFlowClusterHBHE.initialClusteringStep.thresholdsByDetector
 initialClusteringStepThresholdsByDetector2018 = cms.VPSet(
     cms.PSet(
         detector = cms.string("HCAL_BARREL1"),
@@ -151,7 +154,6 @@ initialClusteringStepThresholdsByDetector2018 = cms.VPSet(
         )
 )
 
-initialClusteringStepThresholdsByDetector2019 = particleFlowClusterHBHE.initialClusteringStep.thresholdsByDetector
 initialClusteringStepThresholdsByDetector2019 = cms.VPSet(
     cms.PSet(
         detector = cms.string("HCAL_BARREL1"),
@@ -171,8 +173,14 @@ initialClusteringStepThresholdsByDetectorPhase2 = cms.VPSet(
     cms.PSet(
         detector = cms.string("HCAL_BARREL1"),
         depths = cms.vint32(1, 2, 3, 4),
-        gatheringThreshold = cms.vdouble(0.1, 0.2, 0.3, 0.3),
+        gatheringThreshold = cms.vdouble(0.8, 0.8, 0.8, 0.8),
         gatheringThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
+        ),
+    cms.PSet(
+        detector = cms.string("HCAL_ENDCAP"),
+        depths = cms.vint32(1, 2, 3, 4, 5, 6, 7),
+        gatheringThreshold = cms.vdouble(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
+        gatheringThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         )
     )
 
@@ -211,6 +219,11 @@ recHitEnergyNormsPhase2 = cms.VPSet(
         detector = cms.string("HCAL_BARREL1"),
         depths = cms.vint32(1, 2, 3, 4),
         recHitEnergyNorm = cms.vdouble(0.8, 0.8, 0.8, 0.8),
+        ),
+    cms.PSet(
+        detector = cms.string("HCAL_ENDCAP"),
+        depths = cms.vint32(1, 2, 3, 4, 5, 6, 7),
+        recHitEnergyNorm = cms.vdouble(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
         )
     )
 
@@ -222,6 +235,10 @@ run2_HCAL_2018.toModify(particleFlowClusterHBHE, recHitEnergyNorms = recHitEnerg
 run2_HCAL_2018.toModify(particleFlowClusterHBHE.seedFinder, thresholdsByDetector = seedFinderThresholdsByDetector2018)
 run2_HCAL_2018.toModify(particleFlowClusterHBHE.initialClusteringStep, thresholdsByDetector = initialClusteringStepThresholdsByDetector2018)
 
+from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
+run2_HE_2018.toModify(particleFlowClusterHBHE, recHitEnergyNorms = recHitEnergyNorms2018)
+run2_HE_2018.toModify(particleFlowClusterHBHE.seedFinder, thresholdsByDetector = seedFinderThresholdsByDetector2018)
+run2_HE_2018.toModify(particleFlowClusterHBHE.initialClusteringStep, thresholdsByDetector = initialClusteringStepThresholdsByDetector2018)
 
 """
 # offline 2018 -- collapsed (this need PR 21842)
