@@ -19,6 +19,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , metToken_             ( consumes<reco::PFMETCollection>      (iConfig.getParameter<edm::InputTag>("met")       ) )
   , jetToken_             ( mayConsume<reco::PFJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )
   , eleToken_             ( mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons") ) )
+  //ATHER
+  , elecIDToken_          ( consumes<edm::ValueMap<bool> >                      (iConfig.getParameter<edm::InputTag>("elecID")    ) )
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )
   // Menglei 
   , phoToken_             ( mayConsume<reco::PhotonCollection>     (iConfig.getParameter<edm::InputTag>("photons")     ) ) 
@@ -575,17 +577,34 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       edm::LogWarning("TopMonitor") << "Electron handle not valid \n";
       return;
   }
+  
+  //ATHER                                                                                                                                                                                                                       
+  edm::Handle<edm::ValueMap<bool> > eleIDHandle;
+  iEvent.getByToken(elecIDToken_,  eleIDHandle);
+  if (!eleIDHandle.isValid()){
+    edm::LogWarning("TopMonitor") << "Electron ID handle not valid \n";
+    return;
+  }
+
+
   std::vector<reco::GsfElectron> electrons;
   if (nelectrons_>0){
-      if ( eleHandle->size() < nelectrons_ ) return;
-      for ( auto const & e : *eleHandle ) {
-          if (eleSelection_(e)) electrons.push_back(e);
-          //Suvankar
-          if ( usePVcuts_ &&
-               (std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy || std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz) ) continue;
-      }
-      if ( electrons.size() < nelectrons_ ) return;
+    if ( eleHandle->size() < nelectrons_ ) return;
+    for (size_t index = 0; index < eleHandle->size() ; index++) {
+      const auto e  = eleHandle->at(index);
+      const auto el = eleHandle->ptrAt(index);              
+      bool pass_id = (*eleIDHandle)[el];                                                                                                                                                                                           
+      if (eleSelection_(e) && pass_id) electrons.push_back(e); 
+      //Suvankar
+      if ( usePVcuts_ &&
+	   (std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy || std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz) ) continue;
+    }
+    if ( electrons.size() < nelectrons_ ) return;
   }
+  
+  
+
+
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
   if (!muoHandle.isValid() && nmuons_>0){
@@ -1030,6 +1049,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "met",      edm::InputTag("pfMet") );
   desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
   desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
+  //ATHER
+  desc.add<edm::InputTag>( "elecID"    ,edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-medium") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
   //Menglei
   desc.add<edm::InputTag>( "photons",  edm::InputTag("photons") );
