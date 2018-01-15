@@ -195,21 +195,20 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
                 /* dynamic range loop: range-based loop syntax cannot be employed */
                 for(unsigned int neighInd = 0; neighInd < neighborList.at(iclu).size(); neighInd++){
                     neighNo = neighborList.at(iclu).at(neighInd);
-
-                    if(!visited.at(neighNo)){
-                        visited.at(neighNo) = true;
-                        std::vector<unsigned int> secNeighbors;
-                        findNeighbor(rankedList, neighNo,clustersPtrs, secNeighbors);
-                        multiclustersTmp.at(imclu).addConstituent( clustersPtrs[rankedList.at(neighNo).first]);
-                        merged.at(neighNo) = true;
-
-                        if(secNeighbors.size() >= minNDbscan_){
-                            neighborList.at(iclu).insert(neighborList.at(iclu).end(), secNeighbors.begin(), secNeighbors.end());
-                        }
-
-                    } else if(!merged.at(neighNo) ){
+                    /* This condition also ensures merging of clusters visited by other clusters but not merged. */
+                    if(!merged.at(neighNo) ){
                         merged.at(neighNo) = true;          
                         multiclustersTmp.at(imclu).addConstituent( clustersPtrs[rankedList.at(neighNo).first] );
+
+                        if(!visited.at(neighNo)){
+                            visited.at(neighNo) = true;
+                            std::vector<unsigned int> secNeighbors;
+                            findNeighbor(rankedList, neighNo,clustersPtrs, secNeighbors);
+                                            
+                            if(secNeighbors.size() >= minNDbscan_){
+                                neighborList.at(iclu).insert(neighborList.at(iclu).end(), secNeighbors.begin(), secNeighbors.end());
+                            }
+                        }
                     }
                 }
                 imclu++;
@@ -240,7 +239,6 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
             multiclustersTmp.at(i).sigmaRRTot(shape_.sigmaRRTot(multiclustersTmp.at(i)));
             multiclustersTmp.at(i).sigmaRRMax(shape_.sigmaRRMax(multiclustersTmp.at(i)));
             multiclustersTmp.at(i).eMax(shape_.eMax(multiclustersTmp.at(i)));
-
             multiclusters.push_back( 0, multiclustersTmp.at(i));  
         }
     }
