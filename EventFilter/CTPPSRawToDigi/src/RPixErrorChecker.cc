@@ -7,26 +7,7 @@
 
 using namespace edm;
 
-   constexpr int RPixErrorChecker::CRC_bits ;
-   constexpr int RPixErrorChecker::ROC_bits ;
-   constexpr int RPixErrorChecker::DCOL_bits;
-   constexpr int RPixErrorChecker::PXID_bits;
-   constexpr int RPixErrorChecker::ADC_bits ;
-   constexpr int RPixErrorChecker::OMIT_ERR_bits;
-  
-   constexpr int RPixErrorChecker::CRC_shift;
-   constexpr int RPixErrorChecker::ADC_shift ;
-   constexpr int RPixErrorChecker::PXID_shift;
-   constexpr int RPixErrorChecker::DCOL_shift;
-   constexpr int RPixErrorChecker::ROC_shift ;
-   constexpr int RPixErrorChecker::OMIT_ERR_shift ;
- 
-   constexpr RPixErrorChecker::Word32 RPixErrorChecker::dummyDetId ;
-
-   constexpr RPixErrorChecker::Word64 RPixErrorChecker::CRC_mask;
-   constexpr RPixErrorChecker::Word32 RPixErrorChecker::ERROR_mask ;
-   constexpr RPixErrorChecker::Word32 RPixErrorChecker::OMIT_ERR_mask;
-
+constexpr RPixErrorChecker::Word32 RPixErrorChecker::dummyDetId ;
 
 RPixErrorChecker::RPixErrorChecker() 
 {
