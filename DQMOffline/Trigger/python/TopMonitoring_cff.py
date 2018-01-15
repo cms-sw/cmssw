@@ -139,7 +139,7 @@ topSingleMuonHLTMonitor_Mu24.njets = cms.uint32(0)
 topSingleMuonHLTMonitor_Mu24.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
 topSingleMuonHLTMonitor_Mu24.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & isTrackerMuon & numberOfMatches>1  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.) )/pt<0.15')
 topSingleMuonHLTMonitor_Mu24.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
-topSingleMuonHLTMonitor_Mu24.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*'])
+topSingleMuonHLTMonitor_Mu24.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*')
 
 topSingleMuonHLTMonitor_Mu27 = hltTOPmonitoring.clone()
 topSingleMuonHLTMonitor_Mu27.FolderName = cms.string('HLT/TOP/SingleLepton/SingleMuon/Mu27/')
@@ -149,7 +149,7 @@ topSingleMuonHLTMonitor_Mu27.njets = cms.uint32(0)
 topSingleMuonHLTMonitor_Mu27.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
 topSingleMuonHLTMonitor_Mu27.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & isTrackerMuon & numberOfMatches>1  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.) )/pt<0.15')
 topSingleMuonHLTMonitor_Mu27.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
-topSingleMuonHLTMonitor_Mu27.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_IsoMu27_v*',])
+topSingleMuonHLTMonitor_Mu27.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 
 topSingleMuonHLTMonitor_Mu50 = hltTOPmonitoring.clone()
@@ -160,7 +160,7 @@ topSingleMuonHLTMonitor_Mu50.njets = cms.uint32(0)
 topSingleMuonHLTMonitor_Mu50.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
 topSingleMuonHLTMonitor_Mu50.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & isTrackerMuon & numberOfMatches>1  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.) )/pt<0.15')
 topSingleMuonHLTMonitor_Mu50.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
-topSingleMuonHLTMonitor_Mu50.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu50_v*'])
+topSingleMuonHLTMonitor_Mu50.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu50_v*')
 
 
 #########DiElectron
@@ -172,7 +172,7 @@ topDiElectronHLTMonitor.njets = cms.uint32(0)
 topDiElectronHLTMonitor.eleSelection = cms.string('pt>15 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
 topDiElectronHLTMonitor.muoSelection = cms.string('pt>15 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
 topDiElectronHLTMonitor.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
-topDiElectronHLTMonitor.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*'])
+topDiElectronHLTMonitor.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*')
 
 topDiElectronHLTMonitor_Dz = topDiElectronHLTMonitor.clone()
 topDiElectronHLTMonitor_Dz.FolderName = cms.string('HLT/TOP/DiLepton/DiElectron/Ele23Ele12_DzEfficiency/')
@@ -187,7 +187,7 @@ topDiMuonHLTMonitor_noDz.njets = cms.uint32(0)
 topDiMuonHLTMonitor_noDz.eleSelection = cms.string('pt>15 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
 topDiMuonHLTMonitor_noDz.muoSelection = cms.string('pt>15 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
 topDiMuonHLTMonitor_noDz.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
-topDiMuonHLTMonitor_noDz.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*'])
+topDiMuonHLTMonitor_noDz.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*')
 
 topDiMuonHLTMonitor_Dz = hltTOPmonitoring.clone()
 topDiMuonHLTMonitor_Dz.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_Dz/')
@@ -197,7 +197,7 @@ topDiMuonHLTMonitor_Dz.njets = cms.uint32(0)
 topDiMuonHLTMonitor_Dz.eleSelection = cms.string('pt>15 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')              
 topDiMuonHLTMonitor_Dz.muoSelection = cms.string('pt>15 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
 topDiMuonHLTMonitor_Dz.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
-topDiMuonHLTMonitor_Dz.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*'])
+topDiMuonHLTMonitor_Dz.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
 
 topDiMuonHLTMonitor_Dz_Mu17_Mu8 = topDiMuonHLTMonitor_Dz.clone()
 topDiMuonHLTMonitor_Dz_Mu17_Mu8.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_DzEfficiency/')
@@ -212,7 +212,40 @@ topDiMuonHLTMonitor_Mass8.njets = cms.uint32(0)
 topDiMuonHLTMonitor_Mass8.eleSelection = cms.string('pt>15 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
 topDiMuonHLTMonitor_Mass8.muoSelection = cms.string('pt>15 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
 topDiMuonHLTMonitor_Mass8.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
-topDiMuonHLTMonitor_Mass8.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v'])
+topDiMuonHLTMonitor_Mass8.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*')
+
+
+topDiMuonHLTMonitor_Mass3p8 = hltTOPmonitoring.clone()
+topDiMuonHLTMonitor_Mass3p8.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mass3p8/')
+topDiMuonHLTMonitor_Mass3p8.nmuons = cms.uint32(2)
+topDiMuonHLTMonitor_Mass3p8.nelectrons = cms.uint32(0)
+topDiMuonHLTMonitor_Mass3p8.njets = cms.uint32(0)
+topDiMuonHLTMonitor_Mass3p8.eleSelection = cms.string('pt>15 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+topDiMuonHLTMonitor_Mass3p8.muoSelection = cms.string('pt>15 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
+topDiMuonHLTMonitor_Mass3p8.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
+topDiMuonHLTMonitor_Mass3p8.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v*')
+
+topDiMuonHLTMonitor_Mass8Mon = hltTOPmonitoring.clone()
+topDiMuonHLTMonitor_Mass8Mon.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass8Efficiency/')
+topDiMuonHLTMonitor_Mass8Mon.nmuons = cms.uint32(2)
+topDiMuonHLTMonitor_Mass8Mon.nelectrons = cms.uint32(0)
+topDiMuonHLTMonitor_Mass8Mon.njets = cms.uint32(0)
+topDiMuonHLTMonitor_Mass8Mon.eleSelection = cms.string('pt>15 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+topDiMuonHLTMonitor_Mass8Mon.muoSelection = cms.string('pt>15 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
+topDiMuonHLTMonitor_Mass8Mon.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
+topDiMuonHLTMonitor_Mass8Mon.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*')
+topDiMuonHLTMonitor_Mass8Mon.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
+
+topDiMuonHLTMonitor_Mass3p8Mon = hltTOPmonitoring.clone()
+topDiMuonHLTMonitor_Mass3p8Mon.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass3p8Efficiency/')
+topDiMuonHLTMonitor_Mass3p8Mon.nmuons = cms.uint32(2)
+topDiMuonHLTMonitor_Mass3p8Mon.nelectrons = cms.uint32(0)
+topDiMuonHLTMonitor_Mass3p8Mon.njets = cms.uint32(0)
+topDiMuonHLTMonitor_Mass3p8Mon.eleSelection = cms.string('pt>15 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+topDiMuonHLTMonitor_Mass3p8Mon.muoSelection = cms.string('pt>15 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
+topDiMuonHLTMonitor_Mass3p8Mon.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
+topDiMuonHLTMonitor_Mass3p8Mon.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v*')
+topDiMuonHLTMonitor_Mass3p8Mon.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
 
 #########ElecMuon
 topElecMuonHLTMonitor = hltTOPmonitoring.clone()
@@ -223,7 +256,7 @@ topElecMuonHLTMonitor.njets = cms.uint32(0)
 topElecMuonHLTMonitor.eleSelection = cms.string('pt>15 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
 topElecMuonHLTMonitor.muoSelection = cms.string('pt>15 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)') 
 topElecMuonHLTMonitor.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
-topElecMuonHLTMonitor.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*', 'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*','HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*', 'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v*'])
+topElecMuonHLTMonitor.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*', 'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*','HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*', 'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v*')
 
 #DZ monitor
 topElecMuonHLTMonitor_Dz_Mu12Ele23 = topElecMuonHLTMonitor.clone()
@@ -586,12 +619,14 @@ fullyhadronic_DoubleBTag_DeepCSV_bjet.histoPSet.HTBinning    = cms.vdouble(0,420
 fullyhadronic_DoubleBTag_DeepCSV_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2_v*')
 fullyhadronic_DoubleBTag_DeepCSV_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_v*')
 
+from DQMOffline.Trigger.HLTEGTnPMonitor_cfi import egmGsfElectronIDsForDQM
 
 topMonitorHLT = cms.Sequence(
     )
 
 topHLTDQMSourceExtra = cms.Sequence(
-    topEleJet_ele
+    egmGsfElectronIDsForDQM # Use of electron VID requires this module being executed first
+    + topEleJet_ele
     + topEleJet_jet
     + topEleJet_all
     + topEleHT_ele
@@ -604,6 +639,9 @@ topHLTDQMSourceExtra = cms.Sequence(
     + topDiMuonHLTMonitor_noDz
     + topDiMuonHLTMonitor_Dz
     + topDiMuonHLTMonitor_Mass8
+    + topDiMuonHLTMonitor_Mass3p8
+    + topDiMuonHLTMonitor_Mass8Mon
+    + topDiMuonHLTMonitor_Mass3p8Mon
     + topElecMuonHLTMonitor
     + fullyhadronic_ref350
     + fullyhadronic_ref370
