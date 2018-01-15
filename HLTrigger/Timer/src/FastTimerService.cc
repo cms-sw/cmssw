@@ -830,7 +830,6 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   print_run_summary_(           config.getUntrackedParameter<bool>(     "printRunSummary"          ) ),
   print_job_summary_(           config.getUntrackedParameter<bool>(     "printJobSummary"          ) ),
   // dqm configuration
-  module_id_(                   edm::ModuleDescription::invalidID() ),
   enable_dqm_(                  config.getUntrackedParameter<bool>(     "enableDQM"                ) ),
   enable_dqm_bymodule_(         config.getUntrackedParameter<bool>(     "enableDQMbyModule"        ) ),
   enable_dqm_bypath_(           config.getUntrackedParameter<bool>(     "enableDQMbyPath"          ) ),
@@ -1120,9 +1119,6 @@ FastTimerService::preallocate(edm::service::SystemBounds const& bounds)
   subprocess_global_run_check_  = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
   for (unsigned int i = 0; i < concurrent_runs_; ++i)
     subprocess_global_run_check_[i] = 0;
-
-  // assign a pseudo module id to the FastTimerService
-  module_id_ = edm::ModuleDescription::getUniqueID();
 }
 
 void
