@@ -272,7 +272,7 @@ def psetHadronicOverEMEnergyScaledCut(wpEB, wpEE):
         endcapCr = cms.double( wpEE.hOverECut_Cr ),
         rho = cms.InputTag("fixedGridRhoFastjetAll"),
         barrelCutOff = cms.double(ebCutOff),
-        needsAdditionalProducts = cms.bool(False),
+        needsAdditionalProducts = cms.bool(True),
         isIgnored = cms.bool(False)
         )
 
