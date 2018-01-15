@@ -18,7 +18,7 @@ from HLTrigger.Configuration.common import *
 #     return process
 
 def customiseFor21810(process):
-    from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi.py import calotowermaker
+    from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import calotowermaker
     for producer in producers_by_type(process, "CaloTowersCreator"):
         producer.HcalPhase = cms.int32(1),
         producer.HESThreshold1 = cms.double(0.8),
