@@ -14,7 +14,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-// #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -211,14 +210,6 @@ private:
   void dumpEventToFile();
   void dumpEventToEDM(edm::Event &e);
 
-  // mapping between sums in emulator and data
-  int emul_to_data_sum_index_map[31] = {
-    9, 1, 19, 8, 0, 18, 10, 4, 6, 14,     // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-    28, 24, 13, 27, 23, 15, 5, 7, 22, 12, // 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
-    3, 21, 11, 2, 20, 17, 30, 26, 16, 29, // 20, 21, 22, 23, 24, 25, 26, 27, 28, 29
-    25                                    // 30, 31
-  };
-
   // collections to hold entities reconstructed from data and emulation
   edm::EDGetToken calol2JetCollectionData;
   edm::EDGetToken calol2JetCollectionEmul;
@@ -244,6 +235,9 @@ private:
   edm::Handle<l1t::CaloTowerBxCollection> caloTowerEmulCol;
 
   const unsigned int currBx = 0;
+
+  bool dumpTowers = false;
+  bool dumpWholeEvent = false;
 };
 
 L1TStage2CaloLayer2Comp::L1TStage2CaloLayer2Comp (const edm::ParameterSet& ps)
@@ -288,6 +282,9 @@ L1TStage2CaloLayer2Comp::L1TStage2CaloLayer2Comp (const edm::ParameterSet& ps)
   produces<l1t::EtSumBxCollection> ("emulEtSum").setBranchAlias("emulEtSums");
   produces<l1t::CaloTowerBxCollection> ("dataCaloTower").setBranchAlias("dataCaloTowers");
   produces<l1t::CaloTowerBxCollection> ("emulCaloTower").setBranchAlias("emulCaloTowers");
+
+  dumpTowers = ps.getParameter<bool>("dumpTowers");
+  dumpWholeEvent = ps.getParameter<bool>("dumpWholeEvent");
 }
 
 void L1TStage2CaloLayer2Comp::produce (
@@ -308,59 +305,34 @@ void L1TStage2CaloLayer2Comp::produce (
   e.getByToken(calol2CaloTowerCollectionData, caloTowerDataCol);
   e.getByToken(calol2CaloTowerCollectionEmul, caloTowerEmulCol);
 
-  edm::LogProblem("l1tcalol2ebec") << "processing event " << e.id() << std::endl;
+  edm::LogProblem("l1tcalol2ebec")
+    << "Processing event " << e.id() << std::endl;
 
-  // edm::LogProblem("l1tcalol2ebec") << "data jet col size: " << jetDataCol->size(currBx)
-  // 	    << std::endl;
-  // edm::LogProblem("l1tcalol2ebec") << "emul jet col size: " << jetEmulCol->size(currBx)
-  // 	    << std::endl;
-
-  // edm::LogProblem("l1tcalol2ebec") << "data eg col size: " << egDataCol->size(currBx)
-  // 	    << std::endl;
-  // edm::LogProblem("l1tcalol2ebec") << "emul eg col size: " << egEmulCol->size(currBx)
-  // 	    << std::endl;
-
-  // edm::LogProblem("l1tcalol2ebec") << "data tau col size: " << tauDataCol->size(currBx)
-  // 	    << std::endl;
-  // edm::LogProblem("l1tcalol2ebec") << "emul tau col size: " << tauEmulCol->size(currBx)
-  // 	    << std::endl;
-
-  // edm::LogProblem("l1tcalol2ebec") << "data sum col size: " << sumDataCol->size(currBx)
-  // 	    << std::endl;
-  // edm::LogProblem("l1tcalol2ebec") << "emul sum col size: " << sumEmulCol->size(currBx)
-  // 	    << std::endl;
-
-  using namespace l1t;
-
-  // as a test store every event to edm file
-  if (!compareJets(jetDataCol, jetEmulCol) || true) {
+  if (!compareJets(jetDataCol, jetEmulCol)) {
     eventGood = false;
-    // TODO: Remove cout below once development is finished
-  } else { edm::LogProblem("l1tcalol2ebec") << "jets good" << std::endl;}
+  }
 
-  if (!compareEGs(egDataCol, egEmulCol) || true) {
+  if (!compareEGs(egDataCol, egEmulCol)) {
     eventGood = false;
-    // TODO: Remove cout below once development is finished
-  } else { edm::LogProblem("l1tcalol2ebec") << "egs ok" << std::endl;}
+  }
 
-  if (!compareTaus(tauDataCol, tauEmulCol) || true) {
+  if (!compareTaus(tauDataCol, tauEmulCol)) {
     eventGood = false;
-    // TODO: Remove cout below once development is finished
-  } else { edm::LogProblem("l1tcalol2ebec") << "tau ok" << std::endl;}
+  }
 
-  if (!compareSums(sumDataCol, sumEmulCol) || true) {
+  if (!compareSums(sumDataCol, sumEmulCol)) {
     eventGood = false;
-    // TODO: Remove cout below once development is finished
-  } else { edm::LogProblem("l1tcalol2ebec") << "sums ok" << std::endl;}
+  }
 
   if (!eventGood) {
 
-    dumpEventToFile();
+    if (dumpWholeEvent) {
+      // store all contents of event to log file
+      dumpEventToFile();
+    }
 
     // store all contents of event to edm file:
     dumpEventToEDM(e);
-  } else {
-    edm::LogProblem("l1tcalol2ebec") << " ====> Event good. " << std::endl;
   }
 }
 
@@ -429,10 +401,7 @@ bool L1TStage2CaloLayer2Comp::compareJets(
       }
 
       // if both position and energy agree, jet is good
-      if (etGood && posGood) {
-	// agreementSummary->Fill(JETGOOD_S);
-	// jetSummary->Fill(JETGOOD);
-      } else {
+      if (!etGood || !posGood) {
 	edm::LogProblem("l1tcalol2ebec")
 	  << "Jet Problem (data emul): "
 	  << "\tEt = " << dataIt->hwPt() << " " << emulIt->hwPt()
@@ -454,7 +423,7 @@ bool L1TStage2CaloLayer2Comp::compareJets(
       return false;
   }
 
-  // return a boolean that states whether the jet data in the event is in
+  // return a boolean that states whether the jet data in the event are in
   // agreement
   return eventGood;
 }
@@ -522,9 +491,7 @@ bool L1TStage2CaloLayer2Comp::compareEGs(
       }
 
       // if both position and energy agree, object is good
-      if (posGood && etGood) {
-	// agreementSummary->Fill(EGGOOD_S);
-      } else {
+      if (!posGood || !etGood) {
 	edm::LogProblem("l1tcalol2ebec")
 	  << "EG Problem (data emul): "
 	  << "\tEt = " << dataIt->hwPt() << " " << emulIt->hwPt()
@@ -546,7 +513,7 @@ bool L1TStage2CaloLayer2Comp::compareEGs(
       return false;
   }
 
-  // return a boolean that states whether the jet data in the event is in
+  // return a boolean that states whether the eg data in the event are in
   // agreement
   return eventGood;
 }
@@ -614,9 +581,7 @@ bool L1TStage2CaloLayer2Comp::compareTaus(
       }
 
       // if both position and energy agree, object is good
-      if (posGood && etGood) {
-	// agreementSummary->Fill(TAUGOOD_S);
-      } else {
+      if (!posGood || !etGood) {
 	edm::LogProblem("l1tcalol2ebec")
 	  << "Tau Problem (data emul): "
 	  << "\tEt = " << dataIt->hwPt() << " " << emulIt->hwPt()
@@ -637,7 +602,7 @@ bool L1TStage2CaloLayer2Comp::compareTaus(
       return false;
   }
 
-  // return a boolean that states whether the jet data in the event is in
+  // return a boolean that states whether the tau data in the event are in
   // agreement
   return eventGood;
 }
@@ -673,7 +638,7 @@ bool L1TStage2CaloLayer2Comp::compareSums(
   for (unsigned int i = 0; i < emulCol->size(currBx); i++) {
 
     emulSum = emulCol->at(currBx, i);
-    dataSum = dataCol->at(currBx, emul_to_data_sum_index_map[i]);
+    dataSum = dataCol->at(currBx, l1t::CaloTools::emul_to_data_sum_index_map[i]);
 
     if (emulSum.getType() != dataSum.getType()) {
       edm::LogProblem("l1tcalol2ebec")
@@ -682,139 +647,19 @@ bool L1TStage2CaloLayer2Comp::compareSums(
 	<< std::endl;
     }
 
-
     dataEt = dataSum.hwPt();
     emulEt = emulSum.hwPt();
 
     if (dataEt != emulEt) {
       eventGood = false;
+      edm::LogProblem("l1tcalol2ebec")
+	<< "EtSum problem (data emul):\tType = " << emulSum.getType()
+	<< "\tEt = " << dataEt << " " << emulEt
+	<< std::endl;
     }
-
-    switch (emulSum.getType()) {
-    case l1t::EtSum::EtSumType::kTotalEt:     // ETT (enum val = 0)
-      if (!eventGood) {
-	edm::LogProblem("l1tcalol2ebec") << "ETT sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalEtx:    // ETTx (enum val = 4)
-      if (!eventGood) {
-	edm::LogProblem("l1tcalol2ebec") << "ETTx sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalEty:    // ETTy (enum val = 5)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "ETTy sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalEtHF:   // ETTHF (enum val = 15)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "ETTHF sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalEtxHF:  // ETTHFx (enum val = 9)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "ETTHFx sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalEtyHF:  // ETTHFy (enum val = 10)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "ETTHFy sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalEtEm:   // ETTEM (enum val = 16)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "ETTEM sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kMinBiasHFP0: // MBHFP0 (enum val = 11)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "MBHFP0 sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kMinBiasHFP1: // MBHFP1 (enum val = 13)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "MBHFP1 sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kMinBiasHFM0: // MBHFM0 (enum val = 12)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "MBHFM0 sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kMinBiasHFM1: // MBHFM1 (enum val = 14)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "MBHFM1 sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTowerCount:  // TowerCount (enum val = 21)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "TowerCount sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalHt:     // HTT (enum val = 1)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "HTT sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalHtx:    // HTTx (enum val = 6)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "HTTx sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalHty:    // HTTy (enum val = 7)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "HTTy sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalHtHF:   // HTTHF (enum val = 17)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "HTTHF sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalHtxHF:  // HTTHFx (enum val = 18)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "HTTHFx sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kTotalHtyHF:  // HTTHFy (enum val = 19)
-      if (!eventGood) {
-	eventGood = false;
-	edm::LogProblem("l1tcalol2ebec") << "HTTHFy sum bad" << std::endl;
-      }
-      break;
-    case l1t::EtSum::EtSumType::kMissingEt:   // MET (enum val = 9)
-    case l1t::EtSum::EtSumType::kMissingHt:   // MHT (enum val = 11)
-    case l1t::EtSum::EtSumType::kMissingEtHF: // METHF (enum val = 10)
-    case l1t::EtSum::EtSumType::kMissingHtHF: // MHTHF (enum val = 12)
-      // this module currently compares only MP outputs, the above 4 sume types
-      // are produced by the Demux board in the CaloLayer2 system and are
-      // included here only for completeness (so that switch can be used with an
-      // enum)
-      break;
-    }
-
-    // edm::LogProblem("l1tcalol2ebec")
-    //   << "Checking sums, sum type = " << emulCol->at(currBx, i).getType()
-    //   << " " << dataCol->at(currBx, emul_to_data_sum_index_map[i]).getType()
-    //   << std::endl;
   }
 
-  // return a boolean that states whether the jet data in the event is in
+  // return a boolean that states whether the sum data in the event are in
   // agreement
   return eventGood;
 }
@@ -994,21 +839,113 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Tau> & jets){
   }
 }
 
-void L1TStage2CaloLayer2Comp::dumpEventToFile() {
-  
+void L1TStage2CaloLayer2Comp::dumpEventToFile()
+{
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== Problems found, dumping full event contents ====" << std::endl;
+
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== Event contents in data: ====" << std::endl;
+
+    if (dumpTowers) {
+      edm::LogProblem("l1tcalol2ebec")
+        << "==== Towers: ====" << std::endl;
+
+      for (auto tower = caloTowerDataCol->begin(currBx); tower != caloTowerDataCol->end(currBx); ++tower)
+	edm::LogProblem("l1tcalol2ebec")
+	  << "Tower: Et = " << tower->hwPt() << ", "
+	  << "eta = " << tower->hwEta() << ", "
+	  << "phi = " << tower->hwPhi() << std::endl;
+    }
+
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== Jets: ====" << std::endl;
+    for (auto jet = jetDataCol->begin(currBx); jet != jetDataCol->end(currBx); ++jet)
+      edm::LogProblem("l1tcalol2ebec")
+	<< "Jet: Et = " << jet->hwPt() << ", "
+	<< "eta = " << jet->hwEta() << ", "
+	<< "phi = " << jet->hwPhi() << std::endl;
+
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== EGs: ====" << std::endl;
+    for (auto eg = egDataCol->begin(currBx); eg != egDataCol->end(currBx); ++eg)
+      edm::LogProblem("l1tcalol2ebec")
+	<< "EG: Et = " << eg->hwPt() << ", "
+	<< "eta = " << eg->hwEta() << ", "
+	<< "phi = " << eg->hwPhi() << std::endl;
+
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== Taus: ====" << std::endl;
+    for (auto tau = tauDataCol->begin(currBx); tau != tauDataCol->end(currBx); ++tau)
+      edm::LogProblem("l1tcalol2ebec")
+	<< "Tau: Et = " << tau->hwPt() << ", "
+	<< "eta = " << tau->hwEta() << ", "
+	<< "phi = " << tau->hwPhi() << std::endl;
+
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== Sums: ====" << std::endl;
+    for (auto sum = sumDataCol->begin(currBx); sum != sumDataCol->end(currBx); ++sum)
+      edm::LogProblem("l1tcalol2ebec")
+	<< "Sum: type = " << sum->getType() << " "
+	<< "Et = " << sum->hwPt() << ", "
+	<< "eta = " << sum->hwEta() << ", "
+	<< "phi = " << sum->hwPhi() << std::endl;
+
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== Event contents in emul: ====" << std::endl;
+
+    if (dumpTowers) {
+      edm::LogProblem("l1tcalol2ebec")
+	<< "==== Towers: ====" << std::endl;
+
+      for (auto tower = caloTowerEmulCol->begin(currBx); tower != caloTowerEmulCol->end(currBx); ++tower)
+	edm::LogProblem("l1tcalol2ebec")
+	  << "Tower: Et = " << tower->hwPt() << ", "
+	  << "eta = " << tower->hwEta() << ", "
+	  << "phi = " << tower->hwPhi() << std::endl;
+    }
+
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== Jets: ====" << std::endl;
+    for (auto jet = jetEmulCol->begin(currBx); jet != jetEmulCol->end(currBx); ++jet)
+      edm::LogProblem("l1tcalol2ebec")
+	<< "Jet: Et = " << jet->hwPt() << ", "
+	<< "eta = " << jet->hwEta() << ", "
+	<< "phi = " << jet->hwPhi() << std::endl;
+
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== EGs: ====" << std::endl;
+    for (auto eg = egEmulCol->begin(currBx); eg != egEmulCol->end(currBx); ++eg)
+      edm::LogProblem("l1tcalol2ebec")
+	<< "EG: Et = " << eg->hwPt() << ", "
+	<< "eta = " << eg->hwEta() << ", "
+	<< "phi = " << eg->hwPhi() << std::endl;
+
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== Taus: ====" << std::endl;
+    for (auto tau = tauEmulCol->begin(currBx); tau != tauEmulCol->end(currBx); ++tau)
+      edm::LogProblem("l1tcalol2ebec")
+	<< "Tau: Et = " << tau->hwPt() << ", "
+	<< "eta = " << tau->hwEta() << ", "
+	<< "phi = " << tau->hwPhi() << std::endl;
+
+    edm::LogProblem("l1tcalol2ebec")
+      << "==== Sums: ====" << std::endl;
+    for (auto sum = sumEmulCol->begin(currBx); sum != sumEmulCol->end(currBx); ++sum)
+      edm::LogProblem("l1tcalol2ebec")
+	<< "Sum: type = " << sum->getType() << " "
+	<< "Et = " << sum->hwPt() << ", "
+	<< "eta = " << sum->hwEta() << ", "
+	<< "phi = " << sum->hwPhi() << std::endl;
+
 }
 
 
-void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e) {
-
-
-
+void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e)
+{
     // store all jets to an edm file
   std::unique_ptr<l1t::JetBxCollection> mpjets_data (new l1t::JetBxCollection(0, currBx, currBx));
   std::unique_ptr<l1t::JetBxCollection> mpjets_emul (new l1t::JetBxCollection(0, currBx, currBx));
-
-    // std::unique_ptr<std::vector<Jet>> localJetsData(new std::vector<Jet>);
-    // std::unique_ptr<std::vector<Jet>> localJetsEmul(new std::vector<Jet>);
 
     for (auto jet = jetDataCol->begin(currBx); jet != jetDataCol->end(currBx); ++jet)
       mpjets_data->push_back(0, (*jet));
@@ -1022,9 +959,6 @@ void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e) {
     std::unique_ptr<l1t::EGammaBxCollection> mpEGammas_data (new l1t::EGammaBxCollection(0, currBx, currBx));
     std::unique_ptr<l1t::EGammaBxCollection> mpEGammas_emul (new l1t::EGammaBxCollection(0, currBx, currBx));
 
-    // std::unique_ptr<std::vector<EGamma>> localEGammasData(new std::vector<EGamma>);
-    // std::unique_ptr<std::vector<EGamma>> localEGammasEmul(new std::vector<EGamma>);
-
     for (auto eg = egDataCol->begin(currBx); eg != egDataCol->end(currBx); ++eg)
       mpEGammas_data->push_back(0, (*eg));
     for (auto eg = egEmulCol->begin(currBx); eg != egEmulCol->end(currBx); ++eg)
@@ -1036,9 +970,6 @@ void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e) {
     // store all taus to an edm file
     std::unique_ptr<l1t::TauBxCollection> mptaus_data (new l1t::TauBxCollection(0, currBx, currBx));
     std::unique_ptr<l1t::TauBxCollection> mptaus_emul (new l1t::TauBxCollection(0, currBx, currBx));
-
-    // std::unique_ptr<std::vector<Tau>> localTausData(new std::vector<Tau>);
-    // std::unique_ptr<std::vector<Tau>> localTausEmul(new std::vector<Tau>);
 
     for (auto tau = tauDataCol->begin(currBx); tau != tauDataCol->end(currBx); ++tau)
       mptaus_data->push_back(0, (*tau));
@@ -1052,9 +983,6 @@ void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e) {
     std::unique_ptr<l1t::EtSumBxCollection> mpsums_data (new l1t::EtSumBxCollection(0, currBx, currBx));
     std::unique_ptr<l1t::EtSumBxCollection> mpsums_emul (new l1t::EtSumBxCollection(0, currBx, currBx));
 
-    // std::unique_ptr<std::vector<EtSum>> localSumsData(new std::vector<EtSum>);
-    // std::unique_ptr<std::vector<EtSum>> localSumsEmul(new std::vector<EtSum>);
-
     for (auto sum = sumDataCol->begin(currBx); sum != sumDataCol->end(currBx); ++sum)
       mpsums_data->push_back(0, (*sum));
     for (auto sum = sumEmulCol->begin(currBx); sum != sumEmulCol->end(currBx); ++sum)
@@ -1066,9 +994,6 @@ void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e) {
     // store calorimeter towers
     std::unique_ptr<l1t::CaloTowerBxCollection> mptowers_data (new l1t::CaloTowerBxCollection(0, currBx, currBx));
     std::unique_ptr<l1t::CaloTowerBxCollection> mptowers_emul (new l1t::CaloTowerBxCollection(0, currBx, currBx));
-
-    // std::unique_ptr<std::vector<CaloTower>> localTowersData(new std::vector<CaloTower>);
-    // std::unique_ptr<std::vector<CaloTower>> localTowersEmul(new std::vector<CaloTower>);
 
     for (auto tower = caloTowerDataCol->begin(currBx); tower != caloTowerDataCol->end(currBx); ++tower)
       mptowers_data->push_back(0, (*tower));
