@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkdqmedanlzr
+Author     : Marco Rovere
+Description: mkdqmedanlzr code
+"""
+
+# system modules
+import sys
+
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
+
+# package modules
+from FWCore.Skeletons.cms import generate, config
+
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
+
+def pkg_help():
+    "mkdqmedanlzr help function"
+    msg  = '\nmkdqmedanlzr script generates CMS DQMEDAnalyzer code'
+    msg += '\nUsage  : mkdqmedanlzr MyAnalyzer -author "FirstName LastName"'
+    msg += ' <example_track> <example_histo>'
+    msg += '\nOutput : '
+    msg += """
+        MyAnalyzer/
+        |  plugins/
+        |  |-- BuildFile.xml
+        |  |-- MyAnalyzer.cc
+        |  python/
+        |  |-- CfiFile_cfi.py
+        |  |-- ConfFile_cfg.py
+        |  test/
+        |  doc/
+        """
+    msg += '\nExample:'
+    msg += '\n        # create new DQMEDAnalyzer code'
+    msg += '\n        mkdqmedanlzr MyAnalyzer'
+    msg += '\n        # create new DQMEDAnalyzer code with given author'
+    msg += '\n        mkdqmedanlzr MyAnalyzer -author "First Last"'
+    msg += '\n        # create new DQMEDAnalyzer code with track example'
+    msg += '\n        mkdqmedanlzr MyAnalyzer example_track'
+    msg += '\n        # create new DQMEDAnalyzer code with histo example'
+    msg += '\n        mkdqmedanlzr MyAnalyzer example_histo'
+    msg += '\n'
+    return msg
+
+if __name__ == '__main__':
+    generate(config('DQMEDAnalyzer', pkg_help(), tmpl_dir()))
