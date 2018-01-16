@@ -192,6 +192,28 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
+  // forward declarations
+  struct Resources;
+  struct AtomicResources;
+
+  // per-thread measurements
+  struct Measurement {
+  public:
+    Measurement();
+    void measure();
+    void measure_and_store(Resources & store);
+    void measure_and_accumulate(AtomicResources & store);
+
+  public:
+    #ifdef DEBUG_THREAD_CONCURRENCY
+    std::thread::id                                  id;
+    #endif // DEBUG_THREAD_CONCURRENCY
+    boost::chrono::thread_clock::time_point          time_thread;
+    boost::chrono::high_resolution_clock::time_point time_real;
+    uint64_t                                         allocated;
+    uint64_t                                         deallocated;
+  };
+
   // highlight a group of modules
   struct GroupOfModules {
   public:
@@ -241,24 +263,6 @@ private:
   public:
     Resources total;
     unsigned  events;
-  };
-
-  // per-thread measurements
-  struct Measurement {
-  public:
-    Measurement();
-    void measure();
-    void measure_and_store(Resources & store);
-    void measure_and_accumulate(AtomicResources & store);
-
-  public:
-    #ifdef DEBUG_THREAD_CONCURRENCY
-    std::thread::id                                  id;
-    #endif // DEBUG_THREAD_CONCURRENCY
-    boost::chrono::thread_clock::time_point          time_thread;
-    boost::chrono::high_resolution_clock::time_point time_real;
-    uint64_t                                         allocated;
-    uint64_t                                         deallocated;
   };
 
   struct ResourcesPerPath {
@@ -382,14 +386,19 @@ private:
     void book(DQMStore::ConcurrentBooker &, ProcessCallGraph const&, std::vector<GroupOfModules> const&,
         PlotRanges const&  event_ranges, PlotRanges const&  path_ranges,
         PlotRanges const&  module_ranges, unsigned int lumisections,
-        bool bymodule, bool bypath, bool byls);
+        bool bymodule, bool bypath, bool byls, bool transitions);
     void fill(ProcessCallGraph const&, ResourcesPerJob const&, unsigned int ls);
+    void fill_run(AtomicResources const&);
+    void fill_lumi(AtomicResources const&, unsigned int lumisection);
 
   private:
     // resources spent in all the modules of the job
     PlotsPerElement              event_;
     PlotsPerElement              event_ex_;
     PlotsPerElement              overhead_;
+    // resources spent in the modules' lumi and run transitions
+    PlotsPerElement              lumi_;
+    PlotsPerElement              run_;
     // resources spent in the highlighted modules
     std::vector<PlotsPerElement> highlight_;
     // resources spent in each module
@@ -406,7 +415,12 @@ private:
   std::vector<ResourcesPerJob>  streams_;
 
   // concurrent histograms and profiles
-  std::unique_ptr<PlotsPerJob>  plots_; 
+  std::unique_ptr<PlotsPerJob>  plots_;
+
+  // per-lumi and per-run information
+  std::vector<AtomicResources>  lumi_transition_;               // resources spent in the modules' global and stream lumi transitions
+  std::vector<AtomicResources>  run_transition_;                // resources spent in the modules' global and stream run transitions
+  AtomicResources               overhead_;                      // resources spent outside of the modules' transitions
 
   // summary data
   ResourcesPerJob               job_summary_;                   // whole event time accounting per-job
@@ -419,12 +433,14 @@ private:
 
   // atomic variables to keep track of the completion of each step, process by process
   std::unique_ptr<std::atomic<unsigned int>[]> subprocess_event_check_;
+  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_global_lumi_check_;
   std::unique_ptr<std::atomic<unsigned int>[]> subprocess_global_run_check_;
 
   // retrieve the current thread's per-thread quantities
   Measurement & thread();
 
   // job configuration
+  unsigned int                  concurrent_lumis_;
   unsigned int                  concurrent_runs_;
   unsigned int                  concurrent_streams_;
   unsigned int                  concurrent_threads_;
@@ -440,6 +456,7 @@ private:
   const bool                    enable_dqm_bypath_;
   const bool                    enable_dqm_byls_;
   const bool                    enable_dqm_bynproc_;
+  const bool                    enable_dqm_transitions_;
 
   const PlotRanges              dqm_event_ranges_;
   const PlotRanges              dqm_path_ranges_;
@@ -465,6 +482,9 @@ private:
   void printEventLine(T& out, Resources const& data, std::string const & label) const;
 
   template <typename T>
+  void printEventLine(T& out, AtomicResources const& data, std::string const & label) const;
+
+  template <typename T>
   void printEvent(T& out, ResourcesPerJob const&) const;
 
   template <typename T>
@@ -483,7 +503,10 @@ private:
   void printPathSummaryLine(T& out, Resources const& data, Resources const& total, uint64_t events, std::string const& label) const;
 
   template <typename T>
-  void printSummary(T& out, ResourcesPerJob const&, std::string const& label) const;
+  void printSummary(T& out, ResourcesPerJob const& data, std::string const& label) const;
+
+  template <typename T>
+  void printTransition(T& out, AtomicResources const& data, std::string const& label) const;
 
   // check if this is the first process being signalled
   bool isFirstSubprocess(edm::StreamContext const&);
