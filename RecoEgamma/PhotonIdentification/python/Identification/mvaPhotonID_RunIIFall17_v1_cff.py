@@ -8,10 +8,9 @@ import FWCore.ParameterSet.Config as cms
 #
 
 #
-# The following MVA is derived for Spring16 MC samples for non-triggering photons.
+# The following MVA is derived for Fall17 samples for non-triggering photons.
 # See more documentation in these presentations:
-#    https://indico.cern.ch/event/662750/contributions/2779550/attachments/1553126/2441124/PhotonIDMVA-06.11.2017.pdf
-#    https://indico.cern.ch/event/662751/contributions/2778043/attachments/1562017/2459674/EGamma_WorkShop_21.11.17_Debabrata.pdf
+# https://indico.cern.ch/event/662751/contributions/2778043/attachments/1562017/2459674/EGamma_WorkShop_21.11.17_Debabrata.pdf
 #
 
 # This MVA implementation class name
