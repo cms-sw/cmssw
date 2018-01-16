@@ -902,6 +902,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent,
         if (clusterchtkhistomapon) tkmapclusterch->fill(detid, 0.);
         if (found_layer_me && layerswitchnumclusterprofon)
           layer_single.LayerNumberOfClusterProfile->Fill(iDet, 0.0);
+      }
+
+      if (isearch == cluster_detsetvektor->end()) {
         continue;  // no clusters for this detid => jump to next step of loop
       }
 
