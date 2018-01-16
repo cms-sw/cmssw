@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-pvMonitor = DQMStep1Module('PrimaryVertexMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+pvMonitor = DQMEDAnalyzer('PrimaryVertexMonitor',
    TopFolderName  = cms.string("OfflinePV"),
    AlignmentLabel = cms.string("Alignment"),                           
    vertexLabel    = cms.InputTag("offlinePrimaryVertices"),

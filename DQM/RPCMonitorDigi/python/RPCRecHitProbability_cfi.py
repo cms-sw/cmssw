@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcrechitprobability = DQMStep1Module('RPCRecHitProbability',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+rpcrechitprobability = DQMEDAnalyzer('RPCRecHitProbability',
                                       SaveRootFile = cms.untracked.bool(False),
                                       RootFileName = cms.untracked.string('RPCRecHitProbabilityDQM.root'),
                                       MuonPtCut = cms.untracked.double(3.0),

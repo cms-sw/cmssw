@@ -45,10 +45,12 @@ process.dqmSaver.workflow = cms.untracked.string(myWorkflow)
 
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
-process.dqm_multi_thread_a = DQMStep1Module('DQMTestMultiThread',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.dqm_multi_thread_a = DQMEDAnalyzer('DQMTestMultiThread',
                                             folder = cms.untracked.string("A_Folder/Module"),
                                             fillValue = cms.untracked.double(2.))
-process.dqm_multi_thread_b = DQMStep1Module('DQMTestMultiThread',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.dqm_multi_thread_b = DQMEDAnalyzer('DQMTestMultiThread',
                                             folder = cms.untracked.string("B_Folder/Module"),
                                             fillValue = cms.untracked.double(3.))
 

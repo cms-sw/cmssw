@@ -306,7 +306,8 @@ hltSiPixelPhase1TrackClustersConf = cms.VPSet(
    hltSiPixelPhase1ClustersChargeVsSizeOnTrack
 )
 
-hltSiPixelPhase1TrackClustersAnalyzer = DQMStep1Module('SiPixelPhase1TrackClusters',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltSiPixelPhase1TrackClustersAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackClusters',
         VertexCut  = cms.untracked.bool(False),
         clusters   = cms.InputTag("hltSiPixelClusters"),
         tracks     = cms.InputTag("hltMergedTracks"), #hltIter2Merged"

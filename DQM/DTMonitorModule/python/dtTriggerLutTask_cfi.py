@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dtTriggerLutMonitor = DQMStep1Module('DTLocalTriggerLutTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtTriggerLutMonitor = DQMEDAnalyzer('DTLocalTriggerLutTask',
     # labels of DDU/TM data and 4D segments
     inputTagTMin = cms.untracked.InputTag("twinMuxStage2Digis:PhIn"),
     inputTagTMout = cms.untracked.InputTag("twinMuxStage2Digis:PhOut"),

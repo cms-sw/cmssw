@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SUSY_HLT_MET_HT_MUON_BTAG = DQMStep1Module('SUSY_HLT_Muon_Hadronic',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SUSY_HLT_MET_HT_MUON_BTAG = DQMEDAnalyzer('SUSY_HLT_Muon_Hadronic',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   MuonCollection = cms.InputTag("muons"),

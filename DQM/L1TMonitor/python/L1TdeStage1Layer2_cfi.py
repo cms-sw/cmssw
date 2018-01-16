@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1TdeStage1Layer2 = DQMStep1Module('L1TdeGCT',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1TdeStage1Layer2 = DQMEDAnalyzer('L1TdeGCT',
     DataEmulCompareSource = cms.InputTag("l1compareforstage1"),
     HistFolder = cms.untracked.string('L1TEMU/Stage1Layer2expert'),
     HistFile = cms.untracked.string(''),

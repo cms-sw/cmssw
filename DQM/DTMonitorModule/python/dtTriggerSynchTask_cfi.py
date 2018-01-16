@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dtTriggerSynchMonitor = DQMStep1Module('DTLocalTriggerSynchTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtTriggerSynchMonitor = DQMEDAnalyzer('DTLocalTriggerSynchTask',
     staticBooking = cms.untracked.bool(True),
     # labels of DDU/TM data and 4D segments
     TMInputTag    = cms.InputTag('dttfDigis'),

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1demon = DQMStep1Module('L1TDEMON',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1demon = DQMEDAnalyzer('L1TDEMON',
     HistFolder = cms.untracked.string('L1TEMU'),
     HistFile = cms.untracked.string('l1demon.root'),
     disableROOToutput = cms.untracked.bool(True),

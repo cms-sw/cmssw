@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 
 
-photonAnalysis = DQMStep1Module('PhotonAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+photonAnalysis = DQMEDAnalyzer('PhotonAnalyzer',
     ComponentName = cms.string('photonAnalysis'),
     phoProducer = cms.InputTag('gedPhotons'),
     analyzerName = cms.string('gedPhotonAnalyzer'),

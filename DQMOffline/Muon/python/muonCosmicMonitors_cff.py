@@ -19,7 +19,8 @@ from DQMOffline.Muon.muonIdDQM_cff import *
 from DQMOffline.Muon.muonQualityTests_cff import *
 
 
-dqmInfoMuons = DQMStep1Module('DQMEventInfo',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoMuons = DQMEDAnalyzer('DQMEventInfo',
                               subSystemFolder = cms.untracked.string('Muons')
                               )
 

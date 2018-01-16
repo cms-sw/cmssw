@@ -48,7 +48,8 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
 )
 
 
-SiPixelPhase1TrackClustersAnalyzerV = DQMStep1Module('SiPixelPhase1TrackClustersV',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1TrackClustersAnalyzerV = DQMEDAnalyzer('SiPixelPhase1TrackClustersV',
         clusters = cms.InputTag("siPixelClusters"),
         tracks = cms.InputTag("generalTracks"),
         histograms = SiPixelPhase1TrackClustersConf,

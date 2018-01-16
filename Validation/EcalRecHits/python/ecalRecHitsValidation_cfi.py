@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalRecHitsValidation = DQMStep1Module('EcalRecHitsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalRecHitsValidation = DQMEDAnalyzer('EcalRecHitsValidation',
     hitsProducer = cms.string('g4SimHits'),
     outputFile = cms.untracked.string(''),
     EEuncalibrechitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEE"),

@@ -15,7 +15,8 @@ hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
 hltBtagJetsbyRef.jets = cms.InputTag("ak4GenJetsNoNu")
 
 #define HltVertexValidationVertices for the vertex DQM validation
-HltVertexValidationVertices= DQMStep1Module('HLTVertexPerformanceAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+HltVertexValidationVertices= DQMEDAnalyzer('HLTVertexPerformanceAnalyzer',
         SimVertexCollection = cms.InputTag("g4SimHits"),
 	TriggerResults = cms.InputTag('TriggerResults','',"HLT"),
 	HLTPathNames =cms.vstring(
@@ -40,7 +41,8 @@ HltVertexValidationVertices= DQMStep1Module('HLTVertexPerformanceAnalyzer',
 )
 
 #define bTagValidation for the b-tag DQM validation (distribution plot)
-hltbTagValidation = DQMStep1Module('HLTBTagPerformanceAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltbTagValidation = DQMEDAnalyzer('HLTBTagPerformanceAnalyzer',
 	TriggerResults = cms.InputTag('TriggerResults','','HLT'),
 	HLTPathNames =cms.vstring(
 	'HLT_PFMET120_PFMHT120_IDTight_v',

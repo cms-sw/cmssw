@@ -4,7 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # This object is used to make changes for different running scenarios
 #
 
-SiPixelClusterSource = DQMStep1Module('SiPixelClusterSource',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelClusterSource = DQMEDAnalyzer('SiPixelClusterSource',
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelClusters"),
     digisrc = cms.InputTag("siPixelDigis"),

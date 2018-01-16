@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalpedestalPCL =DQMStep1Module('ECALpedestalPCLworker',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalpedestalPCL =DQMEDAnalyzer('ECALpedestalPCLworker',
                                 BarrelDigis=cms.InputTag('ecalDigis','ebDigis'),
                                 EndcapDigis=cms.InputTag('ecalDigis','eeDigis'),
                                 tcdsRecord  =cms.InputTag('tcdsDigis','tcdsRecord'),

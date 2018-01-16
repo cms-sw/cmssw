@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dtTriggerEfficiencyMonitor = DQMStep1Module('DTTriggerEfficiencyTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtTriggerEfficiencyMonitor = DQMEDAnalyzer('DTTriggerEfficiencyTask',
     # label for muons
     inputTagMuons = cms.untracked.InputTag('muons'),
 

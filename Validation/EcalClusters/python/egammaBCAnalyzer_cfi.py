@@ -4,7 +4,8 @@ import FWCore.ParameterSet.Config as cms
 #  Author: Michael A. Balazs, University of Virginia
 #
 from Validation.EcalClusters.VerificationCommonParameters_cfi import *
-egammaBasicClusterAnalyzer = DQMStep1Module('EgammaBasicClusters',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+egammaBasicClusterAnalyzer = DQMEDAnalyzer('EgammaBasicClusters',
     VerificationCommonParameters,
     endcapBasicClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),
     barrelBasicClusterCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-AnalyzeSUSYDQM = DQMStep1Module('SUSYDQMAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+AnalyzeSUSYDQM = DQMEDAnalyzer('SUSYDQMAnalyzer',
                                 folderName = cms.string("JetMET/SUSYDQM/"),
                                 PFMETCollectionLabel   = cms.InputTag("pfMet"),
                                 CaloMETCollectionLabel   = cms.InputTag("caloMet"),

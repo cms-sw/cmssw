@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 hltTauValidationProcess_IDEAL = "HLT"
 
-hltTauValIdealMonitorMC = DQMStep1Module('HLTTauDQMOfflineSource',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltTauValIdealMonitorMC = DQMEDAnalyzer('HLTTauDQMOfflineSource',
     HLTProcessName = cms.untracked.string(hltTauValidationProcess_IDEAL),
     DQMBaseFolder = cms.untracked.string("HLT/TAU/RelVal/MC"),
     TriggerResultsSrc = cms.untracked.InputTag("TriggerResults", "", hltTauValidationProcess_IDEAL),

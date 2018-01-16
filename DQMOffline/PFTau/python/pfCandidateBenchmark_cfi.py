@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-pfCandidateBenchmark = DQMStep1Module('PFCandidateBenchmarkAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+pfCandidateBenchmark = DQMEDAnalyzer('PFCandidateBenchmarkAnalyzer',
                                       InputCollection = cms.InputTag('particleFlow'),
                                       mode = cms.int32( 1 ),
                                       ptMin = cms.double( 2 ),

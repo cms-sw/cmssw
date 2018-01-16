@@ -11,7 +11,8 @@ tightIsoCut  = "(muonRef.pfIsolationR04.sumChargedHadronPt + max(0., muonRef.pfI
 EletightIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.1"
 ElelooseIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.15"
 
-topSingleLeptonDQM = DQMStep1Module('TopSingleLeptonDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleLeptonDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -139,7 +140,8 @@ topSingleLeptonDQM = DQMStep1Module('TopSingleLeptonDQM',
   )
 )
 
-topSingleMuonLooseDQM = DQMStep1Module('TopSingleLeptonDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleMuonLooseDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -301,7 +303,8 @@ topSingleMuonLooseDQM = DQMStep1Module('TopSingleLeptonDQM',
     ), 
   )
 )
-topSingleMuonMediumDQM = DQMStep1Module('TopSingleLeptonDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleMuonMediumDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -470,7 +473,8 @@ topSingleMuonMediumDQM = DQMStep1Module('TopSingleLeptonDQM',
   )
 )
 
-topSingleElectronLooseDQM = DQMStep1Module('TopSingleLeptonDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleElectronLooseDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -634,7 +638,8 @@ topSingleElectronLooseDQM = DQMStep1Module('TopSingleLeptonDQM',
   )
 )
 
-topSingleElectronMediumDQM = DQMStep1Module('TopSingleLeptonDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleElectronMediumDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##

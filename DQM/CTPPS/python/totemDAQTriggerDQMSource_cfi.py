@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-totemDAQTriggerDQMSource = DQMStep1Module('TotemDAQTriggerDQMSource',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+totemDAQTriggerDQMSource = DQMEDAnalyzer('TotemDAQTriggerDQMSource',
   tagFEDInfo = cms.InputTag("totemRPRawToDigi", "TrackingStrip"),
   tagTriggerCounters = cms.InputTag("totemTriggerRawToDigi"),
 

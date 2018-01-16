@@ -20,7 +20,8 @@ process.ecalHitsValidation = cms.EDFilter("EcalSimHitsTask",
     moduleLabelMC = cms.untracked.string('source')
 )
 
-process.ecalDigisValidation = DQMStep1Module('EcalDigisValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.ecalDigisValidation = DQMEDAnalyzer('EcalDigisValidation',
     moduleLabelTk = cms.untracked.string('g4SimHits'),
     moduleLabelVtx = cms.untracked.string('g4SimHits'),
     outputFile = cms.untracked.string('EcalDigisTBValidation.root'),
@@ -28,7 +29,8 @@ process.ecalDigisValidation = DQMStep1Module('EcalDigisValidation',
     moduleLabelMC = cms.untracked.string('source')
 )
 
-process.ecalBarrelDigisValidation = DQMStep1Module('EcalBarrelDigisValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.ecalBarrelDigisValidation = DQMEDAnalyzer('EcalBarrelDigisValidation',
     verbose = cms.untracked.bool(True)
 )
 

@@ -152,7 +152,8 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 )
 
 
-process.materialdumper = DQMStep1Module('TrackingRecoMaterialAnalyser',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.materialdumper = DQMEDAnalyzer('TrackingRecoMaterialAnalyser',
         tracks = cms.InputTag("generalTracks"),
         vertices = cms.InputTag("offlinePrimaryVertices"),
         DoPredictionsOnly = cms.bool(False),

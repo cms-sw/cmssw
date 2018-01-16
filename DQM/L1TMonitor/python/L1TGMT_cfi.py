@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tGmt = DQMStep1Module('L1TGMT',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tGmt = DQMEDAnalyzer('L1TGMT',
     disableROOToutput = cms.untracked.bool(True),
     verbose = cms.untracked.bool(False),
     gmtSource = cms.InputTag("l1GtUnpack"),

@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-gemSimHitValidation = DQMStep1Module('GEMHitsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+gemSimHitValidation = DQMEDAnalyzer('GEMHitsValidation',
     verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
     # st1, st2 of xbin, st1, st2 of ybin
@@ -12,7 +13,8 @@ gemSimHitValidation = DQMStep1Module('GEMHitsValidation',
     detailPlot = cms.bool(False), 
 )
 
-gemSimTrackValidation = DQMStep1Module('GEMSimTrackMatch',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+gemSimTrackValidation = DQMEDAnalyzer('GEMSimTrackMatch',
     verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.untracked.string('g4SimHits'),
     simMuOnlyGEM = cms.untracked.bool(True),

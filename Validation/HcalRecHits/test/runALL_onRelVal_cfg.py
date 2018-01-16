@@ -19,7 +19,8 @@ process.source = cms.Source("PoolSource",
       )
 )
 
-process.hcalRecoAnalyzer = DQMStep1Module('HcalRecHitsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     eventype = cms.untracked.string('multi'),
     outputFile = cms.untracked.string('HcalRecHitsValidationALL_RelVal.root'),
     ecalselector = cms.untracked.string('yes'),

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalPreshowerRecHitsValidation = DQMStep1Module('EcalPreshowerRecHitsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalPreshowerRecHitsValidation = DQMEDAnalyzer('EcalPreshowerRecHitsValidation',
     EErechitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     ESrechitCollection = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     EEuncalibrechitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEE"),

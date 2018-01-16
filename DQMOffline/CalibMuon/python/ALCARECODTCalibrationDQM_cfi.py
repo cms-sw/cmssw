@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ALCARECODTCalibrationDQM = DQMStep1Module('DTPreCalibrationTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ALCARECODTCalibrationDQM = DQMEDAnalyzer('DTPreCalibrationTask',
     SaveFile = cms.untracked.bool(False),
     outputFileName = cms.untracked.string('DigiHistos.root'),
     digiLabel = cms.untracked.string('muonDTDigis'),

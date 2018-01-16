@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-me0HitsValidation = DQMStep1Module('ME0HitsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+me0HitsValidation = DQMEDAnalyzer('ME0HitsValidation',
     verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.InputTag('g4SimHits',"MuonME0Hits"),
     # st1, st2_short, st2_long of xbin, st1,st2_short,st2_long of ybin

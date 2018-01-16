@@ -17,7 +17,8 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("histos.root")
 )
 
-process.dqmInfoJetMET = DQMStep1Module('DQMEventInfo',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.dqmInfoJetMET = DQMEDAnalyzer('DQMEventInfo',
                                          subSystemFolder = cms.untracked.string('JetMET')
                                      )
 

@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.EcalSimProducers.ecalSimParameterMap_cff import *
 from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
-ecalMixingModuleValidation = DQMStep1Module('EcalMixingModuleValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalMixingModuleValidation = DQMEDAnalyzer('EcalMixingModuleValidation',
     ecal_sim_parameter_map,
     es_electronics_sim,
     hitsProducer = cms.string('g4SimHits'),

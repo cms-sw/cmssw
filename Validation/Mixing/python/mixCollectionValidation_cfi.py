@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.MixingModule.mixObjects_cfi import *
 
-mixCollectionValidation = DQMStep1Module('MixCollectionValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+mixCollectionValidation = DQMEDAnalyzer('MixCollectionValidation',
 #    outputFile = cms.string('histosMixCollStandardMM.root'),
     outputFile = cms.string(''),
     minBunch = cms.int32(-12),

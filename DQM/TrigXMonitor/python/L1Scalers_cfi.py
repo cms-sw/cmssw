@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-l1s = DQMStep1Module('L1Scalers',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1s = DQMEDAnalyzer('L1Scalers',
                    l1GtData = cms.InputTag("l1GtUnpack","","HLT"),
                    dqmFolder = cms.untracked.string("L1T/L1Scalers_EvF"),
                    verbose = cms.untracked.bool(False),

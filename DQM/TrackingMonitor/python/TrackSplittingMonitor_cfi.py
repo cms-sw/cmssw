@@ -5,7 +5,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
-TrackSplitMonitor = DQMStep1Module('TrackSplittingMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+TrackSplitMonitor = DQMEDAnalyzer('TrackSplittingMonitor',
                  
     FolderName = cms.string('TrackSplitMonitoring'),
 	

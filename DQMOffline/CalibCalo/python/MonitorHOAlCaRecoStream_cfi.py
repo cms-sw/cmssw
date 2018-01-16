@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-MonitorHOAlCaRecoStream = DQMStep1Module('DQMHOAlCaRecoStream',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+MonitorHOAlCaRecoStream = DQMEDAnalyzer('DQMHOAlCaRecoStream',
     RootFileName = cms.untracked.string('test.root'),
     folderName = cms.untracked.string('AlCaReco/HcalHO'),
     sigmaval =  cms.untracked.double(0.2),

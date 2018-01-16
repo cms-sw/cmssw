@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 
 
-zmumugammaAnalysis = DQMStep1Module('ZToMuMuGammaAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+zmumugammaAnalysis = DQMEDAnalyzer('ZToMuMuGammaAnalyzer',
                                     
     ComponentName = cms.string('zmumugammaAnalysis'),
     analyzerName = cms.string('zmumugammaGedValidation'),

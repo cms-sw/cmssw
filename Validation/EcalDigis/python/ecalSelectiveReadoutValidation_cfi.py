@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalSelectiveReadoutValidation = DQMStep1Module('EcalSelectiveReadoutValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalSelectiveReadoutValidation = DQMEDAnalyzer('EcalSelectiveReadoutValidation',
     #Input collection names:
     EbDigiCollection = cms.InputTag("simEcalDigis","ebDigis"),
     EeDigiCollection = cms.InputTag("simEcalDigis","eeDigis"),

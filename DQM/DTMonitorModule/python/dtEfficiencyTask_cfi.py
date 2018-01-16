@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dtEfficiencyMonitor = DQMStep1Module('DTEfficiencyTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtEfficiencyMonitor = DQMEDAnalyzer('DTEfficiencyTask',
     # switch for verbosity
     debug = cms.untracked.bool(False),
     # labels of 4D and 1D hits

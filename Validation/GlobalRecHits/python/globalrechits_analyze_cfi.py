@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-globalrechitsanalyze = DQMStep1Module('GlobalRecHitsAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+globalrechitsanalyze = DQMEDAnalyzer('GlobalRecHitsAnalyzer',
     MuDTSrc = cms.InputTag("dt1DRecHits"),
     SiPxlSrc = cms.InputTag("siPixelRecHits"),
     # as of 110p2, needs to be 1. Anything ealier should be 0.

@@ -10,7 +10,8 @@ from DQM.EcalMonitorTasks.LaserTask_cfi import ecalLaserTask
 from DQM.EcalMonitorTasks.LedTask_cfi import ecalLedTask
 from DQM.EcalMonitorTasks.PNDiodeTask_cfi import ecalPNDiodeTask
 
-ecalPedestalMonitorTask = DQMStep1Module('EcalDQMonitorTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalPedestalMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     moduleName = cms.untracked.string("EcalPedestal Monitor Source"),
     workers = cms.untracked.vstring("PedestalTask"),
     workerParameters = cms.untracked.PSet(
@@ -21,7 +22,8 @@ ecalPedestalMonitorTask = DQMStep1Module('EcalDQMonitorTask',
     resetInterval = cms.untracked.double(2.),
     verbosity = cms.untracked.int32(0)
 )
-ecalTestPulseMonitorTask = DQMStep1Module('EcalDQMonitorTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalTestPulseMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     moduleName = cms.untracked.string("EcalTestPulse Monitor Source"),
     workers = cms.untracked.vstring("TestPulseTask"),
     workerParameters = cms.untracked.PSet(
@@ -32,7 +34,8 @@ ecalTestPulseMonitorTask = DQMStep1Module('EcalDQMonitorTask',
     resetInterval = cms.untracked.double(2.),
     verbosity = cms.untracked.int32(0)                                          
 )
-ecalLaserLedMonitorTask = DQMStep1Module('EcalDQMonitorTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalLaserLedMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     moduleName = cms.untracked.string("EcalLaserLed Monitor Source"),
     workers = cms.untracked.vstring("LaserTask", "LedTask"),
     workerParameters = cms.untracked.PSet(
@@ -44,7 +47,8 @@ ecalLaserLedMonitorTask = DQMStep1Module('EcalDQMonitorTask',
     resetInterval = cms.untracked.double(2.),
     verbosity = cms.untracked.int32(0)                                         
 )
-ecalPNDiodeMonitorTask = DQMStep1Module('EcalDQMonitorTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalPNDiodeMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     moduleName = cms.untracked.string("EcalPNDiode Monitor Source"),
     workers = cms.untracked.vstring("PNDiodeTask"),
     workerParameters = cms.untracked.PSet(

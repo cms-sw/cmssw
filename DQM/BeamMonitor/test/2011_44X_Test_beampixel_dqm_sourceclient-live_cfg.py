@@ -118,7 +118,8 @@ if (process.runType.getRunType() == process.runType.pp_run):
     #----------------------------
     # pixelVertexDQM Configuration
     #----------------------------
-    process.pixelVertexDQM = DQMStep1Module('Vx3DHLTAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+    process.pixelVertexDQM = DQMEDAnalyzer('Vx3DHLTAnalyzer',
                                             vertexCollection = cms.InputTag("pixelVertices"),
                                             debugMode        = cms.bool(True),
                                             nLumiReset       = cms.uint32(1),
@@ -206,7 +207,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     #----------------------------
     # pixelVertexDQM Configuration
     #----------------------------
-    process.pixelVertexDQM = DQMStep1Module('Vx3DHLTAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+    process.pixelVertexDQM = DQMEDAnalyzer('Vx3DHLTAnalyzer',
                                             vertexCollection = cms.InputTag("hiSelectedVertex"),
                                             debugMode        = cms.bool(False),
                                             nLumiReset       = cms.uint32(1),

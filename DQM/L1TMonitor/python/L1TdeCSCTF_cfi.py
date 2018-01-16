@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1TdeCSCTF = DQMStep1Module('L1TdeCSCTF',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1TdeCSCTF = DQMEDAnalyzer('L1TdeCSCTF',
 	outFile=cms.untracked.string(""),
 	DQMStore=cms.untracked.bool(True),
 	DQMFolder=cms.untracked.string("L1TEMU/CSCTFexpert"),

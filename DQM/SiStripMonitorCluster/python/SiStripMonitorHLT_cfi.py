@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripMonitorHLT = DQMStep1Module('SiStripMonitorHLT',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiStripMonitorHLT = DQMEDAnalyzer('SiStripMonitorHLT',
     HLTProducer = cms.string('trigger')
 )

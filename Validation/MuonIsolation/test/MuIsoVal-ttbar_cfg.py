@@ -32,13 +32,15 @@ process.source = cms.Source("PoolSource",
 
 process.DQMStore = cms.Service("DQMStore")
 
-process.analyzer_incMuon = DQMStep1Module('MuIsoValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.analyzer_incMuon = DQMEDAnalyzer('MuIsoValidation',
     Global_Muon_Label = cms.untracked.InputTag("muons"),
     requireCombinedMuon = cms.untracked.bool(False),
     rootfilename = cms.untracked.string('ttbar-validation.root'),
 )
 
-process.analyzer_combinedMuon = DQMStep1Module('MuIsoValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.analyzer_combinedMuon = DQMEDAnalyzer('MuIsoValidation',
     Global_Muon_Label = cms.untracked.InputTag("muons"),
     requireCombinedMuon = cms.untracked.bool(True),
     rootfilename = cms.untracked.string('ttbar-validation.root'),

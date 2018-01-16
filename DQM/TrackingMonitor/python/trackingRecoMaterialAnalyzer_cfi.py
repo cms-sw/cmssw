@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-materialDumperAnalyzer = DQMStep1Module('TrackingRecoMaterialAnalyser',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+materialDumperAnalyzer = DQMEDAnalyzer('TrackingRecoMaterialAnalyser',
                                         folder = cms.string('Tracking/RecoMaterial/'),
                                         tracks = cms.InputTag("generalTracks"),
                                         beamspot = cms.InputTag("offlineBeamSpot"),

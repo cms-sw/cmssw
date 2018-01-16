@@ -173,7 +173,8 @@ class EgammaDQMModuleMaker:
         #--------------------
         # initialize the analyzer we put together here
         #--------------------
-        self.__result = DQMStep1Module('EmDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+        self.__result = DQMEDAnalyzer('EmDQM',
                                      triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),                            
                                      genEtaAcc = cms.double(2.5),
                                      genEtAcc = cms.double(2.0),

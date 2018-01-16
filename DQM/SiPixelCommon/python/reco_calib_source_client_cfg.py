@@ -57,7 +57,8 @@ process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
 )
 
-process.dqmEnv = DQMStep1Module('DQMEventInfo',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.dqmEnv = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('Pixel'),
     eventInfoFolder = cms.untracked.string('EventInfo')
 )

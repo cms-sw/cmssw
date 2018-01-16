@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-hltHiggsValidator = DQMStep1Module('HLTHiggsValidator',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
         
     hltProcessName = cms.string("HLT"),
     analyses       = cms.vstring("HWW", "HZZ", "HZZControlPaths", "MuonJet", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","MSSMHbb","MSSMHbbmu","VBFHToInv"),

@@ -262,7 +262,8 @@ hltSiPixelPhase1ClustersTriggers = cms.VPSet(
 #   triggerflag.genericTriggerEventFlag4L1bd,
 )
 
-hltSiPixelPhase1ClustersAnalyzer = DQMStep1Module('SiPixelPhase1Clusters',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltSiPixelPhase1ClustersAnalyzer = DQMEDAnalyzer('SiPixelPhase1Clusters',
         pixelSrc    = cms.InputTag("hltSiPixelClusters"),
         stripSrc    = cms.InputTag("hltSiStripRawToClustersFacility"),
         histograms  = hltSiPixelPhase1ClustersConf,

@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.JetMET.jetDQMConfig_cff import *      # parameters for all jet analyzers
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cleanup
 
-jetDQMAnalyzerAk4CaloUncleaned = DQMStep1Module('JetAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4CaloL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4CaloJets"),
@@ -189,7 +190,8 @@ jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     )
 )
 
-jetDQMAnalyzerAkPU3Calo = DQMStep1Module('JetAnalyzer_HeavyIons',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+jetDQMAnalyzerAkPU3Calo = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                          JetType = cms.untracked.string('calo'),
                                          UEAlgo = cms.untracked.string('Pu'),
                                          OutputFile = cms.untracked.string(''),
@@ -207,7 +209,8 @@ jetDQMAnalyzerAkPU3Calo = DQMStep1Module('JetAnalyzer_HeavyIons',
 jetDQMAnalyzerAkPU4Calo = jetDQMAnalyzerAkPU3Calo.clone(src = cms.InputTag("akPu4CaloJets"))
 jetDQMAnalyzerAkPU5Calo = jetDQMAnalyzerAkPU3Calo.clone(src = cms.InputTag("akPu5CaloJets"))
  
-jetDQMAnalyzerAkPU3PF = DQMStep1Module('JetAnalyzer_HeavyIons',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+jetDQMAnalyzerAkPU3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                        JetType = cms.untracked.string('pf'),
                                        UEAlgo = cms.untracked.string('Pu'),
                                        OutputFile = cms.untracked.string(''),
@@ -224,7 +227,8 @@ jetDQMAnalyzerAkPU3PF = DQMStep1Module('JetAnalyzer_HeavyIons',
 jetDQMAnalyzerAkPU4PF = jetDQMAnalyzerAkPU3PF.clone(src = cms.InputTag("akPu4PFJets"))
 jetDQMAnalyzerAkPU5PF = jetDQMAnalyzerAkPU3PF.clone(src = cms.InputTag("akPu5PFJets"))
 
-jetDQMAnalyzerAkCs3PF = DQMStep1Module('JetAnalyzer_HeavyIons',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+jetDQMAnalyzerAkCs3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                          JetType = cms.untracked.string('pf'),
                                          UEAlgo = cms.untracked.string('Cs'),
                                          OutputFile = cms.untracked.string(''),
@@ -247,7 +251,8 @@ jetDQMAnalyzerAkCs4PF=jetDQMAnalyzerAkCs3PF.clone(src = cms.InputTag("akCs4PFJet
 )
 
 
-jetDQMMatchAkPu3CaloAkPu3PF = DQMStep1Module('JetAnalyzer_HeavyIons_matching',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+jetDQMMatchAkPu3CaloAkPu3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              src_Jet1 = cms.InputTag("akPu3CaloJets"),
                                              src_Jet2 = cms.InputTag("akPu3PFJets"),
                                              Jet1     = cms.untracked.string("PuCalo"),
@@ -257,7 +262,8 @@ jetDQMMatchAkPu3CaloAkPu3PF = DQMStep1Module('JetAnalyzer_HeavyIons_matching',
                                              recoJetEtaCut = cms.double(2.0)
 )
 
-jetDQMMatchAkPu4CaloAkPu4PF = DQMStep1Module('JetAnalyzer_HeavyIons_matching',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+jetDQMMatchAkPu4CaloAkPu4PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              src_Jet1 = cms.InputTag("akPu4CaloJets"),
                                              src_Jet2 = cms.InputTag("akPu4PFJets"),
                                              Jet1     = cms.untracked.string("PuCalo"),
@@ -267,7 +273,8 @@ jetDQMMatchAkPu4CaloAkPu4PF = DQMStep1Module('JetAnalyzer_HeavyIons_matching',
                                              recoJetEtaCut = cms.double(2.0)
 )
 
-jetDQMMatchAkPu5CaloAkPu5PF = DQMStep1Module('JetAnalyzer_HeavyIons_matching',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+jetDQMMatchAkPu5CaloAkPu5PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              src_Jet1 = cms.InputTag("akPu5CaloJets"),
                                              src_Jet2 = cms.InputTag("akPu5PFJets"),
                                              Jet1     = cms.untracked.string("PuCalo"),

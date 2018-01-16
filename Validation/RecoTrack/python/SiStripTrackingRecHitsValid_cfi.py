@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-StripTrackingRecHitsValid = DQMStep1Module('SiStripTrackingRecHitsValid',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+StripTrackingRecHitsValid = DQMEDAnalyzer('SiStripTrackingRecHitsValid',
     outputFile = cms.string('striptrackingrechitshisto.root'),
     runStandalone = cms.bool(False),
     OutputMEsInRootFile = cms.bool(False),

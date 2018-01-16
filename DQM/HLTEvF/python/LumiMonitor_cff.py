@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-lumiMonitor = DQMStep1Module('LumiMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+lumiMonitor = DQMEDAnalyzer('LumiMonitor',
    FolderName                  = cms.string("HLT/LumiMonitoring"),
    doPixelLumi                 = cms.bool(False),
    useBPixLayer1               = cms.bool(False),

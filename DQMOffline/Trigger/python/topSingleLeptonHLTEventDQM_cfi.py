@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-topSingleLeptonHLTOfflineDQM = DQMStep1Module('TopSingleLeptonHLTOfflineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleLeptonHLTOfflineDQM = DQMEDAnalyzer('TopSingleLeptonHLTOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -127,7 +128,8 @@ topSingleLeptonHLTOfflineDQM = DQMStep1Module('TopSingleLeptonHLTOfflineDQM',
   )
 )
 
-topSingleMuonHLTOfflineDQM = DQMStep1Module('TopSingleLeptonHLTOfflineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleMuonHLTOfflineDQM = DQMEDAnalyzer('TopSingleLeptonHLTOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -281,7 +283,8 @@ topSingleMuonHLTOfflineDQM = DQMStep1Module('TopSingleLeptonHLTOfflineDQM',
   )
 )
 
-topSingleElectronHLTOfflineDQM = DQMStep1Module('TopSingleLeptonHLTOfflineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleElectronHLTOfflineDQM = DQMEDAnalyzer('TopSingleLeptonHLTOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##

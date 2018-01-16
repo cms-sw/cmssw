@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hltObjectsMonitor4all = DQMStep1Module('HLTObjectsMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltObjectsMonitor4all = DQMEDAnalyzer('HLTObjectsMonitor',
     TopFolder = cms.string("HLT/Objects"),
     label     = cms.string("all"),
 #    debug = cms.untracked.bool(True),
@@ -351,7 +352,8 @@ hltObjectsMonitor4all.plots.extend(muoObjects)
 hltObjectsMonitor4all.plots.extend(btvObjects)
 hltObjectsMonitor4all.plots.extend(jmeObjects)
 
-hltObjectsMonitor4sus = DQMStep1Module('HLTObjectsMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltObjectsMonitor4sus = DQMEDAnalyzer('HLTObjectsMonitor',
     TopFolder = cms.string("HLT/Objects"),
     label     = cms.string("susy"),
 #    debug = cms.untracked.bool(True),
@@ -371,7 +373,8 @@ hltObjectsMonitor4sus.plots.extend(susObjects)
 
 from DQM.HLTEvF.HLTObjectsMonitor_EXO_cfi import *
 
-hltObjectsMonitor4exo = DQMStep1Module('HLTObjectsMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltObjectsMonitor4exo = DQMEDAnalyzer('HLTObjectsMonitor',
     TopFolder = cms.string("HLT/Objects"),
     label     = cms.string("exo"),
 #    debug = cms.untracked.bool(True),
@@ -389,7 +392,8 @@ hltObjectsMonitor4exo = DQMStep1Module('HLTObjectsMonitor',
 )
 hltObjectsMonitor4exo.plots.extend(exoObjects)
 
-hltObjectsMonitor4exoDisplaced = DQMStep1Module('HLTObjectsMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltObjectsMonitor4exoDisplaced = DQMEDAnalyzer('HLTObjectsMonitor',
     TopFolder = cms.string("HLT/Objects"),
     label     = cms.string("exoDisplaced"),
 #    debug = cms.untracked.bool(True),

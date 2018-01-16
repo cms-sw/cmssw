@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-pfCandidateManager = DQMStep1Module('PFCandidateManagerAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+pfCandidateManager = DQMEDAnalyzer('PFCandidateManagerAnalyzer',
                                     InputCollection = cms.InputTag('particleFlow'),
                                     MatchCollection = cms.InputTag(''),
                                     dRMax = cms.double( 0.2 ),

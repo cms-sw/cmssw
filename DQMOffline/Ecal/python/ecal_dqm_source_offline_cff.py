@@ -6,7 +6,8 @@ from DQMOffline.Ecal.ESRecoSummary_cfi import *
 from DQMOffline.Ecal.EcalZmassTask_cfi import *
 from DQMOffline.Ecal.EcalPileUpDepMonitor_cfi import *
 
-dqmInfoEcal = DQMStep1Module('DQMEventInfo',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoEcal = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('Ecal')
 )
 

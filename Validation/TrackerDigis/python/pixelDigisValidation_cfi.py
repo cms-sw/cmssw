@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-pixelDigisValid = DQMStep1Module('SiPixelDigiValid',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+pixelDigisValid = DQMEDAnalyzer('SiPixelDigiValid',
     src = cms.InputTag("simSiPixelDigis"),
     outputFile = cms.untracked.string(''),
     runStandalone = cms.bool(False)

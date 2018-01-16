@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcTTUMonitor = DQMStep1Module('RPCTTUMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+rpcTTUMonitor = DQMEDAnalyzer('RPCTTUMonitor',
                                TTUFolder =cms.string("RPC/TTU"),
                                OutPutFile = cms.string(""),
                                GTReadoutRcd     = cms.InputTag("gtDigis"),

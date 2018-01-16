@@ -62,7 +62,8 @@ cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
 process.dqmSaver.workflow = Workflow
 
-process.hcalRecoAnalyzer = DQMStep1Module('HcalRecHitsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     outputFile = cms.untracked.string('HcalRecHitsValidation_ZS.root'),
     HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
     HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),

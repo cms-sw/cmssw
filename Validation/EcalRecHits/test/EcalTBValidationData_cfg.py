@@ -11,7 +11,8 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:./ECALH4TB_data_hits.root')
 )
 
-process.tbValidData = DQMStep1Module('EcalTBValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.tbValidData = DQMEDAnalyzer('EcalTBValidation',
     rootfile = cms.untracked.string('EcalTBValidationData.root'),
     eventHeaderProducer = cms.string('ecalTBunpack'),
     hitProducer = cms.string('ecal2006TBWeightUncalibRecHit'),

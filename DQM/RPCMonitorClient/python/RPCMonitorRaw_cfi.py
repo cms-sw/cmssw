@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-rpcMonitorRaw = DQMStep1Module('RPCMonitorRaw',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+rpcMonitorRaw = DQMEDAnalyzer('RPCMonitorRaw',
   watchedErrors = cms.untracked.vint32(8,9),
   rpcRawDataCountsTag = cms.InputTag('rpcunpacker')
 )

@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-me0RecHitsValidation = DQMStep1Module('ME0RecHitsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+me0RecHitsValidation = DQMEDAnalyzer('ME0RecHitsValidation',
     verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.InputTag('g4SimHits',"MuonME0Hits"),
     recHitInputLabel = cms.InputTag("me0RecHits"),
@@ -13,7 +14,8 @@ me0RecHitsValidation = DQMStep1Module('ME0RecHitsValidation',
     nBinGlobalXY = cms.untracked.int32(160),
 )
 
-me0SegmentsValidation = DQMStep1Module('ME0SegmentsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+me0SegmentsValidation = DQMEDAnalyzer('ME0SegmentsValidation',
     verboseSimHit = cms.untracked.int32(1),
     segmentInputLabel = cms.InputTag("me0Segments"),
     digiInputLabel = cms.InputTag("simMuonME0PseudoReDigis"),

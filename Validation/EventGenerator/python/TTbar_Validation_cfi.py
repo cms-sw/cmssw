@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-TTbarAnalyzeSpinCorr = DQMStep1Module('TTbarSpinCorrHepMCAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+TTbarAnalyzeSpinCorr = DQMEDAnalyzer('TTbarSpinCorrHepMCAnalyzer',
                                       genEventInfoProductTag = cms.InputTag("generator"),
                                       genParticlesTag = cms.InputTag("genParticles")
                                       )
@@ -10,14 +11,16 @@ lheCOMWeightProducer.NewECMS = cms.double(8000)
 
 
 ## get lorentzvectors
-analyzeTopKinematics = DQMStep1Module('TTbar_Kinematics',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+analyzeTopKinematics = DQMEDAnalyzer('TTbar_Kinematics',
                                       SaveTree = cms.untracked.bool(False),
                                       hepmcCollection = cms.InputTag("generatorSmeared"),
                                       genEventInfoProductTag = cms.InputTag("generator")
                                       )
 
 ## analyze genjets
-analyzeGenJets = DQMStep1Module('TTbar_GenJetAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+analyzeGenJets = DQMEDAnalyzer('TTbar_GenJetAnalyzer',
                                 jets = cms.InputTag('ak4GenJets' ),
                                 genEventInfoProductTag = cms.InputTag("generator")
                                 )
@@ -72,9 +75,12 @@ genParticlesNeutrinos = cms.EDProducer("GenParticlePruner",
                                        )
 
 ## analyze gen leptons
-analyzeGenMuons = DQMStep1Module('TTbar_GenLepAnalyzer', leptons = cms.InputTag('genParticlesMuons' ))
-analyzeGenElecs = DQMStep1Module('TTbar_GenLepAnalyzer', leptons = cms.InputTag('genParticlesElectrons' ))
-analyzeGenNtrns = DQMStep1Module('TTbar_GenLepAnalyzer', leptons = cms.InputTag('genParticlesNeutrinos' ))
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+analyzeGenMuons = DQMEDAnalyzer('TTbar_GenLepAnalyzer', leptons = cms.InputTag('genParticlesMuons' ))
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+analyzeGenElecs = DQMEDAnalyzer('TTbar_GenLepAnalyzer', leptons = cms.InputTag('genParticlesElectrons' ))
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+analyzeGenNtrns = DQMEDAnalyzer('TTbar_GenLepAnalyzer', leptons = cms.InputTag('genParticlesNeutrinos' ))
 
 
 

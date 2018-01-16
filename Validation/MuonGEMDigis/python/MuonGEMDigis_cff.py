@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-gemStripValidation = DQMStep1Module('GEMStripDigiValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+gemStripValidation = DQMEDAnalyzer('GEMStripDigiValidation',
   outputFile = cms.string(''),
   stripLabel= cms.InputTag('simMuonGEMDigis'),
   simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
@@ -11,7 +12,8 @@ gemStripValidation = DQMStep1Module('GEMStripDigiValidation',
   nBinGlobalXY = cms.untracked.int32(360),
   detailPlot = cms.bool(False), 
 )
-gemPadValidation = DQMStep1Module('GEMPadDigiValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+gemPadValidation = DQMEDAnalyzer('GEMPadDigiValidation',
   outputFile = cms.string(''),
   PadLabel = cms.InputTag('simMuonGEMPadDigis'),
   simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
@@ -20,7 +22,8 @@ gemPadValidation = DQMStep1Module('GEMPadDigiValidation',
   nBinGlobalXY = cms.untracked.int32(360), 
   detailPlot = cms.bool(False), 
 )
-gemCoPadValidation = DQMStep1Module('GEMCoPadDigiValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+gemCoPadValidation = DQMEDAnalyzer('GEMCoPadDigiValidation',
   outputFile = cms.string(''),
   CopadLabel = cms.InputTag('simCscTriggerPrimitiveDigis') ,
   simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
@@ -32,7 +35,8 @@ gemCoPadValidation = DQMStep1Module('GEMCoPadDigiValidation',
   maxBXGEM = cms.int32(1),
 )
 
-gemDigiTrackValidation = DQMStep1Module('GEMDigiTrackMatch',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+gemDigiTrackValidation = DQMEDAnalyzer('GEMDigiTrackMatch',
   simInputLabel = cms.untracked.string('g4SimHits'),
   simTrackCollection = cms.InputTag('g4SimHits'),
   simVertexCollection = cms.InputTag('g4SimHits'),
@@ -51,7 +55,8 @@ gemDigiTrackValidation = DQMStep1Module('GEMDigiTrackMatch',
   detailPlot = cms.bool(False), 
 )
 
-gemGeometryChecker = DQMStep1Module('GEMCheckGeometry',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+gemGeometryChecker = DQMEDAnalyzer('GEMCheckGeometry',
   detailPlot = cms.bool(False), 
 )
 

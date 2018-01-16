@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-simHitsValidationHcal = DQMStep1Module('SimHitsValidationHcal',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+simHitsValidationHcal = DQMEDAnalyzer('SimHitsValidationHcal',
     ModuleLabel   = cms.string('g4SimHits'),
     HitCollection = cms.string('HcalHits'),
     Verbose       = cms.bool(False),

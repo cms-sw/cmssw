@@ -25,7 +25,8 @@ electronMcSignalHistosCfg = cms.PSet(
   EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False)
 )
 
-electronMcSignalValidator = DQMStep1Module('ElectronMcSignalValidator',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+electronMcSignalValidator = DQMEDAnalyzer('ElectronMcSignalValidator',
 
   Verbosity = cms.untracked.int32(0),
   FinalStep = cms.string("AtRunEnd"),

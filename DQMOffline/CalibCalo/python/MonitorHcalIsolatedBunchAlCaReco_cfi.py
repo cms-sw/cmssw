@@ -2,7 +2,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
-HcalIsolatedBunchMon = DQMStep1Module('DQMHcalIsolatedBunchAlCaReco',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+HcalIsolatedBunchMon = DQMEDAnalyzer('DQMHcalIsolatedBunchAlCaReco',
     # product to monitor
     hbheInput     = cms.InputTag("hbhereco"),
     hoInput       = cms.InputTag("horeco"),

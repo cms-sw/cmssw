@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalNoiseRates = DQMStep1Module('HcalNoiseRates',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hcalNoiseRates = DQMEDAnalyzer('HcalNoiseRates',
 #    outputFile   = cms.untracked.string('NoiseRatesRelVal.root'),
     outputFile   = cms.untracked.string(''),
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),

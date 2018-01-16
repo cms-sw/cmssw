@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 #--------------------------
 # just put that for the time being
 
-castorOfflineMonitor = DQMStep1Module('CastorMonitorModule',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+castorOfflineMonitor = DQMEDAnalyzer('CastorMonitorModule',
                            ### GLOBAL VARIABLES
                            debug = cms.untracked.int32(0), # make debug an int so that different
                                                            # values can trigger different levels of messaging

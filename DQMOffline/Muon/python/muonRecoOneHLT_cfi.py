@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
-muonRecoOneHLT = DQMStep1Module('MuonRecoOneHLT',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+muonRecoOneHLT = DQMEDAnalyzer('MuonRecoOneHLT',
                                 MuonServiceProxy,
                                 MuonCollection      = cms.InputTag("muons"),
                                 VertexLabel         = cms.InputTag("offlinePrimaryVertices"),

@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SUSY_HLT_Electron_BJet = DQMStep1Module('SUSY_HLT_Electron_BJet',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SUSY_HLT_Electron_BJet = DQMEDAnalyzer('SUSY_HLT_Electron_BJet',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
