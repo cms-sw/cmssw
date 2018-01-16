@@ -3318,11 +3318,12 @@ PFAlgo::setHcalDepthInfo(reco::PFCandidate & cand, const reco::PFCluster& cluste
     }
     double sum = std::accumulate(energyPerDepth.begin(), energyPerDepth.end(), 0.);
     std::array<float,7> depthFractions;
-    std::fill(depthFractions.begin(), depthFractions.end(), 0.f);
     if (sum > 0) {
         for (unsigned int i = 0; i < depthFractions.size(); ++i) {
             depthFractions[i] = energyPerDepth[i]/sum;
         }
+    } else {
+        std::fill(depthFractions.begin(), depthFractions.end(), 0.f);
     }
     cand.setHcalDepthEnergyFractions(depthFractions);
 }
