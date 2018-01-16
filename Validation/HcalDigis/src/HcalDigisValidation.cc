@@ -626,6 +626,9 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
     int iphi_Sim = 9999;
     double emax_Sim = -9999.;
 
+    // for dynamic digi time sample analysis
+    int soi = tool.presamples();
+    int lastbin = tool.size() - 1;
 
     // SimHits MC only
     if (mc_ == "yes") {
@@ -762,21 +765,11 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                 }
 
 
-                // HB/HE/HO
-                if (isubdet != 4 && ii >= 4 && ii <= 7) {
+                // all detectors
+                if (ii >= soi && ii <= lastbin) {
                     v_ampl[0] += val;
                     v_ampl[depth] += val;
 
-                    if (closen == 1) {
-                        v_ampl_c[0] += val;
-                        v_ampl_c[depth] += val;
-                    }
-                }
-
-                // HF
-                if (isubdet == 4 && ii >= 2 && ii <= 4) {
-                    v_ampl[0] += val;
-                    v_ampl[depth] += val;
                     if (closen == 1) {
                         v_ampl_c[0] += val;
                         v_ampl_c[depth] += val;
@@ -797,9 +790,6 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
             // fraction 5,6 bins if ampl. is big.
             if (v_ampl[1] > 30. && depth == 1) {
-                int soi = tool.presamples();
-                int lastbin = tool.size() - 1;
-
                 double fbinSOI = tool[soi] - calibrations.pedestal((*digiItr)[soi].capid());
                 double fbinPS = 0; 
 
