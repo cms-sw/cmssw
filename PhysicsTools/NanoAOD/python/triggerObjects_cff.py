@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+import copy
 
 unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
     patTriggerObjectsStandAlone = cms.InputTag('slimmedPatTrigger'),
@@ -97,7 +98,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
 # ERA-dependent configuration
 # Tune filter and collection names to 2016 HLT menus
 # FIXME: check non-lepton objects and cross check leptons
-selections80X = triggerObjectTable.selections
+selections80X = copy.deepcopy(triggerObjectTable.selections)
 for sel in selections80X:
     if sel.name=='Muon':
         sel.sel = cms.string("type(83) && pt > 5 && (coll('hlt*L3MuonCandidates') || coll('hlt*TkMuonCands') || coll('hlt*TrkMuonCands'))")
