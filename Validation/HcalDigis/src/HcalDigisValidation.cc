@@ -795,9 +795,6 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
                 for(int j = soi+1; j <= lastbin; j++) fbinPS += tool[j] - calibrations.pedestal((*digiItr)[j].capid());
 
-		std::cout << subdet_ << ": " << fbinSOI << " " << fbinPS << " " << v_ampl[1] 
-			  << " " << soi << " " << lastbin << std::endl;
-
                 fbinSOI /= v_ampl[1];
                 fbinPS /= v_ampl[1];
                 strtmp = "HcalDigiTask_SOI_frac_" + subdet_;
@@ -1120,9 +1117,6 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
                 double fbinPS = 0; 
 
                 for(int j = soi+1; j <= lastbin; j++) fbinPS += tool[j] - calibrations.pedestal((dataFrame)[j].capid());
-
-		std::cout << subdet_ << ": " << fbinSOI << " " << fbinPS << " " << v_ampl[1] 
-			  << " " << soi << " " << lastbin << std::endl;
 
                 fbinSOI /= v_ampl[1];
                 fbinPS /= v_ampl[1];
