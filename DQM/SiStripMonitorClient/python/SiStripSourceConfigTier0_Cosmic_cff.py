@@ -44,7 +44,7 @@ from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorCluster.Mod_On = False
 SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
 SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True 
-SiStripMonitorCluster.TrendVs10LS = False
+SiStripMonitorCluster.TrendVsLS = True
 SiStripMonitorCluster.TH2CStripVsCpixel.globalswitchon=False
 SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=False
 SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=False

@@ -165,7 +165,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
 
   createTrendMEs        = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_               = conf_.getParameter<bool>("Mod_On");
-  m_trendVs10LS         = conf_.getParameter<bool>("TrendVs10LS");
+  m_trendVsLS             = conf_.getParameter<bool>("TrendVsLS");
   //  xLumiProf             = conf_.getParameter<int>("xLumiProf");
   // Event History Producer
   historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
@@ -588,7 +588,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   runNb   = iEvent.id().run();
   eventNb++;
 
-  float iOrbitVar      = m_trendVs10LS ? iEvent.orbitNumber()/(10*NORBITS_PER_LS) : iEvent.orbitNumber()/NORBITS_PER_LS;
+  float iOrbitVar      = m_trendVsLS ? iEvent.orbitNumber()/NORBITS_PER_LS : iEvent.orbitNumber()/NORBITS_PER_SECOND ;
 
   digi_detset_handles.clear();
 
@@ -952,7 +952,8 @@ MonitorElement* SiStripMonitorDigi::bookMETrend(DQMStore::IBooker & ibooker , co
 					   "" );
   if(!me) return me;
 
-  me->setAxisTitle("Lumisection",1);
+  if(m_trendVsLS ) me->setAxisTitle("Lumisection",1);
+  else             me->setAxisTitle("Event Time in Seconds",1);
   if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetCanExtend(TH1::kAllAxes);
   return me;
 }
@@ -1136,7 +1137,8 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 						    Parameters.getParameter<double>("ymin"),
 						    Parameters.getParameter<double>("ymax"),
 						    "" );
-    subdetMEs.SubDetTotDigiProf->setAxisTitle("Lumisection",1);
+    if(m_trendVsLS) subdetMEs.SubDetTotDigiProf->setAxisTitle("Lumisection",1);
+    else            subdetMEs.SubDetTotDigiProf->setAxisTitle("Event Time in Seconds",1);
 
     if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }
