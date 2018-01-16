@@ -1,6 +1,15 @@
 #ifndef __L1Trigger_L1THGCal_HGCalTriggerTools_h__
 #define __L1Trigger_L1THGCal_HGCalTriggerTools_h__
 
+/** \class HGCalTriggerTools
+ *  Tools for handling HGCal trigger det-ID
+ *  NOTE: this uses the trigger geometry hence would give wrong results 
+ *  when used for offline reco!!!!
+ *
+ *  \author G. Cerminara (CERN), heavily "inspired" by HGCalRechHitTools ;)
+ */
+
+
 #include <array>
 #include <cmath>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -8,6 +17,10 @@
 
 class HGCalTriggerGeometryBase;
 class DetId;
+
+
+
+
 
 namespace edm {
   class Event;
