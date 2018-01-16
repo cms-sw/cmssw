@@ -426,9 +426,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   }
   } // eeHits_
 
-  if (ietaMax != 0){            //If ietaMax == 0, there were no good HCAL SimHits 
-    if (ietaMax > 0) ietaMax--; //Account for lack of ieta = 0
-    
+  if (ietaMax != 0){            //If ietaMax == 0, there were no good HCAL SimHits     
     meEnConeEtaProfile       ->Fill(double(ietaMax), HcalCone);    
     meEnConeEtaProfile_E     ->Fill(double(ietaMax), EcalCone);
     meEnConeEtaProfile_EH    ->Fill(double(ietaMax), HcalCone+EcalCone); 
