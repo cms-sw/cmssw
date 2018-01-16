@@ -14,7 +14,6 @@ gemRecHitsValidation = DQMEDAnalyzer('GEMRecHitsValidation',
     detailPlot = cms.bool(False),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 gemRecHitTrackValidation = DQMEDAnalyzer('GEMRecHitTrackMatch',
   simInputLabel = cms.untracked.string('g4SimHits'),
   simTrackCollection = cms.InputTag('g4SimHits'),

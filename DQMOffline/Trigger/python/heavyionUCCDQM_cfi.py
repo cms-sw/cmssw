@@ -14,7 +14,6 @@ heavyionUCCDQM_HIUCC100 = DQMEDAnalyzer('HeavyIonUCCDQM',
         maxEt = cms.double(8000)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 heavyionUCCDQM_HIUCC020 = DQMEDAnalyzer('HeavyIonUCCDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         caloMet = cms.InputTag('hltMetForHf'),

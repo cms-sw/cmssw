@@ -162,7 +162,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     #----------------------------
     # pixelVertexDQM Configuration
     #----------------------------
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
     process.pixelVertexDQM = DQMEDAnalyzer('Vx3DHLTAnalyzer',
                                             vertexCollection = cms.InputTag("hiSelectedVertex"),
                                             debugMode        = cms.bool(True),

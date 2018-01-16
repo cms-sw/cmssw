@@ -37,7 +37,6 @@ muonTiming = DQMEDAnalyzer('MuonTiming',
                                   folder = cms.string("Muons/MuonTiming")
                            )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 muonTiming_miniAOD = DQMEDAnalyzer('MuonTiming',
                                   MuonServiceProxy,
                                   MuonCollection       = cms.InputTag("slimmedMuons"),

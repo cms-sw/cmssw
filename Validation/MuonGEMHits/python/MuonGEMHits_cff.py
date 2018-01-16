@@ -13,7 +13,6 @@ gemSimHitValidation = DQMEDAnalyzer('GEMHitsValidation',
     detailPlot = cms.bool(False), 
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 gemSimTrackValidation = DQMEDAnalyzer('GEMSimTrackMatch',
     verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.untracked.string('g4SimHits'),

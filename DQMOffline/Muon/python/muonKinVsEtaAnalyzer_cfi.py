@@ -41,7 +41,6 @@ muonKinVsEtaAnalyzer = DQMEDAnalyzer('MuonKinVsEtaAnalyzer',
                                       etaOvlpMax = cms.double(1.1),
                                       folder = cms.string("Muons/MuonKinVsEtaAnalyzer")
                                       )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 muonKinVsEtaAnalyzer_miniAOD = DQMEDAnalyzer('MuonKinVsEtaAnalyzer',
                                               MuonServiceProxy,
                                               

@@ -133,7 +133,6 @@ singleTopTChannelLeptonDQM = DQMEDAnalyzer('SingleTopTChannelLeptonDQM',
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 singleTopMuonMediumDQM = DQMEDAnalyzer('SingleTopTChannelLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
@@ -294,7 +293,6 @@ singleTopMuonMediumDQM = DQMEDAnalyzer('SingleTopTChannelLeptonDQM',
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 singleTopElectronMediumDQM = DQMEDAnalyzer('SingleTopTChannelLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP

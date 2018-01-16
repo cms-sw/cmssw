@@ -71,7 +71,6 @@ process.hcalNoiseRates = DQMEDHarvester('NoiseRates',
     useAllHistos = cms.untracked.bool(False)                         
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
 

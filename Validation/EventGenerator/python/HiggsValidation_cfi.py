@@ -9,7 +9,6 @@ Z0testValidation = DQMEDAnalyzer('HiggsValidation',
     UseWeightFromHepMC = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hplusValidation = DQMEDAnalyzer('HiggsValidation',
     hepmcCollection    = cms.InputTag("generatorSmeared"),
     pdg_id             = cms.int32(37),

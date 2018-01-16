@@ -69,7 +69,6 @@ process.VertexValidationVertices= DQMEDAnalyzer('HLTVertexPerformanceAnalyzer',
 )
 
 #define bTagValidation for the b-tag DQM validation (distribution plot)
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.bTagValidation = DQMEDAnalyzer('HLTBTagPerformanceAnalyzer',
 	TriggerResults = cms.InputTag('TriggerResults','',fileini.processname),
 	HLTPathNames = cms.vstring(fileini.btag_pathes),

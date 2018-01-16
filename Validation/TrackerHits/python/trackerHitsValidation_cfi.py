@@ -29,7 +29,6 @@ trackerHitsValid = DQMEDAnalyzer('TrackerHitAnalyzer',
     pixelOutput = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 trackerSiStripHitsValid = DQMEDAnalyzer('TrackerHitAnalyzer',
     G4TrkSrc = cms.InputTag("g4SimHits"),
     SiTIDLowSrc = cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"),

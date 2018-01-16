@@ -28,7 +28,6 @@ b2gSingleMuonHLTValidation = DQMEDAnalyzer('B2GSingleLeptonHLTValidation',
 )
 
 # ttbar semi electronique
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 b2gSingleElectronHLTValidation = DQMEDAnalyzer('B2GSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/SemiElectronic/'),
@@ -54,7 +53,6 @@ b2gSingleElectronHLTValidation = DQMEDAnalyzer('B2GSingleLeptonHLTValidation',
 		'HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50']),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 b2gElePlusSingleJetHLTValidation  = DQMEDAnalyzer('B2GSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/ElePlusSingleJet/'),

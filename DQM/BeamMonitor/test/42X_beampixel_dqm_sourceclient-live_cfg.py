@@ -158,7 +158,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff") ## HI sequences
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
     process.pixelVertexDQM = DQMEDAnalyzer('Vx3DHLTAnalyzer',
                                             vertexCollection = cms.InputTag("hiSelectedVertex"),
                                             debugMode        = cms.bool(True),

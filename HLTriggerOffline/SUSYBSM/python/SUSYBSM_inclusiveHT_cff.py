@@ -24,7 +24,6 @@ SUSYoHLToInclusiveHTo800oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveHT_900 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -47,7 +46,6 @@ SUSYoHLToInclusiveHTo900oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveHT_aux125 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -70,7 +68,6 @@ SUSYoHLToInclusiveHToAux125oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveHT_aux200 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -93,7 +90,6 @@ SUSYoHLToInclusiveHToAux200oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveHT_aux250 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -116,7 +112,6 @@ SUSYoHLToInclusiveHToAux250oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveHT_aux300 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -139,7 +134,6 @@ SUSYoHLToInclusiveHToAux300oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveHT_aux350 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -162,7 +156,6 @@ SUSYoHLToInclusiveHToAux350oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveHT_aux400 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -185,7 +178,6 @@ SUSYoHLToInclusiveHToAux400oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveHT_aux475 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -208,7 +200,6 @@ SUSYoHLToInclusiveHToAux475oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveHT_aux600 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),

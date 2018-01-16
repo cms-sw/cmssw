@@ -32,7 +32,6 @@ SingleTopSingleMuonHLTValidation = DQMEDAnalyzer('TopSingleLeptonHLTValidation',
 )
 
 # single top electronique
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SingleTopSingleElectronHLTValidation = DQMEDAnalyzer('TopSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/SingleTop/SingleElectron/'),

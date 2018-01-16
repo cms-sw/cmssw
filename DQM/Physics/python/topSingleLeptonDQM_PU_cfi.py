@@ -130,7 +130,6 @@ topSingleLeptonDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 topSingleMuonLooseDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
@@ -291,7 +290,6 @@ topSingleMuonLooseDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 topSingleMuonMediumDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
@@ -445,7 +443,6 @@ topSingleMuonMediumDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 topSingleElectronLooseDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
@@ -608,7 +605,6 @@ topSingleElectronLooseDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 topSingleElectronMediumDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP

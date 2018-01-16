@@ -68,7 +68,6 @@ topSingleLeptonDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 topSingleMuonLooseDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
 
   setup = cms.PSet(
@@ -162,7 +161,6 @@ topSingleMuonLooseDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
     ), 
   )
 )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 topSingleMuonMediumDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
   setup = cms.PSet(
     directory = cms.string("Physics/Top/TopSingleMuonMediumDQM_miniAOD/"),
@@ -249,7 +247,6 @@ topSingleMuonMediumDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 topSingleElectronLooseDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
   setup = cms.PSet(
     directory = cms.string("Physics/Top/TopSingleElectronLooseDQM_miniAOD/"),
@@ -339,7 +336,6 @@ topSingleElectronLooseDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 topSingleElectronMediumDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
   setup = cms.PSet(
 

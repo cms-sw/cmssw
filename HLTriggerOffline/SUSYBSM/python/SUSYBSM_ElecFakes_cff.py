@@ -17,7 +17,6 @@ SUSYoHLToEle8oIdLoIsoJet30oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Ele12_IdL_Iso_Jet30 = DQMEDAnalyzer('SUSY_HLT_ElecFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
@@ -33,7 +32,6 @@ SUSYoHLToEle12oIdLoIsoJet30oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Ele17_IdL_Iso_Jet30 = DQMEDAnalyzer('SUSY_HLT_ElecFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
@@ -50,7 +48,6 @@ SUSYoHLToEle17oIdLoIsoJet30oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Ele23_IdL_Iso_Jet30 = DQMEDAnalyzer('SUSY_HLT_ElecFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
@@ -68,7 +65,6 @@ SUSYoHLToEle23oIdLoIsoJet30oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
 )
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Ele8_Jet30 = DQMEDAnalyzer('SUSY_HLT_ElecFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
@@ -84,7 +80,6 @@ SUSYoHLToEle8oJet30oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Ele12_Jet30 = DQMEDAnalyzer('SUSY_HLT_ElecFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
@@ -100,7 +95,6 @@ SUSYoHLToEle12oJet30oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Ele17_Jet30 = DQMEDAnalyzer('SUSY_HLT_ElecFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
@@ -116,7 +110,6 @@ SUSYoHLToEle17oJet30oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Ele23_Jet30 = DQMEDAnalyzer('SUSY_HLT_ElecFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),

@@ -140,7 +140,6 @@ SingleTopSingleMuonHLTOfflineDQM = DQMEDAnalyzer('TopSingleLeptonHLTOfflineDQM',
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SingleTopSingleElectronHLTOfflineDQM = DQMEDAnalyzer('TopSingleLeptonHLTOfflineDQM',
 
   ## ------------------------------------------------------

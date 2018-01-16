@@ -18,7 +18,6 @@ MuIsoValidation_inc = DQMEDAnalyzer('MuIsoValidation',
     directory = cms.untracked.string("Muons/MuonIsolationV_inc")                             
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 MuIsoValidation_global = DQMEDAnalyzer('MuIsoValidation',
     Global_Muon_Label = cms.untracked.InputTag("muons"),
     requireCombinedMuon = cms.untracked.bool(True),

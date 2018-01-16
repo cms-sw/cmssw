@@ -96,7 +96,6 @@ process.HcalSimHitsAnalyser = DQMEDAnalyzer('HcalSimHitsValidation',
     outputFile = cms.untracked.string('HcalSimHitsValidation.root')
 )   
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.hcalDigiAnalyzer = DQMEDAnalyzer('HcalDigisValidation',
     outputFile		      = cms.untracked.string('HcalDigisValidationRelVal.root'),
     digiLabel		      = cms.InputTag("hcalDigis"),
@@ -107,7 +106,6 @@ process.hcalDigiAnalyzer = DQMEDAnalyzer('HcalDigisValidation',
     mc			      = cms.untracked.string('yes') # 'yes' for MC
 )   
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
     HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
@@ -119,7 +117,6 @@ process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     mc                        = cms.untracked.string('yes')  # default !
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.hcalTowerAnalyzer = DQMEDAnalyzer('CaloTowersValidation',
     outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
     CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),

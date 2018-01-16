@@ -14,7 +14,6 @@ SUSY_HLT_PhotonMET_pt36 = DQMEDAnalyzer('SUSY_HLT_PhotonMET',
    metThrOffline = cms.untracked.double(100),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_PhotonMET_pt50 = DQMEDAnalyzer('SUSY_HLT_PhotonMET',
    trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'),
    pfMETCollection = cms.InputTag("pfMet"),
@@ -27,7 +26,6 @@ SUSY_HLT_PhotonMET_pt50 = DQMEDAnalyzer('SUSY_HLT_PhotonMET',
    metThrOffline = cms.untracked.double(100),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_PhotonMET_pt75 = DQMEDAnalyzer('SUSY_HLT_PhotonMET',
    trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'),
    pfMETCollection = cms.InputTag("pfMet"),

@@ -352,7 +352,6 @@ hltObjectsMonitor4all.plots.extend(muoObjects)
 hltObjectsMonitor4all.plots.extend(btvObjects)
 hltObjectsMonitor4all.plots.extend(jmeObjects)
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltObjectsMonitor4sus = DQMEDAnalyzer('HLTObjectsMonitor',
     TopFolder = cms.string("HLT/Objects"),
     label     = cms.string("susy"),
@@ -373,7 +372,6 @@ hltObjectsMonitor4sus.plots.extend(susObjects)
 
 from DQM.HLTEvF.HLTObjectsMonitor_EXO_cfi import *
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltObjectsMonitor4exo = DQMEDAnalyzer('HLTObjectsMonitor',
     TopFolder = cms.string("HLT/Objects"),
     label     = cms.string("exo"),
@@ -392,7 +390,6 @@ hltObjectsMonitor4exo = DQMEDAnalyzer('HLTObjectsMonitor',
 )
 hltObjectsMonitor4exo.plots.extend(exoObjects)
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltObjectsMonitor4exoDisplaced = DQMEDAnalyzer('HLTObjectsMonitor',
     TopFolder = cms.string("HLT/Objects"),
     label     = cms.string("exoDisplaced"),

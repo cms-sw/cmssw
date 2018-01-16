@@ -26,7 +26,6 @@ b2gSingleJetHLTValidation = DQMEDAnalyzer('B2GHadronicHLTValidation',
                                               'HLT_AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20']),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 b2gDiJetHLTValidation = DQMEDAnalyzer('B2GHadronicHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/DiJet/'),

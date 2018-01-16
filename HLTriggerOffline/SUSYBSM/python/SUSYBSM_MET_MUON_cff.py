@@ -33,7 +33,6 @@ SUSYoHLToMET120oMUON5oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_MET50_DIMUON3 = DQMEDAnalyzer('SUSY_HLT_Muon_Hadronic',
   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   MuonCollection = cms.InputTag("muons"),

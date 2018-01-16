@@ -20,7 +20,6 @@ hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     TestNumber                = cms.bool(False)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hcalNoiseRates = DQMEDAnalyzer('NoiseRates',
     outputFile   = cms.untracked.string('NoiseRatesRelVal.root'),
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),

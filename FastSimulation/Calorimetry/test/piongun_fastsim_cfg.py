@@ -98,7 +98,6 @@ process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
                                           Famos                     = cms.untracked.bool(True) 
                                           )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.hcalTowerAnalyzer = DQMEDAnalyzer('CaloTowersValidation',
                                            outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
                                            CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),

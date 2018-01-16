@@ -25,7 +25,6 @@ b2gDoubleLeptonEleMuHLTValidation = DQMEDAnalyzer('B2GDoubleLeptonHLTValidation'
 )
 
 # ttbar double electron
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 b2gDoubleElectronHLTValidation = DQMEDAnalyzer('B2GDoubleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/DoubleEle/'),

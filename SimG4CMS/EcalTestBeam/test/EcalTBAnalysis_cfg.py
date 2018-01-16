@@ -29,7 +29,6 @@ process.ecalDigisValidation = DQMEDAnalyzer('EcalDigisValidation',
     moduleLabelMC = cms.untracked.string('source')
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.ecalBarrelDigisValidation = DQMEDAnalyzer('EcalBarrelDigisValidation',
     verbose = cms.untracked.bool(True)
 )

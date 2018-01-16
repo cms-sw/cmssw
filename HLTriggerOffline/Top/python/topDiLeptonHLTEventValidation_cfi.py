@@ -30,7 +30,6 @@ DiMuonHLTValidation = DQMEDAnalyzer('TopDiLeptonHLTValidation',
 )
 
 # ttbar dielec
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 DiElectronHLTValidation = DQMEDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/DiElectron/'),
@@ -59,7 +58,6 @@ DiElectronHLTValidation = DQMEDAnalyzer('TopDiLeptonHLTValidation',
 )
 
 # ttbar elec-muon
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ElecMuonHLTValidation = DQMEDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/ElecMuon/'),

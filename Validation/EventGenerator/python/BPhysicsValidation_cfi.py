@@ -22,7 +22,6 @@ JPsiMuMuValidation = DQMEDAnalyzer('BPhysicsValidation',
                                                                 )
                                     )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 LambdabPiPiMuMuValidation = DQMEDAnalyzer('BPhysicsValidation',
                                            genparticleCollection = cms.InputTag("genParticles",""),
                                            name = cms.string("LambdabPiPiMuMuValidation"),
@@ -75,7 +74,6 @@ LambdabPiPiMuMuValidation = DQMEDAnalyzer('BPhysicsValidation',
 
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 PsiSpectrum = DQMEDAnalyzer('BPhysicsSpectrum',
                              genparticleCollection = cms.InputTag("genParticles",""),
                              name = cms.string("JPsiSpectrum"),
@@ -84,7 +82,6 @@ PsiSpectrum = DQMEDAnalyzer('BPhysicsSpectrum',
                              massmax = cms.double(4.5)
                              )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 LambdaSpectrum = DQMEDAnalyzer('BPhysicsSpectrum',
                              genparticleCollection = cms.InputTag("genParticles",""),
                              name = cms.string("LambdaSpectrum"),

@@ -22,7 +22,6 @@ ecalPedestalMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     resetInterval = cms.untracked.double(2.),
     verbosity = cms.untracked.int32(0)
 )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ecalTestPulseMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     moduleName = cms.untracked.string("EcalTestPulse Monitor Source"),
     workers = cms.untracked.vstring("TestPulseTask"),
@@ -34,7 +33,6 @@ ecalTestPulseMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     resetInterval = cms.untracked.double(2.),
     verbosity = cms.untracked.int32(0)                                          
 )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ecalLaserLedMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     moduleName = cms.untracked.string("EcalLaserLed Monitor Source"),
     workers = cms.untracked.vstring("LaserTask", "LedTask"),
@@ -47,7 +45,6 @@ ecalLaserLedMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     resetInterval = cms.untracked.double(2.),
     verbosity = cms.untracked.int32(0)                                         
 )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ecalPNDiodeMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     moduleName = cms.untracked.string("EcalPNDiode Monitor Source"),
     workers = cms.untracked.vstring("PNDiodeTask"),

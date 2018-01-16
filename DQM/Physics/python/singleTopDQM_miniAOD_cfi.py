@@ -68,7 +68,6 @@ singleTopTChannelLeptonDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_m
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 singleTopMuonMediumDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_miniAOD',
 
     setup = cms.PSet(
@@ -159,7 +158,6 @@ singleTopMuonMediumDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_miniA
   )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 singleTopElectronMediumDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_miniAOD',
 
   setup = cms.PSet(

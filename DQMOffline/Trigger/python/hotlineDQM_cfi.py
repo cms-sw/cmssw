@@ -17,7 +17,6 @@ hotlineDQM_HT = DQMEDAnalyzer('HotlineDQM',
      useHT = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hotlineDQM_HT_Tight = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
@@ -34,7 +33,6 @@ hotlineDQM_HT_Tight = DQMEDAnalyzer('HotlineDQM',
      useHT = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hotlineDQM_Photon = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
@@ -51,7 +49,6 @@ hotlineDQM_Photon = DQMEDAnalyzer('HotlineDQM',
      usePhotons = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hotlineDQM_Photon_Tight = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
@@ -68,7 +65,6 @@ hotlineDQM_Photon_Tight = DQMEDAnalyzer('HotlineDQM',
      usePhotons = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hotlineDQM_MET = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
@@ -85,7 +81,6 @@ hotlineDQM_MET = DQMEDAnalyzer('HotlineDQM',
      useMet = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hotlineDQM_MET_Tight = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
@@ -102,7 +97,6 @@ hotlineDQM_MET_Tight = DQMEDAnalyzer('HotlineDQM',
      useMet = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hotlineDQM_PFMET = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
@@ -119,7 +113,6 @@ hotlineDQM_PFMET = DQMEDAnalyzer('HotlineDQM',
      usePFMet = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hotlineDQM_PFMET_Tight = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
@@ -136,7 +129,6 @@ hotlineDQM_PFMET_Tight = DQMEDAnalyzer('HotlineDQM',
      usePFMet = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hotlineDQM_Muon = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
@@ -153,7 +145,6 @@ hotlineDQM_Muon = DQMEDAnalyzer('HotlineDQM',
      useMuons = cms.bool(True)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hotlineDQM_Muon_Tight = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
