@@ -12,7 +12,6 @@ metBenchmark = DQMEDAnalyzer('METBenchmarkAnalyzer',
                               BenchmarkLabel = cms.string('pfMet')
                               )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 matchMetBenchmark = DQMEDAnalyzer('MatchMETBenchmarkAnalyzer',
                                     InputCollection = cms.InputTag('pfMet'),
                                     MatchCollection = cms.InputTag('genMetTrue'),

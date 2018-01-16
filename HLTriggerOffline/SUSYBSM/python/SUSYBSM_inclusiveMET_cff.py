@@ -15,7 +15,6 @@ SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned = DQMEDAnalyzer('SUSY_HLT_InclusiveHT
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveMET_Default = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -32,7 +31,6 @@ SUSY_HLT_InclusiveMET_Default = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
 
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveMET_HBHECleaned = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -47,7 +45,6 @@ SUSY_HLT_InclusiveMET_HBHECleaned = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
 )
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveMET_BeamHaloCleaned = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -63,7 +60,6 @@ SUSY_HLT_InclusiveMET_BeamHaloCleaned = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
 
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveMET_NotCleaned = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -77,7 +73,6 @@ SUSY_HLT_InclusiveMET_NotCleaned = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),

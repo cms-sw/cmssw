@@ -31,7 +31,6 @@ topSingleMuonHLTValidation = DQMEDAnalyzer('TopSingleLeptonHLTValidation',
 )
 
 # ttbar semi electronique
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 topSingleElectronHLTValidation = DQMEDAnalyzer('TopSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/SemiElectronic/'),

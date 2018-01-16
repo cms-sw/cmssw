@@ -17,7 +17,6 @@ SUSYoHLToMu8oTrkIsoVVLoPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Mu8 = DQMEDAnalyzer('SUSY_HLT_MuonFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
@@ -33,7 +32,6 @@ SUSYoHLToMu8oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Mu17_TrkIsoVVL = DQMEDAnalyzer('SUSY_HLT_MuonFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
@@ -49,7 +47,6 @@ SUSYoHLToMu17oTrkIsoVVLoPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Mu17 = DQMEDAnalyzer('SUSY_HLT_MuonFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
@@ -65,7 +62,6 @@ SUSYoHLToMu17oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_TkMu17 = DQMEDAnalyzer('SUSY_HLT_MuonFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),

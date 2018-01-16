@@ -18,7 +18,6 @@ MuIsoDQM_trk = DQMEDAnalyzer('MuonIsolationDQM',
                               directory = cms.string("Muons/Isolation/tracker")                             
                               )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 MuIsoDQM_sta = DQMEDAnalyzer('MuonIsolationDQM',
                               Global_Muon_Label = cms.untracked.InputTag("muons"),
                               requireTRKMuon = cms.untracked.bool(False),
@@ -33,7 +32,6 @@ MuIsoDQM_sta = DQMEDAnalyzer('MuonIsolationDQM',
                               directory = cms.string("Muons/Isolation/standalone")
                               )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 MuIsoDQM_glb = DQMEDAnalyzer('MuonIsolationDQM',
                               Global_Muon_Label = cms.untracked.InputTag("muons"),
                               requireTRKMuon = cms.untracked.bool(False),
@@ -51,7 +49,6 @@ muIsoDQM_seq = cms.Sequence(MuIsoDQM_trk+MuIsoDQM_sta+MuIsoDQM_glb)
 
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 MuIsoDQM_trk_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       Global_Muon_Label = cms.untracked.InputTag("slimmedMuons"),
                                       requireTRKMuon = cms.untracked.bool(True),
@@ -66,7 +63,6 @@ MuIsoDQM_trk_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       directory = cms.string("Muons_miniAOD/Isolation/tracker")                             
                                       )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 MuIsoDQM_sta_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       Global_Muon_Label = cms.untracked.InputTag("slimmedMuons"),
                                       requireTRKMuon = cms.untracked.bool(False),
@@ -81,7 +77,6 @@ MuIsoDQM_sta_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       directory = cms.string("Muons_miniAOD/Isolation/standalone")
                                       )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 MuIsoDQM_glb_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       Global_Muon_Label = cms.untracked.InputTag("slimmedMuons"),
                                       requireTRKMuon = cms.untracked.bool(False),

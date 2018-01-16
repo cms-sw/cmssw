@@ -60,7 +60,6 @@ process.hcalDigiAnalyzer = DQMEDAnalyzer('HcalDigiTester',
     zside = cms.untracked.string('*')
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     outputFile = cms.untracked.string('HcalRecHitsValidation_ZS.root'),
     HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
@@ -73,7 +72,6 @@ process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     ecalselector = cms.untracked.string('no'),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.hcalTowerAnalyzer = DQMEDAnalyzer('CaloTowersValidation',
     outputFile = cms.untracked.string('CaloTowersValidation.root'),
     CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),

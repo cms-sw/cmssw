@@ -45,7 +45,6 @@ muonRecoAnalyzer = DQMEDAnalyzer('MuonRecoAnalyzer',
                                   tunePMax = cms.double(1.0),
                                   folder = cms.string("Muons/MuonRecoAnalyzer")
                                   )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 muonRecoAnalyzer_miniAOD = DQMEDAnalyzer('MuonRecoAnalyzer',
                                           MuonServiceProxy, 
                                           MuonCollection = cms.InputTag("slimmedMuons"),

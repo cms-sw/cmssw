@@ -54,7 +54,6 @@ SUSYoHLToEle15oHT350oMET50oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGener
                                                                  resolution = cms.vstring('')
                                                                  )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Ele15_HT400_MET50_SingleLepton = DQMEDAnalyzer('SUSY_HLT_SingleLepton',
                                                   electronCollection = cms.InputTag('gedGsfElectrons'),
                                                   muonCollection = cms.InputTag(''),

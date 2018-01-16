@@ -39,7 +39,6 @@ process.analyzer_incMuon = DQMEDAnalyzer('MuIsoValidation',
     rootfilename = cms.untracked.string('ttbar-validation.root'),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.analyzer_combinedMuon = DQMEDAnalyzer('MuIsoValidation',
     Global_Muon_Label = cms.untracked.InputTag("muons"),
     requireCombinedMuon = cms.untracked.bool(True),

@@ -15,7 +15,6 @@ SUSY_HLT_CaloHT200 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_CaloHT250 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -29,7 +28,6 @@ SUSY_HLT_CaloHT250 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_CaloHT300 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -43,7 +41,6 @@ SUSY_HLT_CaloHT300 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_CaloHT350 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -57,7 +54,6 @@ SUSY_HLT_CaloHT350 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_CaloHT400 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),

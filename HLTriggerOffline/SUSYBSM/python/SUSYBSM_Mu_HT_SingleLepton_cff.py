@@ -53,7 +53,6 @@ SUSYoHLToMu15oHT600oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClien
                                                             resolution = cms.vstring('')
                                                             )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Mu15_HT400_SingleLepton = DQMEDAnalyzer('SUSY_HLT_SingleLepton',
                                              electronCollection = cms.InputTag(''),
                                              muonCollection = cms.InputTag('muons'),
@@ -104,7 +103,6 @@ SUSYoHLToMu15oHT400oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClien
                                                             resolution = cms.vstring('')
                                                             )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_Mu50_HT400_SingleLepton = DQMEDAnalyzer('SUSY_HLT_SingleLepton',
                                              electronCollection = cms.InputTag(''),
                                              muonCollection = cms.InputTag('muons'),

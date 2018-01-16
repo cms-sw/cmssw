@@ -23,7 +23,6 @@ diMuonHistos = DQMEDAnalyzer('DiMuonHistograms',
                               HighMassMax = cms.double(110.0),
                               folder = cms.string("Muons/diMuonHistograms")
                               )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 diMuonHistos_miniAOD = DQMEDAnalyzer('DiMuonHistograms',
                                       MuonCollection  = cms.InputTag("slimmedMuons"),
                                       VertexLabel     = cms.InputTag("offlineSlimmedPrimaryVertices"),

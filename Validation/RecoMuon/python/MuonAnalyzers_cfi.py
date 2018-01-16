@@ -22,21 +22,18 @@ STAMuonAnalyzer = DQMEDAnalyzer('MuonTrackAnalyzer',
     MuonSeed = cms.InputTag("MuonSeed")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 GLBMuonAnalyzer = DQMEDAnalyzer('MuonTrackAnalyzer',
     MuonTrackAnalysisParameters,
     Tracks = cms.InputTag("globalMuons"),
     dirName = cms.untracked.string('Muons/RecoMuonV/TrackAnalyzer/')
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 TrackerMuonAnalyzer = DQMEDAnalyzer('MuonTrackAnalyzer',
     MuonTrackAnalysisParameters,
     Tracks = cms.InputTag("generalTracks"),
     dirName = cms.untracked.string('Muons/RecoMuonV/TrackAnalyzer/')
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 MuonTrackResidualAnalyzer = DQMEDAnalyzer('MuonTrackResidualAnalyzer',
     MuonTrackAnalysisParameters,
     MuonTrack = cms.InputTag("standAloneMuons"),

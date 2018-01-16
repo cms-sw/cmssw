@@ -14,7 +14,6 @@ me0RecHitsValidation = DQMEDAnalyzer('ME0RecHitsValidation',
     nBinGlobalXY = cms.untracked.int32(160),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 me0SegmentsValidation = DQMEDAnalyzer('ME0SegmentsValidation',
     verboseSimHit = cms.untracked.int32(1),
     segmentInputLabel = cms.InputTag("me0Segments"),

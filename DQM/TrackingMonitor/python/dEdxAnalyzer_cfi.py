@@ -47,7 +47,6 @@ dEdxAnalyzer = DQMEDAnalyzer('dEdxAnalyzer',
 )
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 dEdxHitAnalyzer = DQMEDAnalyzer('dEdxHitAnalyzer',
     dEdxParameters = cms.PSet(
        doAllPlots          = cms.bool(False),

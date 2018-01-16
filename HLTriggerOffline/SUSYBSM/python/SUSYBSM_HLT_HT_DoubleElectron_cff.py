@@ -19,7 +19,6 @@ SUSY_HLT_HT_DoubleEle = DQMEDAnalyzer('SUSY_HLT_DoubleEle_Hadronic',
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_HT250_DoubleEle = DQMEDAnalyzer('SUSY_HLT_DoubleEle_Hadronic',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),

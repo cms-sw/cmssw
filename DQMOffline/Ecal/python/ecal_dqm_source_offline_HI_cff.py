@@ -9,7 +9,6 @@ dqmInfoEcal = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('Ecal')
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ecalMultiftAnalyzer = DQMEDAnalyzer('ECALMultifitAnalyzer_HI',
                                      recoPhotonSrc         = cms.InputTag('photons'),
                                      recoJetSrc            = cms.InputTag('akPu4CaloJets'),

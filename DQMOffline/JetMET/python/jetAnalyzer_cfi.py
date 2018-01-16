@@ -190,7 +190,6 @@ jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     )
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 jetDQMAnalyzerAkPU3Calo = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                          JetType = cms.untracked.string('calo'),
                                          UEAlgo = cms.untracked.string('Pu'),
@@ -209,7 +208,6 @@ jetDQMAnalyzerAkPU3Calo = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
 jetDQMAnalyzerAkPU4Calo = jetDQMAnalyzerAkPU3Calo.clone(src = cms.InputTag("akPu4CaloJets"))
 jetDQMAnalyzerAkPU5Calo = jetDQMAnalyzerAkPU3Calo.clone(src = cms.InputTag("akPu5CaloJets"))
  
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 jetDQMAnalyzerAkPU3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                        JetType = cms.untracked.string('pf'),
                                        UEAlgo = cms.untracked.string('Pu'),
@@ -227,7 +225,6 @@ jetDQMAnalyzerAkPU3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
 jetDQMAnalyzerAkPU4PF = jetDQMAnalyzerAkPU3PF.clone(src = cms.InputTag("akPu4PFJets"))
 jetDQMAnalyzerAkPU5PF = jetDQMAnalyzerAkPU3PF.clone(src = cms.InputTag("akPu5PFJets"))
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 jetDQMAnalyzerAkCs3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                          JetType = cms.untracked.string('pf'),
                                          UEAlgo = cms.untracked.string('Cs'),
@@ -251,7 +248,6 @@ jetDQMAnalyzerAkCs4PF=jetDQMAnalyzerAkCs3PF.clone(src = cms.InputTag("akCs4PFJet
 )
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 jetDQMMatchAkPu3CaloAkPu3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              src_Jet1 = cms.InputTag("akPu3CaloJets"),
                                              src_Jet2 = cms.InputTag("akPu3PFJets"),
@@ -262,7 +258,6 @@ jetDQMMatchAkPu3CaloAkPu3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              recoJetEtaCut = cms.double(2.0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 jetDQMMatchAkPu4CaloAkPu4PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              src_Jet1 = cms.InputTag("akPu4CaloJets"),
                                              src_Jet2 = cms.InputTag("akPu4PFJets"),
@@ -273,7 +268,6 @@ jetDQMMatchAkPu4CaloAkPu4PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              recoJetEtaCut = cms.double(2.0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 jetDQMMatchAkPu5CaloAkPu5PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              src_Jet1 = cms.InputTag("akPu5CaloJets"),
                                              src_Jet2 = cms.InputTag("akPu5PFJets"),

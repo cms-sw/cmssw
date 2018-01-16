@@ -45,7 +45,6 @@ process.hcalTowerAnalyzer = DQMEDAnalyzer('CaloTowersValidation',
     mc                       = cms.untracked.string('no')
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.hcalNoiseRates = DQMEDAnalyzer('NoiseRates',
     outputFile   = cms.untracked.string('NoiseRatesRelVal.root'),
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),
@@ -53,7 +52,6 @@ process.hcalNoiseRates = DQMEDAnalyzer('NoiseRates',
     minHitEnergy = cms.untracked.double(1.5)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
 

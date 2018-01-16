@@ -18,7 +18,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 ## kt6 Calo jets - UnCorr
 ##-------------------------------------------------------------------------------
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #JetAnalyzerKt6Calo = DQMEDAnalyzer('JetTester',
 #                                    JetType = cms.untracked.string('calo'),
 #                                    OutputFile = cms.untracked.string(''),
@@ -34,7 +33,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 # AntiKt5 Calo jets
 #-------------------------------------------------------------------------------
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 JetAnalyzerAk4Calo = DQMEDAnalyzer('JetTester',
                                     JetType = cms.untracked.string('calo'),
                                     src            = cms.InputTag("ak4CaloJets"),
@@ -49,7 +47,6 @@ JetAnalyzerAk4Calo = DQMEDAnalyzer('JetTester',
 
 ## AntiKt7 Calo jets
 ##-------------------------------------------------------------------------------
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #JetAnalyzerAk7Calo = DQMEDAnalyzer('JetTester',
 #                                    JetType = cms.untracked.string('calo'),
 #                                    OutputFile = cms.untracked.string(''),
@@ -66,7 +63,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 # AntiKt5 PF jets
 #-------------------------------------------------------------------------------
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 JetAnalyzerAk4PF = DQMEDAnalyzer('JetTester',
                                   JetType = cms.untracked.string('pf'),
                                   src            = cms.InputTag("ak4PFJets"),
@@ -81,7 +77,6 @@ JetAnalyzerAk4PF = DQMEDAnalyzer('JetTester',
 
 # AntiKt5 JPT jets
 #-------------------------------------------------------------------------------
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #JetAnalyzerAk4JPT = DQMEDAnalyzer('JetTester',
 #                                   JetType = cms.untracked.string('jpt'),
 #                                   OutputFile = cms.untracked.string(''),
@@ -96,7 +91,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #                                   )
 # AntiKt5 PF CHS jets
 #-------------------------------------------------------------------------------
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 JetAnalyzerAk4PFCHS = DQMEDAnalyzer('JetTester',
                                   JetType = cms.untracked.string('pf'),
                                   src            = cms.InputTag("ak4PFJetsCHS"),
@@ -110,7 +104,6 @@ JetAnalyzerAk4PFCHS = DQMEDAnalyzer('JetTester',
                                   )
 ## AntiKt8 PF  jets
 ##-------------------------------------------------------------------------------
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #JetAnalyzerAk8PF = DQMEDAnalyzer('JetTester',
 #                                  JetType = cms.untracked.string('pf'),
 #                                  OutputFile = cms.untracked.string(''),
@@ -126,7 +119,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #                                  )
 ## AntiKt8 PF CHS jets
 ##-------------------------------------------------------------------------------
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #JetAnalyzerAk8PFCHS = DQMEDAnalyzer('JetTester',
 #                                  JetType = cms.untracked.string('pf'),
 #                                  OutputFile = cms.untracked.string(''),
@@ -142,7 +134,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #                                  )
 ## CA8 PF CHS jets
 ##-------------------------------------------------------------------------------
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #JetAnalyzerCA8PFCHS = DQMEDAnalyzer('JetTester',
 #                                  JetType = cms.untracked.string('pf'),
 #                                  OutputFile = cms.untracked.string(''),
@@ -156,7 +147,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #                                  matchGenPtThreshold                 = cms.double(20.0),
 #                                  RThreshold                     = cms.double(0.3)
 #                                  )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 JetAnalyzerAk4PFCHSMiniAOD = DQMEDAnalyzer('JetTester',
                                   JetType = cms.untracked.string('miniaod'),
                                   src            = cms.InputTag("slimmedJets"),
@@ -168,7 +158,6 @@ JetAnalyzerAk4PFCHSMiniAOD = DQMEDAnalyzer('JetTester',
                                   RThreshold                     = cms.double(0.3)
                                   )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 JetAnalyzerAk4PFPUPPIMiniAOD = DQMEDAnalyzer('JetTester',
                                   JetType = cms.untracked.string('miniaod'),
                                   src            = cms.InputTag("slimmedJetsPuppi"),
@@ -180,7 +169,6 @@ JetAnalyzerAk4PFPUPPIMiniAOD = DQMEDAnalyzer('JetTester',
                                   RThreshold                     = cms.double(0.3)
                                   )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 JetAnalyzerAk8PFPUPPIMiniAOD = DQMEDAnalyzer('JetTester',
                                   JetType = cms.untracked.string('miniaod'),
                                   src            = cms.InputTag("slimmedJetsAK8"),

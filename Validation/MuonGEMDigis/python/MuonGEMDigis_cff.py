@@ -12,7 +12,6 @@ gemStripValidation = DQMEDAnalyzer('GEMStripDigiValidation',
   nBinGlobalXY = cms.untracked.int32(360),
   detailPlot = cms.bool(False), 
 )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 gemPadValidation = DQMEDAnalyzer('GEMPadDigiValidation',
   outputFile = cms.string(''),
   PadLabel = cms.InputTag('simMuonGEMPadDigis'),
@@ -22,7 +21,6 @@ gemPadValidation = DQMEDAnalyzer('GEMPadDigiValidation',
   nBinGlobalXY = cms.untracked.int32(360), 
   detailPlot = cms.bool(False), 
 )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 gemCoPadValidation = DQMEDAnalyzer('GEMCoPadDigiValidation',
   outputFile = cms.string(''),
   CopadLabel = cms.InputTag('simCscTriggerPrimitiveDigis') ,
@@ -35,7 +33,6 @@ gemCoPadValidation = DQMEDAnalyzer('GEMCoPadDigiValidation',
   maxBXGEM = cms.int32(1),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 gemDigiTrackValidation = DQMEDAnalyzer('GEMDigiTrackMatch',
   simInputLabel = cms.untracked.string('g4SimHits'),
   simTrackCollection = cms.InputTag('g4SimHits'),
@@ -55,7 +52,6 @@ gemDigiTrackValidation = DQMEDAnalyzer('GEMDigiTrackMatch',
   detailPlot = cms.bool(False), 
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 gemGeometryChecker = DQMEDAnalyzer('GEMCheckGeometry',
   detailPlot = cms.bool(False), 
 )

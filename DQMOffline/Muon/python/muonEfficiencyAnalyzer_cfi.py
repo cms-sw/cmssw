@@ -31,7 +31,6 @@ TightMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                              ID = cms.string("Tight"),
                                              folder = cms.string("Muons/EfficiencyAnalyzer/")
                                              )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 TightMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                      MuonServiceProxy,
                                                      MuonCollection  = cms.InputTag("slimmedMuons"),
@@ -62,7 +61,6 @@ TightMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                      )
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 LooseMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                              MuonServiceProxy,
                                              MuonCollection  = cms.InputTag("muons"),
@@ -92,7 +90,6 @@ LooseMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                              folder = cms.string("Muons/EfficiencyAnalyzer/")
                                              
                                              )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 LooseMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                      MuonServiceProxy,
                                                      MuonCollection  = cms.InputTag("slimmedMuons"),
@@ -124,7 +121,6 @@ LooseMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                      )
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 MediumMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                               MuonServiceProxy,
                                               MuonCollection  = cms.InputTag("muons"),
@@ -153,7 +149,6 @@ MediumMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                               ID = cms.string("Medium"),
                                               folder = cms.string("Muons/EfficiencyAnalyzer/")
                                               )
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 MediumMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                       MuonServiceProxy,
                                                       MuonCollection  = cms.InputTag("slimmedMuons"),

@@ -11,7 +11,6 @@ lheCOMWeightProducer.NewECMS = cms.double(8000)
 
 
 ## get lorentzvectors
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 analyzeTopKinematics = DQMEDAnalyzer('TTbar_Kinematics',
                                       SaveTree = cms.untracked.bool(False),
                                       hepmcCollection = cms.InputTag("generatorSmeared"),
@@ -19,7 +18,6 @@ analyzeTopKinematics = DQMEDAnalyzer('TTbar_Kinematics',
                                       )
 
 ## analyze genjets
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 analyzeGenJets = DQMEDAnalyzer('TTbar_GenJetAnalyzer',
                                 jets = cms.InputTag('ak4GenJets' ),
                                 genEventInfoProductTag = cms.InputTag("generator")
@@ -75,11 +73,8 @@ genParticlesNeutrinos = cms.EDProducer("GenParticlePruner",
                                        )
 
 ## analyze gen leptons
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 analyzeGenMuons = DQMEDAnalyzer('TTbar_GenLepAnalyzer', leptons = cms.InputTag('genParticlesMuons' ))
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 analyzeGenElecs = DQMEDAnalyzer('TTbar_GenLepAnalyzer', leptons = cms.InputTag('genParticlesElectrons' ))
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 analyzeGenNtrns = DQMEDAnalyzer('TTbar_GenLepAnalyzer', leptons = cms.InputTag('genParticlesNeutrinos' ))
 
 

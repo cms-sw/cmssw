@@ -24,7 +24,6 @@ glbMuonSegmentAnalyzer = DQMEDAnalyzer('SegmentTrackAnalyzer',
                                         MuTrackCollection = cms.InputTag("globalMuons"),
                                         )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 staMuonSegmentAnalyzer = DQMEDAnalyzer('SegmentTrackAnalyzer',
                                          MuonServiceProxy,
                                          

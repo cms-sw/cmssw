@@ -10,7 +10,6 @@ eventshapeDQM_Q2_top05_cent1030 = DQMEDAnalyzer('EventShapeDQM',
         EPlvl = cms.int32(0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 eventshapeDQM_Q2_bottom05_cent1030 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),
@@ -20,7 +19,6 @@ eventshapeDQM_Q2_bottom05_cent1030 = DQMEDAnalyzer('EventShapeDQM',
         EPlvl = cms.int32(0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 eventshapeDQM_Q2_top05_cent3050 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),
@@ -30,7 +28,6 @@ eventshapeDQM_Q2_top05_cent3050 = DQMEDAnalyzer('EventShapeDQM',
         EPlvl = cms.int32(0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 eventshapeDQM_Q2_bottom05_cent3050 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),
@@ -40,7 +37,6 @@ eventshapeDQM_Q2_bottom05_cent3050 = DQMEDAnalyzer('EventShapeDQM',
         EPlvl = cms.int32(0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 eventshapeDQM_Q2_top05_cent5070 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),
@@ -50,7 +46,6 @@ eventshapeDQM_Q2_top05_cent5070 = DQMEDAnalyzer('EventShapeDQM',
         EPlvl = cms.int32(0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 eventshapeDQM_Q2_bottom05_cent5070 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),

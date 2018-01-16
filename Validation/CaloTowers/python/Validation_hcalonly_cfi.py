@@ -25,7 +25,6 @@ hcalDigiAnalyzer = DQMEDAnalyzer('HcalDigiTester',
     hcalselector = cms.untracked.string('HF')
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     outputFile = cms.untracked.string('HcalRecHitsValidationHB.root'),
     eventype = cms.untracked.string('single'),
@@ -35,7 +34,6 @@ hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     ecalselector = cms.untracked.string('no')
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hcalTowerAnalyzer = DQMEDAnalyzer('CaloTowersValidation',
     outputFile = cms.untracked.string('CaloTowersValidationHB.root'),
     CaloTowerCollectionLabel = cms.untracked.string('towerMaker'),

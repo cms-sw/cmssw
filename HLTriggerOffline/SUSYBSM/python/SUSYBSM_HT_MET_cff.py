@@ -24,7 +24,6 @@ SUSYoHLToHT350oMET100oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_HT300_MET100 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -47,7 +46,6 @@ SUSYoHLToHT300oMET100oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_HT300_MET110 = DQMEDAnalyzer('SUSY_HLT_InclusiveHT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),

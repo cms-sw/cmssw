@@ -17,7 +17,6 @@ SUSY_HLT_HT_DoubleMuon = DQMEDAnalyzer('SUSY_HLT_DoubleMuon_Hadronic',
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SUSY_HLT_HT250_DoubleMuon = DQMEDAnalyzer('SUSY_HLT_DoubleMuon_Hadronic',
   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   MuonCollection = cms.InputTag("muons"),

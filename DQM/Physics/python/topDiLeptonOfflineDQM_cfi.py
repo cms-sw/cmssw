@@ -152,7 +152,6 @@ topDiLeptonOfflineDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
 
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 DiMuonDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
@@ -296,7 +295,6 @@ DiMuonDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 DiElectronDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
@@ -442,7 +440,6 @@ DiElectronDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ),
 )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ElecMuonDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
