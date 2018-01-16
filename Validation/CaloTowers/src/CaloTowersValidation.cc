@@ -70,19 +70,19 @@ void CaloTowersValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 	//The first three are not used
 	if (useAllHistos_){
 		sprintf  (histo, "emean_vs_ieta_E" );
-		emean_vs_ieta_E = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, 2100, -100., 2000., "s");
+		emean_vs_ieta_E = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 		sprintf  (histo, "emean_vs_ieta_H" );
-		emean_vs_ieta_H = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, 2100, -100., 2000., "s");
+		emean_vs_ieta_H = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 		sprintf  (histo, "emean_vs_ieta_EH" );
-		emean_vs_ieta_EH = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, 2100, -100., 2000., "s");
+		emean_vs_ieta_EH = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 	}
 	//These are drawn
 	sprintf  (histo, "emean_vs_ieta_E1" );
-	emean_vs_ieta_E1 = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, 2100, -100., 2000., "s");
+	emean_vs_ieta_E1 = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 	sprintf  (histo, "emean_vs_ieta_H1" );
-	emean_vs_ieta_H1 = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, 2100, -100., 2000., "s");
+	emean_vs_ieta_H1 = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 	sprintf  (histo, "emean_vs_ieta_EH1" );
-	emean_vs_ieta_EH1 = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, 2100, -100., 2000., "s");
+	emean_vs_ieta_EH1 = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 	//-------------------------------------------------------------------------------------------
 
 	//Map energy histos are not drawn
