@@ -17,6 +17,16 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+def customiseFor21810(process):
+    for producer in producers_by_type(process, "CaloTowersCreator"):
+        producer.HcalPhase = cms.int32(0)
+        producer.HcalCollapsed = cms.bool(True)
+        producer.HESThreshold1 = cms.double(0.8)
+        producer.HESThreshold  = cms.double(0.8)
+        producer.HEDThreshold1 = cms.double(0.8)
+        producer.HEDThreshold  = cms.double(0.8)
+    return process
+
 def customiseFor21664_forMahiOn(process):
     for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
         producer.algorithm.useMahi   = cms.bool(True)
@@ -37,5 +47,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    process = customiseFor21810(process)
 
     return process
