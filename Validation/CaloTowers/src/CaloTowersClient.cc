@@ -163,7 +163,7 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalM
 
       //Occupancy vs ieta histo is drawn
       // phi-factor evaluation for occupancy_vs_ieta calculation
-      int ieta = i - 42;        // -41 -1, 0 40 
+      int ieta = i - 43;        // No longer skipping zero 
       if(ieta >= -20 && ieta <= 20 )
          {phi_factor = 72.;}
          else {
