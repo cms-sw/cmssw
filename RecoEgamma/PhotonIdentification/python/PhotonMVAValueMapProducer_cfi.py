@@ -14,6 +14,9 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig
     import mvaPhoID_Spring16_nonTrig_V1_producer_config
 mvaConfigsForPhoProducer.append( mvaPhoID_Spring16_nonTrig_V1_producer_config )
 
+from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_RunIIFall17_v1_cff import *
+mvaConfigsForPhoProducer.append( mvaPhoID_RunIIFall17_v1_producer_config )
+
 photonMVAValueMapProducer = cms.EDProducer('PhotonMVAValueMapProducer',
                                            # The module automatically detects AOD vs miniAOD, so we configure both
                                            #
