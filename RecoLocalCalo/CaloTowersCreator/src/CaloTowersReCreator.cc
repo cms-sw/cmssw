@@ -37,7 +37,8 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) :
         conf.getParameter<double>("MomHEDepth"),
         conf.getParameter<double>("MomEBDepth"),
         conf.getParameter<double>("MomEEDepth"),
-        conf.getParameter<int>("HcalPhase")
+        conf.getParameter<int>("HcalPhase"),
+        conf.getParameter<bool>("HcalCollapsed")
         ),
   allowMissingInputs_(false)
 {
@@ -142,6 +143,7 @@ void CaloTowersReCreator::fillDescriptions(edm::ConfigurationDescriptions& descr
 	desc.add<edm::InputTag>("caloLabel", edm::InputTag("calotowermaker"));
 	desc.add<int>("MomConstrMethod", 1);
 	desc.add<int>("HcalPhase", 0);
+	desc.add<bool>("HcalCollapsed", 0);
 
 	descriptions.addDefault(desc);
 }
