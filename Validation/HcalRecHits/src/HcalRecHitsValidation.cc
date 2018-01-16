@@ -570,7 +570,6 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	int sub      = cell.subdet();
 	int depth    = cell.depth();
 	int inteta   = cell.ieta();
-	if(inteta > 0) inteta -= 1;
 	int intphi   = cell.iphi()-1;
 	double en    = j->energy();
 	double t     = j->time();
@@ -608,7 +607,6 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	int sub      = cell.subdet();
 	int depth    = cell.depth();
 	int inteta   = cell.ieta();
-	if(inteta > 0) inteta -= 1;
 	int intphi   = cell.iphi()-1;
 	double t     = j->time();
 	double en    = j->energy();
