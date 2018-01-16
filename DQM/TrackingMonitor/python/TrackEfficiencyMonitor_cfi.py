@@ -5,7 +5,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-TrackEffMon = cms.EDAnalyzer("TrackEfficiencyMonitor",
+TrackEffMon = DQMStep1Module('TrackEfficiencyMonitor',
     theRadius = cms.double(85.0),
     theMaxZ = cms.double(110.0),
     isBFieldOff = cms.bool(False),

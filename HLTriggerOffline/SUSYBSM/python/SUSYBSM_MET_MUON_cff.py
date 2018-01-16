@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SUSY_HLT_MET120_MUON5 = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
+SUSY_HLT_MET120_MUON5 = DQMStep1Module('SUSY_HLT_Muon_Hadronic',
   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   MuonCollection = cms.InputTag("muons"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -32,7 +32,7 @@ SUSYoHLToMET120oMUON5oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     )
 )
 
-SUSY_HLT_MET50_DIMUON3 = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
+SUSY_HLT_MET50_DIMUON3 = DQMStep1Module('SUSY_HLT_Muon_Hadronic',
   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   MuonCollection = cms.InputTag("muons"),
   pfMETCollection = cms.InputTag("pfMet"),

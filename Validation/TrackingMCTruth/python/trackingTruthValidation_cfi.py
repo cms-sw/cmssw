@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-trackingTruthValid = cms.EDAnalyzer("TrackingTruthValid",
+trackingTruthValid = DQMStep1Module('TrackingTruthValid',
     #to run on original collection
     #   InputTag src = trackingtruthprod:
     #   string outputFile = "trackingtruthhisto.root" 

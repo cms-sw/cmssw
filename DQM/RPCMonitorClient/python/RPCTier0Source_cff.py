@@ -14,7 +14,7 @@ from DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi import *
 from DQM.RPCMonitorDigi.RPCEfficiency_cfi import *
 
 # DQM Services
-rpcEventInfo = cms.EDAnalyzer("DQMEventInfo",
+rpcEventInfo = DQMStep1Module('DQMEventInfo',
     subSystemFolder = cms.untracked.string('RPC')
 )
 

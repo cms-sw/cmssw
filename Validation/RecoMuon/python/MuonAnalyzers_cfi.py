@@ -13,7 +13,7 @@ MuonTrackAnalysisParameters = cms.PSet(
     rootFileName = cms.untracked.string('validationPlots.root'),
     RPCSimHit = cms.InputTag("MuonRPCHits","g4SimHits")
 )
-STAMuonAnalyzer = cms.EDAnalyzer("MuonTrackAnalyzer",
+STAMuonAnalyzer = DQMStep1Module('MuonTrackAnalyzer',
     MuonTrackAnalysisParameters,
     DoSeedsAnalysis = cms.untracked.bool(True),
     dirName = cms.untracked.string('Muons/RecoMuonV/TrackAnalyzer/'),
@@ -21,19 +21,19 @@ STAMuonAnalyzer = cms.EDAnalyzer("MuonTrackAnalyzer",
     MuonSeed = cms.InputTag("MuonSeed")
 )
 
-GLBMuonAnalyzer = cms.EDAnalyzer("MuonTrackAnalyzer",
+GLBMuonAnalyzer = DQMStep1Module('MuonTrackAnalyzer',
     MuonTrackAnalysisParameters,
     Tracks = cms.InputTag("globalMuons"),
     dirName = cms.untracked.string('Muons/RecoMuonV/TrackAnalyzer/')
 )
 
-TrackerMuonAnalyzer = cms.EDAnalyzer("MuonTrackAnalyzer",
+TrackerMuonAnalyzer = DQMStep1Module('MuonTrackAnalyzer',
     MuonTrackAnalysisParameters,
     Tracks = cms.InputTag("generalTracks"),
     dirName = cms.untracked.string('Muons/RecoMuonV/TrackAnalyzer/')
 )
 
-MuonTrackResidualAnalyzer = cms.EDAnalyzer("MuonTrackResidualAnalyzer",
+MuonTrackResidualAnalyzer = DQMStep1Module('MuonTrackResidualAnalyzer',
     MuonTrackAnalysisParameters,
     MuonTrack = cms.InputTag("standAloneMuons"),
     dirName = cms.untracked.string('Muons/RecoMuonV/TrackResidualAnalyzer/'),

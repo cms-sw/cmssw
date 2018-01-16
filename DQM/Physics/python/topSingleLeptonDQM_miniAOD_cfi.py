@@ -11,7 +11,7 @@ tightIsoCut  = "(pfIsolationR04.sumChargedHadronPt + max(0., pfIsolationR04.sumN
 EletightIsoCut  = "(pfIsolationVariables.sumChargedHadronPt + max(0., pfIsolationVariables.sumNeutralHadronEt + pfIsolationVariables.sumPhotonEt - 0.5 * pfIsolationVariables.sumPUPt) ) / pt < 0.1"
 ElelooseIsoCut  = "(pfIsolationVariables.sumChargedHadronPt + max(0., pfIsolationVariables.sumNeutralHadronEt + pfIsolationVariables.sumPhotonEt - 0.5 * pfIsolationVariables.sumPUPt) ) / pt < 0.15"
 
-topSingleLeptonDQM_miniAOD = cms.EDAnalyzer("TopSingleLeptonDQM_miniAOD",
+topSingleLeptonDQM_miniAOD = DQMStep1Module('TopSingleLeptonDQM_miniAOD',
   setup = cms.PSet(
     directory = cms.string("Physics/Top/TopSingleLeptonDQM_miniAOD/"),
     sources = cms.PSet(
@@ -67,7 +67,7 @@ topSingleLeptonDQM_miniAOD = cms.EDAnalyzer("TopSingleLeptonDQM_miniAOD",
   )
 )
 
-topSingleMuonLooseDQM_miniAOD = cms.EDAnalyzer("TopSingleLeptonDQM_miniAOD",
+topSingleMuonLooseDQM_miniAOD = DQMStep1Module('TopSingleLeptonDQM_miniAOD',
 
   setup = cms.PSet(
     directory = cms.string("Physics/Top/TopSingleMuonLooseDQM_miniAOD/"),
@@ -160,7 +160,7 @@ topSingleMuonLooseDQM_miniAOD = cms.EDAnalyzer("TopSingleLeptonDQM_miniAOD",
     ), 
   )
 )
-topSingleMuonMediumDQM_miniAOD = cms.EDAnalyzer("TopSingleLeptonDQM_miniAOD",
+topSingleMuonMediumDQM_miniAOD = DQMStep1Module('TopSingleLeptonDQM_miniAOD',
   setup = cms.PSet(
     directory = cms.string("Physics/Top/TopSingleMuonMediumDQM_miniAOD/"),
     sources = cms.PSet(
@@ -246,7 +246,7 @@ topSingleMuonMediumDQM_miniAOD = cms.EDAnalyzer("TopSingleLeptonDQM_miniAOD",
   )
 )
 
-topSingleElectronLooseDQM_miniAOD = cms.EDAnalyzer("TopSingleLeptonDQM_miniAOD",
+topSingleElectronLooseDQM_miniAOD = DQMStep1Module('TopSingleLeptonDQM_miniAOD',
   setup = cms.PSet(
     directory = cms.string("Physics/Top/TopSingleElectronLooseDQM_miniAOD/"),
     sources = cms.PSet(
@@ -335,7 +335,7 @@ topSingleElectronLooseDQM_miniAOD = cms.EDAnalyzer("TopSingleLeptonDQM_miniAOD",
   )
 )
 
-topSingleElectronMediumDQM_miniAOD = cms.EDAnalyzer("TopSingleLeptonDQM_miniAOD",
+topSingleElectronMediumDQM_miniAOD = DQMStep1Module('TopSingleLeptonDQM_miniAOD',
   setup = cms.PSet(
 
     directory = cms.string("Physics/Top/TopSingleElectronMediumDQM_miniAOD/"),

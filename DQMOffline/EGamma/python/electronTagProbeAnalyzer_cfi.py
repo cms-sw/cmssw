@@ -4,7 +4,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-dqmElectronTagProbeAnalysis = cms.EDAnalyzer("ElectronTagProbeAnalyzer",
+dqmElectronTagProbeAnalysis = DQMStep1Module('ElectronTagProbeAnalyzer',
 
     Verbosity = cms.untracked.int32(0),
     FinalStep = cms.string("AtJobEnd"),

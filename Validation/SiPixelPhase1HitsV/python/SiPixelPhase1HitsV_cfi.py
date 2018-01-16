@@ -124,7 +124,7 @@ SiPixelPhase1HitsConf = cms.VPSet(
   SiPixelPhase1HitsEfficiencyTrack,
 )
 
-SiPixelPhase1HitsAnalyzerV = cms.EDAnalyzer("SiPixelPhase1HitsV",
+SiPixelPhase1HitsAnalyzerV = DQMStep1Module('SiPixelPhase1HitsV',
         pixBarrelLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
         pixBarrelHighSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelHighTof"),
         pixForwardLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"),

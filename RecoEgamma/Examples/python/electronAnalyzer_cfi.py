@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-electronAnalyzer = cms.EDAnalyzer("ElectronAnalyzer",
+electronAnalyzer = DQMStep1Module('ElectronAnalyzer',
     outputFile = cms.string('electronAnalysisOutput.root'),
     REleCut = cms.double(0.1),
     mcProducer = cms.string('source'),

@@ -85,7 +85,7 @@ process.GlobalTag.globaltag = autoCond['mc']
 
 # HCAL validation
 
-process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+process.hcalRecoAnalyzer = DQMStep1Module('HcalRecHitsValidation',
                                           outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
                                           HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
                                           HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
@@ -97,7 +97,7 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
                                           Famos                     = cms.untracked.bool(True) 
                                           )
 
-process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
+process.hcalTowerAnalyzer = DQMStep1Module('CaloTowersValidation',
                                            outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
                                            CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
                                            hcalselector             = cms.untracked.string('all'),

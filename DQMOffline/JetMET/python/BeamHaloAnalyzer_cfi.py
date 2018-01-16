@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # Description: Module monitor histograms related to the BeamHaloId tools in the RecoMET package 
 # Date: Nov. 15, 2009
 
-AnalyzeBeamHalo = cms.EDAnalyzer("BeamHaloAnalyzer",
+AnalyzeBeamHalo = DQMStep1Module('BeamHaloAnalyzer',
                                  L1MuGMTReadoutLabel = cms.InputTag("gtDigis"),
                                  CSCRecHitLabel = cms.InputTag("csc2DRecHits"),
                                  EBRecHitLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-basicHepMCValidation = cms.EDAnalyzer("BasicHepMCValidation",
+basicHepMCValidation = DQMStep1Module('BasicHepMCValidation',
     hepmcCollection = cms.InputTag("generatorSmeared"),
     UseWeightFromHepMC = cms.bool(True)
 )

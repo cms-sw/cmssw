@@ -11,7 +11,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:./ECALH4TB_data_hits.root')
 )
 
-process.tbValidData = cms.EDAnalyzer("EcalTBValidation",
+process.tbValidData = DQMStep1Module('EcalTBValidation',
     rootfile = cms.untracked.string('EcalTBValidationData.root'),
     eventHeaderProducer = cms.string('ecalTBunpack'),
     hitProducer = cms.string('ecal2006TBWeightUncalibRecHit'),

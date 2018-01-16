@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-muondtdigianalyzer = cms.EDAnalyzer("MuonDTDigis",
+muondtdigianalyzer = DQMStep1Module('MuonDTDigis',
     # Label to retrieve Digis from the event
     DigiLabel = cms.InputTag('simMuonDTDigis'),
     # Label to retrieve SimHits from the event

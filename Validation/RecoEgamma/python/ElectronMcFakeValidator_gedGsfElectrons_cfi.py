@@ -21,7 +21,7 @@ electronMcFakeHistosCfg = cms.PSet(
   EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False)
 )
 
-electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
+electronMcFakeValidator = DQMStep1Module('ElectronMcFakeValidator',
 
   Verbosity = cms.untracked.int32(0),
   FinalStep = cms.string("AtJobEnd"),

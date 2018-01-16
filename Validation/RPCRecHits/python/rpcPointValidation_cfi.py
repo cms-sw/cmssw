@@ -1,24 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
-dtVsRPCRecHitV = cms.EDAnalyzer("RPCPointVsRecHit",
+dtVsRPCRecHitV = DQMStep1Module('RPCPointVsRecHit',
     subDir = cms.string("RPC/RPCRecHitV/DTVsReco"),
     refHit = cms.InputTag("rpcPointProducer", "RPCDTExtrapolatedPoints"),
     recHit = cms.InputTag("rpcRecHits"),
 )
 
-cscVsRPCRecHitV = cms.EDAnalyzer("RPCPointVsRecHit",
+cscVsRPCRecHitV = DQMStep1Module('RPCPointVsRecHit',
     subDir = cms.string("RPC/RPCRecHitV/CSCVsReco"),
     refHit = cms.InputTag("rpcPointProducer", "RPCCSCExtrapolatedPoints"),
     recHit = cms.InputTag("rpcRecHits"),
 )
 
-trackVsRPCRecHitV = cms.EDAnalyzer("RPCPointVsRecHit",
+trackVsRPCRecHitV = DQMStep1Module('RPCPointVsRecHit',
     subDir = cms.string("RPC/RPCRecHitV/TrackVsReco"),
     refHit = cms.InputTag("rpcPointProducer", "RPCTrackExtrapolatedPoints"),
     recHit = cms.InputTag("rpcRecHits"),
 )
 
-simVsDTExtV = cms.EDAnalyzer("RPCRecHitValid",
+simVsDTExtV = DQMStep1Module('RPCRecHitValid',
     subDir = cms.string("RPC/RPCRecHitV/SimVsDTExt"),
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     simTrack = cms.InputTag("mix", "MergedTrackTruth"),
@@ -26,7 +26,7 @@ simVsDTExtV = cms.EDAnalyzer("RPCRecHitValid",
     recHit = cms.InputTag("rpcPointProducer", "RPCDTExtrapolatedPoints"),
 )
 
-simVsCSCExtV = cms.EDAnalyzer("RPCRecHitValid",
+simVsCSCExtV = DQMStep1Module('RPCRecHitValid',
     subDir = cms.string("RPC/RPCRecHitV/SimVsCSCExt"),
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     simTrack = cms.InputTag("mix", "MergedTrackTruth"),
@@ -34,7 +34,7 @@ simVsCSCExtV = cms.EDAnalyzer("RPCRecHitValid",
     recHit = cms.InputTag("rpcPointProducer", "RPCCSCExtrapolatedPoints"),
 )
 
-simVsTrackExtV = cms.EDAnalyzer("RPCRecHitValid",
+simVsTrackExtV = DQMStep1Module('RPCRecHitValid',
     subDir = cms.string("RPC/RPCRecHitV/SimVsTrackExt"),
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     simTrack = cms.InputTag("mix", "MergedTrackTruth"),

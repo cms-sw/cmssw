@@ -7,7 +7,7 @@ from DQMOffline.Trigger.EgHLTOffTrigSelection_cfi import *
 from DQMOffline.Trigger.EgHLTOffHistBins_cfi import *
 from DQMOffline.Trigger.EgHLTOffFiltersToMon_cfi import *
 
-egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
+egHLTOffDQMSource = DQMStep1Module('EgHLTOfflineSource',
                                  egHLTOffFiltersToMon,
                                  binData = cms.PSet(egHLTOffDQMBinData,),
                                  doHEP =cms.bool(False),

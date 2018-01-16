@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tGct = cms.EDAnalyzer("L1TGCT",
+l1tGct = DQMStep1Module('L1TGCT',
     gctCentralJetsSource = cms.InputTag("gctDigis","cenJets"),
     gctForwardJetsSource = cms.InputTag("gctDigis","forJets"),
     gctTauJetsSource = cms.InputTag("gctDigis","tauJets"),

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-dtNoiseMonitor = cms.EDAnalyzer("DTNoiseTask",
+dtNoiseMonitor = DQMStep1Module('DTNoiseTask',
                                 # the label to retrieve the DT digis
                                 dtDigiLabel = cms.InputTag("dtunpacker"),
                                 # switch for time box booking

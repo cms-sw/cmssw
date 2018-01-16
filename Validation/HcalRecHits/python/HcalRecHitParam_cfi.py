@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+hcalRecoAnalyzer = DQMStep1Module('HcalRecHitsValidation',
     TopFolderName             = cms.string('HcalRecHitsV/HcalRecHitTask'),
     outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
 
@@ -19,7 +19,7 @@ hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     TestNumber                = cms.bool(False)
 )
 
-hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
+hcalNoiseRates = DQMStep1Module('NoiseRates',
     outputFile   = cms.untracked.string('NoiseRatesRelVal.root'),
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),
     minRBXEnergy = cms.untracked.double(20.0),

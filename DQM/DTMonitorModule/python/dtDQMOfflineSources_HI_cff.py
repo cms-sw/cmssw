@@ -10,7 +10,7 @@ dtSegmentAnalysisMonitor.nLSTimeBin = 5
 
 from DQM.DTMonitorModule.dtResolutionTask_cfi import *
 
-dqmInfoDT = cms.EDAnalyzer("DQMEventInfo",
+dqmInfoDT = DQMStep1Module('DQMEventInfo',
                          subSystemFolder = cms.untracked.string('DT')
                          )
 

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
-muonRecoAnalyzer = cms.EDAnalyzer("MuonRecoAnalyzer",
+muonRecoAnalyzer = DQMStep1Module('MuonRecoAnalyzer',
                                   MuonServiceProxy, 
                                   MuonCollection       = cms.InputTag("muons"),
                                   IsminiAOD            = cms.bool( False ),
@@ -44,7 +44,7 @@ muonRecoAnalyzer = cms.EDAnalyzer("MuonRecoAnalyzer",
                                   tunePMax = cms.double(1.0),
                                   folder = cms.string("Muons/MuonRecoAnalyzer")
                                   )
-muonRecoAnalyzer_miniAOD = cms.EDAnalyzer("MuonRecoAnalyzer",
+muonRecoAnalyzer_miniAOD = DQMStep1Module('MuonRecoAnalyzer',
                                           MuonServiceProxy, 
                                           MuonCollection = cms.InputTag("slimmedMuons"),
                                           IsminiAOD            = cms.bool( True ),

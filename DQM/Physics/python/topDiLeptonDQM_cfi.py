@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-topDiLeptonDQM = cms.EDAnalyzer("TopDiLeptonDQM",
+topDiLeptonDQM = DQMStep1Module('TopDiLeptonDQM',
 
     moduleName = cms.untracked.string('Physics/Top/DiLepton'),
     fileOutput = cms.bool(False),

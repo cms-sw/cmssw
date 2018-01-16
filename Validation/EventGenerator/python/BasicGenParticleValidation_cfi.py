@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-basicGenParticleValidation = cms.EDAnalyzer("BasicGenParticleValidation",
+basicGenParticleValidation = DQMStep1Module('BasicGenParticleValidation',
     hepmcCollection = cms.InputTag("generatorSmeared"),
     genparticleCollection = cms.InputTag("genParticles",""),
     genjetsCollection = cms.InputTag("ak4GenJets",""),

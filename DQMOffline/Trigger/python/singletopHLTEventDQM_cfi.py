@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
+SingleTopSingleMuonHLTOfflineDQM = DQMStep1Module('TopSingleLeptonHLTOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -139,7 +139,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
   )
 )
 
-SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
+SingleTopSingleElectronHLTOfflineDQM = DQMStep1Module('TopSingleLeptonHLTOfflineDQM',
 
   ## ------------------------------------------------------
   ## SETUP

@@ -15,7 +15,7 @@ g4SimHits.Watchers = cms.VPSet(cms.PSet(
         )
                                )
 
-hgcGeomAnalysis = cms.EDAnalyzer("HGCGeometryValidation",
+hgcGeomAnalysis = DQMStep1Module('HGCGeometryValidation',
                                  geometrySource = cms.untracked.vstring(
         'HGCalEESensitive',
         'HGCalHESiliconSensitive',

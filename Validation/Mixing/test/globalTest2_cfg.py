@@ -10,7 +10,7 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
-process.test = cms.EDAnalyzer("GlobalTest",
+process.test = DQMStep1Module('GlobalTest',
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5),
     fileName = cms.string('GlobalHistos.root')

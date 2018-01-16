@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
+pfJetDQMAnalyzer = DQMStep1Module('PFJetDQMAnalyzer',
     InputCollection = cms.InputTag('ak4PFJets'),
     MatchCollection = cms.InputTag('ak4CaloJets'),
     BenchmarkLabel  = cms.string('ParticleFlow/PFVsCalo'),

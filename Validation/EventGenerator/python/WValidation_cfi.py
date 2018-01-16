@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-wValidation = cms.EDAnalyzer("WValidation",
+wValidation = DQMStep1Module('WValidation',
     hepmcCollection = cms.InputTag("generatorSmeared"),
     decaysTo = cms.int32(11),
     name = cms.string("Electrons"),

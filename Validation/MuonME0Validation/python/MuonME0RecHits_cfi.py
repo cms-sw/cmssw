@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-me0RecHitsValidation = cms.EDAnalyzer('ME0RecHitsValidation',
+me0RecHitsValidation = DQMStep1Module('ME0RecHitsValidation',
     verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.InputTag('g4SimHits',"MuonME0Hits"),
     recHitInputLabel = cms.InputTag("me0RecHits"),
@@ -13,7 +13,7 @@ me0RecHitsValidation = cms.EDAnalyzer('ME0RecHitsValidation',
     nBinGlobalXY = cms.untracked.int32(160),
 )
 
-me0SegmentsValidation = cms.EDAnalyzer('ME0SegmentsValidation',
+me0SegmentsValidation = DQMStep1Module('ME0SegmentsValidation',
     verboseSimHit = cms.untracked.int32(1),
     segmentInputLabel = cms.InputTag("me0Segments"),
     digiInputLabel = cms.InputTag("simMuonME0PseudoReDigis"),

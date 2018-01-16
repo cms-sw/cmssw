@@ -15,7 +15,7 @@ process.esRawToDigi.debugMode = False
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 process.preScaler.prescaleFactor = 1
 
-process.dqmInfoES = cms.EDAnalyzer("DQMEventInfo",
+process.dqmInfoES = DQMStep1Module('DQMEventInfo',
                                    subSystemFolder = cms.untracked.string('EcalPreshower')
                                    )
 

@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # This object is used to make changes for different running scenarios
 #
 
-SiPixelRawDataErrorSource = cms.EDAnalyzer("SiPixelRawDataErrorSource",
+SiPixelRawDataErrorSource = DQMStep1Module('SiPixelRawDataErrorSource',
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelDigis"),
     outputFile = cms.string('Pixel_DQM_Error.root'),

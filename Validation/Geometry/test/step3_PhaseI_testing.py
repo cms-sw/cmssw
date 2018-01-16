@@ -90,7 +90,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '81X_upgrade2017_realistic_v3', '')
 
 
-process.materialdumper = cms.EDAnalyzer("TrackingRecoMaterialAnalyser",
+process.materialdumper = DQMStep1Module('TrackingRecoMaterialAnalyser',
         tracks = cms.InputTag("generalTracks"),
         vertices = cms.InputTag("offlinePrimaryVertices"),
         DoPredictionsOnly = cms.bool(False),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tHIonImp = cms.EDAnalyzer("L1THIonImp",
+l1tHIonImp = DQMStep1Module('L1THIonImp',
                             gctCentralJetsDataSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets"),
                             gctForwardJetsDataSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets"),
                             gctTauJetsDataSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets"),

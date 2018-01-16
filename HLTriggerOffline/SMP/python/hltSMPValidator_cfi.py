@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # taken from hltHiggsValidator_cfi.py in HLTriggerOffline/Higgs/python
-hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
+hltSMPValidator = DQMStep1Module('HLTHiggsValidator',
 		
     hltProcessName = cms.string("HLT"),
     histDirectory  = cms.string("HLT/SMP"),

@@ -1141,7 +1141,7 @@ dirname = "HLT/HI/"
 
 processName = "HLT"
 
-HILowLumiHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
+HILowLumiHLTOfflineSource = DQMStep1Module('FSQDiJetAve',
     triggerConfiguration =  cms.PSet(
       hltResults = cms.InputTag('TriggerResults','',processName),
       l1tResults = cms.InputTag(''),

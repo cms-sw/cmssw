@@ -4,7 +4,7 @@ EletightIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max
 ElelooseIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.15"
 
 
-singleTopTChannelLeptonDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
+singleTopTChannelLeptonDQM = DQMStep1Module('SingleTopTChannelLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -132,7 +132,7 @@ singleTopTChannelLeptonDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
   )
 )
 
-singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
+singleTopMuonMediumDQM = DQMStep1Module('SingleTopTChannelLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -292,7 +292,7 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
   )
 )
 
-singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
+singleTopElectronMediumDQM = DQMStep1Module('SingleTopTChannelLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-photonValidationMiniAOD = cms.EDAnalyzer("PhotonValidatorMiniAOD",
+photonValidationMiniAOD = DQMStep1Module('PhotonValidatorMiniAOD',
     ComponentName = cms.string('photonValidationMiniAOD'),
     outputFileName  = cms.string("output.root"),
     PhotonTag=cms.untracked.InputTag('slimmedPhotons'),

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #source = cms.Source("EmptySource")
 
 # name of DQM Source program
-hlxdqmsource = cms.EDAnalyzer("HLXMonitor",
+hlxdqmsource = DQMStep1Module('HLXMonitor',
 
     Style = cms.untracked.string('BX'), ## BX for bunch crossing vs. Num events
 

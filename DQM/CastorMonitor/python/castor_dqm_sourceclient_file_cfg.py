@@ -156,7 +156,7 @@ process.castorDigis = cms.EDProducer("CastorRawToDigi",
     InputLabel = cms.InputTag("rawDataCollector")
 )
 
-process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
+process.castorMonitor = DQMStep1Module('CastorMonitorModule',
                            ### GLOBAL VARIABLES
                            debug = cms.untracked.int32(0), # make debug an int so that different
                                                            # values can trigger different levels of messaging

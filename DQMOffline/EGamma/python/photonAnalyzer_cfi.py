@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 
-photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
+photonAnalysis = DQMStep1Module('PhotonAnalyzer',
     ComponentName = cms.string('photonAnalysis'),
     phoProducer = cms.InputTag('gedPhotons'),
     analyzerName = cms.string('gedPhotonAnalyzer'),

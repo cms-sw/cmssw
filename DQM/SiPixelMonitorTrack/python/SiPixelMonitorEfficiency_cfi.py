@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # This object is used to make changes for different running scenarios
 #
 
-SiPixelHitEfficiencySource = cms.EDAnalyzer("SiPixelHitEfficiencySource",
+SiPixelHitEfficiencySource = DQMStep1Module('SiPixelHitEfficiencySource',
     src = cms.InputTag("siPixelHitEfficiency"),
     debug = cms.untracked.bool(False),                          
     saveFile = cms.untracked.bool(True),

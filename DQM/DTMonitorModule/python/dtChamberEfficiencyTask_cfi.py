@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtChamberEfficiencyMonitor = cms.EDAnalyzer("DTChamberEfficiencyTask",
+dtChamberEfficiencyMonitor = DQMStep1Module('DTChamberEfficiencyTask',
     # define the segment quality
     minHitsSegment = cms.int32(5),
     # parameter for check on extrapolated check

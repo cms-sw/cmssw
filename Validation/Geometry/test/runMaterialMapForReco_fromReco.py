@@ -152,7 +152,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 )
 
 
-process.materialdumper = cms.EDAnalyzer("TrackingRecoMaterialAnalyser",
+process.materialdumper = DQMStep1Module('TrackingRecoMaterialAnalyser',
         tracks = cms.InputTag("generalTracks"),
         vertices = cms.InputTag("offlinePrimaryVertices"),
         DoPredictionsOnly = cms.bool(False),

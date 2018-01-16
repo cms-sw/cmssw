@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-qcdHighPtDQM = cms.EDAnalyzer("QcdHighPtDQM",
+qcdHighPtDQM = DQMStep1Module('QcdHighPtDQM',
                                      jetTag = cms.untracked.InputTag("ak4CaloJets"),
                                       metTag1 = cms.untracked.InputTag("met"),
                                       metTag2 = cms.untracked.InputTag("metHO"),

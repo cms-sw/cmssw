@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
-muonTiming = cms.EDAnalyzer("MuonTiming",
+muonTiming = DQMStep1Module('MuonTiming',
                                   MuonServiceProxy, 
                                   MuonCollection       = cms.InputTag("muons"),
                                   # histograms parameters
@@ -36,7 +36,7 @@ muonTiming = cms.EDAnalyzer("MuonTiming",
                                   folder = cms.string("Muons/MuonTiming")
                            )
 
-muonTiming_miniAOD = cms.EDAnalyzer("MuonTiming",
+muonTiming_miniAOD = DQMStep1Module('MuonTiming',
                                   MuonServiceProxy,
                                   MuonCollection       = cms.InputTag("slimmedMuons"),
                                   # histograms parameters

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleLeptonDQM = DQMStep1Module('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -129,7 +129,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleMuonLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleMuonLooseDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -289,7 +289,7 @@ topSingleMuonLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleMuonMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleMuonMediumDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -442,7 +442,7 @@ topSingleMuonMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleElectronLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleElectronLooseDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -604,7 +604,7 @@ topSingleElectronLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleElectronMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleElectronMediumDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##

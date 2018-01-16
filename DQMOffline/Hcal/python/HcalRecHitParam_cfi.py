@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalRecHitsAnalyzer = cms.EDAnalyzer("HcalRecHitsAnalyzer",
+hcalRecHitsAnalyzer = DQMStep1Module('HcalRecHitsAnalyzer',
     TopFolderName             = cms.string('HcalRecHitsD/HcalRecHitTask'),
 #    outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
     outputFile                = cms.untracked.string(''),

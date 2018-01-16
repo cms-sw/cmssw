@@ -65,7 +65,7 @@ for samplenum in range(len(samples.names)):
 
 egammaSelectors.remove(tmp)  # remove the initial dummy
 
-emdqm = cms.EDAnalyzer('EmDQM',
+emdqm = DQMStep1Module('EmDQM',
                            #processname = cms.string("HLT"), # can be obtained from triggerobject
                            autoConfMode = cms.untracked.bool(True),
                            triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),

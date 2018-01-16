@@ -5,7 +5,7 @@ pfjetcoll="hltAK4PFJets"
 
 foldernm="HLT/HLTJETMET/"
 
-SingleJetMetPaths = cms.EDAnalyzer("HLTJetMETValidation",
+SingleJetMetPaths = DQMStep1Module('HLTJetMETValidation',
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
     DQMFolder             = cms.untracked.string(foldernm),
     PatternJetTrg         = cms.untracked.string("HLT_PF(NoPU)?Jet([0-9])+(_v[0-9]+)?$"),                                   

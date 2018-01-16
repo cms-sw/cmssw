@@ -17,7 +17,7 @@ process.source = cms.Source("PoolSource",
                            )
                     )
 
-process.QcdHighPtDQM = cms.EDAnalyzer("QcdHighPtDQM",
+process.QcdHighPtDQM = DQMStep1Module('QcdHighPtDQM',
                                     jetTag = cms.untracked.InputTag("sisCone5CaloJets"),
                                     metTag1 = cms.untracked.InputTag("met"),
                                     metTag2 = cms.untracked.InputTag("metHO"),

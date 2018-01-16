@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-dqmscalInfo = cms.EDAnalyzer("DQMScalInfo",
+dqmscalInfo = DQMStep1Module('DQMScalInfo',
     dqmScalFolder = cms.untracked.string('Scal')
 )

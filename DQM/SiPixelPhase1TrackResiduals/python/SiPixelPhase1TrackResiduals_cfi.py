@@ -40,7 +40,7 @@ SiPixelPhase1TrackResidualsConf = cms.VPSet(
   SiPixelPhase1TrackResidualsResidualsY
 )
 
-SiPixelPhase1TrackResidualsAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackResiduals",
+SiPixelPhase1TrackResidualsAnalyzer = DQMStep1Module('SiPixelPhase1TrackResiduals',
         trajectoryInput = cms.string("generalTracks"),
         Tracks        = cms.InputTag("generalTracks"),
         vertices = cms.InputTag("offlinePrimaryVertices"),

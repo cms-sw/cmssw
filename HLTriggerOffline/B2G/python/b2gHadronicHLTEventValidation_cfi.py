@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # single jet validation
-b2gSingleJetHLTValidation = cms.EDAnalyzer('B2GHadronicHLTValidation',
+b2gSingleJetHLTValidation = DQMStep1Module('B2GHadronicHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/SingleJet/'),
         # Jets
@@ -25,7 +25,7 @@ b2gSingleJetHLTValidation = cms.EDAnalyzer('B2GHadronicHLTValidation',
                                               'HLT_AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20']),
 )
 
-b2gDiJetHLTValidation = cms.EDAnalyzer('B2GHadronicHLTValidation',
+b2gDiJetHLTValidation = DQMStep1Module('B2GHadronicHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/DiJet/'),
         # Jets

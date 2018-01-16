@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HcalSimHitsAnalyser = cms.EDAnalyzer("HcalSimHitsValidation",
+HcalSimHitsAnalyser = DQMStep1Module('HcalSimHitsValidation',
     outputFile = cms.untracked.string('')
 )
 

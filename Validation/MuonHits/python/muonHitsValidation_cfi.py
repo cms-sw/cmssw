@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # SimHits Validation Analyzer after Simulation
-validSimHit = cms.EDAnalyzer("MuonSimHitsValidAnalyzer",
+validSimHit = DQMStep1Module('MuonSimHitsValidAnalyzer',
     # Name of the root file which will contain the histos
     DT_outputFile = cms.untracked.string(''),
     Name = cms.untracked.string('MuonSimHitsValidAnalyzer'),

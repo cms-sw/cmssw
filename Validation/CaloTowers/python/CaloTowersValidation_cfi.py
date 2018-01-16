@@ -19,7 +19,7 @@ source = cms.Source("PoolSource",
 
 MessageLogger = cms.Service("MessageLogger")
 
-myanalyzer = cms.EDAnalyzer("CaloTowersValidation",
+myanalyzer = DQMStep1Module('CaloTowersValidation',
     outputFile = cms.untracked.string('CaloTowersValidationHB.root'),
     CaloTowerCollectionLabel = cms.untracked.string('towerMaker'),
     hcalselector = cms.untracked.string('HB')

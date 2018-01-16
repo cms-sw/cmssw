@@ -71,7 +71,7 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
     siteLocalConfig = cms.untracked.bool(False)
 )
 
-process.dtTTrigAnalyzer = cms.EDAnalyzer("DTtTrigDBValidation",
+process.dtTTrigAnalyzer = DQMStep1Module('DTtTrigDBValidation',
     labelDBRef = cms.string('ttrigRef'),
     labelDB = cms.string('ttrigToValidate'),
     tTrigTestName = cms.string('tTrigDifferenceInRange'),

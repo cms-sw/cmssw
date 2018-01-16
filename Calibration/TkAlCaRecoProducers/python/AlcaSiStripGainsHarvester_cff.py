@@ -9,7 +9,7 @@ EDMtoMEConvertSiStripGains.runInputTag = cms.InputTag("MEtoEDMConvertSiStripGain
 
 DQMStore = cms.Service("DQMStore")
 
-dqmEnvSiStripGains = cms.EDAnalyzer("DQMEventInfo",
+dqmEnvSiStripGains = DQMStep1Module('DQMEventInfo',
                                     subSystemFolder = cms.untracked.string('AlCaReco'),  
                                     )
 

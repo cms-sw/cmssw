@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #   module trackerHitsValid = TrackerHitProducer
-trackerHitsValid = cms.EDAnalyzer("TrackerHitAnalyzer",
+trackerHitsValid = DQMStep1Module('TrackerHitAnalyzer',
     G4TrkSrc = cms.InputTag("g4SimHits"),
     SiTIDLowSrc = cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"),
     PxlBrlLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
@@ -28,7 +28,7 @@ trackerHitsValid = cms.EDAnalyzer("TrackerHitAnalyzer",
     pixelOutput = cms.bool(True)
 )
 
-trackerSiStripHitsValid = cms.EDAnalyzer("TrackerHitAnalyzer",
+trackerSiStripHitsValid = DQMStep1Module('TrackerHitAnalyzer',
     G4TrkSrc = cms.InputTag("g4SimHits"),
     SiTIDLowSrc = cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"),
     PxlBrlLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),

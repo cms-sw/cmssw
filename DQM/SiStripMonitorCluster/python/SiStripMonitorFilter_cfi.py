@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripMonitorFilter = cms.EDAnalyzer("SiStripMonitorFilter",
+SiStripMonitorFilter = DQMStep1Module('SiStripMonitorFilter',
     FilterProducer = cms.string('ClusterMTCCFilter')
 )

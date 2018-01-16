@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-PixelTrackingRecHitsValid = cms.EDAnalyzer("SiPixelTrackingRecHitsValid",
+PixelTrackingRecHitsValid = DQMStep1Module('SiPixelTrackingRecHitsValid',
                                          src = cms.untracked.string('generalTracks'),
                                          runStandalone = cms.bool(False),
                                          outputFile = cms.untracked.string(''),

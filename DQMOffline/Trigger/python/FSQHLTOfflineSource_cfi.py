@@ -594,7 +594,7 @@ fsqdirname = "HLT/FSQ/"
 processName = "HLT"
 #processName = "TEST"
 
-fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
+fsqHLTOfflineSource = DQMStep1Module('FSQDiJetAve',
     triggerConfiguration =  cms.PSet(
       hltResults = cms.InputTag('TriggerResults','',processName),
       l1tResults = cms.InputTag(''),

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from copy import deepcopy
 
-SUSY_HLT_Ele15_HT350_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Ele15_HT350_MET50_SingleLepton = DQMStep1Module('SUSY_HLT_SingleLepton',
                                                   electronCollection = cms.InputTag('gedGsfElectrons'),
                                                   muonCollection = cms.InputTag(''),
                                                   pfMetCollection = cms.InputTag('pfMet'),
@@ -53,7 +53,7 @@ SUSYoHLToEle15oHT350oMET50oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGener
                                                                  resolution = cms.vstring('')
                                                                  )
 
-SUSY_HLT_Ele15_HT400_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Ele15_HT400_MET50_SingleLepton = DQMStep1Module('SUSY_HLT_SingleLepton',
                                                   electronCollection = cms.InputTag('gedGsfElectrons'),
                                                   muonCollection = cms.InputTag(''),
                                                   pfMetCollection = cms.InputTag('pfMet'),

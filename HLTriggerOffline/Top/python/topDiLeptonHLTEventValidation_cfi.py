@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # ttbar dimuon
-DiMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
+DiMuonHLTValidation = DQMStep1Module('TopDiLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/DiMuon/'),
         # Electrons
@@ -29,7 +29,7 @@ DiMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
 )
 
 # ttbar dielec
-DiElectronHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
+DiElectronHLTValidation = DQMStep1Module('TopDiLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/DiElectron/'),
         # Electrons
@@ -57,7 +57,7 @@ DiElectronHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
 )
 
 # ttbar elec-muon
-ElecMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
+ElecMuonHLTValidation = DQMStep1Module('TopDiLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/ElecMuon/'),
         # Electrons

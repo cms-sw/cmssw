@@ -29,7 +29,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('/tmp/carrillo/RPCEfficiency.log')
 )
 
-process.museg = cms.EDAnalyzer("RPCEfficiency",
+process.museg = DQMStep1Module('RPCEfficiency',
 
     incldt = cms.untracked.bool(True),
     incldtMB4 = cms.untracked.bool(True),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HiggsDQM = cms.EDAnalyzer("HiggsDQM",
+HiggsDQM = DQMStep1Module('HiggsDQM',
     elecTriggerPathToPass    = cms.string("HLT_Ele10_LW_L1R"),
     muonTriggerPathToPass    = cms.string("HLT_Mu9"),
     triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tDttf = cms.EDAnalyzer("L1TDTTF",
+l1tDttf = DQMStep1Module('L1TDTTF',
     verbose = cms.untracked.bool(False),
     DQMStore = cms.untracked.bool(True),
     l1tSystemFolder = cms.untracked.string('L1T/L1TDTTF'),

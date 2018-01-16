@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-Z0testValidation = cms.EDAnalyzer("HiggsValidation",
+Z0testValidation = DQMStep1Module('HiggsValidation',
     hepmcCollection    = cms.InputTag("generatorSmeared"),
     pdg_id             = cms.int32(25),
     particleName       = cms.string("Higgs"),
@@ -8,7 +8,7 @@ Z0testValidation = cms.EDAnalyzer("HiggsValidation",
     UseWeightFromHepMC = cms.bool(True)
 )
 
-hplusValidation = cms.EDAnalyzer("HiggsValidation",
+hplusValidation = DQMStep1Module('HiggsValidation',
     hepmcCollection    = cms.InputTag("generatorSmeared"),
     pdg_id             = cms.int32(37),
     particleName       = cms.string("Hplus"),

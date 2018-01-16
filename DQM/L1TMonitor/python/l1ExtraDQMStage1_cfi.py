@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.L1TMonitor.L1ExtraInputTagSetStage1_cff import *
 
 
-l1ExtraDQMStage1 = cms.EDAnalyzer("L1ExtraDQM",
+l1ExtraDQMStage1 = DQMStep1Module('L1ExtraDQM',
                             
     # L1Extra input tags
     L1ExtraInputTagSetStage1,

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-PedsMon = cms.EDAnalyzer("SiStripMonitorPedestals",
+PedsMon = DQMStep1Module('SiStripMonitorPedestals',
     OutputMEsInRootFile = cms.bool(False),
     StripQualityLabel = cms.string(''),
     RunTypeFlag = cms.string('CalculatedPlotsOnly'), ##Options : ConDBPlotsOnly , CalculatedPlotsOnly, AllPlots

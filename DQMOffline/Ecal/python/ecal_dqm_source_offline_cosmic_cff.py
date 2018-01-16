@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
 from DQM.EcalMonitorTasks.EcalFEDMonitor_cfi import *
 
-dqmInfoEcal = cms.EDAnalyzer("DQMEventInfo",
+dqmInfoEcal = DQMStep1Module('DQMEventInfo',
     subSystemFolder = cms.untracked.string('Ecal')
 )
 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-me0DigiValidation = cms.EDAnalyzer('ME0DigisValidation',
+me0DigiValidation = DQMStep1Module('ME0DigisValidation',
     verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.InputTag('g4SimHits',"MuonME0Hits"),
     digiInputLabel = cms.InputTag("simMuonME0PseudoReDigis"),

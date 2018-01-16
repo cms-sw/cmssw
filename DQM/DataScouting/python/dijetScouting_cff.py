@@ -12,7 +12,7 @@ scoutingDiJetVariables = cms.EDProducer("DiJetVarProducer",
                                         wideJetDeltaR = cms.double(1.1),
                                         )
 
-scoutingDiJetVarAnalyzer = cms.EDAnalyzer("DiJetVarAnalyzer",
+scoutingDiJetVarAnalyzer = DQMStep1Module('DiJetVarAnalyzer',
                                           modulePath = cms.untracked.string("DiJet"),
                                           jetCollectionTag = cms.untracked.InputTag("selectedCaloJets"),
                                           #dijetVarCollectionTag = cms.untracked.InputTag("scoutingDiJetVariables","dijetvariables"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-mbueAndqcdValidation = cms.EDAnalyzer("MBUEandQCDValidation",
+mbueAndqcdValidation = DQMStep1Module('MBUEandQCDValidation',
     hepmcCollection = cms.InputTag("generatorSmeared"),
     genChjetsCollection = cms.InputTag("chargedak4GenJets",""),
     genjetsCollection = cms.InputTag("ak4GenJets",""),

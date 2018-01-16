@@ -32,7 +32,7 @@ process.ecalPreshowerRecHit.ESRecoAlgo = cms.int32(0)
 
 process.preScaler.prescaleFactor = 1
 
-#process.dqmInfoES = cms.EDAnalyzer("DQMEventInfo",
+#process.dqmInfoES = DQMStep1Module('DQMEventInfo',
 #                                   subSystemFolder = cms.untracked.string('EcalPreshower')
 #                                   )
 

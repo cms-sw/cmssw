@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from SimTracker.TrackHistory.TrackClassifier_cff import *
 
-BDHadronTrackMonitoringAnalyze = cms.EDAnalyzer("BDHadronTrackMonitoringAnalyzer",
+BDHadronTrackMonitoringAnalyze = DQMStep1Module('BDHadronTrackMonitoringAnalyzer',
 								trackClassifier,
 								distJetAxisCut = cms.double(0.07),
 								decayLengthCut = cms.double(5.0),

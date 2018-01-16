@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 
-muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
+muonTrackValidator = DQMStep1Module('MuonTrackValidator',
     # input TrackingParticle collections
     label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
     label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),

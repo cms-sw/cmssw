@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
+stripRecHitsValid = DQMStep1Module('SiStripRecHitsValid',
     TopFolderName = cms.string('SiStrip/RecHitsValidation/StiffTrackingRecHits'),
 
     TH1NumTotrphi = cms.PSet(

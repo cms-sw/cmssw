@@ -59,7 +59,7 @@ process.eventInfoProvider = cms.EDFilter("EventCoordinatesSource",
     eventInfoFolder = cms.untracked.string('EventInfo/')
 )
 
-process.DTkFactValidation = cms.EDAnalyzer("DTCalibValidation",
+process.DTkFactValidation = DQMStep1Module('DTCalibValidation',
     # Write the histos on file
     OutputMEsInRootFile = cms.bool(True),
     # Lable to retrieve 2D segments from the event

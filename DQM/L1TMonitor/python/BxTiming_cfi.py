@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-bxTiming = cms.EDAnalyzer("BxTiming",
+bxTiming = DQMStep1Module('BxTiming',
     HistFolder = cms.untracked.string('L1T/BXSynch'),
     VerboseFlag = cms.untracked.int32(0),
     HistFile = cms.untracked.string(''),

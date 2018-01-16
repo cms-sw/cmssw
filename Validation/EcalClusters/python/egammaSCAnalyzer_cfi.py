@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.EcalClusters.VerificationCommonParameters_cfi import *
-egammaSuperClusterAnalyzer = cms.EDAnalyzer("EgammaSuperClusters",
+egammaSuperClusterAnalyzer = DQMStep1Module('EgammaSuperClusters',
     VerificationCommonParameters,
     barrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     barrelRawSuperClusterCollection = cms.InputTag("hybridSuperClusters"),

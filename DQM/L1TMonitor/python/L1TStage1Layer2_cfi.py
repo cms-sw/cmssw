@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tStage1Layer2 = cms.EDAnalyzer("L1TGCT",
+l1tStage1Layer2 = DQMStep1Module('L1TGCT',
     gctCentralJetsSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets"),
     gctForwardJetsSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets"),
     gctTauJetsSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets"),
