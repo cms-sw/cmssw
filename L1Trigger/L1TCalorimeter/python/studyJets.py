@@ -22,13 +22,13 @@ towerEtaWidths = [0, 0.087, 0.087, 0.087, 0.087, 0.087, 0.087, 0.087, 0.087, 0.0
 
 
 
-def getJetProperties(jetSeed,etaIn,etaOut):
+def getJetProperties(jetSeed,etaFwd,etaCen):
 
     jetSize = 0
-    etaInSize = 0
-    etaOutSize = 0
+    etaFwdSize = 0
+    etaCenSize = 0
 
-    for ring in xrange(jetSeed-etaOut,jetSeed+etaIn+1):
+    for ring in xrange(jetSeed-etaCen,jetSeed+etaFwd+1):
 
         if ring < 1:
             ring = abs(ring-1)
@@ -37,12 +37,12 @@ def getJetProperties(jetSeed,etaIn,etaOut):
             break
 
         if ring < jetSeed:
-            etaInSize += towerEtaWidths[ring]
+            etaFwdSize += towerEtaWidths[ring]
         if ring > jetSeed:
-            etaOutSize += towerEtaWidths[ring]
+            etaCenSize += towerEtaWidths[ring]
 
-    jetSize = (etaInSize + etaOutSize + towerEtaWidths[jetSeed])/0.8
-    seedCent = etaOutSize/etaInSize
+    jetSize = (etaFwdSize + etaCenSize + towerEtaWidths[jetSeed])/0.8
+    seedCent = etaCenSize/etaFwdSize
 
     jetProps = [jetSize, seedCent]
 
@@ -65,26 +65,26 @@ def printJetProperties(etaRange):
             print "   9x"+str(size)+("\t"),
             for seedEta in etaRange:
                 print("\t"),
-                etaInOut = (size-1)/2
-                jetProps = getJetProperties(seedEta,etaInOut,etaInOut)
+                etaFwdCen = (size-1)/2
+                jetProps = getJetProperties(seedEta,etaFwdCen,etaFwdCen)
                 print("%.2f / %.2f" %(jetProps[0],jetProps[1])),
             print
 
         else:
-            print "   9x"+str(size)+" out",
+            print "   9x"+str(size)+" cen",
             for seedEta in etaRange:
                 print("\t"),
-                etaIn = size/2-1
-                etaOut = size/2
-                jetProps = getJetProperties(seedEta, etaIn, etaOut)
+                etaFwd = size/2-1
+                etaCen = size/2
+                jetProps = getJetProperties(seedEta, etaFwd, etaCen)
                 print("%.2f / %.2f" %(jetProps[0],jetProps[1])),
             print
             print "   9x"+str(size)+" in",
             for seedEta in etaRange:
                 print("\t"),
-                etaIn = size/2
-                etaOut = size/2-1
-                jetProps = getJetProperties(seedEta, etaIn, etaOut)
+                etaFwd = size/2
+                etaCen = size/2-1
+                jetProps = getJetProperties(seedEta, etaFwd, etaCen)
                 print("%.2f / %.2f" %(jetProps[0],jetProps[1])),
             print
 
@@ -94,10 +94,10 @@ print "\n"
 print "=============================================================================================================================================================================================================================="
 print "Eta-dependence of jet sizes & seed centrality"
 print "First number  = jet diameter in eta, normalised to 0.8 (offline)"
-print "Second number = jet size on inside of jet seed / jet size outside of jet seed"
+print "Second number = jet size on forward side of jet seed / jet size on central side of jet seed"
 print "Ideally, best jet choice is where both numbers are closest to unity!"
-print "9xN out = larger area on side of jet further from beam pipe"
-print "9xN in  = larger area on side of jet closer to beam pipe"
+print "9xN cen = larger area on side of jet further from beam pipe"
+print "9xN fwd  = larger area on side of jet closer to beam pipe"
 print "=============================================================================================================================================================================================================================="
 
 
