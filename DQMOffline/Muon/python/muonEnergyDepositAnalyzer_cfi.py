@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
-muonEnergyDepositAnalyzer = cms.EDAnalyzer("MuonEnergyDepositAnalyzer",
+muonEnergyDepositAnalyzer = DQMStep1Module('MuonEnergyDepositAnalyzer',
                                            MuonServiceProxy,
                                            MuonCollection = cms.InputTag("muons"),
                                            AlgoName = cms.string('muons'),

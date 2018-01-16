@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
+qcdPhotonsDQM = DQMStep1Module('QcdPhotonsDQM',
                 # Event must pass this trigger
                 triggerPathToPass         = cms.string("HLT_Photon"),
                 # Plot results of these triggers too (these don't *have* to be passed)

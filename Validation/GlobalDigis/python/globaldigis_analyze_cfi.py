@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-globaldigisanalyze = cms.EDAnalyzer("GlobalDigisAnalyzer",
+globaldigisanalyze = DQMStep1Module('GlobalDigisAnalyzer',
     hitsProducer = cms.string('g4SimHits'),
     MuCSCStripSrc = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
     MuDTSrc = cms.InputTag("simMuonDTDigis"),

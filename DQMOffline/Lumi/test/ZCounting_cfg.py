@@ -44,7 +44,7 @@ process.options = cms.untracked.PSet(
   fileMode    = cms.untracked.string('NOMERGE')
   )
 
-process.zcounting = cms.EDAnalyzer('ZCounting',
+process.zcounting = DQMStep1Module('ZCounting',
                                  TriggerEvent    = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
                                  TriggerResults  = cms.InputTag('TriggerResults','','HLT'),
 				 edmPVName       = cms.untracked.string('offlinePrimaryVertices'),

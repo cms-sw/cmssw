@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # SiStripMonitorCluster
-SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
+SiStripMonitorCluster = DQMStep1Module('SiStripMonitorCluster',
     ClusterProducerStrip = cms.InputTag('siStripClusters'),
     ClusterProducerPix = cms.InputTag('siPixelClusters'),
 

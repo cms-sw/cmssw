@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-tbeamTest = cms.EDAnalyzer("TBeamTest",
+tbeamTest = DQMStep1Module('TBeamTest',
     TopFolderName = cms.string("TBeamTest"),
     OuterTrackerDigiSource = cms.InputTag("mix", "Tracker"),
     OuterTrackerDigiSimSource = cms.InputTag("simSiPixelDigis", "Tracker"),

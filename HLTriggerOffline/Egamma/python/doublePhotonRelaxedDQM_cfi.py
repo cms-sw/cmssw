@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-doublePhotonRelaxedDQM = cms.EDAnalyzer("EmDQM",
+doublePhotonRelaxedDQM = DQMStep1Module('EmDQM',
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(2.0),
     reqNum = cms.uint32(2),

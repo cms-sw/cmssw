@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcRecHitV = cms.EDAnalyzer("RPCRecHitValid",
+rpcRecHitV = DQMStep1Module('RPCRecHitValid',
     subDir = cms.string("RPC/RPCRecHitV/SimVsReco"),
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     recHit = cms.InputTag("rpcRecHits"),

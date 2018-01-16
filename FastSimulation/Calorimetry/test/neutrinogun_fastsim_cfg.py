@@ -84,7 +84,7 @@ process.GlobalTag.globaltag = autoCond['mc']
 
 # HCAL validation
 
-process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+process.hcalRecoAnalyzer = DQMStep1Module('HcalRecHitsValidation',
                                           outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
                                           HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
                                           HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),

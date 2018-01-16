@@ -14,7 +14,7 @@ process.load('DQM.Integration.config.environment_cfi')
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
 
-process.analyzer = cms.EDAnalyzer("RamdiskMonitor",
+process.analyzer = DQMStep1Module('RamdiskMonitor',
     runNumber = process.source.runNumber,
     runInputDir = process.source.runInputDir,
     streamLabels = cms.untracked.vstring(

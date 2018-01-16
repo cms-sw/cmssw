@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltSeedL1Logic = cms.EDAnalyzer('HLTSeedL1LogicScalers',
+hltSeedL1Logic = DQMStep1Module('HLTSeedL1LogicScalers',
 
     l1GtLabel = cms.InputTag("l1GtUnpack","","HLT"),
     processname = cms.string("HLT"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rctmonitor = cms.EDAnalyzer("RCTMonitor",
+rctmonitor = DQMStep1Module('RCTMonitor',
     OutputFileName = cms.untracked.string('rctMonitor.root'), ## Name of root file for histograms
 
     #untracked InputTag rctSource  = l1RctEmulDigis // for MC file

@@ -11,7 +11,7 @@ tightIsoCut  = "(muonRef.pfIsolationR04.sumChargedHadronPt + max(0., muonRef.pfI
 EletightIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.1"
 ElelooseIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.15"
 
-topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleLeptonDQM = DQMStep1Module('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -139,7 +139,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleMuonLooseDQM = DQMStep1Module('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -301,7 +301,7 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ), 
   )
 )
-topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleMuonMediumDQM = DQMStep1Module('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -470,7 +470,7 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleElectronLooseDQM = DQMStep1Module('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -634,7 +634,7 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleElectronMediumDQM = DQMStep1Module('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##

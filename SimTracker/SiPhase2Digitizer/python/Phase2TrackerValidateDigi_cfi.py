@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-digiValid = cms.EDAnalyzer("Phase2TrackerValidateDigi",
+digiValid = DQMStep1Module('Phase2TrackerValidateDigi',
     Verbosity = cms.bool(False),
     TopFolderName = cms.string("Ph2TkPixelDigi"),
     PixelPlotFillingFlag = cms.bool(False),

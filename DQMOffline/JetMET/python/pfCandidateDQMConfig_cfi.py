@@ -6,7 +6,7 @@ from DQMOffline.JetMET.metDiagnosticParameterSetMiniAOD_cfi import *
 
 #jet corrector defined in jetMETDQMOfflineSource python file
 
-pfCandidateDQMAnalyzer = cms.EDAnalyzer("DQMPFCandidateAnalyzer",  
+pfCandidateDQMAnalyzer = DQMStep1Module('DQMPFCandidateAnalyzer',  
     CandType=cms.untracked.string('PFCand'),
     PFCandidateLabel = cms.InputTag('particleFlow', ''),
 

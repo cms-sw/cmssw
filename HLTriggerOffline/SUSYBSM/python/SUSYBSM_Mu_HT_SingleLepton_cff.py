@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from copy import deepcopy
 
-SUSY_HLT_Mu15_HT600_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Mu15_HT600_SingleLepton = DQMStep1Module('SUSY_HLT_SingleLepton',
                                              electronCollection = cms.InputTag(''),
                                              muonCollection = cms.InputTag('muons'),
                                              pfMetCollection = cms.InputTag('pfMet'),
@@ -52,7 +52,7 @@ SUSYoHLToMu15oHT600oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClien
                                                             resolution = cms.vstring('')
                                                             )
 
-SUSY_HLT_Mu15_HT400_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Mu15_HT400_SingleLepton = DQMStep1Module('SUSY_HLT_SingleLepton',
                                              electronCollection = cms.InputTag(''),
                                              muonCollection = cms.InputTag('muons'),
                                              pfMetCollection = cms.InputTag('pfMet'),
@@ -102,7 +102,7 @@ SUSYoHLToMu15oHT400oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClien
                                                             resolution = cms.vstring('')
                                                             )
 
-SUSY_HLT_Mu50_HT400_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Mu50_HT400_SingleLepton = DQMStep1Module('SUSY_HLT_SingleLepton',
                                              electronCollection = cms.InputTag(''),
                                              muonCollection = cms.InputTag('muons'),
                                              pfMetCollection = cms.InputTag('pfMet'),

@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 #     
 # V.M. Ghete 2009-10-09
 
-l1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
+l1GtHwValidation = DQMStep1Module('L1GtHwValidation',
 
     # input tag for the L1 GT hardware DAQ record
     L1GtDataDaqInputTag = cms.InputTag("gtDigis"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
+siStripFEDMonitor = DQMStep1Module('SiStripFEDMonitorPlugin',
   #Raw data collection
   RawDataTag = cms.untracked.InputTag('rawDataCollector'),
   #Folder in DQM Store to write global histograms to

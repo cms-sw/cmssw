@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tRct = cms.EDAnalyzer("L1TRCT",
+l1tRct = DQMStep1Module('L1TRCT',
     DQMStore = cms.untracked.bool(True),
     disableROOToutput = cms.untracked.bool(True),
     HistFolder = cms.untracked.string('L1T/L1TRCT'),

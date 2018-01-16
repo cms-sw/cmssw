@@ -5,7 +5,7 @@ from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoMuon.NewSelectors_cff import *
 from Validation.RecoMuon.histoParameters_cff import *
 
-NewMuonTrackValidator = cms.EDAnalyzer("NewMuonTrackValidator",
+NewMuonTrackValidator = DQMStep1Module('NewMuonTrackValidator',
     # define the TrackingParticleSelector for evaluation of efficiency
     muonTPSelector = cms.PSet(NewMuonTPSet),
     # input TrackingParticle collections

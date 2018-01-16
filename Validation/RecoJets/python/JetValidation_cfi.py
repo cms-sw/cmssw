@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ### kt6 PF jets - UnCorr
 ###-------------------------------------------------------------------------------
-#JetAnalyzerKt6PF = cms.EDAnalyzer("JetTester",
+#JetAnalyzerKt6PF = DQMStep1Module('JetTester',
 #                                  JetType = cms.untracked.string('calo'),
 #                                  OutputFile = cms.untracked.string(''),
 #                                  src            = cms.InputTag("kt6PFJets"),
@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 
 ## kt6 Calo jets - UnCorr
 ##-------------------------------------------------------------------------------
-#JetAnalyzerKt6Calo = cms.EDAnalyzer("JetTester",
+#JetAnalyzerKt6Calo = DQMStep1Module('JetTester',
 #                                    JetType = cms.untracked.string('calo'),
 #                                    OutputFile = cms.untracked.string(''),
 #                                    src            = cms.InputTag("kt6CaloJets"),                                   
@@ -32,7 +32,7 @@ import FWCore.ParameterSet.Config as cms
 
 # AntiKt5 Calo jets
 #-------------------------------------------------------------------------------
-JetAnalyzerAk4Calo = cms.EDAnalyzer("JetTester",
+JetAnalyzerAk4Calo = DQMStep1Module('JetTester',
                                     JetType = cms.untracked.string('calo'),
                                     src            = cms.InputTag("ak4CaloJets"),
 #                                    srcRho         = cms.InputTag("rho", "ak4CaloJets"),
@@ -46,7 +46,7 @@ JetAnalyzerAk4Calo = cms.EDAnalyzer("JetTester",
 
 ## AntiKt7 Calo jets
 ##-------------------------------------------------------------------------------
-#JetAnalyzerAk7Calo = cms.EDAnalyzer("JetTester",
+#JetAnalyzerAk7Calo = DQMStep1Module('JetTester',
 #                                    JetType = cms.untracked.string('calo'),
 #                                    OutputFile = cms.untracked.string(''),
 #                                    src            = cms.InputTag("ak7CaloJets"),
@@ -62,7 +62,7 @@ JetAnalyzerAk4Calo = cms.EDAnalyzer("JetTester",
 
 # AntiKt5 PF jets
 #-------------------------------------------------------------------------------
-JetAnalyzerAk4PF = cms.EDAnalyzer("JetTester",
+JetAnalyzerAk4PF = DQMStep1Module('JetTester',
                                   JetType = cms.untracked.string('pf'),
                                   src            = cms.InputTag("ak4PFJets"),
 #                                  srcRho         = cms.InputTag("ak4PFJets","rho"),
@@ -76,7 +76,7 @@ JetAnalyzerAk4PF = cms.EDAnalyzer("JetTester",
 
 # AntiKt5 JPT jets
 #-------------------------------------------------------------------------------
-#JetAnalyzerAk4JPT = cms.EDAnalyzer("JetTester",
+#JetAnalyzerAk4JPT = DQMStep1Module('JetTester',
 #                                   JetType = cms.untracked.string('jpt'),
 #                                   OutputFile = cms.untracked.string(''),
 #                                   src            = cms.InputTag("JetPlusTrackZSPCorJetAntiKt4"),
@@ -90,7 +90,7 @@ JetAnalyzerAk4PF = cms.EDAnalyzer("JetTester",
 #                                   )
 # AntiKt5 PF CHS jets
 #-------------------------------------------------------------------------------
-JetAnalyzerAk4PFCHS = cms.EDAnalyzer("JetTester",
+JetAnalyzerAk4PFCHS = DQMStep1Module('JetTester',
                                   JetType = cms.untracked.string('pf'),
                                   src            = cms.InputTag("ak4PFJetsCHS"),
 #                                  srcRho         = cms.InputTag("ak4PFJetsCHS","rho"),
@@ -103,7 +103,7 @@ JetAnalyzerAk4PFCHS = cms.EDAnalyzer("JetTester",
                                   )
 ## AntiKt8 PF  jets
 ##-------------------------------------------------------------------------------
-#JetAnalyzerAk8PF = cms.EDAnalyzer("JetTester",
+#JetAnalyzerAk8PF = DQMStep1Module('JetTester',
 #                                  JetType = cms.untracked.string('pf'),
 #                                  OutputFile = cms.untracked.string(''),
 #                                  src            = cms.InputTag("ak8PFJets"),
@@ -118,7 +118,7 @@ JetAnalyzerAk4PFCHS = cms.EDAnalyzer("JetTester",
 #                                  )
 ## AntiKt8 PF CHS jets
 ##-------------------------------------------------------------------------------
-#JetAnalyzerAk8PFCHS = cms.EDAnalyzer("JetTester",
+#JetAnalyzerAk8PFCHS = DQMStep1Module('JetTester',
 #                                  JetType = cms.untracked.string('pf'),
 #                                  OutputFile = cms.untracked.string(''),
 #                                  src            = cms.InputTag("ak8PFJetsCHS"),
@@ -133,7 +133,7 @@ JetAnalyzerAk4PFCHS = cms.EDAnalyzer("JetTester",
 #                                  )
 ## CA8 PF CHS jets
 ##-------------------------------------------------------------------------------
-#JetAnalyzerCA8PFCHS = cms.EDAnalyzer("JetTester",
+#JetAnalyzerCA8PFCHS = DQMStep1Module('JetTester',
 #                                  JetType = cms.untracked.string('pf'),
 #                                  OutputFile = cms.untracked.string(''),
 #                                  src            = cms.InputTag("ca8PFJetsCHS"),
@@ -146,7 +146,7 @@ JetAnalyzerAk4PFCHS = cms.EDAnalyzer("JetTester",
 #                                  matchGenPtThreshold                 = cms.double(20.0),
 #                                  RThreshold                     = cms.double(0.3)
 #                                  )
-JetAnalyzerAk4PFCHSMiniAOD = cms.EDAnalyzer("JetTester",
+JetAnalyzerAk4PFCHSMiniAOD = DQMStep1Module('JetTester',
                                   JetType = cms.untracked.string('miniaod'),
                                   src            = cms.InputTag("slimmedJets"),
                                   srcGen         = cms.InputTag("slimmedGenJets"),
@@ -157,7 +157,7 @@ JetAnalyzerAk4PFCHSMiniAOD = cms.EDAnalyzer("JetTester",
                                   RThreshold                     = cms.double(0.3)
                                   )
 
-JetAnalyzerAk4PFPUPPIMiniAOD = cms.EDAnalyzer("JetTester",
+JetAnalyzerAk4PFPUPPIMiniAOD = DQMStep1Module('JetTester',
                                   JetType = cms.untracked.string('miniaod'),
                                   src            = cms.InputTag("slimmedJetsPuppi"),
                                   srcGen         = cms.InputTag("slimmedGenJets"),
@@ -168,7 +168,7 @@ JetAnalyzerAk4PFPUPPIMiniAOD = cms.EDAnalyzer("JetTester",
                                   RThreshold                     = cms.double(0.3)
                                   )
 
-JetAnalyzerAk8PFPUPPIMiniAOD = cms.EDAnalyzer("JetTester",
+JetAnalyzerAk8PFPUPPIMiniAOD = DQMStep1Module('JetTester',
                                   JetType = cms.untracked.string('miniaod'),
                                   src            = cms.InputTag("slimmedJetsAK8"),
                                   srcGen         = cms.InputTag("slimmedGenJetsAK8"),

@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-dqmElectronGeneralAnalysis = cms.EDAnalyzer("ElectronGeneralAnalyzer",
+dqmElectronGeneralAnalysis = DQMStep1Module('ElectronGeneralAnalyzer',
 
     Verbosity = cms.untracked.int32(0),
     FinalStep = cms.string("AtJobEnd"),

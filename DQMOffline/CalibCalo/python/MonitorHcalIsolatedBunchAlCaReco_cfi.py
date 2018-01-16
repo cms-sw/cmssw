@@ -2,7 +2,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-HcalIsolatedBunchMon = cms.EDAnalyzer("DQMHcalIsolatedBunchAlCaReco",
+HcalIsolatedBunchMon = DQMStep1Module('DQMHcalIsolatedBunchAlCaReco',
     # product to monitor
     hbheInput     = cms.InputTag("hbhereco"),
     hoInput       = cms.InputTag("horeco"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtDigiMonitor = cms.EDAnalyzer("DTDigiTask",
+dtDigiMonitor = DQMStep1Module('DTDigiTask',
     # set the max TDC counts for the time-box (6400 or 1600)
     maxTTMounts = cms.untracked.int32(1600),
     # bin size for the time boxes

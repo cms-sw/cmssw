@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # This object is used to make changes for different running scenarios
 #
 
-SiPixelTrackResidualSource = cms.EDAnalyzer("SiPixelTrackResidualSource",
+SiPixelTrackResidualSource = DQMStep1Module('SiPixelTrackResidualSource',
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelTrackResiduals"),
     clustersrc = cms.InputTag("siPixelClusters"),                            

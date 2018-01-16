@@ -15,7 +15,7 @@ from DQMOffline.Muon.muonIsolationDQM_cff import *
 #dedicated clients for offline dqm 
 from DQMOffline.Muon.muonQualityTests_cff import *
 
-dqmInfoMuons = cms.EDAnalyzer("DQMEventInfo",
+dqmInfoMuons = DQMStep1Module('DQMEventInfo',
                               subSystemFolder = cms.untracked.string('Muons')
                               )
 

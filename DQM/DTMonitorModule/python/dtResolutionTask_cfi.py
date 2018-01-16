@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtResolutionAnalysisMonitor = cms.EDAnalyzer("DTResolutionAnalysisTask",
+dtResolutionAnalysisMonitor = DQMStep1Module('DTResolutionAnalysisTask',
                                              # labels of 4D hits
                                              recHits4DLabel = cms.string('dt4DSegments'),
                                              # interval of lumi block after which we reset the histos

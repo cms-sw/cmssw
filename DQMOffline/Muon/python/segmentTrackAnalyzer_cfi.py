@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
-glbMuonSegmentAnalyzer = cms.EDAnalyzer("SegmentTrackAnalyzer",
+glbMuonSegmentAnalyzer = DQMStep1Module('SegmentTrackAnalyzer',
                                         MuonServiceProxy,
                                         
                                         phiMin = cms.double(-3.2),
@@ -23,7 +23,7 @@ glbMuonSegmentAnalyzer = cms.EDAnalyzer("SegmentTrackAnalyzer",
                                         MuTrackCollection = cms.InputTag("globalMuons"),
                                         )
 
-staMuonSegmentAnalyzer = cms.EDAnalyzer("SegmentTrackAnalyzer",
+staMuonSegmentAnalyzer = DQMStep1Module('SegmentTrackAnalyzer',
                                          MuonServiceProxy,
                                          
                                          phiMin = cms.double(-3.2),

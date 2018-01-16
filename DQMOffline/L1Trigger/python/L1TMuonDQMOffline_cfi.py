@@ -25,7 +25,7 @@ etaMin = -2.5
 etaMax = 2.5
 effVsEtaBins = [i*(etaMax-etaMin)/nEtaBins + etaMin for i in range(nEtaBins+1)]
 
-l1tMuonDQMOffline = cms.EDAnalyzer("L1TMuonDQMOffline",
+l1tMuonDQMOffline = DQMStep1Module('L1TMuonDQMOffline',
     histFolder = cms.untracked.string('L1T/L1TMuon'),
     gmtPtCuts = cms.untracked.vint32(muonEfficiencyThresholds),
     tagPtCut = cms.untracked.double(30.),

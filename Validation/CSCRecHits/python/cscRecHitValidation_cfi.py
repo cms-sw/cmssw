@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cscRecHitValidation = cms.EDAnalyzer("CSCRecHitValidation",
+cscRecHitValidation = DQMStep1Module('CSCRecHitValidation',
     simHitsTag = cms.InputTag("mix","g4SimHitsMuonCSCHits"),
     outputFile = cms.string('CSCRecHitValidation.root'),
     recHitLabel = cms.InputTag("csc2DRecHits"),

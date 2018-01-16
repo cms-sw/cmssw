@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.RecoB.bTagCommon_cff import *
 
-bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
+bTagAnalysis = DQMStep1Module('BTagPerformanceAnalyzerOnData',
                               bTagCommonBlock,
                               )
 

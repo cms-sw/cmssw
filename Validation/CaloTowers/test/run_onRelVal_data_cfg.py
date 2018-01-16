@@ -41,7 +41,7 @@ process.source = cms.Source("PoolSource",
 #     fileName = cms.untracked.string("HcalValHarvestingEDM.root")
 #)
 
-process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
+process.hcalTowerAnalyzer = DQMStep1Module('CaloTowersValidation',
     outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
     CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
 
@@ -59,7 +59,7 @@ process.noiseRates = DQMEDHarvester('NoiseRates',
     useAllHistos = cms.untracked.bool(False)                         
 )
 
-process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+process.hcalRecoAnalyzer = DQMStep1Module('HcalRecHitsValidation',
     outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
     HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
     HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
@@ -96,14 +96,14 @@ process.hcalrechitsClient = DQMEDHarvester("HcalRecHitsClient",
 )
 
 ##########
-process.calotowersAnalyzer = cms.EDAnalyzer("CaloTowersAnalyzer",
+process.calotowersAnalyzer = DQMStep1Module('CaloTowersAnalyzer',
      outputFile               = cms.untracked.string(''),
      CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
      hcalselector             = cms.untracked.string('all'),
      useAllHistos             = cms.untracked.bool(False)
 )
  
-process.hcalRecHitsAnalyzer = cms.EDAnalyzer("HcalRecHitsAnalyzer",
+process.hcalRecHitsAnalyzer = DQMStep1Module('HcalRecHitsAnalyzer',
 #    outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
     outputFile                = cms.untracked.string(''),
 

@@ -4,7 +4,7 @@ from copy import deepcopy
 
 
 ### Single Electron + HT triggers
-DQMOffline_Ele15_HT600 = cms.EDAnalyzer('LepHTMonitor',
+DQMOffline_Ele15_HT600 = DQMStep1Module('LepHTMonitor',
                                               electronCollection = cms.InputTag('gedGsfElectrons'),
                                               electronVID = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-medium"),
                                               muonCollection = cms.InputTag(''),

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitor.L1TRateParams_cff import RateParams
 
-l1tRate = cms.EDAnalyzer("L1TRate",
+l1tRate = DQMStep1Module('L1TRate',
 
   #-------------------------------------------------------
   #-------------------- ATTENTION-------------------------

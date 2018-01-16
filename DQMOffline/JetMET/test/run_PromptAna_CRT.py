@@ -80,7 +80,7 @@ process.DQMStore.referenceFileName = reference_histogram_file
 #-----------------------------
 # Locate a directory in DQMStore
 #-----------------------------
-process.dqmInfoJetMET = cms.EDAnalyzer("DQMEventInfo",
+process.dqmInfoJetMET = DQMStep1Module('DQMEventInfo',
                 subSystemFolder = cms.untracked.string('JetMET')
                 )
 

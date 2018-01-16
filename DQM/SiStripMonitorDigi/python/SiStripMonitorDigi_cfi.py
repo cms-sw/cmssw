@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # SiStripMonitorDigi
-SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
+SiStripMonitorDigi = DQMStep1Module('SiStripMonitorDigi',
 
     TopFolderName = cms.string('SiStrip'),
     # add digi producers same way as Domenico in SiStripClusterizer

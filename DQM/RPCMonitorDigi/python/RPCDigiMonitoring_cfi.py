@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcdigidqm = cms.EDAnalyzer("RPCMonitorDigi",
+rpcdigidqm = DQMStep1Module('RPCMonitorDigi',
                             SaveRootFile = cms.untracked.bool(False),
                             RootFileName = cms.untracked.string('RPCMonitorDigi.root'),
                             UseRollInfo =  cms.untracked.bool(False),

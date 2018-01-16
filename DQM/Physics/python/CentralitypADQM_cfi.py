@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-CentralitypADQM = cms.EDAnalyzer("CentralitypADQM", 
+CentralitypADQM = DQMStep1Module('CentralitypADQM', 
                                  centralitycollection = cms.InputTag("pACentrality"),
                                  vertexcollection = cms.InputTag("offlinePrimaryVertices")
                                  )

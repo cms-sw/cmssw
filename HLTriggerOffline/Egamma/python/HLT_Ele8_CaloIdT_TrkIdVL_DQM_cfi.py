@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HLT_Ele8_CaloIdT_TrkIdVL_DQM = cms.EDAnalyzer("EmDQM",
+HLT_Ele8_CaloIdT_TrkIdVL_DQM = DQMStep1Module('EmDQM',
     triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),                            
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(2.0),

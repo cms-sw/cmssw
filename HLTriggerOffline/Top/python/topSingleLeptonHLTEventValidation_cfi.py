@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # ttbar semi muonique
-topSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
+topSingleMuonHLTValidation = DQMStep1Module('TopSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/SemiMuonic/'),
         # Electrons
@@ -30,7 +30,7 @@ topSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
 )
 
 # ttbar semi electronique
-topSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
+topSingleElectronHLTValidation = DQMStep1Module('TopSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/SemiElectronic/'),
         # Electrons

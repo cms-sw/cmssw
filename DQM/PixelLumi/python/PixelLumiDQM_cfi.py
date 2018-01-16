@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pixel_lumi_dqm  = cms.EDAnalyzer('PixelLumiDQM',
+pixel_lumi_dqm  = DQMStep1Module('PixelLumiDQM',
                                  pixelClusterLabel = cms.untracked.InputTag("siPixelClusters"),
                                  includePixelClusterInfo = cms.untracked.bool(True),
                                  includePixelQualCheckHistos = cms.untracked.bool(True),

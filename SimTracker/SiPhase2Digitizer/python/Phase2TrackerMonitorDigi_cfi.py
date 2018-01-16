@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
+digiMon = DQMStep1Module('Phase2TrackerMonitorDigi',
     Verbosity = cms.bool(False),
     TopFolderName = cms.string("Ph2TkDigi"),
     PixelPlotFillingFlag = cms.bool(False),

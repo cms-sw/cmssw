@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #demo = cms.EDAnalyzer('L1TScalers'
 #)
 
-l1tscalers = cms.EDAnalyzer("L1TScalersSCAL",
+l1tscalers = DQMStep1Module('L1TScalersSCAL',
                    #l1GtData = cms.InputTag("l1GtUnpack","","HLT"),
                    #dqmFolder = cms.untracked.string("L1T/L1Scalers_EvF"),
                    verbose = cms.untracked.bool(False),

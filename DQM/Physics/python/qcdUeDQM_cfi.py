@@ -2,7 +2,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-QcdUeDQM = cms.EDAnalyzer("QcdUeDQM",
+QcdUeDQM = DQMStep1Module('QcdUeDQM',
     hltTrgNames  = cms.untracked.vstring(
     'HLT_ZeroBias',
     'HLT_ZeroBiasPixel_SingleTrack',

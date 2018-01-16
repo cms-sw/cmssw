@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-totemRPDQMSource = cms.EDAnalyzer("TotemRPDQMSource",
+totemRPDQMSource = DQMStep1Module('TotemRPDQMSource',
     tagStatus = cms.InputTag("totemRPRawToDigi", "TrackingStrip"),
     tagDigi = cms.InputTag("totemRPRawToDigi", "TrackingStrip"),
     tagCluster = cms.InputTag("totemRPClusterProducer"),

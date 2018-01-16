@@ -39,7 +39,7 @@ process.source.processingMode = "RunsAndLumis"
 
 process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Online'
-process.dqmEnvTr = cms.EDAnalyzer("DQMEventInfo",
+process.dqmEnvTr = DQMStep1Module('DQMEventInfo',
                                                  subSystemFolder = cms.untracked.string('Tracking'),
                                                  eventRateWindow = cms.untracked.double(0.5),
                                                  eventInfoFolder = cms.untracked.string('EventInfo')

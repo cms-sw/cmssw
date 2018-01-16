@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfJetResDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
+pfJetResDQMAnalyzer = DQMStep1Module('PFJetDQMAnalyzer',
     InputCollection = cms.InputTag('pfAllElectrons'),
     MatchCollection = cms.InputTag('gensource'),
     BenchmarkLabel  = cms.string('PFJetResValidation/PFElecVsGenElec'),

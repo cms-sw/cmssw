@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcEfficiencyHLT = cms.EDAnalyzer("RPCEfficiency",
+rpcEfficiencyHLT = DQMStep1Module('RPCEfficiency',
 
     incldt = cms.untracked.bool(True),
     incldtMB4 = cms.untracked.bool(True),

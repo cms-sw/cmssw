@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # This object is used to make changes for different running scenarios
 #
 
-SiPixelRecHitSource = cms.EDAnalyzer("SiPixelRecHitSource",
+SiPixelRecHitSource = DQMStep1Module('SiPixelRecHitSource',
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelRecHits"),
     outputFile = cms.string('Pixel_DQM_RecHits.root'),

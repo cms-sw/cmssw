@@ -9,7 +9,7 @@ EDMtoMEConvertEcalPedestals.runInputTag = cms.InputTag("MEtoEDMConvertEcalPedest
 
 DQMStore = cms.Service("DQMStore")
 
-DQMInfoEcalPedestals = cms.EDAnalyzer("DQMEventInfo",
+DQMInfoEcalPedestals = DQMStep1Module('DQMEventInfo',
                                       subSystemFolder=cms.untracked.string('AlCaReco'),
                                       )
 

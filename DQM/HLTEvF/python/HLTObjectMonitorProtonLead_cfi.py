@@ -39,7 +39,7 @@ l3muon12_moduleName = "hltL3fL1sSingleMu7BptxANDL1f0L2f0L3Filtered12"
 
 #To avoid booking histogram, set pathName = cms.string("")
 
-hltObjectMonitorProtonLead = cms.EDAnalyzer('HLTObjectMonitorProtonLead',
+hltObjectMonitorProtonLead = DQMStep1Module('HLTObjectMonitorProtonLead',
     processName         = cms.string("HLT"),
     triggerResults      = cms.InputTag("TriggerResults", "", "HLT"),
     triggerEvent        = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),

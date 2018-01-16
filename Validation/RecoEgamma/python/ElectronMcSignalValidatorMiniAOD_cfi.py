@@ -24,7 +24,7 @@ electronPFIsolationCfg = cms.PSet(
     pfSumPhotonEtTmp = cms.InputTag("miniAODElectronIsolation", _gedGsfElectrons.pfIsolationValues.pfSumPhotonEt.getProductInstanceLabel()), #  
 )
 
-electronMcSignalValidatorMiniAOD = cms.EDAnalyzer("ElectronMcSignalValidatorMiniAOD",
+electronMcSignalValidatorMiniAOD = DQMStep1Module('ElectronMcSignalValidatorMiniAOD',
 
     Verbosity = cms.untracked.int32(0),
     FinalStep = cms.string("AtJobEnd"),

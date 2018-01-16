@@ -8,7 +8,7 @@ trackAssociatorByHitsForPhotonValidation.Purity_SimToReco = 0.5
 trackAssociatorByHitsForPhotonValidation.SimToRecoDenominator = 'reco'
 
 
-photonValidation = cms.EDAnalyzer("PhotonValidator",
+photonValidation = DQMStep1Module('PhotonValidator',
     ComponentName = cms.string('photonValidation'),
     OutputFileName = cms.string('PhotonValidationHistos.root'),
     scEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),

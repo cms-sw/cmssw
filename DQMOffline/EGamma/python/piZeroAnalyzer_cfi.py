@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-piZeroAnalysis = cms.EDAnalyzer("PiZeroAnalyzer",
+piZeroAnalysis = DQMStep1Module('PiZeroAnalyzer',
 
     Name = cms.untracked.string('piZeroAnalysis'),
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TkAlCaRecoMonitor = cms.EDAnalyzer("TkAlCaRecoMonitor",
+TkAlCaRecoMonitor = DQMStep1Module('TkAlCaRecoMonitor',
                                    TrackProducer= cms.InputTag( "generalTracks" ),
                                    ReferenceTrackProducer= cms.InputTag( "generalTracks" ),
                                    CaloJetCollection= cms.InputTag( "ak4CaloJets" ),

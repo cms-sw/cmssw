@@ -82,7 +82,7 @@ for module in selectedModules4cosmics :
     locals()[label].setLabel(label)
 
 # DQM Services
-dqmInfoTracking = cms.EDAnalyzer("DQMEventInfo",
+dqmInfoTracking = DQMStep1Module('DQMEventInfo',
      subSystemFolder = cms.untracked.string('Tracking')
 )
 

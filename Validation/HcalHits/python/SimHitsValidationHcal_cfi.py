@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-simHitsValidationHcal = cms.EDAnalyzer("SimHitsValidationHcal",
+simHitsValidationHcal = DQMStep1Module('SimHitsValidationHcal',
     ModuleLabel   = cms.string('g4SimHits'),
     HitCollection = cms.string('HcalHits'),
     Verbose       = cms.bool(False),

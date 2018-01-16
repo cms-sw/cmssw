@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
     
-ecalPreshowerRawDataTask = cms.EDAnalyzer('ESRawDataTask',
+ecalPreshowerRawDataTask = DQMStep1Module('ESRawDataTask',
                                           prefixME = cms.untracked.string('EcalPreshower'),
                                           FEDRawDataCollection = cms.InputTag("rawDataCollector"),
                                           ESDCCCollections = cms.InputTag("ecalPreshowerDigis"),

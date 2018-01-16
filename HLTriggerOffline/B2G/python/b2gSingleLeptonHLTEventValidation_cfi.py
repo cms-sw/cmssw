@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # ttbar semi muonique
-b2gSingleMuonHLTValidation = cms.EDAnalyzer('B2GSingleLeptonHLTValidation',
+b2gSingleMuonHLTValidation = DQMStep1Module('B2GSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/SemiMuonic/'),
         # Electrons
@@ -27,7 +27,7 @@ b2gSingleMuonHLTValidation = cms.EDAnalyzer('B2GSingleLeptonHLTValidation',
 )
 
 # ttbar semi electronique
-b2gSingleElectronHLTValidation = cms.EDAnalyzer('B2GSingleLeptonHLTValidation',
+b2gSingleElectronHLTValidation = DQMStep1Module('B2GSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/SemiElectronic/'),
         # Electrons
@@ -52,7 +52,7 @@ b2gSingleElectronHLTValidation = cms.EDAnalyzer('B2GSingleLeptonHLTValidation',
 		'HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50']),
 )
 
-b2gElePlusSingleJetHLTValidation  = cms.EDAnalyzer('B2GSingleLeptonHLTValidation',
+b2gElePlusSingleJetHLTValidation  = DQMStep1Module('B2GSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/ElePlusSingleJet/'),
         # Electrons

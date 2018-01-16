@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # DQM Module
 #--------------------------
 
-cscDQMEvF = cms.EDAnalyzer("CSCMonitorModule",
+cscDQMEvF = DQMStep1Module('CSCMonitorModule',
 
   BOOKING_XML_FILE = cms.FileInPath('DQM/CSCMonitorModule/data/emuDQMBooking.xml'),
   InputObjects = cms.untracked.InputTag("rawDataCollector"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-DQMExample_Step1 = cms.EDAnalyzer("DQMExample_Step1",
+DQMExample_Step1 = DQMStep1Module('DQMExample_Step1',
     electronCollection       = cms.InputTag("gedGsfElectrons"),
     caloJetCollection        = cms.InputTag("ak4CaloJets"),
     pfMETCollection          = cms.InputTag("pfMet"),

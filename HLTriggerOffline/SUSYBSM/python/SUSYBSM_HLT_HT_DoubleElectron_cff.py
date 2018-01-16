@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SUSY_HLT_HT_DoubleEle = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
+SUSY_HLT_HT_DoubleEle = DQMStep1Module('SUSY_HLT_DoubleEle_Hadronic',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
@@ -18,7 +18,7 @@ SUSY_HLT_HT_DoubleEle = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_HT250_DoubleEle = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
+SUSY_HLT_HT250_DoubleEle = DQMStep1Module('SUSY_HLT_DoubleEle_Hadronic',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   ElectronCollection = cms.InputTag("gedGsfElectrons"),

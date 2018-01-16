@@ -17,7 +17,7 @@ ak7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak7HiGen
 ### iterative cone with PU, anti-kt with PU, anti-kt with fastjet PU 
 
 
-JetAnalyzerICPU5Calo = cms.EDAnalyzer("JetTester_HeavyIons",
+JetAnalyzerICPU5Calo = DQMStep1Module('JetTester_HeavyIons',
                                       JetType = cms.untracked.string('calo'),
                                       UEAlgo = cms.untracked.string('Pu'),
                                       OutputFile = cms.untracked.string(''),
@@ -37,7 +37,7 @@ JetAnalyzerICPU5Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       reverseEnergyFractionThreshold = cms.double(0.5)                                    
 )
 '''
-JetAnalyzerICPU7Calo = cms.EDAnalyzer("JetTester_HeavyIons",
+JetAnalyzerICPU7Calo = DQMStep1Module('JetTester_HeavyIons',
                                       JetType = cms.untracked.string('calo'),                       
                                       UEAlgo = cms.untracked.string('Pu'),                                    
                                       OutputFile = cms.untracked.string(''),
@@ -53,7 +53,7 @@ JetAnalyzerICPU7Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       reverseEnergyFractionThreshold = cms.double(0.5)                                    
 )
 '''
-JetAnalyzerAkPU3Calo = cms.EDAnalyzer("JetTester_HeavyIons",
+JetAnalyzerAkPU3Calo = DQMStep1Module('JetTester_HeavyIons',
                                       JetType = cms.untracked.string('calo'),
                                       UEAlgo = cms.untracked.string('Pu'),
                                       OutputFile = cms.untracked.string(''),
@@ -73,7 +73,7 @@ JetAnalyzerAkPU3Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkPU4Calo = cms.EDAnalyzer("JetTester_HeavyIons",
+JetAnalyzerAkPU4Calo = DQMStep1Module('JetTester_HeavyIons',
                                       JetType = cms.untracked.string('calo'),
                                       UEAlgo = cms.untracked.string('Pu'),
                                       OutputFile = cms.untracked.string(''),
@@ -93,7 +93,7 @@ JetAnalyzerAkPU4Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       reverseEnergyFractionThreshold = cms.double(0.5)                                    
 )
 
-JetAnalyzerAkPU5Calo = cms.EDAnalyzer("JetTester_HeavyIons",
+JetAnalyzerAkPU5Calo = DQMStep1Module('JetTester_HeavyIons',
                                       JetType = cms.untracked.string('calo'),
                                       UEAlgo = cms.untracked.string('Pu'),
                                       OutputFile = cms.untracked.string(''),
@@ -113,7 +113,7 @@ JetAnalyzerAkPU5Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkPU3PF = cms.EDAnalyzer("JetTester_HeavyIons",
+JetAnalyzerAkPU3PF = DQMStep1Module('JetTester_HeavyIons',
                                     JetType = cms.untracked.string('pf'),
                                     UEAlgo = cms.untracked.string('Pu'),
                                     OutputFile = cms.untracked.string(''),
@@ -133,7 +133,7 @@ JetAnalyzerAkPU3PF = cms.EDAnalyzer("JetTester_HeavyIons",
                                     reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkPU4PF = cms.EDAnalyzer("JetTester_HeavyIons",
+JetAnalyzerAkPU4PF = DQMStep1Module('JetTester_HeavyIons',
                                     JetType = cms.untracked.string('pf'),
                                     UEAlgo = cms.untracked.string('Pu'),
                                     OutputFile = cms.untracked.string(''),
@@ -153,7 +153,7 @@ JetAnalyzerAkPU4PF = cms.EDAnalyzer("JetTester_HeavyIons",
                                     reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkPU5PF = cms.EDAnalyzer("JetTester_HeavyIons",
+JetAnalyzerAkPU5PF = DQMStep1Module('JetTester_HeavyIons',
                                     JetType = cms.untracked.string('pf'),
                                     UEAlgo = cms.untracked.string('Pu'),
                                     OutputFile = cms.untracked.string(''),

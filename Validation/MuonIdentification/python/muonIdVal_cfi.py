@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-muonIdVal = cms.EDAnalyzer("MuonIdVal",
+muonIdVal = DQMStep1Module('MuonIdVal',
     inputMuonCollection           = cms.InputTag("muons"),
     inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
     inputCSCSegmentCollection     = cms.InputTag("cscSegments"),

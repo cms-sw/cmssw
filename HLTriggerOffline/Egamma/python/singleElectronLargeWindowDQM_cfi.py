@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-singleElectronLargeWindowDQM = cms.EDAnalyzer("EmDQM",
+singleElectronLargeWindowDQM = DQMStep1Module('EmDQM',
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(2.0),
     reqNum = cms.uint32(1),

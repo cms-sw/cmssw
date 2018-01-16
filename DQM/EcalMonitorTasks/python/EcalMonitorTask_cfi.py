@@ -15,7 +15,7 @@ from DQM.EcalMonitorTasks.SelectiveReadoutTask_cfi import ecalSelectiveReadoutTa
 from DQM.EcalMonitorTasks.TimingTask_cfi import ecalTimingTask
 from DQM.EcalMonitorTasks.TrigPrimTask_cfi import ecalTrigPrimTask
 
-ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
+ecalMonitorTask = DQMStep1Module('EcalDQMonitorTask',
     moduleName = cms.untracked.string("Ecal Monitor Source"),
     # tasks to be turned on
     workers = cms.untracked.vstring(

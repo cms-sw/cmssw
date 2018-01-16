@@ -116,7 +116,7 @@ SiPixelPhase1TrackingParticleConf = cms.VPSet(
     SiPixelPhase1TrackingParticleLip,
 )
 
-SiPixelPhase1TrackingParticleAnalyzerV = cms.EDAnalyzer("SiPixelPhase1TrackingParticleV",
+SiPixelPhase1TrackingParticleAnalyzerV = DQMStep1Module('SiPixelPhase1TrackingParticleV',
     src = cms.InputTag("mix","MergedTrackTruth"),
     simHitToken = cms.VInputTag(
                             cms.InputTag( 'g4SimHits','TrackerHitsPixelBarrelLowTof'),

@@ -463,7 +463,7 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1ClustersChargeVsSizeOnTrack
 )
 
-SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
+SiPixelPhase1TrackClustersAnalyzer = DQMStep1Module('SiPixelPhase1TrackClusters',
         clusters = cms.InputTag("siPixelClusters"),
         clusterShapeCache = cms.InputTag("siPixelClusterShapeCache"),
         tracks = cms.InputTag("generalTracks"),

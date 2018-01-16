@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-looseIsoEle15LWL1RDQM = cms.EDAnalyzer("EmDQM",
+looseIsoEle15LWL1RDQM = DQMStep1Module('EmDQM',
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(2.0),
     reqNum = cms.uint32(1),
