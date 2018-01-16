@@ -5,11 +5,12 @@
 
 namespace {
 
+  // Will return position of n-th occurence of a char in a string.
   // From https://stackoverflow.com/questions/18972258/index-of-nth-occurrence-of-the-string
-  int strpos(std::string haystack, char needle, int nth)
-  {// Will return position of n-th occurence of a char in a string.
+  int strpos(std::string haystack, char needle, unsigned int nth)
+  {
           std::string read;    // A string that will contain the read part of the haystack
-          for (int i=1 ; i<nth+1 ; ++i)
+          for (unsigned int i=1 ; i<nth+1 ; ++i)
           {
                   std::size_t found = haystack.find(needle);
                   read += haystack.substr(0,found+1); // the read part of the haystack is stocked in the read string
