@@ -65,91 +65,10 @@ void HGCalTriggerTools::setEventSetup(const edm::EventSetup& es) {
 }
 
 GlobalPoint HGCalTriggerTools::getPosition(const DetId& id) const {
-  auto geom = geom_->caloGeometry()->getSubdetectorGeometry(id);
-  check_geom(geom);
-  GlobalPoint position;
-  if( id.det() == DetId::Hcal ) {
-    position = geom->getGeometry(id)->getPosition();
-  } else {
-    const auto* hg = static_cast<const HGCalGeometry*>(geom);
-    position = hg->getPosition(id);
-  }
+  GlobalPoint position = geom_->getTriggerCellPosition(id);
   return position;
 }
 
-
-// int HGCalTriggerTools::zside(const DetId& id) const {
-//   int zside = 0;
-//   if( id.det() == DetId::Forward) {
-//     const HGCalDetId hid(id);
-//     zside = hid.zside();
-//   } else if( id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
-//     const HcalDetId hcid(id);
-//     zside = hcid.zside();
-//   }
-//   return zside;
-// }
-//
-// std::float_t HGCalTriggerTools::getSiThickness(const DetId& id) const {
-//   auto geom = geom_->getSubdetectorGeometry(id);
-//   check_geom(geom);
-//   if( id.det() != DetId::Forward ) {
-//     LogDebug("getSiThickness::InvalidSiliconDetid")
-//       << "det id: " << id.rawId() << " is not HGCal silicon!";
-//   }
-//   const HGCalDetId hid(id);
-//   auto ddd = get_ddd(geom,hid);
-//   unsigned int wafer = hid.wafer();
-//   int tidx = ddd->waferTypeL(wafer);
-//   return idx_to_thickness*tidx;
-// }
-//
-// std::float_t HGCalTriggerTools::getRadiusToSide(const DetId& id) const {
-//   auto geom = geom_->getSubdetectorGeometry(id);
-//   check_geom(geom);
-//   if( id.det() != DetId::Forward ) {
-//     edm::LogError("getRadiusToSide::InvalidSiliconDetid")
-//       << "det id: " << id.rawId() << " is not HGCal silicon!";
-//     return std::numeric_limits<std::float_t>::max();
-//   }
-//   const HGCalDetId hid(id);
-//   auto ddd = get_ddd(geom,hid);
-//   std::float_t size = ddd->cellSizeHex(hid.waferType());
-//   return size;
-// }
-//
-// unsigned int HGCalTriggerTools::getLayer(const ForwardSubdetector type) const {
-//
-//   int layer;
-//   switch (type) {
-//     case(ForwardSubdetector::HGCEE): {
-//       auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
-//       layer       = (geomEE->topology().dddConstants()).layers(true);
-//       break;
-//     }
-//     case (ForwardSubdetector::HGCHEF): {
-//       auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
-//       layer       = (geomFH->topology().dddConstants()).layers(true);
-//       break;
-//     }
-//     case (ForwardSubdetector::HGCHEB): {
-//       auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
-//       layer       = (geomBH->topology().dddConstants())->getMaxDepth(1);
-//       break;
-//     }
-//     case (ForwardSubdetector::ForwardEmpty): {
-//       auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
-//       layer       = (geomEE->topology().dddConstants()).layers(true);
-//       auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
-//       layer      += (geomFH->topology().dddConstants()).layers(true);
-//       auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
-//       layer      += (geomBH->topology().dddConstants())->getMaxDepth(1);
-//       break;
-//     }
-//     default: layer = 0;
-//   }
-//   return (unsigned int)(layer);
-// }
 
 unsigned int HGCalTriggerTools::getLayer(const DetId& id) const {
   unsigned int layer = std::numeric_limits<unsigned int>::max();
@@ -173,40 +92,6 @@ unsigned int HGCalTriggerTools::getLayerWithOffset(const DetId& id) const {
   }
   return layer;
 }
-
-// unsigned int HGCalTriggerTools::getWafer(const DetId& id) const {
-//   if( id.det() != DetId::Forward ) {
-//     edm::LogError("getWafer::InvalidSiliconDetid")
-//       << "det id: " << id.rawId() << " is not HGCal silicon!";
-//     return std::numeric_limits<unsigned int>::max();
-//   }
-//   const HGCalDetId hid(id);
-//   unsigned int wafer = hid.wafer();
-//   return wafer;
-// }
-//
-// unsigned int HGCalTriggerTools::getCell(const DetId& id) const {
-//   if( id.det() != DetId::Forward ) {
-//     edm::LogError("getCell::InvalidSiliconDetid")
-//       << "det id: " << id.rawId() << " is not HGCal silicon!";
-//     return std::numeric_limits<unsigned int>::max();
-//   }
-//   const HGCalDetId hid(id);
-//   unsigned int cell = hid.cell();
-//   return cell;
-// }
-//
-// bool HGCalTriggerTools::isHalfCell(const DetId& id) const {
-//   if( id.det() != DetId::Forward ) {
-//     return false;
-//   }
-//   auto geom = geom_->getSubdetectorGeometry(id);
-//   check_geom(geom);
-//   const HGCalDetId hid(id);
-//   auto ddd = get_ddd(geom,hid);
-//   const int waferType = ddd->waferTypeT(hid.waferType());
-//   return ddd->isHalfCell(waferType,hid.cell());
-// }
 
 float HGCalTriggerTools::getEta(const GlobalPoint& position, const float& vertex_z) const {
   GlobalPoint corrected_position = GlobalPoint(position.x(), position.y(), position.z()-vertex_z);
