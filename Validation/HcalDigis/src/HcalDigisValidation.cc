@@ -729,7 +729,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 	    int lastbin = tool.size() - 1;
 
 	    double noiseADC = (*digiItr)[0].adc();
-            double noisefC = tool[0];
+	    double noisefC = tool[0];
             // noise evaluations from "pre-samples"
             fill1D("HcalDigiTask_ADC0_adc_depth" + str(depth) + "_" + subdet_, noiseADC);
             fill1D("HcalDigiTask_ADC0_fC_depth" + str(depth) + "_" + subdet_, noisefC);
