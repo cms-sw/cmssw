@@ -33,6 +33,7 @@
 
 // local headers
 #include "memory_usage.h"
+#include "processor_model.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1148,7 +1149,7 @@ FastTimerService::preallocate(edm::service::SystemBounds const& bounds)
   concurrent_threads_ = bounds.maxNumberOfThreads();
 
   if (enable_dqm_bynproc_)
-    dqm_path_ += (boost::format("/Running %d processes") % concurrent_threads_).str();
+    dqm_path_ += (boost::format("/Running on %s with %d streams on %d threads") % processor_model % concurrent_streams_ % concurrent_threads_).str();
 
   // allocate atomic variables to keep track of the completion of each step, process by process
   subprocess_event_check_       = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
