@@ -12,7 +12,8 @@ selectedOfflinePrimaryVerticesWithBS.src = cms.InputTag('offlinePrimaryVerticesW
 selectedPixelVertices = selectedOfflinePrimaryVertices.clone()
 selectedPixelVertices.src = cms.InputTag('pixelVertices')
 
-vertexAnalysis = DQMStep1Module('PrimaryVertexAnalyzer4PUSlimmed',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                 use_only_charged_tracks = cms.untracked.bool(True),
                                 do_generic_sim_plots = cms.untracked.bool(True),
                                 verbose = cms.untracked.bool(False),

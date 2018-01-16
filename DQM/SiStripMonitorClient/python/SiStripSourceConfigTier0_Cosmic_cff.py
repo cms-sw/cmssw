@@ -97,7 +97,8 @@ MonitorTrackResiduals_ckf.Mod_On                   = False
 #MonitorTrackResiduals_rs.Mod_On                    = False
 
 # DQM Services
-dqmInfoSiStrip = DQMStep1Module('DQMEventInfo',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoSiStrip = DQMEDAnalyzer('DQMEventInfo',
      subSystemFolder = cms.untracked.string('SiStrip')
 )
 

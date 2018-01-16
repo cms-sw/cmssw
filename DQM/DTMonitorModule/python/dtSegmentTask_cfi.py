@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dtSegmentAnalysisMonitor = DQMStep1Module('DTSegmentAnalysisTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtSegmentAnalysisMonitor = DQMEDAnalyzer('DTSegmentAnalysisTask',
                                           # switch for verbosity
                                           debug = cms.untracked.bool(False),
                                           # label of 4D segments

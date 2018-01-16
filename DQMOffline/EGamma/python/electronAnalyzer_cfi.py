@@ -8,7 +8,8 @@ import FWCore.ParameterSet.Config as cms
 #  EfficiencyFlag = cms.bool(False),StatOverflowFlag = cms.bool(True)
 #)
 
-dqmElectronAnalysis = DQMStep1Module('ElectronAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmElectronAnalysis = DQMEDAnalyzer('ElectronAnalyzer',
 
     Verbosity = cms.untracked.int32(0),
     FinalStep = cms.string("AtJobEnd"),

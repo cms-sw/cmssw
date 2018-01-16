@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hltResults = DQMStep1Module('GeneralHLTOffline',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltResults = DQMEDAnalyzer('GeneralHLTOffline',
     dirname = cms.untracked.string("HLT/General/paths"),
     muonRecoCollectionName = cms.untracked.string("muons"),
     plotAll = cms.untracked.bool(False),

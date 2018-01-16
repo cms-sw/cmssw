@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tBPTX = DQMStep1Module('L1TBPTX',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tBPTX = DQMEDAnalyzer('L1TBPTX',
 
   dqmStore                = cms.untracked.bool(True),
   disableROOToutput       = cms.untracked.bool(True),

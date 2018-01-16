@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-pfMuonDQMAnalyzer = DQMStep1Module('PFMuonDQMAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+pfMuonDQMAnalyzer = DQMEDAnalyzer('PFMuonDQMAnalyzer',
     InputCollection = cms.InputTag('muons'),
     MatchCollection = cms.InputTag('gensource'),
     BenchmarkLabel  = cms.string('PFMuonValidation/PFMuonVsGenMuon'),

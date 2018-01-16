@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from copy import deepcopy
 
-SUSY_HLT_Ele_HT_Control_SingleLepton = DQMStep1Module('SUSY_HLT_SingleLepton',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SUSY_HLT_Ele_HT_Control_SingleLepton = DQMEDAnalyzer('SUSY_HLT_SingleLepton',
                                                       electronCollection = cms.InputTag('gedGsfElectrons'),
                                                       muonCollection = cms.InputTag(''),
                                                       pfMetCollection = cms.InputTag('pfMet'),

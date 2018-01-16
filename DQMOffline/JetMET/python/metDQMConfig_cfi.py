@@ -6,7 +6,8 @@ from DQMOffline.JetMET.metDiagnosticParameterSetMiniAOD_cfi import *
 
 #jet corrector defined in jetMETDQMOfflineSource python file
 
-caloMetDQMAnalyzer = DQMStep1Module('METAnalyzer',  
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+caloMetDQMAnalyzer = DQMEDAnalyzer('METAnalyzer',  
     METType=cms.untracked.string('calo'),
     srcPFlow = cms.InputTag('particleFlow', ''),
     l1algoname = cms.string("L1Tech_BPTX_plus_AND_minus.v0"),

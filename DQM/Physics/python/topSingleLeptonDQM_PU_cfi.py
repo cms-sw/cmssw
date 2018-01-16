@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-topSingleLeptonDQM = DQMStep1Module('TopSingleLeptonDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleLeptonDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -129,7 +130,8 @@ topSingleLeptonDQM = DQMStep1Module('TopSingleLeptonDQM',
   )
 )
 
-topSingleMuonLooseDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleMuonLooseDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -289,7 +291,8 @@ topSingleMuonLooseDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
   )
 )
 
-topSingleMuonMediumDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleMuonMediumDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -442,7 +445,8 @@ topSingleMuonMediumDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
   )
 )
 
-topSingleElectronLooseDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleElectronLooseDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -604,7 +608,8 @@ topSingleElectronLooseDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
   )
 )
 
-topSingleElectronMediumDQM_PU = DQMStep1Module('TopSingleLeptonDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleElectronMediumDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-EcalPi0MonDQM = DQMStep1Module('DQMSourcePi0',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+EcalPi0MonDQM = DQMEDAnalyzer('DQMSourcePi0',
     prescaleFactor = cms.untracked.int32(1),
     FolderName = cms.untracked.string('AlCaReco/EcalPi0'),
 

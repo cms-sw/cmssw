@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dtCalibValidation = DQMStep1Module('DTCalibValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtCalibValidation = DQMEDAnalyzer('DTCalibValidation',
     # Write the histos on file
     OutputMEsInRootFile = cms.bool(False),
     # Lable to retrieve 2D segments from the event

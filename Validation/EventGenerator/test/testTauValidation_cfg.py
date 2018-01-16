@@ -67,7 +67,8 @@ process.options = cms.untracked.PSet(
 #process.schedule = cms.Schedule(process.tauValidation+process.endOfProcess+process.out_step)
 
 #GenEventInfoProduct                   "generator"                 ""                "SIM"
-process.tauValidation = DQMStep1Module('TauValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.tauValidation = DQMEDAnalyzer('TauValidation',
                                        genparticleCollection = cms.InputTag("genParticles",""),
                                        tauEtCutForRtau = cms.double(50),
                                        UseWeightFromHepMC = cms.bool(False)

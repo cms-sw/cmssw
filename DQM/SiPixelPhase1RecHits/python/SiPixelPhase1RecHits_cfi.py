@@ -119,7 +119,8 @@ SiPixelPhase1RecHitsConf = cms.VPSet(
   SiPixelPhase1RecHitsProb,
 )
 
-SiPixelPhase1RecHitsAnalyzer = DQMStep1Module('SiPixelPhase1RecHits',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1RecHitsAnalyzer = DQMEDAnalyzer('SiPixelPhase1RecHits',
         src = cms.InputTag("generalTracks"),
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry,

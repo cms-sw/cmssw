@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # DQM Environment
-dqmEnv = DQMStep1Module('DQMEventInfo',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmEnv = DQMEDAnalyzer('DQMEventInfo',
     # put your subsystem name here (this goes into the foldername)
     subSystemFolder = cms.untracked.string('YourSubsystem'),
     # set the window for eventrate calculation (in minutes)

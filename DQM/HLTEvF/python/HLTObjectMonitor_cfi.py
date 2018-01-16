@@ -36,7 +36,8 @@ bJet_moduleNamePF = "hltBTagPFCSVp075Double" # "hltBTagPFCSVp016SingleWithMatchi
 
 #To avoid booking histogram, set pathName = cms.string("")
 
-hltObjectMonitor = DQMStep1Module('HLTObjectMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltObjectMonitor = DQMEDAnalyzer('HLTObjectMonitor',
     processName = cms.string("HLT"),
     alphaT = cms.PSet(
         pathName = cms.string("HLT_PFHT200_DiPFJetAve90_PFAlphaT0p63"),

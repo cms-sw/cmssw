@@ -76,7 +76,8 @@ SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisColumns,
 )
 
-SiPixelPhase1DigisAnalyzerV = DQMStep1Module('SiPixelPhase1DigisV',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1DigisAnalyzerV = DQMEDAnalyzer('SiPixelPhase1DigisV',
         src = cms.InputTag("simSiPixelDigis"), 
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry

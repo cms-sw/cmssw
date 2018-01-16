@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalPreshowerRecoSummary = DQMStep1Module('ESRecoSummary',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalPreshowerRecoSummary = DQMEDAnalyzer('ESRecoSummary',
     prefixME = cms.untracked.string('EcalPreshower'),    
     superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     recHitCollection_ES       = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),

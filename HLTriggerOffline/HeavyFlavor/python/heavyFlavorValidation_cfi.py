@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-heavyFlavorValidation = DQMStep1Module('HeavyFlavorValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+heavyFlavorValidation = DQMEDAnalyzer('HeavyFlavorValidation',
     DQMFolder = cms.untracked.string("HLT/BPH"),
     TriggerProcessName = cms.untracked.string("HLT"),
     TriggerPathName = cms.untracked.string("HLT_Mu5"),

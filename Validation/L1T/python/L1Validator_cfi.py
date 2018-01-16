@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-L1Validator = DQMStep1Module('L1Validator',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+L1Validator = DQMEDAnalyzer('L1Validator',
   dirName=cms.string("L1T/L1TriggerVsGen"),
 #  fileName=cms.string("L1Validation.root") #output file name
   GenSource=cms.InputTag("genParticles"),

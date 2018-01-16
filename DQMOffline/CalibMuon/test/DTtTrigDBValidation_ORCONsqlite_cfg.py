@@ -58,7 +58,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.dtTTrigAnalyzer = DQMStep1Module('DTtTrigDBValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.dtTTrigAnalyzer = DQMEDAnalyzer('DTtTrigDBValidation',
     labelDBRef = cms.string('ttrigRef'),
     labelDB = cms.string('ttrigToValidate'),
     tTrigTestName = cms.string('tTrigDifferenceInRange'),

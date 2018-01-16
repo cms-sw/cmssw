@@ -92,7 +92,8 @@ SiPixelPhase1RawDataConf = cms.VPSet(
   SiPixelPhase1RawDataTypeNErrors,
 )
 
-SiPixelPhase1RawDataAnalyzer = DQMStep1Module('SiPixelPhase1RawData',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1RawDataAnalyzer = DQMEDAnalyzer('SiPixelPhase1RawData',
         src = cms.InputTag("siPixelDigis"),
         histograms = SiPixelPhase1RawDataConf,
         geometry = SiPixelPhase1Geometry,

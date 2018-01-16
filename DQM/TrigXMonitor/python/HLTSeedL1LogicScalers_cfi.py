@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hltSeedL1Logic = DQMStep1Module('HLTSeedL1LogicScalers',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltSeedL1Logic = DQMEDAnalyzer('HLTSeedL1LogicScalers',
 
     l1GtLabel = cms.InputTag("l1GtUnpack","","HLT"),
     processname = cms.string("HLT"),

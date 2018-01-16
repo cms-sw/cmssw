@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.TrackingMonitor.BXlumiParameters_cfi import BXlumiSetup
 
-TrackMon = DQMStep1Module('TrackingMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+TrackMon = DQMEDAnalyzer('TrackingMonitor',
     
     # input tags
     numCut           = cms.string(" pt >= 1 & quality('highPurity') "),

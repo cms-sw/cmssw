@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # ttbar semi muonique
-b2gSingleMuonHLTValidation = DQMStep1Module('B2GSingleLeptonHLTValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+b2gSingleMuonHLTValidation = DQMEDAnalyzer('B2GSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/SemiMuonic/'),
         # Electrons
@@ -27,7 +28,8 @@ b2gSingleMuonHLTValidation = DQMStep1Module('B2GSingleLeptonHLTValidation',
 )
 
 # ttbar semi electronique
-b2gSingleElectronHLTValidation = DQMStep1Module('B2GSingleLeptonHLTValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+b2gSingleElectronHLTValidation = DQMEDAnalyzer('B2GSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/SemiElectronic/'),
         # Electrons
@@ -52,7 +54,8 @@ b2gSingleElectronHLTValidation = DQMStep1Module('B2GSingleLeptonHLTValidation',
 		'HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50']),
 )
 
-b2gElePlusSingleJetHLTValidation  = DQMStep1Module('B2GSingleLeptonHLTValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+b2gElePlusSingleJetHLTValidation  = DQMEDAnalyzer('B2GSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/ElePlusSingleJet/'),
         # Electrons

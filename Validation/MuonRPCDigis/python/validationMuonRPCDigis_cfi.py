@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-validationMuonRPCDigis = DQMStep1Module('RPCDigiValid',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+validationMuonRPCDigis = DQMEDAnalyzer('RPCDigiValid',
 
     # Tag for Digis event data retrieval
     rpcDigiTag = cms.untracked.InputTag("simMuonRPCDigis"),

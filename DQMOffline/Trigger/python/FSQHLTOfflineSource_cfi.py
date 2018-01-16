@@ -594,7 +594,8 @@ fsqdirname = "HLT/FSQ/"
 processName = "HLT"
 #processName = "TEST"
 
-fsqHLTOfflineSource = DQMStep1Module('FSQDiJetAve',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+fsqHLTOfflineSource = DQMEDAnalyzer('FSQDiJetAve',
     triggerConfiguration =  cms.PSet(
       hltResults = cms.InputTag('TriggerResults','',processName),
       l1tResults = cms.InputTag(''),

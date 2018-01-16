@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcEfficiencyHLT = DQMStep1Module('RPCEfficiency',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+rpcEfficiencyHLT = DQMEDAnalyzer('RPCEfficiency',
 
     incldt = cms.untracked.bool(True),
     incldtMB4 = cms.untracked.bool(True),

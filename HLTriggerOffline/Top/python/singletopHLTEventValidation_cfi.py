@@ -2,7 +2,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # single top muonique
-SingleTopSingleMuonHLTValidation = DQMStep1Module('TopSingleLeptonHLTValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SingleTopSingleMuonHLTValidation = DQMEDAnalyzer('TopSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/SingleTop/SingleMuon/'),
         # Electrons
@@ -31,7 +32,8 @@ SingleTopSingleMuonHLTValidation = DQMStep1Module('TopSingleLeptonHLTValidation'
 )
 
 # single top electronique
-SingleTopSingleElectronHLTValidation = DQMStep1Module('TopSingleLeptonHLTValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SingleTopSingleElectronHLTValidation = DQMEDAnalyzer('TopSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/TopHLTValidation/SingleTop/SingleElectron/'),
         # Electrons

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-digiMon = DQMStep1Module('Phase2TrackerMonitorDigi',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
     Verbosity = cms.bool(False),
     TopFolderName = cms.string("Ph2TkDigi"),
     PixelPlotFillingFlag = cms.bool(False),

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-doubleEle5SWL1RDQM = DQMStep1Module('EmDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+doubleEle5SWL1RDQM = DQMEDAnalyzer('EmDQM',
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(2.0),
     reqNum = cms.uint32(2),

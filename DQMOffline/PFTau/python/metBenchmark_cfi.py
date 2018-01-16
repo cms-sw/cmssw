@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-metBenchmark = DQMStep1Module('METBenchmarkAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+metBenchmark = DQMEDAnalyzer('METBenchmarkAnalyzer',
                               InputCollection = cms.InputTag('pfMet'),
                               mode = cms.int32( 1 ),
                               ptMin = cms.double( 0.0 ),
@@ -11,7 +12,8 @@ metBenchmark = DQMStep1Module('METBenchmarkAnalyzer',
                               BenchmarkLabel = cms.string('pfMet')
                               )
 
-matchMetBenchmark = DQMStep1Module('MatchMETBenchmarkAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+matchMetBenchmark = DQMEDAnalyzer('MatchMETBenchmarkAnalyzer',
                                     InputCollection = cms.InputTag('pfMet'),
                                     MatchCollection = cms.InputTag('genMetTrue'),
                                     dRMax = cms.double( 999. ),

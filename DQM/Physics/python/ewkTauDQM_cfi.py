@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # Data-quality monitoring for EWK tau analyses
-ewkTauDQM = DQMStep1Module('EwkTauDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ewkTauDQM = DQMEDAnalyzer('EwkTauDQM',
 
     # name of DQM (root)directory in which all EWK tau histograms get stored                          
     dqmDirectory = cms.string("Physics/EwkTau"),

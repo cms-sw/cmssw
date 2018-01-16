@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tSync = DQMStep1Module('L1TSync',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tSync = DQMEDAnalyzer('L1TSync',
 
   dqmStore                = cms.untracked.bool(True),
   disableROOToutput       = cms.untracked.bool(True),

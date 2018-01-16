@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-muonPFsequence = DQMStep1Module('MuonPFAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+muonPFsequence = DQMEDAnalyzer('MuonPFAnalyzer',
                                 inputTagMuonReco     = cms.InputTag("muons"),
                                 inputTagGenParticles = cms.InputTag("genParticles"),
                                 inputTagVertex       = cms.InputTag("offlinePrimaryVertices"),

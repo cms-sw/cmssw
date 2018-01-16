@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.MuonIsolationProducers.muIsoDeposits_cff import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 
-MuIsoDQM_trk = DQMStep1Module('MuonIsolationDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+MuIsoDQM_trk = DQMEDAnalyzer('MuonIsolationDQM',
                               Global_Muon_Label = cms.untracked.InputTag("muons"),
                               requireTRKMuon = cms.untracked.bool(True),
                               requireSTAMuon = cms.untracked.bool(False),
@@ -17,7 +18,8 @@ MuIsoDQM_trk = DQMStep1Module('MuonIsolationDQM',
                               directory = cms.string("Muons/Isolation/tracker")                             
                               )
 
-MuIsoDQM_sta = DQMStep1Module('MuonIsolationDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+MuIsoDQM_sta = DQMEDAnalyzer('MuonIsolationDQM',
                               Global_Muon_Label = cms.untracked.InputTag("muons"),
                               requireTRKMuon = cms.untracked.bool(False),
                               requireSTAMuon = cms.untracked.bool(True),
@@ -31,7 +33,8 @@ MuIsoDQM_sta = DQMStep1Module('MuonIsolationDQM',
                               directory = cms.string("Muons/Isolation/standalone")
                               )
 
-MuIsoDQM_glb = DQMStep1Module('MuonIsolationDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+MuIsoDQM_glb = DQMEDAnalyzer('MuonIsolationDQM',
                               Global_Muon_Label = cms.untracked.InputTag("muons"),
                               requireTRKMuon = cms.untracked.bool(False),
                               requireSTAMuon = cms.untracked.bool(False),
@@ -48,7 +51,8 @@ muIsoDQM_seq = cms.Sequence(MuIsoDQM_trk+MuIsoDQM_sta+MuIsoDQM_glb)
 
 
 
-MuIsoDQM_trk_miniAOD = DQMStep1Module('MuonIsolationDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+MuIsoDQM_trk_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       Global_Muon_Label = cms.untracked.InputTag("slimmedMuons"),
                                       requireTRKMuon = cms.untracked.bool(True),
                                       requireSTAMuon = cms.untracked.bool(False),
@@ -62,7 +66,8 @@ MuIsoDQM_trk_miniAOD = DQMStep1Module('MuonIsolationDQM',
                                       directory = cms.string("Muons_miniAOD/Isolation/tracker")                             
                                       )
 
-MuIsoDQM_sta_miniAOD = DQMStep1Module('MuonIsolationDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+MuIsoDQM_sta_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       Global_Muon_Label = cms.untracked.InputTag("slimmedMuons"),
                                       requireTRKMuon = cms.untracked.bool(False),
                                       requireSTAMuon = cms.untracked.bool(True),
@@ -76,7 +81,8 @@ MuIsoDQM_sta_miniAOD = DQMStep1Module('MuonIsolationDQM',
                                       directory = cms.string("Muons_miniAOD/Isolation/standalone")
                                       )
 
-MuIsoDQM_glb_miniAOD = DQMStep1Module('MuonIsolationDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+MuIsoDQM_glb_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       Global_Muon_Label = cms.untracked.InputTag("slimmedMuons"),
                                       requireTRKMuon = cms.untracked.bool(False),
                                       requireSTAMuon = cms.untracked.bool(False),

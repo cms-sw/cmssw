@@ -254,7 +254,8 @@ SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersPixelToStripRatio
 )
 
-SiPixelPhase1ClustersAnalyzer = DQMStep1Module('SiPixelPhase1Clusters',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1ClustersAnalyzer = DQMEDAnalyzer('SiPixelPhase1Clusters',
         pixelSrc = cms.InputTag("siPixelClusters"),
         stripSrc = cms.InputTag("siStripClusters"),
         histograms = SiPixelPhase1ClustersConf,

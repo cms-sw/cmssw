@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
-muonKinVsEtaAnalyzer = DQMStep1Module('MuonKinVsEtaAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+muonKinVsEtaAnalyzer = DQMEDAnalyzer('MuonKinVsEtaAnalyzer',
                                       MuonServiceProxy,
                                       
                                       MuonCollection  = cms.InputTag("muons"),
@@ -40,7 +41,8 @@ muonKinVsEtaAnalyzer = DQMStep1Module('MuonKinVsEtaAnalyzer',
                                       etaOvlpMax = cms.double(1.1),
                                       folder = cms.string("Muons/MuonKinVsEtaAnalyzer")
                                       )
-muonKinVsEtaAnalyzer_miniAOD = DQMStep1Module('MuonKinVsEtaAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+muonKinVsEtaAnalyzer_miniAOD = DQMEDAnalyzer('MuonKinVsEtaAnalyzer',
                                               MuonServiceProxy,
                                               
                                               MuonCollection  = cms.InputTag("slimmedMuons"),

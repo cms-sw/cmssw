@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-siStripFEDCheck = DQMStep1Module('SiStripFEDCheckPlugin',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+siStripFEDCheck = DQMEDAnalyzer('SiStripFEDCheckPlugin',
   #Directory to book histograms in
   DirName = cms.untracked.string('SiStrip/FEDIntegrity/'),
   #Raw data collection

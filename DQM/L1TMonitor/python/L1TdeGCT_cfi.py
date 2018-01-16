@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1TdeGCT = DQMStep1Module('L1TdeGCT',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1TdeGCT = DQMEDAnalyzer('L1TdeGCT',
     DataEmulCompareSource = cms.InputTag("l1compare"),
     HistFolder = cms.untracked.string('L1TEMU/GCTexpert'),
     HistFile = cms.untracked.string(''),

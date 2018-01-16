@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # HLT scalers. wittich 11/07
-hlts = DQMStep1Module('HLTScalers',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hlts = DQMEDAnalyzer('HLTScalers',
     #    untracked bool specifyPaths = true
     #    untracked vstring pathNames = {'HLT1MuonIso',
     #  				'HLT1MuonNonIso',

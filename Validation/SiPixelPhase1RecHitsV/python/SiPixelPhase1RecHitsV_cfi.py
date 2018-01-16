@@ -149,7 +149,8 @@ SiPixelPhase1RecHitsConf = cms.VPSet(
   SiPixelPhase1RecHitsPullY,
 )
 
-SiPixelPhase1RecHitsAnalyzerV = DQMStep1Module('SiPixelPhase1RecHitsV',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1RecHitsAnalyzerV = DQMEDAnalyzer('SiPixelPhase1RecHitsV',
         src = cms.InputTag("siPixelRecHits"),
         # Track assoc. parameters
         associatePixel = cms.bool(True),

@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
 from Validation.RecoMuon.NewSelectors_cff import NewMuonTPSet
 
-NewRecoMuonValidator = DQMStep1Module('RecoMuonValidator',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+NewRecoMuonValidator = DQMEDAnalyzer('RecoMuonValidator',
     MuonServiceProxy,
     tpSelector = NewMuonTPSet,
 

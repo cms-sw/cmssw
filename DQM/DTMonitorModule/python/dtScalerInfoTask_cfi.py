@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dtScalerInfoMonitor = DQMStep1Module('DTScalerInfoTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtScalerInfoMonitor = DQMEDAnalyzer('DTScalerInfoTask',
     inputTagScaler = cms.untracked.InputTag('scalersRawToDigi'),
 )
 

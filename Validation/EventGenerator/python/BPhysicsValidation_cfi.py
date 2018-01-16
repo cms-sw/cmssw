@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-JPsiMuMuValidation = DQMStep1Module('BPhysicsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+JPsiMuMuValidation = DQMEDAnalyzer('BPhysicsValidation',
                                     genparticleCollection = cms.InputTag("genParticles",""),
                                     name = cms.string("JPsiMuMuValidation"),
                                     pname = cms.string("J/#Psi"),
@@ -21,7 +22,8 @@ JPsiMuMuValidation = DQMStep1Module('BPhysicsValidation',
                                                                 )
                                     )
 
-LambdabPiPiMuMuValidation = DQMStep1Module('BPhysicsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+LambdabPiPiMuMuValidation = DQMEDAnalyzer('BPhysicsValidation',
                                            genparticleCollection = cms.InputTag("genParticles",""),
                                            name = cms.string("LambdabPiPiMuMuValidation"),
                                            pname = cms.string("#Lambda_{b}"),
@@ -73,7 +75,8 @@ LambdabPiPiMuMuValidation = DQMStep1Module('BPhysicsValidation',
 
 
 
-PsiSpectrum = DQMStep1Module('BPhysicsSpectrum',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+PsiSpectrum = DQMEDAnalyzer('BPhysicsSpectrum',
                              genparticleCollection = cms.InputTag("genParticles",""),
                              name = cms.string("JPsiSpectrum"),
                              pdgids = cms.vint32(443,100443,30443,9000443,9010443,9020443),
@@ -81,7 +84,8 @@ PsiSpectrum = DQMStep1Module('BPhysicsSpectrum',
                              massmax = cms.double(4.5)
                              )
 
-LambdaSpectrum = DQMStep1Module('BPhysicsSpectrum',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+LambdaSpectrum = DQMEDAnalyzer('BPhysicsSpectrum',
                              genparticleCollection = cms.InputTag("genParticles",""),
                              name = cms.string("LambdaSpectrum"),
                              pdgids = cms.vint32(5122),

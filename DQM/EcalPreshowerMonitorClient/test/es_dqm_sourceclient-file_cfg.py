@@ -35,7 +35,8 @@ process.ecalPreshowerRecHit.ESMIPADC = cms.double(50)
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 process.preScaler.prescaleFactor = 1
 
-process.dqmInfoES = DQMStep1Module('DQMEventInfo',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.dqmInfoES = DQMEDAnalyzer('DQMEventInfo',
                                    subSystemFolder = cms.untracked.string('EcalPreshower')
                                    )
 

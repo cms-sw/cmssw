@@ -60,7 +60,8 @@ process.hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
 process.hltBtagJetsbyRef.jets = cms.InputTag(fileini.jets)
 
 #define VertexValidationVertices for the vertex DQM validation
-process.VertexValidationVertices= DQMStep1Module('HLTVertexPerformanceAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.VertexValidationVertices= DQMEDAnalyzer('HLTVertexPerformanceAnalyzer',
 	SimVertexCollection = cms.InputTag("g4SimHits"),
 	TriggerResults = cms.InputTag('TriggerResults','',fileini.processname),
 	HLTPathNames = cms.vstring(fileini.vertex_pathes),
@@ -68,7 +69,8 @@ process.VertexValidationVertices= DQMStep1Module('HLTVertexPerformanceAnalyzer',
 )
 
 #define bTagValidation for the b-tag DQM validation (distribution plot)
-process.bTagValidation = DQMStep1Module('HLTBTagPerformanceAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.bTagValidation = DQMEDAnalyzer('HLTBTagPerformanceAnalyzer',
 	TriggerResults = cms.InputTag('TriggerResults','',fileini.processname),
 	HLTPathNames = cms.vstring(fileini.btag_pathes),
 	JetTag = fileini.btag_modules,

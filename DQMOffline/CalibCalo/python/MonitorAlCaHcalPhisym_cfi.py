@@ -8,7 +8,8 @@ import FWCore.ParameterSet.Config as cms
 #
 # \author Stefano Argiro
 #
-HcalPhiSymMon = DQMStep1Module('DQMHcalPhiSymAlCaReco',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+HcalPhiSymMon = DQMEDAnalyzer('DQMHcalPhiSymAlCaReco',
     # product to monitor
     hbheInputMB = cms.InputTag("hbherecoMB"),
     hoInputMB = cms.InputTag("horecoMB"),

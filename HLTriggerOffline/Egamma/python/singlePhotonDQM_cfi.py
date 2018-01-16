@@ -35,7 +35,8 @@ import FWCore.ParameterSet.Config as cms
 #  the "HLTCollectionLabels" below.
 ##########################################################
 
-singlePhotonDQM = DQMStep1Module('EmDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+singlePhotonDQM = DQMEDAnalyzer('EmDQM',
     pdgGen = cms.int32(22),     
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(10.0),

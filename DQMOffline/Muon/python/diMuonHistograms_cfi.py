@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
-diMuonHistos = DQMStep1Module('DiMuonHistograms',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+diMuonHistos = DQMEDAnalyzer('DiMuonHistograms',
                               MuonCollection = cms.InputTag("muons"),
                               VertexLabel     = cms.InputTag("offlinePrimaryVertices"),
                               BeamSpotLabel   = cms.InputTag("offlineBeamSpot"),                              
@@ -22,7 +23,8 @@ diMuonHistos = DQMStep1Module('DiMuonHistograms',
                               HighMassMax = cms.double(110.0),
                               folder = cms.string("Muons/diMuonHistograms")
                               )
-diMuonHistos_miniAOD = DQMStep1Module('DiMuonHistograms',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+diMuonHistos_miniAOD = DQMEDAnalyzer('DiMuonHistograms',
                                       MuonCollection  = cms.InputTag("slimmedMuons"),
                                       VertexLabel     = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                       BeamSpotLabel   = cms.InputTag("offlineBeamSpot"),                              

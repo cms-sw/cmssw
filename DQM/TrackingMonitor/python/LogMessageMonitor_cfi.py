@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.TrackingMonitor.BXlumiParameters_cfi import BXlumiSetup
 
-LogMessageMon = DQMStep1Module('LogMessageMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+LogMessageMon = DQMEDAnalyzer('LogMessageMonitor',
     pluginsMonName = cms.string("tracking"),
     # input modules                               
     modules = cms.vstring(

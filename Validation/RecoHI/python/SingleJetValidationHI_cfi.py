@@ -10,7 +10,8 @@ hltlow35  =""
 hltname35="HLT_HIJet35U"
 folderjet35="HLT/HLTJETMET/SingleJet35U"
 
-SingleJetPathVal35 = DQMStep1Module('HLTJetMETValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SingleJetPathVal35 = DQMEDAnalyzer('HLTJetMETValidation',
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
     DQMFolder             = cms.untracked.string(folderjet35),
     OutputFileName        = cms.untracked.string(rootfile),

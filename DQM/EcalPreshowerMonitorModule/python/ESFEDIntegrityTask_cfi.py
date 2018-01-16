@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
     
-ecalPreshowerFEDIntegrityTask = DQMStep1Module('ESFEDIntegrityTask',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalPreshowerFEDIntegrityTask = DQMEDAnalyzer('ESFEDIntegrityTask',
                                                prefixME = cms.untracked.string('EcalPreshower'),
                                                ESDCCCollections = cms.InputTag("ecalPreshowerDigis"),
                                                ESKChipCollections = cms.InputTag("ecalPreshowerDigis"),

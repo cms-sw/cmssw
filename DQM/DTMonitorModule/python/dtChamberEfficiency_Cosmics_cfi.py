@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
 
-dtEfficiencyMonitor = DQMStep1Module('DTChamberEfficiency',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtEfficiencyMonitor = DQMEDAnalyzer('DTChamberEfficiency',
     MuonServiceProxy,
     debug = cms.untracked.bool(True),
     TrackCollection = cms.InputTag("cosmicMuons"),                                 

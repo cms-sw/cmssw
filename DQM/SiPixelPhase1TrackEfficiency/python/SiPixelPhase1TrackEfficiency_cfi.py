@@ -129,7 +129,8 @@ SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
 )
 
 
-SiPixelPhase1TrackEfficiencyAnalyzer = DQMStep1Module('SiPixelPhase1TrackEfficiency',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1TrackEfficiencyAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackEfficiency',
         clusters = cms.InputTag("siPixelClusters"),
         tracks = cms.InputTag("generalTracks"),
         primaryvertices = cms.InputTag("offlinePrimaryVertices"),

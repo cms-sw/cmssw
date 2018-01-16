@@ -80,7 +80,8 @@ process.DQMStore.referenceFileName = reference_histogram_file
 #-----------------------------
 # Locate a directory in DQMStore
 #-----------------------------
-process.dqmInfoJetMET = DQMStep1Module('DQMEventInfo',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.dqmInfoJetMET = DQMEDAnalyzer('DQMEventInfo',
                 subSystemFolder = cms.untracked.string('JetMET')
                 )
 

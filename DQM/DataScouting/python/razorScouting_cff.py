@@ -17,7 +17,8 @@ scoutingRazorVariables = cms.EDProducer("RazorVarProducer",
     inputMetTag = cms.InputTag("hltMetClean"),
 )
 
-scoutingRazorVarAnalyzer = DQMStep1Module('RazorVarAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+scoutingRazorVarAnalyzer = DQMEDAnalyzer('RazorVarAnalyzer',
   modulePath=cms.untracked.string("Razor"),
   razorVarCollectionName=cms.untracked.InputTag("scoutingRazorVariables")
   )

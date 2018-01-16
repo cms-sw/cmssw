@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-gemRecHitsValidation = DQMStep1Module('GEMRecHitsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+gemRecHitsValidation = DQMEDAnalyzer('GEMRecHitsValidation',
     verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
     recHitsInputLabel = cms.InputTag('gemRecHits'),
@@ -13,7 +14,8 @@ gemRecHitsValidation = DQMStep1Module('GEMRecHitsValidation',
     detailPlot = cms.bool(False),
 )
 
-gemRecHitTrackValidation = DQMStep1Module('GEMRecHitTrackMatch',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+gemRecHitTrackValidation = DQMEDAnalyzer('GEMRecHitTrackMatch',
   simInputLabel = cms.untracked.string('g4SimHits'),
   simTrackCollection = cms.InputTag('g4SimHits'),
   simVertexCollection = cms.InputTag('g4SimHits'),

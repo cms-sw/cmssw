@@ -19,7 +19,8 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
 )
 
-process.DataScoutingTest = DQMStep1Module('ScoutingTestAnalyzer',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.DataScoutingTest = DQMEDAnalyzer('ScoutingTestAnalyzer',
   modulePath=cms.untracked.string("Test"),
   pfJetsCollectionName=cms.untracked.InputTag("hltCaloJetIDPassed")
   )

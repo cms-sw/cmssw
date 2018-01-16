@@ -26,7 +26,8 @@ import FWCore.ParameterSet.Config as cms
 ##########################################################
 
 
-HLT_HIPhoton15_DQM = DQMStep1Module('EmDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+HLT_HIPhoton15_DQM = DQMEDAnalyzer('EmDQM',
     triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),
     pdgGen = cms.int32(22),     
     genEtaAcc = cms.double(2.5),

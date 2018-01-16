@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-SiPixelTrackResidualSource_Cosmics = DQMStep1Module('SiPixelTrackResidualSource',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelTrackResidualSource_Cosmics = DQMEDAnalyzer('SiPixelTrackResidualSource',
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelTrackResiduals"),
     clustersrc = cms.InputTag("siPixelClusters"),

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hotlineDQM_HT = DQMStep1Module('HotlineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hotlineDQM_HT = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
      caloJetCollection = cms.InputTag('ak4CaloJets'),
@@ -16,7 +17,8 @@ hotlineDQM_HT = DQMStep1Module('HotlineDQM',
      useHT = cms.bool(True)
 )
 
-hotlineDQM_HT_Tight = DQMStep1Module('HotlineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hotlineDQM_HT_Tight = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
      caloJetCollection = cms.InputTag('ak4CaloJets'),
@@ -32,7 +34,8 @@ hotlineDQM_HT_Tight = DQMStep1Module('HotlineDQM',
      useHT = cms.bool(True)
 )
 
-hotlineDQM_Photon = DQMStep1Module('HotlineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hotlineDQM_Photon = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
      caloJetCollection = cms.InputTag('ak4CaloJets'),
@@ -48,7 +51,8 @@ hotlineDQM_Photon = DQMStep1Module('HotlineDQM',
      usePhotons = cms.bool(True)
 )
 
-hotlineDQM_Photon_Tight = DQMStep1Module('HotlineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hotlineDQM_Photon_Tight = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
      caloJetCollection = cms.InputTag('ak4CaloJets'),
@@ -64,7 +68,8 @@ hotlineDQM_Photon_Tight = DQMStep1Module('HotlineDQM',
      usePhotons = cms.bool(True)
 )
 
-hotlineDQM_MET = DQMStep1Module('HotlineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hotlineDQM_MET = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
      caloJetCollection = cms.InputTag('ak4CaloJets'),
@@ -80,7 +85,8 @@ hotlineDQM_MET = DQMStep1Module('HotlineDQM',
      useMet = cms.bool(True)
 )
 
-hotlineDQM_MET_Tight = DQMStep1Module('HotlineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hotlineDQM_MET_Tight = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
      caloJetCollection = cms.InputTag('ak4CaloJets'),
@@ -96,7 +102,8 @@ hotlineDQM_MET_Tight = DQMStep1Module('HotlineDQM',
      useMet = cms.bool(True)
 )
 
-hotlineDQM_PFMET = DQMStep1Module('HotlineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hotlineDQM_PFMET = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
      caloJetCollection = cms.InputTag('ak4CaloJets'),
@@ -112,7 +119,8 @@ hotlineDQM_PFMET = DQMStep1Module('HotlineDQM',
      usePFMet = cms.bool(True)
 )
 
-hotlineDQM_PFMET_Tight = DQMStep1Module('HotlineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hotlineDQM_PFMET_Tight = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
      caloJetCollection = cms.InputTag('ak4CaloJets'),
@@ -128,7 +136,8 @@ hotlineDQM_PFMET_Tight = DQMStep1Module('HotlineDQM',
      usePFMet = cms.bool(True)
 )
 
-hotlineDQM_Muon = DQMStep1Module('HotlineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hotlineDQM_Muon = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
      caloJetCollection = cms.InputTag('ak4CaloJets'),
@@ -144,7 +153,8 @@ hotlineDQM_Muon = DQMStep1Module('HotlineDQM',
      useMuons = cms.bool(True)
 )
 
-hotlineDQM_Muon_Tight = DQMStep1Module('HotlineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hotlineDQM_Muon_Tight = DQMEDAnalyzer('HotlineDQM',
      photonCollection = cms.InputTag('photons'),
      muonCollection = cms.InputTag('muons'),
      caloJetCollection = cms.InputTag('ak4CaloJets'),

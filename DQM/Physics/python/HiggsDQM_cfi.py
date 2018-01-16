@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-HiggsDQM = DQMStep1Module('HiggsDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+HiggsDQM = DQMEDAnalyzer('HiggsDQM',
     elecTriggerPathToPass    = cms.string("HLT_Ele10_LW_L1R"),
     muonTriggerPathToPass    = cms.string("HLT_Mu9"),
     triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),

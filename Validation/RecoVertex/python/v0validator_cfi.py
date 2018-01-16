@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-v0Validator = DQMStep1Module('V0Validator',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+v0Validator = DQMEDAnalyzer('V0Validator',
     DQMRootFileName = cms.untracked.string(''),
     kShortCollection = cms.untracked.InputTag('generalV0Candidates:Kshort'),
     lambdaCollection = cms.untracked.InputTag('generalV0Candidates:Lambda'),

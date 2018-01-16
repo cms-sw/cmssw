@@ -6,7 +6,8 @@ ElelooseIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max
 EletightIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.1"
 
 
-topDiLeptonOfflineDQM = DQMStep1Module('TopDiLeptonOfflineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topDiLeptonOfflineDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -151,7 +152,8 @@ topDiLeptonOfflineDQM = DQMStep1Module('TopDiLeptonOfflineDQM',
 
 
 
-DiMuonDQM = DQMStep1Module('TopDiLeptonOfflineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+DiMuonDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -294,7 +296,8 @@ DiMuonDQM = DQMStep1Module('TopDiLeptonOfflineDQM',
   ),
 )
 
-DiElectronDQM = DQMStep1Module('TopDiLeptonOfflineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+DiElectronDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -439,7 +442,8 @@ DiElectronDQM = DQMStep1Module('TopDiLeptonOfflineDQM',
   ),
 )
 
-ElecMuonDQM = DQMStep1Module('TopDiLeptonOfflineDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ElecMuonDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
