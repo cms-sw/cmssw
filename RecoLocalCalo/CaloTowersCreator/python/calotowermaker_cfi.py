@@ -155,5 +155,5 @@ run2_HE_2018.toModify(calotowermaker,
 )
 
 # needed to handle inner/outer and 28/29 splitting - from real topology, not collapsed
-from Configuration.Eras.Modifier_run2_HECollapse_2018_cff import run2_HECollapse_2018
+from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
 run2_HECollapse_2018.toModify(calotowermaker, hbheInput = cms.InputTag("hbheprereco"))

@@ -96,7 +96,7 @@ run2_HEPlan1_2017.toReplaceWith(hcalLocalRecoSequence, _plan1_hcalLocalRecoSeque
 hbhecollapse = hbheplan1.clone()
 _collapse_hcalLocalRecoSequence = _phase1_hcalLocalRecoSequence.copy()
 _collapse_hcalLocalRecoSequence.insert(0,hbheprereco)
-from Configuration.Eras.Modifier_run2_HECollapse_2018_cff import run2_HECollapse_2018
+from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
 run2_HECollapse_2018.toReplaceWith(hbhereco, hbhecollapse)
 run2_HECollapse_2018.toReplaceWith(hcalLocalRecoSequence, _collapse_hcalLocalRecoSequence)
 
