@@ -23,6 +23,16 @@ _particle_flow_zero_suppression_ECAL_2017 = cms.PSet(
         )
     )
 
+# 
+# The following commented lines were used in 2017 to set SR@PF eta dependent thresholds
+# as defined in _particle_flow_zero_suppression_ECAL_2017
+#
+# For 2018 the thresholds have been temporarily removed (lowered to 80 MeV in EB and 300 MeV in EE,
+# then overseeded by the gathering and seeding PF cluster thresholds)
+# Later, we may need to reintroduce eta dependent thresholds
+# to mitigate the effect of the noise
+#
+
 #from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
 #run2_ECAL_2017.toReplaceWith(particle_flow_zero_suppression_ECAL, _particle_flow_zero_suppression_ECAL_2017)
 
