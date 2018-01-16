@@ -79,7 +79,7 @@ def printJetProperties(etaRange):
                 jetProps = getJetProperties(seedEta, etaFwd, etaCen)
                 print("%.2f / %.2f" %(jetProps[0],jetProps[1])),
             print
-            print "   9x"+str(size)+" in",
+            print "   9x"+str(size)+" fwd",
             for seedEta in etaRange:
                 print("\t"),
                 etaFwd = size/2
