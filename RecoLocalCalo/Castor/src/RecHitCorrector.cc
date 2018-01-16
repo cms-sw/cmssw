@@ -134,14 +134,14 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double correctedenergy = 0;
 	if (doInterCalib_) {
 		if (rechit.id().module() <= 2) {
-			correctedenergy = 0.5*fC*calibrations.gain(capid);
+			correctedenergy = fC*calibrations.gain(capid);
 			//std::cout << " correctedenergy = " << correctedenergy << " gain = " << calibrations.gain(capid) << std::endl;
 		} else {
 			correctedenergy = fC*calibrations.gain(capid);
 		}
 	} else {
 		if (rechit.id().module() <= 2) {
-			correctedenergy = 0.5*fC;
+			correctedenergy = fC;
 		} else {
 			correctedenergy = fC;
 		}
@@ -163,11 +163,14 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (ok) {
 	    CastorRecHit *correctedhit = new CastorRecHit(rechit.id(),correctedenergy,time);
 	    rec->push_back(*correctedhit);
+	    delete correctedhit;
 	}
    }
    
    iEvent.put(rec);
- 
+   
+   delete myqual;
+   
 }
 
 // ------------ method called once each job just before starting event loop  ------------
