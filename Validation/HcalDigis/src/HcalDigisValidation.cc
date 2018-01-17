@@ -789,14 +789,14 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             //KH if (ampl1 > 10. || ampl2 > 10. || ampl3 > 10. || ampl4 > 10.) indigis++;
 
             // fraction 5,6 bins if ampl. is big.
-            if (v_ampl[1] > 30. && depth == 1) {
+            if (v_ampl[depth] > 30.) {
                 double fbinSOI = tool[soi] - calibrations.pedestal((*digiItr)[soi].capid());
                 double fbinPS = 0; 
 
                 for(int j = soi+1; j <= lastbin; j++) fbinPS += tool[j] - calibrations.pedestal((*digiItr)[j].capid());
 
-                fbinSOI /= v_ampl[1];
-                fbinPS /= v_ampl[1];
+                fbinSOI /= v_ampl[depth];
+                fbinPS /= v_ampl[depth];
                 strtmp = "HcalDigiTask_SOI_frac_" + subdet_;
                 fill1D(strtmp, fbinSOI);
                 strtmp = "HcalDigiTask_postSOI_frac_" + subdet_;
@@ -1112,14 +1112,14 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
             // fraction 5,6 bins if ampl. is big.
             //histogram names have not been changed, but it should be understood that bin_5 is soi, and bin_6_7 is latter TS'
-            if (v_ampl[1] > 30. && depth == 1) {
+            if (v_ampl[depth] > 30.) {
                 double fbinSOI = tool[soi] - calibrations.pedestal((dataFrame)[soi].capid());
                 double fbinPS = 0; 
 
                 for(int j = soi+1; j <= lastbin; j++) fbinPS += tool[j] - calibrations.pedestal((dataFrame)[j].capid());
 
-                fbinSOI /= v_ampl[1];
-                fbinPS /= v_ampl[1];
+                fbinSOI /= v_ampl[depth];
+                fbinPS /= v_ampl[depth];
                 strtmp = "HcalDigiTask_SOI_frac_" + subdet_;
                 fill1D(strtmp, fbinSOI);
                 strtmp = "HcalDigiTask_postSOI_frac_" + subdet_;
