@@ -43,9 +43,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 
-//ATHER                                                                                                                                                                                                            
-#include "DataFormats/Common/interface/ValueMap.h"
-
 class GenericTriggerEventFlag;
 
 
@@ -81,16 +78,15 @@ private:
   std::string folderName_;
   std::string histoSuffix_;
 
-  edm::EDGetTokenT<reco::PFMETCollection>         metToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>         jetToken_;
+  edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
+  edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
   edm::EDGetTokenT<edm::View<reco::GsfElectron> > eleToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> >          elecIDToken_; //ATHER   
-  edm::EDGetTokenT<reco::MuonCollection>          muoToken_;
-  edm::EDGetTokenT<reco::PhotonCollection>        phoToken_;
+  edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
+  edm::EDGetTokenT<reco::PhotonCollection>      phoToken_;
   // Marina
-  edm::EDGetTokenT<reco::JetTagCollection>        jetTagToken_ ;
+  edm::EDGetTokenT<reco::JetTagCollection>  jetTagToken_ ;
   //Suvankar
-  edm::EDGetTokenT<reco::VertexCollection>        vtxToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
 
  //Suvankar
   struct PVcut {
