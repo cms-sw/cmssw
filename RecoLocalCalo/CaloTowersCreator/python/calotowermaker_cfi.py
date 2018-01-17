@@ -161,4 +161,8 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
 run2_HECollapse_2018.toModify(calotowermaker,
     HcalPhase = cms.int32(0),
     HcalCollapsed = cms.bool(True),
+    HESThreshold1 = cms.double(0.8),
+    HESThreshold  = cms.double(0.8),
+    HEDThreshold1 = cms.double(0.8),
+    HEDThreshold  = cms.double(0.8)
 )
