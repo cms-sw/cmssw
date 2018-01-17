@@ -31,7 +31,7 @@ namespace l1tVertexFinder {
     unsigned int overflows = 0;
     float SumZ_pT = 0.;
     float SumZ = 0.;
-    for(const L1fittedTrackBase* track : tracks_){
+    for(const L1fittedTrack* track : tracks_){
       // if(track->pt() < 100.){
       pT_ += track->pt();
       SumZ += track->z0();
