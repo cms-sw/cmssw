@@ -44,13 +44,7 @@
 // class declaration
 //
 
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<> and also remove the line from
-// constructor "usesResource("TFileService");"
-// This will improve performance in multithreaded jobs.
-
-class SiStripApvGainRescaler : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class SiStripApvGainRescaler : public edm::one::EDAnalyzer<>  {
    public:
       explicit SiStripApvGainRescaler(const edm::ParameterSet&);
       ~SiStripApvGainRescaler();
@@ -75,7 +69,6 @@ SiStripApvGainRescaler::SiStripApvGainRescaler(const edm::ParameterSet& iConfig)
   m_Record(iConfig.getParameter<std::string> ("Record"))
 {
    //now do what ever initialization is needed
-   usesResource("TFileService");
 }
 
 SiStripApvGainRescaler::~SiStripApvGainRescaler()
