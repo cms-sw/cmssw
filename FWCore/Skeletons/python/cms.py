@@ -48,6 +48,17 @@ def config(tmpl, pkg_help, tmpl_dir):
     kwds['tmpl_etags'] = etags
     return kwds
 
+def config_with_parser(tmpl, args, tmpl_dir):
+    kwds  = {'author': '', 'tmpl': tmpl,
+             'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
+    etags = []
+    kwds['pname'] = args.subpackage_name
+    if args.author: kwds['author'] = args.author
+    if args.debug: kwds['debug'] = True
+    if args.example: etags.append('@%s' % args.example)
+    kwds['tmpl_etags'] = etags
+    return kwds
+
 def cms_error():
     "Standard CMS error message"
     msg  = "\nPackages must be created in a 'subsystem'."
