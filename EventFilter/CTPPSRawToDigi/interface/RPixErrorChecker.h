@@ -48,7 +48,7 @@ public:
 
   RPixErrorChecker();
 
-  void setErrorStatus(bool ErrorStatus);
+  void setErrorStatus(bool errorStatus);
 
   bool checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors) const;
 
@@ -63,7 +63,7 @@ public:
 private:
 
 
-  bool includeErrors;
+  bool includeErrors_;
   
 
 
