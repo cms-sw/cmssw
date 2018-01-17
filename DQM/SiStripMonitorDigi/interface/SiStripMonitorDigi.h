@@ -210,7 +210,7 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
 
   bool createTrendMEs;
 
-  bool m_trendVs10LS;
+  bool m_trendVsLS;
 
   edm::InputTag historyProducer_;
   edm::InputTag apvPhaseProducer_;
