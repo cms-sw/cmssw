@@ -76,13 +76,7 @@ namespace ApvGain {
 
 }
 
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<> and also remove the line from
-// constructor "usesResource("TFileService");"
-// This will improve performance in multithreaded jobs.
-
-class SiStripChannelGainFromDBMiscalibrator : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class SiStripChannelGainFromDBMiscalibrator : public edm::one::EDAnalyzer<>  {
    public:
       explicit SiStripChannelGainFromDBMiscalibrator(const edm::ParameterSet&);
       ~SiStripChannelGainFromDBMiscalibrator();
@@ -112,7 +106,6 @@ SiStripChannelGainFromDBMiscalibrator::SiStripChannelGainFromDBMiscalibrator(con
   m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")}
 {
    //now do what ever initialization is needed
-   usesResource("TFileService");
 }
 
 
