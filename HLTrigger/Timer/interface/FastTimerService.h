@@ -1,14 +1,16 @@
 #ifndef FastTimerService_h
 #define FastTimerService_h
 
-// C++ headers
-#include <cmath>
-#include <string>
-#include <map>
-#include <unordered_map>
-#include <chrono>
-#include <mutex>
+// system headers
 #include <unistd.h>
+
+// C++ headers
+#include <chrono>
+#include <cmath>
+#include <map>
+#include <mutex>
+#include <string>
+#include <unordered_map>
 
 // boost headers
 #include <boost/chrono.hpp>
@@ -45,40 +47,6 @@ procesing time is divided into
  - source
  - event processing, sum of the time spent in all the modules
 */
-
-/*
-Assuming an HLT process with ~2500 modules and ~500 paths, tracking each step (with two calls per step, to start and stop the timer)
-with std::chrono::high_resolution_clock gives a per-event overhead of 1 ms
-
-Detailed informations on different timers can be extracted running $CMSSW_RELEASE_BASE/test/$SCRAM_ARCH/testChrono .
-
-
-Timer per-call overhead on SLC5:
-
-Linux 2.6.18-371.1.2.el5 x86_64
-glibc version: 2.5
-clock source: unknown
-For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test.
-
-Performance of std::chrono::high_resolution_clock
-        Average time per call:      317.0 ns
-        Clock tick period:            1.0 ns
-        Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 199.4 ns) (average: 1007.6 +/- 0.4 ns)
-
-
-Timer per-call overhead on SLC6 (virtualized):
-
-Linux 2.6.32-358.23.2.el6.x86_64 x86_64
-glibc version: 2.12
-clock source: kvm-clock
-For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test.
-
-Performance of std::chrono::high_resolution_clock
-        Average time per call:      351.2 ns
-        Clock tick period:            1.0 ns
-        Measured resolution:          1.0 ns (median: 358.0 ns) (sigma: 30360.8 ns) (average: 685.7 +/- 42.4 ns)
-*/
-
 
 class FastTimerService : public tbb::task_scheduler_observer
 {
@@ -224,6 +192,28 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
+  // forward declarations
+  struct Resources;
+  struct AtomicResources;
+
+  // per-thread measurements
+  struct Measurement {
+  public:
+    Measurement();
+    void measure();
+    void measure_and_store(Resources & store);
+    void measure_and_accumulate(AtomicResources & store);
+
+  public:
+    #ifdef DEBUG_THREAD_CONCURRENCY
+    std::thread::id                                  id;
+    #endif // DEBUG_THREAD_CONCURRENCY
+    boost::chrono::thread_clock::time_point          time_thread;
+    boost::chrono::high_resolution_clock::time_point time_real;
+    uint64_t                                         allocated;
+    uint64_t                                         deallocated;
+  };
+
   // highlight a group of modules
   struct GroupOfModules {
   public:
@@ -266,7 +256,6 @@ private:
 
   struct ResourcesPerModule {
   public:
-    ResourcesPerModule();
     void reset();
     ResourcesPerModule & operator+=(ResourcesPerModule const& other);
     ResourcesPerModule operator+(ResourcesPerModule const& other) const;
@@ -276,27 +265,8 @@ private:
     unsigned  events;
   };
 
-  // per-thread measurements
-  struct Measurement {
-  public:
-    Measurement();
-    void measure();
-    void measure_and_store(Resources & store);
-    void measure_and_accumulate(AtomicResources & store);
-
-  public:
-    #ifdef DEBUG_THREAD_CONCURRENCY
-    std::thread::id                                  id;
-    #endif // DEBUG_THREAD_CONCURRENCY
-    boost::chrono::thread_clock::time_point          time_thread;
-    boost::chrono::high_resolution_clock::time_point time_real;
-    uint64_t                                         allocated;
-    uint64_t                                         deallocated;
-  };
-
   struct ResourcesPerPath {
   public:
-    ResourcesPerPath();
     void reset();
     ResourcesPerPath & operator+=(ResourcesPerPath const& other);
     ResourcesPerPath operator+(ResourcesPerPath const& other) const;
@@ -323,7 +293,7 @@ private:
 
   struct ResourcesPerJob {
   public:
-    ResourcesPerJob();
+    ResourcesPerJob() = default;
     ResourcesPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups);
     void reset();
     ResourcesPerJob & operator+=(ResourcesPerJob const& other);
@@ -416,14 +386,19 @@ private:
     void book(DQMStore::ConcurrentBooker &, ProcessCallGraph const&, std::vector<GroupOfModules> const&,
         PlotRanges const&  event_ranges, PlotRanges const&  path_ranges,
         PlotRanges const&  module_ranges, unsigned int lumisections,
-        bool bymodule, bool bypath, bool byls);
+        bool bymodule, bool bypath, bool byls, bool transitions);
     void fill(ProcessCallGraph const&, ResourcesPerJob const&, unsigned int ls);
+    void fill_run(AtomicResources const&);
+    void fill_lumi(AtomicResources const&, unsigned int lumisection);
 
   private:
     // resources spent in all the modules of the job
     PlotsPerElement              event_;
     PlotsPerElement              event_ex_;
     PlotsPerElement              overhead_;
+    // resources spent in the modules' lumi and run transitions
+    PlotsPerElement              lumi_;
+    PlotsPerElement              run_;
     // resources spent in the highlighted modules
     std::vector<PlotsPerElement> highlight_;
     // resources spent in each module
@@ -440,7 +415,12 @@ private:
   std::vector<ResourcesPerJob>  streams_;
 
   // concurrent histograms and profiles
-  std::unique_ptr<PlotsPerJob>  plots_; 
+  std::unique_ptr<PlotsPerJob>  plots_;
+
+  // per-lumi and per-run information
+  std::vector<AtomicResources>  lumi_transition_;               // resources spent in the modules' global and stream lumi transitions
+  std::vector<AtomicResources>  run_transition_;                // resources spent in the modules' global and stream run transitions
+  AtomicResources               overhead_;                      // resources spent outside of the modules' transitions
 
   // summary data
   ResourcesPerJob               job_summary_;                   // whole event time accounting per-job
@@ -453,12 +433,14 @@ private:
 
   // atomic variables to keep track of the completion of each step, process by process
   std::unique_ptr<std::atomic<unsigned int>[]> subprocess_event_check_;
+  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_global_lumi_check_;
   std::unique_ptr<std::atomic<unsigned int>[]> subprocess_global_run_check_;
 
   // retrieve the current thread's per-thread quantities
   Measurement & thread();
 
   // job configuration
+  unsigned int                  concurrent_lumis_;
   unsigned int                  concurrent_runs_;
   unsigned int                  concurrent_streams_;
   unsigned int                  concurrent_threads_;
@@ -469,13 +451,12 @@ private:
   const bool                    print_job_summary_;             // print the time spent in each process, path and module for the whole job
 
   // dqm configuration
-  unsigned int                  module_id_;                     // pseudo module id for the FastTimerService, needed by the thread-safe DQMStore
-
   bool                          enable_dqm_;                    // non const, depends on the availability of the DQMStore
   const bool                    enable_dqm_bymodule_;
   const bool                    enable_dqm_bypath_;
   const bool                    enable_dqm_byls_;
   const bool                    enable_dqm_bynproc_;
+  const bool                    enable_dqm_transitions_;
 
   const PlotRanges              dqm_event_ranges_;
   const PlotRanges              dqm_path_ranges_;
@@ -501,6 +482,9 @@ private:
   void printEventLine(T& out, Resources const& data, std::string const & label) const;
 
   template <typename T>
+  void printEventLine(T& out, AtomicResources const& data, std::string const & label) const;
+
+  template <typename T>
   void printEvent(T& out, ResourcesPerJob const&) const;
 
   template <typename T>
@@ -519,7 +503,10 @@ private:
   void printPathSummaryLine(T& out, Resources const& data, Resources const& total, uint64_t events, std::string const& label) const;
 
   template <typename T>
-  void printSummary(T& out, ResourcesPerJob const&, std::string const& label) const;
+  void printSummary(T& out, ResourcesPerJob const& data, std::string const& label) const;
+
+  template <typename T>
+  void printTransition(T& out, AtomicResources const& data, std::string const& label) const;
 
   // check if this is the first process being signalled
   bool isFirstSubprocess(edm::StreamContext const&);
