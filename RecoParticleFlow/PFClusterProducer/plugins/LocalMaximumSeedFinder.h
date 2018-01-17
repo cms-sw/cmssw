@@ -21,7 +21,7 @@ class LocalMaximumSeedFinder final : public SeedFinderBase {
 
   const std::unordered_map<std::string,int> _layerMap;
 
-  typedef std::tuple<std::vector<int> ,std::vector<double> , std::vector<double> > _i3tuple;
+  typedef std::tuple<std::vector<int>, std::vector<double> , std::vector<double> > _i3tuple;
 
   std::array<_i3tuple, 35> _thresholds;
   static constexpr int layerOffset = 15;

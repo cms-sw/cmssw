@@ -62,7 +62,7 @@ LocalMaximumSeedFinder(const edm::ParameterSet& conf) :
     }
 
     _thresholds[entry->second+layerOffset]= 
-                       std::make_tuple(depths,thresh_E,thresh_pT2);
+      std::make_tuple(depths,thresh_E,thresh_pT2);
   }
 }
 
@@ -91,15 +91,25 @@ findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
     }
     auto const & thresholds = _thresholds[seedlayer+layerOffset];
 
-    for (unsigned int j=0; j<(std::get<1>(thresholds)).size(); ++j) {
-      if((seedlayer == PFLayer::HCAL_BARREL1 || seedlayer == PFLayer::HCAL_ENDCAP) && (maybeseed.depth()!=std::get<0>(thresholds)[j])) continue;
 
-	if( maybeseed.energy() < std::get<1>(thresholds)[j] ||
-	    maybeseed.pt2() < std::get<2>(thresholds)[j]   ) usable[i] = false;
-	if( !usable[i] ) continue;
-	ordered_hits.push(i);
+    double thresholdE=0.;
+    double thresholdPT2=0.;
+
+    for (unsigned int j=0; j<(std::get<2>(thresholds)).size(); ++j) {
+
+      int depth=std::get<0>(thresholds)[j];
+      if( ( seedlayer == PFLayer::HCAL_BARREL1 && maybeseed.depth()== depth)
+	  || ( seedlayer == PFLayer::HCAL_ENDCAP && maybeseed.depth()== depth)
+	  || ( seedlayer != PFLayer::HCAL_BARREL1 && seedlayer != PFLayer::HCAL_ENDCAP)
+	  ) { thresholdE=std::get<1>(thresholds)[j]; thresholdPT2=std::get<2>(thresholds)[j]; }
 
     }
+
+    if( maybeseed.energy() < thresholdE ||
+	maybeseed.pt2() < thresholdPT2   ) usable[i] = false;
+    if( !usable[i] ) continue;
+    ordered_hits.push(i);
+
   }
 
 
