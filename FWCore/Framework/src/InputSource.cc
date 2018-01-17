@@ -262,19 +262,19 @@ namespace edm {
 
   void
   InputSource::readRun(RunPrincipal& runPrincipal, HistoryAppender& ) {
-    RunSourceSentry sentry(*this);
+    RunSourceSentry sentry(*this, runPrincipal.index());
     callWithTryCatchAndPrint<void>( [this,&runPrincipal](){ readRun_(runPrincipal); }, "Calling InputSource::readRun_" );
   }
 
   void
   InputSource::readAndMergeRun(RunPrincipal& rp) {
-    RunSourceSentry sentry(*this);
+    RunSourceSentry sentry(*this, rp.index());
     callWithTryCatchAndPrint<void>( [this,&rp](){ readRun_(rp); }, "Calling InputSource::readRun_" );
   }
 
   void
   InputSource::readLuminosityBlock(LuminosityBlockPrincipal& lumiPrincipal, HistoryAppender& ) {
-    LumiSourceSentry sentry(*this);
+    LumiSourceSentry sentry(*this, lumiPrincipal.index());
     callWithTryCatchAndPrint<void>( [this,&lumiPrincipal](){ readLuminosityBlock_(lumiPrincipal); }, "Calling InputSource::readLuminosityBlock_" );
     if(remainingLumis_ > 0) {
       --remainingLumis_;
@@ -283,7 +283,7 @@ namespace edm {
 
   void
   InputSource::readAndMergeLumi(LuminosityBlockPrincipal& lbp) {
-    LumiSourceSentry sentry(*this);
+    LumiSourceSentry sentry(*this, lbp.index());
     callWithTryCatchAndPrint<void>( [this,&lbp](){ readLuminosityBlock_(lbp); }, "Calling InputSource::readLuminosityBlock_" );
     if(remainingLumis_ > 0) {
       --remainingLumis_;
@@ -512,14 +512,6 @@ namespace edm {
     return luminosityBlockAuxiliary()->luminosityBlock();
   }
 
-  InputSource::SourceSentry::SourceSentry(Sig& pre, Sig& post) : post_(post) {
-    pre();
-  }
-
-  InputSource::SourceSentry::~SourceSentry() {
-    post_();
-  }
-
   InputSource::EventSourceSentry::EventSourceSentry(InputSource const& source, StreamContext & sc) :
     source_(source),
     sc_(sc)
@@ -531,12 +523,26 @@ namespace edm {
     source_.actReg()->postSourceSignal_(sc_.streamID());
   }
 
-  InputSource::LumiSourceSentry::LumiSourceSentry(InputSource const& source) :
-     sentry_(source.actReg()->preSourceLumiSignal_, source.actReg()->postSourceLumiSignal_) {
+  InputSource::LumiSourceSentry::LumiSourceSentry(InputSource const& source, LuminosityBlockIndex index) :
+    source_(source),
+    index_(index)
+  {
+    source_.actReg()->preSourceLumiSignal_(index_);
   }
 
-  InputSource::RunSourceSentry::RunSourceSentry(InputSource const& source) :
-     sentry_(source.actReg()->preSourceRunSignal_, source.actReg()->postSourceRunSignal_) {
+  InputSource::LumiSourceSentry::~LumiSourceSentry() {
+    source_.actReg()->postSourceLumiSignal_(index_);
+  }
+
+  InputSource::RunSourceSentry::RunSourceSentry(InputSource const& source, RunIndex index) :
+    source_(source),
+    index_(index)
+  {
+    source_.actReg()->preSourceRunSignal_(index_);
+  }
+
+  InputSource::RunSourceSentry::~RunSourceSentry() {
+    source_.actReg()->postSourceRunSignal_(index_);
   }
 
   InputSource::FileOpenSentry::FileOpenSentry(InputSource const& source,
