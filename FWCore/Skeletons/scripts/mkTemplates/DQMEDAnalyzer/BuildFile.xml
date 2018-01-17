@@ -2,5 +2,4 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DQMServices/Core" />
-<use name="classlib" />
 <flags EDM_PLUGIN="1"/>
