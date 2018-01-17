@@ -483,8 +483,8 @@ int EcalDeadCellDeltaRFilter::getChannelStatusMaps(){
 // refer https://twiki.cern.ch/twiki/bin/viewauth/CMS/EcalChannelStatus
         int status = ( chit != ecalStatus->end() ) ? chit->getStatusCode() & 0x1F : -1;
 
-        const CaloSubdetectorGeometry*  subGeom = geometry->getSubdetectorGeometry (detid);
-        const CaloCellGeometry*        cellGeom = subGeom->getGeometry (detid);
+	const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry (detid);
+        auto cellGeom = subGeom->getGeometry (detid);
         double eta = cellGeom->getPosition ().eta ();
         double phi = cellGeom->getPosition ().phi ();
         double theta = cellGeom->getPosition().theta();
@@ -510,8 +510,8 @@ int EcalDeadCellDeltaRFilter::getChannelStatusMaps(){
            EcalChannelStatus::const_iterator chit = ecalStatus->find( detid );
            int status = ( chit != ecalStatus->end() ) ? chit->getStatusCode() & 0x1F : -1;
 
-           const CaloSubdetectorGeometry*  subGeom = geometry->getSubdetectorGeometry (detid);
-           const CaloCellGeometry*        cellGeom = subGeom->getGeometry (detid);
+           const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry (detid);
+           auto cellGeom = subGeom->getGeometry (detid);
            double eta = cellGeom->getPosition ().eta () ;
            double phi = cellGeom->getPosition ().phi () ;
            double theta = cellGeom->getPosition().theta();
