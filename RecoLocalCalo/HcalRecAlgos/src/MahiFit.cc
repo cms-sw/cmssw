@@ -184,7 +184,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
     nnlsWork_.pulseCovArray[iBX]   = FullSampleMatrix::Constant(0);
 
     if (offset==pedestalBX_) {
-      nnlsWork_.ampVec.coeffRef(iBX) = sqrt(nnlsWork_.pedConstraint.coeff(0));
+      nnlsWork_.ampVec.coeffRef(iBX) = 0;
     }
     else {
 
@@ -292,8 +292,9 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   (*pfunctor_)(&xxp[0]);
   psfPtr_->getPulseShape(nnlsWork_.pulseP);
 
-  //in the 8 TS case for 2018+, add an extra offset to align with 10 TS returned from psfPtr_->getPulseShape()
-  int delta =nnlsWork_. tsSize == 8 ? 1 : 0;
+  //in the 2018+ case where the sample of interest (SOI) is in TS3, add an extra offset to align 
+  //with previous SOI=TS4 case assumed by psfPtr_->getPulseShape()
+  int delta =nnlsWork_. tsOffset == 3 ? 1 : 0;
 
   for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset + nnlsWork_.tsSize; iTS++) {
 
