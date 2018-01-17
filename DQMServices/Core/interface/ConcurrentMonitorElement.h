@@ -136,6 +136,11 @@ public:
     me_->setBinLabel(bin, label, axis);
   }
 
+  void enableSumw2()
+  {
+    me_->getTH1()->Sumw2();
+  }
+
 };
 
 #endif // DQMServices_Core_ConcurrentMonitorElement_h
