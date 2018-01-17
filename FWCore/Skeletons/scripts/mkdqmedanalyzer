@@ -24,7 +24,7 @@ def pkg_help():
     "mkdqmedanlzr help function"
     msg  = '\nmkdqmedanlzr script generates CMS DQMEDAnalyzer code'
     msg += '\nUsage  : mkdqmedanlzr MyAnalyzer -author "FirstName LastName"'
-    msg += ' <example_track> <example_histo>'
+    msg += ' <stream> <global>'
     msg += '\nOutput : '
     msg += """
         MyAnalyzer/
@@ -42,10 +42,10 @@ def pkg_help():
     msg += '\n        mkdqmedanlzr MyAnalyzer'
     msg += '\n        # create new DQMEDAnalyzer code with given author'
     msg += '\n        mkdqmedanlzr MyAnalyzer -author "First Last"'
-    msg += '\n        # create new DQMEDAnalyzer code with track example'
-    msg += '\n        mkdqmedanlzr MyAnalyzer example_track'
-    msg += '\n        # create new DQMEDAnalyzer code with histo example'
-    msg += '\n        mkdqmedanlzr MyAnalyzer example_histo'
+    msg += '\n        # create new DQMEDAnalyzer code with regular DQMEDAnalyzer'
+    msg += '\n        mkdqmedanlzr MyAnalyzer stream'
+    msg += '\n        # create new DQMEDAnalyzer code with concurrent DQMGlobalEDAnalyzer'
+    msg += '\n        mkdqmedanlzr MyAnalyzer global'
     msg += '\n'
     return msg
 
