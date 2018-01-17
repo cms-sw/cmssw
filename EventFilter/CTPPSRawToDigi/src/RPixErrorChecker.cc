@@ -11,12 +11,12 @@ constexpr RPixErrorChecker::Word32 RPixErrorChecker::dummyDetId ;
 
 RPixErrorChecker::RPixErrorChecker() 
 {
-  includeErrors = false;
+  includeErrors_ = false;
 }
 
-void RPixErrorChecker::setErrorStatus(bool ErrorStatus)
+void RPixErrorChecker::setErrorStatus(bool errorStatus)
 {
-  includeErrors = ErrorStatus;
+  includeErrors_ = errorStatus;
 }
 
 bool RPixErrorChecker::checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer,  Errors& errors) const
@@ -26,7 +26,7 @@ bool RPixErrorChecker::checkCRC(bool& errorsInEvent, int fedId, const Word64* tr
   errorsInEvent = true;
   LogDebug("CRCCheck")
     <<"CRC check failed,  errorType = 39";
-  if (includeErrors) {
+  if (includeErrors_) {
     int errorType = 39;
     CTPPSPixelDataError error(*trailer, errorType, fedId);
     errors[dummyDetId].push_back(error);
@@ -43,7 +43,7 @@ bool RPixErrorChecker::checkHeader(bool& errorsInEvent, int fedId, const Word64*
       <<", sourceID = " <<fedHeader.sourceID()
       <<", fedId = "<<fedId<<", errorType = 32"; 
     errorsInEvent = true;
-    if (includeErrors) {
+    if (includeErrors_) {
       int errorType = 32;
       CTPPSPixelDataError error(*header, errorType, fedId);
       errors[dummyDetId].push_back(error);
@@ -56,7 +56,7 @@ bool RPixErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, unsigned int
 {
   FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
   if ( !fedTrailer.check()) { 
-    if(includeErrors) {
+    if(includeErrors_) {
       int errorType = 33;
       CTPPSPixelDataError error(*trailer, errorType, fedId);
       errors[dummyDetId].push_back(error);
@@ -69,7 +69,7 @@ bool RPixErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, unsigned int
   if ( fedTrailer.fragmentLength()!= nWords) {
     LogDebug("FedTrailerLenght")<< "fedTrailer.fragmentLength()!= nWords !! Fed: " << fedId << ", errorType = 34";
     errorsInEvent = true;
-    if(includeErrors) {
+    if(includeErrors_) {
       int errorType = 34;
       CTPPSPixelDataError error(*trailer, errorType, fedId);
       errors[dummyDetId].push_back(error);
@@ -124,7 +124,7 @@ bool RPixErrorChecker::checkROC(bool& errorsInEvent, int fedId, uint32_t iD, con
   default: return true;
   };
 
- if(includeErrors) {
+ if(includeErrors_) {
  /// check to see if overflow error for type 30, change type to 40 if so
    if(errorType==30) {
      uint32_t stateMach_bits      = 4;
@@ -167,7 +167,7 @@ void RPixErrorChecker::conversionError(int fedId, uint32_t iD, const State& stat
   default: LogDebug("ErrorChecker::conversionError")<<"  cabling check returned unexpected result, status = "<< state;
   };
 
-  if(includeErrors && errorType>0){
+  if(includeErrors_ && errorType>0){
     CTPPSPixelDataError error(errorWord, errorType, fedId);
     errors[iD].push_back(error); 
   }

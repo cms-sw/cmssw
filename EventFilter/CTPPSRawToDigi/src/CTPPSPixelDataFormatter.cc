@@ -62,9 +62,9 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
 }
 
 
-void CTPPSPixelDataFormatter::setErrorStatus(bool ErrorStatus)
+void CTPPSPixelDataFormatter::setErrorStatus(bool errorStatus)
 {
-  m_IncludeErrors = ErrorStatus;
+  m_IncludeErrors = errorStatus;
   m_ErrorCheck.setErrorStatus(m_IncludeErrors);
 }
 
