@@ -23,23 +23,23 @@ echo "%MSG-MG5 number of events requested = $nevt"
 rnum=${3}
 echo "%MSG-MG5 random seed used for the run = $rnum"
 
-ncpu=${4}
+ncpu=1
 echo "%MSG-MG5 thread count requested = $ncpu"
 
-echo "%MSG-MG5 residual/optional arguments = ${@:5}"
+echo "%MSG-MG5 residual/optional arguments = ${@:4}"
 
-if [ -n "${5}" ]; then
-  use_gridpack_env=${5}
+if [ -n "${4}" ]; then
+  use_gridpack_env=${4}
   echo "%MSG-MG5 use_gridpack_env = $use_gridpack_env"
 fi
 
-if [ -n "${6}" ]; then
-  scram_arch_version=${6}
+if [ -n "${5}" ]; then
+  scram_arch_version=${5}
   echo "%MSG-MG5 override scram_arch_version = $scram_arch_version"
 fi
 
-if [ -n "${7}" ]; then
-  cmssw_version=${7}
+if [ -n "${6}" ]; then
+  cmssw_version=${6}
   echo "%MSG-MG5 override cmssw_version = $cmssw_version"
 fi
 
@@ -65,8 +65,8 @@ mkdir lheevent; cd lheevent
 #untar the tarball directly from cvmfs
 tar -xaf ${path} 
 
-#generate events
-./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
+#generate events (call for 1 core always for now until hooks to set number of cores are implemented upstream)
+./runcmsgrid.sh $nevt $rnum $ncpu ${@:4}
 
 mv cmsgrid_final.lhe $LHEWORKDIR/
 
