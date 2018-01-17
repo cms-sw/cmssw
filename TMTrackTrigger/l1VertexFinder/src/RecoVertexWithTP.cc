@@ -38,15 +38,15 @@ namespace l1tVertexFinder {
       SumZ_pT += track->z0()*track->pt();
       z0square += track->z0()*track->z0();
       // if(track->getNumStubs() > 4){
-      /*
-	if(track->pt() > 999. and track->getNumStubs() < 6){
+
+      if(track->pt() > 999. and track->getNumStubs() < 6){
 	metX_ += 100.*cos(track->phi0());
 	metY_ += 100.*sin(track->phi0());
-	} else{
+      } else{
 	metX_ += track->pt()*cos(track->phi0());
 	metY_ += track->pt()*sin(track->phi0());
-	}
-      */
+      }
+
       // }
       if(track->pt()>15.){
 	highPt_ = true;
