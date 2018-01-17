@@ -27,9 +27,9 @@ namespace l1tVertexFinder {
 
     // FIXME: Double check nPar=4 is correct
     float chi2dof() const { return track_->getChi2Red(); };
-    /*
-      unsigned int getNumStubs()  const  {return numStubs;}
 
+    unsigned int getNumStubs()  const  {return track_->getStubRefs().size();}
+      /*
       // Get best matching tracking particle (=nullptr if none).
       const TP* getMatchedTP() const;
     */

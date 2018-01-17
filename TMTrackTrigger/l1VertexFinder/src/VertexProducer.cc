@@ -76,8 +76,8 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   l1TrackPtrs.reserve(l1Tracks.size());
   for(const auto& track : l1Tracks){
     if(track.pt() > settings_->vx_TrackMinPt() ){
-      //if(track.pt() < 50 or track.getNumStubs() > 5 )
-      if(track.pt() < 50)
+      if(track.pt() < 50 or track.getNumStubs() > 5 )
+      //if(track.pt() < 50)
 	l1TrackPtrs.push_back(&track);
     }
   }
@@ -140,7 +140,6 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     std::vector<L1fittedTrack> l1Tracks;
     l1Tracks.reserve(l1TracksHandle->size());
-
     {
       // Get the tracker geometry info needed to unpack the stub info.
       edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
