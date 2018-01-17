@@ -100,16 +100,13 @@ class AbstractPkg(object):
         tmpl_etags = self.tmpl_etags()
         keep_etags = self.config.get('tmpl_etags', [])
         for tag in tmpl_etags:
-            if  keep_etags:
-                for valid_tag in keep_etags:
-                    if  line.find(valid_tag) != -1:
-                        line = line.replace(valid_tag, '')
-                        return line
-            else:
-                if  line.find(tag) != -1:
-                    line = line.replace(tag, '')
-                    line = ''
-                    return line
+            for valid_tag in keep_etags:
+              if  line.find(valid_tag) != -1:
+                line = line.replace(valid_tag, '')
+                return line
+            if  line.find(tag) != -1:
+              line = ''
+              return line
         return line
 
     def write(self, fname, tmpl_name, kwds):
