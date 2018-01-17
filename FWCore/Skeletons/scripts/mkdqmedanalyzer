@@ -23,8 +23,7 @@ def tmpl_dir():
 def pkg_help():
     "mkdqmedanlzr help function"
     msg  = '\nmkdqmedanlzr script generates CMS DQMEDAnalyzer code'
-    msg += '\nUsage  : mkdqmedanlzr MyAnalyzer -author "FirstName LastName"'
-    msg += ' <stream> <global>'
+    msg += '\nUsage  : mkdqmedanlzr MyAnalyzer -author "FirstName LastName" [stream|global]'
     msg += '\nOutput : '
     msg += """
         MyAnalyzer/
@@ -38,14 +37,12 @@ def pkg_help():
         |  doc/
         """
     msg += '\nExample:'
-    msg += '\n        # create new DQMEDAnalyzer code'
-    msg += '\n        mkdqmedanlzr MyAnalyzer'
     msg += '\n        # create new DQMEDAnalyzer code with given author'
-    msg += '\n        mkdqmedanlzr MyAnalyzer -author "First Last"'
-    msg += '\n        # create new DQMEDAnalyzer code with regular DQMEDAnalyzer'
-    msg += '\n        mkdqmedanlzr MyAnalyzer stream'
-    msg += '\n        # create new DQMEDAnalyzer code with concurrent DQMGlobalEDAnalyzer'
-    msg += '\n        mkdqmedanlzr MyAnalyzer global'
+    msg += '\n        mkdqmedanlzr MyAnalyzer -author "First Last" example_stream'
+    msg += '\n        # create new DQMEDAnalyzer code '
+    msg += '\n        mkdqmedanlzr MyAnalyzer example_stream'
+    msg += '\n        # create new DQMGlobalEDAnalyzer code with concurrent DQMGlobalEDAnalyzer'
+    msg += '\n        mkdqmedanlzr MyAnalyzer example_global'
     msg += '\n'
     return msg
 
