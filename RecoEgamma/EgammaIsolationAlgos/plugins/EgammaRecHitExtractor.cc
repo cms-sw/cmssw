@@ -164,7 +164,8 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
 }
 
 void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
-                                    const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet,
+                                    const reco::SuperClusterRef& sc,
+				    const CaloSubdetectorGeometry* subdet,
                                     const CaloGeometry* caloGeom,
                                     const EcalRecHitCollection &hits,
                                     //const EcalChannelStatus* chStatus,

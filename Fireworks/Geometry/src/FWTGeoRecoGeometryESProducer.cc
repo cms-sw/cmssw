@@ -269,8 +269,11 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 
    m_fwGeometry = std::make_shared<FWTGeoRecoGeometry>();
   
-   if( m_calo )
-     record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
+   if( m_calo ) {
+     edm::ESHandle<CaloGeometry> caloH;
+     record.getRecord<CaloGeometryRecord>().get(caloH);
+     m_caloGeom = caloH.product();
+   }
 
    TGeoManager* geom = new TGeoManager( "cmsGeo", "CMS Detector" );
    if( nullptr == gGeoIdentity )
@@ -898,7 +901,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
    {
      //HcalDetId detid = HcalDetId(it->rawId());
      HcalDetId detid(*it);
-     const CaloCellGeometry* cellb= m_caloGeom->getGeometry(*it);
+     const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
      const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
      if (!cell) { printf ("HB not oblique !!!\n"); continue; }
@@ -977,7 +980,8 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
    for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
    {
       HcalDetId detid = HcalDetId(it->rawId());
-      const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> ( m_caloGeom->getGeometry(*it));
+      const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+      const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
       if (!cell) { printf ("EC not oblique \n"); continue; }
 
@@ -1055,7 +1059,8 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryOuter()
   for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
   {
     HcalDetId detid = HcalDetId(it->rawId());
-    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> ( m_caloGeom->getGeometry(*it));
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
     if (!cell) { printf ("EC not oblique \n"); continue; }
 
@@ -1122,7 +1127,8 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryForward()
   for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
   {
     HcalDetId detid = HcalDetId(it->rawId());
-    const IdealZPrism* cell = dynamic_cast<const IdealZPrism*> ( m_caloGeom->getGeometry(*it));
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    const IdealZPrism* cell = dynamic_cast<const IdealZPrism*> (cellb);
     
     if (!cell) { printf ("EC not Z prism \n"); continue; }
     
@@ -1188,7 +1194,8 @@ FWTGeoRecoGeometryESProducer::addCaloTowerGeometry()
   for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
   {
     CaloTowerDetId detid = CaloTowerDetId(it->rawId());
-    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> ( m_caloGeom->getGeometry(*it));
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
     if (!cell) { printf ("EC not oblique \n"); continue; }
       TGeoVolume* volume = nullptr;
       CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
@@ -1324,8 +1331,9 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
       std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalBarrel);
       for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
       {
-         EBDetId detid(*it);
-         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> ( m_caloGeom->getGeometry( *it ));
+	EBDetId detid(*it);
+	const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+	const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
          if (!cell) { printf("ecalBarrel cell not a TruncatedPyramid !!\n"); return; }
 
          TGeoVolume* volume = nullptr;
@@ -1355,7 +1363,8 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
       for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
       {
          EEDetId detid(*it);
-         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> (m_caloGeom->getGeometry( *it ));
+	 const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
          if (!cell) { printf("ecalEndcap cell not a TruncatedPyramid !!\n"); continue;}
 
          TGeoVolume* volume = nullptr;

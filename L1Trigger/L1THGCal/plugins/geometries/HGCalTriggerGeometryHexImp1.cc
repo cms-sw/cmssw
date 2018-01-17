@@ -126,7 +126,7 @@ void HGCalTriggerGeometryHexImp1::fillMaps()
     //
     // Loop over HGC cells
     // EE
-    for(const auto& id : eeGeometry().getValidGeomDetIds())
+    for(const auto& id : eeGeometry()->getValidGeomDetIds())
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferDetId(id); 
@@ -149,7 +149,7 @@ void HGCalTriggerGeometryHexImp1::fillMaps()
         }
     }
     // FH
-    for(const auto& id : fhGeometry().getValidGeomDetIds())
+    for(const auto& id : fhGeometry()->getValidGeomDetIds())
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferDetId(id); 
@@ -201,7 +201,7 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules()
         for(const auto& cell : cellIds)
         {
             HGCalDetId cellDetId(cell);
-            triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? eeGeometry().getPosition(cellDetId) :  fhGeometry().getPosition(cellDetId)).basicVector();
+            triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? eeGeometry()->getPosition(cellDetId) :  fhGeometry()->getPosition(cellDetId)).basicVector();
         }
         GlobalPoint triggerCellPoint( triggerCellVector/cellIds.size() );
         const auto& triggerCellToModuleItr = trigger_cells_to_modules_.find(triggerCellId);

@@ -29,7 +29,7 @@ public:
   void endJob() override {}
   
 private:
-  void doTest(const HGCalGeometry& geom, ForwardSubdetector subdet);
+  void doTest(const HGCalGeometry* geom, ForwardSubdetector subdet);
   
   std::string    name;
   bool           squareCell;
@@ -51,19 +51,20 @@ void HGCalGeometryTester::analyze(const edm::Event& ,
   else if (name == "HGCalHEScintillatorSensitive") subdet = HGCHEB;
   else                                             subdet = HGCEE;
 
-  edm::ESHandle<HGCalGeometry> geom;
-  iSetup.get<IdealGeometryRecord>().get(name,geom);
+  edm::ESHandle<HGCalGeometry> geomH;
+  iSetup.get<IdealGeometryRecord>().get(name,geomH);
+  const HGCalGeometry* geom = (geomH.product());
 
-  if (geom.isValid()) doTest(*geom, subdet);
-  else                std::cout << "Cannot get valid HGCalGeometry Object for "
-				<< name << std::endl;
+  if (geomH.isValid()) doTest(geom, subdet);
+  else                 std::cout << "Cannot get valid HGCalGeometry Object for "
+				 << name << std::endl;
 }
 
-void HGCalGeometryTester::doTest(const HGCalGeometry& geom, 
+void HGCalGeometryTester::doTest(const HGCalGeometry* geom, 
 				 ForwardSubdetector subdet) {
   
-  const std::vector<DetId>& ids = geom.getValidDetIds();
-  std::cout << ids.size() << " valid ids for " << geom.cellElement() 
+  const std::vector<DetId>& ids = geom->getValidDetIds();
+  std::cout << ids.size() << " valid ids for " << geom->cellElement() 
 	    << std::endl;
 
   int sectors[]= {1, 7, 13};
@@ -75,7 +76,7 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
   for (int zside : zsides) {
     for (int is = 0; is < ismax; ++is) {
       int sector = (squareCell) ? sectors[is] : wafers[is];
-      int type   = (squareCell) ? 0 : geom.topology().dddConstants().waferTypeT(sector);
+      int type   = (squareCell) ? 0 : geom->topology().dddConstants().waferTypeT(sector);
       if (type != 1) type = 0;
       for (int layer : layers) {
 		for (int cell : cells) {
@@ -87,10 +88,10 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
 	  } else {
 	    id1 = (DetId)(HGCalDetId(subdet,zside,layer,type,sector,cell));
 	  }
-	  if (geom.topology().valid(id1)) {
-	    const CaloCellGeometry* icell1 = geom.getGeometry(id1);
-	    GlobalPoint global1 = geom.getPosition(id1);
-	    DetId       idc1    = geom.getClosestCell(global1);
+	  if (geom->topology().valid(id1)) {
+	    auto        icell1  = geom->getGeometry(id1);
+	    GlobalPoint global1 = geom->getPosition(id1);
+	    DetId       idc1    = geom->getClosestCell(global1);
 	    std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
 		      << ":" << sector << ":0:" << cell << ") Geom " << icell1
 		      << " position (" << global1.x() << ", " << global1.y()
@@ -112,9 +113,9 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
 			  (DetId)(HGCEEDetId(subdet,zside,layer,sector,1,cell)) :
 			  (DetId)(HGCHEDetId(subdet,zside,layer,sector,1,cell)));
 	      
-	      const CaloCellGeometry* icell2 = geom.getGeometry(id2);
-	      GlobalPoint global2 = geom.getPosition(id2);
-	      DetId       idc2    = geom.getClosestCell(global2);
+	      auto        icell2  = geom->getGeometry(id2);
+	      GlobalPoint global2 = geom->getPosition(id2);
+	      DetId       idc2    = geom->getClosestCell(global2);
 	      std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
 			<< ":" << sector << ":1:" << cell << ") Geom " << icell2
 			<< " position (" << global2.x() << ", " << global2.y()
@@ -137,8 +138,8 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
       if (id.det() == DetId::Forward && id.subdetId() == (int)(subdet)) {
 	if (subdet == HGCEE) std::cout << "Test " << HGCEEDetId(id) << std::endl;
 	else                 std::cout << "Test " << HGCHEDetId(id) << std::endl;
-	const CaloCellGeometry* icell  = geom.getGeometry(id);
-	GlobalPoint             global = geom.getPosition(id);
+	auto        icell  = geom->getGeometry(id);
+	GlobalPoint global = geom->getPosition(id);
 	std::cout << "Geom Cell: " << icell << " position (" << global.x() 
 		  << ", " << global.y() << ", " << global.z() << ")"<< std::endl;
       }

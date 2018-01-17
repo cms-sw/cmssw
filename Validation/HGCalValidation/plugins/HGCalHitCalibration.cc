@@ -159,7 +159,14 @@ void HGCalHitCalibration::fillWithRecHits(
   if (hitmap.find(hitid) == hitmap.end()) {
     // Hit was not reconstructed
     IfLogTrace(debug_ > 0, "HGCalHitCalibration")
-      << ">>> Failed to find detid " << hitid.rawId()
+      << ">>> Failed to find detid " << std::hex << hitid.rawId() << std::dec
+      << " Det " << hitid.det()
+      << " Subdet " << hitid.subdetId() << std::endl;
+    return;
+  }
+  if (hitid.det() != DetId::Forward) {
+    IfLogTrace(debug_ > 0, "HGCalHitCalibration")
+      << ">>> Wrong type of detid " << std::hex << hitid.rawId() << std::dec
       << " Det " << hitid.det()
       << " Subdet " << hitid.subdetId() << std::endl;
     return;

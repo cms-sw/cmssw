@@ -1341,16 +1341,16 @@ void CaloTowersCreationAlgo::setHF2EScale(double scale){
 
 
 GlobalPoint CaloTowersCreationAlgo::emCrystalShwrPos(DetId detId, float fracDepth) {
-   const CaloCellGeometry* cellGeometry = theGeometry->getGeometry(detId);
-   GlobalPoint point = cellGeometry->getPosition();  // face of the cell
+  auto cellGeometry = theGeometry->getGeometry(detId);
+  GlobalPoint point = cellGeometry->getPosition();  // face of the cell
 
-   if (fracDepth<=0) return point;
-   if (fracDepth>1) fracDepth=1;
+  if (fracDepth<=0) return point;
+  if (fracDepth>1) fracDepth=1;
 
-     const GlobalPoint& backPoint = cellGeometry->getBackPoint();
-     point += fracDepth * (backPoint-point);
+  const GlobalPoint& backPoint = cellGeometry->getBackPoint();
+  point += fracDepth * (backPoint-point);
 
-   return point;
+  return point;
 }
 
 GlobalPoint CaloTowersCreationAlgo::hadSegmentShwrPos(DetId detId, float fracDepth) {
@@ -1491,15 +1491,15 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
 #endif
   }
 
-    const CaloCellGeometry* frontCellGeometry = theGeometry->getGeometry(DetId(hid1));
-    const CaloCellGeometry* backCellGeometry  = theGeometry->getGeometry(DetId(hid2));
+  auto frontCellGeometry = theGeometry->getGeometry(DetId(hid1));
+  auto backCellGeometry  = theGeometry->getGeometry(DetId(hid2));
 
-    GlobalPoint point     = frontCellGeometry->getPosition();
-    const GlobalPoint& backPoint = backCellGeometry->getBackPoint();
+  GlobalPoint point     = frontCellGeometry->getPosition();
+  const GlobalPoint& backPoint = backCellGeometry->getBackPoint();
 
-    point += fracDepth * (backPoint - point);
+  point += fracDepth * (backPoint - point);
 
-    return point;
+  return point;
 }
 
 
