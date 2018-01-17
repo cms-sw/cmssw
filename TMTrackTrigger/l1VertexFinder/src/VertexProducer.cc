@@ -54,7 +54,7 @@ void VertexProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 
 void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  bool runAnalysis = false;
+  bool runAnalysis = true;
 
   edm::Handle<TTTrackCollectionView> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
@@ -173,47 +173,13 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
 
-    /*
-    // FIXME: Check with Davide if the tracks should be filtered using the following cuts
-    //   fittedTracks[i].second.accepted() and fittedTracks[i].second.chi2dof()< settings_->chi2OverNdfCut()
-    VertexFinder vf(l1TrackPtrs, settings_);
-    if(settings_->vx_algoId() == 0){
-      cout << "Finding vertices using a gap clustering algorithm "<< endl;
-      vf.GapClustering();
-    } else if(settings_->vx_algoId() == 1){
-      cout << "Finding vertices using a Simple Merge Clustering algorithm "<< endl;
-      vf.AgglomerativeHierarchicalClustering();
-    } else if(settings_->vx_algoId() == 2){
-      cout << "Finding vertices using a DBSCAN algorithm "<< endl;
-      vf.DBSCAN();
-    } else if(settings_->vx_algoId() == 3){
-      cout << "Finding vertices using a PVR algorithm "<< endl;
-      vf.PVR();
-    } else if(settings_->vx_algoId() == 4){
-      cout << "Finding vertices using an AdaptiveVertexReconstruction algorithm "<< endl;
-      vf.AdaptiveVertexReconstruction();
-    } else if(settings_->vx_algoId() == 5){
-      cout << "Finding vertices using an Highest Pt Vertex algorithm "<< endl;
-      vf.HPV();
-    } else if(settings_->vx_algoId() == 6){
-      cout << "Finding vertices using a kmeans algorithm" << endl;
-      vf.Kmeans();
-    }
-    else{
-      cout << "No valid vertex reconstruction algorithm has been selected. Running a gap clustering algorithm "<< endl;
-      vf.GapClustering();
-    }
-
-
-    vf.TDRalgorithm();
-    vf.SortVerticesInZ0();
-  
     if(settings_->vx_keepOnlyPV()){
       vf.FindPrimaryVertex();
     } else{
       vf.AssociatePrimaryVertex(inputData.getPrimaryVertex().z0());
     }
-    */  
+
+
     if(settings_->debug()==7 and vf.numVertices() > 0){
       cout << "Num Found Vertices " << vf.numVertices() << endl;
       cout << "Reconstructed Primary Vertex z0 "<<vf.PrimaryVertex().z0() << " pT "<< vf.PrimaryVertex().pT() << endl;
