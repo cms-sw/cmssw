@@ -13,6 +13,7 @@ public:
   const HcalPulseContainmentCorrection * get(const HcalDetId & detId, int toAdd, float fixedphase_ns);
 
   void beginRun(edm::EventSetup const & es);
+  void beginRun(const HcalTopology *topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams);
   void endRun();
 
   void setTimeSlew(const HcalTimeSlew* timeSlew) {
