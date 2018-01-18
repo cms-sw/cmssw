@@ -7,6 +7,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShape.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 /** \class HcalPulseShapes
   *  
@@ -28,9 +29,10 @@ public:
   // only needed if you'll be getting shapes by DetId
   void beginRun(edm::EventSetup const & es);
   void endRun();
+  void beginRun(const HcalTopology* topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams);
 
-  const Shape& hbShape() const { return hpdShape_v3; }
-  const Shape& heShape() const { return siPMShapeMC2018_; }
+  const Shape& hbShape() const { return hpdShape_; }
+  const Shape& heShape() const { return hpdShape_; }
   const Shape& hfShape() const { return hfShape_; }
   const Shape& hoShape(bool sipm=false) const { return sipm ? siPMShapeHO_ : hpdShape_; }
   //  return Shape for given shapeType.

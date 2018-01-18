@@ -26,6 +26,11 @@ void HcalPulseContainmentManager::endRun()
   shapes_.endRun();
 }
 
+void HcalPulseContainmentManager::beginRun(const HcalTopology *topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams)
+{
+  shapes_.beginRun(topo, mcParams, recoParams);
+}
+
 double HcalPulseContainmentManager::correction(const HcalDetId & detId, 
                                                int toAdd, float fixedphase_ns, double fc_ampl)
 {
