@@ -32,10 +32,17 @@ def customiseFor21664_forMahiOnM2only(process):
         producer.algorithm.useM3     = cms.bool(False)
     return process
 
+# Needs the ESProducer for HcalTimeSlewRecord
+def customiseFor21733(process):
+    process.load('CalibCalorimetry.HcalPlugins.HcalTimeSlew_cff')
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+        
+    process = customiseFor21733(process)
 
     return process
