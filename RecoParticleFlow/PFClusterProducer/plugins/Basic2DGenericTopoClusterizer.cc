@@ -54,9 +54,7 @@ buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>& input,
       cell_layer *= 100;
     }    
 
-  std::tuple<std::vector<int> ,std::vector<double> , std::vector<double> > thresholds = _thresholds.find(cell_layer)->second;
-
-
+  auto const& thresholds = _thresholds.find(cell_layer)->second;
   double thresholdE=0.;
   double thresholdPT2=0.;
 

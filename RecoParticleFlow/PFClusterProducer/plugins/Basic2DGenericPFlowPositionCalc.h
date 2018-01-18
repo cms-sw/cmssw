@@ -28,8 +28,11 @@ class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
       const std::vector<edm::ParameterSet>& logWeightDenominatorByDetectorPSet = conf.getParameterSetVector("logWeightDenominatorByDetector");
 
       for( const auto& pset : logWeightDenominatorByDetectorPSet ) {
+	if(!pset.exists("detector")) {
+	  throw cms::Exception("logWeightDenominatorByDetectorPSet")
+	    << "logWeightDenominator : detector not specified";
+	}
 
-	if(!pset.exists("detector")) continue;
 	const std::string& det = pset.getParameter<std::string>("detector");
 
 	if (det==std::string("HCAL_BARREL1") || det==std::string("HCAL_ENDCAP")) {
