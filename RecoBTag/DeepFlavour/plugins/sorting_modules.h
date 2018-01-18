@@ -5,6 +5,8 @@
 #include <cmath>
 #include <vector>
 
+#include "FWCore/Utilities/interface/isFinite.h"
+
 namespace btagbtvdeep{
 
 /*
@@ -26,12 +28,6 @@ class SortingClass{
  
     enum compareResult{cmp_smaller,cmp_greater,cmp_invalid};
 
-    static inline bool isPhysValue(const float& val){
-        if (val!=val)return false;
-        if (std::isinf(val)) return false;
-        return true;
-    }
-
     static inline compareResult compare(const SortingClass& a, const SortingClass& b,int validx=0){
         float vala=a.sortValA;
         float valb=b.sortValA;
@@ -42,13 +38,13 @@ class SortingClass{
             vala=a.sortValC;
             valb=b.sortValC;
         }
-        if(isPhysValue(vala) && isPhysValue(valb) && valb!=vala){
+        if(edm::isFinite(vala) && edm::isFinite(valb) && valb!=vala){
             if(vala>valb) return cmp_greater;
             else return cmp_smaller;
         }
-        if(isPhysValue(vala) && !isPhysValue(valb))
+        if(edm::isFinite(vala) && !edm::isFinite(valb))
             return cmp_greater;
-        if(!isPhysValue(vala) && isPhysValue(valb))
+        if(!edm::isFinite(vala) && edm::isFinite(valb))
             return cmp_smaller;
         return cmp_invalid;
     }
