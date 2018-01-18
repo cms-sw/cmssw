@@ -127,6 +127,17 @@ void HcalPulseShapes::beginRun(edm::EventSetup const & es)
   theRecoParams->setTopo(theTopology);
 }
 
+void HcalPulseShapes::beginRun(const HcalTopology* topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams)
+{
+  theTopology = topo;
+
+  theMCParams = new HcalMCParams(*mcParams.product());
+  theMCParams->setTopo(theTopology);
+
+  theRecoParams = new HcalRecoParams(*recoParams.product());
+  theRecoParams->setTopo(theTopology);
+}
+
 
 void HcalPulseShapes::endRun()
 {
@@ -506,7 +517,7 @@ HcalPulseShapes::shapeForReco(const HcalDetId & detId) const
 const HcalPulseShapes::Shape &
 HcalPulseShapes::defaultShape(const HcalDetId & detId) const
 {
-  //  edm::LogWarning("HcalPulseShapes") << "Cannot find HCAL MC Params ";
+  edm::LogWarning("HcalPulseShapes") << "Cannot find HCAL MC Params ";
   HcalSubdetector subdet = detId.subdet();
   switch(subdet) {
   case HcalBarrel:
