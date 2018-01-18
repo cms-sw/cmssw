@@ -261,6 +261,11 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
   RecoPrimaryVertex->computeParameters(settings_->vx_weightedmean());
   TDRVertex->computeParameters(settings_->vx_weightedmean());
 
+  // update the primary vertex z0 if the algorithm is HPV, kmeans
+  if (settings_->vx_algoId() == 6 || settings_->vx_algoId() == 5)
+    RecoPrimaryVertex->setZ(RecoPrimaryVertexBase.z0());
+  TDRVertex->setZ(TDRVertexBase.z0());
+
   hisGenVertexPt_->Fill(inputData.GenPt());
   hisGenTkVertexPt_->Fill(TruePrimaryVertex.pT());
   hisGenVertexMET_->Fill(inputData.GenMET());
@@ -301,6 +306,10 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
   unsigned int TrackRank = 0;
   for(unsigned int id = 0; id < vf.numVertices() ; ++id){
     if(id!=vf.PrimaryVertexId()){
+      // this will not work since numTrueTracks() will return 0
+      // to fix this, one needs to use reference to RecoVertex from vf.Vertices()
+      // and use that to create a RecoVertexWithTP object that will have TP
+      // specific information
       if(vf.Vertices()[id].numTrueTracks() > RecoPrimaryVertex->numTrueTracks()) TrackRank++;
     }
   }

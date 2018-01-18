@@ -14,7 +14,8 @@ namespace l1tVertexFinder {
     // loop over base fitted tracks in reco vertex and find the corresponding TP
     // track using the TTTrack - L1fittedTrack map from above
     for (const auto & trackIt : vertex.tracks()) {
-      tracks_.emplace_back(trackAssociationMap[trackIt->getTTTrackPtr()]);
+      // using insert ensures that true tracks are also stored in vertex object
+      insert(trackAssociationMap[trackIt->getTTTrackPtr()]);
     }
   }
 
