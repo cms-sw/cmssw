@@ -1,4 +1,4 @@
-#ifndef FASTSIM_PARTCILE_H
+#ifndef FASTSIM_PARTICLE_H
 #define FASTSIM_PARTICLE_H
 
 #include "DataFormats/Math/interface/LorentzVector.h"

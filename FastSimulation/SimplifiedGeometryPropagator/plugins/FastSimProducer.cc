@@ -89,7 +89,6 @@ class FastSimProducer : public edm::stream::EDProducer<> {
     fastsim::Decayer decayer_;  //!< Handles decays of non-stable particles using pythia
     std::vector<std::unique_ptr<fastsim::InteractionModel> > interactionModels_;  //!< All defined interaction models
     std::map<std::string, fastsim::InteractionModel *> interactionModelMap_;  //!< Each interaction model has a unique name
-    edm::IOVSyncValue iovSyncValue_;  //!< The iov thing (interval of validity)
     static const std::string MESSAGECATEGORY;  //!< Category of debugging messages ("FastSimulation")
 };
 
@@ -169,14 +168,8 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     LogDebug(MESSAGECATEGORY) << "   produce";
 
-    // do the iov thing
-    if(iovSyncValue_!=iSetup.iovSyncValue())
-    {
-        LogDebug(MESSAGECATEGORY) << "   triggering update of event setup";
-        iovSyncValue_=iSetup.iovSyncValue();
-        geometry_.update(iSetup, interactionModelMap_);
-        caloGeometry_.update(iSetup, interactionModelMap_);
-    }
+    geometry_.update(iSetup, interactionModelMap_);
+    caloGeometry_.update(iSetup, interactionModelMap_);
 
     // Define containers for SimTracks, SimVertices
     std::unique_ptr<edm::SimTrackContainer> simTracks_(new edm::SimTrackContainer);
@@ -215,7 +208,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         myCalorimetry->getHFShowerLibrary()->initHFShowerLibrary(iSetup);
 
-        myCalorimetry->initialize();
+        myCalorimetry->initialize(_randomEngine.get());
     }
 
     // The vector of SimTracks needed for the CaloManager
