@@ -112,6 +112,12 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       if (subdetid == PixelSubdetector::PixelEndcap) isFpixtrack = true;
       if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap) continue;
       bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
+      
+      // PXB_L4 IS IN THE OTHER WAY
+      // CAN BE XORed BUT LETS KEEP THINGS SIMPLE
+      bool iAmOuter = ((tkTpl.pxbLadder(id) % 2 == 1) && tkTpl.pxbLayer(id) != 4) || 
+                      ((tkTpl.pxbLadder(id) % 2 != 1) && tkTpl.pxbLayer(id) == 4);
+                      
       auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
       if (!pixhit) continue;
 
@@ -140,7 +146,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
        unsigned shapeVal = (shape ? 1 : 0);
        
        if (iAmBarrel) {
-         if(tkTpl.pxbLadder(id) % 2 == 1) {
+         if(iAmOuter) {
            histo[ON_TRACK_SIZE_X_OUTER].fill(pred.first, cluster.sizeX(), id, &iEvent);
            histo[ON_TRACK_SIZE_Y_OUTER].fill(pred.second, cluster.sizeY(), id, &iEvent);
            histo[ON_TRACK_SIZE_XY_OUTER].fill(cluster.sizeY(), cluster.sizeX(), id, &iEvent);
@@ -175,13 +181,15 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
 
       histo[CHARGE_VS_SIZE_ON_TRACK].fill(cluster.size(), charge, id, &iEvent);
       
-      
-      if(tkTpl.pxbLadder(id) % 2 == 1) {
-        histo[SIZE_VS_ETA_ON_TRACK_OUTER].fill(etatk, cluster.sizeY(), id, &iEvent);
-        histo[ON_TRACK_CHARGE_OUTER].fill(charge, id, &iEvent);
-      } else {
-        histo[SIZE_VS_ETA_ON_TRACK_INNER].fill(etatk, cluster.sizeY(), id, &iEvent);
-        histo[ON_TRACK_CHARGE_INNER].fill(charge, id, &iEvent);
+      if (iAmBarrel)  // Avoid mistakes even if specification < should > handle it
+      {
+        if(iAmOuter) {
+          histo[SIZE_VS_ETA_ON_TRACK_OUTER].fill(etatk, cluster.sizeY(), id, &iEvent);
+          histo[ON_TRACK_CHARGE_OUTER].fill(charge, id, &iEvent);
+        } else {
+          histo[SIZE_VS_ETA_ON_TRACK_INNER].fill(etatk, cluster.sizeY(), id, &iEvent);
+          histo[ON_TRACK_CHARGE_INNER].fill(charge, id, &iEvent);
+        }
       }
     }
 
