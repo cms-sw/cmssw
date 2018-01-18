@@ -834,9 +834,6 @@ void
 FastTimerService::PlotsPerJob::fill_run(AtomicResources const& data)
 {
   // fill run transition plots
-  std::cerr << __func__ << std::endl;
-  std::cerr << "timing: " << ms(boost::chrono::nanoseconds(data.time_thread.load())) << " / " << ms(boost::chrono::nanoseconds(data.time_real.load())) << " ms" << std::endl;
-  std::cerr << "memory: +" << kB(data.allocated) << " / -" << kB(data.deallocated) << " kB" << std::endl;
   run_.fill(data, 0);
 }
 
@@ -844,9 +841,6 @@ void
 FastTimerService::PlotsPerJob::fill_lumi(AtomicResources const& data, unsigned int ls)
 {
   // fill lumisection transition plots
-  std::cerr << __func__ << std::endl;
-  std::cerr << "timing: " << ms(boost::chrono::nanoseconds(data.time_thread.load())) << " / " << ms(boost::chrono::nanoseconds(data.time_real.load())) << " ms" << std::endl;
-  std::cerr << "memory: +" << kB(data.allocated) << " / -" << kB(data.deallocated) << " kB" << std::endl;
   lumi_.fill(data, ls);
 }
 
@@ -1156,11 +1150,9 @@ FastTimerService::preallocate(edm::service::SystemBounds const& bounds)
   // clean characters that are deemed unsafe for DQM
   // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
   auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
-  std::cerr << "folder:  " << dqm_path_ << std::endl;
   for (auto & c: dqm_path_)
     if (safe_for_dqm.find(c) == std::string::npos)
       c = '_';
-  std::cerr << "cleaned: " << dqm_path_ << std::endl;
 
   // allocate atomic variables to keep track of the completion of each step, process by process
   subprocess_event_check_       = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
