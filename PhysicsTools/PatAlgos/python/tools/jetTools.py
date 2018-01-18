@@ -547,7 +547,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource),
                                     process, task)
 
-            if 'DeepFlavourTagInfos'in btagInfo:
+            if 'DeepFlavourTagInfos' in btagInfo:
 
                 if btagInfo == 'pfNegativeDeepFlavourTagInfos':
                     deep_csv_tag_infos = 'pfDeepCSVNegativeTagInfos' 
