@@ -156,6 +156,10 @@ namespace edm {
       return module_->hasAcquire();
     }
 
+    bool hasAccumulator() const override {
+      return module_->hasAccumulator();
+    }
+
     edm::propagate_const<std::shared_ptr<T>> module_;
   };
 

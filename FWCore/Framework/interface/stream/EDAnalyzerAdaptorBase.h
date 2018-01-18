@@ -165,6 +165,7 @@ namespace edm {
                                          ThinnedAssociationsHelper&) { }
 
       bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
 
       // ---------- member data --------------------------------
       void setModuleDescriptionPtr(EDAnalyzerBase* m);
