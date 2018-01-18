@@ -43,6 +43,9 @@
 // from  edm::one::EDAnalyzer<>
 // This will improve performance in multithreaded jobs.
 
+
+using reco::TrackCollection;
+
 class __class__ : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
       explicit __class__(const edm::ParameterSet&);
@@ -57,7 +60,7 @@ class __class__ : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       virtual void endJob() override;
 
       // ----------member data ---------------------------
-      edm::InputTag trackTags_; //used to select what tracks to read from configuration file
+      edm::EDGetTokenT<TrackCollection> tracksToken_;  //used to select what tracks to read from configuration file
 @example_histo       TH1I * histo;
 };
 
@@ -74,7 +77,7 @@ class __class__ : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 //
 __class__::__class__(const edm::ParameterSet& iConfig)
  :
-  trackTags_(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))
+  tracksToken_(consumes<TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tracks")))
 
 {
    //now do what ever initialization is needed
@@ -104,10 +107,8 @@ __class__::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   using reco::TrackCollection;
-
     Handle<TrackCollection> tracks;
-    iEvent.getByLabel(trackTags_,tracks);
+    iEvent.getByToken(tracksToken_, tracks);
     for(TrackCollection::const_iterator itTrack = tracks->begin();
         itTrack != tracks->end();
         ++itTrack) {
