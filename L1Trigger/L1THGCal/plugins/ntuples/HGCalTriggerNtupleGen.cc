@@ -291,7 +291,7 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
     clear();
 
     edm::Handle<std::vector< PileupSummaryInfo > >  PupInfo_h;
-    e.getByToken(gen_PU_token_, PupInfo_h);
+    iEvent.getByToken(gen_PU_token_, PupInfo_h);
     const std::vector< PileupSummaryInfo >& PupInfo = *PupInfo_h;
 
 
@@ -410,6 +410,8 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
 
     edm::Handle<std::vector<reco::GenParticle>> genParticlesHandle;
     iEvent.getByToken(gen_token_, genParticlesHandle);
+    gen_n_ = genParticlesHandle->size();
+
     for (std::vector<reco::GenParticle>::const_iterator it_p = genParticlesHandle->begin();
          it_p != genParticlesHandle->end(); ++it_p) {
       gen_eta_.push_back(it_p->eta());

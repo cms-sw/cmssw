@@ -24,7 +24,7 @@ PartFilterConfig.etaMax = cms.double(3.1)
 ntuple_gen = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGen'),
     GenParticles = cms.InputTag('genParticles'),
-    GenPU = cms.InputTag('addPileupInfo')
+    GenPU = cms.InputTag('addPileupInfo'),
     TestParticleFilter = PartFilterConfig
 )
 
