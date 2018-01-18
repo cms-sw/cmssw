@@ -34,8 +34,10 @@ Changes with respect to the original code are documented in the TBBSession.h hea
 #include <string>
 #include <vector>
 
-#include "tbb/task_group.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
+
+#include "tbb/task_group.h"
 
 #include "tensorflow/core/common_runtime/constant_folding.h"
 #include "tensorflow/core/common_runtime/debugger_state_interface.h"
@@ -86,7 +88,7 @@ namespace tensorflow {
 
 namespace {
 
-auto* tbb_session_runs = monitoring::Counter<0>::New(
+CMS_THREAD_SAFE auto* tbb_session_runs = monitoring::Counter<0>::New(
     "/tensorflow/core/tbb_session_runs",
     "The number of times TBBSession::Run() has been called.");
 
