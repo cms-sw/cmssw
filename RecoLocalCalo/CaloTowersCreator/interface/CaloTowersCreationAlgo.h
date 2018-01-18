@@ -75,7 +75,8 @@ public:
     double momHEDepth,
     double momEBDepth,
     double momEEDepth,
-	int hcalPhase=0
+	int hcalPhase=0,
+	bool hcalCollapsed=false
     );
   
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
@@ -108,7 +109,8 @@ public:
     double momHEDepth,
     double momEBDepth,
     double momEEDepth,
-	int hcalPhase=0
+	int hcalPhase=0,
+	bool hcalCollapsed=false
 );
   
   void setGeometry(const CaloTowerTopology* cttopo, const CaloTowerConstituentsMap* ctmap, const HcalTopology* htopo, const CaloGeometry* geo);
@@ -247,6 +249,9 @@ private:
   /// helper method to look up the appropriate threshold & weight
   void getThresholdAndWeight(const DetId & detId, double & threshold, double & weight) const;
 
+  // wrapper for HcalTopology method
+  bool mergedDepth29(HcalDetId id) const;
+
   double theEBthreshold, theEEthreshold;
   bool theUseEtEBTresholdFlag, theUseEtEETresholdFlag;
   bool theUseSymEBTresholdFlag,theUseSymEETresholdFlag;
@@ -359,6 +364,7 @@ private:
   edm::Handle<EcalRecHitCollection> theEeHandle;
   
   int theHcalPhase;
+  bool isHcalCollapsed;
 
   std::vector<HcalDetId>          ids_;
 };

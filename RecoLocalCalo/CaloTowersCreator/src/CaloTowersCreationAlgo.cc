@@ -86,7 +86,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theMomHEDepth(0.),
    theMomEBDepth(0.),
    theMomEEDepth(0.),
-   theHcalPhase(0)
+   theHcalPhase(0),
+   isHcalCollapsed(false)
 {
 }
 
@@ -115,7 +116,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 					       double momHEDepth,
 					       double momEBDepth,
 					       double momEEDepth,
-                           int hcalPhase)
+                           int hcalPhase,
+                           bool hcalCollapsed)
 
   : theEBthreshold(EBthreshold),
     theEEthreshold(EEthreshold),
@@ -190,7 +192,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theMomHEDepth(momHEDepth),
     theMomEBDepth(momEBDepth),
     theMomEEDepth(momEEDepth),
-    theHcalPhase(hcalPhase)
+    theHcalPhase(hcalPhase),
+    isHcalCollapsed(hcalCollapsed)
 {
 }
 
@@ -226,7 +229,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
        double momHEDepth,
        double momEBDepth,
        double momEEDepth,
-       int hcalPhase)
+       int hcalPhase,
+       bool hcalCollapsed)
 
   : theEBthreshold(EBthreshold),
     theEEthreshold(EEthreshold),
@@ -301,7 +305,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theMomHEDepth(momHEDepth),
     theMomEBDepth(momEBDepth),
     theMomEEDepth(momEEDepth),
-    theHcalPhase(hcalPhase)
+    theHcalPhase(hcalPhase),
+    isHcalCollapsed(hcalCollapsed)
 {
   // static int N = 0;
   // std::cout << "VI Algo " << ++N << std::endl; 
@@ -521,7 +526,7 @@ void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
       (theHcalPhase==0 || theHcalPhase==1) &&
       //HcalDetId(detId).depth()==3 &&
       HcalDetId(detIdF).ietaAbs()==theHcalTopology->lastHERing()-1) {
-    merge = theHcalTopology->mergedDepth29(HcalDetId(detIdF));
+    merge = mergedDepth29(HcalDetId(detIdF));
 #ifdef EDM_ML_DEBUG
     std::cout << "Merge " << HcalDetId(detIdF) << ":" << merge << std::endl;
 #endif
@@ -1299,6 +1304,12 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
   }
 }
 
+bool CaloTowersCreationAlgo::mergedDepth29(HcalDetId id) const {
+  //hack for collapsed case (topology only knows about real depths)
+  if(isHcalCollapsed) return id.depth()==3;
+  return theHcalTopology->mergedDepth29(id);
+}
+
 void CaloTowersCreationAlgo::setEBEScale(double scale){
   if (scale>0.00001) *&theEBEScale = scale;
   else *&theEBEScale = 50.;
@@ -1620,7 +1631,7 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
       if (hid.subdet()==HcalEndcap &&
 	  (theHcalPhase==0 || theHcalPhase==1) &&
 	  hid.ietaAbs()==theHcalTopology->lastHERing()-1) {
-	bool merge = theHcalTopology->mergedDepth29(hid);
+	bool merge = mergedDepth29(hid);
 	if (merge) {
           CaloTowerDetId twrId29(twrId.ieta()+twrId.zside(), twrId.iphi());
           hcalDropChMap[twrId29] +=1;

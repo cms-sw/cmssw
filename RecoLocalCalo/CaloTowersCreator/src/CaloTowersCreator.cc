@@ -66,7 +66,8 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
         conf.getParameter<double>("MomHEDepth"),
         conf.getParameter<double>("MomEBDepth"),
         conf.getParameter<double>("MomEEDepth"),
-        conf.getParameter<int>("HcalPhase")
+        conf.getParameter<int>("HcalPhase"),
+        conf.getParameter<bool>("HcalCollapsed")
 	),
 
   ecalLabels_(conf.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
@@ -364,6 +365,7 @@ void CaloTowersCreator::fillDescriptions(edm::ConfigurationDescriptions& descrip
 	desc.add<unsigned int>("HcalAcceptSeverityLevelForRejectedHit", 9999);
 	desc.add<std::vector<std::string> >("EcalSeveritiesToBeUsedInBadTowers", {});
 	desc.add<int>("HcalPhase", 0);
+	desc.add<bool>("HcalCollapsed", 0);
 
 	descriptions.addDefault(desc);
 }

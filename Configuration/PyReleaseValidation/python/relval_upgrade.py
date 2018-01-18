@@ -58,4 +58,8 @@ for year in upgradeKeys:
             if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key and hasHarvest:
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]
 
+            # special workflows for HE
+            if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
+                workflows[numWF+upgradeSteps['heCollapse']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['heCollapse']]
+
             numWF+=1
