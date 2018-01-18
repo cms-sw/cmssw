@@ -255,8 +255,11 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
   RecoVertex RecoPrimaryVertexBase = vf.PrimaryVertex();
   RecoVertex TDRVertexBase         = vf.TDRPrimaryVertex();
 
-  const RecoVertexWithTP * RecoPrimaryVertex = new RecoVertexWithTP(RecoPrimaryVertexBase, trackAssociationMap);
-  const RecoVertexWithTP * TDRVertex = new RecoVertexWithTP(TDRVertexBase, trackAssociationMap);
+  RecoVertexWithTP * RecoPrimaryVertex = new RecoVertexWithTP(RecoPrimaryVertexBase, trackAssociationMap);
+  RecoVertexWithTP * TDRVertex = new RecoVertexWithTP(TDRVertexBase, trackAssociationMap);
+
+  RecoPrimaryVertex->computeParameters(settings_->vx_weightedmean());
+  TDRVertex->computeParameters(settings_->vx_weightedmean());
 
   hisGenVertexPt_->Fill(inputData.GenPt());
   hisGenTkVertexPt_->Fill(TruePrimaryVertex.pT());

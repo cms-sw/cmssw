@@ -77,7 +77,6 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(const auto& track : l1Tracks){
     if(track.pt() > settings_->vx_TrackMinPt() ){
       if(track.pt() < 50 or track.getNumStubs() > 5 )
-      //if(track.pt() < 50)
 	l1TrackPtrs.push_back(&track);
     }
   }
