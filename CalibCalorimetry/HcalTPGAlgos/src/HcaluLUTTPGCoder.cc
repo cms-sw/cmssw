@@ -36,8 +36,10 @@ const int HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
 
+constexpr double MaximumFractionalError = 0.002; // 0.2% error allowed from this source
+constexpr double correctionPhaseNS = 6.0; // correction phase in nanoseconds
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false), linearLSB_QIE8_(1.), linearLSB_QIE11_(1.), pulseCorr_(std::make_unique<HcalPulseContainmentManager>(0.002f)) {
+HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams) : topo_(top),  mcParams_(mcParams), recoParams_(recoParams), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false), linearLSB_QIE8_(1.), linearLSB_QIE11_(1.), pulseCorr_(std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError)) {
   firstHBEta_ = topo_->firstHBRing();      
   lastHBEta_  = topo_->lastHBRing();
   nHBEta_     = (lastHBEta_-firstHBEta_+1);
@@ -226,7 +228,7 @@ void HcaluLUTTPGCoder::updateXML(const char* filename) {
   XMLProcessor::getInstance()->terminate();
 }
 
-float HcaluLUTTPGCoder::cosh_ieta(int ieta, int depth, HcalSubdetector subdet) {
+double HcaluLUTTPGCoder::cosh_ieta(int ieta, int depth, HcalSubdetector subdet) {
   // ieta = 28 and 29 are both associated with trigger tower 28
   // so special handling is required. HF ieta=29 channels included in TT30
   // are already handled correctly in cosh_ieta_
@@ -243,6 +245,8 @@ float HcaluLUTTPGCoder::cosh_ieta(int ieta, int depth, HcalSubdetector subdet) {
 
 void HcaluLUTTPGCoder::make_cosh_ieta_map(void) {
 
+  cosh_ieta_ = std::vector<double>(lastHFEta_ + 1, -1.0);
+
   HcalTrigTowerGeometry triggeo(topo_);
 
   for (int i = 1; i <= firstHFEta_; ++i) {
@@ -256,6 +260,7 @@ void HcaluLUTTPGCoder::make_cosh_ieta_map(void) {
     double eta2 = etas.second;
     cosh_ieta_[i] = cosh((eta1 + eta2)/2.);
   }
+
   // trigger tower 28 in HE has a more complicated geometry
   std::pair<double, double> eta28 = topo_->etaRange(HcalEndcap, 28);
   std::pair<double, double> eta29 = topo_->etaRange(HcalEndcap, 29);
@@ -359,11 +364,11 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		if (isMasked) lut[adc] = 0;
 		else {
 		    double nonlinearityCorrection = 1.0;
-		    double containmentCorrection1TS = pulseCorr_->correction(cell, 1, 6.0, adc2fC(adc));
+		    double containmentCorrection1TS = pulseCorr_->correction(cell, 1, correctionPhaseNS, adc2fC(adc));
 		    // Use the 1-TS containment correction to estimate the charge of the pulse
 		    // from the individual samples
 		    double correctedCharge = containmentCorrection1TS*adc2fC(adc);
-		    double containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, 6.0, correctedCharge);
+		    double containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
 		    if(qieType==QIE11) {
 		      const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
 		      HcalSiPMnonlinearity corr(conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));

@@ -47,7 +47,7 @@ public:
 
   ReturnType produce(const HcalTPGRecord&);
 private:
-  void buildCoder(const HcalTopology*);
+  void buildCoder(const HcalTopology*, const edm::ESHandle<HcalMCParams>&, const edm::ESHandle<HcalRecoParams>&);
   // ----------member data ---------------------------
   ReturnType coder_;  
   HcaluLUTTPGCoder* theCoder_;
@@ -96,9 +96,9 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
 }
 
   
-void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo) {  
+void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams) {
   using namespace edm::es;
-  theCoder_ = new HcaluLUTTPGCoder(topo);
+  theCoder_ = new HcaluLUTTPGCoder(topo, mcParams, recoParams);
   if (read_Ascii_ || read_XML_){
     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_.fullPath() << " for HcalTPGCoderULUT initialization";
     if (read_Ascii_) {
@@ -139,7 +139,14 @@ HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
     edm::ESHandle<HcalTopology> htopo;
     iRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
-    buildCoder(topo);
+
+    edm::ESHandle<HcalMCParams> mcParams;
+    iRecord.getRecord<HcalMCParamsRcd>().get(mcParams);
+
+    edm::ESHandle<HcalRecoParams> recoParams;
+    iRecord.getRecord<HcalRecoParamsRcd>().get(recoParams);
+
+    buildCoder(topo, mcParams, recoParams);
   }
   
 
@@ -153,7 +160,12 @@ void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
   theRec.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
 
-  buildCoder(topo);
+  edm::ESHandle<HcalMCParams> mcParams;
+  theRec.getRecord<HcalMCParamsRcd>().get(mcParams);
+  edm::ESHandle<HcalRecoParams> recoParams;
+  theRec.getRecord<HcalRecoParamsRcd>().get(recoParams);
+
+  buildCoder(topo, mcParams, recoParams);
 
   theCoder_->update(*conditions);
 

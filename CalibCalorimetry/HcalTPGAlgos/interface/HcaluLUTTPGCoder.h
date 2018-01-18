@@ -33,7 +33,7 @@ class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
   static const float  lsb_;
 
-  HcaluLUTTPGCoder(const HcalTopology* topo);
+  HcaluLUTTPGCoder(const HcalTopology* topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams);
   ~HcaluLUTTPGCoder() override;
   void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const override;
   void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const override;
@@ -45,7 +45,7 @@ public:
   float getLUTGain(HcalDetId id) const override;
   std::vector<unsigned short> getLinearizationLUT(HcalDetId id) const override;
 
-  float cosh_ieta(int ieta, int depth, HcalSubdetector subdet);
+  double cosh_ieta(int ieta, int depth, HcalSubdetector subdet);
   void make_cosh_ieta_map(void);
   void update(const HcalDbService& conditions);
   void update(const char* filename, bool appendMSB = false);
@@ -83,6 +83,8 @@ private:
   
   // member variables
   const HcalTopology* topo_;
+  const edm::ESHandle<HcalMCParams>& mcParams_;
+  const edm::ESHandle<HcalRecoParams>& recoParams_;
   bool LUTGenerationMode_;
   unsigned int FG_HF_threshold_;
   int  bitToMask_;
@@ -92,9 +94,9 @@ private:
   std::vector< Lut > inputLUT_;
   std::vector<float> gain_;
   std::vector<float> ped_;
-  std::map<int, double> cosh_ieta_;
+  std::vector<double> cosh_ieta_;
   // edge cases not covered by the cosh_ieta_ map
-  float cosh_ieta_28_HE_low_depths_, cosh_ieta_28_HE_high_depths_, cosh_ieta_29_HE_;
+  double cosh_ieta_28_HE_low_depths_, cosh_ieta_28_HE_high_depths_, cosh_ieta_29_HE_;
   bool allLinear_;
   double linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_;
   std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
