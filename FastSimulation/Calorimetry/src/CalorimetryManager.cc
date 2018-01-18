@@ -152,7 +152,6 @@ CalorimetryManager::~CalorimetryManager()
 
 void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
 {
-  theHFShowerLibrary->SetRandom(random);
   if(!evtsToDebug_.empty())
     {
       std::vector<unsigned int>::const_iterator itcheck=find(evtsToDebug_.begin(),evtsToDebug_.end(),mySimEvent->id().event());
@@ -161,7 +160,7 @@ void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
 	mySimEvent->print();
     }
 
-  initialize();
+  initialize(random);
   
   LogInfo("FastCalorimetry") << "Reconstructing " << (int) mySimEvent->nTracks() << " tracks." << std::endl;
   for( int fsimi=0; fsimi < (int) mySimEvent->nTracks() ; ++fsimi) {
@@ -173,10 +172,12 @@ void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
   
 } // reconstruct
 
-void CalorimetryManager::initialize(){
+void CalorimetryManager::initialize(RandomEngineAndDistribution const* random){
+
   // Clear the content of the calorimeters 
   if(!initialized_)
     {
+      theHFShowerLibrary->SetRandom(random);
       
       // Check if the preshower is really available
       if(simulatePreshower_ && !myCalorimeter_->preshowerPresent())

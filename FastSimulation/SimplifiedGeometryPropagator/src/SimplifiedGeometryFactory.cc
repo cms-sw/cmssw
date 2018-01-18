@@ -237,7 +237,7 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
     // and return the layer!
     // -----------------------------
 
-    return std::move(layer);
+    return layer;
 } 
 
 const DetLayer *

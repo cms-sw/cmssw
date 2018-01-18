@@ -157,6 +157,10 @@ namespace fastsim{
         std::vector<std::unique_ptr<ForwardSimplifiedGeometry>> forwardLayers_;   //!< The vector of forward layers (increasing Z-position)
         std::unique_ptr<MagneticField> ownedMagneticField_;  //!< Needed to create a uniform magnetic field if speciefied in config
 
+        unsigned long long cacheIdentifierTrackerRecoGeometry_;  //!< Check interval of validity of the tracker geometry
+        unsigned long long cacheIdentifierIdealMagneticField_;  //!< Check interval of validity of the magnetic field
+
+        const GeometricSearchTracker * geometricSearchTracker_;  //! The tracker geometry
         const MagneticField * magneticField_;  //!< The magnetic field
         const bool useFixedMagneticFieldZ_;  //!< Needed to create a uniform magnetic field if speciefied in config
         const double fixedMagneticFieldZ_;  //!< Use a uniform magnetic field or non-uniform from MagneticFieldRecord

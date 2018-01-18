@@ -55,7 +55,7 @@ class CalorimetryManager{
   ~CalorimetryManager();
 
   // Does the real job
-  void initialize();
+  void initialize(RandomEngineAndDistribution const* random);
   void reconstructTrack(FSimTrack& myTrack, RandomEngineAndDistribution const*);
   void reconstruct(RandomEngineAndDistribution const*);
 

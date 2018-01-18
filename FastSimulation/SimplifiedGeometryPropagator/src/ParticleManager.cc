@@ -291,7 +291,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle()
         // iterator/index has to be increased in case of return (is not done by the loop then)
         ++genParticleIterator_; ++genParticleIndex_;
         // and return
-        return std::move(newParticle);
+        return newParticle;
     }
 
     return std::unique_ptr<Particle>();

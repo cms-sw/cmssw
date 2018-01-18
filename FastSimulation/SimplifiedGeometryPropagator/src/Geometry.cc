@@ -23,7 +23,10 @@ using namespace fastsim;
 Geometry::~Geometry(){;}
 
 Geometry::Geometry(const edm::ParameterSet& cfg)
-    : magneticField_(nullptr)
+    : cacheIdentifierTrackerRecoGeometry_(0)
+    , cacheIdentifierIdealMagneticField_(0)
+    , geometricSearchTracker_(nullptr)
+    , magneticField_(nullptr)
     , useFixedMagneticFieldZ_(cfg.exists("magneticFieldZ"))
     , fixedMagneticFieldZ_(cfg.getUntrackedParameter<double>("magneticFieldZ",0.))
     , useTrackerRecoGeometryRecord_(cfg.getUntrackedParameter<bool>("useTrackerRecoGeometryRecord",true))
@@ -40,36 +43,47 @@ Geometry::Geometry(const edm::ParameterSet& cfg)
 
 void Geometry::update(const edm::EventSetup & iSetup,const std::map<std::string,fastsim::InteractionModel*> & interactionModelMap)
 {
+    if(iSetup.get<TrackerRecoGeometryRecord>().cacheIdentifier() == cacheIdentifierTrackerRecoGeometry_
+        && iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier() == cacheIdentifierIdealMagneticField_)
+    {
+        return;
+    }
+
     //----------------
     // find tracker reconstruction geometry
     //----------------
-    const GeometricSearchTracker * geometricSearchTracker = nullptr;
-    if(useTrackerRecoGeometryRecord_)
-    {
-        edm::ESHandle<GeometricSearchTracker> geometricSearchTrackerHandle;
-        iSetup.get<TrackerRecoGeometryRecord>().get(trackerAlignmentLabel_,geometricSearchTrackerHandle);
-        geometricSearchTracker = &(*geometricSearchTrackerHandle);
+    if(iSetup.get<TrackerRecoGeometryRecord>().cacheIdentifier() != cacheIdentifierTrackerRecoGeometry_){
+        if(useTrackerRecoGeometryRecord_)
+        {
+            edm::ESHandle<GeometricSearchTracker> geometricSearchTrackerHandle;
+            iSetup.get<TrackerRecoGeometryRecord>().get(trackerAlignmentLabel_,geometricSearchTrackerHandle);
+            geometricSearchTracker_ = &(*geometricSearchTrackerHandle);
+        }
     }
+
 
     //----------------
     // update magnetic field
     //----------------
-    if(useFixedMagneticFieldZ_) // use constant magnetic field
-    {
-        ownedMagneticField_.reset(new UniformMagneticField(fixedMagneticFieldZ_));
-        magneticField_ = ownedMagneticField_.get();
+    if(iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier() != cacheIdentifierIdealMagneticField_){
+        if(useFixedMagneticFieldZ_) // use constant magnetic field
+        {
+            ownedMagneticField_.reset(new UniformMagneticField(fixedMagneticFieldZ_));
+            magneticField_ = ownedMagneticField_.get();
+        }
+        else    // get magnetic field from EventSetup
+        {
+            edm::ESHandle<MagneticField> magneticField;
+            iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+            magneticField_ = &(*magneticField);
+        }        
     }
-    else    // get magnetic field from EventSetup
-    {
-        edm::ESHandle<MagneticField> magneticField;
-        iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-        magneticField_ = &(*magneticField);
-    }
+
 
     //---------------
     // layer factory
     //---------------
-    SimplifiedGeometryFactory simplifiedGeometryFactory(geometricSearchTracker
+    SimplifiedGeometryFactory simplifiedGeometryFactory(geometricSearchTracker_
                        ,*magneticField_
                        ,interactionModelMap
                        ,maxRadius_
