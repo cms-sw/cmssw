@@ -34,6 +34,8 @@ Changes with respect to the original code are documented in the NTSession.h head
 #include <string>
 #include <vector>
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 #include "tensorflow/core/common_runtime/constant_folding.h"
 #include "tensorflow/core/common_runtime/debugger_state_interface.h"
 #include "tensorflow/core/common_runtime/device_factory.h"
@@ -83,7 +85,7 @@ namespace tensorflow {
 
 namespace {
 
-auto* nothreads_session_runs = monitoring::Counter<0>::New(
+CMS_THREAD_SAFE auto* nothreads_session_runs = monitoring::Counter<0>::New(
     "/tensorflow/core/nothreads_session_runs",
     "The number of times NTSession::Run() has been called.");
 
