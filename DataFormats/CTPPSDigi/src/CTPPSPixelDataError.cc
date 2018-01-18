@@ -1,7 +1,7 @@
 
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h"
 
-const std::string CTPPSPixelDataError::errorMessages[] = {
+const std::array<std::string, 14> CTPPSPixelDataError::errorMessages_ = {{
 
     "Error: Unknown error type", 
       /// error 25
@@ -30,7 +30,7 @@ const std::string CTPPSPixelDataError::errorMessages[] = {
       "Error: Invalid ROC number",
       /// error  37
       "Error: Invalid dcol/pixel address"
-}; 
+      }}; 
 
 CTPPSPixelDataError::CTPPSPixelDataError():
   errorWord64_(0),
@@ -44,26 +44,16 @@ CTPPSPixelDataError::CTPPSPixelDataError(uint32_t errorWord32, const int errorTy
   errorWord32_(errorWord32),
   errorType_(errorType),
   fedId_(fedId)
-{
-  setMessage();
-}
+{}
 
 CTPPSPixelDataError::CTPPSPixelDataError(uint64_t errorWord64, const int errorType, int fedId) : 
   errorWord64_(errorWord64),
   errorWord32_(0),
   errorType_(errorType),
   fedId_(fedId)
-{
-  setMessage();
-}
+{}
 
 CTPPSPixelDataError::~CTPPSPixelDataError() = default;
 
-void CTPPSPixelDataError::setMessage() {
-  if(errorType_<25 || errorType_ > 37){
-    errorMessage_ = errorMessages[0];
-  }else{
-    errorMessage_ = errorMessages[errorType_-24];
-  }
-}
+
 

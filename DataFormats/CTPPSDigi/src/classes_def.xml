@@ -67,7 +67,7 @@
 
 
   <class name="CTPPSPixelDataError" ClassVersion="3">
-    <version ClassVersion="3" checksum="3009692707"/>
+    <version ClassVersion="3" checksum="1706961286"/>
   </class>
   <class name="std::vector<CTPPSPixelDataError>"/>
   <class name="std::map<int, std::vector<CTPPSPixelDataError> >"/>
