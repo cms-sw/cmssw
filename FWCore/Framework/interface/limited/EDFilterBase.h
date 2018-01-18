@@ -155,6 +155,7 @@ namespace edm {
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
 
       bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
 
       void setModuleDescription(ModuleDescription const& md) {
         moduleDescription_ = md;
