@@ -4,31 +4,31 @@
 const std::string CTPPSPixelDataError::errorMessages[] = {
 
     "Error: Unknown error type", 
-      // 25) : {
+      /// error 25
       "Error: ROC=25",
-      // 26) : {
+      /// error  26
       "Error: Gap word",
-      // 27) : {
+      /// error  27
       "Error: Dummy word",
-      // 28) : {
+      /// error  28
       "Error: FIFO nearly full",
-      // 29) : {
+      /// error  29
       "Error: Timeout",
-      // 30) : {
+      /// error  30
       "Error: Trailer",
-      // 31) : {
+      /// error  31
       "Error: Event number mismatch",
-      // 32) : {
+      /// error  32
       "Error: Invalid or missing header",
-      // 33) : {
+      /// error  33
       "Error: Invalid or missing trailer",
-      // 34) : {
+      /// error  34
       "Error: Size mismatch",
-      // 35) : {
+      /// error  35
       "Error: Invalid channel",
-      // 36) : {
+      /// error  36
       "Error: Invalid ROC number",
-      // 37) : {
+      /// error  37
       "Error: Invalid dcol/pixel address"
 }; 
 
