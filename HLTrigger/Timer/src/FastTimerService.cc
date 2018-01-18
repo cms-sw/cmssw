@@ -35,6 +35,8 @@
 #include "memory_usage.h"
 #include "processor_model.h"
 
+using namespace std::literals;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace {
@@ -1150,6 +1152,15 @@ FastTimerService::preallocate(edm::service::SystemBounds const& bounds)
 
   if (enable_dqm_bynproc_)
     dqm_path_ += (boost::format("/Running on %s with %d streams on %d threads") % processor_model % concurrent_streams_ % concurrent_threads_).str();
+
+  // clean characters that are deemed unsafe for DQM
+  // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
+  auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
+  std::cerr << "folder:  " << dqm_path_ << std::endl;
+  for (auto & c: dqm_path_)
+    if (safe_for_dqm.find(c) == std::string::npos)
+      c = '_';
+  std::cerr << "cleaned: " << dqm_path_ << std::endl;
 
   // allocate atomic variables to keep track of the completion of each step, process by process
   subprocess_event_check_       = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
