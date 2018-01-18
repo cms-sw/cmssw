@@ -650,6 +650,9 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
 
   if(settings_->debug()==7) cout << "================ End of Event =============="<< endl;
 
+  delete RecoPrimaryVertex;
+  delete TDRVertex;
+
 }
 
 //=== Book efficiency & fake rate histograms and print track-finding performance summary.
