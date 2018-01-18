@@ -25,8 +25,7 @@ public:
   /// Destructor
   ~CTPPSPixelDataError();
   
-/// create an error message based on errorType
-  void setMessage();				        
+				        
 /// the 32-bit word that contains the error information
   inline uint32_t errorWord32() const {return errorWord32_;} 
 /// the 64-bit word that contains the error information
@@ -36,16 +35,22 @@ public:
   /// the fedId where the error occured    
   inline int fedId() const {return fedId_;} 	        
   /// the error message to be displayed with the error	
-  inline const std::string & errorMessage() const {return errorMessage_;}    
-  
+  inline const std::string & errorMessage() const {return errorMessage_;}   
+
+
 private:
-	
-    uint64_t errorWord64_;
-    uint32_t errorWord32_; 
-    int errorType_;
-    int fedId_;
-    std::string errorMessage_;
-    
+
+  static const std::string errorMessages[];
+  
+  /// create an error message based on errorType
+  void setMessage();
+  uint64_t errorWord64_;
+  uint32_t errorWord32_; 
+  int errorType_;
+  int fedId_;
+  std::string errorMessage_;
+
+
 };
 
 /// Comparison operators
