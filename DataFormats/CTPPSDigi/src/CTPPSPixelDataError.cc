@@ -1,6 +1,36 @@
 
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h"
 
+const std::string CTPPSPixelDataError::errorMessages[] = {
+
+    "Error: Unknown error type", 
+      // 25) : {
+      "Error: ROC=25",
+      // 26) : {
+      "Error: Gap word",
+      // 27) : {
+      "Error: Dummy word",
+      // 28) : {
+      "Error: FIFO nearly full",
+      // 29) : {
+      "Error: Timeout",
+      // 30) : {
+      "Error: Trailer",
+      // 31) : {
+      "Error: Event number mismatch",
+      // 32) : {
+      "Error: Invalid or missing header",
+      // 33) : {
+      "Error: Invalid or missing trailer",
+      // 34) : {
+      "Error: Size mismatch",
+      // 35) : {
+      "Error: Invalid channel",
+      // 36) : {
+      "Error: Invalid ROC number",
+      // 37) : {
+      "Error: Invalid dcol/pixel address"
+}; 
 
 CTPPSPixelDataError::CTPPSPixelDataError():
   errorWord64_(0),
@@ -30,59 +60,10 @@ CTPPSPixelDataError::CTPPSPixelDataError(uint64_t errorWord64, const int errorTy
 CTPPSPixelDataError::~CTPPSPixelDataError() = default;
 
 void CTPPSPixelDataError::setMessage() {
-  switch (errorType_) {
-  case(25) : {
-    errorMessage_ = "Error: ROC=25";
-    break;
+  if(errorType_<25 || errorType_ > 37){
+    errorMessage_ = errorMessages[0];
+  }else{
+    errorMessage_ = errorMessages[errorType_-24];
   }
-  case(26) : {
-    errorMessage_ = "Error: Gap word";
-    break;
-  }
-  case(27) : {
-    errorMessage_ = "Error: Dummy word";
-    break;
-  }
-  case(28) : {
-    errorMessage_ = "Error: FIFO nearly full";
-    break;
-  }
-  case(29) : {
-    errorMessage_ = "Error: Timeout";
-    break;
-  }
-  case(30) : {
-    errorMessage_ = "Error: Trailer";
-    break;
-  }
-  case(31) : {
-    errorMessage_ = "Error: Event number mismatch";
-    break;
-  }
-  case(32) : {
-    errorMessage_ = "Error: Invalid or missing header";
-    break;
-  }
-  case(33) : {
-    errorMessage_ = "Error: Invalid or missing trailer";
-    break;
-  }
-  case(34) : {
-    errorMessage_ = "Error: Size mismatch";
-    break;
-  }
-  case(35) : {
-    errorMessage_ = "Error: Invalid channel";
-    break;
-  }
-  case(36) : {
-    errorMessage_ = "Error: Invalid ROC number";
-    break;
-  }
-  case(37) : {
-    errorMessage_ = "Error: Invalid dcol/pixel address";
-    break;
-  }
-  default: errorMessage_ = "Error: Unknown error type";
-  };
-} 
+}
+
