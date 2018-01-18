@@ -49,6 +49,12 @@ def config(tmpl, pkg_help, tmpl_dir):
     return kwds
 
 def config_with_parser(tmpl, args, tmpl_dir):
+    """
+    Inject arguments parsed upstream into mk-scripts.
+    The arguments are parsed by the different front-ends(binaries)
+    and passed here via the args object.
+    """
+
     kwds  = {'author': '', 'tmpl': tmpl,
              'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
     etags = []
