@@ -109,8 +109,8 @@ class InitialClusteringStepBase {
   unsigned _nSeeds, _nClustersFound; // basic performance information
   const std::unordered_map<std::string,int> _layerMap;
 
-  typedef std::tuple<std::vector<int> ,std::vector<double> , std::vector<double> > _i3tuple;
-  std::unordered_map<int,_i3tuple > _thresholds;
+  typedef std::tuple<std::vector<int> ,std::vector<double> , std::vector<double> > I3tuple;
+  std::unordered_map<int,I3tuple > _thresholds;
  
  private:
   const std::string _algoName;

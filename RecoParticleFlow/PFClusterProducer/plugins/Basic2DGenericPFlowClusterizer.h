@@ -5,7 +5,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
 #include <unordered_map>
-#include <tuple>
 
 class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
   typedef Basic2DGenericPFlowClusterizer B2DGPF;
@@ -34,9 +33,7 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
   const double _minFracTot;
   const std::unordered_map<std::string,int> _layerMap;
 
-  typedef std::tuple<std::vector<int> ,std::vector<int> , std::vector<double> > _i3tuple;
-
-  std::unordered_map<int,_i3tuple > _recHitEnergyNorms;
+  std::unordered_map<int,std::pair<std::vector<int>,std::vector<double> > > _recHitEnergyNorms;
   std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
   std::unique_ptr<PFCPositionCalculatorBase> _convergencePosCalc;
   
