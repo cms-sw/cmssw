@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/typedefs.h"
 
 #include <string>
+#include <array>
 
 class CTPPSPixelDataError {
 public:
@@ -35,21 +36,20 @@ public:
   /// the fedId where the error occured    
   inline int fedId() const {return fedId_;} 	        
   /// the error message to be displayed with the error	
-  inline const std::string & errorMessage() const {return errorMessage_;}   
+  inline const std::string & errorMessage() const {
+    if(errorType_>=25 && errorType_ <= 37) return errorMessages_[errorType_-24];
+    return errorMessages_[0];
+  }   
 
 
 private:
 
-  static const std::string errorMessages[];
-  
-  /// create an error message based on errorType
-  void setMessage();
+  static const std::array<std::string, 14> errorMessages_;
+
   uint64_t errorWord64_;
   uint32_t errorWord32_; 
   int errorType_;
   int fedId_;
-  std::string errorMessage_;
-
 
 };
 
