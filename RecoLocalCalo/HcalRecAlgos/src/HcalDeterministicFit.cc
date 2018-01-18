@@ -17,17 +17,12 @@ HcalDeterministicFit::HcalDeterministicFit() {
 HcalDeterministicFit::~HcalDeterministicFit() { 
 }
 
-void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr) {
-  for(int fi=0; fi<9; fi++){
-	fpars[fi] = pars.at(fi);
-  }
-
+void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn, double respCorr) {
+  fTimeSlew_=tsParam;
+  fTimeSlewBias_=bias;
   applyTimeSlew_=iApplyTimeSlew;
-  fTimeSlew=tsParam;
-  fTimeSlewBias=bias;
-  fPedestalSubFxn_=pedSubFxn_;
-  frespCorr=respCorr;
-
+  fPedestalSubFxn_=pedSubFxn;
+  frespCorr_=respCorr;
 }
 
 constexpr float HcalDeterministicFit::landauFrac[];
@@ -90,7 +85,8 @@ void HcalDeterministicFit::getFrac(float tStart, float tEnd, float &sum, FType f
 
 void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 				       float& reconstructedEnergy,
-				       float& reconstructedTime) const
+				       float& reconstructedTime,
+				       const HcalTimeSlew* hcalTimeSlew_delay) const
 {
 
 
@@ -119,37 +115,18 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   fPedestalSubFxn_.calculate(inputCharge, inputPedestal, inputNoise, corrCharge, soi, channelData.nSamples());
 
-  const HcalDetId& cell = channelData.id();
-
-  double fpar0, fpar1, fpar2;
-  if(std::abs(cell.ieta())<HcalRegion[0]){
-    fpar0 = fpars[0];
-    fpar1 = fpars[1];
-    fpar2 = fpars[2];
-  }else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]){
-    fpar0 = fpars[3];
-    fpar1 = fpars[4];
-    fpar2 = fpars[5];
-  }else{
-    fpar0 = fpars[6];
-    fpar1 = fpars[7];
-    fpar2 = fpars[8];
-  }
-
-  if (fTimeSlew==0)respCorr=1.0;
-  else if (fTimeSlew==1) channelData.hasTimeInfo()?respCorr=rCorrSiPM[0]:respCorr=rCorr[0];
-  else if (fTimeSlew==2) channelData.hasTimeInfo()?respCorr=rCorrSiPM[1]:respCorr=rCorr[1];
-  else if (fTimeSlew==3)respCorr=frespCorr;
+  if      (fTimeSlew_==0) respCorr=1.0;
+  else if (fTimeSlew_==1) channelData.hasTimeInfo()?respCorr=rCorrSiPM[0]:respCorr=rCorr[0];
+  else if (fTimeSlew_==2) channelData.hasTimeInfo()?respCorr=rCorrSiPM[1]:respCorr=rCorr[1];
+  else if (fTimeSlew_==3) respCorr=frespCorr_;
 
   float tsShift3,tsShift4,tsShift5;
   tsShift3=0.f,tsShift4=0.f,tsShift5=0.f;
 
   if(applyTimeSlew_) {
-
-    tsShift3=HcalTimeSlew::delay(inputCharge[soi-1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift4=HcalTimeSlew::delay(inputCharge[soi], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift5=HcalTimeSlew::delay(inputCharge[soi+1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-
+    tsShift3=hcalTimeSlew_delay->delay(inputCharge[soi-1], fTimeSlew_, fTimeSlewBias_, !channelData.hasTimeInfo());
+    tsShift4=hcalTimeSlew_delay->delay(inputCharge[soi],   fTimeSlew_, fTimeSlewBias_, !channelData.hasTimeInfo());
+    tsShift5=hcalTimeSlew_delay->delay(inputCharge[soi+1], fTimeSlew_, fTimeSlewBias_, !channelData.hasTimeInfo());
   }
 
   float ch3,ch4,ch5, i3,n3,nn3, i4,n4,i5,n5;
