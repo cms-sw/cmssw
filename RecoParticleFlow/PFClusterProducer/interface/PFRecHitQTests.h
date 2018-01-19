@@ -259,8 +259,13 @@ public:
     {
       std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
       for (auto & pset : psets) {
-        depths_.push_back(pset.getParameter<int>("depth"));
-        thresholds_.push_back(pset.getParameter<double>("threshold"));
+        depths_=pset.getParameter<std::vector<int> >("depth");
+        thresholds_=pset.getParameter<std::vector<double> >("threshold");
+	detector_=pset.getParameter<int>("detectorEnum");
+        if(thresholds_.size()!=depths_.size()) {
+          throw cms::Exception("InvalidPFRecHitThreshold")
+            << "PFRecHitThreshold mismatch with the numbers of depths";
+        }
       }
     }
 
@@ -292,11 +297,13 @@ public:
 protected:
     std::vector<int> depths_;
     std::vector<double> thresholds_;
+    int detector_;
 
     bool test(unsigned aDETID, double energy, double time, bool& clean){
       HcalDetId detid(aDETID);
-      for (unsigned int i=0;i<depths_.size();++i) {
-        if (detid.depth() == depths_[i]) {
+
+      for (unsigned int i=0;i<thresholds_.size();++i) {
+	if (detid.depth() == depths_[i] && detid.subdet() == detector_ ) {
           if (  energy<thresholds_[i])
             {
               clean=false;
