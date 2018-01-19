@@ -29,6 +29,20 @@ tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
 			  ),
                           src = cms.InputTag("slimmedJets")
 )
+looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
+			  filterParams=cms.PSet(
+			    version = cms.string('WINTER16'),
+			    quality = cms.string('LOOSE'),
+			  ),
+                          src = cms.InputTag("slimmedJetsAK8")
+)
+tightJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
+			  filterParams=cms.PSet(
+			    version = cms.string('WINTER16'),
+			    quality = cms.string('TIGHT'),
+			  ),
+                          src = cms.InputTag("slimmedJetsAK8")
+)
 
 
 slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
@@ -37,6 +51,15 @@ slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetId"),
         looseId = cms.InputTag("looseJetId"),
+     ),
+)
+
+slimmedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
+     src = cms.InputTag("slimmedJetsAK8"),
+     userFloats = cms.PSet(),
+     userInts = cms.PSet(
+        tightId = cms.InputTag("tightJetIdAK8"),
+        looseId = cms.InputTag("looseJetIdAK8"),
      ),
 )
 
@@ -49,6 +72,15 @@ jetCorrFactors = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
 	'L2L3Residual'),
     primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
+jetCorrFactorsAK8 = patJetCorrFactors.clone(src='slimmedJetsAK8WithUserData',
+    levels = cms.vstring('L1FastJet',
+        'L2Relative',
+        'L3Absolute',
+	'L2L3Residual'),
+    payload = cms.string('AK8PFPuppi'),
+    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+)
+
 from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
 updatedJets = updatedPatJets.clone(
 	addBTagInfo=False,
@@ -61,7 +93,16 @@ finalJets = cms.EDFilter("PATJetRefSelector",
     cut = cms.string("pt > 15")
 )
 
+updatedJetsAK8 = updatedPatJets.clone(
+	addBTagInfo=False,
+	jetSource='slimmedJetsAK8WithUserData',
+	jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactorsAK8") ),
+)
 
+finalJetsAK8 = cms.EDFilter("PATJetRefSelector",
+    src = cms.InputTag("updatedJetsAK8"),
+    cut = cms.string("pt > 170")
+)
 
 
 ##################### Tables for final output and docs ##########################
@@ -90,18 +131,16 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
         btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
         btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="DeepCSV charm btag discriminator",precision=10),
-
-#puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant",precision=10),
-	puId = Var("userInt('pileupJetId:fullId')",int,doc="Pilup ID flags"),
-	jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"),
-	qgl = Var("userFloat('QGTagger:qgLikelihood')",float,doc="Quark vs Gluon likelihood discriminator",precision=10),
-	nConstituents = Var("numberOfDaughters()",int,doc="Number of particles in the jet"),
-	rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
-        chHEF = Var("chargedHadronEnergy()/energy()", float, doc="charged Hadron Energy Fraction", precision= 6),
-        neHEF = Var("neutralHadronEnergy()/energy()", float, doc="neutral Hadron Energy Fraction", precision= 6),
-        chEmEF = Var("chargedEmEnergy()/energy()", float, doc="charged Electromagnetic Energy Fraction", precision= 6),
-        neEmEF = Var("neutralEmEnergy()/energy()", float, doc="charged Electromagnetic EnergyFraction", precision= 6),
-
+        #puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant",precision=10),
+        puId = Var("userInt('pileupJetId:fullId')",int,doc="Pilup ID flags"),
+        jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"),
+        qgl = Var("userFloat('QGTagger:qgLikelihood')",float,doc="Quark vs Gluon likelihood discriminator",precision=10),
+        nConstituents = Var("numberOfDaughters()",int,doc="Number of particles in the jet"),
+        rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
+        chHEF = Var("chargedHadronEnergyFraction()", float, doc="charged Hadron Energy Fraction", precision= 6),
+        neHEF = Var("neutralHadronEnergyFraction()", float, doc="neutral Hadron Energy Fraction", precision= 6),
+        chEmEF = Var("chargedEmEnergyFraction()", float, doc="charged Electromagnetic Energy Fraction", precision= 6),
+        neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision= 6)
     )
 )
 #jets are not as precise as muons
@@ -167,13 +206,14 @@ saTable = cms.EDProducer("GlobalVariablesTableProducer",
 
 ## BOOSTED STUFF #################
 fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-    src = cms.InputTag("slimmedJetsAK8"),
+    src = cms.InputTag("finalJetsAK8"),
     cut = cms.string(" pt > 170"), #probably already applied in miniaod
     name = cms.string("FatJet"),
     doc  = cms.string("slimmedJetsAK8, i.e. ak8 fat jets for boosted analysis"),
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table for the jets
     variables = cms.PSet(P4Vars,
+        jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"),
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
         tau1 = Var("userFloat('NjettinessAK8Puppi:tau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
         tau2 = Var("userFloat('NjettinessAK8Puppi:tau2')",float, doc="Nsubjettiness (2 axis)",precision=10),
@@ -181,12 +221,11 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         tau4 = Var("userFloat('NjettinessAK8Puppi:tau4')",float, doc="Nsubjettiness (4 axis)",precision=10),
         n2b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN2')", float, doc="N2 with beta=1", precision=10),
         n3b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN3')", float, doc="N3 with beta=1", precision=10),
-        msoftdrop = Var("userFloat('ak8PFJetsPuppiSoftDropMass')",float, doc="Soft drop mass",precision=10),
+        msoftdrop = Var("groomedMass('SoftDropPuppi')",float, doc="Soft drop mass",precision=10),
         btagCMVA = Var("bDiscriminator('pfCombinedMVAV2BJetTags')",float,doc="CMVA V2 btag discriminator",precision=10),
         btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
         btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
         btagHbb = Var("bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')",float,doc="Higgs to BB tagger discriminator",precision=10),
-
         subJetIdx1 = Var("?numberOfSourceCandidatePtrs()>0 && sourceCandidatePtr(0).numberOfSourceCandidatePtrs()>0?sourceCandidatePtr(0).key():-1", int,
 		     doc="index of first subjet"),
         subJetIdx2 = Var("?numberOfSourceCandidatePtrs()>1 && sourceCandidatePtr(1).numberOfSourceCandidatePtrs()>0?sourceCandidatePtr(1).key():-1", int,
@@ -347,7 +386,7 @@ run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.Input
 run2_nanoAOD_92X.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
 #before cross linking
-jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorrFactors+updatedJets+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets)
+jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorrFactors+updatedJets+looseJetIdAK8+tightJetIdAK8+slimmedJetsAK8WithUserData+jetCorrFactorsAK8+updatedJetsAK8+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
 #after cross linkining
 jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
