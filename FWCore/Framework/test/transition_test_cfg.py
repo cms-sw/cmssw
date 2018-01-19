@@ -3,7 +3,7 @@ import sys
 
 def chooseTrans(index):
     d = (
-   ["Simple",
+         ["Simple", #0
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -24,7 +24,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Less events than streams",
+         ["Less events than streams", #1
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -37,7 +37,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Multiple different Lumis",
+         ["Multiple different Lumis", #2
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -58,7 +58,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Empty Lumi",
+         ["Empty Lumi", #3
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -75,7 +75,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Empty Lumi at end",
+         ["Empty Lumi at end", #4
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -92,7 +92,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Multiple different runs",
+         ["Multiple different runs", #5
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -115,7 +115,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Empty run",
+         ["Empty run", #6
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -132,7 +132,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Empty run at end",
+         ["Empty run at end", #7
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -149,7 +149,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Empty run no lumi",
+         ["Empty run no lumi", #8
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -158,7 +158,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Empty file at end",
+         ["Empty file at end", #9
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -175,7 +175,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Empty file",
+         ["Empty file", #10
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -192,7 +192,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Merge run across files",
+         ["Merge run across files", #11
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -217,7 +217,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Merge run & lumi across files",
+         ["Merge run & lumi across files", #12
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -242,7 +242,33 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Delayed lumi merge",
+         ["Different run across files", #13
+          cms.untracked.VPSet(
+                              cms.PSet(type = cms.untracked.string("IsFile"),
+                                       id = cms.untracked.EventID(0,0,0)),
+                              cms.PSet(type = cms.untracked.string("IsRun"),
+                                       id = cms.untracked.EventID(1,0,0)),
+                              cms.PSet(type = cms.untracked.string("IsLumi"),
+                                       id = cms.untracked.EventID(1,1,0)),
+                              cms.PSet(type = cms.untracked.string("IsEvent"),
+                                       id = cms.untracked.EventID(1,1,1)),
+                              cms.PSet(type = cms.untracked.string("IsEvent"),
+                                       id = cms.untracked.EventID(1,1,2)),
+                              cms.PSet(type = cms.untracked.string("IsFile"),
+                                       id = cms.untracked.EventID(0,0,0)),
+                              cms.PSet(type = cms.untracked.string("IsRun"),
+                                       id = cms.untracked.EventID(2,0,0)),
+                              cms.PSet(type = cms.untracked.string("IsLumi"),
+                                       id = cms.untracked.EventID(2,1,0)),
+                              cms.PSet(type = cms.untracked.string("IsEvent"),
+                                       id = cms.untracked.EventID(2,1,1)),
+                              cms.PSet(type = cms.untracked.string("IsEvent"),
+                                       id = cms.untracked.EventID(2,1,2)),
+                              cms.PSet(type = cms.untracked.string("IsStop"),
+                                       id = cms.untracked.EventID(0,0,0))
+                              ) ],
+
+         ["Delayed lumi merge", #14
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -265,7 +291,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Delayed lumi merge 2",
+         ["Delayed lumi merge 2", #15
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -288,7 +314,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-   ["Delayed run merge",
+         ["Delayed run merge", #16
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
@@ -313,7 +339,7 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
-  ["Delayed run merge 2",
+         ["Delayed run merge 2", #17
     cms.untracked.VPSet(
                         cms.PSet(type = cms.untracked.string("IsFile"),
                                  id = cms.untracked.EventID(0,0,0)),
