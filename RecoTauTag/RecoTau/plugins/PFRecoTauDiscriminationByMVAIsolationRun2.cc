@@ -62,11 +62,12 @@ namespace
   }
 }
 
-class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProducerBase  
+template<class TauType>
+class PFRecoTauGenericDiscriminationByMVAIsolationRun2 : public TauDiscriminationProducerBase<TauType, typename TauType::TauDiscriminator>
 {
  public:
-  explicit PFRecoTauDiscriminationByMVAIsolationRun2(const edm::ParameterSet& cfg)
-    : PFTauDiscriminationProducerBase(cfg),
+  explicit PFRecoTauGenericDiscriminationByMVAIsolationRun2(const edm::ParameterSet& cfg)
+    : TauDiscriminationProducerBase<TauType, typename TauType::TauDiscriminator>(cfg),
       moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       mvaReader_(nullptr),
       mvaInput_(nullptr),
@@ -90,7 +91,7 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
     else if ( mvaOpt_string == "PWnewDMwLT"  ) mvaOpt_ = kPWnewDMwLT;
     else if ( mvaOpt_string == "DBoldDMwLTwGJ" ) mvaOpt_ = kDBoldDMwLTwGJ;
     else if ( mvaOpt_string == "DBnewDMwLTwGJ" ) mvaOpt_ = kDBnewDMwLTwGJ;
-    else throw cms::Exception("PFRecoTauDiscriminationByMVAIsolationRun2")
+    else throw cms::Exception("PFRecoTauGenericDiscriminationByMVAIsolationRun2")
       << " Invalid Configuration Parameter 'mvaOpt' = " << mvaOpt_string << " !!\n";
     
     if      ( mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT ) mvaInput_ = new float[6];
@@ -100,27 +101,27 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
           mvaOpt_ == kDBoldDMwLTwGJ || mvaOpt_ == kDBnewDMwLTwGJ) mvaInput_ = new float[23];
     else assert(0);
 
-    TauTransverseImpactParameters_token = consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
+    TauTransverseImpactParameters_token = this->template consumes<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> >>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
     
-    ChargedIsoPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcChargedIsoPtSum"));
-    NeutralIsoPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcNeutralIsoPtSum"));
-    PUcorrPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPUcorrPtSum"));
-    PhotonPtSumOutsideSignalCone_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPhotonPtSumOutsideSignalCone"));
-    FootprintCorrection_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcFootprintCorrection"));
+    ChargedIsoPtSum_token = this->template consumes<typename TauType::TauDiscriminator>(cfg.getParameter<edm::InputTag>("srcChargedIsoPtSum"));
+    NeutralIsoPtSum_token = this->template consumes<typename TauType::TauDiscriminator>(cfg.getParameter<edm::InputTag>("srcNeutralIsoPtSum"));
+    PUcorrPtSum_token = this->template consumes<typename TauType::TauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPUcorrPtSum"));
+    PhotonPtSumOutsideSignalCone_token = this->template consumes<typename TauType::TauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPhotonPtSumOutsideSignalCone"));
+    FootprintCorrection_token = this->template consumes<typename TauType::TauDiscriminator>(cfg.getParameter<edm::InputTag>("srcFootprintCorrection"));
   
     verbosity_ = ( cfg.exists("verbosity") ) ?
       cfg.getParameter<int>("verbosity") : 0;
 
-    produces<PFTauDiscriminator>("category");
+    this->template produces<typename TauType::TauDiscriminator>("category");
   }
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const PFTauRef&) const override;
+  double discriminate(const edm::Ref<std::vector<TauType> >&) const override;
 
   void endEvent(edm::Event&) override;
 
-  ~PFRecoTauDiscriminationByMVAIsolationRun2() override
+  ~PFRecoTauGenericDiscriminationByMVAIsolationRun2() override
   {
     if(!loadMVAfromDB_) delete mvaReader_;
     delete[] mvaInput_;
@@ -142,23 +143,23 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
   int mvaOpt_;
   float* mvaInput_;
   
-  typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > PFTauTIPAssociationByRef;
-  edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
-  edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
+  typedef edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> > TauTIPAssociationByRef;
+  edm::EDGetTokenT<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> >> TauTransverseImpactParameters_token;
+  edm::Handle<edm::AssociationVector<edm::RefProd<std::vector<TauType> >, std::vector<reco::PFTauTransverseImpactParameterRef> >> tauLifetimeInfos;
 
-  edm::EDGetTokenT<reco::PFTauDiscriminator> ChargedIsoPtSum_token;
-  edm::Handle<reco::PFTauDiscriminator> chargedIsoPtSums_;
-  edm::EDGetTokenT<reco::PFTauDiscriminator> NeutralIsoPtSum_token;
-  edm::Handle<reco::PFTauDiscriminator> neutralIsoPtSums_;
-  edm::EDGetTokenT<reco::PFTauDiscriminator> PUcorrPtSum_token;
-  edm::Handle<reco::PFTauDiscriminator> puCorrPtSums_;
-  edm::EDGetTokenT<reco::PFTauDiscriminator> PhotonPtSumOutsideSignalCone_token;
-  edm::Handle<reco::PFTauDiscriminator> photonPtSumOutsideSignalCone_;
-  edm::EDGetTokenT<reco::PFTauDiscriminator> FootprintCorrection_token;
-  edm::Handle<reco::PFTauDiscriminator> footprintCorrection_;
+  edm::EDGetTokenT<typename TauType::TauDiscriminator> ChargedIsoPtSum_token;
+  edm::Handle<typename TauType::TauDiscriminator> chargedIsoPtSums_;
+  edm::EDGetTokenT<typename TauType::TauDiscriminator> NeutralIsoPtSum_token;
+  edm::Handle<typename TauType::TauDiscriminator> neutralIsoPtSums_;
+  edm::EDGetTokenT<typename TauType::TauDiscriminator> PUcorrPtSum_token;
+  edm::Handle<typename TauType::TauDiscriminator> puCorrPtSums_;
+  edm::EDGetTokenT<typename TauType::TauDiscriminator> PhotonPtSumOutsideSignalCone_token;
+  edm::Handle<typename TauType::TauDiscriminator> photonPtSumOutsideSignalCone_;
+  edm::EDGetTokenT<typename TauType::TauDiscriminator> FootprintCorrection_token;
+  edm::Handle<typename TauType::TauDiscriminator> footprintCorrection_;
 
-  edm::Handle<TauCollection> taus_;
-  std::unique_ptr<PFTauDiscriminator> category_output_;
+  edm::Handle<std::vector<TauType> > taus_;
+  std::unique_ptr<typename TauType::TauDiscriminator> category_output_;
 
   std::vector<TFile*> inputFilesToDelete_;
   TauIdMVAAuxiliaries clusterVariables_;
@@ -166,7 +167,8 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
   int verbosity_;
 };
 
-void PFRecoTauDiscriminationByMVAIsolationRun2::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
+template<class TauType>
+void PFRecoTauGenericDiscriminationByMVAIsolationRun2<TauType>::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
 {
   if ( !mvaReader_ ) {
     if ( loadMVAfromDB_ ) {
@@ -184,15 +186,16 @@ void PFRecoTauDiscriminationByMVAIsolationRun2::beginEvent(const edm::Event& evt
   evt.getByToken(PhotonPtSumOutsideSignalCone_token, photonPtSumOutsideSignalCone_);
   evt.getByToken(FootprintCorrection_token, footprintCorrection_);
   
-  evt.getByToken(Tau_token, taus_);
-  category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
+  evt.getByToken(this->Tau_token, taus_);
+  category_output_.reset(new typename TauType::TauDiscriminator(edm::RefProd<std::vector<TauType> >(taus_)));
 }
 
-double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& tau) const
+template<class TauType>
+double PFRecoTauGenericDiscriminationByMVAIsolationRun2<TauType>::discriminate(const edm::Ref<std::vector<TauType> >& tau) const
 {
   // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
   double category = 0.; 
-  category_output_->setValue(tauIndex_, category);
+  category_output_->setValue(this->tauIndex_, category);
 
   // CV: computation of MVA value requires presence of leading charged hadron
   if ( tau->leadPFChargedHadrCand().isNull() ) return 0.;
@@ -338,7 +341,7 @@ double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& t
 
     double mvaValue = mvaReader_->GetClassifier(mvaInput_);
     if ( verbosity_ ) {
-      edm::LogPrint("PFTauDiscByMVAIsol2") << "<PFRecoTauDiscriminationByMVAIsolationRun2::discriminate>:";
+      edm::LogPrint("PFTauDiscByMVAIsol2") << "<PFRecoTauGenericDiscriminationByMVAIsolationRun2::discriminate>:";
       edm::LogPrint("PFTauDiscByMVAIsol2") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta();
       edm::LogPrint("PFTauDiscByMVAIsol2") << " isolation: charged = " << chargedIsoPtSum << ", neutral = " << neutralIsoPtSum << ", PUcorr = " << puCorrPtSum;
       edm::LogPrint("PFTauDiscByMVAIsol2") << " decay mode = " << tauDecayMode;
@@ -353,10 +356,17 @@ double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& t
   }
 }
 
-void PFRecoTauDiscriminationByMVAIsolationRun2::endEvent(edm::Event& evt)
+template<class TauType>
+void PFRecoTauGenericDiscriminationByMVAIsolationRun2<TauType>::endEvent(edm::Event& evt)
 {
   // add all category indices to event
   evt.put(std::move(category_output_), "category");
 }
 
+template class PFRecoTauGenericDiscriminationByMVAIsolationRun2<reco::PFTau>;
+typedef PFRecoTauGenericDiscriminationByMVAIsolationRun2<reco::PFTau> PFRecoTauDiscriminationByMVAIsolationRun2;
+template class PFRecoTauGenericDiscriminationByMVAIsolationRun2<reco::PFBaseTau>;
+typedef PFRecoTauGenericDiscriminationByMVAIsolationRun2<reco::PFBaseTau> PFRecoBaseTauDiscriminationByMVAIsolationRun2;
+
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByMVAIsolationRun2);
+DEFINE_FWK_MODULE(PFRecoBaseTauDiscriminationByMVAIsolationRun2);

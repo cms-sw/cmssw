@@ -29,7 +29,7 @@ namespace
   }
 }
 
-class RecoTauTwoProngFilter : public RecoTauModifierPlugin {
+class RecoTauTwoProngFilter : public RecoTauModifierPlugin<reco::PFTau> {
   public:
   explicit RecoTauTwoProngFilter(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     ~RecoTauTwoProngFilter() override {}
@@ -38,7 +38,7 @@ class RecoTauTwoProngFilter : public RecoTauModifierPlugin {
     double minPtFractionForSecondProng_;
 };
 
-  RecoTauTwoProngFilter::RecoTauTwoProngFilter(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauModifierPlugin(pset,std::move(iC)) {
+  RecoTauTwoProngFilter::RecoTauTwoProngFilter(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauModifierPlugin<reco::PFTau>(pset,std::move(iC)) {
   minPtFractionForSecondProng_ = pset.getParameter<double>("minPtFractionForSecondProng");
 }
 

@@ -1,5 +1,5 @@
 /*
- * RecoTauDiscriminantCleanerPlugin
+ * RecoGenericTauDiscriminantCleanerPlugin
  *
  * Author: Evan K. Friis, UC Davis
  *
@@ -9,43 +9,54 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFBaseTauDiscriminator.h"
 
 namespace reco { namespace tau {
 
-class RecoTauDiscriminantCleanerPlugin : public RecoTauCleanerPlugin {
+template<class TauType, class DiscriminatorType>
+class RecoGenericTauDiscriminantCleanerPlugin : public RecoTauCleanerPlugin<TauType> {
   public:
-  RecoTauDiscriminantCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
-    ~RecoTauDiscriminantCleanerPlugin() override{}
+    RecoGenericTauDiscriminantCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
+    ~RecoGenericTauDiscriminantCleanerPlugin() override{}
 
     // Get discriminant value for a given tau Ref
-    double operator()(const reco::PFTauRef&) const override;
+    double operator()(const edm::Ref<std::vector<TauType> >&) const override;
     // Hook called from base class at the beginning of each event
     void beginEvent() override;
 
   private:
     edm::InputTag discriminatorSrc_;
-    edm::Handle<PFTauDiscriminator> discriminator_;
-  edm::EDGetTokenT<PFTauDiscriminator> discriminator_token;
+    edm::Handle<DiscriminatorType> discriminator_;
+  edm::EDGetTokenT<DiscriminatorType> discriminator_token;
 };
 
-RecoTauDiscriminantCleanerPlugin::RecoTauDiscriminantCleanerPlugin(
-								   const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauCleanerPlugin(pset,std::move(iC)) {
+template<class TauType, class DiscriminatorType>
+RecoGenericTauDiscriminantCleanerPlugin<TauType, DiscriminatorType>::RecoGenericTauDiscriminantCleanerPlugin(
+								   const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauCleanerPlugin<TauType>(pset,std::move(iC)) {
   discriminatorSrc_ = pset.getParameter<edm::InputTag>("src");
-  discriminator_token = iC.consumes<PFTauDiscriminator>(discriminatorSrc_);
+  discriminator_token = iC.consumes<DiscriminatorType>(discriminatorSrc_);
 }
 
-void RecoTauDiscriminantCleanerPlugin::beginEvent() {
+template<class TauType, class DiscriminatorType>
+void RecoGenericTauDiscriminantCleanerPlugin<TauType, DiscriminatorType>::beginEvent() {
   // Load our handle to the discriminators from the event
-  evt()->getByToken(discriminator_token, discriminator_);
+  this->evt()->getByToken(discriminator_token, discriminator_);
 }
 
-double RecoTauDiscriminantCleanerPlugin::operator()(
-    const reco::PFTauRef& tau) const {
+template<class TauType, class DiscriminatorType>
+double RecoGenericTauDiscriminantCleanerPlugin<TauType, DiscriminatorType>::operator()(
+    const edm::Ref<std::vector<TauType> >& tau) const {
   // Get the discriminator result for this tau. N.B. result is negated!  lower 
   // = more "tau like"! This is opposite to the normal case.
   double result = -(*discriminator_)[tau];
   return result;
 }
+
+template class RecoGenericTauDiscriminantCleanerPlugin<reco::PFTau, reco::PFTauDiscriminator>;
+typedef RecoGenericTauDiscriminantCleanerPlugin<reco::PFTau, reco::PFTauDiscriminator> RecoTauDiscriminantCleanerPlugin;
+
+template class RecoGenericTauDiscriminantCleanerPlugin<reco::PFBaseTau, reco::PFBaseTauDiscriminator>;
+typedef RecoGenericTauDiscriminantCleanerPlugin<reco::PFBaseTau, reco::PFBaseTauDiscriminator> RecoBaseTauDiscriminantCleanerPlugin;
 
 }} // end namespace reco::tau
 
@@ -54,3 +65,7 @@ double RecoTauDiscriminantCleanerPlugin::operator()(
 DEFINE_EDM_PLUGIN(RecoTauCleanerPluginFactory, 
     reco::tau::RecoTauDiscriminantCleanerPlugin, 
     "RecoTauDiscriminantCleanerPlugin");
+DEFINE_EDM_PLUGIN(RecoBaseTauCleanerPluginFactory, 
+    reco::tau::RecoBaseTauDiscriminantCleanerPlugin, 
+    "RecoBaseTauDiscriminantCleanerPlugin");
+

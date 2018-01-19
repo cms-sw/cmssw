@@ -14,10 +14,15 @@
 
 #include <limits>
 
+namespace reco {
+  class BaseTauDiscriminator;
+}
 
 namespace reco {
   class BaseTau : public RecoCandidate {
   public:
+    typedef BaseTauDiscriminator TauDiscriminator;
+
     BaseTau();
     BaseTau(Charge q,const LorentzVector &,const Point & = Point(0,0,0));
     ~BaseTau() override{}

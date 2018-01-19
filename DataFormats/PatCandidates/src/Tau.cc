@@ -52,6 +52,27 @@ Tau::Tau(const reco::BaseTau & aTau) :
       pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
       pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
     }
+    const reco::PFBaseTau * pfBaseTau = dynamic_cast<const reco::PFBaseTau *>(&aTau);
+    if (pfBaseTau != nullptr){
+      pfEssential_.push_back(pat::tau::TauPFEssential(*pfBaseTau));
+      for (const auto& ptr : pfBaseTau->signalPFChargedHadrCands())
+	signalChargedHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->signalPFNeutrHadrCands())
+      	signalNeutralHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->signalPFGammaCands())
+      	signalGammaCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->isolationPFChargedHadrCands())
+      	isolationChargedHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->isolationPFNeutrHadrCands())
+      	isolationNeutralHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->isolationPFGammaCands())
+      	isolationGammaCandPtrs_.push_back(ptr);
+    }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(&aTau);
     if (caloTau != nullptr) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
 }
@@ -79,6 +100,27 @@ Tau::Tau(const edm::RefToBase<reco::BaseTau> & aTauRef) :
       pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
       pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
     }
+    const reco::PFBaseTau * pfBaseTau = dynamic_cast<const reco::PFBaseTau *>(aTauRef.get());
+    if (pfBaseTau != nullptr){
+      pfEssential_.push_back(pat::tau::TauPFEssential(*pfBaseTau));
+      for (const auto& ptr : pfBaseTau->signalPFChargedHadrCands())
+	signalChargedHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->signalPFNeutrHadrCands())
+      	signalNeutralHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->signalPFGammaCands())
+      	signalGammaCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->isolationPFChargedHadrCands())
+      	isolationChargedHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->isolationPFNeutrHadrCands())
+      	isolationNeutralHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->isolationPFGammaCands())
+      	isolationGammaCandPtrs_.push_back(ptr);
+    }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(aTauRef.get());
     if (caloTau != nullptr) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
 }
@@ -105,6 +147,27 @@ Tau::Tau(const edm::Ptr<reco::BaseTau> & aTauRef) :
     if (pfTau != nullptr){
       pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
       pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
+    }
+    const reco::PFBaseTau * pfBaseTau = dynamic_cast<const reco::PFBaseTau *>(aTauRef.get());
+    if (pfBaseTau != nullptr){
+      pfEssential_.push_back(pat::tau::TauPFEssential(*pfBaseTau));
+      for (const auto& ptr : pfBaseTau->signalPFChargedHadrCands())
+	signalChargedHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->signalPFNeutrHadrCands())
+      	signalNeutralHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->signalPFGammaCands())
+      	signalGammaCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->isolationPFChargedHadrCands())
+      	isolationChargedHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->isolationPFNeutrHadrCands())
+      	isolationNeutralHadrCandPtrs_.push_back(ptr);
+
+      for (const auto& ptr : pfBaseTau->isolationPFGammaCands())
+      	isolationGammaCandPtrs_.push_back(ptr);
     }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(aTauRef.get());
     if (caloTau != nullptr) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
@@ -263,7 +326,7 @@ const pat::tau::TauCaloSpecific & Tau::caloSpecific() const {
 reco::Candidate::LorentzVector Tau::p4Jet() const
 {
   if ( isCaloTau() ) return caloSpecific().p4Jet_;
-  if ( isPFTau()   ) return reco::Candidate::LorentzVector(pfEssential().p4Jet_);
+  if ( isAnyPFTau()   ) return reco::Candidate::LorentzVector(pfEssential().p4Jet_);
   throw cms::Exception("Type Error") << "Requesting a CaloTau/PFTau-specific information from a pat::Tau which wasn't made from either a CaloTau or a PFTau.\n";
 }
 
@@ -315,7 +378,7 @@ float Tau::etaphiMoment() const
 
 void Tau::setDecayMode(int decayMode)
 {
-  if (!isPFTau()) throw cms::Exception("Type Error") << "Requesting a PFTau-specific information from a pat::Tau which wasn't made from a PFTau.\n";
+  if (!isAnyPFTau()) throw cms::Exception("Type Error") << "Requesting a PFTau-specific information from a pat::Tau which wasn't made from a PFTau.\n";
   pfEssential_[0].decayMode_ = decayMode;
 } 
 

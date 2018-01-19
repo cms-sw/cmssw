@@ -1,6 +1,6 @@
 /*
  * =============================================================================
- *       Filename:  RecoTauImpactParameterSignificancePlugin.cc
+ *       Filename:  RecoTauGenericImpactParameterSignificancePlugin.cc
  *
  *    Description:  Add the IP significance of the lead track w.r.t to the PV.
  *                  to a PFTau.
@@ -26,37 +26,59 @@
 
 namespace reco { namespace tau {
 
-class RecoTauImpactParameterSignificancePlugin : public RecoTauModifierPlugin {
+template<class TauType>
+class RecoTauGenericImpactParameterSignificancePlugin : public RecoTauModifierPlugin<TauType> {
   public:
-    explicit RecoTauImpactParameterSignificancePlugin(
+    explicit RecoTauGenericImpactParameterSignificancePlugin(
 						      const edm::ParameterSet& pset,edm::ConsumesCollector &&iC);
-    ~RecoTauImpactParameterSignificancePlugin() override {}
-    void operator()(PFTau& tau) const override;
+    ~RecoTauGenericImpactParameterSignificancePlugin() override {}
+    void operator()(TauType& tau) const override;
     void beginEvent() override;
   private:
     RecoTauVertexAssociator vertexAssociator_;
     const TransientTrackBuilder *builder_;
 };
 
-RecoTauImpactParameterSignificancePlugin
-::RecoTauImpactParameterSignificancePlugin(const edm::ParameterSet& pset,edm::ConsumesCollector &&iC)
-  :RecoTauModifierPlugin(pset,std::move(iC)),
+template<class TauType>
+RecoTauGenericImpactParameterSignificancePlugin<TauType>
+::RecoTauGenericImpactParameterSignificancePlugin(const edm::ParameterSet& pset,edm::ConsumesCollector &&iC)
+  :RecoTauModifierPlugin<TauType>(pset,std::move(iC)),
    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC)){}
 
-void RecoTauImpactParameterSignificancePlugin::beginEvent() {
-  vertexAssociator_.setEvent(*evt());
+template<class TauType>
+void RecoTauGenericImpactParameterSignificancePlugin<TauType>::beginEvent() {
+  vertexAssociator_.setEvent(*this->evt());
   // Get tranisent track builder.
   edm::ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
-  evtSetup()->get<TransientTrackRecord>().get("TransientTrackBuilder",
+  this->evtSetup()->template get<TransientTrackRecord>().get("TransientTrackBuilder",
                                               myTransientTrackBuilder);
   builder_= myTransientTrackBuilder.product();
 }
 
-void RecoTauImpactParameterSignificancePlugin::operator()(PFTau& tau) const {
+namespace 
+{
+  inline const reco::Track* getTrack(const Candidate& cand)
+  {
+    const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
+    if (pfCandPtr) {
+      if      ( pfCandPtr->trackRef().isNonnull()    ) return pfCandPtr->trackRef().get();
+      else return nullptr;
+    }
+    
+    const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    if (packedCand && packedCand->hasTrackDetails())
+    	return &packedCand->pseudoTrack();
+
+    return nullptr;
+  }
+}
+
+template<class TauType>
+void RecoTauGenericImpactParameterSignificancePlugin<TauType>::operator()(TauType& tau) const {
   // Get the transient lead track
   if (tau.leadPFChargedHadrCand().isNonnull()) {
-    TrackRef leadTrack = tau.leadPFChargedHadrCand()->trackRef();
-    if (leadTrack.isNonnull()) {
+    const reco::Track* leadTrack = getTrack(*tau.leadPFChargedHadrCand());
+    if (leadTrack) {
       const TransientTrack track = builder_->build(leadTrack);
       GlobalVector direction(tau.jetRef()->px(), tau.jetRef()->py(),
                              tau.jetRef()->pz());
@@ -70,8 +92,17 @@ void RecoTauImpactParameterSignificancePlugin::operator()(PFTau& tau) const {
   }
 }
 
+template class RecoTauGenericImpactParameterSignificancePlugin<reco::PFTau>;
+typedef RecoTauGenericImpactParameterSignificancePlugin<reco::PFTau> RecoTauImpactParameterSignificancePlugin;
+
+template class RecoTauGenericImpactParameterSignificancePlugin<reco::PFBaseTau>;
+typedef RecoTauGenericImpactParameterSignificancePlugin<reco::PFBaseTau> RecoBaseTauImpactParameterSignificancePlugin;
+
 }} // end namespace reco::tau
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_EDM_PLUGIN(RecoTauModifierPluginFactory,
     reco::tau::RecoTauImpactParameterSignificancePlugin,
     "RecoTauImpactParameterSignificancePlugin");
+DEFINE_EDM_PLUGIN(RecoBaseTauModifierPluginFactory,
+    reco::tau::RecoBaseTauImpactParameterSignificancePlugin,
+    "RecoBaseTauImpactParameterSignificancePlugin");

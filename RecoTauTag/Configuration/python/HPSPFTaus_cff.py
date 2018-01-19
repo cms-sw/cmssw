@@ -429,7 +429,6 @@ hpsPFTauPrimaryVertexProducer = PFTauPrimaryVertexProducer.clone(
     MuonTag = cms.InputTag(""),
     PVTag = cms.InputTag("offlinePrimaryVertices"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-    TrackCollectionTag = cms.InputTag("generalTracks"),
     Algorithm = cms.int32(0),
     useBeamSpot = cms.bool(True),
     RemoveMuonTracks = cms.bool(False),
@@ -583,7 +582,7 @@ hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms
 hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTraw = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw.clone(
     mvaName = cms.string("RecoTauTag_tauIdMVAPWoldDMwLTv1"),
     mvaOpt = cms.string("PWoldDMwLT"),
-    srcPUcorrPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSumWeight'),
+    srcNeutralIsoPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSumWeight'),
     verbosity = cms.int32(0)
 )
 
@@ -725,7 +724,7 @@ hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT.mapping[0].cut =
 hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTraw = hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw.clone(
     mvaName = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1"),
     mvaOpt = cms.string("PWoldDMwLT"),
-    srcPUcorrPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSumWeightdR03'),
+    srcNeutralIsoPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSumWeightdR03'),
     verbosity = cms.int32(0)
 )
 hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone(

@@ -7,24 +7,26 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
 namespace reco { namespace tau {
 
-class RecoTauChargedHadronMultiplicityCleanerPlugin : public RecoTauCleanerPlugin 
+template<class TauType>
+class RecoGenericTauChargedHadronMultiplicityCleanerPlugin : public RecoTauCleanerPlugin<TauType> 
 {
  public:
-  RecoTauChargedHadronMultiplicityCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC);
+  RecoGenericTauChargedHadronMultiplicityCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC);
 
   // Get ranking value for a given tau Ref
-  double operator()(const reco::PFTauRef&) const override;
+  double operator()(const edm::Ref<std::vector<TauType> >&) const override;
 };
 
-RecoTauChargedHadronMultiplicityCleanerPlugin::RecoTauChargedHadronMultiplicityCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
-  : RecoTauCleanerPlugin(pset,std::move(iC)) 
+template<class TauType>
+RecoGenericTauChargedHadronMultiplicityCleanerPlugin<TauType>::RecoGenericTauChargedHadronMultiplicityCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
+  : RecoTauCleanerPlugin<TauType>(pset,std::move(iC)) 
 {}
 
-double RecoTauChargedHadronMultiplicityCleanerPlugin::operator()(const reco::PFTauRef& tau) const 
+template<class TauType>
+double RecoGenericTauChargedHadronMultiplicityCleanerPlugin<TauType>::operator()(const edm::Ref<std::vector<TauType> >& tau) const 
 {
   // Get the ranking value for this tau. 
   // N.B. lower value means more "tau like"!
@@ -40,6 +42,12 @@ double RecoTauChargedHadronMultiplicityCleanerPlugin::operator()(const reco::PFT
   return result;
 }
 
+template class RecoGenericTauChargedHadronMultiplicityCleanerPlugin<reco::PFTau>;
+typedef RecoGenericTauChargedHadronMultiplicityCleanerPlugin<reco::PFTau> RecoTauChargedHadronMultiplicityCleanerPlugin;
+
+template class RecoGenericTauChargedHadronMultiplicityCleanerPlugin<reco::PFBaseTau>;
+typedef RecoGenericTauChargedHadronMultiplicityCleanerPlugin<reco::PFBaseTau> RecoBaseTauChargedHadronMultiplicityCleanerPlugin;
+
 }} // end namespace reco::tau
 
 // Register our plugin
@@ -47,3 +55,6 @@ double RecoTauChargedHadronMultiplicityCleanerPlugin::operator()(const reco::PFT
 DEFINE_EDM_PLUGIN(RecoTauCleanerPluginFactory, 
     reco::tau::RecoTauChargedHadronMultiplicityCleanerPlugin, 
     "RecoTauChargedHadronMultiplicityCleanerPlugin");
+DEFINE_EDM_PLUGIN(RecoBaseTauCleanerPluginFactory, 
+    reco::tau::RecoBaseTauChargedHadronMultiplicityCleanerPlugin, 
+    "RecoBaseTauChargedHadronMultiplicityCleanerPlugin");

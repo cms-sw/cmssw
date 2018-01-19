@@ -16,8 +16,12 @@
 #include <limits>
 
 namespace reco {
+  class CaloTauDiscriminator;
+
   class CaloTau : public BaseTau {
   public:
+    typedef CaloTauDiscriminator TauDiscriminator;
+    
     CaloTau();
     CaloTau(Charge q, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
     ~CaloTau() override{}

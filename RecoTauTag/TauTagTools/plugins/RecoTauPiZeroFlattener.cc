@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/TauReco/interface/JetPiZeroAssociation.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
@@ -44,12 +44,8 @@ RecoTauPiZeroFlattener::RecoTauPiZeroFlattener(const edm::ParameterSet& pset) {
 void
 RecoTauPiZeroFlattener::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Get the jet input collection via a view of Candidates
-  edm::Handle<reco::CandidateView> jetView;
+  edm::Handle<reco::JetView> jetView;
   evt.getByLabel(jetSrc_, jetView);
-
-  // Convert to a vector of PFJetRefs
-  reco::PFJetRefVector jets =
-      reco::tau::castView<reco::PFJetRefVector>(jetView);
 
   // Get the pizero input collection
   edm::Handle<reco::JetPiZeroAssociation> piZeroAssoc;
@@ -60,12 +56,13 @@ RecoTauPiZeroFlattener::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   // Loop over the jets and append the pizeros for each jet to our output
   // collection.
-  BOOST_FOREACH(reco::PFJetRef jetRef, jets) {
+  for (size_t i_j = 0; i_j < jetView->size(); ++i_j) {
+    const auto& jetRef = jetView->refAt(i_j);
     const std::vector<reco::RecoTauPiZero>& pizeros = (*piZeroAssoc)[jetRef];
     output->reserve(output->size() + pizeros.size());
     output->insert(output->end(), pizeros.begin(), pizeros.end());
   }
-
+  
   evt.put(std::move(output));
 }
 

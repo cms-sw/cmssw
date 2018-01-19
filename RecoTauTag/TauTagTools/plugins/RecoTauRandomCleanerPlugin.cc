@@ -13,7 +13,7 @@
 
 namespace reco { namespace tau {
 
-class RecoTauRandomCleanerPlugin : public RecoTauCleanerPlugin {
+  class RecoTauRandomCleanerPlugin : public RecoTauCleanerPlugin<reco::PFTau> {
   public:
   RecoTauRandomCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     ~RecoTauRandomCleanerPlugin() override{}

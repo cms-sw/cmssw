@@ -34,7 +34,7 @@
 
 namespace reco { namespace tau {
 
-class RecoTauEnergyRecoveryPlugin2 : public RecoTauModifierPlugin
+class RecoTauEnergyRecoveryPlugin2 : public RecoTauModifierPlugin<reco::PFTau>
 {
  public:
 
@@ -49,7 +49,7 @@ class RecoTauEnergyRecoveryPlugin2 : public RecoTauModifierPlugin
 };
 
   RecoTauEnergyRecoveryPlugin2::RecoTauEnergyRecoveryPlugin2(const edm::ParameterSet& cfg, edm::ConsumesCollector &&iC)
-    : RecoTauModifierPlugin(cfg, std::move(iC)),
+    : RecoTauModifierPlugin<reco::PFTau>(cfg, std::move(iC)),
     dRcone_(cfg.getParameter<double>("dRcone"))
 {}
 

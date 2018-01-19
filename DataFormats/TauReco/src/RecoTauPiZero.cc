@@ -77,9 +77,14 @@ void RecoTauPiZero::print(std::ostream& stream) const
   std::cout << "Pt = " << this->pt() << ", eta = " << this->eta() << ", phi = " << this->phi() << std::endl;
   size_t numDaughters = this->numberOfDaughters();
   for ( size_t iDaughter = 0; iDaughter < numDaughters; ++iDaughter ) {
-    const reco::PFCandidate* daughter = dynamic_cast<const reco::PFCandidate*>(this->daughterPtr(iDaughter).get());
-    std::cout << " daughter #" << iDaughter << " (" << getPFCandidateType(daughter->particleId()) << "):"
-	      << " Pt = " << daughter->pt() << ", eta = " << daughter->eta() << ", phi = " << daughter->phi() << std::endl;
+    const auto& daughter = this->daughterPtr(iDaughter);
+    const reco::PFCandidate* daughter_pf = dynamic_cast<const reco::PFCandidate*>(this->daughterPtr(iDaughter).get());
+    std::cout << " daughter #" << iDaughter << " (";
+    if (daughter_pf)
+      std::cout << getPFCandidateType(daughter_pf->particleId());
+    else
+      std::cout << daughter->pdgId();
+    std::cout << "):" << " Pt = " << daughter->pt() << ", eta = " << daughter->eta() << ", phi = " << daughter->phi() << std::endl;
   }
 }
 

@@ -1,21 +1,19 @@
-#ifndef DataFormats_TauReco_PFTau_h
-#define DataFormats_TauReco_PFTau_h
+#ifndef DataFormats_TauReco_PFBaseTau_h
+#define DataFormats_TauReco_PFBaseTau_h
 
-/* class PFTau
- * the object of this class is created by RecoTauTag/RecoTau PFRecoTauProducer EDProducer starting from the PFTauTagInfo object,
- *                          is a hadronic tau-jet candidate -built from a jet made employing a particle flow technique- that analysts manipulate;
- * authors: Simone Gennai (simone.gennai@cern.ch), Ludovic Houchu (Ludovic.Houchu@cern.ch), Evan Friis (evan.klose.friis@ucdavis.edu)
- * created: Jun 21 2007,
- * revised: Tue Aug 31 13:34:40 CEST 2010
+/* class PFBaseTau
+ * Based on regular PFTau class, but uses CandidatePtrs instead of 
+ * CandidatePtrs and base refs to reco::Jets instead of refs to reco::Jets
+ * to be compatible with miniAOD inputs.
  */
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 #include "DataFormats/TauReco/interface/BaseTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
-#include "DataFormats/TauReco/interface/PFTauTagInfo.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/TauReco/interface/PFBaseTauFwd.h"
+// #include "DataFormats/TauReco/interface/PFTauTagInfo.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
@@ -32,12 +30,16 @@ namespace reco { namespace tau {
 }} 
 
 namespace reco {
-  class PFTauDiscriminator;
+  class PFBaseTauDiscriminator;
+}
+
+namespace pat {
+    class Jet;
 }
 
 namespace reco {
 
-class PFTau : public BaseTau {
+class PFBaseTau : public BaseTau {
   public:
     enum hadronicDecayMode {
       kNull = -1,
@@ -59,68 +61,68 @@ class PFTau : public BaseTau {
       kRareDecayMode
     };
 
-    typedef PFJetCollection TauJetCollection;
-    typedef PFTauDiscriminator TauDiscriminator;
-    typedef PFCandidate TauCandidateType;
+    typedef std::vector<pat::Jet> TauJetCollection;
+    typedef PFBaseTauDiscriminator TauDiscriminator;
+    typedef Candidate TauCandidateType;
 
-    PFTau();
-    PFTau(Charge q,const LorentzVector &,const Point & = Point( 0, 0, 0 ) );
-    ~PFTau() override {};
-    PFTau* clone() const override;
+    PFBaseTau();
+    PFBaseTau(Charge q,const LorentzVector &,const Point & = Point( 0, 0, 0 ) );
+    ~PFBaseTau() override {};
+    PFBaseTau* clone() const override;
 
-    const PFJetRef& jetRef() const;
-    void setjetRef(const PFJetRef&);
+    const JetBaseRef& jetRef() const;
+    void setjetRef(const JetBaseRef&);
 
-    // functions to access the PFTauTagInfoRef used by HLT
-    const PFTauTagInfoRef& pfTauTagInfoRef() const;
-    void setpfTauTagInfoRef(const PFTauTagInfoRef);
+    // // functions to access the PFTauTagInfoRef used by HLT
+    // const PFTauTagInfoRef& pfTauTagInfoRef() const;
+    // void setpfTauTagInfoRef(const PFTauTagInfoRef);
 
     PFRecoTauChargedHadronRef leadTauChargedHadronCandidate() const;
-    const PFCandidatePtr& leadPFChargedHadrCand() const;
-    const PFCandidatePtr& leadPFNeutralCand() const;
+    const CandidatePtr& leadPFChargedHadrCand() const;
+    const CandidatePtr& leadPFNeutralCand() const;
     //Can be either the charged or the neutral one
-    const PFCandidatePtr& leadPFCand() const;
+    const CandidatePtr& leadPFCand() const;
 
-    void setleadPFChargedHadrCand(const PFCandidatePtr&);
-    void setleadPFNeutralCand(const PFCandidatePtr&);
-    void setleadPFCand(const PFCandidatePtr&);
+    void setleadPFChargedHadrCand(const CandidatePtr&);
+    void setleadPFNeutralCand(const CandidatePtr&);
+    void setleadPFCand(const CandidatePtr&);
 
     /// Signed transverse impact parameter significance of the Track
-    /// associated to the leading charged PFCandidate
+    /// associated to the leading charged Candidate
     float leadPFChargedHadrCandsignedSipt() const;
     void setleadPFChargedHadrCandsignedSipt(const float&);
 
-    /// PFCandidates in signal region
-    const std::vector<reco::PFCandidatePtr>& signalPFCands() const;
-    void setsignalPFCands(const std::vector<reco::PFCandidatePtr>&);
+    /// Candidates in signal region
+    const std::vector<reco::CandidatePtr>& signalPFCands() const;
+    void setsignalPFCands(const std::vector<reco::CandidatePtr>&);
 
     /// Charged hadrons in signal region
-    const std::vector<reco::PFCandidatePtr>& signalPFChargedHadrCands() const;
-    void setsignalPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>&);
+    const std::vector<reco::CandidatePtr>& signalPFChargedHadrCands() const;
+    void setsignalPFChargedHadrCands(const std::vector<reco::CandidatePtr>&);
 
     /// Neutral hadrons in signal region
-    const std::vector<reco::PFCandidatePtr>& signalPFNeutrHadrCands() const;
-    void setsignalPFNeutrHadrCands(const std::vector<reco::PFCandidatePtr>&);
+    const std::vector<reco::CandidatePtr>& signalPFNeutrHadrCands() const;
+    void setsignalPFNeutrHadrCands(const std::vector<reco::CandidatePtr>&);
 
     /// Gamma candidates in signal region
-    const std::vector<reco::PFCandidatePtr>& signalPFGammaCands() const;
-    void setsignalPFGammaCands(const std::vector<reco::PFCandidatePtr>&);
+    const std::vector<reco::CandidatePtr>& signalPFGammaCands() const;
+    void setsignalPFGammaCands(const std::vector<reco::CandidatePtr>&);
 
-    /// PFCandidates in isolation region
-    const std::vector<reco::PFCandidatePtr>& isolationPFCands() const;
-    void setisolationPFCands(const std::vector<reco::PFCandidatePtr>&);
+    /// Candidates in isolation region
+    const std::vector<reco::CandidatePtr>& isolationPFCands() const;
+    void setisolationPFCands(const std::vector<reco::CandidatePtr>&);
 
     /// Charged candidates in isolation region
-    const std::vector<reco::PFCandidatePtr>& isolationPFChargedHadrCands() const;
-    void setisolationPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>&);
+    const std::vector<reco::CandidatePtr>& isolationPFChargedHadrCands() const;
+    void setisolationPFChargedHadrCands(const std::vector<reco::CandidatePtr>&);
 
     //// Neutral hadrons in isolation region
-    const std::vector<reco::PFCandidatePtr>& isolationPFNeutrHadrCands() const;
-    void setisolationPFNeutrHadrCands(const std::vector<reco::PFCandidatePtr>&);
+    const std::vector<reco::CandidatePtr>& isolationPFNeutrHadrCands() const;
+    void setisolationPFNeutrHadrCands(const std::vector<reco::CandidatePtr>&);
 
     /// Gamma candidates in isolation region
-    const std::vector<reco::PFCandidatePtr>& isolationPFGammaCands() const;
-    void setisolationPFGammaCands(const std::vector<reco::PFCandidatePtr>&);
+    const std::vector<reco::CandidatePtr>& isolationPFGammaCands() const;
+    void setisolationPFGammaCands(const std::vector<reco::CandidatePtr>&);
 
     /// Sum of charged hadron candidate PT in isolation cone; returns NaN
     /// if isolation region is undefined.
@@ -190,8 +192,6 @@ class PFTau : public BaseTau {
     void setelectronPreIDOutput(const float&);
     void setelectronPreIDDecision(const bool&);
 
-    // For Muon Rejection
-    bool hasMuonReference() const; // check if muon ref exists
     float caloComp() const;
     float segComp() const;
     bool muonDecision() const;
@@ -202,14 +202,14 @@ class PFTau : public BaseTau {
     /// return the number of source Candidates
     /// ( the candidates used to construct this Candidate)
     /// in the case of taus, there is only one source candidate,
-    /// which is the corresponding PFJet
+    /// which is the corresponding Jet
     size_type numberOfSourceCandidatePtrs() const override {return 1;}
 
     /// return a RefToBase to the source Candidates
     /// ( the candidates used to construct this Candidate)
     CandidatePtr sourceCandidatePtr( size_type i ) const override;
 
-    /// prints information on this PFTau
+    /// prints information on this PFBaseTau
     void dump(std::ostream& out = std::cout) const;
 
   private:
@@ -256,24 +256,24 @@ class PFTau : public BaseTau {
 
     float signalConeSize_; 
 
-    reco::PFJetRef jetRef_;
-    PFTauTagInfoRef PFTauTagInfoRef_;
-    reco::PFCandidatePtr leadPFChargedHadrCand_;
-    reco::PFCandidatePtr leadPFNeutralCand_;
-    reco::PFCandidatePtr leadPFCand_;
+    reco::JetBaseRef jetRef_;
+    // PFTauTagInfoRef PFTauTagInfoRef_;
+    reco::CandidatePtr leadPFChargedHadrCand_;
+    reco::CandidatePtr leadPFNeutralCand_;
+    reco::CandidatePtr leadPFCand_;
     reco::TrackRef electronPreIDTrack_;
 
     // Signal candidates
-    std::vector<reco::PFCandidatePtr> selectedSignalPFCands_;
-    std::vector<reco::PFCandidatePtr> selectedSignalPFChargedHadrCands_;
-    std::vector<reco::PFCandidatePtr> selectedSignalPFNeutrHadrCands_;
-    std::vector<reco::PFCandidatePtr> selectedSignalPFGammaCands_;
+    std::vector<reco::CandidatePtr> selectedSignalPFCands_;
+    std::vector<reco::CandidatePtr> selectedSignalPFChargedHadrCands_;
+    std::vector<reco::CandidatePtr> selectedSignalPFNeutrHadrCands_;
+    std::vector<reco::CandidatePtr> selectedSignalPFGammaCands_;
 
     // Isolation candidates
-    std::vector<reco::PFCandidatePtr> selectedIsolationPFCands_;
-    std::vector<reco::PFCandidatePtr> selectedIsolationPFChargedHadrCands_;
-    std::vector<reco::PFCandidatePtr> selectedIsolationPFNeutrHadrCands_;
-    std::vector<reco::PFCandidatePtr> selectedIsolationPFGammaCands_;
+    std::vector<reco::CandidatePtr> selectedIsolationPFCands_;
+    std::vector<reco::CandidatePtr> selectedIsolationPFChargedHadrCands_;
+    std::vector<reco::CandidatePtr> selectedIsolationPFNeutrHadrCands_;
+    std::vector<reco::CandidatePtr> selectedIsolationPFGammaCands_;
 
     RecoTauPiZeroRefVector signalPiZeroCandidatesRefs_;
     RecoTauPiZeroRefVector isolationPiZeroCandidatesRefs_;
@@ -290,7 +290,7 @@ class PFTau : public BaseTau {
     edm::AtomicPtrCache<std::vector<reco::PFRecoTauChargedHadron>> isolationTauChargedHadronCandidates_;
 };
 
-std::ostream & operator<<(std::ostream& out, const PFTau& c);
+std::ostream & operator<<(std::ostream& out, const PFBaseTau& c);
 
 } // end namespace reco
 

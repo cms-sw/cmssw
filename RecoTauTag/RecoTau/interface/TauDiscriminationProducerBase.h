@@ -41,6 +41,9 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
+#include "DataFormats/TauReco/interface/PFBaseTauDiscriminator.h"
+
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 
@@ -109,6 +112,8 @@ class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
 // define our implementations
 typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminator>
   PFTauDiscriminationProducerBase;
+typedef TauDiscriminationProducerBase<reco::PFBaseTau, reco::PFBaseTauDiscriminator>
+  PFBaseTauDiscriminationProducerBase;
 typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator>
   PATTauDiscriminationProducerBase;
 typedef TauDiscriminationProducerBase<reco::CaloTau, reco::CaloTauDiscriminator>

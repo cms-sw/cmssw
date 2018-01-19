@@ -16,7 +16,7 @@
 
 namespace reco { namespace tau {
 
-class RecoTauTagInfoWorkaroundModifer : public RecoTauModifierPlugin {
+class RecoTauTagInfoWorkaroundModifer : public RecoTauModifierPlugin<reco::PFTau> {
   public:
   explicit RecoTauTagInfoWorkaroundModifer(const edm::ParameterSet &pset, edm::ConsumesCollector &&iC);
     ~RecoTauTagInfoWorkaroundModifer() override {}

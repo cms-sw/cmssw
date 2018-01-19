@@ -11,16 +11,17 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
 
 namespace reco { namespace tau {
 
-class RecoTauChargeCleanerPlugin : public RecoTauCleanerPlugin
+template<class TauType>
+class RecoTauGenericChargeCleanerPlugin : public RecoTauCleanerPlugin<TauType>
 {
 public:
-	explicit RecoTauChargeCleanerPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-	~RecoTauChargeCleanerPlugin() override {}
-	double operator()(const PFTauRef& tau) const override;
+	explicit RecoTauGenericChargeCleanerPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
+	~RecoTauGenericChargeCleanerPlugin() override {}
+	double operator()(const edm::Ref<std::vector<TauType> >& tau) const override;
 
 private:
 	std::vector<unsigned> nprongs_;
@@ -28,14 +29,16 @@ private:
 	int charge_;
 };
 
-RecoTauChargeCleanerPlugin::RecoTauChargeCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
-	: RecoTauCleanerPlugin(pset,std::move(iC)),
+template<class TauType>
+RecoTauGenericChargeCleanerPlugin<TauType>::RecoTauGenericChargeCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
+	: RecoTauCleanerPlugin<TauType>(pset,std::move(iC)),
 	  nprongs_(pset.getParameter<std::vector<unsigned> >("nprongs")),
 	  failResult_(pset.getParameter<double>("selectionFailValue")),
 	  charge_(pset.getParameter<int>("passForCharge"))
 {}
 
-double RecoTauChargeCleanerPlugin::operator()(const PFTauRef& cand) const
+template<class TauType>
+double RecoTauGenericChargeCleanerPlugin<TauType>::operator()(const edm::Ref<std::vector<TauType> >& cand) const
 {
 	int charge = 0;
 	unsigned nChargedPFCandidate(0), nTrack(0);
@@ -52,8 +55,15 @@ double RecoTauChargeCleanerPlugin::operator()(const PFTauRef& cand) const
 	return failResult_;
 }
 
+template class RecoTauGenericChargeCleanerPlugin<reco::PFTau>;
+typedef RecoTauGenericChargeCleanerPlugin<reco::PFTau> RecoTauChargeCleanerPlugin;
+
+template class RecoTauGenericChargeCleanerPlugin<reco::PFBaseTau>;
+typedef RecoTauGenericChargeCleanerPlugin<reco::PFBaseTau> RecoBaseTauChargeCleanerPlugin;
+
 }}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_EDM_PLUGIN(RecoTauCleanerPluginFactory, reco::tau::RecoTauChargeCleanerPlugin, "RecoTauChargeCleanerPlugin");
+DEFINE_EDM_PLUGIN(RecoBaseTauCleanerPluginFactory, reco::tau::RecoBaseTauChargeCleanerPlugin, "RecoBaseTauChargeCleanerPlugin");

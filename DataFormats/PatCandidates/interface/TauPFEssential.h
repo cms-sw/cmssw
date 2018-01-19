@@ -12,6 +12,7 @@
 */
 
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFBaseTau.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -29,6 +30,8 @@ struct TauPFEssential {
   TauPFEssential() {}
 // constructor from PFTau
   TauPFEssential(const reco::PFTau& tau);
+// constructor from PFBaseTau
+  TauPFEssential(const reco::PFBaseTau& tau);
 // datamembers 
   LorentzVector p4Jet_;
   LorentzVector p4CorrJet_;
