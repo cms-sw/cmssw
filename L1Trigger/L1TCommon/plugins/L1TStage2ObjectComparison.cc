@@ -160,4 +160,7 @@ void L1TStage2ObjectComparison<T>::produce(edm::Event& e, const edm::EventSetup&
   }
 }
 
-
+//define plugins for different L1T objects
+#include "DataFormats/L1Trigger/interface/Muon.h"
+typedef L1TStage2ObjectComparison<l1t::Muon> L1TStage2MuonComparison;
+DEFINE_FWK_MODULE(L1TStage2MuonComparison);
