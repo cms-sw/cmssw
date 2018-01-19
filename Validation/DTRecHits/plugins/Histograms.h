@@ -1,7 +1,6 @@
 #ifndef RecoLocalMuon_Histograms_H
 #define RecoLocalMuon_Histograms_H
 
-
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
@@ -9,7 +8,6 @@
  */
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -29,16 +27,12 @@ class HRes1DHit{
       std::string pre ="1D_";
       pre += name_;
       _doall = doall;
-      // Position, sigma, residual, pull
-      //sprintf (histo_n, "1D_%s_hDist",N); sprintf(histo_t, "1D RHit distance from wire");
-      //      hDist=0; hDist = dbe_->book1D(histo_n, histo_t, 100, 0,2.5);
       dbe_->setCurrentFolder("DT/1DRecHits/Res/");
-      
+
       if(doall){
 	hDist=nullptr; hDist = dbe_->book1D(pre + "_hDist" ,"1D RHit distance from wire", 100, 0,2.5);
-	//hDist       = new TH1F ("1D_"+N+"_hDist", "1D RHit distance from wire", 100, 0,2.5);
-	hResVsAngle = nullptr; hResVsAngle   = dbe_->book2D(pre+"_hResVsAngle", "1D RHit residual vs impact angle",100, -1.2,1.2, 100, -0.2,0.2);    
-	hResVsDistFE = nullptr; hResVsDistFE = dbe_->book2D(pre+"_hResVsDistFE", "1D RHit residual vs FE distance", 100, 0.,400., 150, -0.5,0.5);    
+	hResVsAngle = nullptr; hResVsAngle   = dbe_->book2D(pre+"_hResVsAngle", "1D RHit residual vs impact angle",100, -1.2,1.2, 100, -0.2,0.2);
+	hResVsDistFE = nullptr; hResVsDistFE = dbe_->book2D(pre+"_hResVsDistFE", "1D RHit residual vs FE distance", 100, 0.,400., 150, -0.5,0.5);
 	dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
  	hPullVsPos= nullptr; hPullVsPos  = dbe_->book2D (pre+"_hPullVsPos", "1D RHit pull vs position", 100, 0,2.5, 100, -5,5);
 	hPullVsAngle = nullptr; hPullVsAngle  = dbe_->book2D (pre+"_hPullVsAngle", "1D RHit pull vs impact angle",100, -1.2,1.2, 100, -5,5);
@@ -51,45 +45,15 @@ class HRes1DHit{
       hResSt[2] = nullptr; hResSt[2] = dbe_->book1D(pre + "_hResMB3","1D RHit residual", 300, -0.5,0.5);
       hResSt[3] = nullptr; hResSt[3] = dbe_->book1D(pre + "_hResMB4","1D RHit residual", 300, -0.5,0.5);
 
-      //hRes        = new TH1F ("1D_"+N+"_hRes", "1D RHit residual", 300, -1.5,1.5);
       hResVsEta=nullptr; hResVsEta = dbe_->book2D(pre +"_hResVsEta" , "1D RHit residual vs eta", 50, -1.25,1.25,150,-0.5,0.5);
-      //hResVsEta   = new TH2F("1D_"+N+"_hResVsEta", "1D RHit residual vs eta",50, -1.25,1.25, 150, -1.5,1.5);
       hResVsPhi = nullptr; hResVsPhi   = dbe_->book2D(pre+"_hResVsPhi" , "1D RHit residual vs phi",100, -3.2, 3.2, 150, -0.5,0.5);
-      //hResVsPhi   = new TH2F("1D_"+N+"_hResVsPhi", "1D RHit residual vs phi", 100, -3.2, 3.2, 150, -1.5,1.5);
-      hResVsPos = nullptr; hResVsPos   = dbe_->book2D(pre+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -0.5,0.5);    
-      //hResVsPos   = new TH2F("1D_"+N+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -1.5,1.5);    
+      hResVsPos = nullptr; hResVsPos   = dbe_->book2D(pre+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -0.5,0.5);
       dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
       hPull =nullptr; hPull       = dbe_->book1D (pre+"_hPull", "1D RHit pull", 100, -5,5);
       hPullSt[0] = nullptr; hPullSt[0] = dbe_->book1D(pre + "_hPullMB1","1D RHit residual", 100, -5,5);
       hPullSt[1] = nullptr; hPullSt[1] = dbe_->book1D(pre + "_hPullMB2","1D RHit residual", 100, -5,5);
       hPullSt[2] = nullptr; hPullSt[2] = dbe_->book1D(pre + "_hPullMB3","1D RHit residual", 100, -5,5);
       hPullSt[3] = nullptr; hPullSt[3] = dbe_->book1D(pre + "_hPullMB4","1D RHit residual", 100, -5,5);
-    }
-  
-//     HRes1DHit(TString name_, TFile* file){
-//       name=name_;
-//       base = "/DQMData/Run 1/DT/Run summary/1DRecHits/Res/";
-//       hDist          = (TH1F *) file->Get(base+"1D_"+name+"_hDist");
-//       hRes           = (TH1F *) file->Get(base+"1D_"+name+"_hRes");
-//       hResVsEta      = (TH2F *) file->Get(base+"1D_"+name+"_hResVsEta");
-//       hResVsPhi      = (TH2F *) file->Get(base+"1D_"+name+"_hResVsPhi");
-//       hResVsPos      = (TH2F *) file->Get(base+"1D_"+name+"_hResVsPos");
-//       hResVsAngle    = (TH2F *) file->Get(base+"1D_"+name+"_hResVsAngle");
-//       hResVsDistFE   = (TH2F *) file->Get(base+"1D_"+name+"_hResVsDistFE");
-//       hPull          = (TH1F *) file->Get(base+"1D_"+name+"_hPull");
-//       hPullVsPos     = (TH2F *) file->Get(base+"1D_"+name+"_hPullVsPos");
-//       hPullVsAngle   = (TH2F *) file->Get(base+"1D_"+name+"_hPullVsAngle");
-//       hPullVsDistFE  = (TH2F *) file->Get(base+"1D_"+name+"_hPullVsDistFE");
-//     }
-
-
-    ~HRes1DHit(){
-      //     delete hDist;
-      //     delete hRes;
-      //     delete hResVsEta;
-      //     delete hResVsPhi;
-      //     delete hResVsPos;
-      //     delete hPull;
     }
 
     void Fill(float distSimHit,
@@ -123,21 +87,6 @@ class HRes1DHit{
       else std::cout<<"Error: RecHit error = 0" << std::endl;
     }
 
-    /*void Write() {
-      hDist->Write();     
-      hRes->Write();      
-      hResVsEta->Write();   
-      hResVsPhi->Write(); 
-      hResVsPos->Write(); 
-      hResVsAngle->Write(); 
-      hResVsDistFE->Write(); 
-      hPull->Write();
-      hPullVsPos->Write();
-      hPullVsAngle->Write();
-      hPullVsDistFE->Write();
-      }*/
-
-
   public:
     MonitorElement* hDist;
     MonitorElement* hRes;
@@ -158,7 +107,6 @@ class HRes1DHit{
 
 };
 
-
 //---------------------------------------------------------------------------------------
 class HEff1DHit{
   public:
@@ -178,47 +126,12 @@ class HEff1DHit{
       hEffVsDist = nullptr;
 
     }
-/*
-    HEff1DHit (TString name_, TFile* file){
-      name=name_;
-      hEtaMuSimHit        = (TH1F *) file->Get("/DQMData/1D_"+name+"_hEtaMuSimHit");
-      hEtaRecHit          = (TH1F *) file->Get("/DQMData/1D_"+name+"_hEtaRecHit");
-      hEffVsEta           = (TH1F *) file->Get("/DQMData/1D_"+name+"_hEffVsEta");
-
-      hPhiMuSimHit        = (TH1F *) file->Get("/DQMData/1D_"+name+"_hPhiMuSimHit");
-      hPhiRecHit          = (TH1F *) file->Get("/DQMData/1D_"+name+"_hPhiRecHit");
-      hEffVsPhi           = (TH1F *) file->Get("/DQMData/1D_"+name+"_hEffVsPhi");
-
-      hDistMuSimHit       = (TH1F *) file->Get("/DQMData/1D_"+name+"_hDistMuSimHit");
-      hDistRecHit         = (TH1F *) file->Get("/DQMData/1D_"+name+"_hDistRecHit");
-      hEffVsDist          = (TH1F *) file->Get("/DQMData/1D_"+name+"_hEffVsDist");
-      }
-*/
-
-    ~HEff1DHit(){
-
-      //     delete hEtaMuSimHit;
-      //     delete hEtaRecHit;
-      //     if(hEffVsEta != 0)
-      //       delete hEffVsEta;
-
-      //     delete hPhiMuSimHit;
-      //     delete hPhiRecHit;
-      //     if(hEffVsPhi != 0)
-      //       delete hEffVsPhi;
-
-      //     delete hDistMuSimHit;
-      //     delete hDistRecHit;
-      //     if(hEffVsDist != 0)
-      //       delete hEffVsDist;
-
-    }
 
     void Fill(float distSimHit,
               float etaSimHit,
               float phiSimHit,
               bool fillRecHit) {
-      
+
       hEtaMuSimHit->Fill(etaSimHit);
       hPhiMuSimHit->Fill(phiSimHit);
       hDistMuSimHit->Fill(distSimHit);
@@ -229,17 +142,11 @@ class HEff1DHit{
       }
     }
 
-
-
     void ComputeEfficiency() {
-
-
-      //      hEffVsEta = (TH1F *) hEtaRecHit->Clone();
       hEffVsEta = (TH1F *) hEtaRecHit->getTH1();
       TH1F * hEffEtaMuSimHit = (TH1F *) hEtaMuSimHit->getTH1();
       hEffVsEta->SetTitle("1D RecHit Efficiency as a function of Eta");
       hEffVsEta->SetName(name+"_hEffVsEta");
-      //hEffVsEta->Divide(hEtaMuSimHit);
       hEffVsEta->Divide(hEffEtaMuSimHit);
       // Set the error accordingly to binomial statistics
       int nBinsEta = hEffVsEta->GetNbinsX();
@@ -253,7 +160,6 @@ class HEff1DHit{
         hEffVsEta->SetBinError(bin, error);
       }
 
-      //hEffVsPhi = (TH1F *) hPhiRecHit->Clone();
       hEffVsPhi = (TH1F *) hPhiRecHit->getTH1();
       TH1F * hEffPhiMuSimHit = (TH1F *) hPhiMuSimHit->getTH1();
       hEffVsPhi->SetTitle("1D RecHit Efficiency as a function of Phi");
@@ -271,7 +177,6 @@ class HEff1DHit{
         hEffVsPhi->SetBinError(bin, error);
       }
 
-      //hEffVsDist = (TH1F *) hDistRecHit->Clone();
       hEffVsDist = (TH1F *) hDistRecHit->getTH1();
       TH1F * hEffDistMuSimHit = (TH1F *) hDistMuSimHit->getTH1();
       hEffVsDist->SetTitle("1D RecHit Efficiency as a function of Dist");
@@ -288,24 +193,7 @@ class HEff1DHit{
         }
         hEffVsDist->SetBinError(bin, error);
       }
-
-
     }
-
-    /*void Write() {
-      hEtaMuSimHit->Write();                         
-      hEtaRecHit->Write();
-      if(hEffVsEta != 0)
-        hEffVsEta->Write();                    
-      hPhiMuSimHit->Write();                         
-      hPhiRecHit->Write();                         
-      if(hEffVsPhi != 0)
-        hEffVsPhi->Write();               
-      hDistMuSimHit->Write();                         
-      hDistRecHit->Write();                         
-      if(hEffVsDist != 0)
-        hEffVsDist->Write();
-	}*/
 
   public:
     MonitorElement* hEtaMuSimHit;
@@ -351,38 +239,16 @@ class HRes2DHit{
 							     100, -0.3, 0.3, 150, -0.2, 0.2);
 	
       }
-      
+
       hResAngle=nullptr; hResAngle   = dbe_->book1D (pre+"_hResAngle", "Residual on 2D segment angle;angle_{rec}-angle_{sim} (rad)", 50, -0.01, 0.01);
-      
+
       hResPos=nullptr;hResPos   = dbe_->book1D (pre+"_hResPos", "Residual on 2D segment position (x at SL center);x_{rec}-x_{sim} (cm)",
 					  150, -0.2, 0.2);
       dbe_->setCurrentFolder("DT/2DSegments/Pull/");
-     
+
       hPullAngle=nullptr;hPullAngle   = dbe_->book1D (pre+"_hPullAngle", "Pull on 2D segment angle;(angle_{rec}-angle_{sim})/#sigma (rad)", 150, -5, 5);
       hPullPos=nullptr;hPullPos   = dbe_->book1D (pre+"_hPullPos", "Pull on 2D segment position (x at SL center);(x_{rec}-x_{sim} (cm))/#sigma",
 					    150, -5, 5);
-    }
-
-/*    HRes2DHit (TString name_, TFile* file){
-      name=name_;
-
-      hRecAngle = (TH1F *) file->Get("DQMData/2D_"+name+"_hRecAngle");
-      hSimAngle = (TH1F *) file->Get("DQMData/2D_"+name+"_hSimAngle");
-      hRecVsSimAngle = (TH2F *) file->Get("DQMData/2D_"+name+"_hRecVsSimAngle");
-      hResAngle = (TH1F *) file->Get("DQMData/2D_"+name+"_hResAngle");
-      hResAngleVsEta = (TH2F *) file->Get("DQMData/2D_"+name+"_hResAngleVsEta");
-      hResAngleVsPhi = (TH2F *) file->Get("DQMData/2D_"+name+"_hResAngleVsPhi");
-      hResPos = (TH1F *) file->Get("DQMData/2D_"+name+"_hResPos");
-      hResPosVsEta = (TH2F *) file->Get("DQMData/2D_"+name+"_hResPosVsEta");
-      hResPosVsPhi = (TH2F *) file->Get("DQMData/2D_"+name+"_hResPosVsPhi");
-      hResPosVsResAngle = (TH2F *) file->Get("DQMData/2D_"+name+"_hResPosVsResAngle");
-      hPullAngle = (TH1F *) file->Get("DQMData/2D_"+name+"_hPullAngle");
-      hPullPos = (TH1F *) file->Get("DQMData/2D_"+name+"_hPullPos");
-
-    }
-   */
-
-    ~HRes2DHit(){
     }
 
     void Fill(float angleSimSegment,
@@ -412,38 +278,21 @@ class HRes2DHit{
       }
     }
 
-    /*void Write() {
-
-      hRecAngle->Write();
-      hSimAngle->Write();
-      hRecVsSimAngle->Write();
-      hResAngle->Write();
-      hResAngleVsEta->Write();
-      hResAngleVsPhi->Write();
-      hResPos->Write();
-      hResPosVsEta->Write();
-      hResPosVsPhi->Write();
-      hResPosVsResAngle->Write();
-      hPullAngle->Write();
-      hPullPos->Write();
-      }*/
-
-
   public:
     MonitorElement *hRecAngle;
     MonitorElement *hSimAngle;
     MonitorElement *hRecVsSimAngle;
     MonitorElement *hResAngle;
     MonitorElement *hResAngleVsEta;
-   MonitorElement  *hResAngleVsPhi;
+    MonitorElement *hResAngleVsPhi;
     MonitorElement *hResPos;
     MonitorElement *hResPosVsEta;
-   MonitorElement  *hResPosVsPhi;
+    MonitorElement *hResPosVsPhi;
     MonitorElement *hResPosVsResAngle;
     MonitorElement *hPullAngle;
     MonitorElement *hPullPos;
     TString name;
-    bool _doall; 
+    bool _doall;
 
 };
 
@@ -460,21 +309,16 @@ class HEff2DHit{
       hEtaSimSegm=nullptr;hEtaSimSegm     = dbe_->book1D(pre+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit=nullptr;hEtaRecHit      = dbe_->book1D(pre+"_hEtaRecHit", "Eta distribution of SimHit segment with 2D RecHit",
                                  100, -1.5, 1.5);
-      //hEffVsEta       = 0;
 
       hPhiSimSegm=nullptr;hPhiSimSegm     = dbe_->book1D(pre+"_hPhiSimSegm", "Phi of SimHit segment",
                                  100, -TMath::Pi(),TMath::Pi());
       hPhiRecHit=nullptr;hPhiRecHit      = dbe_->book1D(pre+"_hPhiRecHit", "Phi distribution of SimHit segment with 2D RecHit",
                                  100, -TMath::Pi(),TMath::Pi());
-      //hEffVsPhi       = 0;
-
 
       hPosSimSegm=nullptr;hPosSimSegm     = dbe_->book1D(pre+"_hPosSimSegm", "Position in SL of SimHit segment (cm)",
                                  100, -250, 250);
       hPosRecHit=nullptr;hPosRecHit      = dbe_->book1D(pre+"_hPosRecHit", "Position in SL of SimHit segment with 2D RecHit (cm)",
                                  100, -250, 250);
-      //hEffVsPos       = 0;
-
 
       hAngleSimSegm=nullptr;hAngleSimSegm   = dbe_->book1D(pre+"_hAngleSimSegm", "Angle of SimHit segment (rad)",
                                  100, -2, 2);
@@ -483,48 +327,6 @@ class HEff2DHit{
       hEffVsAngle=nullptr;hEffVsAngle     = nullptr;
 
     }
-/*
-    HEff2DHit (TString name_, TFile* file){
-      name=name_;
-      hEtaSimSegm = (TH1F *) file->Get("DQMData/2D_"+name+"_hEtaSimSegm");
-      hEtaRecHit = (TH1F *) file->Get("DQMData/2D_"+name+"_hEtaRecHit");
-      hEffVsEta = (TH1F *) file->Get("DQMData/2D_"+name+"_hEffVsEta");
-
-      hPhiSimSegm = (TH1F *) file->Get("DQMData/2D_"+name+"_hPhiSimSegm");
-      hPhiRecHit = (TH1F *) file->Get("DQMData/2D_"+name+"_hPhiRecHit");
-      hEffVsPhi = (TH1F *) file->Get("DQMData/2D_"+name+"_hEffVsPhi");
-
-      hPosSimSegm = (TH1F *) file->Get("DQMData/2D_"+name+"_hPosSimSegm");
-      hPosRecHit = (TH1F *) file->Get("DQMData/2D_"+name+"_hPosRecHit");
-      hEffVsPos = (TH1F *) file->Get("DQMData/2D_"+name+"_hEffVsPos");
-
-      hAngleSimSegm = (TH1F *) file->Get("DQMData/2D_"+name+"_hAngleSimSegm");
-      hAngleRecHit = (TH1F *) file->Get("DQMData/2D_"+name+"_hAngleRecHit");
-      hEffVsAngle = (TH1F *) file->Get("DQMData/2D_"+name+"_hEffVsAngle");
-      }
-*/
-
-    ~HEff2DHit(){
-      //delete hEtaSimSegm;    
-      //delete hEtaRecHit;     
-      //if(hEffVsEta != 0)
-      // delete hEffVsEta;   
-
-      //delete hPhiSimSegm;    
-      //delete hPhiRecHit;
-      //if(hEffVsPhi != 0)
-      //  delete hEffVsPhi;      
-
-      //delete hPosSimSegm;    
-      //delete hPosRecHit;
-      //if(hEffVsPos != 0)
-      //  delete hEffVsPos;      
-
-      //delete hAngleSimSegm;  
-      //delete hAngleRecHit;
-      //if(hEffVsAngle != 0)
-      //  delete hEffVsAngle;    
-    }
 
     void Fill(float etaSimSegm,
               float phiSimSegm,
@@ -532,23 +334,21 @@ class HEff2DHit{
               float angleSimSegm,
               bool fillRecHit) {
 
-      hEtaSimSegm->Fill(etaSimSegm);       
-      hPhiSimSegm->Fill(phiSimSegm);   
-      hPosSimSegm->Fill(posSimSegm);   
-      hAngleSimSegm->Fill(angleSimSegm); 
+      hEtaSimSegm->Fill(etaSimSegm);
+      hPhiSimSegm->Fill(phiSimSegm);
+      hPosSimSegm->Fill(posSimSegm);
+      hAngleSimSegm->Fill(angleSimSegm);
 
       if(fillRecHit) {
-        hEtaRecHit->Fill(etaSimSegm);    
-        hPhiRecHit->Fill(phiSimSegm);    
-        hPosRecHit->Fill(posSimSegm);    
-        hAngleRecHit->Fill(angleSimSegm);  
+        hEtaRecHit->Fill(etaSimSegm);
+        hPhiRecHit->Fill(phiSimSegm);
+        hPosRecHit->Fill(posSimSegm);
+        hAngleRecHit->Fill(angleSimSegm);
       }
     }
 
-
     void ComputeEfficiency() {
 
-      //hEffVsEta = (TH1F *) hEtaRecHit->Clone();
       hEffVsEta = (TH1F *) hEtaRecHit->getTH1();
       TH1F * hEffEtaSimSegm = (TH1F *) hEtaSimSegm->getTH1();
       hEffVsEta->SetTitle("2D RecHit Efficiency as a function of Eta");
@@ -566,7 +366,6 @@ class HEff2DHit{
         hEffVsEta->SetBinError(bin, error);
       }
 
-      //hEffVsPhi = (TH1F *) hPhiRecHit->Clone();
       hEffVsPhi = (TH1F *) hPhiRecHit->getTH1();
       TH1F * hEffPhiSimSegm = (TH1F *) hPhiSimSegm->getTH1();
       hEffVsPhi->SetTitle("2D RecHit Efficiency as a function of Phi");
@@ -586,7 +385,6 @@ class HEff2DHit{
 
       hEffVsPos = (TH1F *) hPosRecHit->getTH1();
       TH1F * hEffPosSimSegm = (TH1F *) hPosSimSegm->getTH1();
-      //hEffVsPos = (TH1F *) hPosRecHit->Clone();
       hEffVsPos->SetName(name+"_hEffVsPos");
       hEffVsPos->SetTitle("2D RecHit Efficiency as a function of position in SL");
       hEffVsPos->Divide(hEffPosSimSegm);
@@ -602,7 +400,6 @@ class HEff2DHit{
         hEffVsPos->SetBinError(bin, error);
       }
 
-      //hEffVsAngle = (TH1F *) hAngleRecHit->Clone();
       hEffVsAngle = (TH1F *) hAngleRecHit->getTH1();
       TH1F * hEffAngleSimSegm = (TH1F *) hAngleSimSegm->getTH1();
       hEffVsAngle->SetTitle("2D RecHit Efficiency as a function of angle");
@@ -622,43 +419,22 @@ class HEff2DHit{
 
     }
 
-    /*void Write() {
-      hEtaSimSegm->Write();   
-      hEtaRecHit->Write();    
-      if(hEffVsEta != 0)
-        hEffVsEta->Write();     
-      hPhiSimSegm->Write();   
-      hPhiRecHit->Write();    
-      if(hEffVsPhi != 0)
-        hEffVsPhi->Write();     
-      hPosSimSegm->Write();   
-      hPosRecHit->Write();    
-      if(hEffVsPos != 0)
-        hEffVsPos->Write();     
-      hAngleSimSegm->Write(); 
-      hAngleRecHit->Write();  
-      if(hEffVsAngle != 0)
-        hEffVsAngle->Write();   
-
-	}*/
-
   public:
 
-    MonitorElement *hEtaSimSegm;   
-    MonitorElement  *hEtaRecHit;    
-    TH1F  *hEffVsEta;     
-    MonitorElement  *hPhiSimSegm;   
-    MonitorElement  *hPhiRecHit;    
-    TH1F  *hEffVsPhi;     
-    MonitorElement  *hPosSimSegm;   
-    MonitorElement  *hPosRecHit;    
-    TH1F  *hEffVsPos;     
-    MonitorElement  *hAngleSimSegm; 
-    MonitorElement  *hAngleRecHit;  
-    TH1F   *hEffVsAngle;   
-    
-    TString name;
+    MonitorElement *hEtaSimSegm;
+    MonitorElement  *hEtaRecHit;
+    TH1F  *hEffVsEta;
+    MonitorElement  *hPhiSimSegm;
+    MonitorElement  *hPhiRecHit;
+    TH1F  *hEffVsPhi;
+    MonitorElement  *hPosSimSegm;
+    MonitorElement  *hPosRecHit;
+    TH1F  *hEffVsPos;
+    MonitorElement  *hAngleSimSegm;
+    MonitorElement  *hAngleRecHit;
+    TH1F   *hEffVsAngle;
 
+    TString name;
 };
 
 //---------------------------------------------------------------------------------------
@@ -669,8 +445,8 @@ class HRes4DHit{
       std::string pre ="4D_";
       pre += name_;
       _doall = doall;
-      
-      dbe_->setCurrentFolder("DT/4DSegments/Res/");    
+
+      dbe_->setCurrentFolder("DT/4DSegments/Res/");
       if(doall){
 	hRecAlpha=nullptr;hRecAlpha  = dbe_->book1D (pre+"_hRecAlpha", "4D RecHit alpha (RPhi) distribution;#alpha^{x} (rad)", 100, -1.5, 1.5);
 	hRecBeta=nullptr;hRecBeta = dbe_->book1D (pre+"_hRecBeta", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -1.5, 1.5);
@@ -736,7 +512,7 @@ class HRes4DHit{
 	hResYVsPhiRZ=nullptr;hResYVsPhiRZ    = dbe_->book2D (pre+"_hResYVsPhiRZ",
 						       "4D RecHit residual on position (y) in chamber vs phi in RZ SL;#phi (rad);y_{rec}-y_{sim} (cm)",
 						       100, -3.2, 3.2, 150, -0.6, 0.6);
-	dbe_->setCurrentFolder("DT/4DSegments/Pull/");    
+	dbe_->setCurrentFolder("DT/4DSegments/Pull/");
  	hPullAlphaVsEta=nullptr;hPullAlphaVsEta  = dbe_->book2D (pre+"_hPullAlphaVsEta",
 							   "4D RecHit pull on #alpha_x direction vs eta;#eta;(#alpha^{x}_{rec}-#alpha^{x}_{sim})/#sigma",
 							   100, -2.5, 2.5, 100, -5, 5);
@@ -752,13 +528,13 @@ class HRes4DHit{
 	hPullXVsEta=nullptr;hPullXVsEta      = dbe_->book2D (pre+"_hPullXVsEta",
 						       "4D RecHit pull on position (x) in chamber vs eta;#eta;(x_{rec}-x_{sim})#sigma",
 						       100, -2.5, 2.5, 150, -5, 5);
-	hPullXVsPhi=nullptr;hPullXVsPhi      = dbe_->book2D (pre+"_hPullXVsPhi", 
+	hPullXVsPhi=nullptr;hPullXVsPhi      = dbe_->book2D (pre+"_hPullXVsPhi",
 						       "4D RecHit pull on position (x) in chamber vs phi;#phi (rad);(x_{rec}-x_{sim})/#sigma",
 						       100, -3.2, 3.2, 150, -5, 5);
-	hPullYVsEta=nullptr;hPullYVsEta      = dbe_->book2D (pre+"_hPullYVsEta", 
+	hPullYVsEta=nullptr;hPullYVsEta      = dbe_->book2D (pre+"_hPullYVsEta",
 						       "4D RecHit pull on position (y) in chamber vs eta;#eta;(y_{rec}-y_{sim})/#sigma",
 						       100, -2.5, 2.5, 150, -5, 5);
-	hPullYVsPhi=nullptr;hPullYVsPhi      = dbe_->book2D (pre+"_hPullYVsPhi", 
+	hPullYVsPhi=nullptr;hPullYVsPhi      = dbe_->book2D (pre+"_hPullYVsPhi",
 						       "4D RecHit pull on position (y) in chamber vs phi;#phi (rad);(y_{rec}-y_{sim})/#sigma",
 						       100, -3.2, 3.2, 150, -5, 5);
 	hPullBetaVsEtaRZ=nullptr;hPullBetaVsEtaRZ = dbe_->book2D (pre+"_hPullBetaVsEtaRZ",
@@ -775,8 +551,8 @@ class HRes4DHit{
                                    100, -3.2, 3.2, 150, -5, 5);
 
       }
-      dbe_->setCurrentFolder("DT/4DSegments/Res/");    
-      hResAlpha=nullptr;hResAlpha = dbe_->book1D (pre+"_hResAlpha", 
+      dbe_->setCurrentFolder("DT/4DSegments/Res/");
+      hResAlpha=nullptr;hResAlpha = dbe_->book1D (pre+"_hResAlpha",
                                   "4D RecHit residual on #alpha_x direction;#alpha^{x}_{rec}-#alpha^{x}_{sim} (rad)",
 					    200, -0.015, 0.015);
 
@@ -798,9 +574,9 @@ class HRes4DHit{
                                   150, -0.15, 0.15);
 
       // Pulls
-      dbe_->setCurrentFolder("DT/4DSegments/Pull/");    
+      dbe_->setCurrentFolder("DT/4DSegments/Pull/");
 
-      hPullAlpha=nullptr;hPullAlpha = dbe_->book1D (pre+"_hPullAlpha", 
+      hPullAlpha=nullptr;hPullAlpha = dbe_->book1D (pre+"_hPullAlpha",
                                    "4D RecHit pull on #alpha_x direction;(#alpha^{x}_{rec}-#alpha^{x}_{sim})/#sigma",
                                    200, -5, 5);
       hPullBeta=nullptr;hPullBeta  = dbe_->book1D (pre+"_hPullBeta",
@@ -811,7 +587,7 @@ class HRes4DHit{
                                    "4D RecHit pull on position (x) in chamber;(x_{rec}-x_{sim})#sigma",
                                    150, -5, 5);
 
-      hPullY=nullptr;hPullY          = dbe_->book1D (pre+"_hPullY", 
+      hPullY=nullptr;hPullY          = dbe_->book1D (pre+"_hPullY",
                                    "4D RecHit pull on position (y) in chamber;(y_{rec}-y_{sim})/#sigma", 150, -5, 5);
 
      hPullBetaRZ=nullptr;hPullBetaRZ      = dbe_->book1D (pre+"_hPullBetaRZ",
@@ -869,7 +645,6 @@ class HRes4DHit{
       hResY->Fill(resY);
       hPullY->Fill(resY/sigmaY);
 
-
       float resBetaRZ = recBetaRZ - simBetaRZ;
       hResBetaRZ->Fill(resBetaRZ);
       hPullBetaRZ->Fill(resBetaRZ/sigmaBetaRZ);
@@ -899,10 +674,10 @@ class HRes4DHit{
 	hResYVsPhi->Fill(simPhi, resY);
 	hPullYVsEta->Fill(simEta, resY/sigmaY);
 	hPullYVsPhi->Fill(simPhi, resY/sigmaY);
-	hResAlphaVsResBeta->Fill(resBeta, resAlpha);   
-	hResXVsResY->Fill(resY, resX);          
-	hResAlphaVsResX->Fill(resX, resAlpha);      
-	hResAlphaVsResY->Fill(resY, resAlpha);      
+	hResAlphaVsResBeta->Fill(resBeta, resAlpha);
+	hResXVsResY->Fill(resY, resX);
+	hResAlphaVsResX->Fill(resX, resAlpha);
+	hResAlphaVsResY->Fill(resY, resAlpha);
 	// RZ SuperLayer
 	hRecBetaRZ->Fill(recBetaRZ);
 	hSimBetaRZ->Fill(simBetaRZ);
@@ -949,10 +724,10 @@ class HRes4DHit{
     MonitorElement *hResYVsEta;
     MonitorElement *hResYVsPhi;
 
-    MonitorElement *hResAlphaVsResBeta;   
-    MonitorElement *hResXVsResY;          
-    MonitorElement *hResAlphaVsResX;      
-    MonitorElement *hResAlphaVsResY;      
+    MonitorElement *hResAlphaVsResBeta;
+    MonitorElement *hResXVsResY;
+    MonitorElement *hResAlphaVsResX;
+    MonitorElement *hResAlphaVsResY;
 
     MonitorElement *hPullAlpha;
     MonitorElement *hPullAlphaVsEta;
@@ -970,7 +745,7 @@ class HRes4DHit{
     MonitorElement *hPullYVsEta;
     MonitorElement *hPullYVsPhi;
 
-    // RZ SL 
+    // RZ SL
     MonitorElement *hRecBetaRZ;
 
     MonitorElement *hSimBetaRZ;
@@ -998,7 +773,7 @@ class HRes4DHit{
 
     bool _doall;
     bool isLocal;
-    TString name;    
+    TString name;
 };
 
 //---------------------------------------------------------------------------------------
@@ -1009,7 +784,7 @@ class HEff4DHit{
       std::string pre ="4D_";
       pre += name_;
       name = pre;
-      dbe_->setCurrentFolder("DT/4DSegments/");     
+      dbe_->setCurrentFolder("DT/4DSegments/");
       hEtaSimSegm=nullptr;hEtaSimSegm     = dbe_->book1D(pre+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit=nullptr;hEtaRecHit      = dbe_->book1D(pre+"_hEtaRecHit", "Eta distribution of SimHit segment with 4D RecHit",
                                  100, -1.5, 1.5);
@@ -1020,7 +795,6 @@ class HEff4DHit{
       hPhiRecHit=nullptr;hPhiRecHit      = dbe_->book1D(pre+"_hPhiRecHit", "Phi distribution of SimHit segment with 4D RecHit",
                                  100, -TMath::Pi(),TMath::Pi());
       hEffVsPhi       = nullptr;
-
 
       hXSimSegm=nullptr;hXSimSegm       = dbe_->book1D(pre+"_hXSimSegm", "X position in Chamber of SimHit segment (cm)",
                                  100, -200, 200);
@@ -1054,7 +828,7 @@ class HEff4DHit{
     ~HEff4DHit(){
 
     }
-    
+
     void Fill(float etaSimSegm,
               float phiSimSegm,
               float xSimSegm,
@@ -1073,7 +847,7 @@ class HEff4DHit{
       hNSeg->Fill(nSeg);
 
       if(fillRecHit) {
-        hEtaRecHit->Fill(etaSimSegm);  
+        hEtaRecHit->Fill(etaSimSegm);
         hPhiRecHit->Fill(phiSimSegm);
         hXRecHit->Fill(xSimSegm);
         hYRecHit->Fill(ySimSegm);
@@ -1082,10 +856,7 @@ class HEff4DHit{
       }
     }
 
-
-
     void ComputeEfficiency() {
-      //hEffVsEta = (TH1F *) hEtaRecHit->Clone();
       hEffVsEta = (TH1F *) hEtaRecHit->getTH1();
       TH1F * hEffEtaSimSegm = (TH1F *) hEtaSimSegm->getTH1();
       hEffVsEta->SetName(name+"_hEffVsEta");
@@ -1137,7 +908,6 @@ class HEff4DHit{
         hEffVsX->SetBinError(bin, error);
       }
 
-
       hEffVsY = (TH1F *) hYRecHit->getTH1();
       TH1F * hEffYSimSegm = (TH1F *) hYSimSegm->getTH1();
       hEffVsY->SetName(name+"_hEffVsY");
@@ -1172,7 +942,6 @@ class HEff4DHit{
         hEffVsAlpha->SetBinError(bin, error);
       }
 
-
       hEffVsBeta = (TH1F *) hBetaRecHit->getTH1();
       TH1F * hEffBetaSimSegm = (TH1F *) hBetaSimSegm->getTH1();
       hEffVsBeta->SetName(name+"_hEffVsBeta");
@@ -1192,30 +961,27 @@ class HEff4DHit{
     }
 
   public:
-    MonitorElement *hEtaSimSegm;   
-    MonitorElement *hEtaRecHit;    
-    TH1F *hEffVsEta;     
-    MonitorElement *hPhiSimSegm;   
-    MonitorElement *hPhiRecHit;    
-    TH1F *hEffVsPhi;     
-    MonitorElement *hXSimSegm;     
-    MonitorElement *hXRecHit;      
-    TH1F *hEffVsX;       
-    MonitorElement *hYSimSegm;     
-    MonitorElement *hYRecHit;      
-    TH1F *hEffVsY;       
-    MonitorElement *hAlphaSimSegm; 
-    MonitorElement *hAlphaRecHit;  
-    TH1F *hEffVsAlpha;   
-    MonitorElement *hBetaSimSegm;  
-    MonitorElement *hBetaRecHit;   
-    TH1F *hEffVsBeta;    
-    MonitorElement *hNSeg;    
+    MonitorElement *hEtaSimSegm;
+    MonitorElement *hEtaRecHit;
+    TH1F *hEffVsEta;
+    MonitorElement *hPhiSimSegm;
+    MonitorElement *hPhiRecHit;
+    TH1F *hEffVsPhi;
+    MonitorElement *hXSimSegm;
+    MonitorElement *hXRecHit;
+    TH1F *hEffVsX;
+    MonitorElement *hYSimSegm;
+    MonitorElement *hYRecHit;
+    TH1F *hEffVsY;
+    MonitorElement *hAlphaSimSegm;
+    MonitorElement *hAlphaRecHit;
+    TH1F *hEffVsAlpha;
+    MonitorElement *hBetaSimSegm;
+    MonitorElement *hBetaRecHit;
+    TH1F *hEffVsBeta;
+    MonitorElement *hNSeg;
 
     TString name;
-
 };
-			       
 
 #endif
-
