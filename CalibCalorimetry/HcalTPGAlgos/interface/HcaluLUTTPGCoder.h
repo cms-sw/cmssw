@@ -33,7 +33,7 @@ class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
   static const float  lsb_;
 
-  HcaluLUTTPGCoder(const HcalTopology* topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams);
+  HcaluLUTTPGCoder(const HcalTopology* topo, const edm::ESHandle<HcalTimeSlew>& delay, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams);
   ~HcaluLUTTPGCoder() override;
   void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const override;
   void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const override;
@@ -83,6 +83,7 @@ private:
   
   // member variables
   const HcalTopology* topo_;
+  const edm::ESHandle<HcalTimeSlew>& delay_;
   const edm::ESHandle<HcalMCParams>& mcParams_;
   const edm::ESHandle<HcalRecoParams>& recoParams_;
   bool LUTGenerationMode_;
