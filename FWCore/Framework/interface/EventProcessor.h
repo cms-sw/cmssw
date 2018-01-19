@@ -51,6 +51,7 @@ namespace edm {
   class SubProcess;
   class WaitingTaskHolder;
   class LuminosityBlockProcessingStatus;
+  class IOVSyncValue;
   
   namespace eventsetup {
     class EventSetupProvider;
@@ -185,6 +186,8 @@ namespace edm {
     // transition handling.
 
     InputSource::ItemType nextTransitionType();
+    InputSource::ItemType lastTransitionType() const { if(deferredExceptionPtrIsSet_) {return InputSource::IsStop;}
+                                                          return lastSourceTransition_;}
     std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
     edm::LuminosityBlockNumber_t nextLuminosityBlockID();
     
@@ -207,9 +210,14 @@ namespace edm {
     void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded);
     void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
 
-    void beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status);
-    void beginLumiAsync(edm::WaitingTaskHolder iHolder, std::shared_ptr<LuminosityBlockProcessingStatus>& oStatus);
-    void endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status);
+    InputSource::ItemType processLumis(std::shared_ptr<void> const& iRunResource);
+    void endUnfinishedLumi();
+    
+    void beginLumiAsync(edm::IOVSyncValue const& iSyncValue,
+                        std::shared_ptr<void> const& iRunResource,
+                        edm::WaitingTaskHolder iHolder);
+    void continueLumiAsync(edm::WaitingTaskHolder iHolder);
+    
     void globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
     void streamEndLumiAsync(edm::WaitingTaskHolder iTask,
                             unsigned int iStreamIndex,
@@ -231,8 +239,6 @@ namespace edm {
 
     bool setDeferredException(std::exception_ptr);
 
-    InputSource::ItemType readAndProcessEvents();
-
   private:
     //------------------------------------------------------------------
     //
@@ -243,11 +249,10 @@ namespace edm {
               serviceregistry::ServiceLegacy);
 
     bool readNextEventForStream(unsigned int iStreamIndex,
-                                     std::atomic<bool>* finishedProcessingEvents);
+                                LuminosityBlockProcessingStatus& iLumiStatus);
 
     void handleNextEventForStreamAsync(WaitingTaskHolder iTask,
-                                       unsigned int iStreamIndex,
-                                     std::atomic<bool>* finishedProcessingEvents);
+                                       unsigned int iStreamIndex);
 
     
     //read the next event using Stream iStreamIndex
@@ -286,6 +291,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     ServiceToken                                  serviceToken_;
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
+    InputSource::ItemType lastSourceTransition_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
     edm::SerialTaskQueue iovQueue_;
@@ -324,7 +330,6 @@ namespace edm {
     PreallocationConfiguration                    preallocations_;
     
     bool                                          asyncStopRequestedWhileProcessingEvents_;
-    std::atomic<InputSource::ItemType>            nextItemTypeFromProcessingEvents_;
     StatusCode                                    asyncStopStatusCodeFromProcessingEvents_;
     bool firstEventInBlock_=true;
     

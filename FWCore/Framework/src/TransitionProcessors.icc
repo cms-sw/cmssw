@@ -83,139 +83,29 @@ struct RunResources {
   bool globalTransitionSucceeded_ = false;
 };
 
-struct LumiResources {
-  LumiResources(std::shared_ptr<RunResources> run, edm::LuminosityBlockNumber_t lumi) noexcept :
-  run_(std::move(run)),
-  lumi_(lumi) {}
-  
-  ~LumiResources() noexcept {
-    try {
-      //If we skip empty lumis, this would be called conditionally
-      run_->ep_.endLumi(status_);
-      
-      if (success_) {
-        run_->ep_.writeLumi(*status_);
-      }
-
-      run_->ep_.deleteLumiFromCache(*status_);
-      
-    } catch(...) {
-      if(status_->cleaningUpAfterException() or not run_->ep_.setDeferredException(std::current_exception())) {
-        std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.");
-        run_->ep_.setExceptionMessageLumis(message);
-      }
-    }
-    
-  }
-  
-  edm::ProcessHistoryID processHistoryID() const {
-    return run_->processHistoryID();
-  }
-  edm::RunNumber_t run() const {
-    return run_->run();
-  }
-  edm::LuminosityBlockNumber_t lumi() const {
-    return lumi_;
-  }
-  
-  void normalEnd() {
-    status_->noExceptionHappened();
-  }
-
-  void succeeded() {
-    success_ = true;
-  }
-
-  std::shared_ptr<RunResources> run_;
-  std::shared_ptr<edm::LuminosityBlockProcessingStatus> status_;
-  edm::LuminosityBlockNumber_t lumi_;
-  bool success_ = false;
-};
-
-struct EventResources {
-  unsigned long long event_;
-  std::shared_ptr<LumiResources> lumi_;
-};
-
-class EventsInLumiProcessor {
-public:
-  EventsInLumiProcessor(){}
-  
-  edm::InputSource::ItemType processEvents(EventProcessor& iEP, std::shared_ptr<LumiResources> iLumi) {
-    auto ret = iEP.readAndProcessEvents();
-    if(iEP.shouldWeStop()) {
-      //looper requested stopping event processing
-      return edm::InputSource::IsStop;
-    }
-    while( ret == edm::InputSource::IsSynchronize ) {
-      ret = iEP.nextTransitionType();
-    }
-    return ret;
-  }
-  
-private:
-  //void readEvent(StreamID, InputSource& );
-  //void processEvent(StreamID, InputSource& , std::shared_ptr<LumiResources> ) {
-  //
-  //}
-};
-
 class LumisInRunProcessor {
 public:
+  ~LumisInRunProcessor() noexcept {
+    normalEnd();
+  }
+  
   edm::InputSource::ItemType processLumis(EventProcessor& iEP, std::shared_ptr<RunResources> iRun) {
-    bool finished = false;
-    auto nextTransition = edm::InputSource::IsLumi;
-    do {
-      switch(nextTransition) {
-        case edm::InputSource::IsLumi:
-        {
-          processLumi(iEP,iRun);
-          nextTransition = iEP.nextTransitionType();
-          break;
-        }
-        case edm::InputSource::IsEvent:
-        {
-          nextTransition = events_.processEvents(iEP,currentLumi_);
-          break;
-        }
-        default:
-          finished = true;
-      }
-      
-    } while(not finished);
-    return nextTransition;
+    currentRun_ = std::move(iRun);
+    makeSureLumiEnds_ = true;
+    return iEP.processLumis(std::shared_ptr<void>{currentRun_});
   }
   
   void normalEnd() {
-    if (currentLumi_) {
-      currentLumi_->normalEnd();
+    if (makeSureLumiEnds_) {
+      makeSureLumiEnds_ = false;
+      currentRun_->ep_.endUnfinishedLumi();
     }
-    currentLumi_.reset();
+    currentRun_.reset();
   }
 private:
   
-  void processLumi(EventProcessor& iEP, std::shared_ptr<RunResources> iRun) {
-    auto lumiID = iEP.nextLuminosityBlockID();
-    if ( (not currentLumi_) or
-        currentLumi_->run_.get() != iRun.get() or
-        currentLumi_->lumi() != lumiID) {
-      //switching to a different lumi
-      if(currentLumi_) {
-        currentLumi_->normalEnd();
-      }
-      currentLumi_ = std::make_shared<LumiResources>(iRun,lumiID);
-      iEP.beginLumi(currentLumi_->status_);
-      //only if we succeed at beginLumi should we run writeLumi
-      currentLumi_->succeeded();
-    } else {
-      //merge
-      auto id = iEP.readAndMergeLumi(*currentLumi_->status_);
-      assert((id >= 0) and (static_cast<unsigned int>(id) == lumiID) );
-    }
-  }
-  
-  std::shared_ptr<LumiResources> currentLumi_;
-  EventsInLumiProcessor events_;
+  std::shared_ptr<RunResources> currentRun_;
+  bool makeSureLumiEnds_ = false;
   
 };
 
@@ -261,6 +151,10 @@ private:
       if(currentRun_) {
         //Both the current run and lumi end here
         lumis_.normalEnd();
+        if(edm::InputSource::IsStop == iEP.lastTransitionType()) {
+          //an exception happened while processing the end lumi
+          return;
+        }
         currentRun_->normalEnd();
       }
       currentRun_ = std::make_shared<RunResources>(iEP,runID.first,runID.second);
