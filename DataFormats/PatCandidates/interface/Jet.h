@@ -47,6 +47,8 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 
+#include <numeric>
+
 
 // Define typedefs for convenience
 namespace pat {
@@ -498,13 +500,13 @@ namespace pat {
 
 
       /// String access to subjet list
-      pat::JetPtrCollection const & subjets( std::string label ) const ;
+      pat::JetPtrCollection const & subjets( std::string const & label ) const ;
 
       /// Add new set of subjets
-      void addSubjets( pat::JetPtrCollection const & pieces, std::string label = ""  );
+      void addSubjets( pat::JetPtrCollection const & pieces, std::string const & label = ""  );
 
       /// Check to see if the subjet collection exists
-      bool hasSubjets( std::string label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
+      bool hasSubjets( std::string const & label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
       
       /// Number of subjet collections
       unsigned int nSubjetCollections(  ) const { return  subjetCollections_.size(); }
@@ -512,7 +514,19 @@ namespace pat {
       /// Subjet collection names
       std::vector<std::string> const & subjetCollectionNames() const { return subjetLabels_; }
 
-
+      /// Access to mass of subjets
+      double groomedMass(unsigned int index = 0) const{
+	return nSubjetCollections() > 0 && !subjets(index).empty() ?
+	  std::accumulate( subjets(index).begin(), subjets(index).end(),
+			   reco::Candidate::LorentzVector(), [] (reco::Candidate::LorentzVector a, reco::CandidatePtr const & b){return a + b->p4();}).mass() :
+	  -1.0;
+      }
+      double groomedMass(std::string const & label) const{
+	return hasSubjets(label) && !subjets(label).empty() ?
+	  std::accumulate( subjets(label).begin(), subjets(label).end(),
+			   reco::Candidate::LorentzVector(), [] (reco::Candidate::LorentzVector a, reco::CandidatePtr const & b){return a + b->p4();}).mass() :
+	  -1.0;
+      }
 
     protected:
 
