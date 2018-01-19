@@ -26,8 +26,10 @@ void HcalPulseContainmentManager::endRun()
   shapes_.endRun();
 }
 
-void HcalPulseContainmentManager::beginRun(const HcalTopology *topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams)
+void HcalPulseContainmentManager::beginRun(const HcalTopology *topo, const edm::ESHandle<HcalTimeSlew>& delay, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams)
 {
+  hcalTimeSlew_delay_ = &*delay;
+
   shapes_.beginRun(topo, mcParams, recoParams);
 }
 
