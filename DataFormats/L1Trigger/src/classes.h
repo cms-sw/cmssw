@@ -5,7 +5,6 @@
 #include "Math/CylindricalEta3D.h"
 #include "Math/PxPyPzE4D.h"
 #include <boost/cstdint.hpp>
-#include <utility>
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
@@ -21,7 +20,6 @@
 #include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
 #include "DataFormats/L1Trigger/interface/L1TriggerError.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
