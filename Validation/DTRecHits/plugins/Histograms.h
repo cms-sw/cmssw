@@ -87,7 +87,7 @@ class HRes1DHit{
       else std::cout<<"Error: RecHit error = 0" << std::endl;
     }
 
-  public:
+  private:
     MonitorElement* hDist;
     MonitorElement* hRes;
     MonitorElement* hResSt[4];
@@ -195,7 +195,7 @@ class HEff1DHit{
       }
     }
 
-  public:
+  private:
     MonitorElement* hEtaMuSimHit;
     MonitorElement* hEtaRecHit;
     TH1F* hEffVsEta;
@@ -278,7 +278,7 @@ class HRes2DHit{
       }
     }
 
-  public:
+  private:
     MonitorElement *hRecAngle;
     MonitorElement *hSimAngle;
     MonitorElement *hRecVsSimAngle;
@@ -419,8 +419,7 @@ class HEff2DHit{
 
     }
 
-  public:
-
+  private:
     MonitorElement *hEtaSimSegm;
     MonitorElement  *hEtaRecHit;
     TH1F  *hEffVsEta;
@@ -697,8 +696,7 @@ class HRes4DHit{
       }
     }
 
-  public:
-
+  private:
     MonitorElement *hRecAlpha;
     MonitorElement *hRecBeta;
 
@@ -960,7 +958,7 @@ class HEff4DHit{
       }
     }
 
-  public:
+  private:
     MonitorElement *hEtaSimSegm;
     MonitorElement *hEtaRecHit;
     TH1F *hEffVsEta;
