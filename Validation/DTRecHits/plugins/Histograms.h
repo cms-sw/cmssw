@@ -19,10 +19,10 @@
 /// A set of histograms of residuals and pulls for 1D RecHits
 class HRes1DHit{
   public:
-    HRes1DHit(std::string name_,DQMStore* dbe_,bool doall=true,bool local=true){
+    HRes1DHit(std::string name,DQMStore* dbe_,bool doall=true,bool local=true){
       std::string pre ="1D_";
-      pre += name_;
-      _doall = doall;
+      pre += name;
+      doall_ = doall;
       dbe_->setCurrentFolder("DT/1DRecHits/Res/");
 
       if(doall){
@@ -62,7 +62,7 @@ class HRes1DHit{
 	      int station) {
       // Reso, pull
       float res = distRecHit-distSimHit;
-      if(_doall){
+      if(doall_){
 	hDist->Fill(distRecHit);
 	hResVsAngle->Fill(thetaSimHit,res);
 	hResVsDistFE->Fill(distFESimHit,res);
@@ -74,7 +74,7 @@ class HRes1DHit{
       if(errRecHit!=0) {
         float pull=res/errRecHit;
         hPull->Fill(pull);hPullSt[station-1]->Fill(pull);
-	if(_doall){
+	if(doall_){
 	  hPullVsPos->Fill(distSimHit,pull);
 	  hPullVsAngle->Fill(thetaSimHit,pull);
 	  hPullVsDistFE->Fill(distFESimHit,pull);
@@ -98,17 +98,17 @@ class HRes1DHit{
     MonitorElement* hPullVsPos;
     MonitorElement* hPullVsAngle;
     MonitorElement* hPullVsDistFE;
-    bool _doall;
-    std::string name;
+    bool doall_;
+    std::string name_;
 };
 
 //---------------------------------------------------------------------------------------
 class HEff1DHit{
   public:
-    HEff1DHit(std::string name_,DQMStore *dbe_){
+    HEff1DHit(std::string name,DQMStore *dbe_){
       std::string pre ="1D_";
-      pre += name_;
-      name = pre;
+      pre += name;
+      name_ = pre;
       dbe_->setCurrentFolder("DT/1DRecHits/");
       hEtaMuSimHit=nullptr; hEtaMuSimHit = dbe_->book1D(pre+"_hEtaMuSimHit", "SimHit Eta distribution",100, -1.5, 1.5);
       hEtaRecHit=nullptr; hEtaRecHit = dbe_->book1D(pre+"_hEtaRecHit", "SimHit Eta distribution with 1D RecHit",100, -1.5, 1.5);
@@ -141,7 +141,7 @@ class HEff1DHit{
       hEffVsEta = (TH1F *) hEtaRecHit->getTH1();
       TH1F * hEffEtaMuSimHit = (TH1F *) hEtaMuSimHit->getTH1();
       hEffVsEta->SetTitle("1D RecHit Efficiency as a function of Eta");
-      hEffVsEta->SetName((name+"_hEffVsEta").c_str());
+      hEffVsEta->SetName((name_+"_hEffVsEta").c_str());
       hEffVsEta->Divide(hEffEtaMuSimHit);
       // Set the error accordingly to binomial statistics
       int nBinsEta = hEffVsEta->GetNbinsX();
@@ -158,7 +158,7 @@ class HEff1DHit{
       hEffVsPhi = (TH1F *) hPhiRecHit->getTH1();
       TH1F * hEffPhiMuSimHit = (TH1F *) hPhiMuSimHit->getTH1();
       hEffVsPhi->SetTitle("1D RecHit Efficiency as a function of Phi");
-      hEffVsPhi->SetName((name+"_hEffVsPhi").c_str());
+      hEffVsPhi->SetName((name_+"_hEffVsPhi").c_str());
       hEffVsPhi->Divide(hEffPhiMuSimHit);
       // Set the error accordingly to binomial statistics
       int nBinsPhi = hEffVsPhi->GetNbinsX();
@@ -175,7 +175,7 @@ class HEff1DHit{
       hEffVsDist = (TH1F *) hDistRecHit->getTH1();
       TH1F * hEffDistMuSimHit = (TH1F *) hDistMuSimHit->getTH1();
       hEffVsDist->SetTitle("1D RecHit Efficiency as a function of Dist");
-      hEffVsDist->SetName((name+"_hEffVsDist").c_str());
+      hEffVsDist->SetName((name_+"_hEffVsDist").c_str());
       hEffVsDist->Divide(hEffDistMuSimHit);
       // Set the error accordingly to binomial statistics
       int nBinsDist = hEffVsDist->GetNbinsX();
@@ -203,7 +203,7 @@ class HEff1DHit{
     MonitorElement* hDistRecHit;
     TH1F* hEffVsDist;
 
-    std::string name;
+    std::string name_;
 };
 
 //---------------------------------------------------------------//
@@ -211,10 +211,10 @@ class HEff1DHit{
 // Histos of residuals for 2D rechits
 class HRes2DHit{
   public:
-    HRes2DHit(std::string name_,DQMStore* dbe_,bool doall=true,bool local=true){
-      _doall = doall;
+    HRes2DHit(std::string name,DQMStore* dbe_,bool doall=true,bool local=true){
+      doall_ = doall;
       std::string pre ="2D_";
-      pre += name_;
+      pre += name;
       dbe_->setCurrentFolder("DT/2DSegments/Res/");
       if(doall){
 	hRecAngle=nullptr;hRecAngle = dbe_->book1D (pre+"_hRecAngle", "Distribution of Rec segment angles;angle (rad)",100, -1.5, 1.5);
@@ -260,7 +260,7 @@ class HRes2DHit{
       hResPos->Fill(resPos);
       hPullAngle->Fill(resAngle/sigmaAngle);
       hPullPos->Fill(resPos/sigmaPos);
-      if(_doall){
+      if(doall_){
 	hRecAngle->Fill(angleRecSegment);
 	hSimAngle->Fill(angleSimSegment);
 	hRecVsSimAngle->Fill(angleSimSegment, angleRecSegment);
@@ -286,8 +286,8 @@ class HRes2DHit{
     MonitorElement *hPullAngle;
     MonitorElement *hPullPos;
 
-    std::string name;
-    bool _doall;
+    std::string name_;
+    bool doall_;
 };
 
 //--------------------------------------------------------------------------------//
@@ -295,10 +295,10 @@ class HRes2DHit{
 // Histos for 2D RecHit efficiency
 class HEff2DHit{
   public:
-    HEff2DHit(std::string name_, DQMStore * dbe_){
+    HEff2DHit(std::string name, DQMStore * dbe_){
       std::string pre ="2D_";
-      pre += name_;
-      name = pre;
+      pre += name;
+      name_ = pre;
       dbe_->setCurrentFolder("DT/2DSegments/");
       hEtaSimSegm=nullptr;hEtaSimSegm     = dbe_->book1D(pre+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit=nullptr;hEtaRecHit      = dbe_->book1D(pre+"_hEtaRecHit", "Eta distribution of SimHit segment with 2D RecHit",
@@ -346,7 +346,7 @@ class HEff2DHit{
       hEffVsEta = (TH1F *) hEtaRecHit->getTH1();
       TH1F * hEffEtaSimSegm = (TH1F *) hEtaSimSegm->getTH1();
       hEffVsEta->SetTitle("2D RecHit Efficiency as a function of Eta");
-      hEffVsEta->SetName((name+"_hEffVsEta").c_str());
+      hEffVsEta->SetName((name_+"_hEffVsEta").c_str());
       hEffVsEta->Divide(hEffEtaSimSegm);
       // Set the error accordingly to binomial statistics
       int nBinsEta = hEffVsEta->GetNbinsX();
@@ -363,7 +363,7 @@ class HEff2DHit{
       hEffVsPhi = (TH1F *) hPhiRecHit->getTH1();
       TH1F * hEffPhiSimSegm = (TH1F *) hPhiSimSegm->getTH1();
       hEffVsPhi->SetTitle("2D RecHit Efficiency as a function of Phi");
-      hEffVsPhi->SetName((name+"_hEffVsPhi").c_str());
+      hEffVsPhi->SetName((name_+"_hEffVsPhi").c_str());
       hEffVsPhi->Divide(hEffPhiSimSegm);
       // Set the error accordingly to binomial statistics
       int nBinsPhi = hEffVsPhi->GetNbinsX();
@@ -379,7 +379,7 @@ class HEff2DHit{
 
       hEffVsPos = (TH1F *) hPosRecHit->getTH1();
       TH1F * hEffPosSimSegm = (TH1F *) hPosSimSegm->getTH1();
-      hEffVsPos->SetName((name+"_hEffVsPos").c_str());
+      hEffVsPos->SetName((name_+"_hEffVsPos").c_str());
       hEffVsPos->SetTitle("2D RecHit Efficiency as a function of position in SL");
       hEffVsPos->Divide(hEffPosSimSegm);
       // Set the error accordingly to binomial statistics
@@ -397,7 +397,7 @@ class HEff2DHit{
       hEffVsAngle = (TH1F *) hAngleRecHit->getTH1();
       TH1F * hEffAngleSimSegm = (TH1F *) hAngleSimSegm->getTH1();
       hEffVsAngle->SetTitle("2D RecHit Efficiency as a function of angle");
-      hEffVsAngle->SetName((name+"_hEffVsAngle").c_str());
+      hEffVsAngle->SetName((name_+"_hEffVsAngle").c_str());
       hEffVsAngle->Divide(hEffAngleSimSegm);
       // Set the error accordingly to binomial statistics
       int nBinsAngle = hEffVsAngle->GetNbinsX();
@@ -427,17 +427,17 @@ class HEff2DHit{
     MonitorElement  *hAngleRecHit;
     TH1F   *hEffVsAngle;
 
-    std::string name;
+    std::string name_;
 };
 
 //---------------------------------------------------------------------------------------
 // Histos of residuals for 4D rechits
 class HRes4DHit{
   public:
-  HRes4DHit(std::string name_,DQMStore *dbe_,bool doall=true,bool local=true) : isLocal(local){
+  HRes4DHit(std::string name,DQMStore *dbe_,bool doall=true,bool local=true) : local_(local){
       std::string pre ="4D_";
-      pre += name_;
-      _doall = doall;
+      pre += name;
+      doall_ = doall;
 
       dbe_->setCurrentFolder("DT/4DSegments/Res/");
       if(doall){
@@ -592,7 +592,7 @@ class HRes4DHit{
                                    150, -5, 5);
 
       // NHits, t0
-      if (isLocal) {
+      if (local_) {
 	dbe_->setCurrentFolder("DT/4DSegments/");
 	hHitMult                  = dbe_->book2D(pre+"_hNHits", "NHits", 12,0,12, 6,0,6);
 	ht0                       = dbe_->book2D(pre+"_ht0",    "t0",    200,-25,25,200,-25,25);
@@ -644,7 +644,7 @@ class HRes4DHit{
       float resYRZ = recYRZ - simYRZ;
       hResYRZ->Fill(resYRZ);
       hPullYRZ->Fill(resYRZ/sigmaYRZ);
-      if(_doall){
+      if(doall_){
 	hRecAlpha->Fill(recDirectionAlpha);
 	hRecBeta->Fill(recDirectionBeta);
 	hSimAlpha->Fill(simDirectionAlpha);
@@ -684,7 +684,7 @@ class HRes4DHit{
 	hPullYVsEtaRZ->Fill(simEta, resYRZ/sigmaYRZ);
 	hPullYVsPhiRZ->Fill(simPhi, resYRZ/sigmaYRZ);
       }
-      if (isLocal){
+      if (local_){
 	hHitMult->Fill(nHitsPhi, nHitsTheta);
 	ht0->Fill(t0Phi,t0Theta);
       }
@@ -763,19 +763,19 @@ class HRes4DHit{
     MonitorElement *hHitMult;
     MonitorElement *ht0;
 
-    bool _doall;
-    bool isLocal;
-    std::string name;
+    bool doall_;
+    bool local_;
+    std::string name_;
 };
 
 //---------------------------------------------------------------------------------------
 /// A set of histograms for efficiency 4D RecHits
 class HEff4DHit{
   public:
-    HEff4DHit(std::string name_,DQMStore *dbe_){
+    HEff4DHit(std::string name,DQMStore *dbe_){
       std::string pre ="4D_";
-      pre += name_;
-      name = pre;
+      pre += name;
+      name_ = pre;
       dbe_->setCurrentFolder("DT/4DSegments/");
       hEtaSimSegm=nullptr;hEtaSimSegm     = dbe_->book1D(pre+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit=nullptr;hEtaRecHit      = dbe_->book1D(pre+"_hEtaRecHit", "Eta distribution of SimHit segment with 4D RecHit",
@@ -851,7 +851,7 @@ class HEff4DHit{
     void ComputeEfficiency() {
       hEffVsEta = (TH1F *) hEtaRecHit->getTH1();
       TH1F * hEffEtaSimSegm = (TH1F *) hEtaSimSegm->getTH1();
-      hEffVsEta->SetName((name+"_hEffVsEta").c_str());
+      hEffVsEta->SetName((name_+"_hEffVsEta").c_str());
       hEffVsEta->SetTitle("4D RecHit Efficiency as a function of Eta");
       hEffVsEta->Divide(hEffEtaSimSegm);
       // Set the error accordingly to binomial statistics
@@ -868,7 +868,7 @@ class HEff4DHit{
 
       hEffVsPhi = (TH1F *) hPhiRecHit->getTH1();
       TH1F * hEffPhiSimSegm = (TH1F *) hPhiSimSegm->getTH1();
-      hEffVsPhi->SetName((name+"_hEffVsPhi").c_str());
+      hEffVsPhi->SetName((name_+"_hEffVsPhi").c_str());
       hEffVsPhi->SetTitle("4D RecHit Efficiency as a function of Phi");
       hEffVsPhi->Divide(hEffPhiSimSegm);
       // Set the error accordingly to binomial statistics
@@ -885,7 +885,7 @@ class HEff4DHit{
 
       hEffVsX = (TH1F *) hXRecHit->getTH1();
       TH1F * hEffXSimSegm = (TH1F *) hXSimSegm->getTH1();
-      hEffVsX->SetName((name+"_hEffVsX").c_str());
+      hEffVsX->SetName((name_+"_hEffVsX").c_str());
       hEffVsX->SetTitle("4D RecHit Efficiency as a function of x position in Chamber");
       hEffVsX->Divide(hEffXSimSegm);
       // Set the error accordingly to binomial statistics
@@ -902,7 +902,7 @@ class HEff4DHit{
 
       hEffVsY = (TH1F *) hYRecHit->getTH1();
       TH1F * hEffYSimSegm = (TH1F *) hYSimSegm->getTH1();
-      hEffVsY->SetName((name+"_hEffVsY").c_str());
+      hEffVsY->SetName((name_+"_hEffVsY").c_str());
       hEffVsY->SetTitle("4D RecHit Efficiency as a function of y position in Chamber");
       hEffVsY->Divide(hEffYSimSegm);
       // Set the error accordingly to binomial statistics
@@ -919,7 +919,7 @@ class HEff4DHit{
 
       hEffVsAlpha = (TH1F *) hAlphaRecHit->getTH1();
       TH1F * hEffAlphaSimSegm = (TH1F *) hAlphaSimSegm->getTH1();
-      hEffVsAlpha->SetName((name+"_hEffVsAlpha").c_str());
+      hEffVsAlpha->SetName((name_+"_hEffVsAlpha").c_str());
       hEffVsAlpha->SetTitle("4D RecHit Efficiency as a function of alpha");
       hEffVsAlpha->Divide(hEffAlphaSimSegm);
       // Set the error accordingly to binomial statistics
@@ -936,7 +936,7 @@ class HEff4DHit{
 
       hEffVsBeta = (TH1F *) hBetaRecHit->getTH1();
       TH1F * hEffBetaSimSegm = (TH1F *) hBetaSimSegm->getTH1();
-      hEffVsBeta->SetName((name+"_hEffVsBeta").c_str());
+      hEffVsBeta->SetName((name_+"_hEffVsBeta").c_str());
       hEffVsBeta->SetTitle("4D RecHit Efficiency as a function of beta");
       hEffVsBeta->Divide(hEffBetaSimSegm);
       // Set the error accordingly to binomial statistics
@@ -973,7 +973,7 @@ class HEff4DHit{
     TH1F *hEffVsBeta;
     MonitorElement *hNSeg;
 
-    std::string name;
+    std::string name_;
 };
 
 #endif
