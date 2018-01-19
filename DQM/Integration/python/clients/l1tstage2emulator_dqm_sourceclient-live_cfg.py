@@ -21,6 +21,8 @@ if 'es_prefer_GlobalTag' in process.__dict__:
 #process.load("DQM.Integration.config.fileinputsource_cfi")
 #process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
+# required for EMTF emulator
+process.load('Configuration.StandardSequences.MagneticField_cff')
 # Required to load EcalMappingRecord
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
@@ -42,6 +44,22 @@ process.dqmEndPath = cms.EndPath(
 # Standard Unpacking Path
 
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
+
+# remove unneeded unpackers
+process.RawToDigi.remove(process.ecalDigis)
+process.RawToDigi.remove(process.ecalPreshowerDigis)
+process.RawToDigi.remove(process.hcalDigis)
+process.RawToDigi.remove(process.muonCSCDigis)
+process.RawToDigi.remove(process.muonDTDigis)
+process.RawToDigi.remove(process.siPixelDigis)
+process.RawToDigi.remove(process.siStripDigis)
+process.RawToDigi.remove(process.castorDigis)
+process.RawToDigi.remove(process.scalersRawToDigi)
+process.RawToDigi.remove(process.tcdsDigis)
+process.RawToDigi.remove(process.totemTriggerRawToDigi)
+process.RawToDigi.remove(process.totemRPRawToDigi)
+process.RawToDigi.remove(process.ctppsDiamondRawToDigi)
+process.RawToDigi.remove(process.ctppsPixelDigis)
 
 process.rawToDigiPath = cms.Path(process.RawToDigi)
 
@@ -66,12 +84,10 @@ process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
 process.load("DQM.L1TMonitor.L1TStage2Emulator_cff")
 
 process.l1tEmulatorMonitorPath = cms.Path(
-    process.l1tStage2Unpack  +
     process.Stage2L1HardwareValidation +
     process.l1tStage2EmulatorOnlineDQM +
     process.hltFatEventFilter +
 #    process.selfFatEventFilter +
-    process.l1tStage2UnpackValidationEvents  +
     process.Stage2L1HardwareValidationForValidationEvents +
     process.l1tStage2EmulatorOnlineDQMValidationEvents
     )
@@ -127,7 +143,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.l1tCaloLayer1Digis.fedRawDataLabel = cms.InputTag("rawDataRepacker")
     process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.simHcalTriggerPrimitiveDigis.InputTagFEDRaw = cms.InputTag("rawDataRepacker")
