@@ -34,6 +34,7 @@ namespace edm {
     void runToCompletion();
 
     InputSource::ItemType nextTransitionType();
+    InputSource::ItemType lastTransitionType() const;
     std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
     edm::LuminosityBlockNumber_t nextLuminosityBlockID();
 
@@ -56,8 +57,8 @@ namespace edm {
     void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalTransitionSucceeded);
     void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTranstitionSucceeded, bool cleaningUpAfterException);
 
-    void beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status);
-    void endLumi(std::shared_ptr<LuminosityBlockProcessingStatus>);
+    InputSource::ItemType processLumis(std::shared_ptr<void>);
+    void endUnfinishedLumi();
 
     std::pair<ProcessHistoryID,RunNumber_t> readRun();
     std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
@@ -74,17 +75,21 @@ namespace edm {
     void setExceptionMessageRuns(std::string& message);
     void setExceptionMessageLumis(std::string& message);
 
-    InputSource::ItemType readAndProcessEvents();
 
     bool setDeferredException(std::exception_ptr);
 
   private:
+    InputSource::ItemType readAndProcessEvents();
     void readAndProcessEvent();
     void throwIfNeeded();
+    void endLumi();
 
     std::string mockData_;
     std::ostream & output_;
     std::istringstream input_;
+    
+    std::shared_ptr<LuminosityBlockProcessingStatus> lumiStatus_;
+    InputSource::ItemType lastTransition_;
     
     int run_;
     int lumi_;

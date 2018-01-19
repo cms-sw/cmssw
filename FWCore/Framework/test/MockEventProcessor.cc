@@ -70,7 +70,7 @@ namespace edm {
     token t;
     if( not (input_ >> t)) {
       reachedEndOfInput_ = true;
-      return InputSource::IsStop;
+      return lastTransition_=InputSource::IsStop;
     }
 
     char ch = t.id;
@@ -79,11 +79,11 @@ namespace edm {
     if(ch == 'r') {
       output_ << "    *** nextItemType: Run " << t.value << " ***\n";
       run_ = t.value;
-      return InputSource::IsRun;
+      return lastTransition_=InputSource::IsRun;
     } else if(ch == 'l') {
       output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
       lumi_ = t.value;
-      return InputSource::IsLumi;
+      return lastTransition_=InputSource::IsLumi;
     } else if(ch == 'e') {
       output_ << "    *** nextItemType: Event ***\n";
       // a special value for test purposes only
@@ -93,29 +93,34 @@ namespace edm {
       } else {
         shouldWeStop_ = false;
       }
-      return InputSource::IsEvent;
+      return lastTransition_=InputSource::IsEvent;
     } else if(ch == 'f') {
       output_ << "    *** nextItemType: File " << t.value << " ***\n";
       // a special value for test purposes only
       if(t.value == 0) shouldWeCloseOutput_ = false;
       else shouldWeCloseOutput_ = true;
-      return InputSource::IsFile;
+      return lastTransition_=InputSource::IsFile;
     } else if(ch == 's') {
       output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
       // a special value for test purposes only
       if(t.value == 0) shouldWeEndLoop_ = false;
       else shouldWeEndLoop_ = true;
-      return InputSource::IsStop;
+      return lastTransition_=InputSource::IsStop;
     } else if(ch == 'x') {
       output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
       shouldWeEndLoop_ = t.value;
-      return InputSource::IsStop;
+      return lastTransition_=InputSource::IsStop;
     } else if(ch == 't') {
       output_ << "    *** nextItemType: Throw " << t.value << " ***\n";
       shouldThrow_ = true;
       return nextTransitionType();
     }
-    return InputSource::IsInvalid;
+    return lastTransition_=InputSource::IsInvalid;
+  }
+  
+  InputSource::ItemType
+  MockEventProcessor::lastTransitionType() const {
+    return lastTransition_;
   }
   
   std::pair<edm::ProcessHistoryID, edm::RunNumber_t>
@@ -232,17 +237,34 @@ namespace edm {
     output_ << "\tendRun " << run << postfix;
   }
 
-  void MockEventProcessor::beginLumi(std::shared_ptr<LuminosityBlockProcessingStatus>& status) {
-    status = std::make_shared<LuminosityBlockProcessingStatus>(this,1);
-    auto lumi = readLuminosityBlock(*status);
-    output_ << "\tbeginLumi " << run_ << "/" << lumi << "\n";
-    throwIfNeeded();
-    status->globalBeginDidSucceed();
+  InputSource::ItemType MockEventProcessor::processLumis(std::shared_ptr<void> iRunResource) {
+    
+    assert(false);
+    if(lumiStatus_) {
+      //Need to do event processing here
+      readAndProcessEvents();
+    } else {
+      lumiStatus_ = std::make_shared<LuminosityBlockProcessingStatus>(this,1,iRunResource);
+      auto lumi = readLuminosityBlock(*lumiStatus_);
+      output_ << "\tbeginLumi " << run_ << "/" << lumi << "\n";
+      throwIfNeeded();
+      lumiStatus_->globalBeginDidSucceed();
+      //Need to do event processing here
+      readAndProcessEvents();
+    }
+    return lastTransitionType();
   }
 
-  void MockEventProcessor::endLumi(std::shared_ptr<LuminosityBlockProcessingStatus> status) {
-    auto postfix = status->didGlobalBeginSucceed()? "\n" : " global failed\n";
-    output_ << "\tendLumi " << status->lumiPrincipal()->run_ << "/" << status->lumiPrincipal()->lumi_ << postfix;
+  void MockEventProcessor::endUnfinishedLumi() {
+    if(lumiStatus_) {
+      endLumi();
+    }
+  }
+  
+  void MockEventProcessor::endLumi() {
+    auto postfix = lumiStatus_->didGlobalBeginSucceed()? "\n" : " global failed\n";
+    output_ << "\tendLumi " << lumiStatus_->lumiPrincipal()->run_ << "/" << lumiStatus_->lumiPrincipal()->lumi_ << postfix;
+    lumiStatus_.reset();
   }
 
   std::pair<ProcessHistoryID,RunNumber_t> MockEventProcessor::readRun() {

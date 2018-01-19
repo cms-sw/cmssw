@@ -25,6 +25,7 @@
 // user include files
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 // forward declarations
 namespace edm {
@@ -39,8 +40,8 @@ class LuminosityBlockProcessingStatus
 {
 
   public:
-  LuminosityBlockProcessingStatus(EventProcessor* iEP, unsigned int iNStreams):
-  eventProcessor_(iEP), nStreamsStillProcessingLumi_(iNStreams) {}
+  LuminosityBlockProcessingStatus(EventProcessor* iEP, unsigned int iNStreams, std::shared_ptr<void> iRunResource):
+  run_(std::move(iRunResource)) , eventProcessor_(iEP), nStreamsStillProcessingLumi_(iNStreams){}
 
   std::shared_ptr<LuminosityBlockPrincipal>& lumiPrincipal() { return lumiPrincipal_;}
 
@@ -48,6 +49,8 @@ class LuminosityBlockProcessingStatus
     globalLumiQueueResumer_ = std::move(iResumer);
   }
   void resumeGlobalLumiQueue() {
+    //free lumi for next usage
+    lumiPrincipal_.reset();
     globalLumiQueueResumer_.resume();
   }
   
@@ -78,13 +81,23 @@ class LuminosityBlockProcessingStatus
   }
   edm::Timestamp const& lastTimestamp() const { return endTime_;}
   
+  void setNextSyncValue(IOVSyncValue iValue) {
+    nextSyncValue_ = std::move(iValue);
+  }
+  
+  const IOVSyncValue nextSyncValue() const { return nextSyncValue_;}
+  
+  std::shared_ptr<void> const& runResource() const {return run_;}
+  
   //Called once all events in Lumi have been processed
   void setEndTime();
   private:
   // ---------- member data --------------------------------
   std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
+  std::shared_ptr<void> run_;
   LimitedTaskQueue::Resumer globalLumiQueueResumer_;
   EventProcessor* eventProcessor_ = nullptr;
+  IOVSyncValue nextSyncValue_;
   std::atomic<unsigned int> nStreamsStillProcessingLumi_{0}; //read/write as streams finish lumi so must be atomic
   edm::Timestamp endTime_{};
   std::atomic<char> endTimeSetStatus_{0};
