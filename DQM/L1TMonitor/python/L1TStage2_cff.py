@@ -17,7 +17,7 @@ from DQM.L1TMonitor.L1TStage2CaloLayer2_cfi import *
 from DQM.L1TMonitor.L1TStage2uGTCaloLayer2Comp_cfi import *
 
 # BMTF
-from DQM.L1TMonitor.L1TStage2BMTF_cfi import *
+from DQM.L1TMonitor.L1TStage2BMTF_cff import *
 
 # OMTF
 from DQM.L1TMonitor.L1TStage2OMTF_cfi import *
@@ -41,7 +41,7 @@ from DQM.L1TMonitor.L1TStage2uGT_cff import *
 l1tStage2OnlineDQM = cms.Sequence(
     l1tStage2CaloLayer1 +
     l1tStage2CaloLayer2 +
-    l1tStage2Bmtf +
+    l1tStage2BmtfOnlineDQMSeq +
     l1tStage2Omtf +
     l1tStage2Emtf +
     l1tStage2uGMTOnlineDQMSeq +
@@ -52,6 +52,7 @@ l1tStage2OnlineDQM = cms.Sequence(
 
 # sequence to run only for validation events
 l1tStage2OnlineDQMValidationEvents = cms.Sequence(
+    l1tStage2BmtfValidationEventOnlineDQMSeq +
     l1tStage2uGMTValidationEventOnlineDQMSeq
 )
 
