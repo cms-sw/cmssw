@@ -50,6 +50,7 @@ Some examples of InputSource subclasses may be:
 
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include <memory>
 #include <string>
@@ -153,7 +154,7 @@ namespace edm {
     void setLuminosityBlockNumber_t(LuminosityBlockNumber_t lb) {setLumi(lb);}
 
     /// issue an event report
-    void issueReports(EventID const& eventID);
+    void issueReports(EventID const& eventID, StreamID streamID);
 
     /// Register any produced products
     virtual void registerProducts();
