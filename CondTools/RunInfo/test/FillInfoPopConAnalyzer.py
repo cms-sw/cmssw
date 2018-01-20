@@ -12,7 +12,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     )
 
 process.source = cms.Source("EmptyIOVSource",
-                            lastValue = cms.uint64(1),
+                            lastValue = cms.uint64(6305),
                             timetype = cms.string('runnumber'),
                             firstValue = cms.uint64(1),
                             interval = cms.uint64(1)
