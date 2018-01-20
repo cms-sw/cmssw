@@ -50,12 +50,12 @@ EcalTBH4BeamSD::~EcalTBH4BeamSD() {
   if (numberingScheme) delete numberingScheme;
 }
 
-double EcalTBH4BeamSD::getEnergyDeposit(G4Step * aStep) {
+double EcalTBH4BeamSD::getEnergyDeposit(const G4Step * aStep, bool&) {
   
   if (aStep == nullptr) {
     return 0;
   } else {
-    preStepPoint        = aStep->GetPreStepPoint();
+    const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
     G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
 
     // take into account light collection curve for crystals

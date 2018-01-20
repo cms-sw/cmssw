@@ -114,16 +114,17 @@ bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 #endif
     // Apply fiducial cuts
     if (r/z >= slopeMin_) {
-      if (getStepInfo(aStep)) {
-	if ((storeAllG4Hits_ || (hitExists() == false)) && 
-	    (edepositEM+edepositHAD>0.)) currentHit = createNewHit();
+      bool isKilled(false);
+      if (getStepInfo(aStep, isKilled)) {
+	if ((storeAllG4Hits_ || (hitExists(aStep) == false)) && 
+	    (edepositEM+edepositHAD>0.)) currentHit = createNewHit(aStep);
       }
     }
     return true;
   }
 } 
 
-double HGCSD::getEnergyDeposit(G4Step* aStep) {
+double HGCSD::getEnergyDeposit(const G4Step* aStep, bool&) {
   double wt1    = getResponseWt(aStep->GetTrack());
   double wt2    = aStep->GetTrack()->GetWeight();
   double destep = wt1*(aStep->GetTotalEnergyDeposit());
@@ -239,9 +240,7 @@ uint32_t HGCSD::setDetUnitId (ForwardSubdetector &subdet, int layer, int module,
 }
 
 int HGCSD::setTrackID (const G4Step* aStep) {
-  const G4Track* theTrack    = aStep->GetTrack();
-
-  double etrack = preStepPoint->GetKineticEnergy();
+  const G4Track* theTrack = aStep->GetTrack();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
@@ -252,8 +251,8 @@ int HGCSD::setTrackID (const G4Step* aStep) {
     primaryID = theTrack->GetTrackID();
   }
 
-  if (primaryID != previousID.trackID())
-    resetForNewPrimary(preStepPoint->GetPosition(), etrack);
-
+  if (primaryID != previousID.trackID()) {
+    resetForNewPrimary(aStep);
+  }
   return primaryID;
 }
