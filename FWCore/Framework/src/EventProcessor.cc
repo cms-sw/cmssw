@@ -1472,13 +1472,11 @@ namespace edm {
       auto itemType = iStatus.continuingLumi()? InputSource::IsLumi : nextTransitionType();
       if(InputSource::IsLumi == itemType) {
         iStatus.haveContinuedLumi();
-        auto nextLumi =nextLuminosityBlockID();
         while(itemType == InputSource::IsLumi and
               iStatus.lumiPrincipal()->run() == input_->run() and
-              iStatus.lumiPrincipal()->luminosityBlock() == nextLumi) {
+              iStatus.lumiPrincipal()->luminosityBlock() == nextLuminosityBlockID()) {
           readAndMergeLumi(iStatus);
           itemType = nextTransitionType();
-          nextLumi =nextLuminosityBlockID();
         }
         if(InputSource::IsLumi == itemType) {
           iStatus.setNextSyncValue(IOVSyncValue(EventID(input_->run(), input_->luminosityBlock(), 0), input_->timestamp()));
