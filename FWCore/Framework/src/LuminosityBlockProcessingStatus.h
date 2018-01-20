@@ -72,6 +72,9 @@ class LuminosityBlockProcessingStatus
   bool haveStartedNextLumi() const { return startedNextLumi_;}
   void startNextLumi() { startedNextLumi_ = true;}
   
+  bool didGlobalBeginSucceed() const {return globalBeginSucceeded_;}
+  void globalBeginDidSucceed() { globalBeginSucceeded_ = true;}
+
   void noExceptionHappened() { cleaningUpAfterException_ = false; }
   bool cleaningUpAfterException() const { return cleaningUpAfterException_;}
 
