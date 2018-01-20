@@ -7,6 +7,12 @@
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ICursor.h"
+#include "RelationalAccess/ITable.h"
+#include "RelationalAccess/ITableDescription.h"
+#include "RelationalAccess/IColumn.h"
+#include "RelationalAccess/IIndex.h"
+#include "RelationalAccess/IPrimaryKey.h"
+#include "RelationalAccess/IForeignKey.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
@@ -16,6 +22,7 @@
 #include <sstream>
 #include <utility>
 #include <vector>
+#include <set>
 
 FillInfoPopConSourceHandler::FillInfoPopConSourceHandler( edm::ParameterSet const & pset ):
   m_debug( pset.getUntrackedParameter<bool>( "debug", false ) )
@@ -25,10 +32,11 @@ FillInfoPopConSourceHandler::FillInfoPopConSourceHandler( edm::ParameterSet cons
   ,m_connectionString(pset.getUntrackedParameter<std::string>("connectionString",""))
   ,m_dipSchema(pset.getUntrackedParameter<std::string>("DIPSchema",""))
   ,m_authpath(pset.getUntrackedParameter<std::string>("authenticationPath","")) {}
-
+//L1: try with different m_dipSchema
+//L2: try with different m_name
 FillInfoPopConSourceHandler::~FillInfoPopConSourceHandler() {}
 
-void FillInfoPopConSourceHandler::getNewObjects() {  
+void FillInfoPopConSourceHandler::getNewObjects() {
   //reference to the last payload in the tag
   Ref previousFill;
   
@@ -72,7 +80,7 @@ void FillInfoPopConSourceHandler::getNewObjects() {
 			    << " EXITING. from " << m_name << "::getNewObjects";
     return;
   }
-  
+
   //retrieve the data from the relational database source
   cond::persistency::ConnectionPool connection;
   //configure the connection
@@ -84,12 +92,12 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   connection.setAuthenticationPath( m_authpath );
   connection.configure();
   //create a sessiom
-  cond::persistency::Session session = connection.createSession( m_connectionString, true  );
+  cond::persistency::Session session = connection.createSession( m_connectionString );
   //run the first query against the schema logging fill information
   coral::ISchema& runTimeLoggerSchema = session.nominalSchema();
   //start the transaction against the fill logging schema
   session.transaction().start(true);
-  //prepare the query:
+ //prepare the query for table 1:
   std::unique_ptr<coral::IQuery> fillDataQuery( runTimeLoggerSchema.newQuery() );
   //FROM clause
   fillDataQuery->addToTableList( std::string( "RUNTIME_SUMMARY" ) );
@@ -116,7 +124,7 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   fillDataBindVariables.extend( std::string( "firstFillNumber" ), typeid( unsigned short ) );
   fillDataBindVariables[ std::string( "firstFillNumber" ) ].data<unsigned short>() = m_firstFill;
   fillDataBindVariables.extend( std::string( "lastFillNumber" ), typeid( unsigned short ) );
-  fillDataBindVariables[ std::string( "lastFillNumber" ) ].data<unsigned short>() = m_lastFill;
+  fillDataBindVariables[ std::string( "lastFillNumber" ) ].data<unsigned short>() = m_lastFill; 
   //by imposing BEGINTIME IS NOT NULL, we remove fills which never went into stable beams,
   //or the most recent one, just declared but not yet in stable beams
   std::string conditionStr( "BEGINTIME IS NOT NULL AND LHCFILL BETWEEN :firstFillNumber AND :lastFillNumber" );
@@ -144,6 +152,7 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   fillDataOutput.extend<std::string>( std::string( "INJECTIONSCHEME" ) );
   fillDataQuery->defineOutput( fillDataOutput );
   //execute the query
+  std::cout <<"\n\nQuerying the OMDS for RUNTIME_SUMMARY data...\n\n"<<std::endl;
   coral::ICursor& fillDataCursor = fillDataQuery->execute();
   //initialize loop variables
   unsigned short previousFillNumber = 1, currentFill = m_firstFill;
@@ -160,8 +169,36 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   cond::Time_t creationTime = 0ULL, stableBeamStartTime = 0ULL, beamDumpTime = 0ULL;
   std::string injectionScheme( "None" );
   std::ostringstream ss;
+  
+//prepare the query for table 2:
+  std::unique_ptr<coral::IQuery> fillDataQuery2( runTimeLoggerSchema.newQuery() );
+  //FROM clause
+  fillDataQuery2->addToTableList( std::string( "LUMI_SECTIONS" ) );
+  //SELECT clause
+  fillDataQuery2->addToOutputList( std::string( "MAX(DELIVLUMI)" ) );
+  fillDataQuery2->addToOutputList( std::string( "MAX(LIVELUMI)" ) );
+  //WHERE clause
+  //by imposing BEGINTIME IS NOT NULL, we remove fills which never went into stable beams,
+  //or the most recent one, just declared but not yet in stable beams
+  conditionStr = "DELIVLUMI IS NOT NULL AND LHCFILL BETWEEN :firstFillNumber AND :lastFillNumber";
+  fillDataQuery2->setCondition( conditionStr, fillDataBindVariables );
+  //ORDER BY clause
+  fillDataQuery2->addToOrderList( std::string( "LHCFILL" ) );
+  fillDataQuery2->groupBy( std::string( "LHCFILL" ) );
+  //define query output*/
+  coral::AttributeList fillDataOutput2;
+  fillDataOutput2.extend<float>( std::string( "DELIVEREDLUMI" ) );
+  fillDataOutput2.extend<float>( std::string( "RECORDEDLUMI" ) );
+  fillDataQuery2->defineOutput( fillDataOutput2 );
+  //execute the query
+  std::cout <<"\n\nQuerying the OMDS for LUMI data...\n\n"<<std::endl;
+  coral::ICursor& fillDataCursor2 = fillDataQuery2->execute();
+  //initialize loop variables
+  float delivLumi = 0., recLumi = 0.;
+
   //loop over the cursor where the result of the query were fetched
   while( fillDataCursor.next() ) {
+	//std::cout <<"New row"<<std::endl;
     if( m_debug ) {
       std::ostringstream qs;
       fillDataCursor.currentRow().toOutputStream( qs );
@@ -236,6 +273,26 @@ void FillInfoPopConSourceHandler::getNewObjects() {
     } else {
       energy = energyAttribute.data<float>();
     }
+    
+    if( fillDataCursor2.next())
+    {
+    	coral::Attribute const & delivLumiAttribute = fillDataCursor2.currentRow()[ std::string( "DELIVEREDLUMI" ) ];
+		if( delivLumiAttribute.isNull() ){
+		  delivLumi = 0.;
+		}
+		else {
+		  delivLumi = delivLumiAttribute.data<float>() / 1000.;
+		}
+		
+		coral::Attribute const & recLumiAttribute = fillDataCursor2.currentRow()[ std::string( "RECORDEDLUMI" ) ];
+		if( recLumiAttribute.isNull() ){
+		  recLumi = 0.;
+		}
+		else {
+		  recLumi = recLumiAttribute.data<float>() / 1000.;
+		}
+	}
+    
     //CREATETIME IS NOT NULL
     creationTime = cond::time::from_boost( fillDataCursor.currentRow()[ std::string( "CREATETIME" ) ].data<coral::TimeStamp>().time() );
     //BEGINTIME is imposed to be NOT NULL in the WHERE clause
@@ -278,6 +335,7 @@ void FillInfoPopConSourceHandler::getNewObjects() {
 				<< "; from " << m_name << "::getNewObjects";
       continue;
     }
+    
     //run the second and third query against the schema hosting detailed DIP information
     coral::ISchema& beamCondSchema = session.coralSession().schema( m_dipSchema );
     //start the transaction against the DIP "deep" database backend schema
@@ -302,19 +360,22 @@ void FillInfoPopConSourceHandler::getNewObjects() {
     bunchConf1Query->defineOutput( bunchConfOutput );
     coral::ICursor& bunchConf1Cursor = bunchConf1Query->execute();
     std::bitset<FillInfo::bunchSlots+1> bunchConfiguration1( 0ULL );
+
     while( bunchConf1Cursor.next() ) {
-      if( m_debug ) {
+      /*if( m_debug ) {
 	std::ostringstream b1s;
 	fillDataCursor.currentRow().toOutputStream( b1s );
 	edm::LogInfo( m_name ) << b1s.str() << "\nfrom " << m_name << "::getNewObjects";
-      }
+      }*/
       //bunchConf1Cursor.currentRow().toOutputStream( std::cout ) << std::endl;
       if( bunchConf1Cursor.currentRow()[ std::string( "BUCKET" ) ].data<unsigned short>() != 0 ) {
 	unsigned short slot = ( bunchConf1Cursor.currentRow()[ std::string( "BUCKET" ) ].data<unsigned short>() - 1 ) / 10 + 1;
 	bunchConfiguration1[ slot ] = true;
       }
     }
-    //execute query for Beam 2
+  
+
+//execute query for Beam 2
     std::unique_ptr<coral::IQuery> bunchConf2Query(beamCondSchema.newQuery());
     bunchConf2Query->addToTableList( std::string( "LHC_CIRCBUNCHCONFIG_BEAM2" ), std::string( "BEAMCONF\", TABLE( BEAMCONF.VALUE ) \"BUCKETS" ) );
     bunchConf2Query->addToOutputList( std::string( "BEAMCONF.DIPTIME" ), std::string( "DIPTIME" ) );
@@ -325,17 +386,54 @@ void FillInfoPopConSourceHandler::getNewObjects() {
     bunchConf2Query->defineOutput( bunchConfOutput );
     coral::ICursor& bunchConf2Cursor = bunchConf2Query->execute();
     std::bitset<FillInfo::bunchSlots+1> bunchConfiguration2( 0ULL );
+    
     while( bunchConf2Cursor.next() ) {
-      if( m_debug ) {
+     /*if( m_debug ) {
 	std::ostringstream b2s;
 	fillDataCursor.currentRow().toOutputStream( b2s );
 	edm::LogInfo( m_name ) << b2s.str() << "\nfrom " << m_name << "::getNewObjects";
-      }
+      }*/
       if( bunchConf2Cursor.currentRow()[ std::string( "BUCKET" ) ].data<unsigned short>() != 0 ) {
 	unsigned short slot = ( bunchConf2Cursor.currentRow()[ std::string( "BUCKET" ) ].data<unsigned short>() - 1 ) / 10 + 1;
 	bunchConfiguration2[ slot ] = true;
       }
     }
+      
+	//execute query for lumiPerBX
+    std::unique_ptr<coral::IQuery> lumiDataQuery(beamCondSchema.newQuery());
+	lumiDataQuery->addToTableList( std::string( "CMS_LHC_LUMIPERBUNCH" ), std::string( "LUMIPERBUNCH\", TABLE( LUMIPERBUNCH.LUMI_BUNCHINST ) \"VALUE" ) );
+	lumiDataQuery->addToOutputList( std::string( "LUMIPERBUNCH.DIPTIME" ), std::string( "DIPTIME" ) );
+	lumiDataQuery->addToOutputList( std::string( "VALUE.COLUMN_VALUE" ), std::string( "LUMI/BUNCH" ) );
+	coral::AttributeList lumiDataBindVariables;
+    lumiDataBindVariables.extend<coral::TimeStamp>( std::string( "stableBeamStartTimeStamp" ) );
+	lumiDataBindVariables[ std::string( "stableBeamStartTimeStamp" ) ].data<coral::TimeStamp>() = stableBeamStartTimeStamp;
+	lumiDataBindVariables.extend<coral::TimeStamp>( std::string( "beamDumpTimeStamp" ) );
+	lumiDataBindVariables[ std::string( "beamDumpTimeStamp" ) ].data<coral::TimeStamp>() = beamDumpTimeStamp;
+	conditionStr = std::string( "DIPTIME BETWEEN :stableBeamStartTimeStamp AND :beamDumpTimeStamp" );
+	lumiDataQuery->setCondition( conditionStr, lumiDataBindVariables );
+	lumiDataQuery->addToOrderList( std::string( "DIPTIME DESC" ) );
+	lumiDataQuery->limitReturnedRows(3564); //Maximum number of bunches.
+	//define query output
+	coral::AttributeList lumiDataOutput;
+	lumiDataOutput.extend<coral::TimeStamp>( std::string( "TIME" ) );
+	lumiDataOutput.extend<float>( std::string( "VALUE" ) );
+	lumiDataQuery->defineOutput( lumiDataOutput );
+	//execute the query
+	std::cout <<"\n\nQuerying the OMDS for LUMI/BUNCH...\n\n"<<std::endl;
+	coral::ICursor& lumiDataCursor = lumiDataQuery->execute();
+	std::vector<float> lumiPerBX;
+	
+	while( lumiDataCursor.next() ) {
+     /*if( m_debug ) {
+	std::ostringstream lpBX;
+	C.currentRow().toOutputStream( lpBX );
+	edm::LogInfo( m_name ) << lpBX.str() << "\nfrom " << m_name << "::getNewObjects";
+      }*/
+      if( lumiDataCursor.currentRow()[ std::string( "VALUE" ) ].data<float>() != 0.00 ) {
+	lumiPerBX.push_back(lumiDataCursor.currentRow()[ std::string( "VALUE" ) ].data<float>());
+      }
+    }
+
     //commit the transaction against the DIP "deep" database backend schema
     session.transaction().commit();
     
@@ -374,13 +472,15 @@ void FillInfoPopConSourceHandler::getNewObjects() {
 			 , const_cast<float const &>( intensityBeam1 )
 			 , const_cast<float const &>( intensityBeam2 ) 
 			 , const_cast<float const &>( energy ) 
+			 , const_cast<float const &>( delivLumi )
+			 , const_cast<float const &>( recLumi )  
 			 , const_cast<cond::Time_t const &>( creationTime )
 			 , const_cast<cond::Time_t const &>( stableBeamStartTime )
 			 , const_cast<cond::Time_t const &>( beamDumpTime )
 			 , const_cast<std::string const &>( injectionScheme )
-			 , const_cast<std::bitset<FillInfo::bunchSlots+1> const &>( bunchConfiguration1 )
-			 , const_cast<std::bitset<FillInfo::bunchSlots+1> const &>( bunchConfiguration2 ) 
-			   );
+			 , const_cast<std::vector<float> const &>( lumiPerBX )
+		 	 , const_cast<std::bitset<FillInfo::bunchSlots+1> const &>( bunchConfiguration1 )
+			 , const_cast<std::bitset<FillInfo::bunchSlots+1> const &>( bunchConfiguration2 )  );
     //store this payload
     m_to_transfer.push_back( std::make_pair( (FillInfo*)fillInfo, stableBeamStartTime ) );
     edm::LogInfo( m_name ) << "The new payload to be inserted into tag " << tagInfo().name 
@@ -399,7 +499,8 @@ void FillInfoPopConSourceHandler::getNewObjects() {
     //prepare variables for next iteration
     previousFillNumber = currentFill;
     previousFillEndTime = beamDumpTime;
-  }
+    }
+
   //commit the transaction against the fill logging schema
   session.transaction().commit();
   //close the session
