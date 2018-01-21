@@ -1100,9 +1100,13 @@ namespace edm {
   void
   EventProcessor::beginLumiAsync(IOVSyncValue const& iSync,
                                  std::shared_ptr<void> const& iRunResource, edm::WaitingTaskHolder iHolder) {
+    if(iHolder.taskHasFailed()) { return; }
+    
     auto status= std::make_shared<LuminosityBlockProcessingStatus>(this, preallocations_.numberOfStreams(), iRunResource) ;
 
     auto lumiWork = [this, iHolder, iSync, status](edm::LimitedTaskQueue::Resumer iResumer) mutable {
+      if(iHolder.taskHasFailed()) { return; }
+
       status->setResumer(std::move(iResumer));
       
       sourceResourcesAcquirer_.serialQueueChain().push([this,iHolder,status]() mutable {
