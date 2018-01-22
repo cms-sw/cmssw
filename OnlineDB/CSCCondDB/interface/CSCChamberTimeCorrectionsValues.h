@@ -27,7 +27,7 @@ class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::Event
   
   inline static CSCChamberTimeCorrections * prefill(bool isMC, float ME11offset, float nonME11offset);
 
-  typedef const  CSCChamberTimeCorrections * ReturnType;
+  typedef std::unique_ptr<CSCChamberTimeCorrections> ReturnType;
   
   ReturnType produceChamberTimeCorrections(const CSCChamberTimeCorrectionsRcd&);
   
