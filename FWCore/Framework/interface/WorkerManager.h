@@ -47,6 +47,13 @@ namespace edm {
     void setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const;
 
     template <typename T, typename U>
+      void processOneOccurrence(typename T::MyPrincipal& principal,
+                                EventSetup const& eventSetup,
+                                StreamID streamID,
+                                typename T::Context const* topContext,
+                                U const* context,
+                                bool cleaningUpAfterException = false);
+    template <typename T, typename U>
     void processOneOccurrenceAsync(
                               WaitingTask* task,
                               typename T::MyPrincipal& principal,
@@ -57,11 +64,11 @@ namespace edm {
 
     template <typename T>
     void processAccumulatorsAsync(WaitingTask* task,
-                                 typename T::MyPrincipal const& ep,
-                                 EventSetup const& es,
-                                 StreamID streamID,
-                                 ParentContext const& parentContext,
-                                 typename T::Context const* context);
+                                  typename T::MyPrincipal const& ep,
+                                  EventSetup const& es,
+                                  StreamID streamID,
+                                  ParentContext const& parentContext,
+                                  typename T::Context const* context);
 
     void setupOnDemandSystem(Principal& principal, EventSetup const& es);
 
@@ -94,6 +101,36 @@ namespace edm {
     UnscheduledCallProducer unscheduled_;
     void const* lastSetupEventPrincipal_;
   };
+
+  template <typename T, typename U>
+  void
+    WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
+                                        EventSetup const& es,
+                                        StreamID streamID,
+                                        typename T::Context const* topContext,
+                                        U const* context,
+                                        bool cleaningUpAfterException) {
+    this->resetAll();
+
+    auto waitTask = make_empty_waiting_task();
+    waitTask->increment_ref_count();
+    processOneOccurrenceAsync<T,U>(waitTask.get(), ep, es, streamID, topContext, context);
+    waitTask->wait_for_all();
+    if(waitTask->exceptionPtr() != nullptr) {
+      try{ 
+      convertException::wrap([&]() {
+          std::rethrow_exception(* (waitTask->exceptionPtr()) );
+        });
+      } catch(cms::Exception& ex) {
+        if (ex.context().empty()) {
+          addContextAndPrintException("Calling function WorkerManager::processOneOccurrence", ex, cleaningUpAfterException);
+        } else {
+          addContextAndPrintException("", ex, cleaningUpAfterException);
+        }
+        throw;
+      }
+    }
+  }
 
   template <typename T, typename U>
   void
