@@ -1251,6 +1251,10 @@ namespace edm {
       std::exception_ptr ptr;
       if(iPtr) {
         ptr = *iPtr;
+        WaitingTaskHolder tmp(t);
+        //set the exception early to prevent a beginLumi from running
+        // we use a copy to keep t from resetting on doneWaiting call.
+        tmp.doneWaiting(ptr);
       } else {
         try {
           ServiceRegistry::Operate operate(serviceToken_);
