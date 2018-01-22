@@ -417,7 +417,7 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & clus
         const edm::Ptr<l1t::HGCalTriggerCell>& tcToStudy = distances[itc].first;
         
         /* compare with the tc in the cluster */
-        for( unsigned itc_ref=1; itc_ref<itc; itc_ref++ ){
+        for( unsigned itc_ref=0; itc_ref<itc; itc_ref++ ){
             if( !toRemove[itc_ref] ) {
                 if( areTCneighbour( tcToStudy->detId(), distances.at( itc_ref ).first->detId(), triggerGeometry ) ) {
                     toRemove[itc] = false;
