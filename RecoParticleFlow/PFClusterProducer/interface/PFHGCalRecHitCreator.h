@@ -110,8 +110,7 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
   hgcal::RecHitTools recHitTools_;
 };
 
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 typedef PFHGCalRecHitCreator<HGCalDetId,PFLayer::HGCAL,HGCEE> PFHGCEERecHitCreator;
 typedef PFHGCalRecHitCreator<HGCalDetId,PFLayer::HGCAL,HGCHEF> PFHGCHEFRecHitCreator;
