@@ -197,7 +197,7 @@ process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siS
 #------------------------------------------------------
 # Switch for channel errors per FED ID trend plots.
 #------------------------------------------------------
-process.siStripFEDMonitor.fedErrorsVsIdVsLumiHistogramConfig.globalswitchon = cms.untracked.bool(True)
+#process.siStripFEDMonitor.fedErrorsVsIdVsLumiHistogramConfig.globalswitchon = cms.untracked.bool(True)
 
 #--------------------------
 # Global Plot Switches
