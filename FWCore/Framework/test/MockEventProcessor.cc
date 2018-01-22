@@ -135,11 +135,20 @@ namespace edm {
   
   InputSource::ItemType
   MockEventProcessor::readAndProcessEvents() {
-    readAndProcessEvent();
-    if(shouldWeStop()) {
-      return InputSource::IsEvent;
-    }
-    return nextTransitionType();
+    bool first = true;
+    do {
+      if(first) {
+        first = false;
+      } else {
+        shouldWeStop();
+      }
+      readAndProcessEvent();
+      if(shouldWeStop()) {
+        return InputSource::IsEvent;
+      }
+    }while(nextTransitionType() == InputSource::IsEvent);
+    
+    return lastTransitionType();
   }
 
 
@@ -239,25 +248,43 @@ namespace edm {
 
   InputSource::ItemType MockEventProcessor::processLumis(std::shared_ptr<void> iRunResource) {
     
-    assert(false);
-    if(lumiStatus_) {
-      //Need to do event processing here
-      readAndProcessEvents();
+    if(lumiStatus_ and
+       lumiStatus_->runResource() == iRunResource and
+       lumiStatus_->lumiPrincipal()->lumi_ == lumi_) {
+      readAndMergeLumi(*lumiStatus_);
+      
+      if(nextTransitionType() == InputSource::IsEvent) {
+        readAndProcessEvents();
+        if(shouldWeStop()) {
+          return edm::InputSource::IsStop;
+        }
+      }
     } else {
+      endUnfinishedLumi();
       lumiStatus_ = std::make_shared<LuminosityBlockProcessingStatus>(this,1,iRunResource);
       auto lumi = readLuminosityBlock(*lumiStatus_);
       output_ << "\tbeginLumi " << run_ << "/" << lumi << "\n";
       throwIfNeeded();
       lumiStatus_->globalBeginDidSucceed();
       //Need to do event processing here
-      readAndProcessEvents();
+      if(nextTransitionType() == InputSource::IsEvent) {
+        readAndProcessEvents();
+        if(shouldWeStop()) {
+          return edm::InputSource::IsStop;
+        }
+      }
     }
     return lastTransitionType();
   }
 
   void MockEventProcessor::endUnfinishedLumi() {
     if(lumiStatus_) {
+      auto tmp = lumiStatus_;
       endLumi();
+      if(tmp->didGlobalBeginSucceed()) {
+        writeLumi(*tmp);
+      }
+      deleteLumiFromCache(*tmp);
     }
   }
   
