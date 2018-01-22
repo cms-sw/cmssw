@@ -16,6 +16,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
+#include "RawToDigiGPU.h"
 
 class SiPixelFedCablingTree;
 class SiPixelFedCabling;
@@ -35,11 +36,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// get data, convert to digis attach againe to Event
-
   void produce( edm::Event&, const edm::EventSetup& ) override;
 
 private:
-
   edm::ParameterSet config_;
   std::unique_ptr<SiPixelFedCablingTree> cabling_;
   const SiPixelQuality* badPixelInfo_;
@@ -62,8 +61,6 @@ private:
   bool usePilotBlade;
   bool usePhase1;
   std::string cablingMapLabel;
-  typedef cms_uint32_t Word32;
-  typedef cms_uint64_t Word64;
   
   bool convertADCtoElectrons;
   unsigned int *word;        // to hold input for rawtodigi
@@ -71,12 +68,15 @@ private:
   unsigned int *eventIndex;  // to store staring index of each event in word[] array
 
   // to store the output
-  // uint *word_h, *fedIndex_h, *eventIndex_h;       // host copy of input data
-  uint *xx_h, *yy_h, *adc_h, *rawIdArr_h;  // host copy of output
-  uint *errType_h, *errWord_h, *errFedID_h, *errRawID_h;  // host copy of output
+  uint *xx_h, *yy_h, *adc_h, *rawIdArr_h;                   // host copy of output
+  uint *errType_h, *errWord_h, *errFedID_h, *errRawID_h;    // host copy of output
   // store the start and end index for each module (total 1856 modules-phase 1)
   int *mIndexStart_h, *mIndexEnd_h; 
-  CablingMap *cablingMapGPU;
-  
+
+  // configuration and memory buffers alocated on the GPU
+  context context_;
+  SiPixelFedCablingMapGPU * cablingMapGPUHost_;
+  SiPixelFedCablingMapGPU * cablingMapGPUDevice_;
 };
+
 #endif
