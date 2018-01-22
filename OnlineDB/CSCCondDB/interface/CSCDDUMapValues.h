@@ -26,7 +26,7 @@ class CSCDDUMapValues: public edm::ESProducer, public edm::EventSetupRecordInter
   
   inline static CSCDDUMap * fillDDUMap();
 
-  typedef const  CSCDDUMap * ReturnType;
+  typedef std::unique_ptr<CSCDDUMap> ReturnType;
   
   ReturnType produceDDUMap(const CSCDDUMapRcd&);
   

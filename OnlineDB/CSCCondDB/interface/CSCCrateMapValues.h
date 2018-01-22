@@ -26,7 +26,7 @@ class CSCCrateMapValues: public edm::ESProducer, public edm::EventSetupRecordInt
   
   inline static CSCCrateMap * fillCrateMap();
 
-  typedef const  CSCCrateMap * ReturnType;
+  typedef std::unique_ptr<CSCCrateMap> ReturnType;
   
   ReturnType produceCrateMap(const CSCCrateMapRcd&);
   
