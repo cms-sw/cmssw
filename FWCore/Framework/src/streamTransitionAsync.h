@@ -122,18 +122,17 @@ namespace edm {
           iWait.doneWaiting(excpt);
         });
         WaitingTaskHolder h(delayError);
-        for_all(iSubProcesses, [&h,iStreamIndex, &iPrincipal, iTS,cleaningUpAfterException](auto& subProcess){
-          subProcessDoStreamEndTransitionAsync(h,subProcess,iStreamIndex,iPrincipal, iTS,cleaningUpAfterException); });
+        for(auto& subProcess: iSubProcesses) {
+          subProcessDoStreamEndTransitionAsync(h,subProcess,iStreamIndex,iPrincipal, iTS,cleaningUpAfterException);
+        }
       } else {
-        for_all(iSubProcesses, [&iWait,iStreamIndex, &iPrincipal, iTS,cleaningUpAfterException](auto& subProcess){
-          subProcessDoStreamEndTransitionAsync(iWait,subProcess,iStreamIndex,iPrincipal, iTS,cleaningUpAfterException); });
+        for(auto& subProcess: iSubProcesses) {
+          subProcessDoStreamEndTransitionAsync(iWait,subProcess,iStreamIndex,iPrincipal, iTS,cleaningUpAfterException);
+        }
       }
     });
     
-    WaitingTaskHolder h(subs);
-    iSchedule.processOneStreamAsync<Traits>(std::move(h), iStreamIndex,iPrincipal, iES,cleaningUpAfterException);
-      
-    
+    iSchedule.processOneStreamAsync<Traits>(WaitingTaskHolder(subs), iStreamIndex,iPrincipal, iES,cleaningUpAfterException);
   }
 
   template<typename Traits, typename P, typename SC >
