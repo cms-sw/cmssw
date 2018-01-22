@@ -37,6 +37,18 @@ public:
     theUseFakeVertices  = regionPSet.getParameter<bool>("useFakeVertices");
     theUseFixedError    = regionPSet.getParameter<bool>("useFixedError");
     token_vertex      = iC.consumes<reco::VertexCollection>(regionPSet.getParameter<edm::InputTag>("VertexCollection"));
+
+    //information for Heavy ion region scaling
+    pixelClustersForScaling = regionPSet.getParameter< edm::InputTag >("pixelClustersForScaling"); 
+    theOriginRScaling    = regionPSet.getParameter<bool>("originRScaling4BigEvts");
+    thePtMinScaling      = regionPSet.getParameter<bool>("ptMinScaling4BigEvts");
+    theHalfLengthScaling = regionPSet.getParameter<bool>("halfLengthScaling4BigEvts");
+    theMinOriginR        = regionPSet.getParameter<double>("minOriginR");
+    theMaxPtMin          = regionPSet.getParameter<double>("maxPtMin");
+    theMinHalfLength     = regionPSet.getParameter<double>("minHalfLength");
+    theScalingStart      = regionPSet.getParameter<double>("scalingStartNPix");
+    theScalingEnd        = regionPSet.getParameter<double>("scalingEndNPix");
+    if(theOriginRScaling || thePtMinScaling || theHalfLengthScaling) token_pc = iC.consumes<edmNew::DetSetVector<SiPixelCluster> >(pixelClustersForScaling);
   }   
 
   ~GlobalTrackingRegionWithVerticesProducer() override{}
@@ -57,6 +69,15 @@ public:
     desc.add<bool>("useFakeVertices", false);
     desc.add<int>("maxNVertices", -1)->setComment("-1 for all vertices");
     desc.add<double>("nSigmaZ", 4.0);
+    desc.add<edm::InputTag>("pixelClustersForScaling",edm::InputTag("siPixelClusters"));
+    desc.add<bool>("originRScaling4BigEvts",false);
+    desc.add<bool>("ptMinScaling4BigEvts",false);
+    desc.add<bool>("halfLengthScaling4BigEvts",false);
+    desc.add<double>("minOriginR",0);
+    desc.add<double>("maxPtMin",1000);
+    desc.add<double>("minHalfLength",0);
+    desc.add<double>("scalingStartNPix",0.0);
+    desc.add<double>("scalingEndNPix",1.0);
 
     // Only for backwards-compatibility
     edm::ParameterSetDescription descRegion;
@@ -91,13 +112,55 @@ public:
           if (!iV->isValid()) continue;
           if (iV->isFake() && !(theUseFakeVertices && theUseFixedError)) continue;
 	  GlobalPoint theOrigin_       = GlobalPoint(iV->x(),iV->y(),iV->z());
-	  double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV->zError())*theSigmaZVertex); 
-	  result.push_back( std::make_unique<GlobalTrackingRegion>(thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise, theUseMS) );
-	  if(theMaxNVertices >= 0 && result.size() >= static_cast<unsigned>(theMaxNVertices))
-	    break;
+
+          //scaling origin radius, half length, min pt for high-occupancy HI events to keep timing reasonable
+          if(theOriginRScaling || thePtMinScaling || theHalfLengthScaling){
+            //Use the unscaled radius unless one of the two conditions below is met
+            double scaledOriginRadius = theOriginRadius;
+            double scaledHalfLength   = theFixedError;
+            double scaledPtMin        = thePtMin;
+
+            //calculate nPixels (adapted from TkSeedGenerator/src/ClusterChecker.cc)
+            double nPix = 0;
+            edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusterDSV;
+            ev.getByToken(token_pc, pixelClusterDSV);
+            if (!pixelClusterDSV.failedToGet()) {
+              const edmNew::DetSetVector<SiPixelCluster> & input = *pixelClusterDSV;
+              nPix = input.dataSize();
+            }
+            else{
+              edm::LogError("GlobalTrackingRegionProducerFromVertex")<<"could not get any SiPixel cluster collections of type edm::DetSetVector<SiPixelCluster>";
+              nPix = theScalingEnd+1;//if can't find collection, default to minimum radius to be safe
+            } 
+            
+            //first condition is for high occupancy, second makes sure we won't divide by zero or a negative number
+            if((nPix > theScalingEnd) || ((theScalingEnd-theScalingStart) <= 0)){  
+              if(theOriginRScaling)    scaledOriginRadius = theMinOriginR;   // sets parameters to minimum value from PSet
+              if(theHalfLengthScaling) scaledHalfLength = theMinHalfLength;
+              if(thePtMinScaling)      scaledPtMin = theMaxPtMin; 
+            }
+            //second condition - scale radius linearly by Npix in the region from ScalingStart to ScalingEnd
+            else if((nPix <= theScalingEnd) && (nPix > theScalingStart)){
+              if(theOriginRScaling) scaledOriginRadius = theOriginRadius - (theOriginRadius-theMinOriginR)*(nPix-theScalingStart)/(theScalingEnd-theScalingStart);
+              if(theHalfLengthScaling) scaledHalfLength = theFixedError - (theFixedError-theMinHalfLength)*(nPix-theScalingStart)/(theScalingEnd-theScalingStart);
+              if(thePtMinScaling) scaledPtMin = thePtMin - (thePtMin-theMaxPtMin)*(nPix-theScalingStart)/(theScalingEnd-theScalingStart);
+            }
+            std::cout << "NumberOfPixels: " <<  nPix << std::endl;
+            std::cout << "Scaled Origin R: " << scaledOriginRadius << " Default Origin R: " << theOriginRadius <<" Scaled HalfLength: " << scaledHalfLength << " Default H.L.: " << theFixedError <<" Scaled pT Min: " << scaledPtMin << " Default pT Min: " << thePtMin << std::endl;
+            //if region has 0 size, return 'result' empty, otherwise make a tracking region 
+            if(scaledOriginRadius!=0 && scaledHalfLength !=0){
+              result.push_back( std::make_unique<GlobalTrackingRegion>( scaledPtMin, theOrigin_, scaledOriginRadius, scaledHalfLength, thePrecise,theUseMS));
+            }
+          }//end of region scaling code, pp behavior below
+
+          else{
+	    double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV->zError())*theSigmaZVertex); 
+	    result.push_back( std::make_unique<GlobalTrackingRegion>(thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise, theUseMS) );
+	    if(theMaxNVertices >= 0 && result.size() >= static_cast<unsigned>(theMaxNVertices)) break;
+          }
       }
       
-      if (result.empty()) {
+      if (result.empty() && !(theOriginRScaling || thePtMinScaling || theHalfLengthScaling)) {
         result.push_back( std::make_unique<GlobalTrackingRegion>(thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise, theUseMS) );
       }
     }
@@ -128,6 +191,17 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> 	 token_vertex; 
   edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
 
+  //HI-related variables
+  edm::InputTag pixelClustersForScaling;
+  bool theOriginRScaling; 
+  bool thePtMinScaling; 
+  bool theHalfLengthScaling; 
+  double theMinOriginR;
+  double theMaxPtMin;
+  double theMinHalfLength;
+  double theScalingStart;   
+  double theScalingEnd;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > token_pc;
 
 };
 
