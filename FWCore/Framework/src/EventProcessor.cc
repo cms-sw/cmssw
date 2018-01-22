@@ -1259,9 +1259,10 @@ namespace edm {
         try {
           ServiceRegistry::Operate operate(serviceToken_);
 
-          //TODO: Only supposed to call writeLumi if beginLumi succeeded
-          writeLumi(*status);
-        
+          //Only call writeLumi if beginLumi succeeded
+          if(status->didGlobalBeginSucceed()) {
+            writeLumi(*status);
+          }
           if(looper_) {
             auto& lp = *(status->lumiPrincipal());
             EventSetup const& es = esp_->eventSetup();
