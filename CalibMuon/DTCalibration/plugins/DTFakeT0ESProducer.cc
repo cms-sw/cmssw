@@ -60,7 +60,8 @@ std::unique_ptr<DTT0> DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
    }
  }
 
-  return std::make_unique<DTT0>( *t0Map );
+  std::unique_ptr<DTT0> mydata( new DTT0(*t0Map) );
+  return mydata;
 }
 
 void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord){
