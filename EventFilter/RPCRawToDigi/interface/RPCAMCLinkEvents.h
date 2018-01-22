@@ -41,8 +41,6 @@ public:
     static unsigned int const input_lb_invalid_             = RPCAMCLinkEvent::input_ | RPCAMCLinkEvent::warn_  | 4;
     static unsigned int const input_connector_invalid_      = RPCAMCLinkEvent::input_ | RPCAMCLinkEvent::warn_  | 5;
     static unsigned int const input_connector_not_used_     = RPCAMCLinkEvent::input_ | RPCAMCLinkEvent::warn_  | 6;
-    // static unsigned int const input_bc_mismatch_            = RPCAMCLinkEvent::input_ | RPCAMCLinkEvent::warn_  | 7;
-    // static unsigned int const input_bc0_mismatch_           = RPCAMCLinkEvent::input_ | RPCAMCLinkEvent::warn_  | 8;
 
     static unsigned int const fed_min_                      = 0;
     static unsigned int const fed_max_                      = 8;
