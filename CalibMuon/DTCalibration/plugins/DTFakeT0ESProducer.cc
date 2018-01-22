@@ -43,7 +43,7 @@ DTFakeT0ESProducer::~DTFakeT0ESProducer(){
 
 
 // ------------ method called to produce the data  ------------
-DTT0* DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
+std::unique_ptr<DTT0> DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
   
   parseDDD(iRecord);
   DTT0* t0Map = new DTT0();
@@ -60,7 +60,7 @@ DTT0* DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
    }
  }
 
-  return t0Map;
+  return std::make_unique<DTT0>( *t0Map );
 }
 
 void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord){
