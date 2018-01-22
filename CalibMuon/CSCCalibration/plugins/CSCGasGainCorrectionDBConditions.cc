@@ -39,7 +39,7 @@ CSCGasGainCorrectionDBConditions::ReturnType
 CSCGasGainCorrectionDBConditions::produceDBGasGainCorrection(const CSCDBGasGainCorrectionRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCGasGainCorrectionDBConditions::ReturnType mydata = std::make_unique<CSCDBGasGainCorrection>( *cndbGasGainCorr );
+  CSCGasGainCorrectionDBConditions::ReturnType mydata( new CSCDBGasGainCorrection( *cndbGasGainCorr ));
   return mydata;
   
 }

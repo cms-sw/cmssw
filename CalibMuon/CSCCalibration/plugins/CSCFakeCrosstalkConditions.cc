@@ -112,7 +112,7 @@ CSCFakeCrosstalkConditions::~CSCFakeCrosstalkConditions()
 CSCFakeCrosstalkConditions::ReturnType
 CSCFakeCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
 {
-  CSCFakeCrosstalkConditions::ReturnType mydata = std::make_unique<CSCcrosstalk>( * cncrosstalk );
+  CSCFakeCrosstalkConditions::ReturnType mydata(new CSCcrosstalk( * cncrosstalk ));
   return mydata;  
 }
 

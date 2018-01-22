@@ -36,7 +36,7 @@ CSCL1TPParametersConditions::ReturnType
 CSCL1TPParametersConditions::produceCSCL1TPParameters(const CSCL1TPParametersRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCL1TPParametersConditions::ReturnType mydata = std::make_unique<CSCL1TPParameters>( *CSCl1TPParameters);
+  CSCL1TPParametersConditions::ReturnType mydata( new CSCL1TPParameters( *CSCl1TPParameters ));
   return mydata;
   
 }
