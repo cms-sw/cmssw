@@ -52,7 +52,7 @@ class CaloMiscalibTools : public edm::ESProducer, public edm::EventSetupRecordIn
       CaloMiscalibTools(const edm::ParameterSet&);
       ~CaloMiscalibTools() override;
 
-      typedef const  EcalIntercalibConstants * ReturnType;
+      typedef std::unique_ptr<EcalIntercalibConstants> ReturnType;
 
       ReturnType produce(const EcalIntercalibConstantsRcd&);
    private:
