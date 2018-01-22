@@ -206,8 +206,10 @@ CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions()
 CSCFakeNoiseMatrixConditions::ReturnType
 CSCFakeNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
-  return cnmatrix;
+  CSCFakeNoiseMatrixConditions::ReturnType mydata = std::make_unique<CSCNoiseMatrix>(*cnmatrix);
+  return mydata;
 }
+
 
 void CSCFakeNoiseMatrixConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
 						  edm::ValidityInterval & oValidity)

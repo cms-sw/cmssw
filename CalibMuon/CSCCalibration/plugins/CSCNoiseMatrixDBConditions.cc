@@ -35,7 +35,7 @@ CSCNoiseMatrixDBConditions::ReturnType
 CSCNoiseMatrixDBConditions::produceDBNoiseMatrix(const CSCDBNoiseMatrixRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCDBNoiseMatrix* mydata=new CSCDBNoiseMatrix( *cndbMatrix );
+  CSCNoiseMatrixDBConditions::ReturnType mydata = std::make_unique<CSCDBNoiseMatrix>( *cndbMatrix );
   return mydata;
   
 }

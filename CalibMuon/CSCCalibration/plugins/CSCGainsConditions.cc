@@ -219,7 +219,7 @@ CSCGainsConditions::ReturnType
 CSCGainsConditions::produceGains(const CSCGainsRcd& iRecord)
 {
   // Added by Zhen, need a new object so to not be deleted at exit
-  CSCGains* mydata=new CSCGains( *cnGains );
+  CSCGainsConditions::ReturnType mydata = std::make_unique<CSCGains>( *cnGains );
   
   return mydata;
   

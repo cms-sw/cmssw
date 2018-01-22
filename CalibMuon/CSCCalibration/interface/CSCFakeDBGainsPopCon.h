@@ -27,7 +27,7 @@ class CSCFakeDBGainsPopCon: public edm::ESProducer, public edm::EventSetupRecord
 
       void prefillDBGains(); 
 
-      typedef const  CSCDBGains * ReturnType;
+      typedef std::unique_ptr<CSCDBGains> ReturnType;
 
       ReturnType produceDBGains(const CSCDBGainsRcd&);
 

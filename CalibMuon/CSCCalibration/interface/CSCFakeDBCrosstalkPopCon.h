@@ -26,7 +26,7 @@ class CSCFakeDBCrosstalkPopCon: public edm::ESProducer, public edm::EventSetupRe
 
   void prefillDBFakeCrosstalk();
   
-  typedef const  CSCDBCrosstalk * ReturnType;
+  typedef std::unique_ptr<CSCDBCrosstalk> ReturnType;
   
   ReturnType produceDBCrosstalk(const CSCDBCrosstalkRcd&);
   

@@ -27,7 +27,7 @@ class CSCFakePedestalsConditions: public edm::ESProducer, public edm::EventSetup
       
       void prefillPedestals();
 
-      typedef const  CSCPedestals * ReturnType;
+      typedef std::unique_ptr<CSCPedestals> ReturnType;
 
       ReturnType producePedestals(const CSCPedestalsRcd&);
 

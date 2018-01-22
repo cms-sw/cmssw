@@ -35,7 +35,7 @@ CSCBadChambersConditions::ReturnType
 CSCBadChambersConditions::produceBadChambers(const CSCBadChambersRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCBadChambers* mydata=new CSCBadChambers( *cndbBadChambers );
+  CSCBadChambersConditions::ReturnType mydata = std::make_unique<CSCBadChambers>( *cndbBadChambers );
   return mydata;
   
 }

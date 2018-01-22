@@ -25,7 +25,7 @@ class CSCCrosstalkDBConditions: public edm::ESProducer, public edm::EventSetupRe
 
   inline static CSCDBCrosstalk * prefillDBCrosstalk();
 
-  typedef const  CSCDBCrosstalk * ReturnType;
+  typedef std::unique_ptr<CSCDBCrosstalk> ReturnType;
   
   ReturnType produceDBCrosstalk(const CSCDBCrosstalkRcd&);
   

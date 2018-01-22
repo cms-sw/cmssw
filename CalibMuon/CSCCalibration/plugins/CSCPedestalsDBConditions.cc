@@ -36,7 +36,7 @@ CSCPedestalsDBConditions::ReturnType
 CSCPedestalsDBConditions::produceDBPedestals(const CSCDBPedestalsRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCDBPedestals* mydata=new CSCDBPedestals( *cndbPedestals );
+  CSCPedestalsDBConditions::ReturnType mydata = std::make_unique<CSCDBPedestals>( *cndbPedestals );
   return mydata;
   
 }

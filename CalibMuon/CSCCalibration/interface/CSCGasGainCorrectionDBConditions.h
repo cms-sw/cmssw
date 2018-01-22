@@ -25,7 +25,7 @@ class CSCGasGainCorrectionDBConditions: public edm::ESProducer, public edm::Even
   
   inline static CSCDBGasGainCorrection * prefillDBGasGainCorrection(bool isForMC, std::string dataCorrFileName);
 
-  typedef const  CSCDBGasGainCorrection * ReturnType;
+  typedef std::unique_ptr<CSCDBGasGainCorrection> ReturnType;
   
   ReturnType produceDBGasGainCorrection(const CSCDBGasGainCorrectionRcd&);
   

@@ -25,7 +25,7 @@ class CSCDBL1TPParametersConditions: public edm::ESProducer, public edm::EventSe
 
   inline static CSCDBL1TPParameters *  prefillCSCDBL1TPParameters();
 
-  typedef const  CSCDBL1TPParameters * ReturnType;
+  typedef std::unique_ptr<CSCDBL1TPParameters> ReturnType;
   
   ReturnType produceCSCDBL1TPParameters(const CSCDBL1TPParametersRcd&);
   

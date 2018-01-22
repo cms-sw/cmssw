@@ -25,7 +25,7 @@ class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::Ev
   
   inline static CSCDBChipSpeedCorrection * prefillDBChipSpeedCorrection(bool isForMC, std::string dataCorrFileName, float dataOffse);
 
-  typedef const  CSCDBChipSpeedCorrection * ReturnType;
+  typedef std::unique_ptr<CSCDBChipSpeedCorrection> ReturnType;
   
   ReturnType produceDBChipSpeedCorrection(const CSCDBChipSpeedCorrectionRcd&);
   
