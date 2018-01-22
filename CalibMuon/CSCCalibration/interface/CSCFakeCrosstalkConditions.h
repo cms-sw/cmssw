@@ -26,7 +26,7 @@ class CSCFakeCrosstalkConditions: public edm::ESProducer, public edm::EventSetup
 
   void prefillCrosstalk();
   
-  typedef const  CSCcrosstalk * ReturnType;
+  typedef std::unique_ptr<CSCcrosstalk>ReturnType;
   
   ReturnType produceCrosstalk(const CSCcrosstalkRcd&);
   

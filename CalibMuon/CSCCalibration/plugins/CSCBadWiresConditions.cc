@@ -35,7 +35,7 @@ CSCBadWiresConditions::ReturnType
 CSCBadWiresConditions::produceBadWires(const CSCBadWiresRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCBadWires* mydata=new CSCBadWires( *cndbBadWires );
+  CSCBadWiresConditions::ReturnType mydata = std::make_unique<CSCBadWires>( *cndbBadWires );
   return mydata;
   
 }

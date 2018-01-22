@@ -435,7 +435,7 @@ CSCNoiseMatrixConditions::ReturnType
 CSCNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
     // Added by Zhen, need a new object so to not be deleted at exit
-    CSCNoiseMatrix* mydata=new CSCNoiseMatrix( *cnMatrix );
+    CSCNoiseMatrixConditions::ReturnType mydata = std::make_unique<CSCNoiseMatrix>( *cnMatrix );
     
     return mydata;
 

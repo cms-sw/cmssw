@@ -35,7 +35,7 @@ CSCBadStripsConditions::ReturnType
 CSCBadStripsConditions::produceBadStrips(const CSCBadStripsRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCBadStrips* mydata=new CSCBadStrips( *cndbBadStrips );
+  CSCBadStripsConditions::ReturnType mydata = std::make_unique<CSCBadStrips>( *cndbBadStrips );
   return mydata;
   
 }

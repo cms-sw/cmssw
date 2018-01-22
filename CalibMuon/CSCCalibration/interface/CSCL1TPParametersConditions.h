@@ -25,7 +25,7 @@ class CSCL1TPParametersConditions: public edm::ESProducer, public edm::EventSetu
 
   inline static CSCL1TPParameters *  prefillCSCL1TPParameters();
 
-  typedef const  CSCL1TPParameters * ReturnType;
+  typedef std::unique_ptr<CSCL1TPParameters> ReturnType;
   
   ReturnType produceCSCL1TPParameters(const CSCL1TPParametersRcd&);
   

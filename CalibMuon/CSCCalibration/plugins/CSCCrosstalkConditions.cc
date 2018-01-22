@@ -280,7 +280,7 @@ CSCCrosstalkConditions::ReturnType
 CSCCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
 {
   // Added by Zhen, need a new object so to not be deleted at exit
-  CSCcrosstalk* mydata=new CSCcrosstalk( *cnCrosstalk );
+  CSCCrosstalkConditions::ReturnType mydata = std::make_unique<CSCcrosstalk>( *cnCrosstalk );
   
   return mydata;
   

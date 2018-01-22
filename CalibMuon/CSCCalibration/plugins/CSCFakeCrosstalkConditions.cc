@@ -112,7 +112,8 @@ CSCFakeCrosstalkConditions::~CSCFakeCrosstalkConditions()
 CSCFakeCrosstalkConditions::ReturnType
 CSCFakeCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
 {
-  return cncrosstalk;  
+  CSCFakeCrosstalkConditions::ReturnType mydata = std::make_unique<CSCcrosstalk>( * cncrosstalk );
+  return mydata;  
 }
 
  void CSCFakeCrosstalkConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
