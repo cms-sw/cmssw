@@ -29,8 +29,10 @@ D=`date +"%m-%d-%Y-%T" --utc`
 # Fetch fill number from previous run.
 #-------------------------------------
 interval=3
-firstfill=$(awk 'NR == 35 {print $4}' ${P}/FillInfoPopConAnalyzer.py)
-lastfill=$(awk 'NR == 36 {print $4}' ${P}/FillInfoPopConAnalyzer.py)
+firstfill=$(grep -n firstFill FillInfoPopConAnalyzer.py | cut -d: -f1)
+firstfill=$(awk 'NR == '"$firstfill"' {print $4}' ${P}/FillInfoPopConAnalyzer.py)
+lastfill=$(grep -n lastFill FillInfoPopConAnalyzer.py | cut -d: -f1)
+lastfill=$(awk 'NR == '"$lastfill"' {print $4}' ${P}/FillInfoPopConAnalyzer.py)
 sed -i '35s/'"$firstfill"'/'`expr $lastfill + 1`'/' $PWD/FillInfoPopConAnalyzer.py
 sed -i '36s/'"$lastfill"'/'`expr $lastfill + $interval`'/' ${P}/FillInfoPopConAnalyzer.py
 let "firstfill=lastfill+1"
