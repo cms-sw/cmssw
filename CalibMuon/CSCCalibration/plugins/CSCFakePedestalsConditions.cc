@@ -84,7 +84,7 @@ CSCFakePedestalsConditions::~CSCFakePedestalsConditions()
 CSCFakePedestalsConditions::ReturnType
 CSCFakePedestalsConditions::producePedestals(const CSCPedestalsRcd& iRecord)
 {
-  CSCFakePedestalsConditions::ReturnType mydata = std::make_unique<CSCPedestals>(*cnpedestals);
+  CSCFakePedestalsConditions::ReturnType mydata(new CSCPedestals( *cnpedestals ));
   return mydata;
 }
 

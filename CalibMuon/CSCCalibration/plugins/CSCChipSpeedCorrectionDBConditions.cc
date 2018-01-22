@@ -40,7 +40,7 @@ CSCChipSpeedCorrectionDBConditions::ReturnType
 CSCChipSpeedCorrectionDBConditions::produceDBChipSpeedCorrection(const CSCDBChipSpeedCorrectionRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCChipSpeedCorrectionDBConditions::ReturnType mydata = std::make_unique<CSCDBChipSpeedCorrection>( *cndbChipCorr );
+  CSCChipSpeedCorrectionDBConditions::ReturnType mydata( new CSCDBChipSpeedCorrection( *cndbChipCorr ));
   return mydata;
   
 }
