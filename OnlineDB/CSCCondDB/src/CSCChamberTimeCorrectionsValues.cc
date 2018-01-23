@@ -41,7 +41,7 @@ CSCChamberTimeCorrectionsValues::ReturnType
 CSCChamberTimeCorrectionsValues::produceChamberTimeCorrections(const CSCChamberTimeCorrectionsRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCChamberTimeCorrectionsValues::ReturnType mydata( new CSCChamberTimeCorrections( *chamberObj ));
+  auto mydata = std::make_unique<CSCChamberTimeCorrections>( *chamberObj );
   return mydata;
   
 }
