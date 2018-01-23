@@ -3,8 +3,8 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,13 +15,114 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 
+namespace calolayer2dedqm {
+  struct Histograms {
+    // objects to represent individual plots shown in DQM
+    ConcurrentMonitorElement agreementSummary;
+    ConcurrentMonitorElement jetSummary;
+    ConcurrentMonitorElement tauSummary;
+    ConcurrentMonitorElement egSummary;
+    ConcurrentMonitorElement sumSummary;
+    ConcurrentMonitorElement problemSummary;
+
+    // histograms to store the properties of mismatched jets
+    ConcurrentMonitorElement jetEtData;
+    ConcurrentMonitorElement jetEtaData;
+    ConcurrentMonitorElement jetPhiData;
+    ConcurrentMonitorElement jetEtEmul;
+    ConcurrentMonitorElement jetEtaEmul;
+    ConcurrentMonitorElement jetPhiEmul;
+
+    // histograms to store the properties of mismatched non-isolated e/g
+    ConcurrentMonitorElement egEtData;
+    ConcurrentMonitorElement egEtaData;
+    ConcurrentMonitorElement egPhiData;
+    ConcurrentMonitorElement egEtEmul;
+    ConcurrentMonitorElement egEtaEmul;
+    ConcurrentMonitorElement egPhiEmul;
+
+    // histograms to store the properties of mismatched isolated e/g
+    ConcurrentMonitorElement isoEgEtData;
+    ConcurrentMonitorElement isoEgEtaData;
+    ConcurrentMonitorElement isoEgPhiData;
+    ConcurrentMonitorElement isoEgEtEmul;
+    ConcurrentMonitorElement isoEgEtaEmul;
+    ConcurrentMonitorElement isoEgPhiEmul;
+
+    // histograms to store the properties of mismatched non-isolated taus
+    ConcurrentMonitorElement tauEtData;
+    ConcurrentMonitorElement tauEtaData;
+    ConcurrentMonitorElement tauPhiData;
+    ConcurrentMonitorElement tauEtEmul;
+    ConcurrentMonitorElement tauEtaEmul;
+    ConcurrentMonitorElement tauPhiEmul;
+
+    // histograms to store the properties of mismatched isolated taus
+    ConcurrentMonitorElement isoTauEtData;
+    ConcurrentMonitorElement isoTauEtaData;
+    ConcurrentMonitorElement isoTauPhiData;
+    ConcurrentMonitorElement isoTauEtEmul;
+    ConcurrentMonitorElement isoTauEtaEmul;
+    ConcurrentMonitorElement isoTauPhiEmul;
+
+    // histograms for mismatched ett sums
+    ConcurrentMonitorElement ettData;
+    ConcurrentMonitorElement ettEmul;
+    ConcurrentMonitorElement ettHFData;
+    ConcurrentMonitorElement ettHFEmul;
+    ConcurrentMonitorElement ettEmData;
+    ConcurrentMonitorElement ettEmEmul;
+
+    // mismatched htt sums
+    ConcurrentMonitorElement httData;
+    ConcurrentMonitorElement httEmul;
+    ConcurrentMonitorElement httHFData;
+    ConcurrentMonitorElement httHFEmul;
+
+    // mismatched met sums
+    ConcurrentMonitorElement metEtData;
+    ConcurrentMonitorElement metEtEmul;
+    ConcurrentMonitorElement metPhiData;
+    ConcurrentMonitorElement metPhiEmul;
+    ConcurrentMonitorElement metHFEtData;
+    ConcurrentMonitorElement metHFEtEmul;
+    ConcurrentMonitorElement metHFPhiData;
+    ConcurrentMonitorElement metHFPhiEmul;
+
+    // mismatched mht sums
+    ConcurrentMonitorElement mhtEtData;
+    ConcurrentMonitorElement mhtEtEmul;
+    ConcurrentMonitorElement mhtPhiData;
+    ConcurrentMonitorElement mhtPhiEmul;
+    ConcurrentMonitorElement mhtHFEtData;
+    ConcurrentMonitorElement mhtHFEtEmul;
+    ConcurrentMonitorElement mhtHFPhiData;
+    ConcurrentMonitorElement mhtHFPhiEmul;
+
+    // mismatched min bias sums
+    ConcurrentMonitorElement mbhfp0Data;
+    ConcurrentMonitorElement mbhfp0Emul;
+    ConcurrentMonitorElement mbhfm0Data;
+    ConcurrentMonitorElement mbhfm0Emul;
+    ConcurrentMonitorElement mbhfp1Data;
+    ConcurrentMonitorElement mbhfp1Emul;
+    ConcurrentMonitorElement mbhfm1Data;
+    ConcurrentMonitorElement mbhfm1Emul;
+
+    // mismatched towercount sum
+    ConcurrentMonitorElement towCountData;
+    ConcurrentMonitorElement towCountEmul;
+
+  };
+}
+
 /**
  * Short class description.
  *
  * Longer class description...
  * ... desc continued.
  */
-class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
+class L1TdeStage2CaloLayer2 : public DQMGlobalEDAnalyzer<calolayer2dedqm::Histograms> {
 
  public:
   /**
@@ -46,22 +147,25 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    * Method to declare or "book" all histograms that will be part of module
    *
    * Histograms that are to be visualised as part of the DQM module should be
-   * registered with the IBooker object any additional configuration such as
-   * title or axis labels and ranges. A good rule of thumb for the amount of
-   * configuration is that it should be possible to understnand the contents of
-   * the histogram using the configuration received from this method since the
-   * plots generated by this module would later be stored into ROOT files for
-   * transfer to the DQM system and it should be possible to ...
+   * registered with the ConcurrentBooker object any additional configuration
+   * such as title or axis labels and ranges. A good rule of thumb for the
+   * amount of configuration is that it should be possible to understnand the
+   * contents of the histogram using the configuration received from this
+   * method since the plots generated by this module would later be stored
+   * into ROOT files for transfer to the DQM system and it should be possible
+   * to ...
    *
-   * @param DQMStore::IBooker& ibooker Object that handles the creation of plots
+   * @param DQMStore::ConcurrentBooker& booker Object that handles the creation of plots
    * @param edm::Run const &           Reference to run object
    * @param edm::EventSetup const &    Reference to event configuration object
+   * @param calolayer2dedqm::Histograms &  Reference to struct of concurrent monitoring elements
    *
    * @return void
    */
-  void bookHistograms (DQMStore::IBooker&,
+  void bookHistograms (DQMStore::ConcurrentBooker&,
 			       const edm::Run&,
-			       const edm::EventSetup&) override;
+			       const edm::EventSetup&,
+                               calolayer2dedqm::Histograms&) const override;
 
   /**
    * Main method where the analysis code resides, executed once for each run
@@ -72,10 +176,13 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *
    * @param edm::Event const &         Reference to event object
    * @param edm::EventSetup const &    Reference to event configuration object
+   * @param calolayer2dedqm::Histograms const &  Reference to struct of concurrent monitoring elements
    *
    * @return void
    */
-  void analyze (const edm::Event&, const edm::EventSetup&) override;
+  void dqmAnalyze (const edm::Event&,
+                   const edm::EventSetup&,
+                   const calolayer2dedqm::Histograms&) const override;
 
  private:
 
@@ -98,11 +205,14 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *    collection from data
    * @param edm::Handle<l1t::JetBXCollection>& emulCol Reference to jet
    *    collection from emulation
+   * @param calolayer2dedqm::Histograms const &  Reference to struct of
+   *    concurrent monitoring elements
    *
    * @return bool Flag of whether the agreement was perfect
    */
   bool compareJets(const edm::Handle<l1t::JetBxCollection> & dataCol,
-                   const edm::Handle<l1t::JetBxCollection> & emulCol);
+                   const edm::Handle<l1t::JetBxCollection> & emulCol,
+                   const calolayer2dedqm::Histograms&) const;
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -125,11 +235,14 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *    collection from data
    * @param edm::Handle<l1t::EGammaBXCollection>& emulCol Reference to e/gamma
    *    collection from emulation
+   * @param calolayer2dedqm::Histograms const &  Reference to struct of
+   *    concurrent monitoring elements
    *
    * @return bool Flag of whether the agreement was perfect
    */
   bool compareEGs(const edm::Handle<l1t::EGammaBxCollection> & dataCol,
-                  const edm::Handle<l1t::EGammaBxCollection> & emulCol);
+                  const edm::Handle<l1t::EGammaBxCollection> & emulCol,
+                  const calolayer2dedqm::Histograms&) const;
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -152,11 +265,14 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *    collection from data
    * @param edm::Handle<l1t::TauBXCollection>& emulCol Reference to tau
    *    collection from emulation
+   * @param calolayer2dedqm::Histograms const &  Reference to struct of
+   *    concurrent monitoring elements
    *
    * @return bool Flag of whether the agreement was perfect
    */
   bool compareTaus(const edm::Handle<l1t::TauBxCollection> & dataCol,
-                   const edm::Handle<l1t::TauBxCollection> & emulCol);
+                   const edm::Handle<l1t::TauBxCollection> & emulCol,
+                   const calolayer2dedqm::Histograms&) const;
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -174,11 +290,14 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *    collection from data
    * @param edm::Handle<l1t::TauBXCollection>& emulCol Reference to tau
    *    collection from emulation
+   * @param calolayer2dedqm::Histograms const &  Reference to struct of
+   *    concurrent monitoring elements
    *
    * @return bool Flag of whether the agreement was perfect
    */
   bool compareSums(const edm::Handle<l1t::EtSumBxCollection> & dataCol,
-                   const edm::Handle<l1t::EtSumBxCollection> & emulCol);
+                   const edm::Handle<l1t::EtSumBxCollection> & emulCol,
+                   const calolayer2dedqm::Histograms&) const;
 
   // Holds the name of directory in DQM where module hostograms will be shown.
   // Value is taken from python configuration file (passed in class constructor)
@@ -263,102 +382,6 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
     NTOWCOUNTS,
     TOWCOUNTGOOD
   };
-
-  // objects to represent individual plots shown in DQM
-  MonitorElement * agreementSummary;
-  MonitorElement * jetSummary;
-  MonitorElement * tauSummary;
-  MonitorElement * egSummary;
-  MonitorElement * sumSummary;
-  MonitorElement * problemSummary;
-
-  // histograms to store the properties of mismatched jets
-  MonitorElement * jetEtData;
-  MonitorElement * jetEtaData;
-  MonitorElement * jetPhiData;
-  MonitorElement * jetEtEmul;
-  MonitorElement * jetEtaEmul;
-  MonitorElement * jetPhiEmul;
-
-  // histograms to store the properties of mismatched non-isolated e/g
-  MonitorElement * egEtData;
-  MonitorElement * egEtaData;
-  MonitorElement * egPhiData;
-  MonitorElement * egEtEmul;
-  MonitorElement * egEtaEmul;
-  MonitorElement * egPhiEmul;
-
-  // histograms to store the properties of mismatched isolated e/g
-  MonitorElement * isoEgEtData;
-  MonitorElement * isoEgEtaData;
-  MonitorElement * isoEgPhiData;
-  MonitorElement * isoEgEtEmul;
-  MonitorElement * isoEgEtaEmul;
-  MonitorElement * isoEgPhiEmul;
-
-  // histograms to store the properties of mismatched non-isolated taus
-  MonitorElement * tauEtData;
-  MonitorElement * tauEtaData;
-  MonitorElement * tauPhiData;
-  MonitorElement * tauEtEmul;
-  MonitorElement * tauEtaEmul;
-  MonitorElement * tauPhiEmul;
-
-  // histograms to store the properties of mismatched isolated taus
-  MonitorElement * isoTauEtData;
-  MonitorElement * isoTauEtaData;
-  MonitorElement * isoTauPhiData;
-  MonitorElement * isoTauEtEmul;
-  MonitorElement * isoTauEtaEmul;
-  MonitorElement * isoTauPhiEmul;
-
-  // histograms for mismatched ett sums
-  MonitorElement * ettData;
-  MonitorElement * ettEmul;
-  MonitorElement * ettHFData;
-  MonitorElement * ettHFEmul;
-  MonitorElement * ettEmData;
-  MonitorElement * ettEmEmul;
-
-  // mismatched htt sums
-  MonitorElement * httData;
-  MonitorElement * httEmul;
-  MonitorElement * httHFData;
-  MonitorElement * httHFEmul;
-
-  // mismatched met sums
-  MonitorElement * metEtData;
-  MonitorElement * metEtEmul;
-  MonitorElement * metPhiData;
-  MonitorElement * metPhiEmul;
-  MonitorElement * metHFEtData;
-  MonitorElement * metHFEtEmul;
-  MonitorElement * metHFPhiData;
-  MonitorElement * metHFPhiEmul;
-
-  // mismatched mht sums
-  MonitorElement * mhtEtData;
-  MonitorElement * mhtEtEmul;
-  MonitorElement * mhtPhiData;
-  MonitorElement * mhtPhiEmul;
-  MonitorElement * mhtHFEtData;
-  MonitorElement * mhtHFEtEmul;
-  MonitorElement * mhtHFPhiData;
-  MonitorElement * mhtHFPhiEmul;
-
-  // mismatched min bias sums
-  MonitorElement * mbhfp0Data;
-  MonitorElement * mbhfp0Emul;
-  MonitorElement * mbhfm0Data;
-  MonitorElement * mbhfm0Emul;
-  MonitorElement * mbhfp1Data;
-  MonitorElement * mbhfp1Emul;
-  MonitorElement * mbhfm1Data;
-  MonitorElement * mbhfm1Emul;
-
-  // mismatched towercount sum
-  MonitorElement * towCountData;
-  MonitorElement * towCountEmul;
 
   bool verbose;
 
