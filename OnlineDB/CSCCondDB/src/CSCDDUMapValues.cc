@@ -36,7 +36,7 @@ CSCDDUMapValues::ReturnType
 CSCDDUMapValues::produceDDUMap(const CSCDDUMapRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  auto mydata = std::make_unique<CSCDDUMap>( *mapObj );
+  CSCDDUMapValues::ReturnType mydata = std::make_unique<CSCDDUMap>( *mapObj );
   return mydata;
   
 }
