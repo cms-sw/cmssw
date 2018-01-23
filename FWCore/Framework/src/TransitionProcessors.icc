@@ -95,11 +95,19 @@ public:
     return iEP.processLumis(std::shared_ptr<void>{currentRun_});
   }
   
-  void normalEnd() {
-    if (makeSureLumiEnds_) {
-      makeSureLumiEnds_ = false;
-      currentRun_->ep_.endUnfinishedLumi();
+  void normalEnd() noexcept {
+    try {
+      if (makeSureLumiEnds_) {
+        makeSureLumiEnds_ = false;
+        currentRun_->ep_.endUnfinishedLumi();
+      }
+    } catch(...) {
+      if(not currentRun_->ep_.setDeferredException(std::current_exception())) {
+        std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.");
+        currentRun_->ep_.setExceptionMessageLumis(message);
+      }
     }
+
     currentRun_.reset();
   }
 private:
