@@ -119,6 +119,12 @@ void TestDetSet::default_ctor() {
   CPPUNIT_ASSERT(detsets2.dataSize()==10);
   CPPUNIT_ASSERT(!detsets2.onDemand());
 
+  // test move
+  DSTV detsets3(4);
+  detsets = std::move(detsets3);
+  CPPUNIT_ASSERT(detsets.subdetId()==4);
+  CPPUNIT_ASSERT(detsets.size()==0);
+  CPPUNIT_ASSERT(detsets.dataSize()==0);
 }
 
 void TestDetSet::inserting() {
@@ -592,6 +598,9 @@ void TestDetSet::onDemand() {
   detsets2.swap(detsets);
   CPPUNIT_ASSERT(detsets2.onDemand());
 
+  DSTV detsets3;
+  detsets3 = std::move(detsets2);
+  CPPUNIT_ASSERT(detsets3.onDemand());
 }
 
 void TestDetSet::toRangeMap() {
