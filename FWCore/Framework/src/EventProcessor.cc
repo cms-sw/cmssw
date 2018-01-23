@@ -1166,6 +1166,9 @@ namespace edm {
                       handleNextEventForStreamAsync(std::move(h), i);
                     }
                   });
+                  //make the services available
+                  ServiceRegistry::Operate operate(serviceToken_);
+
                   auto& event = principalCache_.eventPrincipal(i);
                   streamLumiStatus_[i] = status;
                   auto lp = status->lumiPrincipal();
