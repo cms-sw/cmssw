@@ -14,7 +14,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
+#define EDM_ML_DEBUG
 namespace {
   constexpr char hgcalee_sens[] = "HGCalEESensitive";
   constexpr char hgcalfh_sens[] = "HGCalHESiliconSensitive";
@@ -64,7 +64,14 @@ void HGCalTriggerTools::setEventSetup(const edm::EventSetup& es) {
   bhOffset_ = fhOffset_ + (geom_->fhTopology().dddConstants()).layers(true);
 }
 
-GlobalPoint HGCalTriggerTools::getPosition(const DetId& id) const {
+GlobalPoint HGCalTriggerTools::getTCPosition(const DetId& id) const {
+  if(id.det() == DetId::Hcal) {
+    throw cms::Exception("hgcal::HGCalTriggerTools")
+      << "method getTCPosition called for DetId not belonging to a TC";
+    // FIXME: this would actually need a better test...but at the moment I can not think to anything better
+    // to distinguish a TC detId
+  }
+
   GlobalPoint position = geom_->getTriggerCellPosition(id);
   return position;
 }
@@ -98,10 +105,9 @@ float HGCalTriggerTools::getEta(const GlobalPoint& position, const float& vertex
   return corrected_position.eta();
 }
 
-float HGCalTriggerTools::getEta(const DetId& id, const float& vertex_z) const {
-  GlobalPoint position = getPosition(id);
-  float eta = getEta(position, vertex_z);
-  return eta;
+float HGCalTriggerTools::getTCEta(const DetId& id, const float& vertex_z) const {
+  GlobalPoint position = getTCPosition(id);
+  return getEta(position, vertex_z);
 }
 
 float HGCalTriggerTools::getPhi(const GlobalPoint& position) const {
@@ -109,10 +115,9 @@ float HGCalTriggerTools::getPhi(const GlobalPoint& position) const {
   return phi;
 }
 
-float HGCalTriggerTools::getPhi(const DetId& id) const {
-  GlobalPoint position = getPosition(id);
-  float phi = atan2(position.y(),position.x());
-  return phi;
+float HGCalTriggerTools::getTCPhi(const DetId& id) const {
+  GlobalPoint position = getTCPosition(id);
+  return getPhi(position);
 }
 
 float HGCalTriggerTools::getPt(const GlobalPoint& position, const float& hitEnergy, const float& vertex_z) const {
@@ -121,9 +126,33 @@ float HGCalTriggerTools::getPt(const GlobalPoint& position, const float& hitEner
   return pt;
 }
 
-float HGCalTriggerTools::getPt(const DetId& id, const float& hitEnergy, const float& vertex_z) const {
-  GlobalPoint position = getPosition(id);
-  float eta = getEta(position, vertex_z);
-  float pt = hitEnergy / cosh(eta);
-  return pt;
+float HGCalTriggerTools::getTCPt(const DetId& id, const float& hitEnergy, const float& vertex_z) const {
+  GlobalPoint position = getTCPosition(id);
+  return getPt(position, hitEnergy, vertex_z);
+}
+
+float HGCalTriggerTools::getLayerZ(const unsigned& layerWithOffset) const {
+  int subdet = ForwardSubdetector::HGCEE;
+  unsigned offset = 0;
+  if(layerWithOffset > lastLayerEE() && layerWithOffset <= lastLayerFH()) {
+    subdet = ForwardSubdetector::HGCHEF;
+    offset = lastLayerEE();
+  } else if(layerWithOffset > lastLayerFH()) {
+    subdet = HcalSubdetector::HcalEndcap;
+    offset = lastLayerFH();
+  }
+  return getLayerZ(subdet, layerWithOffset - offset);
+}
+
+float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) const {
+  const unsigned heOffset = 7;
+  float layerGlobalZ = 0.;
+  if(subdet == ForwardSubdetector::HGCEE) {
+    layerGlobalZ = geom_->eeTopology().dddConstants().waferZ(layer, true);
+  } else if(subdet == ForwardSubdetector::HGCHEF) {
+    layerGlobalZ = geom_->fhTopology().dddConstants().waferZ(layer, true);
+  } else if(subdet == HcalSubdetector::HcalEndcap || subdet == ForwardSubdetector::HGCHEB) {
+    layerGlobalZ = geom_->bhTopology().dddConstants()->getRZ(HcalSubdetector::HcalEndcap, layer+heOffset);
+  }
+  return layerGlobalZ;
 }
