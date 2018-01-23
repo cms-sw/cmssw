@@ -432,13 +432,13 @@ namespace edm {
       }
     */
     unsigned int nConcurrentLumis =1;
-    /*
-      if(optionsPset.existsAs<unsigned int>("numberOfConcurrentLuminosityBlocks",false)) {
+    
+    if(optionsPset.existsAs<unsigned int>("numberOfConcurrentLuminosityBlocks",false)) {
       nConcurrentLumis = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
-      } else {
+    } else {
       nConcurrentLumis = nConcurrentRuns;
-      }
-    */
+    }
+    
     //Check that relationships between threading parameters makes sense
     /*
       if(nThreads<nStreams) {
