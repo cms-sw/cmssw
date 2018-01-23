@@ -18,58 +18,61 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 // NOTE: most of this code is borrowed by https://github.com/CMS-HGCAL/reco-ntuples
 // kudos goes to the original authors. Ideally the 2 repos should be merged since they share part of the use case
 #include <iostream>
+#include <memory>
 
 namespace HGCal_helpers {
 
-  class coordinates {
+  class Coordinates {
    public:
-    coordinates() : x(0), y(0), z(0), eta(100), phi(0) {}
+    Coordinates() : x(0), y(0), z(0), eta(0), phi(0) {}
     float x, y, z, eta, phi;
     inline math::XYZTLorentzVectorD toVector() { return math::XYZTLorentzVectorD(x, y, z, 0); }
   };
 
 
-  class simpleTrackPropagator {
+  class SimpleTrackPropagator {
    public:
-    simpleTrackPropagator(MagneticField const *f)
-        : field_(f), prod_(field_, alongMomentum, 5.e-5), absz_target_(0) {
+    SimpleTrackPropagator(const MagneticField *f)
+        : field_(f), prod_(field_, alongMomentum), absz_target_(0) {
       ROOT::Math::SMatrixIdentity id;
       AlgebraicSymMatrix55 C(id);
-      C *= 0.001;
+      const double k = 0.001;
+      C *= k;
       err_ = CurvilinearTrajectoryError(C);
     }
     void setPropagationTargetZ(const float &z);
 
     bool propagate(const double px, const double py, const double pz, const double x, const double y,
-                   const double z, const float charge, coordinates &coords) const;
+                   const double z, const float charge, Coordinates &coords) const;
 
     bool propagate(const math::XYZTLorentzVectorD &momentum, const math::XYZTLorentzVectorD &position,
-                   const float charge, coordinates &coords) const;
+                   const float charge, Coordinates &coords) const;
 
    private:
-    simpleTrackPropagator() : field_(0), prod_(field_, alongMomentum, 5.e-5), absz_target_(0) {}
+    SimpleTrackPropagator() : field_(0), prod_(field_, alongMomentum), absz_target_(0) {}
     const RKPropagatorInS &RKProp() const { return prod_.propagator; }
     Plane::PlanePointer targetPlaneForward_, targetPlaneBackward_;
-    MagneticField const *field_;
+    const MagneticField *field_;
     CurvilinearTrajectoryError err_;
     defaultRKPropagator::Product prod_;
     float absz_target_;
   };
 
-  void simpleTrackPropagator::setPropagationTargetZ(const float &z) {
+  void SimpleTrackPropagator::setPropagationTargetZ(const float &z) {
     targetPlaneForward_ = Plane::build(Plane::PositionType(0, 0, std::abs(z)), Plane::RotationType());
     targetPlaneBackward_ =
         Plane::build(Plane::PositionType(0, 0, -std::abs(z)), Plane::RotationType());
     absz_target_ = std::abs(z);
   }
-  bool simpleTrackPropagator::propagate(const double px, const double py, const double pz,
+  bool SimpleTrackPropagator::propagate(const double px, const double py, const double pz,
                                         const double x, const double y, const double z,
-                                        const float charge, coordinates &output) const {
-    output = coordinates();
+                                        const float charge, Coordinates &output) const {
+    output = Coordinates();
 
     typedef TrajectoryStateOnSurface TSOS;
     GlobalPoint startingPosition(x, y, z);
@@ -97,9 +100,9 @@ namespace HGCal_helpers {
     return false;
   }
 
-  bool simpleTrackPropagator::propagate(const math::XYZTLorentzVectorD &momentum,
+  bool SimpleTrackPropagator::propagate(const math::XYZTLorentzVectorD &momentum,
                                         const math::XYZTLorentzVectorD &position, const float charge,
-                                        coordinates &output) const {
+                                        Coordinates &output) const {
     return propagate(momentum.px(), momentum.py(), momentum.pz(), position.x(), position.y(),
                      position.z(), charge, output);
   }
@@ -119,9 +122,14 @@ class HGCalTriggerNtupleGen : public HGCalTriggerNtupleBase
         typedef ROOT::Math::Transform3DPJ Transform3D;
         typedef ROOT::Math::Transform3DPJ::Point Point;
 
+        enum ReachHGCal {
+          notReach = 0,
+          outsideEESurface = 1,
+          onEESurface = 2
+        };
+
     private:
         virtual void clear() override final;
-        void retrieveLayerPositions(const edm::EventSetup &es, unsigned layers);
 
         edm::EDGetToken gen_token_;
         edm::EDGetToken gen_PU_token_;
@@ -176,21 +184,20 @@ class HGCalTriggerNtupleGen : public HGCalTriggerNtupleBase
 
 
         // -------convenient tool to deal with simulated tracks
-        FSimEvent *mySimEvent_;
+        std::unique_ptr<FSimEvent> mySimEvent_;
 
-        std::vector<float> layerPositions_;
         //std::vector<double> dEdXWeights_;
         //std::vector<double> invThicknessCorrection_;
 
         // and also the magnetic field
-        MagneticField const *aField_;
+        const MagneticField *aField_;
 
         HGCalTriggerTools triggerTools_;
 
         // edm::EDGetTokenT<std::vector<reco::GenParticle> > genParticles_;
         edm::EDGetToken simTracks_token_;
         edm::EDGetToken simVertices_token_;
-        edm::EDGetToken hev_token_;
+        edm::EDGetToken hepmcev_token_;
 
 
 };
@@ -205,41 +212,23 @@ HGCalTriggerNtupleGen(const edm::ParameterSet& conf):HGCalTriggerNtupleBase(conf
 {
 }
 
-//FIXME: it should be called once per run...
-void HGCalTriggerNtupleGen::retrieveLayerPositions(const edm::EventSetup &es, unsigned layers) {
-  triggerTools_.setEventSetup(es);
-
-  DetId id;
-  for (unsigned ilayer = 1; ilayer <= layers; ++ilayer) {
-    if (ilayer <= triggerTools_.lastLayerEE()) {
-      id = HGCalDetId(ForwardSubdetector::HGCEE, 1, ilayer, 1, 50, 1);
-    } else if (ilayer > triggerTools_.lastLayerEE() && ilayer <= triggerTools_.lastLayerFH()) {
-      id = HGCalDetId(ForwardSubdetector::HGCHEF, 1, ilayer - triggerTools_.lastLayerEE(), 1, 50, 1);
-    } else if (ilayer > triggerTools_.lastLayerFH()) {
-      id = HcalDetId(HcalSubdetector::HcalEndcap, 50, 100, ilayer - triggerTools_.lastLayerFH());
-    }
-    const GlobalPoint pos = triggerTools_.getPosition(id);
-    layerPositions_.push_back(pos.z());
-  }
-}
-
 
 void
 HGCalTriggerNtupleGen::
 initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector)
 {
 
-    edm::ParameterSet particleFilter_(conf.getParameter<edm::ParameterSet>("TestParticleFilter"));
-    mySimEvent_ = new FSimEvent(particleFilter_);
+    edm::ParameterSet particleFilter_(conf.getParameter<edm::ParameterSet>("particleFilter"));
+    mySimEvent_ = std::make_unique<FSimEvent>(particleFilter_);
 
     gen_token_ = collector.consumes<reco::GenParticleCollection>(conf.getParameter<edm::InputTag>("GenParticles"));
-
     gen_PU_token_ = collector.consumes<std::vector<PileupSummaryInfo>>(conf.getParameter<edm::InputTag>("GenPU"));
     tree.Branch("gen_n", &gen_n_, "gen_n/I");
     tree.Branch("gen_PUNumInt", &gen_PUNumInt_ ,"gen_PUNumInt/I");
     tree.Branch("gen_TrueNumInt", &gen_TrueNumInt_ ,"gen_TrueNumInt/F");
 
-    hev_token_ = collector.consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
+    hepmcev_token_ = collector.consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
+
     simTracks_token_ = collector.consumes<std::vector<SimTrack>>(edm::InputTag("g4SimHits"));
     simVertices_token_ = collector.consumes<std::vector<SimVertex>>(edm::InputTag("g4SimHits"));
 
@@ -300,7 +289,7 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
     es.getData(pdt);
     mySimEvent_->initializePdt(&(*pdt));
 
-    retrieveLayerPositions(es, 52);
+    triggerTools_.setEventSetup(es);
 
     edm::ESHandle<MagneticField> magfield;
     es.get<IdealMagneticFieldRecord>().get(magfield);
@@ -313,7 +302,7 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
     edm::Handle<std::vector<SimTrack>> simTracksHandle;
     edm::Handle<std::vector<SimVertex>> simVerticesHandle;
 
-    iEvent.getByToken(hev_token_, hevH);
+    iEvent.getByToken(hepmcev_token_, hevH);
     iEvent.getByToken(simTracks_token_, simTracksHandle);
     iEvent.getByToken(simVertices_token_, simVerticesHandle);
     mySimEvent_->fill(*simTracksHandle, *simVerticesHandle);
@@ -325,8 +314,8 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
     Point sim_pv(vtx_x_, vtx_y_, vtx_z_);
 
 
-    HGCal_helpers::simpleTrackPropagator toHGCalPropagator(aField_);
-    toHGCalPropagator.setPropagationTargetZ(layerPositions_[0]);
+    HGCal_helpers::SimpleTrackPropagator toHGCalPropagator(aField_);
+    toHGCalPropagator.setPropagationTargetZ(triggerTools_.getLayerZ(1));
     std::vector<FSimTrack *> allselectedgentracks;
     unsigned int npart = mySimEvent_->nTracks();
     for (unsigned int i = 0; i < npart; ++i) {
@@ -334,34 +323,34 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
       FSimTrack &myTrack(mySimEvent_->track(i));
       math::XYZTLorentzVectorD vtx(0, 0, 0, 0);
 
-      int reachedEE = 0;  // compute the extrapolations for the particles reaching EE
+      int reachedEE = ReachHGCal::notReach;  // compute the extrapolations for the particles reaching EE
                           // and for the gen particles
       double fbrem = -1;
 
-      if (std::abs(myTrack.vertex().position().z()) >= layerPositions_[0]) continue;
+      if (std::abs(myTrack.vertex().position().z()) >= triggerTools_.getLayerZ(1)) continue;
 
-      unsigned nlayers = 40;
+      unsigned nlayers = 52;
       if (myTrack.noEndVertex())  // || myTrack.genpartIndex()>=0)
       {
-        HGCal_helpers::coordinates propcoords;
+        HGCal_helpers::Coordinates propcoords;
         bool reachesHGCal = toHGCalPropagator.propagate(
             myTrack.momentum(), myTrack.vertex().position(), myTrack.charge(), propcoords);
         vtx = propcoords.toVector();
 
         if (reachesHGCal && vtx.Rho() < 160 && vtx.Rho() > 25) {
-          reachedEE = 2;
+          reachedEE = ReachHGCal::onEESurface;
           double dpt = 0;
 
           for (int i = 0; i < myTrack.nDaughters(); ++i) dpt += myTrack.daughter(i).momentum().pt();
           if (abs(myTrack.type()) == 11) fbrem = dpt / myTrack.momentum().pt();
         } else if (reachesHGCal && vtx.Rho() > 160)
-          reachedEE = 1;
+          reachedEE = ReachHGCal::outsideEESurface;
 
-        HGCal_helpers::simpleTrackPropagator indiv_particleProp(aField_);
-        for (unsigned il = 0; il < nlayers; ++il) {
+        HGCal_helpers::SimpleTrackPropagator indiv_particleProp(aField_);
+        for (unsigned il = 1; il <= nlayers; ++il) {
           const float charge = myTrack.charge();
-          indiv_particleProp.setPropagationTargetZ(layerPositions_[il]);
-          HGCal_helpers::coordinates propCoords;
+          indiv_particleProp.setPropagationTargetZ(triggerTools_.getLayerZ(il));
+          HGCal_helpers::Coordinates propCoords;
           indiv_particleProp.propagate(myTrack.momentum(), myTrack.vertex().position(), charge,
                                        propCoords);
 
@@ -388,7 +377,7 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
       genpart_ovy_.push_back(orig_vtx.y());
       genpart_ovz_.push_back(orig_vtx.z());
 
-      HGCal_helpers::coordinates hitsHGCal;
+      HGCal_helpers::Coordinates hitsHGCal;
       toHGCalPropagator.propagate(myTrack.momentum(), orig_vtx, myTrack.charge(), hitsHGCal);
 
       genpart_exphi_.push_back(hitsHGCal.phi);
