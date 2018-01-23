@@ -63,6 +63,9 @@ Implementation:
 #include "SimCalorimetry/EcalEBTrigPrimProducers/plugins/EcalEBTrigPrimProducer.h"
 #include "DataFormats/EcalDigi/interface/EcalEBTriggerPrimitiveDigi.h"
 
+// For pT calibrations
+#include "TF1.h"
+
 // HCAL TPs
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
@@ -106,6 +109,9 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       boost::property_tree::ptree towerMap;
       bool useTowerMap;
       std::string towerMapName;
+
+      // Fit function to scale L1EG Crystal Pt to Stage-2
+      TF1 ptAdjustFunc = TF1("ptAdjustFunc", "(([0] + [1]*TMath::Exp(-[2]*x))*(1./([3] + [4]*TMath::Exp(-[5]*x))))");
 
       class SimpleCaloHit
       {
@@ -176,6 +182,16 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
    produces<l1slhc::L1EGCrystalClusterCollection>("L1EGXtalClusterNoCuts");
    produces<l1slhc::L1EGCrystalClusterCollection>("L1EGXtalClusterWithCuts");
    produces<l1extra::L1EmParticleCollection>("L1EGCollectionWithCuts");
+
+   // Fit parameters measured on 28 May 2017, using 500 MeV threshold for ECAL TPs
+   // working in CMSSW 920
+   // Adjustments to be applied to reco cluster pt
+   ptAdjustFunc.SetParameter( 0, 1.062166 );
+   ptAdjustFunc.SetParameter( 1, 0.298738 );
+   ptAdjustFunc.SetParameter( 2, 0.038971 );
+   ptAdjustFunc.SetParameter( 3, 0.977781 );
+   ptAdjustFunc.SetParameter( 4, -0.054748 );
+   ptAdjustFunc.SetParameter( 5, 0.044248 );
    
    // Get tower mapping
    if (useTowerMap) {
@@ -244,15 +260,15 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       //float hitEnergy;
       //for(auto& hit : *pcalohits.product())
       //{
-      //   if(hit.energy() > 0.2 && !hit.checkFlag(EcalRecHit::kOutOfTime) && !hit.checkFlag(EcalRecHit::kL1SpikeFlag))
+      //   if(hit.energy() > 0.05 && !hit.checkFlag(EcalRecHit::kOutOfTime) && !hit.checkFlag(EcalRecHit::kL1SpikeFlag))
       //   {
-      //      auto cell = geometryHelper.getEcalBarrelGeometry()->getGeometry(hit.id());
+      //      auto cell = ebGeometry->getGeometry(hit.id());
       //      SimpleCaloHit ehit;
       //      ehit.id = hit.id();
       //      ehit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
       //      hitEnergy = hit.energy();
       //      hitEt = hitEnergy * sin(ehit.position.theta());
-      //      if (hitEt > 0.5) { // Add this extra requirement to mimic ECAL TPs 500 MeV ET Min
+      //      if (hitEt >= EcalTpEtMin) { // Add this extra requirement to mimic ECAL TPs 500 MeV ET Min
       //         ehit.energy = hit.energy();
       //         ecalhits.push_back(ehit);
       //      }
@@ -650,6 +666,11 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
 
       if ( debug ) std::cout << "H/E: " << hovere << std::endl;
 
+      // Calibrate L1EG pT to match Stage-2 (Phase-I) calibrations
+      // NOTE: working points are defined with respect to normal correctedTotalPt
+      // not to calibrated pT
+      float calibratedPt; 
+      calibratedPt = correctedTotalPt * ( ptAdjustFunc.Eval( correctedTotalPt ) );
 
 
       // Check if cluster passes electron or photon WPs
@@ -663,7 +684,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       
       // Form a l1slhc::L1EGCrystalCluster
       reco::Candidate::PolarLorentzVector p4(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
-      l1slhc::L1EGCrystalCluster cluster(p4, hovere, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength,
+      l1slhc::L1EGCrystalCluster cluster(p4, calibratedPt, hovere, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength,
             e2x2, e2x5, e3x5, e5x5, electronWP98, photonWP80, electronWP90, looseL1TkMatchWP, passesStage2Eff);
       // Save pt array
       cluster.SetCrystalPtInfo(crystalPt);

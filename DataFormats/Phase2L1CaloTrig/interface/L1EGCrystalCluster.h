@@ -13,21 +13,22 @@ namespace l1slhc
 
   class L1EGCrystalCluster : public reco::LeafCandidate {
     public:
-      L1EGCrystalCluster() : LeafCandidate(), hovere_(0.), iso_(0.), PUcorrPt_(0.), bremStrength_(0.),
+      L1EGCrystalCluster() : LeafCandidate(), calibratedPt_(0.), hovere_(0.), iso_(0.), PUcorrPt_(0.), bremStrength_(0.),
             e2x2_(0.), e2x5_(0.), e3x5_(0.), e5x5_(0.), electronWP98_(0.), photonWP80_(0.), electronWP90_(0.),
             looseL1TkMatchWP_(0.), stage2effMatch_(0.) {};
 
-      L1EGCrystalCluster(const PolarLorentzVector& p4, float hovere, float iso, DetId seedCrystal, 
+      L1EGCrystalCluster(const PolarLorentzVector& p4, float calibratedPt, float hovere, float iso, DetId seedCrystal, 
             float PUcorrPt = 0., float bremStrength = 0., float e2x2 = 0., float e2x5 = 0.,
             float e3x5 = 0., float e5x5 = 0., bool electronWP98 = false, bool photonWP80 = false,
             bool electronWP90 = false, bool looseL1TkMatchWP = false, bool stage2effMatch = false ) :
-                    LeafCandidate(0, p4), hovere_(hovere), iso_(iso), seedCrystal_(seedCrystal),
+                    LeafCandidate(0, p4), calibratedPt_(calibratedPt), hovere_(hovere), iso_(iso), seedCrystal_(seedCrystal),
                     PUcorrPt_(PUcorrPt), bremStrength_(bremStrength), e2x2_(e2x2), e2x5_(e2x5),
                     e3x5_(e3x5), e5x5_(e5x5), electronWP98_(electronWP98), photonWP80_(photonWP80),
                     electronWP90_(electronWP90), looseL1TkMatchWP_(looseL1TkMatchWP),
                     stage2effMatch_(stage2effMatch) {};
 
       virtual ~L1EGCrystalCluster() {};
+      inline float calibratedPt() const { return calibratedPt_; };
       inline float hovere() const { return hovere_; };
       inline float isolation() const { return iso_; };
       inline float PUcorrPt() const { return PUcorrPt_; };
@@ -57,6 +58,10 @@ namespace l1slhc
       inline float GetCrystalPt(unsigned int index) const { return (index < crystalPt_.size()) ? crystalPt_[index] : 0.; };
     
     private:
+      // pT calibrated to Stage-2 (Phase-I) L1EG Objects.  NOTE
+      // all working points are defined with respect to cluster.pt(),
+      // not cluster.calibratedPt()
+      float calibratedPt_;
       // HCal energy in region behind cluster (for size, look in producer) / ECal energy in cluster
       float hovere_;
       // ECal isolation (for outer window size, again look in producer)
