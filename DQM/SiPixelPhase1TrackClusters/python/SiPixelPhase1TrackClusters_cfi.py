@@ -256,6 +256,44 @@ SiPixelPhase1TrackClustersOnTrackPositionF = DefaultHistoTrack.clone(
   )
 )
 
+SiPixelPhase1TrackClustersOnTrackImpactAngle = DefaultHistoTrack.clone(
+ name = "impact angle",
+ title = "Cluster Impact Angle (OnTrack)",
+ range_min = 0, range_max = 1.05, range_nbins = 10,
+ xlabel = "Impact Angle",
+ 
+ specs = VPSet
+    (
+     StandardSpecifications1D,
+     
+     #what is below is only for the timing client
+     Specification().groupBy("PXBarrel/PXLayer").save(),
+     
+     Specification().groupBy("PXForward/PXDisk").save(),
+     
+     Specification(PerModule).groupBy("PXBarrel/PXLayer/Lumisection")
+     .reduce("MEAN")
+     .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+     .save(),
+     
+     Specification(PerModule).groupBy("PXForward/PXDisk/Lumisection")
+     .reduce("MEAN")
+     .groupBy("PXForward/PXDisk", "EXTEND_X")
+     .save(),
+     
+     Specification(IsOffline).groupBy("PXBarrel/PXLayer/LumiBlock")
+     .reduce("MEAN")
+     .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+     .save(),
+     
+     Specification(IsOffline).groupBy("PXForward/PXDisk/LumiBlock")
+     .reduce("MEAN")
+     .groupBy("PXForward/PXDisk", "EXTEND_X")
+     .save()
+   )
+ )
+
+
 SiPixelPhase1DigisHitmapOnTrack = DefaultHistoTrack.clone(
   name = "digi_occupancy_ontrack",
   title = "Digi Occupancy (OnTrack)",
@@ -437,6 +475,7 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackNClusters,
   SiPixelPhase1TrackClustersOnTrackPositionB,
   SiPixelPhase1TrackClustersOnTrackPositionF,
+  SiPixelPhase1TrackClustersOnTrackImpactAngle,
   SiPixelPhase1DigisHitmapOnTrack,
 
   SiPixelPhase1TrackClustersNTracks,

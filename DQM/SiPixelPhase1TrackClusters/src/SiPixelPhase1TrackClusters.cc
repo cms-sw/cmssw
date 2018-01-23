@@ -37,6 +37,7 @@ enum {  // copy paste from cfy: the only safe way to doit....
   SiPixelPhase1TrackClustersOnTrackNClusters,
   SiPixelPhase1TrackClustersOnTrackPositionB,
   SiPixelPhase1TrackClustersOnTrackPositionF,
+  SiPixelPhase1TrackClustersOnTrackImpactAngle,
   SiPixelPhase1DigisHitmapOnTrack,
 
   SiPixelPhase1TrackClustersNTracks,
@@ -181,6 +182,8 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
 
       // correct charge for track impact angle
       auto charge = cluster.charge()*ltp.absdz();
+        
+      auto impactAngle = ltp.absdz();
 
       auto clustgp =  pixhit->globalPosition();  // from rechit
 
@@ -223,6 +226,8 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
 
       histo[SiPixelPhase1TrackClustersOnTrackPositionB].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
       histo[SiPixelPhase1TrackClustersOnTrackPositionF].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
+        
+      histo[SiPixelPhase1TrackClustersOnTrackImpactAngle].fill(impactAngle, id, &iEvent);
 
       histo[SiPixelPhase1ClustersChargeVsSizeOnTrack].fill(cluster.size(), charge, id, &iEvent);
 
