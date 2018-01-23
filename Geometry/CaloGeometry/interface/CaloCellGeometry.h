@@ -112,6 +112,7 @@ public:
   ///----------- only needed by specific utility; overloaded when needed ----
   virtual void getTransform( Tr3D& tr, Pt3DVec* lptr ) const ;
   //------------------------------------------------------------------------
+  void setBackPoint (const GlobalPoint& pos) {m_backPoint = pos;}
 
   virtual void vocalCorners( Pt3DVec&        vec ,
 			     const CCGFloat* pv  ,
@@ -142,7 +143,6 @@ protected:
   virtual void initCorners(CornersVec&) = 0;
 
   void setRefPoint  (const GlobalPoint& pos) {m_refPoint  = pos;}
-  void setBackPoint (const GlobalPoint& pos) {m_backPoint = pos;}
   void setCornerVec (const std::vector<GlobalPoint>&  cor) {
     for (unsigned int k=0; k<cor.size(); ++k) 
       m_corners[k] = cor[k];
