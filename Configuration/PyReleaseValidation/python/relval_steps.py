@@ -2365,6 +2365,22 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_pixelTrackingOnly, upgradeStepDict[step][k]])
         elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation'}, upgradeStepDict[step][k]])
 
+    for step in upgradeSteps['trackingRun2']['steps']:
+        stepName = step + upgradeSteps['trackingRun2']['suffix']
+        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
+            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, upgradeStepDict[step][k]])
+
+    for step in upgradeSteps['trackingOnlyRun2']['steps']:
+        stepName = step + upgradeSteps['trackingOnlyRun2']['suffix']
+        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
+            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, step3_trackingOnly, upgradeStepDict[step][k]])
+        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict[step][k]])
+
+    for step in upgradeSteps['trackingLowPU']['steps']:
+        stepName = step + upgradeSteps['trackingLowPU']['suffix']
+        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
+            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingLowPU'}, upgradeStepDict[step][k]])
+
     for step in upgradeSteps['Timing']['steps']:
         stepName = step + upgradeSteps['Timing']['suffix']
         upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
@@ -2416,8 +2432,3 @@ for step in upgradeStepDict.keys():
             k=step+'_'+key
             if step in upgradeStepDict and key in upgradeStepDict[step]:
                 steps[k]=merge([upgradeStepDict[step][key]])
-
-# 2017 tracking specific eras
-steps['RecoFull_trackingRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_2017']])
-steps['RecoFull_trackingOnlyRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_trackingOnly_2017']])
-steps['RecoFull_trackingLowPU_2017'] = merge([{'--era': 'Run2_2017_trackingLowPU'}, steps['RecoFull_2017']])
