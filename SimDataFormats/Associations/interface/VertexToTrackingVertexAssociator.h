@@ -12,8 +12,10 @@ namespace reco {
 #ifndef __GCCXML__
     VertexToTrackingVertexAssociator( std::unique_ptr<reco::VertexToTrackingVertexAssociatorBaseImpl>);
 #endif
-    VertexToTrackingVertexAssociator();
-    ~VertexToTrackingVertexAssociator();
+    VertexToTrackingVertexAssociator() = default;
+    VertexToTrackingVertexAssociator(VertexToTrackingVertexAssociator&&) = default;
+    VertexToTrackingVertexAssociator& operator=(VertexToTrackingVertexAssociator&&) = default;
+    ~VertexToTrackingVertexAssociator() = default;
 
     // ---------- const member functions ---------------------
     /// compare reco to sim the handle of reco::Vertex and TrackingVertex collections
@@ -37,7 +39,7 @@ namespace reco {
     const VertexToTrackingVertexAssociator& operator=(const VertexToTrackingVertexAssociator&) = delete; // stop default
     
     // ---------- member data --------------------------------
-    VertexToTrackingVertexAssociatorBaseImpl* m_impl;
+    std::unique_ptr<VertexToTrackingVertexAssociatorBaseImpl> m_impl;
   };
 }
 

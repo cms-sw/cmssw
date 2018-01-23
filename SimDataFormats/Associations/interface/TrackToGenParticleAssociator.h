@@ -35,11 +35,13 @@ namespace reco{
     
   public:
     /// Constructor
-    TrackToGenParticleAssociator();
+    TrackToGenParticleAssociator() = default;
 #ifndef __GCCXML__
     TrackToGenParticleAssociator( std::unique_ptr<reco::TrackToGenParticleAssociatorBaseImpl>);
 #endif
-    ~TrackToGenParticleAssociator();
+    ~TrackToGenParticleAssociator() = default;
+    TrackToGenParticleAssociator(TrackToGenParticleAssociator&&) = default;
+    TrackToGenParticleAssociator& operator=(TrackToGenParticleAssociator&&) = default;
     
     /// Association Sim To Reco with Collections (Gen Particle version)
     reco::RecoToGenCollection associateRecoToGen(const edm::RefToBaseVector<reco::Track>& tracks,
@@ -74,7 +76,7 @@ namespace reco{
     
     const TrackToGenParticleAssociator& operator=(const TrackToGenParticleAssociator&) = delete; // stop default
     
-    TrackToGenParticleAssociatorBaseImpl* m_impl;
+    std::unique_ptr<TrackToGenParticleAssociatorBaseImpl> m_impl;
     
     
   };

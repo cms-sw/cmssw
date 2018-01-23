@@ -27,16 +27,6 @@
 //
 // constructors and destructor
 //
-reco::TrackToGenParticleAssociator::TrackToGenParticleAssociator()
+reco::TrackToGenParticleAssociator::TrackToGenParticleAssociator(std::unique_ptr<TrackToGenParticleAssociatorBaseImpl> impl): m_impl(std::move(impl))
 {
 }
-
-reco::TrackToGenParticleAssociator::TrackToGenParticleAssociator(std::unique_ptr<TrackToGenParticleAssociatorBaseImpl> impl): m_impl(impl.release())
-{
-}
-
-reco::TrackToGenParticleAssociator::~TrackToGenParticleAssociator()
-{
-  delete m_impl;
-}
-
