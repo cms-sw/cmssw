@@ -24,6 +24,8 @@ class LHEEventProduct {
 	LHEEventProduct(const lhef::HEPEUP &hepeup,
 			const double originalXWGTUP) : 
 	  hepeup_(hepeup), originalXWGTUP_(originalXWGTUP) {}
+        LHEEventProduct(LHEEventProduct&&) = default;
+        LHEEventProduct& operator=(LHEEventProduct&&) = default;
 	~LHEEventProduct() {}
 
 	void setPDF(const PDF &pdf) { pdf_.reset(new PDF(pdf)); }
