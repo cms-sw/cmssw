@@ -89,7 +89,7 @@ CSCFakeGainsConditions::~CSCFakeGainsConditions()
 CSCFakeGainsConditions::ReturnType
 CSCFakeGainsConditions::produceGains(const CSCGainsRcd& iRecord)
 {
-  CSCFakeGainsConditions::ReturnType mydata( new CSCGains( * cngains));
+  CSCFakeGainsConditions::ReturnType mydata = std::make_unique<CSCGains>( * cngains);
   return mydata;
 }
 
