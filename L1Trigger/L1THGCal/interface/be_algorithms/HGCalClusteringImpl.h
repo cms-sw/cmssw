@@ -65,6 +65,10 @@ private:
     double scintillatorTriggerCellThreshold_;
     double dr_;
     std::string clusteringAlgorithmType_;
+    double calibSF_;
+    std::vector<double> layerWeights_;
+    bool applyLayerWeights_;
+
     void triggerCellReshuffling( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs, 
                                  std::array<std::vector<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>, kNSides_> & reshuffledTriggerCells );
 
@@ -74,6 +78,8 @@ private:
     void removeUnconnectedTCinCluster( l1t::HGCalCluster & cluster,
                                         const HGCalTriggerGeometryBase & triggerGeometry
         );
+    
+    void calibratePt( l1t::HGCalCluster & cluster );
 
 };
 
