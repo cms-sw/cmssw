@@ -25,7 +25,7 @@ ntuple_gen = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGen'),
     GenParticles = cms.InputTag('genParticles'),
     GenPU = cms.InputTag('addPileupInfo'),
-    TestParticleFilter = PartFilterConfig
+    particleFilter = PartFilterConfig
 )
 
 ntuple_gentau = cms.PSet(
@@ -47,7 +47,7 @@ ntuple_digis = cms.PSet(
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
-    isSimhitComp = cms.bool(True)
+    isSimhitComp = cms.bool(False)
 )
 
 ntuple_triggercells = cms.PSet(
