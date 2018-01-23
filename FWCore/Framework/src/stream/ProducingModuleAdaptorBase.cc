@@ -57,8 +57,10 @@ namespace edm {
       m_streamModules.resize(iPrealloc.numberOfStreams(),
                              static_cast<T*>(nullptr));
       setupStreamModules();
+      preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
 
+    
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg) {

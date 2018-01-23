@@ -88,6 +88,11 @@ namespace edm {
         m_pset= nullptr;
       }
 
+      void preallocLumis(unsigned int iNLumis) final {
+        m_lumis.resize(iNLumis);
+        m_lumiSummaries.resize(iNLumis);
+      }
+
       void doEndJob() final {
         MyGlobal::endJob(m_global.get());
       }
