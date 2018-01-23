@@ -68,6 +68,7 @@ namespace edm {
       previousParentages_.reset(new std::vector<BranchID>[nStreams]);
       previousParentageIds_.reset( new ParentageID[nStreams]);
       preallocStreams(nStreams);
+      preallocLumis(iPrealloc.numberOfLuminosityBlocks());
       preallocate(iPrealloc);
     }
     
@@ -195,6 +196,7 @@ namespace edm {
     }
     
     void EDProducerBase::preallocStreams(unsigned int) {}
+    void EDProducerBase::preallocLumis(unsigned int) {}
     void EDProducerBase::preallocate(PreallocationConfiguration const&) {}
     void EDProducerBase::doBeginStream_(StreamID id){}
     void EDProducerBase::doEndStream_(StreamID id) {}

@@ -475,6 +475,8 @@ namespace {
 template<typename T>
 void
 testLimitedModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
+  edm::maker::ModuleHolderT<edm::limited::EDProducerBase> h(iMod,nullptr);
+  h.preallocate(edm::PreallocationConfiguration{});
   edm::WorkerT<edm::limited::EDProducerBase> w{iMod,m_desc,nullptr};
   for(auto& keyVal: m_transToFunc) {
     testTransition(iMod,&w,keyVal.first,iExpect,keyVal.second);
@@ -493,8 +495,6 @@ void testLimitedModule::basicTest()
 void testLimitedModule::streamTest()
 {
   auto testProd = std::make_shared<StreamProd>();
-  edm::maker::ModuleHolderT<edm::limited::EDProducerBase> h(testProd,nullptr);
-  h.preallocate(edm::PreallocationConfiguration{});
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kBeginStream, Trans::kStreamBeginRun, Trans::kStreamBeginLuminosityBlock, Trans::kEvent,

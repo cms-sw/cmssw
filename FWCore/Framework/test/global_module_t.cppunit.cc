@@ -91,6 +91,7 @@ private:
   std::map<Trans,std::function<void(edm::Worker*)>> m_transToFunc;
   
   edm::ProcessConfiguration m_procConfig;
+  edm::PreallocationConfiguration m_preallocConfig;
   std::shared_ptr<edm::ProductRegistry> m_prodReg;
   std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
   std::shared_ptr<edm::ThinnedAssociationsHelper> m_associationsHelper;
@@ -343,6 +344,7 @@ static const edm::StreamID s_streamID0 = makeID();
 CPPUNIT_TEST_SUITE_REGISTRATION(testGlobalModule);
 
 testGlobalModule::testGlobalModule():
+m_preallocConfig{},
 m_prodReg(new edm::ProductRegistry{}),
 m_idHelper(new edm::BranchIDListHelper{}),
 m_associationsHelper(new edm::ThinnedAssociationsHelper{}),
@@ -448,6 +450,9 @@ namespace {
 template<typename T>
 void
 testGlobalModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
+  edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(iMod,nullptr);
+  h.preallocate(edm::PreallocationConfiguration{});
+
   edm::WorkerT<edm::global::EDProducerBase> w{iMod,m_desc,nullptr};
   for(auto& keyVal: m_transToFunc) {
     testTransition(iMod,&w,keyVal.first,iExpect,keyVal.second);
@@ -466,8 +471,6 @@ void testGlobalModule::basicTest()
 void testGlobalModule::streamTest()
 {
   auto testProd = std::make_shared<StreamProd>();
-  edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(testProd,nullptr);
-  h.preallocate(edm::PreallocationConfiguration{});
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kBeginStream, Trans::kStreamBeginRun, Trans::kStreamBeginLuminosityBlock, Trans::kEvent,
@@ -493,7 +496,7 @@ void testGlobalModule::runSummaryTest()
 void testGlobalModule::lumiTest()
 {
   auto testProd = std::make_shared<LumiProd>();
-  
+
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock});
 }

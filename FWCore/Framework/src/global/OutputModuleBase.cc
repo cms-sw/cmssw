@@ -216,6 +216,7 @@ namespace edm {
         }
       }
       preallocStreams(nstreams);
+      preallocLumis(iPC.numberOfLuminosityBlocks());
       preallocate(iPC);
     }
 
