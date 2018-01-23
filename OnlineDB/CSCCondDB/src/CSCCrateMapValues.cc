@@ -36,7 +36,7 @@ CSCCrateMapValues::ReturnType
 CSCCrateMapValues::produceCrateMap(const CSCCrateMapRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  auto mydata = std::make_unique<CSCCrateMap>( *mapObj );
+  CSCCrateMapValues::ReturnType mydata = std::make_unique<CSCCrateMap>( *mapObj );
   return mydata;
   
 }
