@@ -58,8 +58,27 @@ namespace edmNew {
       DetSetVectorTrans(): m_filling(false), m_dataSize(0){}
       DetSetVectorTrans& operator=(const DetSetVectorTrans&) = delete;
       DetSetVectorTrans(const DetSetVectorTrans&) = delete;
-      DetSetVectorTrans(DetSetVectorTrans&&) = default;
-      DetSetVectorTrans& operator=(DetSetVectorTrans&&) = default;
+      DetSetVectorTrans(DetSetVectorTrans&& rh) { // can't be default because of atomics
+        // better no one is filling...
+        assert(m_filling==false); assert(rh.m_filling==false);
+        m_getter = std::move(rh.m_getter);
+#ifdef DSVN_USE_ATOMIC
+        m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
+#else
+        m_dataSize = std::move(rh.m_dataSize);
+#endif
+      }
+      DetSetVectorTrans& operator=(DetSetVectorTrans&& rh) {  // can't be default because of atomics
+        // better no one is filling...
+        assert(m_filling==false); assert(rh.m_filling==false);
+        m_getter = std::move(rh.m_getter);
+#ifdef DSVN_USE_ATOMIC
+        m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
+#else
+        m_dataSize = std::move(rh.m_dataSize);
+#endif
+        return *this;
+      }
       mutable std::atomic<bool> m_filling;
       boost::any m_getter;
 #ifdef DSVN_USE_ATOMIC
