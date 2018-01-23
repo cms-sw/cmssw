@@ -97,7 +97,7 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
         class MassSum {
                 public:
                         static ColType convert(ValType x){
-			        if(x.size()==0) return 0;
+			        if(x.empty()) return 0;
  			        auto v=x[0].p4();
                                 for(const auto & i : x) v+=i.p4();
                                 return v.mass();
@@ -107,7 +107,7 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
         class PtVectorSum {
                 public:
                         static ColType convert(ValType x){
-				if(x.size()==0) return 0;
+				if(x.empty()) return 0;
                                 auto v=x[0].p4();
 				v-=x[0].p4();
                                 for(const auto & i : x) v+=i.p4();
