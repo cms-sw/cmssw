@@ -235,7 +235,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
   // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
   // maxRestrictionP_ = 8 GeV as came from a study
-  std::string labelBS                 = iConfig.getParameter<std::string>("beamSpotLabel");
+  std::string labelBS                 = iConfig.getParameter<std::string>("labelBeamSpot");
   std::string modnam                  = iConfig.getUntrackedParameter<std::string>("moduleName","");
   std::string prdnam                  = iConfig.getUntrackedParameter<std::string>("producerName","");
   edm::InputTag algTag                = iConfig.getParameter<edm::InputTag>("algInputTag");
