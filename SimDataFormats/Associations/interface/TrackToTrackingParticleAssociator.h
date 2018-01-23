@@ -55,8 +55,10 @@ namespace reco {
 #ifndef __GCCXML__
     TrackToTrackingParticleAssociator( std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl>);
 #endif
-    TrackToTrackingParticleAssociator();
-    ~TrackToTrackingParticleAssociator();
+    TrackToTrackingParticleAssociator() = default;
+    TrackToTrackingParticleAssociator(TrackToTrackingParticleAssociator&&) = default;
+    TrackToTrackingParticleAssociator& operator=(TrackToTrackingParticleAssociator&&) = default;
+    ~TrackToTrackingParticleAssociator() = default;
     
     // ---------- const member functions ---------------------
     /// compare reco to sim the handle of reco::Track and TrackingParticle collections
@@ -114,7 +116,7 @@ namespace reco {
     const TrackToTrackingParticleAssociator& operator=(const TrackToTrackingParticleAssociator&) = delete; // stop default
     
     // ---------- member data --------------------------------
-    TrackToTrackingParticleAssociatorBaseImpl* m_impl;
+    std::unique_ptr<TrackToTrackingParticleAssociatorBaseImpl> m_impl;
   };
 }
 

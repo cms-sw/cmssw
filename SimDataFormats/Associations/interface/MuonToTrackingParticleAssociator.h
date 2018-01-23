@@ -16,11 +16,13 @@ namespace reco {
     
   public:
     
-    MuonToTrackingParticleAssociator ();
-    ~MuonToTrackingParticleAssociator ();
+    MuonToTrackingParticleAssociator () = default;
+    ~MuonToTrackingParticleAssociator () = default;
 #ifndef __GCCXML__
     MuonToTrackingParticleAssociator(std::unique_ptr<MuonToTrackingParticleAssociatorBaseImpl>);
 #endif
+    MuonToTrackingParticleAssociator(MuonToTrackingParticleAssociator&&) = default;
+    MuonToTrackingParticleAssociator& operator=(MuonToTrackingParticleAssociator&&) = default;
     
     void associateMuons(MuonToSimCollection & recoToSim, SimToMuonCollection & simToReco,
                         const edm::RefToBaseVector<reco::Muon> & muons, MuonTrackType type,
@@ -41,7 +43,7 @@ namespace reco {
     MuonToTrackingParticleAssociator( const MuonToTrackingParticleAssociator&) = delete;
     MuonToTrackingParticleAssociator& operator=( const MuonToTrackingParticleAssociator&) = delete;
 
-    MuonToTrackingParticleAssociatorBaseImpl const* impl_;
+    std::unique_ptr<MuonToTrackingParticleAssociatorBaseImpl const> impl_;
   };
 }
 
