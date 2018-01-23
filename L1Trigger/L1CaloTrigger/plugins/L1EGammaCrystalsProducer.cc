@@ -169,7 +169,7 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
    EcalTpEtMin(iConfig.getUntrackedParameter<double>("EcalTpEtMin", 0.5)), // Default to 500 MeV
    EtMinForSeedHit(iConfig.getUntrackedParameter<double>("EtMinForSeedHit", 1.0)), // Default to 1 GeV
    debug(iConfig.getUntrackedParameter<bool>("debug", false)),
-   useRecHits(iConfig.getParameter<bool>("useRecHits")),
+   useRecHits(iConfig.getUntrackedParameter<bool>("useRecHits", false)),
    doBremClustering(iConfig.getUntrackedParameter<bool>("doBremClustering", true)),
    ecalRecHitEBToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitEB"))),
    ecalTPEBToken_(consumes<EcalEBTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPEB"))),
@@ -252,28 +252,28 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    } // Done loading ECAL TPs
 
    if (useRecHits) {
-      std::cout << "ECAL Rec Hits is not supported by L1T" << std::endl;
-      //// using RecHits (https://cmssdt.cern.ch/SDT/doxygen/CMSSW_6_1_2_SLHC6/doc/html/d8/dc9/classEcalRecHit.html)
-      //edm::Handle<EcalRecHitCollection> pcalohits;
-      //iEvent.getByToken(ecalRecHitEBToken_,pcalohits);
-      //float hitEt;
-      //float hitEnergy;
-      //for(auto& hit : *pcalohits.product())
-      //{
-      //   if(hit.energy() > 0.05 && !hit.checkFlag(EcalRecHit::kOutOfTime) && !hit.checkFlag(EcalRecHit::kL1SpikeFlag))
-      //   {
-      //      auto cell = ebGeometry->getGeometry(hit.id());
-      //      SimpleCaloHit ehit;
-      //      ehit.id = hit.id();
-      //      ehit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
-      //      hitEnergy = hit.energy();
-      //      hitEt = hitEnergy * sin(ehit.position.theta());
-      //      if (hitEt >= EcalTpEtMin) { // Add this extra requirement to mimic ECAL TPs 500 MeV ET Min
-      //         ehit.energy = hit.energy();
-      //         ecalhits.push_back(ehit);
-      //      }
-      //   }
-      //}
+      //std::cout << "ECAL Rec Hits is not supported by L1T" << std::endl;
+      // using RecHits (https://cmssdt.cern.ch/SDT/doxygen/CMSSW_6_1_2_SLHC6/doc/html/d8/dc9/classEcalRecHit.html)
+      edm::Handle<EcalRecHitCollection> pcalohits;
+      iEvent.getByToken(ecalRecHitEBToken_,pcalohits);
+      float hitEt;
+      float hitEnergy;
+      for(auto& hit : *pcalohits.product())
+      {
+         if(hit.energy() > 0.05 && !hit.checkFlag(EcalRecHit::kOutOfTime) && !hit.checkFlag(EcalRecHit::kL1SpikeFlag))
+         {
+            auto cell = ebGeometry->getGeometry(hit.id());
+            SimpleCaloHit ehit;
+            ehit.id = hit.id();
+            ehit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
+            hitEnergy = hit.energy();
+            hitEt = hitEnergy * sin(ehit.position.theta());
+            if (hitEt >= EcalTpEtMin) { // Add this extra requirement to mimic ECAL TPs 500 MeV ET Min
+               ehit.energy = hit.energy();
+               ecalhits.push_back(ehit);
+            }
+         }
+      }
    } // Done loading Rec Hits
 
    if (!useRecHits) {
@@ -335,7 +335,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    }
 
    if (useRecHits) {
-      std::cout << "HCAL Rec Hits is not supported by L1T" << std::endl;
+      std::cout << "HCAL Rec Hits is not supported at the moment" << std::endl;
       //// Retrive HCAL hits - using RecHits at the moment
       //edm::Handle<HBHERecHitCollection> hbhecoll;
       ////iEvent.getByLabel("hbheprereco", hbhecoll);
