@@ -21,4 +21,11 @@ namespace edm {
   LuminosityBlockForOutput::luminosityBlockPrincipal() const {
     return dynamic_cast<LuminosityBlockPrincipal const&>(principal());
   }
+  
+  /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
+   */
+  LuminosityBlockIndex LuminosityBlockForOutput::index() const {
+    return luminosityBlockPrincipal().index();
+  }
+
 }
