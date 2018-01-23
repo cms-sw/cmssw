@@ -14,7 +14,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#define EDM_ML_DEBUG
+
 namespace {
   constexpr char hgcalee_sens[] = "HGCalEESensitive";
   constexpr char hgcalfh_sens[] = "HGCalHESiliconSensitive";
