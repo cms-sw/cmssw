@@ -85,7 +85,7 @@ CaloMiscalibToolsMC::produce(const EcalIntercalibConstantsMCRcd& iRecord)
     map_.print();
     // Added by Zhen, need a new object so to not be deleted at exit
     //    std::cout<<"about to copy"<<std::endl;
-    CaloMiscalibToolsMC::ReturnType mydata(new EcalIntercalibConstantsMC(map_.get()));
+    CaloMiscalibToolsMC::ReturnType mydata = std::make_unique<EcalIntercalibConstantsMC>(map_.get());
     //    std::cout<<"mydata "<<mydata<<std::endl;
     return mydata;
 }
