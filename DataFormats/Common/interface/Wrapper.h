@@ -88,9 +88,7 @@ private:
     present(ptr.get() != nullptr),
     obj() {
     if (present) {
-      // The following will call swap if T has such a function,
-      // and use assignment if T has no such function.
-      swap_or_assign(obj, *ptr);
+      obj = std::move(*ptr);
     }
   }
 
@@ -101,9 +99,7 @@ private:
   obj() {
      std::unique_ptr<T> temp(ptr);
      if (present) {
-        // The following will call swap if T has such a function,
-        // and use assignment if T has no such function.
-        swap_or_assign(obj, *ptr);
+       obj = std::move(*ptr);
      }
   }
 
