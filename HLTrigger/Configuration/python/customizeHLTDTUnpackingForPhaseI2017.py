@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 def customizeHLTDtUnpacking(process):
   """Adapt the HLT to run the legacy DT unpacking
      for pre2018 data/MC workflows as the default 
-     unpacking in master/GRun is set to uROS 
-     unacker"""
+     unpacking in master/GRun now uses the uROS 
+     unpacker"""
 
   if 'hltMuonDTDigis' in process.__dict__ :
       process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
