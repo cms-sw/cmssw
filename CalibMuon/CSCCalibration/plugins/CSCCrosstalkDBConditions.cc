@@ -36,7 +36,7 @@ CSCCrosstalkDBConditions::ReturnType
 CSCCrosstalkDBConditions::produceDBCrosstalk(const CSCDBCrosstalkRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCCrosstalkDBConditions::ReturnType mydata(new CSCDBCrosstalk( * cndbCrosstalk ));
+  CSCCrosstalkDBConditions::ReturnType mydata = std::make_unique<CSCDBCrosstalk>( * cndbCrosstalk );
   return mydata;
   
 }
