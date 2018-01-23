@@ -132,9 +132,10 @@ public:
               edm::LogError("GlobalTrackingRegionProducerFromVertex")<<"could not get any SiPixel cluster collections of type edm::DetSetVector<SiPixelCluster>";
               nPix = theScalingEnd+1;//if can't find collection, default to minimum radius to be safe
             } 
-            
+           
+ 
             //first condition is for high occupancy, second makes sure we won't divide by zero or a negative number
-            if((nPix > theScalingEnd) || ((theScalingEnd-theScalingStart) <= 0)){  
+            if((nPix > theScalingEnd) || ((theScalingEnd-theScalingStart) <= 0)){
               if(theOriginRScaling)    scaledOriginRadius = theMinOriginR;   // sets parameters to minimum value from PSet
               if(theHalfLengthScaling) scaledHalfLength = theMinHalfLength;
               if(thePtMinScaling)      scaledPtMin = theMaxPtMin; 
@@ -145,8 +146,8 @@ public:
               if(theHalfLengthScaling) scaledHalfLength = theFixedError - (theFixedError-theMinHalfLength)*(nPix-theScalingStart)/(theScalingEnd-theScalingStart);
               if(thePtMinScaling) scaledPtMin = thePtMin - (thePtMin-theMaxPtMin)*(nPix-theScalingStart)/(theScalingEnd-theScalingStart);
             }
-            std::cout << "NumberOfPixels: " <<  nPix << std::endl;
-            std::cout << "Scaled Origin R: " << scaledOriginRadius << " Default Origin R: " << theOriginRadius <<" Scaled HalfLength: " << scaledHalfLength << " Default H.L.: " << theFixedError <<" Scaled pT Min: " << scaledPtMin << " Default pT Min: " << thePtMin << std::endl;
+            //std::cout << "NumberOfPixels: " <<  nPix << std::endl;
+            //std::cout << "Scaled Origin R: " << scaledOriginRadius << " Default Origin R: " << theOriginRadius <<" Scaled HalfLength: " << scaledHalfLength << " Default H.L.: " << theFixedError <<" Scaled pT Min: " << scaledPtMin << " Default pT Min: " << thePtMin << std::endl;
             //if region has 0 size, return 'result' empty, otherwise make a tracking region 
             if(scaledOriginRadius!=0 && scaledHalfLength !=0){
               result.push_back( std::make_unique<GlobalTrackingRegion>( scaledPtMin, theOrigin_, scaledOriginRadius, scaledHalfLength, thePrecise,theUseMS));
