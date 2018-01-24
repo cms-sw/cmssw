@@ -20,6 +20,8 @@ namespace ihd {
       layerSetBeginIndex_(ind),
       layerSetEndIndex_(ind)
     {}
+    RegionIndex(RegionIndex&&) = default;
+    RegionIndex& operator=(RegionIndex&&) = default;
 
     void setLayerSetsEnd(unsigned int end) { layerSetEndIndex_ = end; }
 
@@ -194,6 +196,8 @@ public:
   IntermediateHitDoublets(): seedingLayers_(nullptr) {}
   explicit IntermediateHitDoublets(const SeedingLayerSetsHits *seedingLayers): seedingLayers_(seedingLayers) {}
   IntermediateHitDoublets(const IntermediateHitDoublets& rh); // only to make ROOT dictionary generation happy
+  IntermediateHitDoublets(IntermediateHitDoublets&&) = default;
+  IntermediateHitDoublets& operator=(IntermediateHitDoublets&&) = default;
   ~IntermediateHitDoublets() = default;
 
   void swap(IntermediateHitDoublets& rh) {

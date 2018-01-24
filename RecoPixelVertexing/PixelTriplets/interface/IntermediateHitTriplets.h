@@ -259,6 +259,8 @@ public:
   IntermediateHitTriplets(): seedingLayers_(nullptr) {}
   explicit IntermediateHitTriplets(const SeedingLayerSetsHits *seedingLayers): seedingLayers_(seedingLayers) {}
   IntermediateHitTriplets(const IntermediateHitTriplets& rh); // only to make ROOT dictionary generation happy
+  IntermediateHitTriplets(IntermediateHitTriplets&&) = default;
+  IntermediateHitTriplets& operator=(IntermediateHitTriplets&&) = default;
   ~IntermediateHitTriplets() = default;
 
   void swap(IntermediateHitTriplets& rh) {
