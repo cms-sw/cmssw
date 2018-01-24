@@ -320,19 +320,17 @@ bool HybridMinimizer::Minimize() {
    int strategyLevel = Strategy(); 
    fMinuitFCN->SetErrorDef(ErrorDef() );
 
-   /*
    if (PrintLevel() >=1) { 
       // print the real number of maxfcn used (defined in ModularFuncitonMinimizer)
       int maxfcn_used = maxfcn; 
       if (maxfcn_used == 0) { 
-         int nvar = fState.VariableParameters();
+	//         int nvar = fState.VariableParameters();
 	 //         maxfcn_used = 200 + 100*nvar + 5*nvar*nvar;
       }      
 //      std::cout << "HybridMinimizer: Minimize with max-calls " << maxfcn_used 
 //                << " convergence for edm < " << tol << " strategy " 
 //                << strategyLevel << std::endl; 
    }
-   */
 
    // internal minuit messages
    MnPrint::SetLevel(PrintLevel() );
@@ -703,18 +701,16 @@ bool HybridMinimizer::GetMinosError(unsigned int i, double & errLow, double & er
    // cut off too small tolerance (they are not needed)
    tol = std::max(tol, 0.01);
    
-   /*
    if (PrintLevel() >=1) { 
       // print the real number of maxfcn used (defined in MnMinos)
       int maxfcn_used = maxfcn; 
       if (maxfcn_used == 0) { 
-         int nvar = fState.VariableParameters();
+	//         int nvar = fState.VariableParameters();
 	 //	 maxfcn_used = 2*(nvar+1)*(200 + 100*nvar + 5*nvar*nvar);
       }
 //      std::cout << "HybridMinimizer::GetMinosError for parameter " << i << "  " << par_name
 //                << " using max-calls " << maxfcn_used << ", tolerance " << tol << std::endl; 
    }
-   */
 
    if (runLower) low = minos.Loval(i,maxfcn,tol);
    if (runUpper) up  = minos.Upval(i,maxfcn,tol);
