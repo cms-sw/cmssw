@@ -516,15 +516,19 @@ namespace pat {
 
       /// Access to mass of subjets
       double groomedMass(unsigned int index = 0) const{
-	return nSubjetCollections() > 0 && !subjets(index).empty() ?
-	  std::accumulate( subjets(index).begin(), subjets(index).end(),
-			   reco::Candidate::LorentzVector(), [] (reco::Candidate::LorentzVector a, reco::CandidatePtr const & b){return a + b->p4();}).mass() :
+	auto const& sub = subjets(index);
+	return nSubjetCollections() > index && !sub.empty() ?
+	  std::accumulate( sub.begin(), sub.end(),
+			   reco::Candidate::LorentzVector(),
+			   [] (reco::Candidate::LorentzVector const & a, reco::CandidatePtr const & b){return a + b->p4();}).mass() :
 	  -1.0;
       }
       double groomedMass(std::string const & label) const{
-	return hasSubjets(label) && !subjets(label).empty() ?
-	  std::accumulate( subjets(label).begin(), subjets(label).end(),
-			   reco::Candidate::LorentzVector(), [] (reco::Candidate::LorentzVector a, reco::CandidatePtr const & b){return a + b->p4();}).mass() :
+	auto const& sub = subjets(label);
+	return hasSubjets(label) && !sub.empty() ?
+	  std::accumulate( sub.begin(), sub.end(),
+			   reco::Candidate::LorentzVector(),
+			   [] (reco::Candidate::LorentzVector const & a, reco::CandidatePtr const & b){return a + b->p4();}).mass() :
 	  -1.0;
       }
 
