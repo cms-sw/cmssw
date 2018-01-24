@@ -20,7 +20,10 @@ private:
     using ValueType = RecHitsSortedInPhi;
     using KeyType = int;
     SimpleCache(unsigned int initSize) : theContainer(initSize){}
-    SimpleCache(SimpleCache&& rh): theContainer(std::move(rh.theContainer)) {}
+    SimpleCache(const SimpleCache&) = delete;
+    SimpleCache& operator=(const SimpleCache&) = delete;
+    SimpleCache(SimpleCache&&) = default;
+    SimpleCache& operator=(SimpleCache&&) = default;
     ~SimpleCache() { clear(); }
     void resize(int size) { theContainer.resize(size); }
     const ValueType*  get(KeyType key) const { return theContainer[key].get();}
@@ -45,15 +48,15 @@ private:
     }
   private:
     std::vector<mayown_ptr<ValueType> > theContainer;
-  private:
-    SimpleCache(const SimpleCache &) { }
   };
 
 private:
   typedef SimpleCache Cache;
 public:
   LayerHitMapCache(unsigned int initSize=50) : theCache(initSize) { }
-  LayerHitMapCache(LayerHitMapCache&& rh): theCache(std::move(rh.theCache)) {}
+  LayerHitMapCache(LayerHitMapCache&&) = default;
+  LayerHitMapCache& operator=(LayerHitMapCache&&) = default;
+  
 
   void clear() { theCache.clear(); }
 
