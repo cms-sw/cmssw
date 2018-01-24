@@ -41,8 +41,8 @@ public:
 
    MeasurementTrackerEvent(const MeasurementTrackerEvent & other) = delete;
    MeasurementTrackerEvent & operator=(const MeasurementTrackerEvent & other) = delete;
-   MeasurementTrackerEvent(MeasurementTrackerEvent && other) = delete;
-   MeasurementTrackerEvent & operator=(MeasurementTrackerEvent && other) = delete;
+   MeasurementTrackerEvent(MeasurementTrackerEvent && other);
+   MeasurementTrackerEvent & operator=(MeasurementTrackerEvent && other);
 
    //  for the edm wrapper...
    void swap(MeasurementTrackerEvent &other) ;
