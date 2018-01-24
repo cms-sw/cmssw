@@ -24,7 +24,7 @@ useMap		= False
 
 # 2018 MWGR preparation: use text emap and a local run test file
 MWGR1_hacks = True
-useLocalFileInput = True
+useLocalFileInput = False
 
 #-------------------------------------
 #	Central DQM Stuff imports
