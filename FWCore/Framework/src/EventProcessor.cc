@@ -1301,6 +1301,7 @@ namespace edm {
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
     EventSetup const& es = esp_->eventSetup();
 
+    ServiceRegistry::Operate operate(serviceToken_);
     endGlobalTransitionAsync<Traits>(WaitingTaskHolder(t),
                                      *schedule_,
                                      lp,
