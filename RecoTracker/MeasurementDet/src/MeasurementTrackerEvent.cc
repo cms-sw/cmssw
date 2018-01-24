@@ -10,6 +10,28 @@ MeasurementTrackerEvent::~MeasurementTrackerEvent() {
     }
 }
 
+MeasurementTrackerEvent::MeasurementTrackerEvent(MeasurementTrackerEvent && other) {
+  theTracker = std::move(other.theTracker);
+  theStripData = std::move(other.theStripData);
+  thePixelData = std::move(other.thePixelData);
+  thePhase2OTData = std::move(other.thePhase2OTData);
+  theOwner = other.theOwner;
+  other.theOwner = false; // make sure to fully transfer the ownership
+  theStripClustersToSkip = std::move(other.theStripClustersToSkip);
+  thePixelClustersToSkip = std::move(other.thePixelClustersToSkip);
+}
+MeasurementTrackerEvent& MeasurementTrackerEvent::operator=(MeasurementTrackerEvent && other) {
+  theTracker = std::move(other.theTracker);
+  theStripData = std::move(other.theStripData);
+  thePixelData = std::move(other.thePixelData);
+  thePhase2OTData = std::move(other.thePhase2OTData);
+  theOwner = other.theOwner;
+  other.theOwner = false; // make sure to fully transfer the ownership
+  theStripClustersToSkip = std::move(other.theStripClustersToSkip);
+  thePixelClustersToSkip = std::move(other.thePixelClustersToSkip);
+  return *this;
+}
+
 void
 MeasurementTrackerEvent::swap(MeasurementTrackerEvent &other)
 {
