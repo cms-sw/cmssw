@@ -22,14 +22,13 @@ class CSCFakeNoiseMatrixConditions: public edm::ESProducer, public edm::EventSet
       CSCFakeNoiseMatrixConditions(const edm::ParameterSet&);
       ~CSCFakeNoiseMatrixConditions() override;
       
-      void prefillNoiseMatrix();
+      CSCNoiseMatrix * prefillNoiseMatrix();
       
       typedef std::unique_ptr<CSCNoiseMatrix> ReturnType;
       ReturnType produceNoiseMatrix(const CSCNoiseMatrixRcd&);
 
  private:
       void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
-      CSCNoiseMatrix *cnmatrix ;
       
 };
 

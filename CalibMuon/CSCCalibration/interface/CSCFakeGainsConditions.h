@@ -25,7 +25,7 @@ class CSCFakeGainsConditions: public edm::ESProducer, public edm::EventSetupReco
       float mean,min,minchi;
       int seed;long int M;
 
-      void prefillGains(); 
+      CSCGains * prefillGains(); 
 
       typedef std::unique_ptr<CSCGains> ReturnType;
 
