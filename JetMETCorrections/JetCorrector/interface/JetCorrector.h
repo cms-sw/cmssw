@@ -39,6 +39,8 @@ namespace reco {
     JetCorrector();
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     JetCorrector(std::unique_ptr<JetCorrectorImpl const> fImpl):impl_(std::move(fImpl)) {}
+    JetCorrector(JetCorrector&&) = default;
+    JetCorrector& operator=(JetCorrector&&) = default;
     
     typedef reco::Particle::LorentzVector LorentzVector;
 
@@ -87,7 +89,6 @@ namespace reco {
     JetCorrector(const JetCorrector&) = delete; 
     
     JetCorrector& operator=(const JetCorrector&) = delete; 
-    JetCorrector& operator=(JetCorrector&&) = default;
     
     // ---------- member data --------------------------------
     std::unique_ptr<JetCorrectorImpl const> impl_;
