@@ -1,7 +1,7 @@
 #include "CalibTracker/SiStripLorentzAngle/plugins/MeasureLA.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h"
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <boost/lexical_cast.hpp>
 #include <TChain.h>
@@ -30,7 +30,7 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   localybin(conf.getUntrackedParameter<double>("LocalYBin",0.0)),
   stripsperbin(conf.getUntrackedParameter<unsigned>("StripsPerBin",0)),
   maxEvents( conf.getUntrackedParameter<unsigned>("MaxEvents",0)),
-  tTopo_(StandaloneTrackerTopology::fromTrackerParametersXML(conf.getParameter<edm::FileInPath>("TrackerParameters").fullPath()))
+  tTopo_(StandaloneTrackerTopology::fromTrackerParametersXMLFile(conf.getParameter<edm::FileInPath>("TrackerParameters").fullPath()))
 {
   store_methods_and_granularity( reports );
   store_methods_and_granularity( measurementPreferences );
