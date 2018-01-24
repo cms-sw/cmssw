@@ -2,7 +2,7 @@
 #define SiPixelRawToDigiGPU_H
 
 /** \class SiPixelRawToDigiGPU_H
- *  Plug-in module that performs Raw data to digi conversion 
+ *  Plug-in module that performs Raw data to digi conversion
  *  for pixel subdetector
  */
 
@@ -26,7 +26,7 @@ class PixelUnpackingRegions;
 
 class SiPixelRawToDigiGPU : public edm::stream::EDProducer<> {
 public:
- 
+
   /// ctor
   explicit SiPixelRawToDigiGPU( const edm::ParameterSet& );
 
@@ -43,7 +43,7 @@ private:
   std::unique_ptr<SiPixelFedCablingTree> cabling_;
   const SiPixelQuality* badPixelInfo_;
   PixelUnpackingRegions* regions_;
-  edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection; 
+  edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection;
 
   TH1D *hCPU, *hDigi;
   std::unique_ptr<edm::CPUTimer> theTimer;
@@ -61,17 +61,16 @@ private:
   bool usePilotBlade;
   bool usePhase1;
   std::string cablingMapLabel;
-  
+
   bool convertADCtoElectrons;
   unsigned int *word;        // to hold input for rawtodigi
   unsigned int *fedIndex;    // to hold fed index inside word[] array for rawtodigi on GPU
-  unsigned int *eventIndex;  // to store staring index of each event in word[] array
 
   // to store the output
-  uint *xx_h, *yy_h, *adc_h, *rawIdArr_h;                   // host copy of output
-  uint *errType_h, *errWord_h, *errFedID_h, *errRawID_h;    // host copy of output
+  uint32_t *xx_h, *yy_h, *adc_h, *rawIdArr_h;                   // host copy of output
+  uint32_t *errType_h, *errWord_h, *errFedID_h, *errRawID_h;    // host copy of output
   // store the start and end index for each module (total 1856 modules-phase 1)
-  int *mIndexStart_h, *mIndexEnd_h; 
+  int *mIndexStart_h, *mIndexEnd_h;
 
   // configuration and memory buffers alocated on the GPU
   context context_;

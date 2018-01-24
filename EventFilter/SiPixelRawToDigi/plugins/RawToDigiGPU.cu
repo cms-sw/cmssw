@@ -37,11 +37,10 @@ context initDeviceMemory() {
   context c;
 
   // Number of words for all the feds
-  uint32_t MAX_WORD_SIZE = MAX_FED * MAX_WORD * NEVENT * sizeof(uint32_t);
-  uint32_t FSIZE = 2*MAX_FED*NEVENT*sizeof(uint32_t)+sizeof(uint32_t);
-  uint32_t MSIZE = NMODULE*NEVENT*sizeof(int)+sizeof(int);
+  constexpr uint32_t MAX_WORD_SIZE = MAX_FED * MAX_WORD  * sizeof(uint32_t);
+  constexpr uint32_t FSIZE = 2*MAX_FED*sizeof(uint32_t)+sizeof(uint32_t);
+  constexpr uint32_t MSIZE = NMODULE*sizeof(int)+sizeof(int);
 
-  cudaCheck(cudaMalloc((void**) & c.eventIndex_d, (NEVENT+1)*sizeof(uint32_t)));
   cudaCheck(cudaMalloc((void**) & c.word_d,        MAX_WORD_SIZE));
   cudaCheck(cudaMalloc((void**) & c.fedIndex_d,    FSIZE));
   cudaCheck(cudaMalloc((void**) & c.xx_d,          MAX_WORD_SIZE)); // to store the x and y coordinate
@@ -68,7 +67,6 @@ context initDeviceMemory() {
 
 void freeMemory(context & c) {
   // free the GPU memory
-  cudaCheck(cudaFree(c.eventIndex_d));
   cudaCheck(cudaFree(c.word_d));
   cudaCheck(cudaFree(c.fedIndex_d));
   cudaCheck(cudaFree(c.adc_d));
@@ -107,10 +105,8 @@ __device__ bool isBarrel(uint32_t rawId) {
 }
 
 
-//__device__ uint32_t FED_START = 1200;
 
-
-__device__ DetIdGPU getRawId(const SiPixelFedCablingMapGPU *Map, uint32_t fed, uint32_t link, uint32_t roc) {
+__device__ DetIdGPU getRawId(const SiPixelFedCablingMapGPU * Map, uint32_t fed, uint32_t link, uint32_t roc) {
   uint32_t index = fed * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + roc;
   DetIdGPU detId = { Map->RawId[index], Map->rocInDet[index], Map->moduleId[index] };
   return detId;
@@ -390,60 +386,61 @@ __device__ uint32_t getErrRawID(uint32_t fedId, uint32_t errWord, uint32_t error
 *-----------
 * Output: xx_adc[], yy_adc[] with pixel threshold applied
 */
-// kernel to apply adc threshold on the channels	
-__global__ void applyADCthreshold_kernel
-(const uint32_t *xx_d, const uint32_t *yy_d, const uint32_t *layer_d, uint32_t *adc, const uint32_t wordCounter,
- const ADCThreshold adcThreshold, uint32_t *xx_adc, uint32_t *yy_adc ) {
-  int tid = threadIdx.x;
-  int gIndex = blockDim.x*blockIdx.x+tid;
-  if (gIndex<wordCounter) {
-    uint32_t adcOld = adc[gIndex];
-    const float gain = adcThreshold.theElectronPerADCGain_; // default: 1 ADC = 135 electrons
-    const float pedestal = 0; //
-    int adcNew = int(adcOld*gain+pedestal);
-    // rare chance of entering into the if ()
-    if (layer_d[gIndex]>=adcThreshold.theFirstStack_) {
-      if (adcThreshold.theStackADC_==1 && adcOld==1) {
-        adcNew = int(255*135); // Arbitrarily use overflow value.
-      }
-      if (adcThreshold.theStackADC_ >1 && adcThreshold.theStackADC_!=255 && adcOld>=1){
-        adcNew = int((adcOld-1) * gain * 255/float(adcThreshold.theStackADC_-1));
-      }
-    }
+// kernel to apply adc threshold on the channels
 
-    if (adcNew >adcThreshold.thePixelThreshold ) {
-      xx_adc[gIndex]=xx_d[gIndex];
-      yy_adc[gIndex]=yy_d[gIndex];
-    }
-    else {
-      xx_adc[gIndex]=0; // 0: dead pixel
-      yy_adc[gIndex]=0;
-    }
-    adc[gIndex] = adcNew;
-  }
-}
+
+// Felice: gains and pedestals are not the same for each pixel. This code should be rewritten to take
+// in account local gains/pedestals
+// __global__ void applyADCthreshold_kernel(const uint32_t *xx_d, const uint32_t *yy_d, const uint32_t *layer_d, uint32_t *adc, const uint32_t wordCounter,
+//  const ADCThreshold adcThreshold, uint32_t *xx_adc, uint32_t *yy_adc ) {
+//   int tid = threadIdx.x;
+//   int gIndex = blockDim.x*blockIdx.x+tid;
+//   if (gIndex<wordCounter) {
+//     uint32_t adcOld = adc[gIndex];
+//     const float gain = adcThreshold.theElectronPerADCGain_; // default: 1 ADC = 135 electrons
+//     const float pedestal = 0; //
+//     int adcNew = int(adcOld*gain+pedestal);
+//     // rare chance of entering into the if ()
+//     if (layer_d[gIndex]>=adcThreshold.theFirstStack_) {
+//       if (adcThreshold.theStackADC_==1 && adcOld==1) {
+//         adcNew = int(255*135); // Arbitrarily use overflow value.
+//       }
+//       if (adcThreshold.theStackADC_ >1 && adcThreshold.theStackADC_!=255 && adcOld>=1){
+//         adcNew = int((adcOld-1) * gain * 255/float(adcThreshold.theStackADC_-1));
+//       }
+//     }
+//
+//     if (adcNew >adcThreshold.thePixelThreshold ) {
+//       xx_adc[gIndex]=xx_d[gIndex];
+//       yy_adc[gIndex]=yy_d[gIndex];
+//     }
+//     else {
+//       xx_adc[gIndex]=0; // 0: dead pixel
+//       yy_adc[gIndex]=0;
+//     }
+//     adc[gIndex] = adcNew;
+//   }
+// }
 
 
 // Kernel to perform Raw to Digi conversion
-__global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint32_t *Word, const uint32_t *fedIndex,
-                                 uint32_t *eventIndex, uint32_t *XX, uint32_t *YY, uint32_t *moduleId, int *mIndexStart,
+__global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint32_t wordCounter, const uint32_t *Word, const uint32_t *fedIndex,
+                                 uint32_t *XX, uint32_t *YY, uint32_t *moduleId, int *mIndexStart,
                                  int *mIndexEnd, uint32_t *ADC, uint32_t *layerArr, uint32_t *rawIdArr,
                                  uint32_t *errType, uint32_t *errWord, uint32_t *errFedID, uint32_t *errRawID,
                                  bool useQualityInfo, bool includeErrors, bool debug)
 {
   uint32_t blockId  = blockIdx.x;
-  uint32_t eventno  = blockIdx.y;
 
   //const uint32_t eventOffset  = eventIndex[eventno];
-  uint32_t fedOffset = 2*MAX_FED*eventno;
-  uint32_t fedId     = fedIndex[fedOffset + blockId];
+  uint32_t fedId     = fedIndex[blockId];
   uint32_t threadId  = threadIdx.x;
 
-  uint32_t begin  = fedIndex[fedOffset + MAX_FED + blockId];
-  uint32_t end    = fedIndex[fedOffset + MAX_FED + blockId + 1];
+  uint32_t begin  = fedIndex[MAX_FED + blockId];
+  uint32_t end    = fedIndex[MAX_FED + blockId + 1];
 
   if (blockIdx.x == gridDim.x - 1) {
-    end = eventIndex[eventno + 1]; // for last fed to get the end index
+    end = wordCounter; // for last fed to get the end index
   }
 
   uint32_t link = 0;
@@ -452,9 +449,8 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
   bool skipROC = false;
   //if (threadId==0) printf("Event: %u blockId: %u start: %u end: %u\n", eventno, blockId, begin, end);
   int no_itr = (end - begin)/blockDim.x + 1; // to deal with number of hits greater than blockDim.x
-  #pragma unroll
   for (int i = 0; i < no_itr; i++) {
-    uint32_t gIndex = begin + threadId + i*blockDim.x;
+    auto gIndex = begin + threadId + i*blockDim.x;
     if (gIndex < end) {
       uint32_t ww = Word[gIndex]; // Array containing 32 bit raw data
       if (includeErrors) {
@@ -479,10 +475,13 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
       if (!((nlink != link) | (nroc != roc))) continue;
       link = nlink;
       roc = nroc;
+      DetIdGPU detId = getRawId(Map, fedId, link, roc);
+
 
       uint32_t errorType = checkROC(ww, fedId, link, Map, debug);
       skipROC = (roc < maxROCIndex) ? false : (errorType != 0);
-      if (includeErrors and skipROC) {
+      if (includeErrors and skipROC)
+      {
         uint32_t rID = getErrRawID(fedId, ww, errorType, Map, debug); //write the function
         errType[gIndex]  = errorType;
         errWord[gIndex]  = ww;
@@ -490,15 +489,8 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
         errRawID[gIndex] = rID;
         continue;
       }
-      /*rocp = converter.toRoc(link,roc); //Apparently this check is not needed, we don't have this conversion
-      if unlikely(!rocp) {
-          errorsInEvent = true;
-          conversionError(fedId, &converter, 2, ww, errors);
-          skipROC=true;
-          continue;
-      }*/
 
-      DetIdGPU detId = getRawId(Map, fedId, link, roc);
+
       uint32_t rawId  = detId.RawId;
       uint32_t rocIdInDetUnit = detId.rocInDet;
 
@@ -517,9 +509,9 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
       uint32_t layer = 0;//, ladder =0;
       int side = 0, panel = 0, module = 0;//disk = 0,blade = 0
 
-      if (barrel) {
+      if (barrel)
+      {
         layer  = (rawId >> layerStartBit_) & layerMask_;
-        //ladder = (rawId >> ladderStartBit_) & ladderMask_;
         module = (rawId >> moduleStartBit_) & moduleMask_;
         side   = (module<5)? -1 : 1;
       }
@@ -648,7 +640,7 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
   // for start of fed
   for(int i = 0; i < no_itr; i++) {
     uint32_t gIndex = begin + threadId + i*blockDim.x;
-    uint32_t moduleOffset = NMODULE*eventno;
+    uint32_t moduleOffset = NMODULE;
     //if (threadId==0) printf("moduleOffset: %u\n",moduleOffset );
     if (gIndex < end) {
       if (gIndex == begin) {
@@ -676,41 +668,30 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
 void RawToDigi_wrapper(
     context & c,
     const SiPixelFedCablingMapGPU* cablingMapDevice, const uint32_t wordCounter, uint32_t *word, const uint32_t fedCounter,  uint32_t *fedIndex,
-    uint32_t *eventIndex, bool convertADCtoElectrons, uint32_t *xx_h, uint32_t *yy_h, uint32_t *adc_h, int *mIndexStart_h,
+    bool convertADCtoElectrons, uint32_t *xx_h, uint32_t *yy_h, uint32_t *adc_h, int *mIndexStart_h,
     int *mIndexEnd_h, uint32_t *rawIdArr_h, uint32_t *errType_h, uint32_t *errWord_h, uint32_t *errFedID_h, uint32_t *errRawID_h,
     bool useQualityInfo, bool includeErrors, bool debug)
 {
-  const int threads = 512;
-  const int blockX = 108; // only 108 feds are present
-  const int blockY = NEVENT;   //blockIdx.y is the no of events processed in kernel concurrently
-  dim3 gridsize(blockX, blockY);
+  const int threadsPerBlock = 512;
+  const int blocks = 108; // only 108 feds are present
 
-  int MSIZE = NMODULE*NEVENT*sizeof(int)+sizeof(int);
+  int MSIZE = NMODULE*sizeof(int)+sizeof(int);
   // initialize moduleStart & moduleEnd with some constant(-1)
   // just to check if it updated in kernel or not
   cudaCheck(cudaMemsetAsync(c.mIndexStart_d, -1, MSIZE, c.stream));
   cudaCheck(cudaMemsetAsync(c.mIndexEnd_d, -1, MSIZE, c.stream));
-  cudaCheck(cudaMemcpyAsync(c.eventIndex_d, eventIndex, (NEVENT+1)*sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
 
-  int FSIZE = (blockY*2*MAX_FED +1)*sizeof(uint32_t); // 0 to 150:fedId, 150:300: fedIndex
-
-  int fedOffset  = 0;
-  int wordOffset = 0;
-  int wordSize   = 0;
-
-  fedOffset  = 0;
-  wordOffset = eventIndex[0];
-  // total no of words in blockY event to be trasfered on device
-  wordSize   = (eventIndex[blockY] - eventIndex[0]);
-  cudaCheck(cudaMemcpyAsync(&c.word_d[wordOffset], &word[wordOffset], wordSize*sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
-  cudaCheck(cudaMemcpyAsync(&c.fedIndex_d[fedOffset], &fedIndex[fedOffset], FSIZE, cudaMemcpyHostToDevice, c.stream));
+  int FSIZE     = (2*MAX_FED +1)*sizeof(uint32_t); // 0 to 150:fedId, 150:300: fedIndex
+  // wordCounter is the total no of words in each event to be trasfered on device
+  cudaCheck(cudaMemcpyAsync(&c.word_d[0],     &word[0],     wordCounter*sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
+  cudaCheck(cudaMemcpyAsync(&c.fedIndex_d[0], &fedIndex[0], FSIZE, cudaMemcpyHostToDevice, c.stream));
 
   // Launch rawToDigi kernel
-  RawToDigi_kernel<<<gridsize, threads, 0, c.stream>>>(
+  RawToDigi_kernel<<<blocks, threadsPerBlock, 0, c.stream>>>(
       cablingMapDevice,
+      wordCounter,
       c.word_d,
       c.fedIndex_d,
-      c.eventIndex_d,
       c.xx_d,
       c.yy_d,
       c.moduleId_d,
@@ -730,17 +711,18 @@ void RawToDigi_wrapper(
   // copy data to host variable
   // if you want to copy data after applying ADC threshold
   if (convertADCtoElectrons) {
-    cudaCheck(cudaMemcpyAsync(xx_h, c.xx_adc, wordCounter * sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
-    cudaCheck(cudaMemcpyAsync(yy_h, c.yy_adc, wordCounter * sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+    cudaCheck(cudaMemcpy(xx_h, c.xx_adc, wordCounter * sizeof(uint32_t), cudaMemcpyDeviceToHost));
+    cudaCheck(cudaMemcpy(yy_h, c.yy_adc, wordCounter * sizeof(uint32_t), cudaMemcpyDeviceToHost));
   } else {
-    cudaCheck(cudaMemcpyAsync(xx_h, c.xx_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
-    cudaCheck(cudaMemcpyAsync(yy_h, c.yy_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+    cudaCheck(cudaMemcpy(xx_h, c.xx_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost));
+    cudaCheck(cudaMemcpy(yy_h, c.yy_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost));
   }
+
   cudaCheck(cudaMemcpyAsync(adc_h, c.adc_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
   cudaCheck(cudaMemcpyAsync(rawIdArr_h, c.rawIdArr_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
 
-  cudaCheck(cudaMemcpyAsync(mIndexStart_h, c.mIndexStart_d, NEVENT*NMODULE*sizeof(int), cudaMemcpyDeviceToHost, c.stream));
-  cudaCheck(cudaMemcpyAsync(mIndexEnd_h, c.mIndexEnd_d, NEVENT*NMODULE*sizeof(int), cudaMemcpyDeviceToHost, c.stream));
+  cudaCheck(cudaMemcpyAsync(mIndexStart_h, c.mIndexStart_d, NMODULE*sizeof(int), cudaMemcpyDeviceToHost, c.stream));
+  cudaCheck(cudaMemcpyAsync(mIndexEnd_h, c.mIndexEnd_d, NMODULE*sizeof(int), cudaMemcpyDeviceToHost, c.stream));
 
   if (includeErrors) {
     cudaCheck(cudaMemcpyAsync(errType_h, c.errType_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
@@ -748,7 +730,7 @@ void RawToDigi_wrapper(
     cudaCheck(cudaMemcpyAsync(errFedID_h, c.errFedID_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
     cudaCheck(cudaMemcpyAsync(errRawID_h, c.errRawID_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
   }
-
+  cudaStreamSynchronize(c.stream);
   // End  of Raw2Digi and passing data for cluserisation
   // PixelCluster_Wrapper(c.xx_adc , c.yy_adc, c.adc_d,wordCounter, c.mIndexStart_d, c.mIndexEnd_d);
 }

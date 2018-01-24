@@ -111,34 +111,34 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
     usePhase1 = config_.getParameter<bool> ("UsePhase1");
     if (usePhase1) edm::LogInfo("SiPixelRawToDigiGPU")  << " Using phase1";
   }
-  //CablingMap could have a label //Tav
+  // CablingMap could have a label //Tav
   cablingMapLabel = config_.getParameter<std::string> ("CablingMapLabel");
 
-  //GPU specific
+  // GPU specific
   convertADCtoElectrons = config_.getParameter<bool>("ConvertADCtoElectrons");
 
   // device copy of GPU friendly cablng map
   allocateCablingMap(cablingMapGPUHost_, cablingMapGPUDevice_);
 
-  int WSIZE = MAX_FED*MAX_WORD*NEVENT*sizeof(unsigned int);
-  int FSIZE = 2*MAX_FED*NEVENT*sizeof(unsigned int)+sizeof(unsigned int);
+  int WSIZE = MAX_FED*MAX_WORD*sizeof(unsigned int);
+  int FSIZE = 2*MAX_FED*sizeof(unsigned int)+sizeof(unsigned int);
+  cudaMallocHost(&word,       sizeof(unsigned int)*WSIZE);
+  cudaMallocHost(&fedIndex,   sizeof(unsigned int)*FSIZE);
 
-  word = (unsigned int*)malloc(WSIZE);
-  fedIndex =(unsigned int*)malloc(FSIZE);
-  eventIndex = (unsigned int*)malloc((NEVENT+1)*sizeof(unsigned int));
-  eventIndex[0] = 0;
   // to store the output of RawToDigi
-  xx_h = new uint32_t[WSIZE];
-  yy_h = new uint32_t[WSIZE];
-  adc_h = new uint32_t[WSIZE];
-  rawIdArr_h = new uint32_t[WSIZE];
-  errType_h = new uint32_t[WSIZE];
-  errRawID_h = new uint32_t[WSIZE];
-  errWord_h = new uint32_t[WSIZE];
-  errFedID_h = new uint32_t[WSIZE];
+  cudaMallocHost(&xx_h,       sizeof(uint32_t)*WSIZE);
+  cudaMallocHost(&yy_h,       sizeof(uint32_t)*WSIZE);
+  cudaMallocHost(&adc_h,      sizeof(uint32_t)*WSIZE);
+  cudaMallocHost(&rawIdArr_h, sizeof(uint32_t)*WSIZE);
+  cudaMallocHost(&errType_h,  sizeof(uint32_t)*WSIZE);
+  cudaMallocHost(&errRawID_h, sizeof(uint32_t)*WSIZE);
+  cudaMallocHost(&errWord_h,  sizeof(uint32_t)*WSIZE);
+  cudaMallocHost(&errFedID_h, sizeof(uint32_t)*WSIZE);
 
-  mIndexStart_h = new int[NEVENT*NMODULE +1];
-  mIndexEnd_h = new int[NEVENT*NMODULE +1];
+  // mIndexStart_h = new int[NMODULE+1];
+  // mIndexEnd_h = new int[NMODULE+1];
+  cudaMallocHost(&mIndexStart_h, sizeof(int)*(NMODULE+1));
+  cudaMallocHost(&mIndexEnd_h,   sizeof(int)*(NMODULE+1));
 
   // allocate memory for RawToDigi on GPU
   context_ = initDeviceMemory();
@@ -148,7 +148,6 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
 
   // // allocate memory for CPE on GPU
   // initDeviceMemCPE();
-
 }
 
 
@@ -163,25 +162,25 @@ SiPixelRawToDigiGPU::~SiPixelRawToDigiGPU() {
     hCPU->Write();
     hDigi->Write();
   }
-  free(word);
-  free(fedIndex);
-  free(eventIndex);
-
-  delete[] xx_h;
-  delete[] yy_h;
-  delete[] adc_h;
-  delete[] rawIdArr_h;
-  delete[] errType_h;
-  delete[] errRawID_h;
-  delete[] errWord_h;
-  delete[] errFedID_h;
-  delete[] mIndexStart_h;
-  delete[] mIndexEnd_h;
+  cudaFreeHost(word);
+  cudaFreeHost(fedIndex);
+  cudaFreeHost( xx_h);
+  cudaFreeHost( yy_h);
+  cudaFreeHost( adc_h);
+  cudaFreeHost( rawIdArr_h);
+  cudaFreeHost( errType_h);
+  cudaFreeHost( errRawID_h);
+  cudaFreeHost( errWord_h);
+  cudaFreeHost( errFedID_h);
+  cudaFreeHost( mIndexStart_h);
+  cudaFreeHost( mIndexEnd_h);
 
   // release device memory for cabling map
   deallocateCablingMap(cablingMapGPUHost_, cablingMapGPUDevice_);
+
   // free device memory used for RawToDigi on GPU
   freeMemory(context_);
+
   // free auxilary memory used for clustering
   // freeDeviceMemCluster();
   // free device memory used for CPE on GPU
@@ -227,7 +226,6 @@ SiPixelRawToDigiGPU::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 void
 SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
 {
-
   int theWordCounter = 0;
   int theDigiCounter = 0;
   const uint32_t dummydetid = 0xffffffff;
@@ -288,7 +286,6 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
   unsigned int wordCounterGPU = 0;
   unsigned int fedCounter = 0;
   const unsigned int MAX_FED = 150;
-  int eventCount = 0;
   bool errorsInEvent = false;
 
   edm::DetSet<PixelDigi> * detDigis=nullptr;
@@ -307,8 +304,8 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
     // for GPU
     // first 150 index stores the fedId and next 150 will store the
     // start index of word in that fed
-    fedIndex[2*MAX_FED*eventCount + fedCounter] = fedId - 1200;
-    fedIndex[MAX_FED + 2*MAX_FED*eventCount + fedCounter] = wordCounterGPU; // MAX_FED = 150
+    fedIndex[ fedCounter] = fedId - 1200;
+    fedIndex[MAX_FED +fedCounter] = wordCounterGPU; // MAX_FED = 150
     fedCounter++;
 
     //get event data for this fed
@@ -360,43 +357,35 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
   }  // end of for loop
 
   // GPU specific: RawToDigi -> clustering -> CPE
-  eventCount++;
-  eventIndex[eventCount] = wordCounterGPU;
-  if (eventCount == NEVENT) {
-    RawToDigi_wrapper(context_, cablingMapGPUDevice_, wordCounterGPU, word, fedCounter, fedIndex, eventIndex, convertADCtoElectrons, xx_h, yy_h, adc_h, mIndexStart_h, mIndexEnd_h, rawIdArr_h, errType_h, errWord_h, errFedID_h, errRawID_h, useQuality, includeErrors, debug);
 
-    #if 0
-    if (debug) {
-      //write output to text file (for debugging purpose only)
-      int count = 1;
-      cout << "Writing output to the file " << endl;
-      ofstream ofileXY("GPU_RawToDigi_Output_Part1_Event_"+to_string((count-1)*NEVENT+1)+"to"+to_string(count*NEVENT)+".txt");
-      ofileXY << "  Index     xcor   ycor    adc  rawId" << endl;
-      for (uint32_t i = 0; i < wordCounterGPU; i++) {
-        ofileXY << setw(10) << i  << setw(6) << xx_h[i] << setw(6) << yy_h[i] << setw(8) << adc_h[i] << setw(10) << rawIdArr_h[i] << endl;
-      }
-      //store the module index, which stores the index of x, y & adc for each module
-      ofstream ofileModule("GPU_RawToDigi_Output_Part2_Event_"+to_string((count-1)*NEVENT+1)+"to"+to_string(count*NEVENT)+".txt");
-      ofileModule << "Event_No  Module_no   mIndexStart   mIndexEnd " << endl;
-      for (int ev = (count-1)*NEVENT+1; ev <= count*NEVENT; ev++) {
-        for (int mod = 0; mod < NMODULE; mod++) {
-          ofileModule << setw(8) << ev << setw(8) << mod << setw(10) << mIndexStart_h[mod] << setw(10) << mIndexEnd_h[mod]<< endl;
-        }
-      }
-      count++;
-      ofileXY.close();
-      ofileModule.close();
-    }
-    #endif
+
+
+    RawToDigi_wrapper(context_, cablingMapGPUDevice_, wordCounterGPU, word, fedCounter, fedIndex, convertADCtoElectrons, xx_h, yy_h, adc_h, mIndexStart_h, mIndexEnd_h, rawIdArr_h, errType_h, errWord_h, errFedID_h, errRawID_h, useQuality, includeErrors, debug);
+
+
 
     for (uint32_t i = 0; i < wordCounterGPU; i++) {
 
         if (rawIdArr_h[i] != 9999) {; //to revise
             detDigis = &(*collection).find_or_insert(rawIdArr_h[i]);
             if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
+            break;
+        }
+    }
+
+
+    for (uint32_t i = 0; i < wordCounterGPU; i++) {
+        if (rawIdArr_h[i] == 9999)
+            continue;
+        if ( (*detDigis).detId() != rawIdArr_h[i])
+        {
+            detDigis = &(*collection).find_or_insert(rawIdArr_h[i]);
+            if ( (*detDigis).empty() )
+                (*detDigis).data.reserve(32); // avoid the first relocations
+        }
             (*detDigis).data.emplace_back(xx_h[i], yy_h[i], adc_h[i]);
             theDigiCounter++;
-        }
+
 
         if (errType_h[i] != 0) {
             SiPixelRawDataError error(errWord_h[i], errType_h[i], errFedID_h[i]);
@@ -404,21 +393,9 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
         }
 
     }
-    wordCounterGPU = 0;
-    eventCount = 0;
-  }
-  fedCounter =0;
 
-  #if 0
-  if (debug) {
-      edm::DetSetVector<PixelDigi>::const_iterator it;
-      for (it = collection->begin(); it != collection->end(); ++it) {
-          for (PixelDigi const& digi : *it) {
-              std::cout << "RawID: " << DetId(it->detId()) << ", row: " << digi.row() << ", col: " << digi.column() << ", adc: " << digi.adc() << std::endl;
-          }
-      }
-  }
-  #endif
+
+  fedCounter =0;
 
   if (theTimer) {
     theTimer->stop();
