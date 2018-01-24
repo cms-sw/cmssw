@@ -2,24 +2,11 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 postProcessorL1Gen = DQMEDHarvester("DQMGenericClient",
-    subDirs = cms.untracked.vstring("L1T/L1TriggerVsGen/"),
+    subDirs = cms.untracked.vstring("L1T/L1TStage2uGT/"),
     efficiency = cms.vstring(
-       "Muon_Eff_Pt 'L1 efficiency vs p_{T}' numerators_denominators/Muon_Eff_Pt_Nomin numerators_denominators/Muon_Eff_Pt_Denom", 
-       "Muon_Eff_Eta 'L1 efficiency vs #eta' numerators_denominators/Muon_Eff_Eta_Nomin numerators_denominators/Muon_Eff_Eta_Denom", 
-       "Muon_TurnOn_15 'L1 Turn On 15GeV' numerators_denominators/Muon_TurnOn_15_Nomin numerators_denominators/Muon_TurnOn_15_Denom", 
-       "Muon_TurnOn_30 'L1 Turn On 30GeV' numerators_denominators/Muon_TurnOn_30_Nomin numerators_denominators/Muon_TurnOn_30_Denom", 
-       "Egamma_Eff_Pt 'L1 efficiency vs p_{T}' numerators_denominators/Egamma_Eff_Pt_Nomin numerators_denominators/Egamma_Eff_Pt_Denom", 
-       "Egamma_Eff_Eta 'L1 efficiency vs #eta' numerators_denominators/Egamma_Eff_Eta_Nomin numerators_denominators/Egamma_Eff_Eta_Denom", 
-       "Egamma_TurnOn_15 'L1 Turn On 15GeV' numerators_denominators/Egamma_TurnOn_15_Nomin numerators_denominators/Egamma_TurnOn_15_Denom", 
-       "Egamma_TurnOn_30 'L1 Turn On 30GeV' numerators_denominators/Egamma_TurnOn_30_Nomin numerators_denominators/Egamma_TurnOn_30_Denom", 
-       "Tau_Eff_Pt 'L1 efficiency vs p_{T}' numerators_denominators/Tau_Eff_Pt_Nomin numerators_denominators/Tau_Eff_Pt_Denom", 
-       "Tau_Eff_Eta 'L1 efficiency vs #eta' numerators_denominators/Tau_Eff_Eta_Nomin numerators_denominators/Tau_Eff_Eta_Denom", 
-       "Tau_TurnOn_15 'L1 Turn On 15GeV' numerators_denominators/Tau_TurnOn_15_Nomin numerators_denominators/Tau_TurnOn_15_Denom", 
-       "Tau_TurnOn_30 'L1 Turn On 30GeV' numerators_denominators/Tau_TurnOn_30_Nomin numerators_denominators/Tau_TurnOn_30_Denom", 
-       "Jet_Eff_Pt 'L1 efficiency vs p_{T}' numerators_denominators/Jet_Eff_Pt_Nomin numerators_denominators/Jet_Eff_Pt_Denom", 
-       "Jet_Eff_Eta 'L1 efficiency vs #eta' numerators_denominators/Jet_Eff_Eta_Nomin numerators_denominators/Jet_Eff_Eta_Denom", 
-       "Jet_TurnOn_15 'L1 Turn On 15GeV' numerators_denominators/Jet_TurnOn_15_Nomin numerators_denominators/Jet_TurnOn_15_Denom", 
-       "Jet_TurnOn_30 'L1 Turn On 30GeV' numerators_denominators/Jet_TurnOn_30_Nomin numerators_denominators/Jet_TurnOn_30_Denom", 
+       "Ratio_First_Bunch_In_Train 'Trigger Bits vs BX' first_bunch_in_train den_first_bunch_in_train", 
+       "Ratio_Last_Bunch_In_Train 'Trigger Bits vs BX' last_bunch_in_train den_last_bunch_in_train", 
+       "Ratio_Isolated_Bunch_In_Train 'Trigger Bits vs BX' isolated_bunch den_isolated_bunch_in_train", 
 
     ),
     resolution = cms.vstring(),
