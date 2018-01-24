@@ -203,12 +203,12 @@ if MWGR1_hacks:
 #-------------------------------------
 #process.hcalDigiTask.moduleParameters.debug = 10
 
-process.tbunpacker = cms.EDProducer(
-	"HcalTBObjectUnpacker",
-	IncludeUnmatchedHits	= cms.untracked.bool(False),
-	HcalTriggerFED			= cms.untracked.int32(1)
-)
-process.tbunpacker.fedRawDataCollectionTag = rawTag
+#process.tbunpacker = cms.EDProducer(
+#	"HcalTBObjectUnpacker",
+#	IncludeUnmatchedHits	= cms.untracked.bool(False),
+#	HcalTriggerFED			= cms.untracked.int32(1)
+#)
+#process.tbunpacker.fedRawDataCollectionTag = rawTag
 
 #-------------------------------------
 #	Some Settings before Finishing up
@@ -252,8 +252,8 @@ process.harvestingPath = cms.Path(
 #	Paths/Sequences Definitions
 #-------------------------------------
 process.preRecoPath = cms.Path(
-		process.tbunpacker
-		*process.hcalDigis
+		#process.tbunpacker
+		process.hcalDigis
 		#*process.castorDigis
 		#*process.emulTPDigis
 )
