@@ -32,7 +32,6 @@ class CSCDBL1TPParametersConditions: public edm::ESProducer, public edm::EventSe
  private:
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-  CSCDBL1TPParameters *CSCl1TPParameters ;
 
 };
 

@@ -1,7 +1,7 @@
 
 #include "CalibMuon/CSCCalibration/interface/CSCFakeGainsConditions.h"
 
-void CSCFakeGainsConditions::prefillGains()
+CSCGains * CSCFakeGainsConditions::prefillGains()
 {
   cngains = new CSCGains();
   const CSCDetId& detId = CSCDetId();
@@ -59,13 +59,13 @@ void CSCFakeGainsConditions::prefillGains()
       }
     }
   }
+  return cngains;
 }  
 
 CSCFakeGainsConditions::CSCFakeGainsConditions(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  prefillGains();
   setWhatProduced(this,&CSCFakeGainsConditions::produceGains);
   findingRecord<CSCGainsRcd>();
   //now do what ever other initialization is needed
@@ -77,7 +77,6 @@ CSCFakeGainsConditions::~CSCFakeGainsConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cngains;
 }
 
 
@@ -89,8 +88,7 @@ CSCFakeGainsConditions::~CSCFakeGainsConditions()
 CSCFakeGainsConditions::ReturnType
 CSCFakeGainsConditions::produceGains(const CSCGainsRcd& iRecord)
 {
-  CSCFakeGainsConditions::ReturnType mydata = std::make_unique<CSCGains>( * cngains);
-  return mydata;
+  return std::make_unique<CSCFakeGainsConditions::ReturnType::element_type>( *(prefillGains()));
 }
 
  void CSCFakeGainsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

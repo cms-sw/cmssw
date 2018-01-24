@@ -33,9 +33,6 @@ class CSCCrosstalkDBConditions: public edm::ESProducer, public edm::EventSetupRe
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
 
-
-  CSCDBCrosstalk *cndbCrosstalk ;
-
 };
 
 #include<fstream>

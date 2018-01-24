@@ -32,7 +32,6 @@ class CSCGasGainCorrectionDBConditions: public edm::ESProducer, public edm::Even
  private:
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
-  CSCDBGasGainCorrection *cndbGasGainCorr ;
 
   //Flag for determining if this is for setting MC or data corrections
   bool isForMC;
