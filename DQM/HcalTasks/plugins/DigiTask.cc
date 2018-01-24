@@ -623,8 +623,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			rawidHEValid = did.rawId();
 
 		//double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
-		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HBHEDataFrame>(_dbService, did, *it);
-		double sumQ = hcaldqm::utilities::sumQDB<HBHEDataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
+		//CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HBHEDataFrame>(_dbService, did, *it);
+		double sumQ = 0; //hcaldqm::utilities::sumQDB<HBHEDataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
 
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
@@ -686,7 +686,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (sumQ>_cutSumQ_HBHE)
 		{
 			//double timing = hcaldqm::utilities::aveTS<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
-			double timing = hcaldqm::utilities::aveTSDB<HBHEDataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
+			double timing = 0; //hcaldqm::utilities::aveTSDB<HBHEDataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
 			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_depth.fill(did, timing);
 			_cOccupancyCut_depth.fill(did);
@@ -751,8 +751,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			rawidHEValid = did.rawId();
 
 		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
-		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
-		double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
+		//CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
+		double sumQ = 0; //hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
@@ -808,7 +808,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (sumQ>_cutSumQ_HEP17)
 		{
 			//double timing = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
-			double timing = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
+			double timing = 0; //hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 
 			_cOccupancyCut_depth.fill(did);
 			_cTimingCut_depth.fill(did, timing);
@@ -877,8 +877,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			rawidValid = did.rawId();
 
 		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
-		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, *it);
-		double sumQ = hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
+		//CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, *it);
+		double sumQ = 0; //hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
 
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
@@ -936,7 +936,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (sumQ>_cutSumQ_HO)
 		{
 			//double timing = hcaldqm::utilities::aveTS<HODataFrame>(*it, 8.5, 0,it->size()-1);
-			double timing = hcaldqm::utilities::aveTSDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
+			double timing = 0; //hcaldqm::utilities::aveTSDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
 			_cSumQ_depth.fill(did, sumQ);
 			_cSumQvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cOccupancyCut_depth.fill(did);
@@ -1017,8 +1017,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (did.subdet()==HcalForward)
 				rawidValid = did.rawId();
 
-			CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
-			double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
+			//CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
+			double sumQ = 0; //hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 			//double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
 
 
@@ -1067,7 +1067,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 			for (int i=0; i<digi.samples(); i++)
 			{
-				double q = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i);
+				double q = 0; //hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i);
 				if (!_filter_HF.filter(did)) {
 					_cADC_SubdetPM_HF.fill(did, digi[i].adc());
 					_cfC_SubdetPM_HF.fill(did, q);
@@ -1097,11 +1097,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 			if (sumQ>_cutSumQ_HF)
 			{
-				double timing = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0,
-					digi.samples()-1);
-				double q1 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, 1);
-				double q2 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, 2);
-				double q2q12 = q2/(q1+q2);
+				double timing = 0; //hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0,digi.samples()-1);
+				//double q1 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, 1);
+				//double q2 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, 2);
+				double q2q12 = 0.; //q2/(q1+q2);
 				_cSumQ_depth.fill(did, sumQ);
 				if (!_filter_HF.filter(did)) {
 					_cSumQvsLS_SubdetPM_HF.fill(did, _currentLS, sumQ);

@@ -74,6 +74,7 @@ namespace hcaldqm
 		}
 
 		//	get the Channel Quality Status for all the channels
+		/*
 		edm::ESHandle<HcalChannelQuality> hcq;
 		es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
 		const HcalChannelQuality *cq = hcq.product();
@@ -96,6 +97,7 @@ namespace hcaldqm
 				}
 			}
 		}
+		*/
 
 		//	book some base guys
 		_cEvsTotal.book(ib, _subsystem);
