@@ -1085,7 +1085,7 @@ namespace edm {
       continueLumiAsync(WaitingTaskHolder{waitTask.get()});
     } else {
       beginLumiAsync(IOVSyncValue(EventID(input_->run(), input_->luminosityBlock(), 0),
-                                  input_->timestamp()),
+                                  input_->luminosityBlockAuxiliary()->beginTime()),
                      iRunResource,
                      WaitingTaskHolder{waitTask.get()});
     }
@@ -1491,7 +1491,8 @@ namespace edm {
           itemType = nextTransitionType();
         }
         if(InputSource::IsLumi == itemType) {
-          iStatus.setNextSyncValue(IOVSyncValue(EventID(input_->run(), input_->luminosityBlock(), 0), input_->timestamp()));
+          iStatus.setNextSyncValue(IOVSyncValue(EventID(input_->run(), input_->luminosityBlock(), 0),
+                                                input_->luminosityBlockAuxiliary()->beginTime()));
         }
       }
       if(InputSource::IsEvent != itemType) {
