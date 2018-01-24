@@ -34,7 +34,6 @@ class CSCFakeGainsConditions: public edm::ESProducer, public edm::EventSetupReco
    private:
       // ----------member data ---------------------------
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
-    CSCGains *cngains ;
 
 };
 

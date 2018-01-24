@@ -3,7 +3,7 @@
 
 CSCGains * CSCFakeGainsConditions::prefillGains()
 {
-  cngains = new CSCGains();
+  CSCGains * cngains = new CSCGains();
   const CSCDetId& detId = CSCDetId();
       
   int max_istrip,id_layer,max_ring,max_cham;
