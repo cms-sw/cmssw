@@ -302,6 +302,9 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
         int first = firstSample_;
         int toadd = samplesToAdd_;
 
+	if(first >=  i->size() || first < 0)
+	  edm::LogWarning("Configuration") << "HcalHitReconstructor: illegal fistSample" << first << "  in subdet " << subdet_ << std::endl;
+
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
 	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
@@ -387,6 +390,9 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
         int first = firstSample_;
         int toadd = samplesToAdd_;
+
+	if(first >=  i->size() || first < 0)
+	  edm::LogWarning("Configuration") << "HcalHitReconstructor: illegal fistSample" << first << "  in subdet " << subdet_ << std::endl;
 
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
