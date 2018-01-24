@@ -75,6 +75,7 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
                 Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
                 Plot1D('btagHbb', 'btagHbb', 20, -1, 1, 'Higgs to BB tagger discriminator'),
                 Plot1D('eta', 'eta', 20, -4, 4, 'eta'),
+                Plot1D('jetId', 'jetId', 1, 2.5, 3.5, 'Jet ID flags bit1 is loose, bit2 is tight'),
                 Plot1D('mass', 'mass', 20, 0, 300, 'mass'),
                 Plot1D('msoftdrop', 'msoftdrop', 20, -300, 300, 'Soft drop mass'),
                 Plot1D('n2b1', 'n2b1', 20, 0, 1, 'N2 (beta=1)'),
@@ -356,6 +357,8 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
             plots = cms.VPSet(
                 Plot1D('nPU', 'nPU', 20, 0, 60, 'the number of pileup interactions that have been added to the event in the current bunch crossing'),
                 Plot1D('nTrueInt', 'nTrueInt', 20, 0, 60, 'the true mean number of the poisson distribution for this event from which the number of interactions each bunch crossing has been sampled'),
+                Plot1D('sumEOOT', 'sumEOOT', 20, 0, 800, 'number of early out of time pileup'),
+                Plot1D('sumLOOT', 'sumLOOT', 20, 0, 300, 'number of late out of time pileup'),
             )
         ),
         PuppiMET = cms.PSet(
