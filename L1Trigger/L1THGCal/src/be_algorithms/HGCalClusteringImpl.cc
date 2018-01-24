@@ -12,7 +12,7 @@ HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet & conf):
     scintillatorTriggerCellThreshold_(conf.getParameter<double>("clustering_threshold_scintillator")),
     dr_(conf.getParameter<double>("dR_cluster")),
     clusteringAlgorithmType_(conf.getParameter<string>("clusterType")),
-    calibSF_(conf.getParameter<double>("calibSF_multicluster")),
+    calibSF_(conf.getParameter<double>("calibSF_cluster")),
     layerWeights_(conf.getParameter< std::vector<double> >("layerWeights")),
     applyLayerWeights_(conf.getParameter< bool >("applyLayerCalibration"))
 {    
@@ -446,36 +446,36 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & clus
 
 void HGCalClusteringImpl::calibratePt( l1t::HGCalCluster & cluster ){
 
-  double calibPt=0.;
+    double calibPt=0.;
 
-  if(applyLayerWeights_){
+    if(applyLayerWeights_){
 
-    int layerN = -1;
-    if( cluster.subdetId()==HGCEE ){
-      layerN = cluster.layer();
+        int layerN = -1;
+        if( cluster.subdetId()==HGCEE ){
+            layerN = cluster.layer();
+        }
+        else if( cluster.subdetId()==HGCHEF ){
+            layerN = cluster.layer()+kLayersEE_;
+        }
+        else if( cluster.subdetId()==HGCHEB ){
+            layerN = cluster.layer()+kLayersFH_+kLayersEE_;
+        }
+
+        calibPt = layerWeights_.at(layerN) * cluster.mipPt();
+
     }
-    else if( cluster.subdetId()==HGCHEF ){
-      layerN = cluster.layer()+kLayersEE_;
+
+    else{
+
+        calibPt = cluster.pt() * calibSF_;
+
     }
-    else if( cluster.subdetId()==HGCHEB ){
-      layerN = cluster.layer()+kLayersFH_+kLayersEE_;
-    }
 
-    calibPt = layerWeights_.at(layerN) * cluster.mipPt();
+    math::PtEtaPhiMLorentzVector calibP4( calibPt,
+                                          cluster.eta(),
+                                          cluster.phi(),
+                                          0. );
 
-  }
-
-  else{
-
-    calibPt = cluster.pt() * calibSF_;
-
-  }
-
-  math::PtEtaPhiMLorentzVector calibP4( calibPt,
-                                        cluster.eta(),
-                                        cluster.phi(),
-					0. );
-
-  cluster.setP4( calibP4 );
+    cluster.setP4( calibP4 );
 
 }

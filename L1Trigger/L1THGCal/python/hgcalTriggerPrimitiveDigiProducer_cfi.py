@@ -65,7 +65,7 @@ C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
                           clusterType = cms.string('NNC2d'), # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering; dRNNC2d-->Limited Nearest Neighbors clustering
 #                          clusterType = cms.string('dRC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering; dRNNC2d-->Limited Nearest Neighbors clustering
 #                          clusterType = cms.string('dRNNC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering; dRNNC2d-->Limited Nearest Neighbors clustering
-                          calibSF_multicluster = cms.double(1.084),
+                          calibSF_cluster = cms.double(1.084),
                           applyLayerCalibration = cms.bool(True),
                           layerWeights = layercalibparam.TrgLayer_weights
                           )

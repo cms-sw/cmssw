@@ -116,14 +116,14 @@ void HGCalMulticlusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGC
 
         const std::vector<edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
         for( std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++) sumPt +=(*it_clu)->pt();
-	math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
-						      multiclustersTmp.at(i).centre().eta(),
-						      multiclustersTmp.at(i).centre().phi(),
-						      0. );
-	multiclustersTmp.at(i).setP4( multiclusterP4 );
+        math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
+                                                      multiclustersTmp.at(i).centre().eta(),
+                                                      multiclustersTmp.at(i).centre().phi(),
+                                                      0. );
+        multiclustersTmp.at(i).setP4( multiclusterP4 );
 
 
-	if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
+        if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
 
             //compute shower shape
             multiclustersTmp.at(i).set_showerLength(shape_.showerLength(multiclustersTmp.at(i)));
@@ -219,9 +219,9 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const std::vector<edm::Ptr<l1t:
     for( std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++) sumPt +=(*it_clu)->pt();
 
     math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
-						  multiclustersTmp.at(i).centre().eta(),
-						  multiclustersTmp.at(i).centre().phi(),
-						  0. );
+                                                  multiclustersTmp.at(i).centre().eta(),
+                                                  multiclustersTmp.at(i).centre().phi(),
+                                                  0. );
     multiclustersTmp.at(i).setP4( multiclusterP4 );
 
     
