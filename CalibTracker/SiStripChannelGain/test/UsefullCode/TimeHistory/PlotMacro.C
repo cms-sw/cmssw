@@ -17,14 +17,14 @@
 #include "PlotFunction.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h"
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 // IMPORTANT: to run this macro, first load the required library
 // with the following line, inside ROOT:
-// gSystem->Load("libCalibTrackerSiStripCommon.so")
+// gSystem->Load("libCalibTrackerStandaloneTrackerTopology.so")
 
 
-TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(std::string(gSystem->Getenv("CMSSW_RELEASE_BASE"))+"/src/Geometry/TrackerCommonData/data/trackerParameters.xml");
+TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(std::string(gSystem->Getenv("CMSSW_RELEASE_BASE"))+"/src/Geometry/TrackerCommonData/data/trackerParameters.xml");
 
 #include<vector>
 #include"tdrstyle.C"
