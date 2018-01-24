@@ -51,7 +51,7 @@ referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
 process.DQMStore.verbose = 0
-#process.source.minEventsPerLumi=100
+process.source.minEventsPerLumi=100
 
 
 #-------------------------------------
