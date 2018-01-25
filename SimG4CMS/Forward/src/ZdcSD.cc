@@ -23,17 +23,16 @@
 ZdcSD::ZdcSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg,
 	     edm::ParameterSet const & p,const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
+  CaloSD(name, cpv, clg, p, manager){
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
   useShowerLibrary = m_ZdcSD.getParameter<bool>("UseShowerLibrary");
   useShowerHits    = m_ZdcSD.getParameter<bool>("UseShowerHits");
   zdcHitEnergyCut  = m_ZdcSD.getParameter<double>("ZdcHitEnergyCut")*GeV;
+  thFibDir   = m_ZdcSD.getParameter<double>("FiberDirection");
   verbosity  = m_ZdcSD.getParameter<int>("Verbosity");
   int verbn  = verbosity/10;
   verbosity %= 10;
-  ZdcNumberingScheme* scheme;
-  scheme = new ZdcNumberingScheme(verbn);
-  setNumberingScheme(scheme);
+  setNumberingScheme(new ZdcNumberingScheme(verbn));
   
   edm::LogInfo("ForwardSim")
     << "***************************************************\n"
@@ -54,28 +53,22 @@ ZdcSD::ZdcSD(const std::string& name, const DDCompactView & cpv,
      <<" (GeV)";
   
   if(useShowerLibrary){
-    showerLibrary = new ZdcShowerLibrary(name, cpv, p);
+    showerLibrary.reset(new ZdcShowerLibrary(name, cpv, p));
+    setParameterized(true);
+  } else {
+    showerLibrary.reset(nullptr);
   }
-}
-
-ZdcSD::~ZdcSD() {
-  
-  if(numberingScheme) delete numberingScheme;
-  if(showerLibrary)delete showerLibrary;
-
-  edm::LogInfo("ForwardSim") 
-    <<"end of ZdcSD\n";
 }
 
 void ZdcSD::initRun(){
   if(useShowerLibrary){
     G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
-    showerLibrary->initRun(theParticleTable); 
+    showerLibrary.get()->initRun(theParticleTable); 
   }
   hits.clear();  
 }
-
-bool ZdcSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
+/*
+G4bool ZdcSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
   NaNTrap( aStep ) ;
 
@@ -86,38 +79,29 @@ bool ZdcSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
       getFromLibrary(aStep);
     }
     if(useShowerHits){
-      if (getStepInfo(aStep)) {
-	if (hitExists() == false && edepositEM+edepositHAD>0.)
-	  currentHit = CaloSD::createNewHit();
+      bool yes(false);
+      if (getStepInfo(aStep, yes)) {
+	if (hitExists(aStep) == false && edepositEM+edepositHAD>0.)
+	  currentHit = CaloSD::createNewHit(aStep);
       }
     }
   }
   return true;
 }
-
-void ZdcSD::getFromLibrary (G4Step* aStep) {
+*/
+bool ZdcSD::getFromLibrary (const G4Step* aStep) {
   bool ok = true;
 
-  preStepPoint  = aStep->GetPreStepPoint(); 
-  theTrack      = aStep->GetTrack();   
+  auto const preStepPoint  = aStep->GetPreStepPoint(); 
+  auto const theTrack = aStep->GetTrack();   
 
-  double etrack    = preStepPoint->GetKineticEnergy();
-  int primaryID = setTrackID(aStep);  
+  double etrack = preStepPoint->GetKineticEnergy();
+  int primaryID = getTrackID(theTrack);  
 
   hits.clear();
-
-  /*
-    if (etrack >= zdcHitEnergyCut) {
-    primaryID    = theTrack->GetTrackID();
-    } else {
-    primaryID    = theTrack->GetParentID();
-    if (primaryID == 0) primaryID = theTrack->GetTrackID();
-    }
-  */
     
   // Reset entry point for new primary
-  posGlobal = preStepPoint->GetPosition();
-  resetForNewPrimary(posGlobal, etrack);
+  resetForNewPrimary(aStep);
 
   if (etrack >= zdcHitEnergyCut){
     // create hits only if above threshold
@@ -130,11 +114,12 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
       << "ZdcSD::getFromLibrary " <<hits.size() <<" hits for "
       << GetName() << " of " << primaryID << " with " 
       << theTrack->GetDefinition()->GetParticleName() << " of " 
-      << preStepPoint->GetKineticEnergy()<< " MeV\n"; 
+      << etrack<< " MeV\n"; 
     
-    hits.swap(showerLibrary->getHits(aStep, ok));    
+    hits.swap(showerLibrary.get()->getHits(aStep, ok));    
   }
  
+  incidentEnergy= etrack;
   entrancePoint = preStepPoint->GetPosition();
   for (unsigned int i=0; i<hits.size(); i++) {
     posGlobal           = hits[i].position;
@@ -149,15 +134,8 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
     if (currentID == previousID) {
       updateHit(currentHit);	
     } else {
-      currentHit = createNewHit();
-    }
-      
-    //  currentHit->setPosition(hitPoint.x(),hitPoint.y(),hitPoint.z());
-    //  currentHit->setEM(eEM);
-    //   currentHit->setHadr(eHAD);
-    currentHit->setIncidentEnergy(etrack);
-    //  currentHit->setEntryLocal(hitEntry.x(),hitEntry.y(),hitEntry.z());
-      
+      currentHit = createNewHit(aStep);
+    }      
     LogDebug("ForwardSim") << "ZdcSD: Final Hit number:"<<i<<"-->"
 			   <<"New HitID: "<<currentHit->getUnitID()
 			   <<" New Hit trackID: "<<currentHit->getTrackID()
@@ -167,27 +145,13 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
 			   <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()/GeV
 			   <<" New HitPosition: "<<posGlobal;
   }
-  
-  //Now kill the current track
-  if (ok) {
-    theTrack->SetTrackStatus(fStopAndKill);
-    G4TrackVector tv = *(aStep->GetSecondary());
-    for (unsigned int kk=0; kk<tv.size(); kk++) {
-      if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume())
-	tv[kk]->SetTrackStatus(fStopAndKill);
-    }
-  }
+  return ok;
 }
 
-double ZdcSD::getEnergyDeposit(const G4Step * aStep, edm::ParameterSet const & p ) {
+double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
 
-  float NCherPhot = 0.;
-  //std::cout<<"I go through here"<<std::endl;
+    double NCherPhot = 0.;
 
-  if (aStep == nullptr) {
-    LogDebug("ForwardSim") << "ZdcSD::  getEnergyDeposit: aStep is NULL!";
-    return 0;
-  } else {
     // preStepPoint information
     G4SteppingControl  stepControlFlag = aStep->GetControlFlag();
     G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
@@ -199,12 +163,6 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep, edm::ParameterSet const & p
     G4double           stepL = aStep->GetStepLength()/cm;
     G4double           beta     = preStepPoint->GetBeta();
     G4double           charge   = preStepPoint->GetCharge();
-
-    // G4VProcess*        curprocess   = preStepPoint->GetProcessDefinedStep();
-    // G4String           namePr   = preStepPoint->GetProcessDefinedStep()->GetProcessName();
-    // G4LogicalVolume*   lv    = currentPV->GetLogicalVolume();
-    // G4Material*        mat   = lv->GetMaterial();
-    // G4double           rad   = mat->GetRadlen();
 
     // postStepPoint information
     G4StepPoint* postStepPoint = aStep->GetPostStepPoint();   
@@ -260,9 +218,6 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep, edm::ParameterSet const & p
       float thFullRefl = 23.;
       float thFullReflRad = thFullRefl*pi/180.;
 
-      edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
-      thFibDir  = m_ZdcSD.getParameter<double>("FiberDirection");
-      //float thFibDir = 90.;
       float thFibDirRad = thFibDir*pi/180.;
 
       // at which theta the point is located:
@@ -404,26 +359,23 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep, edm::ParameterSet const & p
 	  << "ZdcSD::  getEnergyDeposit: fail nv=" << nameVolume;
     }
 
-    return NCherPhot;
-  } 
+    return NCherPhot; 
 }
 
 uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) {
-  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
+  return (numberingScheme.get() == nullptr ? 0 : numberingScheme.get()->getUnitID(aStep));
 }
 
 void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
   if (scheme != nullptr) {
     edm::LogInfo("ForwardSim") << "ZdcSD: updates numbering scheme for " 
 			       << GetName();
-    if (numberingScheme) delete numberingScheme;
-    numberingScheme = scheme;
+    numberingScheme.reset(scheme);
   }
 }
-
-int ZdcSD::setTrackID (G4Step* aStep) {
-  theTrack     = aStep->GetTrack();
-  double etrack = preStepPoint->GetKineticEnergy();
+/*
+int ZdcSD::setTrackID (const G4Step* aStep) {
+  const G4Track* theTrack = aStep->GetTrack();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
@@ -433,7 +385,9 @@ int ZdcSD::setTrackID (G4Step* aStep) {
 #endif
     primaryID = theTrack->GetTrackID();
     }
-  if (primaryID != previousID.trackID())
-      resetForNewPrimary(preStepPoint->GetPosition(), etrack); 
+  if (primaryID != previousID.trackID()) {
+      resetForNewPrimary(aStep); 
+  }
   return primaryID;
 }
+*/
