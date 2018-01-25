@@ -59,7 +59,6 @@ class CaloMiscalibTools : public edm::ESProducer, public edm::EventSetupRecordIn
       // ----------member data ---------------------------
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
     
-    CaloMiscalibMapEcal map_;
     std::string barrelfile_; 
     std::string endcapfile_; 
     std::string barrelfileinpath_; 

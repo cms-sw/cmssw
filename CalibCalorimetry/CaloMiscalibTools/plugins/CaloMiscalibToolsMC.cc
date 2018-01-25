@@ -37,7 +37,6 @@ CaloMiscalibToolsMC::CaloMiscalibToolsMC(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
-  map_.prefillMap();
 
   barrelfileinpath_=iConfig.getUntrackedParameter<std::string> ("fileNameBarrel","");
   endcapfileinpath_=iConfig.getUntrackedParameter<std::string> ("fileNameEndcap","");
@@ -77,6 +76,7 @@ CaloMiscalibToolsMC::~CaloMiscalibToolsMC()
 CaloMiscalibToolsMC::ReturnType
 CaloMiscalibToolsMC::produce(const EcalIntercalibConstantsMCRcd& iRecord)
 {
+    CaloMiscalibMapEcal map_;
     map_.prefillMap();
     MiscalibReaderFromXMLEcalBarrel barrelreader_(map_);
     MiscalibReaderFromXMLEcalEndcap endcapreader_(map_);
