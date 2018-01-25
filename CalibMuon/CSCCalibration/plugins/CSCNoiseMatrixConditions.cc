@@ -433,7 +433,7 @@ CSCNoiseMatrixConditions::ReturnType
 CSCNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
     // Added by Zhen, need a new object so to not be deleted at exit
-    return std::make_unique<CSCNoiseMatrixConditions::ReturnType::element_type>( *(prefillNoiseMatrix()) );
+    return CSCNoiseMatrixConditions::ReturnType( prefillNoiseMatrix());
     
 
 }

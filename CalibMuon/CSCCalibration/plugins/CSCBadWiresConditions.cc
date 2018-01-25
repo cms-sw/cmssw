@@ -33,7 +33,7 @@ CSCBadWiresConditions::ReturnType
 CSCBadWiresConditions::produceBadWires(const CSCBadWiresRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  return std::make_unique<CSCBadWiresConditions::ReturnType::element_type>( *(prefillBadWires()) );
+  return CSCBadWiresConditions::ReturnType( prefillBadWires());
   
 }
 

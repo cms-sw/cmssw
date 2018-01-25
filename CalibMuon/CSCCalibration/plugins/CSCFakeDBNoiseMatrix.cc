@@ -19,7 +19,7 @@ CSCFakeDBNoiseMatrix::~CSCFakeDBNoiseMatrix()
 CSCFakeDBNoiseMatrix::Pointer
 CSCFakeDBNoiseMatrix::produceDBNoiseMatrix(const CSCDBNoiseMatrixRcd& iRecord)
 {
-  return std::make_shared<CSCFakeDBNoiseMatrix::Pointer::element_type>( *(prefillDBNoiseMatrix()));
+  return CSCFakeDBNoiseMatrix::Pointer( prefillDBNoiseMatrix());
 }
 
 void CSCFakeDBNoiseMatrix::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

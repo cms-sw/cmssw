@@ -33,7 +33,7 @@ CSCBadChambersConditions::ReturnType
 CSCBadChambersConditions::produceBadChambers(const CSCBadChambersRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  return std::make_unique<CSCBadChambersConditions::ReturnType::element_type>( *(prefillBadChambers()) );
+  return CSCBadChambersConditions::ReturnType( prefillBadChambers());
 }
 
  void CSCBadChambersConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

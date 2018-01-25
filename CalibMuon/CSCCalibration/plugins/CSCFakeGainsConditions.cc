@@ -88,7 +88,7 @@ CSCFakeGainsConditions::~CSCFakeGainsConditions()
 CSCFakeGainsConditions::ReturnType
 CSCFakeGainsConditions::produceGains(const CSCGainsRcd& iRecord)
 {
-  return std::make_unique<CSCFakeGainsConditions::ReturnType::element_type>( *(prefillGains()));
+  return CSCFakeGainsConditions::ReturnType( prefillGains());
 }
 
  void CSCFakeGainsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

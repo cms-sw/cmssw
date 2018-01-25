@@ -34,7 +34,7 @@ CSCGainsDBConditions::ReturnType
 CSCGainsDBConditions::produceDBGains(const CSCDBGainsRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  return std::make_unique<CSCGainsDBConditions::ReturnType::element_type>( *(prefillDBGains()) );
+  return CSCGainsDBConditions::ReturnType( prefillDBGains());
   
 }
 
