@@ -31,9 +31,11 @@ genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
     variables = cms.PSet(
         x1 = Var( "?hasPDF?pdf().x.first:-1", float, doc="x1 fraction of proton momentum carried by the first parton",precision=14 ),
         x2 = Var( "?hasPDF?pdf().x.second:-1", float, doc="x2 fraction of proton momentum carried by the second parton",precision=14 ),
-	#AR: not sure what "xPDF" is wrt to just "x"
-        #x1PDF = Var( "?hasPDF?pdf().xPDF.first:-1", float, doc="x1 fraction of proton momentum carried by the first parton" ),
-        #x2PDF = Var( "?hasPDF?pdf().xPDF.second:-1", float, doc="x2 fraction of proton momentum carried by the second parton" ),
+        xpdf1 = Var( "?hasPDF?pdf().xPDF.first:-1", float, doc="x*pdf(x) for the first parton", precision=14 ),
+        xpdf2 = Var( "?hasPDF?pdf().xPDF.second:-1", float, doc="x*pdf(x) for the second parton", precision=14 ),
+        id1 = Var( "?hasPDF?pdf().id.first:-1", int, doc="id of first parton", precision=6 ),
+        id2 = Var( "?hasPDF?pdf().id.second:-1", int, doc="id of second parton", precision=6 ),
+        scalePDF = Var( "?hasPDF?pdf().scalePDF:-1", float, doc="Q2 scale for PDF", precision=14 ),
         ),
 )
 

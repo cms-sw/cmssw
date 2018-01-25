@@ -226,11 +226,8 @@ double AntiElectronIDMVA5::MVAValue(Float_t TauEtaAtEcalEntrance,
 				    Float_t ElecGSFTrackEta)
 {
   double sumPt  = 0.;
-  double dEta   = 0.;
   double dEta2  = 0.;
-  double dPhi   = 0.;
   double dPhi2  = 0.;
-  double sumPt2 = 0.;
   for ( unsigned int i = 0 ; i < GammasPt.size() ; ++i ) {
     double pt_i  = GammasPt[i];
     double phi_i = GammasdPhi[i];
@@ -238,18 +235,13 @@ double AntiElectronIDMVA5::MVAValue(Float_t TauEtaAtEcalEntrance,
     else if ( GammasdPhi[i] < -M_PI ) phi_i = GammasdPhi[i] + 2*M_PI;
     double eta_i = GammasdEta[i];
     sumPt  +=  pt_i;
-    sumPt2 += (pt_i*pt_i);
-    dEta   += (pt_i*eta_i);
     dEta2  += (pt_i*eta_i*eta_i);
-    dPhi   += (pt_i*phi_i);
     dPhi2  += (pt_i*phi_i*phi_i);
   }
 
   Float_t TauGammaEnFrac = sumPt/TauPt;
 
   if ( sumPt > 0. ) {
-    dEta  /= sumPt;
-    dPhi  /= sumPt;
     dEta2 /= sumPt;
     dPhi2 /= sumPt;
   }

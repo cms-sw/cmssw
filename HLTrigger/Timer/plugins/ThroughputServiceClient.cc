@@ -67,7 +67,7 @@ ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker & booker, DQMStore::
     // the plots are in the main folder
     folders.push_back(m_dqm_path);
   } else {
-    static const boost::regex running_n_processes(".*/Running [0-9]+ processes");
+    static const boost::regex running_n_processes(".*/Running .*");
     booker.setCurrentFolder(m_dqm_path);
     std::vector<std::string> subdirs = getter.getSubdirs();
     for (auto const & subdir: subdirs) {

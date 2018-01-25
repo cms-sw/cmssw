@@ -20,6 +20,7 @@ hiMABH.tpTag = 'NEWcutsTpMuons'
 hiMABH.PurityCut_track = 0.75
 hiMABH.PurityCut_muon = 0.75
 #hiMABH.EfficiencyCut_track = 0.5 # maybe this could be added
+#hiMABH.EfficiencyCut_muon = 0.5 # maybe this could be added
 #hiMABH.includeZeroHitMuons = False # maybe this could be added
 ################################################
 

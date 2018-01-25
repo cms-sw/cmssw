@@ -13,6 +13,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalDeterministicFit.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/MahiFit.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 class SimpleHBHEPhase1Algo : public AbsHBHEPhase1Algo
 {
@@ -67,6 +68,8 @@ public:
     inline float getTimeShift() const {return timeShift_;}
     inline bool isCorrectingForPhaseContainment() const {return corrFPC_;}
     inline int getRunNumber() const {return runnum_;}
+
+    const HcalTimeSlew* hcalTimeSlew_delay_;
 
 protected:
     // Special HB- correction

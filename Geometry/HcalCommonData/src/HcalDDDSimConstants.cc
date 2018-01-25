@@ -17,8 +17,8 @@ HcalDDDSimConstants::HcalDDDSimConstants(const HcalParameters* hp) : hpar(hp) {
   initialize();
 #ifdef EDM_ML_DEBUG
   std::vector<HcalCellType> cellTypes = HcalCellTypes();
-  std::cout << "HcalDDDSimConstants: " << cellTypes.size()
-	    << " cells of type HCal (All)\n";
+  edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants: " << cellTypes.size()
+			       << " cells of type HCal (All)\n";
 #endif
 }
 
@@ -110,12 +110,13 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(const int& idet,  const int& zs
   HcalCellType::HcalCell tmp(ok,eta,deta,phi,dphi,rz,drz,flagrz);
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDSimConstants: det/side/depth/etaR/phi "
-	    << idet  << "/" << zside << "/" << depth << "/" 
-	    << etaR << "/" << iphi << " Cell Flag " << tmp.ok 
-	    << " "  << tmp.eta << " " << tmp.deta << " phi " 
-	    << tmp.phi << " " << tmp.dphi << " r(z) " << tmp.rz
-	    << " "  << tmp.drz << " " << tmp.flagrz << std::endl;
+  edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants: det/side/depth/etaR/"
+			       << "phi " << idet  << "/" << zside << "/" 
+			       << depth << "/" << etaR << "/" << iphi 
+			       << " Cell Flag " << tmp.ok << " "  << tmp.eta 
+			       << " " << tmp.deta << " phi " << tmp.phi << " "
+			       << tmp.dphi << " r(z) " << tmp.rz << " "  
+			       << tmp.drz << " " << tmp.flagrz;
 #endif
   return tmp;
 }
@@ -161,7 +162,7 @@ int HcalDDDSimConstants::getDepthEta16(const int& det, const int& phi,
   int depth = ldmap_.getDepth16(det,phi,zside);
   if (depth < 0) depth = (det == 2) ? depthEta16[1] : depthEta16[0];
 #ifdef EDM_ML_DEBUG
-  std::cout << "getDepthEta16: " << det << ":" << depth << std::endl;
+  edm::LogVerbatim("HcalGeom") << "getDepthEta16: " << det << ":" << depth;
 #endif
   return depth;
 }
@@ -258,8 +259,9 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int& det, int etaR,
 						    int depth, const int& lay) {
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDEsimConstants:getEtaDepth: I/P " << det << ":" << etaR
-	    << ":" << phi << ":" << zside << ":" << depth << ":" << lay << "\n";
+  edm::LogVerbatim("HcalGeom") << "HcalDDDEsimConstants:getEtaDepth: I/P " 
+			       << det << ":" << etaR << ":" << phi << ":" 
+			       << zside << ":" << depth << ":" << lay;
 #endif
   //Modify the depth index
   if ((det == static_cast<int>(HcalEndcap)) && (etaR == 17) && (lay == 1))
@@ -293,14 +295,14 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int& det, int etaR,
     }
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDEsimConstants:getEtaDepth: O/P " << etaR << ":" << depth
-	    << std::endl;
+  edm::LogVerbatim("HcalGeom") << "HcalDDDEsimConstants:getEtaDepth: O/P " 
+			       << etaR << ":" << depth;
 #endif
   return std::pair<int,int>(etaR,depth);
 }
 
-double HcalDDDSimConstants::getEtaHO(const double& etaR, const double& x, const double& y, 
-				     const double& z) const {
+double HcalDDDSimConstants::getEtaHO(const double& etaR, const double& x, 
+				     const double& y, const double& z) const {
 
   if (hpar->zHO.size() > 4) {
     double eta  = fabs(etaR);
@@ -315,8 +317,8 @@ double HcalDDDSimConstants::getEtaHO(const double& etaR, const double& x, const 
     }
     eta = (z >= 0. ? eta : -eta);
 #ifdef EDM_ML_DEBUG
-    std::cout << "R " << r << " Z " << z << " eta " << etaR 
-	      << ":" << eta << std::endl;
+    edm::LogVerbatim("HcalGeom") << "R " << r << " Z " << z << " eta " << etaR 
+				 << ":" << eta;
     if (eta != etaR) edm::LogInfo ("HCalGeom") << "**** Check *****";
 #endif
     return eta;
@@ -504,11 +506,12 @@ HcalDDDSimConstants::getPhis(const int& subdet, const int& ieta) const {
     phis.emplace_back(std::pair<int,double>(iphi,phi));
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "getPhis: subdet|ieta|iphi " << subdet << "|" << ieta 
-	    << " with " << phis.size() << " phi bins" << std::endl;
+  edm::LogVerbatim("HcalGeom") << "getPhis: subdet|ieta|iphi " << subdet << "|"
+			       << ieta << " with " << phis.size() 
+			       << " phi bins";
   for (unsigned int k=0; k<phis.size(); ++k)
-    std::cout << "[" << k << "] iphi " << phis[k].first << " phi "
-	      << phis[k].second/CLHEP::deg << std::endl;
+    edm::LogVerbatim("HcalGeom") << "[" << k << "] iphi " << phis[k].first 
+				 << " phi " << phis[k].second/CLHEP::deg;
 #endif
   return phis;
 }
@@ -675,9 +678,9 @@ unsigned int HcalDDDSimConstants::numberOfCells(const HcalSubdetector& subdet) c
     num += (unsigned int)(cellType.nPhiBins());
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDSimConstants:numberOfCells " 
-	    << cellTypes.size()  << " " << num 
-	    << " for subdetector " << subdet << std::endl;
+  edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants:numberOfCells " 
+			       << cellTypes.size()  << " " << num 
+			       << " for subdetector " << subdet;
 #endif
   return num;
 }
@@ -751,10 +754,10 @@ void HcalDDDSimConstants::initialize( void ) {
 
 #ifdef EDM_ML_DEBUG
   for (int i=0; i<nEta-1; ++i) {
-    std::cout << "HcalDDDSimConstants:Read LayerGroup" << i << ":";
+    edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants:Read LayerGroup" 
+				 << i << ":";
     for (unsigned int k=0; k<layerGroupSize( i ); k++) 
-      std::cout << " [" << k << "] = " << layerGroup( i, k );
-    std::cout << std::endl;
+      edm::LogVerbatim("HcalGeom") << " [" << k << "] = " << layerGroup(i, k);
   }
 #endif
 
@@ -763,8 +766,9 @@ void HcalDDDSimConstants::initialize( void ) {
   zVcal     = hpar->gparHF[4];
   dzVcal    = hpar->dzVcal;
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDSimConstants: dlShort " << dlShort << " zVcal " << zVcal
-	    << " and dzVcal " << dzVcal << std::endl;
+  edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants: dlShort " << dlShort
+			       << " zVcal " << zVcal << " and dzVcal " 
+			       << dzVcal;
 #endif
 
   //Transform some of the parameters
@@ -784,8 +788,9 @@ void HcalDDDSimConstants::initialize( void ) {
   }
 #ifdef EDM_ML_DEBUG
   for (int i=0; i<4; ++i)
-    std::cout << "Detector Type [" << i << "] iEta " << hpar->etaMin[i] << ":" 
-	      << hpar->etaMax[i] << " MaxDepth " << maxDepth[i] << std::endl;
+    edm::LogVerbatim("HcalGeom") << "Detector Type [" << i << "] iEta " 
+				 << hpar->etaMin[i] << ":" << hpar->etaMax[i] 
+				 << " MaxDepth " << maxDepth[i];
 #endif
 
   int maxdepth = (maxDepth[1]>maxDepth[0]) ? maxDepth[1] : maxDepth[0];
@@ -802,9 +807,10 @@ void HcalDDDSimConstants::initialize( void ) {
     }
 
 #ifdef EDM_ML_DEBUG
-    std::cout << "Depth " << i << " with " << depths[i].size() << " etas:";
-    for (int k=0; k<nEta-1; ++k) std::cout << " " << depths[i][k];
-    std::cout << std::endl;
+    edm::LogVerbatim("HcalGeom") << "Depth " << i << " with " 
+				 << depths[i].size() << " etas:";
+    for (int k=0; k<nEta-1; ++k) 
+      edm::LogVerbatim("HcalGeom") << " [" << k << "] " << depths[i][k];
 #endif
   }
 
@@ -813,9 +819,9 @@ void HcalDDDSimConstants::initialize( void ) {
   nzHE   = hpar->modHE[1];
   nmodHE = hpar->modHE[0];
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDSimConstants:: " << nzHB << ":" << nmodHB
-	    << " barrel and " << nzHE << ":" << nmodHE
-	    << " endcap half-sectors" << std::endl;
+  edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants:: " << nzHB << ":" 
+			       << nmodHB << " barrel and " << nzHE << ":" 
+			       << nmodHE << " endcap half-sectors";
 #endif
 
   if (hpar->rHB.size() > maxLayerHB_+1 && hpar->zHO.size() > 4) {
@@ -829,13 +835,15 @@ void HcalDDDSimConstants::initialize( void ) {
     etaHO[3] = hpar->etaTable[10];
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "HO Eta boundaries " << etaHO[0] << " " << etaHO[1]
-	    << " " << etaHO[2] << " " << etaHO[3] << std::endl;
-  std::cout << "HO Parameters " << rminHO << " " << hpar->zHO.size();
-  for (int i=0; i<4; ++i) std::cout << " eta[" << i << "] = " << etaHO[i];
+  edm::LogVerbatim("HcalGeom") << "HO Eta boundaries " << etaHO[0] << " " 
+			       << etaHO[1] << " " << etaHO[2] << " " 
+			       << etaHO[3];
+  edm::LogVerbatim("HcalGeom") << "HO Parameters " << rminHO << " " 
+			       << hpar->zHO.size();
+  for (int i=0; i<4; ++i) 
+    edm::LogVerbatim("HcalGeom") << " eta[" << i << "] = " << etaHO[i];
   for (unsigned int i=0; i<hpar->zHO.size(); ++i) 
-    std::cout << " zHO[" << i << "] = " << hpar->zHO[i];
-  std::cout << std::endl;
+    edm::LogVerbatim("HcalGeom") << " zHO[" << i << "] = " << hpar->zHO[i];
 #endif
 
   int noffsize = 7 + hpar->noff[5] + hpar->noff[6];
@@ -856,11 +864,12 @@ void HcalDDDSimConstants::initialize( void ) {
     depthEta29[1] = 1;
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "isBH_ " << hpar->noff.size() << ":" << noffsize << ":" 
-	    << noffl << ":" << isBH_ << std::endl;
-  std::cout << "Depth index at ieta = 16 for HB (max) " << depthEta16[0] 
-	    << " HE (min) " << depthEta16[1] << "; max depth for itea = 29 : ("
-	    << depthEta29[0] << ":" << depthEta29[1] << ")" << std::endl;
+  edm::LogVerbatim("HcalGeom") << "isBH_ " << hpar->noff.size() << ":" 
+			       << noffsize << ":" << noffl << ":" << isBH_;
+  edm::LogVerbatim("HcalGeom") << "Depth index at ieta = 16 for HB (max) " 
+			       << depthEta16[0] << " HE (min) " <<depthEta16[1]
+			       << "; max depth for itea = 29 : ("
+			       << depthEta29[0] << ":" << depthEta29[1] << ")";
 #endif
   
   if ((int)(hpar->noff.size()) > (noffsize+4)) {
@@ -872,10 +881,10 @@ void HcalDDDSimConstants::initialize( void ) {
     }
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << idHF2QIE.size() << " detector channels having 2 QIE cards:" 
-	    << std::endl;
+  edm::LogVerbatim("HcalGeom") << idHF2QIE.size() 
+			       << " detector channels having 2 QIE cards:";
   for (unsigned int k=0; k<idHF2QIE.size(); ++k) 
-    std::cout << " [" << k << "] " << idHF2QIE[k] << std::endl;
+    edm::LogVerbatim("HcalGeom") << " [" << k << "] " << idHF2QIE[k];
 #endif
 
   layFHB[0] = 0;  layFHB[1] = 1;
@@ -903,17 +912,20 @@ void HcalDDDSimConstants::initialize( void ) {
 	    idp.emplace_back(hpar->noff[noffk+7+nphi+3*i+2]);
 	  }
 #ifdef EDM_ML_DEBUG
-	  std::cout << "Initialize HcalLayerDepthMap for Detector " << dtype
-		    << " etaMax " << hpar->etaMax[dtype] << " with " << nphi 
-		    << " sectors";
-	  for (int i=0; i<nphi; ++i) std::cout << ":" << ifi[i];
-	  std::cout << " and " << ndeps << " depth sections" << std::endl;
+	  edm::LogVerbatim("HcalGeom") << "Initialize HcalLayerDepthMap for "
+				       << "Detector " << dtype << " etaMax "
+				       << hpar->etaMax[dtype] << " with " 
+				       << nphi << " sectors";
+	  for (int i=0; i<nphi; ++i) 
+	    edm::LogVerbatim("HcalGeom") << " [" << i << "] " << ifi[i];
+	  edm::LogVerbatim("HcalGeom") << "And " << ndeps << " depth sections";
 	  for (int i=0; i<ndeps;++i)
-	    std::cout << " [" << i << "] " << iet[i] << "  " << ily[i] << "  "
-		      << idp[i] << std::endl;
-	  std::cout << "Maximum depth for last HE Eta tower " << depthEta29[0]
-		    << ":" << ndp16 << ":" << ndp29 << " L0 Wt " 
-		    << hpar->Layer0Wt[dtype-1] << ":" << wt << std::endl;
+	    edm::LogVerbatim("HcalGeom") << " [" << i << "] " << iet[i] << "  "
+					 << ily[i] << "  " << idp[i];
+	  edm::LogVerbatim("HcalGeom") <<"Maximum depth for last HE Eta tower "
+				       << depthEta29[0] << ":" << ndp16 << ":"
+				       << ndp29 << " L0 Wt " 
+				       << hpar->Layer0Wt[dtype-1] << ":" << wt;
 #endif
 	  ldmap_.initialize(dtype,hpar->etaMax[dtype-1],ndp16,ndp29,wt,ifi,iet,
 			    ily,idp);
@@ -937,13 +949,15 @@ void HcalDDDSimConstants::initialize( void ) {
     }
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "Front Layer Definition for HB: " << layFHB[0] << ":" 
-	    << layFHB[1] << " and for HE: " << layFHE[0] << ":" << layFHE[1] 
-	    << ":" << layFHE[2] << std::endl;
-  std::cout << "Last Layer Definition for HB: " << layBHB[0] << ":" 
-	    << layBHB[1] << ":" << layBHB[2] << " and for HE: " << layBHE[0] 
-	    << ":" << layBHE[1] << ":" << layBHE[2] << ":" << layBHE[3]
-	    << std::endl;
+  edm::LogVerbatim("HcalGeom") << "Front Layer Definition for HB: " 
+			       << layFHB[0] << ":" << layFHB[1] 
+			       << " and for HE: " << layFHE[0] << ":" 
+			       << layFHE[1] << ":" << layFHE[2];
+  edm::LogVerbatim("HcalGeom") << "Last Layer Definition for HB: " << layBHB[0]
+			       << ":" << layBHB[1] << ":" << layBHB[2]
+			       << " and for HE: " << layBHE[0] << ":" 
+			       << layBHE[1] << ":" << layBHE[2] << ":" 
+			       << layBHE[3];
 #endif
   if (depthMaxSp_.first == 0) {
     depthMaxSp_ = depthMaxDf_ = std::pair<int,int>(2,maxDepth[1]);
@@ -955,10 +969,10 @@ void HcalDDDSimConstants::initialize( void ) {
     if (depthMaxSp_.second > maxDepth[1]) maxDepth[1] = depthMaxSp_.second;
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "Detector type and maximum depth for all RBX " 
-	    << depthMaxDf_.first << ":" << depthMaxDf_.second
-	    << " and for special RBX " << depthMaxSp_.first << ":" 
-	    << depthMaxSp_.second << std::endl;
+  edm::LogVerbatim("HcalGeom") <<"Detector type and maximum depth for all RBX "
+			       << depthMaxDf_.first << ":" <<depthMaxDf_.second
+			       << " and for special RBX " << depthMaxSp_.first
+			       << ":" << depthMaxSp_.second;
 #endif
 }
 
@@ -995,8 +1009,8 @@ double HcalDDDSimConstants::deltaEta(const int& det, const int& etaR,
     } 
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDSimConstants::deltaEta " << etaR << " " 
-	    << depth << " ==> " << tmp << std::endl;
+  edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants::deltaEta " << etaR 
+			       << " " << depth << " ==> " << tmp;
 #endif
   return tmp;
 }
@@ -1035,8 +1049,8 @@ double HcalDDDSimConstants::getEta(const int& det,   const int& etaR,
   } 
   if (zside == 0) tmp = -tmp;
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDSimConstants::getEta " << etaR << " " 
-	    << zside << " " << depth << " ==> " << tmp << "\n";
+  edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants::getEta " << etaR << " "
+			       << zside << " " << depth << " ==> " << tmp;
 #endif
   return tmp;
 }
@@ -1046,8 +1060,8 @@ double HcalDDDSimConstants::getEta(const double& r, const double& z) const {
   double tmp = 0;
   if (z != 0) tmp = -log(tan(0.5*atan(r/z)));
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDSimConstants::getEta " << r << " " << z 
-	    << " ==> " << tmp << std::endl;
+  edm::LogVerbatim("HcalGeom") << "HcalDDDSimConstants::getEta " << r << " "
+			       << z << " ==> " << tmp;
 #endif
   return tmp;
 }

@@ -63,8 +63,6 @@ public:
     DQM_KIND_TPROFILE2D = DQMNet::DQM_PROP_TYPE_TPROF2D
   };
 
-  using QReportIterator = std::vector<QReport>::const_iterator;
-
 private:
   DQMNet::CoreObject    data_;       //< Core object information.
   Scalar                scalar_;     //< Current scalar value.

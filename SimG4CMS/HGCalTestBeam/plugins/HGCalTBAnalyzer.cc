@@ -9,8 +9,6 @@
 // user include files
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
@@ -648,7 +646,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 		  << theDigiContainers->size() << " element(s)" << std::endl;
 #endif
 	for (auto it : *theDigiContainers) {
-	  HGCEEDetId detId     = (it.id());
+	  HGCalDetId detId     = (it.id());
 	  const HGCSample&  hgcSample = it.sample(sampleIndex_);
 	  uint16_t   adc       = hgcSample.data();
 	  analyzeDigi(0, detId, adc);
@@ -664,7 +662,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 		  << theDigiContainers->size() << " element(s)" << std::endl;
 #endif
 	for (auto it : *theDigiContainers) {
-	  HGCHEDetId detId     = (it.id());
+	  HGCalDetId detId     = (it.id());
 	  const HGCSample&  hgcSample = it.sample(sampleIndex_);
 	  uint16_t   adc       = hgcSample.data();
 	  analyzeDigi(1, detId, adc);

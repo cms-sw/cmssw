@@ -193,7 +193,7 @@ double compEcalEnergySum(const EcalRecHitCollection& ecalRecHits,
   double ecalEnergySum = 0.;
   for ( EcalRecHitCollection::const_iterator ecalRecHit = ecalRecHits.begin();
 	ecalRecHit != ecalRecHits.end(); ++ecalRecHit ) {
-    const CaloCellGeometry* cellGeometry = detGeometry->getGeometry(ecalRecHit->detid());
+    auto cellGeometry = detGeometry->getGeometry(ecalRecHit->detid());
     
     if ( !cellGeometry ) {
       edm::LogError ("compEcalEnergySum") 
@@ -270,7 +270,7 @@ double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate
 
   const CaloSubdetectorGeometry* ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry* eeGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  const HcalGeometry* hcGeometry = (HcalGeometry*)(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
+  const HcalGeometry* hcGeometry = static_cast<const HcalGeometry*>(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   TrackRef leadTrackRef = leadTrackExtractor_.getLeadTrack(*tau);
 

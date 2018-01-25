@@ -38,6 +38,7 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "ME0MuonArbitrated", ME0MuonArbitrated },
       { "AllGEMMuons", AllGEMMuons },
       { "GEMMuonArbitrated", GEMMuonArbitrated },
+      { "TriggerIdLoose", TriggerIdLoose },
       { nullptr, (SelectionType)-1 }
    };
 
@@ -760,6 +761,9 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type,
     case muon::GEMMuonArbitrated:
 	  return muon.isGEMMuon() && isGoodMuon(muon, GEMMu, 1, 1e9, 1e9, 1e9, 1e9, 1e9, 1e9, arbitrationType, false, false);
       break;
+    case muon::TriggerIdLoose:
+      return isLooseTriggerMuon(muon);
+      break;
     default:
       return false;
     }
@@ -833,6 +837,19 @@ bool muon::overlap( const reco::Muon& muon1, const reco::Muon& muon2,
   return false;
 }
 
+
+bool muon::isLooseTriggerMuon(const reco::Muon& muon){
+  // Requirements:
+  // - no depencence on information not availabe in the muon object
+  // - use only robust inputs
+  bool tk_id = muon::isGoodMuon(muon, TMOneStationTight);
+  if ( not tk_id ) return false;
+  bool layer_requirements = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0;
+  bool global_requirements = (not muon.isGlobalMuon()) or muon.globalTrack()->normalizedChi2()<20;
+  bool match_requirements = (muon.expectedNnumberOfMatchedStations()<2) or (muon.numberOfMatchedStations()>1);
+  return layer_requirements and global_requirements and match_requirements;
+}
 
 bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
@@ -991,6 +1008,9 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   // Tracker isolation
   if (tkRelIso<0.10)            selectors |= reco::Muon::TkIsoLoose;
   if (tkRelIso<0.05)            selectors |= reco::Muon::TkIsoTight;
+
+  // Trigger selectors
+  if (isLooseTriggerMuon(muon)) selectors |= reco::Muon::TriggerIdLoose;
 
   muon.setSelectors(selectors);
 }
