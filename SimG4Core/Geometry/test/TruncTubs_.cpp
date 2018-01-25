@@ -53,8 +53,10 @@ testTruncTubs::matched_g4_and_dd( void )
 
   if( dd_volume > 0 )
   {
-    CPPUNIT_ASSERT( g4_volume == dd_volume );
-    CPPUNIT_ASSERT( g4_volume == dds_volume );
+    const double tolerance = 1e-7;
+
+    CPPUNIT_ASSERT( abs( g4_volume - dd_volume ) < tolerance );
+    CPPUNIT_ASSERT( abs( g4_volume - dds_volume ) < tolerance );
   }
 }
 
