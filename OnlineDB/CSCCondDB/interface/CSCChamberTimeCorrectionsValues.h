@@ -34,7 +34,6 @@ class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::Event
  private:
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
-  CSCChamberTimeCorrections *chamberObj ;
 
   //Flag for determining if this is for setting MC or data corrections
   bool isForMC;
