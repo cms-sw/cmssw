@@ -23,6 +23,13 @@ public:
   ) const;
 
 private:
-};
+}; // End class MicroGMTConverter
+
+namespace emtf {
+  void sort_uGMT_muons(
+      l1t::RegionalMuonCandBxCollection& cands
+  );
+}
+
 
 #endif

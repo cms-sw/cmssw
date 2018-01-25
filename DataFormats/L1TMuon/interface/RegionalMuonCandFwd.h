@@ -9,8 +9,6 @@ namespace l1t {
 	};
 	class RegionalMuonCand;
 	typedef BXVector<RegionalMuonCand> RegionalMuonCandBxCollection;
-
-	void SortCandsEMTF(RegionalMuonCandBxCollection& cands);
 }
 
 #endif /* define __l1t_regional_muon_candidatefwd_h__ */
