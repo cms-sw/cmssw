@@ -113,6 +113,7 @@ namespace edm {
       virtual void doEndLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
 
       bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
 
       virtual SharedResourcesAcquirer createAcquirer();
 
