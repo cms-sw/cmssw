@@ -18,6 +18,7 @@
 
 #include <Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h>
 
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /***************************************
@@ -69,7 +70,7 @@ class PedeLabeler : public PedeLabelerBase
   typedef std::map <unsigned int, unsigned int> UintUintMap;
 
   /// returns size of map
-  unsigned int buildMap(const std::vector<Alignable*> &alis);
+  unsigned int buildMap(const align::Alignables&);
   /// returns size of map
   unsigned int buildReverseMap();
 

@@ -52,7 +52,6 @@ onia2MuMuPAT.addMCTruth = cms.bool(False)
 onia2MuMuPATCounter = cms.EDFilter('CandViewCountFilter',
       src = cms.InputTag('onia2MuMuPAT'),
       minNumber = cms.uint32(1),
-      filter = cms.bool(True)
    )
 
 # make photon candidate conversions for P-wave studies

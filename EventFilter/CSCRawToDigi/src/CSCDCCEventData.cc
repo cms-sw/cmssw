@@ -25,7 +25,7 @@ CSCDCCEventData::CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a)
   theDDUData.reserve(nDDUs);
 } 
 
-CSCDCCEventData::CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner)
+CSCDCCEventData::CSCDCCEventData(const uint16_t *buf, CSCDCCExaminer* examiner)
 {
   unpack_data(buf, examiner);
 }
@@ -35,7 +35,7 @@ CSCDCCEventData::~CSCDCCEventData()
 }
 
 
-void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner) 
+void CSCDCCEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner) 
 {
  
 /*

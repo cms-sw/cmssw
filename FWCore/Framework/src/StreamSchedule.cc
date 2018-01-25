@@ -266,7 +266,7 @@ namespace edm {
     unsigned int nUniqueBranchesToDelete=branchToReadingWorker.size();
     
     //talk with output modules first
-    modReg.forAllModuleHolders([this, &branchToReadingWorker,&nUniqueBranchesToDelete](maker::ModuleHolder* iHolder){
+    modReg.forAllModuleHolders([&branchToReadingWorker,&nUniqueBranchesToDelete](maker::ModuleHolder* iHolder){
       auto comm = iHolder->createOutputModuleCommunicator();
       if (comm) {
         if(!branchToReadingWorker.empty()) {
@@ -615,6 +615,10 @@ namespace edm {
         it != itEnd; ++ it) {
       it->processOneOccurrenceAsync(pathsDone,ep, es, streamID_, &streamContext_);
     }
+
+    ParentContext parentContext(&streamContext_);
+    workerManager_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+      allPathsDone, ep, es, streamID_, parentContext, &streamContext_);
   }
   
   void

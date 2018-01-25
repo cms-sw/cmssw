@@ -46,13 +46,11 @@ public:
 
   ReturnType produce(const HcalRecNumberingRecord&);
 
-private:
-  HcalDDDRecConstants* hcalDDDConst_;
 };
 
-HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(nullptr) {
+HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) {
 #ifdef EDM_ML_DEBUG
-  std::cout <<"constructing HcalDDDRecConstantsESModule" << std::endl;
+  edm::LogVerbatim("HcalGeom") <<"constructing HcalDDDRecConstantsESModule";
 #endif
   setWhatProduced(this);
 }
@@ -68,16 +66,14 @@ void HcalDDDRecConstantsESModule::fillDescriptions( edm::ConfigurationDescriptio
 HcalDDDRecConstantsESModule::ReturnType
 HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
-  std::cout << "in HcalDDDRecConstantsESModule::produce" << std::endl;
+  edm::LogVerbatim("HcalGeom") << "in HcalDDDRecConstantsESModule::produce";
 #endif
-  if (hcalDDDConst_ == nullptr) {
-    edm::ESHandle<HcalParameters>         parHandle;
-    iRecord.getRecord<HcalParametersRcd>().get(parHandle);
-    edm::ESHandle<HcalDDDSimConstants>    hdc;
-    iRecord.getRecord<HcalSimNumberingRecord>().get(hdc);
-    hcalDDDConst_ = new HcalDDDRecConstants(&(*parHandle), *hdc);
-  }
-  return HcalDDDRecConstantsESModule::ReturnType(hcalDDDConst_) ;
+  edm::ESHandle<HcalParameters>         parHandle;
+  iRecord.getRecord<HcalParametersRcd>().get(parHandle);
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  iRecord.getRecord<HcalSimNumberingRecord>().get(hdc);
+
+  return HcalDDDRecConstantsESModule::ReturnType(new HcalDDDRecConstants(&(*parHandle), *hdc)) ;
 }
 
 //define this as a plug-in

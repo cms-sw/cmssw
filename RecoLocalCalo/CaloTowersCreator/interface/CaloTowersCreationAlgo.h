@@ -59,7 +59,9 @@ public:
     bool useSymEBTreshold, bool useSymEETreshold,				    
 
     double HcalThreshold,
-    double HBthreshold, double HESthreshold, double HEDthreshold,
+    double HBthreshold, 
+    double HESthreshold, double HESthreshold1,
+    double HEDthreshold, double HEDthreshold1, 
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2,
     double HF1threshold, double HF2threshold, 
@@ -73,7 +75,8 @@ public:
     double momHEDepth,
     double momEBDepth,
     double momEEDepth,
-	int hcalPhase=0
+	int hcalPhase=0,
+	bool hcalCollapsed=false
     );
   
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
@@ -82,7 +85,9 @@ public:
     bool useSymEBTreshold, bool useSymEETreshold,
 
     double HcalThreshold,
-    double HBthreshold, double HESthreshold, double HEDthreshold,
+    double HBthreshold, 
+    double HESthreshold, double HESthreshold1,
+    double HEDthreshold, double HEDthreshold1,
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2, 
     double HF1threshold, double HF2threshold,
@@ -104,7 +109,8 @@ public:
     double momHEDepth,
     double momEBDepth,
     double momEEDepth,
-	int hcalPhase=0
+	int hcalPhase=0,
+	bool hcalCollapsed=false
 );
   
   void setGeometry(const CaloTowerTopology* cttopo, const CaloTowerConstituentsMap* ctmap, const HcalTopology* htopo, const CaloGeometry* geo);
@@ -243,6 +249,9 @@ private:
   /// helper method to look up the appropriate threshold & weight
   void getThresholdAndWeight(const DetId & detId, double & threshold, double & weight) const;
 
+  // wrapper for HcalTopology method
+  bool mergedDepth29(HcalDetId id) const;
+
   double theEBthreshold, theEEthreshold;
   bool theUseEtEBTresholdFlag, theUseEtEETresholdFlag;
   bool theUseSymEBTresholdFlag,theUseSymEETresholdFlag;
@@ -250,7 +259,9 @@ private:
   
   double  theHcalThreshold;
 
-  double theHBthreshold, theHESthreshold,  theHEDthreshold; 
+  double theHBthreshold;
+  double theHESthreshold, theHESthreshold1; 
+  double theHEDthreshold, theHEDthreshold1; 
   double theHOthreshold0, theHOthresholdPlus1, theHOthresholdMinus1;
   double theHOthresholdPlus2, theHOthresholdMinus2, theHF1threshold, theHF2threshold;
   std::vector<double> theEBGrid, theEBWeights;
@@ -353,12 +364,7 @@ private:
   edm::Handle<EcalRecHitCollection> theEeHandle;
   
   int theHcalPhase;
-
-  //store merged depths for tower 28/29 (for 2 types of RBX's)
-  std::vector<int> mergedDepths, mergedDepthsOne;
-  //Subdetector type and phi/depth for special RBX 
-  int              subdetOne;
-  std::vector<std::pair<int,int>> phizOne;
+  bool isHcalCollapsed;
 
   std::vector<HcalDetId>          ids_;
 };

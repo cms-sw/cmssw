@@ -17,41 +17,48 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-# Add new parameters to RecoTrackRefSelector
-def customiseFor19029(process):
-    for producer in producers_by_type(process, "RecoTrackRefSelector"):
-        if not hasattr(producer, "minPhi"):
-            producer.minPhi = cms.double(-3.2)
-            producer.maxPhi = cms.double(3.2)
+def customiseFor21664_forMahiOn(process):
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.useMahi   = cms.bool(True)
+        producer.algorithm.useM2     = cms.bool(False)
+        producer.algorithm.useM3     = cms.bool(False)
     return process
 
-def customiseFor20269(process) :
-    for producer in esproducers_by_type(process, "ClusterShapeHitFilterESProducer"):
-         producer.PixelShapeFile   = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par')
-         producer.PixelShapeFileL1 = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_loose.par')
+def customiseFor21664_forMahiOnM2only(process):
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+      if (producer.algorithm.useM2 == cms.bool(True)):
+        producer.algorithm.useMahi   = cms.bool(True)
+        producer.algorithm.useM2     = cms.bool(False)
+        producer.algorithm.useM3     = cms.bool(False)
     return process
 
-# Migrate uGT non-CondDB parameters to new cff: remove StableParameters dependence in favour of GlobalParameters
-def customiseFor19989(process):
-    if hasattr(process,'StableParametersRcdSource'):
-        delattr(process,'StableParametersRcdSource')
-    if hasattr(process,'StableParameters'):
-        delattr(process,'StableParameters')
-    if not hasattr(process,'GlobalParameters'):
-        from L1Trigger.L1TGlobal.GlobalParameters_cff import GlobalParameters
-        process.GlobalParameters = GlobalParameters
-    return process
+def customiseFor2017DtUnpacking(process):
+    """Adapt the HLT to run the legacy DT unpacking
+    for pre2018 data/MC workflows as the default"""
 
-# Refactor track MVA classifiers
-def customiseFor20429(process):
-    for producer in producers_by_type(process, "TrackMVAClassifierDetached", "TrackMVAClassifierPrompt"):
-        producer.mva.GBRForestLabel = producer.GBRForestLabel
-        producer.mva.GBRForestFileName = producer.GBRForestFileName
-        del producer.GBRForestLabel
-        del producer.GBRForestFileName
-    for producer in producers_by_type(process, "TrackCutClassifier"):
-        del producer.GBRForestLabel
-        del producer.GBRForestFileName
+    if hasattr(process,'hltMuonDTDigis'):
+        process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
+            useStandardFEDid = cms.bool( True ),
+            maxFEDid = cms.untracked.int32( 779 ),
+            inputLabel = cms.InputTag( "rawDataCollector" ),
+            minFEDid = cms.untracked.int32( 770 ),
+            dataType = cms.string( "DDU" ),
+            readOutParameters = cms.PSet(
+                localDAQ = cms.untracked.bool( False ),
+                debug = cms.untracked.bool( False ),
+                rosParameters = cms.PSet(
+                    localDAQ = cms.untracked.bool( False ),
+                    debug = cms.untracked.bool( False ),
+                    writeSC = cms.untracked.bool( True ),
+                    readDDUIDfromDDU = cms.untracked.bool( True ),
+                    readingDDU = cms.untracked.bool( True ),
+                    performDataIntegrityMonitor = cms.untracked.bool( False )
+                    ),
+                performDataIntegrityMonitor = cms.untracked.bool( False )
+                ),
+            dqmOnly = cms.bool( False )
+        )
+
     return process
 
 # CMSSW version specific customizations
@@ -59,10 +66,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
-    process = customiseFor19029(process)
-    process = customiseFor20269(process)
-    process = customiseFor19989(process)
-    process = customiseFor20429(process)
-
+        
     return process

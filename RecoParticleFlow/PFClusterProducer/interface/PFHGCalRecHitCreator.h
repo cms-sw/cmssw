@@ -12,7 +12,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometryHGCALAdapter.h"
 
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
@@ -51,13 +50,6 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
       const CaloGeometry* geom = geoHandle.product();
 
-      // Get rid of the content of the previous event
-      for (auto c : caloCells_)
-        delete c;
-
-      caloCells_.clear();
-      caloCells_.reserve(rechits.size());
-
       unsigned skipped_rechits = 0;
       for (const auto & hgrh : rechits) {
 		const DET detid(hgrh.detid());
@@ -71,15 +63,7 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
 	double energy = hgrh.energy();
 	double time = hgrh.time();	
 	
-    const CaloCellGeometry *thisCell;
-    if( detid.det() == DetId::Hcal ) {
-      thisCell = geom->getSubdetectorGeometry(detid.det(),detid.subdetId())->getGeometry(detid);
-    } else {
-      const auto* hg = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(detid.det(),detid.subdetId()));
-      caloCells_.push_back(new CaloCellGeometryHGCALAdapter(static_cast<const FlatTrd*>(hg->getGeometry(detid)),
-                           recHitTools_.getPosition(detid)));
-      thisCell = caloCells_.back();
-    }
+	auto thisCell = geom->getSubdetectorGeometry(detid.det(),detid.subdetId())->getGeometry(detid);
 
 	// find rechit geometry
 	if(!thisCell) {
@@ -89,12 +73,9 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
 	  ++skipped_rechits;
 	  continue;
 	}
-  
 
 	reco::PFRecHit rh(thisCell, detid.rawId(),Layer,
 			   energy); 
-	//  rh.setOriginalRecHit(edm::Ref<HGCRecHitCollection>(recHitHandle,i));
-
 	
 	bool rcleaned = false;
 	bool keep=true;
@@ -127,7 +108,6 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
   std::string geometryInstance_;
  private:
   hgcal::RecHitTools recHitTools_;
-  std::vector<const CaloCellGeometryHGCALAdapter*> caloCells_;
 };
 
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"

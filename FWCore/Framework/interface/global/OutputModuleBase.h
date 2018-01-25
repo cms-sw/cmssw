@@ -93,7 +93,7 @@ namespace edm {
       
       bool wantAllEvents() const {return wantAllEvents_;}
 
-      BranchIDLists const* branchIDLists();
+      BranchIDLists const* branchIDLists() const;
 
       ThinnedAssociationsHelper const* thinnedAssociationsHelper() const;
       
@@ -209,7 +209,9 @@ namespace edm {
       //------------------------------------------------------------------
       // private member functions
       //------------------------------------------------------------------
-      
+
+      void updateBranchIDListsWithKeptAliases();
+
       void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);
@@ -246,6 +248,7 @@ namespace edm {
       virtual bool isFileOpen() const { return true; }
       
       virtual void preallocStreams(unsigned int){}
+      virtual void preallocate(PreallocationConfiguration const&){}
       virtual void doBeginStream_(StreamID){}
       virtual void doEndStream_(StreamID){}
       virtual void doStreamBeginRun_(StreamID, RunForOutput const&, EventSetup const&){}
@@ -265,7 +268,10 @@ namespace edm {
       virtual void doEndLuminosityBlockSummary_(LuminosityBlockForOutput const&, EventSetup const&){}
       virtual void doRespondToOpenInputFile_(FileBlock const&) {}
       virtual void doRespondToCloseInputFile_(FileBlock const&) {}
-      
+
+      bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
+
       void keepThisBranch(BranchDescription const& desc,
                           std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
                           std::set<BranchID>& keptProductsInEvent);

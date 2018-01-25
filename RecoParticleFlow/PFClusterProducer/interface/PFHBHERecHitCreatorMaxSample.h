@@ -56,10 +56,8 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
       iSetup.get<HcalDbRecord > ().get(conditions);
   
       // get the ecal geometry
-      const CaloSubdetectorGeometry *hcalBarrelGeo = 
-	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-      const CaloSubdetectorGeometry *hcalEndcapGeo = 
-	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
+     const  CaloSubdetectorGeometry *hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+      const CaloSubdetectorGeometry *hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
@@ -164,17 +162,17 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
 	int depth = detid.depth();
 	
-	const CaloCellGeometry *thisCell=nullptr;
+	std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
 	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
 	switch(esd) {
 	case HcalBarrel:
-	  thisCell =hcalBarrelGeo->getGeometry(detid); 
-	  layer =PFLayer::HCAL_BARREL1;
+	  thisCell = hcalBarrelGeo->getGeometry(detid);
+	  layer    = PFLayer::HCAL_BARREL1;
 	  break;
 
 	case HcalEndcap:
-	  thisCell =hcalEndcapGeo->getGeometry(detid); 
-	  layer =PFLayer::HCAL_ENDCAP;
+	  thisCell = hcalEndcapGeo->getGeometry(detid);
+	  layer    = PFLayer::HCAL_ENDCAP;
 	  break;
 	default:
 	  break;

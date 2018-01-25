@@ -276,7 +276,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
             auto angle = layer3.phi(i);
 	    auto myz = layer3.v[i];
 #ifdef EDM_ML_DEBUG
-             IfLogTrace(layer3.hit(i)->rawId()==debug_Id2, "MultiHitGeneratorFromChi2") << "filling KDTree with hit in id=" << debug_Id2
+             IfLogTrace(hi->hit()->rawId()==debug_Id2, "MultiHitGeneratorFromChi2") << "filling KDTree with hit in id=" << debug_Id2
                                                                                    << " with pos: " << hi->hit()->globalPosition()
                                                                                    << " phi=" << hi->hit()->globalPosition().phi()
                                                                                    << " z=" << hi->hit()->globalPosition().z()

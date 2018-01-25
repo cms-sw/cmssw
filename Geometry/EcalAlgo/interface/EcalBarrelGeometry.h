@@ -73,12 +73,13 @@ class EcalBarrelGeometry final : public CaloSubdetectorGeometry
       const OrderedListOfEEDetId* getClosestEndcapCells( EBDetId id ) const ;
 
       // Get closest cell, etc...
+
       DetId getClosestCell( const GlobalPoint& r ) const override ;
 
       CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
 							  double             dR ) const override ;
 
-      CCGFloat avgRadiusXYFrontFaceCenter() const ;
+      CCGFloat avgRadiusXYFrontFaceCenter() const;
 
       static std::string hitString() { return "EcalHitsEB" ; }
 
@@ -104,7 +105,8 @@ class EcalBarrelGeometry final : public CaloSubdetectorGeometry
 			    const DetId&       detId ) override ;
    protected:
 
-      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
+      // Modify the RawPtr class
+      const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 
    private:
 

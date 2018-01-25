@@ -1034,6 +1034,12 @@ namespace edmtest {
     edm::ParameterSetDescription iDesc2;
     iDesc2.add<int>("p_int", 2);
     descriptions.addDefault(iDesc2);
+
+    // ------------------------------------------
+
+    edm::ParameterSetDescription iDesc3;
+    iDesc3.add<int>("p_int", 3);
+    descriptions.addWithDefaultLabel(iDesc3);
   }
 }
 using edmtest::ProducerWithPSetDesc;

@@ -27,7 +27,9 @@
 
 
 // constructor
-l1t::L1TGlobalUtil::L1TGlobalUtil(){
+l1t::L1TGlobalUtil::L1TGlobalUtil() : 
+    m_l1GtMenu(nullptr)
+{
     // initialize cached IDs
     m_l1GtMenuCacheID = 0ULL;
     m_l1GtPfAlgoCacheID = 0ULL;
@@ -59,9 +61,12 @@ l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
 
 // destructor
 l1t::L1TGlobalUtil::~L1TGlobalUtil() {
-
   // empty
+}
 
+/// check that the L1TGlobalUtil has been properly initialised
+bool l1t::L1TGlobalUtil::valid() const {
+  return m_l1GtMenuCacheID != 0ULL and m_l1GtMenu != nullptr;
 }
 
 void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(std::string filename, unsigned int psColumn){
