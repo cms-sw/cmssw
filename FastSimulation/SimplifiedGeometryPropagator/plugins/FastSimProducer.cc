@@ -211,7 +211,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         myCalorimetry->initialize(_randomEngine.get());
     }
 
-    // The vector of SimTracks needed for the CaloManager
+    // The vector of SimTracks needed for the CalorimetryManager
     std::vector<FSimTrack> myFSimTracks;
 
     
@@ -223,7 +223,14 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
         LogDebug(MESSAGECATEGORY) << "\n   moving NEXT particle: " << *particle;
 
-        if(particle->position().Perp2() < 128.*128. && std::abs(particle->position().Z()) < 302.){  // necessary because of hack for calorimetry...
+        // -----------------------------
+        // This condition is necessary because of hack for calorimetry
+        // -> The CalorimetryManager should also be implemented based on this new FastSim classes (Particle.h) in a future project.
+        // A second loop (below) loops over all parts of the calorimetry in order to create a track of the old FastSim class FSimTrack.
+        // The condition below (R<128, z<302) makes sure that the particle geometrically is outside the tracker boundaries
+        // -----------------------------
+
+        if(particle->position().Perp2() < 128.*128. && std::abs(particle->position().Z()) < 302.){ 
             // move the particle through the layers
             fastsim::LayerNavigator layerNavigator(geometry_);
             const fastsim::SimplifiedGeometry * layer = nullptr;
@@ -300,7 +307,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         // -----------------------------
         // Hack to interface "old" calorimetry with "new" propagation in tracker
-        // The Calomanager has to know which particle could in principle hit which parts of the calorimeter
+        // The CalorimetryManager has to know which particle could in principle hit which parts of the calorimeter
         // I think it's a bit strange to propagate the particle even further (and even decay it) if it already hits
         // some part of the calorimetry but this is how the code works...
         // -----------------------------

@@ -82,9 +82,6 @@ namespace fastsim
             const double efrac,
             const RandomEngineAndDistribution & random) const;
 
-        //! Generate numbers according to a Poisson distribution of mean ymu.
-        unsigned int poisson(double ymu, const RandomEngineAndDistribution & random);
-
         //! Petrukhin Function: Returns cross section using nuclear-electron screening correction from G4 style
         static double PetrukhinFunc(double *x, double *p);
         
@@ -118,7 +115,7 @@ void fastsim::MuonBremsstrahlung::interact(fastsim::Particle & particle,
                        const RandomEngineAndDistribution & random)
 {
     // only consider muons
-    if(abs(particle.pdgId())!=13)
+    if(std::abs(particle.pdgId())!=13)
     {
         return;
     }
@@ -177,7 +174,7 @@ void fastsim::MuonBremsstrahlung::interact(fastsim::Particle & particle,
 
 
     // Number of photons to be radiated.
-    unsigned int nPhotons = poisson(bremProba, random);
+    unsigned int nPhotons = random.poissonShoot(bremProba);
     if(nPhotons == 0) 
     {
         return;
@@ -241,6 +238,10 @@ fastsim::MuonBremsstrahlung::gbteth(const double ener,
                     const double efrac,
                     const RandomEngineAndDistribution & random) const 
 {
+    // Details on implementation here
+    // http://www.dnp.fmph.uniba.sk/cernlib/asdoc/geant_html3/node299.html#GBTETH
+    // http://svn.cern.ch/guest/AliRoot/tags/v3-07-03/GEANT321/gphys/gbteth.F
+
     const double alfa = 0.625;
     
     const double d = 0.13*(0.8+1.3/Z_)*(100.0+(1.0/ener))*(1.0+efrac);
@@ -255,22 +256,6 @@ fastsim::MuonBremsstrahlung::gbteth(const double ener,
     }while (u >= umax);
 
     return u;
-}
-
-unsigned int 
-fastsim::MuonBremsstrahlung::poisson(double ymu, const RandomEngineAndDistribution & random)
-{
-    unsigned int n = 0;
-    double prob = std::exp(-ymu);
-    double proba = prob;
-    double x = random.flatShoot();
-
-    while ( proba <= x ) {
-        prob *= ymu / double(++n);
-        proba += prob;
-    }
-
-    return n;
 }
 
 double

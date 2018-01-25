@@ -97,7 +97,7 @@ void fastsim::MultipleScattering::interact(fastsim::Particle & particle, const S
     }
 
     double p2 = particle.momentum().Vect().Mag2();
-    double m2 = particle.momentum().mass()*particle.momentum().mass();
+    double m2 = particle.momentum().mass2();
     double e = std::sqrt(p2+m2);
 
     // This is p*beta

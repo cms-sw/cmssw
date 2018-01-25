@@ -104,7 +104,7 @@ namespace fastsim
         \param motherMomentum The momentum 4-vector of the mother particle.
         \sa fastsim::ParticleManager::addSecondaries(const math::XYZTLorentzVector & vertexPosition, int parentSimTrackIndex, std::vector<std::unique_ptr<Particle> > & secondaries)
     */
-    void setMotherDeltaR(math::XYZTLorentzVector motherMomentum){
+    void setMotherDeltaR(const math::XYZTLorentzVector & motherMomentum){
         motherDeltaR_ = (momentum_.Vect().Unit().Cross(motherMomentum.Vect().Unit())).R();
     }
 

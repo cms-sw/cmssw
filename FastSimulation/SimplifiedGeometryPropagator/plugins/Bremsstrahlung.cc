@@ -74,9 +74,6 @@ namespace fastsim
                   const double efrac,
                   const RandomEngineAndDistribution & random) const ;
 
-        //! Generate numbers according to a Poisson distribution of mean ymu.
-        unsigned int poisson(double ymu, const RandomEngineAndDistribution & random);
-
         double minPhotonEnergy_;  //!< Cut on minimum energy of bremsstrahlung photons
         double minPhotonEnergyFraction_;  //!< Cut on minimum fraction of particle's energy which has to be carried by photon
         double Z_;  //!< Atomic number of material (usually silicon Z=14)
@@ -97,7 +94,7 @@ fastsim::Bremsstrahlung::Bremsstrahlung(const std::string & name,const edm::Para
 void fastsim::Bremsstrahlung::interact(fastsim::Particle & particle, const SimplifiedGeometry & layer,std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,const RandomEngineAndDistribution & random)
 {
     // only consider electrons and positrons
-    if(abs(particle.pdgId())!=11)
+    if(std::abs(particle.pdgId())!=11)
     {
     return;
     }
@@ -140,7 +137,7 @@ void fastsim::Bremsstrahlung::interact(fastsim::Particle & particle, const Simpl
     
   
     // Number of photons to be radiated.
-    unsigned int nPhotons = poisson(bremProba, random);
+    unsigned int nPhotons = random.poissonShoot(bremProba);
     if(nPhotons == 0) 
     {
     return;
@@ -207,6 +204,10 @@ fastsim::Bremsstrahlung::gbteth(const double ener,
                 const double efrac,
                 const RandomEngineAndDistribution & random) const 
 {
+    // Details on implementation here
+    // http://www.dnp.fmph.uniba.sk/cernlib/asdoc/geant_html3/node299.html#GBTETH
+    // http://svn.cern.ch/guest/AliRoot/tags/v3-07-03/GEANT321/gphys/gbteth.F
+
     const double alfa = 0.625;
     
     const double d = 0.13*(0.8+1.3/Z_)*(100.0+(1.0/ener))*(1.0+efrac);
@@ -221,23 +222,6 @@ fastsim::Bremsstrahlung::gbteth(const double ener,
     }while (u >= umax);
 
     return u;
-}
-
-
-unsigned int 
-fastsim::Bremsstrahlung::poisson(double ymu, const RandomEngineAndDistribution & random) 
-{
-    unsigned int n = 0;
-    double prob = std::exp(-ymu);
-    double proba = prob;
-    double x = random.flatShoot();
-    
-    while(proba <= x){
-        prob *= ymu / double(++n);
-        proba += prob;
-    }
-    
-    return n;                                                        
 }
 
 DEFINE_EDM_PLUGIN(
