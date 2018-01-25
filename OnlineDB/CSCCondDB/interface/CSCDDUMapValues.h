@@ -45,7 +45,7 @@ class CSCDDUMapValues: public edm::ESProducer, public edm::EventSetupRecordInter
 inline CSCDDUMap *  CSCDDUMapValues::fillDDUMap()
 {
   CSCDDUMap * mapobj = new CSCDDUMap();
-  cscmap1 *map = new cscmap1 ();
+  std::unique_ptr<cscmap1> map = std::make_unique<cscmap1>();
   CSCMapItem::MapItem item;
 
   int i,j,k,l; //i - endcap, j - station, k - ring, l - chamber.
