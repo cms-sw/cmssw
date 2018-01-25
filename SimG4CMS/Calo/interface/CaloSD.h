@@ -50,7 +50,7 @@ public:
   CaloSD(const std::string& aSDname, const DDCompactView & cpv,
          const SensitiveDetectorCatalog & clg,
          edm::ParameterSet const & p, const SimTrackManager*,
-	 float timeSlice=1., bool ignoreTkID=false);
+         float timeSlice=1., bool ignoreTkID=false);
   ~CaloSD() override;
 
   G4bool   ProcessHits(G4Step * step, G4TouchableHistory *) override;

@@ -32,7 +32,7 @@ class ECalSD : public CaloSD {
 public:    
 
   ECalSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
-	 edm::ParameterSet const & p, const SimTrackManager*);
+         edm::ParameterSet const & p, const SimTrackManager*);
   ~ECalSD() override;
   uint32_t                  setDetUnitId(const G4Step*) override;
   void                      setNumberingScheme(EcalNumberingScheme*);
@@ -47,7 +47,7 @@ private:
 
   void                      initMap(const G4String&, const DDCompactView &);
   uint16_t                  getRadiationLength(const G4StepPoint* hitPoint, 
-					       const G4LogicalVolume* lv);
+                                               const G4LogicalVolume* lv);
   uint16_t                  getLayerIDForTimeSim();
   double                    curve_LY(const G4LogicalVolume*);  
 
@@ -55,9 +55,9 @@ private:
   double                    getBirkL3(const G4Step*);
 
   std::vector<double>               getDDDArray(const std::string&,
-						const DDsvalues_type&);
+                                                const DDsvalues_type&);
   std::vector<std::string>          getStringArray(const std::string&,
-						   const DDsvalues_type&);
+                                                   const DDsvalues_type&);
 
   // initialised before run
   bool                              isEB;

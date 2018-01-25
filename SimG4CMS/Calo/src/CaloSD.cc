@@ -59,8 +59,8 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
       if (k < eminHitX.size()) eminHitD= eminHitX[k]*MeV;
       if (k < tmaxHits.size()) tmaxHit = tmaxHits[k]*ns;
       if (k < useResMap.size() && useResMap[k] > 0) {
-	meanResponse.reset(new CaloMeanResponse(p));
-	break;
+        meanResponse.reset(new CaloMeanResponse(p));
+        break;
       }
     }
   }
@@ -86,7 +86,7 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
                           << " ns and if energy is above " << eminHit/MeV
                           << " MeV (for depth 0) or " << eminHitD/MeV
                           << " MeV (for nonzero depths);\n"
-			  << "        Time Slice Unit " 
+                          << "        Time Slice Unit " 
                           << timeSlice << " Ignore TrackID Flag " << ignoreTrackID;
 }
 
@@ -101,10 +101,10 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD::" << GetName()
-			  << theTrack->GetTrackID() 
-			  << " prID= " << theTrack->GetParentID() 
-			  << " Epoststep= " << theTrack->GetKineticEnergy()
-			  << " step= " << aStep->GetStepLength() << " Edep= " << aStep->GetTotalEnergyDeposit(); 
+                          << theTrack->GetTrackID() 
+                          << " prID= " << theTrack->GetParentID() 
+                          << " Epoststep= " << theTrack->GetKineticEnergy()
+                          << " step= " << aStep->GetStepLength() << " Edep= " << aStep->GetTotalEnergyDeposit(); 
 #endif
   // apply shower library or parameterisation
   if(isParameterized) { 
@@ -115,9 +115,9 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
       auto tv  = aStep->GetSecondary();
       auto vol = aStep->GetPreStepPoint()->GetPhysicalVolume();
       for(auto & tk : *tv) {
-	if (tk->GetVolume() == vol) {
-	  tk->SetTrackStatus(fStopAndKill);
-	}
+        if (tk->GetVolume() == vol) {
+          tk->SetTrackStatus(fStopAndKill);
+        }
       }
       return true;
     }
@@ -149,18 +149,18 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     //if(track->GetTrackID() == 8654) {
     G4TouchableHistory* touch =(G4TouchableHistory*)(track->GetTouchable());
     edm::LogInfo("CaloSim") << "CaloSD::" << GetName()
-			    << " PV:"   << touch->GetVolume(0)->GetName()
-			    << " PVid=" << touch->GetReplicaNumber(0)
-			    << " MVid=" << touch->GetReplicaNumber(1)
-			    << " Unit:" << std::hex << unitID << std::dec 
-			    << " Edep=" << edepositEM << " " << edepositHAD
-			    << " ID=" << track->GetTrackID()
-			    << " pID=" << track->GetParentID()
-			    << " E=" << track->GetKineticEnergy()
+                            << " PV:"   << touch->GetVolume(0)->GetName()
+                            << " PVid=" << touch->GetReplicaNumber(0)
+                            << " MVid=" << touch->GetReplicaNumber(1)
+                            << " Unit:" << std::hex << unitID << std::dec 
+                            << " Edep=" << edepositEM << " " << edepositHAD
+                            << " ID=" << track->GetTrackID()
+                            << " pID=" << track->GetParentID()
+                            << " E=" << track->GetKineticEnergy()
                             << " S=" << aStep->GetStepLength()
-			    << " " << track->GetDefinition()->GetParticleName()
-			    << " currentID= " << currentID 
-			    << " previousID= " << previousID;
+                            << " " << track->GetDefinition()->GetParticleName()
+                            << " currentID= " << currentID 
+                            << " previousID= " << previousID;
     //}
 #endif
     if(!hitExists(aStep)) {
@@ -198,9 +198,9 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory * ) {
     currentID.setID(unitID, time, primaryID, depth);
 #ifdef DebugLog
     edm::LogInfo("CaloSim") << "CaloSD:: GetSpotInfo for"
-			    << " Unit 0x" << std::hex << currentID.unitID() 
-			    << std::dec << " Edeposit = " << edepositEM << " " 
-			    << edepositHAD;
+                            << " Unit 0x" << std::hex << currentID.unitID() 
+                            << std::dec << " Edeposit = " << edepositEM << " " 
+                            << edepositHAD;
 #endif
     // Update if in the same detector, time-slice and for same track   
     if (currentID == previousID) {
@@ -209,15 +209,15 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory * ) {
       posGlobal = aSpot->GetEnergySpot()->GetPosition();
       // Reset entry point for new primary
       if (currentID.trackID() != previousID.trackID()) {
-	entrancePoint = aSpot->GetPosition();
-	entranceLocal = aSpot->GetTouchableHandle()->GetHistory()->
-	  GetTopTransform().TransformPoint(entrancePoint);
-	incidentEnergy = track->GetKineticEnergy();
+        entrancePoint = aSpot->GetPosition();
+        entranceLocal = aSpot->GetTouchableHandle()->GetHistory()->
+          GetTopTransform().TransformPoint(entrancePoint);
+        incidentEnergy = track->GetKineticEnergy();
 #ifdef DebugLog
-	LogDebug("CaloSim") << "CaloSD: Incident energy " 
-			    << incidentEnergy/GeV << " GeV and" 
-			    << " entrance point " << entrancePoint 
-			    << " (Global) " << entranceLocal << " (Local)";
+        LogDebug("CaloSim") << "CaloSD: Incident energy " 
+                            << incidentEnergy/GeV << " GeV and" 
+                            << " entrance point " << entrancePoint 
+                            << " (Global) " << entranceLocal << " (Local)";
 #endif
       }
       if (!checkHit()) { currentHit = createNewHit(&fFakeStep); }
@@ -339,16 +339,16 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
   auto const theTrack = aStep->GetTrack();
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD::CreateNewHit " << getNumberOfHits()
-			  << " for " << GetName()
-			  << " Unit:" << currentID.unitID() 
-			  << " " << currentID.depth()
-			  << " Edep= " << edepositEM << " " << edepositHAD
-			  << " primaryID= "    << currentID.trackID()
-			  << " timeSlice= " << currentID.timeSliceID()
-			  << " ID= " << theTrack->GetTrackID()
-			  << " " <<theTrack->GetDefinition()->GetParticleName()
-			  << " E(GeV)= "  << theTrack->GetKineticEnergy()/GeV
-			  << " parentID= " << theTrack->GetParentID();
+                          << " for " << GetName()
+                          << " Unit:" << currentID.unitID() 
+                          << " " << currentID.depth()
+                          << " Edep= " << edepositEM << " " << edepositHAD
+                          << " primaryID= "    << currentID.trackID()
+                          << " timeSlice= " << currentID.timeSliceID()
+                          << " ID= " << theTrack->GetTrackID()
+                          << " " <<theTrack->GetDefinition()->GetParticleName()
+                          << " E(GeV)= "  << theTrack->GetKineticEnergy()/GeV
+                          << " parentID= " << theTrack->GetParentID();
 #endif  
   
   CaloG4Hit* aHit;
@@ -375,9 +375,9 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
     etrack= theTrack->GetKineticEnergy();
 #ifdef DebugLog
     edm::LogInfo("CaloSim") << "CaloSD: set save the track " << currentID.trackID()
-			    << " etrack " << etrack << " eCut " << energyCut 
-			    << " force: " << forceSave 
-			    << " save: " << (etrack >= energyCut || forceSave);
+                            << " etrack " << etrack << " eCut " << energyCut 
+                            << " force: " << forceSave 
+                            << " save: " << (etrack >= energyCut || forceSave);
 #endif
     if (etrack >= energyCut || forceSave) {
       TrackInformation* trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
@@ -388,15 +388,15 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
     TrackWithHistory * trkh = tkMap[currentID.trackID()];
 #ifdef DebugLog
     edm::LogInfo("CaloSim") << "CaloSD : TrackwithHistory pointer for " 
-			    << currentID.trackID() << " is " << trkh;
+                            << currentID.trackID() << " is " << trkh;
 #endif
     if (trkh != nullptr) {
       etrack = sqrt(trkh->momentum().Mag2());
       if (etrack >= energyCut) {
         trkh->save();
 #ifdef DebugLog
-	edm::LogInfo("CaloSim") << "CaloSD: set save the track " 
-				<< currentID.trackID() << " with Hit";
+        edm::LogInfo("CaloSim") << "CaloSD: set save the track " 
+                                << currentID.trackID() << " with Hit";
 #endif
       }
     }
@@ -411,8 +411,8 @@ void CaloSD::updateHit(CaloG4Hit* aHit) {
   aHit->addEnergyDeposit(edepositEM,edepositHAD);
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: Add energy deposit in " << currentID 
-			  << " em " << edepositEM/MeV << " hadronic " 
-			  << edepositHAD/MeV << " MeV"; 
+                          << " em " << edepositEM/MeV << " hadronic " 
+                          << edepositHAD/MeV << " MeV"; 
 #endif
 
   // buffer for next steps:
@@ -426,8 +426,8 @@ void CaloSD::resetForNewPrimary(const G4Step* aStep) {
   incidentEnergy = preStepPoint->GetKineticEnergy();
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: Incident energy " << incidentEnergy/GeV 
-			  << " GeV and" << " entrance point " << entrancePoint 
-			  << " (Global) " << entranceLocal << " (Local)";
+                          << " GeV and" << " entrance point " << entrancePoint 
+                          << " (Global) " << entranceLocal << " (Local)";
 #endif
 }
 
@@ -445,9 +445,9 @@ double CaloSD::getAttenuation(const G4Step* aStep, double birk1, double birk2, d
     weight = 1./(1.+rkb*dedx+c*dedx*dedx);
 #ifdef DebugLog
     edm::LogInfo("CaloSim") << "CaloSD::getAttenuation in " << mat->GetName() 
-			    << " Charge " << charge << " dE/dx " << dedx 
-			    << " Birk Const " << rkb << ", " << c << " Weight = " 
-			    << weight << " dE " << aStep->GetTotalEnergyDeposit();
+                            << " Charge " << charge << " dE/dx " << dedx 
+                            << " Birk Const " << rkb << ", " << c << " Weight = " 
+                            << weight << " dE " << aStep->GetTotalEnergyDeposit();
 #endif
   }
   return weight;
@@ -461,7 +461,7 @@ void CaloSD::update(const BeginOfRun *) {
 void CaloSD::update(const BeginOfEvent *) {
 #ifdef DebugLog
   edm::LogInfo("CaloSim")  << "CaloSD: Dispatched BeginOfEvent for " 
-			   << GetName() << " !" ;
+                           << GetName() << " !" ;
 #endif
   clearHits();
 }
@@ -479,13 +479,13 @@ void CaloSD::update(const EndOfTrack * trk) {
         TrackWithHistory * trkH = (*trksForThisEvent)[it];
         if (trkH->trackID() == (unsigned int)(id)) tkMap[id] = trkH;
 #ifdef DebugLog
-	edm::LogInfo("CaloSim") << "CaloSD: get track " << it << " from "
-				<< "Container of size " << trksForThisEvent->size()
-				<< " with ID " << trkH->trackID();
+        edm::LogInfo("CaloSim") << "CaloSD: get track " << it << " from "
+                                << "Container of size " << trksForThisEvent->size()
+                                << " with ID " << trkH->trackID();
       } else {
-	edm::LogInfo("CaloSim") << "CaloSD: get track " << it << " from "
-				<< "Container of size " << trksForThisEvent->size()
-				<< " with no ID";
+        edm::LogInfo("CaloSim") << "CaloSD: get track " << it << " from "
+                                << "Container of size " << trksForThisEvent->size()
+                                << " with no ID";
 #endif
       }
     }
@@ -522,7 +522,7 @@ void CaloSD::clearHits() {
   primIDSaved = -99;
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: Clears hit vector for " << GetName() 
-			  << " and initialise slave: " << slave;
+                          << " and initialise slave: " << slave;
 #endif
   slave.get()->Initialize();
 }
@@ -542,7 +542,7 @@ int CaloSD::getTrackID(const G4Track* aTrack) {
   }
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD::" << GetName() << " trackID= " << aTrack->GetTrackID()
-			  << " primaryID= " << primaryID;
+                          << " primaryID= " << primaryID;
 #endif
   return primaryID;
 }
@@ -554,7 +554,7 @@ bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
   if (hit->getDepth() > 0) emin = eminHitD;
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "Depth " << hit->getDepth() << " Emin = " << emin 
-			  << " (" << eminHit << ", " << eminHitD << ")";
+                          << " (" << eminHit << ", " << eminHitD << ")";
 #endif   
   return ((time <= tmaxHit) && (hit->getEnergyDeposit() > emin));
 }
@@ -587,7 +587,7 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
     if (tkID == 0) {
       if (m_trackManager->trackExists(aHit->getTrackID())) tkID = (aHit->getTrackID());
       else {
-	ok = false;
+        ok = false;
       }
     }
   } else {
@@ -596,20 +596,20 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
   }
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CalosD: Track ID " << aHit->getTrackID() 
-			  << " changed to " << tkID << " by SimTrackManager"
-			  << " Status " << ok;
+                          << " changed to " << tkID << " by SimTrackManager"
+                          << " Status " << ok;
 #endif
   double time = aHit->getTimeSlice();
   if (corrTOFBeam) time += correctT;
   slave.get()->processHits(aHit->getUnitID(), aHit->getEM()/GeV, 
-			   aHit->getHadr()/GeV, time, tkID, aHit->getDepth());
+                           aHit->getHadr()/GeV, time, tkID, aHit->getDepth());
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: Store Hit at " << std::hex 
-			  << aHit->getUnitID() << std::dec << " " 
-			  << aHit->getDepth() << " due to " << tkID 
-			  << " in time " << time << " of energy " 
-			  << aHit->getEM()/GeV << " GeV (EM) and " 
-			  << aHit->getHadr()/GeV << " GeV (Hadr)";
+                          << aHit->getUnitID() << std::dec << " " 
+                          << aHit->getDepth() << " due to " << tkID 
+                          << " in time " << time << " of energy " 
+                          << aHit->getEM()/GeV << " GeV (EM) and " 
+                          << aHit->getHadr()/GeV << " GeV (Hadr)";
 #endif
   return ok;
 }
@@ -623,8 +623,8 @@ void CaloSD::update(const BeginOfTrack * trk) {
   
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "New track: isPrimary " << trkInfo->isPrimary() 
-			  << " primary ID = " << primary 
-			  << " primary ancestor ID " << primAncestor;
+                          << " primary ID = " << primary 
+                          << " primary ancestor ID " << primAncestor;
 #endif
   
   // update the information if a different primary track ID 
@@ -644,7 +644,7 @@ void CaloSD::cleanHitCollection() {
 
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: collection before merging, size = " 
-			  << theHC->entries();
+                          << theHC->entries();
 #endif
   
   selIndex.reserve(theHC->entries()-cleanIndex);
@@ -656,7 +656,7 @@ void CaloSD::cleanHitCollection() {
     sort((hitvec.begin()+cleanIndex), hitvec.end(), CaloG4HitLess());
 #ifdef DebugLog
     edm::LogInfo("CaloSim") << "CaloSD::cleanHitCollection: sort hits in buffer "
-			    << "starting from element = " << cleanIndex;
+                            << "starting from element = " << cleanIndex;
     for (unsigned int i = 0; i<hitvec.size(); ++i) 
       edm::LogInfo("CaloSim") << i << " " << *hitvec[i];
 #endif
@@ -686,7 +686,7 @@ void CaloSD::cleanHitCollection() {
     hitvec.resize(cleanIndex+selIndex.size());
 #ifdef DebugLog
     edm::LogInfo("CaloSim") << "CaloSD::cleanHitCollection: remove the merged hits in buffer,"
-			    << " new size = " << hitvec.size();
+                            << " new size = " << hitvec.size();
     for (unsigned int i = 0; i<hitvec.size(); ++i) 
       edm::LogInfo("CaloSim") << i << " " << *hitvec[i];
 #endif
@@ -698,8 +698,8 @@ void CaloSD::cleanHitCollection() {
 
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: collection after merging, size= " << theHC->entries()
-			  << " Size of reusehit= " << reusehit.size()
-			  << "\n      starting hit selection from index = " << cleanIndex;
+                          << " Size of reusehit= " << reusehit.size()
+                          << "\n      starting hit selection from index = " << cleanIndex;
 #endif
   
   int addhit = 0;
@@ -727,8 +727,8 @@ void CaloSD::cleanHitCollection() {
 
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: Size of reusehit after selection = " 
-			  << reusehit.size() << " Number of added hit = " 
-			  << addhit;
+                          << reusehit.size() << " Number of added hit = " 
+                          << addhit;
 #endif
   if (useMap) {
     if ( addhit>0 ) {
@@ -748,7 +748,7 @@ void CaloSD::cleanHitCollection() {
 
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: hit collection after selection, size = "
-			  << theHC->entries();
+                          << theHC->entries();
   theHC->PrintAllHits();
 #endif
     

@@ -145,7 +145,9 @@ ECalSD::ECalSD(const std::string& name, const DDCompactView & cpv,
                           << "\tDepth2 Name = " << depth2Name
                           << "\n\tstoreRL" << storeRL << ":" << scaleRL
                           << "\tstoreLayerTimeSim " << storeLayerTimeSim
-                          << "\n\ttime Granularity " << p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit") << " ns"; 
+                          << "\n\ttime Granularity " 
+                          << p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit") 
+                          << " ns"; 
   if (useWeight) initMap(name,cpv);
 #ifdef plotDebug
   edm::Service<TFileService> tfile;
@@ -183,11 +185,11 @@ double ECalSD::getEnergyDeposit(const G4Step * aStep) {
     if (trkInfo) {
       int pdg = theTrack->GetDefinition()->GetPDGEncoding();
       if (!(trkInfo->isPrimary())) { // Only secondary particles
-	double ke = theTrack->GetKineticEnergy();
-	if (((pdg/1000000000 == 1 && ((pdg/10000)%100) > 0 &&
-	      ((pdg/10)%100) > 0)) && (ke<kmaxIon)) weight = 0;
-	if ((pdg == 2212) && (ke < kmaxProton))     weight = 0;
-	if ((pdg == 2112) && (ke < kmaxNeutron))    weight = 0;
+        double ke = theTrack->GetKineticEnergy();
+        if (((pdg/1000000000 == 1 && ((pdg/10000)%100) > 0 &&
+              ((pdg/10)%100) > 0)) && (ke<kmaxIon)) weight = 0;
+        if ((pdg == 2212) && (ke < kmaxProton))     weight = 0;
+        if ((pdg == 2112) && (ke < kmaxNeutron))    weight = 0;
       }
     }
   }
@@ -207,9 +209,9 @@ double ECalSD::getEnergyDeposit(const G4Step * aStep) {
 #ifdef EDM_ML_DEBUG
   if(theTrack->GetTrackID() == 37 || theTrack->GetTrackID() == 8654) {
   edm::LogInfo("EcalSim") << lv->GetName()
-			  << " Light Collection Efficiency " << weight << ":"
-			  << wt1 << " wt2= " << wt2
-			  << " Weighted Energy Deposit " << edep/MeV << " MeV";
+                          << " Light Collection Efficiency " << weight << ":"
+                          << wt1 << " wt2= " << wt2
+                          << " Weighted Energy Deposit " << edep/MeV << " MeV";
   }
 #endif
   if(wt2 > 0.0) { edep *= wt2; }
@@ -272,18 +274,18 @@ uint16_t ECalSD::getRadiationLength(const G4StepPoint* hitPoint, const G4Logical
     double rz = (k1 == 0) ? (hitPoint->GetPosition()).rho() : 
       std::abs((hitPoint->GetPosition()).z());
     edm::LogVerbatim("EcalSim") << lvname << " # " << k1 << ":" << k2 << ":" 
-				<< kk << " rz " << rz << " D " << thisX0;
+                                << kk << " rz " << rz << " D " << thisX0;
     g2L_[kk]->Fill(rz,thisX0);
 #endif
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("EcalSim") << lv->GetName() << " Global " 
-				<< hitPoint->GetPosition() << ":" 
-				<< (hitPoint->GetPosition()).rho() 
-				<< " Local " << localPoint 
-				<< " Crystal Length " << crlength 
-				<< " Radl " << radl << " DetZ " << detz 
-				<< " Index " << thisX0 
-				<< " : " << getLayerIDForTimeSim();
+                                << hitPoint->GetPosition() << ":" 
+                                << (hitPoint->GetPosition()).rho() 
+                                << " Local " << localPoint 
+                                << " Crystal Length " << crlength 
+                                << " Radl " << radl << " DetZ " << detz 
+                                << " Index " << thisX0 
+                                << " : " << getLayerIDForTimeSim();
 #endif
   } 
   return thisX0;
@@ -439,7 +441,7 @@ double ECalSD::curve_LY(const G4LogicalVolume* lv) {
     //position along the crystal in mm from 0 to 230 (in EB)
     if (crystalDepth >= -0.1 || crystalDepth <= crystalLength+0.1)
       weight = ageing.calcLightCollectionEfficiencyWeighted(currentID.unitID(), 
-							    crystalDepth/crystalLength);
+                                                            crystalDepth/crystalLength);
   } else {
     double dapd = crystalLength - crystalDepth;
     if (dapd >= -0.1 || dapd <= crystalLength+0.1) {
