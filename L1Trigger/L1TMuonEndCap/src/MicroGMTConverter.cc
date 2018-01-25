@@ -102,6 +102,38 @@ void MicroGMTConverter::convert_all(
   }
 
   // Sort by processor to match uGMT unpacked order
-  l1t::SortCandsEMTF(out_cands);
-
+  emtf::sort_uGMT_muons(out_cands);
+  
 }
+
+
+namespace emtf {
+
+void sort_uGMT_muons(
+   l1t::RegionalMuonCandBxCollection& cands
+) {
+  
+  int minBX = cands.getFirstBX();
+  int maxBX = cands.getLastBX();
+  int emtfMinProc =  0; // ME+ sector 1
+  int emtfMaxProc = 11; // ME- sector 6
+  
+  // New collection, sorted by processor to match uGMT unpacked order
+  l1t::RegionalMuonCandBxCollection* sortedCands = new l1t::RegionalMuonCandBxCollection();
+  sortedCands->clear();
+  sortedCands->setBXRange(minBX, maxBX);
+  for (int iBX = minBX; iBX <= maxBX; ++iBX) {
+    for (int proc = emtfMinProc; proc <= emtfMaxProc; proc++) {
+      for (l1t::RegionalMuonCandBxCollection::const_iterator cand = cands.begin(iBX); cand != cands.end(iBX); ++cand) {
+	if (cand->processor() != proc) continue;
+	sortedCands->push_back(iBX, *cand);
+      }
+    }
+  }
+  
+  // Return sorted collection
+  cands.clear();
+  cands = (*sortedCands);
+}
+
+} // End namespace emtf
