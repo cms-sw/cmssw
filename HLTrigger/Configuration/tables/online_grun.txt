@@ -123,12 +123,12 @@ HLT_AK4PFJet120_v*	#	CMSHLT-1257
 HLT_AK4PFJet30_v*	#	CMSHLT-1257
 HLT_AK4PFJet50_v*	#	CMSHLT-1257
 HLT_AK4PFJet80_v*	#	CMSHLT-1257
-HLT_HISinglePhoton10_Eta3p1ForPPRef_v*	#	CMSHLT-1257
-HLT_HISinglePhoton20_Eta3p1ForPPRef_v*	#	CMSHLT-1257
-HLT_HISinglePhoton30_Eta3p1ForPPRef_v*	#	CMSHLT-1257
-HLT_HISinglePhoton40_Eta3p1ForPPRef_v*	#	CMSHLT-1257
-HLT_HISinglePhoton50_Eta3p1ForPPRef_v*	#	CMSHLT-1257
-HLT_HISinglePhoton60_Eta3p1ForPPRef_v*	#	CMSHLT-1257
+HLT_SinglePhoton10_Eta3p1ForPPRef_v*	#	CMSHLT-1257
+HLT_SinglePhoton20_Eta3p1ForPPRef_v*	#	CMSHLT-1257
+HLT_SinglePhoton30_Eta3p1ForPPRef_v*	#	CMSHLT-1257
+HLT_SinglePhoton40_Eta3p1ForPPRef_v*	#	CMSHLT-1257
+HLT_SinglePhoton50_Eta3p1ForPPRef_v*	#	CMSHLT-1257
+HLT_SinglePhoton60_Eta3p1ForPPRef_v*	#	CMSHLT-1257
 HLT_Photon20_HoverELoose_v*	#	CMSHLT-1257
 HLT_Photon30_HoverELoose_v*	#	CMSHLT-1257
 HLT_Photon40_HoverELoose_v*	#	CMSHLT-1257
@@ -618,9 +618,9 @@ PhysicsCommissioningOutput
 PhysicsEGammaOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
-PhysicsMinimumBias0Output                 # CMSHLT-1027
-PhysicsMinimumBias1Output                 # CMSHLT-1027
-PhysicsMinimumBias2Output                 # CMSHLT-1027
+#PhysicsMinimumBias0Output                 # CMSHLT-1027
+#PhysicsMinimumBias1Output                 # CMSHLT-1027
+#PhysicsMinimumBias2Output                 # CMSHLT-1027
 #PhysicsCirculating                       # CMSHLT-1006
 ParkingOutput                             # CMSHLT-487, CMSHLT-603
 ParkingHLTPhysicsOutput

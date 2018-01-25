@@ -3,6 +3,7 @@
 #include <climits>
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0),
 								       psfPtr_(nullptr), spfunctor_(nullptr), dpfunctor_(nullptr), tpfunctor_(nullptr),
@@ -86,16 +87,16 @@ void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseSh
 
 constexpr char const* varNames[] = {"time", "energy","time1","energy1","time2","energy2", "ped"};
 
-int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * noiseArrSq, unsigned int soi )  const {
+int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * noiseArrSq, unsigned int soi ,const HcalTimeSlew* hcalTimeSlew_delay)  const {
    double tsMAX=0;
    double tmpx[HcalConst::maxSamples], tmpy[HcalConst::maxSamples], tmperry[HcalConst::maxSamples],tmperry2[HcalConst::maxSamples],tmpslew[HcalConst::maxSamples];
    double tstrig = 0; // in fC
-   for(int i=0;i<HcalConst::maxSamples;++i){
+   for(unsigned int i=0;i<HcalConst::maxSamples;++i){
       tmpx[i]=i;
       tmpy[i]=energyArr[i]-pedenArr[i];
       //Add Time Slew !!! does this need to be pedestal subtracted
       tmpslew[i] = 0;
-      if(applyTimeSlew_) tmpslew[i] = HcalTimeSlew::delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
+      if(applyTimeSlew_) tmpslew[i] = hcalTimeSlew_delay->delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
       // add the noise components
       tmperry2[i]=noiseArrSq[i];
 
@@ -104,7 +105,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       tmperry [i]=sqrt(tmperry2[i]);
 
       if(std::abs(energyArr[i])>tsMAX) tsMAX=std::abs(tmpy[i]);
-      if( i ==4 || i ==5 ){
+      if( i ==soi || i ==(soi+1) ){
          tstrig += chargeArr[i] - pedArr[i];
       }
    }
@@ -233,12 +234,14 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 						   float& reconstructedEnergy,
 						   float& reconstructedTime,
 						   bool& useTriple,
-						   float& chi2) const
+						   float& chi2,
+						   const HcalTimeSlew* hcalTimeSlew_delay) const
 {
 
   psfPtr_->setDefaultcntNANinfit();
 
   const unsigned cssize = channelData.nSamples();
+  const unsigned int soi = channelData.soi();
 
   // initialize arrays to be zero
   double chargeArr[HcalConst::maxSamples]={}, pedArr[HcalConst::maxSamples]={}, gainArr[HcalConst::maxSamples]={};
@@ -249,6 +252,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   double noisePHArr[HcalConst::maxSamples]={};
   double tsTOT = 0, tstrig = 0; // in fC
   double tsTOTen = 0; // in GeV
+
 
   // go over the time slices
   for(unsigned int ip=0; ip<cssize; ++ip){
@@ -288,7 +292,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
     tsTOT += charge - ped;
     tsTOTen += energy - peden;
-    if( ip ==4 || ip==5 ){
+    if( ip == soi || ip == soi+1 ){
       tstrig += charge - ped;
     }
   }
@@ -309,7 +313,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
   std::vector<float> fitParsVec;
   if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
-    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec, noiseArrSq, channelData.soi() );
+    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec, noiseArrSq, channelData.soi(), hcalTimeSlew_delay);
   } else {
     fitParsVec.clear();
     fitParsVec.push_back(0.); //charge

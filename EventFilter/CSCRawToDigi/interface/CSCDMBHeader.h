@@ -9,15 +9,15 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCVDMBHeaderFormat.h"
 #include <boost/shared_ptr.hpp>
 
-class CSCDMBHeader2005;
-class CSCDMBHeader2013;
+struct CSCDMBHeader2005;
+struct CSCDMBHeader2013;
 
 class CSCDMBHeader  {
 public:
   
   CSCDMBHeader(uint16_t firmware_version = 2005);
   
-  CSCDMBHeader(unsigned short * buf, uint16_t firmware_version = 2005);
+  CSCDMBHeader(const uint16_t * buf, uint16_t firmware_version = 2005);
 
   CSCDMBHeader(const CSCDMBStatusDigi & digi)
     {

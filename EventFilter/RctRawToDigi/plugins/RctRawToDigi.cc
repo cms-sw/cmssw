@@ -35,7 +35,7 @@ using edm::LogError;
 
 RctRawToDigi::RctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
-  fedId_(iConfig.getUntrackedParameter<int>("rctFedId", FEDNumbering::MINTriggerUpgradeFEDID)),
+  fedId_(iConfig.getUntrackedParameter<int>("rctFedId", FEDNumbering::MINRCTFEDID)),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false))
 {
   LogDebug("RCT") << "RctRawToDigi will unpack FED Id " << fedId_;
@@ -129,7 +129,7 @@ void RctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollectio
   
   if (trailer.check()) {
     LogDebug("L1T") << "Found SLink trailer:"
-		    << " Length " << trailer.lenght()
+		    << " Length " << trailer.fragmentLength()
 		    << " CRC " << trailer.crc()
 		    << " Status " << trailer.evtStatus()
 		    << " Throttling bits " << trailer.ttsBits();

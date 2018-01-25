@@ -100,7 +100,10 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
-     
+
+    bool hasAcquire() const { return false; }
+    bool hasAccumulator() const { return false; }
+
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }

@@ -38,8 +38,6 @@ _phase1LayerList = [
     ]
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(detachedTripletStepSeedLayers, layerList=_phase1LayerList)
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(detachedTripletStepSeedLayers, layerList=_phase1LayerList)
 
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpotFixedZ_cfi import globalTrackingRegionFromBeamSpotFixedZ as _globalTrackingRegionFromBeamSpotFixedZ
@@ -51,13 +49,15 @@ detachedTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clo
 trackingPhase1.toModify(detachedTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.25))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-pp_on_XeXe_2017.toReplaceWith(detachedTripletStepTrackingRegions, 
-                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            fixedError = 3.0,
-            ptMin = 0.8,
-            originRadius = 1.5
-            )
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toReplaceWith(detachedTripletStepTrackingRegions, 
+                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+                fixedError = 3.0,
+                ptMin = 0.8,
+                originRadius = 1.5
+                )
                                                                       )
 )
 
@@ -133,7 +133,8 @@ trackingLowPU.toReplaceWith(detachedTripletStepTrajectoryFilterBase, _detachedTr
     constantValueForLostHitsFractionFilter = 0.701,
 ))
 
-pp_on_XeXe_2017.toModify(detachedTripletStepTrajectoryFilterBase, minPt=0.9)
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(detachedTripletStepTrajectoryFilterBase, minPt=0.9)
 
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
 detachedTripletStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
@@ -235,10 +236,6 @@ detachedTripletStep = ClassifierMerger.clone()
 detachedTripletStep.inputClassifiers=['detachedTripletStepClassifier1','detachedTripletStepClassifier2']
 
 trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1'),
-     qualityCuts = [-0.2,0.3,0.8],
-))
-trackingPhase1QuadProp.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1'),
      qualityCuts = [-0.2,0.3,0.8],
 ))

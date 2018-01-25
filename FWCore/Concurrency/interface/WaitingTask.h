@@ -31,13 +31,15 @@
 namespace edm {
   class WaitingTaskList;
   class WaitingTaskHolder;
-  
+  class WaitingTaskWithArenaHolder;
+
   class WaitingTask : public tbb::task {
       
    public:
     friend class WaitingTaskList;
     friend class WaitingTaskHolder;
-    
+    friend class WaitingTaskWithArenaHolder;
+
     ///Constructor
     WaitingTask() : m_ptr{nullptr} {}
     ~WaitingTask() override {

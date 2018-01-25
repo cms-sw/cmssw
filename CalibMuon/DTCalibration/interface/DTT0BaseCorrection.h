@@ -4,7 +4,6 @@
 /** \class DTT0BaseCorrection
  *  Base class to define t0 corrections
  *
- *  \author A. Vilela Pereira
  */
 
 namespace edm {

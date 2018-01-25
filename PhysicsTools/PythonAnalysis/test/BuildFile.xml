@@ -17,11 +17,11 @@
 <test name="testNumba" command="testNumba.py"/>
 <test name="testTables" command="testTables.py"/>
 
-<test name="testDownhill" command="testDownhill.py"/>
+<test name="testDownhill" command="testDownhill.sh"/>
 <test name="testXGBoost_and_sklearn" command="testXGBoost_and_sklearn.py"/>
 #<test name="testTheanets" command="testTheanets.py"/>
 
-<test name="testhep_ml" command="testhep_ml.py"/>
+<test name="testhep_ml" command="testhep_ml.sh"/>
 <test name="testUncertainties" command="testUncertainties.py"/>
-<test name="testImports" command="imports.py"/>
-<test name="testTheano" command="testTheano.py"/>
+<test name="testImports" command="imports.sh"/>
+<test name="testTheano" command="testTheano.sh"/>

@@ -65,7 +65,7 @@ namespace edm {
   Maker::makeModule(MakeModuleParams const& p,
                     signalslot::Signal<void(ModuleDescription const&)>& pre,
                     signalslot::Signal<void(ModuleDescription const&)>& post) const {
-    ConfigurationDescriptions descriptions(baseType());
+    ConfigurationDescriptions descriptions(baseType(), p.pset_->getParameter<std::string>("@module_type"));
     fillDescriptions(descriptions);
     try {
       convertException::wrap([&]() {

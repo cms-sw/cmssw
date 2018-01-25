@@ -29,14 +29,8 @@ public:
 
   std::pair<int,int>  assignCell(float x, float y, int lay, int subSec,
 				 bool reco) const;
-  std::pair<int,int>  assignCellSquare(float x, float y, float h, float bl, 
-				       float tl, float alpha, 
-				       float cellSize) const;
   std::pair<int,int>  assignCellHexagon(float x, float y) const;
   double              cellSizeHex(int type) const;
-  std::pair<int,int>  findCell(int cell, int lay, int subSec, bool reco) const;
-  std::pair<int,int>  findCellSquare(int cell, float h, float bl, float tl, 
-				     float alpha, float cellSize) const;
   HGCalGeometryMode::GeometryMode geomMode() const {return mode_;}
   bool                isValid(int lay, int mod, int cell, bool reco) const;
   bool                isValidCell(int layindex, int wafer, int cell) const;
@@ -48,21 +42,12 @@ public:
   int                 levelTop() const {return hgpar_->levelT_;}
   int                 maxCells(bool reco) const;
   int                 maxCells(int lay, bool reco) const;
-  int                 maxCellsSquare(float h, float bl, float tl, float alpha,
-				     float cellSize) const;
   int                 maxModules() const {return modHalf_;}
   int                 maxRows(int lay, bool reco) const;
   double              minSlope() const {return hgpar_->slopeMin_;}
   int                 modules(int lay, bool reco) const;
   int                 modulesInit(int lay, bool reco) const;
-  std::pair<int,int>  newCell(int cell, int layer, int sector, int subsector,
-			      int incrx, int incry, bool half) const;
-  std::pair<int,int>  newCell(int cell, int layer, int subsector, int incrz,
-			      bool half) const;
-  int                 newCell(int kx, int ky, int lay, int subSec) const;
   std::vector<int>    numberCells(int lay, bool reco) const;
-  std::vector<int>    numberCellsSquare(float h, float bl, float tl, 
-					float alpha, float cellSize) const;
   int                 numberCellsHexagon(int wafer) const;
   std::pair<int,int>  rowColumnWafer(const int wafer) const;
   int                 sectors() const {return hgpar_->nSectors_;}
@@ -100,8 +85,6 @@ private:
   int cellHex(double xx, double yy, const double& cellR, 
 	      const std::vector<double>& posX,
 	      const std::vector<double>& posY) const;  
-  void getParameterSquare(int lay, int subSec, bool reco, float& h, float& bl,
-			  float& tl, float& alpha) const;
   bool waferInLayer(int wafer, int lay) const;
 
   typedef std::array<std::vector<int32_t>, 2> Simrecovecs;  

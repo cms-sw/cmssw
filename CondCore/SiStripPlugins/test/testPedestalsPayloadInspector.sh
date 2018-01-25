@@ -13,7 +13,7 @@ cd $W_DIR;
 ####################
 # Test Pedestals
 ####################
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginSiStripPedestals_PayloadInspector \
     --plot plot_SiStripPedestalsTest \
     --tag SiStripPedestals_v2_prompt \
@@ -35,7 +35,7 @@ do
 
     #// TrackerMaps
 
-    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+    getPayloadData.py \
 	--plugin pluginSiStripPedestals_PayloadInspector \
 	--plot plot_SiStripPedestals${i}_TrackerMap \
 	--tag SiStripPedestals_v2_prompt \
@@ -48,7 +48,7 @@ do
     
     #// Summaries
 
-    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+    getPayloadData.py \
 	--plugin pluginSiStripPedestals_PayloadInspector \
 	--plot plot_SiStripPedestals${i}ByRegion \
 	--tag SiStripPedestals_v2_prompt \

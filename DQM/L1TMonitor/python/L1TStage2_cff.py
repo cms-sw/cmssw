@@ -28,8 +28,11 @@ from DQM.L1TMonitor.L1TStage2EMTF_cfi import *
 # uGMT
 from DQM.L1TMonitor.L1TStage2uGMT_cff import *
 
+#map for online objects
+from DQM.L1TMonitor.L1TObjectsTiming_cfi import *
+
 # uGT
-from DQM.L1TMonitor.L1TStage2uGT_cfi import *
+from DQM.L1TMonitor.L1TStage2uGT_cff import *
 
 #-------------------------------------------------
 # Stage2 Unpacking and DQM Sequences
@@ -42,8 +45,9 @@ l1tStage2OnlineDQM = cms.Sequence(
     l1tStage2Omtf +
     l1tStage2Emtf +
     l1tStage2uGMTOnlineDQMSeq +
+    l1tObjectsTiming +
     l1tStage2uGTCaloLayer2Comp +
-    l1tStage2uGt
+    l1tStage2uGTOnlineDQMSeq
 )
 
 # sequence to run only for validation events

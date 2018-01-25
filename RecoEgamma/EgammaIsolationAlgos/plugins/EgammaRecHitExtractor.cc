@@ -124,7 +124,7 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
   const CaloSubdetectorGeometry* barrelgeom = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   const CaloSubdetectorGeometry* endcapgeom = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 
-  static std::string metname = "EgammaIsolationAlgos|EgammaRecHitExtractor";
+  static const std::string metname = "EgammaIsolationAlgos|EgammaRecHitExtractor";
 
   //Get barrel ECAL RecHits
   edm::Handle<EcalRecHitCollection> barrelEcalRecHitsH;
@@ -164,7 +164,8 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
 }
 
 void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
-                                    const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet,
+                                    const reco::SuperClusterRef& sc,
+				    const CaloSubdetectorGeometry* subdet,
                                     const CaloGeometry* caloGeom,
                                     const EcalRecHitCollection &hits,
                                     //const EcalChannelStatus* chStatus,
@@ -222,21 +223,21 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
       std::vector<int>::const_iterator vit;
       if (barrel) {
 	// new rechit flag checks
-	//vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*j))->recoFlag());
+	//vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), j->recoFlag());
 	//if (vit != flagsexclEB_.end())
 	//  continue;
-	if (!((EcalRecHit*)(&*j))->checkFlag(EcalRecHit::kGood)) {
-	  if (((EcalRecHit*)(&*j))->checkFlags(flagsexclEB_)) {
+	if (!j->checkFlag(EcalRecHit::kGood)) {
+	  if (j->checkFlags(flagsexclEB_)) {
 	    continue;
 	  }
 	}
       } else {
 	// new rechit flag checks
-	//vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*j))->recoFlag());
+	//vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), j->recoFlag());
 	//if (vit != flagsexclEE_.end())
 	//  continue;
-	if (!((EcalRecHit*)(&*j))->checkFlag(EcalRecHit::kGood)) {
-	  if (((EcalRecHit*)(&*j))->checkFlags(flagsexclEE_)) {
+	if (!j->checkFlag(EcalRecHit::kGood)) {
+	  if (j->checkFlags(flagsexclEE_)) {
 	    continue;
 	  }
 	}

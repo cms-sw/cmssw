@@ -272,7 +272,7 @@ namespace edm {
          std::string serviceType = iMaker.pset_->getParameter<std::string>("@service_type");
          std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
                                                                    ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
-         ConfigurationDescriptions descriptions(filler->baseType());
+         ConfigurationDescriptions descriptions(filler->baseType(), serviceType);
          filler->fill(descriptions);
          
          try {

@@ -75,15 +75,15 @@ class CSCMotherboardME11 : public CSCMotherboard
   bool doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int me);
 
   /** Container for first correlated LCT in ME1a. */
-  //CSCCorrelatedLCTDigi firstLCT1a[MAX_LCT_BINS];
+  //CSCCorrelatedLCTDigi firstLCT1a[CSCConstants::MAX_LCT_TBINS];
 
   /** Container for second correlated LCT in ME1a. */
-  //CSCCorrelatedLCTDigi secondLCT1a[MAX_LCT_BINS];
+  //CSCCorrelatedLCTDigi secondLCT1a[CSCConstants::MAX_LCT_TBINS];
 
   /** for the case when more than 2 LCTs/BX are allowed;
       maximum match window = 15 */
-  CSCCorrelatedLCTDigi allLCTs1b[MAX_LCT_BINS][15][2];
-  CSCCorrelatedLCTDigi allLCTs1a[MAX_LCT_BINS][15][2];
+  CSCCorrelatedLCTDigi allLCTs1b[CSCConstants::MAX_LCT_TBINS][15][2];
+  CSCCorrelatedLCTDigi allLCTs1a[CSCConstants::MAX_LCT_TBINS][15][2];
 
   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
@@ -94,7 +94,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   std::vector<CSCCLCTDigi> clctV1a;
 
   /** "preferential" index array in matching window for cross-BX sorting */
-  int pref[MAX_LCT_BINS];
+  int pref[CSCConstants::MAX_LCT_TBINS];
 
   bool match_earliest_alct_me11_only;
   bool match_earliest_clct_me11_only;

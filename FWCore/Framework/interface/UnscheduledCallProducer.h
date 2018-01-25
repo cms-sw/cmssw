@@ -45,6 +45,9 @@ namespace edm {
     void addWorker(Worker* aWorker) {
       assert(nullptr != aWorker);
       unscheduledWorkers_.push_back(aWorker);
+      if (aWorker->hasAccumulator()) {
+        accumulatorWorkers_.push_back(aWorker);
+      }
     }
     
     void setEventSetup(EventSetup const& iSetup) {
@@ -69,7 +72,18 @@ namespace edm {
       }
     }
 
-    
+    template <typename T>
+    void runAccumulatorsAsync(WaitingTask* task,
+                              typename T::MyPrincipal const& ep,
+                              EventSetup const& es,
+                              StreamID streamID,
+                              ParentContext const& parentContext,
+                              typename T::Context const* context) {
+      for (auto worker : accumulatorWorkers_) {
+        worker->doWorkAsync<T>(task, ep, es, streamID, parentContext, context);
+      }
+    }
+
   private:
     template <typename T, typename ID>
     void addContextToException(cms::Exception& ex, Worker const* worker, ID const& id) const {
@@ -78,6 +92,7 @@ namespace edm {
       ex.addContext(ost.str());
     }
     worker_container unscheduledWorkers_;
+    worker_container accumulatorWorkers_;
     UnscheduledAuxiliary aux_;
   };
 

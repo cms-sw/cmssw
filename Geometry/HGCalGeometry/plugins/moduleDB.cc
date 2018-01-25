@@ -17,9 +17,10 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBReader>::produceAligned( const typ
   std::cout << "Reading HGCalGeometry " << name.c_str() << "\n";
   if( CaloGeometryDBReader::writeFlag() )
   {
-    edm::ESHandle<HGCalGeometry> geom;
-    iRecord.getRecord<IdealGeometryRecord>().get( name, geom );
+    edm::ESHandle<HGCalGeometry> geomHandle;
+    iRecord.getRecord<IdealGeometryRecord>().get( name, geomHandle );
      
+    const HGCalGeometry* geom = geomHandle.product();
     geom->getSummary( tvec, ivec, dvec, dins ) ;
 
     CaloGeometryDBReader::writeIndexed( tvec, dvec, ivec, dins, HGCalGeometry::dbString() ) ;

@@ -66,7 +66,7 @@ HcalGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
     std::cout << counter << ": din " << topology.detId2denseId(*i) << ":" << hid;
     dins.emplace_back( topology.detId2denseId(*i));
 	
-    const CaloCellGeometry * cell = caloGeom->getGeometry(*i);
+    auto cell = caloGeom->getGeometry(*i);
     std::cout << *cell << std::endl;
   }
 

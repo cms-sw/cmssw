@@ -220,7 +220,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   std::vector<DetId> EBids=EBgeom->getValidDetIds(DetId::Ecal, 1);
   for (std::vector<DetId>::iterator i=EBids.begin(); i!=EBids.end(); i++) {
     n++;
-    const CaloCellGeometry* cell=EBgeom->getGeometry(*i);
+    auto cell=EBgeom->getGeometry(*i);
     //GlobalPoint p = cell->getPosition();
     
     EBDetId EcalID(i->rawId());
@@ -244,7 +244,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   std::vector<DetId> EEids=EEgeom->getValidDetIds(DetId::Ecal, 2);
   for (std::vector<DetId>::iterator i=EEids.begin(); i!=EEids.end(); i++) {
     n++;
-    const CaloCellGeometry* cell=EEgeom->getGeometry(*i);
+    auto cell=EEgeom->getGeometry(*i);
     //GlobalPoint p = cell->getPosition();
     EEDetId EcalID(i->rawId());
     int Crystal_zside = EcalID.zside();
