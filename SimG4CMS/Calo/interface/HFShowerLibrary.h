@@ -12,7 +12,6 @@
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
-#include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
  
 //ROOT
@@ -44,8 +43,8 @@ public:
     double                    time;
   };
 
-  void                initRun(G4ParticleTable *, HcalDDDSimConstants*);
-  std::vector<Hit>    getHits(G4Step * aStep, bool &ok, double weight, 
+  void                initRun(const HcalDDDSimConstants*);
+  std::vector<Hit>    getHits(const G4Step * aStep, bool &ok, double weight, 
 			      bool onlyLong=false);
   std::vector<Hit>    fillHits(const G4ThreeVector & p, const G4ThreeVector & v,
                                int parCode, double parEnergy, bool & ok,

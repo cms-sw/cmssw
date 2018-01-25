@@ -24,9 +24,9 @@ public:
   //Constructor and Destructor
   HFFibre(const std::string & name, const DDCompactView & cpv,
 	  edm::ParameterSet const & p);
-  ~HFFibre();
+  ~HFFibre() = default;
 
-  void                initRun(HcalDDDSimConstants*);
+  void                initRun(const HcalDDDSimConstants*);
   double              attLength(double lambda);
   double              tShift(const G4ThreeVector& point, int depth, 
 			     int fromEndAbs=0);
