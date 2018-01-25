@@ -18,13 +18,13 @@
 //#define DebugLog
 
 HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv, 
-		 edm::ParameterSet const & p) {
+                 edm::ParameterSet const & p) {
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   cFibre           = c_light*(m_HF.getParameter<double>("CFibre"));
   
   edm::LogInfo("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre
-			   << " m/ns";
+                           << " m/ns";
 
   std::string attribute = "Volume"; 
   std::string value     = "HF";
@@ -51,7 +51,7 @@ HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv,
     lambLim[0] = static_cast<int>(nvec[0]);
     lambLim[1] = static_cast<int>(nvec[1]);
     edm::LogInfo("HFShower") << "HFFibre: Limits on lambda " << lambLim[0]
-			     << " and " << lambLim[1];
+                             << " and " << lambLim[1];
 
     // Fibre Lengths
     nb       = 0;
@@ -72,8 +72,8 @@ HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv,
     edm::LogInfo("HFShower") << "HFFibre: " << nb << " Short Fibre Length(cm):" << ss3.str();
   } else {
     edm::LogError("HFShower") << "HFFibre: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << name;
+                              << " view for " << attribute << " matching "
+                              << name;
     throw cms::Exception("Unknown", "HFFibre")
       << "cannot match " << attribute << " to " << name <<"\n";
   }
@@ -106,8 +106,8 @@ double HFFibre::attLength(double lambda) {
   double att = attL[j];
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFFibre::attLength for Lambda " << lambda
-			   << " index " << i  << " " << j << " Att. Length " 
-			   << att;
+                           << " index " << i  << " " << j << " Att. Length " 
+                           << att;
 #endif
   return att;
 }
@@ -118,8 +118,8 @@ double HFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
   double time   = zFibre/cFibre;
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFFibre::tShift for point " << point
-			   << " ( depth = " << depth <<", traversed length = " 
-			   << zFibre/cm  << " cm) = " << time/ns << " ns";
+                           << " ( depth = " << depth <<", traversed length = " 
+                           << zFibre/cm  << " cm) = " << time/ns << " ns";
 #endif
   return time;
 }
@@ -153,21 +153,21 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { 
 
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFFibre::zShift for point " << point
-			   << " (R = " << hR/cm << " cm, Index = " << ieta 
-			   << ", depth = " << depth << ", Fibre Length = " 
-			   << length/cm       << " cm = " << zFibre/cm  
-			   << " cm)";
+                           << " (R = " << hR/cm << " cm, Index = " << ieta 
+                           << ", depth = " << depth << ", Fibre Length = " 
+                           << length/cm       << " cm = " << zFibre/cm  
+                           << " cm)";
 #endif
   return zFibre;
 }
 
 std::vector<double> HFFibre::getDDDArray(const std::string & str, 
-					 const DDsvalues_type & sv, 
-					 int & nmin) {
+                                         const DDsvalues_type & sv, 
+                                         int & nmin) {
 
 #ifdef DebugLog
   LogDebug("HFShower") << "HFFibre:getDDDArray called for " << str 
-		       << " with nMin " << nmin;
+                       << " with nMin " << nmin;
 #endif
   DDValue value(str);
   if (DDfetch(&sv,value)) {
@@ -178,18 +178,18 @@ std::vector<double> HFFibre::getDDDArray(const std::string & str,
     int nval = fvec.size();
     if (nmin > 0) {
       if (nval < nmin) {
-	edm::LogError("HFShower") << "HFFibre : # of " << str << " bins " 
-				  << nval << " < " << nmin << " ==> illegal";
-	throw cms::Exception("Unknown", "HFFibre")
-	  << "nval < nmin for array " << str <<"\n";
+        edm::LogError("HFShower") << "HFFibre : # of " << str << " bins " 
+                                  << nval << " < " << nmin << " ==> illegal";
+        throw cms::Exception("Unknown", "HFFibre")
+          << "nval < nmin for array " << str <<"\n";
       }
     } else {
       if (nval < 1 && nmin != 0) {
-	edm::LogError("HFShower") << "HFFibre : # of " << str << " bins " 
-				  << nval << " < 1 ==> illegal (nmin=" 
-				  << nmin << ")";
-	throw cms::Exception("Unknown", "HFFibre")
-	  << "nval < 1 for array " << str <<"\n";
+        edm::LogError("HFShower") << "HFFibre : # of " << str << " bins " 
+                                  << nval << " < 1 ==> illegal (nmin=" 
+                                  << nmin << ")";
+        throw cms::Exception("Unknown", "HFFibre")
+          << "nval < 1 for array " << str <<"\n";
       }
     }
     nmin = nval;
@@ -198,7 +198,7 @@ std::vector<double> HFFibre::getDDDArray(const std::string & str,
     if (nmin != 0) {
       edm::LogError("HFShower") << "HFFibre : cannot get array " << str;
       throw cms::Exception("Unknown", "HFFibre")
-	<< "cannot get array " << str <<"\n";
+        << "cannot get array " << str <<"\n";
     } else {
       std::vector<double> fvec;
       return fvec;

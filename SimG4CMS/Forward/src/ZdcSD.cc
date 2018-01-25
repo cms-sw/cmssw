@@ -21,8 +21,8 @@
 #include "G4Poisson.hh"
 
 ZdcSD::ZdcSD(const std::string& name, const DDCompactView & cpv,
-	     const SensitiveDetectorCatalog & clg,
-	     edm::ParameterSet const & p,const SimTrackManager* manager) : 
+             const SensitiveDetectorCatalog & clg,
+             edm::ParameterSet const & p,const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager){
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
   useShowerLibrary = m_ZdcSD.getParameter<bool>("UseShowerLibrary");
@@ -45,7 +45,7 @@ ZdcSD::ZdcSD(const std::string& name, const DDCompactView & cpv,
      << "\nUse of shower library is set to " 
      << useShowerLibrary 
      << "\nUse of Shower hits method is set to "
-     << useShowerHits; 			
+     << useShowerHits;                         
  
   edm::LogInfo("ForwardSim")
      << "\nEnergy Threshold Cut set to " 
@@ -67,28 +67,7 @@ void ZdcSD::initRun(){
   }
   hits.clear();  
 }
-/*
-G4bool ZdcSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  NaNTrap( aStep ) ;
-
-  if (aStep == nullptr) {
-    return true;
-  } else {
-    if(useShowerLibrary){
-      getFromLibrary(aStep);
-    }
-    if(useShowerHits){
-      bool yes(false);
-      if (getStepInfo(aStep, yes)) {
-	if (hitExists(aStep) == false && edepositEM+edepositHAD>0.)
-	  currentHit = CaloSD::createNewHit(aStep);
-      }
-    }
-  }
-  return true;
-}
-*/
 bool ZdcSD::getFromLibrary (const G4Step* aStep) {
   bool ok = true;
 
@@ -96,7 +75,7 @@ bool ZdcSD::getFromLibrary (const G4Step* aStep) {
   auto const theTrack = aStep->GetTrack();   
 
   double etrack = preStepPoint->GetKineticEnergy();
-  int primaryID = getTrackID(theTrack);  
+  int primaryID = setTrackID(aStep);  
 
   hits.clear();
     
@@ -107,7 +86,6 @@ bool ZdcSD::getFromLibrary (const G4Step* aStep) {
     // create hits only if above threshold
 
     LogDebug("ForwardSim")
-      //std::cout
       <<"----------------New track------------------------------\n"
       <<"Incident EnergyTrack: "<<etrack<< " MeV \n"
       <<"Zdc Cut Energy for Hits: "<<zdcHitEnergyCut<<" MeV \n"
@@ -128,22 +106,17 @@ bool ZdcSD::getFromLibrary (const G4Step* aStep) {
     unsigned int unitID = hits[i].detID;
     edepositHAD         = hits[i].DeHad;
     edepositEM          = hits[i].DeEM;
-    currentID.setID(unitID, time, primaryID);
+    currentID.setID(unitID, time, primaryID, 0);
+    processHit(aStep);
       
-    // check if it is in the same unit and timeslice as the previous on    
-    if (currentID == previousID) {
-      updateHit(currentHit);	
-    } else {
-      currentHit = createNewHit(aStep);
-    }      
     LogDebug("ForwardSim") << "ZdcSD: Final Hit number:"<<i<<"-->"
-			   <<"New HitID: "<<currentHit->getUnitID()
-			   <<" New Hit trackID: "<<currentHit->getTrackID()
-			   <<" New EM Energy: "<<currentHit->getEM()/GeV
-			   <<" New HAD Energy: "<<currentHit->getHadr()/GeV
-			   <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
-			   <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()/GeV
-			   <<" New HitPosition: "<<posGlobal;
+                           <<"New HitID: "<<currentHit->getUnitID()
+                           <<" New Hit trackID: "<<currentHit->getTrackID()
+                           <<" New EM Energy: "<<currentHit->getEM()/GeV
+                           <<" New HAD Energy: "<<currentHit->getHadr()/GeV
+                           <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
+                           <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()/GeV
+                           <<" New HitPosition: "<<posGlobal;
   }
   return ok;
 }
@@ -153,12 +126,11 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
     double NCherPhot = 0.;
 
     // preStepPoint information
-    G4SteppingControl  stepControlFlag = aStep->GetControlFlag();
     G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
     G4VPhysicalVolume* currentPV    = preStepPoint->GetPhysicalVolume();
     const G4String&           nameVolume   = currentPV->GetName();
 
-    const G4ThreeVector&      hitPoint = preStepPoint->GetPosition();	
+    const G4ThreeVector&      hitPoint = preStepPoint->GetPosition();        
     const G4ThreeVector&      hit_mom = preStepPoint->GetMomentumDirection();
     G4double           stepL = aStep->GetStepLength()/cm;
     G4double           beta     = preStepPoint->GetBeta();
@@ -172,15 +144,13 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
     // theTrack information
     G4Track* theTrack = aStep->GetTrack();   
     G4String particleType = theTrack->GetDefinition()->GetParticleName();
-    G4int primaryID = theTrack->GetTrackID();
-    G4double entot = theTrack->GetTotalEnergy();
     const G4ThreeVector& vert_mom = theTrack->GetVertexMomentumDirection();
     G4ThreeVector localPoint = theTrack->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
 
     // calculations
     float costheta = vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
-				       vert_mom.y()*vert_mom.y()+
-				       vert_mom.z()*vert_mom.z());
+                                       vert_mom.y()*vert_mom.y()+
+                                       vert_mom.z()*vert_mom.z());
     float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
     float eta = -log(tan(theta/2));
     float phi = -100.;
@@ -195,8 +165,8 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
       << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE 
       << "," << beta << "," << charge << "\n"
       << "  postStepPoint: " << postnameVolume << "," << costheta << "," 
-      << theta << "," << eta << "," << phi << "," << particleType << "," 
-      << primaryID;
+      << theta << "," << eta << "," << phi << "," << particleType << " id= " 
+      << theTrack->GetTrackID() << " Etot(GeV)= " << theTrack->GetTotalEnergy()/GeV;
 
     float bThreshold = 0.67;
     if ((beta > bThreshold) && (charge != 0) && (nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber")) {
@@ -225,8 +195,8 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
 
       // theta of charged particle in LabRF(hit momentum direction):
       float costh = hit_mom.z()/sqrt(hit_mom.x()*hit_mom.x()+
-				     hit_mom.y()*hit_mom.y()+
-				     hit_mom.z()*hit_mom.z());
+                                     hit_mom.y()*hit_mom.y()+
+                                     hit_mom.z()*hit_mom.z());
       float th = acos(std::min(std::max(costh,float(-1.)),float(1.)));
       // just in case (can do both standard ranges of phi):
       if (th < 0.) th += twopi;
@@ -247,7 +217,7 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
       float r = tan(th)+tan(fabs(th-thcher));   
       
       // std::cout.testOut << "  d=|tan(" << th << ")-tan(" << thFibDirRad << ")| "
-      //	      << "=|" << tan(th) << "-" << tan(thFibDirRad) << "| = " << d;
+      //              << "=|" << tan(th) << "-" << tan(thFibDirRad) << "| = " << d;
       // std::cout.testOut << "  a=tan(" << thFibDirRad << ")=" << tan(thFibDirRad) 
       //              << " + tan(|" << thFibDirRad << " - " << thFullReflRad << "|)="
       //              << tan(fabs(thFibDirRad-thFullReflRad)) << " = " << a;
@@ -263,75 +233,69 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
         variant = 0.; d_qz = 0.;
       } else {
         // if ((DelFibPart + thcher) < thFullReflRad )  [(d+r) < a]
-	if ((th + thcher) < (thFibDirRad+thFullReflRad) && (th - thcher) > (thFibDirRad-thFullReflRad) ) {
-	  variant = 1.; d_qz = 1.;
-	} else {
+        if ((th + thcher) < (thFibDirRad+thFullReflRad) && (th - thcher) > (thFibDirRad-thFullReflRad) ) {
+          variant = 1.; d_qz = 1.;
+        } else {
           // if ((thcher - DelFibPart ) > thFullReflRad )  [(r-d) > a]
-	  if ((thFibDirRad + thFullReflRad) < (th + thcher) && (thFibDirRad - thFullReflRad) > (th - thcher) ) {
+          if ((thFibDirRad + thFullReflRad) < (th + thcher) && (thFibDirRad - thFullReflRad) > (th - thcher) ) {
             variant = 2.; d_qz = 0.;
-	  } else {
-            // if ((thcher + DelFibPart ) > thFullReflRad && thcher < (DelFibPart+thFullReflRad) ) {  [(r+d) > a && (r-d) < a)]
+          } else {
             variant = 3.; // d_qz is calculated below
 
             // use crossed length of circles(cone projection) - dC1/dC2 : 
-	    float arg_arcos = 0.;
-	    float tan_arcos = 2.*a*d;
-	    if (tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
+            float arg_arcos = 0.;
+            float tan_arcos = 2.*a*d;
+            if (tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
             // std::cout.testOut << "  d_qz: " << r << "," << a << "," << d << " " << tan_arcos << " " << arg_arcos;
-	    arg_arcos = fabs(arg_arcos);
+            arg_arcos = fabs(arg_arcos);
             // std::cout.testOut << "," << arg_arcos;
-	    float th_arcos = acos(std::min(std::max(arg_arcos,float(-1.)),float(1.)));
+            float th_arcos = acos(std::min(std::max(arg_arcos,float(-1.)),float(1.)));
             // std::cout.testOut << " " << th_arcos;
-	    d_qz = th_arcos/pi/2.;
+            d_qz = th_arcos/pi/2.;
             // std::cout.testOut << " " << d_qz;
-	    d_qz = fabs(d_qz);
+            d_qz = fabs(d_qz);
             // std::cout.testOut << "," << d_qz;
-	  }
-	}
+          }
+        }
       }
-
-      //  std::cout<< std::endl;
-
       double meanNCherPhot = 0.;
       G4int poissNCherPhot = 0;
       if (d_qz > 0) {
-	meanNCherPhot = 370.*charge*charge*( 1. - 1./(nMedium*nMedium*beta*beta) ) * photEnSpectrDE * stepL;
+        meanNCherPhot = 370.*charge*charge*( 1. - 1./(nMedium*nMedium*beta*beta) ) * photEnSpectrDE * stepL;
 
-	// dLamdX:  meanNCherPhot = (2.*pi/137.)*charge*charge* 
-	//                          ( 1. - 1./(nMedium*nMedium*beta*beta) ) * photEnSpectrDL * stepL;
-	poissNCherPhot = (G4int) G4Poisson(meanNCherPhot);
+        // dLamdX:  meanNCherPhot = (2.*pi/137.)*charge*charge* 
+        //                          ( 1. - 1./(nMedium*nMedium*beta*beta) ) * photEnSpectrDL * stepL;
+        poissNCherPhot = (G4int) G4Poisson(meanNCherPhot);
 
-	if (poissNCherPhot < 0) poissNCherPhot = 0; 
+        if (poissNCherPhot < 0) poissNCherPhot = 0; 
 
-	// NCherPhot = meanNCherPhot;
-	NCherPhot = poissNCherPhot * effPMTandTransport * d_qz;
+        // NCherPhot = meanNCherPhot;
+        NCherPhot = poissNCherPhot * effPMTandTransport * d_qz;
       }
 
       LogDebug("ForwardSim") 
-	<< "ZdcSD::  getEnergyDeposit:  gED: "
-	<< stepE
-	<< "," << costh
-	<< "," << th
-	<< "," << costhcher
-	<< "," << thcher
-	<< "," << DelFibPart
-	<< "," << d
-	<< "," << a
-	<< "," << r
-	<< "," << hitPoint
-	<< "," << hit_mom
-	<< "," << stepControlFlag
-	<< "," << entot
-	<< "," << vert_mom
-	<< "," << localPoint
-	<< "," << charge
-	<< "," << beta
-	<< "," << stepL
-	<< "," << d_qz
-	<< "," << variant
-	<< "," << meanNCherPhot
-	<< "," << poissNCherPhot
-	<< "," << NCherPhot;
+        << "ZdcSD::  getEnergyDeposit:  gED: "
+        << stepE
+        << "," << costh
+        << "," << th
+        << "," << costhcher
+        << "," << thcher
+        << "," << DelFibPart
+        << "," << d
+        << "," << a
+        << "," << r
+        << "," << hitPoint
+        << "," << hit_mom
+        << "," << vert_mom
+        << "," << localPoint
+        << "," << charge
+        << "," << beta
+        << "," << stepL
+        << "," << d_qz
+        << "," << variant
+        << "," << meanNCherPhot
+        << "," << poissNCherPhot
+        << "," << NCherPhot;
       // --constants-----------------
       // << "," << photEnSpectrDE
       // << "," << nMedium
@@ -350,13 +314,13 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
       // determine failure mode: beta, charge, and/or nameVolume
       if (beta <= bThreshold)
         LogDebug("ForwardSim") 
-	  << "ZdcSD::  getEnergyDeposit: fail beta=" << beta;
+          << "ZdcSD::  getEnergyDeposit: fail beta=" << beta;
       if (charge == 0)
         LogDebug("ForwardSim") 
-	  << "ZdcSD::  getEnergyDeposit: fail charge=0";
+          << "ZdcSD::  getEnergyDeposit: fail charge=0";
       if ( !(nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber") )
         LogDebug("ForwardSim") 
-	  << "ZdcSD::  getEnergyDeposit: fail nv=" << nameVolume;
+          << "ZdcSD::  getEnergyDeposit: fail nv=" << nameVolume;
     }
 
     return NCherPhot; 
@@ -369,11 +333,11 @@ uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) {
 void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
   if (scheme != nullptr) {
     edm::LogInfo("ForwardSim") << "ZdcSD: updates numbering scheme for " 
-			       << GetName();
+                               << GetName();
     numberingScheme.reset(scheme);
   }
 }
-/*
+
 int ZdcSD::setTrackID (const G4Step* aStep) {
   const G4Track* theTrack = aStep->GetTrack();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
@@ -381,13 +345,13 @@ int ZdcSD::setTrackID (const G4Step* aStep) {
   if (primaryID == 0) {
 #ifdef DebugLog
     LogDebug("ZdcSD") << "ZdcSD: Problem with primaryID **** set by force "
-			<< "to TkID **** " << theTrack->GetTrackID();
+                        << "to TkID **** " << theTrack->GetTrackID();
 #endif
     primaryID = theTrack->GetTrackID();
-    }
+  }
   if (primaryID != previousID.trackID()) {
       resetForNewPrimary(aStep); 
   }
   return primaryID;
 }
-*/
+

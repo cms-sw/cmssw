@@ -28,7 +28,7 @@ class HFShowerParam {
 public:    
 
   HFShowerParam(const std::string & name, const DDCompactView & cpv, 
-		edm::ParameterSet const & p);
+                edm::ParameterSet const & p);
   virtual ~HFShowerParam();
 
 public:    

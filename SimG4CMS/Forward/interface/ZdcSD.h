@@ -14,7 +14,7 @@ class ZdcSD : public CaloSD {
 
 public:    
   ZdcSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
-	edm::ParameterSet const &,const SimTrackManager*);
+        edm::ParameterSet const &,const SimTrackManager*);
  
   ~ZdcSD() = default;
 
@@ -27,13 +27,14 @@ protected:
 
   double getEnergyDeposit(const G4Step*) override;
   bool   getFromLibrary(const G4Step*) override;
-  void initRun() override;
+  void   initRun() override;
 
 private:    
 
+  int   setTrackID(const G4Step * step);
+
   int verbosity;
   bool  useShowerLibrary,useShowerHits; 
-  //int   setTrackID(const G4Step * step);
   double thFibDir;
   double zdcHitEnergyCut;
 

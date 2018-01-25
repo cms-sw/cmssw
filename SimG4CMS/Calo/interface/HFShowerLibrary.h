@@ -31,7 +31,7 @@ public:
   
   //Constructor and Destructor
   HFShowerLibrary(const std::string & name, const DDCompactView & cpv,
-		  edm::ParameterSet const & p);
+                  edm::ParameterSet const & p);
   ~HFShowerLibrary();
 
 public:
@@ -45,7 +45,7 @@ public:
 
   void                initRun(const HcalDDDSimConstants*);
   std::vector<Hit>    getHits(const G4Step * aStep, bool &ok, double weight, 
-			      bool onlyLong=false);
+                              bool onlyLong=false);
   std::vector<Hit>    fillHits(const G4ThreeVector & p, const G4ThreeVector & v,
                                int parCode, double parEnergy, bool & ok,
                                double weight, double time, bool onlyLong=false);
@@ -58,7 +58,7 @@ protected:
   void                extrapolate(int, double);
   void                storePhoton(int j);
   std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
-				  int&);
+                                  int&);
 
 private:
 
