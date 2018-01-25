@@ -41,8 +41,8 @@ namespace HGCal_helpers {
         : field_(f), prod_(field_, alongMomentum), absz_target_(0) {
       ROOT::Math::SMatrixIdentity id;
       AlgebraicSymMatrix55 C(id);
-      const double k = 0.001;
-      C *= k;
+      const float uncert = 0.001;
+      C *= uncert;
       err_ = CurvilinearTrajectoryError(C);
     }
     void setPropagationTargetZ(const float &z);
@@ -308,15 +308,18 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
     mySimEvent_->fill(*simTracksHandle, *simVerticesHandle);
 
     HepMC::GenVertex *primaryVertex = *(hevH)->GetEvent()->vertices_begin();
-    vtx_x_ = primaryVertex->position().x() / 10.;  // to put in official units
-    vtx_y_ = primaryVertex->position().y() / 10.;
-    vtx_z_ = primaryVertex->position().z() / 10.;
+    const float mm2cm = 0.1;
+    vtx_x_ = primaryVertex->position().x() * mm2cm;  // to put in official units
+    vtx_y_ = primaryVertex->position().y() * mm2cm;
+    vtx_z_ = primaryVertex->position().z() * mm2cm;
     Point sim_pv(vtx_x_, vtx_y_, vtx_z_);
 
 
     HGCal_helpers::SimpleTrackPropagator toHGCalPropagator(aField_);
     toHGCalPropagator.setPropagationTargetZ(triggerTools_.getLayerZ(1));
     std::vector<FSimTrack *> allselectedgentracks;
+    const float eeInnerRadius = 25.;
+    const float eeOuterRadius = 160.;
     unsigned int npart = mySimEvent_->nTracks();
     for (unsigned int i = 0; i < npart; ++i) {
       std::vector<float> xp, yp, zp;
@@ -329,7 +332,7 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
 
       if (std::abs(myTrack.vertex().position().z()) >= triggerTools_.getLayerZ(1)) continue;
 
-      unsigned nlayers = 52;
+      const unsigned nlayers = 52;
       if (myTrack.noEndVertex())  // || myTrack.genpartIndex()>=0)
       {
         HGCal_helpers::Coordinates propcoords;
@@ -337,13 +340,13 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
             myTrack.momentum(), myTrack.vertex().position(), myTrack.charge(), propcoords);
         vtx = propcoords.toVector();
 
-        if (reachesHGCal && vtx.Rho() < 160 && vtx.Rho() > 25) {
+        if (reachesHGCal && vtx.Rho() < eeOuterRadius && vtx.Rho() > eeInnerRadius) {
           reachedEE = ReachHGCal::onEESurface;
           double dpt = 0;
 
           for (int i = 0; i < myTrack.nDaughters(); ++i) dpt += myTrack.daughter(i).momentum().pt();
           if (abs(myTrack.type()) == 11) fbrem = dpt / myTrack.momentum().pt();
-        } else if (reachesHGCal && vtx.Rho() > 160)
+        } else if (reachesHGCal && vtx.Rho() > eeOuterRadius)
           reachedEE = ReachHGCal::outsideEESurface;
 
         HGCal_helpers::SimpleTrackPropagator indiv_particleProp(aField_);
