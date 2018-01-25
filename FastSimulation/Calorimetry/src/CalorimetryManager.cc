@@ -1331,12 +1331,12 @@ void CalorimetryManager::loadMuonSimTracks(edm::SimTrackContainer &muons) const
 
 void CalorimetryManager::harvestMuonSimTracks(edm::SimTrackContainer &c) const
 {
-  c.reserve(muonSimTracks.size()+savedMuonSimTracks.size());
-  for(unsigned i=0; i<muonSimTracks.size(); i++) {
-    if(muonSimTracks[i].momentum().perp2() > 1.0 && fabs(muonSimTracks[i].momentum().eta()) < 3.0)  c.push_back(muonSimTracks[i]);
+  c.reserve(int(0.2*muonSimTracks.size()+0.2*savedMuonSimTracks.size()+0.5));
+  for(const auto & track : muonSimTracks){
+    if(track.momentum().perp2() > 1.0 && fabs(track.momentum().eta()) < 3.0)  c.push_back(track);
   }
-  for(unsigned i=0; i<savedMuonSimTracks.size(); i++) {
-    if(savedMuonSimTracks[i].momentum().perp2() > 1.0 && fabs(savedMuonSimTracks[i].momentum().eta()) < 3.0)  c.push_back(savedMuonSimTracks[i]);
+  for(const auto & track : savedMuonSimTracks){
+    if(track.momentum().perp2() > 1.0 && fabs(track.momentum().eta()) < 3.0)  c.push_back(track);
   }
   c.shrink_to_fit();
 }

@@ -52,7 +52,7 @@ namespace fastsim{
         */
         const double getThickness(const math::XYZTLorentzVector & position) const override
         {
-            return thicknessHist_->GetBinContent(thicknessHist_->GetXaxis()->FindBin(fabs(position.Pt())));
+            return thicknessHist_->GetBinContent(thicknessHist_->GetXaxis()->FindBin(position.Pt()));
         }
 
         //! Return thickness of the forward layer at a given position, also considering the incident angle.

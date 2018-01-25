@@ -184,6 +184,10 @@ fastsim::PairProduction::gbteth(const double ener,
                 const double efrac,
                 const RandomEngineAndDistribution & random) const 
 {
+    // Details on implementation here
+    // http://www.dnp.fmph.uniba.sk/cernlib/asdoc/geant_html3/node299.html#GBTETH
+    // http://svn.cern.ch/guest/AliRoot/tags/v3-07-03/GEANT321/gphys/gbteth.F
+
     const double alfa = 0.625;
     
     const double d = 0.13*(0.8+1.3/Z_)*(100.0+(1.0/ener))*(1.0+efrac);

@@ -38,7 +38,7 @@
 
 <use name="HepPDT"/>
 <use name="clhep"/>
-<use name="root"/>
+<use name="rootcore"/>
 
 <export>
   <lib   name="1"/>

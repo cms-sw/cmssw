@@ -215,7 +215,7 @@ fastsim::NuclearInteraction::NuclearInteraction(const std::string & name,const e
     // Read from config file
     theDistCut = cfg.getParameter<double>("distCut");
     theHadronEnergy = cfg.getParameter<double>("hadronEnergy");
-    inputFile = cfg.getParameter<std::string>("inputFile");
+    inputFile = cfg.getUntrackedParameter<std::string>("inputFile","");
 
     // The evolution of the interaction lengths with energy
     theRatiosMap.resize(theHadronID.size());
@@ -227,36 +227,36 @@ fastsim::NuclearInteraction::NuclearInteraction(const std::string & name,const e
 
     // Build the ID map (i.e., what is to be considered as a proton, etc...)
     // Protons
-    for(unsigned i=0; i<protonsID.size(); ++i)  theIDMap[protonsID[i]] = 2212;
+    for(const auto & id : protonsID)  theIDMap[id] = 2212;
     // Anti-Protons
-    for(unsigned i=0; i<antiprotonsID.size(); ++i)  theIDMap[antiprotonsID[i]] = -2212;
+    for(const auto & id : antiprotonsID)  theIDMap[id] = -2212;
     // Neutrons
-    for(unsigned i=0; i<neutronsID.size(); ++i) theIDMap[neutronsID[i]] = 2112;
+    for(const auto & id : neutronsID)  theIDMap[id] = 2112;
     // Anti-Neutrons
-    for(unsigned i=0; i<antineutronsID.size(); ++i) theIDMap[antineutronsID[i]] = -2112;
+    for(const auto & id : antineutronsID)  theIDMap[id] = -2112;
     // K0L's
-    for(unsigned i=0; i<K0LsID.size(); ++i) theIDMap[K0LsID[i]] = 130;
+    for(const auto & id : K0LsID)  theIDMap[id] = 130;
     // K+'s
-    for(unsigned i=0; i<KplussesID.size(); ++i) theIDMap[KplussesID[i]] = 321;
+    for(const auto & id : KplussesID)  theIDMap[id] = 321;
     // K-'s
-    for(unsigned i=0; i<KminussesID.size(); ++i)    theIDMap[KminussesID[i]] = -321;
+    for(const auto & id : KminussesID)  theIDMap[id] = -321;
     // pi+'s
-    for(unsigned i=0; i<PiplussesID.size(); ++i)    theIDMap[PiplussesID[i]] = 211;
+    for(const auto & id : PiplussesID)  theIDMap[id] = 211;
     // pi-'s
-    for(unsigned i=0; i<PiminussesID.size(); ++i)   theIDMap[PiminussesID[i]] = -211;
+    for(const auto & id : PiminussesID)  theIDMap[id] = -211;
 
     // Prepare the map of files
     // Loop over the particle names
     TFile* aVFile=nullptr;
-    std::vector<TTree*> aVTree(theHadronEN.size(),static_cast<TTree*>(nullptr));
-    std::vector<TBranch*> aVBranch(theHadronEN.size(),static_cast<TBranch*>(nullptr));
-    std::vector<NUEvent*> aVNUEvents(theHadronEN.size(),static_cast<NUEvent*>(nullptr));
-    std::vector<unsigned> aVCurrentEntry(theHadronEN.size(),static_cast<unsigned>(0));
-    std::vector<unsigned> aVCurrentInteraction(theHadronEN.size(),static_cast<unsigned>(0));
-    std::vector<unsigned> aVNumberOfEntries(theHadronEN.size(),static_cast<unsigned>(0));
-    std::vector<unsigned> aVNumberOfInteractions(theHadronEN.size(),static_cast<unsigned>(0));
-    std::vector<std::string> aVFileName(theHadronEN.size(),static_cast<std::string>(""));
-    std::vector<double> aVHadronCM(theHadronEN.size(),static_cast<double>(0));
+    std::vector<TTree*> aVTree(theHadronEN.size());
+    std::vector<TBranch*> aVBranch(theHadronEN.size());
+    std::vector<NUEvent*> aVNUEvents(theHadronEN.size());
+    std::vector<unsigned> aVCurrentEntry(theHadronEN.size());
+    std::vector<unsigned> aVCurrentInteraction(theHadronEN.size());
+    std::vector<unsigned> aVNumberOfEntries(theHadronEN.size());
+    std::vector<unsigned> aVNumberOfInteractions(theHadronEN.size());
+    std::vector<std::string> aVFileName(theHadronEN.size());
+    std::vector<double> aVHadronCM(theHadronEN.size());
     theTrees.resize(theHadronNA.size());
     theBranches.resize(theHadronNA.size());
     theNUEvents.resize(theHadronNA.size());
@@ -453,7 +453,7 @@ void fastsim::NuclearInteraction::interact(fastsim::Particle & particle, const S
 
         // Draw an angle with theta/theta0*exp[(-theta/2theta0)**2] shape 
         double theta = theta0 * std::sqrt(-2.*std::log(random.flatShoot()));
-        double phi = 2. * 3.14159265358979323 * random.flatShoot();
+        double phi = 2. * M_PI * random.flatShoot();
 
         // Rotate the particle accordingly
         ROOT::Math::AxisAngle rotation1(orthogonal(particle.momentum().Vect()),theta);
@@ -588,7 +588,7 @@ void fastsim::NuclearInteraction::interact(fastsim::Particle & particle, const S
 
             // Some rotation around the boost axis, for more randomness
             XYZVector theAxis = theBoost.Vect().Unit();
-            double theAngle = random.flatShoot() * 2. * 3.14159265358979323;
+            double theAngle = random.flatShoot() * 2. * M_PI;
             ROOT::Math::AxisAngle axisRotation(theAxis,theAngle);
             ROOT::Math::Boost axisBoost(theBoost.x(),theBoost.y(),theBoost.z());
 
