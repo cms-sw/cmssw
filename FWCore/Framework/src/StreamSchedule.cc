@@ -615,6 +615,10 @@ namespace edm {
         it != itEnd; ++ it) {
       it->processOneOccurrenceAsync(pathsDone,ep, es, streamID_, &streamContext_);
     }
+
+    ParentContext parentContext(&streamContext_);
+    workerManager_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+      allPathsDone, ep, es, streamID_, parentContext, &streamContext_);
   }
   
   void

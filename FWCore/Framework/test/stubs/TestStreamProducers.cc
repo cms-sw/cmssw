@@ -671,8 +671,41 @@ struct UnsafeCache {
     }
   };
 
+  struct Count {
+    Count() : m_value(0), m_expectedValue(0) {}
+    //Using mutable since we want to update the value.
+    mutable std::atomic<unsigned int> m_value;
+    mutable std::atomic<unsigned int> m_expectedValue;
+  };
 
-   
+  class TestAccumulator : public edm::stream::EDProducer<edm::GlobalCache<Count>, edm::Accumulator> {
+  public:
+
+
+    static std::atomic<unsigned int> m_expectedCount;
+
+    explicit TestAccumulator(edm::ParameterSet const& p, Count const* iCount) {
+      iCount->m_expectedValue = p.getParameter<unsigned int>("expectedCount");
+    }
+
+    static std::unique_ptr<Count> initializeGlobalCache(edm::ParameterSet const&) {
+      return std::unique_ptr<Count>(new Count());
+    }
+
+    void accumulate(edm::Event const&, edm::EventSetup const&) override {
+      ++(globalCache()->m_value);
+    }
+
+    static void globalEndJob(Count const* iCount) {
+      if (iCount->m_value != iCount->m_expectedValue) {
+        throw cms::Exception("CountEvents")
+          << "Number of events seen = " << iCount->m_value << " but it was supposed to be " << iCount->m_expectedValue;
+      }
+    }
+
+    ~TestAccumulator() {
+    }
+  };
 
 }
 }
@@ -737,4 +770,5 @@ DEFINE_FWK_MODULE(edmtest::stream::TestBeginRunProducer);
 DEFINE_FWK_MODULE(edmtest::stream::TestEndRunProducer);
 DEFINE_FWK_MODULE(edmtest::stream::TestBeginLumiBlockProducer);
 DEFINE_FWK_MODULE(edmtest::stream::TestEndLumiBlockProducer);
+DEFINE_FWK_MODULE(edmtest::stream::TestAccumulator);
 
