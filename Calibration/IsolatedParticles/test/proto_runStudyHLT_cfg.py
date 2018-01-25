@@ -41,8 +41,8 @@ process.source = cms.Source("PoolSource",
     )
                             )
 
-process.studyHLT.Verbosity = 0
-process.studyHLT.Triggers  = options.TrigNames
+process.studyHLT.verbosity = 0
+process.studyHLT.triggers  = options.TrigNames
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('StudyHLT.root')

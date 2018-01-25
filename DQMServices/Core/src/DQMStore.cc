@@ -622,6 +622,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   initQCriterion<Comp2RefEqualH>(qalgos_);
   initQCriterion<DeadChannel>(qalgos_);
   initQCriterion<NoisyChannel>(qalgos_);
+  initQCriterion<ContentSigma>(qalgos_);
   initQCriterion<ContentsWithinExpected>(qalgos_);
   initQCriterion<CompareToMedian>(qalgos_);
   initQCriterion<CompareLastFilledBin>(qalgos_);
@@ -816,9 +817,9 @@ DQMStore::dirExists(const std::string &path) const
 //////////////////////////////////////////////////////////////////////
 template <class HISTO, class COLLATE>
 MonitorElement *
-DQMStore::book(const std::string &dir, const std::string &name,
-               const char *context, int kind,
-               HISTO *h, COLLATE collate)
+DQMStore::book_(const std::string &dir, const std::string &name,
+                const char *context, int kind,
+                HISTO *h, COLLATE collate)
 {
   assert(name.find('/') == std::string::npos);
   if (verbose_ > 3)
@@ -892,9 +893,9 @@ DQMStore::book(const std::string &dir, const std::string &name,
 }
 
 MonitorElement *
-DQMStore::book(const std::string &dir,
-               const std::string &name,
-               const char *context)
+DQMStore::book_(const std::string &dir,
+                const std::string &name,
+                const char *context)
 {
   assert(name.find('/') == std::string::npos);
   if (verbose_ > 3)
@@ -927,7 +928,7 @@ DQMStore::book(const std::string &dir,
 // -------------------------------------------------------------------
 /// Book int.
 MonitorElement *
-DQMStore::bookInt(const std::string &dir, const std::string &name)
+DQMStore::bookInt_(const std::string &dir, const std::string &name)
 {
   if (collateHistograms_)
   {
@@ -938,26 +939,26 @@ DQMStore::bookInt(const std::string &dir, const std::string &name)
     }
   }
 
-  return book(dir, name, "bookInt")
+  return book_(dir, name, "bookInt")
     ->initialise(MonitorElement::DQM_KIND_INT);
 }
 
 /// Book int.
 MonitorElement *
 DQMStore::bookInt(const char *name)
-{ return bookInt(pwd_, name); }
+{ return bookInt_(pwd_, name); }
 
 /// Book int.
 MonitorElement *
 DQMStore::bookInt(const std::string &name)
 {
-  return bookInt(pwd_, name);
+  return bookInt_(pwd_, name);
 }
 
 // -------------------------------------------------------------------
 /// Book float.
 MonitorElement *
-DQMStore::bookFloat(const std::string &dir, const std::string &name)
+DQMStore::bookFloat_(const std::string &dir, const std::string &name)
 {
   if (collateHistograms_)
   {
@@ -968,28 +969,28 @@ DQMStore::bookFloat(const std::string &dir, const std::string &name)
     }
   }
 
-  return book(dir, name, "bookFloat")
+  return book_(dir, name, "bookFloat")
     ->initialise(MonitorElement::DQM_KIND_REAL);
 }
 
 /// Book float.
 MonitorElement *
 DQMStore::bookFloat(const char *name)
-{ return bookFloat(pwd_, name); }
+{ return bookFloat_(pwd_, name); }
 
 /// Book float.
 MonitorElement *
 DQMStore::bookFloat(const std::string &name)
 {
-  return bookFloat(pwd_, name);
+  return bookFloat_(pwd_, name);
 }
 
 // -------------------------------------------------------------------
 /// Book string.
 MonitorElement *
-DQMStore::bookString(const std::string &dir,
-                     const std::string &name,
-                     const std::string &value)
+DQMStore::bookString_(const std::string &dir,
+                      const std::string &name,
+                      const std::string &value)
 {
   if (collateHistograms_)
   {
@@ -997,42 +998,42 @@ DQMStore::bookString(const std::string &dir,
       return me;
   }
 
-  return book(dir, name, "bookString")
+  return book_(dir, name, "bookString")
     ->initialise(MonitorElement::DQM_KIND_STRING, value);
 }
 
 /// Book string.
 MonitorElement *
 DQMStore::bookString(const char *name, const char *value)
-{ return bookString(pwd_, name, value); }
+{ return bookString_(pwd_, name, value); }
 
 /// Book string.
 MonitorElement *
 DQMStore::bookString(const std::string &name, const std::string &value)
 {
-  return bookString(pwd_, name, value);
+  return bookString_(pwd_, name, value);
 }
 
 // -------------------------------------------------------------------
 /// Book 1D histogram based on TH1F.
 MonitorElement *
-DQMStore::book1D(const std::string &dir, const std::string &name, TH1F *h)
+DQMStore::book1D_(const std::string &dir, const std::string &name, TH1F *h)
 {
-  return book(dir, name, "book1D", MonitorElement::DQM_KIND_TH1F, h, collate1D);
+  return book_(dir, name, "book1D", MonitorElement::DQM_KIND_TH1F, h, collate1D);
 }
 
 /// Book 1D histogram based on TH1S.
 MonitorElement *
-DQMStore::book1S(const std::string &dir, const std::string &name, TH1S *h)
+DQMStore::book1S_(const std::string &dir, const std::string &name, TH1S *h)
 {
-  return book(dir, name, "book1S", MonitorElement::DQM_KIND_TH1S, h, collate1S);
+  return book_(dir, name, "book1S", MonitorElement::DQM_KIND_TH1S, h, collate1S);
 }
 
 /// Book 1D histogram based on TH1D.
 MonitorElement *
-DQMStore::book1DD(const std::string &dir, const std::string &name, TH1D *h)
+DQMStore::book1DD_(const std::string &dir, const std::string &name, TH1D *h)
 {
-  return book(dir, name, "book1DD", MonitorElement::DQM_KIND_TH1D, h, collate1DD);
+  return book_(dir, name, "book1DD", MonitorElement::DQM_KIND_TH1D, h, collate1DD);
 }
 
 /// Book 1D histogram.
@@ -1040,7 +1041,7 @@ MonitorElement *
 DQMStore::book1D(const char *name, const char *title,
                  int nchX, double lowX, double highX)
 {
-  return book1D(pwd_, name, new TH1F(name, title, nchX, lowX, highX));
+  return book1D_(pwd_, name, new TH1F(name, title, nchX, lowX, highX));
 }
 
 /// Book 1D histogram.
@@ -1048,7 +1049,7 @@ MonitorElement *
 DQMStore::book1D(const std::string &name, const std::string &title,
                  int nchX, double lowX, double highX)
 {
-  return book1D(pwd_, name, new TH1F(name.c_str(), title.c_str(), nchX, lowX, highX));
+  return book1D_(pwd_, name, new TH1F(name.c_str(), title.c_str(), nchX, lowX, highX));
 }
 
 /// Book 1S histogram.
@@ -1056,7 +1057,7 @@ MonitorElement *
 DQMStore::book1S(const char *name, const char *title,
                  int nchX, double lowX, double highX)
 {
-  return book1S(pwd_, name, new TH1S(name, title, nchX, lowX, highX));
+  return book1S_(pwd_, name, new TH1S(name, title, nchX, lowX, highX));
 }
 
 /// Book 1S histogram.
@@ -1064,7 +1065,7 @@ MonitorElement *
 DQMStore::book1S(const std::string &name, const std::string &title,
                  int nchX, double lowX, double highX)
 {
-  return book1S(pwd_, name, new TH1S(name.c_str(), title.c_str(), nchX, lowX, highX));
+  return book1S_(pwd_, name, new TH1S(name.c_str(), title.c_str(), nchX, lowX, highX));
 }
 
 /// Book 1S histogram.
@@ -1072,7 +1073,7 @@ MonitorElement *
 DQMStore::book1DD(const char *name, const char *title,
                   int nchX, double lowX, double highX)
 {
-  return book1DD(pwd_, name, new TH1D(name, title, nchX, lowX, highX));
+  return book1DD_(pwd_, name, new TH1D(name, title, nchX, lowX, highX));
 }
 
 /// Book 1S histogram.
@@ -1080,7 +1081,7 @@ MonitorElement *
 DQMStore::book1DD(const std::string &name, const std::string &title,
                   int nchX, double lowX, double highX)
 {
-  return book1DD(pwd_, name, new TH1D(name.c_str(), title.c_str(), nchX, lowX, highX));
+  return book1DD_(pwd_, name, new TH1D(name.c_str(), title.c_str(), nchX, lowX, highX));
 }
 
 /// Book 1D variable bin histogram.
@@ -1088,7 +1089,7 @@ MonitorElement *
 DQMStore::book1D(const char *name, const char *title,
                  int nchX, const float *xbinsize)
 {
-  return book1D(pwd_, name, new TH1F(name, title, nchX, xbinsize));
+  return book1D_(pwd_, name, new TH1F(name, title, nchX, xbinsize));
 }
 
 /// Book 1D variable bin histogram.
@@ -1096,71 +1097,71 @@ MonitorElement *
 DQMStore::book1D(const std::string &name, const std::string &title,
                  int nchX, const float *xbinsize)
 {
-  return book1D(pwd_, name, new TH1F(name.c_str(), title.c_str(), nchX, xbinsize));
+  return book1D_(pwd_, name, new TH1F(name.c_str(), title.c_str(), nchX, xbinsize));
 }
 
 /// Book 1D histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book1D(const char *name, TH1F *source)
 {
-  return book1D(pwd_, name, static_cast<TH1F *>(source->Clone(name)));
+  return book1D_(pwd_, name, static_cast<TH1F *>(source->Clone(name)));
 }
 
 /// Book 1D histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book1D(const std::string &name, TH1F *source)
 {
-  return book1D(pwd_, name, static_cast<TH1F *>(source->Clone(name.c_str())));
+  return book1D_(pwd_, name, static_cast<TH1F *>(source->Clone(name.c_str())));
 }
 
 /// Book 1S histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book1S(const char *name, TH1S *source)
 {
-  return book1S(pwd_, name, static_cast<TH1S *>(source->Clone(name)));
+  return book1S_(pwd_, name, static_cast<TH1S *>(source->Clone(name)));
 }
 
 /// Book 1S histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book1S(const std::string &name, TH1S *source)
 {
-  return book1S(pwd_, name, static_cast<TH1S *>(source->Clone(name.c_str())));
+  return book1S_(pwd_, name, static_cast<TH1S *>(source->Clone(name.c_str())));
 }
 
 /// Book 1D double histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book1DD(const char *name, TH1D *source)
 {
-  return book1DD(pwd_, name, static_cast<TH1D *>(source->Clone(name)));
+  return book1DD_(pwd_, name, static_cast<TH1D *>(source->Clone(name)));
 }
 
 /// Book 1D double histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book1DD(const std::string &name, TH1D *source)
 {
-  return book1DD(pwd_, name, static_cast<TH1D *>(source->Clone(name.c_str())));
+  return book1DD_(pwd_, name, static_cast<TH1D *>(source->Clone(name.c_str())));
 }
 
 // -------------------------------------------------------------------
 /// Book 2D histogram based on TH2F.
 MonitorElement *
-DQMStore::book2D(const std::string &dir, const std::string &name, TH2F *h)
+DQMStore::book2D_(const std::string &dir, const std::string &name, TH2F *h)
 {
-  return book(dir, name, "book2D", MonitorElement::DQM_KIND_TH2F, h, collate2D);
+  return book_(dir, name, "book2D", MonitorElement::DQM_KIND_TH2F, h, collate2D);
 }
 
 /// Book 2D histogram based on TH2S.
 MonitorElement *
-DQMStore::book2S(const std::string &dir, const std::string &name, TH2S *h)
+DQMStore::book2S_(const std::string &dir, const std::string &name, TH2S *h)
 {
-  return book(dir, name, "book2S", MonitorElement::DQM_KIND_TH2S, h, collate2S);
+  return book_(dir, name, "book2S", MonitorElement::DQM_KIND_TH2S, h, collate2S);
 }
 
 /// Book 2D histogram based on TH2D.
 MonitorElement *
-DQMStore::book2DD(const std::string &dir, const std::string &name, TH2D *h)
+DQMStore::book2DD_(const std::string &dir, const std::string &name, TH2D *h)
 {
-  return book(dir, name, "book2DD", MonitorElement::DQM_KIND_TH2D, h, collate2DD);
+  return book_(dir, name, "book2DD", MonitorElement::DQM_KIND_TH2D, h, collate2DD);
 }
 
 /// Book 2D histogram.
@@ -1169,7 +1170,7 @@ DQMStore::book2D(const char *name, const char *title,
                  int nchX, double lowX, double highX,
                  int nchY, double lowY, double highY)
 {
-  return book2D(pwd_, name, new TH2F(name, title,
+  return book2D_(pwd_, name, new TH2F(name, title,
                                      nchX, lowX, highX,
                                      nchY, lowY, highY));
 }
@@ -1180,7 +1181,7 @@ DQMStore::book2D(const std::string &name, const std::string &title,
                  int nchX, double lowX, double highX,
                  int nchY, double lowY, double highY)
 {
-  return book2D(pwd_, name, new TH2F(name.c_str(), title.c_str(),
+  return book2D_(pwd_, name, new TH2F(name.c_str(), title.c_str(),
                                      nchX, lowX, highX,
                                      nchY, lowY, highY));
 }
@@ -1191,7 +1192,7 @@ DQMStore::book2S(const char *name, const char *title,
                  int nchX, double lowX, double highX,
                  int nchY, double lowY, double highY)
 {
-  return book2S(pwd_, name, new TH2S(name, title,
+  return book2S_(pwd_, name, new TH2S(name, title,
                                      nchX, lowX, highX,
                                      nchY, lowY, highY));
 }
@@ -1202,7 +1203,7 @@ DQMStore::book2S(const std::string &name, const std::string &title,
                  int nchX, double lowX, double highX,
                  int nchY, double lowY, double highY)
 {
-  return book2S(pwd_, name, new TH2S(name.c_str(), title.c_str(),
+  return book2S_(pwd_, name, new TH2S(name.c_str(), title.c_str(),
                                      nchX, lowX, highX,
                                      nchY, lowY, highY));
 }
@@ -1213,7 +1214,7 @@ DQMStore::book2DD(const char *name, const char *title,
                   int nchX, double lowX, double highX,
                   int nchY, double lowY, double highY)
 {
-  return book2DD(pwd_, name, new TH2D(name, title,
+  return book2DD_(pwd_, name, new TH2D(name, title,
                                       nchX, lowX, highX,
                                       nchY, lowY, highY));
 }
@@ -1224,7 +1225,7 @@ DQMStore::book2DD(const std::string &name, const std::string &title,
                   int nchX, double lowX, double highX,
                   int nchY, double lowY, double highY)
 {
-  return book2DD(pwd_, name, new TH2D(name.c_str(), title.c_str(),
+  return book2DD_(pwd_, name, new TH2D(name.c_str(), title.c_str(),
                                       nchX, lowX, highX,
                                       nchY, lowY, highY));
 }
@@ -1234,7 +1235,7 @@ MonitorElement *
 DQMStore::book2D(const char *name, const char *title,
                  int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
-  return book2D(pwd_, name, new TH2F(name, title,
+  return book2D_(pwd_, name, new TH2F(name, title,
                                      nchX, xbinsize, nchY, ybinsize));
 }
 
@@ -1243,7 +1244,7 @@ MonitorElement *
 DQMStore::book2D(const std::string &name, const std::string &title,
                  int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
-  return book2D(pwd_, name, new TH2F(name.c_str(), title.c_str(),
+  return book2D_(pwd_, name, new TH2F(name.c_str(), title.c_str(),
                                      nchX, xbinsize, nchY, ybinsize));
 }
 
@@ -1252,7 +1253,7 @@ MonitorElement *
 DQMStore::book2S(const char *name, const char *title,
                  int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
-  return book2S(pwd_, name, new TH2S(name, title,
+  return book2S_(pwd_, name, new TH2S(name, title,
                                      nchX, xbinsize, nchY, ybinsize));
 }
 
@@ -1261,7 +1262,7 @@ MonitorElement *
 DQMStore::book2S(const std::string &name, const std::string &title,
                  int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
-  return book2S(pwd_, name, new TH2S(name.c_str(), title.c_str(),
+  return book2S_(pwd_, name, new TH2S(name.c_str(), title.c_str(),
                                      nchX, xbinsize, nchY, ybinsize));
 }
 
@@ -1269,50 +1270,50 @@ DQMStore::book2S(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::book2D(const char *name, TH2F *source)
 {
-  return book2D(pwd_, name, static_cast<TH2F *>(source->Clone(name)));
+  return book2D_(pwd_, name, static_cast<TH2F *>(source->Clone(name)));
 }
 
 /// Book 2D histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book2D(const std::string &name, TH2F *source)
 {
-  return book2D(pwd_, name, static_cast<TH2F *>(source->Clone(name.c_str())));
+  return book2D_(pwd_, name, static_cast<TH2F *>(source->Clone(name.c_str())));
 }
 
 /// Book 2DS histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book2S(const char *name, TH2S *source)
 {
-  return book2S(pwd_, name, static_cast<TH2S *>(source->Clone(name)));
+  return book2S_(pwd_, name, static_cast<TH2S *>(source->Clone(name)));
 }
 
 /// Book 2DS histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book2S(const std::string &name, TH2S *source)
 {
-  return book2S(pwd_, name, static_cast<TH2S *>(source->Clone(name.c_str())));
+  return book2S_(pwd_, name, static_cast<TH2S *>(source->Clone(name.c_str())));
 }
 
 /// Book 2DS histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book2DD(const char *name, TH2D *source)
 {
-  return book2DD(pwd_, name, static_cast<TH2D *>(source->Clone(name)));
+  return book2DD_(pwd_, name, static_cast<TH2D *>(source->Clone(name)));
 }
 
 /// Book 2DS histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book2DD(const std::string &name, TH2D *source)
 {
-  return book2DD(pwd_, name, static_cast<TH2D *>(source->Clone(name.c_str())));
+  return book2DD_(pwd_, name, static_cast<TH2D *>(source->Clone(name.c_str())));
 }
 
 // -------------------------------------------------------------------
 /// Book 3D histogram based on TH3F.
 MonitorElement *
-DQMStore::book3D(const std::string &dir, const std::string &name, TH3F *h)
+DQMStore::book3D_(const std::string &dir, const std::string &name, TH3F *h)
 {
-  return book(dir, name, "book3D", MonitorElement::DQM_KIND_TH3F, h, collate3D);
+  return book_(dir, name, "book3D", MonitorElement::DQM_KIND_TH3F, h, collate3D);
 }
 
 /// Book 3D histogram.
@@ -1322,7 +1323,7 @@ DQMStore::book3D(const char *name, const char *title,
                  int nchY, double lowY, double highY,
                  int nchZ, double lowZ, double highZ)
 {
-  return book3D(pwd_, name, new TH3F(name, title,
+  return book3D_(pwd_, name, new TH3F(name, title,
                                      nchX, lowX, highX,
                                      nchY, lowY, highY,
                                      nchZ, lowZ, highZ));
@@ -1335,7 +1336,7 @@ DQMStore::book3D(const std::string &name, const std::string &title,
                  int nchY, double lowY, double highY,
                  int nchZ, double lowZ, double highZ)
 {
-  return book3D(pwd_, name, new TH3F(name.c_str(), title.c_str(),
+  return book3D_(pwd_, name, new TH3F(name.c_str(), title.c_str(),
                                      nchX, lowX, highX,
                                      nchY, lowY, highY,
                                      nchZ, lowZ, highZ));
@@ -1345,24 +1346,24 @@ DQMStore::book3D(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::book3D(const char *name, TH3F *source)
 {
-  return book3D(pwd_, name, static_cast<TH3F *>(source->Clone(name)));
+  return book3D_(pwd_, name, static_cast<TH3F *>(source->Clone(name)));
 }
 
 /// Book 3D histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book3D(const std::string &name, TH3F *source)
 {
-  return book3D(pwd_, name, static_cast<TH3F *>(source->Clone(name.c_str())));
+  return book3D_(pwd_, name, static_cast<TH3F *>(source->Clone(name.c_str())));
 }
 
 // -------------------------------------------------------------------
 /// Book profile histogram based on TProfile.
 MonitorElement *
-DQMStore::bookProfile(const std::string &dir, const std::string &name, TProfile *h)
+DQMStore::bookProfile_(const std::string &dir, const std::string &name, TProfile *h)
 {
-  return book(dir, name, "bookProfile",
-              MonitorElement::DQM_KIND_TPROFILE,
-              h, collateProfile);
+  return book_(dir, name, "bookProfile",
+               MonitorElement::DQM_KIND_TPROFILE,
+               h, collateProfile);
 }
 
 /// Book profile.  Option is one of: " ", "s" (default), "i", "G" (see
@@ -1374,7 +1375,7 @@ DQMStore::bookProfile(const char *name, const char *title,
                       int /* nchY */, double lowY, double highY,
                       const char *option /* = "s" */)
 {
-  return bookProfile(pwd_, name, new TProfile(name, title,
+  return bookProfile_(pwd_, name, new TProfile(name, title,
                                               nchX, lowX, highX,
                                               lowY, highY,
                                               option));
@@ -1389,7 +1390,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
                       int /* nchY */, double lowY, double highY,
                       const char *option /* = "s" */)
 {
-  return bookProfile(pwd_, name, new TProfile(name.c_str(), title.c_str(),
+  return bookProfile_(pwd_, name, new TProfile(name.c_str(), title.c_str(),
                                               nchX, lowX, highX,
                                               lowY, highY,
                                               option));
@@ -1404,7 +1405,7 @@ DQMStore::bookProfile(const char *name, const char *title,
                       double lowY, double highY,
                       const char *option /* = "s" */)
 {
-  return bookProfile(pwd_, name, new TProfile(name, title,
+  return bookProfile_(pwd_, name, new TProfile(name, title,
                                               nchX, lowX, highX,
                                               lowY, highY,
                                               option));
@@ -1419,7 +1420,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
                       double lowY, double highY,
                       const char *option /* = "s" */)
 {
-  return bookProfile(pwd_, name, new TProfile(name.c_str(), title.c_str(),
+  return bookProfile_(pwd_, name, new TProfile(name.c_str(), title.c_str(),
                                               nchX, lowX, highX,
                                               lowY, highY,
                                               option));
@@ -1434,7 +1435,7 @@ DQMStore::bookProfile(const char *name, const char *title,
                       int /* nchY */, double lowY, double highY,
                       const char *option /* = "s" */)
 {
-  return bookProfile(pwd_, name, new TProfile(name, title,
+  return bookProfile_(pwd_, name, new TProfile(name, title,
                                               nchX, xbinsize,
                                               lowY, highY,
                                               option));
@@ -1449,7 +1450,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
                       int /* nchY */, double lowY, double highY,
                       const char *option /* = "s" */)
 {
-  return bookProfile(pwd_, name, new TProfile(name.c_str(), title.c_str(),
+  return bookProfile_(pwd_, name, new TProfile(name.c_str(), title.c_str(),
                                               nchX, xbinsize,
                                               lowY, highY,
                                               option));
@@ -1464,7 +1465,7 @@ DQMStore::bookProfile(const char *name, const char *title,
                       double lowY, double highY,
                       const char *option /* = "s" */)
 {
-  return bookProfile(pwd_, name, new TProfile(name, title,
+  return bookProfile_(pwd_, name, new TProfile(name, title,
                                               nchX, xbinsize,
                                               lowY, highY,
                                               option));
@@ -1479,7 +1480,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
                       double lowY, double highY,
                       const char *option /* = "s" */)
 {
-  return bookProfile(pwd_, name, new TProfile(name.c_str(), title.c_str(),
+  return bookProfile_(pwd_, name, new TProfile(name.c_str(), title.c_str(),
                                               nchX, xbinsize,
                                               lowY, highY,
                                               option));
@@ -1489,24 +1490,24 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::bookProfile(const char *name, TProfile *source)
 {
-  return bookProfile(pwd_, name, static_cast<TProfile *>(source->Clone(name)));
+  return bookProfile_(pwd_, name, static_cast<TProfile *>(source->Clone(name)));
 }
 
 /// Book TProfile by cloning an existing profile.
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, TProfile *source)
 {
-  return bookProfile(pwd_, name, static_cast<TProfile *>(source->Clone(name.c_str())));
+  return bookProfile_(pwd_, name, static_cast<TProfile *>(source->Clone(name.c_str())));
 }
 
 // -------------------------------------------------------------------
 /// Book 2D profile histogram based on TProfile2D.
 MonitorElement *
-DQMStore::bookProfile2D(const std::string &dir, const std::string &name, TProfile2D *h)
+DQMStore::bookProfile2D_(const std::string &dir, const std::string &name, TProfile2D *h)
 {
-  return book(dir, name, "bookProfile2D",
-              MonitorElement::DQM_KIND_TPROFILE2D,
-              h, collateProfile2D);
+  return book_(dir, name, "bookProfile2D",
+               MonitorElement::DQM_KIND_TPROFILE2D,
+               h, collateProfile2D);
 }
 
 /// Book 2-D profile.  Option is one of: " ", "s" (default), "i", "G"
@@ -1519,7 +1520,7 @@ DQMStore::bookProfile2D(const char *name, const char *title,
                         int /* nchZ */, double lowZ, double highZ,
                         const char *option /* = "s" */)
 {
-  return bookProfile2D(pwd_, name, new TProfile2D(name, title,
+  return bookProfile2D_(pwd_, name, new TProfile2D(name, title,
                                                   nchX, lowX, highX,
                                                   nchY, lowY, highY,
                                                   lowZ, highZ,
@@ -1536,7 +1537,7 @@ DQMStore::bookProfile2D(const std::string &name, const std::string &title,
                         int /* nchZ */, double lowZ, double highZ,
                         const char *option /* = "s" */)
 {
-  return bookProfile2D(pwd_, name, new TProfile2D(name.c_str(), title.c_str(),
+  return bookProfile2D_(pwd_, name, new TProfile2D(name.c_str(), title.c_str(),
                                                   nchX, lowX, highX,
                                                   nchY, lowY, highY,
                                                   lowZ, highZ,
@@ -1553,7 +1554,7 @@ DQMStore::bookProfile2D(const char *name, const char *title,
                         double lowZ, double highZ,
                         const char *option /* = "s" */)
 {
-  return bookProfile2D(pwd_, name, new TProfile2D(name, title,
+  return bookProfile2D_(pwd_, name, new TProfile2D(name, title,
                                                   nchX, lowX, highX,
                                                   nchY, lowY, highY,
                                                   lowZ, highZ,
@@ -1570,7 +1571,7 @@ DQMStore::bookProfile2D(const std::string &name, const std::string &title,
                         double lowZ, double highZ,
                         const char *option /* = "s" */)
 {
-  return bookProfile2D(pwd_, name, new TProfile2D(name.c_str(), title.c_str(),
+  return bookProfile2D_(pwd_, name, new TProfile2D(name.c_str(), title.c_str(),
                                                   nchX, lowX, highX,
                                                   nchY, lowY, highY,
                                                   lowZ, highZ,
@@ -1581,14 +1582,14 @@ DQMStore::bookProfile2D(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::bookProfile2D(const char *name, TProfile2D *source)
 {
-  return bookProfile2D(pwd_, name, static_cast<TProfile2D *>(source->Clone(name)));
+  return bookProfile2D_(pwd_, name, static_cast<TProfile2D *>(source->Clone(name)));
 }
 
 /// Book TProfile2D by cloning an existing profile.
 MonitorElement *
 DQMStore::bookProfile2D(const std::string &name, TProfile2D *source)
 {
-  return bookProfile2D(pwd_, name, static_cast<TProfile2D *>(source->Clone(name.c_str())));
+  return bookProfile2D_(pwd_, name, static_cast<TProfile2D *>(source->Clone(name.c_str())));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2238,7 +2239,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   {
     MonitorElement *me = findObject(dir, h->GetName());
     if (! me)
-      me = bookProfile(dir, h->GetName(), (TProfile *) h->Clone());
+      me = bookProfile_(dir, h->GetName(), (TProfile *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
@@ -2249,7 +2250,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   {
     MonitorElement *me = findObject(dir, h->GetName());
     if (! me)
-      me = bookProfile2D(dir, h->GetName(), (TProfile2D *) h->Clone());
+      me = bookProfile2D_(dir, h->GetName(), (TProfile2D *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
@@ -2260,7 +2261,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   {
     MonitorElement *me = findObject(dir, h->GetName());
     if (! me)
-      me = book1D(dir, h->GetName(), (TH1F *) h->Clone());
+      me = book1D_(dir, h->GetName(), (TH1F *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
@@ -2271,7 +2272,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   {
     MonitorElement *me = findObject(dir, h->GetName());
     if (! me)
-      me = book1S(dir, h->GetName(), (TH1S *) h->Clone());
+      me = book1S_(dir, h->GetName(), (TH1S *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
@@ -2282,7 +2283,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   {
     MonitorElement *me = findObject(dir, h->GetName());
     if (! me)
-      me = book1DD(dir, h->GetName(), (TH1D *) h->Clone());
+      me = book1DD_(dir, h->GetName(), (TH1D *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
@@ -2293,7 +2294,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   {
     MonitorElement *me = findObject(dir, h->GetName());
     if (! me)
-      me = book2D(dir, h->GetName(), (TH2F *) h->Clone());
+      me = book2D_(dir, h->GetName(), (TH2F *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
@@ -2304,7 +2305,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   {
     MonitorElement *me = findObject(dir, h->GetName());
     if (! me)
-      me = book2S(dir, h->GetName(), (TH2S *) h->Clone());
+      me = book2S_(dir, h->GetName(), (TH2S *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
@@ -2315,7 +2316,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   {
     MonitorElement *me = findObject(dir, h->GetName());
     if (! me)
-      me = book2DD(dir, h->GetName(), (TH2D *) h->Clone());
+      me = book2DD_(dir, h->GetName(), (TH2D *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
@@ -2326,7 +2327,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   {
     MonitorElement *me = findObject(dir, h->GetName());
     if (! me)
-      me = book3D(dir, h->GetName(), (TH3F *) h->Clone());
+      me = book3D_(dir, h->GetName(), (TH3F *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms)
@@ -2368,7 +2369,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
       MonitorElement *me = findObject(dir, label);
       if (! me || overwrite)
       {
-        if (! me) me = bookInt(dir, label);
+        if (! me) me = bookInt_(dir, label);
         me->Fill(atoll(value.c_str()));
       }
     }
@@ -2377,7 +2378,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
       MonitorElement *me = findObject(dir, label);
       if (! me || overwrite)
       {
-        if (! me) me = bookFloat(dir, label);
+        if (! me) me = bookFloat_(dir, label);
         me->Fill(atof(value.c_str()));
       }
     }
@@ -2385,7 +2386,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     {
       MonitorElement *me = findObject(dir, label);
       if (! me)
-        me = bookString(dir, label, value);
+        me = bookString_(dir, label, value);
       else if (overwrite)
         me->Fill(value);
     }

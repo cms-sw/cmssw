@@ -224,6 +224,8 @@ namespace edm {
 
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
 
+    virtual bool hasAccumulator() const = 0;
+
   protected:
     template<typename O> friend class workerhelper::CallImpl;
     virtual std::string workerType() const = 0;

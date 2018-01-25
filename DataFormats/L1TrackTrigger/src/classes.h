@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-namespace
+namespace DataFormats_L1TrackTrigger
 {
   struct dictionary1 {
     /// Main template type

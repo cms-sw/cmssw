@@ -157,6 +157,22 @@ process.TestEndLumiBlockFil = cms.EDFilter("edmtest::limited::TestEndLumiBlockFi
     transitions = cms.int32((nEvt/nEvtLumi))
 )
 
+process.TestAccumulator1 = cms.EDProducer("edmtest::limited::TestAccumulator",
+  expectedCount = cms.uint32(512),
+  concurrencyLimit = cms.untracked.uint32(2)
+)
 
-process.p = cms.Path(process.StreamIntProd+process.RunIntProd+process.LumiIntProd+process.RunSumIntProd+process.LumiSumIntProd+process.TestBeginRunProd+process.TestEndRunProd+process.TestBeginLumiBlockProd+process.TestEndLumiBlockProd+process.StreamIntAn+process.RunIntAn+process.LumiIntAn+process.RunSumIntAn+process.LumiSumIntAn+process.StreamIntFil+process.RunIntFil+process.LumiIntFil+process.RunSumIntFil+process.LumiSumIntFil+process.TestBeginRunFil+process.TestEndRunFil+process.TestBeginLumiBlockFil+process.TestEndLumiBlockFil)
+process.TestAccumulator2 = cms.EDProducer("edmtest::limited::TestAccumulator",
+  expectedCount = cms.uint32(35),
+  concurrencyLimit = cms.untracked.uint32(2)
+)
 
+process.testFilterModule = cms.EDFilter("TestFilterModule",
+  acceptValue = cms.untracked.int32(5),
+  onlyOne = cms.untracked.bool(False)
+)
+
+process.task = cms.Task(process.TestAccumulator1)
+
+
+process.p = cms.Path(process.StreamIntProd+process.RunIntProd+process.LumiIntProd+process.RunSumIntProd+process.LumiSumIntProd+process.TestBeginRunProd+process.TestEndRunProd+process.TestBeginLumiBlockProd+process.TestEndLumiBlockProd+process.StreamIntAn+process.RunIntAn+process.LumiIntAn+process.RunSumIntAn+process.LumiSumIntAn+process.StreamIntFil+process.RunIntFil+process.LumiIntFil+process.RunSumIntFil+process.LumiSumIntFil+process.TestBeginRunFil+process.TestEndRunFil+process.TestBeginLumiBlockFil+process.TestEndLumiBlockFil+process.testFilterModule+process.TestAccumulator2, process.task)

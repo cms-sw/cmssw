@@ -53,6 +53,9 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
+#include "DQMOffline/L1Trigger/interface/HistDefinition.h"
+
+
 class L1TStage2CaloLayer2Offline: public DQMEDAnalyzer {
 
 public:
@@ -77,6 +80,12 @@ public:
   };
 
   typedef std::map<L1TStage2CaloLayer2Offline::ControlPlots, MonitorElement*> ControlPlotMap;
+
+  enum PlotConfig {
+    nVertex
+  };
+
+  static const std::map<std::string, unsigned int> PlotConfigNames;
 
 protected:
 
@@ -136,6 +145,7 @@ private:
   std::vector<unsigned int> triggerIndices_;
   edm::TriggerResults triggerResults_;
   trigger::TriggerEvent triggerEvent_;
+  dqmoffline::l1t::HistDefinitions histDefinitions_;
 
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms

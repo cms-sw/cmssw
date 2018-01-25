@@ -19,9 +19,9 @@ namespace spr{
 
   std::vector<spr::propagatedTrackID> propagateCosmicCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, bool debug) {
 
-    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    const CaloSubdetectorGeometry *barrelGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+    const CaloSubdetectorGeometry *endcapGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+    const CaloSubdetectorGeometry* gHB =        geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
     std::vector<spr::propagatedTrackID> vdets;
 
@@ -142,9 +142,9 @@ namespace spr{
 
   void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackID>& vdets, bool debug) {
 
-    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    const CaloSubdetectorGeometry *barrelGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+    const CaloSubdetectorGeometry *endcapGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+    const CaloSubdetectorGeometry* gHB        = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
     unsigned int indx;
@@ -215,9 +215,9 @@ namespace spr{
 
   void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackDirection>& trkDir, bool debug) {
 
-    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    const CaloSubdetectorGeometry *barrelGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+    const CaloSubdetectorGeometry *endcapGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+    const CaloSubdetectorGeometry* gHB =        geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
     unsigned int indx;
@@ -287,9 +287,9 @@ namespace spr{
 
   spr::propagatedTrackID propagateCALO(const reco::Track* pTrack, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
 
-    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    const CaloSubdetectorGeometry *barrelGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+    const CaloSubdetectorGeometry *endcapGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+    const CaloSubdetectorGeometry* gHB =        geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
 
     spr::propagatedTrackID vdet;
     vdet.ok        = true;
@@ -340,9 +340,9 @@ namespace spr{
 
   std::vector<spr::propagatedGenTrackID> propagateCALO(const HepMC::GenEvent * genEvent, edm::ESHandle<ParticleDataTable>& pdt, const CaloGeometry* geo, const MagneticField* bField, double etaMax, bool debug) {
 
-    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    const CaloSubdetectorGeometry *barrelGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+    const CaloSubdetectorGeometry *endcapGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+    const CaloSubdetectorGeometry* gHB =        geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
 
     std::vector<spr::propagatedGenTrackID> trkDir;
     unsigned int indx;
@@ -422,9 +422,9 @@ namespace spr{
 
   std::vector<spr::propagatedGenParticleID> propagateCALO(edm::Handle<reco::GenParticleCollection>& genParticles, edm::ESHandle<ParticleDataTable>& pdt, const CaloGeometry* geo, const MagneticField* bField, double etaMax, bool debug) {
 
-    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    const CaloSubdetectorGeometry *barrelGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+    const CaloSubdetectorGeometry *endcapGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+    const CaloSubdetectorGeometry* gHB =        geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
 
     std::vector<spr::propagatedGenParticleID> trkDir;
     unsigned int indx;
@@ -502,9 +502,9 @@ namespace spr{
 
   spr::propagatedTrackDirection propagateCALO(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
 
-    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    const CaloSubdetectorGeometry *barrelGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+    const CaloSubdetectorGeometry *endcapGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+    const CaloSubdetectorGeometry* gHB =        geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
 
     spr::trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
     spr::propagatedTrackDirection trkD;
@@ -639,7 +639,7 @@ namespace spr{
 
   std::pair<DetId,bool> propagateIdECAL(const HcalDetId& id, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
 
-    const HcalGeometry* gHB = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    const HcalGeometry* gHB = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
     const GlobalPoint vertex(0,0,0);
     const GlobalPoint hit(gHB->getPosition(id));
     const GlobalVector momentum = GlobalVector(hit.x(),hit.y(),hit.z());
@@ -648,10 +648,10 @@ namespace spr{
     if (info.second) {
       const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
       if (std::abs(point.eta())<spr::etaBEEcal) {
-	const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+	const CaloSubdetectorGeometry *barrelGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
 	eId = barrelGeom->getClosestCell(point);
       } else {
-	const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+	const CaloSubdetectorGeometry *endcapGeom = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 	if (endcapGeom) 
 	   eId = endcapGeom->getClosestCell(point);
 	  else 

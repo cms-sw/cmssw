@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMOffline.L1Trigger.L1THistDefinitions_cff import histDefinitions
 
 jetEfficiencyThresholds = [36, 68, 128, 176]
 metEfficiencyThresholds = [40, 60, 80, 100, 120]
@@ -81,6 +82,10 @@ l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
 
     recoHTTMaxEta=cms.double(2.5),
     recoMHTMaxEta=cms.double(2.5),
+
+    histDefinitions=cms.PSet(
+        nVertex = histDefinitions.nVertex.clone(),
+    ),
 )
 
 # modifications for the pp reference run
@@ -94,7 +99,8 @@ jetEfficiencyBins_HI.extend(list(xrange(180, 300, 40)))
 jetEfficiencyBins_HI.extend(list(xrange(300, 401, 100)))
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
-ppRef_2017.toModify(l1tStage2CaloLayer2OfflineDQM,
+ppRef_2017.toModify(
+    l1tStage2CaloLayer2OfflineDQM,
     TriggerFilter=cms.InputTag('hltEle20WPLoose1GsfTrackIsoFilter', '', 'HLT'),
     TriggerPath=cms.string('HLT_Ele20_WPLoose_Gsf_v4'),
     jetEfficiencyThresholds=cms.vdouble(jetEfficiencyThresholds_HI),

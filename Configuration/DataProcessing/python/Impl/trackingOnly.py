@@ -15,7 +15,7 @@ class trackingOnly(pp):
     def __init__(self):
         pp.__init__(self)
         # tracking only RECO is sufficient, to run high performance BS at PCL;
-        # some dedicated customization are required, though: customisePostEra_Run2_2017_trackingOnly
+        # some dedicated customization are required, though: see specific era implementations
         self.recoSeq=':reconstruction_trackingOnly'
         self.cbSc='pp'
         # don't run EI, because only tracking is done
@@ -24,7 +24,7 @@ class trackingOnly(pp):
     _trackingOnly_
 
     Implement configuration building for data processing for proton
-    collision data taking
+    collision data taking for high performance beamspot
 
     """
 
@@ -45,10 +45,4 @@ class trackingOnly(pp):
 
         return process
 
-    """
-    _ppEra_Run2_2017_trackingOnly
 
-    Implement configuration building for data processing for proton
-    collision data taking for Run2, 2017 high performance beamspot
-
-    """
