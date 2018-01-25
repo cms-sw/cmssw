@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include <memory>
+#include <unistd.h>
 #include <vector>
 
 namespace edm {
@@ -79,6 +80,7 @@ namespace edmtest {
                                    edm::Event const& event,
                                    edm::EventSetup const&,
                                    edm::WaitingTaskWithArenaHolder holder) const {
+    usleep(1000000);
 
     test_acquire::Cache* streamCacheData = streamCache(streamID);
     streamCacheData->retrieved().clear();
@@ -98,6 +100,7 @@ namespace edmtest {
   void AcquireIntProducer::produce(edm::StreamID streamID,
                                    edm::Event& event,
                                    edm::EventSetup const&) const {
+    usleep(1000000);
 
     int sum = 0;
     for (auto v : streamCache(streamID)->processed()) {

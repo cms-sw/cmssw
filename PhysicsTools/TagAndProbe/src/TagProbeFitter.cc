@@ -747,7 +747,7 @@ void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff, const TString& effName
           TString catName = t->GetName();
           if(catName.Contains("NotMapped")) continue;
           catName.ReplaceAll("{","").ReplaceAll("}","").ReplaceAll(";","_&_");
-          makeEfficiencyPlot2D(myEff, *v1, *v2, TString::Format("%s_%s_PLOT_%s",v1->GetName(), v2->GetName(), catName.Data()), catName, effName, "allCats1D", t->getVal());
+          makeEfficiencyPlot2D(myEff, *v1, *v2, TString::Format("%s_%s_PLOT_%s",v1->GetName(), v2->GetName(), catName.Data()), catName, effName, "allCats2D", t->getVal());
         }        
       }
     }

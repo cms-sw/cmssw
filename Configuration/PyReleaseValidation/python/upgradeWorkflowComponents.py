@@ -126,6 +126,18 @@ upgradeSteps['Neutron'] = {
     'suffix' : '_Neutron',
     'offset' : 0.3,
 }
+upgradeSteps['heCollapse'] = {
+    'steps' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'PU' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'suffix' : '_heCollapse',
+    'offset' : 0.6,
+}
 
 upgradeProperties = {}
 
@@ -348,7 +360,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'DoubleMuPt10Extended_pythia8_cfi':Kby(25,100),
            'DoubleMuPt100Extended_pythia8_cfi':Kby(9,100),
            'DoubleMuPt1000Extended_pythia8_cfi':Kby(9,100),
-           'SinglePiE50HCAL_pythia8_cfi':Kby(10,100),
+           'SinglePiE50HCAL_pythia8_cfi':Kby(50,500),
            'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
            'Wjet_Pt_80_120_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
            'Wjet_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi':Kby(9,50),

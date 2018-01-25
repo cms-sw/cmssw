@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMOffline.L1Trigger.L1THistDefinitions_cff import histDefinitions
 
 electronEfficiencyThresholds = [34, 36, 38, 40, 42]
 
@@ -49,6 +50,10 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
 
     photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds),
     photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
+
+    histDefinitions=cms.PSet(
+        nVertex = histDefinitions.nVertex.clone(),
+    ),
 )
 
 # modifications for the pp reference run
@@ -67,7 +72,8 @@ photonEfficiencyThresholds_HI = electronEfficiencyThresholds_HI
 photonEfficiencyBins_HI = electronEfficiencyBins_HI
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
-ppRef_2017.toModify(l1tEGammaOfflineDQM,
+ppRef_2017.toModify(
+    l1tEGammaOfflineDQM,
     TriggerFilter=cms.InputTag('hltEle20WPLoose1GsfTrackIsoFilter', '', 'HLT'),
     TriggerPath=cms.string('HLT_Ele20_WPLoose_Gsf_v4'),
     electronEfficiencyThresholds=cms.vdouble(electronEfficiencyThresholds_HI),

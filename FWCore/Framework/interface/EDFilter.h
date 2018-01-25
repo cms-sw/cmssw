@@ -102,6 +102,7 @@ namespace edm {
     virtual void respondToCloseInputFile(FileBlock const&) {}
 
     bool hasAcquire() const { return false; }
+    bool hasAccumulator() const { return false; }
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

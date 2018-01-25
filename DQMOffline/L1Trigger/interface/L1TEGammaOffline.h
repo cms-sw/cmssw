@@ -15,6 +15,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMOffline/L1Trigger/interface/HistDefinition.h"
 
 //Candidate handling
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -41,6 +42,12 @@ public:
 
   L1TEGammaOffline(const edm::ParameterSet& ps);
   ~L1TEGammaOffline() override;
+
+  enum PlotConfig {
+    nVertex
+  };
+
+  static const std::map<std::string, unsigned int> PlotConfigNames;
 
 protected:
 
@@ -99,6 +106,7 @@ private:
   std::vector<unsigned int> triggerIndices_;
   edm::TriggerResults triggerResults_;
   trigger::TriggerEvent triggerEvent_;
+  dqmoffline::l1t::HistDefinitions histDefinitions_;
 
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms

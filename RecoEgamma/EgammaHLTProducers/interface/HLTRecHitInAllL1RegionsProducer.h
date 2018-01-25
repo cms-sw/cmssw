@@ -224,9 +224,9 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
       if(!regions.empty()){
       
 	for(const RecHitType& recHit : *recHits){
-	  const CaloCellGeometry & this_cell = *subDetGeom->getGeometry(recHit.id());
+	  auto this_cell = subDetGeom->getGeometry(recHit.id());
 	  for(const auto& region : regions){
-              if (region.inRegion(this_cell.etaPos(),this_cell.phiPos())) {
+              if (region.inRegion(this_cell->etaPos(),this_cell->phiPos())) {
 	      filteredRecHits->push_back(recHit);
 		break;
 	    }

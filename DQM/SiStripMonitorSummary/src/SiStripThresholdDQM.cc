@@ -6,8 +6,9 @@
 
 // -----
 SiStripThresholdDQM::SiStripThresholdDQM(const edm::EventSetup & eSetup,
+                                         edm::RunNumber_t iRun,
                                          edm::ParameterSet const& hPSet,
-                                         edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+                                         edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet){
   WhichThreshold=hPSet.getParameter<std::string>("WhichThreshold");
 
   // Build the Histo_TkMap:

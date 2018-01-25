@@ -1,3 +1,21 @@
+// -*- C++ -*-
+//
+// Package:    HcalCalibAlgos
+// Class:      RecAnalyzerMinbias
+// 
+/**\class RecAnalyzerMinbias RecAnalyzerMinbias.cc Calibration/HcalCalibAlgos/test/RecAnalyzerMinbias.cc
+
+ Description: Performs phi-symmetry studies of HB/HE/HF channels
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Sunanda Banerjee
+//         Created:  Thu Mar  4 18:52:02 CST 2012
+//
+//
+
 // system include files
 #include <memory>
 #include <string>
@@ -33,12 +51,12 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "TH1D.h"
-#include "TFile.h"
-#include "TTree.h"
+#include "TH2D.h"
 #include "TMath.h"
-#include "TF1.h"
+#include "TProfile.h"
+#include "TTree.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 // class declaration
 class RecAnalyzerMinbias : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
@@ -65,11 +83,14 @@ private:
   edm::Service<TFileService> fs_;
   bool                       theRecalib_, ignoreL1_, runNZS_, Noise_, fillHist_, init_;
   double                     eLowHB_, eHighHB_, eLowHE_, eHighHE_;
-  double                     eLowHF_, eHighHF_;
+  double                     eLowHF_, eHighHF_, eMin_;
+  int                        runMin_, runMax_;
   std::map<DetId,double>     corrFactor_;
   std::vector<unsigned int>  hcalID_;
   TTree                     *myTree_, *myTree1_;
   TH1D                      *h_[4];
+  TH2D                      *hbhe_, *hb_, *he_, *hf_;
+  TProfile                  *hbherun_, *hbrun_, *herun_, *hfrun_;
   std::vector<TH1D*>         histo_;
   std::map<HcalDetId,TH1D*>  histHC_;
   std::vector<int>           trigbit_;
@@ -99,21 +120,25 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) :
   usesResource("TFileService");
 
   // get name of output file with histogramms
-  runNZS_               = iConfig.getParameter<bool>("RunNZS");
-  Noise_                = iConfig.getParameter<bool>("Noise");
-  eLowHB_               = iConfig.getParameter<double>("ELowHB");
-  eHighHB_              = iConfig.getParameter<double>("EHighHB");
-  eLowHE_               = iConfig.getParameter<double>("ELowHE");
-  eHighHE_              = iConfig.getParameter<double>("EHighHE");
-  eLowHF_               = iConfig.getParameter<double>("ELowHF");
-  eHighHF_              = iConfig.getParameter<double>("EHighHF");
-  trigbit_              = iConfig.getUntrackedParameter<std::vector<int>>("TriggerBits");
-  ignoreL1_             = iConfig.getUntrackedParameter<bool>("IgnoreL1",false);
-  std::string      cfile= iConfig.getUntrackedParameter<std::string>("CorrFile");
-  fillHist_             = iConfig.getUntrackedParameter<bool>("FillHisto",false);
-  std::vector<int> ieta = iConfig.getUntrackedParameter<std::vector<int>>("HcalIeta");
-  std::vector<int> iphi = iConfig.getUntrackedParameter<std::vector<int>>("HcalIphi");
-  std::vector<int> depth= iConfig.getUntrackedParameter<std::vector<int>>("HcalDepth");
+  runNZS_               = iConfig.getParameter<bool>("runNZS");
+  Noise_                = iConfig.getParameter<bool>("noise");
+  eLowHB_               = iConfig.getParameter<double>("eLowHB");
+  eHighHB_              = iConfig.getParameter<double>("eHighHB");
+  eLowHE_               = iConfig.getParameter<double>("eLowHE");
+  eHighHE_              = iConfig.getParameter<double>("eHighHE");
+  eLowHF_               = iConfig.getParameter<double>("eLowHF");
+  eHighHF_              = iConfig.getParameter<double>("eHighHF");
+  eMin_                 = iConfig.getUntrackedParameter<double>("eMin",2.0);
+  // The following run range is suited to study 2017 commissioning period
+  runMin_               = iConfig.getUntrackedParameter<int>("RunMin",303442);
+  runMax_               = iConfig.getUntrackedParameter<int>("RunMax",304825);
+  trigbit_              = iConfig.getUntrackedParameter<std::vector<int>>("triggerBits");
+  ignoreL1_             = iConfig.getUntrackedParameter<bool>("ignoreL1",false);
+  std::string      cfile= iConfig.getUntrackedParameter<std::string>("corrFile");
+  fillHist_             = iConfig.getUntrackedParameter<bool>("fillHisto",false);
+  std::vector<int> ieta = iConfig.getUntrackedParameter<std::vector<int>>("hcalIeta");
+  std::vector<int> iphi = iConfig.getUntrackedParameter<std::vector<int>>("hcalIphi");
+  std::vector<int> depth= iConfig.getUntrackedParameter<std::vector<int>>("hcalDepth");
 
   // get token names of modules, producing object collections
   tok_hbherecoMB_   = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"));
@@ -173,58 +198,91 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) :
   
 RecAnalyzerMinbias::~RecAnalyzerMinbias() {}
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+
+  std::vector<int> iarray;
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<bool>("runNZS",    true);
+  desc.add<bool>("noise",     false);
+  desc.add<double>("eLowHB",  4);
+  desc.add<double>("eHighHB", 100);
+  desc.add<double>("eLowHE",  4);
+  desc.add<double>("eHighHE", 150);
+  desc.add<double>("eLowHF",  10);
+  desc.add<double>("eHighHF", 150);
+  // Suitable cutoff to remove fluctuation of pedestal
+  desc.addUntracked<double>("eMin",2.0);
+  // The following run range is suited to study 2017 commissioning period
+  desc.addUntracked<int>("runMin",303442);
+  desc.addUntracked<int>("runMax",304825);
+  desc.addUntracked<std::vector<int> >("triggerBits", iarray);
+  desc.addUntracked<bool>("ignoreL1",  false);
+  desc.addUntracked<std::string>("corrFile", "CorFactor.txt");
+  desc.addUntracked<bool>("fillHisto", false);
+  desc.addUntracked<std::vector<int> >("hcalIeta", iarray);
+  desc.addUntracked<std::vector<int> >("hcalIphi", iarray);
+  desc.addUntracked<std::vector<int> >("hcalDepth", iarray);
+  desc.add<edm::InputTag>("hbheInputMB", edm::InputTag("hbherecoMB"));
+  desc.add<edm::InputTag>("hfInputMB",   edm::InputTag("hfrecoMB"));
+  descriptions.add("recAnalyzerMinbias",desc);
 }
-  
-void RecAnalyzerMinbias::beginJob() {
 
-  std::string hc[5] = {"Empty", "HB", "HE", "HO", "HF"};
-  char        name[700], title[700];
-  for(int idet=1; idet<=4; idet++){
-    sprintf(name, "%s", hc[idet].c_str());
-    sprintf (title, "Noise distribution for %s", hc[idet].c_str());
-    h_[idet-1] = fs_->make<TH1D>(name,title,48,-6., 6.);
-  }
+ void RecAnalyzerMinbias::beginJob() {
 
-  for (unsigned int i=0; i<hcalID_.size(); i++) {
-    HcalDetId id = HcalDetId(hcalID_[i]);
-    int subdet   = id.subdetId();
-    sprintf (name, "%s%d_%d_%d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
-    sprintf (title, "Energy Distribution for %s ieta %d iphi %d depth %d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
-    double xmin = (subdet == 4) ? -10 : -1;
-    double xmax = (subdet == 4) ? 90 : 9;
-    TH1D*  hh   = fs_->make<TH1D>(name, title, 50, xmin, xmax);
-    histo_.push_back(hh);
-  };
+   std::string hc[5] = {"Empty", "HB", "HE", "HO", "HF"};
+   char        name[700], title[700];
+   hbhe_ = fs_->make<TH2D>("hbhe","Noise in HB/HE",61,-30.5,30.5,72,0.5,72.5);
+   hb_   = fs_->make<TH2D>("hb",  "Noise in HB",61,-16.5,16.5,72,0.5,72.5);
+   he_   = fs_->make<TH2D>("he",  "Noise in HE",61,-30.5,30.5,72,0.5,72.5);
+   hf_   = fs_->make<TH2D>("hf",  "Noise in HF",82,-41.5,41.5,72,0.5,72.5);
+   int nbin = (runMax_-runMin_+1);
+   sprintf (title, "Fraction of channels in HB/HE with E > %4.1f GeV vs Run number", eMin_);
+   hbherun_ = fs_->make<TProfile>("hbherun",title,nbin,runMin_-0.5,runMax_+0.5,0.0,1.0);
+   sprintf (title, "Fraction of channels in HB with E > %4.1f GeV vs Run number", eMin_);
+   hbrun_   = fs_->make<TProfile>("hbrun",title,nbin,runMin_-0.5,runMax_+0.5,0.0,1.0);
+   sprintf (title, "Fraction of channels in HE with E > %4.1f GeV vs Run number", eMin_);
+   herun_   = fs_->make<TProfile>("herun",title,nbin,runMin_-0.5,runMax_+0.5,0.0,1.0);
+   sprintf (title, "Fraction of channels in HF with E > %4.1f GeV vs Run number", eMin_);
+   hfrun_   = fs_->make<TProfile>("hfrun",title,nbin,runMin_-0.5,runMax_+0.5,0.0,1.0);
+   for(int idet=1; idet<=4; idet++){
+     sprintf(name, "%s", hc[idet].c_str());
+     sprintf (title, "Noise distribution for %s", hc[idet].c_str());
+     h_[idet-1] = fs_->make<TH1D>(name,title,48,-6., 6.);
+   }
 
-  if (!fillHist_) {
-    myTree_       = fs_->make<TTree>("RecJet","RecJet Tree");
-    myTree_->Branch("cells",    &cells,    "cells/I");
-    myTree_->Branch("mysubd",   &mysubd,   "mysubd/I");
-    myTree_->Branch("depth",    &depth,    "depth/I");
-    myTree_->Branch("ieta",     &ieta,     "ieta/I");
-    myTree_->Branch("iphi",     &iphi,     "iphi/I");
-    myTree_->Branch("mom0_MB",  &mom0_MB,  "mom0_MB/F");
-    myTree_->Branch("mom1_MB",  &mom1_MB,  "mom1_MB/F");
-    myTree_->Branch("mom2_MB",  &mom2_MB,  "mom2_MB/F");
-    myTree_->Branch("mom3_MB",  &mom3_MB,  "mom3_MB/F");
-    myTree_->Branch("mom4_MB",  &mom4_MB,  "mom4_MB/F");
-    myTree_->Branch("trigbit",  &trigbit,  "trigbit/I");
-    myTree_->Branch("rnnumber", &rnnumber, "rnnumber/D");
-  }
-  myTree1_      = fs_->make<TTree>("RecJet1","RecJet1 Tree");
-  myTree1_->Branch("rnnum_",   &rnnum_,    "rnnum_/D");
-  myTree1_->Branch("HBHEsize", &HBHEsize,  "HBHEsize/I");
-  myTree1_->Branch("HFsize",   &HFsize,    "HFsize/I");
+   for (const auto & hcalid : hcalID_) {
+     HcalDetId id = HcalDetId(hcalid);
+     int subdet   = id.subdetId();
+     sprintf (name, "%s%d_%d_%d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
+     sprintf (title, "Energy Distribution for %s ieta %d iphi %d depth %d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
+     double xmin = (subdet == 4) ? -10 : -1;
+     double xmax = (subdet == 4) ? 90 : 9;
+     TH1D*  hh   = fs_->make<TH1D>(name, title, 50, xmin, xmax);
+     histo_.push_back(hh);
+   };
 
-  myMap_.clear();
-}
+   if (!fillHist_) {
+     myTree_       = fs_->make<TTree>("RecJet","RecJet Tree");
+     myTree_->Branch("cells",    &cells,    "cells/I");
+     myTree_->Branch("mysubd",   &mysubd,   "mysubd/I");
+     myTree_->Branch("depth",    &depth,    "depth/I");
+     myTree_->Branch("ieta",     &ieta,     "ieta/I");
+     myTree_->Branch("iphi",     &iphi,     "iphi/I");
+     myTree_->Branch("mom0_MB",  &mom0_MB,  "mom0_MB/F");
+     myTree_->Branch("mom1_MB",  &mom1_MB,  "mom1_MB/F");
+     myTree_->Branch("mom2_MB",  &mom2_MB,  "mom2_MB/F");
+     myTree_->Branch("mom3_MB",  &mom3_MB,  "mom3_MB/F");
+     myTree_->Branch("mom4_MB",  &mom4_MB,  "mom4_MB/F");
+     myTree_->Branch("trigbit",  &trigbit,  "trigbit/I");
+     myTree_->Branch("rnnumber", &rnnumber, "rnnumber/D");
+   }
+   myTree1_      = fs_->make<TTree>("RecJet1","RecJet1 Tree");
+   myTree1_->Branch("rnnum_",   &rnnum_,    "rnnum_/D");
+   myTree1_->Branch("HBHEsize", &HBHEsize,  "HBHEsize/I");
+   myTree1_->Branch("HFsize",   &HFsize,    "HFsize/I");
+
+   myMap_.clear();
+ }
 
 //  EndJob
 //
@@ -232,12 +290,13 @@ void RecAnalyzerMinbias::endJob() {
 
   if (!fillHist_) {
     cells = 0;
-    for (std::map<std::pair<int,HcalDetId>,myInfo>::const_iterator itr=myMap_.begin(); itr != myMap_.end(); ++itr) {
-      edm::LogInfo("AnalyzerMB") << "Fired trigger bit number "<<itr->first.first;
-#ifdef DebugLog
-      std::cout << "Fired trigger bit number "<<itr->first.first << std::endl;
-#endif
-      myInfo info = itr->second;
+    for (const auto& itr : myMap_) {
+      edm::LogInfo("AnalyzerMB") << "Fired trigger bit number "
+				 << itr.first.first;
+ #ifdef EDM_ML_DEBUG
+      std::cout << "Fired trigger bit number "<< itr.first.first << std::endl;
+ #endif
+      myInfo info = itr.second;
       if (info.theMB0 > 0) { 
 	mom0_MB  = info.theMB0;
 	mom1_MB  = info.theMB1;
@@ -245,17 +304,17 @@ void RecAnalyzerMinbias::endJob() {
 	mom3_MB  = info.theMB3;
 	mom4_MB  = info.theMB4;
 	rnnumber = info.runcheck;
-	trigbit  = itr->first.first;
-	mysubd   = itr->first.second.subdet();
-	depth    = itr->first.second.depth();
-	iphi     = itr->first.second.iphi();
-	ieta     = itr->first.second.ieta();
-	edm::LogInfo("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd 
+	trigbit  = itr.first.first;
+	mysubd   = itr.first.second.subdet();
+	depth    = itr.first.second.depth();
+	iphi     = itr.first.second.iphi();
+	ieta     = itr.first.second.ieta();
+	edm::LogInfo("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd
 				   << " " << ieta << " " << iphi << " mom0  " 
-				   << mom0_MB << " mom1 " << mom1_MB << " mom2 "
-				   << mom2_MB << " mom3 " << mom3_MB << " mom4 "
-				   << mom4_MB;
-#ifdef DebugLog
+				   << mom0_MB << " mom1 " << mom1_MB 
+				   << " mom2 " << mom2_MB << " mom3 " 
+				   << mom3_MB << " mom4 " << mom4_MB;
+#ifdef EDM_ML_DEBUG
 	std::cout << " Result=  " << trigbit << " " << mysubd 
 		  << " " << ieta << " " << iphi << " mom0  " 
 		  << mom0_MB << " mom1 " << mom1_MB << " mom2 " 
@@ -267,11 +326,11 @@ void RecAnalyzerMinbias::endJob() {
       }
     }
     edm::LogInfo("AnalyzerMB") << "cells" << " " << cells;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "cells" << " " << cells << std::endl;
 #endif
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "Exiting from RecAnalyzerMinbias::endjob" << std::endl;
 #endif
 }
@@ -410,7 +469,11 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::Handle<GenEventInfoProduct> genEventInfo;
   iEvent.getByToken(tok_ew_, genEventInfo);
   if (genEventInfo.isValid()) eventWeight = genEventInfo->weight();  
-
+#ifdef EDM_ML_DEBUG
+  std::cout << "Test HB " << HBHEsize << " HF " << HFsize << " Trigger "
+	    << trigbit_.size() << ":" << select << ":" << ignoreL1_ 
+	    << " Wt " << eventWeight << std::endl;
+#endif
   if (ignoreL1_ || ((trigbit_.size() > 0) && select)) {
     analyzeHcal(HithbheMB, HithfMB, 1, true, eventWeight);
   } else if ((!ignoreL1_) && (trigbit_.size() == 0)) {
@@ -439,6 +502,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
 				     const HFRecHitCollection & HithfMB,
 				     int algoBit, bool fill, double weight) {
   // Signal part for HB HE
+  int count(0), countHB(0), countHE(0), count2(0), count2HB(0), count2HE(0);
   for (HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); 
        hbheItr!=HithbheMB.end(); hbheItr++) {
     // Recalibration of energy
@@ -454,6 +518,9 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
     HcalDetId hid    = HcalDetId(id);
     double eLow      = (hid.subdet() == HcalEndcap) ? eLowHE_  : eLowHB_;
     double eHigh     = (hid.subdet() == HcalEndcap) ? eHighHE_ : eHighHB_;
+    ++count;
+    if (id.subdetId() == HcalBarrel) ++countHB;
+    else                             ++countHE;
     if (fill) {
       for (unsigned int i = 0; i < hcalID_.size(); i++) {
 	if (hcalID_[i] == id.rawId()) {
@@ -466,6 +533,17 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
 	if (itr1 != histHC_.end()) itr1->second->Fill(energyhit);
       }
       h_[hid.subdet()-1]->Fill(energyhit);
+      if (energyhit > eMin_) {
+	hbhe_->Fill(hid.ieta(),hid.iphi());
+	++count2;
+	if (id.subdetId() == HcalBarrel) {
+	  ++count2HB;
+	  hb_->Fill(hid.ieta(),hid.iphi());
+	} else {
+	  ++count2HE;
+	  he_->Fill(hid.ieta(),hid.iphi());
+	}
+      }
     }
     if (!fillHist_) {
       if (Noise_ || runNZS_ || (energyhit >= eLow && energyhit <= eHigh)) {
@@ -484,7 +562,19 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
       }
     }
   } // HBHE_MB
- 
+  if (fill) {
+    if (count   > 0) hbherun_->Fill(rnnum_ ,(double)(count2)/count);
+    if (countHB > 0) hbrun_->Fill(rnnum_ ,(double)(count2HB)/countHB);
+    if (countHE > 0) herun_->Fill(rnnum_ ,(double)(count2HE)/countHE);
+  }
+#ifdef EDM_ML_DEBUG
+  std::cout << "HBHE " << count2 << ":" << count << ":" 
+	    << (double)(count2)/count << "\t HB " << count2HB << ":" 
+	    << countHB << ":" << (double)(count2HB)/countHB << "\t HE "
+	    << count2HE << ":" << countHE << ":" 
+	    << (double)(count2HE)/countHE << std::endl;
+#endif
+  int countHF(0), count2HF(0);
   // Signal part for HF
   for (HFRecHitCollection::const_iterator hfItr=HithfMB.begin(); 
        hfItr!=HithfMB.end(); hfItr++) {
@@ -500,6 +590,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
     double energyhit = aHit.energy();
     DetId id         = (*hfItr).detid(); 
     HcalDetId hid    = HcalDetId(id);
+    ++countHF;
     if (fill) {
       for (unsigned int i = 0; i < hcalID_.size(); i++) {
 	if (hcalID_[i] == id.rawId()) {
@@ -512,6 +603,10 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
 	if (itr1 != histHC_.end()) itr1->second->Fill(energyhit);
       }
       h_[hid.subdet()-1]->Fill(energyhit);
+      if (energyhit > eMin_) {
+	hf_->Fill(hid.ieta(),hid.iphi());
+	++count2HF;
+      }
     }
 
     //
@@ -535,8 +630,14 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
       }
     }
   }
+  if (fill && countHF > 0) hfrun_->Fill(rnnum_ ,(double)(count2HF)/countHF);
+#ifdef EDM_ML_DEBUG
+  if (count) 
+    std::cout << "HF " << count2HF << ":" << countHF << ":" 
+	      << (double)(count2HF)/countHF << std::endl;
+#endif
 }
 
-//define this as a plug-in                                                      
+//define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RecAnalyzerMinbias);

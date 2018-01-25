@@ -15,7 +15,7 @@
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
-#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h" 
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <memory>
 #include <sstream>
@@ -108,7 +108,7 @@ namespace {
   class SiStripBackPlaneCorrectionByRegion : public cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection> {
   public:
     SiStripBackPlaneCorrectionByRegion() : cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection>( "SiStripBackPlaneCorrection By Region" ),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
     }

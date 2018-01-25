@@ -31,15 +31,9 @@ MABH = SimMuon.MCTruth.NewMuonAssociatorByHits_cfi.NewMuonAssociatorByHits.clone
 ##############################################
 MABH.EfficiencyCut_track = 0.5
 MABH.PurityCut_track = 0.75
-#MABH.EfficiencyCut_muon = 0.5
-MABH.EfficiencyCut_muon = 0.     # for high pt muons this is a better choice
+MABH.EfficiencyCut_muon = 0.5
 MABH.PurityCut_muon = 0.75
 MABH.includeZeroHitMuons = False
-#
-# temporary fix for Phase2
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify( MABH, EfficiencyCut_track = 0. )
-phase2_tracker.toModify( MABH, PurityCut_track = 0. )
 #
 MABHhlt = MABH.clone()
 MABHhlt.EfficiencyCut_track = 0. # backup solution as UseGrouped/UseSplitting are always assumed to be true
@@ -57,6 +51,7 @@ NEWtpToStaSeedAssociation = MABH.clone()
 NEWtpToStaSeedAssociation.tracksTag = 'NEWseedsOfSTAmuons'
 NEWtpToStaSeedAssociation.UseTracker = False
 NEWtpToStaSeedAssociation.UseMuon = True
+NEWtpToStaSeedAssociation.EfficiencyCut_muon = 0.
 
 NEWtpToStaMuonAssociation = MABH.clone()
 NEWtpToStaMuonAssociation.tracksTag = 'standAloneMuons'
@@ -92,6 +87,7 @@ NEWtpToDisplacedStaSeedAssociation = MABH.clone()
 NEWtpToDisplacedStaSeedAssociation.tracksTag = 'NEWseedsOfDisplacedSTAmuons'
 NEWtpToDisplacedStaSeedAssociation.UseTracker = False
 NEWtpToDisplacedStaSeedAssociation.UseMuon = True
+NEWtpToDisplacedStaSeedAssociation.EfficiencyCut_muon = 0.
 
 NEWtpToDisplacedStaMuonAssociation = MABH.clone()
 NEWtpToDisplacedStaMuonAssociation.tracksTag = 'displacedStandAloneMuons'
@@ -107,16 +103,19 @@ NEWtpToTevFirstMuonAssociation = MABH.clone()
 NEWtpToTevFirstMuonAssociation.tracksTag = 'tevMuons:firstHit'
 NEWtpToTevFirstMuonAssociation.UseTracker = True
 NEWtpToTevFirstMuonAssociation.UseMuon = True
+NEWtpToTevFirstMuonAssociation.EfficiencyCut_muon = 0.
 
 NEWtpToTevPickyMuonAssociation = MABH.clone()
 NEWtpToTevPickyMuonAssociation.tracksTag = 'tevMuons:picky'
 NEWtpToTevPickyMuonAssociation.UseTracker = True
 NEWtpToTevPickyMuonAssociation.UseMuon = True
+NEWtpToTevPickyMuonAssociation.EfficiencyCut_muon = 0.
 
 NEWtpToTevDytMuonAssociation = MABH.clone()
 NEWtpToTevDytMuonAssociation.tracksTag = 'tevMuons:dyt'
 NEWtpToTevDytMuonAssociation.UseTracker = True
 NEWtpToTevDytMuonAssociation.UseMuon = True
+NEWtpToTevDytMuonAssociation.EfficiencyCut_muon = 0.
 
 NEWtpToME0MuonMuonAssociation = MABH.clone()
 NEWtpToME0MuonMuonAssociation.tracksTag = 'NEWextractMe0Muons'

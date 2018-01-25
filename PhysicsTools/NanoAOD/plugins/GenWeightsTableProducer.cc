@@ -12,6 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
+#include <unordered_map>
 #include <iostream>
 #include <regex>
 
@@ -76,12 +77,22 @@ namespace {
         std::string pdfWeightsDoc;
     };
 
+    float stof_fortrancomp(const std::string &str) {
+        std::string::size_type match = str.find("d");
+        if (match != std::string::npos) {
+            std::string pre  = str.substr(0,match);
+            std::string post = str.substr(match+1);
+            return std::stof(pre) * std::pow(10.0f, std::stof(post));
+        } else {
+            return std::stof(str);
+        }
+    }
     ///  -------------- temporary objects --------------
     struct ScaleVarWeight {
         std::string wid, label;
         std::pair<float,float> scales;
         ScaleVarWeight(const std::string & id, const std::string & text, const std::string & muR, const std::string & muF) :
-            wid(id), label(text), scales(std::stof(muR), std::stof(muF)) {}
+            wid(id), label(text), scales(stof_fortrancomp(muR), stof_fortrancomp(muF)) {}
         bool operator<(const ScaleVarWeight & other) { return (scales == other.scales ? wid < other.wid : scales < other.scales); }
     };
     struct PDFSetWeights {
@@ -89,6 +100,10 @@ namespace {
         std::pair<unsigned int,unsigned int> lhaIDs;
         PDFSetWeights(const std::string & wid, unsigned int lhaID) : wids(1,wid), lhaIDs(lhaID,lhaID) {}
         bool operator<(const PDFSetWeights & other) const { return lhaIDs < other.lhaIDs; }
+        void add(const std::string & wid, unsigned int lhaID) {
+            wids.push_back(wid);
+            lhaIDs.second = lhaID;
+        }
         bool maybe_add(const std::string & wid, unsigned int lhaID) {
             if (lhaID == lhaIDs.second+1) {
                 lhaIDs.second++;
@@ -108,7 +123,6 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             lheLabel_(params.getParameter<edm::InputTag>("lheInfo")),
             lheTag_(consumes<LHEEventProduct>(lheLabel_)),
             lheRunTag_(consumes<LHERunInfoProduct, edm::InRun>(lheLabel_)),
-            preferredPDFLHAIDs_(params.getParameter<std::vector<uint32_t>>("preferredPDFs")),
             namedWeightIDs_(params.getParameter<std::vector<std::string>>("namedWeightIDs")),
             namedWeightLabels_(params.getParameter<std::vector<std::string>>("namedWeightLabels")),
             lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),
@@ -123,6 +137,13 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             produces<nanoaod::MergeableCounterTable,edm::Transition::EndRun>();
             if (namedWeightIDs_.size() != namedWeightLabels_.size()) {
                 throw cms::Exception("Configuration", "Size mismatch between namedWeightIDs & namedWeightLabels");
+            }
+            for (const edm::ParameterSet & pdfps : params.getParameter<std::vector<edm::ParameterSet>>("preferredPDFs")) {
+                const std::string & name = pdfps.getParameter<std::string>("name");
+                uint32_t lhaid = pdfps.getParameter<uint32_t>("lhaid");
+                preferredPDFLHAIDs_.push_back(lhaid);
+                lhaNameToID_[name] = lhaid;
+                lhaNameToID_[name+".LHgrid"] = lhaid;
             }
         }
 
@@ -229,9 +250,9 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 
                 std::regex weightgroup("<weightgroup\\s+combine=\"(.*)\"\\s+(?:name|type)=\"(.*)\"\\s*>");
                 std::regex endweightgroup("</weightgroup>");
-                std::regex scalew("<weight\\s+id=\"(\\d+)\">\\s*(mu[rR]=(\\S+)\\s+mu[Ff]=(\\S+)(\\s+.*)?)</weight>");
-                std::regex pdfw("<weight\\s+id=\"(\\d+)\">\\s*PDF set\\s*=\\s*(\\d+)\\s*</weight>");
-                std::regex pdfwOld("<weight\\s+id=\"(\\d+)\">\\s*Member \\s*(\\d+)\\s*</weight>");
+                std::regex scalew("<weight\\s+(?:.*\\s+)?id=\"(\\d+)\">\\s*(?:lhapdf=\\d+|dyn=\\s*-?\\d+)?\\s*((?:mu[rR]|renscfact)=(\\S+)\\s+(?:mu[Ff]|facscfact)=(\\S+)(\\s+.*)?)</weight>");
+                std::regex pdfw("<weight\\s+id=\"(\\d+)\">\\s*(?:PDF set|lhapdf|PDF|pdfset)\\s*=\\s*(\\d+)\\s*(?:\\s.*)?</weight>");
+                std::regex pdfwOld("<weight\\s+(?:.*\\s+)?id=\"(\\d+)\">\\s*Member \\s*(\\d+)\\s*(?:.*)</weight>");
                 std::smatch groups;
                 for (auto iter=lheInfo->headers_begin(), end = lheInfo->headers_end(); iter != end; ++iter) {
                     if (iter->tag() != "initrwgt") {
@@ -243,8 +264,10 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                     for (unsigned int iLine = 0, nLines = lines.size(); iLine < nLines; ++iLine) {
                         if (lheDebug) std::cout << lines[iLine];
                         if (std::regex_search(lines[iLine], groups, weightgroup)) {
-                            if (lheDebug) std::cout << ">>> Looks like the beginning of a weight group for " << groups.str(2) << std::endl;
-                            if (groups.str(2) == "scale_variation" || groups.str(2) == "Central scale variation") {
+                            std::string groupname = groups.str(2);
+                            if (lheDebug) std::cout << ">>> Looks like the beginning of a weight group for '" << groupname << "'" << std::endl;
+                            if (groupname.find("scale_variation") == 0 || groupname == "Central scale variation") {
+                                if (lheDebug) std::cout << ">>> Looks like scale variation for theory uncertainties" << std::endl;
                                 for ( ++iLine; iLine < nLines; ++iLine) {
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, scalew)) {
@@ -259,7 +282,8 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                         break;
                                     }
                                 }
-                            } else if (groups.str(2) == "PDF_variation") {
+                            } else if (groupname == "PDF_variation" || groupname.find("PDF_variation ") == 0) {
+                                if (lheDebug) std::cout << ">>> Looks like a new-style block of PDF weights for one or more pdfs" << std::endl;
                                 for ( ++iLine; iLine < nLines; ++iLine) {
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, pdfw)) {
@@ -277,16 +301,46 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                         break;
                                     }
                                 }
-                            } else if (groups.str(2) == "NNPDF30_lo_as_0130.LHgrid") { // some old 80X samples have PDF names in the header instead of using "PDF_variation" (e.g. MLM LO samples)
-                                for ( ++iLine; iLine < nLines; ++iLine) {              // we explicitly catch this one, and set the LHA ID by hand
+                            } else if (groupname == "PDF_variation1" || groupname == "PDF_variation2") { 
+                                if (lheDebug) std::cout << ">>> Looks like a new-style block of PDF weights for multiple pdfs" << std::endl;
+                                unsigned int lastid = 0;
+                                for ( ++iLine; iLine < nLines; ++iLine) {
+                                    if (lheDebug) std::cout << "    " << lines[iLine];
+                                    if (std::regex_search(lines[iLine], groups, pdfw)) {
+                                        unsigned int id = std::stoi(groups.str(1));
+                                        unsigned int lhaID = std::stoi(groups.str(2));
+                                        if (lheDebug) std::cout << "    >>> PDF weight " << groups.str(1) << " for " << groups.str(2) << " = " << lhaID << std::endl;
+                                        if (id != (lastid+1) || pdfSetWeightIDs.empty()) {
+                                            pdfSetWeightIDs.emplace_back(groups.str(1),lhaID);
+                                        } else {
+                                            pdfSetWeightIDs.back().add(groups.str(1),lhaID);
+                                        }
+                                        lastid = id;
+                                    } else if (std::regex_search(lines[iLine], endweightgroup)) {
+                                        if (lheDebug) std::cout << ">>> Looks like the end of a weight group" << std::endl;
+                                        break;
+                                    } else if (std::regex_search(lines[iLine], weightgroup)) {
+                                        if (lheDebug) std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end of the group." << std::endl;
+                                        --iLine; // rewind by one, and go back to the outer loop
+                                        break;
+                                    }
+                                }
+                            } else if (lhaNameToID_.find(groupname) != lhaNameToID_.end()) {
+                                if (lheDebug) std::cout << ">>> Looks like an old-style PDF weight for an individual pdf" << std::endl;
+                                unsigned int firstLhaID = lhaNameToID_.find(groupname)->second;
+                                bool first = true;
+                                for ( ++iLine; iLine < nLines; ++iLine) {
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, pdfwOld)) {
-                                        unsigned int lhaID = std::stoi(groups.str(2))+262000; // ids in LHE are 0 ... N, to be mapped to the LHAPDF ids 262000 ... 262000 + N
-                                                                                              // 262000 is NNPDF30_lo_as_0130, as per https://lhapdf.hepforge.org/pdfsets.html
+                                        unsigned int member = std::stoi(groups.str(2));
+                                        unsigned int lhaID = member+firstLhaID;
                                         if (lheDebug) std::cout << "    >>> PDF weight " << groups.str(1) << " for " << groups.str(2) << " = " << lhaID << std::endl;
-                                        if (lhaID == 262000) continue; // skip the central value weight as we have it already as nominal weight, only record the uncertainty weights
-                                        if (pdfSetWeightIDs.empty() || ! pdfSetWeightIDs.back().maybe_add(groups.str(1),lhaID)) {
+                                        //if (member == 0) continue; // let's keep also the central value for now
+                                        if (first) {
                                             pdfSetWeightIDs.emplace_back(groups.str(1),lhaID);
+                                            first = false;
+                                        } else {
+                                            pdfSetWeightIDs.back().add(groups.str(1),lhaID);
                                         }
                                     } else if (std::regex_search(lines[iLine], endweightgroup)) {
                                         if (lheDebug) std::cout << ">>> Looks like the end of a weight group" << std::endl;
@@ -317,7 +371,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                     // ----- SCALE VARIATIONS -----
                     std::sort(scaleVariationIDs.begin(), scaleVariationIDs.end());
                     if (lheDebug) std::cout << "Found " << scaleVariationIDs.size() << " scale variations: " << std::endl;
-                    std::stringstream scaleDoc("LHE scale variation weights (w_var / w_nominal); ");
+                    std::stringstream scaleDoc; scaleDoc << "LHE scale variation weights (w_var / w_nominal); ";
                     for (unsigned int isw = 0, nsw = scaleVariationIDs.size(); isw < nsw; ++isw) {
                         const auto & sw = scaleVariationIDs[isw];
                         if (isw) scaleDoc << "; ";
@@ -333,11 +387,12 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                         for (const auto & pw : pdfSetWeightIDs) printf("lhaIDs %6d - %6d (%3lu weights: %s, ... )\n", pw.lhaIDs.first, pw.lhaIDs.second, pw.wids.size(), pw.wids.front().c_str());
                     }
                     
-                    std::stringstream pdfDoc("LHE pdf variation weights (w_var / w_nominal) for LHA IDs ");
+                    std::stringstream pdfDoc; pdfDoc << "LHE pdf variation weights (w_var / w_nominal) for LHA IDs ";
                     bool found = false;
                     for (uint32_t lhaid : preferredPDFLHAIDs_) {
                         for (const auto & pw : pdfSetWeightIDs) {
-                            if (pw.lhaIDs.first != lhaid) continue;
+                            if (pw.lhaIDs.first != lhaid && pw.lhaIDs.first != (lhaid+1)) continue; // sometimes the first weight is not saved if that PDF is the nominal one for the sample
+                            if (pw.wids.size() == 1) continue; // only consider error sets
                             pdfDoc << pw.lhaIDs.first << " - " << pw.lhaIDs.second;
                             weightChoice->pdfWeightIDs = pw.wids;
                             if (maxPdfWeights_ < pw.wids.size()) {
@@ -400,7 +455,11 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             edm::ParameterSetDescription desc;
             desc.add<edm::InputTag>("genEvent", edm::InputTag("generator"))->setComment("tag for the GenEventInfoProduct, to get the main weight");
             desc.add<edm::InputTag>("lheInfo", edm::InputTag("externalLHEProducer"))->setComment("tag for the LHE information (LHEEventProduct and LHERunInfoProduct)");
-            desc.add<std::vector<uint32_t>>("preferredPDFs")->setComment("LHA PDF Ids of the preferred PDF sets, in order of preference (the first matching one will be used)");
+
+            edm::ParameterSetDescription prefpdf;
+            prefpdf.add<std::string>("name");
+            prefpdf.add<uint32_t>("lhaid");
+            desc.addVPSet("preferredPDFs", prefpdf, std::vector<edm::ParameterSet>())->setComment("LHA PDF Ids of the preferred PDF sets, in order of preference (the first matching one will be used)");
             desc.add<std::vector<std::string>>("namedWeightIDs")->setComment("set of LHA weight IDs for named LHE weights");
             desc.add<std::vector<std::string>>("namedWeightLabels")->setComment("output names for the namedWeightIDs (in the same order)");
             desc.add<int32_t>("lheWeightPrecision")->setComment("Number of bits in the mantissa for LHE weights");
@@ -417,6 +476,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
         const edm::EDGetTokenT<LHERunInfoProduct> lheRunTag_;
 
         std::vector<uint32_t> preferredPDFLHAIDs_;
+        std::unordered_map<std::string,uint32_t> lhaNameToID_;
         std::vector<std::string> namedWeightIDs_;
         std::vector<std::string> namedWeightLabels_;
         int lheWeightPrecision_;

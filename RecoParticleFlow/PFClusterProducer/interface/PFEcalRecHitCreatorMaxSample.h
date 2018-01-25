@@ -46,7 +46,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       const CaloSubdetectorGeometry *gTmp = 
 	geoHandle->getSubdetectorGeometry(DetId::Ecal, Detector);
 
-      const Geometry *ecalGeo =dynamic_cast< const Geometry* > (gTmp);
+      const Geometry *ecalGeo = dynamic_cast<const Geometry*>(gTmp);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for(const auto& erh : *recHitHandle ) {      
@@ -54,7 +54,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	auto energy = erh.energy();
 	auto time = erh.time();
 
-	const CaloCellGeometry *thisCell= ecalGeo->getGeometry(detid);
+	std::shared_ptr<const CaloCellGeometry> thisCell= ecalGeo->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {
