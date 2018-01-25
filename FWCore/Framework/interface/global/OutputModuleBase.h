@@ -270,6 +270,7 @@ namespace edm {
       virtual void doRespondToCloseInputFile_(FileBlock const&) {}
 
       bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
 
       void keepThisBranch(BranchDescription const& desc,
                           std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,

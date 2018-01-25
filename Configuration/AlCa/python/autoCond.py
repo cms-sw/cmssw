@@ -40,17 +40,17 @@ autoCond = {
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '100X_dataRun2_HLTHI_frozen_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
-    'phase1_2017_design'       :  '100X_mc2017_design_IdealBS_v1',
+    'phase1_2017_design'       :  '100X_mc2017_design_IdealBS_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic'    : '100X_mc2017_realistic_v1',
+    'phase1_2017_realistic'    : '100X_mc2017_realistic_v2',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
-    'phase1_2017_cosmics'      : '100X_mc2017cosmics_realistic_deco_v1',
+    'phase1_2017_cosmics'      : '100X_mc2017cosmics_realistic_deco_v2',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
-    'phase1_2017_cosmics_peak' : '100X_mc2017cosmics_realistic_peak_v1',
+    'phase1_2017_cosmics_peak' : '100X_mc2017cosmics_realistic_peak_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
     'phase1_2018_design'       : '100X_upgrade2018_design_IdealBS_v4',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    : '100X_upgrade2018_realistic_v6',
+    'phase1_2018_realistic'    : '100X_upgrade2018_realistic_v7',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
     'phase1_2018_cosmics'      :   '100X_upgrade2018cosmics_realistic_deco_v5',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019

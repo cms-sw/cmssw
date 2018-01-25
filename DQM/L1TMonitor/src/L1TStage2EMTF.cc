@@ -61,7 +61,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
 
   //cscOccupancy designed to match the cscDQM plot  
   histograms.cscDQMOccupancy = booker.book2D("cscDQMOccupancy", "CSC Chamber Occupancy", 42, 1, 43, 20, 0, 20);
-  histograms.cscDQMOccupancy.setAxisTitle("10 degree Chamber", 1);
+  histograms.cscDQMOccupancy.setAxisTitle("10#circ Chamber (N=neighbor)", 1);
   int count=0;
   for (int xbin=1; xbin < 43; ++xbin) {
   histograms.cscDQMOccupancy.setBinLabel(xbin, std::to_string(xbin-count), 1);
@@ -75,6 +75,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
     histograms.cscDQMOccupancy.setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
     histograms.cscDQMOccupancy.setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
   }
+  cscDQMOccupancy->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
 
   histograms.mpcLinkErrors = booker.book2D("mpcLinkErrors", "MPC Link Errors", 54, 1, 55, 12, -6, 6);
   histograms.mpcLinkErrors.setAxisTitle("Sector (CSCID 1-9 Unlabelled)", 1);
@@ -109,13 +110,14 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
   }
   
   histograms.rpcHitOccupancy = booker.book2D("rpcHitOccupancy", "RPC Chamber Occupancy", 42, 1, 43, 12, 0, 12);
-  histograms.rpcHitOccupancy.setAxisTitle("Sector", 1);
+  histograms.rpcHitOccupancy.setAxisTitle("Sector (N=neighbor)", 1);
   for (int bin = 1; bin < 7; ++bin) {
     histograms.rpcHitOccupancy.setBinLabel(bin*7 - 6, std::to_string(bin), 1);
     histograms.rpcHitOccupancy.setBinLabel(bin*7, "N", 1);
     histograms.rpcHitOccupancy.setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
     histograms.rpcHitOccupancy.setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
   }  
+  rpcHitOccupancy->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
 
   // Track Monitor Elements
   histograms.emtfnTracks = booker.book1D("emtfnTracks", "Number of EMTF Tracks per Event", emtfnTracksNbins, 0, emtfnTracksNbins);
@@ -255,11 +257,11 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
   // CSC LCT and RPC Hit Timing
   booker.setCurrentFolder(monitorDir + "/Timing");
  
-  histograms.cscTimingTot = booker.book2D("cscTimingTotal", "CSC Total BX ", 42, 1, 43, 20, 0, 20);
-  histograms.cscTimingTot.setAxisTitle("10 degree Chambers", 1);
+  histograms.cscTimingTot = booker.book2D("cscTimingTotal", "CSC Total BX ", 42, 1, 43, 20, 0, 20);    
+  histograms.cscTimingTot.setAxisTitle("10#circ Chamber (N=neighbor)", 1);
 
   histograms.rpcHitTimingTot = booker.book2D("rpcHitTimingTot", "RPC Chamber Occupancy ", 42, 1, 43, 12, 0, 12);
-  histograms.rpcHitTimingTot.setAxisTitle("Sector", 1);
+  histograms.rpcHitTimingTot.setAxisTitle("Sector (N=neighbor)", 1);
   const std::array<std::string, 5> nameBX{{"BXNeg1","BXPos1","BXNeg2","BXPos2","BX0"}};
   const std::array<std::string, 5> labelBX{{"BX -1","BX +1","BX -2","BX +2","BX 0"}};
 
@@ -267,7 +269,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
 
     count = 0;
     histograms.cscLCTTiming[hist] = booker.book2D("cscLCTTiming" + nameBX[hist], "CSC Chamber Occupancy " + labelBX[hist], 42, 1, 43, 20, 0, 20);
-    histograms.cscLCTTiming[hist].setAxisTitle("10 degree Chambers", 1);
+    histograms.cscLCTTiming[hist].setAxisTitle("10#circ Chamber", 1);
 
     for (int xbin=1; xbin < 43; ++xbin) {
       histograms.cscLCTTiming[hist].setBinLabel(xbin, std::to_string(xbin-count), 1);
@@ -286,15 +288,18 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
       if (hist==0) histograms.cscTimingTot.setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
       if (hist==0) histograms.cscTimingTot.setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
     }
+    if (hist==0) cscTimingTot->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
+    cscLCTTiming[hist]->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
       
     histograms.rpcHitTiming[hist] = booker.book2D("rpcHitTiming" + nameBX[hist], "RPC Chamber Occupancy " + labelBX[hist], 42, 1, 43, 12, 0, 12);
-    histograms.rpcHitTiming[hist].setAxisTitle("Sector", 1);
+    histograms.rpcHitTiming[hist].setAxisTitle("Sector (N=neighbor)", 1);
     for (int bin = 1; bin < 7; ++bin) {
       histograms.rpcHitTiming[hist].setBinLabel(bin*7 - 6, std::to_string(bin), 1);
       histograms.rpcHitTiming[hist].setBinLabel(bin*7, "N", 1);
       histograms.rpcHitTiming[hist].setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
       histograms.rpcHitTiming[hist].setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
     }
+    rpcHitTiming[hist]->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
     if (hist==0) {
       for (int bin = 1; bin < 7; ++bin) {
         histograms.rpcHitTimingTot.setBinLabel(bin*7 - 6, std::to_string(bin), 1);
@@ -302,6 +307,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
         histograms.rpcHitTimingTot.setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
         histograms.rpcHitTimingTot.setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
       }
+      rpcHitTimingTot->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
     }
     //if (hist == 4) continue; // Don't book for BX = 0
 
@@ -532,6 +538,7 @@ void L1TStage2EMTF::dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, em
     histograms.emtfTrackPt.fill(Track->Pt());
     histograms.emtfTrackEta.fill(eta);
 
+    histograms.emtfTrackOccupancy.fill(eta, phi_glob_rad);
     histograms.emtfTrackMode.fill(mode);
     histograms.emtfTrackQuality.fill(quality);
     histograms.emtfTrackQualityVsMode.fill(mode, quality);
@@ -539,7 +546,6 @@ void L1TStage2EMTF::dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, em
     // Only plot if there are <= 1 neighbor hits in the track to avoid spikes at sector boundaries
     if (modeNeighbor < 2 || modeNeighbor == 4 || modeNeighbor == 8) {
       histograms.emtfTrackPhi.fill(phi_glob_rad);
-      histograms.emtfTrackOccupancy.fill(eta, phi_glob_rad);
       if (quality >= 12) {
         histograms.emtfTrackPhiHighQuality.fill(phi_glob_rad);
       }

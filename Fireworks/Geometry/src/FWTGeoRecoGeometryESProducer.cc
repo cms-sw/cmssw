@@ -4,10 +4,6 @@
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
@@ -513,9 +509,7 @@ FWTGeoRecoGeometryESProducer::addTIBGeometry()
     unsigned int order = m_trackerTopology->tibOrder( detid );
     unsigned int side = m_trackerTopology->tibSide( detid );
 
-    std::stringstream s;
-    s << TIBDetId( detid );
-    std::string name = s.str();
+    std::string name = m_trackerTopology->print(detid);
     
     TGeoVolume* child = createVolume( name, it, kSiStrip );
     TGeoVolume* holder = GetDaughter( assembly, "Module", kSiStrip, module );
@@ -537,9 +531,7 @@ FWTGeoRecoGeometryESProducer::addTIDGeometry()
     unsigned int wheel = m_trackerTopology->tidWheel( detid );
     unsigned int ring = m_trackerTopology->tidRing( detid );
 
-    std::stringstream s;
-    s << TIDDetId( detid );
-    std::string name = s.str();
+    std::string name = m_trackerTopology->print(detid);
 
     TGeoVolume* child = createVolume( name, it, kSiStrip );
     TGeoVolume* holder = GetDaughter( assembly, "Side", kSiStrip, side );
@@ -560,10 +552,8 @@ FWTGeoRecoGeometryESProducer::addTOBGeometry()
     unsigned int rod = m_trackerTopology->tobRod( detid );
     unsigned int side = m_trackerTopology->tobSide( detid );
     unsigned int module = m_trackerTopology->tobModule( detid );
-    
-    std::stringstream s;
-    s << TOBDetId( detid );
-    std::string name = s.str();
+
+    std::string name = m_trackerTopology->print(detid);
 
     TGeoVolume* child = createVolume( name, it, kSiStrip );
     TGeoVolume* holder = GetDaughter( assembly, "Rod", kSiStrip, rod );
@@ -585,9 +575,7 @@ FWTGeoRecoGeometryESProducer::addTECGeometry()
     unsigned int ring = m_trackerTopology->tecRing( detid );
     unsigned int module = m_trackerTopology->tecModule( detid );
 
-    std::stringstream s;
-    s << TECDetId( detid );
-    std::string name = s.str();
+    std::string name = m_trackerTopology->print(detid);
 
     TGeoVolume* child = createVolume( name, it, kSiStrip );
 
