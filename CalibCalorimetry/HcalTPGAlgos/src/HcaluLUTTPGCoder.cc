@@ -299,9 +299,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	unsigned int mipMax = 0;
 	unsigned int mipMin = 0;
      
-	if (topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2018 or
-		topo_->triggerMode() == HcalTopologyMode::TriggerMode_2018legacy or
-		topo_->dddConstants()->isPlan1(cell)) {
+	bool is2018OrLater = topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2018 or
+	  topo_->triggerMode() == HcalTopologyMode::TriggerMode_2018legacy;
+	if (is2018OrLater or topo_->dddConstants()->isPlan1(cell)) {
 	    const HcalTPChannelParameter *channelParameters = conditions.getHcalTPChannelParameter(cell);
 	    mipMax = channelParameters->getFGBitInfo() >> 16;
 	    mipMin = channelParameters->getFGBitInfo() & 0xFFFF;
@@ -366,23 +366,28 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		if (isMasked) lut[adc] = 0;
 		else {
 		    double nonlinearityCorrection = 1.0;
-		    double containmentCorrection1TS = pulseCorr_->correction(cell, 1, correctionPhaseNS, adc2fC(adc));
-		    // Use the 1-TS containment correction to estimate the charge of the pulse
-		    // from the individual samples
-		    double correctedCharge = containmentCorrection1TS*adc2fC(adc);
-		    double containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
-		    if(qieType==QIE11) {
-		      const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
-		      HcalSiPMnonlinearity corr(conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
-		      const double fcByPE = siPMParameter.getFCByPE();
-		      //		      const double effectivePixelsFired = adc2fC(adc)/fcByPE;
-		      const double effectivePixelsFired = correctedCharge/fcByPE;
-		      nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
+		    double containmentCorrection2TSCorrected = 1.0;
+		    // SiPM nonlinearity was not corrected in 2017
+		    // and containment corrections  were not
+		    // ET-dependent prior to 2018
+		    if(is2018OrLater) {
+		      double containmentCorrection1TS = pulseCorr_->correction(cell, 1, correctionPhaseNS, adc2fC(adc));
+		      // Use the 1-TS containment correction to estimate the charge of the pulse
+		      // from the individual samples
+		      double correctedCharge = containmentCorrection1TS*adc2fC(adc);
+		      containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
+		      if(qieType==QIE11) {
+			const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
+			HcalSiPMnonlinearity corr(conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
+			const double fcByPE = siPMParameter.getFCByPE();
+			const double effectivePixelsFired = correctedCharge/fcByPE;
+			nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
+		      }
 		    }
                     if (allLinear_)
 		      lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection * containmentCorrection2TSCorrected / linearLSB / cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))), MASK);
                     else
-                       lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / nominalgain_ / granularity)), MASK);
+                       lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection * containmentCorrection2TSCorrected / nominalgain_ / granularity)), MASK);
 
 		    if(qieType==QIE11){
 			if (adc >= mipMin and adc < mipMax) lut[adc] |= QIE11_LUT_MSB0;
