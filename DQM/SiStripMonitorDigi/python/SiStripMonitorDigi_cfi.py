@@ -203,5 +203,5 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     ShowControlView = cms.bool(False),
     CalculateStripOccupancy = cms.bool(False),
     ResetMEsEachRun = cms.bool(False),
-    TrendVsLS       = cms.bool(True),
+    TrendVs10LS       = cms.bool(False),
 )

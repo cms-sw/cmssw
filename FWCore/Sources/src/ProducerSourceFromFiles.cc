@@ -15,5 +15,10 @@ namespace edm {
     ProducerSourceBase::fillDescription(desc);
     FromFiles::fillDescription(desc);
   }
+
+  size_t
+  ProducerSourceFromFiles::fileIndex() const {
+    return FromFiles::fileIndex();
+  }
 }
 

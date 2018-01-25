@@ -327,10 +327,10 @@ void MuonDTSeedFromRecHits::computeMean(const double* pt, const double * weights
   double wtTmp[8];
   assert(sz<=8);
 
-  for (int i=0; i<sz; ++i) {
+  for (int i=0; i<8; ++i) {
     ptTmp[i] = 0.;
     wtTmp[i] = 0;
-    if (pt[i]!=0) {
+    if (i < sz && pt[i]!=0) {
       ptTmp[n]=pt[i];
       wtTmp[n]=weights[i];
       ++n;

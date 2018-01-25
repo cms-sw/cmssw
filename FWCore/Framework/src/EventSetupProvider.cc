@@ -743,8 +743,6 @@ EventSetupProvider::addRecordToEventSetup(EventSetupRecord& iRecord) {
 EventSetup const&
 EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue)
 {
-   eventSetup_.setIOVSyncValue(iValue);
-
    eventSetup_.clear();
 
    // In a cmsRun job this does nothing because the EventSetupsController

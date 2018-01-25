@@ -225,7 +225,7 @@ makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
     const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(inputColl->begin()->id());
     if(!regions.empty()){
       for(const CaloObjType& obj : *inputColl){
-	const CaloCellGeometry* objGeom = subDetGeom->getGeometry(obj.id());
+	auto objGeom = subDetGeom->getGeometry(obj.id());
 	if(objGeom==nullptr){
 	  //wondering what to do here
 	  //something is very very wrong

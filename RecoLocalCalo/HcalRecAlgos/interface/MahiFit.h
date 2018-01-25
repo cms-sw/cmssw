@@ -97,9 +97,10 @@ class MahiFit
 		   float& reconstructedEnergy, 
 		   float& reconstructedTime, 
 		   bool& useTriple,
-		   float& chi2) const;
+		   float& chi2,
+		   const HcalTimeSlew* hcalTimeSlew_delay) const;
 
-  void doFit(std::array<float,3> &correctedOutput, int nbx) const;
+  void doFit(std::array<float,3> &correctedOutput, int nbx, const HcalTimeSlew* hcalTimeSlew_delay) const;
 
   void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps);
   void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
@@ -114,7 +115,8 @@ class MahiFit
   void updateCov() const;
   void updatePulseShape(double itQ, FullSampleVector &pulseShape, 
 			FullSampleVector &pulseDeriv,
-			FullSampleMatrix &pulseCov) const;
+			FullSampleMatrix &pulseCov,
+			const HcalTimeSlew* hcalTimeSlew_delay) const;
   double calculateArrivalTime() const;
   double calculateChiSq() const;
   void nnls() const;

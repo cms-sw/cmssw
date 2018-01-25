@@ -141,6 +141,25 @@ namespace edm {
 
             virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) = 0;
          };
+
+         template <typename T>
+         class Accumulator : public virtual T {
+         public:
+            Accumulator() = default;
+            Accumulator(Accumulator const&) = delete;
+            Accumulator& operator=(Accumulator const&) = delete;
+            ~Accumulator() noexcept(false) override {};
+
+         private:
+
+            bool hasAccumulator() const override { return true; }
+
+            void produce(Event& ev, EventSetup const& es) final {
+               accumulate(ev, es);
+            }
+
+            virtual void accumulate(Event const& ev, EventSetup const& es) = 0;
+         };
       }
    }
 }

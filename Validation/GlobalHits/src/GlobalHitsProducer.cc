@@ -1279,8 +1279,7 @@ void GlobalHitsProducer::fillECal(edm::Event& iEvent,
 	 (subdetector == sdEcalFwd))) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))->getGeometry(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
@@ -1344,8 +1343,7 @@ void GlobalHitsProducer::fillECal(edm::Event& iEvent,
 	(subdetector == sdEcalPS)) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))->getGeometry(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
@@ -1481,7 +1479,7 @@ void GlobalHitsProducer::fillHCal(edm::Event& iEvent,
 	 (subdetector == sdHcalFwd))) {
 
       // get the Cell geometry
-      const HcalGeometry *theDet = (HcalGeometry*)
+      const HcalGeometry *theDet = dynamic_cast<const HcalGeometry*>
 	(theCalo.getSubdetectorGeometry(theDetUnitId));
 
       if (!theDet) {

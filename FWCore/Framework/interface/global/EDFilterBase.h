@@ -154,6 +154,7 @@ namespace edm {
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
 
       virtual bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
 
       virtual void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder&);
 

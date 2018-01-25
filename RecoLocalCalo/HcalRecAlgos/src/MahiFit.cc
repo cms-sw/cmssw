@@ -46,7 +46,8 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 			  float& reconstructedEnergy,
 			  float& reconstructedTime,
 			  bool& useTriple, 
-			  float& chi2) const {
+			  float& chi2,
+			  const HcalTimeSlew* hcalTimeSlew_delay) const {
 
   assert(channelData.nSamples()==8||channelData.nSamples()==10);
 
@@ -117,14 +118,14 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 
     // only do pre-fit with 1 pulse if chiSq threshold is positive
     if (chiSqSwitch_>0) {
-      doFit(reconstructedVals,1);
+      doFit(reconstructedVals,1,hcalTimeSlew_delay);
       if (reconstructedVals[2]>chiSqSwitch_) {
-	doFit(reconstructedVals,0); //nbx=0 means use configured BXs
+	doFit(reconstructedVals,0,hcalTimeSlew_delay); //nbx=0 means use configured BXs
 	useTriple=true;
       }
     }
     else {
-      doFit(reconstructedVals,0);
+      doFit(reconstructedVals,0,hcalTimeSlew_delay);
       useTriple=true;
     }
   }
@@ -140,7 +141,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 
 }
 
-void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
+void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx, const HcalTimeSlew* hcalTimeSlew_delay) const {
 
   unsigned int bxSize=1;
 
@@ -184,14 +185,15 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
     nnlsWork_.pulseCovArray[iBX]   = FullSampleMatrix::Constant(0);
 
     if (offset==pedestalBX_) {
-      nnlsWork_.ampVec.coeffRef(iBX) = sqrt(nnlsWork_.pedConstraint.coeff(0));
+      nnlsWork_.ampVec.coeffRef(iBX) = 0;
     }
     else {
 
       updatePulseShape(nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset + offset), 
 		       nnlsWork_.pulseShapeArray[iBX], 
 		       nnlsWork_.pulseDerivArray[iBX],
-		       nnlsWork_.pulseCovArray[iBX]);
+		       nnlsWork_.pulseCovArray[iBX],
+		       hcalTimeSlew_delay);
       
       nnlsWork_.ampVec.coeffRef(iBX)=0;
 
@@ -269,11 +271,11 @@ double MahiFit::minimize() const {
 }
 
 void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSampleVector &pulseDeriv,
-			       FullSampleMatrix &pulseCov) const {
+			       FullSampleMatrix &pulseCov,
+			       const HcalTimeSlew* hcalTimeSlew_delay) const {
   
   float t0=meanTime_;
-  if (applyTimeSlew_) 
-    t0+=HcalTimeSlew::delay(std::max(1.0, itQ), slewFlavor_);
+  if (applyTimeSlew_) t0+=hcalTimeSlew_delay->delay(std::max(1.0, itQ), slewFlavor_);
 
   nnlsWork_.pulseN.fill(0);
   nnlsWork_.pulseM.fill(0);
@@ -292,8 +294,9 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   (*pfunctor_)(&xxp[0]);
   psfPtr_->getPulseShape(nnlsWork_.pulseP);
 
-  //in the 8 TS case for 2018+, add an extra offset to align with 10 TS returned from psfPtr_->getPulseShape()
-  int delta =nnlsWork_. tsSize == 8 ? 1 : 0;
+  //in the 2018+ case where the sample of interest (SOI) is in TS3, add an extra offset to align 
+  //with previous SOI=TS4 case assumed by psfPtr_->getPulseShape()
+  int delta =nnlsWork_. tsOffset == 3 ? 1 : 0;
 
   for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset + nnlsWork_.tsSize; iTS++) {
 

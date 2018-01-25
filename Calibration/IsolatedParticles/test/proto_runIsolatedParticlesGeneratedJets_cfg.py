@@ -33,12 +33,7 @@ process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            maxAbsZ          = cms.double(20.0),
                                            maxd0            = cms.double(10.0)
                                            )
-
-process.isotracksGen = cms.EDAnalyzer("IsolatedParticlesGeneratedJets",
-                                      Debug            = cms.untracked.bool(True),
-                                      JetSource        = cms.InputTag("ak5GenJets"),
-                                      ParticleSource   = cms.InputTag("genParticles"),
-                                      )
+process.load('Calibration.IsolatedParticles.isolatedParticlesGeneratedJets_cfi')
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('IsolatedTracksGenParticles.root')
@@ -47,15 +42,12 @@ process.TFileService = cms.Service("TFileService",
 
 # define an EndPath to analyze all other path results
 process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
-      #HLTriggerResults = cms.InputTag( 'TriggerResults','','REDIGI36X')
       HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT') 
 )
 
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
-#process.l1GtTrigReport.L1GtRecordInputTag = 'simGtDigis'
 process.l1GtTrigReport.L1GtRecordInputTag = 'gtDigis'
 process.l1GtTrigReport.PrintVerbosity = 0
 #=============================================================================
 
-process.p1 = cms.Path(process.primaryVertexFilter*process.isotracksGen)
-#process.p1 = cms.Path( process.isotracksGen )
+process.p1 = cms.Path(process.primaryVertexFilter*process.isolatedParticlesGeneratedJets)

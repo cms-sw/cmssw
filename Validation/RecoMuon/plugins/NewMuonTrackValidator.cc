@@ -285,58 +285,52 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
       //get collections from the event
       //
       edm::Handle<edm::View<Track> > trackCollection;
-      if(!event.getByToken(track_Collection_Token[www], trackCollection) && ignoremissingtkcollection_) continue;
+      unsigned int trackCollectionSize = 0;
 
-      reco::RecoToSimCollection const * recSimCollP=nullptr;
-      reco::SimToRecoCollection const * simRecCollP=nullptr;
-      reco::RecoToSimCollection recSimCollL;
-      reco::SimToRecoCollection simRecCollL;
-      
-      //associate tracks
-      if(UseAssociators) {
-	edm::LogVerbatim("NewMuonTrackValidator") << "Analyzing "
-					       << label[www].process()<<":"
-					       << label[www].label()<<":"
-					       << label[www].instance()<<" with "
-					       << associators[ww].c_str() <<"\n";
-	
-	LogTrace("NewMuonTrackValidator") << "Calling associateRecoToSim method" << "\n";
-	//	recSimColl=associator[ww]->associateRecoToSim(trackCollection,
-	//						      TPCollectionHfake);
-	recSimCollL = std::move(associator[ww]->associateRecoToSim(trackCollection,
-                                                                   TPCollectionHfake));
-	recSimCollP = &recSimCollL;
+      reco::RecoToSimCollection recSimColl;
+      reco::SimToRecoCollection simRecColl;
 
-	LogTrace("NewMuonTrackValidator") << "Calling associateSimToReco method" << "\n";
-	//	simRecColl=associator[ww]->associateSimToReco(trackCollection,
-	//					      TPCollectionHeff);
-	simRecCollL = std::move(associator[ww]->associateSimToReco(trackCollection,
-                                                                   TPCollectionHeff));
-        simRecCollP = &simRecCollL;
+      // account for missing track collections (HLT case)
+      if (!event.getByToken(track_Collection_Token[www], trackCollection) && ignoremissingtkcollection_) {
+	recSimColl.post_insert();
+	simRecColl.post_insert();
       }
 
+      //associate tracks to TrackingParticles
       else {
-	edm::LogVerbatim("NewMuonTrackValidator") << "Analyzing "
-					       << label[www].process()<<":"
-					       << label[www].label()<<":"
-					       << label[www].instance()<<" with "
-					       << associatormap.process()<<":"
-					       << associatormap.label()<<":"
-					       << associatormap.instance()<<"\n";
-	
-	Handle<reco::SimToRecoCollection > simtorecoCollectionH;
-	event.getByToken(simToRecoCollection_Token,simtorecoCollectionH);
-	//	simRecColl= *(simtorecoCollectionH.product());
-	simRecCollP = simtorecoCollectionH.product();
-	
-	Handle<reco::RecoToSimCollection > recotosimCollectionH;
-	event.getByToken(recoToSimCollection_Token,recotosimCollectionH);
-	//	recSimColl= *(recotosimCollectionH.product());
-	recSimCollP = recotosimCollectionH.product();
-      }
+	trackCollectionSize = trackCollection->size();
 
-      reco::RecoToSimCollection const & recSimColl = *recSimCollP;
-      reco::SimToRecoCollection const & simRecColl = *simRecCollP;
+	if(UseAssociators) {
+	  edm::LogVerbatim("NewMuonTrackValidator") << "Analyzing "
+						    << label[www].process()<<":"
+						    << label[www].label()<<":"
+						    << label[www].instance()<<" with "
+						    << associators[ww].c_str() <<"\n";
+	  
+	  LogTrace("NewMuonTrackValidator") << "Calling associateRecoToSim method" << "\n";
+	  recSimColl = std::move(associator[ww]->associateRecoToSim(trackCollection,
+								    TPCollectionHfake));
+	  LogTrace("NewMuonTrackValidator") << "Calling associateSimToReco method" << "\n";
+	  simRecColl = std::move(associator[ww]->associateSimToReco(trackCollection,
+								    TPCollectionHeff));
+	} else {
+	  edm::LogVerbatim("NewMuonTrackValidator") << "Analyzing "
+						    << label[www].process()<<":"
+						    << label[www].label()<<":"
+						    << label[www].instance()<<" with "
+						    << associatormap.process()<<":"
+						    << associatormap.label()<<":"
+						    << associatormap.instance()<<"\n";
+	  
+	  Handle<reco::SimToRecoCollection > simtorecoCollectionH;
+	  event.getByToken(simToRecoCollection_Token,simtorecoCollectionH);
+	  simRecColl = *simtorecoCollectionH.product();
+	  
+	  Handle<reco::RecoToSimCollection > recotosimCollectionH;
+	  event.getByToken(recoToSimCollection_Token,recotosimCollectionH);
+	  recSimColl = *recotosimCollectionH.product();
+	}	
+      }
        
       //
       //fill simulation histograms
@@ -430,6 +424,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	}
 
 	// histos for efficiency vs eta
+
 	fillPlotNoFlow(h_simuleta[w], xTPeta);
 	if (TP_is_matched) {
 	  fillPlotNoFlow(h_assoceta[w], xTPeta);
@@ -498,10 +493,11 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 					     << label[www].process()<<":"
 					     << label[www].label()<<":"
 					     << label[www].instance()
-					     << ": " << trackCollection->size() << "\n";
+					     << ": " << trackCollectionSize << "\n";
+
       int at = 0;
       int rT = 0;
-      for(edm::View<Track>::size_type i=0; i < trackCollection->size(); ++i){
+      for(edm::View<Track>::size_type i=0; i<trackCollectionSize; ++i) {
         bool Track_is_matched = false;
         bool isChargeOK = true;
 	RefToBase<Track> track(trackCollection, i);
@@ -785,7 +781,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 					       << "phiSim = " << phiSim << "\n"
 					       << "dxySim = " << dxySim << "\n"
 					       << "dzSim = " << dzSim << "\n";
-      } // End of for(edm::View<Track>::size_type i=0; i < trackCollection->size(); ++i){
+      } // End of for(edm::View<Track>::size_type i=0; i<trackCollectionSize; ++i) {
       
       h_tracks[w]->Fill(at);
       h_fakes[w]->Fill(rT-at);
