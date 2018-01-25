@@ -187,7 +187,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
       if(hit.det()==DetId::Hcal) { 
 	foundHCALConstituent = true;
 	detid = hit;
-	if (theHcalTopology->withSpecialRBXHBHE() && 
+	if (theHcalTopology->getMergePositionFlag() && 
 	    detid.subdet() == HcalEndcap) {
 	  detid = theHcalTopology->idFront(detid);
 	}

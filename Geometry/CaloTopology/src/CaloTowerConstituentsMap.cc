@@ -97,7 +97,7 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
     if (id.ietaAbs()<=m_cttopo->lastHBRing()) {
       m_hcaltopo->depthBinInformation(HcalBarrel,hcal_ieta,id.iphi(),id.zside(),nd,sd);
       for (int i=0; i<nd; i++) {
-	if (m_hcaltopo->withSpecialRBXHBHE()) {
+	if (m_hcaltopo->getMergePositionFlag()) {
 	  HcalDetId hid = m_hcaltopo->mergedDepthDetId(HcalDetId(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),i+sd));
 	  if (std::find(items.begin(),items.end(),hid) == items.end()) {
 	    items.emplace_back(hid);
@@ -131,7 +131,7 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
     if (id.ietaAbs()>=m_cttopo->firstHERing() && id.ietaAbs()<=m_cttopo->lastHERing()) {
       m_hcaltopo->depthBinInformation(HcalEndcap,hcal_ieta,id.iphi(),id.zside(),nd,sd);
       for (int i=0; i<nd; i++) {
-	if (m_hcaltopo->withSpecialRBXHBHE()) {
+	if (m_hcaltopo->getMergePositionFlag()) {
 	  HcalDetId hid = m_hcaltopo->mergedDepthDetId(HcalDetId(HcalEndcap,hcal_ieta*id.zside(),id.iphi(),i+sd));
 	  if (std::find(items.begin(),items.end(),hid) == items.end()) {
 	    items.emplace_back(hid);

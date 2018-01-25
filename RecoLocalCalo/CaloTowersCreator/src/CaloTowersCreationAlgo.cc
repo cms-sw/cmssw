@@ -494,7 +494,7 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
 void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
   DetId detId = recHit->detid();
   DetId detIdF(detId);
-  if (detId.det() == DetId::Hcal && theHcalTopology->withSpecialRBXHBHE()) {
+  if (detId.det() == DetId::Hcal && theHcalTopology->getMergePositionFlag()) {
     detIdF = theHcalTopology->idFront(HcalDetId(detId));
 #ifdef EDM_ML_DEBUG
     std::cout << "AssignHitHcal DetId " << HcalDetId(detId) << " Front " 
@@ -1480,7 +1480,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
    // to determine the axis. point set by the predefined depth.
 
   HcalDetId hid1(frontCellId), hid2(backCellId);
-  if (theHcalTopology->withSpecialRBXHBHE()) {
+  if (theHcalTopology->getMergePositionFlag()) {
     hid1 = theHcalTopology->idFront(frontCellId);
 #ifdef EDM_ML_DEBUG
     std::cout << "Front " << HcalDetId(frontCellId) << " " << hid1 << "\n";
