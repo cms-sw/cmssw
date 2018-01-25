@@ -39,7 +39,7 @@ testBox::matched_g4_and_dd( void )
   std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
   
-  CPPUNIT_ASSERT( g4.GetCubicVolume()/cm3 == dd.volume()/cm3 );
+  CPPUNIT_ASSERT( std::round(g4.GetCubicVolume()/cm3*100000) == std::round(dd.volume()/cm3*100000));
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testBox );

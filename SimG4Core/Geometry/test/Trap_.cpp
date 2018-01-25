@@ -51,11 +51,11 @@ testTrap::matched_g4_and_dd( void )
   std::cout << "\tg4 volume = " << g4_volume <<" cm3" << std::endl;
   std::cout << "\tdd volume = " << dd_volume << " cm3" <<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol=" << dds_volume << " cm3" << std::endl;
+
+  const double tolerance = 1e-7;
   
-  double tolerance = g4_volume;
-  
-  CPPUNIT_ASSERT( fabs( g4_volume - dd_volume ) < tolerance );
-  CPPUNIT_ASSERT( fabs( g4_volume - dds_volume ) < tolerance );
+  CPPUNIT_ASSERT( abs( g4_volume - dd_volume ) < tolerance );
+  CPPUNIT_ASSERT( abs( g4_volume - dds_volume ) < tolerance );
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testTrap );

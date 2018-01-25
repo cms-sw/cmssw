@@ -54,12 +54,6 @@ testCutTubs::matched_g4_and_dd( void )
   std::cout << "\tg4 volume = " << g4v <<" cm3" << std::endl;
   std::cout << "\tdd volume = " << ddv << " cm3" <<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol=" << ddsv << " cm3" << std::endl;
-
-  //double tolerance = 1e-7;
-
-  // DD does not calculate volume for this shape
-  //CPPUNIT_ASSERT( fabs( g4v - ddv ) < tolerance );
-  //CPPUNIT_ASSERT( fabs( g4v - ddsv ) < tolerance );
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testCutTubs );

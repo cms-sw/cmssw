@@ -48,8 +48,8 @@ testEllipsoid::matched_g4_and_dd( void )
 
   double tolerance = 1e-7;
   
-  CPPUNIT_ASSERT( fabs( g4_volume - dd_volume ) < tolerance );
-  CPPUNIT_ASSERT( fabs( g4_volume - dds_volume ) < tolerance );
+  CPPUNIT_ASSERT( abs( g4_volume - dd_volume ) < tolerance );
+  CPPUNIT_ASSERT( abs( g4_volume - dds_volume ) < tolerance );
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testEllipsoid );

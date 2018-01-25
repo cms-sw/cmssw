@@ -44,10 +44,10 @@ testEllipticalTube::matched_g4_and_dd( void )
   std::cout << "\tdd volume = " << dd_volume << " cm3" <<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol=" << dds_volume << " cm3" << std::endl;
   
-  double tolerance = 0.5;
+  double tolerance = 1e-7;
   
-  CPPUNIT_ASSERT( fabs( g4_volume - dd_volume ) < tolerance );
-  CPPUNIT_ASSERT( fabs( g4_volume - dds_volume ) < tolerance );
+  CPPUNIT_ASSERT( abs( g4_volume - dd_volume ) < tolerance );
+  CPPUNIT_ASSERT( abs( g4_volume - dds_volume ) < tolerance );
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testEllipticalTube );

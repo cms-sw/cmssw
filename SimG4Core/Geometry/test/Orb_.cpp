@@ -46,8 +46,10 @@ testOrb::matched_g4_and_dd( void )
   double ddv = dd.volume()/cm3;
   double ddsv = dds.volume()/cm3;
   
-  CPPUNIT_ASSERT( g4v == ddv );
-  CPPUNIT_ASSERT( g4v == ddsv );
+  const double tolerance = 1e-7;
+  
+  CPPUNIT_ASSERT( abs( g4v - ddv ) < tolerance );
+  CPPUNIT_ASSERT( abs( g4v - ddsv ) < tolerance );
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testOrb );
