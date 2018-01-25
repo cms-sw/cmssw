@@ -23,17 +23,16 @@ class CSCCrateMapValues: public edm::ESProducer, public edm::EventSetupRecordInt
  public:
   CSCCrateMapValues(const edm::ParameterSet&);
   ~CSCCrateMapValues() override;
-  
-  inline static CSCCrateMap * fillCrateMap();
 
   typedef std::unique_ptr<CSCCrateMap> ReturnType;
   
-  ReturnType produceCrateMap(const CSCCrateMapRcd&);
+  inline static CSCCrateMap * fillCrateMap();
+  
+  CSCCrateMapValues::ReturnType produceCrateMap(const CSCCrateMapRcd&);
   
  private:
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
-
 };
 
 #include<fstream>
@@ -41,10 +40,10 @@ class CSCCrateMapValues: public edm::ESProducer, public edm::EventSetupRecordInt
 #include<iostream>
 
 // to workaround plugin library
-inline CSCCrateMap *  CSCCrateMapValues::fillCrateMap()
+inline CSCCrateMap * CSCCrateMapValues::fillCrateMap()
 {
   CSCCrateMap * mapobj = new CSCCrateMap();
-  std::unique_ptr<cscmap1> map = std::make_unique<cscmap1>();
+  cscmap1 map;
   CSCMapItem::MapItem item;
 
   int i,j,k,l; //i - endcap, j - station, k - ring, l - chamber.
@@ -64,7 +63,7 @@ inline CSCCrateMap *  CSCCrateMapValues::fillCrateMap()
        else c=36;
         for(l=1;l<=c;++l){
          chamberid=i*100000+j*10000+k*1000+l*10;
-         map->chamber(chamberid,&item);
+         map.chamber(chamberid,&item);
          crate_cscid=item.crateid*10+item.cscid;
          mapobj->crate_map[crate_cscid]=item;
          count=count+1;

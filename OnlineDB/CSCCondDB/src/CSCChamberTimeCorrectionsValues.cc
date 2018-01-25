@@ -39,7 +39,8 @@ CSCChamberTimeCorrectionsValues::ReturnType
 CSCChamberTimeCorrectionsValues::produceChamberTimeCorrections(const CSCChamberTimeCorrectionsRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  return CSCChamberTimeCorrectionsValues::ReturnType( prefill(isForMC, isForMC ? ME11offsetMC : ME11offsetData, isForMC ? nonME11offsetMC : nonME11offsetData));
+  return ReturnType(prefill(isForMC, isForMC ? ME11offsetMC : ME11offsetData, isForMC ? nonME11offsetMC : nonME11offsetData));
+
   
 }
 

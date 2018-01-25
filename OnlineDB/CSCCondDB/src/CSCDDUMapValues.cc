@@ -34,7 +34,7 @@ CSCDDUMapValues::ReturnType
 CSCDDUMapValues::produceDDUMap(const CSCDDUMapRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  return CSCDDUMapValues::ReturnType(fillDDUMap());
+  return ReturnType(fillDDUMap());
   
 }
 
