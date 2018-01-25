@@ -14,8 +14,7 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "CoralBase/Exception.h"
 
@@ -32,12 +31,10 @@ private:
   void doTest(const HGCalGeometry* geom, ForwardSubdetector subdet);
   
   std::string    name;
-  bool           squareCell;
 };
 
 HGCalGeometryTester::HGCalGeometryTester(const edm::ParameterSet& iC) {
   name       = iC.getParameter<std::string>("Detector");
-  squareCell = iC.getParameter<bool>("SquareCell");
 }
 
 
@@ -67,27 +64,20 @@ void HGCalGeometryTester::doTest(const HGCalGeometry* geom,
   std::cout << ids.size() << " valid ids for " << geom->cellElement() 
 	    << std::endl;
 
-  int sectors[]= {1, 7, 13};
   int layers[] = {1, 5, 10};
   int zsides[] = {1, -1};
   int cells[]  = {1, 51, 101};
   int wafers[] = {1, 101, 201, 301, 401};
-  int ismax    = (squareCell) ? 3 : 5;
+  const int ismax(5);
   for (int zside : zsides) {
     for (int is = 0; is < ismax; ++is) {
-      int sector = (squareCell) ? sectors[is] : wafers[is];
-      int type   = (squareCell) ? 0 : geom->topology().dddConstants().waferTypeT(sector);
+      int sector = wafers[is];
+      int type   = geom->topology().dddConstants().waferTypeT(sector);
       if (type != 1) type = 0;
       for (int layer : layers) {
-		for (int cell : cells) {
+	for (int cell : cells) {
 	  DetId id1;
-	  if (squareCell) {
-	    id1 = ((subdet == HGCEE) ? 
-		   (DetId)(HGCEEDetId(subdet,zside,layer,sector,type,cell)) :
-		   (DetId)(HGCHEDetId(subdet,zside,layer,sector,type,cell)));
-	  } else {
-	    id1 = (DetId)(HGCalDetId(subdet,zside,layer,type,sector,cell));
-	  }
+	  id1 = (DetId)(HGCalDetId(subdet,zside,layer,type,sector,cell));
 	  if (geom->topology().valid(id1)) {
 	    auto        icell1  = geom->getGeometry(id1);
 	    GlobalPoint global1 = geom->getPosition(id1);
@@ -96,52 +86,13 @@ void HGCalGeometryTester::doTest(const HGCalGeometry* geom,
 		      << ":" << sector << ":0:" << cell << ") Geom " << icell1
 		      << " position (" << global1.x() << ", " << global1.y()
 		      << ", " << global1.z() << ") ids " << std::hex 
-		      << id1.rawId() << ":" << idc1.rawId() << std::dec;
-	    if (squareCell) {
-	      if (subdet == HGCEE)
-		std::cout << ":" << HGCEEDetId(id1) << ":" << HGCEEDetId(idc1);
-	      else
-		std::cout << ":" << HGCHEDetId(id1) << ":" << HGCHEDetId(idc1);
-	    } else {
-	      std::cout << ":" << HGCalDetId(id1) << ":" << HGCalDetId(idc1);
-	    }
-	    std::cout << " parameter[11] = " << icell1->param()[10] << ":"
+		      << id1.rawId() << ":" << idc1.rawId() << std::dec
+		      << ":" << HGCalDetId(id1) << ":" << HGCalDetId(idc1)
+		      << " parameter[11] = " << icell1->param()[10] << ":"
 		      << icell1->param()[11] << std::endl;
 	    if (id1.rawId() != idc1.rawId()) std::cout <<"***** ERROR *****\n";
-	    if (squareCell) {
-	      DetId id2= ((subdet == HGCEE) ? 
-			  (DetId)(HGCEEDetId(subdet,zside,layer,sector,1,cell)) :
-			  (DetId)(HGCHEDetId(subdet,zside,layer,sector,1,cell)));
-	      
-	      auto        icell2  = geom->getGeometry(id2);
-	      GlobalPoint global2 = geom->getPosition(id2);
-	      DetId       idc2    = geom->getClosestCell(global2);
-	      std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
-			<< ":" << sector << ":1:" << cell << ") Geom " << icell2
-			<< " position (" << global2.x() << ", " << global2.y()
-			<< ", " << global2.z() << ") ids " << std::hex 
-			<< id2.rawId() << ":" << idc2.rawId() << std::dec 
-			<< " parameter[11] = " << icell2->param()[10] << ":"
-			<< icell2->param()[11] << std::endl;
-	      if (id2.rawId() != idc2.rawId()) std::cout << "***** ERROR *****\n";
-	    }
 	  }
 	}
-      }
-    }
-  }
-  if (squareCell) {
-    uint32_t probids[] = {1711603886, 1711603890, 1761408735, 1761411303,
-			  1801744385, 1805447194};
-    for (unsigned int probid : probids) {
-      DetId id(probid);
-      if (id.det() == DetId::Forward && id.subdetId() == (int)(subdet)) {
-	if (subdet == HGCEE) std::cout << "Test " << HGCEEDetId(id) << std::endl;
-	else                 std::cout << "Test " << HGCHEDetId(id) << std::endl;
-	auto        icell  = geom->getGeometry(id);
-	GlobalPoint global = geom->getPosition(id);
-	std::cout << "Geom Cell: " << icell << " position (" << global.x() 
-		  << ", " << global.y() << ", " << global.z() << ")"<< std::endl;
       }
     }
   }
