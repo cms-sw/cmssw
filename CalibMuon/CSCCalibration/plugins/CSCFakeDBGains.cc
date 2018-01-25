@@ -20,7 +20,7 @@ CSCFakeDBGains::~CSCFakeDBGains()
 CSCFakeDBGains::Pointer
 CSCFakeDBGains::produceDBGains(const CSCDBGainsRcd& iRecord)
 {
-  return std::make_shared<CSCFakeDBGains::Pointer::element_type>( *(prefillDBGains()) );
+  return CSCFakeDBGains::Pointer( prefillDBGains());
 }
 
  void CSCFakeDBGains::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

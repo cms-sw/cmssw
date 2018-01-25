@@ -37,7 +37,7 @@ CSCGasGainCorrectionDBConditions::ReturnType
 CSCGasGainCorrectionDBConditions::produceDBGasGainCorrection(const CSCDBGasGainCorrectionRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
- return std::make_unique<CSCGasGainCorrectionDBConditions::ReturnType::element_type>( *(prefillDBGasGainCorrection(isForMC,dataCorrFileName)) );
+ return CSCGasGainCorrectionDBConditions::ReturnType( prefillDBGasGainCorrection(isForMC,dataCorrFileName));
   
 }
 

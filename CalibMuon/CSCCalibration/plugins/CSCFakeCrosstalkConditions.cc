@@ -111,7 +111,7 @@ CSCFakeCrosstalkConditions::~CSCFakeCrosstalkConditions()
 CSCFakeCrosstalkConditions::ReturnType
 CSCFakeCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
 {
-  return std::make_unique<CSCFakeCrosstalkConditions::ReturnType::element_type>( *(prefillCrosstalk()) );
+  return CSCFakeCrosstalkConditions::ReturnType( prefillCrosstalk() );
 }
 
  void CSCFakeCrosstalkConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

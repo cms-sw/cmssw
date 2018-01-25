@@ -38,7 +38,7 @@ CSCChipSpeedCorrectionDBConditions::ReturnType
 CSCChipSpeedCorrectionDBConditions::produceDBChipSpeedCorrection(const CSCDBChipSpeedCorrectionRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  return std::make_unique<CSCChipSpeedCorrectionDBConditions::ReturnType::element_type>( *(prefillDBChipSpeedCorrection(isForMC,dataCorrFileName,dataOffset) ) );
+  return CSCChipSpeedCorrectionDBConditions::ReturnType( prefillDBChipSpeedCorrection(isForMC,dataCorrFileName,dataOffset) );
   
 }
 

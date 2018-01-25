@@ -21,7 +21,7 @@ CSCFakeDBCrosstalk::~CSCFakeDBCrosstalk()
 CSCFakeDBCrosstalk::Pointer
 CSCFakeDBCrosstalk::produceDBCrosstalk(const CSCDBCrosstalkRcd& iRecord)
 {
-  return std::make_shared<CSCFakeDBCrosstalk::Pointer::element_type>(*(prefillDBCrosstalk()));
+  return CSCFakeDBCrosstalk::Pointer( prefillDBCrosstalk());
 }
 
  void CSCFakeDBCrosstalk::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

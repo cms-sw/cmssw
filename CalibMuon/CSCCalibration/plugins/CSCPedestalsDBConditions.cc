@@ -34,7 +34,7 @@ CSCPedestalsDBConditions::ReturnType
 CSCPedestalsDBConditions::produceDBPedestals(const CSCDBPedestalsRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  return std::make_unique<CSCPedestalsDBConditions::ReturnType::element_type>( *(prefillDBPedestals()) );
+  return CSCPedestalsDBConditions::ReturnType( prefillDBPedestals());
   
 }
 

@@ -216,7 +216,7 @@ CSCGainsConditions::ReturnType
 CSCGainsConditions::produceGains(const CSCGainsRcd& iRecord)
 {
   // Added by Zhen, need a new object so to not be deleted at exit
-  return std::make_unique<CSCGainsConditions::ReturnType::element_type>( *(prefillGains()) );
+  return CSCGainsConditions::ReturnType( prefillGains());
   
 }
 

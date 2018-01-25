@@ -33,7 +33,7 @@ CSCBadStripsConditions::ReturnType
 CSCBadStripsConditions::produceBadStrips(const CSCBadStripsRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  return  std::make_unique<CSCBadStripsConditions::ReturnType::element_type>( *(prefillBadStrips()) );
+  return  CSCBadStripsConditions::ReturnType( prefillBadStrips());
 }
 
  void CSCBadStripsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

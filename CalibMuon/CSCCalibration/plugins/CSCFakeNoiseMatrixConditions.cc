@@ -205,7 +205,7 @@ CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions()
 CSCFakeNoiseMatrixConditions::ReturnType
 CSCFakeNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
-  return std::make_unique<CSCFakeNoiseMatrixConditions::ReturnType::element_type>(*(prefillNoiseMatrix()));
+  return CSCFakeNoiseMatrixConditions::ReturnType( prefillNoiseMatrix());
 }
 
 

@@ -83,7 +83,7 @@ CSCFakePedestalsConditions::~CSCFakePedestalsConditions()
 CSCFakePedestalsConditions::ReturnType
 CSCFakePedestalsConditions::producePedestals(const CSCPedestalsRcd& iRecord)
 {
-  return std::make_unique<CSCFakePedestalsConditions::ReturnType::element_type>(*(prefillPedestals()));
+  return CSCFakePedestalsConditions::ReturnType( prefillPedestals());
 }
 
  void CSCFakePedestalsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

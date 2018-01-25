@@ -278,7 +278,7 @@ CSCCrosstalkConditions::ReturnType
 CSCCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
 {
   // Added by Zhen, need a new object so to not be deleted at exit
-  return std::make_unique<CSCCrosstalkConditions::ReturnType::element_type>( *(prefillCrosstalk()) );
+  return CSCCrosstalkConditions::ReturnType(prefillCrosstalk());
   
 }
 
