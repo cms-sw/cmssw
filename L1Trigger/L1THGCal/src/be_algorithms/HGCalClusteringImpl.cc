@@ -11,14 +11,17 @@ HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet & conf):
     scintillatorSeedThreshold_(conf.getParameter<double>("seeding_threshold_scintillator")),
     scintillatorTriggerCellThreshold_(conf.getParameter<double>("clustering_threshold_scintillator")),
     dr_(conf.getParameter<double>("dR_cluster")),
-    clusteringAlgorithmType_(conf.getParameter<string>("clusterType"))
+    clusteringAlgorithmType_(conf.getParameter<string>("clusterType")),
+    calibSF_(conf.getParameter<double>("calibSF_cluster")),
+    layerWeights_(conf.getParameter< std::vector<double> >("layerWeights")),
+    applyLayerWeights_(conf.getParameter< bool >("applyLayerCalibration"))
 {    
     edm::LogInfo("HGCalClusterParameters") << "C2d Clustering Algorithm selected : " << clusteringAlgorithmType_ ; 
     edm::LogInfo("HGCalClusterParameters") << "C2d silicon seeding Thr: " << siliconSeedThreshold_ ; 
     edm::LogInfo("HGCalClusterParameters") << "C2d silicon clustering Thr: " << siliconTriggerCellThreshold_ ; 
     edm::LogInfo("HGCalClusterParameters") << "C2d scintillator seeding Thr: " << scintillatorSeedThreshold_ ; 
     edm::LogInfo("HGCalClusterParameters") << "C2d scintillator clustering Thr: " << scintillatorTriggerCellThreshold_ ; 
- 
+    edm::LogInfo("HGCalClusterParameters") << "C2d global calibration factor: " << calibSF_;
 }
 
 
@@ -103,6 +106,7 @@ void HGCalClusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGCalTri
     /* store clusters in the persistent collection */
     clusters.resize(0, clustersTmp.size());
     for( unsigned i(0); i<clustersTmp.size(); ++i ){
+        calibratePt(clustersTmp.at(i));
         clusters.set( 0, i, clustersTmp.at(i) );
     }
     
@@ -254,6 +258,7 @@ void HGCalClusteringImpl::NNKernel( const std::vector<edm::Ptr<l1t::HGCalTrigger
             }
         }
         if(saveInCollection){
+            calibratePt(cluster);
             clusters.push_back( 0, cluster );
         }
     }
@@ -369,6 +374,7 @@ void HGCalClusteringImpl::clusterizeDRNN( const std::vector<edm::Ptr<l1t::HGCalT
     clusters.resize(0, clustersTmp.size());
     for( unsigned i(0); i<clustersTmp.size(); ++i ){
         this->removeUnconnectedTCinCluster( clustersTmp.at(i), triggerGeometry );
+        calibratePt( clustersTmp.at(i) );
         clusters.set( 0, i, clustersTmp.at(i) );
     }
 
@@ -434,4 +440,42 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & clus
         if( toRemove[i] ) cluster.removeConstituent( distances.at( i ).first );
     }
     
+}
+
+
+
+void HGCalClusteringImpl::calibratePt( l1t::HGCalCluster & cluster ){
+
+    double calibPt=0.;
+
+    if(applyLayerWeights_){
+
+        int layerN = -1;
+        if( cluster.subdetId()==HGCEE ){
+            layerN = cluster.layer();
+        }
+        else if( cluster.subdetId()==HGCHEF ){
+            layerN = cluster.layer()+kLayersEE_;
+        }
+        else if( cluster.subdetId()==HGCHEB ){
+            layerN = cluster.layer()+kLayersFH_+kLayersEE_;
+        }
+
+        calibPt = layerWeights_.at(layerN) * cluster.mipPt();
+
+    }
+
+    else{
+
+        calibPt = cluster.pt() * calibSF_;
+
+    }
+
+    math::PtEtaPhiMLorentzVector calibP4( calibPt,
+                                          cluster.eta(),
+                                          cluster.phi(),
+                                          0. );
+
+    cluster.setP4( calibP4 );
+
 }

@@ -1,3 +1,5 @@
+
+
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalMulticlusteringImpl.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalShowerShape.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -6,16 +8,12 @@
 HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& conf ) :
     dr_(conf.getParameter<double>("dR_multicluster")),
     ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster")),
-    calibSF_(conf.getParameter<double>("calibSF_multicluster")),
     multiclusterAlgoType_(conf.getParameter<string>("type_multicluster")),
     distDbscan_(conf.getParameter<double>("dist_dbscan_multicluster")),
-    minNDbscan_(conf.getParameter<unsigned>("minN_dbscan_multicluster")),
-    layerWeights_(conf.getParameter< std::vector<double> >("layerWeights")),
-    applyLayerWeights_(conf.getParameter< bool >("applyLayerCalibration"))
+    minNDbscan_(conf.getParameter<unsigned>("minN_dbscan_multicluster"))
 {    
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR for Near Neighbour search: " << dr_;  
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster minimum transverse-momentum: " << ptC3dThreshold_;
-    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster global calibration factor: " << calibSF_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster DBSCAN Clustering distance: " << distDbscan_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster clustering min number of subclusters: " << minNDbscan_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster type of multiclustering algortihm: " << multiclusterAlgoType_;
@@ -112,36 +110,19 @@ void HGCalMulticlusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGC
     /* making the collection of multiclusters */
     for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
 
-        double calibPt=0.;
-        if(applyLayerWeights_){
-            const std::vector<edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
-            for( std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++){
-                int layerN = -1; 
-                if( (*it_clu)->subdetId()==HGCEE ){
-                    layerN = (*it_clu)->layer();
-                }
-                else if((*it_clu)->subdetId()==HGCHEF){
-                    layerN = (*it_clu)->layer()+kLayersEE_;
-                }
-                else if((*it_clu)->subdetId()==HGCHEB){
-                    layerN = (*it_clu)->layer()+kLayersFH_+kLayersEE_;
-                }
-                calibPt += layerWeights_.at(layerN) * (*it_clu)->mipPt();
-            }     
-        }
-        else{        
-            calibPt = multiclustersTmp.at(i).pt() * calibSF_; 
-        }
+      // compute the eta, phi observables for multicluster starting from its barycenter x,y,z position + pT as scalar sum of pT of constituents
 
-        // compute the eta, phi observables for multicluster starting from its barycenter x,y,z position 
-        math::PtEtaPhiMLorentzVector calibP4(  calibPt, 
-                                               multiclustersTmp.at(i).centre().eta(), 
-                                               multiclustersTmp.at(i).centre().phi(), 
-                                               0. );
+        double sumPt=0.;
 
-        // overwriting the 4p with the calibrated 4p     
-        multiclustersTmp.at(i).setP4( calibP4 );
-        
+        const std::vector<edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
+        for( std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++) sumPt +=(*it_clu)->pt();
+        math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
+                                                      multiclustersTmp.at(i).centre().eta(),
+                                                      multiclustersTmp.at(i).centre().phi(),
+                                                      0. );
+        multiclustersTmp.at(i).setP4( multiclusterP4 );
+
+
         if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
 
             //compute shower shape
@@ -229,12 +210,20 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const std::vector<edm::Ptr<l1t:
   }
   /* making the collection of multiclusters */
   for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
-    math::PtEtaPhiMLorentzVector calibP4( multiclustersTmp.at(i).pt() * calibSF_, 
-                                          multiclustersTmp.at(i).eta(), 
-                                          multiclustersTmp.at(i).phi(), 
-                                          0. );
-    // overwriting the 4p with the calibrated 4p     
-    multiclustersTmp.at(i).setP4( calibP4 );
+
+    // compute the eta, phi observables for multicluster starting from its barycenter x,y,z position + pT as scalar sum of pT of constituents
+
+    double sumPt=0.;
+
+    const std::vector<edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
+    for( std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++) sumPt +=(*it_clu)->pt();
+
+    math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
+                                                  multiclustersTmp.at(i).centre().eta(),
+                                                  multiclustersTmp.at(i).centre().phi(),
+                                                  0. );
+    multiclustersTmp.at(i).setP4( multiclusterP4 );
+
     
     if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
       
