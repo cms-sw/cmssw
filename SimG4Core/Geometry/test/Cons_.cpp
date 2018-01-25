@@ -48,8 +48,8 @@ testCons::matched_g4_and_dd( void )
   std::cout << "\tdd volume = " << ddv << " cm3" <<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol=" << ddsv << " cm3" << std::endl;
   
-  CPPUNIT_ASSERT( g4v == ddv );
-  CPPUNIT_ASSERT( g4v == ddsv );
+  CPPUNIT_ASSERT( std::round(g4v*100000) == std::round(ddv*100000));
+  CPPUNIT_ASSERT( std::round(g4v*100000) == std::round(ddsv*100000));
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testCons );
