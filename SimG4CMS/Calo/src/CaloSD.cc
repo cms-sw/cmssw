@@ -27,9 +27,9 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
         edm::ParameterSet const & p, const SimTrackManager* manager,
         float timeSliceUnit, bool ignoreTkID) : 
   SensitiveCaloDetector(name, cpv, clg, p),
-  G4VGFlashSensitiveDetector(), eminHit(0), 
-  eminHitD(0), m_trackManager(manager), currentHit(nullptr), runInit(false),
-  theHC(nullptr), ignoreTrackID(ignoreTkID), hcID(-1), timeSlice(timeSliceUnit) {
+  G4VGFlashSensitiveDetector(), eminHit(0.),currentHit(nullptr), 
+  m_trackManager(manager), theHC(nullptr), ignoreTrackID(ignoreTkID), hcID(-1), 
+  timeSlice(timeSliceUnit), eminHitD(0.) {
 
   //Parameters
   edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
@@ -70,9 +70,7 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
   previousID = CaloHitID(timeSlice, ignoreTrackID);
   isParameterized = false;
   
-  primAncestor = 0;
-  cleanIndex = 0;
-  totalHits = 0;
+  primAncestor = cleanIndex = totalHits = primIDSaved = 0;
   forceSave = false;
 
   edm::LogInfo("CaloSim") << "CaloSD: Minimum energy of track for saving it " 
@@ -455,7 +453,6 @@ double CaloSD::getAttenuation(const G4Step* aStep, double birk1, double birk2, d
 
 void CaloSD::update(const BeginOfRun *) {
   initRun();
-  runInit = true;
 } 
 
 void CaloSD::update(const BeginOfEvent *) {

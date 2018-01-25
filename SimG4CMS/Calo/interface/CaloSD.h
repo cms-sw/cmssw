@@ -126,26 +126,21 @@ protected:
   G4ThreeVector                   posGlobal;    
   float                           incidentEnergy;
   float                           edepositEM, edepositHAD;
-  int                             primIDSaved;    //*  ID of the last saved primary
 
   CaloHitID                       currentID, previousID; 
 
-  double                          energyCut, tmaxHit, eminHit, eminHitD;
-  int                             checkHits;
-  bool                            useMap;
+  double                          energyCut, tmaxHit, eminHit;
 
-  const SimTrackManager*          m_trackManager;
   CaloG4Hit*                      currentHit;
 
-  bool                            runInit;
-
-  bool                            corrTOFBeam, suppressHeavy;
-  double                          correctT;
+  bool                            suppressHeavy;
   double                          kmaxIon, kmaxNeutron, kmaxProton;
 
   bool                            forceSave;
 
 private:
+
+  const SimTrackManager*          m_trackManager;
 
   std::unique_ptr<CaloSlaveSD>         slave;
   std::unique_ptr<CaloMeanResponse>    meanResponse;
@@ -154,13 +149,19 @@ private:
 
   bool                            ignoreTrackID;
   bool                            isParameterized; 
+  bool                            useMap;
+  bool                            corrTOFBeam;
 
   int                             hcID;
   int                             primAncestor;
   int                             cleanIndex;
   int                             totalHits;
+  int                             primIDSaved; // ID of the last saved primary
+  int                             checkHits;
 
   float                           timeSlice;
+  double                          eminHitD;
+  double                          correctT;
 
   std::map<CaloHitID,CaloG4Hit*>  hitMap;
   std::map<int,TrackWithHistory*> tkMap;
