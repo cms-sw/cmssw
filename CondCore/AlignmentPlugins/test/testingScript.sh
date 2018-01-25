@@ -21,7 +21,7 @@ do
     
     #*************************************************************************#
 
-    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
+    getPayloadData.py  \
 	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
 	--plot plot_TrackerAlignmentErrorExtended${i}Summary \
 	--tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
@@ -34,7 +34,7 @@ do
     
     #*************************************************************************#
 
-    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
+    getPayloadData.py  \
 	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
 	--plot plot_TrackerAlignmentErrorExtended${i}Value \
 	--tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
@@ -45,7 +45,7 @@ do
 
     #*************************************************************************#
     
-    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
+    getPayloadData.py  \
 	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
 	--plot plot_TrackerAlignmentErrorExtended${i}TrackerMap \
 	--tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
@@ -66,7 +66,7 @@ for i in "${partitions[@]}"
 do 
     echo "Processing $i partition"
 
-    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
+    getPayloadData.py  \
 	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
 	--plot plot_TrackerAlignmentErrorExtended${i}Detail \
 	--tag TrackerAlignmentExtendedErr_2009_v2_express_IOVs \

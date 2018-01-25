@@ -6,6 +6,7 @@
   <use   name="CondFormats/Common"/>
   <use   name="CondFormats/Alignment"/>
   <use   name="CommonTools/TrackerMap"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/> 
   <use   name="boost_python"/>
 </library>
 
@@ -16,5 +17,6 @@
   <use   name="CondFormats/Alignment"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="Alignment/CommonAlignment"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/> 
   <use   name="boost_python"/>
 </library>

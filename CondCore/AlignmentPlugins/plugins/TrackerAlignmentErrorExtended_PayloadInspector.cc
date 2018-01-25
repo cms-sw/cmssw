@@ -23,7 +23,7 @@
 
 // needed for mapping
 #include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
-#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h" 
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h" 
 
 #include <memory>
 #include <sstream>
@@ -107,7 +107,7 @@ namespace {
       std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
 
       const char * path_toTopologyXML = (alignErrors.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath(path_toTopologyXML).fullPath()); 
+      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath()); 
 
       auto indices = AlignmentPI::getIndices(i);
 
@@ -297,7 +297,7 @@ namespace {
       std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
 
       const char * path_toTopologyXML = (alignErrors.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath(path_toTopologyXML).fullPath()); 
+      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath()); 
 
       bool isPhase0(false);
       if(alignErrors.size()==AlignmentPI::phase0size) isPhase0 = true;
@@ -492,7 +492,7 @@ namespace {
       summaryLast  = std::make_shared<TH1F>(Form("last Summary_%s",s_coord.c_str()),Form("Summary for #sqrt{d_{%s}} APE;;APE #sqrt{d_{%s}} [#mum]",s_coord.c_str(),s_coord.c_str()),LastAPE_spectraByRegion.size(),0,LastAPE_spectraByRegion.size());
 
       const char * path_toTopologyXML = (f_alignErrors.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology f_tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath(path_toTopologyXML).fullPath()); 
+      TrackerTopology f_tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath()); 
       
       bool isPhase0(false);
       if(f_alignErrors.size()==AlignmentPI::phase0size) isPhase0 = true;
@@ -528,7 +528,7 @@ namespace {
 
 
       path_toTopologyXML = (l_alignErrors.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology l_tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath(path_toTopologyXML).fullPath()); 
+      TrackerTopology l_tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath()); 
       
       if(l_alignErrors.size()==AlignmentPI::phase0size) isPhase0 = true;
 
