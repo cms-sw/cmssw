@@ -75,7 +75,6 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
     histograms.cscDQMOccupancy.setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
     histograms.cscDQMOccupancy.setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
   }
-  cscDQMOccupancy->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
 
   histograms.mpcLinkErrors = booker.book2D("mpcLinkErrors", "MPC Link Errors", 54, 1, 55, 12, -6, 6);
   histograms.mpcLinkErrors.setAxisTitle("Sector (CSCID 1-9 Unlabelled)", 1);
@@ -117,7 +116,6 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
     histograms.rpcHitOccupancy.setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
     histograms.rpcHitOccupancy.setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
   }  
-  rpcHitOccupancy->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
 
   // Track Monitor Elements
   histograms.emtfnTracks = booker.book1D("emtfnTracks", "Number of EMTF Tracks per Event", emtfnTracksNbins, 0, emtfnTracksNbins);
@@ -288,8 +286,6 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
       if (hist==0) histograms.cscTimingTot.setBinLabel(ybin, "ME-" + suffix_label[ybin - 1], 2);
       if (hist==0) histograms.cscTimingTot.setBinLabel(21 - ybin, "ME+" + suffix_label[ybin - 1], 2);
     }
-    if (hist==0) cscTimingTot->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
-    cscLCTTiming[hist]->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
       
     histograms.rpcHitTiming[hist] = booker.book2D("rpcHitTiming" + nameBX[hist], "RPC Chamber Occupancy " + labelBX[hist], 42, 1, 43, 12, 0, 12);
     histograms.rpcHitTiming[hist].setAxisTitle("Sector (N=neighbor)", 1);
@@ -299,7 +295,6 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
       histograms.rpcHitTiming[hist].setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
       histograms.rpcHitTiming[hist].setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
     }
-    rpcHitTiming[hist]->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
     if (hist==0) {
       for (int bin = 1; bin < 7; ++bin) {
         histograms.rpcHitTimingTot.setBinLabel(bin*7 - 6, std::to_string(bin), 1);
@@ -307,7 +302,6 @@ void L1TStage2EMTF::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm
         histograms.rpcHitTimingTot.setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
         histograms.rpcHitTimingTot.setBinLabel(13 - bin, "RE+" + rpc_label[bin - 1],2);
       }
-      rpcHitTimingTot->getTH2F()->GetXaxis()->SetCanExtend(false); // Needed to stop multi-thread summing
     }
     //if (hist == 4) continue; // Don't book for BX = 0
 
