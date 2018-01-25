@@ -27,7 +27,7 @@
 
 // needed for mapping
 #include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
-#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h" 
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h" 
 
 #include <memory>
 #include <sstream>
@@ -83,6 +83,18 @@ namespace {
 	return false;
       }
 
+      // check that the geomtery is a tracker one
+      const char * path_toTopologyXML = (ref_ali.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath()); 
+
+      for (const auto &ali : ref_ali){
+	auto mydetid = ali.rawId();
+	if(DetId(mydetid).det() != DetId::Tracker){
+	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << DetId(mydetid).rawId() <<" ("<< DetId(mydetid).det()<<") is different from "<<DetId::Tracker<<" (is DoubleSide: "<< tTopo.tidIsDoubleSide(mydetid)<<"); subdetId "<< DetId(mydetid).subdetId() <<" - terminating ";
+	  return false;
+	}
+      } 
+
       int counter=0;
       auto s_coord = AlignmentPI::getStringFromCoordinate(coord);
       std::string unit = (coord == AlignmentPI::t_x || coord == AlignmentPI::t_y  || coord == AlignmentPI::t_z ) ? "[#mum]" : "[mrad]";
@@ -93,13 +105,6 @@ namespace {
       std::vector<int> boundaries;
       AlignmentPI::partitions currentPart = AlignmentPI::BPix;
       for(unsigned int i=0;i<=ref_ali.size();i++){
-
-	/*
-	  if(DetId(ref_ali[i].rawId()).det() != DetId::Tracker){
-	  edm::LogWarning("TrackerAlignmen_PayloadInspector") << "Encountered invalid Tracker DetId:" << ref_ali[i].rawId() <<" - terminating ";
-	  return false;
-	  }
-	*/
 
 	if(ref_ali[i].rawId() == target_ali[i].rawId()){
 
@@ -216,7 +221,7 @@ namespace {
 
   template<AlignmentPI::partitions q> class TrackerAlignmentSummary : public cond::payloadInspector::PlotImage<Alignments> {
   public:
-    TrackerAlignmentSummary() : cond::payloadInspector::PlotImage<Alignments>( "Comparison of all coordinates between two geometries for"+getStringFromPart (q) ){
+    TrackerAlignmentSummary() : cond::payloadInspector::PlotImage<Alignments>( "Comparison of all coordinates between two geometries for "+getStringFromPart (q) ){
       setSingleIov( false );
     }
     
@@ -246,6 +251,18 @@ namespace {
 	return false;
       }
 
+      // check that the geomtery is a tracker one
+      const char * path_toTopologyXML = (ref_ali.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath()); 
+
+      for (const auto &ali : ref_ali){
+	auto mydetid = ali.rawId();
+	if(DetId(mydetid).det() != DetId::Tracker){
+	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << DetId(mydetid).rawId() <<" ("<< DetId(mydetid).det()<<") is different from "<<DetId::Tracker<<" (is DoubleSide: "<< tTopo.tidIsDoubleSide(mydetid)<<"); subdetId "<< DetId(mydetid).subdetId() <<" - terminating ";
+	  return false;
+	}
+      } 
+
       TCanvas canvas("Alignment Comparison","Alignment Comparison",1200,1200);
       canvas.Divide(3,2);
         
@@ -261,15 +278,13 @@ namespace {
 	
       }
 
-      for(unsigned int i=0;i<=ref_ali.size();i++){
 
-	if(DetId(ref_ali[i].rawId()).det() != DetId::Tracker){
-	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << ref_ali[i].rawId() <<" - terminating ";
-	  return false;
-	}
+      int loopedComponents(0);
+      for(unsigned int i=0;i<=ref_ali.size();i++){
 
 	if(ref_ali[i].rawId() == target_ali[i].rawId()){
 	  
+	  loopedComponents++;
 	  int subid = DetId(ref_ali[i].rawId()).subdetId();
 	  auto thePart = static_cast<AlignmentPI::partitions>(subid);
 	  if(thePart!=q) continue;
@@ -315,6 +330,8 @@ namespace {
 	  } 
 	} // check on the same detID
       } // loop on the components
+
+      //std::cout<<"ref_ali.size()"<< ref_ali.size() << " obtained comparison for "<< loopedComponents <<std::endl;
 
       int c_index=1;
       for (const auto &coord : coords){
@@ -371,7 +388,7 @@ namespace {
       for(const auto& ali : alignments ){
 
 	if(DetId(ali.rawId()).det() != DetId::Tracker){
-	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << ali.rawId() <<" - terminating ";
+	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << ali.rawId() <<" "<<DetId(ali.rawId()).det()<<" is different from "<<DetId::Tracker<<"  - terminating ";
 	  return false;
 	}
 

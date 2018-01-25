@@ -13,24 +13,23 @@ eval `scram run -sh`;
 
 mkdir -p $W_DIR/results
 
-# elements=(X Y Z Alpha Beta Gamma)
+elements=(X Y Z Alpha Beta Gamma)
 
-# for i in "${elements[@]}"
-# do
-#     echo "Processing: $i element"
+for i in "${elements[@]}"
+do
+    echo "Processing: $i element"
 
-#     /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
-# 	--plugin pluginTrackerAlignment_PayloadInspector \
-# 	--plot plot_TrackerAlignmentCompare${i} \
-# 	--tag TrackerAlignment_PCL_byRun_v2_express \
-# 	--time_type Run \
-# 	--iovs '{"start_iov": "303809", "end_iov": "303886"}' \
-# 	--db Prod \
-# 	--test;
+    getPayloadData.py  \
+	--plugin pluginTrackerAlignment_PayloadInspector \
+	--plot plot_TrackerAlignmentCompare${i} \
+	--tag TrackerAlignment_PCL_byRun_v2_express \
+	--time_type Run \
+	--iovs '{"start_iov": "303809", "end_iov": "303886"}' \
+	--db Prod \
+	--test;
 
-#     mv *.png $W_DIR/results/TrackerAlignmentCompare${i}.png
-# done
-
+    mv *.png $W_DIR/results/TrackerAlignmentCompare${i}.png
+done
 
 elements=(BPix FPix TIB TOB TID TEC)
 
@@ -38,13 +37,13 @@ for i in "${elements[@]}"
 do
     echo "Processing: $i element"
     
-    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
+    getPayloadData.py  \
  	--plugin pluginTrackerAlignment_PayloadInspector \
  	--plot plot_TrackerAlignmentSummary${i} \
  	--tag TrackerAlignment_PCL_byRun_v2_express \
  	--time_type Run \
- 	--iovs '{"start_iov": "292200", "end_iov": "303886"}' \
- 	--db Prod \
+	--iovs '{"start_iov": "292200", "end_iov": "303886"}' \
+  	--db Prod \
  	--test;
     
     mv *.png $W_DIR/results/TrackerAlignmentSummary${i}.png
