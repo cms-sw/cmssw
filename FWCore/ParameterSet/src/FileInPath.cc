@@ -17,7 +17,7 @@ namespace bf = boost::filesystem;
 namespace
 {
 
-  std::atomic<bool> fileLookupDisabled{false};
+  std::atomic<bool> s_fileLookupDisabled{false};
 
   /// These are the names of the environment variables which control
   /// the behavior  of the FileInPath  class.  They are local to  this
@@ -115,7 +115,7 @@ namespace edm
     canonicalFilename_(),
     location_(Unknown)
   {
-    if (fileLookupDisabled) {
+    if (s_fileLookupDisabled) {
       return;
     }
     getEnvironment();
@@ -126,7 +126,7 @@ namespace edm
     canonicalFilename_(),
     location_(Unknown)
   {
-    if (fileLookupDisabled) {
+    if (s_fileLookupDisabled) {
       return;
     }
     getEnvironment();
@@ -138,7 +138,7 @@ namespace edm
     canonicalFilename_(),
     location_(Unknown)
   {
-    if (fileLookupDisabled) {
+    if (s_fileLookupDisabled) {
       return;
     }
     if(r == nullptr) {
@@ -522,7 +522,7 @@ namespace edm
   }
 
   void FileInPath::disableFileLookup() {
-    fileLookupDisabled = true;
+    s_fileLookupDisabled = true;
   }
 
 }
