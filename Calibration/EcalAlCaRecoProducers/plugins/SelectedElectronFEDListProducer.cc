@@ -151,7 +151,7 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
   
  // ES look up table path
   if(iConfig.existsAs<std::string>("ESLookupTable"))
-    ESLookupTable_    = edm::FileInPath(iConfig.getParameter<string>("ESLookupTable")); 
+    ESLookupTable_    = edm::FileInPath(iConfig.getParameter<std::string>("ESLookupTable")); 
   else ESLookupTable_ = edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"); 
   
   // output model label
