@@ -1,0 +1,23 @@
+<bin name="testTFHelloWorld" file="testRunner.cpp,testHelloWorld.cc">
+    <use name="tensorflow-cc" />
+    <use name="boost_filesystem" />
+    <use name="cppunit" />
+
+    <use name="FWCore/Utilities" />
+</bin>
+
+<bin name="testTFMetaGraphLoading" file="testRunner.cpp,testMetaGraphLoading.cc">
+    <use name="boost_filesystem" />
+    <use name="cppunit" />
+
+    <use name="FWCore/Utilities" />
+    <use name="PhysicsTools/TensorFlow" />
+</bin>
+
+<bin name="testTFGraphLoading" file="testRunner.cpp,testGraphLoading.cc">
+    <use name="boost_filesystem" />
+    <use name="cppunit" />
+
+    <use name="FWCore/Utilities" />
+    <use name="PhysicsTools/TensorFlow" />
+</bin>
