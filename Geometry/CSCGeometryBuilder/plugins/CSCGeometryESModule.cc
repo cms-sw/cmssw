@@ -90,7 +90,7 @@ CSCGeometryESModule::~CSCGeometryESModule(){}
 
 std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRecord& record) {
 
-  initCSCGeometry_(record);
+  std::shared_ptr<CSCGeometry> cscGeometry = initCSCGeometry_(record);
 
   // Called whenever the alignments or alignment errors change
 
@@ -128,13 +128,13 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
 }
 
 
-void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
+std::shared_ptr<CSCGeometry> CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
 {
-  if(not recreateGeometry_) return;
+  //if(not recreateGeometry_) return;
 
   // Updates whenever a dependent Record was changed
 
-  cscGeometry = std::make_shared<CSCGeometry>( debugV, useGangedStripsInME1a, useOnlyWiresInME1a, useRealWireGeometry,
+  std::shared_ptr<CSCGeometry> cscGeometry = std::make_shared<CSCGeometry>( debugV, useGangedStripsInME1a, useOnlyWiresInME1a, useRealWireGeometry,
 								 useCentreTIOffsets );
 
   //  cscGeometry->setUseRealWireGeometry( useRealWireGeometry );
@@ -165,6 +165,7 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
     cscgb.build(cscGeometry, *rig, *rdp);
   }
   recreateGeometry_=false;
+  return cscGeometry;
 }
 
 void CSCGeometryESModule::muonNumberingChanged_( const MuonNumberingRecord& ) {

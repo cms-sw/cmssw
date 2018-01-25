@@ -34,8 +34,7 @@ private:
   void cscRecoGeometryChanged_( const CSCRecoGeometryRcd& );
   void cscRecoDigiParametersChanged_( const CSCRecoDigiParametersRcd& );
 
-  void initCSCGeometry_(const MuonGeometryRecord& );
-  std::shared_ptr<CSCGeometry> cscGeometry;
+  std::shared_ptr<CSCGeometry> initCSCGeometry_(const MuonGeometryRecord& );
   bool recreateGeometry_;
 
   // Flags for controlling geometry modelling during build of CSCGeometry
