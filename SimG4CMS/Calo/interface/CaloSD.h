@@ -21,14 +21,12 @@
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-// To be replaced by something else 
-/* #include "Utilities/Notification/interface/TimerProxy.h" */
  
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
 #include "G4VGFlashSensitiveDetector.hh"
 
+#include <cstdint>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -54,10 +52,10 @@ public:
          edm::ParameterSet const & p, const SimTrackManager*,
 	 float timeSlice=1., bool ignoreTkID=false);
   ~CaloSD() override;
-  bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
-  bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*) override;
 
-  virtual double getEnergyDeposit(G4Step* step); 
+  G4bool   ProcessHits(G4Step * step, G4TouchableHistory *) override;
+  bool     ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) override;
+
   uint32_t setDetUnitId(const G4Step* step) override =0;
   
   void     Initialize(G4HCofThisEvent * HCE) override;
@@ -71,16 +69,19 @@ public:
 
 protected:
 
-  virtual G4bool   getStepInfo(G4Step* aStep);
-  G4ThreeVector    setToLocal(const G4ThreeVector&, const G4VTouchable*);
-  G4ThreeVector    setToGlobal(const G4ThreeVector&, const G4VTouchable*);
-  G4bool           hitExists();
-  G4bool           checkHit();
-  CaloG4Hit*       createNewHit();
-  void             updateHit(CaloG4Hit*);
-  void             resetForNewPrimary(const G4ThreeVector&, double);
-  double           getAttenuation(const G4Step* aStep, double birk1, double birk2,
-                                  double birk3);
+  virtual double getEnergyDeposit(const G4Step* step); 
+  virtual bool   getFromLibrary(const G4Step* step); 
+
+  G4ThreeVector  setToLocal(const G4ThreeVector&, const G4VTouchable*) const; 
+  G4ThreeVector  setToGlobal(const G4ThreeVector&, const G4VTouchable*) const; 
+
+  bool           hitExists(const G4Step*);
+  bool           checkHit();
+  CaloG4Hit*     createNewHit(const G4Step*);
+  void           updateHit(CaloG4Hit*);
+  void           resetForNewPrimary(const G4Step*);
+  double         getAttenuation(const G4Step* aStep, double birk1, double birk2,
+                                double birk3) const; 
 
   void     update(const BeginOfRun *) override;
   void     update(const BeginOfEvent *) override;
@@ -90,10 +91,21 @@ protected:
   virtual void     initRun();
   virtual bool     filterHit(CaloG4Hit*, double);
 
-  virtual int      getTrackID(const G4Track*);
+  virtual int      getTrackID(const G4Track*); 
   virtual uint16_t getDepth(const G4Step*);   
   double           getResponseWt(const G4Track*);
   int              getNumberOfHits();
+
+  inline void setParameterized(bool val) { isParameterized = val; }
+
+  inline void processHit(const G4Step* step) {
+    // check if it is in the same unit and timeslice as the previous one
+    if (currentID == previousID) {
+      updateHit(currentHit);
+    } else if (!checkHit()) {
+      currentHit = createNewHit(step);
+    }
+  }
 
 private:
 
@@ -109,17 +121,14 @@ protected:
   // One shower is made of several hits which differ by the
   // unit ID (crystal/fibre/scintillator) and the Time slice ID.
 
-  G4ThreeVector                   entrancePoint;
-  G4ThreeVector                   entranceLocal;
-  G4ThreeVector                   posGlobal;
+  G4ThreeVector                   entrancePoint; 
+  G4ThreeVector                   entranceLocal; 
+  G4ThreeVector                   posGlobal;    
   float                           incidentEnergy;
-  int                             primIDSaved; //  ID of the last saved primary
+  float                           edepositEM, edepositHAD;
+  int                             primIDSaved;    //*  ID of the last saved primary
 
   CaloHitID                       currentID, previousID; 
-  G4Track*                        theTrack;
-
-  G4StepPoint*                    preStepPoint; 
-  float                           edepositEM, edepositHAD;
 
   double                          energyCut, tmaxHit, eminHit, eminHitD;
   int                             checkHits;
@@ -134,27 +143,31 @@ protected:
   double                          correctT;
   double                          kmaxIon, kmaxNeutron, kmaxProton;
 
-  G4int                           emPDG, epPDG, gammaPDG;
   bool                            forceSave;
 
 private:
 
-  float                           timeSlice;
-  bool                            ignoreTrackID;
-  CaloSlaveSD*                    slave;
-  int                             hcID;
+  std::unique_ptr<CaloSlaveSD>         slave;
+  std::unique_ptr<CaloMeanResponse>    meanResponse;
+
   CaloG4HitCollection*            theHC; 
-  std::map<CaloHitID,CaloG4Hit*>  hitMap;
 
-  std::map<int,TrackWithHistory*> tkMap;
-  CaloMeanResponse*               meanResponse;
+  bool                            ignoreTrackID;
+  bool                            isParameterized; 
 
+  int                             hcID;
   int                             primAncestor;
   int                             cleanIndex;
+  int                             totalHits;
+
+  float                           timeSlice;
+
+  std::map<CaloHitID,CaloG4Hit*>  hitMap;
+  std::map<int,TrackWithHistory*> tkMap;
+
   std::vector<CaloG4Hit*>         reusehit;
   std::vector<CaloG4Hit*>         hitvec;
   std::vector<unsigned int>       selIndex;
-  int                             totalHits;
 
 };
 

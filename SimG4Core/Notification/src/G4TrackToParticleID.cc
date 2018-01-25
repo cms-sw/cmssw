@@ -9,8 +9,26 @@ int G4TrackToParticleID::particleID(const G4Track * g4trk)
     int particleID_ = g4trk->GetDefinition()->GetPDGEncoding();
     if (0 == particleID_) {
       edm::LogWarning("SimG4CoreNotification") 
-	<< "G4TrackToParticleID: unknown code for track Id = " << g4trk->GetTrackID();
+	<< "G4TrackToParticleID: unknown code 0 for track Id = " << g4trk->GetTrackID();
       particleID_ = -99;
     }
     return particleID_;
+}
+
+bool G4TrackToParticleID::isGammaElectronPositron(const G4Track * g4trk)
+{
+  int pdg = std::abs(g4trk->GetDefinition()->GetPDGEncoding());
+  return (pdg == 11 || pdg == 22);
+}
+
+bool G4TrackToParticleID::isMuon(const G4Track * g4trk)
+{
+  return (std::abs(g4trk->GetDefinition()->GetPDGEncoding()) == 13);
+}
+
+bool G4TrackToParticleID::isStableHadron(const G4Track * g4trk)
+{
+  // is pi+-, p, pbar, n, nbar, KL, K+-, 
+  int pdg = std::abs(g4trk->GetDefinition()->GetPDGEncoding());
+  return (pdg == 211 || pdg == 2212 || pdg == 2112 || pdg == 130 || pdg == 321);
 }

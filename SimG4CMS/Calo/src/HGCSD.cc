@@ -87,10 +87,10 @@ HGCSD::HGCSD(const std::string& name, const DDCompactView & cpv,
 }
 
 HGCSD::~HGCSD() { 
-  if (numberingScheme)  delete numberingScheme;
-  if (mouseBite_)       delete mouseBite_;
+  delete numberingScheme;
+  delete mouseBite_;
 }
-
+/*
 bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
   NaNTrap( aStep ) ;
@@ -122,12 +122,19 @@ bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     return true;
   }
 } 
+*/
+double HGCSD::getEnergyDeposit(const G4Step* aStep) {
+  double destep(0.0);
+  double r = aStep->GetPreStepPoint()->GetPosition().perp();
+  double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
 
-double HGCSD::getEnergyDeposit(G4Step* aStep) {
-  double wt1    = getResponseWt(aStep->GetTrack());
-  double wt2    = aStep->GetTrack()->GetWeight();
-  double destep = wt1*(aStep->GetTotalEnergyDeposit());
-  if (wt2 > 0) destep *= wt2;
+  // check fiductial volume
+  if (r >= z*slopeMin_) {
+    double wt1    = getResponseWt(aStep->GetTrack());
+    destep *= wt1*aStep->GetTotalEnergyDeposit();
+    double wt2    = aStep->GetTrack()->GetWeight();
+    if (wt2 > 0) { destep *= wt2; }
+  }
   return destep;
 }
 
@@ -237,7 +244,7 @@ uint32_t HGCSD::setDetUnitId (ForwardSubdetector &subdet, int layer, int module,
     numberingScheme->getUnitID(subdet, layer, module, cell, iz, pos) : 0;
   return id;
 }
-
+/*
 int HGCSD::setTrackID (const G4Step* aStep) {
   const G4Track* theTrack    = aStep->GetTrack();
 
@@ -257,3 +264,4 @@ int HGCSD::setTrackID (const G4Step* aStep) {
 
   return primaryID;
 }
+*/

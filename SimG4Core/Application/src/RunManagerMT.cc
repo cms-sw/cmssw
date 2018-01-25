@@ -40,6 +40,7 @@
 #include "G4ApplicationState.hh"
 #include "G4MTRunManagerKernel.hh"
 #include "G4UImanager.hh"
+#include "G4StateManager.hh"
 
 #include "G4EventManager.hh"
 #include "G4Run.hh"
@@ -153,6 +154,9 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   // adding GFlash, Russian Roulette for eletrons and gamma, 
   // step limiters on top of any Physics Lists
   phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions",m_pPhysics));
+
+  m_kernel->SetPhysics(phys);
+  G4StateManager::GetStateManager()->SetNewState(G4State_Init);
 
   m_physicsList->ResetStoredInAscii();
   if (m_RestorePhysicsTables) {
