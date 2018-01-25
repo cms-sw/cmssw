@@ -100,4 +100,8 @@ void MicroGMTConverter::convert_all(
       out_cands.push_back(bx, out_cand);
     }
   }
+
+  // Sort by processor to match uGMT unpacked order
+  l1t::SortCandsEMTF(out_cands);
+
 }
