@@ -66,9 +66,9 @@ namespace fastsim{
         */
         const double getThickness(const math::XYZTLorentzVector & position, const math::XYZTLorentzVector & momentum) const override
         {
-            math::XYZVector normVec(position.Px(), position.Py(), 0.);
-            double fabsCosTheta = fabs(momentum.Vect().Dot(normVec)) / (momentum.P() * normVec.R());
-            return getThickness(position) / fabsCosTheta;
+            // Do projection of norm(layer) on momentum vector
+            // CosTheta = (momentum dot norm) / (length(momentum) / length(norm))
+            return getThickness(position) / fabs(momentum.X() * position.X() + momentum.Y() * position.Y()) / (momentum.P() * std::sqrt(position.X() * position.X() + position.Y() * position.Y()));
         }
         
         //! Return magnetic field (field only has Z component!) on the barrel layer.
