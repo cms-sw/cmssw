@@ -227,6 +227,7 @@ namespace edm {
     virtual void respondToCloseInputFile(FileBlock const&) {}
 
     bool hasAcquire() const { return false; }
+    bool hasAccumulator() const { return false; }
 
     virtual bool isFileOpen() const { return true; }
 

@@ -17,8 +17,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
 #include "Geometry/CaloTopology/interface/FastTimeTopology.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 
 class FastTimeTopologyTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
