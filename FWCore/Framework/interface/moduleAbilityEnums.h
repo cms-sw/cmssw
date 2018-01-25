@@ -42,7 +42,8 @@ namespace edm {
       kOneWatchRuns,
       kOneWatchLuminosityBlocks,
       kWatchInputFiles,
-      kExternalWork
+      kExternalWork,
+      kAccumulator
     };
     
     namespace AbilityBits {

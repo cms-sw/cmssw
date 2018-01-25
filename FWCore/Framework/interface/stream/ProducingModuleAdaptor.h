@@ -73,6 +73,10 @@ namespace edm {
         return T::HasAbility::kExternalWork;
       }
 
+      bool hasAccumulator() const final {
+        return T::HasAbility::kAccumulator;
+      }
+
     private:
       typedef CallGlobal<T> MyGlobal;
       typedef CallGlobalRun<T> MyGlobalRun;
