@@ -13,7 +13,9 @@ def cloneAndModifyMVAIsolationFor94XMiniAODv2(process):
         mvaOpt = cms.string("DBoldDMwLTwGJ")
     )
     process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2 = process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone(
-        mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization") 
+        mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization"),
+        key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTrawMVAIsoFor94XMiniv2","category"),
+        toMultiplex = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTrawMVAIsoFor94XMiniv2")
     )
     process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff90")
     process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2 = process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2.clone()
