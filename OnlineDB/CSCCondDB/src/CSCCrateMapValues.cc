@@ -34,7 +34,7 @@ CSCCrateMapValues::ReturnType
 CSCCrateMapValues::produceCrateMap(const CSCCrateMapRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  return CSCCrateMapValues::ReturnType( fillCrateMap() );
+  return ReturnType(fillCrateMap());
 }
 
  void CSCCrateMapValues::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
