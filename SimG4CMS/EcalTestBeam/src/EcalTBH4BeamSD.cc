@@ -50,23 +50,17 @@ EcalTBH4BeamSD::~EcalTBH4BeamSD() {
   if (numberingScheme) delete numberingScheme;
 }
 
-double EcalTBH4BeamSD::getEnergyDeposit(G4Step * aStep) {
+double EcalTBH4BeamSD::getEnergyDeposit(const G4Step * aStep) {
   
-  if (aStep == nullptr) {
-    return 0;
-  } else {
-    preStepPoint        = aStep->GetPreStepPoint();
-    G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
-
-    // take into account light collection curve for crystals
-    double weight = 1.;
-    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
-    double edep   = aStep->GetTotalEnergyDeposit() * weight;
-    LogDebug("EcalTBSim") << "EcalTBH4BeamSD:: " << nameVolume
+  // take into account light collection curve for crystals
+  double weight = 1.;
+  if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
+  double edep   = aStep->GetTotalEnergyDeposit() * weight;
+  LogDebug("EcalTBSim") << "EcalTBH4BeamSD:: " 
+			<< aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName()
 			<<" Light Collection Efficiency " << weight 
 			<< " Weighted Energy Deposit " << edep/MeV << " MeV";
-    return edep;
-  } 
+  return edep;
 }
 
 uint32_t EcalTBH4BeamSD::setDetUnitId(const G4Step * aStep) { 

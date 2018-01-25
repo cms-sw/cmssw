@@ -451,14 +451,9 @@ std::vector<double> HFShower::getDDDArray(const std::string & str,
   }
 }
 
-void HFShower::initRun(G4ParticleTable *, HcalDDDSimConstants* hcons) {
+void HFShower::initRun(const HcalDDDSimConstants* hcons) {
 
   //Special Geometry parameters
-  gpar      = hcons->getGparHF();
-  edm::LogInfo("HFShower") << "HFShower: " << gpar.size() << " gpar (cm)";
-  for (unsigned int ig=0; ig<gpar.size(); ig++)
-    edm::LogInfo("HFShower") << "HFShower: gpar[" << ig << "] = "
-                             << gpar[ig]/cm << " cm";
-
-  if (fibre) fibre->initRun(hcons);
+  gpar = hcons->getGparHF();
+  if (fibre) { fibre->initRun(hcons); }
 }

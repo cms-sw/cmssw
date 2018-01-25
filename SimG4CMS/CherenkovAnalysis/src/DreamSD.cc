@@ -76,6 +76,7 @@ DreamSD::DreamSD(const std::string& name, const DDCompactView & cpv,
 }
 
 //________________________________________________________________________________________
+/*
 bool DreamSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
 
   if (aStep == nullptr) {
@@ -161,7 +162,27 @@ bool DreamSD::getStepInfo(G4Step* aStep) {
   return flag;
 
 }
+*/
+//________________________________________________________________________________________
+double DreamSD::getEnergyDeposit(const G4Step* aStep) {
 
+  auto const preStepPoint = aStep->GetPreStepPoint();
+
+  // take into account light collection curve for crystals
+  double weight = curve_LY(aStep, side);
+  if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
+  double edep = aStep->GetTotalEnergyDeposit() * weight;
+
+  // Get Cerenkov contribution
+  if ( doCherenkov_ ) { edep += cherenkovDeposit_( aStep ); }
+  LogDebug("EcalSim") << "DreamSD:: " << preStepPoint->GetPhysicalVolume()->GetName() 
+		      << " Side " << side
+		      <<" Light Collection Efficiency " << weight 
+		      << " Weighted Energy Deposit " << edep/MeV 
+		      << " MeV";
+
+  return edep;
+}
 
 //________________________________________________________________________________________
 void DreamSD::initRun() {
@@ -187,6 +208,8 @@ void DreamSD::initRun() {
 uint32_t DreamSD::setDetUnitId(const G4Step * aStep) { 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint32_t id = (touch->GetReplicaNumber(1))*10 + (touch->GetReplicaNumber(0));
+  side = readBothSide_ ? -1 : 1;
+  if(side < 0) { ++id; }
   LogDebug("EcalSim") << "DreamSD:: ID " << id;
   return id;
 }
@@ -240,8 +263,8 @@ void DreamSD::initMap(const std::string& sd, const DDCompactView & cpv) {
 //________________________________________________________________________________________
 double DreamSD::curve_LY(const G4Step* aStep, int flag) {
 
-  const G4StepPoint*     stepPoint = aStep->GetPreStepPoint();
-  G4LogicalVolume* lv        = stepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
+  auto const stepPoint = aStep->GetPreStepPoint();
+  auto const lv        = stepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
   G4String         nameVolume= lv->GetName();
 
   double weight = 1.;

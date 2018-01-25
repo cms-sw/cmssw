@@ -16,6 +16,7 @@
 #include "G4Track.hh"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <sstream>
 
 //#define DebugLog
 
@@ -82,15 +83,17 @@ HFShowerFibreBundle::~HFShowerFibreBundle() {
   delete cherenkov2;
 }
 
-void HFShowerFibreBundle::initRun(G4ParticleTable *, HcalDDDSimConstants* hcons) {
+void HFShowerFibreBundle::initRun(const HcalDDDSimConstants* hcons) {
 
   // Special Geometry parameters
   rTable   = hcons->getRTableHF();
+  std::stringstream sss;
+  for (unsigned int ig=0; ig<rTable.size(); ig++) {
+    if(ig/10*10 == ig) { sss << "\n"; }
+    sss << "  " << rTable[ig]/cm;
+  }
   edm::LogInfo("HFShower") << "HFShowerFibreBundle: " << rTable.size() 
-                           << " rTable (cm)";
-  for (unsigned int ig=0; ig<rTable.size(); ig++)
-    edm::LogInfo("HFShower") << "HFShowerFibreBundle: rTable[" << ig << "] = "
-                             << rTable[ig]/cm << " cm";
+                           << " rTable(cm):" << sss.str();
 }
 
 double HFShowerFibreBundle::getHits(const G4Step * aStep, bool type) {

@@ -13,6 +13,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <iostream>
+#include <sstream>
 
 //#define DebugLog
 
@@ -37,10 +38,12 @@ HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv,
     // Attenuation length
     nBinAtt      = -1;
     attL         = getDDDArray("attl",sv,nBinAtt);
-    edm::LogInfo("HFShower") << "HFFibre: " << nBinAtt << " attL ";
-    for (int it=0; it<nBinAtt; it++) 
-      edm::LogInfo("HFShower") << "HFFibre: attL[" << it << "] = " 
-			       << attL[it]*cm << "(1/cm)";
+    std::stringstream ss1;
+    for (int it=0; it<nBinAtt; it++) {
+      if(it/10*10 == it) { ss1 << "\n"; }
+      ss1 << "  " << attL[it]*cm;
+    }
+    edm::LogInfo("HFShower") << "HFFibre: " << nBinAtt << " attL(1/cm): " << ss1.str();
 
     // Limits on Lambda
     int nb   = 2;
@@ -53,16 +56,20 @@ HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv,
     // Fibre Lengths
     nb       = 0;
     longFL   = getDDDArray("LongFL",sv,nb);
-    edm::LogInfo("HFShower") << "HFFibre: " << nb << " Long Fibre Length";
-    for (int it=0; it<nb; it++) 
-      edm::LogInfo("HFShower") << "HFFibre: longFL[" << it << "] = " 
-			       << longFL[it]/cm << " cm";
-    nb       = 0;
+    std::stringstream ss2;
+    for (int it=0; it<nb; it++) {
+      if(it/10*10 == it) { ss2 << "\n"; }
+      ss2 << "  " << longFL[it]/cm;
+    }
+    edm::LogInfo("HFShower") << "HFFibre: " << nb << " Long Fibre Length(cm):" << ss2.str();
+    nb = 0;
     shortFL   = getDDDArray("ShortFL",sv,nb);
-    edm::LogInfo("HFShower") << "HFFibre: " << nb << " Short Fibre Length";
-    for (int it=0; it<nb; it++) 
-      edm::LogInfo("HFShower") << "HFFibre: shortFL[" << it << "] = " 
-			       << shortFL[it]/cm << " cm";
+    std::stringstream ss3;
+    for (int it=0; it<nb; it++) {
+      if(it/10*10 == it) { ss3 << "\n"; }
+      ss3 << "  " << shortFL[it]/cm;
+    } 
+    edm::LogInfo("HFShower") << "HFFibre: " << nb << " Short Fibre Length(cm):" << ss3.str();
   } else {
     edm::LogError("HFShower") << "HFFibre: cannot get filtered "
 			      << " view for " << attribute << " matching "
@@ -72,23 +79,19 @@ HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv,
   }
 }
 
-HFFibre::~HFFibre() {}
-
-void HFFibre::initRun(HcalDDDSimConstants* hcons) {
+void HFFibre::initRun(const HcalDDDSimConstants* hcons) {
 
   // Now geometry parameters
   gpar      = hcons->getGparHF();
-  edm::LogInfo("HFShower") << "HFFibre: " << gpar.size() <<" gpar (cm)";
-  for (unsigned int i=0; i<gpar.size(); i++)
-    edm::LogInfo("HFShower") << "HFFibre: gpar[" << i << "] = "
-                             << gpar[i]/cm << " cm";
-
   radius    = hcons->getRTableHF();
+
   nBinR     = (int)(radius.size());
-  edm::LogInfo("HFShower") << "HFFibre: " << radius.size() <<" rTable (cm)";
-  for (unsigned int i=0; i<radius.size(); i++)
-    edm::LogInfo("HFShower") << "HFFibre: radius[" << i << "] = "
-                             << radius[i]/cm << " cm";
+  std::stringstream sss;
+  for (int i=0; i<nBinR; ++i) {
+    if(i/10*10 == i) { sss << "\n"; }
+    sss << "  " << radius[i]/cm;
+  }
+  edm::LogInfo("HFShower") << "HFFibre: " << radius.size() <<" rTable(cm):" << sss.str();
 }
 
 double HFFibre::attLength(double lambda) {

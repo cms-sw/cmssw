@@ -15,6 +15,7 @@
 #include "G4NavigationHistory.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "G4ParticleTable.hh"
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -104,18 +105,16 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
     v3version=true;
   }
   
-
-  edm::LogInfo("HFShower") << "HFShowerLibrary:Branch " << emName 
+  edm::LogInfo("HFShower") << " HFShowerLibrary:Branch " << emName 
 			   << " has " << emBranch->GetEntries() 
 			   << " entries and Branch " << hadName 
 			   << " has " << hadBranch->GetEntries() 
-			   << " entries";
-  edm::LogInfo("HFShower") << "HFShowerLibrary::No packing information -"
-			   << " Assume x, y, z are not in packed form";
-
-  edm::LogInfo("HFShower") << "HFShowerLibrary: Maximum probability cut off " 
+			   << " entries"
+                           << "\n HFShowerLibrary::No packing information -"
+			   << " Assume x, y, z are not in packed form"
+			   << "\n Maximum probability cut off " 
 			   << probMax << "  Back propagation of light prob. "
-                           << backProb ;
+                           << backProb;
   
   fibre = new HFFibre(name, cpv, p);
   photo = new HFShowerPhotonCollection;
@@ -126,16 +125,15 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
 
 HFShowerLibrary::~HFShowerLibrary() {
   if (hf)     hf->Close();
-  if (fibre)  delete   fibre;
-  fibre  = nullptr;
-  if (photo)  delete photo;
+  delete fibre;
+  delete photo;
 }
 
-void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
-			      HcalDDDSimConstants* hcons) {
+void HFShowerLibrary::initRun(const HcalDDDSimConstants* hcons) {
 
   if (fibre) fibre->initRun(hcons);
 
+  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
   G4String parName;
   emPDG = theParticleTable->FindParticle(parName="e-")->GetPDGEncoding();
   epPDG = theParticleTable->FindParticle(parName="e+")->GetPDGEncoding();
@@ -164,46 +162,44 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
   std::vector<double> rTable = hcons->getRTableHF();
   rMin = rTable[0];
   rMax = rTable[rTable.size()-1];
-  edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
-                           << " cm and rMax " << rMax/cm;
 
   //Delta phi
   std::vector<double> phibin   = hcons->getPhiTableHF();
   dphi       = phibin[0];
-  edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
+  edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
+                           << " cm and rMax " << rMax/cm
+                           << " (Half) Phi Width of wedge " 
                            << dphi/deg;
 
   //Special Geometry parameters
-  gpar      = hcons->getGparHF();
-  edm::LogInfo("HFShower") << "HFShowerLibrary: " <<gpar.size() <<" gpar (cm)";
-  for (unsigned int ig=0; ig<gpar.size(); ig++)
-    edm::LogInfo("HFShower") << "HFShowerLibrary: gpar[" << ig << "] = "
-                             << gpar[ig]/cm << " cm";
+  gpar = hcons->getGparHF();
 }
 
-
-std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
-							   bool & ok,
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step * aStep,
+							   bool & isKilled,
 							   double weight,
 							   bool onlyLong) {
 
-  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  const G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
-  const G4Track *     track    = aStep->GetTrack();
+  auto const preStepPoint  = aStep->GetPreStepPoint(); 
+  auto const postStepPoint = aStep->GetPostStepPoint(); 
+  auto const track = aStep->GetTrack();
   // Get Z-direction 
-  const G4DynamicParticle *aParticle = track->GetDynamicParticle();
+  auto const aParticle = track->GetDynamicParticle();
   const G4ThreeVector& momDir = aParticle->GetMomentumDirection();
-
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
-  G4String      partType = track->GetDefinition()->GetParticleName();
-  int           parCode  = track->GetDefinition()->GetPDGEncoding();
+  int parCode   = track->GetDefinition()->GetPDGEncoding();
+  double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
+  double pin    = preStepPoint->GetTotalEnergy();
 
 #ifdef DebugLog
-  G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
+  G4String      partType = track->GetDefinition()->GetParticleName();
+  const G4ThreeVector localPos = 
+    preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   double zoff   = localPos.z() + 0.5*gpar[1];
-  //  if (zoff < 0) zoff = 0;
-  edm::LogInfo("HFShower") << "HFShowerLibrary: getHits " << partType
+
+  edm::LogInfo("HFShower") << "HFShowerLibrary::getHits " << partType
                            << " of energy " << pin/GeV << " GeV"
+			   << " weight= " << weight << " onlyLong: " << onlyLong
                            << "  dir.orts " << momDir.x() << ", " <<momDir.y()
                            << ", " << momDir.z() << "  Pos x,y,z = "
                            << hitPoint.x() << "," << hitPoint.y() << ","
@@ -213,24 +209,20 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
                            << "," << cos(momDir.theta());
 #endif
 
-  double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
-  double pin    = preStepPoint->GetTotalEnergy();
-
-  return fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong);
+  return fillHits(hitPoint,momDir,parCode,pin,isKilled,weight,tSlice,onlyLong);
 }
 
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector & hitPoint,
                                const G4ThreeVector & momDir,
-                               int parCode, double pin, bool & ok,
+                               int parCode, double pin, bool & isKilled,
                                double weight, double tSlice,bool onlyLong) {
 
   std::vector<HFShowerLibrary::Hit> hit;
-  ok = false;
   if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
       parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
       parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG)
-    return hit;
-  ok = true;
+    { return hit; }
+  isKilled = true;
 
   double pz     = momDir.z(); 
   double zint   = hitPoint.z(); 
@@ -385,8 +377,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
 
 bool HFShowerLibrary::rInside(double r) {
 
-  if (r >= rMin && r <= rMax) return true;
-  else                        return false;
+  return (r >= rMin && r <= rMax);
 }
 
 void HFShowerLibrary::getRecord(int type, int record) {

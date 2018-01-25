@@ -16,6 +16,7 @@
 #include "G4Track.hh"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <sstream>
 
 //#define DebugLog
 
@@ -53,14 +54,17 @@ HFShowerPMT::HFShowerPMT(const std::string & name, const DDCompactView & cpv,
       pmtR2.push_back(ir);
       pmtFib2.push_back(ifib);
     }
+#ifdef DebugLog
     edm::LogInfo("HFShower") << "HFShowerPMT: gets the Index matches for "
 			     << neta.size() << " PMTs";
-    for (unsigned int ii=0; ii<neta.size(); ii++) 
+    for (unsigned int ii=0; ii<neta.size(); ii++) {
       edm::LogInfo("HFShower") << "HFShowerPMT: rIndexR[" << ii << "] = "
 			       << pmtR1[ii] << " fibreR[" << ii << "] = "
 			       << pmtFib1[ii] << " rIndexL[" << ii << "] = "
 			       << pmtR2[ii] << " fibreL[" << ii << "] = "
 			       << pmtFib2[ii];
+    }
+#endif
   } else {
     edm::LogWarning("HFShower") << "HFShowerPMT: cannot get filtered "
 				<< " view for " << attribute << " matching "
@@ -74,15 +78,17 @@ HFShowerPMT::~HFShowerPMT() {
   if (cherenkov) delete cherenkov;
 }
 
-void HFShowerPMT::initRun(G4ParticleTable *, HcalDDDSimConstants* hcons) {
+void HFShowerPMT::initRun(const HcalDDDSimConstants* hcons) {
 
   // Special Geometry parameters
-  rTable   = hcons->getRTableHF();
-  edm::LogInfo("HFShower") << "HFShowerPMT: " << rTable.size() 
-                           << " rTable (cm)";
-  for (unsigned int ig=0; ig<rTable.size(); ig++)
-    edm::LogInfo("HFShower") << "HFShowerPMT: rTable[" << ig << "] = "
-                             << rTable[ig]/cm << " cm";
+  rTable = hcons->getRTableHF();
+  std::stringstream sss;
+  for (unsigned int ig=0; ig<rTable.size(); ++ig) {
+    if(ig/10*10 == ig) { sss << "\n"; }
+    sss << "  " << rTable[ig]/cm;
+  }
+  edm::LogInfo("HFShowerPMT") << "HFShowerPMT: " << rTable.size() 
+			      << " rTable(cm):" << sss.str();
 }
 
 double HFShowerPMT::getHits(const G4Step * aStep) {
