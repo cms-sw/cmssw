@@ -22,7 +22,6 @@ class  Chi2MeasurementEstimatorESProducer: public edm::ESProducer{
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  std::shared_ptr<Chi2MeasurementEstimatorBase> m_estimator;
   edm::ParameterSet const m_pset;
 };
 
@@ -43,8 +42,7 @@ Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRe
   auto minTol = m_pset.getParameter<double>("MinimalTolerance");
   auto minpt = m_pset.getParameter<double>("MinPtForHitRecoveryInGluedDet");
    
-  m_estimator = std::make_shared<Chi2MeasurementEstimator>(maxChi2,nSigma, maxDis, maxSag, minTol,minpt);
-  return m_estimator;
+  return std::make_shared<Chi2MeasurementEstimator>(maxChi2,nSigma, maxDis, maxSag, minTol,minpt);
 }
 
 

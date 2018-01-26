@@ -15,7 +15,6 @@ class  MRHChi2MeasurementEstimatorESProducer: public edm::ESProducer{
   ~MRHChi2MeasurementEstimatorESProducer() override;
   std::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord&);
  private:
-  std::shared_ptr<Chi2MeasurementEstimatorBase> _estimator;
   edm::ParameterSet pset_;
 };
 
@@ -30,11 +29,9 @@ MRHChi2MeasurementEstimatorESProducer::~MRHChi2MeasurementEstimatorESProducer() 
 
 std::shared_ptr<Chi2MeasurementEstimatorBase> 
 MRHChi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord& iRecord){ 
-  
   double maxChi2 = pset_.getParameter<double>("MaxChi2");
   double nSigma = pset_.getParameter<double>("nSigma");
-  _estimator = std::make_shared<MRHChi2MeasurementEstimator>(maxChi2,nSigma);
-  return _estimator;
+  return std::make_shared<MRHChi2MeasurementEstimator>(maxChi2,nSigma);
 }
 
 }

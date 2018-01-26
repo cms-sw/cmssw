@@ -29,8 +29,7 @@ TrackingRecHitPropagatorESProducer::produce(const TrackingComponentsRecord& iRec
    iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,magfield);
    //   edm::ESInputTag mfESInputTag(mfName);
    //   iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
-   theHitPropagator = std::make_shared<TrackingRecHitPropagator>(magfield.product());
-   return theHitPropagator;
+   return std::make_shared<TrackingRecHitPropagator>(magfield.product());
 }
 
 

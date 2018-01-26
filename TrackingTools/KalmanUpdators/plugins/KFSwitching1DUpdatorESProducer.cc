@@ -28,8 +28,7 @@ KFSwitching1DUpdatorESProducer::produce(const TrackingComponentsRecord & iRecord
 //     _updator = 0;
 //   }
   
-  _updator  = std::make_shared<KFSwitching1DUpdator>(&pset_);
-  return _updator;
+  return std::make_shared<KFSwitching1DUpdator>(&pset_);
 }
 
 
