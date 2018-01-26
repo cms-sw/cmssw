@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-JPsiMuMuValidation = cms.EDAnalyzer("BPhysicsValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+JPsiMuMuValidation = DQMEDAnalyzer('BPhysicsValidation',
                                     genparticleCollection = cms.InputTag("genParticles",""),
                                     name = cms.string("JPsiMuMuValidation"),
                                     pname = cms.string("J/#Psi"),
@@ -21,7 +22,7 @@ JPsiMuMuValidation = cms.EDAnalyzer("BPhysicsValidation",
                                                                 )
                                     )
 
-LambdabPiPiMuMuValidation = cms.EDAnalyzer("BPhysicsValidation",
+LambdabPiPiMuMuValidation = DQMEDAnalyzer('BPhysicsValidation',
                                            genparticleCollection = cms.InputTag("genParticles",""),
                                            name = cms.string("LambdabPiPiMuMuValidation"),
                                            pname = cms.string("#Lambda_{b}"),
@@ -73,7 +74,7 @@ LambdabPiPiMuMuValidation = cms.EDAnalyzer("BPhysicsValidation",
 
 
 
-PsiSpectrum = cms.EDAnalyzer("BPhysicsSpectrum",
+PsiSpectrum = DQMEDAnalyzer('BPhysicsSpectrum',
                              genparticleCollection = cms.InputTag("genParticles",""),
                              name = cms.string("JPsiSpectrum"),
                              pdgids = cms.vint32(443,100443,30443,9000443,9010443,9020443),
@@ -81,7 +82,7 @@ PsiSpectrum = cms.EDAnalyzer("BPhysicsSpectrum",
                              massmax = cms.double(4.5)
                              )
 
-LambdaSpectrum = cms.EDAnalyzer("BPhysicsSpectrum",
+LambdaSpectrum = DQMEDAnalyzer('BPhysicsSpectrum',
                              genparticleCollection = cms.InputTag("genParticles",""),
                              name = cms.string("LambdaSpectrum"),
                              pdgids = cms.vint32(5122),
