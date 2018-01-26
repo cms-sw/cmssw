@@ -19,7 +19,6 @@ class  PropagatorWithMaterialESProducer: public edm::ESProducer{
   ~PropagatorWithMaterialESProducer() override; 
   std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
  private:
-  std::shared_ptr<Propagator> _propagator;
   edm::ParameterSet pset_;
 };
 

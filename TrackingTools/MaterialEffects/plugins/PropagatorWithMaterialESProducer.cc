@@ -53,10 +53,9 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
   if (pdir == "alongMomentum") dir = alongMomentum;
   if (pdir == "anyDirection") dir = anyDirection;
   
-  _propagator = std::make_shared<PropagatorWithMaterial>(dir, mass, &(*magfield),
-									maxDPhi,useRK,ptMin,
-									useOldAnalPropLogic);
-  return _propagator;
+  return std::make_shared<PropagatorWithMaterial>(dir, mass, &(*magfield),
+						maxDPhi,useRK,ptMin,
+						useOldAnalPropLogic);
 }
 
 
