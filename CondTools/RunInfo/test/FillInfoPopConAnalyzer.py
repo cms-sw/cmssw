@@ -1,45 +1,46 @@
 import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("Test")
+process = cms.Process("ProcessOne")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-
-process.CondDBCommon.connect = 'sqlite_file:test_output.db'
+process.CondDBCommon.connect = 'sqlite_file:fillinfo_pop_test.db'
 process.CondDBCommon.DBParameters.authenticationPath = '.'
+process.CondDBCommon.DBParameters.messageLevel=cms.untracked.int32(3)
 
-process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
-)
-
+process.MessageLogger = cms.Service("MessageLogger",
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
+                                    destinations = cms.untracked.vstring('cout')
+                                    )
 
 process.source = cms.Source("EmptyIOVSource",
-    timetype = cms.string('timestamp'),
-    firstValue = cms.uint64(6477060826480649336),
-    lastValue = cms.uint64(6477060826480649336),
-    interval = cms.uint64(106166425464825)
-)
+                            lastValue = cms.uint64(1),
+                            timetype = cms.string('runnumber'),
+                            firstValue = cms.uint64(1),
+                            interval = cms.uint64(1)
+                            )
 
+process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+                                          process.CondDBCommon,
+                                          logconnect = cms.untracked.string('sqlite_file:logfillinfo_pop_test.db'),
+                                          timetype = cms.untracked.string('timestamp'),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('FillInfoRcd'),
+                                                                     tag = cms.string('fillinfo_test')
+                                                                     )
+                                                            )
+                                          )
 
-process.rn = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
-    timetype = cms.string('timestamp'),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('FillInfoRcd'),
-        tag = cms.string('fillinfo_test')
-    ))
-)
+process.Test1 = cms.EDAnalyzer("FillInfoPopConAnalyzer",
+                               SinceAppendMode = cms.bool(True),
+                               record = cms.string('FillInfoRcd'),
+                               name = cms.untracked.string('FillInfo'),
+                               Source = cms.PSet(fill = cms.untracked.uint32(6303),
+                                   firstFill = cms.untracked.uint32( 6300 ),
+                                   lastFill = cms.untracked.uint32( 6300 ),
+                                   connectionString = cms.untracked.string("oracle://cms_orcon_adg/CMS_RUNTIME_LOGGER"),
+                                   DIPSchema = cms.untracked.string("CMS_BEAM_COND"),
+                                   authenticationPath =  cms.untracked.string("/afs/cern.ch/user/a/anoolkar/private"),
+                                   debug=cms.untracked.bool(True)
+                                                 ),
+                               loggingOn = cms.untracked.bool(True),
+                               IsDestDbCheckedInQueryLog = cms.untracked.bool(False)
+                               )
 
-
-process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('FillInfoRcd'),
-        data = cms.vstring('fillinfo_test')
-    )),
-    verbose = cms.untracked.bool(True)
-)
-
-process.prod = cms.EDAnalyzer("FillInfoESAnalyzer")
-
-process.asciiprint = cms.OutputModule("AsciiOutputModule")
-
-process.p = cms.Path(process.prod)
-process.ep = cms.EndPath(process.asciiprint)
+process.p = cms.Path(process.Test1)
