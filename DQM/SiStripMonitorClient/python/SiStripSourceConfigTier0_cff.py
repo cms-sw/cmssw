@@ -119,7 +119,8 @@ MonitorTrackResiduals.Mod_On        = False
 MonitorTrackResiduals.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
 
 # DQM Services
-dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoSiStrip = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('SiStrip')
 )
 
