@@ -2,7 +2,6 @@
 #define CondFormats_RunInfo_FillInfo_H
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-
 #include "CondFormats/Common/interface/Time.h"
 #include <bitset>
 #include <iostream>
@@ -58,6 +57,10 @@ class FillInfo {
   
   float const energy() const;
   
+  float const delivLumi() const;
+  
+  float const recLumi() const;
+  
   cond::Time_t const createTime() const;
   
   cond::Time_t const beginTime() const;
@@ -65,6 +68,8 @@ class FillInfo {
   cond::Time_t const endTime() const;
   
   std::string const & injectionScheme() const;
+  
+  std::vector<float> const & lumiPerBX() const;
 
   //returns a boolean, true if the injection scheme has a leading 25ns
   //TODO: parse the circulating bunch configuration, instead of the string.
@@ -105,6 +110,10 @@ class FillInfo {
   
   void setEnergy( float const & energy );
   
+  void setDelivLumi( float const & delivLumi );
+
+  void setRecLumi( float const & recLumi );
+
   void setCreationTime( cond::Time_t const & createTime );
   
   void setBeginTime( cond::Time_t const & beginTime );
@@ -112,6 +121,8 @@ class FillInfo {
   void setEndTime( cond::Time_t const & endTime );
   
   void setInjectionScheme( std::string const & injectionScheme );
+  
+  void setLumiPerBX( std::vector<float> const & lumiPerBX);
   
   //sets all values in one go
   void setBeamInfo( unsigned short const & bunches1
@@ -126,10 +137,13 @@ class FillInfo {
 		    ,float const & intensity1
 		    ,float const & intensity2
 		    ,float const & energy
+		    ,float const & delivLumi
+		    ,float const & recLumi
 		    ,cond::Time_t const & createTime
 		    ,cond::Time_t const & beginTime
 		    ,cond::Time_t const & endTime
 		    ,std::string const & scheme
+		    ,std::vector<float> const & lumiPerBX
 		    ,std::bitset<bunchSlots+1> const & bunchConf1 
 		    ,std::bitset<bunchSlots+1> const & bunchConf2 );
   
@@ -151,9 +165,10 @@ class FillInfo {
   unsigned short m_bunches1, m_bunches2, m_collidingBunches, m_targetBunches;
   FillTypeId m_fillType;
   ParticleTypeId m_particles1, m_particles2;
-  float m_crossingAngle, m_betastar, m_intensity1, m_intensity2, m_energy;
+  float m_crossingAngle, m_betastar, m_intensity1, m_intensity2, m_energy, m_delivLumi, m_recLumi;
   cond::Time_t m_createTime, m_beginTime, m_endTime;
   std::string m_injectionScheme;
+  std::vector<float> m_lumiPerBX;
   //BEWARE: since CMS counts bunches starting from one,
   //the size of the bitset must be incremented by one,
   //in order to avoid off-by-one
@@ -163,5 +178,3 @@ class FillInfo {
 };
 
 std::ostream & operator<<( std::ostream &, FillInfo fillInfo );
-
-#endif // CondFormats_RunInfo_FillInfo_H
