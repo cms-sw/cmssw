@@ -34,7 +34,7 @@ SiStripBackPlaneCorrectionDepESProducer::SiStripBackPlaneCorrectionDepESProducer
 
 std::shared_ptr<SiStripBackPlaneCorrection> SiStripBackPlaneCorrectionDepESProducer::produce(const SiStripBackPlaneCorrectionDepRcd& iRecord)
 {
-
+  std::shared_ptr<SiStripBackPlaneCorrection> siStripBPC_;
   edm::LogInfo("SiStripBackPlaneCorrectionDepESProducer") << "Producer called" << std::endl;
   
   std::string latencyRecordName = getLatency.getParameter<std::string>("record");
