@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -17,12 +18,20 @@ public:
 
 private:
   
-  std::string geomXMLFiles_;
+  std::string confGeomXMLFiles_;
+  std::vector< std::string > relFiles_;
+  std::vector< std::string > files_;
 };
 
 DDCMSDetector::DDCMSDetector(const edm::ParameterSet& iConfig)
-  : geomXMLFiles_(iConfig.getParameter<std::string>("geomXMLFiles"))
-{}
+  : confGeomXMLFiles_(iConfig.getParameter<std::string>("confGeomXMLFiles"))
+{
+  relFiles_ = iConfig.getParameter<std::vector<std::string> >("geomXMLFiles");
+  for( auto rit : relFiles_ ) {
+    edm::FileInPath fp(rit);
+    files_.emplace_back(fp.fullPath());
+  }
+}
 
 void
 DDCMSDetector::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& /*iSetup*/ )
@@ -30,8 +39,10 @@ DDCMSDetector::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& /*i
   dd4hep::Detector& description = dd4hep::Detector::getInstance();
 
   std::string name("DD4hepCompactLoader");
-  const char* files[] = { geomXMLFiles_.c_str(), nullptr };
+  const char* files[] = { confGeomXMLFiles_.c_str(), nullptr };
   description.apply(name.c_str(),2,(char**)files);
+  for( auto it : files_ )
+    std::cout << it << std::endl;
 }
 
 DEFINE_FWK_MODULE(DDCMSDetector);
