@@ -42,7 +42,6 @@ public:
 		     const std::vector<double> & its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
 
     const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
-    void setChi2Term( bool isHPD );
 
     void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples);
     void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples);
@@ -85,11 +84,6 @@ private:
     double timeSigSiPM_;
     double pedMean_;
     double pedSig_;
-    double pedSigHPD_;
-    double pedSigSiPM_;
-    double noise_;    
-    double noiseHPD_;
-    double noiseSiPM_;
     HcalTimeSlew::BiasSetting slewFlavor_;    
 
     bool isCurrentChannelHPD_;
