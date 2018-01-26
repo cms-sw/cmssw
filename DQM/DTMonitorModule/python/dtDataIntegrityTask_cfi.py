@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-DTDataIntegrityTask = cms.EDAnalyzer("DTDataIntegrityTask",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+DTDataIntegrityTask = DQMEDAnalyzer('DTDataIntegrityTask',
                                      getSCInfo = cms.untracked.bool(True),
                                      checkUros  = cms.untracked.bool(False),
                                      fedIntegrityFolder = cms.untracked.string("DT/FEDIntegrity"),
