@@ -30,7 +30,7 @@ class  SmartPropagatorESProducer: public edm::ESProducer{
   ~SmartPropagatorESProducer() override; 
   
   // Operations
-  std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
   
  private:
   PropagationDirection thePropagationDirection;

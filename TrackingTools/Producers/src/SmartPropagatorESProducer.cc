@@ -46,7 +46,7 @@ SmartPropagatorESProducer::SmartPropagatorESProducer(const ParameterSet& paramet
 
 SmartPropagatorESProducer::~SmartPropagatorESProducer() {}
 
-std::shared_ptr<Propagator> 
+std::unique_ptr<Propagator> 
 SmartPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord){ 
 
   ESHandle<MagneticField> magField;
@@ -59,7 +59,7 @@ SmartPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord){
   iRecord.get(theMuonPropagatorName,muonPropagator);
   
   
-  return           std::make_shared<SmartPropagator>(*trackerPropagator, *muonPropagator,
+  return           std::make_unique<SmartPropagator>(*trackerPropagator, *muonPropagator,
 						     &*magField,
 						     thePropagationDirection, 
 						     theEpsilon);

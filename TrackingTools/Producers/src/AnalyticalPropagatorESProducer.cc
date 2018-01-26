@@ -22,7 +22,7 @@ AnalyticalPropagatorESProducer::AnalyticalPropagatorESProducer(const edm::Parame
 
 AnalyticalPropagatorESProducer::~AnalyticalPropagatorESProducer() {}
 
-std::shared_ptr<Propagator> 
+std::unique_ptr<Propagator> 
 AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
@@ -45,7 +45,7 @@ AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord
   if (pdir == "alongMomentum") dir = alongMomentum;
   if (pdir == "anyDirection") dir = anyDirection;
   
-  return std::make_shared<AnalyticalPropagator>(&(*magfield), dir,dphiCut);
+  return std::make_unique<AnalyticalPropagator>(&(*magfield), dir,dphiCut);
 }
 
 

@@ -30,7 +30,7 @@ class  BeamHaloPropagatorESProducer: public edm::ESProducer{
   ~BeamHaloPropagatorESProducer() override; 
   
   // Operations
-  std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
   
  private:
   PropagationDirection thePropagationDirection;
