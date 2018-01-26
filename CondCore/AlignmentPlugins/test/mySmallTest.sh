@@ -42,7 +42,7 @@ do
  	--plot plot_TrackerAlignmentSummary${i} \
  	--tag TrackerAlignment_PCL_byRun_v2_express \
  	--time_type Run \
-	--iovs '{"start_iov": "292200", "end_iov": "303886"}' \
+	--iovs '{"start_iov": "303809", "end_iov": "303886"}' \
   	--db Prod \
  	--test;
     
