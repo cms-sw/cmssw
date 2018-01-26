@@ -45,8 +45,7 @@ AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord
   if (pdir == "alongMomentum") dir = alongMomentum;
   if (pdir == "anyDirection") dir = anyDirection;
   
-  _propagator = std::make_shared<AnalyticalPropagator>(&(*magfield), dir,dphiCut);
-  return _propagator;
+  return std::make_shared<AnalyticalPropagator>(&(*magfield), dir,dphiCut);
 }
 
 

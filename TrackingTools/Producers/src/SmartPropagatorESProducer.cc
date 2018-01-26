@@ -59,9 +59,8 @@ SmartPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord){
   iRecord.get(theMuonPropagatorName,muonPropagator);
   
   
-  thePropagator = std::make_shared<SmartPropagator>(*trackerPropagator, *muonPropagator,
+  return           std::make_shared<SmartPropagator>(*trackerPropagator, *muonPropagator,
 						     &*magField,
 						     thePropagationDirection, 
 						     theEpsilon);
-  return thePropagator;
 }

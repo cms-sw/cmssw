@@ -13,7 +13,6 @@ class  StraightLinePropagatorESProducer: public edm::ESProducer{
   ~StraightLinePropagatorESProducer() override; 
   std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
  private:
-  std::shared_ptr<Propagator> _propagator;
   edm::ParameterSet pset_;
 };
 

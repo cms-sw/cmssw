@@ -33,7 +33,6 @@ class  SmartPropagatorESProducer: public edm::ESProducer{
   std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
   
  private:
-  std::shared_ptr<Propagator> thePropagator;
   PropagationDirection thePropagationDirection;
   std::string theTrackerPropagatorName;
   std::string theMuonPropagatorName;
