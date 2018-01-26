@@ -151,7 +151,7 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
   
  // ES look up table path
   if(iConfig.existsAs<std::string>("ESLookupTable"))
-    ESLookupTable_    = iConfig.getParameter<edm::FileInPath>("ESLookupTable"); 
+    ESLookupTable_    = edm::FileInPath(iConfig.getParameter<std::string>("ESLookupTable")); 
   else ESLookupTable_ = edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"); 
   
   // output model label
@@ -628,7 +628,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::fillDescriptions(edm::Configur
   edm::ParameterSetDescription desc;
   desc.add<vector<edm::InputTag>>("electronTags",{edm::InputTag("hltEgammaGsfElectrons")});
   desc.add<vector<edm::InputTag>>("recoEcalCandidateTags",{edm::InputTag("hltL1EG25Ele27WP85GsfTrackIsoFilter")});
-  desc.add<edm::FileInPath>("ESLookupTable",edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"));
+  desc.add<std::string>("ESLookupTable","EventFilter/ESDigiToRaw/data/ES_lookup_table.dat");
   desc.add<edm::InputTag>("HBHERecHitTag",edm::InputTag("hltHbhereco"));
   desc.add<edm::InputTag>("beamSpotTag",edm::InputTag("hltOnlineBeamSpot"));
   desc.add<edm::InputTag>("rawDataTag",edm::InputTag("rawDataCollector"));
