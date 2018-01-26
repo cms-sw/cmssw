@@ -17,7 +17,7 @@ class  Chi2MeasurementEstimatorESProducer: public edm::ESProducer{
  public:
   Chi2MeasurementEstimatorESProducer(const edm::ParameterSet & p);
   ~Chi2MeasurementEstimatorESProducer() override;
-  std::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
+  std::unique_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -33,7 +33,7 @@ Chi2MeasurementEstimatorESProducer::Chi2MeasurementEstimatorESProducer(const edm
 
 Chi2MeasurementEstimatorESProducer::~Chi2MeasurementEstimatorESProducer() {}
 
-std::shared_ptr<Chi2MeasurementEstimatorBase> 
+std::unique_ptr<Chi2MeasurementEstimatorBase> 
 Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
   auto maxChi2 = m_pset.getParameter<double>("MaxChi2");
   auto nSigma  = m_pset.getParameter<double>("nSigma");
@@ -42,7 +42,7 @@ Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRe
   auto minTol = m_pset.getParameter<double>("MinimalTolerance");
   auto minpt = m_pset.getParameter<double>("MinPtForHitRecoveryInGluedDet");
    
-  return std::make_shared<Chi2MeasurementEstimator>(maxChi2,nSigma, maxDis, maxSag, minTol,minpt);
+  return std::make_unique<Chi2MeasurementEstimator>(maxChi2,nSigma, maxDis, maxSag, minTol,minpt);
 }
 
 
