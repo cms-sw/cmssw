@@ -323,6 +323,10 @@ def miniAOD_customizeCommon(process):
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
     addBoostedTaus(process)
     #---------------------------------------------------------------------------
+    #Modify taus by adding MVAIso tau-Ids with 2017v1 training for 94X MiniAODv2
+    from RecoTauTag.Configuration.updateHPSPFTaus import cloneAndModifyMVAIsolationFor94XMiniAODv2
+    cloneAndModifyMVAIsolationFor94XMiniAODv2(process)
+    #---------------------------------------------------------------------------
     #Adding tau reco for 80X legacy reMiniAOD
     #make a copy of makePatTauTask to avoid labels and substitution problems
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
