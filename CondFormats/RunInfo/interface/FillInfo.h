@@ -178,3 +178,5 @@ class FillInfo {
 };
 
 std::ostream & operator<<( std::ostream &, FillInfo fillInfo );
+
+#endif // CondFormats_RunInfo_FillInfo_H
