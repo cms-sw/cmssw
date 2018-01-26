@@ -262,7 +262,13 @@ namespace {
       auto autoRange = tmap->getAutomaticRange();
 
       std::string fileName(m_imageFileName);
-      tmap->save(true,0.,autoRange.second,fileName);
+      // protect against uniform values (APE are defined positive)
+      if (autoRange.first!=autoRange.second){
+	tmap->save(true,0.,autoRange.second,fileName);
+      } else {
+	if(autoRange.first!=0.) tmap->save(true,0.,autoRange.first*1.05,fileName);
+	else tmap->save(true,0.,1.,fileName);
+      }
 
       return true;
     }
@@ -586,7 +592,7 @@ namespace {
       summaryFirst->GetXaxis()->LabelsOption("v");
       summaryFirst->GetXaxis()->SetLabelSize(0.05);
       summaryFirst->GetYaxis()->SetTitleOffset(0.9);
-      summaryFirst->SetLineStyle(9);
+      //summaryFirst->SetLineStyle(9);
 
       AlignmentPI::makeNicePlotStyle(summaryLast.get(),kRed);
       summaryLast->SetMarkerColor(kRed);
@@ -617,6 +623,13 @@ namespace {
       //summaryFirst->Draw("text90same");
       summaryLast->Draw("bar2,same");
       //summaryLast->Draw("text180same");      
+
+      TLegend legend = TLegend(0.52,0.82,0.98,0.9);
+      legend.SetHeader((getStringFromIndex(i)+" APE value comparison").c_str(),"C"); // option "C" allows to center the header
+      legend.AddEntry(summaryLast.get(),("IOV: "+std::to_string(std::get<0>(lastiov))+"| "+std::get<1>(lastiov)).c_str(),"F");
+      legend.AddEntry(summaryFirst.get(),("IOV: "+std::to_string(std::get<0>(firstiov))+"| "+std::get<1>(firstiov)).c_str(),"F");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());

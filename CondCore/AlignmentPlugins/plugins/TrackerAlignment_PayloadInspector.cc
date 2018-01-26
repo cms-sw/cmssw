@@ -90,7 +90,7 @@ namespace {
       for (const auto &ali : ref_ali){
 	auto mydetid = ali.rawId();
 	if(DetId(mydetid).det() != DetId::Tracker){
-	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << DetId(mydetid).rawId() <<" ("<< DetId(mydetid).det()<<") is different from "<<DetId::Tracker<<" (is DoubleSide: "<< tTopo.tidIsDoubleSide(mydetid)<<"); subdetId "<< DetId(mydetid).subdetId() <<" - terminating ";
+	  edm::LogWarning("TrackerAlignment_PayloadInspector") << "Encountered invalid Tracker DetId:" << DetId(mydetid).rawId() <<" ("<< DetId(mydetid).det()<<") is different from "<<DetId::Tracker<<" (is DoubleSide: "<< tTopo.tidIsDoubleSide(mydetid)<<"); subdetId "<< DetId(mydetid).subdetId() <<" - terminating ";
 	  return false;
 	}
       } 
@@ -258,7 +258,7 @@ namespace {
       for (const auto &ali : ref_ali){
 	auto mydetid = ali.rawId();
 	if(DetId(mydetid).det() != DetId::Tracker){
-	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << DetId(mydetid).rawId() <<" ("<< DetId(mydetid).det()<<") is different from "<<DetId::Tracker<<" (is DoubleSide: "<< tTopo.tidIsDoubleSide(mydetid)<<"); subdetId "<< DetId(mydetid).subdetId() <<" - terminating ";
+	  edm::LogWarning("TrackerAlignment_PayloadInspector") << "Encountered invalid Tracker DetId:" << DetId(mydetid).rawId() <<" ("<< DetId(mydetid).det()<<") is different from "<<DetId::Tracker<<" (is DoubleSide: "<< tTopo.tidIsDoubleSide(mydetid)<<"); subdetId "<< DetId(mydetid).subdetId() <<" - terminating ";
 	  return false;
 	}
       } 
@@ -331,8 +331,6 @@ namespace {
 	} // check on the same detID
       } // loop on the components
 
-      //std::cout<<"ref_ali.size()"<< ref_ali.size() << " obtained comparison for "<< loopedComponents <<std::endl;
-
       int c_index=1;
       for (const auto &coord : coords){
 	canvas.cd(c_index)->SetLogy();
@@ -388,7 +386,7 @@ namespace {
       for(const auto& ali : alignments ){
 
 	if(DetId(ali.rawId()).det() != DetId::Tracker){
-	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << ali.rawId() <<" "<<DetId(ali.rawId()).det()<<" is different from "<<DetId::Tracker<<"  - terminating ";
+	  edm::LogWarning("TrackerAlignment_PayloadInspector") << "Encountered invalid Tracker DetId:" << ali.rawId() <<" "<<DetId(ali.rawId()).det()<<" is different from "<<DetId::Tracker<<"  - terminating ";
 	  return false;
 	}
 
@@ -412,24 +410,10 @@ namespace {
 	} // switch on the coordinate (only X,Y,Z are interesting)
       } // ends loop on the alignments
 
-      //std::cout<<"barycenter ("<<barycenter<<")/n. modules ("<< nmodules << ") =  "<< barycenter/nmodules << std::endl;
+      edm::LogInfo("TrackerAlignment_PayloadInspector")<<"barycenter ("<<barycenter<<")/n. modules ("<< nmodules << ") =  "<< barycenter/nmodules << std::endl;
 
       // take the mean
       barycenter/=nmodules;
-
-      // switch(coord){
-      // case AlignmentPI::t_x :
-      // 	barycenter+=(-8.99999999999999967e-02);
-      // 	break;
-      // case AlignmentPI::t_y:
-      // 	barycenter+=(-1.10000000000000001e-01);
-      // 	break;
-      // case AlignmentPI::t_z:
-      // 	barycenter+=(-1.70000000000000012e-01);
-      // 	break;
-      // default:
-      // 	edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate "<< coord << std::endl;
-      // }
 
       // applied GPR correction to move barycenter to global CMS coordinates
       barycenter+=AlignmentPI::hardcodeGPR[coord];
