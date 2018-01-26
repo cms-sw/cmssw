@@ -15,8 +15,7 @@
 #-------------------------------------
 # Setup CMSSW area and variables
 #-------------------------------------
-RELEASE=CMSSW_9_2_6
-RELEASE_DIR=/afs/cern.ch/work/a/anoolkar/private/
+RELEASE_DIR=$(echo $CMSSw_BASE)
 TEST_DIR=$PWD
 mkdir -p $TEST_DIR/log
 LOG_DIR=${TEST_DIR}/log
@@ -42,7 +41,7 @@ let "lastfill=lastfill+interval"
 # Setup CMSSW log files
 #-------------------------------------
 OUTFILE="${TEST_DIR}/log/fill_"$LOG_DATE"_"$firstfill"-"$lastfill".log"
-pushd $RELEASE_DIR/$RELEASE/src/
+pushd $RELEASE_DIR/src/
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval `scramv1 runtime -sh` 
 
