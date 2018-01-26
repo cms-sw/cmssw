@@ -12,9 +12,11 @@ class G4TrackToParticleID
 {
 public:
   static int  particleID(const G4Track *);
+  static bool isGammaElectronPositron(int pdgCode);
   static bool isGammaElectronPositron(const G4Track *);
   static bool isMuon(const G4Track *);
   static bool isStableHadron(const G4Track *);
+  static bool isNeutrinoOrUnstable(int pdgCode);
 };
 
 #endif

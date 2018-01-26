@@ -78,7 +78,7 @@ private:
   void                          getFromParam(const G4Step * step, bool& isKilled);
   void                          getHitPMT(const G4Step * step);
   void                          getHitFibreBundle(const G4Step * step, bool type);
-  int                           setTrackID(const G4Step * step);
+  //  int                           setTrackID(const G4Step * step);
   void                          readWeightFromFile(const std::string&);
   double                        layerWeight(int, const G4ThreeVector&, int, int);
   void                          plotProfile(const G4Step* step, const G4ThreeVector& pos, 

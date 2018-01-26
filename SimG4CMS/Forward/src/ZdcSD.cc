@@ -337,21 +337,3 @@ void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
     numberingScheme.reset(scheme);
   }
 }
-
-int ZdcSD::setTrackID (const G4Step* aStep) {
-  const G4Track* theTrack = aStep->GetTrack();
-  TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
-  int primaryID = trkInfo->getIDonCaloSurface();
-  if (primaryID == 0) {
-#ifdef DebugLog
-    LogDebug("ZdcSD") << "ZdcSD: Problem with primaryID **** set by force "
-                        << "to TkID **** " << theTrack->GetTrackID();
-#endif
-    primaryID = theTrack->GetTrackID();
-  }
-  if (primaryID != previousID.trackID()) {
-      resetForNewPrimary(aStep); 
-  }
-  return primaryID;
-}
-

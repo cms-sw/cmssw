@@ -96,7 +96,7 @@ HFShowerParam::~HFShowerParam() {
 }
 
 void HFShowerParam::initRun(const HcalDDDSimConstants* hcons) {
-  if (showerLibrary) showerLibrary->initRun(hcons);
+  if (showerLibrary) showerLibrary->initRun(nullptr, hcons);
   if (fibre)         fibre->initRun(hcons);
 }
 

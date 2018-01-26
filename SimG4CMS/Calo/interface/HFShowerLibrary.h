@@ -24,6 +24,7 @@
 
 class DDCompactView;    
 class G4Step;
+class G4ParticleTable;
 
 class HFShowerLibrary {
   
@@ -43,7 +44,7 @@ public:
     double                    time;
   };
 
-  void                initRun(const HcalDDDSimConstants*);
+  void                initRun(G4ParticleTable*, const HcalDDDSimConstants*);
   std::vector<Hit>    getHits(const G4Step * aStep, bool &ok, double weight, 
                               bool onlyLong=false);
   std::vector<Hit>    fillHits(const G4ThreeVector & p, const G4ThreeVector & v,
@@ -74,10 +75,6 @@ private:
   double              probMax, backProb;
   double              dphi, rMin, rMax;
   std::vector<double> gpar;
-
-  int                 emPDG, epPDG, gammaPDG;
-  int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
-  int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 
   int                 npe;
   HFShowerPhotonCollection pe;

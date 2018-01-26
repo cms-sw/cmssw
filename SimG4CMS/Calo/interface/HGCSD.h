@@ -12,10 +12,7 @@
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
-#include "G4String.hh"
-//#include <map>
 #include <string>
-//#include <TH1F.h>
 
 class DDCompactView;
 class DDFilteredView;
@@ -44,15 +41,12 @@ private:
 
   uint32_t                setDetUnitId(ForwardSubdetector&, int, int, 
 				       int, int, G4ThreeVector &);
-  //bool                    isItinFidVolume (const G4ThreeVector&) {return true;}
-  //int                     setTrackID(const G4Step * step);
 
   std::string                     nameX;
 
   HGCalGeometryMode::GeometryMode m_mode;
   HGCNumberingScheme*             numberingScheme;
   HGCMouseBite*                   mouseBite_;
-  G4int                           mumPDG, mupPDG; 
   double                          eminHit;
   ForwardSubdetector              myFwdSubdet_;
   double                          slopeMin_;

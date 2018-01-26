@@ -18,7 +18,6 @@ public:
  
   ~ZdcSD() = default;
 
-  //G4bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
   uint32_t setDetUnitId(const G4Step* step) override;
  
   void setNumberingScheme(ZdcNumberingScheme* scheme);
@@ -30,8 +29,6 @@ protected:
   void   initRun() override;
 
 private:    
-
-  int   setTrackID(const G4Step * step);
 
   int verbosity;
   bool  useShowerLibrary,useShowerHits; 

@@ -551,7 +551,7 @@ void HCalSD::update(const BeginOfJob * job) {
 
 void HCalSD::initRun() {
   edm::LogWarning("HcalSim") << "InitRun for HFFFFF ";
-  if (showerLibrary.get()) showerLibrary.get()->initRun(hcalConstants);
+  if (showerLibrary.get()) showerLibrary.get()->initRun(nullptr, hcalConstants);
   if (showerParam.get())   showerParam.get()->initRun(hcalConstants);
   if (hfshower.get())      hfshower.get()->initRun(hcalConstants);
   if (showerPMT.get())     showerPMT.get()->initRun(hcalConstants);
@@ -952,7 +952,7 @@ void HCalSD::getHitFibreBundle (const G4Step* aStep, bool type) {
     processHit(aStep);
   } // non-zero energy deposit
 }
-
+/*
 int HCalSD::setTrackID (const G4Step* aStep) {
 
   int primaryID = getTrackID(aStep->GetTrack());
@@ -961,7 +961,7 @@ int HCalSD::setTrackID (const G4Step* aStep) {
   }
   return primaryID;
 }
-
+*/
 void HCalSD::readWeightFromFile(const std::string& fName) {
 
   std::ifstream infile;

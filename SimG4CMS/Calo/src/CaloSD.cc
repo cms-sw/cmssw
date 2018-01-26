@@ -538,7 +538,26 @@ int CaloSD::getTrackID(const G4Track* aTrack) {
     primaryID = aTrack->GetTrackID();
   }
 #ifdef DebugLog
-  edm::LogInfo("CaloSim") << "CaloSD::" << GetName() << " trackID= " << aTrack->GetTrackID()
+  edm::LogInfo("CaloSim") << "CaloSD::getTrackID for " << GetName() 
+                          << " trackID= " << aTrack->GetTrackID()
+                          << " primaryID= " << primaryID;
+#endif
+  return primaryID;
+}
+
+int CaloSD::setTrackID(const G4Step* aStep) {
+
+  int primaryID = getTrackID(aStep->GetTrack());
+  if (primaryID == 0) {
+    primaryID = aStep->GetTrack()->GetTrackID();
+  }
+
+  if (primaryID != previousID.trackID()) {
+    resetForNewPrimary(aStep);
+  }
+#ifdef DebugLog
+  edm::LogInfo("CaloSim") << "CaloSD::setTrackID for " << GetName() 
+                          << " trackID= " << aStep->GetTrack()->GetTrackID()
                           << " primaryID= " << primaryID;
 #endif
   return primaryID;
@@ -550,7 +569,8 @@ bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
   double emin(eminHit);
   if (hit->getDepth() > 0) emin = eminHitD;
 #ifdef DebugLog
-  edm::LogInfo("CaloSim") << "Depth " << hit->getDepth() << " Emin = " << emin 
+  edm::LogInfo("CaloSim") << "CaloSD::filterHit(..) Depth " << hit->getDepth() 
+                          << " Emin = " << emin 
                           << " (" << eminHit << ", " << eminHitD << ")";
 #endif   
   return ((time <= tmaxHit) && (hit->getEnergyDeposit() > emin));

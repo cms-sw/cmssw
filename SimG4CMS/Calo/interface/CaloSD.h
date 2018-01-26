@@ -92,6 +92,7 @@ protected:
   virtual bool     filterHit(CaloG4Hit*, double);
 
   virtual int      getTrackID(const G4Track*); 
+  virtual int      setTrackID(const G4Step*); 
   virtual uint16_t getDepth(const G4Step*);   
   double           getResponseWt(const G4Track*);
   int              getNumberOfHits();

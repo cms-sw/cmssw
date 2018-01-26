@@ -15,6 +15,12 @@ int G4TrackToParticleID::particleID(const G4Track * g4trk)
     return particleID_;
 }
 
+bool G4TrackToParticleID::isGammaElectronPositron(int pdgCode)
+{
+  int pdg = std::abs(pdgCode);
+  return (pdg == 11 || pdg == 22);
+}
+
 bool G4TrackToParticleID::isGammaElectronPositron(const G4Track * g4trk)
 {
   int pdg = std::abs(g4trk->GetDefinition()->GetPDGEncoding());
@@ -31,4 +37,10 @@ bool G4TrackToParticleID::isStableHadron(const G4Track * g4trk)
   // is pi+-, p, pbar, n, nbar, KL, K+-, 
   int pdg = std::abs(g4trk->GetDefinition()->GetPDGEncoding());
   return (pdg == 211 || pdg == 2212 || pdg == 2112 || pdg == 130 || pdg == 321);
+}
+
+bool G4TrackToParticleID::isNeutrinoOrUnstable(int pdgCode)
+{
+  int pdg = std::abs(pdgCode);
+  return (pdg == 0 || pdg == 12|| pdg == 14 || pdg == 16 || pdg == 111 || pdg == 221);
 }
