@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Test")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-process.CondDBCommon.connect = 'sqlite_file:test_output.db'
+process.CondDBCommon.connect = 'sqlite_file:fillinfo_pop_test.db'
 process.CondDBCommon.DBParameters.authenticationPath = '.'
 
 process.maxEvents = cms.untracked.PSet(
@@ -15,7 +15,7 @@ process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('timestamp'),
     firstValue = cms.uint64(6477060826480649336),
     lastValue = cms.uint64(6477060826480649336),
-    interval = cms.uint64(106166425464825)
+    interval = cms.uint64( 3600 << 32 )
 )
 
 
