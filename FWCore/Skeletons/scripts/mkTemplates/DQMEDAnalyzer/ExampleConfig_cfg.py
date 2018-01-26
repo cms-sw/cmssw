@@ -13,12 +13,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.demo = cms.EDAnalyzer('__class__'
-     , tracks = cms.untracked.InputTag('ctfWithMaterialTracks')
-)
+process.load("__subsys__.__pkgname__.__class_lowercase___cfi")
+process.DQMStore = cms.Service("DQMStore")
 
-@example_histoprocess.TFileService = cms.Service("TFileService",
-@example_histo    fileName = cms.string('histo.root')
-@example_histo)
-
-process.p = cms.Path(process.demo)
+process.p = cms.Path(process.__class_lowercase__)
