@@ -25,7 +25,7 @@
  *
  * Updates for high pileup running by Vadim Khotilovich (TAMU), December 2012
  *
- * Updates for integrated local trigger with GEMs and RPCs by
+ * Updates for integrated local trigger with GEMs by
  * Sven Dildick (TAMU) and Tao Huang (TAMU), April 2015
  *
  * Removing usage of outdated class CSCTriggerGeometry by Sven Dildick (TAMU)
