@@ -60,8 +60,7 @@ BeamHaloPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord){
 				<<"\n with EndCap Propagator: "<<theEndCapTrackerPropagatorName
 				<<"\n with Crossing Propagator: "<<theCrossingTrackerPropagatorName;
 
-  thePropagator = std::make_shared<BeamHaloPropagator>(*endcapPropagator,*crossPropagator,
+  return            std::make_shared<BeamHaloPropagator>(*endcapPropagator,*crossPropagator,
 							&*magField,
 							thePropagationDirection);
-  return thePropagator;
 }
