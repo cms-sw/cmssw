@@ -48,7 +48,7 @@ class AbstractPkg(object):
         self.author = user_info(self.config.get('author', None))
         self.date   = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
         self.not_in_dir = self.config.get('not_in_dir', [])
-        
+
     def tmpl_etags(self):
         "Scan template files and return example tags"
         keys = []
@@ -94,22 +94,19 @@ class AbstractPkg(object):
 
     def parse_etags(self, line):
         """
-        Determine either skip or keep given line based on class tags 
+        Determine either skip or keep given line based on class tags
         meta-strings
         """
         tmpl_etags = self.tmpl_etags()
         keep_etags = self.config.get('tmpl_etags', [])
         for tag in tmpl_etags:
-            if  keep_etags:
-                for valid_tag in keep_etags:
-                    if  line.find(valid_tag) != -1:
-                        line = line.replace(valid_tag, '')
-                        return line
-            else:
-                if  line.find(tag) != -1:
-                    line = line.replace(tag, '')
-                    line = ''
-                    return line
+            for valid_tag in keep_etags:
+              if  line.find(valid_tag) != -1:
+                line = line.replace(valid_tag, '')
+                return line
+            if  line.find(tag) != -1:
+              line = ''
+              return line
         return line
 
     def write(self, fname, tmpl_name, kwds):
@@ -146,6 +143,7 @@ class AbstractPkg(object):
                  '__user__': os.getlogin(),
                  '__date__': self.date,
                  '__class__': self.pname,
+                 '__class_lowercase__': self.pname.lower(),
                  '__name__': self.pname,
                  '__subsys__': self.config.get('subsystem', 'Subsystem')}
         args = self.config.get('args', None)
