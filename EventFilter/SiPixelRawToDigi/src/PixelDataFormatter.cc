@@ -339,7 +339,7 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawDat
     // write data
     unsigned int nWord32InFed = words.find(fedId)->second.size();
     for (unsigned int i=0; i < nWord32InFed; i+=2) {
-      *word = (Word64(words.find(fedId)->second[i]) << 32 ) | words.find(fedId)->second[i+1];
+      *word = (Word64(words.find(fedId)->second[i+1]) << 32 ) | words.find(fedId)->second[i];
       LogDebug("PixelDataFormatter")  << print(*word);
       word++;
     }
