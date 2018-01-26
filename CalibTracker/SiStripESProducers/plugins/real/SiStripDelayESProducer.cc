@@ -30,14 +30,13 @@ SiStripDelayESProducer::SiStripDelayESProducer(const edm::ParameterSet& iConfig)
   
   edm::LogInfo("SiStripDelayESProducer") << "ctor" << std::endl;
 
-  delay.reset(new SiStripDelay());
 }
 
 
 std::shared_ptr<SiStripDelay> SiStripDelayESProducer::produce(const SiStripDelayRcd& iRecord)
 {
   edm::LogInfo("SiStripDelayESProducer") << "produce called" << std::endl;
-
+  std::shared_ptr<SiStripDelay> delay{new SiStripDelay};
   delay->clear();
 
   edm::ESHandle<SiStripBaseDelay> baseDelay;

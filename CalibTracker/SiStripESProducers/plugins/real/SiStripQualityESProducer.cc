@@ -31,13 +31,12 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
   
   edm::LogInfo("SiStripQualityESProducer") << "ctor" << std::endl;
 
-  quality.reset(new SiStripQuality());
 }
 
 
 std::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord)
 {
-  
+  std::shared_ptr<SiStripQuality>  quality{new SiStripQuality};  
   edm::LogInfo("SiStripQualityESProducer") << "produce called" << std::endl;
 
   quality->clear();
