@@ -27,9 +27,7 @@ KFUpdatorESProducer::produce(const TrackingComponentsRecord & iRecord){
 //     delete _updator;
 //     _updator = 0;
 //   }
-  
-  _updator = std::make_shared<KFUpdator>();
-  return _updator;
+  return std::make_shared<KFUpdator>();
 }
 
 

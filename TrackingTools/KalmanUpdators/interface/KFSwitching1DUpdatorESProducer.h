@@ -19,7 +19,6 @@ class  KFSwitching1DUpdatorESProducer: public edm::ESProducer{
   ~KFSwitching1DUpdatorESProducer() override; 
   std::shared_ptr<TrajectoryStateUpdator> produce(const TrackingComponentsRecord &);
  private:
-  std::shared_ptr<TrajectoryStateUpdator> _updator;
   edm::ParameterSet pset_;
 };
 
