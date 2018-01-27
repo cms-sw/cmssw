@@ -4,8 +4,8 @@ using namespace edm;
 using namespace std;
 
 LHEVpTFilter::LHEVpTFilter(const edm::ParameterSet& iConfig) :
-vptMin_(iConfig.getParameter<int>("VpTMin")),
-vptMax_(iConfig.getParameter<int>("VpTMax")),
+vptMin_(iConfig.getParameter<double>("VpTMin")),
+vptMax_(iConfig.getParameter<double>("VpTMax")),
 totalEvents_(0), passedEvents_(0)
 {
   //here do whatever other initialization is needed
@@ -34,6 +34,9 @@ bool LHEVpTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   lheParticles = EvtHandle->hepeup().PUP;
 
   for (unsigned int i = 0; i < lheParticles.size(); ++i) {
+    if (EvtHandle->hepeup().ISTUP[i] != 1) { // keep only outgoing particles
+      continue;
+    }
     unsigned absPdgId = TMath::Abs(EvtHandle->hepeup().IDUP[i]);
     if(absPdgId >=11 && absPdgId<=16){
       lepCands.push_back(ROOT::Math::PxPyPzEVector(lheParticles[i][0],lheParticles[i][1],lheParticles[i][2],lheParticles[i][3]));
