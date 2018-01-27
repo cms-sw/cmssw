@@ -90,9 +90,8 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
     iRecord.getRecord<TkStripCPERecord>().get( p2OTname, p2OTe );
     p2OTp = p2OTe.product();
     return std::make_unique<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, p2OTp);
-  } else {
-    return std::make_unique<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk);
-  }
+  } 
+  return std::make_unique<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk);
 
 }
 
