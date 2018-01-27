@@ -159,16 +159,17 @@ namespace spr {
     }
   }
 
-  double getEnergy(HBHERecHitCollection::const_iterator hit, bool useRaw, bool) {
-    double energy = (useRaw) ? hit->eraw() : hit->energy();
+  double getEnergy(HBHERecHitCollection::const_iterator hit, int useRaw, bool) {
+    double energy = ((useRaw == 1) ? hit->eraw() : 
+		     ((useRaw == 2) ? hit->eaux() : hit->energy()));
     return energy;
   }
 
-  double getEnergy(EcalRecHitCollection::const_iterator hit, bool, bool) {
+  double getEnergy(EcalRecHitCollection::const_iterator hit, int, bool) {
     return hit->energy();
   }
   
-  double getEnergy(edm::PCaloHitContainer::const_iterator hit, bool, bool) {
+  double getEnergy(edm::PCaloHitContainer::const_iterator hit, int, bool) {
     // This will not yet handle Ecal CaloHits!!
     double samplingWeight = 1.;
     // Hard coded sampling weights from JFH analysis of iso tracks
@@ -212,16 +213,17 @@ namespace spr {
     }
   }
 
-  double getRawEnergy(HBHERecHitCollection::const_iterator hit, bool useRaw) {
-    double energy = (useRaw) ? hit->eraw() : hit->energy();
+  double getRawEnergy(HBHERecHitCollection::const_iterator hit, int useRaw) {
+    double energy = ((useRaw == 1) ? hit->eraw() : 
+		     ((useRaw == 2) ? hit->eaux() : hit->energy()));
     return energy;
   }
 
-  double getRawEnergy(EcalRecHitCollection::const_iterator hit, bool) {
+  double getRawEnergy(EcalRecHitCollection::const_iterator hit, int) {
     return hit->energy();
   }
   
-  double getRawEnergy(edm::PCaloHitContainer::const_iterator hit, bool) {
+  double getRawEnergy(edm::PCaloHitContainer::const_iterator hit, int) {
     return hit->energy();
   }
 }
