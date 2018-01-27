@@ -1,4 +1,4 @@
-#include "GeneratorInterface/GenFilters/interface/PythiaHepMCFilterGammaGamma.h"
+#include "GeneratorInterface/Core/interface/PythiaHepMCFilterGammaGamma.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Math/GenVector/VectorUtil.h"
 //#include "CLHEP/HepMC/GenParticle.h"
