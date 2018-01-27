@@ -50,8 +50,8 @@ class LHEVpTFilter : public edm::EDFilter {
   std::vector<lhef::HEPEUP::FiveVector> lheParticles;
   std::vector<ROOT::Math::PxPyPzEVector> lepCands;
 
-  int vptMin_;                // number of particles required to pass filter
-  int vptMax_;                // number of particles required to pass filter
+  double vptMin_;                // number of particles required to pass filter
+  double vptMax_;                // number of particles required to pass filter
   int totalEvents_;                // counters
   int passedEvents_;
 };
