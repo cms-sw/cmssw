@@ -20,10 +20,12 @@ public:
 
   class Area {
   public:
+    Area() {}
+
     // phimin and phimax, and hence xmin+xmax and ymin+ymax are
     // ordered by which way one goes around the unit circle, so it may
     // happen that actually phimax < phimin
-    Area(double rmin, double rmax, double phimin, double phimax, double zmin, double zmax):
+    Area(float rmin, float rmax, float phimin, float phimax, float zmin, float zmax):
       m_zmin(zmin), m_zmax(zmax)
     {
       auto cosphimin = std::cos(phimin);
@@ -81,8 +83,12 @@ public:
 
     std::vector<std::unique_ptr<TrackingRegion> > regions(const Origins& origins, const std::vector<Area>& areas) const;
     std::unique_ptr<TrackingRegion> region(const Origin& origin, const std::vector<Area>& areas) const;
+    std::unique_ptr<TrackingRegion> region(const Origin& origin, const edm::VecArray<Area, 2>& areas) const;
 
   private:
+    template <typename T>
+    std::unique_ptr<TrackingRegion> regionImpl(const Origin& origin, const T& areas) const;
+
     const AreaSeededTrackingRegionsBuilder *m_conf = nullptr;
     const MeasurementTrackerEvent *m_measurementTracker = nullptr;
     TrackingSeedCandidates::Objects candidates;
@@ -92,13 +98,13 @@ public:
   AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector& iC);
   ~AreaSeededTrackingRegionsBuilder() = default;
   
-	  static void fillDescriptions(edm::ParameterSetDescription& desc);
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
 
-	  Builder beginEvent(const edm::Event& e) const;
+  Builder beginEvent(const edm::Event& e) const;
 
-	private:
-	  std::vector<Area> m_areas;
-	  TrackingSeedCandidates candidates_;
+  private:
+   std::vector<Area> m_areas;
+   TrackingSeedCandidates candidates_;
   float m_extraPhi;
   float m_extraEta;
   float m_ptMin;

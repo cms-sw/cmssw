@@ -181,7 +181,7 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
       // rmin, but the '0.5f*' factor is omitted here to reduce
       // computations.
       const auto phi_ref = std::atan2(y_rmin_phimin + y_rmin_phimax,
-                                      x_rmin_phimin + y_rmin_phimax);
+                                      x_rmin_phimin + x_rmin_phimax);
 
       // for maximum phi we need the orthogonal vector to the left
       const auto tan_rmin_phimax = tangentVec(p_rmin_phimax, +1);
