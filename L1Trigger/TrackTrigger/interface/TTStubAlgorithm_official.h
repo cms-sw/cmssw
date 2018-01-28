@@ -74,8 +74,12 @@ class TTStubAlgorithm_official : public TTStubAlgorithm< T >
     void PatternHitCorrelation( bool &aConfirmation,
                                 int &aDisplacement,
                                 int &anOffset,
+				float &anROffset,
+				float &anHardBend,
                                 const TTStub< T > &aTTStub ) const override;
 
+    float degradeBend(bool psModule, int window, int bend) const;
+    
 }; /// Close class
 
 /*! \brief   Implementation of methods
@@ -90,7 +94,13 @@ template< >
 void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                        int &aDisplacement,
                                                                        int &anOffset,
+								       float &anROffset,
+								       float &anHardBend,
                                                                        const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
+
+template< >
+float TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::degradeBend(bool psModule, int window, int bend) const;
+
 
 /*! \class   ES_TTStubAlgorithm_official
  *  \brief   Class to declare the algorithm to the framework
