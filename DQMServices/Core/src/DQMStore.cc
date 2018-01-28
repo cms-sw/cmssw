@@ -536,11 +536,11 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
       }
     });
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
-    ar.watchPostSourceRun(this,&DQMStore::forceReset);
+    ar.watchPostSourceRun([this](edm::RunIndex){ forceReset(); });
   }
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginLumi",false) && enableMultiThread_ == false) {
     forceResetOnBeginLumi_ = true;
-    ar.watchPostSourceLumi(this,&DQMStore::forceReset);
+    ar.watchPostSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
   }
   ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
 }
