@@ -1337,27 +1337,27 @@ FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc)
 }
 
 void
-FastTimerService::preSourceRun()
+FastTimerService::preSourceRun(edm::RunIndex index)
 {
   thread().measure_and_accumulate(overhead_);
 }
 
 void
-FastTimerService::postSourceRun()
+FastTimerService::postSourceRun(edm::RunIndex index)
+{
+  thread().measure_and_accumulate(run_transition_[index]);
+}
+
+void
+FastTimerService::preSourceLumi(edm::LuminosityBlockIndex index)
 {
   thread().measure_and_accumulate(overhead_);
 }
 
 void
-FastTimerService::preSourceLumi()
+FastTimerService::postSourceLumi(edm::LuminosityBlockIndex index)
 {
-  thread().measure_and_accumulate(overhead_);
-}
-
-void
-FastTimerService::postSourceLumi()
-{
-  thread().measure_and_accumulate(overhead_);
+  thread().measure_and_accumulate(lumi_transition_[index]);
 }
 
 void
