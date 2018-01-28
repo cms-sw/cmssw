@@ -24,6 +24,7 @@ AreaSeededTrackingRegionsBuilder::AreaSeededTrackingRegionsBuilder(const edm::Pa
  {
   m_extraPhi = regPSet.getParameter<double>("extraPhi");
   m_extraEta = regPSet.getParameter<double>("extraEta");
+
   // RectangularEtaPhiTrackingRegion parameters:
   m_ptMin            = regPSet.getParameter<double>("ptMin");
   m_originRadius     = regPSet.getParameter<double>("originRadius");
@@ -45,9 +46,7 @@ void AreaSeededTrackingRegionsBuilder::fillDescriptions(edm::ParameterSetDescrip
 
   desc.add<std::string>("whereToUseMeasurementTracker", "Never");
   desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag(""));
-  //edm::ParameterSetDescription descRegion; 
   TrackingSeedCandidates::fillDescriptions(desc);
- //desc.add<edm::ParameterSetDescription>("RegionPSet", descRegion);
   desc.add<bool>("searchOpt", false);
 }
 
@@ -71,7 +70,6 @@ std::vector<std::unique_ptr<TrackingRegion> > AreaSeededTrackingRegionsBuilder::
   // create tracking regions in directions of the points of interest
   int n_regions = 0;
   for(const auto& origin: origins) {
-    //result.push_back(region(origin, areas));
     auto reg = region(origin, areas);
     if (!reg) continue;
     result.push_back(std::move(reg));
@@ -83,7 +81,14 @@ std::vector<std::unique_ptr<TrackingRegion> > AreaSeededTrackingRegionsBuilder::
 }
 
 std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::region(const Origin& origin, const std::vector<Area>& areas) const {
-
+  return regionImpl(origin, areas);
+}
+std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::region(const Origin& origin, const edm::VecArray<Area, 2>& areas) const {
+  return regionImpl(origin, areas);
+}
+ 
+template <typename T>
+std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regionImpl(const Origin& origin, const T& areas) const {
   
   float minEta=std::numeric_limits<float>::max(), maxEta=std::numeric_limits<float>::lowest();
   float minPhi=std::numeric_limits<float>::max(), maxPhi=std::numeric_limits<float>::lowest();
@@ -158,7 +163,7 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
     // phi
     {
       // For phi we construct the tangent lines of (origin,
-      // originRadius) that go though eahc of the 4 points (in xy
+      // originRadius) that go though each of the 4 points (in xy
       // plane) of the area. Easiest is to make a vector orthogonal to
       // origin->point vector which has a length of
       //
@@ -169,11 +174,14 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
       // definitions of sin/cos of one of the angles of the
       // right-angled triangle.
 
-      // but we start with a "reference phi" so that we can easily
+      // But we start with a "reference phi" so that we can easily
       // decide which phi is the largest/smallest without having too
-      // much of headache with the wrapping
-      const auto phi_ref = std::atan2(0.5f*(y_rmin_phimin + y_rmin_phimax),
-                                      0.5f*(x_rmin_phimin + y_rmin_phimax));
+      // much of headache with the wrapping. The reference is in
+      // principle defined by the averages of y&x phimin/phimax at
+      // rmin, but the '0.5f*' factor is omitted here to reduce
+      // computations.
+      const auto phi_ref = std::atan2(y_rmin_phimin + y_rmin_phimax,
+                                      x_rmin_phimin + y_rmin_phimax);
 
       // for maximum phi we need the orthogonal vector to the left
       const auto tan_rmin_phimax = tangentVec(p_rmin_phimax, +1);
