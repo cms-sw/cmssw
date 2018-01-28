@@ -47,7 +47,8 @@ Some examples of InputSource subclasses may be:
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
-
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -256,19 +257,6 @@ namespace edm {
     ProcessingController::ForwardState forwardState() const;
     ProcessingController::ReverseState reverseState() const;
 
-    class SourceSentry {
-    public:
-      typedef signalslot::Signal<void()> Sig;
-      SourceSentry(Sig& pre, Sig& post);
-      ~SourceSentry();
-
-      SourceSentry(SourceSentry const&) = delete; // Disallow copying and moving
-      SourceSentry& operator=(SourceSentry const&) = delete; // Disallow copying and moving
-
-    private:
-      Sig& post_;
-    };
-
     class EventSourceSentry {
     public:
       EventSourceSentry(InputSource const& source, StreamContext & sc);
@@ -284,16 +272,28 @@ namespace edm {
 
     class LumiSourceSentry {
     public:
-      explicit LumiSourceSentry(InputSource const& source);
+      LumiSourceSentry(InputSource const& source, LuminosityBlockIndex id);
+      ~LumiSourceSentry();
+
+      LumiSourceSentry(LumiSourceSentry const&) = delete; // Disallow copying and moving
+      LumiSourceSentry& operator=(LumiSourceSentry const&) = delete; // Disallow copying and moving
+
     private:
-      SourceSentry sentry_;
+      InputSource const& source_;
+      LuminosityBlockIndex index_;
     };
 
     class RunSourceSentry {
     public:
-      explicit RunSourceSentry(InputSource const& source);
+      RunSourceSentry(InputSource const& source, RunIndex id);
+      ~RunSourceSentry();
+
+      RunSourceSentry(RunSourceSentry const&) = delete; // Disallow copying and moving
+      RunSourceSentry& operator=(RunSourceSentry const&) = delete; // Disallow copying and moving
+
     private:
-      SourceSentry sentry_;
+      InputSource const& source_;
+      RunIndex index_;
     };
 
     class FileOpenSentry {
