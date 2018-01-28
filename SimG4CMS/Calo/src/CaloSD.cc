@@ -547,9 +547,11 @@ int CaloSD::getTrackID(const G4Track* aTrack) {
 
 int CaloSD::setTrackID(const G4Step* aStep) {
 
-  int primaryID = getTrackID(aStep->GetTrack());
+  auto const theTrack = aStep->GetTrack();
+  TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
+  int primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
-    primaryID = aStep->GetTrack()->GetTrackID();
+    primaryID = theTrack->GetTrackID();
   }
 
   if (primaryID != previousID.trackID()) {

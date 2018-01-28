@@ -107,6 +107,7 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
   double zint = hitPoint.z();
 
 #ifdef debugLog
+  if(theTrack->GetTrackID() == 40420) 
   edm::LogInfo("ForwardSim") << "CastorSD::getEnergyDeposit:"
                              << "\n CurrentStepNumber , TrackID , ParentID, Particle , VertexPosition ,"
                              << " LogicalVolumeAtVertex , PV, Time"
@@ -126,24 +127,19 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
                              << currentPV->GetName()
                              << " , " 
                              << theTrack->GetGlobalTime();
-  }
 #endif
 
   // Full - Simulation starts here
 
   double meanNCherPhot=0;
     
-  // remember primary particle hitting the CASTOR detector
-    
   TrackInformationExtractor TIextractor;
   TrackInformation& trkInfo = TIextractor(theTrack);
-  if (!trkInfo.hasCastorHit()) {
-    trkInfo.setCastorHitPID(parCode);
-  }
-  int castorHitPID = std::abs(trkInfo.getCastorHitPID());
-  
+  int castorHitPID = trkInfo.hasCastorHit() ? std::abs(trkInfo.getCastorHitPID())
+    : std::abs(parCode);
+
   // Check whether castor hit track is HAD
-  const bool isHad = !(castorHitPID == 11 || castorHitPID == 13 || castorHitPID == 22);
+  bool isHad = !(castorHitPID == 11 || castorHitPID == 13 || castorHitPID == 22);
   
   G4double           stepl    = aStep->GetStepLength()/cm;
   G4double           beta     = preStepPoint->GetBeta();
@@ -166,10 +162,11 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
         C3TF, C4TF - for third release of CASTOR
   */  
 #ifdef debugLog
-  if(theTrack->GetTrackID() == 8654) 
+  if(theTrack->GetTrackID() == 40420) 
   edm::LogInfo("ForwardSim") << "CastorSD::getEnergyDeposit: for ID=" 
-                               << theTrack->GetTrackID() << " LV: " << currentLV->GetName() 
-                             << " isHad: " << isHad << " pdg= " << castorHitPID
+			     << theTrack->GetTrackID() << " LV: " << currentLV->GetName() 
+                             << " isHad:" << isHad << " pdg=" << parCode 
+			     << " castorPID=" << castorHitPID
                              << " sl= " << stepl << " Edep= " << aStep->GetTotalEnergyDeposit(); 
 #endif
   if (currentLV == lvC3EF || currentLV == lvC4EF || currentLV == lvC3HF ||
@@ -201,9 +198,6 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
     */
     double thFibDirRad = thFibDir*pi/180.;
     
-    // at which theta the point is located:
-    //     double th1    = hitPoint.theta();
-    
     // theta of charged particle in LabRF(hit momentum direction):
     double costh =hit_mom.z()/sqrt(hit_mom.x()*hit_mom.x()+
                                    hit_mom.y()*hit_mom.y()+
@@ -231,49 +225,37 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
     // define losses d_qz in cone of full reflection inside quartz direction
     double d_qz;
 #ifdef debugLog
-    double variant;
+    int variant(0);
 #endif
     if(DelFibPart > (thFullReflRad + thcher) ) {
       d_qz = 0.; 
-#ifdef debugLog
-      variant=0.;
-#endif
     }
-    // if(d > (r+a) ) {d_qz = 0.; variant=0.;}
     else {
       if((th + thcher) < (thFibDirRad+thFullReflRad) && 
          (th - thcher) > (thFibDirRad-thFullReflRad)) {
         d_qz = 1.; 
 #ifdef debugLog
-        variant=1.;
+        variant=1;
 #endif
       }
-      // if((DelFibPart + thcher) < thFullReflRad ) {d_qz = 1.; variant=1.;}
-      // if((d+r) < a ) {d_qz = 1.; variant=1.;}
       else {
         if((thFibDirRad + thFullReflRad) < (th + thcher) && 
            (thFibDirRad - thFullReflRad) > (th - thcher) ) {
-          // if((thcher - DelFibPart ) > thFullReflRad ) 
-          // if((r-d ) > a ) 
           d_qz = 0.; 
 #ifdef debugLog
-          variant=2.;
+          variant=2;
 #endif
         } else {
-          // if((thcher + DelFibPart ) > thFullReflRad && 
-          //    thcher < (DelFibPart+thFullReflRad) ) 
-          //      {
 #ifdef debugLog
-          variant=3.;
-#endif
-          
+          variant=3;
+#endif          
           // use crossed length of circles(cone projection)
           // dC1/dC2 : 
           double arg_arcos = 0.;
           double tan_arcos = 2.*a*d;
           if(tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
           arg_arcos = fabs(arg_arcos);
-          double th_arcos = acos(std::min(std::max(arg_arcos,double(-1.)),double(1.)));
+          double th_arcos = acos(std::min(std::max(arg_arcos,-1.),1.));
           d_qz = fabs(th_arcos/pi/2.);
         }
       }
@@ -287,7 +269,7 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
         ( 1. - 1./(nMedium*nMedium*beta*beta) )*
         photEnSpectrDE*stepl;
       
-      const double scale = isHad ? non_compensation_factor : 1.0;
+      double scale = isHad ? non_compensation_factor : 1.0;
       G4int poissNCherPhot = (G4int) G4Poisson(meanNCherPhot * scale);
       
       if(poissNCherPhot < 0) poissNCherPhot = 0;
@@ -303,6 +285,7 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
                                  << " Nmean= " << meanNCherPhot
                                  << " q=" << charge << " beta=" << beta 
                                  << " nMedium= " << nMedium << " sl= " << stepl
+				 << " var=" << variant
                                  << " Nde=" << photEnSpectrDE;
 #endif
     }
@@ -400,17 +383,22 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
 /////////////////////////////////////////////////////////////////////
 //
 //   Method to get hits from the Shower Library
-//
-//   CastorShowerEvent hits returned by getShowerHits are used to  
-//   replace the full simulation of the shower from theTrack
 //    
 //   "updateHit" save the Hits to a CaloG4Hit container
 //
 /////////////////////////////////////////////////////////////////////
 
-  if (!useShowerLibrary) { return false; }
-  // Get theTrack 
   auto const theTrack = aStep->GetTrack();
+  G4int parCode = theTrack->GetDefinition()->GetPDGEncoding();
+
+  // remember primary particle hitting the CASTOR detector    
+  TrackInformationExtractor TIextractor;
+  TrackInformation& trkInfo = TIextractor(theTrack);
+  if (!trkInfo.hasCastorHit()) {
+    trkInfo.setCastorHitPID(parCode);
+  }
+
+  if (!useShowerLibrary) { return false; }
 
   // preStepPoint information *********************************************
   
@@ -429,7 +417,7 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
                                << " z(cm)= " << theTrack->GetPosition().z()/cm 
                                << " time(ns)= " << theTrack->GetGlobalTime() 
                                << " E(GeV)= " << theTrack->GetTotalEnergy()/GeV;
-  } // end of if(useShowerLibrary)
+  
 #endif
   
   // if particle moves from interaction point or "backwards (halo)
@@ -448,7 +436,6 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
     
   // Check if theTrack is a muon (if so, DO NOT use Shower Library) 
   bool notaMuon = true;
-  G4int parCode = theTrack->GetDefinition()->GetPDGEncoding();
   if (std::abs(parCode) == 13) notaMuon = false;
   
   // angle condition
@@ -476,20 +463,22 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
                              << " nMuon " << notaMuon << " backword " << backward
                              << " Ok " << OkToUse << " angle " << angleok << " LV: " 
                              << currentLV->GetName() << "  " << (currentLV == lvCAST) 
-                             << " " << particleWithinShowerLibrary;
+                             << " " << particleWithinShowerLibrary 
+                             << " Edep= " << aStep->GetTotalEnergyDeposit();
 #endif
   
   // Use Castor shower library if energy is above threshold, is not a muon 
   // and is not moving backward 
   if (!particleWithinShowerLibrary) {
-    
     if (currentLV == lvC3EF || currentLV == lvC4EF || currentLV == lvC3HF ||
         currentLV == lvC4HF) {
       G4double edep     = aStep->GetTotalEnergyDeposit();
       G4double beta     = preStepPoint->GetBeta();
       G4double charge   = preStepPoint->GetCharge();
       double bThreshold = 0.67;
-      if(edep == 0.0 && charge != 0.0 && beta > bThreshold) { G4Poisson(0.0); }
+      if(edep == 0.0 && charge != 0.0 && beta > bThreshold) { 
+	G4Poisson(0.0); 
+      }
     }
     return false;
   }
