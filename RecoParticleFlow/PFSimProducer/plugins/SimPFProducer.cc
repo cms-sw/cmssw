@@ -309,6 +309,27 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 	    edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block);
 	    candidate.addElementInBlock(blockRef,blockIdx);
 	    usedSimCluster[simcHash] = true;
+/*            edm::Ref<std::vector<reco::PFCluster> > clusterRef(SimClustersH,simCluster2Block.find(simcHash)->first);
+            double charged_hadron_energy=clusterRef->correctedEnergy();
+std::cerr << "pdg " << absPdgId << ", track E " << energy << ", simCluster E " << clusterRef->energy() << ", simCluster corrE " << clusterRef->correctedEnergy() << std::endl;
+            // Attach particles from supercluster if track momentum significantly larger than calorimeter energy
+	    auto supercluster_index = caloParticle2SuperCluster[ block ];
+	    if( supercluster_index != -1 ) {
+	      edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block);
+	      for( const auto& elem : blockRef->elements() ) {
+		const auto& ref = elem.clusterRef();
+		if( !usedSimCluster[ref.key()] ) {
+                  if ((charged_hadron_energy/energy<0.5)&&(charged_hadron_energy+ref->correctedEnergy()<energy))
+                  {
+std::cerr << "add " << ref->correctedEnergy() << std::endl;
+                    charged_hadron_energy+=ref->correctedEnergy();
+		    candidate.addElementInBlock(blockRef,elem.index());
+		    usedSimCluster[ref.key()] = true;
+                  }
+		}
+	      }
+	    }
+*/
 	  }
 	}
 	if( absPdgId == 11 ) { // collect brems/conv. brems
@@ -358,8 +379,8 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 	default:
 	  part_type = reco::PFCandidate::h0;
 	}
-	const auto three_mom = (ref->position() - math::XYZPoint(0,0,0)).unit()*ref->energy();
-	math::XYZTLorentzVector clu_p4(three_mom.x(),three_mom.y(),three_mom.z(),ref->energy());
+	const auto three_mom = (ref->position() - math::XYZPoint(0,0,0)).unit()*ref->correctedEnergy();
+	math::XYZTLorentzVector clu_p4(three_mom.x(),three_mom.y(),three_mom.z(),ref->correctedEnergy());
 	candidates->emplace_back(0, clu_p4, part_type);
 	auto& candidate = candidates->back();
 	candidate.addElementInBlock(blref,elem.index());
