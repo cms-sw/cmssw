@@ -665,49 +665,8 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (c
     int granularity = 1;
     int threshold = 0;
 
-    if (dbHardcode.useHEUpgrade() or dbHardcode.useHFUpgrade()) {
-       // Use values from 2016 as starting conditions for 2017+.  These are
-       // averaged over the subdetectors, with the last two HE towers split
-       // off due to diverging correction values.
-       switch (cell.genericSubdet()) {
-          case HcalGenericDetId::HcalGenBarrel:
-             rcalib = 1.128;
-             break;
-         case HcalGenericDetId::HcalGenEndcap:
-             {
-	         HcalDetId id(cell);
-	         if (id.ietaAbs() >= 28)
-                   rcalib = 1.188;
-                else
-                   rcalib = 1.117;
-		// granularity is equal to 1 only for |ieta| == 17
-		if(id.ietaAbs() >= 18 && id.ietaAbs() <= 26) granularity = 2;
-		else if(id.ietaAbs() >=27 && id.ietaAbs() <= 29) granularity = 5;
-	     }
-             break;
-        case HcalGenericDetId::HcalGenForward:
-             rcalib = 1.02;
-             break;
-         default:
-             break;
-       }
-
-       if (cell.isHcalTrigTowerDetId()) {
-	  rcalib = 0.;
-	  HcalTrigTowerDetId id(cell);
-	  if(id.ietaAbs() <= 17) {
-	    granularity = 1;
-	  }
-	  else if(id.ietaAbs() >= 18 && id.ietaAbs() <= 26) {
-	    granularity = 2;
-	  }
-	  else if(id.ietaAbs() >= 27 && id.ietaAbs() <= 28) {
-	    granularity = 5;
-	  }
-	  else {
-	    granularity = 0;
-	  }
-       }
+    if (cell.isHcalTrigTowerDetId()) {
+      rcalib = 0.;
     }
 
     HcalLutMetadatum item(cell.rawId(), rcalib, granularity, threshold);
