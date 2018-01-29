@@ -47,8 +47,7 @@ namespace {
       iRecord.get(pset_.getParameter<std::string>("Fitter"), fit);
       iRecord.get(pset_.getParameter<std::string>("Smoother"), smooth);
       
-     auto kfs = std::make_unique<KFFittingSmoother>(*fit.product(), *smooth.product(),pset_);
-     return std::move(kfs);
+     return std::make_unique<KFFittingSmoother>(*fit.product(), *smooth.product(),pset_);
     }
 
   private:
