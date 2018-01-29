@@ -97,21 +97,19 @@ public:
   AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector&& iC): AreaSeededTrackingRegionsBuilder(regPSet, iC) {}
   AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector& iC);
   ~AreaSeededTrackingRegionsBuilder() = default;
-  
   static void fillDescriptions(edm::ParameterSetDescription& desc);
 
   Builder beginEvent(const edm::Event& e) const;
 
-  private:
-   std::vector<Area> m_areas;
-   TrackingSeedCandidates candidates_;
+ private:
+  std::vector<Area> m_areas;
+  TrackingSeedCandidates candidates_;
   float m_extraPhi;
   float m_extraEta;
   float m_ptMin;
   float m_originRadius;
   bool m_precise;
   edm::EDGetTokenT<MeasurementTrackerEvent> token_measurementTracker;
-  edm::EDGetTokenT<TrackingSeedCandidates> token_candidates;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
   bool m_searchOpt;
 };
