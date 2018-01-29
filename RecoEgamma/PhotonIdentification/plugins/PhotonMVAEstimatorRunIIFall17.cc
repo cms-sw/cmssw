@@ -53,8 +53,8 @@ float PhotonMVAEstimatorRunIIFall17::
 mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {  
   
   const int iCategory = findCategory( particle );
-  const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );  
-  
+
+  const std::vector<float> vars = fillMVAVariables( particle, iEvent ) ; 
   const float result = gbrForests_.at(iCategory)->GetClassifier(vars.data());
   
   // DEBUG
@@ -252,7 +252,7 @@ std::vector<float> PhotonMVAEstimatorRunIIFall17::fillMVAVariables(const edm::Pt
   //
   std::vector<float> vars;
   if( isEndcapCategory( findCategory( particle ) ) ) {
-    vars = std::move( packMVAVariables(
+    vars = packMVAVariables(
                                        allMVAVars.varRawE,
                                        allMVAVars.varR9,
                                        allMVAVars.varSieie,
@@ -268,9 +268,9 @@ std::vector<float> PhotonMVAEstimatorRunIIFall17::fillMVAVariables(const edm::Pt
 				       allMVAVars.varESEffSigmaRR,
 				       allMVAVars.varESEnOverRawE
 				       ) 
-                      ); 
+                      ; 
   } else {
-    vars = std::move( packMVAVariables(
+    vars = packMVAVariables(
                                        allMVAVars.varRawE,
                                        allMVAVars.varR9,
                                        allMVAVars.varSieie,
@@ -284,7 +284,7 @@ std::vector<float> PhotonMVAEstimatorRunIIFall17::fillMVAVariables(const edm::Pt
                                        allMVAVars.varSCEta,
 				       allMVAVars.varRho
 				       ) 
-                      );
+                      ;
   }
   return vars;
 }
