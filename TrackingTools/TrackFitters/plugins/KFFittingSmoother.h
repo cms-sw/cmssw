@@ -55,7 +55,6 @@ namespace {
   public:
     ~KFFittingSmoother() override {}
 
-  private:
     KFFittingSmoother(const TrajectoryFitter& aFitter,
 		      const TrajectorySmoother& aSmoother,
 		      const edm::ParameterSet & conf) :
@@ -64,6 +63,7 @@ namespace {
       theSmoother(aSmoother.clone())
 	{}
     
+  private:
     
     
     static void  fillDescriptions(edm::ParameterSetDescription & desc) {
