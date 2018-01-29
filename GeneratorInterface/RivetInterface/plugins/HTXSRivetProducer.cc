@@ -28,7 +28,7 @@ using namespace Rivet;
 using namespace edm;
 using namespace std;
 
-class HTXSRivetProducer : public edm::stream::EDProducer<> {
+class HTXSRivetProducer : public edm::Producer<> {
 public:
     
     explicit HTXSRivetProducer(const edm::ParameterSet& cfg) : 
