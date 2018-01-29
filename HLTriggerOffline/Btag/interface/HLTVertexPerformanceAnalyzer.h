@@ -41,6 +41,7 @@ class HLTVertexPerformanceAnalyzer : public DQMEDAnalyzer {
 		void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 		// variables from python configuration
+		std::string mainFolder_;
 		edm::EDGetTokenT<edm::TriggerResults> hlTriggerResults_;
 		edm::EDGetTokenT<std::vector<SimVertex> > simVertexCollection_;
 		std::vector<std::string> hltPathNames_;
