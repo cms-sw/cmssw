@@ -19,6 +19,5 @@ TrajectoryCleanerESProducer::produce(const  TrackingComponentsRecord & iRecord)
 {
    using namespace edm::es;
    
-   ReturnType tc(TrajectoryCleanerFactory::get()->create(theComponentType, theConfig));
-   return tc;
+   return ReturnType(TrajectoryCleanerFactory::get()->create(theComponentType, theConfig));
 }
