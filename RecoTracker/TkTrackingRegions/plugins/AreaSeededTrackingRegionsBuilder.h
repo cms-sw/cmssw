@@ -97,11 +97,12 @@ public:
   AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector&& iC): AreaSeededTrackingRegionsBuilder(regPSet, iC) {}
   AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector& iC);
   ~AreaSeededTrackingRegionsBuilder() = default;
+
   static void fillDescriptions(edm::ParameterSetDescription& desc);
 
   Builder beginEvent(const edm::Event& e) const;
 
- private:
+private:
   std::vector<Area> m_areas;
   TrackingSeedCandidates candidates_;
   float m_extraPhi;

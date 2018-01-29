@@ -60,7 +60,6 @@ AreaSeededTrackingRegionsBuilder::Builder AreaSeededTrackingRegionsBuilder::begi
   }
   builder.setCandidates( ( candidates_.objects(e)));
   return builder;
-
 }
 
 
@@ -86,9 +85,9 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
 std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::region(const Origin& origin, const edm::VecArray<Area, 2>& areas) const {
   return regionImpl(origin, areas);
 }
+
 template <typename T>
-std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regionImpl(const Origin& origin, const T& areas) const {
-  
+std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regionImpl(const Origin& origin, const T& areas) const { 
   float minEta=std::numeric_limits<float>::max(), maxEta=std::numeric_limits<float>::lowest();
   float minPhi=std::numeric_limits<float>::max(), maxPhi=std::numeric_limits<float>::lowest();
 
