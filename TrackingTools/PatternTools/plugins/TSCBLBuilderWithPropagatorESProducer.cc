@@ -86,7 +86,7 @@ TSCBLBuilderWithPropagatorESProducer::produce(const TrackingComponentsRecord& iR
    auto pTSCBLBuilderWithPropagator = std::make_unique<TSCBLBuilderWithPropagator>(*pro) ;
 
 
-   return std::move(pTSCBLBuilderWithPropagator) ;
+   return pTSCBLBuilderWithPropagator ;
 }
 
 //define this as a plug-in

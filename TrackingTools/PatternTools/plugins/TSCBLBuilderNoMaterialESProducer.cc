@@ -77,7 +77,7 @@ TSCBLBuilderNoMaterialESProducer::produce(const TrackingComponentsRecord& iRecor
    auto pTSCBLBuilderNoMaterial = std::make_unique<TSCBLBuilderNoMaterial>() ;
 
 
-   return std::move(pTSCBLBuilderNoMaterial) ;
+   return pTSCBLBuilderNoMaterial ;
 }
 
 //define this as a plug-in
