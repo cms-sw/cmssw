@@ -12,15 +12,15 @@ TrackingSeedCandidates::TrackingSeedCandidates(const edm::ParameterSet& regPSet,
     m_deltaPhi_Cand = regPSet.getParameter<double>("deltaPhi_Cand");
  
     // basic inputs
-    if(m_seedingMode == SeedingMode::CANDIDATE_SEEDED)
+    if(m_seedingMode == SeedingMode::CANDIDATE_SEEDED){
       m_token_input        = iC.consumes<reco::CandidateView>(regPSet.getParameter<edm::InputTag>("input"));
-
+      if (m_deltaEta_Cand<0 || m_deltaPhi_Cand<0) throw edm::Exception(edm::errors::Configuration) << "Delta eta and phi parameters must be set for candidates in candidate seeding mode"; 
+    }
 }
 
 void TrackingSeedCandidates::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<std::string>("seedingMode", "Global");
-  const std::string defaultInput = ""; 
-  desc.add<edm::InputTag>("input",defaultInput);
+  desc.add<edm::InputTag>("input",edm::InputTag());
   desc.add<double>("deltaEta_Cand", -1.);
   desc.add<double>("deltaPhi_Cand", -1.);
  

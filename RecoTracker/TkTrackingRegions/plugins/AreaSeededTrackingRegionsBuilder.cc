@@ -86,7 +86,6 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
 std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::region(const Origin& origin, const edm::VecArray<Area, 2>& areas) const {
   return regionImpl(origin, areas);
 }
- 
 template <typename T>
 std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regionImpl(const Origin& origin, const T& areas) const {
   
@@ -250,7 +249,7 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
 		float dEta_Cand = candidates.second.first;
 		float dPhi_Cand = candidates.second.second;
 	       	float eta_Cand = object.eta();
-                float phi_Cand = object.phi();
+		float phi_Cand = object.phi();
           	float dEta_Cand_Point = std::abs(eta_Cand-meanEta);
           	float dPhi_Cand_Point = std::abs(deltaPhi(phi_Cand,meanPhi));
 
@@ -268,18 +267,13 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
 		float phiMax_RoI = deltaPhi(phi_Cand_plus,phi_Point_plus)<0. ? phi_Cand_plus : phi_Point_plus;
 
 
-
 		const auto meanEtaTemp = (etaMin_RoI+etaMax_RoI)/2.f;
-                auto meanPhiTemp = (phiMin_RoI+phiMax_RoI)/2.f;
+		auto meanPhiTemp = (phiMin_RoI+phiMax_RoI)/2.f;
 		if( phiMax_RoI < phiMin_RoI ) meanPhiTemp-=M_PI;
 	        meanPhiTemp = normalizedPhi(meanPhiTemp);
 	        
 		const auto dPhiTemp = deltaPhi(phiMax_RoI,meanPhiTemp);
-                const auto dEtaTemp = etaMax_RoI-meanEtaTemp;
-
-
-
-
+		const auto dEtaTemp = etaMax_RoI-meanEtaTemp;
 
 		const auto x = std::cos(meanPhiTemp);
   	  	const auto y = std::sin(meanPhiTemp);
