@@ -98,10 +98,11 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   NaNTrap( aStep );
 
 #ifdef DebugLog
+  if(aStep->GetTrack()->GetTrackID() == 82946)
   edm::LogInfo("CaloSim") << "CaloSD::" << GetName()
-                          << theTrack->GetTrackID() 
-                          << " prID= " << theTrack->GetParentID() 
-                          << " Epoststep= " << theTrack->GetKineticEnergy()
+                          << " ID= " << aStep->GetTrack()->GetTrackID() 
+                          << " prID= " << aStep->GetTrack()->GetParentID() 
+                          << " Eprestep= " << aStep->GetPreStepPoint()->GetKineticEnergy()
                           << " step= " << aStep->GetStepLength() << " Edep= " << aStep->GetTotalEnergyDeposit(); 
 #endif
   // apply shower library or parameterisation
@@ -122,44 +123,45 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   }
 
   // ignore steps without energy deposit
-  if(aStep->GetTotalEnergyDeposit() == 0.0) 
-    { return false; }
-
+  edepositEM = edepositHAD = 0.f;
   unsigned int unitID = setDetUnitId(aStep);
-  auto const track = aStep->GetTrack();   
+  auto const theTrack = aStep->GetTrack();   
   uint16_t depth = getDepth(aStep);
     
-  double   time  = track->GetGlobalTime()/nanosecond;
-  int      primaryID = getTrackID(track);
+  double   time  = theTrack->GetGlobalTime()/nanosecond;
+  int      primaryID = getTrackID(theTrack);
   currentID.setID(unitID, time, primaryID, depth);
 
-  edepositEM = edepositHAD = 0.f;
+  if(aStep->GetTotalEnergyDeposit() == 0.0) { 
+    //--- This code is for backward compatibility and should be removed 
+    hitExists(aStep);
+    //--- 
+    return false; 
+  }
+
   double energy = getEnergyDeposit(aStep);
   if(energy > 0.0) {
-    if(G4TrackToParticleID::isGammaElectronPositron(track)) {
+    if(G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
       edepositEM  = energy;
-      edepositHAD = 0.f;
     } else {
-      edepositEM  = 0.f;
       edepositHAD = energy;
     }
 #ifdef DebugLog
-    //if(track->GetTrackID() == 8654) {
-    G4TouchableHistory* touch =(G4TouchableHistory*)(track->GetTouchable());
+    G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
+    if(theTrack->GetTrackID() == 82946) 
     edm::LogInfo("CaloSim") << "CaloSD::" << GetName()
                             << " PV:"   << touch->GetVolume(0)->GetName()
                             << " PVid=" << touch->GetReplicaNumber(0)
                             << " MVid=" << touch->GetReplicaNumber(1)
                             << " Unit:" << std::hex << unitID << std::dec 
                             << " Edep=" << edepositEM << " " << edepositHAD
-                            << " ID=" << track->GetTrackID()
-                            << " pID=" << track->GetParentID()
-                            << " E=" << track->GetKineticEnergy()
+                            << " ID=" << theTrack->GetTrackID()
+                            << " pID=" << theTrack->GetParentID()
+                            << " E=" << theTrack->GetKineticEnergy()
                             << " S=" << aStep->GetStepLength()
-                            << " " << track->GetDefinition()->GetParticleName()
+                            << " " << theTrack->GetDefinition()->GetParticleName()
                             << " currentID= " << currentID 
                             << " previousID= " << previousID;
-    //}
 #endif
     if(!hitExists(aStep)) {
       currentHit = createNewHit(aStep);
@@ -336,6 +338,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
 
   auto const theTrack = aStep->GetTrack();
 #ifdef DebugLog
+  if(GetName() == "EcalHitsES")
   edm::LogInfo("CaloSim") << "CaloSD::CreateNewHit " << getNumberOfHits()
                           << " for " << GetName()
                           << " Unit:" << currentID.unitID() 
@@ -408,9 +411,9 @@ void CaloSD::updateHit(CaloG4Hit* aHit) {
 
   aHit->addEnergyDeposit(edepositEM,edepositHAD);
 #ifdef DebugLog
-  edm::LogInfo("CaloSim") << "CaloSD: Add energy deposit in " << currentID 
-                          << " em " << edepositEM/MeV << " hadronic " 
-                          << edepositHAD/MeV << " MeV"; 
+  edm::LogInfo("CaloSim") << "CaloSD:" << GetName() << " Add energy deposit in " 
+			  << currentID << " Edep_em(MeV)= " 
+			  << edepositEM << " Edep_had(MeV)= " << edepositHAD; 
 #endif
 
   // buffer for next steps:
@@ -423,9 +426,10 @@ void CaloSD::resetForNewPrimary(const G4Step* aStep) {
   entranceLocal  = setToLocal(entrancePoint, preStepPoint->GetTouchable());
   incidentEnergy = preStepPoint->GetKineticEnergy();
 #ifdef DebugLog
-  edm::LogInfo("CaloSim") << "CaloSD: Incident energy " << incidentEnergy/GeV 
-                          << " GeV and" << " entrance point " << entrancePoint 
-                          << " (Global) " << entranceLocal << " (Local)";
+  if(aStep->GetTrack()->GetTrackID() == 82946)
+  edm::LogInfo("CaloSim") << "CaloSD::resetForNewPrimary Ein= " << incidentEnergy/GeV 
+                          << " GeV and" << " entrance point global: " << entrancePoint 
+                          << " local: " << entranceLocal;
 #endif
 }
 

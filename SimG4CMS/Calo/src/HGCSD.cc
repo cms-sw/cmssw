@@ -99,7 +99,7 @@ double HGCSD::getEnergyDeposit(const G4Step* aStep) {
   // check fiductial volume
   if (r >= z*slopeMin_) {
     double wt1    = getResponseWt(aStep->GetTrack());
-    destep *= wt1*aStep->GetTotalEnergyDeposit();
+    destep = wt1*aStep->GetTotalEnergyDeposit();
     double wt2    = aStep->GetTrack()->GetWeight();
     if (wt2 > 0) { destep *= wt2; }
   }

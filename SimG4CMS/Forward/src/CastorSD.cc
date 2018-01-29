@@ -164,9 +164,9 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
 #ifdef debugLog
   if(theTrack->GetTrackID() == 40420) 
   edm::LogInfo("ForwardSim") << "CastorSD::getEnergyDeposit: for ID=" 
-			     << theTrack->GetTrackID() << " LV: " << currentLV->GetName() 
+                             << theTrack->GetTrackID() << " LV: " << currentLV->GetName() 
                              << " isHad:" << isHad << " pdg=" << parCode 
-			     << " castorPID=" << castorHitPID
+                             << " castorPID=" << castorHitPID
                              << " sl= " << stepl << " Edep= " << aStep->GetTotalEnergyDeposit(); 
 #endif
   if (currentLV == lvC3EF || currentLV == lvC4EF || currentLV == lvC3HF ||
@@ -285,7 +285,7 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
                                  << " Nmean= " << meanNCherPhot
                                  << " q=" << charge << " beta=" << beta 
                                  << " nMedium= " << nMedium << " sl= " << stepl
-				 << " var=" << variant
+                                 << " var=" << variant
                                  << " Nde=" << photEnSpectrDE;
 #endif
     }
@@ -470,6 +470,7 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   // Use Castor shower library if energy is above threshold, is not a muon 
   // and is not moving backward 
   if (!particleWithinShowerLibrary) {
+    //--- This code is for backward compatibility and should be removed 
     if (currentLV == lvC3EF || currentLV == lvC4EF || currentLV == lvC3HF ||
         currentLV == lvC4HF) {
       G4double edep     = aStep->GetTotalEnergyDeposit();
@@ -477,9 +478,10 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
       G4double charge   = preStepPoint->GetCharge();
       double bThreshold = 0.67;
       if(edep == 0.0 && charge != 0.0 && beta > bThreshold) { 
-	G4Poisson(0.0); 
+        G4Poisson(0.0); 
       }
     }
+    //---
     return false;
   }
   
