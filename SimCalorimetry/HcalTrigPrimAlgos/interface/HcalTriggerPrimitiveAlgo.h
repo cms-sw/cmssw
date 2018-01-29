@@ -85,6 +85,7 @@ public:
 
   bool validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
   bool validChannel(const QIE10DataFrame& digi, int ts) const;
+  bool needLegacyFG(const HcalTrigTowerDetId& id) const;
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
