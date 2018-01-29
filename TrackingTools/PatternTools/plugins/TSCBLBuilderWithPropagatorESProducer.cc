@@ -27,7 +27,7 @@ class TSCBLBuilderWithPropagatorESProducer : public edm::ESProducer {
       TSCBLBuilderWithPropagatorESProducer(const edm::ParameterSet&);
       ~TSCBLBuilderWithPropagatorESProducer() override;
 
-      typedef std::shared_ptr<TrajectoryStateClosestToBeamLineBuilder> ReturnType;
+      typedef std::unique_ptr<TrajectoryStateClosestToBeamLineBuilder> ReturnType;
 
       ReturnType produce(const TrackingComponentsRecord&);
    private:
@@ -83,10 +83,10 @@ TSCBLBuilderWithPropagatorESProducer::produce(const TrackingComponentsRecord& iR
 
    const Propagator * pro = theProp.product();
 
-   TSCBLBuilderWithPropagatorESProducer::ReturnType pTSCBLBuilderWithPropagator(new TSCBLBuilderWithPropagator(*pro)) ;
+   auto pTSCBLBuilderWithPropagator = std::make_unique<TSCBLBuilderWithPropagator>(*pro) ;
 
 
-   return pTSCBLBuilderWithPropagator ;
+   return std::move(pTSCBLBuilderWithPropagator) ;
 }
 
 //define this as a plug-in
