@@ -35,6 +35,15 @@ namespace DataFormats_L1TMuon {
 
     l1t::EMTFTrackCollection emtfTrack;
     edm::Wrapper<l1t::EMTFTrackCollection> emtfTrackWrap;
+
+    l1t::RegionalMuonCandRef rmcr;
+    std::vector<l1t::RegionalMuonCandRef> v_rmcr;
+    l1t::RegionalMuonCandRefBxCollection rmcrbxc;
+    edm::Wrapper<l1t::RegionalMuonCandRefBxCollection> w_rmcrbxc;
+    l1t::RegionalMuonCandRefPair rmcrp;
+    std::vector<l1t::RegionalMuonCandRefPair> v_rmcrp;
+    l1t::RegionalMuonCandRefPairBxCollection rmcrpc;
+    edm::Wrapper<l1t::RegionalMuonCandRefPairBxCollection> w_rmcrpc;
   };
 }
 
@@ -57,3 +66,4 @@ namespace L1Trigger_L1TMuonBarrel {
     edm::Wrapper<L1MuBMTrackSegEtaCollection> l1mu_trk_th_W;
   };
 }
+
