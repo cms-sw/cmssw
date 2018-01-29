@@ -9,6 +9,11 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "TLorentzVector.h"
 
+
+const std::map<std::string, unsigned int> L1TStage2CaloLayer2Offline::PlotConfigNames = {
+  {"nVertex", PlotConfig::nVertex}
+};
+
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
@@ -43,6 +48,7 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
         httEfficiencyBins_(ps.getParameter < std::vector<double> > ("httEfficiencyBins")),
         recoHTTMaxEta_(ps.getParameter <double>("recoHTTMaxEta")),
         recoMHTMaxEta_(ps.getParameter <double>("recoMHTMaxEta")),
+        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
         h_controlPlots_()
 {
   edm::LogInfo("L1TStage2CaloLayer2Offline") << "Constructor "
@@ -94,7 +100,7 @@ void L1TStage2CaloLayer2Offline::analyze(edm::Event const& e, edm::EventSetup co
   edm::Handle<reco::VertexCollection> vertexHandle;
   e.getByToken(thePVCollection_, vertexHandle);
   if (!vertexHandle.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: vertex " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: vertex " << std::endl;
     return;
   }
 
@@ -121,19 +127,19 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   e.getByToken(thecaloETMHFCollection_, caloETMHFs);
 
   if (!caloJets.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
     return;
   }
   if (!caloMETs.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} " << std::endl;
     return;
   }
   if (!caloETMHFs.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} (HF) " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} (HF) " << std::endl;
     return;
   }
   if (!l1EtSums.isValid()) {
-    //edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: L1 ET sums " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: L1 ET sums " << std::endl;
     return;
   }
 
@@ -290,11 +296,11 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   e.getByToken(theCaloJetCollection_, caloJets);
 
   if (!caloJets.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
     return;
   }
   if (!l1Jets.isValid()) {
-    //edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: L1 jets " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: L1 jets " << std::endl;
     return;
   }
 
@@ -331,7 +337,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
 //	}
 
   if (!foundMatch) {
-    edm::LogWarning("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
+    LogDebug("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
     return;
   }
 
@@ -454,7 +460,10 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
 
-  h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
+  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
+  h_nVertex_ = ibooker.book1D(
+    nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
+  );
 
   // energy sums control plots (monitor beyond the limits of the 2D histograms)
   h_controlPlots_[ControlPlots::L1MET] = ibooker.book1D("L1MET", "L1 E_{T}^{miss}; L1 E_{T}^{miss} (GeV); events", 500,

@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 #-------------------------------------------------
 # Stage2 Emulator Modules (TODO: Move to L1Trigger.HardwareValidation.L1Stage2HardwareValidation_cff)
 
+# Calo configuration
+from L1Trigger.L1TCalorimeter.simDigis_cff import *
 # CaloLayer1
 from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
 valCaloStage2Layer1Digis = simCaloStage2Layer1Digis.clone()

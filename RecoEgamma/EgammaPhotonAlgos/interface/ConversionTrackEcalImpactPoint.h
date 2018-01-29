@@ -61,7 +61,7 @@ private:
 
   TrajectoryStateOnSurface  stateAtECAL_;
 
-  mutable PropagatorWithMaterial*    forwardPropagator_ ;
+  PropagatorWithMaterial*    forwardPropagator_ ;
   PropagationDirection       dir_;
   std::vector<reco::CaloClusterPtr> matchingBC_;
 

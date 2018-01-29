@@ -32,7 +32,8 @@ for ptQualCut in ptQualCuts:
     cutsPSets.append(cms.untracked.PSet(ptCut = cms.untracked.int32(ptQualCut[0]),
                                         qualCut = cms.untracked.int32(ptQualCut[1])))
 
-l1tMuonDQMOffline = cms.EDAnalyzer("L1TMuonDQMOffline",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
     histFolder = cms.untracked.string('L1T/L1TMuon'),
     tagPtCut = cms.untracked.double(30.),
     recoToL1PtCutFactor = cms.untracked.double(1.25),

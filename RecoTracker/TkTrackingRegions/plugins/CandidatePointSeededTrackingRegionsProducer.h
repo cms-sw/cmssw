@@ -18,6 +18,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
+#include "VertexBeamspotOrigins.h"
 
 /** class CandidatePointSeededTrackingRegionsProducer
  *
@@ -57,21 +58,12 @@ class  CandidatePointSeededTrackingRegionsProducer : public TrackingRegionProduc
 {
 public:
 
-  enum class OperationMode {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA };
   enum class SeedingMode {CANDIDATE_SEEDED, POINT_SEEDED, CANDIDATE_POINT_SEEDED};
 
-  explicit CandidatePointSeededTrackingRegionsProducer(const edm::ParameterSet& conf,
-	edm::ConsumesCollector && iC)
+  explicit CandidatePointSeededTrackingRegionsProducer(const edm::ParameterSet& conf, edm::ConsumesCollector && iC):
+    m_origins(conf.getParameter<edm::ParameterSet>("RegionPSet"), iC)
   {
     edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
-
-    // operation mode
-    std::string operationModeString       = regPSet.getParameter<std::string>("operationMode");
-    if      (operationModeString == "BeamSpotFixed") m_operationMode = OperationMode::BEAM_SPOT_FIXED;
-    else if (operationModeString == "BeamSpotSigma") m_operationMode = OperationMode::BEAM_SPOT_SIGMA;
-    else if (operationModeString == "VerticesFixed") m_operationMode = OperationMode::VERTICES_FIXED;
-    else if (operationModeString == "VerticesSigma") m_operationMode = OperationMode::VERTICES_SIGMA;
-    else throw edm::Exception(edm::errors::Configuration) << "Unknown operation mode string: "<<operationModeString;
 
     // seeding mode
     std::string seedingModeString = regPSet.getParameter<std::string>("seedingMode");
@@ -110,20 +102,10 @@ public:
 
     m_maxNRegions      = regPSet.getParameter<unsigned int>("maxNRegions");
     if(m_maxNRegions==0) throw edm::Exception(edm::errors::Configuration) << "maxNRegions should be greater than or equal to 1";
-    m_token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
-    m_maxNVertices     = 1;
-    if (m_operationMode == OperationMode::VERTICES_FIXED || m_operationMode == OperationMode::VERTICES_SIGMA)
-    {
-      m_token_vertex       = iC.consumes<reco::VertexCollection>(regPSet.getParameter<edm::InputTag>("vertexCollection"));
-      m_maxNVertices     = regPSet.getParameter<unsigned int>("maxNVertices");
-      if(m_maxNVertices==0) throw edm::Exception(edm::errors::Configuration) << "maxNVertices should be greater than or equal to 1";
-    }
-    
 
     // RectangularEtaPhiTrackingRegion parameters:
     m_ptMin            = regPSet.getParameter<double>("ptMin");
     m_originRadius     = regPSet.getParameter<double>("originRadius");
-    m_zErrorBeamSpot   = regPSet.getParameter<double>("zErrorBeamSpot");
 
     if (m_seedingMode == SeedingMode::CANDIDATE_SEEDED){
       m_deltaEta_Cand = regPSet.getParameter<double>("deltaEta_Cand"); 
@@ -150,17 +132,6 @@ public:
     }
     m_searchOpt = false;
     if (regPSet.exists("searchOpt")) m_searchOpt = regPSet.getParameter<bool>("searchOpt");
-
-    // mode-dependent z-halflength of tracking regions
-    if (m_operationMode == OperationMode::VERTICES_SIGMA)  m_nSigmaZVertex   = regPSet.getParameter<double>("nSigmaZVertex");
-    if (m_operationMode == OperationMode::VERTICES_FIXED)  m_zErrorVetex     = regPSet.getParameter<double>("zErrorVetex");
-    m_nSigmaZBeamSpot = -1.;
-    if (m_operationMode == OperationMode::BEAM_SPOT_SIGMA)
-    {
-      m_nSigmaZBeamSpot = regPSet.getParameter<double>("nSigmaZBeamSpot");
-      if (m_nSigmaZBeamSpot < 0.)
-	throw edm::Exception(edm::errors::Configuration) << "nSigmaZBeamSpot must be positive for BeamSpotSigma mode!";
-    }
   }
   
   ~CandidatePointSeededTrackingRegionsProducer() override {}
@@ -168,7 +139,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
-    desc.add<std::string>("operationMode", "BeamSpotFixed");
     desc.add<std::string>("seedingMode", "Candidate");
 
     desc.add<edm::InputTag>("input", edm::InputTag(""));
@@ -178,22 +148,16 @@ public:
     desc.add<edm::ParameterSetDescription>("points", descPoints);
 
     desc.add<unsigned int>("maxNRegions", 10);
-    desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
-    desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
-    desc.add<unsigned int>("maxNVertices", 1);
+
+    VertexBeamspotOrigins::fillDescriptions(desc, "hltOnlineBeamSpot", "hltPixelVertices", 1);
 
     desc.add<double>("ptMin", 0.9);
     desc.add<double>("originRadius", 0.2);
-    desc.add<double>("zErrorBeamSpot", 24.2);
     desc.add<double>("deltaEta_Cand", -1.);
     desc.add<double>("deltaPhi_Cand", -1.);
     desc.add<double>("deltaEta_Point", -1.);
     desc.add<double>("deltaPhi_Point", -1.);
     desc.add<bool>("precise", true);
-
-    desc.add<double>("nSigmaZVertex", 3.);
-    desc.add<double>("zErrorVetex", 0.2);
-    desc.add<double>("nSigmaZBeamSpot", 4.);
 
     desc.add<std::string>("whereToUseMeasurementTracker", "ForSiStrips");
     desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag(""));
@@ -224,47 +188,11 @@ public:
 
     const auto& objs = *objects;
 
-    // always need the beam spot (as a fall back strategy for vertex modes)
-    edm::Handle< reco::BeamSpot > bs;
-    e.getByToken( m_token_beamSpot, bs );
-    if( !bs.isValid() ) return result;
-
-    // this is a default origin for all modes
-    GlobalPoint default_origin( bs->x0(), bs->y0(), bs->z0() );
-
-    // vector of origin & halfLength pairs:
-    std::vector< std::pair< GlobalPoint, float > > origins;
-
-    // fill the origins and halfLengths depending on the mode
-    if (m_operationMode == OperationMode::BEAM_SPOT_FIXED || m_operationMode == OperationMode::BEAM_SPOT_SIGMA)
-    {
-      origins.emplace_back( default_origin,
-			    (m_operationMode == OperationMode::BEAM_SPOT_FIXED) ? m_zErrorBeamSpot : m_nSigmaZBeamSpot*bs->sigmaZ()
-			    );
+    const auto& origins = m_origins.origins(e);
+    if(origins.empty()) {
+      return result;
     }
-    else if (m_operationMode == OperationMode::VERTICES_FIXED || m_operationMode == OperationMode::VERTICES_SIGMA)
-    {
-      edm::Handle< reco::VertexCollection > vertices;
-      e.getByToken( m_token_vertex, vertices );
-      int n_vert = 0;
-      for ( const auto& v : (*vertices) )  
-      {
-	if ( v.isFake() || !v.isValid() ) continue;
-	origins.emplace_back( GlobalPoint( v.x(), v.y(), v.z() ),
-			      (m_operationMode == OperationMode::VERTICES_FIXED) ? m_zErrorVetex : m_nSigmaZVertex*v.zError()
-			      );
-	++n_vert;
-	if( n_vert >= m_maxNVertices ) break;
-      }
-      // no-vertex fall-back case:
-      if (origins.empty())
-      {
-	origins.emplace_back( default_origin,
-			      (m_nSigmaZBeamSpot > 0.) ? m_nSigmaZBeamSpot*bs->z0Error() : m_zErrorBeamSpot
-			      );
-      }
-    }
-    
+
     const MeasurementTrackerEvent *measurementTracker = nullptr;
     if(!m_token_measurementTracker.isUninitialized()) {
       edm::Handle<MeasurementTrackerEvent> hmte;
@@ -422,21 +350,17 @@ public:
   
 private:
 
-  OperationMode m_operationMode;
+  VertexBeamspotOrigins m_origins;
   SeedingMode m_seedingMode;
 
   int m_maxNRegions;
-  edm::EDGetTokenT<reco::VertexCollection> m_token_vertex; 
-  edm::EDGetTokenT<reco::BeamSpot> m_token_beamSpot; 
   edm::EDGetTokenT<reco::CandidateView> m_token_input; 
-  int m_maxNVertices;
 
   std::vector<std::pair<double,double> > m_etaPhiPoints;
   std::vector<GlobalVector> m_directionPoints;
 
   float m_ptMin;
   float m_originRadius;
-  float m_zErrorBeamSpot;
   float m_deltaEta_Cand;
   float m_deltaPhi_Cand;
   float m_deltaEta_Point;
@@ -445,10 +369,6 @@ private:
   edm::EDGetTokenT<MeasurementTrackerEvent> m_token_measurementTracker;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
   bool m_searchOpt;
-
-  float m_nSigmaZVertex;
-  float m_zErrorVetex;
-  float m_nSigmaZBeamSpot;
 };
 
 #endif

@@ -25,7 +25,12 @@ from DQM.L1TMonitorClient.L1TStage2CaloLayer2Client_cff import *
 # uGMT client
 from DQM.L1TMonitorClient.L1TStage2uGMTClient_cff import *
 
-#
+# uGT client
+from DQM.L1TMonitorClient.L1TStage2uGTClient_cff import *
+
+# L1 event info DQM client EMTF 
+from DQM.L1TMonitorClient.L1TStage2EMTFEventInfoClient_cfi import *
+
 # define sequences 
 #
 
@@ -34,10 +39,11 @@ l1TStage2Clients = cms.Sequence(
                         l1tStage2EventInfoClient
                       + l1tStage2uGTCaloLayer2CompClient
                       + l1tStage2uGMTClient
+                      + l1tStage2uGTClient
+                      + l1tStage2EMTFEventInfoClient
                         )
 
 l1tStage2MonitorClient = cms.Sequence(
-                        l1TStage2QualityTests +
-                        l1TStage2Clients
+                        l1TStage2QualityTests 
+                      + l1TStage2Clients 
                         )
-

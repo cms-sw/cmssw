@@ -139,17 +139,17 @@ class SiStripSpyDisplayModule : public edm::EDAnalyzer {
     edm::InputTag inputCompVirginRawDigiLabel_;    //!< VR RawDigis to compare (from mainline)
     edm::InputTag inputCompZeroSuppressedDigiLabel_;    //!< Zero-suppressed digis to compare (from mainline)
 
-    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputScopeModeRawDigiToken_; //!< Token for the scope-mode RawDigi collection input tag
-    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputPayloadRawDigiToken_; //!< Token for the virgin raw RawDigi collection input tag.
-    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputReorderedPayloadRawDigiToken_; //!< Token for the re-ordered RawDigi module input tag.
-    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputReorderedModuleRawDigiToken_; //!< Token for the re-ordered RawDigi module input tag.
-    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputPedestalsToken_;               //!< Token for the pedestals.
-    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputNoisesToken_;               //!< Token for the noises.
-    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputPostPedestalRawDigiToken_; //!< Token for the post-pedestal subtraction RawDigi module input tag.
-    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputPostCMRawDigiToken_; //!< Token for the post-common mode subtraction RawDigi module input tag.
-    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputZeroSuppressedRawDigiToken_; //!< Token for the zero-suppressed, zero-padded RawDigi module input tag.
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > inputScopeModeRawDigiToken_; //!< Token for the scope-mode RawDigi collection input tag
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > inputPayloadRawDigiToken_; //!< Token for the virgin raw RawDigi collection input tag.
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > inputReorderedPayloadRawDigiToken_; //!< Token for the re-ordered RawDigi module input tag.
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > inputReorderedModuleRawDigiToken_; //!< Token for the re-ordered RawDigi module input tag.
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > inputPedestalsToken_;               //!< Token for the pedestals.
+    edm::EDGetTokenT<edm::DetSetVector<SiStripProcessedRawDigi> > inputNoisesToken_;               //!< Token for the noises.
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > inputPostPedestalRawDigiToken_; //!< Token for the post-pedestal subtraction RawDigi module input tag.
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > inputPostCMRawDigiToken_; //!< Token for the post-common mode subtraction RawDigi module input tag.
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > inputZeroSuppressedRawDigiToken_; //!< Token for the zero-suppressed, zero-padded RawDigi module input tag.
     edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputZeroSuppressedDigiToken_;    //!< Guess what? It's the input label for the zero-suppressed digi
-    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputCompVirginRawDigiToken_;    //!< VR RawDigis to compare (from mainline)
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > inputCompVirginRawDigiToken_;    //!< VR RawDigis to compare (from mainline)
     edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > inputCompZeroSuppressedDigiToken_;    //!< Zero-suppressed digis to compare (from mainline)
     //
     // Output information
@@ -187,17 +187,17 @@ SiStripSpyDisplayModule::SiStripSpyDisplayModule(const edm::ParameterSet& iConfi
     outputFolderName_(                   iConfig.getParameter<std::string>(   "OutputFolderName"    ) )
 {
    //now do what ever initialization is needed
-  inputScopeModeRawDigiToken_        = consumes<edm::DetSetVector<SiStripDigi> >(inputScopeModeRawDigiLabel_        );  
-  inputPayloadRawDigiToken_	     = consumes<edm::DetSetVector<SiStripDigi> >(inputPayloadRawDigiLabel_	   );
-  inputReorderedPayloadRawDigiToken_ = consumes<edm::DetSetVector<SiStripDigi> >(inputReorderedPayloadRawDigiLabel_ );
-  inputReorderedModuleRawDigiToken_  = consumes<edm::DetSetVector<SiStripDigi> >(inputReorderedModuleRawDigiLabel_  );
-  inputPedestalsToken_	             = consumes<edm::DetSetVector<SiStripDigi> >(inputPedestalsLabel_	           );
-  inputNoisesToken_		     = consumes<edm::DetSetVector<SiStripDigi> >(inputNoisesLabel_		   );
-  inputPostPedestalRawDigiToken_     = consumes<edm::DetSetVector<SiStripDigi> >(inputPostPedestalRawDigiLabel_     );
-  inputPostCMRawDigiToken_	     = consumes<edm::DetSetVector<SiStripDigi> >(inputPostCMRawDigiLabel_	   );
-  inputZeroSuppressedRawDigiToken_   = consumes<edm::DetSetVector<SiStripDigi> >(inputZeroSuppressedRawDigiLabel_   );
+  inputScopeModeRawDigiToken_        = consumes<edm::DetSetVector<SiStripRawDigi> >(inputScopeModeRawDigiLabel_        );  
+  inputPayloadRawDigiToken_	     = consumes<edm::DetSetVector<SiStripRawDigi> >(inputPayloadRawDigiLabel_	   );
+  inputReorderedPayloadRawDigiToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(inputReorderedPayloadRawDigiLabel_ );
+  inputReorderedModuleRawDigiToken_  = consumes<edm::DetSetVector<SiStripRawDigi> >(inputReorderedModuleRawDigiLabel_  );
+  inputPedestalsToken_	             = consumes<edm::DetSetVector<SiStripRawDigi> >(inputPedestalsLabel_	           );
+  inputNoisesToken_		     = consumes<edm::DetSetVector<SiStripProcessedRawDigi> >(inputNoisesLabel_		   );
+  inputPostPedestalRawDigiToken_     = consumes<edm::DetSetVector<SiStripRawDigi> >(inputPostPedestalRawDigiLabel_     );
+  inputPostCMRawDigiToken_	     = consumes<edm::DetSetVector<SiStripRawDigi> >(inputPostCMRawDigiLabel_	   );
+  inputZeroSuppressedRawDigiToken_   = consumes<edm::DetSetVector<SiStripRawDigi> >(inputZeroSuppressedRawDigiLabel_   );
   inputZeroSuppressedDigiToken_      = consumes<edm::DetSetVector<SiStripDigi> >(inputZeroSuppressedDigiLabel_      );
-  inputCompVirginRawDigiToken_       = consumes<edm::DetSetVector<SiStripDigi> >(inputCompVirginRawDigiLabel_       );
+  inputCompVirginRawDigiToken_       = consumes<edm::DetSetVector<SiStripRawDigi> >(inputCompVirginRawDigiLabel_       );
   inputCompZeroSuppressedDigiToken_  = consumes<edm::DetSetVector<SiStripDigi> >(inputCompZeroSuppressedDigiLabel_  );
 
 }

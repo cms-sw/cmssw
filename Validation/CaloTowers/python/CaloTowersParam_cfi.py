@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-calotowersAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+calotowersAnalyzer = DQMEDAnalyzer('CaloTowersValidation',
     outputFile               = cms.untracked.string(''),
     CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
     hcalselector             = cms.untracked.string('all'),
-    mc                       = cms.untracked.string('no')
+    mc                       = cms.untracked.string('yes')
 )
 
 

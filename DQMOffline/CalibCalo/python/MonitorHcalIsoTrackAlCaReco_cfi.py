@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-MonitorHcalIsoTrackAlCaReco = cms.EDAnalyzer("DQMHcalIsoTrackAlCaReco",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+MonitorHcalIsoTrackAlCaReco = DQMEDAnalyzer('DQMHcalIsoTrackAlCaReco',
                                              FolderName=cms.string("AlCaReco/HcalIsoTrack"),
                                              TriggerLabel=cms.InputTag('hltTriggerSummaryAOD'),
                                              L1FilterLabel=cms.vstring('L1SingleJet60'),

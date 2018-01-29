@@ -29,7 +29,7 @@ def customiseEarlyDeleteForSeeding(process, products):
                 _branchName("RegionsSeedingHitSets", name),
                 _branchName("BaseTrackerRecHitsOwned", name)
             ])
-        elif cppType in ["PixelQuadrupletEDProducer", "CAHitQuadrupletEDProducer", "CAHitTripletEDProducer"]:
+        elif cppType in ["CAHitQuadrupletEDProducer", "CAHitTripletEDProducer"]:
             products[name].append(_branchName("RegionsSeedingHitSets", name))
 
     if len(products) == 0:

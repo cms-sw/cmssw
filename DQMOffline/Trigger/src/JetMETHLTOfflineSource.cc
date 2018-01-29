@@ -210,7 +210,7 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   auto calojet_ = calojet.begin();
   for(; calojet_ != calojet.end(); ++calojet_){
     double scale = calocorrector->correction(*calojet_);	
-    jetID->calculate(iEvent, *calojet_);
+    jetID->calculate(iEvent, iSetup, *calojet_);
     
     if(scale*calojet_->pt()>CaloJetPt[0]){
       CaloJetPt[1]   = CaloJetPt[0]; 

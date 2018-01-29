@@ -22,7 +22,7 @@ class DQMEDAnalyzer
                                      edm::LuminosityBlockSummaryCache<dqmDetails::NoCache> >
 {
 public:
-  DQMEDAnalyzer(void);
+  DQMEDAnalyzer();
   // implicit copy constructor
   // implicit assignment operator
   // implicit destructor
@@ -68,7 +68,7 @@ namespace thread_unsafe {
   class DQMEDAnalyzer: public edm::EDAnalyzer
     {
     public:
-      DQMEDAnalyzer(void);
+      DQMEDAnalyzer();
       void beginRun(edm::Run const &, edm::EventSetup const&) final;
       virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) = 0;

@@ -11,7 +11,8 @@ tightIsoCut  = "(muonRef.pfIsolationR04.sumChargedHadronPt + max(0., muonRef.pfI
 EletightIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.1"
 ElelooseIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.15"
 
-topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topSingleLeptonDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -139,7 +140,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleMuonLooseDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -301,7 +302,7 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ), 
   )
 )
-topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleMuonMediumDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -470,7 +471,7 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleElectronLooseDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -634,7 +635,7 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleElectronMediumDQM = DQMEDAnalyzer('TopSingleLeptonDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##

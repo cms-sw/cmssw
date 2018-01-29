@@ -1,16 +1,3 @@
-
-/*!
-
-\page DataFormats_FEDRawData Package DataFormats/FEDRawData
-
-
-\section desc Description
-<!-- Short description of what this package is supposed to provide -->
-Classes to store raw data blocks in the event. FED data blocks are required to have correct padding (64 bit).
-
-Ranges of FED ids are assigned to specific sub-detectors. Once FED ids have been assigned, they must not be changed.
-
-<!-- This table must be created with DataFormats/FEDRawData/doc/createFEDtable.py -->
 <table width='75%' border='1' align='center'>
 <tr style='color:#FF0000'><th>Detector</th><th>Min FED id (decimal)</th><th>Max FED id (decimal)</th></tr>
 <tr style='color:#000000'><td><div align='center'>SiPixel</div></td><td><div align='center'>0</div></td><td><div align='center'>40</div></td></tr>
@@ -20,8 +7,9 @@ Ranges of FED ids are assigned to specific sub-detectors. Once FED ids have been
 <tr style='color:#000000'><td><div align='center'>PreShower</div></td><td><div align='center'>520</div></td><td><div align='center'>575</div></td></tr>
 <tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>576</div></td><td><div align='center'>576</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>TotemTrigger</div></td><td><div align='center'>577</div></td><td><div align='center'>577</div></td></tr>
-<tr style='color:#000000'><td><div align='center'>TotemRP</div></td><td><div align='center'>578</div></td><td><div align='center'>581</div></td></tr>
-<tr style='color:#000000'><td><div align='center'>CTPPSDiamond</div></td><td><div align='center'>582</div></td><td><div align='center'>585</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TotemRPHorizontal</div></td><td><div align='center'>578</div></td><td><div align='center'>581</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CTPPSDiamond</div></td><td><div align='center'>582</div></td><td><div align='center'>583</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TotemRPVertical</div></td><td><div align='center'>584</div></td><td><div align='center'>585</div></td></tr>
 <tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>586</div></td><td><div align='center'>599</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>ECAL</div></td><td><div align='center'>600</div></td><td><div align='center'>670</div></td></tr>
 <tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>671</div></td><td><div align='center'>689</div></td></tr>
@@ -61,54 +49,23 @@ Ranges of FED ids are assigned to specific sub-detectors. Once FED ids have been
 <tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>888</div></td><td><div align='center'>889</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>CSCTFSP</div></td><td><div align='center'>890</div></td><td><div align='center'>901</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>DAQeFED</div></td><td><div align='center'>902</div></td><td><div align='center'>931</div></td></tr>
-<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>932</div></td><td><div align='center'>1022</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>932</div></td><td><div align='center'>1021</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>MetaDataSoftFED</div></td><td><div align='center'>1022</div></td><td><div align='center'>1022</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>DAQmFED</div></td><td><div align='center'>1023</div></td><td><div align='center'>1023</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>TCDSuTCA</div></td><td><div align='center'>1024</div></td><td><div align='center'>1099</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>HCALuTCA</div></td><td><div align='center'>1100</div></td><td><div align='center'>1199</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>SiPixeluTCA</div></td><td><div align='center'>1200</div></td><td><div align='center'>1349</div></td></tr>
-<tr style='color:#000000'><td><div align='center'>TriggerUpgrade</div></td><td><div align='center'>1350</div></td><td><div align='center'>1409</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>RCT</div></td><td><div align='center'>1350</div></td><td><div align='center'>1359</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>1360</div></td><td><div align='center'>1368</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>DTUROS</div></td><td><div align='center'>1369</div></td><td><div align='center'>1371</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerUpgrade</div></td><td><div align='center'>1372</div></td><td><div align='center'>1409</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>SiPixelAMC13</div></td><td><div align='center'>1410</div></td><td><div align='center'>1449</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>SiPixelTest</div></td><td><div align='center'>1450</div></td><td><div align='center'>1461</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>CTPPSPixels</div></td><td><div align='center'>1462</div></td><td><div align='center'>1466</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>GEM</div></td><td><div align='center'>1467</div></td><td><div align='center'>1472</div></td></tr>
-<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>1473</div></td><td><div align='center'>1499</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>ME0</div></td><td><div align='center'>1473</div></td><td><div align='center'>1478</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>1479</div></td><td><div align='center'>1499</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>SiPixel2nduTCA</div></td><td><div align='center'>1500</div></td><td><div align='center'>1649</div></td></tr>
 <tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>1650</div></td><td><div align='center'>2814</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>DAQvFED</div></td><td><div align='center'>2815</div></td><td><div align='center'>4095</div></td></tr>
 </table>
-
-\subsection interface Public interface
-<!-- List the classes that are provided for use in other packages (if any) -->
-
-- DaqData
-- FEDHeader
-- FEDNumbering
-- FEDRawData
-- FEDRawDataCollection
-- FEDTrailer
-
-
-\subsection pluginai Plugins
-<!-- List the plugins that are provided for use in other packages (if any) -->
-None
-
-\subsection modules Modules
-<!-- Describe modules implemented in this package and their parameter set -->
-None
-
-\subsection tests Unit tests and examples
-<!-- Describe cppunit tests and example configuration files -->
-- testFEDRawData: unit test
-- testDumpFEDRawDataProduct: test module, prints the list of non-empy FEDs in the event and their data size. To use it include in your parameter set:
-\verbatim
-module dump = DumpFEDRawDataProduct{ }
-\endverbatim
-
-\section status Status and planned development
-<!-- e.g. completed, stable, missing features -->
-Stable
-
-<hr>
-Last updated:
-@DATE@  Author: Remi Mommsen
-*/

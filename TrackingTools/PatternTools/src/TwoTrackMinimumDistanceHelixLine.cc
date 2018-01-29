@@ -115,11 +115,12 @@ bool TwoTrackMinimumDistanceHelixLine::calculate(
     const GlobalTrajectoryParameters & theSecondGTP, const float qual )
 {
   pointsUpdated = false;
-  firstGTP  = (GlobalTrajectoryParameters *) &theFirstGTP;
-  secondGTP = (GlobalTrajectoryParameters *) &theSecondGTP;
+  firstGTP  = &theFirstGTP;
+  secondGTP = &theSecondGTP;
 
   if ( updateCoeffs () )
   {
+    finalPoints();
     return true;
   };
 
@@ -136,10 +137,14 @@ bool TwoTrackMinimumDistanceHelixLine::calculate(
         << "Jumped out of brackets in root finding. Will be moved closer.";
       thePhiH += (dPhiH*0.8);
     }
-    if (fabs(dPhiH) < qual) {return false;}
+    if (fabs(dPhiH) < qual) {
+      finalPoints();
+      return false;
+    }
   }
   LogDebug ("TwoTrackMinimumDistanceHelixLine")
     <<"Number of steps exceeded. Has not converged.";
+  finalPoints();
   return true;
 }
 
@@ -155,10 +160,8 @@ double TwoTrackMinimumDistanceHelixLine::secondAngle() const
   else return thePhiH;
 }
 
-pair <GlobalPoint, GlobalPoint> TwoTrackMinimumDistanceHelixLine::points()
-    const 
+pair <GlobalPoint, GlobalPoint> TwoTrackMinimumDistanceHelixLine::points() const 
 {
-  if (!pointsUpdated)finalPoints();
   if (firstGTP==theL) 
     return pair<GlobalPoint, GlobalPoint> (linePoint, helixPoint);
   else return pair<GlobalPoint, GlobalPoint> (helixPoint, linePoint);
@@ -166,14 +169,14 @@ pair <GlobalPoint, GlobalPoint> TwoTrackMinimumDistanceHelixLine::points()
 
 pair <double, double> TwoTrackMinimumDistanceHelixLine::pathLength() const
 {
-  if (!pointsUpdated)finalPoints();
   if (firstGTP==theL) 
     return pair<double, double> (linePath, helixPath);
   else return pair<double, double> (helixPath, linePath);
 }
 
-void TwoTrackMinimumDistanceHelixLine::finalPoints() const
+void TwoTrackMinimumDistanceHelixLine::finalPoints()
 {
+  if (pointsUpdated) return;
   helixPoint = GlobalPoint (
       theH->position().x() + theh * ( sin ( thePhiH) - thesinPhiH0 ),
       theH->position().y() + theh * ( - cos ( thePhiH) + thecosPhiH0 ),

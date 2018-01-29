@@ -1,13 +1,16 @@
 #ifndef DQMSERVICES_CORE_STANDALONE_H
 # define DQMSERVICES_CORE_STANDALONE_H
 # if !WITHOUT_CMS_FRAMEWORK
-#  include "FWCore/ServiceRegistry/interface/SystemBounds.h"
-#  include "FWCore/ParameterSet/interface/ParameterSet.h"
-#  include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#  include "FWCore/ServiceRegistry/interface/Service.h"
 #  include "FWCore/MessageLogger/interface/JobReport.h"
-#  include "FWCore/Version/interface/GetReleaseVersion.h"
+#  include "FWCore/ParameterSet/interface/ParameterSet.h"
 #  include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#  include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#  include "FWCore/ServiceRegistry/interface/Service.h"
+#  include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#  include "FWCore/ServiceRegistry/interface/SystemBounds.h"
+#  include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#  include "FWCore/Utilities/interface/RunIndex.h"
+#  include "FWCore/Version/interface/GetReleaseVersion.h"
 # else
 #  include <memory>
 #  include <string>
@@ -16,7 +19,7 @@
 
 namespace edm
 {
-  std::string getReleaseVersion(void)
+  std::string getReleaseVersion()
   { return "CMSSW_STANDALONE"; }
 
   class ParameterSet
@@ -47,14 +50,14 @@ namespace edm
   class  Service
   {
   public:
-    bool isAvailable(void) { return false; }
-    T *operator->(void)
+    bool isAvailable() { return false; }
+    T *operator->()
     {
       static char buf[sizeof(T)]; static T *x;
       if (! x) x = new (buf) T(ParameterSet());
       return x;
     }
-    T &operator*(void) { return * operator->(); }
+    T &operator*() { return * operator->(); }
   };
 
   namespace service {
@@ -77,16 +80,53 @@ namespace edm
     template <typename T>
     void watchPostSourceLumi(void*, T) {}
 
+    template <typename F>
+    void watchPostSourceRun(F) {}
+
+    template <typename F>
+    void watchPostSourceLumi(F) {}
+
+    template <typename T>
+    void watchPostGlobalBeginRun(void*, T) {}
+
+    template <typename T>
+    void watchPostGlobalBeginLumi(void*, T) {}
+
+    template <typename T>
+    void watchPostGlobalEndRun(void*, T) {}
+
+    template <typename T>
+    void watchPostGlobalEndLumi(void*, T) {}
+
     PreallocationSignal preallocateSignal_;
   };
-  
-  
+
+  class LuminosityBlockID
+  {
+  public:
+    unsigned int run() const { return 0; }
+    unsigned int luminosityBlock() const { return 0; }
+  };
+
+  class GlobalContext
+  {
+  public:
+    LuminosityBlockID luminosityBlockID() const { return LuminosityBlockID(); }
+  };
+
   class JobReport
   {
   public:
     JobReport(const edm::ParameterSet &) {}
     void reportAnalysisFile(const std::string &, const std::map<std::string, std::string> &) {}
   };
+
+  class LuminosityBlockIndex
+  { };
+
+  class RunIndex
+  { };
+
 }
 # endif // WITHOUT_CMS_FRAMEWORK
 #endif // DQMSERVICES_CORE_STANDALONE_H

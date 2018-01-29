@@ -18,9 +18,9 @@ namespace FitterFuncs{
   
    class PulseShapeFunctor {
       public:
-     PulseShapeFunctor(const HcalPulseShapes::Shape& pulse,bool iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iAddTimeSlew,
-		       double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
-		       double iNoise, unsigned int nSamplesToFit);
+     PulseShapeFunctor(const HcalPulseShapes::Shape& pulse,bool iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
+		       double iPulseJitter,double iTimeMean,double iPedMean,
+		       unsigned int nSamplesToFit);
      ~PulseShapeFunctor();
      
      double EvalPulse(const double *pars, unsigned int nPar);
@@ -35,10 +35,15 @@ namespace FitterFuncs{
      void setpsFitslew (double *slew  ){ for(int i=0; i<HcalConst::maxSamples; ++i) {psFit_slew [i] = slew [i]; } }
      double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda);
      void setinvertpedSig2(double x) { invertpedSig2_ = x; }
+     void setinverttimeSig2(double x) { inverttimeSig2_ = x; }
 
      double singlePulseShapeFunc( const double *x );
      double doublePulseShapeFunc( const double *x );
      double triplePulseShapeFunc( const double *x );
+
+     void getPulseShape(std::array<double,HcalConst::maxSamples>& fillPulseShape) { 
+       fillPulseShape = pulse_shape_;
+     }
      
    private:
      std::array<float,HcalConst::maxPSshapeBin> pulse_hist;
@@ -59,12 +64,10 @@ namespace FitterFuncs{
      double timeMean_;
      double timeSig_;
      double pedMean_;
-     double pedSig_;
-     double noise_;
      double timeShift_;
 
-     double inverttimeSig_, inverttimeSig2_;
-     double invertpedSig_, invertpedSig2_;
+     double inverttimeSig2_;
+     double invertpedSig2_;
      std::array<double,HcalConst::maxSamples> pulse_shape_;
      std::array<double,HcalConst::maxSamples> pulse_shape_sum_;
 

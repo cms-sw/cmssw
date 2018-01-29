@@ -28,13 +28,16 @@ scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import *
 twinMuxStage2Digis.DTTM7_FED_Source = 'rawDataCollector'
 
-from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
+#from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
 #from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
-dtunpacker.readOutParameters.performDataIntegrityMonitor = True
-dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
-dtunpacker.readOutParameters.debug = False
-dtunpacker.readOutParameters.rosParameters.debug = False
-dtunpacker.inputLabel = 'rawDataCollector'
+#dtunpacker.readOutParameters.performDataIntegrityMonitor = True
+#dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
+#dtunpacker.readOutParameters.debug = False
+#dtunpacker.readOutParameters.rosParameters.debug = False
+#dtunpacker.inputLabel = 'rawDataCollector'
+
+import EventFilter.DTRawToDigi.dturosunpacker_cfi
+dtunpacker = EventFilter.DTRawToDigi.dturosunpacker_cfi.dturosunpacker.clone()
 
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 dt1DRecHits.dtDigiLabel = 'dtunpacker'
@@ -48,6 +51,8 @@ from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
 DTDataIntegrityTask.processingMode = 'Online'
 DTDataIntegrityTask.dtDDULabel     = 'dtunpacker'
 DTDataIntegrityTask.dtROS25Label   = 'dtunpacker'
+DTDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
+DTDataIntegrityTask.checkUros      = True
 
 # Digi task
 from DQM.DTMonitorModule.dtDigiTask_cfi import *
@@ -117,3 +122,4 @@ dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + d
 
 # sequence to be run on physics events (includes filters, reco and DQM)
 dtDQMPhysSequence = cms.Sequence(dtScalerInfoMonitor + gtDigis + reco + dtDQMTask + dtDQMTest)
+

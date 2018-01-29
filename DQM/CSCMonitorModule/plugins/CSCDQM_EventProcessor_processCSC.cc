@@ -28,7 +28,7 @@ namespace cscdqm {
     }
 
     template<typename T> inline CSCCFEBTimeSlice const * const
-    timeSlice( T const & data, int nCFEB, int nSample) { return (CSCCFEBTimeSlice *)(data.cfebData(nCFEB)->timeSlice(nSample));}
+    timeSlice( T const & data, int nCFEB, int nSample) { return data.cfebData(nCFEB)->timeSlice(nSample);}
 
 
 

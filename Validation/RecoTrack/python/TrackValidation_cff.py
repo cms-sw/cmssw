@@ -189,6 +189,9 @@ def _getSeedingLayers(seedProducers, config):
             return _findSeedingLayers(prod.triplets.getModuleLabel())
         elif hasattr(prod, "doublets"):
             return _findSeedingLayers(prod.doublets.getModuleLabel())
+        label = prod.trackingRegionsSeedingLayers.getModuleLabel()
+        if label != "":
+            return label
         return prod.seedingLayers.getModuleLabel()
 
     seedingLayersMerged = []
@@ -704,6 +707,42 @@ tracksValidationTrackingOnly = cms.Sequence(
     trackValidatorsTrackingOnly
 )
 
+
+### Pixel tracking only mode (placeholder for now)
+tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone(
+    pixelClusterSrc = "siPixelClustersPreSplitting"
+)
+quickTrackAssociatorByHitsPixelTrackingOnly = quickTrackAssociatorByHits.clone(
+    cluster2TPSrc = "tpClusterProducerPixelTrackingOnly"
+)
+trackingParticlePixelTrackAsssociation = trackingParticleRecoTrackAsssociation.clone(
+    label_tr = "pixelTracks",
+    associator = "quickTrackAssociatorByHitsPixelTrackingOnly",
+)
+PixelVertexAssociatorByPositionAndTracks = VertexAssociatorByPositionAndTracks.clone(
+    trackAssociation = "trackingParticlePixelTrackAsssociation"
+)
+
+trackValidatorPixelTrackingOnly = trackValidator.clone(
+    dirName = "Tracking/PixelTrack/",
+    label = ["pixelTracks"],
+    doResolutionPlotsForLabels = [],
+    trackCollectionForDrCalculation = "pixelTracks",
+    associators = ["trackingParticlePixelTrackAsssociation"],
+    label_vertex = "pixelVertices",
+    vertexAssociator = "PixelVertexAssociatorByPositionAndTracks",
+    dodEdxPlots = False,
+)
+
+tracksValidationTruthPixelTrackingOnly = tracksValidationTruth.copy()
+tracksValidationTruthPixelTrackingOnly.replace(tpClusterProducer, tpClusterProducerPixelTrackingOnly)
+tracksValidationTruthPixelTrackingOnly.replace(quickTrackAssociatorByHits, quickTrackAssociatorByHitsPixelTrackingOnly)
+tracksValidationTruthPixelTrackingOnly.replace(trackingParticleRecoTrackAsssociation, trackingParticlePixelTrackAsssociation)
+tracksValidationTruthPixelTrackingOnly.replace(VertexAssociatorByPositionAndTracks, PixelVertexAssociatorByPositionAndTracks)
+tracksValidationPixelTrackingOnly = cms.Sequence(
+    tracksValidationTruthPixelTrackingOnly +
+    trackValidatorPixelTrackingOnly
+)
 
 
 ### Lite mode (only generalTracks and HP)

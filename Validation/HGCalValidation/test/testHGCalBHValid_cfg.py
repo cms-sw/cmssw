@@ -93,7 +93,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # Additional output definition
-process.load('Validation.HGCalValidation.test.hgcBHValidation_cfi')
+process.load('Validation.HGCalValidation.hgcalBHValidation_cfi')
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('hgcBHValid.root'),

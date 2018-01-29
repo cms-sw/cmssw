@@ -2,20 +2,25 @@
 from itertools import groupby
 from operator import attrgetter,itemgetter
 import sys
+from collections import defaultdict
 
 #----------------------------------------------
 def printHelp():
     s = '''
-To Use: Add the Tracer Service to the cmsRun job you want to check for
-  stream stalls.  Make sure to use the 'printTimstamps' option
-    cms.Service("Tracer", printTimestamps = cms.untracked.bool(True))
-  After running the job, execute this script and pass the name of the
-  log file to the script as the only command line argument.
+To Use: Add the StallMonitor Service to the cmsRun job you want to check for
+  stream stalls. Use something like this in the configuration:
 
-To Read: The script will then print an 'ASCII art' stall graph which
-  consists of the name of the module which either started or stopped
-  running on a stream, and the number of modules running on each
-  stream at that the moment in time. If the module just started, you
+  process.add_(cms.Service("StallMonitor", fileName = cms.untracked.string("stallMonitor.log")))
+
+  After running the job, execute this script and pass the name of the
+  StallMonitor log file to the script.
+
+  By default, the script will then print an 'ASCII art' stall graph
+  which consists of a line of text for each time a module or the
+  source stops or starts. Each line contains the name of the module
+  which either started or stopped running, and the number of modules
+  running on each stream at that moment in time. After that will be
+  the time and stream number. Then if a module just started, you
   will also see the amount of time the module spent between finishing
   its prefetching and starting.  The state of a module is represented
   by a symbol:
@@ -24,17 +29,24 @@ To Read: The script will then print an 'ASCII art' stall graph which
     minus ("-") the stream just finished running a module
 
   If a module had to wait more than 0.1 seconds, the end of the line
-  will have "STALLED".  Once the first 4 events have finished
-  processing, the program prints "FINISH INIT".  This is useful if one
-  wants to ignore stalled caused by startup actions, e.g. reading
-  conditions.
+  will have "STALLED". Startup actions, e.g. reading conditions,
+  may affect results for the first few events.
+
+  Using the command line arguments described above you can make the
+  program create a PDF file with actual graphs instead of the 'ASCII art'
+  output.
 
   Once the graph is completed, the program outputs the list of modules
   which had the greatest total stall times. The list is sorted by
   total stall time and written in descending order. In addition, the
-  list of all stall times for the module is given.'''
-    return s
+  list of all stall times for the module is given.
 
+  There is an inferior alternative (an old obsolete way).
+  Instead of using the StallMonitor Service, you can use the
+  Tracer Service.  Make sure to use the 'printTimestamps' option
+  cms.Service("Tracer", printTimestamps = cms.untracked.bool(True))
+  There are problems associated with this and it is not recommended.'''
+    return s
 
 kStallThreshold=100 #in milliseconds
 kTracerInput=False
@@ -43,6 +55,12 @@ kTracerInput=False
 kStarted=0
 kFinished=1
 kPrefetchEnd=2
+kStartedAcquire=3
+kFinishedAcquire=4
+kStartedSource=5
+kFinishedSource=6
+kStartedSourceDelayedRead=7
+kFinishedSourceDelayedRead=8
 
 #Special names
 kSourceFindEvent = "sourceFindEvent"
@@ -53,7 +71,6 @@ def parseStallMonitorOutput(f):
     processingSteps = []
     numStreams = 0
     maxNameSize = 0
-    foundEventToStartFrom = False
     moduleNames = {}
     for rawl in f:
         l = rawl.strip()
@@ -65,22 +82,24 @@ def parseStallMonitorOutput(f):
         (step,payload) = tuple(l.split(None,1))
         payload=payload.split()
 
+        # Ignore these
+        if step == 'E' or step == 'e':
+            continue
+
         # Payload format is:
         #  <stream id> <..other fields..> <time since begin job>
         stream = int(payload[0])
         time = int(payload[-1])
         trans = None
 
-        numStreams = max(numStreams, stream+1)
-
         # 'S' = begin of event creation in source
         # 's' = end of event creation in source
         if step == 'S' or step == 's':
             name = kSourceFindEvent
-            trans = kStarted
+            trans = kStartedSource
             # The start of an event is the end of the framework part
             if step == 's':
-                trans = kFinished
+                trans = kFinishedSource
         else:
             # moduleID is the second payload argument for all steps below
             moduleID = payload[1]
@@ -96,15 +115,25 @@ def parseStallMonitorOutput(f):
                     trans = kFinished
                 name = moduleNames[moduleID]
 
+            # 'A' = begin of module acquire function
+            # 'a' = end of module acquire function
+            elif step == 'A' or step == 'a':
+                trans = kStartedAcquire
+                if step == 'a':
+                    trans = kFinishedAcquire
+                name = moduleNames[moduleID]
+
             # Delayed read from source
             # 'R' = begin of delayed read from source
             # 'r' = end of delayed read from source
-            if step == 'R' or step == 'r':
-                trans = kStarted
+            elif step == 'R' or step == 'r':
+                trans = kStartedSourceDelayedRead
                 if step == 'r':
-                    trans = kFinished
+                    trans = kFinishedSourceDelayedRead
                 name = kSourceDelayedRead
 
+        if trans is not None:
+            numStreams = max(numStreams, stream+1)
             maxNameSize = max(maxNameSize, len(name))
             processingSteps.append((name,trans,stream,time))
 
@@ -112,6 +141,7 @@ def parseStallMonitorOutput(f):
     return (processingSteps,numStreams,maxNameSize)
 
 #----------------------------------------------
+# Utility to get time out of Tracer output text format
 def getTime(line):
     time = line.split(" ")[1]
     time = time.split(":")
@@ -120,34 +150,49 @@ def getTime(line):
     return time
 
 #----------------------------------------------
+# The next function parses the Tracer output.
+# Here are some differences to consider if you use Tracer output
+# instead of the StallMonitor output.
+# - The time in the text of the Tracer output is not as precise
+# as the StallMonitor (.01 s vs .001 s)
+# - The MessageLogger bases the time on when the message printed
+# and not when it was initially queued up to print which smears
+# the accuracy of the times.
+# - Both of the previous things can produce some strange effects
+# in the output plots.
+# - The file size of the Tracer text file is much larger.
+# - The CPU work needed to parse the Tracer files is larger.
+# - The Tracer log file is expected to have "++" in the first
+# or fifth line. If there are extraneous lines at the beginning
+# you have to remove them.
+# - The ascii printout out will have one extraneous line
+# near the end for the SourceFindEvent start.
+# - The only advantage I can see is that you have only
+# one output file to handle instead of two, the regular
+# log file and the StallMonitor output.
+# We might should just delete the Tracer option because it is
+# clearly inferior ...
 def parseTracerOutput(f):
     processingSteps = []
     numStreams = 0
     maxNameSize = 0
     startTime = 0
+    streamsThatSawFirstEvent = set()
     for l in f:
+        trans = None
+        # We estimate the start and stop of the source
+        # by the end of the previous event and start of
+        # the event. This is historical, probably because
+        # the Tracer output for the begin and end of the
+        # source event does not include the stream number.
         if l.find("processing event :") != -1:
-            time = getTime(l)
-            if startTime == 0:
-                startTime = time
-            time = time - startTime
-            streamIndex = l.find("stream = ")
-            stream = int(l[streamIndex+9:l.find(" ",streamIndex+10)])
             name = kSourceFindEvent
-            trans = kFinished
-            #the start of an event is the end of the framework part
+            trans = kStartedSource
+            # the end of the source is estimated using the start of the event
             if l.find("starting:") != -1:
-                trans = kStarted
-            processingSteps.append((name,trans,stream,time))
-            numStreams = max(numStreams, stream+1)
-        if l.find("processing event for module") != -1:
-            time = getTime(l)
-            if startTime == 0:
-                startTime = time
-            time = time - startTime
+                trans = kFinishedSource
+        elif l.find("processing event for module") != -1:
             trans = kStarted
-            stream = 0
-            delayed = False
             if l.find("finished:") != -1:
                 if l.find("prefetching") != -1:
                     trans = kPrefetchEnd
@@ -157,41 +202,53 @@ def parseTracerOutput(f):
                 if l.find("prefetching") != -1:
                     #skip this since we don't care about prefetch starts
                     continue
-            streamIndex = l.find("stream = ")
-            stream = int( l[streamIndex+9:l.find(" ",streamIndex+10)])
             name = l.split("'")[1]
-            maxNameSize = max(maxNameSize, len(name))
-            processingSteps.append((name,trans,stream,time))
-            numStreams = max(numStreams, stream+1)
-        if l.find("event delayed read from source") != -1:
+        elif l.find("processing event acquire for module:") != -1:
+            trans = kStartedAcquire
+            if l.find("finished:") != -1:
+                trans = kFinishedAcquire
+            name = l.split("'")[1]
+        elif l.find("event delayed read from source") != -1:
+            trans = kStartedSourceDelayedRead
+            if l.find("finished:") != -1:
+                trans = kFinishedSourceDelayedRead
+            name = kSourceDelayedRead
+        if trans is not None:
             time = getTime(l)
             if startTime == 0:
                 startTime = time
             time = time - startTime
-            trans = kStarted
-            stream = 0
-            delayed = False
-            if l.find("finished:") != -1:
-                trans = kFinished
             streamIndex = l.find("stream = ")
             stream = int(l[streamIndex+9:l.find(" ",streamIndex+10)])
-            name = kSourceDelayedRead
             maxNameSize = max(maxNameSize, len(name))
+
+            if trans == kFinishedSource and not stream in streamsThatSawFirstEvent:
+                # This is wrong but there is no way to estimate the time better
+                # because there is no previous event for the first event.
+                processingSteps.append((name,kStartedSource,stream,time))
+                streamsThatSawFirstEvent.add(stream)
+
             processingSteps.append((name,trans,stream,time))
             numStreams = max(numStreams, stream+1)
+
     f.close()
     return (processingSteps,numStreams,maxNameSize)
 
-
 #----------------------------------------------
 def chooseParser(inputFile):
+
     firstLine = inputFile.readline().rstrip()
+    for i in range(3):
+        inputFile.readline()
+    # Often the Tracer log file starts with 4 lines not from the Tracer
+    fifthLine = inputFile.readline().rstrip()
     inputFile.seek(0) # Rewind back to beginning
 
     if firstLine.find("# Step") != -1:
         print "> ... Parsing StallMonitor output."
         return parseStallMonitorOutput
-    elif firstLine.find("++") != -1:
+
+    if firstLine.find("++") != -1 or fifthLine.find("++") != -1:
         global kTracerInput
         kTracerInput = True
         print "> ... Parsing Tracer output."
@@ -207,33 +264,41 @@ def readLogFile(inputFile):
     return parseInput(inputFile)
 
 #----------------------------------------------
-# Patterns:
 #
-# source: The source just records how long it was spent doing work,
-#   not how long it was stalled. We can get a lower bound on the stall
-#   time by measuring the time the stream was doing no work up till
-#   the source was run.
 # modules: The time between prefetch finished and 'start processing' is
-#   the time it took to acquire any resources
+#   the time it took to acquire any resources which is by definition the
+#   stall time.
+#
+# source: The source just records how long it spent doing work,
+#   not how long it was stalled. We can get a lower bound on the stall
+#   time for delayed reads by measuring the time the stream was doing
+#   no work up till the start of the source delayed read.
 #
 def findStalledModules(processingSteps, numStreams):
     streamTime = [0]*numStreams
+    streamState = [0]*numStreams
     stalledModules = {}
     modulesActiveOnStream = [{} for x in xrange(numStreams)]
     for n,trans,s,time in processingSteps:
+
         waitTime = None
         modulesOnStream = modulesActiveOnStream[s]
         if trans == kPrefetchEnd:
             modulesOnStream[n] = time
-        if trans == kStarted:
+        elif trans == kStarted or trans == kStartedAcquire:
             if n in modulesOnStream:
                 waitTime = time - modulesOnStream[n]
-            if n == kSourceDelayedRead:
-                if 0 == len(modulesOnStream):
-                    waitTime = time - streamTime[s]
-        if trans == kFinished:
-            if n != kSourceDelayedRead and n!=kSourceFindEvent:
                 modulesOnStream.pop(n, None)
+            streamState[s] +=1
+        elif trans == kFinished or trans == kFinishedAcquire:
+            streamState[s] -=1
+            streamTime[s] = time
+        elif trans == kStartedSourceDelayedRead:
+            if streamState[s] == 0:
+                waitTime = time - streamTime[s]
+        elif trans == kStartedSource:
+            modulesOnStream.clear()
+        elif trans == kFinishedSource or trans == kFinishedSourceDelayedRead:
             streamTime[s] = time
         if waitTime is not None:
             if waitTime > kStallThreshold:
@@ -241,49 +306,49 @@ def findStalledModules(processingSteps, numStreams):
                 t.append(waitTime)
     return stalledModules
 
-
 #----------------------------------------------
 def createAsciiImage(processingSteps, numStreams, maxNameSize):
     streamTime = [0]*numStreams
     streamState = [0]*numStreams
     modulesActiveOnStreams = [{} for x in xrange(numStreams)]
     for n,trans,s,time in processingSteps:
-        modulesActiveOnStream = modulesActiveOnStreams[s]
         waitTime = None
+        modulesActiveOnStream = modulesActiveOnStreams[s]
         if trans == kPrefetchEnd:
             modulesActiveOnStream[n] = time
             continue
-        if trans == kStarted:
-            if n != kSourceFindEvent:
-                streamState[s] +=1
+        elif trans == kStartedAcquire or trans == kStarted:
             if n in modulesActiveOnStream:
                 waitTime = time - modulesActiveOnStream[n]
-            if n == kSourceDelayedRead:
-                if streamState[s] == 0:
-                    waitTime = time-streamTime[s]
-        if trans == kFinished:
-            if n != kSourceDelayedRead and n!=kSourceFindEvent:
                 modulesActiveOnStream.pop(n, None)
-            if n != kSourceFindEvent:
-                streamState[s] -=1
+            streamState[s] +=1
+        elif trans == kFinishedAcquire or trans == kFinished:
+            streamState[s] -=1
+            streamTime[s] = time
+        elif trans == kStartedSourceDelayedRead:
+            if streamState[s] == 0:
+                waitTime = time - streamTime[s]
+        elif trans == kStartedSource:
+            modulesActiveOnStream.clear()
+        elif trans == kFinishedSource or trans == kFinishedSourceDelayedRead:
             streamTime[s] = time
         states = "%-*s: " % (maxNameSize,n)
-        if trans == kStarted:
+        if trans == kStartedAcquire or trans == kStarted or trans == kStartedSourceDelayedRead or trans == kStartedSource:
             states +="+ "
-        if trans == kFinished:
+        else:
             states +="- "
         for index, state in enumerate(streamState):
             if n==kSourceFindEvent and index == s:
                 states +="* "
             else:
                 states +=str(state)+" "
+        states += " -- " + str(time/1000.) + " " + str(s) + " "
         if waitTime is not None:
             states += " %.2f"% (waitTime/1000.)
             if waitTime > kStallThreshold:
-                states += " STALLED "+str(time/1000.)+" "+str(s)
+                states += " STALLED"
 
         print states
-    return stalledModules
 
 #----------------------------------------------
 def printStalledModulesInOrder(stalledModules):
@@ -326,13 +391,13 @@ def reduceSortedPoints(ps):
     if len(ps) < 2:
         return ps
     reducedPoints = []
-    tmp = ps[0]
+    tmp = Point(ps[0].x, ps[0].y)
     for p in ps[1:]:
         if tmp.x == p.x:
             tmp.y += p.y
         else:
             reducedPoints.append(tmp)
-            tmp = p
+            tmp = Point(p.x, p.y)
     reducedPoints.append(tmp)
     reducedPoints = [p for p in reducedPoints if p.y != 0]
     return reducedPoints
@@ -381,17 +446,18 @@ def consolidateContiguousBlocks(numStreams, streamInfo):
     streamInfo = [[] for x in xrange(numStreams)]
 
     for s in xrange(numStreams):
-        lastStartTime,lastTimeLength,lastColor = oldStreamInfo[s][0].unpack()
-        for info in oldStreamInfo[s][1:]:
-            start,length,color = info.unpack()
-            if color == lastColor and lastStartTime+lastTimeLength == start:
-                lastTimeLength += length
-            else:
-                streamInfo[s].append(StreamInfoElement(lastStartTime,lastTimeLength,lastColor))
-                lastStartTime = start
-                lastTimeLength = length
-                lastColor = color
-        streamInfo[s].append(StreamInfoElement(lastStartTime,lastTimeLength,lastColor))
+        if oldStreamInfo[s]:
+            lastStartTime,lastTimeLength,lastColor = oldStreamInfo[s][0].unpack()
+            for info in oldStreamInfo[s][1:]:
+                start,length,color = info.unpack()
+                if color == lastColor and lastStartTime+lastTimeLength == start:
+                    lastTimeLength += length
+                else:
+                    streamInfo[s].append(StreamInfoElement(lastStartTime,lastTimeLength,lastColor))
+                    lastStartTime = start
+                    lastTimeLength = length
+                    lastColor = color
+            streamInfo[s].append(StreamInfoElement(lastStartTime,lastTimeLength,lastColor))
 
     return streamInfo
 
@@ -403,6 +469,9 @@ def mergeContiguousBlocks(blocks):
     oldBlocks = blocks
 
     blocks = []
+    if not oldBlocks:
+        return blocks
+
     lastStartTime,lastTimeLength,lastHeight = oldBlocks[0]
     for start,length,height in oldBlocks[1:]:
         if height == lastHeight and lastStartTime+lastTimeLength == start:
@@ -417,77 +486,167 @@ def mergeContiguousBlocks(blocks):
     return blocks
 
 #----------------------------------------------
-def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModuleInfo):
+def plotPerStreamAboveFirstAndPrepareStack(points, allStackTimes, ax, stream, height, streamHeightCut, doPlot, addToStackTimes, color, threadOffset):
+    points = sorted(points, key=attrgetter('x'))
+    points = reduceSortedPoints(points)
+    streamHeight = 0
+    preparedTimes = []
+    for t1,t2 in zip(points, points[1:]):
+        streamHeight += t1.y
+        # We make a cut here when plotting because the first row for
+        # each stream was already plotted previously and we do not
+        # need to plot it again. And also we want to count things
+        # properly in allStackTimes. We want to avoid double counting
+        # or missing running modules and this is complicated because
+        # we counted the modules in the first row already.
+        if streamHeight < streamHeightCut:
+            continue
+        preparedTimes.append((t1.x,t2.x-t1.x, streamHeight))
+    preparedTimes.sort(key=itemgetter(2))
+    preparedTimes = mergeContiguousBlocks(preparedTimes)
+
+    for nthreads, ts in groupby(preparedTimes, itemgetter(2)):
+        theTS = [(t[0],t[1]) for t in ts]
+        if doPlot:
+            theTimes = [(t[0]/1000.,t[1]/1000.) for t in theTS]
+            yspan = (stream-0.4+height,height*(nthreads-1))
+            ax.broken_barh(theTimes, yspan, facecolors=color, edgecolors=color, linewidth=0)
+        if addToStackTimes:
+            allStackTimes[color].extend(theTS*(nthreads-threadOffset))
+
+#----------------------------------------------
+def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder):
 
     stalledModuleNames = set([x for x in stalledModuleInfo.iterkeys()])
-    streamInfo = [[] for x in xrange(numStreams)]
-    modulesActiveOnStreams = [{} for x in xrange(numStreams)]
-    streamLastEventEndTimes = [None]*numStreams
+    streamLowestRow = [[] for x in xrange(numStreams)]
+    modulesActiveOnStreams = [set() for x in xrange(numStreams)]
+    acquireActiveOnStreams = [set() for x in xrange(numStreams)]
+    externalWorkOnStreams  = [set() for x in xrange(numStreams)]
+    previousFinishTime = [None for x in xrange(numStreams)]
     streamRunningTimes = [[] for x in xrange(numStreams)]
+    streamExternalWorkRunningTimes = [[] for x in xrange(numStreams)]
     maxNumberOfConcurrentModulesOnAStream = 1
-    streamInvertedMessageFromModule = [set() for x in xrange(numStreams)]
+    previousTime = [0 for x in xrange(numStreams)]
+
+    # The next five variables are only used to check for out of order transitions
+    finishBeforeStart = [set() for x in xrange(numStreams)]
+    finishAcquireBeforeStart = [set() for x in xrange(numStreams)]
+    countSource = [0 for x in xrange(numStreams)]
+    countDelayedSource = [0 for x in xrange(numStreams)]
+    countExternalWork = [defaultdict(int) for x in xrange(numStreams)]
 
     for n,trans,s,time in processingSteps:
-        startTime = None
-        if streamLastEventEndTimes[s] is None:
-            streamLastEventEndTimes[s]=time
-        if trans == kStarted:
-            if n == kSourceFindEvent:
-                # We assume the time from the end of the last event
-                # for a stream until the start of a new event for that
-                # stream is taken up by the source.
-                startTime = streamLastEventEndTimes[s]
-                moduleNames = set(n)
-            else:
-                activeModules = modulesActiveOnStreams[s]
-                moduleNames = set(activeModules.iterkeys())
-                if n in streamInvertedMessageFromModule[s] and kTracerInput:
-                    # This is the rare case where a finished message
-                    # is issued before the corresponding started.
-                    streamInvertedMessageFromModule[s].remove(n)
-                    continue
-                activeModules[n] = time
-                nModulesRunning = len(activeModules)
-                streamRunningTimes[s].append(Point(time,1))
-                maxNumberOfConcurrentModulesOnAStream = max(maxNumberOfConcurrentModulesOnAStream, nModulesRunning)
-                if nModulesRunning > 1:
-                    # Need to create a new time span to avoid overlaps in graph.
-                    startTime = min(activeModules.itervalues())
-                    for k in activeModules.iterkeys():
-                        activeModules[k]=time
 
-        if trans == kFinished:
-            if n == kSourceFindEvent:
-                streamLastEventEndTimes[s]=time
-            else:
-                activeModules = modulesActiveOnStreams[s]
-                if n not in activeModules and kTracerInput:
-                    # This is the rare case where a finished message
-                    # is issued before the corresponding started.
-                    streamInvertedMessageFromModule[s].add(n)
+        startTime = None
+
+        # force the time to monotonically increase on each stream
+        if time < previousTime[s]:
+            time = previousTime[s]
+        previousTime[s] = time
+
+        activeModules = modulesActiveOnStreams[s]
+        acquireModules = acquireActiveOnStreams[s]
+        externalWorkModules = externalWorkOnStreams[s]
+
+        if trans == kStarted or trans == kStartedSourceDelayedRead or trans == kStartedAcquire or trans == kStartedSource :
+            if checkOrder:
+                # Note that the code which checks the order of transitions assumes that
+                # all the transitions exist in the input. It is checking only for order
+                # problems, usually a start before a finish. Problems are fixed and
+                # silently ignored. Nothing gets plotted for transitions that are
+                # in the wrong order.
+                if trans == kStarted:
+                    countExternalWork[s][n] -= 1
+                    if n in finishBeforeStart[s]:
+                        finishBeforeStart[s].remove(n)
+                        continue
+                elif trans == kStartedAcquire:
+                    if n in finishAcquireBeforeStart[s]:
+                        finishAcquireBeforeStart[s].remove(n)
+                        continue
+
+            if trans == kStartedSourceDelayedRead:
+                countDelayedSource[s] += 1
+                if countDelayedSource[s] < 1:
                     continue
-                streamRunningTimes[s].append(Point(time,-1))
-                startTime = activeModules[n]
-                moduleNames = set(activeModules.iterkeys())
-                del activeModules[n]
-                nModulesRunning = len(activeModules)
-                if nModulesRunning > 0:
-                    # Reset start time for remaining modules to this time
-                    # to avoid overlapping time ranges when making the plot.
-                    for k in activeModules.iterkeys():
-                        activeModules[k] = time
+            elif trans == kStartedSource:
+                countSource[s] += 1
+                if countSource[s] < 1:
+                    continue
+
+            moduleNames = activeModules.copy()
+            moduleNames.update(acquireModules)
+            if trans == kStartedAcquire:
+                 acquireModules.add(n)
+            else:
+                 activeModules.add(n)
+            streamRunningTimes[s].append(Point(time,1))
+            if moduleNames or externalWorkModules:
+                startTime = previousFinishTime[s]
+            previousFinishTime[s] = time
+
+            if trans == kStarted and n in externalWorkModules:
+                externalWorkModules.remove(n)
+                streamExternalWorkRunningTimes[s].append(Point(time, -1))
+            else:
+                nTotalModules = len(activeModules) + len(acquireModules) + len(externalWorkModules)
+                maxNumberOfConcurrentModulesOnAStream = max(maxNumberOfConcurrentModulesOnAStream, nTotalModules)
+        elif trans == kFinished or trans == kFinishedSourceDelayedRead or trans == kFinishedAcquire or trans == kFinishedSource :
+            if checkOrder:
+                if trans == kFinished:
+                    if n not in activeModules:
+                        finishBeforeStart[s].add(n)
+                        continue
+
+            if trans == kFinishedSourceDelayedRead:
+                countDelayedSource[s] -= 1
+                if countDelayedSource[s] < 0:
+                    continue
+            elif trans == kFinishedSource:
+                countSource[s] -= 1
+                if countSource[s] < 0:
+                    continue
+
+            if trans == kFinishedAcquire:
+                if checkOrder:
+                    countExternalWork[s][n] += 1
+                if displayExternalWork:
+                    if (not checkOrder) or countExternalWork[s][n] > 0:
+                        externalWorkModules.add(n)
+                        streamExternalWorkRunningTimes[s].append(Point(time,+1))
+                if checkOrder and n not in acquireModules:
+                    finishAcquireBeforeStart[s].add(n)
+                    continue
+            streamRunningTimes[s].append(Point(time,-1))
+            startTime = previousFinishTime[s]
+            previousFinishTime[s] = time
+            moduleNames = activeModules.copy()
+            moduleNames.update(acquireModules)
+
+            if trans == kFinishedAcquire:
+                acquireModules.remove(n)
+            elif trans == kFinishedSourceDelayedRead:
+                if countDelayedSource[s] == 0:
+                    activeModules.remove(n)
+            elif trans == kFinishedSource:
+                if countSource[s] == 0:
+                    activeModules.remove(n)
+            else:
+                activeModules.remove(n)
+
         if startTime is not None:
             c="green"
-            if (kSourceDelayedRead in moduleNames) or (kSourceFindEvent in moduleNames):
+            if not moduleNames:
+                c = "darkviolet"
+            elif (kSourceDelayedRead in moduleNames) or (kSourceFindEvent in moduleNames):
                 c = "orange"
             else:
                 for n in moduleNames:
                     if n in stalledModuleNames:
                         c="red"
                         break
-            streamInfo[s].append(StreamInfoElement(startTime, time-startTime, c))
-
-    streamInfo = consolidateContiguousBlocks(numStreams, streamInfo)
+            streamLowestRow[s].append(StreamInfoElement(startTime, time-startTime, c))
+    streamLowestRow = consolidateContiguousBlocks(numStreams, streamLowestRow)
 
     nr = 1
     if shownStacks:
@@ -506,40 +665,54 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     ax.yaxis.set_ticks(xrange(numStreams))
 
     height = 0.8/maxNumberOfConcurrentModulesOnAStream
-    allStackTimes={'green': [], 'red': [], 'blue': [], 'orange': []}
-    for i,perStreamInfo in enumerate(streamInfo):
-        times=[(x.begin/1000., x.delta/1000.) for x in perStreamInfo] # Scale from msec to sec.
-        colors=[x.color for x in perStreamInfo]
-        ax.broken_barh(times,(i-0.4,height),facecolors=colors,edgecolors=colors,linewidth=0)
-        for info in perStreamInfo:
-            allStackTimes[info.color].append((info.begin, info.delta))
+    allStackTimes={'green': [], 'red': [], 'blue': [], 'orange': [], 'darkviolet': []}
+    for iStream,lowestRow in enumerate(streamLowestRow):
+        times=[(x.begin/1000., x.delta/1000.) for x in lowestRow] # Scale from msec to sec.
+        colors=[x.color for x in lowestRow]
+        # for each stream, plot the lowest row
+        ax.broken_barh(times,(iStream-0.4,height),facecolors=colors,edgecolors=colors,linewidth=0)
+        # record them also for inclusion in the stack plot
+        # the darkviolet ones get counted later so do not count them here
+        for info in lowestRow:
+            if not info.color == 'darkviolet':
+                allStackTimes[info.color].append((info.begin, info.delta))
 
     # Now superimpose the number of concurrently running modules on to the graph.
     if maxNumberOfConcurrentModulesOnAStream > 1:
 
         for i,perStreamRunningTimes in enumerate(streamRunningTimes):
-            perStreamTimes = sorted(perStreamRunningTimes, key=attrgetter('x'))
-            perStreamTimes = reduceSortedPoints(perStreamTimes)
-            streamHeight = 0
-            preparedTimes = []
-            for t1,t2 in zip(perStreamTimes, perStreamTimes[1:]):
-                streamHeight += t1.y
-                if streamHeight < 2:
-                    continue
-                preparedTimes.append((t1.x,t2.x-t1.x, streamHeight))
-            preparedTimes.sort(key=itemgetter(2))
-            preparedTimes = mergeContiguousBlocks(preparedTimes)
-            for nthreads, ts in groupby(preparedTimes, itemgetter(2)):
-                theTS = [(t[0],t[1]) for t in ts]
-                theTimes = [(t[0]/1000.,t[1]/1000.) for t in theTS]
-                yspan = (i-0.4+height,height*(nthreads-1))
-                ax.broken_barh(theTimes, yspan, facecolors='blue', edgecolors='blue', linewidth=0)
-                allStackTimes['blue'].extend(theTS*(nthreads-1))
+
+            perStreamTimesWithExtendedWork = list(perStreamRunningTimes)
+            perStreamTimesWithExtendedWork.extend(streamExternalWorkRunningTimes[i])
+
+            plotPerStreamAboveFirstAndPrepareStack(perStreamTimesWithExtendedWork,
+                                                   allStackTimes, ax, i, height,
+                                                   streamHeightCut=2,
+                                                   doPlot=True,
+                                                   addToStackTimes=False,
+                                                   color='darkviolet',
+                                                   threadOffset=1)
+
+            plotPerStreamAboveFirstAndPrepareStack(perStreamRunningTimes,
+                                                   allStackTimes, ax, i, height,
+                                                   streamHeightCut=2,
+                                                   doPlot=True,
+                                                   addToStackTimes=True,
+                                                   color='blue',
+                                                   threadOffset=1)
+
+            plotPerStreamAboveFirstAndPrepareStack(streamExternalWorkRunningTimes[i],
+                                                   allStackTimes, ax, i, height,
+                                                   streamHeightCut=1,
+                                                   doPlot=False,
+                                                   addToStackTimes=True,
+                                                   color='darkviolet',
+                                                   threadOffset=0)
 
     if shownStacks:
         print "> ... Generating stack"
         stack = Stack()
-        for color in ['green','blue','red','orange']:
+        for color in ['green','blue','red','orange','darkviolet']:
             tmp = allStackTimes[color]
             tmp = reduceSortedPoints(adjacentDiff(tmp))
             stack.update(color, tmp)
@@ -558,6 +731,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
 
             for height, xpairs in groupby(xs, itemgetter(2)):
                 finalxs = [(e[0]/1000.,e[1]/1000.) for e in xpairs]
+                # plot the stacked plot, one color and one height on each call to broken_barh
                 axStack.broken_barh(finalxs, (0, height), facecolors=color, edgecolors=color, linewidth=0)
 
         axStack.set_xlabel("Time (sec)");
@@ -569,6 +743,8 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     fig.text(0.5, 0.95, "stalled module running", color = "red", horizontalalignment = 'center')
     fig.text(0.9, 0.95, "read from input", color = "orange", horizontalalignment = 'right')
     fig.text(0.5, 0.92, "multiple modules running", color = "blue", horizontalalignment = 'center')
+    if displayExternalWork:
+        fig.text(0.9, 0.92, "external work", color = "darkviolet", horizontalalignment = 'right')
     print "> ... Saving to file: '{}'".format(pdfFile)
     plt.savefig(pdfFile)
 
@@ -579,12 +755,12 @@ if __name__=="__main__":
     import sys
 
     # Program options
-    parser = argparse.ArgumentParser(description='Convert a cmsRun log with Tracer info into a stream stall graph.',
+    parser = argparse.ArgumentParser(description='Convert a text file created by cmsRun into a stream stall graph.',
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog=printHelp())
     parser.add_argument('filename',
                         type=argparse.FileType('r'), # open file
-                        help='log file to process')
+                        help='file to process')
     parser.add_argument('-g', '--graph',
                         nargs='?',
                         metavar="'stall.pdf'",
@@ -597,12 +773,20 @@ if __name__=="__main__":
                         action='store_true',
                         help='''Create stack plot, combining all stream-specific info.
                         Can be used only when -g is specified.''')
+    parser.add_argument('-e', '--external',
+                        action='store_false',
+                        help='''Suppress display of external work in graphs.''')
+    parser.add_argument('-o', '--order',
+                        action='store_true',
+                        help='''Enable checks for and repair of transitions in the input that are in the wrong order (for example a finish transition before a corresponding start). This is always enabled for Tracer input, but is usually an unnecessary waste of CPU time and memory with StallMonitor input and by default not enabled.''')
     args = parser.parse_args()
 
     # Process parsed options
     inputFile = args.filename
     pdfFile = args.graph
     shownStacks = args.stack
+    displayExternalWork = args.external
+    checkOrder = args.order
 
     doGraphic = False
     if pdfFile is not None:
@@ -632,6 +816,8 @@ if __name__=="__main__":
 
     sys.stderr.write(">reading file: '{}'\n".format(inputFile.name))
     processingSteps,numStreams,maxNameSize = readLogFile(inputFile)
+    if kTracerInput:
+        checkOrder = True
     sys.stderr.write(">processing data\n")
     stalledModules = findStalledModules(processingSteps, numStreams)
     if not doGraphic:
@@ -639,5 +825,5 @@ if __name__=="__main__":
         createAsciiImage(processingSteps, numStreams, maxNameSize)
     else:
         sys.stderr.write(">creating PDF\n")
-        createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModules)
+        createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModules, displayExternalWork, checkOrder)
     printStalledModulesInOrder(stalledModules)

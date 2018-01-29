@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
+//#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 
 #include "G4VSensitiveDetector.hh"

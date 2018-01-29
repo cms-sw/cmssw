@@ -139,6 +139,7 @@ class HGCalTriggerGeometryGenericMapping : public HGCalTriggerGeometryBase {
 
   bool validTriggerCell( const unsigned trigger_cell_det_id ) const final;
   bool disconnectedModule(const unsigned module_id) const final;
+  unsigned triggerLayer(const unsigned id) const final;
 
  protected:
   geom_map cells_to_trigger_cells_;

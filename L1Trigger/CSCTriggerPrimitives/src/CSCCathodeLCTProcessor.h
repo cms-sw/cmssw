@@ -25,7 +25,7 @@
  *
  * Updates for high pileup running by Vadim Khotilovich (TAMU), December 2012
  *
- * Updates for integrated local trigger with GEMs and RPCs by 
+ * Updates for integrated local trigger with GEMs by
  * Sven Dildick (TAMU) and Tao Huang (TAMU), April 2015
  *
  * Removing usage of outdated class CSCTriggerGeometry by Sven Dildick (TAMU)
@@ -70,19 +70,16 @@ class CSCCathodeLCTProcessor
       finding. */
   void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
 	   const std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
- 
+
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
   void getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id);
 
-  /** Maximum number of time bins. */
-  enum {MAX_CLCT_BINS = 16};
-
   /** Best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi bestCLCT[MAX_CLCT_BINS];
+  CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   /** Second best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi secondCLCT[MAX_CLCT_BINS];
+  CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   /** Returns vector of CLCTs in the read-out time window, if any. */
   std::vector<CSCCLCTDigi> readoutCLCTs();
@@ -103,21 +100,22 @@ class CSCCathodeLCTProcessor
   void setRing(unsigned r) {theRing = r;}
 
   /** Pre-defined patterns. */
-  enum {NUM_PATTERN_STRIPS = 26};
-  static const int pre_hit_pattern[2][NUM_PATTERN_STRIPS];
-  static const int pattern[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07][NUM_PATTERN_STRIPS+1];
+  static const int pre_hit_pattern[2][CSCConstants::MAX_STRIPS_IN_PATTERN];
+  static const int pattern[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07][CSCConstants::MAX_STRIPS_IN_PATTERN+1];
 
-  enum {NUM_PATTERN_HALFSTRIPS = 42};
-  static const int pattern2007_offset[NUM_PATTERN_HALFSTRIPS];
-  static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][NUM_PATTERN_HALFSTRIPS+2];
-
-  /** Maximum number of cathode front-end boards (move to CSCConstants?). */
-  enum {MAX_CFEBS = 5};
+  static const int pattern2007_offset[CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
+  static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN+2];
 
   // we use these next ones to address the various bits inside the array that's
   // used to make the cathode LCTs.
-  enum CLCT_INDICES {CLCT_PATTERN, CLCT_BEND, CLCT_STRIP, CLCT_BX,
-		     CLCT_STRIP_TYPE, CLCT_QUALITY, CLCT_CFEB};
+  enum CLCT_INDICES {CLCT_PATTERN,
+                     CLCT_BEND,
+                     CLCT_STRIP,
+                     CLCT_BX,
+                     CLCT_STRIP_TYPE,
+                     CLCT_QUALITY,
+                     CLCT_CFEB,
+                     CLCT_NUM_QUANTITIES= 7};
 
  private:
   /** Verbosity level: 0: no print (default).
@@ -132,14 +130,14 @@ class CSCCathodeLCTProcessor
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
-  
+
   const CSCGeometry* csc_g;
-  
+
   // holders for easy access:
   unsigned int theRing;
   unsigned int theChamber;
   bool isME11;
-  
+
   int numStrips;
   int stagger[CSCConstants::NUM_LAYERS];
 
@@ -147,7 +145,7 @@ class CSCCathodeLCTProcessor
   std::vector<int> thePreTriggerBXs;
 
   /** Flag for "real" - not idealized - version of the algorithm. */
-  bool isMTCC; 
+  bool isMTCC;
 
   /** Flag for 2007 firmware version. */
   bool isTMB07;
@@ -222,7 +220,7 @@ class CSCCathodeLCTProcessor
      const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
      int keystrip_data[CSCConstants::NUM_HALF_STRIPS_7CFEBS][7],
      int nStrips, int first_bx, int& best_strip, int stripType);
-  void getPattern(int pattern_num, int strip_value[NUM_PATTERN_STRIPS],
+  void getPattern(int pattern_num, int strip_value[CSCConstants::MAX_STRIPS_IN_PATTERN],
 		  int bx_time, int &quality, int &bend);
   bool hitIsGood(int hitTime, int BX);
 
@@ -239,18 +237,18 @@ class CSCCathodeLCTProcessor
 		     const int stripType, const int nStrips,
 		     const unsigned int bx_time);
   void latchLCTs(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-		 int keyStrip[MAX_CFEBS], unsigned int nhits[MAX_CFEBS],
+		 int keyStrip[CSCConstants::MAX_CFEBS], unsigned int nhits[CSCConstants::MAX_CFEBS],
 		 const int stripType, const int nStrips, const int bx_time);
-  void priorityEncode(const int h_keyStrip[MAX_CFEBS],
-		      const unsigned int h_nhits[MAX_CFEBS],
-		      const int d_keyStrip[MAX_CFEBS],
-		      const unsigned int d_nhits[MAX_CFEBS],
+  void priorityEncode(const int h_keyStrip[CSCConstants::MAX_CFEBS],
+		      const unsigned int h_nhits[CSCConstants::MAX_CFEBS],
+		      const int d_keyStrip[CSCConstants::MAX_CFEBS],
+		      const unsigned int d_nhits[CSCConstants::MAX_CFEBS],
 		      int keystrip_data[2][7]);
   void getKeyStripData(const unsigned int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
 		       const unsigned int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
 		       int keystrip_data[2][7], const int first_bx);
   void getPattern(unsigned int pattern_num,
-		  const int strip_value[NUM_PATTERN_STRIPS],
+		  const int strip_value[CSCConstants::MAX_STRIPS_IN_PATTERN],
 		  unsigned int& quality, unsigned int& bend);
 
   //--------------- Functions for 2007 version of the firmware ----------------

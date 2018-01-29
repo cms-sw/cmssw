@@ -589,7 +589,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     const HcalGeometry *HBGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 1));
     const HcalGeometry *HEGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 2));
     const CaloSubdetectorGeometry *HOGeom = geoHandle->getSubdetectorGeometry(DetId::Hcal, 3);
-    const CaloSubdetectorGeometry *HFGeom = geoHandle->getSubdetectorGeometry(DetId::Hcal, 4);
+   const  CaloSubdetectorGeometry *HFGeom = geoHandle->getSubdetectorGeometry(DetId::Hcal, 4);
 
     HERE("work");
 
@@ -1058,7 +1058,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 		for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith=hfreco->begin(); ith!=hfreco->end(); ++ith){
 		  if((*ith).id().depth() == 1) continue; // Remove long fibers
-		  const CaloCellGeometry *thisCell = HFGeom->getGeometry((*ith).id());
+		  auto thisCell = HFGeom->getGeometry((*ith).id());
 		  const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 		  
 		  bool passMatch = false;
@@ -1100,7 +1100,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		
 		for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith=hfreco->begin(); ith!=hfreco->end(); ++ith){
 		  if((*ith).id().depth() == 2) continue; // Remove short fibers
-		  const CaloCellGeometry *thisCell = HFGeom->getGeometry((*ith).id());
+		  auto thisCell = HFGeom->getGeometry((*ith).id());
 		  const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 		  
 		  bool passMatch = false;
@@ -1176,7 +1176,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 			else{
 			  ppfjet_twr_candtrackind_.push_back(-1);
 			}
-			const CaloCellGeometry *thisCell = HOGeom->getGeometry((*ith).id());
+			auto thisCell = HOGeom->getGeometry((*ith).id());
 			const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 			float avgeta = (cv[0].eta() + cv[2].eta())/2.0;
 			float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;

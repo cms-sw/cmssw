@@ -94,6 +94,17 @@ upgradeSteps['trackingOnly'] = {
     'suffix' : '_trackingOnly',
     'offset' : 0.1,
 }
+upgradeSteps['pixelTrackingOnly'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_pixelTrackingOnly',
+    'offset' : 0.4,
+}
 upgradeSteps['Timing'] = {
     'steps' : upgradeSteps['baseline']['steps'],
     'PU' : upgradeSteps['baseline']['PU'],
@@ -114,6 +125,18 @@ upgradeSteps['Neutron'] = {
     ],
     'suffix' : '_Neutron',
     'offset' : 0.3,
+}
+upgradeSteps['heCollapse'] = {
+    'steps' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'PU' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'suffix' : '_heCollapse',
+    'offset' : 0.6,
 }
 
 upgradeProperties = {}
@@ -137,14 +160,14 @@ upgradeProperties[2017] = {
     '2018' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2018_realistic',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
     '2018Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2018_design',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -337,7 +360,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'DoubleMuPt10Extended_pythia8_cfi':Kby(25,100),
            'DoubleMuPt100Extended_pythia8_cfi':Kby(9,100),
            'DoubleMuPt1000Extended_pythia8_cfi':Kby(9,100),
-           'SinglePiE50HCAL_pythia8_cfi':Kby(10,100),
+           'SinglePiE50HCAL_pythia8_cfi':Kby(50,500),
            'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
            'Wjet_Pt_80_120_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
            'Wjet_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi':Kby(9,50),

@@ -18,18 +18,15 @@ AlignableDTWheel::AlignableDTWheel( const std::vector<AlignableDTStation*>& dtSt
 
   theDTStations.insert( theDTStations.end(), dtStations.begin(), dtStations.end() );
 
+  // maintain also list of components
+  for (const auto& station: dtStations) {
+    const auto mother = station->mother();
+    this->addComponent(station); // components will be deleted by dtor of AlignableComposite
+    station->setMother(mother); // restore previous behaviour where mother is not set
+  }
+
   setSurface( computeSurface() );
   compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
-}
-      
-
-/// Clean delete of the vector and its elements
-AlignableDTWheel::~AlignableDTWheel() 
-{
-  for ( std::vector<AlignableDTStation*>::iterator iter = theDTStations.begin(); 
-	iter != theDTStations.end(); iter++)
-    delete *iter;
-
 }
 
 /// Return Alignable DT Station at given index

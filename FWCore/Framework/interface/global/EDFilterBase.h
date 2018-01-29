@@ -38,6 +38,7 @@ namespace edm {
   class ProductRegistry;
   class ThinnedAssociationsHelper;
   class WaitingTask;
+  class WaitingTaskWithArenaHolder;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -69,9 +70,13 @@ namespace edm {
       virtual bool wantsStreamLuminosityBlocks() const =0;
 
     private:
-      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+      bool doEvent(EventPrincipal const&, EventSetup const&,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
+      void doAcquire(EventPrincipal const&, EventSetup const&,
+                     ActivityRegistry*,
+                     ModuleCallingContext const*,
+                     WaitingTaskWithArenaHolder&);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
 
@@ -124,6 +129,7 @@ namespace edm {
       virtual void endJob(){}
 
       virtual void preallocStreams(unsigned int);
+      virtual void preallocate(PreallocationConfiguration const&);
       virtual void doBeginStream_(StreamID id);
       virtual void doEndStream_(StreamID id);
       virtual void doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c);
@@ -146,16 +152,20 @@ namespace edm {
       virtual void doEndRunProduce_(Run& rp, EventSetup const& c);
       virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
-      
-      
+
+      virtual bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
+
+      virtual void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder&);
+
       void setModuleDescription(ModuleDescription const& md) {
         moduleDescription_ = md;
       }
       ModuleDescription moduleDescription_;
       std::unique_ptr<std::vector<BranchID>[]> previousParentages_; //Per stream in the future?
+      std::unique_ptr<std::vector<BranchID>[]> gotBranchIDsFromAcquire_;
       std::unique_ptr<ParentageID[]> previousParentageIds_;
     };
-
   }
 }
 
