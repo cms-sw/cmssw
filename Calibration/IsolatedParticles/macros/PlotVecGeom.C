@@ -27,8 +27,10 @@ int         markStyle[7]  = {20, 21, 24, 22, 23, 33, 25};
 int         colors[7]     = {1, 2, 4, 6, 7, 38, 3};
 int         lineStyle[7]  = {1, 2, 3, 4, 1, 2, 3};
 
-std::string filem[3]={"pikp/FBE3r6MixStudyHLT.root","pikp/FBE3r6vMixStudyHLT.root","pikp/FBE3r6vRMixStudyHLT.root"};
-std::string typem[3]={"10.3.ref06 FTFP_BERT_EMM (Native)","10.3.ref06 FTFP_BERT_EMM (VecGeom 4)","10.3.ref06 FTFP_BERT_EMM (VecGeom Corr)"};
+const unsigned int nmodels=2;
+//std::string filem[nmodels]={"pikp/FBE4r00MixStudyHLT.root","pikp/FBE4r00vMixStudyHLT.root"};
+std::string filem[nmodels]={"pikp/FBE4cMixStudyHLT10.root","pikp/FBE4vcMixStudyHLT10.root"};
+std::string typem[nmodels]={"10.4 FTFP_BERT_EMM (Native)","10.4 FTFP_BERT_EMM (VecGeom v0.5)"};
 
 TH1D* getEffi(TFile* file, std::string varname, unsigned int ifl) {
   
@@ -67,7 +69,7 @@ TCanvas* plotEffi(int type, bool approve) {
   TCanvas* c(0);
   if (type < 0 || type > 3) type = 0;
   TObjArray                histArr;
-  for (unsigned k=0; k<3; ++k) {
+  for (unsigned k=0; k<nmodels; ++k) {
     TFile *file = TFile::Open(filem[k].c_str());
     TH1D  *hist = getEffi(file, varnam[type], k);
     if (hist) {
@@ -135,8 +137,8 @@ void plotEffiAll(bool approve=false, int savePlot=-1) {
   }
 }
 
-void plotCompare(std::string infile1, std::string text1, std::string infile2,
-		 std::string text2, int type1=-1, int type2=-1, int type3=-1,
+void plotCompare(const char* infile1, const char* text1, const char* infile2,
+		 const char* text2, int type1=-1, int type2=-1, int type3=-1,
 		 bool logy=true, bool save=false) {
 
   int         ndets[4]  = {1, 9, 9, 15};
@@ -159,8 +161,10 @@ void plotCompare(std::string infile1, std::string text1, std::string infile2,
 
   int itmin1 = (type1 >= 0) ? type1 : 0;
   int itmax1 = (type1 >= 0) ? type1 : 3;
-  TFile *file1 = new TFile(infile1.c_str());
-  TFile *file2 = new TFile(infile2.c_str());
+  TFile *file1 = new TFile(infile1);
+  TFile *file2 = new TFile(infile2);
+  std::cout << "File1: " << infile1 << ":" << file1 << " File2: " << infile2
+	    << ":" << file2 << std::endl;
   if (file1 != 0 && file2 != 0) {
     for (int it1=itmin1; it1<=itmax1; ++it1) {
       int itmin2 = (type2 >= 0) ? type2 : 0;
@@ -199,12 +203,13 @@ void plotCompare(std::string infile1, std::string text1, std::string infile2,
 	      hist[ih]->SetLineStyle(lineStyle[ih]);
 	      hist[ih]->SetLineColor(colors[ih]);
 	      hist[ih]->SetLineWidth(2);
+	      hist[ih]->GetYaxis()->SetTitleOffset(1.20);
 	      if (rebin > 1) hist[ih]->Rebin(rebin);
 	      if (ih == 0) {
-		legend->AddEntry(hist[ih],text1.c_str(),"lp");
+		legend->AddEntry(hist[ih],text1,"lp");
 		hist[ih]->Draw();
 	      } else {
-		legend->AddEntry(hist[ih],text2.c_str(),"lp");
+		legend->AddEntry(hist[ih],text2,"lp");
 		hist[ih]->Draw("sames");
 	      }
 	      pad->Update();
@@ -229,4 +234,26 @@ void plotCompare(std::string infile1, std::string text1, std::string infile2,
       }
     }
   }
+}
+
+void plotCompareAll(std::string cdir1="10.4.r00.g4",
+		    std::string cdir2="10.4.r00.vg",
+		    std::string cvers="10.4 MinBias",
+		    std::string cfile= "minbias.root",
+		    std::string ctype1="Native", 
+		    std::string ctype2="VecGeom v0.5",
+		    bool logy=true, bool save=false) {
+
+  char infile1[200], infile2[200], text1[200], text2[200];
+  sprintf (infile1, "%s/%s", cdir1.c_str(), cfile.c_str());
+  sprintf (infile2, "%s/%s", cdir2.c_str(), cfile.c_str());
+  sprintf (text1,   "%s (%s)", cvers.c_str(), ctype1.c_str());
+  sprintf (text2,   "%s (%s)", cvers.c_str(), ctype2.c_str());
+  plotCompare(infile1,text1,infile2,text2,1,-1,0,logy,save);
+  plotCompare(infile1,text1,infile2,text2,1,-1,3,logy,save);
+  plotCompare(infile1,text1,infile2,text2,1,-1,4,logy,save);
+  plotCompare(infile1,text1,infile2,text2,1,-1,5,logy,save);
+  plotCompare(infile1,text1,infile2,text2,1,-1,6,logy,save);
+  plotCompare(infile1,text1,infile2,text2,1,-1,7,logy,save);
+  plotCompare(infile1,text1,infile2,text2,1,-1,8,logy,save);
 }
