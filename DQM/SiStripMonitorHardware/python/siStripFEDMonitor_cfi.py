@@ -5,22 +5,22 @@ siStripFEDMonitor = DQMEDAnalyzer('SiStripFEDMonitorPlugin',
   #Raw data collection
   RawDataTag = cms.untracked.InputTag('rawDataCollector'),
   #Folder in DQM Store to write global histograms to
-  TopFolderName       = cms.untracked.string('SiStrip'),                                 
+  TopFolderName       = cms.untracked.string('SiStrip'),
 #  HistogramFolderName = cms.untracked.string('SiStrip/ReadoutView/FedSummary'),
   HistogramFolderName = cms.untracked.string('ReadoutView'),
   #Fill all detailed histograms at FED level even if they will be empty (so that files can be merged)
   FillAllDetailedHistograms = cms.untracked.bool(False),
   #do histos vs time with time=event number. Default time = orbit number (s).
   FillWithEventNumber = cms.untracked.bool(False),
-  #Whether to dump buffer info and raw data if any error is found: 
+  #Whether to dump buffer info and raw data if any error is found:
   #1=errors, 2=minimum info, 3=full debug with printing of the data buffer of each FED per event.
   PrintDebugMessages = cms.untracked.uint32(1),
-  FullDebugMode = cms.untracked.bool(False),                                   
+  FullDebugMode = cms.untracked.bool(False),
   #Histogram configuration
   #lumi histogram
-  ErrorFractionByLumiBlockHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(False) ),          
+  ErrorFractionByLumiBlockHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(False) ),
   #Global/summary histograms
-  FedEventSizeHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),                
+  FedEventSizeHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   DataPresentHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   AnyFEDErrorsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   AnyDAQProblemsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
@@ -56,7 +56,7 @@ siStripFEDMonitor = DQMEDAnalyzer('SiStripFEDMonitorPlugin',
     NBins = cms.untracked.uint32(256),
     Min = cms.untracked.double(0),
     Max = cms.untracked.double(1024)
-    ),        
+    ),
   #Sub sets of DAQ problems
   DataMissingHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   BadIDsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
@@ -202,6 +202,13 @@ siStripFEDMonitor = DQMEDAnalyzer('SiStripFEDMonitorPlugin',
     Min = cms.untracked.double(0),
     Max = cms.untracked.double(3600)
   ),
+  fedErrorsVsIdVsLumiHistogramConfig = cms.untracked.PSet(
+     Enabled = cms.untracked.bool(True),
+     NBins = cms.untracked.uint32(250),
+     Min = cms.untracked.double(0),
+     Max = cms.untracked.double(5000),
+     globalswitchon = cms.untracked.bool(False)
+ ),
   nFEDCorruptBuffersvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
     NBins = cms.untracked.uint32(600),
@@ -248,12 +255,12 @@ siStripFEDMonitor = DQMEDAnalyzer('SiStripFEDMonitorPlugin',
     Enabled = cms.untracked.bool(True),
     NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(3600)                
-  ),                             
+    Max = cms.untracked.double(3600)
+  ),
   FedIdVsApvIdHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
   ),
   FedErrorsVsIdHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
-  )                             
+  )
  )
