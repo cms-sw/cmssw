@@ -76,16 +76,16 @@ CaloMiscalibTools::~CaloMiscalibTools()
 CaloMiscalibTools::ReturnType
 CaloMiscalibTools::produce(const EcalIntercalibConstantsRcd& iRecord)
 {
-    CaloMiscalibMapEcal map_;
-    map_.prefillMap();
-    MiscalibReaderFromXMLEcalBarrel barrelreader_(map_);
-    MiscalibReaderFromXMLEcalEndcap endcapreader_(map_);
+    CaloMiscalibMapEcal map;
+    map.prefillMap();
+    MiscalibReaderFromXMLEcalBarrel barrelreader_(map);
+    MiscalibReaderFromXMLEcalEndcap endcapreader_(map);
     if(!barrelfile_.empty()) barrelreader_.parseXMLMiscalibFile(barrelfile_);
     if(!endcapfile_.empty())endcapreader_.parseXMLMiscalibFile(endcapfile_);
-    map_.print();
+    map.print();
     // Added by Zhen, need a new object so to not be deleted at exit
     //    std::cout<<"about to copy"<<std::endl;
-    CaloMiscalibTools::ReturnType mydata = std::make_unique<EcalIntercalibConstants>(map_.get());
+    CaloMiscalibTools::ReturnType mydata = std::make_unique<EcalIntercalibConstants>(map.get());
     //    std::cout<<"mydata "<<mydata<<std::endl;
     return mydata;
 }
