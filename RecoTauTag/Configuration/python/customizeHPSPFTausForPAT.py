@@ -31,15 +31,16 @@ def cloneAndModifyMVAIsolationFor94XMiniAODv2(process):
     process.hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2 = process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2.clone()
     process.hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff40")   
     #Create a new task and put the moduled therin
-    process.hpsPFTauMVAIsoFor94XMiniv2Task = cms.Task()
-    process.hpsPFTauMVAIsoFor94XMiniv2Task.add(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTrawMVAIsoFor94XMiniv2)
-    process.hpsPFTauMVAIsoFor94XMiniv2Task.add(process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2)
-    process.hpsPFTauMVAIsoFor94XMiniv2Task.add(process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2)
-    process.hpsPFTauMVAIsoFor94XMiniv2Task.add(process.hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2)
-    process.hpsPFTauMVAIsoFor94XMiniv2Task.add(process.hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2)
-    process.hpsPFTauMVAIsoFor94XMiniv2Task.add(process.hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2)
-    process.hpsPFTauMVAIsoFor94XMiniv2Task.add(process.hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2)
-    process.hpsPFTauMVAIsoFor94XMiniv2Task.add(process.hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2)
+    process.hpsPFTauMVAIsoFor94XMiniv2Task = cms.Task(
+        process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTrawMVAIsoFor94XMiniv2,    
+        process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2,
+        process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2, 
+        process.hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2,  
+        process.hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2, 
+        process.hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2,  
+        process.hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2, 
+        process.hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLTMVAIsoFor94XMiniv2,
+        )
     #Add all this to makePatTausTask
     process.makePatTausTask.add(process.hpsPFTauMVAIsoFor94XMiniv2Task)
     #Now modify patTau by replacing old by new discriminats
