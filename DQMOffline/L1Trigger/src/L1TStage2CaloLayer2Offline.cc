@@ -1,5 +1,6 @@
 #include "DQMOffline/L1Trigger/interface/L1TStage2CaloLayer2Offline.h"
 #include "DQMOffline/L1Trigger/interface/L1TFillWithinLimits.h"
+#include "DQMOffline/L1Trigger/interface/L1TCommon.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -26,10 +27,10 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
             consumes < reco::CaloMETCollection > (ps.getParameter < edm::InputTag > ("caloETMHFCollection"))),
         thePVCollection_(consumes < reco::VertexCollection > (ps.getParameter < edm::InputTag > ("PVCollection"))),
         theBSCollection_(consumes < reco::BeamSpot > (ps.getParameter < edm::InputTag > ("beamSpotCollection"))),
-        triggerEvent_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("TriggerEvent"))),
-        triggerResults_(consumes < edm::TriggerResults > (ps.getParameter < edm::InputTag > ("TriggerResults"))),
-        triggerFilter_(ps.getParameter < edm::InputTag > ("TriggerFilter")),
-        triggerPath_(ps.getParameter < std::string > ("TriggerPath")),
+        triggerInputTag_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("triggerInputTag"))),
+        triggerResultsInputTag_(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
+        triggerProcess_(ps.getParameter < std::string > ("triggerProcess")),
+        triggerNames_(ps.getParameter < std::vector<std::string> > ("triggerNames")),
         histFolder_(ps.getParameter < std::string > ("histFolder")),
         efficiencyFolder_(histFolder_ + "/efficiency_raw"),
         stage2CaloLayer2JetToken_(
@@ -48,6 +49,10 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
         httEfficiencyBins_(ps.getParameter < std::vector<double> > ("httEfficiencyBins")),
         recoHTTMaxEta_(ps.getParameter <double>("recoHTTMaxEta")),
         recoMHTMaxEta_(ps.getParameter <double>("recoMHTMaxEta")),
+        hltConfig_(),
+        triggerIndices_(),
+        triggerResults_(),
+        triggerEvent_(),
         histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
         h_controlPlots_()
 {
@@ -67,9 +72,18 @@ L1TStage2CaloLayer2Offline::~L1TStage2CaloLayer2Offline()
 //
 // -------------------------------------- beginRun --------------------------------------------
 //
-void L1TStage2CaloLayer2Offline::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
-{
-  edm::LogInfo("L1TStage2CaloLayer2Offline") << "L1TStage2CaloLayer2Offline::beginRun" << std::endl;
+void L1TStage2CaloLayer2Offline::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
+  edm::LogInfo("L1TStage2CaloLayer2Offline")
+      << "L1TStage2CaloLayer2Offline::beginRun" << std::endl;
+  bool changed(true);
+  if (!hltConfig_.init(iRun, iSetup, triggerProcess_, changed)) {
+    edm::LogError("L1TStage2CaloLayer2Offline")
+        << " HLT config extraction failure with process name "
+        << triggerProcess_<< std::endl;
+    triggerNames_.clear();
+  } else {
+    triggerIndices_ = dqmoffline::l1t::getTriggerIndices(triggerNames_, hltConfig_.triggerNames());
+  }
 }
 //
 // -------------------------------------- bookHistos --------------------------------------------
@@ -97,6 +111,22 @@ void L1TStage2CaloLayer2Offline::analyze(edm::Event const& e, edm::EventSetup co
 {
   edm::LogInfo("L1TStage2CaloLayer2Offline") << "L1TStage2CaloLayer2Offline::analyze" << std::endl;
 
+  edm::Handle<edm::TriggerResults> triggerResultHandle;
+  e.getByToken(triggerResultsInputTag_, triggerResultHandle);
+  if (!triggerResultHandle.isValid()) {
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid edm::TriggerResults handle" << std::endl;
+    return;
+  }
+  triggerResults_ = *triggerResultHandle;
+
+  edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+  e.getByToken(triggerInputTag_, triggerEventHandle);
+  if (!triggerEventHandle.isValid()) {
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid trigger::TriggerEvent handle" << std::endl;
+    return;
+  }
+  triggerEvent_ = *triggerEventHandle;
+
   edm::Handle<reco::VertexCollection> vertexHandle;
   e.getByToken(thePVCollection_, vertexHandle);
   if (!vertexHandle.isValid()) {
@@ -108,6 +138,9 @@ void L1TStage2CaloLayer2Offline::analyze(edm::Event const& e, edm::EventSetup co
   dqmoffline::l1t::fillWithinLimits(h_nVertex_, nVertex);
 
   // L1T
+  if(!dqmoffline::l1t::passesAnyTriggerFromList(triggerIndices_, triggerResults_)){
+    return;
+  }
   fillEnergySums(e, nVertex);
   fillJets(e, nVertex);
 }
@@ -341,6 +374,10 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     return;
   }
 
+  if(!doesNotOverlapWithHLTObjects(closestL1Jet)){
+    return;
+  }
+
   double recoEt = leadingRecoJet.et();
   double recoEta = leadingRecoJet.eta();
   double recoPhi = leadingRecoJet.phi();
@@ -377,8 +414,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     fillWithinLimits(h_resolutionJetPhi_HB_, resolutionPhi);
     fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
 
-    // turn-ons
-
+    // efficiencies
     for (auto threshold : jetEfficiencyThresholds_) {
       fillWithinLimits(h_efficiencyJetEt_HB_total_[threshold], recoEt);
       fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
@@ -402,7 +438,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     fillWithinLimits(h_resolutionJetPhi_HE_, resolutionPhi);
     fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
 
-    // turn-ons
+    // efficiencies
     for (auto threshold : jetEfficiencyThresholds_) {
       fillWithinLimits(h_efficiencyJetEt_HE_total_[threshold], recoEt);
       fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
@@ -420,7 +456,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HF_, recoPhi, l1Phi);
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HF_, resolutionPhi);
-    // turn-ons
+    // efficiencies
     for (auto threshold : jetEfficiencyThresholds_) {
       fillWithinLimits(h_efficiencyJetEt_HF_total_[threshold], recoEt);
       if (l1Et > threshold) {
@@ -663,6 +699,25 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
   }
 
   ibooker.cd();
+}
+
+bool L1TStage2CaloLayer2Offline::doesNotOverlapWithHLTObjects(const l1t::Jet & jet) const{
+  // get HLT objects of fired triggers
+  using namespace dqmoffline::l1t;
+  std::vector<bool> results = getTriggerResults(triggerIndices_, triggerResults_);
+  std::vector<unsigned int> firedTriggers = getFiredTriggerIndices(triggerIndices_, results);
+  std::vector<edm::InputTag> hltFilters = getHLTFilters(firedTriggers, hltConfig_, triggerProcess_);
+  const trigger::TriggerObjectCollection hltObjects = getTriggerObjects(hltFilters, triggerEvent_);
+  // only take objects with et() > 27 GeV
+  trigger::TriggerObjectCollection filteredHltObjects;
+  std::copy_if(hltObjects.begin(), hltObjects.end(),
+             std::back_inserter(filteredHltObjects),
+             [](auto obj) { return obj.et() > 27; });
+  double l1Eta = jet.eta();
+  double l1Phi = jet.phi();
+  const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(l1Eta, l1Phi, 0.3, hltObjects);
+
+  return matchedObjects.size() == 0;
 }
 
 //define this as a plug-in
