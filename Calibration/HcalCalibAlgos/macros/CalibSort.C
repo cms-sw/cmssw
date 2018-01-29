@@ -8,7 +8,7 @@
 // .L CalibSort.C+g (for the tree "EventInfo")
 //  CalibSortEvent c2(fname, dirname, prefix, append);
 //  c2.Loop();
-//  findDuplicatEvent(infile, outfile, debug)
+//  findDuplicateEvent(infile, outfile, debug)
 //
 //  This will prepare a list of dupliate entries from combined data sets
 //

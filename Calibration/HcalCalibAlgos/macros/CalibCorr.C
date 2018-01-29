@@ -47,13 +47,14 @@ private:
 
 class CalibSelectRBX {
 public:
-  CalibSelectRBX(int rbx);
+  CalibSelectRBX(int rbx, bool debug=false);
   ~CalibSelectRBX() {}
 
   bool isItRBX(const unsigned int);
   bool isItRBX(const std::vector<unsigned int> *);
   bool isItRBX(const int, const int);
 private:
+  bool             debug_;
   int              subdet_, zside_;
   std::vector<int> phis_;
 };
@@ -192,7 +193,7 @@ unsigned int CalibCorr::correctDetId(const unsigned int & detId) {
   return id;
 }
 
-CalibSelectRBX::CalibSelectRBX(int rbx) {
+CalibSelectRBX::CalibSelectRBX(int rbx, bool debug) : debug_(debug) {
   zside_    = (rbx > 0) ? 1 : -1;
   subdet_   = (std::abs(rbx)/100)%10;
   if (subdet_ != 1) subdet_ = 2;
@@ -217,10 +218,10 @@ bool CalibSelectRBX::isItRBX(const unsigned int detId) {
     unpackDetId(detId, subdet, zside, ieta, iphi, depth);
     ok = ((subdet == subdet_) && (zside == zside_) &&
 	  (std::find(phis_.begin(),phis_.end(),iphi) != phis_.end()));
-    /*
-    std::cout << "isItRBX:subdet|zside|iphi " << subdet << ":" << zside 
+    
+    if (debug_) 
+      std::cout << "isItRBX:subdet|zside|iphi " << subdet << ":" << zside 
 		<< ":" << iphi << " OK " << ok << std::endl;
-    */
   }
   return ok;
 }
@@ -234,14 +235,14 @@ bool CalibSelectRBX::isItRBX(const std::vector<unsigned int> * detId) {
       unpackDetId((*detId)[i], subdet, zside, ieta, iphi, depth);
       ok = ((subdet == subdet_) && (zside == zside_) &&
 	    (std::find(phis_.begin(),phis_.end(),iphi) != phis_.end()));
-      /*
-      std::cout << "isItRBX: subdet|zside|iphi " << subdet << ":" << zside 
-		<< ":" << iphi << std::endl;
-      */
+      if (debug_)
+	std::cout << "isItRBX: subdet|zside|iphi " << subdet << ":" << zside 
+		  << ":" << iphi << std::endl;
       if (ok) break;
     }
   }
-//std::cout << "isItRBX: size " << detId->size() << " OK " << ok << std::endl;
+  if (debug_) std::cout << "isItRBX: size " << detId->size() << " OK " << ok 
+			<< std::endl;
   return ok;
 }
 
@@ -255,9 +256,8 @@ bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
 		 (zside == zside_) &&
 		 (std::find(phis_.begin(),phis_.end(),iphi) != phis_.end()));
   }
-  /*
-  std::cout << "isItRBX: ieta " << ieta << " iphi " << iphi << " OK " << ok 
-	    << std::endl;
-  */
+  if (debug_) 
+    std::cout << "isItRBX: ieta " << ieta << " iphi " << iphi << " OK " << ok 
+	      << std::endl;
   return ok;
 }
