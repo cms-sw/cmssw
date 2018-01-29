@@ -20,12 +20,27 @@
 //                       14 to get momenta 2, 3, 4, 5, 6, 7, 8, 9, 20, 30,
 //                       50, 100, 150, 200, 300, 350)
 //   model     int       signifies Geant4 Physics list + Geant4 version 
-//                       (a value between 0 and 4 for the following lists
+//                       (a value between 0 and 13 for the following lists
 //                        0 10.0.p2 QGSP-FTFP-BERT-EML
 //                        1 10.0.p2 FTFP-BERT-EML
-//                        2 10.0.p2 QGSP-FTFP-BERT-EMM
-//                        3 10.0.p2 FTFP-BERT-EMM
-//                        4 10.0.p2 FTFP-BERT-ATL-EMM)
+//                        2 10.2.p2 QGSP-FTFP-BERT-EMM
+//                        3 10.2.p2 FTFP-BERT-EMM
+//                        4 10.2.p2 FTFP-BERT-ATL-EMM
+//			  5 10.4.0.beta FTFP_BERT_EMM
+//			  6 10.3.ref08 FTFP_BERT_EMM
+//			  7 10.3.ref09 FTFP_BERT_EMM
+//			  8 10.3.ref10 FTFP_BERT_EMM
+//			  9 10.3.ref11 FTFP_BERT_EMM
+//			 10 10.3.p03 FTFP_BERT_EMM
+//    	                 11 10.4.cand01 FTFP_BERT_EMM
+//                       12 10.4.cand02 FTFP_BERT_EMM
+//                       13 10.4 FTFP_BERT_EMM
+//                       14 10.2.p02 FTFP_BERT_EMM 10.0.pre3
+//                       15 10.4 FTFP_BERT_EMM 10.0.pre3
+//                       16 10.4 FTFP_BERT_EMM VecGeom 10.0.pre3
+//                       17 10.4 FTFP_BERT_EMM VecGeom+CLHEP 10.0.pre3
+//                       18 10.4 FTFP_BERT_EMM CLHEP
+//                       19 10.4 FTFP_BERT_EMM VecGeom+CLHEP)
 //   corrEB    double     Correction to noise factor for EB (1.0)
 //   corrHB    double     Correction to noise factor for HB (1.0)
 //
@@ -91,7 +106,7 @@
 //                        models to be plotted are given by *models* (the
 //                        usage is described earlier). *approve* decides the
 //                        content of legends in the plot
-//  plotDataMCResp(std::string dirName, bool approve, int save)
+//  plotDataMCResp(int models, std::string dirName, bool approve, int save)
 //                        Plots mean response for data and MC and also the
 //                        ratio MC/Data for all available particles. The
 //                        legends are controlled by *approve* and saving
@@ -193,18 +208,34 @@ TB06Analysis::TB06Analysis(std::string inName, std::string outName, int ipar,
   TDirectory *dir  = (TDirectory*)file->FindObjectAny("testbeam");
   TTree      *tree = (TTree*)dir->Get("TB06Sim");
   Init(tree);
-  double scaleEB[5] = { 1.010,  1.011,  1.011,  1.011,  1.011};
-  double scaleHB[5] = {114.13, 114.29, 106.61, 106.54, 106.33};
-  double cutS4[5]   = {0.0028, 0.0028, 0.0028, 0.0028, 0.0028};
-  double cutVC[5]   = {0.0014, 0.0014, 0.0014, 0.0014, 0.0014};
-  double cutS8[5]   = {0.0014, 0.0014, 0.0014, 0.0014, 0.0014};
-  std::string modelNames[5] = {"10.0.2 QGSP_FTFP_BERT_EML",
-			       "10.0.2 FTFP_BERT_EML",
-			       "10.2.2 QGSP_FTFP_BERT_EMM",
-			       "10.2.2 FTFP_BERT_EMM",
-			       "10.2.2 FTFP_BERT_ATL_EMM"};
-  std::string partsF[6] = {"pi-","pi+","k-","k+","pro+","pro-"};
-  std::string partsN[6] = {"#pi^{-}","#pi^{+}","K^{-}","K^{+}","p","pbar"};
+  const int nmodels=20;
+  double scaleEB[nmodels] = { 1.010,  1.011,  1.011,  1.011,  1.011, 1.011, 1.011, 1.011, 1.011, 1.011, 1.011, 1.011, 1.010, 1.010, 1.015, 1.015, 1.015, 1.015, 1.015, 1.015};
+  double scaleHB[nmodels] = {114.13, 114.29, 106.61, 106.54, 106.33, 106.43, 106.38, 106.50, 106.59, 107.37, 106.47, 107.14, 107.11, 107.11, 105.94, 106.59, 106.64, 106.64, 106.59, 106.64};
+  double cutS4[nmodels]   = {0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028, 0.0028};
+  double cutVC[nmodels]   = {0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014};
+  double cutS8[nmodels]   = {0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014, 0.0014};
+  std::string modelNames[nmodels] = {"10.0.p02 QGSP_FTFP_BERT_EML",
+				     "10.0.p02 FTFP_BERT_EML",
+				     "10.2.p02 QGSP_FTFP_BERT_EMM",
+				     "10.2.p02 FTFP_BERT_EMM",
+				     "10.2.p02 FTFP_BERT_ATL_EMM",
+				     "10.4.0.beta FTFP_BERT_EMM",
+				     "10.3.ref08 FTFP_BERT_EMM",
+				     "10.3.ref09 FTFP_BERT_EMM",
+				     "10.3.ref10 FTFP_BERT_EMM",
+				     "10.3.ref11 FTFP_BERT_EMM",
+				     "10.3.p03 FTFP_BERT_EMM",
+				     "10.4.cand01 FTFP_BERT_EMM",
+				     "10.4.cand02 FTFP_BERT_EMM",
+				     "10.4 FTFP_BERT_EMM",
+				     "10.2.p02 FTFP_BERT_EMM 10.0.pre3",
+				     "10.4 FTFP_BERT_EMM 10.0.pre3",
+				     "10.4 FTFP_BERT_EMM VecGeom 10.0.pre3",
+				     "10.4 FTFP_BERT_EMM VecGeom+CLHEP 10.0.pre3",
+				     "10.4 FTFP_BERT_EMM CLHEP",
+				     "10.4 FTFP_BERT_EMM VecGeom+CLHEP"};
+  std::string partsF[7] = {"pi-","pi+","k-","k+","pro+","pro-","e-"};
+  std::string partsN[7] = {"#pi^{-}","#pi^{+}","K^{-}","K^{+}","p","pbar","e"};
   int         iens[16]  = {2,3,4,5,6,7,8,9,20,30,50,100,150,200,300,350};
   /*
   double      xminh[16] = {-5,-5,-5,-5,-5,-5,-5,-5,5,10,10,10,10,10,10,10};
@@ -215,10 +246,10 @@ TB06Analysis::TB06Analysis(std::string inName, std::string outName, int ipar,
   double      xmaxh[16] = {6,9,11,14,15,17,18,20,30,40,70,130,170,250,370,420};
   double      delxs[16] = {.2,.2,.2,.2,.2,.2,.2,.2,.5,.5,1.,1.,2.,2.,2.,2.};
 
-  if (model < 0 || model >= 5) model_ = 0;
-  else                         model_ = model;
-  if (ien < 0 || ien >= 16)    ien    = 0;
-  if (ipar < 0 || ipar >= 6)   ipar   = 0;
+  if (model < 0 || model >= nmodels)  model_ = 0;
+  else                                model_ = model;
+  if (ien < 0 || ien > 15)            ien    = 0;
+  if (ipar < 0 || ipar > 6)           ipar   = 0;
   scaleEB_ = scaleEB[model_];
   scaleHB_ = scaleHB[model_];
   modName_ = modelNames[model_];
@@ -233,6 +264,9 @@ TB06Analysis::TB06Analysis(std::string inName, std::string outName, int ipar,
   iene_    = iens[ien];
   partFil_ = partsF[ipar];
   partNam_ = partsN[ipar];
+  std::cout << "Model " << model_ << ":" << modName_ << " Particle " << partFil_
+	    << " Scale " << scaleEB_ << ":" << scaleHB_ << " Cuts " << cutS4_
+	    << ":" << cutVC_ << ":" << cutS8_ << std::endl;
 }
 
 TB06Analysis::~TB06Analysis() {
@@ -376,7 +410,8 @@ void TB06Analysis::Loop() {
 
   Long64_t nentries = fChain->GetEntriesFast();
   Long64_t nbytes = 0, nb = 0;
-  std::cout << "Correction Factors " << corrEB_ << ":" << corrHB_ << std::endl;
+  std::cout << "Correction Factors " << corrEB_ << ":" << corrHB_ << " and "
+	    << nentries << " entries" << std::endl;
 
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
@@ -390,6 +425,15 @@ void TB06Analysis::Loop() {
     h_es[4]->Fill(edepVC_);
     h_es[5]->Fill(edepS7_);
     h_es[6]->Fill(edepS8_);
+    /*
+    std::cout << edepS4_ << ":" << edepVC_ << ":" << edepS8_ << " Cuts " 
+	      << cutS4_ << ":" << cutVC_ << ":" << cutS8_ << " Result " 
+	      << (edepS4_ < cutS4_ && edepVC_ < cutVC_ && edepS8_ < cutS8_) 
+	      << std::endl;
+    std::cout << edepEC_ << ":" << edepHB_ << " Scale " << scaleEB_ << ":" 
+	      << scaleHB_ << " Noise " << corrEB_*noiseEC_ << ":" 
+	      << corrHB_*noiseHB_ << std::endl;
+    */
     if (edepS4_ < cutS4_ && edepVC_ < cutVC_ && edepS8_ < cutS8_) {
       h_EC->Fill(edepEC_);
       h_HB->Fill(edepHB_);
@@ -400,7 +444,6 @@ void TB06Analysis::Loop() {
       if (enEB < mipCut_) h_EN2->Fill(eTot);
     }
   }
-
   fout->cd(); fout->Write(); fout->Close();
 }
 
@@ -532,8 +575,10 @@ Double_t crystalfun(Double_t *x, Double_t *par) {
   return crystal;
 }
 
-TF1 *functionFit(TH1D *his, double *fitrange, double *startvalues, 
-		 double *parlimitslo, double *parlimitshi, int mode) {
+std::pair<TF1*,TFitResultPtr> functionFit(TH1D *his, double *fitrange, 
+					  double *startvalues, 
+					  double *parlimitslo, 
+					  double *parlimitshi, int mode) {
 
   char FunName[100];
   std::string fname("LanGau");
@@ -561,9 +606,9 @@ TF1 *functionFit(TH1D *his, double *fitrange, double *startvalues,
     for (int i=0; i<npar; i++) 
       ffit->SetParLimits(i, parlimitslo[i], parlimitshi[i]);
   }
-  his->Fit(FunName,"wwqRB0");   // fit within specified range, use ParLimits, do not plot
-  
-  return (ffit);              // return fit function
+  // fit within specified range, use ParLimits, do not plot
+  TFitResultPtr fptr = his->Fit(FunName,"wwqRB0S"); 
+  return std::pair<TF1*,TFitResultPtr>(ffit,fptr); 
 }
 
 TCanvas* FitTrigger(std::string fileName, int type) {
@@ -621,7 +666,7 @@ TCanvas* FitTrigger(std::string fileName, int type) {
   return pad;
 }
 
-TCanvas* FitEBHB(std::string fileName, int type) {
+TCanvas* FitEBHB(std::string fileName, int type, int model=0, bool save=false) {
   std::string names[2]  = {"EC", "HB"};
   std::string title[2]  = {"Energy in EB", "Energy in HB"};
   int         colors[6] = {2,6,4,1,7,9};
@@ -632,7 +677,9 @@ TCanvas* FitEBHB(std::string fileName, int type) {
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(1110);       gStyle->SetOptFit(10);
-  TFile* file = new TFile(fileName.c_str());
+  char name[100];
+  sprintf (name, "model%d/%s", model, fileName.c_str());
+  TFile* file = new TFile(name);
   if (file) {
     double dy  = 0.20;
     double yh  = 0.90;
@@ -640,10 +687,10 @@ TCanvas* FitEBHB(std::string fileName, int type) {
     double xh  = (type == 0) ? 0.40 : 0.90;
     TH1D *hist = (TH1D*)file->FindObjectAny(names[type].c_str());
     if (hist) {
-      char name[100];
-      sprintf(name,"%sFit",names[type].c_str());
+      sprintf(name,"%sFit%d",names[type].c_str(),model);
       pad = new TCanvas(name,name,700,500);
       hist->SetLineColor(colors[type]);
+      hist->SetLineWidth(2);
       hist->SetMarkerColor(colors[type]);
       hist->SetMarkerStyle(mtype[type]);
       hist->GetXaxis()->SetTitle("Energy (GeV)");
@@ -664,20 +711,25 @@ TCanvas* FitEBHB(std::string fileName, int type) {
       if (type == 0) {
 	fitrange[0] = startvalues[1]-10.*startvalues[2];
 	fitrange[1] = startvalues[1]+2.*startvalues[2];
-	Fitfun = functionFit(hist, fitrange, startvalues, lowValue,highValue,-1);
+	std::pair<TF1*,TFitResultPtr> ffit = functionFit(hist, fitrange, startvalues, lowValue,highValue,-1);
+	Fitfun = ffit.first;
+	Fit    = ffit.second;
       } else {
 	fitrange[0] = startvalues[1]-10.*startvalues[2];
 	fitrange[1] = startvalues[1]+10.*startvalues[2];
 	Fitfun = new TF1(name,"gaus",fitrange[0],fitrange[1]);
-	Fit = hist->Fit(Fitfun, "+0wwqR");
+	Fit = hist->Fit(Fitfun, "+0wwqRS");
       }
-      std::cout << LowEdge << " " << startvalues[1]-2.*startvalues[3] << " " << HighEdge << " " << fitrange[1] << std::endl;
+      std::cout << LowEdge << " " << startvalues[1]-2.*startvalues[3] << " " 
+		<< HighEdge << " " << fitrange[1] << " Fit " << Fit->Value(1) 
+		<< ":" << (50.0/Fit->Value(1)) << std::endl;
       double low  = fitrange[0]-2.*startvalues[2]; 
       double high = fitrange[1]+2.*startvalues[2];
       hist->GetXaxis()->SetRangeUser(low, high);
       hist->Draw("");
       Fitfun->Draw("same");
       pad->Update();
+      
       TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
       if (st1 != NULL) {
 	st1->SetFillColor(kWhite);
@@ -691,6 +743,10 @@ TCanvas* FitEBHB(std::string fileName, int type) {
       legend->AddEntry(hist,title[type].c_str(),"lp");
       legend->Draw("same");
       pad->Update();
+      if (save) {
+	sprintf (name, "%s.pdf", pad->GetName());
+	pad->Print(name);
+      }
     }
   }
   return pad;
@@ -882,19 +938,37 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
 		    int irtype=1, std::string prefix="model", 
 		    bool approve=false, bool stat=true, double xmin0=-1, 
 		    double xmax0=-1, bool rescale=true) {
-
-  std::string modelNames[5] = {"G4 10.0.p02 QGSP_FTFP_BERT_EML",
-			       "G4 10.0.p02 FTFP_BERT_EML",
-			       "G4 10.2.p02 QGSP_FTFP_BERT_EMM",
-			       "G4 10.2.p02 FTFP_BERT_EMM",
-			       "G4 10.2.p02 FTFP_BERT_ATL_EMM"};
+  static const int nmodels=20;
+  std::string modelNames[nmodels] = {"G4 10.0.p02 QGSP_FTFP_BERT_EML",
+				     "G4 10.0.p02 FTFP_BERT_EML",
+				     "G4 10.2.p02 QGSP_FTFP_BERT_EMM",
+				     "G4 10.2.p02 FTFP_BERT_EMM",
+				     "G4 10.2.p02 FTFP_BERT_ATL_EMM",
+				     "G4 10.4.beta FTFP_BERT_EMM",
+				     "G4 10.3.ref08 FTFP_BERT_EMM",
+				     "G4 10.3.ref09 FTFP_BERT_EMM",
+				     "G4 10.3.ref10 FTFP_BERT_EMM",
+				     "G4 10.3.ref11 FTFP_BERT_EMM",
+				     "G4 10.3.p03 FTFP_BERT_EMM",
+				     "G4 10.4.cand01 FTFP_BERT_EMM",
+				     "G4 10.4.cand02 FTFP_BERT_EMM",
+				     "G4 10.4 FTFP_BERT_EMM",
+				     "G4 10.2.p02 FTFP_BERT_EMM 10.0.pre3",
+				     "G4 10.4 FTFP_BERT_EMM 10.0.pre3",
+				     "G4 10.4 FTFP_BERT_EMM VecGeom 10.0.pre3",
+				     "G4 10.4 FTFP_BERT_EMM VecGeom+CLHEP 10.0.pre3",
+				     "G4 10.4 FTFP_BERT_EMM CLHEP",
+				     "G4 10.4 FTFP_BERT_EMM VecGeom+CLHEP"};
   std::string partsF[6] = {"pi-","pi+","k-","k+","pro+","pro-"};
   std::string partsM[6] = {"pim","pip","km","kp","prop","prom"};
   std::string partsN[6] = {"#pi^{-}","#pi^{+}","K^{-}","K^{+}","proton","antiproton"};
   int         iens[16]  = {2,3,4,5,6,7,8,9,20,30,50,100,150,200,300,350};
   int         types[16] = {0,0,0,0,0,0,0,0, 1, 1, 1,  1,  1,  2,  2,  2};
-  int         colors[6] = {2,7,6,4,9,1};
-  int         mtype[6] = {21,22,23,24,33,20};
+  int         colors[nmodels]= { 2, 7, 6, 4, 9, 8,40, 7, 6, 9,46,48,30, 2, 6,
+				 2, 7, 4, 2, 4};
+  int         mtype[nmodels] = {21,22,23,24,25,26,27,22,23,25,29,33,42,24,21,
+				22,23,24,21,22};
+  int         colorD(1), mtypeD(20);
   std::string titlty[2] = {"All events", "MIP in ECAL"};
 
   std::cout << "plotDataMC " << ipar << ", " << ien << ", " << models << ", " << type << ", " << rebin << ", " << irtype << ", " << prefix << ", " << approve << ", " << xmin0 << ", " << xmax0 << ", " << rescale << std::endl;
@@ -913,8 +987,8 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
   char infile[120], title[100], name[120];
   double xmin(-5.0), xmax(500.0), ymax(0);
   int    nbin(0), nmod(0), model(models);
-  for (int i=0; i<5; ++i) {
-    if (model%10 > 0) {
+  for (int i=0; i<nmodels; ++i) {
+    if (model%2 > 0) {
       sprintf (infile,"%s%d/%s%d.root",prefix.c_str(),i,partsM[ipar].c_str(),iens[ien]);
       TFile *file = new TFile(infile);
       if (file) {
@@ -931,7 +1005,7 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
 	file->Close();
       }
     }
-    model /= 10;
+    model /= 2;
   }
   if (xmax0 > 0) {
     nbin = (int)((xmax0-xmin0)/((xmax-xmin)*rebin));
@@ -956,9 +1030,11 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
     hist->GetXaxis()->SetTitle("Energy (GeV)");
     hist->GetYaxis()->SetTitle("Events");
     hist->GetYaxis()->SetTitleOffset(1.3);
-    hist->SetMarkerColor(colors[5]);
-    hist->SetMarkerStyle(mtype[5]);
-    hist->SetLineColor(colors[5]);
+    hist->SetMarkerColor(colorD);
+    hist->SetMarkerStyle(mtypeD);
+    hist->SetMarkerSize(1.2);
+    hist->SetLineColor(colorD);
+    hist->SetLineWidth(2);
     char buffer [1024];
     fInput.getline(buffer, 1024);
     double eEB, eHB, eHO;
@@ -977,7 +1053,7 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
       }
     }
     hists.push_back(hist);
-    icol.push_back(colors[5]);
+    icol.push_back(colorD);
   }
 
   //Now loop of MC files
@@ -1022,8 +1098,8 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
     legend->AddEntry(hist,title,"lp");
 
     int model(models);
-    for (int i=0; i<5; ++i) {
-      if (model%10 > 0) {
+    for (int i=0; i<nmodels; ++i) {
+      if (model%2 > 0) {
 	sprintf (infile,"%s%d/%s%d.root",prefix.c_str(),i,partsM[ipar].c_str(),iens[ien]);
 	TFile *file = new TFile(infile);
 	if (file) {
@@ -1050,7 +1126,9 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
 	    }
 	    h2->SetMarkerColor(colors[i]);
 	    h2->SetMarkerStyle(mtype[i]);
+	    h2->SetMarkerSize(1.2);
 	    h2->SetLineColor(colors[i]);
+	    h2->SetLineWidth(2);
 	    Hs->Add(h2,"hist sames");
 	    legend->AddEntry(h2,modelNames[i].c_str(),"lp");
 	    icol.push_back(colors[i]);
@@ -1058,7 +1136,7 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
 	  }
 	}
       }
-      model /= 10;
+      model /= 2;
     }
 
     int    imax = (ymax > 100) ? (int)(0.01*ymax) : (int)(0.1*ymax);
@@ -1085,7 +1163,7 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
 	for (unsigned int k=0; k<hists.size(); ++k) {
 	  TPaveStats* st1 = (TPaveStats*)hists[k]->GetListOfFunctions()->FindObject("stats");
 	  if (st1 != NULL) {
-	    st1->SetFillColor(kWhite);
+	    st1->SetFillColor(kWhite);  
 	    st1->SetLineColor(icol[k]); st1->SetTextColor(icol[k]);
 	    st1->SetY1NDC(yh-dy);  st1->SetY2NDC(yh);
 	    st1->SetX1NDC(xh-0.3); st1->SetX2NDC(xh);
@@ -1100,7 +1178,8 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
 	TPaveText* text = new TPaveText(0.60, yht-0.04, 0.89, yht, "brNDC");
 	text->AddText("CMS Preliminary");
 	text->Draw("same");
-	TPaveText* txt2 = new TPaveText(0.60, yht-0.08, 0.89,yht-0.04, "brNDC");
+//	TPaveText* txt2 = new TPaveText(0.60, yht-0.08, 0.89,yht-0.04, "brNDC");
+	TPaveText* txt2 = new TPaveText(0.11, 0.85, 0.35, 0.89, "brNDC");
 	txt2->AddText("2006 Test Beam Data");
 	txt2->Draw("same");
       }
@@ -1124,7 +1203,6 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
       double xh1 = (approve) ? (xh2-0.40) : ((irtype == 2) ? (xh2-0.60) : (xh2-0.30));
       double yh1 = (irtype == 2) ? (yh2-0.05*nmod) : (yh2-0.10*nmod);
       TLegend *legend1 = new TLegend(xh1, yh1, xh2, yh2);
-      std::cout << "xh " << xh1 << ":" << xh2 << std::endl;
       legend1->SetFillColor(kWhite); legend1->SetBorderSize(0); 
       legend1->SetMargin(0.2);
       TH1D *h_ref =  (TH1D*)hists[0];
@@ -1161,8 +1239,10 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
 	legend1->AddEntry(ratio,name,"lp");
 	ratio->SetStats(0);
 	ratio->SetLineColor(icol[i]);
+	ratio->SetLineWidth(2);
 	ratio->SetMarkerColor(icol[i]);
 	ratio->SetMarkerStyle(mtype[i]);
+	ratio->SetMarkerSize(1.2);
 	ratio->SetLineWidth(2);
 	Hsr->Add(ratio,"pe same");
       }
@@ -1196,7 +1276,6 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
 		 partsN[ipar].c_str(), titlty[type-1].c_str());
 	text->AddText(name);
 	text->Draw("same");
-	std::cout << "xh2 " << xh2 << std::endl;
 	TPaveText* txt2 = new TPaveText(xh2-0.25, yh2-dyt, xh2, yh2, "brNDC");
 	txt2->AddText("CMS Preliminary");
 	txt2->Draw("same");
@@ -1210,7 +1289,7 @@ TCanvas* plotDataMC(int ipar, int ien, int models, int type, int rebin=1,
   return pad;
 }
 
-void plotDataMCDist(int ipar, int ien, int models=1001, int rebin=2,
+void plotDataMCDist(int ipar, int ien, int models=41, int rebin=2,
 		    std::string prefix="model", bool approve=true, 
 		    bool stat=true, double xmin0=-1, double xmax0=-1, 
 		    int save=0) {
@@ -1232,30 +1311,69 @@ void plotDataMCDist(int ipar, int ien, int models=1001, int rebin=2,
   }
 }
 
+void plotDataMCDist(std::string prefix="model", int type=1, int irtype=1,
+		    int models=104, int rebin=2, bool approve=true, 
+		    bool stat=true, double xmin0=-1, double xmax0=-1,
+		    int save=0) {
+  int ienMin[6] = {0,0,2,3,0,0};
+  int ienMax[6] = {8,8,6,6,8,8};
+
+  char filename[100];
+  for (int ipar=0; ipar<6; ++ipar) {
+    for (int ien=ienMin[ipar]; ien<ienMax[ipar]; ++ien) {
+      TCanvas* c1 = plotDataMC(ipar, ien, models, type, rebin, irtype, prefix, 
+			       approve, stat, xmin0, xmax0, true);
+      if (save != 0) {
+	if (save < 0) sprintf (filename, "%s.jpg", c1->GetName());
+	else          sprintf (filename, "%s.pdf", c1->GetName());
+	c1->Print(filename);
+      }
+    }
+  }
+}
+
 TCanvas* plotDataMC(int ipar, int models, bool ratio=false,
 		    std::string dirName="RespAll", bool approve=false) {
 
-  std::string names[6] = {"Test Beam Data",
-			  "G4 10.0.p02 QGSP_FTFP_BERT_EML",
-			  "G4 10.0.p02 FTFP_BERT_EML",
-			  "G4 10.2.p02 QGSP_FTFP_BERT_EMM",
-			  "G4 10.2.p02 FTFP_BERT_EMM",
-			  "G4 10.2.p02 FTFP_BERT_ATL_EMM"};
+  static const int nmodels=21;
+  std::string names[nmodels] = {"Test Beam Data",
+				"G4 10.0.p02 QGSP_FTFP_BERT_EML",
+				"G4 10.0.p02 FTFP_BERT_EML",
+				"G4 10.2.p02 QGSP_FTFP_BERT_EMM",
+				"G4 10.2.p02 FTFP_BERT_EMM",
+				"G4 10.2.p02 FTFP_BERT_ATL_EMM",
+				"G4 10.4.beta FTFP_BERT_EMM",
+				"G4 10.3.ref08 FTFP_BERT_EMM",
+				"G4 10.3.ref09 FTFP_BERT_EMM",
+				"G4 10.3.ref10 FTFP_BERT_EMM",
+				"G4 10.3.ref11 FTFP_BERT_EMM",
+				"G4 10.3.p03 FTFP_BERT_EMM",
+				"G4 10.4.cand01 FTFP_BERT_EMM",
+				"G4 10.4.cand02 FTFP_BERT_EMM",
+				"G4 10.4 FTFP_BERT_EMM",
+				"G4 10.2.p02 FTFP_BERT_EMM 10.0.pre3",
+				"G4 10.4 FTFP_BERT_EMM 10.0.pre3",
+				"G4 10.4 FTFP_BERT_EMM VecGeom 10.0.pre3",
+				"G4 10.4 FTFP_BERT_EMM VecGeom+CLHEP 10.0.pre3",
+				"G4 10.4 FTFP_BERT_EMM CLHEP",
+				"G4 10.4 FTFP_BERT_EMM VecGeom+CLHEP"};
   std::string partsM[6] = {"pim","pip","km","kp","prop","prom"};
   std::string partsN[6] = {"#pi^{-}","#pi^{+}","K^{-}","K^{+}","proton","antiproton"};
   double      xmax[6]   = {400.0,30.0,15.0,15.0,400.0,15.0};
   double      ylow[6]   = {0.4,0.4,0.2,0.2,0.2,0.6};
   double      ylowr[6]  = {0.9,0.9,0.7,0.5,0.9,0.9};
   double      ymaxr[6]  = {1.2,1.2,1.2,1.4,1.2,1.2};
-  int         colors[6] = {1,2,7,6,4,9};
-  int         styles[6] = {20,21,22,23,24,33};
+  int         colors[nmodels+1]= { 1, 2, 7, 6, 4, 9, 8,40, 7, 6, 9,46,48,30, 2,
+				   6, 2, 7, 4, 2, 4};
+  int         mtype[nmodels+1] = {20,21,22,23,24,25,26,27,22,23,25,29,33,42,24,
+				  21,22,23,24,21,22};
 
   TCanvas* canvas(0);
   char     cname[100];
   int      nm(1), model(models);
-  for (int i=0; i<5; ++i) {
-    if (model%10 > 0) ++nm;
-    model /= 10;
+  for (int i=0; i<nmodels-1; ++i) {
+    if (model%2 > 0) ++nm;
+    model /= 2;
   }
   double ymax = 0.948;
   double ymin = ymax-0.04*nm;
@@ -1304,19 +1422,20 @@ TCanvas* plotDataMC(int ipar, int models, bool ratio=false,
   if (ok) {
     if (!ratio) {
       TGraphAsymmErrors *graph = new TGraphAsymmErrors(nptd,momd,meand,dmom,dmom,dmeand,dmeand);
-      graph->SetMarkerStyle(styles[0]);
+      graph->SetMarkerStyle(mtype[0]);
       graph->SetMarkerColor(colors[0]);
       graph->SetMarkerSize(1.4);
       graph->SetLineColor(colors[0]);
+      graph->SetLineWidth(2);
       graphs.push_back(graph);
       sprintf(cname, "2006 %s (%s)", names[0].c_str(), partsN[ipar].c_str());
       legend->AddEntry(graph, cname, "lp");
     }
     int model(models);
-    for (int i=0; i<5; ++i) {
+    for (int i=0; i<nmodels-1; ++i) {
       int npt(0);
       double sumNum(0), sumDen(0);
-      if (model%10 > 0) {
+      if (model%2 > 0) {
 	if (dirName == "") {
 	  sprintf(infile,"%sm%d.txt",partsM[ipar].c_str(),i);
 	} else {
@@ -1356,7 +1475,7 @@ TCanvas* plotDataMC(int ipar, int models, bool ratio=false,
 		      << mean[k] << " +- " << dmean[k] << std::endl;
 	  */
 	  TGraphAsymmErrors *graph = new TGraphAsymmErrors(npt,mom,mean,dmom,dmom,dmean,dmean);
-	  graph->SetMarkerStyle(styles[i+1]);
+	  graph->SetMarkerStyle(mtype[i+1]);
 	  graph->SetMarkerColor(colors[i+1]);
 	  graph->SetMarkerSize(1.2);
 	  graph->SetLineColor(colors[i+1]);
@@ -1376,7 +1495,7 @@ TCanvas* plotDataMC(int ipar, int models, bool ratio=false,
 	  legend->AddEntry(graph, cname, "lp");
 	}
       }
-      model /= 10;
+      model /= 2;
     }
     // Now prepare plot
     gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
@@ -1450,23 +1569,31 @@ TCanvas* plotDataMC(int ipar, int models, bool ratio=false,
 
 }
 
-void plotDataMCResp(std::string dirName="RespAll", bool approve=true, int save=0) {
+void plotDataMCResp(int models=9, std::string dirName="RespAll", bool approve=true, int save=0) {
 
   for (int k=0; k<6; ++k) {
     char filename[100];
-    TCanvas* c1 = plotDataMC(k, 1001, false, dirName, approve);
+    TCanvas* c1 = plotDataMC(k, models, false, dirName, approve);
     if (save != 0) {
       if (save < 0) sprintf (filename, "%s.jpg", c1->GetName());
       else          sprintf (filename, "%s.pdf", c1->GetName());
       c1->Print(filename);
     }
-    TCanvas* c2 = plotDataMC(k, 1001, true, dirName, approve);
+    TCanvas* c2 = plotDataMC(k, models, true, dirName, approve);
     if (save != 0) {
       if (save < 0) sprintf (filename, "%s.jpg", c2->GetName());
       else          sprintf (filename, "%s.pdf", c2->GetName());
       c2->Print(filename);
     }
   }
+}
+
+void convertel(std::string indir="nmodel0", std::string outdir="model0", int md=0) {
+
+  TB06Analysis p01((indir+"/el50e.root"),  (outdir+"/el50e.root"), 6,10, md, 1.0, 1.0);
+  p01.Loop();
+  TB06Analysis p02((indir+"/el50h.root"),  (outdir+"/el50h.root"), 6,10, md, 1.0, 1.0);
+  p02.Loop();
 }
 
 void convert(std::string indir="nmodel0", std::string outdir="model0", int md=0) {
@@ -1569,4 +1696,60 @@ void convert(std::string indir="nmodel0", std::string outdir="model0", int md=0)
   p48.Loop();
   TB06Analysis p49((indir+"/prop350.root"),(outdir+"/prop350.root"),4,15, md, 1.0, 1.0);
   p49.Loop();
+}
+
+void makePlots(int models=3112, int save=0) {
+
+  for (int ien=0; ien<8; ++ien)
+    plotDataMCDist(0,ien,models,2,"model",true,true,-1,-1,save);
+  for (int ien=0; ien<8; ++ien)
+    plotDataMCDist(1,ien,models,2,"model",true,true,-1,-1,save);
+  /*
+  for (int ien=2; ien<6; ++ien)
+    plotDataMCDist(2,ien,models,2,"model",true,true,-1,-1,save);
+  for (int ien=3; ien<6; ++ien)
+    plotDataMCDist(3,ien,models,2,"model",true,true,-1,-1,save);
+  */
+  for (int ien=0; ien<8; ++ien)
+    plotDataMCDist(4,ien,models,2,"model",true,true,-1,-1,save);
+  /*
+  for (int ien=0; ien<8; ++ien)
+    plotDataMCDist(5,ien,models,2,"model",true,true,-1,-1,save);
+  */
+}
+
+void PrintMeanRatio(const char* infile="ResMean.out", int maxset=-1) {
+  std::ifstream fInput(infile);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << infile << std::endl;
+  } else {
+    int nset(0);
+    fInput >> nset;
+    if (fInput.good()) {
+      int nsets = ((maxset < 0) || (maxset >= nset)) ? nset-1 : maxset;
+      std::cout << "Will look into " << nsets << ":" << nset << " sets\n";
+      for (int iset=0; iset<=nsets; ++iset) {
+	char buff[200];
+	int  npt(0);
+	fInput >> npt >> buff;
+	std::cout << "Data set " << iset << " " << buff << " with " << npt 
+		  << " points" << std::endl;
+	double sumNum(0), sumDen(0);
+	for (int ip=0; ip<npt; ++ip) {
+	  double pbeam, rat, drt;
+	  fInput >> pbeam >> rat >> drt;
+	  if (rat > 1.) {
+	    rat = 1./rat; drt *= (rat*rat);
+	  }
+	  sumNum += (fabs(1.0-rat)/(drt*drt));
+	  sumDen += (1.0/(drt*drt));
+	}
+	double mean  = (sumDen>0) ? (sumNum/sumDen) : 0;
+	double error = (sumDen>0) ? 1.0/sqrt(sumDen) : 0;
+	std::cout << "Set " << iset << " Delta " << mean << " +- " << error 
+		  << std::endl;
+      }
+    }
+    fInput.close();
+  }
 }
