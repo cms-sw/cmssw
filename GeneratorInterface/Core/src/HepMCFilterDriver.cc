@@ -34,7 +34,7 @@ HepMCFilterDriver::HepMCFilterDriver(const edm::ParameterSet& pset) :
     filter_ = new PythiaHepMCFilterGammaGamma(filterParameters);
   }
   else {
-    edm::LogError("HepMCFilterDriver")<< "Invalid HepMCFilter name:" << filterName;
+    throw edm::Exception(edm::errors::Configuration,"HepMCFilterDriver") << "Invalid HepMCFilter name:" << filterName;
   }
   
 }
