@@ -31,7 +31,7 @@ class PythiaHepMCFilterGammaGamma : public BaseHepMCFilter {
   
   /** @return true if this GenEvent passes the double EM enrichment
       criterion */
-  virtual bool filter(const HepMC::GenEvent* myGenEvent);
+  virtual bool filter(const HepMC::GenEvent* myGenEvent) override;
  private:
 
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
