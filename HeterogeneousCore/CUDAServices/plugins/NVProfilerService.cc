@@ -190,12 +190,12 @@ public:
   void postSourceConstruction(edm::ModuleDescription const&);
 
   // these signal pair are guaranteed to be called by the same thread
-  void preSourceRun();
-  void postSourceRun();
+  void preSourceRun(edm::RunIndex);
+  void postSourceRun(edm::RunIndex);
 
   // these signal pair are guaranteed to be called by the same thread
-  void preSourceLumi();
-  void postSourceLumi();
+  void preSourceLumi(edm::LuminosityBlockIndex);
+  void postSourceLumi(edm::LuminosityBlockIndex);
 
   // these signal pair are guaranteed to be called by the same thread
   void preSourceEvent(edm::StreamID);
@@ -536,22 +536,22 @@ NVProfilerService::postSourceEvent(edm::StreamID sid) {
 }
 
 void
-NVProfilerService::preSourceLumi() {
+NVProfilerService::preSourceLumi(edm::LuminosityBlockIndex index) {
   nvtxDomainRangePush(global_domain(), "source lumi");
 }
 
 void
-NVProfilerService::postSourceLumi() {
+NVProfilerService::postSourceLumi(edm::LuminosityBlockIndex index) {
   nvtxDomainRangePop(global_domain());
 }
 
 void
-NVProfilerService::preSourceRun() {
+NVProfilerService::preSourceRun(edm::RunIndex index) {
   nvtxDomainRangePush(global_domain(), "source run");
 }
 
 void
-NVProfilerService::postSourceRun() {
+NVProfilerService::postSourceRun(edm::RunIndex index) {
   nvtxDomainRangePop(global_domain());
 }
 
