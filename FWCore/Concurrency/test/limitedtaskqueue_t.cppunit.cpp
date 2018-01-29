@@ -19,12 +19,14 @@ class LimitedTaskQueue_test : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(LimitedTaskQueue_test);
   CPPUNIT_TEST(testPush);
   CPPUNIT_TEST(testPushAndWait);
+  CPPUNIT_TEST(testPause);
   CPPUNIT_TEST(stressTest);
   CPPUNIT_TEST_SUITE_END();
   
 public:
   void testPush();
   void testPushAndWait();
+  void testPause();
   void stressTest();
   void setUp(){}
   void tearDown(){}
@@ -175,6 +177,63 @@ void LimitedTaskQueue_test::testPushAndWait()
   }
 
 }
+void LimitedTaskQueue_test::testPause()
+{
+  std::atomic<unsigned int> count{0};
+  
+  edm::LimitedTaskQueue queue{1};
+  {
+    {
+      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+        [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
+      waitTask->set_ref_count(1+3);
+      tbb::task* pWaitTask = waitTask.get();
+      edm::LimitedTaskQueue::Resumer resumer;
+      std::atomic<bool> resumerSet{false};
+      std::exception_ptr e1;
+      queue.pushAndPause([&resumer,&resumerSet,&count,pWaitTask,&e1](edm::LimitedTaskQueue::Resumer iResumer){
+        resumer = std::move(iResumer);
+        resumerSet = true;
+        try {
+          CPPUNIT_ASSERT(++count == 1);
+        } catch(...) {
+          e1 = std::current_exception();
+        }
+        pWaitTask->decrement_ref_count();
+      });
+
+      std::exception_ptr e2;
+      queue.push([&count,pWaitTask,&e2]{
+        try{
+          CPPUNIT_ASSERT(++count == 2);
+        } catch(...) {
+          e2 = std::current_exception();
+        }
+        pWaitTask->decrement_ref_count();
+      });
+      
+      std::exception_ptr e3;
+      queue.push([&count,pWaitTask,&e3]{
+        try {
+          CPPUNIT_ASSERT(++count == 3);
+        }catch(...){
+          e3 = std::current_exception();
+        }
+        pWaitTask->decrement_ref_count();
+      });
+      usleep(100);
+      //can't do == since the queue may not have processed the first task yet
+      CPPUNIT_ASSERT(2>=count);
+      while(not resumerSet) {}
+      CPPUNIT_ASSERT(resumer.resume());
+      waitTask->wait_for_all();
+      CPPUNIT_ASSERT(count==3);
+      if(e1) { std::rethrow_exception(e1);}
+      if(e2) { std::rethrow_exception(e2);}
+      if(e3) { std::rethrow_exception(e3);}
+    }
+  }
+}
 
 void LimitedTaskQueue_test::stressTest()
 {
@@ -201,7 +260,7 @@ void LimitedTaskQueue_test::stressTest()
                    iTask->decrement_ref_count();}};
                   for(unsigned int i = 0; i<nTasks;++i) {
                      pWaitTask->increment_ref_count();
-                     queue.push([i,&count,pWaitTask,&nRunningTasks] {
+                     queue.push([&count,pWaitTask,&nRunningTasks] {
                        std::shared_ptr<tbb::task> guard{pWaitTask,[](tbb::task*iTask) {
                          iTask->decrement_ref_count();}};
                        auto nrt = nRunningTasks++;
@@ -219,7 +278,7 @@ void LimitedTaskQueue_test::stressTest()
          waitToStart=false;
          for(unsigned int i=0; i<nTasks;++i) {
             pWaitTask->increment_ref_count();
-            queue.push([i,&count,pWaitTask,&nRunningTasks] {
+            queue.push([&count,pWaitTask,&nRunningTasks] {
               std::shared_ptr<tbb::task> guard{pWaitTask,[](tbb::task*iTask) {
                 iTask->decrement_ref_count();}};
               auto nrt = nRunningTasks++;

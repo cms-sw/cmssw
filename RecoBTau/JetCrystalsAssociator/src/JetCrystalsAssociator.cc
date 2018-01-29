@@ -124,7 +124,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iSetup.get<CaloGeometryRecord>().get(geometry);
   
   const CaloSubdetectorGeometry* EB = geometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-   const CaloSubdetectorGeometry* EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+  const CaloSubdetectorGeometry* EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
    // end 
    
    Handle<CaloJetCollection> jets;
@@ -162,7 +162,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	      EBRecHitCollection::const_iterator theRecHit=EBRecHits->find(EcalID);
 	      if(theRecHit != EBRecHits->end()){
 		DetId id = theRecHit->detid();
-		const CaloCellGeometry* this_cell = EB->getGeometry(id);
+		auto this_cell = EB->getGeometry(id);
 		if (this_cell) {
 		  const GlobalPoint& posi = this_cell->getPosition();
 		  double energy = theRecHit->energy();
@@ -181,7 +181,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	      EERecHitCollection::const_iterator theRecHit=EERecHits->find(EcalID);	    
 	      if(theRecHit != EBRecHits->end()){
 		DetId id = theRecHit->detid();
-		const CaloCellGeometry* this_cell = EE->getGeometry(id);
+		auto this_cell = EE->getGeometry(id);
 		if (this_cell) {
 		  const GlobalPoint& posi = this_cell->getPosition();
 		  double energy = theRecHit->energy();

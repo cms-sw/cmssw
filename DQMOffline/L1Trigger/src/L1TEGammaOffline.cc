@@ -17,6 +17,11 @@
 #include <cmath>
 #include <algorithm>
 
+
+const std::map<std::string, unsigned int> L1TEGammaOffline::PlotConfigNames = {
+  {"nVertex", PlotConfig::nVertex}
+};
+
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
@@ -43,7 +48,8 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
         photonEfficiencyBins_(ps.getParameter < std::vector<double> > ("photonEfficiencyBins")),
         tagElectron_(),
         probeElectron_(),
-        tagAndProbleInvariantMass_(-1.)
+        tagAndProbleInvariantMass_(-1.),
+        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames))
 {
   edm::LogInfo("L1TEGammaOffline") << "Constructor " << "L1TEGammaOffline::L1TEGammaOffline " << std::endl;
 }
@@ -93,7 +99,7 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
   edm::Handle < reco::VertexCollection > vertexHandle;
   e.getByToken(thePVCollection_, vertexHandle);
   if (!vertexHandle.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: vertex " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: vertex " << std::endl;
     return;
   }
 
@@ -114,7 +120,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   e.getByToken(theGsfElectronCollection_, gsfElectrons);
 
   if (!gsfElectrons.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: GSF electrons " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: GSF electrons " << std::endl;
     return;
   }
   if (gsfElectrons->empty()) {
@@ -122,7 +128,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     return;
   }
   if (!l1EGamma.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
   if (!findTagAndProbePair(gsfElectrons)) {
@@ -382,11 +388,11 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
   e.getByToken(thePhotonCollection_, photons);
 
   if (!photons.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: reco::Photons " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: reco::Photons " << std::endl;
     return;
   }
   if (!l1EGamma.isValid()) {
-    //  edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+     edm::LogWarning("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
 
@@ -510,7 +516,11 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
-  h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
+
+  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
+  h_nVertex_ = ibooker.book1D(
+    nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
+  );
   h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
   // electron reco vs L1
   h_L1EGammaETvsElectronET_EB_ = ibooker.book2D("L1EGammaETvsElectronET_EB",

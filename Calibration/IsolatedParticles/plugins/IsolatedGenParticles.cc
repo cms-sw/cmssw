@@ -16,54 +16,330 @@
 //
 //
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
+#include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
+#include "Calibration/IsolatedParticles/interface/GenSimInfo.h"
 
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
+//L1 objects
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+
+#include "DataFormats/Math/interface/LorentzVector.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//TFile Service
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+// track associator
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+
+// root objects
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TFile.h"
+#include "TH1I.h"
+#include "TH2D.h"
+#include "TProfile.h"
+#include "TDirectory.h"
+#include "TTree.h"
+
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 #include <list>
 #include <vector>
-#include <cmath>
 
-#include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
-#include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
+namespace{
+  class ParticlePtGreater{
+  public:
+    int operator()(const HepMC::GenParticle * p1, 
+		   const HepMC::GenParticle * p2) const{
+      return p1->momentum().perp() > p2->momentum().perp();
+    }
+  };
 
-#include "Calibration/IsolatedParticles/plugins/IsolatedGenParticles.h"
+  class ParticlePGreater{
+  public:
+    int operator()(const HepMC::GenParticle * p1, 
+		   const HepMC::GenParticle * p2) const{
+      return p1->momentum().rho() > p2->momentum().rho();
+    }
+  };
+}
 
-const int IsolatedGenParticles::PBins;
-const int IsolatedGenParticles::EtaBins;
 
-IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
+class IsolatedGenParticles : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
-  genSrc_    = iConfig.getUntrackedParameter("GenSrc",std::string("generatorSmeared"));
+public:
+  explicit IsolatedGenParticles(const edm::ParameterSet&);
+  ~IsolatedGenParticles() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void   beginJob() override;
+  void   analyze(const edm::Event&, const edm::EventSetup&) override;
+  void   endJob() override { }
+
+  double deltaPhi(double v1, double v2);
+  double deltaR(double eta1, double phi1, double eta2, double phi2);
+  double deltaR2(double eta1, double phi1, double eta2, double phi2);
+
+  void   fillTrack (GlobalPoint& posVec, math::XYZTLorentzVector& momVec, 
+		    GlobalPoint& posECAL, int pdgId, bool okECAL, bool accpet);
+  void   fillIsolatedTrack(math::XYZTLorentzVector& momVec, 
+			   GlobalPoint& posECAL, int pdgId);
+  void   bookHistograms();
+  void   clearTreeVectors();
+  int    particleCode(int);
+
+  static constexpr int NPBins_   = 3;
+  static constexpr int NEtaBins_ = 4;
+  static constexpr int PBins_=32, EtaBins_=60, Particles=12;
+  int                  nEventProc;
+  double               genPartPBins_[NPBins_+1], genPartEtaBins_[NEtaBins_+1];
+  double               ptMin_, etaMax_, pCutIsolate_;
+  bool                 a_Isolation_;
+  std::string          genSrc_;
+
+  edm::EDGetTokenT<edm::HepMCProduct>           tok_hepmc_;
+  edm::EDGetTokenT<reco::GenParticleCollection> tok_genParticles_;
+
+  bool                 initL1, useHepMC_;
+  static const size_t  nL1BitsMax_=128;
+  std::string          algoBitToName_[nL1BitsMax_];
+  double               a_coneR_, a_charIsoR_, a_neutIsoR_, a_mipR_;
+  bool                 debugL1Info_;
+  int                  verbosity_;
+
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>      tok_L1GTrorsrc_;
+  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord>    tok_L1GTobjmap_;
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> tok_L1extMusrc_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection>   tok_L1Em_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection>   tok_L1extNonIsoEm_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extTauJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extCenJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extFwdJet_;
+
+  TH1I *h_L1AlgoNames;
+  TH1I *h_NEventProc;
+  TH2D *h_pEta[Particles];
+
+  TTree *tree_;
+
+  std::vector<double> *t_isoTrkPAll;
+  std::vector<double> *t_isoTrkPtAll;
+  std::vector<double> *t_isoTrkPhiAll;
+  std::vector<double> *t_isoTrkEtaAll;
+  std::vector<double> *t_isoTrkPdgIdAll;
+  std::vector<double> *t_isoTrkDEtaAll;
+  std::vector<double> *t_isoTrkDPhiAll;
+  
+  std::vector<double> *t_isoTrkP;
+  std::vector<double> *t_isoTrkPt;
+  std::vector<double> *t_isoTrkEne;
+  std::vector<double> *t_isoTrkEta;
+  std::vector<double> *t_isoTrkPhi;
+  std::vector<double> *t_isoTrkEtaEC;
+  std::vector<double> *t_isoTrkPhiEC;
+  std::vector<double> *t_isoTrkPdgId;
+
+  std::vector<double> *t_maxNearP31x31;
+  std::vector<double> *t_cHadronEne31x31, *t_cHadronEne31x31_1, *t_cHadronEne31x31_2, *t_cHadronEne31x31_3;
+  std::vector<double> *t_nHadronEne31x31;
+  std::vector<double> *t_photonEne31x31;
+  std::vector<double> *t_eleEne31x31;
+  std::vector<double> *t_muEne31x31;
+  
+  std::vector<double> *t_maxNearP25x25;
+  std::vector<double> *t_cHadronEne25x25, *t_cHadronEne25x25_1, *t_cHadronEne25x25_2, *t_cHadronEne25x25_3;
+  std::vector<double> *t_nHadronEne25x25;
+  std::vector<double> *t_photonEne25x25;
+  std::vector<double> *t_eleEne25x25;
+  std::vector<double> *t_muEne25x25;
+
+  std::vector<double> *t_maxNearP21x21;
+  std::vector<double> *t_cHadronEne21x21, *t_cHadronEne21x21_1, *t_cHadronEne21x21_2, *t_cHadronEne21x21_3;
+  std::vector<double> *t_nHadronEne21x21;
+  std::vector<double> *t_photonEne21x21;
+  std::vector<double> *t_eleEne21x21;
+  std::vector<double> *t_muEne21x21;
+
+  std::vector<double> *t_maxNearP15x15;
+  std::vector<double> *t_cHadronEne15x15, *t_cHadronEne15x15_1, *t_cHadronEne15x15_2, *t_cHadronEne15x15_3;
+  std::vector<double> *t_nHadronEne15x15;
+  std::vector<double> *t_photonEne15x15;
+  std::vector<double> *t_eleEne15x15;
+  std::vector<double> *t_muEne15x15;
+  
+  std::vector<double> *t_maxNearP11x11;
+  std::vector<double> *t_cHadronEne11x11, *t_cHadronEne11x11_1, *t_cHadronEne11x11_2, *t_cHadronEne11x11_3;
+  std::vector<double> *t_nHadronEne11x11;
+  std::vector<double> *t_photonEne11x11;
+  std::vector<double> *t_eleEne11x11;
+  std::vector<double> *t_muEne11x11;
+
+  std::vector<double> *t_maxNearP9x9;
+  std::vector<double> *t_cHadronEne9x9, *t_cHadronEne9x9_1, *t_cHadronEne9x9_2, *t_cHadronEne9x9_3;
+  std::vector<double> *t_nHadronEne9x9;
+  std::vector<double> *t_photonEne9x9;
+  std::vector<double> *t_eleEne9x9;
+  std::vector<double> *t_muEne9x9;
+
+  std::vector<double> *t_maxNearP7x7;
+  std::vector<double> *t_cHadronEne7x7, *t_cHadronEne7x7_1, *t_cHadronEne7x7_2, *t_cHadronEne7x7_3;
+  std::vector<double> *t_nHadronEne7x7;
+  std::vector<double> *t_photonEne7x7;
+  std::vector<double> *t_eleEne7x7;
+  std::vector<double> *t_muEne7x7;
+
+  std::vector<double> *t_maxNearP3x3;
+  std::vector<double> *t_cHadronEne3x3, *t_cHadronEne3x3_1, *t_cHadronEne3x3_2, *t_cHadronEne3x3_3;
+  std::vector<double> *t_nHadronEne3x3;
+  std::vector<double> *t_photonEne3x3;
+  std::vector<double> *t_eleEne3x3;
+  std::vector<double> *t_muEne3x3;
+
+  std::vector<double> *t_maxNearP1x1;
+  std::vector<double> *t_cHadronEne1x1, *t_cHadronEne1x1_1, *t_cHadronEne1x1_2, *t_cHadronEne1x1_3;
+  std::vector<double> *t_nHadronEne1x1;
+  std::vector<double> *t_photonEne1x1;
+  std::vector<double> *t_eleEne1x1;
+  std::vector<double> *t_muEne1x1;
+
+  std::vector<double> *t_maxNearPHC1x1;
+  std::vector<double> *t_cHadronEneHC1x1, *t_cHadronEneHC1x1_1, *t_cHadronEneHC1x1_2, *t_cHadronEneHC1x1_3;
+  std::vector<double> *t_nHadronEneHC1x1;
+  std::vector<double> *t_photonEneHC1x1;
+  std::vector<double> *t_eleEneHC1x1;
+  std::vector<double> *t_muEneHC1x1;
+
+  std::vector<double> *t_maxNearPHC3x3;
+  std::vector<double> *t_cHadronEneHC3x3, *t_cHadronEneHC3x3_1, *t_cHadronEneHC3x3_2, *t_cHadronEneHC3x3_3;
+  std::vector<double> *t_nHadronEneHC3x3;
+  std::vector<double> *t_photonEneHC3x3;
+  std::vector<double> *t_eleEneHC3x3;
+  std::vector<double> *t_muEneHC3x3;
+
+  std::vector<double> *t_maxNearPHC5x5;
+  std::vector<double> *t_cHadronEneHC5x5, *t_cHadronEneHC5x5_1, *t_cHadronEneHC5x5_2, *t_cHadronEneHC5x5_3;
+  std::vector<double> *t_nHadronEneHC5x5;
+  std::vector<double> *t_photonEneHC5x5;
+  std::vector<double> *t_eleEneHC5x5;
+  std::vector<double> *t_muEneHC5x5;
+
+  std::vector<double> *t_maxNearPHC7x7;
+  std::vector<double> *t_cHadronEneHC7x7, *t_cHadronEneHC7x7_1, *t_cHadronEneHC7x7_2, *t_cHadronEneHC7x7_3;
+  std::vector<double> *t_nHadronEneHC7x7;
+  std::vector<double> *t_photonEneHC7x7;
+  std::vector<double> *t_eleEneHC7x7;
+  std::vector<double> *t_muEneHC7x7;
+
+  std::vector<double> *t_maxNearPR;
+  std::vector<double> *t_cHadronEneR, *t_cHadronEneR_1, *t_cHadronEneR_2, *t_cHadronEneR_3;
+  std::vector<double> *t_nHadronEneR;
+  std::vector<double> *t_photonEneR;
+  std::vector<double> *t_eleEneR;
+  std::vector<double> *t_muEneR;
+
+  std::vector<double> *t_maxNearPIsoR;
+  std::vector<double> *t_cHadronEneIsoR, *t_cHadronEneIsoR_1, *t_cHadronEneIsoR_2, *t_cHadronEneIsoR_3;
+  std::vector<double> *t_nHadronEneIsoR;
+  std::vector<double> *t_photonEneIsoR;
+  std::vector<double> *t_eleEneIsoR;
+  std::vector<double> *t_muEneIsoR;
+
+  std::vector<double> *t_maxNearPHCR;
+  std::vector<double> *t_cHadronEneHCR, *t_cHadronEneHCR_1, *t_cHadronEneHCR_2, *t_cHadronEneHCR_3;
+  std::vector<double> *t_nHadronEneHCR;
+  std::vector<double> *t_photonEneHCR;
+  std::vector<double> *t_eleEneHCR;
+  std::vector<double> *t_muEneHCR;
+
+  std::vector<double> *t_maxNearPIsoHCR;
+  std::vector<double> *t_cHadronEneIsoHCR, *t_cHadronEneIsoHCR_1, *t_cHadronEneIsoHCR_2, *t_cHadronEneIsoHCR_3;
+  std::vector<double> *t_nHadronEneIsoHCR;
+  std::vector<double> *t_photonEneIsoHCR;
+  std::vector<double> *t_eleEneIsoHCR;
+  std::vector<double> *t_muEneIsoHCR;
+
+  std::vector<int>    *t_L1Decision;
+  std::vector<double> *t_L1CenJetPt,    *t_L1CenJetEta,    *t_L1CenJetPhi;
+  std::vector<double> *t_L1FwdJetPt,    *t_L1FwdJetEta,    *t_L1FwdJetPhi;
+  std::vector<double> *t_L1TauJetPt,    *t_L1TauJetEta,    *t_L1TauJetPhi;
+  std::vector<double> *t_L1MuonPt,      *t_L1MuonEta,      *t_L1MuonPhi;
+  std::vector<double> *t_L1IsoEMPt,     *t_L1IsoEMEta,     *t_L1IsoEMPhi;
+  std::vector<double> *t_L1NonIsoEMPt,  *t_L1NonIsoEMEta,  *t_L1NonIsoEMPhi;
+  std::vector<double> *t_L1METPt,       *t_L1METEta,       *t_L1METPhi;
+
+  spr::genSimInfo isoinfo1x1,   isoinfo3x3,   isoinfo7x7,   isoinfo9x9,   isoinfo11x11;
+  spr::genSimInfo isoinfo15x15, isoinfo21x21, isoinfo25x25, isoinfo31x31;
+  spr::genSimInfo isoinfoHC1x1, isoinfoHC3x3, isoinfoHC5x5, isoinfoHC7x7;
+  spr::genSimInfo isoinfoR,     isoinfoIsoR,  isoinfoHCR,   isoinfoIsoHCR;
+
+};
+
+IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) :
+  ptMin_(iConfig.getUntrackedParameter<double>("PTMin", 1.0)),
+  etaMax_(iConfig.getUntrackedParameter<double>("MaxChargedHadronEta", 2.5)),
+  pCutIsolate_(iConfig.getUntrackedParameter<double>("PMaxIsolation",20.0)),
+  a_Isolation_(iConfig.getUntrackedParameter<bool>("UseConeIsolation",false)),
+  genSrc_(iConfig.getUntrackedParameter("GenSrc",std::string("generatorSmeared"))),
+  useHepMC_(iConfig.getUntrackedParameter<bool>("UseHepMC", false)),
+  a_coneR_(iConfig.getUntrackedParameter<double>("ConeRadius",34.98)),
+  a_mipR_(iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0)),
+  debugL1Info_(iConfig.getUntrackedParameter<bool>("DebugL1Info",false)),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)) {
+
+  usesResource(TFileService::kSharedResource);
+
+  a_charIsoR_ = a_coneR_ + 28.9;
+  a_neutIsoR_ = a_charIsoR_*0.726;
 
   tok_hepmc_        = consumes<edm::HepMCProduct>(edm::InputTag(genSrc_));
   tok_genParticles_ = consumes<reco::GenParticleCollection>(edm::InputTag(genSrc_));
-
-  useHepMC   = iConfig.getUntrackedParameter<bool>("UseHepMC", false );
-  pSeed      = iConfig.getUntrackedParameter<double>("ChargedHadronSeedP", 1.0);
-  ptMin      = iConfig.getUntrackedParameter<double>("PTMin", 1.0);
-  etaMax     = iConfig.getUntrackedParameter<double>("MaxChargedHadronEta", 2.5);
-  a_coneR    = iConfig.getUntrackedParameter<double>("ConeRadius",34.98);
-  a_charIsoR = a_coneR + 28.9;
-  a_neutIsoR = a_charIsoR*0.726;
-  a_mipR     = iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0);
-  a_Isolation= iConfig.getUntrackedParameter<bool>("UseConeIsolation",false);
-  pCutIsolate= iConfig.getUntrackedParameter<double>("PMaxIsolation",20.0);
-  verbosity  = iConfig.getUntrackedParameter<int>("Verbosity", 0);
-
-  debugL1Info_           = iConfig.getUntrackedParameter<bool>( "DebugL1Info", false );
 
   edm::InputTag L1extraTauJetSource_   = iConfig.getParameter<edm::InputTag>("L1extraTauJetSource");
   edm::InputTag L1extraCenJetSource_   = iConfig.getParameter<edm::InputTag>("L1extraCenJetSource");
@@ -83,21 +359,42 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
   tok_L1extFwdJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraFwdJetSource_);
 
   if (!strcmp("Dummy", genSrc_.c_str())) {
-    if (useHepMC) genSrc_ = "generatorSmeared";
-    else          genSrc_ = "genParticles";
+    if (useHepMC_) genSrc_ = "generatorSmeared";
+    else           genSrc_ = "genParticles";
   }
-  std::cout << "Generator Source " << genSrc_ << " Use HepMC " << useHepMC
-	    << " pSeed " << pSeed << " ptMin " << ptMin << " etaMax " << etaMax
-	    << "\n a_coneR " << a_coneR << " a_charIsoR " << a_charIsoR
-	    << " a_neutIsoR " << a_neutIsoR << " a_mipR " << a_mipR 
-	    << " debug " << verbosity << " debugL1Info " <<   debugL1Info_ << "\n"
-	    << " Isolation Flag " << a_Isolation << " with cut "
-	    << pCutIsolate << " GeV"
-	    << std::endl;
+  edm::LogVerbatim("IsoTrack") 
+    << "Generator Source " << genSrc_ << " Use HepMC " << useHepMC_
+    << " ptMin " << ptMin_ << " etaMax " << etaMax_
+    << "\n a_coneR " << a_coneR_ << " a_charIsoR " << a_charIsoR_
+    << " a_neutIsoR " << a_neutIsoR_ << " a_mipR " << a_mipR_ 
+    << " debug " << verbosity_ << " debugL1Info " <<   debugL1Info_ << "\n"
+    << " Isolation Flag " << a_Isolation_ << " with cut "
+    << pCutIsolate_ << " GeV";
 }
 
-IsolatedGenParticles::~IsolatedGenParticles() {
+void IsolatedGenParticles::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("GenSrc",       "genParticles");
+  desc.addUntracked<bool>("UseHepMC",             false);
+  desc.addUntracked<double>("ChargedHadronSeedP", 1.0);
+  desc.addUntracked<double>("PTMin",              1.0);
+  desc.addUntracked<double>("MaxChargedHadronEta",2.5);
+  desc.addUntracked<double>("ConeRadius",         34.98);
+  desc.addUntracked<double>("ConeRadiusMIP",      14.0);
+  desc.addUntracked<bool>("UseConeIsolation",     true);
+  desc.addUntracked<double>("PMaxIsolation",      5.0);
+  desc.addUntracked<int>("Verbosity",             0);
+  desc.addUntracked<bool>("DebugL1Info",          false);
+  desc.addUntracked<edm::InputTag>("L1extraTauJetSource",   edm::InputTag("l1extraParticles", "Tau"));
+  desc.addUntracked<edm::InputTag>("L1extraCenJetSource",   edm::InputTag("l1extraParticles", "Central"));
+  desc.addUntracked<edm::InputTag>("L1extraFwdJetSource",   edm::InputTag("l1extraParticles", "Forward"));
+  desc.addUntracked<edm::InputTag>("L1extraMuonSource",     edm::InputTag("l1extraParticles"));
+  desc.addUntracked<edm::InputTag>("L1extraIsoEmSource",    edm::InputTag("l1extraParticles","Isolated"));
+  desc.addUntracked<edm::InputTag>("L1extraNonIsoEmSource", edm::InputTag("l1extraParticles","NonIsolated"));
+  desc.addUntracked<edm::InputTag>("L1GTReadoutRcdSource",  edm::InputTag("gtDigis"));
+  desc.addUntracked<edm::InputTag>("L1GTObjectMapRcdSource",edm::InputTag("hltL1GtObjectMap"));
+  descriptions.add("isolatedGenParticles",desc);
 }
 
 void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
@@ -108,7 +405,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  bField = bFieldH.product();
+  const MagneticField *bField = bFieldH.product();
 
   // get particle data table
   edm::ESHandle<ParticleDataTable> pdt;
@@ -117,7 +414,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   // get handle to HEPMCProduct
   edm::Handle<edm::HepMCProduct> hepmc;
   edm::Handle<reco::GenParticleCollection> genParticles;
-  if (useHepMC) iEvent.getByToken(tok_hepmc_, hepmc);
+  if (useHepMC_) iEvent.getByToken(tok_hepmc_, hepmc);
   else          iEvent.getByToken(tok_genParticles_, genParticles);
 
   edm::ESHandle<CaloGeometry> pG;
@@ -142,12 +439,14 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   
   // sanity check on L1 Trigger Records
   if (!gtRecord.isValid()) {
-    std::cout << "\nL1GlobalTriggerReadoutRecord with \n \nnot found"
-      "\n  --> returning false by default!\n" << std::endl;
+    edm::LogVerbatim("IsoTrack") << "\nL1GlobalTriggerReadoutRecord with \n\n"
+				 << "not found\n  --> returning false by "
+				 << "default!\n";
   }
   if (!gtOMRec.isValid()) {
-    std::cout << "\nL1GlobalTriggerObjectMapRecord with \n \nnot found"
-      "\n  --> returning false by default!\n" << std::endl;
+    edm::LogVerbatim("IsoTrack") << "\nL1GlobalTriggerObjectMapRecord with \n\n"
+				 << "not found\n  --> returning false by "
+				 << "default!\n";
   }
 
   // L1 decision word
@@ -157,8 +456,9 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   // just print the L1Bit number and AlgoName in first event
   if ( !initL1){
     initL1=true;
-    std::cout << "\n  Number of Trigger bits " << numberTriggerBits << "\n\n";
-    std::cout << "\tBit \t L1 Algorithm " << std::endl;
+    edm::LogVerbatim("IsoTrack") << "\nNumber of Trigger bits " 
+				 << numberTriggerBits << "\n";
+    edm::LogVerbatim("IsoTrack") << "\tBit \t L1 Algorithm ";
 
     // get ObjectMaps from ObjectMapRecord
     const std::vector<L1GlobalTriggerObjectMap>& objMapVec =  gtOMRec->gtObjectMap();
@@ -169,12 +469,13 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
       int itrig = (*itMap).algoBitNumber();
 
       // Get trigger names
-      algoBitToName[itrig] = (*itMap).algoName();
+      algoBitToName_[itrig] = (*itMap).algoName();
 
-      std::cout  << "\t" << itrig << "\t" << algoBitToName[itrig] << std::endl;      
+      edm::LogVerbatim("IsoTrack")  << "\t" << itrig << "\t" 
+				    << algoBitToName_[itrig];
 
       // store the algoNames as bin labels of a histogram
-      h_L1AlgoNames->GetXaxis()->SetBinLabel(itrig+1, algoBitToName[itrig].c_str());
+      h_L1AlgoNames->GetXaxis()->SetBinLabel(itrig+1, algoBitToName_[itrig].c_str());
 
     } // end of for loop    
   } // end of initL1
@@ -184,7 +485,9 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
     bool accept = dWord[iBit];
     t_L1Decision->push_back(accept);
     // fill the trigger map
-    if(debugL1Info_) std::cout << "Bit " << iBit << " " << algoBitToName[iBit] << " " << accept << std::endl;
+    if(debugL1Info_) edm::LogVerbatim("IsoTrack") << "Bit " << iBit << " "
+						  << algoBitToName_[iBit] << " "
+						  << accept;
 
     if(accept) h_L1AlgoNames->Fill(iBit);
   }
@@ -199,9 +502,9 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
     t_L1TauJetEta     ->push_back( itr->eta() );
     t_L1TauJetPhi     ->push_back( itr->phi() );
     if(debugL1Info_) {
-      std::cout << "tauJ p/pt  " << itr->momentum() << " " << itr->pt() 
-		<< "  eta/phi " << itr->eta() << " " << itr->phi()
-		<< std::endl;
+      edm::LogVerbatim("IsoTrack") << "tauJ p/pt  " << itr->momentum() << " " 
+				   << itr->pt() << "  eta/phi " << itr->eta() 
+				   << " " << itr->phi();
     }
   }
 
@@ -213,9 +516,9 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
     t_L1CenJetEta   ->push_back( itr->eta() );
     t_L1CenJetPhi   ->push_back( itr->phi() );
     if(debugL1Info_) {
-      std::cout << "cenJ p/pt     " << itr->momentum() << " " << itr->pt() 
-		<< "  eta/phi " << itr->eta() << " " << itr->phi()
-		<< std::endl;
+      edm::LogVerbatim("IsoTrack") << "cenJ p/pt     " << itr->momentum() 
+				   << " " << itr->pt() << "  eta/phi " 
+				   << itr->eta() << " " << itr->phi();
     }
   }
   // L1 Forward Jets
@@ -226,9 +529,9 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
     t_L1FwdJetEta   ->push_back( itr->eta() );
     t_L1FwdJetPhi   ->push_back( itr->phi() );
     if(debugL1Info_) {
-      std::cout << "fwdJ p/pt     " << itr->momentum() << " " << itr->pt() 
-		<< "  eta/phi " << itr->eta() << " " << itr->phi()
-		<< std::endl;
+      edm::LogVerbatim("IsoTrack") << "fwdJ p/pt     " << itr->momentum() << " "
+				   << itr->pt() << "  eta/phi " << itr->eta() 
+				   << " " << itr->phi();
     }
   }
   // L1 Isolated EM onjects
@@ -240,9 +543,9 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
     t_L1IsoEMEta    ->push_back(  itrEm->eta() );
     t_L1IsoEMPhi    ->push_back(  itrEm->phi() );
     if(debugL1Info_) {
-      std::cout << "isoEm p/pt    " << itrEm->momentum() << " " << itrEm->pt() 
-		<< "  eta/phi " << itrEm->eta() << " " << itrEm->phi()
-		<< std::endl;
+      edm::LogVerbatim("IsoTrack") << "isoEm p/pt    " << itrEm->momentum() 
+				   << " " << itrEm->pt() << "  eta/phi " 
+				   << itrEm->eta() << " " << itrEm->phi();
     }
   }
   // L1 Non-Isolated EM onjects
@@ -253,9 +556,9 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
     t_L1NonIsoEMEta ->push_back( itrEm->eta() );
     t_L1NonIsoEMPhi ->push_back( itrEm->phi() );
     if(debugL1Info_) {
-      std::cout << "nonIsoEm p/pt " << itrEm->momentum() << " " << itrEm->pt() 
-		<< "  eta/phi " << itrEm->eta() << " " << itrEm->phi()
-		<< std::endl;
+      edm::LogVerbatim("IsoTrack") << "nonIsoEm p/pt " << itrEm->momentum() 
+				   << " " << itrEm->pt() << "  eta/phi " 
+				   << itrEm->eta() << " " << itrEm->phi();
     }
   }
   
@@ -268,36 +571,43 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
     t_L1MuonEta     ->push_back( itrMu->eta() );
     t_L1MuonPhi     ->push_back( itrMu->phi() );
     if(debugL1Info_) {
-      std::cout << "l1muon p/pt   " << itrMu->momentum() << " " << itrMu->pt() 
-		<< "  eta/phi " << itrMu->eta() << " " << itrMu->phi()
-		<< std::endl;
+      edm::LogVerbatim("IsoTrack") << "l1muon p/pt   " << itrMu->momentum() 
+				   << " " << itrMu->pt() << "  eta/phi " 
+				   << itrMu->eta() << " " << itrMu->phi();
     }
   }
   //=====================================================================
   
   GlobalPoint  posVec, posECAL;
   math::XYZTLorentzVector momVec;
-  if (verbosity>0) std::cout << "event number " << iEvent.id().event() <<std::endl;
-  if (useHepMC) {
+  if (verbosity_>0) edm::LogVerbatim("IsoTrack") << "event number " 
+						 << iEvent.id().event();
+  if (useHepMC_) {
     const HepMC::GenEvent *myGenEvent = hepmc->GetEvent();
-    std::vector<spr::propagatedGenTrackID> trackIDs = spr::propagateCALO(myGenEvent, pdt, geo, bField, etaMax, false);
+    std::vector<spr::propagatedGenTrackID> trackIDs = spr::propagateCALO(myGenEvent, pdt, geo, bField, etaMax_, false);
     
     for (unsigned int indx=0; indx<trackIDs.size(); ++indx) {
       int charge = trackIDs[indx].charge;
       HepMC::GenEvent::particle_const_iterator p = trackIDs[indx].trkItr;
       momVec = math::XYZTLorentzVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(), (*p)->momentum().e());
-      if (verbosity>1) std::cout << "trkIndx " << indx << " pdgid " << trackIDs[indx].pdgId << " charge " << charge <<	" momVec " << momVec << std::endl; 
+      if (verbosity_>1) 
+	edm::LogVerbatim("IsoTrack") << "trkIndx " << indx << " pdgid " 
+				     << trackIDs[indx].pdgId << " charge " 
+				     << charge <<	" momVec " << momVec;
       // only stable particles avoiding electrons and muons
       if (trackIDs[indx].ok && (std::abs(trackIDs[indx].pdgId)<11 ||
 				std::abs(trackIDs[indx].pdgId)>=21)) {
 	// consider particles within a phased space	  
-	if (momVec.Pt() > ptMin && std::abs(momVec.eta()) < etaMax) { 
+	if (momVec.Pt() > ptMin_ && std::abs(momVec.eta()) < etaMax_) { 
 	  posVec  = GlobalPoint(0.1*(*p)->production_vertex()->position().x(), 
 				0.1*(*p)->production_vertex()->position().y(), 
 				0.1*(*p)->production_vertex()->position().z());
 	  posECAL = trackIDs[indx].pointECAL;
 	  fillTrack (posVec, momVec, posECAL, trackIDs[indx].pdgId, trackIDs[indx].okECAL, true);
-	  if (verbosity>1) std::cout << "posECAL " << posECAL << " okECAL " << trackIDs[indx].okECAL << "okHCAL " << trackIDs[indx].okHCAL << std::endl;
+	  if (verbosity_>1) 
+	    edm::LogVerbatim("IsoTrack") << "posECAL " << posECAL << " okECAL "
+					 << trackIDs[indx].okECAL << "okHCAL "
+					 << trackIDs[indx].okHCAL;
 	  if (trackIDs[indx].okECAL) {
 	    if ( std::abs(charge)>0 ) {
 	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 0, 0, isoinfo1x1,   false);
@@ -309,20 +619,20 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,10,10, isoinfo21x21, false);
 	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,12,12, isoinfo25x25, false);
 	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,15,15, isoinfo31x31, false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_mipR, trackIDs[indx].directionECAL, isoinfoR, false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_neutIsoR, trackIDs[indx].directionECAL, isoinfoIsoR, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_mipR_, trackIDs[indx].directionECAL, isoinfoR, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_neutIsoR_, trackIDs[indx].directionECAL, isoinfoIsoR, false);
 	      if (trackIDs[indx].okHCAL) {
 		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 0, 0, isoinfoHC1x1, false);
 		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 1, 1, isoinfoHC3x3, false);
 		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 2, 2, isoinfoHC5x5, false);
 		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 3, 3, isoinfoHC7x7, false);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_coneR, trackIDs[indx].directionHCAL, isoinfoHCR, false);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR, trackIDs[indx].directionHCAL, isoinfoIsoHCR, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_coneR_, trackIDs[indx].directionHCAL, isoinfoHCR, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR_, trackIDs[indx].directionHCAL, isoinfoIsoHCR, false);
 	      }
 
 	      bool saveTrack = true;
-	      if (a_Isolation) saveTrack = (isoinfoR.maxNearP < pCutIsolate);
-	      else             saveTrack = (isoinfo7x7.maxNearP < pCutIsolate);
+	      if (a_Isolation_) saveTrack = (isoinfoR.maxNearP < pCutIsolate_);
+	      else             saveTrack = (isoinfo7x7.maxNearP < pCutIsolate_);
 	      if (saveTrack) fillIsolatedTrack(momVec, posECAL, trackIDs[indx].pdgId);
 	    }
 	  }
@@ -345,48 +655,56 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     }
   } else {  // loop over gen particles
-    std::vector<spr::propagatedGenParticleID> trackIDs = spr::propagateCALO(genParticles, pdt, geo, bField, etaMax, (verbosity>0));
+    std::vector<spr::propagatedGenParticleID> trackIDs = spr::propagateCALO(genParticles, pdt, geo, bField, etaMax_, (verbosity_>0));
 
     for (unsigned int indx=0; indx<trackIDs.size(); ++indx) {
       int charge = trackIDs[indx].charge;
       reco::GenParticleCollection::const_iterator p = trackIDs[indx].trkItr;
       
       momVec = math::XYZTLorentzVector(p->momentum().x(), p->momentum().y(), p->momentum().z(), p->energy());
-      if (verbosity>1) std::cout << "trkIndx " << indx << " pdgid " << trackIDs[indx].pdgId << " charge " << charge <<	" momVec " << momVec << std::endl; 
+      if (verbosity_>1) 
+	edm::LogVerbatim("IsoTrack") << "trkIndx " << indx << " pdgid " 
+				     << trackIDs[indx].pdgId << " charge " 
+				     << charge <<	" momVec " << momVec;
       // only stable particles avoiding electrons and muons
       if (trackIDs[indx].ok && std::abs(trackIDs[indx].pdgId)>21) {	
 	// consider particles within a phased space
-	if (verbosity>1) std::cout << " pt " << momVec.Pt() << " eta " << momVec.eta() << std::endl;
-	if (momVec.Pt() > ptMin && std::abs(momVec.eta()) < etaMax) { 
+	if (verbosity_>1) 
+	  edm::LogVerbatim("IsoTrack") << " pt " << momVec.Pt() << " eta " 
+				       << momVec.eta();
+	if (momVec.Pt() > ptMin_ && std::abs(momVec.eta()) < etaMax_) { 
 	  posVec  = GlobalPoint(p->vertex().x(), p->vertex().y(), p->vertex().z());
 	  posECAL = trackIDs[indx].pointECAL;
-	  if (verbosity>0) std::cout << "posECAL " << posECAL << " okECAL " << trackIDs[indx].okECAL << "okHCAL " << trackIDs[indx].okHCAL << std::endl;
+	  if (verbosity_>0) 
+	    edm::LogVerbatim("IsoTrack") << "posECAL " << posECAL << " okECAL "
+					 << trackIDs[indx].okECAL << "okHCAL " 
+					 << trackIDs[indx].okHCAL;
 	  fillTrack (posVec, momVec, posECAL, trackIDs[indx].pdgId, trackIDs[indx].okECAL, true);
 	  if (trackIDs[indx].okECAL) {
 	    if ( std::abs(charge)>0 ) {
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 0, 0, isoinfo1x1,   verbosity>1);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 1, 1, isoinfo3x3,   verbosity>0);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 3, 3, isoinfo7x7,   verbosity>1);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 4, 4, isoinfo9x9,   verbosity>1);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 5, 5, isoinfo11x11, verbosity>1);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 7, 7, isoinfo15x15, verbosity>1);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,10,10, isoinfo21x21, verbosity>1);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,12,12, isoinfo25x25, verbosity>1);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,15,15, isoinfo31x31, verbosity>1);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_mipR, trackIDs[indx].directionECAL, isoinfoR, verbosity>1);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_neutIsoR, trackIDs[indx].directionECAL, isoinfoIsoR, verbosity>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 0, 0, isoinfo1x1,   verbosity_>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 1, 1, isoinfo3x3,   verbosity_>0);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 3, 3, isoinfo7x7,   verbosity_>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 4, 4, isoinfo9x9,   verbosity_>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 5, 5, isoinfo11x11, verbosity_>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 7, 7, isoinfo15x15, verbosity_>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,10,10, isoinfo21x21, verbosity_>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,12,12, isoinfo25x25, verbosity_>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,15,15, isoinfo31x31, verbosity_>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_mipR_, trackIDs[indx].directionECAL, isoinfoR, verbosity_>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_neutIsoR_, trackIDs[indx].directionECAL, isoinfoIsoR, verbosity_>1);
 	      if (trackIDs[indx].okHCAL) {
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 0, 0, isoinfoHC1x1, verbosity>1);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 1, 1, isoinfoHC3x3, verbosity>1);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 2, 2, isoinfoHC5x5, verbosity>1);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 3, 3, isoinfoHC7x7, verbosity>1);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_coneR, trackIDs[indx].directionHCAL, isoinfoHCR, verbosity>1);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR, trackIDs[indx].directionHCAL, isoinfoIsoHCR, verbosity>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 0, 0, isoinfoHC1x1, verbosity_>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 1, 1, isoinfoHC3x3, verbosity_>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 2, 2, isoinfoHC5x5, verbosity_>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 3, 3, isoinfoHC7x7, verbosity_>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_coneR_, trackIDs[indx].directionHCAL, isoinfoHCR, verbosity_>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR_, trackIDs[indx].directionHCAL, isoinfoIsoHCR, verbosity_>1);
 	      }
 
 	      bool saveTrack = true;
-	      if (a_Isolation) saveTrack = (isoinfoIsoR.maxNearP < pCutIsolate);
-	      else             saveTrack = (isoinfo7x7.maxNearP < pCutIsolate);
+	      if (a_Isolation_) saveTrack = (isoinfoIsoR.maxNearP < pCutIsolate_);
+	      else              saveTrack = (isoinfo7x7.maxNearP < pCutIsolate_);
 	      if (saveTrack) fillIsolatedTrack(momVec, posECAL, trackIDs[indx].pdgId);
 	    }
 	  }
@@ -412,7 +730,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 
   //t_nEvtProc->push_back(nEventProc);
   h_NEventProc->SetBinContent(1,nEventProc);
-  tree->Fill();
+  tree_->Fill();
   
 } 
 
@@ -422,40 +740,34 @@ void IsolatedGenParticles::beginJob() {
   
   initL1 = false;
 
-  double tempgen_TH[NPBins+1] = { 0.0,  5.0,  12.0, 300.0}; 
-  for(int i=0; i<=NPBins; i++)  genPartPBins[i]  = tempgen_TH[i];
+  double tempgen_TH[NPBins_+1] = { 0.0,  5.0,  12.0, 300.0}; 
+  for(int i=0; i<=NPBins_; i++)  genPartPBins_[i]  = tempgen_TH[i];
   
-  double tempgen_Eta[NEtaBins+1] = {0.0, 0.5, 1.1, 1.7, 2.3};
-  for(int i=0; i<=NEtaBins; i++) genPartEtaBins[i] = tempgen_Eta[i];
+  double tempgen_Eta[NEtaBins_+1] = {0.0, 0.5, 1.1, 1.7, 2.3};
+  for(int i=0; i<=NEtaBins_; i++) genPartEtaBins_[i] = tempgen_Eta[i];
   
-  BookHistograms();
+  bookHistograms();
 
 }
 
-void IsolatedGenParticles::endJob() {
-}
-
-double IsolatedGenParticles::DeltaPhi(double v1, double v2) {
+double IsolatedGenParticles::deltaPhi(double v1, double v2) {
   // Computes the correctly normalized phi difference
   // v1, v2 = phi of object 1 and 2
   
-  double pi    = 3.141592654;
-  double twopi = 6.283185307;
-  
   double diff = std::abs(v2 - v1);
-  double corr = twopi - diff;
-  if (diff < pi){ return diff;} else { return corr;} 
+  double corr = 2*M_PI - diff;
+  return ((diff < M_PI) ? diff : corr); 
 }
 
-double IsolatedGenParticles::DeltaR(double eta1, double phi1, double eta2, double phi2) {
+double IsolatedGenParticles::deltaR(double eta1, double phi1, double eta2, double phi2) {
   double deta = eta1 - eta2;
-  double dphi = DeltaPhi(phi1, phi2);
+  double dphi = deltaPhi(phi1, phi2);
   return std::sqrt(deta*deta + dphi*dphi);
 }
 
-double IsolatedGenParticles::DeltaR2(double eta1, double phi1, double eta2, double phi2) {
+double IsolatedGenParticles::deltaR2(double eta1, double phi1, double eta2, double phi2) {
   double deta = eta1 - eta2;
-  double dphi = DeltaPhi(phi1, phi2);
+  double dphi = deltaPhi(phi1, phi2);
   return deta*deta + dphi*dphi;
 }
 
@@ -470,7 +782,7 @@ void IsolatedGenParticles::fillTrack (GlobalPoint & posVec, math::XYZTLorentzVec
     if (okECAL) {
       double phi1 = momVec.phi();
       double phi2 = (posECAL - posVec).phi();
-      double dphi = DeltaPhi( phi1, phi2 );
+      double dphi = deltaPhi( phi1, phi2 );
       double deta = momVec.eta() - (posECAL - posVec).eta();
       t_isoTrkDPhiAll ->push_back( dphi );
       t_isoTrkDEtaAll ->push_back( deta );	
@@ -666,22 +978,23 @@ void IsolatedGenParticles::fillIsolatedTrack(math::XYZTLorentzVector & momVec, G
   t_muEneIsoHCR         ->push_back(isoinfoIsoHCR.muEne);
 }
 
-void IsolatedGenParticles::BookHistograms(){
+void IsolatedGenParticles::bookHistograms(){
 
+  edm::Service<TFileService> fs;
   //char hname[100], htit[100];
 
   h_NEventProc  = fs->make<TH1I>("h_NEventProc",  "h_NEventProc", 2, -0.5, 0.5);
   h_L1AlgoNames = fs->make<TH1I>("h_L1AlgoNames", "h_L1AlgoNames:Bin Labels", 128, -0.5, 127.5);  
 
-  double pBin[PBins+1] = {0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 20.0, 30.0, 40.0, 50.0,
-			  60.0, 70.0, 80.0, 90.0, 100.0, 150.0, 200.0, 250.0,
-			  300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0,
-			  650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0,
-			  1000.0};
-  double etaBin[EtaBins+1] = {-3.0, -2.9, -2.8, -2.7, -2.6, -2.5, -2.4, -2.3,
-			      -2.2, -2.1, -2.0, -1.9, -1.8, -1.7, -1.6, -1.5,
-			      -1.4, -1.3, -1.2, -1.1, -1.0, -0.9, -0.8, -0.7,
-			      -0.6, -0.5, -0.4, -0.3, -0.2, -0.1,  0.0,  0.1,
+  double pBin[PBins_+1] = {0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 20.0, 30.0, 40.0,50.0,
+			   60.0, 70.0, 80.0, 90.0, 100.0, 150.0, 200.0, 250.0,
+			   300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0,
+			   650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0,
+			   1000.0};
+  double etaBin[EtaBins_+1] = {-3.0, -2.9, -2.8, -2.7, -2.6, -2.5, -2.4, -2.3,
+			       -2.2, -2.1, -2.0, -1.9, -1.8, -1.7, -1.6, -1.5,
+			       -1.4, -1.3, -1.2, -1.1, -1.0, -0.9, -0.8, -0.7,
+			       -0.6, -0.5, -0.4, -0.3, -0.2, -0.1,  0.0,  0.1,
   			       0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,
   			       1.0,  1.1,  1.2,  1.3,  1.4,  1.5,  1.6,  1.7,
   			       1.8,  1.9,  2.0,  2.1,  2.2,  2.3,  2.4,  2.5,
@@ -694,11 +1007,11 @@ void IsolatedGenParticles::BookHistograms(){
   for (int i=0; i<Particles; ++i) {
     sprintf (name, "pEta%d", i);
     sprintf (title, "#eta vs momentum for %s", particle[i].c_str());
-    h_pEta[i] = dir1.make<TH2D>(name, title, PBins, pBin, EtaBins, etaBin);
+    h_pEta[i] = dir1.make<TH2D>(name, title, PBins_, pBin, EtaBins_, etaBin);
   }
 
   // build the tree
-  tree = fs->make<TTree>("tree", "tree");
+  tree_ = fs->make<TTree>("tree_", "tree");
 
   t_isoTrkPAll        = new std::vector<double>();
   t_isoTrkPtAll       = new std::vector<double>();
@@ -911,224 +1224,224 @@ void IsolatedGenParticles::BookHistograms(){
   t_L1METEta          = new std::vector<double>();
   t_L1METPhi          = new std::vector<double>();
   
-  //tree->Branch("t_nEvtProc",          "vector<int>",    &t_nEvtProc);
+//tree_->Branch("t_nEvtProc",          "std::vector<int>",    &t_nEvtProc);
 
-  tree->Branch("t_isoTrkPAll",        "vector<double>", &t_isoTrkPAll);
-  tree->Branch("t_isoTrkPtAll",       "vector<double>", &t_isoTrkPtAll);
-  tree->Branch("t_isoTrkPhiAll",      "vector<double>", &t_isoTrkPhiAll);
-  tree->Branch("t_isoTrkEtaAll",      "vector<double>", &t_isoTrkEtaAll);
-  tree->Branch("t_isoTrkDPhiAll",     "vector<double>", &t_isoTrkDPhiAll);
-  tree->Branch("t_isoTrkDEtaAll",     "vector<double>", &t_isoTrkDEtaAll);
-  tree->Branch("t_isoTrkPdgIdAll",    "vector<double>", &t_isoTrkPdgIdAll);
+  tree_->Branch("t_isoTrkPAll",        "std::vector<double>", &t_isoTrkPAll);
+  tree_->Branch("t_isoTrkPtAll",       "std::vector<double>", &t_isoTrkPtAll);
+  tree_->Branch("t_isoTrkPhiAll",      "std::vector<double>", &t_isoTrkPhiAll);
+  tree_->Branch("t_isoTrkEtaAll",      "std::vector<double>", &t_isoTrkEtaAll);
+  tree_->Branch("t_isoTrkDPhiAll",     "std::vector<double>", &t_isoTrkDPhiAll);
+  tree_->Branch("t_isoTrkDEtaAll",     "std::vector<double>", &t_isoTrkDEtaAll);
+  tree_->Branch("t_isoTrkPdgIdAll",    "std::vector<double>", &t_isoTrkPdgIdAll);
 
-  tree->Branch("t_isoTrkP",           "vector<double>", &t_isoTrkP);
-  tree->Branch("t_isoTrkPt",          "vector<double>", &t_isoTrkPt);
-  tree->Branch("t_isoTrkEne",         "vector<double>", &t_isoTrkEne);
-  tree->Branch("t_isoTrkEta",         "vector<double>", &t_isoTrkEta);
-  tree->Branch("t_isoTrkPhi",         "vector<double>", &t_isoTrkPhi);
-  tree->Branch("t_isoTrkEtaEC",       "vector<double>", &t_isoTrkEtaEC);
-  tree->Branch("t_isoTrkPhiEC",       "vector<double>", &t_isoTrkPhiEC);
-  tree->Branch("t_isoTrkPdgId",       "vector<double>", &t_isoTrkPdgId);
+  tree_->Branch("t_isoTrkP",           "std::vector<double>", &t_isoTrkP);
+  tree_->Branch("t_isoTrkPt",          "std::vector<double>", &t_isoTrkPt);
+  tree_->Branch("t_isoTrkEne",         "std::vector<double>", &t_isoTrkEne);
+  tree_->Branch("t_isoTrkEta",         "std::vector<double>", &t_isoTrkEta);
+  tree_->Branch("t_isoTrkPhi",         "std::vector<double>", &t_isoTrkPhi);
+  tree_->Branch("t_isoTrkEtaEC",       "std::vector<double>", &t_isoTrkEtaEC);
+  tree_->Branch("t_isoTrkPhiEC",       "std::vector<double>", &t_isoTrkPhiEC);
+  tree_->Branch("t_isoTrkPdgId",       "std::vector<double>", &t_isoTrkPdgId);
 
-  tree->Branch("t_maxNearP31x31",     "vector<double>", &t_maxNearP31x31);
-  tree->Branch("t_cHadronEne31x31",   "vector<double>", &t_cHadronEne31x31);
-  tree->Branch("t_cHadronEne31x31_1", "vector<double>", &t_cHadronEne31x31_1);
-  tree->Branch("t_cHadronEne31x31_2", "vector<double>", &t_cHadronEne31x31_2);
-  tree->Branch("t_cHadronEne31x31_3", "vector<double>", &t_cHadronEne31x31_3);
-  tree->Branch("t_nHadronEne31x31",   "vector<double>", &t_nHadronEne31x31);
-  tree->Branch("t_photonEne31x31",    "vector<double>", &t_photonEne31x31);
-  tree->Branch("t_eleEne31x31",       "vector<double>", &t_eleEne31x31);
-  tree->Branch("t_muEne31x31",        "vector<double>", &t_muEne31x31);
+  tree_->Branch("t_maxNearP31x31",     "std::vector<double>", &t_maxNearP31x31);
+  tree_->Branch("t_cHadronEne31x31",   "std::vector<double>", &t_cHadronEne31x31);
+  tree_->Branch("t_cHadronEne31x31_1", "std::vector<double>", &t_cHadronEne31x31_1);
+  tree_->Branch("t_cHadronEne31x31_2", "std::vector<double>", &t_cHadronEne31x31_2);
+  tree_->Branch("t_cHadronEne31x31_3", "std::vector<double>", &t_cHadronEne31x31_3);
+  tree_->Branch("t_nHadronEne31x31",   "std::vector<double>", &t_nHadronEne31x31);
+  tree_->Branch("t_photonEne31x31",    "std::vector<double>", &t_photonEne31x31);
+  tree_->Branch("t_eleEne31x31",       "std::vector<double>", &t_eleEne31x31);
+  tree_->Branch("t_muEne31x31",        "std::vector<double>", &t_muEne31x31);
 
-  tree->Branch("t_maxNearP25x25",     "vector<double>", &t_maxNearP25x25);
-  tree->Branch("t_cHadronEne25x25",   "vector<double>", &t_cHadronEne25x25);
-  tree->Branch("t_cHadronEne25x25_1", "vector<double>", &t_cHadronEne25x25_1);
-  tree->Branch("t_cHadronEne25x25_2", "vector<double>", &t_cHadronEne25x25_2);
-  tree->Branch("t_cHadronEne25x25_3", "vector<double>", &t_cHadronEne25x25_3);
-  tree->Branch("t_nHadronEne25x25",   "vector<double>", &t_nHadronEne25x25);
-  tree->Branch("t_photonEne25x25",    "vector<double>", &t_photonEne25x25);
-  tree->Branch("t_eleEne25x25",       "vector<double>", &t_eleEne25x25);
-  tree->Branch("t_muEne25x25",        "vector<double>", &t_muEne25x25);
+  tree_->Branch("t_maxNearP25x25",     "std::vector<double>", &t_maxNearP25x25);
+  tree_->Branch("t_cHadronEne25x25",   "std::vector<double>", &t_cHadronEne25x25);
+  tree_->Branch("t_cHadronEne25x25_1", "std::vector<double>", &t_cHadronEne25x25_1);
+  tree_->Branch("t_cHadronEne25x25_2", "std::vector<double>", &t_cHadronEne25x25_2);
+  tree_->Branch("t_cHadronEne25x25_3", "std::vector<double>", &t_cHadronEne25x25_3);
+  tree_->Branch("t_nHadronEne25x25",   "std::vector<double>", &t_nHadronEne25x25);
+  tree_->Branch("t_photonEne25x25",    "std::vector<double>", &t_photonEne25x25);
+  tree_->Branch("t_eleEne25x25",       "std::vector<double>", &t_eleEne25x25);
+  tree_->Branch("t_muEne25x25",        "std::vector<double>", &t_muEne25x25);
   
-  tree->Branch("t_maxNearP21x21",     "vector<double>", &t_maxNearP21x21);
-  tree->Branch("t_cHadronEne21x21",   "vector<double>", &t_cHadronEne21x21);
-  tree->Branch("t_cHadronEne21x21_1", "vector<double>", &t_cHadronEne21x21_1);
-  tree->Branch("t_cHadronEne21x21_2", "vector<double>", &t_cHadronEne21x21_2);
-  tree->Branch("t_cHadronEne21x21_3", "vector<double>", &t_cHadronEne21x21_3);
-  tree->Branch("t_nHadronEne21x21",   "vector<double>", &t_nHadronEne21x21);
-  tree->Branch("t_photonEne21x21",    "vector<double>", &t_photonEne21x21);
-  tree->Branch("t_eleEne21x21",       "vector<double>", &t_eleEne21x21);
-  tree->Branch("t_muEne21x21",        "vector<double>", &t_muEne21x21);
+  tree_->Branch("t_maxNearP21x21",     "std::vector<double>", &t_maxNearP21x21);
+  tree_->Branch("t_cHadronEne21x21",   "std::vector<double>", &t_cHadronEne21x21);
+  tree_->Branch("t_cHadronEne21x21_1", "std::vector<double>", &t_cHadronEne21x21_1);
+  tree_->Branch("t_cHadronEne21x21_2", "std::vector<double>", &t_cHadronEne21x21_2);
+  tree_->Branch("t_cHadronEne21x21_3", "std::vector<double>", &t_cHadronEne21x21_3);
+  tree_->Branch("t_nHadronEne21x21",   "std::vector<double>", &t_nHadronEne21x21);
+  tree_->Branch("t_photonEne21x21",    "std::vector<double>", &t_photonEne21x21);
+  tree_->Branch("t_eleEne21x21",       "std::vector<double>", &t_eleEne21x21);
+  tree_->Branch("t_muEne21x21",        "std::vector<double>", &t_muEne21x21);
 
-  tree->Branch("t_maxNearP15x15",     "vector<double>", &t_maxNearP15x15);
-  tree->Branch("t_cHadronEne15x15",   "vector<double>", &t_cHadronEne15x15);
-  tree->Branch("t_cHadronEne15x15_1", "vector<double>", &t_cHadronEne15x15_1);
-  tree->Branch("t_cHadronEne15x15_2", "vector<double>", &t_cHadronEne15x15_2);
-  tree->Branch("t_cHadronEne15x15_3", "vector<double>", &t_cHadronEne15x15_3);
-  tree->Branch("t_nHadronEne15x15",   "vector<double>", &t_nHadronEne15x15);
-  tree->Branch("t_photonEne15x15",    "vector<double>", &t_photonEne15x15);
-  tree->Branch("t_eleEne15x15",       "vector<double>", &t_eleEne15x15);
-  tree->Branch("t_muEne15x15",        "vector<double>", &t_muEne15x15);
+  tree_->Branch("t_maxNearP15x15",     "std::vector<double>", &t_maxNearP15x15);
+  tree_->Branch("t_cHadronEne15x15",   "std::vector<double>", &t_cHadronEne15x15);
+  tree_->Branch("t_cHadronEne15x15_1", "std::vector<double>", &t_cHadronEne15x15_1);
+  tree_->Branch("t_cHadronEne15x15_2", "std::vector<double>", &t_cHadronEne15x15_2);
+  tree_->Branch("t_cHadronEne15x15_3", "std::vector<double>", &t_cHadronEne15x15_3);
+  tree_->Branch("t_nHadronEne15x15",   "std::vector<double>", &t_nHadronEne15x15);
+  tree_->Branch("t_photonEne15x15",    "std::vector<double>", &t_photonEne15x15);
+  tree_->Branch("t_eleEne15x15",       "std::vector<double>", &t_eleEne15x15);
+  tree_->Branch("t_muEne15x15",        "std::vector<double>", &t_muEne15x15);
 
-  tree->Branch("t_maxNearP11x11",     "vector<double>", &t_maxNearP11x11);
-  tree->Branch("t_cHadronEne11x11",   "vector<double>", &t_cHadronEne11x11);
-  tree->Branch("t_cHadronEne11x11_1", "vector<double>", &t_cHadronEne11x11_1);
-  tree->Branch("t_cHadronEne11x11_2", "vector<double>", &t_cHadronEne11x11_2);
-  tree->Branch("t_cHadronEne11x11_3", "vector<double>", &t_cHadronEne11x11_3);
-  tree->Branch("t_nHadronEne11x11",   "vector<double>", &t_nHadronEne11x11);
-  tree->Branch("t_photonEne11x11",    "vector<double>", &t_photonEne11x11);
-  tree->Branch("t_eleEne11x11",       "vector<double>", &t_eleEne11x11);
-  tree->Branch("t_muEne11x11",        "vector<double>", &t_muEne11x11);
+  tree_->Branch("t_maxNearP11x11",     "std::vector<double>", &t_maxNearP11x11);
+  tree_->Branch("t_cHadronEne11x11",   "std::vector<double>", &t_cHadronEne11x11);
+  tree_->Branch("t_cHadronEne11x11_1", "std::vector<double>", &t_cHadronEne11x11_1);
+  tree_->Branch("t_cHadronEne11x11_2", "std::vector<double>", &t_cHadronEne11x11_2);
+  tree_->Branch("t_cHadronEne11x11_3", "std::vector<double>", &t_cHadronEne11x11_3);
+  tree_->Branch("t_nHadronEne11x11",   "std::vector<double>", &t_nHadronEne11x11);
+  tree_->Branch("t_photonEne11x11",    "std::vector<double>", &t_photonEne11x11);
+  tree_->Branch("t_eleEne11x11",       "std::vector<double>", &t_eleEne11x11);
+  tree_->Branch("t_muEne11x11",        "std::vector<double>", &t_muEne11x11);
 
-  tree->Branch("t_maxNearP9x9",       "vector<double>", &t_maxNearP9x9);
-  tree->Branch("t_cHadronEne9x9",     "vector<double>", &t_cHadronEne9x9);
-  tree->Branch("t_cHadronEne9x9_1",   "vector<double>", &t_cHadronEne9x9_1);
-  tree->Branch("t_cHadronEne9x9_2",   "vector<double>", &t_cHadronEne9x9_2);
-  tree->Branch("t_cHadronEne9x9_3",   "vector<double>", &t_cHadronEne9x9_3);
-  tree->Branch("t_nHadronEne9x9",     "vector<double>", &t_nHadronEne9x9);
-  tree->Branch("t_photonEne9x9",      "vector<double>", &t_photonEne9x9);
-  tree->Branch("t_eleEne9x9",         "vector<double>", &t_eleEne9x9);
-  tree->Branch("t_muEne9x9",          "vector<double>", &t_muEne9x9);
+  tree_->Branch("t_maxNearP9x9",       "std::vector<double>", &t_maxNearP9x9);
+  tree_->Branch("t_cHadronEne9x9",     "std::vector<double>", &t_cHadronEne9x9);
+  tree_->Branch("t_cHadronEne9x9_1",   "std::vector<double>", &t_cHadronEne9x9_1);
+  tree_->Branch("t_cHadronEne9x9_2",   "std::vector<double>", &t_cHadronEne9x9_2);
+  tree_->Branch("t_cHadronEne9x9_3",   "std::vector<double>", &t_cHadronEne9x9_3);
+  tree_->Branch("t_nHadronEne9x9",     "std::vector<double>", &t_nHadronEne9x9);
+  tree_->Branch("t_photonEne9x9",      "std::vector<double>", &t_photonEne9x9);
+  tree_->Branch("t_eleEne9x9",         "std::vector<double>", &t_eleEne9x9);
+  tree_->Branch("t_muEne9x9",          "std::vector<double>", &t_muEne9x9);
 
-  tree->Branch("t_maxNearP7x7",       "vector<double>", &t_maxNearP7x7);
-  tree->Branch("t_cHadronEne7x7",     "vector<double>", &t_cHadronEne7x7);
-  tree->Branch("t_cHadronEne7x7_1",   "vector<double>", &t_cHadronEne7x7_1);
-  tree->Branch("t_cHadronEne7x7_2",   "vector<double>", &t_cHadronEne7x7_2);
-  tree->Branch("t_cHadronEne7x7_3",   "vector<double>", &t_cHadronEne7x7_3);
-  tree->Branch("t_nHadronEne7x7",     "vector<double>", &t_nHadronEne7x7);
-  tree->Branch("t_photonEne7x7",      "vector<double>", &t_photonEne7x7);
-  tree->Branch("t_eleEne7x7",         "vector<double>", &t_eleEne7x7);
-  tree->Branch("t_muEne7x7",          "vector<double>", &t_muEne7x7);
+  tree_->Branch("t_maxNearP7x7",       "std::vector<double>", &t_maxNearP7x7);
+  tree_->Branch("t_cHadronEne7x7",     "std::vector<double>", &t_cHadronEne7x7);
+  tree_->Branch("t_cHadronEne7x7_1",   "std::vector<double>", &t_cHadronEne7x7_1);
+  tree_->Branch("t_cHadronEne7x7_2",   "std::vector<double>", &t_cHadronEne7x7_2);
+  tree_->Branch("t_cHadronEne7x7_3",   "std::vector<double>", &t_cHadronEne7x7_3);
+  tree_->Branch("t_nHadronEne7x7",     "std::vector<double>", &t_nHadronEne7x7);
+  tree_->Branch("t_photonEne7x7",      "std::vector<double>", &t_photonEne7x7);
+  tree_->Branch("t_eleEne7x7",         "std::vector<double>", &t_eleEne7x7);
+  tree_->Branch("t_muEne7x7",          "std::vector<double>", &t_muEne7x7);
 
-  tree->Branch("t_maxNearP3x3",       "vector<double>", &t_maxNearP3x3);
-  tree->Branch("t_cHadronEne3x3",     "vector<double>", &t_cHadronEne3x3);
-  tree->Branch("t_cHadronEne3x3_1",   "vector<double>", &t_cHadronEne3x3_1);
-  tree->Branch("t_cHadronEne3x3_2",   "vector<double>", &t_cHadronEne3x3_2);
-  tree->Branch("t_cHadronEne3x3_3",   "vector<double>", &t_cHadronEne3x3_3);
-  tree->Branch("t_nHadronEne3x3",     "vector<double>", &t_nHadronEne3x3);
-  tree->Branch("t_photonEne3x3",      "vector<double>", &t_photonEne3x3);
-  tree->Branch("t_eleEne3x3",         "vector<double>", &t_eleEne3x3);
-  tree->Branch("t_muEne3x3",          "vector<double>", &t_muEne3x3);
+  tree_->Branch("t_maxNearP3x3",       "std::vector<double>", &t_maxNearP3x3);
+  tree_->Branch("t_cHadronEne3x3",     "std::vector<double>", &t_cHadronEne3x3);
+  tree_->Branch("t_cHadronEne3x3_1",   "std::vector<double>", &t_cHadronEne3x3_1);
+  tree_->Branch("t_cHadronEne3x3_2",   "std::vector<double>", &t_cHadronEne3x3_2);
+  tree_->Branch("t_cHadronEne3x3_3",   "std::vector<double>", &t_cHadronEne3x3_3);
+  tree_->Branch("t_nHadronEne3x3",     "std::vector<double>", &t_nHadronEne3x3);
+  tree_->Branch("t_photonEne3x3",      "std::vector<double>", &t_photonEne3x3);
+  tree_->Branch("t_eleEne3x3",         "std::vector<double>", &t_eleEne3x3);
+  tree_->Branch("t_muEne3x3",          "std::vector<double>", &t_muEne3x3);
 
-  tree->Branch("t_maxNearP1x1",       "vector<double>", &t_maxNearP1x1);
-  tree->Branch("t_cHadronEne1x1",     "vector<double>", &t_cHadronEne1x1);
-  tree->Branch("t_cHadronEne1x1_1",   "vector<double>", &t_cHadronEne1x1_1);
-  tree->Branch("t_cHadronEne1x1_2",   "vector<double>", &t_cHadronEne1x1_2);
-  tree->Branch("t_cHadronEne1x1_3",   "vector<double>", &t_cHadronEne1x1_3);
-  tree->Branch("t_nHadronEne1x1",     "vector<double>", &t_nHadronEne1x1);
-  tree->Branch("t_photonEne1x1",      "vector<double>", &t_photonEne1x1);
-  tree->Branch("t_eleEne1x1",         "vector<double>", &t_eleEne1x1);
-  tree->Branch("t_muEne1x1",          "vector<double>", &t_muEne1x1);
+  tree_->Branch("t_maxNearP1x1",       "std::vector<double>", &t_maxNearP1x1);
+  tree_->Branch("t_cHadronEne1x1",     "std::vector<double>", &t_cHadronEne1x1);
+  tree_->Branch("t_cHadronEne1x1_1",   "std::vector<double>", &t_cHadronEne1x1_1);
+  tree_->Branch("t_cHadronEne1x1_2",   "std::vector<double>", &t_cHadronEne1x1_2);
+  tree_->Branch("t_cHadronEne1x1_3",   "std::vector<double>", &t_cHadronEne1x1_3);
+  tree_->Branch("t_nHadronEne1x1",     "std::vector<double>", &t_nHadronEne1x1);
+  tree_->Branch("t_photonEne1x1",      "std::vector<double>", &t_photonEne1x1);
+  tree_->Branch("t_eleEne1x1",         "std::vector<double>", &t_eleEne1x1);
+  tree_->Branch("t_muEne1x1",          "std::vector<double>", &t_muEne1x1);
 
-  tree->Branch("t_maxNearPHC1x1",       "vector<double>", &t_maxNearPHC1x1);
-  tree->Branch("t_cHadronEneHC1x1",     "vector<double>", &t_cHadronEneHC1x1);
-  tree->Branch("t_cHadronEneHC1x1_1",   "vector<double>", &t_cHadronEneHC1x1_1);
-  tree->Branch("t_cHadronEneHC1x1_2",   "vector<double>", &t_cHadronEneHC1x1_2);
-  tree->Branch("t_cHadronEneHC1x1_3",   "vector<double>", &t_cHadronEneHC1x1_3);
-  tree->Branch("t_nHadronEneHC1x1",     "vector<double>", &t_nHadronEneHC1x1);
-  tree->Branch("t_photonEneHC1x1",      "vector<double>", &t_photonEneHC1x1);
-  tree->Branch("t_eleEneHC1x1",         "vector<double>", &t_eleEneHC1x1);
-  tree->Branch("t_muEneHC1x1",          "vector<double>", &t_muEneHC1x1);
+  tree_->Branch("t_maxNearPHC1x1",     "std::vector<double>", &t_maxNearPHC1x1);
+  tree_->Branch("t_cHadronEneHC1x1",   "std::vector<double>", &t_cHadronEneHC1x1);
+  tree_->Branch("t_cHadronEneHC1x1_1", "std::vector<double>", &t_cHadronEneHC1x1_1);
+  tree_->Branch("t_cHadronEneHC1x1_2", "std::vector<double>", &t_cHadronEneHC1x1_2);
+  tree_->Branch("t_cHadronEneHC1x1_3", "std::vector<double>", &t_cHadronEneHC1x1_3);
+  tree_->Branch("t_nHadronEneHC1x1",   "std::vector<double>", &t_nHadronEneHC1x1);
+  tree_->Branch("t_photonEneHC1x1",    "std::vector<double>", &t_photonEneHC1x1);
+  tree_->Branch("t_eleEneHC1x1",       "std::vector<double>", &t_eleEneHC1x1);
+  tree_->Branch("t_muEneHC1x1",        "std::vector<double>", &t_muEneHC1x1);
 
-  tree->Branch("t_maxNearPHC3x3",       "vector<double>", &t_maxNearPHC3x3);
-  tree->Branch("t_cHadronEneHC3x3",     "vector<double>", &t_cHadronEneHC3x3);
-  tree->Branch("t_cHadronEneHC3x3_1",   "vector<double>", &t_cHadronEneHC3x3_1);
-  tree->Branch("t_cHadronEneHC3x3_2",   "vector<double>", &t_cHadronEneHC3x3_2);
-  tree->Branch("t_cHadronEneHC3x3_3",   "vector<double>", &t_cHadronEneHC3x3_3);
-  tree->Branch("t_nHadronEneHC3x3",     "vector<double>", &t_nHadronEneHC3x3);
-  tree->Branch("t_photonEneHC3x3",      "vector<double>", &t_photonEneHC3x3);
-  tree->Branch("t_eleEneHC3x3",         "vector<double>", &t_eleEneHC3x3);
-  tree->Branch("t_muEneHC3x3",          "vector<double>", &t_muEneHC3x3);
+  tree_->Branch("t_maxNearPHC3x3",     "std::vector<double>", &t_maxNearPHC3x3);
+  tree_->Branch("t_cHadronEneHC3x3",   "std::vector<double>", &t_cHadronEneHC3x3);
+  tree_->Branch("t_cHadronEneHC3x3_1", "std::vector<double>", &t_cHadronEneHC3x3_1);
+  tree_->Branch("t_cHadronEneHC3x3_2", "std::vector<double>", &t_cHadronEneHC3x3_2);
+  tree_->Branch("t_cHadronEneHC3x3_3", "std::vector<double>", &t_cHadronEneHC3x3_3);
+  tree_->Branch("t_nHadronEneHC3x3",   "std::vector<double>", &t_nHadronEneHC3x3);
+  tree_->Branch("t_photonEneHC3x3",    "std::vector<double>", &t_photonEneHC3x3);
+  tree_->Branch("t_eleEneHC3x3",       "std::vector<double>", &t_eleEneHC3x3);
+  tree_->Branch("t_muEneHC3x3",        "std::vector<double>", &t_muEneHC3x3);
 
-  tree->Branch("t_maxNearPHC5x5",       "vector<double>", &t_maxNearPHC5x5);
-  tree->Branch("t_cHadronEneHC5x5",     "vector<double>", &t_cHadronEneHC5x5);
-  tree->Branch("t_cHadronEneHC5x5_1",   "vector<double>", &t_cHadronEneHC5x5_1);
-  tree->Branch("t_cHadronEneHC5x5_2",   "vector<double>", &t_cHadronEneHC5x5_2);
-  tree->Branch("t_cHadronEneHC5x5_3",   "vector<double>", &t_cHadronEneHC5x5_3);
-  tree->Branch("t_nHadronEneHC5x5",     "vector<double>", &t_nHadronEneHC5x5);
-  tree->Branch("t_photonEneHC5x5",      "vector<double>", &t_photonEneHC5x5);
-  tree->Branch("t_eleEneHC5x5",         "vector<double>", &t_eleEneHC5x5);
-  tree->Branch("t_muEneHC5x5",          "vector<double>", &t_muEneHC5x5);
+  tree_->Branch("t_maxNearPHC5x5",     "std::vector<double>", &t_maxNearPHC5x5);
+  tree_->Branch("t_cHadronEneHC5x5",   "std::vector<double>", &t_cHadronEneHC5x5);
+  tree_->Branch("t_cHadronEneHC5x5_1", "std::vector<double>", &t_cHadronEneHC5x5_1);
+  tree_->Branch("t_cHadronEneHC5x5_2", "std::vector<double>", &t_cHadronEneHC5x5_2);
+  tree_->Branch("t_cHadronEneHC5x5_3", "std::vector<double>", &t_cHadronEneHC5x5_3);
+  tree_->Branch("t_nHadronEneHC5x5",   "std::vector<double>", &t_nHadronEneHC5x5);
+  tree_->Branch("t_photonEneHC5x5",    "std::vector<double>", &t_photonEneHC5x5);
+  tree_->Branch("t_eleEneHC5x5",       "std::vector<double>", &t_eleEneHC5x5);
+  tree_->Branch("t_muEneHC5x5",        "std::vector<double>", &t_muEneHC5x5);
 
-  tree->Branch("t_maxNearPHC7x7",       "vector<double>", &t_maxNearPHC7x7);
-  tree->Branch("t_cHadronEneHC7x7",     "vector<double>", &t_cHadronEneHC7x7);
-  tree->Branch("t_cHadronEneHC7x7_1",   "vector<double>", &t_cHadronEneHC7x7_1);
-  tree->Branch("t_cHadronEneHC7x7_2",   "vector<double>", &t_cHadronEneHC7x7_2);
-  tree->Branch("t_cHadronEneHC7x7_3",   "vector<double>", &t_cHadronEneHC7x7_3);
-  tree->Branch("t_nHadronEneHC7x7",     "vector<double>", &t_nHadronEneHC7x7);
-  tree->Branch("t_photonEneHC7x7",      "vector<double>", &t_photonEneHC7x7);
-  tree->Branch("t_eleEneHC7x7",         "vector<double>", &t_eleEneHC7x7);
-  tree->Branch("t_muEneHC7x7",          "vector<double>", &t_muEneHC7x7);
+  tree_->Branch("t_maxNearPHC7x7",     "std::vector<double>", &t_maxNearPHC7x7);
+  tree_->Branch("t_cHadronEneHC7x7",   "std::vector<double>", &t_cHadronEneHC7x7);
+  tree_->Branch("t_cHadronEneHC7x7_1", "std::vector<double>", &t_cHadronEneHC7x7_1);
+  tree_->Branch("t_cHadronEneHC7x7_2", "std::vector<double>", &t_cHadronEneHC7x7_2);
+  tree_->Branch("t_cHadronEneHC7x7_3", "std::vector<double>", &t_cHadronEneHC7x7_3);
+  tree_->Branch("t_nHadronEneHC7x7",   "std::vector<double>", &t_nHadronEneHC7x7);
+  tree_->Branch("t_photonEneHC7x7",    "std::vector<double>", &t_photonEneHC7x7);
+  tree_->Branch("t_eleEneHC7x7",       "std::vector<double>", &t_eleEneHC7x7);
+  tree_->Branch("t_muEneHC7x7",        "std::vector<double>", &t_muEneHC7x7);
 
-  tree->Branch("t_maxNearPR",       "vector<double>", &t_maxNearPR);
-  tree->Branch("t_cHadronEneR",     "vector<double>", &t_cHadronEneR);
-  tree->Branch("t_cHadronEneR_1",   "vector<double>", &t_cHadronEneR_1);
-  tree->Branch("t_cHadronEneR_2",   "vector<double>", &t_cHadronEneR_2);
-  tree->Branch("t_cHadronEneR_3",   "vector<double>", &t_cHadronEneR_3);
-  tree->Branch("t_nHadronEneR",     "vector<double>", &t_nHadronEneR);
-  tree->Branch("t_photonEneR",      "vector<double>", &t_photonEneR);
-  tree->Branch("t_eleEneR",         "vector<double>", &t_eleEneR);
-  tree->Branch("t_muEneR",          "vector<double>", &t_muEneR);
+  tree_->Branch("t_maxNearPR",         "std::vector<double>", &t_maxNearPR);
+  tree_->Branch("t_cHadronEneR",       "std::vector<double>", &t_cHadronEneR);
+  tree_->Branch("t_cHadronEneR_1",     "std::vector<double>", &t_cHadronEneR_1);
+  tree_->Branch("t_cHadronEneR_2",     "std::vector<double>", &t_cHadronEneR_2);
+  tree_->Branch("t_cHadronEneR_3",     "std::vector<double>", &t_cHadronEneR_3);
+  tree_->Branch("t_nHadronEneR",       "std::vector<double>", &t_nHadronEneR);
+  tree_->Branch("t_photonEneR",        "std::vector<double>", &t_photonEneR);
+  tree_->Branch("t_eleEneR",           "std::vector<double>", &t_eleEneR);
+  tree_->Branch("t_muEneR",            "std::vector<double>", &t_muEneR);
 
-  tree->Branch("t_maxNearPIsoR",       "vector<double>", &t_maxNearPIsoR);
-  tree->Branch("t_cHadronEneIsoR",     "vector<double>", &t_cHadronEneIsoR);
-  tree->Branch("t_cHadronEneIsoR_1",   "vector<double>", &t_cHadronEneIsoR_1);
-  tree->Branch("t_cHadronEneIsoR_2",   "vector<double>", &t_cHadronEneIsoR_2);
-  tree->Branch("t_cHadronEneIsoR_3",   "vector<double>", &t_cHadronEneIsoR_3);
-  tree->Branch("t_nHadronEneIsoR",     "vector<double>", &t_nHadronEneIsoR);
-  tree->Branch("t_photonEneIsoR",      "vector<double>", &t_photonEneIsoR);
-  tree->Branch("t_eleEneIsoR",         "vector<double>", &t_eleEneIsoR);
-  tree->Branch("t_muEneIsoR",          "vector<double>", &t_muEneIsoR);
+  tree_->Branch("t_maxNearPIsoR",      "std::vector<double>", &t_maxNearPIsoR);
+  tree_->Branch("t_cHadronEneIsoR",    "std::vector<double>", &t_cHadronEneIsoR);
+  tree_->Branch("t_cHadronEneIsoR_1",  "std::vector<double>", &t_cHadronEneIsoR_1);
+  tree_->Branch("t_cHadronEneIsoR_2",  "std::vector<double>", &t_cHadronEneIsoR_2);
+  tree_->Branch("t_cHadronEneIsoR_3",  "std::vector<double>", &t_cHadronEneIsoR_3);
+  tree_->Branch("t_nHadronEneIsoR",    "std::vector<double>", &t_nHadronEneIsoR);
+  tree_->Branch("t_photonEneIsoR",     "std::vector<double>", &t_photonEneIsoR);
+  tree_->Branch("t_eleEneIsoR",        "std::vector<double>", &t_eleEneIsoR);
+  tree_->Branch("t_muEneIsoR",         "std::vector<double>", &t_muEneIsoR);
 
-  tree->Branch("t_maxNearPHCR",       "vector<double>", &t_maxNearPHCR);
-  tree->Branch("t_cHadronEneHCR",     "vector<double>", &t_cHadronEneHCR);
-  tree->Branch("t_cHadronEneHCR_1",   "vector<double>", &t_cHadronEneHCR_1);
-  tree->Branch("t_cHadronEneHCR_2",   "vector<double>", &t_cHadronEneHCR_2);
-  tree->Branch("t_cHadronEneHCR_3",   "vector<double>", &t_cHadronEneHCR_3);
-  tree->Branch("t_nHadronEneHCR",     "vector<double>", &t_nHadronEneHCR);
-  tree->Branch("t_photonEneHCR",      "vector<double>", &t_photonEneHCR);
-  tree->Branch("t_eleEneHCR",         "vector<double>", &t_eleEneHCR);
-  tree->Branch("t_muEneHCR",          "vector<double>", &t_muEneHCR);
+  tree_->Branch("t_maxNearPHCR",       "std::vector<double>", &t_maxNearPHCR);
+  tree_->Branch("t_cHadronEneHCR",     "std::vector<double>", &t_cHadronEneHCR);
+  tree_->Branch("t_cHadronEneHCR_1",   "std::vector<double>", &t_cHadronEneHCR_1);
+  tree_->Branch("t_cHadronEneHCR_2",   "std::vector<double>", &t_cHadronEneHCR_2);
+  tree_->Branch("t_cHadronEneHCR_3",   "std::vector<double>", &t_cHadronEneHCR_3);
+  tree_->Branch("t_nHadronEneHCR",     "std::vector<double>", &t_nHadronEneHCR);
+  tree_->Branch("t_photonEneHCR",      "std::vector<double>", &t_photonEneHCR);
+  tree_->Branch("t_eleEneHCR",         "std::vector<double>", &t_eleEneHCR);
+  tree_->Branch("t_muEneHCR",          "std::vector<double>", &t_muEneHCR);
 
-  tree->Branch("t_maxNearPIsoHCR",       "vector<double>", &t_maxNearPIsoHCR);
-  tree->Branch("t_cHadronEneIsoHCR",     "vector<double>", &t_cHadronEneIsoHCR);
-  tree->Branch("t_cHadronEneIsoHCR_1",   "vector<double>", &t_cHadronEneIsoHCR_1);
-  tree->Branch("t_cHadronEneIsoHCR_2",   "vector<double>", &t_cHadronEneIsoHCR_2);
-  tree->Branch("t_cHadronEneIsoHCR_3",   "vector<double>", &t_cHadronEneIsoHCR_3);
-  tree->Branch("t_nHadronEneIsoHCR",     "vector<double>", &t_nHadronEneIsoHCR);
-  tree->Branch("t_photonEneIsoHCR",      "vector<double>", &t_photonEneIsoHCR);
-  tree->Branch("t_eleEneIsoHCR",         "vector<double>", &t_eleEneIsoHCR);
-  tree->Branch("t_muEneIsoHCR",          "vector<double>", &t_muEneIsoHCR);
+  tree_->Branch("t_maxNearPIsoHCR",    "std::vector<double>", &t_maxNearPIsoHCR);
+  tree_->Branch("t_cHadronEneIsoHCR",  "std::vector<double>", &t_cHadronEneIsoHCR);
+  tree_->Branch("t_cHadronEneIsoHCR_1","std::vector<double>", &t_cHadronEneIsoHCR_1);
+  tree_->Branch("t_cHadronEneIsoHCR_2","std::vector<double>", &t_cHadronEneIsoHCR_2);
+  tree_->Branch("t_cHadronEneIsoHCR_3","std::vector<double>", &t_cHadronEneIsoHCR_3);
+  tree_->Branch("t_nHadronEneIsoHCR",  "std::vector<double>", &t_nHadronEneIsoHCR);
+  tree_->Branch("t_photonEneIsoHCR",   "std::vector<double>", &t_photonEneIsoHCR);
+  tree_->Branch("t_eleEneIsoHCR",      "std::vector<double>", &t_eleEneIsoHCR);
+  tree_->Branch("t_muEneIsoHCR",       "std::vector<double>", &t_muEneIsoHCR);
 
-  tree->Branch("t_L1Decision",        "vector<int>",    &t_L1Decision);
-  tree->Branch("t_L1CenJetPt",        "vector<double>", &t_L1CenJetPt);
-  tree->Branch("t_L1CenJetEta",       "vector<double>", &t_L1CenJetEta);
-  tree->Branch("t_L1CenJetPhi",       "vector<double>", &t_L1CenJetPhi);
-  tree->Branch("t_L1FwdJetPt",        "vector<double>", &t_L1FwdJetPt);
-  tree->Branch("t_L1FwdJetEta",       "vector<double>", &t_L1FwdJetEta);
-  tree->Branch("t_L1FwdJetPhi",       "vector<double>", &t_L1FwdJetPhi);
-  tree->Branch("t_L1TauJetPt",        "vector<double>", &t_L1TauJetPt);
-  tree->Branch("t_L1TauJetEta",       "vector<double>", &t_L1TauJetEta);     
-  tree->Branch("t_L1TauJetPhi",       "vector<double>", &t_L1TauJetPhi);
-  tree->Branch("t_L1MuonPt",          "vector<double>", &t_L1MuonPt);
-  tree->Branch("t_L1MuonEta",         "vector<double>", &t_L1MuonEta);
-  tree->Branch("t_L1MuonPhi",         "vector<double>", &t_L1MuonPhi);
-  tree->Branch("t_L1IsoEMPt",         "vector<double>", &t_L1IsoEMPt);
-  tree->Branch("t_L1IsoEMEta",        "vector<double>", &t_L1IsoEMEta);
-  tree->Branch("t_L1IsoEMPhi",        "vector<double>", &t_L1IsoEMPhi);
-  tree->Branch("t_L1NonIsoEMPt",      "vector<double>", &t_L1NonIsoEMPt);
-  tree->Branch("t_L1NonIsoEMEta",     "vector<double>", &t_L1NonIsoEMEta);
-  tree->Branch("t_L1NonIsoEMPhi",     "vector<double>", &t_L1NonIsoEMPhi);
-  tree->Branch("t_L1METPt",           "vector<double>", &t_L1METPt);
-  tree->Branch("t_L1METEta",          "vector<double>", &t_L1METEta);
-  tree->Branch("t_L1METPhi",          "vector<double>", &t_L1METPhi);
+  tree_->Branch("t_L1Decision",        "std::vector<int>",    &t_L1Decision);
+  tree_->Branch("t_L1CenJetPt",        "std::vector<double>", &t_L1CenJetPt);
+  tree_->Branch("t_L1CenJetEta",       "std::vector<double>", &t_L1CenJetEta);
+  tree_->Branch("t_L1CenJetPhi",       "std::vector<double>", &t_L1CenJetPhi);
+  tree_->Branch("t_L1FwdJetPt",        "std::vector<double>", &t_L1FwdJetPt);
+  tree_->Branch("t_L1FwdJetEta",       "std::vector<double>", &t_L1FwdJetEta);
+  tree_->Branch("t_L1FwdJetPhi",       "std::vector<double>", &t_L1FwdJetPhi);
+  tree_->Branch("t_L1TauJetPt",        "std::vector<double>", &t_L1TauJetPt);
+  tree_->Branch("t_L1TauJetEta",       "std::vector<double>", &t_L1TauJetEta);     
+  tree_->Branch("t_L1TauJetPhi",       "std::vector<double>", &t_L1TauJetPhi);
+  tree_->Branch("t_L1MuonPt",          "std::vector<double>", &t_L1MuonPt);
+  tree_->Branch("t_L1MuonEta",         "std::vector<double>", &t_L1MuonEta);
+  tree_->Branch("t_L1MuonPhi",         "std::vector<double>", &t_L1MuonPhi);
+  tree_->Branch("t_L1IsoEMPt",         "std::vector<double>", &t_L1IsoEMPt);
+  tree_->Branch("t_L1IsoEMEta",        "std::vector<double>", &t_L1IsoEMEta);
+  tree_->Branch("t_L1IsoEMPhi",        "std::vector<double>", &t_L1IsoEMPhi);
+  tree_->Branch("t_L1NonIsoEMPt",      "std::vector<double>", &t_L1NonIsoEMPt);
+  tree_->Branch("t_L1NonIsoEMEta",     "std::vector<double>", &t_L1NonIsoEMEta);
+  tree_->Branch("t_L1NonIsoEMPhi",     "std::vector<double>", &t_L1NonIsoEMPhi);
+  tree_->Branch("t_L1METPt",           "std::vector<double>", &t_L1METPt);
+  tree_->Branch("t_L1METEta",          "std::vector<double>", &t_L1METEta);
+  tree_->Branch("t_L1METPhi",          "std::vector<double>", &t_L1METPhi);
 }
 
 
 void IsolatedGenParticles::clearTreeVectors() {
-  //  t_maxNearP31x31->clear();
-  
-  //t_nEvtProc          ->clear();
+
+// t_maxNearP31x31     ->clear();
+// t_nEvtProc          ->clear();
 
   t_isoTrkPAll        ->clear();
   t_isoTrkPtAll       ->clear();

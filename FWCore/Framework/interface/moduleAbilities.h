@@ -93,6 +93,16 @@ namespace edm {
     typedef module::Empty Type;
   };
 
+  struct ExternalWork {
+    static constexpr module::Abilities kAbilities=module::Abilities::kExternalWork;
+    typedef module::Empty Type;
+  };
+
+  struct Accumulator {
+    static constexpr module::Abilities kAbilities=module::Abilities::kAccumulator;
+    typedef module::Empty Type;
+  };
+
   //Recursively checks VArgs template arguments looking for the ABILITY
   template<module::Abilities ABILITY, typename... VArgs> struct CheckAbility;
 

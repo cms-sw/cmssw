@@ -45,10 +45,10 @@ public:
   /// Add a component and set its mother to this alignable.
   /// (Note: The component will be adopted, e.g. later deleted.)
   /// Also find average position of this composite from its modules' positions.
-  void addComponent( Alignable* component ) override;
+  void addComponent( Alignable* component ) final;
 
   /// Return vector of direct components
-  Alignables components() const override { return theComponents; }
+  const Alignables& components() const override { return theComponents; }
 
   /// Provide all components, subcomponents etc. (cf. description in base class)
   void recursiveComponents(Alignables &result) const override;

@@ -1,27 +1,30 @@
-#ifndef DQMSERVICES_CORE_DQM_STORE_H
-# define DQMSERVICES_CORE_DQM_STORE_H
+#ifndef DQMServices_Core_DQMStore_h
+#define DQMServices_Core_DQMStore_h
 
-# if __GNUC__ && ! defined DQM_DEPRECATED
-#  define DQM_DEPRECATED __attribute__((deprecated))
-# endif
+#if __GNUC__ && ! defined DQM_DEPRECATED
+#define DQM_DEPRECATED __attribute__((deprecated))
+#endif
 
-# include "DQMServices/Core/interface/DQMDefinitions.h"
-# include "classlib/utils/Regexp.h"
-# include <vector>
-# include <string>
-# include <list>
-# include <map>
-# include <set>
-# include <cassert>
-# include <mutex>
-# include <thread>
-# include <execinfo.h>
-# include <cstdio>
-# include <cstdlib>
-# include <cxxabi.h>
-# include <iosfwd>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <iosfwd>
+#include <list>
+#include <map>
+#include <mutex>
+#include <set>
+#include <string>
+#include <thread>
+#include <vector>
+#include <cxxabi.h>
+#include <execinfo.h>
 
-namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
+#include <classlib/utils/Regexp.h>
+
+#include "DQMServices/Core/interface/DQMDefinitions.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
+
+namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry; class GlobalContext; }
 namespace lat { class Regexp; }
 namespace dqmstorepb {class ROOTFilePB; class ROOTFilePB_Histo;}
 
@@ -54,7 +57,7 @@ class fastmatch
   enum MatchingHeuristicEnum { UseFull, OneStarStart, OneStarEnd, TwoStar };
 
  public:
-  fastmatch (std::string const& _fastString);
+  fastmatch (std::string  _fastString);
   ~fastmatch();
 
   bool match (std::string const& s) const;
@@ -164,11 +167,11 @@ class DQMStore
       return owner_->bookProfile2D(std::forward<Args>(args)...);
     }
 
-    void cd(void);
+    void cd();
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);
-    void goUp(void);
-    const std::string & pwd(void);
+    void goUp();
+    const std::string & pwd();
     void tag(MonitorElement *, unsigned int);
     void tagContents(const std::string &, unsigned int);
 
@@ -178,14 +181,119 @@ class DQMStore
       owner_ = store;
     }
 
-    IBooker();
-    IBooker(const IBooker&);
+   public:
+    IBooker() = delete;
+    IBooker(const IBooker&) = delete;
 
+   private:
     // Embedded classes do not natively own a pointer to the embedding
     // class. We therefore need to store a pointer to the main
     // DQMStore instance (owner_).
     DQMStore * owner_;
   };  // IBooker
+
+  class ConcurrentBooker : public IBooker
+  {
+  public:
+    friend class DQMStore;
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookString
+    template <typename... Args>
+    ConcurrentMonitorElement bookString(Args && ... args) {
+      MonitorElement* me = IBooker::bookString(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookInt
+    template <typename... Args>
+    ConcurrentMonitorElement bookInt(Args && ... args) {
+      MonitorElement* me = IBooker::bookInt(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookFloat
+    template <typename... Args>
+    ConcurrentMonitorElement bookFloat(Args && ... args) {
+      MonitorElement* me = IBooker::bookFloat(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1D
+    template <typename... Args>
+    ConcurrentMonitorElement book1D(Args && ... args) {
+      MonitorElement* me = IBooker::book1D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1S
+    template <typename... Args>
+    ConcurrentMonitorElement book1S(Args && ... args) {
+      MonitorElement* me = IBooker::book1S(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1DD
+    template <typename... Args>
+    ConcurrentMonitorElement book1DD(Args && ... args) {
+      MonitorElement* me = IBooker::book1DD(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2D
+    template <typename... Args>
+    ConcurrentMonitorElement book2D(Args && ... args) {
+      MonitorElement* me = IBooker::book2D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2S
+    template <typename... Args>
+    ConcurrentMonitorElement book2S(Args && ... args) {
+      MonitorElement* me = IBooker::book2S(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2DD
+    template <typename... Args>
+    ConcurrentMonitorElement book2DD(Args && ... args) {
+      MonitorElement* me = IBooker::book2DD(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book3D
+    template <typename... Args>
+    ConcurrentMonitorElement book3D(Args && ... args) {
+      MonitorElement* me = IBooker::book3D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookProfile
+    template <typename... Args>
+    ConcurrentMonitorElement bookProfile(Args && ... args) {
+      MonitorElement* me = IBooker::bookProfile(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookProfile2D
+    template <typename... Args>
+    ConcurrentMonitorElement bookProfile2D(Args && ... args) {
+      MonitorElement* me = IBooker::bookProfile2D(std::forward<Args>(args)...);
+      return ConcurrentMonitorElement(me);
+    }
+
+  private:
+    explicit ConcurrentBooker(DQMStore * store) :
+      IBooker(store)
+    { }
+
+    ConcurrentBooker() = delete;
+    ConcurrentBooker(ConcurrentBooker const&) = delete;
+    ConcurrentBooker(ConcurrentBooker &&) = delete;
+    ConcurrentBooker& operator= (ConcurrentBooker const&) = delete;
+    ConcurrentBooker& operator= (ConcurrentBooker &&) = delete;
+
+    ~ConcurrentBooker() = default;
+  };
 
   class IGetter
   {
@@ -204,18 +312,18 @@ class DQMStore
     }
 
     std::vector<MonitorElement*>  getAllContents(const std::string &path,
-						 uint32_t runNumber = 0,
-						 uint32_t lumi = 0);
+                                                 uint32_t runNumber = 0,
+                                                 uint32_t lumi = 0);
     MonitorElement * get(const std::string &path);
 
     // same as get, throws an exception if histogram not found
     MonitorElement * getElement(const std::string &path);
 
-    std::vector<std::string> getSubdirs(void);
-    std::vector<std::string> getMEs(void);
+    std::vector<std::string> getSubdirs();
+    std::vector<std::string> getMEs();
     bool containsAnyMonitorable(const std::string &path);
     bool dirExists(const std::string &path);
-    void cd(void);
+    void cd();
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);
 
@@ -225,9 +333,11 @@ class DQMStore
       owner_ = store;
     }
 
-    IGetter();
-    IGetter(const IGetter&);
+   public:
+    IGetter() = delete;
+    IGetter(const IGetter&) = delete;
 
+   private:
     // Embedded classes do not natively own a pointer to the embedding
     // class. We therefore need to store a pointer to the main
     // DQMStore instance (owner_).
@@ -240,12 +350,12 @@ class DQMStore
   // is passed the instance of the IBooker class (owned by the *only*
   // DQMStore instance), that is capable of booking MonitorElements
   // into the DQMStore via a public API. The central mutex is acquired
-  // *before* invoking fand automatically released upon returns.
+  // *before* invoking and automatically released upon returns.
   template <typename iFunc>
   void bookTransaction(iFunc f,
-		       uint32_t run,
-		       uint32_t streamId,
-		       uint32_t moduleId) {
+                       uint32_t run,
+                       uint32_t streamId,
+                       uint32_t moduleId) {
     std::lock_guard<std::mutex> guard(book_mutex_);
     /* If enableMultiThread is not enabled we do not set run_,
        streamId_ and moduleId_ to 0, since we rely on their default
@@ -266,6 +376,27 @@ class DQMStore
       moduleId_ = 0;
     }
   }
+
+  // Similar function used to book "global" histograms via the
+  // ConcurrentMonitorElement interface.
+  template <typename iFunc>
+  void bookConcurrentTransaction(iFunc f, uint32_t run) {
+    std::lock_guard<std::mutex> guard(book_mutex_);
+    /* Even if enableMultiThread_ is enabled, keep the streamId_
+       and moduleId_ to 0, since we want to book global histograms. */
+    if (enableMultiThread_) {
+      run_ = run;
+    }
+    ConcurrentBooker booker(this);
+    f(booker);
+
+    /* Set back to 0 the run_ in case we run in mixed conditions
+       with DQMEDAnalyzers and legacy modules */
+    if (enableMultiThread_) {
+      run_ = 0;
+    }
+  }
+
   // Signature needed in the harvesting where the booking is done
   // in the endJob. No handles to the run there. Two arguments ensure
   // the capability of booking and getting. The method relies on the
@@ -275,6 +406,7 @@ class DQMStore
   void meBookerGetter(iFunc f) {
     f(*ibooker_, *igetter_);
   }
+
   // Signature needed in the harvesting where it might be needed to get
   // the LS based histograms. Handle to the Lumi and to the iSetup are available.
   // No need to book anything there. The method relies on the
@@ -289,17 +421,17 @@ class DQMStore
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry&);
   DQMStore(const edm::ParameterSet &pset);
-  ~DQMStore(void);
+  ~DQMStore();
 
   //-------------------------------------------------------------------------
   void                          setVerbose(unsigned level);
 
   // ---------------------- public navigation -------------------------------
-  const std::string &           pwd(void) const;
-  void                          cd(void);
+  const std::string &           pwd() const;
+  void                          cd();
   void                          cd(const std::string &subdir);
   void                          setCurrentFolder(const std::string &fullpath);
-  void                          goUp(void);
+  void                          goUp();
 
   bool                          dirExists(const std::string &path) const;
 
@@ -511,8 +643,8 @@ class DQMStore
 
   //-------------------------------------------------------------------------
   // ---------------------- public ME getters -------------------------------
-  std::vector<std::string>      getSubdirs(void) const;
-  std::vector<std::string>      getMEs(void) const;
+  std::vector<std::string>      getSubdirs() const;
+  std::vector<std::string>      getMEs() const;
   bool                          containsAnyMonitorable(const std::string &path) const;
 
   MonitorElement *              get(const std::string &path) const;
@@ -527,18 +659,13 @@ class DQMStore
 
   // ---------------------- Public deleting ---------------------------------
   void                          rmdir(const std::string &fullpath);
-  void                          removeContents(void);
+  void                          removeContents();
   void                          removeContents(const std::string &dir);
   void                          removeElement(const std::string &name);
   void                          removeElement(const std::string &dir, const std::string &name, bool warning = true);
 
-  //-------------------------------------------------------------------------
+  // ------------------------------------------------------------------------
   // ---------------------- public I/O --------------------------------------
-  void                          savePB(const std::string &filename,
-                                       const std::string &path = "",
-				       const uint32_t run = 0,
-				       const uint32_t lumi = 0,
-				       const bool resetMEsAfterWriting = false);
   void                          save(const std::string &filename,
                                      const std::string &path = "",
                                      const std::string &pattern = "",
@@ -547,8 +674,11 @@ class DQMStore
                                      const uint32_t lumi = 0,
                                      SaveReferenceTag ref = SaveWithReference,
                                      int minStatus = dqm::qstatus::STATUS_OK,
-                                     const std::string &fileupdate = "RECREATE",
-				     const bool resetMEsAfterWriting = false);
+                                     const std::string &fileupdate = "RECREATE");
+  void                          savePB(const std::string &filename,
+                                       const std::string &path = "",
+                                       const uint32_t run = 0,
+                                       const uint32_t lumi = 0);
   bool                          open(const std::string &filename,
                                      bool overwrite = false,
                                      const std::string &path ="",
@@ -560,22 +690,24 @@ class DQMStore
                                      bool fileMustExist = true);
   bool                          mtEnabled() { return enableMultiThread_; };
 
-  //-------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
   // ---------------------- Public print methods -----------------------------
-  void                          showDirStructure(void) const;
+ public:
+  void                          showDirStructure() const;
 
   // ---------------------- Public check options -----------------------------
-  bool                         isCollate(void) const;
+  bool                          isCollate() const;
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // ---------------------- Quality Test methods -----------------------------
   QCriterion *                  getQCriterion(const std::string &qtname) const;
   QCriterion *                  createQTest(const std::string &algoname, const std::string &qtname);
   void                          useQTest(const std::string &dir, const std::string &qtname);
   int                           useQTestByMatch(const std::string &pattern, const std::string &qtname);
-  void                          runQTests(void);
+  void                          runQTests();
   int                           getStatus(const std::string &path = "") const;
-  void                          scaleElements(void);
+  void                          scaleElements();
 
  private:
   // ---------------- Navigation -----------------------
@@ -626,46 +758,48 @@ class DQMStore
 
   // Multithread SummaryCache manipulations
   void mergeAndResetMEsRunSummaryCache(uint32_t run,
-				       uint32_t streamId,
-				       uint32_t moduleId);
+                                       uint32_t streamId,
+                                       uint32_t moduleId);
   void mergeAndResetMEsLuminositySummaryCache(uint32_t run,
-					      uint32_t lumi,
-					      uint32_t streamId,
-					      uint32_t moduleId);
+                                              uint32_t lumi,
+                                              uint32_t streamId,
+                                              uint32_t moduleId);
 
   void deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi);
  private:
 
   // ---------------- Miscellaneous -----------------------------
   void        initializeFrom(const edm::ParameterSet&);
-  void        reset(void);
-  void        forceReset(void);
-  
+  void        reset();
+  void        forceReset();
+  void        postGlobalBeginLumi(const edm::GlobalContext&);
+
   bool        extract(TObject *obj, const std::string &dir, bool overwrite, bool collateHistograms);
   TObject *   extractNextObject(TBufferFile&) const;
 
   // ---------------------- Booking ------------------------------------
   MonitorElement *              initialise(MonitorElement *me, const std::string &path);
-  MonitorElement *              book(const std::string &dir,
-                                     const std::string &name,
-                                     const char *context);
+  MonitorElement *              book_(const std::string &dir,
+                                      const std::string &name,
+                                      const char *context);
   template <class HISTO, class COLLATE>
-  MonitorElement *              book(const std::string &dir, const std::string &name,
-                                     const char *context, int kind,
-                                     HISTO *h, COLLATE collate);
+  MonitorElement *              book_(const std::string &dir,
+                                      const std::string &name,
+                                      const char *context,
+                                      int kind, HISTO *h, COLLATE collate);
 
-  MonitorElement *              bookInt(const std::string &dir, const std::string &name);
-  MonitorElement *              bookFloat(const std::string &dir, const std::string &name);
-  MonitorElement *              bookString(const std::string &dir, const std::string &name, const std::string &value);
-  MonitorElement *              book1D(const std::string &dir, const std::string &name, TH1F *h);
-  MonitorElement *              book1S(const std::string &dir, const std::string &name, TH1S *h);
-  MonitorElement *              book1DD(const std::string &dir, const std::string &name, TH1D *h);
-  MonitorElement *              book2D(const std::string &dir, const std::string &name, TH2F *h);
-  MonitorElement *              book2S(const std::string &dir, const std::string &name, TH2S *h);
-  MonitorElement *              book2DD(const std::string &dir, const std::string &name, TH2D *h);
-  MonitorElement *              book3D(const std::string &dir, const std::string &name, TH3F *h);
-  MonitorElement *              bookProfile(const std::string &dir, const std::string &name, TProfile *h);
-  MonitorElement *              bookProfile2D(const std::string &folder, const std::string &name, TProfile2D *h);
+  MonitorElement *              bookInt_(const std::string &dir, const std::string &name);
+  MonitorElement *              bookFloat_(const std::string &dir, const std::string &name);
+  MonitorElement *              bookString_(const std::string &dir, const std::string &name, const std::string &value);
+  MonitorElement *              book1D_(const std::string &dir, const std::string &name, TH1F *h);
+  MonitorElement *              book1S_(const std::string &dir, const std::string &name, TH1S *h);
+  MonitorElement *              book1DD_(const std::string &dir, const std::string &name, TH1D *h);
+  MonitorElement *              book2D_(const std::string &dir, const std::string &name, TH2F *h);
+  MonitorElement *              book2S_(const std::string &dir, const std::string &name, TH2S *h);
+  MonitorElement *              book2DD_(const std::string &dir, const std::string &name, TH2D *h);
+  MonitorElement *              book3D_(const std::string &dir, const std::string &name, TH3F *h);
+  MonitorElement *              bookProfile_(const std::string &dir, const std::string &name, TProfile *h);
+  MonitorElement *              bookProfile2D_(const std::string &dir, const std::string &name, TProfile2D *h);
 
   static bool                   checkBinningMatches(MonitorElement *me, TH1 *h, unsigned verbose);
 
@@ -690,11 +824,37 @@ class DQMStore
 
   //-------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------
-  typedef std::pair<fastmatch *, QCriterion *>                  QTestSpec;
-  typedef std::list<QTestSpec>                                          QTestSpecs;
-  typedef std::set<MonitorElement>                                      MEMap;
-  typedef std::map<std::string, QCriterion *>                           QCMap;
-  typedef std::map<std::string, QCriterion *(*)(const std::string &)>   QAMap;
+  using QTestSpec             = std::pair<fastmatch *, QCriterion *>;
+  using QTestSpecs            = std::list<QTestSpec>;
+  using MEMap                 = std::set<MonitorElement>;
+  using QCMap                 = std::map<std::string, QCriterion *>;
+  using QAMap                 = std::map<std::string, QCriterion *(*)(const std::string &)>;
+
+
+  // ------------------------ private I/O helpers ------------------------------
+  void                          saveMonitorElementToPB(
+                                    MonitorElement const& me,
+                                    dqmstorepb::ROOTFilePB & file);
+  void                          saveMonitorElementRangeToPB(
+                                    std::string const& dir,
+                                    unsigned int run,
+                                    MEMap::const_iterator begin,
+                                    MEMap::const_iterator end,
+                                    dqmstorepb::ROOTFilePB & file,
+                                    unsigned int & counter);
+  void                          saveMonitorElementToROOT(
+                                    MonitorElement const& me,
+                                    TFile & file);
+  void                          saveMonitorElementRangeToROOT(
+                                    std::string const& dir,
+                                    std::string const& refpath,
+                                    SaveReferenceTag ref,
+                                    int minStatus,
+                                    unsigned int run,
+                                    MEMap::const_iterator begin,
+                                    MEMap::const_iterator end,
+                                    TFile & file,
+                                    unsigned int & counter);
 
   unsigned                      verbose_;
   unsigned                      verboseQT_;
@@ -733,4 +893,4 @@ class DQMStore
   friend class MEtoEDMConverter;
 };
 
-#endif // DQMSERVICES_CORE_DQM_STORE_H
+#endif // DQMServices_Core_DQMStore_h

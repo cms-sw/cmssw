@@ -72,7 +72,7 @@ EcalBarrelGeometry::alignmentTransformIndexGlobal( const DetId& /*id*/ )
 }
 // Get closest cell, etc...
 DetId 
-EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const 
+EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 {
 
   // z is the easy one
@@ -300,7 +300,7 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 
 CaloSubdetectorGeometry::DetIdSet 
 EcalBarrelGeometry::getCells( const GlobalPoint& r, 
-			      double             dR ) const 
+			      double             dR ) const
 {
    constexpr int maxphi ( EBDetId::MAX_IPHI ) ;
    constexpr int maxeta ( EBDetId::MAX_IETA ) ;
@@ -361,7 +361,7 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
 			   
 			       if( !ok ) // if not ok, then we have to test this cell for being inside cone
 				 {
-				   const CaloCellGeometry* cell  = &m_cellVec[ id.denseIndex()];
+				   const CaloCellGeometry* cell(&m_cellVec[ id.denseIndex()]);
 				   const float       eta ( cell->etaPos() ) ;
 				   const float       phi ( cell->phiPos() ) ;
 				   ok = ( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) ;
@@ -473,14 +473,14 @@ EcalBarrelGeometry::newCell( const GlobalPoint& f1 ,
 }
 
 CCGFloat 
-EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const 
+EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const
 {
    if(!m_check.load(std::memory_order_acquire))
    {
       CCGFloat sum ( 0 ) ;
       for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
       {
-	 const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
+	 auto cell ( cellGeomPtr(i) ) ;
 	 if( nullptr != cell )
 	 {
 	    const GlobalPoint& pos ( cell->getPosition() ) ;
@@ -493,10 +493,9 @@ EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const
    return m_radius ;
 }
 
-const CaloCellGeometry* 
-EcalBarrelGeometry::cellGeomPtr( uint32_t index ) const
-{
-   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
-   return ( m_cellVec.size() < index ||
-	    nullptr == cell->param() ? nullptr : cell ) ;
+const CaloCellGeometry* EcalBarrelGeometry::getGeometryRawPtr (uint32_t index) const {
+  // Modify the RawPtr class
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
 }

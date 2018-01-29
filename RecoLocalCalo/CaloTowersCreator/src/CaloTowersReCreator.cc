@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) : 
-  algo_(0.,0., false, false, false, false, 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0., // thresholds cannot be reapplied
+  algo_(0.,0., false, false, false, false, 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,// thresholds cannot be reapplied
         conf.getParameter<std::vector<double> >("EBGrid"),
         conf.getParameter<std::vector<double> >("EBWeights"),
         conf.getParameter<std::vector<double> >("EEGrid"),
@@ -37,7 +37,8 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) :
         conf.getParameter<double>("MomHEDepth"),
         conf.getParameter<double>("MomEBDepth"),
         conf.getParameter<double>("MomEEDepth"),
-        conf.getParameter<int>("HcalPhase")
+        conf.getParameter<int>("HcalPhase"),
+        conf.getParameter<bool>("HcalCollapsed")
         ),
   allowMissingInputs_(false)
 {
@@ -142,6 +143,7 @@ void CaloTowersReCreator::fillDescriptions(edm::ConfigurationDescriptions& descr
 	desc.add<edm::InputTag>("caloLabel", edm::InputTag("calotowermaker"));
 	desc.add<int>("MomConstrMethod", 1);
 	desc.add<int>("HcalPhase", 0);
+	desc.add<bool>("HcalCollapsed", 0);
 
 	descriptions.addDefault(desc);
 }

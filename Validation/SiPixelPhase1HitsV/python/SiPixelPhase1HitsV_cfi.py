@@ -124,7 +124,8 @@ SiPixelPhase1HitsConf = cms.VPSet(
   SiPixelPhase1HitsEfficiencyTrack,
 )
 
-SiPixelPhase1HitsAnalyzerV = cms.EDAnalyzer("SiPixelPhase1HitsV",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1HitsAnalyzerV = DQMEDAnalyzer('SiPixelPhase1HitsV',
         pixBarrelLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
         pixBarrelHighSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelHighTof"),
         pixForwardLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"),
@@ -134,7 +135,7 @@ SiPixelPhase1HitsAnalyzerV = cms.EDAnalyzer("SiPixelPhase1HitsV",
         associateRecoTracks = cms.bool(True),
         tracksTag = cms.InputTag("generalTracks"),
         tpTag = cms.InputTag("mix","MergedTrackTruth"),
-        trackAssociatorByHitsTag = cms.InputTag("trackAssociatorByHits"),
+        trackAssociatorByHitsTag = cms.InputTag("quickTrackAssociatorByHits"),
         associateStrip = cms.bool(True),
         associatePixel = cms.bool(True),
         ROUList = cms.vstring('g4SimHitsTrackerHitsPixelBarrelLowTof', 

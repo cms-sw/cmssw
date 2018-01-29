@@ -1,4 +1,5 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
 
 
@@ -16,6 +17,8 @@ class HGCalTriggerNtupleGen : public HGCalTriggerNtupleBase
         void clear() final;
 
         edm::EDGetToken gen_token_;
+        edm::EDGetToken gen_PU_token_;
+        
         int gen_n_;
         std::vector<int>   gen_id_;
         std::vector<int>   gen_status_;
@@ -23,6 +26,8 @@ class HGCalTriggerNtupleGen : public HGCalTriggerNtupleBase
         std::vector<float> gen_pt_;
         std::vector<float> gen_eta_;
         std::vector<float> gen_phi_;
+        int gen_PUNumInt_;
+        float gen_TrueNumInt_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
@@ -41,6 +46,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
 {
 
     gen_token_ = collector.consumes<reco::GenParticleCollection>(conf.getParameter<edm::InputTag>("GenParticles"));
+    gen_PU_token_ = collector.consumes<std::vector<PileupSummaryInfo>>(conf.getParameter<edm::InputTag>("GenPU"));
     tree.Branch("gen_n", &gen_n_, "gen_n/I");
     tree.Branch("gen_id", &gen_id_);
     tree.Branch("gen_status", &gen_status_);
@@ -48,6 +54,8 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
     tree.Branch("gen_pt", &gen_pt_);
     tree.Branch("gen_eta", &gen_eta_);
     tree.Branch("gen_phi", &gen_phi_);
+    tree.Branch("gen_PUNumInt", &gen_PUNumInt_ ,"gen_PUNumInt/I");
+    tree.Branch("gen_TrueNumInt", &gen_TrueNumInt_ ,"gen_TrueNumInt/F");
 
 }
 
@@ -58,6 +66,10 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     edm::Handle<reco::GenParticleCollection> gen_particles_h;
     e.getByToken(gen_token_, gen_particles_h);
     const reco::GenParticleCollection& gen_particles = *gen_particles_h;
+
+    edm::Handle<std::vector< PileupSummaryInfo > >  PupInfo_h;
+    e.getByToken(gen_PU_token_, PupInfo_h);
+    const std::vector< PileupSummaryInfo >& PupInfo = *PupInfo_h;
 
     clear();
     gen_n_ = gen_particles.size();
@@ -77,6 +89,15 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         gen_phi_.emplace_back(particle.phi());
     }
 
+    for(const auto& PVI : PupInfo)
+    {
+        if(PVI.getBunchCrossing() == 0)
+        { 
+            gen_PUNumInt_ = PVI.getPU_NumInteractions();
+            gen_TrueNumInt_ = PVI.getTrueNumInteractions();
+        }
+    }
+
 }
 
 
@@ -91,6 +112,8 @@ clear()
     gen_pt_.clear();
     gen_eta_.clear();
     gen_phi_.clear();
+    gen_PUNumInt_ = 0;
+    gen_TrueNumInt_ = 0.;
 }
 
 

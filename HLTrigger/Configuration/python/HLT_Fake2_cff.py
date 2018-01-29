@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_9_2_0/Fake2 --type Fake2
+# hltGetConfiguration --cff --data /dev/CMSSW_10_0_0/Fake2 --type Fake2
 
-# /dev/CMSSW_9_2_0/Fake2/V9 (CMSSW_9_2_14)
+# /dev/CMSSW_10_0_0/Fake2/V5 (CMSSW_10_0_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/Fake2/V9')
+  tableName = cms.string('/dev/CMSSW_10_0_0/Fake2/V5')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -20,13 +20,8 @@ fragment.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "L1TGlobalParametersRcd" ),
     firstValid = cms.vuint32( 1 )
 )
-fragment.StableParametersRcdSource = cms.ESSource( "EmptyESSource",
-    iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "L1TGlobalStableParametersRcd" ),
-    firstValid = cms.vuint32( 1 )
-)
 
-fragment.StableParameters = cms.ESProducer( "StableParametersTrivialProducer",
+fragment.GlobalParameters = cms.ESProducer( "StableParametersTrivialProducer",
   NumberL1JetCounts = cms.uint32( 12 ),
   NumberL1NoIsoEG = cms.uint32( 4 ),
   NumberL1CenJet = cms.uint32( 4 ),

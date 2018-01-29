@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dEdxAnalyzer = DQMEDAnalyzer('dEdxAnalyzer',
     dEdxParameters = cms.PSet(
        doAllPlots          = cms.bool(False),
        doDeDxPlots         = cms.bool(True),
@@ -46,7 +47,7 @@ dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
 )
 
 
-dEdxHitAnalyzer = cms.EDAnalyzer("dEdxHitAnalyzer",
+dEdxHitAnalyzer = DQMEDAnalyzer('dEdxHitAnalyzer',
     dEdxParameters = cms.PSet(
        doAllPlots          = cms.bool(False),
        doDeDxPlots         = cms.bool(True),

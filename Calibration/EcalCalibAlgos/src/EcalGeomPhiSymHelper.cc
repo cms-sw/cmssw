@@ -70,7 +70,7 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
   std::vector<DetId>::const_iterator endcapIt;
   for (endcapIt=endcapCells.begin(); endcapIt!=endcapCells.end(); endcapIt++) {
 
-    const CaloCellGeometry *cellGeometry = endcapGeometry->getGeometry(*endcapIt);
+    auto cellGeometry = endcapGeometry->getGeometry(*endcapIt);
     EEDetId ee(*endcapIt);
     int ix=ee.ix()-1;
     int iy=ee.iy()-1;

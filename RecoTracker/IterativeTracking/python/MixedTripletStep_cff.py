@@ -22,9 +22,6 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
 trackingPhase1.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
-trackingPhase1QuadProp.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
 
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
@@ -78,13 +75,15 @@ trackingLowPU.toModify(_mixedTripletStepTrackingRegionsCommon, RegionPSet = dict
 mixedTripletStepTrackingRegionsA = _mixedTripletStepTrackingRegionsCommon.clone()
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-pp_on_XeXe_2017.toReplaceWith(mixedTripletStepTrackingRegionsA, 
-                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            fixedError = 3.75,
-            ptMin = 0.4,
-            originRadius = 1.5
-            )
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toReplaceWith(mixedTripletStepTrackingRegionsA, 
+                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+                fixedError = 3.75,
+                ptMin = 0.4,
+                originRadius = 1.5
+                )
                                                                       )
 )
 
@@ -154,16 +153,16 @@ trackingLowPU.toModify(mixedTripletStepSeedLayersB,
     TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
 )
 trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
-trackingPhase1QuadProp.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
 
 # TrackingRegion
 mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsCommon.clone(RegionPSet = dict(ptMin=0.6, originHalfLength=10.0))
-pp_on_XeXe_2017.toReplaceWith(mixedTripletStepTrackingRegionsB, 
-                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            fixedError = 2.5,
-            ptMin = 0.6,
-            originRadius = 1.5
-            )
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toReplaceWith(mixedTripletStepTrackingRegionsB, 
+                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+                fixedError = 2.5,
+                ptMin = 0.6,
+                originRadius = 1.5
+                )
                                                                       )
 )
 
@@ -206,7 +205,8 @@ trackingLowPU.toReplaceWith(mixedTripletStepTrajectoryFilter, _mixedTripletStepT
     maxLostHits = 0,
 ))
 
-pp_on_XeXe_2017.toModify(mixedTripletStepTrajectoryFilter, minPt=0.4)
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(mixedTripletStepTrajectoryFilter, minPt=0.4)
 
 # Propagator taking into account momentum uncertainty in multiple scattering calculation.
 import TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff
@@ -216,7 +216,8 @@ mixedTripletStepPropagator = TrackingTools.MaterialEffects.MaterialPropagator_cf
     ComponentName = 'mixedTripletStepPropagator',
     ptMin = 0.1
     )
-pp_on_XeXe_2017.toModify(mixedTripletStepPropagator, ptMin=0.4)
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(mixedTripletStepPropagator, ptMin=0.4)
 
 import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
 mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone(
@@ -224,7 +225,8 @@ mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.OppositeMater
     ComponentName = 'mixedTripletStepPropagatorOpposite',
     ptMin = 0.1
     )
-pp_on_XeXe_2017.toModify(mixedTripletStepPropagatorOpposite, ptMin=0.4)
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(mixedTripletStepPropagatorOpposite, ptMin=0.4)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 mixedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -312,10 +314,6 @@ mixedTripletStep = ClassifierMerger.clone()
 mixedTripletStep.inputClassifiers=['mixedTripletStepClassifier1','mixedTripletStepClassifier2']
 
 trackingPhase1.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
-     qualityCuts = [-0.5,0.0,0.5],
-))
-trackingPhase1QuadProp.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
      qualityCuts = [-0.5,0.0,0.5],
 ))

@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -52,7 +52,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-class HcalRaddamMuon : public edm::EDAnalyzer {
+class HcalRaddamMuon : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
   explicit HcalRaddamMuon(const edm::ParameterSet&);
@@ -66,8 +66,6 @@ private:
   void endJob() override ;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void   clearVectors();
   int    matchId(const HcalDetId&, const HcalDetId&);
   double activeLength(const DetId&);
@@ -100,10 +98,11 @@ private:
   int maxDepth_,type; 
   edm::Service<TFileService> fs;
   //////////////////////////////////////////////////////
-  HLTConfigProvider hltConfig_;
-  int               verbosity_;
-  bool              isAOD_, useRaw_;
-  std::string       hltlabel_;
+  HLTConfigProvider   hltConfig_;
+  const edm::InputTag hlTriggerResults_, muonsrc_;
+  const int           verbosity_, useRaw_;
+  const bool          isAOD_;
+  std::string         hltlabel_;
   std::vector<std::string> all_triggers,all_triggers1,all_triggers2,all_triggers3,all_triggers4,all_triggers5;
   ////////////////////////////////////////////////////////////
 
@@ -123,9 +122,7 @@ private:
   unsigned int RunNumber, EventNumber , LumiNumber, BXNumber;
   double _RecoMuon1TrackIsoSumPtMaxCutValue_03, _RecoMuon1TrackIsoSumPtMaxCutValue_04; 
   int           ntriggers;
-  edm::InputTag HLTriggerResults_;
   std::string theTrackQuality;
-  edm::InputTag muonsrc_;
   std::vector <double> track_cosmic_xposition , track_cosmic_yposition, track_cosmic_zposition, track_cosmic_xmomentum,track_cosmic_ymomentum, track_cosmic_zmomentum, track_cosmic_rad, track_cosmic_detid;
 
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
@@ -138,20 +135,22 @@ private:
   edm::EDGetTokenT<reco::MuonCollection>   tok_muon_;
 };
 
-HcalRaddamMuon::HcalRaddamMuon(const edm::ParameterSet& iConfig) {
-  //now do what ever initialization is needed
-  HLTriggerResults_ = iConfig.getUntrackedParameter<edm::InputTag>("HLTriggerResults_");
-  muonsrc_          = iConfig.getUntrackedParameter<edm::InputTag>("MuonSource");
-  verbosity_        = iConfig.getUntrackedParameter<int>("Verbosity",0);
-  isAOD_            = iConfig.getUntrackedParameter<bool>("IsAOD",false);
-  maxDepth_         = iConfig.getUntrackedParameter<int>("MaxDepth",4);
-  useRaw_           = iConfig.getUntrackedParameter<bool>("UseRaw",false);
+HcalRaddamMuon::HcalRaddamMuon(const edm::ParameterSet& iConfig) :
+  hlTriggerResults_(iConfig.getUntrackedParameter<edm::InputTag>("hlTriggerResults_")),
+  muonsrc_(iConfig.getUntrackedParameter<edm::InputTag>("muonSource")),
+  verbosity_(iConfig.getUntrackedParameter<int>("verbosity",0)),
+  useRaw_(iConfig.getUntrackedParameter<int>("UseRaw",0)),
+  isAOD_(iConfig.getUntrackedParameter<bool>("IsAOD",false)) {
 
+  usesResource(TFileService::kSharedResource);
+
+  //now do what ever initialization is needed
+  maxDepth_         = iConfig.getUntrackedParameter<int>("MaxDepth",4);
   if (maxDepth_ > 7)      maxDepth_ = 7;
   else if (maxDepth_ < 1) maxDepth_ = 4;
 
   tok_hcal_    = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
-  tok_trigRes_ = consumes<edm::TriggerResults>(HLTriggerResults_);
+  tok_trigRes_ = consumes<edm::TriggerResults>(hlTriggerResults_);
   tok_recVtx_  = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
   tok_bs_      = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
   if (isAOD_) {
@@ -637,19 +636,15 @@ void HcalRaddamMuon::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
 // ------------ method called when ending the processing of a run  ------------
 void HcalRaddamMuon::endRun(edm::Run const&, edm::EventSetup const&) { }
 
-// ------------ method called when starting to processes a luminosity block  ------------
-void HcalRaddamMuon::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) { }
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void HcalRaddamMuon::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) { }
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HcalRaddamMuon::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<edm::InputTag>("hlTriggerResults",edm::InputTag("TriggerResults","","HLT"));
+  desc.addUntracked<edm::InputTag>("muonSource",edm::InputTag("muons"));
+  desc.addUntracked<int>("verbosity",0);
+  desc.addUntracked<int>("useRaw",0);
+  desc.add<bool>("isAOD",false);
+  desc.addUntracked<int>("maxDepth",4);
+  descriptions.add("hcalRaddamMuon",desc);
 }
 
 void HcalRaddamMuon::clearVectors() {

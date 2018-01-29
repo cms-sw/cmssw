@@ -131,8 +131,11 @@ def copy( args ):
     if destDb.lower() in destMap.keys():
         destDb = destMap[destDb.lower()]
     else:
-        logger.error( 'Destination connection %s is not supported.' %destDb )
-        return 
+        if destDb.startswith('sqlite'):
+            destDb = destDb.split(':')[1]
+        else:
+            logger.error( 'Destination connection %s is not supported.' %destDb )
+            return 
     # run the copy
     note = '"Importing data with O2O execution"'
     commandOptions = '--force --yes --db %s copy %s %s --destdb %s --synchronize --note %s' %(dbFileName,destTag,destTag,destDb,note)

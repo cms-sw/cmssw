@@ -72,7 +72,7 @@ EcalHitResponse::setBunchRange( int minBunch ,
 void 
 EcalHitResponse::setGeometry( const CaloSubdetectorGeometry* geometry )
 {
-   m_geometry = geometry ;
+  m_geometry = geometry ;
 }
 
 void 
@@ -282,9 +282,9 @@ EcalHitResponse::analogSignalAmplitude( const DetId& detId, double energy, CLHEP
 double 
 EcalHitResponse::timeOfFlight( const DetId& detId ) const 
 {
-   const CaloCellGeometry* cellGeometry ( geometry()->getGeometry( detId ) ) ;
-   assert( nullptr != cellGeometry ) ;
-   return cellGeometry->getPosition().mag()*cm/c_light ; // Units of c_light: mm/ns
+  auto cellGeometry ( geometry()->getGeometry( detId ) ) ;
+  assert( nullptr != cellGeometry ) ;
+  return cellGeometry->getPosition().mag()*cm/c_light ; // Units of c_light: mm/ns
 }
 
 void 

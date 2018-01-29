@@ -795,7 +795,7 @@ namespace edm {
         });
       }
 
-      iReg.watchPreallocate([this](edm::service::SystemBounds const& iBounds){
+      iReg.watchPreallocate([](edm::service::SystemBounds const& iBounds){
         if (iBounds.maxNumberOfThreads() > moduleListBuffers_.size()) {
           moduleListBuffers_.resize(iBounds.maxNumberOfThreads());
         }

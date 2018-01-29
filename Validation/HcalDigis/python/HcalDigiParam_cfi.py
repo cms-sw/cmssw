@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hcalDigiAnalyzer = DQMEDAnalyzer('HcalDigiTester',
     digiLabel = cms.InputTag("simHcalUnsuppressedDigis"),
     zside = cms.untracked.string('*'),
     outputFile = cms.untracked.string(''),

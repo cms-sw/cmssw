@@ -18,6 +18,7 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/src/HybridMinimizer.h"
 
+class HcalTimeSlew;
 
 class PulseShapeFitOOTPileupCorrection
 {
@@ -29,7 +30,8 @@ public:
 		     float& reconstructedEnergy,
 		     float& reconstructedTime,
 		     bool & useTriple,
-		     float& chi2) const;
+		     float& chi2,
+		     const HcalTimeSlew* hcalTimeSlew_delay) const;
 
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
 		     double iTS4Min, const std::vector<double> & iTS4Max,
@@ -40,7 +42,6 @@ public:
 		     const std::vector<double> & its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
 
     const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
-    void setChi2Term( bool isHPD );
 
     void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples);
     void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples);
@@ -50,7 +51,7 @@ private:
     double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const;
 
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
-		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * ADCnoise, unsigned int soi) const;
+		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * ADCnoise, unsigned int soi, const HcalTimeSlew* hcalTimeSlew_delay) const;
     void fit(int iFit,float &timevalfit,float &chargevalfit,float &pedvalfit,float &chi2,bool &fitStatus,double &iTSMax,
 	     const double  &iTSTOTen,double *iEnArr,unsigned (&iBX)[3]) const;
 
@@ -83,11 +84,6 @@ private:
     double timeSigSiPM_;
     double pedMean_;
     double pedSig_;
-    double pedSigHPD_;
-    double pedSigSiPM_;
-    double noise_;    
-    double noiseHPD_;
-    double noiseSiPM_;
     HcalTimeSlew::BiasSetting slewFlavor_;    
 
     bool isCurrentChannelHPD_;

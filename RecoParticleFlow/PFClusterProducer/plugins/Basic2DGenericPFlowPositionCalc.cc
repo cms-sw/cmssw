@@ -126,16 +126,33 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     
     auto compute = [&](LHit const& rhf) {
       const reco::PFRecHit & refhit = *rhf.hit;  
+
+      int cell_layer = (int)refhit.layer();
+      float threshold=0;
+
+      for (unsigned int j=0; j<(std::get<2>(_logWeightDenom)).size(); ++j) {
+	// barrel is detecor type1
+	int detectorEnum=std::get<0>(_logWeightDenom)[j];
+	int depth=std::get<1>(_logWeightDenom)[j];
+
+	if( ( cell_layer == PFLayer::HCAL_BARREL1 && detectorEnum==1 && refhit.depth()== depth)
+	    || ( cell_layer == PFLayer::HCAL_ENDCAP && detectorEnum==2 && refhit.depth()== depth)
+	    || detectorEnum==0
+	    ) threshold=std::get<2>(_logWeightDenom)[j];
+
+      }
+
       const auto rh_energy = rhf.energy * rhf.fraction;
-      const auto norm = ( rhf.fraction < _minFractionInCalc ? 
-			  0.0f : 
-			  std::max(0.0f,vdt::fast_logf(rh_energy*_logWeightDenom)) );
+      const auto norm = ( rhf.fraction < _minFractionInCalc ?
+			  0.0f :
+			  std::max(0.0f,vdt::fast_logf(rh_energy*threshold)) );
       const auto rhpos_xyz = refhit.position()*norm;
       x += rhpos_xyz.x();
       y += rhpos_xyz.y();
       z += rhpos_xyz.z();
       depth += refhit.depth()*norm;
       position_norm += norm;
+
     };
     
     if(_posCalcNCrystals != -1) // sorted to make neighbour search faster (maybe)
@@ -167,7 +184,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   }
 
   if( position_norm < _minAllowedNorm ) {
-    edm::LogError("WeirdClusterNormalization") 
+    edm::LogError("WeirdClusterNormalization")
       << "PFCluster too far from seeding cell: set position to (0,0,0).";
     cluster.setPosition(math::XYZPoint(0,0,0));
     cluster.calculatePositionREP();

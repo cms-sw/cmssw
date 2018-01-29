@@ -9,6 +9,7 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauJetsMerger.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerFromL1TCreatorForTauHLT.h"
+#include "RecoTauTag/HLTProducers/interface/CaloTowerFromL1TSeededCreatorForTauHLT.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h" 	 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h" 	 
 #include "TauRegionalPixelSeedGenerator.h" 	 
@@ -42,6 +43,7 @@ DEFINE_FWK_MODULE(L1HLTTauMatching);
 DEFINE_FWK_MODULE(L1THLTTauMatching);
 DEFINE_FWK_MODULE(CaloTowerCreatorForTauHLT);
 DEFINE_FWK_MODULE(CaloTowerFromL1TCreatorForTauHLT);
+DEFINE_FWK_MODULE(CaloTowerFromL1TSeededCreatorForTauHLT);
 DEFINE_FWK_MODULE(PFTauToJetProducer);
 DEFINE_FWK_MODULE(PFJetToCaloProducer);
 DEFINE_FWK_MODULE(TauJetSelectorForHLTTrackSeeding);

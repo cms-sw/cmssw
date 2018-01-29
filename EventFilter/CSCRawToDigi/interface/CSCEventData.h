@@ -43,7 +43,7 @@ class CSCEventData {
  public:
   explicit CSCEventData(int chamberType, uint16_t format_version = 2005);
   /// should make const input soon
-  CSCEventData(unsigned short * buf, uint16_t format_version = 2005);
+  CSCEventData(const uint16_t * buf, uint16_t format_version = 2005);
   CSCEventData(){}
   /// since we need deep copies, need the Big Three
   /// (destructor, copy ctor, op=)
@@ -59,16 +59,16 @@ class CSCEventData {
 
 
   ///if dealing with ALCT data
-  bool isALCT(const short unsigned int * buf);
+  bool isALCT(const uint16_t * buf);
 
   ///if dealing with TMB data
-  bool isTMB(const short unsigned int * buf);
+  bool isTMB(const uint16_t * buf);
 
 
   
 
   /// unpacked in long mode: has overflow and error bits decoded
-  CSCCFEBData * cfebData(unsigned icfeb) const;
+  const CSCCFEBData * cfebData(unsigned icfeb) const;
 
   /// returns all the strip digis in the chamber, with the comparator information.
   std::vector<CSCStripDigi> stripDigis(const CSCDetId & idlayer) const;
@@ -157,7 +157,7 @@ private:
   /// helpers for ctors, dtor, and op=
   /// zeroes all pointers
   void init();
-  void unpack_data(unsigned short * buf);
+  void unpack_data(const uint16_t * buf);
   void copy(const CSCEventData &);
   void destroy();
 

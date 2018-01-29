@@ -9,22 +9,18 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 class HGCalClusteringImpl{
 
 private:
     static const unsigned kNSides_ = 2;
-    // FIXME: currently there is no access to the HGCal DDDConstants
-    // So cannot retrieve the following constants.
-    static const unsigned kLayersEE_ = 28;
-    static const unsigned kLayersFH_ = 12;
-    static const unsigned kLayersBH_ = 12;
-    static const unsigned kLayers_ = kLayersEE_+kLayersFH_+kLayersBH_;
 
 public:
   
     HGCalClusteringImpl( const edm::ParameterSet & conf);    
 
+    void eventSetup(const edm::EventSetup& es) {triggerTools_.eventSetup(es);}
 
     /* dR-algorithms */
     bool isPertinent( const l1t::HGCalTriggerCell & tc, 
@@ -59,8 +55,9 @@ private:
     double dr_;
     std::string clusteringAlgorithmType_;
     void triggerCellReshuffling( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
-                                 std::array<std::array<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>, kLayers_>, kNSides_> & reshuffledTriggerCells );
+                                 std::array<std::vector<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>, kNSides_> & reshuffledTriggerCells );
 
+    HGCalTriggerTools triggerTools_;
 
 };
 

@@ -60,12 +60,12 @@ class ConversionSeedFinder {
   virtual ~ConversionSeedFinder(){}
 
   
-  virtual void makeSeeds(const edm::Handle<edm::View<reco::CaloCluster> > & allBc ) const  =0 ;
+  virtual void makeSeeds(const edm::Handle<edm::View<reco::CaloCluster> > & allBc ) =0 ;
  
 
 
   TrajectorySeedCollection & seeds() {  return theSeeds_;}
-  virtual void setCandidate( float e, GlobalPoint pos ) const {  theSCenergy_=e; theSCPosition_= pos; }			       
+  virtual void setCandidate( float e, GlobalPoint pos ) {  theSCenergy_=e; theSCPosition_= pos; }			       
   std::vector<const DetLayer*> const & layerList() const { return theLayerList_;}
  
   
@@ -85,8 +85,8 @@ class ConversionSeedFinder {
 
 
   //edm::ParameterSet conf_; found this to be completely unused
-  void findLayers() const ;
-  void findLayers(const FreeTrajectoryState & fts) const  ; 
+  void findLayers();
+  void findLayers(const FreeTrajectoryState & fts); 
 
   FreeTrajectoryState trackStateFromClusters ( int aCharge,
 					       const GlobalPoint & gpOrigine, 
@@ -97,8 +97,8 @@ class ConversionSeedFinder {
   void printLayer(int i) const ;
 
   
-  mutable TrajectorySeedCollection theSeeds_;
-  mutable GlobalPoint theSCPosition_;
+  TrajectorySeedCollection theSeeds_;
+  GlobalPoint theSCPosition_;
     
 
   std::string theMeasurementTrackerName_;
@@ -116,14 +116,14 @@ class ConversionSeedFinder {
 
   KFUpdator                  theUpdator_;
   PropagationDirection       dir_; 
-  mutable reco::CaloCluster*  theSC_;
-  mutable float theSCenergy_;  
+  reco::CaloCluster*  theSC_;
+  float theSCenergy_;  
 
   
-  mutable std::vector<const DetLayer *> theLayerList_ ;    
+  std::vector<const DetLayer *> theLayerList_ ;    
     
-  mutable GlobalPoint theBCPosition_;
-  mutable float       theBCEnergy_; 
+  GlobalPoint theBCPosition_;
+  float       theBCEnergy_; 
 
   const Propagator*  thePropagatorAlongMomentum_;
   const Propagator*  thePropagatorOppositeToMomentum_;

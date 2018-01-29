@@ -50,11 +50,11 @@ const float XMAX = 3;
 class DQMStandaloneExample : public edm::EDAnalyzer {
 public:
   explicit DQMStandaloneExample( const edm::ParameterSet& );
-  ~DQMStandaloneExample();
+  ~DQMStandaloneExample() override;
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
-  virtual void endJob(void);
+  void endJob() override;
 
 private:
   // ----------member data ---------------------------
@@ -76,23 +76,24 @@ private:
   ContentsYRange * yrange_test;  // contents within y-range test
   DeadChannel * deadChan_test;  // check against dead channels
   NoisyChannel * noisyChan_test;  // check against noisy channels
+  ContentSigma * contentSigma_test;  // compare using sigma
   Comp2RefEqualH * equalH_test; // equality test for histograms
   MeanWithinExpected * meanNear_test; // mean-within-expected test
   // names for all quality tests
   vector<string> testNames;
 
   // create the monitoring structure
-  void createMonitorElements(void);
+  void createMonitorElements();
   // create the quality tests
-  void createQualityTests(void);
+  void createQualityTests();
   // tune cuts for quality tests
-  void tuneCuts(void);
+  void tuneCuts();
 
   // use <ref> as the reference for the quality tests
   void setReference(MonitorElement * ref);
   // run quality tests;
   // (see Core/interface/QTestStatus.h)
-  void runTests(void);
+  void runTests();
   // show channels that failed test
   void showBadChannels(QReport *qr);
 
@@ -101,7 +102,7 @@ private:
 };
 
 // create the monitoring structure
-void DQMStandaloneExample::createMonitorElements(void)
+void DQMStandaloneExample::createMonitorElements()
 {
   // set # of bins, range for histogram(s)
   const int NBINS = 50;
@@ -120,19 +121,20 @@ void DQMStandaloneExample::createMonitorElements(void)
 }
 
 // create the quality tests
-void DQMStandaloneExample::createQualityTests(void)
+void DQMStandaloneExample::createQualityTests()
 {
-  testNames.push_back("my_chi2");
-  testNames.push_back("my_kolm");
-  testNames.push_back("my_xrange");
-  testNames.push_back("my_yrange");
-  testNames.push_back("deadChan");
-  testNames.push_back("noisyChan");
-  testNames.push_back("my_histo_equal");
-  testNames.push_back("my_int_equal");
-  testNames.push_back("meanNear");
+  testNames.emplace_back("my_chi2");
+  testNames.emplace_back("my_kolm");
+  testNames.emplace_back("my_xrange");
+  testNames.emplace_back("my_yrange");
+  testNames.emplace_back("deadChan");
+  testNames.emplace_back("noisyChan");
+  testNames.emplace_back("contentSigma");
+  testNames.emplace_back("my_histo_equal");
+  testNames.emplace_back("my_int_equal");
+  testNames.emplace_back("meanNear");
 
-  vector<string>::const_iterator it = testNames.begin();
+  auto it = testNames.begin();
 
   // create the quality tests
   chi2_test = dynamic_cast<Comp2RefChi2 *> 
@@ -165,6 +167,11 @@ void DQMStandaloneExample::createQualityTests(void)
   dbe->useQTestByMatch("histo_1", *it);
 
   ++it;
+  contentSigma_test = dynamic_cast<ContentSigma *>
+    (dbe->createQTest(ContentSigma::getAlgoName(), *it) );
+  dbe->useQTestByMatch("histo_1", *it);
+
+  ++it;
   equalH_test = dynamic_cast<Comp2RefEqualH *>
     (dbe->createQTest(Comp2RefEqualH::getAlgoName(), *it) );
   dbe->useQTestByMatch("histo_1", *it);
@@ -177,7 +184,7 @@ void DQMStandaloneExample::createQualityTests(void)
 }
 
 // tune cuts for quality tests
-void DQMStandaloneExample::tuneCuts(void)
+void DQMStandaloneExample::tuneCuts()
 {
   // set reference for chi2, ks tests
   setReference(href);
@@ -226,11 +233,9 @@ void DQMStandaloneExample::setReference(MonitorElement * ref)
 }
 
 
-DQMStandaloneExample::~DQMStandaloneExample()
-{
-}
+DQMStandaloneExample::~DQMStandaloneExample() = default;
 
-void DQMStandaloneExample::endJob(void)
+void DQMStandaloneExample::endJob()
 {
   runTests();
 }
@@ -264,13 +269,13 @@ void DQMStandaloneExample::runTests()
   
       // get all warnings associated with me
       vector<QReport *> warnings = h1->getQWarnings();
-      for(vector<QReport *>::const_iterator it = warnings.begin();
+      for(auto it = warnings.begin();
 	  it != warnings.end(); ++it)
 	cout << " *** Warning for " << h1->getName() << "," 
 	     << (*it)->getMessage() << endl;
       // get all errors associated with me
       vector<QReport *> errors = h1->getQErrors();
-      for(vector<QReport *>::const_iterator it = errors.begin();
+      for(auto it = errors.begin();
 	  it != errors.end(); ++it)
 	cout << " *** Error for " << h1->getName() << ","
 	     << (*it)->getMessage() << endl;
@@ -278,7 +283,7 @@ void DQMStandaloneExample::runTests()
       cout << " ============================================= " << endl;
       cout << "         All messages for quality tests " << endl;
       cout << " ============================================= " << endl;
-      for(vector<string>::const_iterator it = testNames.begin(); 
+      for(auto it = testNames.begin(); 
 	  it != testNames.end(); ++it)
 	{
 	  string test_message;
@@ -325,7 +330,7 @@ void DQMStandaloneExample::showBadChannels(QReport *qr)
   if(!badChannels.empty())
     cout << "\n Channels that failed test " << qr->getQRName() << ":\n";
   
-  vector<dqm::me_util::Channel>::iterator it = badChannels.begin();
+  auto it = badChannels.begin();
   while(it != badChannels.end())
     {
       // could use getBinX, getBinY, getBinZ for 2D, 3D histograms
