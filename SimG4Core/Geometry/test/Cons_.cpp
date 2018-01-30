@@ -5,7 +5,11 @@
 #include "DetectorDescription/Core/src/Cons.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <G4Cons.hh>
+#include <cmath>
 #include <string>
+#include <limits>
+
+using namespace std;
 
 class testCons : public CppUnit::TestFixture
 {
@@ -45,9 +49,9 @@ testCons::matched_g4_and_dd( void )
   cout << "\tg4 volume = " << g4v <<" cm3" << endl;
   cout << "\tdd volume = " << ddv << " cm3" <<  endl;
   cout << "\tDD Information: " << dds << " vol=" << ddsv << " cm3" << endl;
-  
-  CPPUNIT_ASSERT( round(g4v*100000) == round(ddv*100000));
-  CPPUNIT_ASSERT( round(g4v*100000) == round(ddsv*100000));
+
+  CPPUNIT_ASSERT( abs(g4v - ddv) < numeric_limits<float>::epsilon());
+  CPPUNIT_ASSERT( abs(g4v - ddsv) < numeric_limits<float>::epsilon());
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testCons );
