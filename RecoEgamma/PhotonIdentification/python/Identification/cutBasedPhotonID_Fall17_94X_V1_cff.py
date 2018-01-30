@@ -144,13 +144,12 @@ cutBasedPhotonID_Fall17_94X_V1_tight  = configureVIDCutBasedPhoID_V5 ( WP_Tight_
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-#central_id_registry.register(cutBasedPhotonID_Fall17_94X_V1_loose.idName,
-#                             'd6ce6a4f3476294bf0a3261e00170daf')
-#central_id_registry.register(cutBasedPhotonID_Fall17_94X_V1_medium.idName,
-#                             'c739cfd0b6287b8586da187c06d4053f')
-#central_id_registry.register(cutBasedPhotonID_Fall17_94X_V1_tight.idName,
-#                             'bdb623bdb1a15c13545020a919dd9530')
-
-cutBasedPhotonID_Fall17_94X_V1_loose.isPOGApproved = cms.untracked.bool(False)
-cutBasedPhotonID_Fall17_94X_V1_medium.isPOGApproved = cms.untracked.bool(False)
-cutBasedPhotonID_Fall17_94X_V1_tight.isPOGApproved = cms.untracked.bool(False)
+central_id_registry.register(cutBasedPhotonID_Fall17_94X_V1_loose.idName,
+                             '08547098f52eb608b545953f02583c3f')
+central_id_registry.register(cutBasedPhotonID_Fall17_94X_V1_medium.idName,
+                             'fb58ccd713d6be1f86f1d2e48c69e401')
+central_id_registry.register(cutBasedPhotonID_Fall17_94X_V1_tight.idName,
+                             '296da1cdbf6f35a99287c5a527472ed3')
+cutBasedPhotonID_Fall17_94X_V1_loose.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_Fall17_94X_V1_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_Fall17_94X_V1_tight.isPOGApproved = cms.untracked.bool(True)
