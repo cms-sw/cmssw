@@ -22,6 +22,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
@@ -157,6 +158,20 @@ namespace edm {
         virtual void acquire(Event const&,
                              edm::EventSetup const&,
                              WaitingTaskWithArenaHolder) = 0;
+      };
+
+      class Accumulator : public EDProducerBase {
+      public:
+         Accumulator() = default;
+         Accumulator(Accumulator const&) = delete;
+         Accumulator& operator=(Accumulator const&) = delete;
+         virtual ~Accumulator() noexcept(false) {};
+
+         virtual void accumulate(Event const& ev, EventSetup const& es) = 0;
+
+         void produce(Event& ev, EventSetup const& es) final {
+           accumulate(ev, es);
+         }
       };
     }
   }

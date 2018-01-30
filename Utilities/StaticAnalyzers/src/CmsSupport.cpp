@@ -85,7 +85,7 @@ std::string clangcms::support::getQualifiedName(const clang::NamedDecl &d) {
     // and
     // void ANamespace::AFunction(float);
     ret += "(";
-    const FunctionType *ft = fd->getType()->castAs<FunctionType>();
+    const clang::FunctionType *ft = fd->getType()->castAs<clang::FunctionType>();
     if (const FunctionProtoType *fpt = dyn_cast_or_null<FunctionProtoType>(ft))
     {
       unsigned num_params = fd->getNumParams();

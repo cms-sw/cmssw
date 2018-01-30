@@ -56,11 +56,11 @@ namespace edm {
       void preSourceEvent(StreamID);
       void postSourceEvent(StreamID);
       
-      void preSourceLumi();
-      void postSourceLumi();
+      void preSourceLumi(LuminosityBlockIndex);
+      void postSourceLumi(LuminosityBlockIndex);
       
-      void preSourceRun();
-      void postSourceRun();
+      void preSourceRun(RunIndex);
+      void postSourceRun(RunIndex);
      
       void preOpenFile(std::string const&, bool);
       void postOpenFile(std::string const&, bool);
@@ -423,19 +423,19 @@ namespace edm {
       postCommon();
     }
 
-    void Timing::preSourceLumi() {
+    void Timing::preSourceLumi(LuminosityBlockIndex index) {
       pushStack();
     }
  
-    void Timing::postSourceLumi() {
+    void Timing::postSourceLumi(LuminosityBlockIndex index) {
       postCommon();
     }
   
-    void Timing::preSourceRun() {
+    void Timing::preSourceRun(RunIndex index) {
       pushStack();
     }
 
-    void Timing::postSourceRun() {
+    void Timing::postSourceRun(RunIndex index) {
       postCommon();
     }
 

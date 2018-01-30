@@ -570,6 +570,28 @@ struct Dummy {
     }
   };
 
+  class TestAccumulator : public edm::global::EDProducer<edm::Accumulator> {
+  public:
+
+    explicit TestAccumulator(edm::ParameterSet const& p) :
+      m_expectedCount(p.getParameter<unsigned int>("expectedCount")) {
+    }
+
+    void accumulate(edm::StreamID iID, edm::Event const&, edm::EventSetup const&) const override {
+      ++m_count;
+    }
+
+    ~TestAccumulator() {
+      if (m_count.load() != m_expectedCount) {
+        throw cms::Exception("TestCount")
+          << "TestAccumulator counter was "
+          << m_count << " but it was supposed to be " << m_expectedCount;
+      }
+    }
+
+    mutable std::atomic<unsigned int> m_count{0};
+    const unsigned int m_expectedCount;
+  };
 }
 }
 
@@ -582,4 +604,5 @@ DEFINE_FWK_MODULE(edmtest::global::TestBeginRunProducer);
 DEFINE_FWK_MODULE(edmtest::global::TestEndRunProducer);
 DEFINE_FWK_MODULE(edmtest::global::TestBeginLumiBlockProducer);
 DEFINE_FWK_MODULE(edmtest::global::TestEndLumiBlockProducer);
+DEFINE_FWK_MODULE(edmtest::global::TestAccumulator);
 

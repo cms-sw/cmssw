@@ -8,9 +8,9 @@ namespace FitterFuncs{
 
   //Decalare the Pulse object take it in from Hcal and set some options
   PulseShapeFunctor::PulseShapeFunctor(const HcalPulseShapes::Shape& pulse,
-				       bool iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iAddTimeSlew,
-				       double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
-				       double iNoise,unsigned nSamplesToFit) :
+				       bool iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
+				       double iPulseJitter,double iTimeMean,double iPedMean,
+				       unsigned nSamplesToFit) :
     cntNANinfit(0),
     acc25nsVec(HcalConst::maxPSshapeBin), diff25nsItvlVec(HcalConst::maxPSshapeBin),
     accVarLenIdxZEROVec(HcalConst::nsPerBX), diffVarItvlIdxZEROVec(HcalConst::nsPerBX), 
@@ -48,18 +48,12 @@ namespace FitterFuncs{
     timeConstraint_     = iTimeConstraint;
     addPulseJitter_     = iAddPulseJitter;
     pulseJitter_        = iPulseJitter*iPulseJitter;
+
+    // for M2
     timeMean_           = iTimeMean;
-    timeSig_            = iTimeSig;
     pedMean_            = iPedMean;
-    pedSig_             = iPedSig;
-    noise_              = iNoise;
     timeShift_          = 100.;
     timeShift_ += 12.5;//we are trying to get BX 
-
-    inverttimeSig_ = 1./timeSig_;
-    inverttimeSig2_ = inverttimeSig_*inverttimeSig_;
-    invertpedSig_ = 1./pedSig_;
-    invertpedSig2_ = invertpedSig_*invertpedSig_;
 
     nSamplesToFit_ = nSamplesToFit;
 

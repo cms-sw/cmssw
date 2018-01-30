@@ -73,11 +73,11 @@ namespace edm {
       void preSourceEvent(StreamID);
       void postSourceEvent(StreamID);
       
-      void preSourceLumi();
-      void postSourceLumi();
+      void preSourceLumi(LuminosityBlockIndex);
+      void postSourceLumi(LuminosityBlockIndex);
       
-      void preSourceRun();
-      void postSourceRun();
+      void preSourceRun(RunIndex);
+      void postSourceRun(RunIndex);
       
       void preOpenFile(std::string const&, bool);
       void postOpenFile(std::string const&, bool);
@@ -475,22 +475,22 @@ Tracer::postSourceEvent(StreamID sid) {
 }
 
 void
-Tracer::preSourceLumi() {
+Tracer::preSourceLumi(LuminosityBlockIndex index) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_ << " starting: source lumi";
 }
 
 void
-Tracer::postSourceLumi() {
+Tracer::postSourceLumi(LuminosityBlockIndex index) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_ << " finished: source lumi";
 }
 
 void
-Tracer::preSourceRun() {
+Tracer::preSourceRun(RunIndex index) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_ << " starting: source run";
 }
 
 void
-Tracer::postSourceRun() {
+Tracer::postSourceRun(RunIndex index) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_ << " finished: source run";
 }
 

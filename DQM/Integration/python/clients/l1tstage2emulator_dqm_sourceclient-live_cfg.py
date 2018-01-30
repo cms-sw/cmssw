@@ -8,18 +8,12 @@ process = cms.Process("L1TStage2EmulatorDQM", eras.Run2_2017)
 
 # Live Online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-# Due to the GT override in the above include, we have trouble with
-# conflicting CaloParams from stage1 and stage2.  This workaround
-# can go away once either the es_prefer is removed from DQM or the
-# new L1TCaloStage2ParamsRcd is integrated into CMSSW.
-if 'es_prefer_GlobalTag' in process.__dict__:
-    process.__dict__.pop('es_prefer_GlobalTag')
-    process._Process__esprefers.pop('es_prefer_GlobalTag')
 
 # Testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
+
+# Required to load Global Tag
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 # required for EMTF emulator
 process.load('Configuration.StandardSequences.MagneticField_cff')

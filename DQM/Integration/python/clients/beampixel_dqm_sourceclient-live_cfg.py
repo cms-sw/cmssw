@@ -60,6 +60,7 @@ process.physTrigger = cms.Sequence(process.hltTriggerTypeFilter)
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 #----------------------------
 # Proton-Proton Specific Part
@@ -92,7 +93,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # pixelVertexDQM Config
     #----------------------------
-    process.pixelVertexDQM = cms.EDAnalyzer("Vx3DHLTAnalyzer",
+    process.pixelVertexDQM = DQMEDAnalyzer('Vx3DHLTAnalyzer',
                                             vertexCollection   = cms.untracked.InputTag("pixelVertices"),
                                             pixelHitCollection = cms.untracked.InputTag("siPixelRecHitsPreSplitting"),
                                             debugMode          = cms.bool(True),
@@ -188,7 +189,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     #----------------------------
     # pixelVertexDQM Config
     #----------------------------
-    process.pixelVertexDQM = cms.EDAnalyzer("Vx3DHLTAnalyzer",
+    process.pixelVertexDQM = DQMEDAnalyzer('Vx3DHLTAnalyzer',
                                             vertexCollection   = cms.untracked.InputTag("hiSelectedVertexPreSplitting"),
                                             pixelHitCollection = cms.untracked.InputTag("siPixelRecHitsPreSplitting"),
                                             debugMode          = cms.bool(True),

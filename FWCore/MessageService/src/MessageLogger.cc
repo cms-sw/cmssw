@@ -273,10 +273,10 @@ namespace edm {
       iRegistry.watchPreSourceEvent(this,&MessageLogger::preSourceEvent);
       iRegistry.watchPostSourceEvent(this,&MessageLogger::postSourceEvent);
       // change log 14:
-      iRegistry.watchPreSourceRun(this,&MessageLogger::preSourceRunLumi);
-      iRegistry.watchPostSourceRun(this,&MessageLogger::postSourceRunLumi);
-      iRegistry.watchPreSourceLumi(this,&MessageLogger::preSourceRunLumi);
-      iRegistry.watchPostSourceLumi(this,&MessageLogger::postSourceRunLumi);
+      iRegistry.watchPreSourceRun([this](RunIndex) { preSourceRunLumi(); });
+      iRegistry.watchPostSourceRun([this](RunIndex) { postSourceRunLumi(); });
+      iRegistry.watchPreSourceLumi([this](LuminosityBlockIndex) { preSourceRunLumi(); });
+      iRegistry.watchPostSourceLumi([this](LuminosityBlockIndex) { postSourceRunLumi(); });
       iRegistry.watchPreOpenFile(this,&MessageLogger::preFile);
       iRegistry.watchPostOpenFile(this,&MessageLogger::postFile);
       iRegistry.watchPreCloseFile(this,&MessageLogger::preFileClose);

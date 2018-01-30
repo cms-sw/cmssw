@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMOffline.L1Trigger.L1THistDefinitions_cff import histDefinitions
 
 electronEfficiencyThresholds = [34, 36, 38, 40, 42]
 
@@ -31,11 +32,12 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
     PVCollection=cms.InputTag("offlinePrimaryVerticesWithBS"),
     beamSpotCollection=cms.InputTag("offlineBeamSpot"),
 
-    TriggerEvent=cms.InputTag('hltTriggerSummaryAOD', '', 'HLT'),
-    TriggerResults=cms.InputTag('TriggerResults', '', 'HLT'),
-    # last filter of HLTEle27WP80Sequence
-    TriggerFilter=cms.InputTag('hltEle27WP80TrackIsoFilter', '', 'HLT'),
-    TriggerPath=cms.string('HLT_Ele27_WP80_v13'),
+    triggerInputTag=cms.InputTag('hltTriggerSummaryAOD', '', 'HLT'),
+    triggerProcess=cms.string('HLT'),
+    triggerResults=cms.InputTag('TriggerResults', '', 'HLT'),
+    triggerNames = cms.vstring(
+        'HLT_Ele32_WPTight_Gsf_v*',
+    ),
 
     stage2CaloLayer2EGammaSource=cms.InputTag("caloStage2Digis", "EGamma"),
 
@@ -48,6 +50,10 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
 
     photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds),
     photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
+
+    histDefinitions=cms.PSet(
+        nVertex = histDefinitions.nVertex.clone(),
+    ),
 )
 
 # modifications for the pp reference run
@@ -66,7 +72,8 @@ photonEfficiencyThresholds_HI = electronEfficiencyThresholds_HI
 photonEfficiencyBins_HI = electronEfficiencyBins_HI
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
-ppRef_2017.toModify(l1tEGammaOfflineDQM,
+ppRef_2017.toModify(
+    l1tEGammaOfflineDQM,
     TriggerFilter=cms.InputTag('hltEle20WPLoose1GsfTrackIsoFilter', '', 'HLT'),
     TriggerPath=cms.string('HLT_Ele20_WPLoose_Gsf_v4'),
     electronEfficiencyThresholds=cms.vdouble(electronEfficiencyThresholds_HI),
@@ -82,4 +89,3 @@ l1tEGammaOfflineDQMEmu = l1tEGammaOfflineDQM.clone(
 
     histFolder=cms.string('L1TEMU/L1TEGamma'),
 )
-
