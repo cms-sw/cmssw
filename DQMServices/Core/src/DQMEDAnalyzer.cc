@@ -9,11 +9,6 @@
 
 DQMEDAnalyzer::DQMEDAnalyzer() = default;
 
-void DQMEDAnalyzer::beginStream(edm::StreamID id)
-{
-  stream_id_ = id.value();
-}
-
 void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
                              edm::EventSetup const &iSetup) {
   dqmBeginRun(iRun, iSetup);
@@ -28,13 +23,6 @@ void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
 }
 
 
-std::shared_ptr<dqmDetails::NoCache>
-DQMEDAnalyzer::globalBeginRunSummary(edm::Run const&,
-                                     edm::EventSetup const&,
-                                     RunContext const*)
-{
-  return nullptr;
-}
 
 void DQMEDAnalyzer::endLuminosityBlockSummary(edm::LuminosityBlock const &iLumi ,
                                               edm::EventSetup const &iSetup,
@@ -68,24 +56,7 @@ void DQMEDAnalyzer::endRunSummary(edm::Run const &iRun ,
                                          iRun.moduleCallingContext()->moduleDescription()->id());
 }
 
-void DQMEDAnalyzer::globalEndRunSummary(edm::Run const&,
-                                        edm::EventSetup const&,
-                                        RunContext const*,
-                                        dqmDetails::NoCache*)
-{}
 
-std::shared_ptr<dqmDetails::NoCache>
-DQMEDAnalyzer::globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                                 edm::EventSetup const&,
-                                                 LuminosityBlockContext const*)
-{
-  return nullptr;
+void DQMEDAnalyzer::accumulate(edm::Event const& ev, edm::EventSetup const& es) {
+  this->analyze(ev, es);
 }
-
-void DQMEDAnalyzer::globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                                    edm::EventSetup const&,
-                                                    LuminosityBlockContext const*,
-                                                    dqmDetails::NoCache*)
-{}
-
-
