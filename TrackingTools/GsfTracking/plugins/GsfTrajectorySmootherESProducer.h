@@ -6,7 +6,6 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h" 
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
-#include <boost/shared_ptr.hpp>
 
 /** Provides a GSF smoother algorithm */
 
@@ -14,7 +13,7 @@ class  GsfTrajectorySmootherESProducer: public edm::ESProducer{
  public:
   GsfTrajectorySmootherESProducer(const edm::ParameterSet & p);
   ~GsfTrajectorySmootherESProducer() override; 
-  std::shared_ptr<TrajectorySmoother> produce(const TrajectoryFitterRecord &);
+  std::unique_ptr<TrajectorySmoother> produce(const TrajectoryFitterRecord &);
  private:
   edm::ParameterSet pset_;
 };

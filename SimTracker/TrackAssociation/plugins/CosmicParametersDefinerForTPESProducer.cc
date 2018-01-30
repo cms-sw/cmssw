@@ -45,8 +45,7 @@ CosmicParametersDefinerForTPESProducer::~CosmicParametersDefinerForTPESProducer(
 CosmicParametersDefinerForTPESProducer::ReturnType
 CosmicParametersDefinerForTPESProducer::produce(const TrackAssociatorRecord& iRecord)
 {
-  ReturnType parametersDefiner_ (new CosmicParametersDefinerForTP());
-  return parametersDefiner_ ;
+  return std::make_unique<CosmicParametersDefinerForTP>();
 }
 
 //define this as a plug-in

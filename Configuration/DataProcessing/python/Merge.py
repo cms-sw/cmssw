@@ -10,6 +10,7 @@ standard processing
 
 from FWCore.ParameterSet.Config import Process, EndPath
 from FWCore.ParameterSet.Modules import OutputModule, Source, Service
+from Configuration.EventContent.EventContent_cff import NANOAODEventContent
 import FWCore.ParameterSet.Types as CfgTypes
 
 
@@ -64,7 +65,7 @@ def mergeProcess(*inputFiles, **options):
     if newDQMIO:
         outMod = OutputModule("DQMRootOutputModule")
     elif mergeNANO:
-        outMod = OutputModule("NanoAODOutputModule")
+        outMod = OutputModule("NanoAODOutputModule",NANOAODEventContent.clone())
     else:
         outMod = OutputModule("PoolOutputModule")
 

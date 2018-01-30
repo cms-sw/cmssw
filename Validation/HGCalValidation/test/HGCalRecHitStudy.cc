@@ -154,13 +154,13 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
 	if (verbosity_>0) 
 	  edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
 					      << hbhecoll->size() << " element(s)";
-	for (auto it=hbhecoll->begin(); it != hbhecoll->end(); ++it) {
-	  DetId detId = it->id();
+	for (const auto & it : *(hbhecoll.product())) {
+	  DetId detId = it.id();
 	  ntot++;
 	  if (detId.subdetId() == HcalEndcap) {
 	    nused++;
 	    int   layer = HcalDetId(detId).depth();
-	    recHitValidation(detId, layer, geom0, it);
+	    recHitValidation(detId, layer, geom0, &it);
 	  }
 	}
       } else {
@@ -174,11 +174,11 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
 	if (verbosity_>0) 
 	  edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
 					      << hbhecoll->size() << " element(s)";
-	for (auto it=hbhecoll->begin(); it != hbhecoll->end(); ++it) {
-	  DetId detId = it->id();
+	for (const auto & it : *(hbhecoll.product())) {
+	  DetId detId = it.id();
 	  ntot++; nused++;
 	  int   layer = HcalDetId(detId).depth();
-	  recHitValidation(detId, layer, geom0, it);
+	  recHitValidation(detId, layer, geom0, &it);
 	}
       } else {
 	ok = false;
@@ -198,12 +198,11 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
 	edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
 					    << theRecHitContainers->size()
 					    << " element(s)";
-      for (auto it=theRecHitContainers->begin();
-	   it !=theRecHitContainers->end(); ++it) {
+      for (const auto & it : *(theRecHitContainers.product())) {
 	ntot++; nused++;
-	DetId detId = it->id();
-	int layer   = (detId.subdetId() == HGCEE) ? (HGCEEDetId(detId).layer()) : (HGCHEDetId(detId).layer());
-	recHitValidation(detId, layer, geom0, it);
+	DetId detId = it.id();
+	int layer   = HGCalDetId(detId).layer();
+	recHitValidation(detId, layer, geom0, &it);
       }
     } else {
       ok = false;

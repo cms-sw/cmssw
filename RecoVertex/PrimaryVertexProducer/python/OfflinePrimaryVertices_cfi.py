@@ -60,12 +60,15 @@ phase2_tracker.toModify(offlinePrimaryVertices,
                         TkFilterParameters = dict(maxEta = 4.0))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-pp_on_XeXe_2017.toModify(offlinePrimaryVertices,
-    TkFilterParameters = dict(maxD0Significance = 3.0),
-    TkClusParameters = cms.PSet(
-        algorithm = cms.string("gap"),
-        TkGapClusParameters = cms.PSet(
-            zSeparation = cms.double(1.0)        
-        )
-    )
-)
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(offlinePrimaryVertices,
+               TkFilterParameters = dict(maxD0Significance = 3.0),
+               TkClusParameters = cms.PSet(
+            algorithm = cms.string("gap"),
+            TkGapClusParameters = cms.PSet(
+                zSeparation = cms.double(1.0)        
+                )
+            )
+               )
+    

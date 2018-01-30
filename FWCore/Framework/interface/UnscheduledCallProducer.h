@@ -45,6 +45,9 @@ namespace edm {
     void addWorker(Worker* aWorker) {
       assert(nullptr != aWorker);
       unscheduledWorkers_.push_back(aWorker);
+      if (aWorker->hasAccumulator()) {
+        accumulatorWorkers_.push_back(aWorker);
+      }
     }
     
     void setEventSetup(EventSetup const& iSetup) {
@@ -64,12 +67,29 @@ namespace edm {
       if(!T::isEvent_) {
         for(auto worker: unscheduledWorkers_) {
           ParentContext parentContext(context);
+
+          // We do not need to run prefetching here because this only handles
+          // stream transitions for runs and lumis. There are no products put
+          // into the runs or lumis in stream transitions, so there can be
+          // no data dependencies which require prefetching. Prefetching is
+          // needed for global transitions, but they are run elsewhere.
           worker->doWorkNoPrefetchingAsync<T>(task, p, es, streamID, parentContext, topContext);
         }
       }
     }
 
-    
+    template <typename T>
+    void runAccumulatorsAsync(WaitingTask* task,
+                              typename T::MyPrincipal const& ep,
+                              EventSetup const& es,
+                              StreamID streamID,
+                              ParentContext const& parentContext,
+                              typename T::Context const* context) {
+      for (auto worker : accumulatorWorkers_) {
+        worker->doWorkAsync<T>(task, ep, es, streamID, parentContext, context);
+      }
+    }
+
   private:
     template <typename T, typename ID>
     void addContextToException(cms::Exception& ex, Worker const* worker, ID const& id) const {
@@ -78,6 +98,7 @@ namespace edm {
       ex.addContext(ost.str());
     }
     worker_container unscheduledWorkers_;
+    worker_container accumulatorWorkers_;
     UnscheduledAuxiliary aux_;
   };
 

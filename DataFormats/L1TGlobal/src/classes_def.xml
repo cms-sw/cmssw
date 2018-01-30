@@ -46,6 +46,15 @@
   </class>
   <class name="std::vector<GlobalLogicParser::TokenRPN>"/>
   
+  <class name="GlobalAlgBlkRef"/>
+  <class name="std::vector<GlobalAlgBlkRef>"/>
+  <class name="GlobalAlgBlkRefBxCollection"/>
+  <class name="edm::Wrapper<GlobalAlgBlkRefBxCollection>"/>
+  <class name="GlobalAlgBlkRefPair"/>
+  <class name="std::vector<GlobalAlgBlkRefPair>"/>
+  <class name="GlobalAlgBlkRefPairBxCollection"/>
+  <class name="edm::Wrapper<GlobalAlgBlkRefPairBxCollection>"/>
+
 </lcgdict>
 
 

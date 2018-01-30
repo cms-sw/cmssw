@@ -1,24 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
-dtVsRPCRecHitV = cms.EDAnalyzer("RPCPointVsRecHit",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtVsRPCRecHitV = DQMEDAnalyzer('RPCPointVsRecHit',
     subDir = cms.string("RPC/RPCRecHitV/DTVsReco"),
     refHit = cms.InputTag("rpcPointProducer", "RPCDTExtrapolatedPoints"),
     recHit = cms.InputTag("rpcRecHits"),
 )
 
-cscVsRPCRecHitV = cms.EDAnalyzer("RPCPointVsRecHit",
+cscVsRPCRecHitV = DQMEDAnalyzer('RPCPointVsRecHit',
     subDir = cms.string("RPC/RPCRecHitV/CSCVsReco"),
     refHit = cms.InputTag("rpcPointProducer", "RPCCSCExtrapolatedPoints"),
     recHit = cms.InputTag("rpcRecHits"),
 )
 
-trackVsRPCRecHitV = cms.EDAnalyzer("RPCPointVsRecHit",
+trackVsRPCRecHitV = DQMEDAnalyzer('RPCPointVsRecHit',
     subDir = cms.string("RPC/RPCRecHitV/TrackVsReco"),
     refHit = cms.InputTag("rpcPointProducer", "RPCTrackExtrapolatedPoints"),
     recHit = cms.InputTag("rpcRecHits"),
 )
 
-simVsDTExtV = cms.EDAnalyzer("RPCRecHitValid",
+simVsDTExtV = DQMEDAnalyzer('RPCRecHitValid',
     subDir = cms.string("RPC/RPCRecHitV/SimVsDTExt"),
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     simTrack = cms.InputTag("mix", "MergedTrackTruth"),
@@ -26,7 +27,7 @@ simVsDTExtV = cms.EDAnalyzer("RPCRecHitValid",
     recHit = cms.InputTag("rpcPointProducer", "RPCDTExtrapolatedPoints"),
 )
 
-simVsCSCExtV = cms.EDAnalyzer("RPCRecHitValid",
+simVsCSCExtV = DQMEDAnalyzer('RPCRecHitValid',
     subDir = cms.string("RPC/RPCRecHitV/SimVsCSCExt"),
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     simTrack = cms.InputTag("mix", "MergedTrackTruth"),
@@ -34,7 +35,7 @@ simVsCSCExtV = cms.EDAnalyzer("RPCRecHitValid",
     recHit = cms.InputTag("rpcPointProducer", "RPCCSCExtrapolatedPoints"),
 )
 
-simVsTrackExtV = cms.EDAnalyzer("RPCRecHitValid",
+simVsTrackExtV = DQMEDAnalyzer('RPCRecHitValid',
     subDir = cms.string("RPC/RPCRecHitV/SimVsTrackExt"),
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     simTrack = cms.InputTag("mix", "MergedTrackTruth"),
