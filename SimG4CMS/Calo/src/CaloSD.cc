@@ -72,7 +72,7 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
   
   primAncestor = cleanIndex = totalHits = primIDSaved = 0;
   forceSave = false;
-
+  
   edm::LogInfo("CaloSim") << "CaloSD: Minimum energy of track for saving it " 
                           << energyCut/GeV  << " GeV" << "\n"
                           << "        Use of HitID Map " << useMap << "\n"
@@ -338,7 +338,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
 
   auto const theTrack = aStep->GetTrack();
 #ifdef DebugLog
-  if(GetName() == "EcalHitsES")
+  if(GetName() == "CastorFI")
   edm::LogInfo("CaloSim") << "CaloSD::CreateNewHit " << getNumberOfHits()
                           << " for " << GetName()
                           << " Unit:" << currentID.unitID() 
@@ -412,8 +412,8 @@ void CaloSD::updateHit(CaloG4Hit* aHit) {
   aHit->addEnergyDeposit(edepositEM,edepositHAD);
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD:" << GetName() << " Add energy deposit in " 
-			  << currentID << " Edep_em(MeV)= " 
-			  << edepositEM << " Edep_had(MeV)= " << edepositHAD; 
+                          << currentID << " Edep_em(MeV)= " 
+                          << edepositEM << " Edep_had(MeV)= " << edepositHAD; 
 #endif
 
   // buffer for next steps:
