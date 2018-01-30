@@ -11,7 +11,7 @@ cd $W_DIR;
 source /afs/cern.ch/cms/cmsset_default.sh;
 eval `scram run -sh`;
 
-mkdir -p $W_DIR/results
+mkdir -p $W_DIR/results_APE
 
 matrixelements=(XX YY ZZ XY XZ YZ)
 
@@ -30,7 +30,7 @@ do
 	--db Prod \
 	--test;
 
-    mv *.png $W_DIR/results/TrackerAlignmentErrorExtended${i}Summary.png
+    mv *.png $W_DIR/results_APE/TrackerAlignmentErrorExtended${i}Summary.png
     
     #*************************************************************************#
 
@@ -54,10 +54,23 @@ do
 	--db Prod \
 	--test;
     
-    mv *.png $W_DIR/results/TrackerAlignmentErrorExtended${i}TrackerMap.png
+    mv *.png $W_DIR/results_APE/TrackerAlignmentErrorExtended${i}TrackerMap.png
     
     #*************************************************************************#
-      
+
+    getPayloadData.py  \
+	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+	--plot plot_TrackerAlignmentErrorExtended${i}Comparator \
+	--tag TrackerAlignmentExtendedErrors_v9_offline_IOVs \
+	--time_type Run \
+	--iovs '{"start_iov": "283681", "end_iov": "303886"}' \
+	--db Prod \
+	--test;
+
+    mv *.png $W_DIR/results_APE/TrackerAlignmentErrorExtended_${i}_Comparison.png
+
+    #*************************************************************************#
+
 done
 
 partitions=(BPix FPix TIB TOB TID)
@@ -75,6 +88,6 @@ do
 	--db Prod \
 	--test;
 
-    mv *.png $W_DIR/results/TrackerAlignmentErrorExtended${i}Detail.png
+    mv *.png $W_DIR/results_APE/TrackerAlignmentErrorExtended${i}Detail.png
 
 done
