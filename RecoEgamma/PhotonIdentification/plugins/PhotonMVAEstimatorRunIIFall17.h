@@ -84,7 +84,7 @@ class PhotonMVAEstimatorRunIIFall17 : public AnyMVAEstimatorRun2Base{
   void setConsumes(edm::ConsumesCollector&&) const override;
   // Call this function once per event to retrieve all needed
   // event content pices
-  //void getEventContent(const edm::Event& iEvent) override;
+
 
   
  private:
@@ -103,7 +103,7 @@ class PhotonMVAEstimatorRunIIFall17 : public AnyMVAEstimatorRun2Base{
   std::vector< std::unique_ptr<const GBRForest> > gbrForests_;
 
   // All variables needed by this MVA
-  const std::string MethodName_;
+  const std::string methodName_;
   AllVariables allMVAVars_;
   
   // This MVA implementation relies on several ValueMap objects
@@ -121,7 +121,7 @@ class PhotonMVAEstimatorRunIIFall17 : public AnyMVAEstimatorRun2Base{
   // Other objects needed by the MVA
   EffectiveAreas effectiveAreas_;
   std::vector<double> phoIsoPtScalingCoeff_;
-  // double          phoIsoCutoff_;
+
 };
 
 #endif

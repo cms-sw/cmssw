@@ -5,7 +5,7 @@
 
 PhotonMVAEstimatorRunIIFall17::PhotonMVAEstimatorRunIIFall17(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
-  MethodName_("BDTG method"),
+  methodName_("BDTG method"),
   phoChargedIsolationLabel_(conf.getParameter<edm::InputTag>("phoChargedIsolation")), 
   phoPhotonIsolationLabel_(conf.getParameter<edm::InputTag>("phoPhotonIsolation")), 
   phoWorstChargedIsolationLabel_(conf.getParameter<edm::InputTag>("phoWorstChargedIsolation")), 
@@ -158,9 +158,9 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   //
   // Book the method and set up the weights file
   //
-  tmpTMVAReader.BookMVA(MethodName_ , weightFile.fullPath() );
+  tmpTMVAReader.BookMVA(methodName_ , weightFile.fullPath() );
   
-  return std::unique_ptr<const GBRForest>( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(MethodName_) ) ) );
+  return std::unique_ptr<const GBRForest>( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(methodName_) ) ) );
   
 }
 
