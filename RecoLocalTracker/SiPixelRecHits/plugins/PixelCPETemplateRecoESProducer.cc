@@ -60,7 +60,6 @@ PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){
   ESHandle<SiPixelTemplateDBObject> templateDBobject;
   iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
 
-  //  cpe_  = std::make_unique<PixelCPETemplateReco>(pset_,magfield.product(),lorentzAngle.product(),templateDBobject.product() );
   return std::make_unique<PixelCPETemplateReco>(pset_,magfield.product(),*pDD.product(),*hTT.product(),lorentzAngleProduct,templateDBobject.product() );
 }
 
