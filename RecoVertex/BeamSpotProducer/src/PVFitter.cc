@@ -36,9 +36,11 @@ ________________________________________________________________**/
 #include "Minuit2/MnMigrad.h"
 #include "Minuit2/MnPrint.h"
 #include "TF1.h"
+#include "TDirectory.h"
 #include "TMinuitMinimizer.h"
 
 #include <iostream>  
+#include <sstream>
 using namespace std ;
 
 PVFitter::PVFitter(const edm::ParameterSet& iConfig,
@@ -318,9 +320,14 @@ bool PVFitter::runFitter() {
 
     if ( pvStore_.size() <= minNrVertices_ ) return false;
 
-    TH1F *h1PVx = (TH1F*) hPVx->ProjectionX("h1PVx", 0, -1, "e");
-    TH1F *h1PVy = (TH1F*) hPVy->ProjectionX("h1PVy", 0, -1, "e");
-    TH1F *h1PVz = (TH1F*) hPVx->ProjectionY("h1PVz", 0, -1, "e");
+    //need to create a unique histogram name to avoid ROOT trying to re-use one
+    // also tell ROOT to hide its global state
+    TDirectory::TContext guard{nullptr};
+    std::ostringstream str;
+    str <<this;
+    std::unique_ptr<TH1D> h1PVx{ hPVx->ProjectionX( (std::string("h1PVx")+str.str()).c_str(), 0, -1, "e") };
+    std::unique_ptr<TH1D> h1PVy{ hPVy->ProjectionX( (std::string("h1PVy")+str.str()).c_str(), 0, -1, "e") };
+    std::unique_ptr<TH1D> h1PVz{ hPVx->ProjectionY( (std::string("h1PVz")+str.str()).c_str(), 0, -1, "e") };
 
     //Use our own copy for thread safety
     // also do not add to global list of functions
