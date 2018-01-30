@@ -41,19 +41,19 @@ public:
         _prodMode = cfg.getParameter<string>("ProductionMode");
         m_HiggsProdMode = HTXS::UNKNOWN;
         
-        produces<HTXS::HiggsClassification>("HiggsClassification").setBranchAlias("HiggsClassification");
+        produce<HTXS::HiggsClassification>("HiggsClassification").setBranchAlias("HiggsClassification");
 
     }
-    ~HTXSRivetProducer() override;
+    ~HTXSRivetProducer() ;
     
 private:
     
     void beginJob();
-    void produce( edm::Event&, const edm::EventSetup&) override;
+    void produce( edm::Event&, const edm::EventSetup&) ;
     void endJob();
     
-    void beginRun(edm::Run const& iRun, edm::EventSetup const& es) override;
-    void endRun(edm::Run const& iRun, edm::EventSetup const& es) override;
+    void beginRun(edm::Run const& iRun, edm::EventSetup const& es) ;
+    void endRun(edm::Run const& iRun, edm::EventSetup const& es) ;
     
     edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
     edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfo;
