@@ -12,7 +12,7 @@ PhotonMVAEstimatorRunIIFall17::PhotonMVAEstimatorRunIIFall17(const edm::Paramete
   rhoLabel_(conf.getParameter<edm::InputTag>("rho")),
   effectiveAreas_( (conf.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath()),
   phoIsoPtScalingCoeff_(conf.getParameter<std::vector<double >>("phoIsoPtScalingCoeff"))
-  // phoIsoCutoff_(conf.getParameter<double>("phoIsoCutoff"))
+
 {
   
   //
@@ -253,38 +253,38 @@ std::vector<float> PhotonMVAEstimatorRunIIFall17::fillMVAVariables(const edm::Pt
   std::vector<float> vars;
   if( isEndcapCategory( findCategory( particle ) ) ) {
     vars = packMVAVariables(
-                                       allMVAVars.varRawE,
-                                       allMVAVars.varR9,
-                                       allMVAVars.varSieie,
-                                       allMVAVars.varSCEtaWidth,
-                                       allMVAVars.varSCPhiWidth,
-                                       allMVAVars.varSieip,
-                                       allMVAVars.varE2x2overE5x5,
-                                       allMVAVars.varPhoIsoRaw,
-				       allMVAVars.varChIsoRaw,
-				       allMVAVars.varWorstChRaw,
-                                       allMVAVars.varSCEta,
-				       allMVAVars.varRho,
-				       allMVAVars.varESEffSigmaRR,
-				       allMVAVars.varESEnOverRawE
-				       ) 
-                      ; 
+			    allMVAVars.varRawE,
+			    allMVAVars.varR9,
+			    allMVAVars.varSieie,
+			    allMVAVars.varSCEtaWidth,
+			    allMVAVars.varSCPhiWidth,
+			    allMVAVars.varSieip,
+			    allMVAVars.varE2x2overE5x5,
+			    allMVAVars.varPhoIsoRaw,
+			    allMVAVars.varChIsoRaw,
+			    allMVAVars.varWorstChRaw,
+			    allMVAVars.varSCEta,
+			    allMVAVars.varRho,
+			    allMVAVars.varESEffSigmaRR,
+			    allMVAVars.varESEnOverRawE
+			    ) 
+      ; 
   } else {
     vars = packMVAVariables(
-                                       allMVAVars.varRawE,
-                                       allMVAVars.varR9,
-                                       allMVAVars.varSieie,
-                                       allMVAVars.varSCEtaWidth,
-                                       allMVAVars.varSCPhiWidth,
-                                       allMVAVars.varSieip,
-                                       allMVAVars.varE2x2overE5x5,
-                                       allMVAVars.varPhoIsoRaw,
-				       allMVAVars.varChIsoRaw,
-				       allMVAVars.varWorstChRaw,
-                                       allMVAVars.varSCEta,
-				       allMVAVars.varRho
-				       ) 
-                      ;
+			    allMVAVars.varRawE,
+			    allMVAVars.varR9,
+			    allMVAVars.varSieie,
+			    allMVAVars.varSCEtaWidth,
+			    allMVAVars.varSCPhiWidth,
+			    allMVAVars.varSieip,
+			    allMVAVars.varE2x2overE5x5,
+			    allMVAVars.varPhoIsoRaw,
+			    allMVAVars.varChIsoRaw,
+			    allMVAVars.varWorstChRaw,
+			    allMVAVars.varSCEta,
+			    allMVAVars.varRho
+			    ) 
+      ;
   }
   return vars;
 }
@@ -295,8 +295,7 @@ void PhotonMVAEstimatorRunIIFall17::constrainMVAVariables(AllVariables&)const {
   
   // This function is currently empty as this specific MVA was not
   // developed with restricting variables to specific physical ranges.
-  return;
-  
+    
 }
 
 void PhotonMVAEstimatorRunIIFall17::setConsumes(edm::ConsumesCollector&& cc) const {
