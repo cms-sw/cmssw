@@ -112,14 +112,15 @@ mvaPhoID_RunIIFall17_v1_wp80 = configureVIDMVAPhoID_V1( MVA_WP80 )
 # The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
 # 1) comment out the lines below about the registry, 
-# 2) run "calculateMD5 <this file name> <one of the VID config names just above>
+# 2) run "calculateIdMD5 <this file name> <one of the VID config names just above>
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-central_id_registry.register( mvaPhoID_RunIIFall17_v1_wp90.idName,
-                              '0e737fa7da64b5e6e058130f783a5a64')
-central_id_registry.register( mvaPhoID_RunIIFall17_v1_wp80.idName,
-                              '67f3e11869b69ad650e993a443019e85')
 
-mvaPhoID_RunIIFall17_v1_wp90.isPOGApproved = cms.untracked.bool(False)
-mvaPhoID_RunIIFall17_v1_wp80.isPOGApproved = cms.untracked.bool(False)
+central_id_registry.register( mvaPhoID_RunIIFall17_v1_wp90.idName,
+                              '834dd792692b6a62786bd1caa6b53a68')
+central_id_registry.register( mvaPhoID_RunIIFall17_v1_wp80.idName,
+                              '7e48c47329d7d1eb889100ed03a02ba9')
+
+mvaPhoID_RunIIFall17_v1_wp90.isPOGApproved = cms.untracked.bool(True)
+mvaPhoID_RunIIFall17_v1_wp80.isPOGApproved = cms.untracked.bool(True)
