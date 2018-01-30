@@ -67,7 +67,7 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   float computeWorstPFChargedIsolation(const T& photon,
 				       const U& pfCandidates,
 				       const edm::Handle<reco::VertexCollection> vertices,
-				       bool isAOD, const reco::Vertex pv,
+				       bool isAOD, const reco::Vertex& pv,
 				       float dRmax, float dxyMax, float dzMax,
 				       float dRvetoBarrel, float dRvetoEndcap, float ptMin);
 
@@ -77,8 +77,8 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   candidatePdgId(const edm::Ptr<reco::Candidate> candidate, bool isAOD);
 
   const reco::Track* getTrackPointer(const edm::Ptr<reco::Candidate> candidate, bool isAOD);
-  void getImpactParameters(const edm::Ptr<reco::Candidate> candidate,
-                           bool isAOD, const reco::Vertex pv, float &dxy, float &dz);
+  void getImpactParameters(const edm::Ptr<reco::Candidate>& candidate,
+                           bool isAOD, const reco::Vertex& pv, float &dxy, float &dz);
 
 
 
@@ -421,13 +421,8 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
 	float dxy = -999, dz=-999;
         getImpactParameters(iCand, isAOD, pv, dxy, dz);
 
-	//
-	//const reco::Track *theTrack = getTrackPointer( iCand, isAOD );
-	//
-	//float dxy = theTrack->dxy(pv.position());
+
 	if(fabs(dxy) > dxyMax) continue;
-	//
-	//float dz  = theTrack->dz(pv.position());
 	if (fabs(dz) > dzMax) continue;
 
 	// The candidate is eligible, increment the isolaiton
@@ -561,11 +556,8 @@ float PhotonIDValueMapProducer
       getImpactParameters(iCand, isAOD, pv, dxy, dz);
 
 
-      //      const reco::Track *theTrack = getTrackPointer( iCand, isAOD );
-      //float dxy = theTrack->dxy(vtx->position());
+
       if( fabs(dxy) > dxyMax) continue;
-      //
-      //float dz = theTrack->dz(vtx->position());
       if ( fabs(dz) > dzMax) continue;
       
       float dR2 = deltaR2(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), 
@@ -628,12 +620,12 @@ void PhotonIDValueMapProducer::getImpactParameters(const edm::Ptr<reco::Candidat
     dxy = theTrack->dxy(pv.position());
     dz  = theTrack->dz(pv.position());
   } else {
-    dxy = ((const patCandPtr) candidate)->dxy(pv.position());
-    dz = ((const patCandPtr) candidate)->dz(pv.position());
+    const pat::PackedCandidate & aCand = *(patCandPtr(candidate)); 
+    dxy = aCand.dxy(pv.position());
+    dz = aCand.dz(pv.position());
 
   }
 
-  return;
 }
 
 DEFINE_FWK_MODULE(PhotonIDValueMapProducer);
