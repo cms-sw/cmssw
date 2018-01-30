@@ -375,7 +375,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	    std::vector<float> myPedPerApv;
 	    apvFactory_->getPedestal(id, i, myPedPerApv);
 	    float avarage = 0;
-	    avarage = accumulate(myPedPerApv.begin(), myPedPerApv.end(), avarage);
+	    avarage = std::accumulate(myPedPerApv.begin(), myPedPerApv.end(), avarage);
 	    avarage = avarage/128.;
 	    (local_modmes.PedsEvolution)->setBinContent(i+1,nIteration_,avarage);
 	      
