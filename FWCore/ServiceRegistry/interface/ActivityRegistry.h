@@ -30,11 +30,13 @@ unscheduled execution. The tests are in FWCore/Integration/test:
 
 // system include files
 #include <functional>
-#include "FWCore/Utilities/interface/Signal.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/ServiceRegistry/interface/TerminationOrigin.h"
 
 // user include files
+#include "FWCore/ServiceRegistry/interface/TerminationOrigin.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
+#include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #define AR_WATCH_USING_METHOD_0(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (std::bind(std::mem_fn(iMethod), iObject)); }
 #define AR_WATCH_USING_METHOD_1(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (std::bind(std::mem_fn(iMethod), iObject, std::placeholders::_1)); }
@@ -99,6 +101,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_1(watchPreallocate)
 
+
       typedef signalslot::Signal<void(PathsAndConsumesOfModulesBase const&, ProcessContext const&)> PreBeginJob;
       ///signal is emitted before all modules have gotten their beginJob called
       PreBeginJob preBeginJobSignal_;
@@ -160,36 +163,36 @@ namespace edm {
       AR_WATCH_USING_METHOD_1(watchPostSourceEvent)
         
       /// signal is emitted before the source starts creating a Lumi
-      typedef signalslot::Signal<void()> PreSourceLumi;
+      typedef signalslot::Signal<void(LuminosityBlockIndex)> PreSourceLumi;
       PreSourceLumi preSourceLumiSignal_;
       void watchPreSourceLumi(PreSourceLumi::slot_type const& iSlot) {
         preSourceLumiSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPreSourceLumi)
+      AR_WATCH_USING_METHOD_1(watchPreSourceLumi)
 
       /// signal is emitted after the source starts creating a Lumi
-      typedef signalslot::Signal<void()> PostSourceLumi;
+      typedef signalslot::Signal<void(LuminosityBlockIndex)> PostSourceLumi;
       PostSourceLumi postSourceLumiSignal_;
       void watchPostSourceLumi(PostSourceLumi::slot_type const& iSlot) {
          postSourceLumiSignal_.connect_front(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPostSourceLumi)
+      AR_WATCH_USING_METHOD_1(watchPostSourceLumi)
         
       /// signal is emitted before the source starts creating a Run
-      typedef signalslot::Signal<void()> PreSourceRun;
+      typedef signalslot::Signal<void(RunIndex)> PreSourceRun;
       PreSourceRun preSourceRunSignal_;
       void watchPreSourceRun(PreSourceRun::slot_type const& iSlot) {
         preSourceRunSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPreSourceRun)
+      AR_WATCH_USING_METHOD_1(watchPreSourceRun)
 
       /// signal is emitted after the source starts creating a Run
-      typedef signalslot::Signal<void()> PostSourceRun;
+      typedef signalslot::Signal<void(RunIndex)> PostSourceRun;
       PostSourceRun postSourceRunSignal_;
       void watchPostSourceRun(PostSourceRun::slot_type const& iSlot) {
          postSourceRunSignal_.connect_front(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPostSourceRun)
+      AR_WATCH_USING_METHOD_1(watchPostSourceRun)
         
       /// signal is emitted before the source opens a file
       typedef signalslot::Signal<void(std::string const&, bool)> PreOpenFile;

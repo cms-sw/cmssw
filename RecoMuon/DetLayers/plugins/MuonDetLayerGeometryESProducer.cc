@@ -39,11 +39,11 @@ MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::Parame
 MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer(){}
 
 
-std::shared_ptr<MuonDetLayerGeometry>
+std::unique_ptr<MuonDetLayerGeometry>
 MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
 
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDetLayerGeometryESProducer";
-  MuonDetLayerGeometry* muonDetLayerGeometry = new MuonDetLayerGeometry();
+  auto muonDetLayerGeometry = std::make_unique<MuonDetLayerGeometry>();
   
   // Build DT layers  
   edm::ESHandle<DTGeometry> dt;
@@ -95,5 +95,5 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
   // Sort layers properly
   muonDetLayerGeometry->sortLayers();
 
-  return std::shared_ptr<MuonDetLayerGeometry>(muonDetLayerGeometry);
+  return muonDetLayerGeometry;
 }

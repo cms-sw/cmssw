@@ -1761,7 +1761,7 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
 	}
     processFED(fedData, fed);
     
-    for(int slot=1; slot<fedData.getnslots(); ++slot)
+    for(int slot=1; slot<=DOCESLOTS; ++slot)
     {
         urosData = fedData.getuROS(slot);
 	if(fedData.getslotsize(slot)==0 || urosData.getslot()==-1) continue;

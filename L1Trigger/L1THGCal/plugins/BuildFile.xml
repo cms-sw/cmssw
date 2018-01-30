@@ -12,7 +12,6 @@
   <use   name="Geometry/HGCalGeometry"/>
   <use   name="Geometry/HcalTowerAlgo"/>
   <use   name="Geometry/CaloTopology"/>
-  <use   name="Geometry/HcalTowerAlgo"/>
   <use   name="L1Trigger/L1THGCal"/>  
   <flags   EDM_PLUGIN="1"/>
 </library>
@@ -35,5 +34,6 @@
   <use   name="SimDataFormats/CaloTest"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="Geometry/HcalTowerAlgo"/>
+  <use   name="SimDataFormats/PileupSummaryInfo"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

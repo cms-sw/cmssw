@@ -296,6 +296,7 @@ steps['RunHLTPhy2017C']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017C-v1/RAW'
 steps['RunDoubleEG2017C']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2017C-v1/RAW',label='doubEG2017C',events=100000,location='STD', ls=Run2017C)}
 steps['RunDoubleMuon2017C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2017C-v1/RAW',label='doubMu2017C',events=100000,location='STD', ls=Run2017C)}
 steps['RunJetHT2017C']={'INPUT':InputInfo(dataSet='/JetHT/Run2017C-v1/RAW',label='jetHT2017C',events=100000,location='STD', ls=Run2017C)}
+steps['RunDisplacedJet2017C']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2017C-v1/RAW',label='displacedJet2017C',events=100000,location='STD', ls=Run2017C)}
 steps['RunMET2017C']={'INPUT':InputInfo(dataSet='/MET/Run2017C-v1/RAW',label='met2017C',events=100000,location='STD', ls=Run2017C)}
 steps['RunMuonEG2017C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2017C-v1/RAW',label='muEG2017C',events=100000,location='STD', ls=Run2017C)}
 steps['RunSingleEl2017C']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2017C-v1/RAW',label='sigEl2017C',events=100000,location='STD', ls=Run2017C)}
@@ -313,6 +314,7 @@ steps['RunHLTPhy2017D']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017D-v1/RAW'
 steps['RunDoubleEG2017D']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2017D-v1/RAW',label='doubEG2017D',events=100000,location='STD', ls=Run2017D)}
 steps['RunDoubleMuon2017D']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2017D-v1/RAW',label='doubMu2017D',events=100000,location='STD', ls=Run2017D)}
 steps['RunJetHT2017D']={'INPUT':InputInfo(dataSet='/JetHT/Run2017D-v1/RAW',label='jetHT2017D',events=100000,location='STD', ls=Run2017D)}
+steps['RunDisplacedJet2017D']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2017D-v1/RAW',label='displacedJet2017D',events=100000,location='STD', ls=Run2017D)}
 steps['RunMET2017D']={'INPUT':InputInfo(dataSet='/MET/Run2017D-v1/RAW',label='met2017D',events=100000,location='STD', ls=Run2017D)}
 steps['RunMuonEG2017D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2017D-v1/RAW',label='muEG2017D',events=100000,location='STD', ls=Run2017D)}
 steps['RunSingleEl2017D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2017D-v1/RAW',label='sigEl2017D',events=100000,location='STD', ls=Run2017D)}
@@ -329,6 +331,7 @@ steps['RunHLTPhy2017E']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017E-v1/RAW'
 steps['RunDoubleEG2017E']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2017E-v1/RAW',label='doubEG2017E',events=100000,location='STD', ls=Run2017E)}
 steps['RunDoubleMuon2017E']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2017E-v1/RAW',label='doubMu2017E',events=100000,location='STD', ls=Run2017E)}
 steps['RunJetHT2017E']={'INPUT':InputInfo(dataSet='/JetHT/Run2017E-v1/RAW',label='jetHT2017E',events=100000,location='STD', ls=Run2017E)}
+steps['RunDisplacedJet2017E']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2017E-v1/RAW',label='displacedJet2017E',events=100000,location='STD', ls=Run2017E)}
 steps['RunMET2017E']={'INPUT':InputInfo(dataSet='/MET/Run2017E-v1/RAW',label='met2017E',events=100000,location='STD', ls=Run2017E)}
 steps['RunMuonEG2017E']={'INPUT':InputInfo(dataSet='/MuonEG/Run2017E-v1/RAW',label='muEG2017E',events=100000,location='STD', ls=Run2017E)}
 steps['RunSingleEl2017E']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2017E-v1/RAW',label='sigEl2017E',events=100000,location='STD', ls=Run2017E)}
@@ -344,6 +347,7 @@ steps['RunHLTPhy2017F']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017F-v1/RAW'
 steps['RunDoubleEG2017F']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2017F-v1/RAW',label='doubEG2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunDoubleMuon2017F']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2017F-v1/RAW',label='doubMu2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunJetHT2017F']={'INPUT':InputInfo(dataSet='/JetHT/Run2017F-v1/RAW',label='jetHT2017F',events=100000,location='STD', ls=Run2017F)}
+steps['RunDisplacedJet2017F']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2017F-v1/RAW',label='displacedJet2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunMET2017F']={'INPUT':InputInfo(dataSet='/MET/Run2017F-v1/RAW',label='met2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunMuonEG2017F']={'INPUT':InputInfo(dataSet='/MuonEG/Run2017F-v1/RAW',label='muEG2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunSingleEl2017F']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2017F-v1/RAW',label='sigEl2017F',events=100000,location='STD', ls=Run2017F)}
@@ -782,12 +786,14 @@ hiAlca2011 = {'--conditions':'auto:run1_mc_hi'}
 hiAlca2015 = {'--conditions':'auto:run2_mc_hi', '--era':'Run2_HI'}
 hiAlca2017 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017_pp_on_XeXe'}
 hiAlca2018 = {'--conditions':'auto:phase1_2018_realistic', '--era':'Run2_2018'}
+hiAlca2018_ppReco = {'--conditions':'auto:phase1_2018_realistic', '--era':'Run2_2018_pp_on_AA'}
 
 
 hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2}])
 hiDefaults2015=merge([hiAlca2015,{'--scenario':'HeavyIons','-n':2}])
 hiDefaults2017=merge([hiAlca2017,{'-n':2}])
 hiDefaults2018=merge([hiAlca2018,{'--scenario':'HeavyIons','-n':2}])
+hiDefaults2018_ppReco=merge([hiAlca2018_ppReco,{'-n':2}])
 
 steps['HydjetQ_B12_5020GeV_2011']=merge([{'-n':1,'--beamspot':'RealisticHI2011Collision'},hiDefaults2011,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2015']=merge([{'-n':1,'--beamspot':'RealisticHICollisionFixZ2015'},hiDefaults2015,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
@@ -1205,6 +1211,7 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 #steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
 
+steps['DIGIHI2018PPRECO']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2017']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2017, step2Upg2015Defaults])
 steps['DIGIHI2015']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2015, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
@@ -1571,6 +1578,7 @@ steps['RECODR2_2017reHLT_skimSingleMu']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:
 steps['RECODR2_2017reHLT_skimDoubleEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:ZElectron,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimMuonEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:TopMuEG,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimJetHT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:JetHTJetPlusHOFilter,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
+steps['RECODR2_2017reHLT_skimDisplacedJet']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXODisplacedJet,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimMET']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:HighMET+EXOMONOPOLE,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimSinglePh']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:SinglePhotonJetPlusHOFilter+EXOMONOPOLE,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimMuOnia']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
@@ -1597,6 +1605,7 @@ steps['RECODR2_2016reHLT_Prompt_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT
 steps['RECODR2_2017reHLT_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimDoubleEG_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimDoubleEG']])
 steps['RECODR2_2017reHLT_skimJetHT_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimJetHT']])
+steps['RECODR2_2017reHLT_skimDisplacedJet_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimDisplacedJet']])
 steps['RECODR2_2017reHLT_skimMET_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimMET']])
 steps['RECODR2_2017reHLT_skimMuonEG_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimMuonEG']])
 steps['RECODR2_2017reHLT_skimSingleMu_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLT_skimSingleMu']])
@@ -1687,6 +1696,7 @@ steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
 steps['RECOUP15_ID']=merge([{'--hltProcess':'HLT2'},steps['RECOUP15']])
 
+steps['RECOHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},step3Up2015Defaults])
 steps['RECOHI2018']=merge([hiDefaults2018,{'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'},step3Up2015Defaults])
 steps['RECOHI2017']=merge([hiDefaults2017,{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},step3Up2015Defaults])
 steps['RECOHI2015']=merge([hiDefaults2015,{'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'},step3Up2015Defaults])
@@ -1943,6 +1953,10 @@ steps['HARVESTFS']={'-s':'HARVESTING:validationHarvesting',
                     '--fast':'',
                     '--filetype':'DQM',
                    '--scenario':'pp'}
+steps['HARVESTHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+                    '--mc':'',
+                    '--era' : 'Run2_2018_pp_on_AA',
+                    '--filetype':'DQM'}])
 steps['HARVESTHI2018']=merge([hiDefaults2018,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                     '--mc':'',
                     '--era' : 'Run2_2017',

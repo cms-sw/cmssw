@@ -10,9 +10,10 @@
  */
 
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

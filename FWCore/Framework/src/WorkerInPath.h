@@ -121,6 +121,12 @@ namespace edm {
       worker_->doWorkAsync<T>(iTask,ep, es,streamID, parentContext, context);
     } else {
       ParentContext parentContext(context);
+
+      // We do not need to run prefetching here because this only handles
+      // stream transitions for runs and lumis. There are no products put
+      // into the runs or lumis in stream transitions, so there can be
+      // no data dependencies which require prefetching. Prefetching is
+      // needed for global transitions, but they are run elsewhere.
       worker_->doWorkNoPrefetchingAsync<T>(iTask,ep, es,streamID, parentContext, context);
     }
   }  

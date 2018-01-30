@@ -160,22 +160,6 @@ HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
     id_.iSubSec= id.waferType();
     id_.zside  = id.zside();
     id_.subdet = id.subdetId();
-  } else if (subdet_ == HGCEE) {
-    HGCEEDetId id(startId);
-    id_.iCell  = id.cell();
-    id_.iLay   = id.layer();
-    id_.iSec   = id.sector();
-    id_.iSubSec= id.subsector();
-    id_.zside  = id.zside();
-    id_.subdet = id.subdetId();
-  } else {
-    HGCHEDetId id(startId);
-    id_.iCell  = id.cell();
-    id_.iLay   = id.layer();
-    id_.iSec   = id.sector();
-    id_.iSubSec= id.subsector();
-    id_.zside  = id.zside();
-    id_.subdet = id.subdetId();
   }
   return id_;
 }
@@ -187,10 +171,6 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& id_) const {
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
       (mode_ == HGCalGeometryMode::HexagonFull)) {
     id = HGCalDetId(subdet_,id_.zside,id_.iLay,isubsec,id_.iSec,id_.iCell).rawId();
-  } else if (subdet_ == HGCEE) {
-    id = HGCEEDetId(subdet_,id_.zside,id_.iLay,id_.iSec,isubsec,id_.iCell).rawId();
-  } else {
-    id = HGCHEDetId(subdet_,id_.zside,id_.iLay,id_.iSec,isubsec,id_.iCell).rawId();
   }
   return id;
 }

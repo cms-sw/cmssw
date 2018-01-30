@@ -20,9 +20,8 @@ class  SteppingHelixPropagatorESProducer: public edm::ESProducer{
  public:
   SteppingHelixPropagatorESProducer(const edm::ParameterSet & p);
   ~SteppingHelixPropagatorESProducer() override;
-  std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
  private:
-  std::shared_ptr<Propagator> _propagator;
   edm::ParameterSet pset_;
 };
 
@@ -39,7 +38,7 @@ SteppingHelixPropagatorESProducer::SteppingHelixPropagatorESProducer(const edm::
 
 SteppingHelixPropagatorESProducer::~SteppingHelixPropagatorESProducer() {}
 
-std::shared_ptr<Propagator> 
+std::unique_ptr<Propagator> 
 SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
@@ -56,7 +55,8 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
   if (pdir == "alongMomentum") dir = alongMomentum;
   if (pdir == "anyDirection") dir = anyDirection;
   
-  SteppingHelixPropagator* shProp = new SteppingHelixPropagator(&(*magfield), dir);
+  std::unique_ptr<SteppingHelixPropagator> shProp;
+  shProp.reset( new SteppingHelixPropagator(&(*magfield), dir));
 
   bool useInTeslaFromMagField = pset_.getParameter<bool>("useInTeslaFromMagField");
   bool setVBFPointer = pset_.getParameter<bool>("SetVBFPointer");
@@ -121,8 +121,7 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
     shProp->setEndcapShiftsInZPosNeg(valPos, valNeg);
   }
 
-  _propagator  = std::shared_ptr<Propagator>(shProp);
-  return _propagator;
+  return shProp;
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"
