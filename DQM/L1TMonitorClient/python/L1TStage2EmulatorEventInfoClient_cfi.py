@@ -69,9 +69,9 @@ l1tStage2EmulatorEventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
+                                QualityTestName = cms.string("Layer1DEMismatchThreshold"),
+                                QualityTestHist = cms.string("L1TEMU/L1TdeStage2CaloLayer1/dataEmulSummary"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             )
                         ),
@@ -181,7 +181,165 @@ l1tStage2EmulatorEventInfoClient = DQMEDHarvester("L1TEventInfoClient",
     #
     # the position in the parameter set gives, in reverse order, the position in the reportSummaryMap
     # in the trigger object column (right column)
-    L1Objects = cms.VPSet(),
+    # N.B. (nick): max(# entries in this VPset, # entries in L1Systems) determines the number of columns drawn
+    # hence the ugliness of the overlay if not the same as the overlay code
+    # which is here-ish: https://github.com/dmwm/deployment/blob/master/dqmgui/style/L1TStage2RenderPlugin.cc#L143-L199
+    L1Objects = cms.VPSet(
+                    cms.PSet(
+                        ObjectLabel = cms.string("TechTrig"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("GtExternal"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("HfRingEtSums"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("HfBitCounts"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("HTM"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("HTT"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("ETM"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("ETT"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("Tau"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("ForJet"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("CenJet"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("IsoEG"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("NoIsoEG"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        ),
+                    cms.PSet(
+                        ObjectLabel = cms.string("Mu"),
+                        ObjectDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string(""),
+                                QualityTestHist = cms.string(""),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                )
+                            )
+                        )
+                    ),
     #
     # fast over-mask a system: if the name of the system is in the list, the system will be masked
     # (the default mask value is given in L1Systems VPSet)
