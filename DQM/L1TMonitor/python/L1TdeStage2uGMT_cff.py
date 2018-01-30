@@ -20,40 +20,41 @@ l1tStage2uGMTEmul.monitorDir = cms.untracked.string(ugmtEmuDqmDir)
 l1tStage2uGMTEmul.emulator = cms.untracked.bool(True)
 
 # the uGMT intermediate muon DQM modules
-l1tStage2uGMTIntermediateBMTFEmul = cms.EDAnalyzer(
-    "L1TStage2uGMTMuon",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tStage2uGMTIntermediateBMTFEmul = DQMEDAnalyzer(
+    'L1TStage2uGMTMuon',
     muonProducer = cms.InputTag(emulatorModule, "imdMuonsBMTF"),
     monitorDir = cms.untracked.string(ugmtEmuImdMuDqmDir+"/BMTF"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from BMTF "),
     verbose = cms.untracked.bool(False),
 )
 
-l1tStage2uGMTIntermediateOMTFNegEmul = cms.EDAnalyzer(
-    "L1TStage2uGMTMuon",
+l1tStage2uGMTIntermediateOMTFNegEmul = DQMEDAnalyzer(
+    'L1TStage2uGMTMuon',
     muonProducer = cms.InputTag(emulatorModule, "imdMuonsOMTFNeg"),
     monitorDir = cms.untracked.string(ugmtEmuImdMuDqmDir+"/OMTF_neg"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from OMTF neg. "),
     verbose = cms.untracked.bool(False),
 )
 
-l1tStage2uGMTIntermediateOMTFPosEmul = cms.EDAnalyzer(
-    "L1TStage2uGMTMuon",
+l1tStage2uGMTIntermediateOMTFPosEmul = DQMEDAnalyzer(
+    'L1TStage2uGMTMuon',
     muonProducer = cms.InputTag(emulatorModule, "imdMuonsOMTFPos"),
     monitorDir = cms.untracked.string(ugmtEmuImdMuDqmDir+"/OMTF_pos"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from OMTF pos. "),
     verbose = cms.untracked.bool(False),
 )
 
-l1tStage2uGMTIntermediateEMTFNegEmul = cms.EDAnalyzer(
-    "L1TStage2uGMTMuon",
+l1tStage2uGMTIntermediateEMTFNegEmul = DQMEDAnalyzer(
+    'L1TStage2uGMTMuon',
     muonProducer = cms.InputTag(emulatorModule, "imdMuonsEMTFNeg"),
     monitorDir = cms.untracked.string(ugmtEmuImdMuDqmDir+"/EMTF_neg"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from EMTF neg. "),
     verbose = cms.untracked.bool(False),
 )
 
-l1tStage2uGMTIntermediateEMTFPosEmul = cms.EDAnalyzer(
-    "L1TStage2uGMTMuon",
+l1tStage2uGMTIntermediateEMTFPosEmul = DQMEDAnalyzer(
+    'L1TStage2uGMTMuon',
     muonProducer = cms.InputTag(emulatorModule, "imdMuonsEMTFPos"),
     monitorDir = cms.untracked.string(ugmtEmuImdMuDqmDir+"/EMTF_pos"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from EMTF pos. "),
@@ -62,8 +63,8 @@ l1tStage2uGMTIntermediateEMTFPosEmul = cms.EDAnalyzer(
 
 # compares the unpacked uGMT muon collection to the emulated uGMT muon collection
 # only muons that do not match are filled in the histograms
-l1tdeStage2uGMT = cms.EDAnalyzer(
-    "L1TStage2MuonComp",
+l1tdeStage2uGMT = DQMEDAnalyzer(
+    'L1TStage2MuonComp',
     muonCollection1 = cms.InputTag(unpackerModule, "Muon"),
     muonCollection2 = cms.InputTag(emulatorModule),
     monitorDir = cms.untracked.string(ugmtEmuDqmDir+"/data_vs_emulator_comparison"),

@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-BTVHLTOfflineSource = cms.EDAnalyzer(
-    "BTVHLTOfflineSource",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+BTVHLTOfflineSource = DQMEDAnalyzer(
+    'BTVHLTOfflineSource',
     #
     dirname = cms.untracked.string("HLT/BTV"),
     processname = cms.string("HLT"),  

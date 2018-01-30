@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-recHitTask = cms.EDAnalyzer(
-	"RecHitTask",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+recHitTask = DQMEDAnalyzer(
+	'RecHitTask',
 	
 	#	standard parameters
 	name = cms.untracked.string("RecHitTask"),

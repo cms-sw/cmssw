@@ -5,8 +5,9 @@ import FWCore.ParameterSet.Config as cms
 # Date: 03.04.2008
 #
 # Fill validation histograms for caloTowers.
-towerSchemeBAnalyzer = cms.EDAnalyzer(
-    "CaloTowerAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+towerSchemeBAnalyzer = DQMEDAnalyzer(
+    'CaloTowerAnalyzer',
     Debug = cms.bool(False),
     CaloTowersLabel = cms.InputTag("towerMaker"),
     FineBinning = cms.untracked.bool(False),

@@ -221,7 +221,6 @@ EFFICIENCY
 """
 
 plotPset = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominator)
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 proc.efficiencies = DQMEDAnalyzer(
    "TauDQMHistEffProducer",
    plots = plotPset    
@@ -234,7 +233,6 @@ proc.efficiencies = DQMEDAnalyzer(
 #
 ################################################
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 proc.normalizePlots = DQMEDAnalyzer(
    "DQMHistNormalizer",
    plotNamesToNormalize = cms.vstring('*_pTRatio_*','*_Size_*','*_SumPt_*','*_dRTauRefJet*'),
@@ -255,7 +253,6 @@ PLOTTING
 
 """
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 loadTau = DQMEDAnalyzer("TauDQMFileLoader",
   test = cms.PSet(
     #inputFileNames = cms.vstring('/afs/cern.ch/user/f/friis/scratch0/MyValidationArea/310pre6NewTags/src/Validation/RecoTau/test/CMSSW_3_1_0_pre6_ZTT_0505Fixes.root'),
@@ -397,7 +394,6 @@ standardCompareTestAndReference = cms.PSet(
 #   The plotting of HPS Efficiencies
 #
 ##################################################
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ## plotHPSEfficiencies = DQMEDAnalyzer("TauDQMHistPlotter",
 ##                                      standardDrawingStuff,
 ##                                      standardCompareTestAndReference,
@@ -414,7 +410,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 #   The plotting of all the Shrinking cone leading pion efficiencies
 #
 ##################################################
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ## plotPFTauHighEfficiencyEfficienciesLeadingPion = DQMEDAnalyzer("TauDQMHistPlotter",
 ##                                                                 standardDrawingStuff,
 ##                                                                 standardCompareTestAndReference,

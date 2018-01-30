@@ -4,8 +4,9 @@ ignoreBinsDeStage2Omtf = [1, 14]
 
 # compares the unpacked OMTF regional muon collection to the emulated OMTF regional muon collection
 # only muons that do not match are filled in the histograms
-l1tdeStage2Omtf = cms.EDAnalyzer(
-    "L1TStage2RegionalMuonCandComp",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tdeStage2Omtf = DQMEDAnalyzer(
+    'L1TStage2RegionalMuonCandComp',
     regionalMuonCollection1 = cms.InputTag("omtfStage2Digis", ""),
     regionalMuonCollection2 = cms.InputTag("valOmtfDigis", "OMTF"),
     monitorDir = cms.untracked.string("L1TEMU/L1TdeStage2OMTF"),

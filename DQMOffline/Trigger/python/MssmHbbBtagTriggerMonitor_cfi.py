@@ -14,8 +14,9 @@ triggerFlagPSet = cms.PSet(
   verbosityLevel = cms.uint32(1)
 )
 
-mssmHbbBtagTriggerMonitor = cms.EDAnalyzer(
-    "TagAndProbeBtagTriggerMonitor",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+mssmHbbBtagTriggerMonitor = DQMEDAnalyzer(
+    'TagAndProbeBtagTriggerMonitor',
     dirname = cms.string("HLT/Higgs/MssmHbb/"),
     processname = cms.string("HLT"),
     jetPtMin = cms.double(40),

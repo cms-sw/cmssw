@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from math import pi
 
-B2GDQM = cms.EDAnalyzer(
-    "B2GDQM",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+B2GDQM = DQMEDAnalyzer(
+    'B2GDQM',
 
     #Trigger Results
     triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-CentralityDQM = cms.EDAnalyzer(
-    "CentralityDQM",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+CentralityDQM = DQMEDAnalyzer(
+    'CentralityDQM',
     centralitycollection = cms.InputTag("hiCentrality"),
     centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
     vertexcollection = cms.InputTag("hiSelectedVertex"),

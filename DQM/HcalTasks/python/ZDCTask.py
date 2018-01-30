@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-zdcTask = cms.EDAnalyzer(
-	"ZDCTask",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+zdcTask = DQMEDAnalyzer(
+	'ZDCTask',
 
 	#	standard
 	name = cms.untracked.string("ZDCTask"),
