@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalEndcapDigisValidation = cms.EDAnalyzer("EcalEndcapDigisValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalEndcapDigisValidation = DQMEDAnalyzer('EcalEndcapDigisValidation',
     EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis"),
     verbose = cms.untracked.bool(False)
 )

@@ -1,3 +1,6 @@
+#include <fstream>
+#include <streambuf>
+
 #include "Fireworks/Geometry/interface/FWRecoGeometryESProducer.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometry.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
@@ -30,6 +33,7 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include "TNamed.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid, const GeomDet* detUnit ) {                                    
    const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); 
@@ -108,7 +112,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
     DetId detId( DetId::Tracker, 0 );
     m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
   }
-  
+    
   if( m_tracker )
   {
     addPixelBarrelGeometry( );
@@ -117,6 +121,8 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
     addTIDGeometry();
     addTOBGeometry();
     addTECGeometry();
+    writeTrackerParametersXML();
+    return m_fwGeometry; //AMT
   }
   if( m_muon )
   {
@@ -635,4 +641,24 @@ FWRecoGeometryESProducer::fillShapeAndPlacement( unsigned int id, const GeomDet 
   m_fwGeometry->idToName[id].matrix[6] = detRot.xz();
   m_fwGeometry->idToName[id].matrix[7] = detRot.yz();
   m_fwGeometry->idToName[id].matrix[8] = detRot.zz();
+}
+
+void FWRecoGeometryESProducer::writeTrackerParametersXML()
+{
+  std::string path = "Geometry/TrackerCommonData/data/";
+  if ( m_trackerGeom->isThere(GeomDetEnumerators::P1PXB) ||
+       m_trackerGeom->isThere(GeomDetEnumerators::P1PXEC) ) {
+    path += "PhaseI/";
+  } else if ( m_trackerGeom->isThere(GeomDetEnumerators::P2PXB)  ||
+              m_trackerGeom->isThere(GeomDetEnumerators::P2PXEC) ||
+              m_trackerGeom->isThere(GeomDetEnumerators::P2OTB)  ||
+              m_trackerGeom->isThere(GeomDetEnumerators::P2OTEC) ) {
+    path += "PhaseII/";
+  }
+  path += "trackerParameters.xml";
+  std::string fullPath = edm::FileInPath(path).fullPath();
+  std::ifstream t(fullPath);
+  std::stringstream buffer;
+  buffer << t.rdbuf();
+  m_fwGeometry->trackerTopologyXML = buffer.str();
 }

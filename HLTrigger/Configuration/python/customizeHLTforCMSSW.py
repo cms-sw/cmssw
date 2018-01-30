@@ -17,6 +17,21 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+def customiseFor21821(process):
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.ts4Max = cms.vdouble(100., 20000., 30000)
+        del producer.algorithm.pedestalUpperLimit
+        del producer.algorithm.pedSigmaHPD
+        del producer.algorithm.pedSigmaSiPM
+        del producer.algorithm.noiseHPD
+        del producer.algorithm.noiseSiPM
+
+    for producer in producers_by_type(process, "HcalHitReconstructor"):
+        if hasattr(producer,"puCorrMethod"):
+            del producer.puCorrMethod
+
+    return process
+
 def customiseFor21664_forMahiOn(process):
     for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
         producer.algorithm.useMahi   = cms.bool(True)
@@ -66,5 +81,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-        
+
+    process = customiseFor21821(process)
+
     return process
