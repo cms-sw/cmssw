@@ -111,7 +111,8 @@ GenericTriggerSelectionParameters = cms.PSet(
    verbosityLevel = cms.uint32(0) #0: complete silence (default), needed for T0 processing;
 )
 
-proc.templateAnalyzer = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+proc.templateAnalyzer = DQMEDAnalyzer(
    "TauTagValidation",
    StandardMatchingParameters,
    GenericTriggerSelection = GenericTriggerSelectionParameters,
@@ -220,7 +221,7 @@ EFFICIENCY
 """
 
 plotPset = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominator)
-proc.efficiencies = DQMEDAnalyzer(
+proc.efficiencies = cms.EDAnalyzer(
    "TauDQMHistEffProducer",
    plots = plotPset    
    )
@@ -232,7 +233,7 @@ proc.efficiencies = DQMEDAnalyzer(
 #
 ################################################
 
-proc.normalizePlots = DQMEDAnalyzer(
+proc.normalizePlots = cms.EDAnalyzer(
    "DQMHistNormalizer",
    plotNamesToNormalize = cms.vstring('*_pTRatio_*','*_Size_*','*_SumPt_*','*_dRTauRefJet*'),
    reference = cms.string('*_pTRatio_allHadronic')
