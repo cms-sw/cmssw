@@ -1,5 +1,6 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryGenericMapping.h"
 
+
 using namespace HGCalTriggerGeometry;
 
 namespace {
@@ -129,5 +130,12 @@ bool
 HGCalTriggerGeometryGenericMapping::
 disconnectedModule(const unsigned module_id) const {
   return false;
+}
+
+
+unsigned 
+HGCalTriggerGeometryGenericMapping::
+triggerLayer(const unsigned id) const {
+  return  HGCalDetId(id).layer();
 }
 

@@ -5,17 +5,12 @@
 
 using namespace std;
 
-PedestalSub::PedestalSub() : fThreshold(2.7),fQuantile(0.0),fCondition(0){
+PedestalSub::PedestalSub() {
 }
 
 PedestalSub::~PedestalSub() { 
 }
 
-void PedestalSub::init(int runCond=0, float threshold=0.0, float quantile=0.0) {
-  fThreshold=threshold;
-  fQuantile=quantile;
-  fCondition=runCond;
-}
 
 void PedestalSub::calculate(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal, const std::vector<double> & inputNoise, std::vector<double> & corrCharge, int soi, int nTS) const {
 

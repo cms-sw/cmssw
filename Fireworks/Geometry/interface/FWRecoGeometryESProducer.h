@@ -56,7 +56,8 @@ private:
   unsigned int insert_id( unsigned int id );
   void fillPoints( unsigned int id, std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end );
   void fillShapeAndPlacement( unsigned int id, const GeomDet *det );
-  
+  void writeTrackerParametersXML();
+   
   edm::ESHandle<GlobalTrackingGeometry>      m_geomRecord;
   const CaloGeometry*                        m_caloGeom;
   edm::ESHandle<FastTimeGeometry>            m_ftlBarrelGeom,m_ftlEndcapGeom;
