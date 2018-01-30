@@ -11,13 +11,14 @@ cd $W_DIR;
 source /afs/cern.ch/cms/cmsset_default.sh;
 eval `scram run -sh`;
 
-mkdir -p $W_DIR/results
+mkdir -p $W_DIR/results_alignments
 
+#*************************************************************************#
 elements=(X Y Z Alpha Beta Gamma)
 
 for i in "${elements[@]}"
 do
-    echo "Processing: $i element"
+    echo "Processing: $i coordinate"
 
     getPayloadData.py  \
 	--plugin pluginTrackerAlignment_PayloadInspector \
@@ -28,14 +29,16 @@ do
 	--db Prod \
 	--test;
 
-    mv *.png $W_DIR/results/TrackerAlignmentCompare${i}.png
+    mv *.png $W_DIR/results_alignments/TrackerAlignmentCompare${i}.png
+
 done
 
+#*************************************************************************#
 elements=(BPix FPix TIB TOB TID TEC)
 
 for i in "${elements[@]}"
 do
-    echo "Processing: $i element"
+    echo "Processing: $i partition"
     
     getPayloadData.py  \
  	--plugin pluginTrackerAlignment_PayloadInspector \
@@ -46,5 +49,23 @@ do
   	--db Prod \
  	--test;
     
-    mv *.png $W_DIR/results/TrackerAlignmentSummary${i}.png
+    mv *.png $W_DIR/results_alignments/TrackerAlignmentSummary${i}.png
+done
+
+#*************************************************************************#
+elements=(X Y Z)
+
+for i in "${elements[@]}"
+do
+    echo "Processing: $i partition"
+    
+    getPayloadData.py  \
+ 	--plugin pluginTrackerAlignment_PayloadInspector \
+ 	--plot plot_${i}_BPixBarycenterHistory \
+ 	--tag TrackerAlignment_v21_offline\
+ 	--time_type Run \
+	--iovs '{"start_iov": "294034", "end_iov": "305898"}' \
+  	--db Prod \
+ 	--test;
+    
 done
