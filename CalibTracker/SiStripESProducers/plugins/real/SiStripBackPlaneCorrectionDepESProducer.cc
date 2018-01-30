@@ -61,7 +61,7 @@ std::shared_ptr<SiStripBackPlaneCorrection> SiStripBackPlaneCorrectionDepESProdu
   if ( backPlaneCorrectionRecordName == "SiStripBackPlaneCorrectionRcd"){
     edm::ESHandle<SiStripBackPlaneCorrection> siStripBackPlaneCorrection;
     iRecord.getRecord<SiStripBackPlaneCorrectionRcd>().get(backPlaneCorrectionLabel, siStripBackPlaneCorrection);
-    siStripBPC.reset(new SiStripBackPlaneCorrection(*(siStripBackPlaneCorrection.product())));
+    siStripBPC = std::make_shared<SiStripBackPlaneCorrection>(*(siStripBackPlaneCorrection.product()));
   } else edm::LogError("SiStripBackPlaneCorrectionDepESProducer") << "[SiStripBackPlaneCorrectionDepESProducer::produce] No Lorentz Angle Record found " << std::endl;
 	 
 
