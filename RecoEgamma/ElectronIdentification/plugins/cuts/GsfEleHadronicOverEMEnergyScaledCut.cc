@@ -5,13 +5,13 @@ class GsfEleHadronicOverEMEnergyScaledCut : public CutApplicatorWithEventContent
 public:
   GsfEleHadronicOverEMEnergyScaledCut(const edm::ParameterSet& c) :
     CutApplicatorWithEventContentBase(c),
-    _barrelC0(c.getParameter<double>("barrelC0")),
-    _barrelCE(c.getParameter<double>("barrelCE")),
-    _barrelCr(c.getParameter<double>("barrelCr")),
-    _endcapC0(c.getParameter<double>("endcapC0")),
-    _endcapCE(c.getParameter<double>("endcapCE")),
-    _endcapCr(c.getParameter<double>("endcapCr")),
-    _barrelCutOff(c.getParameter<double>("barrelCutOff")) 
+    barrelC0_(c.getParameter<double>("barrelC0")),
+    barrelCE_(c.getParameter<double>("barrelCE")),
+    barrelCr_(c.getParameter<double>("barrelCr")),
+    endcapC0_(c.getParameter<double>("endcapC0")),
+    endcapCE_(c.getParameter<double>("endcapCE")),
+    endcapCr_(c.getParameter<double>("endcapCr")),
+    barrelCutOff_(c.getParameter<double>("barrelCutOff")) 
   {
     edm::InputTag rhoTag = c.getParameter<edm::InputTag>("rho");    
     contentTags_.emplace("rho",rhoTag);  
@@ -30,7 +30,7 @@ public:
   }
 
 private:
-  const float _barrelC0, _barrelCE, _barrelCr, _endcapC0, _endcapCE, _endcapCr, _barrelCutOff;  
+  const float barrelC0_, barrelCE_, barrelCr_, endcapC0_, endcapCE_, endcapCr_, barrelCutOff_;  
   edm::Handle<double> rhoHandle_;
 };
 
@@ -52,10 +52,10 @@ CutApplicatorBase::result_type GsfEleHadronicOverEMEnergyScaledCut::operator()(c
 
   const double rho = rhoHandle_.isValid() ? (float)(*rhoHandle_) : 0;
   const float energy = cand->superCluster()->energy();
-  const float C0 = (std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? _barrelC0 : _endcapC0);
-  const float CE = (std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? _barrelCE : _endcapCE);
-  const float Cr = (std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? _barrelCr : _endcapCr);
-  return cand->hadronicOverEm() < C0 + CE/energy + Cr*rho/energy;
+  const float c0 = (std::abs(cand->superCluster()->position().eta()) < barrelCutOff_ ? barrelC0_ : endcapC0_);
+  const float cE = (std::abs(cand->superCluster()->position().eta()) < barrelCutOff_ ? barrelCE_ : endcapCE_);
+  const float cR = (std::abs(cand->superCluster()->position().eta()) < barrelCutOff_ ? barrelCr_ : endcapCr_);
+  return cand->hadronicOverEm() < c0 + cE/energy + cR*rho/energy;
 }
 
 double GsfEleHadronicOverEMEnergyScaledCut::value(const reco::CandidatePtr& cand) const {
