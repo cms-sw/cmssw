@@ -186,10 +186,11 @@ unsigned int CalibCorr::correctDetId(const unsigned int & detId) {
     else                              subdet = 1;
   }
   unsigned int id = getDetId(subdet,ieta*zside,iphi,depth);
-  if ((id != detId) && debug_) 
+  if ((id != detId) && debug_) {
     std::cout << "Correct Id " << std::hex << detId << " to " << id << std::dec
 	      << "(Sub " << subdet << " eta " << ieta*zside << " phi " << iphi
 	      << " depth " << depth << ")" << std::endl;
+  }
   return id;
 }
 
@@ -219,9 +220,10 @@ bool CalibSelectRBX::isItRBX(const unsigned int detId) {
     ok = ((subdet == subdet_) && (zside == zside_) &&
 	  (std::find(phis_.begin(),phis_.end(),iphi) != phis_.end()));
     
-    if (debug_) 
+    if (debug_) {
       std::cout << "isItRBX:subdet|zside|iphi " << subdet << ":" << zside 
 		<< ":" << iphi << " OK " << ok << std::endl;
+    }
   }
   return ok;
 }
@@ -235,14 +237,17 @@ bool CalibSelectRBX::isItRBX(const std::vector<unsigned int> * detId) {
       unpackDetId((*detId)[i], subdet, zside, ieta, iphi, depth);
       ok = ((subdet == subdet_) && (zside == zside_) &&
 	    (std::find(phis_.begin(),phis_.end(),iphi) != phis_.end()));
-      if (debug_)
+      if (debug_) {
 	std::cout << "isItRBX: subdet|zside|iphi " << subdet << ":" << zside 
 		  << ":" << iphi << std::endl;
+      }
       if (ok) break;
     }
   }
-  if (debug_) std::cout << "isItRBX: size " << detId->size() << " OK " << ok 
-			<< std::endl;
+  if (debug_) {
+    std::cout << "isItRBX: size " << detId->size() << " OK " << ok
+	      << std::endl;
+  }
   return ok;
 }
 
@@ -256,8 +261,9 @@ bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
 		 (zside == zside_) &&
 		 (std::find(phis_.begin(),phis_.end(),iphi) != phis_.end()));
   }
-  if (debug_) 
+  if (debug_) {
     std::cout << "isItRBX: ieta " << ieta << " iphi " << iphi << " OK " << ok 
 	      << std::endl;
+  }
   return ok;
 }
