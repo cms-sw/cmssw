@@ -515,7 +515,7 @@ template <class T, class U>
 float PhotonIDValueMapProducer
 ::computeWorstPFChargedIsolation(const T& photon, const U& pfCandidates,
 				 const edm::Handle<reco::VertexCollection> vertices,
-				 bool isAOD,const reco::Vertex pv,
+				 bool isAOD,const reco::Vertex& pv,
 				 float dRmax, float dxyMax, float dzMax,
 				 float dRvetoBarrel, float dRvetoEndcap, float ptMin){
 
@@ -609,8 +609,8 @@ PhotonIDValueMapProducer::getTrackPointer(const edm::Ptr<reco::Candidate> candid
   return theTrack;
 }
 
-void PhotonIDValueMapProducer::getImpactParameters(const edm::Ptr<reco::Candidate> candidate,
-                                                   bool isAOD, const reco::Vertex pv,
+void PhotonIDValueMapProducer::getImpactParameters(const edm::Ptr<reco::Candidate>& candidate,
+                                                   bool isAOD, const reco::Vertex& pv,
                                                    float &dxy, float &dz){
 
   dxy=-999;

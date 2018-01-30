@@ -22,7 +22,7 @@ from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_tools \
 
 # Veto working point Barrel and Endcap
 #V1 of IDs good for Moriond 18
-idName = "cutBasedElectronID-Fall17-94X-V1-Preliminary-veto"
+idName = "cutBasedElectronID-Fall17-94X-V1--veto"
 WP_Veto_EB = EleWorkingPoint_V4(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0128  , # full5x5_sigmaIEtaIEtaCut
@@ -54,7 +54,7 @@ WP_Veto_EE = EleWorkingPoint_V4(
     )
 
 # Loose working point Barrel and Endcap
-idName = "cutBasedElectronID-Fall17-94X-V1-Preliminary-loose"
+idName = "cutBasedElectronID-Fall17-94X-V1--loose"
 WP_Loose_EB = EleWorkingPoint_V4(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0105  , # full5x5_sigmaIEtaIEtaCut
@@ -86,7 +86,7 @@ WP_Loose_EE = EleWorkingPoint_V4(
     )
 
 # Medium working point Barrel and Endcap
-idName = "cutBasedElectronID-Fall17-94X-V1-Preliminary-medium"
+idName = "cutBasedElectronID-Fall17-94X-V1--medium"
 WP_Medium_EB = EleWorkingPoint_V4(
     idName                         = idName , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0105, # full5x5_sigmaIEtaIEtaCut
@@ -118,7 +118,7 @@ WP_Medium_EE = EleWorkingPoint_V4(
     )
 
 # Tight working point Barrel and Endcap
-idName = "cutBasedElectronID-Fall17-94X-V1-Preliminary-tight"
+idName = "cutBasedElectronID-Fall17-94X-V1--tight"
 WP_Tight_EB = EleWorkingPoint_V4(
     idName                         = idName    , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0104   , # full5x5_sigmaIEtaIEtaCut
@@ -160,10 +160,10 @@ isoInputs = IsolationCutInputs_V2(
 # Set up VID configuration for all cuts and working points
 #
 
-cutBasedElectronID_Fall17_94X_V1_Preliminary_veto = configureVIDCutBasedEleID_V4(WP_Veto_EB, WP_Veto_EE, isoInputs)
-cutBasedElectronID_Fall17_94X_V1_Preliminary_loose = configureVIDCutBasedEleID_V4(WP_Loose_EB, WP_Loose_EE, isoInputs)
-cutBasedElectronID_Fall17_94X_V1_Preliminary_medium = configureVIDCutBasedEleID_V4(WP_Medium_EB, WP_Medium_EE, isoInputs)
-cutBasedElectronID_Fall17_94X_V1_Preliminary_tight = configureVIDCutBasedEleID_V4(WP_Tight_EB, WP_Tight_EE, isoInputs)
+cutBasedElectronID_Fall17_94X_V1_veto = configureVIDCutBasedEleID_V4(WP_Veto_EB, WP_Veto_EE, isoInputs)
+cutBasedElectronID_Fall17_94X_V1_loose = configureVIDCutBasedEleID_V4(WP_Loose_EB, WP_Loose_EE, isoInputs)
+cutBasedElectronID_Fall17_94X_V1_medium = configureVIDCutBasedEleID_V4(WP_Medium_EB, WP_Medium_EE, isoInputs)
+cutBasedElectronID_Fall17_94X_V1_tight = configureVIDCutBasedEleID_V4(WP_Tight_EB, WP_Tight_EE, isoInputs)
 
 
 # The MD5 sum numbers below reflect the exact set of cut variables
@@ -173,18 +173,18 @@ cutBasedElectronID_Fall17_94X_V1_Preliminary_tight = configureVIDCutBasedEleID_V
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_veto.idName,
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_veto.idName,
                              '43be9b381a8d9b0910b7f81a5ad8ff3a')
-central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_loose.idName,
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_loose.idName,
                              '0b8456d622494441fe713a6858e0f7c1')
-central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_medium.idName,
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_medium.idName,
                              'a238ee70910de53d36866e89768500e9')
-central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_tight.idName,
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_tight.idName,
                              '4acb2d2796efde7fba75380ce8823fc2')
 
 
 ### for now until we have a database...
-cutBasedElectronID_Fall17_94X_V1_Preliminary_veto.isPOGApproved = cms.untracked.bool(True)
-cutBasedElectronID_Fall17_94X_V1_Preliminary_loose.isPOGApproved = cms.untracked.bool(True)
-cutBasedElectronID_Fall17_94X_V1_Preliminary_medium.isPOGApproved = cms.untracked.bool(True)
-cutBasedElectronID_Fall17_94X_V1_Preliminary_tight.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_Fall17_94X_V1_veto.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_Fall17_94X_V1_loose.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_Fall17_94X_V1_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_Fall17_94X_V1_tight.isPOGApproved = cms.untracked.bool(True)
