@@ -169,22 +169,22 @@ cutBasedElectronID_Fall17_94X_V1_Preliminary_tight = configureVIDCutBasedEleID_V
 # The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
 # 1) comment out the lines below about the registry, 
-# 2) run "calculateMD5 <this file name> <one of the VID config names just above>
+# 2) run "calculateIdMD5 <this file name> <one of the VID config names just above>
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_veto.idName,
-#                             '0025c1841da1ab64a08d703ded72409b')
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_loose.idName,
-#                             'c1c4c739f1ba0791d40168c123183475')
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_medium.idName,
-#                             '71b43f74a27d2fd3d27416afd22e8692')
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_tight.idName,
-#                             'ca2a9db2976d80ba2c13f9bfccdc32f2')
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_veto.idName,
+                             '43be9b381a8d9b0910b7f81a5ad8ff3a')
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_loose.idName,
+                             '0b8456d622494441fe713a6858e0f7c1')
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_medium.idName,
+                             'a238ee70910de53d36866e89768500e9')
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_Preliminary_tight.idName,
+                             '4acb2d2796efde7fba75380ce8823fc2')
 
 
 ### for now until we have a database...
-cutBasedElectronID_Fall17_94X_V1_Preliminary_veto.isPOGApproved = cms.untracked.bool(False)
-cutBasedElectronID_Fall17_94X_V1_Preliminary_loose.isPOGApproved = cms.untracked.bool(False)
-cutBasedElectronID_Fall17_94X_V1_Preliminary_medium.isPOGApproved = cms.untracked.bool(False)
-cutBasedElectronID_Fall17_94X_V1_Preliminary_tight.isPOGApproved = cms.untracked.bool(False)
+cutBasedElectronID_Fall17_94X_V1_Preliminary_veto.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_Fall17_94X_V1_Preliminary_loose.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_Fall17_94X_V1_Preliminary_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_Fall17_94X_V1_Preliminary_tight.isPOGApproved = cms.untracked.bool(True)
