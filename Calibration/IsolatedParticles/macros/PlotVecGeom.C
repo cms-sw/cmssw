@@ -236,12 +236,12 @@ void plotCompare(const char* infile1, const char* text1, const char* infile2,
   }
 }
 
-void plotCompareAll(std::string cdir1="10.4.r00.g4",
-		    std::string cdir2="10.4.r00.vg",
-		    std::string cvers="10.4 MinBias",
-		    std::string cfile= "minbias.root",
-		    std::string ctype1="Native", 
-		    std::string ctype2="VecGeom v0.5",
+void plotCompareAll(const std::string & cdir1="10.4.r00.g4",
+		    const std::string & cdir2="10.4.r00.vg",
+		    const std::string & cvers="10.4 MinBias",
+		    const std::string & cfile= "minbias.root",
+		    const std::string & ctype1="Native", 
+		    const std::string & ctype2="VecGeom v0.5",
 		    bool logy=true, bool save=false) {
 
   char infile1[200], infile2[200], text1[200], text2[200];
