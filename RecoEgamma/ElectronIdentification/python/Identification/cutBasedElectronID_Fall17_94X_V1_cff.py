@@ -22,7 +22,7 @@ from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_tools \
 
 # Veto working point Barrel and Endcap
 #V1 of IDs good for Moriond 18
-idName = "cutBasedElectronID-Fall17-94X-V1--veto"
+idName = "cutBasedElectronID-Fall17-94X-V1-veto"
 WP_Veto_EB = EleWorkingPoint_V4(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0128  , # full5x5_sigmaIEtaIEtaCut
@@ -54,7 +54,7 @@ WP_Veto_EE = EleWorkingPoint_V4(
     )
 
 # Loose working point Barrel and Endcap
-idName = "cutBasedElectronID-Fall17-94X-V1--loose"
+idName = "cutBasedElectronID-Fall17-94X-V1-loose"
 WP_Loose_EB = EleWorkingPoint_V4(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0105  , # full5x5_sigmaIEtaIEtaCut
@@ -86,7 +86,7 @@ WP_Loose_EE = EleWorkingPoint_V4(
     )
 
 # Medium working point Barrel and Endcap
-idName = "cutBasedElectronID-Fall17-94X-V1--medium"
+idName = "cutBasedElectronID-Fall17-94X-V1-medium"
 WP_Medium_EB = EleWorkingPoint_V4(
     idName                         = idName , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0105, # full5x5_sigmaIEtaIEtaCut
@@ -118,7 +118,7 @@ WP_Medium_EE = EleWorkingPoint_V4(
     )
 
 # Tight working point Barrel and Endcap
-idName = "cutBasedElectronID-Fall17-94X-V1--tight"
+idName = "cutBasedElectronID-Fall17-94X-V1-tight"
 WP_Tight_EB = EleWorkingPoint_V4(
     idName                         = idName    , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0104   , # full5x5_sigmaIEtaIEtaCut
