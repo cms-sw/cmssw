@@ -42,7 +42,6 @@ BtagPerformanceESProducer::produce(const BTagPerformanceRecord & iRecord){
    
    
    return std::make_unique<BtagPerformance>(*((pl.product())), *((wp.product())));
-   //    _perf  = std::make_unique<BtagPerformance>(*((pl.product())), wp);
 }
 
 
