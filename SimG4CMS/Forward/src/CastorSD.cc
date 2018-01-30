@@ -279,13 +279,12 @@ double CastorSD::getEnergyDeposit(const G4Step * aStep) {
       double proba = d_qz + (1-d_qz)*ReflPower;
       NCherPhot = poissNCherPhot*effPMTandTransport*proba*0.307;
 #ifdef debugLog
-      if(theTrack->GetTrackID() == 8654)       
+      //if(theTrack->GetTrackID() == 8654)       
       edm::LogInfo("ForwardSim") << " Nph= " << NCherPhot << " Np= " << poissNCherPhot
                                  << " eff= " << effPMTandTransport << " pb= " << proba
                                  << " Nmean= " << meanNCherPhot
                                  << " q=" << charge << " beta=" << beta 
                                  << " nMedium= " << nMedium << " sl= " << stepl
-                                 << " var=" << variant
                                  << " Nde=" << photEnSpectrDE;
 #endif
     }
@@ -407,7 +406,7 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   auto const currentLV    = currentPV->GetLogicalVolume();
 
 #ifdef debugLog
-  if(theTrack->GetTrackID() == 2358) 
+    if(theTrack->GetTrackID() == 2358) 
     edm::LogInfo("ForwardSim") << "CastorSD::getFromLibrary: for ID=" << theTrack->GetTrackID() 
                                << " parentID= " << theTrack->GetParentID() << " " 
                                << theTrack->GetDefinition()->GetParticleName() 
@@ -466,7 +465,7 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
                              << " " << particleWithinShowerLibrary 
                              << " Edep= " << aStep->GetTotalEnergyDeposit();
 #endif
-  
+
   // Use Castor shower library if energy is above threshold, is not a muon 
   // and is not moving backward 
   if (!particleWithinShowerLibrary) {
@@ -490,7 +489,7 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   bool isKilled(true);
   CastorShowerEvent hits = showerLibrary->getShowerHits(aStep, isKilled);
   
-  int primaryID = getTrackID(theTrack);
+  int primaryID = setTrackID(aStep);
 
   // Reset entry point for new primary
   resetForNewPrimary(aStep);
@@ -504,13 +503,11 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   }
 
 #ifdef debugLog
-  if(theTrack->GetTrackID() == 2358) {
-  edm::LogInfo("ForwardSim") << "\n CastorSD::getFromLibrary:  " 
-                             << hits.getNhit() << " hits for " << GetName() << " from " 
+  //if(theTrack->GetTrackID() == 2358) 
+  edm::LogInfo("ForwardSim") << "\n CastorSD::getFromLibrary:  " << GetName() << " from " 
                              << theTrack->GetDefinition()->GetParticleName() << " of "
                              << preStepPoint->GetKineticEnergy()/GeV << " GeV and trackID " 
                              << theTrack->GetTrackID() << " isHAD: " << isHAD;
-  }
 #endif
 
   // Scale to correct energy
