@@ -71,5 +71,5 @@ void RPAlignmentCorrectionData::add(const RPAlignmentCorrectionData &a, bool sum
 
 void RPAlignmentCorrectionData::print() const
 {
-  printf("shift: x=%.3f, y=%.3f, z=%.3f, rotation: x=%.3f, y=%.3f, z=%.3f\n", sh_x, sh_y, sh_z, rot_z, rot_y, rot_z);
+  printf("shift: x=%.3f, y=%.3f, z=%.3f, rotation: x=%.3f, y=%.3f, z=%.3f\n", sh_x, sh_y, sh_z, rot_x, rot_y, rot_z);
 }
