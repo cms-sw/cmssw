@@ -10,6 +10,7 @@ MicroGMTConverter::~MicroGMTConverter() {
 }
 
 void MicroGMTConverter::convert(
+    const int global_event_BX,
     const EMTFTrack& in_track,
     l1t::RegionalMuonCand& out_cand
 ) const {
@@ -24,6 +25,7 @@ void MicroGMTConverter::convert(
   out_cand.setHwQual          ( in_track.GMT_quality() );
   out_cand.setHwHF            ( false );  // EMTF: halo -> 1
   out_cand.setTFIdentifiers   ( sector, tftype );
+  out_cand.setTrackSubAddress( l1t::RegionalMuonCand::kBX, global_event_BX );
 
   const EMTFPtLUT& ptlut_data = in_track.PtLUT();
 
@@ -81,6 +83,7 @@ void MicroGMTConverter::convert(
 }
 
 void MicroGMTConverter::convert_all(
+    const edm::Event& iEvent,
     const EMTFTrackCollection& in_tracks,
     l1t::RegionalMuonCandBxCollection& out_cands
 ) const {
@@ -96,7 +99,7 @@ void MicroGMTConverter::convert_all(
     if (gmtMinBX <= bx && bx <= gmtMaxBX) {
       l1t::RegionalMuonCand out_cand;
 
-      convert(in_track, out_cand);
+      convert(iEvent.bunchCrossing(), in_track, out_cand);
       out_cands.push_back(bx, out_cand);
     }
   }
@@ -119,7 +122,7 @@ void sort_uGMT_muons(
   int emtfMaxProc = 11; // ME- sector 6
   
   // New collection, sorted by processor to match uGMT unpacked order
-  l1t::RegionalMuonCandBxCollection* sortedCands = new l1t::RegionalMuonCandBxCollection();
+  auto sortedCands = std::make_unique<l1t::RegionalMuonCandBxCollection>();
   sortedCands->clear();
   sortedCands->setBXRange(minBX, maxBX);
   for (int iBX = minBX; iBX <= maxBX; ++iBX) {
@@ -134,8 +137,8 @@ void sort_uGMT_muons(
   }
   
   // Return sorted collection
-  cands.clear();
-  cands = (*sortedCands);
+  std::swap(cands, *sortedCands);
+  sortedCands.reset();
 }
 
 } // End namespace emtf
