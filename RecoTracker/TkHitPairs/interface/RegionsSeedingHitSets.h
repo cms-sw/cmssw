@@ -51,11 +51,6 @@ public:
   RegionsSeedingHitSets& operator=(RegionsSeedingHitSets&&) = default;
   ~RegionsSeedingHitSets() = default;
 
-  void swap(RegionsSeedingHitSets& rh) {
-    regions_.swap(rh.regions_);
-    hitSets_.swap(rh.hitSets_);
-  }
-
   void reserve(size_t nregions, size_t nhitsets) {
     regions_.reserve(nregions);
     hitSets_.reserve(nhitsets);

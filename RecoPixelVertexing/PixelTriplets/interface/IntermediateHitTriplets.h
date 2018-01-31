@@ -263,13 +263,6 @@ public:
   IntermediateHitTriplets& operator=(IntermediateHitTriplets&&) = default;
   ~IntermediateHitTriplets() = default;
 
-  void swap(IntermediateHitTriplets& rh) {
-    std::swap(seedingLayers_, rh.seedingLayers_);
-    std::swap(regions_, rh.regions_);
-    std::swap(layerTriplets_, rh.layerTriplets_);
-    std::swap(hitTriplets_, rh.hitTriplets_);
-  }
-
   void reserve(size_t nregions, size_t nlayersets, size_t ntriplets) {
     regions_.reserve(nregions);
     layerTriplets_.reserve(nregions*nlayersets);

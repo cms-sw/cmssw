@@ -200,12 +200,6 @@ public:
   IntermediateHitDoublets& operator=(IntermediateHitDoublets&&) = default;
   ~IntermediateHitDoublets() = default;
 
-  void swap(IntermediateHitDoublets& rh) {
-    std::swap(seedingLayers_, rh.seedingLayers_);
-    std::swap(regions_, rh.regions_);
-    std::swap(layerPairs_, rh.layerPairs_);
-  }
-
   void reserve(size_t nregions, size_t nlayersets) {
     regions_.reserve(nregions);
     layerPairs_.reserve(nregions*nlayersets);
