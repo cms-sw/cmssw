@@ -227,6 +227,8 @@
 #include "CondFormats/L1TObjects/interface/CaloConfig.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
