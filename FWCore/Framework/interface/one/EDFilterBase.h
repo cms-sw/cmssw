@@ -68,6 +68,9 @@ namespace edm {
       bool wantsStreamRuns() const {return false;}
       bool wantsStreamLuminosityBlocks() const {return false;};
 
+      virtual SerialTaskQueue* globalRunsQueue();
+      virtual SerialTaskQueue* globalLuminosityBlocksQueue();
+
     private:
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,

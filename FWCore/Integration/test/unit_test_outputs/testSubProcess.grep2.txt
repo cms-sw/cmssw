@@ -1056,10 +1056,10 @@
 ++++ starting: global end lumi: run = 1 lumi = 1 time = 1
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end lumi for module: label = 'test' id = 32
-++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
+++++++ starting: global end lumi for module: label = 'test' id = 32
+++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -1069,10 +1069,10 @@
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end lumi for module: label = 'test' id = 19
-++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
+++++++ starting: global end lumi for module: label = 'test' id = 19
+++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -1838,10 +1838,10 @@
 ++++ starting: global end lumi: run = 1 lumi = 2 time = 25000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end lumi for module: label = 'test' id = 32
-++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
+++++++ starting: global end lumi for module: label = 'test' id = 32
+++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -1851,10 +1851,10 @@
 ++++ finished: global end lumi: run = 1 lumi = 2 time = 25000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end lumi for module: label = 'test' id = 19
-++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
+++++++ starting: global end lumi for module: label = 'test' id = 19
+++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -2296,10 +2296,10 @@
 ++++ starting: global end lumi: run = 1 lumi = 3 time = 45000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end lumi for module: label = 'test' id = 32
-++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
+++++++ starting: global end lumi for module: label = 'test' id = 32
+++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -2309,10 +2309,10 @@
 ++++ finished: global end lumi: run = 1 lumi = 3 time = 45000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end lumi for module: label = 'test' id = 19
-++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
+++++++ starting: global end lumi for module: label = 'test' id = 19
+++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -2362,10 +2362,10 @@
 ++++ starting: global end run 1 : time = 0
 ++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end run for module: label = 'test' id = 32
-++++++ finished: global end run for module: label = 'test' id = 32
 ++++++ starting: global end run for module: label = 'testmerge' id = 33
 ++++++ finished: global end run for module: label = 'testmerge' id = 33
+++++++ starting: global end run for module: label = 'test' id = 32
+++++++ finished: global end run for module: label = 'test' id = 32
 ++++++ starting: global end run for module: label = 'getInt' id = 35
 ++++++ finished: global end run for module: label = 'getInt' id = 35
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 36
@@ -2375,10 +2375,10 @@
 ++++ finished: global end run 1 : time = 0
 ++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end run for module: label = 'test' id = 19
-++++++ finished: global end run for module: label = 'test' id = 19
 ++++++ starting: global end run for module: label = 'testmerge' id = 20
 ++++++ finished: global end run for module: label = 'testmerge' id = 20
+++++++ starting: global end run for module: label = 'test' id = 19
+++++++ finished: global end run for module: label = 'test' id = 19
 ++++++ starting: global end run for module: label = 'getInt' id = 22
 ++++++ finished: global end run for module: label = 'getInt' id = 22
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 23
@@ -3212,10 +3212,10 @@
 ++++ starting: global end lumi: run = 2 lumi = 1 time = 55000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end lumi for module: label = 'test' id = 32
-++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
+++++++ starting: global end lumi for module: label = 'test' id = 32
+++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -3225,10 +3225,10 @@
 ++++ finished: global end lumi: run = 2 lumi = 1 time = 55000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end lumi for module: label = 'test' id = 19
-++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
+++++++ starting: global end lumi for module: label = 'test' id = 19
+++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -3994,10 +3994,10 @@
 ++++ starting: global end lumi: run = 2 lumi = 2 time = 75000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end lumi for module: label = 'test' id = 32
-++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
+++++++ starting: global end lumi for module: label = 'test' id = 32
+++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -4007,10 +4007,10 @@
 ++++ finished: global end lumi: run = 2 lumi = 2 time = 75000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end lumi for module: label = 'test' id = 19
-++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
+++++++ starting: global end lumi for module: label = 'test' id = 19
+++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -4452,10 +4452,10 @@
 ++++ starting: global end lumi: run = 2 lumi = 3 time = 95000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end lumi for module: label = 'test' id = 32
-++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
+++++++ starting: global end lumi for module: label = 'test' id = 32
+++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -4465,10 +4465,10 @@
 ++++ finished: global end lumi: run = 2 lumi = 3 time = 95000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end lumi for module: label = 'test' id = 19
-++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
+++++++ starting: global end lumi for module: label = 'test' id = 19
+++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -4518,10 +4518,10 @@
 ++++ starting: global end run 2 : time = 0
 ++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end run for module: label = 'test' id = 32
-++++++ finished: global end run for module: label = 'test' id = 32
 ++++++ starting: global end run for module: label = 'testmerge' id = 33
 ++++++ finished: global end run for module: label = 'testmerge' id = 33
+++++++ starting: global end run for module: label = 'test' id = 32
+++++++ finished: global end run for module: label = 'test' id = 32
 ++++++ starting: global end run for module: label = 'getInt' id = 35
 ++++++ finished: global end run for module: label = 'getInt' id = 35
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 36
@@ -4531,10 +4531,10 @@
 ++++ finished: global end run 2 : time = 0
 ++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end run for module: label = 'test' id = 19
-++++++ finished: global end run for module: label = 'test' id = 19
 ++++++ starting: global end run for module: label = 'testmerge' id = 20
 ++++++ finished: global end run for module: label = 'testmerge' id = 20
+++++++ starting: global end run for module: label = 'test' id = 19
+++++++ finished: global end run for module: label = 'test' id = 19
 ++++++ starting: global end run for module: label = 'getInt' id = 22
 ++++++ finished: global end run for module: label = 'getInt' id = 22
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 23
@@ -5368,10 +5368,10 @@
 ++++ starting: global end lumi: run = 3 lumi = 1 time = 105000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end lumi for module: label = 'test' id = 32
-++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
+++++++ starting: global end lumi for module: label = 'test' id = 32
+++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -5381,10 +5381,10 @@
 ++++ finished: global end lumi: run = 3 lumi = 1 time = 105000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end lumi for module: label = 'test' id = 19
-++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
+++++++ starting: global end lumi for module: label = 'test' id = 19
+++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -6150,10 +6150,10 @@
 ++++ starting: global end lumi: run = 3 lumi = 2 time = 125000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end lumi for module: label = 'test' id = 32
-++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
+++++++ starting: global end lumi for module: label = 'test' id = 32
+++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -6163,10 +6163,10 @@
 ++++ finished: global end lumi: run = 3 lumi = 2 time = 125000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end lumi for module: label = 'test' id = 19
-++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
+++++++ starting: global end lumi for module: label = 'test' id = 19
+++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -6608,10 +6608,10 @@
 ++++ starting: global end lumi: run = 3 lumi = 3 time = 145000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end lumi for module: label = 'test' id = 32
-++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
+++++++ starting: global end lumi for module: label = 'test' id = 32
+++++++ finished: global end lumi for module: label = 'test' id = 32
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -6621,10 +6621,10 @@
 ++++ finished: global end lumi: run = 3 lumi = 3 time = 145000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end lumi for module: label = 'test' id = 19
-++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
+++++++ starting: global end lumi for module: label = 'test' id = 19
+++++++ finished: global end lumi for module: label = 'test' id = 19
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -6674,10 +6674,10 @@
 ++++ starting: global end run 3 : time = 0
 ++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 31
 ++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 31
-++++++ starting: global end run for module: label = 'test' id = 32
-++++++ finished: global end run for module: label = 'test' id = 32
 ++++++ starting: global end run for module: label = 'testmerge' id = 33
 ++++++ finished: global end run for module: label = 'testmerge' id = 33
+++++++ starting: global end run for module: label = 'test' id = 32
+++++++ finished: global end run for module: label = 'test' id = 32
 ++++++ starting: global end run for module: label = 'getInt' id = 35
 ++++++ finished: global end run for module: label = 'getInt' id = 35
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 36
@@ -6687,10 +6687,10 @@
 ++++ finished: global end run 3 : time = 0
 ++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 18
 ++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 18
-++++++ starting: global end run for module: label = 'test' id = 19
-++++++ finished: global end run for module: label = 'test' id = 19
 ++++++ starting: global end run for module: label = 'testmerge' id = 20
 ++++++ finished: global end run for module: label = 'testmerge' id = 20
+++++++ starting: global end run for module: label = 'test' id = 19
+++++++ finished: global end run for module: label = 'test' id = 19
 ++++++ starting: global end run for module: label = 'getInt' id = 22
 ++++++ finished: global end run for module: label = 'getInt' id = 22
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 23

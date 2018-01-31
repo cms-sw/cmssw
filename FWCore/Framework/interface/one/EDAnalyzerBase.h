@@ -68,6 +68,8 @@ namespace edm {
       bool wantsStreamRuns() const {return false;}
       bool wantsStreamLuminosityBlocks() const {return false;};
 
+      virtual SerialTaskQueue* globalRunsQueue();
+      virtual SerialTaskQueue* globalLuminosityBlocksQueue();
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
     private:

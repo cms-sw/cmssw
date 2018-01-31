@@ -51,6 +51,7 @@ Some examples of InputSource subclasses may be:
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include <memory>
 #include <string>
@@ -154,7 +155,7 @@ namespace edm {
     void setLuminosityBlockNumber_t(LuminosityBlockNumber_t lb) {setLumi(lb);}
 
     /// issue an event report
-    void issueReports(EventID const& eventID);
+    void issueReports(EventID const& eventID, StreamID streamID);
 
     /// Register any produced products
     virtual void registerProducts();
@@ -218,14 +219,8 @@ namespace edm {
     /// Called by framework at beginning of lumi block
     virtual void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*);
 
-    /// Called by framework at end of lumi block
-    virtual void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*);
-
     /// Called by framework at beginning of run
     virtual void doBeginRun(RunPrincipal& rp, ProcessContext const*);
-
-    /// Called by framework at end of run
-    virtual void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*);
 
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
