@@ -8,7 +8,7 @@
 // .L CalibSort.C+g (for the tree "EventInfo")
 //  CalibSortEvent c2(fname, dirname, prefix, append);
 //  c2.Loop();
-//  findDuplicatEvent(infile, outfile, debug)
+//  findDuplicateEvent(infile, outfile, debug)
 //
 //  This will prepare a list of dupliate entries from combined data sets
 //
@@ -650,7 +650,7 @@ void duplicate (std::string fname, std::vector<record>& records, bool debug) {
 	records[k-1]= records[k];
 	records[k]  = swap;
       }
-      if (debug)
+      if (debug) {
 	std::cout << "Serial " << records[k-1].serial_ << ":"  
 		  << records[k].serial_ << " Entry "  
 		  << records[k-1].entry_ << ":" << records[k].entry_ << " Run "
@@ -658,6 +658,7 @@ void duplicate (std::string fname, std::vector<record>& records, bool debug) {
 		  << records[k-1].event_ << " " << records[k].event_ << " Eta "
 		  << records[k-1].ieta_ << " " << records[k].ieta_ << " p "
 		  << records[k-1].p_ << ":" << records[k].p_ << std::endl;
+      }
       file << records[k].entry_ << std::endl;
       duplicate++;
       if (records[k].p_ >= 40.0 && records[k].p_ <= 60.0) dupl40++;
@@ -731,13 +732,14 @@ void duplicateEvent(std::string fname, std::vector<recordEvent>& records,
 	records[k-1]= records[k];
 	records[k]  = swap;
       }
-      if (debug)
+      if (debug) {
 	std::cout << "Serial " << records[k-1].serial_ << ":"  
 		  << records[k].serial_ << " Entry "  
 		  << records[k-1].entry_ << ":" << records[k].entry_ << " Run "
 		  << records[k-1].run_ << ":"  << records[k].run_ << " Event "
 		  << records[k-1].event_ << " " << records[k].event_
 		  << std::endl;
+      }
       file << records[k].entry_ << std::endl;
       duplicate++;
     }
