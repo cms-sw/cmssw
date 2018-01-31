@@ -8,8 +8,8 @@
 //--------------------------------------------------------------------------------------------------
 
 
-#ifndef EgammaTools_GBRForestTools_h
-#define EgammaTools_GBRForestTools_h
+#ifndef RecoEgamma_EgammaTools_GBRForestTools_h
+#define RecoEgamma_EgammaTools_GBRForestTools_h
 
 #include <vector>
 #include <string>
