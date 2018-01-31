@@ -29,7 +29,7 @@ public:
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripApvGain> ReturnType;
+  typedef std::unique_ptr<SiStripApvGain> ReturnType;
   ReturnType produce(const SiStripApvGainRcd&);
 
 private:
@@ -71,7 +71,7 @@ SiStripApvGainFakeESSource::produce(const SiStripApvGainRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::shared_ptr<SiStripApvGain> apvGain{new SiStripApvGain};
+  std::unique_ptr<SiStripApvGain> apvGain{new SiStripApvGain};
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

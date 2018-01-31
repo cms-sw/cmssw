@@ -30,7 +30,7 @@ public:
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripBadStrip> ReturnType;
+  typedef std::unique_ptr<SiStripBadStrip> ReturnType;
   ReturnType produce(const SiStripBadModuleRcd&);
 
 private:
@@ -73,7 +73,7 @@ SiStripBadModuleConfigurableFakeESSource::produce(const SiStripBadModuleRcd& iRe
   edm::ESHandle<TrackerTopology> tTopo;
   iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
 
-  std::shared_ptr<SiStripQuality> quality{new SiStripQuality};
+  std::unique_ptr<SiStripQuality> quality = std::make_unique<SiStripQuality>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

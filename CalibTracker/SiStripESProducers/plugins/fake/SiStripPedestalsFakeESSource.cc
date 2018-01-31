@@ -29,7 +29,7 @@ public:
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripPedestals> ReturnType;
+  typedef std::unique_ptr<SiStripPedestals> ReturnType;
   ReturnType produce(const SiStripPedestalsRcd&);
 
 private:
@@ -64,7 +64,7 @@ SiStripPedestalsFakeESSource::produce(const SiStripPedestalsRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::shared_ptr<SiStripPedestals> pedestals{new SiStripPedestals};
+  std::unique_ptr<SiStripPedestals> pedestals = std::make_unique<SiStripPedestals>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 
