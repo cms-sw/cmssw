@@ -41,7 +41,7 @@ public:
         _prodMode = cfg.getParameter<string>("ProductionMode");
         m_HiggsProdMode = HTXS::UNKNOWN;
         
-        produce<HTXS::HiggsClassification>("HiggsClassification").setBranchAlias("HiggsClassification");
+        produces<HTXS::HiggsClassification>("HiggsClassification").setBranchAlias("HiggsClassification");
 
     }
     ~HTXSRivetProducer() ;
