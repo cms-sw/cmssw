@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # the uGMT eta/phi map DQM module
-l1tObjectsTiming = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tObjectsTiming = DQMEDAnalyzer(
     "L1TObjectsTiming",
     muonProducer  = cms.InputTag("gtStage2Digis", "Muon"),
     stage2CaloLayer2JetProducer = cms.InputTag("gtStage2Digis","Jet"),
