@@ -11,7 +11,7 @@
 //        This will prepare a set of histograms which can be used for a
 //        quick fit and display using the methods in CalibFitPlots.C
 //
-//  GetEntries g1(fname, dirname, bit1, bit2);
+//  GetEntries g1(fname, dirname, dupFileName, bit1, bit2);
 //  g1.Loop();
 //
 //         This looks into the tree *EventInfo* and can provide a set
@@ -59,7 +59,7 @@
 //                               differ from 1-72 (1)
 //   rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
 //   exclude         (bool)    = RBX specified by *rbx* to be exluded or only
-//                               considered (true)
+//                               considered (false)
 //   etamax          (bool)    = if set and if the corr-factor not found in the
 //                               corrFactor table, the corr-factor for the
 //                               corresponding zside, depth=1 and maximum ieta
@@ -206,7 +206,7 @@ public :
 	       int flag=0, int numb=50, bool datMC=true, bool useGen=false, 
 	       double scale=1.0, int etalo=0, int etahi=30, int runlo=-1, 
 	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1,
-	       int rbx=0, bool exclude=true, bool etamax=false);
+	       int rbx=0, bool exclude=false, bool etamax=false);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -299,7 +299,7 @@ CalibMonitor::CalibMonitor(const std::string& fname,
 	    << corrE_ << std::endl;
   if (std::string(rcorFileName) != "")
     cFactor_ = new CalibCorr(rcorFileName,false);
-  if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx);
+  if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx, false);
 }
 
 CalibMonitor::~CalibMonitor() {
@@ -698,8 +698,8 @@ void CalibMonitor::Loop() {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    if (jentry%10000 == 0) std::cout << "Entry " << jentry << " Run " << t_Run
-				     << " Event " << t_Event << std::endl;
+    if (jentry%100000 == 0) std::cout << "Entry " << jentry << " Run " << t_Run
+				      << " Event " << t_Event << std::endl;
     bool select = (std::find(entries_.begin(),entries_.end(),jentry) == entries_.end());
     if (!select) {
       ++duplicate;
@@ -1221,25 +1221,28 @@ public :
   TBranch                   *b_t_ietaGood;      //!
   TBranch                   *b_t_trackType;     //!
 
-  GetEntries(const std::string& fname, const std::string& dirname, 
-	     const unsigned int bit1, const unsigned int bit2);
+  GetEntries(const std::string & fname, const std::string & dirname,
+	     const char *dupFileName, const unsigned int bit1, 
+	     const unsigned int bit2);
   virtual ~GetEntries();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree);
+  virtual void     Init(TTree *tree, const char *dupFileName);
   virtual void     Loop();
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
 
 private:
-  unsigned int     bit_[2];
-  TH1I            *h_tk[3], *h_eta[4], *h_pvx[3];
-  TH1D            *h_eff[3];
+  unsigned int              bit_[2];
+  std::vector<Long64_t>     entries_;
+  TH1I                     *h_tk[3], *h_eta[4], *h_pvx[3];
+  TH1D                     *h_eff[3];
 };
 
 GetEntries::GetEntries(const std::string& fname, const std::string& dirnm,
-		       const unsigned int bit1, const unsigned int bit2) {
+		       const char *dupFileName, const unsigned int bit1, 
+		       const unsigned int bit2) {
 
   TFile      *file = new TFile(fname.c_str());
   TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
@@ -1247,7 +1250,7 @@ GetEntries::GetEntries(const std::string& fname, const std::string& dirnm,
   TTree      *tree = (TTree*)dir->Get("EventInfo");
   std::cout << "CalibTree " << tree << std::endl;
   bit_[0] = bit1; bit_[1] = bit2;
-  Init(tree);
+  Init(tree, dupFileName);
 }
 
 GetEntries::~GetEntries() {
@@ -1275,7 +1278,7 @@ Long64_t GetEntries::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void GetEntries::Init(TTree *tree) {
+void GetEntries::Init(TTree *tree, const char *dupFileName) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -1311,6 +1314,21 @@ void GetEntries::Init(TTree *tree) {
   fChain->SetBranchAddress("t_ietaGood",    &t_ietaGood,    &b_t_ietaGood);
   fChain->SetBranchAddress("t_trackType",   &t_trackType,   &b_t_trackType);
   Notify();
+
+  ifstream infile(dupFileName);
+  if (!infile.is_open()) {
+    std::cout << "Cannot open " << dupFileName << std::endl;
+  } else {
+    while (1) {
+      Long64_t jentry;
+      infile >> jentry;
+      if (!infile.good()) break;
+      entries_.push_back(jentry);
+    }
+    infile.close();
+    std::cout << "Reads a list of " << entries_.size() << " events from " 
+	      << dupFileName << std::endl;
+  }
 
   h_tk[0] = new TH1I("Track0", "# of tracks produced",      2000, 0, 2000);
   h_tk[1] = new TH1I("Track1", "# of tracks propagated",    2000, 0, 2000);
@@ -1379,16 +1397,20 @@ void GetEntries::Loop() {
 
   Long64_t nentries = fChain->GetEntriesFast();
   Long64_t nbytes = 0, nb = 0;
-  int      kount(0), selected(0);
-  int      l1(0), hlt(0), loose(0), tight(0);
-  int      allHLT[3] = {0,0,0};
-  int      looseHLT[3] = {0,0,0};
-  int       tightHLT[3] = {0, 0, 0};
+  unsigned int kount(0), duplicate(0), selected(0);
+  int          l1(0), hlt(0), loose(0), tight(0);
+  int          allHLT[3] = {0,0,0};
+  int          looseHLT[3] = {0,0,0};
+  int          tightHLT[3] = {0, 0, 0};
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    // if (Cut(ientry) < 0) continue;
+    bool select = (std::find(entries_.begin(),entries_.end(),jentry) == entries_.end());
+    if (!select) {
+      ++duplicate;
+      continue;
+    }
     h_tk[0]->Fill(t_Tracks);
     h_tk[1]->Fill(t_TracksProp);
     h_tk[2]->Fill(t_TracksSaved);
@@ -1464,7 +1486,8 @@ void GetEntries::Loop() {
     h_eff[1]->SetBinContent(i,rat);
     h_eff[1]->SetBinError(i,drat);
   }
-  std::cout << "===== " << kount << " events passed trigger of which " 
+  std::cout << "===== Remove " << duplicate << " events from " << nentries
+	    << "\n===== " << kount << " events passed trigger of which " 
 	    << selected << " events get selected =====\n" << std::endl;
   std::cout << "===== " << l1 << " events passed L1 " << hlt 
 	    << " events passed HLT and " << loose << ":" << tight
