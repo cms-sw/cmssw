@@ -119,15 +119,15 @@ isoInputs = IsolationCutInputs(
     # chHadIsolationMapName  
     'photonIDValueMapProducer:phoChargedIsolation' ,
     # chHadIsolationEffAreas 
-    "RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfChargedHadrons_90percentBased.txt",
+    "RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfChargedHadrons_90percentBased_TrueVtx.txt",
     # neuHadIsolationMapName
     'photonIDValueMapProducer:phoNeutralHadronIsolation' ,
     # neuHadIsolationEffAreas
-    "RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfNeutralHadrons_90percentBased.txt" ,
+    "RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfNeutralHadrons_90percentBased_TrueVtx.txt" ,
     # phoIsolationMapName  
     "photonIDValueMapProducer:phoPhotonIsolation" ,
     # phoIsolationEffAreas
-    "RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"
+    "RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfPhotons_90percentBased_TrueVtx.txt"
 )
 
 #
