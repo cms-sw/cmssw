@@ -221,7 +221,7 @@ EFFICIENCY
 """
 
 plotPset = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominator)
-proc.efficiencies = DQMEDAnalyzer(
+proc.efficiencies = cms.EDAnalyzer(
    "TauDQMHistEffProducer",
    plots = plotPset    
    )
@@ -233,7 +233,7 @@ proc.efficiencies = DQMEDAnalyzer(
 #
 ################################################
 
-proc.normalizePlots = DQMEDAnalyzer(
+proc.normalizePlots = cms.EDAnalyzer(
    "DQMHistNormalizer",
    plotNamesToNormalize = cms.vstring('*_pTRatio_*','*_Size_*','*_SumPt_*','*_dRTauRefJet*'),
    reference = cms.string('*_pTRatio_allHadronic')
