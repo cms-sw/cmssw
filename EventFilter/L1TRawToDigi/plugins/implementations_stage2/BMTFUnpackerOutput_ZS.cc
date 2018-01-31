@@ -3,7 +3,6 @@
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
 
 #include "BMTFUnpackerOutput.h"
-//#include "testTools.h"//debug
 
 namespace l1t
 {
@@ -19,12 +18,10 @@ namespace l1t
       //ZeroSupression Handler
       BxBlocks bxBlocks;
       bool ZS_enabled = (bool)((block.header().getFlags() >> 1) & 0x01);//getFlags() returns first 8-bits from the amc header
-      //std::cout << "ZS_enabled bit: " << ZS_enabled << std::endl; 
       if (ZS_enabled)
 	bxBlocks = block.getBxBlocks((unsigned int)6, true);//it returnes 7-32bit bxBlocks originated from the amc13 Block
       else
 	bxBlocks = block.getBxBlocks((unsigned int)6, false);//it returnes 6-32bit bxBlocks originated from the amc13 Block
-      //std::cout << "BxBlocks collected" << std::endl;
 			
       RegionalMuonCandBxCollection *res;
       res = static_cast<BMTFCollections*>(coll)->getBMTFMuons();
@@ -37,11 +34,8 @@ namespace l1t
       }
       lastBX = -firstBX;
       int nBX = lastBX - firstBX + 1;
-      //std::cout << "1st bx=" << firstBX << "\tlast bx=" << lastBX << std::endl; 
       res->setBXRange(-2, 2);
 
-      //std::cout << "link = " << (blockId-1)/2 << std::endl;
-      //std::cout << "nBX = " << nBX << std::endl;
       LogDebug("L1T") << "nBX = " << nBX << " firstBX = " << firstBX << " lastBX = " << lastBX;
 			
       int processor = block.amc().getBoardID() - 1;
@@ -55,17 +49,13 @@ namespace l1t
 	}
 
       for (auto bxBlock : bxBlocks) {
-	//std::cout << "muons bxBlock to unpack:" << std::endl;
-	//testTools::printBlock(bxBlock);
 	int ibx = bxBlock.header().getBx();
-	//std::cout << "ibx=" << ibx << std::endl;
 
 	for (auto iw = 0; iw < 6; iw+=2) {
 	  uint32_t raw_first = bxBlock.payload()[iw];//payload[ip+(ibx+lastBX)*6];
 	  uint32_t raw_secnd = bxBlock.payload()[iw+1];//payload[ip+(ibx+lastBX)*6];
 	  if ( raw_first == 0 )
 	    {
-	      //std::cout << "dropped words: " << iw << ", " << iw+1 << std::endl;
 	      LogDebug("L1T") << "Raw data is zero";
 	      continue;
 	    }
@@ -76,10 +66,8 @@ namespace l1t
 
 	  LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
 
-	  //std::cout << "muon qual = " << muCand.hwQual() << std::endl;
 	  if ( muCand.hwQual() != 0 ) {
 	    res->push_back(ibx, muCand);
-	    //std::cout << "pushed in " << ibx << std::endl;
 	  }
 
 	}//for iw
