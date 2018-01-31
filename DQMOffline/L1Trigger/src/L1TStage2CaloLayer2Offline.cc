@@ -537,13 +537,13 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       -0.5, 499.5);
 
   h_L1METPhivsCaloMETPhi_ = ibooker.book2D("L1METPhivsCaloMETPhi",
-      "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} #phi;Offline E_{T}^{miss} #phi;L1 E_{T}^{miss} #phi", 100, -4, 4,
-      100, -4, 4);
+      "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} #phi;Offline E_{T}^{miss} #phi;L1 E_{T}^{miss} #phi", 80, -3.2, 3.2,
+      80, -3.2, 3.2);
   h_L1ETMHFPhivsCaloETMHFPhi_ = ibooker.book2D("L1ETMHFPhivsCaloETMHFPhi",
       "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} (HF) #phi;Offline E_{T}^{miss} (HF) #phi;L1 E_{T}^{miss} #phi",
-      100, -4, 4, 100, -4, 4);
+      80, -3.2, 3.2, 80, -3.2, 3.2);
   h_L1MHTPhivsRecoMHTPhi_ = ibooker.book2D("L1MHTPhivsRecoMHTPhi",
-      "L1 MHT #phi vs reco MHT #phi;reco MHT #phi;L1 MHT #phi", 100, -4, 4, 100, -4, 4);
+      "L1 MHT #phi vs reco MHT #phi;reco MHT #phi;L1 MHT #phi", 80, -3.2, 3.2, 80, -3.2, 3.2);
 
   // energy sum resolutions
   h_resolutionMET_ = ibooker.book1D("resolutionMET",
@@ -632,13 +632,13 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
       300);
 
   h_L1JetPhivsCaloJetPhi_HB_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 80, -3.2, 3.2, 80, -3.2, 3.2);
   h_L1JetPhivsCaloJetPhi_HE_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HE",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 80, -3.2, 3.2, 80, -3.2, 3.2);
   h_L1JetPhivsCaloJetPhi_HF_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HF",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HF); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HF); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 80, -3.2, 3.2, 80, -3.2, 3.2);
   h_L1JetPhivsCaloJetPhi_HB_HE_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB_HE",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB+HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB+HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 80, -3.2, 3.2, 80, -3.2, 3.2);
 
   h_L1JetEtavsCaloJetEta_ = ibooker.book2D("L1JetEtavsCaloJetEta_HB",
       "L1 Jet #eta vs Offline Jet #eta; Offline Jet #eta; L1 Jet #eta", 100, -10, 10, 100, -10, 10);
