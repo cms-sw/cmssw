@@ -32,21 +32,6 @@ MeasurementTrackerEvent& MeasurementTrackerEvent::operator=(MeasurementTrackerEv
   return *this;
 }
 
-void
-MeasurementTrackerEvent::swap(MeasurementTrackerEvent &other)
-{
-    if (&other != this) {
-        using std::swap;
-        swap(theTracker, other.theTracker);
-        swap(theStripData, other.theStripData);
-        swap(thePixelData, other.thePixelData);
-        swap(thePhase2OTData, other.thePhase2OTData);
-        swap(theOwner, other.theOwner);
-        swap(theStripClustersToSkip, other.theStripClustersToSkip);
-        swap(thePixelClustersToSkip, other.thePixelClustersToSkip);
-    }
-}
-
 MeasurementTrackerEvent::MeasurementTrackerEvent(const MeasurementTrackerEvent &trackerEvent,
                            const edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > & stripClustersToSkip,
                            const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & pixelClustersToSkip) :
