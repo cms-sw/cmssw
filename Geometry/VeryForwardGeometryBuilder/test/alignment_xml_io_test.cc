@@ -28,13 +28,10 @@ int main()
 
   // write alignment data into XML file
   // TODO write all elements
-  RPAlignmentCorrectionsMethods::writeXMLFile(ad, "alignment_xml_io_test.xml");
+  RPAlignmentCorrectionsMethods::writeToXML(ad, "alignment_xml_io_test.xml");
 
   // load alignment data from XML file
-  // TODO: this makes seg fault
-  //RPAlignmentCorrectionsData adl = RPAlignmentCorrectionsMethods::getCorrectionsDataFromFile("alignment_xml_io_test.xml");
-
-  RPAlignmentCorrectionsDataSequence adsl("alignment_xml_io_test.xml");
+  const RPAlignmentCorrectionsDataSequence &adsl = RPAlignmentCorrectionsMethods::loadFromXML("alignment_xml_io_test.xml");
 
   // there should be exactly one element in the sequence
   if (adsl.size() != 1)

@@ -14,7 +14,10 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsDataSequence.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsMethods.h"
+
 #include "CondFormats/AlignmentRecord/interface/RPMeasuredAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
@@ -156,7 +159,7 @@ void CTPPSIncludeAlignments::PrepareSequence(const string &label, RPAlignmentCor
 
   vector<RPAlignmentCorrectionsDataSequence> sequences;
   for (const auto & file : files)
-    sequences.emplace_back(RPAlignmentCorrectionsDataSequence(file));
+    sequences.emplace_back(RPAlignmentCorrectionsMethods::loadFromXML(file));
 
   seq = Merge(sequences);
 }
