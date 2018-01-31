@@ -82,19 +82,22 @@ double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
   }
 
   //Secondary vertex
-  const vector<PFCandidatePtr>& pfSignalCandidates = tau->signalPFChargedHadrCands();
+  const vector<CandidatePtr>& pfSignalCandidates = tau->signalPFChargedHadrCands();
   vector<TransientTrack> transientTracks;
-  vector<PFCandidatePtr>::const_iterator iTrack;
-  for(iTrack = pfSignalCandidates.begin(); iTrack!= pfSignalCandidates.end(); iTrack++){
-    const PFCandidate& pfCand = *(iTrack->get());
-    if(pfCand.trackRef().isNonnull()){
-      const TransientTrack transientTrack = transientTrackBuilder->build(pfCand.trackRef());
-      transientTracks.push_back(transientTrack);
+  for(const auto& pfSignalCand : pfSignalCandidates){
+    const PFCandidate* pfCand = dynamic_cast<const PFCandidate*>(pfSignalCand.get());
+    if (pfCand) {
+      if(pfCand->trackRef().isNonnull()){
+        const TransientTrack transientTrack = transientTrackBuilder->build(pfCand->trackRef());
+        transientTracks.push_back(transientTrack);
+      }
+      else if(pfCand->gsfTrackRef().isNonnull()){
+        const TransientTrack transientTrack = transientTrackBuilder->build(pfCand->gsfTrackRef());
+        transientTracks.push_back(transientTrack);
+      }
     }
-    else if(pfCand.gsfTrackRef().isNonnull()){
-      const TransientTrack transientTrack = transientTrackBuilder->build(pfCand.gsfTrackRef());
-      transientTracks.push_back(transientTrack);
-    }
+    else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+
   }
   if(transientTracks.size() > 1){
     KalmanVertexFitter kvf(true);
