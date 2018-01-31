@@ -21,7 +21,7 @@ class HcalTimeSlewEP : public edm::ESProducer, public edm::EventSetupRecordInter
     HcalTimeSlewEP(const edm::ParameterSet&);
     ~HcalTimeSlewEP();
     
-    typedef std::shared_ptr<HcalTimeSlew> ReturnType;
+    typedef std::unique_ptr<HcalTimeSlew> ReturnType;
 
     static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
  
