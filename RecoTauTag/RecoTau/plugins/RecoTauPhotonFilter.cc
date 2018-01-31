@@ -114,8 +114,8 @@ void RecoTauPhotonFilter::operator()(PFTau& tau) const {
 
     std::vector<CandidatePtr> newSignalPFGammas;
     std::vector<CandidatePtr> newSignalPFCands;
-    std::vector<CandidatePtr> newIsolationPFGammas = convertPtrVector(tau.isolationPFGammaCands());
-    std::vector<CandidatePtr> newIsolationPFCands = convertPtrVector(tau.isolationPFCands());
+    std::vector<CandidatePtr> newIsolationPFGammas = tau.isolationPFGammaCands();
+    std::vector<CandidatePtr> newIsolationPFCands = tau.isolationPFCands();
 
     // Move the necessary signal pizeros - what a mess!
     BOOST_FOREACH(const CandidatePtr& ptr, tau.signalPFCands()) {
@@ -132,10 +132,10 @@ void RecoTauPhotonFilter::operator()(PFTau& tau) const {
         newSignalPFGammas.push_back(ptr);
     }
 
-    tau.setsignalPFCands(convertPtrVectorToPF(newSignalPFCands));
-    tau.setsignalPFCands(convertPtrVectorToPF(newSignalPFGammas));
-    tau.setisolationPFGammaCands(convertPtrVectorToPF(newIsolationPFGammas));
-    tau.setisolationPFCands(convertPtrVectorToPF(newIsolationPFCands));
+    tau.setsignalPFCands(newSignalPFCands);
+    tau.setsignalPFCands(newSignalPFGammas);
+    tau.setisolationPFGammaCands(newIsolationPFGammas);
+    tau.setisolationPFCands(newIsolationPFCands);
   }
 }
 }}  // end namespace reco::tau

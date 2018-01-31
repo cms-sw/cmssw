@@ -12,6 +12,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 class TauIdMVAAuxiliaries {
   public:
@@ -22,29 +23,41 @@ class TauIdMVAAuxiliaries {
     /// return chi2 of the leading track ==> deprecated? <==
     float tau_leadTrackChi2(const reco::PFTau& tau) const {
       float LeadingTracknormalizedChi2 = 0;
-      const reco::PFCandidatePtr& leadingPFCharged = tau.leadPFChargedHadrCand() ;
+      const reco::CandidatePtr& leadingPFCharged = tau.leadPFChargedHadrCand();
       if (leadingPFCharged.isNonnull()) {
-        reco::TrackRef tref = leadingPFCharged -> trackRef();
-        if (tref.isNonnull()) {
-          LeadingTracknormalizedChi2 = (float)(tref -> normalizedChi2());
+      	const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(leadingPFCharged.get());
+      	if (pfcand != nullptr) {
+          reco::TrackRef tref = pfcand->trackRef();
+          if (tref.isNonnull()) {
+            LeadingTracknormalizedChi2 = (float)(tref -> normalizedChi2());
+          }
+        }
+        else {
+          const pat::PackedCandidate* patcand = dynamic_cast<const pat::PackedCandidate*>(leadingPFCharged.get());
+          if (patcand != nullptr && patcand->hasTrackDetails()) {
+            patcand->pseudoTrack().normalizedChi2();
+          }
         }
       }
       return LeadingTracknormalizedChi2;
     }
+
     /// return ratio of energy in ECAL over sum of energy in ECAL and HCAL
     float tau_Eratio(const reco::PFTau& tau) const {
-      std::vector<reco::PFCandidatePtr> constsignal = tau.signalPFCands();
-      float EcalEnInSignalPFCands = 0;
-      float HcalEnInSignalPFCands = 0;
-      typedef std::vector <reco::PFCandidatePtr>::iterator constituents_iterator;
-      for(constituents_iterator it=constsignal.begin(); it != constsignal.end(); ++it) {
-        reco::PFCandidatePtr & icand = *it;
-        EcalEnInSignalPFCands += icand -> ecalEnergy();
-        HcalEnInSignalPFCands += icand -> hcalEnergy();
+      const auto& constsignal = tau.signalPFCands();
+      float EcalEnInSignalPFCands = 0.;
+      float HcalEnInSignalPFCands = 0.;
+      for (const auto& icand : constsignal) {
+      	const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(icand.get());
+      	if (pfcand != nullptr) {
+          EcalEnInSignalPFCands += pfcand->ecalEnergy();
+          HcalEnInSignalPFCands += pfcand->hcalEnergy();
+        }
+        // JAN - FIXME: not calculated for PackedCandidate
       }
       float total = EcalEnInSignalPFCands + HcalEnInSignalPFCands;
-      if(total==0){ 
-        return -1;
+      if(total == 0.){ 
+        return -1.;
       }
       return EcalEnInSignalPFCands/total;
     }
@@ -207,7 +220,7 @@ class TauIdMVAAuxiliaries {
   
   private:
     /// return pf photon candidates that are associated to signal
-    const std::vector<reco::PFCandidatePtr>& getPFGammas(const reco::PFTau& tau, bool signal = true) const {
+    const std::vector<reco::CandidatePtr>& getPFGammas(const reco::PFTau& tau, bool signal = true) const {
       if (signal){
         return tau.signalPFGammaCands();
       }
