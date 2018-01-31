@@ -23,7 +23,7 @@ class SiStripLorentzAngleDepESProducer : public edm::ESProducer {
   SiStripLorentzAngleDepESProducer(const edm::ParameterSet&);
   ~SiStripLorentzAngleDepESProducer() override{};
   
-  std::shared_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleDepRcd&);
+  std::unique_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleDepRcd&);
    
  private:
 

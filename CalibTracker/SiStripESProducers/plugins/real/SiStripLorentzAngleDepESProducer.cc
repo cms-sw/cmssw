@@ -34,9 +34,9 @@ SiStripLorentzAngleDepESProducer::SiStripLorentzAngleDepESProducer(const edm::Pa
 }
 
 
-std::shared_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce(const SiStripLorentzAngleDepRcd& iRecord)
+std::unique_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce(const SiStripLorentzAngleDepRcd& iRecord)
 {
-  std::shared_ptr<SiStripLorentzAngle> siStripLA;
+  std::unique_ptr<SiStripLorentzAngle> siStripLA;
   edm::LogInfo("SiStripLorentzAngleDepESProducer") << "Producer called" << std::endl;
   
   std::string latencyRecordName = getLatency.getParameter<std::string>("record");

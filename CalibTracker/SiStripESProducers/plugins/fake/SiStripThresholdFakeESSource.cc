@@ -66,7 +66,7 @@ SiStripThresholdFakeESSource::produce(const SiStripThresholdRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::shared_ptr<SiStripThreshold> threshold{new SiStripThreshold};
+  std::shared_ptr<SiStripThreshold> threshold = std::make_shared<SiStripThreshold>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

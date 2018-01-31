@@ -32,9 +32,9 @@ SiStripBackPlaneCorrectionDepESProducer::SiStripBackPlaneCorrectionDepESProducer
 }
 
 
-std::shared_ptr<SiStripBackPlaneCorrection> SiStripBackPlaneCorrectionDepESProducer::produce(const SiStripBackPlaneCorrectionDepRcd& iRecord)
+std::unique_ptr<SiStripBackPlaneCorrection> SiStripBackPlaneCorrectionDepESProducer::produce(const SiStripBackPlaneCorrectionDepRcd& iRecord)
 {
-  std::shared_ptr<SiStripBackPlaneCorrection> siStripBPC;
+  std::unique_ptr<SiStripBackPlaneCorrection> siStripBPC;
   edm::LogInfo("SiStripBackPlaneCorrectionDepESProducer") << "Producer called" << std::endl;
   
   std::string latencyRecordName = getLatency.getParameter<std::string>("record");
@@ -61,7 +61,7 @@ std::shared_ptr<SiStripBackPlaneCorrection> SiStripBackPlaneCorrectionDepESProdu
   if ( backPlaneCorrectionRecordName == "SiStripBackPlaneCorrectionRcd"){
     edm::ESHandle<SiStripBackPlaneCorrection> siStripBackPlaneCorrection;
     iRecord.getRecord<SiStripBackPlaneCorrectionRcd>().get(backPlaneCorrectionLabel, siStripBackPlaneCorrection);
-    siStripBPC = std::make_shared<SiStripBackPlaneCorrection>(*(siStripBackPlaneCorrection.product()));
+    siStripBPC = std::make_unique<SiStripBackPlaneCorrection>(*(siStripBackPlaneCorrection.product()));
   } else edm::LogError("SiStripBackPlaneCorrectionDepESProducer") << "[SiStripBackPlaneCorrectionDepESProducer::produce] No Lorentz Angle Record found " << std::endl;
 	 
 

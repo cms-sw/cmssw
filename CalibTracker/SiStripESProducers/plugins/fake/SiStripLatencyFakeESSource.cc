@@ -29,7 +29,7 @@ public:
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripLatency> ReturnType;
+  typedef std::unique_ptr<SiStripLatency> ReturnType;
   ReturnType produce(const SiStripLatencyRcd&);
 
 private:
@@ -64,7 +64,7 @@ SiStripLatencyFakeESSource::produce(const SiStripLatencyRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::shared_ptr<SiStripLatency> latency{new SiStripLatency};
+  std::unique_ptr<SiStripLatency> latency = std::make_unique<SiStripLatency>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
   const auto& detInfos = reader.getAllData();

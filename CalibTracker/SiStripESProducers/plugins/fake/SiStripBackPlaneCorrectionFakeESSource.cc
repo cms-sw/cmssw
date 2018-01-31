@@ -29,7 +29,7 @@ public:
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripBackPlaneCorrection> ReturnType;
+  typedef std::unique_ptr<SiStripBackPlaneCorrection> ReturnType;
   ReturnType produce(const SiStripBackPlaneCorrectionRcd&);
 
 private:
@@ -67,7 +67,7 @@ SiStripBackPlaneCorrectioNFakeESSource::produce(const SiStripBackPlaneCorrection
   edm::ESHandle<TrackerTopology> tTopo;
   iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
 
-  std::shared_ptr<SiStripBackPlaneCorrection> backPlaneCorrection{new SiStripBackPlaneCorrection};
+  std::unique_ptr<SiStripBackPlaneCorrection> backPlaneCorrection = std::make_unique<SiStripBackPlaneCorrection>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 
