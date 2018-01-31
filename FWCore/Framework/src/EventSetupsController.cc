@@ -76,6 +76,16 @@ namespace edm {
       });
     }
 
+    bool
+    EventSetupsController::isWithinValidityInterval(IOVSyncValue const& syncValue) const {
+      for(auto const& provider: providers_) {
+        if( not provider->isWithinValidityInterval(syncValue)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    
     std::shared_ptr<DataProxyProvider>
     EventSetupsController::getESProducerAndRegisterProcess(ParameterSet const& pset, unsigned subProcessIndex) {
       // Try to find a DataProxyProvider with a matching ParameterSet

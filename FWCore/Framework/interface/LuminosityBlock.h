@@ -46,7 +46,7 @@ namespace edm {
   class LuminosityBlock : public LuminosityBlockBase {
   public:
     LuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                    ModuleCallingContext const*);
+                    ModuleCallingContext const*, bool isAtEnd);
     ~LuminosityBlock() override;
 
     // AUX functions are defined in LuminosityBlockBase

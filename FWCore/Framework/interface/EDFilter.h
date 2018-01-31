@@ -57,6 +57,8 @@ namespace edm {
     static bool wantsStreamRuns() {return false;}
     static bool wantsStreamLuminosityBlocks() {return false;};
 
+    SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
+    SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
   private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                  ActivityRegistry* act,
@@ -110,6 +112,8 @@ namespace edm {
     ModuleDescription moduleDescription_;
     std::vector<BranchID> previousParentage_;
     SharedResourcesAcquirer resourceAcquirer_;
+    SerialTaskQueue runQueue_;
+    SerialTaskQueue luminosityBlockQueue_;
     ParentageID previousParentageId_;
   };
 }

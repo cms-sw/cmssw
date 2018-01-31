@@ -290,7 +290,7 @@ namespace edm {
                            EventSetup const&,
                            ModuleCallingContext const* mcc) {
     FDEBUG(2) << "beginRun called\n";
-    RunForOutput r(rp, moduleDescription_, mcc);
+    RunForOutput r(rp, moduleDescription_, mcc,false);
     r.setConsumer(this);
     beginRun(r);
     return true;
@@ -301,7 +301,7 @@ namespace edm {
                          EventSetup const&,
                          ModuleCallingContext const* mcc) {
     FDEBUG(2) << "endRun called\n";
-    RunForOutput r(rp, moduleDescription_, mcc);
+    RunForOutput r(rp, moduleDescription_, mcc,true);
     r.setConsumer(this);
     endRun(r);
     return true;
@@ -311,7 +311,7 @@ namespace edm {
   OutputModule::doWriteRun(RunPrincipal const& rp,
                            ModuleCallingContext const* mcc) {
     FDEBUG(2) << "writeRun called\n";
-    RunForOutput r(rp, moduleDescription_, mcc);
+    RunForOutput r(rp, moduleDescription_, mcc,true);
     r.setConsumer(this);
     writeRun(r);
   }
@@ -321,7 +321,7 @@ namespace edm {
                                        EventSetup const&,
                                        ModuleCallingContext const* mcc) {
     FDEBUG(2) << "beginLuminosityBlock called\n";
-    LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+    LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc,false);
     lb.setConsumer(this);
     beginLuminosityBlock(lb);
     return true;
@@ -332,7 +332,7 @@ namespace edm {
                                      EventSetup const&,
                                      ModuleCallingContext const* mcc) {
     FDEBUG(2) << "endLuminosityBlock called\n";
-    LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+    LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc,true);
     lb.setConsumer(this);
     endLuminosityBlock(lb);
     return true;
@@ -341,7 +341,7 @@ namespace edm {
   void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                             ModuleCallingContext const* mcc) {
     FDEBUG(2) << "writeLuminosityBlock called\n";
-    LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+    LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc,true);
     lb.setConsumer(this);
     writeLuminosityBlock(lb);
   }

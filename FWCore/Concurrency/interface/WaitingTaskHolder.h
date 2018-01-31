@@ -60,6 +60,7 @@ namespace edm {
     }
     
     // ---------- const member functions ---------------------
+    bool taskHasFailed() const { return m_task->exceptionPtr() != nullptr; }
     
     // ---------- static member functions --------------------
     
