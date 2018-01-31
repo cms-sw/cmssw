@@ -37,7 +37,6 @@ CaloMiscalibTools::CaloMiscalibTools(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
-  map_.prefillMap();
 
   barrelfileinpath_=iConfig.getUntrackedParameter<std::string> ("fileNameBarrel","");
   endcapfileinpath_=iConfig.getUntrackedParameter<std::string> ("fileNameEndcap","");
@@ -77,15 +76,16 @@ CaloMiscalibTools::~CaloMiscalibTools()
 CaloMiscalibTools::ReturnType
 CaloMiscalibTools::produce(const EcalIntercalibConstantsRcd& iRecord)
 {
-    map_.prefillMap();
-    MiscalibReaderFromXMLEcalBarrel barrelreader_(map_);
-    MiscalibReaderFromXMLEcalEndcap endcapreader_(map_);
+    CaloMiscalibMapEcal map;
+    map.prefillMap();
+    MiscalibReaderFromXMLEcalBarrel barrelreader_(map);
+    MiscalibReaderFromXMLEcalEndcap endcapreader_(map);
     if(!barrelfile_.empty()) barrelreader_.parseXMLMiscalibFile(barrelfile_);
     if(!endcapfile_.empty())endcapreader_.parseXMLMiscalibFile(endcapfile_);
-    map_.print();
+    map.print();
     // Added by Zhen, need a new object so to not be deleted at exit
     //    std::cout<<"about to copy"<<std::endl;
-    EcalIntercalibConstants* mydata=new EcalIntercalibConstants(map_.get());
+    CaloMiscalibTools::ReturnType mydata = std::make_unique<EcalIntercalibConstants>(map.get());
     //    std::cout<<"mydata "<<mydata<<std::endl;
     return mydata;
 }
