@@ -15,7 +15,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsDataSequence.h"
+#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsDataSequence.h"
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsMethods.h"
 
 #include "CondFormats/AlignmentRecord/interface/RPMeasuredAlignmentRecord.h"
