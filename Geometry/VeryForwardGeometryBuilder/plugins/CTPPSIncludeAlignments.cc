@@ -66,12 +66,20 @@ using namespace edm;
 CTPPSIncludeAlignments::CTPPSIncludeAlignments(const edm::ParameterSet &pSet) :
   verbosity(pSet.getUntrackedParameter<unsigned int>("verbosity", 0))
 {
+  std::vector<std::string> measuredFiles;
+  for (const auto &f: pSet.getParameter< vector<string> >("MeasuredFiles"))
+    measuredFiles.push_back(edm::FileInPath(f).fullPath());
+  PrepareSequence("Measured", acsMeasured, measuredFiles);
+
   std::vector<std::string> realFiles;
-  for (auto rFile: pSet.getParameter< vector<string> >("RealFiles"))
-    realFiles.push_back(edm::FileInPath(rFile).fullPath());
-  PrepareSequence("Measured", acsMeasured, pSet.getParameter< vector<string> >("MeasuredFiles"));
+  for (const auto &f: pSet.getParameter< vector<string> >("RealFiles"))
+    realFiles.push_back(edm::FileInPath(f).fullPath());
   PrepareSequence("Real", acsReal, realFiles);
-  PrepareSequence("Misaligned", acsMisaligned, pSet.getParameter< vector<string> >("MisalignedFiles"));
+
+  std::vector<std::string> misalignedFiles;
+  for (const auto &f: pSet.getParameter< vector<string> >("MisalignedFiles"))
+    misalignedFiles.push_back(edm::FileInPath(f).fullPath());
+  PrepareSequence("Misaligned", acsMisaligned, misalignedFiles);
 
   setWhatProduced(this, &CTPPSIncludeAlignments::produceMeasured);
   setWhatProduced(this, &CTPPSIncludeAlignments::produceReal);
