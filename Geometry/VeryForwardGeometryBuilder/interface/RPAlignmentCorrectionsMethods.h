@@ -11,7 +11,7 @@
 
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionData.h"
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsDataSequence.h"
+#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsDataSequence.h"
 
 #include <xercesc/dom/DOM.hpp>
 

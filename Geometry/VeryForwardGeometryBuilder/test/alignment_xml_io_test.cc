@@ -1,6 +1,5 @@
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
-
-#include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsDataSequence.h"
+#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsDataSequence.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsMethods.h"
 

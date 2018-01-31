@@ -6,8 +6,8 @@
  *
  ****************************************************************************/
 
-#ifndef Geometry_VeryForwardGeometryBuilder_RPAlignmentCorrectionsDataSequence
-#define Geometry_VeryForwardGeometryBuilder_RPAlignmentCorrectionsDataSequence
+#ifndef DataFormats_CTPPSAlignment_RPAlignmentCorrectionsDataSequence
+#define DataFormats_CTPPSAlignment_RPAlignmentCorrectionsDataSequence
 
 #include <map>
 #include <string>
