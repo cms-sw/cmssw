@@ -6,25 +6,19 @@
 namespace {
 
   // Will return position of n-th occurence of a char in a string.
-  // From https://stackoverflow.com/questions/18972258/index-of-nth-occurrence-of-the-string
-  int strpos(std::string haystack, char needle, unsigned int nth)
+  int strpos(const std::string &haystack, char needle, unsigned int nth)
   {
-          std::string read;    // A string that will contain the read part of the haystack
-          for (unsigned int i=1 ; i<nth+1 ; ++i)
-          {
-                  std::size_t found = haystack.find(needle);
-                  read += haystack.substr(0,found+1); // the read part of the haystack is stocked in the read string
-                  haystack.erase(0, found+1);     // remove the read part of the haystack up to the i-th needle
-                  if (i == nth)
-                  {
-                          return read.size();
-                  }
-          }
-          return -1;
+    int found = 0;
+    for (unsigned int i=0 ; i<nth ; ++i) {
+        std::size_t pos = haystack.find(needle, found);
+        if (pos == std::string::npos) return -1; 
+        else found = pos+1;
+    }
+    return found;
   }
 
   // To get the substring between the n1th and n2th quotation mark in a string
-  std::string get_substring(std::string str, int n1, int n2)
+  std::string get_substring(const std::string &str, int n1, int n2)
   {
       int pos = strpos(str, '"', n1);
       int count = strpos(str, '"', n2) - pos;

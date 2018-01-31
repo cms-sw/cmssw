@@ -5,10 +5,11 @@ ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(const edm::Parame
   tag_(conf.getParameter<std::string>("mvaTag")),
   name_(conf.getParameter<std::string>("mvaName")),
   methodName_("BDTG method"),
-  beamSpotLabel_(conf.getParameter<edm::InputTag>("beamSpot")),
-  conversionsLabelAOD_(conf.getParameter<edm::InputTag>("conversionsAOD")),
+  beamSpotLabel_          (conf.getParameter<edm::InputTag>("beamSpot")),
+  conversionsLabelAOD_    (conf.getParameter<edm::InputTag>("conversionsAOD")),
   conversionsLabelMiniAOD_(conf.getParameter<edm::InputTag>("conversionsMiniAOD")),
-  rhoLabel_(edm::InputTag("fixedGridRhoFastjetAll")) {
+  rhoLabel_               (edm::InputTag                   ("fixedGridRhoFastjetAll"))
+  {
 
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
@@ -38,20 +39,25 @@ ElectronMVAEstimatorRun2Fall17::
 
 void ElectronMVAEstimatorRun2Fall17::setConsumes(edm::ConsumesCollector&& cc) const {
 
+  std::cout << "Test" << std::endl;
+
   // All tokens for event content needed by this MVA
 
   // Beam spot (same for AOD and miniAOD)
-  //beamSpotToken_           = cc.consumes<reco::BeamSpot>(beamSpotLabel_);
   cc.consumes<reco::BeamSpot>(beamSpotLabel_);
-
   // Conversions collection (different names in AOD and miniAOD)
-  //conversionsTokenAOD_     = cc.mayConsume<reco::ConversionCollection>(conversionsLabelAOD_);
-  //conversionsTokenMiniAOD_ = cc.mayConsume<reco::ConversionCollection>(conversionsLabelMiniAOD_);
   cc.mayConsume<reco::ConversionCollection>(conversionsLabelAOD_);
   cc.mayConsume<reco::ConversionCollection>(conversionsLabelMiniAOD_);
-
-  //rhoToken_                = cc.consumes<double>(rhoLabel_);
+  // Event-by-event pileup estimate rho
   cc.consumes<double>(rhoLabel_);
+
+  //// Beam spot (same for AOD and miniAOD)
+  //beamSpotToken_           = cc.consumes<reco::BeamSpot>(beamSpotLabel_);
+  //// Conversions collection (different names in AOD and miniAOD)
+  //conversionsTokenAOD_     = cc.mayConsume<reco::ConversionCollection>(conversionsLabelAOD_);
+  //conversionsTokenMiniAOD_ = cc.mayConsume<reco::ConversionCollection>(conversionsLabelMiniAOD_);
+  //// Event-by-event pileup estimate rho
+  //rhoToken_                = cc.consumes<double>(rhoLabel_);
 
 }
 
@@ -72,7 +78,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) c
 }
 
 float ElectronMVAEstimatorRun2Fall17::
-mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) const {
+mvaValue( const reco::GsfElectron * particle, const edm::Event & iEvent) const {
   edm::Handle<reco::ConversionCollection> conversions;
   edm::Handle<reco::BeamSpot> beamSpot;
   edm::Handle<double> rho;
@@ -94,7 +100,7 @@ mvaValue( const int iCategory, const std::vector<float> & vars) const  {
     std::cout << " bin "                      << iCategory << std::endl
               << " see "                      << vars[0] << std::endl
               << " spp "                      << vars[1] << std::endl
-              << " circularity "         << vars[2] << std::endl
+              << " circularity "              << vars[2] << std::endl
               << " r9 "                       << vars[3] << std::endl
               << " etawidth "                 << vars[4] << std::endl
               << " phiwidth "                 << vars[5] << std::endl
@@ -108,7 +114,7 @@ mvaValue( const int iCategory, const std::vector<float> & vars) const  {
               << " convVtxFitProbability "    << vars[13] << std::endl
               << " eop "                      << vars[14] << std::endl
               << " eleeopout "                << vars[15] << std::endl
-              << " oneOverEminusOneOverP "                  << vars[16] << std::endl
+              << " oneOverEminusOneOverP "    << vars[16] << std::endl
               << " deta "                     << vars[17] << std::endl
               << " dphi "                     << vars[18] << std::endl
               << " detacalo "                 << vars[19] << std::endl;
@@ -145,6 +151,7 @@ int ElectronMVAEstimatorRun2Fall17::findCategory( const edm::Ptr<reco::Candidate
 int ElectronMVAEstimatorRun2Fall17::findCategory( const reco::GsfElectron * eleRecoPtr ) const {
   float pt = eleRecoPtr->pt();
   float eta = eleRecoPtr->superCluster()->eta();
+  float absEta = std::abs(eta);
 
   //
   // Determine the category
@@ -154,42 +161,31 @@ int ElectronMVAEstimatorRun2Fall17::findCategory( const reco::GsfElectron * eleR
   const float ebSplit = 0.800;// barrel is split into two regions
   const float ebeeSplit = 1.479; // division between barrel and endcap
 
-  if (pt < ptSplit && std::abs(eta) < ebSplit) {
-    iCategory = CAT_EB1_PT5to10;
+  if (pt < ptSplit && absEta < ebSplit) {
+    iCategory = CAT_EB1_PTLow;
   }
 
-  if (pt < ptSplit && std::abs(eta) >= ebSplit && std::abs(eta) < ebeeSplit) {
-    iCategory = CAT_EB2_PT5to10;
+  if (pt < ptSplit && absEta >= ebSplit && absEta < ebeeSplit) {
+    iCategory = CAT_EB2_PTLow;
   }
 
-  if (pt < ptSplit && std::abs(eta) >= ebeeSplit) {
-    iCategory = CAT_EE_PT5to10;
+  if (pt < ptSplit && absEta >= ebeeSplit) {
+    iCategory = CAT_EE_PTLow;
   }
 
-  if (pt >= ptSplit && std::abs(eta) < ebSplit) {
-    iCategory = CAT_EB1_PT10plus;
+  if (pt >= ptSplit && absEta < ebSplit) {
+    iCategory = CAT_EB1_PTHig;
   }
 
-  if (pt >= ptSplit && std::abs(eta) >= ebSplit && std::abs(eta) < ebeeSplit) {
-    iCategory = CAT_EB2_PT10plus;
+  if (pt >= ptSplit && absEta >= ebSplit && absEta < ebeeSplit) {
+    iCategory = CAT_EB2_PTHig;
   }
 
-  if (pt >= ptSplit && std::abs(eta) >= ebeeSplit) {
-    iCategory = CAT_EE_PT10plus;
+  if (pt >= ptSplit && absEta >= ebeeSplit) {
+    iCategory = CAT_EE_PTHig;
   }
 
   return iCategory;
-}
-
-bool ElectronMVAEstimatorRun2Fall17::
-isEndcapCategory(int category ) const {
-
-  bool isEndcap = false;
-  if( category == CAT_EE_PT5to10 || category == CAT_EE_PT10plus ) {
-    isEndcap = true;
-  }
-
-  return isEndcap;
 }
 
 // A function that should work on both pat and reco objects

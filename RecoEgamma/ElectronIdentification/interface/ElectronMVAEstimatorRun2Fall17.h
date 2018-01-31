@@ -1,5 +1,5 @@
-#ifndef ElectronMVAEstimatorRun2Fall17_h
-#define ElectronMVAEstimatorRun2Fall17_h
+#ifndef RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Fall17_H
+#define RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Fall17_H
 
 #include <vector>
 #include <string>
@@ -7,8 +7,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -27,13 +25,12 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
   // Calculation of the MVA value (VID accessor)
   float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
   // Calculation of the MVA value (fwlite-compatible accessor)
-  float mvaValue( const reco::GsfElectron * particle, const edm::EventBase &) const ;
+  float mvaValue( const reco::GsfElectron * particle, const edm::Event &) const ;
   // Calculation of the MVA value (bare version)
   float mvaValue( const int iCategory, const std::vector<float> & vars) const ;
 
   // Utility functions
   int getNCategories() const override { return nCategories_; }
-  bool isEndcapCategory( int category ) const;
   const std::string& getName() const final { return name_; }
   const std::string& getTag() const final { return tag_; }
 
@@ -49,7 +46,7 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
 
   // Call this function once after the constructor to declare
   // the needed event content pieces to the framework
-  void setConsumes(edm::ConsumesCollector&&) const override;
+  void setConsumes(edm::ConsumesCollector&&) const final;
 
  protected:
 
@@ -59,12 +56,12 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
   const int nVar_ = 22;
   enum MVACategories_ {
     UNDEFINED = -1,
-    CAT_EB1_PT5to10  = 0,
-    CAT_EB2_PT5to10  = 1,
-    CAT_EE_PT5to10   = 2,
-    CAT_EB1_PT10plus = 3,
-    CAT_EB2_PT10plus = 4,
-    CAT_EE_PT10plus  = 5
+    CAT_EB1_PTLow = 0,
+    CAT_EB2_PTLow = 1,
+    CAT_EE_PTLow  = 2,
+    CAT_EB1_PTHig = 3,
+    CAT_EB2_PTHig = 4,
+    CAT_EE_PTHig  = 5
   };
 
   // MVA tag. This is an additional string variable to distinguish

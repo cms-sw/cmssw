@@ -1,5 +1,5 @@
-#ifndef ElectronMVAEstimatorRun2Fall17NoIso_h
-#define ElectronMVAEstimatorRun2Fall17NoIso_h
+#ifndef RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Fall17NoIso_H
+#define RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Fall17NoIso_H
 
 #include "RecoEgamma//ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17.h"
 
