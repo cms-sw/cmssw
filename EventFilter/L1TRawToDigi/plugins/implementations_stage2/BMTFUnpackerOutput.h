@@ -4,18 +4,19 @@
 #include "BMTFCollections.h"
 
 namespace l1t{
-  namespace stage2{
+	namespace stage2{
+	  class BMTFUnpackerOutput : public Unpacker
+	  {
+	  public:
+	    bool unpack(const Block& block, UnpackerCollections *coll) override;
+	  };
 
-    class BMTFUnpackerOutput : public Unpacker
-    {
-    public:
-      BMTFUnpackerOutput(){isKalman = false;}
-      BMTFUnpackerOutput(const bool type){isKalman = type;}
-      ~BMTFUnpackerOutput() override{};
-      bool unpack(const Block& block, UnpackerCollections *coll) override;
-    private:
-      bool isKalman;
-    };
+	  class BMTF_ZSUnpackerOutput : public Unpacker
+	  {
+	  public:
+	    bool unpack(const Block& block, UnpackerCollections *coll) override;
+	  };
 
-  }
+
+	}
 }
