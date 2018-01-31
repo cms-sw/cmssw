@@ -32,11 +32,11 @@
 /**
  * Loads alignment corrections to EventSetup.
  **/
-class  CTPPSIncludeAlignments : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder
+class  CTPPSIncludeAlignmentsFromXML : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder
 {
   public:
-    CTPPSIncludeAlignments(const edm::ParameterSet &p);
-    ~CTPPSIncludeAlignments() override;
+    CTPPSIncludeAlignmentsFromXML(const edm::ParameterSet &p);
+    ~CTPPSIncludeAlignmentsFromXML() override;
 
     std::unique_ptr<RPAlignmentCorrectionsData> produceMeasured(const RPMeasuredAlignmentRecord &);
     std::unique_ptr<RPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
@@ -64,7 +64,7 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
-CTPPSIncludeAlignments::CTPPSIncludeAlignments(const edm::ParameterSet &pSet) :
+CTPPSIncludeAlignmentsFromXML::CTPPSIncludeAlignmentsFromXML(const edm::ParameterSet &pSet) :
   verbosity(pSet.getUntrackedParameter<unsigned int>("verbosity", 0))
 {
   std::vector<std::string> measuredFiles;
@@ -82,9 +82,9 @@ CTPPSIncludeAlignments::CTPPSIncludeAlignments(const edm::ParameterSet &pSet) :
     misalignedFiles.push_back(edm::FileInPath(f).fullPath());
   PrepareSequence("Misaligned", acsMisaligned, misalignedFiles);
 
-  setWhatProduced(this, &CTPPSIncludeAlignments::produceMeasured);
-  setWhatProduced(this, &CTPPSIncludeAlignments::produceReal);
-  setWhatProduced(this, &CTPPSIncludeAlignments::produceMisaligned);
+  setWhatProduced(this, &CTPPSIncludeAlignmentsFromXML::produceMeasured);
+  setWhatProduced(this, &CTPPSIncludeAlignmentsFromXML::produceReal);
+  setWhatProduced(this, &CTPPSIncludeAlignmentsFromXML::produceMisaligned);
   
   findingRecord<RPMeasuredAlignmentRecord>();
   findingRecord<RPRealAlignmentRecord>();
@@ -93,13 +93,13 @@ CTPPSIncludeAlignments::CTPPSIncludeAlignments(const edm::ParameterSet &pSet) :
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSIncludeAlignments::~CTPPSIncludeAlignments()
+CTPPSIncludeAlignmentsFromXML::~CTPPSIncludeAlignmentsFromXML()
 {
 }
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignments::Merge(const vector<RPAlignmentCorrectionsDataSequence>& files) const
+RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignmentsFromXML::Merge(const vector<RPAlignmentCorrectionsDataSequence>& files) const
 {
   // find interval boundaries
   map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > > bounds;
@@ -161,10 +161,10 @@ RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignments::Merge(const vector<RP
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSIncludeAlignments::PrepareSequence(const string &label, RPAlignmentCorrectionsDataSequence &seq, const vector<string> &files) const
+void CTPPSIncludeAlignmentsFromXML::PrepareSequence(const string &label, RPAlignmentCorrectionsDataSequence &seq, const vector<string> &files) const
 {
   if (verbosity)
-    printf(">> CTPPSIncludeAlignments::PrepareSequence(%s)\n", label.c_str());
+    printf(">> CTPPSIncludeAlignmentsFromXML::PrepareSequence(%s)\n", label.c_str());
 
   vector<RPAlignmentCorrectionsDataSequence> sequences;
   for (const auto & file : files)
@@ -175,40 +175,40 @@ void CTPPSIncludeAlignments::PrepareSequence(const string &label, RPAlignmentCor
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrectionsData> CTPPSIncludeAlignments::produceMeasured(const RPMeasuredAlignmentRecord &iRecord)
+std::unique_ptr<RPAlignmentCorrectionsData> CTPPSIncludeAlignmentsFromXML::produceMeasured(const RPMeasuredAlignmentRecord &iRecord)
 {
   return std::make_unique<RPAlignmentCorrectionsData>(acMeasured);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrectionsData> CTPPSIncludeAlignments::produceReal(const RPRealAlignmentRecord &iRecord)
+std::unique_ptr<RPAlignmentCorrectionsData> CTPPSIncludeAlignmentsFromXML::produceReal(const RPRealAlignmentRecord &iRecord)
 {
   return std::make_unique<RPAlignmentCorrectionsData>(acReal);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrectionsData> CTPPSIncludeAlignments::produceMisaligned(const RPMisalignedAlignmentRecord &iRecord)
+std::unique_ptr<RPAlignmentCorrectionsData> CTPPSIncludeAlignmentsFromXML::produceMisaligned(const RPMisalignedAlignmentRecord &iRecord)
 {
   return std::make_unique<RPAlignmentCorrectionsData>(acMisaligned);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
+void CTPPSIncludeAlignmentsFromXML::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
     const IOVSyncValue& iosv, ValidityInterval& valInt) 
 {
   if (verbosity)
   {
-    LogVerbatim("CTPPSIncludeAlignments")
-      << ">> CTPPSIncludeAlignments::setIntervalFor(" << key.name() << ")";
+    LogVerbatim("CTPPSIncludeAlignmentsFromXML")
+      << ">> CTPPSIncludeAlignmentsFromXML::setIntervalFor(" << key.name() << ")";
 
     time_t unixTime = iosv.time().unixTime();
     char timeStr[50];
     strftime(timeStr, 50, "%F %T", localtime(&unixTime));
 
-    LogVerbatim("CTPPSIncludeAlignments")
+    LogVerbatim("CTPPSIncludeAlignmentsFromXML")
       << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event() << ", UNIX timestamp=" << unixTime << " (" << timeStr << ")";
   }
 
@@ -235,7 +235,7 @@ void CTPPSIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupRec
   }
 
   if (seq == nullptr)
-    throw cms::Exception("CTPPSIncludeAlignments::setIntervalFor") << "Unknown record " << key.name();
+    throw cms::Exception("CTPPSIncludeAlignmentsFromXML::setIntervalFor") << "Unknown record " << key.name();
 
   // find the corresponding time interval
   bool next_exists = false;
@@ -250,7 +250,7 @@ void CTPPSIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupRec
 
       if (verbosity)
       {
-        LogVerbatim("CTPPSIncludeAlignments")
+        LogVerbatim("CTPPSIncludeAlignmentsFromXML")
           << "    setting validity interval [" << TimeValidityInterval::ValueToUNIXString(valInt.first().time().value())
           << ", " << TimeValidityInterval::ValueToUNIXString(valInt.last().time().value()) << "]";
       }
@@ -275,7 +275,7 @@ void CTPPSIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupRec
   
   if (verbosity)
   {
-    LogVerbatim("CTPPSIncludeAlignments")
+    LogVerbatim("CTPPSIncludeAlignmentsFromXML")
       << "    setting validity interval [" << TimeValidityInterval::ValueToUNIXString(valInt.first().time().value())
       << ", " << TimeValidityInterval::ValueToUNIXString(valInt.last().time().value()) << "]";
   }
@@ -283,4 +283,4 @@ void CTPPSIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupRec
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_EVENTSETUP_SOURCE(CTPPSIncludeAlignments);
+DEFINE_FWK_EVENTSETUP_SOURCE(CTPPSIncludeAlignmentsFromXML);
