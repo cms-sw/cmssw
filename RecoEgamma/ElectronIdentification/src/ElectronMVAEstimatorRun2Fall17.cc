@@ -39,8 +39,6 @@ ElectronMVAEstimatorRun2Fall17::
 
 void ElectronMVAEstimatorRun2Fall17::setConsumes(edm::ConsumesCollector&& cc) const {
 
-  std::cout << "Test" << std::endl;
-
   // All tokens for event content needed by this MVA
 
   // Beam spot (same for AOD and miniAOD)
@@ -165,23 +163,23 @@ int ElectronMVAEstimatorRun2Fall17::findCategory( const reco::GsfElectron * eleR
     iCategory = CAT_EB1_PTLow;
   }
 
-  if (pt < ptSplit && absEta >= ebSplit && absEta < ebeeSplit) {
+  else if (pt < ptSplit && absEta >= ebSplit && absEta < ebeeSplit) {
     iCategory = CAT_EB2_PTLow;
   }
 
-  if (pt < ptSplit && absEta >= ebeeSplit) {
+  else if (pt < ptSplit && absEta >= ebeeSplit) {
     iCategory = CAT_EE_PTLow;
   }
 
-  if (pt >= ptSplit && absEta < ebSplit) {
+  else if (pt >= ptSplit && absEta < ebSplit) {
     iCategory = CAT_EB1_PTHig;
   }
 
-  if (pt >= ptSplit && absEta >= ebSplit && absEta < ebeeSplit) {
+  else if (pt >= ptSplit && absEta >= ebSplit && absEta < ebeeSplit) {
     iCategory = CAT_EB2_PTHig;
   }
 
-  if (pt >= ptSplit && absEta >= ebeeSplit) {
+  else if (pt >= ptSplit && absEta >= ebeeSplit) {
     iCategory = CAT_EE_PTHig;
   }
 
