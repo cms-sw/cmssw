@@ -36,7 +36,6 @@ class SiStripBackPlaneCorrectionDepESProducer : public edm::ESProducer {
   edm::ParameterSet getPeak;
   edm::ParameterSet getDeconv;
 
-  std::shared_ptr<SiStripBackPlaneCorrection> siStripBPC_;
 
 };
 

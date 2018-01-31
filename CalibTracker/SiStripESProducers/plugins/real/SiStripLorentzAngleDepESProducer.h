@@ -36,7 +36,6 @@ class SiStripLorentzAngleDepESProducer : public edm::ESProducer {
   edm::ParameterSet getPeak;
   edm::ParameterSet getDeconv;
 
-  std::shared_ptr<SiStripLorentzAngle> siStripLA_;
 
 };
 

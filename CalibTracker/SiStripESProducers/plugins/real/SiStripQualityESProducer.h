@@ -33,7 +33,6 @@ class SiStripQualityESProducer : public edm::ESProducer {
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toGet;
 
-  std::shared_ptr<SiStripQuality>  quality;
 };
 
 #endif
