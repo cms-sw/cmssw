@@ -81,9 +81,6 @@ namespace reco {
     // ---------- static member functions --------------------
     
     // ---------- member functions ---------------------------
-    void swap(JetCorrector& iOther) {
-      std::swap(impl_,iOther.impl_);
-    }
 
   private:
     JetCorrector(const JetCorrector&) = delete; 
