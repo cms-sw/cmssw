@@ -118,7 +118,8 @@ egammaStdFiltersToMonitor= cms.VPSet(
   
  
 
-B2GegHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+B2GegHLTDQMOfflineTnPSource = DQMEDAnalyzer("HLTEleTagAndProbeOfflineSource",
                                           tagAndProbeCollections = cms.VPSet(
         cms.PSet( 
             tagAndProbeConfigEle50CaloIdVTGsfTrkIdT,
