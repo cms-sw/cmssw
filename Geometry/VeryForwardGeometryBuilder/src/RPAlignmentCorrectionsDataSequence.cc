@@ -12,14 +12,17 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsDataSequence.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsMethods.h"
 
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
+
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 
+// TODO: update
 /**
-STRUCTURE OF ALINGMENT XML FILE
+STRUCTURE OF CTPPS ALINGMENT XML FILE
 
 The file has the following structure
 <code>
@@ -64,6 +67,7 @@ UNITS: shifts are in um, rotations are in mrad.
 void
 RPAlignmentCorrectionsDataSequence::loadXMLFile( const std::string& fileName )
 {
+  // TODO: use file in path
   // prepend CMSSW src dir
   const char* cmsswPath = getenv( "CMSSW_BASE" );
   size_t start = fileName.find_first_not_of( "   " );

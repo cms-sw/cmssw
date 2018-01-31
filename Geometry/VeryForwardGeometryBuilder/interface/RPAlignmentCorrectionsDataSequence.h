@@ -6,8 +6,8 @@
  *
  ****************************************************************************/
 
-#ifndef Geometry_VeryForwardGeometryBuilder_RPAlignmentCorrectionsDataSequence_h
-#define Geometry_VeryForwardGeometryBuilder_RPAlignmentCorrectionsDataSequence_h
+#ifndef Geometry_VeryForwardGeometryBuilder_RPAlignmentCorrectionsDataSequence
+#define Geometry_VeryForwardGeometryBuilder_RPAlignmentCorrectionsDataSequence
 
 #include <map>
 #include <string>
@@ -86,4 +86,3 @@ class RPAlignmentCorrectionsDataSequence : public std::map<TimeValidityInterval,
 };
 
 #endif
-
