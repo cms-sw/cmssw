@@ -174,6 +174,10 @@ l1TriggerDqmOfflineClient = cms.Sequence(
                                 * l1EmulatorMonitorClient
                                 )
 
+# Dummy sequences for legacy cosmics
+l1TriggerDqmOfflineCosmics = cms.Sequence()
+l1TriggerDqmOfflineCosmicsClient = cms.Sequence()
+
 # Dummy sequences where a stage 2 equivalent exists
 l1TriggerEgDqmOfflineClient = cms.Sequence()
 l1TriggerMuonDqmOfflineClient = cms.Sequence()
@@ -420,3 +424,5 @@ stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineClient, Stage2l1TriggerDqmOffli
 stage2L1Trigger.toReplaceWith(l1TriggerEgDqmOfflineClient, Stage2l1tEgDqmOfflineClient)
 stage2L1Trigger.toReplaceWith(l1TriggerMuonDqmOfflineClient, Stage2l1tMuonDqmOfflineClient)
 stage2L1Trigger.toReplaceWith(l1EmulatorMonitorClient,l1tStage2EmulatorMonitorClient)
+stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineCosmics, Stage2l1TriggerDqmOffline)
+stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineCosmicsClient, Stage2l1TriggerDqmOfflineClient)
