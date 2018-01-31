@@ -205,6 +205,7 @@ namespace l1t {
 	mu_.setHwPt        ( SP_.Pt_GMT() );
 	mu_.setTFIdentifiers ( Track_.Sector() - 1, (Track_.Endcap() == 1) ? emtf_pos : emtf_neg );
 	mu_.setTrackSubAddress( RegionalMuonCand::kTrkNum, Track_.Track_num() );
+	mu_.setTrackSubAddress( RegionalMuonCand::kBX, (res->at(iOut)).PtrEventHeader()->L1A_BXN() );
 	// mu_.set_dataword   ( SP_.Dataword() );
 	// Track_.set_GMT(mu_);
 
