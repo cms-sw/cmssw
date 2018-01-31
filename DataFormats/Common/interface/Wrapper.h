@@ -77,12 +77,6 @@ private:
   };
 
   template<typename T>
-  inline
-  void swap_or_assign(T& a, T& b) {
-    detail::doSwapOrAssign<T>()(a, b);
-  } 
-
-  template<typename T>
   Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) :
     WrapperBase(),
     present(ptr.get() != nullptr),
