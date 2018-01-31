@@ -30,37 +30,154 @@
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionsData
-RPAlignmentCorrectionsMethods::getCorrectionsDataFromFile( const edm::FileInPath& fileName )
-{
-  edm::LogInfo("RPAlignmentCorrectionsMethods")
-    << "LoadXMLFile(" << fileName << ")";
+// TODO: update
+/**
+STRUCTURE OF CTPPS ALINGMENT XML FILE
 
-  // load DOM tree first the file
-  XMLPlatformUtils::Initialize();
+The file has the following structure
+<code>
+<xml>
+  <TimeInterval first="..." last="...">
+    <tag/>
+    <tag/>
+    ...
+  </TimeInterval>
+  <TimeInterval first="..." last="...">
+    ...
+  </TimeInterval>
+  .
+  .
+  .
+</xml>
+</code>
+
+The time intervals are specified by the `first' and `last' UNIX timestamp (boundaries included).
+If there is only one time interval, the <TimeInterval> tags might be omitted. An infinite validty
+is assumed in this case.
+
+The tag can be either
+  * "det" - the alignment correction is applied to one detector or
+  * "rp" - the alignment correction id applied to one RP
+
+Each tag must have an "id" attribute set. In addition the following attributes are recognized:
+  * sh_x - shift in x
+  * sh_x_e - the uncertainty of sh_x determination
+  * sh_y - shift in y
+  * sh_y_e - the uncertainty of sh_y determination
+  * sh_z - shift in z
+  * sh_z_e - the uncertainty of sh_z determination
+  * rot_x - rotation around x
+  * rot_x_e - the uncertainty of rot_x determination
+  * rot_y - rotation around y
+  * rot_y_e - the uncertainty of rot_y determination
+  * rot_z - rotation around z
+  * rot_z_e - the uncertainty of rot_z determination
+
+UNITS: shifts are in um, rotations are in mrad.
+ */
+
+//----------------------------------------------------------------------------------------------------
+
+RPAlignmentCorrectionsDataSequence
+RPAlignmentCorrectionsMethods::loadFromXML( const std::string& fileName )
+{
+  // prepare output
+  RPAlignmentCorrectionsDataSequence output;
+
+  // load DOM tree
+  try {
+    XMLPlatformUtils::Initialize();
+  } catch ( const XMLException& toCatch ) {
+    throw cms::Exception("RPAlignmentCorrectionsMethods") << "An XMLException caught with message: " << cms::xerces::toString( toCatch.getMessage() ) << ".";
+  }
 
   auto parser = std::make_unique<XercesDOMParser>();
   parser->setValidationScheme( XercesDOMParser::Val_Always );
   parser->setDoNamespaces( true );
-  parser->parse( fileName.fullPath().c_str() );
+  parser->parse( fileName.c_str() );
 
   if ( !parser )
-    throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot parse file `" << fileName.fullPath() << "' (parser = NULL).";
-  
+    throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot parse file `" << fileName << "' (parser = NULL).";
+
   DOMDocument* xmlDoc = parser->getDocument();
 
   if ( !xmlDoc )
-    throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot parse file `" << fileName.fullPath() << "' (xmlDoc = NULL).";
+    throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot parse file `" << fileName << "' (xmlDoc = NULL).";
 
   DOMElement* elementRoot = xmlDoc->getDocumentElement();
   if ( !elementRoot )
-    throw cms::Exception("RPAlignmentCorrectionsMethods") << "File `" << fileName.fullPath() << "' is empty.";
+    throw cms::Exception("RPAlignmentCorrectionsMethods") << "File `" << fileName << "' is empty.";
 
-  RPAlignmentCorrectionsData corr_data = getCorrectionsData( elementRoot );
+  // extract useful information form the DOM tree
+  DOMNodeList* children = elementRoot->getChildNodes();
+  for ( unsigned int i = 0; i < children->getLength(); i++ )
+  {
+    DOMNode* node = children->item( i );
+    if ( node->getNodeType() != DOMNode::ELEMENT_NODE )
+      continue;
 
+    const std::string node_name = cms::xerces::toString( node->getNodeName() );
+
+    // check node type
+    unsigned char nodeType = 0;
+    // TODO: add also iov tag?
+    if      ( node_name == "TimeInterval" ) nodeType = 1;
+    else if ( node_name == "det"          ) nodeType = 2;
+    else if ( node_name == "rp"           ) nodeType = 3;
+
+    if ( nodeType == 0 )
+      throw cms::Exception("RPAlignmentCorrectionsMethods") << "Unknown node `" << node_name << "'.";
+
+    // for backward compatibility: support files with no TimeInterval block
+    if ( nodeType == 2 || nodeType == 3 )
+    {
+      TimeValidityInterval iov;
+      iov.SetInfinite();
+      output[iov] = getCorrectionsData( elementRoot );
+      break;
+    }
+
+    // get attributes
+    edm::TimeValue_t first = 0, last = 0;
+    bool first_set = false, last_set = false;
+    DOMNamedNodeMap* attrs = node->getAttributes();
+    for ( unsigned int j = 0; j < attrs->getLength(); j++ )
+    {
+      const DOMNode* attr = attrs->item( j );
+      const std::string attr_name = cms::xerces::toString( attr->getNodeName() );
+
+      if ( attr_name == "first" )
+      {
+        first_set = true;
+        first = TimeValidityInterval::UNIXStringToValue( cms::xerces::toString( attr->getNodeValue() ) );
+      }
+      else if ( attr_name == "last" ) {
+        last_set = true;
+        last = TimeValidityInterval::UNIXStringToValue( cms::xerces::toString( attr->getNodeValue() ) );
+      }
+      else
+        edm::LogProblem("RPAlignmentCorrectionsMethods") << ">> RPAlignmentCorrectionsDataSequence::loadFromXML > Warning: unknown attribute `"
+          << attr_name << "'.";
+    }
+
+    // interval of validity must be set
+    if ( !first_set || !last_set )
+      throw cms::Exception("RPAlignmentCorrectionsMethods") << "TimeInterval tag must have `first' and `last' attributes set.";
+
+    TimeValidityInterval tvi( first, last );
+
+    // process data
+    RPAlignmentCorrectionsData corrections = RPAlignmentCorrectionsMethods::getCorrectionsData( node );
+
+    // save result
+    output[tvi] = corrections;
+  }
+
+  // clean up
+  parser.reset();
   XMLPlatformUtils::Terminate();
 
-  return corr_data;
+  return output;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -71,9 +188,12 @@ RPAlignmentCorrectionsMethods::getCorrectionsData( DOMNode* root )
   RPAlignmentCorrectionsData result;
 
   DOMNodeList *children = root->getChildNodes();
-  for ( unsigned int i = 0; i < children->getLength(); i++ ) {
+  for ( unsigned int i = 0; i < children->getLength(); i++ )
+  {
     DOMNode *node = children->item( i );
-    if ( node->getNodeType() != DOMNode::ELEMENT_NODE ) continue;
+    if ( node->getNodeType() != DOMNode::ELEMENT_NODE )
+      continue;
+
     const std::string node_name = cms::xerces::toString( node->getNodeName() );
 
     // check node type
@@ -85,7 +205,8 @@ RPAlignmentCorrectionsMethods::getCorrectionsData( DOMNode* root )
       throw cms::Exception("RPAlignmentCorrectionsMethods") << "Unknown node `" << cms::xerces::toString( node->getNodeName() ) << "'.";
 
     // check children
-    if ( node->getChildNodes()->getLength() > 0 ) {
+    if ( node->getChildNodes()->getLength() > 0 )
+    {
         edm::LogProblem("RPAlignmentCorrectionsMethods") << "LoadXMLFile > Warning: tag `" <<
           cms::xerces::toString( node->getNodeName() ) << "' has " << node->getChildNodes()->getLength() << " children nodes - they will be all ignored.";
     }
@@ -98,11 +219,13 @@ RPAlignmentCorrectionsMethods::getCorrectionsData( DOMNode* root )
 
     // get attributes
     DOMNamedNodeMap* attr = node->getAttributes();
-    for ( unsigned int j = 0; j < attr->getLength(); j++ ) {
+    for ( unsigned int j = 0; j < attr->getLength(); j++ )
+    {
       DOMNode *a = attr->item( j );
       const std::string node_name = cms::xerces::toString( a->getNodeName() );
 
-      if ( node_name == "id" ) {
+      if ( node_name == "id" )
+      {
         id = cms::xerces::toUInt( a->getNodeValue() );
         idSet = true;
       }
@@ -119,7 +242,7 @@ RPAlignmentCorrectionsMethods::getCorrectionsData( DOMNode* root )
       else if ( node_name == "rot_z"   ) rot_z   = cms::xerces::toDouble( a->getNodeValue() );
       else if ( node_name == "rot_z_e" ) rot_z_e = cms::xerces::toDouble( a->getNodeValue() );
       else
-        edm::LogProblem("RPAlignmentCorrectionsMethods") << ">> RPAlignmentCorrectionsMethods::LoadXMLFile > Warning: unknown attribute `"
+        edm::LogProblem("RPAlignmentCorrectionsMethods") << ">> RPAlignmentCorrectionsMethods::getCorrectionsData > Warning: unknown attribute `"
           << cms::xerces::toString( a->getNodeName() ) << "'.";
     }
 
@@ -146,81 +269,32 @@ RPAlignmentCorrectionsMethods::getCorrectionsData( DOMNode* root )
 }
 
 //----------------------------------------------------------------------------------------------------
-
-#define WRITE(q, tag, dig, lim) \
-  if (precise) \
-    fprintf(f, " " tag "=\"%.15E\"", q*1E3);\
-  else \
-    if (fabs(q*1E3) < lim && q != 0) \
-      fprintf(f, " " tag "=\"%+8.1E\"", q*1E3);\
-    else \
-      fprintf(f, " " tag "=\"%+8." #dig "f\"", q*1E3);
-
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsMethods::writeXML( const RPAlignmentCorrectionData& data, FILE* f, bool precise, bool wrErrors,
-  bool wrSh_xy, bool wrSh_z, bool wrRot_xy, bool wrRot_z )
-{
-  if ( wrSh_xy )
-  {
-    WRITE( data.getShX(), "sh_x", 2, 0.1 );
-    WRITE( data.getShY(), "sh_y", 2, 0.1 );
-    if ( wrErrors )
-    {
-      WRITE( data.getShXUnc(), "sh_x_e", 2, 0.1 );
-      WRITE( data.getShYUnc(), "sh_y_e", 2, 0.1 );
-    }
-  }
-
-  if ( wrSh_z )
-  {
-    WRITE( data.getShZ(), "sh_z", 2, 0.1 );
-    if ( wrErrors )
-    {
-      WRITE( data.getShZUnc(), "sh_z_e", 2, 0.1 );
-    }
-  }
-
-  if ( wrRot_xy )
-  {
-    WRITE( data.getRotX(), "rot_x", 3, 0.01 );
-    WRITE( data.getRotY(), "rot_y", 3, 0.01 );
-    if ( wrErrors )
-    {
-      WRITE( data.getRotXUnc(), "rot_x_e", 3, 0.01 );
-      WRITE( data.getRotYUnc(), "rot_y_e", 3, 0.01 );
-    }
-  }
-
-  if ( wrRot_z )
-  {
-    WRITE( data.getRotZ(), "rot_z", 3, 0.01 );
-    if ( wrErrors )
-    {
-      WRITE( data.getRotZUnc(), "rot_z_e", 3, 0.01 );
-    }
-  }
-}
-
-//----------------------------------------------------------------------------------------------------
-
-#undef WRITE
-
-//----------------------------------------------------------------------------------------------------
-
-void
-RPAlignmentCorrectionsMethods::writeXMLFile( const RPAlignmentCorrectionsData& data, const std::string& fileName, bool precise, bool wrErrors,
+RPAlignmentCorrectionsMethods::writeToXML( const RPAlignmentCorrectionsDataSequence &data, const std::string& fileName, bool precise, bool wrErrors,
   bool wrSh_xy, bool wrSh_z, bool wrRot_xy, bool wrRot_z )
 {
   FILE* rf = fopen( fileName.c_str(), "w" );
   if ( !rf )
-    throw cms::Exception("RPAlignmentCorrections::writeXMLFile") << "Cannot open file `" << fileName << "' to save alignments.";
+    throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot open file `" << fileName << "' to save alignments.";
 
   fprintf( rf, "<!-- Shifts in um, rotations in mrad. -->\n" );
   fprintf( rf, "<xml DocumentType=\"AlignmentDescription\">\n" );
 
-  writeXMLBlock( data, rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z );
+  // write all IOVs
+  for ( const auto &p : data )
+  {
+    // TODO: use a better tag than TimeInterval
+    fprintf( rf, "\t<TimeInterval first=\"%s\" last=\"%s\">\n",
+      TimeValidityInterval::ValueToUNIXString( p.first.first ).c_str(),
+      TimeValidityInterval::ValueToUNIXString( p.first.last ).c_str()
+    );
+
+    writeXMLBlock( p.second, rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z );
+
+    fprintf( rf, "\t</TimeInterval>\n" );
+  }
 
   fprintf( rf, "</xml>\n" );
   fclose( rf );
@@ -296,6 +370,64 @@ RPAlignmentCorrectionsMethods::writeXMLBlock( const RPAlignmentCorrectionsData& 
       fprintf(rf, "\t<rp id=\"%u\"                  ", it->first);
       writeXML(it->second, rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z);
       fprintf(rf, "/>\n");
+    }
+  }
+}
+
+//----------------------------------------------------------------------------------------------------
+
+#define WRITE(q, tag, dig, lim) \
+  if (precise) \
+    fprintf(f, " " tag "=\"%.15E\"", q*1E3);\
+  else \
+    if (fabs(q*1E3) < lim && q != 0) \
+      fprintf(f, " " tag "=\"%+8.1E\"", q*1E3);\
+    else \
+      fprintf(f, " " tag "=\"%+8." #dig "f\"", q*1E3);
+
+//----------------------------------------------------------------------------------------------------
+
+void
+RPAlignmentCorrectionsMethods::writeXML( const RPAlignmentCorrectionData& data, FILE* f, bool precise, bool wrErrors,
+  bool wrSh_xy, bool wrSh_z, bool wrRot_xy, bool wrRot_z )
+{
+  if ( wrSh_xy )
+  {
+    WRITE( data.getShX(), "sh_x", 2, 0.1 );
+    WRITE( data.getShY(), "sh_y", 2, 0.1 );
+    if ( wrErrors )
+    {
+      WRITE( data.getShXUnc(), "sh_x_e", 2, 0.1 );
+      WRITE( data.getShYUnc(), "sh_y_e", 2, 0.1 );
+    }
+  }
+
+  if ( wrSh_z )
+  {
+    WRITE( data.getShZ(), "sh_z", 2, 0.1 );
+    if ( wrErrors )
+    {
+      WRITE( data.getShZUnc(), "sh_z_e", 2, 0.1 );
+    }
+  }
+
+  if ( wrRot_xy )
+  {
+    WRITE( data.getRotX(), "rot_x", 3, 0.01 );
+    WRITE( data.getRotY(), "rot_y", 3, 0.01 );
+    if ( wrErrors )
+    {
+      WRITE( data.getRotXUnc(), "rot_x_e", 3, 0.01 );
+      WRITE( data.getRotYUnc(), "rot_y_e", 3, 0.01 );
+    }
+  }
+
+  if ( wrRot_z )
+  {
+    WRITE( data.getRotZ(), "rot_z", 3, 0.01 );
+    if ( wrErrors )
+    {
+      WRITE( data.getRotZUnc(), "rot_z_e", 3, 0.01 );
     }
   }
 }
