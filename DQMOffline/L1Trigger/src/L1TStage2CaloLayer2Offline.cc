@@ -523,17 +523,17 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
 
   // energy sums reco vs L1
   h_L1METvsCaloMET_ = ibooker.book2D("L1METvsCaloMET",
-      "L1 E_{T}^{miss} vs Offline E_{T}^{miss};Offline E_{T}^{miss} (GeV);L1 E_{T}^{miss} (GeV)", 500, -0.5, 499.5, 500,
+      "L1 E_{T}^{miss} vs Offline E_{T}^{miss};Offline E_{T}^{miss} (GeV);L1 E_{T}^{miss} (GeV)", 100, -0.5, 499.5, 100,
       -0.5, 499.5);
   h_L1ETMHFvsCaloETMHF_ = ibooker.book2D("L1ETMHFvsCaloETMHF",
       "L1 E_{T}^{miss} vs Offline E_{T}^{miss} (HF);Offline E_{T}^{miss} (HF) (GeV);L1 E_{T}^{miss} (HF) (GeV)",
-      500, -0.5, 499.5, 500, -0.5, 499.5);
-  h_L1MHTvsRecoMHT_ = ibooker.book2D("L1MHTvsRecoMHT", "L1 MHT vs reco MHT;reco MHT (GeV);L1 MHT (GeV)", 500, -0.5,
-      499.5, 500, -0.5, 499.5);
-  h_L1METTvsCaloETT_ = ibooker.book2D("L1ETTvsCaloETT", "L1 ETT vs calo ETT;calo ETT (GeV);L1 ETT (GeV)", 500, -0.5,
-      499.5, 500, -0.5, 499.5);
+      100, -0.5, 499.5, 100, -0.5, 499.5);
+  h_L1MHTvsRecoMHT_ = ibooker.book2D("L1MHTvsRecoMHT", "L1 MHT vs reco MHT;reco MHT (GeV);L1 MHT (GeV)", 100, -0.5,
+      499.5, 100, -0.5, 499.5);
+  h_L1METTvsCaloETT_ = ibooker.book2D("L1ETTvsCaloETT", "L1 ETT vs calo ETT;calo ETT (GeV);L1 ETT (GeV)", 100, -0.5,
+      499.5, 100, -0.5, 499.5);
   h_L1HTTvsRecoHTT_ = ibooker.book2D("L1HTTvsRecoHTT",
-      "L1 Total H_{T} vs Offline Total H_{T};Offline Total H_{T} (GeV);L1 Total H_{T} (GeV)", 500, -0.5, 499.5, 500,
+      "L1 Total H_{T} vs Offline Total H_{T};Offline Total H_{T} (GeV);L1 Total H_{T} (GeV)", 100, -0.5, 499.5, 100,
       -0.5, 499.5);
 
   h_L1METPhivsCaloMETPhi_ = ibooker.book2D("L1METPhivsCaloMETPhi",
@@ -622,14 +622,13 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
       "Offline Jet E_{T}; Offline Jet E_{T} (GeV); events", 500, 0, 5e3);
   // jet reco vs L1
   h_L1JetETvsCaloJetET_HB_ = ibooker.book2D("L1JetETvsCaloJetET_HB",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 60, 0, 300, 60, 0, 300);
   h_L1JetETvsCaloJetET_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HE",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 60, 0, 300, 60, 0, 300);
   h_L1JetETvsCaloJetET_HF_ = ibooker.book2D("L1JetETvsCaloJetET_HF",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HF); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HF); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 60, 0, 300, 60, 0, 300);
   h_L1JetETvsCaloJetET_HB_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HB_HE",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HB+HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0,
-      300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HB+HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 60, 0, 300, 60, 0, 300);
 
   h_L1JetPhivsCaloJetPhi_HB_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB",
       "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 80, -3.2, 3.2, 80, -3.2, 3.2);
