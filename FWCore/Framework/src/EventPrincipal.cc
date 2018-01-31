@@ -136,8 +136,8 @@ namespace edm {
   }
 
   void
-  EventPrincipal::setLuminosityBlockPrincipal(std::shared_ptr<LuminosityBlockPrincipal> const& lbp) {
-    luminosityBlockPrincipal_ = lbp.get();
+  EventPrincipal::setLuminosityBlockPrincipal(LuminosityBlockPrincipal* lbp) {
+    luminosityBlockPrincipal_ = lbp;
   }
 
   void 
