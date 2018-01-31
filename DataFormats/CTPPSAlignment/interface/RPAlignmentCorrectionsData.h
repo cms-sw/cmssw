@@ -6,18 +6,18 @@
  *
  ****************************************************************************/
 
-#ifndef Alignment_RPDataFormats_RPAlignmentCorrectionsData
-#define Alignment_RPDataFormats_RPAlignmentCorrectionsData
+#ifndef DataFormats_CTPPSAlignment_RPAlignmentCorrectionsData
+#define DataFormats_CTPPSAlignment_RPAlignmentCorrectionsData
 
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionData.h"
 
 #include <map>
 
 /**
- *\brief Container for RP alignment corrections.
+ *\brief Container for CTPPS RP alignment corrections.
  * The corrections are stored on two levels - RP and sensor. For every level,
- * there is a map: symbolic ID --> alignment correction. Sensors inherit the
- * alignment corrections for the corresponding RP, see getFullSensorCorrection
+ * there is a map: ID --> alignment correction. Sensors inherit the
+ * alignment corrections from the corresponding RP, see getFullSensorCorrection
  * method.
  **/
 class RPAlignmentCorrectionsData
@@ -51,7 +51,7 @@ class RPAlignmentCorrectionsData
 
     /// returns the correction for the given sensor, combining the data from RP and sensor map
     /// regarding transverse shifts, uses the x and y representation, sh_r will not be corrected!
-    /// by default, RP errors shall not be summed up (see the note at FactorRPFromSensorCorrections).
+    /// by default, RP errors shall not be summed up (strong correlation).
     RPAlignmentCorrectionData getFullSensorCorrection( unsigned int id, bool useRPErrors = false ) const;
 
     /// sets the alignment correction for the given RP
@@ -64,13 +64,13 @@ class RPAlignmentCorrectionsData
     /// \param sumErrors if it is true, old and new alignment uncertainties are summed (in quadrature)
     /// if it is false, the uncertainties of the parameter (i.e. not the object) will be used
     /// With the add... switches one can control which corrections are added.
-    void addRPCorrection( unsigned int, const RPAlignmentCorrectionData&, bool sumErrors = true, bool addShR=true, bool addShZ=true, bool addRotZ=true );
+    void addRPCorrection( unsigned int, const RPAlignmentCorrectionData&, bool sumErrors=true, bool addSh=true, bool addRot=true );
 
     /// adds (merges) a RP correction on top of the current value
-    void addSensorCorrection( unsigned int, const RPAlignmentCorrectionData&, bool sumErrors = true, bool addShR=true, bool addShZ=true, bool addRotZ=true );
+    void addSensorCorrection( unsigned int, const RPAlignmentCorrectionData&, bool sumErrors=true, bool addSh=true, bool addRot=true );
 
     /// adds (merges) corrections on top of the current values
-    void addCorrections( const RPAlignmentCorrectionsData &, bool sumErrors = true, bool addShR=true, bool addShZ=true, bool addRotZ=true );
+    void addCorrections( const RPAlignmentCorrectionsData &, bool sumErrors=true, bool addSh=true, bool addRot=true );
 
     /// clears all alignments
     void clear();
