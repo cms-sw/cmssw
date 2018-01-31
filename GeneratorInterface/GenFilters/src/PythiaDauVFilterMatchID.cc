@@ -236,6 +236,7 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID,edm::Event& iEvent, const edm
 	for (HepMC::GenVertex::particle_iterator des=(*p)->end_vertex()->particles_begin(HepMC::children);
 	     des != (*p)->end_vertex()->particles_end(HepMC::children);
 	     ++des) {
+	  if ( TMath::Abs((*des)->pdg_id()) == 22 ) {continue;}
 	  ++ndau;
 	  if (fVerbose > 5) {
 		  edm::LogInfo("PythiaDauVFilterMatchID") << "ID: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp() << " eta: " << (*des)->momentum().eta() << endl;
