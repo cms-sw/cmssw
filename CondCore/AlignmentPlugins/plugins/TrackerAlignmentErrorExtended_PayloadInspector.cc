@@ -308,7 +308,7 @@ namespace {
       bool isPhase0(false);
       if(alignErrors.size()==AlignmentPI::phase0size) isPhase0 = true;
 
-      TCanvas canvas("Summary","Summary",1200,1200); 
+      TCanvas canvas("Summary","Summary",1600,1200); 
       canvas.Divide(3,2);
 
       // define the paritions range to act upon
@@ -385,6 +385,10 @@ namespace {
 
       // plotting section
 
+      TLegend legend = TLegend(0.15,0.85,0.99,0.92);
+      legend.AddEntry(summaries[AlignmentPI::XX].get(),("#splitline{IOV: "+std::to_string(std::get<0>(iov))+"}{"+std::get<1>(iov)+"}").c_str(),"F");
+      legend.SetTextSize(0.030);
+     
       for(int k = AlignmentPI::XX; k<=AlignmentPI::ZZ;k++){
 
 	AlignmentPI::index coord = (AlignmentPI::index) k;
@@ -410,19 +414,21 @@ namespace {
 	} // loop over the detector regions
      
 	canvas.cd(k);
-	canvas.cd(k)->SetTopMargin(0.07);
+	canvas.cd(k)->SetTopMargin(0.08);
 	canvas.cd(k)->SetBottomMargin(0.15);
-	canvas.cd(k)->SetLeftMargin(0.17);
-	canvas.cd(k)->SetRightMargin(0.05);
+	canvas.cd(k)->SetLeftMargin(0.15);
+	canvas.cd(k)->SetRightMargin(0.01);
+	//summaries[coord]->SetTitleOffset(0.06);
 	summaries[coord]->SetFillColorAlpha(kRed,0.35);
 	summaries[coord]->SetMarkerSize(2.5);
 	summaries[coord]->SetMarkerColor(kRed);
 
 	// to ensure 0. is actually displayed as 0.
-	summaries[coord]->GetYaxis()->SetRangeUser(0.,std::max(1.,summaries[coord]->GetMaximum()*1.20));
+	summaries[coord]->GetYaxis()->SetRangeUser(0.,std::max(1.,summaries[coord]->GetMaximum()*1.50));
 	summaries[coord]->Draw("text90");
 	summaries[coord]->Draw("HISTsame");
 
+	legend.Draw("same");
 	
       } // loop over the matrix elements
 
