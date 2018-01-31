@@ -336,14 +336,14 @@ void L1TTauOffline::bookTauHistos(DQMStore::IBooker & ibooker)
       300, 0, 300);
 
   h_L1TauPhivsTauPhi_EB_ = ibooker.book2D("L1TauPhivsTauPhi_EB",
-      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 80,
+      -3.2, 3.2, 80, -3.2, 3.2);
   h_L1TauPhivsTauPhi_EE_ = ibooker.book2D("L1TauPhivsTauPhi_EE",
-      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 80,
+      -3.2, 3.2, 80, -3.2, 3.2);
   h_L1TauPhivsTauPhi_EB_EE_ = ibooker.book2D("L1TauPhivsTauPhi_EB_EE",
-      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB+EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB+EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 80,
+      -3.2, 3.2, 80, -3.2, 3.2);
 
   h_L1TauEtavsTauEta_ = ibooker.book2D("L1TauEtavsTauEta",
       "L1 Tau #eta vs PFTau #eta; PFTau #eta; L1 Tau #eta", 100, -3, 3, 100, -3, 3);
