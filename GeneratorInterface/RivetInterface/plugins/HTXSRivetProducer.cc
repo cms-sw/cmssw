@@ -6,7 +6,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -28,7 +28,7 @@ using namespace Rivet;
 using namespace edm;
 using namespace std;
 
-class HTXSRivetProducer : public edm::stream::EDProducer<> {
+class HTXSRivetProducer : public edm::one::Producer<> {
 public:
     
     explicit HTXSRivetProducer(const edm::ParameterSet& cfg) : 
