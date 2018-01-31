@@ -5,8 +5,6 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 
-//#include "testTools.h"
-
 namespace l1t
 {
   namespace stage2
@@ -40,9 +38,6 @@ namespace l1t
 
     bool ZSunpacking(const Block& block, UnpackerCollections *coll, qualityHits& linkAndQual_, const bool& isNewFw)
     {
-      //debug
-      // std::cout << "block recived" << std::endl;
-      // testTools::printBlock(block);
 
       unsigned int ownLinks[] = {4,5,12,13,20,21,22,23,28,29};
       bool ownFlag(false);
@@ -78,13 +73,9 @@ namespace l1t
       else
 	bxBlocks = block.getBxBlocks((unsigned int)6, false);//it returnes 6-32bit bxBlocks originated from the amc13 Block
 
-      //debug
-      //std::cout << "link " << blockId/2 << std::endl;
 
       for(auto ibx : bxBlocks)//Bx iteration
 	{
-	  //std::cout << "bxBlock to unpack:" <<std::endl;
-	  //testTools::printBlock(ibx);
 
 	  int bxNum = ibx.header().getBx();
 	  uint32_t inputWords[ibx.getSize()]; //array of 6 uint32_t payload-words (size of the payload in the BxBlock)
