@@ -109,7 +109,11 @@ private:
    // Pre- Post- firing timing dedicated plots
    MonitorElement* first_collision_run_;
    MonitorElement* isolated_collision_run_;
-   MonitorElement* last_collision_run_; 
+   MonitorElement* last_collision_run_;
+
+   MonitorElement* den_first_collision_run_; 
+   MonitorElement* den_last_collision_run_;
+   MonitorElement* den_isolated_collision_run_;
 
 };
 

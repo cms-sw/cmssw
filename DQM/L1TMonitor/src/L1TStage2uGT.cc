@@ -93,13 +93,25 @@ void L1TStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, e
    first_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
    first_collision_run_->setAxisTitle("Algorithm Trigger Bits (fisrt bunch in train)", 2);
    
+   den_first_collision_run_ = ibooker.book2D("den_first_bunch_in_train", "uGT: Algorithm Trigger Bits (all entries for each trigget bit fisrt bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   den_first_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
+   den_first_collision_run_->setAxisTitle("Algorithm Trigger Bits (fisrt bunch in train)", 2);
+
    last_collision_run_ = ibooker.book2D("last_bunch_in_train", "uGT: Algorithm Trigger Bits (last bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
    last_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
    last_collision_run_->setAxisTitle("Algorithm Trigger Bits (last bunch in train)", 2);
 
+   den_last_collision_run_ = ibooker.book2D("den_last_bunch_in_train", "uGT: Algorithm Trigger Bits (all entries for each trigget bit last bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   den_last_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
+   den_last_collision_run_->setAxisTitle("Algorithm Trigger Bits (last bunch in train)", 2);
+
    isolated_collision_run_ = ibooker.book2D("isolated_bunch", "uGT: Algorithm Trigger Bits (Isolated bunch) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
    isolated_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
    isolated_collision_run_->setAxisTitle("Algorithm Trigger Bits (Isolated bunch)", 2);
+
+   den_isolated_collision_run_ = ibooker.book2D("den_isolated_bunch_in_train", "uGT: Algorithm Trigger Bits (all entries for each trigget bit isolated bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   den_isolated_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
+   den_isolated_collision_run_->setAxisTitle("Algorithm Trigger Bits (isolated bunch in train)", 2);
 
    algoBits_after_prescale_bx_global_ = ibooker.book2D("algoBits_after_prescale_bx_global", "uGT: Algorithm Trigger Bits (after prescale) vs. Global BX Number", numBx, 0.5, numBx_d + 0.5, numAlgs, -0.5, numAlgs_d-0.5);
    algoBits_after_prescale_bx_global_->setAxisTitle("Global Bunch Crossing Number", 1); 
@@ -231,7 +243,11 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
                  if(algoBits.at(algo)) {
 //  fill if the algo fired 
                     first_collision_run_->Fill(ibx, algo);
+                    for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
+                       den_first_collision_run_->Fill(ibx2,algo);
+                    } //denominator for ratio plots
                  } //end of fired algo
+//                 den_first_collision_run_->Fill(ibx,algo);
               } // end of all algo trigger bits
            } // end of uGtAlgs
         } // end of BX
@@ -243,6 +259,9 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
               for(size_t algo = 0; algo < algoBits.size(); ++algo) {
                  if(algoBits.at(algo)) {
                     isolated_collision_run_->Fill(ibx, algo);
+                    for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
+                       den_isolated_collision_run_->Fill(ibx2,algo);
+                    } // denominator for ratio plots
                  } //end of fired algo
               } // end of all algo trigger bits
            } // end of uGtAlgs
@@ -255,6 +274,9 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
               for(size_t algo = 0; algo < algoBits.size(); ++algo) {
                  if(algoBits.at(algo)) {
                     last_collision_run_->Fill(ibx, algo);
+                    for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
+                       den_last_collision_run_->Fill(ibx2,algo);
+                    } // denominator for ratio plots
                  } //end of fired algo
               } // end of all algo trigger bits
            } // end of uGtAlgs
