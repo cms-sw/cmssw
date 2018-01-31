@@ -109,9 +109,9 @@ namespace edm {
 
 
     // Write the luminosity block
-    void writeLumi(ProcessHistoryID const& parentPhID, int runNumber, int lumiNumber);
+    void writeLumi(LuminosityBlockPrincipal&);
 
-    void deleteLumiFromCache(ProcessHistoryID const& parentPhID, int runNumber, int lumiNumber);
+    void deleteLumiFromCache(LuminosityBlockPrincipal&);
 
     // Write the run
     void writeRun(ProcessHistoryID const& parentPhID, int runNumber);
@@ -270,6 +270,8 @@ namespace edm {
     std::vector<ProcessHistoryRegistry>           processHistoryRegistries_;
     std::vector<HistoryAppender>                  historyAppenders_;
     PrincipalCache                                principalCache_;
+    //vector index is principal lumi's index value
+    std::vector<std::shared_ptr<LuminosityBlockPrincipal>> inUseLumiPrincipals_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
     std::map<ProcessHistoryID, ProcessHistoryID>  parentToChildPhID_;

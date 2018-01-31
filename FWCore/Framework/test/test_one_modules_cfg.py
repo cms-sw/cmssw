@@ -2,14 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 nEvtLumi = 4
 nEvtRun = 2*nEvtLumi
-nStreams = 16
-nEvt = nStreams*nEvtRun*nEvtLumi
+nRuns = 64
+nStreams = 4
+nEvt = nRuns*nEvtRun
 
 process = cms.Process("TESTONEMODULES")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
-    numberOfStreams = cms.untracked.uint32(nStreams)
+    numberOfStreams = cms.untracked.uint32(nStreams),
+    numberOfThreads = cms.untracked.uint32(nStreams)
 )
 
 process.maxEvents = cms.untracked.PSet(

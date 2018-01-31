@@ -62,7 +62,8 @@ class EventSetupProvider {
 
       // ---------- const member functions ---------------------
       std::set<ComponentDescription> proxyProviderDescriptions() const;
-
+      bool isWithinValidityInterval(IOVSyncValue const& ) const;
+  
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

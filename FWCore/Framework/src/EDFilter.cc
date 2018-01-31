@@ -56,7 +56,7 @@ namespace edm {
   void
   EDFilter::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                        ModuleCallingContext const* mcc) {
-    Run r(rp, moduleDescription_, mcc);
+    Run r(rp, moduleDescription_, mcc,false);
     r.setConsumer(this);
     Run const& cnstR=r;
     this->beginRun(cnstR, c);
@@ -67,7 +67,7 @@ namespace edm {
   void
   EDFilter::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                      ModuleCallingContext const* mcc) {
-    Run r(rp, moduleDescription_, mcc);
+    Run r(rp, moduleDescription_, mcc,true);
     r.setConsumer(this);
     Run const& cnstR=r;
     this->endRun(cnstR, c);
@@ -78,7 +78,7 @@ namespace edm {
   void
   EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(lbp, moduleDescription_, mcc);
+    LuminosityBlock lb(lbp, moduleDescription_, mcc,false);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
     this->beginLuminosityBlock(cnstLb, c);
@@ -88,7 +88,7 @@ namespace edm {
   void
   EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                  ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(lbp, moduleDescription_, mcc);
+    LuminosityBlock lb(lbp, moduleDescription_, mcc,true);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
     this->endLuminosityBlock(cnstLb, c);

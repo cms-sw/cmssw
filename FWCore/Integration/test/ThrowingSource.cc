@@ -12,17 +12,15 @@ namespace edm {
     explicit ThrowingSource(ParameterSet const&, InputSourceDescription const&);
     ~ThrowingSource() noexcept(false) ;
 
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void beginLuminosityBlock(edm::LuminosityBlock&);
-    virtual void endLuminosityBlock(edm::LuminosityBlock&);
-    virtual void beginRun(edm::Run&);
-    virtual void endRun(edm::Run&);
-    virtual std::unique_ptr<edm::FileBlock> readFile_();
-    virtual void closeFile_();
-    virtual std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_();
-    virtual std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
-    virtual void readEvent_(edm::EventPrincipal&);
+    void beginJob() override;
+    void endJob() override;
+    void beginLuminosityBlock(edm::LuminosityBlock&) override;
+    void beginRun(edm::Run&) override;
+    std::unique_ptr<edm::FileBlock> readFile_() override;
+    void closeFile_() override;
+    std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
+    std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    void readEvent_(edm::EventPrincipal&) override;
   private:
     enum {
       kDoNotThrow  = 0,
@@ -41,8 +39,8 @@ namespace edm {
       kCloseFile = 13,
       kDestructor = 14
     };
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
-    virtual void produce(Event &);
+    bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) override;
+    void produce(Event &) override;
 
     // To test exception throws from sources
     int whenToThrow_;
@@ -84,18 +82,8 @@ namespace edm {
   }
 
   void
-  ThrowingSource::endLuminosityBlock(LuminosityBlock& lb) {
-    if (whenToThrow_ == kEndLumi) throw cms::Exception("TestThrow") << "ThrowingSource::endLuminosityBlock";
-  }
-
-  void
   ThrowingSource::beginRun(Run& run) {
     if (whenToThrow_ == kBeginRun) throw cms::Exception("TestThrow") << "ThrowingSource::beginRun";
-  }
-
-  void
-  ThrowingSource::endRun(Run& run) {
-    if (whenToThrow_ == kEndRun) throw cms::Exception("TestThrow") << "ThrowingSource::endRun";
   }
 
   std::unique_ptr<FileBlock>
