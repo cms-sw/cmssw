@@ -192,6 +192,15 @@ namespace edm {
     if (treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(static_cast<Long64_t>(treeMaxVirtualSize));
   }
 
+  bool
+  RootTree::nextWithCache() {
+    bool returnValue =  ++entryNumber_ < entries_;
+    if(returnValue) {
+      setEntryNumber(entryNumber_);
+    }
+    return returnValue;
+  }
+
   void
   RootTree::setEntryNumber(EntryNumber theEntryNumber) {
     filePtr_->SetCacheRead(treeCache_.get());
@@ -201,6 +210,16 @@ namespace edm {
     // However, because reading one event in the cluster is supposed to be equivalent to reading all events in the cluster,
     // we're not incurring additional over-reading - we're just doing it more efficiently.
     // NOTE: Constructor guarantees treeAutoFlush_ is positive, even if TTree->GetAutoFlush() is negative.
+    if(theEntryNumber < entryNumber_ and theEntryNumber >=0) {
+      //We started reading the file near the end, now we need to correct for the learning length
+      if(switchOverEntry_ >tree_->GetEntries()) {
+        switchOverEntry_ = switchOverEntry_-tree_->GetEntries();
+        if(rawTreeCache_) {
+          rawTreeCache_->SetEntryRange(theEntryNumber, switchOverEntry_);
+          rawTreeCache_->FillBuffer();
+        }
+      }
+    }
     if ((theEntryNumber < static_cast<EntryNumber>(entryNumber_-treeAutoFlush_)) &&
         (treeCache_) && (!treeCache_->IsLearning()) && (entries_ > 0) && (switchOverEntry_ >= 0)) {
       treeCache_->SetEntryRange(theEntryNumber, entries_);
@@ -382,12 +401,19 @@ namespace edm {
     filePtr_->SetCacheRead(nullptr);
     rawTreeCache_->SetLearnEntries(0);
     switchOverEntry_ = entryNumber_ + learningEntries_;
+    auto rawStart = entryNumber_;
+    auto rawEnd = switchOverEntry_;
+    auto treeStart =switchOverEntry_;
+    if(switchOverEntry_ >= tree_->GetEntries()) {
+      treeStart = switchOverEntry_-tree_->GetEntries();
+      rawEnd = tree_->GetEntries();
+    }
     rawTreeCache_->StartLearningPhase();
-    rawTreeCache_->SetEntryRange(entryNumber_, switchOverEntry_);
+    rawTreeCache_->SetEntryRange(rawStart, rawEnd);
     rawTreeCache_->AddBranch("*", kTRUE);
     rawTreeCache_->StopLearningPhase();
     treeCache_->StartLearningPhase();
-    treeCache_->SetEntryRange(switchOverEntry_, tree_->GetEntries());
+    treeCache_->SetEntryRange(treeStart, tree_->GetEntries());
     // Make sure that 'branchListIndexes' branch exist in input file
     if (filePtr_->Get(poolNames::branchListIndexesBranchName().c_str()) != nullptr) {
       treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
