@@ -581,14 +581,14 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
       300, 0, 300);
 
   h_L1EGammaPhivsElectronPhi_EB_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 80,
+      -3.2, 3.2, 80, -3.2, 3.2);
   h_L1EGammaPhivsElectronPhi_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EE",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 80,
+      -3.2, 3.2, 80, -3.2, 3.2);
   h_L1EGammaPhivsElectronPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB_EE",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB+EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB+EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 80,
+      -3.2, 3.2, 80, -3.2, 3.2);
 
   h_L1EGammaEtavsElectronEta_ = ibooker.book2D("L1EGammaEtavsElectronEta",
       "L1 EGamma #eta vs GSF Electron #eta; GSF Electron #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);
@@ -693,14 +693,14 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
       "L1 EGamma E_{T} vs  Photon E_{T} (EB+EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
 
   h_L1EGammaPhivsPhotonPhi_EB_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EB",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
-      100, -4, 4);
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 80, -3.2, 3.2,
+      80, -3.2, 3.2);
   h_L1EGammaPhivsPhotonPhi_EE_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EE",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
-      100, -4, 4);
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 80, -3.2, 3.2,
+      80, -3.2, 3.2);
   h_L1EGammaPhivsPhotonPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EB_EE",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB+EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
-      100, -4, 4);
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB+EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 80, -3.2,
+      3.2, 80, -3.2, 3.2);
 
   h_L1EGammaEtavsPhotonEta_ = ibooker.book2D("L1EGammaEtavsPhotonEta",
       "L1 EGamma #eta vs  Photon #eta;  Photon #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);
