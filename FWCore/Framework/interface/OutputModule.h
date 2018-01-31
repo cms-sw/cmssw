@@ -86,6 +86,9 @@ namespace edm {
     static bool wantsStreamRuns() {return false;}
     static bool wantsStreamLuminosityBlocks() {return false;};
 
+    SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
+    SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
+
     bool wantAllEvents() const {return wantAllEvents_;}
 
     BranchIDLists const* branchIDLists();
@@ -179,6 +182,8 @@ namespace edm {
     std::map<BranchID, bool> keepAssociation_;
 
     SharedResourcesAcquirer resourceAcquirer_;
+    SerialTaskQueue runQueue_;
+    SerialTaskQueue luminosityBlockQueue_;
 
     //------------------------------------------------------------------
     // private member functions

@@ -336,7 +336,7 @@ namespace edm {
 
     WorkerManager            workerManager_;
     std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
-
+    
     edm::propagate_const<TrigResPtr> results_;
 
     edm::propagate_const<WorkerPtr> results_inserter_;
@@ -427,9 +427,15 @@ namespace edm {
     });
     
     auto task = make_functor_task(tbb::task::allocate_root(), [this,doneTask,&ep,&es,token] () mutable {
-      ServiceRegistry::Operate op(token);
-      T::preScheduleSignal(actReg_.get(), &streamContext_);
       WaitingTaskHolder h(doneTask);
+      
+      ServiceRegistry::Operate op(token);
+      try {
+        T::preScheduleSignal(actReg_.get(), &streamContext_);
+      }catch(...) {
+        h.doneWaiting(std::current_exception());
+        return;
+      }
 
       workerManager_.resetAll();
       for(auto& p : end_paths_) {

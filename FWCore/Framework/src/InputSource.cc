@@ -317,7 +317,7 @@ namespace edm {
     if(remainingEvents_ > 0) --remainingEvents_;
     ++readCount_;
     setTimestamp(ep.time());
-    issueReports(ep.id());
+    issueReports(ep.id(), ep.streamID());
   }
 
   bool
@@ -334,7 +334,7 @@ namespace edm {
       if (result) {
         if(remainingEvents_ > 0) --remainingEvents_;
         ++readCount_;
-        issueReports(ep.id());
+        issueReports(ep.id(), ep.streamID());
       }
     }
     return result;
@@ -361,12 +361,13 @@ namespace edm {
   }
 
   void
-  InputSource::issueReports(EventID const& eventID) {
+  InputSource::issueReports(EventID const& eventID, StreamID streamID) {
     if(isInfoEnabled()) {
       LogVerbatim("FwkReport") << "Begin processing the " << readCount_
                                << suffix(readCount_) << " record. Run " << eventID.run()
                                << ", Event " << eventID.event()
                                << ", LumiSection " << eventID.luminosityBlock()
+                               << " on stream "<<streamID.value()
                                << " at " << std::setprecision(3) << TimeOfDay();
     }
     if(!statusFileName_.empty()) {
@@ -444,15 +445,7 @@ namespace edm {
   }
 
   void
-  InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* ) {
-  }
-
-  void
   InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* ) {
-  }
-
-  void
-  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
   }
 
   bool

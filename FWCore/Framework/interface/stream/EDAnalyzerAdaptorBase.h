@@ -117,6 +117,7 @@ namespace edm {
                    ActivityRegistry*,
                    ModuleCallingContext const*) ;
       void doPreallocate(PreallocationConfiguration const&);
+      virtual void preallocLumis(unsigned int) {}
       
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}

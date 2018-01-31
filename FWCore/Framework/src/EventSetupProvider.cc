@@ -779,6 +779,15 @@ EventSetupProvider::proxyProviderDescriptions() const
    return descriptions;
 }
 
+bool
+EventSetupProvider::isWithinValidityInterval(IOVSyncValue const& iSync) const {
+  for( auto const& provider: providers_) {
+    if(not provider.second->validityInterval().validFor(iSync)) {
+      return false;
+    }
+  }
+  return true;
+}
 //
 // static member functions
 //

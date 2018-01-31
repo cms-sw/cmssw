@@ -134,8 +134,6 @@ namespace edm {
     public:
       ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductResolver(bd, iDefaultStatus) {assert(bd->produced());}
 
-      void resetFailedFromThisProcess() override;
-
     protected:
       void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
     private:
@@ -310,7 +308,7 @@ namespace edm {
     public:
       typedef ProducedProductResolver::ProductStatus ProductStatus;
       NoProcessProductResolver(std::vector<ProductResolverIndex> const& matchingHolders,
-                             std::vector<bool> const& ambiguous);
+                             std::vector<bool> const& ambiguous, bool madeAtEnd);
 
     void connectTo(ProductResolverBase const& iOther, Principal const*) final ;
 
@@ -375,7 +373,7 @@ namespace edm {
       mutable std::atomic<unsigned int> lastSkipCurrentCheckIndex_;
       mutable std::atomic<bool> prefetchRequested_;
       mutable std::atomic<bool> skippingPrefetchRequested_;
-      mutable std::atomic<bool> recheckedAtEnd_;
+      const bool madeAtEnd_;
   };
 
   class SingleChoiceNoProcessProductResolver : public ProductResolverBase {
