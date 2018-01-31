@@ -29,10 +29,6 @@ namespace reco {
                                                        const edm::Handle<TrackingVertexCollection>& tVCH ) const {
       return m_impl->associateSimToReco(vCH,tVCH);
     }
-
-    void swap(VertexToTrackingVertexAssociator& iOther) {
-      std::swap(m_impl, iOther.m_impl);
-    }
   private:
     VertexToTrackingVertexAssociator(const VertexToTrackingVertexAssociator&) = delete; // stop default
     

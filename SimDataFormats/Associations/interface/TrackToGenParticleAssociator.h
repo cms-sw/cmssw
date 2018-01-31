@@ -65,10 +65,6 @@ namespace reco{
                                                  const edm::Handle<reco::GenParticleCollection>& tPCH) const {
       return m_impl->associateGenToReco(tCH,tPCH);
     }
-    
-    void swap(TrackToGenParticleAssociator& iOther) {
-      std::swap(m_impl, iOther.m_impl);
-    }
 
     
   private:

@@ -35,10 +35,6 @@ namespace reco {
       impl_->associateMuons(recoToSim, simToReco, muons, type, tpColl);
     }
 
-    void swap(MuonToTrackingParticleAssociator& iOther) {
-      std::swap(impl_, iOther.impl_);
-    }
-
   private:
     MuonToTrackingParticleAssociator( const MuonToTrackingParticleAssociator&) = delete;
     MuonToTrackingParticleAssociator& operator=( const MuonToTrackingParticleAssociator&) = delete;
