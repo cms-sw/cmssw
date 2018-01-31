@@ -171,12 +171,16 @@ class conddb_tool(object):
         logging.info('Connected to %s as user %s' %(db_service[0],username))
         self.db.current_schema = schema_name
 
-    def process_tag_boost_version( self, t, timetype, tagBoostVersion, minIov, timeCut ):
+    def process_tag_boost_version( self, t, timetype, tagBoostVersion, minIov, timeCut, validate ):
         if self.iovs is None:
             self.iovs = []
             cursor = self.db.cursor()
             stmt = 'SELECT IOV.SINCE SINCE, IOV.INSERTION_TIME INSERTION_TIME, P.STREAMER_INFO STREAMER_INFO FROM TAG, IOV, PAYLOAD P WHERE TAG.NAME = IOV.TAG_NAME AND P.HASH = IOV.PAYLOAD_HASH AND TAG.NAME = :TAG_NAME'
             params = (t,)
+            if timeCut and tagBoostVersion is not None and not validate:
+                whereClauseOnSince = ' AND IOV.INSERTION_TIME>:TIME_CUT' 
+                stmt = stmt +  whereClauseOnSince
+                params = params + (timeCut,)               
             stmt = stmt + ' ORDER BY SINCE'
             logging.debug('Executing: "%s"' %stmt)
             cursor.execute(stmt,params)
@@ -190,13 +194,8 @@ class conddb_tool(object):
         if tagBoostVersion is not None:
             update = True        
         for iov in self.iovs:            
-            if timeCut is not None:
-                if tagBoostVersion is not None:
-                    if timeCut > iov[1]:
-                        continue
-                else:
-                    if timeCut < iov[1]:
-                        continue
+            if validate and timeCut is not None and  timeCut < iov[1]:
+                continue
             niovs += 1
             iovBoostVersion, tagBoostVersion = sm.update_tag_boost_version( tagBoostVersion, minIov, iov[2], iov[0], timetype, self.version_db.boost_run_map )
             if minIov is None or iov[0]<minIov:
@@ -347,15 +346,16 @@ class conddb_tool(object):
                     tagBoostVersion = tags[t][0]
                     minIov = tags[t][1]
                     timeCut = tags[t][2]
-                tagBoostVersion, minIov = self.process_tag_boost_version( t, timetype, tagBoostVersion, minIov, timeCut )
+                tagBoostVersion, minIov = self.process_tag_boost_version( t, timetype, tagBoostVersion, minIov, timeCut, self.args.validate )
                 if tagBoostVersion is None:
                     continue
                 logging.debug('boost versions in the %s iovs: %s' %(len(self.iovs),str(self.versionIovs)))
-                invalid_gts = self.validate_boost_version( t, timetype, tagBoostVersion )
-                if len(invalid_gts)>0:
-                    with open('invalid_tags_in_gts.txt','a') as error_file:
-                        for gt in invalid_gts:
-                            error_file.write('Tag %s (boost %s) is invalid for GT %s ( boost %s) \n' %(t,tagBoostVersion,gt[0],gt[1]))
+                if self.args.validate: 
+                    invalid_gts = self.validate_boost_version( t, timetype, tagBoostVersion )
+                    if len(invalid_gts)>0:
+                        with open('invalid_tags_in_gts.txt','a') as error_file:
+                            for gt in invalid_gts:
+                                error_file.write('Tag %s (boost %s) is invalid for GT %s ( boost %s) \n' %(t,tagBoostVersion,gt[0],gt[1]))
                 if len(self.iovs):
                     if self.iovs[0][0]<minIov:
                         minIov = self.iovs[0]
@@ -439,18 +439,19 @@ def main():
     parser.add_argument("--auth","-a", type=str,  help="The path of the authentication file")
     parser.add_argument('--verbose', '-v', action='count', help='The verbosity level')
     parser_subparsers = parser.add_subparsers(title='Available subcommands')
-    parser_update_tags = parser_subparsers.add_parser('update_tags', description='Update the existing tags headers with the boost version')
+    parser_update_tags = parser_subparsers.add_parser('update_tags', description='Update the existing tag headers with the boost version')
     parser_update_tags.add_argument('--name', '-n', type=str, help='Name of the specific tag to process (default=None - in this case all of the tags will be processed.')
     parser_update_tags.add_argument('--max', '-m', type=int, help='the maximum number of tags processed',default=100)
     parser_update_tags.add_argument('--all',action='store_true', help='process all of the tags with boost_version = None')
+    parser_update_tags.add_argument('--validate',action='store_true', help='validate the tag/boost version under processing')
     parser_update_tags.set_defaults(func=tool.update_tags,accessType='w')
-    parser_insert_boost_version = parser_subparsers.add_parser('insert_boost_version', description='Insert a new boost version range in the run map')
+    parser_insert_boost_version = parser_subparsers.add_parser('insert', description='Insert a new boost version range in the run map')
     parser_insert_boost_version.add_argument('--label', '-l',type=str, help='The boost version label',required=True)
     parser_insert_boost_version.add_argument('--since', '-s',type=int, help='The since validity (run number)',required=True)
     parser_insert_boost_version.set_defaults(func=tool.insert_boost_run,accessType='w')
-    parser_list_boost_versions = parser_subparsers.add_parser('list_boost_versions', description='list the boost versions in the run map')
+    parser_list_boost_versions = parser_subparsers.add_parser('list', description='list the boost versions in the run map')
     parser_list_boost_versions.set_defaults(func=tool.list_boost_run,accessType='r') 
-    parser_show_version = parser_subparsers.add_parser('show_boost_version', description='Display the minimum boost version for the specified tag (the value stored, by default)')
+    parser_show_version = parser_subparsers.add_parser('show_tag', description='Display the minimum boost version for the specified tag (the value stored, by default)')
     parser_show_version.add_argument('tag_name',help='The name of the tag')
     parser_show_version.add_argument('--rebuild','-r',action='store_true',default=False,help='Re-calculate the minimum boost versio ')
     parser_show_version.add_argument('--full',action='store_true',default=False,help='Recalulate the minimum boost version, listing the versions in the iov sequence')
