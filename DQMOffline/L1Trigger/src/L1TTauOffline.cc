@@ -326,14 +326,14 @@ void L1TTauOffline::bookTauHistos(DQMStore::IBooker & ibooker)
   h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
 
   h_L1TauETvsTauET_EB_ = ibooker.book2D("L1TauETvsTauET_EB",
-      "L1 Tau E_{T} vs PFTau E_{T} (EB); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 300, 0, 300, 300,
+      "L1 Tau E_{T} vs PFTau E_{T} (EB); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 60, 0, 300, 60,
       0, 300);
   h_L1TauETvsTauET_EE_ = ibooker.book2D("L1TauETvsTauET_EE",
-      "L1 Tau E_{T} vs PFTau E_{T} (EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 300, 0, 300, 300,
+      "L1 Tau E_{T} vs PFTau E_{T} (EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 60, 0, 300, 60,
       0, 300);
   h_L1TauETvsTauET_EB_EE_ = ibooker.book2D("L1TauETvsTauET_EB_EE",
-      "L1 Tau E_{T} vs PFTau E_{T} (EB+EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 300, 0, 300,
-      300, 0, 300);
+      "L1 Tau E_{T} vs PFTau E_{T} (EB+EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 60, 0, 300,
+      60, 0, 300);
 
   h_L1TauPhivsTauPhi_EB_ = ibooker.book2D("L1TauPhivsTauPhi_EB",
       "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 80,
