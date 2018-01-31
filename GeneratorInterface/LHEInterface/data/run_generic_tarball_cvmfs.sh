@@ -23,9 +23,36 @@ echo "%MSG-MG5 number of events requested = $nevt"
 rnum=${3}
 echo "%MSG-MG5 random seed used for the run = $rnum"
 
-echo "%MSG-MG5 residual arguments = ${@:4}"
+ncpu=1
+echo "%MSG-MG5 thread count requested = $ncpu"
+
+echo "%MSG-MG5 residual/optional arguments = ${@:4}"
+
+if [ -n "${4}" ]; then
+  use_gridpack_env=${4}
+  echo "%MSG-MG5 use_gridpack_env = $use_gridpack_env"
+fi
+
+if [ -n "${5}" ]; then
+  scram_arch_version=${5}
+  echo "%MSG-MG5 override scram_arch_version = $scram_arch_version"
+fi
+
+if [ -n "${6}" ]; then
+  cmssw_version=${6}
+  echo "%MSG-MG5 override cmssw_version = $cmssw_version"
+fi
 
 LHEWORKDIR=`pwd`
+
+if [ "$use_gridpack_env" = false -a -n "$scram_arch_version" -a -n  "$cmssw_version" ]; then
+  echo "%MSG-MG5 CMSSW version = $cmssw_version"
+  export SCRAM_ARCH=${scram_arch_version}
+  scramv1 project CMSSW ${cmssw_version}
+  cd ${cmssw_version}/src
+  eval `scramv1 runtime -sh`
+  cd $LHEWORKDIR
+fi
 
 if [[ -d lheevent ]]
     then
@@ -39,7 +66,7 @@ mkdir lheevent; cd lheevent
 tar -xaf ${path} 
 
 #generate events (call for 1 core always for now until hooks to set number of cores are implemented upstream)
-./runcmsgrid.sh $nevt $rnum 1 ${@:4}
+./runcmsgrid.sh $nevt $rnum $ncpu ${@:4}
 
 mv cmsgrid_final.lhe $LHEWORKDIR/
 
