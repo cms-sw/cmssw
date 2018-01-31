@@ -85,8 +85,8 @@ run2_miniAOD_80XLegacy.toModify(
         )
     )
 
-from Configuration.Eras.Modifier_run2_miniAOD_9X_cff import run2_miniAOD_9X
-run2_miniAOD_9X.toModify(
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+run2_miniAOD_94XFall17.toModify(
     reducedEgamma, 
     photonPFClusterIsoSources = cms.VInputTag(
         cms.InputTag("photonEcalPFClusterIsolationProducer"),

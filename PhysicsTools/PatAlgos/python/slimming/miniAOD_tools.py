@@ -56,11 +56,11 @@ def miniAOD_customizeCommon(process):
                                     addPFClusterIso = cms.bool(True),
                                     ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleEcalPFClusIso"),
                                     hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleHcalPFClusIso"))
-    from Configuration.Eras.Modifier_run2_miniAOD_9X_cff import run2_miniAOD_9X
-    run2_miniAOD_9X.toModify(process.patElectrons,
-                             addPFClusterIso = cms.bool(True),
-                             ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleEcalPFClusIso"),
-                             hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleHcalPFClusIso"))
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    run2_miniAOD_94XFall17.toModify(process.patElectrons,
+                                    addPFClusterIso = cms.bool(True),
+                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleEcalPFClusIso"),
+                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleHcalPFClusIso"))
     #add puppi isolation in miniAOD
     process.patElectrons.addPuppiIsolation = cms.bool(True)
     process.patElectrons.puppiIsolationChargedHadrons = cms.InputTag("egmElectronPUPPIIsolation","h+-DR030-BarVeto000-EndVeto001")
@@ -95,16 +95,16 @@ def miniAOD_customizeCommon(process):
                                     addPFClusterIso = cms.bool(True),
                                     ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoEcalPFClusIso"),
                                     hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoHcalPFClusIso"))
-    from Configuration.Eras.Modifier_run2_miniAOD_9X_cff import run2_miniAOD_9X
-    run2_miniAOD_9X.toModify(process.patPhotons,
-                             addPFClusterIso = cms.bool(True),
-                             ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoEcalPFClusIso"),
-                             hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoHcalPFClusIso"))
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    run2_miniAOD_94XFall17.toModify(process.patPhotons,
+                                    addPFClusterIso = cms.bool(True),
+                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoEcalPFClusIso"),
+                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoHcalPFClusIso"))
     #the 80X legacy customsations are done in ootPhotonProducer for OOT photons
-    run2_miniAOD_9X.toModify(process.patOOTPhotons,
-                             addPFClusterIso = cms.bool(True),
-                             ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoEcalPFClusIso"),
-                             hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoHcalPFClusIso"))
+    run2_miniAOD_94XFall17.toModify(process.patOOTPhotons,
+                                    addPFClusterIso = cms.bool(True),
+                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoEcalPFClusIso"),
+                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoHcalPFClusIso"))
 
 
     process.patPhotons.photonSource = cms.InputTag("reducedEgamma","reducedGedPhotons")
