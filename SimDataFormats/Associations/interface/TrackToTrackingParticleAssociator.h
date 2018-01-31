@@ -106,10 +106,6 @@ namespace reco {
                                                            const edm::Handle<TrackingParticleCollection>& tpc) const {
       return m_impl->associateSimToReco(tc,tpc);
     }
-
-    void swap(TrackToTrackingParticleAssociator& iOther) {
-      std::swap(m_impl, iOther.m_impl);
-    }
   private:
     TrackToTrackingParticleAssociator(const TrackToTrackingParticleAssociator&) = delete; // stop default
     
