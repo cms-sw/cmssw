@@ -147,14 +147,14 @@ RPAlignmentCorrectionsMethods::getCorrectionsData( DOMNode* root )
 
 //----------------------------------------------------------------------------------------------------
 
-#define WRITE(q, dig, lim) \
+#define WRITE(q, tag, dig, lim) \
   if (precise) \
-    fprintf(f, " " #q "=\"%.15E\"", q()*1E3);\
+    fprintf(f, " " tag "=\"%.15E\"", q*1E3);\
   else \
-    if (fabs(q()*1E3) < lim && q() != 0) \
-      fprintf(f, " " #q "=\"%+8.1E\"", q()*1E3);\
+    if (fabs(q*1E3) < lim && q != 0) \
+      fprintf(f, " " tag "=\"%+8.1E\"", q*1E3);\
     else \
-      fprintf(f, " " #q "=\"%+8." #dig "f\"", q()*1E3);
+      fprintf(f, " " tag "=\"%+8." #dig "f\"", q*1E3);
 
 //----------------------------------------------------------------------------------------------------
 
@@ -164,41 +164,41 @@ RPAlignmentCorrectionsMethods::writeXML( const RPAlignmentCorrectionData& data, 
 {
   if ( wrSh_xy )
   {
-    WRITE( data.getShX, 2, 0.1 );
-    WRITE( data.getShY, 2, 0.1 );
+    WRITE( data.getShX(), "sh_x", 2, 0.1 );
+    WRITE( data.getShY(), "sh_y", 2, 0.1 );
     if ( wrErrors )
     {
-      WRITE( data.getShXUnc, 2, 0.1 );
-      WRITE( data.getShYUnc, 2, 0.1 );
+      WRITE( data.getShXUnc(), "sh_x_e", 2, 0.1 );
+      WRITE( data.getShYUnc(), "sh_y_e", 2, 0.1 );
     }
   }
 
   if ( wrSh_z )
   {
-    WRITE( data.getShZ, 2, 0.1 );
+    WRITE( data.getShZ(), "sh_z", 2, 0.1 );
     if ( wrErrors )
     {
-      WRITE( data.getShZUnc, 2, 0.1 );
+      WRITE( data.getShZUnc(), "sh_z_e", 2, 0.1 );
     }
   }
 
   if ( wrRot_xy )
   {
-    WRITE( data.getRotX, 3, 0.01 );
-    WRITE( data.getRotY, 3, 0.01 );
+    WRITE( data.getRotX(), "rot_x", 3, 0.01 );
+    WRITE( data.getRotY(), "rot_y", 3, 0.01 );
     if ( wrErrors )
     {
-      WRITE( data.getRotXUnc, 3, 0.01 );
-      WRITE( data.getRotYUnc, 3, 0.01 );
+      WRITE( data.getRotXUnc(), "rot_x_e", 3, 0.01 );
+      WRITE( data.getRotYUnc(), "rot_y_e", 3, 0.01 );
     }
   }
 
   if ( wrRot_z )
   {
-    WRITE( data.getRotZ, 3, 0.01 );
+    WRITE( data.getRotZ(), "rot_z", 3, 0.01 );
     if ( wrErrors )
     {
-      WRITE( data.getRotZUnc, 3, 0.01 );
+      WRITE( data.getRotZUnc(), "rot_z_e", 3, 0.01 );
     }
   }
 }
@@ -257,7 +257,7 @@ RPAlignmentCorrectionsMethods::writeXMLBlock( const RPAlignmentCorrectionsData& 
       auto rit = rps.find(rpId);
       if (rit != rps.end())
       {
-        fprintf(rf, "\t<rp id=\"%u\" ", rit->first);
+        fprintf(rf, "\t<rp id=\"%u\"                  ", rit->first);
         writeXML( rit->second , rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z );
         fprintf(rf, "/>\n");
         writtenRPs.insert(rpId);
@@ -284,7 +284,16 @@ RPAlignmentCorrectionsMethods::writeXMLBlock( const RPAlignmentCorrectionsData& 
     std::set<unsigned int>::iterator wit = writtenRPs.find(it->first);
     if (wit == writtenRPs.end())
     {
-      fprintf(rf, "\t<rp id=\"%u\"                                ", it->first);
+      CTPPSDetId rpId(it->first);
+      unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
+
+      if (!firstRP)
+        fprintf(rf, "\n");
+      firstRP = false;
+
+      fprintf(rf, "\t<!-- RP %3u -->\n", decRPId);
+
+      fprintf(rf, "\t<rp id=\"%u\"                  ", it->first);
       writeXML(it->second, rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z);
       fprintf(rf, "/>\n");
     }
