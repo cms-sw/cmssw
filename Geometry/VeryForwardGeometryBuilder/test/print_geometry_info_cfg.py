@@ -14,8 +14,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
 
 # load alignment correction
-process.load("Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignments_cfi")
-process.ctppsIncludeAlignments.RealFiles = cms.vstring("Alignment/CTPPS/data/RPixGeometryCorrections.xml")
+process.load("Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignmentsFromXML_cfi")
+process.ctppsIncludeAlignmentsFromXML.RealFiles = cms.vstring("Geometry/VeryForwardGeometryBuilder/test/alignment_corrections.xml")
 
 # no events to process
 process.source = cms.Source("EmptySource")
