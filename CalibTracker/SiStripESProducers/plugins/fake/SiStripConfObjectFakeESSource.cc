@@ -61,7 +61,7 @@ SiStripConfObjectFakeESSource::produce(const SiStripConfObjectRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::unique_ptr<SiStripConfObject> confObject = std::make_unique<SiStripConfObject>();
+  auto confObject = std::make_unique<SiStripConfObject>();
 
   for ( const auto& param : m_parameters ) {
     const std::string paramType{param.getParameter<std::string>("ParameterType")};

@@ -125,7 +125,7 @@ SiStripBadModuleFedErrESSource::produce(const SiStripBadModuleFedErrRcd& iRecord
   edm::ESHandle<SiStripFedCabling> cabling;
   iRecord.getRecord<SiStripFedCablingRcd>().get(cabling);
 
-  std::unique_ptr<SiStripQuality> quality = std::make_unique<SiStripQuality>();
+  auto quality = std::make_unique<SiStripQuality>();
 
   DQMStore* dqmStore = edm::Service<DQMStore>().operator->();
   if ( m_readFlag ) { // open requested file

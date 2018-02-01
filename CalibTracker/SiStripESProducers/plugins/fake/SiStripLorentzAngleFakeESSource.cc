@@ -169,7 +169,7 @@ SiStripLorentzAngleFakeESSource::produce(const SiStripLorentzAngleRcd& iRecord)
   edm::ESHandle<TrackerTopology> tTopo;
   iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
 
-  std::unique_ptr<SiStripLorentzAngle> lorentzAngle = std::make_unique<SiStripLorentzAngle>();
+  auto lorentzAngle = std::make_unique<SiStripLorentzAngle>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 
