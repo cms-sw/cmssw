@@ -7,21 +7,16 @@
 #include <iostream>
 #include <map>
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Validation/DTRecHits/interface/DTHitQualityUtils.h"
 
 #include "DTRecHitQuality.h"
+#include "Histograms.h"
 
 using namespace std;
 using namespace edm;
@@ -60,206 +55,190 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset) {
   local_   = pset.getUntrackedParameter<bool>("local", true);
 }
 
-void DTRecHitQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
-
-  // ----------------------
-  // get hold of back-end interface
-  dbe_ = nullptr;
-  dbe_ = Service<DQMStore>().operator->();
-  dbe_->setVerbose(0);
+void DTRecHitQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
   if (doall_ && doStep1_) {
-    hRes_S1RPhi_ = new HRes1DHit("S1RPhi", dbe_, true, local_);    // RecHits, 1. step, RPhi
-    hRes_S1RPhi_W0_ = new HRes1DHit("S1RPhi_W0", dbe_, true, local_);   // RecHits, 1. step, RZ, wheel 0
-    hRes_S1RPhi_W1_ = new HRes1DHit("S1RPhi_W1", dbe_, true, local_);   // RecHits, 1. step, RZ, wheel +-1
-    hRes_S1RPhi_W2_ = new HRes1DHit("S1RPhi_W2", dbe_, true, local_);   // RecHits, 1. step, RZ, wheel +-2
-    hRes_S1RZ_ = new HRes1DHit("S1RZ", dbe_, true, local_);         // RecHits, 1. step, RZ
-    hRes_S1RZ_W0_ = new HRes1DHit("S1RZ_W0", dbe_, true, local_);   // RecHits, 1. step, RZ, wheel 0
-    hRes_S1RZ_W1_ = new HRes1DHit("S1RZ_W1", dbe_, true, local_);   // RecHits, 1. step, RZ, wheel +-1
-    hRes_S1RZ_W2_ = new HRes1DHit("S1RZ_W2", dbe_, true, local_);   // RecHits, 1. step, RZ, wheel +-2
-    hEff_S1RPhi_ = new HEff1DHit("S1RPhi", dbe_);     // RecHits, 1. step, RPhi
-    hEff_S1RZ_ = new HEff1DHit("S1RZ", dbe_);         // RecHits, 1. step, RZ
-    hEff_S1RZ_W0_ = new HEff1DHit("S1RZ_W0", dbe_);   // RecHits, 1. step, RZ, wheel 0
-    hEff_S1RZ_W1_ = new HEff1DHit("S1RZ_W1", dbe_);   // RecHits, 1. step, RZ, wheel +-1
-    hEff_S1RZ_W2_ = new HEff1DHit("S1RZ_W2", dbe_);   // RecHits, 1. step, RZ, wheel +-2
+    histograms.hRes_S1RPhi    = new HRes1DHit("S1RPhi", booker, true, local_);      // RecHits, 1. step, RPhi
+    histograms.hRes_S1RPhi_W0 = new HRes1DHit("S1RPhi_W0", booker, true, local_);   // RecHits, 1. step, RZ, wheel 0
+    histograms.hRes_S1RPhi_W1 = new HRes1DHit("S1RPhi_W1", booker, true, local_);   // RecHits, 1. step, RZ, wheel +-1
+    histograms.hRes_S1RPhi_W2 = new HRes1DHit("S1RPhi_W2", booker, true, local_);   // RecHits, 1. step, RZ, wheel +-2
+    histograms.hRes_S1RZ      = new HRes1DHit("S1RZ", booker, true, local_);        // RecHits, 1. step, RZ
+    histograms.hRes_S1RZ_W0   = new HRes1DHit("S1RZ_W0", booker, true, local_);     // RecHits, 1. step, RZ, wheel 0
+    histograms.hRes_S1RZ_W1   = new HRes1DHit("S1RZ_W1", booker, true, local_);     // RecHits, 1. step, RZ, wheel +-1
+    histograms.hRes_S1RZ_W2   = new HRes1DHit("S1RZ_W2", booker, true, local_);     // RecHits, 1. step, RZ, wheel +-2
+    histograms.hEff_S1RPhi    = new HEff1DHit("S1RPhi", booker);                    // RecHits, 1. step, RPhi
+    histograms.hEff_S1RZ      = new HEff1DHit("S1RZ", booker);                      // RecHits, 1. step, RZ
+    histograms.hEff_S1RZ_W0   = new HEff1DHit("S1RZ_W0", booker);                   // RecHits, 1. step, RZ, wheel 0
+    histograms.hEff_S1RZ_W1   = new HEff1DHit("S1RZ_W1", booker);                   // RecHits, 1. step, RZ, wheel +-1
+    histograms.hEff_S1RZ_W2   = new HEff1DHit("S1RZ_W2", booker);                   // RecHits, 1. step, RZ, wheel +-2
   }
   if (doall_ && doStep2_) {
-    hRes_S2RPhi_ = new HRes1DHit("S2RPhi", dbe_, true, local_);     // RecHits, 2. step, RPhi
-    hRes_S2RPhi_W0_ = new HRes1DHit("S2RPhi_W0", dbe_, true, local_);   // RecHits, 2. step, RPhi, wheel 0
-    hRes_S2RPhi_W1_ = new HRes1DHit("S2RPhi_W1", dbe_, true, local_);   // RecHits, 2. step, RPhi, wheel +-1
-    hRes_S2RPhi_W2_ = new HRes1DHit("S2RPhi_W2", dbe_, true, local_);   // RecHits, 2. step, RPhi, wheel +-2
-    hRes_S2RZ_ = new HRes1DHit("S2RZ", dbe_, true, local_);	    // RecHits, 2. step, RZ
-    hRes_S2RZ_W0_ = new HRes1DHit("S2RZ_W0", dbe_, true, local_);   // RecHits, 2. step, RZ, wheel 0
-    hRes_S2RZ_W1_ = new HRes1DHit("S2RZ_W1", dbe_, true, local_);   // RecHits, 2. step, RZ, wheel +-1
-    hRes_S2RZ_W2_ = new HRes1DHit("S2RZ_W2", dbe_, true, local_);   // RecHits, 2. step, RZ, wheel +-2
-    hEff_S2RPhi_ = new HEff1DHit("S2RPhi", dbe_);     // RecHits, 2. step, RPhi
-    hEff_S2RZ_W0_ = new HEff1DHit("S2RZ_W0", dbe_);   // RecHits, 2. step, RZ, wheel 0
-    hEff_S2RZ_W1_ = new HEff1DHit("S2RZ_W1", dbe_);   // RecHits, 2. step, RZ, wheel +-1
-    hEff_S2RZ_W2_ = new HEff1DHit("S2RZ_W2", dbe_);   // RecHits, 2. step, RZ, wheel +-2
-    hEff_S2RZ_ = new HEff1DHit("S2RZ", dbe_);	    // RecHits, 2. step, RZ
+    histograms.hRes_S2RPhi    = new HRes1DHit("S2RPhi", booker, true, local_);      // RecHits, 2. step, RPhi
+    histograms.hRes_S2RPhi_W0 = new HRes1DHit("S2RPhi_W0", booker, true, local_);   // RecHits, 2. step, RPhi, wheel 0
+    histograms.hRes_S2RPhi_W1 = new HRes1DHit("S2RPhi_W1", booker, true, local_);   // RecHits, 2. step, RPhi, wheel +-1
+    histograms.hRes_S2RPhi_W2 = new HRes1DHit("S2RPhi_W2", booker, true, local_);   // RecHits, 2. step, RPhi, wheel +-2
+    histograms.hRes_S2RZ      = new HRes1DHit("S2RZ", booker, true, local_);        // RecHits, 2. step, RZ
+    histograms.hRes_S2RZ_W0   = new HRes1DHit("S2RZ_W0", booker, true, local_);     // RecHits, 2. step, RZ, wheel 0
+    histograms.hRes_S2RZ_W1   = new HRes1DHit("S2RZ_W1", booker, true, local_);     // RecHits, 2. step, RZ, wheel +-1
+    histograms.hRes_S2RZ_W2   = new HRes1DHit("S2RZ_W2", booker, true, local_);     // RecHits, 2. step, RZ, wheel +-2
+    histograms.hEff_S2RPhi    = new HEff1DHit("S2RPhi", booker);                    // RecHits, 2. step, RPhi
+    histograms.hEff_S2RZ_W0   = new HEff1DHit("S2RZ_W0", booker);                   // RecHits, 2. step, RZ, wheel 0
+    histograms.hEff_S2RZ_W1   = new HEff1DHit("S2RZ_W1", booker);                   // RecHits, 2. step, RZ, wheel +-1
+    histograms.hEff_S2RZ_W2   = new HEff1DHit("S2RZ_W2", booker);                   // RecHits, 2. step, RZ, wheel +-2
+    histograms.hEff_S2RZ      = new HEff1DHit("S2RZ", booker);                      // RecHits, 2. step, RZ
   }
   if (doStep3_) {
-    hRes_S3RPhi_ = new HRes1DHit("S3RPhi", dbe_, doall_, local_);     // RecHits, 3. step, RPhi
-    hRes_S3RPhi_W0_ = new HRes1DHit("S3RPhi_W0", dbe_, doall_, local_);   // RecHits, 3. step, RPhi, wheel 0
-    hRes_S3RPhi_W1_ = new HRes1DHit("S3RPhi_W1", dbe_, doall_, local_);   // RecHits, 3. step, RPhi, wheel +-1
-    hRes_S3RPhi_W2_ = new HRes1DHit("S3RPhi_W2", dbe_, doall_, local_);   // RecHits, 3. step, RPhi, wheel +-2
-    hRes_S3RZ_ = new HRes1DHit("S3RZ", dbe_, doall_, local_);	    // RecHits, 3. step, RZ
-    hRes_S3RZ_W0_ = new HRes1DHit("S3RZ_W0", dbe_, doall_, local_);   // RecHits, 3. step, RZ, wheel 0
-    hRes_S3RZ_W1_ = new HRes1DHit("S3RZ_W1", dbe_, doall_, local_);   // RecHits, 3. step, RZ, wheel +-1
-    hRes_S3RZ_W2_ = new HRes1DHit("S3RZ_W2", dbe_, doall_, local_);   // RecHits, 3. step, RZ, wheel +-2
+    histograms.hRes_S3RPhi    = new HRes1DHit("S3RPhi", booker, doall_, local_);    // RecHits, 3. step, RPhi
+    histograms.hRes_S3RPhi_W0 = new HRes1DHit("S3RPhi_W0", booker, doall_, local_); // RecHits, 3. step, RPhi, wheel 0
+    histograms.hRes_S3RPhi_W1 = new HRes1DHit("S3RPhi_W1", booker, doall_, local_); // RecHits, 3. step, RPhi, wheel +-1
+    histograms.hRes_S3RPhi_W2 = new HRes1DHit("S3RPhi_W2", booker, doall_, local_); // RecHits, 3. step, RPhi, wheel +-2
+    histograms.hRes_S3RZ      = new HRes1DHit("S3RZ", booker, doall_, local_);      // RecHits, 3. step, RZ
+    histograms.hRes_S3RZ_W0   = new HRes1DHit("S3RZ_W0", booker, doall_, local_);   // RecHits, 3. step, RZ, wheel 0
+    histograms.hRes_S3RZ_W1   = new HRes1DHit("S3RZ_W1", booker, doall_, local_);   // RecHits, 3. step, RZ, wheel +-1
+    histograms.hRes_S3RZ_W2   = new HRes1DHit("S3RZ_W2", booker, doall_, local_);   // RecHits, 3. step, RZ, wheel +-2
 
     if (local_) {
       // Plots with finer granularity, not to be included in DQM
-      TString name1 ="RPhi_W";
-      TString name2 ="RZ_W";
-      for (long w = 0;w<= 2;++w) {
-	for (long s = 1;s<= 4;++s) {
-	  hRes_S3RPhiWS_[w][s-1] = new HRes1DHit(("S3"+name1+w+"_St"+s).Data(), dbe_, doall_, local_);
-	  hEff_S1RPhiWS_[w][s-1] = new HEff1DHit(("S1"+name1+w+"_St"+s).Data(), dbe_);
-	  hEff_S3RPhiWS_[w][s-1] = new HEff1DHit(("S3"+name1+w+"_St"+s).Data(), dbe_);
-	  if (s!= 4) {
-	    hRes_S3RZWS_[w][s-1] = new HRes1DHit(("S3"+name2+w+"_St"+s).Data(), dbe_, doall_, local_);
-	    hEff_S1RZWS_[w][s-1] = new HEff1DHit(("S1"+name2+w+"_St"+s).Data(), dbe_);
-	    hEff_S3RZWS_[w][s-1] = new HEff1DHit(("S3"+name2+w+"_St"+s).Data(), dbe_);
-	  }
-	}
+      TString name1 = "RPhi_W";
+      TString name2 = "RZ_W";
+      for (long w = 0; w <= 2; ++w) {
+        for (long s = 1;s <= 4; ++s) {
+          histograms.hRes_S3RPhiWS[w][s-1] = new HRes1DHit(("S3"+name1+w+"_St"+s).Data(), booker, doall_, local_);
+          histograms.hEff_S1RPhiWS[w][s-1] = new HEff1DHit(("S1"+name1+w+"_St"+s).Data(), booker);
+          histograms.hEff_S3RPhiWS[w][s-1] = new HEff1DHit(("S3"+name1+w+"_St"+s).Data(), booker);
+          if (s != 4) {
+            histograms.hRes_S3RZWS[w][s-1] = new HRes1DHit(("S3"+name2+w+"_St"+s).Data(), booker, doall_, local_);
+            histograms.hEff_S1RZWS[w][s-1] = new HEff1DHit(("S1"+name2+w+"_St"+s).Data(), booker);
+            histograms.hEff_S3RZWS[w][s-1] = new HEff1DHit(("S3"+name2+w+"_St"+s).Data(), booker);
+          }
+        }
       }
     }
 
-
     if (doall_) {
-      hEff_S3RPhi_ = new HEff1DHit("S3RPhi", dbe_);     // RecHits, 3. step, RPhi
-      hEff_S3RZ_ = new HEff1DHit("S3RZ", dbe_);	    // RecHits, 3. step, RZ
-      hEff_S3RZ_W0_ = new HEff1DHit("S3RZ_W0", dbe_);   // RecHits, 3. step, RZ, wheel 0
-      hEff_S3RZ_W1_ = new HEff1DHit("S3RZ_W1", dbe_);   // RecHits, 3. step, RZ, wheel +-1
-      hEff_S3RZ_W2_ = new HEff1DHit("S3RZ_W2", dbe_);   // RecHits, 3. step, RZ, wheel +-2
+      histograms.hEff_S3RPhi  = new HEff1DHit("S3RPhi", booker);                    // RecHits, 3. step, RPhi
+      histograms.hEff_S3RZ    = new HEff1DHit("S3RZ", booker);                      // RecHits, 3. step, RZ
+      histograms.hEff_S3RZ_W0 = new HEff1DHit("S3RZ_W0", booker);                   // RecHits, 3. step, RZ, wheel 0
+      histograms.hEff_S3RZ_W1 = new HEff1DHit("S3RZ_W1", booker);                   // RecHits, 3. step, RZ, wheel +-1
+      histograms.hEff_S3RZ_W2 = new HEff1DHit("S3RZ_W2", booker);                   // RecHits, 3. step, RZ, wheel +-2
     }
   }
 }
 
 /* FIXME these shoud be moved to the harvesting step
-void DTRecHitQuality::endJob() {
+void DTRecHitQuality::endRun(... histograms) {
   // Write the histos to file
   if (doall_) {
     if (doStep1_) {
-      hEff_S1RPhi_->computeEfficiency();
-      hEff_S1RZ_->computeEfficiency();
-      hEff_S1RZ_W0_->computeEfficiency();
-      hEff_S1RZ_W1_->computeEfficiency();
-      hEff_S1RZ_W2_->computeEfficiency();
+      histograms.hEff_S1RPhi->computeEfficiency();
+      histograms.hEff_S1RZ->computeEfficiency();
+      histograms.hEff_S1RZ_W0->computeEfficiency();
+      histograms.hEff_S1RZ_W1->computeEfficiency();
+      histograms.hEff_S1RZ_W2->computeEfficiency();
     }
     if (doStep2_) {
-      hEff_S2RPhi_->computeEfficiency();
-      hEff_S2RZ_->computeEfficiency();
-      hEff_S2RZ_W0_->computeEfficiency();
-      hEff_S2RZ_W1_->computeEfficiency();
-      hEff_S2RZ_W2_->computeEfficiency();
+      histograms.hEff_S2RPhi->computeEfficiency();
+      histograms.hEff_S2RZ->computeEfficiency();
+      histograms.hEff_S2RZ_W0->computeEfficiency();
+      histograms.hEff_S2RZ_W1->computeEfficiency();
+      histograms.hEff_S2RZ_W2->computeEfficiency();
     }
     if (doStep3_) {
-      hEff_S3RPhi_->computeEfficiency();
-      hEff_S3RZ_->computeEfficiency();
-      hEff_S3RZ_W0_->computeEfficiency();
-      hEff_S3RZ_W1_->computeEfficiency();
-      hEff_S3RZ_W2_->computeEfficiency();
+      histograms.hEff_S3RPhi->computeEfficiency();
+      histograms.hEff_S3RZ->computeEfficiency();
+      histograms.hEff_S3RZ_W0->computeEfficiency();
+      histograms.hEff_S3RZ_W1->computeEfficiency();
+      histograms.hEff_S3RZ_W2->computeEfficiency();
     }
   }
 }
 */
 
 // The real analysis
-  void DTRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup) {
+void DTRecHitQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const {
+  if (debug_)
+    cout << "--- [DTRecHitQuality] Analysing Event: #Run: " << event.id().run()
+         << " #Event: " << event.id().event() << endl;
+
+  // Get the DT Geometry
+  ESHandle<DTGeometry> dtGeom;
+  setup.get<MuonGeometryRecord>().get(dtGeom);
+
+  // Get the SimHit collection from the event
+  Handle<PSimHitContainer> simHits;
+  event.getByToken(simHitToken_, simHits);
+
+  // Map simhits per wire
+  map<DTWireId, PSimHitContainer > simHitsPerWire =
+    DTHitQualityUtils::mapSimHitsPerWire(*(simHits.product()));
+
+  //=======================================================================================
+  // RecHit analysis at Step 1
+  if (doStep1_ && doall_) {
     if (debug_)
-      cout << "--- [DTRecHitQuality] Analysing Event: #Run: " << event.id().run()
-        << " #Event: " << event.id().event() << endl;
+      cout << "  -- DTRecHit S1: begin analysis:" << endl;
+    // Get the rechit collection from the event
+    Handle<DTRecHitCollection> dtRecHits;
+    event.getByToken(recHitToken_, dtRecHits);
 
-    // Get the DT Geometry
-    ESHandle<DTGeometry> dtGeom;
-    eventSetup.get<MuonGeometryRecord>().get(dtGeom);
-
-    // Get the SimHit collection from the event
-    Handle<PSimHitContainer> simHits;
-    event.getByToken(simHitToken_, simHits);
-
-    // Map simhits per wire
-    map<DTWireId, PSimHitContainer > simHitsPerWire =
-      DTHitQualityUtils::mapSimHitsPerWire(*(simHits.product()));
-
-    //=======================================================================================
-    // RecHit analysis at Step 1
-    if (doStep1_ && doall_) {
-      if (debug_)
-        cout << "  -- DTRecHit S1: begin analysis:" << endl;
-      // Get the rechit collection from the event
-      Handle<DTRecHitCollection> dtRecHits;
-      event.getByToken(recHitToken_, dtRecHits);
-
-      if (!dtRecHits.isValid()) {
-	if (debug_) cout << "[DTRecHitQuality]**Warning: no 1DRechits with label: " << recHitLabel_ << " in this event, skipping!" << endl;
-	return;
-      }
-
-     // Map rechits per wire
-      map<DTWireId, vector<DTRecHit1DPair> > recHitsPerWire =
-        map1DRecHitsPerWire(dtRecHits.product());
-
-      compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, 1);
+    if (!dtRecHits.isValid()) {
+      if (debug_) cout << "[DTRecHitQuality]**Warning: no 1DRechits with label: " << recHitLabel_ << " in this event, skipping!" << endl;
+      return;
     }
 
-
-    //=======================================================================================
-    // RecHit analysis at Step 2
-    if (doStep2_ && doall_) {
-      if (debug_)
-        cout << "  -- DTRecHit S2: begin analysis:" << endl;
-
-      // Get the 2D rechits from the event
-      Handle<DTRecSegment2DCollection> segment2Ds;
-      event.getByToken(segment2DToken_, segment2Ds);
-
-      if (!segment2Ds.isValid()) {
-       if (debug_) cout << "[DTRecHitQuality]**Warning: no 2DSegments with label: " << segment2DLabel_
-		      << " in this event, skipping!" << endl;
-
-      }
-      else{
-	// Map rechits per wire
-	map<DTWireId, vector<DTRecHit1D> > recHitsPerWire =
-	  map1DRecHitsPerWire(segment2Ds.product());
-
-	compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, 2);
-      }
-    }
-
-    //=======================================================================================
-    // RecHit analysis at Step 3
-    if (doStep3_) {
-      if (debug_)
-        cout << "  -- DTRecHit S3: begin analysis:" << endl;
-
-      // Get the 4D rechits from the event
-      Handle<DTRecSegment4DCollection> segment4Ds;
-      event.getByToken(segment4DToken_, segment4Ds);
-
-      if (!segment4Ds.isValid()) {
-        if (debug_) cout << "[DTRecHitQuality]**Warning: no 4D Segments with label: " << segment4DLabel_
-		       << " in this event, skipping!" << endl;
-	return;
-      }
-
-      // Map rechits per wire
-      map<DTWireId, vector<DTRecHit1D> > recHitsPerWire =
-        map1DRecHitsPerWire(segment4Ds.product());
-
-      compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, 3);
-    }
-
+    // Map rechits per wire
+    auto const& recHitsPerWire = map1DRecHitsPerWire(dtRecHits.product());
+    compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, histograms, 1);
   }
 
+  //=======================================================================================
+  // RecHit analysis at Step 2
+  if (doStep2_ && doall_) {
+    if (debug_)
+      cout << "  -- DTRecHit S2: begin analysis:" << endl;
 
+    // Get the 2D rechits from the event
+    Handle<DTRecSegment2DCollection> segment2Ds;
+    event.getByToken(segment2DToken_, segment2Ds);
+
+    if (!segment2Ds.isValid()) {
+      if (debug_)
+        cout << "[DTRecHitQuality]**Warning: no 2DSegments with label: " << segment2DLabel_
+             << " in this event, skipping!" << endl;
+
+    }
+    else{
+      // Map rechits per wire
+      auto const& recHitsPerWire = map1DRecHitsPerWire(segment2Ds.product());
+      compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, histograms, 2);
+    }
+  }
+
+  //=======================================================================================
+  // RecHit analysis at Step 3
+  if (doStep3_) {
+    if (debug_)
+      cout << "  -- DTRecHit S3: begin analysis:" << endl;
+
+    // Get the 4D rechits from the event
+    Handle<DTRecSegment4DCollection> segment4Ds;
+    event.getByToken(segment4DToken_, segment4Ds);
+
+    if (!segment4Ds.isValid()) {
+      if (debug_) cout << "[DTRecHitQuality]**Warning: no 4D Segments with label: " << segment4DLabel_
+        << " in this event, skipping!" << endl;
+      return;
+    }
+
+    // Map rechits per wire
+    auto const& recHitsPerWire = map1DRecHitsPerWire(segment4Ds.product());
+    compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, histograms, 3);
+  }
+}
 
 // Return a map between DTRecHit1DPair and wireId
-map<DTWireId, vector<DTRecHit1DPair> >
-DTRecHitQuality::map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs) {
-  map<DTWireId, vector<DTRecHit1DPair> > ret;
+map<DTWireId, vector<DTRecHit1DPair>>
+DTRecHitQuality::map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs) const {
+  map<DTWireId, vector<DTRecHit1DPair>> ret;
 
   for (DTRecHitCollection::const_iterator rechit = dt1DRecHitPairs->begin();
       rechit != dt1DRecHitPairs->end(); rechit++) {
@@ -271,9 +250,9 @@ DTRecHitQuality::map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs) 
 
 
 // Return a map between DTRecHit1D at S2 and wireId
-map<DTWireId, vector<DTRecHit1D> >
-DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds) {
-  map<DTWireId, vector<DTRecHit1D> > ret;
+map<DTWireId, vector<DTRecHit1D>>
+DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds) const {
+  map<DTWireId, vector<DTRecHit1D>> ret;
 
   // Loop over all 2D segments
   for (DTRecSegment2DCollection::const_iterator segment = segment2Ds->begin();
@@ -290,12 +269,10 @@ DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds)
   return ret;
 }
 
-
-
 // Return a map between DTRecHit1D at S3 and wireId
-map<DTWireId, std::vector<DTRecHit1D> >
-DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds) {
-  map<DTWireId, vector<DTRecHit1D> > ret;
+map<DTWireId, std::vector<DTRecHit1D>>
+DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds) const {
+  map<DTWireId, vector<DTRecHit1D>> ret;
   // Loop over all 4D segments
   for (DTRecSegment4DCollection::const_iterator segment = segment4Ds->begin();
       segment != segment4Ds->end();
@@ -323,20 +300,20 @@ DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds)
 // Compute SimHit distance from wire (cm)
 float DTRecHitQuality::simHitDistFromWire(const DTLayer* layer,
                                           DTWireId wireId,
-                                          const PSimHit& hit) {
+                                          const PSimHit& hit) const {
   float xwire = layer->specificTopology().wirePosition(wireId.wire());
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
-  float xEntry = entryP.x()-xwire;
-  float xExit  = exitP.x()-xwire;
+  float xEntry = entryP.x() - xwire;
+  float xExit  = exitP.x() - xwire;
 
-  return fabs(xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z()));// FIXME: check...
+  return fabs(xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z())); // FIXME: check...
 }
 
 // Compute SimHit impact angle (in direction perp to wire), in the SL RF
 float DTRecHitQuality::simHitImpactAngle(const DTLayer* layer,
                                          DTWireId wireId,
-                                         const PSimHit& hit) {
+                                         const PSimHit& hit) const {
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
   float theta =(exitP.x()-entryP.x())/(exitP.z()-entryP.z());
@@ -346,7 +323,7 @@ float DTRecHitQuality::simHitImpactAngle(const DTLayer* layer,
 // Compute SimHit distance from FrontEnd
 float DTRecHitQuality::simHitDistFromFE(const DTLayer* layer,
                                         DTWireId wireId,
-                                        const PSimHit& hit) {
+                                        const PSimHit& hit) const {
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
   float wireLenght = layer->specificTopology().cellLenght();
@@ -363,7 +340,7 @@ const type*
 DTRecHitQuality::findBestRecHit(const DTLayer* layer,
                                 DTWireId wireId,
                                 const vector<type>& recHits,
-                                const float simHitDist) {
+                                const float simHitDist) const {
   float res = 99999;
   const type* theBestRecHit = nullptr;
   // Loop over RecHits within the cell
@@ -383,7 +360,7 @@ DTRecHitQuality::findBestRecHit(const DTLayer* layer,
 
 // Compute the distance from wire (cm) of a hits in a DTRecHit1DPair
 float
-DTRecHitQuality::recHitDistFromWire(const DTRecHit1DPair& hitPair, const DTLayer* layer) {
+DTRecHitQuality::recHitDistFromWire(const DTRecHit1DPair& hitPair, const DTLayer* layer) const {
   // Compute the rechit distance from wire
   return fabs(hitPair.localPosition(DTEnums::Left).x() -
               hitPair.localPosition(DTEnums::Right).x())/2.;
@@ -393,18 +370,18 @@ DTRecHitQuality::recHitDistFromWire(const DTRecHit1DPair& hitPair, const DTLayer
 
 // Compute the distance from wire (cm) of a hits in a DTRecHit1D
 float
-DTRecHitQuality::recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* layer) {
+DTRecHitQuality::recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* layer) const {
   return fabs(recHit.localPosition().x() - layer->specificTopology().wirePosition(recHit.wireId().wire()));
 }
 
 
 template  <typename type>
 void DTRecHitQuality::compute(const DTGeometry *dtGeom,
-                              const std::map<DTWireId, std::vector<PSimHit> >& simHitsPerWire,
-                              const std::map<DTWireId, std::vector<type> >& recHitsPerWire,
-                              int step) {
+                              const std::map<DTWireId, std::vector<PSimHit>>& simHitsPerWire,
+                              const std::map<DTWireId, std::vector<type>>& recHitsPerWire,
+                              Histograms const& histograms, int step) const {
   // Loop over cells with a muon SimHit
-  for (map<DTWireId, vector<PSimHit> >::const_iterator wireAndSHits = simHitsPerWire.begin();
+  for (map<DTWireId, vector<PSimHit>>::const_iterator wireAndSHits = simHitsPerWire.begin();
       wireAndSHits != simHitsPerWire.end();
       wireAndSHits++) {
     DTWireId wireId = (*wireAndSHits).first;
@@ -461,17 +438,17 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       float recHitWireDist =  recHitDistFromWire(*theBestRecHit, layer);
       if (debug_)
         cout << "    SimHit distance from wire: " << simHitWireDist << endl
-	     << "    SimHit distance from FE:   " << simHitFEDist << endl
-	     << "    SimHit angle in layer RF:  " << simHitTheta << endl
-	     << "    RecHit distance from wire: " << recHitWireDist << endl;
+             << "    SimHit distance from FE:   " << simHitFEDist << endl
+             << "    SimHit angle in layer RF:  " << simHitTheta << endl
+             << "    RecHit distance from wire: " << recHitWireDist << endl;
       float recHitErr = recHitPositionError(*theBestRecHit);
       HRes1DHit *hRes = nullptr;
       HRes1DHit *hResTot = nullptr;
 
       // Mirror angle in phi so that + and - wheels can be plotted together
       if (mirrorMinusWheels && wheel<0 && sl!= 2) {
-	simHitTheta *= -1.;
-	// Note: local X, if used, would have to be mirrored as well
+        simHitTheta *= -1.;
+        // Note: local X, if used, would have to be mirrored as well
       }
 
       // Fill residuals and pulls
@@ -479,72 +456,73 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       if (step == 1) {
         // Step 1
         if (sl != 2) {
-          hResTot = hRes_S1RPhi_;
+          hResTot = histograms.hRes_S1RPhi;
           if (wheel == 0)
-            hRes = hRes_S1RPhi_W0_;
+            hRes = histograms.hRes_S1RPhi_W0;
           if (abs(wheel) == 1)
-            hRes = hRes_S1RPhi_W1_;
+            hRes = histograms.hRes_S1RPhi_W1;
           if (abs(wheel) == 2)
-            hRes = hRes_S1RPhi_W2_;
+            hRes = histograms.hRes_S1RPhi_W2;
         } else {
-          hResTot = hRes_S1RZ_;
+          hResTot = histograms.hRes_S1RZ;
           if (wheel == 0)
-            hRes = hRes_S1RZ_W0_;
+            hRes = histograms.hRes_S1RZ_W0;
           if (abs(wheel) == 1)
-            hRes = hRes_S1RZ_W1_;
+            hRes = histograms.hRes_S1RZ_W1;
           if (abs(wheel) == 2)
-            hRes = hRes_S1RZ_W2_;
+            hRes = histograms.hRes_S1RZ_W2;
         }
 
       } else if (step == 2) {
         // Step 2
         if (sl != 2) {
-          hRes = hRes_S2RPhi_;
+          hRes = histograms.hRes_S2RPhi;
           if (wheel == 0)
-            hRes = hRes_S2RPhi_W0_;
+            hRes = histograms.hRes_S2RPhi_W0;
           if (abs(wheel) == 1)
-            hRes = hRes_S2RPhi_W1_;
+            hRes = histograms.hRes_S2RPhi_W1;
           if (abs(wheel) == 2)
-            hRes = hRes_S2RPhi_W2_;
+            hRes = histograms.hRes_S2RPhi_W2;
         } else {
-          hResTot = hRes_S2RZ_;
+          hResTot = histograms.hRes_S2RZ;
           if (wheel == 0)
-            hRes = hRes_S2RZ_W0_;
+            hRes = histograms.hRes_S2RZ_W0;
           if (abs(wheel) == 1)
-            hRes = hRes_S2RZ_W1_;
+            hRes = histograms.hRes_S2RZ_W1;
           if (abs(wheel) == 2)
-            hRes = hRes_S2RZ_W2_;
+            hRes = histograms.hRes_S2RZ_W2;
         }
 
       } else if (step == 3) {
         // Step 3
         if (sl != 2) {
-          hResTot = hRes_S3RPhi_;
+          hResTot = histograms.hRes_S3RPhi;
           if (wheel == 0)
-            hRes = hRes_S3RPhi_W0_;
+            hRes = histograms.hRes_S3RPhi_W0;
           if (abs(wheel) == 1)
-            hRes = hRes_S3RPhi_W1_;
+            hRes = histograms.hRes_S3RPhi_W1;
           if (abs(wheel) == 2)
-            hRes = hRes_S3RPhi_W2_;
-	  if (local_) hRes_S3RPhiWS_[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitErr, wireId.station());
-
+            hRes = histograms.hRes_S3RPhi_W2;
+          if (local_)
+            histograms.hRes_S3RPhiWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitErr, wireId.station());
         } else {
-          hResTot = hRes_S3RZ_;
+          hResTot = histograms.hRes_S3RZ;
           if (wheel == 0)
-            hRes = hRes_S3RZ_W0_;
+            hRes = histograms.hRes_S3RZ_W0;
           if (abs(wheel) == 1)
-            hRes = hRes_S3RZ_W1_;
+            hRes = histograms.hRes_S3RZ_W1;
           if (abs(wheel) == 2)
-            hRes = hRes_S3RZ_W2_;
-
-	  if (local_) hRes_S3RZWS_[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitErr, wireId.station());
+            hRes = histograms.hRes_S3RZ_W2;
+          if (local_)
+            histograms.hRes_S3RZWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitErr, wireId.station());
         }
       }
+
       // Fill
-      hRes->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
+      hRes->fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
                  simHitGlobalPos.phi(), recHitErr, wireId.station());
       if (hResTot != nullptr)
-        hResTot->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
+        hResTot->fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
                       simHitGlobalPos.phi(), recHitErr, wireId.station());
     }
 
@@ -553,67 +531,70 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       HEff1DHit *hEff = nullptr;
       HEff1DHit *hEffTot = nullptr;
       if (step == 1) {
-	// Step 1
-	if (sl != 2) {
-	  hEff = hEff_S1RPhi_;
-	  if (local_) hEff_S1RPhiWS_[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
-	} else {
-	  hEffTot = hEff_S1RZ_;
-	  if (wheel == 0)
-	    hEff = hEff_S1RZ_W0_;
-	  if (abs(wheel) == 1)
-	    hEff = hEff_S1RZ_W1_;
-	  if (abs(wheel) == 2)
-	    hEff = hEff_S1RZ_W2_;
-	  if (local_) hEff_S1RZWS_[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
-	}
+        // Step 1
+        if (sl != 2) {
+          hEff = histograms.hEff_S1RPhi;
+          if (local_) histograms.hEff_S1RPhiWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+        } else {
+          hEffTot = histograms.hEff_S1RZ;
+          if (wheel == 0)
+            hEff = histograms.hEff_S1RZ_W0;
+          if (abs(wheel) == 1)
+            hEff = histograms.hEff_S1RZ_W1;
+          if (abs(wheel) == 2)
+            hEff = histograms.hEff_S1RZ_W2;
+          if (local_) histograms.hEff_S1RZWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+        }
 
       } else if (step == 2) {
-	// Step 2
-	if (sl != 2) {
-	  hEff = hEff_S2RPhi_;
-	} else {
-	  hEffTot = hEff_S2RZ_;
-	  if (wheel == 0)
-	    hEff = hEff_S2RZ_W0_;
-	  if (abs(wheel) == 1)
-	    hEff = hEff_S2RZ_W1_;
-	  if (abs(wheel) == 2)
-	    hEff = hEff_S2RZ_W2_;
-	}
+        // Step 2
+        if (sl != 2) {
+          hEff = histograms.hEff_S2RPhi;
+        } else {
+          hEffTot = histograms.hEff_S2RZ;
+          if (wheel == 0)
+            hEff = histograms.hEff_S2RZ_W0;
+          if (abs(wheel) == 1)
+            hEff = histograms.hEff_S2RZ_W1;
+          if (abs(wheel) == 2)
+            hEff = histograms.hEff_S2RZ_W2;
+        }
 
       } else if (step == 3) {
-	// Step 3
-	if (sl != 2) {
-	  hEff = hEff_S3RPhi_;
-	  if (local_) hEff_S3RPhiWS_[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
-	} else {
-	  hEffTot = hEff_S3RZ_;
-	  if (wheel == 0)
-	    hEff = hEff_S3RZ_W0_;
-	  if (abs(wheel) == 1)
-	    hEff = hEff_S3RZ_W1_;
-	  if (abs(wheel) == 2)
-	    hEff = hEff_S3RZ_W2_;
-	  if (local_) hEff_S3RZWS_[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
-	}
+        // Step 3
+        if (sl != 2) {
+          hEff = histograms.hEff_S3RPhi;
+          if (local_) histograms.hEff_S3RPhiWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+        } else {
+          hEffTot = histograms.hEff_S3RZ;
+          if (wheel == 0)
+            hEff = histograms.hEff_S3RZ_W0;
+          if (abs(wheel) == 1)
+            hEff = histograms.hEff_S3RZ_W1;
+          if (abs(wheel) == 2)
+            hEff = histograms.hEff_S3RZ_W2;
+          if (local_) histograms.hEff_S3RZWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+        }
 
       }
       // Fill
-      hEff->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+      hEff->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
       if (hEffTot != nullptr)
-	hEffTot->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+        hEffTot->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
     }
   }
 }
 
 // Return the error on the measured (cm) coordinate
-float DTRecHitQuality::recHitPositionError(const DTRecHit1DPair& recHit) {
+float DTRecHitQuality::recHitPositionError(const DTRecHit1DPair& recHit) const {
   return sqrt(recHit.localPositionError(DTEnums::Left).xx());
 }
 
 // Return the error on the measured (cm) coordinate
-float DTRecHitQuality::recHitPositionError(const DTRecHit1D& recHit) {
+float DTRecHitQuality::recHitPositionError(const DTRecHit1D& recHit) const {
   return sqrt(recHit.localPositionError().xx());
 }
 
+// declare this as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DTRecHitQuality);

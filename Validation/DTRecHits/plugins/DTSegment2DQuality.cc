@@ -7,15 +7,12 @@
 #include <iostream>
 #include <map>
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -49,55 +46,37 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
     cout << "[DTSegment2DQuality] Constructor called " << endl;
 }
 
-void DTSegment2DQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
+void DTSegment2DQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
+  histograms.h2DHitRPhi = new HRes2DHit ("RPhi", booker, true, true);
+  histograms.h2DHitRZ = new HRes2DHit ("RZ", booker, true, true);
+  histograms.h2DHitRZ_W0 = new HRes2DHit ("RZ_W0", booker, true, true);
+  histograms.h2DHitRZ_W1 = new HRes2DHit ("RZ_W1", booker, true, true);
+  histograms.h2DHitRZ_W2 = new HRes2DHit ("RZ_W2", booker, true, true);
 
-  // ----------------------
-  // get hold of back-end interface
-  dbe_ = nullptr;
-  dbe_ = Service<DQMStore>().operator->();
-  if ( dbe_ ) {
-    if (debug_) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if ( dbe_ ) {
-    if (debug_) dbe_->showDirStructure();
-  }
-
-  h2DHitRPhi_ = new HRes2DHit ("RPhi", dbe_, true, true);
-  h2DHitRZ_ = new HRes2DHit ("RZ", dbe_, true, true);
-  h2DHitRZ_W0_ = new HRes2DHit ("RZ_W0", dbe_, true, true);
-  h2DHitRZ_W1_ = new HRes2DHit ("RZ_W1", dbe_, true, true);
-  h2DHitRZ_W2_ = new HRes2DHit ("RZ_W2", dbe_, true, true);
-
-  h2DHitEff_RPhi_ = new HEff2DHit ("RPhi", dbe_);
-  h2DHitEff_RZ_ = new HEff2DHit ("RZ", dbe_);
-  h2DHitEff_RZ_W0_ = new HEff2DHit ("RZ_W0", dbe_);
-  h2DHitEff_RZ_W1_ = new HEff2DHit ("RZ_W1", dbe_);
-  h2DHitEff_RZ_W2_ = new HEff2DHit ("RZ_W2", dbe_);
+  histograms.h2DHitEff_RPhi = new HEff2DHit ("RPhi", booker);
+  histograms.h2DHitEff_RZ = new HEff2DHit ("RZ", booker);
+  histograms.h2DHitEff_RZ_W0 = new HEff2DHit ("RZ_W0", booker);
+  histograms.h2DHitEff_RZ_W1 = new HEff2DHit ("RZ_W1", booker);
+  histograms.h2DHitEff_RZ_W2 = new HEff2DHit ("RZ_W2", booker);
   if (debug_)
     cout << "[DTSegment2DQuality] hitsos created " << endl;
 }
 
 /* FIXME these shoud be moved to the harvesting step
 void DTSegment2DQuality::endJob() {
-  h2DHitEff_RPhi_->computeEfficiency();
-  h2DHitEff_RZ_->computeEfficiency();
-  h2DHitEff_RZ_W0_->computeEfficiency();
-  h2DHitEff_RZ_W1_->computeEfficiency();
-  h2DHitEff_RZ_W2_->computeEfficiency();
+  histograms.h2DHitEff_RPhi->computeEfficiency();
+  histograms.h2DHitEff_RZ->computeEfficiency();
+  histograms.h2DHitEff_RZ_W0->computeEfficiency();
+  histograms.h2DHitEff_RZ_W1->computeEfficiency();
+  histograms.h2DHitEff_RZ_W2->computeEfficiency();
 }
 */
 
 // The real analysis
-void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSetup) {
-  // theFile->cd();
-
+void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const {
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  setup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
@@ -235,9 +214,9 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
         // Fill Residual histos
         HRes2DHit *hRes = nullptr;
         if ((*slId).superlayer() == 1 or (*slId).superlayer() == 3) { // RPhi SL
-          hRes = h2DHitRPhi_;
+          hRes = histograms.h2DHitRPhi;
         } else if ((*slId).superlayer() == 2) { // RZ SL
-          h2DHitRZ_->Fill(angleSimSeg,
+          histograms.h2DHitRZ->fill(angleSimSeg,
               angleBestRHit,
               posSimSeg,
               bestRecHitLocalPos.x(),
@@ -247,13 +226,13 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
               sqrt(bestRecHitLocalDirErr.xx())
               );
           if (abs((*slId).wheel()) == 0)
-            hRes = h2DHitRZ_W0_;
+            hRes = histograms.h2DHitRZ_W0;
           else if (abs((*slId).wheel()) == 1)
-            hRes = h2DHitRZ_W1_;
+            hRes = histograms.h2DHitRZ_W1;
           else if (abs((*slId).wheel()) == 2)
-            hRes = h2DHitRZ_W2_;
+            hRes = histograms.h2DHitRZ_W2;
         }
-        hRes->Fill(angleSimSeg,
+        hRes->fill(angleSimSeg,
             angleBestRHit,
             posSimSeg,
             bestRecHitLocalPos.x(),
@@ -268,16 +247,20 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
     // Fill Efficiency plot
     HEff2DHit *hEff = nullptr;
     if ((*slId).superlayer() == 1 or (*slId).superlayer() == 3) { // RPhi SL
-      hEff = h2DHitEff_RPhi_;
+      hEff = histograms.h2DHitEff_RPhi;
     } else if ((*slId).superlayer() == 2) { // RZ SL
-      h2DHitEff_RZ_->Fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
+      histograms.h2DHitEff_RZ->fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
       if (abs((*slId).wheel()) == 0)
-        hEff = h2DHitEff_RZ_W0_;
+        hEff = histograms.h2DHitEff_RZ_W0;
       else if (abs((*slId).wheel()) == 1)
-        hEff = h2DHitEff_RZ_W1_;
+        hEff = histograms.h2DHitEff_RZ_W1;
       else if (abs((*slId).wheel()) == 2)
-        hEff = h2DHitEff_RZ_W2_;
+        hEff = histograms.h2DHitEff_RZ_W2;
     }
-    hEff->Fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
+    hEff->fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
   } // End of loop over superlayers
 }
+
+// declare this as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DTSegment2DQuality);

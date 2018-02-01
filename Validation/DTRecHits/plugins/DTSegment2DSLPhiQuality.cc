@@ -7,15 +7,12 @@
 #include <iostream>
 #include <map>
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -49,39 +46,23 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
   local_ = pset.getUntrackedParameter<bool>("local", false);
 }
 
-void DTSegment2DSLPhiQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
-  // get hold of back-end interface
-  dbe_ = nullptr;
-  dbe_ = Service<DQMStore>().operator->();
-  if ( dbe_ ) {
-    if (debug_) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if ( dbe_ ) {
-    if (debug_) dbe_->showDirStructure();
-  }
-
+void DTSegment2DSLPhiQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
   // Book the histos
-  h2DHitSuperPhi_ = new HRes2DHit ("SuperPhi", dbe_, doall_, local_);
-  if (doall_) h2DHitEff_SuperPhi_ = new HEff2DHit ("SuperPhi", dbe_);
+  histograms.h2DHitSuperPhi = new HRes2DHit ("SuperPhi", booker, doall_, local_);
+  if (doall_) histograms.h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi", booker);
 }
 
 /* FIXME these shoud be moved to the harvesting step
 void DTSegment2DSLPhiQuality::endJob() {
-   if (doall_) h2DHitEff_SuperPhi_->computeEfficiency();
+   if (doall_) histograms.h2DHitEff_SuperPhi->computeEfficiency();
 }
 */
 
 // The real analysis
-void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eventSetup) {
-  // theFile->cd();
-
+void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const {
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  setup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
@@ -221,7 +202,7 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
         }
 
         // Fill Residual histos
-        h2DHitSuperPhi_->Fill(angleSimSeg,
+        histograms.h2DHitSuperPhi->fill(angleSimSeg,
             angleBestRHit,
             posSimSeg,
             bestRecHitLocalPos.x(),
@@ -234,14 +215,16 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
     } // end of if (nsegm!= 0)
 
     // Fill Efficiency plot
-    if (doall_) {h2DHitEff_SuperPhi_->Fill(etaSimSeg,
-        phiSimSeg,
-        posSimSeg,
-        angleSimSeg,
-        recHitFound);}
+    if (doall_) {
+      histograms.h2DHitEff_SuperPhi->fill(etaSimSeg,
+          phiSimSeg,
+          posSimSeg,
+          angleSimSeg,
+          recHitFound);
+    }
   } // End of loop over chambers
 }
 
-
-// Fit a histogram in the range (minfit, maxfit) with a gaussian and
-// draw it in the range (min, max)
+// declare this as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DTSegment2DSLPhiQuality);

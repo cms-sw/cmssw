@@ -12,15 +12,11 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-#include "Histograms.h"
 
 namespace edm {
   class ParameterSet;
@@ -28,20 +24,29 @@ namespace edm {
   class EventSetup;
 }
 
-class DTSegment2DSLPhiQuality : public edm::EDAnalyzer {
+class HRes2DHit;
+class HEff2DHit;
+
+namespace {
+  struct Histograms {
+    HRes2DHit *h2DHitSuperPhi;
+    HEff2DHit *h2DHitEff_SuperPhi;
+  };
+}
+
+class DTSegment2DSLPhiQuality : public DQMGlobalEDAnalyzer<Histograms> {
 public:
   /// Constructor
   DTSegment2DSLPhiQuality(const edm::ParameterSet& pset);
 
-  /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+private:
+  /// Book the DQM plots
+  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, Histograms &) const override;
 
-  void beginRun(const edm::Run& iRun, const edm::EventSetup &setup) override;
+  /// Perform the real analysis
+  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, Histograms const&) const override;
 
 private:
-  // Switch for debug output
-  bool debug_;
-
   // Labels to read from event
   edm::InputTag simHitLabel_;
   edm::InputTag segment4DLabel_;
@@ -50,14 +55,15 @@ private:
 
   // Sigma resolution on position
   double sigmaResPos_;
+
   // Sigma resolution on angle
   double sigmaResAngle_;
 
-  HRes2DHit *h2DHitSuperPhi_;
-  HEff2DHit *h2DHitEff_SuperPhi_;
-  DQMStore* dbe_;
   bool doall_;
   bool local_;
+
+  // Switch for debug output
+  bool debug_;
 };
 
 #endif // Validation_DTRecHits_DTSegment2DSLPhiQuality_h
