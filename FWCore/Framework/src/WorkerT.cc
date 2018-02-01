@@ -149,6 +149,81 @@ namespace edm{
   }
 
   template<typename T>
+  SerialTaskQueue* WorkerT<T>::globalRunsQueue() {
+    return nullptr;
+  }
+  template<typename T>
+  SerialTaskQueue* WorkerT<T>::globalLuminosityBlocksQueue() {
+    return nullptr;
+  }
+  template<>
+  SerialTaskQueue* WorkerT<EDProducer>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<EDProducer>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<EDFilter>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<EDFilter>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<EDAnalyzer>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<EDAnalyzer>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<OutputModule>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<OutputModule>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+  //one
+  template<>
+  SerialTaskQueue* WorkerT<one::EDProducerBase>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::EDProducerBase>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::EDFilterBase>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::EDFilterBase>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::EDAnalyzerBase>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::EDAnalyzerBase>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::OutputModuleBase>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::OutputModuleBase>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+
+  
+  template<typename T>
   inline
   bool
   WorkerT<T>::implDo(EventPrincipal const& ep, EventSetup const& c, ModuleCallingContext const* mcc) {

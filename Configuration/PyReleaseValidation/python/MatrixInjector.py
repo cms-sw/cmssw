@@ -304,6 +304,8 @@ class MatrixInjector(object):
                                     print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
                                     return -15
                                 chainDict['nowmTasklist'][-1]['InputDataset']=nextHasDSInput.dataSet
+                                if ('DQMHLTonRAWAOD' in step) :
+                                    chainDict['nowmTasklist'][-1]['IncludeParents']=True
                                 splitForThisWf=nextHasDSInput.split
                                 chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
                                 if step in wmsplit:

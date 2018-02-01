@@ -2,7 +2,7 @@
 //
 // Package:    DQM/SiStripMonitorHardware
 // Class:      SiStripFEDMonitorPlugin
-// 
+//
 /**\class SiStripFEDMonitorPlugin SiStripFEDMonitor.cc DQM/SiStripMonitorHardware/plugins/SiStripFEDMonitor.cc
 
  Description: DQM source application to produce data integrety histograms for SiStrip data
@@ -15,7 +15,7 @@
 //   ---- 2009/04/21 : histogram management put in separate class
 //                     struct helper to simplify arguments of functions
 //   ---- 2009/04/22 : add TkHistoMap with % of bad channels per module
-//   ---- 2009/04/27 : create FEDErrors class 
+//   ---- 2009/04/27 : create FEDErrors class
 
 #include <sstream>
 #include <memory>
@@ -65,9 +65,9 @@ class SiStripFEDMonitorPlugin : public DQMEDAnalyzer
   ~SiStripFEDMonitorPlugin() override;
  private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 				    const edm::EventSetup& context) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 				  const edm::EventSetup& context) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
@@ -85,7 +85,7 @@ class SiStripFEDMonitorPlugin : public DQMEDAnalyzer
   edm::InputTag rawDataTag_;
   edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
   edm::EDGetTokenT<EventWithHistory> heToken_;
-  
+
   //histogram helper class
   FEDHistograms fedHists_;
   //folder name for histograms in DQMStore
@@ -133,7 +133,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
 {
   std::string subFolderName = iConfig.getUntrackedParameter<std::string>("HistogramFolderName","ReadoutView");
   folderName_ = topFolderName_ + "/" + subFolderName;
-	      
+
 
   rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
   heToken_      = consumes<EventWithHistory>(edm::InputTag("consecutiveHEs") );
@@ -148,10 +148,10 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
 		<< "[SiStripFEDMonitorPlugin]\tFillWithEventNumber?" << (fillWithEvtNum_ ? "yes" : "no") << std::endl
                 << "[SiStripFEDMonitorPlugin]\tPrintDebugMessages? " << (printDebug_ ? "yes" : "no") << std::endl;
   }
-  
+
   //don;t generate debug mesages if debug is disabled
   std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : nullptr);
-  
+
   fedHists_.initialise(iConfig,pDebugStream);
 
   doTkHistoMap_ = fedHists_.tkHistoMapEnabled();
@@ -178,7 +178,7 @@ SiStripFEDMonitorPlugin::~SiStripFEDMonitorPlugin()
 
 // ------------ method called to for each event  ------------
 void
-SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, 
+SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 				 const edm::EventSetup& iSetup)
 {
   //Retrieve tracker topology from geometry
@@ -188,12 +188,12 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   //update cabling
   updateCabling(iSetup);
-  
+
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
   iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
-  
+
   fedErrors_.initialiseEvent();
 
   //add the deltaBX value if the product exist
@@ -231,24 +231,27 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   maxFedBufferSize_ = 0;
 
   //loop over siStrip FED IDs
-  for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; 
-       fedId <= FEDNumbering::MAXSiStripFEDID; 
+  for (unsigned int fedId = FEDNumbering::MINSiStripFEDID;
+       fedId <= FEDNumbering::MAXSiStripFEDID;
        fedId++) {//loop over FED IDs
+    unsigned int lNBadChannels_perFEDID = 0;
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
     //create an object to fill all errors
     fedErrors_.initialiseFED(fedId,cabling_,tTopo);
- 
+
+    double aLumiSection = iEvent.orbitNumber()/262144.0;
+
     //Do detailed check
     //first check if data exists
     bool lDataExist = fedErrors_.checkDataPresent(fedData);
     if (!lDataExist) {
-      fedHists_.fillFEDHistograms(fedErrors_,0,fullDebugMode_);
+      fedHists_.fillFEDHistograms(fedErrors_,0,fullDebugMode_,aLumiSection, lNBadChannels_perFEDID);
       continue;
     }
 
 
- 
+
     //check for problems and fill detailed histograms
     fedErrors_.fillFEDErrors(fedData,
 			     fullDebugMode_,
@@ -272,19 +275,19 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     }
     //std::cout << " -- " << fedId << " " << lSize << std::endl;
 
-    fedHists_.fillFEDHistograms(fedErrors_,lSize,fullDebugMode_);
+    //fedHists_.fillFEDHistograms(fedErrors_,lSize,fullDebugMode_);
 
     bool lFailMonitoringFEDcheck = fedErrors_.failMonitoringFEDCheck();
     if (lFailMonitoringFEDcheck) lNTotBadFeds++;
 
 
-    //sanity check: if something changed in the unpacking code 
+    //sanity check: if something changed in the unpacking code
     //but wasn't propagated here
     //print only the summary, and more info if printDebug>1
     if (lFailMonitoringFEDcheck != lFailUnpackerFEDcheck) {
       if (printDebug_>1) {
 	std::ostringstream debugStream;
-	debugStream << " --- WARNING: FED " << fedId << std::endl 
+	debugStream << " --- WARNING: FED " << fedId << std::endl
 		    << " ------ Monitoring FED check " ;
 	if (lFailMonitoringFEDcheck) debugStream << "failed." << std::endl;
 	else debugStream << "passed." << std::endl ;
@@ -300,7 +303,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
 
     //Fill TkHistoMap:
-    //add an entry for all channels (good = 0), 
+    //add an entry for all channels (good = 0),
     //so that tkHistoMap knows which channels should be there.
     if (doTkHistoMap_ && !fedHists_.tkHistoMapPointer()) {
       edm::LogWarning("SiStripMonitorHardware") << " -- Fedid " << fedId
@@ -311,7 +314,10 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 				  fedHists_.tkHistoMapPointer(),
 				  fedHists_.getFedvsAPVpointer(),
 				  lNTotBadChannels,
-				  lNTotBadActiveChannels);
+				  lNTotBadActiveChannels,
+          lNBadChannels_perFEDID
+        );
+    fedHists_.fillFEDHistograms(fedErrors_,lSize,fullDebugMode_,aLumiSection, lNBadChannels_perFEDID);
   }//loop over FED IDs
 
 
@@ -333,11 +339,11 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   if ((lNTotBadFeds> 0 || lNTotBadChannels>0) && printDebug_>1) {
     std::ostringstream debugStream;
-    debugStream << "[SiStripFEDMonitorPlugin] --- Total number of bad feds = " 
+    debugStream << "[SiStripFEDMonitorPlugin] --- Total number of bad feds = "
 		<< lNTotBadFeds << std::endl
-		<< "[SiStripFEDMonitorPlugin] --- Total number of bad channels = " 
+		<< "[SiStripFEDMonitorPlugin] --- Total number of bad channels = "
 		<< lNTotBadChannels << std::endl
-		<< "[SiStripFEDMonitorPlugin] --- Total number of bad active channels = " 
+		<< "[SiStripFEDMonitorPlugin] --- Total number of bad active channels = "
 		<< lNTotBadActiveChannels << std::endl;
     edm::LogInfo("SiStripMonitorHardware") << debugStream.str();
   }
@@ -345,16 +351,16 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   if ((lNFEDMonitoring > 0 || lNFEDUnpacker > 0 || lNChannelMonitoring > 0 || lNChannelUnpacker > 0) && printDebug_) {
     std::ostringstream debugStream;
     debugStream
-      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
-      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
-      << "[SiStripFEDMonitorPlugin]-- Summary of differences between unpacker and monitoring at FED level : " << std::endl 
-      << "[SiStripFEDMonitorPlugin] ---- Number of times monitoring fails but not unpacking = " << lNFEDMonitoring << std::endl 
+      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl
+      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl
+      << "[SiStripFEDMonitorPlugin]-- Summary of differences between unpacker and monitoring at FED level : " << std::endl
+      << "[SiStripFEDMonitorPlugin] ---- Number of times monitoring fails but not unpacking = " << lNFEDMonitoring << std::endl
       << "[SiStripFEDMonitorPlugin] ---- Number of times unpacking fails but not monitoring = " << lNFEDUnpacker << std::endl
-      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
-      << "[SiStripFEDMonitorPlugin]-- Summary of differences between unpacker and monitoring at Channel level : " << std::endl 
-      << "[SiStripFEDMonitorPlugin] ---- Number of times monitoring fails but not unpacking = " << lNChannelMonitoring << std::endl 
+      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl
+      << "[SiStripFEDMonitorPlugin]-- Summary of differences between unpacker and monitoring at Channel level : " << std::endl
+      << "[SiStripFEDMonitorPlugin] ---- Number of times monitoring fails but not unpacking = " << lNChannelMonitoring << std::endl
       << "[SiStripFEDMonitorPlugin] ---- Number of times unpacking fails but not monitoring = " << lNChannelUnpacker << std::endl
-      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
+      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl
       << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl ;
     edm::LogError("SiStripMonitorHardware") << debugStream.str();
 
@@ -373,7 +379,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
         maxFedBufferSize_,
         eventNumber);
   } else {
-    double aTime = iEvent.orbitNumber()/11223.;    
+    double aTime = iEvent.orbitNumber()/11223.;
     fedHists_.fillCountersHistograms(
         fedErrors_.getFEDErrorsCounters(),
         fedErrors_.getChannelErrorsCounters(),
@@ -394,13 +400,13 @@ bool SiStripFEDMonitorPlugin::pairComparison(const std::pair<unsigned int, unsig
 void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned int,unsigned int> > & aFeMajVec,
 					  unsigned int & aMajorityCounter,
 					  std::vector<unsigned int> & afedIds) {
-  
-  
+
+
   unsigned int lMajAddress = 0;
   std::vector<std::pair<unsigned int,unsigned int> >::const_iterator lIter = aFeMajVec.begin();
   unsigned int lMajAddr = (*lIter).second;
   unsigned int lCounter = 0;
-  
+
   //std::cout << " --- First element: addr = " << lMajAddr << " counter = " << lCounter << std::endl;
   unsigned int iele=0;
   //bool foundMaj = false;
@@ -426,7 +432,7 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
       --iele;
     }
   }
-  // AV Bug here? The check has to be done regardless foundMaj == false or true 
+  // AV Bug here? The check has to be done regardless foundMaj == false or true
   //  if (!foundMaj) {
     if (lCounter > aMajorityCounter) {
       //std::cout << " ------ >Majority: " << std::endl;
@@ -435,7 +441,7 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
     }
     //  }
   //std::cout << " -- found majority value for " << aMajorityCounter << " elements out of " << aFeMajVec.size() << "." << std::endl;
-  //get list of feds with address different from majority in partition:      
+  //get list of feds with address different from majority in partition:
   lIter = aFeMajVec.begin();
   afedIds.reserve(135);
   for ( ; lIter != aFeMajVec.end(); ++lIter ) {
@@ -471,8 +477,8 @@ void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker & ibooker , const
   if (fillAllDetailedHistograms_) fedHists_.bookAllFEDHistograms(ibooker , fullDebugMode_ );
 }
 
-void 
-SiStripFEDMonitorPlugin::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+void
+SiStripFEDMonitorPlugin::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					      const edm::EventSetup& context)
 {
 
@@ -481,8 +487,8 @@ SiStripFEDMonitorPlugin::beginLuminosityBlock(const edm::LuminosityBlock& lumiSe
 }
 
 
-void 
-SiStripFEDMonitorPlugin::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+void
+SiStripFEDMonitorPlugin::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					    const edm::EventSetup& context)
 {
   fedHists_.fillLumiHistograms(fedErrors_.getLumiErrors());

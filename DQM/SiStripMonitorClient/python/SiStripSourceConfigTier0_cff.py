@@ -42,7 +42,7 @@ SiStripMonitorClusterBPTX.Mod_On = False
 SiStripMonitorClusterBPTX.TH1TotalNumberOfClusters.subdetswitchon   = True
 SiStripMonitorClusterBPTX.TProfClustersApvCycle.subdetswitchon      = True
 SiStripMonitorClusterBPTX.TProfTotalNumberOfClusters.subdetswitchon = True 
-SiStripMonitorClusterBPTX.TrendVsLS = True
+SiStripMonitorClusterBPTX.TrendVs10LS = False
 SiStripMonitorClusterBPTX.TH2CStripVsCpixel.globalswitchon       = True
 SiStripMonitorClusterBPTX.TH1MultiplicityRegions.globalswitchon  = True
 SiStripMonitorClusterBPTX.TH1MainDiagonalPosition.globalswitchon = True
@@ -119,7 +119,8 @@ MonitorTrackResiduals.Mod_On        = False
 MonitorTrackResiduals.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
 
 # DQM Services
-dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoSiStrip = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('SiStrip')
 )
 

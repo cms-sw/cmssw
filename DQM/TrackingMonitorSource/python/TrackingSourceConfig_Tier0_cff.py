@@ -261,7 +261,8 @@ for _step, _pset in seedMonitoring.iteritems():
         _mod.SeedCandMax = _pset.trajCandPerSeedMax
 
 # DQM Services
-dqmInfoTracking = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoTracking = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('Tracking')
 )
 

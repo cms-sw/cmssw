@@ -48,6 +48,7 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,
   commonParams_ = conf.getParameter<edm::ParameterSet>("commonParam");
   if (theStation==1) tmbParams_ = conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM");
   else if (theStation==2) tmbParams_ = conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM");
+  else if (theStation==3 or theStation==4) tmbParams_ = conf.getParameter<edm::ParameterSet>("me3141tmbSLHC");
 
   generator_.reset(new CSCUpgradeMotherboardLUTGenerator());
 

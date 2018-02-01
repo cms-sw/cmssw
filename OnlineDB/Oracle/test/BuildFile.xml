@@ -7,12 +7,7 @@
     <flags TEST_RUNNER_ARGS="12154"/>
   </bin>
   <bin name="test_occi_wo_cmshack" file="test.cpp">
-    <architecture name="_gcc7">
       <flags TEST_RUNNER_ARGS="12154"/>
-    </architecture>
-    <architecture name="_gcc6">
-      <flags TEST_RUNNER_ARGS="24960"/>
-    </architecture>  
   </bin>
 </architecture>
 

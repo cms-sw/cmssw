@@ -8,6 +8,8 @@
 #  include "FWCore/ServiceRegistry/interface/Service.h"
 #  include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #  include "FWCore/ServiceRegistry/interface/SystemBounds.h"
+#  include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#  include "FWCore/Utilities/interface/RunIndex.h"
 #  include "FWCore/Version/interface/GetReleaseVersion.h"
 # else
 #  include <memory>
@@ -78,6 +80,12 @@ namespace edm
     template <typename T>
     void watchPostSourceLumi(void*, T) {}
 
+    template <typename F>
+    void watchPostSourceRun(F) {}
+
+    template <typename F>
+    void watchPostSourceLumi(F) {}
+
     template <typename T>
     void watchPostGlobalBeginRun(void*, T) {}
 
@@ -112,6 +120,13 @@ namespace edm
     JobReport(const edm::ParameterSet &) {}
     void reportAnalysisFile(const std::string &, const std::map<std::string, std::string> &) {}
   };
+
+  class LuminosityBlockIndex
+  { };
+
+  class RunIndex
+  { };
+
 }
 # endif // WITHOUT_CMS_FRAMEWORK
 #endif // DQMSERVICES_CORE_STANDALONE_H

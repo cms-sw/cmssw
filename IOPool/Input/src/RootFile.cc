@@ -1529,7 +1529,8 @@ namespace edm {
       return;
     }
     // End code for backward compatibility before the existence of run trees.
-    runTree_.insertEntryForIndex(runPrincipal.transitionIndex());
+    // NOTE: we use 0 for the index since do not do delayed reads for RunPrincipals
+    runTree_.insertEntryForIndex(0);
     runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.resetAndGetRootDelayedReader());
     // Read in all the products now.
     runPrincipal.readAllFromSourceAndMergeImmediately();
@@ -1585,7 +1586,8 @@ namespace edm {
     }
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
-    lumiTree_.insertEntryForIndex(lumiPrincipal.transitionIndex());
+    // NOTE: we use 0 for the index since do not do delayed reads for LuminosityBlockPrincipals
+    lumiTree_.insertEntryForIndex(0);
     lumiPrincipal.fillLuminosityBlockPrincipal(*processHistoryRegistry_, lumiTree_.resetAndGetRootDelayedReader());
     // Read in all the products now.
     lumiPrincipal.readAllFromSourceAndMergeImmediately();

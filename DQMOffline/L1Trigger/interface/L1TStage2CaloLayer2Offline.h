@@ -9,6 +9,7 @@
 //event
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 //DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -52,6 +53,9 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
+#include "DQMOffline/L1Trigger/interface/HistDefinition.h"
+
+
 class L1TStage2CaloLayer2Offline: public DQMEDAnalyzer {
 
 public:
@@ -77,6 +81,12 @@ public:
 
   typedef std::map<L1TStage2CaloLayer2Offline::ControlPlots, MonitorElement*> ControlPlotMap;
 
+  enum PlotConfig {
+    nVertex
+  };
+
+  static const std::map<std::string, unsigned int> PlotConfigNames;
+
 protected:
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
@@ -95,6 +105,8 @@ private:
   void fillEnergySums(edm::Event const& e, const unsigned int nVertex);
   void fillJets(edm::Event const& e, const unsigned int nVertex);
 
+  bool doesNotOverlapWithHLTObjects(const l1t::Jet & jet) const;
+
   //private variables
   math::XYZPoint PVPoint_;
 
@@ -104,10 +116,10 @@ private:
   edm::EDGetTokenT<reco::CaloMETCollection> thecaloETMHFCollection_;
   edm::EDGetTokenT<reco::VertexCollection> thePVCollection_;
   edm::EDGetTokenT<reco::BeamSpot> theBSCollection_;
-  edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_;
-  edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-  edm::InputTag triggerFilter_;
-  std::string triggerPath_;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerInputTag_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsInputTag_;
+  std::string triggerProcess_;
+  std::vector<std::string> triggerNames_;
   std::string histFolder_;
   std::string efficiencyFolder_;
 
@@ -128,6 +140,12 @@ private:
 
   double recoHTTMaxEta_;
   double recoMHTMaxEta_;
+
+  HLTConfigProvider hltConfig_;
+  std::vector<unsigned int> triggerIndices_;
+  edm::TriggerResults triggerResults_;
+  trigger::TriggerEvent triggerEvent_;
+  dqmoffline::l1t::HistDefinitions histDefinitions_;
 
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms

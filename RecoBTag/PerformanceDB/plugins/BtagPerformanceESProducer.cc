@@ -24,7 +24,7 @@ BtagPerformanceESProducer::BtagPerformanceESProducer(const edm::ParameterSet & p
 
 BtagPerformanceESProducer::~BtagPerformanceESProducer() {}
 
-std::shared_ptr<BtagPerformance> 
+std::unique_ptr<BtagPerformance> 
 BtagPerformanceESProducer::produce(const BTagPerformanceRecord & iRecord){ 
    ESHandle<PerformancePayload> pl;
    //ESHandle<PhysicsPerformancePayload> pl;
@@ -41,9 +41,7 @@ BtagPerformanceESProducer::produce(const BTagPerformanceRecord & iRecord){
    
    
    
-   _perf  = std::make_shared<BtagPerformance>(*((pl.product())), *((wp.product())));
-   //    _perf  = std::make_shared<BtagPerformance>(*((pl.product())), wp);
-   return _perf;
+   return std::make_unique<BtagPerformance>(*((pl.product())), *((wp.product())));
 }
 
 

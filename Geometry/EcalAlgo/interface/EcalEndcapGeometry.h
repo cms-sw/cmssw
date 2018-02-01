@@ -64,7 +64,8 @@ class EcalEndcapGeometry final: public CaloSubdetectorGeometry
 
       void setNumberOfCrystalPerModule( const int nncrys ) { _nncrys=nncrys ; }
 
-      const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id ) const ;
+      const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id ) const;
+
       // Get closest cell, etc...
       DetId getClosestCell( const GlobalPoint& r ) const override ;
 
@@ -100,8 +101,8 @@ class EcalEndcapGeometry final: public CaloSubdetectorGeometry
 
    protected:
 
-      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
-
+      // Modify the RawPtr class
+      const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
    private:
 
       static int myPhi( int i ) { i+=720; return ( 1 + (i-1)%360 ) ; }

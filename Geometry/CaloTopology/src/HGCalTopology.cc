@@ -160,22 +160,6 @@ HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
     id_.iSubSec= id.waferType();
     id_.zside  = id.zside();
     id_.subdet = id.subdetId();
-  } else if (subdet_ == HGCEE) {
-    HGCEEDetId id(startId);
-    id_.iCell  = id.cell();
-    id_.iLay   = id.layer();
-    id_.iSec   = id.sector();
-    id_.iSubSec= id.subsector();
-    id_.zside  = id.zside();
-    id_.subdet = id.subdetId();
-  } else {
-    HGCHEDetId id(startId);
-    id_.iCell  = id.cell();
-    id_.iLay   = id.layer();
-    id_.iSec   = id.sector();
-    id_.iSubSec= id.subsector();
-    id_.zside  = id.zside();
-    id_.subdet = id.subdetId();
   }
   return id_;
 }
@@ -187,10 +171,6 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& id_) const {
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
       (mode_ == HGCalGeometryMode::HexagonFull)) {
     id = HGCalDetId(subdet_,id_.zside,id_.iLay,isubsec,id_.iSec,id_.iCell).rawId();
-  } else if (subdet_ == HGCEE) {
-    id = HGCEEDetId(subdet_,id_.zside,id_.iLay,id_.iSec,isubsec,id_.iCell).rawId();
-  } else {
-    id = HGCHEDetId(subdet_,id_.zside,id_.iLay,id_.iSec,isubsec,id_.iCell).rawId();
   }
   return id;
 }
@@ -198,29 +178,13 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& id_) const {
 DetId HGCalTopology::changeXY(const DetId& id, int nrStepsX,
 			      int nrStepsY ) const {
 
-  HGCalTopology::DecodedDetId id_ = decode(id);
-  std::pair<int,int> kcell= hdcons_.newCell(id_.iCell,id_.iLay,id_.iSec,
-					    id_.iSubSec,nrStepsX,nrStepsY,
-					    half_);
-  id_.iSubSec= kcell.second;
-  id_.iSec   = (kcell.second > 0) ? kcell.second : -kcell.second;
-  id_.iCell  = kcell.first;
-  DetId nextPoint = encode(id_);
-  if (valid(nextPoint)) return nextPoint;
-  else                  return DetId(0);
+  return DetId();
 }
 
 
 DetId HGCalTopology::changeZ(const DetId& id, int nrStepsZ) const {
 
-  HGCalTopology::DecodedDetId id_  = decode(id);
-  std::pair<int,int> kcell = hdcons_.newCell(id_.iCell,id_.iLay,
-					     id_.iSubSec,nrStepsZ,half_);
-  id_.iLay    = kcell.second;
-  id_.iCell   = kcell.first;
-  DetId nextPoint = encode(id_);
-  if (valid(nextPoint)) return nextPoint;
-  else                  return DetId(0);
+  return DetId();
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

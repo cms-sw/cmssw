@@ -14,6 +14,7 @@
 #include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 #include <vector>
 
@@ -160,6 +161,8 @@ private:
   const HBHEDarkening* m_HBDarkening;
   const HBHEDarkening* m_HEDarkening;
   std::unique_ptr<HFRecalibration> m_HFRecalibration;
+
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 
   std::vector<double> injectedHitsEnergy_;
   std::vector<double> injectedHitsTime_;

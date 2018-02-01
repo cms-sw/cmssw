@@ -37,7 +37,7 @@ namespace edm {
         bool isForPrimaryProcess) :
     Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender,isForPrimaryProcess),
           aux_(),
-          luminosityBlockPrincipal_(),
+          luminosityBlockPrincipal_(nullptr),
           provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
           eventSelectionIDs_(),
           branchIDListHelper_(branchIDListHelper),
@@ -52,7 +52,8 @@ namespace edm {
   EventPrincipal::clearEventPrincipal() {
     clearPrincipal();
     aux_ = EventAuxiliary();
-    luminosityBlockPrincipal_ = nullptr; // propagate_const<T> has no reset() function
+    //do not clear luminosityBlockPrincipal_ since
+    // it is only connected at beginLumi transition
     provRetrieverPtr_->reset();
     branchListIndexToProcessIndex_.clear();
   }
@@ -136,7 +137,7 @@ namespace edm {
 
   void
   EventPrincipal::setLuminosityBlockPrincipal(std::shared_ptr<LuminosityBlockPrincipal> const& lbp) {
-    luminosityBlockPrincipal_ = lbp;
+    luminosityBlockPrincipal_ = lbp.get();
   }
 
   void 

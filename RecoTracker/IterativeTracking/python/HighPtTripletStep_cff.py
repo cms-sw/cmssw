@@ -63,13 +63,15 @@ highPtTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(Regio
 trackingPhase2PU140.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.7, originRadius = 0.02))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-pp_on_XeXe_2017.toReplaceWith(highPtTripletStepTrackingRegions, 
-                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            fixedError = 0.2,
-            ptMin = 0.6,
-            originRadius = 0.02
-            )
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toReplaceWith(highPtTripletStepTrackingRegions, 
+                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+                fixedError = 0.2,
+                ptMin = 0.6,
+                originRadius = 0.02
+                )
                                                                       )
 )
 
@@ -119,7 +121,8 @@ highPtTripletStepTrajectoryFilterBase = _highPtTripletStepTrajectoryFilterBase.c
 )
 trackingPhase2PU140.toReplaceWith(highPtTripletStepTrajectoryFilterBase, _highPtTripletStepTrajectoryFilterBase)
 
-pp_on_XeXe_2017.toModify(highPtTripletStepTrajectoryFilterBase, minPt=0.7)
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(highPtTripletStepTrajectoryFilterBase, minPt=0.7)
 
 highPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters = [cms.PSet(refToPSet_ = cms.string('highPtTripletStepTrajectoryFilterBase'))]
