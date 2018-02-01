@@ -266,7 +266,7 @@ namespace {
       TCanvas canvas("Alignment Comparison","Alignment Comparison",1200,1200);
       canvas.Divide(3,2);
         
-      std::map<AlignmentPI::coordinate,std::shared_ptr<TH1F> > diffs; 
+      std::unordered_map<AlignmentPI::coordinate,std::unique_ptr<TH1F> > diffs; 
       std::vector<AlignmentPI::coordinate> coords = {AlignmentPI::t_x,AlignmentPI::t_y,AlignmentPI::t_z,AlignmentPI::rot_alpha,AlignmentPI::rot_beta,AlignmentPI::rot_gamma};
       
       for (const auto &coord : coords){
@@ -274,7 +274,7 @@ namespace {
 	auto s_coord = AlignmentPI::getStringFromCoordinate(coord);	
 	std::string unit = (coord == AlignmentPI::t_x || coord == AlignmentPI::t_y  || coord == AlignmentPI::t_z ) ? "[#mum]" : "[mrad]";
 
-  	diffs[coord] = std::make_shared<TH1F>(Form("hDiff_%s",s_coord.c_str()),Form(";#Delta%s %s;n. of modules",s_coord.c_str(),unit.c_str()),1000,-500.,500.);       
+  	diffs[coord] = std::make_unique<TH1F>(Form("hDiff_%s",s_coord.c_str()),Form(";#Delta%s %s;n. of modules",s_coord.c_str(),unit.c_str()),1000,-500.,500.);       
 	
       }
 
@@ -334,21 +334,29 @@ namespace {
       int c_index=1;
       for (const auto &coord : coords){
 	canvas.cd(c_index)->SetLogy();
-	canvas.cd(c_index)->SetTopMargin(0.03);
+	canvas.cd(c_index)->SetTopMargin(0.02);
 	canvas.cd(c_index)->SetBottomMargin(0.15);
 	canvas.cd(c_index)->SetLeftMargin(0.14);
 	canvas.cd(c_index)->SetRightMargin(0.05);
       	diffs[coord]->SetLineWidth(2);
 	AlignmentPI::makeNicePlotStyle(diffs[coord].get(),kBlack);
 
-	float x_max = diffs[coord]->GetXaxis()->GetBinCenter(diffs[coord]->FindLastBinAbove(0.));
-	float x_min = diffs[coord]->GetXaxis()->GetBinCenter(diffs[coord]->FindFirstBinAbove(0.));
+	//float x_max = diffs[coord]->GetXaxis()->GetBinCenter(diffs[coord]->FindLastBinAbove(0.));
+	//float x_min = diffs[coord]->GetXaxis()->GetBinCenter(diffs[coord]->FindFirstBinAbove(0.));
+	//float extremum = std::abs(x_max) > std::abs(x_min) ? std::abs(x_max) : std::abs(x_min);
+	//diffs[coord]->GetXaxis()->SetRangeUser(-extremum*2,extremum*2);
 
-	float extremum = std::abs(x_max) > std::abs(x_min) ? std::abs(x_max) : std::abs(x_min);
-
-	diffs[coord]->GetXaxis()->SetRangeUser(-extremum*1.2,extremum*1.2);
+	int i_max = diffs[coord]->FindLastBinAbove(0.);                                                                                                                                                    
+        int i_min = diffs[coord]->FindFirstBinAbove(0.);                                                                                                                                                   
+        diffs[coord]->GetXaxis()->SetRange(std::max(1,i_min-1),std::min(i_max+1,diffs[coord]->GetNbinsX()));
       	diffs[coord]->Draw("HIST");
 	AlignmentPI::makeNiceStats(diffs[coord].get(),q,kBlack);
+
+	auto legend = std::unique_ptr<TLegend>(new TLegend(0.14,0.93,0.60,0.98));
+	legend->AddEntry(diffs[coord].get(),("IOV: "+std::to_string(std::get<0>(lastiov))+" - IOV:"+std::to_string(std::get<0>(firstiov))).c_str(),"L");
+	legend->SetTextSize(0.035);
+	legend->Draw("same");
+
       	c_index++;
       }
 

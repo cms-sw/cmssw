@@ -5,7 +5,7 @@ set W_DIR = $PWD;
 
 cd $W_DIR;
 source /afs/cern.ch/cms/cmsset_default.csh;
-eval `scram run -ssh`;
+eval `scram run -sh`;
 
 mkdir -p $W_DIR/results
 

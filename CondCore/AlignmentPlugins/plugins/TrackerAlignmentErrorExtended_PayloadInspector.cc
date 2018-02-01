@@ -176,18 +176,24 @@ namespace {
       	  break;
       	}
       }
-      
+
       int c_index=1;
       for (const auto &part : parts){
       	canvas.cd(c_index)->SetLogy();
-	canvas.cd(c_index)->SetTopMargin(0.03);
+	canvas.cd(c_index)->SetTopMargin(0.02);
 	canvas.cd(c_index)->SetBottomMargin(0.15);
 	canvas.cd(c_index)->SetLeftMargin(0.14);
-	canvas.cd(c_index)->SetRightMargin(0.05);
+	canvas.cd(c_index)->SetRightMargin(0.04);
       	APE_spectra[part]->SetLineWidth(2);
 	AlignmentPI::makeNicePlotStyle(APE_spectra[part].get(),colormap[part]);
       	APE_spectra[part]->Draw("HIST");
 	AlignmentPI::makeNiceStats(APE_spectra[part].get(),part,colormap[part]);
+
+	auto legend = std::unique_ptr<TLegend>(new TLegend(0.14,0.93,0.44,0.98));
+	legend->AddEntry(APE_spectra[part].get(),("IOV: "+std::to_string(std::get<0>(iov))).c_str(),"L");
+	legend->SetTextSize(0.035);
+	legend->Draw("same");
+
       	c_index++;
       }
 
