@@ -41,11 +41,11 @@ class RPAlignmentCorrectionsMethods
       writeToXML(s, fileName, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z);
     }
 
-  protected:
     static edm::IOVSyncValue stringToIOVValue(const std::string &);
 
     static std::string iovValueToString(const edm::IOVSyncValue &);
 
+  protected:
     /// load corrections data corresponding to one IOV
     static RPAlignmentCorrectionsData getCorrectionsData( xercesc::DOMNode* );
 
