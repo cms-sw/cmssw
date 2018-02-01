@@ -7,15 +7,12 @@
 #include <iostream>
 #include <map>
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -62,32 +59,17 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
   local_ = pset.getUntrackedParameter<bool>("local", false);
 }
 
-void DTSegment4DQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
-
-  // get hold of back-end interface
-  dbe_ = nullptr;
-  dbe_ = Service<DQMStore>().operator->();
-  if ( dbe_ ) {
-    if (debug_) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if ( dbe_ ) {
-    if (debug_) dbe_->showDirStructure();
-  }
-
-  h4DHit_ = new HRes4DHit ("All", dbe_, doall_, local_);
-  h4DHit_W0_ = new HRes4DHit ("W0", dbe_, doall_, local_);
-  h4DHit_W1_ = new HRes4DHit ("W1", dbe_, doall_, local_);
-  h4DHit_W2_ = new HRes4DHit ("W2", dbe_, doall_, local_);
+void DTSegment4DQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
+  histograms.h4DHit     = new HRes4DHit("All", booker, doall_, local_);
+  histograms.h4DHit_W0  = new HRes4DHit("W0", booker, doall_, local_);
+  histograms.h4DHit_W1  = new HRes4DHit("W1", booker, doall_, local_);
+  histograms.h4DHit_W2  = new HRes4DHit("W2", booker, doall_, local_);
 
   if (doall_) {
-    hEff_All_ = new HEff4DHit ("All", dbe_);
-    hEff_W0_ = new HEff4DHit ("W0", dbe_);
-    hEff_W1_ = new HEff4DHit ("W1", dbe_);
-    hEff_W2_ = new HEff4DHit ("W2", dbe_);
+    histograms.hEff_All = new HEff4DHit("All", booker);
+    histograms.hEff_W0  = new HEff4DHit("W0", booker);
+    histograms.hEff_W1  = new HEff4DHit("W1", booker);
+    histograms.hEff_W2  = new HEff4DHit("W2", booker);
   }
 
   if (local_) {
@@ -97,8 +79,8 @@ void DTSegment4DQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &s
       for (long s = 1;s<= 4;++s) {
 	// FIXME station 4 is not filled
 	TString nameWS =(name+w+"_St"+s);
-	h4DHitWS_[w][s-1] = new HRes4DHit(nameWS.Data(), dbe_, doall_, local_);
-	hEffWS_[w][s-1]   = new HEff4DHit (nameWS.Data(), dbe_);
+	histograms.h4DHitWS[w][s-1] = new HRes4DHit(nameWS.Data(), booker, doall_, local_);
+	histograms.hEffWS[w][s-1]   = new HEff4DHit(nameWS.Data(), booker);
       }
     }
   }
@@ -107,23 +89,21 @@ void DTSegment4DQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &s
 /* FIXME these shoud be moved to the harvesting step
 void DTSegment4DQuality::endJob() {
   if (doall_) {
-    hEff_All_->computeEfficiency();
-    hEff_W0_->computeEfficiency();
-    hEff_W1_->computeEfficiency();
-    hEff_W2_->computeEfficiency();
+    histograms.hEff_All->computeEfficiency();
+    histograms.hEff_W0->computeEfficiency();
+    histograms.hEff_W1->computeEfficiency();
+    histograms.hEff_W2->computeEfficiency();
   }
 }
 */
 
 // The real analysis
-void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSetup) {
-  // theFile->cd();
-
+void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const {
   const float epsilon = 5e-5; // numerical accuracy on angles [rad}
 
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  setup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
@@ -163,11 +143,11 @@ void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSet
 
     //------------------------- simHits ---------------------------//
     // Get simHits of this chamber
-    const PSimHitContainer& simHits =  simHitsInChamber->second;
+    const PSimHitContainer& simHits = simHitsInChamber->second;
 
     // Map simhits per wire
-    map<DTWireId, PSimHitContainer > simHitsPerWire = DTHitQualityUtils::mapSimHitsPerWire(simHits);
-    map<DTWireId, const PSimHit*> muSimHitPerWire = DTHitQualityUtils::mapMuSimHitsPerWire(simHitsPerWire);
+    auto const& simHitsPerWire = DTHitQualityUtils::mapSimHitsPerWire(simHits);
+    auto const& muSimHitPerWire = DTHitQualityUtils::mapMuSimHitsPerWire(simHitsPerWire);
     int nMuSimHit = muSimHitPerWire.size();
     if (nMuSimHit <2) { // Skip chamber with less than 2 cells with mu hits
       continue;
@@ -366,17 +346,17 @@ void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSet
         HRes4DHit *histo = nullptr;
 
         if (wheel == 0)
-          histo = h4DHit_W0_;
+          histo = histograms.h4DHit_W0;
         else if (abs(wheel) == 1)
-          histo = h4DHit_W1_;
+          histo = histograms.h4DHit_W1;
         else if (abs(wheel) == 2)
-          histo = h4DHit_W2_;
+          histo = histograms.h4DHit_W2;
 
         float sigmaAlphaBestRhit = sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHit, bestRecHitLocalDirErr.xx()));
         float sigmaBetaBestRhit  = sqrt(DTHitQualityUtils::sigmaAngle(betaBestRHit, bestRecHitLocalDirErr.yy())); // FIXME this misses the contribution from uncertainty in extrapolation!
         float sigmaAlphaBestRhitRZ = sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHitRZ, bestRecHitLocalDirErrRZ.xx()));
 
-        histo->Fill(alphaSimSeg,
+        histo->fill(alphaSimSeg,
             alphaBestRHit,
             betaSimSeg,
             betaBestRHit,
@@ -398,7 +378,7 @@ void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSet
             sqrt(bestRecHitLocalPosErrRZ.xx()),
             nHitPhi, nHitTheta, t0phi, t0theta);
 
-        h4DHit_->Fill(alphaSimSeg,
+        histograms.h4DHit->fill(alphaSimSeg,
             alphaBestRHit,
             betaSimSeg,
             betaBestRHit,
@@ -420,7 +400,7 @@ void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSet
             sqrt(bestRecHitLocalPosErrRZ.xx()),
             nHitPhi, nHitTheta, t0phi, t0theta);
 
-        if (local_) h4DHitWS_[abs(wheel)][station-1]->Fill(alphaSimSeg,
+        if (local_) histograms.h4DHitWS[abs(wheel)][station-1]->fill(alphaSimSeg,
             alphaBestRHit,
             betaSimSeg,
             betaBestRHit,
@@ -451,15 +431,19 @@ void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSet
       HEff4DHit *heff = nullptr;
 
       if (wheel == 0)
-        heff = hEff_W0_;
+        heff = histograms.hEff_W0;
       else if (abs(wheel) == 1)
-        heff = hEff_W1_;
+        heff = histograms.hEff_W1;
       else if (abs(wheel) == 2)
-        heff = hEff_W2_;
-      heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);
-      hEff_All_->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);
+        heff = histograms.hEff_W2;
+      heff->fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);
+      histograms.hEff_All->fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);
       if (local_)
-        hEffWS_[abs(wheel)][station-1]->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);
+        histograms.hEffWS[abs(wheel)][station-1]->fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);
     }
   } // End of loop over chambers
 }
+
+// declare this as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DTSegment4DQuality);

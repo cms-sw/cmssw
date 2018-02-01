@@ -24,14 +24,11 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-#include "Histograms.h"
 
 namespace edm {
   class ParameterSet;
@@ -39,22 +36,38 @@ namespace edm {
   class EventSetup;
 }
 
-class TFile;
+class HRes4DHit;
+class HEff4DHit;
 
-class DTSegment4DQuality : public edm::EDAnalyzer {
+namespace {
+  struct Histograms {
+    HRes4DHit *h4DHit;
+    HRes4DHit *h4DHit_W0;
+    HRes4DHit *h4DHit_W1;
+    HRes4DHit *h4DHit_W2;
+    HRes4DHit *h4DHitWS[3][4];
+
+    HEff4DHit *hEff_All;
+    HEff4DHit *hEff_W0;
+    HEff4DHit *hEff_W1;
+    HEff4DHit *hEff_W2;
+    HEff4DHit *hEffWS[3][4];
+  };
+}
+
+class DTSegment4DQuality : public DQMGlobalEDAnalyzer<Histograms> {
 public:
   /// Constructor
   DTSegment4DQuality(const edm::ParameterSet& pset);
 
-  /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+private:
+  /// Book the DQM plots
+  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, Histograms &) const override;
 
-  void beginRun(const edm::Run& iRun, const edm::EventSetup &setup) override;
+  /// Perform the real analysis
+  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, Histograms const&) const override;
 
 private:
-  // Switch for debug output
-  bool debug_;
-
   // Labels to read from event
   edm::InputTag simHitLabel_;
   edm::InputTag segment4DLabel_;
@@ -64,25 +77,16 @@ private:
   // Sigma resolution on position
   double sigmaResX_;
   double sigmaResY_;
+
   // Sigma resolution on angle
   double sigmaResAlpha_;
   double sigmaResBeta_;
 
-  HRes4DHit *h4DHit_;
-  HRes4DHit *h4DHit_W0_;
-  HRes4DHit *h4DHit_W1_;
-  HRes4DHit *h4DHit_W2_;
-  HRes4DHit *h4DHitWS_[3][4];
-
-  HEff4DHit *hEff_All_;
-  HEff4DHit *hEff_W0_;
-  HEff4DHit *hEff_W1_;
-  HEff4DHit *hEff_W2_;
-  HEff4DHit *hEffWS_[3][4];
-
-  DQMStore* dbe_;
   bool doall_;
   bool local_;
+
+  // Switch for debug output
+  bool debug_;
 };
 
 #endif
