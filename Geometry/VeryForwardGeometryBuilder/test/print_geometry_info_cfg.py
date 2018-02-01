@@ -26,8 +26,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.ctppsGeometryInfo = cms.EDAnalyzer("CTPPSGeometryInfo",
     geometryType = cms.untracked.string("real"),
-    # TODO: change to True
-    printRPInfo = cms.untracked.bool(False),
+    printRPInfo = cms.untracked.bool(True),
     printSensorInfo = cms.untracked.bool(True)
 )
 
