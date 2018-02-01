@@ -73,7 +73,7 @@ SiStripBadModuleConfigurableFakeESSource::produce(const SiStripBadModuleRcd& iRe
   edm::ESHandle<TrackerTopology> tTopo;
   iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
 
-  std::unique_ptr<SiStripQuality> quality = std::make_unique<SiStripQuality>();
+  auto quality = std::make_unique<SiStripQuality>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

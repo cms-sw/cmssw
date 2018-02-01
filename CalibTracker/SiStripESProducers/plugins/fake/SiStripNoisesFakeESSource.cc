@@ -98,7 +98,7 @@ SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord)
   edm::ESHandle<TrackerTopology> tTopo;
   iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
 
-  std::unique_ptr<SiStripNoises> noises = std::make_unique<SiStripNoises>();
+  auto noises = std::make_unique<SiStripNoises>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

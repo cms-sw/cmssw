@@ -64,7 +64,7 @@ SiStripLatencyFakeESSource::produce(const SiStripLatencyRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::unique_ptr<SiStripLatency> latency = std::make_unique<SiStripLatency>();
+  auto latency = std::make_unique<SiStripLatency>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
   const auto& detInfos = reader.getAllData();

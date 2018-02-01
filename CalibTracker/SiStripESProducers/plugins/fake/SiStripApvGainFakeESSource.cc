@@ -71,7 +71,7 @@ SiStripApvGainFakeESSource::produce(const SiStripApvGainRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::unique_ptr<SiStripApvGain> apvGain{new SiStripApvGain};
+  auto apvGain = std::make_unique<SiStripApvGain>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

@@ -64,7 +64,7 @@ SiStripPedestalsFakeESSource::produce(const SiStripPedestalsRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::unique_ptr<SiStripPedestals> pedestals = std::make_unique<SiStripPedestals>();
+  auto pedestals = std::make_unique<SiStripPedestals>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

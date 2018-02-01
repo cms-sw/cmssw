@@ -67,7 +67,7 @@ SiStripBackPlaneCorrectioNFakeESSource::produce(const SiStripBackPlaneCorrection
   edm::ESHandle<TrackerTopology> tTopo;
   iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
 
-  std::unique_ptr<SiStripBackPlaneCorrection> backPlaneCorrection = std::make_unique<SiStripBackPlaneCorrection>();
+  auto backPlaneCorrection = std::make_unique<SiStripBackPlaneCorrection>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

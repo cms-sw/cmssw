@@ -64,7 +64,7 @@ SiStripBaseDelayFakeESSource::produce(const SiStripBaseDelayRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::unique_ptr<SiStripBaseDelay> baseDelay = std::make_unique<SiStripBaseDelay>();
+  auto baseDelay = std::make_unique<SiStripBaseDelay>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 
