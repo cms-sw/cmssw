@@ -17,7 +17,7 @@ CSCDMBHeader::CSCDMBHeader(uint16_t firmware_version)
 
 }
 
-CSCDMBHeader::CSCDMBHeader(unsigned short * buf, uint16_t firmware_version)
+CSCDMBHeader::CSCDMBHeader(const uint16_t * buf, uint16_t firmware_version)
 : theHeaderFormat(), theFirmwareVersion(firmware_version) 
 {
   if (theFirmwareVersion == 2013) {

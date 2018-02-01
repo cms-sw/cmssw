@@ -178,7 +178,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_wafer_.emplace_back(id.wafer());
         hgcdigi_wafertype_.emplace_back(id.waferType());
         hgcdigi_cell_.emplace_back(id.cell());
-        GlobalPoint cellpos = triggerGeometry_->eeGeometry().getPosition(id.rawId());
+        GlobalPoint cellpos = triggerGeometry_->eeGeometry()->getPosition(id.rawId());
         hgcdigi_eta_.emplace_back(cellpos.eta());
         hgcdigi_phi_.emplace_back(cellpos.phi());
         hgcdigi_z_.emplace_back(cellpos.z());
@@ -204,7 +204,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_wafer_.emplace_back(id.wafer());
         hgcdigi_wafertype_.emplace_back(id.waferType());
         hgcdigi_cell_.emplace_back(id.cell());
-        GlobalPoint cellpos = triggerGeometry_->fhGeometry().getPosition(id.rawId());
+        GlobalPoint cellpos = triggerGeometry_->fhGeometry()->getPosition(id.rawId());
         hgcdigi_eta_.emplace_back(cellpos.eta());
         hgcdigi_phi_.emplace_back(cellpos.phi());
         hgcdigi_z_.emplace_back(cellpos.z());
@@ -229,7 +229,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         bhdigi_layer_.emplace_back(id.depth());
         bhdigi_ieta_.emplace_back(id.ieta());
         bhdigi_iphi_.emplace_back(id.iphi());
-        GlobalPoint cellpos = triggerGeometry_->bhGeometry().getPosition(id.rawId());
+        GlobalPoint cellpos = triggerGeometry_->bhGeometry()->getPosition(id.rawId());
         bhdigi_eta_.emplace_back(cellpos.eta());
         bhdigi_phi_.emplace_back(cellpos.phi());
         bhdigi_z_.emplace_back(cellpos.z());

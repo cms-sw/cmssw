@@ -56,7 +56,7 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   gemToken_ = iC.consumes<GEMRecHitCollection>(gemlabel);
   me0Token_ = iC.consumes<ME0SegmentCollection>(me0label);
 
-  static int procInstance(0);
+  static std::atomic<int> procInstance{0};
   std::ostringstream sDT;
   sDT<<"MuonDetLayerMeasurements::checkDTRecHits::" << procInstance;
   //  theDTCheckName = sDT.str();

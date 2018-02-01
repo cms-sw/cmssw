@@ -183,8 +183,9 @@ void test_ep::setUp() {
     edm::Timestamp now(1234567UL);
     auto runAux = std::make_shared<edm::RunAuxiliary>(eventID_.run(), now, now);
     auto rp = std::make_shared<edm::RunPrincipal>(runAux, pProductRegistry_, *process, &historyAppender_,0);
-    auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, now, now);
-    auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pProductRegistry_, *process, &historyAppender_,0);
+    edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
+    auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pProductRegistry_, *process, &historyAppender_,0);
+    lbp->setAux(lumiAux);
     lbp->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
     pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, branchIDListHelper, thinnedAssociationsHelper, *process, &historyAppender_,edm::StreamID::invalidStreamID()));

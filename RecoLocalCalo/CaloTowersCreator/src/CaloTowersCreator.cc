@@ -22,7 +22,9 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 	conf.getParameter<double>("HcalThreshold"),
 	conf.getParameter<double>("HBThreshold"),
 	conf.getParameter<double>("HESThreshold"),
+	conf.getParameter<double>("HESThreshold1"),
 	conf.getParameter<double>("HEDThreshold"),
+	conf.getParameter<double>("HEDThreshold1"),
 	conf.getParameter<double>("HOThreshold0"),
 	conf.getParameter<double>("HOThresholdPlus1"),
 	conf.getParameter<double>("HOThresholdMinus1"),
@@ -64,7 +66,8 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
         conf.getParameter<double>("MomHEDepth"),
         conf.getParameter<double>("MomEBDepth"),
         conf.getParameter<double>("MomEEDepth"),
-        conf.getParameter<int>("HcalPhase")
+        conf.getParameter<int>("HcalPhase"),
+        conf.getParameter<bool>("HcalCollapsed")
 	),
 
   ecalLabels_(conf.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
@@ -316,7 +319,9 @@ void CaloTowersCreator::fillDescriptions(edm::ConfigurationDescriptions& descrip
 	desc.add<double>("HcalThreshold", -1000.0);
 	desc.add<double>("HF2Threshold", 0.85);
 	desc.add<double>("HESThreshold", 0.8);
+	desc.add<double>("HESThreshold1", 0.8);
 	desc.add<double>("HEDThreshold", 0.8);
+	desc.add<double>("HEDThreshold1", 0.8);
 	desc.add<double>("EcutTower", -1000.0);
 	desc.add<double>("HBWeight", 1.0);
 	desc.add<double>("MomHBDepth", 0.2);
@@ -360,6 +365,7 @@ void CaloTowersCreator::fillDescriptions(edm::ConfigurationDescriptions& descrip
 	desc.add<unsigned int>("HcalAcceptSeverityLevelForRejectedHit", 9999);
 	desc.add<std::vector<std::string> >("EcalSeveritiesToBeUsedInBadTowers", {});
 	desc.add<int>("HcalPhase", 0);
+	desc.add<bool>("HcalCollapsed", 0);
 
 	descriptions.addDefault(desc);
 }

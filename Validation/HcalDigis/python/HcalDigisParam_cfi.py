@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-hcaldigisAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hcaldigisAnalyzer = DQMEDAnalyzer('HcalDigisValidation',
     outputFile	= cms.untracked.string(''),
     digiTag	= cms.InputTag("hcalDigis"),
     QIE10digiTag= cms.InputTag("hcalDigis"),
@@ -15,7 +16,8 @@ hcaldigisAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
     TestNumber  = cms.bool(False),
     hep17       = cms.bool(False),
     HEPhase1  	= cms.bool(False),
-    HBPhase1	= cms.bool(False)
+    HBPhase1	= cms.bool(False),
+    Plot_TP_ver = cms.bool(False)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

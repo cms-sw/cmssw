@@ -137,7 +137,7 @@ EcalTimeMapDigitizer::findSignal( const DetId& detId )
 void 
 EcalTimeMapDigitizer::setGeometry( const CaloSubdetectorGeometry* geometry )
 {
-   m_geometry = geometry ;
+  m_geometry = geometry ;
 }
 
 
@@ -263,9 +263,9 @@ double
 EcalTimeMapDigitizer::timeOfFlight( const DetId& detId , int layer) const 
 {
   //not using the layer yet
-   const CaloCellGeometry* cellGeometry ( m_geometry->getGeometry( detId ) ) ;
+   auto cellGeometry ( m_geometry->getGeometry( detId ) ) ;
    assert( nullptr != cellGeometry ) ;
-   GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
+   GlobalPoint layerPos = (cellGeometry)->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
    return layerPos.mag()*cm/c_light ;
 }
 

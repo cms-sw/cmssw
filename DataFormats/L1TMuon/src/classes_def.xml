@@ -77,5 +77,14 @@
   <class name="edm::Wrapper<L1MuBMTrackSegPhiCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegEtaCollection >"/>
 
+  <class name="l1t::RegionalMuonCandRef"/>
+  <class name="std::vector<l1t::RegionalMuonCandRef>"/>
+  <class name="l1t::RegionalMuonCandRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::RegionalMuonCandRefBxCollection>"/>
+  <class name="l1t::RegionalMuonCandRefPair"/>
+  <class name="std::vector<l1t::RegionalMuonCandRefPair>"/>
+  <class name="l1t::RegionalMuonCandRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::RegionalMuonCandRefPairBxCollection>"/>
+
  </selection>
 </lcgdict>

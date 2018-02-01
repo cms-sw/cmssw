@@ -129,6 +129,7 @@ namespace edm {
       virtual void endJob(){}
 
       virtual void preallocStreams(unsigned int);
+      virtual void preallocLumis(unsigned int);
       virtual void preallocate(PreallocationConfiguration const&);
       virtual void doBeginStream_(StreamID id);
       virtual void doEndStream_(StreamID id);
@@ -154,6 +155,7 @@ namespace edm {
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
 
       virtual bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
 
       virtual void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder&);
 

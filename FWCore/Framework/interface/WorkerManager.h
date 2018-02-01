@@ -32,6 +32,7 @@ namespace edm {
     typedef std::vector<Worker*> AllWorkers;
 
     WorkerManager(std::shared_ptr<ActivityRegistry> actReg, ExceptionToActionTable const& actions);
+    WorkerManager(WorkerManager&&) = default;
 
     WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
                   std::shared_ptr<ActivityRegistry> actReg,
@@ -62,7 +63,14 @@ namespace edm {
                               typename T::Context const* topContext,
                               U const* context);
 
-    
+    template <typename T>
+    void processAccumulatorsAsync(WaitingTask* task,
+                                  typename T::MyPrincipal const& ep,
+                                  EventSetup const& es,
+                                  StreamID streamID,
+                                  ParentContext const& parentContext,
+                                  typename T::Context const* context);
+
     void setupOnDemandSystem(Principal& principal, EventSetup const& es);
 
     void beginJob(ProductRegistry const& iRegistry);
@@ -137,6 +145,16 @@ namespace edm {
     unscheduled_.runNowAsync<T,U>(task,ep, es,streamID, topContext, context);
   }
 
+  template <typename T>
+  void
+  WorkerManager::processAccumulatorsAsync(WaitingTask* task,
+                                          typename T::MyPrincipal const& ep,
+                                          EventSetup const& es,
+                                          StreamID streamID,
+                                          ParentContext const& parentContext,
+                                          typename T::Context const* context) {
+    unscheduled_.runAccumulatorsAsync<T>(task, ep, es, streamID, parentContext, context);
+  }
 }
 
 #endif

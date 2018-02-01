@@ -61,10 +61,9 @@ TruncatedPyramid::TruncatedPyramid( const CornersVec& corn ,
 TruncatedPyramid::~TruncatedPyramid() 
 {}
 
-const GlobalPoint 
-TruncatedPyramid::getPosition( CCGFloat depth ) const 
+GlobalPoint TruncatedPyramid::getPosition( CCGFloat depth ) const
 {
-   return CaloCellGeometry::getPosition() + depth*m_axis ;
+  return CaloCellGeometry::getPosition() + depth*m_axis ;
 }
 
 CCGFloat 

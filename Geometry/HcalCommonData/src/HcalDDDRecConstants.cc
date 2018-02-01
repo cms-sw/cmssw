@@ -86,7 +86,8 @@ HcalDDDRecConstants::getEtaBins(const int& itype) const {
       } else {
 	phiUse.insert(phiUse.end(),phis.begin(),phis.end());
       }
-      getOneEtaBin(subdet,ieta,zside,phiUse,layers,false,bins);
+      if (!phiUse.empty())
+	getOneEtaBin(subdet,ieta,zside,phiUse,layers,false,bins);
     }
   }
   if (subdetSp == subdet) {
@@ -773,6 +774,7 @@ void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet, int ieta, int zsi
   etabin0.depthStart = hcons.getDepthEta29(phis[0].first,zside,0)+1;
   int dstart = -1;
   int lmin(0), lmax(0);
+
   std::map<int,int>::iterator itr=layers.begin();
   if (!layers.empty()) {
     int dep = itr->second;

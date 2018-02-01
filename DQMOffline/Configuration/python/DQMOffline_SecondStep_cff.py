@@ -93,7 +93,6 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  PixelOfflineDQMClientNoDataCertification *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
-                                 l1TriggerDqmOfflineClient *
                                  dqmFEDIntegrityClient *
                                  alcaBeamMonitorClient *
                                  runTauEff *
@@ -147,4 +146,11 @@ DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
 DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
+
+# L1 trigger sequences
+DQMHarvestL1TMonitoring = cms.Sequence( l1TriggerDqmOfflineClient )
+
+DQMHarvestL1TEgamma = cms.Sequence( l1TriggerEgDqmOfflineClient )
+
+DQMHarvestL1TMuon = cms.Sequence( l1TriggerMuonDqmOfflineClient )
 

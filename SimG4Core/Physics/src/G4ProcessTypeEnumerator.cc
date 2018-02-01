@@ -70,7 +70,7 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator()
 G4ProcessTypeEnumerator::~G4ProcessTypeEnumerator()
 {}
 
-std::string G4ProcessTypeEnumerator::processG4Name(int idx)
+std::string G4ProcessTypeEnumerator::processG4Name(int idx) const
 {
   std::string res = "";
   for(int i=0; i<nprocesses; ++i) {
@@ -82,7 +82,7 @@ std::string G4ProcessTypeEnumerator::processG4Name(int idx)
   return res;
 }
 
-int G4ProcessTypeEnumerator::processId(const std::string& name)
+int G4ProcessTypeEnumerator::processId(const std::string& name) const
 {
   int idx = 0;
   for(int i=0; i<nprocesses; ++i) {

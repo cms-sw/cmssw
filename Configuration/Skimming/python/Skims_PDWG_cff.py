@@ -12,6 +12,11 @@ skimRawContent = RAWEventContent.clone()
 skimRawContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimRawContent.outputCommands.append("drop *_*_*_SKIM")
 
+from Configuration.EventContent.EventContent_cff import RAWAODEventContent
+skimRawAODContent = RAWAODEventContent.clone()
+skimRawAODContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+skimRawAODContent.outputCommands.append("drop *_*_*_SKIM")
+
 #####################
 # event splitting special skims
 
@@ -243,6 +248,17 @@ SKIMStreamEXOMONOPOLE = cms.FilteredStream(
         selectEvents = cms.untracked.PSet(),
         dataTier = cms.untracked.string('USER')
         )
+
+from Configuration.Skimming.PDWG_EXODisplacedJet_cff import *
+EXODisplacedJetPath = cms.Path(EXODisplacedJetSkimSequence)
+SKIMStreamEXODisplacedJet = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXODisplacedJet',
+    paths = (EXODisplacedJetPath),
+    content = skimRawAODContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
 
 #####################
 # For the Data on Data Mixing in TSG

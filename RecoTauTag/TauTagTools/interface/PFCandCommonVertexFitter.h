@@ -36,12 +36,6 @@ protected:
 	    reco::Candidate &) const;
   virtual bool fit(TransientVertex &, 
 		   const std::vector<reco::TransientTrack> &) const = 0;
-  /// chi-sqared
-  mutable double chi2_;
-  /// number of degrees of freedom
-  mutable double ndof_;
-  /// covariance matrix (3x3)
-  mutable CovarianceMatrix cov_;
 };
 
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"

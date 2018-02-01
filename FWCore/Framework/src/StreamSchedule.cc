@@ -26,6 +26,8 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
+#include "LuminosityBlockProcessingStatus.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -615,6 +617,10 @@ namespace edm {
         it != itEnd; ++ it) {
       it->processOneOccurrenceAsync(pathsDone,ep, es, streamID_, &streamContext_);
     }
+
+    ParentContext parentContext(&streamContext_);
+    workerManager_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+      allPathsDone, ep, es, streamID_, parentContext, &streamContext_);
   }
   
   void
@@ -711,7 +717,6 @@ namespace edm {
     
     return iExcept;
   }
-
 
   void
   StreamSchedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {

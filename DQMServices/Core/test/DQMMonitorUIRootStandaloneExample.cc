@@ -76,6 +76,7 @@ private:
   ContentsYRange * yrange_test;  // contents within y-range test
   DeadChannel * deadChan_test;  // check against dead channels
   NoisyChannel * noisyChan_test;  // check against noisy channels
+  ContentSigma * contentSigma_test;  // compare using sigma
   Comp2RefEqualH * equalH_test; // equality test for histograms
   MeanWithinExpected * meanNear_test; // mean-within-expected test
   // names for all quality tests
@@ -128,6 +129,7 @@ void DQMStandaloneExample::createQualityTests()
   testNames.emplace_back("my_yrange");
   testNames.emplace_back("deadChan");
   testNames.emplace_back("noisyChan");
+  testNames.emplace_back("contentSigma");
   testNames.emplace_back("my_histo_equal");
   testNames.emplace_back("my_int_equal");
   testNames.emplace_back("meanNear");
@@ -162,6 +164,11 @@ void DQMStandaloneExample::createQualityTests()
   ++it;
   noisyChan_test = dynamic_cast<NoisyChannel *>
     (dbe->createQTest(NoisyChannel::getAlgoName(), *it) );
+  dbe->useQTestByMatch("histo_1", *it);
+
+  ++it;
+  contentSigma_test = dynamic_cast<ContentSigma *>
+    (dbe->createQTest(ContentSigma::getAlgoName(), *it) );
   dbe->useQTestByMatch("histo_1", *it);
 
   ++it;

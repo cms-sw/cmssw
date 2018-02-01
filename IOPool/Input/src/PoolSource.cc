@@ -209,11 +209,12 @@ namespace edm {
       if(found) {
         std::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
         checkConsistency(lumiPrincipal.aux(), *secondaryAuxiliary);
-        secondaryLumiPrincipal_ = std::make_shared<LuminosityBlockPrincipal>(secondaryAuxiliary,
+        secondaryLumiPrincipal_ = std::make_shared<LuminosityBlockPrincipal>(
                                                                    secondaryFileSequence_->fileProductRegistry(),
                                                                    processConfiguration(),
                                                                    nullptr,
                                                                    lumiPrincipal.index());
+        secondaryLumiPrincipal_->setAux(*secondaryAuxiliary);
         secondaryFileSequence_->readLuminosityBlock_(*secondaryLumiPrincipal_);
         checkHistoryConsistency(lumiPrincipal, *secondaryLumiPrincipal_);
         lumiPrincipal.recombine(*secondaryLumiPrincipal_, branchIDsToReplace_[InLumi]);

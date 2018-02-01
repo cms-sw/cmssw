@@ -15,9 +15,8 @@ class  TkTransientTrackingRecHitBuilderESProducer: public edm::ESProducer{
  public:
   TkTransientTrackingRecHitBuilderESProducer(const edm::ParameterSet & p);
   ~TkTransientTrackingRecHitBuilderESProducer() override; 
-  std::shared_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord &);
+  std::unique_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord &);
  private:
-  std::shared_ptr<TransientTrackingRecHitBuilder> _builder;
   edm::ParameterSet pset_;
 };
 

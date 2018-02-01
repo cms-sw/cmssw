@@ -7,7 +7,7 @@
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
-#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h" 
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <memory>
 #include <sstream>
@@ -158,7 +158,7 @@ namespace {
   public:
     SiStripDetVOffTest() : cond::payloadInspector::Histogram1D<SiStripDetVOff>("SiStrip DetVOff test",
 									       "SiStrip DetVOff test", 10,0.0,10.0),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       Base::setSingleIov( true );
     }
@@ -209,7 +209,7 @@ namespace {
   class SiStripDetVOffByRegion : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
   public:
     SiStripDetVOffByRegion() : cond::payloadInspector::PlotImage<SiStripDetVOff>( "SiStrip DetVOff By Region" ),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
     }
