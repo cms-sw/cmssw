@@ -56,8 +56,7 @@ HcalTimeSlewEP::produce(const HcalTimeSlewRecord& iRecord){
   std::vector<edm::ParameterSet> p_TimeSlewM2 = pset_.getParameter<std::vector<edm::ParameterSet>>("timeSlewParametersM2");
   std::vector<edm::ParameterSet> p_TimeSlewM3 = pset_.getParameter<std::vector<edm::ParameterSet>>("timeSlewParametersM3");
 
-  ReturnType hcalTimeSlew =
-	  std::make_unique<HcalTimeSlew>();
+  ReturnType hcalTimeSlew = std::make_unique<HcalTimeSlew>();
 
   //loop over the VPSets  
   for(const auto& p_timeslew : p_TimeSlewM2){
