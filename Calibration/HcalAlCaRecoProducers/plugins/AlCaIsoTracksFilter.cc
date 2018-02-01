@@ -85,7 +85,6 @@ private:
   
   // ----------member data ---------------------------
   HLTConfigProvider              hltConfig_;
-  std::vector<std::string>       HLTNames_;
   const std::vector<std::string> trigNames_;
   const edm::InputTag            labelGenTrack_, labelRecVtx_;
   const edm::InputTag            labelEB_, labelEE_, labelHBHE_;
@@ -448,7 +447,7 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("momentumRangeLow",20.0);
   desc.add<double>("momentumRangeHigh",40.0);
   desc.add<int>("preScaleFactor",1);
-  descriptions.add("AlcaIsoTracksFilter",desc);
+  descriptions.add("alcaIsoTracksFilter",desc);
 }
 
 //define this as a plug-in
