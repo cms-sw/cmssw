@@ -142,8 +142,8 @@ class CSCMotherboard
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
-  void correlateLCTs(CSCALCTDigi& bestALCT, CSCALCTDigi& secondALCT,
-                     CSCCLCTDigi& bestCLCT, CSCCLCTDigi& secondCLCT);
+  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
+                     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT);
   CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT,
                                      const CSCCLCTDigi& cLCT,
                                      int type) const;
