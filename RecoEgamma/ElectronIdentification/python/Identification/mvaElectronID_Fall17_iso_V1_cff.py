@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Documentation of the MVA
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2
 # https://rembserj.web.cern.ch/rembserj/notes/Electron_MVA_ID_2017_documentation
 
 #

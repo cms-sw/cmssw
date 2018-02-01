@@ -20,7 +20,10 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
 
   // Constructor and destructor
   ElectronMVAEstimatorRun2Fall17(const edm::ParameterSet& conf, bool withIso);
+  ElectronMVAEstimatorRun2Fall17(const std::string &mvaTag, const std::string &mvaName, bool withIso, const std::string &conversionsTag = "reducedEgamma:reducedConversions", const std::string &beamspotTag = "offlineBeamSpot");
   ~ElectronMVAEstimatorRun2Fall17() override;
+
+  void init(const std::vector <std::string> weightFileNames);
 
   // Calculation of the MVA value (VID accessor)
   float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;

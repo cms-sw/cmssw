@@ -14,10 +14,29 @@ ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(const edm::Parame
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
 
-  if( (int)(weightFileNames.size()) != nCategories_ ) {
+  init(weightFileNames);
+
+  withIso_ = withIso;
+}
+
+ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(const std::string &mvaTag, const std::string &mvaName, bool withIso, const std::string &conversionsTag, const std::string &beamspotTag):
+AnyMVAEstimatorRun2Base( edm::ParameterSet() ),
+tag_(mvaTag),
+name_(mvaName),
+methodName_("BDTG method"),
+beamSpotLabel_(edm::InputTag(beamspotTag)),
+conversionsLabelAOD_(edm::InputTag(conversionsTag)),
+conversionsLabelMiniAOD_(conversionsLabelAOD_),
+rhoLabel_(edm::InputTag("fixedGridRhoFastjetAll")){
+
+  withIso_ = withIso;
+
+}
+
+void ElectronMVAEstimatorRun2Fall17::init(const std::vector <std::string> weightFileNames) {
+  if( (int)(weightFileNames.size()) != nCategories_ )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
-  }
 
   gbrForests_.clear();
   // Create a TMVA reader object for each category
@@ -28,9 +47,9 @@ ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(const edm::Parame
 
     edm::FileInPath weightFile( weightFileNames[i] );
     gbrForests_.push_back( GBRForestTools::createGBRForest( weightFile ) );
+
   }
 
-  withIso_ = withIso;
 }
 
 ElectronMVAEstimatorRun2Fall17::
@@ -92,7 +111,7 @@ float ElectronMVAEstimatorRun2Fall17::
 mvaValue( const int iCategory, const std::vector<float> & vars) const  {
   const float result = gbrForests_.at(iCategory)->GetClassifier(vars.data());
 
-  const bool debug = false;
+  constexpr bool debug = false;
   if(debug) {
     std::cout << " *** Inside the class methodName_ " << methodName_ << std::endl;
     std::cout << " bin "                      << iCategory << std::endl
