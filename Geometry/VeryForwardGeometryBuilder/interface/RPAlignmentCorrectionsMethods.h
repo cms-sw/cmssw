@@ -35,15 +35,17 @@ class RPAlignmentCorrectionsMethods
       bool precise = false, bool wrErrors = true,
       bool wrSh_xy=true, bool wrSh_z=false, bool wrRot_xy=false, bool wrRot_z=true )
     {
-      TimeValidityInterval iov;
-      iov.SetInfinite();
-
+      const edm::ValidityInterval iov(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
       RPAlignmentCorrectionsDataSequence s;
-      s[iov] = ad;
+      s.insert(iov, ad);
       writeToXML(s, fileName, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z);
     }
 
   protected:
+    static edm::IOVSyncValue stringToIOVValue(const std::string &);
+
+    static std::string iovValueToString(const edm::IOVSyncValue &);
+
     /// load corrections data corresponding to one IOV
     static RPAlignmentCorrectionsData getCorrectionsData( xercesc::DOMNode* );
 
