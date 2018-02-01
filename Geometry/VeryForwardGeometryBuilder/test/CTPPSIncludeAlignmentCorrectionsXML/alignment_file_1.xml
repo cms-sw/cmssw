@@ -1,13 +1,4 @@
-<!--
-Shifts in um, rotations in mrad.
-
-For more details see RPAlignmentCorrections::LoadXMLFile in
-TotemAlignment/RPDataFormats/src/RPAlignmentCorrectionsSequence.cc
--->
-
 <xml DocumentType="AlignmentDescription">
-	<!-- NB: RP alignments are applied also to all sensors inside -->
-
 	<!-- strip RP 0  -->
 	<rp id="1979711488" sh_x="0" sh_y="+500" />
 
