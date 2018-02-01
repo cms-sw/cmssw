@@ -10,7 +10,7 @@ ALCARECOHcalCalIsoTrkFilterHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLe
 
 )
 
-from Calibration.HcalAlCaRecoProducers.AlcaIsoTracksFilter_cfi import *
+from Calibration.HcalAlCaRecoProducers.alcaIsoTracksFilter_cfi import *
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 TkAlIsoProdFilter = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
@@ -21,7 +21,7 @@ TkAlIsoProdFilter.applyNHighestPt = False
 TkAlIsoProdFilter.applyIsolationCut = False
 TkAlIsoProdFilter.applyChargeCheck = False
 
-seqALCARECOHcalCalIsoTrkFilter = cms.Sequence(ALCARECOHcalCalIsoTrkFilterHLT * AlcaIsoTracksFilter*TkAlIsoProdFilter)
+seqALCARECOHcalCalIsoTrkFilter = cms.Sequence(ALCARECOHcalCalIsoTrkFilterHLT * alcaIsoTracksFilter*TkAlIsoProdFilter)
 
 
 
