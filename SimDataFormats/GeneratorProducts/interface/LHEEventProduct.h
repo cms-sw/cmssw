@@ -100,7 +100,7 @@ class LHEEventProduct {
     private:
 	lhef::HEPEUP			hepeup_;
 	std::vector<std::string>	comments_;
-	std::unique_ptr<PDF>		pdf_;
+	std::auto_ptr<PDF>		pdf_;
 	std::vector<WGT>                weights_;
 	double                          originalXWGTUP_;
         std::vector<float>              scales_; //scale value used to exclude EWK-produced partons from matching
