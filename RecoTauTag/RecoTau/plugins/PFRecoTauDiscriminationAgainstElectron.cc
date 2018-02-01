@@ -115,16 +115,19 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
     } else
     {
        // Check if track goes to Ecal crack
-       TrackRef myleadTk;
-       myleadTk=(*thePFTauRef).leadPFChargedHadrCand()->trackRef();
-       math::XYZPointF myleadTkEcalPos = (*thePFTauRef).leadPFChargedHadrCand()->positionAtECALEntrance();
-       if(myleadTk.isNonnull())
-       {
-          if (applyCut_ecalCrack_ && isInEcalCrack(myleadTkEcalPos.eta()))
-          {
-             return 0.;
-          }
-       }
+       const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>((*thePFTauRef).leadPFChargedHadrCand().get());
+       if (pflch != nullptr) {
+         TrackRef myleadTk;
+         myleadTk = pflch->trackRef();
+         math::XYZPointF myleadTkEcalPos = pflch->positionAtECALEntrance();
+         if(myleadTk.isNonnull())
+         {
+            if (applyCut_ecalCrack_ && isInEcalCrack(myleadTkEcalPos.eta()))
+            {
+               return 0.;
+            }
+         }
+       } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
     }
 
     bool decision = false;
@@ -199,29 +202,31 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
       }
     }
     if (applyCut_bremCombined_) {
-      if (thePFTauRef->leadPFChargedHadrCand()->trackRef().isNull()) {
-        // No KF track found
-        return 0;
-      }
-      if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().empty()) {
-	if(thePFTauRef->leadPFChargedHadrCand()->hcalEnergy()/thePFTauRef->leadPFChargedHadrCand()->trackRef()->p()<bremCombined_maxHOP_)
-	  bremCombinedPass = false;
-      }
-      else if(thePFTauRef->signalPFChargedHadrCands().size()==1 && !thePFTauRef->signalPFGammaCands().empty()) {
-	//calculate the brem ratio energy
-	float bremEnergy=0.;
-	float emEnergy=0.;
-	for(unsigned int Nc = 0 ;Nc < thePFTauRef->signalPFGammaCands().size();++Nc)
-	  {
-	    PFCandidatePtr cand = thePFTauRef->signalPFGammaCands().at(Nc);
-	    if(fabs(thePFTauRef->leadPFChargedHadrCand()->trackRef()->eta()-cand->eta())<bremCombined_stripSize_)
-	      bremEnergy+=cand->energy();
-	    emEnergy+=cand->energy();
-	  }
-	if(bremEnergy/emEnergy>bremCombined_fraction_&&thePFTauRef->mass()<bremCombined_minMass_)
-	  bremCombinedPass = false;
-
-      }
+      const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>((*thePFTauRef).leadPFChargedHadrCand().get());
+      if (pflch != nullptr) {
+        if (pflch->trackRef().isNull()) {
+          // No KF track found
+          return 0;
+        }
+        if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().empty()) {
+	  if(pflch->hcalEnergy()/pflch->trackRef()->p()<bremCombined_maxHOP_)
+	    bremCombinedPass = false;
+        }
+        else if(thePFTauRef->signalPFChargedHadrCands().size()==1 && !thePFTauRef->signalPFGammaCands().empty()) {
+	  //calculate the brem ratio energy
+	  float bremEnergy=0.;
+	  float emEnergy=0.;
+	  for(unsigned int Nc = 0 ;Nc < thePFTauRef->signalPFGammaCands().size();++Nc)
+	    {
+	      CandidatePtr cand = thePFTauRef->signalPFGammaCands().at(Nc);
+	      if(fabs(pflch->trackRef()->eta()-cand->eta())<bremCombined_stripSize_)
+	        bremEnergy+=cand->energy();
+	      emEnergy+=cand->energy();
+	    }
+	  if(bremEnergy/emEnergy>bremCombined_fraction_&&thePFTauRef->mass()<bremCombined_minMass_)
+	    bremCombinedPass = false;
+        }
+      } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
     }
 
     decision = emfPass && htotPass && hmaxPass &&

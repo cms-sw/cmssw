@@ -211,7 +211,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
       // JAN - convert reco::Jet ref to PFJet ref (only in direct interaction with PFTau)
 
       // Make sure all taus have their jetref set correctly
-      std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, jetRef.castTo<reco::PFJetRef>()));
+      std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, reco::JetBaseRef(jetRef)));
       // Copy without selection
       if ( !outputSelector_.get() ) {
         output->insert(output->end(), taus.begin(), taus.end());
@@ -231,7 +231,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     // jet.
     if ( !nTausBuilt && buildNullTaus_ ) {
       reco::PFTau nullTau(std::numeric_limits<int>::quiet_NaN(), jetRef->p4());
-      nullTau.setjetRef(jetRef.castTo<reco::PFJetRef>());
+      nullTau.setjetRef(reco::JetBaseRef(jetRef));
       output->push_back(nullTau);
     }
   }

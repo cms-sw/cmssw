@@ -135,8 +135,8 @@ void RecoTauBuilderConePlugin::setTauQuantities(reco::PFTau& aTau,
   // Set charge
   int charge = 0;
   int leadCharge = aTau.leadPFChargedHadrCand().isNonnull() ? aTau.leadPFChargedHadrCand()->charge() : 0;
-  const std::vector<reco::PFCandidatePtr>& pfChs = aTau.signalPFChargedHadrCands();
-  for(const reco::PFCandidatePtr& pfCh : pfChs){
+  const std::vector<reco::CandidatePtr>& pfChs = aTau.signalPFChargedHadrCands();
+  for(const reco::CandidatePtr& pfCh : pfChs){
     charge += pfCh->charge();
   }
   charge = charge==0 ? leadCharge : charge;

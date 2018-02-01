@@ -195,16 +195,23 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
       }
       if (passed && cut_.get()){passed = (*cut_)(*tau);}
       if (passed){
+      	// Use two signal track collections: One with Refs for taus made from PFCandidates,
+      	// and one with pointers for taus made from PackedCandidates
 	std::vector<reco::TrackBaseRef> SignalTracks;
+	// std::vector<reco::Track*> SignalTrackPtrs;
+	// JAN - FIXME - THIS NEEDS TO BE CHANGED WITH MICHAL'S ADAPTIONS
+
 	for(reco::PFTauCollection::size_type jPFTau = 0; jPFTau < Tau->size(); jPFTau++) {
 	  if(useSelectedTaus_ || iPFTau==jPFTau){
 	    reco::PFTauRef RefPFTau(Tau, jPFTau);
 	    ///////////////////////////////////////////////////////////////////////////////////////////////
-	    // Get tracks from PFTau daugthers
-	    const std::vector<edm::Ptr<reco::PFCandidate> > cands = RefPFTau->signalPFChargedHadrCands(); 
-	    for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); iter++){
-	      if(iter->get()->trackRef().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef(iter->get()->trackRef()));
-	      else if(iter->get()->gsfTrackRef().isNonnull()){SignalTracks.push_back(reco::TrackBaseRef(((iter)->get()->gsfTrackRef())));}
+	    // Get tracks from PFTau daughters
+	    for (const auto& cand : RefPFTau->signalPFChargedHadrCands()){
+	      const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
+	      if (pfcand != nullptr) {
+		if (pfcand->trackRef().isNonnull()) {SignalTracks.push_back(reco::TrackBaseRef(pfcand->trackRef()));}
+		else if (pfcand->gsfTrackRef().isNonnull()) {SignalTracks.push_back(reco::TrackBaseRef((pfcand->gsfTrackRef())));}
+	      }
 	    }
 	  }
 	}
