@@ -33,7 +33,7 @@ process.GlobalTag.globaltag = "92X_dataRun2_Express_v7"
 
 process.load("EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_sqlite_cff")
 process.load("EventFilter.RPCRawToDigi.rpcPacker_cfi")
-process.rpcpacker.InputLabel = cms.InputTag("RPCCPPFRawToDigi")
+process.rpcpacker.InputLabel = cms.InputTag("rpcCPPFRawToDigi")
 process.load("EventFilter.RPCRawToDigi.rpcUnpackingModule_cfi")
 process.rpcUnpackingModulePacked = process.rpcUnpackingModule.clone()
 process.rpcUnpackingModulePacked.InputLabel = cms.InputTag("rpcpacker")
@@ -50,7 +50,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 #process.maxLuminosityBlocks = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 process.p = cms.Path( process.rpcUnpackingModule
-                      + process.RPCCPPFRawToDigi * process.rpcpacker * process.rpcUnpackingModulePacked
+                      + process.rpcCPPFRawToDigi * process.rpcpacker * process.rpcUnpackingModulePacked
 )
 
 # Output
