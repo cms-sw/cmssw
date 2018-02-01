@@ -2278,6 +2278,8 @@ for stepType in upgradeSteps.keys():
     for step in upgradeSteps[stepType]['PU']:
         stepName = step+'PU'+upgradeSteps[stepType]['suffix']
         upgradeStepDict[stepName]={}
+        stepNamePmx = step+'PUPRMX'+upgradeSteps[stepType]['suffix']
+        upgradeStepDict[stepNamePmx]={}
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
 # collapse upgradeKeys using list comprehension
@@ -2466,20 +2468,66 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     # setup PU
     if k2 in PUDataSets:
+        # Setup premixing stage1
+        #
+        # Has to be done before the overall PU definition in order to benefit from that
+        #
+        # It is a complete overkill to define premixing step for
+        # each generator fragment, but let's worry about
+        # simplification later
+        for step in upgradeSteps['baseline']['steps']:
+            if "GenSim" in step:
+                stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeSteps['Premix']['suffix']
+                d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid,L1,DIGI2RAW',
+                            '--datatier'    : 'PREMIX',
+                            '--eventcontent': 'PREMIX',
+                            '--procModifiers': 'premix_stage1',
+                           },
+                           upgradeStepDict[stepName][k]])
+                upgradeStepDict[stepNamePmx][k] = d
+
         for stepType in upgradeSteps.keys():
             for step in upgradeSteps[stepType]['PU']:
                 stepName = step + upgradeSteps[stepType]['suffix']
                 stepNamePU = step + 'PU' + upgradeSteps[stepType]['suffix']
+                if stepType == 'Premix':
+                    stepName = stepNamePU
                 upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
+
+                # Setup premixing stage2
+                if "Digi" in step or "Reco" in step:
+                    stepNamePUpmx = step + 'PUPRMX' + upgradeSteps[stepType]['suffix']
+                    d = merge([upgradeStepDict[stepName][k]])
+                    if "Digi" in step:
+                        tmpsteps = []
+                        for s in d["-s"].split(","):
+                            if "L1TrackTrigger" in s: # TODO: ignore TrackTrigger for now
+                                continue
+
+                            if s == "DIGI" or "DIGI:" in s:
+                                tmpsteps.extend([s, "DATAMIX"])
+                            else:
+                                tmpsteps.append(s)
+                        d = merge([{"-s"             : ",".join(tmpsteps),
+                                    "--datamix"      : "PreMix",
+                                    "--procModifiers": "premix_stage2"},
+                                   d])
+                    elif "Reco" in step:
+                        custNew = "SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput"
+                        if "--customise" in d:
+                            d["--customise"] += ","+custNew
+                        else:
+                            d["--customise"] = custNew
+                    upgradeStepDict[stepNamePUpmx][k] = d
 
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
-   if 'Sim' in step:
+   if 'Sim' in step or 'Premix' in step:
         for frag in upgradeFragments:
             howMuch=howMuches[frag]
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
-                if step in upgradeStepDict and key in upgradeStepDict[step]:
+                if (step in upgradeStepDict or step.replace("PUPRMX", "PU")) and key in upgradeStepDict[step]:
                     steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
                     #get inputs in case of -i...but no need to specify in great detail
                     #however, there can be a conflict of beam spots but this is lost in the dataset name
