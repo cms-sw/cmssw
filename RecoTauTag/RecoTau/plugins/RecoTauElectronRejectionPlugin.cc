@@ -83,9 +83,9 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
   typedef std::vector< ElementInBlock > ElementsInBlocks;
 
-  PFCandidatePtr myleadPFChargedCand = tau.leadPFChargedHadrCand();
+  CandidatePtr myleadChargedCand = tau.leadPFChargedHadrCand();
   // Build list of PFCands in tau
-  std::vector<PFCandidatePtr> myPFCands;
+  std::vector<CandidatePtr> myPFCands;
   myPFCands.reserve(tau.isolationPFCands().size()+tau.signalPFCands().size());
 
   std::copy(tau.isolationPFCands().begin(), tau.isolationPFCands().end(),
@@ -94,7 +94,10 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
       std::back_inserter(myPFCands));
 
   //Use the electron rejection only in case there is a charged leading pion
-  if(myleadPFChargedCand.isNonnull()){
+  if(myleadChargedCand.isNonnull()){
+    const reco::PFCandidate* myleadPFChargedCand = dynamic_cast<const reco::PFCandidate*>(myleadChargedCand.get());
+    if (myleadPFChargedCand == nullptr)
+    	throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
     myElectronPreIDOutput = myleadPFChargedCand->mva_e_pi();
 
     math::XYZPointF myElecTrkEcalPos = myleadPFChargedCand->positionAtECALEntrance();
@@ -104,33 +107,37 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
       //FROM AOD
       if(DataType_ == "AOD"){
         // Corrected Cluster energies
-        for(int i=0;i<(int)myPFCands.size();i++){
-          myHCALenergy += myPFCands[i]->hcalEnergy();
-          myECALenergy += myPFCands[i]->ecalEnergy();
+        for(const auto& cand : myPFCands){
+          const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
+          if (pfcand == nullptr) {
+            throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+          }
+          myHCALenergy += pfcand->hcalEnergy();
+          myECALenergy += pfcand->ecalEnergy();
 
           math::XYZPointF candPos;
-          if (myPFCands[i]->particleId()==1 || myPFCands[i]->particleId()==2)//if charged hadron or electron
-            candPos = myPFCands[i]->positionAtECALEntrance();
+          if (pfcand->particleId()==1 || pfcand->particleId()==2)//if charged hadron or electron
+            candPos = pfcand->positionAtECALEntrance();
           else
-            candPos = math::XYZPointF(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
+            candPos = math::XYZPointF(pfcand->px(),pfcand->py(),pfcand->pz());
 
           double deltaR   = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,candPos);
           double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,candPos);
           double deltaEta = std::abs(myElecTrkEcalPos.eta()-candPos.eta());
           double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
 
-          if (myPFCands[i]->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
+          if (pfcand->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
               deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_  && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) {
-            myStripClusterE += myPFCands[i]->ecalEnergy();
+            myStripClusterE += pfcand->ecalEnergy();
           }
           if (deltaR<0.184) {
-            myHCALenergy3x3 += myPFCands[i]->hcalEnergy();
+            myHCALenergy3x3 += pfcand->hcalEnergy();
           }
-          if (myPFCands[i]->hcalEnergy()>myMaximumHCALPFClusterE) {
-            myMaximumHCALPFClusterE = myPFCands[i]->hcalEnergy();
+          if (pfcand->hcalEnergy()>myMaximumHCALPFClusterE) {
+            myMaximumHCALPFClusterE = pfcand->hcalEnergy();
           }
-          if ((myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())))>myMaximumHCALPFClusterEt) {
-            myMaximumHCALPFClusterEt = (myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())));
+          if ((pfcand->hcalEnergy()*fabs(sin(candPos.Theta())))>myMaximumHCALPFClusterEt) {
+            myMaximumHCALPFClusterEt = (pfcand->hcalEnergy()*fabs(sin(candPos.Theta())));
           }
         }
 
@@ -138,8 +145,12 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
         // Against double counting of clusters
         std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
         std::vector<math::XYZPoint> ecalPosV; ecalPosV.clear();
-        for(int i=0;i<(int)myPFCands.size();i++){
-          const ElementsInBlocks& elts = myPFCands[i]->elementsInBlocks();
+        for(const auto& cand : myPFCands){
+          const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
+          if (pfcand == nullptr) {
+            throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+          }
+          const ElementsInBlocks& elts = pfcand->elementsInBlocks();
           for(ElementsInBlocks::const_iterator it=elts.begin(); it!=elts.end(); ++it) {
             const reco::PFBlock& block = *(it->first);
             unsigned indexOfElementInBlock = it->second;
