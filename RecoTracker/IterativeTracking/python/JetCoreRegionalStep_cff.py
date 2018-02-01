@@ -66,7 +66,6 @@ jetCoreRegionalStepTrackingRegions = _tauRegionalPixelSeedTrackingRegions.clone(
     deltaPhiRegion = 0.20,
     deltaEtaRegion = 0.20,
     JetSrc = "jetsForCoreTracking",
-#    JetSrc = "ak5CaloJets",
     vertexSrc = "firstStepGoodPrimaryVertices",
     howToUseMeasurementTracker = "Never"
 ))
@@ -194,7 +193,7 @@ trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone
 fastSim.toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
-JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,
+JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,                 
                                    firstStepGoodPrimaryVertices,
                                    #jetCoreRegionalStepClusters,
                                    jetCoreRegionalStepSeedLayers,
