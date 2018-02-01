@@ -37,23 +37,22 @@ STRUCTURE OF CTPPS ALINGMENT XML FILE
 The file has the following structure
 <code>
 <xml>
-  <TimeInterval first="..." last="...">
+  <iov first="run:ls" last="run:ls">
     <tag/>
     <tag/>
     ...
-  </TimeInterval>
-  <TimeInterval first="..." last="...">
+  </iov>
+  <iov first="run:ls" last="run:ls">
     ...
-  </TimeInterval>
+  </iov>
   .
   .
   .
 </xml>
 </code>
 
-The time intervals are specified by the `first' and `last' UNIX timestamp (boundaries included).
-If there is only one time interval, the <TimeInterval> tags might be omitted. An infinite validty
-is assumed in this case.
+The time intervals are specified by the `first' and `last' run-lumisection pairs.
+If the <iov> tag is not present, an infinite validty is assumed for all the tags.
 
 The tag can be either
   * "det" - the alignment correction is applied to one detector or
@@ -120,15 +119,14 @@ RPAlignmentCorrectionsMethods::loadFromXML( const std::string& fileName )
 
     // check node type
     unsigned char nodeType = 0;
-    // TODO: add also iov tag?
-    if      ( node_name == "TimeInterval" ) nodeType = 1;
-    else if ( node_name == "det"          ) nodeType = 2;
-    else if ( node_name == "rp"           ) nodeType = 3;
+    if      ( node_name == "iov" ) nodeType = 1;
+    else if ( node_name == "det" ) nodeType = 2;
+    else if ( node_name == "rp"  ) nodeType = 3;
 
     if ( nodeType == 0 )
       throw cms::Exception("RPAlignmentCorrectionsMethods") << "Unknown node `" << node_name << "'.";
 
-    // for backward compatibility: support files with no TimeInterval block
+    // for backward compatibility: support files with no iov block
     if ( nodeType == 2 || nodeType == 3 )
     {
       TimeValidityInterval iov;
@@ -162,7 +160,7 @@ RPAlignmentCorrectionsMethods::loadFromXML( const std::string& fileName )
 
     // interval of validity must be set
     if ( !first_set || !last_set )
-      throw cms::Exception("RPAlignmentCorrectionsMethods") << "TimeInterval tag must have `first' and `last' attributes set.";
+      throw cms::Exception("RPAlignmentCorrectionsMethods") << "iov tag must have `first' and `last' attributes set.";
 
     TimeValidityInterval tvi( first, last );
 
@@ -285,15 +283,14 @@ RPAlignmentCorrectionsMethods::writeToXML( const RPAlignmentCorrectionsDataSeque
   // write all IOVs
   for ( const auto &p : data )
   {
-    // TODO: use a better tag than TimeInterval
-    fprintf( rf, "\t<TimeInterval first=\"%s\" last=\"%s\">\n",
+    fprintf( rf, "\t<iov first=\"%s\" last=\"%s\">\n",
       TimeValidityInterval::ValueToUNIXString( p.first.first ).c_str(),
       TimeValidityInterval::ValueToUNIXString( p.first.last ).c_str()
     );
 
     writeXMLBlock( p.second, rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z );
 
-    fprintf( rf, "\t</TimeInterval>\n" );
+    fprintf( rf, "\t</iov>\n" );
   }
 
   fprintf( rf, "</xml>\n" );
