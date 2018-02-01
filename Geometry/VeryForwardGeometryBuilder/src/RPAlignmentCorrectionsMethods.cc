@@ -30,7 +30,6 @@
 
 //----------------------------------------------------------------------------------------------------
 
-// TODO: update
 /**
 STRUCTURE OF CTPPS ALINGMENT XML FILE
 
@@ -74,6 +73,38 @@ Each tag must have an "id" attribute set. In addition the following attributes a
 
 UNITS: shifts are in um, rotations are in mrad.
  */
+
+//----------------------------------------------------------------------------------------------------
+
+edm::IOVSyncValue RPAlignmentCorrectionsMethods::stringToIOVValue(const std::string &str)
+{
+  if (str == "-inf")
+    return edm::IOVSyncValue::beginOfTime();
+
+  if (str == "+inf")
+    return edm::IOVSyncValue::endOfTime();
+
+  size_t sep_pos = str.find(":");
+  const std::string &runStr = str.substr(0, sep_pos);
+  const std::string &lsStr = str.substr(sep_pos+1);
+
+  return edm::IOVSyncValue(edm::EventID(atoi(runStr.c_str()), atoi(lsStr.c_str()), 1));
+}
+
+//----------------------------------------------------------------------------------------------------
+
+std::string RPAlignmentCorrectionsMethods::iovValueToString(const edm::IOVSyncValue &val)
+{
+  if (val == edm::IOVSyncValue::beginOfTime())
+    return "-inf";
+
+  if (val == edm::IOVSyncValue::endOfTime())
+    return "+inf";
+
+  char buf[50];
+  sprintf(buf, "%u:%u", val.eventID().run(), val.eventID().luminosityBlock());
+  return buf;
+}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -129,14 +160,13 @@ RPAlignmentCorrectionsMethods::loadFromXML( const std::string& fileName )
     // for backward compatibility: support files with no iov block
     if ( nodeType == 2 || nodeType == 3 )
     {
-      TimeValidityInterval iov;
-      iov.SetInfinite();
-      output[iov] = getCorrectionsData( elementRoot );
+      const edm::ValidityInterval iov(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
+      output.insert(iov, getCorrectionsData(elementRoot));
       break;
     }
 
     // get attributes
-    edm::TimeValue_t first = 0, last = 0;
+    edm::IOVSyncValue first, last;
     bool first_set = false, last_set = false;
     DOMNamedNodeMap* attrs = node->getAttributes();
     for ( unsigned int j = 0; j < attrs->getLength(); j++ )
@@ -147,11 +177,11 @@ RPAlignmentCorrectionsMethods::loadFromXML( const std::string& fileName )
       if ( attr_name == "first" )
       {
         first_set = true;
-        first = TimeValidityInterval::UNIXStringToValue( cms::xerces::toString( attr->getNodeValue() ) );
+        first = stringToIOVValue( cms::xerces::toString( attr->getNodeValue() ) );
       }
       else if ( attr_name == "last" ) {
         last_set = true;
-        last = TimeValidityInterval::UNIXStringToValue( cms::xerces::toString( attr->getNodeValue() ) );
+        last = stringToIOVValue( cms::xerces::toString( attr->getNodeValue() ) );
       }
       else
         edm::LogProblem("RPAlignmentCorrectionsMethods") << ">> RPAlignmentCorrectionsDataSequence::loadFromXML > Warning: unknown attribute `"
@@ -162,13 +192,11 @@ RPAlignmentCorrectionsMethods::loadFromXML( const std::string& fileName )
     if ( !first_set || !last_set )
       throw cms::Exception("RPAlignmentCorrectionsMethods") << "iov tag must have `first' and `last' attributes set.";
 
-    TimeValidityInterval tvi( first, last );
-
     // process data
     RPAlignmentCorrectionsData corrections = RPAlignmentCorrectionsMethods::getCorrectionsData( node );
 
     // save result
-    output[tvi] = corrections;
+    output.insert(edm::ValidityInterval(first, last), corrections);
   }
 
   // clean up
@@ -284,8 +312,8 @@ RPAlignmentCorrectionsMethods::writeToXML( const RPAlignmentCorrectionsDataSeque
   for ( const auto &p : data )
   {
     fprintf( rf, "\t<iov first=\"%s\" last=\"%s\">\n",
-      TimeValidityInterval::ValueToUNIXString( p.first.first ).c_str(),
-      TimeValidityInterval::ValueToUNIXString( p.first.last ).c_str()
+      iovValueToString(p.first.first()).c_str(),
+      iovValueToString(p.first.last()).c_str()
     );
 
     writeXMLBlock( p.second, rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z );
