@@ -23,19 +23,16 @@ void TrackingSeedCandidates::fillDescriptions(edm::ParameterSetDescription& desc
   desc.add<edm::InputTag>("input",edm::InputTag());
   desc.add<double>("deltaEta_Cand", -1.);
   desc.add<double>("deltaPhi_Cand", -1.);
- 
 }
 
 TrackingSeedCandidates::Objects TrackingSeedCandidates::objects(const edm::Event& iEvent) const {
  
  Objects result;
-
  std::pair <float,float> dimensions = std::make_pair(m_deltaEta_Cand,m_deltaPhi_Cand);
  edm::Handle< reco::CandidateView > objects;
   
  if(m_seedingMode == SeedingMode::CANDIDATE_SEEDED){
       iEvent.getByToken( m_token_input, objects ); 
-
       result = std::make_pair(objects.product(),dimensions); 
   }
   else result = std::make_pair(nullptr,dimensions); 

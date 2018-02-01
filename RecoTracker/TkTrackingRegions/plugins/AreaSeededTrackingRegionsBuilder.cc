@@ -4,11 +4,9 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <array>
 #include <limits>
