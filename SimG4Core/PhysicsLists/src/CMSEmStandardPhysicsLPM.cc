@@ -167,7 +167,6 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
   G4CoulombScattering* muss = nullptr;
   G4CoulombScattering* piss = nullptr;
   G4CoulombScattering* kss = nullptr;
-  G4CoulombScattering* pss = nullptr;
 
   // high energy limit for e+- scattering models and bremsstrahlung
   G4double highEnergyLimit = 100*MeV;
@@ -315,15 +314,17 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       if(nullptr == pb) {
 	pb = new G4hBremsstrahlung();
 	pp = new G4hPairProduction();
+	//--- VI: these lines should be moved out of the brackets
 	pmsc = new G4hMultipleScattering();
 	pmsc->SetEmModel(new G4WentzelVIModel());
-        pss = new G4CoulombScattering();
+	//---
       }
+
       ph->RegisterProcess(pmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
       ph->RegisterProcess(pb, particle);
       ph->RegisterProcess(pp, particle);
-      ph->RegisterProcess(pss, particle);
+      ph->RegisterProcess(new G4CoulombScattering(), particle);
 
     } else if (particleName == "B+" ||
 	       particleName == "B-" ||

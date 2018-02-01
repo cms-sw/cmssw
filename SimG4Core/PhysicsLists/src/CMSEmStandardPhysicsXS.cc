@@ -325,9 +325,10 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
 	pb = new G4hBremsstrahlung();
 	pp = new G4hPairProduction();
 	pmsc = new G4hMultipleScattering();
-	pmsc->SetEmModel(new G4WentzelVIModel());
-        pss = new G4CoulombScattering();
       }
+      pmsc->SetEmModel(new G4WentzelVIModel());
+      pss = new G4CoulombScattering();
+
       ph->RegisterProcess(pmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
       ph->RegisterProcess(pb, particle);

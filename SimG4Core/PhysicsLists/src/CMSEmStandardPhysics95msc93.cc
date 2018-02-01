@@ -257,8 +257,9 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
       if(nullptr == pb) {
 	pb = new G4hBremsstrahlung();
 	pp = new G4hPairProduction();
-	pmsc = new G4hMultipleScattering();
       }
+      pmsc = new G4hMultipleScattering();
+
       ph->RegisterProcess(pmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
       ph->RegisterProcess(pb, particle);
