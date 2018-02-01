@@ -133,8 +133,9 @@ class InputInfo(object):
         if self.ib_blacklist:
             command += " | grep -E -v "
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
-        command += " | sort -u"
-        return command
+        from os import getenv
+        if getenv("CMSSW_USE_IBEOS","false")=="true": return command + " | ibeos-lfn-sort"
+        return command + " | sort -u"
 
     def lumiRanges(self):
         if len(self.run) != 0:
