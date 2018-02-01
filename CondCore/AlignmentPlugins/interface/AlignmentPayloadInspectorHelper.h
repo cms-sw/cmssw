@@ -613,17 +613,25 @@ namespace AlignmentPI {
   /*--------------------------------------------------------------------*/
   {
     char   buffer[255]; 
-    TPaveText* stat = new TPaveText(0.60,0.75,0.95,0.97,"NDC");
+    TPaveText* stat = new TPaveText(0.60,0.75,0.95,0.95,"NDC");
     sprintf(buffer,"%s \n",AlignmentPI::getStringFromPart(part).c_str());
     stat->AddText(buffer);
 
     sprintf(buffer,"Entries : %i\n",(int)hist->GetEntries());
     stat->AddText(buffer);
     
-    sprintf(buffer,"Mean    : %6.2f\n",hist->GetMean());
+    if(hist->GetMean()>0.01){
+      sprintf(buffer,"Mean    : %6.2f\n",hist->GetMean());
+    }  else {
+      sprintf(buffer,"Mean    : %6.2f e-2\n",100*hist->GetMean());
+    }
     stat->AddText(buffer);
-    
-    sprintf(buffer,"RMS     : %6.2f\n",hist->GetRMS());
+
+    if(hist->GetRMS()>0.01){
+      sprintf(buffer,"RMS     : %6.2f\n",hist->GetRMS());
+    } else {
+      sprintf(buffer,"RMS     : %6.2f e-2\n",100*hist->GetRMS());
+    }
     stat->AddText(buffer);
     
     stat->SetLineColor(color);
@@ -632,6 +640,36 @@ namespace AlignmentPI {
     stat->SetShadowColor(10);
     stat->Draw(); 
   }
+
+  /*--------------------------------------------------------------------*/
+  std::pair<float,float> getTheRange(std::map<uint32_t,float> values,const float nsigma)
+  /*--------------------------------------------------------------------*/
+  {
+    float sum = std::accumulate(std::begin(values), 
+				std::end(values), 
+				0.0,
+				[] (float value, const std::map<uint32_t,float>::value_type& p)
+				{ return value + p.second; }
+				);
+    
+    float m =  sum / values.size();
+    
+    float accum = 0.0;
+    std::for_each (std::begin(values), 
+		   std::end(values), 
+		   [&](const std::map<uint32_t,float>::value_type& p) 
+		   {accum += (p.second - m) * (p.second - m);}
+		   );
+    
+    float stdev = sqrt(accum / (values.size()-1)); 
+    
+    if(stdev!=0.){
+      return std::make_pair(m-nsigma*stdev,m+nsigma*stdev);
+    } else {
+      return std::make_pair(m>0.? 0.95*m : 1.05*m, m>0? 1.05*m : 0.95*m);
+    }
+  }
+
 }
 
 #endif

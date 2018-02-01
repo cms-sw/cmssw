@@ -1,5 +1,5 @@
 /*!
-  \file TrackerALignmentErrorExtended_PayloadInspector
+  \file TrackerAlignmentErrorExtended_PayloadInspector
   \Payload Inspector Plugin for Tracker Alignment Errors (APE)
   \author M. Musich
   \version $Revision: 1.0 $

@@ -1,6 +1,6 @@
 /*!
-  \file TrackerALignmentErrorExtended_PayloadInspector
-  \Payload Inspector Plugin for Tracker Alignment Errors (APE)
+  \file TrackerAlignmentErrorExtended_PayloadInspector
+  \Payload Inspector Plugin for Tracker Alignment 
   \author M. Musich
   \version $Revision: 1.0 $
   \date $Date: 2017/07/10 10:59:24 $
