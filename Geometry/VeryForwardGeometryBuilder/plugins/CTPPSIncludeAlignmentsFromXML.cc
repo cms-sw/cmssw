@@ -49,6 +49,30 @@ class  CTPPSIncludeAlignmentsFromXML : public edm::ESProducer, public edm::Event
 
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
+    static edm::EventID previousLS(const edm::EventID &src)
+    {
+      if (src.run() == edm::EventID::maxRunNumber() && src.luminosityBlock() == edm::EventID::maxLuminosityBlockNumber())
+          return src;
+
+      if (src.luminosityBlock() == 0)
+        return edm::EventID(src.run() - 1, edm::EventID::maxLuminosityBlockNumber(), src.event());
+
+      return edm::EventID(src.run(), src.luminosityBlock() - 1, src.event());
+    }
+
+    static edm::EventID nextLS(const edm::EventID &src)
+    {
+      if (src.luminosityBlock() == edm::EventID::maxLuminosityBlockNumber())
+      {
+        if (src.run() == edm::EventID::maxRunNumber())
+          return src;
+
+        return edm::EventID(src.run() + 1, 0, src.event());
+      }
+
+      return edm::EventID(src.run(), src.luminosityBlock() + 1, src.event());
+    }
+
     /// merges an array of sequences to one
     RPAlignmentCorrectionsDataSequence Merge(const std::vector<RPAlignmentCorrectionsDataSequence>&) const;
 
@@ -85,7 +109,7 @@ CTPPSIncludeAlignmentsFromXML::CTPPSIncludeAlignmentsFromXML(const edm::Paramete
   setWhatProduced(this, &CTPPSIncludeAlignmentsFromXML::produceMeasured);
   setWhatProduced(this, &CTPPSIncludeAlignmentsFromXML::produceReal);
   setWhatProduced(this, &CTPPSIncludeAlignmentsFromXML::produceMisaligned);
-  
+
   findingRecord<RPMeasuredAlignmentRecord>();
   findingRecord<RPRealAlignmentRecord>();
   findingRecord<RPMisalignedAlignmentRecord>();
@@ -99,30 +123,30 @@ CTPPSIncludeAlignmentsFromXML::~CTPPSIncludeAlignmentsFromXML()
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignmentsFromXML::Merge(const vector<RPAlignmentCorrectionsDataSequence>& files) const
+RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignmentsFromXML::Merge(const vector<RPAlignmentCorrectionsDataSequence>& seqs) const
 {
   // find interval boundaries
-  map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > > bounds;
+  map< edm::EventID, vector< pair<bool, const RPAlignmentCorrectionsData*> > > bounds;
 
-  for (const auto & file : files)
+  for (const auto & seq : seqs)
   {
-    for (RPAlignmentCorrectionsDataSequence::const_iterator iit = file.begin(); iit != file.end(); ++iit)
+    for (const auto &p : seq)
     {
-      const TimeValidityInterval &tvi = iit->first;
-      const RPAlignmentCorrectionsData *corr = & iit->second;
+      const ValidityInterval &iov = p.first;
+      const RPAlignmentCorrectionsData *corr = & p.second;
 
-      bounds[tvi.first].emplace_back( pair<bool, const RPAlignmentCorrectionsData*>(true, corr) );
+      const EventID &event_first = iov.first().eventID();
+      bounds[event_first].emplace_back( pair<bool, const RPAlignmentCorrectionsData*>(true, corr) );
 
-      TimeValue_t delta = (tvi.last != TimeValidityInterval::EndOfTime()) ? (1ULL << 32) : 0;  // input resolution is 1s
-      bounds[tvi.last + delta].emplace_back( pair<bool, const RPAlignmentCorrectionsData*>(false, corr) );
+      const EventID &event_after = nextLS(iov.last().eventID());
+      bounds[event_after].emplace_back( pair<bool, const RPAlignmentCorrectionsData*>(false, corr) );
     }
   }
-  
+
   // build correction sums per interval
   set<const RPAlignmentCorrectionsData*> accumulator;
   RPAlignmentCorrectionsDataSequence result;
-  //  bool gap_found = false;
-  for (map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > >::const_iterator tit = bounds.begin(); tit != bounds.end(); ++tit)
+  for (map< EventID, vector< pair<bool, const RPAlignmentCorrectionsData*> > >::const_iterator tit = bounds.begin(); tit != bounds.end(); ++tit)
   {
     for (const auto & cit : tit->second)
     {
@@ -134,26 +158,28 @@ RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignmentsFromXML::Merge(const ve
       else 
         accumulator.erase(corr);
     }
-    
-    map< TimeValue_t, vector< pair<bool, const RPAlignmentCorrectionsData*> > >::const_iterator tit_next = tit;
+
+    auto tit_next = tit;
     tit_next++;
     if (tit_next == bounds.end())
       break;
 
-    TimeValue_t delta = (tit_next->first != TimeValidityInterval::EndOfTime()) ? 1 : 0; // minimal step
-    TimeValidityInterval tvi(tit->first, tit_next->first - delta);
+    const EventID &event_first = tit->first;
+    const EventID &event_last = previousLS(tit_next->first);
 
     if (verbosity)
     {
-      printf("\tfirst=%10s, last=%10s: alignment blocks=%li\n",
-        TimeValidityInterval::ValueToUNIXString(tvi.first).c_str(),
-        TimeValidityInterval::ValueToUNIXString(tvi.last).c_str(),
-        accumulator.size()
-      );
+      LogVerbatim("CTPPSIncludeAlignmentsFromXML")
+        << "    first=" << RPAlignmentCorrectionsMethods::iovValueToString(edm::IOVSyncValue(event_first))
+        << ", last=" << RPAlignmentCorrectionsMethods::iovValueToString(edm::IOVSyncValue(event_last))
+        << ": alignment blocks " << accumulator.size();
     }
 
+    RPAlignmentCorrectionsData corr_sum;
     for (auto sit : accumulator)
-      result[tvi].addCorrections(*sit);
+      corr_sum.addCorrections(*sit);
+
+    result.insert(edm::ValidityInterval(edm::IOVSyncValue(event_first), edm::IOVSyncValue(event_last)), corr_sum);
   }
 
   return result;
@@ -164,7 +190,7 @@ RPAlignmentCorrectionsDataSequence CTPPSIncludeAlignmentsFromXML::Merge(const ve
 void CTPPSIncludeAlignmentsFromXML::PrepareSequence(const string &label, RPAlignmentCorrectionsDataSequence &seq, const vector<string> &files) const
 {
   if (verbosity)
-    printf(">> CTPPSIncludeAlignmentsFromXML::PrepareSequence(%s)\n", label.c_str());
+    LogVerbatim(">> CTPPSIncludeAlignmentsFromXML") << "CTPPSIncludeAlignmentsFromXML::PrepareSequence(" << label << ")";
 
   vector<RPAlignmentCorrectionsDataSequence> sequences;
   for (const auto & file : files)
@@ -201,83 +227,102 @@ void CTPPSIncludeAlignmentsFromXML::setIntervalFor(const edm::eventsetup::EventS
 {
   if (verbosity)
   {
-    LogVerbatim("CTPPSIncludeAlignmentsFromXML")
-      << ">> CTPPSIncludeAlignmentsFromXML::setIntervalFor(" << key.name() << ")";
-
     time_t unixTime = iosv.time().unixTime();
     char timeStr[50];
     strftime(timeStr, 50, "%F %T", localtime(&unixTime));
 
     LogVerbatim("CTPPSIncludeAlignmentsFromXML")
-      << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event() << ", UNIX timestamp=" << unixTime << " (" << timeStr << ")";
+      << ">> CTPPSIncludeAlignmentsFromXML::setIntervalFor(" << key.name() << ")";
+
+    LogVerbatim("CTPPSIncludeAlignmentsFromXML")
+      << "    event=" << iosv.eventID() << ", UNIX timestamp=" << unixTime << " (" << timeStr << ")";
   }
 
   // determine what sequence and corrections should be used
-  RPAlignmentCorrectionsDataSequence *seq = nullptr;
-  RPAlignmentCorrectionsData *corr = nullptr;
+  RPAlignmentCorrectionsDataSequence *p_seq = nullptr;
+  RPAlignmentCorrectionsData *p_corr = nullptr;
 
   if (strcmp(key.name(), "RPMeasuredAlignmentRecord") == 0)
   {
-    seq = &acsMeasured;
-    corr = &acMeasured;
+    p_seq = &acsMeasured;
+    p_corr = &acMeasured;
   }
 
   if (strcmp(key.name(), "RPRealAlignmentRecord") == 0)
   {
-    seq = &acsReal;
-    corr = &acReal;
+    p_seq = &acsReal;
+    p_corr = &acReal;
   }
 
   if (strcmp(key.name(), "RPMisalignedAlignmentRecord") == 0)
   {
-    seq = &acsMisaligned;
-    corr = &acMisaligned;
+    p_seq = &acsMisaligned;
+    p_corr = &acMisaligned;
   }
 
-  if (seq == nullptr)
+  if (p_seq == nullptr)
     throw cms::Exception("CTPPSIncludeAlignmentsFromXML::setIntervalFor") << "Unknown record " << key.name();
 
-  // find the corresponding time interval
+  // find the corresponding interval
   bool next_exists = false;
-  TimeValue_t t = iosv.time().value(), next_start = TimeValidityInterval::EndOfTime();
+  const edm::EventID &event_curr = iosv.eventID();
+  edm::EventID event_next_start(edm::EventID::maxRunNumber(), edm::EventID::maxLuminosityBlockNumber(), 1);
 
-  for (auto & it : *seq)
+  for (const auto &it: *p_seq)
   {
-    if (it.first.first <= t && it.first.last >= t)
+    const auto &it_event_first = it.first.first().eventID();
+    const auto &it_event_last = it.first.last().eventID();
+
+    bool it_contained_lo = ( (it_event_first.run() < event_curr.run()) ||
+        ((it_event_first.run() == event_curr.run()) && (it_event_first.luminosityBlock() <= event_curr.luminosityBlock())) );
+
+    bool it_contained_up = ( (it_event_last.run() > event_curr.run()) ||
+        ((it_event_last.run() == event_curr.run()) && (it_event_last.luminosityBlock() >= event_curr.luminosityBlock())) );
+
+    if (it_contained_lo && it_contained_up)
     {
-      valInt = ValidityInterval(IOVSyncValue(Timestamp(it.first.first)), IOVSyncValue(Timestamp(it.first.last)));
-      *corr = it.second;
+      valInt = it.first;
+      *p_corr = it.second;
 
       if (verbosity)
       {
         LogVerbatim("CTPPSIncludeAlignmentsFromXML")
-          << "    setting validity interval [" << TimeValidityInterval::ValueToUNIXString(valInt.first().time().value())
-          << ", " << TimeValidityInterval::ValueToUNIXString(valInt.last().time().value()) << "]";
+          << "    setting validity interval ["
+          << RPAlignmentCorrectionsMethods::iovValueToString(valInt.first())
+          << ", " << RPAlignmentCorrectionsMethods::iovValueToString(valInt.last()) << "]";
       }
 
       return;
     }
 
-    if (t <= it.first.first)
+    bool it_in_future = ( (it_event_first.run() > event_curr.run()) ||
+        ((it_event_first.run() == event_curr.run() && (it_event_first.luminosityBlock() > event_curr.luminosityBlock()))) );
+
+    if (it_in_future)
     {
       next_exists = true;
-      next_start = min(next_start, it.first.first);
+      if (event_next_start > it_event_first)
+        event_next_start = it_event_first;
     }
   }
-    
+
   // no interval found, set empty corrections
-  *corr = RPAlignmentCorrectionsData();
+  *p_corr = RPAlignmentCorrectionsData();
 
   if (!next_exists)
+  {
     valInt = ValidityInterval(iosv, iosv.endOfTime());
-  else 
-    valInt = ValidityInterval(iosv, IOVSyncValue(Timestamp(next_start - 1)));
-  
+  } else {
+    const EventID &event_last = previousLS(event_next_start);
+    valInt = ValidityInterval(iosv, IOVSyncValue(event_last));
+  }
+
   if (verbosity)
   {
     LogVerbatim("CTPPSIncludeAlignmentsFromXML")
-      << "    setting validity interval [" << TimeValidityInterval::ValueToUNIXString(valInt.first().time().value())
-      << ", " << TimeValidityInterval::ValueToUNIXString(valInt.last().time().value()) << "]";
+      << "    setting validity interval ["
+      << RPAlignmentCorrectionsMethods::iovValueToString(valInt.first())
+      << ", " << RPAlignmentCorrectionsMethods::iovValueToString(valInt.last()) << "] (empty alignment corrections)";
   }
 }
 
