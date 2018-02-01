@@ -25,8 +25,8 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap, SiPixelFedCabling
   std::vector<unsigned int>  RawId(MAX_SIZE);
   std::vector<unsigned int>  rocInDet(MAX_SIZE);
   std::vector<unsigned int>  moduleId(MAX_SIZE);
-  std::vector<unsigned char> badRocs(MAX_SIZE);
-  std::vector<unsigned char> modToUnp(MAX_SIZE);
+  std::vector<short int>     badRocs(MAX_SIZE);
+  std::vector<short int>     modToUnp(MAX_SIZE);
   std::set<unsigned int>     rawIdSet;
 
   unsigned int startFed = *(fedIds.begin());
@@ -47,17 +47,15 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap, SiPixelFedCabling
           RawId[index] = pixelRoc->rawId();
           rocInDet[index] = pixelRoc->idInDetUnit();
           rawIdSet.insert(RawId[index]);
-          if (badPixelInfo != nullptr){
-            modToUnp[index] = (modules.size() != 0) && (modules.find(pixelRoc->rawId()) == modules.end());
+          modToUnp[index] = (modules.size() != 0) && (modules.find(pixelRoc->rawId()) == modules.end());
+          if (badPixelInfo != nullptr)
             badRocs[index] = badPixelInfo->IsRocBad(pixelRoc->rawId(), pixelRoc->idInDetUnit());
-          } else{
-            modToUnp[index] = false;
-            badRocs[index] = true;
-          }
+          else
+            badRocs[index] = false;
         } else { // store some dummy number
           RawId[index] = 9999;
           rocInDet[index] = 9999;
-          modToUnp[index] = false;
+          modToUnp[index] = true;
           badRocs[index] = true;
         }
         index++;
@@ -91,7 +89,7 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap, SiPixelFedCabling
       }
       moduleId[i] = it->second;
     }
-    LogDebug("SiPixelFed/CablingMapGPU") << "----------------------------------------------------------------------------" << std::endl;
+    LogDebug("SiPixelFedCablingMapGPU") << "----------------------------------------------------------------------------" << std::endl;
     LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << fedMap[i]  << std::setw(20) << linkMap[i]  << std::setw(20) << rocMap[i] << std::endl;
     LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << RawId[i]   << std::setw(20) << rocInDet[i] << std::setw(20) << moduleId[i] << std::endl;
     LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << badRocs[i] << std::setw(20) << modToUnp[i] << std::endl;
@@ -105,8 +103,9 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap, SiPixelFedCabling
   cudaCheck(cudaMemcpy(cablingMapGPU->RawId,    RawId.data(),    RawId.size()    * sizeof(unsigned int), cudaMemcpyHostToDevice));
   cudaCheck(cudaMemcpy(cablingMapGPU->rocInDet, rocInDet.data(), rocInDet.size() * sizeof(unsigned int), cudaMemcpyHostToDevice));
   cudaCheck(cudaMemcpy(cablingMapGPU->moduleId, moduleId.data(), moduleId.size() * sizeof(unsigned int), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(cablingMapGPU->badRocs,  badRocs.data(),  badRocs.size()  * sizeof(unsigned char), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(cablingMapGPU->modToUnp, modToUnp.data(), modToUnp.size() * sizeof(unsigned char), cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(cablingMapGPU->badRocs,  badRocs.data(),  badRocs.size()  * sizeof(short int), cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(cablingMapGPU->modToUnp, modToUnp.data(), modToUnp.size() * sizeof(short int), cudaMemcpyHostToDevice));
   cudaCheck(cudaMemcpy(cablingMapDevice, cablingMapGPU, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyHostToDevice));
   cudaDeviceSynchronize();
 }
+

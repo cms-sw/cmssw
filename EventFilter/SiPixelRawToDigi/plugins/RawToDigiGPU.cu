@@ -50,7 +50,7 @@ context initDeviceMemory() {
   cudaCheck(cudaMalloc((void**) & c.xx_adc,        MAX_WORD16_SIZE)); // to store the x and y coordinate
   cudaCheck(cudaMalloc((void**) & c.yy_adc,        MAX_WORD16_SIZE));
   cudaCheck(cudaMalloc((void**) & c.adc_d,         MAX_WORD16_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.layer_d ,      MAX_WORD16_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.layer_d,       MAX_WORD16_SIZE));
   cudaCheck(cudaMalloc((void**) & c.rawIdArr_d,    MAX_WORD32_SIZE));
   cudaCheck(cudaMalloc((void**) & c.errType_d,     MAX_WORD32_SIZE));
   cudaCheck(cudaMalloc((void**) & c.errWord_d,     MAX_WORD32_SIZE));
@@ -72,14 +72,17 @@ void freeMemory(context & c) {
   cudaCheck(cudaFree(c.word_d));
   cudaCheck(cudaFree(c.fedId_d));
   cudaCheck(cudaFree(c.pdigi_d));
-  cudaCheck(cudaFree(c.adc_d));
-  cudaCheck(cudaFree(c.layer_d));
   cudaCheck(cudaFree(c.xx_d));
   cudaCheck(cudaFree(c.yy_d));
   cudaCheck(cudaFree(c.xx_adc));
   cudaCheck(cudaFree(c.yy_adc));
+  cudaCheck(cudaFree(c.adc_d));
+  cudaCheck(cudaFree(c.layer_d));
   cudaCheck(cudaFree(c.rawIdArr_d));
-  cudaCheck(cudaFree(c.moduleId_d));
+  cudaCheck(cudaFree(c.errType_d));
+  cudaCheck(cudaFree(c.errWord_d));
+  cudaCheck(cudaFree(c.errFedID_d));
+  cudaCheck(cudaFree(c.errRawID_d));
   cudaCheck(cudaFree(c.mIndexStart_d));
   cudaCheck(cudaFree(c.mIndexEnd_d));
 
@@ -121,7 +124,7 @@ __device__ DetIdGPU getRawId(const SiPixelFedCablingMapGPU * Map, uint32_t fed, 
 // Convert local pixel to global pixel
 __device__ Pixel frameConversion(bool bpix, int side, uint32_t layer, uint32_t rocIdInDetUnit, Pixel local) {
 
-  int slopeRow  = 0,  slopeCol = 0;
+  int slopeRow  = 0, slopeCol = 0;
   int rowOffset = 0, colOffset = 0;
 
   if (bpix) {
@@ -206,26 +209,26 @@ __device__ uint32_t conversionError(uint32_t fedId, uint32_t status, bool debug 
 
   switch (status) {
       case(1) : {
-        if (debug) printf("Error in Fed: %i, invalid channel Id (errorType=35)", fedId );
+        if (debug) printf("Error in Fed: %i, invalid channel Id (errorType = 35\n)", fedId );
         errorType = 35;
         break;
       }
       case(2) : {
-        if (debug) printf("Error in Fed: %i, invalid ROC Id (errorType=36)", fedId);
+        if (debug) printf("Error in Fed: %i, invalid ROC Id (errorType = 36)\n", fedId);
         errorType = 36;
         break;
       }
       case(3) : {
-        if (debug) printf("Error in Fed: %i, invalid dcol/pixel value (errorType=37)", fedId);
+        if (debug) printf("Error in Fed: %i, invalid dcol/pixel value (errorType = 37)\n", fedId);
         errorType = 37;
         break;
       }
       case(4) : {
-        if (debug) printf("Error in Fed: %i, dcol/pixel read out of order (errorType=38)", fedId);
+        if (debug) printf("Error in Fed: %i, dcol/pixel read out of order (errorType = 38)\n", fedId);
         errorType = 38;
         break;
       }
-      default: if (debug) printf("Cabling check returned unexpected result, status = %i", status);
+      default: if (debug) printf("Cabling check returned unexpected result, status = %i\n", status);
   };
 
   return errorType;
@@ -253,6 +256,7 @@ __device__ uint32_t checkROC(uint32_t errorWord, uint32_t fedId, uint32_t link, 
 {
 
  int errorType = (errorWord >> ROC_shift) & ERROR_mask;
+ if (errorType < 25) return false;
  bool errorFound = false;
 
  switch (errorType) {
@@ -262,47 +266,47 @@ __device__ uint32_t checkROC(uint32_t errorWord, uint32_t fedId, uint32_t link, 
      if (index > 1 && index <= Map->size){
        if (!(link == Map->link[index] && 1 == Map->roc[index])) errorFound = false;
      }
-     if (debug&errorFound) printf("Invalid ROC = 25 found (errorType=25)");
+     if (debug&errorFound) printf("Invalid ROC = 25 found (errorType = 25)\n");
      break;
    }
    case(26) : {
-     if (debug) printf("Gap word found (errorType=26)");
+     if (debug) printf("Gap word found (errorType = 26)\n");
      errorFound = true;
      break;
    }
    case(27) : {
-     if (debug) printf("Dummy word found (errorType=27)");
+     if (debug) printf("Dummy word found (errorType = 27)\n");
      errorFound = true;
      break;
    }
    case(28) : {
-     if (debug) printf("Error fifo nearly full (errorType=28)");
+     if (debug) printf("Error fifo nearly full (errorType = 28)\n");
      errorFound = true;
      break;
    }
    case(29) : {
-     if (debug) printf("Timeout on a channel (errorType=29)");
+     if (debug) printf("Timeout on a channel (errorType = 29)\n");
      if ((errorWord >> OMIT_ERR_shift) & OMIT_ERR_mask) {
-       if (debug) printf("...first errorType=29 error, this gets masked out");
+       if (debug) printf("...first errorType=29 error, this gets masked out\n");
      }
      errorFound = true;
      break;
    }
    case(30) : {
-     if (debug) printf("TBM error trailer (errorType=30)");
-     int StateMatch_bits      = 4;
-     int StateMatch_shift     = 8;
+     if (debug) printf("TBM error trailer (errorType = 30)\n");
+     int StateMatch_bits = 4;
+     int StateMatch_shift = 8;
      uint32_t StateMatch_mask = ~(~uint32_t(0) << StateMatch_bits);
      int StateMatch = (errorWord >> StateMatch_shift) & StateMatch_mask;
      if ( StateMatch != 1 && StateMatch != 8 ) {
-       if (debug) printf("FED error 30 with unexpected State Bits (errorType=30)");
+       if (debug) printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
      }
-     if ( StateMatch==1 ) errorType = 40; // 1=Overflow -> 40, 8=number of ROCs -> 30
+     if ( StateMatch == 1 ) errorType = 40; // 1=Overflow -> 40, 8=number of ROCs -> 30
      errorFound = true;
      break;
    }
    case(31) : {
-     if (debug) printf("Event number error (errorType=31)");
+     if (debug) printf("Event number error (errorType = 31)\n");
      errorFound = true;
      break;
    }
@@ -322,13 +326,14 @@ __device__ uint32_t getErrRawID(uint32_t fedId, uint32_t errWord, uint32_t error
 
   switch (errorType) {
     case  25 : case  30 : case  31 : case  36 : case 40 : {
-      // set dummy values for cabling just to get detId from link
+      //set dummy values for cabling just to get detId from link
       //cabling.dcol = 0;
       //cabling.pxid = 2;
       uint32_t roc  = 1;
       uint32_t link = (errWord >> LINK_shift) & LINK_mask;
 
-      rID = getRawId(Map, fedId, link, roc).RawId;
+      uint32_t rID_temp = getRawId(Map, fedId, link, roc).RawId;
+      if(rID_temp != 9999) rID = rID_temp;
       break;
     }
     case  29 : {
@@ -359,7 +364,8 @@ __device__ uint32_t getErrRawID(uint32_t fedId, uint32_t errWord, uint32_t error
       //cabling.pxid = 2;
       uint32_t roc  = 1;
       uint32_t link = chanNmbr;
-      rID = getRawId(Map, fedId, link, roc).RawId;
+      uint32_t rID_temp = getRawId(Map, fedId, link, roc).RawId;
+      if(rID_temp != 9999) rID = rID_temp;
       break;
     }
     case  37 : case  38: {
@@ -367,7 +373,8 @@ __device__ uint32_t getErrRawID(uint32_t fedId, uint32_t errWord, uint32_t error
       //cabling.pxid = 2;
       uint32_t roc  = (errWord >> ROC_shift) & ROC_mask;
       uint32_t link = (errWord >> LINK_shift) & LINK_mask;
-      rID = getRawId(Map, fedId, link, roc).RawId;
+      uint32_t rID_temp = getRawId(Map, fedId, link, roc).RawId;
+      if(rID_temp != 9999) rID = rID_temp;
       break;
     }
 
@@ -463,7 +470,7 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
         ADC[gIndex]   = 0;
         layerArr[gIndex] = 0;
         moduleId[gIndex] = 9999; //9999 is the indication of bad module, taken care later
-        continue ; // 0: bad word,
+        continue ; // 0: bad word
       }
 
 
@@ -476,7 +483,7 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
       skipROC = (roc < maxROCIndex) ? false : (errorType != 0);
       if (includeErrors and skipROC)
       {
-        uint32_t rID = getErrRawID(fedId, ww, errorType, Map, debug); //write the function
+        uint32_t rID = getErrRawID(fedId, ww, errorType, Map, debug);
         errType[gIndex]  = errorType;
         errWord[gIndex]  = ww;
         errFedID[gIndex] = fedId;
@@ -487,7 +494,6 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
 
       uint32_t rawId  = detId.RawId;
       uint32_t rocIdInDetUnit = detId.rocInDet;
-
       bool barrel = isBarrel(rawId);
 
       uint32_t index = fedId * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + roc;
@@ -507,14 +513,14 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
       {
         layer  = (rawId >> layerStartBit_) & layerMask_;
         module = (rawId >> moduleStartBit_) & moduleMask_;
-        side   = (module<5)? -1 : 1;
+        side   = (module < 5)? -1 : 1;
       }
       else {
         // endcap ids
         layer = 0;
         panel = (rawId >> panelStartBit_) & panelMask_;
         //disk  = (rawId >> diskStartBit_)  & diskMask_ ;
-        side  = (panel==1)? -1 : 1;
+        side  = (panel == 1)? -1 : 1;
         //blade = (rawId>>bladeStartBit_) & bladeMask_;
       }
 
@@ -532,7 +538,7 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
             errWord[gIndex]  = ww;
             errFedID[gIndex] = fedId;
             errRawID[gIndex] = rawId;
-            // printf("BPIX1  Error status: %i\n", error);
+            if(debug) printf("BPIX1  Error status: %i\n", error);
             continue;
           }
         }
@@ -550,13 +556,12 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
           errWord[gIndex] = ww;
           errFedID[gIndex] = fedId;
           errRawID[gIndex] = rawId;
-          // printf("Error status: %i %d %d %d %d\n", error, dcol, pxid, fedId, roc);
+          if(debug) printf("Error status: %i %d %d %d %d\n", error, dcol, pxid, fedId, roc);
           continue;
         }
       }
 
       Pixel globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
-      //printf("GPU side: %i, layer: %i, roc: %i, lrow: %i, lcol: %i, grow: %i, gcol: %i, word: %i\n", side, layer, rocIdInDetUnit, localPix.row, localPix.col, globalPix.row, globalPix.col, ww);
       XX[gIndex]    = globalPix.row  ; // origin shifting by 1 0-159
       YY[gIndex]    = globalPix.col ; // origin shifting by 1 0-415
       ADC[gIndex]   = getADC(ww);
@@ -650,7 +655,7 @@ void RawToDigi_wrapper(
 
   */
 
-   assert(0 == wordCounter%2);
+  assert(0 == wordCounter%2);
   // wordCounter is the total no of words in each event to be trasfered on device
   cudaCheck(cudaMemcpyAsync(&c.word_d[0],     &word[0],     wordCounter*sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
   cudaCheck(cudaMemcpyAsync(&c.fedId_d[0], &fedId_h[0], wordCounter*sizeof(uint8_t)/2, cudaMemcpyHostToDevice, c.stream));

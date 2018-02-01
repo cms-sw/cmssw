@@ -162,14 +162,14 @@ SiPixelRawToDigiGPU::~SiPixelRawToDigiGPU() {
   }
   cudaFreeHost(word);
   cudaFreeHost(fedId_h);
-  cudaFreeHost( pdigi_h);
-  cudaFreeHost( rawIdArr_h);
-  cudaFreeHost( errType_h);
-  cudaFreeHost( errRawID_h);
-  cudaFreeHost( errWord_h);
-  cudaFreeHost( errFedID_h);
-  cudaFreeHost( mIndexStart_h);
-  cudaFreeHost( mIndexEnd_h);
+  cudaFreeHost(pdigi_h);
+  cudaFreeHost(rawIdArr_h);
+  cudaFreeHost(errType_h);
+  cudaFreeHost(errRawID_h);
+  cudaFreeHost(errWord_h);
+  cudaFreeHost(errFedID_h);
+  cudaFreeHost(mIndexStart_h);
+  cudaFreeHost(mIndexEnd_h);
 
   // release device memory for cabling map
   deallocateCablingMap(cablingMapGPUHost_, cablingMapGPUDevice_);
@@ -384,7 +384,6 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
             errors[errRawID_h[i]].push_back(error);
         }
     }
-
 
 
   fedCounter =0;

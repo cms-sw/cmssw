@@ -152,7 +152,6 @@ struct context {
 
   uint32_t * word_d;
   uint8_t * fedId_d;
-  uint32_t * eventIndex_d;
   uint32_t * pdigi_d;
   uint16_t * xx_d;
   uint16_t * yy_d;
