@@ -42,7 +42,7 @@ public:
   JetConstituentSelector(edm::ParameterSet const& params) :
     srcToken_{consumes<edm::View<T>>(params.getParameter<edm::InputTag>("src"))},
     selector_{params.getParameter<std::string>("cut")},
-    unpackAK8_{params.existsAs<bool>("unpackAK8") ? params.getParameter<bool>("unpackAK8") : false}
+    unpackAK8_{params.getParameter<bool>("unpackAK8")}
   {
     produces<JetsOutput>();
     produces<ConstituentsOutput>("constituents");
@@ -54,7 +54,7 @@ public:
     desc.add<edm::InputTag>("src")->setComment("InputTag used for retrieving jets in event.");
     desc.add<std::string>("cut")->setComment("Cut used by which to select jets.  For example:\n"
                                              "  \"pt > 100.0 && abs(rapidity()) < 2.4\".");
-    desc.add<bool>("unpackAK8")->setComment("Assume the jets are AK8 jets from miniAOD and need to be unpacked.");
+    desc.add<bool>("unpackAK8", false)->setComment("Assume the jets are AK8 jets from miniAOD and need to be unpacked.");
 
     // addDefault must be used here instead of add unless this function is specialized
     // for different sets of template parameter types. Each specialization would need
