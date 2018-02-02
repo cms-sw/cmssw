@@ -25,8 +25,9 @@ namespace l1t
       res = static_cast<BMTFCollections*>(coll)->getBMTFMuons();
       //BxBlocks changed the format of the blocks
       int firstBX = 0, lastBX = 0;
-      int nBX = bxBlocks[0].header().getTotalBx();//how many BX included in the BxBlock before Suppression
-      if (nBX > 0) {
+      int nBX = 0;
+      if (!bxBlocks.empty()) {
+	nBX = bxBlocks[0].header().getTotalBx();//how many BX included in the BxBlock before Suppression
 	getBXRange(nBX, firstBX, lastBX);
 	res->setBXRange(firstBX, lastBX);
       }
