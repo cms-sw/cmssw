@@ -92,7 +92,8 @@ namespace edm {
       return luminosityBlockPrincipal_ != nullptr;
     }
 
-    void setLuminosityBlockPrincipal(std::shared_ptr<LuminosityBlockPrincipal> const& lbp);
+    //does not share ownership
+    void setLuminosityBlockPrincipal(LuminosityBlockPrincipal* lbp);
 
     void setRunAndLumiNumber(RunNumber_t run, LuminosityBlockNumber_t lumi);
 
