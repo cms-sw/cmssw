@@ -480,7 +480,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a()
 }
 
 
-bool CSCMotherboardME11::doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int me)
+bool CSCMotherboardME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c, int me) const
 {
   if ( !c.isValid() || !a.isValid() ) return false;
   int key_hs = c.getKeyStrip();

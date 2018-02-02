@@ -72,7 +72,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   /** SLHC: special configuration parameters for ME11 treatment. */
   bool smartME1aME1b, disableME1a, gangedME1a;
 
-  bool doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int me);
+  bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c, int me) const;
 
   /** for the case when more than 2 LCTs/BX are allowed;
       maximum match window = 15 */
