@@ -13,8 +13,6 @@ namespace l1t
       unsigned int blockId = block.header().getID();
       LogDebug("L1T") << "Block ID: " << blockId << " size: " << block.header().getSize();
 			
-      auto payload = block.payload();
-
       //ZeroSupression Handler
       BxBlocks bxBlocks;
       bool ZS_enabled = (bool)((block.header().getFlags() >> 1) & 0x01);//getFlags() returns first 8-bits from the amc header
@@ -27,14 +25,15 @@ namespace l1t
       res = static_cast<BMTFCollections*>(coll)->getBMTFMuons();
       //BxBlocks changed the format of the blocks
       int firstBX = 0, lastBX = 0;
-      for (auto bxBlock : bxBlocks) {
-      	int bx = bxBlock.header().getBx();
-      	if (bx < firstBX)
-      	  firstBX = bx;
+      int nBX = bxBlocks[0].header().getTotalBx();//how many BX included in the BxBlock before Suppression
+      if (nBX > 0) {
+	getBXRange(nBX, firstBX, lastBX);
+	res->setBXRange(firstBX, lastBX);
       }
-      lastBX = -firstBX;
-      int nBX = lastBX - firstBX + 1;
-      res->setBXRange(-2, 2);
+      else {
+	LogDebug("L1T") << "No BXs included in the given Block";
+	return true;
+      }
 
       LogDebug("L1T") << "nBX = " << nBX << " firstBX = " << firstBX << " lastBX = " << lastBX;
 			
