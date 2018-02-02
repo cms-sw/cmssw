@@ -32,8 +32,8 @@ def runjob(args):
         os.remove(output_db)
 
     # run cmssw job: raise error if failed
-    command = 'cmsRun {cfg} delay={delay} destinationConnection={destFile} conddbConnection={conddb} tag={tag}'.format(
-        cfg=cfg, delay=args.delay, destFile='sqlite:///%s' % output_db, conddb=args.condDbRead, tag=args.inputTag)
+    command = 'cmsRun {cfg} delay={delay} destinationConnection={destFile} sourceConnection={sourceDb} conddbConnection={conddb} tag={tag}'.format(
+        cfg=cfg, delay=args.delay, destFile='sqlite:///%s' % output_db, sourceDb=args.sourceDb, conddb=args.condDbRead, tag=args.inputTag)
     pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     atexit.register(partial(helper.kill_subproc_noexcept, pipe))
     out = pipe.communicate()[0]
@@ -69,6 +69,7 @@ def main():
     parser = argparse.ArgumentParser(description='Run a single O2O job for SiStrip DCS and upload the payloads to condition database.')
     parser.add_argument('--delay', required=True, help='Time delay (in hours) for the O2O. The O2O then queries the PVSS DB from last IOV until (current hour - delay), ignoring minutes and seconds.')
     parser.add_argument('--destTags', required=True, help='Destination tag name(s) for upload. Use comma to separate multiple values.')
+    parser.add_argument('--sourceDb', required=True, help='Connection string for the source database.')
     parser.add_argument('--destDb', required=True, help='Destination DB to upload.')
     parser.add_argument('--inputTag', required=True, help='Tag name to be used in the sqlite file.')
     parser.add_argument('--condDbRead', default='oracle://cms_orcon_adg/CMS_CONDITIONS', help='Connection string for the DB from which the fast O2O retrives payloads.')
