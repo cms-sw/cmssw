@@ -24,15 +24,13 @@ private:
 
   std::string rootDDName_; // this must be the form namespace:name
   std::string label_;
-  std::string compactViewTag_;
 };
 
 XMLIdealGeometryESProducer::XMLIdealGeometryESProducer( const edm::ParameterSet& iConfig )
   : rootDDName_( iConfig.getParameter<std::string>( "rootDDName" )),
-    label_( iConfig.getParameter<std::string>( "label" )),
-    compactViewTag_( iConfig.getUntrackedParameter<std::string>( "compactViewTag", "" ))
+    label_( iConfig.getParameter<std::string>( "label" ))
 {
-  setWhatProduced( this, compactViewTag_ );
+  setWhatProduced( this );
 }
 
 XMLIdealGeometryESProducer::ReturnType
