@@ -50,10 +50,10 @@ G4MagIntegratorStepper * FieldStepper::select(const std::string & ss)
     else
     {
       edm::LogWarning("SimG4CoreMagneticField") 
-        << " FieldStepper invalid choice, defaulting to G4ClassicalRK4 ";
+        << " FieldStepper <" << ss << "> is not known, defaulting to G4ClassicalRK4 ";
       theStepper = new G4ClassicalRK4(theEquation);
     }
-    edm::LogWarning("SimG4CoreMagneticField") 
-      << "### FieldStepper <" << ss << ">";
+    edm::LogInfo("SimG4CoreMagneticField") 
+      << "### FieldStepper: <" << ss << ">";
     return theStepper;
 }
