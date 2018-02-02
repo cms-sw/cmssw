@@ -116,7 +116,7 @@ class CSCMotherboard
   unsigned int match_trig_window_size, tmb_l1a_window_size;
 
   /** Central BX */
-  int lct_central_bx;
+  int lct_central_bx = CSCConstants::LCT_CENTRAL_BX;
 
   /** SLHC: whether to not reuse ALCTs that were used by previous matching CLCTs */
   bool drop_used_alcts;
