@@ -12,6 +12,7 @@
 #include "Pythia8Plugins/HepMC2.h"
 
 #include "Vincia/Vincia.h"
+#include "Dire/Dire.h"
 
 using namespace Pythia8;
 
@@ -97,6 +98,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
   private:
 
     std::auto_ptr<Vincia::VinciaPlugin> fvincia;
+    std::auto_ptr<Pythia8::Dire> fDire;
 
     void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
     std::vector<std::string> const& doSharedResources() const override { return p8SharedResources; }
@@ -313,6 +315,12 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     fMasterGen.reset(new Pythia);
     fvincia.reset(new Vincia::VinciaPlugin(fMasterGen.get()));
   }
+  if( params.exists( "DirePlugin" ) ) {
+    fMasterGen.reset(new Pythia);
+    fDire.reset(new Pythia8::Dire());
+    fDire->initSettings(*fMasterGen.get());
+    fDire->initShowersAndWeights(*fMasterGen.get(), NULL, NULL);
+  }
 
 }
 
@@ -441,7 +449,15 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
   if( fvincia.get() ) {
     fvincia->init(); status = true;
-  } else {
+  }
+  else if( fDire.get() ) {
+    //fDire->initTune(*fMasterGen.get());
+    fDire->weightsPtr->setup();
+    fMasterGen->init();
+    fDire->setup(*fMasterGen.get());
+    status = true;
+  }
+  else {
     status = fMasterGen->init();
   }
   
@@ -738,6 +754,21 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
       event()->weights().push_back(wgt);
     }
   }
+  
+  // Retrieve Dire shower weights
+  if( fDire.get() ) {
+    fDire->weightsPtr->calcWeight(0.);
+    fDire->weightsPtr->reset();
+    
+    //Make sure the base weight comes first
+    event()->weights()[0] *= fDire->weightsPtr->getShowerWeight("base");
+    
+    map<string, double>::iterator it;
+    for ( it = fDire->weightsPtr->getShowerWeights()->begin(); it != fDire->weightsPtr->getShowerWeights()->end(); it++ ) {
+      if (it->first == "base") continue;
+      event()->weights().push_back(it->second);
+    }
+  }
 
   return true;
   
@@ -959,6 +990,17 @@ GenLumiInfoHeader *Pythia8Hadronizer::getGenLumiInfoHeader() const {
   if( fMasterGen->info.nWeights() > 1 ){
     for(int i = 0; i < fMasterGen->info.nWeights(); ++i) {
       genLumiInfoHeader->weightNames().push_back( fMasterGen->info.weightLabel(i) );
+    }
+  }
+  
+  if( fDire.get() ) {
+    //Make sure the base weight comes first
+    genLumiInfoHeader->weightNames().push_back("base");
+    
+    map<string, double>::iterator it;
+    for ( it = fDire->weightsPtr->getShowerWeights()->begin(); it != fDire->weightsPtr->getShowerWeights()->end(); it++ ) {
+      if (it->first == "base") continue;
+      genLumiInfoHeader->weightNames().push_back(it->first);
     }
   }
 
