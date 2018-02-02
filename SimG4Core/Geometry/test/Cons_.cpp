@@ -43,13 +43,14 @@ testCons::matched_g4_and_dd( void )
   double g4v = g4.GetCubicVolume()/cm3;
   double ddv = dd.volume()/cm3;
   double ddsv = dds.volume()/cm3;
+  double precision_in_digits = 1e-12;
   
   std::cout << "\tg4 volume = " << g4v <<" cm3" << std::endl;
   std::cout << "\tdd volume = " << ddv << " cm3" <<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol=" << ddsv << " cm3" << std::endl;
-  
-  CPPUNIT_ASSERT( g4v == ddv );
-  CPPUNIT_ASSERT( g4v == ddsv );
+
+  CPPUNIT_ASSERT( std::fabs(g4v - ddv) < precision_in_digits );
+  CPPUNIT_ASSERT( std::fabs(g4v - ddsv) < precision_in_digits );
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testCons );
