@@ -4,13 +4,6 @@ process = cms.Process("GeometryWriter")
 
 process.load('CondCore.CondDB.CondDB_cfi')
 
-# This will read all the little XML files and from
-# that fill the DDCompactView. The modules that fill
-# the reco part of the database need the DDCompactView.
-# process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
-# from Geometry.VeryForwardGeometry.geometryRP_cfi import XMLIdealGeometryESSource_CTPPS
-# process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
-
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
                             timetype = cms.string('runnumber'),
@@ -33,7 +26,7 @@ process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),
-                                                                     tag = cms.string('XMLFILE_Geometry_TagXX_Extended2017_mc'))
+                                                                     tag = cms.string('XMLFILE_CTPPS_Geometry_TagXX'))
                                                             )
                                           )
 
