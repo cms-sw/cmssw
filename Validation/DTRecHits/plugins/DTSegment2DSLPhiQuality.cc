@@ -49,7 +49,8 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
 void DTSegment2DSLPhiQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
   // Book the histos
   histograms.h2DHitSuperPhi = new HRes2DHit ("SuperPhi", booker, doall_, local_);
-  if (doall_) histograms.h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi", booker);
+  if (doall_) { histograms.h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi", booker);
+}
 }
 
 /* FIXME these shoud be moved to the harvesting step
@@ -70,12 +71,11 @@ void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const& event, edm::EventSetu
 
   // Map simHits by chamber
   map<DTChamberId, PSimHitContainer > simHitsPerCh;
-  for (PSimHitContainer::const_iterator simHit = simHits->begin();
-      simHit != simHits->end(); simHit++) {
+  for (const auto & simHit : *simHits) {
     // Create the id of the chamber (the simHits in the DT known their wireId)
-    DTChamberId chamberId = (((DTWireId(simHit->detUnitId())).layerId()).superlayerId()).chamberId();
+    DTChamberId chamberId = (((DTWireId(simHit.detUnitId())).layerId()).superlayerId()).chamberId();
     // Fill the map
-    simHitsPerCh[chamberId].push_back(*simHit);
+    simHitsPerCh[chamberId].push_back(simHit);
   }
 
   // Get the 4D rechits from the event
@@ -83,9 +83,10 @@ void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const& event, edm::EventSetu
   event.getByToken(segment4DToken_, segment4Ds);
 
   if (!segment4Ds.isValid()) {
-    if (debug_)
+    if (debug_) {
       cout << "[DTSegment2DSLPhiQuality]**Warning: no 4D Segments with label: " << segment4DLabel_
            << " in this event, skipping!" << endl;
+}
     return;
   }
 
@@ -104,12 +105,14 @@ void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const& event, edm::EventSetu
     map<DTWireId, const PSimHit*> muSimHitPerWire = DTHitQualityUtils::mapMuSimHitsPerWire(simHitsPerWire);
     int nMuSimHit = muSimHitPerWire.size();
     if (nMuSimHit == 0 || nMuSimHit == 1) {
-      if (debug_ && nMuSimHit == 1)
+      if (debug_ && nMuSimHit == 1) {
         cout << "[DTSegment2DSLPhiQuality] Only " << nMuSimHit << " mu SimHit in this chamber, skipping!" << endl;
+}
       continue; // If no or only one mu SimHit is found skip this chamber
     }
-    if (debug_)
+    if (debug_) {
       cout << "=== Chamber " << (*chamberId) << " has " << nMuSimHit << " SimHits" << endl;
+}
 
     // Find outer and inner mu SimHit to build a segment
     pair<const PSimHit*, const PSimHit*> inAndOutSimHit = DTHitQualityUtils::findMuSimSegment(muSimHitPerWire);
@@ -130,19 +133,21 @@ void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const& event, edm::EventSetu
     float etaSimSeg = simSegmGlobalPos.eta();
     float phiSimSeg = simSegmGlobalPos.phi();
 
-    if (debug_)
+    if (debug_) {
       cout << "  Simulated segment:  local direction " << simSegmLocalDir << endl
            << "                      local position  " << simSegmLocalPos << endl
            << "                      angle           " << angleSimSeg << endl;
+}
 
     //---------------------------- recHits --------------------------//
     // Get the range of rechit for the corresponding chamberId
     bool recHitFound = false;
     DTRecSegment4DCollection::range range = segment4Ds->get(*chamberId);
     int nsegm = distance(range.first, range.second);
-    if (debug_)
+    if (debug_) {
       cout << "   Chamber: " << *chamberId << " has " << nsegm
            << " 4D segments" << endl;
+}
 
     if (nsegm!= 0) {
       // Find the best RecHit: look for the 4D RecHit with the phi angle closest
@@ -160,14 +165,16 @@ void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const& event, edm::EventSetu
           ++segment4D) {
         // Check the dimension
         if ((*segment4D).dimension() != 4) {
-          if (debug_) cout << "[DTSegment2DSLPhiQuality]***Error: This is not 4D segment!!!" << endl;
+          if (debug_) { cout << "[DTSegment2DSLPhiQuality]***Error: This is not 4D segment!!!" << endl;
+}
           continue;
         }
 
         // Get 2D superPhi segments from 4D segments
         const DTChamberRecSegment2D* phiSegment2D = (*segment4D).phiSegment();
         if ((*phiSegment2D).dimension() != 2) {
-          if (debug_) cout << "[DTSegment2DQuality]***Error: This is not 2D segment!!!" << endl;
+          if (debug_) { cout << "[DTSegment2DQuality]***Error: This is not 2D segment!!!" << endl;
+}
           abort();
         }
 
@@ -175,10 +182,11 @@ void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const& event, edm::EventSetu
         LocalVector recSegDirection = (*phiSegment2D).localDirection();
 
         float recSegAlpha = DTHitQualityUtils::findSegmentAlphaAndBeta(recSegDirection).first;
-        if (debug_)
+        if (debug_) {
           cout << "  RecSegment direction: " << recSegDirection << endl
                << "             position : " <<  (*phiSegment2D).localPosition() << endl
                << "             alpha    : " << recSegAlpha << endl;
+}
 
         if (fabs(recSegAlpha - angleSimSeg) < deltaAlpha) {
           deltaAlpha = fabs(recSegAlpha - angleSimSeg);
