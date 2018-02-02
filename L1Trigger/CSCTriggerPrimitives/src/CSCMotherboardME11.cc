@@ -515,15 +515,19 @@ bool CSCMotherboardME11::doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int m
 }
 
 
-void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
-				   CSCALCTDigi secondALCT,
-				   CSCCLCTDigi bestCLCT,
-				   CSCCLCTDigi secondCLCT,
-				   CSCCorrelatedLCTDigi& lct1,
-				   CSCCorrelatedLCTDigi& lct2,
-                                   int me)
+void CSCMotherboardME11::correlateLCTs(const CSCALCTDigi& bALCT,
+                                       const CSCALCTDigi& sALCT,
+                                       const CSCCLCTDigi& bCLCT,
+                                       const CSCCLCTDigi& sCLCT,
+                                       CSCCorrelatedLCTDigi& lct1,
+                                       CSCCorrelatedLCTDigi& lct2,
+                                       int me)
 {
   // assume that always anodeBestValid && cathodeBestValid
+  CSCALCTDigi bestALCT = bALCT;
+  CSCALCTDigi secondALCT = sALCT;
+  CSCCLCTDigi bestCLCT = bCLCT;
+  CSCCLCTDigi secondCLCT = sCLCT;
 
   if (secondALCT == bestALCT) secondALCT.clear();
   if (secondCLCT == bestCLCT) secondCLCT.clear();
@@ -573,38 +577,34 @@ void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
 
   switch (lut[code][0]) {
     case 11:
-      lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
+      lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
       break;
     case 12:
-      lct1 = constructLCTs(bestALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
+      lct1 = constructLCTs(bestALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
       break;
     case 21:
-      lct1 = constructLCTs(secondALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
+      lct1 = constructLCTs(secondALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
       break;
     case 22:
-      lct1 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
+      lct1 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
       break;
     default: return;
   }
-  lct1.setTrknmb(1);
 
   if (dbg) LogTrace("CSCMotherboardME11")<<"lct1: "<<lct1<<std::endl;
 
   switch (lut[code][1])
   {
     case 12:
-      lct2 = constructLCTs(bestALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
-      lct2.setTrknmb(2);
+      lct2 = constructLCTs(bestALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
       if (dbg) LogTrace("CSCMotherboardME11")<<"lct2: "<<lct2<<std::endl;
       return;
     case 21:
-      lct2 = constructLCTs(secondALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
-      lct2.setTrknmb(2);
+      lct2 = constructLCTs(secondALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
       if (dbg) LogTrace("CSCMotherboardME11")<<"lct2: "<<lct2<<std::endl;
       return;
     case 22:
-      lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
-      lct2.setTrknmb(2);
+      lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
       if (dbg) LogTrace("CSCMotherboardME11")<<"lct2: "<<lct2<<std::endl;
       return;
     default: return;
