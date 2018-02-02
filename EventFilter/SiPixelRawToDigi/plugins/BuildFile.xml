@@ -5,5 +5,5 @@
 <library   file="SiPixelRawToDigiGPU.cc SiPixelFedCablingMapGPU.cc RawToDigiGPU.cu" name="EventFilterSiPixelRawToDigiGPUPlugins">
   <use   name="cuda"/>
   <flags   EDM_PLUGIN="1"/>
-  <flags   CUDA_FLAGS="-O2"/>
+  <flags   CUDA_FLAGS="-O2 --expt-relaxed-constexpr"/>
 </library>
