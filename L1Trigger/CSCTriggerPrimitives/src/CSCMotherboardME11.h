@@ -40,11 +40,11 @@ class CSCMotherboardME11 : public CSCMotherboard
   std::vector<CSCCorrelatedLCTDigi> getLCTs1b() const;
 
   /** Returns vectors of found ALCTs in ME1a and ME1b, if any. */
-  std::vector<CSCALCTDigi> getALCTs1b() const {return alctV;}
+  const std::vector<CSCALCTDigi>& getALCTs1b() const {return alctV;}
 
   /** Returns vectors of found CLCTs in ME1a and ME1b, if any. */
-  std::vector<CSCCLCTDigi> getCLCTs1a() const {return clctV1a;}
-  std::vector<CSCCLCTDigi> getCLCTs1b() const {return clctV1b;}
+  const std::vector<CSCCLCTDigi>& getCLCTs1a() const {return clctV1a;}
+  const std::vector<CSCCLCTDigi>& getCLCTs1b() const {return clctV1b;}
 
   /** Clears correlated LCT and passes clear signal on to cathode and anode
       LCT processors. */
