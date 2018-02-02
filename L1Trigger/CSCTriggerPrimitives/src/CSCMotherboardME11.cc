@@ -388,13 +388,13 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 }
 
 
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1a()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1a() const
 {
   return readoutLCTs(ME1A);
 }
 
 
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1b()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1b() const
 {
   return readoutLCTs(ME1B);
 }
@@ -403,7 +403,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1b()
 // Returns vector of read-out correlated LCTs, if any.  Starts with
 // the vector of all found LCTs and selects the ones in the read-out
 // time window.
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab)
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab) const
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
@@ -452,7 +452,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab)
 
 
 // Returns vector of found correlated LCTs, if any.
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1b()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1b() const
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
@@ -464,7 +464,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1b()
 }
 
 // Returns vector of found correlated LCTs, if any.
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a() const
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 

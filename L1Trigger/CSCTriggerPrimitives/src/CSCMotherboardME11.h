@@ -36,8 +36,8 @@ class CSCMotherboardME11 : public CSCMotherboard
 	   const CSCComparatorDigiCollection* compdc);
 
   /** Returns vectors of found correlated LCTs in ME1a and ME1b, if any. */
-  std::vector<CSCCorrelatedLCTDigi> getLCTs1a();
-  std::vector<CSCCorrelatedLCTDigi> getLCTs1b();
+  std::vector<CSCCorrelatedLCTDigi> getLCTs1a() const;
+  std::vector<CSCCorrelatedLCTDigi> getLCTs1b() const;
 
   /** Returns vectors of found ALCTs in ME1a and ME1b, if any. */
   std::vector<CSCALCTDigi> getALCTs1b() const {return alctV;}
@@ -56,9 +56,9 @@ class CSCMotherboardME11 : public CSCMotherboard
   /** additional Cathode LCT processor for ME1a */
   std::unique_ptr<CSCCathodeLCTProcessor> clct1a;
 
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a();
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b();
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs(int me1ab);
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a() const;
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b() const;
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs(int me1ab) const;
 
  private:
 
