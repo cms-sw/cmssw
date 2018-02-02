@@ -25,10 +25,6 @@ void MicroGMTConverter::convert(
   out_cand.setHwQual          ( in_track.GMT_quality() );
   out_cand.setHwHF            ( false );  // EMTF: halo -> 1
   out_cand.setTFIdentifiers   ( sector, tftype );
-  // Truncate to 11 bits and offset by 25 from global event BX in EMTF firmware
-  int EMTF_kBX = (abs(global_event_BX) % 2048) - 25 + in_track.BX();
-  if (EMTF_kBX < 0) EMTF_kBX += 2048;
-  out_cand.setTrackSubAddress( l1t::RegionalMuonCand::kBX, EMTF_kBX );
 
   const EMTFPtLUT& ptlut_data = in_track.PtLUT();
 
@@ -73,6 +69,10 @@ void MicroGMTConverter::convert(
     return gmt_ch;
   };
 
+  // Truncate kBX to 11 bits and offset by 25 from global event BX in EMTF firmware
+  int EMTF_kBX = (abs(global_event_BX) % 2048) - 25 + in_track.BX();
+  if (EMTF_kBX < 0) EMTF_kBX += 2048;
+
   out_cand.setTrackSubAddress(l1t::RegionalMuonCand::kME1Seg, me1_seg_id);
   out_cand.setTrackSubAddress(l1t::RegionalMuonCand::kME1Ch , get_gmt_chamber_me1(me1_ch_id));
   out_cand.setTrackSubAddress(l1t::RegionalMuonCand::kME2Seg, me2_seg_id);
@@ -82,7 +82,7 @@ void MicroGMTConverter::convert(
   out_cand.setTrackSubAddress(l1t::RegionalMuonCand::kME4Seg, me4_seg_id);
   out_cand.setTrackSubAddress(l1t::RegionalMuonCand::kME4Ch , get_gmt_chamber(me4_ch_id));
   out_cand.setTrackSubAddress(l1t::RegionalMuonCand::kTrkNum, in_track.Track_num());
-  out_cand.setTrackSubAddress(l1t::RegionalMuonCand::kBX    , in_track.BX());
+  out_cand.setTrackSubAddress(l1t::RegionalMuonCand::kBX    , EMTF_kBX);
 }
 
 void MicroGMTConverter::convert_all(

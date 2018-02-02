@@ -2,11 +2,12 @@
 
 namespace l1t {
 
-  void RegionalMuonCand::setTFIdentifiers(int processor, tftype trackFinder) {
-    m_trackFinder = trackFinder;
-    m_processor = processor;
+void
+RegionalMuonCand::setTFIdentifiers(int processor, tftype trackFinder) {
+  m_trackFinder = trackFinder;
+  m_processor = processor;
 
-    switch (m_trackFinder) {
+  switch (m_trackFinder) {
     case tftype::emtf_pos:
       m_link = m_processor + 36;  // range 36...41
       break;
@@ -21,7 +22,7 @@ namespace l1t {
       break;
     case tftype::emtf_neg:
       m_link = m_processor + 66;  // range 66...71
-    }
   }
+}
 
 } // namespace l1t
