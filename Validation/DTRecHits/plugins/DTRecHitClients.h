@@ -1,5 +1,5 @@
-#ifndef DTRecHitClients_H
-#define DTRecHitClients_H
+#ifndef Validation_DTRecHits_DTRecHitClients_h
+#define Validation_DTRecHits_DTRecHitClients_h
 
 /** \class DTDataIntegrityTest
  * *
@@ -8,41 +8,22 @@
  *  \author S. Bolognesi - INFN TO
  *   
  */
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/Event.h>
+
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Framework/interface/EventSetup.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class DQMStore;
-class MonitorElement;
-
-class DTRecHitClients: public edm::EDAnalyzer{
-
+class DTRecHitClients: public edm::EDAnalyzer {
 public:
-
   /// Constructor
   DTRecHitClients(const edm::ParameterSet& ps);
 
- /// Destructor
-  ~DTRecHitClients() override;
-
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void endJob() override;
-void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-					 edm::EventSetup const& c) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+      edm::EventSetup const& c) override;
+};
 
-protected:
-
-
-private:
-
-  DQMStore* dbe;
- };
- 
-
-#endif
+#endif // Validation_DTRecHits_DTRecHitClients_h

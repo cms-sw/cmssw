@@ -1,28 +1,21 @@
-#include "Validation/DTRecHits/plugins/DTRecHitClients.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Validation/DTRecHits/interface/utils.h"
 
-//#include "TFile.h"
-#include <string>
-#include <iostream>
-#include <map>
-
+#include "DTRecHitClients.h"
 
 using namespace std;
 using namespace edm;
 
-DTRecHitClients::DTRecHitClients(const edm::ParameterSet& ps){
-  dbe = Service<DQMStore>().operator->();
+DTRecHitClients::DTRecHitClients(edm::ParameterSet const& config)
+{
 }
-DTRecHitClients::~DTRecHitClients(){
-}
-void DTRecHitClients::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-    edm::EventSetup const& c){
-  Tutils * util = new Tutils;
+
+void DTRecHitClients::endLuminosityBlock(edm::LuminosityBlock const& lumi,
+    edm::EventSetup const& setup)
+{
+  DQMStore* dbe = Service<DQMStore>().operator->();
   MonitorElement * hRes_S3RPhi = dbe->get("DT/1DRecHits/Res/1D_S3RPhi_hRes");
   MonitorElement * hRes_S3RZ = dbe->get("DT/1DRecHits/Res/1D_S3RZ_hRes");
   MonitorElement * hRes_S3RZ_W0 = dbe->get("DT/1DRecHits/Res/1D_S3RZ_W0_hRes");
@@ -35,25 +28,24 @@ void DTRecHitClients::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   MonitorElement * hPull_S3RZ_W1 = dbe->get("DT/1DRecHits/Pull/1D_S3RZ_W1_hPull");
   MonitorElement * hPull_S3RZ_W2 = dbe->get("DT/1DRecHits/Pull/1D_S3RZ_W2_hPull");
 
+  Tutils util;
+  util.drawGFit(hRes_S3RPhi->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hRes_S3RZ->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hRes_S3RZ_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hRes_S3RZ_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hRes_S3RZ_W2->getTH1(),-0.2,0.2,-0.1,0.1);
 
-  util->drawGFit(hRes_S3RPhi->getTH1(),-0.2,0.2,-0.1,0.1);
-  util->drawGFit(hRes_S3RZ->getTH1(),-0.2,0.2,-0.1,0.1);
-  util->drawGFit(hRes_S3RZ_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  util->drawGFit(hRes_S3RZ_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  util->drawGFit(hRes_S3RZ_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-
-  util->drawGFit(hPull_S3RPhi->getTH1(),-5,5,-5,5);
-  util->drawGFit(hPull_S3RZ->getTH1(),-5,5,-5,5);
-  util->drawGFit(hPull_S3RZ_W0->getTH1(),-5,5,-5,5);
-  util->drawGFit(hPull_S3RZ_W1->getTH1(),-5,5,-5,5);
-  util->drawGFit(hPull_S3RZ_W2->getTH1(),-5,5,-5,5);
-
-
-}
-void DTRecHitClients::endJob() {
+  util.drawGFit(hPull_S3RPhi->getTH1(),-5,5,-5,5);
+  util.drawGFit(hPull_S3RZ->getTH1(),-5,5,-5,5);
+  util.drawGFit(hPull_S3RZ_W0->getTH1(),-5,5,-5,5);
+  util.drawGFit(hPull_S3RZ_W1->getTH1(),-5,5,-5,5);
+  util.drawGFit(hPull_S3RZ_W2->getTH1(),-5,5,-5,5);
 }
 
-void DTRecHitClients::analyze(const Event& e, const EventSetup& context){
-
-  
+void DTRecHitClients::analyze(Event const& event, EventSetup const& setup)
+{
 }
+
+// declare this as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DTRecHitClients);
