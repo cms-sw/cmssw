@@ -42,8 +42,9 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
   // sigma resolution on angle
   sigmaResAngle_ = pset.getParameter<double>("sigmaResAngle");
 
-  if (debug_)
+  if (debug_) {
     cout << "[DTSegment2DQuality] Constructor called " << endl;
+}
 }
 
 void DTSegment2DQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
@@ -58,8 +59,9 @@ void DTSegment2DQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm
   histograms.h2DHitEff_RZ_W0 = new HEff2DHit ("RZ_W0", booker);
   histograms.h2DHitEff_RZ_W1 = new HEff2DHit ("RZ_W1", booker);
   histograms.h2DHitEff_RZ_W2 = new HEff2DHit ("RZ_W2", booker);
-  if (debug_)
+  if (debug_) {
     cout << "[DTSegment2DQuality] hitsos created " << endl;
+}
 }
 
 /* FIXME these shoud be moved to the harvesting step
@@ -84,12 +86,11 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
 
   // Map simHits by sl
   map<DTSuperLayerId, PSimHitContainer > simHitsPerSl;
-  for (PSimHitContainer::const_iterator simHit = simHits->begin();
-      simHit != simHits->end(); simHit++) {
+  for (const auto & simHit : *simHits) {
     // Create the id of the sl (the simHits in the DT known their wireId)
-    DTSuperLayerId slId = ((DTWireId(simHit->detUnitId())).layerId()).superlayerId();
+    DTSuperLayerId slId = ((DTWireId(simHit.detUnitId())).layerId()).superlayerId();
     // Fill the map
-    simHitsPerSl[slId].push_back(*simHit);
+    simHitsPerSl[slId].push_back(simHit);
   }
 
   // Get the 2D rechits from the event
@@ -97,8 +98,9 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
   event.getByToken(segment2DToken_, segment2Ds);
 
   if (not segment2Ds.isValid()) {
-    if (debug_) cout << "[DTSegment2DQuality]**Warning: no 2DSegments with label: " << segment2DLabel_
+    if (debug_) { cout << "[DTSegment2DQuality]**Warning: no 2DSegments with label: " << segment2DLabel_
       << " in this event, skipping !" << endl;
+}
     return;
   }
 
@@ -117,12 +119,14 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
     map<DTWireId, const PSimHit*> muSimHitPerWire = DTHitQualityUtils::mapMuSimHitsPerWire(simHitsPerWire);
     int nMuSimHit = muSimHitPerWire.size();
     if (nMuSimHit == 0 or nMuSimHit == 1) {
-      if (debug_ and nMuSimHit == 1)
+      if (debug_ and nMuSimHit == 1) {
         cout << "[DTSegment2DQuality] Only " << nMuSimHit << " mu SimHit in this SL, skipping !" << endl;
+}
       continue; // If no or only one mu SimHit is found skip this SL
     }
-    if (debug_)
+    if (debug_) {
       cout << "=== SL " << (*slId) << " has " << nMuSimHit << " SimHits" << endl;
+}
 
     // Find outer and inner mu SimHit to build a segment
     pair<const PSimHit*, const PSimHit*> inAndOutSimHit = DTHitQualityUtils::findMuSimSegment(muSimHitPerWire);
@@ -138,9 +142,10 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
 
     LocalVector simSegmLocalDir = dirAndPosSimSegm.first;
     LocalPoint simSegmLocalPos = dirAndPosSimSegm.second;
-    if (debug_)
+    if (debug_) {
       cout << "  Simulated segment:  local direction " << simSegmLocalDir << endl
            << "                      local position  " << simSegmLocalPos << endl;
+}
     const DTSuperLayer* superLayer = dtGeom->superLayer(*slId);
     GlobalPoint simSegmGlobalPos = superLayer->toGlobal(simSegmLocalPos);
 
@@ -156,9 +161,10 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
     bool recHitFound = false;
     DTRecSegment2DCollection::range range = segment2Ds->get(*slId);
     int nsegm = distance(range.first, range.second);
-    if (debug_)
+    if (debug_) {
       cout << "   Sl: " << *slId << " has " << nsegm
            << " 2D segments" << endl;
+}
 
     if (nsegm != 0) {
       // Find the best RecHit: look for the 2D RecHit with the angle closest
@@ -176,7 +182,8 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
           ++segment2D) {
         // Check the dimension
         if ((*segment2D).dimension() != 2) {
-          if (debug_) cout << "[DTSegment2DQuality]***Error: This is not 2D segment !!!" << endl;
+          if (debug_) { cout << "[DTSegment2DQuality]***Error: This is not 2D segment !!!" << endl;
+}
           abort();
         }
         // Segment Local Direction and position (in SL RF)
@@ -184,10 +191,11 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
         LocalPoint recSegPosition = (*segment2D).localPosition();
 
         float recSegAlpha = DTHitQualityUtils::findSegmentAlphaAndBeta(recSegDirection).first;
-        if (debug_)
+        if (debug_) {
           cout << "  RecSegment direction: " << recSegDirection << endl
                << "             position : " << recSegPosition << endl
                << "             alpha    : " << recSegAlpha << endl;
+}
 
         if (fabs(recSegAlpha - angleSimSeg) < deltaAlpha) {
           deltaAlpha = fabs(recSegAlpha - angleSimSeg);
@@ -225,12 +233,13 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
               sqrt(bestRecHitLocalPosErr.xx()),
               sqrt(bestRecHitLocalDirErr.xx())
               );
-          if (abs((*slId).wheel()) == 0)
+          if (abs((*slId).wheel()) == 0) {
             hRes = histograms.h2DHitRZ_W0;
-          else if (abs((*slId).wheel()) == 1)
+          } else if (abs((*slId).wheel()) == 1) {
             hRes = histograms.h2DHitRZ_W1;
-          else if (abs((*slId).wheel()) == 2)
+          } else if (abs((*slId).wheel()) == 2) {
             hRes = histograms.h2DHitRZ_W2;
+}
         }
         hRes->fill(angleSimSeg,
             angleBestRHit,
@@ -250,12 +259,13 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
       hEff = histograms.h2DHitEff_RPhi;
     } else if ((*slId).superlayer() == 2) { // RZ SL
       histograms.h2DHitEff_RZ->fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
-      if (abs((*slId).wheel()) == 0)
+      if (abs((*slId).wheel()) == 0) {
         hEff = histograms.h2DHitEff_RZ_W0;
-      else if (abs((*slId).wheel()) == 1)
+      } else if (abs((*slId).wheel()) == 1) {
         hEff = histograms.h2DHitEff_RZ_W1;
-      else if (abs((*slId).wheel()) == 2)
+      } else if (abs((*slId).wheel()) == 2) {
         hEff = histograms.h2DHitEff_RZ_W2;
+}
     }
     hEff->fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
   } // End of loop over superlayers

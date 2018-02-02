@@ -111,15 +111,14 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
 
   // Map simHits by chamber
   map<DTChamberId, PSimHitContainer > simHitsPerCh;
-  for (PSimHitContainer::const_iterator simHit = simHits->begin();
-      simHit != simHits->end(); simHit++) {
+  for (const auto & simHit : *simHits) {
 
     // Consider only muon simhits; the others are not considered elsewhere in this class!
-    if (abs((*simHit).particleType())== 13) {
+    if (abs(simHit.particleType())== 13) {
       // Create the id of the chamber (the simHits in the DT known their wireId)
-      DTChamberId chamberId = (((DTWireId(simHit->detUnitId())).layerId()).superlayerId()).chamberId();
+      DTChamberId chamberId = (((DTWireId(simHit.detUnitId())).layerId()).superlayerId()).chamberId();
       // Fill the map
-      simHitsPerCh[chamberId].push_back(*simHit);
+      simHitsPerCh[chamberId].push_back(simHit);
     }
   }
 
@@ -128,22 +127,24 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
   event.getByToken(segment4DToken_, segment4Ds);
 
   if (!segment4Ds.isValid()) {
-    if (debug_)
+    if (debug_) {
       cout << "[DTSegment4DQuality]**Warning: no 4D Segments with label: " << segment4DLabel_ << " in this event, skipping!" << endl;
+}
     return;
   }
 
   // Loop over all chambers containing a (muon) simhit
-  for (map<DTChamberId, PSimHitContainer>::const_iterator simHitsInChamber = simHitsPerCh.begin(); simHitsInChamber != simHitsPerCh.end(); ++simHitsInChamber) {
+  for (auto & simHitsInChamber : simHitsPerCh) {
 
-    DTChamberId chamberId = simHitsInChamber->first;
+    DTChamberId chamberId = simHitsInChamber.first;
     int station = chamberId.station();
-    if (station == 4 && !(local_) ) continue; // use DTSegment2DSLPhiQuality to analyze MB4 performaces in DQM
+    if (station == 4 && !(local_) ) { continue; // use DTSegment2DSLPhiQuality to analyze MB4 performaces in DQM
+}
     int wheel = chamberId.wheel();
 
     //------------------------- simHits ---------------------------//
     // Get simHits of this chamber
-    const PSimHitContainer& simHits = simHitsInChamber->second;
+    const PSimHitContainer& simHits = simHitsInChamber.second;
 
     // Map simhits per wire
     auto const& simHitsPerWire = DTHitQualityUtils::mapSimHitsPerWire(simHits);
@@ -152,14 +153,16 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
     if (nMuSimHit <2) { // Skip chamber with less than 2 cells with mu hits
       continue;
     }
-    if (debug_)
+    if (debug_) {
       cout << "=== Chamber " << chamberId << " has " << nMuSimHit << " SimHits" << endl;
+}
 
     // Find outer and inner mu SimHit to build a segment
     pair<const PSimHit*, const PSimHit*> inAndOutSimHit = DTHitQualityUtils::findMuSimSegment(muSimHitPerWire);
 
     // Consider only sim segments crossing at least 2 SLs
-    if ((DTWireId(inAndOutSimHit.first->detUnitId())).superlayer() == (DTWireId(inAndOutSimHit.second->detUnitId())).superLayer()) continue;
+    if ((DTWireId(inAndOutSimHit.first->detUnitId())).superlayer() == (DTWireId(inAndOutSimHit.second->detUnitId())).superLayer()) { continue;
+}
 
     // Find direction and position of the sim Segment in Chamber RF
     pair<LocalVector, LocalPoint> dirAndPosSimSegm = DTHitQualityUtils::findMuSimSegmentDirAndPos(inAndOutSimHit,
@@ -183,20 +186,22 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
 
     double count_seg = 0;
 
-    if (debug_)
+    if (debug_) {
       cout << "  Simulated segment:  local direction " << simSegmLocalDir << endl
            << "                      local position  " << simSegmLocalPos << endl
            << "                      alpha           " << alphaSimSeg << endl
            << "                      beta            " << betaSimSeg << endl;
+}
 
     //---------------------------- recHits --------------------------//
     // Get the range of rechit for the corresponding chamberId
     bool recHitFound = false;
     DTRecSegment4DCollection::range range = segment4Ds->get(chamberId);
     int nsegm = distance(range.first, range.second);
-    if (debug_)
+    if (debug_) {
       cout << "   Chamber: " << chamberId << " has " << nsegm
            << " 4D segments" << endl;
+}
 
     if (nsegm!= 0) {
       // Find the best RecHit: look for the 4D RecHit with the phi angle closest
@@ -225,7 +230,7 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
         float recSegAlpha = ab.first;
         float recSegBeta  = ab.second;
 
-        if (debug_)
+        if (debug_) {
           cout << &(*segment4D)
                << "  RecSegment direction: " << recSegDirection << endl
                << "             position : " << (*segment4D).localPosition() << endl
@@ -233,6 +238,7 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
                << "             beta     : " << recSegBeta << endl
                << "             nhits    : " << (*segment4D).phiSegment()->recHits().size() << " " << (((*segment4D).zSegment()!= nullptr)?(*segment4D).zSegment()->recHits().size():0)
                << endl;
+}
 
 
         float dAlphaRecSim = fabs(recSegAlpha - alphaSimSeg);
@@ -260,8 +266,9 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
       }  // End of Loop over all 4D RecHits
 
       if (bestRecHit) {
-        if (debug_)
+        if (debug_) {
           cout << endl << "Chosen: " << bestRecHit << endl;
+}
         // Best rechit direction and position in Chamber RF
         LocalPoint bestRecHitLocalPos = bestRecHit->localPosition();
         LocalVector bestRecHitLocalDir = bestRecHit->localDirection();
@@ -304,7 +311,7 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
             simSegLocalPosRZTmp + simSegLocalDirRZ*(-simSegLocalPosRZTmp.z()/(cos(simSegLocalDirRZ.theta())));
           alphaSimSegRZ = DTHitQualityUtils::findSegmentAlphaAndBeta(simSegLocalDirRZ).first;
 
-          if (debug_)
+          if (debug_) {
             cout <<
               "RZ SL: recPos " << bestRecHitLocalPosRZ <<
               "recDir " << bestRecHitLocalDirRZ <<
@@ -312,6 +319,7 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
               "RZ SL: simPos " << simSegLocalPosRZ <<
               "simDir " << simSegLocalDirRZ <<
               "simAlpha " << alphaSimSegRZ << endl ;
+}
         }
 
         // get nhits and t0
@@ -345,12 +353,13 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
         // Fill Residual histos
         HRes4DHit *histo = nullptr;
 
-        if (wheel == 0)
+        if (wheel == 0) {
           histo = histograms.h4DHit_W0;
-        else if (abs(wheel) == 1)
+        } else if (abs(wheel) == 1) {
           histo = histograms.h4DHit_W1;
-        else if (abs(wheel) == 2)
+        } else if (abs(wheel) == 2) {
           histo = histograms.h4DHit_W2;
+}
 
         float sigmaAlphaBestRhit = sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHit, bestRecHitLocalDirErr.xx()));
         float sigmaBetaBestRhit  = sqrt(DTHitQualityUtils::sigmaAngle(betaBestRHit, bestRecHitLocalDirErr.yy())); // FIXME this misses the contribution from uncertainty in extrapolation!
@@ -400,7 +409,7 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
             sqrt(bestRecHitLocalPosErrRZ.xx()),
             nHitPhi, nHitTheta, t0phi, t0theta);
 
-        if (local_) histograms.h4DHitWS[abs(wheel)][station-1]->fill(alphaSimSeg,
+        if (local_) { histograms.h4DHitWS[abs(wheel)][station-1]->fill(alphaSimSeg,
             alphaBestRHit,
             betaSimSeg,
             betaBestRHit,
@@ -421,6 +430,7 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
             sigmaAlphaBestRhitRZ,
             sqrt(bestRecHitLocalPosErrRZ.xx()),
             nHitPhi, nHitTheta, t0phi, t0theta);
+}
 
       } // end of if (bestRecHit)
 
@@ -430,16 +440,18 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
     if (doall_) {
       HEff4DHit *heff = nullptr;
 
-      if (wheel == 0)
+      if (wheel == 0) {
         heff = histograms.hEff_W0;
-      else if (abs(wheel) == 1)
+      } else if (abs(wheel) == 1) {
         heff = histograms.hEff_W1;
-      else if (abs(wheel) == 2)
+      } else if (abs(wheel) == 2) {
         heff = histograms.hEff_W2;
+}
       heff->fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);
       histograms.hEff_All->fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);
-      if (local_)
+      if (local_) {
         histograms.hEffWS[abs(wheel)][station-1]->fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);
+}
     }
   } // End of loop over chambers
 }

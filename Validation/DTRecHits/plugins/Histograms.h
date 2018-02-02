@@ -21,7 +21,7 @@
 inline
 TH1F* divide(const TH1F * numerator, const TH1F * denominator, std::string const& name, std::string const& title)
 {
-  TH1F* ratio = static_cast<TH1F *>(numerator->Clone());
+  auto* ratio = static_cast<TH1F *>(numerator->Clone());
   ratio->SetName(name.c_str());
   ratio->SetTitle(title.c_str());
   ratio->Divide(denominator);
@@ -43,7 +43,7 @@ TH1F* divide(const TH1F * numerator, const TH1F * denominator, std::string const
 /// A set of histograms of residuals and pulls for 1D RecHits
 class HRes1DHit {
   public:
-    HRes1DHit(std::string name, DQMStore::ConcurrentBooker & booker, bool doall=true, bool local=true) {
+    HRes1DHit(const std::string& name, DQMStore::ConcurrentBooker & booker, bool doall=true, bool local=true) {
       std::string pre ="1D_";
       pre += name;
       doall_ = doall;
@@ -129,7 +129,7 @@ class HRes1DHit {
 //---------------------------------------------------------------------------------------
 class HEff1DHit {
   public:
-    HEff1DHit(std::string name, DQMStore::ConcurrentBooker & booker) {
+    HEff1DHit(const std::string& name, DQMStore::ConcurrentBooker & booker) {
       std::string pre ="1D_";
       pre += name;
       name_ = pre;
@@ -189,7 +189,7 @@ class HEff1DHit {
 // Histos of residuals for 2D rechits
 class HRes2DHit {
   public:
-    HRes2DHit(std::string name, DQMStore::ConcurrentBooker & booker, bool doall=true, bool local=true) {
+    HRes2DHit(const std::string& name, DQMStore::ConcurrentBooker & booker, bool doall=true, bool local=true) {
       doall_ = doall;
       std::string pre = "2D_";
       pre += name;
@@ -271,7 +271,7 @@ class HRes2DHit {
 // Histos for 2D RecHit efficiency
 class HEff2DHit {
   public:
-    HEff2DHit(std::string name, DQMStore::ConcurrentBooker & booker) {
+    HEff2DHit(const std::string& name, DQMStore::ConcurrentBooker & booker) {
       std::string pre ="2D_";
       pre += name;
       name_ = pre;
@@ -339,7 +339,7 @@ class HEff2DHit {
 // Histos of residuals for 4D rechits
 class HRes4DHit {
   public:
-  HRes4DHit(std::string name, DQMStore::ConcurrentBooker & booker, bool doall=true, bool local=true) : local_(local) {
+  HRes4DHit(const std::string& name, DQMStore::ConcurrentBooker & booker, bool doall=true, bool local=true) : local_(local) {
       std::string pre ="4D_";
       pre += name;
       doall_ = doall;
@@ -659,7 +659,7 @@ class HRes4DHit {
 /// A set of histograms for efficiency 4D RecHits
 class HEff4DHit {
   public:
-    HEff4DHit(std::string name, DQMStore::ConcurrentBooker & booker) {
+    HEff4DHit(const std::string& name, DQMStore::ConcurrentBooker & booker) {
       std::string pre ="4D_";
       pre += name;
       name_ = pre;
