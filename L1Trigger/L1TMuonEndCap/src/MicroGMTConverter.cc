@@ -25,7 +25,10 @@ void MicroGMTConverter::convert(
   out_cand.setHwQual          ( in_track.GMT_quality() );
   out_cand.setHwHF            ( false );  // EMTF: halo -> 1
   out_cand.setTFIdentifiers   ( sector, tftype );
-  out_cand.setTrackSubAddress( l1t::RegionalMuonCand::kBX, global_event_BX );
+  // Truncate to 11 bits and offset by 25 from global event BX in EMTF firmware
+  int EMTF_kBX = (abs(global_event_BX) % 2048) - 25 + in_track.BX();
+  if (EMTF_kBX < 0) EMTF_kBX += 2048;
+  out_cand.setTrackSubAddress( l1t::RegionalMuonCand::kBX, EMTF_kBX );
 
   const EMTFPtLUT& ptlut_data = in_track.PtLUT();
 
