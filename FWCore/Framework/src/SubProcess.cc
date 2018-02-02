@@ -145,7 +145,7 @@ namespace edm {
     items.initMisc(*processParameterSet_);
 
     // intialize the event setup provider
-    esp_ = esController.makeProvider(*processParameterSet_);
+    esp_ = esController.makeProvider(*processParameterSet_, actReg_.get());
 
     branchIDListHelper_ = items.branchIDListHelper();
     updateBranchIDListHelper(parentBranchIDListHelper->branchIDLists());
