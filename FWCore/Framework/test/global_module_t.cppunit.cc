@@ -371,7 +371,7 @@ m_ep()
                                      m_procConfig,nullptr));
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
-  m_ep->setLuminosityBlockPrincipal(m_lbp);
+  m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);
 
 

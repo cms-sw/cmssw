@@ -154,6 +154,7 @@ class testEvent: public CppUnit::TestFixture {
   std::shared_ptr<ProductRegistry>   availableProducts_;
   std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
   std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+  std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
   std::shared_ptr<EventPrincipal>    principal_;
   std::shared_ptr<Event>             currentEvent_;
   std::shared_ptr<ModuleDescription> currentModuleDescription_;
@@ -426,14 +427,14 @@ void testEvent::setUp() {
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
   auto runAux = std::make_shared<RunAuxiliary>(id.run(), time, time);
   auto rp = std::make_shared<RunPrincipal>(runAux, preg, pc, &historyAppender_,0);
-  auto lbp = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_,0);
-  lbp->setAux(LuminosityBlockAuxiliary(rp->run(), 1, time, time));
-  lbp->setRunPrincipal(rp);
+  lbp_ = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_,0);
+  lbp_->setAux(LuminosityBlockAuxiliary(rp->run(), 1, time, time));
+  lbp_->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
   principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, thinnedAssociationsHelper_, pc, &historyAppender_,edm::StreamID::invalidStreamID()));
   principal_->fillEventPrincipal(eventAux, processHistoryRegistry_);
-  principal_->setLuminosityBlockPrincipal(lbp);
+  principal_->setLuminosityBlockPrincipal(lbp_.get());
   ModuleCallingContext mcc(currentModuleDescription_.get());
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_, &mcc));
 }
