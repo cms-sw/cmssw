@@ -79,7 +79,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr;
   ep.fillEventPrincipal(eventAux, phr);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setLuminosityBlockPrincipal(lbp.get());
   try {
      edm::ParameterSet pset;
      pset.registerIt();
@@ -175,7 +175,7 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr;
   ep.fillEventPrincipal(eventAux, phr);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setLuminosityBlockPrincipal(lbp.get());
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

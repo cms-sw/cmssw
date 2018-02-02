@@ -94,7 +94,7 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::EventPrincipal ep(preg, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr; 
   ep.fillEventPrincipal(eventAux, phr);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setLuminosityBlockPrincipal(lbp.get());
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
   try {
@@ -184,7 +184,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr; 
   ep.fillEventPrincipal(eventAux, phr);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setLuminosityBlockPrincipal(lbp.get());
   edm::BranchDescription const& branchFromRegistry = it->second;
   std::vector<edm::BranchID> const ids;
   edm::ProductProvenance prov(branchFromRegistry.branchID(), ids);
