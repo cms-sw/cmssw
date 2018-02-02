@@ -8,6 +8,7 @@
 #include <cuda_runtime.h>
 
 #include "SiPixelFedCablingMapGPU.h"
+#include<algorithm>
 
 const uint32_t layerStartBit_   = 20;
 const uint32_t ladderStartBit_  = 12;
@@ -74,20 +75,92 @@ struct Pixel {
 };
 
 
+namespace gpudetails{
+
+class Packing {
+  public:
+  using PackedDigiType = uint32_t;
+    
+    // Constructor: pre-computes masks and shifts from field widths
+__host__ __device__
+inline
+    constexpr Packing(unsigned int row_w, unsigned int column_w,
+	    unsigned int time_w, unsigned int adc_w) :
+      row_width(row_w), column_width(column_w), adc_width(adc_w)
+      ,row_shift(0)
+      ,column_shift(row_shift + row_w)
+      ,time_shift(column_shift + column_w)
+      ,adc_shift(time_shift + time_w)
+      ,row_mask(~(~0U << row_w))
+      ,column_mask( ~(~0U << column_w))
+      ,time_mask(~(~0U << time_w))
+      ,adc_mask(~(~0U << adc_w))
+      ,rowcol_mask(~(~0U << (column_w+row_w)))
+      ,max_row(row_mask)
+      ,max_column(column_mask)
+      ,max_adc(adc_mask){}
+
+							   
+    uint32_t  row_width;
+    uint32_t  column_width;
+    uint32_t  adc_width;
+    
+    uint32_t  row_shift;
+    uint32_t  column_shift;
+    uint32_t  time_shift;
+    uint32_t  adc_shift;
+   
+    PackedDigiType row_mask;
+    PackedDigiType column_mask;
+    PackedDigiType time_mask;
+    PackedDigiType adc_mask;
+    PackedDigiType rowcol_mask;
+    
+    
+    uint32_t  max_row;
+    uint32_t  max_column;
+    uint32_t  max_adc;
+  };
+
+
+// const PixelChannelIdentifier::Packing PixelChannelIdentifier::thePacking( 11, 11, 0, 10); // row, col, time, adc
+
+
+__host__ __device__
+inline
+constexpr gpudetails::Packing packing() { return gpudetails::Packing(11, 11, 0, 10);}
+
+}
+
+// constexpr Packing thePacking = packing();
+
+__host__ __device__
+inline uint32_t pack(uint32_t row, uint32_t col, uint32_t adc) {
+  constexpr gpudetails::Packing thePacking = gpudetails::packing();
+  adc = std::min(adc, thePacking.max_adc);
+
+  return (row << thePacking.row_shift) |
+    (col << thePacking.column_shift) |
+    (adc << thePacking.adc_shift);
+
+}
+
+
 // configuration and memory buffers alocated on the GPU
 struct context {
   cudaStream_t stream;
 
   uint32_t * word_d;
-  uint32_t * fedIndex_d;
+  uint8_t * fedId_d;
   uint32_t * eventIndex_d;
-  uint32_t * xx_d;
-  uint32_t * yy_d;
-  uint32_t * xx_adc;
-  uint32_t * yy_adc;
+  uint32_t * pdigi_d;
+  uint16_t * xx_d;
+  uint16_t * yy_d;
+  uint16_t * xx_adc;
+  uint16_t * yy_adc;
   uint32_t * moduleId_d;
-  uint32_t * adc_d;
-  uint32_t * layer_d;
+  uint16_t * adc_d;
+  uint16_t * layer_d;
   uint32_t * rawIdArr_d;
   uint32_t * errType_d;
   uint32_t * errWord_d;
@@ -101,9 +174,10 @@ struct context {
 
 
 // wrapper function to call RawToDigi on the GPU from host side
-void RawToDigi_wrapper(context &, const SiPixelFedCablingMapGPU* cablingMapDevice, const uint32_t wordCounter, uint32_t *word, const uint32_t fedCounter,  uint32_t *fedIndex,
-                        bool convertADCtoElectrons, uint32_t *xx_h, uint32_t *yy_h, uint32_t *adc_h, int *mIndexStart_h,
-                        int *mIndexEnd_h, uint32_t *rawIdArr_h, uint32_t *errType_h, uint32_t *errWord_h, uint32_t *errFedID_h, uint32_t *errRawID_h,
+void RawToDigi_wrapper(context &, const SiPixelFedCablingMapGPU* cablingMapDevice, const uint32_t wordCounter, uint32_t *word, 
+                        const uint32_t fedCounter,  uint8_t *fedId_h,
+                        bool convertADCtoElectrons, uint32_t * pdigi_h, int *mIndexStart_h, int *mIndexEnd_h, 
+                        uint32_t *rawIdArr_h, uint32_t *errType_h, uint32_t *errWord_h, uint32_t *errFedID_h, uint32_t *errRawID_h,
                         bool useQualityInfo, bool includeErrors, bool debug = false);
 
 // void initCablingMap();

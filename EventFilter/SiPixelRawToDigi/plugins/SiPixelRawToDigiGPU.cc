@@ -121,15 +121,13 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
   allocateCablingMap(cablingMapGPUHost_, cablingMapGPUDevice_);
 
   int WSIZE = MAX_FED*MAX_WORD*sizeof(unsigned int);
-  int FSIZE = 2*MAX_FED*sizeof(unsigned int)+sizeof(unsigned int);
   cudaMallocHost(&word,       sizeof(unsigned int)*WSIZE);
-  cudaMallocHost(&fedIndex,   sizeof(unsigned int)*FSIZE);
+  cudaMallocHost(&fedId_h,   sizeof(unsigned char)*WSIZE);
 
   // to store the output of RawToDigi
-  cudaMallocHost(&xx_h,       sizeof(uint32_t)*WSIZE);
-  cudaMallocHost(&yy_h,       sizeof(uint32_t)*WSIZE);
-  cudaMallocHost(&adc_h,      sizeof(uint32_t)*WSIZE);
+  cudaMallocHost(&pdigi_h,    sizeof(uint32_t)*WSIZE);
   cudaMallocHost(&rawIdArr_h, sizeof(uint32_t)*WSIZE);
+
   cudaMallocHost(&errType_h,  sizeof(uint32_t)*WSIZE);
   cudaMallocHost(&errRawID_h, sizeof(uint32_t)*WSIZE);
   cudaMallocHost(&errWord_h,  sizeof(uint32_t)*WSIZE);
@@ -163,10 +161,8 @@ SiPixelRawToDigiGPU::~SiPixelRawToDigiGPU() {
     hDigi->Write();
   }
   cudaFreeHost(word);
-  cudaFreeHost(fedIndex);
-  cudaFreeHost( xx_h);
-  cudaFreeHost( yy_h);
-  cudaFreeHost( adc_h);
+  cudaFreeHost(fedId_h);
+  cudaFreeHost( pdigi_h);
   cudaFreeHost( rawIdArr_h);
   cudaFreeHost( errType_h);
   cudaFreeHost( errRawID_h);
@@ -285,7 +281,6 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
   // GPU specific: Data extraction for RawToDigi GPU
   unsigned int wordCounterGPU = 0;
   unsigned int fedCounter = 0;
-  const unsigned int MAX_FED = 150;
   bool errorsInEvent = false;
 
   edm::DetSet<PixelDigi> * detDigis=nullptr;
@@ -304,8 +299,7 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
     // for GPU
     // first 150 index stores the fedId and next 150 will store the
     // start index of word in that fed
-    fedIndex[ fedCounter] = fedId - 1200;
-    fedIndex[MAX_FED +fedCounter] = wordCounterGPU; // MAX_FED = 150
+    assert(fedId>=1200);
     fedCounter++;
 
     //get event data for this fed
@@ -314,14 +308,12 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
     //GPU specific
     int nWords = rawData.size()/sizeof(cms_uint64_t);
     if (nWords == 0) {
-      word[wordCounterGPU++] = 0;
       continue;
     }
 
     // check CRC bit
     const cms_uint64_t* trailer = reinterpret_cast<const cms_uint64_t* >(rawData.data())+(nWords-1);
     if (!errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors)) {
-      word[wordCounterGPU++] = 0;
       continue;
     }
 
@@ -349,50 +341,50 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
 
     const cms_uint32_t * bw = (const cms_uint32_t *)(header+1);
     const cms_uint32_t * ew = (const cms_uint32_t *)(trailer);
-    if ( *(ew-1) == 0 ) { ew--; theWordCounter--;}
-    for (auto ww = bw; ww < ew; ++ww) {
-      if unlikely(ww==0) theWordCounter--;
-      word[wordCounterGPU++] = *ww;
-    }
+    // if ( *(ew-1) == 0 ) { ew--; theWordCounter--;}
+    assert(0 == (ew-bw)%2);
+    std::memcpy(word+wordCounterGPU,bw,sizeof(cms_uint32_t)*(ew-bw));
+    std::memset(fedId_h+wordCounterGPU/2,fedId - 1200,(ew-bw)/2);
+    wordCounterGPU+=(ew-bw);
+
   }  // end of for loop
 
   // GPU specific: RawToDigi -> clustering -> CPE
 
 
 
-    RawToDigi_wrapper(context_, cablingMapGPUDevice_, wordCounterGPU, word, fedCounter, fedIndex, convertADCtoElectrons, xx_h, yy_h, adc_h, mIndexStart_h, mIndexEnd_h, rawIdArr_h, errType_h, errWord_h, errFedID_h, errRawID_h, useQuality, includeErrors, debug);
+    RawToDigi_wrapper(context_, cablingMapGPUDevice_, wordCounterGPU, word, fedCounter, fedId_h, convertADCtoElectrons, pdigi_h, mIndexStart_h, mIndexEnd_h, 
+                      rawIdArr_h, errType_h, errWord_h, errFedID_h, errRawID_h, useQuality, includeErrors, debug);
 
 
 
     for (uint32_t i = 0; i < wordCounterGPU; i++) {
-
-        if (rawIdArr_h[i] != 9999) {; //to revise
-            detDigis = &(*collection).find_or_insert(rawIdArr_h[i]);
-            if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
-            break;
-        }
+       if (pdigi_h[i]==0) continue;
+       detDigis = &(*collection).find_or_insert(rawIdArr_h[i]);
+       if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
+       break;
     }
 
-
     for (uint32_t i = 0; i < wordCounterGPU; i++) {
-        if (rawIdArr_h[i] == 9999)
-            continue;
+        if (pdigi_h[i]==0) continue;
+        assert(rawIdArr_h[i] > 109999);
         if ( (*detDigis).detId() != rawIdArr_h[i])
         {
             detDigis = &(*collection).find_or_insert(rawIdArr_h[i]);
             if ( (*detDigis).empty() )
                 (*detDigis).data.reserve(32); // avoid the first relocations
         }
-            (*detDigis).data.emplace_back(xx_h[i], yy_h[i], adc_h[i]);
-            theDigiCounter++;
+        (*detDigis).data.emplace_back(pdigi_h[i]);
+        theDigiCounter++;
+    }
 
-
+    for (uint32_t i = 0; i < wordCounterGPU; i++) {
         if (errType_h[i] != 0) {
-            SiPixelRawDataError error(errWord_h[i], errType_h[i], errFedID_h[i]);
+            SiPixelRawDataError error(errWord_h[i], errType_h[i], errFedID_h[i]+1200);
             errors[errRawID_h[i]].push_back(error);
         }
-
     }
+
 
 
   fedCounter =0;
@@ -438,18 +430,18 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
               cms_uint32_t linkId = formatter.linkId(aPixelError.getWord32());
               const sipixelobjects::PixelFEDLink* link = fed->link(linkId);
               if (link) {
-		        // The "offline" 0..15 numbering is fixed by definition, also, the FrameConversion depends on it
-		        // in contrast, the ROC-in-channel numbering is determined by hardware --> better to use the "offline" scheme
-		        PixelFEDChannel ch = {fed->id(), linkId, 25, 0};
-		        for (unsigned int iRoc = 1; iRoc <= link->numberOfROCs(); iRoc++) {
+		// The "offline" 0..15 numbering is fixed by definition, also, the FrameConversion depends on it
+		// in contrast, the ROC-in-channel numbering is determined by hardware --> better to use the "offline" scheme
+		PixelFEDChannel ch = {fed->id(), linkId, 25, 0};
+		for (unsigned int iRoc = 1; iRoc <= link->numberOfROCs(); iRoc++) {
                   const sipixelobjects::PixelROC * roc = link->roc(iRoc);
                   if (roc->idInDetUnit() < ch.roc_first) ch.roc_first = roc->idInDetUnit();
                   if (roc->idInDetUnit() > ch.roc_last) ch.roc_last = roc->idInDetUnit();
                 }
-		        disabledChannelsDetSet.push_back(ch);
-		      }
-	        }
-	      }
+		if (ch.roc_first<ch.roc_last) disabledChannelsDetSet.push_back(ch);
+              }
+	    }
+	  }
           else {
 	        // fill list of detIds to be turned off by tracking
 	        if (!tkerrorlist.empty()) {

@@ -64,10 +64,10 @@ private:
 
   bool convertADCtoElectrons;
   unsigned int *word;        // to hold input for rawtodigi
-  unsigned int *fedIndex;    // to hold fed index inside word[] array for rawtodigi on GPU
+  unsigned char *fedId_h;    // to hold fed index for each word
 
   // to store the output
-  uint32_t *xx_h, *yy_h, *adc_h, *rawIdArr_h;                   // host copy of output
+  uint32_t *pdigi_h, *rawIdArr_h;                   // host copy of output
   uint32_t *errType_h, *errWord_h, *errFedID_h, *errRawID_h;    // host copy of output
   // store the start and end index for each module (total 1856 modules-phase 1)
   int *mIndexStart_h, *mIndexEnd_h;

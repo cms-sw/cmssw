@@ -37,24 +37,26 @@ context initDeviceMemory() {
   context c;
 
   // Number of words for all the feds
-  constexpr uint32_t MAX_WORD_SIZE = MAX_FED * MAX_WORD  * sizeof(uint32_t);
-  constexpr uint32_t FSIZE = 2*MAX_FED*sizeof(uint32_t)+sizeof(uint32_t);
+  constexpr uint32_t MAX_WORD08_SIZE = MAX_FED * MAX_WORD  * sizeof(uint8_t);
+  constexpr uint32_t MAX_WORD32_SIZE = MAX_FED * MAX_WORD  * sizeof(uint32_t);
+  constexpr uint32_t MAX_WORD16_SIZE = MAX_FED * MAX_WORD  * sizeof(uint16_t);
   constexpr uint32_t MSIZE = NMODULE*sizeof(int)+sizeof(int);
 
-  cudaCheck(cudaMalloc((void**) & c.word_d,        MAX_WORD_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.fedIndex_d,    FSIZE));
-  cudaCheck(cudaMalloc((void**) & c.xx_d,          MAX_WORD_SIZE)); // to store the x and y coordinate
-  cudaCheck(cudaMalloc((void**) & c.yy_d,          MAX_WORD_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.xx_adc,        MAX_WORD_SIZE)); // to store the x and y coordinate
-  cudaCheck(cudaMalloc((void**) & c.yy_adc,        MAX_WORD_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.adc_d,         MAX_WORD_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.layer_d ,      MAX_WORD_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.rawIdArr_d,    MAX_WORD_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.errType_d,     MAX_WORD_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.errWord_d,     MAX_WORD_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.errFedID_d,    MAX_WORD_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.errRawID_d,    MAX_WORD_SIZE));
-  cudaCheck(cudaMalloc((void**) & c.moduleId_d,    MAX_WORD_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.word_d,        MAX_WORD32_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.fedId_d,       MAX_WORD08_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.pdigi_d,       MAX_WORD32_SIZE)); // to store thepacked digi
+  cudaCheck(cudaMalloc((void**) & c.xx_d,          MAX_WORD16_SIZE)); // to store the x and y coordinate
+  cudaCheck(cudaMalloc((void**) & c.yy_d,          MAX_WORD16_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.xx_adc,        MAX_WORD16_SIZE)); // to store the x and y coordinate
+  cudaCheck(cudaMalloc((void**) & c.yy_adc,        MAX_WORD16_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.adc_d,         MAX_WORD16_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.layer_d ,      MAX_WORD16_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.rawIdArr_d,    MAX_WORD32_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.errType_d,     MAX_WORD32_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.errWord_d,     MAX_WORD32_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.errFedID_d,    MAX_WORD32_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.errRawID_d,    MAX_WORD32_SIZE));
+  cudaCheck(cudaMalloc((void**) & c.moduleId_d,    MAX_WORD32_SIZE));
   cudaCheck(cudaMalloc((void**) & c.mIndexStart_d, MSIZE));
   cudaCheck(cudaMalloc((void**) & c.mIndexEnd_d,   MSIZE));
 
@@ -68,7 +70,8 @@ context initDeviceMemory() {
 void freeMemory(context & c) {
   // free the GPU memory
   cudaCheck(cudaFree(c.word_d));
-  cudaCheck(cudaFree(c.fedIndex_d));
+  cudaCheck(cudaFree(c.fedId_d));
+  cudaCheck(cudaFree(c.pdigi_d));
   cudaCheck(cudaFree(c.adc_d));
   cudaCheck(cudaFree(c.layer_d));
   cudaCheck(cudaFree(c.xx_d));
@@ -199,6 +202,8 @@ __device__ uint32_t conversionError(uint32_t fedId, uint32_t status, bool debug 
 
   uint32_t errorType = 0;
 
+  // debug = true;
+
   switch (status) {
       case(1) : {
         if (debug) printf("Error in Fed: %i, invalid channel Id (errorType=35)", fedId );
@@ -252,14 +257,12 @@ __device__ uint32_t checkROC(uint32_t errorWord, uint32_t fedId, uint32_t link, 
 
  switch (errorType) {
     case(25) : {
+     errorFound = true;
      uint32_t index = fedId * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + 1;
      if (index > 1 && index <= Map->size){
        if (!(link == Map->link[index] && 1 == Map->roc[index])) errorFound = false;
      }
-     else{
-       errorFound = true;
-       if (debug) printf("Invalid ROC = 25 found (errorType=25)");
-     }
+     if (debug&errorFound) printf("Invalid ROC = 25 found (errorType=25)");
      break;
    }
    case(26) : {
@@ -424,34 +427,28 @@ __device__ uint32_t getErrRawID(uint32_t fedId, uint32_t errWord, uint32_t error
 
 
 // Kernel to perform Raw to Digi conversion
-__global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint32_t wordCounter, const uint32_t *Word, const uint32_t *fedIndex,
-                                 uint32_t *XX, uint32_t *YY, uint32_t *moduleId, int *mIndexStart,
-                                 int *mIndexEnd, uint32_t *ADC, uint32_t *layerArr, uint32_t *rawIdArr,
+__global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint32_t wordCounter, const uint32_t *Word, const uint8_t *fedIds,
+                                 uint16_t * XX, uint16_t * YY, uint16_t * ADC,
+                                 uint32_t * pdigi, uint32_t *moduleId, int *mIndexStart,
+                                 int *mIndexEnd,  uint16_t *layerArr, uint32_t *rawIdArr,
                                  uint32_t *errType, uint32_t *errWord, uint32_t *errFedID, uint32_t *errRawID,
                                  bool useQualityInfo, bool includeErrors, bool debug)
 {
   uint32_t blockId  = blockIdx.x;
 
-  //const uint32_t eventOffset  = eventIndex[eventno];
-  uint32_t fedId     = fedIndex[blockId];
   uint32_t threadId  = threadIdx.x;
-
-  uint32_t begin  = fedIndex[MAX_FED + blockId];
-  uint32_t end    = fedIndex[MAX_FED + blockId + 1];
-
-  if (blockIdx.x == gridDim.x - 1) {
-    end = wordCounter; // for last fed to get the end index
-  }
-
-  uint32_t link = 0;
-  uint32_t roc  = 0;
 
   bool skipROC = false;
   //if (threadId==0) printf("Event: %u blockId: %u start: %u end: %u\n", eventno, blockId, begin, end);
-  int no_itr = (end - begin)/blockDim.x + 1; // to deal with number of hits greater than blockDim.x
-  for (int i = 0; i < no_itr; i++) {
-    auto gIndex = begin + threadId + i*blockDim.x;
-    if (gIndex < end) {
+  
+  for (int aaa=0; aaa<1; ++aaa) {  
+    auto gIndex = threadId + blockId*blockDim.x;
+    if (gIndex < wordCounter) {
+   
+      uint32_t fedId = fedIds[gIndex/2]; // +1200;    
+      pdigi[gIndex]  = 0;
+      rawIdArr[gIndex] = 0;
+
       uint32_t ww = Word[gIndex]; // Array containing 32 bit raw data
       if (includeErrors) {
         errType[gIndex]  = 0;
@@ -466,15 +463,12 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
         ADC[gIndex]   = 0;
         layerArr[gIndex] = 0;
         moduleId[gIndex] = 9999; //9999 is the indication of bad module, taken care later
-        rawIdArr[gIndex] = 9999;
         continue ; // 0: bad word,
       }
 
-      uint32_t nlink  = getLink(ww);            // Extract link
-      uint32_t nroc   = getRoc(ww);             // Extract Roc in link
-      if (!((nlink != link) | (nroc != roc))) continue;
-      link = nlink;
-      roc = nroc;
+
+      uint32_t link  = getLink(ww);            // Extract link
+      uint32_t roc   = getRoc(ww);             // Extract Roc in link
       DetIdGPU detId = getRawId(Map, fedId, link, roc);
 
 
@@ -538,7 +532,7 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
             errWord[gIndex]  = ww;
             errFedID[gIndex] = fedId;
             errRawID[gIndex] = rawId;
-            printf("Error status: %i\n", error);
+            // printf("BPIX1  Error status: %i\n", error);
             continue;
           }
         }
@@ -556,7 +550,7 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
           errWord[gIndex] = ww;
           errFedID[gIndex] = fedId;
           errRawID[gIndex] = rawId;
-          printf("Error status: %i\n", error);
+          // printf("Error status: %i %d %d %d %d\n", error, dcol, pxid, fedId, roc);
           continue;
         }
       }
@@ -566,64 +560,29 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
       XX[gIndex]    = globalPix.row  ; // origin shifting by 1 0-159
       YY[gIndex]    = globalPix.col ; // origin shifting by 1 0-415
       ADC[gIndex]   = getADC(ww);
+      pdigi[gIndex] = pack(globalPix.row,globalPix.col,ADC[gIndex]);
       layerArr[gIndex] = layer;
       moduleId[gIndex] = detId.moduleId;
       rawIdArr[gIndex] = rawId;
-      if (includeErrors) {
-        //fill error type
-        errType[gIndex]  = 0;
-        errWord[gIndex]  = ww;
-        errFedID[gIndex] = fedId;
-        errRawID[gIndex] = rawId;
-      }
     } // end of if (gIndex < end)
-  } // end of for(int i =0;i<no_itr...)
+   } // end fake loop
+
+
+  /* 
+   *   VI what below is either WRONG, or badly coded or just useless
 
   __syncthreads();
 
-  // three cases possible
-  // case 1: 21 21 21 22 21 22 22
-  // pos   : 0  1  2  3  4  5  6
-  // solution swap 21 with 22 : 21 21 21 21 22 22 22
-  // atomicExch(address, value), set the variable at address to value.
-  // do the swapping for above case and replace the 9999 with
-  // valid moduleId
-
   for(int i = 0; i < no_itr; i++) {
     uint32_t gIndex = begin + threadId + i*blockDim.x;
-    if (gIndex+2 < end) {
-      //rare condition
-      if (moduleId[gIndex] == moduleId[gIndex+2] and moduleId[gIndex] < moduleId[gIndex+1]) {
-        atomicExch(&moduleId[gIndex+2], atomicExch(&moduleId[gIndex+1], moduleId[gIndex+2]));
-        //*swap all the digi id
-        atomicExch(&XX[gIndex+2], atomicExch(&XX[gIndex+1], XX[gIndex+2]));
-        atomicExch(&YY[gIndex+2], atomicExch(&YY[gIndex+1], YY[gIndex+2]));
-        atomicExch(&ADC[gIndex+2], atomicExch(&ADC[gIndex+1], ADC[gIndex+2]));
-        atomicExch(&layerArr[gIndex+2], atomicExch(&layerArr[gIndex+1], layerArr[gIndex+2]));
-        atomicExch(&rawIdArr[gIndex+2], atomicExch(&rawIdArr[gIndex+1], rawIdArr[gIndex+2]));
-      }
-      __syncthreads();
 
-      //rarest condition
-      // above condition fails at 361 361 361 363 362 363 363
-      // here we need to swap 362 with previous 363
-      if (moduleId[gIndex]==moduleId[gIndex+2] && moduleId[gIndex]>moduleId[gIndex+1]) {
-        atomicExch(&moduleId[gIndex+1], atomicExch(&moduleId[gIndex], moduleId[gIndex+1]));
-        //*swap all the digi id
-        atomicExch(&XX[gIndex+1], atomicExch(&XX[gIndex], XX[gIndex+1]));
-        atomicExch(&YY[gIndex+1], atomicExch(&YY[gIndex], YY[gIndex+1]));
-        atomicExch(&ADC[gIndex+1], atomicExch(&ADC[gIndex], ADC[gIndex+1]));
-        atomicExch(&layerArr[gIndex+1], atomicExch(&layerArr[gIndex], layerArr[gIndex+1]));
-        atomicExch(&rawIdArr[gIndex+1], atomicExch(&rawIdArr[gIndex], rawIdArr[gIndex+1]));
-      }
-
+    if (gIndex < end) {
       // moduleId== 9999 then pixel is bad with x=y=layer=adc=0
       // this bad pixel will not affect the cluster, since for cluster
       // the origin is shifted at (1,1) so x=y=0 will be ignored
       // assign the previous valid moduleId to this pixel to remove 9999
       // so that we can get the start & end index of module easily.
-      __syncthreads(); // let the swapping finish first
-
+      
       if (moduleId[gIndex] == 9999) {
         int m=gIndex;
         while(moduleId[--m] == 9999) {} //skip till you get the valid module
@@ -631,6 +590,7 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
       }
     } // end of if (gIndex<end)
   } //  end of for(int i=0;i<no_itr;...)
+
   __syncthreads();
 
   // mIndexStart stores starting index of module
@@ -638,9 +598,11 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
   // both indexes are inclusive
   // check consecutive module numbers
   // for start of fed
+
+  // all this is PRETTY WRONG 
   for(int i = 0; i < no_itr; i++) {
     uint32_t gIndex = begin + threadId + i*blockDim.x;
-    uint32_t moduleOffset = NMODULE;
+    uint32_t moduleOffset = NMODULE;  // ????? should be 0 it is happily writing out of bound...
     //if (threadId==0) printf("moduleOffset: %u\n",moduleOffset );
     if (gIndex < end) {
       if (gIndex == begin) {
@@ -652,7 +614,7 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
       }
       // point to the gIndex where two consecutive moduleId varies
       if (gIndex!= begin && (gIndex<(end-1)) && moduleId[gIndex]!=9999) {
-        if (moduleId[gIndex]<moduleId[gIndex+1] ) {
+        if (moduleId[gIndex]<moduleId[gIndex+1] ) {  // Why ????? who said modules are in order????
           mIndexEnd[moduleOffset + moduleId[gIndex]] = gIndex;
         }
         if (moduleId[gIndex] > moduleId[gIndex-1] ) {
@@ -661,19 +623,24 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
       } //end of if (gIndex!= begin && (gIndex<(end-1)) ...
     } //end of if (gIndex <end)
   }
+
+  */
+
 } // end of Raw to Digi kernel
 
 
 // kernel wrapper called from runRawToDigi_kernel
 void RawToDigi_wrapper(
     context & c,
-    const SiPixelFedCablingMapGPU* cablingMapDevice, const uint32_t wordCounter, uint32_t *word, const uint32_t fedCounter,  uint32_t *fedIndex,
-    bool convertADCtoElectrons, uint32_t *xx_h, uint32_t *yy_h, uint32_t *adc_h, int *mIndexStart_h,
-    int *mIndexEnd_h, uint32_t *rawIdArr_h, uint32_t *errType_h, uint32_t *errWord_h, uint32_t *errFedID_h, uint32_t *errRawID_h,
+    const SiPixelFedCablingMapGPU* cablingMapDevice, const uint32_t wordCounter, uint32_t *word, const uint32_t fedCounter,  uint8_t *fedId_h,
+    bool convertADCtoElectrons, uint32_t * pdigi_h, int *mIndexStart_h, int *mIndexEnd_h, 
+    uint32_t *rawIdArr_h, uint32_t *errType_h, uint32_t *errWord_h, uint32_t *errFedID_h, uint32_t *errRawID_h,
     bool useQualityInfo, bool includeErrors, bool debug)
 {
   const int threadsPerBlock = 512;
-  const int blocks = 108; // only 108 feds are present
+  const int blocks = (wordCounter + threadsPerBlock-1) /threadsPerBlock; // fill it all
+
+  /*  VI when proved useful
 
   int MSIZE = NMODULE*sizeof(int)+sizeof(int);
   // initialize moduleStart & moduleEnd with some constant(-1)
@@ -681,23 +648,25 @@ void RawToDigi_wrapper(
   cudaCheck(cudaMemsetAsync(c.mIndexStart_d, -1, MSIZE, c.stream));
   cudaCheck(cudaMemsetAsync(c.mIndexEnd_d, -1, MSIZE, c.stream));
 
-  int FSIZE     = (2*MAX_FED +1)*sizeof(uint32_t); // 0 to 150:fedId, 150:300: fedIndex
+  */
+
+   assert(0 == wordCounter%2);
   // wordCounter is the total no of words in each event to be trasfered on device
   cudaCheck(cudaMemcpyAsync(&c.word_d[0],     &word[0],     wordCounter*sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
-  cudaCheck(cudaMemcpyAsync(&c.fedIndex_d[0], &fedIndex[0], FSIZE, cudaMemcpyHostToDevice, c.stream));
+  cudaCheck(cudaMemcpyAsync(&c.fedId_d[0], &fedId_h[0], wordCounter*sizeof(uint8_t)/2, cudaMemcpyHostToDevice, c.stream));
 
   // Launch rawToDigi kernel
   RawToDigi_kernel<<<blocks, threadsPerBlock, 0, c.stream>>>(
       cablingMapDevice,
       wordCounter,
       c.word_d,
-      c.fedIndex_d,
-      c.xx_d,
-      c.yy_d,
+      c.fedId_d,
+      c.xx_d, c.yy_d, c.adc_d,
+      c.pdigi_d,
       c.moduleId_d,
       c.mIndexStart_d,
       c.mIndexEnd_d,
-      c.adc_d,c.layer_d,
+      c.layer_d,
       c.rawIdArr_d,
       c.errType_d,
       c.errWord_d,
@@ -709,20 +678,15 @@ void RawToDigi_wrapper(
   cudaCheck(cudaGetLastError());
 
   // copy data to host variable
-  // if you want to copy data after applying ADC threshold
-  if (convertADCtoElectrons) {
-    cudaCheck(cudaMemcpy(xx_h, c.xx_adc, wordCounter * sizeof(uint32_t), cudaMemcpyDeviceToHost));
-    cudaCheck(cudaMemcpy(yy_h, c.yy_adc, wordCounter * sizeof(uint32_t), cudaMemcpyDeviceToHost));
-  } else {
-    cudaCheck(cudaMemcpy(xx_h, c.xx_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost));
-    cudaCheck(cudaMemcpy(yy_h, c.yy_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost));
-  }
 
-  cudaCheck(cudaMemcpyAsync(adc_h, c.adc_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+  cudaCheck(cudaMemcpyAsync(pdigi_h, c.pdigi_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
   cudaCheck(cudaMemcpyAsync(rawIdArr_h, c.rawIdArr_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
 
+  /*  When proven useful/correct
   cudaCheck(cudaMemcpyAsync(mIndexStart_h, c.mIndexStart_d, NMODULE*sizeof(int), cudaMemcpyDeviceToHost, c.stream));
   cudaCheck(cudaMemcpyAsync(mIndexEnd_h, c.mIndexEnd_d, NMODULE*sizeof(int), cudaMemcpyDeviceToHost, c.stream));
+  */
+
 
   if (includeErrors) {
     cudaCheck(cudaMemcpyAsync(errType_h, c.errType_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
