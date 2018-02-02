@@ -85,9 +85,12 @@ class CSCMotherboardME11 : public CSCMotherboard
   CSCCorrelatedLCTDigi allLCTs1b[CSCConstants::MAX_LCT_TBINS][15][2];
   CSCCorrelatedLCTDigi allLCTs1a[CSCConstants::MAX_LCT_TBINS][15][2];
 
-  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
-		     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
+  void correlateLCTs(const CSCALCTDigi& bestALCT,
+                     const CSCALCTDigi& secondALCT,
+                     const CSCCLCTDigi& bestCLCT,
+                     const CSCCLCTDigi& secondCLCT,
+                     CSCCorrelatedLCTDigi& lct1,
+                     CSCCorrelatedLCTDigi& lct2, int me);
 
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV1b;
