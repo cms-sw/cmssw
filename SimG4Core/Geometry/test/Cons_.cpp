@@ -49,8 +49,8 @@ testCons::matched_g4_and_dd( void )
   std::cout << "\tdd volume = " << ddv << " cm3" <<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol=" << ddsv << " cm3" << std::endl;
 
-  CPPUNIT_ASSERT( abs(g4v - ddv) < precision_in_digits );
-  CPPUNIT_ASSERT( abs(g4v - ddsv) < precision_in_digits );
+  CPPUNIT_ASSERT( std::fabs(g4v - ddv) < precision_in_digits );
+  CPPUNIT_ASSERT( std::fabs(g4v - ddsv) < precision_in_digits );
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testCons );
