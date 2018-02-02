@@ -136,8 +136,6 @@ void CSCMotherboardME11::clear()
   if (clct1a) clct1a->clear();
   for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++)
   {
-    //firstLCT1a[bx].clear();
-    //secondLCT1a[bx].clear();
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
       for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
       {
@@ -521,7 +519,7 @@ void CSCMotherboardME11::correlateLCTs(const CSCALCTDigi& bALCT,
                                        const CSCCLCTDigi& sCLCT,
                                        CSCCorrelatedLCTDigi& lct1,
                                        CSCCorrelatedLCTDigi& lct2,
-                                       int me)
+                                       int me) const
 {
   // assume that always anodeBestValid && cathodeBestValid
   CSCALCTDigi bestALCT = bALCT;
