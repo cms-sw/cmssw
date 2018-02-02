@@ -376,7 +376,7 @@ namespace edm {
                           *(principal.productProvenanceRetrieverPtr()),//NOTE: this transfers the per product provenance
                           principal.reader(),
                           deepCopyRetriever);
-    ep.setLuminosityBlockPrincipal(inUseLumiPrincipals_[principal.luminosityBlockPrincipal().index()]);
+    ep.setLuminosityBlockPrincipal(inUseLumiPrincipals_[principal.luminosityBlockPrincipal().index()].get());
     propagateProducts(InEvent, principal, ep);
     
     WaitingTaskHolder finalizeEventTask( make_waiting_task(tbb::task::allocate_root(),
