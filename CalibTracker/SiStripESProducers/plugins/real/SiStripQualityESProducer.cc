@@ -34,9 +34,9 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
 }
 
 
-std::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord)
+std::unique_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord)
 {
-  auto quality = std::make_shared<SiStripQuality>();  
+  auto quality = std::make_unique<SiStripQuality>();  
   edm::LogInfo("SiStripQualityESProducer") << "produce called" << std::endl;
 
   quality->clear();
