@@ -1126,7 +1126,7 @@ double HcalRecHitsAnalyzer::dPhiWsign(double phi1, double phi2) {
 int HcalRecHitsAnalyzer::hcalSevLvl(const CaloRecHit* hit){
 
    HcalDetId id = hit->detid();
-   if (theHcalTopology->withSpecialRBXHBHE() && id.subdet() == HcalEndcap) {
+   if (theHcalTopology->getMergePositionFlag() && id.subdet() == HcalEndcap) {
      id = theHcalTopology->idFront(id);
    }
 
