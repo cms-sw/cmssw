@@ -68,6 +68,7 @@ namespace edm {
       previousParentages_.reset(new std::vector<BranchID>[nStreams]);
       previousParentageIds_.reset( new ParentageID[nStreams]);
       preallocStreams(nStreams);
+      preallocLumis(iPrealloc.numberOfLuminosityBlocks());
       preallocate(iPrealloc);
     }
     
@@ -84,7 +85,7 @@ namespace edm {
     void
     EDProducerBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                                ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
@@ -97,7 +98,7 @@ namespace edm {
     void
     EDProducerBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       r.setProducer(this);
       Run const& cnstR = r;
@@ -110,7 +111,7 @@ namespace edm {
     void
     EDProducerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                            ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doBeginLuminosityBlock_(cnstLb, c);
@@ -123,7 +124,7 @@ namespace edm {
     void
     EDProducerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       lb.setProducer(this);
       LuminosityBlock const& cnstLb = lb;
@@ -147,7 +148,7 @@ namespace edm {
                                      EventSetup const& c,
                                      ModuleCallingContext const* mcc)
     {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       this->doStreamBeginRun_(id, r, c);
     }
@@ -156,7 +157,7 @@ namespace edm {
                                    RunPrincipal const& rp,
                                    EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       this->doStreamEndRun_(id, r, c);
       this->doStreamEndRunSummary_(id, r, c);
@@ -166,7 +167,7 @@ namespace edm {
                                                  LuminosityBlockPrincipal const& lbp,
                                                  EventSetup const& c,
                                                  ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       this->doStreamBeginLuminosityBlock_(id,lb, c);
     }
@@ -176,7 +177,7 @@ namespace edm {
                                                LuminosityBlockPrincipal const& lbp,
                                                EventSetup const& c,
                                                ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       this->doStreamEndLuminosityBlock_(id,lb, c);
       this->doStreamEndLuminosityBlockSummary_(id,lb, c);
@@ -195,6 +196,7 @@ namespace edm {
     }
     
     void EDProducerBase::preallocStreams(unsigned int) {}
+    void EDProducerBase::preallocLumis(unsigned int) {}
     void EDProducerBase::preallocate(PreallocationConfiguration const&) {}
     void EDProducerBase::doBeginStream_(StreamID id){}
     void EDProducerBase::doEndStream_(StreamID id) {}

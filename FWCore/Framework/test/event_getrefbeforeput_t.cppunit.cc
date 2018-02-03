@@ -71,14 +71,15 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   auto runAux = std::make_shared<edm::RunAuxiliary>(col.run(), fakeTime, fakeTime);
   auto rp = std::make_shared<edm::RunPrincipal>(runAux, pregc, pc, &historyAppender_,0);
-  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, fakeTime, fakeTime);
-  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pregc, pc, &historyAppender_,0);
+  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_,0);
+  lbp->setAux(lumiAux);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr;
   ep.fillEventPrincipal(eventAux, phr);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setLuminosityBlockPrincipal(lbp.get());
   try {
      edm::ParameterSet pset;
      pset.registerIt();
@@ -166,14 +167,15 @@ void testEventGetRefBeforePut::getRefTest() {
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   auto runAux = std::make_shared<edm::RunAuxiliary>(col.run(), fakeTime, fakeTime);
   auto rp = std::make_shared<edm::RunPrincipal>(runAux, pregc, pc, &historyAppender_,0);
-  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, fakeTime, fakeTime);
-  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pregc, pc, &historyAppender_,0);
+  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_,0);
+  lbp->setAux(lumiAux);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr;
   ep.fillEventPrincipal(eventAux, phr);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setLuminosityBlockPrincipal(lbp.get());
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

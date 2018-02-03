@@ -6,6 +6,10 @@
 
 // Original Author: Marcel Schneider
 
+#include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -16,8 +20,32 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DQM/SiPixelPhase1RecHits/interface/SiPixelPhase1RecHits.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+
+namespace {
+
+class SiPixelPhase1RecHits final : public SiPixelPhase1Base {
+  enum {
+    NRECHITS,
+    CLUST_X,
+    CLUST_Y,
+    ERROR_X,
+    ERROR_Y,
+    POS,
+    CLUSTER_PROB
+  };
+
+  public:
+  explicit SiPixelPhase1RecHits(const edm::ParameterSet& conf);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    edm::EDGetTokenT<reco::TrackCollection> srcToken_;
+    edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
+
+    bool onlyValid_;
+    bool applyVertexCut_;
+};
 
 SiPixelPhase1RecHits::SiPixelPhase1RecHits(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
@@ -135,6 +163,8 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
 
   histo[NRECHITS].executePerEventHarvesting(&iEvent);
 }
+
+} //namespace
 
 DEFINE_FWK_MODULE(SiPixelPhase1RecHits);
 

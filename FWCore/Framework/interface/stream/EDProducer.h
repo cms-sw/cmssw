@@ -36,7 +36,9 @@ namespace edm {
   namespace stream {
     template< typename... T>
     class EDProducer : public AbilityToImplementor<T>::Type...,
-                       public EDProducerBase
+      public std::conditional<CheckAbility<edm::module::Abilities::kAccumulator,T...>::kHasIt,
+                              impl::EmptyType,
+                              EDProducerBase>::type
     {
       
     public:

@@ -50,6 +50,9 @@ namespace edm {
     bool wantsStreamRuns() const final;
     bool wantsStreamLuminosityBlocks() const final;
 
+    SerialTaskQueue* globalRunsQueue() final;
+    SerialTaskQueue* globalLuminosityBlocksQueue() final;
+
 
     void updateLookup(BranchType iBranchType,
                               ProductResolverIndexHelper const&) override;
@@ -154,6 +157,10 @@ namespace edm {
 
     bool hasAcquire() const override {
       return module_->hasAcquire();
+    }
+
+    bool hasAccumulator() const override {
+      return module_->hasAccumulator();
     }
 
     edm::propagate_const<std::shared_ptr<T>> module_;

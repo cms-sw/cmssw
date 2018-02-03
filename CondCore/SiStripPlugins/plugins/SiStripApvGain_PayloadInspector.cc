@@ -1107,7 +1107,7 @@ namespace {
       std::vector<std::string> parts = {"TEC","TOB","TIB","TID"};
       
       for ( const auto &part : parts){
-	ratios[part]   = std::make_shared<TH1F>(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;New Gain (%s) / Previous Gain (%s);Number of APV",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),200,0.,2.);
+	ratios[part]   = std::make_shared<TH1F>(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;Previous Gain (%s) / New Gain (%s);Number of APV",firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str()),200,0.,2.);
 	scatters[part] = std::make_shared<TH2F>(Form("hScatter_%s",part.c_str()),Form("new Gain (%s) vs previous Gain (%s);Previous Gain (%s);New Gain (%s)",lastIOVsince.c_str(),firstIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str()),100,0.5,1.8,100,0.5,1.8);
       }
       
@@ -1152,6 +1152,7 @@ namespace {
 
       for (const auto &part : parts){
 	SiStripPI::makeNicePlotStyle(ratios[part].get());
+	ratios[part]->SetMinimum(1.);
 	ratios[part]->SetStats(false);
 	ratios[part]->SetLineWidth(2);
 	ratios[part]->SetLineColor(colormap[part]);
@@ -1301,8 +1302,8 @@ namespace {
       h_firstGains->SetMarkerSize(1.);
       h_lastGains->SetMarkerSize(1.);
 
-      h_firstGains->SetLineWidth(1.5);
-      h_lastGains->SetLineWidth(1.5);
+      h_firstGains->SetLineWidth(1);
+      h_lastGains->SetLineWidth(1);
 
       h_firstGains->SetMarkerStyle(20);
       h_lastGains->SetMarkerStyle(21);

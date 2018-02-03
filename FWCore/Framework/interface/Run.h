@@ -43,7 +43,7 @@ namespace edm {
   class Run : public RunBase {
   public:
     Run(RunPrincipal const& rp, ModuleDescription const& md,
-        ModuleCallingContext const*);
+        ModuleCallingContext const*, bool isAtEnd);
     ~Run() override;
 
     //Used in conjunction with EDGetToken

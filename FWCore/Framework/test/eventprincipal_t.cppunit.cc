@@ -76,6 +76,7 @@ private:
   std::map<std::string, std::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
 
   std::shared_ptr<edm::ProductRegistry>   pProductRegistry_;
+  std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
   std::shared_ptr<edm::EventPrincipal>    pEvent_;
 
   edm::EventID               eventID_;
@@ -183,14 +184,15 @@ void test_ep::setUp() {
     edm::Timestamp now(1234567UL);
     auto runAux = std::make_shared<edm::RunAuxiliary>(eventID_.run(), now, now);
     auto rp = std::make_shared<edm::RunPrincipal>(runAux, pProductRegistry_, *process, &historyAppender_,0);
-    auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, now, now);
-    auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pProductRegistry_, *process, &historyAppender_,0);
-    lbp->setRunPrincipal(rp);
+    edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
+    lbp_ = std::make_shared<edm::LuminosityBlockPrincipal>(pProductRegistry_, *process, &historyAppender_,0);
+    lbp_->setAux(lumiAux);
+    lbp_->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
     pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, branchIDListHelper, thinnedAssociationsHelper, *process, &historyAppender_,edm::StreamID::invalidStreamID()));
     edm::ProcessHistoryRegistry phr;
     pEvent_->fillEventPrincipal(eventAux, phr);
-    pEvent_->setLuminosityBlockPrincipal(lbp);
+    pEvent_->setLuminosityBlockPrincipal(lbp_.get());
     pEvent_->put(branchFromRegistry, std::move(product), prov);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);

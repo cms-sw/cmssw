@@ -33,7 +33,6 @@ class SiStripDelayESProducer : public edm::ESProducer {
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toGet;
 
-  std::shared_ptr<SiStripDelay> delay;
 };
 
 #endif

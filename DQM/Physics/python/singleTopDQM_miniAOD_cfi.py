@@ -4,7 +4,8 @@ EletightIsoCut  = "(pfIsolationVariables.sumChargedHadronPt + max(0., pfIsolatio
 ElelooseIsoCut  = "(pfIsolationVariables.sumChargedHadronPt + max(0., pfIsolationVariables.sumNeutralHadronEt + pfIsolationVariables.sumPhotonEt - 0.5 * pfIsolationVariables.sumPUPt) ) / pt < 0.15"
 
 
-singleTopTChannelLeptonDQM_miniAOD = cms.EDAnalyzer("SingleTopTChannelLeptonDQM_miniAOD",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+singleTopTChannelLeptonDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_miniAOD',
 
   setup = cms.PSet(
  
@@ -67,7 +68,7 @@ singleTopTChannelLeptonDQM_miniAOD = cms.EDAnalyzer("SingleTopTChannelLeptonDQM_
   )
 )
 
-singleTopMuonMediumDQM_miniAOD = cms.EDAnalyzer("SingleTopTChannelLeptonDQM_miniAOD",
+singleTopMuonMediumDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_miniAOD',
 
     setup = cms.PSet(
 
@@ -157,7 +158,7 @@ singleTopMuonMediumDQM_miniAOD = cms.EDAnalyzer("SingleTopTChannelLeptonDQM_mini
   )
 )
 
-singleTopElectronMediumDQM_miniAOD = cms.EDAnalyzer("SingleTopTChannelLeptonDQM_miniAOD",
+singleTopElectronMediumDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_miniAOD',
 
   setup = cms.PSet(
  

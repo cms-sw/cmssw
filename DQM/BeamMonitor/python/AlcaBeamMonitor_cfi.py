@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-AlcaBeamMonitor = cms.EDAnalyzer("AlcaBeamMonitor",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+AlcaBeamMonitor = DQMEDAnalyzer('AlcaBeamMonitor',
                                  MonitorName        = cms.untracked.string('AlcaBeamMonitor'),
                                  PrimaryVertexLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
                                  BeamSpotLabel      = cms.untracked.InputTag('offlineBeamSpot'),

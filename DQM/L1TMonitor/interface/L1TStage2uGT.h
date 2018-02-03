@@ -72,6 +72,10 @@ namespace ugtdqm {
     ConcurrentMonitorElement first_collision_run;
     ConcurrentMonitorElement isolated_collision_run;
     ConcurrentMonitorElement last_collision_run;
+    
+    ConcurrentMonitorElement den_first_collision_run; 
+    ConcurrentMonitorElement den_last_collision_run;
+    ConcurrentMonitorElement den_isolated_collision_run;
   };
 }
 

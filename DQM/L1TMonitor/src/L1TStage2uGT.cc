@@ -83,23 +83,35 @@ void L1TStage2uGT::bookHistograms(DQMStore::ConcurrentBooker &booker, edm::Run c
    histograms.algoBits_before_prescale_bx_global = booker.book2D("algoBits_before_prescale_bx_global", "uGT: Algorithm Trigger Bits (before prescale) vs. Global BX Number", numBx, 0.5, numBx_d + 0.5, numAlgs, -0.5, numAlgs_d-0.5);
    histograms.algoBits_before_prescale_bx_global.setAxisTitle("Global Bunch Crossing Number", 1);
    histograms.algoBits_before_prescale_bx_global.setAxisTitle("Algorithm Trigger Bits (before prescale)", 2);
-   
-   histograms.first_collision_run = booker.book2D("first_bunch_in_train", "uGT: Algorithm Trigger Bits (fisrt bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
-   histograms.first_collision_run.setAxisTitle("Bunch Crossing Number In Event", 1);
-   histograms.first_collision_run.setAxisTitle("Algorithm Trigger Bits (fisrt bunch in train)", 2);
-   
-   histograms.last_collision_run = booker.book2D("last_bunch_in_train", "uGT: Algorithm Trigger Bits (last bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
-   histograms.last_collision_run.setAxisTitle("Bunch Crossing Number In Event", 1);
-   histograms.last_collision_run.setAxisTitle("Algorithm Trigger Bits (last bunch in train)", 2);
-
-   histograms.isolated_collision_run = booker.book2D("isolated_bunch", "uGT: Algorithm Trigger Bits (Isolated bunch) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
-   histograms.isolated_collision_run.setAxisTitle("Bunch Crossing Number In Event", 1);
-   histograms.isolated_collision_run.setAxisTitle("Algorithm Trigger Bits (Isolated bunch)", 2);
 
    histograms.algoBits_after_prescale_bx_global = booker.book2D("algoBits_after_prescale_bx_global", "uGT: Algorithm Trigger Bits (after prescale) vs. Global BX Number", numBx, 0.5, numBx_d + 0.5, numAlgs, -0.5, numAlgs_d-0.5);
    histograms.algoBits_after_prescale_bx_global.setAxisTitle("Global Bunch Crossing Number", 1);
    histograms.algoBits_after_prescale_bx_global.setAxisTitle("Algorithm Trigger Bits (after prescale)", 2);
-  
+
+   histograms.first_collision_run = booker.book2D("first_bunch_in_train", "uGT: Algorithm Trigger Bits (first bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   histograms.first_collision_run.setAxisTitle("Bunch Crossing Number In Event", 1);
+   histograms.first_collision_run.setAxisTitle("Algorithm Trigger Bits (first bunch in train)", 2);
+
+   histograms.den_first_collision_run = booker.book2D("den_first_bunch_in_train", "uGT: Algorithm Trigger Bits (all entries for each trigget bit first bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   histograms.den_first_collision_run.setAxisTitle("Bunch Crossing Number In Event", 1);
+   histograms.den_first_collision_run.setAxisTitle("Algorithm Trigger Bits (first bunch in train)", 2);
+
+   histograms.last_collision_run = booker.book2D("last_bunch_in_train", "uGT: Algorithm Trigger Bits (last bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   histograms.last_collision_run.setAxisTitle("Bunch Crossing Number In Event", 1);
+   histograms.last_collision_run.setAxisTitle("Algorithm Trigger Bits (last bunch in train)", 2);
+
+   histograms.den_last_collision_run = booker.book2D("den_last_bunch_in_train", "uGT: Algorithm Trigger Bits (all entries for each trigget bit last bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   histograms.den_last_collision_run.setAxisTitle("Bunch Crossing Number In Event", 1);
+   histograms.den_last_collision_run.setAxisTitle("Algorithm Trigger Bits (last bunch in train)", 2);
+
+   histograms.isolated_collision_run = booker.book2D("isolated_bunch", "uGT: Algorithm Trigger Bits (Isolated bunch) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   histograms.isolated_collision_run.setAxisTitle("Bunch Crossing Number In Event", 1);
+   histograms.isolated_collision_run.setAxisTitle("Algorithm Trigger Bits (isolated bunch)", 2);
+
+   histograms.den_isolated_collision_run = booker.book2D("den_isolated_bunch_in_train", "uGT: Algorithm Trigger Bits (all entries for each trigget bit isolated bunch in train) vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
+   histograms.den_isolated_collision_run.setAxisTitle("Bunch Crossing Number In Event", 1);
+   histograms.den_isolated_collision_run.setAxisTitle("Algorithm Trigger Bits (isolated bunch)", 2);
+
    // Algorithm bits vs BX number in event
    histograms.algoBits_before_bxmask_bx_inEvt = booker.book2D("algoBits_before_bxmask_bx_inEvt", "uGT: Algorithm Trigger Bits (before AlgoBX mask) vs. BX Number in Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
    histograms.algoBits_before_bxmask_bx_inEvt.setAxisTitle("Bunch Crossing Number in Event", 1);
@@ -212,21 +224,25 @@ void L1TStage2uGT::dqmAnalyze(const edm::Event& evt, const edm::EventSetup& evtS
       }
 
   for(auto itr = uGtAlgs->begin(0); itr != uGtAlgs->end(0); ++itr) { 
-//  This loop is only called once since the size of uGTAlgs seems to be always 1
+  //  This loop is only called once since the size of uGTAlgs seems to be always 1
      if(algoBitFirstBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_)) { 
-//  Algo bit for the first bunch in train trigger (should be made configurable or, better, taken from conditions if possible)
-//  The first BX in train trigger has fired. Now check all other triggers around this.
+     //  Algo bit for the first bunch in train trigger (should be made configurable or, better, taken from conditions if possible)
+     //  The first BX in train trigger has fired. Now check all other triggers around this.
         for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
            for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
-//  This loop is probably only called once since the size of uGtAlgs seems to be always 1
+           //  This loop is probably only called once since the size of uGtAlgs seems to be always 1
               auto algoBits = itr2->getAlgoDecisionInitial(); 
-//  get a vector with all algo bits for this BX
+              //  get a vector with all algo bits for this BX
               for(size_t algo = 0; algo < algoBits.size(); ++algo) { 
-//  check all algos
+              //  check all algos
                  if(algoBits.at(algo)) {
-//  fill if the algo fired 
+                 //  fill if the algo fired 
                     histograms.first_collision_run.fill(ibx, algo);
+                    for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
+                       histograms.den_first_collision_run.fill(ibx2, algo);
+                    } //denominator for ratio plots
                  } //end of fired algo
+                 //histograms.den_first_collision_run.fill(ibx, algo);
               } // end of all algo trigger bits
            } // end of uGtAlgs
         } // end of BX
@@ -238,6 +254,9 @@ void L1TStage2uGT::dqmAnalyze(const edm::Event& evt, const edm::EventSetup& evtS
               for(size_t algo = 0; algo < algoBits.size(); ++algo) {
                  if(algoBits.at(algo)) {
                     histograms.isolated_collision_run.fill(ibx, algo);
+                    for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
+                       histograms.den_isolated_collision_run.fill(ibx2, algo);
+                    } // denominator for ratio plots
                  } //end of fired algo
               } // end of all algo trigger bits
            } // end of uGtAlgs
@@ -250,6 +269,9 @@ void L1TStage2uGT::dqmAnalyze(const edm::Event& evt, const edm::EventSetup& evtS
               for(size_t algo = 0; algo < algoBits.size(); ++algo) {
                  if(algoBits.at(algo)) {
                     histograms.last_collision_run.fill(ibx, algo);
+                    for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
+                       histograms.den_last_collision_run.fill(ibx2, algo);
+                    } // denominator for ratio plots
                  } //end of fired algo
               } // end of all algo trigger bits
            } // end of uGtAlgs

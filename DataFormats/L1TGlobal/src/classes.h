@@ -37,5 +37,14 @@ namespace DataFormats_L1TGlobal {
 
     std::vector<GlobalAlgBlk> v_uGtAlgBx;
     std::vector<GlobalExtBlk> v_uGtExtBx;
+
+    GlobalAlgBlkRef                               gabr;
+    std::vector<GlobalAlgBlkRef>                  v_gabr;
+    GlobalAlgBlkRefBxCollection                   gabrbxc;
+    edm::Wrapper<GlobalAlgBlkRefBxCollection>     w_gabrbxc;
+    GlobalAlgBlkRefPair                           gabrp;
+    std::vector<GlobalAlgBlkRefPair>              v_gabrp;
+    GlobalAlgBlkRefPairBxCollection               gabrpc;
+    edm::Wrapper<GlobalAlgBlkRefPairBxCollection> w_gabrpc;
   };
 }

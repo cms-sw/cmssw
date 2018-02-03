@@ -119,6 +119,9 @@ namespace edm {
     virtual bool wantsGlobalLuminosityBlocks() const = 0;
     virtual bool wantsStreamRuns() const = 0;
     virtual bool wantsStreamLuminosityBlocks() const = 0;
+    
+    virtual SerialTaskQueue* globalRunsQueue() = 0;
+    virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
 
     template <typename T>
     bool doWork(typename T::MyPrincipal const&, EventSetup const& c,
@@ -223,6 +226,8 @@ namespace edm {
     State state() const { return state_; }
 
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
+
+    virtual bool hasAccumulator() const = 0;
 
   protected:
     template<typename O> friend class workerhelper::CallImpl;
@@ -400,6 +405,16 @@ namespace edm {
       m_context(context),
       m_serviceToken(ServiceRegistry::instance().presentToken()) {}
       
+      struct EnableQueueGuard {
+        SerialTaskQueue* queue_;
+        EnableQueueGuard(SerialTaskQueue* iQueue): queue_{iQueue} {}
+        EnableQueueGuard(EnableQueueGuard const&) = delete;
+        EnableQueueGuard& operator=(EnableQueueGuard const&) = delete;
+        EnableQueueGuard& operator=(EnableQueueGuard&&) = delete;
+        EnableQueueGuard(EnableQueueGuard&& iGuard): queue_{iGuard.queue_} {iGuard.queue_ = nullptr;}
+        ~EnableQueueGuard() { if(queue_) {queue_->resume();} }
+      };
+
       tbb::task* execute() override {
         //Need to make the services available early so other services can see them
         ServiceRegistry::Operate guard(m_serviceToken);
@@ -424,22 +439,35 @@ namespace edm {
           if(auto queue = m_worker->serializeRunModule()) {
             auto const & principal = m_principal;
             auto& es = m_es;
-            queue.push( [worker = m_worker, &principal,
-                         &es, streamID = m_streamID,
-                         parentContext = m_parentContext,
-                         sContext = m_context, serviceToken = m_serviceToken]()
+            auto f = [worker = m_worker, &principal,
+                      &es, streamID = m_streamID,
+                      parentContext = m_parentContext,
+                      sContext = m_context, serviceToken = m_serviceToken]()
             {
               //Need to make the services available
               ServiceRegistry::Operate guard(serviceToken);
-
+              
+              //If needed, we pause the queue in begin transition and resume it
+              // at the end transition. This guarantees that the module
+              // only processes one transition at a time
+              EnableQueueGuard enableQueueGuard{ workerhelper::CallImpl<T>::enableGlobalQueue(worker)};
               std::exception_ptr* ptr = nullptr;
               worker->template runModuleAfterAsyncPrefetch<T>(ptr,
-                                                    principal,
-                                                    es,
-                                                    streamID,
-                                                    parentContext,
-                                                    sContext);
-            });
+                                                     principal,
+                                                     es,
+                                                     streamID,
+                                                     parentContext,
+                                                     sContext);
+            };
+            //keep another global transition from running if necessary
+            auto gQueue = workerhelper::CallImpl<T>::pauseGlobalQueue(m_worker);
+            if(gQueue) {
+              gQueue->push( [queue,gQueue, f]() mutable {
+                gQueue->pause();
+                queue.push(std::move(f));} );
+            } else {
+              queue.push( std::move(f) );
+            }
             return nullptr;
           }
         }
@@ -634,6 +662,9 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return iWorker->implNeedToRunSelection();
       }
+      
+      static SerialTaskQueue* pauseGlobalQueue(Worker*) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
     };
 
     template<>
@@ -654,6 +685,9 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return iWorker->globalRunsQueue();}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
+
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>>{
@@ -673,6 +707,9 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
+
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>>{
@@ -692,6 +729,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) { return iWorker->globalRunsQueue();}
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>>{
@@ -711,6 +750,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
     };
 
     template<>
@@ -731,6 +772,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return iWorker->globalLuminosityBlocksQueue();}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>>{
@@ -750,6 +793,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
 };
 
     template<>
@@ -770,6 +815,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) { return iWorker->globalLuminosityBlocksQueue();}
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>>{
@@ -789,6 +836,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
     };
   }
 

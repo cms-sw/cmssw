@@ -21,15 +21,14 @@ KFSwitching1DUpdatorESProducer::KFSwitching1DUpdatorESProducer(const edm::Parame
 
 KFSwitching1DUpdatorESProducer::~KFSwitching1DUpdatorESProducer() {}
 
-std::shared_ptr<TrajectoryStateUpdator> 
+std::unique_ptr<TrajectoryStateUpdator> 
 KFSwitching1DUpdatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 //   if (_updator){
 //     delete _updator;
 //     _updator = 0;
 //   }
   
-  _updator  = std::make_shared<KFSwitching1DUpdator>(&pset_);
-  return _updator;
+  return std::make_unique<KFSwitching1DUpdator>(&pset_);
 }
 
 

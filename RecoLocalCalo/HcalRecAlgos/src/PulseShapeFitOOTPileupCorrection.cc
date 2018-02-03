@@ -9,8 +9,8 @@ PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPul
 								       psfPtr_(nullptr), spfunctor_(nullptr), dpfunctor_(nullptr), tpfunctor_(nullptr),
 								       TSMin_(0), TSMax_(0), vts4Chi2_(0), pedestalConstraint_(false),
 								       timeConstraint_(false), addPulseJitter_(false), applyTimeSlew_(false),
-								       ts4Min_(0), vts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
-								       noise_(0) {
+								       ts4Min_(0), vts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0)
+								       {
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
    iniTimesArr = { {-100,-75,-50,-25,0,25,50,75,100,125} };
 }
@@ -23,13 +23,6 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() {
 double PulseShapeFitOOTPileupCorrection::getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const {
   double mu = darkCurrent * 25 / fcByPE;
   return sqrt(mu/pow(1-lambda,3)) * fcByPE;
-}
-
-void PulseShapeFitOOTPileupCorrection::setChi2Term( bool isHPD ) {
-
-  if(isHPD) timeSig_       = timeSigHPD_;
-  else timeSig_            = timeSigSiPM_;
-
 }
 
 
@@ -68,8 +61,12 @@ void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShap
 
   if (!(&ps == currentPulseShape_ && isHPD == isCurrentChannelHPD_))
     {
-      setChi2Term(isHPD);
       resetPulseShapeTemplate(ps,nSamples);
+
+      // redefine the inverttimeSig2
+      if(!isHPD) psfPtr_->setinverttimeSig2(1./(timeSigSiPM_*timeSigSiPM_));
+      else psfPtr_->setinverttimeSig2(1./(timeSigHPD_*timeSigHPD_));
+
       currentPulseShape_ = &ps;
       isCurrentChannelHPD_ = isHPD;
     }
@@ -77,8 +74,8 @@ void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShap
 
 void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples) {
    ++ cntsetPulseShape;
-   psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
-						    pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_,nSamples));
+   psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,
+						    pulseJitter_,timeMean_,pedMean_,nSamples));
    spfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3) );
    dpfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5) );
    tpfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7) );
@@ -306,7 +303,11 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   psfPtr_->setinvertpedSig2(1./(averagePedSig2GeV));
 
   if(channelData.hasTimeInfo()) { 
-    ts4Max_=vts4Max_[1]; ts4Chi2_=vts4Chi2_[1]; 
+
+    ts4Chi2_=vts4Chi2_[1];
+    if(channelData.id().depth()==1) ts4Max_=vts4Max_[1];
+    else ts4Max_=vts4Max_[2];
+
   } else {
     ts4Max_=vts4Max_[0]; ts4Chi2_=vts4Chi2_[0];
   }
