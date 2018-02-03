@@ -10,7 +10,7 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     includeZeroHitMuons = cms.bool(True),
     #
     # accept to match only tracker/muon stub of globalMuons
-    acceptOneStubMatchings = cms.bool(True),
+    acceptOneStubMatchings = cms.bool(False),
     #
     # switches to be set according to the input Track collection
     UseTracker = cms.bool(True),
@@ -89,7 +89,7 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
         'TrackerHitsPixelEndcapLowTof', 
         'TrackerHitsPixelEndcapHighTof'),
     #
-    # to associate to reco::Muon segments (3.5.X only)
+    # to associate to reco::Muon segments 
     inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
     inputCSCSegmentCollection = cms.InputTag("cscSegments"),
 )
