@@ -384,8 +384,9 @@ m_ep()
   edm::Timestamp now(1234567UL);
   auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
   m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_,0));
-  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
-  m_lbp.reset(new edm::LuminosityBlockPrincipal(lumiAux, m_prodReg, m_procConfig, &historyAppender_,0));
+  edm::LuminosityBlockAuxiliary lumiAux(m_rp->run(), 1, now, now);
+  m_lbp.reset(new edm::LuminosityBlockPrincipal(m_prodReg, m_procConfig, &historyAppender_,0));
+  m_lbp->setAux(lumiAux);
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
@@ -395,7 +396,7 @@ m_ep()
                                      m_procConfig,nullptr));
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
-  m_ep->setLuminosityBlockPrincipal(m_lbp);
+  m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);
 
 
@@ -474,6 +475,8 @@ namespace {
 template<typename T>
 void
 testLimitedModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
+  edm::maker::ModuleHolderT<edm::limited::EDProducerBase> h(iMod,nullptr);
+  h.preallocate(edm::PreallocationConfiguration{});
   edm::WorkerT<edm::limited::EDProducerBase> w{iMod,m_desc,nullptr};
   for(auto& keyVal: m_transToFunc) {
     testTransition(iMod,&w,keyVal.first,iExpect,keyVal.second);
@@ -492,8 +495,6 @@ void testLimitedModule::basicTest()
 void testLimitedModule::streamTest()
 {
   auto testProd = std::make_shared<StreamProd>();
-  edm::maker::ModuleHolderT<edm::limited::EDProducerBase> h(testProd,nullptr);
-  h.preallocate(edm::PreallocationConfiguration{});
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kBeginStream, Trans::kStreamBeginRun, Trans::kStreamBeginLuminosityBlock, Trans::kEvent,

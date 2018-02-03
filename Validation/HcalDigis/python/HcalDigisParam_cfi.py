@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-hcaldigisAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hcaldigisAnalyzer = DQMEDAnalyzer('HcalDigisValidation',
     outputFile	= cms.untracked.string(''),
     digiTag	= cms.InputTag("hcalDigis"),
     QIE10digiTag= cms.InputTag("hcalDigis"),

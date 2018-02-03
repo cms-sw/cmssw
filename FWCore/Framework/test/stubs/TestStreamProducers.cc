@@ -346,6 +346,7 @@ struct UnsafeCache {
   class LumiSummaryIntProducer : public edm::stream::EDProducer<edm::LuminosityBlockCache<Cache>,edm::LuminosityBlockSummaryCache<UnsafeCache>> {
   public:
     static std::atomic<unsigned int> m_count;
+    static std::atomic<unsigned int> m_lumiSumCalls;
     unsigned int trans_;
     static std::atomic<unsigned int> cvalue_;
     static std::atomic<bool> gbl;
@@ -400,10 +401,12 @@ struct UnsafeCache {
 
 
     void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, UnsafeCache* gCache) const override {
+      ++m_lumiSumCalls;
       bls=false;
       els=true;
-      gCache->value += luminosityBlockCache()->value;
-      luminosityBlockCache()->value = 0;
+      //This routine could be called at the same time as another stream is calling produce so must do the change atomically
+      auto v = luminosityBlockCache()->value.exchange(0);
+      gCache->value += v;
       if ( el ) {
         throw cms::Exception("end out of sequence")
           << "endLuminosityBlock seen before endLuminosityBlockSummary";
@@ -412,6 +415,7 @@ struct UnsafeCache {
     
    static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*, UnsafeCache* gCache) {
      ++m_count;
+     auto nLumis =m_lumiSumCalls.load();
      gbls=false;
      gels=true;
       if ( !els ) {
@@ -420,7 +424,7 @@ struct UnsafeCache {
       }
      if ( gCache->value != cvalue_) {
         throw cms::Exception("cache value")
-          << gCache->value << " but it was supposed to be " << cvalue_;
+       << gCache->value << " but it was supposed to be " << cvalue_<<" endLumiBlockSummary called "<<nLumis;
      }
    }
 
@@ -741,6 +745,7 @@ std::atomic<bool> edmtest::stream::RunSummaryIntProducer::brs{false};
 std::atomic<bool> edmtest::stream::RunSummaryIntProducer::ers{false};
 std::atomic<bool> edmtest::stream::RunSummaryIntProducer::br{false};
 std::atomic<bool> edmtest::stream::RunSummaryIntProducer::er{false};
+std::atomic<unsigned int> edmtest::stream::LumiSummaryIntProducer::m_lumiSumCalls{0};
 std::atomic<bool> edmtest::stream::LumiSummaryIntProducer::gbl{false};
 std::atomic<bool> edmtest::stream::LumiSummaryIntProducer::gel{false};
 std::atomic<bool> edmtest::stream::LumiSummaryIntProducer::gbls{false};

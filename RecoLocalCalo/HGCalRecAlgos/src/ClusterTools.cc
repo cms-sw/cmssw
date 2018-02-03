@@ -141,7 +141,7 @@ bool ClusterTools::getWidths(const reco::CaloCluster & clus,double & sigmaetaeta
     if (id.det()==DetId::Forward && id.subdetId()==HGCEE) {
       const HGCRecHit * theHit = &(*eerh_->find(id));
 
-      GlobalPoint cellPos = rhtools_.getPosition(HGCEEDetId(id));
+      GlobalPoint cellPos = rhtools_.getPosition(HGCalDetId(id));
       double weight = theHit->energy();
       // take w0=2 To be optimized
       double logweight = 0;

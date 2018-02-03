@@ -54,17 +54,9 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
     const double MevToGeV(0.001);
 
     HGCalDetId trgdetid( trgCell.detId() );
-    int trgCellLayer = trgdetid.layer();
+    unsigned trgCellLayer = triggerTools_.layerWithOffset(trgCell.detId());
     int subdet = trgdetid.subdetId();
 
-
-    if( subdet == HGCHEF ){
-            trgCellLayer = trgCellLayer + kLayersEE_;
-    }
-    else if( subdet == HGCHEB ){
-            trgCellLayer = trgCellLayer + kLayersEE_ + kLayersFH_;
-    }
-   
     /* weight the amplitude by the absorber coefficient in MeV/mip + bring it in GeV */
     double trgCellEt = trgCell.mipPt() * dEdX_weights_.at(trgCellLayer) * MevToGeV;
 

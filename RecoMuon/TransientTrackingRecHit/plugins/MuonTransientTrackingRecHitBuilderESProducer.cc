@@ -24,14 +24,14 @@ MuonTransientTrackingRecHitBuilderESProducer::MuonTransientTrackingRecHitBuilder
 MuonTransientTrackingRecHitBuilderESProducer::~MuonTransientTrackingRecHitBuilderESProducer() {}
 
     
-std::shared_ptr<TransientTrackingRecHitBuilder> 
+std::unique_ptr<TransientTrackingRecHitBuilder> 
 MuonTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord& iRecord){ 
   
 
   ESHandle<GlobalTrackingGeometry> trackingGeometry;
   iRecord.getRecord<GlobalTrackingGeometryRecord>().get(trackingGeometry);
   
-  return std::make_shared<MuonTransientTrackingRecHitBuilder>(trackingGeometry);
+  return std::make_unique<MuonTransientTrackingRecHitBuilder>(trackingGeometry);
 }
     
     

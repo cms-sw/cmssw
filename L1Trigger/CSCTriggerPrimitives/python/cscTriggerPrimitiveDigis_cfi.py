@@ -331,8 +331,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     )
 )
 
-# Upgrade era customizations involving GEMs and RPCs
-# ==================================================
+# Upgrade era customizations involving GEMs
+# =========================================
 copadParamGE11 = cms.PSet(
      verbosity = cms.uint32(0),
      maxDeltaPad = cms.uint32(2),
@@ -442,6 +442,30 @@ me21tmbSLHCGEM = cms.PSet(
     promoteCLCTGEMquality = cms.bool(True),
 )
 
+# to be used by ME31-ME41 chambers
+me3141tmbSLHC = cms.PSet(
+    mpcBlockMe1a    = cms.uint32(0),
+    alctTrigEnable  = cms.uint32(0),
+    clctTrigEnable  = cms.uint32(0),
+    matchTrigEnable = cms.uint32(1),
+    matchTrigWindowSize = cms.uint32(3),
+    tmbL1aWindowSize = cms.uint32(7),
+    verbosity = cms.int32(0),
+    tmbEarlyTbins = cms.int32(4),
+    tmbReadoutEarliest2 = cms.bool(False),
+    tmbDropUsedAlcts = cms.bool(False),
+    clctToAlct = cms.bool(False),
+    tmbDropUsedClcts = cms.bool(False),
+    matchEarliestAlctOnly = cms.bool(False),
+    matchEarliestClctOnly = cms.bool(False),
+    tmbCrossBxAlgorithm = cms.uint32(2),
+    maxLCTs = cms.uint32(2),
+
+    ## run in debug mode
+    debugLUTs = cms.bool(False),
+    debugMatching = cms.bool(False),
+)
+
 ## unganging in ME1/a
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( cscTriggerPrimitiveDigis,
@@ -464,13 +488,17 @@ run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    copadParamGE11 = copadParamGE11
                    )
 
-## GEM-CSC ILT in ME2/1, CSC-RPC ILT in ME3/1 and ME4/1
+## GEM-CSC ILT in ME2/1, CSC in ME3/1 and ME4/1
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( cscTriggerPrimitiveDigis,
-                      commonParam = dict(runME21ILT = cms.bool(True)),
+                      commonParam = dict(runME21ILT = cms.bool(True),
+                                         runME3141ILT = cms.bool(True)),
                       alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
                       clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
                       me21tmbSLHCGEM = me21tmbSLHCGEM,
+                      alctSLHCME3141 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 4),
+                      clctSLHCME3141 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 4),
+                      me3141tmbSLHC = me3141tmbSLHC,
                       copadParamGE11 = copadParamGE11,
                       copadParamGE21 = copadParamGE21
 )

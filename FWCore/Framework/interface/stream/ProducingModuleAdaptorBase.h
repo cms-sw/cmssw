@@ -142,6 +142,7 @@ namespace edm {
       const ProducingModuleAdaptorBase& operator=(const ProducingModuleAdaptorBase&) = delete; // stop default
 
       void doPreallocate(PreallocationConfiguration const&);
+      virtual void preallocLumis(unsigned int) {}
       virtual void setupStreamModules() = 0;
       void doBeginJob();
       virtual void doEndJob() = 0;

@@ -7,8 +7,8 @@
 namespace edm {
 
   RunForOutput::RunForOutput(RunPrincipal const& rp, ModuleDescription const& md,
-           ModuleCallingContext const* moduleCallingContext) :
-        OccurrenceForOutput(rp, md, moduleCallingContext), 
+           ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+        OccurrenceForOutput(rp, md, moduleCallingContext, isAtEnd), 
         aux_(rp.aux()) {
   }
 

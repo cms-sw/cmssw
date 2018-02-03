@@ -11,9 +11,8 @@ class  PixelCPETemplateRecoESProducer: public edm::ESProducer{
  public:
   PixelCPETemplateRecoESProducer(const edm::ParameterSet & p);
   ~PixelCPETemplateRecoESProducer() override; 
-  std::shared_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
+  std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
  private:
-  std::shared_ptr<PixelClusterParameterEstimator> cpe_;
   edm::ParameterSet pset_;
   bool DoLorentz_;
 };

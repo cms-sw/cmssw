@@ -26,6 +26,8 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
+#include "LuminosityBlockProcessingStatus.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -715,7 +717,6 @@ namespace edm {
     
     return iExcept;
   }
-
 
   void
   StreamSchedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {

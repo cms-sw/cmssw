@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SUSY_HLT_Mu8_TrkIsoVVL = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SUSY_HLT_Mu8_TrkIsoVVL = DQMEDAnalyzer('SUSY_HLT_MuonFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -16,7 +17,7 @@ SUSYoHLToMu8oTrkIsoVVLoPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_Mu8 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu8 = DQMEDAnalyzer('SUSY_HLT_MuonFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -31,7 +32,7 @@ SUSYoHLToMu8oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_Mu17_TrkIsoVVL = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu17_TrkIsoVVL = DQMEDAnalyzer('SUSY_HLT_MuonFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -46,7 +47,7 @@ SUSYoHLToMu17oTrkIsoVVLoPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_Mu17 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu17 = DQMEDAnalyzer('SUSY_HLT_MuonFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -61,7 +62,7 @@ SUSYoHLToMu17oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_TkMu17 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
+SUSY_HLT_TkMu17 = DQMEDAnalyzer('SUSY_HLT_MuonFakes',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
