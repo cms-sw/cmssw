@@ -752,34 +752,46 @@ hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWdR03oldDMwLT.mapping[0].cut = 
 hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT.clone()
 hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1_WPEff40")
 
-hpsPFTauMVAIsolation2Task = cms.Task(
+hpsPFTauIsolationSumsTask = cms.Task(
     hpsPFTauChargedIsoPtSum,
     hpsPFTauNeutralIsoPtSum,
     hpsPFTauPUcorrPtSum,
     hpsPFTauNeutralIsoPtSumWeight,
     hpsPFTauFootprintCorrection,
-    hpsPFTauPhotonPtSumOutsideSignalCone,
+    hpsPFTauPhotonPtSumOutsideSignalCone,    
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT,
     hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT,
     hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT,
-    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT,
+    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT,
-    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT,
+    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWoldDMwLT,
     hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWoldDMwLT,
     hpsPFTauDiscriminationByTightIsolationMVArun2v1PWoldDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWoldDMwLT,
-    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWoldDMwLT,
+    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWoldDMwLT
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWnewDMwLT,
@@ -787,19 +799,28 @@ hpsPFTauMVAIsolation2Task = cms.Task(
     hpsPFTauDiscriminationByTightIsolationMVArun2v1PWnewDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWnewDMwLT,
     hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWnewDMwLT,
+    )
+
+hpsPFTauIsolationSums03Task = cms.Task(
     hpsPFTauChargedIsoPtSumdR03,
     hpsPFTauNeutralIsoPtSumdR03,
     hpsPFTauPUcorrPtSumdR03,
     hpsPFTauNeutralIsoPtSumWeightdR03,
     hpsPFTauFootprintCorrectiondR03,
-    hpsPFTauPhotonPtSumOutsideSignalConedR03,
+    hpsPFTauPhotonPtSumOutsideSignalConedR03
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByTightIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBdR03oldDMwLT,
-    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT,
+    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWdR03oldDMwLT,
@@ -807,10 +828,22 @@ hpsPFTauMVAIsolation2Task = cms.Task(
     hpsPFTauDiscriminationByTightIsolationMVArun2v1PWdR03oldDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWdR03oldDMwLT,
     hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT
-)    
+    )
+
+hpsPFTauMVAIsolation2Task = cms.Task(
+    hpsPFTauIsolationSumsTask,
+    hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
+    hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTTask,
+    hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTTask,    
+    hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTTask,
+    hpsPFTauIsolationSums03Task,
+    hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTTask,
+    hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTTask    
+    )
+
 hpsPFTauMVAIsolation2Seq = cms.Sequence(
     hpsPFTauMVAIsolation2Task
-)
+    )
 
 produceHPSPFTausTask = cms.Task(
     hpsSelectionDiscriminator,
@@ -820,10 +853,12 @@ produceHPSPFTausTask = cms.Task(
     #hpsVLooseIsolationCleaner,
     hpsPFTauProducerSansRefs,
     hpsPFTauProducer
-)
+    )
+
 produceHPSPFTaus = cms.Sequence(
     produceHPSPFTausTask
-)
+    )
+
 produceAndDiscriminateHPSPFTausTask = cms.Task(
     produceHPSPFTausTask,
     hpsPFTauDiscriminationByDecayModeFindingNewDMs,
@@ -848,7 +883,8 @@ produceAndDiscriminateHPSPFTausTask = cms.Task(
     hpsPFTauDiscriminationByTightMuonRejection3,
     hpsPFTauVertexAndImpactParametersTask,
     hpsPFTauMVAIsolation2Task
-)
+    )
+
 produceAndDiscriminateHPSPFTaus = cms.Sequence(
     produceAndDiscriminateHPSPFTausTask
-)
+    )
