@@ -25,16 +25,15 @@ class CSCFakePedestalsConditions: public edm::ESProducer, public edm::EventSetup
       float meanped,meanrms;
       int seed;long int M;
       
-      void prefillPedestals();
+      CSCPedestals *  prefillPedestals();
 
-      typedef const  CSCPedestals * ReturnType;
+      typedef std::unique_ptr<CSCPedestals> ReturnType;
 
       ReturnType producePedestals(const CSCPedestalsRcd&);
 
    private:
       // ----------member data ---------------------------
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
-      CSCPedestals *cnpedestals ;   
 };
 
 #endif

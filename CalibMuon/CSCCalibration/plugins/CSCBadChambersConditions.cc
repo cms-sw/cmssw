@@ -10,7 +10,6 @@ CSCBadChambersConditions::CSCBadChambersConditions(const edm::ParameterSet& iCon
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  cndbBadChambers = prefillBadChambers();
   setWhatProduced(this,&CSCBadChambersConditions::produceBadChambers);
   findingRecord<CSCBadChambersRcd>();
   //now do what ever other initialization is needed
@@ -22,7 +21,6 @@ CSCBadChambersConditions::~CSCBadChambersConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cndbBadChambers;
 }
 
 
@@ -35,9 +33,7 @@ CSCBadChambersConditions::ReturnType
 CSCBadChambersConditions::produceBadChambers(const CSCBadChambersRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCBadChambers* mydata=new CSCBadChambers( *cndbBadChambers );
-  return mydata;
-  
+  return CSCBadChambersConditions::ReturnType( prefillBadChambers());
 }
 
  void CSCBadChambersConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
