@@ -25,7 +25,7 @@ class CSCBadStripsConditions: public edm::ESProducer, public edm::EventSetupReco
 
   inline static CSCBadStrips *  prefillBadStrips();
 
-  typedef const  CSCBadStrips * ReturnType;
+  typedef std::unique_ptr<CSCBadStrips> ReturnType;
   
   ReturnType produceBadStrips(const CSCBadStripsRcd&);
   

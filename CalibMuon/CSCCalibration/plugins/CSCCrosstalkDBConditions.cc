@@ -10,7 +10,6 @@ CSCCrosstalkDBConditions::CSCCrosstalkDBConditions(const edm::ParameterSet& iCon
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  cndbCrosstalk = prefillDBCrosstalk();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCCrosstalkDBConditions::produceDBCrosstalk);
   findingRecord<CSCDBCrosstalkRcd>();
@@ -23,7 +22,6 @@ CSCCrosstalkDBConditions::~CSCCrosstalkDBConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cndbCrosstalk;
 }
 
 
@@ -36,8 +34,7 @@ CSCCrosstalkDBConditions::ReturnType
 CSCCrosstalkDBConditions::produceDBCrosstalk(const CSCDBCrosstalkRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCDBCrosstalk* mydata=new CSCDBCrosstalk( *cndbCrosstalk );
-  return mydata;
+  return CSCCrosstalkDBConditions::ReturnType(prefillDBCrosstalk());
   
 }
 
