@@ -10,7 +10,6 @@ CSCGainsDBConditions::CSCGainsDBConditions(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  cndbGains = prefillDBGains();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCGainsDBConditions::produceDBGains);
   findingRecord<CSCDBGainsRcd>();
@@ -23,7 +22,6 @@ CSCGainsDBConditions::~CSCGainsDBConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cndbGains;
 }
 
 
@@ -36,8 +34,7 @@ CSCGainsDBConditions::ReturnType
 CSCGainsDBConditions::produceDBGains(const CSCDBGainsRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCDBGains* mydata=new CSCDBGains( *cndbGains );
-  return mydata;
+  return CSCGainsDBConditions::ReturnType( prefillDBGains());
   
 }
 

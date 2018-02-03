@@ -192,8 +192,6 @@ CSCGains * CSCGainsConditions::prefillGains(){
 CSCGainsConditions::CSCGainsConditions(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
-  // data is being produced
-  cnGains = prefillGains();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCGainsConditions::produceGains);
   findingRecord<CSCGainsRcd>();
@@ -206,7 +204,6 @@ CSCGainsConditions::~CSCGainsConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cnGains;
 }
 
 
@@ -219,9 +216,7 @@ CSCGainsConditions::ReturnType
 CSCGainsConditions::produceGains(const CSCGainsRcd& iRecord)
 {
   // Added by Zhen, need a new object so to not be deleted at exit
-  CSCGains* mydata=new CSCGains( *cnGains );
-  
-  return mydata;
+  return CSCGainsConditions::ReturnType( prefillGains());
   
 }
 

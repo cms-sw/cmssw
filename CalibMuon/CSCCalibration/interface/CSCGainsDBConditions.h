@@ -25,7 +25,7 @@ class CSCGainsDBConditions: public edm::ESProducer, public edm::EventSetupRecord
 
   inline static CSCDBGains *  prefillDBGains();
 
-  typedef const  CSCDBGains * ReturnType;
+  typedef std::unique_ptr<CSCDBGains> ReturnType;
   
   ReturnType produceDBGains(const CSCDBGainsRcd&);
   

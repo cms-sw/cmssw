@@ -25,7 +25,7 @@ class CSCBadChambersConditions: public edm::ESProducer, public edm::EventSetupRe
 
   inline static CSCBadChambers *  prefillBadChambers();
 
-  typedef const  CSCBadChambers * ReturnType;
+  typedef std::unique_ptr<CSCBadChambers> ReturnType;
   
   ReturnType produceBadChambers(const CSCBadChambersRcd&);
   

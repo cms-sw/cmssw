@@ -1,10 +1,10 @@
 
 #include "CalibMuon/CSCCalibration/interface/CSCFakePedestalsConditions.h"
 
-void CSCFakePedestalsConditions::prefillPedestals()
+CSCPedestals *  CSCFakePedestalsConditions::prefillPedestals()
 {
   const CSCDetId& detId = CSCDetId();
-  cnpedestals = new CSCPedestals();
+  CSCPedestals * cnpedestals = new CSCPedestals();
   
   int max_istrip,id_layer,max_ring,max_cham;
   seed = 10000;	
@@ -54,13 +54,13 @@ void CSCFakePedestalsConditions::prefillPedestals()
       }
     }
   }
+  return cnpedestals;
 }  
 
 CSCFakePedestalsConditions::CSCFakePedestalsConditions(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  prefillPedestals();
   setWhatProduced(this,&CSCFakePedestalsConditions::producePedestals);
   findingRecord<CSCPedestalsRcd>();
   //now do what ever other initialization is needed
@@ -72,7 +72,6 @@ CSCFakePedestalsConditions::~CSCFakePedestalsConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cnpedestals;
 }
 
 
@@ -84,7 +83,7 @@ CSCFakePedestalsConditions::~CSCFakePedestalsConditions()
 CSCFakePedestalsConditions::ReturnType
 CSCFakePedestalsConditions::producePedestals(const CSCPedestalsRcd& iRecord)
 {
-  return cnpedestals;
+  return CSCFakePedestalsConditions::ReturnType( prefillPedestals());
 }
 
  void CSCFakePedestalsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
