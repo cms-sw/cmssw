@@ -96,8 +96,6 @@ private:
   virtual void beginJob() override;
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
  
   std::array<int,3> fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 			     std::vector< math::XYZTLorentzVector>& vecL3,
@@ -755,10 +753,6 @@ void HcalIsoTrkAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   edm::LogVerbatim("HcalIsoTrack") << "endRun[" << nRun_ << "] " << iRun.run();
 }
 
-// ------------ method called when starting to processes a luminosity block  ------------
-void HcalIsoTrkAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-// ------------ method called when ending the processing of a luminosity block  ------------
-void HcalIsoTrkAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   std::vector<std::string> trig = {"HLT_PFJet40","HLT_PFJet60","HLT_PFJet80",
@@ -969,8 +963,8 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
 	  nSave++;
 	  int type(0);
 	  if (t_eMipDR < 1.0) {
-	    if (t_hmaxNearP < 10.0) { ++nLoose; type = 1;}
-	    if (t_hmaxNearP < 2.0)  { ++nTight; type = 2;}
+	    if (t_hmaxNearP < eIsolate2_) { ++nLoose; type = 1;}
+	    if (t_hmaxNearP < eIsolate1_) { ++nTight; type = 2;}
 	  }
 	  if (t_p > 40.0 && t_p <= 60.0 && t_selectTk) {
 	    t_ietaGood->emplace_back(t_ieta);
