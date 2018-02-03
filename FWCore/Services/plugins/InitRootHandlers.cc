@@ -124,6 +124,7 @@ namespace edm {
       std::shared_ptr<const void> sigSegvHandler_;
       std::shared_ptr<const void> sigIllHandler_;
       std::shared_ptr<const void> sigTermHandler_;
+      std::shared_ptr<const void> sigAbrtHandler_;
     };
     
     inline
@@ -290,6 +291,13 @@ namespace {
   }
 
   extern "C" {
+    void set_default_signals() {
+      signal(SIGILL, SIG_DFL);
+      signal(SIGSEGV, SIG_DFL);
+      signal(SIGBUS, SIG_DFL);
+      signal(SIGTERM, SIG_DFL);
+      signal(SIGABRT, SIG_DFL);
+    }
 
     static int full_write(int fd, const char *text)
     {
@@ -498,6 +506,11 @@ namespace {
           signalname = "external termination request";
           break;
         }
+        case SIGABRT:
+        {
+          signalname = "abort signal";
+          break;
+        }
         default:
           break;
       }
@@ -561,15 +574,16 @@ namespace {
       full_cerr_write(signalname);
       full_cerr_write("\n");
 
-      // For these four known cases, re-raise the signal so get the correct
+      // For these five known cases, re-raise the signal to get the correct
       // exit code.
-      if ((sig == SIGILL) || (sig == SIGSEGV) || (sig == SIGBUS) || (sig == SIGTERM))
+      if ((sig == SIGILL) || (sig == SIGSEGV) || (sig == SIGBUS) || (sig == SIGTERM) || (sig == SIGABRT))
       {
         signal(sig, SIG_DFL);
         raise(sig);
       }
       else
       {
+        set_default_signals();
         ::abort();
       }
     }
@@ -582,18 +596,11 @@ namespace {
       raise(sig);
 
       // shouldn't get here
+      set_default_signals();
       ::sleep(10);
       ::abort();
     }
   }
-
-  void set_default_signals() {
-    signal(SIGILL, SIG_DFL);
-    signal(SIGSEGV, SIG_DFL);
-    signal(SIGBUS, SIG_DFL);
-    signal(SIGTERM, SIG_DFL);
-  }
-
 }  // end of unnamed namespace
 
 namespace edm {
@@ -700,7 +707,7 @@ namespace edm {
 #else
         fork();
       if (child_stack_ptr) {} // Suppress 'unused variable' warning on non-Linux
-      if (pid == 0) {edm::service::cmssw_stacktrace(nullptr); ::abort();}
+      if (pid == 0) { edm::service::cmssw_stacktrace(nullptr); }
 #endif
       if (pid == -1)
       {
@@ -722,6 +729,8 @@ namespace edm {
 
     int cmssw_stacktrace(void * /*arg*/)
     {
+      set_default_signals();
+
       char *const *argv = edm::service::InitRootHandlers::getPstackArgv();
       // NOTE: this is NOT async-signal-safe at CERN's lxplus service.
       // CERN uses LD_PRELOAD to replace execv with a function from libsnoopy which
@@ -792,6 +801,10 @@ namespace edm {
         installCustomHandler(SIGTERM,sig_dostack_then_abort);
         sigTermHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
           installCustomHandler(SIGTERM,sig_abort);
+        });
+        installCustomHandler(SIGABRT,sig_dostack_then_abort);
+        sigAbrtHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
+          signal(SIGABRT,SIG_DFL); // release SIGABRT to default
         });
       }
 
