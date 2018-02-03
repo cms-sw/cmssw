@@ -128,12 +128,16 @@ upgradeSteps['Neutron'] = {
 }
 upgradeSteps['heCollapse'] = {
     'steps' : [
+        'GenSimFull',
+        'DigiFull',
         'RecoFull',
-        'RecoFullGlobal',
+        'HARVESTFull',
+        'ALCAFull',
     ],
     'PU' : [
+        'DigiFull',
         'RecoFull',
-        'RecoFullGlobal',
+        'HARVESTFull',
     ],
     'suffix' : '_heCollapse',
     'offset' : 0.6,
