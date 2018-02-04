@@ -308,11 +308,11 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 						    << associators[ww].c_str() <<"\n";
 	  
 	  LogTrace("MuonTrackValidator") << "Calling associateRecoToSim method" << "\n";
-	  recSimColl = std::move(associator[ww]->associateRecoToSim(trackCollection,
-								    TPCollectionHfake));
+	  recSimColl = associator[ww]->associateRecoToSim(trackCollection,
+								    TPCollectionHfake);
 	  LogTrace("MuonTrackValidator") << "Calling associateSimToReco method" << "\n";
-	  simRecColl = std::move(associator[ww]->associateSimToReco(trackCollection,
-								    TPCollectionHeff));
+	  simRecColl = associator[ww]->associateSimToReco(trackCollection,
+								    TPCollectionHeff);
 	} else {
 	  edm::LogVerbatim("MuonTrackValidator") << "Analyzing "
 						    << label[www].process()<<":"
