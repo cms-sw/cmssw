@@ -3,30 +3,15 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("ICALIB")
 
 process.load("Configuration.StandardSequences.Services_cff")
-process.load('Configuration.Geometry.GeometryExtended2017_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 
 
-#process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModule",
-#  appendToDataLabel = cms.string( "" ),
-#  fromDDD = cms.bool( False ),
-#  applyAlignment = cms.bool( False ),
-#  alignmentsLabel = cms.string( "" )
-#)
-#rocess.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-#  fromDDD = cms.bool( False )
-#)
-process.load('Geometry.TrackerGeometryBuilder.trackerGeometry_cfi')
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2017', '')
-
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'DESIGN61_V10::All'
-#print process.TrackerGeometricDetESModule.fromDDD
-#print process.TrackerDigiGeometryESModule.fromDDD,process.TrackerDigiGeometryESModule.applyAlignment
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),

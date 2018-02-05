@@ -2,16 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ICALIB")
 process.load("Configuration.StandardSequences.Services_cff")
-#process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5D_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023TiltedTKReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D11Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
 
-#process.load('Geometry.TrackerGeometryBuilder.trackerSLHCGeometry_cfi')
-#process.trackerSLHCGeometry.applyAlignment = cms.bool(False)
-
-
- #  Alignment
-#from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
