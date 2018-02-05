@@ -1,7 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import math
-
-muonEfficiencyThresholds = [16, 20, 25]
 
 # define binning for efficiency plots
 # pt
@@ -14,9 +11,9 @@ effVsPtBins += range(300, 500, 100)
 effVsPtBins.append(500)
 
 # phi
-nPhiBins = 24
-phiMin = -math.pi
-phiMax = math.pi
+nPhiBins = 34
+phiMin = -3.4
+phiMax = 3.4
 effVsPhiBins = [i*(phiMax-phiMin)/nPhiBins + phiMin for i in range(nPhiBins+1)]
 
 # eta
@@ -25,24 +22,32 @@ etaMin = -2.5
 etaMax = 2.5
 effVsEtaBins = [i*(etaMax-etaMin)/nEtaBins + etaMin for i in range(nEtaBins+1)]
 
+# vtx
+effVsVtxBins = range(0, 101)
+
+# A list of pt cut + quality cut pairs for which efficiency plots should be made
+ptQualCuts = [[25, 12], [15, 8], [7, 8], [3, 4]]
+cutsPSets = []
+for ptQualCut in ptQualCuts:
+    cutsPSets.append(cms.untracked.PSet(ptCut = cms.untracked.int32(ptQualCut[0]),
+                                        qualCut = cms.untracked.int32(ptQualCut[1])))
+
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
     histFolder = cms.untracked.string('L1T/L1TMuon'),
-    gmtPtCuts = cms.untracked.vint32(muonEfficiencyThresholds),
     tagPtCut = cms.untracked.double(30.),
+    recoToL1PtCutFactor = cms.untracked.double(1.25),
+    cuts = cms.untracked.VPSet(cutsPSets),
+    useL1AtVtxCoord = cms.untracked.bool(True),
+
     muonInputTag = cms.untracked.InputTag("muons"),
     gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis","Muon"),
     vtxInputTag = cms.untracked.InputTag("offlinePrimaryVertices"),
     bsInputTag  = cms.untracked.InputTag("offlineBeamSpot"),
 
     triggerNames = cms.untracked.vstring(
-        "HLT_IsoMu18_v*",
-        "HLT_IsoMu20_v*",
-        "HLT_IsoMu22_v*",
-        "HLT_IsoMu24_v*",
         "HLT_IsoMu27_v*",
-        "HLT_Mu30_v*",
-        "HLT_Mu40_v*"
+        "HLT_IsoMu30_v*"
     ),
     trigInputTag       = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
     trigProcess        = cms.untracked.string("HLT"),
@@ -51,16 +56,22 @@ l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
     efficiencyVsPtBins = cms.untracked.vdouble(effVsPtBins),
     efficiencyVsPhiBins = cms.untracked.vdouble(effVsPhiBins),
     efficiencyVsEtaBins = cms.untracked.vdouble(effVsEtaBins),
+    efficiencyVsVtxBins = cms.untracked.vdouble(effVsVtxBins),
 
     verbose   = cms.untracked.bool(False)
 )
 
 # modifications for the pp reference run
-muonEfficiencyThresholds_HI = [5, 7, 12]
+# A list of pt cut + quality cut pairs for which efficiency plots should be made
+ptQualCuts_HI = [[12, 12], [7, 8], [5, 4]]
+cutsPSets_HI = []
+for ptQualCut in ptQualCuts_HI:
+    cutsPSets_HI.append(cms.untracked.PSet(ptCut = cms.untracked.int32(ptQualCut[0]),
+                                           qualCut = cms.untracked.int32(ptQualCut[1])))
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(l1tMuonDQMOffline,
-    gmtPtCuts = cms.untracked.vint32(muonEfficiencyThresholds_HI),
     tagPtCut = cms.untracked.double(14.),
+    cuts = cms.untracked.VPSet(cutsPSets_HI),
     triggerNames = cms.untracked.vstring(
         "HLT_HIL3Mu12_v*",
     )
