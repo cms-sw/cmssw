@@ -82,7 +82,9 @@ public:
   typedef std::map<L1TStage2CaloLayer2Offline::ControlPlots, MonitorElement*> ControlPlotMap;
 
   enum PlotConfig {
-    nVertex
+    nVertex,
+    ETvsET,
+    PHIvsPHI
   };
 
   static const std::map<std::string, unsigned int> PlotConfigNames;

@@ -12,7 +12,9 @@
 
 
 const std::map<std::string, unsigned int> L1TStage2CaloLayer2Offline::PlotConfigNames = {
-  {"nVertex", PlotConfig::nVertex}
+  {"nVertex", PlotConfig::nVertex},
+  {"ETvsET", PlotConfig::ETvsET},
+  {"PHIvsPHI", PlotConfig::PHIvsPHI}
 };
 
 //
@@ -522,28 +524,34 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       500, -0.5, 4999.5);
 
   // energy sums reco vs L1
+  dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
   h_L1METvsCaloMET_ = ibooker.book2D("L1METvsCaloMET",
-      "L1 E_{T}^{miss} vs Offline E_{T}^{miss};Offline E_{T}^{miss} (GeV);L1 E_{T}^{miss} (GeV)", 100, -0.5, 499.5, 100,
-      -0.5, 499.5);
+      "L1 E_{T}^{miss} vs Offline E_{T}^{miss};Offline E_{T}^{miss} (GeV);L1 E_{T}^{miss} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1ETMHFvsCaloETMHF_ = ibooker.book2D("L1ETMHFvsCaloETMHF",
       "L1 E_{T}^{miss} vs Offline E_{T}^{miss} (HF);Offline E_{T}^{miss} (HF) (GeV);L1 E_{T}^{miss} (HF) (GeV)",
-      100, -0.5, 499.5, 100, -0.5, 499.5);
-  h_L1MHTvsRecoMHT_ = ibooker.book2D("L1MHTvsRecoMHT", "L1 MHT vs reco MHT;reco MHT (GeV);L1 MHT (GeV)", 100, -0.5,
-      499.5, 100, -0.5, 499.5);
-  h_L1METTvsCaloETT_ = ibooker.book2D("L1ETTvsCaloETT", "L1 ETT vs calo ETT;calo ETT (GeV);L1 ETT (GeV)", 100, -0.5,
-      499.5, 100, -0.5, 499.5);
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1MHTvsRecoMHT_ = ibooker.book2D("L1MHTvsRecoMHT", "L1 MHT vs reco MHT;reco MHT (GeV);L1 MHT (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1METTvsCaloETT_ = ibooker.book2D("L1ETTvsCaloETT", "L1 ETT vs calo ETT;calo ETT (GeV);L1 ETT (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1HTTvsRecoHTT_ = ibooker.book2D("L1HTTvsRecoHTT",
-      "L1 Total H_{T} vs Offline Total H_{T};Offline Total H_{T} (GeV);L1 Total H_{T} (GeV)", 100, -0.5, 499.5, 100,
-      -0.5, 499.5);
+      "L1 Total H_{T} vs Offline Total H_{T};Offline Total H_{T} (GeV);L1 Total H_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
 
+  dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
   h_L1METPhivsCaloMETPhi_ = ibooker.book2D("L1METPhivsCaloMETPhi",
-      "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} #phi;Offline E_{T}^{miss} #phi;L1 E_{T}^{miss} #phi", 80, -3.2, 3.2,
-      80, -3.2, 3.2);
+      "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} #phi;Offline E_{T}^{miss} #phi;L1 E_{T}^{miss} #phi",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1ETMHFPhivsCaloETMHFPhi_ = ibooker.book2D("L1ETMHFPhivsCaloETMHFPhi",
       "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} (HF) #phi;Offline E_{T}^{miss} (HF) #phi;L1 E_{T}^{miss} #phi",
-      80, -3.2, 3.2, 80, -3.2, 3.2);
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1MHTPhivsRecoMHTPhi_ = ibooker.book2D("L1MHTPhivsRecoMHTPhi",
-      "L1 MHT #phi vs reco MHT #phi;reco MHT #phi;L1 MHT #phi", 80, -3.2, 3.2, 80, -3.2, 3.2);
+      "L1 MHT #phi vs reco MHT #phi;reco MHT #phi;L1 MHT #phi",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
   // energy sum resolutions
   h_resolutionMET_ = ibooker.book1D("resolutionMET",
@@ -621,23 +629,37 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
   h_controlPlots_[ControlPlots::OfflineJetET] = ibooker.book1D("OfflineJetET",
       "Offline Jet E_{T}; Offline Jet E_{T} (GeV); events", 500, 0, 5e3);
   // jet reco vs L1
+  dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
   h_L1JetETvsCaloJetET_HB_ = ibooker.book2D("L1JetETvsCaloJetET_HB",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 60, 0, 300, 60, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1JetETvsCaloJetET_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HE",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 60, 0, 300, 60, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1JetETvsCaloJetET_HF_ = ibooker.book2D("L1JetETvsCaloJetET_HF",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HF); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 60, 0, 300, 60, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HF); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1JetETvsCaloJetET_HB_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HB_HE",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HB+HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 60, 0, 300, 60, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HB+HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
 
+  dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
   h_L1JetPhivsCaloJetPhi_HB_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 80, -3.2, 3.2, 80, -3.2, 3.2);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1JetPhivsCaloJetPhi_HE_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HE",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 80, -3.2, 3.2, 80, -3.2, 3.2);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1JetPhivsCaloJetPhi_HF_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HF",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HF); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 80, -3.2, 3.2, 80, -3.2, 3.2);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HF); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1JetPhivsCaloJetPhi_HB_HE_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB_HE",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB+HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 80, -3.2, 3.2, 80, -3.2, 3.2);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB+HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
   h_L1JetEtavsCaloJetEta_ = ibooker.book2D("L1JetEtavsCaloJetEta_HB",
       "L1 Jet #eta vs Offline Jet #eta; Offline Jet #eta; L1 Jet #eta", 100, -10, 10, 100, -10, 10);
