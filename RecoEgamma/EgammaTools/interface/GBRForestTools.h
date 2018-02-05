@@ -20,6 +20,8 @@
 #include "TMVA/MethodBDT.h"
 #include "TMVA/Reader.h"
 
+#include "CommonTools/Utils/interface/TMVAZipReader.h"
+
 class GBRForestTools
 {
   public:
