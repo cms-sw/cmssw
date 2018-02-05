@@ -573,64 +573,6 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
    } // end fake loop
 
 
-  /* 
-   *   VI what below is either WRONG, or badly coded or just useless
-
-  __syncthreads();
-
-  for(int i = 0; i < no_itr; i++) {
-    uint32_t gIndex = begin + threadId + i*blockDim.x;
-
-    if (gIndex < end) {
-      // moduleId== 9999 then pixel is bad with x=y=layer=adc=0
-      // this bad pixel will not affect the cluster, since for cluster
-      // the origin is shifted at (1,1) so x=y=0 will be ignored
-      // assign the previous valid moduleId to this pixel to remove 9999
-      // so that we can get the start & end index of module easily.
-      
-      if (moduleId[gIndex] == 9999) {
-        int m=gIndex;
-        while(moduleId[--m] == 9999) {} //skip till you get the valid module
-        moduleId[gIndex] = moduleId[m];
-      }
-    } // end of if (gIndex<end)
-  } //  end of for(int i=0;i<no_itr;...)
-
-  __syncthreads();
-
-  // mIndexStart stores starting index of module
-  // mIndexEnd stores end index of module
-  // both indexes are inclusive
-  // check consecutive module numbers
-  // for start of fed
-
-  // all this is PRETTY WRONG 
-  for(int i = 0; i < no_itr; i++) {
-    uint32_t gIndex = begin + threadId + i*blockDim.x;
-    uint32_t moduleOffset = NMODULE;  // ????? should be 0 it is happily writing out of bound...
-    //if (threadId==0) printf("moduleOffset: %u\n",moduleOffset );
-    if (gIndex < end) {
-      if (gIndex == begin) {
-        mIndexStart[moduleOffset+moduleId[gIndex]] = gIndex;
-      }
-      // for end of the fed
-      if (gIndex == (end-1)) {
-        mIndexEnd[moduleOffset+moduleId[gIndex]] = gIndex;
-      }
-      // point to the gIndex where two consecutive moduleId varies
-      if (gIndex!= begin && (gIndex<(end-1)) && moduleId[gIndex]!=9999) {
-        if (moduleId[gIndex]<moduleId[gIndex+1] ) {  // Why ????? who said modules are in order????
-          mIndexEnd[moduleOffset + moduleId[gIndex]] = gIndex;
-        }
-        if (moduleId[gIndex] > moduleId[gIndex-1] ) {
-          mIndexStart[moduleOffset+ moduleId[gIndex]] = gIndex;
-        }
-      } //end of if (gIndex!= begin && (gIndex<(end-1)) ...
-    } //end of if (gIndex <end)
-  }
-
-  */
-
 } // end of Raw to Digi kernel
 
 
@@ -645,15 +587,6 @@ void RawToDigi_wrapper(
   const int threadsPerBlock = 512;
   const int blocks = (wordCounter + threadsPerBlock-1) /threadsPerBlock; // fill it all
 
-  /*  VI when proved useful
-
-  int MSIZE = NMODULE*sizeof(int)+sizeof(int);
-  // initialize moduleStart & moduleEnd with some constant(-1)
-  // just to check if it updated in kernel or not
-  cudaCheck(cudaMemsetAsync(c.mIndexStart_d, -1, MSIZE, c.stream));
-  cudaCheck(cudaMemsetAsync(c.mIndexEnd_d, -1, MSIZE, c.stream));
-
-  */
 
   assert(0 == wordCounter%2);
   // wordCounter is the total no of words in each event to be trasfered on device
@@ -686,12 +619,6 @@ void RawToDigi_wrapper(
 
   cudaCheck(cudaMemcpyAsync(pdigi_h, c.pdigi_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
   cudaCheck(cudaMemcpyAsync(rawIdArr_h, c.rawIdArr_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
-
-  /*  When proven useful/correct
-  cudaCheck(cudaMemcpyAsync(mIndexStart_h, c.mIndexStart_d, NMODULE*sizeof(int), cudaMemcpyDeviceToHost, c.stream));
-  cudaCheck(cudaMemcpyAsync(mIndexEnd_h, c.mIndexEnd_d, NMODULE*sizeof(int), cudaMemcpyDeviceToHost, c.stream));
-  */
-
 
   if (includeErrors) {
     cudaCheck(cudaMemcpyAsync(errType_h, c.errType_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));

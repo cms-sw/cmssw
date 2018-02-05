@@ -32,6 +32,10 @@
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -249,6 +253,11 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
 
   // initialize cabling map or update if necessary
   if (recordWatcher.check( es )) {
+    // tracker geometry: to make sure numbering of DetId is consistent...
+    edm::ESHandle<TrackerGeometry> geom;
+    // get the TrackerGeom
+    es.get<TrackerDigiGeometryRecord>().get( geom );
+    
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMapLabel, cablingMap ); //Tav
@@ -256,7 +265,7 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
     cabling_ = cablingMap->cablingTree();
     LogDebug("map version:") << cabling_->version();
     // convert the cabling map to a GPU-friendly version
-    processCablingMap(*cablingMap, cablingMapGPUHost_, cablingMapGPUDevice_, badPixelInfo_, modules);
+    processCablingMap(*cablingMap, *geom.product(), cablingMapGPUHost_, cablingMapGPUDevice_, badPixelInfo_, modules);
   }
 
   edm::Handle<FEDRawDataCollection> buffers;

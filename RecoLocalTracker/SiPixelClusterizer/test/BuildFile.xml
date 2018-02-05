@@ -1,3 +1,10 @@
+<use name="cuda"/>
+<use name="cuda-api-wrappers"/>
+<bin file="gpuClustering.cu" name="gpuClustering_t">
+  <flags CXXFLAGS="-g"/>
+  <flags CUDA_FLAGS="-O3"/>
+</bin>
+
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/Common"/>

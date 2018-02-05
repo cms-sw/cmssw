@@ -7,15 +7,18 @@
 
 #include <cuda_runtime.h>
 
+#include "SiPixelFedCablingMapGPU.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "SiPixelFedCablingMapGPU.h"
-#include "SiPixelFedCablingMapGPU.h"
 
-void processCablingMap(SiPixelFedCablingMap const& cablingMap, SiPixelFedCablingMapGPU* cablingMapGPU, SiPixelFedCablingMapGPU* cablingMapDevice, const SiPixelQuality* badPixelInfo, std::set<unsigned int> const& modules) {
+void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry const& trackerGeom,
+                       SiPixelFedCablingMapGPU* cablingMapGPU, SiPixelFedCablingMapGPU* cablingMapDevice, 
+                       const SiPixelQuality* badPixelInfo, std::set<unsigned int> const& modules) {
   std::vector<unsigned int> const& fedIds = cablingMap.fedIds();
   std::unique_ptr<SiPixelFedCablingTree> const& cabling = cablingMap.cablingTree();
 
@@ -27,7 +30,6 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap, SiPixelFedCabling
   std::vector<unsigned int>  moduleId(MAX_SIZE);
   std::vector<short int>     badRocs(MAX_SIZE);
   std::vector<short int>     modToUnp(MAX_SIZE);
-  std::set<unsigned int>     rawIdSet;
 
   unsigned int startFed = *(fedIds.begin());
   unsigned int endFed   = *(fedIds.end() - 1);
@@ -46,7 +48,6 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap, SiPixelFedCabling
         if (pixelRoc != nullptr) {
           RawId[index] = pixelRoc->rawId();
           rocInDet[index] = pixelRoc->idInDetUnit();
-          rawIdSet.insert(RawId[index]);
           modToUnp[index] = (modules.size() != 0) && (modules.find(pixelRoc->rawId()) == modules.end());
           if (badPixelInfo != nullptr)
             badRocs[index] = badPixelInfo->IsRocBad(pixelRoc->rawId(), pixelRoc->idInDetUnit());
@@ -70,24 +71,20 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap, SiPixelFedCabling
   // FedID varies between 1200 to 1338 (In total 108 FED's)
   // Link varies between 1 to 48
   // idinLnk varies between 1 to 8
-  std::map<unsigned int, unsigned int> detIdMap;
-  int module = 0;
-  for (auto it = rawIdSet.begin(); it != rawIdSet.end(); it++) {
-    detIdMap.emplace(*it, module);
-    module++;
-  }
+
 
   cudaDeviceSynchronize();
   for (int i = 1; i < index; i++) {
     if (RawId[i] == 9999) {
       moduleId[i] = 9999;
     } else {
-      auto it = detIdMap.find(RawId[i]);
-      if (it == detIdMap.end()) {
+//      std::cout << RawId[i] << std::endl;
+      auto gdet = trackerGeom.idToDetUnit(RawId[i]);
+      if (!gdet) {
         LogDebug("SiPixelFedCablingMapGPU") << " Not found: " << RawId[i] << std::endl;
-        break;
+        continue;
       }
-      moduleId[i] = it->second;
+      moduleId[i] = gdet->index();
     }
     LogDebug("SiPixelFedCablingMapGPU") << "----------------------------------------------------------------------------" << std::endl;
     LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << fedMap[i]  << std::setw(20) << linkMap[i]  << std::setw(20) << rocMap[i] << std::endl;
