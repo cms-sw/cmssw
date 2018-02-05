@@ -738,6 +738,15 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
       event()->weights().push_back(wgt);
     }
   }
+  
+  // VINCIA shower weights
+  // http://vincia.hepforge.org/current/share/Vincia/htmldoc/VinciaUncertainties.html
+  if( fvincia.get() ) {
+    event()->weights()[0] *= fvincia->weight(0);
+    for (int iVar=1; iVar < fvincia->nWeights(); iVar++) {
+      event()->weights().push_back(fvincia->weight(iVar));
+    }
+  }
 
   return true;
   
@@ -959,6 +968,14 @@ GenLumiInfoHeader *Pythia8Hadronizer::getGenLumiInfoHeader() const {
   if( fMasterGen->info.nWeights() > 1 ){
     for(int i = 0; i < fMasterGen->info.nWeights(); ++i) {
       genLumiInfoHeader->weightNames().push_back( fMasterGen->info.weightLabel(i) );
+    }
+  }
+  
+  // VINCIA shower weights
+  // http://vincia.hepforge.org/current/share/Vincia/htmldoc/VinciaUncertainties.html
+  if( fvincia.get() ) {
+    for (int iVar=0; iVar < fvincia->nWeights(); iVar++) {
+      genLumiInfoHeader->weightNames().push_back( fvincia->weightLabel(iVar) );
     }
   }
 
