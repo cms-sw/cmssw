@@ -19,16 +19,16 @@ import FWCore.ParameterSet.Config as cms
 # PRocess accepts a (*list) of modifiers
 #
 from Configuration.StandardSequences.Eras import eras
-process			= cms.Process('HCALDQM', eras.Run2_2018)
-subsystem		= 'Hcal2'
-cmssw			= os.getenv("CMSSW_VERSION").split("_")
-debugstr		= "### HcalDQM::cfg::DEBUG: "
-warnstr			= "### HcalDQM::cfg::WARN: "
-errorstr		= "### HcalDQM::cfg::ERROR:"
-useOfflineGT	= True # CHANGE BACK BEFORE COMMITTING
-useFileInput	= False
-useMap		= False
-useMapText		= False
+process      = cms.Process('HCALDQM', eras.Run2_2018)
+subsystem    = 'Hcal2'
+cmssw        = os.getenv("CMSSW_VERSION").split("_")
+debugstr     = "### HcalDQM::cfg::DEBUG: "
+warnstr      = "### HcalDQM::cfg::WARN: "
+errorstr     = "### HcalDQM::cfg::ERROR:"
+useOfflineGT = False
+useFileInput = False
+useMap       = False
+useMapText   = False
 
 #-------------------------------------
 #	Central DQM Stuff imports
@@ -36,7 +36,8 @@ useMapText		= False
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-	process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
+	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
+	process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useFileInput:
@@ -69,12 +70,6 @@ process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
-#process.load("RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi")
-#process.load("RecoLocalCalo.HcalRecProducers.hbheplan1_cfi")
-#process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi")
-#process.load("RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi")
-#from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco as _phase1_hfreco
-#from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1
 process.load('CondCore.CondDB.CondDB_cfi')
 
 #-------------------------------------

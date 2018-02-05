@@ -12,15 +12,15 @@ import os, sys, socket, string
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
-process			= cms.Process('HCALDQM', eras.Run2_2018)
-subsystem		= 'Hcal'
-cmssw			= os.getenv("CMSSW_VERSION").split("_")
-debugstr		= "### HcalDQM::cfg::DEBUG: "
-warnstr			= "### HcalDQM::cfg::WARN: "
-errorstr		= "### HcalDQM::cfg::ERROR:"
-useOfflineGT	= True # CHANGE BACK TO FALSE BEFORE COMMITTING
-useFileInput	= False
-useMap		= False
+process      = cms.Process('HCALDQM', eras.Run2_2018)
+subsystem    = 'Hcal'
+cmssw        = os.getenv("CMSSW_VERSION").split("_")
+debugstr     = "### HcalDQM::cfg::DEBUG: "
+warnstr      = "### HcalDQM::cfg::WARN: "
+errorstr     = "### HcalDQM::cfg::ERROR:"
+useOfflineGT = False
+useFileInput = False
+useMap       = False
 
 #-------------------------------------
 #	Central DQM Stuff imports
@@ -28,7 +28,8 @@ useMap		= False
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-	process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
+	process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
+	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useFileInput:
