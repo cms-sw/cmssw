@@ -17,7 +17,7 @@ public:
   TkDetMapESProducer(const edm::ParameterSet&);
   ~TkDetMapESProducer() override {}
 
-  std::shared_ptr<TkDetMap> produce(const TrackerTopologyRcd&);
+  std::unique_ptr<TkDetMap> produce(const TrackerTopologyRcd&);
 };
 
 TkDetMapESProducer::TkDetMapESProducer(const edm::ParameterSet&)
@@ -157,7 +157,7 @@ namespace {
   }
 }
 
-std::shared_ptr<TkDetMap> TkDetMapESProducer::produce(const TrackerTopologyRcd& tTopoRcd)
+std::unique_ptr<TkDetMap> TkDetMapESProducer::produce(const TrackerTopologyRcd& tTopoRcd)
 {
   if ( ! edm::Service<SiStripDetInfoFileReader>().isAvailable() ) {
     edm::LogError("TkLayerMap") <<
@@ -173,7 +173,7 @@ std::shared_ptr<TkDetMap> TkDetMapESProducer::produce(const TrackerTopologyRcd& 
   tTopoRcd.get(tTopoHandle);
   const TrackerTopology* tTopo = tTopoHandle.product();
 
-  auto tkDetMap = std::make_shared<TkDetMap>(tTopo);
+  auto tkDetMap = std::make_unique<TkDetMap>(tTopo);
 
   LogTrace("TkDetMap") <<"TkDetMap::constructor ";
   //Create TkLayerMap for each layer declared in the TkLayerEnum
