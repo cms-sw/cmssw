@@ -33,4 +33,16 @@
     <use name="Geometry/CommonDetUnit"/>
     <use name="CondFormats/Alignment"/>
   </library>
+  <library   file="Phase2PixelNtuple.cc" name="Phase2PixelNtuple">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/ServiceRegistry"/>
+    <use   name="CommonTools/UtilAlgos"/>
+    <use   name="DataFormats/Common"/>
+    <use   name="DataFormats/TrackReco"/>
+    <use   name="DataFormats/StdDictionaries"/>
+    <use   name="SimTracker/TrackerHitAssociation"/>
+    <use   name="RecoLocalTracker/SiPixelRecHits"/>        
+  </library>
 </environment>
