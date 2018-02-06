@@ -626,8 +626,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
     int iphi_Sim = 9999;
     double emax_Sim = -9999.;
 
-
-    // SimHits MC only
+   // SimHits MC only
     if (mc_ == "yes") {
         edm::Handle<edm::PCaloHitContainer> hcalHits;
         iEvent.getByToken(tok_mc_, hcalHits);
@@ -725,12 +724,15 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             HcalCoderDb coder(*channelCoder, *shape);
             coder.adc2fC(*digiItr, tool);
 
-            double noiseADC = (*digiItr)[0].adc();
-            double noisefC = tool[0];
+	    // for dynamic digi time sample analysis
+	    int soi = tool.presamples();
+	    int lastbin = tool.size() - 1;
+
+	    double noiseADC = (*digiItr)[0].adc();
+	    double noisefC = tool[0];
             // noise evaluations from "pre-samples"
             fill1D("HcalDigiTask_ADC0_adc_depth" + str(depth) + "_" + subdet_, noiseADC);
             fill1D("HcalDigiTask_ADC0_fC_depth" + str(depth) + "_" + subdet_, noisefC);
-
 
             // OCCUPANCY maps fill
             fill2D("HcalDigiTask_ieta_iphi_occupancy_map_depth" + str(depth) + "_" + subdet_, double(ieta), double(iphi));
@@ -762,8 +764,8 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                 }
 
 
-                // HB/HE/HO
-                if (isubdet != 4 && ii >= 4 && ii <= 7) {
+                // all detectors
+                if (ii >= soi && ii <= lastbin) {
                     v_ampl[0] += val;
                     v_ampl[depth] += val;
 
@@ -773,15 +775,6 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                     }
                 }
 
-                // HF
-                if (isubdet == 4 && ii >= 2 && ii <= 4) {
-                    v_ampl[0] += val;
-                    v_ampl[depth] += val;
-                    if (closen == 1) {
-                        v_ampl_c[0] += val;
-                        v_ampl_c[depth] += val;
-                    }
-                }
             }
             // end of time bucket sample
 
@@ -796,17 +789,14 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             //KH if (ampl1 > 10. || ampl2 > 10. || ampl3 > 10. || ampl4 > 10.) indigis++;
 
             // fraction 5,6 bins if ampl. is big.
-            if (v_ampl[1] > 30. && depth == 1) {
-                int soi = tool.presamples();
-                int lastbin = tool.size() - 1;
-
+            if (v_ampl[depth] > 30.) {
                 double fbinSOI = tool[soi] - calibrations.pedestal((*digiItr)[soi].capid());
                 double fbinPS = 0; 
 
                 for(int j = soi+1; j <= lastbin; j++) fbinPS += tool[j] - calibrations.pedestal((*digiItr)[j].capid());
 
-                fbinSOI /= v_ampl[1];
-                fbinPS /= v_ampl[1];
+                fbinSOI /= v_ampl[depth];
+                fbinPS /= v_ampl[depth];
                 strtmp = "HcalDigiTask_SOI_frac_" + subdet_;
                 fill1D(strtmp, fbinSOI);
                 strtmp = "HcalDigiTask_postSOI_frac_" + subdet_;
@@ -933,7 +923,6 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
     int iphi_Sim = 9999;
     double emax_Sim = -9999.;
 
-
     // SimHits MC only
     if (mc_ == "yes") {
         edm::Handle<edm::PCaloHitContainer> hcalHits;
@@ -1039,12 +1028,15 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
             HcalCoderDb coder(*channelCoder, *shape);
             coder.adc2fC(dataFrame, tool);
 
+	    // for dynamic digi time sample analysis
+	    int soi = tool.presamples();
+	    int lastbin = tool.size() - 1;
+
             double noiseADC = (dataFrame)[0].adc();
             double noisefC = tool[0];
             // noise evaluations from "pre-samples"
             fill1D("HcalDigiTask_ADC0_adc_depth" + str(depth) + "_" + subdet_, noiseADC);
             fill1D("HcalDigiTask_ADC0_fC_depth" + str(depth) + "_" + subdet_, noisefC);
-
 
             // OCCUPANCY maps fill
             fill2D("HcalDigiTask_ieta_iphi_occupancy_map_depth" + str(depth) + "_" + subdet_, double(ieta), double(iphi));
@@ -1095,9 +1087,8 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
                     } 
                 }
 
-
-                // HB/HE/HO
-                if (isubdet != 4 && ii >= 4 && ii <= 7) {
+                // all detectors
+                if (ii >= soi && ii <= lastbin) {
                     v_ampl[0] += val;
                     v_ampl[depth] += val;
 
@@ -1107,15 +1098,6 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
                     }
                 }
 
-                // HF
-                if (isubdet == 4 && ii >= 2 && ii <= 4) {
-                    v_ampl[0] += val;
-                    v_ampl[depth] += val;
-                    if (closen == 1) {
-                        v_ampl_c[0] += val;
-                        v_ampl_c[depth] += val;
-                    }
-                }
             }
             // end of time bucket sample
 
@@ -1130,18 +1112,14 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
             // fraction 5,6 bins if ampl. is big.
             //histogram names have not been changed, but it should be understood that bin_5 is soi, and bin_6_7 is latter TS'
-            if (v_ampl[1] > 30. && depth == 1) {
-                int soi = tool.presamples();
-                int lastbin = tool.size() - 1;
-
+            if (v_ampl[depth] > 30.) {
                 double fbinSOI = tool[soi] - calibrations.pedestal((dataFrame)[soi].capid());
                 double fbinPS = 0; 
 
                 for(int j = soi+1; j <= lastbin; j++) fbinPS += tool[j] - calibrations.pedestal((dataFrame)[j].capid());
 
-
-                fbinSOI /= v_ampl[1];
-                fbinPS /= v_ampl[1];
+                fbinSOI /= v_ampl[depth];
+                fbinPS /= v_ampl[depth];
                 strtmp = "HcalDigiTask_SOI_frac_" + subdet_;
                 fill1D(strtmp, fbinSOI);
                 strtmp = "HcalDigiTask_postSOI_frac_" + subdet_;
