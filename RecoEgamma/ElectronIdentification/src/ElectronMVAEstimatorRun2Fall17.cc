@@ -56,7 +56,7 @@ ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(
 
 void ElectronMVAEstimatorRun2Fall17::init(const std::vector<std::string> &weightFileNames) {
 
-  // Initialize GBRForests 
+  // Initialize GBRForests
   if( (int)(weightFileNames.size()) != nCategories_ )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
@@ -219,31 +219,28 @@ int ElectronMVAEstimatorRun2Fall17::findCategory( const reco::GsfElectron * eleR
   // Determine the category
   //
   int  iCategory = UNDEFINED;
-  const float ptSplit = 10;   // we have above and below 10 GeV categories
-  const float ebSplit = 0.800;// barrel is split into two regions
-  const float ebeeSplit = 1.479; // division between barrel and endcap
 
-  if (pt < ptSplit && absEta < ebSplit) {
+  if (pt < ptSplit_ && absEta < ebSplit_) {
     iCategory = CAT_EB1_PTLow;
   }
 
-  else if (pt < ptSplit && absEta >= ebSplit && absEta < ebeeSplit) {
+  else if (pt < ptSplit_ && absEta >= ebSplit_ && absEta < ebeeSplit_) {
     iCategory = CAT_EB2_PTLow;
   }
 
-  else if (pt < ptSplit && absEta >= ebeeSplit) {
+  else if (pt < ptSplit_ && absEta >= ebeeSplit_) {
     iCategory = CAT_EE_PTLow;
   }
 
-  else if (pt >= ptSplit && absEta < ebSplit) {
+  else if (pt >= ptSplit_ && absEta < ebSplit_) {
     iCategory = CAT_EB1_PTHig;
   }
 
-  else if (pt >= ptSplit && absEta >= ebSplit && absEta < ebeeSplit) {
+  else if (pt >= ptSplit_ && absEta >= ebSplit_ && absEta < ebeeSplit_) {
     iCategory = CAT_EB2_PTHig;
   }
 
-  else if (pt >= ptSplit && absEta >= ebeeSplit) {
+  else if (pt >= ptSplit_ && absEta >= ebeeSplit_) {
     iCategory = CAT_EE_PTHig;
   }
 
