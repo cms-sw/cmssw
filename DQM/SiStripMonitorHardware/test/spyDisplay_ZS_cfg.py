@@ -10,7 +10,10 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
 #       'file:/afs/cern.ch/work/j/jblee/public/SpyChannel/CMSSW_9_4_0/src/DQM/SiStripMonitorHardware/test/SpyMatchedEvents298270.root',
-       'file:SpyMatchedEvents298270_TEST.root'
+#       'file:SpyMatchedEvents298270_TEST.root'
+#	'file:SpyMatchedEvents234824_TEST.root'
+'file:SpyMatched_FEDemulated234824_TEST.root'
+#'file:/eos/cms/store/user/jblee/SpyFEDemulated234824_TEST.root'
        )
     )
 
@@ -48,14 +51,14 @@ process.SiStripSpyDisplay.InputScopeModeRawDigiLabel = cms.InputTag("SiStripSpyE
 process.SiStripSpyDisplay.InputPayloadRawDigiLabel   = cms.InputTag("SiStripSpyEventMatcher", "SpyPayload")
 process.SiStripSpyDisplay.InputReorderedPayloadRawDigiLabel = cms.InputTag("SiStripSpyEventMatcher", "SpyReordered")
 process.SiStripSpyDisplay.InputReorderedModuleRawDigiLabel = cms.InputTag("SiStripSpyEventMatcher", "SpyVirginRaw")
-#process.SiStripSpyDisplay.InputPedestalsLabel               = cms.InputTag("SiStripFEDEmulator","ModulePedestals")
-#process.SiStripSpyDisplay.InputNoisesLabel                  = cms.InputTag("SiStripFEDEmulator","ModuleNoises")
-#process.SiStripSpyDisplay.InputPostPedestalRawDigiLabel     = cms.InputTag("SiStripFEDEmulator","PedSubtrModuleDigis")
-#process.SiStripSpyDisplay.InputPostCMRawDigiLabel           = cms.InputTag("SiStripFEDEmulator","CMSubtrModuleDigis")
-#process.SiStripSpyDisplay.InputZeroSuppressedDigiLabel      = cms.InputTag("SiStripFEDEmulator","ZSModuleDigis")
+process.SiStripSpyDisplay.InputPedestalsLabel               = cms.InputTag("SiStripFEDEmulator","ModulePedestals")
+process.SiStripSpyDisplay.InputNoisesLabel                  = cms.InputTag("SiStripFEDEmulator","ModuleNoises")
+process.SiStripSpyDisplay.InputPostPedestalRawDigiLabel     = cms.InputTag("SiStripFEDEmulator","PedSubtrModuleDigis")
+process.SiStripSpyDisplay.InputPostCMRawDigiLabel           = cms.InputTag("SiStripFEDEmulator","CMSubtrModuleDigis")
+process.SiStripSpyDisplay.InputZeroSuppressedDigiLabel      = cms.InputTag("SiStripFEDEmulator","ZSModuleDigis")
 ##mainline data - if running on matched events
-# process.SiStripSpy.InputCompZeroSuppressedDigiLabel  = cms.InputTag("siStripDigis","ZeroSuppressed")
-process.SiStripSpyDisplay.InputCompVirginRawDigiLabel  = cms.InputTag("siStripDigis","VirginRaw")
+process.SiStripSpyDisplay.InputCompZeroSuppressedDigiLabel  = cms.InputTag("siStripDigis","ZeroSuppressed")
+#process.SiStripSpyDisplay.InputCompVirginRawDigiLabel  = cms.InputTag("siStripDigis","VirginRaw")
 process.SiStripSpyDisplay.OutputFolderName = cms.string("Display")
 
 ## ---- Sequence ----
@@ -67,6 +70,6 @@ process.p = cms.Path(
 ## ------ TFileService
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string('SpyDisplay298270_Test.root')
+    fileName = cms.string('SpyDisplay234824_Test.root')
     )
 

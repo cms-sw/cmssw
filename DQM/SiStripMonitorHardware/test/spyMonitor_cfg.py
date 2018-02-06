@@ -7,7 +7,7 @@ process = cms.Process('SPYDQM')
 process.source = cms.Source(
     'PoolSource',
     fileNames = cms.untracked.vstring(
-       'file:/afs/cern.ch/work/j/jblee/public/SpyChannel/CMSSW_9_4_0/src/DQM/SiStripMonitorHardware/test/SpyRawToDigis234824.root',
+       'file:/eos/cms/store/user/jblee/SpyFEDemulated234824.root',
        )
     )
 
@@ -76,9 +76,9 @@ process.SiStripSpyMonitor.DQMStoreFileName = "DQMStore.root"
 process.p = cms.Path(
 #     process.SiStripSpyUnpacker
 #     *process.SiStripSpyDigiConverter
-    process.SiStripFEDEmulator
-    *process.SiStripSpyMonitor
-    *process.SiStripSpyEventSummary
+#    process.SiStripFEDEmulator
+    process.SiStripSpyMonitor
+#    *process.SiStripSpyEventSummary
 #     *process.CommissioningHistos
     )
 
