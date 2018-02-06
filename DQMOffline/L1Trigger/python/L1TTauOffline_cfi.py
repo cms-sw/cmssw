@@ -38,7 +38,9 @@ l1tTauOfflineDQM = cms.EDAnalyzer(
     tauEfficiencyBins=cms.vdouble(tauEfficiencyBins),
 
     histDefinitions=cms.PSet(
-        nVertex = histDefinitions.nVertex.clone(),
+        nVertex=histDefinitions.nVertex.clone(),
+        ETvsET=histDefinitions.ETvsET.clone(),
+        PHIvsPHI=histDefinitions.PHIvsPHI.clone(),
     ),
 
 )
