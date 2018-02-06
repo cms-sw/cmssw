@@ -41,11 +41,12 @@ class L1ObjectKeysOnlineProdBase : public edm::ESProducer {
       L1ObjectKeysOnlineProdBase(const edm::ParameterSet&);
       ~L1ObjectKeysOnlineProdBase() override;
 
-      typedef std::shared_ptr<L1TriggerKey> ReturnType;
+      typedef std::unique_ptr<L1TriggerKey> ReturnType;
+      typedef std::unique_ptr<L1TriggerKey>::pointer FillType;
 
       ReturnType produce(const L1TriggerKeyRcd&);
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) = 0 ;
+      virtual void fillObjectKeys(FillType) = 0;
    private:
       // ----------member data ---------------------------
  protected:

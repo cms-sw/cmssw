@@ -54,9 +54,10 @@ class L1ConfigOnlineProdBase : public edm::ESProducer {
       L1ConfigOnlineProdBase(const edm::ParameterSet&);
       ~L1ConfigOnlineProdBase() override;
 
-      virtual std::shared_ptr< TData > produce(const TRcd& iRecord);
+      typedef std::unique_ptr< TData > ReturnType; 
+      virtual ReturnType produce(const TRcd& iRecord);
 
-      virtual std::shared_ptr< TData > newObject(
+      virtual ReturnType newObject(
 	const std::string& objectKey ) = 0 ;
 
    private:
@@ -71,7 +72,6 @@ class L1ConfigOnlineProdBase : public edm::ESProducer {
       // If bool is false, produce method should throw
       // DataAlreadyPresentException.
       bool getObjectKey( const TRcd& record,
-                         std::shared_ptr< TData > data,
                          std::string& objectKey ) ;
 
       // For reading object directly from a CondDB w/o PoolDBOutputService
@@ -125,15 +125,15 @@ L1ConfigOnlineProdBase<TRcd, TData>::~L1ConfigOnlineProdBase()
 }
 
 template< class TRcd, class TData >
-std::shared_ptr< TData >
+std::unique_ptr< TData >
 L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
 {
    using namespace edm::es;
-   std::shared_ptr< TData > pData ;
+   std::unique_ptr< TData > pData ;
 
    // Get object key and check if already in ORCON
    std::string key ;
-   if( getObjectKey( iRecord, pData, key ) || m_forceGeneration )
+   if( getObjectKey( iRecord, key ) || m_forceGeneration )
    {
      if( m_copyFromCondDB )
        {
@@ -161,7 +161,7 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
 	 if( !payloadToken.empty() )
 	   {
 	     m_dbSession.transaction().start() ; 
-	     pData = m_dbSession.fetchPayload<TData>( payloadToken ) ;
+	     pData = std::make_unique<TData>(*(m_dbSession.fetchPayload<TData>( payloadToken ).get())) ;
 	     m_dbSession.transaction().commit ();
 	   }
        }
@@ -171,7 +171,7 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
        }
 
      //     if( pData.get() == 0 )
-     if( pData == std::shared_ptr< TData >() )
+     if( pData == std::unique_ptr< TData >() )
        {
 	 std::string dataType = edm::typelookup::className<TData>();
 
@@ -188,7 +188,7 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
         " for key " + key + " already in CondDB." ) ;
    }
 
-   return pData ;
+   return pData;
 }
 
 
@@ -196,7 +196,6 @@ template< class TRcd, class TData >
 bool 
 L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(
   const TRcd& record,
-  std::shared_ptr< TData > data,
   std::string& objectKey )
 {
    // Get L1TriggerKey
