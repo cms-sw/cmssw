@@ -28,7 +28,7 @@ void L1TStage2CaloLayer2DEClient::dqmEndJob(
 
 void L1TStage2CaloLayer2DEClient::book(DQMStore::IBooker &ibooker) {
 
-  ibooker.setCurrentFolder("L1TEMU/L1TdeStage2CaloLayer2");
+  ibooker.setCurrentFolder(monitor_dir_);
   hlSummary = ibooker.book1D(
     "High level summary", "Event by event comparison summary", 5, 1, 6);
   hlSummary->setBinLabel(1, "good events");
@@ -229,15 +229,15 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   // TH1F * newHist;
 
   MonitorElement * hlSummary_ = igetter.get(
-    "L1TEMU/L1TdeStage2CaloLayer2/expert/CaloL2 Object Agreement Summary");
+    monitor_dir_+"/expert/CaloL2 Object Agreement Summary");
   MonitorElement * jetSummary_ = igetter.get(
-    "L1TEMU/L1TdeStage2CaloLayer2/expert/Jet Agreement Summary");
+    monitor_dir_+"/expert/Jet Agreement Summary");
   MonitorElement * egSummary_ = igetter.get(
-    "L1TEMU/L1TdeStage2CaloLayer2/expert/EG Agreement Summary");
+    monitor_dir_+"/expert/EG Agreement Summary");
   MonitorElement * tauSummary_ = igetter.get(
-    "L1TEMU/L1TdeStage2CaloLayer2/expert/Tau Agreement Summary");
+    monitor_dir_+"/expert/Tau Agreement Summary");
   MonitorElement * sumSummary_ = igetter.get(
-    "L1TEMU/L1TdeStage2CaloLayer2/expert/Energy Sum Agreement Summary");
+    monitor_dir_+"/expert/Energy Sum Agreement Summary");
 
   // check for existance of object
   if (hlSummary_) {
