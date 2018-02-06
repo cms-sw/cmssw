@@ -165,7 +165,9 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf)
       for(int depth = 1; depth <= maxDepthAll_; depth++){
         sprintf  (histo, "emap_depth%d",depth );
         emap.push_back( ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_) );
-      } 
+      }
+      sprintf(histo, "emap_HO");
+      emap_HO = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_); 
 
       //The mean energy histos are drawn, but not the RMS or emean seq
       
@@ -657,8 +659,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 	if (ieta2 < 0) ieta2--;
         else ieta2++;
       }
-      if(sub == 3) depth2 = maxDepthAll_ - maxDepthHO_ + depth; //This will use the last depths for HO	
-      emap[depth2-1]->Fill(double(ieta2),double(iphi),en);
+      if(sub == 3) emap_HO->Fill(double(ieta2),double(iphi),en); //HO	
+      else emap[depth2-1]->Fill(double(ieta2),double(iphi),en); // HB+HE+HF
 
       // to distinguish HE and HF
       if( depth == 1 || depth == 2 ) {
