@@ -13,6 +13,7 @@
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
 
