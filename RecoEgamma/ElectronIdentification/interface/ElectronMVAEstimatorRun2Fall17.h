@@ -20,15 +20,25 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
 
   // Constructor and destructor
   ElectronMVAEstimatorRun2Fall17(const edm::ParameterSet& conf, bool withIso);
-  ElectronMVAEstimatorRun2Fall17(const std::string &mvaTag, const std::string &mvaName, bool withIso, const std::string &conversionsTag = "reducedEgamma:reducedConversions", const std::string &beamspotTag = "offlineBeamSpot");
   ~ElectronMVAEstimatorRun2Fall17() override;
+  // For use with FWLite/Python
+  ElectronMVAEstimatorRun2Fall17(const std::string &mvaTag,
+                                 const std::string &mvaName,
+                                 bool withIso,
+                                 const std::string &conversionsTag = "reducedEgamma:reducedConversions",
+                                 const std::string &beamspotTag = "offlineBeamSpot",
+                                 const double ptSplit = 10., // The category split parameters are taken over from the python configuration file
+                                 const double ebSplit = 0.800,
+                                 const double ebeeSplit = 1.479,
+                                 const bool debug = false);
 
-  void init(const std::vector <std::string> weightFileNames);
+  void init(const std::vector<std::string> &weightFileNames);
+  void setClips(const std::vector<double> &clipsLowerValues, const std::vector<double> &clipsUpperValues);
 
   // Calculation of the MVA value (VID accessor)
   float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
   // Calculation of the MVA value (fwlite-compatible accessor)
-  float mvaValue( const reco::GsfElectron * particle, const edm::Event &) const ;
+  float mvaValue( const reco::GsfElectron * particle, const edm::EventBase &) const ;
   // Calculation of the MVA value (bare version)
   float mvaValue( const int iCategory, const std::vector<float> & vars) const ;
 
@@ -52,6 +62,13 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
   void setConsumes(edm::ConsumesCollector&&) const final;
 
  protected:
+
+  // This is a stuct to store an instruction of clipping one of the input variables with a lower or an upper limit
+  struct Clip {
+      unsigned int varIdx;
+      bool upper;
+      float value;
+  };
 
   // Define here the number and the meaning of the categories
   // for this specific MVA
@@ -97,7 +114,19 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
   //edm::EDGetTokenT<reco::ConversionCollection> conversionsTokenMiniAOD_;
   //edm::EDGetTokenT<double> rhoToken_;
 
+  double ptSplit_;   // we have high and low pt categories
+  double ebSplit_;    // barrel is split into two regions
+  double ebeeSplit_; // division between barrel and endcap
+
+  std::vector<std::string> varNames_;
+
+  // To store the variable clipping operations
+  std::vector<Clip> clipsLower_;
+  std::vector<Clip> clipsUpper_;
+
   bool withIso_;
+
+  bool debug_;
 };
 
 #endif
