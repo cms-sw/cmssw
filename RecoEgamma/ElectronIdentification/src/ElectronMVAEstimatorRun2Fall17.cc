@@ -5,35 +5,58 @@ ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(const edm::Parame
   tag_(conf.getParameter<std::string>("mvaTag")),
   name_(conf.getParameter<std::string>("mvaName")),
   methodName_("BDTG method"),
-  beamSpotLabel_          (conf.getParameter<edm::InputTag>("beamSpot")),
-  conversionsLabelAOD_    (conf.getParameter<edm::InputTag>("conversionsAOD")),
-  conversionsLabelMiniAOD_(conf.getParameter<edm::InputTag>("conversionsMiniAOD")),
-  rhoLabel_               (edm::InputTag                   ("fixedGridRhoFastjetAll"))
-  {
+  beamSpotLabel_          (conf.getParameter<edm::InputTag>           ("beamSpot")),
+  conversionsLabelAOD_    (conf.getParameter<edm::InputTag>           ("conversionsAOD")),
+  conversionsLabelMiniAOD_(conf.getParameter<edm::InputTag>           ("conversionsMiniAOD")),
+  rhoLabel_               (edm::InputTag                              ("fixedGridRhoFastjetAll")),
+  ptSplit_                (conf.getParameter<double>                  ("ptSplit")),
+  ebSplit_                (conf.getParameter<double>                  ("ebSplit")),
+  ebeeSplit_              (conf.getParameter<double>                  ("ebeeSplit")),
+  varNames_               (conf.getParameter<std::vector<std::string>>("varNames"))
+{
 
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
 
+  std::vector<double> clipsLowerValues = conf.getParameter<std::vector<double>>("clipLower");
+  std::vector<double> clipsUpperValues = conf.getParameter<std::vector<double>>("clipUpper");
+
+  // Initialize GBRForests and and clipping instructions
   init(weightFileNames);
+  setClips(clipsLowerValues, clipsUpperValues);
 
   withIso_ = withIso;
-}
-
-ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(const std::string &mvaTag, const std::string &mvaName, bool withIso, const std::string &conversionsTag, const std::string &beamspotTag):
-AnyMVAEstimatorRun2Base( edm::ParameterSet() ),
-tag_(mvaTag),
-name_(mvaName),
-methodName_("BDTG method"),
-beamSpotLabel_(edm::InputTag(beamspotTag)),
-conversionsLabelAOD_(edm::InputTag(conversionsTag)),
-conversionsLabelMiniAOD_(conversionsLabelAOD_),
-rhoLabel_(edm::InputTag("fixedGridRhoFastjetAll")){
-
-  withIso_ = withIso;
+  debug_ = conf.getUntrackedParameter<bool>("debug", false);
 
 }
 
-void ElectronMVAEstimatorRun2Fall17::init(const std::vector <std::string> weightFileNames) {
+ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(
+        const std::string &mvaTag, const std::string &mvaName, bool withIso, const std::string &conversionsTag, const std::string &beamspotTag,
+        const double ptSplit, const double ebSplit, const double ebeeSplit, const bool debug):
+  AnyMVAEstimatorRun2Base( edm::ParameterSet() ),
+  tag_                    (mvaTag),
+  name_                   (mvaName),
+  methodName_             ("BDTG method"),
+  beamSpotLabel_          (edm::InputTag(beamspotTag)),
+  conversionsLabelAOD_    (edm::InputTag(conversionsTag)),
+  conversionsLabelMiniAOD_(conversionsLabelAOD_),
+  rhoLabel_               (edm::InputTag("fixedGridRhoFastjetAll")),
+  ptSplit_                (ptSplit),
+  ebSplit_                (ebSplit),
+  ebeeSplit_              (ebeeSplit)
+{
+
+  // Set if this is the ID with or without PF isolations
+  withIso_ = withIso;
+
+  // Set debug flag
+  debug_ = debug;
+
+}
+
+void ElectronMVAEstimatorRun2Fall17::init(const std::vector<std::string> &weightFileNames) {
+
+  // Initialize GBRForests 
   if( (int)(weightFileNames.size()) != nCategories_ )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
@@ -48,6 +71,29 @@ void ElectronMVAEstimatorRun2Fall17::init(const std::vector <std::string> weight
     edm::FileInPath weightFile( weightFileNames[i] );
     gbrForests_.push_back( GBRForestTools::createGBRForest( weightFile ) );
 
+  }
+
+}
+
+void ElectronMVAEstimatorRun2Fall17::setClips(const std::vector<double> &clipsLowerValues, const std::vector<double> &clipsUpperValues) {
+
+  // Set up the variable clipping intructions
+  unsigned int i = 0;
+  for(auto const& value: clipsLowerValues) {
+      if (!isinf(value)) {
+          Clip clip = {i, false, (float)value};
+          clipsLower_.push_back(clip);
+      }
+      ++i;
+  }
+
+  i = 0;
+  for(auto const& value: clipsUpperValues) {
+      if (!isinf(value)) {
+          Clip clip = {i, true, (float)value};
+          clipsUpper_.push_back(clip);
+      }
+      ++i;
   }
 
 }
@@ -95,7 +141,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) c
 }
 
 float ElectronMVAEstimatorRun2Fall17::
-mvaValue( const reco::GsfElectron * particle, const edm::Event & iEvent) const {
+mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) const {
   edm::Handle<reco::ConversionCollection> conversions;
   edm::Handle<reco::BeamSpot> beamSpot;
   edm::Handle<double> rho;
@@ -111,8 +157,7 @@ float ElectronMVAEstimatorRun2Fall17::
 mvaValue( const int iCategory, const std::vector<float> & vars) const  {
   const float result = gbrForests_.at(iCategory)->GetClassifier(vars.data());
 
-  constexpr bool debug = false;
-  if(debug) {
+  if(debug_) {
     std::cout << " *** Inside the class methodName_ " << methodName_ << std::endl;
     std::cout << " bin "                      << iCategory << std::endl
               << " see "                      << vars[0] << std::endl
@@ -415,18 +460,16 @@ void ElectronMVAEstimatorRun2Fall17::constrainMVAVariables(std::vector<float>& v
 
   // Check that variables do not have crazy values
 
-  if ( vars[10] < -1. )   vars[10] =   -1.; // fbrem
-  if ( vars[17] > 0.06 )  vars[17] =  0.06; // deta
-  if ( vars[17] < -0.06 ) vars[17] = -0.06;
-  if ( vars[18] > 0.6 )   vars[18] =   0.6; // dphi
-  if ( vars[18] < -0.6 )  vars[18] =  -0.6;
-  if ( vars[14] > 20. )   vars[14] =   20.; // eop
-  if ( vars[15] > 20. )   vars[15] =   20.; // eleeopout
-  if ( vars[19] > 0.2 )   vars[19] =   0.2; // detacalo
-  if ( vars[19] < -0.2 )  vars[19] =  -0.2;
-  if ( vars[2] < -1. )    vars[2]  =    -1; // circularity
-  if ( vars[2] > 2. )     vars[2]  =    2.;
-  if ( vars[3] > 5 )      vars[3]  =     5; // r9
-  if ( vars[9] > 200. )   vars[9]  =   200; // gsfchi2
-  if ( vars[8] > 10. )    vars[8]  =   10.; // kfchi2
+  for(auto const& clip: clipsLower_) {
+      if ( vars[clip.varIdx] < clip.value  ) {
+          vars[clip.varIdx] =   clip.value;
+      }
+  }
+
+  for(auto const& clip: clipsUpper_) {
+      if ( vars[clip.varIdx] > clip.value  ) {
+          vars[clip.varIdx] =   clip.value;
+      }
+  }
+
 }

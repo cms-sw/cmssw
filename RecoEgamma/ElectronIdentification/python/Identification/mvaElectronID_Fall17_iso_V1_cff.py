@@ -16,14 +16,20 @@ mvaFall17ClassName = "ElectronMVAEstimatorRun2Fall17Iso"
 # class is used with different tuning/weights
 mvaTag = "V1"
 
+# The parameters according to which the training bins are split:
+ptSplit = 10.      # we have above and below 10 GeV categories
+ebSplit = 0.800    # barrel is split into two regions
+ebeeSplit = 1.479  # division between barrel and endcap
+
 # There are 6 categories in this MVA. They have to be configured in this strict order
 # (cuts and weight files order):
-#   0   EB1 (eta<0.8)  pt 5-10 GeV
-#   1   EB2 (eta>=0.8) pt 5-10 GeV
-#   2   EE             pt 5-10 GeV
-#   3   EB1 (eta<0.8)  pt 10-inf GeV
-#   4   EB2 (eta>=0.8) pt 10-inf GeV
-#   5   EE             pt 10-inf GeV
+#   0   EB1 (eta<0.8)  pt 5-10 GeV     |   pt < ptSplit && |eta| < ebSplit
+#   1   EB2 (eta>=0.8) pt 5-10 GeV     |   pt < ptSplit && |eta| >= ebSplit && |eta| < ebeeSplit
+#   2   EE             pt 5-10 GeV     |   pt < ptSplit && |eta| >= ebeeSplit
+#   3   EB1 (eta<0.8)  pt 10None GeV   |   pt >= ptSplit && |eta| < ebSplit
+#   4   EB2 (eta>=0.8) pt 10None GeV   |   pt >= ptSplit && |eta| >= ebSplit && |eta| < ebeeSplit
+#   5   EE             pt 10None GeV   |   pt >= ptSplit && |eta| >= ebeeSplit
+
 
 mvaFall17WeightFiles_V1 = cms.vstring(
     "RecoEgamma/ElectronIdentification/data/Fall17/EIDmva_EB1_5_2017_puinfo_iso_BDT.weights.xml",
@@ -117,6 +123,47 @@ MVA_WPLoose = EleMVA_WP(
     cutCategory5 =  -0.6917305995653829   # EE
     )
 
+#
+# Configure variable names and the values they are clipped to.
+# They have to appear in the same order as in the weights xml file
+#
+
+#                Name  |  Lower clip value  | upper clip value
+variablesInfo = [
+                 ("ele_oldsigmaietaieta"              ,  None, None),
+                 ("ele_oldsigmaiphiiphi"              ,  None, None),
+                 ("ele_oldcircularity"                ,   -1.,   2.),
+                 ("ele_oldr9"                         ,  None,   5.),
+                 ("ele_scletawidth"                   ,  None, None),
+                 ("ele_sclphiwidth"                   ,  None, None),
+                 ("ele_oldhe"                         ,  None, None),
+                 ("ele_kfhits"                        ,  None, None),
+                 ("ele_kfchi2"                        ,  None,  10.),
+                 ("ele_gsfchi2"                       ,  None, 200.),
+                 ("ele_fbrem"                         ,   -1., None),
+                 ("ele_gsfhits"                       ,  None, None),
+                 ("ele_expected_inner_hits"           ,  None, None),
+                 ("ele_conversionVertexFitProbability",  None, None),
+                 ("ele_ep"                            ,  None,  20.),
+                 ("ele_eelepout"                      ,  None,  20.),
+                 ("ele_IoEmIop"                       ,  None, None),
+                 ("ele_deltaetain"                    , -0.06, 0.06),
+                 ("ele_deltaphiin"                    ,  -0.6,  0.6),
+                 ("ele_deltaetaseed"                  ,  -0.2,  0.2),
+                 ("ele_pfPhotonIso"                   ,  None, None), #
+                 ("ele_pfChargedHadIso"               ,  None, None), # PF isolations
+                 ("ele_pfNeutralHadIso"               ,  None, None), #
+                 ("rho"                               ,  None, None),
+                 ("ele_psEoverEraw"                   ,  None, None), # EE only
+                ]
+
+varNames, clipLower, clipUpper = [list(l) for l in zip(*variablesInfo)]
+for i, x in enumerate(clipLower):
+    if x == None:
+        clipLower[i] = -float('Inf')
+for i, x in enumerate(clipUpper):
+    if x == None:
+        clipUpper[i] =  float('Inf')
 
 #
 # Finally, set up VID configuration for all cuts
@@ -126,10 +173,18 @@ MVA_WPLoose = EleMVA_WP(
 mvaEleID_Fall17_iso_V1_producer_config = cms.PSet(
     mvaName            = cms.string(mvaFall17ClassName),
     mvaTag             = cms.string(mvaTag),
-    # This MVA uses conversion info, so configure several data items on that
+    # This MVA uses conversionNoneo, so configure several data items on that
     beamSpot           = cms.InputTag('offlineBeamSpot'),
     conversionsAOD     = cms.InputTag('allConversions'),
     conversionsMiniAOD = cms.InputTag('reducedEgamma:reducedConversions'),
+    # Category split parameters
+    ptSplit            = cms.double(ptSplit),
+    ebSplit            = cms.double(ebSplit),
+    ebeeSplit          = cms.double(ebeeSplit),
+    # Variable clipping parameters
+    varNames           = cms.vstring(*varNames),
+    clipLower          = cms.vdouble(*clipLower),
+    clipUpper          = cms.vdouble(*clipUpper),
     #
     weightFileNames    = mvaFall17WeightFiles_V1
     )
