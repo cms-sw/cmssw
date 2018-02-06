@@ -27,10 +27,13 @@ constexpr uint32_t numPixsInHalfModule  = numRowsInModule*numColsInHalfModule;
 
 constexpr uint32_t MaxNumModules = 2000;
 
-constexpr uint32_t MaxNumPixels = 128*4000;
+
+constexpr uint32_t MaxNumPixels = 256*2000;
 
 
-__global__ void countModules(uint32_t const * id,
+constexpr uint16_t InvId=9999; // must be > MaxNumModules
+
+__global__ void countModules(uint16_t const * id,
 			     uint32_t * moduleStart,
 			     int32_t * clus,
 			     int numElements){
@@ -38,9 +41,9 @@ __global__ void countModules(uint32_t const * id,
   int i = blockDim.x * blockIdx.x + threadIdx.x;
   if (i >= numElements) return;
   clus[i]=i;
-  if (id[i]==0) return;
+  if (InvId==id[i]) return;
   auto j=i-1;
-  while(j>=0 && id[j]==0) --j;
+  while(j>=0 && id[j]==InvId) --j;
   if(j<0 || id[j]!=id[i]) {
     // boundary...
     auto loc = atomicInc(moduleStart,MaxNumModules);
@@ -49,11 +52,12 @@ __global__ void countModules(uint32_t const * id,
 }
 
 
-__global__ void findClus(uint32_t const * id,
+__global__ void findClus(uint16_t const * id,
 			 uint16_t const * x,
 			 uint16_t const * y,
 			 uint8_t const * adc,
 			 uint32_t const * moduleStart,
+			 uint32_t * clusInModule, uint32_t * moduleId,
 			 int32_t * clus, uint32_t * debug, 
 			 int numElements){
 
@@ -78,11 +82,11 @@ __global__ void findClus(uint32_t const * id,
     __syncthreads();
 
     for (int i=first; i<numElements; i+=blockDim.x) {
-      if (id[i]==0) continue;  // not valid
+      if (id[i]==InvId) continue;  // not valid
       if (id[i]!=me) break;  // end of module
       ++debug[i];
       for (int j=i+1; j<numElements; ++j) {
-	if (id[j]==0) continue;  // not valid
+	if (id[j]==InvId) continue;  // not valid
 	if (id[j]!=me) break;  // end of module
 	// if (clus[i]<i) continue; // already clusterized
 	if (std::abs(int(x[j])-int(x[i]))>1) continue;
@@ -101,7 +105,7 @@ __global__ void findClus(uint32_t const * id,
   auto laneId = threadIdx.x & 0x1f;
 
   for (int i=first; i<numElements; i+=blockDim.x) {
-    if (id[i]==0) continue;  // not valid
+    if (id[i]==InvId) continue;  // not valid
     if (id[i]!=me) break;  // end of module
     auto value = clus[i]^i;
     auto mask = __ballot_sync(0xffffffff,value==0);
@@ -116,7 +120,7 @@ __global__ void findClus(uint32_t const * id,
    nclus=0;
   __syncthreads();
   for (int i=first; i<numElements; i+=blockDim.x) {
-    if (id[i]==0) continue;  // not valid
+    if (id[i]==InvId) continue;  // not valid
     if (id[i]!=me) break;  // end of module
     if (clus[i]==i) {
       auto old = atomicAdd(&nclus,1);
@@ -127,20 +131,26 @@ __global__ void findClus(uint32_t const * id,
    __syncthreads();
 
   for (int i=first; i<numElements; i+=blockDim.x) {
-    if (id[i]==0) continue;  // not valid
+    if (id[i]==InvId) continue;  // not valid
     if (id[i]!=me) break;  // end of module
     if (clus[i]>=0) clus[i]=clus[clus[i]];
   }
 
   __syncthreads();
   for (int i=first; i<numElements; i+=blockDim.x) {
-    if (id[i]==0) {clus[i]=nclus+1; continue; } // not valid
+    if (id[i]==InvId) {clus[i]=-9999; continue; } // not valid
     if (id[i]!=me) break;  // end of module
     clus[i] = -clus[i] -1;
   }
 
   
   __syncthreads();
+  if (threadIdx.x==0) {
+    clusInModule[blockIdx.x]=nclus;
+    moduleId[blockIdx.x]=me;
+  }
+
+  
   if (me<30)
   if (threadIdx.x==0) printf("%d clusters in module %d\n",nclus,me);
 
@@ -156,18 +166,20 @@ int main(void)
   
   int numElements = 200000;
  
-  
-  auto h_id = std::make_unique<uint32_t[]>(numElements);
+
+  // these in reality are already on GPU
+  auto h_id = std::make_unique<uint16_t[]>(numElements);
   auto h_x = std::make_unique<uint16_t[]>(numElements);
   auto h_y = std::make_unique<uint16_t[]>(numElements);
   auto h_adc = std::make_unique<uint8_t[]>(numElements);
+
   auto h_clus = std::make_unique<int[]>(numElements);
   
   auto h_debug = std::make_unique<unsigned int[]>(numElements);
  
   
   auto current_device = cuda::device::current::get();
-  auto d_id = cuda::memory::device::make_unique<uint32_t[]>(current_device, numElements);
+  auto d_id = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
   auto d_x = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
   auto d_y = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
   auto d_adc = cuda::memory::device::make_unique<uint8_t[]>(current_device, numElements);
@@ -175,6 +187,9 @@ int main(void)
   auto d_clus = cuda::memory::device::make_unique<int[]>(current_device, numElements);
 
   auto d_moduleStart = cuda::memory::device::make_unique<uint32_t[]>(current_device, MaxNumModules+1);
+
+  auto d_clusInModule = cuda::memory::device::make_unique<uint32_t[]>(current_device, MaxNumModules);
+  auto d_moduleId = cuda::memory::device::make_unique<uint32_t[]>(current_device, MaxNumModules);
   
   auto d_debug = cuda::memory::device::make_unique<unsigned int[]>(current_device, numElements);
 
@@ -186,7 +201,7 @@ int main(void)
 
   {
     // isolated
-    int id = 1;
+    int id = 42;
     int x = 10;
     ++ncl;
     h_id[n]=id;
@@ -213,7 +228,7 @@ int main(void)
       ++n;
     }
     ++ncl;
-    h_id[n++]=0; // error
+    h_id[n++]=InvId; // error
     // messy
     int xx[5] = {21,25,23,24,22};
     for (int k=0; k<5; ++k) {
@@ -240,10 +255,22 @@ int main(void)
       }
     }
   }
-  
+  {
+   // id == 0 (make sure it works!
+    int id = 0;
+    int x = 10;
+    ++ncl;
+    h_id[n]=id;
+    h_x[n]=x;
+    h_y[n]=x;
+    h_adc[n]=100;
+    ++n;    
+  }
 
-  for(int id=11; id<=10000; id+=10) {
-    if (id/100%2) h_id[n++]=0;  // error
+  
+  // all odd id
+  for(int id=11; id<=1800; id+=2) {
+    if ( (id/20)%2) h_id[n++]=InvId;  // error
     for (int x=0; x<40; x+=4) {	 
       ++ncl;
       if ((id/10)%2) {
@@ -267,7 +294,7 @@ int main(void)
 	  h_adc[n]=100;
 	  ++n;
 	  if (y[k]==3) continue; // hole
-	  if (id==51)  {h_id[n++]=0; h_id[n++]=0; }// error
+	  if (id==51)  {h_id[n++]=InvId; h_id[n++]=InvId; }// error
 	  h_id[n]=id;
 	  h_x[n]=x+1;
 	  h_y[n]=x+y[k]+2;
@@ -286,7 +313,7 @@ int main(void)
   uint32_t nModules=0;
   cuda::memory::copy(d_moduleStart.get(),&nModules,sizeof(uint32_t));
   
-  cuda::memory::copy(d_id.get(), h_id.get(), size32);
+  cuda::memory::copy(d_id.get(), h_id.get(), size16);
   cuda::memory::copy(d_x.get(), h_x.get(), size16);
   cuda::memory::copy(d_y.get(), h_y.get(), size16);
   cuda::memory::copy(d_adc.get(), h_adc.get(), size8);
@@ -326,26 +353,41 @@ int main(void)
 	       { blocksPerGrid, threadsPerBlock },
 	       d_id.get(), d_x.get(), d_y.get(),  d_adc.get(),
 	       d_moduleStart.get(),
-	       d_clus.get(), d_debug.get(),
+	       d_clusInModule.get(), d_moduleId.get(),
+	       d_clus.get(),
+	       d_debug.get(),
 	       n
 	       );
 
+
+  uint32_t nclus[nModules], moduleId[nModules];  
   cuda::memory::copy(h_clus.get(), d_clus.get(), size32);
+  cuda::memory::copy(&nclus,d_clusInModule.get(),nModules*sizeof(uint32_t));
+  cuda::memory::copy(&moduleId,d_moduleId.get(),nModules*sizeof(uint32_t));
+
+  
   cuda::memory::copy(h_debug.get(), d_debug.get(), size32);
 
   auto p = std::minmax_element(h_debug.get(),h_debug.get()+n);
   std::cout << "debug " << *p.first << ' ' << *p.second << std::endl;  
 
+  // invert lookup
+  uint32_t mInd[MaxNumModules];
+  for (uint32_t i=0; i<nModules;++i) mInd[moduleId[i]]=i;
+  
   std::set<unsigned int> clids;
   std::vector<unsigned int> seeds;
   for (int i=0; i<n; ++i) {
-    if (h_id[i]==0) continue;
+    if (h_id[i]==InvId) continue;
+    assert(h_clus[i]>=0);
+    assert(h_clus[i]<nclus[mInd[h_id[i]]]);
     clids.insert(h_id[i]*100+h_clus[i]);
 		 // clids.insert(h_clus[i]);
-    if (h_clus[i]==i) seeds.push_back(i);
+    // if (h_clus[i]==i) seeds.push_back(i); // only if no renumbering
   }
    
-  std::cout << "found " << clids.size() << " clusters and " << seeds.size() << " seeds" << std::endl;
+  std::cout << "found " << clids.size() << " clusters" << std::endl;
+  // << " and " << seeds.size() << " seeds" << std::endl;
 
 
 
