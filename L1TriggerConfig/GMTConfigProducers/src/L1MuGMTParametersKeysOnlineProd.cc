@@ -26,14 +26,14 @@ class L1MuGMTParametersKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       }
       ~L1MuGMTParametersKeysOnlineProd() override {}
 
-      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( FillType ) override ;
    private:
 };
 
 
 
 void
-L1MuGMTParametersKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+L1MuGMTParametersKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
 {
     
       std::string subsystemKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kGMT ) ;
