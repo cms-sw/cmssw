@@ -5,6 +5,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,11 +38,12 @@
 // class declaration
 //
 
-class testTkHistoMap : public edm::EDAnalyzer {
+class testTkHistoMap : public DQMEDAnalyzer {
 public:
   explicit testTkHistoMap ( const edm::ParameterSet& );
   ~testTkHistoMap ();
-   
+  
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override {} 
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
   virtual void endJob(void);
@@ -58,8 +60,8 @@ private:
 //
 testTkHistoMap::testTkHistoMap ( const edm::ParameterSet& iConfig ):
   readFromFile(iConfig.getParameter<bool>("readFromFile"))
-{}
-
+{
+}
 
 void testTkHistoMap::create(const TkDetMap* tkDetMap)
 {
@@ -71,7 +73,7 @@ void testTkHistoMap::create(const TkDetMap* tkDetMap)
   tkhistoCheck = std::make_unique<TkHistoMap>(tkDetMap, "check","check");
 }
 
-/*Check that is possible to load in tkhistomaps histograms already stored in a DQM root file (if the folder and name are know)*/
+/*Check that is possible to load in tkhistomaps histograms already stored in a DQM root file (if the folder and name are known)*/
 void testTkHistoMap::read(const TkDetMap* tkDetMap)
 {
   edm::Service<DQMStore>().operator->()->open("test.root");  
@@ -170,8 +172,8 @@ void testTkHistoMap::endJob(void)
 //
 
 // // ------------ method called to produce the data  ------------
-void testTkHistoMap::analyze(const edm::Event& iEvent, 
-				     const edm::EventSetup& iSetup )
+void testTkHistoMap::analyze( const edm::Event& iEvent, 
+                              const edm::EventSetup& iSetup )
 {
   edm::ESHandle<TkDetMap> tkDetMapHandle;
   iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
