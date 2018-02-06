@@ -210,7 +210,7 @@ namespace {
 	deltas[nPar] = std::make_unique<TH1F>(Form("h_summary_%i",nPar),Form("Surface Deformation #Delta parameter %i;#Deltapar_{%i};# modules",nPar,nPar),100,-0.05,0.05);
       }
       
-      assert(first_listOfItems.size() == last_listOfItems.size());
+      //assert(first_listOfItems.size() == last_listOfItems.size());
 
       for (unsigned int i=0;i<first_listOfItems.size();i++){
 	auto first_id = first_listOfItems[i].m_rawId;
@@ -260,6 +260,15 @@ namespace {
 	t1.SetTextSize(0.045);
 	t1.SetTextColor(kBlue);
 	t1.DrawLatexNDC(0.4, 0.95, Form("#DeltaIOV: %s - %s ",lastIOVsince.c_str(),firstIOVsince.c_str()));
+
+	if(deltas[c-1]->GetEntries()==0){
+	  TLatex t2;
+	  t2.SetTextAlign(21);
+	  t2.SetTextSize(0.1);
+	  t2.SetTextAngle(45);
+	  t2.SetTextColor(kRed);
+	  t2.DrawLatexNDC(0.6, 0.50,"NO COMMON DETIDS");
+	}
 
       }
 
@@ -372,9 +381,9 @@ namespace {
   // /************************************************
   //   TrackerMap of single parameter
   // *************************************************/
-  template<unsigned int par> class SurfaceDeformationsTkMapDelta : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations> {
+  template<unsigned int m_par> class SurfaceDeformationsTkMapDelta : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations> {
   public:
-    SurfaceDeformationsTkMapDelta() : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations>( "Tracker Map of Tracker Surface deformations - parameter: "+ std::to_string(par) ){
+    SurfaceDeformationsTkMapDelta() : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations>( "Tracker Map of Tracker Surface deformations differences - parameter: "+ std::to_string(m_par) ){
       setSingleIov( false );
     }
 
@@ -399,70 +408,103 @@ namespace {
       auto first_listOfItems = first_payload->items();
       auto last_listOfItems = last_payload->items();
 
-      std::string titleMap = "#Delta Surface deformation parameter "+std::to_string(par)+" (IOV : "+std::to_string(std::get<0>(lastiov))+"- "+std::to_string(std::get<0>(firstiov))+")";
+      std::string titleMap = "#Delta Surface deformation parameter "+std::to_string(m_par)+" (IOV : "+std::to_string(std::get<0>(lastiov))+"- "+std::to_string(std::get<0>(firstiov))+")";
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("Surface Deformations #Delta"));
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
       
+      std::map<unsigned int,float> f_paramsMap;
+      std::map<unsigned int,float> l_paramsMap;
       std::map<unsigned int,float> surfDefMap;
 
-      assert(first_listOfItems.size() == last_listOfItems.size());
+      // check the payload sizes are matched
+      if(first_listOfItems.size() != last_listOfItems.size()){
+	edm::LogInfo("TrackerSurfaceDeformations_PayloadInspector")<<"(" << firstIOVsince << ") has "<<first_listOfItems.size() << " DetIds - (" << lastIOVsince << ") has "<< last_listOfItems.size() <<  " DetIds" << std::endl;
+      };
       
       bool isPhase0(false);
-      if(first_listOfItems.size()==AlignmentPI::phase0size) isPhase0 = true;
+      if(first_listOfItems.size()<=AlignmentPI::phase0size) isPhase0 = true;
       if(isPhase0) tmap->addPixel(true);
 
-      for (unsigned int i=0;i<first_listOfItems.size();i++){
-	auto first_id = first_listOfItems[i].m_rawId;
+      // loop on the first payload
+      int iDet=0;
+      for (const auto &f_item: first_listOfItems){
+	auto first_id = f_item.m_rawId;
 
 	if(DetId(first_id).det() != DetId::Tracker){
 	  edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "Encountered invalid Tracker DetId:" << first_id <<" - terminating ";
 	  return false;
 	}
 
-	int subid = DetId(first_listOfItems[i].m_rawId).subdetId();
-
-	const auto f_beginEndPair = first_payload->parameters(i);
+	const auto f_beginEndPair = first_payload->parameters(iDet);
 	std::vector<align::Scalar> first_params(f_beginEndPair.first,f_beginEndPair.second);
 
+	iDet++;
 	// protect against exceeding the vector of parameter size
-	if(par>=first_params.size()) continue;
+	if(m_par>=first_params.size()) continue;
+	
+	f_paramsMap[first_id]=first_params.at(m_par);
 
-	for (unsigned int j=0;j<last_listOfItems.size();j++){
-	  auto last_id = last_listOfItems[j].m_rawId;
-	  if(first_id == last_id){
+      }
 
-	    const auto l_beginEndPair = last_payload->parameters(j);
-	    std::vector<align::Scalar> last_params(l_beginEndPair.first,l_beginEndPair.second);
+      // loop on the second payload
+      int jDet=0;
+      for (const auto &l_item : last_listOfItems){
+	auto last_id = l_item.m_rawId;
+	
+	if(DetId(last_id).det() != DetId::Tracker){
+	  edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "Encountered invalid Tracker DetId:" << last_id <<" - terminating ";
+	  return false;
+	}
 
-	    assert(first_params.size()==last_params.size());
+	const auto l_beginEndPair = last_payload->parameters(jDet);
+	std::vector<align::Scalar> last_params(l_beginEndPair.first,l_beginEndPair.second);
 
-	    for(unsigned int nPar=0;nPar<first_params.size();nPar++){
+	jDet++;
+	// protect against exceeding the vector of parameter size
+	if(m_par>=last_params.size()) continue;
+	
+	l_paramsMap[last_id]=last_params.at(m_par);
 
-	      float delta = last_params.at(par) - first_params.at(par);
+      }
 
-	      if(isPhase0){
-		tmap->addPixel(true);
-		tmap->fill(first_id,delta);
-		surfDefMap[first_id]=delta;
-	      } else {
-		// fill pixel map only for phase-0 (in lack of a dedicate phase-I map)
-		if(subid!=1 && subid!=2){
-		  tmap->fill(first_id,delta);
-		  surfDefMap[first_id]=delta;
-		}
-	      } // if not phase-0 
-	    } // loop on params
-	    break;
-	  } // match of the detIds
-	} // loop on second list of items
-      }// loop on first list of items
-      
+      // fill the tk map
+      for(const auto &f_entry : f_paramsMap){
+	for(const auto &l_entry : l_paramsMap){
+	  
+	  if(f_entry.first!=l_entry.first) continue;
+
+	  int subid = DetId(f_entry.first).subdetId();
+	  
+	  float delta = (l_entry.second -f_entry.second);
+
+	  //std::cout<<" match! subid:" << subid << " rawId:" << f_entry.first << " delta:"<< delta << std::endl;
+
+	  if(isPhase0){
+	    tmap->addPixel(true);
+	    tmap->fill(f_entry.first,delta);
+	    surfDefMap[f_entry.first]=delta;
+	  } else {
+	    // fill pixel map only for phase-0 (in lack of a dedicate phase-I map)
+	    if(subid!=1 && subid!=2){
+	      tmap->fill(f_entry.first,delta);
+	      surfDefMap[f_entry.first]=delta;
+	    }
+	  } // if not phase-0 	    
+	} // loop on the last payload map
+      } // loop on the first payload map 
+
       //=========================
 	 
+      if(surfDefMap.size()==0){
+	edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "No common DetIds have been found!!! ";
+	tmap->fillc_all_blank ();
+	tmap->setTitle("NO COMMON DETIDS (IOV : "+std::to_string(std::get<0>(lastiov))+"- "+std::to_string(std::get<0>(firstiov))+")");
+      }
+
       // saturate at 1.5sigma
-      auto autoRange = AlignmentPI::getTheRange(surfDefMap,2.5); //tmap->getAutomaticRange();
+      auto autoRange = AlignmentPI::getTheRange(surfDefMap,1.5); //tmap->getAutomaticRange();
 
       std::string fileName(m_imageFileName);
       // protect against uniform values (Surface deformations are defined positive)
@@ -538,5 +580,4 @@ PAYLOAD_INSPECTOR_MODULE(TrackerSurfaceDeformations){
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter10TkMapDelta);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter11TkMapDelta);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter12TkMapDelta);
-
 }
