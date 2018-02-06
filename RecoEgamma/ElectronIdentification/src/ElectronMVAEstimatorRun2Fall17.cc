@@ -89,7 +89,7 @@ void ElectronMVAEstimatorRun2Fall17::setClips(const std::vector<double> &clipsLo
 
   i = 0;
   for(auto const& value: clipsUpperValues) {
-      if (!isinf(value)) {
+      if (edm::isFinite(value)) {
           Clip clip = {i, true, (float)value};
           clipsUpper_.push_back(clip);
       }
