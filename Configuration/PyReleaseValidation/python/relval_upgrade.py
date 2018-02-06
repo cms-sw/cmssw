@@ -56,7 +56,16 @@ for year in upgradeKeys:
 
             # special workflows for tracker
             if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key and hasHarvest:
+                # skip ALCA
+                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly']
+                for tv in trackingVariations:
+                    stepList[tv] = filter(lambda s : "ALCA" not in s, stepList[tv])
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]
+                if '2017' in key:
+                    for tv in trackingVariations[1:]:
+                        workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
+                elif '2018' in key:
+                    workflows[numWF+upgradeSteps['pixelTrackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['pixelTrackingOnly']]
 
             # special workflows for HE
             if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
