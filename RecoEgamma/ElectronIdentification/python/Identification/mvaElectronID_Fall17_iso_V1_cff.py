@@ -26,9 +26,9 @@ ebeeSplit = 1.479  # division between barrel and endcap
 #   0   EB1 (eta<0.8)  pt 5-10 GeV     |   pt < ptSplit && |eta| < ebSplit
 #   1   EB2 (eta>=0.8) pt 5-10 GeV     |   pt < ptSplit && |eta| >= ebSplit && |eta| < ebeeSplit
 #   2   EE             pt 5-10 GeV     |   pt < ptSplit && |eta| >= ebeeSplit
-#   3   EB1 (eta<0.8)  pt 10None GeV   |   pt >= ptSplit && |eta| < ebSplit
-#   4   EB2 (eta>=0.8) pt 10None GeV   |   pt >= ptSplit && |eta| >= ebSplit && |eta| < ebeeSplit
-#   5   EE             pt 10None GeV   |   pt >= ptSplit && |eta| >= ebeeSplit
+#   3   EB1 (eta<0.8)  pt 10-inf GeV   |   pt >= ptSplit && |eta| < ebSplit
+#   4   EB2 (eta>=0.8) pt 10-inf GeV   |   pt >= ptSplit && |eta| >= ebSplit && |eta| < ebeeSplit
+#   5   EE             pt 10-inf GeV   |   pt >= ptSplit && |eta| >= ebeeSplit
 
 
 mvaFall17WeightFiles_V1 = cms.vstring(
@@ -173,7 +173,7 @@ for i, x in enumerate(clipUpper):
 mvaEleID_Fall17_iso_V1_producer_config = cms.PSet(
     mvaName            = cms.string(mvaFall17ClassName),
     mvaTag             = cms.string(mvaTag),
-    # This MVA uses conversionNoneo, so configure several data items on that
+    # This MVA uses conversion info, so configure several data items on that
     beamSpot           = cms.InputTag('offlineBeamSpot'),
     conversionsAOD     = cms.InputTag('allConversions'),
     conversionsMiniAOD = cms.InputTag('reducedEgamma:reducedConversions'),
