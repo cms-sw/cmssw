@@ -52,7 +52,9 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
     photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
 
     histDefinitions=cms.PSet(
-        nVertex = histDefinitions.nVertex.clone(),
+        nVertex=histDefinitions.nVertex.clone(),
+        ETvsET=histDefinitions.ETvsET.clone(),
+        PHIvsPHI=histDefinitions.PHIvsPHI.clone(),
     ),
 )
 
