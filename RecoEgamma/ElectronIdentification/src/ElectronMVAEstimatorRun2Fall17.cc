@@ -80,7 +80,7 @@ void ElectronMVAEstimatorRun2Fall17::setClips(const std::vector<double> &clipsLo
   // Set up the variable clipping intructions
   unsigned int i = 0;
   for(auto const& value: clipsLowerValues) {
-      if (!isinf(value)) {
+      if (edm::isFinite(value)) {
           Clip clip = {i, false, (float)value};
           clipsLower_.push_back(clip);
       }
