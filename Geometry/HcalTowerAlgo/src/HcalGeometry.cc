@@ -21,7 +21,7 @@ HcalGeometry::HcalGeometry(const HcalTopology& topology) :
 HcalGeometry::~HcalGeometry() {}
 
 void HcalGeometry::init() {
-  if (!m_topology.withSpecialRBXHBHE()) m_mergePosition = false;
+  if (!m_topology.getMergePositionFlag()) m_mergePosition = false;
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalGeometry: " << "HcalGeometry::init() "
 			       << " HBSize " << m_topology.getHBSize() 

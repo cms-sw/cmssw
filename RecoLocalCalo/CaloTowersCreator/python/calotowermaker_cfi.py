@@ -141,9 +141,7 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
     AllowMissingInputs = cms.bool(False),
 	
 # specify hcal upgrade phase - 0, 1, 2	
-	HcalPhase = cms.int32(0),
-
-    HcalCollapsed = cms.bool(False),
+	HcalPhase = cms.int32(0)
     
 )
 
@@ -156,11 +154,10 @@ run2_HE_2018.toModify(calotowermaker,
                       HEDThreshold  = cms.double(0.2)
 )
 
-# needed to handle inner/outer and 28/29 splitting w/ collapsed rechits
+# needed to handle inner/outer assignment
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
 run2_HECollapse_2018.toModify(calotowermaker,
     HcalPhase = cms.int32(0),
-    HcalCollapsed = cms.bool(True),
     HESThreshold1 = cms.double(0.8),
     HESThreshold  = cms.double(0.8),
     HEDThreshold1 = cms.double(0.8),
