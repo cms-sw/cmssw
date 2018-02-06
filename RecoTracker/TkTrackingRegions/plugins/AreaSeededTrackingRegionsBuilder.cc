@@ -7,7 +7,6 @@
 #include "DataFormats/Math/interface/normalizedPhi.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
-
 #include <array>
 #include <limits>
 
@@ -85,7 +84,7 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
 }
 
 template <typename T>
-std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regionImpl(const Origin& origin, const T& areas) const { 
+std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regionImpl(const Origin& origin, const T& areas) const {
   float minEta=std::numeric_limits<float>::max(), maxEta=std::numeric_limits<float>::lowest();
   float minPhi=std::numeric_limits<float>::max(), maxPhi=std::numeric_limits<float>::lowest();
 
@@ -274,7 +273,7 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
 
 		const auto x = std::cos(meanPhiTemp);
   	  	const auto y = std::sin(meanPhiTemp);
-  	  	const auto z = (x*x+y*y)/std::tan(2.f*std::atan(std::exp(-meanEtaTemp))); // simplify?
+  	  	const auto z = 1./std::tan(2.f*std::atan(std::exp(-meanEtaTemp)));
 
   		LogTrace("AreaSeededTrackingRegionsBuilder") << "Direction x,y,z " << x << "," << y << "," << z
                                                << " eta,phi " << meanEtaTemp << "," << meanPhiTemp
@@ -302,7 +301,7 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
   else{
   	const auto x = std::cos(meanPhi);
   	const auto y = std::sin(meanPhi);
-  	const auto z = (x*x+y*y)/std::tan(2.f*std::atan(std::exp(-meanEta))); // simplify?
+  	const auto z = 1./std::tan(2.f*std::atan(std::exp(-meanEta))); 
 
   	LogTrace("AreaSeededTrackingRegionsBuilder") << "Direction x,y,z " << x << "," << y << "," << z
                                                << " eta,phi " << meanEta << "," << meanPhi
