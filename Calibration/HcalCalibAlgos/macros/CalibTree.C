@@ -234,7 +234,6 @@ public :
   bool             goodTrack();
   void             writeCorrFactor(const char *corrFileName, int ietaMax);
   bool             selectPhi(unsigned int detId);
-  unsigned int     truncateId(unsigned int detId);
   std::pair<double,double> fitMean(TH1D*, int);
   void             makeplots(double rmin, double rmax, int ietaMax,
 			     bool useWeight, double fraction, bool debug);
@@ -295,7 +294,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 
   double cvgs[100], itrs[100]; 
   for (; k<=kmax; ++k) {
-    std::cout << "Calling Loop() "  << k << "th time\n"; 
+    std::cout << "Calling Loop() "  << k << "th time" << std::endl; 
     double cvg = t.Loop(k, fout, useweight, nMin, inverse, ratMin, ratMax, 
 			ietaMax, applyL1Cut, l1Cut, k==kmax, fraction, 
 			writeHisto, debug);
@@ -507,11 +506,13 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	if (!isItRBX) {
 	  for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
 	    if (selectPhi((*t_DetIds)[idet])) {
-	      unsigned int detid = truncateId((*t_DetIds)[idet]);
-	      if (debug && (kprint<=10))
+	      unsigned int detid = truncateId((*t_DetIds)[idet],
+					      truncateFlag_,debug);
+	      if (debug && (kprint<=10)) {
 		std::cout << "DetId[" << idet << "] Original " << std::hex 
 			  << (*t_DetIds)[idet] << " truncated " << detid 
 			  << std::dec;
+	      }
 	      if (std::find(detIds.begin(),detIds.end(),detid) == detIds.end()){
 		detIds.push_back(detid);
 		if (debug && (kprint<=10)) std::cout << " new";
@@ -523,7 +524,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	  if (t_DetIds3 != 0) {
 	    for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
 	      if (selectPhi((*t_DetIds3)[idet])) {
-		unsigned int detid = truncateId((*t_DetIds3)[idet]);
+		unsigned int detid = truncateId((*t_DetIds3)[idet],
+						truncateFlag_,debug);
 		if (std::find(detIds.begin(),detIds.end(),detid)==detIds.end()){
 		  detIds.push_back(detid);
 		}
@@ -566,7 +568,9 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     sprintf (title, "Correction for Subdet %d #eta %d depth %d (Loop %d)", subdet, zside*ieta, depth, loop);
     TH1D* hist = new TH1D(name,title,100, 0.0, 5.0);
     hist->Sumw2();
-    if (debug) std::cout << "Book Histo " << k << " " << title << std::endl;
+    if (debug) {
+      std::cout << "Book Histo " << k << " " << title << std::endl;
+    }
     histos[detIds[k]] = hist;
   }
   std::cout << "Total of " << detIds.size() << " detIds and " << histos.size() 
@@ -604,7 +608,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	if (selectPhi((*t_DetIds)[idet])) {
 	  unsigned int id = (*t_DetIds)[idet];
 	  double hitEn(0);
-	  unsigned int detid = truncateId(id);
+	  unsigned int detid = truncateId(id,truncateFlag_,false);
 	  if (Cprev.find(detid) != Cprev.end()) 
 	    hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
 	  else 
@@ -620,7 +624,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	for (unsigned int idet=0; idet<(*t_DetIds1).size(); idet++) { 
 	  if (selectPhi((*t_DetIds1)[idet])) {
 	    unsigned int id    = (*t_DetIds1)[idet];
-	    unsigned int detid = truncateId((unsigned int)(id));
+	    unsigned int detid = truncateId((unsigned int)(id),truncateFlag_,
+					    false);
 	    double hitEn(0);
 	    if (Cprev.find(detid) != Cprev.end()) 
 	      hitEn = Cprev[detid].first * (*t_HitEnergies1)[idet];
@@ -633,7 +638,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
 	  if (selectPhi((*t_DetIds3)[idet])) {
 	    unsigned int id    = (*t_DetIds3)[idet];
-	    unsigned int detid = truncateId((unsigned int)(id));
+	    unsigned int detid = truncateId((unsigned int)(id),truncateFlag_,
+					    false);
 	    double hitEn(0);
 	    if (Cprev.find(detid) != Cprev.end()) 
 	      hitEn = Cprev[detid].first * (*t_HitEnergies3)[idet];
@@ -677,12 +683,13 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) {
 	  if (selectPhi((*t_DetIds)[idet])) {
 	    unsigned int id    = (*t_DetIds)[idet];
-	    unsigned int detid = truncateId(id);
+	    unsigned int detid = truncateId(id,truncateFlag_,false);
 	    double hitEn=0.0;
-	    if (debug) std::cout << "idet " << idet << " detid/hitenergy : " 
-				 << std::hex << (*t_DetIds)[idet] << ":" 
-				 << detid << "/" << (*t_HitEnergies)[idet] 
-				 << std::endl;
+	    if (debug) {
+	      std::cout << "idet " << idet << " detid/hitenergy : " 
+			<< std::hex << (*t_DetIds)[idet] << ":" << detid 
+			<< "/" << (*t_HitEnergies)[idet] << std::endl;
+	    }
 	    if (Cprev.find(detid) != Cprev.end()) 
 	      hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
 	    else 
@@ -695,8 +702,10 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	    TH1D* hist(0);
 	    std::map<unsigned int,TH1D*>::const_iterator itr = histos.find(detid);
 	    if (itr != histos.end()) hist = itr->second;
-	    if (debug) std::cout << "Det Id " << std::hex << detid << std::dec 
-				 << " " << hist << std::endl;
+	    if (debug) {
+	      std::cout << "Det Id " << std::hex << detid << std::dec 
+			<< " " << hist << std::endl;
+	    }
 	    if (hist != 0) hist->Fill(Fac, Wi);//////histola
 	    Fac       *= Wi;
 	    if (SumW.find(detid) != SumW.end() ) {
@@ -715,8 +724,10 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       }
     }
   }
-  if (debug) std::cout << "# of Good Tracks " << ntkgood << " out of "
-		       << nentries << std::endl;
+  if (debug) {
+    std::cout << "# of Good Tracks " << ntkgood << " out of " << nentries 
+	      << std::endl;
+  }
   if (loop==0) {
     h_pbyE->Write("h_pbyE");
     h_Ebyp_bfr->Write("h_Ebyp_bfr");
@@ -737,9 +748,11 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     int subdet, depth, zside, ieta, iphi;
     unpackDetId(itr->first, subdet, zside, ieta, iphi, depth);
-    if (debug) std::cout << "DETID :" << subdet << "  IETA :" << ieta
-			 << " HIST ENTRIES :" << (itr->second)->GetEntries()
-			 << std::endl;
+    if (debug) {
+      std::cout << "DETID :" << subdet << "  IETA :" << ieta 
+		<< " HIST ENTRIES :" << (itr->second)->GetEntries()
+		<< std::endl;
+    }
   }
 
   for (std::map<unsigned int,TH1D*>::const_iterator itr = histos.begin();
@@ -768,18 +781,21 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     unsigned int detid = SumWItr->first;
     int subdet, depth, zside, ieta, iphi;
     unpackDetId(detid, subdet, zside, ieta, iphi, depth);
-    if (debug) 
+    if (debug) {
       std::cout << "Detid|kount|SumWi|SumFac|myId : " << subdet << ":" 
 		<< zside*ieta << ":" << depth << " | " 
 		<< (SumWItr->second).kount << " | " << (SumWItr->second).fact0
 		<< "|" << (SumWItr->second).fact1 << "|" 
 		<< (SumWItr->second).fact2 << std::endl;
+    }
     double factor = (SumWItr->second).fact1/(SumWItr->second).fact0;
     double dfac1  = ((SumWItr->second).fact2/(SumWItr->second).fact0-factor*factor);
     if (dfac1 < 0) dfac1 = 0;
     double dfac   = sqrt(dfac1/(SumWItr->second).kount);
-    if (debug) std::cout << "Factor " << factor << " " << dfac1 << " " << dfac
-			 << std::endl;
+    if (debug) {
+      std::cout << "Factor " << factor << " " << dfac1 << " " << dfac
+		<< std::endl;
+    }
     if (inverse) factor = 2.-factor;
     if (useMean_) {
       cfactors[detid] = std::pair<double,double>(factor,dfac);
@@ -968,23 +984,6 @@ bool CalibTree::selectPhi(unsigned int detId) {
   return flag;
 }
 
-unsigned int CalibTree::truncateId(unsigned int detId) {
-  unsigned int id(detId);
-  //std::cout << "Truncate 1 " << std::hex << detId << " " << id << std::dec << std::endl;
-  int subdet, depth, zside, ieta, iphi;
-  unpackDetId(detId, subdet, zside, ieta, iphi, depth);
-  if (truncateFlag_ == 1) {
-    //Ignore depth index of ieta values of 15 and 16 of HB
-    if ((subdet == 1) && (ieta > 14)) depth  = 1;
-  } else if (truncateFlag_ == 2) {
-    //Ignore depth index of ieta values of 15 and 16 of HB
-    depth = 1;
-  }
-  id = (subdet<<25) | (0x1000000) | ((depth&0xF)<<20) | ((zside>0)?(0x80000|(ieta<<10)):(ieta<<10));
-  //  std::cout << "Truncate 2: " << subdet << " " << zside*ieta << " " << depth << " " << std::hex << id << " input " << detId << std::dec << std::endl;
-  return id;
-}
-
 std::pair<double,double> CalibTree::fitMean(TH1D* hist, int mode) {
   std::pair<double,double> results = std::pair<double,double>(1,0);
   if (hist != 0) {
@@ -1056,7 +1055,7 @@ void CalibTree::makeplots(double rmin, double rmax, int ietaMax,
       for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
 	double hitEn(0);
 	unsigned int id    = (*t_DetIds)[idet];
-        unsigned int detid = truncateId(id);
+        unsigned int detid = truncateId(id,truncateFlag_,false);
 	if (Cprev.find(detid) != Cprev.end()) 
 	  hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
 	else 
@@ -1092,9 +1091,11 @@ void CalibTree::makeplots(double rmin, double rmax, int ietaMax,
     double mean1 = h1->GetMean();
     double err1  = h1->GetMeanError();
     std::pair<double,double> fit1 = fitMean(h1,1);
-    if (debug) 
+    if (debug) {
       std::cout << ieta << " " << h1->GetName() << " " << mean1 << " +- " 
-		<< err1 << " and " << fit1.first <<" +- " << fit1.second <<"\n";
+		<< err1 << " and " << fit1.first <<" +- " << fit1.second 
+		<< std::endl;
+    }
     if (ieta != 0) {
       hbef1->SetBinContent(bin,mean1);      hbef1->SetBinError(bin,err1);
       hbef2->SetBinContent(bin,fit1.first); hbef2->SetBinError(bin,fit1.second);
@@ -1104,9 +1105,11 @@ void CalibTree::makeplots(double rmin, double rmax, int ietaMax,
     double mean2 = h2->GetMean();
     double err2  = h2->GetMeanError();
     std::pair<double,double> fit2 = fitMean(h2,1);
-    if (debug) 
+    if (debug) { 
       std::cout << ieta << " " << h2->GetName() << " " << mean2 << " +- " 
-		<< err2 << " and " << fit2.first <<" +- " << fit2.second <<"\n";
+		<< err2 << " and " << fit2.first <<" +- " << fit2.second 
+		<< std::endl;
+    }
     if (ieta != 0) {
       haft1->SetBinContent(bin,mean2);      haft1->SetBinError(bin,err2);
       haft2->SetBinContent(bin,fit2.first); haft2->SetBinError(bin,fit2.second);
@@ -1123,9 +1126,11 @@ void CalibTree::fitPol0(TH1D* hist, bool debug) {
   hist->GetYaxis()->SetTitle("<E_{HCAL}/(p-E_{ECAL})>");
   hist->GetYaxis()->SetRangeUser(0.4,1.6);
   TFitResultPtr Fit = hist->Fit("pol0","+QRWLS");
-  if (debug) std::cout << "Fit to Pol0 to " << hist->GetTitle() << ": " 
-		       << Fit->Value(0) << " +- " << Fit->FitResult::Error(0)
-		       << std::endl;
+  if (debug) {
+    std::cout << "Fit to Pol0 to " << hist->GetTitle() << ": " 
+	      << Fit->Value(0) << " +- " << Fit->FitResult::Error(0)
+	      << std::endl;
+  }
   hist->Write();
 }
 
@@ -1142,19 +1147,23 @@ void CalibTree::highEtaFactors(int ietaMax, bool debug) {
       else           cfacn = itr->second;
     }
   }
-  if (debug) std::cout << "Correction factor for (" << ietaMax << ",1) = " 
-		       << cfacp.first << ":" << cfacp.second << " and (" 
-		       << -ietaMax << ",1) = " << cfacn.first << ":" 
-		       << cfacn.second << std::endl;
+  if (debug) {
+    std::cout << "Correction factor for (" << ietaMax << ",1) = " 
+	      << cfacp.first << ":" << cfacp.second << " and (" 
+	      << -ietaMax << ",1) = " << cfacn.first << ":" 
+	      << cfacn.second << std::endl;
+  }
   for (itr=Cprev.begin(); itr !=Cprev.end(); ++itr) {
     unsigned int detid = itr->first;
     int subdet, depth, zside, ieta, iphi;
     unpackDetId(detid, subdet, zside, ieta, iphi, depth);
     if (ieta > ietaMax) {
       Cprev[detid] = (zside > 0) ? cfacp : cfacn;
-      if (debug) std::cout << "Set correction factor for (" << zside*ieta
-			   << "," << depth << ") = " << Cprev[detid].first
-			   << ":" << Cprev[detid].second << std::endl;
+      if (debug) {
+	std::cout << "Set correction factor for (" << zside*ieta
+		  << "," << depth << ") = " << Cprev[detid].first
+		  << ":" << Cprev[detid].second << std::endl;
+      }
     }
   }      
 }
