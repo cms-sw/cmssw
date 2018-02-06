@@ -330,6 +330,65 @@ def miniAOD_customizeCommon(process):
     process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT = process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
     process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff95")
     _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT)
+    ## modify raw mva values
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw, mvaName = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw, mvaOpt  = "DBoldDMwLTwGJ")
+    ## modify VVLoose WP
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT, mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT, key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"))
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT, toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT,
+                                    mapping = cms.VPSet(
+                                        cms.PSet(category = cms.uint32(0), cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff95"), variable = cms.string("pt")),)
+                                    )
+    ## modify VLoose WP
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT, mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT, key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"))
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT, toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT,
+                                   mapping = cms.VPSet(
+                                        cms.PSet(category = cms.uint32(0), cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff90"), variable = cms.string("pt")),)
+                                    )
+    ## modify Loose WP
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT, mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT, key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"))
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT, toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT,
+                                    mapping = cms.VPSet(
+                                        cms.PSet(category = cms.uint32(0), cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff80"), variable = cms.string("pt")),)
+                                    )
+    ## modify Medium WP
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT, mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT, key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"))
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT, toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT,
+                                    mapping = cms.VPSet(
+                                        cms.PSet(category = cms.uint32(0), cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff70"), variable = cms.string("pt")),)
+                                    )
+    ## modify Tight WP
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT, mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT, key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"))
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT, toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT,
+                                   mapping = cms.VPSet(
+                                        cms.PSet(category = cms.uint32(0), cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff60"), variable = cms.string("pt")),)
+                                    )
+    ## modify VTight WP
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT, mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT, key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"))
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT, toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT,
+                                    mapping = cms.VPSet(
+                                        cms.PSet(category = cms.uint32(0), cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff50"), variable = cms.string("pt")),)
+                                    )
+    ## modify VVTight WP
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT, mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT, key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"))
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT, toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw")
+    run2_miniAOD_94XFall17.toModify(process.hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT,
+                                    mapping = cms.VPSet(
+                                        cms.PSet(category = cms.uint32(0), cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff40"), variable = cms.string("pt")),)
+                                    )
     run2_miniAOD_94XFall17.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
