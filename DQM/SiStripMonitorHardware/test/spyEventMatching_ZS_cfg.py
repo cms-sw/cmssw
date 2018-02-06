@@ -10,14 +10,14 @@ process.source = cms.Source(
     'PoolSource',
     fileNames = cms.untracked.vstring(
        #penultimate file in primary dataset 121835 (RandomTriggers with known matching spy event)
-	'file:/eos/user/j/jblee/MainStream/298/269/00000/D04CCB24-4862-E711-92F2-02163E011F09.root',
-#'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/846/00000/3E397F5D-25B9-E411-801B-02163E011CD9.root',
-#'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/848/00000/54F96357-25B9-E411-B562-02163E0128CE.root',
-#'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/856/00000/082589A2-25B9-E411-ABB7-02163E012BDD.root',
-#'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/858/00000/064F08A5-10BB-E411-A2C0-02163E0123EF.root',
-#'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/874/00000/06B0CB9B-77BB-E411-9959-02163E0125EB.root',
-#'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/874/00000/22357546-2AB9-E411-964B-02163E01206E.root',
-#'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/874/00000/66D33846-2AB9-E411-9CC8-02163E0122DB.root',
+#	'file:/eos/user/j/jblee/MainStream/298/269/00000/D04CCB24-4862-E711-92F2-02163E011F09.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/846/00000/3E397F5D-25B9-E411-801B-02163E011CD9.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/848/00000/54F96357-25B9-E411-B562-02163E0128CE.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/856/00000/082589A2-25B9-E411-ABB7-02163E012BDD.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/858/00000/064F08A5-10BB-E411-A2C0-02163E0123EF.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/874/00000/06B0CB9B-77BB-E411-9959-02163E0125EB.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/874/00000/22357546-2AB9-E411-964B-02163E01206E.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/data/Commissioning2015/RAW/v1/000/234/874/00000/66D33846-2AB9-E411-9CC8-02163E0122DB.root',
        )
     )
 
@@ -40,8 +40,10 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 #merger module
 process.load('DQM.SiStripMonitorHardware.SiStripSpyEventMatcher_cfi')
 process.SiStripSpyEventMatcher.SpySource.fileNames = cms.untracked.vstring(
-#    'file:/eos/cms/store/user/jblee/SpyFEDemulated234824.root'.
-     'file:/eos/cms/store/user/jblee//SpyRawToDigis298270_TEST.root'
+#    'file:/eos/cms/store/user/jblee/SpyRawToDigis234824_TEST.root'
+#     'file:/eos/cms/store/user/jblee//SpyRawToDigis298270_TEST.root'
+'file:SpyFEDemulated234824_TEST.root'
+
     )
 process.SiStripSpyEventMatcher.FilterNonMatchingEvents = cms.bool(True)
 process.SiStripSpyEventMatcher.MergeData = cms.bool(True)
@@ -63,7 +65,7 @@ process.p = cms.Path(
 
 process.output = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string("SpyMatchedEvents298270_TEST.root"),
+    fileName = cms.untracked.string("SpyMatchedEvents234824_TEST2.root"),
     outputCommands = cms.untracked.vstring(
         'keep *'
         #'drop *',
