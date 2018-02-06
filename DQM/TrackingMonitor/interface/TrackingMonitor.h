@@ -83,6 +83,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 
         // ----------member data ---------------------------
 
+        std::string MEFolderName;
         std::string histname;  //for naming the histograms according to algorithm used
 
 	//        DQMStore * dqmStore_;
