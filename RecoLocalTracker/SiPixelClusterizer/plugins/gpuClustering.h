@@ -33,9 +33,9 @@ namespace gpuClustering {
   __global__ void findClus(uint16_t const * id,
 			   uint16_t const * x,
 			   uint16_t const * y,
-			   uint8_t const * adc,
+			   uint16_t const * adc,
 			   uint32_t const * moduleStart,
-			 uint32_t * clusInModule, uint32_t * moduleId,
+			   uint32_t * clusInModule, uint32_t * moduleId,
 			   int32_t * clus, uint32_t * debug, 
 			   int numElements){
     

@@ -35,7 +35,7 @@ int main(void)
   auto h_id = std::make_unique<uint16_t[]>(numElements);
   auto h_x = std::make_unique<uint16_t[]>(numElements);
   auto h_y = std::make_unique<uint16_t[]>(numElements);
-  auto h_adc = std::make_unique<uint8_t[]>(numElements);
+  auto h_adc = std::make_unique<uint16_t[]>(numElements);
 
   auto h_clus = std::make_unique<int[]>(numElements);
   
@@ -46,7 +46,7 @@ int main(void)
   auto d_id = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
   auto d_x = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
   auto d_y = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
-  auto d_adc = cuda::memory::device::make_unique<uint8_t[]>(current_device, numElements);
+  auto d_adc = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
   
   auto d_clus = cuda::memory::device::make_unique<int[]>(current_device, numElements);
 
