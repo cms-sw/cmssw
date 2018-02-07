@@ -42,10 +42,10 @@ public:
   const ParitionNames& paritionNames() const { return partitionNames_; }
 
   /// Return the name of the high voltage of the given parition
-  const std::string& partitionName(uint8_t partitionNumber) const { return partitionNames_.at(partitionNumber); }
+  const std::string& partitionName(const uint8_t partitionNumber) const { return partitionNames_.at(partitionNumber); }
 
   /// Return true if the high voltage of the given parition is ready
-  bool highVoltageReady(uint8_t partitionNumber) const { return highVoltageReady_.test(partitionNumber); }
+  bool highVoltageReady(const uint8_t partitionNumber) const { return highVoltageReady_.test(partitionNumber); }
 
   /// Return the current of the CMS magnet in A
   float magnetCurrent() const { return magnetCurrent_; }
