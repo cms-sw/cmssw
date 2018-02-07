@@ -209,7 +209,7 @@ void CastorShowerLibrary::initParticleTable(G4ParticleTable * theParticleTable) 
 
 //=============================================================================================
 
-CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) {
+CastorShowerEvent CastorShowerLibrary::getShowerHits(const G4Step * aStep, bool & ok) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4Track *     track         = aStep->GetTrack();

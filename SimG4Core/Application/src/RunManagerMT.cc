@@ -40,6 +40,7 @@
 #include "G4ApplicationState.hh"
 #include "G4MTRunManagerKernel.hh"
 #include "G4UImanager.hh"
+#include "G4StateManager.hh"
 
 #include "G4EventManager.hh"
 #include "G4Run.hh"
@@ -102,7 +103,7 @@ RunManagerMT::~RunManagerMT()
 }
 
 void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, 
-			  const HepPDT::ParticleDataTable *fPDGTable)
+                          const HepPDT::ParticleDataTable *fPDGTable)
 {
   if (m_managerInitialized) return;
 
@@ -124,7 +125,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
       sim::FieldBuilder fieldBuilder(pMF, m_pField);
       CMSFieldManager* fieldManager = new CMSFieldManager();
       G4TransportationManager * tM =
-	G4TransportationManager::GetTransportationManager();
+        G4TransportationManager::GetTransportationManager();
       tM->SetFieldManager(fieldManager);
       fieldBuilder.build( fieldManager, tM->GetPropagatorInField());
       DumpMagneticField(tM->GetFieldManager()->GetDetectorField());
@@ -147,12 +148,15 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   PhysicsList* phys = m_physicsList.get(); 
   if (phys==nullptr) { 
     throw edm::Exception( edm::errors::Configuration,
-			  "Physics list construction failed!"); 
+                          "Physics list construction failed!"); 
   }
 
   // adding GFlash, Russian Roulette for eletrons and gamma, 
   // step limiters on top of any Physics Lists
   phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions",m_pPhysics));
+
+  m_kernel->SetPhysics(phys);
+  G4StateManager::GetStateManager()->SetNewState(G4State_Init);
 
   m_physicsList->ResetStoredInAscii();
   if (m_RestorePhysicsTables) {
@@ -162,14 +166,14 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     << "RunManagerMT: start initialisation of PhysicsList for master";
 
   int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity",0),
-		      m_p.getParameter<int>("SteppingVerbosity"));
+                      m_p.getParameter<int>("SteppingVerbosity"));
   m_kernel->SetVerboseLevel(verb);
 
   m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
   m_physicsList->SetCutsWithDefault();
 
   if(m_pPhysics.getParameter<bool>("CutsPerRegion")) {
-    m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
+    m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));        
     m_prodCuts->update();
   }
   
@@ -188,7 +192,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   if (m_kernel->RunInitialization()) { m_managerInitialized = true; }
   else { 
     throw edm::Exception( edm::errors::LogicError, 
-			  "G4RunManagerKernel initialization failed!"); 
+                          "G4RunManagerKernel initialization failed!"); 
   }
 
   if (m_StorePhysicsTables) {
@@ -301,15 +305,15 @@ void RunManagerMT::DumpMagneticField(const G4Field* field) const
       z = z0;
       for(int j=0; j<=nz; ++j) {
         point[0] = r*cosf;
-	point[1] = r*sinf;
-	point[2] = z;
+        point[1] = r*sinf;
+        point[2] = z;
         field->GetFieldValue(point, bfield);
         fout << "R(mm)= " << r/mm << " phi(deg)= " << phi/degree
-	     << " Z(mm)= " << z/mm << "   Bz(tesla)= " << bfield[2]/tesla
-	     << " Br(tesla)= " << (bfield[0]*cosf + bfield[1]*sinf)/tesla
-	     << " Bphi(tesla)= " << (bfield[0]*sinf - bfield[1]*cosf)/tesla
-	     << G4endl;
-	z += dz;
+             << " Z(mm)= " << z/mm << "   Bz(tesla)= " << bfield[2]/tesla
+             << " Br(tesla)= " << (bfield[0]*cosf + bfield[1]*sinf)/tesla
+             << " Bphi(tesla)= " << (bfield[0]*sinf - bfield[1]*cosf)/tesla
+             << G4endl;
+        z += dz;
       }
       r += dr;
     }

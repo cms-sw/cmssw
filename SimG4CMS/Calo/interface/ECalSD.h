@@ -32,32 +32,34 @@ class ECalSD : public CaloSD {
 public:    
 
   ECalSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
-	 edm::ParameterSet const & p, const SimTrackManager*);
+         edm::ParameterSet const & p, const SimTrackManager*);
   ~ECalSD() override;
-  double                    getEnergyDeposit(G4Step*) override;
-  virtual uint16_t          getRadiationLength(const G4Step *);
-  virtual uint16_t          getLayerIDForTimeSim(const G4Step *);
   uint32_t                  setDetUnitId(const G4Step*) override;
   void                      setNumberingScheme(EcalNumberingScheme*);
 
 protected:
 
+  double                    getEnergyDeposit(const G4Step*) override;
   int                       getTrackID(const G4Track*) override;
   uint16_t                  getDepth(const G4Step*) override;
 
 private:    
 
-  void                              initMap(const G4String&, const DDCompactView &);
-  double                            curve_LY(const G4Step*); 
-  double                            crystalLength(const G4LogicalVolume*);
-  double                            crystalDepth(const G4LogicalVolume*, const G4ThreeVector&);
-  void                              getBaseNumber(const G4Step*); 
-  double                            getBirkL3(const G4Step*);
-  std::vector<double>               getDDDArray(const std::string&,
-						const DDsvalues_type&);
-  std::vector<std::string>          getStringArray(const std::string&,
-						   const DDsvalues_type&);
+  void                      initMap(const G4String&, const DDCompactView &);
+  uint16_t                  getRadiationLength(const G4StepPoint* hitPoint, 
+                                               const G4LogicalVolume* lv);
+  uint16_t                  getLayerIDForTimeSim();
+  double                    curve_LY(const G4LogicalVolume*);  
 
+  void                      getBaseNumber(const G4Step*); 
+  double                    getBirkL3(const G4Step*);
+
+  std::vector<double>               getDDDArray(const std::string&,
+                                                const DDsvalues_type&);
+  std::vector<std::string>          getStringArray(const std::string&,
+                                                   const DDsvalues_type&);
+
+  // initialised before run
   bool                              isEB;
   bool                              isEE;
   EcalNumberingScheme *             numberingScheme;
@@ -71,6 +73,13 @@ private:
   EcalBaseNumber                    theBaseNumber;
   EnergyResolutionVsLumi            ageing;
   bool                              ageingWithSlopeLY;
+
+  // run time cache
+  G4ThreeVector                     currentLocalPoint;
+  double                            crystalLength;
+  double                            crystalDepth;
+  uint16_t                          depth;
+ 
 #ifdef plotDebug
   TH2F                             *g2L_[4];
 #endif

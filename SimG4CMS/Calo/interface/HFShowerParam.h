@@ -13,7 +13,6 @@
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "SimG4CMS/Calo/interface/HFGflash.h"
 
-#include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
 
 class DDCompactView;
@@ -29,7 +28,7 @@ class HFShowerParam {
 public:    
 
   HFShowerParam(const std::string & name, const DDCompactView & cpv, 
-		edm::ParameterSet const & p);
+                edm::ParameterSet const & p);
   virtual ~HFShowerParam();
 
 public:    
@@ -42,8 +41,8 @@ public:
     double              edep;
   };
 
-  void                  initRun(G4ParticleTable *, HcalDDDSimConstants*);
-  std::vector<Hit>      getHits(G4Step * aStep, double weight);
+  void                  initRun(const HcalDDDSimConstants*);
+  std::vector<Hit>      getHits(const G4Step * aStep, double weight, bool& isKilled);
   
 private:    
 

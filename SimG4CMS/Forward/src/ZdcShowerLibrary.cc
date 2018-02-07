@@ -53,7 +53,7 @@ void ZdcShowerLibrary::initRun(G4ParticleTable *theParticleTable){
 		       << anutauPDG;
 }
 
-std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, bool & ok) {
+std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(const G4Step * aStep, bool & ok) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
