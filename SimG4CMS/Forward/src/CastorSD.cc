@@ -177,7 +177,8 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   if(theTrack->GetKineticEnergy() > energyThresholdSL) aboveThreshold = true;
     
   // Check if theTrack is a muon (if so, DO NOT use Shower Library) 
-  bool notaMuon = !G4TrackToParticleID::isMuon(theTrack);
+  G4int parCode = theTrack->GetDefinition()->GetPDGEncoding();
+  bool notaMuon = !G4TrackToParticleID::isMuon(parCode);
   
   // angle condition
   double theta_max = M_PI - 3.1305; // angle in radians corresponding to -5.2 eta
@@ -222,7 +223,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   TrackInformationExtractor TIextractor;
   TrackInformation& trkInfo = TIextractor(theTrack);
   if (!trkInfo.hasCastorHit()) {
-    trkInfo.setCastorHitPID(theTrack->GetDefinition()->GetPDGEncoding());
+    trkInfo.setCastorHitPID(parCode);
   }
   int castorHitPID = trkInfo.getCastorHitPID();
   
@@ -230,20 +231,9 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   bool isHad = !(G4TrackToParticleID::isGammaElectronPositron(castorHitPID)
 		 || G4TrackToParticleID::isMuon(castorHitPID));
   
-  // Usual calculations
-  // G4ThreeVector      hitPoint = preStepPoint->GetPosition();	
-  // G4ThreeVector      hit_mom = preStepPoint->GetMomentumDirection();
   G4double           stepl    = aStep->GetStepLength()/cm;
   G4double           beta     = preStepPoint->GetBeta();
   G4double           charge   = preStepPoint->GetCharge();
-  //        G4VProcess*        curprocess   = preStepPoint->GetProcessDefinedStep();
-  //        G4String           namePr   = preStepPoint->GetProcessDefinedStep()->GetProcessName();
-  //        std::string nameProcess;
-  //        nameProcess.assign(namePr,0,4);
-  
-  //        G4LogicalVolume*   lv    = currentPV->GetLogicalVolume();
-  //        G4Material*        mat   = lv->GetMaterial();
-  //        G4double           rad   = mat->GetRadlen();
   
   
 #ifdef debugLog
