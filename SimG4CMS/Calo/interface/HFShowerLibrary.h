@@ -76,10 +76,6 @@ private:
   double              dphi, rMin, rMax;
   std::vector<double> gpar;
 
-  int                 emPDG, epPDG, gammaPDG;
-  int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
-  int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
-
   int                 npe;
   HFShowerPhotonCollection pe;
   HFShowerPhotonCollection* photo;

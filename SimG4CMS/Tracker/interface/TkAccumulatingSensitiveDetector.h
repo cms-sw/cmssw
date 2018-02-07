@@ -23,7 +23,6 @@ class TrackingSlaveSD;
 class FrameRotation;
 class UpdatablePSimHit;
 class G4ProcessTypeEnumerator;
-class G4TrackToParticleID;
 class TrackerG4SimHitNumberingScheme;
 
 class TkAccumulatingSensitiveDetector : 
@@ -65,7 +64,6 @@ private:
     std::unique_ptr<TrackingSlaveSD> slaveHighTof;
     std::unique_ptr<FrameRotation>   theRotation;
     std::unique_ptr<const G4ProcessTypeEnumerator> theG4ProcTypeEnumerator;
-    std::unique_ptr<const G4TrackToParticleID> theG4TrackToParticleID;
     std::unique_ptr<TrackerG4SimHitNumberingScheme> theNumberingScheme;
     bool allowZeroEnergyLoss;
     bool printHits;
