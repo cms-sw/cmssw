@@ -31,7 +31,7 @@ RH_ASSIGN_GROUP(L1MuGMTParameters, TGlobalTriggerGroup)
  *  Query the CMS_GMT.GMT_SOFTWARE_CONFIG table with a key determined by the "master" config table
  *  and return the matching record.
  */
-std::unique_ptr<L1MuGMTParameters> L1MuGMTParametersOnlineProducer::newObject( const std::string& objectKey )
+std::shared_ptr<L1MuGMTParameters> L1MuGMTParametersOnlineProducer::newObject( const std::string& objectKey )
 {
   using namespace edm::es;
 
@@ -83,7 +83,7 @@ std::unique_ptr<L1MuGMTParameters> L1MuGMTParametersOnlineProducer::newObject( c
   ADD_FIELD(helper, L1MuGMTParameters, VersionSortRankEtaQLUT);
   ADD_FIELD(helper, L1MuGMTParameters, VersionLUTs);
 
-  auto ptrResult = std::make_unique<L1MuGMTParameters>();
+  auto ptrResult = std::make_shared<L1MuGMTParameters>();
 
   std::vector<std::string> resultColumns = helper.getColumnList();
   resultColumns.push_back("CMSSW_VERSION");
