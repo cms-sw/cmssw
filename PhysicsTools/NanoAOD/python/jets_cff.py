@@ -63,8 +63,9 @@ slimmedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      ),
 )
 
-
 from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
+# Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
+#      (cf. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#CMSSW_7_6_4_and_above )
 jetCorrFactors = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
     levels = cms.vstring('L1FastJet',
         'L2Relative',
