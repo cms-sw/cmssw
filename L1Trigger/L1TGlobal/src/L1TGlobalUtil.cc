@@ -172,8 +172,9 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
       int algBit = (itAlgo->second).getIndex(); //algoBitNumber();
 
       (m_prescales[algBit]).first  = algName;
-      (m_prescales[algBit]).second = prescaleSet[algBit];
-
+      if( size_t(algBit) < prescaleSet.size() ) {
+        (m_prescales[algBit]).second = prescaleSet[algBit];
+      }
       LogDebug("l1t|Global")<< "Number of bunch crossings stored: " << (*m_triggerMaskAlgoTrig).size() << endl;
 
       const std::map<int, std::vector<int> >* triggerAlgoMaskAlgoTrig = m_triggerMaskAlgoTrig;
@@ -251,7 +252,9 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 	   (m_decisionsFinal[algBit]).second = decisionFinal;
 
 	   (m_prescales[algBit]).first  = algName;
-	   (m_prescales[algBit]).second = prescaleSet[algBit];
+           if(size_t(algBit) < prescaleSet.size()) {
+             (m_prescales[algBit]).second = prescaleSet[algBit];
+           }
 
 	   LogDebug("l1t|Global") << "Number of bunch crossings stored: " <<  (*m_triggerMaskAlgoTrig).size() << endl;
 
