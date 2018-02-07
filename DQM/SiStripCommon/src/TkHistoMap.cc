@@ -6,37 +6,42 @@
 TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap):
   HistoNumber(35)
 {
-  cached_detid=0;
-  cached_layer=0;
-  
-  LogTrace("TkHistoMap") <<"TkHistoMap::constructor without parameters"; 
-  loadServices();
-  tkdetmap_ = tkDetMap;
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor without parameters";   
+  load(tkDetMap, "", 0.0f, false, false, false);
 }
 
 TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline, bool mechanicalView):
   HistoNumber(35), 
   MapName_(MapName)
 {
-  cached_detid=0;
-  cached_layer=0;
-  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters"; 
-  loadServices();
-  tkdetmap_ = tkDetMap;
-  createTkHistoMap(path, MapName_, baseline, mechanicalView);
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters";   
+  load(tkDetMap, path, baseline, mechanicalView, false);
 }
 
 TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline, bool mechanicalView, bool isTH2F):
   HistoNumber(35),
   MapName_(MapName)
 {
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters";   
+  load(tkDetMap, path, baseline, mechanicalView, isTH2F);
+}
+
+TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap, DQMStore::IBooker& ibooker, const std::string& path, const std::string& MapName, float baseline, bool mechanicalView):
+  HistoNumber(35),
+  MapName_(MapName)
+{
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters"; 
+  load(tkDetMap, path, baseline, mechanicalView, false);
+}
+
+void TkHistoMap::load(const TkDetMap* tkDetMap, const std::string& path, float baseline, bool mechanicalView, bool isTH2F, bool createTkMap)
+{
   cached_detid=0;
   cached_layer=0;
-  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters"; 
   loadServices();
   tkdetmap_ = tkDetMap;
   isTH2F_ = isTH2F;
-  createTkHistoMap(path, MapName_, baseline, mechanicalView);
+  if (createTkMap) createTkHistoMap(path, MapName_, baseline, mechanicalView);
 }
 
 void TkHistoMap::loadServices(){

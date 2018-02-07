@@ -15,8 +15,9 @@ class TkHistoMap{
   typedef std::vector<MonitorElement*> tkHistoMapVect;
 
  public:
-  TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline, bool mechanicalView, bool isTH2F);
+  TkHistoMap(const TkDetMap* tkDetMap, DQMStore::IBooker& ibooker, const std::string& path, const std::string& MapName, float baseline=0, bool mechanicalView=false);
   TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline=0, bool mechanicalView=false);
+  TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline, bool mechanicalView, bool isTH2F);
   TkHistoMap(const TkDetMap* tkDetMap);
   ~TkHistoMap(){};
 
@@ -46,6 +47,8 @@ class TkHistoMap{
   void saveAsCanvas(const std::string& filename, const std::string& options="", const std::string& mode="RECREATE");
 
  private:
+ 
+  void load(const TkDetMap* tkDetMap, const std::string& path, float baseline, bool mechanicalView, bool isTH2F, bool createTkMap = true);
 
   void createTkHistoMap(const std::string& path, const std::string& MapName, float baseline, bool mechanicalView);
 
