@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    CalibTracker/SiStripESProducers
-// Class:      SiStripBackPlaneCorrectioNFakeESSource
+// Class:      SiStripBackPlaneCorrectionFakeESSource
 //
-/**\class SiStripBackPlaneCorrectioNFakeESSource SiStripBackPlaneCorrectioNFakeESSource.h CalibTracker/SiStripESProducers/plugins/SiStripBackPlaneCorrectioNFakeESSource.cc
+/**\class SiStripBackPlaneCorrectionFakeESSource SiStripBackPlaneCorrectionFakeESSource.h CalibTracker/SiStripESProducers/plugins/SiStripBackPlaneCorrectionFakeESSource.cc
 
  Description: "fake" SiStripBackPlaneCorrection ESProducer - fixed value from configuration for each module geometry
 
@@ -22,10 +22,10 @@
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class SiStripBackPlaneCorrectioNFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripBackPlaneCorrectionFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
-  SiStripBackPlaneCorrectioNFakeESSource(const edm::ParameterSet&);
-  ~SiStripBackPlaneCorrectioNFakeESSource() override;
+  SiStripBackPlaneCorrectionFakeESSource(const edm::ParameterSet&);
+  ~SiStripBackPlaneCorrectionFakeESSource() override;
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
@@ -42,7 +42,7 @@ private:
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-SiStripBackPlaneCorrectioNFakeESSource::SiStripBackPlaneCorrectioNFakeESSource(const edm::ParameterSet& iConfig)
+SiStripBackPlaneCorrectionFakeESSource::SiStripBackPlaneCorrectionFakeESSource(const edm::ParameterSet& iConfig)
 {
   setWhatProduced(this);
   findingRecord<SiStripBackPlaneCorrectionRcd>();
@@ -51,16 +51,16 @@ SiStripBackPlaneCorrectioNFakeESSource::SiStripBackPlaneCorrectioNFakeESSource(c
   m_file = iConfig.getParameter<edm::FileInPath>("file");
 }
 
-SiStripBackPlaneCorrectioNFakeESSource::~SiStripBackPlaneCorrectioNFakeESSource() {}
+SiStripBackPlaneCorrectionFakeESSource::~SiStripBackPlaneCorrectionFakeESSource() {}
 
-void SiStripBackPlaneCorrectioNFakeESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity )
+void SiStripBackPlaneCorrectionFakeESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity )
 {
   iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
 }
 
 // ------------ method called to produce the data  ------------
-SiStripBackPlaneCorrectioNFakeESSource::ReturnType
-SiStripBackPlaneCorrectioNFakeESSource::produce(const SiStripBackPlaneCorrectionRcd& iRecord)
+SiStripBackPlaneCorrectionFakeESSource::ReturnType
+SiStripBackPlaneCorrectionFakeESSource::produce(const SiStripBackPlaneCorrectionRcd& iRecord)
 {
   using namespace edm::es;
 
@@ -87,4 +87,4 @@ SiStripBackPlaneCorrectioNFakeESSource::produce(const SiStripBackPlaneCorrection
 
 //define this as a plug-in
 #include "FWCore/Framework/interface/SourceFactory.h"
-DEFINE_FWK_EVENTSETUP_SOURCE(SiStripBackPlaneCorrectioNFakeESSource);
+DEFINE_FWK_EVENTSETUP_SOURCE(SiStripBackPlaneCorrectionFakeESSource);
