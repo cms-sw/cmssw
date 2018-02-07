@@ -8,6 +8,7 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
+#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -119,9 +120,6 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
   
   fibre = new HFFibre(name, cpv, p);
   photo = new HFShowerPhotonCollection;
-  emPDG = epPDG = gammaPDG = 0;
-  pi0PDG = etaPDG = nuePDG = numuPDG = nutauPDG= 0;
-  anuePDG= anumuPDG = anutauPDG = geantinoPDG = 0;
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
@@ -135,30 +133,6 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
 			      HcalDDDSimConstants* hcons) {
 
   if (fibre) fibre->initRun(hcons);
-
-  G4String parName;
-  emPDG = theParticleTable->FindParticle(parName="e-")->GetPDGEncoding();
-  epPDG = theParticleTable->FindParticle(parName="e+")->GetPDGEncoding();
-  gammaPDG = theParticleTable->FindParticle(parName="gamma")->GetPDGEncoding();
-  pi0PDG = theParticleTable->FindParticle(parName="pi0")->GetPDGEncoding();
-  etaPDG = theParticleTable->FindParticle(parName="eta")->GetPDGEncoding();
-  nuePDG = theParticleTable->FindParticle(parName="nu_e")->GetPDGEncoding();
-  numuPDG = theParticleTable->FindParticle(parName="nu_mu")->GetPDGEncoding();
-  nutauPDG= theParticleTable->FindParticle(parName="nu_tau")->GetPDGEncoding();
-  anuePDG = theParticleTable->FindParticle(parName="anti_nu_e")->GetPDGEncoding();
-  anumuPDG= theParticleTable->FindParticle(parName="anti_nu_mu")->GetPDGEncoding();
-  anutauPDG= theParticleTable->FindParticle(parName="anti_nu_tau")->GetPDGEncoding();
-  geantinoPDG= theParticleTable->FindParticle(parName="geantino")->GetPDGEncoding();
-#ifdef DebugLog
-  edm::LogInfo("HFShower") << "HFShowerLibrary: Particle codes for e- = " 
-			   << emPDG << ", e+ = " << epPDG << ", gamma = " 
-			   << gammaPDG << ", pi0 = " << pi0PDG << ", eta = " 
-			   << etaPDG << ", geantino = " << geantinoPDG 
-			   << "\n        nu_e = " << nuePDG << ", nu_mu = " 
-			   << numuPDG << ", nu_tau = " << nutauPDG 
-			   << ", anti_nu_e = " << anuePDG << ", anti_nu_mu = " 
-			   << anumuPDG << ", anti_nu_tau = " << anutauPDG;
-#endif
   
   //Radius (minimum and maximum)
   std::vector<double> rTable = hcons->getRTableHF();
@@ -198,6 +172,11 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
+  // VI: for ions use internally pdg code of alpha in order to keep 
+  // consistency with previous simulation
+  if(track->GetDefinition()->IsGeneralIon()) { parCode = 1000020040; }
+ 
+
 #ifdef DebugLog
   G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   double zoff   = localPos.z() + 0.5*gpar[1];
@@ -226,10 +205,11 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
 
   std::vector<HFShowerLibrary::Hit> hit;
   ok = false;
-  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
-      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG)
+  bool isEM = G4TrackToParticleID::isGammaElectronPositron(parCode);
+  // shower is built only for gamma, e+- and stable hadrons
+  if (!isEM && !G4TrackToParticleID::isStableHadron(parCode)) { 
     return hit;
+  }
   ok = true;
 
   double pz     = momDir.z(); 
@@ -244,7 +224,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
   double ctheta = cos(momDir.theta());
   double stheta = sin(momDir.theta());
 
-  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
+  if (isEM) {
     if (pin<pmom[nMomBin-1]) {
       interpolate(0, pin);
     } else {

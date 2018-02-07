@@ -22,9 +22,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// To be replaced by something else 
-/* #include "Utilities/Notification/interface/TimerProxy.h" */
- 
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
 #include "G4VGFlashSensitiveDetector.hh"
@@ -134,7 +131,6 @@ protected:
   double                          correctT;
   double                          kmaxIon, kmaxNeutron, kmaxProton;
 
-  G4int                           emPDG, epPDG, gammaPDG;
   bool                            forceSave;
 
 private:

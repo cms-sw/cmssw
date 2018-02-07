@@ -7,6 +7,7 @@
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
+#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 
 #include "SimG4CMS/Forward/interface/CastorSD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -82,7 +83,6 @@ CastorSD::~CastorSD() {
 
 void CastorSD::initRun(){
   if (useShowerLibrary) {
-    // showerLibrary = new CastorShowerLibrary(name, cpv, p);
     G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
     showerLibrary->initParticleTable(theParticleTable);
     edm::LogInfo("ForwardSim") << "CastorSD::initRun: Using Castor Shower Library \n";
@@ -177,11 +177,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   if(theTrack->GetKineticEnergy() > energyThresholdSL) aboveThreshold = true;
     
   // Check if theTrack is a muon (if so, DO NOT use Shower Library) 
-  bool notaMuon = true;
-  G4int mumPDG  =  13;
-  G4int mupPDG  = -13;
-  G4int parCode = theTrack->GetDefinition()->GetPDGEncoding();
-  if (parCode == mupPDG || parCode == mumPDG ) notaMuon = false;
+  bool notaMuon = !G4TrackToParticleID::isMuon(theTrack);
   
   // angle condition
   double theta_max = M_PI - 3.1305; // angle in radians corresponding to -5.2 eta
@@ -226,13 +222,13 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   TrackInformationExtractor TIextractor;
   TrackInformation& trkInfo = TIextractor(theTrack);
   if (!trkInfo.hasCastorHit()) {
-    trkInfo.setCastorHitPID(parCode);
+    trkInfo.setCastorHitPID(theTrack->GetDefinition()->GetPDGEncoding());
   }
-  const int castorHitPID = trkInfo.getCastorHitPID();
+  int castorHitPID = trkInfo.getCastorHitPID();
   
   // Check whether castor hit track is HAD
-  const bool isHad = !(castorHitPID==emPDG || castorHitPID==epPDG || castorHitPID==gammaPDG || castorHitPID == mupPDG || castorHitPID == mumPDG);
-  
+  bool isHad = !(G4TrackToParticleID::isGammaElectronPositron(castorHitPID)
+		 || G4TrackToParticleID::isMuon(castorHitPID));
   
   // Usual calculations
   // G4ThreeVector      hitPoint = preStepPoint->GetPosition();	
@@ -662,9 +658,8 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
   resetForNewPrimary(posGlobal, etrack);
 
   // Check whether track is EM or HAD
-  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
   bool isEM , isHAD ;
-  if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG) {
+  if (G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
     isEM = true ; isHAD = false;
   } else {
     isEM = false; isHAD = true ;
@@ -684,30 +679,11 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
   double E_SLhit = hits.getPrimE() * GeV ;
   double scale = E_track/E_SLhit ;
 	
-	//Non compensation 
-	if (isHAD){
-		scale=scale*non_compensation_factor; // if hadronic extend the scale with the non-compensation factor
-	} else {
-		scale=scale; // if electromagnetic, don't do anything
-	}
-	
-  
-/*    double theTrackEnergy = theTrack->GetTotalEnergy() ; 
-  
-  if(fabs(theTrackEnergy-E_track)>10.) {
-    edm::LogInfo("ForwardSim") << "\n            TrackID = " << theTrack->GetTrackID()
-                               << "\n     theTrackEnergy = " << theTrackEnergy
-                               << "\n preStepPointEnergy = " << E_track ;
-    G4TrackVector tsec = *(aStep->GetSecondary());
-    for (unsigned int kk=0; kk<tsec.size(); kk++) {
-	edm::LogInfo("ForwardSim") << "CastorSD::getFromLibrary:"
-			       << "\n tsec[" << kk << "]->GetTrackID() = " 
-			       << tsec[kk]->GetTrackID() 
-			       << " with energy " 
-			       << tsec[kk]->GetTotalEnergy() ;
-    }
+  //Non compensation 
+  if (isHAD){
+    scale *= non_compensation_factor; // if hadronic extend the scale with the non-compensation factor
   }
-*/  
+	
   //  Loop over hits retrieved from the library
   for (unsigned int i=0; i<hits.getNhit(); i++) {
     
