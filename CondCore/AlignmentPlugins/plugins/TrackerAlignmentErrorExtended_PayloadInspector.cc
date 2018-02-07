@@ -453,7 +453,7 @@ namespace {
   typedef TrackerAlignmentErrorExtendedDetail<AlignmentPI::TEC>  TrackerAlignmentErrorExtendedTECDetail;
 
   // /************************************************
-  //  Tracker Aligment grand summary comparison of 2 IOVs
+  //  Tracker Aligment Extended Errors grand summary comparison of 2 IOVs
   // *************************************************/
 
   template<AlignmentPI::index i> class TrackerAlignmentErrorExtendedComparator : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
@@ -604,7 +604,6 @@ namespace {
       summaryFirst->GetXaxis()->LabelsOption("v");
       summaryFirst->GetXaxis()->SetLabelSize(0.05);
       summaryFirst->GetYaxis()->SetTitleOffset(0.9);
-      //summaryFirst->SetLineStyle(9);
 
       AlignmentPI::makeNicePlotStyle(summaryLast.get(),kRed);
       summaryLast->SetMarkerColor(kRed);
@@ -624,13 +623,14 @@ namespace {
       
       summaryFirst->SetBarWidth(0.45);
       summaryFirst->SetBarOffset(0.1);
-      //summaryFirst->SetFillColor(49);
 
       summaryLast->SetBarWidth(0.4);
       summaryLast->SetBarOffset(0.55);
-      //summaryLast->SetFillColor(50);
 
-      summaryFirst->GetYaxis()->SetRangeUser(0.,std::max(1.,summaryFirst->GetMaximum()*1.20));
+      float max = (summaryFirst->GetMaximum() > summaryLast->GetMaximum()) ? summaryFirst->GetMaximum() : summaryLast->GetMaximum();
+
+      summaryFirst->GetYaxis()->SetRangeUser(0.,std::max(0.,max*1.20));
+     
       summaryFirst->Draw("bar2");
       //summaryFirst->Draw("text90same");
       summaryLast->Draw("bar2,same");
