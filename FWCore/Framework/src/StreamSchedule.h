@@ -426,9 +426,7 @@ namespace edm {
       
     });
     
-    auto task = make_functor_task(tbb::task::allocate_root(), [this,doneTask,&ep,&es,token] () mutable {
-      WaitingTaskHolder h(doneTask);
-      
+    auto task = make_functor_task(tbb::task::allocate_root(), [this,doneTask, h =WaitingTaskHolder(doneTask) ,&ep,&es,token] () mutable {
       ServiceRegistry::Operate op(token);
       try {
         T::preScheduleSignal(actReg_.get(), &streamContext_);
