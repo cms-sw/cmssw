@@ -259,6 +259,7 @@ namespace AlignmentPI {
     void init();
     void fillGeometryInfo(const DetId& detId,const TrackerTopology& tTopo,bool isPhase0);
     AlignmentPI::regions filterThePartition();
+    bool sanityCheck();
     void printAll();
   }; 
     
@@ -292,6 +293,19 @@ namespace AlignmentPI {
     m_isInternal    = false;
   };
 
+  /*--------------------------------------------------------------------*/
+  bool topolInfo::sanityCheck()
+  /*--------------------------------------------------------------------*/
+  {
+    if(m_layer==0 || 
+       (m_subdetid==1 && m_layer>4) ||
+       (m_subdetid==2 && m_layer>3) 
+       ){ 
+      return false;
+    } else{
+      return true;
+    }
+  }
   /*--------------------------------------------------------------------*/
   void topolInfo::fillGeometryInfo(const DetId& detId,const TrackerTopology& tTopo,bool isPhase0)
   /*--------------------------------------------------------------------*/

@@ -537,6 +537,259 @@ namespace {
   typedef SurfaceDeformationsTkMapDelta<11>  SurfaceDeformationParameter11TkMapDelta;
   typedef SurfaceDeformationsTkMapDelta<12>  SurfaceDeformationParameter12TkMapDelta;
 
+  // /************************************************
+  //  Tracker Surface Deformations grand summary comparison of 2 IOVs
+  // *************************************************/
+
+  template<unsigned int m_par> class TrackerSurfaceDeformationsComparator : public cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations> {
+  public:
+    TrackerSurfaceDeformationsComparator() : cond::payloadInspector::PlotImage<AlignmentSurfaceDeformations>( "Summary per Tracker region of parameter "+std::to_string(m_par)+" of Surface Deformations" ){
+      setSingleIov( false );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      gStyle->SetPaintTextFormat(".1f");
+
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+      
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+      
+      std::shared_ptr<AlignmentSurfaceDeformations> last_payload  = fetchPayload( std::get<1>(lastiov) );
+      std::shared_ptr<AlignmentSurfaceDeformations> first_payload = fetchPayload( std::get<1>(firstiov) );
+      
+      std::string lastIOVsince  = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      auto first_listOfItems = first_payload->items();
+      auto last_listOfItems  = last_payload->items();
+
+      TCanvas canvas("Comparison","Comparison",1600,800); 
+
+      std::map<AlignmentPI::regions,std::shared_ptr<TH1F> > FirstSurfDef_spectraByRegion;
+      std::map<AlignmentPI::regions,std::shared_ptr<TH1F> > LastSurfDef_spectraByRegion;
+      std::shared_ptr<TH1F> summaryFirst;
+      std::shared_ptr<TH1F> summaryLast;
+      
+      // book the intermediate histograms
+      for(int r=AlignmentPI::BPixL1o; r!=AlignmentPI::StripDoubleSide; r++){
+
+	AlignmentPI::regions part = static_cast<AlignmentPI::regions>(r);
+	std::string s_part =  AlignmentPI::getStringFromRegionEnum(part);
+
+	FirstSurfDef_spectraByRegion[part] = std::make_shared<TH1F>(Form("hfirstSurfDef_%i_%s",m_par,s_part.c_str()),Form(";%s SurfDef parameter %i;n. of modules",s_part.c_str(),m_par),10000,-1,1.);       
+	LastSurfDef_spectraByRegion[part] = std::make_shared<TH1F>(Form("hlastSurfDef_%i_%s",m_par,s_part.c_str()),Form(";%s SurfDef parameter %i;n. of modules",s_part.c_str(),m_par),10000,-1.,1.);       
+	
+      }
+
+      summaryFirst = std::make_shared<TH1F>(Form("first Summary_%i",m_par),Form("Summary for parameter %i Surface Deformation;;Surface Deformation paramter %i",m_par,m_par),FirstSurfDef_spectraByRegion.size(),0,FirstSurfDef_spectraByRegion.size());
+      summaryLast  = std::make_shared<TH1F>(Form("last Summary_%i",m_par),Form("Summary for parameter %i Surface Deformation;;Surface Deformation paramter %i",m_par,m_par),LastSurfDef_spectraByRegion.size(),0,LastSurfDef_spectraByRegion.size());
+
+      // N.B. <= and not == because the list of surface deformations might not include all tracker modules
+      const char * path_toTopologyXML = (first_listOfItems.size()<=AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      const char * alternative_path_toTopologyXML = (first_listOfItems.size()<=AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml" : "Geometry/TrackerCommonData/data/trackerParameters.xml";
+      TrackerTopology f_tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath()); 
+      TrackerTopology af_tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(alternative_path_toTopologyXML).fullPath());
+
+      bool isPhase0(false);
+      if(first_listOfItems.size()<=AlignmentPI::phase0size) isPhase0 = true;
+
+      // -------------------------------------------------------------------
+      // loop on the first vector of errors
+      // -------------------------------------------------------------------
+      int iDet=0;
+      for (const auto& it :  first_listOfItems){
+	
+	if(DetId(it.m_rawId).det() != DetId::Tracker){
+	  edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "Encountered invalid Tracker DetId:" << it.m_rawId <<" - terminating ";
+	  return false;
+	}
+
+	int subid = DetId(it.m_rawId).subdetId();	    
+	AlignmentPI::topolInfo t_info_fromXML;
+	t_info_fromXML.init();
+	t_info_fromXML.m_rawid = it.m_rawId;
+	DetId detid(t_info_fromXML.m_rawid);
+	t_info_fromXML.m_subdetid = subid;
+	t_info_fromXML.fillGeometryInfo(detid,f_tTopo,isPhase0);
+
+	//std::cout<<"sanityCheck: "<< t_info_fromXML.sanityCheck() << std::endl; 
+
+	if(t_info_fromXML.sanityCheck()==false) {
+	  edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "Wrong choice of Tracker Topology encountered for DetId:" << it.m_rawId <<" ---> changing";
+	  t_info_fromXML.init();
+	  isPhase0=!isPhase0;
+	  t_info_fromXML.fillGeometryInfo(detid,af_tTopo,isPhase0);
+	}
+	
+	//t_info_fromXML.printAll();
+
+	AlignmentPI::regions thePart = t_info_fromXML.filterThePartition();
+
+	// skip the glued detector detIds
+	if(thePart==AlignmentPI::StripDoubleSide) continue;
+
+	const auto f_beginEndPair = first_payload->parameters(iDet);
+	std::vector<align::Scalar> first_params(f_beginEndPair.first,f_beginEndPair.second);
+
+	iDet++;
+	// protect against exceeding the vector of parameter size
+	if(m_par>=first_params.size()) continue;
+
+	FirstSurfDef_spectraByRegion[thePart]->Fill(first_params.at(m_par));
+	std::cout<<  getStringFromRegionEnum(thePart) << " first payload: "<< first_params.at(m_par) << std::endl;
+
+      }// ends loop on the vector of error transforms
+
+
+      // N.B. <= and not == because the list of surface deformations might not include all tracker modules
+      path_toTopologyXML = (last_listOfItems.size()<=AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      alternative_path_toTopologyXML = (first_listOfItems.size()<=AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml" : "Geometry/TrackerCommonData/data/trackerParameters.xml";
+      TrackerTopology l_tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath()); 
+      TrackerTopology al_tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(alternative_path_toTopologyXML).fullPath());
+      
+      if(last_listOfItems.size()<=AlignmentPI::phase0size) isPhase0 = true;
+
+      // -------------------------------------------------------------------
+      // loop on the second vector of errors
+      // -------------------------------------------------------------------
+      int jDet=0;
+      for (const auto& it : last_listOfItems){
+	
+	if(DetId(it.m_rawId).det() != DetId::Tracker){
+	  edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "Encountered invalid Tracker DetId:" << it.m_rawId <<" - terminating ";
+	  return false;
+	}
+
+	int subid = DetId(it.m_rawId).subdetId();	    
+	AlignmentPI::topolInfo t_info_fromXML;
+	t_info_fromXML.init();
+	t_info_fromXML.m_rawid = it.m_rawId;
+	DetId detid(t_info_fromXML.m_rawid);
+	t_info_fromXML.m_subdetid = subid;
+	t_info_fromXML.fillGeometryInfo(detid,l_tTopo,isPhase0);
+
+	//std::cout<<"sanityCheck: "<< t_info_fromXML.sanityCheck() << std::endl; 
+
+	if(t_info_fromXML.sanityCheck()==false) {
+	  edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "Wrong choice of Tracker Topology encountered for DetId:" << it.m_rawId <<" ---> changing";
+	  t_info_fromXML.init();
+	  t_info_fromXML.m_rawid = it.m_rawId;
+	  t_info_fromXML.m_subdetid = subid;
+	  isPhase0=!isPhase0;
+	  t_info_fromXML.fillGeometryInfo(detid,al_tTopo,isPhase0);
+	}
+
+	//t_info_fromXML.printAll();
+
+	AlignmentPI::regions thePart = t_info_fromXML.filterThePartition();
+
+	// skip the glued detector detIds
+	if(thePart==AlignmentPI::StripDoubleSide) continue;
+	
+	const auto l_beginEndPair = last_payload->parameters(jDet);
+	std::vector<align::Scalar> last_params(l_beginEndPair.first,l_beginEndPair.second);
+
+	jDet++;
+	// protect against exceeding the vector of parameter size
+	if(m_par>=last_params.size()) continue;
+
+	LastSurfDef_spectraByRegion[thePart]->Fill(last_params.at(m_par));
+	std::cout<< getStringFromRegionEnum(thePart) <<  " last payload: "<< last_params.at(m_par) << std::endl;
+
+      }// ends loop on the vector of error transforms
+
+      // fill the summary plots
+      int bin=1;
+      for(int r=AlignmentPI::BPixL1o; r!=AlignmentPI::StripDoubleSide; r++){
+
+	AlignmentPI::regions part = static_cast<AlignmentPI::regions>(r);
+		
+	summaryFirst->GetXaxis()->SetBinLabel(bin, AlignmentPI::getStringFromRegionEnum(part).c_str());	  
+	// avoid filling the histogram with numerical noise 
+	float f_mean = FirstSurfDef_spectraByRegion[part]->GetMean();
+	summaryFirst->SetBinContent(bin,f_mean);
+	//summaryFirst->SetBinError(bin, FirstSurfDef_spectraByRegion[part]->GetRMS());
+
+	summaryLast->GetXaxis()->SetBinLabel(bin, AlignmentPI::getStringFromRegionEnum(part).c_str());	  
+	// avoid filling the histogram with numerical noise 
+	float l_mean = LastSurfDef_spectraByRegion[part]->GetMean(); 
+	summaryLast->SetBinContent(bin,l_mean);
+	//summaryLast->SetBinError(bin,LastSurfDef_spectraByRegion[part]->GetRMS());
+	bin++;
+      }
+     
+      AlignmentPI::makeNicePlotStyle(summaryFirst.get(),kBlue);
+      summaryFirst->SetMarkerColor(kBlue);
+      summaryFirst->GetXaxis()->LabelsOption("v");
+      summaryFirst->GetXaxis()->SetLabelSize(0.05);
+      summaryFirst->GetYaxis()->SetTitleOffset(0.9);
+
+      AlignmentPI::makeNicePlotStyle(summaryLast.get(),kRed);
+      summaryLast->SetMarkerColor(kRed);
+      summaryLast->GetYaxis()->SetTitleOffset(0.9);
+      summaryLast->GetXaxis()->LabelsOption("v");
+      summaryLast->GetXaxis()->SetLabelSize(0.05);
+
+      canvas.cd()->SetGridy();
+      
+      canvas.SetBottomMargin(0.18);
+      canvas.SetLeftMargin(0.11);
+      canvas.SetRightMargin(0.02);
+      canvas.Modified();
+
+      summaryFirst->SetFillColor(kBlue);
+      summaryLast->SetFillColor(kRed);
+      
+      summaryFirst->SetBarWidth(0.45);
+      summaryFirst->SetBarOffset(0.1);
+
+      summaryLast->SetBarWidth(0.4);
+      summaryLast->SetBarOffset(0.55);
+
+      float max = (summaryFirst->GetMaximum() > summaryLast->GetMaximum()) ? summaryFirst->GetMaximum() : summaryLast->GetMaximum();
+      float min = (summaryFirst->GetMinimum() < summaryLast->GetMinimum()) ? summaryFirst->GetMinimum() : summaryLast->GetMinimum();
+
+      summaryFirst->GetYaxis()->SetRangeUser(min*1.20,max*1.40);
+      summaryFirst->Draw("b");
+      //summaryFirst->Draw("text90same");
+      summaryLast->Draw("b,same");
+      //summaryLast->Draw("text180same");      
+
+      TLegend legend = TLegend(0.52,0.82,0.98,0.9);
+      legend.SetHeader(("Surface Deformation par "+std::to_string(m_par)+" comparison").c_str(),"C"); // option "C" allows to center the header
+      legend.AddEntry(summaryLast.get(),("IOV: "+std::to_string(std::get<0>(lastiov))+"| "+std::get<1>(lastiov)).c_str(),"F");
+      legend.AddEntry(summaryFirst.get(),("IOV: "+std::to_string(std::get<0>(firstiov))+"| "+std::get<1>(firstiov)).c_str(),"F");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+
+    } // ends fill method
+  };
+
+  typedef TrackerSurfaceDeformationsComparator<0> TrackerSurfaceDeformationsPar0Comparator;
+  typedef TrackerSurfaceDeformationsComparator<1> TrackerSurfaceDeformationsPar1Comparator;
+  typedef TrackerSurfaceDeformationsComparator<2> TrackerSurfaceDeformationsPar2Comparator;
+  typedef TrackerSurfaceDeformationsComparator<3> TrackerSurfaceDeformationsPar3Comparator;
+  typedef TrackerSurfaceDeformationsComparator<4> TrackerSurfaceDeformationsPar4Comparator;
+  typedef TrackerSurfaceDeformationsComparator<5> TrackerSurfaceDeformationsPar5Comparator;
+  typedef TrackerSurfaceDeformationsComparator<6> TrackerSurfaceDeformationsPar6Comparator;
+  typedef TrackerSurfaceDeformationsComparator<7> TrackerSurfaceDeformationsPar7Comparator;
+  typedef TrackerSurfaceDeformationsComparator<8> TrackerSurfaceDeformationsPar8Comparator;
+  typedef TrackerSurfaceDeformationsComparator<9> TrackerSurfaceDeformationsPar9Comparator;
+  typedef TrackerSurfaceDeformationsComparator<10> TrackerSurfaceDeformationsPar10Comparator;
+  typedef TrackerSurfaceDeformationsComparator<11> TrackerSurfaceDeformationsPar11Comparator;
+  typedef TrackerSurfaceDeformationsComparator<12> TrackerSurfaceDeformationsPar12Comparator;
 
 } // close namespace
 
@@ -580,4 +833,17 @@ PAYLOAD_INSPECTOR_MODULE(TrackerSurfaceDeformations){
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter10TkMapDelta);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter11TkMapDelta);
   PAYLOAD_INSPECTOR_CLASS(SurfaceDeformationParameter12TkMapDelta);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar0Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar1Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar2Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar3Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar4Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar5Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar6Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar7Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar8Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar9Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar10Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar11Comparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerSurfaceDeformationsPar12Comparator);
 }
