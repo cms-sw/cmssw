@@ -20,7 +20,7 @@ const unsigned int MAX_LINK =  48;  // maximum links/channels for Phase 1
 const unsigned int MAX_ROC  =   8;
 const unsigned int MAX_SIZE = MAX_FED * MAX_LINK * MAX_ROC;
 const unsigned int MAX_SIZE_BYTE_INT  = MAX_SIZE * sizeof(unsigned int);
-const unsigned int MAX_SIZE_BYTE_BOOL = MAX_SIZE * sizeof(short int);
+const unsigned int MAX_SIZE_BYTE_BOOL = MAX_SIZE * sizeof(unsigned char);
 
 struct SiPixelFedCablingMapGPU {
   unsigned int size;
@@ -30,8 +30,8 @@ struct SiPixelFedCablingMapGPU {
   unsigned int * RawId;
   unsigned int * rocInDet;
   unsigned int * moduleId;
-  short int * modToUnp;
-  short int * badRocs;
+  unsigned char * modToUnp;
+  unsigned char * badRocs;
 };
 
 inline
