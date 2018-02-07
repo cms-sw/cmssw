@@ -2,9 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryXMLWriter")
 
-##process.load('Configuration.Geometry.GeometryExtended2017_cff')
-process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
-from Geometry.VeryForwardGeometry.geometryRP_cfi import XMLIdealGeometryESSource_CTPPS
+process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_cfi')
+from Geometry.VeryForwardGeometry.geometryRPFromDD_cfi import XMLIdealGeometryESSource_CTPPS
 process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
 
 process.source = cms.Source("EmptyIOVSource",
@@ -15,9 +14,9 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.BigXMLWriter = cms.EDAnalyzer("OutputDDToDDL",
-                              rotNumSeed = cms.int32(0),
-                              fileName = cms.untracked.string("./geSingleBigFile.xml")
-                              )
+                                      rotNumSeed = cms.int32(0),
+                                      fileName = cms.untracked.string("./geSingleBigFile.xml")
+                                      )
 
 
 process.maxEvents = cms.untracked.PSet(
