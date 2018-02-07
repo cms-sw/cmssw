@@ -142,15 +142,10 @@ CTPPSGeometryInfo::printGeometry( const CTPPSGeometry& geometry, const edm::Even
   char timeStr[50];
   strftime( timeStr, 50, "%F %T", localtime( &unixTime ) );
 
-  edm::LogVerbatim("CTPPSGeometryInfo")
-    << "new " << geometryType_ << " geometry found in run="
-    << event.id().run() << ", event=" << event.id().event() << ", UNIX timestamp=" << unixTime
-    << " (" << timeStr << ")";
+  std::ostringstream oss;
 
   // RP geometry
   if ( printRPInfo_ ) {
-    std::ostringstream oss;
-
     oss << "* RPs:\n"
         << "    ce: RP center in global coordinates, in mm\n";
 
@@ -166,8 +161,6 @@ CTPPSGeometryInfo::printGeometry( const CTPPSGeometry& geometry, const edm::Even
 
   // sensor geometry
   if ( printSensorInfo_ ) {
-    std::ostringstream oss;
-
     oss << "* sensors:\n"
       << "    ce: sensor center in global coordinates, in mm\n"
       << "    a1: local axis (1, 0, 0) in global coordinates\n"
@@ -189,9 +182,13 @@ CTPPSGeometryInfo::printGeometry( const CTPPSGeometry& geometry, const edm::Even
         << " | a2=(" << gl_a2.x() << ", " << gl_a2.y() << ", " << gl_a2.z() << ")"
         << " | a3=(" << gl_a3.x() << ", " << gl_a3.y() << ", " << gl_a3.z() << ")\n";
     }
-
-    edm::LogVerbatim("CTPPSGeometryInfo") << oss.str();
   }
+
+  edm::LogInfo("CTPPSGeometryInfo")
+    << "New " << geometryType_ << " geometry found in run="
+    << event.id().run() << ", event=" << event.id().event() << ", UNIX timestamp=" << unixTime
+    << " (" << timeStr << ")\n"
+    << oss.str();
 }
 
 //----------------------------------------------------------------------------------------------------
