@@ -134,9 +134,8 @@ class RPAlignmentCorrectionData
     /// if it is false, the uncertainties of the parameter (i.e. not the object) will be used
     /// With the add... switches one can control which corrections are added.
     void add(const RPAlignmentCorrectionData&, bool sumErrors=true, bool addSh=true, bool addRot=true);
-
-    /// prints the contents on the screen
-    void print() const;
 };
+
+std::ostream& operator<<(std::ostream& s, const RPAlignmentCorrectionData &corr);
 
 #endif

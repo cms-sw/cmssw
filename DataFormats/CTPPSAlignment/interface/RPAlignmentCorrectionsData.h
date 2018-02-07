@@ -76,4 +76,6 @@ class RPAlignmentCorrectionsData
     void clear();
 };
 
+std::ostream& operator<<(std::ostream& s, const RPAlignmentCorrectionsData &corr);
+
 #endif

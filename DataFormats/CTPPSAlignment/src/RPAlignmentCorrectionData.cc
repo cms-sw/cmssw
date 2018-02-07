@@ -69,7 +69,17 @@ void RPAlignmentCorrectionData::add(const RPAlignmentCorrectionData &a, bool sum
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionData::print() const
+std::ostream& operator<<(std::ostream& s, const RPAlignmentCorrectionData &corr)
 {
-  printf("shift: x=%.3f, y=%.3f, z=%.3f, rotation: x=%.3f, y=%.3f, z=%.3f\n", sh_x, sh_y, sh_z, rot_x, rot_y, rot_z);
+  s << fixed
+    << "shift (um) " << std::setprecision(1)
+      << "x = " << corr.getShX()*1E3 << " +- " << corr.getShXUnc()*1E3
+      << ", y = " << corr.getShY()*1E3 << " +- " << corr.getShYUnc()*1E3
+      << ", z = " << corr.getShZ()*1E3 << " +- " << corr.getShZUnc()*1E3
+    << ", rotation (mrad) " << std::setprecision(1)
+      << "x = " << corr.getRotX()*1E3 << " +- " << corr.getRotXUnc()*1E3
+      << ", y = " << corr.getRotY()*1E3 << " +- " << corr.getRotYUnc()*1E3
+      << ", z = " << corr.getRotZ()*1E3 << " +- " << corr.getRotZUnc()*1E3;
+
+  return s;
 }

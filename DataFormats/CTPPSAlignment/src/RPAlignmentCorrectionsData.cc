@@ -140,4 +140,21 @@ RPAlignmentCorrectionsData::clear()
 
 //----------------------------------------------------------------------------------------------------
 
+std::ostream& operator<<(std::ostream& s, const RPAlignmentCorrectionsData &corr)
+{
+  for (const auto &p : corr.getRPMap())
+  {
+    s << "RP " << p.first << ": " << p.second << std::endl;
+  }
+
+  for (const auto &p : corr.getSensorMap())
+  {
+    s << "sensor " << p.first << ": " << p.second << std::endl;
+  }
+
+  return s;
+}
+
+//----------------------------------------------------------------------------------------------------
+
 TYPELOOKUP_DATA_REG( RPAlignmentCorrectionsData );
