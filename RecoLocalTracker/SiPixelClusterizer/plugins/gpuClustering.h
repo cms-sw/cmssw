@@ -124,7 +124,7 @@ namespace gpuClustering {
   
     __syncthreads();
     if (threadIdx.x==0) {
-      clusInModule[blockIdx.x]=nclus;
+      clusInModule[me]=nclus;
       moduleId[blockIdx.x]=me;
     }
     

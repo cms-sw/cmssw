@@ -641,7 +641,6 @@ void RawToDigi_wrapper(
   }
   cudaStreamSynchronize(c.stream);
   // End  of Raw2Digi and passing data for cluserisation
-  // PixelCluster_Wrapper(c.xx_adc , c.yy_adc, c.adc_d,wordCounter, c.mIndexStart_d, c.mIndexEnd_d);
 
  { 
    // clusterizer ...
@@ -655,11 +654,11 @@ void RawToDigi_wrapper(
 
 
   uint32_t nModules=0;
-  cudaCheck(cudaMemcpyAsync(&c.moduleStart_d, &nModules, sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
+  cudaCheck(cudaMemcpyAsync(c.moduleStart_d, &nModules, sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
 
   countModules<<<blocks, threadsPerBlock, 0, c.stream>>>(c.moduleInd_d, c.moduleStart_d, c.clus_d, wordCounter);
 
-  cudaCheck(cudaMemcpyAsync(&nModules, &c.moduleStart_d, sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+  cudaCheck(cudaMemcpyAsync(&nModules, c.moduleStart_d, sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
 
   std::cout << "found " << nModules << " Modules active" << std::endl;
 
@@ -671,6 +670,7 @@ void RawToDigi_wrapper(
     << "CUDA findModules kernel launch with " << blocksPerGrid
     << " blocks of " << threadsPerBlock << " threads\n";
 
+  cudaCheck(cudaMemsetAsync(c.clusInModule_d, 0, (MaxNumModules)*sizeof(uint32_t),c.stream));
 
   findClus<<<blocks, threadsPerBlock, 0, c.stream>>>(
                c.moduleInd_d,

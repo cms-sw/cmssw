@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <memory>
 #include <algorithm>
+#include<numeric>
 #include<cmath>
 #include<cassert>
 
@@ -181,8 +182,7 @@ int main(void)
   cuda::memory::copy(d_x.get(), h_x.get(), size16);
   cuda::memory::copy(d_y.get(), h_y.get(), size16);
   cuda::memory::copy(d_adc.get(), h_adc.get(), size8);
-  cuda::memory::device::zero(d_debug.get(),size32);
-  
+  cuda::memory::device::zero(d_debug.get(),size32);  
   // Launch CUDA Kernels
 
   
@@ -212,6 +212,8 @@ int main(void)
     << "CUDA findModules kernel launch with " << blocksPerGrid
     << " blocks of " << threadsPerBlock << " threads\n";
 
+  cuda::memory::device::zero(d_clusInModule.get(),MaxNumModules*sizeof(uint32_t));
+
   cuda::launch(
 	       findClus,
 	       { blocksPerGrid, threadsPerBlock },
@@ -224,9 +226,9 @@ int main(void)
 	       );
 
 
-  uint32_t nclus[nModules], moduleId[nModules];  
+  uint32_t nclus[MaxNumModules], moduleId[nModules];  
   cuda::memory::copy(h_clus.get(), d_clus.get(), size32);
-  cuda::memory::copy(&nclus,d_clusInModule.get(),nModules*sizeof(uint32_t));
+  cuda::memory::copy(&nclus,d_clusInModule.get(),MaxNumModules*sizeof(uint32_t));
   cuda::memory::copy(&moduleId,d_moduleId.get(),nModules*sizeof(uint32_t));
 
   
@@ -235,22 +237,21 @@ int main(void)
   auto p = std::minmax_element(h_debug.get(),h_debug.get()+n);
   std::cout << "debug " << *p.first << ' ' << *p.second << std::endl;  
 
-  // invert lookup
-  uint32_t mInd[MaxNumModules];
-  for (uint32_t i=0; i<nModules;++i) mInd[moduleId[i]]=i;
+
+  
   
   std::set<unsigned int> clids;
   std::vector<unsigned int> seeds;
   for (int i=0; i<n; ++i) {
     if (h_id[i]==InvId) continue;
     assert(h_clus[i]>=0);
-    assert(h_clus[i]<nclus[mInd[h_id[i]]]);
+    assert(h_clus[i]<nclus[h_id[i]]);
     clids.insert(h_id[i]*100+h_clus[i]);
 		 // clids.insert(h_clus[i]);
     // if (h_clus[i]==i) seeds.push_back(i); // only if no renumbering
   }
    
-  std::cout << "found " << clids.size() << " clusters" << std::endl;
+  std::cout << "found " << std::accumulate(nclus,nclus+MaxNumModules,0) << ' ' <<  clids.size() << " clusters" << std::endl;
   // << " and " << seeds.size() << " seeds" << std::endl;
 
 
