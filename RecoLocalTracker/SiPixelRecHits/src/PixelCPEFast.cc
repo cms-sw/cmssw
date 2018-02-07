@@ -1,6 +1,6 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
 
-#include "RecoLocalTracker/SiPixelRecHits/interface/phase1PixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -14,10 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "boost/multi_array.hpp"
-
 #include <iostream>
-using namespace std;
 
 namespace {
    constexpr float micronsToCm = 1.0e-4;
@@ -34,12 +31,7 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const & conf,
                                  const SiPixelLorentzAngle * lorentzAngle,
                                  const SiPixelGenErrorDBObject * genErrorDBObject,
                                  const SiPixelLorentzAngle * lorentzAngleWidth)
-: PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr,lorentzAngleWidth,0) {
-   
-   if (theVerboseLevel > 0)
-      LogDebug("PixelCPEFast")
-      << " constructing a generic algorithm for ideal pixel detector.\n"
-      << " CPEGeneric:: VerboseLevel = " << theVerboseLevel;
+                  : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr,lorentzAngleWidth,0) {
    
    EdgeClusterErrorX_ = conf.getParameter<double>("EdgeClusterErrorX");
    EdgeClusterErrorY_ = conf.getParameter<double>("EdgeClusterErrorY");
@@ -55,9 +47,9 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const & conf,
             throw cms::Exception("InvalidCalibrationLoaded")
             << "ERROR: GenErrors not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
             << ( *genErrorDBObject_ ).version();
-         if(MYDEBUG) cout<<"Loaded genErrorDBObject v"<<( *genErrorDBObject_ ).version()<<endl;
+     if(MYDEBUG) std::cout<<"Loaded genErrorDBObject v"<<( *genErrorDBObject_ ).version()<< std::endl;
    }  else {
-      if(MYDEBUG) cout<<" Use simple parametrised errors "<<endl;
+     if(MYDEBUG) std::cout<<" Use simple parametrised errors "<< std::endl;
    } // if ( UseErrorsFromTemplates_ )
    
    
