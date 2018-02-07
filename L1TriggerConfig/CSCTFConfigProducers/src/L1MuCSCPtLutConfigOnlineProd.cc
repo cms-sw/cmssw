@@ -24,7 +24,7 @@ L1MuCSCPtLutConfigOnlineProd::newObject( const std::string& objectKey )
     {
       edm::LogError( "L1-O2O" ) << "Problem with L1MuCSCPtLutParameters key" ;
       // return empty object
-      return std::make_shared< L1MuCSCPtLut >() ;
+      return std::shared_ptr< L1MuCSCPtLut >() ;
     }
   
   
