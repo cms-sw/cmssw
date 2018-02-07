@@ -36,7 +36,7 @@ public:
   L1RCT_RSKeysOnlineProd(const edm::ParameterSet& iConfig);
   ~L1RCT_RSKeysOnlineProd() override {}
 
-      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( FillType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
        bool m_enableL1RCTChannelMask;
@@ -67,7 +67,7 @@ L1RCT_RSKeysOnlineProd::L1RCT_RSKeysOnlineProd(const edm::ParameterSet& iConfig)
 
 // ------------ method called to produce the data  ------------
 void
-L1RCT_RSKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+L1RCT_RSKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
 {
 
   if( m_enableL1RCTChannelMask )

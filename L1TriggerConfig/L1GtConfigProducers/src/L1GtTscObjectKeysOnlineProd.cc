@@ -124,7 +124,7 @@ std::string L1GtTscObjectKeysOnlineProd::keyL1GtPsbSetup(
 }
 
 // public methods
-void L1GtTscObjectKeysOnlineProd::fillObjectKeys(ReturnType pL1TriggerKey) {
+void L1GtTscObjectKeysOnlineProd::fillObjectKeys(FillType pL1TriggerKey) {
 
     // kMYSUBSYSTEM = kCSCTF, kDTTF, kRPC, kGMT, kRCT, mkGCT, kGT, or kTSP0
     // subsystemKey = TRIGGERSUP_CONF.{CSCTF_KEY, DTTF_KEY, RPC_KEY, GMT_KEY, RCT_KEY, GCT_KEY, GT_KEY}
