@@ -1,4 +1,4 @@
-#include <iostream>
+#include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
@@ -7,11 +7,14 @@
 
 #include <cmath>
 
+#include <iostream>
+
 using namespace std;
 template<typename T>
 void  go() {
 
     typedef TkRotation<T>                   Rotation;
+    typedef SOARotation<T>                  SRotation;
     typedef GloballyPositioned<T>           Frame;
     typedef typename Frame::PositionType             Position;
     typedef typename Frame::GlobalVector             GlobalVector;

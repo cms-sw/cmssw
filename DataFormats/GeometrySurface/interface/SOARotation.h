@@ -93,7 +93,7 @@ public:
   constexpr inline   
   SOAFrame(){}
   constexpr inline
-  SOAFrame(T ix, T iy, T iz, SOARotation<T> irot} :
+  SOAFrame(T ix, T iy, T iz, SOARotation<T> const & irot) :
      px(ix),py(iy),pz(iz){}
 
   constexpr inline
@@ -108,13 +108,13 @@ public:
   }
 
   constexpr inline 
-  T x() const { retun px;} 
+  T x() const { return px;} 
   constexpr inline
-  T y()	const { retun py;}
+  T y()	const { return py;}
   constexpr inline
-  T z()	const { retun pz;}
+  T z()	const { return pz;}
 
-private;
+private:
 
   T px, py, pz;
   SOARotation<T> rot;
