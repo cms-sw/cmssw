@@ -954,9 +954,6 @@ class ConfigBuilder(object):
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
 
-	if "DIGIPREMIX" in self.stepMap.keys():
-            self.L1EMDefaultCFF="Configuration/StandardSequences/SimL1EmulatorPreMix_cff"
-
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'
         self.GENDefaultSeq='pgen'
