@@ -3,8 +3,8 @@
 // .L CalibMonitor.C+g
 //  CalibMonitor c1(fname, dirname, dupFileName, outFileName, prefix, 
 //                  corrFileName, rcorFileName, flag, numb, dataMC,
-//                  useGen, scale,  etalo, etahi, runlo, runhi, phimin,
-//                  phimax, zside, rbx, exclude, etamax);
+//                  truncateFlag, useGen, scale, useScale, etalo, etahi,
+//                  runlo, runhi, phimin, phimax, zside, rbx, exclude, etamax);
 //  c1.Loop();
 //  c1.SavePlot(histFileName,append,all);
 //
@@ -35,21 +35,29 @@
 //                               factors as a function of run numbers to be 
 //                               used for raddam correction 
 //                               (default="", no corr.)
-//   flag (int)                = 5 digit integer (lthdo) with specific control
-//                               information (l=1/0 for (not) making plots for
-//                               each RBX; t=0/1 for doing or not the PU
-//                               correction; h = 0/1/2 for not creating/
-//                               creating in recreate mode/creating in append 
-//                               mode the output text file; d = 0/1/2/3 
-//                               produces 3 standard (0,1,2) or extended (3) 
-//                               set of histograms; o = 0/1/2 for tight/loose/
-//                               flexible selection). Default = 0
+//   flag (int)                = 6 digit integer (mlthdo) with specific control
+//                               information (m=1/0 for having 50 or 100 bins
+//                               in the response distribution with range 0:5;
+//                               l=1/0 for (not) making plots for each RBX;
+//                               t=1/0 for doing or not the PU correction;
+//                               h = 0/1/2 for not creating/creating in recreate
+//                               mode/creating in append mode the output text 
+//                               file; d = 0/1/2/3 produces 3 standard (0,1,2) 
+//                               or extended (3) set of histograms; o = 0/1/2 
+//                               for tight/loose/flexible selection).
+//                               Default = 1031
 //   numb   (int)              = number of eta bins (50 for -25:25)
 //   dataMC (bool)             = true/false for data/MC (default true)
+//   truncateFlag    (int)     = Flag to treat different depths differently (0)
+//                               both depths of ieta 15, 16 of HB as depth 1 (1)
+//                               all depths as depth 1 (2) (Default 0)
 //   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum (def false)
 //   scale (double)            = energy scale if correction factor to be used
 //                               (default = 1.0)
+//   useScale (int)            = application of scale factor (0: nowehere,
+//                               1: barrel; 2: endcap, 3: everywhere)
+//                               barrel => |ieta| < 16; endcap => |ieta| > 15
 //   etalo/etahi (int,int)     = |eta| ranges (0:30)
 //   runlo  (int)              = lower value of run number (def -1)
 //   runhi  (int)              = higher value of run number (def 9999999)
@@ -203,10 +211,11 @@ public :
 	       const std::string& prefix="", 
 	       const char *       corrFileName="",
 	       const char *       rcorFileName="", 
-	       int flag=0, int numb=50, bool datMC=true, bool useGen=false, 
-	       double scale=1.0, int etalo=0, int etahi=30, int runlo=-1, 
-	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1,
-	       int rbx=0, bool exclude=false, bool etamax=false);
+	       int flag=1031, int numb=50, bool datMC=true, int truncateFlag=0,
+	       bool useGen=false, double scale=1.0, int useScale=0, 
+	       int etalo=0, int etahi=30, int runlo=-1, int runhi=99999999,
+	       int phimin=1, int phimax=72, int zside=1, int rbx=0, 
+	       bool exclude=false, bool etamax=false);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -223,6 +232,7 @@ public :
 				      bool append, bool all=false);
   bool                       ReadCorrFactor(const char* fName);
   std::vector<std::string>   SplitString (const std::string& fLine);
+  double                     getFactor(const int& ieta);
 private:
 
   static const unsigned int npbin=5, kp50=2;
@@ -231,6 +241,7 @@ private:
   const std::string         fname_, dirnm_, prefix_, outFileName_;
   const int                 flag_, numb_;
   const bool                dataMC_, useGen_, etaMax_;
+  const int                 truncateFlag_, useScale_;
   const int                 etalo_, etahi_, runlo_, runhi_;
   const int                 phimin_,phimax_,zside_, rbx_;
   const double              scale_;
@@ -256,7 +267,8 @@ CalibMonitor::CalibMonitor(const std::string& fname,
 			   const std::string& prefix, 
 			   const char*        corrFileName,
 			   const char*        rcorFileName, int flag, 
-			   int numb, bool dataMC, bool useGen, double scale, 
+			   int numb, bool dataMC, int truncate, 
+			   bool useGen, double scale, int useScale,
 			   int etalo, int etahi, int runlo, int runhi, 
 			   int phimin, int phimax, int zside, int rbx, bool exc,
 			   bool etam) : cFactor_(nullptr), cSelect_(nullptr),
@@ -265,7 +277,8 @@ CalibMonitor::CalibMonitor(const std::string& fname,
 					outFileName_(std::string(outFName)),
 					flag_(flag), numb_(numb),
 					dataMC_(dataMC), useGen_(useGen), 
-					etaMax_(etam), etalo_(etalo), 
+					etaMax_(etam), truncateFlag_(truncate),
+					useScale_(useScale), etalo_(etalo), 
 					etahi_(etahi), runlo_(runlo), 
 					runhi_(runhi), phimin_(phimin), 
 					phimax_(phimax), zside_(zside), 
@@ -417,7 +430,7 @@ void CalibMonitor::Init(TTree *tree, const char* dupFileName,
       std::cout << "Opens " << outFileName << " in append mode" <<std::endl;
     }
     fileout_ << "Input file: " << fname_ << " Directory: " << dirnm_ 
-	     << " Prefix: " << prefix_ << "\n";
+	     << " Prefix: " << prefix_ << std::endl;
   }
 
   double xbins[99];
@@ -465,7 +478,7 @@ void CalibMonitor::Init(TTree *tree, const char* dupFileName,
 			 "Tracks with charge isolation", "Tracks MIP in ECAL"};
   for (int i=0; i<9; ++i)  dl1_.push_back(dl1s[i]);
   if (plotType_ <= 1) {
-    std::cout << "Book Histos for Standard\n";
+    std::cout << "Book Histos for Standard" << std::endl;
     for (int k=0; k<5; ++k) {
       sprintf (name, "%sp%d", prefix_.c_str(), k);
       sprintf (title,"%s", titl[k].c_str());
@@ -605,7 +618,8 @@ void CalibMonitor::Init(TTree *tree, const char* dupFileName,
       h_dL1R[npbin-1][kk]->Sumw2();
     }
   } else {
-    std::cout << "Book Histos for Non-Standard " << etas_.size() << ":" << kp50 << "\n";
+    std::cout << "Book Histos for Non-Standard " << etas_.size() << ":" << kp50 
+	      << std::endl;
     for (unsigned int j=0; j<etas_.size(); ++j) {
       sprintf (name, "%sratio%d%d", prefix_.c_str(), kp50, j);
       if (j == 0) {
@@ -703,17 +717,20 @@ void CalibMonitor::Loop() {
     bool select = (std::find(entries_.begin(),entries_.end(),jentry) == entries_.end());
     if (!select) {
       ++duplicate;
-      if (debug) std::cout << "Duplicate event " << t_Run << " " << t_Event 
-			   << " " << t_p << std::endl;
+      if (debug) {
+	std::cout << "Duplicate event " << t_Run << " " << t_Event 
+		  << " " << t_p << std::endl;
+      }
       continue;
     }
     select = ((t_Run >= runlo_) && (t_Run <= runhi_) && 
 	      (fabs(t_ieta) >= etalo_) && (fabs(t_ieta) <= etahi_));
     if (!select) {
-      if (debug) 
+      if (debug) {
 	std::cout << "Run # " << t_Run << " out of range of " << runlo_ << ":" 
 		  << runhi_ << " or " << t_ieta << " out of range of " << etalo_
 		  << ":" << etahi_ << std::endl;
+      }
       continue;
     }
     if (cSelect_ != nullptr) {
@@ -755,9 +772,10 @@ void CalibMonitor::Loop() {
 	jp1 = j-1; break;
       }
     }
-    if (debug) 
+    if (debug) {
       std::cout << "Bin " << kp << ":" << kp1 << ":" << kv << ":" << kv1 << ":"
 		<< kd << ":" << kd1 << ":" << jp << ":" << jp1 << std::endl;
+    }
     if (plotType_ <= 1) {
       h_p[0]->Fill(pmom,t_EventWeight);
       h_eta[0]->Fill(t_ieta,t_EventWeight);
@@ -800,9 +818,9 @@ void CalibMonitor::Loop() {
       eHcal = 0;
       for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
 	// The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-	int depth  = ((*t_DetIds)[k] >> 20) & (0xF);
-	int zside  = ((*t_DetIds)[k]&0x80000)?(1):(-1);
-	int ieta   = ((*t_DetIds)[k] >> 10) & (0x1FF);
+	unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
+	int subdet,zside,ieta,iphi,depth;
+	unpackDetId(id,subdet,zside,ieta,iphi,depth);
 	std::map<std::pair<int,int>,double>::const_iterator 
 	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
 	double cfac(1.0);
@@ -814,24 +832,40 @@ void CalibMonitor::Loop() {
 	}
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
 	eHcal += (cfac*((*t_HitEnergies)[k]));
-	if (debug) std::cout << zside << ":" << ieta << ":" << depth 
-			     << " Corr " << cfac << " " << (*t_HitEnergies)[k] 
-			     << " Out " << eHcal << std::endl;
+	if (debug) {
+	  std::cout << zside << ":" << ieta << ":" << depth  << " Corr " 
+		    << cfac << " " << (*t_HitEnergies)[k] << " Out " << eHcal
+		    << std::endl;
+	}
+      }
+    } else if (useScale_ != 0) {
+      eHcal = 0;
+      for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
+	unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
+	int subdet,zside,ieta,iphi,depth;
+	unpackDetId(id,subdet,zside,ieta,iphi,depth);
+	double cfac = getFactor(ieta);
+	eHcal += (cfac*((*t_HitEnergies)[k]));
+	if (debug) {
+	  std::cout << zside << ":" << ieta << ":" << depth << " Corr " << cfac 
+		    << " " << (*t_HitEnergies)[k] << " Out " << eHcal
+		    << std::endl;
+	}
       }
     }
     bool goodTk = GoodTrack(eHcal, cut, debug);
     bool selPhi = SelectPhi(debug);
     if (pmom > 0) rat =  (eHcal/(pmom-t_eMipDR));
-    if (debug) 
+    if (debug) {
       std::cout << "Entry " << jentry << " p|eHcal|ratio " << pmom << "|" 
 		<< t_eHcal << "|" << eHcal << "|" << rat << "|" << kp << "|" 
 		<< kv << "|" << jp << " Cuts " 	<< t_qltyFlag << "|" 
 		<< t_selectTk << "|" << (t_hmaxNearP < cut) << "|" 
 		<< (t_eMipDR < 1.0) << "|" << goodTk << "|" << (rat > rcut)
 		<< " Select Phi " << selPhi << std::endl;
-    if (debug)
       std::cout << "D1 : " << kp << ":" << kp1 << ":" << kv << ":" << kv1
 		<< ":" << kd << ":" << kd1 << ":" << jp << std::endl;
+    }
     if (goodTk && kp >=0 && selPhi) {
       if (rat > rcut) {
 	if (plotType_ <= 1) {
@@ -850,7 +884,9 @@ void CalibMonitor::Loop() {
 	    if (jp > 0) h_etaF[kp][jp]->Fill(rat,t_EventWeight);
 	    h_etaF[kp][0]->Fill(rat,t_EventWeight);
 	  } else if (kp == (int)(kp50)) {
-	    if (debug) std::cout << "kp " << kp << h_etaF[kp].size() << std::endl;
+	    if (debug) {
+	      std::cout << "kp " << kp << h_etaF[kp].size() << std::endl;
+	    }
 	    if (jp > 0) h_etaF[kp][jp]->Fill(rat,t_EventWeight);
 	    h_etaF[kp][0]->Fill(rat,t_EventWeight);
 	    if (jp1 >= 0) h_etaB[kp][jp1]->Fill(rat,t_EventWeight);
@@ -902,7 +938,9 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
   bool select(true);
   double pmom = (useGen_ && (t_gentrackP>0)) ? t_gentrackP : t_p;
   double cut(cuti);
-  if (debug) std::cout << "GoodTrack input " << eHcal << ":" << cut;
+  if (debug) {
+    std::cout << "GoodTrack input " << eHcal << ":" << cut;
+  }
   if (flexibleSelect_ > 1) {
     double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
     cut        = 8.0*exp(eta*log2by18_);
@@ -913,23 +951,27 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
       double Etot1(0), Etot3(0);
       // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
       for (unsigned int idet=0; idet<(*t_DetIds1).size(); idet++) { 
-	int depth  = ((*t_DetIds1)[idet] >> 20) & (0xF);
-	int zside  = ((*t_DetIds1)[idet]&0x80000)?(1):(-1);
-	int ieta   = ((*t_DetIds1)[idet] >> 10) & (0x1FF);
+	unsigned int id = truncateId((*t_DetIds1)[idet],truncateFlag_,false);
+	int subdet,zside,ieta,iphi,depth;
+	unpackDetId(id,subdet,zside,ieta,iphi,depth);
 	std::map<std::pair<int,int>,double>::const_iterator 
 	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
-	double cfac = (itr == cfactors_.end()) ? 1.0 : itr->second;
+	double cfac = ((itr == cfactors_.end()) ? 
+		       ((useScale_ == 0) ? 1.0 : getFactor(ieta)) : 
+		       itr->second);
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds1)[idet]);
 	double hitEn = cfac*(*t_HitEnergies1)[idet];
 	Etot1  += hitEn;
       }
       for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
-	int depth  = ((*t_DetIds3)[idet] >> 20) & (0xF);
-	int zside  = ((*t_DetIds3)[idet]&0x80000)?(1):(-1);
-	int ieta   = ((*t_DetIds3)[idet] >> 10) & (0x1FF);
+	unsigned int id = truncateId((*t_DetIds3)[idet],truncateFlag_,false);
+	int subdet,zside,ieta,iphi,depth;
+	unpackDetId(id,subdet,zside,ieta,iphi,depth);
 	std::map<std::pair<int,int>,double>::const_iterator 
 	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
-	double cfac = (itr == cfactors_.end()) ? 1.0 : itr->second;
+	double cfac = ((itr == cfactors_.end()) ? 
+		       ((useScale_ == 0) ? 1.0 : getFactor(ieta)) : 
+		       itr->second);
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds3)[idet]);
 	double hitEn = cfac*(*t_HitEnergies3)[idet];
 	Etot3  += hitEn;
@@ -949,8 +991,9 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
   }
   select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) &&
 	    (t_eMipDR < 1.0));
-  if (debug) std::cout << " output " << eHcal << ":" << cut << ":" << select 
-		       << std::endl;
+  if (debug) {
+    std::cout << " output " << eHcal << ":" << cut << ":" << select<< std::endl;
+  }
   return select;
 }
 
@@ -968,9 +1011,11 @@ bool CalibMonitor::SelectPhi(bool debug) {
 	eSelec += ((*t_HitEnergies)[k]);
     }
     if (eSelec < 0.9*eTotal) select = false;
-    if (debug) std::cout << "Etotal " << eTotal << " and ESelec " << eSelec
-			 << " (phi " << phimin_ << ":" << phimax_ << " z "
-			 << zside_ << ") Selection " << select << std::endl;
+    if (debug) {
+      std::cout << "Etotal " << eTotal << " and ESelec " << eSelec
+		<< " (phi " << phimin_ << ":" << phimax_ << " z "
+		<< zside_ << ") Selection " << select << std::endl;
+    }
   }
   return select;
 }
@@ -1063,12 +1108,13 @@ bool CalibMonitor::ReadCorrFactor(const char* fname) {
 	  int   ieta  = std::atoi (items[1].c_str());
 	  int   depth = std::atoi (items[2].c_str());
 	  float corrf = std::atof (items[3].c_str());
-	  cfactors_[std::pair<int,int>(ieta,depth)] = scale_*corrf;
+	  double scale = getFactor(std::abs(ieta));
+	  cfactors_[std::pair<int,int>(ieta,depth)] = scale*corrf;
 	  if (ieta > etamp_ && depth == 1) {
-	    etamp_ = ieta; cfacmp_ = scale_*corrf;
+	    etamp_ = ieta; cfacmp_ = scale*corrf;
 	  }
 	  if (ieta < etamn_ && depth == 1) {
-	    etamn_ = ieta; cfacmn_ = scale_*corrf;
+	    etamn_ = ieta; cfacmn_ = scale*corrf;
 	  }
 	}
       }
@@ -1100,6 +1146,16 @@ std::vector<std::string> CalibMonitor::SplitString (const std::string& fLine) {
     }
   }
   return result;
+}
+
+double CalibMonitor::getFactor(const int& ieta) {
+  double scale(1.0);
+  if (ieta < 16) {
+    if ((useScale_ == 1) || (useScale_ == 3)) scale = scale_;
+  } else {
+    if ((useScale_ == 2) || (useScale_ == 3)) scale = scale_;
+  }
+  return scale;
 }
 
 template<class Hist> void CalibMonitor::DrawHist(Hist* hist, TCanvas* pad) {
@@ -1178,7 +1234,7 @@ void CalibMonitor::SavePlot(const std::string& theName, bool append, bool all) {
       if (h_rbx[k] != 0) {TH1D* h1 = (TH1D*)h_rbx[k]->Clone(); h1->Write();}
     }
   }
-  std::cout << "All done\n";
+  std::cout << "All done" << std::endl;
   theFile->Close();
 }
 
