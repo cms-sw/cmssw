@@ -959,7 +959,6 @@ class ConfigBuilder(object):
         self.GENDefaultSeq='pgen'
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
-	self.DIGIPREMIXDefaultSeq='pdigi'
 	self.DIGIPREMIX_S2DefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
@@ -1425,18 +1424,6 @@ class ConfigBuilder(object):
 		else:
 			self._options.inputEventContent=self._options.inputEventContent+',REGEN'
 
-
-	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
-        return
-
-    def prepare_DIGIPREMIX(self, sequence = None):
-        """ Enrich the schedule with the digitisation step"""
-        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
-
-        # With this content, do we still need a separate DIGIPREMIX?
-
-        if sequence == 'pdigi_valid':
-            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
