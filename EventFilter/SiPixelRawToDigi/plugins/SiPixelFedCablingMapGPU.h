@@ -7,6 +7,7 @@
 
 class SiPixelFedCablingMap;
 class SiPixelQuality;
+class TrackerGeometry;
 
 // Maximum fed for phase1 is 150 but not all of them are filled
 // Update the number FED based on maximum fed found in the cabling map
@@ -58,7 +59,8 @@ void deallocateCablingMap(SiPixelFedCablingMapGPU* cablingMapHost, SiPixelFedCab
   delete cablingMapHost;
 }
 
-void processCablingMap(SiPixelFedCablingMap const& cablingMap, SiPixelFedCablingMapGPU* cablingMapGPU, SiPixelFedCablingMapGPU* cablingMapDevice, const SiPixelQuality* badPixelInfo, std::set<unsigned int> const& modules);
+void processCablingMap(SiPixelFedCablingMap const& cablingMap, TrackerGeometry const& trackerGeom,
+                       SiPixelFedCablingMapGPU* cablingMapGPU, SiPixelFedCablingMapGPU* cablingMapDevice, const SiPixelQuality* badPixelInfo, std::set<unsigned int> const& modules);
 
 #endif // SiPixelFedCablingMapGPU_h
 

@@ -14,3 +14,18 @@
 </bin>
 <bin   file="Bounds_t.cpp">
 </bin>
+
+
+<use name="cuda"/>
+<use name="cuda-api-wrappers"/>
+<bin file="gpuFrameTransformKernel.cu, gpuFrameTransformTest.cpp" name="gpuFrameTransformTest">
+  <flags CXXFLAGS="-g"/>
+  <flags CUDA_FLAGS="-O3 --expt-relaxed-constexpr"/>
+</bin>
+
+
+<bin file="gpuFrameTransformKernel.cu, gpuFrameTransformTest.cpp" name="gpuFrameTransformTestRep">
+  <flags CUDA_FLAGS="-O3 --expt-relaxed-constexpr -fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
+  <flags CXXFLAGS="-ffp-contract=off"/>
+</bin>
+

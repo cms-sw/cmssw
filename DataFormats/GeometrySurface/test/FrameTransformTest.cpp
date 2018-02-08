@@ -1,4 +1,4 @@
-#include <iostream>
+#include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
@@ -7,12 +7,16 @@
 
 #include <cmath>
 
+#include <iostream>
+
 using namespace std;
 template<typename T>
 void  go() {
 
     typedef TkRotation<T>                   Rotation;
+    typedef SOARotation<T>                  SRotation;
     typedef GloballyPositioned<T>           Frame;
+    typedef SOAFrame<T>                     SFrame;
     typedef typename Frame::PositionType             Position;
     typedef typename Frame::GlobalVector             GlobalVector;
     typedef typename Frame::GlobalPoint              GlobalPoint;
@@ -23,6 +27,8 @@ void  go() {
     std::cout << "size of Pos     " << sizeof(Position) << std::endl;
     std::cout << "size of Point   " << sizeof(GlobalPoint) << std::endl;
     std::cout << "size of Frame   " << sizeof(Frame) << std::endl;
+    std::cout << "size of soa Rot     " << sizeof(SRotation) << std::endl;
+    std::cout << "size of soa Frame     " << sizeof(SFrame) << std::endl;
 
     double a = 0.01;
     double ca = cos(a);
@@ -51,6 +57,7 @@ void  go() {
     // Rotation r3 = r2*r1;
     Rotation r3 = r2*r1.transposed();
 
+    SRotation sr3(r3);
 
     GlobalPoint pos2(f2.position());
     LocalPoint lp3 = f1.toLocal(pos2);
@@ -58,8 +65,20 @@ void  go() {
     cout << "f3.position() " << f3.position() << endl;
     cout << "f3.rotation() " << endl << f3.rotation() << endl;
 
+    SFrame sf1(f1.position().x(),
+               f1.position().y(),
+               f1.position().z(),
+               f1.rotation()
+              );
+
+    SFrame sf3(f3.position().x(),
+               f3.position().y(),
+               f3.position().z(),
+     	       	 sr3
+  	      );
+
 // test
-    GlobalPoint gp( 11,22,33);
+    GlobalPoint gp(11,22,33);
     LocalPoint p_in1 = f1.toLocal( gp);
     typename Frame::ToLocal ff1(f1);
     LocalPoint p_in2 = f2.toLocal( gp);
@@ -69,8 +88,19 @@ void  go() {
     cout << "p_in2 " << p_in2 << endl;
     cout << "p_in3 " << p_in3 << endl;
 
-    LocalPoint p_in1_from3( f3.toGlobal(p_in3).basicVector());
-    cout << "p_in1_from3 + " << p_in1_from3 << endl;
+    LocalPoint p_in1_from3(f3.toGlobal(p_in3).basicVector());
+    cout << "p_in1_from3 " << p_in1_from3 << endl;
+
+    T xx,yy,zz;
+    sf1.toLocal(gp.x(),gp.y(),gp.z(),
+                xx,yy,zz);
+    cout << "p_in1 soa " << xx<<','<<yy<<','<< zz << endl;
+    sf3.toLocal(p_in1.x(),p_in1.y(),p_in1.z(),
+       	       	 xx,yy,zz);
+    cout << "p_in3 soa " << xx<<','<<yy<<','<< zz << endl;
+    sf3.toGlobal(p_in3.x(),p_in3.y(),p_in3.z(),
+                 xx,yy,zz);
+    cout << "p_in1_from3 soa " << xx<<','<<yy<<','<< zz << endl;
 
     BoundPlane plane(f2.position(), f2.rotation());
 
