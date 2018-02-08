@@ -538,12 +538,15 @@ namespace edm {
   void StreamSchedule::processOneEventAsync(WaitingTaskHolder iTask,
                                             EventPrincipal& ep,
                                             EventSetup const& es,
+                                            ServiceToken const& serviceToken,
                                             std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters) {
     this->resetAll();
 
     using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
     
     Traits::setStreamContext(streamContext_, ep);
+    //a service may want to communicate with another service
+    ServiceRegistry::Operate guard(serviceToken);
     Traits::preScheduleSignal(actReg_.get(), &streamContext_);
 
     HLTPathStatus hltPathStatus(hlt::Pass, 0);
@@ -572,8 +575,6 @@ namespace edm {
     workerManager_.setupOnDemandSystem(ep,es);
     
     ++total_events_;
-    auto serviceToken = ServiceRegistry::instance().presentToken();
-    
     auto allPathsDone = make_waiting_task(tbb::task::allocate_root(),
                                           [iTask,this,serviceToken](std::exception_ptr const* iPtr) mutable
                                           {
@@ -610,17 +611,17 @@ namespace edm {
     //start end paths first so on single threaded the paths will run first
     for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
         it != itEnd; ++it) {
-      it->processOneOccurrenceAsync(allPathsDone,ep, es, streamID_, &streamContext_);
+      it->processOneOccurrenceAsync(allPathsDone,ep, es, serviceToken, streamID_, &streamContext_);
     }
 
     for(auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend();
         it != itEnd; ++ it) {
-      it->processOneOccurrenceAsync(pathsDone,ep, es, streamID_, &streamContext_);
+      it->processOneOccurrenceAsync(pathsDone,ep, es, serviceToken, streamID_, &streamContext_);
     }
 
     ParentContext parentContext(&streamContext_);
     workerManager_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-      allPathsDone, ep, es, streamID_, parentContext, &streamContext_);
+      allPathsDone, ep, es, serviceToken, streamID_, parentContext, &streamContext_);
   }
   
   void
