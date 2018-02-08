@@ -32,6 +32,7 @@
 #include <iostream>
 
 // include ROOT 
+#include "TGaxis.h"
 #include "TH2F.h"
 #include "TLegend.h"
 #include "TCanvas.h"
@@ -549,6 +550,7 @@ namespace {
     
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
+      TGaxis::SetMaxDigits(3);
       gStyle->SetPaintTextFormat(".1f");
 
       std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
@@ -621,7 +623,7 @@ namespace {
 
 	//std::cout<<"sanityCheck: "<< t_info_fromXML.sanityCheck() << std::endl; 
 
-	if(t_info_fromXML.sanityCheck()==false) {
+	if(!t_info_fromXML.sanityCheck()) {
 	  edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "Wrong choice of Tracker Topology encountered for DetId:" << it.m_rawId <<" ---> changing";
 	  t_info_fromXML.init();
 	  isPhase0=!isPhase0;
@@ -643,7 +645,7 @@ namespace {
 	if(m_par>=first_params.size()) continue;
 
 	FirstSurfDef_spectraByRegion[thePart]->Fill(first_params.at(m_par));
-	std::cout<<  getStringFromRegionEnum(thePart) << " first payload: "<< first_params.at(m_par) << std::endl;
+	//std::cout<<  getStringFromRegionEnum(thePart) << " first payload: "<< first_params.at(m_par) << std::endl;
 
       }// ends loop on the vector of error transforms
 
@@ -677,7 +679,7 @@ namespace {
 
 	//std::cout<<"sanityCheck: "<< t_info_fromXML.sanityCheck() << std::endl; 
 
-	if(t_info_fromXML.sanityCheck()==false) {
+	if(!t_info_fromXML.sanityCheck()) {
 	  edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "Wrong choice of Tracker Topology encountered for DetId:" << it.m_rawId <<" ---> changing";
 	  t_info_fromXML.init();
 	  t_info_fromXML.m_rawid = it.m_rawId;
@@ -701,7 +703,7 @@ namespace {
 	if(m_par>=last_params.size()) continue;
 
 	LastSurfDef_spectraByRegion[thePart]->Fill(last_params.at(m_par));
-	std::cout<< getStringFromRegionEnum(thePart) <<  " last payload: "<< last_params.at(m_par) << std::endl;
+	//std::cout<< getStringFromRegionEnum(thePart) <<  " last payload: "<< last_params.at(m_par) << std::endl;
 
       }// ends loop on the vector of error transforms
 
@@ -764,8 +766,8 @@ namespace {
 
       TLegend legend = TLegend(0.52,0.82,0.98,0.9);
       legend.SetHeader(("Surface Deformation par "+std::to_string(m_par)+" comparison").c_str(),"C"); // option "C" allows to center the header
-      legend.AddEntry(summaryLast.get(),("IOV: "+std::to_string(std::get<0>(lastiov))+"| "+std::get<1>(lastiov)).c_str(),"F");
-      legend.AddEntry(summaryFirst.get(),("IOV: "+std::to_string(std::get<0>(firstiov))+"| "+std::get<1>(firstiov)).c_str(),"F");
+      legend.AddEntry(summaryLast.get(),("IOV: "+std::to_string(std::get<0>(lastiov))+"| #color[2]{"+std::get<1>(lastiov)+"}").c_str(),"F");
+      legend.AddEntry(summaryFirst.get(),("IOV: "+std::to_string(std::get<0>(firstiov))+"| #color[4]{"+std::get<1>(firstiov)+"}").c_str(),"F");
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
