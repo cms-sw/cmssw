@@ -1433,12 +1433,10 @@ class ConfigBuilder(object):
         """ Enrich the schedule with the digitisation step"""
         self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
 
-	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
+        # With this content, do we still need a separate DIGIPREMIX?
 
         if sequence == 'pdigi_valid':
-		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoiseValid)")
-	else:
-		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
+            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return

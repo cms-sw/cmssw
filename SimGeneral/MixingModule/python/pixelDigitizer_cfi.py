@@ -8,6 +8,8 @@ pixelDigitizer = cms.PSet(
     hitsProducer = cms.string('g4SimHits'),
     makeDigiSimLinks = cms.untracked.bool(True)
 )
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(pixelDigitizer, makeDigiSimLinks = False)
 
 from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import phase2TrackerDigitizer as _phase2TrackerDigitizer
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
