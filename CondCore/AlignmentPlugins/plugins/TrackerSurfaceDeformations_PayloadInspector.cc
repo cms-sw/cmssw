@@ -613,12 +613,9 @@ namespace {
 	  return false;
 	}
 
-	int subid = DetId(it.m_rawId).subdetId();	    
 	AlignmentPI::topolInfo t_info_fromXML;
 	t_info_fromXML.init();
-	t_info_fromXML.m_rawid = it.m_rawId;
-	DetId detid(t_info_fromXML.m_rawid);
-	t_info_fromXML.m_subdetid = subid;
+	DetId detid(it.m_rawId);
 	t_info_fromXML.fillGeometryInfo(detid,f_tTopo,isPhase0);
 
 	//std::cout<<"sanityCheck: "<< t_info_fromXML.sanityCheck() << std::endl; 
@@ -626,8 +623,7 @@ namespace {
 	if(!t_info_fromXML.sanityCheck()) {
 	  edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "Wrong choice of Tracker Topology encountered for DetId:" << it.m_rawId <<" ---> changing";
 	  t_info_fromXML.init();
-	  isPhase0=!isPhase0;
-	  t_info_fromXML.fillGeometryInfo(detid,af_tTopo,isPhase0);
+	  t_info_fromXML.fillGeometryInfo(detid,af_tTopo,!isPhase0);
 	}
 	
 	//t_info_fromXML.printAll();
@@ -669,12 +665,9 @@ namespace {
 	  return false;
 	}
 
-	int subid = DetId(it.m_rawId).subdetId();	    
 	AlignmentPI::topolInfo t_info_fromXML;
 	t_info_fromXML.init();
-	t_info_fromXML.m_rawid = it.m_rawId;
-	DetId detid(t_info_fromXML.m_rawid);
-	t_info_fromXML.m_subdetid = subid;
+	DetId detid(it.m_rawId);
 	t_info_fromXML.fillGeometryInfo(detid,l_tTopo,isPhase0);
 
 	//std::cout<<"sanityCheck: "<< t_info_fromXML.sanityCheck() << std::endl; 
@@ -682,10 +675,8 @@ namespace {
 	if(!t_info_fromXML.sanityCheck()) {
 	  edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "Wrong choice of Tracker Topology encountered for DetId:" << it.m_rawId <<" ---> changing";
 	  t_info_fromXML.init();
-	  t_info_fromXML.m_rawid = it.m_rawId;
-	  t_info_fromXML.m_subdetid = subid;
 	  isPhase0=!isPhase0;
-	  t_info_fromXML.fillGeometryInfo(detid,al_tTopo,isPhase0);
+	  t_info_fromXML.fillGeometryInfo(detid,al_tTopo,!isPhase0);
 	}
 
 	//t_info_fromXML.printAll();
@@ -766,8 +757,8 @@ namespace {
 
       TLegend legend = TLegend(0.52,0.82,0.98,0.9);
       legend.SetHeader(("Surface Deformation par "+std::to_string(m_par)+" comparison").c_str(),"C"); // option "C" allows to center the header
-      legend.AddEntry(summaryLast.get(),("IOV: "+std::to_string(std::get<0>(lastiov))+"| #color[2]{"+std::get<1>(lastiov)+"}").c_str(),"F");
-      legend.AddEntry(summaryFirst.get(),("IOV: "+std::to_string(std::get<0>(firstiov))+"| #color[4]{"+std::get<1>(firstiov)+"}").c_str(),"F");
+      legend.AddEntry(summaryLast.get(),("IOV:  #scale[1.2]{"+std::to_string(std::get<0>(lastiov))+"} | #color[2]{"+std::get<1>(lastiov)+"}").c_str(),"F");
+      legend.AddEntry(summaryFirst.get(),("IOV:  #scale[1.2]{"+std::to_string(std::get<0>(firstiov))+"} | #color[4]{"+std::get<1>(firstiov)+"}").c_str(),"F");
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
