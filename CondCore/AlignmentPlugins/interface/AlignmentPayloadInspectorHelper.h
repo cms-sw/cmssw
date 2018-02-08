@@ -641,14 +641,14 @@ namespace AlignmentPI {
     sprintf(buffer,"Entries : %i\n",(int)hist->GetEntries());
     stat->AddText(buffer);
     
-    if(hist->GetMean()>0.01){
+    if(std::abs(hist->GetMean())>0.01){
       sprintf(buffer,"Mean    : %6.2f\n",hist->GetMean());
     }  else {
       sprintf(buffer,"Mean    : %6.2f e-2\n",100*hist->GetMean());
     }
     stat->AddText(buffer);
 
-    if(hist->GetRMS()>0.01){
+    if(std::abs(hist->GetRMS())>0.01){
       sprintf(buffer,"RMS     : %6.2f\n",hist->GetRMS());
     } else {
       sprintf(buffer,"RMS     : %6.2f e-2\n",100*hist->GetRMS());

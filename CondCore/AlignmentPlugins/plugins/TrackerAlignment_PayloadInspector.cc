@@ -263,7 +263,7 @@ namespace {
 	}
       } 
 
-      TCanvas canvas("Alignment Comparison","Alignment Comparison",1200,1200);
+      TCanvas canvas("Alignment Comparison","Alignment Comparison",1800,1200);
       canvas.Divide(3,2);
         
       std::unordered_map<AlignmentPI::coordinate,std::unique_ptr<TH1F> > diffs; 
@@ -332,12 +332,17 @@ namespace {
       } // loop on the components
 
       int c_index=1;
+      
+      auto legend = std::unique_ptr<TLegend>(new TLegend(0.14,0.93,0.55,0.98));
+      legend->AddEntry(diffs[AlignmentPI::t_x].get(),("#DeltaIOV: "+std::to_string(std::get<0>(lastiov))+"-"+std::to_string(std::get<0>(firstiov))).c_str(),"L");
+      legend->SetTextSize(0.03);
+
       for (const auto &coord : coords){
 	canvas.cd(c_index)->SetLogy();
 	canvas.cd(c_index)->SetTopMargin(0.02);
 	canvas.cd(c_index)->SetBottomMargin(0.15);
 	canvas.cd(c_index)->SetLeftMargin(0.14);
-	canvas.cd(c_index)->SetRightMargin(0.05);
+	canvas.cd(c_index)->SetRightMargin(0.04);
       	diffs[coord]->SetLineWidth(2);
 	AlignmentPI::makeNicePlotStyle(diffs[coord].get(),kBlack);
 
@@ -348,13 +353,10 @@ namespace {
 
 	int i_max = diffs[coord]->FindLastBinAbove(0.);                                                                                                                                                    
         int i_min = diffs[coord]->FindFirstBinAbove(0.);                                                                                                                                                   
-        diffs[coord]->GetXaxis()->SetRange(std::max(1,i_min-1),std::min(i_max+1,diffs[coord]->GetNbinsX()));
+        diffs[coord]->GetXaxis()->SetRange(std::max(1,i_min-10),std::min(i_max+10,diffs[coord]->GetNbinsX()));
       	diffs[coord]->Draw("HIST");
 	AlignmentPI::makeNiceStats(diffs[coord].get(),q,kBlack);
 
-	auto legend = std::unique_ptr<TLegend>(new TLegend(0.14,0.93,0.60,0.98));
-	legend->AddEntry(diffs[coord].get(),("IOV: "+std::to_string(std::get<0>(lastiov))+" - IOV:"+std::to_string(std::get<0>(firstiov))).c_str(),"L");
-	legend->SetTextSize(0.035);
 	legend->Draw("same");
 
       	c_index++;
