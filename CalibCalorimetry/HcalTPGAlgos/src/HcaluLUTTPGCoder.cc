@@ -37,7 +37,6 @@ const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
 
 constexpr double MaximumFractionalError = 0.002; // 0.2% error allowed from this source
-constexpr double correctionPhaseNS = 6.0; // correction phase in nanoseconds
 
 HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top, const edm::ESHandle<HcalTimeSlew>& delay, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams) : topo_(top),  delay_(delay), mcParams_(mcParams), recoParams_(recoParams), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false), linearLSB_QIE8_(1.), linearLSB_QIE11_(1.), pulseCorr_(std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError)) {
   firstHBEta_ = topo_->firstHBRing();      
@@ -279,6 +278,8 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     float nominalgain_ = metadata->getNominalGain();
 
     pulseCorr_->beginRun(topo_, delay_, mcParams_, recoParams_);
+    HcalRecoParams *theRecoParams = new HcalRecoParams(*recoParams_.product());
+    theRecoParams->setTopo(topo_);
 
     make_cosh_ieta_map();
 
@@ -362,6 +363,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
 	    int granularity = meta->getLutGranularity();
 
+	    double correctionPhaseNS = theRecoParams->getValues(cell)->correctionPhaseNS();
 	    for (unsigned int adc = 0; adc < SIZE; ++adc) {
 		if (isMasked) lut[adc] = 0;
 		else {
@@ -407,6 +409,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
         }
     } 
     pulseCorr_->endRun();
+    delete theRecoParams;
 }
 
 void HcaluLUTTPGCoder::adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const {
