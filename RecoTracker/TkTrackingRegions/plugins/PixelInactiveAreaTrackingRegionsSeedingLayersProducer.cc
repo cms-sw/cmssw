@@ -75,6 +75,7 @@ void PixelInactiveAreaTrackingRegionsSeedingLayersProducer::produce(edm::Event& 
     LogTrace("PixelInactiveAreaTrackingRegionsSeedingLayersProducer") << "Origin " << origin.first.x() << "," << origin.first.y() << "," << origin.first.z() << " z half lengh " << origin.second;
     for(auto& areasLayerSet: areasLayerSets) {
       auto region = builder.region(origin, areasLayerSet.first);
+      if(!region) continue;
 #ifdef EDM_ML_DEBUG
       auto etaPhiRegion = dynamic_cast<const RectangularEtaPhiTrackingRegion *>(region.get());
       std::stringstream ss;
