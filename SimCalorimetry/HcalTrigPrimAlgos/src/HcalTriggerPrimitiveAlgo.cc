@@ -741,13 +741,30 @@ HcalTriggerPrimitiveAlgo::validUpgradeFG(const HcalTrigTowerDetId& id, int depth
       return false;
    if (id.ietaAbs() > LAST_FINEGRAIN_TOWER)
       return false;
+   if (id.ietaAbs() == HBHE_OVERLAP_TOWER and not upgrade_hb_)
+      return false;
    return true;
+}
+
+bool
+HcalTriggerPrimitiveAlgo::needLegacyFG(const HcalTrigTowerDetId& id) const
+{
+   // This tower (ietaAbs == 16) does not accept upgraded FG bits,
+   // but needs pseudo legacy ones to ensure that the tower is processed
+   // even when the QIE8 depths in front of it do not have energy deposits.
+   if (id.ietaAbs() == HBHE_OVERLAP_TOWER and not upgrade_hb_)
+      return true;
+   return false;
 }
 
 void
 HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits)
 {
    if (not validUpgradeFG(id, depth)) {
+      if (needLegacyFG(id)) {
+         std::vector<bool> pseudo(bits.size(), false);
+         addFG(id, pseudo);
+      }
       return;
    }
 
