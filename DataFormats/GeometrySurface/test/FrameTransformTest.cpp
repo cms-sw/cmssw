@@ -27,6 +27,8 @@ void  go() {
     std::cout << "size of Pos     " << sizeof(Position) << std::endl;
     std::cout << "size of Point   " << sizeof(GlobalPoint) << std::endl;
     std::cout << "size of Frame   " << sizeof(Frame) << std::endl;
+    std::cout << "size of soa Rot     " << sizeof(SRotation) << std::endl;
+    std::cout << "size of soa Frame     " << sizeof(SFrame) << std::endl;
 
     double a = 0.01;
     double ca = cos(a);
