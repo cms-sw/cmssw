@@ -33,13 +33,12 @@ public:
   // implicit destructor
   virtual void beginJob() {};
   virtual void beginRun(edm::Run const &, edm::EventSetup const&) final;
-  virtual void   endRun(edm::Run const &, edm::EventSetup const&) {};
+  virtual void   endRun(edm::Run const &, edm::EventSetup const&) override {};
   virtual void analyze(const edm::Event&, const edm::EventSetup&) = 0;
   virtual void accumulate(edm::Event const&, edm::EventSetup const&) override final;
-  virtual void endJob() {};
-  // TODO: Make sure those get called.
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {};
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {};
+  virtual void endJob() override {};
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
 
 
 
