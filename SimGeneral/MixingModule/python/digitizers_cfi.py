@@ -70,7 +70,7 @@ phase2_timing_layer.toModify( theDigitizers,
                         fastTimingLayer = fastTimeDigitizer.clone() )
 
 theDigitizersValid = cms.PSet(theDigitizers)
-theDigitizers.mergedtruth.select.signalOnlyTP = cms.bool(True)
+theDigitizers.mergedtruth.select.signalOnlyTP = True
 
 phase2_hgcal.toModify( theDigitizersValid,
                        calotruth = cms.PSet( caloParticles ) )
@@ -79,3 +79,20 @@ phase2_hgcal.toModify( theDigitizersValid,
 phase2_timing.toModify( theDigitizersValid.mergedtruth,
                         createInitialVertexCollection = cms.bool(True) )
 
+
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+def _customizePremixStage1(mod):
+    # To avoid this if-else structure we'd need an "_InverseModifier"
+    # to customize pixel/strip for everything else than fastSim.
+    if hasattr(mod, "pixel"):
+        if hasattr(mod.pixel, "PixelDigitizerAlgorithm"):
+            mod.pixel.PixelDigitizerAlgorithm.makeDigiSimLinks = True
+            mod.pixel.PSPDigitizerAlgorithm.makeDigiSimLinks = True
+            mod.pixel.PSSDigitizerAlgorithm.makeDigiSimLinks = True
+            mod.pixel.SSDigitizerAlgorithm.makeDigiSimLinks = True
+        else:
+            mod.pixel.makeDigiSimLinks = True
+    if hasattr(mod, "strip"):
+        mod.strip.makeDigiSimLinks = True
+    mod.mergedtruth.select.signalOnlyTP = False
+premix_stage1.toModify(theDigitizersValid, _customizePremixStage1)

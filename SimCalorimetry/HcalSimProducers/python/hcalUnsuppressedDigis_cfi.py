@@ -47,6 +47,16 @@ hcalSimBlock = cms.PSet(
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('fastSimProducer') )
 
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(hcalSimBlock,
+    doNoise = False,
+    doEmpty = False,
+    doIonFeedback = False,
+    doThermalNoise = False,
+    doTimeSlew = False,
+    HcalPreMixStage1 = True,
+)
+
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
 
