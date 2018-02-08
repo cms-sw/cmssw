@@ -6,9 +6,6 @@
 #include "FWCore/Framework/interface/moduleAbilities.h" 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-// TODO: For derived modules that need it
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
 //<<<<<< PUBLIC TYPES                                                   >>>>>>

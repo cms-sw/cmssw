@@ -18,6 +18,7 @@
 #include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
+#include "FWCore/Framework/interface/Run.h"
 
 class UMNioTask : public hcaldqm::DQTask
 {

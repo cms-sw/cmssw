@@ -1,4 +1,5 @@
 #include "DQM/HcalTasks/interface/PedestalTask.h"
+#include "FWCore/Framework/interface/Run.h"
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;

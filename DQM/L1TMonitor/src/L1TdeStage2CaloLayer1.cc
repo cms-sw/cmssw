@@ -8,6 +8,7 @@
 #include "DQM/L1TMonitor/interface/L1TdeStage2CaloLayer1.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 

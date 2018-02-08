@@ -20,6 +20,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
