@@ -1,4 +1,5 @@
 #include "DQM/HcalCommon/interface/DQHarvester.h"
+#include "FWCore/Framework/interface/Run.h"
 
 namespace hcaldqm
 {
