@@ -32,13 +32,23 @@ class GEMEMap {
     std::vector<int> iEta;
     std::vector<int> iPhi;
     std::vector<int> depth;
-    std::vector<int> strip_number;
-    std::vector<int> vfat_chnnel_number;
+    std::vector<int> vfatType;
     std::vector<uint16_t> vfatId;
+    std::vector<uint16_t> amcId;
+    std::vector<uint16_t> gebId;
     std::vector<int> sec; 
 
     COND_SERIALIZABLE;
   };
+  struct GEMChStripMap {
+
+    std::vector<int> vfatType;
+    std::vector<int> vfatCh;
+    std::vector<int> vfatStrip;
+ 
+    COND_SERIALIZABLE;
+  };
+
   struct GEMVFatMapInPos {
     int position;
     int VFATmapTypeId;
@@ -49,7 +59,7 @@ class GEMEMap {
   std::vector<GEMEMapItem>     theEMapItem;
   std::vector<GEMVFatMaptype>  theVFatMaptype;
   std::vector<GEMVFatMapInPos> theVFatMapInPos;
-  
+  std::vector<GEMChStripMap> theVfatChStripMap; 
  private:
   std::string theVersion;
 

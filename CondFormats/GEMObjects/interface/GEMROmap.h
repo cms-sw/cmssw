@@ -7,25 +7,59 @@ class GEMROmap{
  public:
   
   struct eCoord{
-    uint32_t vfatId;
-    int channelId;
+    uint16_t amcId;
+    uint16_t gebId;
+    uint16_t vfatId;
     bool operator < (const eCoord& r) const{
-      if ( vfatId == r.vfatId)
-	return channelId < r.channelId;
-      else
-	return vfatId < r.vfatId;
+      if (amcId == r.amcId){
+        if ( gebId == r.gebId){
+          return vfatId < r.vfatId;
+        }else{
+          return gebId < r.gebId;
+         }
+      }else{
+	return amcId < r.amcId;
+      }
     }
   };
   
   struct dCoord{
-    int stripId;
+    int vfatType;
     GEMDetId gemDetId;
+    int iPhi;
     bool operator < (const dCoord& r) const{
-      if ( gemDetId == r.gemDetId)
-	return stripId < r.stripId;
-      else
-	return gemDetId < r.gemDetId;
+      if (vfatType == r.vfatType){
+        if (gemDetId == r.gemDetId){
+	  return iPhi < r.iPhi;
+        }else{
+          return gemDetId < r.gemDetId;
+        }
+      }else{
+	return vfatType < r.vfatType;
+      }
     }    
+  };
+
+  struct channelNum{
+    int vfatType;
+    int chNum;
+    bool operator < (const channelNum& c) const{
+      if (vfatType == c.vfatType)
+        return chNum < c.chNum;
+      else
+        return vfatType < c.vfatType;
+    }
+  };
+
+  struct stripNum{
+    int vfatType;
+    int stNum;
+    bool operator < (const stripNum& s) const{
+      if (vfatType == s.vfatType) 
+        return stNum < s.stNum;
+      else
+        return vfatType < s.vfatType;
+    }
   };
 
   GEMROmap(){};
@@ -52,7 +86,13 @@ class GEMROmap{
 
   void addAMC2GEB(uint16_t d, uint16_t c) {amc2Gebs_[d].push_back(c);}
   std::vector<uint16_t> getAMC2GEBs(uint16_t d) const {return amc2Gebs_.at(d);}
-  
+
+  void add(channelNum c, stripNum s) {chStMap_[c]=s;} 
+  void add(stripNum s, channelNum c) {stChMap_[s]=c;} 
+ 
+  const channelNum& hitPosition(const stripNum& s) const {return stChMap_.at(s);}
+  const stripNum& hitPosition(const channelNum& c) const {return chStMap_.at(c);}
+
  private:
   std::vector<uint16_t> amcs_;
   std::map<uint16_t,std::vector<uint16_t>> amc2Gebs_;
@@ -62,6 +102,9 @@ class GEMROmap{
 
   std::map<GEMDetId,uint32_t> roMapDet2Geb_;
   std::map<uint32_t,GEMDetId> roMapGeb2Det_;
+   
+  std::map<channelNum, stripNum> chStMap_;
+  std::map<stripNum, channelNum> stChMap_;
   
 };
 #endif

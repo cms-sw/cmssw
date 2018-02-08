@@ -18,28 +18,47 @@ GEMROmap* GEMEMap::convert() const{
   GEMROmap* romap=new GEMROmap();
 
   for (auto imap : theVFatMaptype){
-    for (unsigned int ix=0;ix<imap.strip_number.size();ix++){
+    for (unsigned int ix=0;ix<imap.vfatId.size();ix++){
       GEMROmap::eCoord ec;
-      ec.vfatId= imap.vfatId[ix] & chipIdMask_;// chip ID is 12 bits
-      ec.channelId=imap.vfat_chnnel_number[ix];
+      ec.vfatId = imap.vfatId[ix]; //& chipIdMask_;// chip ID is 12 bits/
+      ec.gebId = imap.gebId[ix];
+      ec.amcId = imap.amcId[ix];
+      
 
       int st = std::abs(imap.z_direction[ix]);
-      int maxVFat = maxVFatGE11_;
-      if (st == 2) maxVFat = maxVFatGE21_;      
-      
       GEMROmap::dCoord dc;
-      dc.stripId = 1 + imap.strip_number[ix]+(imap.iPhi[ix]-1)%maxVFat*maxChan_;
       dc.gemDetId = GEMDetId(imap.z_direction[ix], 1, st, imap.depth[ix], imap.sec[ix], imap.iEta[ix]);
-      
+      dc.vfatType = imap.vfatType[ix]; 
+      dc.iPhi = imap.iPhi[ix];
+
       romap->add(ec,dc);
       romap->add(dc,ec);
     }
   }
+  
+  for (auto imap : theVfatChStripMap){
+    for (unsigned int ix=0;ix<imap.vfatType.size();ix++){
+      GEMROmap::channelNum cMap;
+      cMap.vfatType = imap.vfatType[ix];
+      cMap.chNum = imap.vfatCh[ix];
+
+      GEMROmap::stripNum sMap;
+      sMap.vfatType = imap.vfatType[ix];
+      sMap.stNum = imap.vfatStrip[ix];
+
+      romap->add(cMap, sMap);
+      romap->add(sMap, cMap);
+    }
+  }
+
+  
+
   return romap;
 }
 
 GEMROmap* GEMEMap::convertDummy() const{
   GEMROmap* romap=new GEMROmap();
+ /*
   uint16_t amcId = 1; //amc
   uint16_t gebId = 1; 
   romap->addAMC(amcId);
@@ -101,6 +120,6 @@ GEMROmap* GEMEMap::convertDummy() const{
       }
     }
   }
-  
+ */ 
   return romap;
 }
