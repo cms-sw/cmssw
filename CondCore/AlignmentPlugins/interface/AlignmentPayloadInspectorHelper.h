@@ -248,6 +248,7 @@ namespace AlignmentPI {
   
   struct topolInfo
   {
+  private:
     uint32_t m_rawid;  
     int      m_subdetid;
     int      m_layer;
@@ -256,11 +257,14 @@ namespace AlignmentPI {
     bool     m_isRphi; 
     bool     m_isDoubleSide;
     bool     m_isInternal;
+
+  public:
     void init();
     void fillGeometryInfo(const DetId& detId,const TrackerTopology& tTopo,bool isPhase0);
     AlignmentPI::regions filterThePartition();
     bool sanityCheck();
     void printAll();
+    virtual ~topolInfo(){}
   }; 
     
   /*--------------------------------------------------------------------*/
@@ -313,6 +317,9 @@ namespace AlignmentPI {
     
     unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
     
+    m_rawid = detId.rawId();
+    m_subdetid = subdetId;
+
     if ( subdetId == StripSubdetector::TIB) { 	   
       m_layer  = tTopo.tibLayer(detId.rawId());
       m_side   = tTopo.tibSide(detId.rawId());

@@ -367,9 +367,7 @@ namespace {
 	// fill the struct
 	AlignmentPI::topolInfo t_info_fromXML;
 	t_info_fromXML.init();
-	t_info_fromXML.m_rawid = it.rawId();
-	DetId detid(t_info_fromXML.m_rawid);
-	t_info_fromXML.m_subdetid = subid;
+	DetId detid(it.rawId());
 	t_info_fromXML.fillGeometryInfo(detid,tTopo,isPhase0);
 	//t_info_fromXML.printAll();
 
@@ -526,13 +524,10 @@ namespace {
 	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << it.rawId() <<" - terminating ";
 	  return false;
 	}
-
-	int subid = DetId(it.rawId()).subdetId();	    
+ 
 	AlignmentPI::topolInfo t_info_fromXML;
 	t_info_fromXML.init();
-	t_info_fromXML.m_rawid = it.rawId();
-	DetId detid(t_info_fromXML.m_rawid);
-	t_info_fromXML.m_subdetid = subid;
+	DetId detid(it.rawId());
 	t_info_fromXML.fillGeometryInfo(detid,f_tTopo,isPhase0);
 
 	AlignmentPI::regions thePart = t_info_fromXML.filterThePartition();
@@ -562,12 +557,9 @@ namespace {
 	  return false;
 	}
 
-	int subid = DetId(it.rawId()).subdetId();	    
 	AlignmentPI::topolInfo t_info_fromXML;
 	t_info_fromXML.init();
-	t_info_fromXML.m_rawid = it.rawId();
-	DetId detid(t_info_fromXML.m_rawid);
-	t_info_fromXML.m_subdetid = subid;
+	DetId detid(it.rawId());
 	t_info_fromXML.fillGeometryInfo(detid,l_tTopo,isPhase0);
 
 	AlignmentPI::regions thePart = t_info_fromXML.filterThePartition();
