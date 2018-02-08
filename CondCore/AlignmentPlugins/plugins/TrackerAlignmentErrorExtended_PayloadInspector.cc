@@ -177,6 +177,11 @@ namespace {
       	}
       }
 
+      TLatex t1;
+      t1.SetTextAlign(21);
+      t1.SetTextSize(0.07);
+      t1.SetTextColor(kBlue);
+
       int c_index=1;
       for (const auto &part : parts){
       	canvas.cd(c_index)->SetLogy();
@@ -189,10 +194,7 @@ namespace {
       	APE_spectra[part]->Draw("HIST");
 	AlignmentPI::makeNiceStats(APE_spectra[part].get(),part,colormap[part]);
 
-	auto legend = std::unique_ptr<TLegend>(new TLegend(0.14,0.93,0.44,0.98));
-	legend->AddEntry(APE_spectra[part].get(),("IOV: "+std::to_string(std::get<0>(iov))).c_str(),"L");
-	legend->SetTextSize(0.035);
-	legend->Draw("same");
+	t1.DrawLatexNDC(0.35, 0.92,("IOV: "+std::to_string(std::get<0>(iov))).c_str());
 
       	c_index++;
       }
@@ -630,8 +632,8 @@ namespace {
 
       TLegend legend = TLegend(0.52,0.82,0.98,0.9);
       legend.SetHeader((getStringFromIndex(i)+" APE value comparison").c_str(),"C"); // option "C" allows to center the header
-      legend.AddEntry(summaryLast.get(),("IOV: "+std::to_string(std::get<0>(lastiov))+"| "+std::get<1>(lastiov)).c_str(),"F");
-      legend.AddEntry(summaryFirst.get(),("IOV: "+std::to_string(std::get<0>(firstiov))+"| "+std::get<1>(firstiov)).c_str(),"F");
+      legend.AddEntry(summaryLast.get(),("IOV: #scale[1.2]{"+std::to_string(std::get<0>(lastiov))+"} | #color[2]{"+std::get<1>(lastiov)+"}").c_str(),"F");
+      legend.AddEntry(summaryFirst.get(),("IOV: #scale[1.2]{"+std::to_string(std::get<0>(firstiov))+"} | #color[4]{"+std::get<1>(firstiov)+"}").c_str(),"F");
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
