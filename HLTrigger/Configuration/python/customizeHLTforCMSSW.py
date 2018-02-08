@@ -48,14 +48,6 @@ def customiseFor21664_forMahiOn(process):
         producer.algorithm.useM3     = cms.bool(False)
     return process
 
-def customiseFor21664_forMahiOnM2only(process):
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-      if (producer.algorithm.useM2 == cms.bool(True)):
-        producer.algorithm.useMahi   = cms.bool(True)
-        producer.algorithm.useM2     = cms.bool(False)
-        producer.algorithm.useM3     = cms.bool(False)
-    return process
-
 def customiseFor2017DtUnpacking(process):
     """Adapt the HLT to run the legacy DT unpacking
     for pre2018 data/MC workflows as the default"""

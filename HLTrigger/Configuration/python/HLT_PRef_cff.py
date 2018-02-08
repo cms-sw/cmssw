@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_10_0_0/PRef --type PRef
 
-# /dev/CMSSW_10_0_0/PRef/V9 (CMSSW_10_0_0_HLT1)
+# /dev/CMSSW_10_0_0/PRef/V10 (CMSSW_10_0_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_0_0/PRef/V9')
+  tableName = cms.string('/dev/CMSSW_10_0_0/PRef/V10')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -16232,7 +16232,7 @@ fragment.hltHbhePhase1RecoMethod2L1EGSeeded = cms.EDProducer( "HBHEPhase1Reconst
       ts4Min = cms.double( 0.0 ),
       applyPulseJitter = cms.bool( False ),
       noiseHPD = cms.double( 1.0 ),
-      useM2 = cms.bool( True ),
+      useM2 = cms.bool( False ),
       timeMin = cms.double( -12.5 ),
       useM3 = cms.bool( False ),
       tdcTimeShift = cms.double( 0.0 ),
@@ -16242,7 +16242,7 @@ fragment.hltHbhePhase1RecoMethod2L1EGSeeded = cms.EDProducer( "HBHEPhase1Reconst
       ts4chi2 = cms.vdouble( 15.0, 15.0 ),
       timeMax = cms.double( 12.5 ),
       Class = cms.string( "SimpleHBHEPhase1Algo" ),
-      useMahi = cms.bool( False ),
+      useMahi = cms.bool( True ),
       dynamicPed = cms.bool( True ),
       ts4Thresh = cms.double( 0.0 ),
       chiSqSwitch = cms.double( -10.0 ),
