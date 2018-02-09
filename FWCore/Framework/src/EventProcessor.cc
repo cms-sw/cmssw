@@ -475,7 +475,7 @@ namespace edm {
     std::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
 
     // intialize the event setup provider
-    esp_ = espController_->makeProvider(*parameterSet);
+    esp_ = espController_->makeProvider(*parameterSet, items.actReg_.get());
 
     // initialize the looper, if any
     looper_ = fillLooper(*espController_, *esp_, *parameterSet);

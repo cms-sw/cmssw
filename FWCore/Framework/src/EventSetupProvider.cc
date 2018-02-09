@@ -61,8 +61,10 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupProvider::EventSetupProvider(unsigned subProcessIndex, const PreferredProviderInfo* iInfo) :
-eventSetup_(),
+EventSetupProvider::EventSetupProvider(ActivityRegistry* activityRegistry,
+                                       unsigned subProcessIndex,
+                                       const PreferredProviderInfo* iInfo) :
+eventSetup_(activityRegistry),
 providers_(),
 knownRecordsSupplier_( std::make_unique<KnownRecordsSupplierImpl>(providers_)),
 mustFinishConfiguration_(true),

@@ -31,7 +31,10 @@ namespace edm {
 //
 // constructors and destructor
 //
-   EventSetup::EventSetup() : recordMap_()
+EventSetup::EventSetup(ActivityRegistry* activityRegistry) :
+   recordMap_(),
+   activityRegistry_(activityRegistry)
+
 {
 }
 
