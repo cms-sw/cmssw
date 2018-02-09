@@ -16,6 +16,17 @@
 
 #include <iostream>
 
+  namespace {
+
+        struct Stat {
+          Stat():c(0){}
+          ~Stat(){std::cout << "CPE stat " << c << ' ' << maxx << ' ' << maxd << std::endl;}
+          std::atomic<uint32_t> c;
+          float maxx=0.f, maxd=0.0f;
+        };
+        Stat statx, staty; 
+  }
+
 namespace {
    constexpr float micronsToCm = 1.0e-4;
    const bool MYDEBUG = false;
@@ -241,7 +252,34 @@ PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClus
                            );   
    // apply the lorentz offset correction
    yPos = yPos + shiftY + theDetParam.thePitchY*float(phase1PixelTopology::yOffset);
+
+
+   {
+     // ok now do GPU like ...
+
+     pixelCPEforGPU::ClusParams clusParams;
+
+     auto & cp = clusParams[0];
+     cp.minRow = theClusterParam.theCluster->minPixelRow();
+     cp.maxRow = theClusterParam.theCluster->maxPixelRow();
+     cp.minCol = theClusterParam.theCluster->minPixelCol();
+     cp.maxCol = theClusterParam.theCluster->maxPixelCol();
+
+      cp.Q_f_X = Q_f_X;
+      cp.Q_l_X = Q_l_X;
+      cp.Q_f_Y = Q_f_Y;
+      cp.Q_l_Y = Q_l_Y;
+
+      auto ind = theDetParam.det->index();
+      pixelCPEforGPU::position(m_commonParamsGPU, m_detParamsCPU[ind],clusParams,0);
+     
+       if(std::abs(lp.x()-lpf.x())>0.001) {++statx.c; statx.maxx=std::max(statx.maxx,lp.x());}
+        statx.maxd=std::max(std::abs(lp.x()-lpf.x()), statx.maxd);
+        if(std::abs(lp.y()-lpf.y())>0.001) {++staty.c; staty.maxx=std::max(staty.maxx,lp.y());}
+        staty.maxd=std::max(std::abs(lp.y()-lpf.y()), staty.maxd);
+        // if(std::abs(lp.x()-lpf.x())>0.001) std::cout << lp.x() <<'/'<<lpf.x() << ' ' << lp.y() <<'/'<<lpf.y() << ' ' << le.xx() <<'/'<<lef.xx() <<std::endl;
    
+
    //--- Now put the two together
    LocalPoint pos_in_local( xPos, yPos );
    return pos_in_local;
