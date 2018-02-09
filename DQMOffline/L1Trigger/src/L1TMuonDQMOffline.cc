@@ -8,13 +8,11 @@
  */
 
 #include "DQMOffline/L1Trigger/interface/L1TMuonDQMOffline.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
-#include "DataFormats/L1Trigger/interface/Muon.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "TMath.h"
+
+#include <array>
 
 using namespace reco;
 using namespace trigger;
@@ -24,9 +22,29 @@ using namespace l1t;
 
 //__________RECO-GMT Muon Pair Helper Class____________________________
 
+MuonGmtPair::MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, bool useAtVtxCoord) :
+        m_muon(muon), m_regMu(regMu), m_eta(999.), m_phi_bar(999.), m_phi_end(999.)
+{
+    if (m_regMu) {
+        if (useAtVtxCoord) {
+            m_gmtEta = m_regMu->etaAtVtx();
+            m_gmtPhi = m_regMu->phiAtVtx();
+        } else {
+            m_gmtEta = m_regMu->eta();
+            m_gmtPhi = m_regMu->phi();
+        }
+    } else {
+        m_gmtEta = -5.;
+        m_gmtPhi = -5.;
+    }
+};
+
 MuonGmtPair::MuonGmtPair(const MuonGmtPair& muonGmtPair) {
     m_muon    = muonGmtPair.m_muon;
-    m_regMu     = muonGmtPair.m_regMu;
+    m_regMu   = muonGmtPair.m_regMu;
+
+    m_gmtEta  = muonGmtPair.m_gmtEta;
+    m_gmtPhi  = muonGmtPair.m_gmtPhi;
 
     m_eta     = muonGmtPair.m_eta;
     m_phi_bar = muonGmtPair.m_phi_bar;
@@ -34,8 +52,8 @@ MuonGmtPair::MuonGmtPair(const MuonGmtPair& muonGmtPair) {
 }
 
 double MuonGmtPair::dR() {
-    float dEta = m_regMu ? (m_regMu->eta() - eta()) : 999.;
-    float dPhi = m_regMu ? (m_regMu->phi() - phi()) : 999.;
+    float dEta = m_regMu ? (m_gmtEta - eta()) : 999.;
+    float dPhi = m_regMu ? (m_gmtPhi - phi()) : 999.;
     return sqrt(dEta*dEta + dPhi*dPhi);
 }
 
@@ -62,6 +80,30 @@ void MuonGmtPair::propagate(ESHandle<MagneticField> bField,
         m_eta     = trajectory.globalPosition().eta();
         m_phi_end = trajectory.globalPosition().phi();
     }
+}
+
+L1TMuonDQMOffline::EtaRegion MuonGmtPair::etaRegion() const {
+    if (std::abs(eta()) < 0.83) return L1TMuonDQMOffline::kEtaRegionBmtf;
+    if (std::abs(eta()) < 1.24) return L1TMuonDQMOffline::kEtaRegionOmtf;
+    if (std::abs(eta()) < 2.4)  return L1TMuonDQMOffline::kEtaRegionEmtf;
+    return L1TMuonDQMOffline::kEtaRegionOut;
+}
+
+double MuonGmtPair::getDeltaVar(const L1TMuonDQMOffline::ResType type) const {
+    if (type == L1TMuonDQMOffline::kResPt)      return gmtPt() - pt();
+    if (type == L1TMuonDQMOffline::kRes1OverPt) return 1/gmtPt() - 1/pt();
+    if (type == L1TMuonDQMOffline::kResQOverPt) return gmtCharge()/gmtPt() - charge()/pt();
+    if (type == L1TMuonDQMOffline::kResPhi)     return gmtPhi() - phi();
+    if (type == L1TMuonDQMOffline::kResEta)     return gmtEta() - eta();
+    if (type == L1TMuonDQMOffline::kResCh)      return gmtCharge() - charge();
+    return -999.;
+}
+
+double MuonGmtPair::getVar(const L1TMuonDQMOffline::EffType type) const {
+    if (type == L1TMuonDQMOffline::kEffPt)  return pt();
+    if (type == L1TMuonDQMOffline::kEffPhi) return phi();
+    if (type == L1TMuonDQMOffline::kEffEta) return eta();
+    return -999.;
 }
 
 TrajectoryStateOnSurface MuonGmtPair::cylExtrapTrkSam(TrackRef track, double rho)
@@ -104,10 +146,21 @@ FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(TrackRef track)
 
 //__________DQM_base_class_______________________________________________
 L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
+    m_effTypes({kEffPt, kEffPhi, kEffEta, kEffVtx}),
+    m_resTypes({kResPt, kRes1OverPt, kResQOverPt, kResPhi, kResEta}),
+    m_etaRegions({kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf}),
+    m_qualLevelsRes({kQualAll}),
+    m_effStrings({ {kEffPt, "pt"}, {kEffPhi, "phi"}, {kEffEta, "eta"}, {kEffVtx, "vtx"} }),
+    m_effLabelStrings({ {kEffPt, "p_{T} (GeV)"}, {kEffPhi, "#phi"}, {kEffEta, "#eta"}, {kEffVtx, "# vertices"} }),
+    m_resStrings({ {kResPt, "pt"}, {kRes1OverPt, "1overpt"}, {kResQOverPt, "qoverpt"}, {kResPhi, "phi"}, {kResEta, "eta"}, {kResCh, "charge"} }),
+    m_resLabelStrings({ {kResPt, "p_{T}^{L1} - p_{T}^{reco}"}, {kRes1OverPt, "1/p_{T}^{L1} - 1/p_{T}^{reco}"}, {kResQOverPt, "q^{L1}/p_{T}^{L1} - q^{reco}/p_{T}^{reco}"}, {kResPhi, "#phi_{L1} - #phi_{reco}"}, {kResEta, "#eta_{L1} - #eta_{reco}"}, {kResCh, "charge^{L1} - charge^{reco}"} }),
+    m_etaStrings({ {kEtaRegionAll, "etaMin0_etaMax2p4"}, {kEtaRegionBmtf, "etaMin0_etaMax0p83"}, {kEtaRegionOmtf, "etaMin0p83_etaMax1p24"}, {kEtaRegionEmtf, "etaMin1p24_etaMax2p4"} }),
+    m_qualStrings({ {kQualAll, "qualAll"}, {kQualOpen, "qualOpen"}, {kQualDouble, "qualDouble"}, {kQualSingle, "qualSingle"} }),
     m_verbose(ps.getUntrackedParameter<bool>("verbose")),
     m_HistFolder(ps.getUntrackedParameter<string>("histFolder")),
-    m_GmtPtCuts(ps.getUntrackedParameter< vector<int> >("gmtPtCuts")),
     m_TagPtCut(ps.getUntrackedParameter<double>("tagPtCut")),
+    m_recoToL1PtCutFactor(ps.getUntrackedParameter<double>("recoToL1PtCutFactor")),
+    m_cutsVPSet(ps.getUntrackedParameter<std::vector<edm::ParameterSet>>("cuts")),
     m_MuonInputTag(consumes<reco::MuonCollection>(ps.getUntrackedParameter<InputTag>("muonInputTag"))),
     m_GmtInputTag(consumes<l1t::MuonBxCollection>(ps.getUntrackedParameter<InputTag>("gmtInputTag"))),
     m_VtxInputTag(consumes<VertexCollection>(ps.getUntrackedParameter<InputTag>("vtxInputTag"))),
@@ -118,15 +171,27 @@ L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
     m_trigNames(ps.getUntrackedParameter<vector<string> >("triggerNames")),
     m_effVsPtBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPtBins")),
     m_effVsPhiBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPhiBins")),
-    m_effVsEtaBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsEtaBins"))
+    m_effVsEtaBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsEtaBins")),
+    m_effVsVtxBins(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsVtxBins")),
+    m_useAtVtxCoord(ps.getUntrackedParameter<bool>("useL1AtVtxCoord")),
+    m_maxGmtMuonDR(0.3),
+    m_minTagProbeDR(0.5),
+    m_maxHltMuonDR(0.3)
 {
     if (m_verbose) cout << "[L1TMuonDQMOffline:] ____________ Storage initialization ____________ " << endl;
-    // CB do we need them from cfi?
-    m_MaxMuonEta   = 2.4;
-    m_MaxGmtMuonDR = 0.7;
-    m_MaxHltMuonDR = 0.1;
-    // CB ignored at present
-    //m_MinMuonDR    = 1.2;
+
+    for (const auto cutsPSet : m_cutsVPSet) {
+        const auto qCut = cutsPSet.getUntrackedParameter<int>("qualCut");
+        QualLevel qLevel = kQualAll;
+        if (qCut > 11) {
+            qLevel = kQualSingle;
+        } else if (qCut > 7) {
+            qLevel = kQualDouble;
+        } else if (qCut > 3) {
+            qLevel = kQualOpen;
+        }
+        m_cuts.emplace_back(std::make_pair(cutsPSet.getUntrackedParameter<int>("ptCut"), qLevel));
+    }
 }
 
 //_____________________________________________________________________
@@ -142,12 +207,7 @@ void L1TMuonDQMOffline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& 
 void L1TMuonDQMOffline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
     //book histos
     bookControlHistos(ibooker);
-    vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
-    vector<int>::const_iterator gmtPtCutsEnd = m_GmtPtCuts.end();
-
-    for (; gmtPtCutsIt!=gmtPtCutsEnd; ++ gmtPtCutsIt) {
-        bookEfficiencyHistos(ibooker, (*gmtPtCutsIt));
-    }
+    bookEfficiencyHistos(ibooker);
     bookResolutionHistos(ibooker);
 
     vector<string>::const_iterator trigNamesIt  = m_trigNames.begin();
@@ -184,19 +244,14 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
 
     Handle<reco::MuonCollection> muons;
     iEvent.getByToken(m_MuonInputTag, muons);
-
     Handle<BeamSpot> beamSpot;
     iEvent.getByToken(m_BsInputTag, beamSpot);
-
     Handle<VertexCollection> vertex;
     iEvent.getByToken(m_VtxInputTag, vertex);
-
     Handle<l1t::MuonBxCollection> gmtCands;
     iEvent.getByToken(m_GmtInputTag,gmtCands);
-
     Handle<edm::TriggerResults> trigResults;
     iEvent.getByToken(m_trigProcess_token,trigResults);
-
     edm::Handle<trigger::TriggerEvent> trigEvent;
     iEvent.getByToken(m_trigInputTag,trigEvent);
 
@@ -204,6 +259,7 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
     eventSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",m_propagatorAlong);
     eventSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",m_propagatorOpposite);
 
+    const auto nVtx = getNVertices(vertex);
     const Vertex primaryVertex = getPrimaryVertex(vertex,beamSpot);
 
     getTightMuons(muons,primaryVertex);
@@ -216,107 +272,96 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
     vector<MuonGmtPair>::const_iterator muonGmtPairsIt  = m_MuonGmtPairs.begin();
     vector<MuonGmtPair>::const_iterator muonGmtPairsEnd = m_MuonGmtPairs.end();
 
+    // To fill once for global eta and once for TF eta region of the L1T muon.
+    // The second entry is a placeholder and will be replaced by the TF eta region of the L1T muon.
+    std::array<EtaRegion, 2> regsToFill { {kEtaRegionAll, kEtaRegionAll} };
+
     for(; muonGmtPairsIt!=muonGmtPairsEnd; ++muonGmtPairsIt) {
-        float pt  = muonGmtPairsIt->pt();
-        float eta = muonGmtPairsIt->eta();
-        float phi = muonGmtPairsIt->phi();
-        int charge = muonGmtPairsIt->charge();
-
-        float gmtPt  = muonGmtPairsIt->gmtPt();
-        float gmtEta  = muonGmtPairsIt->gmtEta();
-        float gmtPhi  = muonGmtPairsIt->gmtPhi();
-        int gmtCharge  = muonGmtPairsIt->gmtCharge();
-        int qual = muonGmtPairsIt->gmtQual();
-
-        vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
-        vector<int>::const_iterator gmtPtCutsEnd = m_GmtPtCuts.end();
-
-        if ( (fabs(eta) < m_MaxMuonEta) && (gmtPt > 0) ) {
-            m_ResolutionHistos[RESOL_Pt]->Fill(pt - gmtPt);
-            m_ResolutionHistos[RESOL_1overPt]->Fill(1/pt - 1/gmtPt);
-            m_ResolutionHistos[RESOL_Eta]->Fill(eta - gmtEta);
-            m_ResolutionHistos[RESOL_Phi]->Fill(phi - gmtPhi);
-            m_ResolutionHistos[RESOL_Charge]->Fill(charge - gmtCharge);
-            if (qual >= 4) {
-                m_ResolutionHistos[RESOL_Pt_OPEN]->Fill(pt - gmtPt);
-                m_ResolutionHistos[RESOL_1overPt_OPEN]->Fill(1/pt - 1/gmtPt);
-                m_ResolutionHistos[RESOL_Eta_OPEN]->Fill(eta - gmtEta);
-                m_ResolutionHistos[ RESOL_Phi_OPEN]->Fill(phi - gmtPhi);
-                m_ResolutionHistos[RESOL_Charge_OPEN]->Fill(charge - gmtCharge);
-                if (qual >= 8) {
-                    m_ResolutionHistos[RESOL_Pt_DOUBLE]->Fill(pt - gmtPt);
-                    m_ResolutionHistos[RESOL_1overPt_DOUBLE]->Fill(1/pt - 1/gmtPt);
-                    m_ResolutionHistos[RESOL_Eta_DOUBLE]->Fill(eta - gmtEta);
-                    m_ResolutionHistos[RESOL_Phi_DOUBLE]->Fill(phi - gmtPhi);
-                    m_ResolutionHistos[RESOL_Charge_DOUBLE]->Fill(charge - gmtCharge);
-                    if (qual >= 12) {
-                        m_ResolutionHistos[RESOL_Pt_SINGLE]->Fill(pt - gmtPt);
-                        m_ResolutionHistos[RESOL_1overPt_SINGLE]->Fill(1/pt - 1/gmtPt);
-                        m_ResolutionHistos[RESOL_Eta_SINGLE]->Fill(eta - gmtEta);
-                        m_ResolutionHistos[RESOL_Phi_SINGLE]->Fill(phi - gmtPhi);
-                        m_ResolutionHistos[RESOL_Charge_SINGLE]->Fill(charge - gmtCharge);
+        // Fill the resolution histograms
+        if( (muonGmtPairsIt->etaRegion() != kEtaRegionOut) && (muonGmtPairsIt->gmtPt() > 0) ){
+            regsToFill[1] = muonGmtPairsIt->etaRegion();
+            m_histoKeyResType histoKeyRes = {kResPt, kEtaRegionAll, kQualAll};
+            for (const auto var : m_resTypes) {
+                const auto varToFill = muonGmtPairsIt->getDeltaVar(var);
+                std::get<0>(histoKeyRes) = var;
+                // Fill for the global eta and for TF eta region that the probe muon is in
+                for (const auto regToFill : regsToFill) {
+                    std::get<1>(histoKeyRes) = regToFill;
+                    for (const auto qualLevel : m_qualLevelsRes) {
+                        // This assumes that the qualLevel enum has increasing qualities
+                        // HW quality levels can be 0, 4, 8, or 12
+                        int qualCut = qualLevel * 4;
+                        if (muonGmtPairsIt->gmtQual() >= qualCut) {
+                            std::get<2>(histoKeyRes) = qualLevel;
+                            m_ResolutionHistos[histoKeyRes]->Fill(varToFill);
+                        }
                     }
                 }
             }
         }
 
-        for (; gmtPtCutsIt!=gmtPtCutsEnd; ++ gmtPtCutsIt) {
-            int gmtPtCut = (*gmtPtCutsIt);
-            bool gmtAboveCut = (gmtPt > gmtPtCut);
+        // Fill the efficiency numerator and denominator histograms
+        if (muonGmtPairsIt->etaRegion() != kEtaRegionOut) {
+            unsigned int cutsCounter = 0;
+            for (const auto cut : m_cuts) {
+                const auto gmtPtCut = cut.first;
+                const auto qualLevel = cut.second;
+                const bool gmtAboveCut = (muonGmtPairsIt->gmtPt() > gmtPtCut);
 
-            stringstream ptCutToTag; ptCutToTag << gmtPtCut;
-            string ptTag = ptCutToTag.str();
+                // default keys
+                m_histoKeyEffDenVarType histoKeyEffDenVar = {kEffPt, gmtPtCut, kEtaRegionAll};
+                m_histoKeyEffNumVarType histoKeyEffNumVar = {kEffPt, gmtPtCut, kEtaRegionAll, qualLevel};
 
-            if (fabs(eta) < m_MaxMuonEta) {
-                m_EfficiencyHistos[gmtPtCut]["EffvsPt_" + ptTag + "_Den"]->Fill(pt);
-                m_EfficiencyHistos[gmtPtCut]["EffvsPt_OPEN_" + ptTag + "_Den"]->Fill(pt);
-                m_EfficiencyHistos[gmtPtCut]["EffvsPt_DOUBLE_" + ptTag + "_Den"]->Fill(pt);
-                m_EfficiencyHistos[gmtPtCut]["EffvsPt_SINGLE_" + ptTag + "_Den"]->Fill(pt);
-
-                if (gmtAboveCut) {
-                    m_EfficiencyHistos[gmtPtCut]["EffvsPt_" + ptTag + "_Num"]->Fill(pt);
-
-                    if (qual >= 4) m_EfficiencyHistos[gmtPtCut]["EffvsPt_OPEN_" + ptTag + "_Num"]->Fill(pt);
-                    if (qual >= 8) m_EfficiencyHistos[gmtPtCut]["EffvsPt_DOUBLE_" + ptTag + "_Num"]->Fill(pt);
-                    if (qual >= 12) m_EfficiencyHistos[gmtPtCut]["EffvsPt_SINGLE_" + ptTag + "_Num"]->Fill(pt);
-                }
-
-                // efficiency in eta/phi at plateau
-                if (pt > 1.25*gmtPtCut) {       // efficiency in eta/phi at plateau
-
-                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_" + ptTag + "_Den"]->Fill(phi);
-                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_" + ptTag + "_Den"]->Fill(eta);
-
-                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_OPEN_" + ptTag + "_Den"]->Fill(phi);
-                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_OPEN_" + ptTag + "_Den"]->Fill(eta);
-
-                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_DOUBLE_" + ptTag + "_Den"]->Fill(phi);
-                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_DOUBLE_" + ptTag + "_Den"]->Fill(eta);
-
-                    m_EfficiencyHistos[gmtPtCut]["EffvsPhi_SINGLE_" + ptTag + "_Den"]->Fill(phi);
-                    m_EfficiencyHistos[gmtPtCut]["EffvsEta_SINGLE_" + ptTag + "_Den"]->Fill(eta);
-
-                    if (gmtAboveCut) {
-                        m_EfficiencyHistos[gmtPtCut]["EffvsPhi_" + ptTag + "_Num"]->Fill(phi);
-                        m_EfficiencyHistos[gmtPtCut]["EffvsEta_" + ptTag + "_Num"]->Fill(eta);
-
-                        if (qual >= 4) {
-                            m_EfficiencyHistos[gmtPtCut]["EffvsPhi_OPEN_" + ptTag + "_Num"]->Fill(phi);
-                            m_EfficiencyHistos[gmtPtCut]["EffvsEta_OPEN_" + ptTag + "_Num"]->Fill(eta);
+                regsToFill[1] = muonGmtPairsIt->etaRegion();
+                for(const auto var : m_effTypes) {
+                    if(var != kEffPt){
+                       if (muonGmtPairsIt->pt() < m_recoToL1PtCutFactor * gmtPtCut) break; // efficiency at plateau
+                    }
+                    double varToFill;
+                    if (var == kEffVtx) {
+                        varToFill = static_cast<double>(nVtx);
+                    } else {
+                        varToFill = muonGmtPairsIt->getVar(var);
+                    }
+                    // Fill denominators
+                    if (var == kEffEta) {
+                        m_EfficiencyDenEtaHistos[gmtPtCut]->Fill(varToFill);
+                    } else {
+                        std::get<0>(histoKeyEffDenVar) = var;
+                        // Fill for the global eta and for TF eta region that the probe muon is in
+                        for (const auto regToFill : regsToFill) {
+                            if (var == kEffPt) {
+                                if (cutsCounter == 0) {
+                                    m_EfficiencyDenPtHistos[regToFill]->Fill(varToFill);
+                                }
+                            } else {
+                                std::get<2>(histoKeyEffDenVar) = regToFill;
+                                m_EfficiencyDenVarHistos[histoKeyEffDenVar]->Fill(varToFill);
+                            }
                         }
-                        if (qual >= 8) {
-                            m_EfficiencyHistos[gmtPtCut]["EffvsPhi_DOUBLE_" + ptTag + "_Num"]->Fill(phi);
-                            m_EfficiencyHistos[gmtPtCut]["EffvsEta_DOUBLE_" + ptTag + "_Num"]->Fill(eta);
-                        }
-                        if (qual >= 12) {
-                            m_EfficiencyHistos[gmtPtCut]["EffvsPhi_SINGLE_" + ptTag + "_Num"]->Fill(phi);
-                            m_EfficiencyHistos[gmtPtCut]["EffvsEta_SINGLE_" + ptTag + "_Num"]->Fill(eta);
+                    }
+                    // Fill numerators
+                    std::get<0>(histoKeyEffNumVar) = var;
+                    // This assumes that the qualLevel enum has increasing qualities
+                    if (gmtAboveCut && muonGmtPairsIt->gmtQual() >= qualLevel * 4) {
+                        if (var == kEffEta) {
+                            m_histoKeyEffNumEtaType histoKeyEffNumEta = {gmtPtCut, qualLevel};
+                            m_EfficiencyNumEtaHistos[histoKeyEffNumEta]->Fill(varToFill);
+                        } else {
+                            std::get<3>(histoKeyEffNumVar) = qualLevel;
+                            // Fill for the global eta and for TF eta region that the probe muon is in
+                            for (const auto regToFill : regsToFill) {
+                                std::get<2>(histoKeyEffNumVar) = regToFill;
+                                m_EfficiencyNumVarHistos[histoKeyEffNumVar]->Fill(varToFill);
+                            }
                         }
                     }
                 }
+                ++cutsCounter;
             }
         }
     }
+
     if (m_verbose) cout << "[L1TMuonDQMOffline:] Computation finished" << endl;
 }
 
@@ -326,172 +371,96 @@ void L1TMuonDQMOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
 
     ibooker.setCurrentFolder(m_HistFolder+"/control_variables");
 
-    string name = "MuonGmtDeltaR";
-    m_ControlHistos[CONTROL_MuonGmtDeltaR] = ibooker.book1D(name.c_str(),name.c_str(),25.,0.,2.5);
+    m_ControlHistos[kCtrlMuonGmtDeltaR] = ibooker.book1D("MuonGmtDeltaR", "MuonGmtDeltaR; #DeltaR", 50, 0., 0.5);
+    m_ControlHistos[kCtrlNTightVsAll] = ibooker.book2D("NTightVsAll", "NTightVsAll; # muons; # tight muons", 20, -0.5, 19.5, 16, -0.5, 15.5);
+    m_ControlHistos[kCtrlNProbesVsTight] = ibooker.book2D("NProbesVsTight", "NProbesVsTight; # tight muons; # probe muons", 8, -0.5, 7.5, 8, -0.5, 7.5);
 
-    name = "NTightVsAll";
-    m_ControlHistos[CONTROL_NTightVsAll] = ibooker.book2D(name.c_str(),name.c_str(),16,-0.5,15.5,16,-0.5,15.5);
+    m_ControlHistos[kCtrlTagPt] = ibooker.book1D("TagMuonPt", "TagMuonPt; p_{T}", 50, 0., 100.);
+    m_ControlHistos[kCtrlTagPhi] = ibooker.book1D("TagMuonPhi", "TagMuonPhi; #phi", 66, -3.3, 3.3);
+    m_ControlHistos[kCtrlTagEta] = ibooker.book1D("TagMuonEta", "TagMuonEta; #eta", 50, -2.5, 2.5);
 
-    name = "NProbesVsTight";
-    m_ControlHistos[CONTROL_NProbesVsTight] = ibooker.book2D(name.c_str(),name.c_str(),8,-0.5,7.5,8,-0.5,7.5);
+    m_ControlHistos[kCtrlProbePt] = ibooker.book1D("ProbeMuonPt", "ProbeMuonPt; p_{T}", 50, 0., 100.);
+    m_ControlHistos[kCtrlProbePhi] = ibooker.book1D("ProbeMuonPhi", "ProbeMuonPhi; #phi", 66, -3.3, 3.3);
+    m_ControlHistos[kCtrlProbeEta] = ibooker.book1D("ProbeMuonEta", "ProbeMuonEta; #eta", 50, -2.5, 2.5);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-    string name1 = "TagMuonEta_Histo";
-    m_EfficiencyHistos[0][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
-    string name2 = "TagMuonPhi_Histo";
-    m_EfficiencyHistos[0][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
-    string name3 = "TagMuonPt_Histo";
-    m_EfficiencyHistos[0][name3] = ibooker.book1D(name3.c_str(),name3.c_str(),50,0.,100.);
-//*****
-    name1 = "ProbeMuonEta_Histo";
-    m_EfficiencyHistos[0][name1] = ibooker.book1D(name1.c_str(),name1.c_str(),50,-2.5,2.5);
-    name2 = "ProbeMuonPhi_Histo";
-    m_EfficiencyHistos[0][name2] = ibooker.book1D(name2.c_str(),name2.c_str(),24,-TMath::Pi(),TMath::Pi());
-    name3 = "ProbeMuonPt_Histo";
-    m_EfficiencyHistos[0][name3] = ibooker.book1D(name3.c_str(),name3.c_str(),50,0.,100.);
+    m_ControlHistos[kCtrlTagProbeDr] = ibooker.book1D("TagMuonProbeMuonDeltaR", "TagMuonProbeMuonDeltaR; #DeltaR", 50, 0.,5.0);
 }
 
 //_____________________________________________________________________
-void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut) {
-    if(m_verbose) cout << "[L1TMuonDQMOffline:] Booking Efficiency Plot Histos for pt cut = " << ptCut << endl;
-
-    stringstream ptCutToTag; ptCutToTag << ptCut;
-    string ptTag = ptCutToTag.str();
-
+void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker &ibooker) {
     ibooker.setCurrentFolder(m_HistFolder+"/numerators_and_denominators");
 
-    std::vector<float> effVsPtBins(m_effVsPtBins.begin(), m_effVsPtBins.end());
-    int nEffVsPtBins = effVsPtBins.size() - 1;
-    float* ptBinsArray = &(effVsPtBins[0]);
-
-    string name1 = "EffvsPt_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPtBins, ptBinsArray);
-    string name2 = "EffvsPt_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPtBins, ptBinsArray);
-
-    name1 = "EffvsPt_OPEN_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPtBins, ptBinsArray);
-    name2 = "EffvsPt_OPEN_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPtBins, ptBinsArray);
-
-    name1 = "EffvsPt_DOUBLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPtBins, ptBinsArray);
-    name2 = "EffvsPt_DOUBLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPtBins, ptBinsArray);
-
-    name1 = "EffvsPt_SINGLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPtBins, ptBinsArray);
-    name2 = "EffvsPt_SINGLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPtBins, ptBinsArray);
-
-////////////////////////////////////////////////
-
-    std::vector<float> effVsPhiBins(m_effVsPhiBins.begin(), m_effVsPhiBins.end());
-    int nEffVsPhiBins = effVsPhiBins.size() - 1;
-    float* phiBinsArray = &(effVsPhiBins[0]);
-
-    std::vector<float> effVsEtaBins(m_effVsEtaBins.begin(), m_effVsEtaBins.end());
-    int nEffVsEtaBins = effVsEtaBins.size() - 1;
-    float* etaBinsArray = &(effVsEtaBins[0]);
-
-    name1 = "EffvsPhi_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPhiBins, phiBinsArray);
-    name2 = "EffvsPhi_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPhiBins, phiBinsArray);
-
-    name1 = "EffvsEta_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsEtaBins, etaBinsArray);
-    name2 = "EffvsEta_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsEtaBins, etaBinsArray);
-
-//////////////////////////////////////////////
-
-    name1 = "EffvsPhi_OPEN_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPhiBins, phiBinsArray);
-    name2 = "EffvsPhi_OPEN_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPhiBins, phiBinsArray);
-
-    name1 = "EffvsEta_OPEN_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsEtaBins, etaBinsArray);
-    name2 = "EffvsEta_OPEN_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsEtaBins, etaBinsArray);
-
-//////////////////////////////////////////////
-
-    name1 = "EffvsPhi_DOUBLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPhiBins, phiBinsArray);
-    name2 = "EffvsPhi_DOUBLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPhiBins, phiBinsArray);
-
-    name1 = "EffvsEta_DOUBLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsEtaBins, etaBinsArray);
-    name2 = "EffvsEta_DOUBLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsEtaBins, etaBinsArray);
-
-//////////////////////////////////////////////
-
-    name1 = "EffvsPhi_SINGLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsPhiBins, phiBinsArray);
-    name2 = "EffvsPhi_SINGLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsPhiBins, phiBinsArray);
-
-    name1 = "EffvsEta_SINGLE_" + ptTag + "_Den";
-    m_EfficiencyHistos[ptCut][name1] = ibooker.book1D(name1.c_str(), name1.c_str(), nEffVsEtaBins, etaBinsArray);
-    name2 = "EffvsEta_SINGLE_" + ptTag + "_Num";
-    m_EfficiencyHistos[ptCut][name2] = ibooker.book1D(name2.c_str(), name2.c_str(), nEffVsEtaBins, etaBinsArray);
+    for(const auto var : m_effTypes) {
+        auto histBins = getHistBinsEff(var);
+        // histograms for eta variable get a special treatment
+        if (var == kEffEta) {
+            for (const auto cut : m_cuts) {
+                const auto gmtPtCut = cut.first;
+                const auto qualLevel = cut.second;
+                std::string name = "effDen_"+m_effStrings[var]+"_"+std::to_string(gmtPtCut);
+                m_EfficiencyDenEtaHistos[gmtPtCut] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
+                name = "effNum_"+m_effStrings[var]+"_"+std::to_string(gmtPtCut)+"_"+m_qualStrings[qualLevel];
+                m_histoKeyEffNumEtaType histoKeyEffNumEta = {gmtPtCut, qualLevel};
+                m_EfficiencyNumEtaHistos[histoKeyEffNumEta] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
+            }
+        } else {
+            for (const auto etaReg : m_etaRegions) {
+                // denominator histograms for pt variable get a special treatment
+                if (var == kEffPt) {
+                    std::string name = "effDen_"+m_effStrings[var]+"_"+m_etaStrings[etaReg];
+                    m_EfficiencyDenPtHistos[etaReg] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
+                } else {
+                    for (const auto cut : m_cuts) {
+                        const int gmtPtCut = cut.first;
+                        std::string name = "effDen_"+m_effStrings[var]+"_"+std::to_string(gmtPtCut)+"_"+m_etaStrings[etaReg];
+                        m_histoKeyEffDenVarType histoKeyEffDenVar = {var, gmtPtCut, etaReg};
+                        m_EfficiencyDenVarHistos[histoKeyEffDenVar] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
+                    }
+                }
+                for (const auto cut : m_cuts) {
+                    const auto gmtPtCut = cut.first;
+                    const auto qualLevel = cut.second;
+                    std::string name = "effNum_"+m_effStrings[var]+"_"+std::to_string(gmtPtCut)+"_"+m_etaStrings[etaReg]+"_"+m_qualStrings[qualLevel];
+                    m_histoKeyEffNumVarType histoKeyEffNum = {var, gmtPtCut, etaReg, qualLevel};
+                    m_EfficiencyNumVarHistos[histoKeyEffNum] = ibooker.book1D(name, name+";"+m_effLabelStrings[var], histBins.size()-1, &histBins[0]);
+                }
+            }
+        }
+    }
 }
 
 void L1TMuonDQMOffline::bookResolutionHistos(DQMStore::IBooker &ibooker) {
     if(m_verbose) cout << "[L1TMuonOffline:] Booking Resolution Plot Histos" << endl;
-
     ibooker.setCurrentFolder(m_HistFolder+"/resolution");
 
-///////////////////////////////////////////////pt RESOLUTION/////////////////////////////////////////////////////////
-    string name = "Pt_Res";
-    m_ResolutionHistos[RESOL_Pt] = ibooker.book1D(name.c_str(),name.c_str(),100,-50.,50.);
-    name = "Pt_Res_OPEN";
-    m_ResolutionHistos[RESOL_Pt_OPEN] = ibooker.book1D(name.c_str(),name.c_str(),100,-50.,50.);
-    name = "Pt_Res_DOUBLE";
-    m_ResolutionHistos[RESOL_Pt_DOUBLE] = ibooker.book1D(name.c_str(),name.c_str(),100,-50.,50.);
-    name = "Pt_Res_SINGLE";
-    m_ResolutionHistos[RESOL_Pt_SINGLE] = ibooker.book1D(name.c_str(),name.c_str(),100,-50.,50.);
-///////////////////////////////////////////////1overPt RESOLUTION/////////////////////////////////////////////////////////
-    name = "1overPt_Res";
-    m_ResolutionHistos[RESOL_1overPt] = ibooker.book1D(name.c_str(),name.c_str(),50,-0.05,0.05);
-    name = "1overPt_Res_OPEN";
-    m_ResolutionHistos[RESOL_1overPt_OPEN] = ibooker.book1D(name.c_str(),name.c_str(),50,-0.05,0.05);
-    name = "1overPt_Res_DOUBLE";
-    m_ResolutionHistos[RESOL_1overPt_DOUBLE] = ibooker.book1D(name.c_str(),name.c_str(),50,-0.05,0.05);
-    name = "1overPt_Res_SINGLE";
-    m_ResolutionHistos[RESOL_1overPt_SINGLE] = ibooker.book1D(name.c_str(),name.c_str(),50,-0.05,0.05);
-///////////////////////////////////////////////eta RESOLUTION////////////////////////////////////////////////////////
-    name = "Eta_Res";
-    m_ResolutionHistos[RESOL_Eta] = ibooker.book1D(name.c_str(),name.c_str(),100,-0.1,0.1);
-    name = "Eta_Res_OPEN";
-    m_ResolutionHistos[RESOL_Eta_OPEN] = ibooker.book1D(name.c_str(),name.c_str(),100,-0.1,0.1);
-    name = "Eta_Res_DOUBLE";
-    m_ResolutionHistos[RESOL_Eta_DOUBLE] = ibooker.book1D(name.c_str(),name.c_str(),100,-0.1,0.1);
-    name = "Eta_Res_SINGLE";
-    m_ResolutionHistos[RESOL_Eta_SINGLE] = ibooker.book1D(name.c_str(),name.c_str(),100,-0.1,0.1);
-///////////////////////////////////////////////phi RESOLUTION////////////////////////////////////////////////////////
-    name = "Phi_Res";
-    m_ResolutionHistos[RESOL_Phi] = ibooker.book1D(name.c_str(),name.c_str(),96,-0.2,0.2);
-    name = "Phi_Res_OPEN";
-    m_ResolutionHistos[RESOL_Phi_OPEN] = ibooker.book1D(name.c_str(),name.c_str(),96,-0.2,0.2);
-    name = "Phi_Res_DOUBLE";
-    m_ResolutionHistos[RESOL_Phi_DOUBLE] = ibooker.book1D(name.c_str(),name.c_str(),96,-0.2,0.2);
-    name = "Phi_Res_SINGLE";
-    m_ResolutionHistos[RESOL_Phi_SINGLE] = ibooker.book1D(name.c_str(),name.c_str(),96,-0.2,0.2);
-///////////////////////////////////////////////charge RESOLUTION////////////////////////////////////////////////////////
-    name = "Charge_Res";
-    m_ResolutionHistos[RESOL_Charge] = ibooker.book1D(name.c_str(),name.c_str(),5,-2,3);
-    name = "Charge_Res_OPEN";
-    m_ResolutionHistos[RESOL_Charge_OPEN] = ibooker.book1D(name.c_str(),name.c_str(),5,-2,3);
-    name = "Charge_Res_DOUBLE";
-    m_ResolutionHistos[RESOL_Charge_DOUBLE] = ibooker.book1D(name.c_str(),name.c_str(),5,-2,3);
-    name = "Charge_Res_SINGLE";
-    m_ResolutionHistos[RESOL_Charge_SINGLE] = ibooker.book1D(name.c_str(),name.c_str(),5,-2,3);
+    for (const auto var : m_resTypes) {
+        auto nbins = std::get<0>(getHistBinsRes(var));
+        auto xmin = std::get<1>(getHistBinsRes(var));
+        auto xmax = std::get<2>(getHistBinsRes(var));
+        for (const auto etaReg : m_etaRegions) {
+            for (const auto qualLevel : m_qualLevelsRes) {
+                m_histoKeyResType histoKeyRes = {var, etaReg, qualLevel};
+                std::string name = "resolution_"+m_resStrings[var]+"_"+m_etaStrings[etaReg]+"_"+m_qualStrings[qualLevel];
+                m_ResolutionHistos[histoKeyRes] = ibooker.book1D(name, name+";"+m_resLabelStrings[var], nbins, xmin, xmax);
+            }
+        }
+    }
 }
+
+//_____________________________________________________________________
+const unsigned int L1TMuonDQMOffline::getNVertices(Handle<VertexCollection> & vertex) {
+    unsigned int nVtx = 0;
+
+    if (vertex.isValid()) {
+        for (const auto vertexIt : *vertex) {
+            if (vertexIt.isValid() && !vertexIt.isFake()) {
+                ++nVtx;
+            }
+        }
+    }
+    return nVtx;
+}
+
 //_____________________________________________________________________
 const reco::Vertex L1TMuonDQMOffline::getPrimaryVertex( Handle<VertexCollection> & vertex,
                                  Handle<BeamSpot> & beamSpot ) {
@@ -537,7 +506,7 @@ void L1TMuonDQMOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons,
             m_TightMuons.push_back(&(*muonIt));
         }
     }
-    m_ControlHistos[CONTROL_NTightVsAll]->Fill(muons->size(),m_TightMuons.size());
+    m_ControlHistos[kCtrlNTightVsAll]->Fill(muons->size(), m_TightMuons.size());
 }
 
 //_____________________________________________________________________
@@ -546,12 +515,11 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
 
     if (m_verbose) cout << "[L1TMuonDQMOffline:] getting probe muons" << endl;
     m_ProbeMuons.clear();
-    std::vector<const reco::Muon*>  tagMuonsInHist;
+    std::vector<const reco::Muon*> tagMuonsInHist;
 
     tagMuonsInHist.clear();
 
     vector<const reco::Muon*>::const_iterator probeCandIt   = m_TightMuons.begin();
-//    vector<const reco::Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
     vector<const reco::Muon*>::const_iterator tightMuonsEnd = m_TightMuons.end();
 
     for (; probeCandIt!=tightMuonsEnd; ++probeCandIt) {
@@ -569,7 +537,7 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
             float dPhi = phi - (*probeCandIt)->phi();
             deltar = sqrt(dEta*dEta + dPhi*dPhi);
 
-            if ( (*tagCandIt) == (*probeCandIt) || (deltar<0.7) ) continue; // CB has a little bias for closed-by muons     
+            if ( (*tagCandIt) == (*probeCandIt) || deltar<m_minTagProbeDR ) continue; // CB has a little bias for closed-by muons     
             tagHasTrig = matchHlt(trigEvent,(*tagCandIt)) && (pt > m_TagPtCut);
             isProbe |= tagHasTrig;
             if (tagHasTrig) {
@@ -577,23 +545,23 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
                     for (vector<const reco::Muon*>::const_iterator tagMuonsInHistIt = tagMuonsInHist.begin(); tagMuonsInHistIt!=tagMuonsInHist.end(); ++tagMuonsInHistIt) {
                         if ( (*tagCandIt) == (*tagMuonsInHistIt) )  {
                             tagMuonAlreadyInHist = true;
-                           break;
+                            break;
                         }
                     }
                     if (tagMuonAlreadyInHist == false) tagMuonsInHist.push_back((*tagCandIt));
                 }
                 if (tagMuonAlreadyInHist == false) {
-                    m_EfficiencyHistos[0]["TagMuonEta_Histo"]->Fill(eta);
-                    m_EfficiencyHistos[0]["TagMuonPhi_Histo"]->Fill(phi);
-                    m_EfficiencyHistos[0]["TagMuonPt_Histo"]->Fill(pt);
+                    m_ControlHistos[kCtrlTagEta]->Fill(eta);
+                    m_ControlHistos[kCtrlTagPhi]->Fill(phi);
+                    m_ControlHistos[kCtrlTagPt]->Fill(pt);
+                    m_ControlHistos[kCtrlTagProbeDr]->Fill(deltar);
                 }
             }
         }
         if (isProbe) m_ProbeMuons.push_back((*probeCandIt));
     }
-    m_ControlHistos[CONTROL_NProbesVsTight]->Fill(m_TightMuons.size(),m_ProbeMuons.size());
+    m_ControlHistos[kCtrlNProbesVsTight]->Fill(m_TightMuons.size(), m_ProbeMuons.size());
 }
-
 
 //_____________________________________________________________________
 void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmtCands) {
@@ -605,32 +573,28 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
     vector<const reco::Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();
 
     l1t::MuonBxCollection::const_iterator gmtIt;
-    l1t::MuonBxCollection::const_iterator gmtEnd = gmtCands->end();
+    l1t::MuonBxCollection::const_iterator gmtEnd = gmtCands->end(0);
 
     for (; probeMuIt!=probeMuEnd; ++probeMuIt) {
-        float eta = (*probeMuIt)->eta();
-        float phi = (*probeMuIt)->phi();
-        float pt  = (*probeMuIt)->pt();
+        m_ControlHistos[kCtrlProbeEta]->Fill((*probeMuIt)->eta());
+        m_ControlHistos[kCtrlProbePhi]->Fill((*probeMuIt)->phi());
+        m_ControlHistos[kCtrlProbePt]->Fill((*probeMuIt)->pt());
 
-        m_EfficiencyHistos[0]["ProbeMuonEta_Histo"]->Fill(eta);
-        m_EfficiencyHistos[0]["ProbeMuonPhi_Histo"]->Fill(phi);
-        m_EfficiencyHistos[0]["ProbeMuonPt_Histo"]->Fill(pt);
-
-        MuonGmtPair pairBestCand((*probeMuIt),nullptr);
+        MuonGmtPair pairBestCand((*probeMuIt), nullptr, m_useAtVtxCoord);
 //      pairBestCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
-        gmtIt = gmtCands->begin();
+        gmtIt = gmtCands->begin(0); // use only on L1T muons from BX 0
 
         for(; gmtIt!=gmtEnd; ++gmtIt) {
-            MuonGmtPair pairTmpCand((*probeMuIt),&(*gmtIt));
+            MuonGmtPair pairTmpCand((*probeMuIt),&(*gmtIt), m_useAtVtxCoord);
 //          pairTmpCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);     
 
-            if ( (pairTmpCand.dR() < m_MaxGmtMuonDR) && (pairTmpCand.dR() < pairBestCand.dR() ) ) {
+            if ( (pairTmpCand.dR() < m_maxGmtMuonDR) && (pairTmpCand.dR() < pairBestCand.dR() ) ) {
                 pairBestCand = pairTmpCand;
             }
 
         }
         m_MuonGmtPairs.push_back(pairBestCand);
-        m_ControlHistos[CONTROL_MuonGmtDeltaR]->Fill(pairBestCand.dR());
+        m_ControlHistos[kCtrlMuonGmtDeltaR]->Fill(pairBestCand.dR());
     }
 }
 
@@ -660,7 +624,37 @@ bool L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, cons
             }
         }
     }
-    return (matchDeltaR < m_MaxHltMuonDR);
+    return (matchDeltaR < m_maxHltMuonDR);
+}
+
+std::vector<float> L1TMuonDQMOffline::getHistBinsEff(EffType eff) {
+    if (eff == kEffPt) {
+        std::vector<float> effVsPtBins(m_effVsPtBins.begin(), m_effVsPtBins.end());
+        return effVsPtBins;
+    }
+    if (eff == kEffPhi) {
+        std::vector<float> effVsPhiBins(m_effVsPhiBins.begin(), m_effVsPhiBins.end());
+        return effVsPhiBins;
+    }
+    if (eff == kEffEta) {
+        std::vector<float> effVsEtaBins(m_effVsEtaBins.begin(), m_effVsEtaBins.end());
+        return effVsEtaBins;
+    }
+    if (eff == kEffVtx) {
+        std::vector<float> effVsVtxBins(m_effVsVtxBins.begin(), m_effVsVtxBins.end());
+        return effVsVtxBins;
+    }
+    return {0., 1.};
+}
+
+std::tuple<int, double, double> L1TMuonDQMOffline::getHistBinsRes(ResType res){
+    if (res == kResPt)      return {100, -50., 50.};
+    if (res == kRes1OverPt) return {50, -0.05, 0.05};
+    if (res == kResQOverPt) return {50, -0.05, 0.05};
+    if (res == kResPhi)     return {96, -0.2, 0.2};
+    if (res == kResEta)     return {100, -0.1, 0.1};
+    if (res == kResCh)      return {5, -2, 3};
+    return {1, 0, 1};
 }
 
 //define this as a plug-in

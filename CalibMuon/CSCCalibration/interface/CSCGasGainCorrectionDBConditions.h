@@ -25,14 +25,13 @@ class CSCGasGainCorrectionDBConditions: public edm::ESProducer, public edm::Even
   
   inline static CSCDBGasGainCorrection * prefillDBGasGainCorrection(bool isForMC, std::string dataCorrFileName);
 
-  typedef const  CSCDBGasGainCorrection * ReturnType;
+  typedef std::unique_ptr<CSCDBGasGainCorrection> ReturnType;
   
   ReturnType produceDBGasGainCorrection(const CSCDBGasGainCorrectionRcd&);
   
  private:
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
-  CSCDBGasGainCorrection *cndbGasGainCorr ;
 
   //Flag for determining if this is for setting MC or data corrections
   bool isForMC;

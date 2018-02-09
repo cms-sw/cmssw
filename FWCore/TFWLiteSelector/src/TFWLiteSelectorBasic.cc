@@ -338,7 +338,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
                                     *(m_->provRetriever_),
                                     m_->reader_.get());
          lbp->setRunPrincipal(rp);
-         m_->ep_->setLuminosityBlockPrincipal(lbp);
+         m_->ep_->setLuminosityBlockPrincipal(lbp.get());
          m_->processNames_ = m_->ep_->processHistory();
 
          edm::Event event(*m_->ep_, m_->md_, nullptr);
