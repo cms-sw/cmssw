@@ -158,6 +158,7 @@ class DQMPFCandidateAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mProfileIsoPFChHad_TrackPt;
 
   MonitorElement* mProfileIsoPFChHad_HcalOccupancyCentral;
+  MonitorElement* mProfileIsoPFChHad_HcalOccupancyCentral_5GeV;
   MonitorElement* mProfileIsoPFChHad_HcalOccupancyEndcap;
   MonitorElement* mProfileIsoPFChHad_EcalOccupancyCentral;
   MonitorElement* mProfileIsoPFChHad_EcalOccupancyEndcap;

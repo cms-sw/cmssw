@@ -220,6 +220,10 @@ void DQMPFCandidateAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     
     mProfileIsoPFChHad_HcalOccupancyCentral  = ibooker.book2D("IsoPfChHad_HCAL_profile_central","IsolatedPFChHa HCAL occupancy (Central Part)", 40, -1.740, 1.740, 72, -M_PI,M_PI);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HCAL_profile_central"        ,mProfileIsoPFChHad_HcalOccupancyCentral));
+
+    mProfileIsoPFChHad_HcalOccupancyCentral_5GeV  = ibooker.book2D("IsoPfChHad_HCAL_profile_central_5GeV","IsolatedPFChHa HCAL occupancy (Central Part)", 40, -1.740, 1.740, 72, -M_PI,M_PI);
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HCAL_profile_central_5GeV"        ,mProfileIsoPFChHad_HcalOccupancyCentral_5GeV));
+
     mProfileIsoPFChHad_HadPtCentral=ibooker.book2D("IsoPfChHad_HadPt_central","Isolated PFChHadron HadPt_central", 40, -1.740, 1.740, 72, -M_PI,M_PI);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HadPt_central"        ,mProfileIsoPFChHad_HadPtCentral));
     
@@ -613,6 +617,7 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 		      }
 		    }     
 		  }
+		
 		  //ECAL element
 		  for(unsigned int ii=0;ii<iECAL.size();ii++) {
 		    const reco::PFBlockElementCluster& eecal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iECAL[ii] ] );
@@ -634,8 +639,15 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 		  for(unsigned int ii=0;ii<iHCAL.size();ii++) {
        		    const reco::PFBlockElementCluster& ehcal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iHCAL[ii] ] );
 		    if(fabs(ehcal.clusterRef()->eta())<1.740){
+		      
 		      mProfileIsoPFChHad_HcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_central"];
 		      if (mProfileIsoPFChHad_HcalOccupancyCentral  && mProfileIsoPFChHad_HcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_HcalOccupancyCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
+		      
+		      // For HEP17 monitoring 
+		      if ( (ecalRaw + hcalRaw) > 5.0 ){
+			mProfileIsoPFChHad_HcalOccupancyCentral_5GeV =map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_central_5GeV"];
+			if (mProfileIsoPFChHad_HcalOccupancyCentral_5GeV  && mProfileIsoPFChHad_HcalOccupancyCentral_5GeV->getRootObject()) mProfileIsoPFChHad_HcalOccupancyCentral_5GeV->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
+		      }
 		      mProfileIsoPFChHad_HadPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_central"];
 		      if (mProfileIsoPFChHad_HadPtCentral  && mProfileIsoPFChHad_HadPtCentral->getRootObject()) mProfileIsoPFChHad_HadPtCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
 		    }else{

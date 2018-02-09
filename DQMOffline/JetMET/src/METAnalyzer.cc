@@ -1,3 +1,4 @@
+
 /** \class METAnalyzer
  *
  *  DQM MET analysis monitoring
@@ -10,6 +11,9 @@
  *          M. Artur Weber
  *          R. Schoefbeck
  *          V. Sordini
+ *          
+ *          Jan 18: modified by
+ *          R. Khurana
  */
 
 #include "DQMOffline/JetMET/interface/METAnalyzer.h"
@@ -317,16 +321,28 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     hMEy        = ibooker.book1D("MEy",        "MEy",        200, -500,  500);
     hMET        = ibooker.book1D("MET",        "MET",        200,    0, 1000);
     hMET_2      = ibooker.book1D("MET_2",      "MET Range 2",200,    0, 2000);
+    hMET_Full   = ibooker.book1D("MET_Full",   "MET Range Full",100,    0, 10000);
     hSumET      = ibooker.book1D("SumET",      "SumET",      400,    0, 4000);
     hMETSig     = ibooker.book1D("METSig",     "METSig",      51,    0,   51);
     hMETPhi     = ibooker.book1D("METPhi",     "METPhi",      60, -M_PI,  M_PI);
     hMET_logx   = ibooker.book1D("MET_logx",   "MET_logx",    40,   -1,    9);
     hSumET_logx = ibooker.book1D("SumET_logx", "SumET_logx",  40,   -1,    9);
     
+    // New plots on request of MET POG
+    hMonitorMETPhi_vs_EleEta  = ibooker.book2D("hMonitorMETPhi_vs_EleEta", "hMonitorMETPhi_vs_EleEta", 72, -3.14, 3.14, 24, -3.0, 3.0 );
+    hMonitorMETPhi_vs_MuEta  = ibooker.book2D("hMonitorMETPhi_vs_MuEta", "hMonitorMETPhi_vs_MuEta",  72, -3.14, 3.14, 24, -3.0, 3.0 );
+    hMonitorMETPhi_vs_PhoEta  = ibooker.book2D("hMonitorMETPhi_vs_PhoEta", "hMonitorMETPhi_vs_PhoEta", 72, -3.14, 3.14, 24, -3.0, 3.0 );
+
+    hMonitorMETPhi_vs_EleEta->setAxisTitle("#eta_{ele}",1);
+    hMonitorMETPhi_vs_MuEta->setAxisTitle("#eta_{#mu}",1);
+    hMonitorMETPhi_vs_PhoEta->setAxisTitle("#eta_{#gamma}",1);
+    
+
     hMEx       ->setAxisTitle("MEx [GeV]",        1);
     hMEy       ->setAxisTitle("MEy [GeV]",        1);
     hMET       ->setAxisTitle("MET [GeV]",        1);
     hMET_2     ->setAxisTitle("MET [GeV]",        1);
+    hMET_Full  ->setAxisTitle("MET [GeV]",        1);
     hSumET     ->setAxisTitle("SumET [GeV]",      1);
     hMETSig    ->setAxisTitle("METSig",       1);
     hMETPhi    ->setAxisTitle("METPhi [rad]",     1);
@@ -338,6 +354,13 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MEy",hMEy));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET",hMET));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_2",hMET_2));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_2",hMET_Full));
+    
+    //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"", ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"hMonitorMETPhi_vs_EleEta",hMonitorMETPhi_vs_EleEta ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"hMonitorMETPhi_vs_MuEta",hMonitorMETPhi_vs_MuEta ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"hMonitorMETPhi_vs_PhoEta",hMonitorMETPhi_vs_PhoEta ));
+
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET",hSumET));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METSig",hMETSig));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhi",hMETPhi));
@@ -870,6 +893,8 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     hMETRate      = ibooker.book1D("METRate",        "METRate",        200,    0, 1000);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METRate",hMETRate));
     
+
+        
     
     ibooker.setCurrentFolder("JetMET");
     lumisecME = ibooker.book1D("lumisec", "lumisec", 3001, -1., 3000.);
@@ -1789,6 +1814,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     hMEy    = map_of_MEs[DirName+"/"+"MEy"];     if (hMEy           && hMEy->getRootObject())     hMEy          ->Fill(MEy);
     hMET    = map_of_MEs[DirName+"/"+"MET"];     if (hMET           && hMET->getRootObject())     hMET          ->Fill(MET);
     hMET_2  = map_of_MEs[DirName+"/"+"MET_2"];   if (hMET_2         && hMET_2->getRootObject())   hMET_2        ->Fill(MET);
+    hMET_Full  = map_of_MEs[DirName+"/"+"MET_Full"];   if (hMET_Full&& hMET_Full->getRootObject())   hMET_Full        ->Fill(MET);
 
 	//hMET_HBHENoiseFilter        = ibooker.book1D("MET_HBHENoiseFilter",        "MET_HBHENoiseFiltered",        200,    0, 1000);
 	//hMET_CSCTightHaloFilter    = ibooker.book1D("MET_CSCTightHaloFilter",        "MET_CSCTightHaloFiltered",        200,    0, 1000);
@@ -1891,6 +1917,72 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     }
     if(isPFMet_){
 
+      
+      float ptmin = -10.0;
+      int idx = -1;
+      
+      float ptmin_mu = -10.0;
+      int idx_mu = -1;
+
+      float ptmin_pho = -10.0;
+      int idx_pho = -1;
+      
+      float ele_eta = -999.0;
+      float mu_eta  = -999.0;
+      float pho_eta = -999.0;
+      // raman 
+      edm::Handle<std::vector<reco::PFCandidate> > particleFlow;
+      iEvent.getByToken(pflowToken_, particleFlow);
+      for (unsigned int i = 0; i < particleFlow->size(); i++) {
+	const reco::PFCandidate& c = particleFlow->at(i);
+	
+	if (c.particleId() == 2){
+	  //std::cout<<" electron found "<<i <<"  "<<c.pt()<<std::endl;
+	  if (c.pt() > ptmin) {
+	    ptmin = c.pt();
+	    idx = i;
+	    ele_eta = c.eta();
+	  }
+	}
+
+	
+	if (c.particleId() == 3){
+	  //std::cout<<" muon found "<<i <<"  "<<c.pt()<<std::endl;
+	  if (c.pt() > ptmin_mu) {
+	    ptmin_mu = c.pt();
+	    idx_mu = i;
+	    mu_eta =  c.eta();
+	  }
+	}
+	
+
+
+	if (c.particleId() == 4){
+	  //std::cout<<" photon found "<<i <<"  "<<c.pt()<<std::endl;
+	  if (c.pt() > ptmin_pho) {
+	    ptmin_pho = c.pt();
+	    idx_pho = i;
+	    pho_eta = c.eta();
+	  }
+	}
+	
+      }
+      float ptlead = ptmin;
+      float ptlead_mu = ptmin_mu;
+      float ptlead_pho = ptmin_pho;
+      float met_phi = met.phi();
+      hMonitorMETPhi_vs_EleEta = map_of_MEs[DirName+"/"+"hMonitorMETPhi_vs_EleEta"];       if (idx > 0 && met.pt()>0.0 &&  hMonitorMETPhi_vs_EleEta->getRootObject()) hMonitorMETPhi_vs_EleEta->Fill( met_phi, ele_eta);
+      hMonitorMETPhi_vs_MuEta = map_of_MEs[DirName+"/"+"hMonitorMETPhi_vs_MuEta"];       if (idx_mu > 0 &&  met.pt()>0.0 && hMonitorMETPhi_vs_MuEta->getRootObject()) hMonitorMETPhi_vs_MuEta->Fill(met_phi, mu_eta);
+      hMonitorMETPhi_vs_PhoEta = map_of_MEs[DirName+"/"+"hMonitorMETPhi_vs_PhoEta"];       if (idx_pho > 0 &&  met.pt()>0.0 && hMonitorMETPhi_vs_PhoEta->getRootObject()) hMonitorMETPhi_vs_PhoEta->Fill(met_phi, pho_eta);
+      
+      
+      
+      std::cout<<" met phi = "<<met_phi<<"  "<<ptlead<<"  "<<ptlead_mu<<"  "<<ptlead_pho<<"  "<<std::endl;
+      std::cout<<" electron index with pt = "<<idx <<"   "<< ptlead<<std::endl;
+      std::cout<<" muon index with pt = "<<idx_mu <<"   "<< ptlead_mu<<std::endl;
+      std::cout<<" photon index with pt = "<<idx_pho <<"   "<< ptlead_pho<<std::endl;
+      // raman ends
+	
       if(fillPFCandidatePlots && fillCandidateMap_histos){
 	for (unsigned int i=0;i<countsPFCand_.size();i++) {
 	  countsPFCand_[i]=0;
@@ -1944,6 +2036,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	float py_HFEGammasMinus=0;
 	for (unsigned int i = 0; i < particleFlow->size(); i++) {
 	  const reco::PFCandidate& c = particleFlow->at(i);
+	  //std::cout<< " pt of ch had = "<<c.particleId()<< "  " <<c.pt()<<std::endl;
 	  if(c.particleId()==1){//charged hadrons
 	    //endcap minus
 	    if(c.eta()>(-3.0)&& c.eta()<(-1.392)){

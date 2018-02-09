@@ -43,7 +43,10 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     JetCleaningFlag            = cms.untracked.bool(False),       
 
     runcosmics                 = cms.untracked.bool(False),                
-                                
+                     
+    LSBegin = cms.int32(0),
+    LSEnd   = cms.int32(-1),
+                                                
     #Cleanup parameters
     CleaningParameters = cleaningParameters.clone(
         bypassAllPVChecks = cms.bool(True),

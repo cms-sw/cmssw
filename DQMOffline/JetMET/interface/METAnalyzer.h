@@ -306,7 +306,12 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* hMETSig;
   MonitorElement* hMET;
   MonitorElement* hMET_2;
+  MonitorElement* hMET_Full;
  
+  MonitorElement* hMonitorMETPhi_vs_EleEta;
+  MonitorElement* hMonitorMETPhi_vs_MuEta;
+  MonitorElement* hMonitorMETPhi_vs_PhoEta;
+  
   MonitorElement* hMET_HBHENoiseFilter;
   MonitorElement* hMET_CSCTightHaloFilter;
   MonitorElement* hMET_eeBadScFilter;

@@ -239,6 +239,17 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mEFrac;
   MonitorElement* mPhiVSEta;
 
+  MonitorElement* mPhi_HEP17_SoftPt;
+  MonitorElement* mPhi_HEP17_LowPt;
+  MonitorElement* mPhi_HEP17_MediumPt;
+  MonitorElement* mPhi_HEP17_HighPt;
+  
+  MonitorElement* mPhi_HEM17_SoftPt;
+  MonitorElement* mPhi_HEM17_LowPt;
+  MonitorElement* mPhi_HEM17_MediumPt;
+  MonitorElement* mPhi_HEM17_HighPt;
+  
+  
   MonitorElement* mPt_Barrel;
   MonitorElement* mPhi_Barrel;
   MonitorElement* mConstituents_Barrel;
@@ -258,20 +269,20 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mEFrac_Forward;
 
 
-  MonitorElement* mPt_Barrel_Hi;
-  MonitorElement* mPhi_Barrel_Hi;
-  MonitorElement* mConstituents_Barrel_Hi;
-  MonitorElement* mHFrac_Barrel_Hi;
+  //MonitorElement* mPt_Barrel_Hi;
+  //MonitorElement* mPhi_Barrel_Hi;
+  //MonitorElement* mConstituents_Barrel_Hi;
+  //MonitorElement* mHFrac_Barrel_Hi;
+  //
+  //MonitorElement* mPt_EndCap_Hi;
+  //MonitorElement* mPhi_EndCap_Hi;
+  //MonitorElement* mConstituents_EndCap_Hi;
+  //MonitorElement* mHFrac_EndCap_Hi;
 
-  MonitorElement* mPt_EndCap_Hi;
-  MonitorElement* mPhi_EndCap_Hi;
-  MonitorElement* mConstituents_EndCap_Hi;
-  MonitorElement* mHFrac_EndCap_Hi;
-
-  MonitorElement* mPt_Forward_Hi;
-  MonitorElement* mPhi_Forward_Hi;
-  MonitorElement* mConstituents_Forward_Hi;
-  MonitorElement* mHFrac_Forward_Hi;
+  //MonitorElement* mPt_Forward_Hi;
+  //MonitorElement* mPhi_Forward_Hi;
+  //MonitorElement* mConstituents_Forward_Hi;
+  //MonitorElement* mHFrac_Forward_Hi;
 
   MonitorElement* mNJets;
   MonitorElement* mDPhi;
@@ -444,12 +455,18 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement*  mPhFracVSeta_highPt;
 
   MonitorElement* mCHFrac_lowPt_EndCap;
+  MonitorElement* mCHFrac_lowPt_EndCap_InTrk;
+  MonitorElement* mCHFrac_lowPt_EndCap_OutTrk;
   MonitorElement* mNHFrac_lowPt_EndCap;
   MonitorElement* mPhFrac_lowPt_EndCap;
   MonitorElement* mCHFrac_mediumPt_EndCap;
+  MonitorElement* mCHFrac_mediumPt_EndCap_InTrk;
+  MonitorElement* mCHFrac_mediumPt_EndCap_OutTrk;
   MonitorElement* mNHFrac_mediumPt_EndCap;
   MonitorElement* mPhFrac_mediumPt_EndCap;
   MonitorElement* mCHFrac_highPt_EndCap;
+  MonitorElement* mCHFrac_highPt_EndCap_InTrk;
+  MonitorElement* mCHFrac_highPt_EndCap_OutTrk;
   MonitorElement* mNHFrac_highPt_EndCap;
   MonitorElement* mPhFrac_highPt_EndCap;
 
