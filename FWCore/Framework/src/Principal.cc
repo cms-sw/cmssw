@@ -580,10 +580,11 @@ namespace edm {
   Principal::prefetchAsync(WaitingTask * task,
                       ProductResolverIndex index,
                       bool skipCurrentProcess,
+                      ServiceToken const& token,
                       ModuleCallingContext const* mcc) const {
     auto const& productResolver = productResolvers_.at(index);
     assert(nullptr!=productResolver.get());
-    productResolver->prefetchAsync(task,*this, skipCurrentProcess,nullptr,mcc);
+    productResolver->prefetchAsync(task,*this, skipCurrentProcess,token, nullptr,mcc);
   }
 
   void

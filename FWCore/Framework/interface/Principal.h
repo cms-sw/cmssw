@@ -127,6 +127,7 @@ namespace edm {
     void prefetchAsync(WaitingTask* waitTask,
                        ProductResolverIndex index,
                        bool skipCurrentProcess,
+                       ServiceToken const& token,
                        ModuleCallingContext const* mcc) const;
 
     void getManyByType(TypeID const& typeID,
