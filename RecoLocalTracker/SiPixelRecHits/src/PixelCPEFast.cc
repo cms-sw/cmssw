@@ -88,7 +88,8 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const & conf,
 void PixelCPEFast::fillParamsForGpu() {
 
 
-  m_commonParamsGPU.theThickness = m_DetParams[0].theThickness;
+  m_commonParamsGPU.theThicknessB = m_DetParams.front().theThickness;
+  m_commonParamsGPU.theThicknessE = m_DetParams.back().theThickness;
   m_commonParamsGPU.thePitchX = m_DetParams[0].thePitchX;
   m_commonParamsGPU.thePitchY = m_DetParams[0].thePitchY;
 
@@ -99,14 +100,21 @@ void PixelCPEFast::fillParamsForGpu() {
 
     assert(p.theDet->index()==int(i));
 
-    
-    /*
-    g.isBarrel;
-    g.isPosZ;
-    g.layer;
+    assert(m_commonParamsGPU.thePitchY==p.thePitchY);    
+    assert(m_commonParamsGPU.thePitchX==p.thePitchX);
+    // assert(m_commonParamsGPU.theThickness==p.theThickness);
+
+    g.isBarrel = GeomDetEnumerators::isBarrel(p.thePart);
+    g.isPosZ = p.theDet->surface().position().z()>0;
+    g.layer = ttopo_.layer(p.theDet->geographicalId());
     g.index=i; // better be!
-    g.rawId;
-    */
+    g.rawId = p.theDet->geographicalId();
+   
+    assert( (g.isBarrel ?m_commonParamsGPU.theThicknessB : m_commonParamsGPU.theThicknessE) ==p.theThickness );
+
+    // if (m_commonParamsGPU.theThickness!=p.theThickness)   
+    //  std::cout << i << (g.isBarrel ? "B " : "E ") << m_commonParamsGPU.theThickness<<"!="<<p.theThickness << std::endl;
+
 
     g.shiftX = 0.5f*p.lorentzShiftInCmX;
     g.shiftY = 0.5f*p.lorentzShiftInCmY;
@@ -257,28 +265,32 @@ PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClus
    {
      // ok now do GPU like ...
 
-     pixelCPEforGPU::ClusParams clusParams;
+     pixelCPEforGPU::ClusParams cp;
 
-     auto & cp = clusParams[0];
-     cp.minRow = theClusterParam.theCluster->minPixelRow();
-     cp.maxRow = theClusterParam.theCluster->maxPixelRow();
-     cp.minCol = theClusterParam.theCluster->minPixelCol();
-     cp.maxCol = theClusterParam.theCluster->maxPixelCol();
-
-      cp.Q_f_X = Q_f_X;
-      cp.Q_l_X = Q_l_X;
-      cp.Q_f_Y = Q_f_Y;
-      cp.Q_l_Y = Q_l_Y;
-
-      auto ind = theDetParam.det->index();
-      pixelCPEforGPU::position(m_commonParamsGPU, m_detParamsCPU[ind],clusParams,0);
      
-       if(std::abs(lp.x()-lpf.x())>0.001) {++statx.c; statx.maxx=std::max(statx.maxx,lp.x());}
-        statx.maxd=std::max(std::abs(lp.x()-lpf.x()), statx.maxd);
-        if(std::abs(lp.y()-lpf.y())>0.001) {++staty.c; staty.maxx=std::max(staty.maxx,lp.y());}
-        staty.maxd=std::max(std::abs(lp.y()-lpf.y()), staty.maxd);
-        // if(std::abs(lp.x()-lpf.x())>0.001) std::cout << lp.x() <<'/'<<lpf.x() << ' ' << lp.y() <<'/'<<lpf.y() << ' ' << le.xx() <<'/'<<lef.xx() <<std::endl;
+     cp.minRow[0] = theClusterParam.theCluster->minPixelRow();
+     cp.maxRow[0] = theClusterParam.theCluster->maxPixelRow();
+     cp.minCol[0] = theClusterParam.theCluster->minPixelCol();
+     cp.maxCol[0] = theClusterParam.theCluster->maxPixelCol();
+
+      cp.Q_f_X[0] = Q_f_X;
+      cp.Q_l_X[0] = Q_l_X;
+      cp.Q_f_Y[0] = Q_f_Y;
+      cp.Q_l_Y[0] = Q_l_Y;
+
+      auto ind = theDetParam.theDet->index();
+      pixelCPEforGPU::position(m_commonParamsGPU, m_detParamsGPU[ind],cp,0);
+      auto xg = cp.xpos[0];     
+      auto yg =	cp.ypos[0];
+
+      if(std::abs(xPos-xg)>0.001) {++statx.c; statx.maxx=std::max(statx.maxx,xPos);}
+      statx.maxd=std::max(std::abs(xPos-xg), statx.maxd);
+      if(std::abs(yPos-yg)>0.001) {++staty.c; staty.maxx=std::max(staty.maxx,yPos);}
+      staty.maxd=std::max(std::abs(yPos-yg), staty.maxd);
+      if(std::abs(xPos-xg)>0.001 || std::abs(yPos-yg)>0.001) 
+          std::cout << (m_detParamsGPU[ind].isBarrel ? "B " : "E ") << xPos <<'/'<<xg << ' ' << yPos <<'/'<<yg << ' ' << cp.maxRow[0]-cp.minRow[0] << ' ' << cp.maxCol[0]-cp.minCol[0] << std::endl;
    
+   }
 
    //--- Now put the two together
    LocalPoint pos_in_local( xPos, yPos );

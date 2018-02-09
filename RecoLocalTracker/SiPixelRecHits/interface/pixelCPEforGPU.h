@@ -12,8 +12,9 @@ namespace pixelCPEforGPU {
 
   // all modules are identical!
   struct CommonParams {
-    float theThickness;
-    float thePitchX;
+    float theThicknessB;
+    float theThicknessE;
+     float thePitchX;
     float thePitchY;
   };
 
@@ -168,12 +169,14 @@ namespace pixelCPEforGPU {
    float cotalpha=0, cotbeta=0;
    computeAnglesFromDet(detParams, xPos,  yPos, cotalpha, cotbeta);
 
+   auto thickness = detParams.isBarrel ? comParams.theThicknessB : comParams.theThicknessE;
+
    auto xcorr = correction(
                             cp.maxRow[ic]-cp.minRow[ic],
                             cp.Q_f_X[ic], cp.Q_l_X[ic],
                             llxl, urxl,
                             detParams.chargeWidthX,   // lorentz shift in cm
-                            comParams.theThickness,
+                            thickness,
                             cotalpha,
                             comParams.thePitchX,
                             phase1PixelTopology::isBigPixX( cp.minRow[ic] ),
@@ -186,7 +189,7 @@ namespace pixelCPEforGPU {
                             cp.Q_f_Y[ic], cp.Q_l_Y[ic],
                             llyl, uryl,
                             detParams.chargeWidthY,   // lorentz shift in cm
-                            comParams.theThickness,
+                            thickness,
                             cotbeta,
                             comParams.thePitchY,
                             phase1PixelTopology::isBigPixY( cp.minCol[ic] ),
