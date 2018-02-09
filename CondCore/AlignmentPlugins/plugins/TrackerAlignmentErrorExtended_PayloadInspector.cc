@@ -41,6 +41,14 @@
 
 namespace {
 
+  static const std::map<AlignmentPI::partitions,std::pair<AlignmentPI::regions,AlignmentPI::regions> > partLimits =
+    {{AlignmentPI::BPix,std::make_pair(AlignmentPI::BPixL1o,AlignmentPI::BPixL4i)},
+     {AlignmentPI::FPix,std::make_pair(AlignmentPI::FPixmL1,AlignmentPI::FPixpL3)},
+     {AlignmentPI::TIB, std::make_pair(AlignmentPI::TIBL1Ro,AlignmentPI::TIBL4i)},
+     {AlignmentPI::TOB, std::make_pair(AlignmentPI::TOBL1Ro,AlignmentPI::TOBL6i)},
+     {AlignmentPI::TID, std::make_pair(AlignmentPI::TIDmR1R,AlignmentPI::TIDpR3)},
+     {AlignmentPI::TEC, std::make_pair(AlignmentPI::TECmR1R,AlignmentPI::TECpR7)}};
+
   /************************************************
     1d histogram of sqrt(d_ii) of 1 IOV 
   *************************************************/
@@ -320,8 +328,8 @@ namespace {
       canvas.Divide(3,2);
 
       // define the paritions range to act upon
-      auto begin = AlignmentPI::partLimits[q].first;
-      auto end = AlignmentPI::partLimits[q].second;
+      auto begin = partLimits.at(q).first;
+      auto end = partLimits.at(q).second;
       // dinamically defined range
       auto range = (end-begin)+1;
 
@@ -333,7 +341,7 @@ namespace {
 	AlignmentPI::index coord = (AlignmentPI::index) k;
 	std::string s_coord = AlignmentPI::getStringFromIndex(coord);
 
-	summaries[coord] = std::make_shared<TH1F>(Form("Summary_%s",s_coord.c_str()),Form("Summary for #sqrt{d_{%s}} APE;;APE #sqrt{d_{%s}} [#mum]",s_coord.c_str(),s_coord.c_str()),range,0,range);
+	summaries[coord] = std::make_shared<TH1F>(Form("Summary_%s",s_coord.c_str()),Form("Summary for #LT #sqrt{d_{%s}} #GT APE;;average APE #LT #sqrt{d_{%s}} #GT [#mum]",s_coord.c_str(),s_coord.c_str()),range,0,range);
 
 	//std::cout<<"begin ( "<< begin << "): " << AlignmentPI::getStringFromRegionEnum(begin) << " end ( " << end << "): " <<  AlignmentPI::getStringFromRegionEnum(end) <<" | range = "<< range << std::endl;
 
@@ -506,8 +514,8 @@ namespace {
 	
       }
 
-      summaryFirst = std::make_shared<TH1F>(Form("first Summary_%s",s_coord.c_str()),Form("Summary for #sqrt{d_{%s}} APE;;APE #sqrt{d_{%s}} [#mum]",s_coord.c_str(),s_coord.c_str()),FirstAPE_spectraByRegion.size(),0,FirstAPE_spectraByRegion.size());
-      summaryLast  = std::make_shared<TH1F>(Form("last Summary_%s",s_coord.c_str()),Form("Summary for #sqrt{d_{%s}} APE;;APE #sqrt{d_{%s}} [#mum]",s_coord.c_str(),s_coord.c_str()),LastAPE_spectraByRegion.size(),0,LastAPE_spectraByRegion.size());
+      summaryFirst = std::make_shared<TH1F>(Form("first Summary_%s",s_coord.c_str()),Form("Summary for #LT #sqrt{d_{%s}} #GT APE;;average APE #LT #sqrt{d_{%s}} #GT [#mum]",s_coord.c_str(),s_coord.c_str()),FirstAPE_spectraByRegion.size(),0,FirstAPE_spectraByRegion.size());
+      summaryLast  = std::make_shared<TH1F>(Form("last Summary_%s",s_coord.c_str()),Form("Summary for #LT #sqrt{d_{%s}} #GT APE;;average APE #LT #sqrt{d_{%s}} #GT [#mum]",s_coord.c_str(),s_coord.c_str()),LastAPE_spectraByRegion.size(),0,LastAPE_spectraByRegion.size());
 
       const char * path_toTopologyXML = (f_alignErrors.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
       TrackerTopology f_tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath()); 

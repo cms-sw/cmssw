@@ -5,6 +5,7 @@
 #include <numeric>
 #include <string>
 #include "TH1.h"
+#include "TCanvas.h"
 #include "TPaveStats.h"
 #include "TStyle.h"
 #include "TList.h"
@@ -24,20 +25,6 @@ namespace AlignmentPI {
     rot_beta=5,
     rot_gamma=6,
   };
-
-  // M.M. 2017/09/29 
-  // Hardcoded Tracker Global Position Record
-  // Without accessing the ES, it is not possible to access to the GPR with the PI technology,
-  // so this needs to be hardcoded.
-  // Anyway it is not likely to change until a new Tracker is installed.
-  // Details at:
-  // - https://indico.cern.ch/event/238026/contributions/513928/attachments/400000/556192/mm_TkAlMeeting_28_03_2013.pdf
-  // - https://twiki.cern.ch/twiki/bin/view/CMS/TkAlignmentPixelPosition
-
-  std::map<AlignmentPI::coordinate,float> hardcodeGPR = 
-    {{AlignmentPI::t_x,-9.00e-02},
-     {AlignmentPI::t_y,-1.10e-01},
-     {AlignmentPI::t_z,-1.70e-01}};
 
   // M.M. 2017/09/12
   // As the matrix is symmetric, we map only 6/9 terms
@@ -136,14 +123,6 @@ namespace AlignmentPI {
     NUM_OF_REGIONS   // 71 -- default
   };
   
-  std::map<AlignmentPI::partitions,std::pair<AlignmentPI::regions,AlignmentPI::regions> > partLimits =
-    {{AlignmentPI::BPix,std::make_pair(AlignmentPI::BPixL1o,AlignmentPI::BPixL4i)},
-     {AlignmentPI::FPix,std::make_pair(AlignmentPI::FPixmL1,AlignmentPI::FPixpL3)},
-     {AlignmentPI::TIB, std::make_pair(AlignmentPI::TIBL1Ro,AlignmentPI::TIBL4i)},
-     {AlignmentPI::TOB, std::make_pair(AlignmentPI::TOBL1Ro,AlignmentPI::TOBL6i)},
-     {AlignmentPI::TID, std::make_pair(AlignmentPI::TIDmR1R,AlignmentPI::TIDpR3)},
-     {AlignmentPI::TEC, std::make_pair(AlignmentPI::TECmR1R,AlignmentPI::TECpR7)}};
-
   /*--------------------------------------------------------------------*/
   std::string getStringFromRegionEnum(AlignmentPI::regions e)
   /*--------------------------------------------------------------------*/
@@ -690,6 +669,34 @@ namespace AlignmentPI {
       return std::make_pair(m>0.? 0.95*m : 1.05*m, m>0? 1.05*m : 0.95*m);
     }
   }
+
+  /*--------------------------------------------------------------------*/
+  std::pair<double,double> calculatePosition(TVirtualPad* myPad,int boundary)
+  /*--------------------------------------------------------------------*/
+  {
+
+    int ix1;
+    int ix2;
+    int iw = myPad->GetWw();
+    int ih = myPad->GetWh();
+    double x1p,y1p,x2p,y2p;
+    myPad->GetPadPar(x1p,y1p,x2p,y2p);
+    ix1 = (int)(iw*x1p);
+    ix2 = (int)(iw*x2p);
+    double wndc  = std::min(1.,(double)iw/(double)ih);
+    double rw    = wndc/(double)iw;
+    double x1ndc = (double)ix1*rw;
+    double x2ndc = (double)ix2*rw;
+    double rx1,ry1,rx2,ry2;
+    myPad->GetRange(rx1,ry1,rx2,ry2);
+    double rx = (x2ndc-x1ndc)/(rx2-rx1);
+    double _sx;
+    _sx = rx*(boundary-rx1)+x1ndc; 
+    double _dx = _sx+0.05;
+
+    return std::make_pair(_sx,_dx);
+  }
+
 
 }
 
