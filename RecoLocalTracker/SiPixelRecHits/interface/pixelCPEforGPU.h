@@ -9,13 +9,13 @@ namespace pixelCPEforGPU {
   using Frame = SOAFrame<float>;
 
   // all modules are identical!
-  struct CommonParam {
+  struct CommonParams {
     float theThickness;
     float thePitchX;
     float thePitchY;
   };
 
-  struct DetParam {
+  struct DetParams {
 
     bool isBarrel;
     bool isPosZ;
@@ -32,6 +32,8 @@ namespace pixelCPEforGPU {
 
     float shiftX;
     float shiftY;
+    float chargeWidthX;
+    float chargeWidthY;
 
     float x0,y0,z0;  // the vertex in the local coord of the detector
 
@@ -39,40 +41,113 @@ namespace pixelCPEforGPU {
 
   };
 
+   // SOA!  (on device)
+  template<uint32_t N>
+  struct ClusParams {
+    uint32_t minRow[N];
+    uint32_t maxRow[N];
+    uint32_t minCol[N];
+    uint32_t maxCol[N];
+
+    int32_t Q_f_X[N];
+    int32_t Q_l_X[N];
+    int32_t Q_f_Y[N];
+    int32_t Q_l_Y[N];
+
+    float xpos[N];
+    float ypos[N];
+  };
+
 
   /*
 
-   float chargeWidthX = (theDetParam.lorentzShiftInCmX * theDetParam.widthLAFractionX);
-   float chargeWidthY = (theDetParam.lorentzShiftInCmY * theDetParam.widthLAFractionY);
-   float shiftX = 0.5f*theDetParam.lorentzShiftInCmX;
-   float shiftY = 0.5f*theDetParam.lorentzShiftInCmY;
+   float chargeWidthX = (theDetParams.lorentzShiftInCmX * theDetParams.widthLAFractionX);
+   float chargeWidthY = (theDetParams.lorentzShiftInCmY * theDetParams.widthLAFractionY);
+   float shiftX = 0.5f*theDetParams.lorentzShiftInCmX;
+   float shiftY = 0.5f*theDetParams.lorentzShiftInCmY;
 
   */
 
 
   constexpr inline
-  void computeAnglesFromDet(DetParam const & detParam, float const x, float const y, float & cotalpha, float & cotbeta) {
+  void computeAnglesFromDet(DetParams const & detParams, float const x, float const y, float & cotalpha, float & cotbeta) {
     // x,y local position on det
-    auto gvx = x - detParam.x0;
-    auto gvy = y  -detParam.y0;
-    auto gvz = -1.f/detParam.z0;
+    auto gvx = x - detParams.x0;
+    auto gvy = y  -detParams.y0;
+    auto gvz = -1.f/detParams.z0;
     //  normalization not required as only ratio used...
     // calculate angles
     cotalpha = gvx*gvz;
-    cotbeta  = gvy*gvz;
-  
+    cotbeta  = gvy*gvz;  
   }
 
   constexpr inline
-  void medianPosition(DetParam const & detParam,) {
+  float correction( 
+                         uint16 sizeM1,
+                         int Q_f,              //!< Charge in the first pixel.
+                         int Q_l,              //!< Charge in the last pixel.
+                         uint16_t upper_edge_first_pix, //!< As the name says.
+                         uint16_t lower_edge_last_pix,  //!< As the name says.
+                         float lorentz_shift,   //!< L-shift at half thickness
+                         float theThickness,   //detector thickness
+                         float cot_angle,        //!< cot of alpha_ or beta_
+                         float pitch,            //!< thePitchX or thePitchY
+                         bool first_is_big,       //!< true if the first is big
+                         bool last_is_big        //!< true if the last is big
+                   )
+{
+   if (0==sizeM1) return 0;  // size1
+   float W_eff; // the compiler detects the logic below (and warns if buggy!!!!0 
+   bool simple=true;
+   if (1==sizeM1) {   // size 2   
+     //--- Width of the clusters minus the edge (first and last) pixels.
+     //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
+       //  assert(lower_edge_last_pix>=upper_edge_first_pix);
+     auto W_inner      =  pitch * float(lower_edge_last_pix-upper_edge_first_pix);  // in cm
+
+     //--- Predicted charge width from geometry
+     auto W_pred = theThickness * cot_angle                     // geometric correction (in cm)
+                    - lorentz_shift;                    // (in cm) &&& check fpix!
+   
+     W_eff = std::abs( W_pred ) - W_inner;;
+
+     //--- If the observed charge width is inconsistent with the expectations
+     //--- based on the track, do *not* use W_pred-W_innner.  Instead, replace
+     //--- it with an *average* effective charge width, which is the average
+     //--- length of the edge pixels.
+     //
+     simple = ( W_eff < 0.0f ) | ( W_eff > pitch );
+
+   }
+   if (simple) {
+     //--- Total length of the two edge pixels (first+last)
+     float sum_of_edge = 2.0f;
+     if (first_is_big) sum_of_edge += 1.0f;
+     if (last_is_big)  sum_of_edge += 1.0f;
+     W_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
+   }
+   
+   
+   //--- Finally, compute the position in this projection
+   float Qdiff = Q_l - Q_f;
+   float Qsum  = Q_l + Q_f;
+   
+   //--- Temporary fix for clusters with both first and last pixel with charge = 0
+   if(Qsum==0) Qsum=1.0f;
+   return 0.5f*(Qdiff/Qsum) * W_eff;   
+
+  }
+
+  constexpr inline
+  void position(ComParams const & comParams, DetParams & detParams, ClusParams const & cp, uint32_t ic) {
 
    //--- Upper Right corner of Lower Left pixel -- in measurement frame
-   uint16_t llx = minPixelRow+1;
-   uint16_t lly = minPixelCol+1;
+   uint16_t llx = cp.minRow[ic]+1;
+   uint16_t lly = cp.minCol[ic]+1;
    
    //--- Lower Left corner of Upper Right pixel -- in measurement frame
-   uint16_t urx = maxPixelRow;
-   uint16_t ury = maxPixelCol;
+   uint16_t urx = cp.maxRow[ic];
+   uint16_t ury = cp,maxCol[ic];
    
    auto llxl = phase1PixelTopology::localX(llx);   
    auto llyl = phase1PixelTopology::localY(lly);
@@ -83,10 +158,40 @@ namespace pixelCPEforGPU {
    auto my = llyl+uryl;   
 
    // apply the lorentz offset correction
-   xPos = shiftX + theComParam.thePitchX*(0.5f*float(mx)+float(phase1PixelTopology::xOffset));
-   yPos = shiftY + thecomParam.thePitchY*(0.5f*float(my)+float(phase1PixelTopology::yOffset));
+   xPos = shiftX + comParams.thePitchX*(0.5f*float(mx)+float(phase1PixelTopology::xOffset));
+   yPos = shiftY + comParams.thePitchY*(0.5f*float(my)+float(phase1PixelTopology::yOffset));
  
-  } 
 
+   computeAnglesFromDet(detParams, xPos,  yPos, cotalpha, cotbeta);
+
+   auto xcorr = correction(
+                            clusterParams.maxRow[i]-clusterParams.minRow[i],
+                            detParams.Q_f_X[ic], detParams.Q_l_X[ic],
+                            llxl, urxl,
+                            detParams.chargeWidthX,   // lorentz shift in cm
+                            comParams.theThickness,
+                            cotalpha,
+                            comParam.thePitchX,
+                            phase1PixelTopology::isBigPixX( clusterParams.minRow[i] ),
+                            phase1PixelTopology::isBigPixX( clusterParams.maxRow[i] )
+                           );   
+
+
+   auto ycorr = correction(
+                            clusterParams.maxCol[i]-clusterParams.minCol[i],
+                            detParams.Q_f_Y[ic], detParams.Q_l_Y[ic],
+                            llyl, uryl,
+                            detParams.chargeWidthY,   // lorentz shift in cm
+                            comParams.theThickness,
+                            cotbeta,
+                            comParam.thePitchY,
+                            phase1PixelTopology::isBigPixY( clusterParams.minCol[i] ),
+                            phase1PixelTopology::isBigPixY( clusterParams.maxCol[i] )
+                           );
+
+   cp.xpos[ic]=xPos+xcorr;
+   cp.ypos[ic]=yPos+ycorr;
+
+  }
 
 }
