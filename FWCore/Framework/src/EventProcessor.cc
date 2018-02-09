@@ -1359,15 +1359,22 @@ namespace edm {
 
   
   void EventProcessor::endUnfinishedLumi() {
-    auto status = streamLumiStatus_[0];
-    if(status) {
-      status.reset();
+    bool needToEnd = false;
+    for(auto const& status: streamLumiStatus_) {
+      if(status) {
+        needToEnd = true;
+        break;
+      }
+    }
+    if(needToEnd) {
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
       {
         WaitingTaskHolder globalTaskHolder{globalWaitTask.get()};
         for(unsigned int i=0; i< preallocations_.numberOfStreams(); ++i) {
-          streamEndLumiAsync(globalTaskHolder, i, streamLumiStatus_[i]);
+          if(streamLumiStatus_[i]) {
+            streamEndLumiAsync(globalTaskHolder, i, streamLumiStatus_[i]);
+          }
         }
       }
       globalWaitTask->wait_for_all();
