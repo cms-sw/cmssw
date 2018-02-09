@@ -947,10 +947,7 @@ class ConfigBuilder(object):
 
         if "DATAMIX" in self.stepMap.keys():
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
-	    if self._options.datamix == 'PreMix':
-		    self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDMPreMix_cff"
-	    else:
-	            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
+            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
 
