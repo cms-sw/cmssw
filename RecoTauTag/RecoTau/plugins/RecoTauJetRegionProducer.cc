@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -194,11 +195,11 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
     nNewJets++;
   }
 
-  // Put our new jets into the event
+    // Put our new jets into the event
   edm::OrphanHandle<reco::PFJetCollection> newJetsInEvent = evt.put(std::move(newJets), "jets");
-
+  
   // Create a matching between original jets -> extra collection
-  auto matching = std::make_unique<PFJetMatchMap>();
+  auto matching = (nJets !=0) ? std::make_unique<PFJetMatchMap>(edm::makeRefToBaseProdFrom(edm::RefToBase<reco::Jet>(jets[0]), evt), newJetsInEvent) : std::make_unique<PFJetMatchMap>();
   for (size_t ijet = 0; ijet < nJets; ++ijet) {
     // JAN - FIXME - this doesn't look very elegant...
     matching->insert(edm::RefToBase<reco::Jet>(jets[ijet]), edm::RefToBase<reco::Jet>(edm::Ref<reco::PFJetCollection>(newJetsInEvent, matchInfo[ijet])));
