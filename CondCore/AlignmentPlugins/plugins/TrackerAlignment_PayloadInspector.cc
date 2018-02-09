@@ -45,6 +45,20 @@
 
 namespace {
 
+  // M.M. 2017/09/29 
+  // Hardcoded Tracker Global Position Record
+  // Without accessing the ES, it is not possible to access to the GPR with the PI technology,
+  // so this needs to be hardcoded.
+  // Anyway it is not likely to change until a new Tracker is installed.
+  // Details at:
+  // - https://indico.cern.ch/event/238026/contributions/513928/attachments/400000/556192/mm_TkAlMeeting_28_03_2013.pdf
+  // - https://twiki.cern.ch/twiki/bin/view/CMS/TkAlignmentPixelPosition
+
+  static const std::map<AlignmentPI::coordinate,float> hardcodeGPR = 
+    {{AlignmentPI::t_x,-9.00e-02},
+     {AlignmentPI::t_y,-1.10e-01},
+     {AlignmentPI::t_z,-1.70e-01}};
+
   //*******************************************//
   // Size of the movement over all partitions 
   //******************************************//
@@ -167,7 +181,7 @@ namespace {
       auto min = compare->GetMinimum();
       auto range = std::abs(max) > std::abs(min) ? std::abs(max) : std::abs(min);
       //auto newMax = (max > 0.) ? max*1.2 : max*0.8;
-      compare->GetYaxis()->SetRangeUser(-range*1.2,range*1.2);
+      compare->GetYaxis()->SetRangeUser(-range*1.3,range*1.2);
       compare->SetMarkerStyle(20);
       compare->SetMarkerSize(0.5);
       compare->Draw("P");
@@ -185,11 +199,24 @@ namespace {
 	l[i].Draw("same");
 	i++;
       }
-      
-       
-      TLegend legend = TLegend(0.70,0.80,0.95,0.9);
+     
+      TLatex tSubdet;
+      tSubdet.SetNDC();
+      tSubdet.SetTextAlign(21);
+      tSubdet.SetTextSize(0.027);
+      tSubdet.SetTextAngle(90);
+      for (unsigned int j=1;j<=6;j++ ){
+      	auto thePart = static_cast<AlignmentPI::partitions>(j);
+	tSubdet.SetTextColor(kRed);
+	auto myPair = (j>1) ? AlignmentPI::calculatePosition(gPad,compare->GetBinLowEdge(boundaries[j-2])) : AlignmentPI::calculatePosition(gPad,compare->GetBinLowEdge(0)); 
+	float theX_ = myPair.first+0.025;
+	tSubdet.DrawLatex(theX_,0.20,Form("%s",(AlignmentPI::getStringFromPart(thePart)).c_str()));
+      }
+
+      TLegend legend = TLegend(0.58,0.82,0.95,0.9);
+      legend.SetTextSize(0.03);
       legend.SetHeader("Alignment comparison","C"); // option "C" allows to center the header
-      legend.AddEntry(compare.get(),("IOV: "+std::to_string(std::get<0>(firstiov))+" - "+std::to_string(std::get<0>(lastiov))).c_str(),"PL");
+      legend.AddEntry(compare.get(),("IOV:"+std::to_string(std::get<0>(lastiov))+"-"+std::to_string(std::get<0>(firstiov))).c_str(),"PL");
       legend.Draw("same");
 
       TLatex t1;
@@ -426,7 +453,7 @@ namespace {
       barycenter/=nmodules;
 
       // applied GPR correction to move barycenter to global CMS coordinates
-      barycenter+=AlignmentPI::hardcodeGPR[coord];
+      barycenter+=hardcodeGPR.at(coord);
 
       return barycenter;
 
