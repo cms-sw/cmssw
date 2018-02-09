@@ -10,7 +10,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.source = cms.Source(
     "NewEventStreamFileReader",
     fileNames = cms.untracked.vstring(
-        "/store/user/mommsen/testData/run309216_ls0038_streamExpressCosmics_StorageManager.dat" #version 1 data format
+        #"/store/user/mommsen/testData/run309216_ls0038_streamExpressCosmics_StorageManager.dat"  #version 1 data format
+        "/store/user/mommsen/testData/run309369_ls0004_streamExpressCosmics_StorageManager.dat" #version 2 data format
         )
     )
 
