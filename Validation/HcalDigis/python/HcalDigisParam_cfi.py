@@ -21,7 +21,7 @@ hcaldigisAnalyzer = DQMEDAnalyzer('HcalDigisValidation',
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(hcaldigisAnalyzer, simHits = "famosSimHits:HcalHits")
+fastSim.toModify(hcaldigisAnalyzer, simHits = "fastSimProducer:HcalHits")
 
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify(hcaldigisAnalyzer,

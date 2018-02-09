@@ -1,7 +1,7 @@
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 
-inline const FSimVertex& FSimTrack::vertex() const{ return mom_->vertex(vertIndex()); }
+inline const FSimVertex FSimTrack::vertex() const { return (!mom_ ? FSimVertex(vertex_.position(), vertex_.parentIndex(), vertex_.vertexId(), nullptr) : mom_->vertex(vertIndex())); }
 
 inline const FSimVertex& FSimTrack::endVertex() const {
   if(endv_ < 0)

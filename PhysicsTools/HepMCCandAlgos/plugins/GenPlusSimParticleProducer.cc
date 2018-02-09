@@ -9,7 +9,7 @@ to the list including all ancestors and correct mother/daughter references
 
 Sample useage in cfg.py file:
 process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
-        src           = cms.InputTag("g4SimHits"), # use "famosSimHits" for FAMOS
+        src           = cms.InputTag("g4SimHits"), # use "fastSimProducer" for FastSim
         setStatus     = cms.int32(8),             # set status = 8 for GEANT GPs
         particleTypes = cms.vstring("pi+"),       # also picks pi- (optional)
         filter        = cms.vstring("pt > 0.0"),  # just for testing
