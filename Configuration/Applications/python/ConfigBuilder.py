@@ -959,7 +959,6 @@ class ConfigBuilder(object):
         self.GENDefaultSeq='pgen'
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
-	self.DIGIPREMIX_S2DefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -1424,18 +1423,6 @@ class ConfigBuilder(object):
 		else:
 			self._options.inputEventContent=self._options.inputEventContent+',REGEN'
 
-
-	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
-        return
-
-    def prepare_DIGIPREMIX_S2(self, sequence = None):
-        """ Enrich the schedule with the digitisation step"""
-	self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
-
-        # Eventually remove this function
-
-        if sequence == 'pdigi_valid':
-            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return

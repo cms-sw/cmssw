@@ -84,7 +84,6 @@ def OptionsFromItems(items):
                  "SIM":"GEN",
                  "reSIM":"SIM",
                  "DIGI":"SIM",
-                 "DIGIPREMIX_S2":"SIM",
                  "reDIGI":"DIGI",
                  "L1REPACK":"RAW",
                  "HLT":"RAW",
