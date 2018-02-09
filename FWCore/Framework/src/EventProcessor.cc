@@ -979,6 +979,7 @@ namespace edm {
                                          runPrincipal,
                                          ts,
                                          es,
+                                         serviceToken_,
                                          subProcesses_);
       globalWaitTask->wait_for_all();
       if(globalWaitTask->exceptionPtr() != nullptr) {
@@ -1003,6 +1004,7 @@ namespace edm {
                                          runPrincipal,
                                          ts,
                                          es,
+                                         serviceToken_,
                                          subProcesses_);
 
       streamLoopWaitTask->wait_for_all();
@@ -1035,12 +1037,13 @@ namespace edm {
       
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
       
-      endStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
+      endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
                                        *schedule_,
                                        preallocations_.numberOfStreams(),
                                        runPrincipal,
                                        ts,
                                        es,
+                                       serviceToken_,
                                        subProcesses_,
                                        cleaningUpAfterException);
       
@@ -1063,6 +1066,7 @@ namespace edm {
                                        runPrincipal,
                                        ts,
                                        es,
+                                       serviceToken_,
                                        subProcesses_,
                                        cleaningUpAfterException);
       globalWaitTask->wait_for_all();
@@ -1166,14 +1170,13 @@ namespace edm {
                       handleNextEventForStreamAsync(std::move(h), i);
                     }
                   });
-                  //make the services available
-                  ServiceRegistry::Operate operate(serviceToken_);
-
                   auto& event = principalCache_.eventPrincipal(i);
                   streamLumiStatus_[i] = status;
                   auto lp = status->lumiPrincipal();
                   event.setLuminosityBlockPrincipal(lp.get());
-                  beginStreamTransitionAsync<Traits>(WaitingTaskHolder{eventTask}, *schedule_,i,*lp,ts,es,subProcesses_);
+                  beginStreamTransitionAsync<Traits>(WaitingTaskHolder{eventTask},
+                                                     *schedule_,i,*lp,ts,es,
+                                                     serviceToken_,subProcesses_);
                 });
               }
             }
@@ -1189,6 +1192,7 @@ namespace edm {
                                                *(status->lumiPrincipal()),
                                                ts,
                                                es,
+                                               serviceToken_,
                                                subProcesses_);
           }
         } catch(...) {
@@ -1301,12 +1305,12 @@ namespace edm {
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
     EventSetup const& es = esp_->eventSetup();
 
-    ServiceRegistry::Operate operate(serviceToken_);
     endGlobalTransitionAsync<Traits>(WaitingTaskHolder(t),
                                      *schedule_,
                                      lp,
                                      ts,
                                      es,
+                                     serviceToken_,
                                      subProcesses_,
                                      iLumiStatus->cleaningUpAfterException());
   }
@@ -1348,6 +1352,7 @@ namespace edm {
       endStreamTransitionAsync<Traits>(std::move(lumiDoneTask),
                                        *schedule_,iStreamIndex,
                                        lumiPrincipal,ts,es,
+                                       serviceToken_,
                                        subProcesses_,cleaningUpAfterException);
     }
   }
@@ -1538,7 +1543,7 @@ namespace edm {
                    //the stream will stop now
                    return;
                  }
-                 handleNextEventForStreamAsync(iTask, iStreamIndex);
+                 handleNextEventForStreamAsync(std::move(iTask), iStreamIndex);
                });
 
                processEventAsync( WaitingTaskHolder(recursionTask), iStreamIndex);
@@ -1549,7 +1554,7 @@ namespace edm {
                    status->startNextLumi();
                    beginLumiAsync(status->nextSyncValue(), status->runResource(), iTask);
                  }
-                 streamEndLumiAsync(iTask,iStreamIndex, status);
+                 streamEndLumiAsync(std::move(iTask),iStreamIndex, status);
                } else {
                  iTask.doneWaiting(std::exception_ptr{});
                }
@@ -1629,8 +1634,6 @@ namespace edm {
                                      [this,pep,finalizeEventTask] (std::exception_ptr const* iPtr) mutable
       {
          if(not iPtr) {
-           ServiceRegistry::Operate operate(serviceToken_);
-
            //when run with 1 thread, we want to the order to be what
            // it was before. This requires reversing the order since
            // tasks are run last one in first one out
@@ -1645,7 +1648,7 @@ namespace edm {
     }
     
     schedule_->processOneEventAsync(std::move(afterProcessTask),
-                                    iStreamIndex,*pep, esp_->eventSetup());
+                                    iStreamIndex,*pep, esp_->eventSetup(), serviceToken_);
 
   }
 

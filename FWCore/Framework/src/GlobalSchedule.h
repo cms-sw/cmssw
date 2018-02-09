@@ -97,6 +97,7 @@ namespace edm {
     void processOneGlobalAsync(WaitingTaskHolder holder,
                                typename T::MyPrincipal& principal,
                                EventSetup const& eventSetup,
+                               ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const&);
@@ -165,13 +166,14 @@ namespace edm {
   GlobalSchedule::processOneGlobalAsync(WaitingTaskHolder iHolder,
                                         typename T::MyPrincipal& ep,
                                         EventSetup const& es,
+                                        ServiceToken const& token,
                                         bool cleaningUpAfterException) {
-    ServiceToken token = ServiceRegistry::instance().presentToken();
-    
     //need the doneTask to own the memory
     auto globalContext = std::make_shared<GlobalContext>(T::makeGlobalContext(ep, processContext_));
     
     if(actReg_) {
+      //Services may depend upon each other
+      ServiceRegistry::Operate op(token);
       T::preScheduleSignal(actReg_.get(), globalContext.get());
     }
     
@@ -223,7 +225,7 @@ namespace edm {
     WaitingTaskHolder holdForLoop(doneTask);
     auto& aw = workerManagers_[ep.index()].allWorkers();
     for(Worker* worker: boost::adaptors::reverse(aw) ) {
-      worker->doWorkAsync<T>(doneTask,ep,es,StreamID::invalidStreamID(),parentContext,globalContext.get());
+      worker->doWorkAsync<T>(doneTask,ep,es,token, StreamID::invalidStreamID(),parentContext,globalContext.get());
     }
 
   }

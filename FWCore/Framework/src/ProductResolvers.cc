@@ -173,6 +173,7 @@ namespace edm {
   void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                             Principal const& principal,
                                             bool skipCurrentProcess,
+                                            ServiceToken const& token,
                                             SharedResourcesAcquirer* sra,
                                             ModuleCallingContext const* mcc) const {
     m_waitingTasks.add(waitTask);
@@ -180,9 +181,8 @@ namespace edm {
     bool expected = false;
     if( m_prefetchRequested.compare_exchange_strong(expected, true) ) {
       
-      //need to make sure Service system is activated on the reading thread
-      auto token = ServiceRegistry::instance().presentToken();
       auto workToDo = [this, mcc, &principal, token] () {
+        //need to make sure Service system is activated on the reading thread
         ServiceRegistry::Operate guard(token);
         try {
           resolveProductImpl<true>([this,&principal,mcc]() {
@@ -256,6 +256,7 @@ namespace edm {
   void PuttableProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                                Principal const& principal,
                                                bool skipCurrentProcess,
+                                               ServiceToken const& token,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const {
     if(not skipCurrentProcess) {
@@ -365,6 +366,7 @@ namespace edm {
   UnscheduledProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                              Principal const& principal,
                                              bool skipCurrentProcess,
+                                             ServiceToken const& token,
                                              SharedResourcesAcquirer* sra,
                                              ModuleCallingContext const* mcc) const
   {
@@ -398,6 +400,7 @@ namespace edm {
       worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(t,
                                                                                        event,
                                                                                        *(aux_->eventSetup()),
+                                                                                       token,
                                                                                        event.streamID(),
                                                                                        parentContext,
                                                                                        mcc->getStreamContext());
@@ -706,6 +709,7 @@ namespace edm {
   NoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                            Principal const& principal,
                                            bool skipCurrentProcess,
+                                           ServiceToken const& token,
                                            SharedResourcesAcquirer* sra,
                                            ModuleCallingContext const* mcc) const {
     bool timeToMakeAtEnd = true;
@@ -720,14 +724,14 @@ namespace edm {
       bool expected = false;
       if( prefetchRequested_.compare_exchange_strong(expected,true)) {
         //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, false, sra, mcc, ServiceRegistry::instance().presentToken());
+        tryPrefetchResolverAsync(0, principal, false, sra, mcc, token);
       }
     } else {
       skippingWaitingTasks_.add(waitTask);
       bool expected = false;
       if( skippingPrefetchRequested_.compare_exchange_strong(expected,true)) {
       //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, true, sra, mcc, ServiceRegistry::instance().presentToken());
+        tryPrefetchResolverAsync(0, principal, true, sra, mcc, token);
       }
     }
   }
@@ -863,6 +867,7 @@ namespace edm {
         productResolver->prefetchAsync(task,
                                        principal,
                                        skipCurrentProcess,
+                                       token,
                                        sra, mcc);
         if(0 == task->decrement_ref_count()) {
           tbb::task::spawn(*task);
@@ -985,11 +990,12 @@ namespace edm {
   void SingleChoiceNoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                                             Principal const& principal,
                                                             bool skipCurrentProcess,
+                                                            ServiceToken const& token,
                                                             SharedResourcesAcquirer* sra,
                                                             ModuleCallingContext const* mcc) const {
     principal.getProductResolverByIndex(realResolverIndex_)
     ->prefetchAsync(waitTask,principal,
-                    skipCurrentProcess, sra, mcc);
+                    skipCurrentProcess, token, sra, mcc);
   }
   
   void SingleChoiceNoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {

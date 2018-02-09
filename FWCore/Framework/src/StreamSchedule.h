@@ -179,12 +179,14 @@ namespace edm {
     void processOneEventAsync(WaitingTaskHolder iTask,
                               EventPrincipal& ep,
                               EventSetup const& es,
+                              ServiceToken const& token,
                               std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters);
 
     template <typename T>
     void processOneStreamAsync(WaitingTaskHolder iTask,
                                typename T::MyPrincipal& principal,
                                EventSetup const& eventSetup,
+                               ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
     void beginStream();
@@ -384,9 +386,8 @@ namespace edm {
   void StreamSchedule::processOneStreamAsync(WaitingTaskHolder iHolder,
                                              typename T::MyPrincipal& ep,
                                              EventSetup const& es,
+                                             ServiceToken const& token,
                                              bool cleaningUpAfterException) {
-    ServiceToken token = ServiceRegistry::instance().presentToken();
-
     T::setStreamContext(streamContext_, ep);
 
     auto id = ep.id();
@@ -426,9 +427,7 @@ namespace edm {
       
     });
     
-    auto task = make_functor_task(tbb::task::allocate_root(), [this,doneTask,&ep,&es,token] () mutable {
-      WaitingTaskHolder h(doneTask);
-      
+    auto task = make_functor_task(tbb::task::allocate_root(), [this,doneTask, h =WaitingTaskHolder(doneTask) ,&ep,&es,token] () mutable {
       ServiceRegistry::Operate op(token);
       try {
         T::preScheduleSignal(actReg_.get(), &streamContext_);
@@ -439,15 +438,15 @@ namespace edm {
 
       workerManager_.resetAll();
       for(auto& p : end_paths_) {
-        p.runAllModulesAsync<T>(doneTask, ep, es, streamID_, &streamContext_);
+        p.runAllModulesAsync<T>(doneTask, ep, es, token, streamID_, &streamContext_);
       }
 
       for(auto& p : trig_paths_) {
-        p.runAllModulesAsync<T>(doneTask, ep, es, streamID_, &streamContext_);
+        p.runAllModulesAsync<T>(doneTask, ep, es, token, streamID_, &streamContext_);
       }
       
       workerManager_.processOneOccurrenceAsync<T>(doneTask,
-                                                  ep, es, streamID_, &streamContext_, &streamContext_);
+                                                  ep, es, token, streamID_, &streamContext_, &streamContext_);
     });
     
     if(streamID_.value() == 0) {

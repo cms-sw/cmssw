@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/UnscheduledCallProducer.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
@@ -59,6 +60,7 @@ namespace edm {
                               WaitingTask* task,
                               typename T::MyPrincipal& principal,
                               EventSetup const& eventSetup,
+                              ServiceToken const& token,
                               StreamID streamID,
                               typename T::Context const* topContext,
                               U const* context);
@@ -67,6 +69,7 @@ namespace edm {
     void processAccumulatorsAsync(WaitingTask* task,
                                   typename T::MyPrincipal const& ep,
                                   EventSetup const& es,
+                                  ServiceToken const& token,
                                   StreamID streamID,
                                   ParentContext const& parentContext,
                                   typename T::Context const* context);
@@ -115,7 +118,7 @@ namespace edm {
 
     auto waitTask = make_empty_waiting_task();
     waitTask->increment_ref_count();
-    processOneOccurrenceAsync<T,U>(waitTask.get(), ep, es, streamID, topContext, context);
+    processOneOccurrenceAsync<T,U>(waitTask.get(), ep, es, ServiceRegistry::instance().presentToken(), streamID, topContext, context);
     waitTask->wait_for_all();
     if(waitTask->exceptionPtr() != nullptr) {
       try{ 
@@ -138,11 +141,12 @@ namespace edm {
   WorkerManager::processOneOccurrenceAsync(WaitingTask* task,
                                            typename T::MyPrincipal& ep,
                                            EventSetup const& es,
+                                           ServiceToken const& token,
                                            StreamID streamID,
                                            typename T::Context const* topContext,
                                            U const* context) {
     //make sure the unscheduled items see this run or lumi transition
-    unscheduled_.runNowAsync<T,U>(task,ep, es,streamID, topContext, context);
+    unscheduled_.runNowAsync<T,U>(task,ep, es, token, streamID, topContext, context);
   }
 
   template <typename T>
@@ -150,10 +154,11 @@ namespace edm {
   WorkerManager::processAccumulatorsAsync(WaitingTask* task,
                                           typename T::MyPrincipal const& ep,
                                           EventSetup const& es,
+                                          ServiceToken const& token,
                                           StreamID streamID,
                                           ParentContext const& parentContext,
                                           typename T::Context const* context) {
-    unscheduled_.runAccumulatorsAsync<T>(task, ep, es, streamID, parentContext, context);
+    unscheduled_.runAccumulatorsAsync<T>(task, ep, es, token, streamID, parentContext, context);
   }
 }
 

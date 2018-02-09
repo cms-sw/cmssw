@@ -130,17 +130,19 @@ namespace edm {
                 typename T::Context const* context);
     
     void prePrefetchSelectionAsync(WaitingTask* task,
+                                   ServiceToken const&,
                                       StreamID stream,
                                       EventPrincipal const*);
 
     void prePrefetchSelectionAsync(WaitingTask* task,
+                                   ServiceToken const&,
                                    StreamID stream,
                                    void const*) {assert(false);}
 
     template <typename T>
     void doWorkAsync(WaitingTask* task,
                      typename T::MyPrincipal const&, EventSetup const& c,
-                     StreamID stream,
+                     ServiceToken const& token, StreamID stream,
                      ParentContext const& parentContext,
                      typename T::Context const* context);
 
@@ -148,6 +150,7 @@ namespace edm {
     void doWorkNoPrefetchingAsync(WaitingTask* task,
                                   typename T::MyPrincipal const&,
                                   EventSetup const& c,
+                                  ServiceToken const& token,
                                   StreamID stream,
                                   ParentContext const& parentContext,
                                   typename T::Context const* context);
@@ -357,6 +360,7 @@ namespace edm {
     }
         
     void prefetchAsync(WaitingTask*,
+                       ServiceToken const&,
                        ParentContext const& parentContext,
                        Principal const& );
         
@@ -394,6 +398,7 @@ namespace edm {
       RunModuleTask(Worker* worker,
                     typename T::MyPrincipal const& ep,
                     EventSetup const& es,
+                    ServiceToken const& token,
                     StreamID streamID,
                     ParentContext const& parentContext,
                     typename T::Context const* context):
@@ -403,7 +408,7 @@ namespace edm {
       m_streamID(streamID),
       m_parentContext(parentContext),
       m_context(context),
-      m_serviceToken(ServiceRegistry::instance().presentToken()) {}
+      m_serviceToken(token) {}
       
       struct EnableQueueGuard {
         SerialTaskQueue* queue_;
@@ -501,6 +506,7 @@ namespace edm {
       AcquireTask(Worker* worker,
                   typename T::MyPrincipal const& ep,
                   EventSetup const& es,
+                  ServiceToken const& token,
                   ParentContext const& parentContext,
                   WaitingTaskWithArenaHolder holder) {}
       tbb::task* execute() override { return nullptr; }
@@ -512,6 +518,7 @@ namespace edm {
       AcquireTask(Worker* worker,
                   EventPrincipal const& ep,
                   EventSetup const& es,
+                  ServiceToken const& token,
                   ParentContext const& parentContext,
                   WaitingTaskWithArenaHolder holder):
       m_worker(worker),
@@ -519,7 +526,7 @@ namespace edm {
       m_es(es),
       m_parentContext(parentContext),
         m_holder(std::move(holder)),
-      m_serviceToken(ServiceRegistry::instance().presentToken()) {}
+      m_serviceToken(token) {}
 
       tbb::task* execute() override {
         //Need to make the services available early so other services can see them
@@ -845,6 +852,7 @@ namespace edm {
   void Worker::doWorkAsync(WaitingTask* task,
                            typename T::MyPrincipal const& ep,
                            EventSetup const& es,
+                           ServiceToken const& token,
                            StreamID streamID,
                            ParentContext const& parentContext,
                            typename T::Context const* context) {
@@ -866,7 +874,7 @@ namespace edm {
         //We need to run the selection in a different task so that
         // we can prefetch the data needed for the selection
         auto runTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
-                                                                         this, ep,es,streamID,parentContext,context);
+                                                                         this, ep,es,token,streamID,parentContext,context);
 
         //make sure the task is either run or destroyed
         struct DestroyTask {
@@ -890,16 +898,15 @@ namespace edm {
         };
 
         auto ownRunTask = std::make_shared<DestroyTask>(runTask);
-        auto token = ServiceRegistry::instance().presentToken();
         auto selectionTask = make_waiting_task(tbb::task::allocate_root(), [ownRunTask,parentContext,&ep,token, this] (std::exception_ptr const* ) mutable {
           
           ServiceRegistry::Operate guard(token);
-          prefetchAsync(ownRunTask->release(), parentContext, ep);
+          prefetchAsync(ownRunTask->release(), token, parentContext, ep);
         });
-        prePrefetchSelectionAsync(selectionTask,streamID, &ep);
+        prePrefetchSelectionAsync(selectionTask,token,streamID, &ep);
       } else {
         WaitingTask* moduleTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
-          this, ep, es, streamID, parentContext, context);
+          this, ep, es, token, streamID, parentContext, context);
         if (T::isEvent_ && hasAcquire()) {
           WaitingTaskWithArenaHolder runTaskHolder(
             new (tbb::task::allocate_root())
@@ -907,9 +914,9 @@ namespace edm {
                                               moduleTask,
                                               parentContext));
           moduleTask = new (tbb::task::allocate_root()) AcquireTask<T>(
-            this, ep, es, parentContext, std::move(runTaskHolder));
+            this, ep, es, token, parentContext, std::move(runTaskHolder));
         }
-        prefetchAsync(moduleTask, parentContext, ep);
+        prefetchAsync(moduleTask, token, parentContext, ep);
       }
     }
   }
@@ -947,6 +954,7 @@ namespace edm {
   void Worker::doWorkNoPrefetchingAsync(WaitingTask* task,
                            typename T::MyPrincipal const& principal,
                            EventSetup const& es,
+                           ServiceToken const& serviceToken,
                            StreamID streamID,
                            ParentContext const& parentContext,
                            typename T::Context const* context) {
@@ -956,7 +964,6 @@ namespace edm {
     waitingTasks_.add(task);
     bool expected = false;
     if(workStarted_.compare_exchange_strong(expected,true)) {
-      auto serviceToken = ServiceRegistry::instance().presentToken();
       
       auto toDo =[this, &principal, &es, streamID,parentContext,context, serviceToken]()
       {
@@ -1036,7 +1043,9 @@ namespace edm {
       if ( workerhelper::CallImpl<T>::needToRunSelection(this)) {
         auto waitTask = edm::make_empty_waiting_task();
         waitTask->set_ref_count(2);
-        prePrefetchSelectionAsync(waitTask.get(), streamID, &ep);
+        prePrefetchSelectionAsync(waitTask.get(),
+                                  ServiceRegistry::instance().presentToken(),
+                                  streamID, &ep);
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
         
@@ -1058,7 +1067,7 @@ namespace edm {
         //set count to 2 since wait_for_all requires value to not go to 0
         waitTask->set_ref_count(2);
         
-        prefetchAsync(waitTask.get(),parentContext, ep);
+        prefetchAsync(waitTask.get(),ServiceRegistry::instance().presentToken(), parentContext, ep);
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
       }
