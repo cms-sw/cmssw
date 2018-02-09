@@ -2,7 +2,8 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nanoDQM_tools_cff import *
 
-nanoDQM = cms.EDAnalyzer("NanoAODDQM",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+nanoDQM = DQMEDAnalyzer("NanoAODDQM",
     vplots = cms.PSet(
         CaloMET = cms.PSet(
             sels = cms.PSet(),
