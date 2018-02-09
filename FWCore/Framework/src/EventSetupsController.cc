@@ -29,12 +29,12 @@ namespace edm {
     }
 
     std::shared_ptr<EventSetupProvider>
-    EventSetupsController::makeProvider(ParameterSet& iPSet) {
+    EventSetupsController::makeProvider(ParameterSet& iPSet, ActivityRegistry* activityRegistry) {
 
       // Makes an EventSetupProvider
       // Also parses the prefer information from ParameterSets and puts
       // it in a map that is stored in the EventSetupProvider
-      std::shared_ptr<EventSetupProvider> returnValue(makeEventSetupProvider(iPSet, providers_.size()) );
+      std::shared_ptr<EventSetupProvider> returnValue(makeEventSetupProvider(iPSet, providers_.size(), activityRegistry) );
 
       // Construct the ESProducers and ESSources
       // shared_ptrs to them are temporarily stored in this

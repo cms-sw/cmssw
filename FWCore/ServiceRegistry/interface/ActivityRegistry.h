@@ -22,6 +22,28 @@ unscheduled execution. The tests are in FWCore/Integration/test:
   run_TestGetBy.sh
   testGetBy1_cfg.py
   testGetBy2_cfg.py
+
+There are four little details you should remember when adding new signals
+to this file that go beyond the obvious cut and paste type of edits.
+  1. The number at the end of the AR_WATCH_USING_METHOD_X macro definition
+  is the number of function arguments. It will not compile if you use the
+  wrong number there.
+  2. Use connect or connect_front depending on whether the callback function
+  should be called for different services in the order the Services were
+  constructed or in reverse order. Begin signals are usually forward and
+  End signals in reverse, but if the service does not depend on other services
+  and vice versa this does not matter.
+  3. The signal needs to be added to either connectGlobals or connectLocals
+  in the ActivityRegistry.cc file, depending on whether a signal is seen
+  by children or parents when there are SubProcesses. For example, source
+  signals are only generated in the top level process and should be seen
+  by all child SubProcesses so they are in connectGlobals. Most signals
+  however belong in connectLocals. It does not really matter in jobs
+  without at least one SubProcess.
+  4. Each signal also needs to be added in copySlotsFrom in
+  ActivityRegistry.cc. Whether it uses copySlotsToFrom or
+  copySlotsToFromReverse depends on the same ordering issue as the connect
+  or connect_front choice in item 2 above.
 */
 //
 // Original Author:  Chris Jones
@@ -60,6 +82,11 @@ namespace edm {
    class ProcessContext;
    class ModuleCallingContext;
    class PathsAndConsumesOfModulesBase;
+   namespace eventsetup {
+      struct ComponentDescription;
+      class DataKey;
+      class EventSetupRecordKey;
+   }
    namespace service {
      class SystemBounds;
    }
@@ -971,6 +998,30 @@ namespace edm {
       }
       // WARNING - ModuleDescription is not in fixed place.  See note M above.
       AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
+
+      typedef signalslot::Signal<void(eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)> PreLockEventSetupGet;
+      ///signal is emitted before lock taken in EventSetup DataProxy::get function
+      PreLockEventSetupGet preLockEventSetupGetSignal_;
+      void watchPreLockEventSetupGet(PreLockEventSetupGet::slot_type const& iSlot) {
+         preLockEventSetupGetSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_3(watchPreLockEventSetupGet)
+
+      typedef signalslot::Signal<void(eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)> PostLockEventSetupGet;
+      ///signal is emitted after lock taken in EventSetup DataProxy::get function
+      PostLockEventSetupGet postLockEventSetupGetSignal_;
+      void watchPostLockEventSetupGet(PostLockEventSetupGet::slot_type const& iSlot) {
+         postLockEventSetupGetSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_3(watchPostLockEventSetupGet)
+
+      typedef signalslot::Signal<void(eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)> PostEventSetupGet;
+      ///signal is emitted after getImpl has returned in the EventSetup DataProxy::get function
+      PostEventSetupGet postEventSetupGetSignal_;
+      void watchPostEventSetupGet(PostEventSetupGet::slot_type const& iSlot) {
+         postEventSetupGetSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_3(watchPostEventSetupGet)
 
       // ---------- member functions ---------------------------
       
