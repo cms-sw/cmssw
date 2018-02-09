@@ -2490,7 +2490,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
             if "GenSim" in step:
                 stepName = step + upgradeSteps['baseline']['suffix']
                 stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeSteps['Premix']['suffix']
-                d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid,L1,DIGI2RAW',
+                d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid,L1',
                             '--datatier'    : 'PREMIX',
                             '--eventcontent': 'PREMIX',
                             '--procModifiers': 'premix_stage1',
