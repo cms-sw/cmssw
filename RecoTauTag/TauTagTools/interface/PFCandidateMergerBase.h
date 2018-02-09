@@ -13,7 +13,7 @@ class PFCandidateMergerBase
 
   virtual ~PFCandidateMergerBase()=0;
 
-  virtual std::vector<std::vector<reco::PFCandidatePtr> > mergeCandidates(const std::vector<reco::PFCandidatePtr>&) =0;
+  virtual std::vector<std::vector<reco::CandidatePtr> > mergeCandidates(const std::vector<reco::CandidatePtr>&) =0;
 
 };
 
