@@ -26,6 +26,31 @@ void unpackDetId(unsigned int detId, int& subdet, int& zside, int& ieta,
   }
 }
 
+unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug=false){
+  //Truncate depth information of DetId's 
+  unsigned int id(detId);
+  if (debug) {
+    std::cout << "Truncate 1 " << std::hex << detId << " " << id 
+	      << std::dec << std::endl;
+  }
+  int subdet, depth, zside, ieta, iphi;
+  unpackDetId(detId, subdet, zside, ieta, iphi, depth);
+  if (truncateFlag == 1) {
+    //Ignore depth index of ieta values of 15 and 16 of HB
+    if ((subdet == 1) && (ieta > 14)) depth  = 1;
+  } else if (truncateFlag == 2) {
+    //Ignore depth index of all ieta values
+    depth = 1;
+  }
+  id = (subdet<<25) | (0x1000000) | ((depth&0xF)<<20) | ((zside>0)?(0x80000|(ieta<<10)):(ieta<<10));
+  if (debug) {
+    std::cout << "Truncate 2: " << subdet << " " << zside*ieta << " " 
+	      << depth << " " << std::hex << id << " input " << detId 
+	      << std::dec << std::endl;
+  }
+  return id;
+}
+
 class CalibCorr {
 public :
   CalibCorr(const char* infile, bool debug=false);
@@ -72,7 +97,9 @@ float CalibCorr::getCorr(int run, unsigned int id) {
       ip = (int)(i); break;
     }
   }
-  if (debug_) std::cout << "Run " << run << " Perdiod " << ip << std::endl;
+  if (debug_) {
+    std::cout << "Run " << run << " Perdiod " << ip << std::endl;
+  }
   unsigned idx = correctDetId(id);
   if (ip >= 0) {
     std::map<unsigned int,float>::iterator itr = corrFac_[ip].find(idx);
@@ -107,7 +134,8 @@ void CalibCorr::readCorr(const char* infile) {
 	  int run  = std::atoi (items[n].c_str());
 	  runlow_.push_back(run);
 	}
-	std::cout << ncorr << ":" << runlow_.size() << " Run ranges\n";
+	std::cout << ncorr << ":" << runlow_.size() << " Run ranges" 
+		  << std::endl;
 	for (unsigned int n=0; n<runlow_.size(); ++n) 
 	  std::cout << " [" << n << "] " << runlow_[n];
 	std::cout << std::endl;
@@ -244,10 +272,8 @@ bool CalibSelectRBX::isItRBX(const std::vector<unsigned int> * detId) {
       if (ok) break;
     }
   }
-  if (debug_) {
-    std::cout << "isItRBX: size " << detId->size() << " OK " << ok
-	      << std::endl;
-  }
+  if (debug_) std::cout << "isItRBX: size " << detId->size() << " OK " << ok 
+			<< std::endl;
   return ok;
 }
 

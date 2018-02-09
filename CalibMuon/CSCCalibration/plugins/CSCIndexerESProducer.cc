@@ -22,9 +22,8 @@ CSCIndexerESProducer::BSP_TYPE CSCIndexerESProducer::produce(const CSCIndexerRec
 {
   LogTrace("CSCIndexerESProducer") << " producing: " << algoName;
 
-  CSCIndexerESProducer::BSP_TYPE theIndexer(CSCIndexerFactory::get()->create(algoName));
+  return CSCIndexerESProducer::BSP_TYPE( CSCIndexerFactory::get()->create(algoName));
 
-  return theIndexer ;
 }
 
 // define this as a plug-in

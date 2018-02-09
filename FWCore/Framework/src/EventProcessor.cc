@@ -1172,7 +1172,7 @@ namespace edm {
                   auto& event = principalCache_.eventPrincipal(i);
                   streamLumiStatus_[i] = status;
                   auto lp = status->lumiPrincipal();
-                  event.setLuminosityBlockPrincipal(lp);
+                  event.setLuminosityBlockPrincipal(lp.get());
                   beginStreamTransitionAsync<Traits>(WaitingTaskHolder{eventTask}, *schedule_,i,*lp,ts,es,subProcesses_);
                 });
               }

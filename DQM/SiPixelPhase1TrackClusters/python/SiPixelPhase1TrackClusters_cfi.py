@@ -400,7 +400,7 @@ SiPixelPhase1ClustersChargeVsSizeOnTrack = DefaultHistoTrack.clone(
 SiPixelPhase1TrackClustersOnTrackChargeOuter = DefaultHistoTrack.clone(
   name = "chargeOuter",
   title = "Corrected Cluster Charge (OnTrack) outer ladders",
-  range_min = 0, range_max = 150e3, range_nbins = 150,
+  range_min = 0, range_max = 80e3, range_nbins = 100,
   xlabel = "Charge (electrons)",
 
   specs = VPSet(

@@ -223,7 +223,7 @@ namespace edm {
   void PileUp::setupPileUpEvent(const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
       // note:  run and lumi numbers must be modified to match lumiPrincipal_
-      eventPrincipal_->setLuminosityBlockPrincipal(lumiPrincipal_);
+      eventPrincipal_->setLuminosityBlockPrincipal(lumiPrincipal_.get());
       eventPrincipal_->setRunAndLumiNumber(lumiPrincipal_->run(), lumiPrincipal_->luminosityBlock());
       provider_->setupPileUpEvent(*eventPrincipal_, setup, *streamContext_);
     }

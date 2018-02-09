@@ -24,7 +24,7 @@ class CSCFakeDBNoiseMatrix: public edm::ESProducer, public edm::EventSetupRecord
 
       inline static CSCDBNoiseMatrix * prefillDBNoiseMatrix(); 
 
-      typedef std::shared_ptr<CSCDBNoiseMatrix> Pointer;
+      typedef std::unique_ptr<CSCDBNoiseMatrix> Pointer;
 
       Pointer produceDBNoiseMatrix(const CSCDBNoiseMatrixRcd&);
 

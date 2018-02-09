@@ -49,7 +49,6 @@ testParallelepiped::matched_g4_and_dd( void )
   cout << "\tdd volume = " << ddv << " cm3" <<  endl;
   cout << "\tDD Information: " << dds << " vol=" << ddsv << " cm3" << endl;
   
-  const double tolerance = 1e-7;
 
   CPPUNIT_ASSERT( abs(g4v - ddv) < numeric_limits<float>::epsilon());
   CPPUNIT_ASSERT( abs(g4v - ddsv) < numeric_limits<float>::epsilon());

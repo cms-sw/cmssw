@@ -414,21 +414,19 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
 
     // Get PFCluster Isolation
     if (addPFClusterIso_) {
+      reco::Photon::PflowIsolationVariables newPFIsol = aPhoton.getPflowIsolationVariables();
       edm::Handle<edm::ValueMap<float> > ecalPFClusterIsoMapH;
       iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
-      aPhoton.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[photonRef]);
+      newPFIsol.sumEcalClusterEt = (*ecalPFClusterIsoMapH)[photonRef];
       edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
       if (not hcalPFClusterIsoT_.isUninitialized()){
 	iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
-	aPhoton.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[photonRef]);
+	newPFIsol.sumHcalClusterEt = (*hcalPFClusterIsoMapH)[photonRef];
       }
-      else
-      {
-	aPhoton.setHcalPFClusterIso(-999.);
+      else{
+	newPFIsol.sumHcalClusterEt = -999.;
       }
-    } else {
-      aPhoton.setEcalPFClusterIso(-999.);
-      aPhoton.setHcalPFClusterIso(-999.);
+      aPhoton.setPflowIsolationVariables(newPFIsol);
     }
 
     // add the Photon to the vector of Photons

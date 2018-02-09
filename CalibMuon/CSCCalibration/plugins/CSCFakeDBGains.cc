@@ -5,8 +5,6 @@
 
 CSCFakeDBGains::CSCFakeDBGains(const edm::ParameterSet& iConfig)
 {
-  cndbGains = std::shared_ptr<CSCDBGains>( prefillDBGains() );
-
   // the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this, &CSCFakeDBGains::produceDBGains);
@@ -22,7 +20,7 @@ CSCFakeDBGains::~CSCFakeDBGains()
 CSCFakeDBGains::Pointer
 CSCFakeDBGains::produceDBGains(const CSCDBGainsRcd& iRecord)
 {
-  return cndbGains;
+  return CSCFakeDBGains::Pointer( prefillDBGains());
 }
 
  void CSCFakeDBGains::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

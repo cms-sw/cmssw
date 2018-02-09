@@ -32,16 +32,17 @@ def customiseFor21821(process):
 
     return process
 
-def customiseFor21664_forMahiOn(process):
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.algorithm.useMahi   = cms.bool(True)
-        producer.algorithm.useM2     = cms.bool(False)
-        producer.algorithm.useM3     = cms.bool(False)
+def customiseFor22001(process):
+    for producer in producers_by_type(process, "CaloTowersCreator"):
+        if hasattr(producer,'HcalCollapsed'):
+            del producer.HcalCollapsed
+    if hasattr(process,'HcalTopologyIdealEP'):
+        # should only be true for "collapsed" cases (2017, 2018)
+        process.HcalTopologyIdealEP.MergePosition = cms.untracked.bool(True)
     return process
 
-def customiseFor21664_forMahiOnM2only(process):
+def customiseFor21664_forMahiOn(process):
     for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-      if (producer.algorithm.useM2 == cms.bool(True)):
         producer.algorithm.useMahi   = cms.bool(True)
         producer.algorithm.useM2     = cms.bool(False)
         producer.algorithm.useM3     = cms.bool(False)
@@ -84,4 +85,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseFor21821(process)
 
+    process = customiseFor22001(process)
+        
     return process
