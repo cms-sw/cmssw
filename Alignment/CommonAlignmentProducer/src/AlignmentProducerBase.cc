@@ -363,20 +363,6 @@ AlignmentProducerBase::createCalibrations()
                             ->create(iCalib.getParameter<std::string>("calibrationName"),
                                      iCalib));
   }
-
-  // Not all algorithms support calibrations - so do not pass empty vector
-  // and throw if non-empty and not supported:
-  if (!calibrations_.empty()) {
-    if (alignmentAlgo_->supportsCalibrations()) {
-      alignmentAlgo_->addCalibrations(calibrations_);
-
-    } else {
-      throw cms::Exception("BadConfig")
-        << "@SUB=AlignmentProducerBase::createCalibrations\n"
-        << "Configured " << calibrations_.size() << " calibration(s) "
-        << "for algorithm not supporting it.";
-    }
-  }
 }
 
 
@@ -442,7 +428,7 @@ AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
 {
   edm::LogInfo("Alignment")
     << "@SUB=AlignmentProducerBase::initAlignmentAlgorithm"
-    << "Bwgin";
+    << "Begin";
 
   auto isTrueUpdate = update && isAlgoInitialized_;
 
@@ -469,6 +455,20 @@ AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
                              alignableMuon_,
                              alignableExtras_,
                              alignmentParameterStore_);
+
+  // Not all algorithms support calibrations - so do not pass empty vector
+  // and throw if non-empty and not supported:
+  if (!calibrations_.empty()) {
+    if (alignmentAlgo_->supportsCalibrations()) {
+      alignmentAlgo_->addCalibrations(calibrations_);
+    } else {
+      throw cms::Exception("BadConfig")
+        << "@SUB=AlignmentProducerBase::createCalibrations\n"
+        << "Configured " << calibrations_.size() << " calibration(s) "
+        << "for algorithm not supporting it.";
+    }
+  }
+
   isAlgoInitialized_ = true;
 
   applyAlignmentsToGeometry();
