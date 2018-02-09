@@ -48,7 +48,7 @@
 #include <list>
 #include <utility>
 #include <set>
-
+#include <memory>
 #include <functional>
 
 class SiPixelLorentzAngleCalibration : public IntegratedCalibrationBase
@@ -58,7 +58,7 @@ public:
   explicit SiPixelLorentzAngleCalibration(const edm::ParameterSet &cfg);
   
   /// Destructor
-  ~SiPixelLorentzAngleCalibration() override;
+  ~SiPixelLorentzAngleCalibration() override = default;
 
   /// How many parameters does this calibration define?
   unsigned int numParameters() const override;
@@ -132,11 +132,11 @@ private:
   edm::ESWatcher<SiPixelLorentzAngleRcd> watchLorentzAngleRcd_;
 
   // const AlignableTracker *alignableTracker_;
-  SiPixelLorentzAngle *siPixelLorentzAngleInput_;
+  std::unique_ptr<SiPixelLorentzAngle> siPixelLorentzAngleInput_;
   std::vector<double> parameters_;
   std::vector<double> paramUncertainties_;
 
-  TkModuleGroupSelector *moduleGroupSelector_;
+  std::unique_ptr<TkModuleGroupSelector> moduleGroupSelector_;
   const edm::ParameterSet moduleGroupSelCfg_;
 };
 
@@ -151,19 +151,9 @@ SiPixelLorentzAngleCalibration::SiPixelLorentzAngleCalibration(const edm::Parame
     outFileName_(cfg.getParameter<std::string>("treeFile")),
     mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
     lorentzAngleLabel_(cfg.getParameter<std::string>("lorentzAngleLabel")),
-    siPixelLorentzAngleInput_(nullptr),
-    moduleGroupSelector_(nullptr),
     moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups"))
 {
 
-}
-
-//======================================================================
-SiPixelLorentzAngleCalibration::~SiPixelLorentzAngleCalibration()
-{
-  delete moduleGroupSelector_;
-  //  std::cout << "Destroy SiPixelLorentzAngleCalibration named " << this->name() << std::endl;
-  delete siPixelLorentzAngleInput_;
 }
 
 //======================================================================
@@ -259,7 +249,8 @@ void SiPixelLorentzAngleCalibration::beginOfJob(AlignableTracker *aliTracker,
   //specify the sub-detectors for which the LA is determined
   const std::vector<int> sdets = boost::assign::list_of(PixelSubdetector::PixelBarrel)(PixelSubdetector::PixelEndcap);
   
-  moduleGroupSelector_ = new TkModuleGroupSelector(aliTracker, moduleGroupSelCfg_, sdets);
+  moduleGroupSelector_ =
+    std::make_unique<TkModuleGroupSelector>(aliTracker, moduleGroupSelCfg_, sdets);
 
   parameters_.resize(moduleGroupSelector_->getNumberOfParameters(), 0.);
   paramUncertainties_.resize(moduleGroupSelector_->getNumberOfParameters(), 0.);
@@ -353,7 +344,7 @@ bool SiPixelLorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetu
   edm::ESHandle<SiPixelLorentzAngle> lorentzAngleHandle;
   if (!siPixelLorentzAngleInput_) {
     setup.get<SiPixelLorentzAngleRcd>().get(lorentzAngleLabel_, lorentzAngleHandle);
-    siPixelLorentzAngleInput_ = new SiPixelLorentzAngle(*lorentzAngleHandle);
+    siPixelLorentzAngleInput_ = std::make_unique<SiPixelLorentzAngle>(*lorentzAngleHandle);
   } else {
     if (watchLorentzAngleRcd_.check(setup)) { // new IOV of input
       setup.get<SiPixelLorentzAngleRcd>().get(lorentzAngleHandle);
@@ -382,12 +373,11 @@ const SiPixelLorentzAngle* SiPixelLorentzAngleCalibration::getLorentzAnglesInput
   // from mergeFileNames_.
   const std::string treeName(this->name() + "_input");
   for (auto iFile = mergeFileNames_.begin(); iFile != mergeFileNames_.end(); ++iFile) {
-    SiPixelLorentzAngle* la = this->createFromTree(iFile->c_str(), treeName.c_str());
+    auto la = std::unique_ptr<SiPixelLorentzAngle>(this->createFromTree(iFile->c_str(), treeName.c_str()));
     // siPixelLorentzAngleInput_ could be non-null from previous file of this loop
     // or from checkLorentzAngleInput(..) when running on data in this job as well
     if (!siPixelLorentzAngleInput_ || siPixelLorentzAngleInput_->getLorentzAngles().empty()) {
-      delete siPixelLorentzAngleInput_; // NULL or empty
-      siPixelLorentzAngleInput_ = la;
+      siPixelLorentzAngleInput_ = std::move(la);
     } else {
       // FIXME: about comparison of maps see comments in checkLorentzAngleInput
       if (la && !la->getLorentzAngles().empty() && // single job might not have got events
@@ -398,12 +388,11 @@ const SiPixelLorentzAngle* SiPixelLorentzAngleCalibration::getLorentzAnglesInput
                                  << " in file " << *iFile << ".";
         
       }
-      delete la;
     }
   }
 
   if (!siPixelLorentzAngleInput_) { // no files nor ran on events
-    siPixelLorentzAngleInput_ = new SiPixelLorentzAngle;
+    siPixelLorentzAngleInput_ = std::make_unique<SiPixelLorentzAngle>();
     edm::LogError("NoInput") << "@SUB=SiPixelLorentzAngleCalibration::getLorentzAnglesInput"
                              << "No input, create an empty one!";
   } else if (siPixelLorentzAngleInput_->getLorentzAngles().empty()) {
@@ -411,7 +400,7 @@ const SiPixelLorentzAngle* SiPixelLorentzAngleCalibration::getLorentzAnglesInput
                              << "Empty result!";
   }
 
-  return siPixelLorentzAngleInput_;
+  return siPixelLorentzAngleInput_.get();
 }
 
 //======================================================================
