@@ -21,7 +21,7 @@ def addBoostedTaus(process):
     process.ak4PFJetsRecoTauChargedHadronsBoosted.builders[1].dRcone = cms.double(0.3)
     process.ak4PFJetsRecoTauChargedHadronsBoosted.builders[1].dRconeLimitedToJetArea = cms.bool(True)
     process.combinatoricRecoTausBoosted.jetSrc = cms.InputTag('boostedTauSeeds')
-    process.combinatoricRecoTausBoosted.modifiers.remove(process.combinatoricRecoTausBoosted.modifiers[3])
+    #process.combinatoricRecoTausBoosted.modifiers.remove(process.combinatoricRecoTausBoosted.modifiers[3])
     #process.combinatoricRecoTausBoosted.builders[0].pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
     process.combinatoricRecoTausBoosted.builders[0].pfCandSrc = cms.InputTag('particleFlow')
     #Note JetArea is not defined for subjets and restiction to jetArea is turned to dRMatch=0.1, so better use the latter explicitely
