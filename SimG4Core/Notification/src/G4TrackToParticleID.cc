@@ -42,7 +42,8 @@ bool G4TrackToParticleID::isStableHadron(int pdgCode)
   // pi+-, p, pbar, n, nbar, KL, K+-, light ions and anti-ions 
   int pdg = std::abs(pdgCode);
   return (pdg == 211 || pdg == 2212 || pdg == 2112 || pdg == 130 || pdg == 321
-	  || pdg == 1000010020 || pdg == 1000010030 || 1000020040);
+	  || pdg == 1000010020 || pdg == 1000010030 
+	  || pdg == 1000020030 || pdg == 1000020040);
 }
 
 bool G4TrackToParticleID::isStableHadronIon(const G4Track * g4trk)
@@ -50,7 +51,8 @@ bool G4TrackToParticleID::isStableHadronIon(const G4Track * g4trk)
   // pi+-, p, pbar, n, nbar, KL, K+-, light ion and anti-ion, generic ion
   int pdg = std::abs(g4trk->GetDefinition()->GetPDGEncoding());
   return (pdg == 211 || pdg == 2212 || pdg == 2112 || pdg == 130 || pdg == 321
-	  || pdg == 1000010020 || pdg == 1000010030 || 1000020040
+	  || pdg == 1000010020 || pdg == 1000010030 
+	  || pdg == 1000020030 || pdg == 1000020040
 	  || g4trk->GetDefinition()->IsGeneralIon());
 }
 
