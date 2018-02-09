@@ -77,31 +77,8 @@ private:
 
   edm::Timestamp timestamp_;
   uint64_t status_;
-
-  RomanPotNames romanPotNames_ = {{
-      "RP_45_210_FR_BT",
-      "RP_45_210_FR_HR",
-      "RP_45_210_FR_TP",
-      "RP_45_220_C1",
-      "RP_45_220_FR_BT",
-      "RP_45_220_FR_HR",
-      "RP_45_220_FR_TP",
-      "RP_45_220_NR_BT",
-      "RP_45_220_NR_TP",
-      "RP_56_210_FR_BT",
-      "RP_56_210_FR_HR",
-      "RP_56_210_FR_TP",
-      "RP_56_220_C1",
-      "RP_56_220_FR_BT",
-      "RP_56_220_FR_HR",
-      "RP_56_220_FR_TP",
-      "RP_56_220_NR_BT",
-      "RP_56_220_NR_TP"
-    }};
-
-  std::array<std::string,4> statusNames_ = {{
-      "unused","bad","warning","ok"
-    }};
+  static const std::array<std::string,4> statusNames_;
+  static const RomanPotNames romanPotNames_;
 
 };
 

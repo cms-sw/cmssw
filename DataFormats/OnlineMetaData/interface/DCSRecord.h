@@ -56,12 +56,7 @@ private:
   edm::Timestamp timestamp_;
   std::bitset<Partition::Last> highVoltageReady_;
   float magnetCurrent_;
-
-  ParitionNames partitionNames_ = {{
-    "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO",
-    "RPC","DT0","DTp","DTm","CSCp","CSCm","CASTOR","ZDC",
-    "TIBTID","TOB","TECp","TECm","BPIX","FPIX","ESp","ESm"
-    }};
+  static const ParitionNames partitionNames_;
 
 };
 
