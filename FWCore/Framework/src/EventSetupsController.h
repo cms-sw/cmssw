@@ -26,6 +26,7 @@
 
 namespace edm {
 
+   class ActivityRegistry;
    class EventSetupRecordIntervalFinder;
    class ParameterSet;
    class IOVSyncValue;
@@ -74,7 +75,7 @@ namespace edm {
       public:
          EventSetupsController();
 
-         std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&);
+         std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&, ActivityRegistry*);
 
          void eventSetupForInstance(IOVSyncValue const& syncValue);
 
