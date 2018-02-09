@@ -65,10 +65,13 @@ class RecoTauVertexAssociator {
     /// or leaging charged hadron if set (useJet=false).
     reco::VertexRef associatedVertex(const PFTau& tau, bool useJet=false) const;
     reco::VertexRef associatedVertex(const TrackBaseRef& track) const;
+    reco::VertexRef associatedVertex(const Track* track) const;
 
     /// Load the vertices from the event.
     void setEvent(const edm::Event& evt);
-    reco::TrackBaseRef getLeadTrack(const Jet& jet) const;
+    const Track* getLeadTrack(const Jet&) const;
+    const TrackBaseRef getLeadTrackRef(const Jet&) const;
+    const CandidatePtr getLeadCand(const Jet&) const;
 
   private:
     edm::InputTag vertexTag_;

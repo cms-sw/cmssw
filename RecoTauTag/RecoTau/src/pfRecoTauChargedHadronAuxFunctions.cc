@@ -2,6 +2,7 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include <TMath.h>
 
@@ -44,8 +45,8 @@ void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scal
     chargedHadronPy     = chargedPFCand->py();
     chargedHadronPz     = chargedPFCand->pz();
   } else if ( chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kTrack) ) {
-    const reco::PFRecoTauChargedHadron::TrackPtr& track = chargedHadron.getTrack();
-    assert(track.isNonnull());
+    const reco::Track* track = getTrackFromChargedHadron(chargedHadron);
+    assert(track != nullptr);
     chargedHadronP     += track->p();
     chargedHadronPx     = track->px();
     chargedHadronPy     = track->py();

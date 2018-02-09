@@ -47,7 +47,7 @@ class RecoTauQualityCuts
   void setPV(const reco::VertexRef& vtx) const { pv_ = vtx; }
     
   /// Update the leading track
-  void setLeadTrack(const reco::TrackRef& leadTrack) const;
+  void setLeadTrack(const reco::Track& leadTrack) const;
   void setLeadTrack(const reco::Candidate& leadCand) const;
 
   /// Update the leading track (using reference)
@@ -91,7 +91,7 @@ class RecoTauQualityCuts
   }
 
  private:
-  template <typename T> bool filterTrack_(const T& trackRef) const;
+  bool filterTrack_(const reco::Track* track) const;
   bool filterGammaCand(const reco::Candidate& cand) const;
   bool filterNeutralHadronCand(const reco::Candidate& cand) const;
   bool filterCandByType(const reco::Candidate& cand) const;
@@ -99,7 +99,7 @@ class RecoTauQualityCuts
   // The current primary vertex
   mutable reco::VertexRef pv_;
   // The current lead track references
-  mutable reco::TrackBaseRef leadTrack_;
+  mutable const reco::Track* leadTrack_;
 
   double minTrackPt_;
   double maxTrackChi2_;

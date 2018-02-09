@@ -35,7 +35,7 @@ class TauIdMVAAuxiliaries {
         else {
           const pat::PackedCandidate* patcand = dynamic_cast<const pat::PackedCandidate*>(leadingPFCharged.get());
           if (patcand != nullptr && patcand->hasTrackDetails()) {
-            patcand->pseudoTrack().normalizedChi2();
+            LeadingTracknormalizedChi2 = patcand->pseudoTrack().normalizedChi2();
           }
         }
       }
