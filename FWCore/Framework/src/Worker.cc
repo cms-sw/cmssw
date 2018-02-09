@@ -204,7 +204,7 @@ private:
   }
 
   
-  void Worker::prefetchAsync(WaitingTask* iTask, ParentContext const& parentContext, Principal const& iPrincipal) {
+  void Worker::prefetchAsync(WaitingTask* iTask, ServiceToken const& token, ParentContext const& parentContext, Principal const& iPrincipal) {
     // Prefetch products the module declares it consumes (not including the products it maybe consumes)
     std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
 
@@ -220,7 +220,7 @@ private:
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
       if(productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal.prefetchAsync(iTask,productResolverIndex, skipCurrentProcess, &moduleCallingContext_);
+        iPrincipal.prefetchAsync(iTask,productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
       }
     }
     
@@ -235,13 +235,13 @@ private:
   }
   
   void Worker::prePrefetchSelectionAsync(WaitingTask* successTask,
+                                         ServiceToken const& token,
                                  StreamID id,
                                  EventPrincipal const* iPrincipal) {
     std::vector<ProductResolverIndexAndSkipBit> items;
     itemsToGetForSelection(items);
 
     successTask->increment_ref_count();
-    auto token = ServiceRegistry::instance().presentToken();
 
     auto choiceTask = edm::make_waiting_task(tbb::task::allocate_root(),
      [id,successTask,iPrincipal,this,token](std::exception_ptr const*) {
@@ -268,7 +268,7 @@ private:
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
       if(productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal->prefetchAsync(choiceTask,productResolverIndex, skipCurrentProcess, &moduleCallingContext_);
+        iPrincipal->prefetchAsync(choiceTask,productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
       }
     }
 

@@ -61,7 +61,8 @@ namespace edm {
     
     template <typename T, typename U>
     void runNowAsync(WaitingTask* task,
-                     typename T::MyPrincipal& p, EventSetup const& es, StreamID streamID,
+                     typename T::MyPrincipal& p, EventSetup const& es,
+                     ServiceToken const& token, StreamID streamID,
                      typename T::Context const* topContext, U const* context) const {
       //do nothing for event since we will run when requested
       if(!T::isEvent_) {
@@ -73,7 +74,7 @@ namespace edm {
           // into the runs or lumis in stream transitions, so there can be
           // no data dependencies which require prefetching. Prefetching is
           // needed for global transitions, but they are run elsewhere.
-          worker->doWorkNoPrefetchingAsync<T>(task, p, es, streamID, parentContext, topContext);
+          worker->doWorkNoPrefetchingAsync<T>(task, p, es, token, streamID, parentContext, topContext);
         }
       }
     }
@@ -82,11 +83,12 @@ namespace edm {
     void runAccumulatorsAsync(WaitingTask* task,
                               typename T::MyPrincipal const& ep,
                               EventSetup const& es,
+                              ServiceToken const& token,
                               StreamID streamID,
                               ParentContext const& parentContext,
                               typename T::Context const* context) {
       for (auto worker : accumulatorWorkers_) {
-        worker->doWorkAsync<T>(task, ep, es, streamID, parentContext, context);
+        worker->doWorkAsync<T>(task, ep, es, token, streamID, parentContext, context);
       }
     }
 
