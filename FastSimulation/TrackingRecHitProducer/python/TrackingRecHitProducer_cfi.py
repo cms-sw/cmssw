@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 fastTrackerRecHits = cms.EDProducer("TrackingRecHitProducer",
-    simHits = cms.InputTag("famosSimHits","TrackerHits"),
+    simHits = cms.InputTag("fastSimProducer","TrackerHits"),
     plugins=cms.VPSet()
 )
 
