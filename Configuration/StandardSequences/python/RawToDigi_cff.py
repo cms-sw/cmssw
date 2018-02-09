@@ -35,6 +35,9 @@ from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 from EventFilter.Utilities.tcdsRawToDigi_cfi import *
 tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
+from EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi import *
+onlineMetaDataDigis = EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi.onlineMetaDataRawToDigi.clone()
+
 from L1Trigger.Configuration.L1TRawToDigi_cff import *
 
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import *
@@ -51,6 +54,7 @@ RawToDigi = cms.Sequence(L1TRawToDigi
                          +castorDigis
                          +scalersRawToDigi
                          +tcdsDigis
+                         +onlineMetaDataDigis
                          )
 
 RawToDigi_noTk = cms.Sequence(L1TRawToDigi
@@ -63,6 +67,7 @@ RawToDigi_noTk = cms.Sequence(L1TRawToDigi
                               +castorDigis
                               +scalersRawToDigi
                               +tcdsDigis
+                              +onlineMetaDataDigis
                               )
 
 RawToDigi_pixelOnly = cms.Sequence(siPixelDigis)
