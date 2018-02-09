@@ -410,7 +410,7 @@ namespace edm {
     }
     
     schedule_->processOneEventAsync(std::move(afterProcessTask),
-                                    ep.streamID().value(),ep, esp_->eventSetup());
+                                    ep.streamID().value(),ep, esp_->eventSetup(),serviceToken_);
   }
 
   void
@@ -438,6 +438,7 @@ namespace edm {
                                        rp,
                                        ts,
                                        esp_->eventSetupForInstance(ts),
+                                       serviceToken_,
                                        subProcesses_);
   }
 
@@ -455,6 +456,7 @@ namespace edm {
                                      rp,
                                      ts,
                                      esp_->eventSetupForInstance(ts),
+                                     serviceToken_,
                                      subProcesses_,
                                      cleaningUpAfterException);
   }
@@ -499,6 +501,7 @@ namespace edm {
                                        lbp,
                                        ts,
                                        esp_->eventSetupForInstance(ts),
+                                       serviceToken_,
                                        subProcesses_);
   }
 
@@ -513,6 +516,7 @@ namespace edm {
                                      lbp,
                                      ts,
                                      esp_->eventSetupForInstance(ts),
+                                     serviceToken_,
                                      subProcesses_,
                                      cleaningUpAfterException);
   }
@@ -553,8 +557,6 @@ namespace edm {
   void
   SubProcess::doStreamBeginRunAsync(WaitingTaskHolder iHolder,
                                     unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    
     typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
 
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
@@ -565,6 +567,7 @@ namespace edm {
                                        rp,
                                        ts,
                                        esp_->eventSetupForInstance(ts),
+                                       serviceToken_,
                                        subProcesses_);
     
   }
@@ -573,7 +576,6 @@ namespace edm {
   void
   SubProcess::doStreamEndRunAsync(WaitingTaskHolder iHolder,
                                   unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    ServiceRegistry::Operate operate(serviceToken_);
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
     
@@ -583,6 +585,7 @@ namespace edm {
                                        rp,
                                        ts,
                                        esp_->eventSetupForInstance(ts),
+                                       serviceToken_,
                                        subProcesses_,
                                      cleaningUpAfterException);
   }
@@ -590,8 +593,6 @@ namespace edm {
   void
   SubProcess::doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
                                                 unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
     
     LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
@@ -602,6 +603,7 @@ namespace edm {
                                        lbp,
                                        ts,
                                        esp_->eventSetupForInstance(ts),
+                                       serviceToken_,
                                        subProcesses_);
   }
 
@@ -610,8 +612,6 @@ namespace edm {
   void
   SubProcess::doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
                                               unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    
     LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
     endStreamTransitionAsync<Traits>(std::move(iHolder),
@@ -620,6 +620,7 @@ namespace edm {
                                        lbp,
                                        ts,
                                        esp_->eventSetupForInstance(ts),
+                                       serviceToken_,
                                        subProcesses_,
                                        cleaningUpAfterException);
   }
