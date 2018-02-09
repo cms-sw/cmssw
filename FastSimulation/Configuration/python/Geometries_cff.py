@@ -43,7 +43,7 @@ misalignedCSCGeometry.appendToDataLabel = 'MisAligned'
 
 # Reconstruction and Interaction tracker geometries
 from FastSimulation.Configuration.TrackerRecoGeometryESProducer_cfi import *
-from FastSimulation.TrackerSetup.TrackerInteractionGeometryESProducer_cfi import *
+from FastSimulation.SimplifiedGeometryPropagator.FastSimGeometryESProducer_cfi import *
 
 # The Calo geometry service model left-over
 from Geometry.CaloEventSetup.CaloTopology_cfi import *

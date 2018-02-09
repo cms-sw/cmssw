@@ -104,7 +104,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
          engineName = FastSimEngine
     ),
                                            
-    famosSimHits = cms.PSet(
+    fastSimProducer = cms.PSet(
         initialSeed = cms.untracked.uint32(13579),
         engineName = FastSimEngine
     ),
