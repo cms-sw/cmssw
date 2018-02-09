@@ -45,6 +45,10 @@ fastSim.toModify(theDigitizers,
     strip = None,
     tracks = recoTrackAccumulator
 )
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+(fastSim & premix_stage2).toModify(theDigitizers,
+    tracks = None
+)
 
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
@@ -68,6 +72,13 @@ phase2_timing.toModify( theDigitizers,
 from SimFastTiming.Configuration.SimFastTiming_cff import fastTimeDigitizer
 phase2_timing_layer.toModify( theDigitizers,
                         fastTimingLayer = fastTimeDigitizer.clone() )
+
+premix_stage2.toModify(theDigitizers,
+    ecal = None,
+    hcal = None,
+    # TODO: what to do with hgcal?
+)
+
 
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
@@ -96,3 +107,7 @@ def _customizePremixStage1(mod):
         mod.strip.makeDigiSimLinks = True
     mod.mergedtruth.select.signalOnlyTP = False
 premix_stage1.toModify(theDigitizersValid, _customizePremixStage1)
+
+def _loadPremixStage2Aliases(process):
+    process.load("SimGeneral.MixingModule.aliases_PreMix_cfi")
+modifyDigitizers_loadPremixStage2Aliases = premix_stage2.makeProcessModifier(_loadPremixStage2Aliases)

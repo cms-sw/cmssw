@@ -1432,13 +1432,10 @@ class ConfigBuilder(object):
         """ Enrich the schedule with the digitisation step"""
 	self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
 
-	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
-
+        # Eventually remove this function
 
         if sequence == 'pdigi_valid':
-            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMixValid)")
-	else:
-	    self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMix)")
+            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
