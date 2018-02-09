@@ -1888,7 +1888,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBx0 = gtReadoutRecord->technicalTriggerWord();
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxG = gtReadoutRecord->technicalTriggerWord(1);
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxH = gtReadoutRecord->technicalTriggerWord(2);
-    if (m_bitAlgTechTrig_ > -1 && technicalTriggerWordBeforeMaskBx0.size() > 0) {
+    if (m_bitAlgTechTrig_ > -1 && !technicalTriggerWordBeforeMaskBx0.empty()) {
       techTriggerResultBx0 = technicalTriggerWordBeforeMaskBx0.at(m_bitAlgTechTrig_);
       if(techTriggerResultBx0!=0){
 	//techTriggerResultBxE = technicalTriggerWordBeforeMaskBxE.at(m_bitAlgTechTrig_);
@@ -2742,7 +2742,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if((*patJets)[ijet].hasSubjets("SoftDropPuppi")){
 	    mnSubJetsSoftDrop=map_of_MEs[DirName+"/"+"nSubJets_SoftDrop"]; if(mnSubJetsSoftDrop && mnSubJetsSoftDrop->getRootObject()) mnSubJetsSoftDrop->Fill((*patJets)[ijet].subjets("SoftDropPuppi").size());
 	  }
-	  if((*patJets)[ijet].hasSubjets("SoftDropPuppi") && (*patJets)[ijet].subjets("SoftDropPuppi").size()>0){
+	  if((*patJets)[ijet].hasSubjets("SoftDropPuppi") && !(*patJets)[ijet].subjets("SoftDropPuppi").empty()){
 	    mSubJet1_SoftDrop_pt=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_pt"]; if(mSubJet1_SoftDrop_pt && mSubJet1_SoftDrop_pt->getRootObject()) mSubJet1_SoftDrop_pt->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->pt());
 	    mSubJet1_SoftDrop_eta=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_eta"]; if(mSubJet1_SoftDrop_eta && mSubJet1_SoftDrop_eta->getRootObject()) mSubJet1_SoftDrop_eta->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->eta());
 	    mSubJet1_SoftDrop_phi=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_phi"]; if(mSubJet1_SoftDrop_phi && mSubJet1_SoftDrop_phi->getRootObject()) mSubJet1_SoftDrop_phi->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->phi());
@@ -2763,7 +2763,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    if((*patJets)[ijet].hasSubjets("SoftDropPuppi")){
 	      mnSubJetsSoftDrop_boosted=map_of_MEs[DirName+"/"+"nSubJets_SoftDrop_boosted"]; if(mnSubJetsSoftDrop_boosted && mnSubJetsSoftDrop_boosted->getRootObject()) mnSubJetsSoftDrop_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi").size());
 	    }
-	    if((*patJets)[ijet].hasSubjets("SoftDropPuppi") && (*patJets)[ijet].subjets("SoftDropPuppi").size()>0){
+	    if((*patJets)[ijet].hasSubjets("SoftDropPuppi") && !(*patJets)[ijet].subjets("SoftDropPuppi").empty()){
 	      mSubJet1_SoftDrop_pt_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_pt_boosted"]; if(mSubJet1_SoftDrop_pt_boosted && mSubJet1_SoftDrop_pt_boosted->getRootObject()) mSubJet1_SoftDrop_pt_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->pt());
 	      mSubJet1_SoftDrop_eta_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_eta_boosted"]; if(mSubJet1_SoftDrop_eta_boosted && mSubJet1_SoftDrop_eta_boosted->getRootObject()) mSubJet1_SoftDrop_eta_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->eta());
 	      mSubJet1_SoftDrop_phi_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_phi_boosted"]; if(mSubJet1_SoftDrop_phi_boosted && mSubJet1_SoftDrop_phi_boosted->getRootObject()) mSubJet1_SoftDrop_phi_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->phi());
@@ -3363,7 +3363,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	edm::Handle<reco::CaloMETCollection> calometcoll;
 	edm::Handle<reco::PFMETCollection> pfmetcoll;
 	//edm::Handle<pat::METCollection> patmetcoll;
-	const MET *met=NULL;
+	const MET *met=nullptr;
 	if(isCaloJet_){
 	  iEvent.getByToken(caloMetToken_, calometcoll);
 	  if(!calometcoll.isValid()) return;
