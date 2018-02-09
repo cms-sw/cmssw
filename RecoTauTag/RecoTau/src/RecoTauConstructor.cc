@@ -12,7 +12,7 @@
 
 namespace reco { namespace tau {
 
-RecoTauConstructor::RecoTauConstructor(const JetBaseRef& jet, const edm::Handle<PFCandidateCollection>& pfCands, 
+RecoTauConstructor::RecoTauConstructor(const JetBaseRef& jet, const edm::Handle<edm::View<reco::Candidate> >& pfCands, 
 				       bool copyGammasFromPiZeros,
 				       const StringObjectFunction<reco::PFTau>* signalConeSize,
 				       double minAbsPhotonSumPt_insideSignalCone, double minRelPhotonSumPt_insideSignalCone,
@@ -55,25 +55,25 @@ RecoTauConstructor::RecoTauConstructor(const JetBaseRef& jet, const edm::Handle<
         new SortedListPtr::element_type);
   }
 
-  tau_->setjetRef(jet.castTo<reco::PFJetRef>());
+  tau_->setjetRef(jet);
 }
 
-void RecoTauConstructor::addPFCand(Region region, ParticleType type, const PFCandidateRef& ref, bool skipAddToP4) {
-  LogDebug("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ref->pt() << ", eta = " << ref->eta() << ", phi = " << ref->phi();
-  if ( region == kSignal ) {
-    // Keep track of the four vector of the signal vector products added so far.
-    // If a photon add it if we are not using PiZeros to build the gammas
-    if ( ((type != kGamma) || !copyGammas_) && !skipAddToP4 ) {
-      LogDebug("TauConstructorAddPFCand") << "--> adding PFCand to tauP4." ;
-      p4_ += ref->p4();
-    }
-  }
-  getSortedCollection(region, type)->push_back(edm::refToPtr<PFCandidateCollection>(ref));
-  // Add to global collection
-  getSortedCollection(region, kAll)->push_back(edm::refToPtr<PFCandidateCollection>(ref));
-}
+// void RecoTauConstructor::addPFCand(Region region, ParticleType type, const CandidateRef& ref, bool skipAddToP4) {
+//   LogDebug("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ref->pt() << ", eta = " << ref->eta() << ", phi = " << ref->phi();
+//   if ( region == kSignal ) {
+//     // Keep track of the four vector of the signal vector products added so far.
+//     // If a photon add it if we are not using PiZeros to build the gammas
+//     if ( ((type != kGamma) || !copyGammas_) && !skipAddToP4 ) {
+//       LogDebug("TauConstructorAddPFCand") << "--> adding PFCand to tauP4." ;
+//       p4_ += ref->p4();
+//     }
+//   }
+//   getSortedCollection(region, type)->push_back(edm::refToPtr<PFCandidateCollection>(ref));
+//   // Add to global collection
+//   getSortedCollection(region, kAll)->push_back(edm::refToPtr<PFCandidateCollection>(ref));
+// }
 
-void RecoTauConstructor::addPFCand(Region region, ParticleType type, const PFCandidatePtr& ptr, bool skipAddToP4) {
+void RecoTauConstructor::addPFCand(Region region, ParticleType type, const CandidatePtr& ptr, bool skipAddToP4) {
   LogDebug("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ptr->pt() << ", eta = " << ptr->eta() << ", phi = " << ptr->phi();
   if ( region == kSignal ) {
     // Keep track of the four vector of the signal vector products added so far.
@@ -111,10 +111,10 @@ void RecoTauConstructor::reserveTauChargedHadron(Region region, size_t size)
 
 namespace
 {
-  void checkOverlap(const CandidatePtr& neutral, const std::vector<PFCandidatePtr>& pfGammas, bool& isUnique)
+  void checkOverlap(const CandidatePtr& neutral, const std::vector<CandidatePtr>& pfGammas, bool& isUnique)
   {
     LogDebug("TauConstructorCheckOverlap") << " pfGammas: #entries = " << pfGammas.size();
-    for ( std::vector<PFCandidatePtr>::const_iterator pfGamma = pfGammas.begin();
+    for ( std::vector<CandidatePtr>::const_iterator pfGamma = pfGammas.begin();
 	  pfGamma != pfGammas.end(); ++pfGamma ) {
       LogDebug("TauConstructorCheckOverlap") << "pfGamma = " << pfGamma->id() << ":" << pfGamma->key();
       // JAN - FIXME - double-check that id() equality is fine!
@@ -225,7 +225,7 @@ void RecoTauConstructor::addPiZero(Region region, const RecoTauPiZero& piZero)
   }
 }
 
-std::vector<PFCandidatePtr>*
+std::vector<CandidatePtr>*
 RecoTauConstructor::getCollection(Region region, ParticleType type) {
     return collections_[std::make_pair(region, type)];
 }
@@ -236,8 +236,8 @@ RecoTauConstructor::getSortedCollection(Region region, ParticleType type) {
 }
 
 // Trivial converter needed for polymorphism
-PFCandidatePtr RecoTauConstructor::convertToPtr(
-    const PFCandidatePtr& pfPtr) const {
+CandidatePtr RecoTauConstructor::convertToPtr(
+    const CandidatePtr& pfPtr) const {
   return pfPtr;
 }
 
@@ -254,20 +254,20 @@ void checkMatchedProductIds(const T1& t1, const T2& t2) {
 }
 }
 
-PFCandidatePtr RecoTauConstructor::convertToPtr(
-    const PFCandidateRef& pfRef) const {
-  if(pfRef.isNonnull()) {
-    checkMatchedProductIds(pfRef, pfCands_);
-    return PFCandidatePtr(pfCands_, pfRef.key());
-  } else return PFCandidatePtr();
-}
+// PFCandidatePtr RecoTauConstructor::convertToPtr(
+//     const PFCandidateRef& pfRef) const {
+//   if(pfRef.isNonnull()) {
+//     checkMatchedProductIds(pfRef, pfCands_);
+//     return PFCandidatePtr(pfCands_, pfRef.key());
+//   } else return PFCandidatePtr();
+// }
 
 // Convert from a CandidateRef to a Ptr
-PFCandidatePtr RecoTauConstructor::convertToPtr(
-    const CandidatePtr& candPtr) const {
+CandidatePtr RecoTauConstructor::convertToPtr(
+    const PFCandidatePtr& candPtr) const {
   if(candPtr.isNonnull()) {
     checkMatchedProductIds(candPtr, pfCands_);
-    return PFCandidatePtr(pfCands_, candPtr.key());
+    return CandidatePtr(pfCands_, candPtr.key());
   } else return PFCandidatePtr();
 }
 
@@ -301,9 +301,9 @@ void RecoTauConstructor::sortAndCopyIntoTau() {
     SortedListPtr sortedCollection = sortedCollections_[colkey.first];
     std::sort(sortedCollection->begin(),
               sortedCollection->end(),
-              ptDescendingPtr<PFCandidatePtr>);
+              ptDescendingPtr<CandidatePtr>);
     // Copy into the real tau collection
-    for ( std::vector<PFCandidatePtr>::const_iterator particle = sortedCollection->begin();
+    for ( std::vector<CandidatePtr>::const_iterator particle = sortedCollection->begin();
 	  particle != sortedCollection->end(); ++particle ) {
       colkey.second->push_back(*particle);
     }
@@ -422,7 +422,7 @@ std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects)
           getCollection(kSignal, kGamma)->end()) / tau_->pt());
 
   if ( setupLeadingObjects ) {
-    typedef std::vector<PFCandidatePtr>::const_iterator Iter;
+    typedef std::vector<CandidatePtr>::const_iterator Iter;
     // Find the highest PT object in the signal cone
     Iter leadingCand = leadPFCand(
         getCollection(kSignal, kAll)->begin(),

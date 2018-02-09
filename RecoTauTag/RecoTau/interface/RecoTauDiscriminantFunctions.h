@@ -26,7 +26,7 @@ typedef std::vector<double> VDouble;
 
 /// For three prong events, take the track that has charge opposite to the
 /// composite charge.
-PFCandidatePtr mainTrack(const PFTau& tau);
+CandidatePtr mainTrack(const PFTau& tau);
 
 // HPStanc variables
 double JetPt(Tau tau);

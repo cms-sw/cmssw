@@ -64,7 +64,7 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
     vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC))
   {
     pfCandSrc_ = pset.getParameter<edm::InputTag>("pfCandSrc");
-    pfCand_token = iC.consumes<PFCandidateCollection>(pfCandSrc_);
+    pfCand_token = iC.consumes<edm::View<reco::Candidate> >(pfCandSrc_);
   };
 
   ~RecoTauBuilderPlugin() override {}
@@ -79,7 +79,7 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
 	    const std::vector<CandidatePtr>&) const = 0;
 
   /// Hack to be able to convert Ptrs to Refs
-  const edm::Handle<PFCandidateCollection>& getPFCands() const { return pfCands_; };
+  const edm::Handle<edm::View<reco::Candidate> >& getPFCands() const { return pfCands_; };
 
   /// Get primary vertex associated to this jet
   reco::VertexRef primaryVertex(const reco::JetBaseRef& jet) const { return vertexAssociator_.associatedVertex(*jet); }
@@ -93,9 +93,9 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
  private:
   edm::InputTag pfCandSrc_;
   // Handle to PFCandidates needed to build Refs
-  edm::Handle<PFCandidateCollection> pfCands_;
+  edm::Handle<edm::View<reco::Candidate> > pfCands_;
   reco::tau::RecoTauVertexAssociator vertexAssociator_;
-  edm::EDGetTokenT<PFCandidateCollection> pfCand_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > pfCand_token;
 };
 
 /* Class that updates a PFTau's members (i.e. electron variables) */
