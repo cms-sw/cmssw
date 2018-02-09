@@ -48,7 +48,7 @@ class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
   explicit RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
     ~RecoTauPiZeroStripPlugin() override {}
     // Return type is auto_ptr<PiZeroVector>
-    return_type operator()(const reco::PFJet& jet) const override;
+    return_type operator()(const reco::Jet& jet) const override;
     // Hook to update PV information
     void beginEvent() override;
 
@@ -94,7 +94,7 @@ void RecoTauPiZeroStripPlugin::beginEvent() {
 }
 
 RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
-    const reco::PFJet& jet) const {
+    const reco::Jet& jet) const {
   // Get list of gamma candidates
   typedef std::vector<reco::CandidatePtr> CandPtrs;
   typedef CandPtrs::iterator CandIter;

@@ -26,12 +26,8 @@ def addTauReReco(process):
         process.TauReco = cms.Path(process.miniAODTausSequence)
 
 #####
-def convertModuleToBaseTau(process, name):
+def convertModuleToMiniAODInput(process, name):
     module = getattr(process, name)
-    module.__dict__['_TypedParameterizable__type'] = module.type_().replace('RecoTau', 'RecoBaseTau')
-    #MBif hasattr(module, 'PFTauProducer'):
-    #MB    module.PFBaseTauProducer = module.PFTauProducer
-    #MB    # del module.PFTauProducer
     if hasattr(module, 'particleFlowSrc'):
         module.particleFlowSrc = cms.InputTag("packedPFCandidates", "", "")
     if hasattr(module, 'vertexSrc'):
@@ -113,17 +109,16 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	process.ak4PFJetsRecoTauChargedHadrons.jetSrc = cms.InputTag(jetCollection)
 
 	# Adapt combinatoricRecoTau producer
-	convertModuleToBaseTau(process, 'combinatoricRecoTaus')
+	convertModuleToMiniAODInput(process, 'combinatoricRecoTaus')
 	process.combinatoricRecoTaus.jetRegionSrc = 'recoTauAK4PatJets08Region'
 	process.combinatoricRecoTaus.jetSrc = jetCollection
 	# Adapt builders
-	for builer in process.combinatoricRecoTaus.builders:
-		builer.plugin = builer.plugin.value().replace('RecoTau', 'RecoBaseTau')
-		for name,value in builer.parameters_().iteritems():
+	for builder in process.combinatoricRecoTaus.builders:
+		for name,value in builder.parameters_().iteritems():
 			if name == 'qualityCuts':
-				builer.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'
+				builder.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'
 			elif name == 'pfCandSrc':
-				builer.pfCandSrc = 'packedPFCandidates'
+				builder.pfCandSrc = 'packedPFCandidates'
 	# Adapt supported modifiers and remove unsupported ones 
 	modifiersToRemove_ = cms.VPSet()
 	for mod in process.combinatoricRecoTaus.modifiers:
@@ -133,7 +128,6 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 		elif mod.name.value() == 'TTIworkaround':
 			modifiersToRemove_.append(mod)
 			continue
-		mod.plugin = mod.plugin.value().replace('RecoTau', 'RecoBaseTau')
 		for name,value in mod.parameters_().iteritems():
 			if name == 'qualityCuts':
 				mod.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'
@@ -142,92 +136,86 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 		#print "\t\t Removing '%s' modifier from 'combinatoricRecoTaus'" %mod.name.value()
 
 	# Adapt tau decay mode finding discrimiantor for the cleaning step
-	convertModuleToBaseTau(process, 'hpsSelectionDiscriminator')
+	convertModuleToMiniAODInput(process, 'hpsSelectionDiscriminator')
 
 	# Adapt clean tau producer
-	convertModuleToBaseTau(process, 'hpsPFTauProducerSansRefs')
-	# Adapt cleaners
-	for cleaner in process.hpsPFTauProducerSansRefs.cleaners:
-		cleaner.plugin = cleaner.plugin.value().replace('RecoTau', 'RecoBaseTau')
+	convertModuleToMiniAODInput(process, 'hpsPFTauProducerSansRefs')
 
 	# Adapt piZero unembedder
-	convertModuleToBaseTau(process, 'hpsPFTauProducer')
+	convertModuleToMiniAODInput(process, 'hpsPFTauProducer')
 
 	# Adapt classic discriminants
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByDecayModeFindingNewDMs')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByDecayModeFindingOldDMs')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByDecayModeFinding')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByLooseChargedIsolation')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByLooseIsolation')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByDecayModeFindingNewDMs')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByDecayModeFindingOldDMs')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByDecayModeFinding')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByLooseChargedIsolation')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByLooseIsolation')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits')
 
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3HitsdR03')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3HitsdR03')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3HitsdR03')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3HitsdR03')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3HitsdR03')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3HitsdR03')
 
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits')
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits')
 
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone')
 
 	# Adapt isolation sums
-	convertModuleToBaseTau(process, 'hpsPFTauChargedIsoPtSum')
-	convertModuleToBaseTau(process, 'hpsPFTauNeutralIsoPtSum')
-	convertModuleToBaseTau(process, 'hpsPFTauPUcorrPtSum')
-	convertModuleToBaseTau(process, 'hpsPFTauNeutralIsoPtSumWeight')
-	convertModuleToBaseTau(process, 'hpsPFTauFootprintCorrection')
-	convertModuleToBaseTau(process, 'hpsPFTauPhotonPtSumOutsideSignalCone')
+	convertModuleToMiniAODInput(process, 'hpsPFTauChargedIsoPtSum')
+	convertModuleToMiniAODInput(process, 'hpsPFTauNeutralIsoPtSum')
+	convertModuleToMiniAODInput(process, 'hpsPFTauPUcorrPtSum')
+	convertModuleToMiniAODInput(process, 'hpsPFTauNeutralIsoPtSumWeight')
+	convertModuleToMiniAODInput(process, 'hpsPFTauFootprintCorrection')
+	convertModuleToMiniAODInput(process, 'hpsPFTauPhotonPtSumOutsideSignalCone')
 	# Adapt isolation sums (R=0.3)
-	convertModuleToBaseTau(process, 'hpsPFTauChargedIsoPtSumdR03')
-	convertModuleToBaseTau(process, 'hpsPFTauNeutralIsoPtSumdR03')
-	convertModuleToBaseTau(process, 'hpsPFTauPUcorrPtSumdR03')
-	convertModuleToBaseTau(process, 'hpsPFTauNeutralIsoPtSumWeightdR03')
-	convertModuleToBaseTau(process, 'hpsPFTauFootprintCorrectiondR03')
-	convertModuleToBaseTau(process, 'hpsPFTauPhotonPtSumOutsideSignalConedR03')
+	convertModuleToMiniAODInput(process, 'hpsPFTauChargedIsoPtSumdR03')
+	convertModuleToMiniAODInput(process, 'hpsPFTauNeutralIsoPtSumdR03')
+	convertModuleToMiniAODInput(process, 'hpsPFTauPUcorrPtSumdR03')
+	convertModuleToMiniAODInput(process, 'hpsPFTauNeutralIsoPtSumWeightdR03')
+	convertModuleToMiniAODInput(process, 'hpsPFTauFootprintCorrectiondR03')
+	convertModuleToMiniAODInput(process, 'hpsPFTauPhotonPtSumOutsideSignalConedR03')
 
 	# Redefine tau PV producer
-	process.hpsPFTauPrimaryVertexProducer.__dict__['_TypedParameterizable__type'] = 'PFBaseTauPrimaryVertexProducer'
 	process.hpsPFTauPrimaryVertexProducer.PVTag = 'offlineSlimmedPrimaryVertices'
 	process.hpsPFTauPrimaryVertexProducer.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'
 	process.hpsPFTauPrimaryVertexProducer.packedCandidatesTag = cms.InputTag("packedPFCandidates")
 	process.hpsPFTauPrimaryVertexProducer.lostCandidatesTag = cms.InputTag("lostTracks")
 
 	# Redefine tau SV producer
-	process.hpsPFTauSecondaryVertexProducer = cms.EDProducer("PFBaseTauSecondaryVertexProducer",
+	process.hpsPFTauSecondaryVertexProducer = cms.EDProducer("PFTauSecondaryVertexProducer",
 		PFTauTag = cms.InputTag("hpsPFTauProducer")
 	)
-	# Redefine IP producer
-	process.hpsPFTauTransverseImpactParameters.__dict__['_TypedParameterizable__type'] = 'PFBaseTauTransverseImpactParameters'
 
 	# Adapt MVAIso discriminants (DBoldDMwLT)
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw')
 	for wp in ['VVLoose', 'VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']:
-		convertModuleToBaseTau(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1DBoldDMwLT'.format(wp))
+		convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1DBoldDMwLT'.format(wp))
 	# Adapt MVAIso discriminants (DBnewDMwLT)
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw')
 	for wp in ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']:
-		convertModuleToBaseTau(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1DBnewDMwLT'.format(wp))
+		convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1DBnewDMwLT'.format(wp))
 	# Adapt MVAIso discriminants (PWoldDMwLT)
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTraw')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTraw')
 	for wp in ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']:
-		convertModuleToBaseTau(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1PWoldDMwLT'.format(wp))
+		convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1PWoldDMwLT'.format(wp))
 	# Adapt MVAIso discriminants (PWnewDMwLT)
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTraw')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTraw')
 	for wp in ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']:
-		convertModuleToBaseTau(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1PWnewDMwLT'.format(wp))
+		convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1PWnewDMwLT'.format(wp))
 	# Adapt MVAIso discriminants (DBoldDMwLT, R=0.3)
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw')
 	for wp in ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']:
-		convertModuleToBaseTau(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1DBdR03oldDMwLT'.format(wp))
+		convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1DBdR03oldDMwLT'.format(wp))
 	# Adapt MVAIso discriminants (PWoldDMwLT, R=0.3)
-	convertModuleToBaseTau(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTraw')
+	convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTraw')
 	for wp in ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']:
-		convertModuleToBaseTau(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1PWdR03oldDMwLT'.format(wp))
+		convertModuleToMiniAODInput(process, 'hpsPFTauDiscriminationBy{}IsolationMVArun2v1PWdR03oldDMwLT'.format(wp))
 
 	# Remove RecoTau producers which are not supported (yet?), i.e. against-e/mu discriminats
 	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByTightElectronRejection)
@@ -243,7 +231,7 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByLooseMuonRejection3)
 	process.miniAODTausTask.remove(process.hpsPFTauDiscriminationByTightMuonRejection3)
 	# add against-mu discriminants which are MiniAOD compatible
-	process.hpsPFTauDiscriminationByLooseMuonRejectionSimple = cms.EDProducer("PFRecoBaseTauDiscriminationAgainstMuonSimple",
+	process.hpsPFTauDiscriminationByLooseMuonRejectionSimple = cms.EDProducer("PFRecoTauDiscriminationAgainstMuonSimple",
 		PFTauProducer = cms.InputTag("hpsPFTauProducer"),
 		Prediscriminants = process.hpsPFTauDiscriminationByLooseMuonRejection3.Prediscriminants,
 		HoPMin = cms.double(0.1), #use smaller value that with AOD as raw energy is used
@@ -278,8 +266,7 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	process.tauMatch.matched = cms.InputTag("prunedGenParticles")
 
 
-	process.patTaus.__dict__['_TypedParameterizable__type'] = 'PATTauBaseProducer'
-	convertModuleToBaseTau(process, 'patTaus')
+	convertModuleToMiniAODInput(process, 'patTaus')
 
 	# Remove unsupported tauIDs
 	for name, src in process.patTaus.tauIDSources.parameters_().iteritems():

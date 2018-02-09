@@ -64,7 +64,7 @@ class RecoTauProducer : public edm::stream::EDProducer<>
   double maxJetAbsEta_;
  //token definition
   edm::EDGetTokenT<reco::JetView> jet_token;
-  edm::EDGetTokenT<edm::Association<reco::PFJetCollection> > jetRegion_token;
+  edm::EDGetTokenT<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > > jetRegion_token;
   edm::EDGetTokenT<reco::PFJetChargedHadronAssociation> chargedHadron_token;
   edm::EDGetTokenT<reco::JetPiZeroAssociation> piZero_token;
 
@@ -89,7 +89,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   maxJetAbsEta_ = ( pset.exists("maxJetAbsEta") ) ? pset.getParameter<double>("maxJetAbsEta") : 99.0;
   //consumes definition
   jet_token=consumes<reco::JetView>(jetSrc_);
-  jetRegion_token = consumes<edm::Association<reco::PFJetCollection> >(jetRegionSrc_);
+  jetRegion_token = consumes<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > >(jetRegionSrc_);
   chargedHadron_token = consumes<reco::PFJetChargedHadronAssociation>(chargedHadronSrc_); 
   piZero_token = consumes<reco::JetPiZeroAssociation>(piZeroSrc_);
 
@@ -139,7 +139,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // edm::RefToBaseVector<reco::Jet> jets = reco::tau::castViewToOtherBase<edm::RefToBaseVector<reco::Jet>>(jetView);
   
   // Get the jet region producer
-  edm::Handle<edm::Association<reco::PFJetCollection> > jetRegionHandle;
+  edm::Handle<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > > jetRegionHandle;
   evt.getByToken(jetRegion_token, jetRegionHandle);
   
   // Get the charged hadron input collection
@@ -172,7 +172,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     // Get the jet with extra constituents from an area around the jet
     if(jetRef->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
-    reco::PFJetRef jetRegionRef = (*jetRegionHandle)[jetRef];
+    reco::JetBaseRef jetRegionRef = (*jetRegionHandle)[jetRef];
     if ( jetRegionRef.isNull() ) {
       throw cms::Exception("BadJetRegionRef") 
 	<< "No jet region can be found for the current jet: " << jetRef.id();
