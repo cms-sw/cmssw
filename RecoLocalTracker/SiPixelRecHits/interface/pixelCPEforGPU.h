@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <cmath>
 
+#include<cassert>
+
 namespace pixelCPEforGPU {
 
   using Frame = SOAFrame<float>;
@@ -25,22 +27,6 @@ namespace pixelCPEforGPU {
     uint16_t layer;
     uint16_t index;
     uint32_t rawId;
-
-    /*
-    float widthLAFractionX;    // Width-LA to Offset-LA in X
-    float widthLAFractionY;    // same in Y
-    float lorentzShiftInCmX;   // a FULL shift, in cm
-    float lorentzShiftInCmY;   // a FULL shift, in cm
-    */
-  /*
-
-   float chargeWidthX = (theDetParams.lorentzShiftInCmX * theDetParams.widthLAFractionX);
-   float chargeWidthY = (theDetParams.lorentzShiftInCmY * theDetParams.widthLAFractionY);
-   float shiftX = 0.5f*theDetParams.lorentzShiftInCmX;
-   float shiftY = 0.5f*theDetParams.lorentzShiftInCmY;
-
-  */
-
 
     float shiftX;
     float shiftY;
@@ -78,7 +64,7 @@ namespace pixelCPEforGPU {
   void computeAnglesFromDet(DetParams const & detParams, float const x, float const y, float & cotalpha, float & cotbeta) {
     // x,y local position on det
     auto gvx = x - detParams.x0;
-    auto gvy = y  -detParams.y0;
+    auto gvy = y - detParams.y0;
     auto gvz = -1.f/detParams.z0;
     //  normalization not required as only ratio used...
     // calculate angles
@@ -107,21 +93,21 @@ namespace pixelCPEforGPU {
    if (1==sizeM1) {   // size 2   
      //--- Width of the clusters minus the edge (first and last) pixels.
      //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
-       //  assert(lower_edge_last_pix>=upper_edge_first_pix);
+     assert(lower_edge_last_pix>=upper_edge_first_pix);
      auto W_inner      =  pitch * float(lower_edge_last_pix-upper_edge_first_pix);  // in cm
 
      //--- Predicted charge width from geometry
      auto W_pred = theThickness * cot_angle                     // geometric correction (in cm)
                     - lorentz_shift;                    // (in cm) &&& check fpix!
    
-     W_eff = std::abs( W_pred ) - W_inner;;
+     W_eff = std::abs( W_pred ) - W_inner;
 
      //--- If the observed charge width is inconsistent with the expectations
      //--- based on the track, do *not* use W_pred-W_innner.  Instead, replace
      //--- it with an *average* effective charge width, which is the average
      //--- length of the edge pixels.
      //
-     simple = ( W_eff < 0.0f ) | ( W_eff > pitch );
+     simple = ( W_eff < 0.0f ) | ( W_eff > pitch ); // this produces "large" regressions for very small	numeric differences...
 
    }
    if (simple) {
@@ -167,6 +153,8 @@ namespace pixelCPEforGPU {
    auto yPos = detParams.shiftY + comParams.thePitchY*(0.5f*float(my)+float(phase1PixelTopology::yOffset));
  
    float cotalpha=0, cotbeta=0;
+
+
    computeAnglesFromDet(detParams, xPos,  yPos, cotalpha, cotbeta);
 
    auto thickness = detParams.isBarrel ? comParams.theThicknessB : comParams.theThicknessE;

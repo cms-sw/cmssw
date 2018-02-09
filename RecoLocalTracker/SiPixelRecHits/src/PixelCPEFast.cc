@@ -288,7 +288,8 @@ PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClus
       if(std::abs(yPos-yg)>0.001) {++staty.c; staty.maxx=std::max(staty.maxx,yPos);}
       staty.maxd=std::max(std::abs(yPos-yg), staty.maxd);
       if(std::abs(xPos-xg)>0.001 || std::abs(yPos-yg)>0.001) 
-          std::cout << (m_detParamsGPU[ind].isBarrel ? "B " : "E ") << xPos <<'/'<<xg << ' ' << yPos <<'/'<<yg << ' ' << cp.maxRow[0]-cp.minRow[0] << ' ' << cp.maxCol[0]-cp.minCol[0] << std::endl;
+          std::cout << (m_detParamsGPU[ind].isBarrel ? "B " : "E ") << xPos <<'/'<<xPos-xg << ' ' << yPos <<'/'<<yPos-yg << ' ' << cp.maxRow[0]-cp.minRow[0] << ',' << cp.maxCol[0]-cp.minCol[0] 
+                    << ' ' << urxl - llxl << ',' << uryl - llyl << std::endl;
    
    }
 
@@ -347,7 +348,7 @@ generic_position_formula( int size,                //!< Size of this projection.
      //--- it with an *average* effective charge width, which is the average
      //--- length of the edge pixels.
      //
-     simple = ( W_eff < 0.0f ) | ( W_eff > pitch );
+     simple = ( W_eff < 0.0f ) | ( W_eff > pitch );  // this produces "large" regressions for very small numeric differences...
 
    }
    if (simple) {
