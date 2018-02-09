@@ -3,10 +3,12 @@
 #include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include <cstdint>
+#include <cmath>
 
 namespace pixelCPEforGPU {
 
   using Frame = SOAFrame<float>;
+  using Rotation = SOARotation<float>;
 
   // all modules are identical!
   struct CommonParams {
@@ -20,7 +22,7 @@ namespace pixelCPEforGPU {
     bool isBarrel;
     bool isPosZ;
     uint16_t layer;
-    unit16_t index;
+    uint16_t index;
     uint32_t rawId;
 
     /*
@@ -29,6 +31,15 @@ namespace pixelCPEforGPU {
     float lorentzShiftInCmX;   // a FULL shift, in cm
     float lorentzShiftInCmY;   // a FULL shift, in cm
     */
+  /*
+
+   float chargeWidthX = (theDetParams.lorentzShiftInCmX * theDetParams.widthLAFractionX);
+   float chargeWidthY = (theDetParams.lorentzShiftInCmY * theDetParams.widthLAFractionY);
+   float shiftX = 0.5f*theDetParams.lorentzShiftInCmX;
+   float shiftY = 0.5f*theDetParams.lorentzShiftInCmY;
+
+  */
+
 
     float shiftX;
     float shiftY;
@@ -43,7 +54,7 @@ namespace pixelCPEforGPU {
 
    // SOA!  (on device)
   template<uint32_t N>
-  struct ClusParams {
+  struct ClusParamsT {
     uint32_t minRow[N];
     uint32_t maxRow[N];
     uint32_t minCol[N];
@@ -59,15 +70,8 @@ namespace pixelCPEforGPU {
   };
 
 
-  /*
-
-   float chargeWidthX = (theDetParams.lorentzShiftInCmX * theDetParams.widthLAFractionX);
-   float chargeWidthY = (theDetParams.lorentzShiftInCmY * theDetParams.widthLAFractionY);
-   float shiftX = 0.5f*theDetParams.lorentzShiftInCmX;
-   float shiftY = 0.5f*theDetParams.lorentzShiftInCmY;
-
-  */
-
+  constexpr uint32_t MaxClusInModule=256;
+  using ClusParams = ClusParamsT<256>;
 
   constexpr inline
   void computeAnglesFromDet(DetParams const & detParams, float const x, float const y, float & cotalpha, float & cotbeta) {
@@ -83,7 +87,7 @@ namespace pixelCPEforGPU {
 
   constexpr inline
   float correction( 
-                         uint16 sizeM1,
+                         int sizeM1,
                          int Q_f,              //!< Charge in the first pixel.
                          int Q_l,              //!< Charge in the last pixel.
                          uint16_t upper_edge_first_pix, //!< As the name says.
@@ -97,7 +101,7 @@ namespace pixelCPEforGPU {
                    )
 {
    if (0==sizeM1) return 0;  // size1
-   float W_eff; // the compiler detects the logic below (and warns if buggy!!!!0 
+   float W_eff=0;
    bool simple=true;
    if (1==sizeM1) {   // size 2   
      //--- Width of the clusters minus the edge (first and last) pixels.
@@ -139,7 +143,7 @@ namespace pixelCPEforGPU {
   }
 
   constexpr inline
-  void position(ComParams const & comParams, DetParams & detParams, ClusParams const & cp, uint32_t ic) {
+  void position(CommonParams const & comParams, DetParams const & detParams, ClusParams & cp, uint32_t ic) {
 
    //--- Upper Right corner of Lower Left pixel -- in measurement frame
    uint16_t llx = cp.minRow[ic]+1;
@@ -147,7 +151,7 @@ namespace pixelCPEforGPU {
    
    //--- Lower Left corner of Upper Right pixel -- in measurement frame
    uint16_t urx = cp.maxRow[ic];
-   uint16_t ury = cp,maxCol[ic];
+   uint16_t ury = cp.maxCol[ic];
    
    auto llxl = phase1PixelTopology::localX(llx);   
    auto llyl = phase1PixelTopology::localY(lly);
@@ -158,35 +162,35 @@ namespace pixelCPEforGPU {
    auto my = llyl+uryl;   
 
    // apply the lorentz offset correction
-   xPos = shiftX + comParams.thePitchX*(0.5f*float(mx)+float(phase1PixelTopology::xOffset));
-   yPos = shiftY + comParams.thePitchY*(0.5f*float(my)+float(phase1PixelTopology::yOffset));
+   auto xPos = detParams.shiftX + comParams.thePitchX*(0.5f*float(mx)+float(phase1PixelTopology::xOffset));
+   auto yPos = detParams.shiftY + comParams.thePitchY*(0.5f*float(my)+float(phase1PixelTopology::yOffset));
  
-
+   float cotalpha=0, cotbeta=0;
    computeAnglesFromDet(detParams, xPos,  yPos, cotalpha, cotbeta);
 
    auto xcorr = correction(
-                            clusterParams.maxRow[i]-clusterParams.minRow[i],
-                            detParams.Q_f_X[ic], detParams.Q_l_X[ic],
+                            cp.maxRow[ic]-cp.minRow[ic],
+                            cp.Q_f_X[ic], cp.Q_l_X[ic],
                             llxl, urxl,
                             detParams.chargeWidthX,   // lorentz shift in cm
                             comParams.theThickness,
                             cotalpha,
-                            comParam.thePitchX,
-                            phase1PixelTopology::isBigPixX( clusterParams.minRow[i] ),
-                            phase1PixelTopology::isBigPixX( clusterParams.maxRow[i] )
+                            comParams.thePitchX,
+                            phase1PixelTopology::isBigPixX( cp.minRow[ic] ),
+                            phase1PixelTopology::isBigPixX( cp.maxRow[ic] )
                            );   
 
 
    auto ycorr = correction(
-                            clusterParams.maxCol[i]-clusterParams.minCol[i],
-                            detParams.Q_f_Y[ic], detParams.Q_l_Y[ic],
+                            cp.maxCol[ic]-cp.minCol[ic],
+                            cp.Q_f_Y[ic], cp.Q_l_Y[ic],
                             llyl, uryl,
                             detParams.chargeWidthY,   // lorentz shift in cm
                             comParams.theThickness,
                             cotbeta,
-                            comParam.thePitchY,
-                            phase1PixelTopology::isBigPixY( clusterParams.minCol[i] ),
-                            phase1PixelTopology::isBigPixY( clusterParams.maxCol[i] )
+                            comParams.thePitchY,
+                            phase1PixelTopology::isBigPixY( cp.minCol[ic] ),
+                            phase1PixelTopology::isBigPixY( cp.maxCol[ic] )
                            );
 
    cp.xpos[ic]=xPos+xcorr;

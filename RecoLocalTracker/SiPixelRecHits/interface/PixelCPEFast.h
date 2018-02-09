@@ -1,10 +1,11 @@
 #pragma once
+
+#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
 
 // The template header files
-//#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelGenError.h"
 
@@ -88,7 +89,15 @@ private:
    
    //--- DB Error Parametrization object, new light templates 
    std::vector< SiPixelGenErrorStore > thePixelGenError_;
-   
+
+
+private :
+
+   void fillParamsForGpu();
+
+   std::vector<pixelCPEforGPU::DetParams> m_detParamsGPU;
+   pixelCPEforGPU::CommonParams m_commonParamsGPU;     
+
 };
 
 

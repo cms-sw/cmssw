@@ -68,8 +68,51 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const & conf,
       yerr_endcap_= {0.00210};
       yerr_endcap_def_=0.00075;
 
+
+
+   fillParamsForGpu();   
    
-   
+}
+
+void PixelCPEFast::fillParamsForGpu() {
+
+
+  m_commonParamsGPU.theThickness = m_DetParams[0].theThickness;
+  m_commonParamsGPU.thePitchX = m_DetParams[0].thePitchX;
+  m_commonParamsGPU.thePitchY = m_DetParams[0].thePitchY;
+
+  m_detParamsGPU.resize(m_DetParams.size());
+  for (auto i=0U; i<m_DetParams.size(); ++i) {
+    auto & p=m_DetParams[i];
+    auto & g=m_detParamsGPU[i];
+
+    assert(p.theDet->index()==int(i));
+
+    
+    /*
+    g.isBarrel;
+    g.isPosZ;
+    g.layer;
+    g.index=i; // better be!
+    g.rawId;
+    */
+
+    g.shiftX = 0.5f*p.lorentzShiftInCmX;
+    g.shiftY = 0.5f*p.lorentzShiftInCmY;
+    g.chargeWidthX = p.lorentzShiftInCmX * p.widthLAFractionX;
+    g.chargeWidthY = p.lorentzShiftInCmY * p.widthLAFractionY;
+
+    g.x0 = p.theOrigin.x();
+    g.y0 = p.theOrigin.y();
+    g.z0 = p.theOrigin.z();
+
+    auto vv = p.theDet->surface().position();
+    auto rr = pixelCPEforGPU::Rotation(p.theDet->surface().rotation());
+    g.frame =  pixelCPEforGPU::Frame(vv.x(),vv.y(),vv.z(),rr);
+
+  }
+
+
 }
 
 PixelCPEBase::ClusterParam* PixelCPEFast::createClusterParam(const SiPixelCluster & cl) const
