@@ -41,7 +41,6 @@
 #include "TFile.h"
 #include "TString.h"
 
-#include <boost/assign/list_of.hpp>
 #include <vector>
 #include <map>
 #include <sstream>
@@ -247,7 +246,7 @@ void SiPixelLorentzAngleCalibration::beginOfJob(AlignableTracker *aliTracker,
                                                 AlignableExtras * /*aliExtras*/)
 {
   //specify the sub-detectors for which the LA is determined
-  const std::vector<int> sdets = boost::assign::list_of(PixelSubdetector::PixelBarrel)(PixelSubdetector::PixelEndcap);
+  const std::vector<int> sdets = {PixelSubdetector::PixelBarrel, PixelSubdetector::PixelEndcap};
   
   moduleGroupSelector_ =
     std::make_unique<TkModuleGroupSelector>(aliTracker, moduleGroupSelCfg_, sdets);
