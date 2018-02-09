@@ -8,6 +8,7 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
+#include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
@@ -22,6 +23,12 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+
+namespace {
+  edm::ActivityRegistry activityRegistry;
+}
 
 using namespace edm;
 using namespace edm::eventsetup;
@@ -190,7 +197,10 @@ void testEventsetupRecord::proxyTest()
 
 void testEventsetupRecord::getTest()
 {
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    DummyRecord dummyRecord;
+   provider.addRecordToEventSetup(dummyRecord);
+
    FailingDummyProxy dummyProxy;
 
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
@@ -269,7 +279,9 @@ void testEventsetupRecord::getNodataExpTest()
 
 void testEventsetupRecord::getExepTest()
 {
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    DummyRecord dummyRecord;
+   provider.addRecordToEventSetup(dummyRecord);
    FailingDummyProxy dummyProxy;
 
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),"");
@@ -284,7 +296,10 @@ void testEventsetupRecord::getExepTest()
 
 void testEventsetupRecord::doGetTest()
 {
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    DummyRecord dummyRecord;
+   provider.addRecordToEventSetup(dummyRecord);
+
    FailingDummyProxy dummyProxy;
    
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
@@ -432,7 +447,9 @@ void testEventsetupRecord::introspectionTest()
 
 void testEventsetupRecord::doGetExepTest()
 {
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    DummyRecord dummyRecord;
+   provider.addRecordToEventSetup(dummyRecord);
    FailingDummyProxy dummyProxy;
    
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
@@ -459,7 +476,10 @@ void testEventsetupRecord::proxyResetTest()
   CPPUNIT_ASSERT(0 !=prov);
   if(prov == 0) return; // To silence Coverity
   const EventSetupRecordProviderTemplate<DummyRecord>* constProv = prov;
-   
+
+  eventsetup::EventSetupProvider provider(&activityRegistry);
+  prov->addRecordTo(provider);
+
   const EventSetupRecord& dummyRecord = constProv->record();
 
   unsigned long long cacheID = dummyRecord.cacheIdentifier();
@@ -508,7 +528,10 @@ void testEventsetupRecord::transientTest()
    
    EventSetupRecordProviderTemplate<DummyRecord>* prov= dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)); 
    CPPUNIT_ASSERT(0 !=prov);
-  if(prov == 0) return; // To silence Coverity
+   if(prov == 0) return; // To silence Coverity
+
+   eventsetup::EventSetupProvider provider(&activityRegistry);
+   prov->addRecordTo(provider);
    
    const EventSetupRecordProviderTemplate<DummyRecord>* constProv = prov;
    const EventSetupRecord& dummyRecord = constProv->record();
