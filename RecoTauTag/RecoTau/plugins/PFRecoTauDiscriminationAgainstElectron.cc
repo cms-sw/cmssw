@@ -119,7 +119,7 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
        if (pflch != nullptr) {
          TrackRef myleadTk;
          myleadTk = pflch->trackRef();
-         math::XYZPointF myleadTkEcalPos = pflch->positionAtECALEntrance();
+         const math::XYZPointF& myleadTkEcalPos = pflch->positionAtECALEntrance();
          if(myleadTk.isNonnull())
          {
             if (applyCut_ecalCrack_ && isInEcalCrack(myleadTkEcalPos.eta()))

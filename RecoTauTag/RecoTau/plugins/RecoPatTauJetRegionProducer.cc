@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -31,7 +32,8 @@
 class RecoTauPatJetRegionProducer : public edm::stream::EDProducer<> 
 {
  public:
-  typedef edm::Association<pat::JetCollection> PatJetMatchMap;
+  // typedef edm::Association<pat::JetCollection> PatJetMatchMap;
+  typedef edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > PatJetMatchMap;
   typedef edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>, std::vector<pat::PackedCandidate>, unsigned int> > JetToPackedCandidateAssociation;
   explicit RecoTauPatJetRegionProducer(const edm::ParameterSet& pset);
   ~RecoTauPatJetRegionProducer() override {}
@@ -194,13 +196,15 @@ void RecoTauPatJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup
 
   // Put our new jets into the event
   edm::OrphanHandle<pat::JetCollection> newJetsInEvent = evt.put(std::move(newJets), "jets");
-
+  
   // Create a matching between original jets -> extra collection
-  auto matching = std::make_unique<PatJetMatchMap>(newJetsInEvent);
-  if ( nJets ) {
-    PatJetMatchMap::Filler filler(*matching);
-    filler.insert(originalJets, matchInfo.begin(), matchInfo.end());
-    filler.fill();
+  auto matching = (nJets !=0) ? std::make_unique<PatJetMatchMap>(edm::makeRefToBaseProdFrom(edm::RefToBase<reco::Jet>(jets[0]), evt), newJetsInEvent) : std::make_unique<PatJetMatchMap>();
+  for (size_t ijet = 0; ijet < nJets; ++ijet) {
+    // JAN - FIXME - this doesn't look very elegant...
+    matching->insert(edm::RefToBase<reco::Jet>(jets[ijet]), edm::RefToBase<reco::Jet>(edm::Ref<pat::JetCollection>(newJetsInEvent, matchInfo[ijet])));
+    // PFJetMatchMap::Filler filler(*matching);
+    // filler.insert(originalJets, matchInfo.begin(), matchInfo.end());
+    // filler.fill();
   }
   evt.put(std::move(matching));
 }

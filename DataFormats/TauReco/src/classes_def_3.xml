@@ -237,5 +237,19 @@
 <!--  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >"/> -->
 <!--  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/> -->
 
+  <class name="edm::Association<std::vector<pat::Jet> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::Jet> > >"/>
+  <class name="edm::RefProd<vector<pat::Jet> >"/>
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<pat::Jet> >,edm::RefProd<vector<pat::PackedCandidate> > >"/>
+
+  <class name="edm::AssociationMap<edm::OneToOne<edm::View<reco::Jet>,edm::View<reco::Jet>,unsigned int> >">
+      <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<reco::Jet>,edm::View<reco::Jet>,unsigned int> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::Jet>,edm::RefToBaseProd<reco::Jet> >"/>
 
 </lcgdict>

@@ -30,7 +30,7 @@ class RecoTauPiZeroCombinatoricPlugin : public RecoTauPiZeroBuilderPlugin {
   explicit RecoTauPiZeroCombinatoricPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     ~RecoTauPiZeroCombinatoricPlugin() override {}
     // Return type is auto_ptr<PiZeroVector>
-    return_type operator()(const reco::PFJet& jet) const override;
+    return_type operator()(const reco::Jet& jet) const override;
 
   private:
     RecoTauQualityCuts qcuts_;
@@ -53,7 +53,7 @@ RecoTauPiZeroCombinatoricPlugin::RecoTauPiZeroCombinatoricPlugin(
 
 RecoTauPiZeroCombinatoricPlugin::return_type
 RecoTauPiZeroCombinatoricPlugin::operator()(
-    const reco::PFJet& jet) const {
+    const reco::Jet& jet) const {
   // Get list of gamma candidates
   typedef std::vector<reco::CandidatePtr> CandPtrs;
   typedef CandPtrs::const_iterator CandIter;

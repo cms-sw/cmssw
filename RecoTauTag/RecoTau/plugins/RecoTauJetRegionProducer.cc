@@ -32,7 +32,8 @@
 class RecoTauJetRegionProducer : public edm::stream::EDProducer<> 
 {
  public:
-  typedef edm::Association<reco::PFJetCollection> PFJetMatchMap;
+  // typedef edm::Association<reco::PFJetCollection> PFJetMatchMap;
+  typedef edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > PFJetMatchMap;
   typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> > JetToPFCandidateAssociation;
   explicit RecoTauJetRegionProducer(const edm::ParameterSet& pset);
   ~RecoTauJetRegionProducer() override {}
@@ -197,11 +198,13 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   edm::OrphanHandle<reco::PFJetCollection> newJetsInEvent = evt.put(std::move(newJets), "jets");
 
   // Create a matching between original jets -> extra collection
-  auto matching = std::make_unique<PFJetMatchMap>(newJetsInEvent);
-  if ( nJets ) {
-    PFJetMatchMap::Filler filler(*matching);
-    filler.insert(originalJets, matchInfo.begin(), matchInfo.end());
-    filler.fill();
+  auto matching = std::make_unique<PFJetMatchMap>();
+  for (size_t ijet = 0; ijet < nJets; ++ijet) {
+    // JAN - FIXME - this doesn't look very elegant...
+    matching->insert(edm::RefToBase<reco::Jet>(jets[ijet]), edm::RefToBase<reco::Jet>(edm::Ref<reco::PFJetCollection>(newJetsInEvent, matchInfo[ijet])));
+    // PFJetMatchMap::Filler filler(*matching);
+    // filler.insert(originalJets, matchInfo.begin(), matchInfo.end());
+    // filler.fill();
   }
   evt.put(std::move(matching));
 }

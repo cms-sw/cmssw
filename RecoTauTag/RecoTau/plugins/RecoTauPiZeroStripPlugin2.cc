@@ -56,7 +56,7 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
   explicit RecoTauPiZeroStripPlugin2(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
   ~RecoTauPiZeroStripPlugin2() override;
   // Return type is auto_ptr<PiZeroVector>
-  return_type operator()(const reco::PFJet&) const override;
+  return_type operator()(const reco::Jet&) const override;
   // Hook to update PV information
   void beginEvent() override;
   
@@ -195,7 +195,7 @@ namespace
   }
 }
 
-RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(const reco::PFJet& jet) const 
+RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(const reco::Jet& jet) const 
 {
   if ( verbosity_ >= 1 ) {
     edm::LogPrint("RecoTauPiZeroStripPlugin2") << "<RecoTauPiZeroStripPlugin2::operator()>:" ;
