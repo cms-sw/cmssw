@@ -57,7 +57,7 @@ postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
 # TrackingParticle Producer is now part of the mixing module, so
 # it is no longer run here.
 #
-from SimGeneral.PileupInformation.AddPileupSummaryPreMixed_cfi import *
+from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
 
 
 
