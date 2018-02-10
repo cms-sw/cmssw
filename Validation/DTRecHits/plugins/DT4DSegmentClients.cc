@@ -1,33 +1,24 @@
-#include "DT4DSegmentClients.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Validation/DTRecHits/interface/utils.h"
 
-//#include "TFile.h"
-#include <string>
-#include <iostream>
-#include <map>
-
+#include "DT4DSegmentClients.h"
 
 using namespace std;
 using namespace edm;
 
-DT4DSegmentClients::DT4DSegmentClients(const edm::ParameterSet& ps){
+DT4DSegmentClients::DT4DSegmentClients(edm::ParameterSet const& config)
+{
 }
-DT4DSegmentClients::~DT4DSegmentClients(){
-}
-void DT4DSegmentClients::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-  edm::EventSetup const& c){
-  dbe = Service<DQMStore>().operator->();
-  //dbe->setCurrentFolder("DQMData/Run 1/DT/Run summary/4DSegments/");
+
+void DT4DSegmentClients::endLuminosityBlock(edm::LuminosityBlock const& lumi,
+  edm::EventSetup const& setup)
+{
+  DQMStore* dbe = Service<DQMStore>().operator->();
   
   MonitorElement * hResAlpha = dbe->get("DT/4DSegments/Res/4D_All_hResAlpha");
   MonitorElement * hResBeta = dbe->get("DT/4DSegments/Res/4D_All_hResBeta");
@@ -85,65 +76,68 @@ void DT4DSegmentClients::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   MonitorElement * hPullBetaRZ_W2 = dbe->get("DT/4DSegments/Pull/4D_W2_hPullBetaRZ");
   MonitorElement * hPullYRZ_W2 = dbe->get("DT/4DSegments/Pull/4D_W2_hPullYRZ");
   
-  Tutils * aux = new Tutils;
-  aux->drawGFit(hResAlpha->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResBeta->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResX->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResY->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResBetaRZ->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResYRZ->getTH1(),-0.2,0.2,-0.1,0.1);
+  Tutils util;
+  util.drawGFit(hResAlpha->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResBeta->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResX->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResY->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResBetaRZ->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResYRZ->getTH1(),-0.2,0.2,-0.1,0.1);
 
-  aux->drawGFit(hResAlpha_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResBeta_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResX_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResY_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResBetaRZ_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResYRZ_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResAlpha_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResBeta_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResX_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResY_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResBetaRZ_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResYRZ_W0->getTH1(),-0.2,0.2,-0.1,0.1);
 
-  aux->drawGFit(hResAlpha_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResBeta_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResX_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResY_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResBetaRZ_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResYRZ_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResAlpha_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResBeta_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResX_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResY_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResBetaRZ_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResYRZ_W1->getTH1(),-0.2,0.2,-0.1,0.1);
 
-  aux->drawGFit(hResAlpha_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResBeta_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResX_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResY_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResBetaRZ_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hResYRZ_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResAlpha_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResBeta_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResX_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResY_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResBetaRZ_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hResYRZ_W2->getTH1(),-0.2,0.2,-0.1,0.1);
 
-  aux->drawGFit(hPullAlpha->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullBeta->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullX->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullY->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullBetaRZ->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullYRZ->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullAlpha->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullBeta->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullX->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullY->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullBetaRZ->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullYRZ->getTH1(),-0.2,0.2,-0.1,0.1);
 
-  aux->drawGFit(hPullAlpha_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullBeta_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullX_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullY_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullBetaRZ_W0->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullYRZ_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullAlpha_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullBeta_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullX_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullY_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullBetaRZ_W0->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullYRZ_W0->getTH1(),-0.2,0.2,-0.1,0.1);
 
-  aux->drawGFit(hPullAlpha_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullBeta_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullX_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullY_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullBetaRZ_W1->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullYRZ_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullAlpha_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullBeta_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullX_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullY_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullBetaRZ_W1->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullYRZ_W1->getTH1(),-0.2,0.2,-0.1,0.1);
 
-  aux->drawGFit(hPullAlpha_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullBeta_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullX_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullY_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullBetaRZ_W2->getTH1(),-0.2,0.2,-0.1,0.1);
-  aux->drawGFit(hPullYRZ_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullAlpha_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullBeta_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullX_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullY_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullBetaRZ_W2->getTH1(),-0.2,0.2,-0.1,0.1);
+  util.drawGFit(hPullYRZ_W2->getTH1(),-0.2,0.2,-0.1,0.1);
 }
 
-void DT4DSegmentClients::analyze(const Event& e, const EventSetup& context){
-
+void DT4DSegmentClients::analyze(Event const& event, EventSetup const& setup)
+{
 }
 
+// declare this as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DT4DSegmentClients);
