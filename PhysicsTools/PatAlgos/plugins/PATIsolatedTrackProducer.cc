@@ -385,7 +385,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
             const auto &dedxRef = (*gt2dedxHitInfo)[tkref];
             if (saveDeDxHitInfoCut_(outPtrP->back()) && dedxRef.isNonnull()) {
                 outDeDxC->push_back( *dedxRef );
-                dEdXass.push_back(outDeDxC->size());
+                dEdXass.push_back(outDeDxC->size()-1);
             } else {
                 dEdXass.push_back(-1);
             }
