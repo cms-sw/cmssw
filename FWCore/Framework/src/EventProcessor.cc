@@ -1142,13 +1142,13 @@ namespace edm {
             if (iPtr) {
               holder.doneWaiting(*iPtr);
             } else {
-              //make the services available
-              ServiceRegistry::Operate operate(serviceToken_);
 
               status->globalBeginDidSucceed();
               EventSetup const& es = esp_->eventSetup();
               if(looper_) {
                 try {
+                  //make the services available
+                  ServiceRegistry::Operate operate(serviceToken_);
                   looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
                 }catch(...) {
                   holder.doneWaiting(std::current_exception());
@@ -1234,23 +1234,15 @@ namespace edm {
     
     unsigned int streamIndex = 0;
     for(; streamIndex< preallocations_.numberOfStreams()-1; ++streamIndex) {
-      tbb::task::enqueue( *edm::make_waiting_task(tbb::task::allocate_root(),
-                                              [this,streamIndex,h = iHolder](std::exception_ptr const* iPtr) mutable
-                                              {
-                                                if(iPtr) {
-                                                  h.doneWaiting(*iPtr);
-                                                } else {
-                                                  handleNextEventForStreamAsync(std::move(h), streamIndex);
-                                                }
-                                              }) );
+      tbb::task::enqueue( *edm::make_functor_task(tbb::task::allocate_root(),
+                                              [this,streamIndex,h = iHolder](){
+        handleNextEventForStreamAsync(std::move(h), streamIndex);
+      }) );
 
     }
-    //need a temporary Task so that the temporary WaitingTaskHolder assigned to h will go out of scope
-    // before the call to spawn_and_wait_for_all
-    auto t = edm::make_waiting_task(tbb::task::allocate_root(),[this,streamIndex,h=iHolder](std::exception_ptr const*){
-      handleNextEventForStreamAsync(h,streamIndex);
-    });
-    tbb::task::spawn(*t);
+    tbb::task::spawn( *edm::make_functor_task(tbb::task::allocate_root(),[this,streamIndex,h=std::move(iHolder)](){
+      handleNextEventForStreamAsync(std::move(h),streamIndex);
+    }) );
   }
 
   void EventProcessor::globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus) {
@@ -1606,10 +1598,10 @@ namespace edm {
                     tbb::task::allocate_root(),
                     [this,pep,iHolder](std::exception_ptr const* iPtr) mutable
              {
-               ServiceRegistry::Operate operate(serviceToken_);
 
                //NOTE: If we have a looper we only have one Stream
                if(looper_) {
+                 ServiceRegistry::Operate operate(serviceToken_);
                  processEventWithLooper(*pep);
                }
                
