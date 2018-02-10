@@ -111,9 +111,7 @@ class ES_TTStubAlgorithm_cbc3 : public edm::ESProducer
       const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
       TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_cbc3< T >( theTrackerGeom, theTrackerTopo, mPerformZMatching2S );
-      std::unique_ptr< TTStubAlgorithm< T > > _theAlgo;
-      _theAlgo = std::unique_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
-      return _theAlgo;
+      return std::unique_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
     } 
 
 };

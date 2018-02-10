@@ -115,9 +115,7 @@ class ES_TTClusterAlgorithm_neighbor : public edm::ESProducer
       TTClusterAlgorithm< T >* TTClusterAlgo =
         new TTClusterAlgorithm_neighbor< T >( );
 
-      std::unique_ptr< TTClusterAlgorithm< T > > _theAlgo;
-      _theAlgo = std::unique_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
-      return _theAlgo;
+      return std::unique_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
     }
 
 }; /// Close class

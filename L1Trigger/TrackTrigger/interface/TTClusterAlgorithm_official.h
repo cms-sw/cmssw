@@ -110,9 +110,7 @@ class  ES_TTClusterAlgorithm_official: public edm::ESProducer
       TTClusterAlgorithm< T >* TTClusterAlgo =
         new TTClusterAlgorithm_official< T >( mWidthCut );
 
-      std::unique_ptr< TTClusterAlgorithm< T > > _theAlgo;
-      _theAlgo = std::unique_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
-      return _theAlgo;
+      return std::unique_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
     } 
 
 }; /// Close class

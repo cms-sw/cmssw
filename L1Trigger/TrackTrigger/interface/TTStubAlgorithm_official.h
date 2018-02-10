@@ -171,9 +171,7 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
 									    setBarrelCut, setRingCut, setTiltedCut, setBarrelNTilt,
 									    mPerformZMatchingPS, mPerformZMatching2S);
 
-      std::unique_ptr< TTStubAlgorithm< T > > _theAlgo;
-      _theAlgo = std::unique_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
-      return _theAlgo;
+      return std::unique_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
     } 
 
 };
