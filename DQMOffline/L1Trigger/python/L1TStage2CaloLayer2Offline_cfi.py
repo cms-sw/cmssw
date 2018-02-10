@@ -55,7 +55,7 @@ l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
     triggerInputTag=cms.InputTag('hltTriggerSummaryAOD', '', 'HLT'),
     triggerProcess=cms.string('HLT'),
     triggerResults=cms.InputTag('TriggerResults', '', 'HLT'),
-    triggerNames = cms.vstring(
+    triggerNames=cms.vstring(
         'HLT_IsoMu18_v*',
         'HLT_IsoMu20_v*',
         'HLT_IsoMu22_v*',
@@ -84,7 +84,13 @@ l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
     recoMHTMaxEta=cms.double(2.5),
 
     histDefinitions=cms.PSet(
-        nVertex = histDefinitions.nVertex.clone(),
+        nVertex=histDefinitions.nVertex.clone(),
+        ETvsET=histDefinitions.ETvsET.clone(),
+        PHIvsPHI=histDefinitions.PHIvsPHI.clone(),
+        # L1JetETvsCaloJetET_HB=histDefinitions.ETvsET.clone(
+        #     name='L1JetETvsCaloJetET_HB',
+        #     title='L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)',
+        # )
     ),
 )
 

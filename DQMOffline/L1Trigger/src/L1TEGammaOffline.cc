@@ -20,7 +20,9 @@
 
 
 const std::map<std::string, unsigned int> L1TEGammaOffline::PlotConfigNames = {
-  {"nVertex", PlotConfig::nVertex}
+  {"nVertex", PlotConfig::nVertex},
+  {"ETvsET", PlotConfig::ETvsET},
+  {"PHIvsPHI", PlotConfig::PHIvsPHI}
 };
 
 //
@@ -570,25 +572,30 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
   );
   h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
   // electron reco vs L1
+  dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
   h_L1EGammaETvsElectronET_EB_ = ibooker.book2D("L1EGammaETvsElectronET_EB",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
-      0, 300);
+      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1EGammaETvsElectronET_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EE",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
-      0, 300);
+      "L1 EGamma E_{T} vs GSF Electron E_{T} (EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1EGammaETvsElectronET_EB_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EB_EE",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB+EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300,
-      300, 0, 300);
+      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB+EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
 
+  dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
   h_L1EGammaPhivsElectronPhi_EB_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB); #phi_{electron}^{offline}; #phi_{electron}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1EGammaPhivsElectronPhi_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EE",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1EGammaPhivsElectronPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB_EE",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB+EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB+EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
   h_L1EGammaEtavsElectronEta_ = ibooker.book2D("L1EGammaEtavsElectronEta",
       "L1 EGamma #eta vs GSF Electron #eta; GSF Electron #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);
@@ -685,22 +692,31 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
-  h_L1EGammaETvsPhotonET_EB_ = ibooker.book2D("L1EGammaETvsPhotonET_EB",
-      "L1 EGamma E_{T} vs  Photon E_{T} (EB);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
-  h_L1EGammaETvsPhotonET_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EE",
-      "L1 EGamma E_{T} vs  Photon E_{T} (EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
-  h_L1EGammaETvsPhotonET_EB_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EB_EE",
-      "L1 EGamma E_{T} vs  Photon E_{T} (EB+EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
 
+  dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
+  h_L1EGammaETvsPhotonET_EB_ = ibooker.book2D("L1EGammaETvsPhotonET_EB",
+      "L1 EGamma E_{T} vs  Photon E_{T} (EB);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1EGammaETvsPhotonET_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EE",
+      "L1 EGamma E_{T} vs  Photon E_{T} (EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1EGammaETvsPhotonET_EB_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EB_EE",
+      "L1 EGamma E_{T} vs  Photon E_{T} (EB+EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+
+  dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
   h_L1EGammaPhivsPhotonPhi_EB_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EB",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
-      100, -4, 4);
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1EGammaPhivsPhotonPhi_EE_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EE",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
-      100, -4, 4);
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1EGammaPhivsPhotonPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EB_EE",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB+EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
-      100, -4, 4);
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB+EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
   h_L1EGammaEtavsPhotonEta_ = ibooker.book2D("L1EGammaEtavsPhotonEta",
       "L1 EGamma #eta vs  Photon #eta;  Photon #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);
