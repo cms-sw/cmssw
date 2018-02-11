@@ -44,7 +44,9 @@ namespace pixelCPEforGPU {
     CommonParams * m_commonParams;
     DetParams * m_detParams;
 
+    constexpr
     CommonParams const & commonParams() const {return *m_commonParams;}
+    constexpr
     DetParams const &  detParams(int i) const {return m_detParams[i];}
 
   };
@@ -103,7 +105,7 @@ namespace pixelCPEforGPU {
    if (1==sizeM1) {   // size 2   
      //--- Width of the clusters minus the edge (first and last) pixels.
      //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
-     assert(lower_edge_last_pix>=upper_edge_first_pix);
+     // assert(lower_edge_last_pix>=upper_edge_first_pix);
      auto W_inner      =  pitch * float(lower_edge_last_pix-upper_edge_first_pix);  // in cm
 
      //--- Predicted charge width from geometry

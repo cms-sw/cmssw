@@ -91,7 +91,7 @@ private:
    std::vector< SiPixelGenErrorStore > thePixelGenError_;
 
 
-private :
+public :
 
    void fillParamsForGpu();
 

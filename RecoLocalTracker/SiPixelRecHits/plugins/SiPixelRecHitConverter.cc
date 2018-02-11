@@ -34,6 +34,11 @@
 
 using namespace std;
 
+
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
+void pixelRecHitsGlobal(pixelCPEforGPU::ParamsOnGPU const * cpeParams);
+
+
 namespace cms
 {
   //---------------------------------------------------------------------------
@@ -102,6 +107,19 @@ namespace cms
 	assert(0);
 	return;   // clusterizer is invalid, bail out
       }
+
+
+    // invoke gpu version ......
+    PixelCPEFast const * fcpe =   dynamic_cast<const PixelCPEFast *>(cpe_);
+    if (!fcpe) {
+      std::cout << " too bad, not a fast cpe gpu processing not possible...." << std::endl;
+      assert(0);
+    }
+    assert(fcpe->d_paramsOnGPU);
+    pixelRecHitsGlobal(fcpe->d_paramsOnGPU);
+    
+
+
     
     int numberOfDetUnits = 0;
     int numberOfClusters = 0;

@@ -99,13 +99,13 @@ namespace gpuPixelRecHits {
     first = hitsModuleStart[me];
     auto h = first+i;  // output index in global memory
 
-    position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams,i);
+    pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams,i);
 
     if (local) {   
      xh[h]= clusParams.xpos[i];   
      yh[h]= clusParams.ypos[i]; 
-    else {
-      cpeParams->detParams(me).frame.toGlobal(clusParams.xpos[i],clusParams.ypos[i]xl[i],
+    } else {
+      cpeParams->detParams(me).frame.toGlobal(clusParams.xpos[i],clusParams.ypos[i],
                                               xh[h],yh[h],zh[h]
                                              );
     }

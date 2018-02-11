@@ -8,8 +8,6 @@
  *
 **/
 
-// local includes should go first....
-#include "RecoLocalTracker/SiPixelRecHits/interface/gpuPixelRecHits.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
 
 // System includes
@@ -36,6 +34,20 @@
 #include "RawToDigiGPU.h"
 #include "SiPixelFedCablingMapGPU.h"
 
+// aaaaggggghhhhhhh
+struct TheGlobalByVin {
+  static 
+  context const * & theContext() {
+    static context const * me;
+    return me;
+  }
+  static 
+  uint32_t & ndigis() {
+    static uint32_t me;
+    return me;
+  }
+};
+//
 
 context initDeviceMemory() {
 
@@ -683,21 +695,8 @@ void RawToDigi_wrapper(
                wordCounter
   );
 
- // fake fake fake 
- uint32_t hitsModuleStart[2000];
- float xg[1],yg[1],zg[1]; 
-
- gpuPixelRecHits:: getHits<<<blocks, threadsPerBlock, 0, c.stream>>>(
-               c.moduleInd_d,
-               c.xx_d, c.yy_d, c.adc_d,
-               c.moduleStart_d,
-               c.clusInModule_d, c.moduleId_d,
-               c.clus_d,
-               wordCounter,
-	       hitsModuleStart,
-               xg,yg,zg, 
-	       false
-  );
+  TheGlobalByVin::theContext() = &c;
+  TheGlobalByVin::ndigis() = wordCounter;
 
  } // end clusterizer scope
 
