@@ -19,7 +19,7 @@ theDigitizersNoNoise.hcal.HcalPreMixStage1 = cms.bool(True)
 # no pixel in fastsim era
 if hasattr(theDigitizersNoNoise,"pixel"):
     theDigitizersNoNoise.pixel.AddNoise = cms.bool(True)
-    theDigitizersNoNoise.pixel.addNoisyPixels = cms.bool(False)
+    theDigitizersNoNoise.pixel.AddNoisyPixels = False
     theDigitizersNoNoise.pixel.AddPixelInefficiency = cms.bool(False) #done in second step
     theDigitizersNoNoise.pixel.makeDigiSimLinks = cms.untracked.bool(False)
 # no strip in fastsim era
