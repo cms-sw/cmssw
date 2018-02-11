@@ -394,7 +394,6 @@ namespace edm {
     auto doneTask = make_waiting_task(tbb::task::allocate_root(),
                                       [this,iHolder, id,cleaningUpAfterException,token](std::exception_ptr const* iPtr) mutable
     {
-      ServiceRegistry::Operate op(token);
       std::exception_ptr excpt;
       if(iPtr) {
         excpt = *iPtr;
@@ -409,14 +408,17 @@ namespace edm {
           if(ex.context().empty()) {
             ost<<"Processing "<<T::transitionName()<<" "<<id;
           }
+          ServiceRegistry::Operate op(token);
           addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
           excpt = std::current_exception();
         }
         
+        ServiceRegistry::Operate op(token);
         actReg_->preStreamEarlyTerminationSignal_(streamContext_,TerminationOrigin::ExceptionFromThisContext);
       }
       
       try {
+        ServiceRegistry::Operate op(token);
         T::postScheduleSignal(actReg_.get(), &streamContext_);
       } catch(...) {
         if(not excpt) {
@@ -431,12 +433,13 @@ namespace edm {
       ServiceRegistry::Operate op(token);
       try {
         T::preScheduleSignal(actReg_.get(), &streamContext_);
+
+        workerManager_.resetAll();
       }catch(...) {
         h.doneWaiting(std::current_exception());
         return;
       }
 
-      workerManager_.resetAll();
       for(auto& p : end_paths_) {
         p.runAllModulesAsync<T>(doneTask, ep, es, token, streamID_, &streamContext_);
       }
