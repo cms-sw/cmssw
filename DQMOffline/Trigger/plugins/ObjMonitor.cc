@@ -21,6 +21,7 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   , jetToken_             ( mayConsume<reco::PFJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )   
   , eleToken_             ( mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons") ) )   
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )
+  , phoToken_             ( mayConsume<reco::PhotonCollection>     (iConfig.getParameter<edm::InputTag>("photons")   ) )
   , do_met_ (iConfig.getParameter<bool>("doMETHistos") )
   , do_jet_ (iConfig.getParameter<bool>("doJetHistos") )
   , do_ht_  (iConfig.getParameter<bool>("doHTHistos")  )
@@ -32,9 +33,11 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   , htjetSelection_ ( iConfig.getParameter<std::string>("htjetSelection"))
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
+  , phoSelection_ ( iConfig.getParameter<std::string>("phoSelection") )
   , njets_      ( iConfig.getParameter<int>("njets" )      )
   , nelectrons_ ( iConfig.getParameter<int>("nelectrons" ) )
   , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
+  , nphotons_   ( iConfig.getParameter<int>("nphotons")    )
 {
   if (do_met_){
     metDQM_.initialise(iConfig);
@@ -55,7 +58,7 @@ void ObjMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 {  
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   if (do_met_) metDQM_.bookHistograms(ibooker);
   if (do_jet_) jetDQM_.bookHistograms(ibooker);
@@ -84,7 +87,7 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
   std::vector<reco::PFJet> htjets;
-  if ( int(jetHandle->size()) < njets_ ) return;
+  if ( jetHandle->size() < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) {
       if (jetId_=="loose" || jetId_ =="tight"){
@@ -102,25 +105,34 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
     if ( htjetSelection_( j ) ) htjets.push_back(j);
   }
-  if ( int(jets.size()) < njets_ ) return;
+  if ( jets.size() < njets_ ) return;
   
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
-  if ( int(eleHandle->size()) < nelectrons_ ) return;
+  if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
   }
-  if ( int(electrons.size()) < nelectrons_ ) return;
+  if ( electrons.size() < nelectrons_ ) return;
   
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
-  if ( int(muoHandle->size()) < nmuons_ ) return;
+  if ( muoHandle->size() < nmuons_ ) return;
   std::vector<reco::Muon> muons;
   for ( auto const & m : *muoHandle ) {
     if ( muoSelection_( m ) ) muons.push_back(m);
   }
-  if ( int(muons.size()) < nmuons_ ) return;
+  if ( muons.size() < nmuons_ ) return;
+
+  edm::Handle<reco::PhotonCollection> phoHandle;
+  iEvent.getByToken( phoToken_, phoHandle );
+  if ( phoHandle->size() < nphotons_ ) return;
+  std::vector<reco::Photon> photons;
+  for ( auto const & m : *phoHandle ) {
+    if ( phoSelection_( m ) ) photons.push_back(m);
+  }
+  if ( photons.size() < nphotons_ ) return;
 
 
   bool passNumCond = num_genTriggerEventFlag_->off() || num_genTriggerEventFlag_->accept( iEvent, iSetup);
@@ -181,15 +193,18 @@ void ObjMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
   desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
+  desc.add<edm::InputTag>( "photons",    edm::InputTag("gedPhotons") );
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("jetId", "");
   desc.add<std::string>("htjetSelection", "pt > 30");
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
+  desc.add<std::string>("phoSelection", "pt > 0");
   desc.add<int>("njets",      0);
   desc.add<int>("nelectrons", 0);
   desc.add<int>("nmuons",     0);
+  desc.add<int>("nphotons",     0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
