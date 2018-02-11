@@ -22,6 +22,17 @@ photonEfficiency = DQMEDHarvester("DQMGenericClient",
     ),
 )
 
+photonVBF_jetMETEfficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/Photon/Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50", "HLT/Photon/Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_mjj         'Mjj turnON;            Mjj [GeV]; efficiency'     mjj_numerator          mjj_denominator",
+        "effic_detajj      'DEtajj turnON;            DEtajj; efficiency'     detajj_numerator       detajj_denominator",
+        "effic_met         'MET turnON;            MET [GeV]; efficiency'     met_numerator          met_denominator"
+    )
+)
+
 muonEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/EXO/Muon/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                                                                                                                          
@@ -193,6 +204,7 @@ DisplacedJet_jetRatioHemHep17 = DQMEDHarvester("DQMGenericClient",
 exoticaClient = cms.Sequence(
     NoBPTXEfficiency
   + photonEfficiency
+  + photonVBF_jetMETEfficiency
   + DisplacedJet_htEfficiency
   + (DisplacedJet_jetEfficiency*DisplacedJet_jetRatioHemHep17)
   + htClient
