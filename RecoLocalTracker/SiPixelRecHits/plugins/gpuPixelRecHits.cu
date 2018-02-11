@@ -2,6 +2,7 @@
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
 
 #include "EventFilter/SiPixelRawToDigi/plugins/RawToDigiGPU.h" // for context....
+#include "EventFilter/SiPixelRawToDigi/plugins/cudaCheck.h"
 
 // CUDA runtime
 #include <cuda.h>
@@ -9,25 +10,44 @@
 #include <numeric>
 #include <algorithm>
 
+struct HitsOnGPU{
+
+   uint32_t * hitsModuleStart_d;
+   float *xg_d, *yg_d, *zg_d;
+};
+
+HitsOnGPU allocHitsOnGPU() {
+   HitsOnGPU hh;
+   cudaCheck(cudaMalloc((void**) & hh.hitsModuleStart_d,(gpuClustering::MaxNumModules+1)*sizeof(uint32_t)));
+   cudaCheck(cudaMalloc((void**) & hh.xg_d,(gpuClustering::MaxNumModules*256)*sizeof(float)));
+   cudaCheck(cudaMalloc((void**) & hh.yg_d,(gpuClustering::MaxNumModules*256)*sizeof(float)));
+   cudaCheck(cudaMalloc((void**) & hh.zg_d,(gpuClustering::MaxNumModules*256)*sizeof(float)));
+   cudaDeviceSynchronize();
+
+   return hh;
+}
+
 
 void pixelRecHits_wrapper(
       context const & c,
       pixelCPEforGPU::ParamsOnGPU const * cpeParams,
-      uint32_t ndigis
+      uint32_t ndigis,
+      HitsOnGPU & hh
 )
 {
 
  
  uint32_t hitsModuleStart[gpuClustering::MaxNumModules+1];
  hitsModuleStart[0] =0;
- cudaMemcpyAsync(&hitsModuleStart[1], c.clusInModule_d, gpuClustering::MaxNumModules*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream); 
+ cudaCheck(cudaMemcpyAsync(&hitsModuleStart[1], c.clusInModule_d, gpuClustering::MaxNumModules*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream)); 
 
  std::partial_sum(std::begin(hitsModuleStart),std::end(hitsModuleStart),std::begin(hitsModuleStart));
 
  auto nhits = hitsModuleStart[gpuClustering::MaxNumModules];
  std::cout << " total number of clusters " << nhits << std::endl;
 
- float xg[nhits],yg[nhits],zg[1];
+ cudaCheck(cudaMemcpyAsync(hh.hitsModuleStart_d, &hitsModuleStart, (gpuClustering::MaxNumModules+1)*sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
+
   
  int threadsPerBlock = 256;
  int blocks = gpuClustering::MaxNumModules;
@@ -39,8 +59,8 @@ void pixelRecHits_wrapper(
                c.clusInModule_d, c.moduleId_d,
                c.clus_d,
                ndigis,
-               hitsModuleStart,
-               xg,yg,zg,
+               hh.hitsModuleStart_d,
+               hh.xg_d,hh.yg_d,hh.zg_d,
                false
   );
 
@@ -62,6 +82,14 @@ struct TheGlobalByVin {
 };
 //
 
+// double aaaaggggghhhhhhh
 void pixelRecHitsGlobal(pixelCPEforGPU::ParamsOnGPU const * cpeParams) {
-  pixelRecHits_wrapper(*TheGlobalByVin::theContext(), cpeParams, TheGlobalByVin::ndigis());
+  static bool first=true;
+  static HitsOnGPU hh;
+  if (first) {
+    hh = allocHitsOnGPU();
+    first = false;
+  }
+  std::cout << "context at " << TheGlobalByVin::theContext() << " with " << TheGlobalByVin::ndigis() << " digis"<< std::endl;
+  pixelRecHits_wrapper(*TheGlobalByVin::theContext(), cpeParams, TheGlobalByVin::ndigis(),hh);
 }

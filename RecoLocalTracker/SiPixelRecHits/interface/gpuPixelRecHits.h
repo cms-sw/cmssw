@@ -49,18 +49,18 @@ namespace gpuPixelRecHits {
     assert(blockDim.x>=MaxClusInModule);
     assert(nclus<=MaxClusInModule);
 
-    auto i = threadIdx.x;
+    auto ic = threadIdx.x;
     
     if (threadIdx.x<nclus) {
-      clusParams.minRow[i] = std::numeric_limits<uint32_t>::max();
-      clusParams.maxRow[i] = 0;
-      clusParams.minCol[i] = std::numeric_limits<uint32_t>::max();
-      clusParams.maxCol[i] = 0;
+      clusParams.minRow[ic] = std::numeric_limits<uint32_t>::max();
+      clusParams.maxRow[ic] = 0;
+      clusParams.minCol[ic] = std::numeric_limits<uint32_t>::max();
+      clusParams.maxCol[ic] = 0;
       
-      clusParams.Q_f_X[i] = 0;
-      clusParams.Q_l_X[i] = 0;
-      clusParams.Q_f_Y[i] = 0;
-      clusParams.Q_l_Y[i] = 0;
+      clusParams.Q_f_X[ic] = 0;
+      clusParams.Q_l_X[ic] = 0;
+      clusParams.Q_f_Y[ic] = 0;
+      clusParams.Q_l_Y[ic] = 0;
     }
 
     
@@ -74,6 +74,7 @@ namespace gpuPixelRecHits {
     for (int i=first; i<numElements; i+=blockDim.x) {
       if (id[i]==InvId) continue;  // not valid
       if (id[i]!=me) break;  // end of module
+      assert(clus[i]<nclus);
       atomicMin(&clusParams.minRow[clus[i]],x[i]);
       atomicMax(&clusParams.maxRow[clus[i]],x[i]);
       atomicMin(&clusParams.minCol[clus[i]],y[i]);
@@ -94,18 +95,20 @@ namespace gpuPixelRecHits {
     __syncthreads();
 
     // next one cluster per thread...
-    if (threadIdx.x>=nclus) return;
+    if (ic>=nclus) return;
 
     first = hitsModuleStart[me];
-    auto h = first+i;  // output index in global memory
+    auto h = first+ic;  // output index in global memory
 
-    pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams,i);
+    assert(h<2000*256);
+
+    pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams,ic);
 
     if (local) {   
-     xh[h]= clusParams.xpos[i];   
-     yh[h]= clusParams.ypos[i]; 
+     xh[h]= clusParams.xpos[ic];   
+     yh[h]= clusParams.ypos[ic]; 
     } else {
-      cpeParams->detParams(me).frame.toGlobal(clusParams.xpos[i],clusParams.ypos[i],
+      cpeParams->detParams(me).frame.toGlobal(clusParams.xpos[ic],clusParams.ypos[ic],
                                               xh[h],yh[h],zh[h]
                                              );
     }

@@ -142,7 +142,7 @@ void PixelCPEFast::fillParamsForGpu() {
   cudaMemcpy(d_paramsOnGPU, &h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyHostToDevice);
   cudaMemcpy(h_paramsOnGPU.m_commonParams,&m_commonParamsGPU,sizeof(pixelCPEforGPU::CommonParams), cudaMemcpyHostToDevice);
   cudaMemcpy(h_paramsOnGPU.m_detParams, m_detParamsGPU.data(), m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams), cudaMemcpyHostToDevice);
-
+  cudaDeviceSynchronize();
 }
 
 PixelCPEFast::~PixelCPEFast() {
