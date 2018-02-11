@@ -19,7 +19,8 @@ namespace gpuPixelRecHits {
   using ClusParams = pixelCPEforGPU::ClusParams;
 
 
-  __global__ void getHits(uint16_t const * id,
+  __global__ void getHits(pixelCPEforGPU::ParamsOnGPU const * cpeParams,
+                          uint16_t const * id,
 			  uint16_t const * x,
 			  uint16_t const * y,
 			  uint16_t const * adc,
@@ -98,9 +99,16 @@ namespace gpuPixelRecHits {
     first = hitsModuleStart[me];
     auto h = first+i;  // output index in global memory
 
-   
-    xh[h]=0; // fake;   
-     
+    position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams,i);
+
+    if (local) {   
+     xh[h]= clusParams.xpos[i];   
+     yh[h]= clusParams.ypos[i]; 
+    else {
+      cpeParams->detParams(me).frame.toGlobal(clusParams.xpos[i],clusParams.ypos[i]xl[i],
+                                              xh[h],yh[h],zh[h]
+                                             );
+    }
     
   }
 
