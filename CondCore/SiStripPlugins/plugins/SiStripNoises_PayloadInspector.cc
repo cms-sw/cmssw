@@ -131,6 +131,109 @@ namespace {
   };
   
   /************************************************
+    1d histogram comparison of SiStripNoises of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: PlotImage
+  class SiStripNoiseValueComparison : public cond::payloadInspector::PlotImage<SiStripNoises> {
+    
+  public:
+    SiStripNoiseValueComparison() : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values comparison"){
+      setSingleIov( false );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+      
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+
+      std::shared_ptr<SiStripNoises> f_payload = fetchPayload( std::get<1>(firstiov) );
+      std::shared_ptr<SiStripNoises> l_payload = fetchPayload( std::get<1>(lastiov) );
+	 
+      auto h_first = std::unique_ptr<TH1F>(new TH1F("f_Noise",Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",std::to_string(std::get<0>(firstiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str()),100,0.1,10.));
+      h_first->SetStats(false);
+      
+      auto h_last = std::unique_ptr<TH1F>(new TH1F("l_Noise",Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",std::to_string(std::get<0>(firstiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str()),100,0.1,10.));
+      h_last->SetStats(false);
+
+      std::vector<uint32_t> f_detid;
+      f_payload->getDetIds(f_detid);
+	  
+      // loop on first payload
+      for (const auto & d : f_detid) {
+	SiStripNoises::Range range=f_payload->getRange(d);
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  float noise = f_payload->getNoise(it,range);
+	  //to be used to fill the histogram
+	  h_first->Fill(noise);
+	}// loop over strips
+      }
+
+      std::vector<uint32_t> l_detid;
+      l_payload->getDetIds(l_detid);
+	  
+      // loop on first payload
+      for (const auto & d : l_detid) {
+	SiStripNoises::Range range=l_payload->getRange(d);
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  float noise = l_payload->getNoise(it,range);
+	  //to be used to fill the histogram
+	  h_last->Fill(noise);
+	}// loop over strips
+      }
+      
+
+      h_first->GetYaxis()->CenterTitle(true);
+      h_last->GetYaxis()->CenterTitle(true);
+
+      h_first->GetXaxis()->CenterTitle(true);
+      h_last->GetXaxis()->CenterTitle(true);
+
+      h_first->SetLineWidth(2);
+      h_last->SetLineWidth(2);
+
+      h_first->SetLineColor(kBlack);
+      h_last->SetLineColor(kBlue);
+
+      //=========================      
+      TCanvas canvas("Partion summary","partition summary",1200,1000); 
+      canvas.cd();
+      canvas.SetBottomMargin(0.11);
+      canvas.SetLeftMargin(0.13);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+      
+      float theMax = (h_first->GetMaximum() > h_last->GetMaximum()) ? h_first->GetMaximum() : h_last->GetMaximum();
+
+      h_first->SetMaximum(theMax*1.30);
+      h_last->SetMaximum(theMax*1.30);
+
+      h_first->Draw();
+      h_last->Draw("same");
+
+      TLegend legend = TLegend(0.52,0.82,0.95,0.9);
+      legend.SetHeader("SiStrip Noise comparison","C"); // option "C" allows to center the header
+      legend.AddEntry(h_first.get(),("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"F");
+      legend.AddEntry(h_last.get(), ("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"F");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+
+    }
+  };
+
+  /************************************************
     SiStrip Noise Tracker Map 
   *************************************************/
 
@@ -804,6 +907,7 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisesTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparison);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_TrackerMap);
