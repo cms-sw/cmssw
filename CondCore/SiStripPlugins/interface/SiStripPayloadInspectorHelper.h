@@ -10,7 +10,9 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
 namespace SiStripPI {
   
@@ -287,6 +289,60 @@ namespace SiStripPI {
     }
   }
   
+
+  // generic code to fill a SiStripDetSummary with Noise payload info
+  /*--------------------------------------------------------------------*/
+  void fillNoiseDetSummary(SiStripDetSummary &summaryNoise,std::shared_ptr<SiStripNoises> payload,SiStripPI::estimator est)
+  /*--------------------------------------------------------------------*/
+  {
+    SiStripNoises::RegistryIterator rit=payload->getRegistryVectorBegin(), erit=payload->getRegistryVectorEnd();
+    uint16_t Nstrips;
+    std::vector<float> vstripnoise;
+    double mean,rms,min, max;
+    for(;rit!=erit;++rit){
+      Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
+      vstripnoise.resize(Nstrips);
+      payload->allNoises(vstripnoise,make_pair(payload->getDataVectorBegin()+rit->ibegin,payload->getDataVectorBegin()+rit->iend));
+	
+      mean=0; rms=0; min=10000; max=0;  
+	
+      DetId detId(rit->detid);
+	
+      for(size_t i=0;i<Nstrips;++i){
+	mean+=vstripnoise[i];
+	rms+=vstripnoise[i]*vstripnoise[i];
+	if(vstripnoise[i]<min) min=vstripnoise[i];
+	if(vstripnoise[i]>max) max=vstripnoise[i];
+      }
+	
+      mean/=Nstrips;
+      if((rms/Nstrips-mean*mean)>0.){
+	rms = sqrt(rms/Nstrips-mean*mean);
+      } else {
+	rms=0.;
+      }       
+      
+      switch(est){
+      case SiStripPI::min:
+	summaryNoise.add(detId,min);
+	break;
+      case SiStripPI::max:
+	summaryNoise.add(detId,max);
+	break;
+      case SiStripPI::mean:
+	summaryNoise.add(detId,mean);
+	break;
+      case SiStripPI::rms:
+	summaryNoise.add(detId,rms);
+	break;
+      default:
+	edm::LogWarning("LogicError") << "Unknown estimator: " <<  est; 
+	break;
+      } 
+    }
+  }
+
+
   enum palette {HALFGRAY,GRAY,BLUES,REDS,ANTIGRAY,FIRE,ANTIFIRE,LOGREDBLUE,LOGBLUERED,DEFAULT};
 
   /*--------------------------------------------------------------------*/
