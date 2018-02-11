@@ -39,6 +39,16 @@ namespace pixelCPEforGPU {
 
   };
 
+
+  struct ParamsOnGPU {
+    CommonParams * m_commonParams;
+    DetParams * m_detParams;
+
+    CommonParams const & commonParams() const {return *m_commonParams;}
+    DetParams const &  detParams(int i) const {return m_detParams[i];}
+
+  };
+
    // SOA!  (on device)
   template<uint32_t N>
   struct ClusParamsT {

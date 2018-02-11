@@ -14,6 +14,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include <cuda.h>
+#include <cuda_runtime.h>
+
 #include <iostream>
 
   namespace {
@@ -131,8 +134,26 @@ void PixelCPEFast::fillParamsForGpu() {
 
   }
 
+  // and now copy to device...
+  cudaMalloc((void**) & h_paramsOnGPU.m_commonParams, sizeof(pixelCPEforGPU::CommonParams));
+  cudaMalloc((void**) & h_paramsOnGPU.m_detParams, m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams));
+  cudaMalloc((void**) & d_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU));
+
+  cudaMemcpy(d_paramsOnGPU, &h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyHostToDevice);
+  cudaMemcpy(h_paramsOnGPU.m_commonParams,&m_commonParamsGPU,sizeof(pixelCPEforGPU::CommonParams), cudaMemcpyHostToDevice);
+  cudaMemcpy(h_paramsOnGPU.m_detParams, m_detParamsGPU.data(), m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams), cudaMemcpyHostToDevice);
 
 }
+
+PixelCPEFast::~PixelCPEFast() {
+
+  cudaFree(h_paramsOnGPU.m_commonParams);
+  cudaFree(h_paramsOnGPU.m_detParams);
+  cudaFree(d_paramsOnGPU);
+
+}
+
+
 
 PixelCPEBase::ClusterParam* PixelCPEFast::createClusterParam(const SiPixelCluster & cl) const
 {

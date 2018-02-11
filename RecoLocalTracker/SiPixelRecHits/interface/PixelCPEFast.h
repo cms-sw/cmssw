@@ -42,7 +42,7 @@ public:
                    const SiPixelGenErrorDBObject *, const SiPixelLorentzAngle *);
    
    
-   
+   ~PixelCPEFast();
 private:
    ClusterParam * createClusterParam(const SiPixelCluster & cl) const override;
    
@@ -95,10 +95,17 @@ private :
 
    void fillParamsForGpu();
 
+   // not needed if not used on CPU...
    std::vector<pixelCPEforGPU::DetParams> m_detParamsGPU;
    pixelCPEforGPU::CommonParams m_commonParamsGPU;     
 
+   pixelCPEforGPU::ParamsOnGPU h_paramsOnGPU;
+
+   pixelCPEforGPU::ParamsOnGPU * d_paramsOnGPU;  // copy of the above on the Device  
+
+
 };
+
 
 
 
