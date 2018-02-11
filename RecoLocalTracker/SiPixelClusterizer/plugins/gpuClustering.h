@@ -47,6 +47,11 @@ namespace gpuClustering {
     
     auto me = id[first];
     
+
+    if (me%100==1)
+      if (threadIdx.x==0) printf("start clusterizer for module %d in block %d\n",me,blockIdx.x);
+
+
     first+=threadIdx.x;
     
     go=true;
@@ -129,7 +134,7 @@ namespace gpuClustering {
     }
     
     
-    if (me<30)
+    if (me%100==1)
       if (threadIdx.x==0) printf("%d clusters in module %d\n",nclus,me);
     
   }

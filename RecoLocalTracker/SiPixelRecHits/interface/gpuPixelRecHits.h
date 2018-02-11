@@ -46,12 +46,16 @@ namespace gpuPixelRecHits {
 
     auto nclus = clusInModule[me];
 
+    if (me%100==1)
+      if (threadIdx.x==0) printf("hitbuilder: %d clusters in module %d. will write at %d\n",nclus,me,hitsModuleStart[me]);
+
+
     assert(blockDim.x>=MaxClusInModule);
     assert(nclus<=MaxClusInModule);
 
     auto ic = threadIdx.x;
     
-    if (threadIdx.x<nclus) {
+    if (ic<nclus) {
       clusParams.minRow[ic] = std::numeric_limits<uint32_t>::max();
       clusParams.maxRow[ic] = 0;
       clusParams.minCol[ic] = std::numeric_limits<uint32_t>::max();

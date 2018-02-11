@@ -32,6 +32,7 @@ void pixelRecHits_wrapper(
       context const & c,
       pixelCPEforGPU::ParamsOnGPU const * cpeParams,
       uint32_t ndigis,
+      uint32_t nModules, // active modules (with digis)
       HitsOnGPU & hh
 )
 {
@@ -50,7 +51,7 @@ void pixelRecHits_wrapper(
 
   
  int threadsPerBlock = 256;
- int blocks = gpuClustering::MaxNumModules;
+ int blocks = nModules;
  gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, c.stream>>>(
                cpeParams,
                c.moduleInd_d,
@@ -79,6 +80,11 @@ struct TheGlobalByVin {
     static uint32_t me;
     return me;
   }
+  static
+  uint32_t & nModules() {
+    static uint32_t me;
+    return me;
+  }
 };
 //
 
@@ -91,5 +97,6 @@ void pixelRecHitsGlobal(pixelCPEforGPU::ParamsOnGPU const * cpeParams) {
     first = false;
   }
   std::cout << "context at " << TheGlobalByVin::theContext() << " with " << TheGlobalByVin::ndigis() << " digis"<< std::endl;
-  pixelRecHits_wrapper(*TheGlobalByVin::theContext(), cpeParams, TheGlobalByVin::ndigis(),hh);
+  pixelRecHits_wrapper(*TheGlobalByVin::theContext(), cpeParams, TheGlobalByVin::ndigis(),TheGlobalByVin::nModules(), hh);
+  cudaDeviceSynchronize();
 }

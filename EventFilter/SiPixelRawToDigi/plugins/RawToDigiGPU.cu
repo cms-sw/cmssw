@@ -46,6 +46,11 @@ struct TheGlobalByVin {
     static uint32_t me;
     return me;
   }
+  static
+  uint32_t & nModules() {
+    static uint32_t me;
+    return me;                                                         
+  }
 };
 //
 
@@ -659,10 +664,10 @@ void RawToDigi_wrapper(
    // clusterizer ...
    using namespace gpuClustering;
   int threadsPerBlock = 256;
-  int blocksPerGrid = (wordCounter + + threadsPerBlock - 1) / threadsPerBlock;
+  int blocks = (wordCounter + threadsPerBlock - 1) / threadsPerBlock;
 
   std::cout
-    << "CUDA countModules kernel launch with " << blocksPerGrid
+    << "CUDA countModules kernel launch with " << blocks
     << " blocks of " << threadsPerBlock << " threads\n";
 
 
@@ -677,10 +682,10 @@ void RawToDigi_wrapper(
 
   
   threadsPerBlock = 256;
-  blocksPerGrid = nModules;
+  blocks = nModules;
 
   std::cout
-    << "CUDA findModules kernel launch with " << blocksPerGrid
+    << "CUDA findModules kernel launch with " << blocks
     << " blocks of " << threadsPerBlock << " threads\n";
 
   cudaCheck(cudaMemsetAsync(c.clusInModule_d, 0, (MaxNumModules)*sizeof(uint32_t),c.stream));
@@ -695,9 +700,10 @@ void RawToDigi_wrapper(
                wordCounter
   );
 
+  cudaDeviceSynchronize();
   TheGlobalByVin::theContext() = &c;
   TheGlobalByVin::ndigis() = wordCounter;
-
+  TheGlobalByVin::nModules() = nModules;
  } // end clusterizer scope
 
 }
