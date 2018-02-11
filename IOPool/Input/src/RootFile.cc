@@ -1881,20 +1881,15 @@ private:
                                  SignalType const* post) {
       if(nullptr == writeTo.load()) {
         //need to be sure the task isn't run until after the read
-        task->increment_ref_count();
+        WaitingTaskHolder taskHolder{task};
         auto pWriteTo = &writeTo;
         
         auto serviceToken = ServiceRegistry::instance().presentToken();
 
-        chain.push([task,pWriteTo,iThis,transitionIndex, iContext, pre,post, serviceToken]() {
-          WaitingTaskHolder holder(task);
-          //the holder is now responsible for the task
-          // and has already incremented the count
-          task->decrement_ref_count();
-          
-          ServiceRegistry::Operate operate(serviceToken);
+        chain.push([holder = std::move(taskHolder), pWriteTo,iThis,transitionIndex, iContext, pre,post, serviceToken]() mutable {
 
           if(nullptr == pWriteTo->load()) {
+            ServiceRegistry::Operate operate(serviceToken);
             std::unique_ptr<const std::set<ProductProvenance>> prov;
             try {
               if(pre) {pre->emit(*(iContext->getStreamContext()),*iContext);}

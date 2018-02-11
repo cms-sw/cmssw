@@ -238,9 +238,6 @@ private:
                                          ServiceToken const& token,
                                  StreamID id,
                                  EventPrincipal const* iPrincipal) {
-    std::vector<ProductResolverIndexAndSkipBit> items;
-    itemsToGetForSelection(items);
-
     successTask->increment_ref_count();
 
     auto choiceTask = edm::make_waiting_task(tbb::task::allocate_root(),
@@ -263,7 +260,11 @@ private:
        }
      });
     
-    choiceTask->increment_ref_count();
+    WaitingTaskHolder choiceHolder{choiceTask};
+
+    std::vector<ProductResolverIndexAndSkipBit> items;
+    itemsToGetForSelection(items);
+    
     for(auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
@@ -271,10 +272,7 @@ private:
         iPrincipal->prefetchAsync(choiceTask,productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
       }
     }
-
-    if(0 == choiceTask->decrement_ref_count()) {
-      tbb::task::spawn(*choiceTask);
-    }
+    choiceHolder.doneWaiting(std::exception_ptr{});
   }
 
   
