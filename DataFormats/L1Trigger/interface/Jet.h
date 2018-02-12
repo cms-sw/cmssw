@@ -4,6 +4,7 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
 namespace l1t {
 
@@ -12,6 +13,10 @@ namespace l1t {
   typedef edm::Ref< JetBxCollection > JetRef ;
   typedef edm::RefVector< JetBxCollection > JetRefVector ;
   typedef std::vector< JetRef > JetVectorRef ;
+
+  typedef ObjectRefBxCollection<Jet> JetRefBxCollection;
+  typedef ObjectRefPair<Jet> JetRefPair;
+  typedef ObjectRefPairBxCollection<Jet> JetRefPairBxCollection;
 
   class Jet : public L1Candidate {
 
@@ -44,6 +49,9 @@ namespace l1t {
   short int seedEt() const;
   short int puEt() const ;
   short int puDonutEt(int i) const;
+
+  virtual bool operator==(const l1t::Jet& rhs) const;
+  virtual inline bool operator!=(const l1t::Jet& rhs) const { return !(operator==(rhs)); };
 
   private:
 

@@ -187,6 +187,13 @@ namespace DataFormats_L1Trigger {
     l1t::TauRefPairBxCollection taurpc;
     edm::Wrapper<l1t::TauRefPairBxCollection> w_taurpc;
 
+    l1t::JetRefBxCollection jetrbxc;
+    edm::Wrapper<l1t::JetRefBxCollection> w_jetrbxc;
+    l1t::JetRefPair jetrp;
+    std::vector<l1t::JetRefPair> v_jetrp;
+    l1t::JetRefPairBxCollection jetrpc;
+    edm::Wrapper<l1t::JetRefPairBxCollection> w_jetrpc;
+
     l1t::MuonRefBxCollection murbxc;
     edm::Wrapper<l1t::MuonRefBxCollection> w_murbxc;
     l1t::MuonRefPair murp;

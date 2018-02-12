@@ -227,6 +227,13 @@
   <class name="l1t::TauRefPairBxCollection"/>
   <class name="edm::Wrapper<l1t::TauRefPairBxCollection>"/>
 
+  <class name="l1t::JetRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::JetRefBxCollection>"/>
+  <class name="l1t::JetRefPair"/>
+  <class name="std::vector<l1t::JetRefPair>"/>
+  <class name="l1t::JetRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::JetRefPairBxCollection>"/>
+
   <class name="l1t::MuonRefBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonRefBxCollection>"/>
   <class name="l1t::MuonRefPair"/>
