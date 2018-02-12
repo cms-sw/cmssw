@@ -213,6 +213,13 @@
   </class>
   <class name="edm::Wrapper<L1DataEmulRecord>"/>
 
+  <class name="l1t::EGammaRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::EGammaRefBxCollection>"/>
+  <class name="l1t::EGammaRefPair"/>
+  <class name="std::vector<l1t::EGammaRefPair>"/>
+  <class name="l1t::EGammaRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::EGammaRefPairBxCollection>"/>
+
   <class name="l1t::MuonRefBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonRefBxCollection>"/>
   <class name="l1t::MuonRefPair"/>

@@ -173,6 +173,13 @@ namespace DataFormats_L1Trigger {
     L1DataEmulRecord der;
     edm::Wrapper<L1DataEmulRecord> w_der;
 
+    l1t::EGammaRefBxCollection egrbxc;
+    edm::Wrapper<l1t::EGammaRefBxCollection> w_egrbxc;
+    l1t::EGammaRefPair egrp;
+    std::vector<l1t::EGammaRefPair> v_egrp;
+    l1t::EGammaRefPairBxCollection egrpc;
+    edm::Wrapper<l1t::EGammaRefPairBxCollection> w_egrpc;
+
     l1t::MuonRefBxCollection murbxc;
     edm::Wrapper<l1t::MuonRefBxCollection> w_murbxc;
     l1t::MuonRefPair murp;
