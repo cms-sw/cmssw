@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 XMLIdealGeometryESSource_CTPPS = cms.ESProducer("XMLIdealCTPPSGeometryESProducer",
                                                 rootDDName = cms.string('cms:CMSE'),
-                                                label = cms.string(''),
+                                                label = cms.string('CTPPS'),
                                                 appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
                                                 )
 
