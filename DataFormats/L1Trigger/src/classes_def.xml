@@ -220,6 +220,13 @@
   <class name="l1t::EGammaRefPairBxCollection"/>
   <class name="edm::Wrapper<l1t::EGammaRefPairBxCollection>"/>
 
+  <class name="l1t::TauRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::TauRefBxCollection>"/>
+  <class name="l1t::TauRefPair"/>
+  <class name="std::vector<l1t::TauRefPair>"/>
+  <class name="l1t::TauRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::TauRefPairBxCollection>"/>
+
   <class name="l1t::MuonRefBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonRefBxCollection>"/>
   <class name="l1t::MuonRefPair"/>
