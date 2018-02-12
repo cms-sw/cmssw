@@ -8,23 +8,11 @@ from HIPixel3PrimTracks_cfi import *
 # Large impact parameter tracking using TIB/TID/TEC stereo layer seeding #
 ##########################################################################
 
-hiPixelLessStepClusters = cms.EDProducer("HITrackClusterRemover",
-     clusterLessSolution = cms.bool(True),
-     trajectories = cms.InputTag("hiMixedTripletStepTracks"),
-     overrideTrkQuals = cms.InputTag('hiMixedTripletStepSelector','hiMixedTripletStep'),
-     TrackQuality = cms.string('highPurity'),
-     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-     pixelClusters = cms.InputTag("siPixelClusters"),
-     stripClusters = cms.InputTag("siStripClusters"),
-     Common = cms.PSet(
-         maxChi2 = cms.double(9.0),
-     ),
-     Strip = cms.PSet(
-        #Yen-Jie's mod to preserve merged clusters
-        maxSize = cms.uint32(2),
-        maxChi2 = cms.double(9.0)
-     )
-)
+#HIClusterRemover
+from RecoHI.HiTracking.hiMixedTripletStep_cff import hiMixedTripletStepClusters
+hiPixelLessStepClusters = hiMixedTripletStepClusters.clone()
+hiPixelLessStepClusters.trajectories = cms.InputTag("hiMixedTripletStepTracks")
+hiPixelLessStepClusters.overrideTrkQuals = cms.InputTag('hiMixedTripletStepSelector','hiMixedTripletStep')
 
 # SEEDING LAYERS
 pixelLessStepSeedLayers.TIB.skipClusters   = cms.InputTag('hiPixelLessStepClusters')
@@ -56,11 +44,9 @@ pixelLessStepHitDoublets.clusterCheck = ""
 pixelLessStepHitDoublets.trackingRegions = "hiPixelLessStepTrackingRegions"
 
 # QUALITY CUTS DURING TRACK BUILDING
-from RecoTracker.IterativeTracking.PixelLessStep_cff import _pixelLessStepTrajectoryFilterBase
-_pixelLessStepTrajectoryFilterBase.minimumNumberOfHits = 5
-_pixelLessStepTrajectoryFilterBase.minPt = 0.7
-
-# TRACK BUILDING
+from RecoTracker.IterativeTracking.PixelLessStep_cff import pixelLessStepTrajectoryFilter
+pixelLessStepTrajectoryFilter.minimumNumberOfHits = 5
+pixelLessStepTrajectoryFilter.minPt = 0.7
 
 # MAKING OF TRACK CANDIDATES
 pixelLessStepTrackCandidates.clustersToSkip = cms.InputTag('hiPixelLessStepClusters')
@@ -118,3 +104,4 @@ hiPixelLessStep = cms.Sequence(hiPixelLessStepClusters*
                              hiPixelLessStepSelector*
                              hiPixelLessStepQual
                              )
+
