@@ -549,10 +549,15 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() {
   return tmpV;
 }
 
-void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
-                                   CSCALCTDigi secondALCT,
-                                   CSCCLCTDigi bestCLCT,
-                                   CSCCLCTDigi secondCLCT) {
+void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
+                                   const CSCALCTDigi& sALCT,
+                                   const CSCCLCTDigi& bCLCT,
+                                   const CSCCLCTDigi& sCLCT)
+{
+  CSCALCTDigi bestALCT = bALCT;
+  CSCALCTDigi secondALCT = sALCT;
+  CSCCLCTDigi bestCLCT = bCLCT;
+  CSCCLCTDigi secondCLCT = sCLCT;
 
   bool anodeBestValid     = bestALCT.isValid();
   bool anodeSecondValid   = secondALCT.isValid();
@@ -569,11 +574,10 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
   if ((alct_trig_enable  && bestALCT.isValid()) ||
       (clct_trig_enable  && bestCLCT.isValid()) ||
       (match_trig_enable && bestALCT.isValid() && bestCLCT.isValid())) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::CLCTALCT);
+    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::CLCTALCT, 1);
     int bx = lct.getBX();
     if (bx >= 0 && bx < CSCConstants::MAX_LCT_TBINS) {
       firstLCT[bx] = lct;
-      firstLCT[bx].setTrknmb(1);
     }
     else {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
@@ -587,11 +591,10 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
       ((alct_trig_enable  && secondALCT.isValid()) ||
        (clct_trig_enable  && secondCLCT.isValid()) ||
        (match_trig_enable && secondALCT.isValid() && secondCLCT.isValid()))) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::CLCTALCT);
+    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::CLCTALCT, 2);
     int bx = lct.getBX();
     if (bx >= 0 && bx < CSCConstants::MAX_LCT_TBINS) {
       secondLCT[bx] = lct;
-      secondLCT[bx].setTrknmb(2);
     }
     else {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
@@ -606,7 +609,8 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
 // constructor of correlated LCTs.
 CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    const CSCCLCTDigi& cLCT,
-                                                   int type) const {
+                                                   int type,
+                                                   int trknmb) const {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
 
@@ -616,8 +620,7 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
 
-  // construct correlated LCT; temporarily assign track number of 0.
-  int trknmb = 0;
+  // construct correlated LCT
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
                                cLCT.getKeyStrip(), pattern, cLCT.getBend(),
                                bx, 0, 0, 0, theTrigChamber);
