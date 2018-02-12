@@ -180,7 +180,7 @@ void RawToDigi_wrapper(context &, const SiPixelFedCablingMapGPU* cablingMapDevic
                         const uint32_t fedCounter,  uint8_t *fedId_h,
                         bool convertADCtoElectrons, uint32_t * pdigi_h,
                         uint32_t *rawIdArr_h, uint32_t *errType_h, uint32_t *errWord_h, uint32_t *errFedID_h, uint32_t *errRawID_h,
-                        bool useQualityInfo, bool includeErrors, bool debug = false);
+                        bool useQualityInfo, bool includeErrors, bool debug, uint32_t & nModulesActive);
 
 // void initCablingMap();
 context initDeviceMemory();

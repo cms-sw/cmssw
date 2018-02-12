@@ -86,6 +86,9 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
     produces<edmNew::DetSetVector<PixelFEDChannel> >();
   }
 
+  //GPU "product"
+  produces<std::vector<unsigned long long>>();
+
   // regions
   if (config_.exists("Regions")) {
     if (!config_.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty())
@@ -358,13 +361,20 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
 
   }  // end of for loop
 
-  // GPU specific: RawToDigi -> clustering -> CPE
+  // GPU specific: RawToDigi -> clustering
 
 
-
+    uint32_t nModulesActive=0;
     RawToDigi_wrapper(context_, cablingMapGPUDevice_, wordCounterGPU, word, fedCounter, fedId_h, convertADCtoElectrons, pdigi_h, 
-                      rawIdArr_h, errType_h, errWord_h, errFedID_h, errRawID_h, useQuality, includeErrors, debug);
+                      rawIdArr_h, errType_h, errWord_h, errFedID_h, errRawID_h, useQuality, includeErrors, debug,nModulesActive);
 
+
+     auto gpuProd = std::make_unique<std::vector<unsigned long long>>();
+     gpuProd->resize(3);
+     (*gpuProd)[0]=uint64_t(&context_);
+     (*gpuProd)[1]=wordCounterGPU;
+     (*gpuProd)[2]=nModulesActive;
+      ev.put(std::move(gpuProd));
 
 
     for (uint32_t i = 0; i < wordCounterGPU; i++) {

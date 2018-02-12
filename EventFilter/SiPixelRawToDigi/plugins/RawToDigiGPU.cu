@@ -34,26 +34,6 @@
 #include "RawToDigiGPU.h"
 #include "SiPixelFedCablingMapGPU.h"
 
-// aaaaggggghhhhhhh
-struct TheGlobalByVin {
-  static 
-  context const * & theContext() {
-    static context const * me;
-    return me;
-  }
-  static 
-  uint32_t & ndigis() {
-    static uint32_t me;
-    return me;
-  }
-  static
-  uint32_t & nModules() {
-    static uint32_t me;
-    return me;                                                         
-  }
-};
-//
-
 context initDeviceMemory() {
 
   using namespace gpuClustering;
@@ -616,7 +596,7 @@ void RawToDigi_wrapper(
     bool convertADCtoElectrons, 
     uint32_t * pdigi_h, uint32_t *rawIdArr_h, 
     uint32_t *errType_h, uint32_t *errWord_h, uint32_t *errFedID_h, uint32_t *errRawID_h,
-    bool useQualityInfo, bool includeErrors, bool debug)
+    bool useQualityInfo, bool includeErrors, bool debug, uint32_t & nModulesActive)
 {
   const int threadsPerBlock = 512;
   const int blocks = (wordCounter + threadsPerBlock-1) /threadsPerBlock; // fill it all
@@ -701,9 +681,9 @@ void RawToDigi_wrapper(
   );
 
   cudaDeviceSynchronize();
-  TheGlobalByVin::theContext() = &c;
-  TheGlobalByVin::ndigis() = wordCounter;
-  TheGlobalByVin::nModules() = nModules;
+
+  nModulesActive = nModules;
+
  } // end clusterizer scope
 
 }

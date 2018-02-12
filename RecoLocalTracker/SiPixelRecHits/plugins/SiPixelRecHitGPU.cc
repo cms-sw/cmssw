@@ -1,16 +1,67 @@
-/** SiPixelRecHitConverter.cc
- * ------------------------------------------------------
- * Description:  see SiPixelRecHitConverter.h
- * Authors:  P. Maksimovic (JHU), V.Chiochia (Uni Zurich)
- * History: Feb 27, 2006 -  initial version
- *          May 30, 2006 -  edm::DetSetVector and edm::Ref
- *          Aug 30, 2007 -  edmNew::DetSetVector
-*			Jan 31, 2008 -  change to use Lorentz angle from DB (Lotte Wilke)
- * ------------------------------------------------------
- */
+#include "PixelRecHits.h"
 
-// Our own stuff
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
+//--- Base class for CPEs:
+
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+
+//--- Geometry + DataFormats
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+
+//--- Framework
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+class MagneticField;
+namespace cms
+{
+  class SiPixelRecHitGPU : public edm::stream::EDProducer<>
+  {
+  public:
+    //--- Constructor, virtual destructor (just in case)
+    explicit SiPixelRecHitGPU(const edm::ParameterSet& conf);
+    ~SiPixelRecHitGPU() override;
+
+    //--- The top-level event method.
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+    //--- Execute the position estimator algorithm(s).
+    //--- New interface with DetSetVector
+    void run(const edmNew::DetSetVector<SiPixelCluster>& input,
+	     SiPixelRecHitCollectionNew & output,
+	     edm::ESHandle<TrackerGeometry> & geom);
+
+    void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
+	     SiPixelRecHitCollectionNew & output,
+	     edm::ESHandle<TrackerGeometry> & geom);
+
+  private:
+    edm::ParameterSet conf_;
+    std::string cpeName_="None";                   // what the user said s/he wanted
+    PixelCPEBase const * cpe_=nullptr;                    // What we got (for now, one ptr to base class)
+
+    edm::InputTag src_;
+    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> tPixelCluster;
+
+    using GPUProd = std::vector<unsigned long long>;
+    edm::InputTag gpuProd_ = edm::InputTag("siPixelDigis");
+    edm::EDGetTokenT<GPUProd> tGpuProd;
+    HitsOnGPU hitsOnGPU_;
+
+
+    bool m_newCont; // save also in emdNew::DetSetVector
+  };
+}
+
+
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -34,30 +85,37 @@
 
 using namespace std;
 
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
+
+
 namespace cms
 {
   //---------------------------------------------------------------------------
   //!  Constructor: set the ParameterSet and defer all thinking to setupCPE().
   //---------------------------------------------------------------------------
-  SiPixelRecHitConverter::SiPixelRecHitConverter(edm::ParameterSet const& conf) 
+  SiPixelRecHitGPU::SiPixelRecHitGPU(edm::ParameterSet const& conf) 
     : 
     conf_(conf),
     src_( conf.getParameter<edm::InputTag>( "src" ) ),
-    tPixelCluster(consumes< edmNew::DetSetVector<SiPixelCluster> >( src_)) {
+    tPixelCluster(consumes< edmNew::DetSetVector<SiPixelCluster> >( src_)),
+    tGpuProd(consumes<GPUProd>(gpuProd_)),
+    hitsOnGPU_ (allocHitsOnGPU())
+ {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
-    
+
   }
   
   // Destructor
-  SiPixelRecHitConverter::~SiPixelRecHitConverter() 
+  SiPixelRecHitGPU::~SiPixelRecHitGPU() 
   { 
+    // need to free hitsOnGPU
   }  
   
   //---------------------------------------------------------------------------
   //! The "Event" entrypoint: gets called by framework for every event
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es)
+  void SiPixelRecHitGPU::produce(edm::Event& e, const edm::EventSetup& es)
   {
 
     // Step A.1: get input data
@@ -77,6 +135,23 @@ namespace cms
     es.get<TkPixelCPERecord>().get(cpeName_,hCPE);
     cpe_ = dynamic_cast< const PixelCPEBase* >(&(*hCPE));
     
+    ///  do it on GPU....
+
+    edm::Handle<GPUProd> gh;
+    e.getByToken(tGpuProd, gh);
+    auto gprod = *gh;
+   // invoke gpu version ......
+    PixelCPEFast const * fcpe =   dynamic_cast<const PixelCPEFast *>(cpe_);
+    if (!fcpe) {
+      std::cout << " too bad, not a fast cpe gpu processing not possible...." << std::endl;
+      assert(0);
+    }
+    assert(fcpe->d_paramsOnGPU);
+
+    pixelRecHits_wrapper(* (context const *)(gprod[0]),fcpe->d_paramsOnGPU,gprod[1],gprod[2], hitsOnGPU_);
+
+
+
     // Step C: Iterate over DetIds and invoke the strip CPE algorithm
     // on each DetUnit
 
@@ -92,17 +167,18 @@ namespace cms
   //!  and make a RecHit to store the result.
   //!  New interface reading DetSetVector by V.Chiochia (May 30th, 2006)
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
+  void SiPixelRecHitGPU::run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
 				   SiPixelRecHitCollectionNew &output,
 				   edm::ESHandle<TrackerGeometry> & geom) {
     if ( ! cpe_ ) 
       {
-	edm::LogError("SiPixelRecHitConverter") << " at least one CPE is not ready -- can't run!";
+	edm::LogError("SiPixelRecHitGPU") << " at least one CPE is not ready -- can't run!";
 	// TO DO: throw an exception here?  The user may want to know...
 	assert(0);
 	return;   // clusterizer is invalid, bail out
       }
-    
+
+
     int numberOfDetUnits = 0;
     int numberOfClusters = 0;
     
@@ -137,20 +213,20 @@ namespace cms
 	recHitsOnDetUnit.push_back(hit);
 	// =============================
 
-	// std::cout << "SiPixelRecHitConverterVI " << numberOfClusters << ' '<< lp << " " << le << std::endl;
+	// std::cout << "SiPixelRecHitGPUVI " << numberOfClusters << ' '<< lp << " " << le << std::endl;
       } //  <-- End loop on Clusters
 	
 
-      //  LogDebug("SiPixelRecHitConverter")
-      //std::cout << "SiPixelRecHitConverterVI "
+      //  LogDebug("SiPixelRecHitGPU")
+      //std::cout << "SiPixelRecHitGPUVI "
 	//	<< " Found " << recHitsOnDetUnit.size() << " RecHits on " << detid //;
 	//	<< std::endl;
       
       
     } //    <-- End loop on DetUnits
     
-    //    LogDebug ("SiPixelRecHitConverter") 
-    //  std::cout << "SiPixelRecHitConverterVI "
+    //    LogDebug ("SiPixelRecHitGPU") 
+    //  std::cout << "SiPixelRecHitGPUVI "
     //  << cpeName_ << " converted " << numberOfClusters 
     //  << " SiPixelClusters into SiPixelRecHits, in " 
     //  << numberOfDetUnits << " DetUnits." //; 
