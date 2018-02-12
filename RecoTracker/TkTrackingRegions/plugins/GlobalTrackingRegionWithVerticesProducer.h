@@ -39,7 +39,6 @@ public:
     token_vertex      = iC.consumes<reco::VertexCollection>(regionPSet.getParameter<edm::InputTag>("VertexCollection"));
 
     //information for Heavy ion region scaling
-    pixelClustersForScaling = regionPSet.getParameter< edm::InputTag >("pixelClustersForScaling"); 
     theOriginRScaling    = regionPSet.getParameter<bool>("originRScaling4BigEvts");
     thePtMinScaling      = regionPSet.getParameter<bool>("ptMinScaling4BigEvts");
     theHalfLengthScaling = regionPSet.getParameter<bool>("halfLengthScaling4BigEvts");
@@ -48,6 +47,7 @@ public:
     theMinHalfLength     = regionPSet.getParameter<double>("minHalfLength");
     theScalingStart      = regionPSet.getParameter<double>("scalingStartNPix");
     theScalingEnd        = regionPSet.getParameter<double>("scalingEndNPix");
+    edm::InputTag pixelClustersForScaling = regionPSet.getParameter< edm::InputTag >("pixelClustersForScaling"); 
     if(theOriginRScaling || thePtMinScaling || theHalfLengthScaling) token_pc = iC.consumes<edmNew::DetSetVector<SiPixelCluster> >(pixelClustersForScaling);
   }   
 
@@ -108,13 +108,17 @@ public:
       edm::Handle<reco::VertexCollection> vertexCollection;
       ev.getByToken(token_vertex,vertexCollection);
 
+      edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusterDSV;
+      bool doScaling = theOriginRScaling || thePtMinScaling || theHalfLengthScaling;
+      if(doScaling)  ev.getByToken(token_pc, pixelClusterDSV);
+
       for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); iV != vertexCollection->end() ; iV++) {
           if (!iV->isValid()) continue;
           if (iV->isFake() && !(theUseFakeVertices && theUseFixedError)) continue;
 	  GlobalPoint theOrigin_       = GlobalPoint(iV->x(),iV->y(),iV->z());
 
           //scaling origin radius, half length, min pt for high-occupancy HI events to keep timing reasonable
-          if(theOriginRScaling || thePtMinScaling || theHalfLengthScaling){
+          if(doScaling){
             //Use the unscaled radius unless one of the two conditions below is met
             double scaledOriginRadius = theOriginRadius;
             double scaledHalfLength   = theFixedError;
@@ -122,17 +126,9 @@ public:
 
             //calculate nPixels (adapted from TkSeedGenerator/src/ClusterChecker.cc)
             double nPix = 0;
-            edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusterDSV;
-            ev.getByToken(token_pc, pixelClusterDSV);
-            if (!pixelClusterDSV.failedToGet()) {
-              const edmNew::DetSetVector<SiPixelCluster> & input = *pixelClusterDSV;
-              nPix = input.dataSize();
-            }
-            else{
-              edm::LogError("GlobalTrackingRegionProducerFromVertex")<<"could not get any SiPixel cluster collections of type edm::DetSetVector<SiPixelCluster>";
-              nPix = theScalingEnd+1;//if can't find collection, default to minimum radius to be safe
-            } 
-           
+            
+            const edmNew::DetSetVector<SiPixelCluster> & input = *pixelClusterDSV;
+            nPix = input.dataSize();
  
             //first condition is for high occupancy, second makes sure we won't divide by zero or a negative number
             if((nPix > theScalingEnd) || ((theScalingEnd-theScalingStart) <= 0)){
@@ -142,12 +138,11 @@ public:
             }
             //second condition - scale radius linearly by Npix in the region from ScalingStart to ScalingEnd
             else if((nPix <= theScalingEnd) && (nPix > theScalingStart)){
-              if(theOriginRScaling) scaledOriginRadius = theOriginRadius - (theOriginRadius-theMinOriginR)*(nPix-theScalingStart)/(theScalingEnd-theScalingStart);
-              if(theHalfLengthScaling) scaledHalfLength = theFixedError - (theFixedError-theMinHalfLength)*(nPix-theScalingStart)/(theScalingEnd-theScalingStart);
-              if(thePtMinScaling) scaledPtMin = thePtMin - (thePtMin-theMaxPtMin)*(nPix-theScalingStart)/(theScalingEnd-theScalingStart);
+              float slopeFactor = (nPix-theScalingStart)/(theScalingEnd-theScalingStart);
+              if(theOriginRScaling) scaledOriginRadius = theOriginRadius - (theOriginRadius-theMinOriginR)*slopeFactor;
+              if(theHalfLengthScaling) scaledHalfLength = theFixedError - (theFixedError-theMinHalfLength)*slopeFactor;
+              if(thePtMinScaling) scaledPtMin = thePtMin - (thePtMin-theMaxPtMin)*slopeFactor;
             }
-            //std::cout << "NumberOfPixels: " <<  nPix << std::endl;
-            //std::cout << "Scaled Origin R: " << scaledOriginRadius << " Default Origin R: " << theOriginRadius <<" Scaled HalfLength: " << scaledHalfLength << " Default H.L.: " << theFixedError <<" Scaled pT Min: " << scaledPtMin << " Default pT Min: " << thePtMin << std::endl;
             //if region has 0 size, return 'result' empty, otherwise make a tracking region 
             if(scaledOriginRadius!=0 && scaledHalfLength !=0){
               result.push_back( std::make_unique<GlobalTrackingRegion>( scaledPtMin, theOrigin_, scaledOriginRadius, scaledHalfLength, thePrecise,theUseMS));
@@ -193,7 +188,6 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
 
   //HI-related variables
-  edm::InputTag pixelClustersForScaling;
   bool theOriginRScaling; 
   bool thePtMinScaling; 
   bool theHalfLengthScaling; 
