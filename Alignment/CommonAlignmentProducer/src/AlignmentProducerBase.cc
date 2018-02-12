@@ -260,6 +260,8 @@ AlignmentProducerBase::beginRunImpl(const edm::Run& run, const edm::EventSetup& 
   alignmentAlgo_->beginRun(run, setup,
                            changed && (runAtPCL_ || enableAlignableUpdates_));
 
+  for (const auto& iCal:calibrations_) iCal->beginRun(run, setup);
+
   //store the first run analyzed to be used for setting the IOV (for PCL)
   if (firstRun_ > static_cast<cond::Time_t>(run.id().run())) {
     firstRun_ = static_cast<cond::Time_t>(run.id().run());
