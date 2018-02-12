@@ -26,9 +26,9 @@ public:
   void run(const CSCWireDigiCollection* wiredc,
            const CSCComparatorDigiCollection* compdc);
 
-  void correlateLCTs(CSCALCTDigi& bestALCT, CSCALCTDigi& secondALCT,
-                     CSCCLCTDigi& bestCLCT, CSCCLCTDigi& secondCLCT,
-                     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
+  void correlateLCTs(const CSCALCTDigi& bestALCT, const CSCALCTDigi& secondALCT,
+                     const CSCCLCTDigi& bestCLCT, const CSCCLCTDigi& secondCLCT,
+                     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2) const;
 
   /* readout the two best LCTs in this CSC */
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
