@@ -347,8 +347,57 @@ namespace SiStripPI {
     }
   }
 
+  /*--------------------------------------------------------------------*/
+  void fillTotalComponents(int NTkComponents[4], int NComponents[4][19][4],const TrackerTopology  m_trackerTopo)
+  /*--------------------------------------------------------------------*/  
+  {
+    edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+    SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+    const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& DetInfos = reader->getAllData();
+    for (const auto& det : DetInfos){
 
-  // generic code to fill the vectors 
+      int nAPVs   = reader->getNumberOfApvsAndStripLength(det.first).first;	     
+      // one fiber connects to 2 APVs
+      int nFibers = nAPVs/2;
+      int nStrips = (128*reader->getNumberOfApvsAndStripLength(det.first).first);
+      NTkComponents[0]++;
+      NTkComponents[1]+=nFibers;
+      NTkComponents[2]+=nAPVs;
+      NTkComponents[3]+=nStrips;
+
+      DetId detectorId=DetId(det.first);
+      int subDet = detectorId.subdetId();
+
+      int subDetIndex = -1;
+      int component = -1;	    
+      if ( subDet == StripSubdetector::TIB ){		
+	subDetIndex=0;
+	component=m_trackerTopo.tibLayer(det.first);
+      } else if ( subDet == StripSubdetector::TID ){
+	subDetIndex=1;
+	component=m_trackerTopo.tidSide(det.first)==2?m_trackerTopo.tidWheel(det.first):m_trackerTopo.tidWheel(det.first)+3;	
+      } else if ( subDet == StripSubdetector::TOB ){
+	subDetIndex=2;
+	component=m_trackerTopo.tobLayer(det.first);
+      } else if ( subDet == StripSubdetector::TEC ){
+	subDetIndex=3;
+	component=m_trackerTopo.tecSide(det.first)==2?m_trackerTopo.tecWheel(det.first):m_trackerTopo.tecWheel(det.first)+9;
+      }
+      
+      NComponents[subDetIndex][0][0]++;
+      NComponents[subDetIndex][0][1]+=nFibers;
+      NComponents[subDetIndex][0][2]+=nAPVs;
+      NComponents[subDetIndex][0][3]+=nStrips;
+      
+      NComponents[subDetIndex][component][0]++;
+      NComponents[subDetIndex][component][1]+=nFibers;
+      NComponents[subDetIndex][component][2]+=nAPVs;
+      NComponents[subDetIndex][component][3]+=nStrips;
+    }
+    delete reader;
+  }
+
+  // generic code to fill the vectors of bad components
   /*--------------------------------------------------------------------*/
   void fillBCArrays (const SiStripQuality* siStripQuality_,int NTkBadComponent[4], int NBadComponent[4][19][4],const TrackerTopology  m_trackerTopo)
   /*--------------------------------------------------------------------*/

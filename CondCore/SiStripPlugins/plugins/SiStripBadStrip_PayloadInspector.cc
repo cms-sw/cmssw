@@ -1092,7 +1092,7 @@ namespace {
 
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
-      //SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
+      SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
 
       std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
       
@@ -1115,12 +1115,18 @@ namespace {
       //k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
       int f_NTkBadComponent[4] = {0};
       int l_NTkBadComponent[4] = {0};
+    
+      // for the total
+      int tot_NTkComponents[4] = {0};
 
       //legend: NBadComponent[i][j][k]= SubSystem i, layer/disk/wheel j, BadModule/Fiber/Apv k
       //     i: 0=TIB, 1=TID, 2=TOB, 3=TEC
       //     k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
       int f_NBadComponent[4][19][4] = {{{0}}};  
-      int l_NBadComponent[4][19][4] = {{{0}}};  
+      int l_NBadComponent[4][19][4] = {{{0}}}; 
+      
+      // for the total
+      int totNComponents[4][19][4]  = {{{0}}};
 
       SiStripQuality* f_siStripQuality_ = new SiStripQuality();
       f_siStripQuality_->add(first_payload.get());
@@ -1138,9 +1144,14 @@ namespace {
       // call the filler
       SiStripPI::fillBCArrays(l_siStripQuality_,l_NTkBadComponent,l_NBadComponent,m_trackerTopo);
 
+      // fill the total number of components
+      SiStripPI::fillTotalComponents(tot_NTkComponents, totNComponents,m_trackerTopo);
+
       // debug
-      SiStripPI::printBCDebug(f_NTkBadComponent,f_NBadComponent);
-      SiStripPI::printBCDebug(l_NTkBadComponent,l_NBadComponent);
+      //SiStripPI::printBCDebug(f_NTkBadComponent,f_NBadComponent);
+      //SiStripPI::printBCDebug(l_NTkBadComponent,l_NBadComponent);
+
+      SiStripPI::printBCDebug(tot_NTkComponents,totNComponents);
 
       // declare histograms
       auto masterTable = std::unique_ptr<TH2F>(new TH2F("table","",4,0.,4.,39,0.,39.));
@@ -1171,15 +1182,15 @@ namespace {
        	for(int iX=0;iX<=3;iX++){
        	  if(iY==39){
 	    masterTable->SetBinContent(iX+1,iY,l_NTkBadComponent[iX]-f_NTkBadComponent[iX]);
-	    masterTableColor->SetBinContent(iX+1,iY,l_NTkBadComponent[iX]-f_NTkBadComponent[iX]);
+	    masterTableColor->SetBinContent(iX+1,iY,(l_NTkBadComponent[iX]-f_NTkBadComponent[iX])/tot_NTkComponents[iX]);
 	  } else if (iY>=35){
 	    masterTable->SetBinContent(iX+1,iY,(l_NBadComponent[(39-iY)-1][0][iX]-f_NBadComponent[(39-iY)-1][0][iX]));
-	    masterTableColor->SetBinContent(iX+1,iY,(l_NBadComponent[(39-iY)-1][0][iX] - f_NBadComponent[(39-iY)-1][0][iX]));
+	    masterTableColor->SetBinContent(iX+1,iY,(l_NBadComponent[(39-iY)-1][0][iX]-f_NBadComponent[(39-iY)-1][0][iX])/totNComponents[(39-iY)-1][0][iX]);
 	  } else {
 	    if(iX==0) layerIndex++;
 	    //std::cout<<"iY:"<<iY << " cursor: "  <<cursor << " layerIndex: " << layerIndex << " layer check: "<< layerBoundaries[cursor] <<std::endl;
 	    masterTable->SetBinContent(iX+1,iY,(l_NBadComponent[cursor][layerIndex][iX]-f_NBadComponent[cursor][layerIndex][iX]));
-	    masterTableColor->SetBinContent(iX+1,iY,(l_NBadComponent[cursor][layerIndex][iX]-f_NBadComponent[cursor][layerIndex][iX]));
+	    masterTableColor->SetBinContent(iX+1,iY,(l_NBadComponent[cursor][layerIndex][iX]-f_NBadComponent[cursor][layerIndex][iX])/totNComponents[cursor][layerIndex][iX]);
 	  }
 	}
 	if(layerIndex==layerBoundaries[cursor]){
@@ -1195,7 +1206,7 @@ namespace {
 
       canv.SetTopMargin(0.05);
       canv.SetBottomMargin(0.07);
-      canv.SetLeftMargin(0.18);
+      canv.SetLeftMargin(0.13);
       canv.SetRightMargin(0.15);
 
       masterTable->SetStats(false);
@@ -1204,6 +1215,8 @@ namespace {
      
       masterTable->SetMarkerColor(kRed);
       masterTable->SetMarkerSize(1.5);
+      //masterTableColor->Draw("text");
+      masterTableColor->GetZaxis()->SetRangeUser(-0.01,0.01);
       masterTableColor->Draw("COLZ");
       masterTable->Draw("textsame");
 
