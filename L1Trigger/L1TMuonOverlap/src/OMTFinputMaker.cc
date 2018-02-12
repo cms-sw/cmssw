@@ -12,7 +12,7 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinput.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlap/interface/AngleConverter.h"
-
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -274,10 +274,9 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
     auto dend = (*chamber).second.second;    
     for( ; digi != dend; ++digi ) {
 
-      ///Check Trigger primitive quality.
-      ///CSC central BX is 6 for some reason.
-      if (abs(digi->getBX()- 6)>0) continue;
-      
+      ///Check if LCT trigger primitive has the right BX.
+      if (abs(digi->getBX()- CSCConstants::LCT_CENTRAL_BX)>0) continue;
+
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
       if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;
 
