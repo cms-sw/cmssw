@@ -26,7 +26,6 @@ namespace edm {
 
 class ME0DigiToRawModule : public edm::global::EDProducer<edm::RunCache<ME0ROmap> > {
  public:
-  
   /// Constructor
   ME0DigiToRawModule(const edm::ParameterSet & pset);
 
@@ -42,7 +41,7 @@ class ME0DigiToRawModule : public edm::global::EDProducer<edm::RunCache<ME0ROmap
 
   int event_type_;
   edm::EDGetTokenT<ME0DigiCollection> digi_token;
-  bool useDBEMap_;
+  bool useDBEMap_;  
 };
 DEFINE_FWK_MODULE(ME0DigiToRawModule);
 #endif

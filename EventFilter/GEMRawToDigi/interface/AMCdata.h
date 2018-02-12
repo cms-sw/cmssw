@@ -12,39 +12,39 @@ namespace gem {
   public:
     //!Constructor for the class
     AMCdata(){};
-  AMCdata(const uint8_t &AMCnum_, 
-	  const uint32_t &L1A_,
-	  const uint16_t &BX_, 
-	  const uint32_t &Dlength_,
-	  const uint8_t &FV_,
-	  const uint8_t &Rtype_, 
-	  const uint8_t &Param1_, 
-	  const uint8_t &Param2_, 
-	  const uint8_t &Param3_, 
-	  const uint16_t &Onum_, 
-	  const uint16_t &BID_,
-	  const uint32_t &GEMDAV_, 
-	  const uint64_t &Bstatus_,
-	  const uint8_t &GDcount_, 
-	  const uint8_t &Tstate_,
-	  const uint32_t &ChamT_,
+  AMCdata(const uint8_t AMCnum_, 
+	  const uint32_t L1A_,
+	  const uint16_t BX_, 
+	  const uint32_t Dlength_,
+	  const uint8_t FV_,
+	  const uint8_t Rtype_, 
+	  const uint8_t Param1_, 
+	  const uint8_t Param2_, 
+	  const uint8_t Param3_, 
+	  const uint16_t Onum_, 
+	  const uint16_t BID_,
+	  const uint32_t GEMDAV_, 
+	  const uint64_t Bstatus_,
+	  const uint8_t GDcount_, 
+	  const uint8_t Tstate_,
+	  const uint32_t ChamT_,
 	  const uint8_t OOSG_) :
-    m_AMCnum(AMCnum_), 
+    m_AMCnum(AMCnum_),
       m_L1A(L1A_),
-      m_BX(BX_),                                 
+      m_BX(BX_),
       m_Dlength(Dlength_),
       m_FV(FV_),
-      m_Rtype(Rtype_),                                
+      m_Rtype(Rtype_),
       m_Param1(Param1_),
-      m_Param2(Param2_),                                  
+      m_Param2(Param2_),
       m_Param3(Param3_),
-      m_Onum(Onum_),                                    
+      m_Onum(Onum_),
       m_BID(BID_),
-      m_GEMDAV(GEMDAV_), 
+      m_GEMDAV(GEMDAV_),
       m_Bstatus(Bstatus_),
-      m_GDcount(GDcount_),                                 
-      m_Tstate(Tstate_),                             
-      m_ChamT(ChamT_),                                   
+      m_GDcount(GDcount_),
+      m_Tstate(Tstate_),
+      m_ChamT(ChamT_),
       m_OOSG(OOSG_){}
     //!Destructor for the class
     ~AMCdata(){gebd.clear();}
@@ -149,15 +149,15 @@ namespace gem {
     uint8_t  param2()   const {return m_Param2;}
     uint8_t  param3()   const {return m_Param3;}
     uint16_t orbitNum() const {return m_Onum;}     ///<Returns Orbit number
-    uint16_t boardId() const {return m_BID;}      ///<Returns Board ID
+    uint16_t boardId()  const {return m_BID;}      ///<Returns Board ID
 
-    uint32_t gemDAV ()  const {return m_GEMDAV;}        ///<Returns GEM DAV list (which chambers have data)
-    uint64_t bStatus()  const {return m_Bstatus;}       ///<Returns Buffer status
-    uint8_t  gdCount()  const {return m_GDcount;} ///<Returns GEM DAV count (number of chamber blocks)
-    uint8_t  ttsState() const {return m_Tstate;}        ///<Returns TTS state
+    uint32_t gemDAV ()  const {return m_GEMDAV;}   ///<Returns GEM DAV list (which chambers have data)
+    uint64_t bStatus()  const {return m_Bstatus;}  ///<Returns Buffer status
+    uint8_t  gdCount()  const {return m_GDcount;}  ///<Returns GEM DAV count (number of chamber blocks)
+    uint8_t  ttsState() const {return m_Tstate;}   ///<Returns TTS state
 		         
-    uint32_t chamberTimeOut() const {return m_ChamT;}   ///<Return Chamber Timeout 
-    uint8_t  oosGLIB()  const {return m_OOSG;}    ///<Return OOS GLIB (if GLIB is out of sync)
+    uint32_t chamberTimeOut() const {return m_ChamT;} ///<Return Chamber Timeout 
+    uint8_t  oosGLIB()  const {return m_OOSG;}        ///<Return OOS GLIB (if GLIB is out of sync)
 
     uint32_t crc()      const {return m_CRC;}
     uint8_t  l1AT()     const {return m_L1AT;}
@@ -177,12 +177,12 @@ namespace gem {
     void setOnum(uint16_t n)    {m_Onum = n;}     ///<Returns Orbit number
     void setBID(uint16_t n)     {m_BID = n;}      ///<Returns Board ID
 
-    void setGEMDAV(uint32_t n)  {m_GEMDAV = n;}        ///<Returns GEM DAV list (which chambers have data)
-    void setBstatus(uint64_t n) {m_Bstatus = n;}       ///<Returns Buffer status
-    void setGDcount(uint8_t n)  {m_GDcount = n;} ///<Returns GEM DAV count (number of chamber blocks)
-    void setTstate(uint8_t n)   {m_Tstate = n;}        ///<Returns TTS state
-    void setChamT(uint32_t n)   {m_ChamT = n;}   ///<Return Chamber Timeout 
-    void setOOSG(uint8_t n)     {m_OOSG = n;}    ///<Return OOS GLIB (if GLIB is out of sync)
+    void setGEMDAV(uint32_t n)  {m_GEMDAV = n;}   ///<Returns GEM DAV list (which chambers have data)
+    void setBstatus(uint64_t n) {m_Bstatus = n;}  ///<Returns Buffer status
+    void setGDcount(uint8_t n)  {m_GDcount = n;}  ///<Returns GEM DAV count (number of chamber blocks)
+    void setTstate(uint8_t n)   {m_Tstate = n;}   ///<Returns TTS state
+    void setChamT(uint32_t n)   {m_ChamT = n;}    ///<Return Chamber Timeout 
+    void setOOSG(uint8_t n)     {m_OOSG = n;}     ///<Return OOS GLIB (if GLIB is out of sync)
     void setCRC(uint32_t n)     {m_CRC = n;}
     void setL1AT(uint8_t n)     {m_L1AT = n;}
     void setDlengthT(uint32_t n){m_DlengthT = n;}
@@ -190,7 +190,7 @@ namespace gem {
     //!Adds GEB data to vector
     void addGEB(GEBdata g){gebd.push_back(g);}
     //!Returns a vector of GEB data
-    std::vector<GEBdata> gebs() const {return gebd;}
+    const std::vector<GEBdata> * gebs() const {return &gebd;}
   
   private:
     std::vector<GEBdata> gebd;    ///<Vector of GEB data

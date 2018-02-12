@@ -1,6 +1,5 @@
 #ifndef EventFilter_GEMRawToDigi_VFATdata_h
 #define EventFilter_GEMRawToDigi_VFATdata_h
-#include <vector>
 
 namespace gem {
   class VFATdata 
@@ -8,19 +7,19 @@ namespace gem {
   public:    
     VFATdata(){}
     ~VFATdata(){}
-  VFATdata(const uint8_t &b1010_, 
-	   const uint16_t &BC_,
-	   const uint8_t &b1100_,
-	   const uint8_t &EC_,
-	   const uint8_t &Flag_,
-	   const uint8_t &b1110_,
-	   const uint16_t &ChipID_,
-	   const uint64_t &lsData_,
-	   const uint64_t &msData_,
-	   const uint16_t &crc_,
-	   const uint16_t &crc_calc_,
-	   const int &SlotNumber_,
-	   const bool &isBlockGood_) : 
+  VFATdata(const uint8_t b1010_, 
+	   const uint16_t BC_,
+	   const uint8_t b1100_,
+	   const uint8_t EC_,
+	   const uint8_t Flag_,
+	   const uint8_t b1110_,
+	   const uint16_t ChipID_,
+	   const uint64_t lsData_,
+	   const uint64_t msData_,
+	   const uint16_t crc_,
+	   const uint16_t crc_calc_,
+	   const int SlotNumber_,
+	   const bool isBlockGood_) : 
     m_b1010(b1010_),
       m_BC(BC_),
       m_b1100(b1100_),
@@ -167,7 +166,7 @@ namespace gem {
       return(crc_fin);
     }
     
-    uint16_t checkCRC(VFATdata * vfatData)
+    uint16_t checkCRC(const VFATdata * vfatData)
     {
       uint16_t vfatBlockWords[12]; 
       vfatBlockWords[11] = ((0x000f & vfatData->b1010())<<12) | vfatData->bc();
