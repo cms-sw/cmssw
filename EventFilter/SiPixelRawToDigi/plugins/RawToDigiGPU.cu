@@ -8,7 +8,11 @@
  *
 **/
 
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuCalibPixel.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
+
+SiPixelGainForHLTonGPU * ped;
+
 
 // System includes
 #include <cstdio>
@@ -665,10 +669,19 @@ void RawToDigi_wrapper(
   blocks = nModules;
 
   std::cout
-    << "CUDA findModules kernel launch with " << blocks
+    << "CUDA findClus kernel launch with " << blocks
     << " blocks of " << threadsPerBlock << " threads\n";
 
   cudaCheck(cudaMemsetAsync(c.clusInModule_d, 0, (MaxNumModules)*sizeof(uint32_t),c.stream));
+
+
+  gpuCalibPixel::calibADC<<<blocks, threadsPerBlock, 0, c.stream>>>(
+               c.moduleInd_d,
+               c.xx_d, c.yy_d, c.adc_d,
+               c.moduleStart_d,
+               ped, 
+               wordCounter
+             );
 
   findClus<<<blocks, threadsPerBlock, 0, c.stream>>>(
                c.moduleInd_d,
