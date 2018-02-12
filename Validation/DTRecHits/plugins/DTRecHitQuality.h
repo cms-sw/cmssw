@@ -40,70 +40,7 @@ class DTWireId;
 class DTGeometry;
 class HRes1DHit;
 class HEff1DHit;
-
-namespace {
-  struct Histograms {
-    HRes1DHit *hRes_S1RPhi;           // RecHits, 1. step, RPh
-    HRes1DHit *hRes_S2RPhi;           // RecHits, 2. step, RPhi
-    HRes1DHit *hRes_S3RPhi;           // RecHits, 3. step, RPhi
-
-    HRes1DHit *hRes_S1RZ;             // RecHits, 1. step, RZ
-    HRes1DHit *hRes_S2RZ;             // RecHits, 2. step, RZ
-    HRes1DHit *hRes_S3RZ;             // RecHits, 3. step, RZ
-
-    HRes1DHit *hRes_S1RZ_W0;          // RecHits, 1. step, RZ, wheel 0
-    HRes1DHit *hRes_S2RZ_W0;          // RecHits, 2. step, RZ, wheel 0
-    HRes1DHit *hRes_S3RZ_W0;          // RecHits, 3. step, RZ, wheel 0
-
-    HRes1DHit *hRes_S1RZ_W1;          // RecHits, 1. step, RZ, wheel +-1
-    HRes1DHit *hRes_S2RZ_W1;          // RecHits, 2. step, RZ, wheel +-1
-    HRes1DHit *hRes_S3RZ_W1;          // RecHits, 3. step, RZ, wheel +-1
-
-    HRes1DHit *hRes_S1RZ_W2;          // RecHits, 1. step, RZ, wheel +-2
-    HRes1DHit *hRes_S2RZ_W2;          // RecHits, 2. step, RZ, wheel +-2
-    HRes1DHit *hRes_S3RZ_W2;          // RecHits, 3. step, RZ, wheel +-2
-
-    HRes1DHit *hRes_S1RPhi_W0;        // RecHits, 1. step, RPhi, wheel 0
-    HRes1DHit *hRes_S2RPhi_W0;        // RecHits, 2. step, RPhi, wheel 0
-    HRes1DHit *hRes_S3RPhi_W0;        // RecHits, 3. step, RPhi, wheel 0
-
-    HRes1DHit *hRes_S1RPhi_W1;        // RecHits, 1. step, RPhi, wheel +-1
-    HRes1DHit *hRes_S2RPhi_W1;        // RecHits, 2. step, RPhi, wheel +-1
-    HRes1DHit *hRes_S3RPhi_W1;        // RecHits, 3. step, RPhi, wheel +-1
-
-    HRes1DHit *hRes_S1RPhi_W2;        // RecHits, 1. step, RPhi, wheel +-2
-    HRes1DHit *hRes_S2RPhi_W2;        // RecHits, 2. step, RPhi, wheel +-2
-    HRes1DHit *hRes_S3RPhi_W2;        // RecHits, 3. step, RPhi, wheel +-2
-
-    HRes1DHit* hRes_S3RPhiWS[3][4];   // RecHits, 3. step, by wheel/station
-    HRes1DHit* hRes_S3RZWS[3][4];     // RecHits, 3. step, by wheel/station
-
-    HEff1DHit *hEff_S1RPhi;           // RecHits, 1. step, RPhi
-    HEff1DHit *hEff_S2RPhi;           // RecHits, 2. step, RPhi
-    HEff1DHit *hEff_S3RPhi;           // RecHits, 3. step, RPhi
-
-    HEff1DHit *hEff_S1RZ;             // RecHits, 1. step, RZ
-    HEff1DHit *hEff_S2RZ;             // RecHits, 2. step, RZ
-    HEff1DHit *hEff_S3RZ;             // RecHits, 3. step, RZ
-
-    HEff1DHit *hEff_S1RZ_W0;          // RecHits, 1. step, RZ, wheel 0
-    HEff1DHit *hEff_S2RZ_W0;          // RecHits, 2. step, RZ, wheel 0
-    HEff1DHit *hEff_S3RZ_W0;          // RecHits, 3. step, RZ, wheel 0
-
-    HEff1DHit *hEff_S1RZ_W1;          // RecHits, 1. step, RZ, wheel +-1
-    HEff1DHit *hEff_S2RZ_W1;          // RecHits, 2. step, RZ, wheel +-1
-    HEff1DHit *hEff_S3RZ_W1;          // RecHits, 3. step, RZ, wheel +-1
-
-    HEff1DHit *hEff_S1RZ_W2;          // RecHits, 1. step, RZ, wheel +-2
-    HEff1DHit *hEff_S2RZ_W2;          // RecHits, 2. step, RZ, wheel +-2
-    HEff1DHit *hEff_S3RZ_W2;          // RecHits, 3. step, RZ, wheel +-2
-
-    HEff1DHit* hEff_S1RPhiWS[3][4];   // RecHits, 3. step, by wheel/station
-    HEff1DHit* hEff_S3RPhiWS[3][4];   // RecHits, 3. step, by wheel/station
-    HEff1DHit* hEff_S1RZWS[3][4];     // RecHits, 3. step, by wheel/station
-    HEff1DHit* hEff_S3RZWS[3][4];     // RecHits, 3. step, by wheel/station
-  };
-}
+struct Histograms;
 
 class DTRecHitQuality : public DQMGlobalEDAnalyzer<Histograms> {
 public:

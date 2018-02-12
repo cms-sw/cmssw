@@ -25,6 +25,11 @@
 using namespace std;
 using namespace edm;
 
+struct Histograms {
+  HRes2DHit *h2DHitSuperPhi;
+  HEff2DHit *h2DHitEff_SuperPhi;
+};
+
 // Constructor
 DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
   // Get the debug parameter for verbose output
