@@ -127,6 +127,7 @@ private:
   const std::string recordNameDBwrite_;
   const std::string outFileName_;
   const std::vector<std::string> mergeFileNames_;
+  const std::string lorentzAngleLabel_;
 
   edm::ESWatcher<SiPixelLorentzAngleRcd> watchLorentzAngleRcd_;
 
@@ -149,6 +150,7 @@ SiPixelLorentzAngleCalibration::SiPixelLorentzAngleCalibration(const edm::Parame
     recordNameDBwrite_(cfg.getParameter<std::string>("recordNameDBwrite")),
     outFileName_(cfg.getParameter<std::string>("treeFile")),
     mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
+    lorentzAngleLabel_(cfg.getParameter<std::string>("lorentzAngleLabel")),
     siPixelLorentzAngleInput_(nullptr),
     moduleGroupSelector_(nullptr),
     moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups"))
@@ -349,7 +351,7 @@ bool SiPixelLorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetu
 {
   edm::ESHandle<SiPixelLorentzAngle> lorentzAngleHandle;
   if (!siPixelLorentzAngleInput_) {
-    setup.get<SiPixelLorentzAngleRcd>().get(lorentzAngleHandle);
+    setup.get<SiPixelLorentzAngleRcd>().get(lorentzAngleLabel_, lorentzAngleHandle);
     siPixelLorentzAngleInput_ = new SiPixelLorentzAngle(*lorentzAngleHandle);
   } else {
     if (watchLorentzAngleRcd_.check(setup)) { // new IOV of input
