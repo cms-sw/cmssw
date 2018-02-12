@@ -234,6 +234,13 @@
   <class name="l1t::JetRefPairBxCollection"/>
   <class name="edm::Wrapper<l1t::JetRefPairBxCollection>"/>
 
+  <class name="l1t::EtSumRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::EtSumRefBxCollection>"/>
+  <class name="l1t::EtSumRefPair"/>
+  <class name="std::vector<l1t::EtSumRefPair>"/>
+  <class name="l1t::EtSumRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::EtSumRefPairBxCollection>"/>
+
   <class name="l1t::MuonRefBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonRefBxCollection>"/>
   <class name="l1t::MuonRefPair"/>

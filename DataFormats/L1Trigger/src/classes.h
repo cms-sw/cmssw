@@ -194,6 +194,13 @@ namespace DataFormats_L1Trigger {
     l1t::JetRefPairBxCollection jetrpc;
     edm::Wrapper<l1t::JetRefPairBxCollection> w_jetrpc;
 
+    l1t::EtSumRefBxCollection etsumrbxc;
+    edm::Wrapper<l1t::EtSumRefBxCollection> w_etsumrbxc;
+    l1t::EtSumRefPair etsumrp;
+    std::vector<l1t::EtSumRefPair> v_etsumrp;
+    l1t::EtSumRefPairBxCollection etsumrpc;
+    edm::Wrapper<l1t::EtSumRefPairBxCollection> w_etsumrpc;
+
     l1t::MuonRefBxCollection murbxc;
     edm::Wrapper<l1t::MuonRefBxCollection> w_murbxc;
     l1t::MuonRefPair murp;

@@ -159,6 +159,7 @@ L1TComparisonResultFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& d
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
@@ -166,11 +167,13 @@ typedef L1TComparisonResultFilter<GlobalAlgBlk> L1TGlobalAlgBlkComparisonResultF
 typedef L1TComparisonResultFilter<l1t::EGamma> L1TEGammaComparisonResultFilter;
 typedef L1TComparisonResultFilter<l1t::Tau> L1TTauComparisonResultFilter;
 typedef L1TComparisonResultFilter<l1t::Jet> L1TJetComparisonResultFilter;
+typedef L1TComparisonResultFilter<l1t::EtSum> L1TEtSumComparisonResultFilter;
 typedef L1TComparisonResultFilter<l1t::Muon> L1TMuonComparisonResultFilter;
 typedef L1TComparisonResultFilter<l1t::RegionalMuonCand> L1TRegionalMuonCandComparisonResultFilter;
 DEFINE_FWK_MODULE(L1TGlobalAlgBlkComparisonResultFilter);
 DEFINE_FWK_MODULE(L1TEGammaComparisonResultFilter);
 DEFINE_FWK_MODULE(L1TTauComparisonResultFilter);
 DEFINE_FWK_MODULE(L1TJetComparisonResultFilter);
+DEFINE_FWK_MODULE(L1TEtSumComparisonResultFilter);
 DEFINE_FWK_MODULE(L1TMuonComparisonResultFilter);
 DEFINE_FWK_MODULE(L1TRegionalMuonCandComparisonResultFilter);
