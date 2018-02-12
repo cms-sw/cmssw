@@ -60,37 +60,26 @@ void AMC13Event::setAMC13header(uint8_t CalTyp, uint8_t nAMC, uint32_t OrN, uint
   m_cb0 = cb0;
 }
 
-std::vector<uint64_t> AMC13Event::getAMCheader() const
-{
-  // AMC Header word 
-  // 55 - 32  | 27 - 20 | 19 - 16 | 15 - 0  |
-  // AMC_size | Blk_No  | AMC_No  | BoardID |
-  std::vector<uint64_t> amcHeaders;
-  for (unsigned int i = 0; i < m_AMC_size.size(); ++i){
-    uint64_t word =
-      (static_cast<uint64_t>(m_AMC_size[i] & 0x00ffffff) << 32) |
-      (static_cast<uint64_t>(m_Blk_No[i] & 0xff) << 20) |
-      (static_cast<uint64_t>(m_AMC_No[i] & 0x0f) << 16) |
-      (static_cast<uint64_t>(m_BoardID[i] & 0xffff));
-    amcHeaders.push_back(word);
-  }
-  return amcHeaders;
-}
-
 void AMC13Event::addAMCheader(uint64_t word)
 {
-  m_AMC_size.push_back(0x00ffffff&(word>>32));
-  m_Blk_No.push_back(0xff&(word>>20));
-  m_AMC_No.push_back(0x0f&(word>>16));
-  m_BoardID.push_back(0xffff&word);
+  // m_AMC_size.push_back(0x00ffffff&(word>>32));
+  // m_Blk_No.push_back(0xff&(word>>20));
+  // m_AMC_No.push_back(0x0f&(word>>16));
+  // m_BoardID.push_back(0xffff&word);
+  m_amcHeaders.push_back(word);
 }
 
 void AMC13Event::addAMCheader(uint32_t AMC_size, uint8_t Blk_No, uint8_t AMC_No, uint16_t BoardID)
 {
-  m_AMC_size.push_back(AMC_size);
-  m_Blk_No.push_back(Blk_No);
-  m_AMC_No.push_back(AMC_No);
-  m_BoardID.push_back(BoardID);
+  // AMC Header word 
+  // 55 - 32  | 27 - 20 | 19 - 16 | 15 - 0  |
+  // AMC_size | Blk_No  | AMC_No  | BoardID |  
+  uint64_t word =
+    (static_cast<uint64_t>(AMC_size & 0x00ffffff) << 32) |
+    (static_cast<uint64_t>(Blk_No & 0xff) << 20) |
+    (static_cast<uint64_t>(AMC_No & 0x0f) << 16) |
+    (static_cast<uint64_t>(BoardID & 0xffff));
+  m_amcHeaders.push_back(word);
 }
 
 uint64_t AMC13Event::getAMC13trailer() const

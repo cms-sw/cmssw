@@ -14,10 +14,12 @@ class GEMROmap{
       if (amcId == r.amcId){
         if ( gebId == r.gebId){
           return vfatId < r.vfatId;
-        }else{
+        }
+	else{
           return gebId < r.gebId;
-         }
-      }else{
+	}
+      }
+      else{
 	return amcId < r.amcId;
       }
     }
@@ -31,13 +33,15 @@ class GEMROmap{
       if (vfatType == r.vfatType){
         if (gemDetId == r.gemDetId){
 	  return iPhi < r.iPhi;
-        }else{
+        }
+	else{
           return gemDetId < r.gemDetId;
         }
-      }else{
+      }
+      else{
 	return vfatType < r.vfatType;
       }
-    }    
+    }
   };
 
   struct channelNum{
@@ -72,20 +76,8 @@ class GEMROmap{
   
   void add(eCoord e,dCoord d) {roMapED_[e]=d;}
   void add(dCoord d,eCoord e) {roMapDE_[d]=e;}
-
-  const uint32_t& gebPosition(const GEMDetId& r) const {return roMapDet2Geb_.at(r);}
-  const GEMDetId& gebPosition(const uint32_t& r) const {return roMapGeb2Det_.at(r);}
   
-  void add(GEMDetId d,uint32_t e) {roMapDet2Geb_[d]=e;}
-  void add(uint32_t d,GEMDetId e) {roMapGeb2Det_[d]=e;}
-  
-  std::map<GEMDetId,uint32_t> getRoMap(){return roMapDet2Geb_;}
-
-  void addAMC(uint16_t d) {amcs_.push_back(d);}
-  std::vector<uint16_t> getAMCs() const {return amcs_;}
-
-  void addAMC2GEB(uint16_t d, uint16_t c) {amc2Gebs_[d].push_back(c);}
-  std::vector<uint16_t> getAMC2GEBs(uint16_t d) const {return amc2Gebs_.at(d);}
+  const std::map<eCoord, dCoord> * getRoMap() const {return &roMapED_;}
 
   void add(channelNum c, stripNum s) {chStMap_[c]=s;} 
   void add(stripNum s, channelNum c) {stChMap_[s]=c;} 
@@ -94,15 +86,9 @@ class GEMROmap{
   const stripNum& hitPosition(const channelNum& c) const {return chStMap_.at(c);}
 
  private:
-  std::vector<uint16_t> amcs_;
-  std::map<uint16_t,std::vector<uint16_t>> amc2Gebs_;
-  
   std::map<eCoord,dCoord> roMapED_;
   std::map<dCoord,eCoord> roMapDE_;
 
-  std::map<GEMDetId,uint32_t> roMapDet2Geb_;
-  std::map<uint32_t,GEMDetId> roMapGeb2Det_;
-   
   std::map<channelNum, stripNum> chStMap_;
   std::map<stripNum, channelNum> stChMap_;
   

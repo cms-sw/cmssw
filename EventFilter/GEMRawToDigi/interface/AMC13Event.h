@@ -8,13 +8,13 @@ namespace gem {
   {
   public:
     AMC13Event(){}
-    ~AMC13Event(){m_AMC_size.clear(); m_Blk_No.clear(); m_AMC_No.clear(); m_BoardID.clear(); m_amcs.clear();}
+    ~AMC13Event(){m_amcHeaders.clear(); m_amcs.clear();}
 
     int nAMC() const {return unsigned(m_nAMC);}
     int bx_id() const {return unsigned(m_BX_id);}
     int lv1_id() const {return unsigned(m_LV1_id);}
     int source_id() const {return unsigned(m_Source_id);}
-    std::vector<AMCdata> amcs() const {return m_amcs;}
+    //const std::vector<AMCdata> * amcs() const {return &m_amcs;}
 
     uint64_t getCDFHeader() const;
     void setCDFHeader(uint8_t cb5, uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id);
@@ -24,12 +24,12 @@ namespace gem {
     void setAMC13header(uint8_t CalTyp, uint8_t nAMC, uint32_t OrN, uint8_t cb0);
     void setAMC13header(uint64_t word);
     
-    std::vector<uint64_t> getAMCheader() const;
+    const std::vector<uint64_t> * getAMCheaders() const {return &m_amcHeaders;}
     void addAMCheader(uint64_t word);
     void addAMCheader(uint32_t AMC_size, uint8_t Blk_No, uint8_t AMC_No, uint16_t BoardID);
 
-    std::vector<AMCdata> getAMCpayload() const {return m_amcs;}   
-    void addAMCpayload(AMCdata a){m_amcs.push_back(a);}
+    const std::vector<AMCdata> * getAMCpayloads() const {return &m_amcs;}   
+    void addAMCpayload(const AMCdata& a){m_amcs.push_back(a);}
     
     uint64_t getAMC13trailer() const;
     void setAMC13trailer(uint32_t CRC_amc13, uint8_t Blk_NoT, uint8_t LV1_idT, uint16_t BX_idT);
@@ -52,10 +52,11 @@ namespace gem {
     uint32_t m_OrN;
     uint8_t m_cb0; // control bit, should be 0b0000
     // AMC headers
-    std::vector<uint32_t> m_AMC_size;
-    std::vector<uint8_t> m_Blk_No;
-    std::vector<uint8_t> m_AMC_No;
-    std::vector<uint16_t> m_BoardID;
+    std::vector<uint64_t> m_amcHeaders;    
+    /* std::vector<uint32_t> m_AMC_size; */
+    /* std::vector<uint8_t> m_Blk_No; */
+    /* std::vector<uint8_t> m_AMC_No; */
+    /* std::vector<uint16_t> m_BoardID; */
     // AMCs payload
     std::vector<AMCdata> m_amcs;
     //AMC13 trailer
