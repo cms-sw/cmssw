@@ -51,7 +51,6 @@ hiMixedTripletStepTrackingRegionsA = _globalTrackingRegionWithVertices.clone(Reg
 mixedTripletStepHitDoubletsA.clusterCheck = ""
 mixedTripletStepHitDoubletsA.trackingRegions = "hiMixedTripletStepTrackingRegionsA"
 
-
 # SEEDING LAYERS
 mixedTripletStepSeedLayersB.BPix.skipClusters = cms.InputTag('hiMixedTripletStepClusters')
 mixedTripletStepSeedLayersB.TIB.skipClusters = cms.InputTag('hiMixedTripletStepClusters')
@@ -66,17 +65,17 @@ mixedTripletStepHitDoubletsB.clusterCheck = ""
 mixedTripletStepHitDoubletsB.trackingRegions = "hiMixedTripletStepTrackingRegionsB"
 
 # QUALITY CUTS DURING TRACK BUILDING
-from RecoTracker.IterativeTracking.MixedTripletStep_cff import _mixedTripletStepTrajectoryFilterBase
-_mixedTripletStepTrajectoryFilterBase.minimumNumberOfHits = 5
-_mixedTripletStepTrajectoryFilterBase.minPt = 0.4
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepTrajectoryFilter
+mixedTripletStepTrajectoryFilter.minimumNumberOfHits = 5
+mixedTripletStepTrajectoryFilter.minPt = 0.4
 mixedTripletStepPropagator.ptMin = 0.4
 mixedTripletStepPropagatorOpposite.ptMin = 0.4
-# TRACK BUILDING
-hiMixedTripletStepTracks = mixedTripletStepTracks.clone()
 
 # MAKING OF TRACK CANDIDATES
 mixedTripletStepTrackCandidates.clustersToSkip = cms.InputTag('hiMixedTripletStepClusters')
+
 # TRACK FITTING
+hiMixedTripletStepTracks = mixedTripletStepTracks.clone()
 
 # Final selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
@@ -134,3 +133,4 @@ hiMixedTripletStep = cms.Sequence(
                                 hiMixedTripletStepTracks*
                                 hiMixedTripletStepSelector*
                                 hiMixedTripletStepQual)
+

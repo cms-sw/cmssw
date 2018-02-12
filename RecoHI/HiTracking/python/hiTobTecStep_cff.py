@@ -7,23 +7,10 @@ from HIPixel3PrimTracks_cfi import *
 #######################################################################
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
 #######################################################################
-hiTobTecStepClusters = cms.EDProducer("HITrackClusterRemover",
-     clusterLessSolution = cms.bool(True),
-     trajectories = cms.InputTag("hiPixelLessStepTracks"),
-     overrideTrkQuals = cms.InputTag('hiPixelLessStepSelector','hiPixelLessStep'),
-     TrackQuality = cms.string('highPurity'),
-     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-     pixelClusters = cms.InputTag("siPixelClusters"),
-     stripClusters = cms.InputTag("siStripClusters"),
-     Common = cms.PSet(
-         maxChi2 = cms.double(9.0),
-     ),
-     Strip = cms.PSet(
-        #Yen-Jie's mod to preserve merged clusters
-        maxSize = cms.uint32(2),
-        maxChi2 = cms.double(9.0)
-     )
-)
+from RecoHI.HiTracking.hiPixelLessStep_cff import hiPixelLessStepClusters
+hiTobTecStepClusters = hiPixelLessStepClusters.clone()
+hiTobTecStepClusters.trajectories = cms.InputTag("hiPixelLessStepTracks")
+hiTobTecStepClusters.overrideTrkQuals = cms.InputTag('hiPixelLessStepSelector','hiPixelLessStep')
 
 # TRIPLET SEEDING LAYERS
 tobTecStepSeedLayersTripl.TOB.skipClusters   = cms.InputTag('hiTobTecStepClusters')
@@ -67,19 +54,15 @@ tobTecStepHitDoubletsPair.trackingRegions = "hiTobTecStepTrackingRegionsPair"
 
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
-from RecoTracker.IterativeTracking.TobTecStep_cff import _tobTecStepTrajectoryFilterBase
-_tobTecStepTrajectoryFilterBase.minimumNumberOfHits = 5
-_tobTecStepTrajectoryFilterBase.minPt = 0.85
-
-# TRACK BUILDING
+from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepTrajectoryFilter
+tobTecStepTrajectoryFilter.minimumNumberOfHits = 5
+tobTecStepTrajectoryFilter.minPt = 0.85
 
 # MAKING OF TRACK CANDIDATES
 tobTecStepTrackCandidates.clustersToSkip = cms.InputTag('hiTobTecStepClusters')
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
 hiTobTecStepTracks = tobTecStepTracks.clone()
-
 
 # Final selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
@@ -137,3 +120,4 @@ hiTobTecStep = cms.Sequence(hiTobTecStepClusters*
                           hiTobTecStepSelector*
                           hiTobTecStepQual
                           )
+
