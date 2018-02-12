@@ -318,7 +318,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	if (LUTGenerationMode_){
 	    const HcalCalibrations& calibrations = conditions.getHcalCalibrations(cell);
 	    for (auto capId : {0,1,2,3}){
-		ped += calibrations.pedestal(capId);
+		ped += calibrations.effpedestal(capId);
 		gain += calibrations.LUTrespcorrgain(capId);
 	    }
 	    ped /= 4.0;
