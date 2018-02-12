@@ -180,6 +180,13 @@ namespace DataFormats_L1Trigger {
     l1t::EGammaRefPairBxCollection egrpc;
     edm::Wrapper<l1t::EGammaRefPairBxCollection> w_egrpc;
 
+    l1t::TauRefBxCollection taurbxc;
+    edm::Wrapper<l1t::TauRefBxCollection> w_taurbxc;
+    l1t::TauRefPair taurp;
+    std::vector<l1t::TauRefPair> v_taurp;
+    l1t::TauRefPairBxCollection taurpc;
+    edm::Wrapper<l1t::TauRefPairBxCollection> w_taurpc;
+
     l1t::MuonRefBxCollection murbxc;
     edm::Wrapper<l1t::MuonRefBxCollection> w_murbxc;
     l1t::MuonRefPair murp;
