@@ -21,7 +21,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class MagneticField;
-namespace cms
+namespace
 {
   class SiPixelRecHitGPU : public edm::stream::EDProducer<>
   {
@@ -61,6 +61,10 @@ namespace cms
   };
 }
 
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiPixelRecHitGPU);
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -88,8 +92,6 @@ using namespace std;
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
 
 
-namespace cms
-{
   //---------------------------------------------------------------------------
   //!  Constructor: set the ParameterSet and defer all thinking to setupCPE().
   //---------------------------------------------------------------------------
@@ -233,4 +235,3 @@ namespace cms
     //  << std::endl;
 	
   }
-}  // end of namespace cms
