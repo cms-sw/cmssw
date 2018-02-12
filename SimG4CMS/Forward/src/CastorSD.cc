@@ -178,7 +178,8 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     
   // Check if theTrack is a muon (if so, DO NOT use Shower Library) 
   G4int parCode = theTrack->GetDefinition()->GetPDGEncoding();
-  bool notaMuon = !G4TrackToParticleID::isMuon(parCode);
+  bool isEM = G4TrackToParticleID::isGammaElectronPositron(parCode);
+  bool isHad = G4TrackToParticleID::isStableHadronIon(theTrack);
   
   // angle condition
   double theta_max = M_PI - 3.1305; // angle in radians corresponding to -5.2 eta
@@ -196,8 +197,8 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   bool OkToUse = false;
   if ( inRange && !dot) OkToUse = true;
   
-  const bool particleWithinShowerLibrary = aboveThreshold &&
-    notaMuon && (!backward) && OkToUse && angleok && currentLV == lvCAST;
+  bool particleWithinShowerLibrary = aboveThreshold && (isEM || isHad)
+    && (!backward) && OkToUse && angleok && currentLV == lvCAST;
   
   if (useShowerLibrary && particleWithinShowerLibrary) {
     // Use Castor shower library if energy is above threshold, is not a muon 
@@ -210,16 +211,23 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     
     // track is killed in getFromLibrary...
 
-    return 0;
+    return 0.0;
   }
   
 
   // Full - Simulation starts here
 
-  double meanNCherPhot=0;
+  double meanNCherPhot = 0.0;
+  G4double charge = preStepPoint->GetCharge();
+  // VI: no Cerenkov light from neutrals
+  if(0.0 == charge) { return meanNCherPhot; }
+
+  G4double beta = preStepPoint->GetBeta();
+  const double bThreshold = 0.67;
+  // VI: no Cerenkov light from non-relativistic particles
+  if(beta < bThreshold) { return meanNCherPhot; }
     
   // remember primary particle hitting the CASTOR detector
-    
   TrackInformationExtractor TIextractor;
   TrackInformation& trkInfo = TIextractor(theTrack);
   if (!trkInfo.hasCastorHit()) {
@@ -227,14 +235,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   }
   int castorHitPID = trkInfo.getCastorHitPID();
   
-  // Check whether castor hit track is HAD
-  bool isHad = !(G4TrackToParticleID::isGammaElectronPositron(castorHitPID)
-		 || G4TrackToParticleID::isMuon(castorHitPID));
-  
   G4double           stepl    = aStep->GetStepLength()/cm;
-  G4double           beta     = preStepPoint->GetBeta();
-  G4double           charge   = preStepPoint->GetCharge();
-  
   
 #ifdef debugLog
   // postStepPoint information *********************************************
@@ -245,9 +246,6 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   std::string        postnameVolume;
   postnameVolume.assign(postname,0,4);
   
-  // theTrack information  *************************************************
-  // G4Track*        theTrack = aStep->GetTrack();   
-  //G4double        entot    = theTrack->GetTotalEnergy();
   G4ThreeVector   vert_mom = theTrack->GetVertexMomentumDirection();
   
   G4ThreeVector  localPoint = theTrack->GetTouchable()->GetHistory()->
@@ -267,10 +265,6 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   double theta = acos(std::min(std::max(costheta,double(-1.)),double(1.)));
   double eta = -log(tan(theta/2));
   G4int          primaryID    = theTrack->GetTrackID();
-  // *************************************************
-    
-  
-  // *************************************************
   double edep   = aStep->GetTotalEnergyDeposit();
 #endif
   
@@ -295,9 +289,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   */  
   if (currentLV == lvC3EF || currentLV == lvC4EF || currentLV == lvC3HF ||
       currentLV == lvC4HF) {
-    //      if(nameVolume == "C3EF" || nameVolume == "C4EF" || nameVolume == "C3HF" || nameVolume == "C4HF") {
     
-    double bThreshold = 0.67;
     double nMedium = 1.4925;
     //     double photEnSpectrDL = (1./400.nm-1./700.nm)*10000000.cm/nm; /* cm-1  */
     //     double photEnSpectrDL = 10714.285714;
@@ -322,11 +314,6 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
        thFibDir = 0.0; // .dergee
     */
     double thFibDirRad = thFibDir*pi/180.;
-    /*   */
-    /*   */
-    
-    // at which theta the point is located:
-    //     double th1    = hitPoint.theta();
     
     // theta of charged particle in LabRF(hit momentum direction):
     double costh =hit_mom.z()/sqrt(hit_mom.x()*hit_mom.x()+
@@ -337,25 +324,19 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     
     // just in case (can do bot use):
     if (th < 0.) th += twopi;
-    
-    
-    
+        
     // theta of cone with Cherenkov photons w.r.t.direction of charged part.:
     double costhcher =1./(nMedium*beta);
     double thcher = acos(std::min(std::max(costhcher,double(-1.)),double(1.)));
     
     // diff thetas of charged part. and quartz direction in LabRF:
-    double DelFibPart = fabs(th - thFibDirRad);
+    double DelFibPart = std::abs(th - thFibDirRad);
     
     // define real distances:
-    double d = fabs(tan(th)-tan(thFibDirRad));   
+    double d = std::abs(tan(th)-tan(thFibDirRad));   
     
-    //       double a = fabs(tan(thFibDirRad)-tan(thFibDirRad+thFullReflRad));   
-    //       double r = fabs(tan(th)-tan(th+thcher));   
-    
-    double a = tan(thFibDirRad)+tan(fabs(thFibDirRad-thFullReflRad));   
+    double a = tan(thFibDirRad)+tan(std::abs(thFibDirRad-thFullReflRad));   
     double r = tan(th)+tan(fabs(th-thcher));   
-    
     
     // define losses d_qz in cone of full reflection inside quartz direction
     double d_qz;
@@ -401,29 +382,14 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	  double arg_arcos = 0.;
 	  double tan_arcos = 2.*a*d;
 	  if(tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
-	  arg_arcos = fabs(arg_arcos);
+	  arg_arcos = std::abs(arg_arcos);
 	  double th_arcos = acos(std::min(std::max(arg_arcos,double(-1.)),double(1.)));
-	  d_qz = fabs(th_arcos/pi/2.);
-	  
-	  //	    }
-	  //             else
-	  //  	     {
-	  //                d_qz = 0.; variant=4.;
-	  //#ifdef debugLog
-	  // std::cout <<" ===============>variant 4 information: <===== " <<std::endl;
-	  // std::cout <<" !!!!!!!!!!!!!!!!!!!!!!  variant = " << variant  <<std::endl;
-	  //#endif 
-	  //
-	  // 	     }
+	  d_qz = std::abs(th_arcos/pi/2.);	  
 	}
       }
     }
-    
-    
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    if(charge != 0. && beta > bThreshold )  {
-      
       meanNCherPhot = 370.*charge*charge*
 	( 1. - 1./(nMedium*nMedium*beta*beta) )*
 	photEnSpectrDE*stepl;
@@ -485,15 +451,6 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 			     << " NCherPhot = " << NCherPhot;
 #endif 
       
-      // Included by WC
-      //	     std::cout << "\n volume = "         << name 
-      //	          << "\n nameVolume = "     << nameVolume << "\n"
-      //	          << "\n postvolume = "     << postname 
-      //	          << "\n postnameVolume = " << postnameVolume << "\n"
-      //	          << "\n particleType = "   << particleType 
-      //	          << "\n primaryID = "      << primaryID << "\n";
-      
-    }
   }
     
   
