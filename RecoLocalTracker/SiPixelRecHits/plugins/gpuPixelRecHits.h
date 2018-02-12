@@ -46,9 +46,10 @@ namespace gpuPixelRecHits {
 
     auto nclus = clusInModule[me];
 
+#ifdef GPU_DEBUG
     if (me%100==1)
       if (threadIdx.x==0) printf("hitbuilder: %d clusters in module %d. will write at %d\n",nclus,me,hitsModuleStart[me]);
-
+#endif
 
     assert(blockDim.x>=MaxClusInModule);
     assert(nclus<=MaxClusInModule);

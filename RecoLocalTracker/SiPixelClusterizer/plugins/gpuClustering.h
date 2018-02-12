@@ -48,9 +48,10 @@ namespace gpuClustering {
     auto me = id[first];
     
 
+#ifdef GPU_DEBUG
     if (me%100==1)
       if (threadIdx.x==0) printf("start clusterizer for module %d in block %d\n",me,blockIdx.x);
-
+#endif
 
     first+=threadIdx.x;
     
@@ -133,10 +134,10 @@ namespace gpuClustering {
       moduleId[blockIdx.x]=me;
     }
     
-    
+#ifdef GPU_DEBUG    
     if (me%100==1)
       if (threadIdx.x==0) printf("%d clusters in module %d\n",nclus,me);
-    
+#endif    
   }
   
 } //namespace gpuClustering
