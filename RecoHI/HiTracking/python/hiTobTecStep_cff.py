@@ -33,13 +33,7 @@ tobTecStepSeedLayersTripl.MTEC.skipClusters   = cms.InputTag('hiTobTecStepCluste
 # Triplet TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
 hiTobTecStepTrackingRegionsTripl = _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-     precise = True,
-     useMultipleScattering = False,
-     beamSpot = "offlineBeamSpot",
-     useFoundVertices = True,
-     useFakeVertices       = False,
      VertexCollection = "hiSelectedPixelVertex",
-     useFixedError = True,
      fixedError = 5.0,#20.0
      ptMin = 0.9,#0.55
      originRadius = 3.5,
@@ -61,25 +55,10 @@ tobTecStepSeedLayersPair.TOB.skipClusters   = cms.InputTag('hiTobTecStepClusters
 tobTecStepSeedLayersPair.TEC.skipClusters   = cms.InputTag('hiTobTecStepClusters')
 
 # Pair TrackingRegion
-hiTobTecStepTrackingRegionsPair = _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-     precise = True,
-     useMultipleScattering = False,
-     beamSpot = "offlineBeamSpot",
-     useFoundVertices = True,
-     useFakeVertices       = False,
-     VertexCollection = "hiSelectedPixelVertex",
-     useFixedError = True,
+hiTobTecStepTrackingRegionsPair = hiTobTecStepTrackingRegionsTripl.clone(RegionPSet=dict(
      fixedError = 7.5,#30.0
-     ptMin = 0.9,#0.6
      originRadius = 6.0,
-     originRScaling4BigEvts = cms.bool(True),
-     halfLengthScaling4BigEvts = cms.bool(False),
-     ptMinScaling4BigEvts = cms.bool(True),
-     minOriginR = 0,
-     minHalfLength = 0,
      maxPtMin = 1.5,#0.9
-     scalingStartNPix = 20000,
-     scalingEndNPix = 35000     
 ))
 
 # Pair seeds

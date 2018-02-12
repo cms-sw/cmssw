@@ -33,13 +33,7 @@ mixedTripletStepSeedLayersA.TEC.skipClusters = cms.InputTag('hiMixedTripletStepC
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
 hiMixedTripletStepTrackingRegionsA = _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-     precise = True,
-     useMultipleScattering = False,
-     beamSpot = "offlineBeamSpot",
-     useFoundVertices = True,
-     useFakeVertices       = False,
      VertexCollection = "hiSelectedPixelVertex",
-     useFixedError = True,
      fixedError = 3.75,#15.0
      ptMin = 0.4,
      originRadius = 1.5,
@@ -62,25 +56,8 @@ mixedTripletStepHitDoubletsA.trackingRegions = "hiMixedTripletStepTrackingRegion
 mixedTripletStepSeedLayersB.BPix.skipClusters = cms.InputTag('hiMixedTripletStepClusters')
 mixedTripletStepSeedLayersB.TIB.skipClusters = cms.InputTag('hiMixedTripletStepClusters')
 
-hiMixedTripletStepTrackingRegionsB = _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-     precise = True,
-     useMultipleScattering = False,
-     beamSpot = "offlineBeamSpot",
-     useFoundVertices = True,
-     useFakeVertices       = False,
-     VertexCollection = "hiSelectedPixelVertex",
-     useFixedError = True,
-     fixedError = 3.75,#15.0
-     ptMin = 0.4,
+hiMixedTripletStepTrackingRegionsB = hiMixedTripletStepTrackingRegionsA.clone(RegionPSet=dict(
      originRadius = 1.0,
-     originRScaling4BigEvts = cms.bool(True),
-     halfLengthScaling4BigEvts = cms.bool(False),
-     ptMinScaling4BigEvts = cms.bool(True),
-     minOriginR = 0,
-     minHalfLength = 0,
-     maxPtMin = 0.7,
-     scalingStartNPix = 20000,
-     scalingEndNPix = 35000     
 ))
 
 

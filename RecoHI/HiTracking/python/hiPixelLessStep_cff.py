@@ -37,13 +37,7 @@ pixelLessStepSeedLayers.MTEC.skipClusters   = cms.InputTag('hiPixelLessStepClust
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
 hiPixelLessStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-     precise = True,
-     useMultipleScattering = False,
-     beamSpot = "offlineBeamSpot",
-     useFoundVertices = True,
-     useFakeVertices       = False,
      VertexCollection = "hiSelectedPixelVertex",
-     useFixedError = True,
      fixedError = 3.0,#12.0
      ptMin = 0.7, #0.4
      originRadius = 1.0,
