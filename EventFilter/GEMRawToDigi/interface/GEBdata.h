@@ -23,7 +23,7 @@ namespace gem {
       m_ZeroSup = 0x00ffffff & (word >> 40);        /*!<Zero Suppression*/
       m_InputID = 0b00011111 & (word >> 35);        /*!<GLIB Input ID*/
       m_Vwh = 0x0fff & (word >> 23);                /*!<VFAT word count*/
-      m_ErrorC = 0b0001111111111111 & (word);    /*!<Thirteen Flags*/
+      m_ErrorC = 0b0001111111111111 & (word);       /*!<Thirteen Flags*/
       for(int i=0; i<13; ++i)
 	{
 	  m_GEBflags.push_back(0x01 & (m_ErrorC >> i));
@@ -75,8 +75,8 @@ namespace gem {
 	(static_cast<uint64_t>(m_Stuckd & 0x01) << 34);
     }
 
-    void setVwh(uint16_t n){m_Vwh = n;}       ///<Returns VFAT word count (size of VFAT payload)
-    void setInputID(uint8_t n){m_InputID = n;}///<Returns GLIB input ID
+    void setVwh(uint16_t n){m_Vwh = n;}             ///<Sets VFAT word count (size of VFAT payload)
+    void setInputID(uint8_t n){m_InputID = n;}      ///<Sets GLIB input ID
 
     uint32_t zeroSup()  const {return m_ZeroSup;}   ///<Returns Zero Suppression flags
     uint8_t  inputID()  const {return m_InputID;}   ///<Returns GLIB input ID
@@ -91,13 +91,13 @@ namespace gem {
     //!Adds VFAT data to the vector
     void addVFAT(VFATdata v){m_vfatd.push_back(v);}
     //!Returns the vector of FVAT data
-    std::vector<VFATdata> vFATs() const {return m_vfatd;}  
+    const std::vector<VFATdata> * vFATs() const {return &m_vfatd;}  
 
     static const int sizeGebID = 5;
     
   private:
     std::vector<VFATdata> m_vfatd;     ///<Vector of VFAT data
-    std::vector<uint8_t> m_GEBflags; ///<Vector for thirteen flags in GEM Chamber Header
+    std::vector<uint8_t> m_GEBflags;   ///<Vector for thirteen flags in GEM Chamber Header
 
     //GEM chamber header
 

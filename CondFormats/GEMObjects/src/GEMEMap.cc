@@ -14,16 +14,14 @@ const std::string & GEMEMap::version() const{
   return theVersion;
 }
 
-GEMROmap* GEMEMap::convert() const{
-  GEMROmap* romap=new GEMROmap();
+void GEMEMap::convert(GEMROmap & romap) {
 
-  for (auto imap : theVFatMaptype){
+  for (auto imap : theVFatMaptype_){
     for (unsigned int ix=0;ix<imap.vfatId.size();ix++){
       GEMROmap::eCoord ec;
-      ec.vfatId = imap.vfatId[ix]; //& chipIdMask_;// chip ID is 12 bits/
+      ec.vfatId = imap.vfatId[ix];
       ec.gebId = imap.gebId[ix];
-      ec.amcId = imap.amcId[ix];
-      
+      ec.amcId = imap.amcId[ix];      
 
       int st = std::abs(imap.z_direction[ix]);
       GEMROmap::dCoord dc;
@@ -31,12 +29,12 @@ GEMROmap* GEMEMap::convert() const{
       dc.vfatType = imap.vfatType[ix]; 
       dc.iPhi = imap.iPhi[ix];
 
-      romap->add(ec,dc);
-      romap->add(dc,ec);
+      romap.add(ec,dc);
+      romap.add(dc,ec);
     }
   }
   
-  for (auto imap : theVfatChStripMap){
+  for (auto imap : theVfatChStripMap_){
     for (unsigned int ix=0;ix<imap.vfatType.size();ix++){
       GEMROmap::channelNum cMap;
       cMap.vfatType = imap.vfatType[ix];
@@ -46,22 +44,16 @@ GEMROmap* GEMEMap::convert() const{
       sMap.vfatType = imap.vfatType[ix];
       sMap.stNum = imap.vfatStrip[ix];
 
-      romap->add(cMap, sMap);
-      romap->add(sMap, cMap);
+      romap.add(cMap, sMap);
+      romap.add(sMap, cMap);
     }
   }
-
-  
-
-  return romap;
 }
 
-GEMROmap* GEMEMap::convertDummy() const{
-  GEMROmap* romap=new GEMROmap();
- /*
+void GEMEMap::convertDummy(GEMROmap & romap) {
+  // 12 bits for vfat, 5 bits for geb, 8 bit long GLIB serial number
   uint16_t amcId = 1; //amc
-  uint16_t gebId = 1; 
-  romap->addAMC(amcId);
+  uint16_t gebId = 0; 
 	
   for (int re = -1; re <= 1; re = re+2) {
     for (int st = GEMDetId::minStationId; st<=GEMDetId::maxStationId; ++st) {
@@ -69,57 +61,53 @@ GEMROmap* GEMEMap::convertDummy() const{
       if (st == 2) maxVFat = maxVFatGE21_;      
       
       for (int ch = 1; ch<=GEMDetId::maxChamberId; ++ch) {
-      	for (int ly = 1; ly<=GEMDetId::maxLayerId; ++ly) {
-	  
+	for (int ly = 1; ly<=GEMDetId::maxLayerId; ++ly) {
 	  // 1 geb per chamber
-	  // 24 gebs per amc
-	  // make new amcId once 24 gebs are used up
-	  if (gebId > maxGEBs_){
-	    gebId = 1;
-	    amcId++;
-	    romap->addAMC(amcId);
-	  }
-
-	  romap->addAMC2GEB(amcId, gebId);
-	  
-	  GEMDetId chamDetId(re, 1, st, ly, ch, 0);
-	  uint32_t chamberId = (amcId << gebIdBits_) | gebId;	  
-	  romap->add(chamDetId,chamberId);
-	  romap->add(chamberId,chamDetId);
-	  
+	  gebId++;	  	  	  
 	  uint16_t chipId = 0;	 	  
 	  for (int roll = 1; roll<=GEMDetId::maxRollId; ++roll) {
 	    
-	    int stripId = 0;
 	    GEMDetId gemId(re, 1, st, ly, ch, roll);
-	    
-	    for (int nVfat = 0; nVfat < maxVFat; ++nVfat){
+
+	    for (int nphi = 1; nphi <= maxVFat; ++nphi){
 	      chipId++;
 	      
-	      for (unsigned chan = 0; chan < maxChan_; ++chan){
-		GEMROmap::dCoord dc;
-		dc.stripId = ++stripId;
-		dc.gemDetId = gemId;
+	      GEMROmap::eCoord ec;
+	      ec.vfatId = chipId;
+	      ec.gebId = gebId;
+	      ec.amcId = amcId;
 
-		// make 1 full vfat ID from amc + geb + chip Ids
-		uint32_t vfatId = (amcId << (gebIdBits_+chipIdBits_)) | (gebId << chipIdBits_) | chipId;
-		
-		GEMROmap::eCoord ec;
-		ec.vfatId =  vfatId;
-		ec.channelId = chan;
-		romap->add(ec,dc);
-		romap->add(dc,ec);
+	      GEMROmap::dCoord dc;
+	      dc.gemDetId = gemId;
+	      dc.vfatType = 1;
+	      dc.iPhi = nphi;
 
-	      }
+	      romap.add(ec,dc);
+	      romap.add(dc,ec);
 	    }
 	  }
-
-	  gebId++;
-
+	  // 5 bits for geb
+	  if (gebId == maxGEBs_){
+	    // 24 gebs per amc
+	    gebId = 0;
+	    amcId++;
+	  }
 	}
       }
     }
   }
- */ 
-  return romap;
+
+  for (int i = 0; i < maxChan_; ++i){
+    // only 1 vfat type for dummy map
+    GEMROmap::channelNum cMap;
+    cMap.vfatType = 1;
+    cMap.chNum = i;
+
+    GEMROmap::stripNum sMap;
+    sMap.vfatType = 1;
+    sMap.stNum = i+1;
+
+    romap.add(cMap, sMap);
+    romap.add(sMap, cMap);
+  }
 }
