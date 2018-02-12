@@ -1078,6 +1078,166 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
+  /************************************************
+    Plot BadStrip Quality Comparison
+  *************************************************/
+
+  class SiStripBadStripQualityComparison : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  public:
+    SiStripBadStripQualityComparison() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "SiStrip BadStrip Quality Comparison Analysis" ),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
+      setSingleIov( false );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      //SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
+
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+      
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+      
+      std::shared_ptr<SiStripBadStrip> last_payload  = fetchPayload( std::get<1>(lastiov) );
+      std::shared_ptr<SiStripBadStrip> first_payload = fetchPayload( std::get<1>(firstiov) );
+      
+      std::string lastIOVsince  = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      // store global info
+
+      //k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
+      int f_NTkBadComponent[4] = {0};
+      int l_NTkBadComponent[4] = {0};
+
+      //legend: NBadComponent[i][j][k]= SubSystem i, layer/disk/wheel j, BadModule/Fiber/Apv k
+      //     i: 0=TIB, 1=TID, 2=TOB, 3=TEC
+      //     k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
+      int f_NBadComponent[4][19][4] = {{{0}}};  
+      int l_NBadComponent[4][19][4] = {{{0}}};  
+
+      SiStripQuality* f_siStripQuality_ = new SiStripQuality();
+      f_siStripQuality_->add(first_payload.get());
+      f_siStripQuality_->cleanUp();
+      f_siStripQuality_->fillBadComponents();
+
+      // call the filler
+      SiStripPI::fillBCArrays(f_siStripQuality_,f_NTkBadComponent,f_NBadComponent,m_trackerTopo);
+
+      SiStripQuality* l_siStripQuality_ = new SiStripQuality();
+      l_siStripQuality_->add(last_payload.get());
+      l_siStripQuality_->cleanUp();
+      l_siStripQuality_->fillBadComponents();
+
+      // call the filler
+      SiStripPI::fillBCArrays(l_siStripQuality_,l_NTkBadComponent,l_NBadComponent,m_trackerTopo);
+
+      // debug
+      SiStripPI::printBCDebug(f_NTkBadComponent,f_NBadComponent);
+      SiStripPI::printBCDebug(l_NTkBadComponent,l_NBadComponent);
+
+      // declare histograms
+      auto masterTable = std::unique_ptr<TH2F>(new TH2F("table","",4,0.,4.,39,0.,39.));
+      auto masterTableColor = std::unique_ptr<TH2F>(new TH2F("colortable","",4,0.,4.,39,0.,39.));
+      
+      std::string labelsX[4]={"Bad Modules","Bad Fibers","Bad APVs","Bad Strips"};
+      std::string labelsY[40]={"Tracker","TIB","TID","TOB","TEC","TIB Layer 1","TIB Layer 2","TIB Layer 3","TIB Layer 4","TID+ Disk 1","TID+ Disk 2","TID+ Disk 3","TID- Disk 1","TID- Disk 2","TID- Disk 3","TOB Layer 1","TOB Layer 2","TOB Layer 3","TOB Layer 4","TOB Layer 5","TOB Layer 6","TEC+ Disk 1","TEC+ Disk 2","TEC+ Disk 3","TEC+ Disk 4","TEC+ Disk 5","TEC+ Disk 6","TEC+ Disk 7","TEC+ Disk 8","TEC+ Disk 9","TEC- Disk 1","TEC- Disk 2","TEC- Disk 3","TEC- Disk 4","TEC- Disk 5","TEC- Disk 6","TEC- Disk 7","TEC- Disk 8","TEC- Disk 9"};
+
+      for(int iX=0;iX<=3;iX++){
+	masterTable->GetXaxis()->SetBinLabel(iX+1,labelsX[iX].c_str());
+	masterTableColor->GetXaxis()->SetBinLabel(iX+1,labelsX[iX].c_str());
+      }
+
+      for(int iY=39;iY>=1;iY--){
+	masterTable->GetYaxis()->SetBinLabel(iY,labelsY[39-iY].c_str());
+	masterTableColor->GetYaxis()->SetBinLabel(iY,labelsY[39-iY].c_str());
+      }
+                                 
+      //                        0 1 2 3   
+      int layerBoundaries[4] = {4,6,6,18};
+      std::vector<int> boundaries;
+      boundaries.push_back(39); 
+      boundaries.push_back(35);
+ 
+      int cursor=0;
+      int layerIndex=0;
+      for(int iY=39;iY>=1;iY--){
+       	for(int iX=0;iX<=3;iX++){
+       	  if(iY==39){
+	    masterTable->SetBinContent(iX+1,iY,l_NTkBadComponent[iX]-f_NTkBadComponent[iX]);
+	    masterTableColor->SetBinContent(iX+1,iY,l_NTkBadComponent[iX]-f_NTkBadComponent[iX]);
+	  } else if (iY>=35){
+	    masterTable->SetBinContent(iX+1,iY,(l_NBadComponent[(39-iY)-1][0][iX]-f_NBadComponent[(39-iY)-1][0][iX]));
+	    masterTableColor->SetBinContent(iX+1,iY,(l_NBadComponent[(39-iY)-1][0][iX] - f_NBadComponent[(39-iY)-1][0][iX]));
+	  } else {
+	    if(iX==0) layerIndex++;
+	    //std::cout<<"iY:"<<iY << " cursor: "  <<cursor << " layerIndex: " << layerIndex << " layer check: "<< layerBoundaries[cursor] <<std::endl;
+	    masterTable->SetBinContent(iX+1,iY,(l_NBadComponent[cursor][layerIndex][iX]-f_NBadComponent[cursor][layerIndex][iX]));
+	    masterTableColor->SetBinContent(iX+1,iY,(l_NBadComponent[cursor][layerIndex][iX]-f_NBadComponent[cursor][layerIndex][iX]));
+	  }
+	}
+	if(layerIndex==layerBoundaries[cursor]){
+	  // bring on the subdet counter and reset the layer count
+	  cursor++;
+	  layerIndex=0;
+	  boundaries.push_back(iY);
+	}
+      }
+      
+      TCanvas canv("canv","canv",1000,800);
+      canv.cd();
+
+      canv.SetTopMargin(0.05);
+      canv.SetBottomMargin(0.07);
+      canv.SetLeftMargin(0.18);
+      canv.SetRightMargin(0.15);
+
+      masterTable->SetStats(false);
+      masterTableColor->SetStats(false);
+      canv.SetGrid();
+     
+      masterTable->SetMarkerColor(kRed);
+      masterTable->SetMarkerSize(1.5);
+      masterTableColor->Draw("COLZ");
+      masterTable->Draw("textsame");
+
+      canv.Update();
+      canv.cd();
+
+      TLine l[boundaries.size()];
+      unsigned int i=0;
+      for (const auto & line : boundaries){
+        l[i] = TLine(canv.cd()->GetUxmin(),masterTable->GetYaxis()->GetBinLowEdge(line),canv.cd()->GetUxmax(),masterTable->GetYaxis()->GetBinLowEdge(line));
+	l[i].SetLineWidth(2);
+	l[i].SetLineStyle(9);
+	l[i].SetLineColor(kMagenta);
+	l[i].Draw("same");
+	i++;
+      }
+
+      canv.cd();
+      TLatex title;
+      title.SetTextSize(0.045);
+      title.SetTextColor(kBlue);
+      title.DrawLatexNDC(0.33,0.96,("#DeltaIOV: "+std::to_string(std::get<0>(lastiov))+" - "+std::to_string(std::get<0>(firstiov))).c_str()); 
+      std::string fileName(m_imageFileName);
+      canv.SaveAs(fileName.c_str());
+
+      delete f_siStripQuality_;
+      delete l_siStripQuality_;
+      
+      return true;
+    }
+  private:
+    TrackerTopology m_trackerTopo;
+  };
+  
 } // close namespace
 
 // Register the classes as boost python plugin
@@ -1094,4 +1254,5 @@ PAYLOAD_INSPECTOR_MODULE(SiStripBadStrip){
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripByRegionComparison);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionComparisonTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripQualityAnalysis);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripQualityComparison);
 }

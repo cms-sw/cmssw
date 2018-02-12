@@ -11,6 +11,11 @@
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
@@ -269,7 +274,7 @@ namespace SiStripPI {
   // code is mutuated from CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics
 
   /*--------------------------------------------------------------------*/
-  void setBadComponents(int i, int component, SiStripQuality::BadComponent& BC,int NBadComponent[4][19][4])
+  void setBadComponents(int i, int component,const SiStripQuality::BadComponent& BC,int NBadComponent[4][19][4])
   /*--------------------------------------------------------------------*/
   {
    
@@ -340,6 +345,163 @@ namespace SiStripPI {
 	break;
       } 
     }
+  }
+
+
+  // generic code to fill the vectors 
+  /*--------------------------------------------------------------------*/
+  void fillBCArrays (const SiStripQuality* siStripQuality_,int NTkBadComponent[4], int NBadComponent[4][19][4],const TrackerTopology  m_trackerTopo)
+  /*--------------------------------------------------------------------*/
+  { 
+
+    std::vector<SiStripQuality::BadComponent> BC = siStripQuality_->getBadComponentList();
+
+    for (size_t i=0;i<BC.size();++i){
+	
+      //&&&&&&&&&&&&&
+      //Full Tk
+      //&&&&&&&&&&&&&
+      
+      if (BC.at(i).BadModule) 
+	NTkBadComponent[0]++;
+      if (BC.at(i).BadFibers) 
+	NTkBadComponent[1]+= ( (BC.at(i).BadFibers>>2)&0x1 )+ ( (BC.at(i).BadFibers>>1)&0x1 ) + ( (BC.at(i).BadFibers)&0x1 );
+      if (BC.at(i).BadApvs)
+	NTkBadComponent[2]+= ( (BC.at(i).BadApvs>>5)&0x1 )+ ( (BC.at(i).BadApvs>>4)&0x1 ) + ( (BC.at(i).BadApvs>>3)&0x1 ) + 
+	  ( (BC.at(i).BadApvs>>2)&0x1 )+ ( (BC.at(i).BadApvs>>1)&0x1 ) + ( (BC.at(i).BadApvs)&0x1 );
+      
+      //&&&&&&&&&&&&&&&&&
+      //Single SubSyste
+      //&&&&&&&&&&&&&&&&&
+      int component;
+      DetId detectorId=DetId(BC.at(i).detid);
+      int subDet = detectorId.subdetId();
+      if ( subDet == StripSubdetector::TIB ){
+	//&&&&&&&&&&&&&&&&&
+	//TIB
+	//&&&&&&&&&&&&&&&&&
+	
+	component=m_trackerTopo.tibLayer(BC.at(i).detid);
+	SiStripPI::setBadComponents(0, component, BC.at(i),NBadComponent);         
+	  
+      } else if ( subDet == StripSubdetector::TID ) {
+	//&&&&&&&&&&&&&&&&&
+	//TID
+	//&&&&&&&&&&&&&&&&&
+	  
+	component=m_trackerTopo.tidSide(BC.at(i).detid)==2?m_trackerTopo.tidWheel(BC.at(i).detid):m_trackerTopo.tidWheel(BC.at(i).detid)+3;
+	SiStripPI::setBadComponents(1, component, BC.at(i),NBadComponent);         
+	
+      } else if ( subDet == StripSubdetector::TOB ) {
+	//&&&&&&&&&&&&&&&&&
+	//TOB
+	//&&&&&&&&&&&&&&&&&
+	
+	component=m_trackerTopo.tobLayer(BC.at(i).detid);
+	SiStripPI::setBadComponents(2, component, BC.at(i),NBadComponent);         
+	
+      } else if ( subDet == StripSubdetector::TEC ) {
+	//&&&&&&&&&&&&&&&&&
+	//TEC
+	//&&&&&&&&&&&&&&&&&
+	  
+	component=m_trackerTopo.tecSide(BC.at(i).detid)==2?m_trackerTopo.tecWheel(BC.at(i).detid):m_trackerTopo.tecWheel(BC.at(i).detid)+9;
+	SiStripPI::setBadComponents(3, component, BC.at(i),NBadComponent);         
+      }    
+    }
+
+    //&&&&&&&&&&&&&&&&&&
+    // Single Strip Info
+    //&&&&&&&&&&&&&&&&&&
+
+    edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+    SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+
+    float percentage=0;
+    
+    SiStripQuality::RegistryIterator rbegin = siStripQuality_->getRegistryVectorBegin();
+    SiStripQuality::RegistryIterator rend   = siStripQuality_->getRegistryVectorEnd();
+    
+    for (SiStripBadStrip::RegistryIterator rp=rbegin; rp != rend; ++rp) {
+      uint32_t detid=rp->detid;
+      
+      int subdet=-999; int component=-999;
+      DetId detectorId=DetId(detid);
+      int subDet = detectorId.subdetId();
+      if ( subDet == StripSubdetector::TIB ){
+	subdet=0;
+	component=m_trackerTopo.tibLayer(detid);
+      } else if ( subDet == StripSubdetector::TID ) {
+	subdet=1;
+	component=m_trackerTopo.tidSide(detid)==2?m_trackerTopo.tidWheel(detid):m_trackerTopo.tidWheel(detid)+3;
+      } else if ( subDet == StripSubdetector::TOB ) {
+	subdet=2;
+	component=m_trackerTopo.tobLayer(detid);
+      } else if ( subDet == StripSubdetector::TEC ) {
+	subdet=3;
+	component=m_trackerTopo.tecSide(detid)==2?m_trackerTopo.tecWheel(detid):m_trackerTopo.tecWheel(detid)+9;
+      } 
+      
+      SiStripQuality::Range sqrange = SiStripQuality::Range( siStripQuality_->getDataVectorBegin()+rp->ibegin , siStripQuality_->getDataVectorBegin()+rp->iend );
+        
+      percentage=0;
+      for(int it=0;it<sqrange.second-sqrange.first;it++){
+	unsigned int range=siStripQuality_->decode( *(sqrange.first+it) ).range;
+	NTkBadComponent[3]+=range;
+	NBadComponent[subdet][0][3]+=range;
+	NBadComponent[subdet][component][3]+=range;
+	percentage+=range;
+      }
+      if(percentage!=0)
+	percentage/=128.*reader->getNumberOfApvsAndStripLength(detid).first;
+      if(percentage>1)
+	edm::LogError("SiStripBadStrip_PayloadInspector") << "PROBLEM detid " << detid << " value " << percentage<< std::endl;
+    }
+
+    delete reader;
+    
+  }
+
+  /*--------------------------------------------------------------------*/
+  void printBCDebug(int NTkBadComponent[4], int NBadComponent[4][19][4])
+  /*--------------------------------------------------------------------*/
+  {
+    //&&&&&&&&&&&&&&&&&&
+    // printout
+    //&&&&&&&&&&&&&&&&&&
+      
+    std::stringstream ss;
+    ss.str("");
+    ss << "\n-----------------\nGlobal Info\n-----------------";
+    ss << "\nBadComponent \t   Modules \tFibers \tApvs\tStrips\n----------------------------------------------------------------";
+    ss << "\nTracker:\t\t"<<NTkBadComponent[0]<<"\t"<<NTkBadComponent[1]<<"\t"<<NTkBadComponent[2]<<"\t"<<NTkBadComponent[3];
+    ss<< "\n";
+    ss << "\nTIB:\t\t\t"<<NBadComponent[0][0][0]<<"\t"<<NBadComponent[0][0][1]<<"\t"<<NBadComponent[0][0][2]<<"\t"<<NBadComponent[0][0][3];
+    ss << "\nTID:\t\t\t"<<NBadComponent[1][0][0]<<"\t"<<NBadComponent[1][0][1]<<"\t"<<NBadComponent[1][0][2]<<"\t"<<NBadComponent[1][0][3];
+    ss << "\nTOB:\t\t\t"<<NBadComponent[2][0][0]<<"\t"<<NBadComponent[2][0][1]<<"\t"<<NBadComponent[2][0][2]<<"\t"<<NBadComponent[2][0][3];
+    ss << "\nTEC:\t\t\t"<<NBadComponent[3][0][0]<<"\t"<<NBadComponent[3][0][1]<<"\t"<<NBadComponent[3][0][2]<<"\t"<<NBadComponent[3][0][3];
+    ss << "\n";
+      
+    for (int i=1;i<5;++i)
+      ss << "\nTIB Layer " << i   << " :\t\t"<<NBadComponent[0][i][0]<<"\t"<<NBadComponent[0][i][1]<<"\t"<<NBadComponent[0][i][2]<<"\t"<<NBadComponent[0][i][3];
+    ss << "\n";
+    for (int i=1;i<4;++i)
+      ss << "\nTID+ Disk " << i   << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
+    for (int i=4;i<7;++i)
+      ss << "\nTID- Disk " << i-3 << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
+    ss << "\n";
+    for (int i=1;i<7;++i)
+      ss << "\nTOB Layer " << i   << " :\t\t"<<NBadComponent[2][i][0]<<"\t"<<NBadComponent[2][i][1]<<"\t"<<NBadComponent[2][i][2]<<"\t"<<NBadComponent[2][i][3];
+    ss << "\n";
+    for (int i=1;i<10;++i)
+      ss << "\nTEC+ Disk " << i   << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
+    for (int i=10;i<19;++i)
+      ss << "\nTEC- Disk " << i-9 << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
+    ss<< "\n";
+    
+    //edm::LogInfo("SiStripBadStrip_PayloadInspector") << ss.str() << std::endl;
+    std::cout<<  ss.str() << std::endl;
+
   }
 
 
