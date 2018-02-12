@@ -35,14 +35,15 @@ class ME0RawToDigiModule : public edm::global::EDProducer<edm::RunCache<ME0ROmap
   std::shared_ptr<ME0ROmap> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;  
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
   void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {};
-
+  
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
-
+  
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
   bool useDBEMap_;
+
 };
 DEFINE_FWK_MODULE(ME0RawToDigiModule);
 #endif
