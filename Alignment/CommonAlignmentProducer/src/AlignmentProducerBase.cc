@@ -925,8 +925,6 @@ AlignmentProducerBase::finish()
     return false;
   }
 
-  for (const auto& iCal:calibrations_) iCal->endOfJob();
-
   if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_) {
     if (alignmentAlgo_->storeAlignments()) storeAlignmentsToDB();
   } else {
@@ -934,6 +932,10 @@ AlignmentProducerBase::finish()
       << "@SUB=AlignmentProducerBase::finish"
       << "No payload to be stored!";
   }
+
+  // takes care of storing output of calibrations, but needs to be called only
+  // after 'storeAlignmentsToDB()'
+  for (const auto& iCal:calibrations_) iCal->endOfJob();
 
   return true;
 }
