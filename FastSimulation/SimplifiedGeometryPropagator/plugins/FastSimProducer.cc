@@ -84,8 +84,8 @@ class FastSimProducer : public edm::stream::EDProducer<> {
     std::unique_ptr<RandomEngineAndDistribution> _randomEngine;  //!< The random engine
 
     bool simulateCalorimetry;
-    edm::ESWatcher<CaloGeometryRecord> watchCaloGeometry_;  //!< Watch calorimeter geometry
-    edm::ESWatcher<CaloTopologyRecord> watchCaloTopology_;  //!< Watch calorimeter geometry
+    edm::ESWatcher<CaloGeometryRecord> watchCaloGeometry_;  
+    edm::ESWatcher<CaloTopologyRecord> watchCaloTopology_;  
     std::unique_ptr<CalorimetryManager> myCalorimetry; // unfortunately, default constructor cannot be called 
     bool simulateMuons;    
 
@@ -201,7 +201,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(simulateCalorimetry)
     {
         if(watchCaloGeometry_.check(iSetup) || watchCaloTopology_.check(iSetup)){
-           edm::ESHandle<CaloGeometry> pG;
+            edm::ESHandle<CaloGeometry> pG;
             iSetup.get<CaloGeometryRecord>().get(pG);   
             myCalorimetry->getCalorimeter()->setupGeometry(*pG); 
                 
