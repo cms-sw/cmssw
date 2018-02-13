@@ -73,6 +73,9 @@ class SiPixelGainCalibrationForHLT {
   float getPedLow() const { return minPed_; }
   float getPedHigh() const { return maxPed_; }
 
+  std::vector<char> const & data() const { return v_pedestals;}
+  std::vector<DetRegistry> const & getIndexes() const { return indexes; }
+
   // Set and get public methods
   void  setData(float ped, float gain, std::vector<char>& vped, bool thisColumnIsDead = false, bool thisColumnIsNoisy = false);
   void  setDeadColumn(const int& nRows, std::vector<char>& vped)  { setData(0, 0 /*dummy values, not used*/, vped, true, false); }
