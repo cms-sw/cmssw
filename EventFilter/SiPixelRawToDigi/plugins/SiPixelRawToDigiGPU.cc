@@ -47,6 +47,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+
 #include "EventInfoGPU.h"
 #include "RawToDigiGPU.h"
 #include "SiPixelFedCablingMapGPU.h"
@@ -60,7 +61,8 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
   : config_(conf),
     badPixelInfo_(nullptr),
     regions_(nullptr),
-    hCPU(nullptr), hDigi(nullptr)
+    hCPU(nullptr), hDigi(nullptr),
+    theSiPixelGainCalibration_(conf)
 {
 
   includeErrors = config_.getParameter<bool>("IncludeErrors");
@@ -72,6 +74,7 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
     usererrorlist = config_.getParameter<std::vector<int> > ("UserErrorList");
   }
   tFEDRawDataCollection = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
+
 
   //start counters
   ndigis = 0;
@@ -181,6 +184,11 @@ SiPixelRawToDigiGPU::~SiPixelRawToDigiGPU() {
   // release device memory for cabling map
   deallocateCablingMap(cablingMapGPUHost_, cablingMapGPUDevice_);
 
+  // free gains device memory
+  cudaCheck(cudaFree(gainForHLTonGPU_));
+  cudaCheck(cudaFree(gainDataOnGPU_));
+
+
   // free device memory used for RawToDigi on GPU
   freeMemory(context_);
 
@@ -229,6 +237,11 @@ SiPixelRawToDigiGPU::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 void
 SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
 {
+
+   //Setup gain calibration service
+   theSiPixelGainCalibration_.setESObjects( es );
+
+
   int theWordCounter = 0;
   int theDigiCounter = 0;
   const uint32_t dummydetid = 0xffffffff;
@@ -260,15 +273,19 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
     edm::ESHandle<TrackerGeometry> geom;
     // get the TrackerGeom
     es.get<TrackerDigiGeometryRecord>().get( geom );
-    
+
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMapLabel, cablingMap ); //Tav
     fedIds   = cablingMap->fedIds();
     cabling_ = cablingMap->cablingTree();
     LogDebug("map version:") << cabling_->version();
+
     // convert the cabling map to a GPU-friendly version
     processCablingMap(*cablingMap, *geom.product(), cablingMapGPUHost_, cablingMapGPUDevice_, badPixelInfo_, modules);
+    
+    processGainCalibration(theSiPixelGainCalibration_.payload(), *geom.product(), gainForHLTonGPU_, gainDataOnGPU_);
+
   }
 
   edm::Handle<FEDRawDataCollection> buffers;

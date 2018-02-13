@@ -39,7 +39,7 @@ class SiPixelGainForHLTonGPU {
   constexpr float decodeGain(unsigned int gain) const {return gain*gainPrecision + minGain_;}
   constexpr float decodePed (unsigned int ped) const { return ped*pedPrecision + minPed_;}
 
-  unsigned char * v_pedestals;
+  char * v_pedestals;
   std::pair<Range, int> rangeAndCols[2000];
 
   float  minPed_, maxPed_, minGain_, maxGain_;

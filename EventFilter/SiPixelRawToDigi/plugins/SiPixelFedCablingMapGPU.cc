@@ -14,7 +14,10 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainForHLTonGPU.h"
 
 void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry const& trackerGeom,
                        SiPixelFedCablingMapGPU* cablingMapGPU, SiPixelFedCablingMapGPU* cablingMapDevice, 
@@ -74,6 +77,8 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry 
 
 
   cudaDeviceSynchronize();
+
+
   for (int i = 1; i < index; i++) {
     if (RawId[i] == 9999) {
       moduleId[i] = 9999;
@@ -106,3 +111,51 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry 
   cudaDeviceSynchronize();
 }
 
+void
+processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeometry const& geom, SiPixelGainForHLTonGPU * & gainsOnGPU, char * & gainDataOnGPU) {
+
+
+  // bizzarre logic (looking for fist strip-det) don't ask
+   auto const & dus = geom.detUnits();
+   unsigned m_detectors = dus.size();
+   for(unsigned int i=1;i<7;++i) {
+      if(geom.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() &&
+         dus[geom.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
+         if(geom.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_detectors) m_detectors = geom.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
+      }
+   }
+   
+   std::cout<<"caching calibs for "<<m_detectors<<" pixel detectors"<< std::endl;
+
+  SiPixelGainForHLTonGPU gg;
+
+  cudaCheck(cudaMalloc((void**) & gainDataOnGPU, gains.data().size()));
+  cudaCheck(cudaMalloc((void**) &gainsOnGPU,sizeof(SiPixelGainForHLTonGPU)));
+
+  gg.v_pedestals = gainDataOnGPU;
+
+  cudaCheck(cudaMemcpy(gainDataOnGPU,gains.data().data(),gains.data().size(), cudaMemcpyHostToDevice));
+
+  gg.minPed_ = gains.getPedLow();
+  gg.maxPed_ = gains.getPedHigh();
+  gg.minGain_= gains.getGainLow();
+  gg.maxGain_= gains.getGainHigh();
+
+  gg.numberOfRowsAveragedOver_ = 80;
+  gg.nBinsToUseForEncoding_ =  253;
+  gg.deadFlag_ = 255;
+  gg.noisyFlag_ = 254;
+
+  gg.pedPrecision  = (gg.maxPed_-gg.minPed_)/static_cast<float>(gg.nBinsToUseForEncoding_);
+  gg.gainPrecision = (gg.maxGain_-gg.minGain_)/static_cast<float>(gg.nBinsToUseForEncoding_);
+
+  // fill the index map
+  auto ind = gains.getIndexes();  
+  assert(gains.data().size()==m_detectors);
+
+  cudaCheck(cudaMemcpy(gainsOnGPU,&gg,sizeof(SiPixelGainForHLTonGPU), cudaMemcpyHostToDevice));
+
+  
+  cudaDeviceSynchronize();
+
+}

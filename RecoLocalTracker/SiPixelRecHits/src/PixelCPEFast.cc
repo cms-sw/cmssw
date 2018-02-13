@@ -96,6 +96,7 @@ void PixelCPEFast::fillParamsForGpu() {
   m_commonParamsGPU.thePitchX = m_DetParams[0].thePitchX;
   m_commonParamsGPU.thePitchY = m_DetParams[0].thePitchY;
 
+  uint32_t oldLayer = 0;
   m_detParamsGPU.resize(m_DetParams.size());
   for (auto i=0U; i<m_DetParams.size(); ++i) {
     auto & p=m_DetParams[i];
@@ -118,6 +119,10 @@ void PixelCPEFast::fillParamsForGpu() {
     // if (m_commonParamsGPU.theThickness!=p.theThickness)   
     //  std::cout << i << (g.isBarrel ? "B " : "E ") << m_commonParamsGPU.theThickness<<"!="<<p.theThickness << std::endl;
 
+    if (oldLayer != g.layer) {
+      oldLayer = g.layer;
+      std::cout << "new layer at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << g.layer << std::endl;
+    }
 
     g.shiftX = 0.5f*p.lorentzShiftInCmX;
     g.shiftY = 0.5f*p.lorentzShiftInCmY;
