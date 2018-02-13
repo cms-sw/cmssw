@@ -99,6 +99,8 @@ class EcalEndcapGeometry final: public CaloSubdetectorGeometry
 			    const CCGFloat*    parm ,
 			    const DetId&       detId   ) override ;
 
+      bool present( const DetId& id ) const override;
+
    protected:
 
       // Modify the RawPtr class
