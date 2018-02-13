@@ -19,7 +19,7 @@ public:
   DT2DSegmentClients(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~DT2DSegmentClients();
+  ~DT2DSegmentClients() override;
 
 protected:
   /// End Job

@@ -17,9 +17,8 @@ class DTRecHitClients: public DQMEDHarvester {
 public:
   /// Constructor
   DTRecHitClients(const edm::ParameterSet& ps);
-
   /// Destructor
-  ~ DTRecHitClients();
+  ~DTRecHitClients() override;
 
 protected:
   /// End Job

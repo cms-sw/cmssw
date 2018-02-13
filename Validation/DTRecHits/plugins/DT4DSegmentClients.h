@@ -18,7 +18,7 @@ public:
   /// Constructor
   DT4DSegmentClients(const edm::ParameterSet& ps);
   /// Destructor
-  virtual ~DT4DSegmentClients();
+  ~DT4DSegmentClients() override;
 
 protected:
   /// End Job
