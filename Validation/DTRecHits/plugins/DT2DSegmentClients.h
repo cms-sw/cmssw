@@ -9,21 +9,26 @@
  *   
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class DT2DSegmentClients: public edm::EDAnalyzer {
-public:
+class DT2DSegmentClients: public DQMEDHarvester {
+
+public: 
   /// Constructor
   DT2DSegmentClients(const edm::ParameterSet& ps);
 
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-      edm::EventSetup const& c) override;
+  /// Destructor
+  virtual ~DT2DSegmentClients();
+
+protected:
+  /// End Job
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+
+private:
+  bool do2D_;
+  bool doSLPhi_;
+
 };
 
 #endif // Validation_DTRecHits_DT2DSegmentClients_h

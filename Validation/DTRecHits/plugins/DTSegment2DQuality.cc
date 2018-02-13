@@ -61,18 +61,8 @@ void DTSegment2DQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm
   histograms.h2DHitEff_RZ_W2 = new HEff2DHit ("RZ_W2", booker);
   if (debug_) {
     cout << "[DTSegment2DQuality] hitsos created " << endl;
+  }
 }
-}
-
-/* FIXME these shoud be moved to the harvesting step
-void DTSegment2DQuality::endJob() {
-  histograms.h2DHitEff_RPhi->computeEfficiency();
-  histograms.h2DHitEff_RZ->computeEfficiency();
-  histograms.h2DHitEff_RZ_W0->computeEfficiency();
-  histograms.h2DHitEff_RZ_W1->computeEfficiency();
-  histograms.h2DHitEff_RZ_W2->computeEfficiency();
-}
-*/
 
 // The real analysis
 void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const {
@@ -265,7 +255,7 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
         hEff = histograms.h2DHitEff_RZ_W1;
       } else if (abs((*slId).wheel()) == 2) {
         hEff = histograms.h2DHitEff_RZ_W2;
-}
+      }
     }
     hEff->fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
   } // End of loop over superlayers

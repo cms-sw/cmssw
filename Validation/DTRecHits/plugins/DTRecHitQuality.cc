@@ -51,8 +51,8 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset) {
   doStep1_ = pset.getUntrackedParameter<bool>("doStep1", false);
   doStep2_ = pset.getUntrackedParameter<bool>("doStep2", false);
   doStep3_ = pset.getUntrackedParameter<bool>("doStep3", false);
-  doall_   = pset.getUntrackedParameter<bool>("doall", false);
-  local_   = pset.getUntrackedParameter<bool>("local", true);
+  doall_ = pset.getUntrackedParameter<bool>("doall", false);
+  local_ = pset.getUntrackedParameter<bool>("local", true);
 }
 
 void DTRecHitQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
@@ -123,35 +123,6 @@ void DTRecHitQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::R
     }
   }
 }
-
-/* FIXME these shoud be moved to the harvesting step
-void DTRecHitQuality::endRun(... histograms) {
-  // Write the histos to file
-  if (doall_) {
-    if (doStep1_) {
-      histograms.hEff_S1RPhi->computeEfficiency();
-      histograms.hEff_S1RZ->computeEfficiency();
-      histograms.hEff_S1RZ_W0->computeEfficiency();
-      histograms.hEff_S1RZ_W1->computeEfficiency();
-      histograms.hEff_S1RZ_W2->computeEfficiency();
-    }
-    if (doStep2_) {
-      histograms.hEff_S2RPhi->computeEfficiency();
-      histograms.hEff_S2RZ->computeEfficiency();
-      histograms.hEff_S2RZ_W0->computeEfficiency();
-      histograms.hEff_S2RZ_W1->computeEfficiency();
-      histograms.hEff_S2RZ_W2->computeEfficiency();
-    }
-    if (doStep3_) {
-      histograms.hEff_S3RPhi->computeEfficiency();
-      histograms.hEff_S3RZ->computeEfficiency();
-      histograms.hEff_S3RZ_W0->computeEfficiency();
-      histograms.hEff_S3RZ_W1->computeEfficiency();
-      histograms.hEff_S3RZ_W2->computeEfficiency();
-    }
-  }
-}
-*/
 
 // The real analysis
 void DTRecHitQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const {

@@ -9,20 +9,24 @@
  *   
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class DT4DSegmentClients: public edm::EDAnalyzer {
+class DT4DSegmentClients: public DQMEDHarvester {
+
 public:
   /// Constructor
   DT4DSegmentClients(const edm::ParameterSet& ps);
+  /// Destructor
+  virtual ~DT4DSegmentClients();
 
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c) override;
+protected:
+  /// End Job
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+
+private:
+  bool doall_;
+
 };
 
 #endif // Validation_DTRecHits_DT4DSegmentClients_h

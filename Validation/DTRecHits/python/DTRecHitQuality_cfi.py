@@ -13,7 +13,6 @@ rechivalidation = cms.EDAnalyzer("DTRecHitQuality",
     segment4DLabel = cms.untracked.InputTag('dt4DSegments'),
     doall = cms.untracked.bool(False),
     local = cms.untracked.bool(False)
-
 )
 
 seg2dvalidation = cms.EDAnalyzer("DTSegment2DQuality",
