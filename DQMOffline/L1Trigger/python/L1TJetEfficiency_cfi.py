@@ -1,22 +1,14 @@
 import FWCore.ParameterSet.Config as cms
-from DQMOffline.L1Trigger import L1TStage2CaloLayer2Offline_cfi as L1TStep1
+from DQMOffline.L1Trigger import L1TEtSumJetOffline_cfi as L1TStep1
 
 variables = {
     'jet': L1TStep1.jetEfficiencyThresholds,
-    'met': L1TStep1.metEfficiencyThresholds,
-    'mht': L1TStep1.mhtEfficiencyThresholds,
-    'ett': L1TStep1.ettEfficiencyThresholds,
-    'htt': L1TStep1.httEfficiencyThresholds,
 }
 
 plots = {
     'jet': [
         "efficiencyJetEt_HB", "efficiencyJetEt_HE", "efficiencyJetEt_HF",
         "efficiencyJetEt_HB_HE"],
-    'met': ['efficiencyMET', 'efficiencyETMHF'],
-    'mht': ['efficiencyMHT'],
-    'ett': ['efficiencyETT'],
-    'htt': ['efficiencyHTT'],
 }
 
 allEfficiencyPlots = []
@@ -28,11 +20,11 @@ for variable, thresholds in variables.iteritems():
             add_plot(plotName)
 
 from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import l1tEfficiencyHarvesting
-l1tStage2CaloLayer2Efficiency = l1tEfficiencyHarvesting.clone(
+l1tJetEfficiency = l1tEfficiencyHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
-            numeratorDir=cms.untracked.string("L1T/L1TStage2CaloLayer2/efficiency_raw"),
-            outputDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
+            numeratorDir=cms.untracked.string("L1T/L1TObjects/L1TJet/L1TriggerVsReco/efficiency_raw"),
+            outputDir=cms.untracked.string("L1T/L1TObjects/L1TJet/L1TriggerVsReco"),
             numeratorSuffix=cms.untracked.string("_Num"),
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots)
@@ -40,11 +32,11 @@ l1tStage2CaloLayer2Efficiency = l1tEfficiencyHarvesting.clone(
     )
 )
 
-l1tStage2CaloLayer2EmuEfficiency = l1tEfficiencyHarvesting.clone(
+l1tJetEmuEfficiency = l1tEfficiencyHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
-            numeratorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2/efficiency_raw"),
-            outputDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
+            numeratorDir=cms.untracked.string("L1TEMU/L1TObjects/L1TJet/L1TriggerVsReco/efficiency_raw"),
+            outputDir=cms.untracked.string("L1TEMU/L1TObjects/L1TJet/L1TriggerVsReco"),
             numeratorSuffix=cms.untracked.string("_Num"),
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots)
@@ -65,12 +57,12 @@ for variable, thresholds in variables_HI.iteritems():
             add_plot(plotName)
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
-ppRef_2017.toModify(l1tStage2CaloLayer2Efficiency,
+ppRef_2017.toModify(l1tJetEfficiency,
     plotCfgs = {
         0:dict(plots = allEfficiencyPlots_HI),
     }
 )
-ppRef_2017.toModify(l1tStage2CaloLayer2EmuEfficiency,
+ppRef_2017.toModify(l1tJetEmuEfficiency,
     plotCfgs = {
         0:dict(plots = allEfficiencyPlots_HI),
     }
