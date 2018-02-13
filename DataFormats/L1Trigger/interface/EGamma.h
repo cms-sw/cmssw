@@ -21,7 +21,7 @@ namespace l1t {
   class EGamma : public L1Candidate {
 
   public:
-    EGamma(){}
+    EGamma(){ clear_extended(); }
 
     // ctor from base allowed, but note that extended variables will be set to zero:
     EGamma(const L1Candidate& rhs):L1Candidate(rhs){ clear_extended(); } 
