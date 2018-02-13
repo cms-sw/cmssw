@@ -53,12 +53,6 @@ void DTSegment2DSLPhiQuality::bookHistograms(DQMStore::ConcurrentBooker & booker
 }
 }
 
-/* FIXME these shoud be moved to the harvesting step
-void DTSegment2DSLPhiQuality::endJob() {
-   if (doall_) histograms.h2DHitEff_SuperPhi->computeEfficiency();
-}
-*/
-
 // The real analysis
 void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const {
   // Get the DT Geometry

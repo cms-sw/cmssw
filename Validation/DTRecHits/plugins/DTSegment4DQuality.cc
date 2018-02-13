@@ -86,17 +86,6 @@ void DTSegment4DQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm
   }
 };
 
-/* FIXME these shoud be moved to the harvesting step
-void DTSegment4DQuality::endJob() {
-  if (doall_) {
-    histograms.hEff_All->computeEfficiency();
-    histograms.hEff_W0->computeEfficiency();
-    histograms.hEff_W1->computeEfficiency();
-    histograms.hEff_W2->computeEfficiency();
-  }
-}
-*/
-
 // The real analysis
 void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const {
   const float epsilon = 5e-5; // numerical accuracy on angles [rad}

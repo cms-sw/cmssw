@@ -15,28 +15,30 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //---------------------------------------------------------------------------------------
 /// Function to fill an efficiency histograms with binomial errors
 inline
-TH1F* divide(const TH1F * numerator, const TH1F * denominator, std::string const& name, std::string const& title)
+void divide(MonitorElement* eff, const MonitorElement * numerator, const MonitorElement * denominator)
 {
-  auto* ratio = static_cast<TH1F *>(numerator->Clone());
-  ratio->SetName(name.c_str());
-  ratio->SetTitle(title.c_str());
-  ratio->Divide(denominator);
+  TH1 * effH = eff->getTH1();
+  TH1 * numH = numerator->getTH1();
+  TH1 * denH = denominator->getTH1();
+  effH->Divide(numH,denH);
+
   // Set the error accordingly to binomial statistics
-  int bins = ratio->GetNbinsX();
+  int bins = effH->GetNbinsX();
   for (int bin = 1; bin <= bins; ++bin) {
-    float den = denominator->GetBinContent(bin);
-    float eff = ratio->GetBinContent(bin);
+    float den = denH->GetBinContent(bin);
+    float eff = effH->GetBinContent(bin);
     float err = 0;
     if (den != 0) {
       err = sqrt(eff*(1-eff)/den);
     }
-    ratio->SetBinError(bin, err);
+    effH->SetBinError(bin, err);
   }
-  return ratio;
+  return;
 }
 
 //---------------------------------------------------------------------------------------
@@ -127,6 +129,7 @@ class HRes1DHit {
 };
 
 //---------------------------------------------------------------------------------------
+/// A set of histograms fo efficiency computation for 1D RecHits (producer)
 class HEff1DHit {
   public:
     HEff1DHit(const std::string& name, DQMStore::ConcurrentBooker & booker) {
@@ -135,14 +138,10 @@ class HEff1DHit {
       name_ = pre;
       booker.setCurrentFolder("DT/1DRecHits/");
       hEtaMuSimHit  = booker.book1D(pre + "_hEtaMuSimHit", "SimHit Eta distribution", 100, -1.5, 1.5);
-      hEtaRecHit    = booker.book1D(pre + "_hEtaRecHit", "SimHit Eta distribution with 1D RecHit", 100, -1.5, 1.5);
-      //hEffVsEta = nullptr;
       hPhiMuSimHit  = booker.book1D(pre + "_hPhiMuSimHit", "SimHit Phi distribution", 100, -M_PI, M_PI);
       hPhiRecHit    = booker.book1D(pre + "_hPhiRecHit", "SimHit Phi distribution with 1D RecHit", 100, -M_PI, M_PI);
-      //hEffVsPhi = nullptr;
       hDistMuSimHit = booker.book1D(pre + "_hDistMuSimHit", "SimHit Distance from wire distribution", 100, 0, 2.5);
       hDistRecHit   = booker.book1D(pre + "_hDistRecHit", "SimHit Distance from wire distribution with 1D RecHit", 100, 0, 2.5);
-      //hEffVsDist = nullptr;
     }
 
     void fill(float distSimHit,
@@ -160,32 +159,53 @@ class HEff1DHit {
       }
     }
 
-    /* FIXME these shoud be moved to the harvesting step
-    void computeEfficiency() {
-      hEffVsEta  = divide(hEtaRecHit, hEtaMuSimHit, name_ + "_hEffVsEta", "1D RecHit Efficiency as a function of Eta");
-      hEffVsPhi  = divide(hPhiRecHit, hPhiMuSimHit, name_ + "_hEffVsPhi", "1D RecHit Efficiency as a function of Phi");
-      hEffVsDist = divide(hDistRecHit, hDistMuSimHit, name_ + "_hEffVsDist", "1D RecHit Efficiency as a function of Dist");
-    }
-    */
-
   private:
     ConcurrentMonitorElement hEtaMuSimHit;
     ConcurrentMonitorElement hEtaRecHit;
-    //TH1F* hEffVsEta;
 
     ConcurrentMonitorElement hPhiMuSimHit;
     ConcurrentMonitorElement hPhiRecHit;
-    //TH1F* hEffVsPhi;
 
     ConcurrentMonitorElement hDistMuSimHit;
     ConcurrentMonitorElement hDistRecHit;
-    //TH1F* hEffVsDist;
 
     std::string name_;
 };
 
-//---------------------------------------------------------------//
+//---------------------------------------------------------------------------------------
+/// A set of histograms fo efficiency computation for 1D RecHits (harvesting)
+class HEff1DHitHarvest {
+ public:
+    HEff1DHitHarvest(const std::string & name, 
+		     DQMStore::IBooker & booker, 
+		     DQMStore::IGetter & getter) {
+      std::string pre ="1D_";
+      pre += name;
+      name_ = pre;
+      booker.setCurrentFolder("DT/1DRecHits/");
+      hEffVsEta  = booker.book1D(pre + "_hEffVsEta",  "1D RecHit Efficiency as a function of Eta",  100, -1.5, 1.5);
+      hEffVsPhi  = booker.book1D(pre + "_hEffVsPhi",  "1D RecHit Efficiency as a function of Phi",  100, -M_PI, M_PI);
+      hEffVsDist = booker.book1D(pre + "_hEffVsDist", "1D RecHit Efficiency as a function of Dist", 100, 0, 2.5); 
 
+      computeEfficiency(getter);
+    }
+
+    void computeEfficiency(DQMStore::IGetter& getter) {
+      std::string pre = "DT/1DRecHits/" + name_;
+      divide(hEffVsEta,  getter.get(pre + "_hEtaMuRecHit"),  getter.get(pre + "_hEtaMuSimHit"));
+      divide(hEffVsPhi,  getter.get(pre + "_hPhiMuRecHit"),  getter.get(pre + "_hPhiMuSimHit"));
+      divide(hEffVsDist, getter.get(pre + "_hDistMuRecHit"), getter.get(pre + "_hDistMuSimHit"));
+    }
+    
+ private:
+    MonitorElement* hEffVsEta;
+    MonitorElement* hEffVsPhi;
+    MonitorElement* hEffVsDist;
+
+    std::string name_;
+};
+
+//---------------------------------------------------------------------------------------
 // Histos of residuals for 2D rechits
 class HRes2DHit {
   public:
@@ -266,9 +286,8 @@ class HRes2DHit {
     bool doall_;
 };
 
-//--------------------------------------------------------------------------------//
-
-// Histos for 2D RecHit efficiency
+//---------------------------------------------------------------------------------------
+// Histos for 2D RecHit efficiency (producer)
 class HEff2DHit {
   public:
     HEff2DHit(const std::string& name, DQMStore::ConcurrentBooker & booker) {
@@ -278,16 +297,12 @@ class HEff2DHit {
       booker.setCurrentFolder("DT/2DSegments/");
       hEtaSimSegm = booker.book1D(pre + "_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit = booker.book1D(pre + "_hEtaRecHit", "Eta distribution of SimHit segment with 2D RecHit", 100, -1.5, 1.5);
-      //EffVsEta = nullptr;
       hPhiSimSegm = booker.book1D(pre + "_hPhiSimSegm", "Phi of SimHit segment", 100, -M_PI, M_PI);
       hPhiRecHit = booker.book1D(pre + "_hPhiRecHit", "Phi distribution of SimHit segment with 2D RecHit", 100, -M_PI, M_PI);
-      //hEffVsPhi = nullptr;
       hPosSimSegm = booker.book1D(pre + "_hPosSimSegm", "Position in SL of SimHit segment (cm)", 100, -250, 250);
       hPosRecHit = booker.book1D(pre + "_hPosRecHit", "Position in SL of SimHit segment with 2D RecHit (cm)", 100, -250, 250);
-      //hEffVsPos = nullptr;
       hAngleSimSegm = booker.book1D(pre + "_hAngleSimSegm", "Angle of SimHit segment (rad)", 100, -2, 2);
       hAngleRecHit = booker.book1D(pre + "_hAngleRecHit", "Angle of SimHit segment with 2D RecHit (rad)", 100, -2, 2);
-      //hEffVsAngle = nullptr;
     }
 
     void fill(float etaSimSegm,
@@ -309,28 +324,51 @@ class HEff2DHit {
       }
     }
 
-    /* FIXME these shoud be moved to the harvesting step
-    void computeEfficiency() {
-      hEffVsEta   = divide(hEtaRecHit, hEtaSimSegm, name_ + "_hEffVsEta", "2D RecHit Efficiency as a function of Eta");
-      hEffVsPhi   = divide(hPhiRecHit, hPhiSimSegm, name_ + "_hEffVsPhi", "2D RecHit Efficiency as a function of Phi");
-      hEffVsPos   = divide(hPosRecHit, hPosSimSegm, name_ + "_hEffVsPos", "2D RecHit Efficiency as a function of position in SL");
-      hEffVsAngle = divide(hAngleRecHit, hAngleSimSegm, name_ + "_hEffVsAngle", "2D RecHit Efficiency as a function of angle");
-    }
-    */
-
   private:
     ConcurrentMonitorElement hEtaSimSegm;
     ConcurrentMonitorElement hEtaRecHit;
-    //TH1F *hEffVsEta;
     ConcurrentMonitorElement hPhiSimSegm;
     ConcurrentMonitorElement hPhiRecHit;
-    //TH1F *hEffVsPhi;
     ConcurrentMonitorElement hPosSimSegm;
     ConcurrentMonitorElement hPosRecHit;
-    //TH1F *hEffVsPos;
     ConcurrentMonitorElement hAngleSimSegm;
     ConcurrentMonitorElement hAngleRecHit;
-    //TH1F *hEffVsAngle;
+
+    std::string name_;
+};
+
+//---------------------------------------------------------------------------------------
+// Histos for 2D RecHit efficiency (harvesting)
+class HEff2DHitHarvest {
+ public:
+    HEff2DHitHarvest(const std::string & name, 
+		     DQMStore::IBooker & booker, 
+		     DQMStore::IGetter & getter) {
+      std::string pre ="2D_";
+      pre += name;
+      name_ = pre;
+      booker.setCurrentFolder("DT/2DSegments/");
+      hEffVsEta   = booker.book1D(pre + "_hEffVsEta", "2D RecHit Efficiency as a function of Eta",  100, -1.5, 1.5);
+      hEffVsPhi   = booker.book1D(pre + "_hEffVsPhi", "2D RecHit Efficiency as a function of Phi",  100, -M_PI, M_PI);
+      hEffVsPos   = booker.book1D(pre + "_hEffVsPos", "2D RecHit Efficiency as a function of position in SL", 100, -250, 250); 
+      hEffVsAngle = booker.book1D(pre + "_hEffVsAngle", "2D RecHit Efficiency as a function of angle", 100, -2, 2); 
+
+      computeEfficiency(getter);
+    }
+
+    void computeEfficiency(DQMStore::IGetter& getter) {
+      std::string pre = "DT/2DSegments/" + name_;
+      divide(hEffVsEta,   getter.get(pre + "_hEtaRecHit"),   getter.get(pre + "_hEtaSimSegm"));
+      divide(hEffVsPhi,   getter.get(pre + "_hPhiRecHit"),   getter.get(pre + "_hPhiSimSegm"));
+      divide(hEffVsPos,   getter.get(pre + "_hPosRecHit"),   getter.get(pre + "_hPosSimSegm"));
+      divide(hEffVsAngle, getter.get(pre + "_hAngleRecHit"), getter.get(pre + "_hAngleSimSegm"));
+    }
+    
+ private:
+    MonitorElement* hEffVsEta;
+    MonitorElement* hEffVsPhi;
+    MonitorElement* hEffVsPos;
+    MonitorElement* hEffVsAngle;
 
     std::string name_;
 };
@@ -462,7 +500,6 @@ class HRes4DHit {
       hResY = booker.book1D(pre + "_hResY", "4D RecHit residual on position (y) in chamber;y_{rec}-y_{sim} (cm)", 150, -0.6, 0.6);
 
       // histo in rz SL reference frame.
-
       hResBetaRZ = booker.book1D(pre + "_hResBetaRZ",
             "4D RecHit residual on beta direction in RZ SL;#alpha^{y}_{rec}-#alpha^{y}_{sim} (rad)",
             200, -0.1, 0.1);
@@ -575,6 +612,7 @@ class HRes4DHit {
         hResXVsResY.fill(resY, resX);
         hResAlphaVsResX.fill(resX, resAlpha);
         hResAlphaVsResY.fill(resY, resAlpha);
+
         // RZ SuperLayer
         hRecBetaRZ.fill(recBetaRZ);
         hSimBetaRZ.fill(simBetaRZ);
@@ -656,7 +694,7 @@ class HRes4DHit {
 };
 
 //---------------------------------------------------------------------------------------
-/// A set of histograms for efficiency 4D RecHits
+/// A set of histograms for efficiency 4D RecHits (producer)
 class HEff4DHit {
   public:
     HEff4DHit(const std::string& name, DQMStore::ConcurrentBooker & booker) {
@@ -666,27 +704,21 @@ class HEff4DHit {
       booker.setCurrentFolder("DT/4DSegments/");
       hEtaSimSegm   = booker.book1D(pre + "_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit    = booker.book1D(pre + "_hEtaRecHit", "Eta distribution of SimHit segment with 4D RecHit", 100, -1.5, 1.5);
-      //hEffVsEta     = nullptr;
 
       hPhiSimSegm   = booker.book1D(pre + "_hPhiSimSegm", "Phi of SimHit segment", 100, -M_PI, M_PI);
       hPhiRecHit    = booker.book1D(pre + "_hPhiRecHit", "Phi distribution of SimHit segment with 4D RecHit", 100, -M_PI, M_PI);
-      //hEffVsPhi     = nullptr;
 
       hXSimSegm     = booker.book1D(pre + "_hXSimSegm", "X position in Chamber of SimHit segment (cm)", 100, -200, 200);
       hXRecHit      = booker.book1D(pre + "_hXRecHit", "X position in Chamber of SimHit segment with 4D RecHit (cm)", 100, -200, 200);
-      //hEffVsX       = nullptr;
 
       hYSimSegm     = booker.book1D(pre + "_hYSimSegm", "Y position in Chamber of SimHit segment (cm)", 100, -200, 200);
       hYRecHit      = booker.book1D(pre + "_hYRecHit", "Y position in Chamber of SimHit segment with 4D RecHit (cm)", 100, -200, 200);
-      //hEffVsY       = nullptr;
 
       hAlphaSimSegm = booker.book1D(pre + "_hAlphaSimSegm", "Alpha of SimHit segment (rad)", 100, -1.5, 1.5);
       hAlphaRecHit  = booker.book1D(pre + "_hAlphaRecHit", "Alpha of SimHit segment with 4D RecHit (rad)", 100, -1.5, 1.5);
-      //hEffVsAlpha   = nullptr;
 
       hBetaSimSegm  = booker.book1D(pre + "_hBetaSimSegm", "Beta of SimHit segment (rad)", 100, -2, 2);
       hBetaRecHit   = booker.book1D(pre + "_hBetaRecHit", "Beta of SimHit segment with 4D RecHit (rad)", 100, -2, 2);
-      //hEffVsBeta    = nullptr;
 
       hNSeg         = booker.book1D(pre + "_hNSeg", "Number of rec segment per sim seg", 20, 0, 20);
 
@@ -719,37 +751,65 @@ class HEff4DHit {
       }
     }
 
-    /* FIXME these shoud be moved to the harvesting step
-    void computeEfficiency() {
-      hEffVsEta   = divide(hEtaRecHit, hEtaSimSegm, name_ + "_hEffVsEta", "4D RecHit Efficiency as a function of Eta");
-      hEffVsPhi   = divide(hPhiRecHit, hPhiSimSegm, name_ + "_hEffVsPhi", "4D RecHit Efficiency as a function of Phi");
-      hEffVsX     = divide(hXRecHit, hXSimSegm, name_ + "_hEffVsX", "4D RecHit Efficiency as a function of x position in Chamber");
-      hEffVsY     = divide(hYRecHit, hYSimSegm, name_ + "_hEffVsY", "4D RecHit Efficiency as a function of y position in Chamber");
-      hEffVsAlpha = divide(hAlphaRecHit, hAlphaSimSegm, name_ + "_hEffVsAlpha", "4D RecHit Efficiency as a function of alpha");
-      hEffVsBeta  = divide(hBetaRecHit, hBetaSimSegm, name_ + "_hEffVsBeta", "4D RecHit Efficiency as a function of beta");
-    }
-    */
-
   private:
     ConcurrentMonitorElement hEtaSimSegm;
     ConcurrentMonitorElement hEtaRecHit;
-    //TH1F *hEffVsEta;
     ConcurrentMonitorElement hPhiSimSegm;
     ConcurrentMonitorElement hPhiRecHit;
-    //TH1F *hEffVsPhi;
     ConcurrentMonitorElement hXSimSegm;
     ConcurrentMonitorElement hXRecHit;
-    //TH1F *hEffVsX;
     ConcurrentMonitorElement hYSimSegm;
     ConcurrentMonitorElement hYRecHit;
-    //TH1F *hEffVsY;
     ConcurrentMonitorElement hAlphaSimSegm;
     ConcurrentMonitorElement hAlphaRecHit;
-    //TH1F *hEffVsAlpha;
     ConcurrentMonitorElement hBetaSimSegm;
     ConcurrentMonitorElement hBetaRecHit;
-    //TH1F *hEffVsBeta;
+
     ConcurrentMonitorElement hNSeg;
+
+    std::string name_;
+};
+
+//---------------------------------------------------------------------------------------
+/// A set of histograms for efficiency 4D RecHits (harvesting)
+class HEff4DHitHarvest {
+ public:
+    HEff4DHitHarvest(const std::string & name, 
+		     DQMStore::IBooker & booker, 
+		     DQMStore::IGetter & getter) {
+      std::string pre ="4D_";
+      pre += name;
+      name_ = pre;
+      booker.setCurrentFolder("DT/4DSegments/");
+      hEffVsEta  = booker.book1D(pre + "_hEffVsEta",  "4D RecHit Efficiency as a function of Eta",  100, -1.5, 1.5);
+      hEffVsPhi  = booker.book1D(pre + "_hEffVsPhi",  "4D RecHit Efficiency as a function of Phi",  100, -M_PI, M_PI);
+      hEffVsX = booker.book1D(pre + "_hEffVsX", "4D RecHit Efficiency as a function of x position in Chamber", 100, -200, 200); 
+      hEffVsY = booker.book1D(pre + "_hEffVsY", "4D RecHit Efficiency as a function of y position in Chamber", 100, -200, 200); 
+      hEffVsAlpha = booker.book1D(pre + "_hEffVsAlpha", "4D RecHit Efficiency as a function of alpha", 100, -1.5, 1.5); 
+      hEffVsBeta = booker.book1D(pre + "_hEffVsBeta", "4D RecHit Efficiency as a function of beta", 100, -2, 2); 
+
+      computeEfficiency(getter);
+    }
+
+    void computeEfficiency(DQMStore::IGetter& getter) {
+      std::string pre = "DT/4DSegments/" + name_;
+      divide(hEffVsEta,   getter.get(pre + "_hEtaRecHit"),   getter.get(pre + "_hEtaSimSegm"));
+      divide(hEffVsPhi,   getter.get(pre + "_hPhiRecHit"),   getter.get(pre + "_hPhiSimSegm"));
+      divide(hEffVsX,     getter.get(pre + "_hXRecHit"),     getter.get(pre + "_hXSimSegm"));
+      divide(hEffVsY,     getter.get(pre + "_hYRecHit"),     getter.get(pre + "_hYSimSegm"));
+      divide(hEffVsAlpha, getter.get(pre + "_hAlphaRecHit"), getter.get(pre + "_hAlphaSimSegm"));
+      divide(hEffVsBeta,  getter.get(pre + "_hBetaRecHit"),  getter.get(pre + "_hBetaSimSegm"));
+    }
+    
+ private:
+    MonitorElement* hEffVsEta;
+    MonitorElement* hEffVsPhi;
+
+    MonitorElement* hEffVsX;
+    MonitorElement* hEffVsY;
+
+    MonitorElement* hEffVsAlpha;
+    MonitorElement* hEffVsBeta;
 
     std::string name_;
 };
