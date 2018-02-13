@@ -55,7 +55,7 @@ fastSim.toModify(mixSimHits,
     input = ["MuonSimHits:MuonCSCHits", 
              "MuonSimHits:MuonDTHits", 
              "MuonSimHits:MuonRPCHits", 
-             "fastSimProducer:TrackerHits"],
+             "famosSimHits:TrackerHits"],
     subdets = ['MuonCSCHits', 
                'MuonDTHits', 
                'MuonRPCHits', 
@@ -89,15 +89,16 @@ mixCaloHits = cms.PSet(
 
 # fastsim customs
 fastSim.toModify(mixCaloHits,
-    input = ["fastSimProducer:EcalHitsEB",
-             "fastSimProducer:EcalHitsEE",
-             "fastSimProducer:EcalHitsES",
-             "fastSimProducer:HcalHits"],
+    input = ["famosSimHits:EcalHitsEB",
+             "famosSimHits:EcalHitsEE",
+             "famosSimHits:EcalHitsES",
+             "famosSimHits:HcalHits"],
     subdets = ['EcalHitsEB',
                'EcalHitsEE',
                'EcalHitsES',
                'HcalHits']
 )
+
 
 mixSimTracks = cms.PSet(
     makeCrossingFrame = cms.untracked.bool(False),
@@ -111,8 +112,8 @@ mixSimVertices = cms.PSet(
 )
 
 # fastsim customs
-fastSim.toModify(mixSimTracks, input = ["fastSimProducer"])
-fastSim.toModify(mixSimVertices, input = ["fastSimProducer"])
+fastSim.toModify(mixSimTracks, input = ["famosSimHits"])
+fastSim.toModify(mixSimVertices, input = ["famosSimHits"])
     
 mixHepMCProducts = cms.PSet(
     makeCrossingFrame = cms.untracked.bool(True),

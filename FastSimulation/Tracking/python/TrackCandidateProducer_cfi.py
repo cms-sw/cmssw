@@ -12,7 +12,7 @@ trackCandidateProducer = cms.EDProducer(
 
     # Split matched hits? 
     SplitHits = cms.bool(True),
-    simTracks = cms.InputTag('fastSimProducer'),
+    simTracks = cms.InputTag('famosSimHits'),
     
     propagator = cms.string('PropagatorWithMaterialOpposite')
 )

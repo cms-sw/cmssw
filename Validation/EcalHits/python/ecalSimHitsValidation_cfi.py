@@ -11,4 +11,4 @@ ecalSimHitsValidation = cms.EDAnalyzer("EcalSimHitsValidation",
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(ecalSimHitsValidation, moduleLabelG4 = "fastSimProducer")
+fastSim.toModify(ecalSimHitsValidation, moduleLabelG4 = "famosSimHits")

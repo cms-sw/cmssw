@@ -97,7 +97,9 @@ process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # No SimHits
-process.fastSimProducer.SimulateCalorimetry = False
+process.famosSimHits.SimulateCalorimetry = False
+process.famosSimHits.SimulateTracking = True
+process.famosSimHits.TrackerSimHits.pTmin = 0.2
 
 # Path to run what is needed
 process.p = cms.Path(

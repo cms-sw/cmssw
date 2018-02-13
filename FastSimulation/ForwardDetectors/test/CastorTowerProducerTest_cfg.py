@@ -43,12 +43,9 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # If you want to turn on/off pile-up
 #process.famosPileUp.PileUpSimulator.averageNumber = 5.0    
 # You may not want to simulate everything for your study
-process.fastSimProducer.SimulateCalorimetry = True
-for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
-    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
-for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
-    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
-# process.fastSimProducer.SimulateMuons = False
+process.famosSimHits.SimulateCalorimetry = True
+process.famosSimHits.SimulateTracking = True
+# process.famosSimHits.SimulateMuons = False
 
 # include Castor fast sim
 process.load("FastSimulation.ForwardDetectors.CastorFastReco_cff")

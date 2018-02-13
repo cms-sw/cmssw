@@ -14,11 +14,8 @@ from Configuration.StandardSequences.MagneticField_cff import *
 # If you want to turn on/off pile-up (e.g. default low lumi: 5.0)
 famosPileUp.PileUpSimulator.averageNumber = 0
 # You may not want to simulate everything for your study
-fastSimProducer.SimulateCalorimetry = True
-for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
-    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
-for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
-    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
-fastSimProducer.SimulateMuons = True
+famosSimHits.SimulateCalorimetry = True
+famosSimHits.SimulateTracking = True
+famosSimHits.SimulateMuons = True
 VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 

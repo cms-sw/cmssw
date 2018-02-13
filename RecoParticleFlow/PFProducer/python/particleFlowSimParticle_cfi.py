@@ -32,6 +32,6 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     #retrieving EcalRechits
     ecalRecHitsEB = cms.InputTag('caloRecHits','EcalRecHitsEB'),
     ecalRecHitsEE = cms.InputTag('caloRecHits','EcalRecHitsEE'),
-    #retrieving fastSim SimHits                                     
-    fastSimProducer = cms.untracked.InputTag('fastSimProducer','EcalHitsEB')
+    #retrieving famos SimHits                                     
+    famosSimHits = cms.untracked.InputTag('famosSimHits','EcalHitsEB')
 )

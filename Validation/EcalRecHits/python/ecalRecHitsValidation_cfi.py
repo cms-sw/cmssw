@@ -14,4 +14,4 @@ ecalRecHitsValidation = DQMEDAnalyzer('EcalRecHitsValidation',
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(ecalRecHitsValidation, hitsProducer = "fastSimProducer")
+fastSim.toModify(ecalRecHitsValidation, hitsProducer = "famosSimHits")
