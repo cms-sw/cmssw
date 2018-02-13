@@ -48,10 +48,10 @@ from DQMOffline.L1Trigger.L1TDiffHarvesting_cfi import l1tDiffHarvesting
 l1tEGammaEmuDiff = l1tDiffHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(  # EMU comparison
-            dir1=cms.untracked.string("L1T/L1TEGamma"),
-            dir2=cms.untracked.string("L1TEMU/L1TEGamma"),
+            dir1=cms.untracked.string("L1T/L1TObjects/L1TEGamma/L1TriggerVsReco"),
+            dir2=cms.untracked.string("L1TEMU/L1TObjects/L1TEGamma/L1TriggerVsReco"),
             outputDir=cms.untracked.string(
-                "L1TEMU/L1TEGamma/Comparison"),
+                "L1TEMU/L1TObjects/L1TEGamma/L1TriggerVsReco/Comparison"),
             plots=cms.untracked.vstring(allPlots)
         ),
     )
