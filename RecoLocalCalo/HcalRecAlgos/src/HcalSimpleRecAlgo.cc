@@ -39,7 +39,6 @@ void HcalSimpleRecAlgo::beginRun(edm::EventSetup const & es)
 
 void HcalSimpleRecAlgo::endRun()
 {
-  pulseCorr_->endRun();
 }
 
 
