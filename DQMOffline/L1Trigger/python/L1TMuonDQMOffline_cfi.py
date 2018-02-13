@@ -34,7 +34,7 @@ for ptQualCut in ptQualCuts:
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
-    histFolder = cms.untracked.string('L1T/L1TMuon'),
+    histFolder = cms.untracked.string('L1T/L1TObjects/L1TMuon/L1TriggerVsReco'),
     tagPtCut = cms.untracked.double(30.),
     recoToL1PtCutFactor = cms.untracked.double(1.25),
     cuts = cms.untracked.VPSet(cutsPSets),
