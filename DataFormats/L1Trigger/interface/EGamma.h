@@ -4,7 +4,7 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-
+#include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
 namespace l1t {
 
@@ -13,6 +13,10 @@ namespace l1t {
   typedef edm::Ref< EGammaBxCollection > EGammaRef ;
   typedef edm::RefVector< EGammaBxCollection > EGammaRefVector ;
   typedef std::vector< EGammaRef > EGammaVectorRef ;
+
+  typedef ObjectRefBxCollection<EGamma> EGammaRefBxCollection;
+  typedef ObjectRefPair<EGamma> EGammaRefPair;
+  typedef ObjectRefPairBxCollection<EGamma> EGammaRefPairBxCollection;
 
   class EGamma : public L1Candidate {
 
@@ -55,6 +59,9 @@ namespace l1t {
     short int nTT() const;
     short int shape() const;
     short int towerHoE() const;
+
+    virtual bool operator==(const l1t::EGamma& rhs) const;
+    virtual inline bool operator!=(const l1t::EGamma& rhs) const { return !(operator==(rhs)); };
 
   private:
 
