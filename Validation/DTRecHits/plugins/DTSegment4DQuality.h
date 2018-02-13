@@ -38,22 +38,7 @@ namespace edm {
 
 class HRes4DHit;
 class HEff4DHit;
-
-namespace {
-  struct Histograms {
-    HRes4DHit *h4DHit;
-    HRes4DHit *h4DHit_W0;
-    HRes4DHit *h4DHit_W1;
-    HRes4DHit *h4DHit_W2;
-    HRes4DHit *h4DHitWS[3][4];
-
-    HEff4DHit *hEff_All;
-    HEff4DHit *hEff_W0;
-    HEff4DHit *hEff_W1;
-    HEff4DHit *hEff_W2;
-    HEff4DHit *hEffWS[3][4];
-  };
-}
+struct Histograms;
 
 class DTSegment4DQuality : public DQMGlobalEDAnalyzer<Histograms> {
 public:

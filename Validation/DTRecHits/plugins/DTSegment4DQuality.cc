@@ -26,6 +26,20 @@
 using namespace std;
 using namespace edm;
 
+struct Histograms {
+  HRes4DHit *h4DHit;
+  HRes4DHit *h4DHit_W0;
+  HRes4DHit *h4DHit_W1;
+  HRes4DHit *h4DHit_W2;
+  HRes4DHit *h4DHitWS[3][4];
+
+  HEff4DHit *hEff_All;
+  HEff4DHit *hEff_W0;
+  HEff4DHit *hEff_W1;
+  HEff4DHit *hEff_W2;
+  HEff4DHit *hEffWS[3][4];
+};
+
 // In phi SLs, The dependency on X and angle is specular in positive
 // and negative wheels. Since positive and negative wheels are filled
 // together into the same plots, it is useful to mirror negative wheels
