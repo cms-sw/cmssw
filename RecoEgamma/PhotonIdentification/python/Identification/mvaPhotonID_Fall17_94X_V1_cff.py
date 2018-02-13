@@ -86,7 +86,7 @@ mvaPhoID_RunIIFall17_v1_producer_config = cms.PSet(
     #
     phoChargedIsolation = cms.InputTag("photonIDValueMapProducer:phoChargedIsolation"),
     phoPhotonIsolation  = cms.InputTag("photonIDValueMapProducer:phoPhotonIsolation"),
-    phoWorstChargedIsolation = cms.InputTag("photonIDValueMapProducer:phoWorstChargedIsolation"),
+    phoWorstChargedIsolation = cms.InputTag("photonIDValueMapProducer:phoWorstChargedIsolationWithPVConstraint"),
     #
     # Original event content: pileup in this case
     # 

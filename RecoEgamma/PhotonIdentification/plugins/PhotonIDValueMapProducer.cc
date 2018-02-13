@@ -64,6 +64,13 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   //    Template is introduced to handle reco/pat photons and aod/miniAOD
   // PF candidates collections
   template <class T, class U>
+  float computeWorstPFChargedIsolationWithPVConstraint(const T& photon,
+				       const U& pfCandidates,
+				       const edm::Handle<reco::VertexCollection> vertices,
+				       bool isAOD, const reco::Vertex& pv,
+				       float dRmax, float dxyMax, float dzMax,
+				       float dRvetoBarrel, float dRvetoEndcap, float ptMin);
+  template <class T, class U>
   float computeWorstPFChargedIsolation(const T& photon,
 				       const U& pfCandidates,
 				       const edm::Handle<reco::VertexCollection> vertices,
@@ -120,6 +127,8 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   constexpr static char phoPhotonIsolation_[] = "phoPhotonIsolation";
   constexpr static char phoWorstChargedIsolation_[] = "phoWorstChargedIsolation";
   constexpr static char phoWorstChargedIsolationWithConeVeto_[] = "phoWorstChargedIsolationWithConeVeto";
+  constexpr static char phoWorstChargedIsolationWithPVConstraint_[] = "phoWorstChargedIsolationWithPVConstraint";
+  constexpr static char phoWorstChargedIsolationWithConeVetoWithPVConstraint_[] = "phoWorstChargedIsolationWithConeVetoWithPVConstraint";
 
   //PFCluster Isolation
   constexpr static char phoTrkIsolation_[] = "phoTrkIsolation";
@@ -142,6 +151,8 @@ constexpr char PhotonIDValueMapProducer::phoNeutralHadronIsolation_[];
 constexpr char PhotonIDValueMapProducer::phoPhotonIsolation_[];
 constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolation_[];
 constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationWithConeVeto_[];
+constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationWithPVConstraint_[];
+constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationWithConeVetoWithPVConstraint_[];
 
 //PFCluster Isolation
 constexpr char PhotonIDValueMapProducer::phoTrkIsolation_[];
@@ -211,6 +222,8 @@ PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& iCon
   produces<edm::ValueMap<float> >(phoPhotonIsolation_);  
   produces<edm::ValueMap<float> >(phoWorstChargedIsolation_);  
   produces<edm::ValueMap<float> >(phoWorstChargedIsolationWithConeVeto_);  
+  produces<edm::ValueMap<float> >(phoWorstChargedIsolationWithPVConstraint_);  
+  produces<edm::ValueMap<float> >(phoWorstChargedIsolationWithConeVetoWithPVConstraint_);  
 
   //PFCluster  Isolations
   produces<edm::ValueMap<float> >(phoTrkIsolation_);  
@@ -312,6 +325,8 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   std::vector<float> phoPhotonIsolation;
   std::vector<float> phoWorstChargedIsolation;
   std::vector<float> phoWorstChargedIsolationWithConeVeto;
+  std::vector<float> phoWorstChargedIsolationWithPVConstraint;
+  std::vector<float> phoWorstChargedIsolationWithConeVetoWithPVConstraint;
 
   //PFCluster Isolations
   std::vector<float> phoTrkIsolation;
@@ -462,6 +477,23 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
 				     dRvetoBarrel, dRvetoEndcap, ptMin);
     phoWorstChargedIsolationWithConeVeto .push_back( worstChargedIsoWithConeVeto );
 
+    float worstChargedIsoWithPVConstraint =
+      computeWorstPFChargedIsolationWithPVConstraint(iPho, pfCandidatesHandle, vertices, 
+				     isAOD, pv,coneSizeDR, dxyMax, dzMax,
+				     dRvetoBarrel, dRvetoEndcap, ptMin);
+    phoWorstChargedIsolationWithPVConstraint .push_back( worstChargedIsoWithPVConstraint );
+
+    // Worst isolation computed with cone vetos and a ptMin cut, as in 
+    // Run 2 Hgg code.
+    dRvetoBarrel = 0.02;
+    dRvetoEndcap = 0.02;
+    ptMin = 0.1;
+    float worstChargedIsoWithConeVetoWithPVConstraint =
+      computeWorstPFChargedIsolationWithPVConstraint(iPho, pfCandidatesHandle, vertices, 
+				     isAOD, pv, coneSizeDR, dxyMax, dzMax,
+				     dRvetoBarrel, dRvetoEndcap, ptMin);
+    phoWorstChargedIsolationWithConeVetoWithPVConstraint .push_back( worstChargedIsoWithConeVetoWithPVConstraint );
+
     
 
   }
@@ -480,6 +512,8 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   writeValueMap(iEvent, src, phoPhotonIsolation, phoPhotonIsolation_);  
   writeValueMap(iEvent, src, phoWorstChargedIsolation, phoWorstChargedIsolation_);  
   writeValueMap(iEvent, src, phoWorstChargedIsolationWithConeVeto, phoWorstChargedIsolationWithConeVeto_);  
+  writeValueMap(iEvent, src, phoWorstChargedIsolationWithPVConstraint, phoWorstChargedIsolationWithPVConstraint_);  
+  writeValueMap(iEvent, src, phoWorstChargedIsolationWithConeVetoWithPVConstraint, phoWorstChargedIsolationWithConeVetoWithPVConstraint_);  
   //PFCluster  Isolation
   writeValueMap(iEvent, src, phoTrkIsolation, phoTrkIsolation_);  
   writeValueMap(iEvent, src, phoHcalPFClIsolation, phoHcalPFClIsolation_);  
@@ -514,6 +548,73 @@ void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 template <class T, class U>
 float PhotonIDValueMapProducer
 ::computeWorstPFChargedIsolation(const T& photon, const U& pfCandidates,
+				 const edm::Handle<reco::VertexCollection> vertices,
+				 bool isAOD,const reco::Vertex& pv,
+				 float dRmax, float dxyMax, float dzMax,
+				 float dRvetoBarrel, float dRvetoEndcap, float ptMin){
+
+
+  float worstIsolation = 999;
+  std::vector<float> allIsolations;
+
+  float dRveto;
+  if (photon->isEB())
+    dRveto = dRvetoBarrel;
+  else
+    dRveto = dRvetoEndcap;
+
+  //Calculate isolation sum separately for each vertex
+  for(unsigned int ivtx=0; ivtx<vertices->size(); ++ivtx) {
+    
+    // Shift the photon according to the vertex
+    reco::VertexRef vtx(vertices, ivtx);
+    math::XYZVector photon_directionWrtVtx(photon->superCluster()->x() - vtx->x(),
+					   photon->superCluster()->y() - vtx->y(),
+					   photon->superCluster()->z() - vtx->z());
+    
+    float sum = 0;
+    // Loop over the PFCandidates
+    for(unsigned i=0; i<pfCandidates->size(); i++) {
+      
+      const auto& iCand = pfCandidates->ptrAt(i);
+
+      //require that PFCandidate is a charged hadron
+      reco::PFCandidate::ParticleType thisCandidateType = candidatePdgId(iCand, isAOD);
+      if (thisCandidateType != reco::PFCandidate::h) 
+	continue;
+
+      if (iCand->pt() < ptMin)
+	continue;
+      
+      float dxy=-999, dz=-999;
+      getImpactParameters(iCand, isAOD, *vtx, dxy, dz);
+
+
+
+      if( fabs(dxy) > dxyMax) continue;
+      if ( fabs(dz) > dzMax) continue;
+      
+      float dR2 = deltaR2(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), 
+                          iCand->eta(),      iCand->phi());
+      if(dR2 > dRmax*dRmax || dR2 < dRveto*dRveto) continue;
+      
+      sum += iCand->pt();
+    }
+
+    allIsolations.push_back(sum);
+  }
+
+  if( !allIsolations.empty() )
+    worstIsolation = * std::max_element( allIsolations.begin(), allIsolations.end() );
+  
+  return worstIsolation;
+}
+
+// Charged isolation with respect to the worst vertex. See more
+// comments above at the function declaration. Here the impact parameter is Constraint to belong from the PV
+template <class T, class U>
+float PhotonIDValueMapProducer
+::computeWorstPFChargedIsolationWithPVConstraint(const T& photon, const U& pfCandidates,
 				 const edm::Handle<reco::VertexCollection> vertices,
 				 bool isAOD,const reco::Vertex& pv,
 				 float dRmax, float dxyMax, float dzMax,
