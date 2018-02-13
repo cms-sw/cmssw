@@ -1043,6 +1043,9 @@ namespace {
       canv.SetLeftMargin(0.18);
       canv.SetRightMargin(0.05);
 
+      masterTable->GetYaxis()->SetLabelSize(0.04);
+      masterTable->GetXaxis()->SetLabelSize(0.05);
+
       masterTable->SetStats(false);
       canv.SetGrid();
      
@@ -1092,7 +1095,8 @@ namespace {
 
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
-      SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
+      //SiStripPI::setPaletteStyle(SiStripPI::BLUERED);
+      gStyle->SetPalette(kTemperatureMap);
 
       std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
       
@@ -1151,7 +1155,7 @@ namespace {
       //SiStripPI::printBCDebug(f_NTkBadComponent,f_NBadComponent);
       //SiStripPI::printBCDebug(l_NTkBadComponent,l_NBadComponent);
 
-      SiStripPI::printBCDebug(tot_NTkComponents,totNComponents);
+      //SiStripPI::printBCDebug(tot_NTkComponents,totNComponents);
 
       // declare histograms
       auto masterTable = std::unique_ptr<TH2F>(new TH2F("table","",4,0.,4.,39,0.,39.));
@@ -1182,15 +1186,16 @@ namespace {
        	for(int iX=0;iX<=3;iX++){
        	  if(iY==39){
 	    masterTable->SetBinContent(iX+1,iY,l_NTkBadComponent[iX]-f_NTkBadComponent[iX]);
-	    masterTableColor->SetBinContent(iX+1,iY,(l_NTkBadComponent[iX]-f_NTkBadComponent[iX])/tot_NTkComponents[iX]);
+	    masterTableColor->SetBinContent(iX+1,iY,100*float(l_NTkBadComponent[iX]-f_NTkBadComponent[iX])/tot_NTkComponents[iX]);
+	    //std::cout<< (l_NTkBadComponent[iX]-f_NTkBadComponent[iX]) << " " << tot_NTkComponents[iX] << " " << float(l_NTkBadComponent[iX]-f_NTkBadComponent[iX])/tot_NTkComponents[iX] << std::endl;
 	  } else if (iY>=35){
 	    masterTable->SetBinContent(iX+1,iY,(l_NBadComponent[(39-iY)-1][0][iX]-f_NBadComponent[(39-iY)-1][0][iX]));
-	    masterTableColor->SetBinContent(iX+1,iY,(l_NBadComponent[(39-iY)-1][0][iX]-f_NBadComponent[(39-iY)-1][0][iX])/totNComponents[(39-iY)-1][0][iX]);
+	    masterTableColor->SetBinContent(iX+1,iY,100*float(l_NBadComponent[(39-iY)-1][0][iX]-f_NBadComponent[(39-iY)-1][0][iX])/totNComponents[(39-iY)-1][0][iX]);
 	  } else {
 	    if(iX==0) layerIndex++;
 	    //std::cout<<"iY:"<<iY << " cursor: "  <<cursor << " layerIndex: " << layerIndex << " layer check: "<< layerBoundaries[cursor] <<std::endl;
 	    masterTable->SetBinContent(iX+1,iY,(l_NBadComponent[cursor][layerIndex][iX]-f_NBadComponent[cursor][layerIndex][iX]));
-	    masterTableColor->SetBinContent(iX+1,iY,(l_NBadComponent[cursor][layerIndex][iX]-f_NBadComponent[cursor][layerIndex][iX])/totNComponents[cursor][layerIndex][iX]);
+	    masterTableColor->SetBinContent(iX+1,iY,100*float(l_NBadComponent[cursor][layerIndex][iX]-f_NBadComponent[cursor][layerIndex][iX])/totNComponents[cursor][layerIndex][iX]);
 	  }
 	}
 	if(layerIndex==layerBoundaries[cursor]){
@@ -1207,16 +1212,28 @@ namespace {
       canv.SetTopMargin(0.05);
       canv.SetBottomMargin(0.07);
       canv.SetLeftMargin(0.13);
-      canv.SetRightMargin(0.15);
+      canv.SetRightMargin(0.16);
 
       masterTable->SetStats(false);
       masterTableColor->SetStats(false);
       canv.SetGrid();
      
-      masterTable->SetMarkerColor(kRed);
+      masterTable->SetMarkerColor(kBlack);
       masterTable->SetMarkerSize(1.5);
+      
+      float extremum = std::abs(masterTableColor->GetMaximum()) > std::abs(masterTableColor->GetMinimum()) ? std::abs(masterTableColor->GetMaximum()) : std::abs(masterTableColor->GetMinimum());
       //masterTableColor->Draw("text");
-      masterTableColor->GetZaxis()->SetRangeUser(-0.01,0.01);
+      masterTableColor->GetZaxis()->SetRangeUser(-extremum,extremum);
+      masterTableColor->GetZaxis()->SetTitle("percent change [%]");
+      masterTableColor->GetZaxis()->CenterTitle(true);
+      masterTableColor->GetZaxis()->SetTitleSize(0.05);
+
+      masterTableColor->GetYaxis()->SetLabelSize(0.04);
+      masterTableColor->GetXaxis()->SetLabelSize(0.06);
+
+      masterTable->GetYaxis()->SetLabelSize(0.04);
+      masterTable->GetXaxis()->SetLabelSize(0.06);
+
       masterTableColor->Draw("COLZ");
       masterTable->Draw("textsame");
 

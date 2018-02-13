@@ -554,7 +554,7 @@ namespace SiStripPI {
   }
 
 
-  enum palette {HALFGRAY,GRAY,BLUES,REDS,ANTIGRAY,FIRE,ANTIFIRE,LOGREDBLUE,LOGBLUERED,DEFAULT};
+  enum palette {HALFGRAY,GRAY,BLUES,REDS,ANTIGRAY,FIRE,ANTIFIRE,LOGREDBLUE,BLUERED,LOGBLUERED,DEFAULT};
 
   /*--------------------------------------------------------------------*/
   void setPaletteStyle(SiStripPI::palette palette) 
@@ -652,6 +652,16 @@ namespace SiStripPI {
     case LOGBLUERED:
       {
 	double stops[NRGBs] = {0.0001, 0.0010, 0.0100, 0.1000,  1.0000};
+	double red[NRGBs]   = {0.00,   0.25,   0.50,   0.75,    1.00};
+	double green[NRGBs] = {0.00,   0.00,   0.00,   0.00,    0.00};
+	double blue[NRGBs]  = {1.00,   0.75,   0.50,   0.25,    0.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);			
+      } 
+      break;
+
+    case BLUERED:
+      {
+	double stops[NRGBs] = {0.00,   0.34,   0.61,   0.84,    1.00};
 	double red[NRGBs]   = {0.00,   0.25,   0.50,   0.75,    1.00};
 	double green[NRGBs] = {0.00,   0.00,   0.00,   0.00,    0.00};
 	double blue[NRGBs]  = {1.00,   0.75,   0.50,   0.25,    0.00};
