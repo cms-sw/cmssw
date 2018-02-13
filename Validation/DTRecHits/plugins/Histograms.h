@@ -138,6 +138,7 @@ class HEff1DHit {
       name_ = pre;
       booker.setCurrentFolder("DT/1DRecHits/");
       hEtaMuSimHit  = booker.book1D(pre + "_hEtaMuSimHit", "SimHit Eta distribution", 100, -1.5, 1.5);
+      hEtaRecHit    = booker.book1D(pre + "_hEtaRecHit", "SimHit Eta distribution with 1D RecHit", 100, -1.5, 1.5);
       hPhiMuSimHit  = booker.book1D(pre + "_hPhiMuSimHit", "SimHit Phi distribution", 100, -M_PI, M_PI);
       hPhiRecHit    = booker.book1D(pre + "_hPhiRecHit", "SimHit Phi distribution with 1D RecHit", 100, -M_PI, M_PI);
       hDistMuSimHit = booker.book1D(pre + "_hDistMuSimHit", "SimHit Distance from wire distribution", 100, 0, 2.5);
