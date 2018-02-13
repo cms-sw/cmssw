@@ -53,7 +53,6 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     ),
     #fileName = cms.untracked.string('file:step2_ZEE_PU200_1ev_rerun-L1.root'),
     fileName = cms.untracked.string('file:test_reprocess_SMP-PhaseIIFall17D-00001_withTracklet.root'),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
 
