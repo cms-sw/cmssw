@@ -10,6 +10,7 @@
 #include <tuple>
 #include <fstream>
 #include <unistd.h>
+#include <pwd.h>
 #include <climits>
 //
 #include <boost/regex.hpp>
@@ -50,10 +51,9 @@ namespace cond {
     }
 
     inline std::string getUserName(){
-      char username[LOGIN_NAME_MAX];
-      int retcode = getlogin_r(username,LOGIN_NAME_MAX);
-      if( retcode ) return "";
-      return std::string(username);
+      struct passwd* user_creds = getpwuid(getuid());
+      if (user_creds==NULL) return std::string("USER_NOT_AVAILABLE");
+      return std::string(user_creds->pw_name);
     }
 
     inline std::string getHostName(){
