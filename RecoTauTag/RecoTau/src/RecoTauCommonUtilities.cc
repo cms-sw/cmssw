@@ -105,24 +105,6 @@ std::vector<reco::CandidatePtr> pfChargedCands(const reco::Jet& jet,
   return output;
 }
 
-std::vector<PFCandidatePtr> convertPtrVectorToPF(const std::vector<CandidatePtr>& cands) {
-  std::vector<PFCandidatePtr> newSignalPFCands;
-  for (auto& cand : cands) {
-    const auto& newPtr = cand->masterClone().castTo<edm::Ptr<reco::PFCandidate> >();
-    newSignalPFCands.push_back(newPtr);
-  }
-  return std::move(newSignalPFCands);
-}
-
-std::vector<CandidatePtr> convertPtrVector(const std::vector<PFCandidatePtr>& cands) {
-  std::vector<CandidatePtr> newSignalCands;
-  for (auto& cand : cands) {
-    const auto& newPtr = cand->masterClone().castTo<edm::Ptr<reco::Candidate> >();
-    newSignalCands.push_back(newPtr);
-  }
-  return std::move(newSignalCands);
-}
-
 math::XYZPointF atECALEntrance(const reco::Candidate* part, double bField) {
   const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(part);
   if (pfCand)

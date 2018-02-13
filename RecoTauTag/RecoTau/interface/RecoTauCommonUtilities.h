@@ -175,10 +175,6 @@ template<typename InputIterator> InputIterator leadPFCand(InputIterator begin,
     return max_cand;
   }
 
-std::vector<PFCandidatePtr> convertPtrVectorToPF(const std::vector<CandidatePtr>& cands);
-
-std::vector<CandidatePtr> convertPtrVector(const std::vector<PFCandidatePtr>& cands);
-
 math::XYZPointF atECALEntrance(const reco::Candidate* part, double bField);
 
 }}  // end namespace reco::tau
