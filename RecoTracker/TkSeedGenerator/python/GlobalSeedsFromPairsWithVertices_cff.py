@@ -12,7 +12,7 @@ from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelPairs_cfi import *
 from RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi import *
 from RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi import *
 
-from RecoTracker.TkTrackingRegions.GlobalTrackingRegionWithVertices_cfi import *
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import *
 import RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi
 globalSeedsFromPairsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
     OrderedHitsFactoryPSet = cms.PSet(
@@ -21,7 +21,9 @@ globalSeedsFromPairsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFrom
       maxElement = cms.uint32(1000000)
     ),
     RegionFactoryPSet = cms.PSet(
-      RegionPSetWithVerticesBlock,
+      #RegionPSetWithVerticesBlock = cms.PSet(
+        RegionPSet = globalTrackingRegionWithVertices.RegionPSet,
+      #),
       ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer')
     )
 )    
