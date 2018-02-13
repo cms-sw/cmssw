@@ -10,7 +10,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 HcalShapes::HcalShapes()
-: theMCParams(nullptr)
+: theDbService(nullptr)
  {
 /*
          00 - not used (reserved)
@@ -52,20 +52,12 @@ HcalShapes::~HcalShapes()
 }
 
 
-void HcalShapes::setup(edm::EventSetup const & es)
-{
-  edm::ESHandle<HcalMCParams> p;
-  es.get<HcalMCParamsRcd>().get(p);
-  theMCParams = &*p;
-}
-
-
 const CaloVShape * HcalShapes::shape(const DetId & detId, bool precise) const
 {
-  if(!theMCParams) {
+  if(!theDbService) {
     return defaultShape(detId);
   }
-  int shapeType = theMCParams->getValues(detId)->signalShape();
+  int shapeType = theDbService->getHcalMCParam(detId)->signalShape();
   const auto& myShapes = getShapeMap(precise);
   auto shapeMapItr = myShapes.find(shapeType);
   if(shapeMapItr == myShapes.end()) {

@@ -301,6 +301,8 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
   
+  theShapes->setDbService(conditions.product());
+
   theHBHEAmplifier->setDbService(conditions.product());
   theHFAmplifier->setDbService(conditions.product());
   theHOAmplifier->setDbService(conditions.product());
@@ -531,7 +533,6 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 
 void HcalDigitizer::setup(const edm::EventSetup & es) {
   checkGeometry(es);
-  theShapes->setup(es);
 
   if (agingFlagHB) {
     edm::ESHandle<HBHEDarkening> hdark;
