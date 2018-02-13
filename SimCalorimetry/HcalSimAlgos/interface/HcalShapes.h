@@ -22,8 +22,7 @@ public:
   HcalShapes();
   ~HcalShapes() override;
 
-  void beginRun(edm::EventSetup const & es);
-  void endRun();
+  void setup(edm::EventSetup const & es);
 
   const CaloVShape * shape(const DetId & detId, bool precise=false) const override;
 
