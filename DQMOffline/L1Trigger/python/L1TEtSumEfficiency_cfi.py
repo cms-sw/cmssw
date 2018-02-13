@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from DQMOffline.L1Trigger import L1TStage2CaloLayer2Offline_cfi as L1TStep1
+from DQMOffline.L1Trigger import L1TEtSumJetOffline_cfi as L1TStep1
 
 variables = {
     'met': L1TStep1.metEfficiencyThresholds,
