@@ -448,14 +448,14 @@ reco::PFRecoTauChargedHadronRef Tau::leadTauChargedHadronCandidate() const {
 const reco::PFCandidatePtr convertToPFCandidatePtr(const reco::CandidatePtr& ptr) {
   const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
   if (pf_cand)
-    return pf_cand->masterClone().castTo<edm::Ptr<reco::PFCandidate> >();
+    return edm::Ptr<reco::PFCandidate>(ptr);
   return reco::PFCandidatePtr();
 }
 
 std::vector<reco::PFCandidatePtr> convertPtrVector(const std::vector<reco::CandidatePtr>& cands) {
   std::vector<reco::PFCandidatePtr> newSignalPFCands;
   for (auto& cand : cands) {
-    const auto& newPtr = cand->masterClone().castTo<edm::Ptr<reco::PFCandidate> >();
+    const auto& newPtr = edm::Ptr<reco::PFCandidate>(cand);
     newSignalPFCands.push_back(newPtr);
   }
   return newSignalPFCands;
