@@ -24,9 +24,8 @@ void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
 
 
 
-void DQMEDAnalyzer::endLuminosityBlockSummary(edm::LuminosityBlock const &iLumi ,
-                                              edm::EventSetup const &iSetup,
-                                              dqmDetails::NoCache*) const {
+void DQMEDAnalyzer::endLuminosityBlock(edm::LuminosityBlock const &iLumi ,
+                                              edm::EventSetup const &iSetup) {
   DQMStore * store = edm::Service<DQMStore>().operator->();
   assert(store);
   LogDebug("DQMEDAnalyzer") << "Merging Lumi local MEs ("
@@ -37,8 +36,7 @@ void DQMEDAnalyzer::endLuminosityBlockSummary(edm::LuminosityBlock const &iLumi 
                             << ") into the DQMStore@" << store << std::endl;
   store->mergeAndResetMEsLuminositySummaryCache(iLumi.run(),
                                                 iLumi.id().luminosityBlock(),
-                                                stream_id_,
-                                                iLumi.moduleCallingContext()->moduleDescription()->id());
+                                                0, 0);
 }
 
 void DQMEDAnalyzer::endRunSummary(edm::Run const &iRun ,

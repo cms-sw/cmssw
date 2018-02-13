@@ -33,7 +33,7 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) = 0;
   virtual void accumulate(edm::Event const&, edm::EventSetup const&) override final;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 
 
@@ -41,9 +41,6 @@ public:
   virtual void endRunSummary(edm::Run const&,
                              edm::EventSetup const&,
                              dqmDetails::NoCache*) const final;
-  virtual void endLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                         edm::EventSetup const&,
-                                         dqmDetails::NoCache*) const final;
   /* ) */
 
   uint32_t streamId() const {return stream_id_;}
