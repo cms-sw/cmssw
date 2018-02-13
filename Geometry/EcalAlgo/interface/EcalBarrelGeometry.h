@@ -103,6 +103,9 @@ class EcalBarrelGeometry final : public CaloSubdetectorGeometry
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm ,
 			    const DetId&       detId ) override ;
+
+      bool present( const DetId& id ) const override;
+
    protected:
 
       // Modify the RawPtr class
