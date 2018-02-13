@@ -437,7 +437,7 @@ namespace edm {
                                        *schedule_,
                                        rp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_);
   }
@@ -455,7 +455,7 @@ namespace edm {
                                      *schedule_,
                                      rp,
                                      ts,
-                                     esp_->eventSetupForInstance(ts),
+                                     esp_->eventSetup(),
                                      serviceToken_,
                                      subProcesses_,
                                      cleaningUpAfterException);
@@ -500,7 +500,7 @@ namespace edm {
                                        *schedule_,
                                        lbp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_);
   }
@@ -515,7 +515,7 @@ namespace edm {
                                      *schedule_,
                                      lbp,
                                      ts,
-                                     esp_->eventSetupForInstance(ts),
+                                     esp_->eventSetup(),
                                      serviceToken_,
                                      subProcesses_,
                                      cleaningUpAfterException);
@@ -566,7 +566,7 @@ namespace edm {
                                        id,
                                        rp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_);
     
@@ -584,7 +584,7 @@ namespace edm {
                                        id,
                                        rp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_,
                                      cleaningUpAfterException);
@@ -602,7 +602,7 @@ namespace edm {
                                        id,
                                        lbp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_);
   }
@@ -619,7 +619,7 @@ namespace edm {
                                        id,
                                        lbp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_,
                                        cleaningUpAfterException);
