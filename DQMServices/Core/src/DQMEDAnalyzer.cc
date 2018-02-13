@@ -18,8 +18,8 @@ void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
                            this->bookHistograms(b, iRun, iSetup);
                          },
                          iRun.run(),
-                         streamId(),
-                         iRun.moduleCallingContext()->moduleDescription()->id());
+                         0, 0);
+
 }
 
 
