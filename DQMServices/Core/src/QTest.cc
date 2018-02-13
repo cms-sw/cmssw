@@ -864,6 +864,7 @@ float NoisyChannel::runTest(const MonitorElement *me)
   if (!me->getRootObject()) 
     return -1; 
   TH1* h=nullptr;//initialize histogram pointer
+  TH2* h2=nullptr;//initialize histogram pointer  
 
   if (verbose_>1) 
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
@@ -891,26 +892,24 @@ float NoisyChannel::runTest(const MonitorElement *me)
   } 
   //-- TH2
   else if (me->kind()==MonitorElement::DQM_KIND_TH2F)
-  { 
-//    nbins = me->getTH2F()->GetXaxis()->GetNbins() *
-//            me->getTH2F()->GetYaxis()->GetNbins(); 
+  {  
     nbinsX = me->getTH2F()->GetXaxis()->GetNbins(); 
-    nbinsY = me->getTH2F()->GetYaxis()->GetNbins(); 
-    h  = me->getTH2F(); // access Test histo
+    nbinsY = me->getTH2F()->GetYaxis()->GetNbins();
+    h2  = me->getTH2F(); // access Test histo
   } 
   //-- TH2
   else if (me->kind()==MonitorElement::DQM_KIND_TH2S)
   { 
-    nbins = me->getTH2S()->GetXaxis()->GetNbins() *
-            me->getTH2S()->GetYaxis()->GetNbins();
-    h  = me->getTH2S(); // access Test histo
+    nbinsX = me->getTH2S()->GetXaxis()->GetNbins();
+    nbinsY = me->getTH2S()->GetYaxis()->GetNbins();
+    h2  = me->getTH2S(); // access Test histo
   } 
   //-- TH2
   else if (me->kind()==MonitorElement::DQM_KIND_TH2D)
   { 
-    nbins = me->getTH2D()->GetXaxis()->GetNbins() *
-            me->getTH2D()->GetYaxis()->GetNbins();
-    h  = me->getTH2D(); // access Test histo
+    nbinsX = me->getTH2F()->GetXaxis()->GetNbins();
+    nbinsY = me->getTH2F()->GetYaxis()->GetNbins();
+    h2  = me->getTH2D(); // access Test histo
   } 
   else 
   {  
@@ -923,9 +922,6 @@ float NoisyChannel::runTest(const MonitorElement *me)
 
   //--  QUALITY TEST itself 
 
-  if ( !rangeInitialized_ || !h->GetXaxis() ) 
-    return 1; // all channels are accepted if tolerance has not been set
-
   // do NOT use underflow bin
   int first = 1;
   // do NOT use overflow bin
@@ -935,7 +931,10 @@ float NoisyChannel::runTest(const MonitorElement *me)
   int fail = 0;
   int bin;
   int binX, binY;
-  if (nbinsY == 0) { 
+  if (h != nullptr) {
+  if ( !rangeInitialized_ || !h->GetXaxis() ){
+    return 1; // all channels are accepted if tolerance has not been set 
+  }
     for (bin = first; bin <= last; ++bin)
     {
       double contents = h->GetBinContent(bin);
@@ -955,25 +954,31 @@ float NoisyChannel::runTest(const MonitorElement *me)
     // return fraction of bins that passed test
     return 1.*(nbins - fail)/nbins;
     }
-  else { 
+    else if (h2 !=nullptr ) { 
     for (binY = first; binY <= lastY; ++binY) {
       for (binX = first; binX <= lastX; ++binX) {
-        double contents = h->GetBinContent(binX, binY);
-        double average = getAverage2D(binX, binY, h);
+        double contents = h2->GetBinContent(binX, binY);
+        double average = getAverage2D(binX, binY, h2);
         bool failure = false;
         if (average != 0)
            failure = (((contents-average)/std::abs(average)) > tolerance_);
         if (failure)
         {
           ++fail;
-          DQMChannel chan(binX, 0, 0, contents, h->GetBinError(binX));
+          DQMChannel chan(binX, 0, 0, contents, h2->GetBinError(binX));
           badChannels_.push_back(chan);
         }
-      }
-    }
-
+      }//end x loop
+    }//end y loop
     // return fraction of bins that passed test
     return 1.*((nbinsX * nbinsY) - fail)/(nbinsX * nbinsY);
+  }//end nullptr conditional
+  else
+  {
+    if (verbose_>0)
+      std::cout << "QTest:NoisyChannel"
+                << " TH1/TH2F are NULL, exiting\n";
+    return -1;
   }
 }
 
@@ -981,81 +986,104 @@ float NoisyChannel::runTest(const MonitorElement *me)
 // (see description of method setNumNeighbors)
 double NoisyChannel::getAverage(int bin, const TH1 *h) const
 {
-  /// do NOT use underflow bin
-  int first = 1;
-  /// do NOT use overflow bin
-  int ncx  = h->GetXaxis()->GetNbins();
-  double sum = 0; int bin_low, bin_hi;
-  for (unsigned i = 1; i <= numNeighbors_; ++i)
-  {
-    /// use symmetric-to-bin bins to calculate average
-    bin_low = bin-i;  bin_hi = bin+i;
-    /// check if need to consider bins on other side of spectrum
-    /// (ie. if bins below 1 or above ncx)
-    while (bin_low < first) // shift bin by +ncx
-      bin_low = ncx + bin_low;
-    while (bin_hi > ncx) // shift bin by -ncx
-      bin_hi = bin_hi - ncx;
-    sum += h->GetBinContent(bin_low) + h->GetBinContent(bin_hi);
-  }
-  /// average is sum over the # of bins used
-  return sum/(numNeighbors_ * 2);
-}
-
-double NoisyChannel::getAverage2D(int binX, int binY, const TH1 *h) const
-{
-  /// do NOT use underflow bin
-  int first = 1;
+  int first = 1;                              // Do NOT use underflow bin
+  int ncx  = h->GetXaxis()->GetNbins();       // Do NOT use overflow bin
   double sum = 0;
-  int ncx = h->GetXaxis()->GetNbins();
-  int ncy = h->GetYaxis()->GetNbins();
-  int bin_lowX, bin_hiX, bin_lowY, bin_hiY;
-  int neighborsX, neighborsY;
-  if (ncx%2 == 0) {
-    neighborsX = ncx/2 - 1; //set neighbors for no overlap
+  int bin_start, bin_end;
+  int add_right = 0;
+  int add_left = 0;
+  
+  bin_start = bin - numNeighbors_;            // First bin in integral
+  bin_end = bin + numNeighbors_;              // Last bin in integral
+
+  if (bin_start < first) {                    // If neighbors take you outside of histogram range shift integral right
+    add_right = first - bin_start;            // How much to shift remembering we are not using underflow
+    bin_start = first;                        // Remember to reset the starting bin
+    bin_end += add_right;
+    if (bin_end > ncx) bin_end = ncx;         // If the test would be larger than histogram just sum histogram without overflow
   }
-  else { neighborsX = (ncx - 1)/2; } //set neighbors for no overlap
-  if (ncy%2 == 0) {
-    neighborsY = ncy/2 - 1; 
+  
+  if (bin_end > ncx) {                        // Now we make sure doesn't run off right edge of histogram
+    add_left = bin_end - ncx;
+    bin_end = ncx;
+    bin_start -= add_left;
+    if (bin_start < first) bin_start = first; // If the test would be larger than histogram just sum histogram without underflow
   }
-  else { neighborsY = (ncy - 1)/2; }
+  
+  sum += h->Integral(bin_start, bin_end);
+  sum -= h->GetBinContent(bin);
 
-  for (int i = 0; i <= neighborsX; ++i) { //scan entire chamber
-    for (int j = 0; j <= neighborsY; ++j) { 
-			if (i == 0 && j == 0) continue;	
-      /// use symmetric-to-bin bins to calculate average
-      bin_lowX = binX-i;  bin_hiX = binX+i;
-      /// check if need to consider bins on other side of spectrum
-      /// (ie. if bins below 1 or above ncx)
-      while (bin_lowX < first) // shift bin by +ncx
-        bin_lowX = ncx + bin_lowX;
-      while (bin_hiX > ncx) // shift bin by -ncx
-        bin_hiX = bin_hiX - ncx;
+  int dimension = 2 * numNeighbors_ + 1;
+  if ( dimension > h->GetNbinsX() ) dimension = h->GetNbinsX();
 
-      bin_lowY = binY-j;  bin_hiY = binY+j;
-      while (bin_lowY < first) // shift bin by +ncy
-				bin_lowY = ncy + bin_lowY;
-      while (bin_hiY > ncy) // shift bin by -ncy
-       	bin_hiY = bin_hiY - ncy;
-			if (i == 0) {
-      	sum += h -> GetBinContent(binX, bin_lowY) + //sum upper and lower centered y sections
-	     	h -> GetBinContent(binX, bin_hiY);
-			}
-			else if (j == 0) {
-      	sum += h -> GetBinContent(bin_lowX, binY) + //sum left and right centered x sections
-	      h -> GetBinContent(bin_hiX, binY);
-			}
-			else {
-      	sum += h -> GetBinContent(bin_lowX, bin_lowY) + //sum each corner section
-	      h -> GetBinContent(bin_lowX, bin_hiY) + 
-	      h -> GetBinContent(bin_hiX, bin_lowY) +
-     	  h -> GetBinContent(bin_hiX, bin_hiY);     
-    	} 
-		}
-  }   /// average is sum over the # of bins used
-  return sum/((2*neighborsX + 1)*(2*neighborsY + 1) - 1);
-
+  return sum / (dimension - 1);
 }
+
+double NoisyChannel::getAverage2D(int binX, int binY, const TH2 *h2) const
+{
+  /// Do NOT use underflow or overflow bins
+  int firstX = 1;
+  int firstY = 1;
+  double sum = 0;
+  int ncx = h2->GetXaxis()->GetNbins();
+  int ncy = h2->GetYaxis()->GetNbins();
+  
+  int neighborsX, neighborsY;                     // Convert unsigned input to int so we can use comparators
+  neighborsX = numNeighbors_;
+  neighborsY = numNeighbors_;
+  int bin_startX, bin_endX;
+  int add_rightX = 0;                             // Start shifts at 0
+  int add_leftX = 0;
+  int bin_startY, bin_endY;
+  int add_topY = 0;
+  int add_downY = 0;
+  
+  bin_startX = binX - neighborsX;                 // First bin in X
+  bin_endX = binX + neighborsX;                   // Last bin in X
+  
+  if (bin_startX < firstX) {                      // If neighbors take you outside of histogram range shift integral right
+    add_rightX = firstX - bin_startX;             // How much to shift remembering we are no using underflow
+    bin_startX = firstX;                          // Remember to reset the starting bin
+    bin_endX += add_rightX;
+    if (bin_endX > ncx) bin_endX = ncx;
+  }   
+  
+  if (bin_endX > ncx) {                           // Now we make sure doesn't run off right edge of histogram
+    add_leftX = bin_endX - ncx;
+    bin_endX = ncx;
+    bin_startX -= add_leftX;
+    if (bin_startX < firstX) bin_startX = firstX; // If the test would be larger than histogram just sum histogram without underflow
+  }
+  
+  bin_startY = binY - neighborsY;  	          // First bin in Y
+  bin_endY = binY + neighborsY;			  // Last bin in Y
+  
+  if (bin_startY < firstY) {                      // If neighbors take you outside of histogram range shift integral up
+    add_topY = firstY - bin_startY;          	  // How much to shift remembering we are no using underflow
+    bin_startY = firstY;                          // Remember to reset the starting bin
+    bin_endY += add_topY;
+    if (bin_endY > ncy) bin_endY = ncy;
+  }    
+  
+  if (bin_endY > ncy){                            // Now we make sure doesn't run off top edge of histogram
+    add_downY = bin_endY - ncy;
+    bin_endY = ncy;
+    bin_startY -= add_downY;
+    if (bin_startY < firstY) bin_startY = firstY; // If the test would be larger than histogram just sum histogram without underflow
+  }
+  
+  sum += h2->Integral(bin_startX, bin_endX, bin_startY, bin_endY);
+  sum -= h2->GetBinContent(binX, binY);
+
+  int dimensionX = 2 * neighborsX + 1;
+  int dimensionY = 2 * neighborsY + 1;
+  
+  if ( dimensionX > h2->GetNbinsX() ) dimensionX = h2->GetNbinsX();
+  if ( dimensionY > h2->GetNbinsY() ) dimensionY = h2->GetNbinsY();
+  
+  return sum / (dimensionX * dimensionY - 1);     // Average is sum over the # of bins used
+
+} // End getAverage2D
 
 //-----------------------------------------------------//
 //-----Content Sigma (Emma Yeager and Chad Freer)------//
