@@ -19,7 +19,7 @@ void GEMEMap::convert(GEMROmap & romap) {
   for (auto imap : theVFatMaptype_){
     for (unsigned int ix=0;ix<imap.vfatId.size();ix++){
       GEMROmap::eCoord ec;
-      ec.vfatId = imap.vfatId[ix];
+      ec.vfatId = imap.vfatId[ix] & chipIdMask_;
       ec.gebId = imap.gebId[ix];
       ec.amcId = imap.amcId[ix];      
 
