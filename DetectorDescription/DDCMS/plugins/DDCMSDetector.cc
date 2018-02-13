@@ -38,7 +38,7 @@ DDCMSDetector::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& /*i
 {
   dd4hep::Detector& description = dd4hep::Detector::getInstance();
 
-  std::string name("DD4hepCompactLoader");
+  std::string name("DD4hep_CompactLoader");
   const char* files[] = { confGeomXMLFiles_.c_str(), nullptr };
   description.apply(name.c_str(),2,(char**)files);
   for( auto it : files_ )
