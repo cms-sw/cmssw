@@ -106,11 +106,31 @@ ctppsDiamondGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment3.xml',
     'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment4.xml',
     'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment5.xml',
+    
+    # 2017 geometry
+    #'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane1.xml',
+    #'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml',
+    #'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml',
+    #'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml',
+    #'Geometry/VeryForwardData/data/CTPPS_Diamond_Detector_Assembly.xml'
+    
+    # 2018 geometry
     'Geometry/VeryForwardData/dataDiamond2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane1.xml',
     'Geometry/VeryForwardData/dataDiamond2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml',
     'Geometry/VeryForwardData/dataDiamond2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml',
     'Geometry/VeryForwardData/dataDiamond2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml',
     'Geometry/VeryForwardData/dataDiamond2018/CTPPS_Diamond_Detector_Assembly.xml'
+)
+
+# UFSD files
+ctppsUFSDGeomXMLFiles = cms.vstring(
+    # UFSDetectors
+    'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern1.xml',
+    'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentA.xml',
+    'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentB.xml',
+    'Geometry/VeryForwardData/data/CTPPS_UFSD_Planes/CTPPS_UFSD_Plane4.xml',
+    'Geometry/VeryForwardData/data/CTPPS_UFSD_Parameters.xml',
+    #'Geometry/VeryForwardData/data/CTPPS_UFSD_Detector_Assembly.xml',
 )
 
 # pixel files
@@ -124,7 +144,7 @@ ctppsPixelGeomXMLFiles = cms.vstring(
 )
 
 XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsPixelGeomXMLFiles,
+    geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + ctppsPixelGeomXMLFiles,
     rootNodeName = cms.string('cms:CMSE')
 )
 
