@@ -339,8 +339,8 @@ std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals_ (cons
 
   auto result = std::make_unique<HcalPedestals>(topo,false);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalPedestal item = dbHardcode.makePedestal (*cell, false, eff, topo, iLumi);
+  for (auto cell : cells) {
+    HcalPedestal item = dbHardcode.makePedestal (cell, false, eff, topo, iLumi);
     result->addValues(item);
   }
   return result;
@@ -355,8 +355,8 @@ std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWid
 
   auto result = std::make_unique<HcalPedestalWidths>(topo,false);
   std::vector <HcalGenericDetId> cells = allCells(*htopo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalPedestalWidth item = dbHardcode.makePedestalWidth (*cell, eff, topo, iLumi);
+  for (auto cell : cells) {
+    HcalPedestalWidth item = dbHardcode.makePedestalWidth (cell, eff, topo, iLumi);
     result->addValues(item);
   }
   return result;
@@ -386,8 +386,8 @@ std::unique_ptr<HcalGains> HcalHardcodeCalibrations::produceGains (const HcalGai
 
   auto result = std::make_unique<HcalGains>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalGain item = dbHardcode.makeGain (*cell);
+  for (auto cell : cells) {
+    HcalGain item = dbHardcode.makeGain (cell);
     result->addValues(item);
   }
   return result;
@@ -401,14 +401,14 @@ std::unique_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (con
 
   auto result = std::make_unique<HcalGainWidths>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
+  for (auto cell : cells) {
 
     // for Upgrade - include TrigPrims, for regular case - only HcalDetId 
     if(switchGainWidthsForTrigPrims) {
-      HcalGainWidth item = dbHardcode.makeGainWidth (*cell);
+      HcalGainWidth item = dbHardcode.makeGainWidth (cell);
       result->addValues(item);
-    } else if (!cell->isHcalTrigTowerDetId()) {
-      HcalGainWidth item = dbHardcode.makeGainWidth (*cell);
+    } else if (!cell.isHcalTrigTowerDetId()) {
+      HcalGainWidth item = dbHardcode.makeGainWidth (cell);
       result->addValues(item);
     }
   }
@@ -429,8 +429,8 @@ std::unique_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const Hca
 
   auto result = std::make_unique<HcalQIEData>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalQIECoder coder = dbHardcode.makeQIECoder (*cell);
+  for (auto cell : cells) {
+    HcalQIECoder coder = dbHardcode.makeQIECoder (cell);
     result->addCoder (coder);
   }
   return result;
@@ -442,10 +442,10 @@ std::unique_ptr<HcalQIETypes> HcalHardcodeCalibrations::produceQIETypes (const H
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
 
-    auto result = std::make_unique<HcalQIETypes>(topo);
-    std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalQIEType item = dbHardcode.makeQIEType(*cell);
+  auto result = std::make_unique<HcalQIETypes>(topo);
+  std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
+  for (auto cell : cells) {
+    HcalQIEType item = dbHardcode.makeQIEType(cell);
     result->addValues(item);
   }
   return result;
@@ -459,8 +459,8 @@ std::unique_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQual
 
   auto result = std::make_unique<HcalChannelQuality>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-
+<<<<<<< HEAD
+  for (auto cell : cells) {
     // Special: removal of (non-instrumented) layer "-1"("nose") = depth 1 
     // from Upgrade HE, either from  
     // (i)  HEP17 sector in 2017 or 
@@ -469,9 +469,9 @@ std::unique_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQual
  
     uint32_t status = 0;
 
-    if ( !(cell->isHcalZDCDetId())) {
+    if ( !(cell.isHcalZDCDetId())) {
 
-      HcalDetId hid =  HcalDetId(*cell);    
+      HcalDetId hid =  HcalDetId(cell);
       int iphi    = hid.iphi();
       int ieta    = hid.ieta();
       int absieta = hid.ietaAbs();
@@ -488,7 +488,7 @@ std::unique_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQual
       }
     }
 
-    HcalChannelStatus item(cell->rawId(),status);
+    HcalChannelStatus item(cell.rawId(),status);
     result->addValues(item);
   }
 
@@ -584,8 +584,8 @@ std::unique_ptr<HcalLUTCorrs> HcalHardcodeCalibrations::produceLUTCorrs (const H
 
   auto result = std::make_unique<HcalLUTCorrs>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalLUTCorr item(cell->rawId(),1.0);
+  for (auto cell : cells) {
+    HcalLUTCorr item(cell.rawId(),1.0);
     result->addValues(item);
   }
   return result;
@@ -599,8 +599,8 @@ std::unique_ptr<HcalPFCorrs> HcalHardcodeCalibrations::producePFCorrs (const Hca
 
   auto result = std::make_unique<HcalPFCorrs>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalPFCorr item(cell->rawId(),1.0);
+  for (auto cell : cells) {
+    HcalPFCorr item(cell.rawId(),1.0);
     result->addValues(item);
   }
   return result;
@@ -614,8 +614,8 @@ std::unique_ptr<HcalTimeCorrs> HcalHardcodeCalibrations::produceTimeCorrs (const
 
   auto result = std::make_unique<HcalTimeCorrs>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalTimeCorr item(cell->rawId(),0.0);
+  for (auto cell : cells) {
+    HcalTimeCorr item(cell.rawId(),0.0);
     result->addValues(item);
   }
   return result;
@@ -629,8 +629,8 @@ std::unique_ptr<HcalZSThresholds> HcalHardcodeCalibrations::produceZSThresholds 
 
   auto result = std::make_unique<HcalZSThresholds>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalZSThreshold item = dbHardcode.makeZSThreshold(*cell);
+  for (auto cell : cells) {
+    HcalZSThreshold item = dbHardcode.makeZSThreshold(cell);
     result->addValues(item);
   }
   return result;
@@ -645,8 +645,8 @@ std::unique_ptr<HcalL1TriggerObjects> HcalHardcodeCalibrations::produceL1Trigger
 
   auto result = std::make_unique<HcalL1TriggerObjects>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalL1TriggerObject item(cell->rawId(),0., 1., 0);
+  for (auto cell : cells) {
+    HcalL1TriggerObject item(cell.rawId(),0., 1., 0);
     result->addValues(item);
   }
   // add tag and algo values
@@ -674,8 +674,8 @@ std::unique_ptr<HcalValidationCorrs> HcalHardcodeCalibrations::produceValidation
 
   auto result = std::make_unique<HcalValidationCorrs>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalValidationCorr item(cell->rawId(),1.0);
+  for (auto cell : cells) {
+    HcalValidationCorr item(cell.rawId(),1.0);
     result->addValues(item);
   }
   return result;
@@ -729,8 +729,8 @@ std::unique_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams (con
 
   auto result = std::make_unique<HcalRecoParams>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalRecoParam item = dbHardcode.makeRecoParam (*cell);
+  for (auto cell : cells) {
+    HcalRecoParam item = dbHardcode.makeRecoParam (cell);
     result->addValues(item);
   }
   return result;
@@ -744,8 +744,8 @@ std::unique_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams 
 
   auto result = std::make_unique<HcalTimingParams>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalTimingParam item = dbHardcode.makeTimingParam (*cell);
+  for (auto cell : cells) {
+    HcalTimingParam item = dbHardcode.makeTimingParam (cell);
     result->addValues(item);
   }
   return result;
@@ -767,11 +767,11 @@ std::unique_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoPar
   mNoise.push_back(1);  
   mNoise.push_back(2);  
   mNoise.push_back(3);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    if (cell->isHcalZDCDetId())
+  for (auto cell : cells) {
+    if (cell.isHcalZDCDetId())
       {
-	HcalLongRecoParam item(cell->rawId(),mSignal,mNoise);
-	result->addValues(item);
+        HcalLongRecoParam item(cell.rawId(),mSignal,mNoise);
+        result->addValues(item);
       }
   }
   return result;
@@ -785,8 +785,8 @@ std::unique_ptr<HcalZDCLowGainFractions> HcalHardcodeCalibrations::produceZDCLow
 
   auto result = std::make_unique<HcalZDCLowGainFractions>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalZDCLowGainFraction item(cell->rawId(),0.0);
+  for (auto cell : cells) {
+    HcalZDCLowGainFraction item(cell.rawId(),0.0);
     result->addValues(item);
   }
   return result;
@@ -803,10 +803,8 @@ std::unique_ptr<HcalMCParams> HcalHardcodeCalibrations::produceMCParams (const H
   const HcalTopology* topo=&(*htopo);
   auto result = std::make_unique<HcalMCParams>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-
-    //    HcalMCParam item(cell->rawId(),0);
-    HcalMCParam item = dbHardcode.makeMCParam (*cell);
+  for (auto cell : cells) {
+    HcalMCParam item = dbHardcode.makeMCParam (cell);
     result->addValues(item);
   }
   return result;
@@ -827,8 +825,8 @@ std::unique_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagH
   coef.push_back(-0.38275);
   coef.push_back(-0.012667);
 
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalFlagHFDigiTimeParam item(cell->rawId(),
+  for (auto cell : cells) {
+    HcalFlagHFDigiTimeParam item(cell.rawId(),
 				 1, //firstsample
 				 3, // samplestoadd
 				 2, //expectedpeak
@@ -860,8 +858,8 @@ std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParamet
 
   auto result = std::make_unique<HcalSiPMParameters>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*htopo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell,topo,iLumi);
+  for (auto cell : cells) {
+    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (cell,topo,iLumi);
     result->addValues(item);
   }
   return result;
@@ -882,8 +880,8 @@ std::unique_ptr<HcalTPChannelParameters> HcalHardcodeCalibrations::produceTPChan
 
   auto result = std::make_unique<HcalTPChannelParameters>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*htopo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalTPChannelParameter item = dbHardcode.makeHardcodeTPChannelParameter (*cell);
+  for (auto cell : cells) {
+    HcalTPChannelParameter item = dbHardcode.makeHardcodeTPChannelParameter (cell);
     result->addValues(item);
   }
   return result;
