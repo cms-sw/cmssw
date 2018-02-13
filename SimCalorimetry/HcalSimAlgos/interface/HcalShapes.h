@@ -14,7 +14,6 @@
 class CaloVShape;
 class DetId;
 class HcalMCParams;
-class HcalTopology;
 
 class HcalShapes : public CaloShapes
 {
@@ -33,8 +32,7 @@ private:
   // hardcoded, if we can't figure it out from the DB
   const CaloVShape * defaultShape(const DetId & detId, bool precise=false) const;
   const ShapeMap& getShapeMap(bool precise) const;
-  HcalMCParams * theMCParams;
-  const HcalTopology * theTopology;
+  const HcalMCParams * theMCParams;
   ShapeMap theShapes;
   ShapeMap theShapesPrecise;
   ZDCShape theZDCShape;

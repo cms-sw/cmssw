@@ -10,8 +10,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 HcalShapes::HcalShapes()
-: theMCParams(nullptr),
-  theTopology(nullptr)
+: theMCParams(nullptr)
  {
 /*
          00 - not used (reserved)
@@ -50,8 +49,6 @@ HcalShapes::~HcalShapes()
     delete shapeItr.second;
   }
   theShapes.clear();
-  if (theMCParams!=nullptr) delete theMCParams;
-  if (theTopology!=nullptr) delete theTopology;
 }
 
 
@@ -59,23 +56,12 @@ void HcalShapes::beginRun(edm::EventSetup const & es)
 {
   edm::ESHandle<HcalMCParams> p;
   es.get<HcalMCParamsRcd>().get(p);
-  theMCParams = new HcalMCParams(*p.product()); 
-
-// here we are making a _copy_ so we need to add a copy of the topology...
-  
-  edm::ESHandle<HcalTopology> htopo;
-  es.get<HcalRecNumberingRecord>().get(htopo);
-  theTopology=new HcalTopology(*htopo);
-  theMCParams->setTopo(theTopology);
+  theMCParams = &*p;
 }
 
 
 void HcalShapes::endRun()
 {
-  if (theMCParams) delete theMCParams;
-  theMCParams = nullptr;
-  if (theTopology) delete theTopology;
-  theTopology = nullptr;
 }
 
 
