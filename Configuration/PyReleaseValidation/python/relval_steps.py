@@ -356,10 +356,7 @@ steps['RunSinglePh2017F']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2017F-v1/
 steps['RunZeroBias2017F']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2017F-v1/RAW',label='zb2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunMuOnia2017F']={'INPUT':InputInfo(dataSet='/MuOnia/Run2017F-v1/RAW',label='muOnia2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunNoBPTX2017F']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2017F-v1/RAW',label='noBptx2017F',events=100000,location='STD', ls=Run2017F)}
-
-
-
-
+steps['RunJetHT2017F_reminiaod']={'INPUT':InputInfo(dataSet='/JetHT/Run2017F-17Nov2017-v1/AOD',label='rmaod_jetHT2017F',events=100000,location='STD', ls=Run2017F)}
 
 
 # Highstat HLTPhysics
@@ -547,6 +544,8 @@ steps['QCD_FlatPt_15_3000HSINPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt
 steps['TTbar__DIGIPU1INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_2_2-PU_START52_V4_special_120326-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
 # INPUT command for reminiAOD wf on 80X relval input
 steps['TTbar_13_reminiaodINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_8_0_21-80X_mcRun2_asymptotic_2016_TrancheIV_v6_Tr4GT_v6-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
+# INPUT command for reminiAOD wf on 94X relval input
+steps['TTbar_13_94XreminiaodINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_9_4_0-94X_mc2017_realistic_v10-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
 
 #input for a NANOAOD from MINIAOD workflow
 steps['ZEE_13_80XNanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/CMSSW_8_0_21-PU25ns_80X_mcRun2_asymptotic_2016_TrancheIV_v6_Tr4GT_v6-v1/MINIAODSIM',label='nanoaod80X',location='STD')}
@@ -1916,6 +1915,8 @@ steps['HARVESTDCRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_201
 steps['HARVESTDR2_REMINIAOD_data2016']=merge([{'--data':'', '-s':'HARVESTING:@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTDR2']])
 steps['HARVESTDR2_REMINIAOD_data2016_HIPM']=merge([{'--era':'Run2_2016_HIPM,run2_miniAOD_80XLegacy'},steps['HARVESTDR2_REMINIAOD_data2016']])
 
+steps['HARVEST2017_REMINIAOD_data2017']=merge([{'--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['HARVESTDR2_REMINIAOD_data2016']])
+
 steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:run1_data',
                    '--filetype':'DQM',
@@ -2033,6 +2034,7 @@ steps['HARVESTUP18_PU25_L1TEgDQM']=steps['HARVESTUP18_L1TEgDQM']
 steps['HARVESTUP18_PU25_L1TMuDQM']=steps['HARVESTUP18_L1TMuDQM']
 
 steps['HARVESTDR2_REMINIAOD_mc2016']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTUP15']])
+steps['HARVESTUP17_REMINIAOD_mc2017']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM','--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['HARVESTUP17']])
 
 # for Run1 PPb data workflow
 steps['HARVEST_PPbData']=merge([{'--conditions':'auto:run1_data','-s':'HARVESTING:dqmHarvesting','--scenario':'pp','--era':'Run1_pA' }, steps['HARVESTDHI']])
@@ -2127,6 +2129,7 @@ steps['REMINIAOD_data2016'] = merge([{'-s' : 'PAT,DQM:@miniAODDQM',
 
 steps['REMINIAOD_data2016_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM,run2_miniAOD_80XLegacy'},steps['REMINIAOD_data2016']])
 
+steps['REMINIAOD_data2017'] = merge([{'--era' : 'Run2_2017,run2_miniAOD_94XFall17'},steps['REMINIAOD_data2016']])
 
 # Not sure whether the customisations are in the dict as "--customise" or "--era" so try to
 # remove both. Currently premixing uses "--customise" and everything else uses "--era".
@@ -2150,6 +2153,8 @@ steps['REMINIAOD_mc2016'] = merge([{'-s' : 'PAT,VALIDATION:@miniAODValidation,DQ
                                     '--eventcontent' : 'MINIAODSIM,DQM',
                                     '--datatier' : 'MINIAODSIM,DQMIO'
                                     },stepMiniAODDefaults])
+
+steps['REMINIAOD_mc2017'] =merge([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['REMINIAOD_mc2016']])
 
 
 #steps['MINIAODDATA']       =merge([stepMiniAODData])
