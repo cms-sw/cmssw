@@ -382,7 +382,7 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
 
 
     uint32_t nModulesActive=0;
-    RawToDigi_wrapper(context_, cablingMapGPUDevice_, wordCounterGPU, word, fedCounter, fedId_h, convertADCtoElectrons, pdigi_h, 
+    RawToDigi_wrapper(context_, cablingMapGPUDevice_, gainForHLTonGPU_, wordCounterGPU, word, fedCounter, fedId_h, convertADCtoElectrons, pdigi_h, 
                       rawIdArr_h, errType_h, errWord_h, errFedID_h, errRawID_h, useQuality, includeErrors, debug,nModulesActive);
 
 

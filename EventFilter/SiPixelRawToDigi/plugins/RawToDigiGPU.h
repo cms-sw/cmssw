@@ -176,7 +176,8 @@ struct context {
 
 
 // wrapper function to call RawToDigi on the GPU from host side
-void RawToDigi_wrapper(context &, const SiPixelFedCablingMapGPU* cablingMapDevice, const uint32_t wordCounter, uint32_t *word, 
+void RawToDigi_wrapper(context &, const SiPixelFedCablingMapGPU* cablingMapDevice, SiPixelGainForHLTonGPU * const ped, 
+                        const uint32_t wordCounter, uint32_t *word, 
                         const uint32_t fedCounter,  uint8_t *fedId_h,
                         bool convertADCtoElectrons, uint32_t * pdigi_h,
                         uint32_t *rawIdArr_h, uint32_t *errType_h, uint32_t *errWord_h, uint32_t *errFedID_h, uint32_t *errRawID_h,

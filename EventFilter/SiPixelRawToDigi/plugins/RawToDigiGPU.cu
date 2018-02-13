@@ -11,7 +11,6 @@
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuCalibPixel.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
 
-SiPixelGainForHLTonGPU * ped;
 
 
 // System includes
@@ -596,7 +595,8 @@ __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const uint3
 // kernel wrapper called from runRawToDigi_kernel
 void RawToDigi_wrapper(
     context & c,
-    const SiPixelFedCablingMapGPU* cablingMapDevice, const uint32_t wordCounter, uint32_t *word, const uint32_t fedCounter,  uint8_t *fedId_h,
+    const SiPixelFedCablingMapGPU* cablingMapDevice, SiPixelGainForHLTonGPU * const ped,
+    const uint32_t wordCounter, uint32_t *word, const uint32_t fedCounter,  uint8_t *fedId_h,
     bool convertADCtoElectrons, 
     uint32_t * pdigi_h, uint32_t *rawIdArr_h, 
     uint32_t *errType_h, uint32_t *errWord_h, uint32_t *errFedID_h, uint32_t *errRawID_h,

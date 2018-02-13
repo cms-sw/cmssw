@@ -9,6 +9,11 @@ namespace gpuCalibPixel {
 
   constexpr uint16_t InvId=9999; // must be > MaxNumModules
 
+  constexpr float VCaltoElectronGain      = 47;   // L2-4: 47 +- 4.7
+  constexpr float VCaltoElectronGain_L1   = 50;   // L1:   49.6 +- 2.6
+  constexpr float VCaltoElectronOffset    = -60;  // L2-4: -60 +- 130
+  constexpr float VCaltoElectronOffset_L1 = -670; // L1:   -670 +- 220
+
 
  __global__ void calibADC(uint16_t * id,
 			   uint16_t const * x,
@@ -26,7 +31,9 @@ namespace gpuCalibPixel {
     auto me = id[first];
     
     /// depends on "me"
-    float conversionFactor=1; float offset=0; 
+
+    float conversionFactor = me<96 ? VCaltoElectronGain_L1 : VCaltoElectronGain; 
+    float offset =  me<96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset; 
  
 
 #ifdef GPU_DEBUG

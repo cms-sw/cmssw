@@ -150,8 +150,17 @@ processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeomet
   gg.gainPrecision = (gg.maxGain_-gg.minGain_)/static_cast<float>(gg.nBinsToUseForEncoding_);
 
   // fill the index map
-  auto ind = gains.getIndexes();  
-  assert(gains.data().size()==m_detectors);
+  auto const & ind = gains.getIndexes();  
+  std::cout << ind.size() << " " << m_detectors << std::endl;
+
+  for (auto i=0U; i<m_detectors; ++i) {
+    auto p = std::lower_bound(ind.begin(),ind.end(),dus[i]->geographicalId().rawId(),SiPixelGainCalibrationForHLT::StrictWeakOrdering());
+    assert (p!=ind.end() && p->detid==dus[i]->geographicalId());
+    gg.rangeAndCols[i] = std::make_pair(SiPixelGainForHLTonGPU::Range(p->ibegin,p->iend), p->ncols);
+    // if (ind[i].detid!=dus[i]->geographicalId()) std::cout << ind[i].detid<<"!="<<dus[i]->geographicalId() << std::endl;
+    // gg.rangeAndCols[i] = std::make_pair(SiPixelGainForHLTonGPU::Range(ind[i].ibegin,ind[i].iend), ind[i].ncols);
+  }
+
 
   cudaCheck(cudaMemcpy(gainsOnGPU,&gg,sizeof(SiPixelGainForHLTonGPU), cudaMemcpyHostToDevice));
 
