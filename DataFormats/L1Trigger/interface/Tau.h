@@ -21,7 +21,7 @@ namespace l1t {
   class Tau : public L1Candidate {
 
   public:
-    Tau(){}
+    Tau(){ clear_extended(); }
     Tau( const LorentzVector& p4,
 	    int pt=0,
 	    int eta=0,
