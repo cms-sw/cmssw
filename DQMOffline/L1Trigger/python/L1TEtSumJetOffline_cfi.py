@@ -41,7 +41,7 @@ httEfficiencyBins.extend(list(xrange(200, 400, 20)))
 httEfficiencyBins.extend(list(xrange(400, 500, 50)))
 httEfficiencyBins.extend(list(xrange(500, 601, 10)))
 
-l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
+l1tEtSumJetOfflineDQM = cms.EDAnalyzer(
     "L1TStage2CaloLayer2Offline",
     electronCollection=cms.InputTag("gedGsfElectrons"),
     caloJetCollection=cms.InputTag("ak4CaloJets"),
@@ -67,7 +67,8 @@ l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
     stage2CaloLayer2JetSource=cms.InputTag("caloStage2Digis", "Jet"),
     stage2CaloLayer2EtSumSource=cms.InputTag("caloStage2Digis", "EtSum"),
 
-    histFolder=cms.string('L1T/L1TStage2CaloLayer2'),
+    histFolderEtSum=cms.string('L1T/L1TObjects/L1TEtSum/L1TriggerVsReco'),
+    histFolderJet=cms.string('L1T/L1TObjects/L1TJet/L1TriggerVsReco'),
     jetEfficiencyThresholds=cms.vdouble(jetEfficiencyThresholds),
     metEfficiencyThresholds=cms.vdouble(metEfficiencyThresholds),
     mhtEfficiencyThresholds=cms.vdouble(mhtEfficiencyThresholds),
@@ -106,7 +107,7 @@ jetEfficiencyBins_HI.extend(list(xrange(300, 401, 100)))
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(
-    l1tStage2CaloLayer2OfflineDQM,
+    l1tEtSumJetOfflineDQM,
     TriggerFilter=cms.InputTag('hltEle20WPLoose1GsfTrackIsoFilter', '', 'HLT'),
     TriggerPath=cms.string('HLT_Ele20_WPLoose_Gsf_v4'),
     jetEfficiencyThresholds=cms.vdouble(jetEfficiencyThresholds_HI),
@@ -114,9 +115,10 @@ ppRef_2017.toModify(
 )
 
 # emulator module
-l1tStage2CaloLayer2OfflineDQMEmu = l1tStage2CaloLayer2OfflineDQM.clone(
+l1tEtSumJetOfflineDQMEmu = l1tEtSumJetOfflineDQM.clone(
     stage2CaloLayer2JetSource=cms.InputTag("simCaloStage2Digis"),
     stage2CaloLayer2EtSumSource=cms.InputTag("simCaloStage2Digis"),
 
-    histFolder=cms.string('L1TEMU/L1TStage2CaloLayer2'),
+    histFolderEtSum = cms.string('L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco'),
+    histFolderJet = cms.string('L1TEMU/L1TObjects/L1TJet/L1TriggerVsReco'),
 )
