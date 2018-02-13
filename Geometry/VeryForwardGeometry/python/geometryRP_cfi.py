@@ -115,11 +115,11 @@ ctppsDiamondGeomXMLFiles = cms.vstring(
     #'Geometry/VeryForwardData/data/CTPPS_Diamond_Detector_Assembly.xml'
     
     # 2018 geometry
-    'Geometry/VeryForwardData/dataDiamond2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane1.xml',
-    'Geometry/VeryForwardData/dataDiamond2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml',
-    'Geometry/VeryForwardData/dataDiamond2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml',
-    'Geometry/VeryForwardData/dataDiamond2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml',
-    'Geometry/VeryForwardData/dataDiamond2018/CTPPS_Diamond_Detector_Assembly.xml'
+    'Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane1.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Detector_Assembly.xml'
 )
 
 # UFSD files
