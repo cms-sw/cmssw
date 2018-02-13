@@ -21,9 +21,7 @@ globalSeedsFromPairsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFrom
       maxElement = cms.uint32(1000000)
     ),
     RegionFactoryPSet = cms.PSet(
-      #RegionPSetWithVerticesBlock = cms.PSet(
-        RegionPSet = globalTrackingRegionWithVertices.RegionPSet,
-      #),
+      RegionPSet = globalTrackingRegionWithVertices.RegionPSet,
       ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer')
     )
 )    
