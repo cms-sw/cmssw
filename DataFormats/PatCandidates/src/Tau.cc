@@ -3,6 +3,7 @@
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include <algorithm>
 #include <boost/bind.hpp>
 
@@ -49,7 +50,31 @@ Tau::Tau(const reco::BaseTau & aTau) :
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(&aTau);
     if (pfTau != nullptr){
-      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      // If PFTau is made from PackedCandidates, directly fill slimmed version
+      // without PFSpecific
+      const pat::PackedCandidate* pc = dynamic_cast<const pat::PackedCandidate*>(pfTau->leadPFChargedHadrCand().get());
+      if (pc != nullptr) {
+        for (const auto& ptr : pfTau->signalPFChargedHadrCands())
+          signalChargedHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->signalPFNeutrHadrCands())
+          signalNeutralHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->signalPFGammaCands())
+          signalGammaCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->isolationPFChargedHadrCands())
+        isolationChargedHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->isolationPFNeutrHadrCands())
+          isolationNeutralHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->isolationPFGammaCands())
+          isolationGammaCandPtrs_.push_back(ptr);
+      }
+      else {
+        pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      }
       pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
     }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(&aTau);
@@ -76,7 +101,31 @@ Tau::Tau(const edm::RefToBase<reco::BaseTau> & aTauRef) :
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != nullptr){
-      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      // If PFTau is made from PackedCandidates, directly fill slimmed version
+      // without PFSpecific
+      const pat::PackedCandidate* pc = dynamic_cast<const pat::PackedCandidate*>(pfTau->leadPFChargedHadrCand().get());
+      if (pc != nullptr) {
+        for (const auto& ptr : pfTau->signalPFChargedHadrCands())
+          signalChargedHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->signalPFNeutrHadrCands())
+          signalNeutralHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->signalPFGammaCands())
+          signalGammaCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->isolationPFChargedHadrCands())
+        isolationChargedHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->isolationPFNeutrHadrCands())
+          isolationNeutralHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->isolationPFGammaCands())
+          isolationGammaCandPtrs_.push_back(ptr);
+      }
+      else {
+        pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      }
       pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
     }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(aTauRef.get());
@@ -103,7 +152,31 @@ Tau::Tau(const edm::Ptr<reco::BaseTau> & aTauRef) :
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != nullptr){
-      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      // If PFTau is made from PackedCandidates, directly fill slimmed version
+      // without PFSpecific
+      const pat::PackedCandidate* pc = dynamic_cast<const pat::PackedCandidate*>(pfTau->leadPFChargedHadrCand().get());
+      if (pc != nullptr) {
+        for (const auto& ptr : pfTau->signalPFChargedHadrCands())
+          signalChargedHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->signalPFNeutrHadrCands())
+          signalNeutralHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->signalPFGammaCands())
+          signalGammaCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->isolationPFChargedHadrCands())
+        isolationChargedHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->isolationPFNeutrHadrCands())
+          isolationNeutralHadrCandPtrs_.push_back(ptr);
+
+        for (const auto& ptr : pfTau->isolationPFGammaCands())
+          isolationGammaCandPtrs_.push_back(ptr);
+      }
+      else {
+        pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      }
       pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
     }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(aTauRef.get());
