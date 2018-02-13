@@ -21,7 +21,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -296,6 +295,8 @@ void HcalDigitizer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGe
 }
 
 void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup) {
+  setup(eventSetup);
+
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
@@ -528,9 +529,9 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 }
 
 
-void HcalDigitizer::beginRun(const edm::EventSetup & es) {
+void HcalDigitizer::setup(const edm::EventSetup & es) {
   checkGeometry(es);
-  theShapes->beginRun(es);
+  theShapes->setup(es);
 
   if (agingFlagHB) {
     edm::ESHandle<HBHEDarkening> hdark;
@@ -554,28 +555,15 @@ void HcalDigitizer::beginRun(const edm::EventSetup & es) {
 }
 
 
-void HcalDigitizer::endRun() {
-  theShapes->endRun();
-}
-
-
 void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<CaloGeometryRecord>().get(geometry);
+  theGeometry = &*geometry;
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   eventSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
+  theRecNumber= &*pHRNDC;
 
-  // See if it's been updated
-  if (&*geometry != theGeometry) {
-    theGeometry = &*geometry;
-    theRecNumber= &*pHRNDC;
-    updateGeometry(eventSetup);
-  }
-}
-
-
-void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   if(theHBHEResponse) theHBHEResponse->setGeometry(theGeometry);
   if(theHBHESiPMResponse) theHBHESiPMResponse->setGeometry(theGeometry);
   if(theHOResponse) theHOResponse->setGeometry(theGeometry);
@@ -585,6 +573,16 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   theZDCResponse->setGeometry(theGeometry);
   if(theRelabeller) theRelabeller->setGeometry(theRecNumber);
 
+  // See if it's been updated
+  bool check1 = theGeometryWatcher_.check(eventSetup);
+  bool check2 = theRecNumberWatcher_.check(eventSetup);
+  if (check1 or check2) {
+    updateGeometry(eventSetup);
+  }
+}
+
+
+void HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   const std::vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
   const std::vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
   const std::vector<DetId>& hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);

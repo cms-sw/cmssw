@@ -52,16 +52,11 @@ HcalShapes::~HcalShapes()
 }
 
 
-void HcalShapes::beginRun(edm::EventSetup const & es)
+void HcalShapes::setup(edm::EventSetup const & es)
 {
   edm::ESHandle<HcalMCParams> p;
   es.get<HcalMCParamsRcd>().get(p);
   theMCParams = &*p;
-}
-
-
-void HcalShapes::endRun()
-{
 }
 
 

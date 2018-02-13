@@ -15,6 +15,9 @@
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include <vector>
 
@@ -50,8 +53,6 @@ public:
   void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
   void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
-  void beginRun(const edm::EventSetup & es);
-  void endRun();
   
   void setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
@@ -61,6 +62,7 @@ public:
   void setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
+  void setup(const edm::EventSetup & es);
   void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing, CLHEP::HepRandomEngine*, const HcalTopology *h);
 
   /// some hits in each subdetector, just for testing purposes
@@ -68,6 +70,8 @@ private:
   /// make sure the digitizer has the correct list of all cells that
   /// exist in the geometry
   void checkGeometry(const edm::EventSetup& eventSetup);
+  edm::ESWatcher<CaloGeometryRecord> theGeometryWatcher_;
+  edm::ESWatcher<HcalRecNumberingRecord> theRecNumberWatcher_;
   const CaloGeometry * theGeometry;
   const HcalDDDRecConstants * theRecNumber;
   void updateGeometry(const edm::EventSetup& eventSetup);
