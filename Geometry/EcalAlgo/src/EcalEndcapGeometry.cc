@@ -522,3 +522,12 @@ const CaloCellGeometry* EcalEndcapGeometry::getGeometryRawPtr(uint32_t index) co
   return (m_cellVec.size() < index ||
 	  nullptr == cell->param() ? nullptr : cell);
 }
+
+bool EcalEndcapGeometry::present( const DetId& id ) const
+{
+  if(id.det()==DetId::Ecal && id.subdetId()==EcalEndcap){
+    EEDetId eeId(id);
+    if(EEDetId::validDetId(eeId.ix(),eeId.iy(),eeId.zside())) return true;
+  }
+  return false;
+}
