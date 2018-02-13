@@ -25,6 +25,20 @@
 using namespace std;
 using namespace edm;
 
+struct Histograms {
+  HRes2DHit *h2DHitRPhi;
+  HRes2DHit *h2DHitRZ;
+  HRes2DHit *h2DHitRZ_W0;
+  HRes2DHit *h2DHitRZ_W1;
+  HRes2DHit *h2DHitRZ_W2;
+
+  HEff2DHit *h2DHitEff_RPhi;
+  HEff2DHit *h2DHitEff_RZ;
+  HEff2DHit *h2DHitEff_RZ_W0;
+  HEff2DHit *h2DHitEff_RZ_W1;
+  HEff2DHit *h2DHitEff_RZ_W2;
+};
+
 // Constructor
 DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
   // get the debug parameter for verbose output

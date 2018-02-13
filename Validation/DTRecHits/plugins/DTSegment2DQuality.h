@@ -26,22 +26,7 @@ namespace edm {
 
 class HRes2DHit;
 class HEff2DHit;
-
-namespace {
-  struct Histograms {
-    HRes2DHit *h2DHitRPhi;
-    HRes2DHit *h2DHitRZ;
-    HRes2DHit *h2DHitRZ_W0;
-    HRes2DHit *h2DHitRZ_W1;
-    HRes2DHit *h2DHitRZ_W2;
-
-    HEff2DHit *h2DHitEff_RPhi;
-    HEff2DHit *h2DHitEff_RZ;
-    HEff2DHit *h2DHitEff_RZ_W0;
-    HEff2DHit *h2DHitEff_RZ_W1;
-    HEff2DHit *h2DHitEff_RZ_W2;
-  };
-}
+struct Histograms;
 
 class DTSegment2DQuality : public DQMGlobalEDAnalyzer<Histograms> {
 public:
