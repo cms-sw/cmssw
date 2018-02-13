@@ -374,7 +374,6 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
       }
 
->>>>>>> Fixes for L1Tau
     } // end loop on clusters
 
 		
