@@ -557,7 +557,6 @@ void HcalDigitizer::setup(const edm::EventSetup & es) {
 
 
 void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
-  // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<CaloGeometryRecord>().get(geometry);
   theGeometry = &*geometry;
