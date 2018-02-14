@@ -472,7 +472,7 @@ void HIMultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) con
   int lostOut = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
   int minLost = std::min(lostIn,lostOut);
   if (minLost > max_minMissHitOutOrIn_[tsNum]) return false;
-  float lostMidFrac = tk.numberOfLostHits() / (tk.numberOfValidHits() + tk.numberOfLostHits());
+  float lostMidFrac = tk.numberOfLostHits()==0? 0. : tk.numberOfLostHits() / (tk.numberOfValidHits() + tk.numberOfLostHits());
   if (lostMidFrac > max_lostHitFraction_[tsNum]) return false;
 
   // Pixel Track Merging pT dependent cuts
