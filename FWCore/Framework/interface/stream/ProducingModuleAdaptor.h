@@ -73,6 +73,10 @@ namespace edm {
         return T::HasAbility::kExternalWork;
       }
 
+      bool hasAccumulator() const final {
+        return T::HasAbility::kAccumulator;
+      }
+
     private:
       typedef CallGlobal<T> MyGlobal;
       typedef CallGlobalRun<T> MyGlobalRun;
@@ -93,6 +97,10 @@ namespace edm {
         m_pset= nullptr;
       }
 
+      void preallocLumis(unsigned int iNLumis) final {
+        m_lumis.resize(iNLumis);
+        m_lumiSummaries.resize(iNLumis);
+      }
       void doEndJob() final {
         MyGlobal::endJob(m_global.get());
       }
@@ -123,7 +131,7 @@ namespace edm {
                       EventSetup const& c,
                       ModuleCallingContext const* mcc) final {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kBeginRunProducer) {
-          Run r(rp, this->moduleDescription(), mcc);
+          Run r(rp, this->moduleDescription(), mcc, false);
           r.setConsumer(this->consumer());
           r.setProducer(this->producer());
           Run const& cnstR = r;
@@ -143,7 +151,7 @@ namespace edm {
       {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kEndRunProducer) {
           
-          Run r(rp, this->moduleDescription(), mcc);
+          Run r(rp, this->moduleDescription(), mcc, true);
           r.setConsumer(this->consumer());
           r.setProducer(this->producer());
 
@@ -162,7 +170,7 @@ namespace edm {
                                   ModuleCallingContext const* mcc) final
       {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kBeginLuminosityBlockProducer) {
-          LuminosityBlock lb(lbp, this->moduleDescription(), mcc);
+          LuminosityBlock lb(lbp, this->moduleDescription(), mcc, false);
           lb.setConsumer(this->consumer());
           lb.setProducer(this->producer());
           LuminosityBlock const& cnstLb = lb;
@@ -184,7 +192,7 @@ namespace edm {
                                 ModuleCallingContext const* mcc) final {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kEndLuminosityBlockProducer) {
           
-          LuminosityBlock lb(lbp, this->moduleDescription(), mcc);
+          LuminosityBlock lb(lbp, this->moduleDescription(), mcc, true);
           lb.setConsumer(this->consumer());
           lb.setProducer(this->producer());
 

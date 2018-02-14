@@ -15,6 +15,7 @@
 #include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include <cassert>
 #include <utility>
@@ -172,6 +173,7 @@ namespace edm {
   void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                             Principal const& principal,
                                             bool skipCurrentProcess,
+                                            ServiceToken const& token,
                                             SharedResourcesAcquirer* sra,
                                             ModuleCallingContext const* mcc) const {
     m_waitingTasks.add(waitTask);
@@ -179,9 +181,8 @@ namespace edm {
     bool expected = false;
     if( m_prefetchRequested.compare_exchange_strong(expected, true) ) {
       
-      //need to make sure Service system is activated on the reading thread
-      auto token = ServiceRegistry::instance().presentToken();
       auto workToDo = [this, mcc, &principal, token] () {
+        //need to make sure Service system is activated on the reading thread
         ServiceRegistry::Operate guard(token);
         try {
           resolveProductImpl<true>([this,&principal,mcc]() {
@@ -255,12 +256,14 @@ namespace edm {
   void PuttableProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                                Principal const& principal,
                                                bool skipCurrentProcess,
+                                               ServiceToken const& token,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const {
     if(not skipCurrentProcess) {
-      if(branchDescription().availableOnlyAtEndTransition() and
-         not principal.atEndTransition()) {
-        return;
+      if(branchDescription().availableOnlyAtEndTransition() and mcc ) {
+        if( not mcc->parent().isAtEndTransition() ) {
+          return;
+        }
       }
       m_waitingTasks.add(waitTask);
       
@@ -363,6 +366,7 @@ namespace edm {
   UnscheduledProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                              Principal const& principal,
                                              bool skipCurrentProcess,
+                                             ServiceToken const& token,
                                              SharedResourcesAcquirer* sra,
                                              ModuleCallingContext const* mcc) const
   {
@@ -396,6 +400,7 @@ namespace edm {
       worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(t,
                                                                                        event,
                                                                                        *(aux_->eventSetup()),
+                                                                                       token,
                                                                                        event.streamID(),
                                                                                        parentContext,
                                                                                        mcc->getStreamContext());
@@ -432,14 +437,6 @@ namespace edm {
   ProducedProductResolver::isFromCurrentProcess() const {
     return true;
   }
-  
-  void
-  ProducedProductResolver::resetFailedFromThisProcess() {
-    if(ProductStatus::ResolveFailed == status()) {
-      resetProductData_(false);
-    }
-  }
-
   
   void
   DataManagingProductResolver::connectTo(ProductResolverBase const& iOther, Principal const*) {
@@ -636,14 +633,16 @@ namespace edm {
 
   NoProcessProductResolver::
   NoProcessProductResolver(std::vector<ProductResolverIndex> const&  matchingHolders,
-                           std::vector<bool> const& ambiguous) :
+                           std::vector<bool> const& ambiguous,
+                           bool madeAtEnd) :
   matchingHolders_(matchingHolders),
   ambiguous_(ambiguous),
   lastCheckIndex_(ambiguous_.size() + kUnsetOffset),
   lastSkipCurrentCheckIndex_(lastCheckIndex_.load()),
   prefetchRequested_(false),
   skippingPrefetchRequested_(false),
-  recheckedAtEnd_(false) {
+  madeAtEnd_{madeAtEnd}
+  {
     assert(ambiguous_.size() == matchingHolders_.size());
   }
   
@@ -666,29 +665,25 @@ namespace edm {
     //See if we've already cached which Resolver we should call or if
     // we know it is ambiguous
     const unsigned int choiceSize = ambiguous_.size();
-    {
-      if( (not principal.atEndTransition()) or
-         recheckedAtEnd_) {
-        unsigned int checkCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_.load() : lastCheckIndex_.load();
-        if( checkCacheIndex != choiceSize +kUnsetOffset) {
-          if (checkCacheIndex == choiceSize+kAmbiguousOffset) {
-            return ProductResolverBase::Resolution::makeAmbiguous();
-          } else if(checkCacheIndex == choiceSize+kMissingOffset) {
-            return Resolution(nullptr);
-          }
-          return tryResolver(checkCacheIndex, principal, skipCurrentProcess,
-                             sra,mcc);
-        }
+
+    //madeAtEnd_==true and not at end transition is the same as skipping the current process
+    if( (not skipCurrentProcess) and (madeAtEnd_ and mcc)) {
+      skipCurrentProcess = not mcc->parent().isAtEndTransition();
+    }
+
+    unsigned int checkCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_.load() : lastCheckIndex_.load();
+    if( checkCacheIndex != choiceSize +kUnsetOffset) {
+      if (checkCacheIndex == choiceSize+kAmbiguousOffset) {
+        return ProductResolverBase::Resolution::makeAmbiguous();
+      } else if(checkCacheIndex == choiceSize+kMissingOffset) {
+        return Resolution(nullptr);
       }
+      return tryResolver(checkCacheIndex, principal, skipCurrentProcess,
+                         sra,mcc);
     }
 
     std::atomic<unsigned int>& updateCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_ : lastCheckIndex_;
 
-    //make sure recheckedAtEnd_ set to true if needed
-    auto setTrue = [](std::atomic<bool>* iBool) { *iBool = true; };
-    using TrueGuard = std::unique_ptr<std::atomic<bool>, decltype(setTrue)>;
-    TrueGuard guard( principal.atEndTransition()?&recheckedAtEnd_:nullptr,setTrue);
-    
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     for(unsigned int k : lookupProcessOrder) {
       assert(k < ambiguous_.size());
@@ -714,33 +709,29 @@ namespace edm {
   NoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                            Principal const& principal,
                                            bool skipCurrentProcess,
+                                           ServiceToken const& token,
                                            SharedResourcesAcquirer* sra,
                                            ModuleCallingContext const* mcc) const {
-    if(not skipCurrentProcess) {
+    bool timeToMakeAtEnd = true;
+    if(madeAtEnd_ and mcc) {
+      timeToMakeAtEnd = mcc->parent().isAtEndTransition();
+    }
+
+    //If timeToMakeAtEnd is false, then it is equivalent to skipping the current process
+    if(not skipCurrentProcess and timeToMakeAtEnd) {
       waitingTasks_.add(waitTask);
       
-      //It is possible that a new product was added at then end transition
-      // so we need to recheck what to return
-      bool needToRecheckAtEnd = false;
-      if(principal.atEndTransition()) {
-        bool expected = false;
-        needToRecheckAtEnd = recheckedAtEnd_.compare_exchange_strong(expected,true);
-        if(needToRecheckAtEnd) {
-          prefetchRequested_=true;
-        }
-      }
-      
       bool expected = false;
-      if( needToRecheckAtEnd or prefetchRequested_.compare_exchange_strong(expected,true)) {
+      if( prefetchRequested_.compare_exchange_strong(expected,true)) {
         //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, skipCurrentProcess, sra, mcc, ServiceRegistry::instance().presentToken());
+        tryPrefetchResolverAsync(0, principal, false, sra, mcc, token);
       }
     } else {
       skippingWaitingTasks_.add(waitTask);
       bool expected = false;
       if( skippingPrefetchRequested_.compare_exchange_strong(expected,true)) {
       //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, skipCurrentProcess, sra, mcc, ServiceRegistry::instance().presentToken());
+        tryPrefetchResolverAsync(0, principal, true, sra, mcc, token);
       }
     }
   }
@@ -876,6 +867,7 @@ namespace edm {
         productResolver->prefetchAsync(task,
                                        principal,
                                        skipCurrentProcess,
+                                       token,
                                        sra, mcc);
         if(0 == task->decrement_ref_count()) {
           tbb::task::spawn(*task);
@@ -906,7 +898,6 @@ namespace edm {
     lastSkipCurrentCheckIndex_ = resetValue;
     prefetchRequested_ = false;
     skippingPrefetchRequested_ = false;
-    recheckedAtEnd_ = false;
     waitingTasks_.reset();
     skippingWaitingTasks_.reset();
   }
@@ -999,11 +990,12 @@ namespace edm {
   void SingleChoiceNoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                                             Principal const& principal,
                                                             bool skipCurrentProcess,
+                                                            ServiceToken const& token,
                                                             SharedResourcesAcquirer* sra,
                                                             ModuleCallingContext const* mcc) const {
     principal.getProductResolverByIndex(realResolverIndex_)
     ->prefetchAsync(waitTask,principal,
-                    skipCurrentProcess, sra, mcc);
+                    skipCurrentProcess, token, sra, mcc);
   }
   
   void SingleChoiceNoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {

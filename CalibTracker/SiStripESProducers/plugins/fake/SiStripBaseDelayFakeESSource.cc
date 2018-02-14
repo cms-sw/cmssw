@@ -29,7 +29,7 @@ public:
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripBaseDelay> ReturnType;
+  typedef std::unique_ptr<SiStripBaseDelay> ReturnType;
   ReturnType produce(const SiStripBaseDelayRcd&);
 
 private:
@@ -64,7 +64,7 @@ SiStripBaseDelayFakeESSource::produce(const SiStripBaseDelayRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::shared_ptr<SiStripBaseDelay> baseDelay{new SiStripBaseDelay};
+  auto baseDelay = std::make_unique<SiStripBaseDelay>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

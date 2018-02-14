@@ -258,6 +258,10 @@ namespace edm {
 
     //preModuleEndLumiSignal_.connect(std::cref(iOther.preModuleEndLumiSignal_));
     //postModuleEndLumiSignal_.connect(std::cref(iOther.postModuleEndLumiSignal_));
+
+     preLockEventSetupGetSignal_.connect(std::cref(iOther.preLockEventSetupGetSignal_));
+     postLockEventSetupGetSignal_.connect(std::cref(iOther.postLockEventSetupGetSignal_));
+     postEventSetupGetSignal_.connect(std::cref(iOther.postEventSetupGetSignal_));
   }
 
   void
@@ -435,6 +439,9 @@ namespace edm {
     copySlotsToFrom(preSourceConstructionSignal_, iOther.preSourceConstructionSignal_);
     copySlotsToFromReverse(postSourceConstructionSignal_, iOther.postSourceConstructionSignal_);
 
+    copySlotsToFrom(preLockEventSetupGetSignal_, iOther.preLockEventSetupGetSignal_);
+    copySlotsToFromReverse(postLockEventSetupGetSignal_, iOther.postLockEventSetupGetSignal_);
+    copySlotsToFromReverse(postEventSetupGetSignal_, iOther.postEventSetupGetSignal_);
   }
 
   //

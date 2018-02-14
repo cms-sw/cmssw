@@ -147,7 +147,7 @@ protected:
 
     bool test(unsigned aDETID, double energy, int flags, bool& clean){
     HcalDetId detid = (HcalDetId)aDETID;
-    if (theHcalTopology_->withSpecialRBXHBHE() and detid.subdet() == HcalEndcap){
+    if (theHcalTopology_->getMergePositionFlag() and detid.subdet() == HcalEndcap){
       detid = theHcalTopology_->idFront(detid);
     }
 

@@ -41,6 +41,11 @@ double TauL1TPair::dR() {
   return deltaR(m_regTau->eta(),m_regTau->phi(),eta(),phi());
 }
 
+const std::map<std::string, unsigned int> L1TTauOffline::PlotConfigNames = {
+  {"nVertex", PlotConfig::nVertex},
+  {"ETvsET", PlotConfig::ETvsET},
+  {"PHIvsPHI", PlotConfig::PHIvsPHI}
+};
 
 //
 // -------------------------------------- Constructor --------------------------------------------
@@ -63,7 +68,8 @@ L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps) :
         efficiencyFolder_(histFolder_ + "/efficiency_raw"),
         stage2CaloLayer2TauToken_(consumes < l1t::TauBxCollection > (ps.getUntrackedParameter < edm::InputTag > ("l1tInputTag"))),
         tauEfficiencyThresholds_(ps.getParameter < std::vector<int> > ("tauEfficiencyThresholds")),
-        tauEfficiencyBins_(ps.getParameter < std::vector<double> > ("tauEfficiencyBins"))
+        tauEfficiencyBins_(ps.getParameter < std::vector<double> > ("tauEfficiencyBins")),
+  histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames))
 {
   edm::LogInfo("L1TTauOffline") << "Constructor " << "L1TTauOffline::L1TTauOffline " << std::endl;
 }
@@ -315,28 +321,36 @@ void L1TTauOffline::bookTauHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
-  h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
+  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
+  h_nVertex_ = ibooker.book1D(
+    nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
+  );
   h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
 
+  dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
   h_L1TauETvsTauET_EB_ = ibooker.book2D("L1TauETvsTauET_EB",
-      "L1 Tau E_{T} vs PFTau E_{T} (EB); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 300, 0, 300, 300,
-      0, 300);
+      "L1 Tau E_{T} vs PFTau E_{T} (EB); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1TauETvsTauET_EE_ = ibooker.book2D("L1TauETvsTauET_EE",
-      "L1 Tau E_{T} vs PFTau E_{T} (EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 300, 0, 300, 300,
-      0, 300);
+      "L1 Tau E_{T} vs PFTau E_{T} (EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1TauETvsTauET_EB_EE_ = ibooker.book2D("L1TauETvsTauET_EB_EE",
-      "L1 Tau E_{T} vs PFTau E_{T} (EB+EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 300, 0, 300,
-      300, 0, 300);
+      "L1 Tau E_{T} vs PFTau E_{T} (EB+EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
 
+  dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
   h_L1TauPhivsTauPhi_EB_ = ibooker.book2D("L1TauPhivsTauPhi_EB",
-      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB); #phi_{tau}^{offline}; #phi_{tau}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1TauPhivsTauPhi_EE_ = ibooker.book2D("L1TauPhivsTauPhi_EE",
-      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1TauPhivsTauPhi_EB_EE_ = ibooker.book2D("L1TauPhivsTauPhi_EB_EE",
-      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB+EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB+EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
   h_L1TauEtavsTauEta_ = ibooker.book2D("L1TauEtavsTauEta",
       "L1 Tau #eta vs PFTau #eta; PFTau #eta; L1 Tau #eta", 100, -3, 3, 100, -3, 3);

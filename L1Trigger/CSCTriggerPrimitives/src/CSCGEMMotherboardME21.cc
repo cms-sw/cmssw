@@ -269,7 +269,7 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
 	     ++nSuccessFulMatches;
 
 	     int mbx = std::abs(clct->bestCLCT[bx_clct].getBX()-bx_alct);
-	     int bx_gem = (coPads[0].second).bx(1)+lct_central_bx;
+	     int bx_gem = (coPads[0].second).bx(1)+CSCConstants::LCT_CENTRAL_BX;
 	     CSCGEMMotherboard::correlateLCTsGEM(clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct], coPads,
 						 allLCTs(bx_gem,mbx,0), allLCTs(bx_gem,mbx,1), CSCPart::ME21);
 	     if (debug_matching) {
@@ -424,10 +424,7 @@ void CSCGEMMotherboardME21::correlateLCTsGEM(CSCALCTDigi& bestALCT, CSCALCTDigi&
     }
   } else {
     // run without gems - happens in less than 0.04% of the time
-    lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
-    lct1.setTrknmb(1);
-
-    lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
-    lct2.setTrknmb(2);
+    lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
+    lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
   }
 }

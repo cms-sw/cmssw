@@ -156,8 +156,7 @@ namespace cscdqm {
       const XMLCh *content = element->getTextContent();
       XERCES_CPP_NAMESPACE_QUALIFIER TranscodeToStr tc(content, "UTF-8");
       std::istringstream buffer((const char*)tc.str());
-      std::string value;
-      buffer >> value;
+      std::string value = buffer.str();
       
       DOMNamedNodeMap* attributes = node->getAttributes();
       if (attributes) {

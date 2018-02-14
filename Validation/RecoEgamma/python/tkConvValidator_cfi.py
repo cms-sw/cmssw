@@ -35,7 +35,8 @@ tpSelecForFakeRate.minHit = 0
 
 
 
-tkConversionValidation = cms.EDAnalyzer("TkConvValidator",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+tkConversionValidation = DQMEDAnalyzer('TkConvValidator',
     Name = cms.untracked.string('tkConversionValidation'),
     isRunCentrally = cms.bool(False),
     OutputFileName = cms.string('ValidationHistos.root'),
@@ -138,4 +139,4 @@ tkConversionValidation = cms.EDAnalyzer("TkConvValidator",
 
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(tkConversionValidation, simTracks = "famosSimHits")
+fastSim.toModify(tkConversionValidation, simTracks = "fastSimProducer")

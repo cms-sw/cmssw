@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/print_eventsetup_record_dependencies.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 #include <cstring>
@@ -76,6 +77,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testdependentrecord);
  */
 
 namespace {
+
+edm::ActivityRegistry activityRegistry;
+
 class DummyProxyProvider : public edm::eventsetup::DataProxyProvider {
 public:
    DummyProxyProvider() {
@@ -508,7 +512,7 @@ void testdependentrecord::timeAndRunTest()
 
    {
      //check that going all the way through EventSetup works properly
-     edm::eventsetup::EventSetupProvider provider;
+     edm::eventsetup::EventSetupProvider provider(&activityRegistry);
      std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
      provider.add(dummyProv);
      
@@ -556,7 +560,7 @@ void testdependentrecord::timeAndRunTest()
    {
       //check that going all the way through EventSetup works properly
       // using two records with open ended IOVs
-      edm::eventsetup::EventSetupProvider provider;
+      edm::eventsetup::EventSetupProvider provider(&activityRegistry);
       std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
       provider.add(dummyProv);
       
@@ -626,7 +630,7 @@ void testdependentrecord::dependentSetproviderTest()
 
 void testdependentrecord::getTest()
 {
-   edm::eventsetup::EventSetupProvider provider;
+   edm::eventsetup::EventSetupProvider provider(&activityRegistry);
    std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
    provider.add(dummyProv);
 
@@ -652,7 +656,7 @@ void testdependentrecord::getTest()
 
 void testdependentrecord::oneOfTwoRecordTest()
 {
-  edm::eventsetup::EventSetupProvider provider;
+  edm::eventsetup::EventSetupProvider provider(&activityRegistry);
   std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
   provider.add(dummyProv);
   
@@ -682,7 +686,7 @@ void testdependentrecord::oneOfTwoRecordTest()
 }
 void testdependentrecord::resetTest()
 {
-  edm::eventsetup::EventSetupProvider provider;
+  edm::eventsetup::EventSetupProvider provider(&activityRegistry);
   std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
   provider.add(dummyProv);
   
@@ -830,7 +834,7 @@ void testdependentrecord::invalidRecordTest()
 
 void testdependentrecord::extendIOVTest()
 {
-   edm::eventsetup::EventSetupProvider provider;
+   edm::eventsetup::EventSetupProvider provider(&activityRegistry);
    std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
    provider.add(dummyProv);
    

@@ -1,88 +1,101 @@
 import FWCore.ParameterSet.Config as cms
 
+from Validation.RecoHI.track_selectors_cff import *
 from Validation.RecoMuon.muonValidation_cff import *
 
-# pt-selection of reco tracks
-import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
-cutsRecoTrkMuons = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-cutsRecoTrkMuons.src = "hiGeneralTracks"
-cutsRecoTrkMuons.quality = []
-cutsRecoTrkMuons.ptMin = 0.0
-
-# pt-selection of tracking particles
-import PhysicsTools.RecoAlgos.trackingParticleSelector_cfi
-cutsTpMuons = PhysicsTools.RecoAlgos.trackingParticleSelector_cfi.trackingParticleSelector.clone()
-cutsTpMuons.ptMin = 0.0
-
-#----------------------------------------
-
 # MuonAssociation labels; hit-by-hit matching only,MuonAssociator
+#
+import SimMuon.MCTruth.MuonAssociatorByHits_cfi
+hiMABH = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+# DEFAULTS ###################################
+#    EfficiencyCut_track = cms.double(0.),
+#    PurityCut_track = cms.double(0.),
+#    EfficiencyCut_muon = cms.double(0.),
+#    PurityCut_muon = cms.double(0.),
+#    includeZeroHitMuons = cms.bool(True),
+#    acceptOneStubMatchings = cms.bool(False),
+##############################################
+hiMABH.tpTag = 'cutsTpMuons'
+#hiMABH.acceptOneStubMatchings = cms.bool(True) # this was the OLD setting
+hiMABH.PurityCut_track = 0.75
+hiMABH.PurityCut_muon = 0.75
+#hiMABH.EfficiencyCut_track = 0.5 # maybe this could be added
+#hiMABH.EfficiencyCut_muon = 0.5 # maybe this could be added
+#hiMABH.includeZeroHitMuons = False # maybe this could be added
+################################################
 
 # sim to tracker tracks, 
-tpToTkMuonAssociation.tracksTag = 'cutsRecoTrkMuons'
-tpToTkMuonAssociation.tpTag     = 'cutsTpMuons'
+tpToTkMuonAssociationHI = hiMABH.clone()
+tpToTkMuonAssociationHI.tracksTag = 'cutsRecoTrkMuons'
+tpToTkMuonAssociationHI.UseTracker = True
+tpToTkMuonAssociationHI.UseMuon = False
 
 # sim to sta, and sta:updatedAtVtx
-tpToStaMuonAssociation.tpTag    = 'cutsTpMuons'
-tpToStaUpdMuonAssociation.tpTag = 'cutsTpMuons'
+tpToStaMuonAssociationHI = hiMABH.clone()
+tpToStaMuonAssociationHI.tracksTag = 'standAloneMuons'
+tpToStaMuonAssociationHI.UseTracker = False
+tpToStaMuonAssociationHI.UseMuon = True
+
+tpToStaUpdMuonAssociationHI = hiMABH.clone()
+tpToStaUpdMuonAssociationHI.tracksTag = 'standAloneMuons:UpdatedAtVtx'
+tpToStaUpdMuonAssociationHI.UseTracker = False
+tpToStaUpdMuonAssociationHI.UseMuon = True
 
 # sim to glb track 
-tpToGlbMuonAssociation.tpTag    = 'cutsTpMuons'
-tpToGlbMuonAssociation.tracksTag = 'globalMuons'
+tpToGlbMuonAssociationHI = hiMABH.clone()
+tpToGlbMuonAssociationHI.tracksTag = 'globalMuons'
+tpToGlbMuonAssociationHI.UseTracker = True
+tpToGlbMuonAssociationHI.UseMuon = True
 
-# MuonAssociation cuts for heavy ion events
-tpToTkMuonAssociation.PurityCut_track = 0.75
-tpToStaMuonAssociation.UseMuon = True
-tpToStaMuonAssociation.PurityCut_muon = 0.75
-tpToStaUpdMuonAssociation.UseMuon = True
-tpToStaUpdMuonAssociation.PurityCut_muon = 0.75
-tpToGlbMuonAssociation.UseTracker = True
-tpToGlbMuonAssociation.PurityCut_track = 0.75
-tpToGlbMuonAssociation.UseMuon = True
-tpToGlbMuonAssociation.PurityCut_muon = 0.75
 
 # Muon association sequences
 # (some are commented out until timing is addressed)
 hiMuonAssociation_seq = cms.Sequence(
-    tpToTkMuonAssociation+
-    tpToStaMuonAssociation+
-    tpToStaUpdMuonAssociation+
-    tpToGlbMuonAssociation
+    tpToTkMuonAssociationHI+
+    tpToStaMuonAssociationHI+
+    tpToStaUpdMuonAssociationHI+
+    tpToGlbMuonAssociationHI
     )
 
 #----------------------------------------
 
-# RecoMuonValidators labels
-trkMuonTrackVTrackAssoc.associatormap  = 'tpToTkMuonAssociation'
-trkMuonTrackVTrackAssoc.label          = ['cutsRecoTrkMuons']
-trkMuonTrackVTrackAssoc.label_tp_effic = 'cutsTpMuons'
-trkMuonTrackVTrackAssoc.label_tp_fake  = 'cutsTpMuons'
+from Validation.RecoMuon.histoParameters_cff import *
 
-glbMuonTrackVMuonAssoc.label           = ['globalMuons']
-glbMuonTrackVMuonAssoc.label_tp_effic  = 'cutsTpMuons'
-glbMuonTrackVMuonAssoc.label_tp_fake   = 'cutsTpMuons'
+import Validation.RecoMuon.MuonTrackValidator_cfi
+MTVhi = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+MTVhi.label_tp_effic = cms.InputTag("cutsTpMuons")
+MTVhi.label_tp_fake = cms.InputTag("cutsTpMuons")
+MTVhi.maxPt = cms.double(100)
 
-staMuonTrackVMuonAssoc.label_tp_effic  = 'cutsTpMuons'
-staMuonTrackVMuonAssoc.label_tp_fake  = 'cutsTpMuons'
+# MuonTrackValidator parameters
+trkMuonTrackVMuonAssocHI = MTVhi.clone()
+trkMuonTrackVMuonAssocHI.associatormap  = 'tpToTkMuonAssociationHI'
+trkMuonTrackVMuonAssocHI.label          = ['cutsRecoTrkMuons']
+trkMuonTrackVMuonAssocHI.muonHistoParameters = trkMuonHistoParameters
 
-staUpdMuonTrackVMuonAssoc.label_tp_effic  = 'cutsTpMuons'
-staUpdMuonTrackVMuonAssoc.label_tp_fake  = 'cutsTpMuons'
+glbMuonTrackVMuonAssocHI = MTVhi.clone()
+glbMuonTrackVMuonAssocHI.associatormap = 'tpToGlbMuonAssociationHI'
+glbMuonTrackVMuonAssocHI.label           = ['globalMuons']
+glbMuonTrackVMuonAssocHI.muonHistoParameters = glbMuonHistoParameters
 
-#change pt max of track validator
-trkMuonTrackVTrackAssoc.maxpT = cms.double(100)
-glbMuonTrackVMuonAssoc.maxpT = cms.double(100)
-staMuonTrackVMuonAssoc.maxpT = cms.double(100)
-staUpdMuonTrackVMuonAssoc.maxpT = cms.double(100)
+staMuonTrackVMuonAssocHI = MTVhi.clone()
+staMuonTrackVMuonAssocHI.associatormap = 'tpToStaMuonAssociationHI'
+staMuonTrackVMuonAssocHI.label = ('standAloneMuons',)
+staMuonTrackVMuonAssocHI.muonHistoParameters = staMuonHistoParameters
+
+staUpdMuonTrackVMuonAssocHI = MTVhi.clone()
+staUpdMuonTrackVMuonAssocHI.associatormap = 'tpToStaUpdMuonAssociationHI'
+staUpdMuonTrackVMuonAssocHI.label = ('standAloneMuons:UpdatedAtVtx',)
+staUpdMuonTrackVMuonAssocHI.muonHistoParameters = staUpdMuonHistoParameters
+
 
 # Muon validation sequences
 hiMuonValidation_seq = cms.Sequence(
-    trkMuonTrackVTrackAssoc+
-    staMuonTrackVMuonAssoc+
-    staUpdMuonTrackVMuonAssoc+
-    glbMuonTrackVMuonAssoc
+    trkMuonTrackVMuonAssocHI+
+    staMuonTrackVMuonAssocHI+
+    staUpdMuonTrackVMuonAssocHI+
+    glbMuonTrackVMuonAssocHI
     )
-
-#----------------------------------------
 
 # HI muon prevalidation
 hiRecoMuonPrevalidation = cms.Sequence(

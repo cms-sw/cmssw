@@ -24,7 +24,7 @@ class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordInterv
 
       inline static CSCDBGains* prefillDBGains(); 
 
-      typedef std::shared_ptr<CSCDBGains> Pointer;
+      typedef std::unique_ptr<CSCDBGains> Pointer;
       Pointer produceDBGains(const CSCDBGainsRcd&);
 
    private:

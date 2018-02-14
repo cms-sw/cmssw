@@ -11,7 +11,7 @@
 class CSCChannelMapperESProducer : public edm::ESProducer {
 
  public:
-  typedef std::shared_ptr<CSCChannelMapperBase> BSP_TYPE;
+  typedef std::unique_ptr<CSCChannelMapperBase> BSP_TYPE;
 
   CSCChannelMapperESProducer(const edm::ParameterSet&);
   ~CSCChannelMapperESProducer() override;

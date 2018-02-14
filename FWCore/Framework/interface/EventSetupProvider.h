@@ -33,6 +33,7 @@
 
 // forward declarations
 namespace edm {
+   class ActivityRegistry;
    class EventSetupRecordIntervalFinder;
    class IOVSyncValue;
    class ParameterSet;
@@ -57,12 +58,13 @@ class EventSetupProvider {
       typedef std::multimap<RecordName, DataKeyInfo> RecordToDataMap;
       typedef std::map<ComponentDescription, RecordToDataMap> PreferredProviderInfo;
 
-      EventSetupProvider(unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = nullptr);
+      EventSetupProvider(ActivityRegistry*, unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = nullptr);
       virtual ~EventSetupProvider();
 
       // ---------- const member functions ---------------------
       std::set<ComponentDescription> proxyProviderDescriptions() const;
-
+      bool isWithinValidityInterval(IOVSyncValue const& ) const;
+  
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

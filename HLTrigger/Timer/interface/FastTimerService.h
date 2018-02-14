@@ -127,11 +127,11 @@ private:
   void preSourceConstruction(edm::ModuleDescription const&);
   //void postSourceConstruction(edm::ModuleDescription const&);
 
-  void preSourceRun();
-  void postSourceRun();
+  void preSourceRun(edm::RunIndex);
+  void postSourceRun(edm::RunIndex);
 
-  void preSourceLumi();
-  void postSourceLumi();
+  void preSourceLumi(edm::LuminosityBlockIndex);
+  void postSourceLumi(edm::LuminosityBlockIndex);
 
   void preSourceEvent(edm::StreamID);
   void postSourceEvent(edm::StreamID);

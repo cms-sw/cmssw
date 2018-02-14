@@ -94,6 +94,31 @@ upgradeSteps['trackingOnly'] = {
     'suffix' : '_trackingOnly',
     'offset' : 0.1,
 }
+upgradeSteps['trackingRun2'] = {
+    'steps' : [
+        'RecoFull',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingRun2',
+    'offset' : 0.2,
+}
+upgradeSteps['trackingOnlyRun2'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingOnlyRun2',
+    'offset' : 0.3,
+}
+upgradeSteps['trackingLowPU'] = {
+    'steps' : [
+        'RecoFull',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingLowPU',
+    'offset' : 0.4,
+}
 upgradeSteps['pixelTrackingOnly'] = {
     'steps' : [
         'RecoFull',
@@ -103,13 +128,13 @@ upgradeSteps['pixelTrackingOnly'] = {
     ],
     'PU' : [],
     'suffix' : '_pixelTrackingOnly',
-    'offset' : 0.4,
+    'offset' : 0.5,
 }
 upgradeSteps['Timing'] = {
     'steps' : upgradeSteps['baseline']['steps'],
     'PU' : upgradeSteps['baseline']['PU'],
     'suffix' : '_Timing',
-    'offset' : 0.2,
+    'offset' : 0.11,
 }
 upgradeSteps['Neutron'] = {
     'steps' : [
@@ -124,16 +149,20 @@ upgradeSteps['Neutron'] = {
         'DigiFullTrigger',
     ],
     'suffix' : '_Neutron',
-    'offset' : 0.3,
+    'offset' : 0.12,
 }
 upgradeSteps['heCollapse'] = {
     'steps' : [
+        'GenSimFull',
+        'DigiFull',
         'RecoFull',
-        'RecoFullGlobal',
+        'HARVESTFull',
+        'ALCAFull',
     ],
     'PU' : [
+        'DigiFull',
         'RecoFull',
-        'RecoFullGlobal',
+        'HARVESTFull',
     ],
     'suffix' : '_heCollapse',
     'offset' : 0.6,

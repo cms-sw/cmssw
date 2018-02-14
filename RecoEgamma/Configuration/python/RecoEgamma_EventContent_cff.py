@@ -15,12 +15,6 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_egmGedGsfElectronPF*Isolation_*_*',
         'keep *_egmGsfElectronIDs_*_*', 
         'keep *_egmPhotonIDs_*_*',
-        'keep *_photonEcalPFClusterIsolationProducer_*_*',
-        'keep *_ootPhotonEcalPFClusterIsolationProducer_*_*',
-        'keep *_electronEcalPFClusterIsolationProducer_*_*',
-        'keep *_photonHcalPFClusterIsolationProducer_*_*',
-        'keep *_ootPhotonHcalPFClusterIsolationProducer_*_*',
-        'keep *_electronHcalPFClusterIsolationProducer_*_*',
         'keep *_conversions_*_*',
         'keep *_mustacheConversions_*_*',
         'drop *_conversions_uncleanedConversions_*',
@@ -65,12 +59,6 @@ RecoEgammaRECO = cms.PSet(
         'keep floatedmValueMap_eidLoose_*_*',
         'keep floatedmValueMap_eidTight_*_*',
         'keep *_egmGedGsfElectronPFIsolation_*_*',
-        'keep *_photonEcalPFClusterIsolationProducer_*_*',
-        'keep *_ootPhotonEcalPFClusterIsolationProducer_*_*',
-        'keep *_electronEcalPFClusterIsolationProducer_*_*',
-        'keep *_photonHcalPFClusterIsolationProducer_*_*',
-        'keep *_ootPhotonHcalPFClusterIsolationProducer_*_*',
-        'keep *_electronHcalPFClusterIsolationProducer_*_*',
         'drop *_egmGsfElectronIDs_*_*',
         'drop *_egmPhotonIDs_*_*',
         'keep *_gedPhotonCore_*_*',
@@ -127,12 +115,6 @@ RecoEgammaAOD = cms.PSet(
         'keep floatedmValueMap_eidLoose_*_*',
         'keep floatedmValueMap_eidTight_*_*',
         'keep *_egmGedGsfElectronPFIsolation_*_*',
-        'keep *_photonEcalPFClusterIsolationProducer_*_*',
-        'keep *_ootPhotonEcalPFClusterIsolationProducer_*_*',
-        'keep *_electronEcalPFClusterIsolationProducer_*_*',
-        'keep *_photonHcalPFClusterIsolationProducer_*_*',
-        'keep *_ootPhotonHcalPFClusterIsolationProducer_*_*',
-        'keep *_electronHcalPFClusterIsolationProducer_*_*',
         'drop *_egmGsfElectronIDs_*_*',
         'drop *_egmPhotonIDs_*_*',
         'keep recoPhotonCores_gedPhotonCore_*_*',
@@ -178,10 +160,11 @@ phase2_hgcal.toModify( RecoEgammaAOD,  outputCommands = RecoEgammaAOD.outputComm
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 #HI-specific products needed in pp scenario special configurations
-for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017, ppRef_2017]:
+for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017]:
     for ec in [RecoEgammaAOD.outputCommands, RecoEgammaRECO.outputCommands, RecoEgammaFEVT.outputCommands]:
         e.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppGED_*_*',
                                                                            'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerpp_*_*',

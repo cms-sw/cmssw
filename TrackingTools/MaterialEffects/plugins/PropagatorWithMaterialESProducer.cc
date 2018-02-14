@@ -23,7 +23,7 @@ PropagatorWithMaterialESProducer::PropagatorWithMaterialESProducer(const edm::Pa
 
 PropagatorWithMaterialESProducer::~PropagatorWithMaterialESProducer() {}
 
-std::shared_ptr<Propagator> 
+std::unique_ptr<Propagator> 
 PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
@@ -53,10 +53,9 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
   if (pdir == "alongMomentum") dir = alongMomentum;
   if (pdir == "anyDirection") dir = anyDirection;
   
-  _propagator = std::make_shared<PropagatorWithMaterial>(dir, mass, &(*magfield),
-									maxDPhi,useRK,ptMin,
-									useOldAnalPropLogic);
-  return _propagator;
+  return std::make_unique<PropagatorWithMaterial>(dir, mass, &(*magfield),
+						maxDPhi,useRK,ptMin,
+						useOldAnalPropLogic);
 }
 
 

@@ -38,7 +38,7 @@ namespace edm {
   class RunForOutput : public OccurrenceForOutput {
   public:
     RunForOutput(RunPrincipal const& rp, ModuleDescription const& md,
-        ModuleCallingContext const*);
+        ModuleCallingContext const*, bool isAtEnd);
     ~RunForOutput() override;
 
     RunAuxiliary const& runAuxiliary() const {return aux_;}

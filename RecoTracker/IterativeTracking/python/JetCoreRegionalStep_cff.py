@@ -66,7 +66,6 @@ jetCoreRegionalStepTrackingRegions = _tauRegionalPixelSeedTrackingRegions.clone(
     deltaPhiRegion = 0.20,
     deltaEtaRegion = 0.20,
     JetSrc = "jetsForCoreTracking",
-#    JetSrc = "ak5CaloJets",
     vertexSrc = "firstStepGoodPrimaryVertices",
     howToUseMeasurementTracker = "Never"
 ))
@@ -93,7 +92,9 @@ jetCoreRegionalStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajecto
 )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-pp_on_XeXe_2017.toModify(jetCoreRegionalStepTrajectoryFilter, minPt=5.0)
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(jetCoreRegionalStepTrajectoryFilter, minPt=5.0)
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 jetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
@@ -192,7 +193,7 @@ trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone
 fastSim.toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
-JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,
+JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,                 
                                    firstStepGoodPrimaryVertices,
                                    #jetCoreRegionalStepClusters,
                                    jetCoreRegionalStepSeedLayers,

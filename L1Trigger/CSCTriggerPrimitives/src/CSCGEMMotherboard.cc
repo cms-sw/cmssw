@@ -61,7 +61,7 @@ void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, uns
       GEMDetId roll_id(roll->id());
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
-        const int bx_shifted(lct_central_bx + pad->bx());
+        const int bx_shifted(CSCConstants::LCT_CENTRAL_BX + pad->bx());
         // consider matches with BX difference +1/0/-1
         for (int bx = bx_shifted - maxDeltaBXPad_;bx <= bx_shifted + maxDeltaBXPad_; ++bx) {
           pads_[bx].emplace_back(roll_id.rawId(), *pad);
@@ -77,7 +77,7 @@ void CSCGEMMotherboard::retrieveGEMCoPads()
   for (const auto& copad: gemCoPadV){
     GEMDetId detId(theRegion, 1, theStation, 0, theChamber, 0);
     // only consider matches with same BX
-    coPads_[lct_central_bx + copad.bx(1)].emplace_back(detId.rawId(), copad);
+    coPads_[CSCConstants::LCT_CENTRAL_BX + copad.bx(1)].emplace_back(detId.rawId(), copad);
   }
 }
 
@@ -170,7 +170,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(par, p);
     pattern = encodePattern(clct.getPattern(), clct.getStripType());
     quality = promoteCLCTGEMquality_ ? 15 : 11;
-    bx = gem2.bx(1) + lct_central_bx;
+    bx = gem2.bx(1) + CSCConstants::LCT_CENTRAL_BX;
     keyStrip = clct.getKeyStrip();
     // choose the corresponding wire-group in the middle of the partition
     keyWG = mymap2[gem2.roll()];

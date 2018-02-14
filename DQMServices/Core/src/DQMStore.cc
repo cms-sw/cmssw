@@ -536,11 +536,11 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
       }
     });
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
-    ar.watchPostSourceRun(this,&DQMStore::forceReset);
+    ar.watchPostSourceRun([this](edm::RunIndex){ forceReset(); });
   }
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginLumi",false) && enableMultiThread_ == false) {
     forceResetOnBeginLumi_ = true;
-    ar.watchPostSourceLumi(this,&DQMStore::forceReset);
+    ar.watchPostSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
   }
   ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
 }
@@ -622,6 +622,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   initQCriterion<Comp2RefEqualH>(qalgos_);
   initQCriterion<DeadChannel>(qalgos_);
   initQCriterion<NoisyChannel>(qalgos_);
+  initQCriterion<ContentSigma>(qalgos_);
   initQCriterion<ContentsWithinExpected>(qalgos_);
   initQCriterion<CompareToMedian>(qalgos_);
   initQCriterion<CompareLastFilledBin>(qalgos_);

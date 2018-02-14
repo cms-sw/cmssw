@@ -8,7 +8,7 @@
 // .L CalibSort.C+g (for the tree "EventInfo")
 //  CalibSortEvent c2(fname, dirname, prefix, append);
 //  c2.Loop();
-//  findDuplicatEvent(infile, outfile, debug)
+//  findDuplicateEvent(infile, outfile, debug)
 //
 //  This will prepare a list of dupliate entries from combined data sets
 //
@@ -347,13 +347,13 @@ void CalibSort::Loop() {
   std::ofstream fileout;
   if ((flag_%10)==1) {
     fileout.open("events.txt", std::ofstream::out);
-    std::cout << "Opens events.txt in output mode\n";
+    std::cout << "Opens events.txt in output mode" << std::endl;
   } else {
     fileout.open("events.txt", std::ofstream::app);
-    std::cout << "Opens events.txt in append mode\n";
+    std::cout << "Opens events.txt in append mode" << std::endl;
   }
   fileout << "Input file: " << fname_ << " Directory: " << dirnm_ 
-	  << " Prefix: " << prefix_ << "\n";
+	  << " Prefix: " << prefix_ << std::endl;
   Int_t runLow(99999999), runHigh(0);
   Long64_t nbytes(0), nb(0), good(0);
   Long64_t nentries = fChain->GetEntriesFast();
@@ -443,7 +443,8 @@ CalibSortEvent::CalibSortEvent(std::string fname, std::string dirnm,
 
   TFile      *file = new TFile(fname.c_str());
   TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
-  std::cout << fname << " file " << file << " " << dirnm << " " << dir << "\n";
+  std::cout << fname << " file " << file << " " << dirnm << " " << dir 
+	    << std::endl;
   TTree      *tree = (TTree*)dir->Get("EventInfo");
   std::cout << "CalibSortEvent " << tree << std::endl;
   Init(tree);
@@ -565,13 +566,13 @@ void CalibSortEvent::Loop() {
   std::ofstream fileout;
   if (!append_) {
     fileout.open("runevents.txt", std::ofstream::out);
-    std::cout << "Opens runevents.txt in output mode\n";
+    std::cout << "Opens runevents.txt in output mode" << std::endl;
   } else {
     fileout.open("runevents.txt", std::ofstream::app);
-    std::cout << "Opens runevents.txt in append mode\n";
+    std::cout << "Opens runevents.txt in append mode" << std::endl;
   }
   fileout << "Input file: " << fname_ << " Directory: " << dirnm_ 
-	  << " Prefix: " << prefix_ << "\n";
+	  << " Prefix: " << prefix_ << std::endl;
   UInt_t   runLow(99999999), runHigh(0);
   Long64_t nbytes(0), nb(0), good(0);
   Long64_t nentries = fChain->GetEntriesFast();
@@ -609,7 +610,8 @@ void readRecords(std::string fname, std::vector<record>& records, bool debug) {
     }
     infile.close();
   }
-  std::cout << "Reads " << records.size() << " records from " << fname << "\n";
+  std::cout << "Reads " << records.size() << " records from " << fname 
+	    << std::endl;
   if (debug) {
     for (unsigned int k=0; k<records.size(); ++k) {
       if (k%100 == 0) 
@@ -650,7 +652,7 @@ void duplicate (std::string fname, std::vector<record>& records, bool debug) {
 	records[k-1]= records[k];
 	records[k]  = swap;
       }
-      if (debug)
+      if (debug) {
 	std::cout << "Serial " << records[k-1].serial_ << ":"  
 		  << records[k].serial_ << " Entry "  
 		  << records[k-1].entry_ << ":" << records[k].entry_ << " Run "
@@ -658,6 +660,7 @@ void duplicate (std::string fname, std::vector<record>& records, bool debug) {
 		  << records[k-1].event_ << " " << records[k].event_ << " Eta "
 		  << records[k-1].ieta_ << " " << records[k].ieta_ << " p "
 		  << records[k-1].p_ << ":" << records[k].p_ << std::endl;
+      }
       file << records[k].entry_ << std::endl;
       duplicate++;
       if (records[k].p_ >= 40.0 && records[k].p_ <= 60.0) dupl40++;
@@ -692,7 +695,8 @@ void readRecordEvents(std::string fname, std::vector<recordEvent>& records,
     }
     infile.close();
   }
-  std::cout << "Reads " << records.size() << " records from " << fname << "\n";
+  std::cout << "Reads " << records.size() << " records from " << fname
+	    << std::endl;
   if (debug) {
     for (unsigned int k=0; k<records.size(); ++k) {
       if (k%100 == 0) 
@@ -731,13 +735,14 @@ void duplicateEvent(std::string fname, std::vector<recordEvent>& records,
 	records[k-1]= records[k];
 	records[k]  = swap;
       }
-      if (debug)
+      if (debug) {
 	std::cout << "Serial " << records[k-1].serial_ << ":"  
 		  << records[k].serial_ << " Entry "  
 		  << records[k-1].entry_ << ":" << records[k].entry_ << " Run "
 		  << records[k-1].run_ << ":"  << records[k].run_ << " Event "
 		  << records[k-1].event_ << " " << records[k].event_
 		  << std::endl;
+      }
       file << records[k].entry_ << std::endl;
       duplicate++;
     }
