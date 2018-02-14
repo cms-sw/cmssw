@@ -106,29 +106,35 @@ int APVGain::subdetectorPlane(const std::string& tag) {
 /** Brief Fetch the Monitor Element corresponding to a DetId.
  *  */
 std::vector<MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain::APVmon> histos, uint32_t det_id, 
-                                                                                        const TrackerTopology* topo) {
-    std::vector<MonitorElement*> found = std::vector<MonitorElement*>();
-    int sId    = APVGain::subdetectorId((uint32_t)det_id);
-    int sPlane = APVGain::subdetectorPlane((uint32_t)det_id, topo);
-    int sSide  = APVGain::subdetectorSide((uint32_t)det_id, topo);
-    std::vector<APVGain::APVmon>::iterator it= histos.begin();
+						   const TrackerTopology* topo) {
+
+  std::vector<MonitorElement*> found = std::vector<MonitorElement*>();
+  int sId    = APVGain::subdetectorId((uint32_t)det_id);
+  int sPlane = APVGain::subdetectorPlane((uint32_t)det_id, topo);
+  int sSide  = APVGain::subdetectorSide((uint32_t)det_id, topo);
+  std::vector<APVGain::APVmon>::iterator it= histos.begin();
     
-    while (it!=histos.end()) {
-        //std::string tag = (*it)->getName();
-        int subdetectorId    = (*it).subdetectorId;
-        int subdetectorSide  = (*it).subdetectorSide;
-        int subdetectorPlane = (*it).subdetectorPlane;
+  //std::cout<<"sId: "<<sId<<" sPlane: "<<sPlane<<" sSide: "<<sSide<<std::endl;
 
-        bool match = (subdetectorId==0    || subdetectorId==sId) &&
-                     (subdetectorPlane==0 || subdetectorPlane==sPlane) &&
-                     (subdetectorSide==0  || subdetectorSide==sSide);
+  while (it!=histos.end()) {
+    std::string tag = (*it).getTheMon()->getName();
+    int subdetectorId    = (*it).getSubdetectorId();
+    int subdetectorSide  = (*it).getSubdetectorSide();
+    int subdetectorPlane = (*it).getSubdetectorPlane();
+    
+    //(*it).printAll();
 
-        if (match) {
-            found.push_back((*it).monitor);
-        }
-        it++;
+    bool match = (subdetectorId==0 || subdetectorId==sId) && (subdetectorPlane==0 || subdetectorPlane==sPlane) && (subdetectorSide==0  || subdetectorSide==sSide);
+
+    //bool match = (subdetectorId==sId) && (subdetectorPlane==sPlane) && (subdetectorSide==sSide);
+
+    if (match) {
+      found.push_back((*it).getTheMon());
+      //std::cout<<det_id<<" found: "<< tag << std::endl;
     }
-    return found;
+    it++;
+  }
+  return found;
 }
 
 
@@ -136,59 +142,58 @@ std::vector<MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain::APVmon> 
 std::vector<std::pair<std::string,std::string>> 
 APVGain::monHnames(std::vector<std::string> VH, bool allPlanes, const char* tag) {
 
-    std::vector<std::pair<std::string,std::string>> out;
-    int re = (allPlanes)? 34 + VH.size() : VH.size();
-    out.reserve( re );
+  std::vector<std::pair<std::string,std::string>> out;
+  int re = (allPlanes)? 34 + VH.size() : VH.size();
+  out.reserve( re );
 
+  std::string Tag = tag;
+  if (Tag.length())  Tag = "__" + Tag;
 
-    std::string Tag = tag;
-    if (Tag.length())  Tag = "__" + Tag;
+  std::string h_tag = "";
+  std::string h_tit = "";
 
-    std::string h_tag = "";
-    std::string h_tit = "";
-
-    if (allPlanes) {
-        // Names of monitoring histogram for TIB layers
-        int TIBlayers = 4;  //number of TIB layers.
-        for(int i=1; i<=TIBlayers; i++) {
-            h_tag = "TIB_layer_" + std::to_string(i) + Tag;
-            h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
-            out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
-        }
-        // Names of monitoring histogram for TOB layers
-        int TOBlayers = 6;  //number of TOB layers
-        for(int i=1; i<=TOBlayers; i++) {
-            h_tag = "TOB_layer_" + std::to_string(i) + Tag;
-            h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
-            out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
-        }
-        // Names of monitoring histogram for TID wheels
-        int TIDwheels = 3;  //number of TID wheels
-        for(int i=-TIDwheels; i<=TIDwheels; i++) {
-            if (i==0) continue;
-            if (i<0)  h_tag = "TIDminus_wheel_" + std::to_string(i) + Tag;
-            else      h_tag = "TIDplus_wheel_" + std::to_string(i) + Tag;
-            h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
-            out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
-        }
-        // Names of monitoring histogram for TEC wheels
-        int TECwheels = 9;  //number of TEC wheels
-        for(int i=-TECwheels; i<=TECwheels; i++) {
-            if (i==0) continue;
-            if (i<0) h_tag = "TECminus_wheel_" + std::to_string(i) + Tag;
-            else     h_tag = "TECplus_wheel_" + std::to_string(i) + Tag;
-            h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
-            out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
-        }
+  if (allPlanes) {
+    // Names of monitoring histogram for TIB layers
+    int TIBlayers = 4;  //number of TIB layers.
+    for(int i=1; i<=TIBlayers; i++) {
+      h_tag = "TIB_layer_" + std::to_string(i) + Tag;
+      h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
+      out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
     }
-
-    for(unsigned int i=0; i<VH.size();i++) {
-        h_tag = VH[i] + Tag;
-        h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
-        out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
+    // Names of monitoring histogram for TOB layers
+    int TOBlayers = 6;  //number of TOB layers
+    for(int i=1; i<=TOBlayers; i++) {
+      h_tag = "TOB_layer_" + std::to_string(i) + Tag;
+      h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
+      out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
     }
-
-    return out;
+    // Names of monitoring histogram for TID wheels
+    int TIDwheels = 3;  //number of TID wheels
+    for(int i=-TIDwheels; i<=TIDwheels; i++) {
+      if (i==0) continue;
+      if (i<0)  h_tag = "TIDminus_wheel_" + std::to_string(i) + Tag;
+      else      h_tag = "TIDplus_wheel_" + std::to_string(i) + Tag;
+      h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
+      out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
+    }
+    // Names of monitoring histogram for TEC wheels
+    int TECwheels = 9;  //number of TEC wheels
+    for(int i=-TECwheels; i<=TECwheels; i++) {
+      if (i==0) continue;
+      if (i<0) h_tag = "TECminus_wheel_" + std::to_string(i) + Tag;
+      else     h_tag = "TECplus_wheel_" + std::to_string(i) + Tag;
+      h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
+      out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
+    }
+  }
+  
+  for(unsigned int i=0; i<VH.size();i++) {
+    h_tag = VH[i] + Tag;
+    h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
+    out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
+  }
+  
+  return out;
 }
 
 
