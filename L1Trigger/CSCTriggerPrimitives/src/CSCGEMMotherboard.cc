@@ -136,7 +136,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
     bend = clct.getBend();
-    thisLCT.setALCT(alct);
+    thisLCT.setALCT(getBXShiftedALCT(alct));
     thisLCT.setCLCT(clct);
     thisLCT.setGEM1(gem1);
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCTGEM);
@@ -148,7 +148,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
     bend = clct.getBend();
-    thisLCT.setALCT(alct);
+    thisLCT.setALCT(getBXShiftedALCT(alct));
     thisLCT.setCLCT(clct);
     thisLCT.setGEM1(gem2.first());
     thisLCT.setGEM2(gem2.second());
@@ -161,7 +161,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     bx = alct.getBX();
     keyStrip = mymap1[gem2.pad(2)];
     keyWG = alct.getKeyWG();
-    thisLCT.setALCT(alct);
+    thisLCT.setALCT(getBXShiftedALCT(alct));
     thisLCT.setGEM1(gem2.first());
     thisLCT.setGEM2(gem2.second());
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
@@ -440,4 +440,3 @@ int CSCGEMMotherboard::getLctTrigEnable<CSCCLCTDigi>() const
 {
   return clct_trig_enable;
 }
-
